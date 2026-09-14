@@ -4706,6 +4706,10 @@
   // the life of the page. Taking a hold we already hold, or releasing one we do
   // not, is a no-op here.
   var _pdxAlignHeld = false;
+  // See the guard at the top of openModal: "is this the person document, and if
+  // not, go there instead of painting". Declared out here because the guard has
+  // to survive openModal's own re-entrant call into itself.
+  var _pdxOpenModalNavTried = false;
   function _pdxHoldAlign(on) {
     try {
       if (on) { if (_pdxAlignHeld) return; _pdxAlignHeld = true; }
@@ -4715,6 +4719,59 @@
   }
 
   function openModal(id) {
+    // ══════════════════════════════════════════════════════════════════════════
+    // A PERSON FILE IS A DOCUMENT, AND THIS FUNCTION IS NOT THE PLACE TO GET
+    // THERE FROM SOMEWHERE ELSE
+    // ──────────────────────────────────────────────────────────────────────────
+    // openModal is the RENDERER: it paints a person's file into #modal-content.
+    // Every well-behaved caller reaches it through showProfile → PDXPerson.open,
+    // which since the person-file split decides between painting and NAVIGATING — and
+    // on any document that is not person.html, navigating is the only honest
+    // answer. But openModal is also called directly, from a dozen surfaces that
+    // predate the split (`window.openModal(id)` out of a search result, a card,
+    // the Eye, the Word-Record modal, a saved-team row), and every one of those
+    // calls was still painting a person over the homepage: 2.3 MB of front page
+    // loaded underneath, an address bar that said '/' while a senator's record
+    // filled the screen, and a Back button with nothing to go back to.
+    //
+    // THE GUARD IS HERE RATHER THAN AT THE CALL SITES because there is exactly
+    // one renderer and there are a dozen callers, and the last attempt at this —
+    // fixing the callers one at a time — is why they disagreed in the first
+    // place. Anything that asks to paint a person on a document that is not the
+    // person file gets a navigation to that person's document instead.
+    //
+    // WHY IT CANNOT BREAK THE PERSON FILE ITSELF. On person.html
+    // __PDX_PERSON_DOC is true, so PDXPerson.isPersonDoc() is true and this
+    // whole block is skipped: the arrival path, the lazy full-profile refetch
+    // (which re-enters openModal), the hop from one file to another — all render
+    // exactly as before.
+    //
+    // AND WHY IT FALLS THROUGH ON FAILURE. If person-file.js is not on the
+    // document, or the id names nobody we can build an address for, or
+    // location.assign throws, the old behaviour is strictly better than nothing
+    // on screen. A modal over the wrong document is a bad experience; a tap that
+    // does nothing at all is a broken app.
+    // ══════════════════════════════════════════════════════════════════════════
+    //
+    // THE ONE-SHOT LATCH. PDXPerson.open falls back to calling window.openModal
+    // when it could not navigate — which is this function, which would ask
+    // PDXPerson.open again. That is an infinite mutual recursion, not a
+    // fallback. The latch makes the guard ask exactly once per outermost open:
+    // the re-entrant call sees it set, skips straight to the paint, and the
+    // fallback is a fallback.
+    try {
+      var P = window.PDXPerson;
+      if (id && !_pdxOpenModalNavTried && P &&
+          typeof P.isPersonDoc === 'function' && !P.isPersonDoc() &&
+          typeof P.open === 'function') {
+        _pdxOpenModalNavTried = true;
+        try {
+          // P.open resolves the alias, builds /p/<canonical-pid> and assigns it.
+          // It returns true only when the navigation was actually started.
+          if (P.open(id) === true) return;
+        } finally { _pdxOpenModalNavTried = false; }
+      }
+    } catch (e) {}
     _pdxHoldAlign(true);
     // A card, saved My-Team pick or deep link (?p=<id>) may name an id that is
     // not the one the roster record lives under — a browse pid (`ray_ward` →

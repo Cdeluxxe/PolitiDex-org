@@ -57,8 +57,16 @@ const PF = R("person-file.js");
 ok(/function leaveHome\(\)\s*\{[\s\S]{0,200}?location\.assign\('\/'\)/.test(PF),
    "person-file.js no longer has a leaveHome() that calls location.assign('/') — the close is back to moving " +
    "the address without fetching a document, which leaves the closed person shell on screen at '/'");
-ok(/if \(ARRIVAL\)\s*\{[\s\S]{0,400}?leaveHome\(\)/.test(PF),
-   "person-file.js's restore() no longer gates leaving on ARRIVAL — either it stopped leaving, or it now " +
+// THE GATE IS isPersonDoc(), WHICH SUBSUMES ARRIVAL. This read /if \(ARRIVAL\)/
+// until the person document got its own flag: isPersonDoc() is
+// `window.__PDX_PERSON_DOC === true || !!ARRIVAL`, so every address ARRIVAL
+// admitted is still admitted and nothing new is. What it fixes is the OTHER
+// half of the same question — a person.html served without the head block, or
+// assembled by a harness — and what it must still refuse is index.html, where
+// the profile modal genuinely is an overlay over a page and the close is the
+// replaceState further down.
+ok(/if \(isPersonDoc\(\)\)\s*\{[\s\S]{0,600}?leaveHome\(\)/.test(PF),
+   "person-file.js's restore() no longer gates leaving on the person document — either it stopped leaving, or it now " +
    "navigates out of index.html's own modal, where the close really is an overlay over a page");
 
 // ─────────────────────────────────────────────────────────────────────────────

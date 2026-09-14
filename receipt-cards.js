@@ -3781,6 +3781,64 @@
     return true;
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // #record= IS NOW A TRAMPOLINE, NOT A DESTINATION
+  // ──────────────────────────────────────────────────────────────────────────
+  // What this hash used to do, on whatever page happened to be loaded: open
+  // PDXConsistency's gap sheet. Followed from a shared image that meant
+  // index.html — so one senator's votes on one issue arrived as an overlay on
+  // the front page, with the homepage's whole apparatus underneath it, an
+  // address bar that said '/', and NO HISTORY ENTRY, because the sheet is a DOM
+  // change and the hash got there by replaceState. Back did not close the card.
+  // Back left the site.
+  //
+  // The dossier now has a document: /p/<pid>?record=<pid>~<issue>, served by
+  // person.html, read by person-file.js, with a real entry so Back closes the
+  // card and leaves the reader on the record.
+  //
+  // SO THIS REDIRECTS, ONCE, AND DOES NOT OPEN ANYTHING. Not deleted — links
+  // carrying #record= are in the wild, on images, in messages, in anything that
+  // scraped a card — and a live link must keep landing where it promised.
+  // location.replace rather than assign, deliberately: the hash form is a
+  // WAYPOINT, so it must not leave an entry of its own. Back from the card then
+  // goes wherever the reader was before they followed the link, instead of
+  // bouncing them through a homepage address that would redirect them forwards
+  // again — the classic redirect trap.
+  //
+  // WHY THE PERSON-DOCUMENT CHECK IS HERE AT ALL, given this module is not on
+  // person.html: because "not on person.html" is a fact about the shell's module
+  // list today, and a redirect loop is what happens if that ever stops being
+  // true. The check costs one property read and makes the behaviour correct
+  // rather than merely currently-correct.
+  //
+  // The issue key is required. #record=<pid> with no ~<issue> named no dossier,
+  // so there is nothing to redirect it to and it falls through to the retry /
+  // showProfile path below, exactly as before.
+  function recordPathFor(pid, iss) {
+    if (!pid || !iss) return '';
+    try {
+      // TWO REFUSALS, AND THE FIRST ONE DOES NOT DEPEND ON ANOTHER MODULE. The
+      // document's own flag is read directly, before PDXPerson is consulted,
+      // because person-file.js is deferred: a hash arrival that lands while it
+      // is still parsing would otherwise see no PDXPerson, build the address of
+      // the document it is ALREADY ON, and replace() the page with itself.
+      if (window.__PDX_PERSON_DOC === true) return '';
+      var P = window.PDXPerson;
+      if (P && typeof P.isPersonDoc === 'function' && P.isPersonDoc()) return '';
+      var who = pid;
+      if (P && typeof P.resolve === 'function') who = P.resolve(pid) || pid;
+      var base = (P && typeof P.path === 'function')
+        ? P.path(who)
+        : ('/p/' + encodeURIComponent(who));
+      if (!base) return '';
+      // And the belt to that brace: whatever the flag said, never hop to the
+      // path we are standing on. Same-path replace() is the one mistake here
+      // that costs the reader the page instead of just the card.
+      if (String(location.pathname || '') === base) return '';
+      return base + '?record=' + encodeURIComponent(who + '~' + iss);
+    } catch (e) { return ''; }
+  }
+
   var _hashTries = 0;
   function handleHash(retry) {
     var m = (location.hash || '').match(/^#record=([^~&]+)(?:~([^&]+))?/);
@@ -3788,6 +3846,18 @@
     var pid = '', iss = '';
     try { pid = decodeURIComponent(m[1]); } catch (e) { pid = m[1]; }
     try { iss = m[2] ? decodeURIComponent(m[2]) : ''; } catch (e) { iss = m[2] || ''; }
+    // The one hop onto the person document. Taken before the retry loop, and
+    // before warm(): there is no point fetching a record for a card this page is
+    // not going to paint, and no point waiting on one either.
+    var hop = recordPathFor(pid, iss);
+    if (hop) {
+      _hashTries = 0;
+      try { location.replace(hop); return; } catch (e) {}
+      try { location.href = hop; return; } catch (e2) {}
+      // Both spellings refused. Fall through and paint here — an overlay on the
+      // wrong document is worse than the document it belongs on, and better than
+      // a tap that did nothing.
+    }
     if (!retry) _hashTries = 0;
     var open = function () {
       if (window.PDXConsistency && typeof window.PDXConsistency.openGap === 'function' && iss) {

@@ -5663,7 +5663,101 @@
 //     DID NOT MOVE. No floor, score, tier, mapping, Direction Match read or
 //     meter copy. No local-office field was invented, no hash overlay returned,
 //     and no surface gained a second way to open a person.
-const CACHE_VERSION = 'v192';
+// v193 - THE PERSON FILE IS ITS OWN DOCUMENT, AND SO IS THE CARD ON IT.
+//
+//     /p/<pid> already rewrote to person.html, but a person OPENED from anywhere
+//     else still painted a modal on whatever page the reader was on: openModal is
+//     the renderer, a dozen surfaces call it directly, and it never asked which
+//     document it was painting into. And the dossier had no document at all — a
+//     HASH on the front page, no history entry, so Back took the page and left
+//     the sheet on screen.
+//
+//     · ONE FLAG, ONE OWNER. person.html declares window.__PDX_PERSON_DOC in its
+//       first inline block; PDXPerson.isPersonDoc() is the one reader (a non-empty
+//       ARRIVAL also counts: only the person-path rewrite serves a /p/ path).
+//     · openModal NAVIGATES INSTEAD OF PAINTING off that document — one guard at
+//       the one renderer, latched so PDXPerson.open's own openModal fallback
+//       cannot recurse into it.
+//     · THE DOSSIER HAS AN ADDRESS: /p/<pid>?issue=<key>, plus the shared card's
+//       /p/<pid>?record=<pid>~<key> with its pid checked against the path.
+//       person-file.js wraps PDXConsistency.openGap/closeGap once here, so every
+//       existing tap pushes and pops that address for free.
+//     · THE OLD SPELLINGS REDIRECT ONCE: #record= (receipt-cards.js) and the
+//       legacy /?p=<pid> (person-file.js) location.replace onto the canonical
+//       address — replace, not assign, so neither becomes a forward trap.
+//     · AND THE CLOSE LEAVES THE WAY THE READER CAME: restore() prefers history.go
+//       back to a same-origin referrer over assign('/'), so the × and Back agree.
+//
+//     WHY THE BUMP. person.html, person-file.js, profiles-full.js and index.html
+//     are precached and all four changed; a warm v192 device would otherwise pair
+//     a person.html with no flag against a person-file.js that reads it, the one
+//     combination where every card address silently does nothing. netlify.toml
+//     travels as a DEPLOY, not a precache entry — the rewrite resolves at the
+//     edge, before this worker — and touching it forces that clean deploy.
+//
+//     WHAT THE BUMP CARRIES, WHICH IS NOT WHAT THIS PASS CHANGED. Renaming
+//     SHELL_CACHE re-issues the WHOLE precache, so every SHELL_ASSETS entry
+//     travels with v193: index.html, person.html, issue.html, spotlight.html,
+//     ballot.html, app.css, mobile-polish.css, pdx-stability.js,
+//     alignment-tool.js, issue-file.js, issue-file.css, pdx-issue-profile.js,
+//     door1-workspace.js, stance-tree.js, door1-workspace.css,
+//     pdx-issue-family.js, issue-colors.js, word-action.js, word-action.css,
+//     issue-view.js, person-file.js, profiles-full.js, ballot-workspace.js and
+//     ballot-workspace.css. share-links.js, receipt-cards.js, consistency.js and
+//     hero-showcase.js are runtime-cached, and a rename does not throw the
+//     runtime half away either (v182).
+//
+//     DID NOT MOVE. No floor, score, tier, mapping or Direction Match read. No
+//     new key, no second score, no party metric, no new module on this shell.
+
+// v194 - THE VOTER'S OWN FILE IS ITS OWN DOCUMENT.
+//
+//     Four addresses, none of them theirs: "Your File" was the hash #your-file,
+//     an overlay on whatever page they stood on; "My Views" scrolled elsewhere
+//     on that page; picks were /ballot; stars a third region. Two names, one
+//     person — and TWO EDITORS of the same eight answers, over two stores that
+//     both project into one alignment engine and could therefore disagree.
+//
+//     · ONE DOCUMENT, ONE FLAG. /me and /me/ rewrite to me.html, which declares
+//       window.__PDX_ME_DOC first; me-desk.js returns at once without it, and
+//       nothing sniffs location.pathname (three spellings, one document).
+//     · SIX REGIONS, NOT FIVE PRODUCTS: identity, positions, stars, ballot
+//       snapshot, saved evidence, jumps — each a QUERY (?tab=), not a segment.
+//     · ONE EDITOR, TWO PRESENTATIONS. your-file.js grew inline(host): same
+//       render(), same store, same two ids, mounted into the desk's Positions
+//       region, with the click delegate extracted so there is one write path.
+//     · EVERY DOOR POINTS AT THE ADDRESS — both account-menu controls, the Who
+//       Represents Me row, the compare guide. #your-file still works as one
+//       latched location.replace('/me') that returns false rather than opening.
+//     · THE HOMEPAGE WALL IS A CARD over an inert <template>, the way the
+//       Evidence Locker's workspace already was.
+//
+//     NO SCORE ON THE VOTER: no percentage, no grade, no party chip. Every
+//     region states a COUNT, and the snapshot's denominator is the length of
+//     the slate /ballot itself projects, not a literal.
+//
+//     WHY THE BUMP. index.html changed and is precached as '/'. Without a
+//     rename a warm v193 device pairs a new index.html whose My Stances band is
+//     a door against a cached my-stances.js with no mount for it, and a /me
+//     address with no document. netlify.toml travels as a DEPLOY, not an entry.
+//
+//     WHAT THE BUMP CARRIES, WHICH IS NOT WHAT THIS PASS CHANGED. Renaming
+//     SHELL_CACHE re-issues the WHOLE precache, so every SHELL_ASSETS entry
+//     travels with v194: index.html, me.html, me-desk.js, me-desk.css,
+//     person.html, issue.html, spotlight.html, ballot.html, app.css,
+//     mobile-polish.css, pdx-stability.js, alignment-tool.js, issue-file.js,
+//     issue-file.css, pdx-issue-profile.js, door1-workspace.js, stance-tree.js,
+//     door1-workspace.css, pdx-issue-family.js, issue-colors.js, word-action.js,
+//     word-action.css, issue-view.js, person-file.js, profiles-full.js,
+//     ballot-workspace.js and ballot-workspace.css. your-file.js and
+//     your-file.css stay OUT, pinned there by test-mobile-body-lock.mjs and
+//     test-your-file.mjs; compare-hub.js, who-represents-me.js and my-stances.js
+//     are runtime-cached, and a rename does not throw that half away (v182).
+//
+//     DID NOT MOVE. No roll, mapping, tier, floor or Direction Match figure; no
+//     finance, Mandate, issue key, Utah ingest, sitemap entry or second ballot.
+
+const CACHE_VERSION = 'v194';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -5726,6 +5820,26 @@ const SHELL_ASSETS = [
   // static assets the runtime bucket already holds, so a voter who has opened
   // their ballot once can open it again on a train.
   '/ballot.html',
+  // THE SIXTH SHELL: the reader's own file. netlify.toml rewrites /me and /me/
+  // here, so this is the document the desk actually receives, and like /ballot it
+  // is a SINGLE address — a region of the desk is a query (?tab=positions, stars,
+  // ballot, saved), so there is nothing per-tab to key and navDocKey gives it
+  // none. 76 KB of chrome whose four stores are inline in the document itself, so
+  // a member who has opened their file once can read what they hold on a train:
+  // the positions, the stars, the ballot picks and the saved receipts are all
+  // localStorage, and none of them needed the network to be true.
+  '/me.html',
+  // The desk's own two files, and the ONLY two this pass adds beyond the document
+  // — precached rather than left to the runtime bucket for the reason the shell
+  // itself is: they are the whole of what paints /me. Everything else on that
+  // document's critical path is either already an entry here (/person-link.js,
+  // /issue-map.js) or deliberately runtime-cached (/browse-photos.js,
+  // /voter-hub-location.js, /my-stances.js, /your-file.js — the last two pinned
+  // out of this list by test-mobile-body-lock.mjs and test-your-file.mjs), and a
+  // desk that arrives without a face or without its editor still tells the reader
+  // what they hold. A desk that arrives without me-desk.js paints nothing at all.
+  '/me-desk.js',
+  '/me-desk.css',
   '/css/tailwind.css',
   // The above-the-fold record card. Parser-blocking in index.html, so on a
   // repeat visit these two must come from the cache or they add latency to the

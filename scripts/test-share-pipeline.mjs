@@ -174,14 +174,29 @@ const run = async () => {
   ok(SL.profile("") === "", "link: no pid means no link rather than a link to the front page dressed up as a profile");
 
   // ── The issue link, which is the whole dossier fix ────────────────────────
+  // THE ADDRESS MOVED ONTO THE PERSON'S DOCUMENT. It used to be
+  // "/?record=scalise~voting_rights" — the front page, with the dossier as a
+  // query for index.html to unpack, which meant the link unfurled as PolitiDex
+  // in general, downloaded the whole homepage to show one member's votes, and
+  // painted a sheet with no history entry behind it so Back left the site.
+  // /p/<pid>?record=<pid>~<issue> is the same card at the address of the
+  // document that actually holds the record, and it matches canonicalPath() in
+  // netlify/lib/share-target.ts exactly (see test-canonical-and-origin.mjs §2).
   const dossier = SL.forTarget({ pid: "scalise", issueKey: "voting_rights" });
-  ok(dossier === "https://www.politidex.fyi/?record=scalise~voting_rights",
-     "link: a share from inside an issue dossier emits the ?record= form, which opens the Official Record for that issue");
+  ok(dossier === "https://www.politidex.fyi/p/scalise?record=scalise~voting_rights",
+     "link: a share from inside an issue dossier lands on that person's document with the issue named on it");
   ok(dossier === SL.record("scalise", "voting_rights"),
      "link: forTarget does not invent a parallel scheme — it returns the existing record() link");
+  ok(SL.record("scalise", "voting_rights") === SL.personRecord("scalise", "voting_rights"),
+     "link: record() and personRecord() are one speller of one address, not two that can drift");
+  ok(SL.record("scalise", "voting_rights").indexOf(SL.profile("scalise")) === 0,
+     "link: the record link IS the person link plus the issue — so one person is one document, one preview, one canonical");
   ok(SL.forTarget({ pid: "jayapal", issueKey: "healthcare" })
-       === "https://www.politidex.fyi/?record=jayapal~healthcare",
+       === "https://www.politidex.fyi/p/jayapal?record=jayapal~healthcare",
      "link: the same holds for any (member, issue) pair, not just the reported one");
+  ok(SL.record("null", "healthcare") === "https://www.politidex.fyi/" &&
+     SL.record("", "healthcare") === "https://www.politidex.fyi/",
+     "link: the sentinel wall holds on the record form too — /p/null is never published");
   ok(SL.forTarget({ pid: "scalise" }) === "https://www.politidex.fyi/p/scalise",
      "link: with no issue in play the target is the profile, unchanged");
   ok(SL.forTarget({ pid: "scalise" }) === SL.profile("scalise"),
@@ -190,6 +205,10 @@ const run = async () => {
      "link: an unreconstructable target returns nothing, so a caller cannot ship a link to the front page and call it a share");
 
   // ── The round trip: the query form must rebuild the app's own hash ────────
+  // Still true, and still needed: the hash is the form links already in the
+  // wild carry, and receipt-cards.js now uses it as a one-hop trampoline onto
+  // /p/<pid>?record=… rather than as a place to paint. A live link has to keep
+  // landing where it promised, so the conversion stays.
   ok(SL._hashFor("record", "scalise~voting_rights") === "#record=scalise~voting_rights",
      "arrival: ?record=scalise~voting_rights converts back to the #record= hash the app already opens");
   ok(SL._hashFor("record", "") === "" && SL._hashFor("record", "~voting_rights") === "",

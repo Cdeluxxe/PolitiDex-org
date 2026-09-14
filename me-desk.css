@@ -1,0 +1,386 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   me-desk.css — /me, the voter's own file. One document, six regions.
+   ─────────────────────────────────────────────────────────────────────────────
+   WHAT THIS SHEET IS FOR. me.html is a DESK, not a product: one document that
+   says what this account holds and hands the reader to the tool that does the
+   work. So this sheet styles regions and rows and nothing else. There is no
+   card grid, no hero, no second navigation bar, no chart.
+
+   WHAT IS DELIBERATELY ABSENT, and each absence is a rule from the brief:
+
+     · NO METER, NO PERCENTAGE, NO GRADE. There is no bar, no fill, no ring and
+       no length anywhere in this file, because there is no number on this
+       document for a style to read. "2 of 8 on file" is a sentence. A voter is
+       not a completion rate and this sheet gives a later edit nowhere to put
+       one.
+     · NO VERDICT PALETTE. your-file.css states the doctrine at length and it
+       holds here for the same reason: the good-green and every red in this app
+       mean "the record came out the way they said it would". Nothing on this
+       page is a verdict on anybody — least of all on the reader — so the
+       accent is the one cool blue every neutral surface uses, and Support does
+       not get the green.
+     · NO PARTY COLOUR ON THE VOTER. A pick's row shows the person's name and
+       their face. It does not show a party chip, and there is no .me-party
+       class for one to arrive in.
+     · NO SECOND NAV. Region f is three text links in a paragraph. It shares the
+       .me-jump class with nothing that could become a button bar.
+
+   THE EDITOR IS NOT RESTYLED HERE. Region b is your-file.js's own eight rows,
+   painted by your-file.js into a host this document supplies, styled by
+   your-file.css. This sheet contributes exactly one rule to it — the
+   .pdxyf-body--inline modifier below, which un-does the overlay scroller
+   because on THIS document the region is the page and the page is the scroller.
+   Every other .pdxyf* rule is your-file.css's, unchanged, so the eight rows are
+   the same eight rows here as in the panel and a fix to one is a fix to both.
+
+   SELF-SUFFICIENT. app.css is not loaded on this document (see me.html's
+   header), so every colour here is a literal and every var() that is read
+   carries a literal fallback. Render-blocking on purpose: it is the page.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* ── THE DESK ─────────────────────────────────────────────────────────────── */
+#me-desk {
+  max-width: 52rem;
+  margin: 0 auto 3.5rem;
+  padding: 0 1rem;
+}
+
+/* The one letterhead. It names the document and says what it is not, in the
+   same two-sentence shape your-file.js's panel head uses. */
+.me-head { margin: 0 0 1.25rem; }
+.me-kick {
+  margin: 0;
+  font-family: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+}
+.me-title {
+  margin: 0.3rem 0 0;
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+  font-size: clamp(1.9rem, 6vw, 2.6rem);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  line-height: 1.05;
+  color: #f1f5f9;
+}
+.me-lede {
+  margin: 0.55rem 0 0;
+  max-width: 40rem;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: #9fb4d4;
+}
+
+/* ── A REGION ─────────────────────────────────────────────────────────────── */
+/* Six of these, stacked. Each one is a fact plus a way into the tool that owns
+   it. The heading is small because the region is not a product. */
+.me-region {
+  margin: 0 0 1.1rem;
+  padding: 1rem 1.05rem 1.15rem;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 14px;
+  background: rgba(11, 18, 32, 0.72);
+}
+.me-region > :first-child { margin-top: 0; }
+.me-region > :last-child { margin-bottom: 0; }
+
+/* The section the reader was sent to by ?tab= is marked for one beat so they
+   can see where they landed. One outline, no scroll animation of our own. */
+.me-region.is-target {
+  border-color: rgba(125, 211, 252, 0.55);
+  box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.22);
+}
+
+.me-rhead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin: 0 0 0.55rem;
+}
+.me-rtitle {
+  margin: 0;
+  font-family: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: #cbd5e1;
+}
+/* The count sentence. Text, never a meter — see the header. */
+.me-rcount {
+  flex: 0 0 auto;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: #7f95ad;
+  white-space: nowrap;
+}
+.me-rline {
+  margin: 0 0 0.7rem;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: #94a3b8;
+}
+
+/* ── THE HONEST EMPTY ─────────────────────────────────────────────────────── */
+/* Every region has one and they all read the same way: what is not here, and
+   what the reader can do about it. Never a placeholder that looks like data. */
+.me-empty {
+  margin: 0;
+  padding: 0.75rem 0.85rem;
+  border: 1px dashed rgba(148, 163, 184, 0.28);
+  border-radius: 10px;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: #8fa3bf;
+  background: rgba(15, 23, 42, 0.35);
+}
+
+/* ── REGION a · WHO THIS IS ───────────────────────────────────────────────── */
+.me-id {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.me-avatar {
+  flex: 0 0 auto;
+  width: 2.6rem;
+  height: 2.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid rgba(224, 39, 63, 0.45);
+  background: rgba(224, 39, 63, 0.18);
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+  font-size: 1.1rem;
+  color: #fff;
+  overflow: hidden;
+}
+.me-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.me-idtext { min-width: 0; }
+.me-name {
+  display: block;
+  font-family: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #f1f5f9;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.me-mail {
+  display: block;
+  font-size: 0.76rem;
+  color: #7f95ad;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Where they vote, as a fact. Not a badge, not a chip — one line of prose with
+   the place in it, because it is the input two other regions read. */
+.me-where {
+  margin: 0.75rem 0 0;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: #9fb4d4;
+}
+.me-where strong { color: #e2e8f0; font-weight: 600; }
+
+/* ── REGION b · THE EDITOR'S HOST ─────────────────────────────────────────── */
+/* your-file.js paints .pdxyf-head + .pdxyf-body in here, and the head it paints
+   IS this region's heading — its title, its line ("Not a vote. Not a district
+   poll.") and its count. The region ships no heading of its own, so the sentence
+   "N answers of 8 on file" has exactly one author on this page: the module's own
+   countSentence(), which its patchRow() already keeps current when an answer
+   changes. A second heading here would be this document paraphrasing the
+   editor, and a paraphrase is a thing that can go stale.
+
+   THE ONE RULE THIS SHEET CONTRIBUTES TO THE EDITOR. .pdxyf-body is the single
+   scroller inside a fixed overlay, and it is bounded by that overlay's height.
+   There is no overlay here and no bounded height, so an inner scroller would be
+   a box that never scrolls sitting inside a page that does. It grows instead
+   and the document scroller carries it. */
+.pdxyf-body--inline {
+  flex: none;
+  min-height: 0;
+  padding: 0;
+  overflow: visible;
+  touch-action: auto;
+  -webkit-overflow-scrolling: auto;
+}
+
+/* ── REGION c · STARRED ───────────────────────────────────────────────────── */
+/* A list of issue names the reader flagged to count harder. The star is the
+   whole visual: no weight printed, no multiplier, no ordering number. */
+.me-stars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.me-star {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid rgba(245, 215, 122, 0.32);
+  border-radius: 999px;
+  background: rgba(245, 215, 122, 0.08);
+  font-size: 0.8rem;
+  color: #e8dcb4;
+}
+.me-starico { font-size: 0.75rem; }
+
+/* ── REGION d · THE BALLOT SNAPSHOT ───────────────────────────────────────── */
+/* One line per seat. Office, then the pick or the honest blank, then the way to
+   work it. No progress bar: the count is in the region head as a sentence. */
+.me-seats {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.me-seat {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.14);
+}
+.me-seat:first-child { border-top: 0; padding-top: 0; }
+.me-seatico {
+  flex: 0 0 auto;
+  width: 1.6rem;
+  text-align: center;
+  font-size: 1rem;
+}
+.me-face {
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(30, 53, 96, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  color: #9fb4d4;
+}
+.me-face img { width: 100%; height: 100%; object-fit: cover; }
+.me-seattext { flex: 1 1 auto; min-width: 0; }
+.me-office {
+  display: block;
+  font-family: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8fa3bf;
+}
+.me-pick {
+  display: block;
+  font-size: 0.92rem;
+  line-height: 1.35;
+  color: #e2e8f0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.me-pick a { color: #bfdbfe; text-decoration: none; }
+.me-pick a:hover, .me-pick a:focus-visible { text-decoration: underline; }
+/* "No pick" and "we do not resolve this seat" are the same kind of sentence —
+   something we do not have — so they read the same way. */
+.me-pick--none { color: #8fa3bf; }
+.me-work {
+  flex: 0 0 auto;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 0.5rem;
+  background: transparent;
+  font-family: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9fb4d4;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.me-work:hover, .me-work:focus-visible {
+  border-color: rgba(125, 211, 252, 0.5);
+  color: #e0f2fe;
+}
+
+/* ── REGION e · SAVED EVIDENCE ────────────────────────────────────────────── */
+.me-saved {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.me-card {
+  padding: 0.6rem 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.14);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+.me-card:first-child { border-top: 0; padding-top: 0; }
+.me-card a { color: #bfdbfe; text-decoration: none; }
+.me-card a:hover, .me-card a:focus-visible { text-decoration: underline; }
+.me-cardsub {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.76rem;
+  color: #7f95ad;
+}
+
+/* ── REGION f · THE JUMPS ─────────────────────────────────────────────────── */
+/* Text links in a sentence. Not a button bar, not a second nav — see the
+   header. */
+.me-jump {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: #9fb4d4;
+}
+.me-jump a { color: #f5d77a; }
+
+/* A jump inside a region head or a region body, styled like the prose it sits
+   in rather than like a control. */
+.me-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: #bfdbfe;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.me-link:hover, .me-link:focus-visible { color: #e0f2fe; }
+
+/* ── THE FOOT ─────────────────────────────────────────────────────────────── */
+/* What this document is not, said once, at the bottom, where the reader has
+   finished reading it. */
+.me-foot {
+  margin: 1.5rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.14);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: #7f95ad;
+}
+
+@media (max-width: 32rem) {
+  .me-seat { flex-wrap: wrap; }
+  .me-work { margin-left: auto; }
+  .me-rhead { flex-wrap: wrap; }
+}

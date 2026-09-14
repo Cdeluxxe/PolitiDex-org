@@ -84,7 +84,17 @@
     ['vr-section',          'voting-record section rendered (pdx-voting-warm)'],
     ['brief-loading',       'formal brief painted a loading state'],
     ['brief',               'formal brief swapped off loading'],
-    ['window-load',         'window load']
+    ['window-load',         'window load'],
+    // READER-DRIVEN, AND ITS ABSENCE IS NOT A FINDING. Every stage above lands
+    // on its own during a boot; this one lands only when a dossier card is
+    // actually opened — either because the address carried ?issue=/?record= on
+    // arrival, or because the reader tapped a gap. So it is in this table (the
+    // stage list is a contract in both directions: a mark the app takes must be
+    // named here) and deliberately NOT in HEADLINES or COLD, where a missing
+    // stage prints an em dash that the pass is meant to read as a defect. On an
+    // ordinary /p/<pid> visit with no card, 'card-open' shows up in report()'s
+    // `missing` list and that is the correct reading: no card was opened.
+    ['card-open',           'a dossier card opened on the person file (arrival ?issue=/?record= or a tapped gap)']
   ];
 
   // The four numbers the perf pass is judged on. Each is a mark measured from

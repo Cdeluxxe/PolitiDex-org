@@ -40,6 +40,10 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
 
 const HTML = R("index.html");
+// A comment-stripped view, for the pins that count STRUCTURE. index.html's own
+// prose names the ids of the two doors it carries in order to explain them, and
+// a comment can neither be nor hide a second copy of anything.
+const BARE = HTML.replace(/<!--[\s\S]*?-->/g, " ");
 const EL = R("evidence-locker.js");
 const TOML = R("netlify.toml");
 const CSS = R("app-2.css");
@@ -93,11 +97,27 @@ const FIRST_PAINT = HTML.slice(secStart, tplStart);   // everything the section 
   ok(FIRST_PAINT.indexOf("el-card") < 0, "a locker card class appears in the section's first paint");
   ok(FIRST_PAINT.indexOf("el-grid") < 0, "the results grid appears in the section's first paint");
 
-  // Exactly one template element, and it is this one — a second would mean a
-  // second copy of the workspace, which is the thing we just removed.
-  const tplIds = [...HTML.matchAll(/<template\b[^>]*\bid="([^"]*)"/g)].map((m) => m[1]);
-  eq(tplIds.join(","), "el-workspace-tpl", "index.html carries a <template> that is not the locker workspace");
-  eq((HTML.match(/<\/template>/g) || []).length, 1, "index.html closes more than one <template>");
+  // ONE COPY OF THE LOCKER WORKSPACE, which is what this pin was always for: a
+  // second <template id="el-workspace-tpl"> would be the duplicate surface the
+  // door pass removed, coming back.
+  //
+  // IT IS NOT "ONE TEMPLATE ON THE PAGE" ANY MORE, AND THE REASON IS THAT THE
+  // PATTERN SPREAD. The /me pass demoted the My Stances wall the same way this
+  // pass demoted the locker — a short card over an inert <template
+  // id="ms-shell-tpl"> — because the reader's positions now live at /me and the
+  // homepage should not carry a second editor of them laid out on every load.
+  // So the assertion is an ALLOWLIST: every template on the page is a door this
+  // repo has deliberately built, and an id nobody has justified fails here.
+  // (Counted on the comment-stripped view: index.html's own prose names both
+  // ids in order to explain them, and a comment is not a copy of anything.)
+  const tplIds = [...BARE.matchAll(/<template\b[^>]*\bid="([^"]*)"/g)].map((m) => m[1]);
+  const KNOWN_TPL = ["el-workspace-tpl", "ms-shell-tpl"];
+  const strays = tplIds.filter((id) => !KNOWN_TPL.includes(id));
+  eq(strays.join(","), "", "index.html carries a <template> no door has justified");
+  eq(tplIds.filter((id) => id === "el-workspace-tpl").length, 1,
+    "index.html carries more than one copy of the locker workspace");
+  eq((BARE.match(/<\/template>/g) || []).length, tplIds.length,
+    "index.html opens and closes a different number of <template> elements");
 
   // The address did not change. Every inbound link in the page still points at
   // #evidence-locker, which is why nothing else needed editing.

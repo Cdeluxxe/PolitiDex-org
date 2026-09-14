@@ -304,11 +304,31 @@ ok(/_held/.test(MS_OV),
   'the overlay hold is not guarded against a double release — close() is reachable from the backdrop, the ✕ and ' +
   'Escape');
 
-// Both doors are reached from the menu markup, and both are still there.
+// BOTH DOORS ARE STILL THERE, AND THEY NOW LEAD TO ONE ROOM. This used to probe
+// for data-pdxyf-open and PDXStances.openViews, which were the two mechanisms
+// the two labels reached their two surfaces by — an overlay on the current
+// document, and a scroll to a homepage region. The voter's file is a document at
+// /me now, so both entries are plain anchors to it and neither mechanism is in
+// this markup any more. The claim the old probes stood for is unchanged and is
+// asserted on the labels instead: a reader who opens this menu can still get to
+// their file, and can still get to it by the name they learned.
 const MENU = (NAV.match(/desktop\.innerHTML = `[\s\S]*?`;/) || [''])[0];
 must(MENU.length > 200, 'the desktop account-menu markup probe matched nothing');
-ok(/data-pdxyf-open/.test(MENU), 'the account menu lost its Your File door');
-ok(/PDXStances\.openViews/.test(MENU), 'the account menu lost its My Views door');
+const MENU_ME = (MENU.match(/href="\/me"/g) || []).length;
+ok(/href="\/me"[\s\S]*?Your file/.test(MENU), 'the account menu lost its Your File door');
+ok(/href="\/me"[\s\S]*?My Views/.test(MENU), 'the account menu lost its My Views door');
+ok(MENU_ME === 2, 'the desktop account menu does not carry exactly two /me doors (got ' + MENU_ME + ') — a ' +
+  'third would be a nav pill, and one would be the silent removal of a label readers learned');
+// AND NEITHER DOOR CARRIES THE OLD HOOK. data-pdxyf-open is your-file.js's
+// capturing open hook, which on a non-/me document answers by redirecting to
+// /me and returning false — deliberately not claiming the click. An anchor
+// still carrying it would fire that location.replace AND its own href: two
+// navigations for one tap, and a Back that lands nowhere the reader was.
+ok(!/data-pdxyf-open/.test(MENU),
+  'an account-menu door still carries data-pdxyf-open on top of its /me href — that is two navigations for one tap');
+ok(!/PDXStances\.openViews|location\.hash\s*=\s*'#my-stances'/.test(MENU),
+  'an account-menu door still opens the homepage stance region instead of the file\'s own address, which is the ' +
+  'second editor this pass exists to remove');
 ok(/auth\.signOut/.test(MENU), 'the account menu lost Log Out');
 ok(!/renderRelevantToMe|_alignRefreshAll|syncUserDataFromFirestore/.test(MENU),
   'a control in the account menu calls a whole-surface repaint or the account pull from its own onclick');

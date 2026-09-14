@@ -639,11 +639,20 @@
     location.hash = '#compare-hub';
   }
 
-  // `#record=<pid>~<issue>` is the dossier address receipt-cards.js already routes
-  // — the same one a shared card carries and the live-proof strip opens — so a chip
-  // lands on that issue's acts rather than on a profile to be searched.
+  // ── AN ISSUE CHIP GOES TO THE DOSSIER'S DOCUMENT ──────────────────────────
+  // This wrote `#record=<pid>~<issue>` into location.hash, which receipt-cards.js
+  // painted as a sheet over the front page: no navigation, no history entry, '/'
+  // still in the bar, and a Back that left the site instead of the card. The
+  // dossier lives at /p/<pid>?issue=<key> now, and goToCard is one assign to it,
+  // so Back means the page the chip was tapped on. The hash stays as a fallback
+  // for a build without person-file.js. (This file's gz budget is tight — see
+  // test-hero-showcase.mjs; the argument in full is in person-file.js.)
   function openIssue(pid, issueKey) {
     if (!pid || !issueKey) return false;
+    try {
+      var P = window.PDXPerson;
+      if (P && typeof P.goToCard === 'function' && P.goToCard(pid, issueKey)) return true;
+    } catch (e) {}
     var want = '#record=' + encodeURIComponent(pid) + '~' + encodeURIComponent(issueKey);
     // An identical hash fires no hashchange, so a second tap would do nothing.
     if (location.hash === want) { location.hash = ''; }

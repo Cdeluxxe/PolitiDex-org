@@ -190,8 +190,27 @@ section("2 · canonicalPath derives the record address, not the request");
      "a state measure canonicalizes on its session, which is the only thing that makes its number unique");
   eq(canon("/b/H.R.%201"), "/b/H.R.%201", "a number cited without a sitting keeps the address it was cited at");
   eq(canon("/?receipt=mike_lee~healthcare"), "/?receipt=mike_lee~healthcare", "a receipt keeps its issue key");
-  eq(canon("/?record=mike_lee~healthcare"), "/?record=mike_lee~healthcare",
-     "a record keeps its issue key — and stays distinct from the receipt surface");
+  // ── A RECORD CANONICALIZES ONTO THE PERSON'S DOCUMENT ────────────────────
+  // The Official Record for one member on one issue is a layer on that member's
+  // file, not a variant of the front page. It used to canonicalize to
+  // "/?record=mike_lee~healthcare", which told a crawler that one senator's
+  // healthcare votes were really the homepage — competing with the person's own
+  // /p/ page for the same content, and unable to rank as itself either way.
+  //
+  // The PATH is canonicalized (mike_lee → lee, the roster's own id) so a record
+  // cannot publish a second address for a person who already has one. The QUERY
+  // keeps the pid it was cited with, deliberately: person-file.js checks it
+  // against the path and refuses a card whose pid disagrees, and silently
+  // rewriting it here would repair exactly the link that ought to be caught.
+  eq(canon("/?record=mike_lee~healthcare"), "/p/lee?record=mike_lee~healthcare",
+     "a record canonicalizes onto the person's own document, keeping its issue key");
+  // The receipt surface stays on '/' — it has no document of its own — so the
+  // two remain distinct addresses for two different cards.
+  ok(canon("/?receipt=mike_lee~healthcare") !== canon("/?record=mike_lee~healthcare"),
+     "…and stays distinct from the receipt surface");
+  // No issue named is not a record, it is a person, and it says so.
+  eq(canon("/?record=mike_lee"), "/p/lee",
+     "a record with no issue key is just the person, and canonicalizes as one");
   eq(canon("/?rank=healthcare&key=aca"), "/?rank=healthcare&key=aca", "a ranking keeps the focus that produced it");
   eq(canon("/?rank=healthcare"), "/?rank=healthcare", "…and does not invent one when there is none");
 

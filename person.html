@@ -84,6 +84,38 @@
        mirror ever disagrees with its source — and it now reads this copy too,
        so the two documents cannot drift apart. ══════════════════════════════ -->
 <script>
+// ─────────────────────────────────────────────────────────────────────────────
+// THIS DOCUMENT IS THE PERSON FILE. Nothing else may claim to be.
+// ─────────────────────────────────────────────────────────────────────────────
+// One flag, set before any module executes, because five separate files have to
+// agree on the same question and they used to answer it five different ways:
+//
+//   · person-file.js asked "does the URL name a person?" (fromUrl), which is
+//     TRUE on the homepage's legacy /?p=<pid> form — so open() rendered a modal
+//     over index.html and stamped a person's address onto it.
+//   · profiles-full.js asked nothing at all: openModal painted into
+//     #modal-content wherever that id existed, which is the homepage too.
+//   · share-links.js converted ?record= into a #record= hash on whatever path it
+//     landed on, INCLUDING this one — stripping the query that is the card's
+//     address here.
+//   · receipt-cards.js opened a dossier sheet on the hash it had just been
+//     handed, over the front page, with no history entry: Back left the sheet on
+//     screen and took the page out from under it.
+//   · ballot.html had to hand-write an override because none of the above could
+//     be asked.
+//
+// "Is the URL about a person" and "is this document the person's file" are not
+// the same question, and conflating them is the whole defect. This answers the
+// second one, and it answers it the only way that cannot be wrong: the flag is
+// written into the document that /p/* actually serves. Every other document —
+// /, /ballot, /i/<key>, /issue/<slug>, /b/… — leaves it undefined, and every
+// person open there is a navigation to /p/<canonical-pid> instead of a paint.
+//
+// Declared BEFORE the perf block below, and before share-links.js, so no module
+// on this page can run its arrival logic ahead of knowing where it is.
+window.__PDX_PERSON_DOC = true;
+</script>
+<script>
 (function () {
   // ── PDXPerf: the clock ────────────────────────────────────────────────────
   // Defined here rather than in pdx-perf.js because the first marks worth
