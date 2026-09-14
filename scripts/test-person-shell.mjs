@@ -332,11 +332,11 @@ const COPIES = [
   [2012, 2035, "the Firebase compat bundles, the key injection, the stub and firebase-boot.js"],
   [2040, 2085, "the share furniture share-preview.ts rewrites"],
   [3566, 3629, "the crawl-header guard"],
-  [17874, 18796, "the funding lane, up to the cut"],
-  [20686, 20720, "the profile modal down to #modal-content"],
-  [20781, 20827, "the stance popover, the record overlay and the share sheet"],
-  [27980, 28100, "PDXStance"],
-  [31384, 31579, "the PWA runtime and the service-worker registration"],
+  [17971, 18893, "the funding lane, up to the cut"],
+  [20783, 20817, "the profile modal down to #modal-content"],
+  [20878, 20924, "the stance popover, the record overlay and the share sheet"],
+  [28077, 28197, "PDXStance"],
+  [31481, 31676, "the PWA runtime and the service-worker registration"],
 ];
 // THESE NUMBERS ARE ANCHORS INTO index.html AND THEY MOVE WHEN IT DOES. The
 // ones re-based here were re-based by the fourth split, which lifted the ballot
@@ -352,7 +352,12 @@ const COPIES = [
 // and the <template id="ms-shell-tpl"> the collection is now parked in added 103
 // lines around index.html line 13560, and a later rewrite of the your-file.js
 // load note (index.html ~line 23120) added seven more — so the three anchors
-// ABOVE that note moved by 103 and the two BELOW it by 110. Not one
+// ABOVE that note moved by 103 and the two BELOW it by 110. The homepage pass
+// that retired the front page's own ballot builder moved the same five by 97
+// more: #pdx-ballot-band and its note went in under Who Represents Me (index.html
+// ~line 5660), the in-hub door card it replaced came out below that, and the
+// six-chip #pdx-issue-strip went into #hot-topics (~line 10600) — all of it above
+// the funding lane, so every one of the five slid down by the same amount. Not one
 // byte of any copied block changed — every block above was located verbatim in the
 // new index.html and only its line numbers moved. So a failure here means one of
 // two very different things, and the two assertions below separate them: an

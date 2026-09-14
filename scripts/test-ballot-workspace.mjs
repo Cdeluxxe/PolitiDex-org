@@ -228,12 +228,37 @@ section("1 · One surface, served at its own address, shipped whole");
   // one sessionStorage key and disagree about which seat is open.
   ok(HTML.indexOf('id="ballot-workspace"') < 0, "the desk mount is back on index.html");
   ok(!/src="\/ballot-workspace\.js"/.test(HTML), "the desk script is back on index.html");
+  // WHERE THE DOOR IS, AND WHAT THAT ORDER IS ACTUALLY PROTECTING. This used to
+  // require the door to sit inside #voter-hub and below its pm-location-bar,
+  // because the desk cannot resolve a seat list without a location and a door
+  // offered above every way of setting one sends the reader somewhere that can
+  // only tell them to come back. The door has since been lifted out of the hub
+  // into #pdx-ballot-band, directly under Who Represents Me — which is the
+  // homepage's front location step, and is where the front page now replaces the
+  // whole ballot-builder wall it used to paint under the hub. So the pin is
+  // restated as the thing it was defending rather than the one element it
+  // happened to be measured against: ONE door, and a location step above it.
   const iHub = HTML.indexOf('id="voter-hub"');
   const iLoc = HTML.indexOf("pm-location-bar");
+  const iWrm = HTML.indexOf('id="who-represents-me"');
   const iDoor = HTML.indexOf('id="pdx-ballot-door"');
   ok(iDoor > 0, "Door 2 has no entrance on the homepage");
-  ok(iHub > 0 && iDoor > iHub, "the door is not inside Door 2");
-  ok(iLoc > 0 && iDoor > iLoc, "the door sits above the location card the desk depends on");
+  ok(HTML.split('id="pdx-ballot-door"').length === 2,
+    "the homepage carries more than one primary Door 2 entrance, so two of them describe the desk");
+  ok(iWrm > 0 && iDoor > iWrm,
+    "the door sits above Who Represents Me, the location step the desk depends on");
+  ok(iHub > 0 && iLoc > 0 && iLoc > iHub,
+    "the voter hub or its location card left the homepage, so the step the desk depends on is gone");
+  // The band's own controls, which are the reason it can lead the hub: the place
+  // (or the offer to set one) and a single anchor to the desk, no candidate, no
+  // party, no count.
+  const band = HTML.slice(HTML.indexOf('id="pdx-ballot-band"'),
+    HTML.indexOf("</section>", HTML.indexOf('id="pdx-ballot-band"')));
+  ok(band.split('href="/ballot"').length === 2,
+    "the ballot band does not carry exactly one /ballot primary");
+  ok(/Set where you vote/.test(band), "the ballot band never offers to set a location");
+  ok(!/mypolToggleAnimated|_pdxPartyChip|pdx-party|Word vs Action/.test(band),
+    "the ballot band grew a pick control, a party chip or a record read — it is a door, not a desk");
   // The precache comment in sw.js warns against splitting a feature's JS from its
   // CSS. Both, or the first offline visit paints an unstyled rail.
   has(SW, "'/ballot-workspace.js'", "the workspace script is not precached");
