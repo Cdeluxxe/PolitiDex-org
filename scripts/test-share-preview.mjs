@@ -589,7 +589,12 @@ ok(!loadLinks("https://www.politidex.fyi/?receipt=aaron_ford~healthcare").notice
   eq(L.bill("", "H.R. 1"), "https://www.politidex.fyi/b/H.R.%201",
     "builder: no sitting drops the segment rather than the link");
   eq(L.receipt("aaron_ford", "healthcare"), "https://www.politidex.fyi/?receipt=aaron_ford~healthcare", "builder: receipt link");
-  eq(L.record("aaron_ford", "healthcare"), "https://www.politidex.fyi/?record=aaron_ford~healthcare", "builder: record link");
+  // The record link is the one builder whose address MOVED: a person's record is
+  // a card on that person's document now, not an overlay on the front page, so
+  // the link is the person's path carrying the record. The pid is spelled twice
+  // on purpose — the path is the identity and the query is the card — and the
+  // parser above refuses the pair when they disagree.
+  eq(L.record("aaron_ford", "healthcare"), "https://www.politidex.fyi/p/aaron_ford?record=aaron_ford~healthcare", "builder: record link");
   eq(L.rank("healthcare", { key: "drug_prices", mode: "all" }),
     "https://www.politidex.fyi/?rank=healthcare&key=drug_prices", "builder: ranking link drops default lens");
   eq(L.on("https://www.politidex.fyi", "http://localhost:8888/?receipt=x~y"),

@@ -776,34 +776,99 @@ for (const pid of ["recrep", "thinrec", "saydorep"]) {
   eq(again, a, "score: reading the feed twice leaves the score where it was");
 }
 
-// ══ 6. ARRIVAL ═══════════════════════════════════════════════════════════════
+// ══ 6. ARRIVAL ════════════════════════════════════════════════════════════════════════════
 // The shared link opens the same politician × issue Official Record the card is
 // a picture of. Driven through the real router against a spied-on openGap, so
 // this is behaviour rather than two files agreeing in prose.
+//
+// WHAT CHANGED, AND WHY THIS SECTION WAS REWRITTEN RATHER THAN RELAXED. The card
+// still ships `#record=<pid>~<issue>` — the hash is in the image, in posts, in
+// screenshots, and it cannot be recalled. What changed is where that hash is
+// ALLOWED TO LAND. It used to paint a dossier sheet over whatever document the
+// reader happened to be on, which was almost always the front page: the whole
+// homepage loaded underneath, an address bar that still said '/', and a Back
+// button that took the page out from under the sheet and left the sheet on
+// screen. A person's record is a document now, so the hash is a REDIRECT and not
+// an opener: one hop onto /p/<pid>?record=<pid>~<issue>, where the card belongs
+// and where Back works.
+//
+// So the promise this section holds is unchanged in substance — "following the
+// card's own hash shows you that member on that issue" — and both halves of it
+// are asserted: off the person document the hash hops there exactly once and
+// opens nothing here; on the person document it opens exactly one view, for the
+// pid and issue the card is about.
 {
   const C = A.window.PDXConsistency;
   eq(typeof RC.handleHash, "function", "arrival: the hash router is exposed");
   const realOpen = C.openGap;
   const realHash = A.location.hash;
+  const realReplace = A.location.replace;
+  const realHref = A.location.href;
+  const realFlag = A.window.__PDX_PERSON_DOC;
   const calls = [];
+  const hops = [];
   try {
     C.openGap = function (pid, issue, opts) { calls.push([pid, issue, opts]); };
+    A.location.replace = (u) => { hops.push(String(u)); };
+
+    // 6a. OFF THE PERSON DOCUMENT: one hop, no paint. pathname is '/' in this
+    //     sandbox and __PDX_PERSON_DOC is undefined, which is exactly what the
+    //     front page looks like to receipt-cards.js.
     for (const card of built) {
       const m = String(card.hash || "").match(/^#record=([^~&]+)~([^&]+)$/);
       ok(!!m, `arrival: the ${card.issueKey} card carries a pid~issue record hash`);
       if (!m) continue;
-      calls.length = 0;
+      calls.length = 0; hops.length = 0;
       A.location.hash = card.hash;
       RC.handleHash();
+      eq(hops.length, 1, `arrival: following ${card.hash} on the homepage hops exactly once`);
+      eq(calls.length, 0, `arrival: and paints nothing there — ${card.hash} is a redirect, not an overlay`);
+      eq(hops[0], `/p/${m[1]}?record=${encodeURIComponent(m[1] + "~" + m[2])}`,
+        "arrival: onto that member's own document, carrying the record the card is about");
+      eq(decodeURIComponent(m[1]), card.pid, "arrival: and that member is the card's member");
+      eq(decodeURIComponent(m[2]), card.issueKey, "arrival: and that issue is the card's issue");
+    }
+
+    // 6b. ON THE PERSON DOCUMENT: the card opens, and it opens once. The flag is
+    //     read directly by recordPathFor, without PDXPerson (deferred here as it
+    //     is on the real page), because a page that hopped to itself would cost
+    //     the reader the document and not just the card.
+    A.window.__PDX_PERSON_DOC = true;
+    for (const card of built) {
+      const m = String(card.hash || "").match(/^#record=([^~&]+)~([^&]+)$/);
+      if (!m) continue;
+      calls.length = 0; hops.length = 0;
+      A.location.hash = card.hash;
+      RC.handleHash();
+      eq(hops.length, 0, `arrival: on the person file ${card.hash} does not hop again`);
       eq(calls.length, 1, `arrival: following ${card.hash} opens exactly one view`);
       eq((calls[0] || [])[0], m[1], "arrival: on the same member the card is about");
       eq((calls[0] || [])[1], m[2], "arrival: on the same issue the card is about");
-      eq(decodeURIComponent(m[1]), card.pid, "arrival: and that member is the card's member");
-      eq(decodeURIComponent(m[2]), card.issueKey, "arrival: and that issue is the card's issue");
+    }
+
+    // 6c. AND IT NEVER HOPS TO THE PATH IT IS STANDING ON, flag or no flag. This
+    //     is the replace() loop, and it is the one failure mode here that takes
+    //     the page with it.
+    A.window.__PDX_PERSON_DOC = undefined;
+    const first = built[0];
+    if (first) {
+      const m = String(first.hash || "").match(/^#record=([^~&]+)~([^&]+)$/);
+      const was = A.location.pathname;
+      try {
+        A.location.pathname = `/p/${m[1]}`;
+        calls.length = 0; hops.length = 0;
+        A.location.hash = first.hash;
+        RC.handleHash();
+        eq(hops.length, 0, "arrival: already on /p/<pid>, the router does not replace() the page with itself");
+        eq(calls.length, 1, "arrival: it paints the card instead, which is what that address is for");
+      } finally { A.location.pathname = was; }
     }
   } finally {
     C.openGap = realOpen;
     A.location.hash = realHash;
+    A.location.replace = realReplace;
+    A.location.href = realHref;
+    A.window.__PDX_PERSON_DOC = realFlag;
   }
   // The footer address a reader would type instead of tapping.
   if (split) {

@@ -126,6 +126,49 @@
   }
   function fn(x) { return typeof x === 'function'; }
 
+  // ── IS THIS DOCUMENT THE PERSON FILE? ─────────────────────────────────────
+  // NOT "does the URL name a person". Those are two different questions and
+  // answering the second with the first is the defect this whole pass removes.
+  //
+  //   fromUrl()       — the URL names a person. TRUE on the homepage's legacy
+  //                     /?p=<pid> form, where the document is index.html.
+  //   ARRIVAL         — this document was SERVED for a /p/<pid> address. TRUE on
+  //                     a cold person arrival, FALSE for a person opened from a
+  //                     list on this same document one hop later.
+  //   isPersonDoc()   — this document IS the person file, whoever it is showing
+  //                     and however the reader got here.
+  //
+  // Only the third can decide "render or navigate", because only the third is a
+  // fact about the DOCUMENT rather than about the address on it. person.html
+  // writes the flag in its first inline block, ahead of every module, and no
+  // other shell writes it — so /, /ballot, /i/<key>, /issue/<slug> and /b/… all
+  // answer false and every person open on them is a navigation.
+  //
+  // Exported (PDXPerson.isPersonDoc) so profiles-full.js's renderer and
+  // share-links.js's arrival can ask this file instead of each keeping a guess.
+  //
+  // ── AND THE SECOND ANSWER: THE PATH THIS DOCUMENT WAS SERVED FOR ─────────
+  // ARRIVAL (below) is fromPath(location.pathname), read ONCE at module
+  // evaluation. Non-empty means the browser asked for /p/<something> and got
+  // this document back — and the only rule in netlify.toml that returns a
+  // document for a /p/ path returns person.html. So a non-empty ARRIVAL is the
+  // same claim the flag makes, arrived at from the server side, and it holds on
+  // a build where the inline block was edited out, a document assembled by a
+  // test harness, or a shell served by `netlify dev` without the head block.
+  //
+  // IT WIDENS NOTHING. ARRIVAL is a person PATH, and the addresses this guard
+  // exists to exclude are not: '/' and '/?p=<pid>' are both pathname '/', which
+  // is why the legacy query form still answers false here and still gets sent to
+  // the document that can serve it. And because ARRIVAL is frozen at evaluation,
+  // stamp()'s replaceState cannot later talk this into a different answer — the
+  // exact drift that made crawlHeader() read against a moving target.
+  function isPersonDoc() {
+    try {
+      if (window.__PDX_PERSON_DOC === true) return true;
+    } catch (e) {}
+    return !!ARRIVAL;
+  }
+
   // ── "/p/null" IS NOT A PERSON ─────────────────────────────────────────────
   // encodeURIComponent(null) === 'null'. A missing pid that reaches a template
   // or a concatenation does not vanish on the way through String() — it turns
@@ -379,6 +422,286 @@
     catch (e) { return ''; }
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // THE ISSUE / RECORD CARD IS AN ADDRESS ON THIS DOCUMENT
+  // ──────────────────────────────────────────────────────────────────────────
+  // WHAT WAS BROKEN. The issue dossier — one person, one issue, the votes and
+  // the question behind them — had exactly one address and it was a HASH on the
+  // front page: #record=lee~tough_on_crime. Three things followed from that, and
+  // all three are the same bug:
+  //
+  //   · IT OPENED OVER THE WRONG DOCUMENT. receipt-cards.js's hash router
+  //     painted PDXConsistency.openGap over whatever page happened to be loaded,
+  //     which from a shared link was index.html — 2.3 MB of homepage under a
+  //     sheet about one senator's votes.
+  //   · BACK DID NOTHING. A hash written with replaceState (share-links.js) and
+  //     a sheet opened with no history entry at all means the browser has no
+  //     record that anything opened. Back took the PAGE away and left the sheet,
+  //     or left the sheet and took the reader off the site. That is the trapped
+  //     overlay in the report.
+  //   · THE PERSON FILE COULD NOT SHOW ITS OWN CARD. share-links.js converted
+  //     ?record= into #record= and STRIPPED the query, on every document
+  //     including this one — so /p/lee?record=lee~tough_on_crime arrived, lost
+  //     its own address, and then found no hash router here to act on it
+  //     (receipt-cards.js is not on the person shell and must not be: it is the
+  //     share-image engine, not the dossier).
+  //
+  // THE CARD NOW LIVES WHERE THE RECORD LIVES. Two accepted spellings, one
+  // document, and a real history entry:
+  //
+  //   /p/lee?issue=tough_on_crime            canonical, and the one this writes
+  //   /p/lee?record=lee~tough_on_crime       what a shared record card carries
+  //
+  // ?issue= is canonical because the pid is ALREADY in the path: repeating it in
+  // the query is a second claim about who this is, and two claims can disagree.
+  // ?record= is honoured rather than redirected, because record-card.js has been
+  // handing that exact string out to readers and it must keep opening what it
+  // promised — but its pid is CHECKED against the path, and a card that names
+  // somebody else does not open. A dossier about Lee must never appear on
+  // Hyde-Smith's file just because a URL was hand-edited.
+  //
+  // WHY THIS FILE OWNS IT. person-file.js already owns every question the card
+  // needs answered — which pid the address means, whether the file is mounted,
+  // what Back means here — and consistency.js owns the SHEET. Splitting it any
+  // other way is how the app ended up with four modules disagreeing about one
+  // overlay. Nothing here renders: openGap paints, this decides the address.
+  // ══════════════════════════════════════════════════════════════════════════
+  var CARD_PARAM = 'issue';        // the canonical one
+  var CARD_PARAM_ALT = 'record';   // <pid>~<issueKey>, as shared cards spell it
+  // The vocabulary key shape. Same alphabet as a pid, pinned here for the same
+  // reason: a key this refuses gets no card rather than an escaped guess at one.
+  var CARD_KEY_RE = /^[A-Za-z0-9_]+$/;
+
+  // The card's address, root-absolute. '' when either half is unusable, which is
+  // a caller's cue to print the plain person address instead of a card link.
+  function cardPath(pid, issueKey) {
+    // RESOLVED, unlike path(). path() deliberately keeps the id it was given —
+    // stamp() needs the uncorrected form to recognise an alias arrival. A CARD
+    // address is different: it is only ever something we hand out or navigate
+    // to, so an alias here would publish /p/mike_lee?issue=… beside
+    // /p/lee?issue=… for one card on one person, which is the duplicate this
+    // whole pass collapses.
+    var base = path(resolve(pid) || pid);
+    if (!base) return '';
+    var key = String(issueKey || '');
+    if (!CARD_KEY_RE.test(key)) return '';
+    return base + '?' + CARD_PARAM + '=' + encodeURIComponent(key);
+  }
+  function cardUrl(pid, issueKey) {
+    var p = cardPath(pid, issueKey);
+    return p ? origin() + p : '';
+  }
+
+  // What card, if any, the address in the bar names — ON A PERSON PATH ONLY.
+  // Returns { pid, key } with the pid RESOLVED (so it is the id the file is
+  // actually open under), or null. Refuses, rather than guesses, when:
+  //   · the document is not at a person address (a card has no meaning there);
+  //   · the key is not key-shaped;
+  //   · ?record= names a different person than the path does.
+  function cardFromUrl() {
+    var here = fromPath();
+    if (!here) return null;
+    var who = resolve(here) || here;
+    var q;
+    try { q = new URLSearchParams(location.search); } catch (e) { return null; }
+    var key = String(q.get(CARD_PARAM) || '').trim();
+    if (!key) {
+      var raw = String(q.get(CARD_PARAM_ALT) || '').trim();
+      if (!raw) return null;
+      var bits = raw.split('~');
+      var named = String(bits[0] || '').trim();
+      key = String(bits[1] || '').trim();
+      // THE IDENTITY CHECK. A record param carries its own pid, so it can
+      // disagree with the path. The path wins the document and the mismatch
+      // wins nothing: no card opens at all.
+      if (!named || !key) return null;
+      if ((resolve(named) || named) !== who) return null;
+    }
+    if (!CARD_KEY_RE.test(key)) return null;
+    return { pid: who, key: key };
+  }
+
+  // The sheet, and the one module that owns it. consistency.js is deferred after
+  // this file, so this is asked at call time rather than captured.
+  function gapApi() {
+    var CS = window.PDXConsistency;
+    return (CS && fn(CS.openGap) && fn(CS.closeGap)) ? CS : null;
+  }
+  // Is a card on screen right now? The sheet is consistency.js's own node and it
+  // is hidden rather than removed, so this is the honest read for both sides.
+  function cardOpenNow() {
+    try {
+      var back = document.getElementById('pdxc-gap-back');
+      return !!(back && !back.hidden);
+    } catch (e) { return false; }
+  }
+
+  // ── The address half ──────────────────────────────────────────────────────
+  // _cardPushed: did WE add the history entry the card is sitting on? A card
+  // opened by a tap did (so closing it can consume that entry with back(), which
+  // is what makes the browser's Back and the sheet's × mean the same thing). A
+  // card the reader ARRIVED on did not — there is nothing of ours behind it, and
+  // back() would take them off the site — so that one closes with a replaceState
+  // onto the bare person address.
+  // _cardSync: the popstate handler is already acting on an address the browser
+  // moved, so the open/close it drives must not write the address again.
+  var _cardPushed = false;
+  var _cardSync = false;
+
+  function pushCard(pid, issueKey) {
+    if (_cardSync) return false;
+    var to = cardPath(pid, issueKey);
+    if (!to) return false;
+    try {
+      if ((location.pathname + location.search) === to) return false;
+      history.pushState(null, '', to + location.hash);
+      _cardPushed = true;
+      return true;
+    } catch (e) { return false; }
+  }
+
+  function dropCard() {
+    if (_cardSync) return false;
+    if (!cardFromUrl()) return false;
+    try {
+      if (_cardPushed) { _cardPushed = false; history.back(); return true; }
+      var to = path(fromPath()) || '/';
+      history.replaceState(null, '', to + location.hash);
+      return true;
+    } catch (e) { return false; }
+  }
+
+  // ── The two calls a surface makes ─────────────────────────────────────────
+  // openCard: paint the sheet AND write the address, in that order, so a sheet
+  // that could not be assembled never leaves a card's URL in the bar.
+  function openCard(pid, issueKey, opts) {
+    var who = resolve(pid) || (pid ? String(pid) : '');
+    var key = String(issueKey || '');
+    if (!who || !CARD_KEY_RE.test(key)) return false;
+    var CS = gapApi();
+    if (!CS) return false;
+    var ok = false;
+    try { ok = CS.openGap(who, key, opts || undefined) !== false; } catch (e) { ok = false; }
+    if (!ok) return false;
+    // openGap is WRAPPED below on this document, so it has already written the
+    // address by the time this returns. The call here is the idempotent
+    // belt-and-braces for a build where the wrap could not be installed.
+    pushCard(who, key);
+    return true;
+  }
+  function closeCard() {
+    var CS = gapApi();
+    if (CS) { try { CS.closeGap(); } catch (e) {} }
+    dropCard();
+    return true;
+  }
+
+  // ── ONE WRAP, SO EVERY EXISTING TAP GETS THE ADDRESS FOR FREE ─────────────
+  // The dossier is opened from a dozen places on this file — the stance-tree
+  // leaf, the Word-vs-Action shape row, the gap sheet's own sideways step, the
+  // 🧾 tally — and every one of them calls PDXConsistency.openGap directly. Going
+  // around and changing them all is how two of them end up disagreeing, so the
+  // address is attached at the ONE function they share.
+  //
+  // Scoped to this document. On index.html, /ballot or an issue file nothing is
+  // wrapped, because a card has no address there: a person open on those pages is
+  // a navigation to /p/<pid> and the card comes with the file.
+  //
+  // The wrap adds an address and changes no answer: openGap's return value is
+  // passed through untouched (word-action.js consumes a reader's tap only when it
+  // is true), and a throw inside the address half cannot take the sheet down.
+  var _gapHooked = false;
+  function hookGap() {
+    if (_gapHooked || !isPersonDoc()) return false;
+    var CS = gapApi();
+    if (!CS) return false;
+    _gapHooked = true;
+    var rawOpen = CS.openGap, rawClose = CS.closeGap;
+    CS.openGap = function (pid, issueKey, opts) {
+      var out = rawOpen.apply(this, arguments);
+      if (out !== false) {
+        try { pushCard(resolve(pid) || pid, issueKey); } catch (e) {}
+      }
+      return out;
+    };
+    CS.closeGap = function () {
+      var out = rawClose.apply(this, arguments);
+      try { dropCard(); } catch (e) {}
+      return out;
+    };
+    return true;
+  }
+
+  // ── The card named in the address, opened once the file can hold it ───────
+  // A cold /p/lee?issue=tough_on_crime arrives with neither consistency.js
+  // executed nor the roll-call record fetched, so this is a short wait rather
+  // than a bet — the same shape (and the same honesty rule) as the arrival wait
+  // for the file itself: retry while the answer may still be coming, and when it
+  // is not, say so instead of leaving a reader on a file wondering where the card
+  // they followed went.
+  var CARD_TRIES = 14, CARD_STEP = 180, CARD_STEP_MAX = 900, CARD_GROW = 1.3;
+  function adoptCard(tries) {
+    tries = tries || 0;
+    var want = cardFromUrl();
+    if (!want) return false;
+    // The reader moved on, or closed it. Either way the address is no longer
+    // asking for this card.
+    if (cardOpenNow()) return true;
+    hookGap();
+    if (gapApi() && mountedNow(want.pid)) {
+      _cardSync = true;   // the address already names this card; do not re-write it
+      var ok = false;
+      try { ok = openCard(want.pid, want.key, { arrival: true }); } catch (e) { ok = false; }
+      _cardSync = false;
+      if (ok) { perf('card-open'); return true; }
+    }
+    if (tries < CARD_TRIES) {
+      var gap = Math.min(CARD_STEP_MAX, Math.round(CARD_STEP * Math.pow(CARD_GROW, tries)));
+      setTimeout(function () { adoptCard(tries + 1); }, gap);
+      return false;
+    }
+    // Out of retries. The file itself is on screen and correct, so this is not a
+    // dead link — but the reader asked for one issue and got the whole record,
+    // and being told which is the difference between a slow app and a lying one.
+    try {
+      var L = window.PDXShareLinks;
+      if (L && fn(L.notice)) {
+        L.notice('pdx-person-card-unresolved', 'Issue record',
+          'We couldn’t open the issue card that link named, so you’re on the full ' +
+          'record instead. The issue was “' + want.key + '” — it is on this page, ' +
+          'lower down, with everything else on file.');
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  // ── Back and forward, across the card ────────────────────────────────────
+  // Called from the one popstate handler at the foot of this file, after it has
+  // settled which person the address names. The address is already where the
+  // browser put it, so both branches run with _cardSync set: this SYNCS the sheet
+  // to the bar, it does not move the bar.
+  function syncCard() {
+    var want = cardFromUrl();
+    var openNow = cardOpenNow();
+    if (!want && !openNow) return false;
+    _cardSync = true;
+    try {
+      if (!want) {
+        // Popped OFF a card address: /p/lee?issue=… → /p/lee. The sheet closes
+        // and the file it was over is still there, which is exactly what Back
+        // from a card should mean.
+        var CS = gapApi();
+        if (CS) { try { CS.closeGap(); } catch (e) {} }
+        _cardPushed = false;
+      } else {
+        // Popped ONTO one (Forward, or Back from a deeper card). Re-open rather
+        // than assume: the sheet may be showing a different issue.
+        try { openCard(want.pid, want.key); } catch (e) {}
+      }
+    } finally { _cardSync = false; }
+    return true;
+  }
+
   // ── The bar ───────────────────────────────────────────────────────────────
   // What the reader was on before any file opened. Captured once per open, not
   // per stamp, so a hop from one person file straight to another still returns
@@ -418,13 +741,25 @@
       if (!fromPath(location.pathname)) return;
       // The hash is a section within the app and survives; the ?p= param does
       // not, because the path now carries what it used to.
-      var search = '';
-      try {
-        var q = new URLSearchParams(location.search);
-        q.delete('p');
-        var s = q.toString();
-        search = s ? '?' + s : '';
-      } catch (e) { search = ''; }
+      //
+      // AND A SEARCH WITH NO ?p= IN IT IS PASSED THROUGH BYTE FOR BYTE. This
+      // used to round-trip every address through URLSearchParams, which
+      // re-serialises as well as parses: ?record=lee~tough_on_crime came back
+      // out as ?record=lee%7Etough_on_crime, because URLSearchParams percent-
+      // encodes '~' even though RFC 3986 lists it as unreserved. Harmless to a
+      // parser, not harmless to a reader — that is the address in the bar, the
+      // one they copy and send — and it made the shipped link and the address
+      // after arrival two different strings. Nothing needs rebuilding unless
+      // there is actually a ?p= to drop.
+      var search = location.search || '';
+      if (search.indexOf('p=') !== -1) {
+        try {
+          var q = new URLSearchParams(search);
+          q.delete('p');
+          var s = q.toString();
+          search = s ? '?' + s : '';
+        } catch (e) { search = ''; }
+      }
       history.replaceState(null, '', path(pid) + search + location.hash);
     } catch (e) {}
   }
@@ -718,12 +1053,66 @@
     return false;
   }
 
+  // ── AND CLOSE SHOULD LEAVE THE WAY THE READER CAME ───────────────────────
+  // leaveHome() is honest but blunt: it always goes to '/'. A reader who opened
+  // Lee from /ballot and closed the file landed on the front page, which is not
+  // where they were and, worse, is not what the browser's own Back button does
+  // from the same position. Two ways out of one document that disagree is how a
+  // reader loses their place — and the ballot is the surface where losing it
+  // costs the most, because the list they were working through is the whole
+  // point of being there.
+  //
+  // So close asks the history first: if the entry behind this one is OURS, go
+  // back to it, and the × and the Back button become the same gesture. The
+  // referrer is what makes that answerable rather than guessed — history.length
+  // counts entries from before this tab ever reached the site, so on its own it
+  // says nothing about whether the previous one is a PolitiDex page. A
+  // same-origin referrer pointing at a DIFFERENT path is exactly the claim
+  // needed: we came from a page of ours that is not this file.
+  //
+  // A cold deep link (no referrer, or an off-site one — a text message, a
+  // search result, a tweet) has nothing of ours behind it, and back() there
+  // would take the reader off the site entirely. That case still goes to '/',
+  // which is the answer it always gave.
+  function cameFromUs() {
+    try {
+      var r = document.referrer;
+      if (!r) return false;
+      var u = new URL(r, location.href);
+      if (u.origin !== location.origin) return false;
+      // A referrer that is THIS path is this document re-entered — a reload, a
+      // hash step — not a surface to return to.
+      if (u.pathname === location.pathname) return false;
+      return true;
+    } catch (e) { return false; }
+  }
+
+  // depth: how many of our own entries sit between the reader and the surface
+  // they came from. One for the file. Two when a card we pushed is still on top
+  // of it, because otherwise Back out of a card-plus-file lands back on the file
+  // the reader just asked to close.
+  function leaveBack(depth) {
+    if (!cameFromUs()) return false;
+    try { if (history.length <= depth) return false; } catch (e) { return false; }
+    try { history.go(-depth); return true; } catch (e) {}
+    return false;
+  }
+
   function restore() {
     // The tab goes home with the address. Same helper the open used, so there is
     // exactly one spelling of "this tab is the front page" in the module.
     try { chrome(''); } catch (e) {}
-    if (ARRIVAL) {
+    // isPersonDoc() rather than ARRIVAL, which is what this used to read.
+    // isPersonDoc() SUBSUMES ARRIVAL — it is the flag person.html sets OR a
+    // non-empty ARRIVAL, see its note — so the gate has not widened to any
+    // address ARRIVAL let through. It has simply stopped being the only way to
+    // recognise this document, and it names the thing being asked: on the person
+    // FILE the close is a leave, and on index.html's own profile modal (where
+    // there genuinely is a page underneath) it is still the replaceState below.
+    if (isPersonDoc()) {
       _return = null;
+      // The way in, run backwards, when there was one.
+      if (leaveBack((cardFromUrl() && _cardPushed) ? 2 : 1)) return;
       // Falls through to the replaceState below if every navigation spelling
       // threw: a corrected address is a worse outcome than a loaded homepage and
       // a better one than a closed file still on the screen.
@@ -1069,6 +1458,28 @@
     return false;
   }
 
+  // ── The one-hop version, for an address that is being CORRECTED ───────────
+  // location.replace is the forbidden mechanism everywhere else in this module,
+  // and the reason is in goToPerson's note: it overwrites the entry Back needs.
+  // That is precisely why it is the right one here. A legacy /?p=<pid> link is
+  // not a place the reader chose to be, it is a spelling of an address, so the
+  // entry it occupies is worth nothing and keeping it is what builds the forward
+  // trap (Back → /?p= → resolves → pushes forward → Back → …). Replacing it
+  // leaves the history looking exactly as if the reader had followed the
+  // canonical link in the first place.
+  //
+  // No location.href fallback: href is assign, which would push. If replace is
+  // unavailable the caller falls through to goToPerson's push, which is a worse
+  // history but a correct document — and a correct document is the requirement.
+  function hopToPerson(pid, opts) {
+    opts = opts || {};
+    var to = (opts.issue && cardPath(pid, opts.issue)) || path(pid);
+    if (!to) return false;
+    if (!opts.issue) to += sectionHash(opts.section);
+    try { location.replace(to); return true; } catch (e) {}
+    return false;
+  }
+
   // ── The one way in ────────────────────────────────────────────────────────
   // Everything that opens a person calls this. It resolves the record, opens
   // the file through the renderer that owns it, stamps the address, sets the
@@ -1092,28 +1503,75 @@
     // error state instead of being silently swallowed here.
     pid = resolve(pid) || pid;
 
-    // ── IS THIS DOCUMENT ALREADY THIS PERSON'S? ──────────────────────────────
-    // The one question that decides between rendering and navigating, and it is
-    // asked of the ADDRESS rather than of the DOM: fromUrl() is every way a URL
-    // can name a person, so it is true on a cold /p/<pid> arrival, on the alias
-    // form /p/scott_chew whose record is chew_h68, and on the legacy /?p=<pid>
-    // — and false on the homepage, on an issue or Spotlight address, and on
-    // another person's file.
+    // ── IS THIS DOCUMENT ALREADY THIS PERSON'S FILE? ─────────────────────────
+    // The one question that decides between rendering and navigating, and the
+    // reason this change exists is that it used to be asked WRONG.
+    //
+    // IT USED TO ASK THE ADDRESS: `fromUrl()`, which is every way a URL can name
+    // a person — including the legacy query form `/?p=<pid>`. So a person opened
+    // on the homepage under `/?p=lee` compared equal to itself and RENDERED: a
+    // modal painted over index.html, two and a bit megabytes of front page still
+    // loaded beneath it, the address naming a person that no document on screen
+    // was actually serving. Every "opening a person from home / Eye / WRM /
+    // cards still paints a modal on /" report is that one comparison.
+    //
+    // IT NOW ASKS THE DOCUMENT, AND THEN THE PATH. `isPersonDoc()` is true only
+    // inside person.html — the document the person-path rewrite serves and the only
+    // one that has the file's markup, CSS and sections. Anywhere else the answer
+    // is no before the pid is even looked at, and the open becomes a navigation
+    // to `/p/<pid>`. That is the whole "same move as /ballot": one document per
+    // person, reached by going there.
     //
     // WHEN IT IS ALREADY OURS, RENDER. This is what keeps the change from
     // eating itself: adopt() calls open() on a cold arrival and the popstate
     // handler calls it after the browser has already moved the bar, so an
-    // unconditional navigation here would reload person.html on arrival, for
-    // ever, and would turn every Back into a forward. Both of those paths arrive
-    // with the address already naming this person, so both fall through to the
-    // renderer below exactly as before.
+    // unconditional navigation would reload person.html on arrival, for ever,
+    // and would turn every Back into a forward. Both of those run inside
+    // person.html with the path already naming this person, so both still fall
+    // through to the renderer below exactly as before.
     //
-    // WHEN IT IS NOT, GO. Resolved on both sides before comparing, so an alias
-    // arrival is recognised as already-here (and gets its in-place stamp
-    // correction) instead of being navigated to its own canonical twin.
-    var asked = fromUrl();
+    // fromPath() rather than fromUrl() for the second half, because on THIS
+    // document the path IS the address — and resolved on both sides before
+    // comparing, so an alias arrival (/p/scott_chew, record chew_h68) is
+    // recognised as already-here and gets its in-place stamp correction instead
+    // of being navigated to its own canonical twin.
+    var asked = isPersonDoc() ? fromPath() : '';
     var hereIs = asked ? (resolve(asked) || asked) : '';
-    if (hereIs !== pid && goToPerson(pid, opts.section)) return true;
+    if (hereIs !== pid) {
+      // ── THE LEGACY /?p=<pid> FORM IS A REDIRECT, NOT A PUSH ────────────────
+      // This one address is both "not the person document" and "already naming
+      // this person", which is the one case where the two halves of the question
+      // disagree — and it needs its own answer, because both of the obvious ones
+      // are wrong.
+      //
+      //   · RENDER IN PLACE, which is what it used to do, paints the file into
+      //     index.html: the homepage's whole apparatus underneath, and none of
+      //     person.html's own markup, sections or CSS. That is the "modal on /"
+      //     defect, just reached from a link instead of a click.
+      //   · PUSH, with assign, is a FORWARD TRAP. It leaves /?p=<pid> in the
+      //     history, so Back re-loads index.html, which re-reads ?p= (that is
+      //     what _pdxOpenFromUrl does), which pushes forward again. The reader
+      //     cannot get out with the Back button.
+      //
+      // So: navigate, with location.replace, and CONSUME the entry. /?p=<pid>
+      // was never a surface a reader chose to be on — it is an old link shape
+      // arriving from off-site — so there is nothing behind it worth keeping, and
+      // Back goes wherever the reader was before they followed it. One hop, onto
+      // the canonical address, exactly as the #record= hash now does.
+      //
+      // Narrow on purpose: fromUrl() has to name THIS person. A /?p=<other>
+      // layered under a click on somebody else is a result click, and gets the
+      // push that keeps Back meaning "the list I came from".
+      var urlPid = fromUrl();
+      if (urlPid && (resolve(urlPid) || urlPid) === pid && hopToPerson(pid, opts)) return true;
+      // An issue card asked for from somewhere else is one navigation, not two:
+      // the card's own address carries the person, so the reader lands on the
+      // file WITH the dossier up and Back returns them to where they tapped —
+      // rather than landing on the file, then pushing a card, then needing two
+      // Backs to leave.
+      if (opts.issue && goToCard(pid, opts.issue)) return true;
+      if (goToPerson(pid, opts.section)) return true;
+    }
 
     // The renderer. _pdxOpenFullModal is the internal name; showProfile is the
     // public one and does the journey bookkeeping, so it is preferred — but
@@ -1157,7 +1615,29 @@
         try { window._pdxNavJump(opts.section); } catch (e) {}
       }, 250);
     }
+    // Already this person's file, and an issue was named: the card is a layer on
+    // a document that is already here, so it opens in place and pushes its own
+    // entry. Deferred for the same reason the section jump is — the sheet reads
+    // the record the file is still mounting.
+    if (opts.issue) {
+      setTimeout(function () {
+        try { openCard(pid, opts.issue); } catch (e) {}
+      }, 60);
+    }
     return true;
+  }
+
+  // ── Going straight to a card on somebody's file ───────────────────────────
+  // Same contract, same reasoning and the same deliberate absence of a
+  // location.replace fallback as goToPerson: a push is what makes Back mean "the
+  // surface I tapped from", and a caller that gets false still has the <a href>
+  // it printed.
+  function goToCard(pid, issueKey) {
+    var to = cardPath(pid, issueKey);
+    if (!to) return false;
+    try { location.assign(to); return true; } catch (e) {}
+    try { location.href = to; return true; } catch (e2) {}
+    return false;
   }
 
   // ── THE ONE SENTENCE THIS MODULE MAY NOT SAY EARLY ───────────────────────
@@ -1252,7 +1732,19 @@
     // A hash on a cold arrival names a section INSIDE the file, so it is handed
     // to open() rather than left for the browser — the element it names does not
     // exist yet at arrival time.
-    return open(pid, { section: sectionFromHash() }) ? pid : '';
+    var ok = open(pid, { section: sectionFromHash() });
+    if (!ok) return '';
+    // AND A CARD IN THE ADDRESS IS PART OF THE ARRIVAL, not something to open
+    // after it. /p/lee?issue=tough_on_crime is one request for one thing: this
+    // person's record on this issue. adoptCard waits for consistency.js and for
+    // the mount on its own clock (open() has only just started the file), and it
+    // must NOT be handed to open() as opts.issue — that would push a second
+    // history entry on top of the address the reader already arrived at, so the
+    // first Back would put them back on the card they were already looking at.
+    // The card the reader ARRIVED on has nothing of ours behind it, which is the
+    // whole reason _cardPushed exists.
+    try { adoptCard(0); } catch (e) {}
+    return pid;
   }
 
   window.PDXPerson = {
@@ -1277,6 +1769,27 @@
     fromPath: fromPath,
     fromUrl: fromUrl,
     adopt: adopt,
+    // ── Which document am I? ───────────────────────────────────────────────
+    // Exported because it is the question five modules were each answering for
+    // themselves, differently: profiles-full.js deciding whether openModal may
+    // paint or must navigate, share-links.js deciding whether ?record= is its
+    // param to consume, receipt-cards.js deciding whether a #record= hash is
+    // an overlay or a redirect. One answer, one owner.
+    isPersonDoc: isPersonDoc,
+    // ── The issue / record card, as an address on this document ────────────
+    // CARD_PARAM / CARD_PARAM_ALT are exported so a test and an emitter read
+    // the same two strings this reader does, rather than three copies of
+    // 'issue' and 'record' drifting apart.
+    CARD_PARAM: CARD_PARAM,
+    CARD_PARAM_ALT: CARD_PARAM_ALT,
+    cardPath: cardPath,
+    cardUrl: cardUrl,
+    cardFromUrl: cardFromUrl,
+    openCard: openCard,
+    closeCard: closeCard,
+    goToCard: goToCard,
+    adoptCard: function () { return adoptCard(0); },
+    hookGap: hookGap,
     // The sentinel wall. Exported so every other emitter of a /p/ address can
     // ask this file the question rather than each keeping its own list.
     realPid: realPid,
@@ -1512,6 +2025,33 @@
     try { window.addEventListener('load', kick); } catch (e) {}
   }
 
+  // ── The card hook, installed once, on this document only ─────────────────
+  // adoptCard() installs it too, but only when the ARRIVAL named a card. The far
+  // commoner case is a reader who arrives at /p/lee and then taps an issue —
+  // stance-tree leaf, Word-vs-Action row, the 🧾 tally — and every one of those
+  // calls PDXConsistency.openGap directly. Without the hook in place before the
+  // first tap, that dossier opens with no address and no history entry, and Back
+  // takes the reader off the file instead of out of the card. That is the exact
+  // trapped-overlay behaviour this change exists to remove, so the hook cannot
+  // wait for a link that names a card.
+  //
+  // consistency.js is 1.2 MB and deferred after this file, so PDXConsistency
+  // does not exist yet at module evaluation. A short poll rather than a load
+  // listener, because a hook installed one turn late is still installed before
+  // any reader has tapped anything, and because failing to find the module must
+  // cost nothing on a shell that deliberately omits it.
+  if (isPersonDoc()) {
+    (function () {
+      var tries = 0;
+      var look = function () {
+        if (hookGap() || ++tries > 40) return;
+        setTimeout(look, 150);
+      };
+      setTimeout(look, 0);
+      try { window.addEventListener('load', look); } catch (e) {}
+    })();
+  }
+
   // Back/forward across person files. The path form makes this meaningful for
   // the first time: popping to /p/<other> should show that other file, and
   // popping off a person path should close the file rather than leave a stale
@@ -1524,11 +2064,21 @@
       if (raw && !realPid(raw)) { scrubSentinelPath(); raw = ''; }
       var pid = raw ? resolve(raw) : '';
       var openNow = window._pdxCurrentProfileId || '';
-      if (pid && pid !== openNow) { open(pid); return; }
+      // THE PERSON SETTLES FIRST, THEN THE CARD. A card is a layer ON a file, so
+      // the file has to be the right one before the question "which card" even
+      // has an answer — and syncCard() reads the pid out of the path it has just
+      // been moved to, so doing it in the other order would open a dossier on
+      // whoever was previously on screen.
+      if (pid && pid !== openNow) { open(pid); syncCard(); return; }
       // Only an address that names no person at all closes the file. A person
       // path that resolves to nobody is a bad link, not an instruction to close
       // whatever the reader was looking at.
       if (!raw && openNow && fn(window.closeModal)) window.closeModal();
+      // Same file, the card moved: /p/lee?issue=x → /p/lee is Back out of a
+      // dossier, and it closes the sheet and leaves the reader on the record.
+      // The reverse is Forward. Both are a sheet following an address the browser
+      // has already moved, which is why syncCard never writes the address back.
+      syncCard();
     } catch (e) {}
   });
 })();

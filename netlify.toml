@@ -361,6 +361,24 @@
 # /p/*) and gives the path meaning — record-specific title, description, card and
 # canonical — and person-file.js says so out loud on arrival when the pid does not
 # resolve, rather than showing the front page to someone who followed a citation.
+#
+# ── AND THE QUERY ON THIS PATH BELONGS TO THE DOCUMENT ────────────────────────
+# /p/<pid>?issue=<key> and /p/<pid>?record=<pid>~<key> are the issue dossier's
+# addresses, and they need nothing here: a query string does not participate in
+# rule matching, so both are served by this same rewrite and read on the client
+# by person-file.js. That is the point of them — the dossier used to be a HASH on
+# the front page (#record=<pid>~<key>), which meant it painted over index.html,
+# never had a history entry, and left Back with nothing to close. It is now a
+# layer on the one document that holds the record it is about.
+#
+# FIRST-MATCH-WINS, AND WHERE THIS SITS IN IT. Netlify takes the first rule whose
+# `from` matches, so the practical question is only ever "what else could claim
+# this path". Nothing can: /p/* is disjoint from /ballot and /ballot/ (which are
+# exact, above), from /i/*, /issue/*, /b/* and /vote/*, and from the index.html
+# fallbacks at the foot of this file. Moving this block above or below any of
+# them is a no-op — which is worth writing down precisely because it LOOKS
+# load-bearing next to a note insisting something else is. The thing that is
+# genuinely load-bearing on this path is the root-absolute asset rule above.
 [[redirects]]
   from = "/p/*"
   to = "/person.html"

@@ -1791,14 +1791,32 @@ if (craCard) {
 // the far end of the link — on someone else's phone, with no PolitiDex history
 // behind it. Two things have to hold there or the claim is empty: the link must
 // open the SAME (member, issue) view the card was about, and that view must lead
-// somewhere. handleHash() opens the gap sheet directly over whatever page the app
-// happened to boot on, so dismissing it is a dead end unless the sheet says where
-// to go next.
+// somewhere.
+//
+// WHERE THE SHEET OPENS, NOW THAT A PERSON IS A DOCUMENT. handleHash() used to
+// open the gap sheet directly over whatever page the app happened to boot on,
+// which was the front page: the whole homepage under the sheet, an address bar
+// that still said '/', and a Back button that took the page away and left the
+// sheet on screen. The sheet's own "where to next" row was the only exit, which
+// is why it is asserted so heavily below. That row still ships and is still
+// asserted — but the dead end it was compensating for is gone: off the person
+// document the hash is now a one-hop redirect onto the person's own address
+// carrying the record, and the sheet opens THERE, with a real Back.
+//
+// So the round trip below is driven with __PDX_PERSON_DOC set, because that is
+// where the far end of the link now lands. The hop itself — the half that used
+// to be the defect — is asserted separately, right after it.
 {
   const C = ctx.window.PDXConsistency;
   ok(!!C, "arrival: the consistency module that owns the landing view is loaded");
   eq(typeof RC.handleHash, "function",
     "arrival: the hash router is exposed, so the round trip is asserted and not assumed");
+
+  // receipt-cards.js reads this flag directly rather than through PDXPerson, so
+  // the sandbox sets the flag and nothing else — same as the real page before
+  // person-file.js has finished parsing.
+  const realDocFlag = ctx.window.__PDX_PERSON_DOC;
+  ctx.window.__PDX_PERSON_DOC = true;
 
   // ── The round trip, driven through the real router ──────────────────────────
   // Every shippable card's own hash is fed to the real handleHash and the real
@@ -1844,9 +1862,45 @@ if (craCard) {
     }
     eq(calls.length, 0, "arrival: an issue-less record link never guesses an issue to open");
     eq(profiled, "testrep", "arrival: it lands on that member's profile instead");
+
+    // And the hop, which is the other half of the same promise. With the flag
+    // clear — an old post's hash arriving at '/' — the router must not paint the
+    // sheet here. It hops once, onto the address that owns the card, and paints
+    // nothing on the way out.
+    ctx.window.__PDX_PERSON_DOC = undefined;
+    const hops = [];
+    const realReplace = ctx.location.replace;
+    ctx.location.replace = (u) => { hops.push(String(u)); };
+    try {
+      const card = shippable[0];
+      const m = String(card.hash || "").match(/^#record=([^~&]+)~([^&]+)$/);
+      calls.length = 0; hops.length = 0;
+      ctx.location.hash = card.hash;
+      RC.handleHash();
+      eq(hops.length, 1, "arrival: off the person document the record hash hops exactly once");
+      eq(calls.length, 0, "arrival: and paints no sheet over the page it was standing on");
+      eq(hops[0], `/p/${m[1]}?record=${encodeURIComponent(m[1] + "~" + m[2])}`,
+        "arrival: the hop names the member's document and carries the record the card is about");
+
+      // The same refusal the flag gives, without the flag: never replace() the
+      // path we are already on. That mistake costs the reader the whole page
+      // rather than just the card.
+      const wasPath = ctx.location.pathname;
+      try {
+        ctx.location.pathname = `/p/${m[1]}`;
+        calls.length = 0; hops.length = 0;
+        ctx.location.hash = card.hash;
+        RC.handleHash();
+        eq(hops.length, 0, "arrival: already on that member's path, the router does not replace() the page with itself");
+        eq(calls.length, 1, "arrival: it opens the sheet instead, which is what that address is for");
+      } finally { ctx.location.pathname = wasPath; }
+    } finally {
+      ctx.location.replace = realReplace;
+    }
   } finally {
     C.openGap = realOpen;
     ctx.location.hash = realHash;
+    ctx.window.__PDX_PERSON_DOC = realDocFlag;
   }
 
   // ── The way out of the landing view ─────────────────────────────────────────
@@ -2801,12 +2855,16 @@ if (craCard) {
 
   // ── Arrival ───────────────────────────────────────────────────────────────
   // A shared act opens the same politician × issue Official Record the card is
-  // about — the same round trip a vote card makes, on the real router.
+  // about — the same round trip a vote card makes, on the real router, and so on
+  // the same document: the far end of a record link is the person's own file,
+  // which is where the sheet opens. Section 5c owns the off-document hop.
   {
     const calls = [];
     const C = ctx.window.PDXConsistency;
     const realOpen = C.openGap;
     const realHash = ctx.location.hash;
+    const realDocFlag = ctx.window.__PDX_PERSON_DOC;
+    ctx.window.__PDX_PERSON_DOC = true;
     try {
       C.openGap = function (pid, issue) { calls.push([pid, issue]); };
       for (const c of RC.cardsFor("actrep")) {
@@ -2819,6 +2877,7 @@ if (craCard) {
     } finally {
       C.openGap = realOpen;
       ctx.location.hash = realHash;
+      ctx.window.__PDX_PERSON_DOC = realDocFlag;
     }
   }
 }

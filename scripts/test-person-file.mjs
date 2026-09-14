@@ -285,19 +285,49 @@ sec3.P.open("mike_lee", { section: "not-a-section" });
 eq(sec3.calls.assign[sec3.calls.assign.length - 1], "/p/mike_lee",
    `an unmapped section became a hash the arriving document cannot act on (saw ${JSON.stringify(sec3.calls.assign)})`);
 
-// THE LEGACY /?p=<pid> FORM RENDERS IN PLACE AND IS LEFT ALONE. It names this
-// person, so it is an arrival rather than a result click — and it must not be
-// "corrected" onto /p/<pid>: a replaceState there is the forbidden transition,
-// and a push there is a back-trap (Back would return to /?p=<pid>, which would
-// resolve and push forward again).
+// ── THE LEGACY /?p=<pid> FORM REDIRECTS ONCE ───────────────────────────────
+// THIS BLOCK USED TO ASSERT THE OPPOSITE — openModal once, no navigation, on
+// the stated grounds that /?p=<pid> "names this person, so it is an arrival
+// rather than a result click". The naming was right and the conclusion was
+// wrong: pathname is '/', so the DOCUMENT is index.html, and rendering a person
+// file into it is the same "modal painted on /" defect as any result click —
+// 2.3 MB of homepage under a senator's record, and none of person.html's own
+// markup, sections or CSS.
+//
+// The old note's other half was correct and is why this is not a push. assign
+// would leave /?p=<pid> in the history, Back would re-load index.html, and
+// _pdxOpenFromUrl would read ?p= and push forward again: a trap the reader
+// cannot Back out of. So the answer is neither of the two obvious ones —
+// location.replace, which navigates to the document that can serve the person
+// AND consumes the entry, so Back goes wherever the reader was before they
+// followed the old link. One hop onto the canonical address, the same shape the
+// #record= hash redirect now takes.
 const q = sandbox({ location: { pathname: "/", search: "?p=mike_lee" } });
 ok(q.P.open("mike_lee") === true, "open() failed on the legacy query form");
-eq(q.calls.openModal.length, 1,
-   `the /?p= form stopped rendering in place (saw openModal=${JSON.stringify(q.calls.openModal)}, assign=${JSON.stringify(q.calls.assign)})`);
+eq(q.calls.openModal.length, 0,
+   `the /?p= form still rendered the person file into index.html (saw openModal=${JSON.stringify(q.calls.openModal)})`);
+eq(q.calls.locReplace[q.calls.locReplace.length - 1], "/p/mike_lee",
+   `the /?p= form did not redirect onto the person document (saw locReplace=${JSON.stringify(q.calls.locReplace)}, assign=${JSON.stringify(q.calls.assign)})`);
 eq(q.calls.assign.length, 0,
-   `the /?p= form navigated, which traps Back (saw ${JSON.stringify(q.calls.assign)})`);
+   `the /?p= form pushed instead of replacing, which is the forward trap (saw ${JSON.stringify(q.calls.assign)})`);
 ok(!q.calls.replace.some((u) => String(u).indexOf("/p/") === 0),
    `the /?p= form was rewritten onto /p/<pid> with replaceState from / (saw ${JSON.stringify(q.calls.replace)})`);
+
+// AND A /?p=<other> LAYERED UNDER A CLICK ON SOMEBODY ELSE IS A RESULT CLICK,
+// not an address being corrected — so it still gets the push that makes Back
+// mean "the list I came from". The redirect is narrow on purpose.
+const qOther = sandbox({
+  location: { pathname: "/", search: "?p=mike_lee" },
+  roster: {
+    mike_lee: { name: "Mike Lee", office: "U.S. Senator", state: "Utah" },
+    celeste_maloy: { name: "Celeste Maloy", office: "U.S. Representative", state: "Utah" },
+  },
+});
+qOther.P.open("celeste_maloy");
+eq(qOther.calls.assign[qOther.calls.assign.length - 1], "/p/celeste_maloy",
+   `opening a different person from a /?p= page did not push (saw assign=${JSON.stringify(qOther.calls.assign)})`);
+eq(qOther.calls.locReplace.length, 0,
+   `opening a different person consumed the page's history entry (saw locReplace=${JSON.stringify(qOther.calls.locReplace)})`);
 
 // A cold deep link has no surface to return to, so it goes to the root rather
 // than to whatever happened to be in the address bar. On the person shell that is

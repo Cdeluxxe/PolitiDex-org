@@ -45,6 +45,40 @@
   // one honest-failure path.
   var PARAMS = ['bill', 'receipt', 'record', 'rank', 'wordrecord', 'race'];
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // ONE PARAM THIS MODULE DOES NOT OWN ON ONE DOCUMENT
+  // ──────────────────────────────────────────────────────────────────────────
+  // `record` is a PERSON address: <pid>~<issueKey>, the Official Record for one
+  // member on one issue. Since the person file became its own document that card opens ON
+  // the person file, at /p/<pid>?record=<pid>~<issue> — and on that document the
+  // query is not something to consume and convert, it IS the address.
+  //
+  // WHAT THIS MODULE WAS DOING TO IT. resolve() turned ?record= into #record=
+  // with a replaceState, and cleanedSearch() stripped the query while doing it.
+  // On index.html that is the whole point: receipt-cards.js opens #record= and
+  // the hash is the in-app form. On person.html it was destructive — the query
+  // was deleted, the hash was written, and NOTHING on that document reads
+  // #record= (receipt-cards.js is the share-image engine and is deliberately not
+  // on the person shell). A reader following a shared record card arrived on the
+  // right person's file with the card's address erased and no card.
+  //
+  // So on the person document this module leaves `record` alone, in both halves:
+  // it is not resolved to a hash and it is not stripped. person-file.js reads it
+  // and opens the dossier. Everywhere else nothing changes.
+  //
+  // READ OFF window.__PDX_PERSON_DOC RATHER THAN PDXPerson.isPersonDoc(), for
+  // once, because of script order: this file is non-deferred in person.html's
+  // head and person-file.js is deferred, so PDXPerson does not exist yet when
+  // resolve() runs. The flag is set by an inline block above this script for
+  // exactly that reason — it is the earliest honest answer available.
+  var DOC_OWNED = ['record'];
+  function isPersonDoc() {
+    try { return window.__PDX_PERSON_DOC === true; } catch (e) { return false; }
+  }
+  function docOwns(name) {
+    return isPersonDoc() && DOC_OWNED.indexOf(name) !== -1;
+  }
+
   function param(name) {
     try { return new URLSearchParams(location.search).get(name) || ''; }
     catch (e) { return ''; }
@@ -111,6 +145,10 @@
       var sp = new URLSearchParams(location.search);
       var touched = false;
       PARAMS.concat(['key', 'mode', 'scope', 'cands', 'rmode']).forEach(function (k) {
+        // docOwns: on the person document ?record= is that document's own
+        // address, not a param in transit. Stripping it there is how a shared
+        // record card lost the card it named. See DOC_OWNED.
+        if (docOwns(k)) return;
         if (sp.has(k)) { sp.delete(k); touched = true; }
       });
       if (!touched) return null;
@@ -161,6 +199,7 @@
     //    edge function did not run, and that older shared links still carry.
     for (var i = 0; i < PARAMS.length; i++) {
       var name = PARAMS[i];
+      if (docOwns(name)) continue;   // the person file reads its own query
       var h = hashFor(name, param(name));
       if (h && applyHash(h)) return true;
     }
@@ -325,9 +364,25 @@
       if (!pid) return origin() + '/';
       return origin() + '/?receipt=' + encodeURIComponent(pid + (issueKey ? '~' + issueKey : ''));
     },
+    // ── THE RECORD CARD'S ADDRESS IS THE PERSON'S DOCUMENT ───────────────────
+    // This used to emit origin() + '/?record=<pid>~<issue>' — the front page,
+    // with the dossier as a query for the homepage to unpack. Three problems,
+    // all of them the reader's: the link unfurled as PolitiDex-in-general rather
+    // than as this person, it downloaded index.html to show one member's votes,
+    // and the sheet it eventually painted had no history entry so Back did
+    // nothing. /p/<pid>?record=<pid>~<issue> is the same card at the address of
+    // the document that holds it.
+    //
+    // personRecord() has been building exactly that string since record-card.js
+    // needed it, so this delegates rather than growing a second speller of the
+    // same URL — which is how ?record= ended up with one canonical form at the
+    // edge and a different one in the client. The ~ pair is kept (rather than
+    // reduced to ?issue=, which is what the app writes internally) because this
+    // is the PUBLISHED form: links already in the wild carry it, share-target.ts
+    // parses it, and a published address that changes shape is a link that rots.
     record: function (pid, issueKey) {
       if (!pid) return origin() + '/';
-      return origin() + '/?record=' + encodeURIComponent(pid + (issueKey ? '~' + issueKey : ''));
+      return API.personRecord(pid, issueKey) || (origin() + '/');
     },
     // The whole-person words-vs-formal-record card. No issue key, ever: the card
     // is a count ACROSS issues, and an address that named one would promise a

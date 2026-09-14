@@ -2337,6 +2337,47 @@ const swNote = swWaveNote();
     "scripts/test-lyman-letterhead-warm.mjs",
     "scripts/test-door2-mobile-cards.mjs",
     "scripts/test-person-shell.mjs",
+    // THE PERSON FILE AS ITS OWN DOCUMENT (CACHE_VERSION v193), on those same
+    // later-wave terms. /p/<pid> already rewrote to person.html, but a person
+    // opened from the homepage, the Eye, Relevant-to-Me or a card still painted a
+    // modal on whatever page the reader was standing on, and the issue dossier
+    // was a hash on the front page with no history entry at all. This pass gives
+    // the document one authoritative flag (person.html declares
+    // __PDX_PERSON_DOC; PDXPerson.isPersonDoc() is the only reader), makes
+    // profiles-full.js's openModal NAVIGATE rather than paint when it is not on
+    // that document, and gives the dossier an address on it
+    // (/p/<pid>?issue=<key>, plus the shared card's ?record=<pid>~<key> with its
+    // pid checked against the path). The old spellings redirect exactly once.
+    //   WHAT THIS WAVE'S SUBJECTS SEE OF IT: nothing. No roll, mapping,
+    // admission, seed, migration, floor, key, figure or census output is touched,
+    // and no reach claim moves. The only file here that a wave gate reads for a
+    // number is sw.js, and only for its CACHE_VERSION.
+    //   pdx-perf.js documents one new reader-driven stage ('card-open') because
+    // person-file.js takes that mark and the stage list is a contract in both
+    // directions; it is deliberately absent from the headline and cold lines,
+    // where a missing stage is meant to read as a defect.
+    //   receipt-cards.js turns #record= into a one-hop redirect onto the person's
+    // own address rather than an overlay, and refuses to hop to the path it is
+    // already standing on.
+    //   The five harnesses below were re-pinned to the moved contract, not
+    // relaxed: the two card suites now assert BOTH halves (off the document the
+    // hash hops once and paints nothing; on it the card opens exactly once), the
+    // share suites assert the record link's new address and its round trip
+    // through the parser, and test-issue-shell.mjs re-based its person.html line
+    // anchors by the 32 lines the flag's block added above them — byte-identity
+    // of all six copied blocks untouched.
+    // person-file.js, profiles-full.js, share-links.js, hero-showcase.js,
+    // netlify.toml, netlify/lib/share-target.ts, issue.html and sw.js are
+    // declared above already.
+    "pdx-perf.js", "person.html", "receipt-cards.js",
+    "scripts/test-canonical-and-origin.mjs",
+    "scripts/test-close-to-home.mjs",
+    "scripts/test-issue-shell.mjs",
+    "scripts/test-person-file.mjs",
+    "scripts/test-receipt-cards.mjs",
+    "scripts/test-record-direction-cards.mjs",
+    "scripts/test-share-pipeline.mjs",
+    "scripts/test-share-preview.mjs",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }

@@ -263,7 +263,33 @@ export function parseTarget(url: URL): Target | null {
   // one that names nobody — passes through untouched.
   const person = path.match(/^\/p\/([A-Za-z0-9_]+)\/?$/);
   if (person && !SENTINEL_ID.test(person[1])) {
-    return { kind: "profile", id: canonicalPersonId(clean(person[1])) };
+    const who = canonicalPersonId(clean(person[1]));
+
+    // A CARD ON THAT DOCUMENT IS STILL A RECORD, NOT A PROFILE. The dossier for
+    // one person on one issue lives at the person's own address now, so the
+    // link a reader shares is /p/<pid>?issue=<key> (what the app writes) or
+    // /p/<pid>?record=<pid>~<key> (what a share card carries). Both have to
+    // unfurl as the record — eyebrow, the one issue, the recorded action — and
+    // not as the whole file, or the preview stops describing the thing that was
+    // shared. Checked HERE, above the profile return, because the path alone
+    // cannot tell the two apart.
+    //
+    // The ?record= form names the person twice, and the two claims can disagree
+    // (a hand-edited link, a card pasted onto the wrong file). The path wins the
+    // identity and the query is ignored when it names someone else: the reader
+    // still gets the document they asked for, and never a card about a third
+    // party under this person's name. Same refusal the client makes.
+    const issueOnDoc = clean(q.get("issue"));
+    if (issueOnDoc) return { kind: "record", pid: who, issue: issueOnDoc };
+    const recordOnDoc = clean(q.get("record"), 160);
+    if (recordOnDoc) {
+      const [named, issue] = recordOnDoc.split("~");
+      if (named && issue && canonicalPersonId(clean(named)) === who) {
+        return { kind: "record", pid: who, issue: clean(issue) };
+      }
+    }
+
+    return { kind: "profile", id: who };
   }
 
   // /b/<sitting>/<number> — the canonical bill address, and /b/<number> for a
@@ -340,8 +366,35 @@ export function canonicalPath(t: Target): string {
     // RESOLVES for links already sent — it just stops being the canonical form, for
     // the same reason ?p= did.
     case "bill":      return t.congress ? `/b/${e(t.congress)}/${e(t.number)}` : `/b/${e(t.number)}`;
-    case "receipt":
-    case "record":    return `/?${t.kind}=${e(t.pid + (t.issue ? "~" + t.issue : ""))}`;
+    // ?receipt= stays on the front page: the Say-vs-Do receipt is a card the
+    // homepage's own arrival handler paints, and it has no document of its own.
+    case "receipt":   return `/?receipt=${e(t.pid + (t.issue ? "~" + t.issue : ""))}`;
+    // ── A RECORD IS A PERSON, SO ITS CANONICAL ADDRESS IS THEIR DOCUMENT ─────
+    // This used to canonicalise to `/?record=<pid>~<issue>` — the homepage,
+    // carrying the dossier as a query. Two things were wrong with that and they
+    // are the same thing twice: search engines were told one member's Official
+    // Record on one issue was really a variant of the front page (so it could
+    // never rank as itself, and it competed with the person's own /p/ page for
+    // the same content), and a reader following the link downloaded index.html
+    // to read a record that lives on person.html.
+    //
+    // /p/<pid>?record=<pid>~<issue> is the same card at the address of the
+    // document that serves it: person.html reads the query, opens the dossier
+    // over the file, and Back closes the card rather than leaving the site.
+    //
+    // THE PID IS CANONICALISED, exactly as the "profile" case above does it, so
+    // a retired or aliased id (scott_chew → chew_h68) does not publish a second
+    // canonical address for a person who already has one. The ~pair is left
+    // un-canonicalised inside the query on purpose: person-file.js checks it
+    // against the path and refuses a card whose pid disagrees, and rewriting it
+    // here would quietly repair a link that should be caught.
+    //
+    // The issue is what makes it a record rather than a profile. A ?record= with
+    // no ~<issue> names the person and nothing more, so it canonicalises to the
+    // plain person address — which is what it actually is, and what "one URL per
+    // record" means.
+    case "record":    return `/p/${e(canonicalPersonId(t.pid))}` +
+                        (t.issue ? `?record=${e(t.pid + "~" + t.issue)}` : "");
     case "rank":      return `/?rank=${e(t.core)}` + (t.focus ? `&key=${e(t.focus)}` : "");
   }
 }

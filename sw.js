@@ -5663,7 +5663,54 @@
 //     DID NOT MOVE. No floor, score, tier, mapping, Direction Match read or
 //     meter copy. No local-office field was invented, no hash overlay returned,
 //     and no surface gained a second way to open a person.
-const CACHE_VERSION = 'v192';
+// v193 - THE PERSON FILE IS ITS OWN DOCUMENT, AND SO IS THE CARD ON IT.
+//
+//     /p/<pid> already rewrote to person.html, but a person OPENED from anywhere
+//     else still painted a modal on whatever page the reader was on: openModal is
+//     the renderer, a dozen surfaces call it directly, and it never asked which
+//     document it was painting into. And the dossier had no document at all — a
+//     HASH on the front page, no history entry, so Back took the page and left
+//     the sheet on screen.
+//
+//     · ONE FLAG, ONE OWNER. person.html declares window.__PDX_PERSON_DOC in its
+//       first inline block; PDXPerson.isPersonDoc() is the one reader (a non-empty
+//       ARRIVAL also counts: only the person-path rewrite serves a /p/ path).
+//     · openModal NAVIGATES INSTEAD OF PAINTING off that document — one guard at
+//       the one renderer, latched so PDXPerson.open's own openModal fallback
+//       cannot recurse into it.
+//     · THE DOSSIER HAS AN ADDRESS: /p/<pid>?issue=<key>, plus the shared card's
+//       /p/<pid>?record=<pid>~<key> with its pid checked against the path.
+//       person-file.js wraps PDXConsistency.openGap/closeGap once here, so every
+//       existing tap pushes and pops that address for free.
+//     · THE OLD SPELLINGS REDIRECT ONCE: #record= (receipt-cards.js) and the
+//       legacy /?p=<pid> (person-file.js) location.replace onto the canonical
+//       address — replace, not assign, so neither becomes a forward trap.
+//     · AND THE CLOSE LEAVES THE WAY THE READER CAME: restore() prefers history.go
+//       back to a same-origin referrer over assign('/'), so the × and Back agree.
+//
+//     WHY THE BUMP. person.html, person-file.js, profiles-full.js and index.html
+//     are precached and all four changed; a warm v192 device would otherwise pair
+//     a person.html with no flag against a person-file.js that reads it, the one
+//     combination where every card address silently does nothing. netlify.toml
+//     travels as a DEPLOY, not a precache entry — the rewrite resolves at the
+//     edge, before this worker — and touching it forces that clean deploy.
+//
+//     WHAT THE BUMP CARRIES, WHICH IS NOT WHAT THIS PASS CHANGED. Renaming
+//     SHELL_CACHE re-issues the WHOLE precache, so every SHELL_ASSETS entry
+//     travels with v193: index.html, person.html, issue.html, spotlight.html,
+//     ballot.html, app.css, mobile-polish.css, pdx-stability.js,
+//     alignment-tool.js, issue-file.js, issue-file.css, pdx-issue-profile.js,
+//     door1-workspace.js, stance-tree.js, door1-workspace.css,
+//     pdx-issue-family.js, issue-colors.js, word-action.js, word-action.css,
+//     issue-view.js, person-file.js, profiles-full.js, ballot-workspace.js and
+//     ballot-workspace.css. share-links.js, receipt-cards.js, consistency.js and
+//     hero-showcase.js are runtime-cached, and a rename does not throw the
+//     runtime half away either (v182).
+//
+//     DID NOT MOVE. No floor, score, tier, mapping or Direction Match read. No
+//     new key, no second score, no party metric, no new module on this shell.
+
+const CACHE_VERSION = 'v193';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
