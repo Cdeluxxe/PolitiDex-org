@@ -1372,8 +1372,49 @@
   }
 
   // ── Boot / lazy mount ─────────────────────────────────────────────────────
+  // THE SECTION IS A CLOSED DOOR ON THE HOMEPAGE NOW. index.html used to carry
+  // this whole collection mounted: the search box, the filter rail, a card per
+  // issue in ISSUE_MAP, the showcase. It was laid out and painted on every load
+  // of /, and it was also the second place the eight answers of record could be
+  // edited — the reader's own file being the first. The file has a document of
+  // its own at /me, so the homepage now carries a short card that says so, with
+  // the collection sitting inert in <template id="ms-shell-tpl"> underneath.
+  //
+  // WHAT THIS COLLECTION STILL UNIQUELY OWNS, AND WHY IT IS A TEMPLATE RATHER
+  // THAN A DELETION: priority, the private note and the optional public
+  // showcase, across the whole issue vocabulary rather than the eight. Eight
+  // other modules say "go set a position" by calling PDXStances.open(), and
+  // /me's Starred issues region links here to add or remove a star because the
+  // priority editor lives nowhere else. Every one of those callers still lands
+  // on a working editor, because _mount() puts the markup back before init()
+  // looks for it — no id moved and nothing inside the template was rewritten.
+  var _mounted = false;
+  function mountShell() {
+    if (_mounted) return true;
+    var section = el('my-stances');
+    if (!section) return false;
+    // Already mounted by hand, or a page that never adopted the door (ballot.html
+    // and person.html carry this module without the section): nothing to clone.
+    if (el(MOUNT)) { _mounted = true; return true; }
+    var tpl = el('ms-shell-tpl');
+    if (!tpl || !tpl.content || !section.appendChild) return false;
+    _mounted = true;
+    try {
+      section.appendChild(tpl.content.cloneNode(true));
+    } catch (e) {
+      _mounted = false;
+      return false;
+    }
+    if (!el(MOUNT)) { _mounted = false; return false; }
+    if (section.classList) section.classList.remove('ms-closed');
+    var door = el('ms-door');
+    if (door) door.hidden = true;
+    return true;
+  }
+
   function init() {
     if (_inited) return;
+    if (!el(MOUNT)) mountShell();
     var mount = el(MOUNT);
     if (!mount) return;
     _inited = true;
@@ -1405,19 +1446,54 @@
 
     var host = el('my-stances');
     if (!host) return;
-    // Deep-link straight to the section → mount now.
+    wireDoor();
+    // Deep-link straight to the section → mount now. A bookmarked #my-stances is
+    // still an address this module answers, and answering it is why the hash
+    // listener below stays: the door does not break an old link.
     if (location.hash === '#my-stances') { init(); return; }
-    // Otherwise mount lazily when it scrolls into view (keeps first paint light).
-    if ('IntersectionObserver' in window) {
-      var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (en) { if (en.isIntersecting) { init(); io.disconnect(); } });
-      }, { rootMargin: '400px 0px' });
-      io.observe(host);
-    } else {
-      init();
-    }
-    // Also honor a later hash change to the section.
     window.addEventListener('hashchange', function () { if (location.hash === '#my-stances') init(); });
+    // THERE IS NO SCROLL-INTO-VIEW MOUNT ANY MORE, AND THAT IS THE POINT. The
+    // IntersectionObserver that used to sit here mounted the whole collection
+    // for every reader who scrolled past this band, which is every reader who
+    // scrolled the page — the lazy mount deferred the cost, it never avoided
+    // it. The card is what the band is now; the collection is mounted by a
+    // gesture that asks for it and by nothing else.
+  }
+
+  // ── The card's two controls ───────────────────────────────────────────────
+  // "Open your file" is a real <a href="/me"> and is deliberately NOT
+  // intercepted: /me is the document the eight answers of record live on, so a
+  // left click should navigate there like any other link, and a middle click or
+  // a copy-link should too. "Open the full stance collection here" is the only
+  // control that mounts in place — the collection is what this surface has that
+  // /me does not, so it is the only thing worth opening without leaving.
+  function wireDoor() {
+    var more = el('ms-door-more');
+    if (more && !more.__msWired) {
+      more.__msWired = true;
+      more.addEventListener('click', function (e) {
+        try { e.preventDefault(); } catch (_e) {}
+        init();
+        if (!_inited) return;             // nothing mounted — do not scroll to a card
+        scrollTo('my-stances');
+        try { if (location.hash !== '#my-stances') location.hash = '#my-stances'; } catch (_e2) {}
+      });
+    }
+    paintDoorCount();
+    window.addEventListener('pdx-stances-change', paintDoorCount);
+  }
+
+  // The card's one line. A COUNT, never a percentage and never a grade: a
+  // reader with three saved positions is not 37% of a voter. Hidden entirely
+  // when there is nothing to count, because "0 positions on file" is a nag.
+  function paintDoorCount() {
+    var line = el('ms-door-count');
+    if (!line) return;
+    var n = 0;
+    try { n = count(); } catch (e) { return; }
+    if (!n) { line.hidden = true; return; }
+    line.textContent = String(n) + (n === 1 ? ' position' : ' positions') + ' on file';
+    line.hidden = false;
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);

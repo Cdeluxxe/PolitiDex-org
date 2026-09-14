@@ -6,7 +6,10 @@
 // no honest place to hold: WHERE THE READER STANDS. Two surfaces looked like
 // they were asking and neither was — a Forum chip is a thread's topic, and the
 // District Room poll is (district × issue), tallied, behind residency. So Your
-// file is the third thing, at #your-file, and it is the small one.
+// file is the third thing, and it is the small one. It lives at /me now — the
+// reader's own document — and #your-file is a one-hop redirect to it, which is
+// section 6's subject and is asserted as both halves of a contract rather than
+// as the panel it used to open.
 //
 // This file guards the four edges that make it that and not something else:
 //
@@ -34,7 +37,14 @@
 //      to, and no dd_poll_answers / dd_threads / forum key is written.
 //
 //   Plus the wiring the brief names: one address, one control in Door 2's
-//   existing action row (no new nav pill), and the copy line exactly.
+//   existing action row (no new nav pill), and the copy line exactly — and, since
+//   the address became a document, the two presentations of the ONE editor.
+//   inline() paints the same two ids into a host on /me, so render(), patchRow(),
+//   headHtml(), bodyHtml(), countSentence() and set() are shared by both and a
+//   fix to any of them is a fix to both. The overlay is kept as the fallback for
+//   a document that answers neither the flag nor the /me rewrite; openPanel()
+//   below is the shipped path to it, and every cost assertion in section 7 runs
+//   against it unchanged.
 //
 //   node scripts/test-your-file.mjs
 
@@ -159,9 +169,21 @@ function makeDom() {
   // never poked" and "a change is announced once" are both observable.
   win.__events = [];
   win.dispatchEvent = (ev) => { win.__events.push(ev); return true; };
+  // EVERY NAVIGATION IS RECORDED, NOT PERFORMED. #your-file is an address that
+  // answers with a redirect to /me now, so "did it hop, and did it hop once"
+  // has to be observable — a location object with no replace() would have sent
+  // the module down its own fallback chain and the assertion would have been
+  // about the fallback instead of the contract. assign() is recorded separately
+  // because which of the two is used IS the claim: a redirect consumes the
+  // entry it arrived on (replace), and a reader who presses Back out of /me
+  // must not land on #your-file and be redirected again.
+  win.__replaced = [];
+  win.__assigned = [];
   win.location = {
     href: "https://www.politidex.fyi/", pathname: "/", search: "", hash: "",
     origin: "https://www.politidex.fyi",
+    replace(u) { win.__replaced.push(String(u)); },
+    assign(u) { win.__assigned.push(String(u)); },
   };
   win.__pushed = [];
   win.history = {
@@ -228,6 +250,17 @@ function boot(opts) {
     win.location.hash = o.hash;
     win.location.href = "https://www.politidex.fyi/" + o.hash;
   }
+  // WHICH DOCUMENT THIS IS, SET BEFORE A MODULE IS EVALUATED. me.html's first
+  // inline block declares __PDX_ME_DOC and your-file.js reads it through one
+  // accessor; nothing sniffs location.pathname, because /me, /me/ and a preview
+  // server's /me.html are three spellings of one document. A boot without this
+  // flag is therefore every OTHER document on the site, which is the case the
+  // redirect contract is about.
+  if (o.meDoc) win.__PDX_ME_DOC = true;
+  // The desk, when the test needs to observe what a reveal on /me asks it for.
+  // your-file.js holds no copy of which region is which: it calls the desk's
+  // goTab and falls back to scrolling its own letterhead.
+  if (o.desk) win.PDXMeDesk = o.desk;
   if (o.store !== null) win.PDXStore = store;
   if (o.account !== undefined) store.__account = o.account;
   else if (o.uid) store.__account = o.uid;
@@ -256,6 +289,28 @@ function boot(opts) {
   win.__store = store;
   win.__raw = raw;
   return win;
+}
+
+// ── REACHING THE OVERLAY, WHICH IS THE FALLBACK PRESENTATION NOW ────────────
+// open() on a document that is not /me is a REDIRECT: it hops to /me and
+// returns false, and the overlay is never built. Section 6 asserts both halves
+// of that contract directly. The overlay code itself is kept, deliberately, for
+// a document that answers neither the flag nor the /me rewrite — an older
+// shell, a stale service-worker entry — and it is reached through the same
+// door, once the one-redirect-per-document latch has been spent.
+//
+// So this is not a trick to get at dead code: it is the shipped path to the
+// shipped fallback. The first open() performs the hop (the sandbox records it
+// rather than navigating, so the document survives to be asserted about); the
+// second finds the latch closed and builds the panel exactly as it always did.
+// Every cost assertion in section 7 is therefore still about the real overlay.
+//
+// A cold boot at #your-file has already spent the latch inside arrive(), so
+// this is idempotent either way.
+function openPanel(w) {
+  w.PDXYourFile.open();
+  w.PDXYourFile.open();
+  return w.PDXYourFile;
 }
 
 let passed = 0;
@@ -614,7 +669,7 @@ section("4 · the Forum store is untouched");
   // OBSERVED. Drive the whole feature — open, answer all eight, re-answer,
   // withdraw, take a pull, close — and then look at what left the module.
   const w = boot({ uid: "u_quiet" });
-  w.PDXYourFile.open();
+  openPanel(w);
   YF.KEYS.forEach((k, i) => w.PDXYourFile.set(k, ["support", "oppose", "mixed", "unsure"][i % 4]));
   w.PDXYourFile.set("housing", "oppose");
   w.__store.__reconcilers.yourFile({ version: 1, updatedAt: 1, answers: { housing: { position: "support", updatedAt: 1 } } }, { dirty: true });
@@ -681,7 +736,7 @@ section("5 · one address, one control in Door 2, and the copy");
   has(boot({ uid: "u_copy" }).PDXYourFile.bodyHtml() + boot({ uid: null }).PDXYourFile.bodyHtml(),
     "Sign in to keep your file.", "the signed-out line is not painted");
   const head = boot({ uid: "u_copy2" });
-  head.PDXYourFile.open();
+  openPanel(head);
   const panel = head.__nodes.find((n) => n.id === "pdx-your-file-head");
   ok(panel && String(panel.innerHTML).indexOf(COPY_LINE) >= 0,
     "the copy line is not painted on the panel");
@@ -699,26 +754,47 @@ section("5 · one address, one control in Door 2, and the copy");
   const INDEX_TAGS = INDEX.replace(/<!--[\s\S]*?-->/g, " ");
   const wrm = INDEX_TAGS.slice(INDEX_TAGS.indexOf('id="who-represents-me"'));
   const wrmBlock = wrm.slice(0, 20000);
-  // ONE control in the served markup. The other two are printed at runtime by
-  // who-represents-me.js and compare-hub.js and are asserted in section 6 — they
-  // cannot be counted here because neither is in the document as shipped.
-  eq((INDEX_TAGS.match(/data-pdxyf-open/g) || []).length, 1,
-    "there is not exactly one control that opens Your file in the served markup");
-  has(wrmBlock, "data-pdxyf-open", "the Your file control is not in the Who Represents Me door");
+  // THE CONTROL IS AN ADDRESS NOW, AND data-pdxyf-open IS GONE FROM THE PAGE.
+  // It used to be counted here: exactly one <a href="#your-file"
+  // data-pdxyf-open="1">, an overlay opened on whatever document the reader was
+  // standing on. The file is a document at /me, so the same control in the same
+  // row is a plain link to it and the hook is not in the served markup at all.
+  //
+  // THE COUNT IS ZERO ON PURPOSE, and it is a mechanical claim rather than
+  // tidiness: on a non-/me document your-file.js answers that hook by
+  // redirecting and returning false — deliberately not claiming the click — so
+  // an anchor still carrying it would fire the module's location.replace AND
+  // its own href. Two navigations for one tap, and a Back that lands nowhere
+  // the reader was.
+  eq((INDEX_TAGS.match(/data-pdxyf-open/g) || []).length, 0,
+    "a control in the served markup still carries data-pdxyf-open on top of a real href — that is two " +
+    "navigations for one tap");
+  has(wrmBlock, 'href="/me"', "the Your file control is not in the Who Represents Me door");
   has(wrmBlock, "Your file", 'the control is not labelled "Your file"');
   // In the existing row, not a new one: it sits alongside the two controls that
   // were already there, inside the same .wrm-ctarow.
   const row = wrmBlock.slice(wrmBlock.indexOf('class="wrm-ctarow"'));
   const rowEnd = row.indexOf("</div>");
-  has(row.slice(0, rowEnd), "data-pdxyf-open", "the control was not put in the existing action row");
+  has(row.slice(0, rowEnd), 'href="/me"', "the control was not put in the existing action row");
   has(row.slice(0, rowEnd), "See who represents me", "the existing action row lost a control");
   has(row.slice(0, rowEnd), "Find it on the map", "the existing action row lost a control");
-  // NOT A NAV PILL.
+  // STILL NOT A NAV PILL. The mobile drawer does carry one /me entry — but it is
+  // the entry that used to read "🎯 My Stances" and point at #my-stances, a
+  // scroll to a homepage region that was the file's SECOND editor. Repointing an
+  // entry that was already there is the opposite of adding a pill, and the way
+  // this stays honest is the count: exactly one, and no #my-stances link left in
+  // the drawer to drift away from it.
   const nav = INDEX_TAGS.slice(0, INDEX_TAGS.indexOf('id="who-represents-me"'));
-  lacks(nav.slice(Math.max(0, nav.length - 400000)).match(/<nav[\s\S]*?<\/nav>/g)?.join(" ") || "",
-    "data-pdxyf-open", "the control was added to the nav");
-  // A real anchor, so it can be copied and middle-clicked.
-  has(wrmBlock, 'href="#your-file"', "the control is not a real link to the address");
+  const navBlob = nav.slice(Math.max(0, nav.length - 400000)).match(/<nav[\s\S]*?<\/nav>/g)?.join(" ") || "";
+  ok(navBlob.length > 1000, "the nav probe matched nothing");
+  lacks(navBlob, "data-pdxyf-open", "the overlay hook was added to the nav");
+  eq((navBlob.match(/href="\/me"/g) || []).length, 1,
+    "the nav does not carry exactly one entry for the reader's file — a second one is the pill this forbids");
+  lacks(navBlob, 'href="#my-stances"',
+    "the nav still points at the homepage stance region, which is the second editor this pass removes");
+  // A real anchor, so it can be copied and middle-clicked — and now bookmarked,
+  // which a hash on a 2.24 MB homepage never was.
+  has(wrmBlock, 'href="/me"', "the control is not a real link to the address");
 
   // THE SHELL WAS INVALIDATED. /alignment-tool.js and / are precached, and both
   // changed, so a stale shell would serve the old engine against the new file.
@@ -739,7 +815,7 @@ section("5 · one address, one control in Door 2, and the copy");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 6 · THE ADDRESS ACTUALLY OPENS IT
+// 6 · THE ADDRESS ANSWERS, AND IT ANSWERS ONCE
 // ─────────────────────────────────────────────────────────────────────────────
 // The bug this section exists to keep fixed: #your-file was reachable and the
 // module was on the page, but https://www.politidex.fyi/#your-file painted the
@@ -748,25 +824,106 @@ section("5 · one address, one control in Door 2, and the copy");
 // this homepage the hash had to survive a queue of other people's arrival code
 // before this file ever looked at it.
 //
+// THE ADDRESS IS A DOCUMENT NOW, and the fix above is what made that possible to
+// do without breaking the links already out in the world. A hash cannot be
+// bookmarked onto a 2.24 MB homepage honestly, cannot be linked to a friend as
+// "where I keep my positions", and Back out of it meant "the front page,
+// roughly where you were". /me is the file's address; #your-file is a redirect
+// to it; and the same account had a SECOND door ("My Views") that scrolled to a
+// different region of the same homepage, which is the drift this closes.
+//
+// So there are TWO documents and the arrival has two answers, and BOTH halves
+// are asserted here rather than inferred from source text:
+//
+//   ON ANY OTHER DOCUMENT  it hops to /me and opens nothing. Exactly one
+//     location.replace — not assign, because a redirect must consume the entry
+//     it arrived on: with assign, one Back would land on #your-file and be
+//     redirected again, and a reader pressing Back could not leave.
+//   ON /me (__PDX_ME_DOC)  it is not a redirect at all. The eight rows are
+//     region b of that page, so the hash is a region and the answer is to
+//     reveal it — through the desk's own goTab, so Back still returns to what
+//     the reader was reading.
+//
 // Every assertion below runs in a sandbox whose setTimeout is a NO-OP and whose
-// 'load' event never fires. That is the point: if the panel opens here, it opened
-// because the module opened it while being parsed, waiting on nothing.
-section("6 · the address opens the panel, and two visible controls reach it");
+// 'load' event never fires. That is the point: if the address answers here, it
+// answered while the module was being parsed, waiting on nothing.
+section("6 · the address answers once, and the visible controls reach it");
 {
-  // ── COLD LOAD ─────────────────────────────────────────────────────────────
+  // ── COLD LOAD ON EVERY OTHER DOCUMENT: ONE HOP, NO PANEL ──────────────────
   const cold = boot({ uid: "u_cold", hash: "#your-file" });
   must(cold.PDXYourFile, "PDXYourFile missing on the cold arrival boot");
-  ok(cold.PDXYourFile.isOpen(), "a cold visit to /#your-file did not open the panel");
+  ok(!cold.PDXYourFile.isOpen(),
+    "a cold visit to /#your-file opened the overlay instead of going to the file's own address");
+  ok(!cold.document.getElementById("pdx-your-file"),
+    "the arrival built the overlay on a document that is not /me — the redirect must open nothing");
+  eq(cold.__replaced.join(","), "/me",
+    `a cold /#your-file did not perform exactly one replace to /me (replaced: ${cold.__replaced.join(",")})`);
+  eq(cold.__assigned.length, 0,
+    "the redirect pushed a history entry instead of consuming the one it arrived on — Back would land on " +
+    "#your-file and redirect again, and the reader could not leave");
+  eq(cold.PDXYourFile.isMeDoc(), false, "the module thinks a plain document is /me");
+
+  // AND ONCE PER DOCUMENT, NOT ONCE PER GESTURE. Both entry points can fire for
+  // one intent — the hash lands AND a captured click resolves — and two
+  // replace() calls in one task is two redirects for one tap. The latch makes it
+  // one for the lifetime of the document, which is all a redirect ever needs.
+  (cold.__docOn["DOMContentLoaded"] || []).forEach((f) => f({ type: "DOMContentLoaded" }));
+  (cold.__winOn["load"] || []).forEach((f) => f({ type: "load" }));
+  eq(cold.__replaced.length, 1,
+    `DOMContentLoaded / load turned one arrival into ${cold.__replaced.length} redirects`);
+
+  // ── AND ON /me IT IS NOT A REDIRECT ──────────────────────────────────────
+  {
+    const asked = [];
+    const me = boot({
+      uid: "u_me", hash: "#your-file", meDoc: true,
+      desk: { goTab: (t) => { asked.push(String(t)); return true; } },
+    });
+    eq(me.PDXYourFile.isMeDoc(), true, "the flag me.html sets is not what the module reads");
+    eq(me.__replaced.length + me.__assigned.length, 0,
+      "the file's own document redirected to itself — /me#your-file is a region on this page, not a hop");
+    ok(!me.document.getElementById("pdx-your-file"),
+      "/me built the overlay as well as the inline rows — that is two editors of the same eight");
+    eq(asked.join(","), "positions",
+      `the arrival on /me did not ask the desk for its positions region (asked: ${asked.join(",")})`);
+    // The desk owns how a region is landed on. This module must not hold a
+    // second copy of that knowledge: no hash write, no pushState of its own.
+    eq(me.__pushed.length, 0, "your-file.js pushed its own history entry on /me instead of asking the desk");
+
+    // THE SAME EDITOR, PAINTED INTO THE DESK'S HOST. Same two ids, so render(),
+    // patchRow(), headHtml(), bodyHtml(), countSentence() and set() all address
+    // it unchanged — one editor, two presentations.
+    const host = me.document.createElement("div");
+    host.id = "me-positions-host";
+    eq(me.PDXYourFile.inline(host), true, "the editor refused a usable host on /me");
+    eq(me.PDXYourFile.isInline(), true, "inline() painted but does not report itself mounted");
+    ok(!!me.document.getElementById("pdx-your-file-head"), "the inline editor has no letterhead");
+    ok(!!me.document.getElementById("pdx-your-file-scroll"), "the inline editor has no body");
+    eq((me.PDXYourFile.bodyHtml().match(/data-pdxyf-set/g) || []).length, 32,
+      "the inline editor does not offer eight rows of four options");
+    // And the overlay is still not there. /me has one editor on it.
+    ok(!me.document.getElementById("pdx-your-file"),
+      "mounting the inline editor also built the overlay");
+    eq(me.PDXYourFile.inline(host), true, "a second inline() call on the same host failed");
+    eq(me.__nodes.filter((n) => n.id === "pdx-your-file-head").length, 1,
+      "a second inline() built a second letterhead");
+  }
+
+  // ── THE OVERLAY FALLBACK STILL WORKS ─────────────────────────────────────
+  // The panel is not dead code: a document that answers neither the flag nor the
+  // /me rewrite — an older shell, a stale service-worker entry — still gets the
+  // editor rather than a control that does nothing. openPanel() reaches it by
+  // the shipped path (see its note): the redirect is spent, so open() builds.
+  openPanel(cold);
+  ok(cold.PDXYourFile.isOpen(), "with the redirect spent, open() did not fall through to the overlay");
   const panel = cold.document.getElementById("pdx-your-file");
-  ok(!!panel, "the overlay was never built on a cold arrival");
+  ok(!!panel, "the overlay fallback was never built");
   eq(panel && panel.hidden, false, "the overlay was built but left hidden");
   eq(panel && panel.style.display, "flex", "the overlay was built but not displayed");
-  // The eight rows are painted on arrival, not after some later beat.
+  // The eight rows are painted on the opening, not after some later beat.
   eq((cold.PDXYourFile.bodyHtml().match(/data-pdxyf-set/g) || []).length, 32,
-    "the arriving panel did not paint eight rows of four options");
-
-  // DOMContentLoaded is the beat the brief names, and it must be harmless: the
-  // panel is already open, and arriving twice must not build a second overlay.
+    "the panel did not paint eight rows of four options");
+  // Arriving twice must not build a second overlay.
   (cold.__docOn["DOMContentLoaded"] || []).forEach((f) => f({ type: "DOMContentLoaded" }));
   (cold.__winOn["load"] || []).forEach((f) => f({ type: "load" }));
   ok(cold.PDXYourFile.isOpen(), "the panel closed itself on DOMContentLoaded / load");
@@ -783,8 +940,13 @@ section("6 · the address opens the panel, and two visible controls reach it");
   });
 
   // ── SIGNED OUT, THE EIGHT STILL SHOW ─────────────────────────────────────
-  const out = boot({ hash: "#your-file" });
-  ok(out.PDXYourFile.isOpen(), "a signed-out cold visit to /#your-file did not open the panel");
+  // On /me, because that is where a signed-out reader now meets them: the
+  // honest sign-in line and the eight rows disabled, not a blank page and not a
+  // fake set of answers.
+  const out = boot({ hash: "#your-file", meDoc: true });
+  const outHost = out.document.createElement("div");
+  outHost.id = "me-positions-host-out";
+  eq(out.PDXYourFile.inline(outHost), true, "a signed-out reader on /me gets no editor at all");
   const outBody = out.PDXYourFile.bodyHtml();
   eq((outBody.match(/data-pdxyf-set/g) || []).length, 32,
     "signed out, the eight issues are not all offered");
@@ -792,17 +954,20 @@ section("6 · the address opens the panel, and two visible controls reach it");
   has(outBody, "Sign in to keep your file.", "signed out, the panel does not say what is missing");
 
   // ── CLOSE RESTORES THE PREVIOUS HASH ─────────────────────────────────────
-  // Arriving cold there IS no previous hash, so closing must leave the address
-  // bare rather than invent one.
+  // Still the fallback's contract, and it still holds: arriving cold there IS no
+  // previous hash, so closing must leave the address bare rather than invent one.
   cold.PDXYourFile.close();
   ok(!cold.PDXYourFile.isOpen(), "close() left the panel open");
   eq(cold.location.hash, "", "closing a cold arrival did not clear the address");
 
-  // In-app: the reader was somewhere else, set the hash, and closing has to put
-  // them back. The previous address is read off the hashchange's oldURL, so this
-  // holds even for a plain anchor whose click this module never saw.
+  // ── AN IN-APP HASHCHANGE IS A REDIRECT TOO ───────────────────────────────
+  // The reader was somewhere else and the address became #your-file — a link in
+  // body copy, a restored tab, an anchor whose click this module never saw. One
+  // hop, no panel; the hash listener and the boot share the one arrival function
+  // and therefore share the one answer.
   const inapp = boot({ uid: "u_inapp", hash: "#say-vs-do" });
   ok(!inapp.PDXYourFile.isOpen(), "the panel opened at an address it does not own");
+  eq(inapp.__replaced.length, 0, "an address the module does not own caused a redirect");
   inapp.location.hash = "#your-file";
   inapp.location.href = "https://www.politidex.fyi/#your-file";
   (inapp.__winOn["hashchange"] || []).forEach((f) => f({
@@ -810,7 +975,14 @@ section("6 · the address opens the panel, and two visible controls reach it");
     oldURL: "https://www.politidex.fyi/#say-vs-do",
     newURL: "https://www.politidex.fyi/#your-file",
   }));
-  ok(inapp.PDXYourFile.isOpen(), "an in-app hashchange to #your-file did not open the panel");
+  eq(inapp.__replaced.join(","), "/me", "an in-app hashchange to #your-file did not go to the file's address");
+  ok(!inapp.PDXYourFile.isOpen(), "an in-app hashchange built the overlay instead of hopping");
+
+  // AND THE FALLBACK STILL RESTORES WHERE THEY WERE. With the hop spent, the
+  // panel opens — and closing it puts the reader back at the address they came
+  // from, read off the hashchange's oldURL rather than guessed.
+  openPanel(inapp);
+  ok(inapp.PDXYourFile.isOpen(), "the overlay fallback did not open after the hop was spent");
   inapp.PDXYourFile.close();
   ok(!inapp.PDXYourFile.isOpen(), "close() left the panel open after an in-app open");
   eq(inapp.location.hash, "#say-vs-do", "close() did not restore the previous hash");
@@ -831,30 +1003,53 @@ section("6 · the address opens the panel, and two visible controls reach it");
   const nextEnd = NEXT.indexOf("\n  //");
   const nextBody = NEXT.slice(0, nextEnd > 0 ? nextEnd : 4000);
   has(nextBody, "yourFileButton", "the resolved action row has no Your file control");
-  has(WRM_JS, 'href="#your-file"', "the resolved control is not a real link to the address");
-  has(WRM_JS, "data-pdxyf-open", "the resolved control cannot be opened in-app");
+  has(WRM_JS, 'href="/me"', "the resolved control is not a real link to the file's own address");
+  // Stripped, because the note next to the control explaining WHY the hook is
+  // gone names the hook, and a comment is not a control.
+  lacks(strip(WRM_JS), "data-pdxyf-open",
+    "the resolved control still carries the overlay hook on top of its /me href — the module answers that hook " +
+    "with a redirect and returns false, so the anchor would navigate twice for one tap");
   has(WRM_JS, "Your file", 'the resolved control is not labelled "Your file"');
   // It joined the row it belongs in, and displaced nothing.
   has(nextBody, "Compare them on an issue", "the action row lost a control");
   has(nextBody, "Work your ballot", "the action row lost a control");
   has(nextBody, "localButton(cov)", "the action row lost My local officials");
 
-  // The signed-in account menu, desktop and mobile, same href.
+  // THE SIGNED-IN ACCOUNT MENU: FOUR DOORS, ONE ROOM. It carried two labels
+  // reaching two surfaces — "Your file" as <a href="#your-file"> (an overlay on
+  // the current document) and "My Views" as a button calling PDXStances
+  // .openViews() (a scroll to a homepage region). Both labels survive on
+  // purpose, because readers learned them and a menu that silently drops an
+  // entry reads as a feature being removed, and both now lead to /me. Two
+  // widths × two labels = four, and that count IS the claim: neither label was
+  // dropped, and no fifth entry was added.
   const SIGNED_IN = HUB_JS.slice(HUB_JS.indexOf("function updateNavAuth"));
   const signedOutAt = SIGNED_IN.indexOf("} else {");
   const signedInBranch = SIGNED_IN.slice(0, signedOutAt > 0 ? signedOutAt : 8000);
-  eq((signedInBranch.match(/href="#your-file"/g) || []).length, 2,
-    "the account menu does not carry Your file on both desktop and mobile");
-  has(signedInBranch, "data-pdxyf-open", "the account menu control cannot be opened in-app");
+  eq((signedInBranch.match(/href="\/me"/g) || []).length, 4,
+    "the account menu does not carry both file doors on both desktop and mobile");
+  has(signedInBranch, "Your file", "the account menu lost the Your file label");
+  has(signedInBranch, "My Views", "the account menu lost the My Views label");
+  lacks(signedInBranch, "data-pdxyf-open",
+    "an account-menu door still carries the overlay hook on top of its /me href — two navigations for one tap");
+  lacks(signedInBranch, "PDXStances.openViews",
+    "an account-menu door still opens the homepage stance region, which is the second editor this pass removes");
   // Signed out there is no account menu to put it in, and it must not appear as
   // a sign-in teaser.
-  lacks(SIGNED_IN.slice(signedOutAt > 0 ? signedOutAt : SIGNED_IN.length),
-    "#your-file", "the signed-out nav advertises Your file");
+  const signedOutBranch = SIGNED_IN.slice(signedOutAt > 0 ? signedOutAt : SIGNED_IN.length);
+  lacks(signedOutBranch, "#your-file", "the signed-out nav advertises Your file");
+  lacks(signedOutBranch, 'href="/me"', "the signed-out nav advertises the reader's file");
 
   // ── THE COPY IS UNCHANGED ────────────────────────────────────────────────
+  // In BOTH presentations, because it is the same headHtml(): the line that has
+  // to stay on screen while a reader answers does not become optional because
+  // the editor is on a page instead of under an overlay.
   has(YF_JS, COPY_LINE, "the panel's one line of copy changed");
   has(out.PDXYourFile.COPY.line, COPY_LINE, "the painted copy line changed");
   eq(out.PDXYourFile.ISSUES.length, 8, "the locked list is no longer eight");
+  const outHead = out.document.getElementById("pdx-your-file-head");
+  has(String(outHead && outHead.innerHTML), COPY_LINE,
+    "the inline editor's letterhead dropped the one line of copy");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -890,7 +1085,7 @@ section("7 · a tap costs one row, and it costs it in the same frame");
   // Observed, not inferred. render() rewrites .pdxyf-head and .pdxyf-body's
   // innerHTML; patchRow() touches four buttons and one text node. So a pick
   // must not move the body's innerHTML at all.
-  YFW.open();
+  openPanel(w);
   const bodyEl = w.document.getElementById("pdx-your-file-scroll");
   const headEl = w.document.getElementById("pdx-your-file-head");
   ok(!!bodyEl && !!headEl, "the panel opened without a head and a body to patch");
@@ -978,7 +1173,7 @@ section("7 · a tap costs one row, and it costs it in the same frame");
     const seen = [];
     v.PDXVotingRecord = { fetchCompare: (...a) => { seen.push(a); return Promise.reject(new Error("no network")); } };
     v._alignQueueConsistWarm = (...a) => { seen.push(["warm", ...a]); };
-    v.PDXYourFile.open();
+    openPanel(v);
     v.PDXYourFile.KEYS.forEach((k, i) => v.PDXYourFile.set(k, i % 2 ? "oppose" : "support"));
     eq(seen.length, 0, `the eight picks kicked ${seen.length} vote-pack call(s)`);
     eq(v.__fetched.length, 0, `the eight picks reached the network: ${v.__fetched.join(", ")}`);
@@ -1000,7 +1195,7 @@ section("7 · a tap costs one row, and it costs it in the same frame");
     h.renderKeyRaces = function () { refreshes++; };
     ok(typeof h.alignRefreshHold === "function", "the engine exposes no paint hold for a full-screen panel");
     ok(typeof h.alignRefreshSoon === "function", "the engine exposes no coalesced refresh");
-    h.PDXYourFile.open();
+    openPanel(h);
     h.PDXYourFile.KEYS.forEach((k, i) => h.PDXYourFile.set(k, i % 2 ? "oppose" : "support"));
     eq(refreshes, 0, `eight picks ran _alignRefreshAll ${refreshes} time(s) behind a full-screen panel`);
     // The state is there anyway — deferred paint, not deferred truth.
@@ -1067,7 +1262,7 @@ section("7 · a tap costs one row, and it costs it in the same frame");
     // testing somebody else's listener.
     const handlers = (r.__authHandlers || []).filter((f) => /_authSig/.test(String(f)));
     eq(handlers.length, 1, `your-file.js registered ${handlers.length} auth listeners — expected exactly one`);
-    r.PDXYourFile.open();
+    openPanel(r);
     const rBody = r.document.getElementById("pdx-your-file-scroll");
     let rWrites = 0, rHTML = rBody.innerHTML;
     Object.defineProperty(rBody, "innerHTML", {
@@ -1106,7 +1301,7 @@ section("7 · a tap costs one row, and it costs it in the same frame");
     const m = boot({ uid: "u_marks" });
     const laid = [];
     m.PDXPerf = { marks: {}, order: [], mark(n) { if (this.marks[n] !== undefined) return; this.marks[n] = laid.length; laid.push(n); } };
-    m.PDXYourFile.open();
+    openPanel(m);
     m.PDXYourFile.set("housing", "support");
     m.PDXYourFile.set("gun_rights", "oppose");
     has(laid.join(" "), "yf-open", "opening the panel laid no mark");

@@ -497,9 +497,11 @@
 # ORDER MATTERS AND THIS BLOCK IS AFTER ALL THREE OTHER SHELLS. Netlify is
 # first-match-wins: /p/* (the person file), /i/* (the Issue File) and /issue/*
 # (the Spotlight) are declared above and none of them can be swallowed by the
-# rules here, which take two exact paths and no prefix. /vote/*, /d/*, /b/*,
-# /locker and /me are untouched, and so is / — the front page is still
-# index.html, and Who Represents Me is still the front step on it.
+# rules here, which take two exact paths and no prefix. /vote/*, /d/*, /b/*
+# and /locker are untouched, and so is / — the front page is still index.html,
+# and Who Represents Me is still the front step on it. /me is claimed by the
+# block immediately below, which is declared after these two for the reason
+# stated there.
 [[redirects]]
   from = "/ballot"
   to = "/ballot.html"
@@ -513,6 +515,67 @@
 [[redirects]]
   from = "/ballot/"
   to = "/ballot.html"
+  status = 200
+
+# ═════════════════════════════════════════════════════════════════════════════
+# THE VOTER'S OWN FILE GETS ITS OWN DOCUMENT: /me -> me.html
+# ─────────────────────────────────────────────────────────────────────────────
+# WHAT THIS ADDRESS FIXES. The reader's own file had no address. The account
+# menu's "Your file" was the hash #your-file, which opened an overlay on
+# whatever document the reader was standing on — and since that menu only
+# exists on the front page, it was always the front page. The menu's "My Views"
+# was a scroll to a different region of that same front page. Ballot picks were
+# a third place (/ballot) and starred issues a fourth. One person, four
+# addresses, not one of them linkable, bookmarkable or Back-able, and two live
+# editors of the same eight answers — a pair that can drift.
+#
+# So /me is the desk and /me is the only address for it. Both account-menu
+# controls are now plain <a href="/me">, the Who Represents Me action row's
+# "Your file" button is the same link, and #your-file still WORKS — your-file.js
+# replace-hops it here exactly once, because a bookmark a reader made last year
+# is not a thing to break — but it is no longer a place where the eight answers
+# can be edited.
+#
+# WHAT IT COSTS TO SERVE, WHICH IS THE OTHER HALF OF THE POINT. index.html is
+# 2.24 MB of front page: the hero, Who Represents Me, Compare Hub, the alignment
+# engine, the consistency lane, the voting-record prefetch for 757 members, the
+# whole Door 2 apparatus. me.html carries four inline store blocks and seven
+# scripts, and not one of them is an engine — because a desk that shows a reader
+# what they already hold does not need the machine that compares it, and the
+# reader who wants that machine has a text link to it.
+#
+# /me HAS NO SUB-ADDRESSES. A region on the desk is a QUERY (/me?tab=positions,
+# stars, ballot, saved), not a segment, so there is nothing for a /me/* rule to
+# match that a typo would not also match. A query string does not participate in
+# rule matching at all, so ?tab= needs no rule of its own and cannot be broken
+# by one.
+#
+# ORDER: THIS BLOCK IS AFTER /ballot AND /p/*, WHICH THE BRIEF REQUIRED — AND
+# THE POSITION IS A STATED NO-OP. Netlify is first-match-wins, and these two
+# rules take two exact paths with no prefix and no splat, so there is no pattern
+# above or below them that /me or /me/ can also match: /me is disjoint from
+# /p/*, /i/*, /issue/*, /ballot, /ballot/, /vote/*, /d/*, /b/* and /locker by
+# inspection of the literal strings. Declaring it here is therefore correct and
+# would also have been correct anywhere else in the file. It is written down so
+# that the next person to add a rule ABOVE this one knows the invariant they
+# have to preserve: nothing that matches /me may be declared earlier, and the
+# day a prefix rule like /m/* or a catch-all appears, these two exact paths must
+# stay in front of it.
+[[redirects]]
+  from = "/me"
+  to = "/me.html"
+  status = 200
+
+# The trailing-slash form of the same address, declared rather than left to a
+# redirect, so a pasted /me/ is the desk instead of a hop. It is ALSO why every
+# same-origin path inside me.html is root-absolute, with no exceptions: served
+# at /me/, a bare src="me-desk.js" resolves to /me/me-desk.js, this rule answers
+# that with the HTML document, the browser parses HTML as JavaScript, and the
+# reader gets a blank desk with no error that names the cause. ballot.html
+# carries the same rule for the same reason.
+[[redirects]]
+  from = "/me/"
+  to = "/me.html"
   status = 200
 
 # District Room deep-links. THIS BLOCK FIXES THE URL SHAPE FOR THE ROOM, and it

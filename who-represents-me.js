@@ -324,17 +324,25 @@
   // WHY IT HAD TO BE ADDED HERE AND NOT JUST IN THE COLD BLOCK. The band's other
   // "Your file" control lives in .wrm-cold, which `.wrm[data-located] .wrm-cold`
   // hides the moment a location resolves — so every returning visitor, i.e.
-  // everyone who has ever used this band, had no way to reach #your-file at all.
+  // everyone who has ever used this band, had no way to reach their file at all.
   // The resolved action row is the one that is on screen for them.
   //
-  // A REAL ANCHOR to the hash the overlay owns, so it can be copied, opened in a
-  // new tab and middle-clicked, and so it still works when your-file.js has not
-  // arrived — the hash alone opens the panel once the module parses.
-  // data-pdxyf-open is only what that module turns a plain left click into an
-  // in-app open with.
+  // A REAL ANCHOR TO /me, WHICH IS NOW THE FILE'S ADDRESS. It used to be
+  // <a href="#your-file" data-pdxyf-open="1"> — a hash that opened an overlay on
+  // whatever document the reader was standing on, which meant the file had no
+  // address of its own and this band shared it with an account menu that pointed
+  // somewhere else entirely. /me is one document, one editor, and a link a reader
+  // can copy, bookmark and press Back out of.
+  //
+  // THE ATTRIBUTE IS GONE FOR A MECHANICAL REASON, not just tidiness.
+  // data-pdxyf-open is your-file.js's capturing open hook, and on a non-/me
+  // document that hook now answers by redirecting to /me and returning false —
+  // deliberately not claiming the click, because the navigation is already under
+  // way. An anchor still carrying the attribute would therefore fire the
+  // module's location.replace AND its own href: two navigations for one tap.
   function yourFileButton(hasWs) {
     return '<a class="wrm-next-btn' + (hasWs ? ' wrm-next-btn--sub' : '') + '"' +
-      ' href="#your-file" data-pdxyf-open="1"' +
+      ' href="/me"' +
       ' title="Your positions on eight issues \u2014 used to compare formal records. Not a vote, and not a district poll.">' +
       '\u{1F5C2}\uFE0F Your file</a>';
   }

@@ -4408,7 +4408,11 @@ window.PDXLazy = (function () {
       <!-- "Your Ballot" is not repeated here. It is the third row of the primary
            group above, at the one address Door 2 has. -->
       <a href="#local-issues" onclick="document.getElementById('mobileMenu').classList.add('hidden');var _li=document.getElementById('local-issues');if(!_li||_li.hidden){event.preventDefault();(window.openLocationModal||window.toggleChangeLocation||function(){})();}" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🔦 Local Issues</a>
-      <a href="#my-stances" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🎯 My Stances</a>
+      <!-- YOUR FILE. Was "🎯 My Stances" pointing at #my-stances, a scroll to a
+           region of this same page. It is the reader's own file and it has its
+           own address, so this is a plain link to it — one row, one destination,
+           and the same destination the account menu's two entries now have. -->
+      <a href="/me" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🗂️ Your File</a>
       <a href="#my-profile" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">👤 My Profile</a>
       <div class="mnav-group-label">Track &amp; Compare</div>
       <a href="#say-vs-do" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-gold-300 hover:text-gold-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🧾 Say vs. Do</a>
@@ -5637,10 +5641,16 @@ window.PDXLazy = (function () {
           <!-- YOUR FILE. One control, reusing the secondary slot beside the map
                opener rather than taking a nav pill: this is the reader's half of
                the comparison the two controls above set up, so it belongs where
-               they are. A real anchor to the hash the overlay owns, so it can be
-               copied and middle-clicked; data-pdxyf-open is what your-file.js
-               turns a plain left click into an in-app open with. -->
-          <a href="#your-file" class="wrm-cta2 btn-tap" data-pdxyf-open="1"
+               they are. It is now a plain anchor to /me — the document the file
+               lives on — rather than #your-file plus data-pdxyf-open, which
+               opened an overlay on top of this page.
+               THE ATTRIBUTE HAD TO GO, NOT JUST THE HREF. your-file.js still
+               understands #your-file, but on any document that is not /me its
+               open path now replace-hops to /me and returns false WITHOUT
+               calling preventDefault. An anchor that kept data-pdxyf-open would
+               therefore fire both the module's location.replace and its own
+               href: two navigations for one tap. -->
+          <a href="/me" class="wrm-cta2 btn-tap"
              title="Your positions on eight issues — used to compare formal records. Not a vote, and not a district poll.">🗂️ Your file</a>
         </div>
       </div>
@@ -13549,16 +13559,6 @@ window.PDXLazy = (function () {
     </template>
   </section>
 
-  <!-- ═══════════════════════════ MY STANCES ═══════════════════════════════
-       The signed-in visitor's OWN positions on the issues — the mirror image of
-       the Stance Library below (which shows where politicians stand). Users pick
-       an issue from the same ISSUE_MAP vocabulary every other surface uses, set
-       Support / Oppose / Mixed, a priority, and an optional private note. The
-       whole surface is rendered by my-stances.js into #ms-body; this container is
-       just the mount point + accessible heading. Saving a stance projects into
-       the Alignment Signature (window.alignSetIntensity), so every politician's
-       match %, the Compare My Team table and the profile comparison update for
-       free. Private by default; local-first and synced to the Firebase account. -->
   <!-- ═══════════════════════════ MY PROFILE ════════════════════════════════
        The signed-in visitor's personal civic hub. Composes the existing personal
        systems (My Stances, Impact Tracker, My Voting Team, Evidence/Receipts) and
@@ -13576,7 +13576,109 @@ window.PDXLazy = (function () {
     </div>
   </section>
 
-  <section id="my-stances" aria-labelledby="ms-heading">
+  <!-- ═══════════════════════════ MY STANCES ═══════════════════════════════
+       A CLOSED DOOR NOW, AND THE REASON IS THAT THE READER'S OWN FILE HAS AN
+       ADDRESS. This was the wall where the visitor's positions were set: the
+       full ISSUE_MAP vocabulary, Support / Oppose / Mixed, a priority and a
+       private note, rendered into #ms-body by my-stances.js and laid out on
+       every load of / whether or not anyone scrolled to it. It was also the
+       SECOND place the eight answers of record could be edited — the account
+       menu's "Your file" overlay was the first — which is two surfaces, one
+       person, and two stores (pdx_your_file_v1 and pdx_my_stances_v1) that both
+       project into the same alignment engine and can therefore disagree about
+       the same issue.
+       So the eight answers of record now have exactly one default surface, and
+       it is /me. What stands here is a short card that says so, with a real
+       link to it. The collection itself — priority, private note, the optional
+       public showcase, across the whole issue list rather than the eight — is
+       the thing only this surface does, so it is kept and moved behind the
+       card, inert in <template id="ms-shell-tpl"> until something asks for it.
+       WHAT ASKS FOR IT, AND WHY THE TEMPLATE IS NOT A DELETION. PDXStances.open()
+       is how eight other modules say "go set a position" — my-profile.js,
+       alignment-tool.js, race-sheet.js, issue-compare.js, stance-library.js and
+       ballot-workspace.js among them — and /me's own Starred issues region
+       links here to add or remove a star, because the priority editor lives
+       nowhere else. Every one of those callers still lands on a working editor:
+       _mount() clones the template back into this section, no id moved and
+       nothing inside was rewritten, which is why every deep link, the ?views=
+       share overlay and my-stances.css all still resolve once it is mounted.
+       The hash #my-stances also still opens it, so a bookmark is not broken.
+       Saving a stance still projects into the Alignment Signature
+       (window.alignSetIntensity), so match %, the Compare My Team table and the
+       profile comparison update for free. Private by default; local-first and
+       synced to the Firebase account. -->
+  <section id="my-stances" class="ms-closed" aria-labelledby="ms-door-heading">
+      <style>
+        /* The card. Deliberately small: this region's job is now to name an
+           address, not to be a product. Same door vocabulary the Evidence
+           Locker uses one section up, so the two read as one pattern. */
+        .ms-door{max-width:44rem;margin:0 auto;text-align:center;padding:0 1rem;}
+        .ms-door-eyebrow{display:inline-flex;align-items:center;gap:0.5rem;margin-bottom:0.8rem;
+          padding:0.32rem 0.95rem;border-radius:999px;background:rgba(30,58,138,0.34);
+          border:1px solid rgba(59,130,246,0.28);}
+        .ms-door-eyebrow-lb{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.7rem;
+          letter-spacing:0.2em;text-transform:uppercase;color:#93c5fd;}
+        .ms-door-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.9rem,6vw,2.9rem);
+          letter-spacing:0.045em;line-height:1;color:#fff;margin:0 0 0.7rem;}
+        .ms-door-title span{color:#93c5fd;}
+        .ms-door-sub{font-family:'Barlow',sans-serif;font-size:0.95rem;line-height:1.55;color:#9fb4d4;
+          max-width:32rem;margin:0 auto 1.1rem;}
+        .ms-door-sub strong{color:#e6eefb;font-weight:700;}
+        /* One line, and it is a COUNT, never a percentage and never a grade:
+           there is no such thing as a partly-complete voter. Hidden until
+           there is a real number behind it. */
+        .ms-door-count{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;
+          letter-spacing:0.06em;text-transform:uppercase;color:#dbeafe;margin:0 0 1.1rem;}
+        .ms-door-open{display:inline-flex;align-items:center;gap:0.55rem;
+          font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:0.9rem;
+          letter-spacing:0.14em;text-transform:uppercase;color:#eaf3ff;text-decoration:none;
+          padding:0.72rem 1.5rem;border-radius:0.7rem;
+          background:linear-gradient(135deg,#1e51a8,#2f6fd0);
+          border:1.5px solid rgba(127,180,255,0.85);
+          box-shadow:0 0 16px rgba(59,130,246,0.35),inset 0 1px 0 rgba(255,255,255,0.2);
+          transition:transform .12s ease,box-shadow .15s ease;}
+        .ms-door-open:hover,.ms-door-open:focus-visible{transform:translateY(-2px);
+          box-shadow:0 0 22px rgba(59,130,246,0.5),inset 0 1px 0 rgba(255,255,255,0.24);}
+        .ms-door-note{font-family:'Barlow',sans-serif;font-size:0.78rem;line-height:1.5;
+          color:#8aa0c4;margin:1rem auto 0;max-width:31rem;}
+        .ms-door-more{background:none;border:none;padding:0;cursor:pointer;
+          font:inherit;color:#93c5fd;text-decoration:underline;text-underline-offset:2px;}
+        .ms-door-more:hover,.ms-door-more:focus-visible{color:#dbeafe;}
+        @media (prefers-reduced-motion: reduce){.ms-door-open{transition:none;}
+          .ms-door-open:hover,.ms-door-open:focus-visible{transform:none;}}
+        /* The collection replaces the card in place, so the section keeps its
+           address (#my-stances) whether it is open or shut. */
+        #my-stances.ms-closed .ms-shell{display:none;}
+      </style>
+      <div class="ms-door" id="ms-door">
+        <div class="ms-door-eyebrow">
+          <span aria-hidden="true">🎯</span>
+          <span class="ms-door-eyebrow-lb">What you stand for</span>
+        </div>
+        <h2 class="ms-door-title" id="ms-door-heading">YOUR FILE LIVES AT <span>/me</span></h2>
+        <p class="ms-door-sub">
+          <strong>Your positions are yours, in one place.</strong> Support, Oppose, Mixed or Not sure on the issues &mdash; the answers PolitiDex checks formal records against. Set them once, on your own page.
+        </p>
+        <p class="ms-door-count" id="ms-door-count" hidden></p>
+        <a class="ms-door-open" id="ms-door-open" href="/me"
+           title="Your file — your positions, your starred issues, your ballot picks and your saved evidence">
+          <span aria-hidden="true">🗂️</span> Open your file
+        </a>
+        <p class="ms-door-note">
+          Private by default. Nothing here is published, nothing is scored, and no one else can read it. Want priority, a private note or a public showcase across the whole issue list? <button type="button" class="ms-door-more" id="ms-door-more">Open the full stance collection here</button>.
+        </p>
+      </div>
+
+    <!-- ── THE COLLECTION · inert until something asks for it ───────────────────
+         Byte-for-byte the markup that used to be mounted here, in the same
+         order, with the same ids and the same classes. The only change is the
+         <template> around it: template contents are parsed into an inert
+         fragment outside the document tree, so this costs zero layout, zero
+         paint and zero height until my-stances.js's _mount() clones it back
+         into this section. Nothing inside was rewritten and no id moved, which
+         is why #ms-body, #ms-heading, my-stances.css and every existing deep
+         link still resolve the moment it is mounted. -->
+    <template id="ms-shell-tpl">
     <div class="ms-shell">
       <div class="ms-head">
         <span class="ms-eyebrow">🎯 What you stand for</span>
@@ -13585,6 +13687,7 @@ window.PDXLazy = (function () {
       </div>
       <div id="ms-body"><div class="ms-status">Loading the issues…</div></div>
     </div>
+    </template>
   </section>
 
   <!-- ═══════════════════════════ ISSUE COMPARISON ═══════════════════════════
@@ -21001,7 +21104,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         <div class="cmp-guide-grid">
           <div class="cmp-guide-item"><span class="cmp-guide-ico">⚖️</span><span><strong>Word vs Action</strong> — does what they say match what they do? Each stated position is checked against their own roll-call votes. This is the one graded read on PolitiDex; everything else below feeds it.</span></div>
           <div class="cmp-guide-item"><span class="cmp-guide-ico">🤝</span><span><strong>Pledge receipts</strong> — the promises counted <strong class="text-green-400">Kept</strong> or <strong class="text-red-400">Broken</strong>, as counts rather than a rate. Evidence for the read above, not a second score.</span></div>
-          <div class="cmp-guide-item"><span class="cmp-guide-ico">🎯</span><span><strong>Your Alignment</strong> — how their record fits <em>your</em> values. Set your Support / Oppose / Mixed positions in <button type="button" onclick="if(window.closeCompare)closeCompare();if(window.PDXStances&&PDXStances.open)PDXStances.open();else location.hash='#my-stances';" class="cmp-guide-link">🎯 My Stances</button> to unlock it.</span></div>
+          <div class="cmp-guide-item"><span class="cmp-guide-ico">🎯</span><span><strong>Your Alignment</strong> — how their record fits <em>your</em> values. Set your Support / Oppose / Mixed positions in <a href="/me" class="cmp-guide-link">🗂️ your file</a> to unlock it.</span></div>
           <div class="cmp-guide-item"><span class="cmp-guide-ico">🏛</span><span><strong>Where They Stand</strong> — their real, documented positions lined up issue by issue, with a ✓ Agree / ✗ Differ flag where two or more picks both have a stance.</span></div>
         </div>
         <div class="cmp-guide-tip">💡 <strong>Read them together:</strong> Word vs Action shows whether they keep their word; Alignment shows whether they're keeping it on the issues you care about. Coverage varies — a read built on three tested positions says less than one built on thirty, and the card tells you which you're looking at. New 2026 candidates have no voting record yet; compare them on <strong>Where They Stand</strong> and alignment instead.</div>
@@ -23025,13 +23128,20 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        the existing Alignment Signature through window.alignSetIntensity. Loaded
        after alignment-tool.js for that reason. It writes NOTHING to the forum, to
        a district room or to dd_poll_answers — there is no POST in the file at all.
-       REACHED FROM TWO VISIBLE CONTROLS AND FROM THE HASH. "Your file" sits in the
-       Who Represents Me action row (both the cold CTA row and the resolved
-       action row — the cold one is hidden by `.wrm[data-located] .wrm-cold`, so
-       on its own it left every returning visitor with no control at all) and in
-       the signed-in account menu, both as a real <a href="#your-file">. The hash
-       is the state: this module opens the panel the moment it parses, so a pasted
-       or bookmarked /#your-file lands the same as a click. Still no nav pill. -->
+       NOT REACHED FROM THIS PAGE ANY MORE, AND THE HASH IS A ONE-HOP REDIRECT.
+       "Your file" still sits in the Who Represents Me action row (both the cold
+       CTA row and the resolved action row) and in the signed-in account menu,
+       but all of those controls are now plain <a href="/me"> — the file has a
+       document of its own and that document is the only place the eight answers
+       are edited. What is left here is the module, loaded for two reasons: it
+       adopts the saved answers into the Alignment Signature on every load of /
+       (the ONE CONSUMER paragraph above is unchanged), and it keeps #your-file
+       working. On any document that is not /me, open() and arrive() now perform
+       exactly one latched location.replace('/me') and return false, so a
+       bookmark a reader made last year still lands on their file instead of
+       404ing or opening a second editor. On /me itself the same module mounts
+       its editor inline into the desk's Positions region — one renderer, one
+       store, two presentations. Still no nav pill. -->
   <script defer src="/your-file.js"></script>
   <!-- /i/<key> — the issue file's own address. Reads the key out of
        location.pathname, resolves it through the desk's own resolver, commits the

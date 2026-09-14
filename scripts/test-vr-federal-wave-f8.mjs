@@ -2331,6 +2331,54 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     "scripts/test-record-direction-cards.mjs",
     "scripts/test-share-pipeline.mjs",
     "scripts/test-share-preview.mjs",
+    // THE VOTER'S OWN FILE AS ITS OWN DOCUMENT (CACHE_VERSION v194), on those
+    // same later-wave terms, and it is the /me half of the pass above. The eight
+    // answers had no address: the account menu's "Your file" was an
+    // <a href="#your-file"> that opened an overlay on whatever document the
+    // reader was standing on, and the SAME menu's "My Views" scrolled to a
+    // different region of that same homepage — two labels, two surfaces, one
+    // person's file, and neither one bookmarkable. /me is now the document; both
+    // menu doors and the Who Represents Me action row are plain anchors to it;
+    // #your-file redirects exactly once (replace, so Back can leave).
+    //   WHAT THIS WAVE'S SUBJECTS SEE OF IT: nothing. No roll, mapping,
+    // admission, seed, migration, floor, key, weight, tier, figure or census
+    // output is touched, and no Direction Match figure moves — the twin boot
+    // above has just proved that. The desk publishes NO score for a voter and no
+    // score for a party, which is the one thing it would have been easy to add
+    // here and is refused in copy and pinned by scripts/test-me-document.mjs.
+    //   my-stances.js is the file this wave has to declare by name. The giant My
+    // Stances wall was the homepage's second editor of the same eight answers,
+    // and the brief demotes it to a card — but eight modules call
+    // PDXStances.open(), so deleting it would have broken every one. It is the
+    // Evidence Locker's door instead: the band is a card, the collection sits
+    // inert in <template id="ms-shell-tpl">, and mountShell() clones it back on
+    // request so every existing caller still lands on a working editor. The
+    // IntersectionObserver lazy mount was deleted in the same move, because it
+    // deferred the wall's cost rather than avoiding it — it mounted for every
+    // reader who scrolled past the band, which is every reader who scrolls.
+    //   scripts/test-account-chip-cost.mjs and scripts/test-locker-door.mjs were
+    // re-pinned to the moved contract, not relaxed. The first probed for
+    // data-pdxyf-open and PDXStances.openViews as PROXIES for "the menu still
+    // has both doors"; both mechanisms are gone, so it asserts the two labels
+    // and requires exactly two /me anchors, and it now also FORBIDS the old hook
+    // — an anchor carrying it would fire the module's location.replace and its
+    // own href, two navigations for one tap. The second pinned index.html to
+    // exactly one <template>; it carries an allowlist of the two doors that have
+    // justified one, and still refuses a third.
+    //   scripts/test-your-file.mjs asserts both halves of the redirect, the two
+    // presentations of the one editor (inline() paints the SAME two ids, so
+    // render/patchRow/set are shared), and its whole tap-cost section runs
+    // against the overlay fallback unchanged.
+    //   me.html, me-desk.js, me-desk.css and scripts/test-me-document.mjs are new
+    // files, not modifications, and are named here for the record.
+    // index.html, compare-hub.js, who-represents-me.js, your-file.js, netlify.toml,
+    // sw.js, scripts/test-your-file.mjs and scripts/test-person-shell.mjs are
+    // declared above already.
+    "my-stances.js",
+    "scripts/test-account-chip-cost.mjs",
+    "scripts/test-locker-door.mjs",
+    "scripts/test-issue-desk-one-count.mjs",
+    "scripts/test-wva-chip-denominator.mjs",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};

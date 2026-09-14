@@ -1,0 +1,2327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════════
+       /me — THE VOTER'S OWN FILE. ONE DOCUMENT, ONE ADDRESS, ONE EDITOR.
+       ──────────────────────────────────────────────────────────────────────────────
+       WHAT THIS ADDRESS FIXES. This account had two names and two surfaces. The
+       account menu's "Your File" was the hash #your-file on the homepage; its
+       "My Views" was a scroll to a very long My Stances region on that same
+       homepage. Ballot picks were a third place — the /ballot desk — and starred
+       issues a fourth. One person, four addresses, none of them shareable or
+       bookmarkable, and Back from any of them meant "the front page, roughly
+       where you were." Two editors of the same eight answers is a pair that can
+       drift; four addresses for one desk is a thing nobody can link to.
+
+       So /me is the desk, /me is the ONLY address for it, and the homepage keeps
+       no editor of record. netlify.toml rewrites /me and /me/ to this file, and
+       both account-menu controls now assign('/me') instead of setting a hash.
+       #your-file still WORKS — it replace-hops here once, because a bookmark a
+       reader made last year is not a thing to break — but it is no longer a
+       place where the eight answers can be edited.
+
+       WHAT IS ON IT. Six regions, described where they are built (me-desk.js),
+       and not one of them is a product: who this account is, the eight-issue
+       editor, the starred issues, a snapshot of the ballot, the saved evidence,
+       and three text links to the tools that own the real work. It is a desk. It
+       summarizes and it hands off.
+
+       WHAT IS DELIBERATELY NOT ON IT.
+         · NO SCORE FOR THE VOTER, of any kind. No percentage, no grade, no
+           completeness figure, no "80% aligned with Utah". Every count on this
+           page is the length of a real list written as a sentence.
+         · NO SECOND EDITOR. Region b is your-file.js's own renderer painted into
+           a host this document supplies. Same module, same store, same eight
+           rows, same set(). There is nothing here for the panel to drift from.
+         · NO BALLOT. The snapshot lists seats and names picks. It cannot make
+           one, it carries no field of candidates, and ballot-workspace.js is not
+           on this document. /ballot is one link away and owns all of that.
+         · NO PARTY CHIP ON THE VOTER, and no party metric anywhere.
+         · NOBODY ELSE'S FILE. This document reads this browser's own account and
+           has no path that can address another. It is noindex.
+         · NO ENGINE. alignment-tool.js, the consistency lane, the voting-record
+           prefetch, compare-hub.js and profiles-full.js are all absent. A desk
+           that summarizes what you hold does not need the machine that compares
+           it — and a reader who wants that machine has a link to it.
+
+       THE CRITICAL PATH, AND WHY EACH FILE IS ON IT. Four inline blocks and
+       seven scripts, which is the whole document:
+         PDXStore        the storage seam every store below writes through.
+         the ledger      firebase-boot.js reads _firestoreLoaded and
+                         _checkAndTrigger as BARE identifiers, so this block is a
+                         hard dependency of the roster load, not a convenience.
+         firebase        MANDATORY HERE, and this is the reason the whole pass
+                         exists: your-file.js keys its store per account
+                         (pdx_your_file_v1__u_<uid>) and learns the uid from the
+                         pdx-account-change event that firebase-boot.js's auth
+                         handler causes. Without Firebase on this document /me
+                         would read the un-namespaced key while the homepage read
+                         the per-account one — two files for one reader, which is
+                         the exact defect being closed. It is also the only name
+                         source region d has (see browse-photos below).
+         PDXSaved        region e's store. It already existed; this lists it.
+         person-link.js  one owner of "what is this person's URL", so a pick's
+                         name links to the same /p/ address everywhere else does.
+         browse-photos   faces for the picks, and nothing else — 114 KB of map
+                         instead of cmp-data.js's 384 KB of records, because a
+                         row needs a portrait and a name, the roster index above
+                         carries the name, and this carries the portrait.
+         issue-map.js    the issue register. my-stances.js drops any answer whose
+                         key is not in it, so without this region c is empty for
+                         every reader.
+         voter-hub-loc.  the one owner of where this account votes AND of
+                         TEAM_POSITIONS, the slate regions a and d both read.
+                         Flagged in .netlify/results.md as the one file here that
+                         is outside the brief's minimal list: the alternative is
+                         a second per-state slate table and a second location
+                         reader inside me-desk.js, which is the drift this pass
+                         exists to end.
+         my-stances.js   the stars store, and _msPriorityWeight — the SAME hook
+                         the match engine weights with. Loaded without its
+                         section: init() bails on a missing #ms-body and leaves
+                         itself uninitialised, so a later PDXStances.open() on
+                         the homepage still mounts normally.
+         your-file.js    the positions editor of record, painted inline here.
+         me-desk.js      the desk.
+
+       WHAT IS NOT HERE THAT THE OTHER SHELLS CARRY. No app.css (986 KB of
+       homepage cascade for six regions), no PWA runtime and no service-worker
+       registration, no /manifest.json, no pdx-perf.js, no share furniture beyond
+       the tags below, no JSON-LD. ballot.html is the precedent for every one of
+       those, and for the same reason: a private workspace is not the front page.
+
+       EVERY SAME-ORIGIN PATH IN THIS DOCUMENT IS ROOT-ABSOLUTE, with no
+       exceptions and this is not a style preference. /me is served from a path
+       with no trailing segment, but /me/ is rewritten to this same file, and on
+       THAT address a bare src="me-desk.js" resolves to /me/me-desk.js — which
+       the rewrite answers with this HTML document. The browser then parses HTML
+       as JavaScript, every module is silently absent, and the page renders a
+       blank desk with no error that names the cause.
+       ═══════════════════════════════════════════════════════════════════════════════ -->
+
+  <!-- A personal desk is private: there is nothing here to unfurl and nothing a
+       crawler should index. The tags exist so a link pasted into a chat window
+       says what the address is rather than showing a bare URL, and they are in
+       share-preview.ts's attribute order (`property` then `content`, `rel` then
+       `href`) for the same reason ballot.html's are — that edge function
+       rewrites by an attribute-ordered regex, so a reshuffle here would be a
+       silent no-op there rather than an error, on the day /me is ever added to
+       its config.path. -->
+  <title>Your file &middot; PolitiDex</title>
+  <link rel="canonical" href="https://politidex.us/me" />
+  <meta name="robots" content="noindex, follow" />
+  <meta name="description" content="Your file on PolitiDex — your positions on eight issues, the issues you rank harder, your ballot so far, and the evidence you saved. Private by default. Never a score." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PolitiDex" />
+  <meta property="og:title" content="Your file &middot; PolitiDex" />
+  <meta property="og:description" content="Your file on PolitiDex — your positions, the issues you rank harder, your ballot so far, and the evidence you saved. Private by default. Never a score." />
+  <meta property="og:url" content="https://politidex.us/me" />
+  <meta property="og:image" content="https://politidex.us/og-image.png" />
+  <meta property="og:image:alt" content="PolitiDex — your file" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Your file &middot; PolitiDex" />
+  <meta name="twitter:description" content="Your file on PolitiDex — your positions, the issues you rank harder, your ballot so far, and the evidence you saved. Private by default. Never a score." />
+  <meta name="twitter:image" content="https://politidex.us/og-image.png" />
+  <meta name="theme-color" content="#0a0f1e" />
+
+  <!-- The four files a first paint actually waits on: where this voter votes,
+       the desk, its stylesheet and the editor's. Everything else below is
+       deferred data the desk fills in as it arrives. -->
+  <link rel="preload" as="script" href="/voter-hub-location.js" />
+  <link rel="preload" as="script" href="/me-desk.js" />
+  <link rel="preload" as="style" href="/me-desk.css" />
+  <link rel="preload" as="style" href="/your-file.css" />
+
+  <!-- Barlow / Bebas Neue, non-blocking, with the same swap index.html,
+       person.html, issue.html, spotlight.html and ballot.html use. A swap
+       written differently on one document is a visible font flash on exactly one
+       URL shape. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
+
+  <!-- THE EDITOR'S OWN STYLESHEET, FIRST. Region b is your-file.js's eight rows
+       and this is what styles them — the same sheet, so a row looks the same
+       here as in the panel. It loads BEFORE me-desk.css because the one rule
+       me-desk.css contributes to the editor (.pdxyf-body--inline, which un-does
+       the overlay's inner scroller) carries exactly the same specificity as the
+       rule it overrides, so source order is the whole mechanism. Swap these two
+       lines and region b grows a dead scrollbar. -->
+  <link rel="stylesheet" href="/your-file.css" />
+  <!-- The desk's own stylesheet. Render-blocking on purpose: it is the page.
+       Self-sufficient — every colour in it is a literal, because there is no
+       app.css on this document to inherit a palette from. -->
+  <link rel="stylesheet" href="/me-desk.css" />
+
+  <style>
+    /* THE FIXED CHROME, MEASURED ONCE. Same contract person.html, issue.html,
+       spotlight.html and ballot.html answer for their own chrome, and for the
+       same reason: a custom property that is never declared invalidates every
+       calc() that reads it. This document's chrome is ONE row and no search, so
+       the number is the height of the bar declared below. The @supports guard is
+       the one all four carry — a custom property accepts any token sequence, so
+       an engine that cannot parse env() would swallow the declaration and
+       invalidate every calc() reading it; an engine without env() also has no
+       notch. */
+    :root { --pdx-chrome: 3.25rem; color-scheme: dark; }
+    @supports (padding-top: env(safe-area-inset-top)) {
+      :root { --pdx-chrome: calc(3.25rem + env(safe-area-inset-top, 0px)); }
+    }
+    /* No app.css here, so the page's own ground colour is declared rather than
+       inherited from a 986 KB stylesheet this document does not load. */
+    html, body { background: #070b16; color: #e7eefb; }
+    body {
+      margin: 0;
+      font-family: 'Barlow', system-ui, -apple-system, sans-serif;
+      padding-top: calc(var(--pdx-chrome) + 0.75rem);
+    }
+
+    /* The one-row shell bar. Static: no search field, no account menu, no layout
+       observer, no measurement pass, nothing that reads the viewport. The
+       account menu is absent on purpose — this document IS the thing that menu
+       points at, and a menu here would be a door back into the room you are
+       standing in. */
+    .pdx-me-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1200;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.75rem; height: 3.25rem; padding: env(safe-area-inset-top, 0px) 1rem 0;
+      background: rgba(10, 15, 30, 0.86); backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .pdx-me-bar a { text-decoration: none; }
+    .pdx-me-wordmark {
+      font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+      font-size: 1.15rem; letter-spacing: 0.12em; color: #fff;
+    }
+    .pdx-me-wordmark span { color: #e0273f; }
+    .pdx-me-links { display: flex; align-items: center; gap: 0.4rem; min-width: 0; }
+    .pdx-me-home {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem;
+      letter-spacing: 0.14em; text-transform: uppercase; color: #9fb4d4;
+      border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 0.5rem;
+      padding: 0.3rem 0.65rem; white-space: nowrap; cursor: pointer;
+      background: transparent;
+    }
+
+    /* THE OVERLAY THAT MUST NOT OPEN HERE, BELT AND BRACES. your-file.js's panel
+       is fixed and full-bleed; on this document its eight rows are already on
+       the page, so a panel over them would be the same editor twice. The module
+       is what prevents that (see its isMeDoc() trampoline) and this rule is the
+       second lock: it costs one selector and it means a stale cached copy of
+       your-file.js cannot cover the desk. .pdxyf-body--inline is region b's own
+       body and is NOT inside .pdxyf, so it is untouched by this. */
+    .pdxyf { display: none !important; }
+
+    /* The only thing a reader sees if JavaScript never runs. It claims what this
+       address is, which is true, rather than showing them an empty desk. */
+    .pdx-me-note {
+      max-width: 40rem; margin: 2.5rem auto; padding: 0 1.1rem;
+      font: 400 1rem/1.6 'Barlow', system-ui, sans-serif; color: #9fb4d4;
+    }
+    .pdx-me-note a { color: #f5d77a; }
+  </style>
+
+  <!-- ══ THE FLAG — ONE DECLARATION, READ THROUGH ONE ACCESSOR ═══════════════
+       This is the first script on the document, before any module can look for
+       it, and it is the ONLY place the flag is set. Two modules read it:
+
+         me-desk.js  refuses to boot unless it is true, so a stray script tag on
+                     the homepage cannot paint a second desk over the real one.
+         your-file.js reads it to decide what #your-file MEANS. On this document
+                     the eight rows are already on the page, so the hash and the
+                     account-menu click are satisfied by scrolling to region b.
+                     On every other document they are an ADDRESS: the module
+                     replace-hops to /me once and the overlay never opens.
+
+       ONE FLAG, NO HEURISTICS. Neither module sniffs location.pathname, and
+       nothing else in the app is allowed to either — a path test is a second
+       answer to "which document is this", and /me, /me/ and a local preview
+       server's /me.html are three spellings of one document that a path test
+       gets differently.
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <script>window.__PDX_ME_DOC = true;</script>
+
+  <!-- ══ COPIED VERBATIM FROM person.html LINES 288–1271 ════════════════════════
+       PDXStore / PDXTeam / PDXTeamV2 — the storage seam. Every store on this
+       document writes through it: your-file.js's eight answers, my-stances.js's
+       stars, PDXSaved below, and the ballot map region d reads. It touches
+       localStorage and nothing else: no DOM, no network, no account.
+
+       IT IS ALSO WHY REGION d AND /ballot CANNOT DISAGREE. PDXStore.read() is a
+       plain getRaw on the LITERAL key — the store namespaces nothing itself,
+       each feature that wants an account key builds its own — so
+       'politidex_my_team' is the same string here, on the homepage, and in
+       ballot-breakdown.js's _ballotLoad, which reads it raw on /ballot because
+       that shell carries no store at all.
+       ═══════════════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+  if (window.PDXStore) return; // idempotent — never redefine
+
+  // ─── Sync-state persistence ──────────────────────────────────────────────
+  // One small record tracking, per collection, whether the local data has
+  // un-pushed changes. Kept separate from the data itself so clearing/marking
+  // dirty never risks the actual user content.
+  var SYNC_KEY = 'pdx_sync_state';
+  var SYNC_VERSION = 1;
+
+  // ─── Backends ─────────────────────────────────────────────────────────────
+  // A backend is the thing that actually holds bytes. Only the raw string I/O
+  // differs between backends; JSON handling and dirty tracking sit above them.
+  function makeLocalBackend() {
+    return {
+      name: 'local',
+      isAvailable: function () {
+        try {
+          var t = '__pdx_probe__';
+          localStorage.setItem(t, '1'); localStorage.removeItem(t);
+          return true;
+        } catch (e) { return false; }
+      },
+      getRaw: function (key) { try { return localStorage.getItem(key); } catch (e) { return null; } },
+      setRaw: function (key, str) { try { localStorage.setItem(key, str); return true; } catch (e) { return false; } },
+      removeRaw: function (key) { try { localStorage.removeItem(key); return true; } catch (e) { return false; } }
+    };
+  }
+
+  // The active data backend. Swappable later (see setBackend) — e.g. a backend
+  // that reads/writes localStorage AND queues an upstream push. For now it is
+  // always the plain local backend, so behaviour is unchanged.
+  var _backend = makeLocalBackend();
+
+  // The OPTIONAL remote backend (account sync). Null until setRemoteBackend()
+  // is called, so out of the box there is no network and no auth — the app is
+  // pure localStorage. When set, it unlocks push()/pull() without changing any
+  // local read/write path. See the contract doc block near window.PDXStore.
+  var _remote = null;
+  var _remoteOpts = {};
+  var _pushing = {};   // collection name -> in-flight push Promise (de-dupes concurrent pushes)
+
+  // ─── Collection registry ────────────────────────────────────────────────
+  // logical name → { keys:[localStorage keys it owns], label }
+  // Used to (a) know which collection a key write should dirty, and (b) let a
+  // future sync engine enumerate exactly what belongs to each syncable set.
+  var _collections = {};
+  var _keyToCollection = {};
+
+  function defineCollection(name, opts) {
+    if (!name) return;
+    opts = opts || {};
+    var keys = (opts.keys || []).slice();
+    _collections[name] = { name: name, keys: keys, label: opts.label || name };
+    for (var i = 0; i < keys.length; i++) { _keyToCollection[keys[i]] = name; }
+    // Make sure a sync-state slot exists for it.
+    var st = _loadSync();
+    if (!st.collections[name]) {
+      st.collections[name] = { dirty: false, lastLocalChangeAt: 0, lastSyncedAt: 0, revision: 0 };
+      _saveSync(st);
+    }
+    return _collections[name];
+  }
+
+  // Register (or extend) the localStorage keys a collection owns — so keys that
+  // are only known deep inside a later <script> can still be attached to their
+  // collection for dirty tracking.
+  function attachKeys(name, keys) {
+    if (!_collections[name]) defineCollection(name, { keys: keys });
+    else {
+      for (var i = 0; i < keys.length; i++) {
+        if (_collections[name].keys.indexOf(keys[i]) === -1) _collections[name].keys.push(keys[i]);
+        _keyToCollection[keys[i]] = name;
+      }
+    }
+  }
+
+  // ─── Sync-state helpers ───────────────────────────────────────────────────
+  function _loadSync() {
+    var raw = _backend.getRaw(SYNC_KEY);
+    var st = null;
+    try { st = raw ? JSON.parse(raw) : null; } catch (e) { st = null; }
+    if (!st || typeof st !== 'object') st = { version: SYNC_VERSION, collections: {} };
+    if (!st.collections || typeof st.collections !== 'object') st.collections = {};
+    return st;
+  }
+  function _saveSync(st) {
+    try { _backend.setRaw(SYNC_KEY, JSON.stringify(st)); } catch (e) {}
+  }
+  function _now() {
+    // Timestamps are best-effort ordering hints for a future sync engine; a
+    // missing clock must never break a write.
+    try { return Date.now(); } catch (e) { return 0; }
+  }
+  function _emit(name, detail) {
+    try { window.dispatchEvent(new CustomEvent(name, { detail: detail || {} })); } catch (e) {}
+  }
+
+  function markDirty(collection) {
+    if (!collection) return;
+    var st = _loadSync();
+    var c = st.collections[collection] || (st.collections[collection] = { dirty: false, lastLocalChangeAt: 0, lastSyncedAt: 0, revision: 0 });
+    c.dirty = true;
+    c.lastLocalChangeAt = _now();
+    c.revision = (c.revision || 0) + 1;
+    _saveSync(st);
+    _emit('pdx-sync-state-change', { collection: collection, dirty: true });
+  }
+
+  // Called by a future sync engine after a successful push, to record that the
+  // local copy is now in agreement with the server as of `syncedAt`.
+  function clearDirty(collection, syncedAt) {
+    if (!collection) return;
+    var st = _loadSync();
+    var c = st.collections[collection];
+    if (!c) return;
+    c.dirty = false;
+    c.lastSyncedAt = syncedAt || _now();
+    _saveSync(st);
+    _emit('pdx-sync-state-change', { collection: collection, dirty: false });
+  }
+
+  function isDirty(collection) {
+    var st = _loadSync();
+    if (collection) return !!(st.collections[collection] && st.collections[collection].dirty);
+    // No arg → is ANYTHING pending?
+    for (var k in st.collections) { if (st.collections[k] && st.collections[k].dirty) return true; }
+    return false;
+  }
+
+  function pendingCollections() {
+    var st = _loadSync(), out = [];
+    for (var k in st.collections) { if (st.collections[k] && st.collections[k].dirty) out.push(k); }
+    return out;
+  }
+
+  function getSyncState() {
+    // Deep-ish clone so callers can read but not mutate the persisted record.
+    var st = _loadSync(), out = { version: st.version || SYNC_VERSION, collections: {} };
+    for (var k in st.collections) {
+      var c = st.collections[k];
+      out.collections[k] = { dirty: !!c.dirty, lastLocalChangeAt: c.lastLocalChangeAt || 0, lastSyncedAt: c.lastSyncedAt || 0, revision: c.revision || 0 };
+    }
+    return out;
+  }
+
+  // ─── Data read / write primitives ─────────────────────────────────────────
+  // These are the calls features make. `read`/`write` are JSON-typed (the
+  // common case); `readRaw`/`writeRaw` handle plain strings (e.g. a mode flag).
+  // Any write to a key owned by a collection auto-marks that collection dirty,
+  // so features get change-tracking for free just by routing through here.
+  function _collectionForKey(key) { return _keyToCollection[key] || null; }
+
+  // ─── Collection snapshots (the payload a push sends upstream) ──────────────
+  // A "snapshot" is the complete, serializable state of one collection — exactly
+  // what a remote backend receives in push() and would return from pull(). A
+  // feature registers a shaped provider for its collection (see PDXSaved and
+  // PDXTeam.snapshot). Collections without a registered provider fall back to a
+  // raw { ownedKey: parsedValue } map, which is enough for any single-key set.
+  var _snapshotProviders = {};
+  function registerSnapshot(collection, fn) {
+    if (collection && typeof fn === 'function') _snapshotProviders[collection] = fn;
+  }
+  function snapshot(collection) {
+    var fn = _snapshotProviders[collection];
+    if (fn) { try { return fn(); } catch (e) { return null; } }
+    var c = _collections[collection];
+    if (!c) return null;
+    var out = {};
+    for (var i = 0; i < c.keys.length; i++) { out[c.keys[i]] = read(c.keys[i], null); }
+    return out;
+  }
+
+  // ─── Collection reconcilers (the pull-side counterpart to registerSnapshot) ─
+  // registerSnapshot() shapes what a collection PUSHES up; a reconciler decides
+  // how a PULLED server snapshot is MERGED back into local state. It is the one
+  // place that knows a collection's data shape well enough to combine two
+  // versions safely, so PDXStore itself stays data-agnostic. Both personal
+  // collections now register one ('saved' and 'team'); a collection WITHOUT a
+  // reconciler is never pulled — pullCollection() no-ops for it — so any future
+  // push-only collection keeps exactly its current behavior and is never at risk
+  // of being clobbered by server data.
+  var _reconcilers = {};
+  function registerReconciler(collection, fn) {
+    if (collection && typeof fn === 'function') _reconcilers[collection] = fn;
+  }
+
+
+  function read(key, fallback) {
+    var raw = _backend.getRaw(key);
+    if (raw == null) return (fallback === undefined ? null : fallback);
+    try { return JSON.parse(raw); } catch (e) { return (fallback === undefined ? null : fallback); }
+  }
+  function write(key, value, opts) {
+    var ok = false;
+    try { ok = _backend.setRaw(key, JSON.stringify(value)); } catch (e) { ok = false; }
+    _afterWrite(key, opts);
+    return ok;
+  }
+  function readRaw(key) { return _backend.getRaw(key); }
+  function writeRaw(key, str, opts) {
+    var ok = _backend.setRaw(key, String(str == null ? '' : str));
+    _afterWrite(key, opts);
+    return ok;
+  }
+  function remove(key, opts) {
+    var ok = _backend.removeRaw(key);
+    _afterWrite(key, opts);
+    return ok;
+  }
+  function _afterWrite(key, opts) {
+    // opts.dirty === false lets a caller persist without flagging a push
+    // (e.g. writing data that just came DOWN from the server).
+    var col = (opts && opts.collection) || _collectionForKey(key);
+    if (col && !(opts && opts.dirty === false)) markDirty(col);
+    // Dual-write mirror (Phase 1 of the team refactor): whenever a legacy
+    // team-membership store changes locally, refresh the single-source-of-truth
+    // politidex_team_v2 mirror so both shapes stay in agreement during the
+    // transition. Guarded by opts.__v2 so a v2 write can never re-trigger itself,
+    // and by a typeof check so writes that happen before the v2 module is defined
+    // (during this IIFE's own init) are simply skipped.
+    if (!(opts && opts.__v2) &&
+        (key === 'politidex_my_team' || key === 'politidex_my_politicians') &&
+        typeof _v2SyncFromLegacy === 'function') {
+      try { _v2SyncFromLegacy(); } catch (e) {}
+    }
+  }
+
+  // Explicitly mark a collection changed without going through write() — for
+  // features whose scattered legacy writes are hard to fully reroute. Calling
+  // this from their canonical save function keeps dirty tracking honest.
+  function touch(collection) { markDirty(collection); }
+
+  // ─── Backend management (for the future account phase) ─────────────────────
+  function setBackend(b) { if (b && typeof b.getRaw === 'function') _backend = b; }
+  function getBackend() { return _backend; }
+
+  // ─── Remote backend (account sync) ─────────────────────────────────────────
+  // Register the OPTIONAL remote backend. Registering it does NOT touch any
+  // local read/write path — it only unlocks push()/pull(). Identity is the
+  // backend's own concern: build it closing over whatever user id the caller
+  // already has (this layer never authenticates). See the contract doc block
+  // near window.PDXStore for the exact shape a backend must implement.
+  //   opts.userId        optional id, echoed to the backend in push meta
+  //   opts.autoPush      opt-in: debounce-push a collection after it goes dirty
+  //   opts.autoPushDelay ms to wait before an auto-push (default 1500)
+  function setRemoteBackend(backend, opts) {
+    _remote = backend || null;
+    _remoteOpts = opts || {};
+    _emit('pdx-remote-change', { active: !!_remote, name: _remote && _remote.name });
+    if (_remote && _remoteOpts.autoPush) _enableAutoPush();
+    return _remote;
+  }
+  function getRemoteBackend() { return _remote; }
+
+  // Push one collection's current snapshot upstream. ALWAYS resolves (never
+  // rejects) with a small result object so callers can safely fire-and-forget:
+  //   { pushed:true,  result }  → the backend accepted the snapshot
+  //   { pushed:false, reason }  → nothing to do (no remote registered / clean)
+  //   { pushed:false, error }   → the backend failed; the collection STAYS
+  //                               dirty, so a later push retries it. A failed
+  //                               push can never lose or corrupt local data.
+  function pushCollection(name) {
+    if (!name) return Promise.resolve({ pushed: false, reason: 'no-collection' });
+    if (!_remote || typeof _remote.push !== 'function') {
+      return Promise.resolve({ pushed: false, reason: 'no-remote' });
+    }
+    if (!isDirty(name)) return Promise.resolve({ pushed: false, reason: 'not-dirty' });
+    if (_pushing[name]) return _pushing[name]; // coalesce concurrent pushes
+
+    // Capture the revision as it stands NOW. If a local write bumps it while the
+    // push is in flight, we must NOT clear the dirty flag afterwards — the newer
+    // change hasn't been sent — so the next push still picks it up.
+    var st = _loadSync();
+    var startRev = (st.collections[name] && st.collections[name].revision) || 0;
+    var snap = snapshot(name);
+    var meta = { revision: startRev, userId: _remoteOpts.userId || null };
+
+    var p = Promise.resolve()
+      .then(function () { return _remote.push(name, snap, meta); })
+      .then(function (res) {
+        res = res || {};
+        var cur = _loadSync().collections[name];
+        var curRev = (cur && cur.revision) || 0;
+        // Only mark clean if nothing changed locally during the push.
+        if (curRev === startRev) clearDirty(name, res.syncedAt);
+        _emit('pdx-sync-push', { collection: name, ok: true });
+        return { pushed: true, result: res };
+      })
+      .catch(function (err) {
+        // Offline / server error: leave the collection dirty for a later retry.
+        _emit('pdx-sync-error', { collection: name, error: String((err && err.message) || err) });
+        return { pushed: false, error: err };
+      })
+      .then(function (out) { delete _pushing[name]; return out; });
+
+    _pushing[name] = p;
+    return p;
+  }
+
+  // Push every collection that currently has un-synced local changes.
+  function pushPending() { return Promise.all(pendingCollections().map(pushCollection)); }
+
+  // Pull one collection's snapshot from the remote backend and merge it into the
+  // local state via that collection's registered reconciler. Like pushCollection,
+  // it ALWAYS resolves (never rejects) so callers can fire-and-forget on startup:
+  //   { pulled:true,  ... }      → merged (the reconciler reports what changed)
+  //   { pulled:false, reason }   → nothing to do (no remote / no pull() / no
+  //                                reconciler registered for this collection)
+  //   { pulled:false, error }    → the pull or merge failed; LOCAL DATA IS LEFT
+  //                                EXACTLY AS IT WAS, so the app simply keeps
+  //                                working from local storage. A failed pull can
+  //                                never lose or corrupt local data.
+  //
+  // Pull is intentionally gated on a registered reconciler: without a merge
+  // strategy we must NOT blindly overwrite local data with the server's, so an
+  // un-reconciled collection is never pulled. Both 'saved' and 'team' register
+  // one, so both sync two-way.
+  function pullCollection(name) {
+    if (!name) return Promise.resolve({ pulled: false, reason: 'no-collection' });
+    if (!_remote || typeof _remote.pull !== 'function') {
+      return Promise.resolve({ pulled: false, reason: 'no-remote' });
+    }
+    var reconcile = _reconcilers[name];
+    if (typeof reconcile !== 'function') {
+      return Promise.resolve({ pulled: false, reason: 'no-reconciler' });
+    }
+
+    // Capture dirtiness BEFORE the merge. A dirty collection has local edits that
+    // haven't reached the server yet; the reconciler uses this to let those
+    // un-pushed edits win ties so a pull can never quietly undo them.
+    var wasDirty = isDirty(name);
+
+    return Promise.resolve()
+      .then(function () { return _remote.pull(name); })
+      .then(function (res) {
+        // res is { snapshot, syncedAt, revision } or null when the server has
+        // no snapshot for this user+collection yet.
+        var serverSnapshot = (res && res.snapshot) ? res.snapshot : null;
+        var info = reconcile(serverSnapshot, {
+          dirty: wasDirty,
+          syncedAt: res && res.syncedAt,
+          revision: res && res.revision
+        }) || {};
+        _emit('pdx-sync-pull', { collection: name, ok: true, changed: !!info.changed });
+        return { pulled: true, hadServer: !!serverSnapshot, info: info };
+      })
+      .catch(function (err) {
+        // Offline / server error / malformed payload: leave local data untouched.
+        _emit('pdx-sync-error', { collection: name, error: String((err && err.message) || err) });
+        return { pulled: false, error: err };
+      });
+  }
+
+  // Optional, opt-in convenience: debounce-push a collection shortly after it
+  // goes dirty. OFF by default so the baseline contract stays strictly
+  // "push on request" — a caller that wants automatic pushes asks for them via
+  // setRemoteBackend(backend, { autoPush: true }).
+  //
+  // opts.collections (optional) narrows auto-push to a specific allow-list. The
+  // server accepts 'saved' and 'team', so both auto-push; any other dirty
+  // collection is tracked locally but never auto-pushed (it would 404). Omitting
+  // the list auto-pushes every dirty collection.
+  var _autoPushOn = false, _autoTimers = {};
+  function _enableAutoPush() {
+    if (_autoPushOn) return;
+    _autoPushOn = true;
+    window.addEventListener('pdx-sync-state-change', function (e) {
+      var col = e && e.detail && e.detail.collection;
+      if (!col || !e.detail.dirty || !_remote) return;
+      var allow = _remoteOpts.collections;
+      if (allow && allow.indexOf(col) === -1) return;   // not in the allow-list
+      if (_autoTimers[col]) { try { clearTimeout(_autoTimers[col]); } catch (x) {} }
+      _autoTimers[col] = setTimeout(function () { pushCollection(col); }, _remoteOpts.autoPushDelay || 1500);
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  REMOTE BACKEND CONTRACT — how to implement a future backend
+  // ──────────────────────────────────────────────────────────────────────────
+  //  A remote backend is a plain object. Register it with:
+  //      PDXStore.setRemoteBackend(backend, { userId, autoPush });
+  //  Nothing else in the app needs to change — collections already route every
+  //  read/write through PDXStore, and push() reads the collection's snapshot.
+  //
+  //  A backend MUST implement (all data methods are async — return a Promise):
+  //
+  //    name : string
+  //        A short id for logs/UI, e.g. 'netlify'.
+  //
+  //    push(collection, snapshot, meta) -> Promise<{ syncedAt?, revision? }>
+  //        Persist `snapshot` (the full serializable state of `collection`) for
+  //        the active user, upstream. Resolve on success (optionally returning
+  //        the server's syncedAt/revision); REJECT/throw on any failure
+  //        (network down, auth expired, 5xx). On rejection PDXStore keeps the
+  //        collection dirty so the next push retries — so a backend should make
+  //        push idempotent (a full-snapshot upsert keyed by user + collection).
+  //        `meta` carries { revision, userId } — non-sensitive hints only.
+  //
+  //    pull(collection) -> Promise<{ snapshot, syncedAt?, revision? } | null>
+  //        Fetch the latest upstream snapshot (null when the server has none).
+  //        NOT used by the push-only flow yet; implement it now so the future
+  //        sync loop can adopt it without a backend change.
+  //
+  //    getLastSynced(collection) -> Promise<number|null>
+  //        The server's last-synced timestamp (ms) for this user+collection, or
+  //        null. A future sync loop uses it for cheap change detection and
+  //        conflict ordering. Safe to return null until the server tracks it.
+  //
+  //    isAvailable?() -> boolean | Promise<boolean>   (optional)
+  //        Fast reachability/auth hint the sync loop can check before pushing.
+  //
+  //  REFERENCE IMPLEMENTATION — this is now REAL: the endpoint exists (Netlify
+  //  Function at /api/pdx-sync backed by Netlify Database) and the working
+  //  backend is implemented just below as makeNetlifyRemoteBackend(). The sketch
+  //  below is kept as a compact contract example; the live version adds an
+  //  optional getToken hook and defensive error handling.
+  //
+  //    function makeNetlifyRemoteBackend({ userId, getToken }) {
+  //      var BASE = '/api/pdx-sync';                       // future Function
+  //      function req(method, path, body) {
+  //        return Promise.resolve(getToken && getToken()).then(function (tok) {
+  //          return fetch(BASE + path, {
+  //            method: method,
+  //            headers: Object.assign(
+  //              { 'content-type': 'application/json' },
+  //              tok ? { authorization: 'Bearer ' + tok } : {}
+  //            ),
+  //            body: body ? JSON.stringify(body) : undefined
+  //          });
+  //        }).then(function (r) {
+  //          if (!r.ok) throw new Error('pdx-sync ' + method + ' ' + path + ' -> ' + r.status);
+  //          return r.status === 204 ? null : r.json();
+  //        });
+  //      }
+  //      return {
+  //        name: 'netlify',
+  //        push: function (collection, snapshot, meta) {
+  //          return req('PUT', '/' + encodeURIComponent(collection),
+  //                     { userId: userId, snapshot: snapshot, revision: meta && meta.revision });
+  //        },
+  //        pull: function (collection) { return req('GET', '/' + encodeURIComponent(collection)); },
+  //        getLastSynced: function (collection) {
+  //          return req('GET', '/' + encodeURIComponent(collection) + '/meta')
+  //            .then(function (m) { return (m && m.syncedAt) || null; });
+  //        }
+  //      };
+  //    }
+  //    // PDXStore.setRemoteBackend(makeNetlifyRemoteBackend({ userId: uid, getToken: fn }));
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // ─── makeNetlifyRemoteBackend — the real backend for /api/pdx-sync ──────────
+  // Implements the REMOTE BACKEND CONTRACT above against the live Netlify
+  // Function at /api/pdx-sync (backed by Netlify Database). It does two-way sync:
+  // push()/pull()/getLastSynced() are all wired (see enableAccountSync's startup
+  // pull-then-push).
+  //
+  // AUTH IS REAL. Identity is the caller's Firebase account, proved by the ID
+  // token that `getToken` returns; the server verifies that token and derives the
+  // user id from it (see the Function's AUTHENTICATION note). `getToken` is
+  // therefore REQUIRED: every request sends its result as `Authorization: Bearer
+  // <token>`, and a request without a valid token is rejected server-side.
+  // `userId` is optional and purely a client-side hint (logging / push meta) — the
+  // server ignores any id the client sends and trusts only the token, so a client
+  // can never read or write another user's data.
+  function makeNetlifyRemoteBackend(cfg) {
+    cfg = cfg || {};
+    var userId = cfg.userId;                  // optional hint only; server ignores it
+    var getToken = cfg.getToken;              // required: () -> token | Promise<token>
+    var BASE = cfg.base || '/api/pdx-sync';   // overridable for tests
+    if (typeof getToken !== 'function') {
+      throw new Error('makeNetlifyRemoteBackend: getToken is required (real auth)');
+    }
+
+    function req(method, path, body) {
+      return Promise.resolve(getToken()).then(function (tok) {
+        // No token → not signed in (or the token couldn't be minted). Fail loudly
+        // so PDXStore keeps the collection dirty and retries later; never send an
+        // unauthenticated request that the server will just 401.
+        if (!tok) throw new Error('pdx-sync: no auth token (not signed in)');
+        return fetch(BASE + path, {
+          method: method,
+          headers: {
+            'content-type': 'application/json',
+            'authorization': 'Bearer ' + tok
+          },
+          body: body ? JSON.stringify(body) : undefined
+        });
+      }).then(function (r) {
+        // Any non-2xx MUST throw: the contract keeps the collection dirty on a
+        // rejected push, so the next push retries. Never swallow a failure into
+        // a fake success or local data would be silently treated as synced.
+        if (!r.ok) throw new Error('pdx-sync ' + method + ' ' + path + ' -> ' + r.status);
+        return r.status === 204 ? null : r.json();   // 204 = server has none
+      });
+    }
+
+    return {
+      name: 'netlify',
+      // push(collection, snapshot, meta) — full-snapshot upsert. Body shape is
+      // exactly what the Function expects: { userId, snapshot, revision }. It
+      // echoes back { syncedAt, revision }, which PDXStore uses to stamp the
+      // collection clean. Idempotent server-side, so a retried push is safe.
+      push: function (collection, snapshot, meta) {
+        return req('PUT', '/' + encodeURIComponent(collection), {
+          userId: userId,
+          snapshot: snapshot,
+          revision: meta && meta.revision
+        });
+      },
+      // pull(collection) — fetch the latest server snapshot for this user. Now
+      // wired into the startup sync loop (see pullCollection + enableAccountSync):
+      // the result is merged with local state by the collection's reconciler.
+      // Resolves null when the server has none (HTTP 204).
+      pull: function (collection) {
+        return req('GET', '/' + encodeURIComponent(collection));
+      },
+      getLastSynced: function (collection) {
+        return req('GET', '/' + encodeURIComponent(collection) + '/meta')
+          .then(function (m) { return (m && m.syncedAt) || null; });
+      }
+    };
+  }
+
+  // ─── Account-sync activation (connect the client ↔ /api/pdx-sync) ───────────
+  // REAL IDENTITY — sync is now gated on a real, signed-in Firebase account.
+  // enableAccountSync({ userId, getToken }) is called from the Firebase
+  // auth-state handler (search "PDXStore.enableAccountSync" in the auth script)
+  // the moment a non-anonymous user is present; disableAccountSync() is called on
+  // sign-out (or for anonymous/guest sessions) to drop back to local-only.
+  //
+  // LOCAL-ONLY GUARANTEE (unchanged for anyone who never signs in) — until a real
+  // user signs in, NO remote backend is registered, so nothing ever leaves this
+  // browser: the app is the exact byte-for-byte pure-localStorage experience it
+  // has always been. Even after sign-in, enabling sync only REGISTERS the backend;
+  // a push happens solely when 'saved' actually goes dirty (via autoPush) or on
+  // the one-time startup flush below. And if sync is disabled (localStorage
+  // 'pdx_sync_disabled' = '1') or anything here throws, the backend is left
+  // unregistered and the app stays local-only.
+  var SYNC_DISABLED_KEY = 'pdx_sync_disabled';
+
+  // The user id sync is currently wired for, so a repeat sign-in event for the
+  // same account is a cheap no-op and a switch to a different account re-wires.
+  var _syncUserId = null;
+
+  // ─── Per-account local-storage context (isolation) ──────────────────────────
+  // Which signed-in user "owns" the local data right now. This is purely a
+  // LOCAL-STORAGE isolation concern, deliberately kept SEPARATE from network
+  // sync: it decides which namespaced localStorage key a per-account collection
+  // (currently only 'saved') reads and writes, so two people sharing one browser
+  // never see — or accidentally merge — each other's saves.
+  //
+  //   _accountUserId === null   → guest / signed-out: the shared, legacy keyspace
+  //                               (byte-for-byte the pre-isolation behavior).
+  //   _accountUserId === <uid>  → signed in: that account's private namespace.
+  //
+  // WHY SEPARATE FROM SYNC: isolation is a privacy guarantee that must hold even
+  // when the network is never touched — e.g. a user who opted sync out
+  // ('pdx_sync_disabled'), or is offline, or is signed in before a token is
+  // available. So the account context is established the moment a real user is
+  // known and cleared on sign-out, regardless of whether push/pull ever run.
+  // Collections don't reach in here; they listen for the 'pdx-account-change'
+  // event and switch their active key (see PDXSaved's activeKey()).
+  var _accountUserId = null;
+  function getAccount() { return _accountUserId; }
+  function _setAccount(uid) {
+    var next = uid || null;
+    if (next === _accountUserId) return;   // idempotent — no spurious re-render events
+    _accountUserId = next;
+    _emit('pdx-account-change', { userId: next });
+  }
+
+  // Turn on authenticated two-way sync for `identity` = { userId, getToken }:
+  //   userId   the signed-in Firebase uid (a hint for logging/meta; the server
+  //            derives the authoritative id from the token, not from this)
+  //   getToken () -> Promise<idToken|null>, used for the Authorization header
+  function enableAccountSync(identity) {
+    try {
+      identity = identity || {};
+      var uid = identity.userId;
+
+      // LOCAL ISOLATION FIRST — bind this account's private localStorage namespace
+      // as soon as we know who signed in, BEFORE any sync decision. Keeping one
+      // user's local saves out of another's is a privacy guarantee that must hold
+      // even when network sync is opted out below, no token is available, or the
+      // device is offline — so it happens unconditionally on a known uid. Per-
+      // account collections switch their active key off this (see PDXSaved).
+      if (uid) _setAccount(uid);
+
+      if (_backend.getRaw(SYNC_DISABLED_KEY) === '1') return;   // explicit opt-out (data still isolated locally)
+      if (!uid || typeof identity.getToken !== 'function') return;  // need real auth for network sync
+      if (_remote && _syncUserId === uid) return;               // already wired for this user
+
+      _syncUserId = uid;
+      setRemoteBackend(makeNetlifyRemoteBackend({ userId: uid, getToken: identity.getToken }), {
+        userId: uid,
+        autoPush: true,                  // debounce-push a collection ~1.5s after it goes dirty
+        collections: ['saved', 'team', 'evidence', 'impact', 'stances', 'yourFile']   // all personal collections sync (server allow-list)
+      });
+      // One-time startup sync of each synced collection, after the page has settled
+      // (snapshot providers + reconcilers register during initial parse). We PULL
+      // first, then PUSH, per collection:
+      //   1. pull(col) fetches the server snapshot and merges it into local state
+      //      (union + last-write-wins, tombstone-aware; un-pushed local edits are
+      //      preserved because the collection is still dirty at merge time). This is
+      //      what brings changes made on another device down onto this one.
+      //   2. push(col) then sends the merged union back up, so the server converges
+      //      too. It only sends when the collection is actually dirty.
+      // Pull-before-push matters: a push is a full-snapshot overwrite, so pushing
+      // FIRST could clobber another device's data this browser hadn't seen yet.
+      // Both steps resolve gracefully and never throw — if the pull fails
+      // (offline/error/no server data) local data is left exactly as-is.
+      setTimeout(function () {
+        ['saved', 'team', 'evidence', 'impact', 'stances', 'yourFile'].forEach(function (col) {
+          try {
+            pullCollection(col).then(function () {
+              try { pushCollection(col); } catch (e) {}
+            });
+          } catch (e) {}
+        });
+      }, 2500);
+    } catch (e) {
+      // Sync wiring must never break the local app: fall back to local-only.
+      _remote = null;
+      _syncUserId = null;
+    }
+  }
+
+  // Turn sync back OFF and return to local-only: called on sign-out and for
+  // anonymous/guest sessions. Local data is untouched and stays fully usable;
+  // this only stops the client from talking to the server so a signed-out (or
+  // never-signed-in) user creates no server traffic and no server rows.
+  function disableAccountSync() {
+    try {
+      // Drop the local per-account context FIRST so per-account collections fall
+      // back to the shared guest keyspace (a clean local-only state) and never
+      // keep showing the signed-out user's data. Their items are left untouched
+      // in their own namespace — isolated, so they're still there if that same
+      // account signs back in on this device, and never visible to the next user.
+      _setAccount(null);
+      if (!_remote && !_syncUserId) return;   // already local-only (network side)
+      _syncUserId = null;
+      setRemoteBackend(null);
+    } catch (e) { /* local-only is the safe default; never throw */ }
+  }
+
+  window.PDXStore = {
+    // data
+    read: read, write: write, readRaw: readRaw, writeRaw: writeRaw, remove: remove,
+    // collections
+    defineCollection: defineCollection, attachKeys: attachKeys,
+    collections: function () { return _collections; },
+    registerSnapshot: registerSnapshot, snapshot: snapshot,
+    registerReconciler: registerReconciler,
+    // dirty / sync
+    markDirty: markDirty, clearDirty: clearDirty, isDirty: isDirty,
+    pendingCollections: pendingCollections, getSyncState: getSyncState, touch: touch,
+    // local backend (storage medium)
+    setBackend: setBackend, getBackend: getBackend,
+    // remote backend (account sync) — optional; no-op until one is registered
+    setRemoteBackend: setRemoteBackend, getRemoteBackend: getRemoteBackend,
+    makeNetlifyRemoteBackend: makeNetlifyRemoteBackend,
+    // account sync activation — driven by the Firebase auth-state handler:
+    // enable on real (non-anonymous) sign-in, disable on sign-out/anonymous.
+    enableAccountSync: enableAccountSync, disableAccountSync: disableAccountSync,
+    // per-account local-storage context (isolation). getAccount() lets a
+    // collection adopt the already-established account if it parses AFTER sign-in
+    // resolved (auth can fire before late feature scripts run); setAccount() is
+    // exposed for completeness/testing — normal flow drives it via enable/disable.
+    getAccount: getAccount, setAccount: _setAccount,
+    push: pushCollection, pushPending: pushPending, pull: pullCollection,
+    get remote() { return _remote; },
+    set remote(v) { setRemoteBackend(v); },
+    SYNC_KEY: SYNC_KEY
+  };
+
+  // Declare the two personal collections up front so their sync slots exist
+  // from first paint. Individual keys are attached by each feature's script
+  // block as it defines them (see PDXSaved and PDXTeam).
+  defineCollection('saved', { keys: ['pdx_my_saved'], label: 'Saved evidence, tags & notes' });
+  defineCollection('team', {
+    keys: [
+      'politidex_my_team',            // active/visible 6-slot ballot map
+      'politidex_home_base',          // protected "My Home Team" snapshot
+      'politidex_team_mode',          // 'home' | 'research'
+      'politidex_my_politicians',     // saved politicians roster
+      'politidex_saved_teams_v1',     // named/multi saved teams
+      'politidex_active_team_v1'      // which saved team is being edited
+    ],
+    label: 'My Team, ballot, roster & saved teams'
+  });
+  // 'evidence' — the Evidence Locker's saved collections (folders of receipts).
+  // Its single owned key is the long-standing nested store; PDXEvidenceSync (near
+  // PDXTeamSync, later in the file) is the thin wrapper that gives it the same
+  // tombstone + watermark + field-level-merge sync saved/team already have.
+  defineCollection('evidence', { keys: ['politidex_evidence_collections'], label: 'Saved evidence collections' });
+
+  // 'votingPrefs' — the visitor's durable Voting Record view preferences (sort +
+  // hide-procedural), so the profile Voting Record section opens the way they last
+  // left it. Small and personal; syncs through the same PDXStore slot as the rest.
+  defineCollection('votingPrefs', { keys: ['pdx_voting_prefs'], label: 'Voting Record view preferences' });
+
+  // 'bills' — bills the visitor is following (Phase 3, Legislation library). Keyed
+  // by stable congress+number, local-first, and account-synced like the rest.
+  defineCollection('bills', { keys: ['politidex_followed_bills'], label: 'Followed bills' });
+
+  // 'learn' — which in-context teaching notes the visitor has dismissed (see
+  // pdx-learn.js). Purely "don't tell me this again" state: nothing here affects
+  // what the product shows about any politician. Synced so a note dismissed on a
+  // phone stays dismissed on a laptop.
+  defineCollection('learn', { keys: ['pdx_learn_prefs'], label: 'Explainer notes seen' });
+
+  // 'firstRun' — whether this visitor has completed one meaningful first task,
+  // and which one (see first-run.js). Two fields and nothing else: `done` and
+  // `via` ('record' | 'seat'). It is NOT an account flag and it is deliberately
+  // not settable by signing up — the brief for this surface is explicit that
+  // success means "has seen a sourced formal pattern OR completed one seat pick",
+  // not "account created". Synced so the homepage does not restart a stranger's
+  // onboarding on their second device.
+  defineCollection('firstRun', { keys: ['pdx_first_run'], label: 'First-run progress' });
+
+  // ─── PDXTeam — one named facade over the whole My Team / ballot family ──────
+  // The team data is written from several long-standing <script> closures
+  // (ballot builder, Home Base, saved-teams, roster). Rather than reroute every
+  // scattered call site, those closures' CANONICAL save helpers now go through
+  // PDXStore.write (so the 'team' collection dirty-tracks). PDXTeam gives a
+  // FUTURE sync engine — and any new feature — a single, stable place to read
+  // the whole team snapshot and its sync status without knowing those internals.
+  var TEAM_KEYS = {
+    ballot: 'politidex_my_team',
+    homeBase: 'politidex_home_base',
+    mode: 'politidex_team_mode',
+    roster: 'politidex_my_politicians',
+    savedTeams: 'politidex_saved_teams_v1',
+    activeTeam: 'politidex_active_team_v1'
+  };
+  window.PDXTeam = {
+    KEYS: TEAM_KEYS,
+    COLLECTION: 'team',
+    // A complete, serializable snapshot of everything that makes up "My Team".
+    // This is exactly the payload a future backend would push/pull.
+    snapshot: function () {
+      return {
+        ballot: read(TEAM_KEYS.ballot, {}),
+        homeBase: read(TEAM_KEYS.homeBase, null),
+        mode: readRaw(TEAM_KEYS.mode) || 'research',
+        roster: read(TEAM_KEYS.roster, []),
+        savedTeams: read(TEAM_KEYS.savedTeams, []),
+        activeTeam: readRaw(TEAM_KEYS.activeTeam) || null
+      };
+    },
+    isDirty: function () { return isDirty('team'); },
+    markChanged: function () { markDirty('team'); },
+    clearDirty: function (syncedAt) { clearDirty('team', syncedAt); }
+  };
+
+  // ─── PDXTeamV2 — the single source of truth for team membership ────────────
+  // Phase 1 of the structural team refactor. politidex_team_v2 is a flat array
+  // of per-person records that is destined to REPLACE the overlapping legacy
+  // stores (my_team, my_politicians, home_base, saved_teams_v1, …). For now it
+  // runs ALONGSIDE them: the legacy stores stay authoritative and every legacy
+  // write is mirrored here (see _afterWrite above), so nothing on the live site
+  // changes behavior yet. Each record:
+  //
+  //   { pid, seat, tracked, pick, addedAt, note }
+  //
+  //   pid      politician id (e.g. "curtis")
+  //   seat     which TEAM_POSITIONS slot this belongs to ("senate", "house",
+  //            "governor", "statesenate", "statehouse", "local", …) or null when
+  //            the person is tracked but not tied to a ballot seat
+  //   tracked  the user explicitly starred/tracked this person
+  //   pick     the user's committed pick for that seat (at most one per seat)
+  //   addedAt  ISO timestamp when the record was first created
+  //   note     optional free-text user note ('' when none)
+  //
+  // "Represents me" is deliberately NOT stored here — it is derived at render
+  // time from the user's location via getRepresentsMe().
+  var TEAM_V2_KEY = 'politidex_team_v2';
+  // Own the key under the existing 'team' collection so it dirty-tracks and, in a
+  // later phase, syncs with exactly the same machinery as the legacy stores.
+  attachKeys('team', [TEAM_V2_KEY]);
+
+  function _v2Now() { try { return new Date().toISOString(); } catch (e) { return ''; } }
+
+  // Coerce any loosely-shaped object into a valid v2 record. Missing/garbage
+  // fields fall back to safe defaults so a malformed entry can never break reads.
+  function _v2Normalize(rec) {
+    rec = rec || {};
+    return {
+      pid: String(rec.pid == null ? '' : rec.pid),
+      seat: (rec.seat == null || rec.seat === '') ? null : String(rec.seat),
+      tracked: !!rec.tracked,
+      pick: !!rec.pick,
+      addedAt: rec.addedAt ? String(rec.addedAt) : _v2Now(),
+      note: typeof rec.note === 'string' ? rec.note : ''
+    };
+  }
+
+  // Enforce the "at most one committed pick per seat" invariant deterministically:
+  // the first pick seen for a seat wins; any later pick for the same seat is
+  // demoted to a plain tracked record. (Migration inputs are already one-per-seat,
+  // so this only ever fires defensively.)
+  function _v2DedupePicks(records) {
+    var seenSeat = {};
+    return records.map(function (r) {
+      var n = _v2Normalize(r);
+      if (n.pick && n.seat) {
+        if (seenSeat[n.seat]) n.pick = false;
+        else seenSeat[n.seat] = n.pid;
+      }
+      return n;
+    });
+  }
+
+  function _v2Read() {
+    var v = read(TEAM_V2_KEY, []);
+    if (!Array.isArray(v)) return [];
+    return v.filter(function (r) { return r && typeof r === 'object' && r.pid; }).map(_v2Normalize);
+  }
+  function _v2Write(records) {
+    var clean = _v2DedupePicks(records || []);
+    // politidex_team_v2 is a locally-DERIVED mirror of the legacy team stores:
+    // it is rebuilt from them on every load, every legacy write, and after every
+    // cross-device pull (see the pdx-team-change listener). The legacy stores are
+    // what actually drive a sync push, so the mirror always writes dirty:false —
+    // it never on its own marks 'team' dirty or bumps its revision, keeping the
+    // existing PDXTeamSync accounting untouched. __v2 stops _afterWrite recursing.
+    write(TEAM_V2_KEY, clean, { __v2: true, dirty: false });
+    return clean;
+  }
+
+  // Build a clean politidex_team_v2 array by MERGING the legacy stores into any
+  // existing v2 records. Idempotent by construction: records already present keep
+  // their user-authored note and original addedAt, and re-running against
+  // unchanged legacy stores yields an identical array — so it is safe to call on
+  // every load, on every legacy write, and after a cross-device pull.
+  function _v2Migrate() {
+    var byPid = {};
+    // Seed from the existing v2 records but RESET the derived membership flags.
+    // politidex_team_v2 is a MIRROR of the legacy stores (the keyed ballot + the
+    // tracked roster), so a pick or track that was REMOVED there must disappear
+    // here too. Previously this merge only ever ADDED — a cleared seat kept its
+    // pick:true, so bySeat() (which reads v2 first) kept returning the removed
+    // person and the "×" remove button looked broken. Carry over only the
+    // user-authored note and the original addedAt; pick/seat/tracked are
+    // re-derived from scratch from the legacy stores below.
+    _v2Read().forEach(function (n) {
+      byPid[n.pid] = { pid: n.pid, seat: null, tracked: false, pick: false, addedAt: n.addedAt || '', note: n.note || '' };
+    });
+
+    function ensure(pid) {
+      if (!byPid[pid]) byPid[pid] = { pid: String(pid), seat: null, tracked: false, pick: false, addedAt: '', note: '' };
+      return byPid[pid];
+    }
+
+    // A timestamp hint so freshly-migrated records aren't all stamped "now" —
+    // the Home Base save time is the closest thing to when the team was built.
+    var hb = read(TEAM_KEYS.homeBase, null);
+    var stamp = (hb && hb.savedAt) ? String(hb.savedAt) : _v2Now();
+
+    // 1) Committed picks — the keyed ballot map (one pid per seat). A pick is
+    //    implicitly a tracked person.
+    var ballot = read(TEAM_KEYS.ballot, {}) || {};
+    if (ballot && typeof ballot === 'object') {
+      for (var seat in ballot) {
+        var pid = ballot[seat];
+        if (!pid) continue;
+        var rec = ensure(pid);
+        if (!rec.seat) rec.seat = seat;   // preserve a seat already on record
+        rec.pick = true;
+        rec.tracked = true;
+        if (!rec.addedAt) rec.addedAt = stamp;
+      }
+    }
+
+    // 2) Tracked roster — flat pid list of starred people (may not hold a seat).
+    var roster = read(TEAM_KEYS.roster, []) || [];
+    if (Array.isArray(roster)) {
+      roster.forEach(function (pid) {
+        if (!pid) return;
+        var r = ensure(pid);
+        r.tracked = true;
+        if (!r.addedAt) r.addedAt = stamp;
+      });
+    }
+
+    // politidex_home_base is intentionally NOT folded in as stored records:
+    // "who represents me" is derived on demand via getRepresentsMe(), never
+    // persisted as a user choice. politidex_saved_teams_v1 (named alternate
+    // teams) also stays in its own store for now — a later phase folds it in.
+
+    // Drop records that ended up neither a committed pick NOR tracked — i.e.
+    // people fully removed from every legacy store. Without this a cleared seat
+    // would linger in the mirror (pick:false but still present) and, more subtly,
+    // any future re-add could resurrect a stale seat. Keeping only live records
+    // makes v2 a faithful projection of the legacy ballot + roster.
+    var out = Object.keys(byPid)
+      .map(function (k) { return _v2Normalize(byPid[k]); })
+      .filter(function (r) { return r.pick || r.tracked; });
+    _v2Write(out);
+    return out;
+  }
+
+  // Dual-write entry point called from _afterWrite when a legacy membership store
+  // changes: re-derive the v2 mirror so both stay in step during the transition.
+  function _v2SyncFromLegacy() { try { _v2Migrate(); } catch (e) {} }
+
+  // Derive the current officeholders for each seat of the user's slate. This is
+  // the replacement for storing "represents me" as user data: it computes the
+  // answer on demand from the live location-aware TEAM_POSITIONS plus the
+  // existing _homeResolveSlots matcher (exposed from the Home Base module). The
+  // `location` argument is accepted for API clarity and future use; resolution
+  // currently runs against the app's live slate, which the app keeps aligned to
+  // the user's saved location.
+  function _v2GetRepresentsMe(location) {
+    var positions = (typeof window !== 'undefined' && window.TEAM_POSITIONS) ? window.TEAM_POSITIONS : [];
+    var slots = {};
+    try {
+      if (typeof window !== 'undefined' && typeof window._homeResolveSlots === 'function') {
+        slots = window._homeResolveSlots() || {};
+      }
+    } catch (e) { slots = {}; }
+    var data = (typeof window !== 'undefined' && window.CMP_DATA) ? window.CMP_DATA
+             : (typeof CMP_DATA !== 'undefined' ? CMP_DATA : {});
+    return positions.map(function (pos) {
+      var pid = slots[pos.key] || null;
+      var d = (pid && data) ? data[pid] : null;
+      return {
+        seat: pos.key,
+        label: pos.label || pos.key,
+        pid: pid,
+        name: d ? (d.name || null) : null,
+        office: d ? (d.office || null) : null,
+        isRepresentative: !!pid
+      };
+    });
+  }
+
+  window.PDXTeamV2 = {
+    KEY: TEAM_V2_KEY,
+    // read → always-normalized array of records
+    read: _v2Read,
+    write: function (records) { return _v2Write(records); },
+    // migration / dual-write
+    migrate: _v2Migrate,
+    syncFromLegacy: _v2SyncFromLegacy,
+    // derived "who represents me" (never stored)
+    getRepresentsMe: _v2GetRepresentsMe,
+    // convenience selectors over the current records
+    getRecord: function (pid) {
+      var a = _v2Read();
+      for (var i = 0; i < a.length; i++) { if (a[i].pid === pid) return a[i]; }
+      return null;
+    },
+    getPicks: function () { return _v2Read().filter(function (r) { return r.pick; }); },
+    getTracked: function () { return _v2Read().filter(function (r) { return r.tracked; }); },
+    getBySeat: function (seat) {
+      var a = _v2Read();
+      for (var i = 0; i < a.length; i++) { if (a[i].pick && a[i].seat === seat) return a[i]; }
+      return null;
+    }
+  };
+
+  // Seed the mirror from whatever legacy data already exists on this device, and
+  // keep it fresh after cross-device pulls. The mirror always persists dirty:false
+  // (see _v2Write), so simply loading the page never manufactures a pending push.
+  try { _v2Migrate(); } catch (e) {}
+  try {
+    window.addEventListener('pdx-team-change', function () {
+      try { _v2Migrate(); } catch (e) {}
+    });
+  } catch (e) {}
+
+  // Account sync is NOT started here: it now requires a real signed-in Firebase
+  // account. The Firebase auth-state handler (further down the page) calls
+  // PDXStore.enableAccountSync({ userId, getToken }) when a non-anonymous user is
+  // present, and PDXStore.disableAccountSync() on sign-out / anonymous sessions.
+  // Firebase isn't initialized yet at this point in the page, so wiring here would
+  // be premature; leaving it to the auth handler keeps unauthenticated visitors
+  // strictly local-only (no backend registered, no server traffic).
+})();
+</script>
+
+  <!-- ══ COPIED VERBATIM FROM person.html LINES 1405–1914 ══════════════════════
+       THE PROMISE LEDGER AND THE DEFERRED-EVENT CAPTURE. The second half is a
+       HARD dependency, not a convenience: firebase-boot.js references the BARE
+       identifiers _firestoreLoaded and _checkAndTrigger, so without this block
+       in scope above it the roster never publishes — and on THIS document the
+       roster index is the only source of a pick's name.
+
+       Its own outward calls — _populateDirData, updateExpansionStats,
+       _renderPulseBar, _mypolUpdateCount, _pdxClearHayCache, _pdxOpenFromUrl —
+       are all `typeof`-guarded, which is why a block written for the homepage is
+       safe on a document that has none of those surfaces.
+       ═══════════════════════════════════════════════════════════════════════ -->
+<script>
+  // Capture DOMContentLoaded listeners to defer execution until after Firestore data is fetched
+  var _deferredDomEvents = [];
+  var _originalAddEventListener = document.addEventListener;
+  document.addEventListener = function(type, listener, options) {
+    if (type === 'DOMContentLoaded') {
+      _deferredDomEvents.push({ listener: listener, options: options });
+    } else {
+      _originalAddEventListener.call(document, type, listener, options);
+    }
+  };
+
+  var _firestoreLoaded = false;
+  var _domContentLoaded = false;
+  var _deferredRan = false;
+
+  // Global cache for original states before they get overwritten by Firestore
+  window._originalStates = {};
+
+  // ── Promise ledger helpers (the Promise % score is RETIRED) ──────────────
+  // PolitiDex publishes ONE integrity percentage: the ⚖️ Word vs Action score
+  // (word-action.js). Promise Follow-Through used to be a second, rival rate —
+  // "X% Kept Word" — and it is now retired as a scored metric everywhere. The
+  // pledge ledger itself is untouched and is still shown, as COUNTS: kept,
+  // broken and pending are real receipts and they feed the pledge tier of
+  // Word vs Action.
+  // So these helpers exist to state what is known WITHOUT a percentage:
+  // `_pdxPledgeNote` / `_pdxCountsNote` / `_pdxTrackingNote` are the count
+  // labels every surface should print where the rate used to sit.
+  // `_pdxDisplayScore` survives only as a HAS-A-CLOSED-LEDGER state flag (a
+  // number means "this record has resolved pledges", null means it does not) —
+  // it must not be interpolated into markup as a figure, and `p.score` stays
+  // untouched so sorting and the separate accountability model are unaffected.
+  // The kept / broken tally behind the score, read from whichever shape a record
+  // carries, plus the pending / partial side of the same ledger. `resolved` is
+  // still kept + broken and nothing else — pending and partial are reported
+  // separately so they can be SHOWN without ever entering the percentage.
+  window._pdxPromiseTally = function(p) {
+    if (!p) return { kept: 0, broken: 0, resolved: 0, pending: 0, partial: 0, unresolved: 0, tracked: 0 };
+    var k = parseInt(p.kept, 10);   if (isNaN(k)) k = 0;
+    var b = parseInt(p.broken, 10); if (isNaN(b)) b = 0;
+    // Fall back to a detailed promise list / breakdown when the summary counts
+    // are absent, so a profile that tracks promises only in those shapes still
+    // counts as having a record.
+    if (k + b === 0 && Array.isArray(p.promises)) {
+      for (var i = 0; i < p.promises.length; i++) {
+        var v = p.promises[i] && p.promises[i].verdict;
+        if (v === 'kept') k++; else if (v === 'broken') b++;
+      }
+    }
+    if (k + b === 0 && p.promiseBreakdown) {
+      var pk = parseInt(p.promiseBreakdown.kept, 10);   if (!isNaN(pk)) k += pk;
+      var pb = parseInt(p.promiseBreakdown.broken, 10); if (!isNaN(pb)) b += pb;
+    }
+    // The unresolved side, counted the same three ways. In the breakdown shape a
+    // partial promise is stored as `compromise`. Pending and partial are gated
+    // separately, unlike kept / broken: no record carries a summary `partial`
+    // field, so a record with a summary pending count would otherwise lose the
+    // partials sitting in its promises[] list. Each side only falls back when it
+    // is still zero, so nothing is ever double counted.
+    var pend = parseInt(p.pending, 10); if (isNaN(pend)) pend = 0;
+    var part = parseInt(p.partial, 10); if (isNaN(part)) part = 0;
+    var scanPend = (pend === 0), scanPart = (part === 0);
+    if ((scanPend || scanPart) && Array.isArray(p.promises)) {
+      for (var j = 0; j < p.promises.length; j++) {
+        var uv = p.promises[j] && p.promises[j].verdict;
+        if (scanPend && uv === 'pending') pend++;
+        else if (scanPart && uv === 'partial') part++;
+      }
+    }
+    if (p.promiseBreakdown) {
+      if (pend === 0) { var bp = parseInt(p.promiseBreakdown.pending, 10);    if (!isNaN(bp)) pend += bp; }
+      if (part === 0) { var bc = parseInt(p.promiseBreakdown.compromise, 10); if (!isNaN(bc)) part += bc; }
+    }
+    return {
+      kept: k, broken: b, resolved: k + b,
+      pending: pend, partial: part, unresolved: pend + part,
+      tracked: k + b + pend + part
+    };
+  };
+  window._pdxResolvedPromises = function(p) {
+    return window._pdxPromiseTally(p).resolved;
+  };
+  window._pdxHasPromiseRecord = function(p) {
+    return window._pdxResolvedPromises(p) > 0;
+  };
+  // ── Second honesty guard: a rate needs an INSPECTABLE ledger ──────────────
+  // The guard above asks "has anything resolved?". That is necessary but not
+  // sufficient. A record can carry summary `kept` / `broken` / `pending` counts
+  // with no itemized promises[] behind them — 41 of the 756 roster records do —
+  // and in that shape a published percentage is a number the reader cannot audit:
+  // the Promise Tracker below it renders from promises[] and has nothing to show,
+  // so the profile asserted "77%" while its own pledge list was empty.
+  //
+  // Under the one-score standard the pledge lane is a TIER of Word vs Action, not
+  // a rival headline, and a tier that cannot be inspected does not get to publish
+  // a rate. Counts still show — they are directly attested and useful. Only the
+  // percentage is withheld, and only until an itemized ledger exists.
+  //
+  // Deliberately synchronous and re-read per render, and re-read is the operative
+  // word. promises[] is populated from the record rather than fetched on its own,
+  // but the RECORD can arrive in two passes: a cold /p/<pid> arrival now mounts the
+  // full file off the bundled CMP_DATA seed and merges the Firestore document in
+  // behind the paint (see window._pdxColdOpen in profiles-full.js), and a CMP_DATA
+  // seed carries summary counts with no promises[] behind them. So for the length
+  // of that window this returns false for a person whose itemized ledger is about
+  // to land, and the pledge block reads "the individual pledges behind them are not
+  // itemized yet".
+  //
+  // THAT IS THE RIGHT ANSWER AND NOT A PLACEHOLDER FOR ONE. It is exactly what the
+  // guard is for: at that instant the ledger genuinely is not inspectable, the
+  // Promise Tracker below genuinely has nothing to render, and the copy says "not
+  // itemized yet" — the same sentence the 41 counts-only records get permanently,
+  // with a "yet" that the merge then makes good on. No rate is published in either
+  // state, so nothing is withheld on the way in and nothing is retracted on the way
+  // out; the merge repaints and the ledger appears. A "still loading" variant here
+  // would buy a reader nothing and would put a spinner where a true sentence is.
+  // Which is why this stays synchronous: do NOT make it consult _pdxFullIds or the
+  // merge promise.
+  window._pdxHasItemizedPledges = function(p) {
+    if (!p || !Array.isArray(p.promises)) return false;
+    for (var i = 0; i < p.promises.length; i++) {
+      if (p.promises[i]) return true;
+    }
+    return false;
+  };
+  // The Promise Score to DISPLAY: the stored score when there is a real record
+  // AND that record is itemized enough to be checked, otherwise null (callers
+  // render this as "—" / counts-only). Both guards are required — see
+  // _pdxHasItemizedPledges above for why "something resolved" is not enough.
+  window._pdxDisplayScore = function(p) {
+    if (!p) return null;
+    var s = p.score;
+    if (s === null || s === undefined || s === '') return null;
+    if (!window._pdxHasPromiseRecord(p)) return null;
+    return window._pdxHasItemizedPledges(p) ? s : null;
+  };
+  // The sample size behind that percentage — "3 of 4 resolved" (long) or
+  // "3/4 resolved" (short, for tight rails and table cells). Reads only the
+  // kept / broken counts the score already rests on; pending and partial items
+  // stay out of it, exactly as they stay out of the math. Returns '' when
+  // nothing has resolved, so a no-record profile shows no percentage AND no
+  // parenthetical rather than a hollow "0 of 0".
+  window._pdxScoreDenominator = function(p, form) {
+    var t = window._pdxPromiseTally(p);
+    if (!t.resolved) return '';
+    return form === 'short'
+      ? t.kept + '/' + t.resolved + ' resolved'
+      : t.kept + ' of ' + t.resolved + ' resolved';
+  };
+  // ── Four honest promise states ───────────────────────────────────────────
+  // 'resolved' — something resolved AND the pledges are itemized, so a
+  //              percentage is earned, checkable, and shown.
+  // 'counts'   — something resolved but only as summary counts, with no
+  //              inspectable promises[] behind them. Real, attested counts; no
+  //              percentage. Added because withholding the rate must not cost the
+  //              record its substance: a sitting member with 27 kept and 8 broken
+  //              on file was falling through to the 'empty' branch and rendering
+  //              "No record yet", which is a worse lie than the rate was.
+  // 'tracking' — promises ARE on file but none has resolved. No percentage, and
+  //              this must not look like an empty record either.
+  // 'empty'    — nothing on file at all; the existing empty state stands.
+  window._pdxPromiseState = function(p) {
+    var t = window._pdxPromiseTally(p);
+    if (t.resolved > 0) {
+      return window._pdxHasItemizedPledges(p) ? 'resolved' : 'counts';
+    }
+    return t.unresolved > 0 ? 'tracking' : 'empty';
+  };
+  // The 'counts' label — what IS known, stated as counts, for the slot a
+  // percentage would have filled: "27 kept · 8 broken" (short) or
+  // "27 kept · 8 broken of 35 resolved" (long). '' in the other three states, so
+  // a caller can render it unconditionally wherever it puts the rate.
+  window._pdxCountsNote = function(p, form) {
+    if (window._pdxPromiseState(p) !== 'counts') return '';
+    var t = window._pdxPromiseTally(p);
+    var base = t.kept + ' kept · ' + t.broken + ' broken';
+    return form === 'short' ? base : base + ' of ' + t.resolved + ' resolved';
+  };
+  // The same counts, ungated: "27 kept · 8 broken" (short) or "27 kept · 8
+  // broken of 35 resolved" (long) for ANY record with a closed pledge ledger,
+  // itemized or not. This is what surfaces print where the retired Promise %
+  // used to go — `_pdxCountsNote` above stays gated to the 'counts' state
+  // because it also carries the "not itemized yet" caveat, but a surface that
+  // simply wants the receipts, and would otherwise fall back to a percentage,
+  // wants this one. '' when nothing has resolved.
+  window._pdxPledgeNote = function(p, form) {
+    var t = window._pdxPromiseTally(p);
+    if (!t.resolved) return '';
+    var base = t.kept + ' kept · ' + t.broken + ' broken';
+    return form === 'short' ? base : base + ' of ' + t.resolved + ' resolved';
+  };
+  // Why the 'counts' state shows no percentage, in one voter-readable clause.
+  // Kept next to the note above so no surface has to invent its own wording.
+  window._pdxCountsWhy = function(p) {
+    return window._pdxPromiseState(p) === 'counts'
+      ? 'Counts are on file; the individual pledges are not itemized yet, so no rate is published.'
+      : '';
+  };
+  // The 'tracking' label — "3 tracked · none resolved yet" (long) or
+  // "3 tracked · none resolved" (short). '' in the other three states.
+  window._pdxTrackingNote = function(p, form) {
+    var t = window._pdxPromiseTally(p);
+    if (t.resolved > 0 || !t.unresolved) return '';
+    return t.tracked + ' tracked · none resolved' + (form === 'short' ? '' : ' yet');
+  };
+  // Unobtrusive companion to a real percentage — "+2 pending", "+1 partial" or
+  // "+2 pending · 1 partial". Names what is still outstanding without implying it
+  // counts toward the score. '' when nothing is outstanding.
+  window._pdxPendingNote = function(p) {
+    var t = window._pdxPromiseTally(p);
+    var parts = [];
+    if (t.pending) parts.push(t.pending + ' pending');
+    if (t.partial) parts.push(t.partial + ' partial');
+    return parts.length ? '+' + parts.join(' · ') : '';
+  };
+  // Count of tracked-but-unresolved promises, labelled for a tight slot:
+  // "3 Promises" / "1 Promise".
+  window._pdxTrackedCountLabel = function(p) {
+    var t = window._pdxPromiseTally(p);
+    if (!t.tracked) return '';
+    return t.tracked + (t.tracked === 1 ? ' Promise' : ' Promises');
+  };
+
+  // ── A BLANK IS NOT AN ANSWER, AND NEVER OVERWRITES ONE ────────────────────
+  // This merge used to be Object.assign(CMP_DATA[id], p), and it is where a live
+  // phone lost three officeholders. `p` is the LIGHT Firestore stub, and the loop
+  // above defaults every essential field on it before the merge — so a document
+  // that simply does not carry `office` or `state` arrives here carrying
+  // office:'' and state:'', and Object.assign wrote those two empty strings over
+  // the bundled roster's "U.S. Senator" / "Utah".
+  //
+  // Statewide seats are resolved from exactly those two strings (see
+  // _pdxStatewideSeats in voter-hub-location.js), so the consequence was not a
+  // cosmetic gap: Who Represents Me painted six of six for a Layton reader with
+  // John Curtis, Mike Lee and Spencer Cox, the roster pill finished, this merge
+  // ran, and the same three rows became "No record on file yet — we'd rather
+  // leave this blank than name the wrong person" with the count at three of six.
+  //
+  // So the rule is the obvious one: a live document still wins every field it
+  // actually has, and an absent field loses to whatever the bundle already knew.
+  // Empty string, null, undefined and an empty array are all "the payload did not
+  // carry this", because after the defaulting above they are literally
+  // indistinguishable from it — a deliberately-cleared field in Firestore reaches
+  // this line looking exactly like a missing one, and of the two readings only
+  // this one can be wrong in the direction of deleting a sitting senator.
+  function _pdxMergeRosterRecord(dst, src) {
+    if (!dst || !src) return dst;
+    Object.keys(src).forEach(function (k) {
+      var v = src[k];
+      var blank = (v === '' || v === null || v === undefined ||
+                   (Array.isArray(v) && !v.length));
+      if (blank && !_pdxIsBlankValue(dst[k])) return;
+      dst[k] = v;
+    });
+    return dst;
+  }
+  function _pdxIsBlankValue(v) {
+    return v === '' || v === null || v === undefined || (Array.isArray(v) && !v.length);
+  }
+
+  function _checkAndTrigger() {
+    if (_firestoreLoaded && _domContentLoaded) {
+      console.log("⚡ BOTH Firestore and DOMContentLoaded are ready. Syncing data and running deferred events.");
+      // Copy PROFILES to CMP_DATA if CMP_DATA is defined
+      if (typeof CMP_DATA !== 'undefined') {
+        // Cache original states before merging Firestore profiles
+        Object.keys(CMP_DATA).forEach(function(id) {
+          if (CMP_DATA[id] && CMP_DATA[id].state) {
+            window._originalStates[id] = CMP_DATA[id].state;
+          }
+        });
+
+        Object.keys(PROFILES).forEach(function(id) {
+          var p = PROFILES[id];
+          if (p) {
+            // Ensure essential properties have defaults so rendering never crashes
+            p.name = p.name || '';
+            p.office = p.office || '';
+            p.state = p.state || '';
+            p.party = p.party || '';
+            p.score = p.score !== undefined ? p.score : null;
+            p.kept = p.kept !== undefined ? p.kept : 0;
+            p.broken = p.broken !== undefined ? p.broken : 0;
+            p.pending = p.pending !== undefined ? p.pending : 0;
+            p.icon = p.icon || '🏛';
+            
+            // Normalize issues array
+            var rawIssues = p.issues || p.keyIssues || [];
+            if (!Array.isArray(rawIssues)) {
+              if (typeof rawIssues === 'string') {
+                p.issues = rawIssues.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+              } else {
+                p.issues = [];
+              }
+            } else {
+              p.issues = rawIssues;
+            }
+          }
+
+          if (!CMP_DATA[id]) {
+            CMP_DATA[id] = p;
+          } else {
+            _pdxMergeRosterRecord(CMP_DATA[id], p);
+          }
+        });
+      }
+      // ── In-file officeholders not (yet) in the live Firestore roster ──────
+      // A short allow-list of current, curated officials who exist only in the
+      // bundled static roster (CMP_DATA): they carry full ISSUE_STANCE_DATA and
+      // Evidence Locker records here but have no politicians/ document yet. Seed
+      // them into PROFILES so they show up in the public directory/search and
+      // open like any other profile. Guarded on (!PROFILES[id]) so a later
+      // Firestore document always wins, and safe to re-run.
+      //
+      // The federal block below is the National 7–10 batch: the Vice President,
+      // Cabinet secretaries, congressional leadership (Speaker, floor leaders,
+      // whips), key committee chairs, and high-profile members. They were wired
+      // into CMP_DATA (so comparison and browse already reach them) but had no
+      // Firestore document, so without this seed they never entered PROFILES and
+      // were missing from the public directory, global search, and Your Ballot.
+      // Each id matches its ISSUE_STANCE_DATA card, so the curated stances light
+      // up on their profiles directly.
+      [
+        'lorene_kamalu',
+        // National 7 — top of the federal ticket & congressional leaders
+        'vance', 'thune', 'jeffries', 'schumer',
+        // National 8 — Speaker, Cabinet, high-profile members
+        'mike_johnson', 'rubio', 'bessent', 'cruz', 'aoc',
+        // National 9 — Cabinet, floor leaders & whips
+        'bondi', 'noem', 'lutnick', 'scalise', 'barrasso', 'emmer', 'durbin', 'kclark',
+        'jim_jordan', 'jason_smith', 'burgum', 'chris_wright', 'zeldin', 'vought', 'rollins',
+        // National 10 — committee chairs & influential members
+        'grassley', 'rand_paul', 'graham', 'hawley', 'murkowski', 'warren', 'fetterman',
+        'booker', 'crockett', 'khanna',
+        // National wave 18 — administration power players & influential members (July 2026)
+        'tom_homan', 'peter_navarro', 'stephen_miran', 'keith_kellogg', 'dan_crenshaw',
+        'raja_krishnamoorthi', 'josh_gottheimer', 'seth_moulton', 'marie_gluesenkamp_perez', 'jon_ossoff',
+        // National wave 19 — high-profile senators & influential members (July 2026)
+        'ted_budd', 'kevin_hern', 'nancy_mace', 'tommy_tuberville', 'ayanna_pressley',
+        'delia_ramirez', 'sarah_mcbride', 'jake_auchincloss', 'greg_landsman', 'john_cornyn',
+        // // Federal-wave directory backfill (waves 2-17): federal figures added to CMP_DATA by earlier waves
+        // that were never seeded into the public directory. Guarded by !PROFILES[id].
+        'duffy', 'wicker', 'tim_scott', 'brian_mast', 'chris_murphy', 'mark_kelly',
+        'wyden', 'kennedy_john', 'french_hill', 'tom_cole', 'arrington', 'guthrie',
+        'capito', 'lankford', 'ernst', 'lummis', 'gallego', 'kaine',
+        'schiff', 'warner', 'delauro', 'meeks', 'raskin', 'neal',
+        'pallone', 'adam_smith', 'hagerty', 'britt', 'banks', 'coons',
+        'reed', 'shaheen', 'murray', 'whitehouse', 'cantwell', 'peters',
+        'heinrich', 'moreno', 'sheehy', 'chip_roy', 'mehmet_oz', 'marty_makary',
+        'jay_bhattacharya', 'mike_rounds', 'kevin_cramer', 'jim_mcgovern', 'brendan_boyle', 'rick_larsen',
+        'jan_schakowsky', 'diana_degette', 'gillibrand', 'debbie_dingell', 'maggie_hassan', 'bennet',
+        'steny_hoyer', 'deb_fischer', 'jim_justice', 'ashley_moody', 'ricketts', 'hoeven',
+        'andy_harris', 'mike_bost', 'brian_babin', 'roger_williams', 'bryan_steil', 'maxine_waters',
+        'jim_himes', 'zoe_lofgren', 'jared_huffman', 'yvette_clarke', 'mcclain', 'hudson',
+        'mullin', 'schmitt', 'luna', 'neguse', 'takano', 'bobby_scott',
+        'blunt_rochester', 'alsobrooks', 'scott_turner', 'pfluger', 'dan_sullivan', 'roger_marshall',
+        'mike_lawler', 'summer_lee', 'hickenlooper', 'welch', 'tina_smith', 'maxwell_frost',
+        'daines', 'walberg', 'garbarino', 'paul_atkins', 'brendan_carr', 'delbene',
+        'andy_kim', 'hirono', 'rosen', 'dan_goldman', 'chavez_deremer', 'doug_collins',
+        'mike_waltz', 'ron_johnson', 'todd_young', 'blumenthal', 'merkley', 'tlaib',
+        'nadler', 'jared_golden', 'witkoff', 'hassett', 'mcmahon', 'tillis',
+        'fitzpatrick', 'lujan', 'torres', 'omar', 'markey', 'clyburn',
+        'greer', 'stephen_miller', 'blackburn', 'rick_scott', 'foxx', 'casar',
+        'ted_lieu', 'angus_king', 'schatz', 'robert_garcia', 'aguilar', 'jayapal',
+        'van_hollen', 'padilla', 'warnock', 'duckworth', 'patel', 'ratcliffe',
+        'donalds', 'stefanik', 'boozman', 'cassidy', 'sam_graves', 'glenn_thompson',
+        'jerry_moran', 'angie_craig', 'tammy_baldwin', 'cortez_masto',
+        // National wave 20 — federal admin/agency leaders + top governors (July 2026)
+        'jerome_powell', 'dan_bongino', 'kelly_loeffler', 'andrew_ferguson', 'ron_desantis',
+        'greg_abbott', 'gavin_newsom', 'gretchen_whitmer', 'josh_shapiro', 'jb_pritzker',
+        // National wave 21 — the next tier of high-leverage governors (July 2026)
+        'glenn_youngkin', 'brian_kemp', 'sarah_huckabee_sanders', 'jeff_landry', 'mike_dewine',
+        'tim_walz', 'wes_moore', 'kathy_hochul', 'jared_polis', 'andy_beshear',
+        // National wave 22 — more high-leverage governors (July 2026)
+        'kevin_stitt', 'kim_reynolds', 'patrick_morrisey', 'greg_gianforte', 'mike_braun',
+        'katie_hobbs', 'bob_ferguson', 'michelle_lujan_grisham', 'janet_mills', 'josh_green',
+        // National wave 23 — Mitch McConnell, former Senate Republican Leader (July 2026)
+        'mcconnell',
+        // National wave 24 — high-impact swing/large-state governors (July 2026)
+        'evers', 'josh_stein', 'maura_healey', 'tina_kotek', 'mikie_sherrill',
+        'joe_lombardo', 'bill_lee', 'henry_mcmaster', 'mike_kehoe', 'kay_ivey',
+        // National wave 25 — the final 13 state governors, completing all-50 coverage (July 2026)
+        'dunleavy', 'ned_lamont', 'matt_meyer', 'brad_little', 'laura_kelly',
+        'tate_reeves', 'jim_pillen', 'kelly_ayotte', 'kelly_armstrong', 'dan_mckee',
+        'larry_rhoden', 'phil_scott', 'mark_gordon',
+        // National wave 26 — high-impact state attorneys general, the litigation front (July 2026)
+        'rob_bonta', 'letitia_james', 'keith_ellison', 'kwame_raoul', 'kris_mayes',
+        'raul_labrador', 'liz_murrill', 'chris_carr', 'brenna_bird', 'dave_yost',
+        // National wave 27 — major-state legislative leaders + federal swing-district members (July 2026)
+        'dan_patrick', 'dustin_burrows', 'mike_mcguire', 'robert_rivas', 'ben_albritton',
+        'daniel_perez_fl', 'stewart_cousins', 'carl_heastie', 'don_bacon', 'tom_suozzi',
+        // National wave 28 — big-city mayors, the municipal-executive tier (July 2026)
+        'zohran_mamdani', 'karen_bass', 'brandon_johnson', 'john_whitmire', 'daniel_lurie',
+        'cherelle_parker', 'mike_johnston', 'kate_gallego', 'mattie_parker', 'eric_johnson_dallas',
+        // National wave 29 — battleground-state attorneys general, litigation front tier 2 (July 2026)
+        'dana_nessel', 'josh_kaul', 'jeff_jackson', 'aaron_ford',
+        'dave_sunday', 'james_uthmeier', 'jonathan_skrmetti', 'kris_kobach',
+        // National wave 30 — state legislative leaders, tier 2: PA · MI · IL · NV · NC · WI · AZ (July 2026)
+        'joanna_mcclinton', 'winnie_brinks', 'don_harmon', 'chris_welch', 'nicole_cannizzaro',
+        'kim_ward', 'matt_hall', 'phil_berger', 'robin_vos', 'warren_petersen',
+        // National wave 32 — influential state legislators: opposition leaders & marquee members (July 2026)
+        'gene_wu', 'jay_costa', 'ranjeev_puri', 'greta_neubauer',
+        'heath_flora', 'destin_hall', 'jon_burns', 'bryan_hughes',
+        // National wave 34 — state legislative leaders in new states: VA · OH · MN · CO · WA · NH (July 2026)
+        'don_scott', 'erin_murphy', 'julie_mccluskie', 'laurie_jinkins',
+        'matt_huffman', 'rob_mccolley', 'lisa_demuth', 'sharon_carson',
+        // National wave 36 — state legislative leaders in new states: NJ · MA · MD · TN · KY · IA · IN (July 2026)
+        'nicholas_scutari', 'ron_mariano', 'karen_spilka', 'bill_ferguson',
+        'cameron_sexton', 'robert_stivers', 'pat_grassley', 'todd_huston',
+        // National wave 37 — state legislative leaders in new states: OR · CT · ME · CO · MO · SC · KS · LA (July 2026)
+        'julie_fahey', 'matt_ritter', 'ryan_fecteau', 'james_coleman',
+        'jon_patterson', 'murrell_smith', 'ty_masterson', 'phillip_devillier',
+        // National AG wave 1 — state Attorneys General: CT · CO · WA · MA · IN · AR · MT · SC (July 2026)
+        'william_tong', 'phil_weiser', 'nick_brown', 'andrea_joy_campbell',
+        'todd_rokita', 'tim_griffin', 'austin_knudsen', 'alan_wilson',
+        // National AG wave 2 — state Attorneys General: AL · OK · ND · MS · MD · OR · NM · DE (July 2026)
+        'steve_marshall', 'gentner_drummond', 'drew_wrigley', 'lynn_fitch',
+        'anthony_brown', 'dan_rayfield', 'raul_torrez', 'kathy_jennings',
+        // National AG wave 3 — state Attorneys General: KY · NE · NH · WV · RI · VT · ME · HI (July 2026)
+        'russell_coleman', 'mike_hilgers', 'john_formella', 'jb_mccuskey',
+        'peter_neronha', 'charity_clark', 'aaron_frey', 'anne_lopez',
+        // National AG wave 4 — state Attorneys General: TX · NJ · AK · UT · MO · WY (July 2026)
+        'ken_paxton', 'matthew_platkin', 'treg_taylor', 'derek_brown_ut', 'catherine_hanaway', 'bridget_hill',
+        // National SoS wave 1 — state Secretaries of State: MI · AZ · NV · MN · GA · OH · PA · AL (July 2026)
+        'jocelyn_benson', 'adrian_fontes', 'cisco_aguilar', 'steve_simon',
+        'brad_raffensperger', 'frank_larose', 'al_schmidt', 'wes_allen',
+        // National AG wave 5 — completes all-50 AG coverage: SD · VA (July 2026)
+        'marty_jackley', 'jay_jones',
+        // National SoS wave 2 — state Secretaries of State: CA · CO · WA · NM · TX · IN · MS · KY (July 2026)
+        'shirley_weber', 'jena_griswold', 'steve_hobbs', 'maggie_toulouse_oliver',
+        'jane_nelson_tx', 'diego_morales', 'michael_watson_ms', 'michael_adams_ky',
+        // National Lt. Gov wave 1 — Lieutenant Governors: MI · PA · CA · MN · GA · MS · OK · OH (July 2026)
+        'garlin_gilchrist', 'austin_davis', 'eleni_kounalakis', 'peggy_flanagan',
+        'burt_jones', 'delbert_hosemann', 'matt_pinnell', 'jim_tressel',
+        // Complete Chellie Pingree — farm-bill amendment author (July 2026)
+        'chellie_pingree',
+        // Voting Record depth pass — the 20 sitting U.S. House members wired into
+        // CMP_DATA by the July 2026 Voting Record unlock (July 2026). Each has
+        // curated stance cards, roll-call history and Connected Evidence, but none
+        // has a Firestore document, so without this seed they resolved from a direct
+        // link yet never appeared in the public directory, global search, or Your
+        // Ballot. Eleven now carry sourced promise ledgers; the rest correctly read
+        // "No record yet" until there is a resolved promise to show.
+        'bennie_thompson', 'bruce_westerman', 'don_davis', 'frank_lucas', 'josh_brecheen',
+        'julie_fedorchak', 'mariannette_miller_meeks', 'michael_guest', 'mike_collins',
+        'mike_ezell', 'mike_flood', 'mike_simpson', 'rick_crawford', 'rob_bresnahan',
+        'ryan_mackenzie', 'scott_perry', 'stephanie_bice', 'steve_womack', 'trent_kelly',
+        'troy_downing',
+      ].forEach(function (id) {
+        if (!PROFILES[id] && typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) {
+          PROFILES[id] = CMP_DATA[id];
+        }
+      });
+      // Drop any cached search text so the freshly-merged profiles re-index.
+      if (typeof window._pdxClearHayCache === 'function') window._pdxClearHayCache();
+      // Populate DIR_DATA
+      if (typeof _populateDirData === 'function') {
+        _populateDirData();
+      }
+      // Update Database Expansion stats
+      if (typeof updateExpansionStats === 'function') {
+        updateExpansionStats();
+      }
+      // Refresh the Live Pulse Bar now that PROFILES is populated.
+      if (typeof window._renderPulseBar === 'function') {
+        window._renderPulseBar();
+      }
+      // Refresh the public "collection depth" line in the Promise Tracker header
+      // (documented positions / tracked promises) now that the full roster is merged.
+      if (typeof window._mypolUpdateCount === 'function') {
+        try { window._mypolUpdateCount(); } catch (e) {}
+      }
+      // Trigger deferred DOMContentLoaded events — but only ONCE. _checkAndTrigger
+      // can run again later (e.g. a roster retry or an admin refresh re-flips
+      // _firestoreLoaded); those re-runs still re-merge data and refresh the
+      // sections above, but must not re-fire the one-shot DOMContentLoaded
+      // listeners (which bind handlers and would double up).
+      if (!_deferredRan) {
+        _deferredRan = true;
+        _triggerDeferredEvents();
+      }
+      // If the page was opened with a ?p=<id> deep link, open that profile now
+      // that PROFILES is populated and the renderers are defined.
+      setTimeout(function() {
+        if (typeof window._pdxOpenFromUrl === 'function') window._pdxOpenFromUrl();
+      }, 0);
+    }
+  }
+
+  _originalAddEventListener.call(document, 'DOMContentLoaded', function() {
+    console.log("📁 Browser DOMContentLoaded officially fired.");
+    _domContentLoaded = true;
+    _checkAndTrigger();
+  });
+
+  function _triggerDeferredEvents() {
+    console.log("⚡ Triggering deferred DOMContentLoaded events with dynamic PROFILES data... Total listeners:", _deferredDomEvents.length);
+    // 1. Run all of the deferred DOMContentLoaded listeners in order
+    _deferredDomEvents.forEach(function(item) {
+      try {
+        item.listener.call(document, new Event('DOMContentLoaded'));
+      } catch (e) {
+        console.error("Error running deferred DOMContentLoaded listener:", e);
+      }
+    });
+    // 2. Restore original addEventListener
+    document.addEventListener = _originalAddEventListener;
+  }
+</script>
+
+  <!-- ══ COPIED VERBATIM FROM person.html LINES 2006–2029 ══════════════════════
+       FIREBASE. The three compat bundles, the request-time key injection, and
+       the synchronous stub that guarantees `db` / `auth` / `PROFILES` exist
+       before anything can touch them.
+
+       ON THIS DOCUMENT IT IS NOT OPTIONAL, AND THAT IS THE POINT OF THE PASS.
+       your-file.js stores the eight answers under a PER-ACCOUNT key
+       (pdx_your_file_v1__u_<uid>) and learns the uid from the pdx-account-change
+       event that firebase-boot.js's auth handler causes by calling
+       PDXStore.enableAccountSync. Ship /me without Firebase and it reads the
+       un-namespaced key while the homepage reads the per-account one: two files
+       for one reader, which is exactly the drift this address exists to end.
+       It is also the roster load, and the roster is region d's name source.
+
+       Unlike a person file, this document DOES want the account rather than an
+       anonymous session — but it opens no sign-in UI of its own: the front page
+       owns that, and region a's Sign in link is a trip there.
+       ═══════════════════════════════════════════════════════════════════════ -->
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<!-- The Firebase Web API key is injected at request time from the Netlify
+     environment variable FIREBASE_API_KEY by netlify/edge-functions/firebase-config.ts.
+     It is intentionally NOT hardcoded here so the value never lives in source
+     control or the deployed HTML (and the build's secrets scanner passes). -->
+<script defer src="/firebase-config.js"></script>
+<script>
+  // Run 1 perf: the Firebase SDKs and the bootstrap below are DEFERRED so they no
+  // longer block first paint. This tiny synchronous stub guarantees the globals
+  // that other inline code could touch at parse time exist; firebase-boot.js
+  // (deferred → runs after the SDK, before DOMContentLoaded) then replaces them
+  // with the live Firebase objects and starts the lightweight roster load. Net
+  // effect: identical behavior, but the ~800 KB compat SDK no longer gates paint.
+  var app, db, firestore, auth;
+  var PROFILES = window.PROFILES || {}; window.PROFILES = PROFILES;
+  window._pdxFullIds = window._pdxFullIds || new Set();
+  window._pdxFullPending = window._pdxFullPending || {};
+  function setDoc(docRef, data, options) { return docRef.set(data, options); }
+  db = { collection: null }; firestore = db;
+  auth = { currentUser: null, onAuthStateChanged: function (cb) { try { cb(null); } catch (e) {} return function () {}; }, signInAnonymously: function () { return Promise.reject(new Error('auth pending')); }, signOut: function () { return Promise.resolve(); } };
+</script>
+<script src="/firebase-boot.js" defer></script>
+
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 28594–29016 ═════════════════════
+       PDXSaved — region e's store, and the reason region e is a list rather
+       than a promise. It already existed: the All-Seeing Eye and the receipt
+       cards write into it, it namespaces itself per account off
+       pdx-account-change, and it registers its own snapshot and reconciler with
+       PDXStore for cross-device sync. This document READS it and writes nothing.
+
+       WHY THIS ONE COPY IS FROM index.html AND NOT FROM person.html, which is
+       where the other three came from: person.html does not carry it. index.html
+       is the origin of all four blocks and person.html is a link in the chain,
+       so taking this one from the origin keeps the chain a chain — a fix to
+       index.html still surfaces as one test failure per document that copied it.
+
+       THE ALTERNATIVE WAS WORSE. me-desk.js could have read 'pdx_my_saved'
+       directly, and then this document would hold its own copy of the
+       per-account key rule that PDXSaved's activeKey() already owns — a second
+       copy of a rule, which is the thing every other seam on this page refuses
+       to make. 423 lines of store is the cheaper honesty.
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <script>
+  (function () {
+    'use strict';
+    var KEY = 'pdx_my_saved';
+    // Upper bound on a personal note. Generous enough for a real multi-paragraph
+    // "why this matters" writeup, small enough to stay comfortably inside
+    // localStorage. Exposed on the store so the editor can share the same cap.
+    var NOTE_MAX_LEN = 3000;
+
+    // ── Per-account local-storage isolation ──────────────────────────────────
+    // 'saved' is the only account-synced collection, so it is the only place a
+    // SHARED localStorage key could leak one person's data into another's account
+    // on a shared browser: e.g. User A saves while signed in, signs out, User B
+    // signs in — a single shared key would let A's saves merge up into B's synced
+    // collection. We prevent that by NAMESPACING the storage key by the signed-in
+    // user's id, so each account reads and writes its own isolated key:
+    //
+    //   guest / signed-out → 'pdx_my_saved'            (shared key, byte-for-byte
+    //                                                    the original behavior —
+    //                                                    unauthenticated users are
+    //                                                    completely unaffected)
+    //   signed in as <uid> → 'pdx_my_saved__u_<uid>'   (private, per-account)
+    //
+    // The active uid is PUSHED to us by PDXStore's account context (set on sign-in,
+    // cleared on sign-out) via the 'pdx-account-change' event, so switching users
+    // transparently switches which key every read/write below hits. On sign-in the
+    // reconciler then merges this account's isolated LOCAL data (its prior saves on
+    // this device, e.g. offline edits) with the server snapshot — see mergeItems.
+    var _uid = null;   // active signed-in user id, or null for guest
+
+    // Firebase uids are already url-safe, but sanitize defensively so a malformed
+    // id can never collide with another key or break the namespace format.
+    function nsFor(uid) {
+      return KEY + '__u_' + String(uid).replace(/[^A-Za-z0-9_-]/g, '_');
+    }
+    // The localStorage key for the CURRENT account context. This is the single
+    // choke point that makes isolation transparent to every caller below.
+    function activeKey() { return _uid ? nsFor(_uid) : KEY; }
+
+    // Persistence now routes through the PDXStore foundation (see the module at
+    // the top of the file) so this collection can later be account-synced with
+    // zero caller changes. PDXStore.read/write hit the per-account key returned by
+    // activeKey() ('pdx_my_saved' for guests, 'pdx_my_saved__u_<uid>' when signed
+    // in) and every write auto-marks the 'saved' collection dirty for a future push.
+    // A direct-localStorage fallback is kept so the local-only experience can
+    // never regress if the store is somehow unavailable.
+    function load() {
+      var k = activeKey();
+      if (window.PDXStore) { var v = window.PDXStore.read(k, []); return Array.isArray(v) ? v : []; }
+      try { var a = JSON.parse(localStorage.getItem(k) || '[]'); return Array.isArray(a) ? a : []; }
+      catch (e) { return []; }
+    }
+    function persist(arr) {
+      var k = activeKey();
+      // Pass the collection explicitly: a namespaced key is NOT in PDXStore's
+      // key→collection map (only the base 'pdx_my_saved' is registered), so dirty
+      // tracking would otherwise miss a signed-in user's writes. Naming 'saved'
+      // here keeps push/pull working identically for guest and per-account keys.
+      if (window.PDXStore) { window.PDXStore.write(k, arr, { collection: 'saved' }); }  // writes + marks 'saved' dirty
+      else { try { localStorage.setItem(k, JSON.stringify(arr)); } catch (e) {} }
+      try { window.dispatchEvent(new CustomEvent('pdx-saved-change', { detail: { count: arr.length } })); } catch (e) {}
+    }
+    // A stable identity for a saved thing: its type + its key. Two saves of the
+    // same receipt collapse to one entry (idempotent), so "Save" is a safe toggle.
+    function idOf(type, key) { return String(type || '') + '::' + String(key || ''); }
+    // Normalize a set of user tags into a clean array of strings. Accepts an
+    // array, a single string, or a comma-separated string (and array elements may
+    // themselves be comma-separated). Each tag is trimmed, lowercased, length-
+    // capped and de-duplicated, with empties dropped — so tagging stays tidy and
+    // "Housing", " housing " and "housing" all collapse to one tag.
+    function normTags(tags) {
+      var arr;
+      if (Array.isArray(tags)) arr = tags;
+      else if (tags == null) arr = [];
+      else arr = [tags];
+      var out = [], seen = {};
+      for (var i = 0; i < arr.length; i++) {
+        var parts = String(arr[i] == null ? '' : arr[i]).split(',');
+        for (var j = 0; j < parts.length; j++) {
+          var t = parts[j].trim().toLowerCase();
+          if (!t) continue;
+          if (t.length > 40) t = t.slice(0, 40);
+          if (Object.prototype.hasOwnProperty.call(seen, t)) continue;
+          seen[t] = 1; out.push(t);
+        }
+      }
+      return out;
+    }
+    function indexOf(arr, type, key) {
+      var id = idOf(type, key);
+      for (var i = 0; i < arr.length; i++) { if (idOf(arr[i].type, arr[i].key) === id) return i; }
+      return -1;
+    }
+
+    // ── Bind to the shared, collection-agnostic sync core ────────────────────
+    // All merge / tombstone / watermark / reconcile logic lives in PDXSyncCore
+    // (see the block above). 'saved' is now a THIN WRAPPER: it supplies a tiny
+    // config — its identity function and its two independently-editable fields
+    // (note, tags) — and the storage layer below; everything else is the core.
+    var CORE = window.PDXSyncCore;
+    var COL = CORE.createCollection({
+      idOf: idOf,                                       // classic type::key identity
+      fields: [
+        { field: 'note', tsField: 'noteUpdatedAt' },   // free-text note  (field-level LWW)
+        { field: 'tags', tsField: 'tagsUpdatedAt' }     // user tag array  (field-level LWW)
+      ]
+    });
+
+    // ── Tombstones: tracked deletions so removals survive a union merge ───────
+    // Stored in a SEPARATE per-account localStorage key beside the items key (so
+    // per-account isolation applies identically) and ride along in the pushed
+    // snapshot under `tombstones` so every device learns every deletion. The map's
+    // shape and merge/GC rules are the core's; here we only persist it. Normalizing
+    // on read (CORE.readTombs) keeps old, tombstone-free snapshots merging fine.
+    function tombKey() { return activeKey() + '__tomb'; }
+    function loadTombs() {
+      var k = tombKey();
+      var raw;
+      if (window.PDXStore) raw = window.PDXStore.read(k, null);
+      else { try { raw = JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { raw = null; } }
+      return CORE.readTombs(raw);
+    }
+    // Persist the tombstone map. Routed through PDXStore with an explicit
+    // collection: like the namespaced items key, tombKey() isn't in the store's
+    // key→collection map, so naming 'saved' is what marks the collection dirty so
+    // a recorded deletion actually gets pushed. Direct-localStorage fallback keeps
+    // deletions tracked even if the store is unavailable.
+    function persistTombs(map) {
+      var k = tombKey();
+      if (window.PDXStore) { window.PDXStore.write(k, map, { collection: 'saved' }); }
+      else { try { localStorage.setItem(k, JSON.stringify(map)); } catch (e) {} }
+    }
+
+    // ── Device watermarks: safe, bounded tombstone garbage-collection ─────────
+    // A watermark is "how far has this device synced" — a per-device timestamp
+    // `{ [deviceId]: ms }` carried in the snapshot beside items and tombstones, so
+    // a tombstone can be GC'd only once every known device has synced strictly past
+    // it (see CORE.reconcile / CORE.pruneTombstones) — never risking resurrection on
+    // a long-offline device. The map's shape, forward-only union and stale-device
+    // retirement are all the core's; here we only persist it per account. The device
+    // id itself is the core's single shared per-browser identity (CORE.deviceId).
+    function wmKey() { return activeKey() + '__wm'; }
+    function loadWatermarks() {
+      var k = wmKey(), raw;
+      if (window.PDXStore) raw = window.PDXStore.read(k, null);
+      else { try { raw = JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { raw = null; } }
+      return CORE.readWatermarks(raw);
+    }
+    // Persist the watermark map. Routed through PDXStore naming 'saved' (same
+    // reason as persistTombs): the namespaced key isn't in the store's key→
+    // collection map, so naming the collection is what marks it dirty and lets the
+    // advanced watermark get pushed so other devices can see it.
+    function persistWatermarks(map) {
+      var k = wmKey();
+      if (window.PDXStore) { window.PDXStore.write(k, map, { collection: 'saved' }); }
+      else { try { localStorage.setItem(k, JSON.stringify(map)); } catch (e) {} }
+    }
+    // ── Reconciliation / merge for the 'saved' collection ────────────────────
+    // The merge STRATEGY is entirely the core's: union of local ∪ server items,
+    // field-level last-write-wins resolving note vs tags independently (a note edit
+    // on one device and a tag edit on another never clobber each other), tombstones
+    // winning ties + anything older, and watermark-gated GC. COL.mergeItems /
+    // COL.reconcile (built above from this collection's idOf + note/tags spec) carry
+    // all of it; reconcileFromServer below is the only 'saved'-specific glue — it
+    // loads local state, calls COL.reconcile, and persists whatever actually changed
+    // (so a no-op pull never re-dirties). Backward compat is unchanged: an old
+    // tombstone-/watermark-free snapshot normalizes its missing maps to {} and merges
+    // exactly like the original union. COL.mergeItems / COL.mergeOne are also exported
+    // on window.PDXSaved for reuse/testing.
+
+    // The reconciler PDXStore invokes on pull(): merge the server snapshot into
+    // the local list and persist the result — but ONLY when the merge actually
+    // changed something, so a no-op pull doesn't needlessly re-dirty and re-push.
+    // Persisting marks 'saved' dirty, which lets the merged UNION get pushed back
+    // up, so every device converges to the same combined list.
+    function reconcileFromServer(serverSnapshot, ctx) {
+      ctx = ctx || {};
+      // `now` and `deviceId` are injectable (ctx) so the merge simulation can
+      // drive a deterministic timeline; in the app they fall back to the real
+      // wall clock and this browser's stable device id.
+      var now = ctx.now != null ? ctx.now : Date.now();
+      var myDevice = ctx.deviceId || CORE.deviceId();
+
+      var localItems = load();
+      var localTombs = loadTombs();
+      var localWm = loadWatermarks();
+      var serverItems = (serverSnapshot && Array.isArray(serverSnapshot.items))
+        ? serverSnapshot.items : [];
+      // Old snapshots have no `tombstones` / `watermarks` field → readTombs and
+      // readWatermarks yield {} → this merges exactly like before (backward compat).
+      var serverTombs = CORE.readTombs(serverSnapshot && serverSnapshot.tombstones);
+      var serverWm = CORE.readWatermarks(serverSnapshot && serverSnapshot.watermarks);
+
+      // The whole merge is the shared core's: union tombstones + watermarks,
+      // field-merge items (note vs tags) against them, advance THIS device's own
+      // watermark (heartbeat that lets other devices GC what it has acknowledged),
+      // retire stale devices, and GC tombstones every device has synced past.
+      var result = COL.reconcile({
+        localItems: localItems, serverItems: serverItems,
+        localTombs: localTombs, serverTombs: serverTombs,
+        localWm: localWm, serverWm: serverWm,
+        dirty: ctx.dirty, now: now, deviceId: myDevice
+      });
+      var merged = result.items, prunedTombs = result.tombstones, wm = result.watermarks;
+
+      // Only persist what actually changed, so a no-op pull doesn't needlessly
+      // re-dirty and re-push. persist()/persistTombs()/persistWatermarks() all mark
+      // 'saved' dirty, which lets the merged UNION (items + tombstones + the
+      // advanced watermarks) flow back up so every device converges.
+      var itemsChanged = !CORE.sameItems(localItems, merged);
+      var tombsChanged = !CORE.sameMap(localTombs, prunedTombs);
+      var wmChanged = !CORE.sameMap(localWm, wm);
+      if (tombsChanged) persistTombs(prunedTombs);
+      if (wmChanged) persistWatermarks(wm);
+      if (itemsChanged) persist(merged);   // persist() marks 'saved' dirty + emits pdx-saved-change
+      return {
+        changed: itemsChanged || tombsChanged || wmChanged,
+        count: merged.length,
+        fromServer: serverItems.length,
+        tombstones: Object.keys(prunedTombs).length,
+        watermarks: Object.keys(wm).length
+      };
+    }
+
+    window.PDXSaved = {
+      // Newest first — the natural reading order for a growing collection.
+      list: function () {
+        return load().slice().sort(function (a, b) { return (b.savedAt || 0) - (a.savedAt || 0); });
+      },
+      count: function () { return load().length; },
+      has: function (type, key) { return indexOf(load(), type, key) !== -1; },
+      get: function (type, key) { var a = load(); var i = indexOf(a, type, key); return i === -1 ? null : a[i]; },
+      // item: { type, key, title, sub, icon, nav, ...snapshot }. Stamps savedAt.
+      // A saved item may also grow optional `note` / `tags` plus their
+      // independent `noteUpdatedAt` / `tagsUpdatedAt` edit stamps (see
+      // setNote/setTags and the field-level merge in mergeOne).
+      add: function (item) {
+        if (!item || !item.type || item.key == null) return false;
+        var a = load();
+        if (indexOf(a, item.type, item.key) !== -1) return false;
+        var rec = {};
+        for (var k in item) { if (Object.prototype.hasOwnProperty.call(item, k)) rec[k] = item[k]; }
+        rec.savedAt = Date.now();
+        a.push(rec);
+        persist(a);
+        // Re-saving is an explicit, intentional resurrection: drop any tombstone
+        // for this id so a stale deletion (here or on another device) can't remove
+        // the freshly re-added item on the next merge. (Its new savedAt would beat
+        // an equal-or-older tombstone anyway; clearing it keeps the set tidy.)
+        var t = loadTombs(), id = idOf(item.type, item.key);
+        if (Object.prototype.hasOwnProperty.call(t, id)) { delete t[id]; persistTombs(t); }
+        return true;
+      },
+      remove: function (type, key) {
+        var a = load(); var i = indexOf(a, type, key);
+        var removed = false;
+        if (i !== -1) { a.splice(i, 1); removed = true; }
+        // Record a tombstone so this deletion PROPAGATES: without it a union merge
+        // would resurrect the item as soon as another device (which still has it)
+        // pushed its copy back up. deletedAt (now) orders the delete against any
+        // save of the same id. Written even if the item wasn't in the local list,
+        // so an intended deletion is still tracked and pushed.
+        var t = loadTombs();
+        t[idOf(type, key)] = Date.now();
+        persistTombs(t);
+        if (removed) persist(a);
+        return removed;
+      },
+      // Attach (or clear, with '') a personal note — "why I saved this" — to an
+      // existing saved item. A no-op if the item isn't in the collection.
+      // Notes may be multi-line: internal newlines are preserved (only the
+      // leading/trailing whitespace is trimmed), and the whole thing is capped
+      // at NOTE_MAX_LEN so a runaway paste can't bloat localStorage.
+      setNote: function (type, key, note) {
+        var a = load(); var i = indexOf(a, type, key);
+        if (i === -1) return false;
+        var n = String(note == null ? '' : note).replace(/\r\n/g, '\n').trim().slice(0, NOTE_MAX_LEN);
+        if (n) a[i].note = n; else delete a[i].note;
+        // Stamp the NOTE's own edit time and bump savedAt (overall ordering +
+        // backward compat). tagsUpdatedAt is left untouched, so a concurrent tag
+        // edit on another device merges in independently (see mergeOne).
+        var now = Date.now();
+        a[i].noteUpdatedAt = now;
+        a[i].savedAt = now;
+        persist(a); return true;
+      },
+      // Expose the tag normalizer so callers can dedupe/merge before saving.
+      normTags: normTags,
+      // The note length cap, so the editor and the store agree on one number.
+      NOTE_MAX_LEN: NOTE_MAX_LEN,
+      // Replace the user-chosen tags on an existing saved item with a clean,
+      // normalized array (see normTags). A no-op if the item isn't in the
+      // collection. Passing an empty/blank set clears tags entirely.
+      setTags: function (type, key, tags) {
+        var a = load(); var i = indexOf(a, type, key);
+        if (i === -1) return false;
+        var t = normTags(tags);
+        if (t.length) a[i].tags = t; else delete a[i].tags;
+        // Stamp the TAGS' own edit time and bump savedAt (overall ordering +
+        // backward compat). noteUpdatedAt is left untouched, so a concurrent
+        // note edit on another device merges in independently (see mergeOne).
+        var now = Date.now();
+        a[i].tagsUpdatedAt = now;
+        a[i].savedAt = now;
+        persist(a); return true;
+      },
+      // Returns true when the item is now saved, false when it was just removed.
+      toggle: function (item) {
+        if (!item || !item.type || item.key == null) return false;
+        if (this.has(item.type, item.key)) { this.remove(item.type, item.key); return false; }
+        this.add(item); return true;
+      },
+      clear: function () {
+        // Tombstone every current item first so "clear" propagates as real
+        // deletions instead of being undone by another device's union re-push.
+        var a = load(), t = loadTombs(), now = Date.now();
+        for (var i = 0; i < a.length; i++) {
+          if (a[i] && a[i].type != null && a[i].key != null) t[idOf(a[i].type, a[i].key)] = now;
+        }
+        persistTombs(t);
+        persist([]);
+      },
+      // The full serializable state of the 'saved' collection — receipts,
+      // issues/Spotlights, their tags and notes, PLUS the tombstones (tracked
+      // deletions) and the device watermarks (how far each device has synced, for
+      // safe tombstone GC). This is exactly the payload a remote backend receives
+      // in push('saved') and would return from pull(). version 3 signals watermark
+      // support; older v1 (tombstone-free) and v2 (no-watermark) snapshots still
+      // merge correctly (readTombs/readWatermarks normalize the missing fields).
+      snapshot: function () { return { key: KEY, version: 3, items: load(), tombstones: loadTombs(), watermarks: loadWatermarks() }; },
+      // Sync status helpers, mirroring PDXTeam, so any surface can show/trigger
+      // a push/pull without reaching into PDXStore internals.
+      isDirty: function () { return !!(window.PDXStore && window.PDXStore.isDirty('saved')); },
+      push: function () { return window.PDXStore ? window.PDXStore.push('saved') : Promise.resolve({ pushed: false, reason: 'no-store' }); },
+      // Pull the server's 'saved' snapshot and merge it into local state (see the
+      // merge strategy note above). Graceful no-op when no backend is registered.
+      pull: function () { return window.PDXStore ? window.PDXStore.pull('saved') : Promise.resolve({ pulled: false, reason: 'no-store' }); },
+      // The pure merge function (local ∪ server, field-level LWW per item,
+      // minus tombstoned ids), exposed for reuse/testing. Now the shared core's,
+      // bound to this collection's note/tags spec. Does not touch storage.
+      mergeItems: COL.mergeItems,
+      // The pure per-item field merger (note vs tags resolved independently),
+      // exposed for reuse/testing. Does not touch storage.
+      mergeOne: COL.mergeOne,
+      // The pure tombstone-union helper (newest deletedAt per id), exposed for
+      // reuse/testing. Does not touch storage.
+      mergeTombstones: CORE.mergeTombstones,
+      // The pure watermark-union helper (newest ms per device), exposed for
+      // reuse/testing. Does not touch storage.
+      mergeWatermarks: CORE.mergeWatermarks,
+      // The pure, safe tombstone GC (drop only those every device synced past),
+      // exposed for reuse/testing. Does not touch storage.
+      pruneTombstones: CORE.pruneTombstones,
+      // The collection-agnostic normalizers + watermark retirement. These now live
+      // in PDXSyncCore; re-exposed here for backward compatibility with any caller
+      // that reached for them via window.PDXSaved. All pure.
+      readTombs: CORE.readTombs,
+      readWatermarks: CORE.readWatermarks,
+      pruneWatermarks: CORE.pruneWatermarks,
+      // This browser's stable device id (the shared core identity; used as the
+      // watermark map key).
+      deviceId: CORE.deviceId,
+      // A snapshot copy of the current account's tombstone map, for inspection.
+      tombstones: function () { return loadTombs(); },
+      // A snapshot copy of the current account's device-watermark map.
+      watermarks: function () { return loadWatermarks(); }
+    };
+
+    // Register this collection's shaped snapshot with PDXStore so a remote
+    // backend can push it. Guarded so the store staying local-only (or absent)
+    // never breaks: with no PDXStore, PDXSaved keeps its localStorage fallback.
+    if (window.PDXStore && typeof window.PDXStore.registerSnapshot === 'function') {
+      window.PDXStore.registerSnapshot('saved', function () {
+        return { key: KEY, version: 3, items: load(), tombstones: loadTombs(), watermarks: loadWatermarks() };
+      });
+    }
+
+    // Register the pull-side reconciler so PDXStore can merge a server snapshot
+    // into local state (see mergeItems above). Only 'saved' registers one, which
+    // is what scopes two-way sync to this collection. Guarded so a store that is
+    // absent or lacks the API leaves the local-only path untouched.
+    if (window.PDXStore && typeof window.PDXStore.registerReconciler === 'function') {
+      window.PDXStore.registerReconciler('saved', reconcileFromServer);
+    }
+
+    // ── React to account switches (the isolation switch) ─────────────────────
+    // PDXStore fires 'pdx-account-change' with { userId } whenever the signed-in
+    // account changes: a uid on sign-in, null on sign-out / anonymous. We repoint
+    // activeKey() at the new context and emit a 'pdx-saved-change' so any open
+    // surface immediately re-renders from the NEW user's data. The OUTGOING user's
+    // items are left untouched in their own namespaced key — isolated, never
+    // cleared — so signing back in on this device restores them and the next
+    // person never sees them.
+    //
+    // EDGE CASE — auth resolves before this late <script> parses: the auth handler
+    // near the top of the file may have already called enableAccountSync (setting
+    // the account context) before this block ran, so its one-shot event was missed.
+    // We therefore also ADOPT whatever account context is already established, via
+    // getAccount(), on init. Between the two we can't miss a context.
+    //
+    // NOTE ON GUEST → ACCOUNT: we intentionally do NOT auto-migrate the shared
+    // guest buffer ('pdx_my_saved') into an account on first sign-in. On a shared
+    // browser the guest buffer may belong to someone else, so adopting it is the
+    // very leak this change exists to prevent. A signed-in account's data lives in
+    // its own namespace and syncs via the server instead. (An explicit, opt-in
+    // "import your guest saves?" prompt is noted as a future improvement.)
+    function applyAccount(uid) {
+      var next = uid || null;
+      if (next === _uid) return;   // no real change → no wasteful re-render
+      _uid = next;
+      // The underlying list changed wholesale (different key): tell surfaces to re-read.
+      try { window.dispatchEvent(new CustomEvent('pdx-saved-change', { detail: { count: load().length } })); } catch (e) {}
+    }
+    try {
+      window.addEventListener('pdx-account-change', function (e) {
+        applyAccount(e && e.detail && e.detail.userId);
+      });
+      if (window.PDXStore && typeof window.PDXStore.getAccount === 'function') {
+        applyAccount(window.PDXStore.getAccount());   // adopt an already-established context
+      }
+    } catch (e) { /* isolation is best-effort; a listener failure must not break saving */ }
+  })();
+  </script>
+
+  <!-- ══ THE DEFERRED CRITICAL PATH — SEVEN FILES, IN THIS ORDER ════════════
+       Deferred scripts run in document order after the parse, so this list is a
+       dependency chain and not a preference:
+
+         person-link.js      synchronous, like ballot.html's, because it is the
+                             one owner of a person's URL and the desk's first
+                             paint links picks.
+         browse-photos.js    the portrait map region d reads.
+         issue-map.js        the issue register my-stances.js filters against.
+         voter-hub-location  location + TEAM_POSITIONS. Its own boot tail calls
+                             window._vhBallotRerender(), which on the homepage
+                             and on /ballot belongs to ballot-breakdown.js and
+                             HERE belongs to the desk — which is why me-desk.js
+                             claims that name before this file can call it.
+         my-stances.js       the stars store and _msPriorityWeight.
+         your-file.js        must define PDXYourFile.inline before the desk mounts
+                             region b into it.
+         me-desk.js          last, and it renders synchronously at parse time:
+                             signed out, unplaced and empty, this document still
+                             has six honest regions, so the honest arrival is the
+                             immediate one.
+       ══════════════════════════════════════════════════════════════════════ -->
+  <script src="/person-link.js"></script>
+  <script defer src="/browse-photos.js"></script>
+  <script defer src="/issue-map.js"></script>
+  <script defer src="/voter-hub-location.js"></script>
+  <script defer src="/my-stances.js"></script>
+  <script defer src="/your-file.js"></script>
+  <script defer src="/me-desk.js"></script>
+
+</head>
+<body>
+
+  <!-- ══ THE SHELL BAR — THIS DOCUMENT'S ONLY CHROME ════════════════════════
+       index.html's nav is two fixed rows, a search field, the account menu and a
+       layout observer. None of that belongs on an address whose whole job is to
+       show one reader what they already hold. Two controls: whose site this is,
+       and the way home.
+
+       "← HOME" IS THE SHELL CLOSE RULE, COPIED FROM ballot.html. It is a real
+       navigation with a plain <a href="/">, not a history.back(): the reader may
+       have arrived here cold from the account menu on a freshly-opened tab, from
+       a bookmark, or from a #your-file link in an old email, in which case there
+       is either no history to go back through or the entry behind them was
+       consumed by the redirect. An assign leaves an entry, so the browser's own
+       Back still returns them to the document they came from — which is the
+       brief's rule for this address, and it needs no handler to be correct.
+       ══════════════════════════════════════════════════════════════════════ -->
+  <header class="pdx-me-bar">
+    <a href="/" class="pdx-me-wordmark" aria-label="PolitiDex home">POLITI<span>DEX</span></a>
+    <span class="pdx-me-links">
+      <a href="/" class="pdx-me-home" id="pdx-me-home">← Home</a>
+    </span>
+  </header>
+
+  <!-- ══ THE MOUNT ══════════════════════════════════════════════════════════
+       me-desk.js paints six regions in here and NOTHING is pre-rendered: an
+       empty region shipped in the markup would be a shape that looks like data
+       to a reader whose JavaScript failed, and every region's honest state is a
+       sentence the desk writes. So the markup carries the note instead, the desk
+       replaces it wholesale, and a reader with no JavaScript reads what this
+       address is rather than looking at six empty boxes.
+       ══════════════════════════════════════════════════════════════════════ -->
+  <main id="me-desk" aria-label="Your file">
+    <p class="pdx-me-note" id="pdx-me-note">
+      Loading your file — your positions, the issues you rank harder, your ballot
+      so far, and the evidence you saved. If it does not appear,
+      <a href="/">go to PolitiDex</a>.
+    </p>
+  </main>
+
+</body>
+</html>

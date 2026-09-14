@@ -84,6 +84,69 @@
   // ── THE ADDRESS ───────────────────────────────────────────────────────────
   var HASH = '#your-file';
 
+  // ── AND THE ADDRESS IS NOW A DOCUMENT ─────────────────────────────────────
+  // THE DEFECT. This hash was the editor of record, and it opened an overlay on
+  // whatever document the reader happened to be standing on — which was the
+  // homepage, because the account menu's "Your file" was an <a href="#your-file">
+  // in a menu that only exists there. So the eight answers had no address of
+  // their own: you could not bookmark them, you could not link a friend to
+  // "where I keep my positions", and Back from the panel meant "the front page,
+  // roughly where you were". The same account also had a SECOND door, "My
+  // Views", which scrolled to a different region of that same homepage.
+  //
+  // /me IS NOW THAT ADDRESS, and this module has two jobs on the two kinds of
+  // document it can find itself on:
+  //
+  //   ON /me  the eight rows are already ON the page — inline(), below, paints
+  //           them into a host me-desk.js supplies. There is nothing to open:
+  //           the hash and the account-menu click are satisfied by taking the
+  //           reader to the region, which the desk does through its own ?tab=.
+  //   ELSEWHERE  the hash is an ADDRESS, not a panel. Both entry points hop to
+  //           /me and the overlay is never built.
+  //
+  // WHY replace AND NOT assign. This is a REDIRECT, not a navigation the reader
+  // asked for: they typed, tapped or restored /#your-file and we are answering
+  // with /me. An assign would leave the old address in the history, so one Back
+  // would land on /#your-file, which would redirect again — a reader pressing
+  // Back would be unable to leave. replace consumes the entry it arrived on, so
+  // Back goes to whatever was before it, exactly once.
+  //
+  // AND WHY THE LATCH. Both entry points can fire for one gesture (the hash
+  // lands AND a captured click resolves), and a replace() that is called twice
+  // in one task is two redirects for one intent. _toMe makes it once per
+  // document lifetime, which is all a redirect ever needs to be.
+  //
+  // THE OVERLAY MACHINERY IS KEPT, NOT DELETED, and that is deliberate. build(),
+  // open(), hide(), close(), the Escape key and the hash/popstate listeners all
+  // still work, and on a document that sets neither the flag nor a /me rewrite —
+  // a local preview of an older shell, a stale service-worker entry — the panel
+  // is still the behaviour. Deleting it would have been a large, untestable
+  // removal in the same pass that moves the address; keeping it makes the
+  // address contract single without making the module fragile.
+  var ME = '/me';
+
+  // ONE FLAG, ONE ACCESSOR. me.html's first inline block is the only place
+  // __PDX_ME_DOC is set, and this and me-desk.js are the only two readers.
+  // Nothing here sniffs location.pathname: /me, /me/ and a preview server's
+  // /me.html are three spellings of one document that a path test gets
+  // differently, and a second answer to "which document is this" is exactly the
+  // kind of drift this pass exists to remove.
+  function isMeDoc() {
+    try { return !!window.__PDX_ME_DOC; } catch (e) { return false; }
+  }
+
+  var _toMe = false;
+  function travelToMe() {
+    if (isMeDoc()) return false;     // already home — there is nowhere to go
+    if (_toMe) return false;         // the latch: one redirect per document
+    _toMe = true;
+    try { location.replace(ME); return true; } catch (e) {}
+    try { location.href = ME; return true; } catch (e2) {}
+    try { location.assign(ME); return true; } catch (e3) {}
+    _toMe = false;                   // nothing worked — let a later gesture try
+    return false;
+  }
+
   // ── THE CLOCK ─────────────────────────────────────────────────────────────
   // Four marks, so "the phone cannot finish the eight" is a number rather than
   // a feeling: when the panel opened, when the eight rows were first painted,
@@ -533,22 +596,95 @@
     try {
       overlay.addEventListener('click', function (ev) { if (ev && ev.target === overlay) close(); });
     } catch (e) {}
-    try {
-      body.addEventListener('click', function (ev) {
-        var t = ev && ev.target;
-        if (!t || !t.closest) return;
-        var b = t.closest('[data-pdxyf-set]');
-        if (b) {
-          var parts = String(b.getAttribute('data-pdxyf-set') || '').split('|');
-          if (parts.length === 2) set(parts[0], parts[1]);
-          return;
-        }
-        if (t.closest('[data-pdxyf-signin]')) signIn();
-      });
-    } catch (e) {}
+    try { body.addEventListener('click', bodyClick); } catch (e) {}
 
     _built = true;
     return overlay;
+  }
+
+  // ── THE ONE BODY DELEGATE, FOR BOTH PRESENTATIONS ─────────────────────────
+  // The rows are the same rows in the panel and in region b of /me, so the
+  // thirty-two controls on them are wired by the SAME listener rather than by a
+  // copy of it per host. A second copy is a second chance for one presentation
+  // to save an answer the other does not.
+  function bodyClick(ev) {
+    var t = ev && ev.target;
+    if (!t || !t.closest) return;
+    var b = t.closest('[data-pdxyf-set]');
+    if (b) {
+      var parts = String(b.getAttribute('data-pdxyf-set') || '').split('|');
+      if (parts.length === 2) set(parts[0], parts[1]);
+      return;
+    }
+    if (t.closest('[data-pdxyf-signin]')) signIn();
+  }
+
+  // ── THE SAME EDITOR, WITHOUT THE OVERLAY ──────────────────────────────────
+  // /me's region b calls this with a host element and gets the editor of record
+  // in it. NOT A SECOND RENDERER: it builds the same two nodes with the SAME
+  // ids, which is the whole mechanism — render(), patchRow(), headHtml(),
+  // bodyHtml(), countSentence() and set() all address the editor through
+  // ID_HEAD / ID_BODY / ID_COUNT and none of them were touched by this pass.
+  // So the eight rows, the four options on each, the account line, the count
+  // sentence and the write path are identical in both presentations, and a fix
+  // to any of them is a fix to both.
+  //
+  // THE HEAD IS THE REGION'S HEADING. me-desk.js deliberately ships no title
+  // over this, so what a reader sees above the rows is this module's own
+  // letterhead — including the line that has to stay on screen while they
+  // answer ("Not a vote. Not a district poll.") and the count sentence, whose
+  // single author stays countSentence().
+  //
+  // .pdxyf-body--inline is the one rule me-desk.css contributes to the editor:
+  // .pdxyf-body is the single scroller inside a FIXED overlay and is bounded by
+  // that overlay's height. There is no overlay here, so an inner scroller would
+  // be a box that never scrolls inside a page that does. The modifier lets it
+  // grow and the document scroller carries it.
+  var _inline = null;
+  function inline(host) {
+    if (!host) return false;
+    if (_inline && el(ID_HEAD) && el(ID_BODY)) { render(); return true; }
+    var d;
+    try { d = document; } catch (e) { return false; }
+    if (!d || !fn(d.createElement)) return false;
+
+    var head = d.createElement('div');
+    head.id = ID_HEAD;
+    head.className = 'pdxyf-head';
+    var body = d.createElement('div');
+    body.id = ID_BODY;
+    body.className = 'pdxyf-body pdxyf-body--inline';
+
+    try { host.innerHTML = ''; } catch (e) {}
+    try { host.appendChild(head); host.appendChild(body); } catch (e2) { return false; }
+    if (!el(ID_HEAD)) return false;
+
+    try { body.addEventListener('click', bodyClick); } catch (e) {}
+    _inline = host;
+    // Projection runs on the first arrival whether or not anything is painted,
+    // so this adopts for the same reason arrive() does: the alignment read must
+    // have the reader's sides even on a document that never opens a panel.
+    if (!_adopted) { _adopted = true; try { adopt(); } catch (e) {} }
+    render();
+    return true;
+  }
+
+  // Taking the reader TO the rows, on the document where the rows are the page.
+  // The desk owns which region is which and how a region is landed on (its
+  // ?tab= is a pushState, so Back returns to what they were reading), so this
+  // asks it rather than holding a second copy of that knowledge. The fallback is
+  // the editor's own head, which is inside region b by construction — so this
+  // still lands correctly if the desk has not parsed yet.
+  function reveal() {
+    try {
+      var D = window.PDXMeDesk;
+      if (D && fn(D.goTab) && D.goTab('positions')) return true;
+    } catch (e) {}
+    try {
+      var h = el(ID_HEAD);
+      if (h && fn(h.scrollIntoView)) { h.scrollIntoView({ behavior: 'smooth', block: 'start' }); return true; }
+    } catch (e2) {}
+    return false;
   }
 
   // Reuse whatever sign-in entry point the app exposes; fall back to the nav
@@ -744,6 +880,23 @@
 
   // ── OPEN / CLOSE ──────────────────────────────────────────────────────────
   function open() {
+    // THE TWO DOCUMENTS, DECIDED HERE AND NOWHERE ELSE.
+    //
+    // On /me there is no panel to open: region b already holds the eight rows,
+    // so a click on "Your file" is a scroll, and true is returned because the
+    // gesture WAS handled — wire()'s capturing listener reads that as "call
+    // preventDefault", which is what stops the <a href="#your-file"> underneath
+    // from putting a dead hash on the desk's own address.
+    //
+    // Anywhere else the hash is an address and this is a redirect. false is
+    // returned on purpose even when the hop succeeded: the navigation is already
+    // under way, and claiming the click would preventDefault a gesture whose
+    // document is being replaced. If the hop is refused (an already-latched
+    // redirect, a location that will not take a write) the overlay opens below
+    // as it always did, so no reader is left with a control that does nothing.
+    if (isMeDoc()) { mountReveal(); return true; }
+    if (travelToMe()) return false;
+
     var overlay = build();
     if (!overlay) return false;
     mark('yf-open');
@@ -885,6 +1038,13 @@
     open: open,
     close: close,
     isOpen: function () { return !!_open; },
+    // The two halves of the address contract, exposed so the suite asserts them
+    // directly instead of inferring them from source text.
+    isMeDoc: isMeDoc,
+    // Region b of /me: the same editor, painted into a host. Returns false on a
+    // host it cannot use, so the desk can say so rather than paint an empty box.
+    inline: inline,
+    isInline: function () { return !!(_inline && el(ID_HEAD)); },
     set: set,
     // The two accessors the alignment read uses (see alignment-tool.js).
     position: position,
@@ -923,8 +1083,24 @@
   function arrive() {
     if (!_adopted) { _adopted = true; try { adopt(); } catch (e) {} }
     if (location.hash !== HASH) return false;
+    // THE OTHER HALF OF THE REDIRECT CONTRACT, and it is the half that matters
+    // for the links already out in the world: a bookmark, an old email, a
+    // restored tab or a pasted /#your-file arrives HERE, not through a click.
+    // On any document but /me it hops once and opens nothing. On /me it is not a
+    // redirect at all — the hash is a region on this page, so it reveals it.
+    if (isMeDoc()) { mountReveal(); return true; }
+    if (travelToMe()) return false;
     if (_open) return true;
     try { return open(); } catch (e) { return false; }
+  }
+
+  // Reveal, and make sure there is something to reveal. A reader can land on
+  // /me#your-file before me-desk.js has mounted region b — the hash is read at
+  // parse time and the desk mounts on its own first paint — so this re-checks
+  // the host it was given rather than assuming the rows are up.
+  function mountReveal() {
+    if (_inline && !el(ID_HEAD)) { try { inline(_inline); } catch (e) {} }
+    return reveal();
   }
   (function boot() {
     // The tag is deferred and sits at the end of <body>, so document.body is
