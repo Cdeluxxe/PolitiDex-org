@@ -352,11 +352,38 @@
       return !!(raw && raw[pid]);
     } catch (e) { return false; }
   }
+  // THE LOADING PILL IS BOUNDED. It is a fixed, bottom-centre overlay at
+  // z-index 9000, so for as long as it is up it sits on top of whatever the
+  // reader has scrolled to. That was a fair trade while the front page's own
+  // content waited on this roster: the spinner explained the wait. It stopped
+  // being fair when the homepage stopped waiting — the ballot band and the issue
+  // strip are static markup and paint from the shell, so a reader looking at
+  // either of them is not waiting for anything the pill describes, and a slow or
+  // stalled directory fetch left a spinner parked over content that had already
+  // arrived. So the spinner now retires itself after a grace period.
+  //
+  // WHAT IS NOT BOUNDED, DELIBERATELY. The ERROR pill. "Couldn't load the
+  // roster" is a true report about the rest of the app and it carries the Retry
+  // button, so it stays until the roster loads or the reader acts. Retiring the
+  // spinner does not cancel, fail or alter the load either — nothing about
+  // _pdxRosterState changes here, so whichever way the fetch resolves still
+  // repaints normally. This only stops the WAITING from being shown forever.
+  var ROSTER_PILL_MS = 6000;
+  var _rosterPillTimer = null;
+  var _rosterPillRetired = false;
   function _pdxRenderRosterStatus() {
     if (!document || !document.body) return;
     var el = document.getElementById('pdx-roster-status');
     var st = window._pdxRosterState;
     if (st === 'loading' && _pdxJudicialFileOpen()) {
+      if (el && el.parentNode) el.parentNode.removeChild(el);
+      return;
+    }
+    // Two different reasons to take the spinner down, kept as two checks: the
+    // one above is "this reader is not waiting on the roster at all", and this
+    // one is "they were, and it has been long enough that saying so is no longer
+    // information".
+    if (st === 'loading' && _rosterPillRetired) {
       if (el && el.parentNode) el.parentNode.removeChild(el);
       return;
     }
@@ -369,6 +396,13 @@
       el.className = 'pdx-roster-status';
       el.innerHTML = '<span class="pdx-roster-spin" aria-hidden="true"></span>' +
         '<span>Loading the latest roster…</span>';
+      if (_rosterPillTimer === null) {
+        _rosterPillTimer = setTimeout(function () {
+          _rosterPillTimer = null;
+          _rosterPillRetired = true;
+          if (window._pdxRosterState === 'loading') _pdxRenderRosterStatus();
+        }, ROSTER_PILL_MS);
+      }
     } else if (st === 'error') {
       if (!el) {
         el = document.createElement('div');
@@ -389,6 +423,11 @@
   window._pdxRenderRosterStatus = _pdxRenderRosterStatus;
   window._pdxRetryRoster = function () {
     window._pdxRosterState = 'loading';
+    // A retry is the reader asking for this load, so the spinner is theirs again
+    // and gets a fresh grace period rather than being suppressed by the earlier
+    // one's expiry.
+    if (_rosterPillTimer !== null) { clearTimeout(_rosterPillTimer); _rosterPillTimer = null; }
+    _rosterPillRetired = false;
     _pdxRenderRosterStatus();
     _pdxLoadDirectoryIndex();
   };

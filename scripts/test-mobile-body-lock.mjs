@@ -544,13 +544,16 @@ must(/evidence-for-my-vote/.test(SPINE) && /'my-saved'/.test(SPINE),
   'read as separate ballot products');
 const viewsBlock = SPINE.slice(SPINE.indexOf('var VIEWS = ['), SPINE.indexOf('var DEMOTE = ['));
 const ids = (viewsBlock.match(/id: '([a-z-]+)'/g) || []).map((s) => s.split("'")[1]);
-// Four, not five: the two ghosts above are still declared (the must() proves it),
-// and the fifth entry — #my-politicians, the side-by-side picks panel — left the
-// list when the workspace became its own document at /ballot. That panel is a
-// door card on this page now, and a "View of your ballot workspace" strip above a
-// two-line door labels something that is not there. See door2-spine.js's own note
-// where the entry used to be, and test-door2-authority.mjs's VIEWS tripwire.
-ok(ids.length === 4, `door2-spine.js declares ${ids.length} views; expected the two ghosts plus your-ballot and the finished slate`);
+// Three, not five: the two ghosts above are still declared (the must() proves it),
+// and the other two entries left the list for the same reason, one pass apart.
+// #my-politicians — the side-by-side picks panel — went when the workspace became
+// its own document at /ballot; #your-ballot went when the homepage stopped
+// painting a second ballot builder and your-ballot.js stopped inventing a host
+// for itself. Neither mount ships in any document now, and a "View of your
+// ballot workspace" strip above nothing labels something that is not there. See
+// door2-spine.js's own notes where the entries used to be, and
+// test-door2-authority.mjs's VIEWS tripwire.
+ok(ids.length === 3, `door2-spine.js declares ${ids.length} views; expected the two ghosts plus the finished slate`);
 ok(!/%|directionMatch|partyLean/.test(viewsBlock), 'a view description carries a score or party read');
 ok(/_decided\(\)/.test(SPINE) && /_seats\(\)/.test(SPINE),
   'door2-spine.js stopped reading its count from the workspace, which means it is computing one');

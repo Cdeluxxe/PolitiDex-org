@@ -5802,7 +5802,100 @@
 //     finance, Mandate or issue key; no party metric; no second editor of the
 //     eight answers and no second ballot.
 
-const CACHE_VERSION = 'v195';
+// v196 - THE HOMEPAGE STOPS BEING A SECOND BALLOT BUILDER.
+//
+//     / was running a full ballot workspace of its own — a wall of contest
+//     cards with "Add to my ballot", "Compare full race", party chips and a
+//     "Review My Voting Team" door — and an eighty-card grid of every Issue
+//     Spotlight underneath it. /ballot is the ballot workspace and the Spotlight
+//     hub is the issue library, so the front page was a duplicate of both: two
+//     places to pick contests, two grids of the same topics, and the reader had
+//     to guess which one was the real one.
+//
+//     · THE WALL IS ONE BAND. #pdx-ballot-band is a title, the saved place (or
+//       "Set where you vote"), and ONE primary anchor to /ballot. No candidate
+//       card, no add-to-ballot, no party chip, no money tile, no Word vs Action,
+//       no voting-team CTA. The old in-hub door card was removed rather than
+//       left beside it, so #pdx-ballot-door still appears exactly once.
+//     · THE GRID IS ONE STRIP. #pdx-issue-strip is six chips — four Utah this
+//       cycle, two national — and an "All issues" link to the hub that already
+//       exists at #all-spotlights. No new route, and the library is not deleted:
+//       the sixty-card host ships hidden behind data-shub-ondemand and
+//       spotlight-hub.js reveals it when asked, so it is not in the first paint.
+//     · THE BAND DOES NOT WAIT ON THE ROSTER. Both bands are shell markup and
+//       paint without any fetch, so the fixed "Loading the latest roster…"
+//       spinner is no longer explaining a wait the reader is in: it retires
+//       itself after a grace period. The ERROR pill is untouched — it is a true
+//       report and carries Retry.
+//
+//     WHY THE BUMP. index.html, your-ballot.js, spotlight-hub.js,
+//     door2-spine.js, firebase-boot.js and voter-hub-location.js all changed and
+//     all six are precached SHELL_ASSETS. Without a rename a warm v195 device
+//     pairs a cached index.html that ships no #your-ballot host against a cached
+//     your-ballot.js that still builds one, or a new index.html whose
+//     #all-spotlights is hidden against an old spotlight-hub.js that never
+//     un-hides it — either way the reader gets a blank region or a second ballot
+//     builder back. Nothing here is a new store, endpoint or migration.
+//
+//     WHAT THE BUMP CARRIES, WHICH IS NOT WHAT THIS PASS CHANGED. Renaming
+//     SHELL_CACHE re-issues the WHOLE precache, so every SHELL_ASSETS entry
+//     travels with v196 — ballot.html, me.html, person.html, issue.html,
+//     spotlight.html, app.css, mobile-polish.css, pdx-stability.js,
+//     door1-workspace.js, door1-workspace.css and the rest of the list, every
+//     one of them unchanged from v195 and re-issued only because the bucket's
+//     name moved.
+//
+//     DID NOT MOVE. /me, District Voice, the /ballot workspace internals, Who
+//     Represents Me, the map; no scoring, Direction Match, finance or Mandate
+//     figure; no issue key, no party metric and no second ballot.
+
+// v197 - THE RAIL OUTRANKS THE ADDRESS IT ARRIVED ON.
+//
+//     Who Represents Me's "Work this seat" opens /ballot?seat=<key>, and the desk
+//     honoured that key on EVERY paint rather than on arrival. A reader who came
+//     in on ?seat=house got House, and then the whole left rail was dead: tapping
+//     U.S. Senate, Governor or State House wrote the new seat and asked for a
+//     repaint, and the repaint re-read the query and put House back. Arriving
+//     with no query worked perfectly, which is the tell — the rail was never
+//     broken, the address was outranking it on every paint.
+//
+//     · THE QUERY IS AN ARRIVAL KEY, NOT A STANDING INSTRUCTION. It chooses the
+//       first seat and nothing after it. The seat the reader opens is held in
+//       module state and read FIRST, so none of the five things that repaint this
+//       desk — a pick, a location change, the roster landing, three settle
+//       timers — can re-derive the open seat and throw their tap away.
+//     · THE ADDRESS FOLLOWS THE OPEN SEAT. A seat change rewrites ?seat= to the
+//       seat actually on screen, so the bar is right to read, share and reload.
+//       With replaceState, never push: six seats of tapping leaves one history
+//       entry and Back still means "the page I came from". A bare /ballot stays
+//       bare — a wrong key is corrected, a missing one is not invented.
+//     · ONE OPENER. The rail chips, "Next seat", door2-spine.js's in-page branch
+//       and compare-hub.js's guided step all call pdxBallotWorkspaceOpen, so a
+//       future arrival key cannot route around the fix. A sweep for the others
+//       named in this bug found none: location.hash is read on this desk only for
+//       the #my-stances jump, and no data-seat attribute reaches it.
+//
+//     WHY THE BUMP. ballot-workspace.js is a precached SHELL_ASSETS entry, so on
+//     a warm v196 device the cached copy serves /ballot and the seat rail would
+//     stay dead until that cache turned over — last on the devices that use the
+//     app most. ballot.html is unchanged: it only mounts the desk.
+//
+//     WHAT THE BUMP CARRIES, WHICH IS NOT WHAT THIS PASS CHANGED. Renaming
+//     SHELL_CACHE re-issues the WHOLE precache, so every SHELL_ASSETS entry
+//     travels with v197 — index.html, ballot.html, me.html, person.html,
+//     issue.html, spotlight.html, app.css, mobile-polish.css, pdx-stability.js,
+//     ballot-workspace.css, door1-workspace.js, door1-workspace.css,
+//     word-action.js, word-action.css, issue-file.js, issue-file.css,
+//     issue-view.js, pdx-issue-family.js, alignment-tool.js, stance-tree.js,
+//     issue-colors.js, race-sheet.js and the rest of the list, every one of them
+//     unchanged from v196 and re-issued only because the bucket's name moved.
+//
+//     DID NOT MOVE. The pick store, the scores, party, Direction Match, the
+//     official-ballot note, the honest "No other person on file" empty, and Who
+//     Represents Me — whose "Work this seat" still lands on the seat it names,
+//     because the arrival key still wins the first seat.
+
+const CACHE_VERSION = 'v197';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

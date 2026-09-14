@@ -1004,6 +1004,11 @@
     // The Team Builder's "start one step earlier" strip retires itself once step ①
     // is behind the visitor, which is exactly this signal.
     try { if (typeof window._myteamFindRepsSync === 'function') window._myteamFindRepsSync(); } catch (e) {}
+    // The homepage ballot band shows "Set where you vote" until there is a
+    // location and the saved place after that, so it is a reader of this signal
+    // too. It polls a few times on its own as a backstop, but this is the edge
+    // that makes the band flip the instant the location is saved.
+    try { if (typeof window._pdxBallotBandSync === 'function') window._pdxBallotBandSync(); } catch (e) {}
     try { if (typeof window._vhSyncPathSteps === 'function') window._vhSyncPathSteps(); } catch (e) {}
     try { if (typeof window._pdxFirstRunSync === 'function') window._pdxFirstRunSync(); } catch (e) {}
     var loc = window._currentVoterLocation || { state: '', city: '', county: '', district: '' };

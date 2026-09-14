@@ -141,12 +141,22 @@ ok(SHELL_DOCS.includes(`id="${base.D.AUTHORITY}"`) || SHELL_DOCS.includes(`'${ba
 // picks you have made" printed above a two-line door describes something that is
 // not on the page. The entry left the list rather than paint over nothing — which
 // is the "should be deleted rather than described" clause door2-spine.js itself
-// writes above VIEWS. The four that remain each still hold the contract.
-eq(base.D.VIEWS.length, 4, "the declared view list changed size");
-// A view's mount is either static markup or a section a module creates for
-// itself (your-ballot.js sets section.id = MOUNT_ID at first paint), so both
-// count — but a declared view with NO mount anywhere is a strip painted into
-// nothing.
+// writes above VIEWS.
+// It moved from 4 to 3 when the homepage stopped carrying a ballot builder.
+// #your-ballot was the fourth: "every contest we track for your districts,
+// listed at once", with a pick button on every candidate card. your-ballot.js
+// no longer creates that section on any document — '/' keeps a short ballot band
+// (#pdx-ballot-band) and one door to /ballot, and /ballot is the desk. So the
+// entry left the list on exactly the terms the clause sets. The three that
+// remain each still hold the contract.
+eq(base.D.VIEWS.length, 3, "the declared view list changed size");
+// A view's mount is static markup on one of the shells — a declared view with no
+// mount anywhere is a strip painted into nothing. (This used to also accept "a
+// section a module creates for itself", which was there for your-ballot.js's
+// `section.id = MOUNT_ID`. That module creates nothing now, and the view it used
+// to paint is off the list, so the exception has no remaining subject. The
+// substring sweep below still reads the modules, since an id can legitimately be
+// named in a module before it is queried.)
 const SHIPPED = readdirSync(ROOT).filter((f) => f.endsWith(".js") && !f.startsWith("sw") && !f.includes(".min."));
 const MOUNT_SRC = HTML + "\n" + SHIPPED.map((f) => R(f)).join("\n");
 must(MOUNT_SRC.length > 100000, `the mount sweep found the client modules (${SHIPPED.length})`);

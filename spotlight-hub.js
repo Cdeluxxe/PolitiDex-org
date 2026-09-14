@@ -369,6 +369,13 @@
     if (!list.length) return false;
 
     injectCss();
+    // An on-demand host ships hidden so the sixty-card shelf is not in the
+    // homepage's first paint. Reaching render() IS the demand, so reveal it
+    // here rather than in focus() alone — every caller (the "All issues" strip,
+    // both navs' "All Spotlights", the Digital Library's jump) goes through
+    // this function, and a shelf that paints while still hidden is worse than
+    // one that never paints.
+    if (host.hasAttribute('hidden')) host.removeAttribute('hidden');
     grid.innerHTML = list.map(function (sp) { return cardHtml(sp, api); }).join('');
     // No click wiring: each card carries its own href to /issue/<slug>.
 
@@ -399,25 +406,60 @@
     setTimeout(function () { boot((tries || 0) + 1); }, 200);
   }
 
+  // WHERE THE SHELF IS ALLOWED TO PAINT ITSELF. The homepage marks its host
+  // data-shub-ondemand: '/' keeps one six-chip issue strip, and the full
+  // collection is the issue desk's job, so painting sixty cards plus two chip
+  // rows and a search field into the front page on load is work no reader
+  // asked for. The module is NOT removed from the page and nothing about the
+  // shelf changed — focus() still renders it on the first ask, which is what
+  // every existing caller already does. A host without the attribute (any
+  // future document that wants the browse grid as its own content) boots
+  // exactly as before.
+  function autoBoots() {
+    var host = document.getElementById('all-spotlights');
+    return !!host && !host.hasAttribute('data-shub-ondemand');
+  }
+
   window.PDXSpotlightHub = {
     render: render,
     // Focus the hub: scroll it into view and, optionally, preset a scope/search.
     focus: function (opts) {
       opts = opts || {};
-      if (!_built) render();
-      if (opts.scope) { _state.scope = opts.scope; syncChips(); applyFilter(); }
-      if (typeof opts.q === 'string') {
-        _state.q = opts.q;
-        var input = document.getElementById('sh-search');
-        if (input) input.value = opts.q;
-        applyFilter();
+      function applyOpts() {
+        if (opts.scope) { _state.scope = opts.scope; syncChips(); applyFilter(); }
+        if (typeof opts.q === 'string') {
+          _state.q = opts.q;
+          var input = document.getElementById('sh-search');
+          if (input) input.value = opts.q;
+          applyFilter();
+        }
       }
-      var host = document.getElementById('all-spotlights');
-      if (host && host.scrollIntoView) host.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      function scrollToHost() {
+        var host = document.getElementById('all-spotlights');
+        if (host && !host.hasAttribute('hidden') && host.scrollIntoView) {
+          host.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+      // On an on-demand host the first ask is also the first paint, and the
+      // index it reads is a deferred script — so a click that lands before
+      // spotlight-index.js has run must keep trying, and the scroll has to
+      // travel with the retry: scrolling to a host that is still hidden moves
+      // the reader nowhere and then nothing scrolls when the shelf does appear.
+      // Same 200ms × 40 poll boot() uses.
+      if (!_built && !render()) {
+        (function wait(tries) {
+          if (render()) { applyOpts(); scrollToHost(); return; }
+          if (tries > 40) return;
+          setTimeout(function () { wait(tries + 1); }, 200);
+        })(0);
+        return;
+      }
+      applyOpts();
+      scrollToHost();
     }
   };
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () { boot(0); });
-  } else { boot(0); }
+    document.addEventListener('DOMContentLoaded', function () { if (autoBoots()) boot(0); });
+  } else if (autoBoots()) { boot(0); }
 })();

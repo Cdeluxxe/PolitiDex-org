@@ -86,11 +86,14 @@
   // does that the workspace does not — the reason to scroll to it at all. If a
   // view ever has no such reason, it should be deleted rather than described.
   var VIEWS = [
-    {
-      id: 'your-ballot',
-      label: 'Your Ballot',
-      job: 'every contest we track for your districts, listed at once'
-    },
+    // #your-ballot IS NO LONGER A VIEW EITHER, and it went for the same reason
+    // #my-politicians did one paragraph down. It was the homepage's full ballot
+    // builder — every contest for the reader's districts, listed at once, each
+    // with a pick button of its own. your-ballot.js no longer creates that
+    // section on any document: '/' keeps a short ballot band and one door, and
+    // the deciding happens at /ballot. A view whose mount no one ships is a
+    // strip painted into nothing, so the entry leaves the list rather than be
+    // described — the clause this file writes below still applies to itself.
     // #my-politicians IS NO LONGER A VIEW. It used to be "Your picks" — the
     // panel that showed every pick side by side with the tools to change them,
     // and the one this file worked hardest to label as a view rather than a

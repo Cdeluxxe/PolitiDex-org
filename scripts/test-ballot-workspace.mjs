@@ -33,6 +33,14 @@
 //  10. THE BROCHURE IS DEMOTED, NOT DELETED. One attribute hides the pitch once
 //      a location exists; the second one-race tool is hidden; the seat list's
 //      "What now?" stack is one action.
+//  11. ADDITIVE, AND NEVER DOUBLE-HOOKED. Everything that shipped before this
+//      surface still works when this file does not load, and wrapping the pick
+//      writer twice is impossible.
+//  12. THE RAIL OUTRANKS THE ADDRESS IT ARRIVED ON. An arriving ?seat= picks the
+//      FIRST seat and nothing after it; the rail and "Next seat" both win over it
+//      and carry the address with them, by replace and never by push; and the
+//      open seat is held by the desk rather than by the URL, so a browser with no
+//      replaceState still cannot snap the reader back.
 //
 //   node scripts/test-ballot-workspace.mjs
 //
@@ -138,6 +146,51 @@ function boot(opts) {
   };
   win.auth = { currentUser: null };
   win._cmpSelected = [];
+  // ── AN ADDRESS BAR THAT ACTUALLY MOVES ──────────────────────────────────────
+  // makeSandbox ships a location literal and NO history object, so a desk that
+  // corrects the address would be asserted against nothing here. This gives the
+  // sandbox the two halves of an address bar the desk touches: a location.search
+  // it can read, and a replaceState that really moves it. Every history call is
+  // recorded, so a test can tell "corrected the address once" apart from
+  // "stacked one entry per chip" — which is the failure the desk's replace-never-
+  // push rule exists to prevent, and is invisible if you only read the final URL.
+  //
+  // Opt-in, and deliberately so: it also moves location.pathname to /ballot, and
+  // eleven sections above this one boot with the default '/' . Gating it keeps
+  // those boots byte-identical to what they were.
+  if (opts.address || opts.search !== undefined) {
+    const base = "https://www.politidex.fyi";
+    win.__nav = [];
+    win.location = {
+      href: base + "/ballot" + (opts.search || ""), origin: base,
+      pathname: "/ballot", search: opts.search || "", hash: opts.hash || "",
+      assign(u) { win.__nav.push("assign:" + u); },
+      replace(u) { win.__nav.push("replace-nav:" + u); },
+    };
+    const applyUrl = (url) => {
+      const u = String(url || "");
+      const hi = u.indexOf("#");
+      const hash = hi >= 0 ? u.slice(hi) : "";
+      const rest = hi >= 0 ? u.slice(0, hi) : u;
+      const qi = rest.indexOf("?");
+      win.location.pathname = qi >= 0 ? rest.slice(0, qi) : rest;
+      win.location.search = qi >= 0 ? rest.slice(qi) : "";
+      win.location.hash = hash;
+      win.location.href = base + rest + hash;
+    };
+    if (opts.noHistory) {
+      // A browser (or a harness) with no replaceState at all. The desk must not
+      // snap back here either — if it only holds the open seat by rewriting the
+      // URL, then the rewrite IS the fix and it is one failed call from the bug.
+      win.history = undefined;
+    } else {
+      win.history = {
+        state: null,
+        replaceState(st, _t, url) { win.__nav.push("replace:" + url); this.state = st; applyUrl(url); },
+        pushState(st, _t, url) { win.__nav.push("push:" + url); this.state = st; applyUrl(url); },
+      };
+    }
+  }
   const byId = miniDom(win);
   const sandbox = vm.createContext(win);
   win.PROFILES = win.CMP_DATA;
@@ -228,12 +281,37 @@ section("1 · One surface, served at its own address, shipped whole");
   // one sessionStorage key and disagree about which seat is open.
   ok(HTML.indexOf('id="ballot-workspace"') < 0, "the desk mount is back on index.html");
   ok(!/src="\/ballot-workspace\.js"/.test(HTML), "the desk script is back on index.html");
+  // WHERE THE DOOR IS, AND WHAT THAT ORDER IS ACTUALLY PROTECTING. This used to
+  // require the door to sit inside #voter-hub and below its pm-location-bar,
+  // because the desk cannot resolve a seat list without a location and a door
+  // offered above every way of setting one sends the reader somewhere that can
+  // only tell them to come back. The door has since been lifted out of the hub
+  // into #pdx-ballot-band, directly under Who Represents Me — which is the
+  // homepage's front location step, and is where the front page now replaces the
+  // whole ballot-builder wall it used to paint under the hub. So the pin is
+  // restated as the thing it was defending rather than the one element it
+  // happened to be measured against: ONE door, and a location step above it.
   const iHub = HTML.indexOf('id="voter-hub"');
   const iLoc = HTML.indexOf("pm-location-bar");
+  const iWrm = HTML.indexOf('id="who-represents-me"');
   const iDoor = HTML.indexOf('id="pdx-ballot-door"');
   ok(iDoor > 0, "Door 2 has no entrance on the homepage");
-  ok(iHub > 0 && iDoor > iHub, "the door is not inside Door 2");
-  ok(iLoc > 0 && iDoor > iLoc, "the door sits above the location card the desk depends on");
+  ok(HTML.split('id="pdx-ballot-door"').length === 2,
+    "the homepage carries more than one primary Door 2 entrance, so two of them describe the desk");
+  ok(iWrm > 0 && iDoor > iWrm,
+    "the door sits above Who Represents Me, the location step the desk depends on");
+  ok(iHub > 0 && iLoc > 0 && iLoc > iHub,
+    "the voter hub or its location card left the homepage, so the step the desk depends on is gone");
+  // The band's own controls, which are the reason it can lead the hub: the place
+  // (or the offer to set one) and a single anchor to the desk, no candidate, no
+  // party, no count.
+  const band = HTML.slice(HTML.indexOf('id="pdx-ballot-band"'),
+    HTML.indexOf("</section>", HTML.indexOf('id="pdx-ballot-band"')));
+  ok(band.split('href="/ballot"').length === 2,
+    "the ballot band does not carry exactly one /ballot primary");
+  ok(/Set where you vote/.test(band), "the ballot band never offers to set a location");
+  ok(!/mypolToggleAnimated|_pdxPartyChip|pdx-party|Word vs Action/.test(band),
+    "the ballot band grew a pick control, a party chip or a record read — it is a door, not a desk");
   // The precache comment in sw.js warns against splitting a feature's JS from its
   // CSS. Both, or the first offline visit paints an unstyled rail.
   has(SW, "'/ballot-workspace.js'", "the workspace script is not precached");
@@ -712,6 +790,153 @@ section("11 · Degrades without the workspace, and never double-hooks");
   const before = w2.ballotPickCard;
   w2.PDXBallotWorkspace.sync();
   eq(w2.ballotPickCard, before, "a repaint re-wrapped the pick writer");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("12 · The rail outranks the address it arrived on");
+
+// THE BUG THIS SECTION EXISTS FOR. /ballot?seat=house painted House, and then
+// U.S. Senate, Governor and State House were dead chips: tapping one called
+// pdxBallotWorkspaceOpen, which wrote the new seat and asked for a repaint, and
+// the repaint re-read ?seat= and put House back. Arriving with no query worked
+// perfectly, which is the tell — the rail was never broken, the address was
+// outranking it on every paint.
+//
+// So the claim here is about ORDER, not about one tap. A paint is not a one-off
+// on this surface: a pick repaints, a location change repaints, the roster
+// arriving repaints, and three settle timers repaint. Every assertion below
+// therefore paints AGAIN after the tap, because the first paint was never the
+// one that lost the reader's choice.
+{
+  // Named seats, not indexes, because the bug report is about specific chips —
+  // and this breaks loudly if the seat model renames them rather than passing
+  // vacuously.
+  const KEYS = SEATS.map((x) => x.key);
+  ["senate", "house", "governor", "statehouse"].forEach((k) =>
+    must(KEYS.indexOf(k) >= 0, `the fixture ballot no longer has a "${k}" seat`));
+
+  // The open seat as the RAIL reports it, which is what the reader sees.
+  const openKey = (html) => {
+    const m = String(html).match(/<button[^>]*class="bw-seat is-open[^"]*"[^>]*data-sk="([^"]+)"/);
+    return m ? m[1] : "";
+  };
+
+  // ── 1. The arriving key still wins the FIRST seat ─────────────────────────
+  {
+    const w = boot({ search: "?seat=house" });
+    eq(openKey(paint(w)), "house", "boot /ballot?seat=house does not open the House seat");
+  }
+
+  // ── 2. A rail tap beats it, and the address follows ───────────────────────
+  {
+    const w = boot({ search: "?seat=house" });
+    eq(openKey(paint(w)), "house", "the arrival did not open House before the tap");
+
+    w.pdxBallotWorkspaceOpen("governor");
+    eq(openKey(paint(w)), "governor", "tapping Governor in the rail did not change the desk");
+    ok(w.location.search.indexOf("seat=house") < 0,
+      `the address still names the arriving seat (search is "${w.location.search}")`);
+    has(w.location.search, "seat=governor", "the address does not name the open seat");
+
+    // THE REPAINTS. Each of these is a real trigger in the browser, and each one
+    // used to hand the desk back to ?seat=house.
+    eq(openKey(paint(w)), "governor", "a second paint snapped the desk back to the arriving seat");
+    const sm = w.PDXRaceSheet._seat("governor");
+    const field = w.PDXRaceSheet._field(sm.key);
+    if (field.length) {
+      w.pdxBallotWorkspacePick(sm.key, field[0].pid);
+      eq(openKey(paint(w)), "governor", "taking a pick snapped the desk back to the arriving seat");
+    } else { passed += 1; }
+    w.PDXBallotWorkspace.sync();
+    eq(openKey(paint(w)), "governor", "a sync() snapped the desk back to the arriving seat");
+
+    // ── AND IT IS ONE HISTORY ENTRY, NOT ONE PER CHIP ───────────────────────
+    // Six seats worth of tapping must still leave Back meaning "the page I came
+    // from", not "the seat before this one".
+    ["senate", "statehouse", "house", "governor"].forEach((k) => w.pdxBallotWorkspaceOpen(k));
+    eq(openKey(paint(w)), "governor", "walking the rail did not leave the desk on the last seat tapped");
+    has(w.location.search, "seat=governor", "walking the rail left the address on an earlier seat");
+    eq(w.__nav.filter((x) => x.indexOf("push:") === 0).length, 0,
+      "a seat change pushed a history entry — Back now means \"the previous seat\"");
+    eq(w.__nav.filter((x) => x.indexOf("assign:") === 0).length, 0,
+      "a seat change navigated; opening a seat must repaint in place");
+  }
+
+  // ── 3. No query: the first undecided seat, and the rail still switches ────
+  {
+    const w = boot({ search: "" });
+    const first = SEATS.filter((x) => !w.PDXBallotWorkspace._picked(x.key))[0];
+    must(!!first, "the fixture ballot boots with every seat already decided");
+    eq(openKey(paint(w)), first.key, "boot /ballot with no query does not open the first undecided seat");
+
+    w.pdxBallotWorkspaceOpen("statehouse");
+    eq(openKey(paint(w)), "statehouse", "with no query, tapping the rail did not change the desk");
+    eq(openKey(paint(w)), "statehouse", "with no query, a repaint moved the desk off the tapped seat");
+    // CORRECT A KEY, NEVER ADD ONE. A clean /ballot stays clean: there is
+    // nothing in it contradicting the desk, so there is nothing to fix.
+    eq(w.location.search, "", `a bare /ballot grew a query string ("${w.location.search}")`);
+    eq(w.__nav.length, 0, "a bare /ballot was rewritten when there was no wrong key in it");
+  }
+
+  // ── 4. Next seat goes through the same funnel ─────────────────────────────
+  {
+    const w = boot({ search: "?seat=house" });
+    eq(openKey(paint(w)), "house", "the arrival did not open House before Next seat");
+    ok(w.pdxBallotWorkspaceNext() !== false, "the Next-seat control refused to move");
+    const moved = openKey(paint(w));
+    ok(moved && moved !== "house", `Next seat left the desk on the arriving seat (${moved})`);
+    eq(openKey(paint(w)), moved, "Next seat moved and then a repaint snapped back to ?seat=");
+    ok(w.location.search.indexOf("seat=house") < 0,
+      `Next seat left the arriving key in the address ("${w.location.search}")`);
+    has(w.location.search, "seat=" + moved, "Next seat did not carry the address with it");
+  }
+
+  // ── 5. The choice survives WITHOUT the address rewrite ────────────────────
+  // The rewrite is for the reader's benefit — an address they can share and
+  // reload. It is not the mechanism that holds the open seat, and this is the
+  // assertion that keeps those two things separate: with no history API at all,
+  // ?seat=house is still in the bar and the desk must still stay on Governor.
+  {
+    const w = boot({ search: "?seat=house", noHistory: true });
+    eq(openKey(paint(w)), "house", "without history, the arrival did not open House");
+    w.pdxBallotWorkspaceOpen("governor");
+    eq(openKey(paint(w)), "governor", "without history, the rail could not change the desk");
+    eq(openKey(paint(w)), "governor",
+      "the open seat is held by the URL rewrite rather than by the desk — one failed replaceState and the bug is back");
+    has(w.location.search, "seat=house", "the no-history fixture is not testing what it claims to");
+  }
+
+  // ── 6. An unknown or foreign key still falls through, unchanged ───────────
+  // The existing rule this pass must not break: a ?seat= naming a race this
+  // voter cannot vote falls through to the normal default rather than painting
+  // somebody else's ballot.
+  {
+    const w = boot({ search: "?seat=notaseat" });
+    const first = SEATS.filter((x) => !w.PDXBallotWorkspace._picked(x.key))[0];
+    eq(openKey(paint(w)), first.key, "an unknown ?seat= was not ignored in favour of the normal default");
+    eq(w.location.search, "?seat=notaseat",
+      "an unknown ?seat= was rewritten; nothing opened, so there was nothing to correct it to");
+    w.pdxBallotWorkspaceOpen("governor");
+    eq(openKey(paint(w)), "governor", "the rail could not switch away from an unknown arriving key");
+    has(w.location.search, "seat=governor", "the address kept an unknown key after a real seat opened");
+  }
+
+  // ── 7. ?seat= is the ONLY arrival key on this desk ────────────────────────
+  // The bug asked for the same fix on "any other arrival key (hash, data-seat)"
+  // that beats the rail. There is none, and this is the assertion that keeps it
+  // that way: the desk reads location.search for a seat and nothing else, so a
+  // future hash or data-attribute opener has to come through
+  // pdxBallotWorkspaceOpen — where the reader's choice is recorded — or fail here.
+  {
+    const code = WORK.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
+    ok(!/location\.hash/.test(code.replace(/#my-stances/g, "")) || !/hash[^;]*seat/i.test(code),
+      "the desk reads a seat out of location.hash without going through the one opener");
+    ok(!/getAttribute\(\s*['"]data-seat/.test(code) && !/dataset\.seat/.test(code),
+      "the desk reads a seat out of a data-seat attribute without going through the one opener");
+    // And the address rewrite is a replace, never a push, in the source too.
+    ok(/history\.replaceState|h\.replaceState/.test(code), "the desk never corrects the address at all");
+    ok(!/\.pushState\(/.test(code), "the desk pushes a history entry when it changes seats");
+  }
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

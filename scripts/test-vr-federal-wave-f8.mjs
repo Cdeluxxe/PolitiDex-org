@@ -2379,6 +2379,59 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     "scripts/test-locker-door.mjs",
     "scripts/test-issue-desk-one-count.mjs",
     "scripts/test-wva-chip-denominator.mjs",
+    // THE HOMEPAGE STOPS BEING A SECOND BALLOT BUILDER (CACHE_VERSION v196), on
+    // the same later-wave terms. '/' was painting a full ballot workspace of its
+    // own — a contest card per seat with a party chip, a funding tile, a record
+    // read, a pick control, a full-race comparison and a voting-team door — plus
+    // an eighty-card grid of every Issue Spotlight beneath it. /ballot is the
+    // ballot workspace and the Spotlight hub is the issue library, so both were
+    // duplicates with a second opinion about the same job. The front page now
+    // carries ONE band (#pdx-ballot-band: the saved place, or the offer to set
+    // one, and a single anchor to /ballot) and ONE six-chip issue strip whose
+    // "All issues" link goes to the hub that already exists at #all-spotlights —
+    // no new route, and the library itself is untouched.
+    //   WHAT THIS WAVE'S SUBJECTS SEE OF IT: nothing. No roll, mapping,
+    // admission, seed, migration, floor, key, weight, tier, figure or census
+    // output is touched, no reach claim moves, and no Direction Match, finance or
+    // party figure is read anywhere in the band or the strip — a count here would
+    // be a second tally of a seat list the desk owns. The only file below that a
+    // wave gate reads for a number is sw.js, and only for its CACHE_VERSION.
+    //   your-ballot.js and spotlight-hub.js are the two modules this pass has to
+    // declare by name, and neither is deleted. your-ballot.js still ships because
+    // it owns _pdxOfficialBallotNote — the one spelling of "not an official
+    // ballot" that ballot-workspace.js borrows — and still installs the
+    // onboarding consolidation that keeps the retired "Build My Home Team" pop-up
+    // retired; what it stopped doing is INVENTING its own <section id="your-ballot">
+    // host, so ensureMounted() now adopts a mount or returns null and the wall is
+    // simply never painted. spotlight-hub.js gained an on-demand mode: its
+    // #all-spotlights host ships hidden behind data-shub-ondemand, the boot tail
+    // skips it, and render() reveals it when the reader asks for the library.
+    //   me.html is a one-line edit and NOT a content change: it re-declares the
+    // index.html line range its verbatim PDXSaved copy was taken from, because
+    // the band and the strip added 141 lines above it. The same numbers move in
+    // scripts/test-me-document.mjs, which pins the header and the range together
+    // on purpose — and scripts/test-person-shell.mjs re-based its own five
+    // anchors by the same 141. Byte-identity of every copied block is untouched;
+    // only the offsets moved.
+    //   The remaining harnesses below were re-pinned to the moved contract, not
+    // relaxed. test-ballot-workspace.mjs measured "a location step above the
+    // door" by requiring the door to sit inside #voter-hub, under its
+    // pm-location-bar; the door has moved into the band under Who Represents Me,
+    // which IS that step, so the pin now states the rule it was defending and
+    // additionally requires exactly one door, one /ballot primary in the band and
+    // no pick control, party chip or record read in it. test-door2-authority.mjs
+    // and test-mobile-body-lock.mjs both counted door2-spine.js's VIEWS; the
+    // your-ballot entry left that list for the same reason #my-politicians did a
+    // pass earlier — no document ships the mount, and a "View of your ballot
+    // workspace" strip above nothing labels something that is not there.
+    //   index.html, sw.js, door2-spine.js, firebase-boot.js,
+    // voter-hub-location.js, scripts/test-door2-authority.mjs,
+    // scripts/test-mobile-body-lock.mjs, scripts/test-ballot-workspace.mjs and
+    // scripts/test-person-shell.mjs are declared above already.
+    "me.html",
+    "spotlight-hub.js",
+    "your-ballot.js",
+    "scripts/test-me-document.mjs",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};

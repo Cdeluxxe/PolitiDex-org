@@ -6,14 +6,30 @@
    PolitiDex had several overlapping ways to "get started": a Welcome/tour modal,
    a separate "Build My Home Team" pop-up that fired after you set your address,
    plus the Voter Hub and the 6-slot "My Voting Team" grid. This module folds all
-   of that into ONE calm, inline flow. It mounts right AFTER the Voter Hub / team
-   builder — the Hub stays the primary teaching flow, and this is the "ready to
-   vote" consolidated view a step further down the page:
+   of that into ONE calm, inline flow.
+
+   WHERE IT PAINTS, AND WHERE IT NO LONGER DOES
+   --------------------------------------------
+   This used to CREATE its own <section id="your-ballot"> right after the Voter
+   Hub, which made the homepage a second ballot builder: a wall of contest cards
+   with add-to-ballot buttons, party chips and a voting-team door, sitting a
+   screen below the door to /ballot — the actual workspace. The homepage now
+   ships ONE band (#pdx-ballot-band: the saved place and a single anchor to
+   /ballot), so this module no longer inserts a host anywhere. ensureMounted()
+   ADOPTS a #your-ballot section if a document ships one and otherwise returns
+   null; where there is no host, nothing is rendered and enter() scrolls the band
+   instead. The full flow —
 
         set your address  →  see every contest PolitiDex has on file for
                                 your districts
         →  for each seat, weigh the candidates (pledge receipts, top stances,
            funding at a glance)  →  save picks to your team (auto-synced)
+
+   — is therefore dormant unless a document opts in by shipping the mount. Two
+   things still ship unconditionally and are why this file is still loaded on /:
+   the onboarding consolidation (installConsolidation(), which is what keeps the
+   retired "Build My Home Team" pop-up retired) and the _pdxOfficialBallotNote /
+   _pdxOfficialBallotLink exports that ballot-workspace.js borrows.
 
    It is strictly ADDITIVE. Nothing is deleted. It reuses the app's own,
    already-tested primitives rather than re-implementing them:
@@ -40,6 +56,10 @@
   'use strict';
 
   var MOUNT_ID = 'your-ballot';
+  // The homepage's short ballot band. Not a mount and never painted into — it is
+  // static markup in index.html — only the place the welcome handoff lands when
+  // this module has no section of its own. See enter().
+  var BAND_ID = 'pdx-ballot-band';
   var MAX_VISIBLE = 3;          // candidates shown per contest before "show all"
   var _expanded = {};           // per-contest expand state (survives pick syncs)
   var _mounted = false;
@@ -139,13 +159,23 @@
       '</a> or your county clerk’s office.</span>';
   }
 
-  /* ── mount the section AFTER the team builder (Voter Hub) ─────────────── */
-  /* THIS MODULE DOES NOT INVENT A HOST. It mounts in exactly one place — directly
-     after the Voter Hub / team builder, the primary teaching flow this is the
-     "when you're ready" step past. If that anchor is not on the document there is
-     no place for this section, so ensureMounted returns null: render() and enter()
-     already treat a null host as "nothing to paint", so the module goes quiet and
-     still exports the boundary sentence from boot().
+  /* ── mount the section, if a document asks for one ──────────────────────── */
+  /* THIS MODULE DOES NOT CREATE A HOST ANY MORE. It paints into an element the
+     document declares, `#your-ballot`, and no document ships one: '/' keeps a
+     short band (#pdx-ballot-band) and one door to /ballot, and /ballot is the
+     desk itself. So on both shells this returns null, render() and enter()
+     treat a null host as "nothing to paint", and the module goes quiet while
+     still exporting the boundary sentence from boot().
+
+     WHY THE INSERT AFTER #voter-hub WAS DELETED. It put the full builder on the
+     homepage — "the contests we have on file for your districts", a candidate
+     card per seat with a party chip, a funding tile and a Word vs Action read,
+     an "＋ Add to my ballot" button, "Compare full race", and a footer offering
+     "Review My Voting Team". Every one of those is something /ballot does, on a
+     surface built to do it one seat at a time, and a reader who met both got two
+     ballots that could each take a pick and each described the job differently.
+     The front page is a door now, not a second desk; a module whose only host
+     was that wall has nothing to insert itself beside.
 
      WHY THE end-of-body FALLBACK WAS DELETED. It appended this section to <body>
      when #voter-hub was missing, on the assumption that a missing anchor meant a
@@ -164,16 +194,7 @@
     if (_mounted && el(MOUNT_ID)) return el(MOUNT_ID);
     var existing = el(MOUNT_ID);
     if (existing) { _mounted = true; return existing; }
-
-    var anchor = el('voter-hub');
-    if (!anchor || !anchor.parentNode) return null;
-
-    var section = document.createElement('section');
-    section.id = MOUNT_ID;
-    section.setAttribute('aria-label', 'Your Ballot');
-    anchor.parentNode.insertBefore(section, anchor.nextSibling);
-    _mounted = true;
-    return section;
+    return null;
   }
 
   /* ── candidate card ───────────────────────────────────────────────────── */
@@ -577,7 +598,23 @@
   function enter() {
     var section = ensureMounted();
     render();
-    if (!section) return;
+    // NO HOST IS THE NORMAL CASE NOW, AND IT STILL HAS TO GO SOMEWHERE. This is
+    // the destination of the welcome → ballot handoff: a first-time visitor who
+    // has just set their location is carried to the thing that got personal by
+    // it. With the homepage builder gone, that is the short ballot band, so the
+    // handoff lands on the band and its "Work the ballot" control rather than
+    // scrolling to nothing — and the reader is never bounced to /ballot by an
+    // act they did not perform. The flash is the mount's own class from
+    // your-ballot.css, so only the mount gets it.
+    if (!section) {
+      var band = el(BAND_ID);
+      if (band && band.scrollIntoView) {
+        setTimeout(function () {
+          try { band.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { band.scrollIntoView(); }
+        }, 120);
+      }
+      return;
+    }
     if (section.scrollIntoView) {
       setTimeout(function () {
         try { section.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { section.scrollIntoView(); }
@@ -627,23 +664,30 @@
 
   /* ── boot ─────────────────────────────────────────────────────────────── */
   function boot() {
-    // Two halves, and only one of them is conditional. The SECTION half — the
-    // mount, the consolidation handoffs, the click delegation, the team-change
-    // listener and the data-ready poll — exists to paint and drive a surface, so
-    // it installs only where that surface has a host (see ensureMounted). The
-    // EXPORT half below is a pure read of the voter's location and installs on
-    // every document that loads this file, because ballot.html loads it for
-    // exactly that sentence and for nothing else.
-    if (ensureMounted()) {
+    // Three halves now, and the middle one is the new part. The PAINT half — the
+    // click delegation, the team-change listener and the data-ready poll — only
+    // drives a surface, so it installs only where that surface has a host (see
+    // ensureMounted). The HANDOFF half installs wherever there is somewhere for
+    // the handoff to land: on the homepage that is the ballot band, and it has
+    // to keep installing there, because the consolidation's whole job is to stop
+    // the old "Build My Home Team" pop-up from firing after a first-time voter
+    // sets their address. Gating it on the mount would have brought that modal
+    // back the moment the builder left. The EXPORT half below is a pure read of
+    // the voter's location and installs on every document that loads this file,
+    // because ballot.html loads it for exactly that sentence and nothing else.
+    var host = ensureMounted();
+    if (host || el(BAND_ID)) {
       installConsolidation();
+      // Expose a small API for the consolidated handoffs / debugging.
+      window.YourBallot = { render: render, enter: enter, sync: syncPickStates };
+    }
+    if (host) {
       render();
       document.addEventListener('click', onClick);
       // Any team change (local pick, or a cross-device sync reconcile) reflects here.
       window.addEventListener('pdx-team-change', syncPickStates);
       // If located but data isn't ready yet, poll until the ballot can be built.
       if (hasLocation()) scheduleRetry();
-      // Expose a small API for the consolidated handoffs / debugging.
-      window.YourBallot = { render: render, enter: enter, sync: syncPickStates };
     }
     /* ── The boundary, exported ────────────────────────────────────────────
        Phase 5. The sentence above — "Not an official ballot", plus the link to

@@ -5662,6 +5662,79 @@ window.PDXLazy = (function () {
   </section>
   <script src="/who-represents-me.js" defer></script>
 
+  <!-- ══════════════════════ YOUR BALLOT · ONE BAND, ONE DOOR ═══════════════
+       WHAT STOOD BELOW THIS. A full ballot builder — a contest card per seat
+       with a party chip, a funding tile, a record read, a pick control, a
+       full-race link and a voting-team footer — painted by your-ballot.js,
+       which inserted itself after #voter-hub. A reader met one ballot here and
+       a second, differently shaped one at /ballot. /ballot owns Door 2; this
+       page keeps the DOOR and nothing else. your-ballot.js still ships (it owns
+       _pdxOfficialBallotNote, the desk's one spelling of "not an official
+       ballot") but no longer invents a host — see ensureMounted() there.
+
+       WHY HERE, AND WHAT IT MAY SAY. Under Who Represents Me: the front step,
+       and the one input the desk needs. Where they vote, and one way through —
+       no candidate, no party, no money, no record read, no count, because the
+       desk owns the seat list and a number here would be a second tally. The
+       primary is a plain <a href="/ballot">, the destination the top nav
+       already names; the secondary opens the existing picker. No new address.
+  ════════════════════════════════════════════════════════════════════════ -->
+  <section id="pdx-ballot-band" aria-labelledby="pdxbb-t">
+    <style>
+      #pdx-ballot-band{max-width:64rem;margin:0 auto;padding:1.5rem 1.25rem 0;}
+      #pdx-ballot-band .pdxbb-card{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;padding:1.05rem 1.15rem;border:1px solid rgba(129,140,248,0.34);border-radius:0.9rem;background:linear-gradient(135deg,rgba(129,140,248,0.13),rgba(96,165,250,0.07));}
+      #pdx-ballot-band .pdxbb-ico{font-size:1.6rem;line-height:1;flex:none;}
+      #pdx-ballot-band .pdxbb-text{flex:1 1 14rem;min-width:0;}
+      #pdx-ballot-band .pdxbb-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.12rem;letter-spacing:0.01em;color:#e8eefc;margin:0;}
+      #pdx-ballot-band .pdxbb-loc{font-family:'Barlow',sans-serif;font-size:0.86rem;line-height:1.45;color:#9fb4d4;margin:0.2rem 0 0;}
+      #pdx-ballot-band .pdxbb-actions{display:flex;align-items:center;gap:0.55rem;flex-wrap:wrap;flex:none;}
+      #pdx-ballot-band .pdxbb-primary{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0.6rem 1.05rem;border-radius:0.7rem;text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:0.85rem;letter-spacing:0.06em;text-transform:uppercase;color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border:1px solid rgba(245,200,66,0.9);}
+      #pdx-ballot-band .pdxbb-secondary{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0.6rem 0.9rem;border-radius:0.7rem;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.06em;text-transform:uppercase;color:#c7d6f0;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);}
+      @media (max-width:600px){
+        #pdx-ballot-band .pdxbb-actions{flex:1 1 100%;}
+        #pdx-ballot-band .pdxbb-primary,#pdx-ballot-band .pdxbb-secondary{flex:1 1 auto;}
+      }
+    </style>
+    <div class="pdxbb-card">
+      <span class="pdxbb-ico" aria-hidden="true">🗳️</span>
+      <div class="pdxbb-text">
+        <h2 id="pdxbb-t" class="pdxbb-title">Your ballot</h2>
+        <p class="pdxbb-loc" id="pdxbb-loc">Set where you vote</p>
+      </div>
+      <div class="pdxbb-actions">
+        <a id="pdx-ballot-door" class="pdxbb-primary" href="/ballot"
+           aria-label="Work the ballot — open your ballot workspace">Work the ballot &rarr;</a>
+        <button type="button" class="pdxbb-secondary btn-tap"
+                onclick="if(window.openLocationModal){window.openLocationModal();}else if(window.pdxFindMyReps){window.pdxFindMyReps();}else{location.hash='#who-represents-me';}">Change location</button>
+      </div>
+    </div>
+    <script>
+      // ONE LINE, ONE READ. The band's only dynamic text is where the reader
+      // votes, off the app's own resolved location rather than a store this
+      // file parses. _vhSyncBanner calls the exported hook on every change; the
+      // timers only cover a location restored from storage before this node
+      // parsed. The markup already says "Set where you vote", so the band reads
+      // correctly before any script runs, and it never waits on the roster.
+      (function () {
+        function sync() {
+          var el = document.getElementById('pdxbb-loc');
+          if (!el) return;
+          var loc = window._currentVoterLocation || {};
+          if (!window._hasUserLocation) { el.textContent = 'Set where you vote'; return; }
+          var bits = [];
+          if (loc.city) bits.push(loc.city);
+          else if (loc.county) bits.push(loc.county);
+          if (loc.state) bits.push(loc.state);
+          el.textContent = bits.length ? bits.join(' · ') : 'Set where you vote';
+        }
+        window._pdxBallotBandSync = sync;
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sync);
+        else sync();
+        [500, 1500, 3500].forEach(function (ms) { setTimeout(sync, ms); });
+      })();
+    </script>
+  </section>
+
   <!-- ══════════════════════ DOOR 1 · THE RECORD (year-round) ═══════════════
        The national truth surfaces — Say vs. Do, the Issue Front Door and the H.R.1
        Showcase — used to sit BELOW the Voter Hub, the ballot flow and Local Issues,
@@ -7020,52 +7093,31 @@ window.PDXLazy = (function () {
       </div>
 
       <!-- ══════════════════════════════════════════════════════════════════
-           YOUR BALLOT — THE DOOR. THE DESK IS AT /ballot.
+           THE BALLOT DOOR MOVED UP. IT IS NOT HERE AND NOT DUPLICATED.
            ──────────────────────────────────────────────────────────────────
-           WHAT STOOD HERE. #ballot-workspace / #bw-body, the mount
-           ballot-workspace.js painted the whole election loop into: a seat rail,
-           one open seat, the field on the formal record, the pick. All of it is
-           now its own document at /ballot, so a front-page visitor no longer
-           carries 55 KB of desk plus its stylesheet for a surface they may never
-           open, and a voter who came to decide no longer scrolls past the front
-           page to reach it.
+           WHAT STOOD HERE. First #ballot-workspace / #bw-body — the mount
+           ballot-workspace.js painted the whole election loop into — and then,
+           once that became its own document at /ballot, the one door card
+           pointing at it ("Your ballot — one seat at a time").
+
+           WHY THE CARD MOVED UP. It sat two screens down, under the hub's
+           location card — a sensible place for a door whose one input is a
+           location, but it left the only ballot entrance outside the nav buried
+           under the hub while the full builder your-ballot.js painted below the
+           hub read as the real product. The builder is gone and the card went
+           with it, reshaped into #pdx-ballot-band directly under Who Represents
+           Me. The id travelled: #pdx-ballot-door is still the door, still a
+           plain <a href="/ballot">, and there is still exactly one of it.
 
            WHY THE MOUNT IS GONE AND NOT LEFT EMPTY. A mount for a script that
-           is not on the document is a section that never fills. judicial-ballot.js
-           also keys off #ballot-workspace, so an abandoned shell here would have
-           it paint a retention line beside a desk that does not exist.
+           is not on the document never fills, and judicial-ballot.js keys off
+           #ballot-workspace — an abandoned shell here would have it paint a
+           retention line beside a desk that does not exist.
 
-           WHY THE DOOR IS HERE. This is where Door 2 has always started: one
-           card below the location card, because that card is the one input the
-           workspace needs, and a reader who has just told us where they vote is
-           exactly the reader who can now work their seats. Who Represents Me
-           stays directly above it — it is the front step, it answers "who
-           represents me", and it hands the reader on.
-
-           IT IS A LINK, NOT A SCRIPT. A real <a href="/ballot"> so it works
-           before any JavaScript runs, is middle-clickable, and is something a
-           crawler can follow. No replaceState, no in-page reveal: the workspace
-           is an address now. Every other "work this seat" control on this page
-           leads to the same place — see the door shim beside the race sheet's
-           <script> tag.
-
-           NO COUNT LIVES ON THIS CARD. Not "6 seats", not "N of M" — the seat
-           list belongs to the voter's own resolved location and the desk is the
-           one surface that reads it. A number here would be a second tally in a
-           second place, which is the exact thing this split removed.
+           NO SECOND DOOR REPLACED IT. The navs, the pulse chip, the footer,
+           #pdx-myteam-door and the band all name /ballot: one destination
+           reached from several places, not several destinations.
       ════════════════════════════════════════════════════════════════════ -->
-      <section class="animate-on-scroll" aria-labelledby="pdx-ballot-door-t" style="transition-delay:0.045s;margin:1.25rem 0 0;">
-        <a id="pdx-ballot-door" href="/ballot"
-           style="display:flex;align-items:center;gap:0.9rem;text-decoration:none;padding:1.05rem 1.15rem;border:1px solid rgba(129,140,248,0.34);border-radius:0.9rem;background:linear-gradient(135deg,rgba(129,140,248,0.13),rgba(96,165,250,0.07));"
-           aria-label="Open your ballot workspace — work your seats one at a time">
-          <span aria-hidden="true" style="font-size:1.6rem;line-height:1;flex:none;">🗳️</span>
-          <span style="min-width:0;flex:1 1 auto;">
-            <span id="pdx-ballot-door-t" style="display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.12rem;letter-spacing:0.01em;color:#e8eefc;">Your ballot — one seat at a time</span>
-            <span style="display:block;margin-top:0.2rem;font-size:0.86rem;line-height:1.45;color:#9fb4d4;">Open a seat, read the field on <b style="color:#c7d6f0;">the formal record</b>, pick who earns it, move to the next seat we can resolve. Your picks save as you go.</span>
-          </span>
-          <span aria-hidden="true" style="flex:none;font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:0.12em;font-size:0.72rem;color:#aab8d8;border:1px solid rgba(255,255,255,0.14);border-radius:0.5rem;padding:0.35rem 0.6rem;white-space:nowrap;">Open ›</span>
-        </a>
-      </section>
 
       <!-- ══════════════════════════════════════════════════════════════════
            ELECTION COUNTDOWN — live countdowns to Utah's key 2026 voting
@@ -10601,13 +10653,58 @@ window.PDXLazy = (function () {
       </div>
       <div class="ht-scroll-hint" id="ht-scroll-hint" style="display:none;">← Swipe to explore more claims →</div>
 
-      <!-- ───── Browse every Issue Spotlight ─────────────────────────────────
-           The curated cards above are hand-picked; this is the full, always-
-           complete collection, rendered by spotlight-hub.js straight from the
-           PDXSpotlight index. Every Spotlight (national + local) shows here
-           the moment it's added — filterable by scope/topic and searchable — so
-           nothing stays buried behind a deep-link. -->
-      <div id="all-spotlights">
+      <!-- ───── EXPLORE ISSUES · ONE STRIP, NOT A LIBRARY ────────────────────
+           WHAT STOOD HERE. #all-spotlights painted the whole Spotlight shelf —
+           sixty cards, a scope chip row, a registry-built topic chip row and a
+           search field. On a page that already has Local Issues above it and
+           the Digital Library below it, that is a second issue library, and
+           issues are owned by /i/<key> and /issue/<slug>, not by '/'.
+
+           WHAT IS HERE NOW. Six chips and one way through: four fights actually
+           on Utah's 2026 ballot, two national ones they keep colliding with.
+           Each is a plain link to /issue/<slug> — the address the cards used too
+           — so the strip middle-clicks, works before any JavaScript runs, and
+           waits on neither the Spotlight index nor the roster. No filter bar:
+           a second copy of the registry's chips is the thing being removed.
+
+           THE SHELF IS NOT DELETED. It and spotlight-hub.js are both still on
+           this document, marked data-shub-ondemand and hidden: the module skips
+           its own boot here and renders the moment something asks — "All issues"
+           below, "All Spotlights" in both navs, the Digital Library's jump, all
+           of which already called PDXSpotlightHub.focus(). No new route. -->
+      <div id="pdx-issue-strip">
+        <style>
+          #pdx-issue-strip{margin-top:2.2rem;}
+          #pdx-issue-strip .pis-head{display:flex;align-items:baseline;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.8rem;}
+          #pdx-issue-strip .pis-lab{font-family:'Barlow Condensed',sans-serif;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;font-size:0.7rem;color:#8aa0c4;}
+          #pdx-issue-strip .pis-all{font-family:'Barlow Condensed',sans-serif;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;font-size:0.74rem;color:#93c5fd;text-decoration:none;border:1px solid rgba(96,165,250,0.32);border-radius:0.6rem;padding:0.4rem 0.75rem;white-space:nowrap;}
+          #pdx-issue-strip .pis-all:hover{color:#dbeafe;border-color:rgba(96,165,250,0.6);}
+          #pdx-issue-strip .pis-chips{display:flex;gap:0.5rem;flex-wrap:wrap;}
+          #pdx-issue-strip .pis-chip{display:inline-flex;align-items:center;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.84rem;color:#cfe0f5;text-decoration:none;background:rgba(13,21,40,0.7);border:1px solid rgba(148,163,184,0.24);border-radius:999px;padding:0.45rem 0.85rem;min-height:40px;}
+          #pdx-issue-strip .pis-chip:hover{color:#fff;border-color:rgba(96,165,250,0.55);background:rgba(30,58,138,0.28);}
+          #pdx-issue-strip .pis-chip .pis-ico{font-size:0.95rem;line-height:1;}
+        </style>
+        <div class="pis-head">
+          <span class="pis-lab">Explore issues</span>
+          <a class="pis-all" href="#all-spotlights"
+             onclick="if(window.PDXSpotlightHub&amp;&amp;window.PDXSpotlightHub.focus){event.preventDefault();window.PDXSpotlightHub.focus();}"
+             aria-label="All issues — open the full Issue Spotlight collection">All issues &rarr;</a>
+        </div>
+        <div class="pis-chips">
+          <a class="pis-chip" href="/issue/utah-county-eagle-mountain-data-centers"><span class="pis-ico" aria-hidden="true">🏭</span>Data centers &amp; water</a>
+          <a class="pis-chip" href="/issue/utah-county-alpine-school-district-split"><span class="pis-ico" aria-hidden="true">🏫</span>The Alpine district split</a>
+          <a class="pis-chip" href="/issue/utah-wildfires-public-lands-management-2026"><span class="pis-ico" aria-hidden="true">🔥</span>Wildfires &amp; public lands</a>
+          <a class="pis-chip" href="/issue/utah-bears-ears-grand-staircase-monument-reductions"><span class="pis-ico" aria-hidden="true">🏔️</span>Bears Ears &amp; Grand Staircase</a>
+          <a class="pis-chip" href="/issue/energy-abundance-grid-reliability-2026"><span class="pis-ico" aria-hidden="true">⚡</span>Energy &amp; the grid</a>
+          <a class="pis-chip" href="/issue/water-security-western-scarcity-2026"><span class="pis-ico" aria-hidden="true">💧</span>Western water</a>
+        </div>
+      </div>
+
+      <!-- ───── The full Issue Spotlight collection · ON DEMAND ──────────────
+           Unchanged markup, two new attributes. `hidden` keeps the shelf out of
+           the first paint; `data-shub-ondemand` tells spotlight-hub.js not to
+           boot itself here. Its render() clears both. See the strip above. -->
+      <div id="all-spotlights" data-shub-ondemand hidden>
         <div class="shub-head">
           <div class="shub-head-eyebrow"><span aria-hidden="true">📌</span> The Full Collection</div>
           <h3 class="shub-head-title">Explore Every Issue Spotlight</h3>
