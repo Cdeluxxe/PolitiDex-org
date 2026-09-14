@@ -79,6 +79,17 @@
   // THE WHOLE ALLOW-LIST. Adding a seat is adding a line.
   var VOICE_SEATS = { 'ut-statehouse-68': 1 };
 
+  // THE STATES THIS LANE ACCEPTS A CLAIM FROM, and the prefix a claimed seat key
+  // is composed with. Both mirrored from netlify/lib/district-voice-core.mjs —
+  // VOICE_STATES and the `ut-statehouse-${n}` seatFromLocation() composes —
+  // rather than imported, because this file loads as a plain script. The suite
+  // holds the two copies to one answer. Utah only in this pass, for the reason
+  // DISTRICT_MAPS.md gives: the app resolves legislative districts in Utah and
+  // nowhere else, and a claim for a district the app cannot resolve is a
+  // confidently wrong district.
+  var VOICE_STATES = ['UT'];
+  var SEAT_STATE = 'ut';
+
   var TAKE_MAX = 280;
   var TAKES_CAP = 20;
 
@@ -280,6 +291,41 @@
 
     if (!out.state || !out.county || !out.houseDistrict) return {};
     return out;
+  }
+
+  // ── THE STATE THE CLAIM IS ALLOWED FROM ───────────────────────────────────
+  // The core's stateAllowed(), spelled the same way: the saved location stores
+  // either the postal code or the state's name, and both are the same state.
+  function stateAllowed(state) {
+    var st = String(state == null ? '' : state).trim().toLowerCase();
+    if (!st) return false;
+    if (st === 'utah') return true;
+    return VOICE_STATES.indexOf(st.toUpperCase()) >= 0;
+  }
+
+  // ── THE READER'S OWN SEAT, FROM THE READER'S OWN SAVED LOCATION ───────────
+  // claim() answers "where did this reader say they vote"; this answers "which
+  // seat is that", and it is the ONE owner of that step on the client. A caller
+  // that composed a seat key itself would be a second district map, which is the
+  // exact defect claim() exists to avoid.
+  //
+  // IT IS NOT A VERIFICATION AND IT DOES NOT CLAIM TO BE. It returns the
+  // canonical seat key the reader's saved state and State House district
+  // compose to, or '' — and '' is the answer for no location, no district, a
+  // state this lane does not accept, and a number that is not a seat. Whether
+  // VOICE is OPEN in that seat is shipped()'s question and not this one, and
+  // whether the SERVER will honour the claim is the server's: the gate in
+  // netlify/lib/district-voice-core.mjs additionally checks that the claimed
+  // county actually contains the claimed district, which is a table this file
+  // does not carry and must not grow. So a surface may say "this is the seat
+  // your saved location names" on this answer; the board itself is still where
+  // the composer opens or does not.
+  function seatForMe() {
+    var c = {};
+    try { c = claim() || {}; } catch (e) { c = {}; }
+    if (!c.state || !c.county || !c.houseDistrict) return '';
+    if (!stateAllowed(c.state)) return '';
+    return normalizeSeatKey(SEAT_STATE + '-statehouse-' + c.houseDistrict);
   }
 
   function claimQuery() {
@@ -887,6 +933,9 @@
     shipped: shipped,
     path: path,
     claim: claim,
+    VOICE_STATES: VOICE_STATES,
+    stateAllowed: stateAllowed,
+    seatForMe: seatForMe,
     mount: mount,
     issues: issues,
     // Exposed for the suite: the block's markup for a payload, asserted directly

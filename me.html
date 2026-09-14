@@ -23,11 +23,13 @@
        reader made last year is not a thing to break — but it is no longer a
        place where the eight answers can be edited.
 
-       WHAT IS ON IT. Six regions, described where they are built (me-desk.js),
+       WHAT IS ON IT. Seven regions, described where they are built (me-desk.js),
        and not one of them is a product: who this account is, the eight-issue
        editor, the starred issues, a snapshot of the ballot, the saved evidence,
-       and three text links to the tools that own the real work. It is a desk. It
-       summarizes and it hands off.
+       three text links to the tools that own the real work, and this reader's
+       standing with the district board. It is a desk. It summarizes and it hands
+       off. The board itself, like the ballot workspace, lives at its own
+       address.
 
        WHAT IS DELIBERATELY NOT ON IT.
          · NO SCORE FOR THE VOTER, of any kind. No percentage, no grade, no
@@ -46,9 +48,15 @@
            prefetch, compare-hub.js and profiles-full.js are all absent. A desk
            that summarizes what you hold does not need the machine that compares
            it — and a reader who wants that machine has a link to it.
+         · NO DISTRICT BOARD. Region g says which of three standings this reader
+           has with District Voice and offers the one control that standing can
+           honour. It holds no thread, no take, no poll, no count and no feed of
+           bills; it reads no formal-record module; it enters neither the match
+           nor the ballot order; and district-voice.css is not loaded, so the
+           board's own shapes cannot arrive on this document by accident.
 
        THE CRITICAL PATH, AND WHY EACH FILE IS ON IT. Four inline blocks and
-       seven scripts, which is the whole document:
+       eight scripts, which is the whole document:
          PDXStore        the storage seam every store below writes through.
          the ledger      firebase-boot.js reads _firestoreLoaded and
                          _checkAndTrigger as BARE identifiers, so this block is a
@@ -85,10 +93,16 @@
                          itself uninitialised, so a later PDXStances.open() on
                          the homepage still mounts normally.
          your-file.js    the positions editor of record, painted inline here.
+         district-voice  the one owner of District Voice's seat allow-list, of
+                         the seat a saved ballot location names, of the board's
+                         address and of the sentence that frames what the board
+                         is. Region g asks it and decides nothing; the
+                         alternative is a second copy of that allow-list here.
+                         Inert on this document: no mount, no host, no fetch.
          me-desk.js      the desk.
 
        WHAT IS NOT HERE THAT THE OTHER SHELLS CARRY. No app.css (986 KB of
-       homepage cascade for six regions), no PWA runtime and no service-worker
+       homepage cascade for seven regions), no PWA runtime and no service-worker
        registration, no /manifest.json, no pdx-perf.js, no share furniture beyond
        the tags below, no JSON-LD. ballot.html is the precedent for every one of
        those, and for the same reason: a private workspace is not the front page.
@@ -2252,7 +2266,7 @@
   })();
   </script>
 
-  <!-- ══ THE DEFERRED CRITICAL PATH — SEVEN FILES, IN THIS ORDER ════════════
+  <!-- ══ THE DEFERRED CRITICAL PATH — EIGHT FILES, IN THIS ORDER ════════════
        Deferred scripts run in document order after the parse, so this list is a
        dependency chain and not a preference:
 
@@ -2269,10 +2283,21 @@
          my-stances.js       the stars store and _msPriorityWeight.
          your-file.js        must define PDXYourFile.inline before the desk mounts
                              region b into it.
+         district-voice.js   the ONE owner of District Voice: which seat a saved
+                             ballot location names, whether the board is open in
+                             it, the board's address, and the sentence that says
+                             what the board is. Region g asks it all four and
+                             decides none of them — the alternative is a second
+                             copy of the seat allow-list on this document, which
+                             is a second answer. Inert here: it mounts nothing
+                             without a host, fetches nothing until a board asks
+                             it to, and this document never gives it either.
+                             district-voice.css is deliberately NOT loaded — the
+                             board's own shapes have no business on a desk.
          me-desk.js          last, and it renders synchronously at parse time:
                              signed out, unplaced and empty, this document still
-                             has six honest regions, so the honest arrival is the
-                             immediate one.
+                             has seven honest regions, so the honest arrival is
+                             the immediate one.
        ══════════════════════════════════════════════════════════════════════ -->
   <script src="/person-link.js"></script>
   <script defer src="/browse-photos.js"></script>
@@ -2280,6 +2305,7 @@
   <script defer src="/voter-hub-location.js"></script>
   <script defer src="/my-stances.js"></script>
   <script defer src="/your-file.js"></script>
+  <script defer src="/district-voice.js"></script>
   <script defer src="/me-desk.js"></script>
 
 </head>
@@ -2308,12 +2334,12 @@
   </header>
 
   <!-- ══ THE MOUNT ══════════════════════════════════════════════════════════
-       me-desk.js paints six regions in here and NOTHING is pre-rendered: an
+       me-desk.js paints seven regions in here and NOTHING is pre-rendered: an
        empty region shipped in the markup would be a shape that looks like data
        to a reader whose JavaScript failed, and every region's honest state is a
        sentence the desk writes. So the markup carries the note instead, the desk
        replaces it wholesale, and a reader with no JavaScript reads what this
-       address is rather than looking at six empty boxes.
+       address is rather than looking at seven empty boxes.
        ══════════════════════════════════════════════════════════════════════ -->
   <main id="me-desk" aria-label="Your file">
     <p class="pdx-me-note" id="pdx-me-note">

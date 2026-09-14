@@ -5757,7 +5757,52 @@
 //     DID NOT MOVE. No roll, mapping, tier, floor or Direction Match figure; no
 //     finance, Mandate, issue key, Utah ingest, sitemap entry or second ballot.
 
-const CACHE_VERSION = 'v194';
+// v195 - THE DISTRICT VOICE SLOT ON /me.
+//
+//     District Voice — the residency-gated district board, the PUBLIC lane —
+//     had no door on the voter's own desk. A reader's standing with it was
+//     discoverable only by arriving at a seat file and reading the composer's
+//     closed note, which is to say: only by being told "no" somewhere else.
+//
+//     · ONE REGION, THREE STANDINGS, AND THE DEFAULT IS THE WEAKEST. Signed out
+//       says District Voice is for verified residents and offers the document's
+//       existing sign-in. Signed in with no district we hold says so and offers
+//       a LINK to where the saved ballot district is set — badge off, and no
+//       language implying a board already exists for them. Verified names the
+//       district out of the two fields already stored for that reader, turns the
+//       badge on, and links to the board — or, where Voice has not opened in
+//       their seat, says exactly that in a plain unlinked sentence rather than
+//       promising an address that is not there.
+//     · ONE OWNER, ASKED FOUR TIMES. district-voice.js is now on /me's critical
+//       path because it holds the seat allow-list, the seat a saved location
+//       names (its new seatForMe()), the board's address and the sentence that
+//       frames what the board is. Region g asks it and decides nothing; the
+//       alternative was a second copy of that allow-list on the desk.
+//       district-voice.css is NOT loaded — the board's shapes stay on the board.
+//     · THE SLOT IS NOT THE BOARD. No thread, no take, no poll, no count, no
+//       composer, no feed of bills. It reads no formal-record module — /me
+//       reaches no network at all — enters neither Direction Match, the formal
+//       pattern, Your Match nor the ballot order, party-gates nothing, scores no
+//       participation, and merges no store: pdx_your_file and pdx_my_stances are
+//       still two stores and this region touches neither.
+//
+//     WHY THE BUMP. me.html, me-desk.js, me-desk.css and district-voice.js all
+//     changed and all four are precached SHELL_ASSETS. Without a rename a warm
+//     v194 device pairs a cached me-desk.js that paints six regions against a
+//     cached me.html that does not load district-voice.js, so the region either
+//     never appears or appears permanently unverified for a reader whose seat is
+//     open. Nothing here is a new store, a new endpoint or a new migration.
+//
+//     WHAT THE BUMP CARRIES, WHICH IS NOT WHAT THIS PASS CHANGED. Renaming
+//     SHELL_CACHE re-issues the WHOLE precache, so every SHELL_ASSETS entry
+//     travels with v195 — index.html, person.html, issue.html, spotlight.html,
+//     ballot.html, app.css and the rest of the list unchanged from v194.
+//
+//     DID NOT MOVE. No roll, mapping, tier, floor or Direction Match figure; no
+//     finance, Mandate or issue key; no party metric; no second editor of the
+//     eight answers and no second ballot.
+
+const CACHE_VERSION = 'v195';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -10,7 +10,7 @@
    meant "the front page, somewhere near where you were".
 
    WHAT THIS IS. One document at /me that says what this account holds and hands
-   the reader to the tool that owns each part. SIX REGIONS, NOT FIVE PRODUCTS:
+   the reader to the tool that owns each part. SEVEN REGIONS, NOT SIX PRODUCTS:
 
      a · WHO THIS IS      the signed-in name and email exactly as the account
                           menu prints them, plus where this account votes — the
@@ -31,6 +31,9 @@
      e · SAVED EVIDENCE   the receipts this account saved, each linking back to
                           the record it came from.
      f · JUMPS            three text links. Not a second navigation bar.
+     g · DISTRICT VOICE   one standing line and one control for the district
+                          board — see the block over regionVoice() for the whole
+                          of what it may say and the seven things it may not.
 
    THE FIVE THINGS THIS FILE MUST NOT DO, and each one is a rule from the brief:
 
@@ -54,6 +57,10 @@
        cannot make a pick, it carries no field, it ranks nothing, and it does
        not embed ballot-workspace.js. The one control it has is a link to the
        desk that does all four.
+     · IT IS NOT THE DISTRICT BOARD EITHER. Region g is a STANDING LINE and a
+       control. It holds no thread, no poll, no take, no like and no bill, it
+       reads no formal-record module, and the board it points at is the one that
+       owns all of that. See regionVoice().
 
    THE ONE FLAG. window.__PDX_ME_DOC is declared by me.html's first inline
    block and read HERE, through isMeDoc(), and nowhere else in this file. This
@@ -194,6 +201,56 @@
 
   function reps() {
     try { return fn(window.pdxRepsForMe) ? window.pdxRepsForMe() : null; } catch (e) { return null; }
+  }
+
+  // ── DISTRICT VOICE STANDING, AND NOTHING ELSE ABOUT THE BOARD ─────────────
+  // district-voice.js is the one owner of every fact this reader needs here: the
+  // saved location as a claim (claim()), the seat that claim names (seatForMe()),
+  // whether Voice is OPEN in that seat (path()), and the sentence that frames
+  // what the board is (COPY.frame). This function asks it and decides nothing.
+  // A copy of the allow-list, of the seat-key shape or of the frame sentence on
+  // THIS document would be a second answer, and a second answer is the defect.
+  //
+  // THREE STANDINGS, AND THE DEFAULT IS THE WEAKEST ONE. 'out' for a reader
+  // with no account, 'unverified' for an account with no district we hold, and
+  // 'verified' only when a name can be built out of the two fields already
+  // stored for this reader. Every early return below lands on a weaker
+  // standing, so a missing module, a missing resolver or a missing field can
+  // only ever UNDERSTATE what this reader has — never invent a board for
+  // somebody who has none.
+  function voiceApi() { try { return window.PDXVoice || null; } catch (e) { return null; } }
+
+  function voice() {
+    var out = { standing: 'out', name: '', href: '', frame: '' };
+    var V = voiceApi();
+    // Borrowed, never written here: one owner for the sentence that says what
+    // the board is, so /me and the board cannot describe it differently.
+    try { if (V && V.COPY && V.COPY.frame) out.frame = String(V.COPY.frame); } catch (e) {}
+
+    if (!member()) return out;
+    out.standing = 'unverified';
+    if (!V || !fn(V.seatForMe) || !fn(V.claim)) return out;
+
+    var seat = '';
+    try { seat = V.seatForMe() || ''; } catch (e) { seat = ''; }
+    if (!seat) return out;
+
+    // THE NAME IS THE FIELDS WE ALREADY STORE, OR THERE IS NO NAME AND NO
+    // VERIFIED STANDING. Nothing here composes a district name out of anything
+    // this reader did not save: no county table, no geometry, no label corpus.
+    var c = {};
+    try { c = V.claim() || {}; } catch (e) { c = {}; }
+    var n = String(c.houseDistrict == null ? '' : c.houseDistrict);
+    var county = String(c.county == null ? '' : c.county);
+    if (!n || !county) return out;
+
+    out.standing = 'verified';
+    out.name = 'State House District ' + n + ' \u00b7 ' + county;
+    // The board's own address when Voice is open in this seat, and '' when it is
+    // not. '' is not a failure and is not hidden — it is the state the copy has
+    // a sentence for.
+    try { out.href = (fn(V.path) ? (V.path(seat) || '') : ''); } catch (e) { out.href = ''; }
+    return out;
   }
 
   // ── WHETHER WE CAN HONESTLY CLAIM A BALLOT AT ALL ─────────────────────────
@@ -604,6 +661,87 @@
     '</section>';
   }
 
+  // ── g · DISTRICT VOICE ────────────────────────────────────────────────────
+  // THE PUBLIC LANE'S DOOR, AND ONLY THE DOOR. District Voice is the district
+  // board: residency-gated to post, open to everybody to read, and it lives at
+  // its own address. This region says which of three standings this reader has
+  // with it and offers the one control that standing can honour. It is the
+  // smallest thing that can be true.
+  //
+  // THE SEVEN THINGS IT MUST NOT DO, and every one of them is a rule:
+  //
+  //   1. IT DOES NOT EMBED THE BOARD. No thread, no take, no poll, no option, no
+  //      count, no composer and no feed of bills. There is nothing in this
+  //      region a reader could mistake for the board's contents, and a verified
+  //      reader with no board yet gets a SENTENCE rather than an empty list that
+  //      looks like a board with nothing in it.
+  //   2. IT DOES NOT SCORE PARTICIPATION. No posts, no answers, no streak, no
+  //      "you have not posted in a while", no activity of any kind. A voter is
+  //      not a participation rate, and this region holds no number at all.
+  //   3. IT DOES NOT ENTER THE MATCH. Nothing here reads or writes the alignment
+  //      store, the stance store, Direction Match, Your Match, the formal
+  //      pattern or the ballot order. The board is the public lane; the eight
+  //      answers above it are the private one; this region carries no wire
+  //      between them.
+  //   4. IT DOES NOT PARTY-GATE AND CARRIES NO PARTY. No letter, no colour, no
+  //      caucus, and no class for one to arrive in.
+  //   5. IT READS NO FORMAL-RECORD MODULE. No vote pack, no measure, no act, no
+  //      /api/voting-record — this document reaches no network at all.
+  //   6. IT MERGES NO STORE. pdx_your_file and pdx_my_stances are region b's and
+  //      region c's, they stay two stores, and this region touches neither.
+  //   7. IT DOES NOT IMPLY A BOARD SOMEBODY DOES NOT HAVE. The badge is printed
+  //      for the verified standing and for nothing else, and the unverified
+  //      sentence says what is missing rather than inviting a reader into a
+  //      place they cannot enter yet.
+  //
+  // THE CONTROL PER STANDING, and there is exactly one each:
+  //
+  //   out         the document's existing sign-in, the same button region a
+  //               offers, through the same data-me-signin seam.
+  //   unverified  a LINK to the address where residency for this lane is
+  //               established — the saved ballot district. A link and not a
+  //               button, because it is a trip to another address and the reader
+  //               is owed the ability to see where it goes, open it in a tab and
+  //               copy it.
+  //   verified    a LINK to the board, or — when Voice has not opened in this
+  //               reader's seat — a plain, unlinked sentence saying so. An
+  //               anchor to a board that is not there would be a promise this
+  //               app cannot keep.
+  function regionVoice() {
+    var v = voice();
+    var badge = v.standing === 'verified'
+      ? '<span class="me-voicetag">Verified resident</span>'
+      : '';
+
+    var body;
+    if (v.standing === 'out') {
+      body = '<p class="me-rline">District Voice is for verified residents.</p>' +
+        '<p class="me-rline" style="margin:0.7rem 0 0;">' +
+          '<button type="button" class="me-link" data-me-signin="1">Sign in</button></p>';
+    } else if (v.standing === 'unverified') {
+      body = '<p class="me-rline">Not verified for a district yet.</p>' +
+        '<p class="me-rline" style="margin:0.7rem 0 0;">' +
+          '<a class="me-voicecta" href="/#who-represents-me">Verify my district</a></p>';
+    } else {
+      body = '<p class="me-rline">Verified for <strong>' + esc(v.name) + '</strong>.</p>' +
+        (v.href
+          ? '<p class="me-rline" style="margin:0.7rem 0 0;">' +
+              '<a class="me-voicecta" href="' + esc(v.href) + '">Open District Voice</a></p>'
+          : '<p class="me-voicedark">District Voice \u2014 board not live yet</p>');
+    }
+
+    return '<section class="me-region" id="me-voice" aria-labelledby="me-voice-t">' +
+      '<div class="me-rhead">' +
+        '<h2 class="me-rtitle" id="me-voice-t">District Voice</h2>' +
+        badge +
+      '</div>' +
+      // The frame sentence is district-voice.js's own, borrowed at runtime. A
+      // boot without that module prints no frame rather than a paraphrase.
+      (v.frame ? '<p class="me-rline">' + esc(v.frame) + '</p>' : '') +
+      body +
+    '</section>';
+  }
+
   // ── f · JUMPS ─────────────────────────────────────────────────────────────
   // Three text links in one sentence each. Not a button bar and not a second
   // navigation — see me-desk.css's header.
@@ -635,6 +773,7 @@
       regionPositions() +
       regionStars() +
       regionBallot() +
+      regionVoice() +
       regionSaved() +
       regionJumps() +
       '<p class="me-foot">Your positions are yours. They are used to line a formal record up ' +
@@ -836,6 +975,7 @@
     picks: picks,
     pickFor: pickFor,
     stars: stars,
+    voice: voice,
     savedCards: savedCards,
     nameOf: nameOf,
     faceOf: faceOf,
@@ -864,7 +1004,7 @@
   }
 
   // THE FIRST PAINT WAITS FOR NOTHING. Signed out, with no location, no picks
-  // and no saved answers, this document still has six regions and an honest
+  // and no saved answers, this document still has seven regions and an honest
   // sentence in each — so the honest arrival is the immediate one, and every
   // fact that lands later (a uid, the location resolver, the roster, a
   // cross-device snapshot) repaints through a signal above.
