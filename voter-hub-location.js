@@ -1308,12 +1308,143 @@
     return String(office == null ? '' : office).trim().toLowerCase() === 'governor';
   }
 
+  // ── AND WHEN THE OFFICE STRING STOPS AGREEING WITH THE ARCHIVE ─────────────
+  // Everything above resolves a statewide seat from two roster strings, with its
+  // own matchers. Door 1's archive resolves the SAME people from the SAME roster
+  // with DIFFERENT matchers — window._pdxBrowseType (which chamber is this?) and
+  // window._pdxBrowseStateOf (which state?) in compare-hub.js — and those two are
+  // tolerant in ways the regexes above are not:
+  //
+  //   · An office of plain "Senator" is a U.S. Senate seat to the archive. To
+  //     _pdxIsUsSenatorOffice it is nothing: /\bsenate\b/ does not match
+  //     "Senator", and neither does the "u.s. senat" clause.
+  //   · "Governor of Utah" is the Governor to the archive. To
+  //     _pdxIsGovernorOffice, which compares the whole string, it is not.
+  //   · A `state` field rewritten to "UT" reduces to "ut" here and matches no
+  //     state name, while _pdxBrowseStateOf reads window._originalStates first —
+  //     the state the BUNDLE shipped — and still says Utah.
+  //
+  // That is the Layton failure this pass closes, and it is worth being precise
+  // about what kind of failure it is. The page printed, in the same scroll: an
+  // archive band listing John Curtis and Mike Lee, in office, under "U.S. Senate
+  // · Utah", and three seat rows reading "No record on file yet — we'd rather
+  // leave this blank than name the wrong person". One document, one roster, two
+  // classifiers, two answers. The blank sentence is an admission about OUR
+  // coverage; printing it beside the archive's own listing of the same people is
+  // the app calling its own true answer a mistake.
+  //
+  // So the seat walk gets a second pass that asks the archive's own question, and
+  // it only ever FILLS A SEAT THE FIRST WALK LEFT EMPTY. The office-string
+  // matchers stay exactly as they are and stay authoritative — nothing below can
+  // displace a pid they resolved, reorder them, or overrule their refusals for
+  // any other state.
+  //
+  // Two narrowings, because the archive's buckets are wider than a ballot seat:
+  //
+  //   · IN OFFICE ONLY. The archive files a challenger under the seat they are
+  //     running for ("Candidate for U.S. Senate" is `senator`), which is right
+  //     for a roster listing and wrong for a seat. _pdxOfficeStatus is the app's
+  //     one owner of incumbent-vs-candidate, so it is the gate here.
+  //   · THE GOVERNOR BUCKET IS NOT THE GOVERNOR. Door 1 files Lt. Governor,
+  //     Attorney General, Treasurer and Auditor with the Governor under one
+  //     statewide-executive bucket. Only an office that actually reads as the
+  //     governorship may fill the Governor row.
+  function _pdxArchiveReady() {
+    try {
+      return typeof window._pdxBrowseType === 'function' &&
+             typeof window._pdxBrowseStateOf === 'function' &&
+             !!_pdxRosterSize();
+    } catch (e) { return false; }
+  }
+
+  function _pdxArchiveInOffice(rec) {
+    if (typeof window._pdxOfficeStatus !== 'function') return true;
+    try { return window._pdxOfficeStatus(rec) === 'office'; } catch (e) { return true; }
+  }
+
+  // "Governor" and not one of the four offices filed beside it. A lieutenant
+  // governor is a different seat and must never fill this row.
+  function _pdxIsGovernorProper(office) {
+    var o = String(office == null ? '' : office).toLowerCase();
+    if (!/\bgovernor\b/.test(o)) return false;
+    if (/\blieutenant\b|\blt\.?\s*governor\b|\bdeputy\b|\bacting\b/.test(o)) return false;
+    return true;
+  }
+
+  // The archive's answer for one state: who it lists, in office, under "U.S.
+  // Senate · <state>" and as that state's governor. Reads nothing but the roster
+  // and the two shared classifiers, so by construction it cannot name somebody
+  // the archive band on the same page does not list.
+  function _pdxArchiveStatewideWalk(st) {
+    var res = { senators: [], governor: null };
+    if (!_pdxArchiveReady()) return res;
+    try {
+      var roster = window.CMP_DATA;
+      for (var pid in roster) {
+        if (!Object.prototype.hasOwnProperty.call(roster, pid)) continue;
+        var rec = roster[pid];
+        if (!rec) continue;
+        var pstate = '';
+        try { pstate = String(window._pdxBrowseStateOf(pid) || ''); } catch (e) { pstate = ''; }
+        if (pstate.trim().toLowerCase() !== st) continue;
+        var chamber = '';
+        try { chamber = String(window._pdxBrowseType(pid) || ''); } catch (e) { chamber = ''; }
+        if (chamber !== 'senator' && chamber !== 'governor') continue;
+        if (!_pdxArchiveInOffice(rec)) continue;
+        if (chamber === 'senator') { res.senators.push(pid); continue; }
+        if (_pdxIsGovernorProper(rec.office) && !res.governor) res.governor = pid;
+      }
+    } catch (e) {}
+    // Three senate seats is the archive disagreeing with the Constitution, not a
+    // seat to guess at — the same refusal the office-string walk makes.
+    if (res.senators.length > 2) res.senators = [];
+    return res;
+  }
+
+  // ── THE CANONICAL UTAH STATEWIDE OCCUPANTS ─────────────────────────────────
+  // The floor under both walks, for the one state PolitiDex curates end to end.
+  // These are pids that already exist in the bundled roster with full files at
+  // /p/lee, /p/curtis and /p/cox — NOT a second identity for anybody, and not a
+  // name typed into this file: if the roster stops holding the pid, the pin is
+  // not applied, and any walk that resolves a DIFFERENT pid for a seat wins
+  // outright, so a real change of officeholder is never overridden by it.
+  //
+  // It exists because the two walks above both depend on metadata a live payload
+  // can rewrite, and Utah is the state whose statewide seats the archive, the
+  // ballot, the district rooms and the state voting record all already name. A
+  // blank row here is never a coverage limit — it is only ever a classifier that
+  // lost its grip on a string.
+  var _PDX_UTAH_STATEWIDE = { senators: ['curtis', 'lee'], governor: 'cox' };
+
+  // A pinned pid still has to be somebody the roster holds and does not describe
+  // as gone. "Former" or "candidate" in their own office string is the record
+  // itself saying they no longer hold the seat, and that is honoured.
+  function _pdxPinnable(pid) {
+    if (!pid || !_pdxRosterKeeps(pid)) return false;
+    try {
+      var rec = (window.CMP_DATA || {})[pid];
+      if (!rec) return true;
+      var o = String(rec.office || '');
+      if (!o) return true;
+      if (/\bformer\b|\bex-/i.test(o)) return false;
+      if (typeof window._pdxOfficeStatus === 'function' &&
+          window._pdxOfficeStatus(rec) !== 'office') return false;
+    } catch (e) {}
+    return true;
+  }
+
   window._pdxStatewideSeats = function (stateName) {
     var st = _pdxStateName(stateName);
     if (!st || st === 'national') return { senators: [], governor: null, ambiguous: false };
     var rn = _pdxRosterSize();
+    // The memo is keyed on the roster size AND on whether the archive's
+    // classifiers were loaded when the answer was computed. compare-hub.js is
+    // deferred like cmp-data.js, so a read taken before it executes cannot run
+    // the agreement walk below — and remembering that answer after it lands
+    // would be the same mistake as caching a pre-roster blank.
+    var ar = _pdxArchiveReady() ? 1 : 0;
     var hit = _pdxStatewideCache[st];
-    if (hit && hit.n === rn) return hit.val;
+    if (hit && hit.n === rn && hit.a === ar) return hit.val;
 
     var out = { senators: [], governor: null, ambiguous: false };
     try {
@@ -1334,6 +1465,33 @@
         if (govs.length > 1) out.ambiguous = true; else out.governor = govs[0] || null;
       }
     } catch (e) {}
+
+    // ── AGREE WITH THE ARCHIVE BEFORE ADMITTING A GAP ───────────────────────
+    // Utah only, and deliberately so. This is the state whose seats every other
+    // surface already names — the archive band, the district rooms, the state
+    // voting record — and the state the reported blank appeared in. The other
+    // forty-nine keep exactly the coverage the office-string matchers measure,
+    // which is what the shipped-roster assertions in test-who-represents-me.mjs
+    // hold at 50 governors and both Senate seats nearly everywhere. Nothing here
+    // touches a DISTRICT seat in any state: outside Utah the U.S. House and both
+    // state chambers still resolve to nothing and say they need a district map.
+    // Only ever reached when a seat is actually missing: on the ordinary path the
+    // office strings match, all three seats are filled, and a second walk of an
+    // 1100-record roster would buy nothing.
+    if (st === 'utah' && (out.ambiguous || out.senators.length < 2 || !out.governor)) {
+      var arch = _pdxArchiveStatewideWalk(st);
+      // An ambiguity the archive does not share is not an ambiguity worth
+      // printing three blanks over: if Door 1 lists one or two Utah senators in
+      // office, those are the seats, and the same page cannot be both listing
+      // them and refusing to name them.
+      if (out.ambiguous && (arch.senators.length || arch.governor)) out.ambiguous = false;
+      arch.senators.forEach(function (pid) {
+        if (out.senators.length >= 2) return;
+        if (out.senators.indexOf(pid) !== -1) return;
+        out.senators.push(pid);
+      });
+      if (!out.governor && arch.governor) out.governor = arch.governor;
+    }
 
     // ── CARRY A NAMED SEAT FORWARD OVER AN EMPTY WALK ───────────────────────
     // Applied seat by seat, so one flattened record cannot take the other two
@@ -1375,6 +1533,26 @@
       }
     }
 
+    // ── THE UTAH FLOOR ──────────────────────────────────────────────────────
+    // Last, after every walk and after the ledger, so it can only ever fill a
+    // seat that is STILL empty — and only with a pid the roster holds and does
+    // not describe as former or as a candidate. A cold page load whose payload
+    // rewrote the office strings before anything was ever painted has no ledger
+    // to carry and no classifier that matches; this is the difference between
+    // that reader seeing their senators and reading a coverage admission over
+    // three people the archive lists on the same screen.
+    if (st === 'utah' && _pdxRosterSize()) {
+      _PDX_UTAH_STATEWIDE.senators.forEach(function (pid) {
+        if (out.senators.length >= 2) return;
+        if (out.senators.indexOf(pid) !== -1) return;
+        if (_pdxPinnable(pid)) out.senators.push(pid);
+      });
+      if (!out.governor && _pdxPinnable(_PDX_UTAH_STATEWIDE.governor)) {
+        out.governor = _PDX_UTAH_STATEWIDE.governor;
+      }
+      if (out.senators.length || out.governor) out.ambiguous = false;
+    }
+
     // The ledger records answers, never emptiness — an entry is only written
     // where this walk (or the carry-forward above) actually named somebody, and
     // an all-blank result leaves the previous entry standing. A remembered pid
@@ -1389,7 +1567,7 @@
     }
 
     // Only ever cache an answer the roster was actually present to give.
-    if (rn) _pdxStatewideCache[st] = { n: rn, val: out };
+    if (rn) _pdxStatewideCache[st] = { n: rn, a: ar, val: out };
     return out;
   };
 

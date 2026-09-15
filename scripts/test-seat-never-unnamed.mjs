@@ -32,9 +32,12 @@
 //   second snapshot cannot write a blank over a named row.
 //
 // Sections:
-//   1. THE COUNTERFACTUAL. The blanking payload really is destructive: a page
-//      that meets it with no prior answer resolves three of six. That is what
-//      the reader got, and it is what the rule has to survive.
+//   1. THE COUNTERFACTUAL, and the floor that now sits under Utah. The payload
+//      really is destructive — shown on an Ohio reader, whose statewide seats
+//      resolve from the same two strings and have no curated pin behind them —
+//      and a cold Layton page meets the same payload with Curtis, Lee and Cox
+//      named anyway, because Utah's statewide occupants are curated and the
+//      archive band on the same page lists them.
 //   2. THE BAND HOLDS. Same payload after a good paint — six of six, the same
 //      pids, no blank sentence, and the toast is only a toast.
 //   3. THE OWNER HOLDS. pdxSeatHolders() keeps both senators and the governor,
@@ -244,22 +247,58 @@ STATEWIDE_PIDS.forEach((pid) =>
 section("1 · Counterfactual: the payload really does delete three officeholders");
 
 {
-  // A page that meets the flattened records with no prior answer to protect.
-  // This is the reader's experience on the shipped build, and it is the thing
-  // section 2 has to survive: THREE of six, both Senate rows and the Governor
-  // row carrying the blank-coverage sentence.
-  const cold = boot({ location: LAYTON });
-  flatten(cold);
-  eq(count(cold), 3, "the flattening payload is not destructive, so this fixture proves nothing");
+  // (a) THE INPUT IS STILL DESTRUCTIVE, and it has to be shown somewhere the
+  // Utah floor does not reach — otherwise section 2 proves nothing. A Columbus
+  // reader's three statewide seats resolve from roster metadata exactly the way
+  // a Layton reader's do, and Ohio has no curated pin behind it, so flattening
+  // Ohio's holders is the same payload doing the same damage: three of three
+  // statewide seats blank, and the blank-coverage sentence printed over people
+  // whose records are still on file.
+  //
+  // The pids are read off a THROWAWAY page, because asking the resolver who
+  // holds Ohio's seats is itself an answer it remembers — resolving first and
+  // flattening second would arm the very ledger this fixture is supposed to be
+  // testing without.
+  const probe = boot({ location: COLUMBUS });
+  const probeSeats = probe._pdxStatewideSeats("Ohio");
+  const OH_PIDS = probeSeats.senators.concat(probeSeats.governor || []);
+  must(OH_PIDS.length === 3,
+    "Ohio no longer resolves two senators and a governor, so the counterfactual is built on nothing");
+
+  const cold = boot({ location: COLUMBUS });
+  flatten(cold, OH_PIDS);
+  eq(count(cold), 0, "the flattening payload is not destructive, so this fixture proves nothing");
   eq(senate(cold), "", "the flattened payload still resolves the Senate seat");
   const cb = strip(band(cold));
-  has(cb, "3 of 6 seats resolved", "the counterfactual band does not read three of six");
+  has(cb, "0 of 6 seats resolved", "the counterfactual band does not read zero of six");
   has(cb, "No record on file yet",
     "the counterfactual band does not print the blank-coverage sentence, so the defect is elsewhere");
   // And the records are still there — the payload flattened them, it did not
   // remove them. That distinction is the entire fix.
-  STATEWIDE_PIDS.forEach((pid) =>
+  OH_PIDS.forEach((pid) =>
     ok(!!cold.CMP_DATA[pid], `${pid} left the roster; the fixture is testing the wrong failure`));
+}
+
+{
+  // (b) AND UTAH NOW HAS A FLOOR UNDER IT, which is the other half of the same
+  // report. The reader who met the blank had no good paint to protect: on a cold
+  // load the classifiers never matched, so there was nothing for the ledger in
+  // section 2 to carry forward. Utah's statewide occupants are curated — the
+  // archive band on the same page lists Curtis and Lee in office under "U.S.
+  // Senate · Utah" — so the resolver names them from the roster it shares with
+  // that band rather than admitting a gap the app does not have.
+  const coldUtah = boot({ location: LAYTON });
+  flatten(coldUtah);
+  eq(count(coldUtah), 6,
+    "a cold Layton page that meets the flattening payload still loses statewide seats");
+  eq(senate(coldUtah), "curtis,lee", "the cold Utah page did not name both U.S. Senate seats");
+  eq((coldUtah.pdxSeatHolders("governor").pids || []).join(","), "cox",
+    "the cold Utah page did not name the Governor");
+  const ub = strip(band(coldUtah));
+  lacks(ub, "No record on file yet",
+    "a cold Utah page prints the blank-coverage sentence over the three people the archive lists");
+  lacks(ub, "rather leave this blank than name the wrong person",
+    "the statewide rows fell back to the blank statewide copy on a cold Utah page");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
