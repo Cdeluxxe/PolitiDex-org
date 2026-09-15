@@ -179,8 +179,16 @@ for (const [addr, expect] of [
   ["/vote/hr1", "/index.html"],
   ["/d/ut-statehouse-68", "/index.html"],
   ["/b/hr1", "/index.html"],
-  ["/locker", "/index.html"],
-  ["/locker/x", "/index.html"],
+  // /locker WAS /index.html here, and is now a 301 to /evidence: since the
+  // evidence locker became its own document the old spelling is an alias, not a
+  // second live address. Still in this list, and still for the reason the list
+  // exists — /ballot must not steal it — just with the answer the redirect table
+  // now gives.
+  ["/locker", "/evidence"],
+  ["/locker/x", "/evidence"],
+  // The two browse rooms this list did not have to name until they existed.
+  ["/stances", "/stances.html"],
+  ["/evidence", "/evidence.html"],
 ]) {
   const hit = resolveAddr(addr);
   ok(hit && hit.to === expect,

@@ -269,7 +269,7 @@ const COPIES = [
   // an earlier edit to index.html shifts line numbers — when it does, the header
   // comment in me.html and this table move TOGETHER, which is the whole point of
   // pinning it in one place.
-  { from: "index.html", src: INDEX, a: 28628, b: 29050, what: "PDXSaved" },
+  { from: "index.html", src: INDEX, a: 28019, b: 28441, what: "PDXSaved" },
 ];
 for (const c of COPIES) {
   const header = new RegExp(`COPIED VERBATIM FROM ${c.from.replace(".", "\\.")} LINES ${c.a}[^0-9]{1,3}${c.b}`);

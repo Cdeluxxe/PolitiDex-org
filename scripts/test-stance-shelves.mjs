@@ -147,12 +147,24 @@ const SL_START = INDEX.indexOf('<section id="stance-library"');
 must(SL_START >= 0, '#stance-library is gone from the homepage — the module has no mount');
 const SL = INDEX.slice(SL_START, INDEX.indexOf('</section>', SL_START));
 has(SL, 'Browse issues', '#stance-library: the line says what the tool does');
-has(SL, 'PDXStanceLibrary', '#stance-library: the line opens the existing module');
-has(SL, 'id="sl-body"', '#stance-library: the module still has the body it renders into');
+// THE LINE IS A DOOR TO ANOTHER DOCUMENT NOW, NOT A MOUNT. When this section was
+// trimmed to one line it still hosted the module: #sl-body was here and
+// PDXStanceLibrary rendered into it. The seventh split moved the shelf to its own
+// address, so the homepage ships neither the body host nor the engine — which is
+// the whole saving — and the line is a real anchor instead of a call.
+has(SL, 'href="/stances"', '#stance-library: the line is a real anchor to the room that owns the shelf');
+lacks(SL, 'PDXStanceLibrary', '#stance-library: no engine call — the module is not on this document');
+lacks(SL, 'id="sl-body"', '#stance-library: no body host either, or a cached engine would paint into it');
 lacks(SL, 'sl-eyebrow', '#stance-library: the marketing eyebrow is gone');
 lacks(SL, 'sl-lede', '#stance-library: the three-line lede is gone');
 lacks(SL, 'Loading issue data', '#stance-library: the static loading line is gone — the module paints its own');
-ok(SL.length < 900, `#stance-library on the homepage is ${SL.length} bytes — it is supposed to be one line`);
+// Measured on the MARKUP, not on the self-contained stylesheet beside it:
+// stance-library.css left with the grid it dressed, so the door's own five rules
+// are inline here and they are cheaper than the 6 KB file they replaced.
+const SL_MARKUP = SL.replace(/<style[\s\S]*?<\/style>/g, '');
+ok(SL_MARKUP.length < 900,
+  `#stance-library's markup on the homepage is ${SL_MARKUP.length} bytes — it is supposed to be one line`);
+ok(count(SL, /<h2/g) === 1, '#stance-library: one heading in the door, not a stacked billboard');
 
 const IC_START = INDEX.indexOf('<section id="issue-compare"');
 must(IC_START >= 0, '#issue-compare is gone from the homepage — the module has no mount');

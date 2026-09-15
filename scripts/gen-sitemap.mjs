@@ -60,8 +60,14 @@
 //   · No measure the migrations do not carry. Rows the live ingest added at
 //     runtime are missing from the bill list, and that is the honest cost of not
 //     reading the database at build time: it loses a crawl, not the truth.
-//   · No /locker address. It resolves and it is one page, but it is a workspace,
-//     not a record, and this file lists records.
+//   · No /me and no /ballot. Both resolve and both are one page, but they are
+//     workspaces over the reader's own localStorage, not records, and this file
+//     lists records — a crawler that followed either would index an empty desk.
+//     /locker is not listed for a different reason: it is now a 301 to /evidence,
+//     and a sitemap that lists a redirect hands every crawler a hop it did not
+//     need. The evidence locker itself IS listed, at /evidence, with /stances —
+//     see the note beside those two literals below for why a browse room over the
+//     record set is not the same thing as a workspace.
 //   · No lastmod dates. This script has no honest source for when a record last
 //     changed — the roster carries no timestamp — and a lastmod that is really
 //     "when the generator last ran" is a fabricated freshness signal.
@@ -407,6 +413,33 @@ const urls = [
   // bills: adding a district address cannot move, rename or drop a single
   // /p/<pid>, /b/ or /i/ line.
   ...districtAddresses(),
+  // THE TWO BROWSE ROOMS, appended after the districts on the same convention:
+  // every list in this array is added at the end, so a new address can never
+  // shift an existing one. Both are public browse surfaces with a real document
+  // of their own — /stances is the stance library (search, bundles, shelves, and
+  // an issue card per key on record) and /evidence is the evidence locker
+  // (filters, the receipt grid, bill-number search). They are listed because
+  // they are how a reader without a bookmark FINDS the records this file already
+  // advertises: every shelf card opens an /issue/<slug> and every receipt opens a
+  // /b/, /i/ or /p/ address that is already a line above.
+  //
+  // FIXED, NOT ENUMERATED, AND ONE SPELLING EACH. Two literals, because each
+  // room is a single address: the filters are query keys (?issue, ?pols,
+  // ?search, ?bill), and a sitemap of every filter combination would advertise
+  // thousands of views of one document. /stances/ and /evidence/ are served the
+  // same document and are NOT listed — one canonical spelling per room, matching
+  // the <link rel="canonical"> each one carries. /locker is not listed either:
+  // it is a 301 to /evidence, and listing a redirect hands a crawler a hop.
+  //
+  // /me AND /ballot ARE STILL NOT IN HERE, and this addition is not a precedent
+  // for them. They are the reader's own file and their own ballot — private
+  // workspaces over localStorage that say nothing to a visitor who has not filled
+  // them in. The rule the note above states as "no /locker address … it is a
+  // workspace, not a record" is unchanged; what changed is that two of the
+  // surfaces it covered became public browse rooms over the record set, which is
+  // the one kind of non-record page a sitemap is for.
+  "/stances",
+  "/evidence",
 ];
 
 // Two addresses reaching the same page would be this file recommending a record

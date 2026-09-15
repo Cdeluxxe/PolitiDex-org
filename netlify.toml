@@ -670,31 +670,117 @@
   to = "/index.html"
   status = 200
 
-# The Evidence Locker's own address. The locker used to be a permanently-open
-# section of the front page, which meant it had no address of its own and cost
-# every reader its whole height whether they opened it or not. It is now a closed
-# door on the homepage that mounts on request, so it needs a path a link can point
-# at: /locker SERVES index.html (HTTP 200 rewrite, not a redirect) and
-# evidence-locker.js reads location.pathname on arrival and opens the workspace
-# instead of the door.
+# ═════════════════════════════════════════════════════════════════════════════
+# THE BROWSE ROOMS GET THEIR OWN DOCUMENTS: /stances -> stances.html
+#                                            /evidence -> evidence.html
+# ─────────────────────────────────────────────────────────────────────────────
+# WHAT THESE TWO ADDRESSES FIX. The front page was hosting two full research
+# desks in its own body. The Stance Library — search, bundle chips, folded
+# shelves, one card per issue — was the section #stance-library, and the whole
+# Issue Spotlight collection was the shelf #all-spotlights directly beneath it,
+# which meant the same reader was offered two labels in the nav ("Issues &
+# Stances" and "All Spotlights") for one continuous shelf. The Evidence Locker
+# was the section #evidence-locker. Neither had an address. Every link to either
+# was a hash — a scroll to a region of a 2.25 MB document that the reader had to
+# download in full to reach a grid, with no way to bookmark it, send it, or
+# press Back out of it.
 #
-# No edge function stands in front of this one, and it needs none: unlike /p/* or
-# /b/*, the path names no record — there is nothing to resolve and nothing to get
-# wrong. /locker is one page that always exists, so a 200 here is the truth.
+# So /stances is the desk where positions live and /evidence is the desk where
+# receipts live, and each is the only address for its room. The nav now offers
+# one item per room instead of two labels for the same shelf. The homepage keeps
+# one thin door to each and hosts neither grid.
 #
-# The in-app #evidence-locker hash is NOT retired by this: every nav entry, issue
-# chip and profile deep-link already sets it, and all of them still open the same
-# workspace. What /locker adds is a shareable, server-visible form of the same
-# address for a reader who wants to send someone the locker itself.
+# ONE SPELLING EACH, CHOSEN AND USED EVERYWHERE. /stances, not /library; and
+# /evidence, not /locker. /locker shipped earlier as a 200 rewrite to index.html
+# and is kept — as a 301 to /evidence, below — because links a reader made to it
+# are in the wild, and because two live 200 spellings of one room is exactly the
+# ambiguity this pass exists to remove.
+#
+# WHY THE ENGINES ARE NOT DUPLICATED. stance-library.js, spotlight-hub.js and
+# evidence-locker.js are unchanged modules loaded by the new documents the same
+# way ballot.html loads ballot-workspace.js. evidence-locker.js also STAYS on
+# the homepage, because other front-page surfaces read the depth pills and
+# per-person counts it publishes — what left the homepage is its workspace
+# <template>, so the grid can no longer mount there, and the engine's own
+# navigation path answers a failed mount by going to /evidence with the filters
+# that were asked for.
+#
+# WHAT THEY COST TO SERVE, WHICH IS THE OTHER HALF OF THE POINT. index.html is
+# 2.25 MB. stances.html is 50 KB of shell and carries no locker grid, no
+# Compare Hub, no alignment engine, no voting-record prefetch. evidence.html is
+# 82 KB of shell and carries no stance-library grid. A reader who wants one desk
+# is charged for one desk.
+#
+# NEITHER ROOM HAS SUB-ADDRESSES. A position belongs to an issue, and an issue
+# already has its own address (/issue/<slug>, /i/<slug>); a receipt belongs to a
+# person or a bill, and those already have /p/<pid> and /b/<number>. So a card
+# tap on either desk LEAVES the desk for an address that already exists — no
+# third issue page was invented — and there is nothing for a /stances/* or
+# /evidence/* rule to match that a typo would not also match. Filters are
+# QUERIES (/evidence?issue=<key>, /stances?issue=<key>), and a query string does
+# not participate in rule matching at all, so ?issue= needs no rule of its own
+# and cannot be broken by one.
+#
+# ORDER: FOUR EXACT PATHS, NO PREFIX, NO SPLAT — AND THE POSITION IS A STATED
+# NO-OP. Netlify is first-match-wins. /stances, /stances/, /evidence and
+# /evidence/ are disjoint by inspection of the literal strings from /p/*, /i/*,
+# /issue/*, /ballot, /me, /vote/*, /d/*, /b/* and /locker, so declaring them
+# here is correct and would also have been correct anywhere else in the file.
+# It is written down so that the next person to add a rule ABOVE this one knows
+# the invariant they have to preserve: nothing that matches these four paths may
+# be declared earlier, and the day a prefix rule like /s/* or /e/* or a
+# catch-all appears, these four exact paths must stay in front of it.
 [[redirects]]
-  from = "/locker"
-  to = "/index.html"
+  from = "/stances"
+  to = "/stances.html"
+  status = 200
+
+# The trailing-slash form of the same address, declared rather than left to a
+# redirect, so a pasted /stances/ is the desk instead of a hop. It is ALSO why
+# every same-origin path inside stances.html is root-absolute, with no
+# exceptions: served at /stances/, a bare src="stance-library.js" resolves to
+# /stances/stance-library.js, this rule answers that with the HTML document, the
+# browser parses HTML as JavaScript, and the reader gets an empty shelf with no
+# error that names the cause. ballot.html, me.html and evidence.html carry the
+# same rule for the same reason.
+[[redirects]]
+  from = "/stances/"
+  to = "/stances.html"
   status = 200
 
 [[redirects]]
-  from = "/locker/*"
-  to = "/index.html"
+  from = "/evidence"
+  to = "/evidence.html"
   status = 200
+
+[[redirects]]
+  from = "/evidence/"
+  to = "/evidence.html"
+  status = 200
+
+# THE OLD LOCKER ADDRESS, NOW AN ALIAS. /locker was a 200 rewrite to index.html
+# from the pass that first put the locker behind a door: the front page was the
+# only document that held the workspace, so /locker had to be the front page,
+# and evidence-locker.js read location.pathname on arrival to open it. The
+# workspace now lives at /evidence, so serving index.html here would hand the
+# reader a 2.25 MB document whose grid no longer mounts.
+#
+# 301, NOT A 200 REWRITE TO evidence.html, and the difference is the point: a
+# permanent redirect tells the reader's browser and every crawler that the room
+# has exactly one address and /locker is not it. Two live 200 spellings would
+# split the canonical, which is the ambiguity this pass removes. The splat form
+# is kept for the same reason the exact form is: a /locker/anything link in the
+# wild should land in the room, not on a 404, and the query string survives the
+# hop untouched, so /locker?issue=lands_preserve still arrives filtered.
+[[redirects]]
+  from = "/locker"
+  to = "/evidence"
+  status = 301
+
+[[redirects]]
+  from = "/locker/*"
+  to = "/evidence"
+  status = 301
 
 # /api/votes IS RETIRED, AND ON PURPOSE THERE IS NO RULE FOR IT HERE.
 #

@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+<!-- ═════════════════════════════════════════════════════════════════════════════
+     evidence.html — THE EIGHTH SHELL. /evidence IS ITS OWN DOCUMENT.
+     ────────────────────────────────────────────────────────────────────────────
+     WHAT WAS WRONG. The Evidence Locker is a workspace — four views, a sticky
+     quick-jump map, a filter toolbar, a bill-number search, a discovery
+     showcase, a featured rail and a grid of every receipt on file. It had no
+     address. A previous pass got it off the homepage's critical path by putting
+     it behind a closed door and parking its 388 lines of markup in
+     <template id="el-workspace-tpl">, and gave it /locker — but /locker was a
+     200-rewrite to index.html, so "the receipts room" was still a 2.25 MB front
+     page that mounted a workspace after it arrived. The reader paid for the
+     homepage to read the locker, and the homepage carried the locker's whole
+     workspace to serve a reader who mostly never opened it.
+
+     WHAT THIS IS. The workspace, at its own address, served for /evidence by a
+     single netlify.toml rewrite. The engine did not fork and did not move: this
+     document loads the same /evidence-locker.js index.html loads, over the same
+     markup, with the same ids, the same filter mirrors and the same CSS.
+
+     WHAT CHANGED IN THE ENGINE — three small things, all of them the split:
+       • _wantsLocker() now matches /evidence as well as /locker, so arriving
+         here mounts the workspace instead of leaving the door shut;
+       • _openLocker() treats a failed _mount() (no <template> in the document —
+         which is now the homepage's state) as "go to /evidence", carrying the
+         caller's filter in the query string. One change, and roughly fifteen
+         call sites in index.html plus digital-library.js and my-profile.js
+         became cross-document navigations without being touched;
+       • _queryOpts() reads that query string back on arrival and hands it to the
+         same _applyOpen() every in-page deep link already used, so the filter a
+         link was made from is the filter the reader lands on.
+
+     WHY THE ENGINE STAYS ON THE HOMEPAGE TOO. It is not only a workspace. It
+     also publishes _pdxEvidenceOnRecord, _pdxEvidenceCountForPeople,
+     _pdxEvidenceDepthForPerson, _pdxEvidenceDepthPill and _pdxEnhanceDepthPills,
+     which the People's Mandate reform cards, the profile depth pills and My
+     Team's evidence tallies all read — every one of those surfaces is elsewhere
+     on the front page. And _init() returns early when #evidence-locker is
+     absent, so removing the section would starve those counts rather than tidy
+     the page. So index.html keeps the module, keeps the section and keeps the
+     door, and lost exactly one thing: the <template>. That is what makes a
+     locker grid unmountable on '/' and what turns every door into an address.
+
+     WHAT THIS DOCUMENT CARRIES. The workspace markup (verbatim — see THE COPIED
+     BLOCKS below), the quick-jump nav script that lives inside it, the evidence
+     engine, and the data the engine reads:
+       • the Firebase anonymous-roster chain, because the receipts ARE the live
+         per-member `spotlight` documents. Without _pdxEnsureFullProfile, _load()
+         calls finish() immediately and _build() folds in only the bundled
+         SPOTLIGHT_DATA map — a locker that renders, and under-reports. A
+         receipts room that under-reports is worse than one that is slow;
+       • cmp-data.js (the light roster _roster() scans alongside PROFILES) and
+         spotlight-cards-data.js (the bundled SPOTLIGHT_DATA the live docs are
+         folded on top of);
+       • the stance corpus + stance-helpers.js, for window._polPositionMap —
+         one of exactly TWO unguarded global reads in the whole engine (lines
+         3272 and 3821);
+       • one inline copy of window.PDXStance, for the other one (lines 3256 and
+         3850, _elStancePill and _issueFocusStanceChip);
+       • issue-map.js and issue-colors.js for the issue vocabulary the filters,
+         category headers and chips are built from;
+       • spotlight-index.js, so a receipt that belongs to an Issue Spotlight can
+         open it at /issue/<slug> — the index (86 KB), never the 1.2 MB corpus;
+       • profile-evidence.js for window.PDXProfilePid, the alias table _canonPid
+         reads: without it a retired or aliased id files its receipts under a
+         second person row, and a duplicate person on an accountability surface
+         is a wrong claim, not a cosmetic bug;
+       • person-link.js, because a receipt names a person and a person is /p/<pid>.
+
+     WHAT IT DELIBERATELY DOES NOT CARRY. app.css (986 KB — see THE DRESS below),
+     the homepage hero and Who Represents Me, the full Stance Library grid (that
+     is /stances, and the one line pointing at it is below), compare-hub.js,
+     profiles-full.js and the profile modal, my-stances.js, the Archive, the
+     Mandate, the forum, the account graph beyond the anonymous roster read,
+     pdx-lazy-data.js and pdx-stability.js, and no service-worker registration
+     (the ballot.html / me.html / spotlight.html precedent).
+
+     THE DRESS. The workspace markup is verbatim, which means it still carries
+     the ~30 Tailwind utilities and two app.css classes it shipped with. So this
+     document loads /css/tailwind.css (78 KB — the compiled build, custom colours
+     and fonts included) and /app-2.css (98 KB — the locker's own stylesheet, 561
+     .el- selectors, self-sufficient: every var() it reads has a literal
+     fallback). It does NOT load app.css for the two remaining classes; those are
+     declared locally below, which is 4 lines against 986 KB. Total CSS here is
+     176 KB, where the homepage's locker cost 1.16 MB.
+
+     NEVER A SCORE, NEVER A PARTY SORT. Every number on this document is a COUNT
+     of receipts on file, and the only orderings are the ones the toolbar offers.
+     Nothing here prints a percentage, a party weight, a lean or a match figure.
+
+     THE RULE THIS DOCUMENT LIVES BY: EVERY SAME-ORIGIN PATH IS ROOT-ABSOLUTE.
+     /evidence/ is served with HTTP 200 at a trailing-slash path, so a bare src
+     of evidence-locker.js would resolve to /evidence/evidence-locker.js, the
+     rewrite would catch it, and the browser would be handed this document and
+     told to parse HTML as JavaScript. A leading slash is correct at every depth.
+     scripts/test-evidence-shell.mjs fails on a relative src or href here.
+
+     THIS IS A PUBLIC BROWSE ROOM, so unlike /ballot and /me it is indexable, it
+     carries a real canonical on www.politidex.fyi, and it is listed in
+     sitemap.xml. No JSON-LD: index.html's WebSite/Organization block describes
+     the front page, and a browse room is not the front page.
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+
+  <!-- The share tags, in share-preview.ts's attribute order (`property` then
+       `content`, `rel` then `href`) for the same reason the other shells carry
+       them that way — that edge function rewrites by an attribute-ordered
+       regex, so a reshuffle here would be a silent no-op there rather than an
+       error, on the day /evidence is added to its config.path. -->
+  <title>Evidence locker &middot; PolitiDex</title>
+  <link rel="canonical" href="https://www.politidex.fyi/evidence" />
+  <meta name="description" content="The receipts, in one place — recorded floor and committee video, posts, statements and official bill records, searchable by person, issue and bill number." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PolitiDex" />
+  <meta property="og:title" content="Evidence locker &middot; PolitiDex" />
+  <meta property="og:description" content="The receipts, in one place — recorded floor and committee video, posts, statements and official bill records, searchable by person, issue and bill number." />
+  <meta property="og:url" content="https://www.politidex.fyi/evidence" />
+  <meta property="og:image" content="https://www.politidex.fyi/og-image.png" />
+  <meta property="og:image:alt" content="PolitiDex — the evidence locker" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Evidence locker &middot; PolitiDex" />
+  <meta name="twitter:description" content="The receipts, in one place — searchable by person, issue and bill number." />
+  <meta name="twitter:image" content="https://www.politidex.fyi/og-image.png" />
+  <meta name="theme-color" content="#0a0f1e" />
+
+  <!-- The engine and the stylesheet a first paint waits on. -->
+  <link rel="preload" as="script" href="/evidence-locker.js" />
+  <link rel="preload" as="style" href="/app-2.css" />
+
+  <!-- Barlow / Bebas Neue, non-blocking, with the same swap index.html,
+       person.html, issue.html, spotlight.html, ballot.html, me.html and
+       stances.html use. A swap written differently on one document is a visible
+       font flash on exactly one URL shape. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
+
+  <!-- THE WORKSPACE'S DRESS, in the order index.html and person.html declare it.
+       tailwind.css first (the utilities and the compiled custom palette),
+       app-2.css second (the locker's own 561 .el- rules), so a .el- rule still
+       wins a tie against a utility exactly as it does on the other documents. -->
+  <link rel="stylesheet" href="/css/tailwind.css" />
+  <link rel="stylesheet" href="/app-2.css" />
+
+  <style>
+    /* THE FIXED CHROME, MEASURED ONCE. Same contract person.html, issue.html,
+       spotlight.html, ballot.html, me.html and stances.html answer for their own
+       chrome, and for the same reason: a custom property that is never declared
+       invalidates every calc() that reads it. This document's chrome is ONE row
+       — the locker has its own search, its own filter toolbar and its own sticky
+       quick-jump map, and a second search field in the bar would be two boxes
+       for one grid. The @supports guard is the one every other shell carries: a
+       custom property accepts any token sequence, so an engine that cannot parse
+       env() would swallow the declaration and invalidate every calc() reading
+       it; an engine without env() also has no notch. */
+    :root { --pdx-chrome: 3.25rem; color-scheme: dark; }
+    @supports (padding-top: env(safe-area-inset-top)) {
+      :root { --pdx-chrome: calc(3.25rem + env(safe-area-inset-top, 0px)); }
+    }
+    /* No app.css here, so the page's own ground colour is declared rather than
+       inherited from a 986 KB stylesheet this document does not load. */
+    html, body { background: #070b16; color: #e7eefb; }
+    body {
+      margin: 0;
+      font-family: 'Barlow', system-ui, -apple-system, sans-serif;
+      padding-top: var(--pdx-chrome);
+    }
+
+    /* THE TWO CLASSES THE WORKSPACE USES THAT LIVE IN app.css, DECLARED LOCALLY.
+       The workspace markup below is verbatim, so it still names them. These are
+       the only two app.css selectors it reaches for, and they are four lines —
+       which is the whole argument for not loading 986 KB to get them.
+
+       .animate-on-scroll is app.css's own default state, opacity:1, with the
+       comment "JS adds visible class - but we default to visible so nothing
+       hides." That default is the one that matters here: index.html has an
+       IntersectionObserver that adds .visible and this document does not, so a
+       rule that started hidden would leave four blocks of the workspace
+       permanently invisible. Copied at its visible value, without the
+       transition, because there is nothing here to transition from. */
+    .section-title { font-size: clamp(2rem, 10vw, 3.5rem); }
+    .animate-on-scroll { opacity: 1; transform: none; }
+
+    /* The one-row shell bar. Static: no search field, no account menu, no layout
+       observer, no measurement pass, nothing that reads the viewport. Two
+       destinations: the way home, and the OTHER room — one item per room, which
+       is the whole point of the split. */
+    .pdx-ev-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1200;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.75rem; height: 3.25rem; padding: env(safe-area-inset-top, 0px) 1rem 0;
+      background: rgba(10, 15, 30, 0.86); backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .pdx-ev-bar a { text-decoration: none; }
+    .pdx-ev-wordmark {
+      font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+      font-size: 1.15rem; letter-spacing: 0.12em; color: #fff;
+    }
+    .pdx-ev-wordmark span { color: #e0273f; }
+    .pdx-ev-links { display: flex; align-items: center; gap: 0.4rem; min-width: 0; }
+    .pdx-ev-link {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem;
+      letter-spacing: 0.14em; text-transform: uppercase; color: #9fb4d4;
+      border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 0.5rem;
+      padding: 0.3rem 0.65rem; white-space: nowrap; cursor: pointer;
+      background: transparent;
+    }
+    .pdx-ev-link--room { color: #93c5fd; border-color: rgba(96, 165, 250, 0.32); }
+
+    /* The one line out of this room and into the other one. A real anchor, so it
+       works before any JavaScript runs. */
+    .pdx-ev-seam {
+      max-width: 80rem; margin: 0 auto; padding: 1.4rem 1rem 0; text-align: center;
+      font: 800 0.8rem/1.5 'Barlow Condensed', sans-serif;
+      letter-spacing: 0.14em; text-transform: uppercase; color: #8aa0c4;
+    }
+    .pdx-ev-seam a { color: #93c5fd; border-bottom: 1px solid rgba(147, 197, 253, 0.45); }
+    .pdx-ev-seam a:hover, .pdx-ev-seam a:focus-visible { color: #dbeafe; }
+
+    /* The only thing a reader sees if JavaScript never runs. */
+    .pdx-ev-note {
+      max-width: 40rem; margin: 2.5rem auto; padding: 0 1.1rem;
+      font: 400 1rem/1.6 'Barlow', system-ui, sans-serif; color: #9fb4d4;
+    }
+    .pdx-ev-note a { color: #f5d77a; }
+  </style>
+
+  <!-- ══ MOVED HERE FROM index.html (the locker-only half of the People's
+          Mandate style injector, its lines 27054–27177) ══════════════════════
+       ANOTHER MOVE, NOT A COPY. index.html builds a CSS string inside its
+       People's Mandate block and appends it to <head> at runtime. That string
+       was two stylesheets in one: the .pdx-mandate-* rules that dress the
+       reform rail on the front page, and the .el-* rules below, which dress
+       surfaces that only ever existed inside the Evidence Locker — the reform,
+       Compare and "Relevant to Me" filter banners, the single-politician
+       context header, the by-issue receipt grouping, and the power badge.
+
+       None of these selectors are in app-2.css. They were only ever here in
+       that injected string, so when the workspace moved to this document the
+       rules would have stayed behind and matched nothing: /evidence would paint
+       an unstyled banner over the grid the moment a reader arrived with
+       ?mandate=, ?pol= or the relevant-to-me toggle on, and every power badge
+       would render as bare text. Moving them keeps the pairing that made them
+       work and deletes ~55 dead rules from the front page.
+
+       A PLAIN <style> RATHER THAN THE INJECTOR. The JavaScript around them on
+       index.html existed to decorate Mandate cards, not to deliver CSS; the
+       appendChild put the block last in <head>, after app-2.css, which is
+       exactly where this element sits. Same cascade position, no script. -->
+  <style id="pdx-ev-mandate-css">
+    /* mandate reform pills inside the Evidence Locker's connected view */
+    .el-mandate-pill{display:inline-flex;align-items:center;gap:0.25rem;font-family:"Barlow Condensed",sans-serif;
+      font-weight:700;font-size:0.62rem;letter-spacing:0.03em;color:#f5c842;background:rgba(245,200,66,0.12);
+      border:1px solid rgba(245,200,66,0.38);border-radius:999px;padding:0.14rem 0.5rem;line-height:1.25;}
+    /* per-reform filter banner shown atop the Evidence Locker results */
+    .el-mandate-filter{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin:0 0 1rem;padding:0.55rem 0.8rem;
+      border-radius:0.6rem;background:linear-gradient(135deg,rgba(245,200,66,0.12),rgba(30,53,96,0.4));
+      border:1px solid rgba(245,200,66,0.32);}
+    .el-mandate-filter-ico{font-size:0.95rem;flex-shrink:0;}
+    .el-mandate-filter-txt{flex:1 1 auto;min-width:0;font-family:"Barlow Condensed",sans-serif;font-size:0.78rem;
+      letter-spacing:0.02em;color:#cbd9ec;}.el-mandate-filter-txt strong{color:#f5c842;}
+    .el-mandate-filter-clear{flex-shrink:0;cursor:pointer;font-family:"Barlow Condensed",sans-serif;font-weight:700;
+      font-size:0.62rem;letter-spacing:0.05em;text-transform:uppercase;color:#f5c842;background:rgba(245,200,66,0.12);
+      border:1px solid rgba(245,200,66,0.4);border-radius:999px;padding:0.2rem 0.6rem;transition:background 0.15s;}
+    .el-mandate-filter-clear:hover{background:rgba(245,200,66,0.24);}
+    /* compare-context banner — same shape as the reform banner, but in the
+       blue-violet Compare accent so the "you came from a comparison" cue reads
+       as distinct from a People's Mandate reform filter */
+    .el-compare-filter{background:linear-gradient(135deg,rgba(167,139,250,0.16),rgba(30,53,96,0.42));
+      border-color:rgba(167,139,250,0.4);}
+    .el-compare-filter .el-mandate-filter-txt strong{color:#c4b5fd;}
+    .el-compare-filter .el-mandate-filter-clear{color:#c4b5fd;background:rgba(167,139,250,0.16);
+      border-color:rgba(167,139,250,0.45);}
+    .el-compare-filter .el-mandate-filter-clear:hover{background:rgba(167,139,250,0.28);}
+    /* "Relevant to Me" toggle chip — sits with the type chips in the toolbar so
+       it inherits .el-chip, but its active state reads in the Evidence-blue/gold
+       blend (your saved team) to set it apart from the plain gold type chips. */
+    .el-relevant-toggle{gap:0.32rem;}
+    .el-relevant-toggle:hover{border-color:rgba(245,200,66,0.55);color:#fad96a;}
+    .el-relevant-toggle:focus-visible{outline:2px solid rgba(96,165,250,0.85);outline-offset:2px;}
+    .el-chip.el-relevant-toggle.is-active{color:#0a0f1e;
+      background:linear-gradient(135deg,#9ec5ff,#fad96a);border-color:rgba(245,200,66,0.9);
+      box-shadow:0 0 0 1px rgba(96,165,250,0.3),0 4px 14px rgba(96,165,250,0.22);}
+    .el-chip.el-relevant-toggle.is-active:hover{color:#0a0f1e;filter:brightness(1.05);}
+    .el-chip.el-relevant-toggle.is-active:focus-visible{outline-color:rgba(245,200,66,0.9);}
+    /* relevant-context banner — same shape as the reform/Compare banners, in the
+       Evidence-blue accent so "narrowed to your people" reads distinct from the
+       gold Mandate filter and the violet Compare filter. */
+    .el-relevant-filter{background:linear-gradient(135deg,rgba(96,165,250,0.18),rgba(30,53,96,0.42));
+      border-color:rgba(96,165,250,0.4);}
+    .el-relevant-filter .el-mandate-filter-ico{color:#fad96a;}
+    .el-relevant-filter .el-mandate-filter-txt strong{color:#93c5fd;}
+    .el-relevant-filter .el-mandate-filter-clear{color:#bfdbfe;background:rgba(96,165,250,0.16);
+      border-color:rgba(96,165,250,0.45);}
+    .el-relevant-filter .el-mandate-filter-clear:hover{background:rgba(96,165,250,0.3);}
+    /* Single-politician context header — the Evidence-blue band that turns the
+       filtered list into "this politician's evidence file": photo · name · office,
+       footprint stats, and a prominent return to their Full Stance Record. Kept
+       conservative so it reads as a natural extension of the Locker, not a new
+       surface. */
+    .el-pol-context{margin:0 0 1.15rem;}
+    .el-pol-ctx-card{display:flex;align-items:center;gap:0.9rem;flex-wrap:wrap;padding:0.85rem 1rem;border-radius:0.7rem;
+      background:linear-gradient(135deg,rgba(96,165,250,0.18),rgba(30,53,96,0.45));border:1px solid rgba(96,165,250,0.4);}
+    .el-pol-ctx-avatar{width:54px;height:54px;border-radius:50%;overflow:hidden;flex-shrink:0;display:flex;
+      align-items:center;justify-content:center;font-size:1.6rem;border:2px solid rgba(96,165,250,0.5);
+      background:rgba(30,53,96,0.55);}
+    .el-pol-ctx-avatar img{width:100%;height:100%;object-fit:cover;object-position:top center;}
+    .el-pol-ctx-main{flex:1 1 240px;min-width:0;display:flex;flex-direction:column;gap:0.12rem;}
+    .el-pol-ctx-kicker{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.58rem;
+      letter-spacing:0.13em;text-transform:uppercase;color:#93c5fd;}
+    .el-pol-ctx-name{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:1.18rem;line-height:1.1;color:#eaf2ff;}
+    .el-pol-ctx-office{font-size:0.78rem;color:#9fb4d4;line-height:1.3;}
+    .el-pol-ctx-stats{display:flex;flex-wrap:wrap;align-items:center;gap:0.3rem 0.5rem;margin-top:0.28rem;
+      font-family:"Barlow Condensed",sans-serif;font-size:0.74rem;letter-spacing:0.02em;color:#cbd9ec;}
+    .el-pol-ctx-stats b{color:#bfdbfe;font-weight:800;}
+    .el-pol-ctx-dot{opacity:0.45;}
+    .el-pol-ctx-back{flex-shrink:0;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;
+      font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.04em;
+      text-transform:uppercase;color:#0a0f1e;background:linear-gradient(135deg,#9ec5ff,#60a5fa);
+      border:1px solid rgba(96,165,250,0.9);border-radius:999px;padding:0.46rem 0.9rem;
+      box-shadow:0 3px 12px rgba(96,165,250,0.25);transition:filter 0.15s,transform 0.1s;}
+    .el-pol-ctx-back:hover{filter:brightness(1.07);}
+    .el-pol-ctx-back:active{transform:scale(0.98);}
+    .el-pol-ctx-back:focus-visible{outline:2px solid rgba(96,165,250,0.9);outline-offset:2px;}
+    /* Receipts grouped by issue under the context header. The results container
+       drops its card grid in favour of stacked issue sections, each with its own
+       grid, so the issue labels + stance reads structure the file. */
+    .el-grid.el-results-grouped{display:block;}
+    .el-polgrp{margin:0 0 1.5rem;}
+    .el-polgrp:last-child{margin-bottom:0;}
+    .el-polgrp-head{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin:0 0 0.7rem;padding:0 0 0.45rem;
+      border-bottom:1px solid rgba(96,165,250,0.22);}
+    .el-polgrp-ico{font-size:1rem;flex-shrink:0;}
+    .el-polgrp-label{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:1rem;letter-spacing:0.01em;color:#dce8fb;}
+    .el-polgrp-count{font-family:"Barlow Condensed",sans-serif;font-size:0.66rem;letter-spacing:0.05em;
+      text-transform:uppercase;color:#8aa0c2;}
+    .el-polgrp-depth{margin-left:auto;}
+    .el-polgrp.is-highlighted .el-polgrp-head{border-bottom-color:rgba(96,165,250,0.6);
+      box-shadow:0 2px 0 -1px rgba(96,165,250,0.5);}
+    @media (max-width:640px){
+      .el-pol-ctx-back{flex:1 1 100%;justify-content:center;min-height:40px;}
+      .el-polgrp-depth{margin-left:0;}
+    }
+    /* Power/position pill on evidence cards — the gold accent that flags an
+       item tied to real power (a sponsor, committee, statutory or leadership
+       role). Brighter gold, a soft glow and a touch more weight so it clearly
+       stands out when present, while staying in the locker's gold language. */
+    .el-power-badge{display:inline-flex;align-items:center;gap:0.24rem;vertical-align:middle;cursor:help;
+      font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:0.6rem;letter-spacing:0.05em;
+      text-transform:uppercase;color:#ffdf7a;background:rgba(245,200,66,0.2);
+      border:1px solid rgba(245,200,66,0.6);border-radius:999px;padding:0.14rem 0.5rem;line-height:1.3;
+      box-shadow:0 0 0 1px rgba(245,200,66,0.12),0 1px 6px rgba(245,200,66,0.18);
+      max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    /* Sponsorship is the strongest exercise of power (a bill they actually
+       drove) — give it a filled, strong-gold treatment so it reads loudest. */
+    .el-power-badge.el-pt-sponsorship{color:#1a1304;background:linear-gradient(135deg,#fbe08a,#f0c33d);
+      border-color:rgba(245,200,66,0.95);box-shadow:0 0 0 1px rgba(245,200,66,0.3),0 2px 8px rgba(245,200,66,0.3);}
+    /* In the detail modal the badge gets a touch more size so the power read
+       is unmistakable at the top of the card. */
+    .el-modal-top .el-power-badge{font-size:0.66rem;padding:0.2rem 0.6rem;gap:0.3rem;}
+    .el-modal-top .el-cstance{font-size:0.7rem;padding:0.26rem 0.66rem;}
+    /* Mobile polish — on a phone the inline "Clear ✕" tab landed under a
+       comfortable thumb size and could read as cramped when the banner text
+       wrapped around it. Let the text claim the full first line so the button
+       drops cleanly onto its own row, and give it a real tap height. Applies
+       to both the reform (mandate) and Compare-context banners. */
+    @media (max-width:640px){
+      .el-mandate-filter{gap:0.45rem 0.6rem;padding:0.6rem 0.7rem;}
+      .el-mandate-filter-txt{flex:1 1 100%;}
+      .el-mandate-filter-clear{min-height:36px;display:inline-flex;align-items:center;}
+    }
+    /* highlight cards belonging to a politician carried in from a comparison */
+    .el-card.el-card-cmp{box-shadow:0 0 0 1px rgba(167,139,250,0.55),0 6px 22px rgba(167,139,250,0.16);
+      border-color:rgba(167,139,250,0.5);}
+  </style>
+
+</head>
+<body>
+
+  <!-- ══ THE SHELL BAR ═══════════════════════════════════════════════════════
+       One row, two destinations: the way home and the OTHER room. The homepage
+       carried two labels for this one shelf — "Track & Compare" and "Evidence
+       Locker" in each nav, both landing on the same section — and collapsing
+       that to one item per room is the point of the split, so this bar does not
+       reintroduce the duplicate. Both are real anchors with real hrefs, so
+       cmd-click opens a tab and a middle-click works, the way they do on every
+       other shell. ═══════════════════════════════════════════════════════ -->
+  <header class="pdx-ev-bar">
+    <a class="pdx-ev-wordmark" href="/" id="pdx-ev-home-mark">POLITI<span>DEX</span></a>
+    <nav class="pdx-ev-links" aria-label="PolitiDex">
+      <a class="pdx-ev-link pdx-ev-link--room" href="/stances">Browse issues &rarr;</a>
+      <a class="pdx-ev-link" href="/" id="pdx-ev-home">&larr; Home</a>
+    </nav>
+  </header>
+
+  <!-- The no-JavaScript answer. The locker is built client-side from the live
+       per-member evidence documents — there is no server-rendered receipt table
+       to print — so rather than pretend, this says what the address is and hands
+       over the lanes that need no JavaScript to be worth reading. -->
+  <noscript>
+    <p class="pdx-ev-note">
+      <strong>The evidence locker.</strong> Recorded floor &amp; committee video, posts,
+      statements and official bill records — searchable by person, issue and bill number.
+      This workspace needs JavaScript to build. In the meantime every person's receipts are
+      on their own file at <code>/p/&lt;id&gt;</code>, and each measure reads at
+      <code>/b/&lt;number&gt;</code>. Positions on an issue are at
+      <a href="/stances">/stances</a>.
+    </p>
+  </noscript>
+
+  <!-- The one line out of this room, answering the brief's "Positions on this
+       issue → /stances". No stance-library grid is mounted here: this document
+       owns the receipts and the other one owns the positions, and neither
+       carries a copy of the other's shelf. -->
+  <p class="pdx-ev-seam">Positions on these issues &rarr; <a href="/stances">browse by issue</a></p>
+
+  <!-- ══ THE WORKSPACE ═══════════════════════════════════════════════════════
+       index.html's #evidence-locker section, with the door removed and the
+       <template> kept. Two deliberate decisions:
+
+       (1) NO DOOR. index.html carries #el-door — an eyebrow, a display heading,
+           a sub-line, "N receipts on file" and a control that opens the
+           workspace — because on the front page the locker is something a
+           reader asks for. Here the reader has already asked, by arriving at
+           this address, so a door would be a control that opens what is already
+           open. _wireDoor() reads #el-door-open and #el-door-count through
+           getElementById and returns quietly when they are absent, so removing
+           the door needed no engine change. The workspace's own header (inside
+           the template) carries the eyebrow and title, so nothing is lost.
+
+       (2) THE <template> STAYS. It would have been possible to inline the markup
+           and skip the clone — and it would have forked the document from
+           index.html's. _mount() is the one function that reveals the workspace,
+           removes .el-closed, and calls _wire / _wireModal / _wireCollections /
+           _wirePolView / _wireIssueView / _wireCommunityLinks in that exact
+           order, then fires `pdx:locker:mounted` for the quick-jump bar. Keeping
+           the template means this document mounts through the same function, in
+           the same order, as every other entry point — and means the markup can
+           stay byte-for-byte identical and be pinned by a test.
+
+       .el-closed is NOT on the section here: it is the homepage's shut state and
+       the rule that acts on it (#evidence-locker.el-closed .el-shell{display:none})
+       lives inside the door's inline <style>, which is not copied. _mount()
+       removes the class either way.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section id="evidence-locker" class="py-16 md:py-24 px-4" style="background:linear-gradient(180deg,rgba(10,15,30,0.96) 0%,rgba(13,21,38,0.92) 100%);border-top:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.05);">
+
+    <!-- ══ MOVED HERE FROM index.html ════════════════════════════════════════
+         THE WORKSPACE MARKUP — the <template id="el-workspace-tpl"> the
+         homepage used to carry, at index.html lines 13264–13651 until this
+         pass took it out of that document. Every id, every class, every filter
+         mirror, every inline <style> block (the quick-jump pills and the
+         spotlight-hits grid are in here, which is why they need no stylesheet
+         on this document) and the #el-save-overlay block it ends with came over
+         unchanged. Not one id moved, which is why every deep link, every filter
+         mirror and every CSS selector in app-2.css still resolves.
+
+         MOVED, NOT COPIED, AND THAT IS WHY THERE IS NO LINE PIN. It arrived
+         here as a verbatim copy and the original was then deleted, so there is
+         no second copy left to drift from: index.html has the section id, the
+         door and the engine, and no template for the engine to mount. A line
+         range pinned to a block that no longer exists at that line is worse
+         than no pin, so scripts/test-evidence-shell.mjs asserts the stronger
+         invariant instead — the template is PRESENT here and ABSENT there, and
+         it is still wrapped in <template> so nothing paints until _mount() asks.
+         ═════════════════════════════════════════════════════════════════ -->
+    <template id="el-workspace-tpl">
+    <div class="el-shell">
+      <div class="text-center mb-8 animate-on-scroll">
+        <div class="inline-flex items-center gap-2 bg-blue-900/40 border border-blue-500/30 rounded-full px-4 py-1.5 mb-3">
+          <span class="el-eyebrow-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" focusable="false" style="width:1.05rem;height:1.05rem;"><rect x="2" y="7" width="20" height="13" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8.2 7 L9.5 4.6 L14.5 4.6 L15.8 7 Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="13.6" r="4.7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8.6 13.6 C10 11.9 14 11.9 15.4 13.6 C14 15.3 10 15.3 8.6 13.6 Z" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/><circle cx="12" cy="13.6" r="1.55" fill="currentColor"/><circle cx="18.4" cy="9.6" r="0.95" fill="currentColor"/></svg></span>
+          <span class="font-condensed text-xs tracking-widest uppercase text-blue-300">The Digital Library · Utah &amp; Federal · 2026</span>
+        </div>
+        <h2 class="section-title font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-3">EVIDENCE <span class="text-crimson-400">LOCKER</span></h2>
+        <div class="el-lib-sub"><span class="el-lib-sub-ico" aria-hidden="true">📚</span> PolitiDex&rsquo;s <strong>Digital Library</strong> of the public record</div>
+        <p class="text-steel-300 font-body max-w-2xl mx-auto leading-relaxed">
+          <strong class="text-white">The receipts, in one place.</strong> Every recorded floor &amp; committee video, X post, Facebook post and bill record PolitiDex has gathered — Utah&rsquo;s sitting legislators first, now expanding to federal officials and 2026 candidates — browse the whole library, filter by issue, member or evidence type, and go straight to the source.
+        </p>
+        <!-- NO SCORING EXPLAINER IN THIS ROOM. The control that stood here
+             opened index.html's #m-strength modal, the one that explains how
+             the three strength badges get their grade, and it was wrong twice
+             over. That modal is a homepage surface, so on /evidence the anchor
+             resolved to a fragment that does not exist and the tap did nothing.
+             And the claim itself is not one this room makes: the strength dots
+             on a receipt are a COVERAGE label — how much of the record is on
+             file — not a graded 0-100 of a politician. Offering to explain the
+             grading of a number this document does not publish invites a reader
+             to weigh the dots as one. The dots stay, and nothing on this page
+             calls them a score. -->
+      </div>
+
+      <!-- Phase 5 · All Evidence / By Politician / My Evidence view toggle -->
+      <div class="text-center"><div class="el-tabs animate-on-scroll" role="tablist" aria-label="Evidence Locker views">
+        <button type="button" class="el-tab is-active" id="el-tab-all" role="tab" aria-selected="true">📂 All Evidence</button>
+        <button type="button" class="el-tab" id="el-tab-pol" role="tab" aria-selected="false">👤 By Politician</button>
+        <button type="button" class="el-tab" id="el-tab-issue" role="tab" aria-selected="false">🎯 By Issue</button>
+        <button type="button" class="el-tab" id="el-tab-myev" role="tab" aria-selected="false">🔖 My Evidence <span class="el-tab-count" id="el-myev-count">0</span></button>
+      </div></div>
+
+      <!-- ═══════ EVIDENCE LOCKER · QUICK-JUMP NAV ═══════════════════════════
+           Sticky, horizontally-scrollable pill bar that maps the blocks of the
+           All Evidence view. It sits just below the global fixed navbar while the
+           locker is on screen, gates any pill whose target is missing/empty,
+           smooth-scrolls on click (respecting prefers-reduced-motion), keeps its
+           live counts fresh (driven off _render / _setView), and highlights the
+           section currently in view. Self-contained; no external dependencies.
+           Styling echoes the site's gold-on-dark language (see .mandate-jump). -->
+      <style>
+        .el-jump {
+          position: sticky;
+          /* Pinned to the measured chrome rather than a 62px guess. */
+          top: calc(var(--pdx-chrome, 7.125rem) + 5px);
+          z-index: 30;
+          display: flex;
+          gap: 0.5rem;
+          max-width: 80rem;
+          margin: 0 auto 2rem;
+          padding: 0.5rem;
+          overflow-x: auto;
+          overflow-y: hidden;
+          scrollbar-width: none;              /* Firefox */
+          -webkit-overflow-scrolling: touch;
+          border-radius: 999px;
+          background: linear-gradient(180deg, rgba(13,21,38,0.92), rgba(10,15,30,0.92));
+          border: 1px solid rgba(245,200,66,0.22);
+          box-shadow: 0 10px 30px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05);
+          -webkit-backdrop-filter: blur(12px);
+          backdrop-filter: blur(12px);
+        }
+        .el-jump::-webkit-scrollbar { display: none; }   /* Chrome/Safari/Edge */
+        .el-jump-pill {
+          flex: 0 0 auto;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.4rem;
+          min-height: 44px;                   /* ≥44px touch target */
+          padding: 0.4rem 1rem;
+          border-radius: 999px;
+          border: 1px solid rgba(255,255,255,0.08);
+          background: rgba(255,255,255,0.03);
+          color: #cbd5e1;
+          font-family: 'Barlow Condensed', sans-serif;
+          font-size: 0.74rem;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          white-space: nowrap;
+          cursor: pointer;
+          transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+        }
+        .el-jump-pill[hidden] { display: none; }
+        .el-jump-pill .ej-ico { font-size: 0.95rem; line-height: 1; }
+        .el-jump-pill .ej-count {
+          min-width: 1.1rem;
+          padding: 0 0.35rem;
+          border-radius: 999px;
+          background: rgba(245,200,66,0.16);
+          border: 1px solid rgba(245,200,66,0.3);
+          color: #f5c842;
+          font-size: 0.62rem;
+          line-height: 1.05rem;
+          text-align: center;
+        }
+        .el-jump-pill:hover {
+          color: #fff;
+          background: rgba(245,200,66,0.1);
+          border-color: rgba(245,200,66,0.35);
+          transform: translateY(-1px);
+        }
+        .el-jump-pill:focus-visible {
+          outline: 2px solid #f5c842;
+          outline-offset: 2px;
+        }
+        .el-jump-pill.is-active {
+          color: #0a0f1e;
+          background: linear-gradient(135deg, #fad96a, #e6b800);
+          border-color: rgba(245,200,66,0.9);
+          box-shadow: 0 0 16px rgba(245,200,66,0.4), inset 0 1px 0 rgba(255,255,255,0.35);
+        }
+        .el-jump-pill.is-active .ej-count {
+          background: rgba(10,15,30,0.18);
+          border-color: rgba(10,15,30,0.25);
+          color: #0a0f1e;
+        }
+        /* Clearance BEYOND the fixed chrome, which html{scroll-padding-top}
+           already subtracts: .el-jump is a sticky rail pinned under the nav, so
+           what is stated here is the rail alone — 0.5rem of padding either side
+           of a 44px pill. The old 132px meant "chrome + rail" and therefore
+           counted the chrome twice. */
+        #el-quickcats, #el-featured, #el-recent, #el-toolbar, #el-results {
+          scroll-margin-top: 3.75rem;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .el-jump-pill { transition: none; }
+          .el-jump-pill:hover { transform: none; }
+        }
+        @media (max-width: 640px) {
+          /* `top: 58px` used to live here and was the last phone-only restatement
+             of the nav's depth — it beat the measured calc on specificity, so on
+             exactly the screens where the chrome is tallest the rail parked ~60px
+             up underneath it. The rail's phone treatment is its shape, not its
+             offset; the offset stays with --pdx-chrome. */
+          .el-jump { border-radius: 1rem; margin-bottom: 1.5rem; }
+          .el-jump-pill { font-size: 0.68rem; padding: 0.4rem 0.8rem; }
+        }
+      </style>
+      <nav class="el-jump" id="el-jump" aria-label="Jump to an Evidence Locker section" hidden>
+        <button type="button" class="el-jump-pill" data-target="el-toolbar">
+          <span class="ej-ico" aria-hidden="true">🔍</span>Search &amp; Filter
+        </button>
+        <button type="button" class="el-jump-pill" data-target="el-quickcats">
+          <span class="ej-ico" aria-hidden="true">🏷️</span>Categories
+          <span class="ej-count" data-count aria-hidden="true">—</span>
+        </button>
+        <button type="button" class="el-jump-pill" data-target="el-featured">
+          <span class="ej-ico" aria-hidden="true">⭐</span>Featured
+        </button>
+        <button type="button" class="el-jump-pill" data-target="el-recent">
+          <span class="ej-ico" aria-hidden="true">🕒</span>Recently Added
+        </button>
+        <button type="button" class="el-jump-pill" data-target="el-results">
+          <span class="ej-ico" aria-hidden="true">📄</span>All Evidence
+          <span class="ej-count" data-count aria-hidden="true">—</span>
+        </button>
+      </nav>
+
+      <!-- ───── View: All Evidence ───── -->
+      <div id="el-view-all">
+
+      <!-- Discovery layer — built in JS once the library loads. Hidden until
+           then, and (for the showcase) whenever a filter/search is active. -->
+      <div id="el-quickcats" class="el-quickcats animate-on-scroll" style="display:none;">
+        <div class="el-section-head">
+          <span class="el-section-title"><span class="el-sec-eye">🧭</span> Explore by Category</span>
+          <span class="el-section-sub">Jump straight to a topic — tap a subject to filter the whole library.</span>
+        </div>
+        <div class="el-qc-row" id="el-qc-row" role="group" aria-label="Browse evidence by category"></div>
+      </div>
+
+      <div id="el-showcase" class="el-showcase" style="display:none;">
+        <div class="el-feat-block" id="el-featured">
+          <div class="el-section-head">
+            <span class="el-section-title"><span class="el-sec-eye"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true" style="width:1.05em;height:1.05em;vertical-align:-0.16em;"><rect x="2" y="7" width="20" height="13" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8.2 7 L9.5 4.6 L14.5 4.6 L15.8 7 Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="13.6" r="4.7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8.6 13.6 C10 11.9 14 11.9 15.4 13.6 C14 15.3 10 15.3 8.6 13.6 Z" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/><circle cx="12" cy="13.6" r="1.55" fill="currentColor"/><circle cx="18.4" cy="9.6" r="0.95" fill="currentColor"/></svg></span> Featured Evidence</span>
+            <span class="el-section-sub"><strong>The strongest receipts</strong> — recorded video, official records and on-the-record statements worth seeing first.</span>
+          </div>
+          <div class="el-feat-grid" id="el-feat-grid"></div>
+        </div>
+        <div class="el-feat-block" id="el-recent" style="margin-bottom:0;">
+          <div class="el-section-head">
+            <span class="el-section-title"><span class="el-new-badge">✦ New</span> Recently Added</span>
+            <span class="el-section-sub">The freshest evidence in the locker. <span class="el-rail-hint">Scroll to browse →</span></span>
+          </div>
+          <div class="el-recent-rail" id="el-recent-rail"></div>
+        </div>
+      </div>
+
+      <div class="el-toolbar animate-on-scroll" id="el-toolbar" style="transition-delay:0.06s;">
+        <div class="el-searchbar">
+          <span class="el-search-icon" aria-hidden="true">🔍</span>
+          <input type="search" id="el-f-search" placeholder="Search members, issues, headlines, summaries or evidence type…" autocomplete="off" aria-label="Search the evidence library">
+          <button type="button" class="el-search-clear" id="el-search-clear" aria-label="Clear search" hidden>×</button>
+        </div>
+        <div class="el-controls">
+          <div class="el-field">
+            <label for="el-f-category">Category</label>
+            <select id="el-f-category"><option value="">All categories</option></select>
+          </div>
+          <div class="el-field">
+            <label for="el-f-issue">Issue</label>
+            <select id="el-f-issue"><option value="">All issues</option></select>
+          </div>
+          <div class="el-field">
+            <label for="el-f-pol">Politician</label>
+            <select id="el-f-pol"><option value="">All legislators</option></select>
+          </div>
+          <div class="el-field">
+            <label for="el-f-bill">Bill number</label>
+            <input type="search" id="el-f-bill" class="el-f-text" placeholder="e.g. H.B. 461" autocomplete="off"
+                   aria-label="Filter the evidence library by bill number">
+          </div>
+          <div class="el-field">
+            <label for="el-f-sort">Sort by</label>
+            <select id="el-f-sort">
+              <option value="date_desc">Date · Newest first</option>
+              <option value="date_asc">Date · Oldest first</option>
+              <option value="strength_desc">Strength · Strongest first</option>
+              <option value="pol_asc">Politician · A–Z</option>
+              <option value="cat_asc">Category · A–Z</option>
+              <option value="issue_asc">Issue · A–Z</option>
+            </select>
+          </div>
+        </div>
+        <div id="el-pol-bridge" class="el-pol-suggest" style="display:none;margin-top:0.85rem;"></div>
+        <p class="el-cat-hint">
+          <span class="el-cat-hint-ico" aria-hidden="true">ⓘ</span>
+          <span><strong>Categories</strong> group evidence into broad topics — explore by subject area, then narrow with a specific issue.</span>
+        </p>
+        <div class="el-types" id="el-types" role="group" aria-label="Filter by evidence type"></div>
+        <div class="el-meta-row">
+          <span class="el-count" id="el-count"></span>
+          <div class="el-legend" aria-label="What evidence strength means">
+            <span class="el-legend-lab">Strength</span>
+            <span class="el-legend-item is-strong" title="An official government record, or an in-depth directly-attributed interview — with a direct link and a tracked issue (and usually a pinpoint timestamp).">
+              <span class="el-legend-bars" aria-hidden="true">●●●</span>Strong</span>
+            <span class="el-legend-item is-moderate" title="An on-the-record statement, a shorter or generic video clip, or an official item missing a timestamp or issue tag.">
+              <span class="el-legend-bars" aria-hidden="true">●●○</span>Moderate</span>
+            <span class="el-legend-item is-limited" title="A social-media post or short clip with little verifying detail.">
+              <span class="el-legend-bars" aria-hidden="true">●○○</span>Limited</span>
+          </div>
+          <button type="button" class="el-chip el-relevant-toggle" id="el-relevant-toggle" aria-pressed="false" title="Show only evidence for your picks &amp; representatives">⭐ Relevant to Me</button>
+          <div class="el-density" role="group" aria-label="Card density">
+            <button type="button" class="el-density-btn is-active" data-density="comfortable" aria-pressed="true" title="Roomier cards">☰ Comfortable</button>
+            <button type="button" class="el-density-btn" data-density="compact" aria-pressed="false" title="Denser cards — see more per screen">▦ Compact</button>
+          </div>
+          <button type="button" class="el-reset" id="el-reset">Reset filters</button>
+        </div>
+      </div>
+
+      <div id="el-status" class="el-status"><span class="el-spin"></span>Opening the Digital Library…</div>
+      <div id="el-empty" class="el-empty" style="display:none;">
+        <div class="el-empty-ico" aria-hidden="true">📚</div>
+        <div class="el-empty-title">No evidence yet for this filter</div>
+        <div class="el-empty-sub">Nothing in the library matches these filters — try broadening your search, or clear a filter to widen the results.</div>
+        <button type="button" class="el-empty-reset" id="el-empty-reset">↺ Reset all filters</button>
+      </div>
+      <div id="el-mandate-filter" class="el-mandate-filter" style="display:none;"></div>
+      <div id="el-compare-filter" class="el-mandate-filter el-compare-filter" style="display:none;"></div>
+      <div id="el-relevant-filter" class="el-mandate-filter el-relevant-filter" style="display:none;"></div>
+      <div id="el-pol-context" class="el-pol-context" style="display:none;"></div>
+      <style>
+        /* Issue Spotlight hits — when a search term maps to a curated local-issue
+           guide (data center, Alpine, property tax…), surface it above the raw
+           evidence rows so the visitor lands on the sourced overview first. */
+        #el-spotlight-hits{display:none;margin:0 0 1.1rem;}
+        #el-spotlight-hits.is-on{display:block;}
+        #el-spotlight-hits .elsh-head{display:flex;align-items:center;gap:.5rem;margin:0 0 .7rem;
+          font:700 .72rem/1 'Barlow Condensed',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#f5c842;}
+        #el-spotlight-hits .elsh-grid{display:grid;gap:.7rem;grid-template-columns:repeat(auto-fill,minmax(18rem,1fr));}
+        #el-spotlight-hits .elsh-card{display:flex;flex-direction:column;text-align:left;width:100%;cursor:pointer;
+          background:rgba(245,200,66,.05);border:1px solid rgba(245,200,66,.28);border-left:3px solid rgba(245,200,66,.6);
+          border-radius:.8rem;padding:.85rem .95rem;color:inherit;transition:transform .16s ease,border-color .16s ease,background .16s ease;}
+        #el-spotlight-hits .elsh-card:hover{transform:translateY(-2px);background:rgba(245,200,66,.09);border-color:rgba(245,200,66,.5);}
+        #el-spotlight-hits .elsh-card:focus-visible{outline:2px solid #f5c842;outline-offset:2px;}
+        #el-spotlight-hits .elsh-k{font:700 .6rem/1 'Barlow Condensed',sans-serif;letter-spacing:.14em;
+          text-transform:uppercase;color:#c9a94a;display:flex;align-items:center;gap:.35rem;}
+        #el-spotlight-hits .elsh-t{font:700 1.05rem/1.15 'Barlow Condensed',sans-serif;color:#fff;margin:.4rem 0 .15rem;}
+        #el-spotlight-hits .elsh-p{font:500 .8rem/1.3 'Barlow',sans-serif;color:#9fb4d4;margin-bottom:.55rem;}
+        #el-spotlight-hits .elsh-foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:.5rem;}
+        #el-spotlight-hits .elsh-doc{font:700 .62rem/1 'Barlow Condensed',sans-serif;letter-spacing:.05em;text-transform:uppercase;
+          border-radius:999px;padding:.2rem .5rem;border:1px solid transparent;}
+        #el-spotlight-hits .elsh-doc.lvl-strong{color:#7ee2a8;background:rgba(74,222,128,.1);border-color:rgba(74,222,128,.3);}
+        #el-spotlight-hits .elsh-doc.lvl-moderate{color:#f5d77a;background:rgba(245,200,66,.1);border-color:rgba(245,200,66,.3);}
+        #el-spotlight-hits .elsh-doc.lvl-limited{color:#a9bbd6;background:rgba(159,180,212,.08);border-color:rgba(159,180,212,.24);}
+        #el-spotlight-hits .elsh-cta{font:700 .72rem/1 'Barlow Condensed',sans-serif;letter-spacing:.05em;text-transform:uppercase;color:#f5d77a;}
+      </style>
+      <div id="el-spotlight-hits" aria-label="Issue Spotlights matching your search">
+        <div class="elsh-head">🔦 Issue Spotlights matching your search</div>
+        <div class="elsh-grid" id="el-spotlight-hits-grid"></div>
+      </div>
+      <div id="el-results" class="el-grid"></div>
+      </div><!-- /#el-view-all -->
+
+      <!-- ───── View: By Politician (footprint-first lens) ───── -->
+      <div id="el-view-pol" class="el-polview" style="display:none;">
+        <div class="el-polpick">
+          <div class="el-polpick-head">
+            <span class="el-polpick-title">👤 Browse by politician</span>
+            <span class="el-polpick-sub">Search and add one or more politicians to focus the locker on their evidence collection — grouped and ready to scan.</span>
+          </div>
+          <div class="el-polpick-bar">
+            <span class="el-polpick-ico" aria-hidden="true">🔍</span>
+            <input type="search" id="el-pol-add" autocomplete="off" placeholder="Search politicians by name or office…" aria-label="Search and add a politician">
+            <div id="el-polpick-menu" class="el-polpick-menu" role="listbox" aria-label="Matching politicians" hidden></div>
+          </div>
+          <div id="el-pol-chips" class="el-pol-chips" aria-label="Selected politicians"></div>
+          <div id="el-pol-suggest" class="el-pol-suggest"></div>
+        </div>
+
+        <div id="el-pol-summary" class="el-pol-summary" style="display:none;"></div>
+
+        <div id="el-pol-controls" class="el-pol-controls" style="display:none;">
+          <div class="el-pol-search">
+            <span class="el-search-icon" aria-hidden="true">🔍</span>
+            <input type="search" id="el-pol-search" placeholder="Search within these results…" autocomplete="off" aria-label="Search within the selected politicians' evidence">
+          </div>
+          <div class="el-polgroup" role="group" aria-label="Group evidence by">
+            <span class="el-polgroup-lab">Group by</span>
+            <button type="button" class="el-polgroup-btn is-active" data-group="issue">Issue</button>
+            <button type="button" class="el-polgroup-btn" data-group="type">Type</button>
+            <button type="button" class="el-polgroup-btn" data-group="strength">Strength</button>
+            <button type="button" class="el-polgroup-btn" data-group="recency">Recency</button>
+            <button type="button" class="el-polgroup-btn" data-group="category">Category</button>
+          </div>
+        </div>
+
+        <div id="el-pol-empty" class="el-pol-empty">
+          <div class="el-pol-empty-ico" aria-hidden="true">🔎👤</div>
+          <div class="el-pol-empty-title">Pick a politician to see their evidence footprint</div>
+          <div class="el-pol-empty-sub">Add one or more politicians above. The locker will show only their recorded evidence — videos, posts and official records — grouped by issue, type, strength or recency so you can scan the full footprint at a glance.</div>
+        </div>
+        <div id="el-pol-results" class="el-pol-results"></div>
+      </div><!-- /#el-view-pol -->
+
+      <!-- ───── View: By Issue (Issue Gateway Cards) ───── -->
+      <div id="el-view-issue" class="el-issueview" style="display:none;">
+        <div id="el-issue-browse">
+          <div class="el-section-head">
+            <span class="el-section-title"><span class="el-sec-eye">🎯</span> Start from an issue</span>
+            <span class="el-section-sub">Care about one subject? <strong>Pick an issue gateway</strong> to see who&rsquo;s on record and where they stand — then jump straight to the receipts.</span>
+          </div>
+          <div class="el-issue-search">
+            <span class="el-search-icon" aria-hidden="true">🔍</span>
+            <input type="search" id="el-issue-q" placeholder="Search issues — water, taxes, housing, schools…" autocomplete="off" aria-label="Search issue gateways">
+          </div>
+          <div id="el-issue-status" class="el-issue-status"><span class="el-spin"></span>Opening the Digital Library…</div>
+          <div id="el-issue-empty" class="el-issue-empty" style="display:none;">
+            <div class="el-issue-empty-ico" aria-hidden="true">🎯</div>
+            <div class="el-issue-empty-title">No issues match that search</div>
+            <div class="el-issue-empty-sub">Try a broader term, or clear the search to browse every issue with evidence on record.</div>
+          </div>
+          <div id="el-issue-grid" class="el-issue-grid" role="list" aria-label="Issue gateways"></div>
+        </div>
+        <!-- Stance-grouped focus for a single issue — injected when a gateway card is tapped. -->
+        <div id="el-issue-focus" class="el-issue-focus" style="display:none;"></div>
+      </div><!-- /#el-view-issue -->
+
+      <!-- ───── View: My Evidence (saved collections) ───── -->
+      <div id="el-view-myev" class="el-myev" style="display:none;">
+        <div class="el-myev-head">
+          <h3>🔖 My Evidence</h3>
+          <button type="button" class="el-myev-newcol" id="el-myev-newcol">＋ New collection</button>
+        </div>
+        <div id="el-myev-signin" class="el-myev-signin" style="display:none;">
+          You’re saving on this device. <button type="button" id="el-myev-signin-btn">Sign in</button> to sync your collections across every device.
+        </div>
+        <div id="el-myev-body"></div>
+      </div>
+    </div>
+
+    <!-- Evidence detail modal — populated and toggled in JS below. -->
+    <div id="el-modal-overlay" class="el-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="el-modal-headline" hidden>
+      <div class="el-modal">
+        <button type="button" class="el-modal-close" id="el-modal-close" aria-label="Close evidence detail">×</button>
+        <div class="el-modal-inner" id="el-modal-inner"></div>
+      </div>
+    </div>
+
+    <!-- Phase 4 · Save-to-collection mini modal -->
+    <div id="el-save-overlay" class="el-save-overlay" role="dialog" aria-modal="true" aria-label="Save evidence to a collection" hidden>
+      <div class="el-save">
+        <div class="el-save-title">🔖 Save evidence</div>
+        <div class="el-save-head" id="el-save-head"></div>
+        <div class="el-save-list" id="el-save-list"></div>
+        <div class="el-save-new">
+          <input type="text" id="el-save-newinput" maxlength="48" placeholder="New collection name (e.g. Water Issues)" aria-label="New collection name">
+          <button type="button" id="el-save-newbtn">Create</button>
+        </div>
+        <div class="el-save-foot">
+          <span class="el-save-note" id="el-save-note">Saved on this device.</span>
+          <button type="button" class="el-save-done" id="el-save-done">Done</button>
+        </div>
+      </div>
+    </div>
+    </template>
+  </section>
+
+  <!-- ══ MOVED HERE FROM index.html ═══════════════════════════════════════════
+       THE QUICK-JUMP NAV, and it is a MOVE rather than a copy. It lives INSIDE
+       the workspace — it powers #el-jump, which is an element of the template
+       above — so it had to travel with it, and once it had travelled there was
+       nothing left on index.html for it to wire: no #el-jump, and no
+       `pdx:locker:mounted` event, because _mount() cannot succeed on a document
+       with no template. It is deleted there.
+
+       It is the definer of window.rebuildEvidenceNav, which the engine's
+       _render() and _setView() call after every filter change and tab switch, so
+       a document with the workspace and without this script would have a pill
+       bar whose counts never move. Wired on `pdx:locker:mounted` for the same
+       reason it always was: there is no #el-jump to wire until _mount() has
+       cloned the template.
+
+       scripts/test-evidence-shell.mjs asserts this block is here AND that
+       index.html no longer carries it, so the two cannot drift back apart.
+       ══════════════════════════════════════════════════════════════════════ -->
+  <script>
+  // ════════════════════════════════════════════════════════════
+  // EVIDENCE LOCKER — QUICK-JUMP NAV (sticky map + scroll-spy)
+  // Powers the #el-jump pill bar under the locker's header/tabs. Gates any pill
+  // whose target block is missing or empty, keeps the live counts (Categories,
+  // All Evidence) fresh, smooth-scrolls on click (respecting prefers-reduced-
+  // motion), and highlights the section currently in view. The locker's render
+  // path (_render → filters/sync) and tab switcher (_setView) call the exposed
+  // window.rebuildEvidenceNav() so counts + gating track content changes:
+  // new receipts, filter/search changes, cross-device sync merges, tab switches.
+  // Scoped to #evidence-locker; no external dependencies.
+  //
+  // WIRED ON MOUNT, NOT ON ARRIVAL. The pill bar lives inside the locker
+  // workspace, which is now inert markup in a <template> until the door opens —
+  // so there is no #el-jump to wire while the door is shut, and a one-shot
+  // lookup at parse time would leave rebuildEvidenceNav() undefined forever.
+  // setup() therefore runs on the `pdx:locker:mounted` event that _mount()
+  // fires, is idempotent (one wiring per nav element), and still runs eagerly
+  // once at parse time so nothing changes for a page that already has the bar.
+  // ════════════════════════════════════════════════════════════
+  (function () {
+  function setup() {
+    const nav = document.getElementById('el-jump');
+    if (!nav || nav.__pdxJumpWired) return;
+    nav.__pdxJumpWired = true;
+    const pills = Array.from(nav.querySelectorAll('.el-jump-pill'));
+    const reduceMotion = () =>
+      !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+    // A target "has content" when it exists and is actually rendered (not inside
+    // a hidden tab/collapsed showcase). Two targets also carry a live count that
+    // must be > 0 to matter: Categories (chips) and All Evidence (visible cards).
+    function targetInfo(id) {
+      const el = document.getElementById(id);
+      if (!el) return { el: null, count: null, hasContent: false };
+      const rendered = el.getClientRects().length > 0 || el.offsetParent !== null;
+      if (id === 'el-results') {
+        const n = el.querySelectorAll('.el-card').length;
+        return { el, count: n, hasContent: rendered && n > 0 };
+      }
+      if (id === 'el-quickcats') {
+        const n = el.querySelectorAll('.el-qc').length;
+        return { el, count: n, hasContent: rendered && n > 0 };
+      }
+      return { el, count: null, hasContent: rendered };
+    }
+
+    let visiblePills = [];
+
+    // (Re)build: show only pills with real targets, refresh the live counts, and
+    // reveal the bar only when there are at least two places to jump to — a
+    // one-item map isn't worth the space (non-intrusive self-gating). When the
+    // locker is on another tab (All Evidence view hidden) every target gates out,
+    // so the bar hides itself entirely.
+    function build() {
+      visiblePills = [];
+      pills.forEach(pill => {
+        const info = targetInfo(pill.dataset.target);
+        pill.hidden = !info.hasContent;
+        if (info.hasContent) visiblePills.push(pill);
+        const c = pill.querySelector('[data-count]');
+        if (c && info.count != null) c.textContent = info.count;
+      });
+      nav.hidden = visiblePills.length < 2;
+    }
+
+    function setActive(pill) {
+      pills.forEach(p => {
+        const on = p === pill;
+        p.classList.toggle('is-active', on);
+        if (on) p.setAttribute('aria-current', 'true');
+        else p.removeAttribute('aria-current');
+      });
+    }
+
+    // Smooth-scroll to a target. html{scroll-padding-top} — derived from the
+    // measured --pdx-chrome — keeps the landing clear of the fixed bar. Motion
+    // collapses to an instant jump under reduced motion.
+    function jumpTo(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', block: 'start' });
+    }
+
+    pills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        setActive(pill);
+        // Keep the scroll-spy's memo in step with a click-driven change, so the
+        // spy can never mistake the clicked pill for a state it already applied.
+        lastSpyPill = pill;
+        jumpTo(pill.dataset.target);
+      });
+    });
+
+    // Scroll-spy: the active pill is the last visible target whose top has crossed
+    // the readable line just beneath the global nav + sticky jump bar.
+    var lastSpyPill = null;
+    function syncActiveByScroll() {
+      if (nav.hidden || !visiblePills.length) return;
+      // Same cheap gate as the Mandate rail: one rect read instead of one per
+      // pill, so scrolling anywhere outside the Evidence Locker costs nothing.
+      var nr = nav.getBoundingClientRect();
+      var vh = window.innerHeight || 800;
+      if (nr.bottom < -240 || nr.top > vh + 240) return;
+      const line = 150; // px from viewport top — just below global nav + jump bar
+      let current = visiblePills[0];
+      visiblePills.forEach(pill => {
+        const el = document.getElementById(pill.dataset.target);
+        if (el && el.getBoundingClientRect().top - line <= 0) current = pill;
+      });
+      // Skip the class/aria writes while the active pill is unchanged — see the
+      // Mandate rail above for why this matters on a document this large.
+      if (current === lastSpyPill) return;
+      lastSpyPill = current;
+      setActive(current);
+    }
+
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(() => { syncActiveByScroll(); ticking = false; });
+    }, { passive: true });
+
+    // Rebuild hook — the locker's _render() and _setView() call this after the
+    // grid, filters, showcase or active tab change so counts + gating stay current.
+    window.rebuildEvidenceNav = function () { build(); syncActiveByScroll(); };
+
+    build();
+    syncActiveByScroll();
+  }
+  document.addEventListener('pdx:locker:mounted', setup);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
+  else setup();
+  })();
+  </script>
+
+  <!-- ══ MOVED HERE FROM index.html ═══════════════════════════════════════════
+       THE CARD-DENSITY SWITCH, and it is a MOVE rather than a copy. It toggles
+       `is-compact` on the results grid (#el-results) and remembers the choice in
+       localStorage under pdx-el-density — a preference a reader sets once and
+       expects to find again. Both the grid and the .el-density-btn controls are
+       elements of the workspace template above, so the only document that can
+       ever satisfy this script is this one: on index.html, after the template
+       left, `restore()` polled 40 times for an #el-results that can no longer
+       exist and the delegated click listener matched nothing. It is deleted
+       there and lives here, unchanged, including the `pdx:locker:mounted`
+       re-apply — which still matters, because the workspace is a template on
+       this document too and the grid does not exist until _mount() clones it.
+
+       scripts/test-evidence-shell.mjs asserts this block is here AND that
+       index.html no longer carries it, so the two cannot drift back apart.
+       ══════════════════════════════════════════════════════════════════════ -->
+  <script>
+  /* Evidence Locker density switch — additive, self-contained. Toggles a compact
+     layout on the results grid (#el-results) and remembers the choice, so a
+     visitor who prefers to scan more per screen isn't stuck scrolling. Uses event
+     delegation so it works no matter when the lazily-built locker renders. */
+  (function () {
+    function apply(mode) {
+      var grid = document.getElementById('el-results');
+      if (grid) grid.classList.toggle('is-compact', mode === 'compact');
+      var btns = document.querySelectorAll('.el-density-btn');
+      for (var i = 0; i < btns.length; i++) {
+        var on = btns[i].getAttribute('data-density') === mode;
+        btns[i].classList.toggle('is-active', on);
+        btns[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+      }
+      try { localStorage.setItem('pdx-el-density', mode); } catch (e) {}
+    }
+    document.addEventListener('click', function (e) {
+      var btn = e.target && e.target.closest && e.target.closest('.el-density-btn');
+      if (!btn) return;
+      apply(btn.getAttribute('data-density') || 'comfortable');
+    });
+    function restore(tries) {
+      var saved = null;
+      try { saved = localStorage.getItem('pdx-el-density'); } catch (e) {}
+      if (saved !== 'compact') return;              // comfortable is the default
+      if (document.getElementById('el-results')) { apply('compact'); return; }
+      if ((tries || 0) < 40) setTimeout(function () { restore((tries || 0) + 1); }, 250);
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { restore(0); });
+    else restore(0);
+    // The grid only exists once the locker workspace is mounted, which may be
+    // long after those retries gave up — so re-apply the saved density the
+    // moment the door opens.
+    document.addEventListener('pdx:locker:mounted', function () { restore(0); });
+  })();
+  </script>
+
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 27406–27524 ═══════════════════
+       PDXStance — the four-state stance language, and ONE OF EXACTLY TWO
+       unguarded global reads in evidence-locker.js. _elStancePill (line 3256)
+       and _issueFocusStanceChip (line 3850) both call
+       window.PDXStance.stancePill(window.PDXStance.resolveStance(…)) with no
+       `typeof` check and no try/catch, so its absence is not a missing pill —
+       it is a TypeError inside a render pass, which takes the receipt card with
+       it. It is an inline copy rather than a shared file for the same reason
+       spotlight.html, person.html and stances.html carry one: index.html
+       declares it inline, mid-document, and moving it into a script file there
+       would change the order it runs in relative to everything that reads it on
+       the front page. This split does not touch index.html's copy.
+
+       scripts/test-evidence-shell.mjs pins this block to index.html's line for
+       line, so a fix applied to one document cannot silently skip the other.
+       ══════════════════════════════════════════════════════════════════════ -->
+  <script>
+  // ── PDXStance — shared canonical stance language (single source of truth) ────
+  // Lifted out of the Issue Spotlight "Who Stands Where" module so every surface
+  // (Profile Key Issue Stances, Compare, My Priorities, Hot Topics, Evidence
+  // Locker) can speak the exact same four-state language instead of maintaining
+  // its own divergent copy. Read-only over existing stance records — no new data.
+  //
+  // Four canonical states (LOCKED — do not add a fifth):
+  //   supported → teal   #4fd6b3   "Supported"
+  //   opposed   → orange #ff9d84   "Opposed"
+  //   mixed     → amber  #f3cb5c   "Mixed / Nuanced"
+  //   none      → gray   #a4b4cc   "No Clear Position"
+  //
+  // Legacy/older vocabularies collapse into these on resolution:
+  //   "Researching" / "On record" / tracking / unknown / missing → none
+  //   "Top Priority" is NOT a stance color — it is a separate emphasis marker,
+  //   surfaced via PDXStance.isTopPriority() (the visual star is handled later).
+  //
+  // The pill markup + colors mirror the .pdxis-stance-* CSS exactly, so callers
+  // get the calm Who Stands Where look (thin border, low-saturation fill, small
+  // "STANCE" caption + color dot) for free.
+  (function () {
+    'use strict';
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
+    // Canonical state definitions. `cls` maps to the .pdxis-stance-<cls> CSS.
+    // `color` is the accent (dot + text); `fill`/`border` mirror that CSS so a
+    // surface building bespoke markup can match Who Stands Where without guessing.
+    var STATES = {
+      supported: { key:'supported', label:'Supported',         cls:'supported', color:'#4fd6b3', fill:'rgba(45,212,164,.13)', border:'rgba(45,212,164,.42)' },
+      opposed:   { key:'opposed',   label:'Opposed',           cls:'opposed',   color:'#ff9d84', fill:'rgba(248,113,90,.13)', border:'rgba(248,113,90,.42)' },
+      mixed:     { key:'mixed',     label:'Mixed / Nuanced',   cls:'mixed',     color:'#f3cb5c', fill:'rgba(245,193,66,.13)', border:'rgba(245,193,66,.42)' },
+      none:      { key:'none',      label:'No Clear Position', cls:'none',      color:'#a4b4cc', fill:'rgba(140,156,182,.1)', border:'rgba(140,156,182,.3)' }
+    };
+    var ORDER = ['supported', 'opposed', 'mixed', 'none'];
+
+    // Raw string → canonical key. Recognizes the canonical keys/labels plus the
+    // legacy vocabularies scattered across the older renderers (posMeta,
+    // _prioStanceDir, STANCE_META, _POL_STANCE_META). Returns null when nothing
+    // matches so callers can fall through before defaulting to `none`. Note:
+    // "Top Priority"/"priority" deliberately do NOT resolve here — they are
+    // emphasis, not a stance (see isTopPriority).
+    var ALIASES = {
+      'supported':'supported', 'support':'supported', 'supports':'supported', 'for':'supported', 'yes':'supported', 'favor':'supported', 'favors':'supported',
+      'opposed':'opposed', 'oppose':'opposed', 'opposes':'opposed', 'against':'opposed', 'no':'opposed',
+      'mixed':'mixed', 'nuanced':'mixed', 'mixed / nuanced':'mixed', 'mixed record':'mixed', 'partial':'mixed', 'conditional':'mixed', 'complicated':'mixed',
+      'none':'none', 'no clear position':'none', 'no position':'none', 'unknown':'none', 'unclear':'none',
+      'researching':'none', 'tracking':'none', 'on record':'none'
+    };
+    function _norm(raw) {
+      if (raw == null) return null;
+      var v = String(raw).trim().toLowerCase();
+      if (!v) return null;
+      if (STATES[v]) return v;
+      return Object.prototype.hasOwnProperty.call(ALIASES, v) ? ALIASES[v] : null;
+    }
+
+    // resolveStance(record[, override]) → one of the four canonical keys.
+    // `record` may be a stance record ({issueStance|pos|stance|text}) or a raw
+    // string. `override` (optional) is an explicit stance pinned by the surface
+    // (e.g. a Spotlight person's `stance`) and wins when recognized. Mirrors the
+    // original Who Stands Where derivation exactly:
+    //   explicit override → issueStance/pos → any sourced text ⇒ mixed → none.
+    function resolveStance(record, override) {
+      var o = _norm(override);
+      if (o) return o;
+      if (record == null) return 'none';
+      if (typeof record === 'string') { return _norm(record) || 'none'; }
+      var raw = record.issueStance || record.pos || record.stance || record.dir || '';
+      var n = _norm(raw);
+      if (n) return n;
+      if (record.text) return 'mixed';   // a sourced position we can't cleanly classify
+      return 'none';
+    }
+
+    // Full state descriptor for a record/key (label, cls, color, fill, border).
+    function stanceState(keyOrRecord) {
+      var key = (typeof keyOrRecord === 'string' && STATES[keyOrRecord])
+        ? keyOrRecord
+        : (STATES[_norm(keyOrRecord)] ? _norm(keyOrRecord) : resolveStance(keyOrRecord));
+      return STATES[key] || STATES.none;
+    }
+
+    // stancePill(keyOrRecord) → the calm pill element, byte-identical to the
+    // original Who Stands Where markup. Accepts a canonical key or a raw record.
+    function stancePill(keyOrRecord) {
+      var s = STATES[keyOrRecord] || stanceState(keyOrRecord);
+      return '<span class="pdxis-stance pdxis-stance-' + s.cls + '" title="Position on this issue: ' + esc(s.label) + '">' +
+        '<span class="pdxis-stance-dot" aria-hidden="true"></span>' +
+        '<span class="pdxis-stance-k">Stance</span>' + esc(s.label) + '</span>';
+    }
+
+    // Emphasis marker, kept strictly separate from the stance color. Detects the
+    // legacy "Top Priority" flag/label so surfaces can render a star later without
+    // polluting the four-state stance vocabulary.
+    function isTopPriority(record) {
+      if (record == null) return false;
+      if (record === true) return true;
+      if (typeof record === 'object') {
+        if (record.priority === true || record.topPriority === true) return true;
+        record = record.priority || record.emphasis || record.stance || record.tag || record.pos || '';
+      }
+      return /top\s*priority/i.test(String(record));
+    }
+
+    window.PDXStance = {
+      STATES: STATES,          // canonical state definitions (label/cls/color/fill/border)
+      ORDER: ORDER,            // stable render order of the four states
+      resolveStance: resolveStance,
+      stanceState: stanceState,
+      stancePill: stancePill,
+      normalize: _norm,        // raw string → canonical key or null
+      isTopPriority: isTopPriority,
+      esc: esc
+    };
+  })();
+  </script>
+
+  <!-- ══ COPIED VERBATIM FROM person.html LINES 2006–2030 (= index.html 2012–2035)
+       FIREBASE, ANONYMOUS ONLY. The three compat bundles, the request-time key
+       injection, and the synchronous stub that guarantees `db` / `auth` /
+       `PROFILES` exist before anything can touch them. firebase-boot.js then
+       signs in anonymously and loads the roster index that fills window.PROFILES.
+
+       THE LOCKER NEEDS IT, AND THIS IS THE ONE DOCUMENT IN THE SPLIT WHERE THAT
+       IS TRUE OF A BROWSE ROOM. /stances reads a bundled corpus and seeds names
+       from the bundled roster; the receipts are different. _load() walks the
+       roster calling _pdxEnsureFullProfile(id) to fetch each member's live
+       `spotlight` array, and without that function it calls finish() on the spot
+       and _build() folds in only the bundled SPOTLIGHT_DATA map. That renders —
+       and under-reports. A receipts room that quietly shows fewer receipts than
+       exist is making a false claim about the record, which is worse than a
+       slower page. So the chain ships, anonymously, roster-read only: no account
+       graph, no sign-in UI, no per-user reads.
+       ═══════════════════════════════════════════════════════════════════════ -->
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<!-- The Firebase Web API key is injected at request time from the Netlify
+     environment variable FIREBASE_API_KEY by netlify/edge-functions/firebase-config.ts.
+     It is intentionally NOT hardcoded here so the value never lives in source
+     control or the deployed HTML (and the build's secrets scanner passes). -->
+<script defer src="/firebase-config.js"></script>
+<script>
+  // Run 1 perf: the Firebase SDKs and the bootstrap below are DEFERRED so they no
+  // longer block first paint. This tiny synchronous stub guarantees the globals
+  // that other inline code could touch at parse time exist; firebase-boot.js
+  // (deferred → runs after the SDK, before DOMContentLoaded) then replaces them
+  // with the live Firebase objects and starts the lightweight roster load. Net
+  // effect: identical behavior, but the ~800 KB compat SDK no longer gates paint.
+  var app, db, firestore, auth;
+  var PROFILES = window.PROFILES || {}; window.PROFILES = PROFILES;
+  window._pdxFullIds = window._pdxFullIds || new Set();
+  window._pdxFullPending = window._pdxFullPending || {};
+  function setDoc(docRef, data, options) { return docRef.set(data, options); }
+  db = { collection: null }; firestore = db;
+  auth = { currentUser: null, onAuthStateChanged: function (cb) { try { cb(null); } catch (e) {} return function () {}; }, signInAnonymously: function () { return Promise.reject(new Error('auth pending')); }, signOut: function () { return Promise.resolve(); } };
+</script>
+<script src="/firebase-boot.js" defer></script>
+
+
+  <!-- person-link.js owns the /p/<pid> spelling — the alias table, the vanity
+       hops and the encode rules — and the person seam below asks it for an
+       address rather than concatenating one. Parser-blocking, the same way
+       issue.html and person.html load it, so the seam can never be installed
+       before the resolver it calls exists. -->
+  <script src="/person-link.js"></script>
+
+  <!-- The address canonicaliser, at index.html's own position in the document.
+       profile-evidence.js is the only definer of window.PDX_PROFILE_ALIAS and
+       window.PDXProfilePid, which is the table _canonPid() reads. The guard on
+       that read passes or fails silently either way, so this is not about
+       throwing — it is about correctness: two ids for one person means two
+       person rows in the By-Politician lens and one person's receipts split
+       across both, and a duplicated person on an accountability surface is a
+       wrong claim rather than a cosmetic bug. Parser-blocking, matching
+       person.html line 3541. -->
+  <script src="/profile-evidence.js"></script>
+
+  <!-- ══ THE SEAMS ═══════════════════════════════════════════════════════════
+       A document boundary is only real if every in-page gesture that used to
+       move a reader inside index.html now moves them to an ADDRESS. The
+       workspace's taps were written against homepage globals — a profile modal,
+       a bill detail panel, a Full Stance Record overlay, a sign-in modal — and
+       every one of those reads is `typeof f === 'function'` or `X && typeof
+       X.open === 'function'` guarded, which is exactly what makes them
+       redefinable here.
+
+       The seams are installed THREE TIMES — now, on DOMContentLoaded and on
+       load — for the reason ballot.html states for its own: the modules below
+       are deferred, they execute after this inline script, and if any of them
+       ever assigns one of these names, the later passes take it back. A seam
+       installed once is a seam that a future script load can quietly remove.
+
+       WHAT IS DELIBERATELY NOT SEAMED. window._pdxOpenEvidenceLocker is NOT
+       redefined here — evidence-locker.js itself owns that name on this
+       document, and the engine's own in-page deep links (a category header, an
+       issue chip) have to keep filtering THIS grid rather than navigating to
+       the address they are already standing at. The same is true of
+       PDXEvidenceLocker.
+
+       location.assign(), never history.replaceState(): these are real trips to
+       real documents, so Back has to come back here.
+       ═══════════════════════════════════════════════════════════════════ -->
+  <script>
+  (function () {
+    'use strict';
+
+    function go(to) {
+      if (!to) return false;
+      try { location.assign(to); return true; } catch (e) {}
+      try { location.href = to; return true; } catch (e2) {}
+      try { location.replace(to); return true; } catch (e3) {}
+      return false;
+    }
+
+    // ── SEAM 1 — a person is an address ───────────────────────────────────
+    // Every receipt names somebody, and the locker's person links call
+    // openModal(pid) (or the older showProfile spelling). There is no profile
+    // modal on this document, so both become the navigation the modal was
+    // always a preview of. closeModal is a real no-op rather than absent
+    // because _pdxOpenEvidenceLocker calls it before applying a filter, and a
+    // missing function there would throw inside a click handler and eat the tap.
+    function seamPerson() {
+      var open = function (id, ev) {
+        if (ev && ev.stopPropagation) ev.stopPropagation();
+        var pid = id ? String(id) : ''; if (!pid) return false;
+        var to = '';
+        try {
+          var PL = window.PDXPersonLink;
+          if (PL && typeof PL.href === 'function') to = PL.href(pid) || '';
+        } catch (e) {}
+        if (!to) to = '/p/' + encodeURIComponent(pid);
+        return go(to);
+      };
+      window.openModal = open;
+      window.showProfile = open;
+      window.closeModal = function () {};
+      // The single-politician context header's "Back to … Full Stance Record"
+      // button (engine line 4137) reopens an overlay that layers above the
+      // profile modal. Neither exists here, so the honest answer to "back to
+      // their record" is their record: the person file, which is where the Full
+      // Stance Record's own contents now live.
+      window._pdxOpenStanceRecord = open;
+      window._pdxCloseStanceRecord = function () {};
+    }
+
+    // ── SEAM 2 — a measure is an address ──────────────────────────────────
+    // The workspace's bill doors (data-el-bill) try PDXBillDetail.open first and
+    // fall back to PDXBills.open. Neither module ships here — bill-detail.js is
+    // a panel and bills.js's own fallback opens the source PDF in a new tab,
+    // which is not the bill's PolitiDex record. /b/<number> IS that record, and
+    // it is spelled here exactly as share-links.js spells it (line 361):
+    // sitting first when there is one, because a bill number repeats every
+    // congress and every state session, and dropping the sitting is what makes
+    // two different measures share a link.
+    function billHref(ref, sitting) {
+      var n = String(ref == null ? '' : ref);
+      if (!n) return '';
+      var sit = String(sitting == null ? '' : sitting);
+      return '/b/' + (sit ? encodeURIComponent(sit) + '/' : '') + encodeURIComponent(n);
+    }
+    function seamBills() {
+      // PDXBillDetail is the name the engine reaches for FIRST, so defining it
+      // is what makes a bill tap one navigation instead of two guesses.
+      window.PDXBillDetail = {
+        open: function (ref, sitting) { return go(billHref(ref, sitting)); },
+        close: function () {}
+      };
+      window.PDXBills = {
+        open: function (ref, sitting) { return go(billHref(ref, sitting)); },
+        url: billHref
+      };
+    }
+
+    // ── SEAM 3 — the asks this document cannot answer ─────────────────────
+    // openAuthModal is the sign-in gate behind "save this receipt to a
+    // collection" (engine line 4059). There is no account UI here and stubbing
+    // one would be a lie: a button that opens nothing is better than a button
+    // that pretends to sign somebody in. So it is a trip to the front page,
+    // where the real modal lives, and the collections lane itself keeps working
+    // locally — _saveColls() writes through PDXStore when present and falls back
+    // to localStorage, so a signed-out reader's collections persist in this
+    // browser exactly as they did on the homepage.
+    function seamAccount() {
+      window.openAuthModal = function () { return go('/#account'); };
+    }
+
+    // ── SEAM 4 — the hashes that used to land somewhere ───────────────────
+    // #evidence-locker is THIS document (the engine's _wantsLocker reads it and
+    // _wireRoutes re-opens on it), so it is deliberately absent from the table.
+    // The rest are homepage sections reachable from the workspace's cross-links,
+    // and #stance-library is the other room.
+    var HASH_HOME = { 'open-forum': 1, 'agenda': 1, 'issue-front-door': 1, 'all-spotlights': 1 };
+    function onHash() {
+      var h = String(location.hash || '').replace(/^#/, '');
+      if (!h) return;
+      if (h === 'stance-library') { go('/stances'); return; }
+      if (h === 'all-spotlights') { go('/stances#all-spotlights'); return; }
+      if (HASH_HOME[h]) { go('/#' + h); return; }
+    }
+
+    function seams() { seamPerson(); seamBills(); seamAccount(); }
+
+    seams();
+    document.addEventListener('DOMContentLoaded', seams);
+    window.addEventListener('load', seams);
+    // Registered AFTER evidence-locker.js's own hashchange listener would be, so
+    // #evidence-locker still reaches _wireRoutes first; this one only acts on the
+    // hashes that are not this document.
+    window.addEventListener('hashchange', onHash);
+    document.addEventListener('DOMContentLoaded', onHash);
+
+    // The wordmark and the Home chip are already real anchors; these handlers
+    // exist only so a modified click (cmd/ctrl/shift/alt, middle button) keeps
+    // the browser's own behaviour instead of being swallowed.
+    ['pdx-ev-home', 'pdx-ev-home-mark'].forEach(function (id) {
+      var a = document.getElementById(id);
+      if (!a) return;
+      a.addEventListener('click', function (e) {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
+        e.preventDefault(); go('/');
+      });
+    });
+  })();
+  </script>
+
+  <!-- ══ THE DATA, THEN THE ENGINE ═══════════════════════════════════════════
+       All deferred except the two parser-blocking files above and the engine
+       itself, and in this order, which is what makes the boot on this document
+       a single pass with no race: `defer` guarantees execution in DOCUMENT order
+       regardless of fetchpriority, so by the time evidence-locker.js's _init
+       fires on DOMContentLoaded, PROFILES, CMP_DATA, SPOTLIGHT_DATA,
+       ISSUE_STANCE_DATA, ISSUE_MAP and _polPositionMap are all in place.
+       fetchpriority only decides what the network fetches first.
+       ═══════════════════════════════════════════════════════════════════ -->
+
+  <!-- SPOTLIGHT_DATA — the bundled evidence map. _build() concatenates it under
+       each member's live `spotlight` array and de-duplicates by headline, so it
+       is the floor the live documents are folded on top of, not an alternative
+       to them. index.html loads it at line 251; it is unrelated to
+       spotlight-index.js below despite the neighbouring name. -->
+  <script defer src="/spotlight-cards-data.js"></script>
+
+  <!-- cmp-data.js — the light roster. _roster() scans window.PROFILES and
+       CMP_DATA together and _build() reads a record from whichever has it, so
+       this is both the roster the locker walks before Firestore answers and the
+       fallback record for anyone the live index has not filled in. -->
+  <script defer src="/cmp-data.js"></script>
+
+  <!-- data-hygiene.js normalises the corpus records in place as they land, so it
+       has to run before anything indexes them. Parser-blocking on issue.html
+       (line 1048) for that reason. -->
+  <script src="/data-hygiene.js"></script>
+
+  <!-- The stance corpus — the same split and the same priorities issue.html
+       declares (lines 1063–1080). Here it is not the subject, it is the input to
+       _polPositionMap: the locker prints a stance pill on a receipt to say what
+       position the receipt is evidence OF, and that pill is derived from
+       ISSUE_STANCE_DATA. -->
+  <script defer fetchpriority="high" src="/politician-stances-core.js"></script>
+  <script defer fetchpriority="low" src="/politician-stances-ext.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w2.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w3.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w4.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w5.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w6.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w7.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w8.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w9.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w10.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w11.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w12.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w13.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w14.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w15.js"></script>
+  <script defer fetchpriority="low" src="/state-senate-stances-w16.js"></script>
+
+  <!-- stance-helpers.js — window._polPositionMap, THE OTHER unguarded read in
+       evidence-locker.js (lines 3272 and 3821 call it bare). It defines both
+       _resolveStanceList (line 148) and the memoised _polPositionMap (line 211)
+       itself, so nothing else has to be present to satisfy it — say-vs-do.js is
+       not required here despite what issue.html's comment says for its own
+       purposes. -->
+  <script defer src="/stance-helpers.js"></script>
+
+  <!-- ══ THE THIRD UNGUARDED READ, WHICH THE FIRST SPLIT MISSED ══════════════
+       _pdxMandateForIssue. The note above names window._polPositionMap as "THE
+       OTHER unguarded read", and that was true of evidence-locker.js read on
+       its own — but the locker also calls window._pdxMandateChip, which IS
+       guarded, and the chip's own body (stance-helpers.js line 3899) then calls
+       window._pdxMandateForIssue(issueKey) with no guard and no try/catch. The
+       only definition is the People's Mandate block in index.html.
+       So on /evidence the chip threw a TypeError inside _cardHtml, inside
+       _renderDiscovery, inside the locker's finish() — after the _build()
+       try/catch and BEFORE the line that hides the spinner. The receipts were
+       built and in memory; the reader saw "Loading evidence… 88/88" over six
+       skeleton cards, forever.
+       Returning [] is this document's real answer, not a placeholder: no
+       citizen reform is on file in a room that does not carry the Mandate, the
+       chip resolves to '' on an empty list, and a receipt with no reform tied
+       to it renders on index.html exactly the same way. Installed only if
+       absent, and written the same way person.html (line 2059) and issue.html
+       (line 692) write it, so the three shells answer as one. -->
+  <script>
+  if (typeof window._pdxMandateForIssue !== 'function') {
+    window._pdxMandateForIssue = function () { return []; };
+  }
+  </script>
+
+  <!-- issue-map.js — ISSUE_MAP, CORE_NATIONAL_ISSUES, coreIssueForKey,
+       _pdxCategoryOf, _pdxEvidenceCategory, _pdxEvidenceCategories and
+       _pdxIssueCategories. This is the vocabulary the whole filter toolbar is
+       built out of: the Category and Issue dropdowns are its keys, the category
+       headers are its labels, and the fallback issue inference in _build() reads
+       it to file an untagged receipt under a real issue instead of "Other /
+       General". -->
+  <script defer src="/issue-map.js"></script>
+
+  <!-- issue-colors.js — PDXIssueColors, the per-issue palette behind the --elc
+       custom properties app-2.css reads. Every one of those reads has a literal
+       fallback, so this file is the difference between coloured issue chips and
+       uniformly blue ones, not between rendering and not. -->
+  <script defer src="/issue-colors.js"></script>
+
+  <!-- spotlight-index.js — the card-sized Spotlight index (86 KB, not the 1.2 MB
+       corpus). The locker's spotlight-hits lane reads PDXSpotlight to offer the
+       Issue Spotlight a receipt belongs to, and the index's own open() is already
+       a navigation to /issue/<slug>, so that door needs no seam. -->
+  <script defer src="/spotlight-index.js"></script>
+
+  <!-- THE ENGINE. Parser-blocking, exactly as index.html loads it (line 27169),
+       because _init() is registered on DOMContentLoaded and on a 4-second
+       safety-net fallback, and both of those have to be in place before the
+       document finishes parsing. On arrival at /evidence its _wantsLocker()
+       returns true, _queryOpts() turns any ?issue=/?pol=/?type=/?bill=… into the
+       opts object _applyOpen already understood, and _mount() clones the
+       template above. -->
+  <script src="/evidence-locker.js"></script>
+
+  <!-- ══ MOVED HERE FROM index.html (its "2 · EVIDENCE LOCKER" mobile-polish
+          block, and the locker half of its cross-cutting touch-target floor) ═══
+       PHONE SIZING, AND IT IS A MOVE RATHER THAN A COPY. index.html carried
+       these rules in <style id="pdx-mobile-polish-7"> near the end of its body.
+       Every selector in them is a workspace class, so once the workspace left
+       they matched nothing there — and if they had simply been dropped instead
+       of moved, /evidence would serve a cursor-sized locker to a phone:
+       quick-jump pills under the 40px floor, a two-column card grid squeezed
+       into 375px, and filter fields sharing a row they cannot fit in.
+
+       LAST IN THE DOCUMENT, ON PURPOSE. The workspace template carries its own
+       <style> block, which enters the document at the end of the section when
+       _mount() clones it — AFTER everything in <head>. A head rule would
+       therefore lose every equal-specificity tie to it. This block is the last
+       stylesheet in the document, which is the same position it held on
+       index.html and the reason it won there too.
+
+       The 480px floor below is the locker half of index.html's rule; the
+       #agenda half stayed there, because the People's Mandate rail is still on
+       that document. -->
+  <style id="pdx-ev-mobile-polish">
+    /* ── EVIDENCE LOCKER ──────────────────────────────────────────────────
+       The quick-jump pills, view tabs and category chips were all sized for a
+       cursor. Grow their tap area, and let the single-column card grid kick in
+       at the standard phone breakpoint (was 600px) so mid-size phones stop
+       showing a squeezed two-column layout. */
+    @media (max-width: 640px) {
+      .el-jump-pill {
+        min-height: 40px;
+        font-size: 0.72rem;
+        padding: 0.5rem 0.9rem;
+      }
+      .el-tab {
+        min-height: 44px;
+        font-size: 0.82rem;
+        padding: 0.55rem 0.95rem;
+      }
+      .el-chip {
+        min-height: 36px;
+        font-size: 0.74rem;
+        padding: 0.45rem 0.85rem;
+      }
+      .el-grid { grid-template-columns: 1fr; }
+      .el-field { flex-basis: 100%; }
+      /* The sticky rail's blur re-samples and re-blurs the whole grid behind it
+         on every scroll frame. At ~90% opacity it is all but invisible and it is
+         the most expensive thing on a mid-range phone, so it goes — the same
+         trade mobile-polish.css makes for this rail on the front page. */
+      .el-jump {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+    }
+
+    /* ── CROSS-CUTTING TOUCH-TARGET FLOOR ─────────────────────────────────
+       A last, gentle safety net so the quick-jump pills cannot slip under a
+       comfortable height once the more specific rules above have run. */
+    @media (max-width: 480px) {
+      #evidence-locker .el-jump-pill {
+        min-height: 42px;
+      }
+    }
+  </style>
+
+</body>
+</html>

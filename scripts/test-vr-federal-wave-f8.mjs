@@ -2476,6 +2476,76 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     "stance-library.js",
     "stance-library.css",
     "issue-compare.css",
+    // THE TWO BROWSE ROOMS GET THEIR OWN ADDRESSES (CACHE_VERSION v199), on the
+    // same later-wave terms. The homepage was still the venue for the Stance
+    // Library's whole desk and the Evidence Locker's workspace template; both are
+    // now documents of their own — /stances rewrites to stances.html and
+    // /evidence to evidence.html — and / keeps one thin door to each. /locker,
+    // the locker's old 200 rewrite, became a 301 to /evidence so the room has one
+    // canonical spelling.
+    //   WHAT THIS WAVE'S SUBJECTS SEE OF IT: nothing. No roll, mapping,
+    // admission, seed, migration, floor, key, weight, tier, figure or census
+    // output is touched, no issue key was added or retired, and no surface gained
+    // a score, a party sort or a Direction Match read. A stance card still opens
+    // /issue/<slug> and a receipt still opens the dossier, bill or person file it
+    // already opened. The engines are the same files the homepage loaded —
+    // stance-library.js, spotlight-hub.js and evidence-locker.js are shared, not
+    // copied — and the only file below that a wave gate reads for a number is
+    // sw.js, and only for its CACHE_VERSION.
+    //   evidence-locker.js is the engine edit this pass has to declare by name.
+    // It still ships on '/', where four surfaces read the counts it publishes,
+    // but with no <template> left there to mount it now performs one real
+    // navigation to /evidence carrying the filters it was asked for, instead of
+    // failing silently on a page that no longer holds the grid. Its receipts, its
+    // filters, its bill-number search and its dossier links are untouched.
+    // spotlight-engine.js is the same shape of edit: its two library hops used to
+    // scroll the front page via /#stance-library and now address
+    // /stances?issue=<key>.
+    //   scripts/test-ballot-shell.mjs, scripts/test-spotlight-shell.mjs and
+    // scripts/test-stance-shelves.mjs are harness re-bases, not new claims. The
+    // first two re-declare /locker as a 301 loop rather than a second 200 and
+    // follow the Spotlight engine's hops to their new address; the third trades
+    // two mount assertions on the homepage's #stance-library for the door
+    // contract that section is now — a heading, one anchor to /stances, and no
+    // engine name or body host on '/'.
+    //   index.html, sw.js, me.html, person.html, my-profile.js, netlify.toml,
+    // sitemap.xml, scripts/gen-sitemap.mjs, scripts/test-locker-door.mjs,
+    // scripts/test-me-document.mjs, scripts/test-person-shell.mjs,
+    // scripts/test-sitemap-bills.mjs and scripts/test-issue-shell.mjs are
+    // declared above already. stances.html, evidence.html and their two harnesses
+    // are new files, which this fence does not price.
+    // THE EVIDENCE ROOM PAINTS ITS RECEIPTS (CACHE_VERSION v200), on those same
+    // later-wave terms, and evidence.html is a tracked file now — the split that
+    // created it was the last pass, so this fence prices it for the first time.
+    // It writes no roll, no mapping, no key, no floor, no weight and no
+    // admission. The eighth split's own room shipped frozen: chrome, filters and
+    // a status line reading "Loading evidence… 88/88" over six shimmer cards,
+    // with every receipt already built and sitting in memory. Two faults of one
+    // shape, both of them code that grew up on '/' reaching for something only
+    // '/' defines. firebase-boot.js read `_originalAddEventListener` BY NAME —
+    // that variable belongs to the deferred-DOMContentLoaded block four shells
+    // carry and evidence.html does not, and a bare read of an undeclared
+    // identifier is a ReferenceError, thrown above auth.onAuthStateChanged, so
+    // the document never signed in and never asked for the roster. Both homepage
+    // names now resolve at call time behind a typeof, with a real fallback.
+    // evidence-locker.js hides its spinner BEFORE the two widest render calls
+    // instead of after them, wraps each surface, and states the count it could
+    // not draw, so a finished load shows receipts or says "0 receipts on file"
+    // and can never sit on skeletons; its _mount() also adopts a workspace
+    // already open in its own section rather than demanding a <template>.
+    // evidence.html stubs the People's Mandate helper the way person.html and
+    // issue.html already do — that unguarded homepage global, called from inside
+    // a receipt card, is what threw — and drops the control offering to explain
+    // how the strength badges are graded: it opened a modal that is not on this
+    // document, and the dots are a coverage label, not a number. The dots stay.
+    // scripts/test-evidence-paints.mjs is new and boots the whole document in a
+    // sandbox to prove it, so neither fault can return as a passing test.
+    "evidence.html",
+    "evidence-locker.js",
+    "spotlight-engine.js",
+    "scripts/test-ballot-shell.mjs",
+    "scripts/test-spotlight-shell.mjs",
+    "scripts/test-stance-shelves.mjs",
   ]);
   {
     const snapNow = JSON.parse(nowSrc("db/share-index.json")).personRecord || {};
