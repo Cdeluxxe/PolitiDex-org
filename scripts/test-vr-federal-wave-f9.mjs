@@ -2523,6 +2523,49 @@ const swNote = swWaveNote();
     "stance-library.js",
     "stance-library.css",
     "issue-compare.css",
+    // THE TWO BROWSE ROOMS GET THEIR OWN ADDRESSES (CACHE_VERSION v199), on the
+    // same later-wave terms. The homepage was still the venue for the Stance
+    // Library's whole desk and the Evidence Locker's workspace template; both are
+    // now documents of their own — /stances rewrites to stances.html and
+    // /evidence to evidence.html — and / keeps one thin door to each. /locker,
+    // the locker's old 200 rewrite, became a 301 to /evidence so the room has one
+    // canonical spelling.
+    //   WHAT THIS WAVE'S SUBJECTS SEE OF IT: nothing. No roll, mapping,
+    // admission, seed, migration, floor, key, weight, tier, figure or census
+    // output is touched, no issue key was added or retired, and no surface gained
+    // a score, a party sort or a Direction Match read. A stance card still opens
+    // /issue/<slug> and a receipt still opens the dossier, bill or person file it
+    // already opened. The engines are the same files the homepage loaded —
+    // stance-library.js, spotlight-hub.js and evidence-locker.js are shared, not
+    // copied — and the only file below that a wave gate reads for a number is
+    // sw.js, and only for its CACHE_VERSION.
+    //   evidence-locker.js is the engine edit this pass has to declare by name.
+    // It still ships on '/', where four surfaces read the counts it publishes,
+    // but with no <template> left there to mount it now performs one real
+    // navigation to /evidence carrying the filters it was asked for, instead of
+    // failing silently on a page that no longer holds the grid. Its receipts, its
+    // filters, its bill-number search and its dossier links are untouched.
+    // spotlight-engine.js is the same shape of edit: its two library hops used to
+    // scroll the front page via /#stance-library and now address
+    // /stances?issue=<key>.
+    //   scripts/test-ballot-shell.mjs, scripts/test-spotlight-shell.mjs and
+    // scripts/test-stance-shelves.mjs are harness re-bases, not new claims. The
+    // first two re-declare /locker as a 301 loop rather than a second 200 and
+    // follow the Spotlight engine's hops to their new address; the third trades
+    // two mount assertions on the homepage's #stance-library for the door
+    // contract that section is now — a heading, one anchor to /stances, and no
+    // engine name or body host on '/'.
+    //   index.html, sw.js, me.html, person.html, my-profile.js, netlify.toml,
+    // sitemap.xml, scripts/gen-sitemap.mjs, scripts/test-locker-door.mjs,
+    // scripts/test-me-document.mjs, scripts/test-person-shell.mjs,
+    // scripts/test-sitemap-bills.mjs and scripts/test-issue-shell.mjs are
+    // declared above already. stances.html, evidence.html and their two harnesses
+    // are new files, which this fence does not price.
+    "evidence-locker.js",
+    "spotlight-engine.js",
+    "scripts/test-ballot-shell.mjs",
+    "scripts/test-spotlight-shell.mjs",
+    "scripts/test-stance-shelves.mjs",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }

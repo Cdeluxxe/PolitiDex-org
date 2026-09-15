@@ -197,8 +197,28 @@ const issueFiles = locs.filter((u) => u.startsWith(ORIGIN + "/i/"));
 // with no seat, no poll and no member, which is a refusal dressed as an index
 // entry — the same standing rule the /i/ half applies above. Asserted below.
 const districtFiles = locs.filter((u) => u.startsWith(ORIGIN + "/d/"));
+// THE SIXTH AND SEVENTH KINDS ARE NAMED, NOT WAIVED, and they are the only two
+// entries that are ROOMS rather than records. /stances is the issue browser and
+// /evidence is the evidence locker; both used to be sections of the front page,
+// reachable only by a hash, and both are now documents of their own. They are
+// listed because a public browse surface with an address is exactly what a
+// sitemap is for — and they are listed as EXACTLY two flat addresses, because
+// what a reader filters to inside either room is a query string, and a query is
+// not a page. The two private workspaces beside them (/ballot and /me, which
+// are one voter's own desks) are deliberately NOT advertised, and this check is
+// what keeps that distinction from eroding: adding a room here means naming it
+// here.
+const ROOMS = [ORIGIN + "/stances", ORIGIN + "/evidence"];
+for (const room of ROOMS) {
+  eq(locs.filter((u) => u === room).length, 1, `${room} is advertised exactly once`);
+  ok(!locs.some((u) => u.startsWith(room + "/") || u.startsWith(room + "?")),
+    `${room} is advertised as one flat address — a filter is a query, not a page`);
+}
+for (const priv of ["/ballot", "/me"])
+  ok(!locs.some((u) => u === ORIGIN + priv),
+    `${priv} is NOT advertised — it is one reader's own desk, not a public record`);
 const unaccounted = locs.filter((u) =>
-  u !== ORIGIN + "/" && !u.startsWith(ORIGIN + "/p/") &&
+  u !== ORIGIN + "/" && !ROOMS.includes(u) && !u.startsWith(ORIGIN + "/p/") &&
   !u.startsWith(ORIGIN + "/issue/") && !u.startsWith(ORIGIN + "/b/") &&
   !u.startsWith(ORIGIN + "/i/") && !u.startsWith(ORIGIN + "/d/"));
 eq(unaccounted.length, 0, `the sitemap carries ${unaccounted.length} address(es) of an unaccounted kind (e.g. ${unaccounted.slice(0, 3).join(", ")})`);

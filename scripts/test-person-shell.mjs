@@ -121,10 +121,22 @@ for (const addr of ["/p/lee", "/p/mike_lee", "/p/celeste_maloy", "/p/null"]) {
     `rewrite: ${addr} is served /person.html at 200 (got ${hit ? hit.to + " " + hit.status : "no matching rule"})`);
 }
 // The whole point of "do one thing": no other address moved off index.html.
-for (const addr of ["/vote/hr1", "/d/ut-statehouse-68", "/b/hr1", "/locker", "/locker/x"]) {
+for (const addr of ["/vote/hr1", "/d/ut-statehouse-68", "/b/hr1"]) {
   const hit = resolveAddr(addr);
   ok(hit && hit.to === "/index.html",
     `rewrite: ${addr} still resolves to /index.html (got ${hit ? hit.to : "no matching rule"})`);
+}
+// /locker LEFT THAT LIST IN THE EIGHTH SPLIT, for the same reason /issue/* and
+// /i/* left it before: the room got its own document. /locker was a 200 rewrite
+// to index.html, which is what made "the receipts room" a 2.25 MB front page
+// that mounted a workspace after it arrived. The room is /evidence now, and the
+// old spelling is kept as a 301 into it — never as a second 200, because two
+// live addresses for one document splits the canonical in half. Checked here as
+// a redirect so this list stays exhaustive.
+for (const addr of ["/locker", "/locker/x"]) {
+  const hit = resolveAddr(addr);
+  ok(hit && hit.to === "/evidence" && String(hit.status) === "301",
+    `rewrite: ${addr} is a 301 to /evidence, not a document of its own (got ${hit ? hit.to + " " + hit.status : "no matching rule"})`);
 }
 // /issue/* LEFT THAT LIST IN THE THIRD SPLIT, for the same reason /i/* left it
 // in the second: it got its own document. /issue/<slug> is a Spotlight — one
@@ -331,12 +343,12 @@ const COPIES = [
   [1936, 2010, "PDXLazy"],
   [2012, 2035, "the Firebase compat bundles, the key injection, the stub and firebase-boot.js"],
   [2040, 2085, "the share furniture share-preview.ts rewrites"],
-  [3564, 3627, "the crawl-header guard"],
-  [17913, 18835, "the funding lane, up to the cut"],
-  [20725, 20759, "the profile modal down to #modal-content"],
-  [20820, 20866, "the stance popover, the record overlay and the share sheet"],
-  [28014, 28134, "PDXStance"],
-  [31418, 31613, "the PWA runtime and the service-worker registration"],
+  [3569, 3632, "the crawl-header guard"],
+  [17522, 18444, "the funding lane, up to the cut"],
+  [20334, 20368, "the profile modal down to #modal-content"],
+  [20429, 20475, "the stance popover, the record overlay and the share sheet"],
+  [27405, 27525, "PDXStance"],
+  [30793, 30988, "the PWA runtime and the service-worker registration"],
 ];
 // THESE NUMBERS ARE ANCHORS INTO index.html AND THEY MOVE WHEN IT DOES. The
 // ones re-based here were re-based by the fourth split, which lifted the ballot
@@ -368,7 +380,20 @@ const COPIES = [
 // under index.html ~line 13650, and collapsing #issue-compare and #stance-library
 // (index.html ~line 26400) took five off the last two. So the crawl guard moved by
 // −2, the funding lane, the modal and the popovers by −58, and PDXStance and the
-// PWA runtime by −63. So a failure here means one of
+// PWA runtime by −63.
+//
+// THE TWO BROWSE ROOMS moved them again, and by the largest amounts yet, because
+// that pass took two whole workspaces out of the front page: #stance-library and
+// #all-spotlights became one door apiece (the shelves, the two module <script>
+// tags and stance-library.css all left for stances.html) and the Evidence
+// Locker's <template id="el-workspace-tpl"> — 388 lines of workspace — left for
+// evidence.html along with its quick-jump nav and its density switch. The locker
+// half of the People's Mandate style injector went with them, 114 lines out of
+// the middle of the file. All of it came out ABOVE the funding lane, so the
+// funding lane, the modal and the popovers moved by −391, PDXStance by −609 and
+// the PWA runtime by −625; the crawl guard, which sits above the highest of those
+// deletions, moved +5 on a note that grew instead. Again not one byte of any
+// copied block changed. So a failure here means one of
 // two very different things, and the two assertions below separate them: an
 // "out of range or empty" failure is a stale anchor, and a "NOT byte-identical"
 // failure on an in-range slice is real drift between the two documents.

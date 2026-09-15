@@ -4259,7 +4259,9 @@
       // still shut, so open it first. _openLocker handles the scroll (it has to
       // wait a frame for the freshly mounted layer to lay out), which is why the
       // scroll isn't done inline here any more.
-      _openLocker({ scroll: opts.scroll !== false });
+      // `filters: opts` is what lets _openLocker turn a failed mount into
+      // /evidence?<the same filter> instead of dropping the ask on the floor.
+      if (_openLocker({ scroll: opts.scroll !== false, filters: opts }) && !_mounted) return;
       if (_loaded) { _applyOpen(opts); return; }
       // Not loaded yet — remember the request and kick the deferred load; the
       // load's finish() will apply it. (_load no-ops if already in flight.)
@@ -4611,14 +4613,96 @@
     // boot, and why every deep link into the locker still resolves.
     var _mounted = false;
 
-    // Is this load asking for the locker itself, rather than the homepage that
-    // holds its door? The hash is the app's own convention; /locker is the
-    // server-visible address of the same thing (see the rewrite in netlify.toml).
+    // Is this load asking for the locker itself, rather than a page that merely
+    // holds a door to it? The hash is the app's own convention. /evidence is the
+    // server-visible address of the workspace and the one this file navigates to
+    // (see _navToLocker below and the rewrite in netlify.toml); /locker is the
+    // spelling that shipped first and is kept here only so a link somebody
+    // already sent still mounts rather than 404s if the redirect is ever lost.
     function _wantsLocker() {
       try {
         if (String(location.hash || '').replace(/^#/, '') === 'evidence-locker') return true;
-        return /^\/locker\/?$/i.test(String(location.pathname || ''));
+        return /^\/(?:evidence|locker)\/?$/i.test(String(location.pathname || ''));
       } catch (e) { return false; }
+    }
+
+    // Are we already standing in the locker's own document? _navToLocker refuses
+    // to navigate when this is true, because a document that wants the workspace
+    // and cannot mount it would otherwise ask the server for itself forever.
+    function _atLocker() {
+      try { return /^\/(?:evidence|locker)\/?$/i.test(String(location.pathname || '')); }
+      catch (e) { return false; }
+    }
+
+    // ── WHEN THERE IS NO WORKSPACE HERE, THE WORKSPACE IS AN ADDRESS ─────────
+    // The homepage kept the door, the receipt counts and every surface that reads
+    // them (_pdxEvidenceOnRecord, _pdxEvidenceCountForPeople, the profile depth
+    // pills), but it no longer carries <template id="el-workspace-tpl"> — 388
+    // lines of filters and grid that only ever painted after a tap. So _mount()
+    // returns false there, and this is what false now means: go to /evidence,
+    // carrying the filter the caller asked for.
+    //
+    // ONE CHANGE, EVERY CALLER. Roughly fifteen call sites in index.html plus
+    // digital-library.js, my-profile.js and the Hot Topics drill-in all funnel
+    // through _pdxOpenEvidenceLocker → _openLocker, so teaching this one function
+    // to navigate rewires all of them without touching any of them.
+    //
+    // The keys are _applyOpen's own key set, emitted in a fixed order rather than
+    // Object.keys order so the same ask always produces the same URL and two
+    // readers comparing links see one string. Arrays (pols, comparePols) join on
+    // a comma, which is what _queryOpts splits on.
+    var _NAV_KEYS = ['pol', 'pols', 'issue', 'category', 'type', 'search', 'bill', 'uid', 'mandate'];
+    function _lockerHref(filters) {
+      filters = filters || {};
+      var q = [];
+      _NAV_KEYS.forEach(function (k) {
+        var v = filters[k];
+        if (v == null || v === '') return;
+        if (Object.prototype.toString.call(v) === '[object Array]') {
+          v = v.filter(function (x) { return x != null && x !== ''; }).join(',');
+          if (!v) return;
+        }
+        q.push(encodeURIComponent(k) + '=' + encodeURIComponent(String(v)));
+      });
+      return '/evidence' + (q.length ? '?' + q.join('&') : '');
+    }
+    function _navToLocker(filters) {
+      if (_atLocker()) return false;
+      var to = _lockerHref(filters);
+      // assign() before href() before replace(): assign throws in some sandboxed
+      // frames, href is the compatible spelling, and replace() loses the Back
+      // entry — which is why it is the last resort and not the first choice. A
+      // reader who taps a receipt link has to be able to come back.
+      try { location.assign(to); return true; } catch (e) {}
+      try { location.href = to; return true; } catch (e2) {}
+      try { location.replace(to); return true; } catch (e3) {}
+      return false;
+    }
+
+    // The inverse of _lockerHref: turn /evidence?issue=…&type=… back into the
+    // opts object _applyOpen already understands, so an address restores exactly
+    // the view the link was made from. Hand-rolled rather than URLSearchParams to
+    // match the rest of this file, and it returns null — not {} — when there is
+    // nothing to apply, so _init can tell "no filter asked for" from "filter
+    // asked for and it was empty".
+    function _queryOpts() {
+      var s = '';
+      try { s = String(location.search || ''); } catch (e) { return null; }
+      if (!s || s.charAt(0) !== '?') return null;
+      var out = null;
+      s.slice(1).split('&').forEach(function (pair) {
+        if (!pair) return;
+        var eq = pair.indexOf('=');
+        var k = eq === -1 ? pair : pair.slice(0, eq);
+        var v = eq === -1 ? '' : pair.slice(eq + 1).replace(/\+/g, ' ');
+        try { k = decodeURIComponent(k); } catch (e) {}
+        try { v = decodeURIComponent(v); } catch (e2) {}
+        if (_NAV_KEYS.indexOf(k) === -1 || v === '') return;
+        if (!out) out = {};
+        // pols is the only multi-value key _applyOpen reads as a list.
+        out[k] = (k === 'pols') ? v.split(',').filter(Boolean) : v;
+      });
+      return out;
     }
 
     // Clone the workspace into the section and wire it. Idempotent, and returns
@@ -4663,7 +4747,9 @@
     function _openLocker(opts) {
       opts = opts || {};
       var ok = _mount();
-      if (!ok) return false;
+      // No workspace in this document (the homepage, since the split): the
+      // locker is a room with an address, so go there and take the filter along.
+      if (!ok) return _navToLocker(opts.filters);
       if (opts.scroll === false) return true;
       var go = function () {
         var el = document.getElementById('evidence-locker');
@@ -4731,10 +4817,16 @@
     function _wireDoor() {
       var btn = document.getElementById('el-door-open');
       if (btn) btn.addEventListener('click', function (e) {
-        // The control is a real link to /locker so it survives a middle-click, a
-        // copy-link and a JS-less load; with JS we open in place instead of
-        // navigating, and leave the hash the app already understands behind us.
+        // The control is a real link to /evidence so it survives a middle-click,
+        // a copy-link and a JS-less load.
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
+        // NO WORKSPACE ON THIS DOCUMENT (the homepage, since the split): let the
+        // browser follow the href. Preventing the default here would hand the
+        // click to _openLocker(), which would navigate to the same place anyway
+        // and then be raced by the location.hash write below — two navigations
+        // for one tap, and on a slow connection the reader can watch the second
+        // cancel the first. One real link is the whole behaviour.
+        if (!document.getElementById('el-workspace-tpl')) return;
         e.preventDefault();
         _openLocker();
         try { if (location.hash !== '#evidence-locker') location.hash = '#evidence-locker'; } catch (_e) {}
@@ -4765,9 +4857,18 @@
       _initDone = true;
       _wireDoor();
       _wireRoutes();
-      // A load that ASKED for the locker gets the locker: /locker, or a shared
-      // #evidence-locker link. Mounting kicks the data load itself.
-      if (_wantsLocker()) { _openLocker({ scroll: true }); return; }
+      // A load that ASKED for the locker gets the locker: /evidence, the legacy
+      // /locker, or a shared #evidence-locker link. Mounting kicks the data load
+      // itself. A query string on that address is the filter the link was made
+      // from, so it goes through the same public entry point every in-page
+      // caller uses — with scroll off, because on /evidence the workspace IS the
+      // document and there is nowhere to scroll to.
+      if (_wantsLocker()) {
+        var q = _queryOpts();
+        if (q) { q.scroll = false; window._pdxOpenEvidenceLocker(q); return; }
+        _openLocker({ scroll: !_atLocker() });
+        return;
+      }
       // Otherwise the door stays shut and no workspace is built. The evidence
       // INDEX is still warmed in the background during idle time, because it is
       // what the People's Mandate on-record counts, the profile depth pills and

@@ -5940,7 +5940,54 @@
 //     key or second issue index URL; my-profile.js and my-profile.css stay in the
 //     tree, My Stances stays behind its template, no person file entered the grid.
 
-const CACHE_VERSION = 'v198';
+// v199 - THE HOMEPAGE STOPS HOSTING THE LIBRARY AND THE LOCKER. TWO ADDRESSES.
+//
+//     / was the venue for two full workspaces: the Stance Library's whole desk
+//     and the Evidence Locker's 388-line template, in one scroll, with no
+//     address for either — every "browse issues" was a hash on the front page.
+//
+//     · TWO ROOMS, TWO DOCUMENTS. /stances and /stances/ rewrite to
+//       stances.html, THE SEVENTH SHELL; /evidence and /evidence/ to
+//       evidence.html, THE EIGHTH. Four exact rules, no wildcard: inside either
+//       room the view is a query (?issue, ?pols, ?search, ?bill), never a
+//       segment. /locker is a 301 to /evidence — an alias, not a second 200.
+//     · THE HOMEPAGE IS DOORS. #stance-library is a heading over a link and
+//       #evidence-locker a count over a link; the locker's <template>, the
+//       library's body host, the #all-spotlights shelf, stance-library.js,
+//       spotlight-hub.js, stance-library.css and app-2.css are all off /. First
+//       paint there is zero stance cards and zero receipt cards.
+//     · THE ENGINES ARE SHARED, NOT COPIED. stance-library.js, spotlight-hub.js
+//       and evidence-locker.js are the files the homepage used, loaded the way
+//       ballot.html loads ballot-workspace.js. evidence-locker.js still ships on
+//       '/' because four surfaces read its counts; with no template to mount it
+//       navigates to /evidence with the filters asked for. PDXStanceLibrary.open()
+//       and PDXSpotlightHub.focus() survive as shims resolving to
+//       /stances?issue=<key>. Back works: location.assign, never replaceState.
+//
+//     WHY THE BUMP. index.html shrank ~1,100 lines, evidence-locker.js learned
+//     to navigate, stances.html and evidence.html are new — and index.html,
+//     stance-library.js, stance-library.css and app-2.css are precached. Without
+//     a rename a warm v198 device pairs a cached homepage that still ships the
+//     locker template against engines that expect neither, and the reader taps a
+//     door and lands nowhere. SUB_SHELL_BANNER_RE learned the two new banners.
+//
+//     WHAT THE BUMP CARRIES, WHICH IS NOT WHAT THIS PASS CHANGED. Renaming
+//     SHELL_CACHE re-issues the WHOLE precache, so every SHELL_ASSETS entry
+//     travels with v199 — index.html, person.html, issue.html, spotlight.html,
+//     ballot.html, me.html, me-desk.js, me-desk.css, app.css, mobile-polish.css,
+//     pdx-stability.js, door1-workspace.js, door1-workspace.css, word-action.js,
+//     word-action.css, issue-file.js, issue-file.css, issue-view.js,
+//     pdx-issue-profile.js, pdx-issue-family.js, stance-tree.js,
+//     alignment-tool.js, issue-colors.js, race-sheet.js and the rest — re-issued
+//     only because the bucket's name moved. Each module is named beside its
+//     stylesheet because the pairs travel or they do not. netlify.toml is not
+//     cached; it changed, and the edge reads it directly.
+//
+//     DID NOT MOVE. No score, party sort, Direction Match or Word-vs-Action
+//     change, no new issue key, no third issue page, no receipt merged into a
+//     stance card, and /me and /ballot stay out of the sitemap.
+
+const CACHE_VERSION = 'v199';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -6023,6 +6070,16 @@ const SHELL_ASSETS = [
   // what they hold. A desk that arrives without me-desk.js paints nothing at all.
   '/me-desk.js',
   '/me-desk.css',
+  // THE SEVENTH AND EIGHTH SHELLS: the two browse rooms. Like /ballot and /me
+  // each is a SINGLE address — issue, person set, search text and bill number
+  // are all QUERY keys — and their corpora are already-held static assets.
+  '/stances.html',
+  '/evidence.html',
+  // The locker's engine, for the reason me-desk.js is here: it is the WHOLE of
+  // what paints /evidence. stance-library.js and stance-library.css need no new
+  // entry — already below, and they are what paints /stances now.
+  // spotlight-hub.js stays runtime-cached: that shelf is not the room.
+  '/evidence-locker.js',
   '/css/tailwind.css',
   // The above-the-fold record card. Parser-blocking in index.html, so on a
   // repeat visit these two must come from the cache or they add latency to the
@@ -6037,6 +6094,9 @@ const SHELL_ASSETS = [
   // Main site CSS, externalized out of index.html (Run 1 perf pass) so it is
   // cached independently and no longer re-parsed with the 7 MB document.
   '/app.css',
+  // app-2.css and stance-library.css changed ADDRESS, not status: app-2.css is
+  // loaded by /evidence now and stance-library.css by /stances, neither by
+  // index.html. Same files, same one copy each.
   '/app-2.css',
   '/alignment-tool.css',
   '/stance-library.css',
@@ -6201,6 +6261,8 @@ const SHELL_ASSETS = [
   // honest "not loaded on this page" line and the reader gets a working rail
   // over four empty modes.
   '/door1-workspace.js',
+  // The stance library's engine — now the whole of what paints /stances, on the
+  // terms evidence-locker.js is precached above. Already here before the split.
   '/stance-library.js',
   '/ballot-axes.js',
   '/voting-record.js',
@@ -6766,6 +6828,16 @@ const SPOTLIGHT_NAV_RE = /^\/issue\/([A-Za-z0-9_-]*)\/?$/;
 // and /ballot are one document, and navDocKey already drops a search string.
 const BALLOT_NAV_RE = /^\/ballot\/?$/;
 
+// ─── THE TWO BROWSE ROOMS ───────────────────────────────────────────────────
+// On exactly the terms /ballot is written on above: two exact spellings each, no
+// capture group, nothing after the optional slash. Both rooms are SINGLE
+// addresses — the view inside them is a QUERY (?issue, ?pols, ?search, ?bill),
+// never a segment — so every filter of the locker is one document and one
+// fallback. /locker gets no regex here: it is a 301 at the edge, so an offline
+// /locker navigation lands on the generic '/' branch at the bottom.
+const STANCES_NAV_RE = /^\/stances\/?$/;
+const EVIDENCE_NAV_RE = /^\/evidence\/?$/;
+
 // How many person documents to keep. Each USED to be the whole ~2 MB app shell;
 // since the split it is person.html, ~234 KB, so four slots now cost less than
 // one did. Still a storage decision and not a correctness one: correctness is the
@@ -6783,6 +6855,13 @@ const PERSON_DOC_LIMIT = 4;
 //   person.html — THE SECOND SHELL. /p/<pid> IS ITS OWN DOCUMENT.
 //   issue.html — THE THIRD SHELL. /i/<key> IS ITS OWN DOCUMENT.
 //   spotlight.html — THE FOURTH SHELL. /issue/<slug> IS ITS OWN DOCUMENT.
+//   ballot.html — THE FIFTH SHELL. /ballot IS ITS OWN DOCUMENT.
+//   stances.html — THE SEVENTH SHELL. /stances IS ITS OWN DOCUMENT.
+//   evidence.html — THE EIGHTH SHELL. /evidence IS ITS OWN DOCUMENT.
+//
+// SIXTH IS ABSENT ON PURPOSE: me.html opens "/me — THE VOTER'S OWN FILE" and
+// never uses this wording. That costs the guard nothing — a body is only
+// REFUSED when it positively names itself as a DIFFERENT shell.
 //
 // index.html carries no such line anywhere in its 2.2 MB, which is what makes
 // this a discriminator rather than a guess. A DEDICATED MARKER META WAS TRIED
@@ -6799,7 +6878,7 @@ const PERSON_DOC_LIMIT = 4;
 // sent, and none of them separates two documents served from one origin with one
 // content type — a Netlify rewrite is transparent, so /p/lee and '/' answer with
 // identical header sets. The identity only exists in the body.
-const SUB_SHELL_BANNER_RE = /\b(person|issue|spotlight|ballot)\.html\s*—\s*THE\s+(?:SECOND|THIRD|FOURTH|FIFTH)\s+SHELL\b/;
+const SUB_SHELL_BANNER_RE = /\b(person|issue|spotlight|ballot|stances|evidence)\.html\s*—\s*THE\s+(?:SECOND|THIRD|FOURTH|FIFTH|SEVENTH|EIGHTH)\s+SHELL\b/;
 
 // The prefix ceiling, in decoded characters. The furthest of the three banners
 // sits ~283 characters in, so this is an order of magnitude of headroom: a banner
@@ -6894,15 +6973,11 @@ async function handleNavigate(req) {
   let url = null;
   try { url = new URL(req.url); } catch (e) { url = null; }
   const key = navDocKey(url);
-  // THE HOMEPAGE NAVIGATION, NAMED ONCE — and then made a factor in all three
-  // flags below. '/' cannot match PERSON_NAV_RE, ISSUE_NAV_RE or
-  // SPOTLIGHT_NAV_RE as they are written, so none of the three sub-shell
-  // fallbacks is reachable from a homepage navigation today. That is a property
-  // of three regexes in another part of this file, which is a thin thing for the
-  // homepage's correctness to rest on: a later edit that widened any of them
-  // would hand '/' a sub-shell and reproduce exactly the defect v188 exists to
-  // close. So the homepage is excluded HERE, where the fallbacks are chosen,
-  // rather than left to be excluded by accident somewhere else.
+  // THE HOMEPAGE NAVIGATION, NAMED ONCE — and then made a factor in every shell
+  // flag below. '/' cannot match any of the six *_NAV_RE as they are written, but
+  // that is a property of six regexes elsewhere in this file, and a later edit
+  // that widened one would hand '/' a sub-shell and reproduce the defect v188
+  // exists to close. So it is excluded HERE, where the fallbacks are chosen.
   const isHome = key === '/';
   const isPerson = !isHome && key.slice(0, 3) === '/p/';
   // Read off the URL rather than off `key`, because navDocKey deliberately gives
@@ -6915,6 +6990,10 @@ async function handleNavigate(req) {
   // a FALLBACK and not a cache slot, and the one precached /ballot.html answers
   // every seat. !isHome is carried for the reason given above the isHome line.
   const isBallot = !isHome && !!(url && url.origin === self.location.origin && BALLOT_NAV_RE.test(url.pathname));
+  // Fifth and sixth of the same kind: navDocKey gives neither browse room a key,
+  // so these choose a FALLBACK, and one document answers every filter of a room.
+  const isStances = !isHome && !!(url && url.origin === self.location.origin && STANCES_NAV_RE.test(url.pathname));
+  const isEvidence = !isHome && !!(url && url.origin === self.location.origin && EVIDENCE_NAV_RE.test(url.pathname));
 
   // A PERSON DOCUMENT IS A RUNTIME ENTRY, NOT A SHELL ONE. It is keyed to a single
   // address, it is not on SHELL_ASSETS, and nothing on the precache list depends on
@@ -7029,13 +7108,32 @@ async function handleNavigate(req) {
     if (ballotDoc) return ballotDoc;
   }
 
+  // Offline in the stance library. Seventh shell. /stances.html is precached and
+  // names no issue on its own — stance-library.js paints the shelves out of
+  // already-held static assets. Before '/', which since this split carries the
+  // door and not the shelf: it would answer the question with a link to itself.
+  if (isStances) {
+    const stancesDoc = await shell.match('/stances.html');
+    if (stancesDoc) return stancesDoc;
+  }
+
+  // Offline in the evidence locker. Eighth shell, and LAST of the six so none of
+  // /p/, /i/, /issue/, /ballot or /stances can be intercepted by it — none could
+  // be as these regexes are written, and the order keeps that true after the next
+  // edit. /evidence.html and evidence-locker.js are both precached; the filters
+  // arrived in the query, which the document reads itself. Before '/', as above.
+  if (isEvidence) {
+    const evidenceDoc = await shell.match('/evidence.html');
+    if (evidenceDoc) return evidenceDoc;
+  }
+
   // Everything else: '/' is the app shell and it names nobody — the honest
   // stand-in for any address, and the one fallback that cannot claim to be a
   // person we have not resolved.
   const shellDoc = await shell.match('/');
   // Same refusal, on the last fallback: '/' stands in for EVERY address that has
   // no shell of its own, so a poisoned entry here would hand a person file to
-  // /d/<district>, /b/<bill> and /locker as well as to the homepage. An
+  // /d/<district>, /b/<bill> and the legacy /locker as well as the homepage. An
   // unmarked document is still served — the only thing refused is one that names
   // itself as another shell.
   if (shellDoc && !(await isSubShellBody(shellDoc))) return shellDoc;

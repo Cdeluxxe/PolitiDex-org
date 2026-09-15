@@ -182,10 +182,20 @@ for (const addr of ["/issue/guns", `/issue/${KEY}`, "/issue/box-elder-stratos-da
 }
 // The rest are addresses no Issue File door on a person record uses, so neither
 // this pass nor the one after it had any business touching them.
-for (const addr of ["/vote/hr1", "/d/ut-statehouse-68", "/b/hr1", "/locker", "/locker/x"]) {
+for (const addr of ["/vote/hr1", "/d/ut-statehouse-68", "/b/hr1"]) {
   const hit = resolveAddr(addr);
   ok(hit && hit.to === "/index.html",
     `rewrite: ${addr} still resolves to /index.html (got ${hit ? hit.to : "no matching rule"})`);
+}
+// /locker used to be one of them. The eighth split gave the Evidence Locker its
+// own document at /evidence, and /locker became a 301 to it rather than a second
+// 200 — one room, one canonical address, and the old link still lands. What this
+// document cares about is only that neither spelling is answered with the Issue
+// File, which a redirect satisfies more strongly than a rewrite did.
+for (const addr of ["/locker", "/locker/x"]) {
+  const hit = resolveAddr(addr);
+  ok(hit && hit.to === "/evidence" && String(hit.status) === "301",
+    `rewrite: ${addr} is a 301 to /evidence, not this document (got ${hit ? hit.to + " " + hit.status : "no matching rule"})`);
 }
 // '/' has no rewrite of its own — it is the published document.
 ok(resolveAddr("/") === null, "rewrite: / is not caught by any rewrite rule");
@@ -645,9 +655,13 @@ ok(/<body class="bg-navy-900 text-white font-body">/.test(html),
   // the mandatory install, and asking only the homepage would have reported a
   // correctly-precached module as an orphan. The claim being defended is
   // unchanged: nothing may sit in the mandatory install that NO shipped shell
-  // loads. Every document is read from disk rather than named from a list, so a
-  // sixth shell is covered the day it exists.
-  const SHELLS = ["index.html", "person.html", "issue.html", "spotlight.html", "ballot.html"]
+  // loads. The eighth split made the same point twice more: stance-library.js and
+  // app-2.css came off index.html and onto stances.html and evidence.html, so the
+  // roster below has to name every shipped document or a correctly-precached
+  // engine reads as an orphan. Each one is read from disk and skipped if it is not
+  // there, so the list is safe to extend before a document exists.
+  const SHELLS = ["index.html", "person.html", "issue.html", "spotlight.html", "ballot.html",
+                  "me.html", "stances.html", "evidence.html"]
     .filter((d) => { try { read(d); return true; } catch (e) { return false; } })
     .map((d) => read(d));
   for (const f of DENY) {

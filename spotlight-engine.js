@@ -865,12 +865,15 @@
     // … or into the Stance Library, filtered to that issue (issue→library).
     wrap.querySelectorAll('[data-rel-ik]').forEach(function (el) {
       el.addEventListener('click', function () {
-        // SHELL SEAM 4 — the Stance Library is a section of the front page,
-        // not a module on this document, so this is a hop rather than a
-        // hand-off. The issue filter the in-app call carried does not survive
-        // the address; the reader lands on the library itself.
-        el.getAttribute('data-rel-ik');
-        close({ to: '/#stance-library' });
+        // SHELL SEAM 4 — the Stance Library is not a module on this document,
+        // so this is a hop rather than a hand-off. It is now a hop to a real
+        // address (/stances, its own document, not a fragment of the front
+        // page) AND THE FILTER SURVIVES IT: the issue key this chip carries
+        // goes along as ?issue=, which stances.html reads on arrival and hands
+        // to PDXStanceLibrary.open(). Before the split there was nowhere to put
+        // it and the reader landed on the unfiltered shelf.
+        var ik = el.getAttribute('data-rel-ik');
+        close({ to: '/stances' + (ik ? '?issue=' + encodeURIComponent(ik) : '') });
       });
     });
     // Layer live recorded votes over the static story (no-op unless the spotlight
@@ -880,12 +883,17 @@
     // unless the card declares standsOnIssue).
     hydrateStands(sp);
     // "See all stances & voting records on this issue →" → the Stance Library,
-    // filtered to this issue. Close the Spotlight first so the library (a page
-    // section) owns the screen, mirroring the community hand-off.
+    // filtered to this issue. Close the Spotlight first so the library owns the
+    // screen, mirroring the community hand-off.
     var slcta = wrap.querySelector('[data-pdxis-lib]');
     if (slcta) slcta.onclick = function () {
-      // SHELL SEAM 4 (same hop as the related-issue chips above).
-      close({ to: '/#stance-library' });
+      // SHELL SEAM 4 (same hop as the related-issue chips above). This control
+      // says "on this issue", so the issue travels. data-pdxis-lib IS the
+      // library key — the button is only rendered when there is one (see the
+      // `if (libraryKey)` guard in the How-Politicians-Stand section) — so the
+      // filter is never empty here.
+      var ik = slcta.getAttribute('data-pdxis-lib') || '';
+      close({ to: '/stances' + (ik ? '?issue=' + encodeURIComponent(ik) : '') });
     };
     var cbtn = document.getElementById('pdxis-comm-btn');
     if (cbtn) cbtn.onclick = function () {

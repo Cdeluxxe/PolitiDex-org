@@ -651,9 +651,19 @@
     } else if (ctx.teamPids.length) {
       body = '<p class="mp-sub">No word-vs-record contradictions flagged on your team yet. You\'ve reviewed <strong style="color:#cfe0fb">' + reviewed + '</strong> ' + plural(reviewed, 'piece') + ' of evidence. Open the Evidence Locker to dig into the receipts behind every stance.</p>';
     } else {
-      body = emptyState('🧾', 'Evidence and receipts tie every claim to a source. Add politicians to your team and their sourced record — promises kept, votes, and contradictions — shows up here.', '#evidence-locker', 'Open the Evidence Locker', false);
+      body = emptyState('🧾', 'Evidence and receipts tie every claim to a source. Add politicians to your team and their sourced record — promises kept, votes, and contradictions — shows up here.', '/evidence', 'Open the Evidence Locker', false);
     }
-    return section('Evidence & receipts', '🧾', ctx.teamPids.length ? '#evidence-locker' : null, 'Explore', body);
+    // /evidence, not #evidence-locker. The locker is its own document now, and
+    // this desk is its own document too (/me), so the old hash was a fragment of
+    // a third page that would have scrolled a reader to a door. And because the
+    // address takes a filter, the link can say what it means: ?pols=<team> is the
+    // By-Politician lens already scoped to the people this reader follows, which
+    // is exactly what "Explore" on a section headed "Evidence & receipts" on
+    // THEIR file should open. The empty state has no team to name, so it links to
+    // the room itself.
+    return section('Evidence & receipts', '🧾',
+      ctx.teamPids.length ? ('/evidence?pols=' + encodeURIComponent(ctx.teamPids.join(','))) : null,
+      'Explore', body);
   }
 
   function sourceTypeLabel(type) {

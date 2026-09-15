@@ -216,10 +216,22 @@ for (const addr of ["/i/housing", "/i/gun_safety", "/i/lands_preserve", "/i/anyt
     `rewrite: ${addr} still serves /issue.html at 200 (got ${hit ? hit.to + " " + hit.status : "no matching rule"})`);
 }
 // AND NOTHING ELSE WAS STOLEN. The request named these five by name.
-for (const addr of ["/vote/hr1", "/d/ut-statehouse-68", "/b/hr1", "/locker", "/locker/x"]) {
+for (const addr of ["/vote/hr1", "/d/ut-statehouse-68", "/b/hr1"]) {
   const hit = resolveAddr(addr);
   ok(hit && hit.to === "/index.html",
     `rewrite: ${addr} still resolves to /index.html — this pass took only /issue/* (got ${hit ? hit.to : "no matching rule"})`);
+}
+// /locker LEFT THAT LIST IN THE EIGHTH SPLIT, for the same reason /issue/* and
+// /i/* left it before: the room got its own document. /locker was a 200 rewrite
+// to index.html, which is what made "the receipts room" a 2.25 MB front page
+// that mounted a workspace after it arrived. The room is /evidence now, and the
+// old spelling is kept as a 301 into it — never as a second 200, because two
+// live addresses for one document splits the canonical in half. Checked here as
+// a redirect so this list stays exhaustive.
+for (const addr of ["/locker", "/locker/x"]) {
+  const hit = resolveAddr(addr);
+  ok(hit && hit.to === "/evidence" && String(hit.status) === "301",
+    `rewrite: ${addr} is a 301 to /evidence, not a document of its own (got ${hit ? hit.to + " " + hit.status : "no matching rule"})`);
 }
 ok(resolveAddr("/") === null, "rewrite: / is not caught by any rewrite rule — it is the published document");
 // No slug is enumerated in netlify.toml: a registry miss is answered inside the
@@ -504,8 +516,17 @@ ok(/history\.back\(\)/.test(engine), "seam 1: leave() prefers history.back() whe
     "seam 7: no _pdxRelatedSpotlight — the profile-modal rail belongs to a modal that is not here");
 }
 ok(/PDXPersonLink/.test(engine), "seam 3: a name resolves through PDXPersonLink");
-ok(/'\/#stance-library'|"\/#stance-library"/.test(engine),
+// SEAM 4 — the Stance Library hop. It was '/#stance-library', a fragment of the
+// front page; the library is its own document at /stances since the seventh
+// split, so the hop is that address — and the issue key the chip carries now
+// SURVIVES it as ?issue=, which it could not do when the destination was a
+// scroll position.
+ok(/'\/stances'|"\/stances"/.test(engine),
   "seam 4: the Stance Library hop is a cross-document address, not a bare hash");
+ok(!/'\/#stance-library'|"\/#stance-library"/.test(engine),
+  "seam 4: and no hop still points at the homepage fragment the library used to be");
+ok(/\?issue=' \+ encodeURIComponent\(ik\)/.test(engine),
+  "seam 4: the issue the reader was reading about travels with them");
 ok(/'\/#community-exchange'|"\/#community-exchange"/.test(engine),
   "seam 5: the Community Exchange hop is a cross-document address, not a bare hash");
 // THE REGISTRY MISS. /issue/<key> for a vocabulary key that has no Spotlight is
