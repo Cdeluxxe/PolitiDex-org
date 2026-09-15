@@ -6229,7 +6229,53 @@
 //     anything about this reader, the trial courts still name nobody as their
 //     judge, and no store was touched.
 
-const CACHE_VERSION = 'v204';
+// v205 - THE DENOMINATOR BECOMES THE VOCABULARY, THE DISTRICT BECOMES EVERY
+//     DISTRICT, AND THE BALLOT ROW LEADS WITH WHOEVER HOLDS THE SEAT. Three
+//     things /me taught wrong — a number and two names it had no right to — all
+//     three fixed by reading a list somebody else already owns.
+//     · "2 OF 8 ON FILE" IS GONE, AND SO IS THE OCTET BEHIND IT. Positions are
+//       held against the issue register, not a starter set, so your-file.js
+//       derives its rows from ISSUE_MAP grouped by the CORE_NATIONAL_ISSUES
+//       families — 121 keys in 13 groups — memoized only once ISSUE_MAP has
+//       actually parsed, with the eight slugs it shipped with kept as a floor
+//       for a shell where it never does. A hundred-odd rows is a form nobody
+//       finishes if you paint it flat, so each family is one collapsed
+//       <details> carrying its own "n of m set", opened when it holds an
+//       answer. /me's caption is "N of <vocabulary> set", the denominator read
+//       off PDXYourFile.KEYS and never written down. Storage stopped gating on
+//       membership at the same time and gates on slug SHAPE instead, with the
+//       pull reconciler unioning both sides' keys — so a laptop deriving a
+//       shorter list can no longer delete an answer a phone really recorded.
+//     · REGION A LISTS EVERY DISTRICT THIS LOCATION RESOLVES. It printed
+//       "Davis County, Utah · District 2" — one unlabelled number for a voter
+//       who sits in a U.S. House district AND a State Senate district AND a
+//       State House district AND a county AND a municipality at once, without
+//       saying which of them that number was. It is a labelled list now, from
+//       pdxRepsForMe()'s own levels plus the reader's saved fields, fail-closed
+//       row by row: a row with nothing behind it says "not on file", borrows no
+//       number from the row above and invents none. The judicial row appears
+//       only where PDXJudicial is on the document, which on /me it is not.
+//     · THE BALLOT SNAPSHOT NAMES THE INCUMBENT FIRST. Six rows reading "No
+//       pick" was a to-do list from a desk that already knew who is in most of
+//       those chairs. Each row leads with pdxSeatHolders(seat)'s own answer now
+//       — linked to /p/<pid>, both senators where a seat has two — or with "No
+//       officeholder on file", never a guess. The reader's pick sits under it
+//       behind a "Your pick:" label, printed even when it names the incumbent.
+//
+//     WHY THE BUMP. me.html, me-desk.js, me-desk.css and index.html are
+//     precached and all four changed. A warm v204 device would otherwise paint
+//     an unlabelled "District 2", "No pick" over an incumbent it could have
+//     named, and an eight-key caption under a setter offering 121.
+//     your-file.js, your-file.css and who-represents-me.js are runtime entries
+//     and land a visit later.
+//
+//     DID NOT MOVE. No new room, address, issue key, score or party sort; WVA
+//     and Direction Match untouched. No challenger is pulled onto /me — the
+//     field is still Door 2's — region d still cannot make a pick, and no store
+//     schema changed: the same answers under the same per-account key, now
+//     readable against a wider list.
+
+const CACHE_VERSION = 'v205';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

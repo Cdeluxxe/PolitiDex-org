@@ -1,5 +1,5 @@
 /* ─────────────────────────────────────────────────────────────────────────────
-   your-file.js — YOUR FILE: the reader's own positions on eight issues
+   your-file.js — YOUR FILE: the reader's own positions on the issues
    ─────────────────────────────────────────────────────────────────────────────
    THE ADDRESS THIS MODULE OWNS: #your-file. One hash, chosen over /me because
    this app already owns its hashes and /me would need a new rewrite; the overlay
@@ -16,28 +16,31 @@
        one question, tallied. It is not a personal file, it is not portable to a
        candidate comparison, and it lives behind residency.
 
-   So this is the third thing, and it is the small one: eight rows, one answer
-   each, saved to the signed-in uid. It is a FILE, not a survey, not a quiz and
-   not a score.
+   So this is the third thing, and it is the small one: one answer per issue,
+   saved to the signed-in uid. It is a FILE, not a survey, not a quiz and not a
+   score.
 
-   THE LOCKED LIST. Eight issues, in ISSUES below, and there is no ninth. The
-   list is not read from ISSUE_MAP, not derived from CORE_NATIONAL_ISSUES, and not
-   widened by anything at runtime — ISSUE_MAP carries 120-odd keys and a personal
-   file that asks for all of them is a form nobody finishes. Where the brief's
-   slug and the shipped slug differ, THE SHIPPED SLUG IS THE ONE STORED AND THE
-   SHIPPED CHIP LABEL IS THE ONE PRINTED, so this file can never introduce a
-   parallel issue vocabulary:
+   THE LIST IS THE VOCABULARY, AND IT IS DERIVED. The rows this file offers are
+   the app's own issue vocabulary — every ISSUE_MAP key, grouped under the
+   CORE_NATIONAL_ISSUES family that claims it, read at runtime from those two
+   globals and never retyped here. That is the whole reason the count on /me can
+   say "2 of N": the numerator and the denominator come from the same list, so a
+   key added to ISSUE_MAP tomorrow is a row here and a point of denominator
+   there without a second edit. There is no starter octet: the eight slugs this
+   file shipped with survive only as FLOOR below, the rows that must exist even
+   on a shell where ISSUE_MAP failed to parse, and on any shell where it parsed
+   they are already inside their families and FLOOR adds nothing.
 
-       brief slug          shipped ISSUE_MAP key
-       ─────────────────   ─────────────────────
-       lands_preserve      lands_preserve
-       housing             housing
-       housing_build       housing_build
-       gun_rights          gun_rights
-       education_public    public_schools
-       education_choice    school_choice
-       energy_production   energy_production
-       taxes_lower         lower_taxes
+   A HUNDRED-ODD ROWS IS A FORM NOBODY FINISHES — IF YOU PAINT IT FLAT. So the
+   list paints as one collapsed <details> per family, with that family's own
+   "n of m set" on its summary; families holding an answer open themselves, and
+   with nothing answered the first one is open. Nobody is asked to scroll 121
+   rows to reach the one they came to answer.
+
+   WHERE THE BRIEF'S SLUG AND THE SHIPPED SLUG DIFFER, THE SHIPPED SLUG IS THE
+   ONE STORED AND THE SHIPPED CHIP LABEL IS THE ONE PRINTED, so this file can
+   never introduce a parallel issue vocabulary: education_public is stored as
+   public_schools, education_choice as school_choice, taxes_lower as lower_taxes.
 
    FOUR ANSWERS, ONE PER ISSUE. Support / Oppose / Mixed / Not sure. "Not sure"
    is a real answer and it is stored — it is how a reader says "do not put a side
@@ -51,16 +54,16 @@
    Stances use, so a snapshot is one opaque JSON row keyed by (uid, collection)
    in Netlify Database and no new table exists. Locally the key is namespaced per
    account for the same reason 'saved' namespaces its own, so two people sharing
-   one browser can neither see nor merge each other's file. SIGNED OUT, THE EIGHT STILL SHOW
-   AND NOTHING SAVES: every control is disabled and the panel says "Sign in to
+   one browser can neither see nor merge each other's file. SIGNED OUT, THE ROWS
+   STILL SHOW AND NOTHING SAVES: every control is disabled and the panel says "Sign in to
    keep your file." A file with nobody's name on it is not a file.
 
    WHAT IT FEEDS. One consumer: the alignment read (Your Match · record). It is
    fed by PROJECTION rather than by a second resolver: each sided answer is
    pushed into the existing Alignment Signature through the tool's own public
    entry points (window.alignSetIntensity / window.alignToggleIssue), so the
-   eight are scored by the engine that already exists. That is also what makes
-   the file read FIRST on its eight keys — an answer REPLACES whatever level the
+   answers are scored by the engine that already exists. That is also what makes
+   the file read FIRST on a key it holds — an answer REPLACES whatever level the
    Signature was holding for that key, at boot, on every answer, and again after
    a cross-device pull (adopt()). Two consequences worth stating: the engine's
    two scoring lanes are not edited by this feature at all, and "Not sure" is
@@ -88,7 +91,7 @@
   // THE DEFECT. This hash was the editor of record, and it opened an overlay on
   // whatever document the reader happened to be standing on — which was the
   // homepage, because the account menu's "Your file" was an <a href="#your-file">
-  // in a menu that only exists there. So the eight answers had no address of
+  // in a menu that only exists there. So the answers had no address of
   // their own: you could not bookmark them, you could not link a friend to
   // "where I keep my positions", and Back from the panel meant "the front page,
   // roughly where you were". The same account also had a SECOND door, "My
@@ -97,7 +100,7 @@
   // /me IS NOW THAT ADDRESS, and this module has two jobs on the two kinds of
   // document it can find itself on:
   //
-  //   ON /me  the eight rows are already ON the page — inline(), below, paints
+  //   ON /me  the rows are already ON the page — inline(), below, paints
   //           them into a host me-desk.js supplies. There is nothing to open:
   //           the hash and the account-menu click are satisfied by taking the
   //           reader to the region, which the desk does through its own ?tab=.
@@ -148,10 +151,10 @@
   }
 
   // ── THE CLOCK ─────────────────────────────────────────────────────────────
-  // Four marks, so "the phone cannot finish the eight" is a number rather than
-  // a feeling: when the panel opened, when the eight rows were first painted,
-  // and the in/out edges of every set(). PDXPerf.mark is FIRST-WRITE-WINS, so
-  // each set() mark carries its own issue key — otherwise tap two through eight
+  // Four marks, so "the phone cannot finish this form" is a number rather than
+  // a feeling: when the panel opened, when the rows were first painted, and the
+  // in/out edges of every set(). PDXPerf.mark is FIRST-WRITE-WINS, so each set()
+  // mark carries its own issue key — otherwise every tap after the first
   // would be silently dropped onto tap one's timestamp and the waterfall would
   // report the panel as instant no matter how slow it was.
   //
@@ -175,22 +178,110 @@
   var COLLECTION = 'yourFile';      // PDXStore / pdx-sync collection name
   var VERSION = 1;
 
-  // ── THE LOCKED LIST ───────────────────────────────────────────────────────
-  // `ask` is the slug the brief names; `key` is the slug ISSUE_MAP ships. They
-  // differ on three rows and the shipped one always wins (see the header).
-  var ISSUES = [
-    { ask: 'lands_preserve',    key: 'lands_preserve' },
-    { ask: 'housing',           key: 'housing' },
-    { ask: 'housing_build',     key: 'housing_build' },
-    { ask: 'gun_rights',        key: 'gun_rights' },
-    { ask: 'education_public',  key: 'public_schools' },
-    { ask: 'education_choice',  key: 'school_choice' },
-    { ask: 'energy_production', key: 'energy_production' },
-    { ask: 'taxes_lower',       key: 'lower_taxes' }
+  // ── THE FLOOR, WHICH IS NOT THE LIST ──────────────────────────────────────
+  // The slugs this file shipped asking for, kept for one job only: a shell where
+  // ISSUE_MAP never parsed still has rows to paint and keys to save against.
+  // They are SHIPPED ISSUE_MAP slugs, not the brief's (education_public is
+  // public_schools here, education_choice is school_choice, taxes_lower is
+  // lower_taxes) — see the header. On any shell that loaded the vocabulary these
+  // slugs are already inside their families and this array contributes no row.
+  var FLOOR = [
+    'lands_preserve', 'housing', 'housing_build', 'gun_rights',
+    'public_schools', 'school_choice', 'energy_production', 'lower_taxes'
   ];
-  var KEYS = ISSUES.map(function (r) { return r.key; });
-  var IS_MINE = {};
-  KEYS.forEach(function (k) { IS_MINE[k] = 1; });
+
+  // ── THE LIST, DERIVED ─────────────────────────────────────────────────────
+  // ONE SOURCE, PARSED. The rows are ISSUE_MAP's keys, in the order the
+  // CORE_NATIONAL_ISSUES families list them, and the family is the group they
+  // paint under. Nothing here is a literal count: the number the count sentence
+  // prints is keys().length of whatever the vocabulary turned out to be.
+  //
+  // WHY IT IS LAZY AND MEMOIZED. issue-map.js is a separate script; at the
+  // moment this IIFE runs, window.ISSUE_MAP may not exist yet (a deferred load,
+  // an ordering change in a shell we do not own). A parse-time derivation would
+  // therefore freeze an empty list into a module that never re-reads it. So
+  // vocab() derives on first ask and only CACHES A DERIVED RESULT — a fallback
+  // built from FLOOR alone is returned but not kept, so the very next ask after
+  // ISSUE_MAP lands gets the real vocabulary.
+  var _vocab = null;
+
+  function coreFamilies() {
+    try {
+      var C = window.CORE_NATIONAL_ISSUES;
+      return (C && C.length) ? C : null;
+    } catch (e) { return null; }
+  }
+
+  function buildVocab() {
+    var map = issueMap();
+    var fams = coreFamilies();
+    var list = [], groups = [], index = {}, seen = {};
+
+    function group(key, label) { return { key: String(key), label: String(label), rows: [] }; }
+    function push(g, key) {
+      if (!key || seen[key]) return;
+      seen[key] = 1;
+      var def = map[key] || null;
+      var row = {
+        key: key,
+        // `ask` is kept on every row because it was part of this module's shape
+        // before the widening. It is the same slug now: there is one vocabulary.
+        ask: key,
+        fam: g.key,
+        famLabel: g.label,
+        label: (def && def.label) || key,
+        chip: (def && def.chip) || ''
+      };
+      index[key] = row;
+      list.push(row);
+      g.rows.push(row);
+    }
+
+    if (fams) {
+      for (var i = 0; i < fams.length; i++) {
+        var f = fams[i] || {};
+        var g = group(f.key || ('family_' + i), f.label || 'Issues');
+        var ks = (f.keys && f.keys.length) ? f.keys : [];
+        for (var j = 0; j < ks.length; j++) if (map[ks[j]]) push(g, ks[j]);
+        if (g.rows.length) groups.push(g);
+      }
+      // A key ISSUE_MAP ships that no family claims is still part of the
+      // vocabulary, so it still gets a row. The families partition the map
+      // today; this is what keeps that from being load-bearing.
+      var rest = group('other_issues', '🗂 Other issues');
+      var all = Object.keys(map);
+      for (var m = 0; m < all.length; m++) if (!seen[all[m]]) push(rest, all[m]);
+      if (rest.rows.length) groups.push(rest);
+    }
+
+    // The floor, last, and only with whatever is still missing.
+    var floor = group('your_file_floor', 'Issues');
+    for (var n = 0; n < FLOOR.length; n++) push(floor, FLOOR[n]);
+    if (floor.rows.length) groups.push(floor);
+
+    return {
+      list: list,
+      keys: list.map(function (r) { return r.key; }),
+      groups: groups,
+      index: index,
+      // True only when the app's vocabulary really was read. A floor-only list
+      // is never cached under this flag.
+      derived: !!(fams && list.length > FLOOR.length)
+    };
+  }
+
+  function vocab() {
+    if (_vocab && _vocab.derived) return _vocab;
+    var v = buildVocab();
+    if (v.derived) _vocab = v;
+    return v;
+  }
+  function issuesList() { return vocab().list; }
+  function keysList() { return vocab().keys; }
+  // The membership test every read, write and projection goes through. It
+  // replaced a literal lookup table for the same reason the list is derived:
+  // there is no fixed set of keys to tabulate at parse time.
+  function mine(k) { return !!(k && vocab().index[k]); }
 
   // ── THE FOUR ANSWERS ──────────────────────────────────────────────────────
   var POSITIONS = [
@@ -208,21 +299,24 @@
 
   var COPY = {
     kick: 'Your file',
-    title: 'Your positions on eight issues',
+    title: 'Your positions on the issues',
     line: 'Your positions. Used to compare formal records. Not a vote. Not a district poll.',
     signedIn: 'Saved to your account.',
     signedOut: 'Sign in to keep your file.',
     signIn: 'Sign in',
     close: 'Close your file',
-    countOne: 'answer of 8 on file',
-    countMany: 'answers of 8 on file'
+    countOne: 'answer on file',
+    countMany: 'answers on file',
+    // Printed on a family's <summary>. The denominator is that family's own row
+    // count, so a reader can see where their answers are without opening one.
+    famSet: 'set'
   };
 
   var ID = 'pdx-your-file';
   var ID_TITLE = 'pdx-your-file-title';
   var ID_HEAD = 'pdx-your-file-head';
   var ID_BODY = 'pdx-your-file-scroll';
-  // The count carries its own id for ONE reason: so "2 answers of 8" can be
+  // The count carries its own id for ONE reason: so the count sentence can be
   // updated on its own node. See patchRow() — an answer must not remount the
   // list it was given on.
   var ID_COUNT = 'pdx-your-file-count';
@@ -293,16 +387,27 @@
   // ── READ / WRITE ──────────────────────────────────────────────────────────
   function blank() { return { version: VERSION, answers: {}, updatedAt: 0 }; }
 
-  // Normalizing is the whole defence of the locked list on the way IN: a key
-  // that is not one of the eight, and a position that is not one of the four,
-  // is dropped rather than stored. A snapshot pulled from another device (or an
-  // older shell) can therefore never widen this file to a ninth row.
+  // Normalizing is the defence on the way IN: a position that is not one of the
+  // four is dropped rather than stored, and so is a key that is not shaped like
+  // an issue slug at all.
+  //
+  // WHY THIS GATE IS SHAPE AND NOT MEMBERSHIP, now that the list is derived. The
+  // vocabulary is read from a script this file does not control, so the list a
+  // snapshot was authored against and the list this shell derived can differ by
+  // a key — a newer deploy, a shell where ISSUE_MAP had not parsed, a family
+  // added tomorrow. If normalize dropped by membership, the pull reconciler
+  // below would then SAVE the truncation, and an answer the reader really gave
+  // on their phone would be deleted by their laptop. Storage therefore keeps
+  // what it is given; it is set(), position() and level() that refuse a key
+  // outside the vocabulary, which is where the refusal actually matters —
+  // nothing outside the list can be answered, read back, or projected.
+  var SLUG = /^[a-z0-9][a-z0-9_]{0,63}$/;
   function normalize(raw) {
     var s = blank();
     if (!raw || typeof raw !== 'object') return s;
     var src = (raw.answers && typeof raw.answers === 'object') ? raw.answers : {};
     Object.keys(src).forEach(function (k) {
-      if (!IS_MINE[k]) return;
+      if (!SLUG.test(String(k))) return;
       var r = src[k];
       var pos = r && typeof r === 'object' ? r.position : r;
       if (!VALID[pos]) return;
@@ -341,7 +446,7 @@
     if (!st) return;
     try {
       if (fn(st.defineCollection)) {
-        st.defineCollection(COLLECTION, { keys: [KEY], label: 'Your file — your positions on eight issues' });
+        st.defineCollection(COLLECTION, { keys: [KEY], label: 'Your file — your positions on the issues' });
       }
     } catch (e) {}
     try { if (fn(st.registerSnapshot)) st.registerSnapshot(COLLECTION, function () { return load(); }); } catch (e) {}
@@ -359,7 +464,11 @@
         // Per issue, the newer edit wins. There are no tombstones because there
         // is no delete: an answer is replaced, never removed, and the absence of
         // a row already means "not answered".
-        KEYS.forEach(function (k) {
+        // The union of both sides' keys, not this shell's list: see normalize.
+        var union = {};
+        Object.keys(local.answers).forEach(function (k) { union[k] = 1; });
+        Object.keys(server.answers).forEach(function (k) { union[k] = 1; });
+        Object.keys(union).forEach(function (k) {
           var a = local.answers[k], b = server.answers[k];
           var winner = (!a) ? b : (!b) ? a : (((b.updatedAt || 0) > (a.updatedAt || 0)) ? b : a);
           if (winner) merged.answers[k] = winner;
@@ -376,13 +485,13 @@
   })();
 
   // ── WHAT THE ALIGNMENT READ ASKS FOR ──────────────────────────────────────
-  // Two accessors and nothing else. `position` is the raw answer for one of the
-  // eight ('support' | 'oppose' | 'mixed' | 'unsure' | null). `level` is the
-  // Alignment engine's own level for it, and it is null for 'unsure' and for
-  // every key that is not one of the eight — which is the whole guarantee that
-  // this file cannot answer for the other 110 keys.
+  // Two accessors and nothing else. `position` is the raw answer for a key in
+  // the vocabulary ('support' | 'oppose' | 'mixed' | 'unsure' | null). `level`
+  // is the Alignment engine's own level for it, and it is null for 'unsure' and
+  // for every key the vocabulary does not hold — which is the whole guarantee
+  // that this file answers for the reader's issues and invents no others.
   function position(issueKey) {
-    if (!IS_MINE[issueKey]) return null;
+    if (!mine(issueKey)) return null;
     var r = load().answers[issueKey];
     return (r && VALID[r.position]) ? r.position : null;
   }
@@ -392,14 +501,15 @@
   }
   function answered() {
     var s = load();
-    return KEYS.filter(function (k) { return !!s.answers[k]; });
+    return keysList().filter(function (k) { return !!s.answers[k]; });
   }
 
   // ── PROJECTION INTO THE EXISTING ALIGNMENT SIGNATURE ──────────────────────
   // The engine only scores issues the reader has PICKED, and a dozen surfaces
   // gate their match readouts on that set being non-empty. So a sided answer
   // here adds its issue to that set through the tool's own public entry point —
-  // no second selection store, and nothing invented: only these eight keys, and
+  // no second selection store, and nothing invented: only the keys the reader
+  // answered, and
   // only the ones with a side.
   function alignHas(k) {
     try { return !!(window._alignIssues && fn(window._alignIssues.has) && window._alignIssues.has(k)); }
@@ -432,13 +542,15 @@
   // _updateCmpFloat, renderKeyRaces, _pdxRaceSheetRefresh. Several of those
   // rebuild a whole grid, and their render paths are also what kick
   // _alignQueueConsistWarm → PDXVotingRecord.fetchCompare, so one tap on one of
-  // eight rows was rebuilding the homepage AND opening a vote-pack request.
+  // these rows was rebuilding the homepage AND opening a vote-pack request.
   // Eight taps in a row were doing it eight times, behind the finger, which is
-  // exactly the "cannot finish the eight" in the report.
+  // exactly the "cannot finish the form" in the report — and the form is now
+  // the whole vocabulary, so the same defect at eight taps would be a far worse
+  // one at forty.
   //
-  // Held, all eight taps cost one refresh, after the last row has flipped.
+  // Held, a run of taps costs one refresh, after the last row has flipped.
   function projectOne(k, pos) {
-    if (!IS_MINE[k]) return;
+    if (!mine(k)) return;
     var want = LEVEL[pos] || null;
     if (want) {
       if (!fn(window.alignSetIntensity)) return;
@@ -454,14 +566,14 @@
   // no-op on the device that authored the answers (projectOne compares first).
   //
   // ALWAYS HELD, and this is the cold-boot half of the same fix: a member who
-  // has answered all eight used to arrive on the homepage and spend eight
-  // _alignRefreshAll passes before the first frame. The state is applied eight
-  // times, as it must be; the paint happens once, after the last one.
+  // has answered a dozen issues used to arrive on the homepage and spend a
+  // dozen _alignRefreshAll passes before the first frame. The state is applied
+  // once per answer, as it must be; the paint happens once, after the last one.
   function adopt() {
     var s = load();
     holdAlign(true);
     try {
-      KEYS.forEach(function (k) {
+      Object.keys(s.answers).forEach(function (k) {
         var r = s.answers[k];
         if (r && LEVEL[r.position]) projectOne(k, r.position);
       });
@@ -472,7 +584,7 @@
 
   // ── THE ONE MUTATION ──────────────────────────────────────────────────────
   // One answer per issue: setting a position REPLACES whatever was there. It
-  // refuses a key outside the eight, a position outside the four, and — the rule
+  // refuses a key outside the vocabulary, a position outside the four, and — the rule
   // the brief is explicit about — every write while signed out.
   //
   // WHAT A TAP IS ALLOWED TO DO, and this is the whole list: write one answer
@@ -496,7 +608,7 @@
   // The row therefore flips in the same frame as the tap, and the marks below
   // prove it: yf-set-<key>-in to yf-set-<key>-out is the measured cost.
   function set(issueKey, pos) {
-    if (!IS_MINE[issueKey] || !VALID[pos]) return false;
+    if (!mine(issueKey) || !VALID[pos]) return false;
     if (!signedIn()) return false;
     var s = load();
     var prev = s.answers[issueKey];
@@ -604,7 +716,7 @@
 
   // ── THE ONE BODY DELEGATE, FOR BOTH PRESENTATIONS ─────────────────────────
   // The rows are the same rows in the panel and in region b of /me, so the
-  // thirty-two controls on them are wired by the SAME listener rather than by a
+  // four controls on each of them are wired by the SAME listener rather than by a
   // copy of it per host. A second copy is a second chance for one presentation
   // to save an answer the other does not.
   function bodyClick(ev) {
@@ -625,7 +737,7 @@
   // ids, which is the whole mechanism — render(), patchRow(), headHtml(),
   // bodyHtml(), countSentence() and set() all address the editor through
   // ID_HEAD / ID_BODY / ID_COUNT and none of them were touched by this pass.
-  // So the eight rows, the four options on each, the account line, the count
+  // So the rows, the four options on each, the account line, the count
   // sentence and the write path are identical in both presentations, and a fix
   // to any of them is a fix to both.
   //
@@ -742,9 +854,24 @@
 
   // One sentence, one place it is built, so the letterhead's first paint and
   // every later update cannot word it differently.
+  //
+  // THE DENOMINATOR IS THE LIST, MEASURED. It is keysList().length — the rows
+  // this editor actually offers — and never a literal, which is the same rule
+  // /me's own caption is held to. Add a key to ISSUE_MAP and both numbers move
+  // together, because they are the same number read twice.
   function countSentence(n) {
-    return n + ' ' + (n === 1 ? COPY.countOne : COPY.countMany);
+    var total = keysList().length;
+    return n + ' of ' + total + ' ' + (n === 1 ? COPY.countOne : COPY.countMany);
   }
+
+  // How many of one family's rows hold an answer, and the sentence that prints
+  // it. Same shape as the letterhead's, one scope down.
+  function famCount(g, s) {
+    var n = 0;
+    for (var i = 0; i < g.rows.length; i++) if (s.answers[g.rows[i].key]) n++;
+    return n;
+  }
+  function famSentence(n, total) { return n + ' of ' + total + ' ' + COPY.famSet; }
 
   function headHtml(n) {
     return '<p class="pdxyf-kick">' + esc(COPY.kick) + '</p>' +
@@ -765,15 +892,36 @@
       : '<p class="pdxyf-acct pdxyf-acct--in">' +
           '<span class="pdxyf-acctico" aria-hidden="true">🔒</span>' +
           '<span>' + esc(COPY.signedIn) + '</span></p>';
-    return acct +
-      '<ul class="pdxyf-list">' +
-        ISSUES.map(function (spec) { return rowHtml(spec, s.answers[spec.key], locked); }).join('') +
-      '</ul>';
+    // ONE COLLAPSED GROUP PER FAMILY. A flat list of the whole vocabulary is a
+    // form nobody finishes, so the rows arrive grouped and closed, each summary
+    // carrying its own "n of m set". A family holding an answer opens itself —
+    // that is where the reader was working — and with nothing answered anywhere
+    // the first family is open, so the editor never opens on a wall of summaries
+    // with no visible row.
+    var groups = vocab().groups;
+    var anyAnswer = false;
+    for (var a = 0; a < groups.length && !anyAnswer; a++) if (famCount(groups[a], s)) anyAnswer = true;
+    var html = groups.map(function (g, i) {
+      var n = famCount(g, s);
+      var openIt = n > 0 || (!anyAnswer && i === 0);
+      return '<details class="pdxyf-fam"' + (openIt ? ' open' : '') +
+          ' data-pdxyf-fam="' + esc(g.key) + '">' +
+        '<summary class="pdxyf-famsum">' +
+          '<span class="pdxyf-famlb">' + esc(g.label) + '</span>' +
+          '<span class="pdxyf-famn" data-pdxyf-famn="' + esc(g.key) + '">' +
+            esc(famSentence(n, g.rows.length)) + '</span>' +
+        '</summary>' +
+        '<ul class="pdxyf-list">' +
+          g.rows.map(function (r) { return rowHtml(r, s.answers[r.key], locked); }).join('') +
+        '</ul>' +
+      '</details>';
+    }).join('');
+    return acct + '<div class="pdxyf-fams">' + html + '</div>';
   }
 
   // ── WHOLESALE REPAINT ─────────────────────────────────────────────────────
   // For the changes that really do change every row: an account switch, a sign
-  // in or out (which flips `disabled` on all thirty-two controls), a snapshot
+  // in or out (which flips `disabled` on every control on the list), a snapshot
   // arriving from another device. An ANSWER is not one of these — see patchRow.
   //
   // It preserves the scroller's own offset across the swap, because replacing a
@@ -791,7 +939,7 @@
     if (head) { try { head.innerHTML = headHtml(n); } catch (e) {} }
     if (body) { try { body.innerHTML = bodyHtml(); } catch (e) {} }
     if (body && at > 0) { try { body.scrollTop = at; } catch (e) {} }
-    // First paint of the eight rows. First-write-wins, so this is the FIRST
+    // First paint of the rows. First-write-wins, so this is the FIRST
     // time the list existed in the document and later repaints do not move it.
     if (body) mark('yf-rows-painted');
     _flash = null;
@@ -802,15 +950,17 @@
   // of .pdxyf-body's innerHTML. Three things fell out of that and all three were
   // in the report:
   //
-  //   · THE SCROLL POSITION JUMPED. Eight rows leave and eight rows arrive, so
+  //   · THE SCROLL POSITION JUMPED. Every row leaves and every row arrives, so
   //     for one layout the scroller's content is empty and the engine clamps
   //     scrollTop to 0. Answer the seventh issue and you are returned to the
-  //     first — which, on a phone, reads as the panel throwing you out.
+  //     first — which, on a phone, reads as the panel throwing you out. With the
+  //     vocabulary in the list and its families open, that is a repaint of a
+  //     hundred-odd rows, and the reader's place in them is unrecoverable.
   //   · THE NEXT SCROLL WAS STOLEN. The node under the finger is destroyed
   //     mid-gesture. A touch sequence that began on a button that no longer
   //     exists does not become a pan on its replacement; it is dropped, and the
   //     reader's next swipe does nothing at all.
-  //   · IT WAS 32 CONTROLS OF WORK FOR ONE BIT OF STATE, every tap, on the
+  //   · IT WAS EVERY CONTROL ON THE LIST OF WORK FOR ONE BIT OF STATE, every tap, on the
   //     slowest device.
   //
   // So an answer now touches exactly what changed: the four controls on the one
@@ -850,11 +1000,25 @@
       setTimeout(function () { try { row.classList.remove('pdxyf-flash'); } catch (e) {} }, 700);
     } catch (e) {}
 
-    // "2 answers of 8", updated on its own node. Text, not a meter — see the
-    // stylesheet's header.
+    // The letterhead's count, updated on its own node. Text, not a meter — see
+    // the stylesheet's header.
     try {
       var c = el(ID_COUNT);
       if (c) c.textContent = countSentence(answered().length);
+    } catch (e) {}
+
+    // And the one family's own count, on its summary, for the same reason: the
+    // group the reader is working inside must not have to be closed and
+    // reopened to show that it moved.
+    try {
+      var det = row.closest ? row.closest('[data-pdxyf-fam]') : null;
+      var gk = det ? String(det.getAttribute('data-pdxyf-fam') || '') : '';
+      var node = det && det.querySelector ? det.querySelector('[data-pdxyf-famn]') : null;
+      if (gk && node) {
+        var gs = vocab().groups, g = null;
+        for (var q = 0; q < gs.length; q++) if (gs[q].key === gk) g = gs[q];
+        if (g) node.textContent = famSentence(famCount(g, load()), g.rows.length);
+      }
     } catch (e) {}
     _flash = null;
   }
@@ -882,7 +1046,7 @@
   function open() {
     // THE TWO DOCUMENTS, DECIDED HERE AND NOWHERE ELSE.
     //
-    // On /me there is no panel to open: region b already holds the eight rows,
+    // On /me there is no panel to open: region b already holds the rows,
     // so a click on "Your file" is a scroll, and true is returned because the
     // gesture WAS handled — wire()'s capturing listener reads that as "call
     // preventDefault", which is what stops the <a href="#your-file"> underneath
@@ -989,13 +1153,13 @@
     } catch (e) {}
     // Signing in or out changes whether anything can be saved, so the panel has
     // to be repainted rather than left showing the previous session's state. The
-    // eight are also re-projected: a member who answered on another device gets
+    // answers are also re-projected: a member who answered on another device gets
     // their sides into the signature as soon as the pull lands.
     //
     // GUARDED ON THE UID, and that guard is the roster fix. firebase-boot's
     // roster warm calls auth.signInAnonymously() to read the directory index,
     // which fires onAuthStateChanged — so the "Loading the latest roster…"
-    // background warm was remounting all eight rows of an open panel, mid-tap,
+    // background warm was remounting every row of an open panel, mid-tap,
     // to paint exactly the same thing (an anonymous session is not a member, so
     // `locked` does not change and no answer belongs to it). Comparing the uid
     // signature first means a session arriving that changes nothing repaints
@@ -1030,8 +1194,17 @@
     activeKey: activeKey,
     setAccount: setAcct,
     COLLECTION: COLLECTION,
-    ISSUES: ISSUES,
-    KEYS: KEYS,
+    // ARRAY-SHAPED, AND RE-READ ON EVERY ASK. Both are getters because the list
+    // is derived from a script that may land after this one: a snapshot taken at
+    // definition time would hand every consumer the floor forever. me-desk.js's
+    // caption denominator is PDXYourFile.KEYS.length, so this is the one place
+    // the "count against the vocabulary, not a literal" rule is kept.
+    get ISSUES() { return issuesList(); },
+    get KEYS() { return keysList(); },
+    // The list as the editor paints it: one entry per family, with its rows.
+    get GROUPS() { return vocab().groups; },
+    // Membership, exposed so a consumer can ask rather than re-derive.
+    offers: mine,
     POSITIONS: POSITIONS,
     LEVEL: LEVEL,
     COPY: COPY,
@@ -1073,7 +1246,7 @@
   //
   // IT WAITS FOR NOTHING. Not the roster, not auth, not the alignment engine,
   // not a snapshot pull, not the seat lookup. There is nothing to wait for:
-  // signed out and with no stored answers at all this panel still has eight rows
+  // signed out and with no stored answers at all this panel still has its rows
   // and four options each to print, so the honest arrival is the immediate one.
   // Everything that arrives later — a uid, a cross-device snapshot, the engine —
   // repaints the open panel through its own listener.

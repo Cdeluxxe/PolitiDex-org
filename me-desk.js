@@ -13,27 +13,32 @@
    the reader to the tool that owns each part. SEVEN REGIONS, NOT SIX PRODUCTS:
 
      a · WHO THIS IS      the signed-in name and email exactly as the account
-                          chip prints them, plus where this account votes — the
-                          input regions c and d both read — one way to change
+                          chip prints them, plus where this account votes AND
+                          EVERY DISTRICT THAT LOCATION RESOLVES — the input
+                          regions c and d both read, labelled one row per level
+                          and fail-closed to "not on file" — one way to change
                           it, and the one way to leave the account. Logging out
                           lives here because the chrome's chip is a single
                           control to this document now rather than a dropdown
                           with three rows in it.
      b · POSITIONS        A SNAPSHOT of what this reader has already said, and
-                          one door to the editor that owns it. The eight rows
-                          are still your-file.js's own — same module, same
-                          store, same renderer — but they are no longer the
-                          FACE of the region: a desk that opens on a fixed
-                          octet of Support / Oppose / Mixed / Not sure is a
+                          one door to the editor that owns it. The rows are
+                          still your-file.js's own — same module, same store,
+                          same renderer, and the list is the whole issue
+                          vocabulary rather than a starter octet — but they are
+                          no longer the FACE of the region: a desk that opens on
+                          a wall of Support / Oppose / Mixed / Not sure is a
                           form, and a form is what you fill in rather than what
                           you read. See regionPositions().
      c · STARRED          the issues this reader flagged to count harder, read
                           through the SAME hook the match engine weights with.
                           Add and remove is a jump to My Stances, not a second
                           editor.
-     d · BALLOT SNAPSHOT  one line per seat: office, the current pick as a link
-                          to /p/<pid>, or the honest blank. "Work this seat"
-                          opens /ballot with that seat already open.
+     d · BALLOT SNAPSHOT  one line per seat: office, WHO HOLDS IT NOW as a link
+                          to /p/<pid> (or "No officeholder on file" — never a
+                          guessed name), and under that the reader's own pick
+                          when they have made one. "Work this seat" opens
+                          /ballot with that seat already open.
      e · SAVED EVIDENCE   the receipts this account saved, each linking back to
                           the record it came from.
      f · JUMPS            three text links. Not a second navigation bar.
@@ -45,10 +50,12 @@
 
      · IT NEVER SCORES THE VOTER. There is no percentage, no grade, no "you are
        80% aligned with Utah" and no completeness figure anywhere in here. Every
-       count is a COUNT — "2 answers of 8 on file", "4 of 6 seats picked" — and
-       every one of them is the length of a real list, never a literal and never
-       a ratio dressed as progress. Search this file for Math.round and there is
-       nothing to find.
+       count is a COUNT — "2 of 121 set", "4 of 6 seats picked" — and every one
+       of them is the length of a real list over the length of another real
+       list, never a literal and never a ratio dressed as progress. Search this
+       file for Math.round and there is nothing to find, and search it for the
+       size of the issue vocabulary and there is nothing to find either: that
+       number belongs to the register, and this document reads it.
      · IT NEVER PUBLISHES. /me is this reader's own desk. Nothing here reads
        another account, nothing here writes a public snapshot, and the document
        is noindex.
@@ -156,6 +163,123 @@
       }
     } catch (e) {}
     return out;
+  }
+
+
+  // ── EVERY DISTRICT THIS LOCATION RESOLVES ─────────────────────────────────
+  // WHAT WAS WRONG. Region a printed "Davis County, Utah · District 2" — one
+  // number, unlabelled, taken from _voterLocationLabel's `detail`. A voter does
+  // not sit in "District 2". They sit in a U.S. House district AND a State
+  // Senate district AND a State House district AND a county AND a municipality
+  // at the same time, and every one of those elects somebody different. One
+  // bare number taught the reader they had one district, and it did not even
+  // say which of the four it was.
+  //
+  // SO THE BLOCK IS A LABELLED LIST, FROM THE SAME RESOLVER THE BALLOT USES.
+  // Nothing here derives a district: every row is either something
+  // pdxRepsForMe() resolved, something the reader themselves saved (their own
+  // typed or map-pinned datum, which is not an inference), or the words "not on
+  // file".
+  //
+  // FAIL CLOSED, ROW BY ROW. A row with nothing behind it says "not on file" —
+  // it does not borrow the number above it, does not fall back to a curated
+  // default area, and does not invent one. That is the whole rule, and it is
+  // why the missing rows are still PRINTED: a reader whose State Senate
+  // district we do not hold learns that we do not hold it, which is a fact
+  // about our coverage. Dropping the row would have read as "you have three
+  // districts", which is the same lie in a quieter voice.
+  //
+  // WHY THE READER'S OWN SAVED FIELDS ARE READ AS A FALLBACK. The resolver
+  // gates its district branch on Utah, because the curated geometry is Utah's
+  // and a county name is not unique across states (see pdxRepsForMe). That gate
+  // is about WHO HOLDS THE SEAT — it refuses to pair a bare number with an
+  // officeholder. This list makes no claim about an officeholder, so where the
+  // reader pinned their own State Senate district on the map, printing it back
+  // to them under its own label is repeating their input, not answering a
+  // question we cannot answer. The officeholder question is region d's, and
+  // region d resolves it through pdxSeatHolders or says nobody is on file.
+  //
+  // THE JUDICIAL ROW IS CONDITIONAL, and this is not an oversight. Trial-court
+  // districts are drawn by county and PDXJudicial.districtForCounty() is their
+  // one owner — but that module and its 111 KB of data live on /courts and are
+  // NOT on this document. So the row appears only where the question is
+  // answerable at all: with the module present, the county's division or an
+  // honest blank; without it, no row, because /me has nothing to say about it
+  // rather than something unknown to report.
+  function judicialApi() { try { return window.PDXJudicial || null; } catch (e) { return null; } }
+
+  function levelFor(reps, key) {
+    if (!reps || !reps.levels) return null;
+    for (var i = 0; i < reps.levels.length; i++) {
+      var l = reps.levels[i];
+      if (l && l.key === key) return l;
+    }
+    return null;
+  }
+  // A district number, as digits or ''. Both sources go through this, so a
+  // stored "2nd" and a resolved 2 cannot print differently.
+  function distNum(v) {
+    return String(v == null ? '' : v).replace(/[^0-9]/g, '');
+  }
+  function distRow(label, value) {
+    var v = String(value == null ? '' : value).trim();
+    return { label: label, value: v, none: !v };
+  }
+
+  function districts() {
+    var out = [];
+    var loc = {};
+    try { loc = window._currentVoterLocation || {}; } catch (e) { loc = {}; }
+    if (!window._hasUserLocation) return out;
+    var r = reps();
+    var state = String(loc.state || (r && r.state) || '').trim();
+
+    // COUNTY AND STATE, which region a already had. The resolver's county is
+    // published match-gated, so the reader's own saved county is the fallback,
+    // and the state is the scope both of them sit in.
+    var county = String((r && r.county) || loc.county || '').trim();
+    out.push(distRow('County', [county, state].filter(Boolean).join(', ')));
+
+    // THE THREE LEGISLATIVE SEATS. The resolver first, the reader's own saved
+    // field second, "not on file" third.
+    var hl = levelFor(r, 'house');
+    var hn = distNum(hl && hl.district) || distNum(loc.district);
+    out.push(distRow('U.S. House', hn ? ('District ' + hn) : ''));
+
+    var sl = levelFor(r, 'statesenate');
+    var sn = distNum(sl && sl.district) || distNum(loc.stateSenateDistrict);
+    out.push(distRow('State Senate', sn ? ('District ' + sn) : ''));
+
+    var ll = levelFor(r, 'statehouse');
+    var ln = distNum(ll && ll.district) || distNum(loc.stateHouseDistrict);
+    out.push(distRow('State House', ln ? ('District ' + ln) : ''));
+
+    // LOCAL IS A JURISDICTION, NOT A NUMBER. The municipality this location
+    // names is the local ballot's scope — mayor, council, school board — and it
+    // is the only local line this document holds: the local ROSTER is curated
+    // for the same areas the district geometry is, and /me does not carry it.
+    out.push(distRow('Local', String(loc.city || '').trim()));
+
+    // JUDICIAL, only where the module that owns the question is on the page.
+    var J = judicialApi();
+    if (J && fn(J.districtForCounty)) {
+      var jd = '';
+      try { jd = county ? (J.districtForCounty(county) || '') : ''; } catch (e2) { jd = ''; }
+      out.push(distRow('Judicial', jd ? String(jd) : ''));
+    }
+    return out;
+  }
+
+  var DIST_NONE = 'not on file';
+  function districtsHtml() {
+    var rows = districts();
+    if (!rows.length) return '';
+    return '<dl class="me-dists">' + rows.map(function (d) {
+      return '<div class="me-dist' + (d.none ? ' me-dist--none' : '') + '">' +
+        '<dt class="me-distlb">' + esc(d.label) + '</dt>' +
+        '<dd class="me-distv">' + esc(d.none ? DIST_NONE : d.value) + '</dd>' +
+      '</div>';
+    }).join('') + '</dl>';
   }
 
   // ── THE SEATS ─────────────────────────────────────────────────────────────
@@ -505,11 +629,16 @@
         ' to keep it on your account and read it on another device.</p>';
     }
 
+    // THE PLACE, THEN EVERY DISTRICT IT RESOLVES. `p.detail` is deliberately
+    // NOT printed here any more: it is _voterLocationLabel's single "District 2"
+    // — one unlabelled number for a voter who is in four districts at once —
+    // and the labelled list below says all of it, including the rows we do not
+    // hold. See districts().
     var p = place();
     var where = p.located && p.label
-      ? '<p class="me-where">Your ballot is built for <strong>' + esc(p.label) + '</strong>' +
-          (p.detail ? ' <span class="me-mail">' + esc(p.detail) + '</span>' : '') + '. ' +
-          '<button type="button" class="me-link" data-me-loc="1">Change location</button></p>'
+      ? '<p class="me-where">Your ballot is built for <strong>' + esc(p.label) + '</strong>. ' +
+          '<button type="button" class="me-link" data-me-loc="1">Change location</button></p>' +
+          districtsHtml()
       : '<p class="me-where">We do not know where you vote yet, so the seats below are the ones we cannot resolve. ' +
           '<button type="button" class="me-link" data-me-loc="1">Set where you vote</button></p>';
 
@@ -520,9 +649,9 @@
   }
 
   // ── b · POSITIONS ─────────────────────────────────────────────────────────
-  // WHAT WAS WRONG. This region opened with the whole eight-issue editor: eight
-  // rows, four controls each, thirty-two buttons, painted identically for a
-  // reader who had answered all eight and for one who had never been here. A
+  // WHAT WAS WRONG. This region opened with the whole editor: every row of it,
+  // four controls each, painted identically for a reader who had answered them
+  // all and for one who had never been here. A
   // desk is a thing you READ — "here is what you told us" — and the first thing
   // on it was a form. Worse, the form was the tallest block on the page for the
   // reader who had least reason to care about it, because the empty state and
@@ -533,12 +662,13 @@
   //   · ONE OR MORE ANSWERS ON FILE → only those keys are listed, each as one
   //     chip carrying the issue and THE SIDE THIS READER CHOSE. Not the four
   //     options; the one they picked. The face is capped at SNAP_CAP so a
-  //     reader with all eight gets a snapshot rather than a list, and the
-  //     leftover is counted in words on the door beside it.
-  //   · NOTHING ON FILE → the starter chips, which are three of the eight keys
-  //     the editor already owns (see STARTERS), and one sentence pointing at My
-  //     Stances for the rest. Three chips is an invitation; eight rows of
-  //     "Not sure" is a chore.
+  //     reader who has answered forty gets a snapshot rather than a list, and
+  //     the leftover is counted in words on the door beside it.
+  //   · NOTHING ON FILE → the starter chips, which are three keys the editor
+  //     already owns (see STARTERS), and one sentence pointing at My Stances for
+  //     the rest. A STARTER IS A HINT, NOT A DENOMINATOR: three chips is an
+  //     invitation to begin, and the count above them is still measured against
+  //     the whole vocabulary. A screenful of "Not sure" is a chore.
   //   · EITHER WAY, ONE DOOR. "Set all issues" mounts your-file.js's editor —
   //     the SAME module into the SAME host, through PDXYourFile.inline(), which
   //     is why this is not a second setter and cannot drift from the first. It
@@ -552,10 +682,14 @@
   //      PDXYourFile.position() — the accessor the alignment read itself uses.
   //      This region writes nothing; the door hands the reader to the editor and
   //      the editor writes, through its own set(), as it always did.
-  //   2. NOT A SCORE. "3 of 8 on file" is the length of a list over the length
-  //      of the locked list. No ratio, no bar, no percentage, and the count
-  //      sentence's single author is still the editor's own countSentence()
-  //      wherever the editor is on screen.
+  //   2. NOT A SCORE, AND NOT AGAINST A STARTER OCTET. "2 of 121 set" is the
+  //      length of the answered list over the length of THE VOCABULARY THE
+  //      SETTER OFFERS — PDXYourFile.KEYS, which that module derives from
+  //      ISSUE_MAP grouped by CORE_NATIONAL_ISSUES. Positions are held against
+  //      the issue register, so the register is the denominator; this file
+  //      writes no number of its own down and cannot. No ratio, no bar, no
+  //      percentage, and the count sentence's single author is still the
+  //      editor's own countSentence() wherever the editor is on screen.
   //   3. NOT A VOTE. The line under the heading is the editor's OWN COPY.line,
   //      read off the module rather than paraphrased here, so "Not a vote. Not
   //      a district poll." cannot be reworded on one surface and not the other.
@@ -696,11 +830,17 @@
           'Set the rest in <a class="me-link" href="/#my-stances">My Stances</a>.</p>';
     }
 
-    // The count is the length of a list over the length of the locked list, and
-    // both numbers are read rather than written down. On a document where the
-    // editor has not parsed, own.length is 0 and no count is printed at all.
+    // THE DENOMINATOR IS THE VOCABULARY, MEASURED, AND IT IS NOT A NUMBER THIS
+    // FILE KNOWS. own.length is PDXYourFile.KEYS.length — the keys the stance
+    // setter actually offers, which that module derives from ISSUE_MAP and the
+    // CORE_NATIONAL_ISSUES families at runtime. There is no literal anywhere on
+    // this path: numerator and denominator are both lengths of lists read off
+    // the same owner, so a key added to the register moves both without an edit
+    // here. On a document where the editor has not parsed, own.length is 0 and
+    // no count is printed at all — a count with a made-up denominator would be
+    // the defect this replaced.
     var count = (own.length && list.length)
-      ? esc(list.length + ' of ' + own.length + ' on file')
+      ? esc(list.length + ' of ' + own.length + ' set')
       : '';
 
     return '<section class="me-region" id="me-positions" aria-labelledby="me-positions-t">' +
@@ -736,8 +876,8 @@
     var Y = yf();
     if (!Y || !fn(Y.inline)) {
       // your-file.js has not parsed yet, or this is an older cached copy of it
-      // without an inline host. Say what is missing; do not paint eight rows
-      // this document would then own.
+      // without an inline host. Say what is missing; do not paint rows this
+      // document would then own.
       host.innerHTML = empty('The positions editor is still loading. If it does not appear, ' +
         '<a href="/">reload PolitiDex</a>.');
       return false;
@@ -789,6 +929,58 @@
   }
 
   // ── d · BALLOT SNAPSHOT ───────────────────────────────────────────────────
+  // WHO ALREADY HOLDS THE SEAT, AND THEN THE PICK.
+  //
+  // WHAT WAS WRONG. Six rows, each an office and the word "No pick". A reader
+  // who had never opened /ballot got a column of blanks — a to-do list from a
+  // desk that already knew, for most of those seats, who is in the chair right
+  // now. The one thing a voter wants from a ballot they have not worked yet is
+  // the incumbent, and we were withholding it to make room for an absence.
+  //
+  // SO EACH ROW LEADS WITH THE OFFICEHOLDER. The name comes from
+  // pdxSeatHolders(seat) — voter-hub-location.js's one owner of "who holds this
+  // seat", which answers from pdxRepsForMe()'s own levels — and it is printed
+  // as a link to that person's /p/<pid> record. NO NAME IS GUESSED: the seat
+  // either resolved a pid or the row says "No officeholder on file". Two pids
+  // on a U.S. Senate row is not a defect, it is the Senate: both are named.
+  //
+  // WHAT RESOLVES HERE AND WHAT DOES NOT, stated so a later pass does not read
+  // the blanks as a bug. The statewide seats (both U.S. Senate seats, Governor)
+  // resolve from the state ROSTER, which this document has — the Firestore
+  // roster index fills window.CMP_DATA, and the resolver walks it. The district
+  // seats (U.S. House, State Senate, State House) resolve from the curated
+  // ballot in ballot-breakdown.js (407 KB), which this document deliberately
+  // does not carry, so they come back with no pid and the row says so. The
+  // local slot has no level at all. That is an honest gap in one direction
+  // only: /me can under-name a seat and never mis-name one.
+  //
+  // AND THE PICK IS STILL THE READER'S. It prints UNDER the incumbent, prefixed
+  // "Your pick:", and it is printed whether or not it equals the incumbent —
+  // re-electing the person in the chair is a pick, and a desk that hid it would
+  // be reading the reader's ballot back to them wrong.
+  //
+  // THIS IS STILL NOT A SECOND BALLOT AND NOT "THE COMPLETE BALLOT". No
+  // challenger is pulled onto this document, no field is listed, nothing here
+  // can make a pick, and the one control on the row is the same
+  // /ballot?seat=<key> link it always was. The count is unchanged: picks over
+  // the seats on this reader's own slate.
+  function holdersFor(seatKey) {
+    try {
+      if (!fn(window.pdxSeatHolders)) return { ok: false, pids: [] };
+      var h = window.pdxSeatHolders(seatKey);
+      return (h && h.pids) ? h : { ok: false, pids: [] };
+    } catch (e) { return { ok: false, pids: [] }; }
+  }
+  var HOLD_NONE = 'No officeholder on file';
+  function holdsLine(pids) {
+    if (!pids || !pids.length) {
+      return '<span class="me-holds me-holds--none">' + esc(HOLD_NONE) + '</span>';
+    }
+    return '<span class="me-holds">' + pids.map(function (pid) {
+      return personAnchor(pid, nameOf(pid));
+    }).join('<span class="me-holdsep">, </span>') + '</span>';
+  }
+
   function regionBallot() {
     var list = seats();
     var r = reps();
@@ -804,19 +996,28 @@
       workable++;
       if (pid) picked++;
 
-      var face;
-      if (pid) {
-        var ph = faceOf(pid);
-        face = ph
-          ? '<span class="me-face"><img src="' + esc(ph) + '" alt="" loading="lazy" /></span>'
-          : '<span class="me-face" aria-hidden="true">\u{1F3DB}</span>';
-      } else {
-        face = '<span class="me-seatico" aria-hidden="true">' + s.icon + '</span>';
-      }
+      var held = holdersFor(s.key).pids || [];
 
-      var line = pid
-        ? '<span class="me-pick">' + personAnchor(pid, nameOf(pid)) + '</span>'
-        : '<span class="me-pick me-pick--none">No pick</span>';
+      // THE FACE BELONGS TO WHOEVER THE ROW LEADS WITH, and the row leads with
+      // the officeholder. One holder → their portrait. Two (the Senate) → the
+      // seat glyph, because a row about two people cannot wear one of their
+      // faces. No holder → the pick's portrait if there is a pick, and the seat
+      // glyph otherwise.
+      var facePid = (held.length === 1) ? held[0] : (held.length ? '' : (pid || ''));
+      var ph = facePid ? faceOf(facePid) : '';
+      var face = ph
+        ? '<span class="me-face"><img src="' + esc(ph) + '" alt="" loading="lazy" /></span>'
+        : (facePid
+            ? '<span class="me-face" aria-hidden="true">\u{1F3DB}</span>'
+            : '<span class="me-seatico" aria-hidden="true">' + s.icon + '</span>');
+
+      // The incumbent, then the pick beneath it when there is one. A pick that
+      // names the incumbent is printed all the same.
+      var line = holdsLine(held) +
+        (pid
+          ? '<span class="me-pick"><span class="me-picklb">Your pick:</span> ' +
+              personAnchor(pid, nameOf(pid)) + '</span>'
+          : '');
 
       // WORK THIS SEAT IS A REAL ADDRESS. /ballot?seat=<key> — the desk reads
       // ?seat= itself and opens that seat, and it only honours a key that is on
@@ -1044,7 +1245,7 @@
   //      not a participation rate, and this region holds no number at all.
   //   3. IT DOES NOT ENTER THE MATCH. Nothing here reads or writes the alignment
   //      store, the stance store, Direction Match, Your Match, the formal
-  //      pattern or the ballot order. The board is the public lane; the eight
+  //      pattern or the ballot order. The board is the public lane; the
   //      answers above it are the private one; this region carries no wire
   //      between them.
   //   4. IT DOES NOT PARTY-GATE AND CARRIES NO PARTY. No letter, no colour, no
@@ -1147,8 +1348,8 @@
   }
 
   // THE WHOLE DESK, EXCEPT THE EDITOR. Region b's host is preserved across a
-  // repaint — remounting it would throw away the eight rows your-file.js is
-  // holding, mid-tap, to paint the same eight back. So the host is lifted out,
+  // repaint — remounting it would throw away the rows your-file.js is holding,
+  // mid-tap, to paint the same rows back. So the host is lifted out,
   // the rest is replaced, and the host is put back. An UNMOUNTED host is not
   // lifted and not remounted: the editor is now opened by a gesture, and a
   // location resolving underneath the desk is not that gesture.
@@ -1357,10 +1558,20 @@
     member: member,
     displayNameOf: displayNameOf,
     place: place,
+    // Region a's district list, exported so a test reads the rows rather than
+    // scraping them out of the paint — and so "not on file" is asserted as a
+    // resolved ROW with nothing in it, which is the honest state, rather than
+    // as a missing row.
+    districts: districts,
+    DIST_NONE: DIST_NONE,
     seats: seats,
     gate: gate,
     picks: picks,
     pickFor: pickFor,
+    // Who holds a seat, as region d asks it: the resolver's own answer, never a
+    // second derivation on this document.
+    holders: holdersFor,
+    HOLD_NONE: HOLD_NONE,
     stars: stars,
     voice: voice,
     savedCards: savedCards,

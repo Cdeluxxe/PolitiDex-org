@@ -10,7 +10,7 @@
 
      · NO METER, NO PERCENTAGE, NO GRADE. There is no bar, no fill, no ring and
        no length anywhere in this file, because there is no number on this
-       document for a style to read. "2 of 8 on file" is a sentence. A voter is
+       document for a style to read. "2 of 121 set" is a sentence. A voter is
        not a completion rate and this sheet gives a later edit nowhere to put
        one.
      · NO VERDICT PALETTE. your-file.css states the doctrine at length and it
@@ -197,6 +197,56 @@
 }
 .me-where strong { color: #e2e8f0; font-weight: 600; }
 
+/* EVERY DISTRICT, ONE ROW EACH. A voter is in a U.S. House district AND a State
+   Senate district AND a State House district AND a county AND a municipality,
+   so this is a definition list: the level is the term, the district is the
+   definition. Label above value on a phone, side by side once there is room.
+
+   THE MISSING ROWS LOOK MISSING AND ARE STILL HERE. "not on file" is dimmed and
+   italic — the same treatment every other absence on this page gets — because a
+   row we cannot fill is a fact about our coverage, not a blank to be tidied
+   away. It is NOT red: there is nothing wrong with a reader whose State Senate
+   district we do not draw. */
+.me-dists {
+  margin: 0.55rem 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.3rem 0.9rem;
+}
+.me-dist {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 0.5rem;
+  min-width: 0;
+}
+.me-distlb {
+  flex: 0 0 8.5rem;
+  font-family: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8fa3bf;
+}
+.me-distv {
+  flex: 1 1 auto;
+  margin: 0;
+  min-width: 0;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: #e2e8f0;
+}
+.me-dist--none .me-distv {
+  color: #8fa3bf;
+  font-style: italic;
+}
+
+@media (min-width: 40rem) {
+  .me-dists { grid-template-columns: 1fr 1fr; }
+}
+
 /* THE ONE WAY OUT. Quiet on purpose: ending a session is not the thing a reader
    came to this page to do, and a chip louder than the account's own name would
    read as the page's main verb. Sits at the end of the identity row and takes
@@ -359,8 +409,14 @@
 .me-starico { font-size: 0.75rem; }
 
 /* ── REGION d · THE BALLOT SNAPSHOT ───────────────────────────────────────── */
-/* One line per seat. Office, then the pick or the honest blank, then the way to
-   work it. No progress bar: the count is in the region head as a sentence. */
+/* One line per seat. Office, then WHO HOLDS IT NOW, then the reader's own pick
+   underneath when they have made one, then the way to work it. No progress bar:
+   the count is in the region head as a sentence.
+
+   THE INCUMBENT IS THE ROW'S SUBJECT and reads at full strength; the pick sits
+   under it, smaller, behind its own "Your pick:" label. That order is the whole
+   point of the region — the seat is held by somebody today whether or not this
+   reader has decided anything — and the type sizes say so without a heading. */
 .me-seats {
   margin: 0;
   padding: 0;
@@ -405,19 +461,46 @@
   text-transform: uppercase;
   color: #8fa3bf;
 }
-.me-pick {
+/* The officeholder. Wraps rather than truncates when a seat has two of them
+   (both U.S. Senate seats are one ballot seat), because a truncated second
+   senator is a name we half-printed. */
+.me-holds {
   display: block;
   font-size: 0.92rem;
   line-height: 1.35;
   color: #e2e8f0;
+  min-width: 0;
+}
+.me-holds a { color: #bfdbfe; text-decoration: none; }
+.me-holds a:hover, .me-holds a:focus-visible { text-decoration: underline; }
+/* "No officeholder on file" and "we do not resolve this seat" are the same kind
+   of sentence — something we do not have — so they read the same way, and
+   neither is red. */
+.me-holds--none { color: #8fa3bf; font-style: italic; }
+.me-holdsep { color: #8fa3bf; }
+.me-pick {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: #bcd0ea;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .me-pick a { color: #bfdbfe; text-decoration: none; }
 .me-pick a:hover, .me-pick a:focus-visible { text-decoration: underline; }
-/* "No pick" and "we do not resolve this seat" are the same kind of sentence —
-   something we do not have — so they read the same way. */
+.me-picklb {
+  font-family: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8fa3bf;
+}
+/* Kept: older cached paints of this document may still carry a .me-pick--none
+   node, and a rule that vanishes under them would leave a bare-white "No pick"
+   reading as a name. */
 .me-pick--none { color: #8fa3bf; }
 .me-work {
   flex: 0 0 auto;

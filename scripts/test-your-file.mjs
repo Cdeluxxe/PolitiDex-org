@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
-// test-your-file.mjs — the reader's own eight, and nothing else
+// test-your-file.mjs — the reader's own positions, and nothing outside the map
 // ─────────────────────────────────────────────────────────────────────────────
 // Alignment and every ballot comparison in this app need one fact the app had
 // no honest place to hold: WHERE THE READER STANDS. Two surfaces looked like
@@ -13,24 +13,31 @@
 //
 // This file guards the four edges that make it that and not something else:
 //
-//   1. EIGHT ROWS, AND THERE IS NO NINTH. ISSUE_MAP carries 100-odd keys; the
-//      locked list is eight of them, hard-coded, and every way a ninth could
-//      arrive is closed: it is not painted, set() refuses it, and a snapshot
-//      pulled from another device that carries one has it dropped on the way in.
-//      The eight are real ISSUE_MAP keys printing the SHIPPED chip label, so
-//      this file cannot found a parallel issue vocabulary.
-//   2. SAVE + RELOAD KEEPS THE ANSWERS FOR THAT UID. Signed out, the eight
+//   1. THE LIST IS THE VOCABULARY, AND NOTHING OUTSIDE IT. The panel used to
+//      offer a hard-coded eight, which made every count on it read "n of 8" —
+//      and eight is not a universe, it is a starter set. The list is DERIVED
+//      now: one row per ISSUE_MAP key, grouped by the shipped issue families so
+//      a hundred-odd rows arrive as a dozen collapsed headings instead of a
+//      scroll with no bottom, with the original eight kept as a floor. The
+//      boundary that used to be "no ninth key" is now "no key the map does not
+//      have": a slug outside the vocabulary is not painted and set() /
+//      position() / level() refuse it. It is NOT dropped from storage, and
+//      section 1 says at length why — the vocabulary is derived per document,
+//      the reconciler saves its merge, so discarding an unknown key on the way
+//      in would delete an answer another shell legitimately owns.
+//   2. SAVE + RELOAD KEEPS THE ANSWERS FOR THAT UID. Signed out, the rows
 //      still render, every control is disabled and nothing is written. Signed
 //      in, an answer survives a cold boot — and a DIFFERENT account on the same
 //      device sees none of it, which is the half that is easy to ship broken:
 //      without it the pull reconciler would merge one person's file into the
 //      next person's snapshot and push it up under their name.
-//   3. THE ALIGNMENT PATH CONSUMES THE EIGHT. Not "could read them" — the user
-//      side resolves through the file FIRST on those eight keys, the eight are
-//      projected into the selection the engine actually scores, and flipping an
-//      answer moves a real score. 'Not sure' is the one answer that puts no
-//      side in, because a reader's silence gets the same treatment a
-//      candidate's does: dropped, never guessed.
+//   3. THE ALIGNMENT PATH CONSUMES THE ANSWERS. Not "could read them" — the
+//      user side resolves through the file FIRST on any key it holds, the
+//      answers are projected into the selection the engine actually scores, and
+//      flipping an answer moves a real score. Silence is the boundary: an
+//      offered row nobody set writes no level, and 'Not sure' is the one answer
+//      that puts no side in, because a reader's silence gets the same treatment
+//      a candidate's does: dropped, never guessed.
 //   4. THE FORUM STORE IS UNTOUCHED. Observed, not asserted about comments:
 //      drive the whole feature with an instrumented sandbox and there is no
 //      fetch at all, PDXForum is never called, #open-forum is never navigated
@@ -72,11 +79,14 @@ const strip = (src) =>
   String(src).replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
 const YF_CODE = strip(YF_JS);
 
-// The brief's eight slugs, verbatim. Three differ from the shipped ISSUE_MAP
-// key; the module records both and stores the shipped one.
-const ASKED = [
+// The eight the module shipped with, which are now its FLOOR rather than its
+// list: whatever the vocabulary derivation returns, these eight are offered, so
+// a file answered before the widening still finds its own rows. The brief's
+// three draft slugs (education_public / education_choice / taxes_lower) are
+// gone — the shipped ISSUE_MAP key is the only name for a row now.
+const FLOOR = [
   "lands_preserve", "housing", "housing_build", "gun_rights",
-  "education_public", "education_choice", "energy_production", "taxes_lower",
+  "public_schools", "school_choice", "energy_production", "lower_taxes",
 ];
 const COPY_LINE =
   "Your positions. Used to compare formal records. Not a vote. Not a district poll.";
@@ -355,103 +365,145 @@ const sideOf = (win, k) => (win._alignIssues && win._alignIssues.has(k))
 const rowsOf = (html) => (String(html).match(/data-pdxyf-row="([^"]+)"/g) || []).map((m) => m.slice(16, -1));
 const answeredMap = (win) => win.PDXYourFile.answers();
 
+// HOW WIDE THE SETTER IS, ASKED ONCE. Every count below that used to be a
+// literal 8 (rows painted, controls disabled, options offered, sides projected)
+// is arithmetic on this instead, because the list is derived from ISSUE_MAP at
+// first use and the suite must move with it rather than pin it.
+const N_ISSUES = YF.KEYS.length;
+const N_OPTS = N_ISSUES * 4;
+
 // ═════════════════════════════════════════════════════════════════════════════
-section("1 · eight rows, and there is no ninth");
+section("1 · the list is the vocabulary, and nothing outside it");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  eq(YF.KEYS.length, 8, "the locked list is not eight issues long");
-  eq(YF.ISSUES.map((r) => r.ask).join(","), ASKED.join(","),
-    "the eight issues asked for are not the eight the brief names");
-
-  // Shipped vocabulary: every stored key is a real ISSUE_MAP key with a label,
-  // so a row here and the same issue anywhere else are the same issue.
+  // THE DENOMINATOR IS THE VOCABULARY. Not a starter octet: the count a reader
+  // sees on /me reads "n of N" where N is how many keys this setter offers, and
+  // N is derived from ISSUE_MAP at first use rather than typed. So the contract
+  // is an EQUALITY against the shipped vocabulary, plus the explicit "and it is
+  // not eight" that the widening exists to make true.
   const MAP = probe.ISSUE_MAP;
-  YF.KEYS.forEach((k) => {
-    ok(!!MAP[k], `stored key "${k}" is not in ISSUE_MAP — the file invented a slug`);
-    ok(!!(MAP[k] && MAP[k].label), `stored key "${k}" has no shipped label to print`);
+  const VOCAB = Object.keys(MAP);
+  must(VOCAB.length > 100, `ISSUE_MAP is ${VOCAB.length} keys — the fixture lost the vocabulary`);
+  eq(YF.KEYS.length, VOCAB.length, "the offered list is not the whole issue vocabulary");
+  ok(YF.KEYS.length !== 8, "the offered list is still eight keys long — the denominator never widened");
+  VOCAB.forEach((k) => {
+    ok(YF.offers(k), `ISSUE_MAP key "${k}" is not offered — the setter is narrower than the count`);
   });
-  // And the three renamed rows resolved to the shipped slug rather than the ask.
-  const byAsk = {};
-  YF.ISSUES.forEach((r) => { byAsk[r.ask] = r.key; });
-  eq(byAsk.education_public, "public_schools", "education_public did not resolve to the shipped slug");
-  eq(byAsk.education_choice, "school_choice", "education_choice did not resolve to the shipped slug");
-  eq(byAsk.taxes_lower, "lower_taxes", "taxes_lower did not resolve to the shipped slug");
+
+  // THE SHIPPED EIGHT ARE A FLOOR, NOT A CEILING. They still exist, still
+  // first-class, so a reader who answered them before the widening finds their
+  // own rows where they left them.
+  FLOOR.forEach((k) => {
+    ok(YF.offers(k), `the shipped floor key "${k}" stopped being offered`);
+    ok(YF.KEYS.indexOf(k) >= 0, `the shipped floor key "${k}" is not in the key list`);
+  });
+
+  // Shipped vocabulary: every offered key is a real ISSUE_MAP key with a label,
+  // so a row here and the same issue anywhere else are the same issue.
+  YF.KEYS.forEach((k) => {
+    ok(!!MAP[k], `offered key "${k}" is not in ISSUE_MAP — the file invented a slug`);
+    ok(!!(MAP[k] && MAP[k].label), `offered key "${k}" has no shipped label to print`);
+  });
+  // The ask IS the shipped slug now — the brief's three renamed rows were the
+  // only place the two ever differed, and those names never existed in the map.
+  YF.ISSUES.forEach((r) => {
+    eq(r.ask, r.key, `row "${r.key}" still carries a separate ask slug`);
+  });
   ["education_public", "education_choice", "taxes_lower"].forEach((a) => {
     ok(!MAP[a], `"${a}" exists in ISSUE_MAP after all — the mapping table is stale`);
+    ok(!YF.offers(a), `the brief's draft slug "${a}" is offered as a key of its own`);
   });
 
-  // The painted panel: eight rows, in the locked order, four options each.
+  // The painted panel: a row per issue, four options each.
   const w = boot({ uid: "u1" });
   const html = w.PDXYourFile.bodyHtml();
   must(html.length > 400, `the panel painted nothing — boot errors: ${w.__loadErrors.join(" | ")}`);
   const rows = rowsOf(html);
-  eq(rows.length, 8, "the panel does not paint exactly eight rows");
-  eq(rows.join(","), YF.KEYS.join(","), "the painted rows are not the locked list, in order");
-  eq((html.match(/data-pdxyf-set="/g) || []).length, 32,
-    "expected four options on each of eight rows");
+  eq(rows.length, VOCAB.length, "the panel does not paint one row per issue");
+  eq(rows.slice().sort().join(","), VOCAB.slice().sort().join(","),
+    "the painted rows are not the issue vocabulary");
+  eq((html.match(/data-pdxyf-set="/g) || []).length, VOCAB.length * 4,
+    "expected four options on every row");
   ["Support", "Oppose", "Mixed", "Not sure"].forEach((lb) => {
     has(html, ">" + lb + "<", `the "${lb}" option is not painted`);
   });
   // The shipped label, not one this file wrote.
   has(html, MAP.lands_preserve.label, "the row does not print the shipped chip label");
 
-  // ISSUE_MAP is far wider than the eight, and the extra keys are not rows.
-  const extras = Object.keys(MAP).filter((k) => YF.KEYS.indexOf(k) < 0);
-  ok(extras.length > 30, `ISSUE_MAP should be much wider than eight — ${extras.length} other keys`);
-  extras.forEach((k) => {
-    ok(String(html).indexOf('data-pdxyf-row="' + k + '"') < 0,
-      `ISSUE_MAP key "${k}" leaked into the panel as a ninth row`);
+  // A HUNDRED-ODD ROWS IS A FORM NOBODY FINISHES IF IT IS PAINTED FLAT. The
+  // widening is only shippable because the rows arrive grouped by the issue
+  // families the rest of the app already uses, collapsed, with one open — so
+  // the first screen is a dozen headings rather than a scroll with no bottom.
+  const famOpens = (html.match(/data-pdxyf-fam="/g) || []).length;
+  ok(famOpens >= 10, `the panel paints ${famOpens} families — the vocabulary arrived flat`);
+  eq((html.match(/<details class="pdxyf-fam" open/g) || []).length, 1,
+    "an unanswered panel should open exactly one family");
+  eq(YF.GROUPS.length, famOpens, "the painted families are not the module's own groups");
+  const grouped = {};
+  YF.GROUPS.forEach((g) => g.rows.forEach((r) => { grouped[r.key] = 1; }));
+  VOCAB.forEach((k) => ok(!!grouped[k], `issue "${k}" is offered but belongs to no family`));
+
+  // AND THE LIST IS DERIVED, NOT TYPED. The inverse of what this section used
+  // to assert: the module must read the shipped vocabulary and the shipped
+  // families, because that is what makes the denominator one source instead of
+  // a literal that drifts.
+  ["CORE_NATIONAL_ISSUES", "Object.keys(map)"].forEach((needle) => {
+    has(YF_CODE, needle, "your-file.js no longer derives its list from the issue vocabulary");
   });
 
-  // The list is hard-coded, not derived: no walk of the issue vocabulary.
-  ["Object.keys(ISSUE_MAP", "Object.keys(window.ISSUE_MAP", "CORE_NATIONAL_ISSUES", "ISSUE_ORDER"].forEach((needle) => {
-    lacks(YF_CODE, needle, "your-file.js derives its list from the issue vocabulary");
-  });
-
-  // set() refuses a ninth key, and the accessors refuse to answer for one.
-  const ninth = extras[0];
-  eq(w.PDXYourFile.set(ninth, "support"), false, "set() accepted a key outside the eight");
-  eq(w.PDXYourFile.position(ninth), null, "position() answered for a key outside the eight");
-  eq(w.PDXYourFile.level(ninth), null, "level() answered for a key outside the eight");
+  // set() refuses a key outside the vocabulary, and the accessors refuse to
+  // answer for one.
+  const foreign = "not_an_issue_key";
+  ok(!MAP[foreign], "the fixture's foreign slug is a real issue after all");
+  eq(w.PDXYourFile.set(foreign, "support"), false, "set() accepted a key outside the vocabulary");
+  eq(w.PDXYourFile.position(foreign), null, "position() answered for a key outside the vocabulary");
+  eq(w.PDXYourFile.level(foreign), null, "level() answered for a key outside the vocabulary");
   eq(Object.keys(answeredMap(w)).length, 0, "a refused write still stored something");
   // …and an invalid position, on a real key.
   eq(w.PDXYourFile.set("housing", "abstain"), false, "set() accepted a fifth position");
   eq(w.PDXYourFile.set("housing", ""), false, "set() accepted an empty position");
 
-  // THE CROSS-DEVICE DOOR. A snapshot pulled from another device (or an older
-  // shell) carrying a ninth key has it dropped on the way in, so the panel
-  // cannot grow a row nobody shipped.
+  // THE CROSS-DEVICE DOOR, AND WHY IT IS A SHAPE GATE NOW. The vocabulary is
+  // derived per document, so a shell whose ISSUE_MAP is wider than this one's
+  // legitimately owns answers this one cannot show. Dropping them on the way in
+  // would be a delete, because the reconciler saves its merge — so storage keeps
+  // any well-formed slug and the REFUSAL lives where it matters: the key is not
+  // painted, answered() does not count it, and position() will not answer for
+  // it. A malformed key is still dropped outright.
   const rec = w.__store.__reconcilers.yourFile;
   must(typeof rec === "function", "no 'yourFile' reconciler was registered — a pull cannot land");
   const poisoned = { version: 1, updatedAt: 9, answers: {} };
   poisoned.answers.lands_preserve = { position: "support", updatedAt: 9 };
-  poisoned.answers[ninth] = { position: "oppose", updatedAt: 9 };
+  poisoned.answers[foreign] = { position: "oppose", updatedAt: 9 };
   poisoned.answers.__proto__x = { position: "support", updatedAt: 9 };
   rec(poisoned, { dirty: false });
   const after = answeredMap(w);
-  eq(Object.keys(after).length, 1, "the pull did not land exactly the one legal answer");
   eq(after.lands_preserve.position, "support", "the legal answer did not survive the pull");
-  ok(!after[ninth], `the ninth key "${ninth}" survived a cross-device pull`);
-  eq(rowsOf(w.PDXYourFile.bodyHtml()).length, 8, "the panel grew a row after a pull");
+  ok(!after.__proto__x, "a malformed key got past the shape gate");
+  eq(w.PDXYourFile.answered().length, 1, "the count read an answer outside this shell's vocabulary");
+  eq(w.PDXYourFile.position(foreign), null, `the foreign key "${foreign}" became answerable after a pull`);
+  ok(String(w.PDXYourFile.bodyHtml()).indexOf('data-pdxyf-row="' + foreign + '"') < 0,
+    `the foreign key "${foreign}" was painted as a row after a pull`);
+  eq(rowsOf(w.PDXYourFile.bodyHtml()).length, VOCAB.length, "the panel changed width after a pull");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("2 · save + reload keeps the answers for that uid");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  // ── Signed out: the eight still show, nothing saves, and it says why.
+  // ── Signed out: the rows still show, nothing saves, and it says why.
   const out = boot({ uid: null });
   const outHtml = out.PDXYourFile.bodyHtml();
-  eq(rowsOf(outHtml).length, 8, "a signed-out reader does not see the eight");
+  eq(rowsOf(outHtml).length, N_ISSUES, "a signed-out reader is not offered the whole vocabulary");
   has(outHtml, "Sign in to keep your file.", 'the signed-out panel is missing "Sign in to keep your file."');
-  eq((outHtml.match(/disabled aria-disabled="true"/g) || []).length, 32,
-    "signed out, all 32 controls should be disabled");
+  eq((outHtml.match(/disabled aria-disabled="true"/g) || []).length, N_OPTS,
+    `signed out, all ${N_OPTS} controls should be disabled`);
   eq(out.PDXYourFile.set("housing", "support"), false, "a signed-out write was accepted");
   eq(Object.keys(answeredMap(out)).length, 0, "a signed-out write persisted something");
   eq(Object.keys(out.__store.__slots).length, 0, "a signed-out session wrote to the store");
   eq(out.__store.isDirty("yourFile"), false, "a signed-out session marked the collection for a push");
 
-  // ── Signed in: all eight answered, all eight stored, and the collection is
+  // ── Signed in: a run of answers, all of them stored, and the collection is
   // queued for the push that carries them to the uid's own snapshot row.
   const backing = {};
   const w = boot({ uid: "u_alice", backing });
@@ -463,13 +515,14 @@ section("2 · save + reload keeps the answers for that uid");
   Object.keys(PLAN).forEach((k) => {
     ok(w.PDXYourFile.set(k, PLAN[k]) === true, `set(${k}) was refused while signed in`);
   });
-  eq(w.PDXYourFile.answered().length, 8, "not all eight answers were recorded");
+  eq(w.PDXYourFile.answered().length, Object.keys(PLAN).length, "not every answer in the plan was recorded");
   eq(w.__store.isDirty("yourFile"), true, "the answers were never queued for a push");
   has(Object.keys(w.__store.__collections).join(","), "yourFile",
     "the 'yourFile' collection was never declared");
   const snap = w.__store.__snapshots.yourFile;
   must(typeof snap === "function", "no 'yourFile' snapshot provider — nothing can be pushed");
-  eq(Object.keys(snap().answers).length, 8, "the pushed snapshot does not carry the eight");
+  eq(Object.keys(snap().answers).length, Object.keys(PLAN).length,
+    "the pushed snapshot does not carry the answers");
 
   // One answer per issue: re-answering REPLACES, it does not accumulate.
   w.PDXYourFile.set("gun_rights", "support");
@@ -484,16 +537,17 @@ section("2 · save + reload keeps the answers for that uid");
     "a signed-in answer was written to the shared guest key");
 
   // ── THE RELOAD. A cold boot over the same storage, same uid: the answers are
-  // still there, all eight, unchanged.
+  // still there, all of them, unchanged.
   const w2 = boot({ uid: "u_alice", backing });
   eq(w2.PDXYourFile.answered().length, 8, "a reload lost the answers");
   Object.keys(PLAN).forEach((k) => {
     const want = k === "gun_rights" ? "support" : PLAN[k];
     eq(w2.PDXYourFile.position(k), want, `a reload changed the answer for ${k}`);
   });
-  eq(rowsOf(w2.PDXYourFile.bodyHtml()).filter((k) => k).length, 8, "the reloaded panel is not the eight");
+  eq(rowsOf(w2.PDXYourFile.bodyHtml()).filter((k) => k).length, N_ISSUES,
+    "the reloaded panel is not the whole vocabulary");
   eq((w2.PDXYourFile.bodyHtml().match(/aria-pressed="true"/g) || []).length, 8,
-    "the reloaded panel does not show the eight answers as pressed");
+    "the reloaded panel does not show the saved answers as pressed");
   eq(w2.__store.isDirty("yourFile"), false, "a plain reload marked the collection dirty");
 
   // ── …FOR THAT UID. A different account on the same device sees none of it,
@@ -522,7 +576,7 @@ section("2 · save + reload keeps the answers for that uid");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("3 · the alignment path consumes the eight");
+section("3 · the alignment path consumes the answers");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const w = boot({ uid: "u_align" });
@@ -541,12 +595,19 @@ section("3 · the alignment path consumes the eight");
   eq(sideOf(w, "lands_preserve"), null, "'Not sure' put a side into the match");
   ok(LEVELS.indexOf("unsure") < 0, "'unsure' became an alignment level");
 
-  // It answers ONLY for the eight. The other 110 keys fall through to the
-  // signature, exactly as before this file existed.
-  const extras = Object.keys(w.ISSUE_MAP).filter((k) => YF.KEYS.indexOf(k) < 0);
-  extras.forEach((k) => {
-    ok(sideOf(w, k) === null, `the file answered for "${k}", which is not one of the eight`);
-    ok(!(k in w._alignIntensity), `the file wrote a level for "${k}", which is not one of the eight`);
+  // IT ANSWERS ONLY WHERE THE READER ANSWERED. The offered list is the whole
+  // issue vocabulary now, so "not one of the eight" is no longer the boundary —
+  // SILENCE is. Every key the reader has not set falls through to the signature
+  // exactly as before this file existed, and an offered-but-blank row writes no
+  // level of its own. That is the half the widening could have broken: 121 rows
+  // that each seeded a neutral would hand the engine a full selection nobody
+  // filled in.
+  const unanswered = YF.KEYS.filter((k) => !w.PDXYourFile.position(k));
+  ok(unanswered.length > 100,
+    `only ${unanswered.length} of ${N_ISSUES} keys are unanswered — the fixture answered too much`);
+  unanswered.forEach((k) => {
+    ok(sideOf(w, k) === null, `the file answered for "${k}", which the reader never set`);
+    ok(!(k in w._alignIntensity), `the file wrote a level for "${k}", which the reader never set`);
   });
 
   // PRECEDENCE: the file is read FIRST — it REPLACES whatever the signature was
@@ -609,7 +670,7 @@ section("3 · the alignment path consumes the eight");
 
   // AND IT MOVES A REAL SCORE. Same politician, same selection, one answer
   // flipped: the number the engine returns has to change, or "reads these
-  // eight" is decoration.
+  // these" is decoration.
   const scored = boot({ uid: "u_score" });
   const PIDS = Object.keys(scored.CMP_DATA || {});
   must(PIDS.length > 0, "CMP_DATA is empty — no politician to score against");
@@ -666,7 +727,7 @@ section("3 · the alignment path consumes the eight");
 section("4 · the Forum store is untouched");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  // OBSERVED. Drive the whole feature — open, answer all eight, re-answer,
+  // OBSERVED. Drive the whole feature — open, answer a run of rows, re-answer,
   // withdraw, take a pull, close — and then look at what left the module.
   const w = boot({ uid: "u_quiet" });
   openPanel(w);
@@ -849,7 +910,7 @@ section("5 · one address, one control in Door 2, and the copy");
 //     location.replace — not assign, because a redirect must consume the entry
 //     it arrived on: with assign, one Back would land on #your-file and be
 //     redirected again, and a reader pressing Back could not leave.
-//   ON /me (__PDX_ME_DOC)  it is not a redirect at all. The eight rows are
+//   ON /me (__PDX_ME_DOC)  it is not a redirect at all. The rows are
 //     region b of that page, so the hash is a region and the answer is to
 //     reveal it — through the desk's own goTab, so Back still returns to what
 //     the reader was reading.
@@ -893,7 +954,7 @@ section("6 · the address answers once, and the visible controls reach it");
     eq(me.__replaced.length + me.__assigned.length, 0,
       "the file's own document redirected to itself — /me#your-file is a region on this page, not a hop");
     ok(!me.document.getElementById("pdx-your-file"),
-      "/me built the overlay as well as the inline rows — that is two editors of the same eight");
+      "/me built the overlay as well as the inline rows — that is two editors of one list");
     eq(asked.join(","), "positions",
       `the arrival on /me did not ask the desk for its positions region (asked: ${asked.join(",")})`);
     // The desk owns how a region is landed on. This module must not hold a
@@ -909,8 +970,8 @@ section("6 · the address answers once, and the visible controls reach it");
     eq(me.PDXYourFile.isInline(), true, "inline() painted but does not report itself mounted");
     ok(!!me.document.getElementById("pdx-your-file-head"), "the inline editor has no letterhead");
     ok(!!me.document.getElementById("pdx-your-file-scroll"), "the inline editor has no body");
-    eq((me.PDXYourFile.bodyHtml().match(/data-pdxyf-set/g) || []).length, 32,
-      "the inline editor does not offer eight rows of four options");
+    eq((me.PDXYourFile.bodyHtml().match(/data-pdxyf-set/g) || []).length, N_OPTS,
+      "the inline editor does not offer every row with four options");
     // And the overlay is still not there. /me has one editor on it.
     ok(!me.document.getElementById("pdx-your-file"),
       "mounting the inline editor also built the overlay");
@@ -930,9 +991,9 @@ section("6 · the address answers once, and the visible controls reach it");
   ok(!!panel, "the overlay fallback was never built");
   eq(panel && panel.hidden, false, "the overlay was built but left hidden");
   eq(panel && panel.style.display, "flex", "the overlay was built but not displayed");
-  // The eight rows are painted on the opening, not after some later beat.
-  eq((cold.PDXYourFile.bodyHtml().match(/data-pdxyf-set/g) || []).length, 32,
-    "the panel did not paint eight rows of four options");
+  // The rows are painted on the opening, not after some later beat.
+  eq((cold.PDXYourFile.bodyHtml().match(/data-pdxyf-set/g) || []).length, N_OPTS,
+    "the panel did not paint every row with four options");
   // Arriving twice must not build a second overlay.
   (cold.__docOn["DOMContentLoaded"] || []).forEach((f) => f({ type: "DOMContentLoaded" }));
   (cold.__winOn["load"] || []).forEach((f) => f({ type: "load" }));
@@ -949,17 +1010,17 @@ section("6 · the address answers once, and the visible controls reach it");
     lacks(ARRIVAL, n, "the arrival waits on the roster");
   });
 
-  // ── SIGNED OUT, THE EIGHT STILL SHOW ─────────────────────────────────────
+  // ── SIGNED OUT, THE ROWS STILL SHOW ──────────────────────────────────────
   // On /me, because that is where a signed-out reader now meets them: the
-  // honest sign-in line and the eight rows disabled, not a blank page and not a
+  // honest sign-in line and the rows disabled, not a blank page and not a
   // fake set of answers.
   const out = boot({ hash: "#your-file", meDoc: true });
   const outHost = out.document.createElement("div");
   outHost.id = "me-positions-host-out";
   eq(out.PDXYourFile.inline(outHost), true, "a signed-out reader on /me gets no editor at all");
   const outBody = out.PDXYourFile.bodyHtml();
-  eq((outBody.match(/data-pdxyf-set/g) || []).length, 32,
-    "signed out, the eight issues are not all offered");
+  eq((outBody.match(/data-pdxyf-set/g) || []).length, N_OPTS,
+    "signed out, the issues are not all offered");
   has(outBody, "disabled", "signed out, the controls are not disabled");
   has(outBody, "Sign in to keep your file.", "signed out, the panel does not say what is missing");
 
@@ -1064,7 +1125,7 @@ section("6 · the address answers once, and the visible controls reach it");
   // the editor is on a page instead of under an overlay.
   has(YF_JS, COPY_LINE, "the panel's one line of copy changed");
   has(out.PDXYourFile.COPY.line, COPY_LINE, "the painted copy line changed");
-  eq(out.PDXYourFile.ISSUES.length, 8, "the locked list is no longer eight");
+  eq(out.PDXYourFile.ISSUES.length, N_ISSUES, "the two presentations do not offer the same list");
   const outHead = out.document.getElementById("pdx-your-file-head");
   has(String(outHead && outHead.innerHTML), COPY_LINE,
     "the inline editor's letterhead dropped the one line of copy");
@@ -1073,7 +1134,7 @@ section("6 · the address answers once, and the visible controls reach it");
 // ═════════════════════════════════════════════════════════════════════════════
 section("7 · a tap costs one row, and it costs it in the same frame");
 // ═════════════════════════════════════════════════════════════════════════════
-// THE REPORT: a phone could not finish the eight. Every tap was doing far more
+// THE REPORT: a phone could not finish the list. Every tap was doing far more
 // than the four things a tap is for, and this section pins the list.
 //
 // THE EXTRA CALLERS THAT WERE ON THE TAP PATH, by name:
@@ -1085,13 +1146,13 @@ section("7 · a tap costs one row, and it costs it in the same frame");
 //      _alignSyncBrowseChips, syncRelevantAlignmentUI, renderRelevantToMe,
 //      _mypolBuildGrid, chubFilter, _potentialBuildGrid, filterDirectory,
 //      myteamBrowseFilter, _buildCmpTable, _updateCmpFloat, renderKeyRaces,
-//      _pdxRaceSheetRefresh. Eight taps were eight homepage rebuilds.
+//      _pdxRaceSheetRefresh. N taps were N homepage rebuilds.
 //   2. Those render paths kick _alignQueueConsistWarm →
 //      PDXVotingRecord.fetchCompare — a vote-pack request, opened by a pick.
-//   3. adopt() at cold boot multiplied the same fan-out by up to eight.
+//   3. adopt() at cold boot multiplied the same fan-out by every saved answer.
 //   4. auth.onAuthStateChanged → adopt(); render(). The roster warm's
 //      signInAnonymously() fires this, so the background warm was remounting
-//      all eight rows of an open panel to paint the identical thing.
+//      every row of an open panel to paint the identical thing.
 //
 // What is left is the list the brief allows: four aria-pressed flips, the count
 // text, and the persist. Everything else is deferred or gone.
@@ -1148,18 +1209,18 @@ section("7 · a tap costs one row, and it costs it in the same frame");
   eq(bodyWrites, 0, "a pick rewrote .pdxyf-body's innerHTML — set() called render()");
   eq(headWrites, 0, "a pick rewrote .pdxyf-head's innerHTML — set() called render()");
 
-  // ── ALL EIGHT, IN A ROW, STILL ZERO REMOUNTS ─────────────────────────────
-  // This is the smoke test's shape: tap all eight without lifting, count 8/8.
+  // ── A RUN OF ROWS, STILL ZERO REMOUNTS ───────────────────────────────────
+  // This is the smoke test's shape: tap eight in a row without lifting.
   const seq = [
     ["housing", "oppose"], ["housing_build", "support"], ["gun_rights", "mixed"],
     ["public_schools", "support"], ["school_choice", "oppose"],
     ["energy_production", "support"], ["lower_taxes", "unsure"],
   ];
   seq.forEach(([k, p]) => YFW.set(k, p));
-  eq(bodyWrites, 0, `answering all eight remounted the list ${bodyWrites} time(s)`);
-  eq(headWrites, 0, `answering all eight rewrote the letterhead ${headWrites} time(s)`);
+  eq(bodyWrites, 0, `answering a run of rows remounted the list ${bodyWrites} time(s)`);
+  eq(headWrites, 0, `answering a run of rows rewrote the letterhead ${headWrites} time(s)`);
   eq(Object.keys(YFW.answers()).length, 8, "eight taps did not produce eight answers");
-  eq(YFW.answered().length, 8, "the count does not read 8 of 8 after eight taps");
+  eq(YFW.answered().length, 8, `the count does not read 8 of ${N_ISSUES} after eight taps`);
   eq(countEl.textContent.indexOf("8") >= 0, true,
     "the count sentence was not updated by the in-place patch");
 
@@ -1172,11 +1233,11 @@ section("7 · a tap costs one row, and it costs it in the same frame");
   eq(rows["gun_rights"].classList.contains("pdxyf-flash"), true, "the picked row was not flashed");
 
   // ── NO FETCH WAS KICKED WITH THE PICK ────────────────────────────────────
-  // Eight picks, zero requests. The sandbox records AND rejects every fetch, so
+  // A run of picks, zero requests. The sandbox records AND rejects every fetch, so
   // a stray reach shows up here as a URL.
   eq(w.__fetched.length, fetchedBefore,
     `a pick opened ${w.__fetched.length - fetchedBefore} request(s): ${w.__fetched.slice(fetchedBefore).join(", ")}`);
-  eq(w.__fetched.length, 0, `answering the eight reached the network: ${w.__fetched.join(", ")}`);
+  eq(w.__fetched.length, 0, `answering the rows reached the network: ${w.__fetched.join(", ")}`);
 
   // ── AND NO /api/votes WORK ───────────────────────────────────────────────
   // The vote pack is the expensive one and it used to be warmed by the render
@@ -1185,7 +1246,8 @@ section("7 · a tap costs one row, and it costs it in the same frame");
   ["/api/votes", "PDXVotingRecord", "fetchCompare", "_alignQueueConsistWarm", "votes-api"].forEach((n) => {
     lacks(YFC, n, `your-file.js names ${JSON.stringify(n)} — a pick must not touch the votes API`);
   });
-  // Observed too: a spy where the warmer stands, driven through eight picks.
+  // Observed too: a spy where the warmer stands, driven through every pick the
+  // setter offers.
   {
     const v = boot({ uid: "u_votes" });
     const seen = [];
@@ -1193,8 +1255,8 @@ section("7 · a tap costs one row, and it costs it in the same frame");
     v._alignQueueConsistWarm = (...a) => { seen.push(["warm", ...a]); };
     openPanel(v);
     v.PDXYourFile.KEYS.forEach((k, i) => v.PDXYourFile.set(k, i % 2 ? "oppose" : "support"));
-    eq(seen.length, 0, `the eight picks kicked ${seen.length} vote-pack call(s)`);
-    eq(v.__fetched.length, 0, `the eight picks reached the network: ${v.__fetched.join(", ")}`);
+    eq(seen.length, 0, `${N_ISSUES} picks kicked ${seen.length} vote-pack call(s)`);
+    eq(v.__fetched.length, 0, `${N_ISSUES} picks reached the network: ${v.__fetched.join(", ")}`);
   }
 
   // ── THE SIXTEEN REPAINTS ARE HELD WHILE THE PANEL IS UP ──────────────────
@@ -1202,7 +1264,7 @@ section("7 · a tap costs one row, and it costs it in the same frame");
   // behind it. The state still lands synchronously — the projection assertions
   // in section 3 are the proof of that, and they run on this same path — but
   // the paint is coalesced onto alignRefreshSoon and held until the panel
-  // closes, so eight picks cost one refresh instead of eight.
+  // closes, so a whole vocabulary of picks costs one refresh instead of one each.
   {
     const h = boot({ uid: "u_hold" });
     // _alignRefreshAll is a closure, so it cannot be wrapped from outside. It
@@ -1215,14 +1277,14 @@ section("7 · a tap costs one row, and it costs it in the same frame");
     ok(typeof h.alignRefreshSoon === "function", "the engine exposes no coalesced refresh");
     openPanel(h);
     h.PDXYourFile.KEYS.forEach((k, i) => h.PDXYourFile.set(k, i % 2 ? "oppose" : "support"));
-    eq(refreshes, 0, `eight picks ran _alignRefreshAll ${refreshes} time(s) behind a full-screen panel`);
+    eq(refreshes, 0, `${N_ISSUES} picks ran _alignRefreshAll ${refreshes} time(s) behind a full-screen panel`);
     // The state is there anyway — deferred paint, not deferred truth.
-    eq(h._alignIssues.size, 8, "the picks did not reach the selection while the paint was held");
+    eq(h._alignIssues.size, N_ISSUES, "the picks did not reach the selection while the paint was held");
     // Closing pays it back, once. The sandbox's setTimeout is a no-op and there
     // is no rAF, so alignRefreshSoon falls through to running inline — which is
     // exactly the "no scheduler at all" branch.
     h.PDXYourFile.close();
-    eq(refreshes, 1, `closing the panel ran _alignRefreshAll ${refreshes} time(s) — eight picks owe exactly one`);
+    eq(refreshes, 1, `closing the panel ran _alignRefreshAll ${refreshes} time(s) — a run of picks owes exactly one`);
     // AND THE HOLD BALANCES. open() is reachable twice without a close between
     // (the hash lands, then a control is tapped), and a second hold against one
     // release would park every repaint on the site for the rest of the session.
@@ -1273,7 +1335,7 @@ section("7 · a tap costs one row, and it costs it in the same frame");
     // OBSERVED. Boot with an auth object that hands its listener back, open the
     // panel, then fire the callback the way signInAnonymously() does: an
     // anonymous session, then the same anonymous session again. Neither is a
-    // member, so neither may remount the eight rows.
+    // member, so neither may remount the list.
     const r = boot({ uid: null, captureAuth: true });
     // Several modules listen on auth; only the one your-file.js registered is
     // under test. It is identified by source, so this cannot silently start
@@ -1290,7 +1352,7 @@ section("7 · a tap costs one row, and it costs it in the same frame");
     });
     r.auth.currentUser = { uid: "anon_abc", isAnonymous: true };
     handlers.forEach((f) => { try { f(r.auth.currentUser); } catch (e) {} });
-    eq(rWrites, 0, "the roster warm's anonymous session remounted all eight rows of the open panel");
+    eq(rWrites, 0, "the roster warm's anonymous session remounted the rows of the open panel");
     handlers.forEach((f) => { try { f(r.auth.currentUser); } catch (e) {} });
     eq(rWrites, 0, "a repeat of the same session remounted the panel");
 
@@ -1323,7 +1385,7 @@ section("7 · a tap costs one row, and it costs it in the same frame");
     m.PDXYourFile.set("housing", "support");
     m.PDXYourFile.set("gun_rights", "oppose");
     has(laid.join(" "), "yf-open", "opening the panel laid no mark");
-    has(laid.join(" "), "yf-rows-painted", "the first paint of the eight rows laid no mark");
+    has(laid.join(" "), "yf-rows-painted", "the first paint of the rows laid no mark");
     has(laid.join(" "), "yf-set-housing-in", "a pick laid no start mark");
     has(laid.join(" "), "yf-set-housing-out", "a pick laid no end mark");
     has(laid.join(" "), "yf-set-gun_rights-in", "the second pick was folded onto the first mark");
@@ -1382,4 +1444,4 @@ if (failures.length) {
   failures.forEach((f) => console.error("   · " + f));
   process.exit(1);
 }
-console.log(`\n✓ your-file: ${passed} assertions passed — eight rows and no ninth, saved per uid, consumed by the alignment path, forum untouched\n`);
+console.log(`\n✓ your-file: ${passed} assertions passed — the vocabulary is the list, saved per uid, consumed by the alignment path, forum untouched\n`);

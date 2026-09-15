@@ -4,7 +4,7 @@
    WHAT WAS REPORTED
 
    From a phone, on a 390×844 screen: "#support-politidex and the 'Your
-   positions on eight issues' overlay are jumpy, lag, and stop scrolling."
+   positions on the issues' overlay are jumpy, lag, and stop scrolling."
    Support was a QR code with nothing tappable. And a 📡 "You're offline" banner
    sat at the bottom of the page while the device was on working cell data.
 
@@ -222,7 +222,7 @@ ok(/scrollTop/.test(YFJS) === true,
 // The count updates on its own node. The whole point of the id.
 must(/ID_COUNT/.test(YFJS), 'your-file.js no longer declares ID_COUNT');
 ok(/ID_COUNT[\s\S]{0,200}textContent/.test(patchFn) || /el\(ID_COUNT\)/.test(patchFn),
-  'patchRow() does not update the count node — "2 answers of 8" would go stale, or the list would be remounted to fix it');
+  'patchRow() does not update the count node — the "n of N answers on file" line would go stale, or the list would be remounted to fix it');
 ok(/function countSentence/.test(YFJS),
   'your-file.js has no countSentence() — the head and the patch would each format the count their own way');
 

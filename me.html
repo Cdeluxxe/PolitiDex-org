@@ -13,7 +13,7 @@
        homepage. Ballot picks were a third place — the /ballot desk — and starred
        issues a fourth. One person, four addresses, none of them shareable or
        bookmarkable, and Back from any of them meant "the front page, roughly
-       where you were." Two editors of the same eight answers is a pair that can
+       where you were." Two editors of the same answers is a pair that can
        drift; four addresses for one desk is a thing nobody can link to.
 
        So /me is the desk, /me is the ONLY address for it, and the homepage keeps
@@ -21,10 +21,10 @@
        both account-menu controls now assign('/me') instead of setting a hash.
        #your-file still WORKS — it replace-hops here once, because a bookmark a
        reader made last year is not a thing to break — but it is no longer a
-       place where the eight answers can be edited.
+       place where those answers can be edited.
 
        WHAT IS ON IT. Seven regions, described where they are built (me-desk.js),
-       and not one of them is a product: who this account is, the eight-issue
+       and not one of them is a product: who this account is, the issue
        editor, the starred issues, a snapshot of the ballot, the saved evidence,
        three text links to the tools that own the real work, and this reader's
        standing with the district board. It is a desk. It summarizes and it hands
@@ -36,7 +36,7 @@
            completeness figure, no "80% aligned with Utah". Every count on this
            page is the length of a real list written as a sentence.
          · NO SECOND EDITOR. Region b is your-file.js's own renderer painted into
-           a host this document supplies. Same module, same store, same eight
+           a host this document supplies. Same module, same store, same
            rows, same set(). There is nothing here for the panel to drift from.
          · NO BALLOT. The snapshot lists seats and names picks. It cannot make
            one, it carries no field of candidates, and ballot-workspace.js is not
@@ -135,7 +135,7 @@
        room) and this is the host it would use if it ever were. -->
   <link rel="canonical" href="https://www.politidex.fyi/me" />
   <meta name="robots" content="noindex, follow" />
-  <meta name="description" content="Your file on PolitiDex — your positions on eight issues, the issues you rank harder, your ballot so far, and the evidence you saved. Private by default. Never a score." />
+  <meta name="description" content="Your file on PolitiDex — your positions on the issues, the issues you rank harder, your ballot so far, and the evidence you saved. Private by default. Never a score." />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="PolitiDex" />
   <meta property="og:title" content="Your file &middot; PolitiDex" />
@@ -166,7 +166,7 @@
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" />
   <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
 
-  <!-- THE EDITOR'S OWN STYLESHEET, FIRST. Region b is your-file.js's eight rows
+  <!-- THE EDITOR'S OWN STYLESHEET, FIRST. Region b is your-file.js's own rows
        and this is what styles them — the same sheet, so a row looks the same
        here as in the panel. It loads BEFORE me-desk.css because the one rule
        me-desk.css contributes to the editor (.pdxyf-body--inline, which un-does
@@ -230,7 +230,7 @@
     }
 
     /* THE OVERLAY THAT MUST NOT OPEN HERE, BELT AND BRACES. your-file.js's panel
-       is fixed and full-bleed; on this document its eight rows are already on
+       is fixed and full-bleed; on this document its rows are already on
        the page, so a panel over them would be the same editor twice. The module
        is what prevents that (see its isMeDoc() trampoline) and this rule is the
        second lock: it costs one selector and it means a stale cached copy of
@@ -254,7 +254,7 @@
          me-desk.js  refuses to boot unless it is true, so a stray script tag on
                      the homepage cannot paint a second desk over the real one.
          your-file.js reads it to decide what #your-file MEANS. On this document
-                     the eight rows are already on the page, so the hash and the
+                     the rows are already on the page, so the hash and the
                      account-menu click are satisfied by scrolling to region b.
                      On every other document they are an ADDRESS: the module
                      replace-hops to /me once and the overlay never opens.
@@ -269,7 +269,7 @@
 
   <!-- ══ COPIED VERBATIM FROM person.html LINES 288–1271 ════════════════════════
        PDXStore / PDXTeam / PDXTeamV2 — the storage seam. Every store on this
-       document writes through it: your-file.js's eight answers, my-stances.js's
+       document writes through it: your-file.js's answers, my-stances.js's
        stars, PDXSaved below, and the ballot map region d reads. It touches
        localStorage and nothing else: no DOM, no network, no account.
 
@@ -1794,7 +1794,7 @@
        before anything can touch them.
 
        ON THIS DOCUMENT IT IS NOT OPTIONAL, AND THAT IS THE POINT OF THE PASS.
-       your-file.js stores the eight answers under a PER-ACCOUNT key
+       your-file.js stores its answers under a PER-ACCOUNT key
        (pdx_your_file_v1__u_<uid>) and learns the uid from the pdx-account-change
        event that firebase-boot.js's auth handler causes by calling
        PDXStore.enableAccountSync. Ship /me without Firebase and it reads the
@@ -2302,7 +2302,7 @@
                              HERE belongs to the desk — which is why me-desk.js
                              claims that name before this file can call it.
          my-stances.js       the stars store and _msPriorityWeight.
-         your-file.js        the editor of record for the eight positions. Region
+         your-file.js        the editor of record for the positions. Region
                              b reads its answered() / position() / POSITIONS /
                              COPY for the snapshot, and mounts its inline()
                              editor into the host under that snapshot when the

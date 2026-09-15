@@ -9,19 +9,22 @@
 // that is supposed to be a summary of what they have already said — that reads
 // as a survey they still owe. A reader who had answered two issues was shown
 // six blanks; a reader who had answered none was shown a form eight rows long
-// before anything else on the page.
+// before anything else on the page. And eight was wrong twice over: it was a
+// form where a summary belonged, and eight was never the number of issues this
+// product holds.
 //
 // WHAT IT IS NOW. A snapshot: the keys this reader has actually set, as chips
 // carrying the side they chose, six on the face, and "N more" behind one door.
-// At zero it is three starter chips and one sentence. The eight-row editor is
-// NOT gone and NOT duplicated — "Set all issues →" mounts your-file.js's own
-// editor into the host it always used, on the gesture.
+// At zero it is three starter chips and one sentence. The editor is NOT gone and
+// NOT duplicated — "Set all issues →" mounts your-file.js's own editor into the
+// host it always used, on the gesture, and that editor offers the whole issue
+// vocabulary rather than the octet it opened this pass with.
 //
 // THE FAILURE MODES THIS EXISTS TO CATCH, every one of which ships quietly:
 //
-//   1. THE OCTET COMES BACK. Eight rows, or four side controls per row, painted
-//      before any gesture. The tell is the editor's own markup in the first
-//      paint of region b, and the count of side labels in it.
+//   1. THE FORM COMES BACK. Rows, or four side controls per row, painted before
+//      any gesture. The tell is the editor's own markup in the first paint of
+//      region b, and the count of side labels in it.
 //   2. A KEY THE READER NEVER ANSWERED APPEARS AS A CHIP. A snapshot that lists
 //      the vocabulary rather than the answers is the form again with rounder
 //      corners, and it puts words in the reader's mouth.
@@ -33,9 +36,9 @@
 //      reader said less than they did.
 //   5. THE ZERO STATE SCOLDS OR INVENTS. A percentage, "you have not finished",
 //      or starter chips from a vocabulary that is not the one the editor owns.
-//   6. THE DOOR DUPLICATES THE EDITOR. A second eight-issue setter written into
-//      me-desk.js is a second owner of the reader's positions, and the day one
-//      of them changes, one of them is wrong.
+//   6. THE DOOR DUPLICATES THE EDITOR. A second setter written into me-desk.js
+//      is a second owner of the reader's positions, and the day one of them
+//      changes, one of them is wrong.
 //   7. THE CHIPS ARE UNTHEMED, OR THEMED FROM A SECOND TABLE. The issue colour
 //      belongs to PDXIssueColors; a chip painting its own palette would drift
 //      from every bill letterhead in the product the first time a hex changes.
@@ -43,15 +46,42 @@
 //   9. WORK SEAT STOPS BEING A DOOR. A control that restyles the row instead of
 //      opening that seat in the ballot workspace.
 //  10. THE SERVICE WORKER PAIRS HALVES. me.html gained a script and me-desk.css
-//      lost the octet's rules; a warm device holding one and not the other
-//      paints an unstyled form.
+//      gained the rules for what it paints; a warm device holding one and not
+//      the other paints unstyled markup.
 //
-// Five sections:
+// WHAT THE FOLLOW-UP PASS ADDED, and the three things /me was still teaching
+// wrong after the snapshot landed:
+//
+//  11. EIGHT IS NOT A UNIVERSE. The caption read "2 of 8 on file", which told a
+//      reader the product holds eight issues. It holds a hundred and twenty-one.
+//      The denominator is the setter's own key count now — one source, read off
+//      PDXYourFile rather than typed here — and section 8 pins the literal out
+//      of me-desk.js entirely, because a literal that agreed with the vocabulary
+//      the day it was typed is the defect: it stops agreeing the first time a
+//      key is added and nothing fails until a reader reads a wrong number.
+//  12. A VOTER IS NOT IN ONE DISTRICT. Region a printed "Davis County, Utah ·
+//      District 2" — one unlabelled number for somebody who sits in a U.S.
+//      House district, a state senate district, a state house district and a
+//      municipality simultaneously. Section 6 is the labelled list off the same
+//      resolver the rest of the app asks, fail-closed row by row, and its
+//      sharpest assertion is the negative one: an unresolved row invents no
+//      number.
+//  13. SIX EMPTY "NO PICK" ROWS ON A DESK THAT KNOWS THE INCUMBENTS. The roster
+//      index fills CMP_DATA on /me and pdxSeatHolders answers who holds a
+//      resolved seat, so a row printing "No pick" was withholding the fact the
+//      reader came for. Section 7: officeholder first with a door to their
+//      file, pick second and labelled as a pick, "No officeholder on file" where
+//      nobody resolves — and never a borrowed or guessed name.
+//
+// Eight sections:
 //   1. ZERO POSITIONS — no form, a starter set, one door.
 //   2. TWO POSITIONS — those two and nothing else, with their own sides.
 //   3. THE CAP — six on the face and the leftover counted.
 //   4. COLOUR — a themed chip's hex is the register's hex for that key.
 //   5. THE DOOR, THE SEAT AND THE BUMP.
+//   6. EVERY DISTRICT — labelled, from the resolver, or honestly blank.
+//   7. THE BALLOT SNAPSHOT — incumbent first, pick second, never a guess.
+//   8. NO LITERAL OCTET — the denominator is not typed anywhere on the desk.
 //
 //   node scripts/test-me-snapshot.mjs
 //
@@ -221,10 +251,25 @@ function bootDesk(opts) {
   win.TEAM_POSITIONS = o.seats || [];
   win._currentVoterLocation = o.loc || null;
   win._hasUserLocation = !!o.loc;
-  win.pdxRepsForMe = () => ({
+  // THE RESOLVER IS THE ONE OWNER OF WHERE THIS READER SITS, and the desk asks
+  // it rather than holding a second copy — so a fixture that wants to test the
+  // district list hands over a resolver answer, not a desk field. `reps`
+  // replaces the whole return value; the default is the located-but-levelless
+  // answer every earlier section was written against.
+  win.pdxRepsForMe = () => (o.reps ? o.reps : {
     located: !!o.loc, state: (o.loc && o.loc.state) || "", county: "", levels: [],
   });
-  win.PROFILES = {};
+  // WHO HOLDS THE SEAT is voter-hub-location.js's question, asked through the
+  // same one hook the ballot workspace asks. A fixture supplies a map of seat
+  // key to pids; absent the hook entirely, every row must fail closed.
+  if (o.holders) {
+    win.pdxSeatHolders = (k) => {
+      const pids = o.holders[String(k)];
+      return { ok: !!(pids && pids.length), seat: String(k), pids: pids ? pids.slice() : [] };
+    };
+  }
+  win.PROFILES = o.people || {};
+  if (o.picks) store["politidex_my_team"] = JSON.stringify(o.picks);
   const ctx = vm.createContext(win);
   win.__err = null;
   try {
@@ -268,7 +313,15 @@ const KEYS = zero.PDXYourFile.KEYS.slice();
 // can be compared against the word its owner would have used for it.
 const POSITIONS = {};
 zero.PDXYourFile.POSITIONS.forEach((p) => { POSITIONS[p.key] = p; });
-eq(KEYS.length, 8, "the locked list is no longer eight — this suite's cap arithmetic is written against it");
+// HOW WIDE THE SETTER IS, ASKED OF THE SETTER. The caption on region b reads
+// "n of N set", and N is this number — the count of keys the editor actually
+// offers, derived by your-file.js from the shipped issue vocabulary. It used to
+// be eight, and eight taught a reader that eight was the universe of issues in
+// this product. Every denominator and every cap sum below is arithmetic on
+// N_KEYS, so this suite moves with the vocabulary instead of pinning it.
+const N_KEYS = KEYS.length;
+ok(N_KEYS > 8,
+  `the editor offers ${N_KEYS} keys — the denominator on the desk is still a starter octet`);
 const z = regionOf(zero, "me-positions");
 must(z.length > 120, "region b did not paint for a reader with nothing on file");
 
@@ -278,23 +331,26 @@ eq(chipsIn(z).filter((c) => !/me-pchip--start/.test(c)).length, 0,
 
 // THE OCTET IS NOT HERE. Two independent tells, because either one alone can be
 // satisfied by markup that is still a form: the editor's own row class, and the
-// number of side words on the face. Four sides × eight rows is the shape that
+// number of side words on the face. Four sides on every row is the shape that
 // was wrong; three starter chips carry no side at all.
-lacks(z, "pdxyf-row", "region b paints the editor's own eight rows before any gesture");
+lacks(z, "pdxyf-row", "region b paints the editor's own rows before any gesture");
 lacks(z, 'data-pdxyf-pos', "region b paints the editor's side controls before any gesture");
 const sideWords = Object.keys(POSITIONS).map((k) => POSITIONS[k].label);
 const sidesOnFace = sideWords.reduce(
   (n, w) => n + (String(z).match(new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g")) || []).length, 0);
 ok(sidesOnFace === 0,
   `region b prints ${sidesOnFace} side words for a reader with nothing on file — an empty desk offers no sides to choose`);
-// THE STARTERS ARE THE EDITOR'S OWN VOCABULARY. Three chips, every one of them
-// a key the locked list already holds — a starter from anywhere else would be
-// inviting the reader to answer a question this module cannot save.
+// THE STARTERS ARE THE EDITOR'S OWN VOCABULARY, AND THEY ARE A HINT, NOT THE
+// DENOMINATOR. Three chips, every one of them a key the editor already offers —
+// a starter from anywhere else would be inviting the reader to answer a question
+// this module cannot save. What they are NOT is the size of the list: the count
+// beside them is over N_KEYS, and three starters on a 121-key vocabulary must
+// never print "of 3".
 const starters = zero.PDXMeDesk.starters();
 ok(starters.length >= 2 && starters.length <= 3,
   `the zero state offers ${starters.length} starters — the brief asked for two or three`);
 starters.forEach((k) => {
-  ok(KEYS.indexOf(k) >= 0, `the starter "${k}" is not one of the eight keys the editor can save`);
+  ok(KEYS.indexOf(k) >= 0, `the starter "${k}" is not one of the keys the editor can save`);
 });
 eq(chipsIn(z).filter((c) => /me-pchip--start/.test(c)).length, starters.length,
   "the starter chips painted do not match the starter set");
@@ -304,6 +360,8 @@ has(z, 'href="/#my-stances"', "the zero state's one link is not the existing sta
 lacks(z, "%", "the zero state prints a percentage");
 lacks(z, "incomplete", "the zero state tells the reader they are incomplete");
 lacks(z, "of 8", "the zero state prints a denominator over answers nobody gave");
+ok(String(z).indexOf("of " + starters.length) < 0,
+  "the zero state counts against its starter set, which would make three chips the universe of issues");
 
 // ONE DOOR, AND IT IS THE ONLY WAY THE EDITOR ARRIVES.
 has(z, "data-me-setall", "the zero state has no door to the editor");
@@ -351,14 +409,18 @@ tRows.forEach((r) => {
   eq(r.pos, TWO[r.key], `the desk read a different side for "${r.key}" than the file holds`);
 });
 
-// AND NOT ONE OF THE SIX THEY DID NOT ANSWER.
+// AND NOT ONE OF THE MANY THEY DID NOT ANSWER.
 KEYS.filter((k) => !TWO[k]).forEach((k) => {
   const lab = esc(two.PDXMeDesk.issueLabel(k));
   ok(painted.indexOf(lab) < 0,
     `"${lab}" is on the face although this reader never answered it — a snapshot of the vocabulary is the form`);
 });
 // The denominator is a list length over a list length, and both are read.
-has(t, "2 of 8 on file", "region b does not state the snapshot's own denominator");
+has(t, `2 of ${N_KEYS} set`,
+  "region b does not state the snapshot's own denominator — it should be answers over what the editor offers");
+ok(String(t).indexOf("2 of 8 ") < 0,
+  "region b's caption still reads 2 of 8 — eight is not the vocabulary");
+ok(String(t).indexOf("of 8 on file") < 0, "region b still prints the octet denominator");
 lacks(t, "me-pchip--start", "a reader with answers is also shown starter chips");
 eq((String(t).match(/me-pmore/g) || []).length, 0,
   "two answers printed a leftover count, which would be a claim the reader said more than they did");
@@ -383,14 +445,14 @@ const orderKeys = w7.PDXMeDesk.positions().slice(0, CAP)
   .map((r) => String(w7.PDXMeDesk.issueLabel(r.key)).replace(/&/g, "&amp;"));
 eq(faceKeys.join(" | "), orderKeys.join(" | "),
   "the capped face is not the first six of the answered list in the owner's own order");
-// And eight answers is a full face with two behind the door.
-const eight = {};
-KEYS.forEach((k) => { eight[k] = "mixed"; });
-const w8 = bootDesk({ uid: "u_eight", answers: eight });
-const s8 = regionOf(w8, "me-positions");
-eq(chipsIn(s8).length, CAP, "a reader who answered everything is shown more than the face holds");
-has(s8, "2 more", "a full file does not count the two answers behind the door");
-has(s8, "8 of 8 on file", "a full file does not state its own denominator");
+// And a fully answered file is a full face with everything else behind the door.
+const all = {};
+KEYS.forEach((k) => { all[k] = "mixed"; });
+const wAll = bootDesk({ uid: "u_all", answers: all });
+const sAll = regionOf(wAll, "me-positions");
+eq(chipsIn(sAll).length, CAP, "a reader who answered everything is shown more than the face holds");
+has(sAll, `${N_KEYS - CAP} more`, "a full file does not count the answers behind the door");
+has(sAll, `${N_KEYS} of ${N_KEYS} set`, "a full file does not state its own denominator");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("4 · colour: the chip's hex is the register's hex for that key");
@@ -432,7 +494,7 @@ KEYS.forEach((k) => {
   has(attr, 'data-ic="on"', `the themed key "${k}" does not carry the register's own flag`);
   has(attr, `--pdx-ic:${hex}`, `the chip for "${k}" does not carry the register's hex (${hex})`);
 });
-ok(themed >= 1, "not one of the eight keys resolves to a colour — the chips would all be steel");
+ok(themed >= 1, "not one of the offered keys resolves to a colour — the chips would all be steel");
 
 // And it reaches the painted markup, not just the helper.
 const oneThemed = KEYS.find((k) => !!hexOf(k));
@@ -453,8 +515,8 @@ ok(!new RegExp(themedHex.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i").test(CSS_C
 section("5 · the door, the seat, and the bump");
 // ═════════════════════════════════════════════════════════════════════════════
 // THE DOOR OPENS THE OWNER'S EDITOR, AND THERE IS NO SECOND SETTER. me-desk.js
-// may not contain an eight-issue setter of its own: the marker is that the only
-// thing openSetter() does about the editor is hand it a host.
+// may not contain a setter of its own: the marker is that the only thing
+// openSetter() does about the editor is hand it a host.
 has(DESK_CODE, "PDXYourFile", "the desk does not reference the module that owns the positions");
 has(DESK_CODE, "inline(", "the door does not mount the owner's own editor");
 lacks(DESK_CODE, "data-pdxyf-pos",
@@ -476,8 +538,8 @@ ok(zero.PDXMeDesk.isSetterOpen() === false, "the editor reports itself open befo
     "the editor's head did not mount, so the copy line the reader answers under is not on screen");
   const yfBody = zero.document.getElementById("pdx-your-file-scroll");
   ok(!!yfBody && String(yfBody.innerHTML).length > 200,
-    "the editor's eight rows did not paint into the host the door handed it");
-  // AND NOW the octet is legitimately on the page — asked for, in the owner's
+    "the editor's rows did not paint into the host the door handed it");
+  // AND NOW the editor is legitimately on the page — asked for, in the owner's
   // markup, in the owner's host. That is the whole difference this pass made.
   has(String(yfBody.innerHTML), "pdxyf-row",
     "the editor mounted without its own rows, so the door opened onto nothing");
@@ -529,14 +591,23 @@ const WORK_JS = R("ballot-workspace.js");
 has(WORK_JS, "[?&]seat=", "the ballot workspace no longer reads the arrival key this href sets");
 has(jsBare(WORK_JS), "onList", "the workspace no longer checks the arriving seat against the voter's slate");
 
-// THE BUMP. me.html is precached and gained a script; me-desk.css lost the
-// octet's rules. A warm device holding one half and not the other paints a form
-// with no styles for it, so the shell cache has to be renamed.
+// THE BUMP. me.html, me-desk.js and me-desk.css are precached and all three moved
+// together this pass: the desk gained the district list and the officeholder
+// line, and the count beside the positions became a count over the whole issue
+// vocabulary. A warm device holding one half and not the other paints a district
+// row with no styles, or a caption whose denominator disagrees with the list
+// behind the door — so the shell cache has to be renamed. (your-file.js and
+// your-file.css are runtime entries, deliberately, and the rename reaches them
+// through the runtime cache's own version namespace.)
 const ver = (/const CACHE_VERSION = '([^']+)'/.exec(SW) || [, ""])[1];
 ok(/^v\d+$/.test(ver), `CACHE_VERSION is not a version literal (${ver})`);
-ok(Number(ver.slice(1)) >= 204,
+ok(Number(ver.slice(1)) >= 205,
   `CACHE_VERSION is ${ver}; this pass changed precached me.html, me-desk.js, me-desk.css, ` +
-  "judicial-ballot.js, judicial-retention.css and index.html, so it has to be at least v204");
+  "and index.html, plus the runtime-cached your-file.js / your-file.css — the desk " +
+  "gained a district list and an " +
+  "officeholder line, and the setter's list widened to the whole vocabulary, so a warm " +
+  "device holding one half and not the other paints a count over the wrong denominator. " +
+  "It has to be at least v205");
 const shellList = (/const SHELL_ASSETS = \[([\s\S]*?)\n\];/.exec(SW) || [, ""])[1];
 must(shellList.length > 500, "the SHELL_ASSETS probe matched nothing in sw.js");
 ["/me.html", "/me-desk.js", "/me-desk.css", "/issue-colors.js", "/issue-map.js"].forEach((a) => {
@@ -546,13 +617,272 @@ must(shellList.length > 500, "the SHELL_ASSETS probe matched nothing in sw.js");
 // that. It is runtime-cached, pinned out of the precache by
 // test-mobile-body-lock.mjs and test-your-file.mjs, and the desk is written for
 // its absence: mountPositions() says the editor is still loading rather than
-// painting eight rows the desk would then own. Adding it here would be a
+// painting rows the desk would then own. Adding it here would be a
 // different decision than the one those two suites recorded.
 ok(!new RegExp("'/your-file\\.js'").test(shellList),
   "/your-file.js was added to the precache — two other suites pin it out, and the desk's " +
   "'still loading' branch exists because it is not there");
 // The log names the bump, so a reader of sw.js can tell WHY the cache moved.
 has(SW, `// ${ver} -`, `the cache log has no entry for ${ver}`);
+
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("6 · every district this location resolves, labelled, or honestly blank");
+// ═════════════════════════════════════════════════════════════════════════════
+// WHAT WAS WRONG. Region a's where line read "Davis County, Utah · District 2."
+// A voter does not sit in "District 2." They sit in a U.S. House district AND a
+// state senate district AND a state house district AND a municipality, all at
+// once, and printing one number with no label is worse than printing none: the
+// reader cannot tell which of the four it is, and four fifths of their ballot
+// is invisible on the one page that is supposed to be about them.
+//
+// WHAT IT IS NOW. A labelled list off the SAME resolver Who Represents Me and
+// the ballot workspace ask — pdxRepsForMe() — fail-closed row by row. A row
+// the resolver cannot answer says "not on file" and invents no number.
+{
+  // THE DAVIS / UTAH FIXTURE, resolved the way the resolver resolves it: levels
+  // carrying a district apiece. The desk must not read these off the location
+  // record — that is why the fixture's own stateSenateDistrict / stateHouseDistrict
+  // are left out here and tested separately below.
+  const davis = bootDesk({
+    uid: "u_davis",
+    loc: { state: "Utah", county: "Davis County", city: "Kaysville", district: "2" },
+    reps: {
+      located: true, state: "Utah", county: "Davis County",
+      levels: [
+        { key: "house", seat: "house", label: "U.S. House", district: "2", pid: "" },
+        { key: "statesenate", seat: "statesenate", label: "State Senate", district: "22", pid: "" },
+        { key: "statehouse", seat: "statehouse", label: "State House", district: "15", pid: "" },
+      ],
+    },
+  });
+  ok(!davis.__err, `the desk boots for a located reader (${davis.__err ? davis.__err.message : "ok"})`);
+  const a = regionOf(davis, "me-identity");
+  must(a.length > 120, "region a did not paint for a located reader");
+
+  // THE ROWS ARE THE RESOLVER'S, AND THEY ARE ASKED OF THE DESK'S OWN API so a
+  // renamed class cannot make this section silently stop measuring anything.
+  const rows = davis.PDXMeDesk.districts();
+  ok(rows.length >= 5, `region a lists ${rows.length} district rows — the brief named at least five`);
+  const byLabel = {};
+  rows.forEach((d) => { byLabel[d.label] = d; });
+  ["County", "U.S. House", "State Senate", "State House", "Local"].forEach((lb) => {
+    ok(!!byLabel[lb], `region a has no "${lb}" row — a whole level of this reader's ballot is invisible`);
+    has(a, `>${lb}</dt>`, `the "${lb}" row is not painted with its label`);
+  });
+  eq(byLabel["County"].value, "Davis County, Utah", "the county row is not county and state");
+  eq(byLabel["U.S. House"].value, "District 2", "the U.S. House row does not name the resolved CD");
+  eq(byLabel["State Senate"].value, "District 22", "the State Senate row does not name the resolved district");
+  eq(byLabel["State House"].value, "District 15", "the State House row does not name the resolved district");
+  eq(byLabel["Local"].value, "Kaysville", "the local row does not name the municipality this location sits in");
+  ["District 2", "District 22", "District 15", "Kaysville"].forEach((v) => {
+    has(a, `>${v}</dd>`, `"${v}" is resolved but not painted`);
+  });
+
+  // AND THE BARE NUMBER IS GONE. "District 2" alone was the miss even though it
+  // WAS the House CD, because nothing on the line said so — so the assertion is
+  // that the old shape (the where line, a separator, a naked district) does not
+  // survive anywhere in region a.
+  ok(!/·\s*District\s*\d/.test(a),
+    "region a still prints a bare unlabelled district after a separator, which is the string this pass removed");
+  const whereLine = (/<p class="me-where">([\s\S]*?)<\/p>/.exec(a) || [, ""])[1];
+  ok(!/District/.test(whereLine),
+    `the where line still carries a district ("${whereLine}") instead of leaving it to the labelled list`);
+
+  // FAIL CLOSED, ROW BY ROW. Same county, same state, a resolver that knows
+  // nothing below the county: every legislative row says "not on file" and NOT
+  // ONE OF THEM INVENTS A NUMBER. This is the assertion that matters most —
+  // a desk that guesses a district sends a reader to the wrong ballot.
+  const thin = bootDesk({
+    uid: "u_thin",
+    loc: { state: "Utah", county: "Davis County" },
+    reps: { located: true, state: "Utah", county: "Davis County", levels: [] },
+  });
+  const tRegion = regionOf(thin, "me-identity");
+  const tRows = {};
+  thin.PDXMeDesk.districts().forEach((d) => { tRows[d.label] = d; });
+  ["U.S. House", "State Senate", "State House", "Local"].forEach((lb) => {
+    ok(!!tRows[lb], `the unresolved fixture dropped the "${lb}" row instead of printing it blank`);
+    eq(tRows[lb].none, true, `the "${lb}" row claims a value the resolver never gave it`);
+  });
+  eq(tRows["County"].none, false, "the county row went blank although the county resolved");
+  has(tRegion, thin.PDXMeDesk.DIST_NONE,
+    "an unresolved district row does not say it is not on file");
+  ok(!/District\s*\d/.test(tRegion),
+    "region a printed a district number for a reader whose districts do not resolve — that is an invented number");
+
+  // THE READER'S OWN SAVED FIELD IS A LEGITIMATE FALLBACK, and only because the
+  // list makes no officeholder claim: it is their own input echoed back with a
+  // label on it. Who holds the seat stays with pdxSeatHolders in region d.
+  const saved = bootDesk({
+    uid: "u_saved",
+    loc: {
+      state: "Utah", county: "Davis County", district: "1",
+      stateSenateDistrict: "7", stateHouseDistrict: "12",
+    },
+    reps: { located: true, state: "Utah", county: "Davis County", levels: [] },
+  });
+  const sRows = {};
+  saved.PDXMeDesk.districts().forEach((d) => { sRows[d.label] = d; });
+  eq(sRows["U.S. House"].value, "District 1", "the reader's own saved CD is not echoed back");
+  eq(sRows["State Senate"].value, "District 7", "the reader's own saved state senate district is not echoed back");
+  eq(sRows["State House"].value, "District 12", "the reader's own saved state house district is not echoed back");
+
+  // JUDICIAL IS ASKED OF ITS OWNER OR NOT AT ALL. PDXJudicial is not on /me, so
+  // the row is absent rather than permanently "not on file" — a row that can
+  // only ever be blank is noise. Where the module IS on the document (a shell
+  // that carries it), the row appears and carries that owner's answer.
+  ok(!byLabel["Judicial"],
+    "region a prints a judicial row on a document that does not carry PDXJudicial — it could only ever be blank");
+  lacks(DESK_CODE, "judicialDistricts", "the desk holds its own table of judicial divisions");
+
+  // AN UNPLACEABLE READER GETS NO LIST AT ALL, rather than a column of "not on
+  // file" that reads as a broken page.
+  eq(bootDesk({ uid: "u_nowhere" }).PDXMeDesk.districts().length, 0,
+    "a reader we cannot place is shown a district list anyway");
+
+  // ONE OWNER. The desk asks the resolver; it does not hold district geometry,
+  // a CD table, or a second reader of the location record's district fields.
+  has(DESK_CODE, "pdxRepsForMe", "the desk no longer asks the resolver where this reader sits");
+  lacks(DESK_CODE, "pdxCdForAddress", "the desk resolves congressional districts itself");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("7 · the ballot snapshot leads with whoever holds the seat");
+// ═════════════════════════════════════════════════════════════════════════════
+// WHAT WAS WRONG. Region d printed six seat rows and, under each, "No pick" —
+// so a reader arriving at their own desk for the first time saw six blanks and
+// nothing else. The desk HAS the incumbent for a resolved seat: pdxSeatHolders
+// answers it, and the roster index on /me fills CMP_DATA. A row that knows who
+// the sitting senator is and prints "No pick" is withholding the one fact the
+// reader came for.
+//
+// WHAT IT IS NOW. Office name, then the current officeholder (a name and a door
+// to /p/<pid>) or the honest "No officeholder on file", then the pick underneath
+// if they set one. This is NOT a second ballot and NOT the complete ballot —
+// challengers stay on Door 2.
+{
+  const SEATS7 = [
+    { key: "senate", label: "U.S. Senate", icon: "\u{1F3DB}" },
+    { key: "house", label: "U.S. House", icon: "\u{1F3DB}" },
+    { key: "local", label: "Mayor", icon: "\u{1F3D9}" },
+  ];
+  const held = bootDesk({
+    uid: "u_held", seats: SEATS7,
+    loc: { state: "Utah", county: "Davis County", city: "Kaysville", district: "2" },
+    reps: { located: true, state: "Utah", county: "Davis County", levels: [] },
+    holders: { senate: ["mike-lee", "john-curtis"], house: ["blake-moore"], local: [] },
+    people: {
+      "mike-lee": { name: "Mike Lee" },
+      "john-curtis": { name: "John Curtis" },
+      "blake-moore": { name: "Blake Moore" },
+      "someone-else": { name: "Someone Else" },
+    },
+    picks: { house: "someone-else", senate: "mike-lee" },
+  });
+  ok(!held.__err, `region d boots with holders on file (${held.__err ? held.__err.message : "ok"})`);
+  const d = regionOf(held, "me-ballot");
+  must(d.length > 120, "region d did not paint for a located reader with a slate");
+  const rowOf = (office) => {
+    const re = new RegExp('<li class="me-seat">(?:(?!</li>)[\\s\\S])*?' +
+      office.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + '[\\s\\S]*?</li>');
+    const m = re.exec(d);
+    return m ? m[0] : "";
+  };
+
+  // THE SITTING SENATORS, NAMED, EACH WITH A DOOR TO THEIR FILE. Two holders on
+  // one seat is the ordinary case for a Senate row and both belong on it.
+  const senate = rowOf("U.S. Senate");
+  must(!!senate, "the U.S. Senate row could not be found in region d");
+  has(senate, "Mike Lee", "the Senate row does not name the sitting senator the roster holds");
+  has(senate, "John Curtis", "the Senate row names one of two sitting senators and drops the other");
+  has(senate, 'href="/p/mike-lee"', "the sitting senator's name is not a door to their file");
+  has(senate, 'href="/p/john-curtis"', "the second sitting senator's name is not a door to their file");
+  has(senate, "me-holds", "the officeholder line does not carry the class the stylesheet dresses");
+
+  // THE PICK IS SECOND, AND IT IS LABELLED AS A PICK so the two lines cannot be
+  // read as one claim. A pick that IS the incumbent is printed all the same —
+  // that is a real and common answer, not a duplicate to suppress.
+  has(senate, "Your pick:", "a seat with a pick on it does not say so");
+  const holdsAt = senate.indexOf("me-holds");
+  const pickAt = senate.indexOf("me-pick");
+  ok(holdsAt >= 0 && pickAt > holdsAt,
+    "the pick is printed above the officeholder — the row is supposed to lead with who holds the seat");
+
+  // A PICK THAT IS NOT THE INCUMBENT SITS UNDER THE INCUMBENT, both named.
+  const house = rowOf("U.S. House");
+  must(!!house, "the U.S. House row could not be found in region d");
+  has(house, "Blake Moore", "the House row does not name the officeholder the roster holds");
+  has(house, "Someone Else", "the House row drops this reader's own pick");
+  ok(house.indexOf("Blake Moore") < house.indexOf("Someone Else"),
+    "the House row prints the pick before the incumbent");
+
+  // AND A SEAT NOBODY IS ON FILE FOR SAYS SO, rather than borrowing a name from
+  // a neighbouring row or guessing from the office. This is the fail-closed half
+  // and it is the one that would ship quietly.
+  const mayor = rowOf("Mayor");
+  must(!!mayor, "the Mayor row could not be found in region d");
+  has(mayor, held.PDXMeDesk.HOLD_NONE,
+    "an unresolved local seat does not say there is no officeholder on file");
+  ["Mike Lee", "John Curtis", "Blake Moore", "Someone Else"].forEach((n) => {
+    ok(mayor.indexOf(n) < 0, `the unresolved Mayor row borrowed "${n}" from another row`);
+  });
+  ok(!/href="\/p\//.test(mayor), "the unresolved Mayor row links to a person's file anyway");
+
+  // NO HOLDER HOOK AT ALL — an older shell, a document without
+  // voter-hub-location.js — and every row fails closed the same way. Nothing
+  // here may fall through to a name derived from the office or the state.
+  const noHook = bootDesk({
+    uid: "u_nohook", seats: SEATS7,
+    loc: { state: "Utah", county: "Davis County", city: "Kaysville" },
+    reps: { located: true, state: "Utah", county: "Davis County", levels: [] },
+  });
+  const nd = regionOf(noHook, "me-ballot");
+  eq((String(nd).match(new RegExp(noHook.PDXMeDesk.HOLD_NONE, "g")) || []).length, SEATS7.length,
+    "without the holder hook, some seat row claimed an officeholder");
+  ok(!/href="\/p\//.test(nd), "without the holder hook, a row still linked to somebody's file");
+
+  // THE SEAT IS STILL A DOOR, UNCHANGED. Adding the incumbent must not have
+  // turned the row into a destination of its own.
+  has(senate, '/ballot?seat=senate', "the Senate row lost its door to the ballot workspace");
+  // AND THIS IS NOT THE COMPLETE BALLOT. No challenger, no field, no count of
+  // candidates — the copy on the block stays and keeps saying so.
+  has(d, "This is not an official ballot", "region d dropped the line that says what it is not");
+  ["challenger", "Challenger", "candidates in this race", "field"].forEach((n) => {
+    ok(String(d).indexOf(n) < 0, `region d pulled "${n}" onto /me, which is Door 2's job`);
+  });
+  lacks(DESK_CODE, "keyRacesRelevantData", "the desk reaches for the ballot workspace's own field data");
+
+  // ONE OWNER FOR "WHO HOLDS THIS SEAT". The desk asks pdxSeatHolders and holds
+  // no incumbent table, no sitting-member list and no seat-to-person map.
+  has(DESK_CODE, "pdxSeatHolders", "the desk no longer asks the one owner who holds a seat");
+  ["INCUMBENTS", "SITTING_", "SEAT_HOLDERS ="].forEach((n) => {
+    lacks(DESK_CODE, n, "the desk holds its own table of who sits in which seat");
+  });
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("8 · no literal octet anywhere on the desk's source");
+// ═════════════════════════════════════════════════════════════════════════════
+// The point of the widening is that there is ONE source for how many issues
+// exist, and me-desk.js is not it. A literal that agreed with the vocabulary on
+// the day it was typed is the defect — it stops agreeing the first time a key is
+// added, and nothing fails until a reader reads a wrong number.
+ok(String(DESK_JS).indexOf("of 8") < 0,
+  'me-desk.js contains the substring "of 8" — the denominator is a literal again');
+ok(!/\b(EIGHT|eightIssues|ISSUE_OCTET)\b/.test(DESK_CODE),
+  "me-desk.js names an octet constant");
+ok(!/\.slice\(0,\s*8\)/.test(DESK_CODE), "me-desk.js truncates the issue list to eight");
+ok(!/\.length\s*[<>=]=?\s*8\b/.test(DESK_CODE), "me-desk.js compares a list length against eight");
+// The caption's denominator is read off the owner, not counted here.
+has(DESK_CODE, "PDXYourFile", "the desk does not ask the owner for the vocabulary it counts against");
+has(DESK_CODE, "KEYS", "the desk no longer reads the owner's key list as its denominator");
+// And the same rule on the two surfaces the old string leaked onto.
+["index.html", "who-represents-me.js", "me.html"].forEach((f) => {
+  const src = R(f);
+  ok(String(src).indexOf("positions on eight issues") < 0,
+    `${f} still advertises Your file as eight issues`);
+});
 
 /* ── report ─────────────────────────────────────────────────────────────── */
 if (failures.length) {
