@@ -723,6 +723,14 @@
   padding: 0.55rem 0.7rem; border-radius: 0.7rem;
   background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.09);
 }
+/* THE ROW IS THE DOOR TOO, and only where there is one to open. A card with no
+   number addresses nothing, so it keeps the default cursor and the delegate
+   (billRowTap) finds no .d1-bdoor inside it to click. The hover is a lift and
+   nothing more — the row is not announced as a control, so it must not look like
+   a button either; the dotted underline on the number is still what says "this
+   opens something". */
+.d1-led-b:has(.d1-bdoor) { cursor: pointer; }
+.d1-led-b:has(.d1-bdoor):hover { background: rgba(255, 255, 255, 0.055); border-color: rgba(147, 197, 253, 0.28); }
 /* ── A MEASURE IDENTITY THAT IS A DOOR ──────────────────────────────────────
    Declared ABOVE the slots that use it, at the same one-class depth, so each
    slot keeps ownership of its own type: this rule only removes the browser's
@@ -774,6 +782,20 @@
    replacing it, because a measure's label does not change when machinery is
    what reached it. */
 .d1-led-btag.is-proc { color: #fde68a; background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.3); }
+/* ── THE WHY-LINE ───────────────────────────────────────────────────────────
+   The curator's own sentence about why this bill sits on this issue, clipped to
+   two sentences by measureWhy() and printed as text. Full width under the label
+   it qualifies, at the reading size the row's title uses rather than the size of
+   the pills beside it, because it is the one thing on the card a reader has to
+   READ. No fill, no rule and no ink of its own: a box around it would make it
+   look like a finding this desk reached, and it is a quotation. */
+.d1-led-bwhy {
+  flex: 1 1 100%;
+  margin-top: 0.1rem;
+  font-size: 0.73rem;
+  line-height: 1.55;
+  color: #b3c2d8;
+}
 /* The folded twin's disclosure. Full width under the tags, because it is a
    sentence about the row and not another pill on it. */
 .d1-led-balt { flex: 1 1 100%; font-size: 0.68rem; line-height: 1.5; color: #9fb2cc; }

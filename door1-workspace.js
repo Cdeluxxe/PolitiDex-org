@@ -1031,7 +1031,7 @@
   }
   function ledgerMeasures(rows, key) {
     var byKey = {}, order = [];
-    function slot(id, number, title, primary, sit) {
+    function slot(id, number, title, primary, sit, rat) {
       if (!id) return null;
       var fid = faceKey(id, number);
       if (!byKey[fid]) {
@@ -1053,6 +1053,16 @@
           // off the same acts. Neither gates a vote: a procedural measure bands
           // its voters exactly as any other measure does and keeps its own label.
           proc: false, subst: false, procOnly: false,
+          // THE WHY, EXACTLY AS THE MAPPING WROTE IT. `rat` is the rationale on
+          // the measure→issue row for THIS key and nothing else: no summary, no
+          // composition, no reading of the title. It is carried onto the folded
+          // face for the same reason `sit` is — the two appearances of one
+          // instrument are one mapping — and first non-empty wins because only
+          // one of the two sources has it. The static bills index carries no
+          // rationale at all, so a measure this ledger only knows from the index
+          // arrives with '' and the card says so in words rather than printing a
+          // bare number. Cleaning and clipping happen once, at the card.
+          rat: '',
           seen: false, adv: [], opp: [], none: [] };
         order.push(fid);
       }
@@ -1061,6 +1071,7 @@
       s.lab[primary ? 'P' : 'p']++;
       if (!s.number && number) s.number = number;
       if (!s.sit && sit) s.sit = sit;
+      if (!s.rat && rat) s.rat = String(rat);
       if (title && s.titles.indexOf(title) < 0) s.titles.push(title);
       if (primary) s.primary = true;
       return s;
@@ -1089,7 +1100,7 @@
         var m = null;
         (it.issues || []).forEach(function (g) { if (!m && g && g.issueKey === key) m = g; });
         var s = slot(measureKey(it), it.number || '', it.title || '', !!(m && m.isPrimary),
-          billSitOf(it));
+          billSitOf(it), m && m.rationale);
         if (!s) return;
         s.seen = true;
         if (it.isProcedural) s.proc = true; else s.subst = true;
@@ -1984,6 +1995,68 @@
   // than there are. Every class name below is its own (`d1-led-mband`,
   // `d1-led-bmore`), which is what keeps sliceBox's walk over `d1-led-band` and
   // `d1-led-p` from ever touching a card here.
+  // ── EVERY MAPPED MEASURE ROW CARRIES A WHY ────────────────────────────────
+  // WHAT WAS WRONG. An H.R. 1949-class row printed a number, a title and a
+  // label, and nothing at all about why the bill is filed on this issue. The
+  // sentence that answers it already exists — the curator's rationale on the
+  // measure→issue row, the one piece of curated prose every mapped act has — and
+  // it was reachable from a member's dossier and from the bill file and nowhere
+  // on the list a reader actually arrives at.
+  //
+  // NOTHING IS COMPOSED HERE. What prints is a PREFIX of what the curator wrote,
+  // cleaned by the one owner of that question and then cut on a sentence
+  // boundary. Three rules, in order:
+  //
+  //   1. THE CLEANER IS NOT OURS. window._pdxReaderRationale is receipt-cards.js's
+  //      reader sentence — the same function the bill file's topic ledger takes —
+  //      and it is what drops the notes the curators wrote to each other: weights,
+  //      primary/secondary flags, seed and migration ids, raw snake_case keys. A
+  //      second implementation of "may a reader see this" is how one of the two
+  //      quietly falls behind, so there is not one. If that file has not loaded
+  //      the row prints the honest blank rather than the raw field.
+  //   2. TWO SENTENCES, CUT NOT SUMMARISED. The splitter is the cleaner's own,
+  //      because legislative prose is full of full stops that end nothing
+  //      ("H.R. 6644", "Sec. 103", "42 U.S.C. 4333") and a citation cut in half is
+  //      worse copy than no copy. A handful of rationales are a single
+  //      500-character sentence listing the sections of a division; on a row that
+  //      is a paragraph, so a sentence over the budget is cut on a WORD boundary
+  //      and says so with an ellipsis. The full text is on the bill file, which is
+  //      where the row's tap goes.
+  //   3. AN EMPTY RATIONALE IS SAID OUT LOUD. A measure the index knows and no
+  //      warm mapping has reached carries no sentence, and neither does one whose
+  //      rationale was entirely housekeeping. Either way the row prints WHY_BLANK
+  //      — never a blank space, and never a guess at what the measure was about.
+  //
+  // AND IT IS NOT A CONTROL. The why is a <span>: the lane badge above it is
+  // still the only thing that says subject-of-the-bill vs rode-inside, and the
+  // row's own tap (see billRowTap) is the one way in. A second button here would
+  // be a third destination on a row that already has one.
+  var WHY_BLANK = 'Mapped to this issue; rationale not written yet';
+  var WHY_SENT = 2;    // sentences kept
+  var WHY_CHARS = 220; // and the line budget inside them, the dossier row's own
+  function whySplit(t) {
+    var R = window.PDXReceiptCards;
+    var f = R && R.guards && R.guards.splitSentences;
+    if (!fn(f)) return [t];
+    try {
+      var a = f(t);
+      return (a && a.length) ? a : [t];
+    } catch (e) { return [t]; }
+  }
+  function measureWhy(m) {
+    var raw = (m && m.rat) ? String(m.rat) : '';
+    var t = '';
+    if (raw) {
+      var f = window._pdxReaderRationale;
+      if (fn(f)) { try { t = String(f(raw) || ''); } catch (e) { t = ''; } }
+    }
+    if (!t) return WHY_BLANK;
+    var sent = whySplit(t);
+    if (sent.length > WHY_SENT) t = sent.slice(0, WHY_SENT).join(' ').trim();
+    if (t.length > WHY_CHARS) t = t.slice(0, WHY_CHARS).replace(/\s+\S*$/, '') + '…';
+    return t || WHY_BLANK;
+  }
+
   function measuresHtml(led) {
     if (!led.measures.length) return '';
     function who(lbl, names) {
@@ -2036,6 +2109,11 @@
         // wears this pill, so the fact does not disappear when the band does not
         // claim it.
         (m.proc ? '<span class="d1-led-btag is-proc">procedural</span>' : '') +
+        // THE WHY-LINE. Under the label it qualifies and above everything the row
+        // says about people, because a reader scanning this list is asking what
+        // the bill is doing here before they ask who voted on it. Plain text, by
+        // the rule in the note over measureWhy.
+        '<span class="d1-led-bwhy">' + esc(measureWhy(m)) + '</span>' +
         // THE FOLDED TWIN, DISCLOSED INSIDE THE CARD. Two appearances of one
         // instrument that disagreed about the label are one row and one door; the
         // reader is told the other appearance exists instead of being shown it as
@@ -3233,6 +3311,44 @@
     return billDeny(el, num);
   };
 
+  // ── THE WHOLE ROW IS THE DOOR ─────────────────────────────────────────────
+  // WHAT WAS WRONG. A measure row is three controls wide — the number, the title
+  // and "Who voted on it" — and the two inches of row between them did nothing.
+  // On a phone that is most of the row: a reader taps the card, nothing happens,
+  // and they conclude the list is a table rather than a set of doors.
+  //
+  // WHY IT IS A DELEGATE AND NOT AN ATTRIBUTE ON THE <li>. The row already holds
+  // real <button>s, and this row's markup is byte-identical to what the desk has
+  // always printed — so there is nothing new inside it to nest and nothing new on
+  // it to announce. A tap that landed on one of those controls is THAT control's
+  // tap and is left alone; a tap on the row's own space opens the row's first
+  // door, which is the bill file the number already points at. The number is read
+  // off that button rather than restated on the row, so there is exactly one copy
+  // of the address per row and no way for the two to disagree.
+  //
+  // AND THE ROW IS NOT A CONTROL ITSELF. No role, no tabindex, no accessible name
+  // on the <li> — the same shape the dossier's driver rows use, for the same
+  // reason (see the note in scripts/test-row-tap-dossier.mjs): announcing a
+  // button that contains three buttons gives a screen reader four names for one
+  // row and a keyboard no way to reach the inner ones. The buttons inside stay
+  // the focus stops; this is the pointer's twin of tapping the number.
+  var ROW_CTL = 'button,a,summary,input,select,textarea,label,[role="button"],[role="link"]';
+  function billRowTap(ev) {
+    try {
+      var t = ev && (ev.target || ev.srcElement);
+      if (!t || !fn(t.closest)) return;
+      var row = t.closest('li.d1-led-b');
+      if (!row) return;
+      // A control inside this row answers its own tap. (closest() may walk out of
+      // the row into an ancestor control, which is not this row's business.)
+      var ctl = t.closest(ROW_CTL);
+      if (ctl && row.contains && row.contains(ctl)) return;
+      var door = row.querySelector ? row.querySelector('.d1-bdoor') : null;
+      if (!door || !fn(door.click)) return;
+      door.click();
+    } catch (e) {}
+  }
+
   window.PDXDoor1 = {
     AUTHORITY: AUTHORITY,
     MODES: MODES,
@@ -3241,6 +3357,9 @@
     MEASURE_NO_MAP: MEASURE_NO_MAP,
     sync: sync,
     views: views,
+    // Exposed so scripts/test-issue-file-first-screen.mjs can drive the row tap
+    // over a tree rather than only assert that a listener was bound.
+    billRowTap: billRowTap,
     open: window.pdxDoor1Open,
     next: window.pdxDoor1Next,
     // Back to the desk from a view, landing on the mode that view belongs to.
@@ -3428,6 +3547,11 @@
     // The ledger announces its roll-call reads; a repaint on that event is what
     // turns "reading…" into rows without polling.
     try { window.addEventListener('pdx-issue-votes', function () { sync(); }); } catch (e) {}
+    // ONE LISTENER FOR EVERY SURFACE THE LEDGER IS MOUNTED ON. The measure list
+    // is painted by this file and mounted in three places — the desk, /i/<key>'s
+    // panel and a chip tap — so the row door is bound on the document once
+    // instead of being re-bound by each host after every repaint.
+    try { document.addEventListener('click', billRowTap); } catch (e) {}
     // Same settle schedule the ballot workspace uses, for the same reason: the
     // modules this reads are a mix of plain and deferred scripts, and the first
     // paint can legitimately land before the roster or the ledger is ready.
