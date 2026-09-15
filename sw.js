@@ -6034,7 +6034,54 @@
 //     DID NOT MOVE. No locker data, no score, no party sort, no Direction Match
 //     or Word-vs-Action change, and /stances is untouched.
 
-const CACHE_VERSION = 'v200';
+// v201 - THE EVIDENCE LOCKER ADMITS RECEIPTS, NOT HORSERACE CLIPS.
+//
+//     /evidence was carrying cards that are not evidence: Ed Gallrein ·
+//     "Gallrein Leads in KY-04 Polling Ahead of General Election" · tagged 💰
+//     Taxes & Economy / Protect American Jobs · RealClearPolling horserace copy
+//     for a body · "No public source link recorded for this item." Campaign
+//     coverage: no formal act, no cited stance, an issue off the politician's file.
+//     · ONE ADMISSION GATE, ONE FUNCTION. evidence-locker.js decides what counts
+//       as a receipt in _evAdmit(), published as window.PDXEvidenceAdmit for any
+//       ingest that feeds the drawer. Grid, featured and recent lanes, filters,
+//       counts and modal all go through it: the gate runs inside _build(), so a
+//       refused item never enters the index. ADMIT needs all three: an admitted
+//       KIND (floor video, committee video, official statement, bill / roll call,
+//       signed letter, amicus, sponsorship, FEC / state finance filing, or a
+//       quote with a working citation URL); an ISSUE the item's OWN TEXT
+//       addresses, read through the same ISSUE_MAP vocabulary the app already
+//       uses; and a public http(s) SOURCE URL. REFUSED: polling / horserace /
+//       fundraising totals as the body, a recap that neither quotes the person
+//       nor points at an official record, an empty source URL, and an issue tag
+//       the item's own text cannot justify.
+//     · A REFUSAL IS NOT A DELETE. No row is removed from any database here; the
+//       gate keeps a refused item off the face and leaves the ledger — who, what,
+//       which rule — on window._pdxEvidenceRefused, so dropping or recategorizing
+//       the Gallrein row stays a curator's call, not a side effect of a render.
+//     · "NO PUBLIC SOURCE LINK RECORDED" LEFT THE FACE: a card that would say it
+//       is refused, and the line came out of the modal. Rule 3 asks whether a
+//       citation was RECORDED, not which field it landed in — most of the curated
+//       news layer wrote its citation as a link inside the body, so the gate
+//       reads media.url, source.url and the body link, and opens what it found.
+//
+//     WHY THE BUMP. evidence-locker.js is precached, so a warm v200 device would
+//     go on rendering the refused cards from its own cache.
+//
+//     WHAT THE BUMP CARRIES, NOT WHAT THIS PASS CHANGED. Renaming SHELL_CACHE
+//     re-issues the WHOLE precache, so every SHELL_ASSETS entry travels with
+//     v201 — index.html, evidence.html, stances.html, firebase-boot.js, app.css,
+//     mobile-polish.css, pdx-stability.js, door1-workspace.js,
+//     door1-workspace.css, word-action.js, word-action.css, issue-file.js,
+//     issue-file.css, issue-view.js, pdx-issue-profile.js, pdx-issue-family.js,
+//     alignment-tool.js, stance-tree.js and issue-colors.js among them — only
+//     because the bucket's name moved, so netlify.toml is as v200 left it.
+//
+//     DID NOT MOVE. No new score, no strength grade rewritten (grading still
+//     reads the same `url` field it always did), no Direction Match or
+//     Word-vs-Action change, no party sort, and /stances and its shelves are
+//     untouched.
+
+const CACHE_VERSION = 'v201';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

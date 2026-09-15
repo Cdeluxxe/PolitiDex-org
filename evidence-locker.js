@@ -825,8 +825,332 @@
       }).join('');
     }
 
+    // ── THE ADMISSION GATE · WHAT COUNTS AS A RECEIPT ───────────────────────
+    // The Evidence Locker is a receipt drawer, not a clip file. For a long time
+    // it admitted anything a curator had written down about a politician, and
+    // the cost of that showed up on its own face: Ed Gallrein's card carried
+    // "Gallrein Leads in KY-04 Polling Ahead of General Election", a paragraph
+    // of RealClearPolling horserace copy, a 💰 Taxes & Economy / Protect
+    // American Jobs tag inferred from a passing mention of "trade", and the line
+    // "No public source link recorded for this item." Four different ways of
+    // saying the same thing: that card is campaign coverage. It is not a formal
+    // act, it is not a cited stance, and the issue it was filed under came from
+    // the politician's file rather than from the item's own words.
+    //
+    // So admission is now a decision the locker makes out loud, in ONE function,
+    // and every surface that shows a receipt goes through it — the grid, the
+    // featured and recent lanes, the counts, the modal, and any ingest that
+    // wants to add to the drawer (window.PDXEvidenceAdmit).
+    //
+    // ADMIT only when all three hold:
+    //   1. KIND is one of the records this drawer keeps: floor video, committee
+    //      video, official statement, bill / roll call, signed letter, amicus
+    //      brief, sponsorship, FEC / state finance filing — or a quote carrying
+    //      a working citation URL.
+    //   2. ISSUE is one the item's OWN TEXT addresses, read through the same
+    //      ISSUE_MAP vocabulary the rest of the app uses. A topic guessed from
+    //      the politician's file is not an issue tag. A formal record that names
+    //      a measure is about that measure and needs no keyword to prove it.
+    //   3. SOURCE is a public http(s) URL. "No public source link recorded" is a
+    //      refusal, not a card.
+    //
+    // REFUSE, explicitly:
+    //   · polling / horserace / "leads in the race" / fundraising totals as the
+    //     body of the item,
+    //   · news recaps that neither quote the person nor point at an official
+    //     record,
+    //   · an empty source URL,
+    //   · an issue tag that cannot be justified from the item's own text.
+    //
+    // A refusal is not a delete. Nothing is removed from any database here: the
+    // row stays where it is, the gate simply keeps it off the locker's face, and
+    // the ledger of what was refused and why is left on
+    // window._pdxEvidenceRefused so a later curator pass can drop, rewrite or
+    // recategorize each one deliberately.
+    //
+    // WHERE A CITATION MAY LIVE. Rule 3 asks whether a public source was
+    // RECORDED, not which field it landed in. Most items carry it on
+    // `media.url` / `source.url`; a large part of the curated news layer instead
+    // wrote it as a plain anchor inside the item’s own body — the RealClearPolling
+    // link on the refused Gallrein card was recorded exactly that way —
+    // which the card strips to plain text and the modal then reported as "no
+    // public source link". Both are a recorded public citation, so both satisfy
+    // rule 3 and both are shown. What none of it does is invent one: an item
+    // with no http(s) link anywhere in it is refused. Strength grading is
+    // deliberately untouched by this pass — it still reads `url`, so no card's
+    // Strong / Moderate / Limited label moves.
+    var EV_ADMIT_KINDS = {
+      floor_video:     { label: 'Floor video',          formal: true  },
+      committee_video: { label: 'Committee video',      formal: true  },
+      bill:            { label: 'Bill / roll call',     formal: true  },
+      letter:          { label: 'Signed letter',        formal: true  },
+      amicus:          { label: 'Amicus brief',         formal: true  },
+      sponsorship:     { label: 'Sponsorship',          formal: true  },
+      finance_filing:  { label: 'Finance filing',       formal: true  },
+      statement:       { label: 'Official statement',   formal: false },
+      youtube:         { label: 'Quote on video',       formal: false, firstPerson: true },
+      x_post:          { label: 'Quoted post',          formal: false, firstPerson: true },
+      facebook:        { label: 'Quoted post',          formal: false, firstPerson: true },
+      audio:           { label: 'Quoted audio',         formal: false, firstPerson: true }
+    };
+
+    // Polling, the horserace, and money-raised-as-news. These describe a RACE,
+    // not a record. "Polling place / location / hours" is election
+    // administration and is stripped out before the test so it never trips it.
+    var _EV_HORSERACE_RE = new RegExp([
+      '\\bpoll(s|ing|ed|ster|sters)?\\b', '\\bhorse ?race\\b', '\\bexit poll',
+      '\\bgeneric ballot\\b', '\\bhead[- ]to[- ]head\\b', '\\bdead heat\\b',
+      '\\bstatistical tie\\b', '\\btoss[- ]?up\\b', '\\bmargin of error\\b',
+      '\\bpercentage points?\\b', '\\b\\d+[- ]point (lead|margin|gap|advantage)\\b',
+      '\\bby \\d+ points\\b', '\\bpoints? (ahead|behind|up|down)\\b',
+      '\\bleads? (the )?(race|field|primary|general election|challenger|opponent|by)\\b',
+      '\\btrails? (the )?(field|primary|challenger|opponent|by)\\b',
+      '\\bapproval rating\\b', '\\bfavorabilit(y|ies)\\b', '\\bname recognition\\b',
+      '\\bfundrais(e|ed|es|ing|er|ers)\\b', '\\boutraised\\b', '\\bcash on hand\\b',
+      '\\bwar chest\\b', '\\bcampaign coffers\\b', '\\bquarterly haul\\b',
+      '\\braised \\$[\\d.,]+', '\\bhauled in \\$[\\d.,]+'
+    ].join('|'), 'i');
+    var _EV_POLLING_PLACE_RE = /\bpolling (place|places|location|locations|site|sites|hour|hours|station|stations)\b/gi;
+
+    // Prose that points at a filing rather than at a reporter's summary of one.
+    var _EV_FILING_RE = /\bFEC (filing|filings|report|reports|disclosure|disclosures)\b|\bcampaign[- ]finance (filing|filings|report|reports|disclosure|disclosures)\b|\bfinancial disclosure\b|\bquarterly (filing|report) shows?\b/i;
+
+    // Words that tie a record or a set of words to the PERSON. One of these, or
+    // a real quotation, is what separates "they did / said this" from "a story
+    // was written about them".
+    var _EV_SAID_RE = /\b(said|says|stated|told|testified|wrote|writes|posted|tweeted|argued|announced|declared|defended|denied|confirmed|pledged|promised|warned|urged|called for|responded)\b/i;
+    var _EV_ACTED_RE = /\b(voted|vote against|vote for|signed|vetoed|sponsored|cosponsored|co[- ]sponsored|introduced|carried|filed|ordered|issued|appointed|subpoenaed|sued|testified|moved to|blocked|advanced)\b/i;
+
+    // The item's own words, with markup and URLs removed — a citation's own
+    // hostname must never be mistaken for the subject of the item (the refused
+    // Gallrein card cited realclearpolling.com, which contains "polling").
+    function _evText(it) {
+      if (!it) return '';
+      var body = it.facts || it.quote || it.body || it.summary || '';
+      return String((it.headline || '') + ' . ' + body)
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/https?:\/\/\S+/gi, ' ')
+        .replace(/&[a-z]+;/gi, ' ')
+        .replace(/\s+/g, ' ').trim();
+    }
+
+    // A public http(s) URL, or ''. Our own pages are not a public source, and
+    // neither is a hostname without a dot in it.
+    function _evPublicUrl(u) {
+      var s = String(u == null ? '' : u).trim();
+      if (!/^https?:\/\//i.test(s)) return '';
+      var host = String(s.split('/')[2] || '').toLowerCase().replace(/^www\./, '');
+      if (!host || host.indexOf('.') === -1) return '';
+      if (/(^|\.)politidex\./.test(host)) return '';
+      if (/^(localhost|example\.(com|org|net))$/.test(host)) return '';
+      return s;
+    }
+
+    // Where the citation lives, in order: the media/source fields first, then a
+    // link recorded inside the item's own body.
+    var _EV_HREF_RE = /https?:\/\/[^\s"'<>)]+/i;
+    function _evCiteUrl(it) {
+      if (!it) return '';
+      var direct = _evPublicUrl(it.url) ||
+        _evPublicUrl(it.media && it.media.url) ||
+        _evPublicUrl(it.source && it.source.url) ||
+        _evPublicUrl(it.sourceUrl) ||
+        _evPublicUrl(it.citationUrl) ||
+        _evPublicUrl(it.citation);
+      if (direct) return direct;
+      var m = String((it.facts || '') + ' ' + (it.quote || '') + ' ' + (it.body || '')).match(_EV_HREF_RE);
+      return m ? _evPublicUrl(String(m[0]).replace(/[)"'<>.,;]+$/, '')) : '';
+    }
+
+    // Does the citation land on an official record (a government host, or a
+    // court-record archive)? That is what lets a formal act stand on its own.
+    function _evOfficialHost(url) {
+      var host = String(String(url || '').split('/')[2] || '').toLowerCase();
+      if (!host) return false;
+      return /\.(gov|mil)$/.test(host) || /(^|\.)(courtlistener\.com|utleg\.gov|supremecourt\.gov)$/.test(host);
+    }
+
+    // The kind of record this is, in the gate's own vocabulary. Explicit ingest
+    // markers win (a signed letter, an amicus brief, a sponsorship, a finance
+    // filing — none of which the display classifier has a tile for); otherwise
+    // the item's already-computed typeKey, or _classify for a raw ingest item.
+    function _evKind(it, url, text) {
+      if (!it) return '';
+      var marks = [it.recordKind, it.kind, it.sourceType, (it.source && it.source.type), (it.media && it.media.type)]
+        .map(function (v) { return String(v == null ? '' : v).toLowerCase(); }).join(' ');
+      if (/amicus/.test(marks)) return 'amicus';
+      if (/letter/.test(marks)) return 'letter';
+      if (/sponsor/.test(marks)) return 'sponsorship';
+      if (/\bfec\b|finance_filing|campaign_finance|financial_disclosure|state_finance/.test(marks)) return 'finance_filing';
+      if (/roll_?call|roll_?vote/.test(marks)) return 'bill';
+      var tk = it.typeKey || _classify(it);
+      // A filing read off an official disclosure system but recorded as prose is
+      // a filing, not a statement — and not a fundraising story either.
+      if (tk === 'statement' && _EV_FILING_RE.test(text) && _evOfficialHost(url)) return 'finance_filing';
+      return tk;
+    }
+
+    // Is a specific issue tag readable in this text at all? Scores the tag's OWN
+    // ISSUE_MAP keywords the way _inferIssueFromText scores every issue's — a
+    // multi-word phrase is specific, a distinctive single word is solid, a
+    // generic one proves nothing — and accepts a broad-category signal for the
+    // tag's category as corroboration. This is the test behind "an issue tag
+    // that cannot be justified from the item's own text": the tag has to be IN
+    // the words, not merely compatible with them.
+    function _evTextSupportsTag(text, key) {
+      if (!key) return false;
+      var imap = _issueMap();
+      var def = imap[key];
+      var low = ' ' + String(text || '').toLowerCase().replace(/\s+/g, ' ') + ' ';
+      var score = 0;
+      if (def && def.keywords) {
+        for (var i = 0; i < def.keywords.length; i++) {
+          var kw = String(def.keywords[i]).toLowerCase();
+          if (!kw || low.indexOf(kw) === -1) continue;
+          if (kw.indexOf(' ') !== -1) score += 3;
+          else if (_EL_WEAK_KW[kw]) score += 0;
+          else score += 2;
+        }
+      }
+      if (score >= 2) return true;
+      var cat = (typeof window._pdxCategoryOf === 'function') ? window._pdxCategoryOf(key) : '';
+      if (!cat || cat === 'other') return false;
+      for (var j = 0; j < _EL_CATEGORY_SIGNALS.length; j++) {
+        if (_EL_CATEGORY_SIGNALS[j].key !== cat) continue;
+        if (low.match(_EL_CATEGORY_SIGNALS[j].re)) return true;
+      }
+      return false;
+    }
+
+    // Rule 2, the whole of it: can the issue on the card be read out of the
+    // item's own text? Returns null when nothing in the text names a vocabulary
+    // issue, { conflict: … } when the text names a DIFFERENT subject than the
+    // tag it is wearing, and the supported issue/category otherwise.
+    function _evIssueSupport(it, text, def) {
+      var imap = _issueMap();
+      var catOf = function (k) {
+        return (k && typeof window._pdxCategoryOf === 'function') ? window._pdxCategoryOf(k) : 'other';
+      };
+      var catLabel = function (k) {
+        var d = (k && typeof window._pdxEvidenceCategory === 'function') ? window._pdxEvidenceCategory(k) : null;
+        return (d && d.label) || 'Other / General';
+      };
+      var issLabel = function (k) { return (k && imap[k] && imap[k].label) ? imap[k].label : ''; };
+
+      var iss = _inferIssueFromText(text);
+      var readKey = iss ? iss.key : '';
+      var readCat = readKey ? catOf(readKey) : '';
+      var cg = (!readKey || readCat === 'other') ? _inferCategoryFromText(text) : null;
+      if (cg) readCat = cg.key;
+      // A confident read — a matched issue or a broad-category signal — is the
+      // only thing allowed to contradict an author's tag. A weak one is not.
+      var confident = !!(iss && iss.conf === 'matched') || !!cg;
+      // An item that names a measure in so many words is about the measure it
+      // names — H.R. 899 is a subject, and the locker already offers the door to
+      // its own profile. That is a vocabulary anchor a keyword scorer reading two
+      // sentences of summary is in no position to overrule.
+      var namesMeasure = !!(((it.bills && it.bills.length) ? 1 : 0) || _billRefs(text).length);
+
+      if (!readKey && !readCat && !namesMeasure) return null;
+
+      // The tag the card would WEAR, when an author set it by hand. An inferred
+      // tag ('matched' / 'weak') was read from this same text and so cannot
+      // disagree with it.
+      //
+      // The question the rule asks about an authored tag is whether the text
+      // JUSTIFIES it — not whether it is the single strongest read. A receipt
+      // can address two subjects at once ('healthcare workforce and higher-ed
+      // budget priorities' is both), and a tag that the text supports is a
+      // curator's call about which of them the item is filing under. So a tag is
+      // refused only when the item's own words say nothing about it AND they do
+      // confidently say something about a different subject: a topic carried
+      // over from the politician's file onto text that never mentions it.
+      var authored = ('tagConf' in it) ? (it.tagConf === 'author' ? it.issueKey : '') : (it.issueKey || '');
+      if (authored && confident && !namesMeasure && !_evTextSupportsTag(text, authored)) {
+        var tagCat = catOf(authored);
+        if (readCat && tagCat && tagCat !== 'other' && readCat !== 'other' && tagCat !== readCat) {
+          return {
+            conflict: true,
+            tagged: (issLabel(authored) || catLabel(tagCat)),
+            read: (issLabel(readKey) || catLabel(readCat))
+          };
+        }
+      }
+      return { issueKey: readKey || authored, catKey: readCat || catOf(authored) };
+    }
+
+    // Does anything here tie words or an act to this person?
+    function _evTiedToPerson(it, text) {
+      if (/["“][^"”]{12,}["”]/.test(text)) return true;
+      if (!_EV_SAID_RE.test(text) && !_EV_ACTED_RE.test(text)) return false;
+      var last = String(it.name || '').trim().split(/\s+/).pop() || '';
+      var who = last.replace(/[^A-Za-z]/g, '');
+      if (!who) return true;
+      return new RegExp('\\b' + who + '(’s|\'s)?\\b', 'i').test(text) ||
+        new RegExp('\\b' + who + '\\b', 'i').test(String(it.headline || ''));
+    }
+
+    // THE GATE. One call, one verdict, one reason a curator can act on.
+    function _evAdmit(it) {
+      function no(code, reason) { return { ok: false, code: code, reason: reason, kind: '', sourceUrl: '' }; }
+      if (!it || !(it.headline || it.quote || it.facts)) {
+        return no('empty', 'The item carries no text to read.');
+      }
+
+      // 3 ── A PUBLIC SOURCE. Cheapest test, and the one a horserace clip with
+      //      nothing behind it fails outright.
+      var url = _evCiteUrl(it);
+      if (!url) return no('no_source', 'No public source link recorded — a receipt has to point at something.');
+
+      var text = _evText(it).replace(_EV_POLLING_PLACE_RE, ' ');
+      var official = _evOfficialHost(url);
+
+      // 1 ── AN ADMITTED KIND.
+      var kind = _evKind(it, url, text);
+      var def = EV_ADMIT_KINDS[kind];
+      if (!def) return no('kind', 'Kind "' + (kind || 'unknown') + '" is not one of the records this drawer keeps.');
+
+      // REFUSE ── the race, not the record. A formal filing citing the official
+      //           record it is reporting is the one thing money numbers are
+      //           admitted as; a story about a haul is not.
+      if (_EV_HORSERACE_RE.test(text) && !(def.formal && official)) {
+        return no('horserace', 'Reads as polling / horserace / fundraising coverage, not a record of what this person did or said.');
+      }
+
+      // REFUSE ── a recap. A first-person source (their own post, their own
+      //           voice) and an official record both clear this on their own.
+      if (!def.formal && !official && !def.firstPerson && !_evTiedToPerson(it, text)) {
+        return no('recap', 'Reads as coverage about this person: it neither quotes them nor points at an official record.');
+      }
+
+      // 2 ── AN ISSUE THE TEXT ITSELF ADDRESSES.
+      var sup = _evIssueSupport(it, text, def);
+      if (!sup) return no('no_issue', 'Nothing in the item’s own text names a vocabulary issue — the tag would be a guess from the file.');
+      if (sup.conflict) return no('tag', 'Tagged “' + sup.tagged + '”, but the item’s own text is about “' + sup.read + '”.');
+
+      return {
+        ok: true, code: 'admit', kind: kind, kindLabel: def.label, formal: !!def.formal,
+        official: official, sourceUrl: url,
+        issueKey: sup.issueKey || '', category: sup.catKey || ''
+      };
+    }
+
+    // The one door, published for every other surface and for any ingest that
+    // wants to add to this drawer: check() for the verdict and the reason,
+    // admits() for the yes/no, sourceUrl() for the citation the gate resolved.
+    // Refuse BEFORE writing, so a refused item never becomes a row to hide.
+    try {
+      window.PDXEvidenceAdmit = {
+        check: _evAdmit,
+        admits: function (it) { return !!(_evAdmit(it) || {}).ok; },
+        sourceUrl: _evCiteUrl,
+        kinds: EV_ADMIT_KINDS
+      };
+    } catch (e) {}
+
     function _build() {
       var list = [], imap = _issueMap();
+      var refused = [];
       var SD = window.SPOTLIGHT_DATA || {};
       var uid = 0;
       _itemsByUid = {};
@@ -925,6 +1249,26 @@
             // measure's own profile, and what the bill-number filter matches on.
             bills: _billRefs((it.headline || '') + ' . ' + (it.facts || ''))
           };
+          // ── THE GATE, ON THE WAY IN ─────────────────────────────
+          // Every item the locker is about to show is put to _evAdmit first, so
+          // the grid, the featured and recent lanes, the filters, the counts and
+          // the modal are all looking at the same admitted set. A refusal is
+          // recorded with its reason and the row is left exactly where it lives
+          // — nothing is deleted from anybody's database here.
+          var verdict = _evAdmit(item);
+          if (!verdict.ok) {
+            refused.push({
+              id: id, name: name, headline: item.headline, date: item.date,
+              code: verdict.code, reason: verdict.reason,
+              taggedIssue: item.issueLabel, taggedCategory: item.categoryLabel,
+              tagConf: item.tagConf, typeKey: item.typeKey
+            });
+            return;
+          }
+          // The citation the gate resolved. Kept separate from `url` so the
+          // strength grade — which reads `url` — does not move in this pass.
+          item.sourceUrl = verdict.sourceUrl;
+          item.admitKind = verdict.kind;
           item.strength = _strength(item);
           item.powerTie = _powerTie(item, rec);
           item.key = _stableKey(item);
@@ -947,6 +1291,21 @@
       // when the flag is off, so normal Locker behaviour is untouched.
       try {
         if (window._PDX_DEBUG_TAGGING && list.length) _renderTriage(list);
+      } catch (e) {}
+      // The refusal ledger. Left on the window, grouped by reason, so a curator
+      // pass (or a console glance) can see exactly what the gate kept off the
+      // face and why — and so dropping or recategorizing a row stays a
+      // deliberate, separate decision.
+      try {
+        window._pdxEvidenceRefused = refused;
+        if (window._PDX_DEBUG_TAGGING && refused.length) {
+          var byCode = {};
+          refused.forEach(function (r) { byCode[r.code] = (byCode[r.code] || 0) + 1; });
+          console.log('Evidence Locker — ' + refused.length + ' item(s) refused admission:', byCode);
+          console.table(refused.map(function (r) {
+            return { who: r.name, headline: String(r.headline).slice(0, 70), why: r.code, tag: r.taggedIssue };
+          }));
+        }
       } catch (e) {}
       return list;
     }
@@ -1688,8 +2047,13 @@
         it.typeKey === 'facebook' ? 'View Facebook post' :
         it.typeKey === 'bill' ? 'View bill record' : 'View source';
       var ts = (t.video && it.timestamp) ? ' <span style="opacity:0.75">· ' + _esc(it.timestamp) + '</span>' : '';
-      var srcBtn = it.url
-        ? '<a class="el-btn el-btn-src' + (t.video ? '' : ' is-plain') + '" href="' + _esc(it.url) +
+      // The admitted citation. `url` is the media/source link when there is one;
+      // `sourceUrl` is whatever the admission gate resolved, which for the
+      // curated news layer is the link recorded inside the item's own body. An
+      // admitted receipt always has one of the two — that is rule 3.
+      var srcHref = it.url || it.sourceUrl || '';
+      var srcBtn = srcHref
+        ? '<a class="el-btn el-btn-src' + (t.video ? '' : ' is-plain') + '" href="' + _esc(srcHref) +
             '" target="_blank" rel="noopener noreferrer">' + t.icon + ' ' + srcLabel + ts + '</a>'
         : '';
       var profBtn = '<button type="button" class="el-btn el-btn-prof" onclick="if(typeof showProfile===\'function\')showProfile(\'' +
@@ -2293,13 +2657,18 @@
         it.typeKey === 'facebook' ? 'View the Facebook post' :
         it.typeKey === 'bill' ? 'View the bill record' : 'Open the source';
       var ts = (t.video && it.timestamp) ? ' · ' + _esc(it.timestamp) : '';
-      var srcBtn = it.url
+      // Same resolved citation the card opens. A visible receipt has cleared
+      // the admission gate, so there is always a link to print here — the old
+      // "no public source link recorded" line was a refusal wearing a card, and
+      // refused items no longer reach this function.
+      var mSrcHref = it.url || it.sourceUrl || '';
+      var srcBtn = mSrcHref
         ? '<div class="el-modal-src-wrap">' +
-            '<a class="el-modal-src' + (t.video ? '' : ' is-plain') + '" href="' + _esc(it.url) +
+            '<a class="el-modal-src' + (t.video ? '' : ' is-plain') + '" href="' + _esc(mSrcHref) +
               '" target="_blank" rel="noopener noreferrer">' + t.icon + ' ' + srcLabel + ts + ' ↗</a>' +
             (it.sourceLabel ? '<span class="el-modal-srcmeta">Source: ' + _esc(it.sourceLabel) + '</span>' : '') +
           '</div>'
-        : '<div class="el-modal-src-wrap"><span class="el-modal-srcmeta">No public source link recorded for this item.</span></div>';
+        : '';
 
       var issueChip = it.issueKey
         ? '<button type="button" class="el-issue el-issue-btn" data-el-issue="' + _esc(it.issueKey) + '" title="See all evidence on ' + _esc(it.issueLabel) + '">' + _esc(it.issueLabel) + '</button>'
@@ -2833,7 +3202,7 @@
         headline: it.headline, facts: it.facts || '', date: it.date || '', dateRank: it.dateRank || 0,
         issueKey: it.issueKey || '', issueLabel: it.issueLabel || '', typeKey: it.typeKey,
         category: it.category || '', categoryLabel: it.categoryLabel || '', categoryIcon: it.categoryIcon || '',
-        typeLabel: it.typeLabel || '', url: it.url || '', timestamp: it.timestamp || '',
+        typeLabel: it.typeLabel || '', url: it.url || '', sourceUrl: it.sourceUrl || '', timestamp: it.timestamp || '',
         sourceLabel: it.sourceLabel || '', strength: it.strength,
         bills: (it.bills || []).slice(), savedAt: Date.now()
       };
