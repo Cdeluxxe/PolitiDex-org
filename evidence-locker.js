@@ -2491,6 +2491,56 @@
       });
     }
 
+    // ── ONE SURFACE MAY FAIL; THE ROOM MAY NOT ───────────────────────────────
+    // Every render step a finished load runs goes through here. The locker is
+    // eight surfaces wired to one index, several of them reaching shared
+    // helpers that read globals only some documents define, and the whole
+    // point of a receipts room is that it shows the receipts. Losing the
+    // featured rail is a degraded page; losing the grid to the same throw is a
+    // page that misrepresents the record.
+    function _guarded(what, fn) {
+      try { fn(); return true; }
+      catch (e) { console.error('Evidence Locker: ' + what + ' failed to render:', e); return false; }
+    }
+
+    // ── THE FLOOR UNDER A FINISHED LOAD ──────────────────────────────────────
+    // After the index is built the grid holds one of three things: receipt
+    // cards, the "no evidence for this filter" panel (which _render shows, and
+    // which is already an honest and more specific answer), or the skeleton
+    // placeholders _load() put there before the first shard arrived. The third
+    // is the only dishonest one — it is indistinguishable from a page that is
+    // still working — so it is replaced with the count, and 0 is a perfectly
+    // good count to print. Reuses #el-empty and its existing classes rather
+    // than minting a new empty state, so this needs no stylesheet anywhere.
+    function _statedFloor() {
+      var results = document.getElementById('el-results');
+      if (!results) return;
+      var html = String(results.innerHTML || '');
+      var frozen = html.indexOf('el-skel') !== -1;
+      var empty = document.getElementById('el-empty');
+      var emptyShown = !!(empty && empty.style && empty.style.display !== 'none');
+      if (!frozen && (html || emptyShown)) return;   // cards up, or a real empty panel
+      var n = (_items && _items.length) || 0;
+      var noun = 'receipt' + (n === 1 ? '' : 's') + ' on file';
+      try { results.classList.remove('el-results-grouped'); } catch (e) {}
+      results.innerHTML = '';
+      var count = document.getElementById('el-count');
+      if (count) count.innerHTML = '<strong>' + n + '</strong> ' + noun;
+      if (!empty) {
+        results.innerHTML = '<div class="el-status">' + n + ' ' + noun + '.</div>';
+        return;
+      }
+      var t = empty.querySelector ? empty.querySelector('.el-empty-title') : null;
+      var sub = empty.querySelector ? empty.querySelector('.el-empty-sub') : null;
+      if (t) t.textContent = n + ' ' + noun;
+      if (sub) {
+        sub.textContent = n
+          ? 'The receipts are on file but this grid could not be drawn. Reload the page to try again.'
+          : 'Nothing is being held back — PolitiDex has no receipt on file for this view yet.';
+      }
+      empty.style.display = 'block';
+    }
+
     function _load() {
       if (_loaded || _loading) return;
       _loading = true;
@@ -2540,16 +2590,38 @@
           _showError('Something went wrong building the evidence library.');
           return;
         }
-        _populateFilters();
-        _renderDiscovery();
+        // ── DONE MEANS DONE. THE SPINNER COMES DOWN FIRST ─────────────────
+        // It used to come down here, AFTER _populateFilters() and
+        // _renderDiscovery(). Those two are the widest-reaching calls in the
+        // file — between them they touch every filter control, the category
+        // rail, the featured grid and the recent lane, and _cardHtml reaches
+        // out through shared helpers into globals that not every document
+        // defines. One throw in any of that and finish() unwound with the
+        // status line still reading "Loading evidence… 88/88" over six
+        // skeleton cards, which is the single worst thing this room can do:
+        // the receipts were built and sitting in _items, and the page said
+        // they were still coming. That is how /evidence shipped broken while
+        // the index behind it was fine.
+        // So the order inverts. The load IS finished, the flags say so, and
+        // every surface after this point is wrapped — a failure costs the
+        // reader that one surface and states the count it could not draw,
+        // instead of a lie that looks like a slow network.
         if (status) { status.style.display = 'none'; status.className = 'el-status'; }
         _loaded = true; _loading = false;
+        _guarded('the filter controls', _populateFilters);
+        _guarded('the discovery showcase', _renderDiscovery);
         // A profile may have asked to open the locker pre-filtered before the
         // data finished loading — honour that now, otherwise just render.
-        if (_pendingOpen) { var po = _pendingOpen; _pendingOpen = null; _applyOpen(po); }
-        else _render();
-        if (_polActive) _renderPolView();
-        if (_issueActive) _renderIssueView();
+        if (_pendingOpen) {
+          var po = _pendingOpen; _pendingOpen = null;
+          _guarded('the deep-linked filter', function () { _applyOpen(po); });
+        } else {
+          _guarded('the receipt grid', _render);
+        }
+        // Whatever happened above, the grid now says a true thing.
+        _statedFloor();
+        if (_polActive) _guarded('the by-politician view', _renderPolView);
+        if (_issueActive) _guarded('the by-issue view', _renderIssueView);
         // Let dependent surfaces (the People's Mandate reform cards' live
         // on-record counts) refresh now that the evidence index exists.
         try { document.dispatchEvent(new CustomEvent('pdx-evidence-ready')); } catch (e) {}
@@ -2620,15 +2692,22 @@
       var ids = _roster('all').filter(function (id) { return !utahSet[id]; });
       if (!ids.length) return;
       var i = 0, active = 0, done = 0, total = ids.length, LIMIT = 4;
+      // The broadened wave refreshes surfaces that are ALREADY PAINTED, from
+      // inside a .then(). An unguarded throw here is an unhandled rejection
+      // that silently costs the reader whichever surface it landed in, so each
+      // one is wrapped the way finish() wraps its own — and the floor runs
+      // after, because a rebuild that fails must not be able to leave the grid
+      // worse off than the priority wave left it.
       function rebuild() {
         try { _items = _build(); }
         catch (e) { console.error('Evidence Locker extended build failed:', e); return; }
-        _populateFilters();
-        _syncControls();
-        _renderDiscovery();
-        _render();
-        if (_polActive) _renderPolView();
-        if (_issueActive) _renderIssueView();
+        _guarded('the filter controls', _populateFilters);
+        _guarded('the filter controls', _syncControls);
+        _guarded('the discovery showcase', _renderDiscovery);
+        _guarded('the receipt grid', _render);
+        _statedFloor();
+        if (_polActive) _guarded('the by-politician view', _renderPolView);
+        if (_issueActive) _guarded('the by-issue view', _renderIssueView);
         try { document.dispatchEvent(new CustomEvent('pdx-evidence-ready')); } catch (e) {}
       }
       function pump() {
@@ -4712,15 +4791,28 @@
     function _mount() {
       if (_mounted) return true;
       var section = document.getElementById('evidence-locker');
+      if (!section) return false;
       var tpl = document.getElementById('el-workspace-tpl');
-      if (!section || !tpl || !tpl.content || !section.appendChild) return false;
+      // ── THE HOST IS THIS DOCUMENT'S, NOT THE HOMEPAGE'S ──────────────────
+      // The template is how the homepage held the workspace back until a tap,
+      // and cloning it is the normal path. But "no template" must not mean "no
+      // workspace" on a document whose whole body IS the workspace: a room
+      // that ships the markup already open has nothing to clone, and a mount
+      // that reported false there would send _openLocker to _navToLocker,
+      // which _atLocker() then refuses — the locker would be unreachable at
+      // its own address. So if the section already holds the workspace, adopt
+      // it: wire the markup that is here rather than looking for a copy of it.
+      var inPlace = !tpl && !!(section.querySelector && section.querySelector('.el-shell'));
+      if (!inPlace && (!tpl || !tpl.content || !section.appendChild)) return false;
       _mounted = true;
-      try {
-        section.appendChild(tpl.content.cloneNode(true));
-      } catch (e) {
-        console.error('Evidence Locker mount failed:', e);
-        _mounted = false;
-        return false;
+      if (!inPlace) {
+        try {
+          section.appendChild(tpl.content.cloneNode(true));
+        } catch (e) {
+          console.error('Evidence Locker mount failed:', e);
+          _mounted = false;
+          return false;
+        }
       }
       if (section.classList) section.classList.remove('el-closed');
       var door = document.getElementById('el-door');

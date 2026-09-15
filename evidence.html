@@ -482,7 +482,17 @@
         <p class="text-steel-300 font-body max-w-2xl mx-auto leading-relaxed">
           <strong class="text-white">The receipts, in one place.</strong> Every recorded floor &amp; committee video, X post, Facebook post and bill record PolitiDex has gathered — Utah&rsquo;s sitting legislators first, now expanding to federal officials and 2026 candidates — browse the whole library, filter by issue, member or evidence type, and go straight to the source.
         </p>
-        <a href="#m-strength" class="inline-flex items-center gap-1.5 mt-3 font-condensed text-xs tracking-widest uppercase text-blue-300 hover:text-white border border-blue-500/30 hover:border-blue-400/60 rounded-full px-3.5 py-1.5 transition-all">🎚 How the Strong / Moderate / Limited badges are scored →</a>
+        <!-- NO SCORING EXPLAINER IN THIS ROOM. The control that stood here
+             opened index.html's #m-strength modal, the one that explains how
+             the three strength badges get their grade, and it was wrong twice
+             over. That modal is a homepage surface, so on /evidence the anchor
+             resolved to a fragment that does not exist and the tap did nothing.
+             And the claim itself is not one this room makes: the strength dots
+             on a receipt are a COVERAGE label — how much of the record is on
+             file — not a graded 0-100 of a politician. Offering to explain the
+             grading of a number this document does not publish invites a reader
+             to weigh the dots as one. The dots stay, and nothing on this page
+             calls them a score. -->
       </div>
 
       <!-- Phase 5 · All Evidence / By Politician / My Evidence view toggle -->
@@ -1475,6 +1485,30 @@
        not required here despite what issue.html's comment says for its own
        purposes. -->
   <script defer src="/stance-helpers.js"></script>
+
+  <!-- ══ THE THIRD UNGUARDED READ, WHICH THE FIRST SPLIT MISSED ══════════════
+       _pdxMandateForIssue. The note above names window._polPositionMap as "THE
+       OTHER unguarded read", and that was true of evidence-locker.js read on
+       its own — but the locker also calls window._pdxMandateChip, which IS
+       guarded, and the chip's own body (stance-helpers.js line 3899) then calls
+       window._pdxMandateForIssue(issueKey) with no guard and no try/catch. The
+       only definition is the People's Mandate block in index.html.
+       So on /evidence the chip threw a TypeError inside _cardHtml, inside
+       _renderDiscovery, inside the locker's finish() — after the _build()
+       try/catch and BEFORE the line that hides the spinner. The receipts were
+       built and in memory; the reader saw "Loading evidence… 88/88" over six
+       skeleton cards, forever.
+       Returning [] is this document's real answer, not a placeholder: no
+       citizen reform is on file in a room that does not carry the Mandate, the
+       chip resolves to '' on an empty list, and a receipt with no reform tied
+       to it renders on index.html exactly the same way. Installed only if
+       absent, and written the same way person.html (line 2059) and issue.html
+       (line 692) write it, so the three shells answer as one. -->
+  <script>
+  if (typeof window._pdxMandateForIssue !== 'function') {
+    window._pdxMandateForIssue = function () { return []; };
+  }
+  </script>
 
   <!-- issue-map.js — ISSUE_MAP, CORE_NATIONAL_ISSUES, coreIssueForKey,
        _pdxCategoryOf, _pdxEvidenceCategory, _pdxEvidenceCategories and

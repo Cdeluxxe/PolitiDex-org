@@ -175,6 +175,56 @@
     return base + '?' + params.join('&');
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // THE HOMEPAGE'S PATCH IS NOT A DEPENDENCY OF THIS FILE
+  // ──────────────────────────────────────────────────────────────────────────
+  // index.html, person.html, issue.html and me.html each open with the same
+  // block: it replaces document.addEventListener so DOMContentLoaded listeners
+  // can be held back until Firestore answers, keeps the real function in the
+  // bare global `_originalAddEventListener`, and releases the queue through
+  // `_checkAndTrigger`. This file read both by name.
+  //
+  // Those are BARE reads, not window properties, so on a shell that loads
+  // firebase-boot.js without that block they are ReferenceErrors, and one of
+  // them was thrown at top level. /evidence is that shell: the throw landed
+  // above auth.onAuthStateChanged, so the document never signed in
+  // anonymously, _pdxLoadDirectoryIndex() was never kicked, and the Evidence
+  // Locker was left waiting on a roster nothing had asked for.
+  //
+  // So the dependency inverts and this file fails closed. Both helpers resolve
+  // the homepage's function at CALL time and do the honest thing without it:
+  //
+  //  · _pdxAtDomReady falls back to document's own addEventListener, which on
+  //    an unpatched shell IS the undeferred one this call wants. It also runs
+  //    the callback straight away when readyState is already past 'loading',
+  //    because a deferred script that lands after DOMContentLoaded would
+  //    otherwise register for an event that has been and gone.
+  //  · _pdxReleaseDeferred does nothing when there is no queue to release,
+  //    which is the correct answer on a document that never deferred anything
+  //    — rather than throwing midway through a roster callback and leaving the
+  //    rest of it, _pdxRenderRosterStatus() included, unrun.
+  //
+  // A shell that DOES install the block is unaffected: the typeof check finds
+  // the real function and the deferred gate works exactly as it always did.
+  // ══════════════════════════════════════════════════════════════════════════
+  function _pdxAtDomReady(fn) {
+    try {
+      if (document.readyState && document.readyState !== 'loading') { fn(); return; }
+      var ael = (typeof _originalAddEventListener === 'function')
+        ? _originalAddEventListener : document.addEventListener;
+      ael.call(document, 'DOMContentLoaded', fn);
+    } catch (e) {
+      try { fn(); } catch (e2) {}
+    }
+  }
+  function _pdxReleaseDeferred() {
+    try {
+      if (typeof _checkAndTrigger === 'function') _checkAndTrigger();
+    } catch (e) {
+      console.error('Deferred DOMContentLoaded release failed:', e && e.message);
+    }
+  }
+
   // Fetch the lightweight index (paginated). Populates PROFILES with lite stubs
   // (flagged __lite) and flips _firestoreLoaded as soon as it's all in.
   function _pdxLoadDirectoryIndex() {
@@ -206,7 +256,7 @@
         window._pdxRosterState = 'done';
         _pdxRenderRosterStatus();
         _firestoreLoaded = true;
-        _checkAndTrigger();
+        _pdxReleaseDeferred();
       });
     }).catch(function (err) {
       console.warn('⚠️ Lightweight index unavailable, falling back to full load:', err && err.message);
@@ -220,7 +270,7 @@
   function _pdxLoadFullCollection() {
     if (typeof db === 'undefined' || !db.collection) {
       window._pdxRosterState = 'error'; _pdxRenderRosterStatus();
-      _firestoreLoaded = true; _checkAndTrigger();
+      _firestoreLoaded = true; _pdxReleaseDeferred();
       return;
     }
     db.collection('politicians').get().then(function (querySnapshot) {
@@ -231,12 +281,12 @@
       });
       window._pdxRosterState = 'done'; _pdxRenderRosterStatus();
       _firestoreLoaded = true;
-      _checkAndTrigger();
+      _pdxReleaseDeferred();
     }).catch(function (error) {
       console.error('❌ Error loading politicians from Firestore:', error);
       window._pdxRosterState = 'error'; _pdxRenderRosterStatus();
       _firestoreLoaded = true;
-      _checkAndTrigger();
+      _pdxReleaseDeferred();
     });
   }
 
@@ -456,7 +506,7 @@
   }
   // Use the ORIGINAL (non-deferred) addEventListener so this fires at real DOM
   // ready, before the data-gated deferred renderers run.
-  _originalAddEventListener.call(document, 'DOMContentLoaded', function () {
+  _pdxAtDomReady(function () {
     _pdxRenderRosterStatus();
     _pdxInjectSkeletons();
   });

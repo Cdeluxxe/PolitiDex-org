@@ -2514,6 +2514,33 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     // scripts/test-sitemap-bills.mjs and scripts/test-issue-shell.mjs are
     // declared above already. stances.html, evidence.html and their two harnesses
     // are new files, which this fence does not price.
+    // THE EVIDENCE ROOM PAINTS ITS RECEIPTS (CACHE_VERSION v200), on those same
+    // later-wave terms, and evidence.html is a tracked file now — the split that
+    // created it was the last pass, so this fence prices it for the first time.
+    // It writes no roll, no mapping, no key, no floor, no weight and no
+    // admission. The eighth split's own room shipped frozen: chrome, filters and
+    // a status line reading "Loading evidence… 88/88" over six shimmer cards,
+    // with every receipt already built and sitting in memory. Two faults of one
+    // shape, both of them code that grew up on '/' reaching for something only
+    // '/' defines. firebase-boot.js read `_originalAddEventListener` BY NAME —
+    // that variable belongs to the deferred-DOMContentLoaded block four shells
+    // carry and evidence.html does not, and a bare read of an undeclared
+    // identifier is a ReferenceError, thrown above auth.onAuthStateChanged, so
+    // the document never signed in and never asked for the roster. Both homepage
+    // names now resolve at call time behind a typeof, with a real fallback.
+    // evidence-locker.js hides its spinner BEFORE the two widest render calls
+    // instead of after them, wraps each surface, and states the count it could
+    // not draw, so a finished load shows receipts or says "0 receipts on file"
+    // and can never sit on skeletons; its _mount() also adopts a workspace
+    // already open in its own section rather than demanding a <template>.
+    // evidence.html stubs the People's Mandate helper the way person.html and
+    // issue.html already do — that unguarded homepage global, called from inside
+    // a receipt card, is what threw — and drops the control offering to explain
+    // how the strength badges are graded: it opened a modal that is not on this
+    // document, and the dots are a coverage label, not a number. The dots stay.
+    // scripts/test-evidence-paints.mjs is new and boots the whole document in a
+    // sandbox to prove it, so neither fault can return as a passing test.
+    "evidence.html",
     "evidence-locker.js",
     "spotlight-engine.js",
     "scripts/test-ballot-shell.mjs",

@@ -5987,7 +5987,54 @@
 //     change, no new issue key, no third issue page, no receipt merged into a
 //     stance card, and /me and /ballot stay out of the sitemap.
 
-const CACHE_VERSION = 'v199';
+// v200 - /evidence PAINTS ITS RECEIPTS. THE BOOT STOPS ASSUMING THE HOMEPAGE.
+//
+//     v199 gave the locker its own address and the room came up empty: chrome,
+//     filters, "Loading evidence… 88/88" and six skeleton cards that never became
+//     receipts. Two faults of one shape — code lifted onto a new shell still
+//     reaching for what only '/' defines.
+//     · firebase-boot.js READ A HOMEPAGE VARIABLE BY NAME. The deferred-
+//       DOMContentLoaded block index.html, person.html, issue.html and me.html
+//       each carry declares `_originalAddEventListener` and `_checkAndTrigger`.
+//       evidence.html does not carry it and these were BARE reads, so the first
+//       threw a ReferenceError at top level, above auth.onAuthStateChanged: the
+//       document never signed in anonymously and never fetched the roster.
+//       Both now resolve at CALL time and fall back: to document's own
+//       addEventListener (on an unpatched shell that IS the undeferred one) and
+//       to nothing when there is no queue. A patched shell is unchanged.
+//     · THE SPINNER CAME DOWN AFTER THE TWO WIDEST RENDER CALLS. stance-
+//       helpers.js's People's Mandate chip calls window._pdxMandateForIssue
+//       unguarded and only index.html defines it, so it threw inside
+//       _cardHtml, inside _renderDiscovery, inside the locker's finish() —
+//       after the _build() try/catch and before the line hiding the status. The
+//       receipts were built and in memory while the page said they were still
+//       coming. evidence.html now stubs that read the way person.html and
+//       issue.html already do, and finish() hides the spinner FIRST, wraps
+//       every surface after it, and states the count it could not draw. A
+//       finished load shows receipts or says "0 receipts on file" and cannot
+//       sit on skeletons. _mount() also adopts a workspace already open in its
+//       own section instead of demanding a <template>.
+//     · NO SCORING EXPLAINER IN THE ROOM. The control offering to explain how
+//       the three strength badges are graded came off /evidence: it opened a
+//       homepage modal that is not there, and the dots are a coverage label,
+//       not a number. The dots stay; nothing on the page calls them a score.
+//
+//     WHY THE BUMP. firebase-boot.js, evidence.html and evidence-locker.js are
+//     precached and the first loads on six shells: a warm v199 device would go
+//     on serving the boot that throws.
+//
+//     WHAT THE BUMP CARRIES, NOT WHAT THIS PASS CHANGED. Renaming SHELL_CACHE re-issues
+//     the WHOLE precache, so every SHELL_ASSETS entry travels with v200 — index.html,
+//     stances.html, app.css, mobile-polish.css, pdx-stability.js, door1-workspace.js,
+//     door1-workspace.css, word-action.js, word-action.css, issue-file.js, issue-file.css,
+//     issue-view.js, pdx-issue-profile.js, pdx-issue-family.js, alignment-tool.js,
+//     stance-tree.js and issue-colors.js among them — only because the bucket's name
+//     moved. No address moved with it, so netlify.toml is exactly as v199 left it.
+//
+//     DID NOT MOVE. No locker data, no score, no party sort, no Direction Match
+//     or Word-vs-Action change, and /stances is untouched.
+
+const CACHE_VERSION = 'v200';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
