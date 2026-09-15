@@ -202,11 +202,13 @@
    so this is a definition list: the level is the term, the district is the
    definition. Label above value on a phone, side by side once there is room.
 
-   THE MISSING ROWS LOOK MISSING AND ARE STILL HERE. "not on file" is dimmed and
-   italic — the same treatment every other absence on this page gets — because a
-   row we cannot fill is a fact about our coverage, not a blank to be tidied
-   away. It is NOT red: there is nothing wrong with a reader whose State Senate
-   district we do not draw. */
+   THE MISSING ROWS LOOK MISSING AND ARE STILL HERE. "not on file" and "needs a
+   district map" are both dimmed and italic — the same treatment every other
+   absence on this page gets — because a row we cannot fill is a fact about our
+   coverage, not a blank to be tidied away. They are two different facts and the
+   markup says which is which in words; one dimmed treatment is right for both,
+   because the reader's next move is the same either way. It is NOT red: there is
+   nothing wrong with a reader whose State Senate district we do not draw. */
 .me-dists {
   margin: 0.55rem 0 0;
   padding: 0;
@@ -477,6 +479,14 @@
    of sentence — something we do not have — so they read the same way, and
    neither is red. */
 .me-holds--none { color: #8fa3bf; font-style: italic; }
+/* A WAIT IS NOT AN ABSENCE, AND IT MUST NOT LOOK LIKE ONE. "Still loading
+   seats…" is printed while the roster this document resolves seats from is
+   still in flight, and the row repaints into a name the moment it lands — so it
+   is dimmer than a name and dimmer still than the honest empty, which is a
+   claim we are standing behind. No spinner and no pulse: the block repaints
+   once, and an animation on six rows would read as six separate things
+   happening. */
+.me-holds--wait { color: #6f8099; font-style: italic; }
 .me-holdsep { color: #8fa3bf; }
 .me-pick {
   display: block;

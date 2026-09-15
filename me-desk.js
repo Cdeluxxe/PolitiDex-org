@@ -221,9 +221,21 @@
   function distNum(v) {
     return String(v == null ? '' : v).replace(/[^0-9]/g, '');
   }
-  function distRow(label, value) {
+  // A BLANK ROW CARRIES THE REASON IT IS BLANK. "not on file" is the right
+  // sentence for a county or a municipality the reader simply has not told us —
+  // it is a fact about their record. It is the WRONG sentence for a state
+  // legislative district, because there the record is fine and the DISTRICT MAP
+  // is what we do not have: a Davis County reader whose U.S. House district
+  // resolved to 2 read "State Senate · not on file" directly underneath it and
+  // could only conclude the app had lost their district. It had never drawn it.
+  //
+  // And neither sentence may be the sentence region d prints over a seat with
+  // nobody in it. Those are three different facts — no record, no map, no
+  // person — and a row that shares a string with the wrong one of them teaches
+  // the reader the wrong thing about what is missing.
+  function distRow(label, value, why) {
     var v = String(value == null ? '' : value).trim();
-    return { label: label, value: v, none: !v };
+    return { label: label, value: v, none: !v, why: (why || DIST_NONE) };
   }
 
   function districts() {
@@ -241,18 +253,21 @@
     out.push(distRow('County', [county, state].filter(Boolean).join(', ')));
 
     // THE THREE LEGISLATIVE SEATS. The resolver first, the reader's own saved
-    // field second, "not on file" third.
+    // field second, and third an admission about OUR map rather than about their
+    // record: these three lines are drawn geometry, /me carries none of it, and
+    // when neither the resolver nor the reader's own saved field has a number
+    // the honest sentence names the missing map.
     var hl = levelFor(r, 'house');
     var hn = distNum(hl && hl.district) || distNum(loc.district);
-    out.push(distRow('U.S. House', hn ? ('District ' + hn) : ''));
+    out.push(distRow('U.S. House', hn ? ('District ' + hn) : '', DIST_NOMAP));
 
     var sl = levelFor(r, 'statesenate');
     var sn = distNum(sl && sl.district) || distNum(loc.stateSenateDistrict);
-    out.push(distRow('State Senate', sn ? ('District ' + sn) : ''));
+    out.push(distRow('State Senate', sn ? ('District ' + sn) : '', DIST_NOMAP));
 
     var ll = levelFor(r, 'statehouse');
     var ln = distNum(ll && ll.district) || distNum(loc.stateHouseDistrict);
-    out.push(distRow('State House', ln ? ('District ' + ln) : ''));
+    out.push(distRow('State House', ln ? ('District ' + ln) : '', DIST_NOMAP));
 
     // LOCAL IS A JURISDICTION, NOT A NUMBER. The municipality this location
     // names is the local ballot's scope — mayor, council, school board — and it
@@ -271,13 +286,14 @@
   }
 
   var DIST_NONE = 'not on file';
+  var DIST_NOMAP = 'needs a district map';
   function districtsHtml() {
     var rows = districts();
     if (!rows.length) return '';
     return '<dl class="me-dists">' + rows.map(function (d) {
       return '<div class="me-dist' + (d.none ? ' me-dist--none' : '') + '">' +
         '<dt class="me-distlb">' + esc(d.label) + '</dt>' +
-        '<dd class="me-distv">' + esc(d.none ? DIST_NONE : d.value) + '</dd>' +
+        '<dd class="me-distv">' + esc(d.none ? (d.why || DIST_NONE) : d.value) + '</dd>' +
       '</div>';
     }).join('') + '</dl>';
   }
@@ -946,13 +962,19 @@
   //
   // WHAT RESOLVES HERE AND WHAT DOES NOT, stated so a later pass does not read
   // the blanks as a bug. The statewide seats (both U.S. Senate seats, Governor)
-  // resolve from the state ROSTER, which this document has — the Firestore
-  // roster index fills window.CMP_DATA, and the resolver walks it. The district
-  // seats (U.S. House, State Senate, State House) resolve from the curated
-  // ballot in ballot-breakdown.js (407 KB), which this document deliberately
-  // does not carry, so they come back with no pid and the row says so. The
-  // local slot has no level at all. That is an honest gap in one direction
-  // only: /me can under-name a seat and never mis-name one.
+  // resolve from the state ROSTER, which this document does have — not the
+  // bundled one (cmp-data.js is not on /me, and me.html's PROFILES-into-CMP_DATA
+  // merge is gated on a global that document never creates) but the LIVE
+  // Firestore index in window.PROFILES, which the resolver now reads as the
+  // roster wherever the bundle is absent. It arrives after the first paint, so
+  // this block subscribes to its arrival and repaints (see seamRoster) and says
+  // "Still loading seats…" until then rather than printing a coverage admission
+  // it has no grounds for yet. The district seats (U.S. House, State Senate,
+  // State House) resolve from the curated ballot in ballot-breakdown.js
+  // (407 KB), which this document deliberately does not carry, so they come back
+  // with no pid and the row says so. The local slot has no level at all. That is
+  // an honest gap in one direction only: /me can under-name a seat and never
+  // mis-name one.
   //
   // AND THE PICK IS STILL THE READER'S. It prints UNDER the incumbent, prefixed
   // "Your pick:", and it is printed whether or not it equals the incumbent —
@@ -966,15 +988,37 @@
   // the seats on this reader's own slate.
   function holdersFor(seatKey) {
     try {
-      if (!fn(window.pdxSeatHolders)) return { ok: false, pids: [] };
+      if (!fn(window.pdxSeatHolders)) return { ok: false, pids: [], rosterCold: false };
       var h = window.pdxSeatHolders(seatKey);
-      return (h && h.pids) ? h : { ok: false, pids: [] };
-    } catch (e) { return { ok: false, pids: [] }; }
+      return (h && h.pids) ? h : { ok: false, pids: [], rosterCold: false };
+    } catch (e) { return { ok: false, pids: [], rosterCold: false }; }
   }
   var HOLD_NONE = 'No officeholder on file';
-  function holdsLine(pids) {
-    if (!pids || !pids.length) {
-      return '<span class="me-holds me-holds--none">' + esc(HOLD_NONE) + '</span>';
+  var HOLD_WAIT = 'Still loading seats\u2026';
+  // THREE STATES, THREE SENTENCES, AND THE ROW NEVER GUESSES WHICH IT IS IN.
+  //
+  //   · the roster this document resolves seats from has not arrived → "Still
+  //     loading seats…". This is the state that shipped wrong: /me carries no
+  //     bundled roster, so before Firestore answers there is no index to walk,
+  //     and the row was printing a coverage admission over people the product
+  //     holds full files for. A wait is not an absence.
+  //   · the roster is here and this seat resolved nobody → "No officeholder on
+  //     file". The honest empty, unchanged, and the only one of the three that
+  //     is a claim about our coverage.
+  //   · the roster is here and the seat resolved N people → the N names, each a
+  //     door to /p/<pid>. Two on a U.S. Senate row is the Senate, not a defect.
+  //
+  // WHICH STATE IT IS IN IS THE RESOLVER'S ANSWER, NOT THIS FILE'S GUESS.
+  // pdxSeatHolders() carries rosterCold on every reply it makes, including the
+  // ones that carry no pids, so the desk reads the wait off the one owner of
+  // "who holds this seat" instead of second-guessing it from a roster global it
+  // would then be the second reader of.
+  function holdsLine(h) {
+    var pids = (h && h.pids) || [];
+    if (!pids.length) {
+      return (h && h.rosterCold)
+        ? '<span class="me-holds me-holds--wait">' + esc(HOLD_WAIT) + '</span>'
+        : '<span class="me-holds me-holds--none">' + esc(HOLD_NONE) + '</span>';
     }
     return '<span class="me-holds">' + pids.map(function (pid) {
       return personAnchor(pid, nameOf(pid));
@@ -996,7 +1040,8 @@
       workable++;
       if (pid) picked++;
 
-      var held = holdersFor(s.key).pids || [];
+      var hold = holdersFor(s.key);
+      var held = hold.pids || [];
 
       // THE FACE BELONGS TO WHOEVER THE ROW LEADS WITH, and the row leads with
       // the officeholder. One holder → their portrait. Two (the Senate) → the
@@ -1013,7 +1058,7 @@
 
       // The incumbent, then the pick beneath it when there is one. A pick that
       // names the incumbent is printed all the same.
-      var line = holdsLine(held) +
+      var line = holdsLine(hold) +
         (pid
           ? '<span class="me-pick"><span class="me-picklb">Your pick:</span> ' +
               personAnchor(pid, nameOf(pid)) + '</span>'
@@ -1463,6 +1508,27 @@
     if (!fn(window._vhBallotRerender)) window._vhBallotRerender = renderSoon;
   }
 
+  // ── AND THE REPAINT WHEN THE ROSTER LANDS ─────────────────────────────────
+  // The first paint waits for nothing, which is right — but on this document the
+  // roster region d names its officeholders from is the LIVE Firestore index,
+  // and that arrives after the desk has already painted. Without this the reader
+  // keeps whatever the cold read said for the rest of the visit: that is the
+  // second half of the reported blank, and it is the same failure the homepage
+  // band had before voter-hub-location.js published this subscription.
+  //
+  // It is a SUBSCRIPTION, not a poll and not a loader. The resolver owns the
+  // arrival — it is the module whose own most important input is deferred — and
+  // it announces it exactly once, immediately if the roster is already there. The
+  // desk's job is to repaint, which render() does without disturbing a setter the
+  // reader has open.
+  var _rosterHooked = false;
+  function seamRoster() {
+    if (_rosterHooked) return;
+    if (!fn(window.pdxRosterReady)) return;
+    _rosterHooked = true;
+    try { window.pdxRosterReady(renderSoon); } catch (e) { _rosterHooked = false; }
+  }
+
   // SEAM 3 — a bare '#my-stances' is a trip home. my-stances.js is loaded here
   // for its store and its priority hook, but its section needs a homepage mount
   // it does not have, so PDXStances.open() would scroll to nothing. The anchors
@@ -1564,6 +1630,7 @@
     // as a missing row.
     districts: districts,
     DIST_NONE: DIST_NONE,
+    DIST_NOMAP: DIST_NOMAP,
     seats: seats,
     gate: gate,
     picks: picks,
@@ -1572,6 +1639,7 @@
     // second derivation on this document.
     holders: holdersFor,
     HOLD_NONE: HOLD_NONE,
+    HOLD_WAIT: HOLD_WAIT,
     stars: stars,
     voice: voice,
     savedCards: savedCards,
@@ -1613,11 +1681,13 @@
   seamLocation();
   seamRerender();
   seamStances();
+  seamRoster();
   wire();
 
   function beat() {
     seamLocation();
     seamRerender();
+    seamRoster();
     renderSoon();
   }
 

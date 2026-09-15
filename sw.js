@@ -6275,7 +6275,48 @@
 //     schema changed: the same answers under the same per-account key, now
 //     readable against a wider list.
 
-const CACHE_VERSION = 'v205';
+// v206 - /me NAMES THE OFFICEHOLDERS IT ALREADY HELD, AND A BLANK SAYS WHICH
+//     THING IS MISSING. A Davis County reader read "No officeholder on file" on
+//     all six ballot rows while Who Represents Me named their senators and
+//     governor from the same saved location. One resolver, one location, two
+//     answers.
+//     · THE ROSTER IS WHICHEVER INDEX THE DOCUMENT CARRIES. voter-hub-location
+//       read window.CMP_DATA, and only that global, for every roster question it
+//       asks. cmp-data.js is not on /me and me.html gates its whole
+//       PROFILES-into-CMP_DATA merge on `typeof CMP_DATA !== 'undefined'`, so
+//       the global is never created there: roster size zero, no statewide walk,
+//       no pid on any level, six blanks over three people with full files at
+//       /p/curtis, /p/lee and /p/cox. The file now asks once, in one place,
+//       which people index is here — the bundle where a shell loads it, the live
+//       Firestore roster in window.PROFILES where none does — and walks that.
+//       Same walk, same records, same single owner of "who holds this seat".
+//     · A COLD ROSTER IS A WAIT, NOT AN ABSENCE. /me's roster is a Firestore
+//       round trip, so every first paint was the empty state. pdxSeatHolders
+//       carries rosterCold on every reply, region d prints "Still loading
+//       seats…" until it lands, and it subscribes to pdxRosterReady so the
+//       arrival repaints instead of leaving the cold read up for the visit.
+//       Three states, three sentences: loading, nobody on file, the names.
+//     · "NEEDS A DISTRICT MAP" IS NOT "NOT ON FILE". State Senate and State
+//       House read "not on file" directly under a U.S. House district that had
+//       resolved, which reads as the app losing a district it never drew. Those
+//       rows name the missing map now, and none of the three shares a string
+//       with region d's "No officeholder on file".
+//
+//     WHY THE BUMP. me-desk.js, me-desk.css and me.html are precached and the
+//     first two changed. A warm v205 device pairs the old desk with the new
+//     resolver: six "No officeholder on file" rows, no loading state, and no
+//     rule for the .me-holds--wait span. voter-hub-location.js is a runtime
+//     entry and lands a visit later.
+//
+//     DID NOT MOVE. No shapefile, no district geometry and no invented district
+//     number — an unresolved state legislative line still resolves nobody. No
+//     second seat table: the desk asks pdxSeatHolders and classifies no office
+//     itself. The 121 denominator, the chip cap, "Set all issues", the account
+//     chip and the /courts filters are untouched. No new score: WVA and
+//     Direction Match are exactly as they were, no consistency ranking runs and
+//     no party sort moved, and no store schema changed.
+
+const CACHE_VERSION = 'v206';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

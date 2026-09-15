@@ -66,14 +66,31 @@
 //      resolver the rest of the app asks, fail-closed row by row, and its
 //      sharpest assertion is the negative one: an unresolved row invents no
 //      number.
-//  13. SIX EMPTY "NO PICK" ROWS ON A DESK THAT KNOWS THE INCUMBENTS. The roster
-//      index fills CMP_DATA on /me and pdxSeatHolders answers who holds a
-//      resolved seat, so a row printing "No pick" was withholding the fact the
-//      reader came for. Section 7: officeholder first with a door to their
-//      file, pick second and labelled as a pick, "No officeholder on file" where
-//      nobody resolves — and never a borrowed or guessed name.
+//  13. SIX EMPTY "NO PICK" ROWS ON A DESK THAT KNOWS THE INCUMBENTS.
+//      pdxSeatHolders answers who holds a resolved seat, so a row printing "No
+//      pick" was withholding the fact the reader came for. Section 7:
+//      officeholder first with a door to their file, pick second and labelled as
+//      a pick, "No officeholder on file" where nobody resolves — and never a
+//      borrowed or guessed name.
 //
-// Eight sections:
+// AND THE THIRD PASS, which is the one that made 13 true on the live site
+// instead of only in a fixture:
+//
+//  14. THE DESK ASKED THE RIGHT OWNER A QUESTION IT COULD NOT ANSWER HERE. A
+//      Davis County reader got "No officeholder on file" on all six rows while
+//      Who Represents Me named their senators and governor from the same saved
+//      location — because the resolver read window.CMP_DATA and only
+//      window.CMP_DATA, and /me has no cmp-data.js and never creates that
+//      global. The resolver now asks which people index THIS document carries
+//      (the bundle, or the live Firestore roster in window.PROFILES) and walks
+//      that one; pdxSeatHolders publishes whether it has arrived; and the desk
+//      prints three distinct sentences — still loading, nobody on file, the
+//      names — instead of collapsing the first two into the second. Section 9
+//      boots the desk over the REAL resolver with no stub between them, because
+//      a fixture that hands the desk an answer cannot catch a resolver that was
+//      never able to give one.
+//
+// Nine sections:
 //   1. ZERO POSITIONS — no form, a starter set, one door.
 //   2. TWO POSITIONS — those two and nothing else, with their own sides.
 //   3. THE CAP — six on the face and the leftover counted.
@@ -82,6 +99,8 @@
 //   6. EVERY DISTRICT — labelled, from the resolver, or honestly blank.
 //   7. THE BALLOT SNAPSHOT — incumbent first, pick second, never a guess.
 //   8. NO LITERAL OCTET — the denominator is not typed anywhere on the desk.
+//   9. THE REAL RESOLVER — officeholders over /me's own roster, and the three
+//      sentences a row can print.
 //
 //   node scripts/test-me-snapshot.mjs
 //
@@ -102,6 +121,7 @@ const DESK_CSS = R("me-desk.css");
 const YF_JS = R("your-file.js");
 const MAP_JS = R("issue-map.js");
 const IC_JS = R("issue-colors.js");
+const VHL_JS = R("voter-hub-location.js");
 const SW = R("sw.js");
 
 const jsBare = (s) =>
@@ -276,6 +296,83 @@ function bootDesk(opts) {
     vm.runInContext(MAP_JS, ctx, { filename: "issue-map.js" });
     vm.runInContext(IC_JS, ctx, { filename: "issue-colors.js" });
     if (!o.withoutEditor) vm.runInContext(YF_JS, ctx, { filename: "your-file.js" });
+    vm.runInContext(DESK_JS, ctx, { filename: "me-desk.js" });
+  } catch (e) { win.__err = e; }
+  win.__mount = mount;
+  return win;
+}
+
+/* ── THE DESK OVER THE REAL RESOLVER ────────────────────────────────────────
+   bootDesk() hands the desk a resolver ANSWER, which is the right fixture for
+   "does the row print what the resolver said". It cannot catch the bug section 9
+   exists for, because that bug was the resolver never being ASKED a question it
+   could answer on this document: voter-hub-location.js read window.CMP_DATA and
+   only window.CMP_DATA, cmp-data.js is not on /me, me.html's whole
+   PROFILES-into-CMP_DATA merge is gated on `typeof CMP_DATA !== 'undefined'`, so
+   the global was never created, the statewide walk saw a roster of size zero and
+   every one of the six ballot rows printed "No officeholder on file" over people
+   the product holds full files for.
+
+   So this boot stubs NOTHING between the desk and the resolver. The real
+   voter-hub-location.js runs, the location arrives the way it arrives on a real
+   visit (out of localStorage, through the module's own loadVoterLocation, which
+   is also what sets TEAM_POSITIONS), and the roster is the only roster /me has:
+   window.PROFILES. If the desk and the resolver ever stop agreeing about who
+   holds a seat, this is the boot that fails. */
+function bootLive(opts) {
+  const o = opts || {};
+  const win = {
+    console, JSON, Math, Date, String, Number, Boolean, Array, Object, RegExp,
+    Error, Promise, encodeURIComponent, decodeURIComponent, parseInt, parseFloat, isNaN,
+    setTimeout: () => 0, clearTimeout() {},
+    requestAnimationFrame(f) { try { f(); } catch (e) {} return 0; },
+  };
+  win.window = win;
+  win.self = win;
+  win.document = makeDoc();
+  win.__PDX_ME_DOC = true;
+  const mount = win.document.__node("main");
+  mount.id = "me-desk";
+  win.document.body.appendChild(mount);
+  win.location = {
+    href: "https://www.politidex.fyi/me", pathname: "/me", search: "", hash: "",
+    origin: "https://www.politidex.fyi", replace() {}, assign() {},
+  };
+  win.history = { pushState() {}, replaceState() {} };
+  const store = {};
+  // THE LOCATION ARRIVES THE WAY IT ARRIVES. Written into the module's own
+  // storage key rather than onto its globals, so loadVoterLocation() — the one
+  // owner of "where does this reader vote" — is what publishes it, exactly as on
+  // a real second visit.
+  if (o.loc) store["politidex_voter_location"] = JSON.stringify(o.loc);
+  if (o.picks) store["politidex_my_team"] = JSON.stringify(o.picks);
+  win.localStorage = {
+    getItem: (k) => (Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null),
+    setItem(k, v) { store[k] = String(v); },
+    removeItem(k) { delete store[k]; },
+  };
+  win.sessionStorage = { getItem: () => null, setItem() {}, removeItem() {} };
+  win.addEventListener = () => {};
+  win.removeEventListener = () => {};
+  win.dispatchEvent = () => true;
+  win.auth = {
+    currentUser: o.uid
+      ? { uid: o.uid, isAnonymous: false, email: "voter@example.org", displayName: null }
+      : null,
+    onAuthStateChanged() {},
+  };
+  const ctx = vm.createContext(win);
+  win.__err = null;
+  try {
+    vm.runInContext(MAP_JS, ctx, { filename: "issue-map.js" });
+    vm.runInContext(IC_JS, ctx, { filename: "issue-colors.js" });
+    vm.runInContext(VHL_JS, ctx, { filename: "voter-hub-location.js" });
+    // /me HAS NO BUNDLED ROSTER. cmp-data.js is not on the document, so
+    // window.CMP_DATA is never created — that absence is the fixture, and it is
+    // asserted rather than assumed in section 9.
+    win.PROFILES = o.people || {};
+    win.loadVoterLocation();
+    vm.runInContext(YF_JS, ctx, { filename: "your-file.js" });
     vm.runInContext(DESK_JS, ctx, { filename: "me-desk.js" });
   } catch (e) { win.__err = e; }
   win.__mount = mount;
@@ -591,23 +688,25 @@ const WORK_JS = R("ballot-workspace.js");
 has(WORK_JS, "[?&]seat=", "the ballot workspace no longer reads the arrival key this href sets");
 has(jsBare(WORK_JS), "onList", "the workspace no longer checks the arriving seat against the voter's slate");
 
-// THE BUMP. me.html, me-desk.js and me-desk.css are precached and all three moved
-// together this pass: the desk gained the district list and the officeholder
-// line, and the count beside the positions became a count over the whole issue
-// vocabulary. A warm device holding one half and not the other paints a district
-// row with no styles, or a caption whose denominator disagrees with the list
-// behind the door — so the shell cache has to be renamed. (your-file.js and
-// your-file.css are runtime entries, deliberately, and the rename reaches them
-// through the runtime cache's own version namespace.)
+// THE BUMP. me-desk.js and me-desk.css are precached and both moved again this
+// pass, on top of the district list and the officeholder line the pass before
+// added: region d gained a third sentence ("Still loading seats…") and the
+// stylesheet gained the rule that dresses it, and the district rows gained a
+// second reason for being blank. A warm device holding the old desk beside the
+// new resolver prints the empty sentence over a roster that has not arrived —
+// the reported bug — and a warm device holding the new desk beside the old
+// stylesheet prints the wait in the same weight as a name. So the shell cache
+// has to be renamed. (your-file.js, your-file.css and voter-hub-location.js are
+// runtime entries, deliberately, and the rename reaches them through the
+// runtime cache's own version namespace.)
 const ver = (/const CACHE_VERSION = '([^']+)'/.exec(SW) || [, ""])[1];
 ok(/^v\d+$/.test(ver), `CACHE_VERSION is not a version literal (${ver})`);
-ok(Number(ver.slice(1)) >= 205,
-  `CACHE_VERSION is ${ver}; this pass changed precached me.html, me-desk.js, me-desk.css, ` +
-  "and index.html, plus the runtime-cached your-file.js / your-file.css — the desk " +
-  "gained a district list and an " +
-  "officeholder line, and the setter's list widened to the whole vocabulary, so a warm " +
-  "device holding one half and not the other paints a count over the wrong denominator. " +
-  "It has to be at least v205");
+ok(Number(ver.slice(1)) >= 206,
+  `CACHE_VERSION is ${ver}; this pass changed precached me-desk.js and me-desk.css — the ` +
+  "ballot rows learned to tell a roster that has not arrived from a seat nobody is on file " +
+  "for, and the district rows learned to say whether the map or the record is what is " +
+  "missing. A warm device pairing the old desk with the new resolver paints the coverage " +
+  "admission this pass exists to remove. It has to be at least v206");
 const shellList = (/const SHELL_ASSETS = \[([\s\S]*?)\n\];/.exec(SW) || [, ""])[1];
 must(shellList.length > 500, "the SHELL_ASSETS probe matched nothing in sw.js");
 ["/me.html", "/me-desk.js", "/me-desk.css", "/issue-colors.js", "/issue-map.js"].forEach((a) => {
@@ -883,6 +982,211 @@ has(DESK_CODE, "KEYS", "the desk no longer reads the owner's key list as its den
   ok(String(src).indexOf("positions on eight issues") < 0,
     `${f} still advertises Your file as eight issues`);
 });
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("9 · the desk resolves officeholders through the resolver the rest of the app uses");
+// ═════════════════════════════════════════════════════════════════════════════
+// WHAT WAS WRONG, on a live phone, for a Davis County / Utah reader. /me read
+// "Positions: 2 of 121", printed "U.S. House · District 2", and then printed
+// "No officeholder on file" on ALL SIX ballot rows — while Who Represents Me,
+// for the same saved location, named John Curtis, Mike Lee and Spencer Cox. Two
+// surfaces, one location, one resolver, two different answers.
+//
+// WHY. voter-hub-location.js read window.CMP_DATA, and only window.CMP_DATA, for
+// every roster question it asks — how big is the roster, does it hold this pid,
+// walk it for this state's senators. CMP_DATA is created by cmp-data.js, which is
+// NOT on /me; me.html gates its entire PROFILES-into-CMP_DATA merge on
+// `typeof CMP_DATA !== 'undefined'`, so on that document the global is never
+// created at all. Roster size zero → no statewide walk → no pid on any level →
+// pdxSeatHolders() answers with an empty pid list → six honest-looking sentences
+// over three people with full files at /p/curtis, /p/lee and /p/cox.
+//
+// WHAT IT IS NOW. The resolver asks ONE question in ONE place — which people
+// index does this document carry — and answers it with the bundled roster where
+// there is one and the live Firestore roster (window.PROFILES) where there is
+// not. Same walk, same records, same single owner of "who holds this seat":
+// nothing was copied onto /me and no second seat table exists.
+//
+// AND A COLD ROSTER IS A WAIT, NOT AN ABSENCE. The live index arrives after the
+// first paint, so pdxSeatHolders() publishes rosterCold on every reply and the
+// row says "Still loading seats…" until it lands, then repaints into the names.
+// Three states, three sentences, and the row never has to guess which it is in.
+{
+  // THE DAVIS COUNTY FIXTURE, END TO END. No stubbed resolver, no stubbed seat
+  // holders, no CMP_DATA — the real voter-hub-location.js over the only roster
+  // /me has.
+  const UT_ROSTER = {
+    curtis: { name: "John Curtis", office: "U.S. Senator", state: "Utah", party: "R" },
+    lee: { name: "Mike Lee", office: "U.S. Senator", state: "Utah", party: "R" },
+    cox: { name: "Spencer Cox", office: "Governor", state: "Utah", party: "R" },
+  };
+  const DAVIS = { state: "Utah", county: "Davis County", city: "Kaysville", district: "2" };
+
+  const live = bootLive({ uid: "u_live", loc: DAVIS, people: UT_ROSTER });
+  ok(!live.__err, `the desk boots over the real resolver (${live.__err ? live.__err.message : "ok"})`);
+  must(!!live.pdxSeatHolders, "voter-hub-location.js did not publish pdxSeatHolders — this harness is stale");
+  must(!!live.PDXMeDesk, "me-desk.js did not publish itself over the real resolver");
+
+  // THE FIXTURE'S OWN PREMISE, ASSERTED. If CMP_DATA ever appears on this
+  // document the bug this section guards becomes unreachable through it, and the
+  // section would pass while measuring nothing.
+  eq(typeof live.CMP_DATA, "undefined",
+    "the /me fixture grew a bundled roster — the whole failure was that /me has none");
+  eq(live.pdxRosterWarm(), true,
+    "the resolver does not consider the live Firestore roster a roster, which is the bug itself");
+  eq(live._hasUserLocation, true, "the saved location did not load through the module that owns it");
+
+  // ONE RESOLVER, AND IT NAMES BOTH SENATORS. Asked of the resolver first,
+  // because if this is empty the paint below cannot be right for the right
+  // reason.
+  const senPids = (live.pdxSeatHolders("senate").pids || []).slice().sort();
+  eq(senPids.join(","), "curtis,lee",
+    "the resolver does not name both rostered Utah senators for a Davis County reader");
+  eq((live.pdxSeatHolders("governor").pids || []).join(","), "cox",
+    "the resolver does not name the rostered governor");
+  eq(live.pdxSeatHolders("senate").rosterCold, false,
+    "the resolver reports a cold roster while holding rows");
+
+  // AND THE DESK PRINTS THEM, EACH A DOOR TO THEIR OWN FILE.
+  const ld = regionOf(live, "me-ballot");
+  must(ld.length > 120, "region d did not paint over the real resolver");
+  const liveRow = (office) => {
+    const re = new RegExp('<li class="me-seat">(?:(?!</li>)[\\s\\S])*?' +
+      office.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + '[\\s\\S]*?</li>');
+    const m = re.exec(ld);
+    return m ? m[0] : "";
+  };
+  const liveSenate = liveRow("U.S. Senate");
+  must(!!liveSenate, "the U.S. Senate row is not on the desk over the real resolver");
+  has(liveSenate, "John Curtis", "the Senate row does not name the senator the roster holds");
+  has(liveSenate, "Mike Lee", "the Senate row names one senator and drops the other");
+  has(liveSenate, 'href="/p/curtis"', "the named senator is not a door to their file");
+  has(liveSenate, 'href="/p/lee"', "the second named senator is not a door to their file");
+  lacks(liveSenate, live.PDXMeDesk.HOLD_NONE,
+    "the Senate row claims no officeholder is on file for a seat the resolver just named two people for");
+  const liveGov = liveRow("Governor");
+  must(!!liveGov, "the Governor row is not on the desk over the real resolver");
+  has(liveGov, "Spencer Cox", "the Governor row does not name the governor the roster holds");
+  has(liveGov, 'href="/p/cox"', "the named governor is not a door to their file");
+
+  // THE PID IS THE ROSTER'S PID, not a slug this file derived from a name — the
+  // /p/ door has to open the record the resolver actually resolved.
+  Object.keys(UT_ROSTER).forEach((pid) => {
+    has(ld, 'href="/p/' + pid + '"', `region d does not open /p/${pid} for a seat the resolver filled with ${pid}`);
+  });
+
+  // THE SEAT LIST IS THE OWNER'S. loadVoterLocation() set TEAM_POSITIONS for
+  // Utah; the desk projected it. A fixture that hand-wrote the slate could not
+  // catch a desk reading the wrong seats.
+  const liveSeatKeys = live.PDXMeDesk.seats().map((x) => x.key);
+  ok(liveSeatKeys.indexOf("senate") >= 0 && liveSeatKeys.indexOf("governor") >= 0,
+    `the Utah slate the resolver published does not reach the desk (${liveSeatKeys.join(",")})`);
+
+  // ── BEFORE THE ROSTER: A WAIT, AND NOT THE EMPTY SENTENCE ─────────────────
+  // Same reader, same location, roster not yet arrived. This is the state /me
+  // is ALWAYS in at first paint, because its roster is a Firestore round trip —
+  // so the sentence printed here is the one most readers see first, and it was
+  // the wrong one.
+  const cold = bootLive({ uid: "u_cold", loc: DAVIS, people: {} });
+  ok(!cold.__err, `the desk boots with a cold roster (${cold.__err ? cold.__err.message : "ok"})`);
+  eq(cold.pdxRosterWarm(), false, "the fixture's roster is not actually cold");
+  eq(cold.pdxSeatHolders("senate").rosterCold, true,
+    "the resolver does not report a cold roster while it has no rows — the desk cannot tell a wait from an absence");
+  const cd = regionOf(cold, "me-ballot");
+  must(cd.length > 120, "region d did not paint with a cold roster");
+  has(cd, cold.PDXMeDesk.HOLD_WAIT,
+    "a row whose roster has not arrived does not say it is still loading");
+  ok(String(cd).indexOf(cold.PDXMeDesk.HOLD_NONE) < 0,
+    "a row whose roster has not arrived claims no officeholder is on file — that is a coverage admission " +
+    "made before the data to make it arrived, and it is the reported bug");
+  ok(!/href="\/p\//.test(cd), "a cold row linked to somebody's file anyway");
+  // AND THE TWO SENTENCES ARE NOT THE SAME SENTENCE.
+  ok(cold.PDXMeDesk.HOLD_WAIT !== cold.PDXMeDesk.HOLD_NONE,
+    "the loading sentence and the empty sentence are the same string, so no reader can tell them apart");
+  ok(/loading/i.test(cold.PDXMeDesk.HOLD_WAIT),
+    `the cold sentence ("${cold.PDXMeDesk.HOLD_WAIT}") does not say it is loading`);
+  // AND THE TWO HALVES TRAVEL TOGETHER, which is failure mode 10 on this
+  // document: a sentence with a class no stylesheet dresses reads in the same
+  // weight as a name, and a wait that looks like a name is the bug wearing
+  // different clothes.
+  has(cd, "me-holds--wait",
+    "the loading sentence carries no class of its own, so nothing can tell it apart from a name");
+  has(DESK_CSS, ".me-holds--wait",
+    "me-desk.css has no rule for the loading sentence the desk now paints");
+
+  // ── AND THE WAIT ENDS. The roster arrives, the desk repaints, the names land.
+  // A desk that painted the cold sentence and never asked again is the second
+  // half of the reported bug: the reader keeps "still loading" for the visit.
+  Object.keys(UT_ROSTER).forEach((pid) => { cold.PROFILES[pid] = UT_ROSTER[pid]; });
+  eq(cold.pdxRosterWarm(), true, "the roster arriving did not warm the resolver");
+  cold.PDXMeDesk.render();
+  const warm = regionOf(cold, "me-ballot");
+  has(warm, "John Curtis", "the roster arrived and the repaint still does not name the senator");
+  has(warm, "Spencer Cox", "the roster arrived and the repaint still does not name the governor");
+  ok(String(warm).indexOf(cold.PDXMeDesk.HOLD_WAIT) < 0,
+    "the desk still says it is loading seats after the roster landed");
+  // THE SUBSCRIPTION, IN THE SOURCE. The repaint above was driven by hand; what
+  // ships has to be driven by the resolver's own announcement of the arrival,
+  // because a desk that only repaints on a gesture leaves the first paint
+  // standing for the whole visit.
+  has(DESK_CODE, "pdxRosterReady",
+    "the desk does not subscribe to the roster arriving, so its first cold paint would stand for the visit");
+  has(jsBare(VHL_JS), "window.pdxRosterReady",
+    "the resolver no longer publishes the roster arrival the desk subscribes to");
+
+  // ── THE DISTRICT ROWS SAY WHICH THING IS MISSING ──────────────────────────
+  // "not on file" next to a U.S. House district that DID resolve reads as "we
+  // lost your district". We never drew it. Three different facts, three
+  // different sentences, and none of them may be the sentence a seat with
+  // nobody in it prints.
+  const dRows = {};
+  live.PDXMeDesk.districts().forEach((d) => { dRows[d.label] = d; });
+  eq(dRows["U.S. House"].value, "District 2",
+    "the U.S. House district the reader's own saved location carries is not printed");
+  const ss = dRows["State Senate"];
+  ok(!!ss, "the district list dropped the State Senate row");
+  const NOMAP = live.PDXMeDesk.DIST_NOMAP;
+  ok(ss.value ? /^District \d+$/.test(ss.value) : ss.why === NOMAP,
+    `the State Senate row reads "${ss.value || ss.why}" — it must be a district number the resolver ` +
+    "gave or the sentence that says we have no map for it");
+  ok(!ss.value, "the Davis County fixture resolved a state senate district — no map in this pass draws one");
+  eq(dRows["State House"].why, NOMAP, "the State House row does not say why it is blank");
+  ok(NOMAP !== live.PDXMeDesk.DIST_NONE,
+    "a district we never drew and a record field the reader never filled print the same sentence");
+  ok(NOMAP !== live.PDXMeDesk.HOLD_NONE,
+    "a district with no map and a seat with no person print the same sentence, so the reader cannot tell " +
+    "which of the two is missing");
+  ok(/map/i.test(NOMAP), `the state-legislative blank ("${NOMAP}") does not name the missing map`);
+  const la = regionOf(live, "me-identity");
+  has(la, ">" + NOMAP + "</dd>", "the map-missing sentence is not painted on the row that needs it");
+  // AND NOTHING WAS INVENTED. No shapefile shipped in this pass, so no state
+  // legislative number may appear for this county.
+  ok(!/District\s*(22|15)\b/.test(la),
+    "region a printed a state legislative district for a county no map in this pass covers");
+
+  // ── ONE OWNER, STILL ────────────────────────────────────────────────────────
+  // The desk asks pdxSeatHolders. It does not read the roster to find a person
+  // for a seat, and it holds no second index of officeholders.
+  const VHL_CODE = jsBare(VHL_JS);
+  has(DESK_CODE, "pdxSeatHolders", "the desk no longer asks the one owner who holds a seat");
+  ok(!/CMP_DATA\s*\[[^\]]*\]\s*\.\s*office/.test(DESK_CODE),
+    "the desk reads office strings off the roster, which is the resolver's walk written a second time");
+  ["_pdxStatewideSeats", "U.S. Senator", "Governor'", "isUsSenator"].forEach((n) => {
+    lacks(DESK_CODE, n, "the desk classifies offices itself instead of asking the resolver");
+  });
+  // AND THE RESOLVER HAS ONE ANSWER TO "WHICH INDEX IS THE ROSTER". A file that
+  // goes back to naming one global in six places is the bug returning.
+  has(VHL_CODE, "_pdxRosterTable",
+    "the resolver no longer has one owner of which people index this document carries");
+  const rawCmp = (VHL_CODE.match(/window\.CMP_DATA/g) || []).length;
+  ok(rawCmp <= 2,
+    `voter-hub-location.js names window.CMP_DATA directly ${rawCmp} times — the roster reads go through ` +
+    "_pdxRosterTable/_pdxRosterRec so a document without the bundle is not a document without a roster");
+  has(VHL_CODE, "window.PROFILES",
+    "the resolver cannot see the only roster /me has, which is the reported failure");
+  has(VHL_CODE, "rosterCold",
+    "pdxSeatHolders no longer publishes whether the roster has arrived, so every surface has to guess");
+}
 
 /* ── report ─────────────────────────────────────────────────────────────── */
 if (failures.length) {
