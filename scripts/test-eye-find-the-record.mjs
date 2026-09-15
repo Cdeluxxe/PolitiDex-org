@@ -969,37 +969,51 @@ section("10 · nothing on the do-not list moved");
       const bare = (src) => src.split("\n")
         .filter((l) => !/^\s*\/\//.test(l))
         .join("\n").replace(/\/\*[\s\S]*?\*\//g, "");
-      // THE TWO ADDED VIEWS ARE IN HEAD NOW. This fence used to splice them INTO
-      // HEAD's source before comparing, which is what a scope fence written during
-      // its own pass looks like: true while the change was uncommitted, and false
-      // on a clean tree the moment it landed — HEAD already carries the entries, so
-      // adding them again made the two sides differ by exactly the change that had
-      // shipped. They are asserted as PRESENT in both revisions instead, which is
-      // the claim that outlives the commit.
-      for (const ghost of ["id: 'evidence-for-my-vote'", "id: 'my-saved'"]) {
-        has(D_SRC, ghost, `door2-spine.js no longer declares ${ghost} — the relabelled mid-page surface lost its strip`);
-        has(h, ghost, `HEAD's door2-spine.js does not declare ${ghost} — this fence has lost its subject`);
+      // THE TWO RELABELLED VIEWS ARE GONE FROM THE LIST, and this fence is now
+      // asserted in that direction. Its history is worth the paragraph, because
+      // it has been rewritten twice for the same reason each time. First it
+      // spliced the two entries INTO HEAD's source before comparing — true while
+      // its own pass was uncommitted, false the moment it landed. Then it
+      // asserted them PRESENT in both revisions, which outlived that commit but
+      // not this one: #evidence-for-my-vote's mount does not ship on any document
+      // now, and #my-saved's is a door card, so door2-spine.js removed both on
+      // the clause it writes above VIEWS — a view whose mount stopped shipping is
+      // removed rather than left to paint a strip over nothing.
+      //
+      // WHAT THE CLAIM IS, STATED SO IT CANNOT EXPIRE AGAIN. Not "the list has
+      // these entries" and not "the list has N entries" — test-door2-authority.mjs
+      // holds the count, and a count in two files is a count that disagrees with
+      // itself. The claim here is the one this suite needs: a declarative removal
+      // is not a second opinion about the ballot. So the shipped VIEWS list is
+      // asserted to be a SUBSET of HEAD's — entries may leave, and none may be
+      // invented — and every id that remains is asserted to be one HEAD already
+      // declared, in HEAD's order.
+      const viewIds = (src) => {
+        const b = src.slice(src.indexOf("var VIEWS = ["), src.indexOf("var DEMOTE = ["));
+        return (b.match(/id: '([a-z-]+)'/g) || []).map((x) => x.split("'")[1]);
+      };
+      const nowIds = viewIds(D_SRC), headIds = viewIds(h);
+      must(headIds.length > 0 && nowIds.length > 0, "the VIEWS list could not be read out of both revisions");
+      for (const id of nowIds) {
+        ok(headIds.includes(id),
+          `door2-spine.js declares a view HEAD does not (${id}) — this pass may remove a view whose mount ` +
+          'stopped shipping, and may not invent one');
       }
-      // #my-politicians LEFT THE LIST, and that is this pass's one declarative
-      // change. See door2-spine.js's own note where the entry used to be: with the
-      // desk at /ballot the side-by-side picks panel became a door card, and a
-      // "View of your ballot workspace" strip above a two-line door labels
-      // something that is not on the page. Removing a declared entry is not an
-      // opinion about the ballot either.
-      const REMOVED = "    {\n" +
-        "      id: 'my-politicians',\n" +
-        "      label: 'Your picks',\n" +
-        "      job: 'the picks you have made, side by side, with the tools to change them'\n" +
-        "    },\n";
-      // toWorkspace() is cut out of BOTH sides before the whole-file comparison,
+      eq(JSON.stringify(nowIds), JSON.stringify(headIds.filter((id) => nowIds.includes(id))),
+        "the surviving views were reordered — a view list is a declaration, and reordering one is a change " +
+        "this fence should have to be told about");
+      // And the removal is a removal: the whole file, minus comments and minus the
+      // view objects that left, is HEAD's. toWorkspace() is cut out of BOTH sides
       // because it is asserted above on its own terms and leaving it in would make
       // this a restatement of the same diff rather than a fence around the rest.
       const cutTW = (src) => { const t = fnSrc(src, "toWorkspace"); return t ? src.replace(t, "⟦toWorkspace⟧") : src; };
-      const headBare = cutTW(bare(h));
-      must(headBare.includes(REMOVED), "the #my-politicians view object is not where this splice expects it");
-      eq(cutTW(bare(D_SRC)), headBare.replace(REMOVED, ""),
-        `${f} changed by more than the two declared moves — with comments and toWorkspace set aside the ONLY ` +
-        'change is the removed #my-politicians entry');
+      const cutViews = (src) => {
+        const i = src.indexOf("var VIEWS = ["), j = src.indexOf("var DEMOTE = [");
+        return src.slice(0, i) + "⟦VIEWS⟧" + src.slice(j);
+      };
+      eq(cutViews(cutTW(bare(D_SRC))), cutViews(cutTW(bare(h))),
+        `${f} changed OUTSIDE its declared view list — with comments, toWorkspace and VIEWS set aside this ` +
+        'pass moved nothing in this file, and the views it did move are fenced above');
     }
     // cmp-data.js CAME OFF THAT LIST AND KEPT THE CLAIM IT WAS STANDING FOR. The
     // word-first pass (v168) corrected phil_lyman's office label — he was filed as

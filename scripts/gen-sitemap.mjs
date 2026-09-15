@@ -65,9 +65,12 @@
 //     lists records — a crawler that followed either would index an empty desk.
 //     /locker is not listed for a different reason: it is now a 301 to /evidence,
 //     and a sitemap that lists a redirect hands every crawler a hop it did not
-//     need. The evidence locker itself IS listed, at /evidence, with /stances —
-//     see the note beside those two literals below for why a browse room over the
-//     record set is not the same thing as a workspace.
+//     need. The evidence locker itself IS listed, at /evidence, with /stances
+//     and /courts — see the note beside those three literals below for why a
+//     browse room over the record set is not the same thing as a workspace.
+//   · No per-judge address. /courts is listed; the judges on it are not. A judge
+//     is a person, so their address is /p/<pid> and it is gated by the same floor
+//     as everybody else's; /courts/<judge> is not a document this repo serves.
 //   · No lastmod dates. This script has no honest source for when a record last
 //     changed — the roster carries no timestamp — and a lastmod that is really
 //     "when the generator last ran" is a fabricated freshness signal.
@@ -413,7 +416,7 @@ const urls = [
   // bills: adding a district address cannot move, rename or drop a single
   // /p/<pid>, /b/ or /i/ line.
   ...districtAddresses(),
-  // THE TWO BROWSE ROOMS, appended after the districts on the same convention:
+  // THE THREE BROWSE ROOMS, appended after the districts on the same convention:
   // every list in this array is added at the end, so a new address can never
   // shift an existing one. Both are public browse surfaces with a real document
   // of their own — /stances is the stance library (search, bundles, shelves, and
@@ -440,6 +443,21 @@ const urls = [
   // the one kind of non-record page a sitemap is for.
   "/stances",
   "/evidence",
+  // /courts CLEARS THE SAME PUBLICATION RULE, on the same terms, which is the
+  // only reason it is here. It is a public browse room over records this file
+  // already advertises: the Utah courts archive, every retention record on
+  // file, by court. It is one address with a real document (courts.html) and a
+  // self-referencing canonical; its reader-specific half — region A, the
+  // questions resolved for a saved location — is not in the path at all, so
+  // there is one page for a crawler to see and it is the archive.
+  //
+  // NO PER-JUDGE URL IN THIS PASS, and that is a decision, not an omission. A
+  // judge is a person, and a person's address is /p/<pid>, which is gated by
+  // PDXPublicationFloor above like every other person on this list. Minting
+  // /courts/<judge> would be this file advertising a document that does not
+  // exist and a record that has not cleared the floor. A court is not a
+  // document either: region B's court headings are sections of one page.
+  "/courts",
 ];
 
 // Two addresses reaching the same page would be this file recommending a record

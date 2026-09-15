@@ -438,6 +438,12 @@
           if (to && ik) to += '?issue=' + encodeURIComponent(String(ik));
         }
         out.push({
+          // THE TYPE TRAVELS WITH THE CARD. The store already separates a
+          // receipt from an issue from a spotlight, and region e now prints
+          // those as three named groups rather than one undifferentiated list —
+          // so the type is carried, not re-derived from the title.
+          type: String(it.type || ''),
+          tags: Array.isArray(it.tags) ? it.tags.filter(Boolean).map(String) : [],
           title: it.title || it.polName || it.key || 'Saved item',
           sub: it.sub || it.polSub || it.sourceLabel || it.topic || '',
           icon: it.icon || '\u{1F4CE}',
@@ -637,27 +643,168 @@
     '</section>';
   }
 
-  // ── e · SAVED EVIDENCE ────────────────────────────────────────────────────
+  // ── e · SAVED WORK ────────────────────────────────────────────────────────
+  // THIS REGION ABSORBED THE HOMEPAGE'S RESEARCH DESK. Two surfaces used to
+  // read the same store a few thousand lines apart on `/`: My Saved (a
+  // four-tab workspace) and Evidence For My Vote (a ballot cross-reference).
+  // Neither was the homepage's job, both were tall before a reader had saved
+  // anything, and both were about THIS reader — so they are one region here,
+  // and `/` keeps a card that counts and points.
+  //
+  // WHAT IT OWNS. Saved receipts, saved issues and spotlights, the politicians
+  // this reader follows, and the counts of those three. Same store, same
+  // items, new address.
+  //
+  // WHAT IT STILL DOES NOT OWN, and the list is the reason it is short:
+  //
+  //   1. NOT THE OFFICIAL BALLOT. Region d prints the slate. This region holds
+  //      no seat, no pick and no denominator, and its one link to Door 2 is a
+  //      link — "Work the ballot" is a jump to /ballot, not a second ballot.
+  //   2. NOT THE LOCKER GRID. A saved receipt is a title, a context line and a
+  //      link back to the record it came from. No stance pill is recomputed, no
+  //      filter grid is built, nothing is re-ranked. /evidence is the locker.
+  //   3. NO EDITOR. The four-tab module let a reader retag, renote, regroup and
+  //      unsave in place. This lists. PDXSaved.setNote / setTags are not called
+  //      from here, so nothing on this page can disagree with the store.
+  //   4. NO SCORE AND NO ORDER OF MERIT. Newest first, which is PDXSaved.list()'s
+  //      own order. No count is turned into a ratio, a percentage or a bar —
+  //      see plural() above and me-desk.css, which give a later edit nowhere to
+  //      put one.
+  //   5. NOTHING ABOUT A JUDGE. Retention is /courts', and a saved item that
+  //      happens to name a judge is listed as what it is — a saved item.
+  //
+  // THE TAG ARRIVES IN THE URL. all-seeing-eye.js asks to open a reader's
+  // evidence filtered to one tag, and the homepage module it used to ask
+  // answers by navigating here with ?tag=<tag>. Honouring it is how the move
+  // stays a move: the alternative is a gesture that silently drops its own
+  // argument. An unknown tag is not an error — the filter simply matches
+  // nothing, says so, and offers the way back to everything.
+  var TAG_RE = /[?&]tag=([^&]*)/;
+  function tagOf(search) {
+    var m = String(search == null ? '' : search).match(TAG_RE);
+    if (!m) return '';
+    var t = '';
+    try { t = decodeURIComponent(m[1] || ''); } catch (e) { t = String(m[1] || ''); }
+    return t.trim().toLowerCase().slice(0, 60);
+  }
+  function hasTag(c, t) {
+    if (!t) return true;
+    for (var i = 0; i < c.tags.length; i++) {
+      if (String(c.tags[i]).trim().toLowerCase() === t) return true;
+    }
+    return false;
+  }
+
+  // THE FOLLOWED ROSTER, READ THE WAY EVERY OTHER SURFACE READS IT. Preferred
+  // through the PDXTeamView adapter when that module is on the page, and
+  // otherwise straight off the one legacy key — which me.html registers with
+  // PDXStore, so it syncs with the rest of the account. This is a read of one
+  // key, like picks() above, for the same stated reason.
+  var ROSTER_KEY = 'politidex_my_politicians';
+  function roster() {
+    try {
+      var v = window.PDXTeamView;
+      if (v && fn(v.roster)) {
+        var r = v.roster();
+        if (Array.isArray(r)) return r.filter(Boolean).map(String);
+      }
+    } catch (e) {}
+    var st = store();
+    if (st && fn(st.read)) {
+      try { var a = st.read(ROSTER_KEY, []); if (Array.isArray(a)) return a.filter(Boolean).map(String); } catch (e2) {}
+    }
+    try {
+      var s2 = localStorage.getItem(ROSTER_KEY);
+      var b = s2 ? JSON.parse(s2) : [];
+      return Array.isArray(b) ? b.filter(Boolean).map(String) : [];
+    } catch (e3) { return []; }
+  }
+  // A followed politician as a card. THE GATE IS THE PID, not the display
+  // record — personOf() may not have merged on this frame, and the honest row
+  // is then the id with a working link to their file.
+  function rosterCards() {
+    return roster().map(function (pid) {
+      var pr = personOf(pid);
+      return {
+        type: 'politician',
+        tags: [],
+        title: (pr && (pr.name || pr.fullName)) || pid,
+        sub: (pr && (pr.office || pr.title)) || '',
+        icon: '⭐',
+        href: personHref(pid)
+      };
+    });
+  }
+
+  function savedList(c) {
+    return '<ul class="me-saved">' + c.map(function (x) {
+      var head = x.href
+        ? '<a href="' + esc(x.href) + '">' + esc(x.title) + '</a>'
+        : esc(x.title);
+      return '<li class="me-card">' +
+        '<span aria-hidden="true">' + esc(x.icon) + '</span> ' + head +
+        (x.sub ? '<span class="me-cardsub">' + esc(x.sub) + '</span>' : '') +
+      '</li>';
+    }).join('') + '</ul>';
+  }
+  // A group prints only when it has something in it. An empty group under its
+  // own heading reads as a claim that the reader has none of that thing, which
+  // is true but is three headings' worth of nothing on a page that already
+  // says what is missing in one sentence.
+  function savedGroup(id, label, cards) {
+    if (!cards.length) return '';
+    return '<h3 class="me-gtitle" id="' + id + '">' + esc(label) +
+      ' <span class="me-gcount">' + esc(String(cards.length)) + '</span></h3>' +
+      savedList(cards);
+  }
+
   function regionSaved() {
-    var list = savedCards();
-    var body = list.length
-      ? '<ul class="me-saved">' + list.map(function (c) {
-          var head = c.href
-            ? '<a href="' + esc(c.href) + '">' + esc(c.title) + '</a>'
-            : esc(c.title);
-          return '<li class="me-card">' +
-            '<span aria-hidden="true">' + esc(c.icon) + '</span> ' + head +
-            (c.sub ? '<span class="me-cardsub">' + esc(c.sub) + '</span>' : '') +
-          '</li>';
-        }).join('') + '</ul>'
-      : empty('Nothing saved yet. When you save a record from a profile it is filed here, ' +
-          'with a link back to the evidence it came from.');
+    var tag = tagOf(location.search);
+    var all = savedCards();
+    var pols = rosterCards();
+    var receipts = [], issues = [], other = [];
+    all.forEach(function (c) {
+      if (!hasTag(c, tag)) return;
+      if (c.type === 'receipt') receipts.push(c);
+      else if (c.type === 'issue' || c.type === 'spotlight') issues.push(c);
+      else other.push(c);
+    });
+    // A tag is a filter on saved items, so it does not filter the roster: a
+    // politician is followed, not tagged, and dropping the group would read as
+    // "you follow nobody".
+    var shown = receipts.length + issues.length + other.length + (tag ? 0 : pols.length);
+    var total = all.length + pols.length;
+
+    var body = '';
+    if (tag) {
+      body += '<p class="me-rline"><strong>Filtered to &ldquo;' + esc(tag) + '&rdquo;.</strong> ' +
+        plural(receipts.length + issues.length + other.length, 'saved item carries', 'saved items carry') +
+        ' this tag. <a class="me-link" href="/me#me-saved">Show everything saved</a>.</p>';
+    }
+    body += savedGroup('me-saved-rec', 'Receipts', receipts);
+    body += savedGroup('me-saved-iss', 'Issues &amp; Spotlights', issues);
+    if (!tag) body += savedGroup('me-saved-pol', 'Politicians you follow', pols);
+    body += savedGroup('me-saved-oth', 'Other saved items', other);
+    if (!shown) {
+      body += tag
+        ? empty('Nothing saved carries that tag. Your saved work is all still here — ' +
+            'the link above shows it.')
+        : empty('Nothing saved yet. When you save a record from a profile, an issue from the ' +
+            'library or a politician you want to follow, it is filed here with a link back to ' +
+            'the evidence it came from.');
+    }
+
     return '<section class="me-region" id="me-saved" aria-labelledby="me-saved-t">' +
       '<div class="me-rhead">' +
-        '<h2 class="me-rtitle" id="me-saved-t">Saved evidence</h2>' +
-        (list.length ? '<span class="me-rcount">' + esc(plural(list.length, 'saved', 'saved')) + '</span>' : '') +
+        '<h2 class="me-rtitle" id="me-saved-t">Saved work</h2>' +
+        (total ? '<span class="me-rcount">' + esc(plural(total, 'saved', 'saved')) + '</span>' : '') +
       '</div>' +
+      '<p class="me-rline">The receipts, issues and politicians you have saved in this account. ' +
+        'Nothing here is published and nothing here is a score.</p>' +
       body +
+      '<p class="me-rline" style="margin:0.7rem 0 0;"><a class="me-link" href="/ballot">Work the ballot</a>' +
+        ' to put this next to the seats you are deciding — the ballot is Door 2’s, and it ' +
+        'stays there.</p>' +
     '</section>';
   }
 
@@ -977,6 +1124,12 @@
     stars: stars,
     voice: voice,
     savedCards: savedCards,
+    // Region e's three reads, exported for the same reason picks() is: a test
+    // compares them against the store rather than against a number written
+    // down twice. tagOf is the ?tag= the Eye's gesture arrives with.
+    tagOf: tagOf,
+    roster: roster,
+    rosterCards: rosterCards,
     nameOf: nameOf,
     faceOf: faceOf,
     personHref: personHref,

@@ -149,7 +149,21 @@ ok(SHELL_DOCS.includes(`id="${base.D.AUTHORITY}"`) || SHELL_DOCS.includes(`'${ba
 // (#pdx-ballot-band) and one door to /ballot, and /ballot is the desk. So the
 // entry left the list on exactly the terms the clause sets. The three that
 // remain each still hold the contract.
-eq(base.D.VIEWS.length, 3, "the declared view list changed size");
+// It moved from 3 to 1 when the research desk left the homepage. #evidence-for-my-vote
+// and #my-saved were the other two. The desk is one region of /me now — the
+// four-tab workspace and the ballot cross-reference became a single surface at
+// the reader's own address — and what is left on '/' is a door card in
+// #my-saved: a count of saved work and "Open my workspace →". The efmv mount
+// does not ship on any document at all. So both entries left the list on the
+// same clause the three above left it on, and the one that remains
+// (#ballot-breakdown, the finished slate) still holds the contract.
+//
+// ONE IS NOT A REASON TO DELETE THE LIST. A declared view is how this file
+// states that a surface showing the reader's ballot is a VIEW of one workspace
+// rather than a rival product, and the per-view loop below is the contract. A
+// list with one entry still says that, and the next surface added to a shell is
+// the reason it stays.
+eq(base.D.VIEWS.length, 1, "the declared view list changed size");
 // A view's mount is static markup on one of the shells — a declared view with no
 // mount anywhere is a strip painted into nothing. (This used to also accept "a
 // section a module creates for itself", which was there for your-ballot.js's

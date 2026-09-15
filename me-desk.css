@@ -345,6 +345,28 @@
   font-size: 0.76rem;
   color: #7f95ad;
 }
+/* THE THREE GROUP HEADINGS — Receipts, Issues & Spotlights, Politicians you
+   follow. Region e absorbed the homepage's four-tab workspace, and a heading is
+   what replaced the tab: it is a label over a list, not a control, so there is
+   no active state, no border, no pill and nothing to click. The count beside it
+   is a plain number in the same muted colour as the label, deliberately NOT the
+   gold the region count uses — a group of three saved receipts is not an
+   achievement and this gives a later edit nowhere to treat it as one. */
+.me-gtitle {
+  margin: 1.1rem 0 0.35rem;
+  font-family: 'Barlow Condensed', 'Barlow', sans-serif;
+  font-weight: 700;
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8fa3bf;
+}
+.me-gtitle:first-of-type { margin-top: 0.2rem; }
+.me-gcount {
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #7f95ad;
+}
 
 /* ── REGION f · THE JUMPS ─────────────────────────────────────────────────── */
 /* Text links in a sentence. Not a button bar, not a second nav — see the

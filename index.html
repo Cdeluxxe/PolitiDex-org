@@ -3759,8 +3759,9 @@ window.PDXLazy = (function () {
             <div class="pdx-navmenu__panel" role="menu" aria-label="Track & Compare menu">
               <div class="pdx-navmenu__hd">Track &amp; Compare</div>
               <a href="#say-vs-do" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🧾</span><span class="pdx-navmenu__lb">Say vs. Do</span></a>
-              <a href="#my-saved" onclick="window._renderMySaved&&window._renderMySaved()" role="menuitem" class="pdx-navmenu__item pdx-navmenu__item--locker" title="Your saved receipts, issues and politicians"><span class="pdx-navmenu__ico" aria-hidden="true">🔖</span><span class="pdx-navmenu__lb">My Saved Evidence</span><span class="msv-nav-count" style="display:none;min-width:1.05rem;height:1.05rem;padding:0 0.3rem;border-radius:9999px;background:#f5c842;color:#0a0f1e;font-size:0.62rem;line-height:1.05rem;text-align:center;font-weight:800;"></span></a>
-              <a href="#evidence-for-my-vote" role="menuitem" class="pdx-navmenu__item" title="The evidence tied to the politicians on your ballot"><span class="pdx-navmenu__ico" aria-hidden="true">🎯</span><span class="pdx-navmenu__lb">Evidence for My Vote</span></a>
+              <a href="/me" role="menuitem" class="pdx-navmenu__item pdx-navmenu__item--locker" title="Your workspace — the receipts, issues and politicians you have saved"><span class="pdx-navmenu__ico" aria-hidden="true">🔖</span><span class="pdx-navmenu__lb">My Workspace</span><span class="pdx-saved-count" style="display:none;min-width:1.05rem;height:1.05rem;padding:0 0.3rem;border-radius:9999px;background:#f5c842;color:#0a0f1e;font-size:0.62rem;line-height:1.05rem;text-align:center;font-weight:800;"></span></a>
+              <!-- No "Evidence for My Vote" row. That panel and My Saved are one
+                   region of /me now, and the row above is this menu's one way there. -->
               <a href="#alignment-panel" role="menuitem" class="pdx-navmenu__item" title="Who matches what you stand for — and whether their record backs it up"><span class="pdx-navmenu__ico" aria-hidden="true">🧭</span><span class="pdx-navmenu__lb">Alignment Tool</span></a>
               <a href="#issue-compare" role="menuitem" class="pdx-navmenu__item" title="The Alignment Tool on one issue: who lines up, and whether their votes back it up"><span class="pdx-navmenu__ico" aria-hidden="true">⚖️</span><span class="pdx-navmenu__lb">Issue Comparison</span></a>
             </div>
@@ -3796,6 +3797,7 @@ window.PDXLazy = (function () {
                    rooms on this page: the Voter Hub and the local fights. -->
               <a href="#voter-hub" title="The Voter Hub — your seats, your races and what is on them" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🏛️</span><span class="pdx-navmenu__lb">Voter Hub</span></a>
               <a href="#local-issues" title="The fights on your local ballot — set your location to see them" onclick="var _li=document.getElementById('local-issues');if(!_li||_li.hidden){event.preventDefault();(window.openLocationModal||window.toggleChangeLocation||function(){})();}" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🔦</span><span class="pdx-navmenu__lb">Local Issues</span></a>
+              <a href="/courts" title="Judicial retention — the questions on your ballot, and the full Utah courts archive" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">⚖️</span><span class="pdx-navmenu__lb">Courts</span></a>
               <div class="pdx-navmenu__sep"></div>
               <div class="pdx-navmenu__hd">Explore &amp; Discover</div>
               <a href="#hot-topics" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🔥</span><span class="pdx-navmenu__lb">Hot Topics / Spotlights</span></a>
@@ -4420,15 +4422,20 @@ window.PDXLazy = (function () {
       <!-- "Your Ballot" is not repeated here. It is the third row of the primary
            group above, at the one address Door 2 has. -->
       <a href="#local-issues" onclick="document.getElementById('mobileMenu').classList.add('hidden');var _li=document.getElementById('local-issues');if(!_li||_li.hidden){event.preventDefault();(window.openLocationModal||window.toggleChangeLocation||function(){})();}" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🔦 Local Issues</a>
+      <!-- COURTS. The third branch has its own document now (/courts): the
+           retention questions this browser's location can defend, and below
+           them the full archive, labelled so the two cannot be read as one. -->
+      <a href="/courts" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">⚖️ Courts</a>
       <!-- YOUR FILE. Was "🎯 My Stances" pointing at #my-stances, a scroll to a
            region of this same page. It is the reader's own file and it has its
            own address, so this is a plain link to it — one row, one destination,
            and the same destination the account menu's two entries now have. -->
-      <a href="/me" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🗂️ Your File</a>
+      <a href="/me" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🗂️ Your File<span class="pdx-saved-count" style="display:none;margin-left:6px;min-width:1.1rem;height:1.1rem;padding:0 0.32rem;border-radius:9999px;background:#f5c842;color:#0a0f1e;font-size:0.66rem;line-height:1.1rem;text-align:center;font-weight:800;"></span></a>
       <div class="mnav-group-label">Track &amp; Compare</div>
       <a href="#say-vs-do" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-gold-300 hover:text-gold-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🧾 Say vs. Do</a>
       <a href="/evidence" title="Evidence locker — every receipt in one place" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-blue-300 hover:text-blue-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">📂 Evidence Locker</a>
-      <a href="#evidence-for-my-vote" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#93b4d6;">🎯 Evidence for My Vote</a>
+      <!-- No "🎯 Evidence for My Vote" row. It and My Saved are one region of
+           /me, and "🗂️ Your File" above is the drawer's one way there. -->
       <a href="#alignment-panel" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-blue-300 hover:text-blue-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🧭 Alignment Tool</a>
       <a href="#issue-compare" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-blue-300 hover:text-blue-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">⚖️ Issue Comparison</a>
       <div class="mnav-group-label">Explore &amp; Discover</div>
@@ -4460,7 +4467,9 @@ window.PDXLazy = (function () {
       <!-- Deeper reference + utilities -->
       <div class="mnav-group-label">More</div>
       <a href="#whats-changed" onclick="document.getElementById('mobileMenu').classList.add('hidden');window._pdxOpenWhatsChanged&&window._pdxOpenWhatsChanged()" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#cfe0f5;">🔔 What Changed<span id="wc-bell-badge-m" class="wc-badge" style="position:static;display:none;margin-left:6px;box-shadow:none;"></span></a>
-      <a href="#my-saved" onclick="document.getElementById('mobileMenu').classList.add('hidden');window._renderMySaved&&window._renderMySaved()" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#e9d8a6;">🔖 My Saved Evidence<span class="msv-nav-count" style="display:none;margin-left:6px;min-width:1.1rem;height:1.1rem;padding:0 0.32rem;border-radius:9999px;background:#f5c842;color:#0a0f1e;font-size:0.66rem;line-height:1.1rem;text-align:center;font-weight:800;"></span></a>
+      <!-- No "🔖 My Saved Evidence" row here either. The saved count rides on
+           "🗂️ Your File" in More of Your Vote above, which is where the saved
+           work is. -->
       <!-- No "📌 All Spotlights" row. The Spotlight collection and the Stance
            Library are one document now (/stances), and the "🎯 Issues & Stances"
            row in Explore & Discover above is the drawer's one way there. -->
@@ -8770,1126 +8779,56 @@ window.PDXLazy = (function () {
            are painted into this section by judicial-ballot.js. The section is
            static markup so its POSITION in the document is not something a
            module decides at runtime. -->
-      <section id="judicial-lane" class="mb-14 md:mb-16 animate-on-scroll" aria-labelledby="jl-heading" style="transition-delay:0.11s;">
-        <div class="jl-inner">
-          <p class="jl-eyebrow">⚖️ The third branch</p>
-          <h2 id="jl-heading" class="jl-title">Judicial retention</h2>
-          <p class="jl-sub">Separate from the ballot builder above. Retention is a
-            yes-or-no question on one judge's name — no opponent, no party, and
-            nothing for PolitiDex to rate.</p>
-        </div>
+      <!-- ── THE ROOM MOVED. THE DOOR STAYED. ──────────────────────────────
+           #judicial-lane used to hold the whole third branch: a page head, the
+           retention questions resolved for the reader's location, and below
+           them the full Utah courts archive — every judge on file, by court,
+           under an "ARCHIVE · UTAH COURTS · NOT A BALLOT" banner. On a page
+           whose job is "who represents me" and "find the record", that was a
+           two-hundred-name list shipped in the first paint to every visitor,
+           located or not.
+
+           Both regions are at /courts now (courts.html, the ninth shell),
+           labelled A · On your ballot and B · Archive so they cannot be read as
+           one list. The lane keeps its id and its POSITION — below the ballot
+           workspace and below the reader's picks — and holds one card:
+           #jr-card, appended by judicial-ballot.js, which prints the count of
+           retention questions it can defend for this location and a door. If no
+           location is set it says so and claims nothing.
+
+           The section stays empty in the markup on purpose. The card is built
+           by the module that owns the retention vocabulary, so there is no
+           second copy of any sentence about judges in this file, and a visitor
+           with JavaScript off is shown no judicial claim at all rather than a
+           heading over an empty box. The page head that used to be here — the
+           .jl-eyebrow / .jl-title / .jl-sub block — moved to courts.html, which
+           is why those rules are still in judicial-retention.css. -->
+      <section id="judicial-lane" class="mb-14 md:mb-16 animate-on-scroll" aria-label="Judicial retention — the questions on your ballot, and the courts archive" style="transition-delay:0.11s;">
       </section>
 
-      <!-- ── MY SAVED / MY EVIDENCE — a first-class home for everything saved ──
-           A dedicated workspace for the politicians (My Team), the issues &
-           Spotlights, and the evidence / receipts a voter has saved — chiefly via
-           the All-Seeing Eye search. Painted entirely by window._renderMySaved()
-           (defined alongside the search engine near </body>): it reads the shared
-           window.PDXSaved store for receipts/issues/spotlights and the My Team
-           roster (localStorage 'politidex_my_politicians'), and stays live by
-           listening for the 'pdx-saved-change' event. Tabs let a visitor move
-           between All Saved, My Evidence (receipts), Issues & Spotlights, and their
-           saved Politicians; each receipt shows a canonical stance pill, its
-           politician + context, a snippet, an optional personal note, and quick
-           actions into the Evidence Locker / profile. Sits after the whole
-           "Relevant to Me" section as a summary / quick-access surface. -->
-      <!-- ═══ EVIDENCE FOR MY VOTE ═══════════════════════════════════════
-           A new, targeted evidence surface: the receipts and records tied to
-           the politicians actually on the voter's ballot. Ships as a calm intro
-           band that routes into the existing personal research tools (Relevant
-           to Me) and the Evidence Locker; deeper personalization lands later. -->
-      <!-- ── Evidence for My Vote — scoped styles ──────────────────────────
-           Calm, dark-theme "research cockpit" that mirrors the My Saved panel's
-           tokens (gold #f5c842 / #e9d8a6, steel text, the same card gradient and
-           borders). Everything below the hero is painted by the efmv module so
-           the copy can grow (location filters, AI summaries) without a redesign. -->
-      <style id="efmv-styles">
-        .efmv{max-width:72rem;margin:0 auto;}
-        /* Hero band — the almond All-Seeing Eye + magnifier motif, gold-accented. */
-        .efmv-hero{position:relative;overflow:hidden;border:1px solid rgba(96,165,250,0.22);border-radius:1.35rem;padding:1.7rem 1.55rem;background:linear-gradient(135deg,rgba(30,58,138,0.16) 0%,rgba(10,15,30,0.55) 58%,rgba(245,200,66,0.05) 100%);box-shadow:0 6px 26px rgba(0,0,0,0.3);}
-        .efmv-hero-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 12% 10%,rgba(96,165,250,0.14),transparent 55%),radial-gradient(90% 90% at 92% 100%,rgba(245,200,66,0.08),transparent 60%);}
-        .efmv-hero-row{position:relative;display:flex;align-items:center;gap:1.05rem;flex-wrap:wrap;}
-        .efmv-eye{flex:none;width:3.25rem;height:3.25rem;border-radius:0.95rem;display:flex;align-items:center;justify-content:center;color:#bcd3f5;background:linear-gradient(135deg,rgba(59,130,246,0.28),rgba(37,99,235,0.12));border:1px solid rgba(96,165,250,0.35);box-shadow:0 0 18px rgba(59,130,246,0.2);}
-        .efmv-eye svg{width:1.85rem;height:1.85rem;overflow:visible;}
-        .efmv-hero-copy{flex:1;min-width:0;}
-        .efmv-eyebrow{display:inline-flex;align-items:center;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:#e9d8a6;margin-bottom:0.28rem;}
-        .efmv-eyebrow-dot{width:0.45rem;height:0.45rem;border-radius:9999px;background:#f5c842;box-shadow:0 0 10px rgba(245,200,66,0.7);}
-        .efmv-title{font-family:'Bebas Neue','Barlow Condensed',sans-serif;font-size:2.15rem;line-height:1;letter-spacing:0.02em;color:#eaf1fd;margin:0;}
-        .efmv-title b{color:#f5c842;font-weight:inherit;}
-        .efmv-sub{font-family:'Barlow',sans-serif;font-size:0.94rem;line-height:1.6;color:#c7d4e8;margin:0.75rem 0 0;max-width:54rem;}
-        .efmv-sub b{color:#eaf1fd;font-weight:600;}
-        /* Stat tiles — the My Saved gold-number / muted-label pairing, tiled. */
-        .efmv-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0.7rem;margin-top:1.1rem;}
-        .efmv-stat{display:flex;flex-direction:column;gap:0.15rem;padding:0.75rem 0.85rem;border-radius:0.9rem;background:rgba(148,163,184,0.06);border:1px solid rgba(148,163,184,0.14);}
-        .efmv-stat-n{font-family:'Bebas Neue','Barlow Condensed',sans-serif;font-size:1.65rem;line-height:1;color:#f5c842;font-weight:800;letter-spacing:0.01em;}
-        .efmv-stat-n.is-pending{color:#7f93b3;}
-        .efmv-stat-l{font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;letter-spacing:0.06em;text-transform:uppercase;color:#93b4d6;line-height:1.25;}
-        /* Main card grid. */
-        .efmv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.85rem;margin-top:1.05rem;}
-        .efmv-card{display:flex;flex-direction:column;gap:0.7rem;padding:1.05rem 1.05rem 1.1rem;border-radius:1.1rem;background:linear-gradient(180deg,rgba(13,21,38,0.72),rgba(10,15,30,0.5));border:1px solid rgba(148,163,184,0.16);transition:border-color .16s ease,box-shadow .16s ease,transform .12s ease;}
-        .efmv-card:hover{border-color:rgba(148,163,184,0.3);box-shadow:0 12px 34px rgba(0,0,0,0.32);transform:translateY(-2px);}
-        .efmv-card--locker{border-color:rgba(245,200,66,0.32);background:linear-gradient(180deg,rgba(40,33,12,0.5),rgba(13,21,38,0.55));}
-        .efmv-card--locker:hover{border-color:rgba(245,200,66,0.55);box-shadow:0 12px 34px rgba(120,90,10,0.22);}
-        .efmv-card-h{display:flex;align-items:flex-start;gap:0.65rem;}
-        .efmv-card-ico{flex:none;width:2.25rem;height:2.25rem;border-radius:0.7rem;display:flex;align-items:center;justify-content:center;font-size:1.15rem;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.25);}
-        .efmv-card--locker .efmv-card-ico{background:rgba(245,200,66,0.14);border-color:rgba(245,200,66,0.32);}
-        .efmv-card-k{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.16em;text-transform:uppercase;color:#8fb0d6;}
-        .efmv-card--locker .efmv-card-k{color:#e9d8a6;}
-        .efmv-card-t{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.12rem;letter-spacing:0.01em;color:#eaf1fd;margin:0;line-height:1.15;}
-        .efmv-card-d{font-family:'Barlow',sans-serif;font-size:0.85rem;line-height:1.5;color:#a9bcd6;margin:0;}
-        .efmv-card-spacer{flex:1;}
-        /* Ballot avatars. */
-        .efmv-avatars{display:flex;align-items:center;flex-wrap:wrap;gap:0.4rem;}
-        .efmv-av{width:2.3rem;height:2.3rem;border-radius:9999px;overflow:hidden;background:rgba(148,163,184,0.12);border:1px solid rgba(148,163,184,0.28);display:flex;align-items:center;justify-content:center;font-size:1rem;color:#cdd9ec;cursor:pointer;transition:border-color .15s ease,transform .12s ease;padding:0;}
-        .efmv-av:hover{border-color:#f5c842;transform:translateY(-1px);}
-        .efmv-av img{width:100%;height:100%;object-fit:cover;display:block;}
-        .efmv-av--more{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.78rem;color:#93b4d6;cursor:default;}
-        .efmv-av--more:hover{border-color:rgba(148,163,184,0.28);transform:none;}
-        /* Locker count badge — carries the .msv-nav-count class so the site's own
-           updateNavCount() keeps it in lock-step with the nav badge. */
-        .efmv-badge{display:inline-flex;align-items:center;gap:0.45rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.06em;text-transform:uppercase;color:#e9d8a6;}
-        .efmv-badge .efmv-badge-n{display:inline-flex;align-items:center;justify-content:center;min-width:1.4rem;height:1.4rem;padding:0 0.4rem;border-radius:9999px;background:#f5c842;color:#0a0f1e;font-size:0.72rem;line-height:1;text-align:center;font-weight:800;}
-        /* Signals (spotlights + receipts) list. */
-        .efmv-signals{display:flex;flex-direction:column;gap:0.4rem;}
-        .efmv-signal{display:flex;align-items:flex-start;gap:0.55rem;width:100%;text-align:left;padding:0.5rem 0.55rem;border-radius:0.7rem;background:rgba(148,163,184,0.05);border:1px solid rgba(148,163,184,0.12);cursor:pointer;transition:border-color .15s ease,background .15s ease;}
-        .efmv-signal:hover{border-color:rgba(96,165,250,0.4);background:rgba(96,165,250,0.08);}
-        .efmv-signal-ico{flex:none;font-size:0.95rem;line-height:1.3;}
-        .efmv-signal-b{min-width:0;flex:1;}
-        .efmv-signal-t{font-family:'Barlow',sans-serif;font-weight:600;font-size:0.82rem;color:#e7eefb;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-        .efmv-signal-s{font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;letter-spacing:0.04em;text-transform:uppercase;color:#8fb0d6;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-        .efmv-note{font-family:'Barlow',sans-serif;font-size:0.82rem;line-height:1.5;color:#93b4d6;margin:0;}
-        /* Per-politician signal previews (Signals card). Each teammate gets a
-           small header (mini avatar + name) and up to a few compact signal rows.
-           Calm, scannable — border/background transitions only, so nothing moves
-           under prefers-reduced-motion. */
-        .efmv-sigpols{display:flex;flex-direction:column;gap:0.55rem;}
-        .efmv-sigpol{display:flex;flex-direction:column;gap:0.35rem;padding-top:0.55rem;border-top:1px solid rgba(148,163,184,0.1);}
-        .efmv-sigpol:first-child{padding-top:0;border-top:none;}
-        .efmv-sigpol-h{display:flex;align-items:center;gap:0.5rem;width:100%;text-align:left;background:none;border:none;padding:0.1rem;cursor:pointer;color:inherit;}
-        .efmv-sigpol-h:hover .efmv-sigpol-n{color:#f5c842;}
-        .efmv-av--mini{width:1.75rem;height:1.75rem;font-size:0.8rem;flex:none;}
-        .efmv-sigpol-id{min-width:0;display:flex;flex-direction:column;line-height:1.15;}
-        .efmv-sigpol-n{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.9rem;letter-spacing:0.01em;color:#eaf1fd;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:color .15s ease;}
-        .efmv-sigpol-s{font-family:'Barlow Condensed',sans-serif;font-size:0.66rem;letter-spacing:0.05em;text-transform:uppercase;color:#7f93b3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-        /* Left-edge accent per signal type — a quiet colour cue, not a loud badge. */
-        .efmv-signal.is-money{border-left:2px solid rgba(245,200,66,0.55);}
-        .efmv-signal.is-kept{border-left:2px solid rgba(52,211,153,0.55);}
-        .efmv-signal.is-broken{border-left:2px solid rgba(248,113,113,0.55);}
-        .efmv-signal.is-spot{border-left:2px solid rgba(96,165,250,0.55);}
-        .efmv-signal.is-receipt{border-left:2px solid rgba(148,163,184,0.45);}
-        .efmv-signal.is-issue{border-left:2px solid rgba(196,181,253,0.5);}
-        .efmv-signal--muted{opacity:0.72;}
-        .efmv-signal--muted .efmv-signal-t{font-weight:600;color:#b8c6dc;}
-        /* "New since last visit" pill — a calm emerald marker on rows that arrived
-           after the voter's previous visit. Reuses the site's Home Base emerald
-           (same tokens as .efmv-empty-loc), sits as a flex:none child at the row's
-           trailing edge so it never shifts the icon/title/summary, and carries no
-           animation (informative, not urgent → reduced-motion safe by design). */
-        .efmv-signal.is-new{background:rgba(16,185,129,0.045);}
-        .efmv-signal.is-new:hover{background:rgba(16,185,129,0.09);border-color:rgba(16,185,129,0.4);}
-        .efmv-new{flex:none;align-self:center;display:inline-flex;align-items:center;gap:0.3rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:#7dd3a8;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.34);border-radius:9999px;padding:0.14rem 0.42rem;line-height:1.2;white-space:nowrap;}
-        .efmv-new-dot{flex:none;width:0.34rem;height:0.34rem;border-radius:9999px;background:#34d399;}
-        /* "What's New" summary — a single calm line at the top of the Signals
-           card telling a returning voter how many rows arrived since their last
-           visit. Emerald frame (same tokens as the New badge / Home Base pill)
-           with a gold-emphasized count; informative, not a notification, so it
-           carries no animation (reduced-motion safe by design) and only renders
-           when the count is > 0. Compact — one short line of vertical space. */
-        .efmv-newsum{display:flex;align-items:center;gap:0.42rem;margin:0 0 0.55rem;padding:0.32rem 0.5rem;border-radius:0.55rem;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.22);font-family:'Barlow',sans-serif;font-size:0.78rem;line-height:1.35;color:#a9bcd6;}
-        .efmv-newsum-dot{flex:none;width:0.4rem;height:0.4rem;border-radius:9999px;background:#34d399;box-shadow:0 0 6px rgba(52,211,153,0.5);}
-        .efmv-newsum-n{font-family:'Barlow Condensed',sans-serif;font-weight:800;color:#f5c842;letter-spacing:0.02em;}
-        .efmv-sigmore{margin-top:0.15rem;background:none;border:none;padding:0.15rem 0.1rem;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;color:#8fb0d6;transition:color .15s ease;text-align:left;}
-        .efmv-sigmore:hover{color:#f5c842;}
-        /* Buttons. */
-        .efmv-actions{display:flex;flex-wrap:wrap;gap:0.45rem;}
-        .efmv-btn{display:inline-flex;align-items:center;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.74rem;letter-spacing:0.09em;text-transform:uppercase;padding:0.55rem 0.85rem;border-radius:0.6rem;cursor:pointer;transition:transform .12s ease,border-color .15s ease,background .15s ease;color:#dbeafe;background:linear-gradient(135deg,rgba(59,130,246,0.22),rgba(37,99,235,0.1));border:1.5px solid rgba(96,165,250,0.42);text-decoration:none;}
-        .efmv-btn:hover{transform:translateY(-1px);border-color:rgba(96,165,250,0.7);}
-        .efmv-btn--gold{color:#f7e7ad;background:linear-gradient(135deg,rgba(245,200,66,0.2),rgba(30,41,59,0.4));border-color:rgba(245,200,66,0.45);}
-        .efmv-btn--gold:hover{border-color:rgba(245,200,66,0.8);}
-        .efmv-btn--ghost{color:#a9bcd6;background:rgba(148,163,184,0.06);border-color:rgba(148,163,184,0.2);}
-        .efmv-btn--ghost:hover{color:#dbeafe;border-color:rgba(148,163,184,0.4);}
-        .efmv-link{background:none;border:none;padding:0;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.74rem;letter-spacing:0.06em;text-transform:uppercase;color:#93b4d6;transition:color .15s ease;}
-        .efmv-link:hover{color:#f5c842;}
-        /* Onboarding / empty state. */
-        .efmv-empty{margin-top:1.05rem;padding:2rem 1.4rem;border-radius:1.2rem;text-align:center;background:linear-gradient(180deg,rgba(13,21,38,0.7),rgba(10,15,30,0.5));border:1px dashed rgba(148,163,184,0.28);}
-        .efmv-empty-eye{width:3.6rem;height:3.6rem;margin:0 auto 0.85rem;border-radius:1rem;display:flex;align-items:center;justify-content:center;color:#bcd3f5;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);}
-        .efmv-empty-eye svg{width:2.1rem;height:2.1rem;overflow:visible;}
-        .efmv-empty-h{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.25rem;color:#eaf1fd;margin:0 0 0.45rem;letter-spacing:0.01em;}
-        .efmv-empty-p{font-family:'Barlow',sans-serif;font-size:0.9rem;line-height:1.6;color:#a9bcd6;margin:0 auto 1.15rem;max-width:34rem;}
-        .efmv-empty-p b{color:#e9d8a6;font-weight:600;}
-        .efmv-empty-actions{display:flex;flex-wrap:wrap;gap:0.55rem;justify-content:center;}
-        .efmv-empty-foot{margin-top:1rem;font-family:'Barlow',sans-serif;font-size:0.82rem;color:#7f93b3;}
-        /* Prominent primary action for the onboarding CTA (Home Base). Solid,
-           blue-filled and slightly larger so "Set your Home Base" reads as the
-           lead action, not one of the ghost/gold links beside it. Mirrors the
-           site's blue Home Base theming. */
-        .efmv-btn--primary{color:#f2f7ff;background:linear-gradient(135deg,#2f6bff,#1e50e6);border-color:rgba(130,175,255,0.75);box-shadow:0 6px 20px rgba(37,99,235,0.35),inset 0 1px 0 rgba(255,255,255,0.2);padding:0.7rem 1.15rem;font-size:0.8rem;}
-        .efmv-btn--primary:hover{border-color:rgba(160,195,255,0.95);box-shadow:0 8px 26px rgba(37,99,235,0.5),inset 0 1px 0 rgba(255,255,255,0.24);}
-        /* "Home Base is set" confirmation pill — emerald, matching the site's
-           Home Base accent used elsewhere (Relevant to Me / My Voting Team). */
-        .efmv-empty-loc{display:inline-flex;align-items:center;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;color:#7dd3a8;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.32);border-radius:9999px;padding:0.3rem 0.75rem;margin:0 auto 0.7rem;}
-        /* "Why it matters" callout under the empty-state copy. */
-        .efmv-empty-why{display:flex;align-items:flex-start;gap:0.6rem;max-width:34rem;margin:0 auto 1.15rem;padding:0.7rem 0.9rem;border-radius:0.85rem;text-align:left;background:rgba(59,130,246,0.08);border:1px solid rgba(96,165,250,0.22);}
-        .efmv-empty-why-ico{flex:none;font-size:1.05rem;line-height:1.4;}
-        .efmv-empty-why-t{font-family:'Barlow',sans-serif;font-size:0.84rem;line-height:1.55;color:#bccfe9;margin:0;}
-        .efmv-empty-why-t b{color:#e9d8a6;font-weight:600;}
-        .efmv-section-label{display:flex;align-items:center;gap:0.5rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.16em;text-transform:uppercase;color:#8fb0d6;margin:1.35rem 0 0.15rem;}
-        .efmv-section-label::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(148,163,184,0.22),transparent);}
-        /* ── Responsive ─────────────────────────────────────────────────── */
-        @media (max-width:900px){
-          .efmv-grid{grid-template-columns:1fr;}
-          .efmv-stats{grid-template-columns:repeat(2,1fr);}
-        }
-        @media (max-width:640px){
-          .efmv-hero{padding:1.3rem 1.1rem;border-radius:1.15rem;}
-          .efmv-title{font-size:1.85rem;}
-          .efmv-eye{width:2.75rem;height:2.75rem;}
-          .efmv-eye svg{width:1.55rem;height:1.55rem;}
-          .efmv-stat-n{font-size:1.45rem;}
-        }
-        @media (prefers-reduced-motion:reduce){
-          .efmv-card,.efmv-btn,.efmv-av{transition:none;}
-          .efmv-card:hover,.efmv-btn:hover,.efmv-av:hover{transform:none;}
-        }
-      </style>
-      <!-- ═══ EVIDENCE FOR MY VOTE ═══════════════════════════════════════
-           The personal, targeted evidence hub. The hero is static (never blank
-           before JS boots); everything below #efmv-panel is painted by the efmv
-           module from the live team / saved / spotlight data and re-renders on
-           pdx-team-change, pdx-saved-change and pdx-evidence-ready. -->
-      <section id="evidence-for-my-vote" class="mb-14 md:mb-16 animate-on-scroll" style="transition-delay:0.05s;" aria-label="Evidence for My Vote — the evidence tied to the politicians on your ballot">
-        <div class="efmv">
-          <div class="efmv-hero">
-            <div class="efmv-hero-glow" aria-hidden="true"></div>
-            <div class="efmv-hero-row">
-              <span class="efmv-eye" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <g stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity="0.5">
-                    <path d="M12 2.6V1.1"/><path d="M12 22.9v-1.5"/><path d="M2.1 12H0.6"/><path d="M23.4 12h-1.5"/>
-                    <path d="M5 5 3.9 3.9"/><path d="M20.1 20.1 19 19"/><path d="M19 5l1.1-1.1"/><path d="M3.9 20.1 5 19"/>
-                  </g>
-                  <path d="M2.5 12C5.2 7.4 8.4 5.4 12 5.4s6.8 2 9.5 6.6c-2.7 4.6-5.9 6.6-9.5 6.6S5.2 16.6 2.5 12Z" fill="none" stroke="currentColor" stroke-width="1.5"/>
-                  <circle cx="11" cy="12" r="3.4" fill="none" stroke="#f5c842" stroke-width="1.6"/>
-                  <path d="M13.5 14.5 16.3 17.3" stroke="#f5c842" stroke-width="1.8" stroke-linecap="round"/>
-                  <circle cx="11" cy="12" r="1.3" fill="#f5c842"/>
-                </svg>
-              </span>
-              <div class="efmv-hero-copy">
-                <div class="efmv-eyebrow"><span class="efmv-eyebrow-dot"></span>Targeted Research · Your Ballot</div>
-                <h2 class="efmv-title">Evidence for <b>My Vote</b></h2>
-                <p class="efmv-sub"><b>Personal, relevant evidence</b> tied to the politicians on your ballot — the promises, money and receipts that actually shape your vote, gathered in one calm place.</p>
-              </div>
-            </div>
-          </div>
-          <!-- Painted by the efmv module (stats, cards, or onboarding state). -->
-          <div id="efmv-panel"></div>
-        </div>
-      </section>
+      <!-- ═══════════════════════════════════════════════════════════════════
+           EVIDENCE FOR MY VOTE MOVED TO /me. THIS IS THE TOMBSTONE.
+           ────────────────────────────────────────────────────────────────────
+           What stood here: a styled panel plus ~900 lines of module that took
+           the reader's saved receipts, cross-referenced them against the
+           politicians on their ballot and the seats in their workspace, and
+           painted the result as its own mid-page product — a second research
+           surface sitting a few thousand lines above the first one (My Saved),
+           both reading the same window.PDXSaved store.
 
-      <script>
-      /* ─────────────────────────────────────────────────────────────────────
-         Evidence for My Vote — the personal research cockpit.
-         Reads the SAME live sources the Evidence Locker and My Saved panel use
-         (PDXTeamView for the team, PDXSaved for receipts, PDXSpotlight for
-         spotlights, and the Locker's own _pdxEvidenceCountForPeople for the
-         team-relevant evidence tally) and paints a calm, scannable overview into
-         #efmv-panel. Purely a read/link surface — it never writes team or saved
-         state, it just routes into the existing tools. Designed to grow: the data
-         helpers are isolated so a later location filter / AI summary slots in
-         without touching the layout. ───────────────────────────────────────── */
-      (function () {
-        'use strict';
-        var PANEL_ID = 'efmv-panel';
-        function panel() { return document.getElementById(PANEL_ID); }
-        function esc(s) {
-          return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
-            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-          });
-        }
+           WHY IT LEFT. Two panels over one store is one panel. The reader's
+           evidence and the reader's ballot are both theirs, and both belong in
+           the document that is theirs: /me. The homepage keeps the two doors it
+           is for — Who Represents Me and Find the Record — and one short card,
+           in #my-saved further down, that counts what is saved and points at
+           the room.
 
-        // ── data access (defensive: every global is feature-detected) ──────
-        function polRec(id) {
-          try { if (window.PROFILES && window.PROFILES[id]) return window.PROFILES[id]; } catch (e) {}
-          try { if (typeof CMP_DATA !== 'undefined' && CMP_DATA && CMP_DATA[id]) return CMP_DATA[id]; } catch (e) {}
-          return null;
-        }
-        function polName(id) { var d = polRec(id); return (d && d.name) || String(id).replace(/_/g, ' '); }
-        function polSub(id) {
-          var d = polRec(id); if (!d) return '';
-          return [d.office, d.district, d.state].map(function (x) { return String(x == null ? '' : x).trim(); }).filter(Boolean).join(' · ');
-        }
-        function photoFor(id) { try { if (typeof window._getPhotoUrl === 'function') return window._getPhotoUrl(id) || ''; } catch (e) {} return ''; }
-
-        // Explicit picks (tracked roster + committed ballot) come first; the
-        // "who represents me" set (location-derived) is appended. Mirrors the
-        // Evidence Locker's own notion of "on my team", with a legacy fallback.
-        function teamPids() {
-          var out = [], seen = {};
-          function add(id) { id = String(id || ''); if (id && !seen[id]) { seen[id] = 1; out.push(id); } }
-          var v = window.PDXTeamView, got = false;
-          if (v && typeof v === 'object') {
-            try { if (typeof v.roster === 'function') (v.roster() || []).forEach(function (id) { add(id); got = true; }); } catch (e) {}
-            try { if (typeof v.bySeat === 'function') { var b = v.bySeat() || {}; for (var k in b) { if (b[k]) { add(b[k]); got = true; } } } } catch (e) {}
-            try {
-              if (typeof v.representsMe === 'function') {
-                (v.representsMe(window._currentVoterLocation || null) || []).forEach(function (r) { if (r && r.pid) { add(r.pid); got = true; } });
-              }
-            } catch (e) {}
-          }
-          if (!got) {
-            try { var a = JSON.parse(localStorage.getItem('politidex_my_politicians') || '[]'); if (Array.isArray(a)) a.forEach(add); } catch (e) {}
-            try { var sel = JSON.parse(localStorage.getItem('politidex_my_team') || '{}') || {}; for (var s in sel) { if (sel[s]) add(sel[s]); } } catch (e) {}
-          }
-          return out;
-        }
-        function savedList() { try { if (window.PDXSaved && window.PDXSaved.list) return window.PDXSaved.list() || []; } catch (e) {} return []; }
-        function receipts() { return savedList().filter(function (s) { return s && s.type === 'receipt'; }); }
-        // The nav badge's exact formula, so this page's badge matches it 1:1.
-        function lockerCount() {
-          var n = savedList().length;
-          try { var t = window.PDXTeamView && window.PDXTeamView.roster ? window.PDXTeamView.roster() : []; n += (t && t.length) || 0; } catch (e) {}
-          return n;
-        }
-        // Distinct spotlights featuring anyone on the team.
-        function teamSpotlights(pids) {
-          var out = [], seen = {};
-          if (!(window.PDXSpotlight && typeof window.PDXSpotlight.forPolitician === 'function')) return out;
-          pids.forEach(function (id) {
-            var sps = []; try { sps = window.PDXSpotlight.forPolitician(id) || []; } catch (e) {}
-            sps.forEach(function (sp) { if (sp && sp.slug && !seen[sp.slug]) { seen[sp.slug] = 1; out.push(sp); } });
-          });
-          return out;
-        }
-        // Team-relevant evidence tally from the Locker (null until it loads).
-        function relevantEvidenceCount(pids) {
-          try { if (typeof window._pdxEvidenceCountForPeople === 'function') return window._pdxEvidenceCountForPeople(pids); } catch (e) {}
-          return null;
-        }
-        // Saved receipts whose politician is on the team — the personal receipts
-        // that matter to this vote (used to round out the Signals card).
-        function teamReceipts(pids) {
-          var set = {}; pids.forEach(function (id) { set[id] = 1; });
-          return receipts().filter(function (s) {
-            var pid = s.polId || (s.nav && s.nav.polId) || '';
-            return pid && set[pid];
-          });
-        }
-
-        // ── small view helpers ────────────────────────────────────────────
-        function avatar(id) {
-          var url = photoFor(id), nm = polName(id), d = polRec(id), ico = (d && d.icon) || '🏛';
-          var inner = url
-            ? '<img src="' + esc(url) + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.parentNode.textContent=\'' + esc(ico) + '\'">'
-            : esc(ico);
-          return '<button type="button" class="efmv-av" data-efmv="profile" data-pol="' + esc(id) + '" title="' + esc(nm) + '" aria-label="' + esc(nm) + '">' + inner + '</button>';
-        }
-        function statTile(value, label) {
-          var pending = (value === null || value === undefined);
-          return '<div class="efmv-stat"><span class="efmv-stat-n' + (pending ? ' is-pending' : '') + '">' +
-            (pending ? '—' : esc(value)) + '</span><span class="efmv-stat-l">' + esc(label) + '</span></div>';
-        }
-
-        // ── the three main cards ──────────────────────────────────────────
-        function ballotCard(pids) {
-          var shown = pids.slice(0, 6).map(avatar).join('');
-          var extra = pids.length > 6 ? '<span class="efmv-av efmv-av--more">+' + (pids.length - 6) + '</span>' : '';
-          var names = pids.slice(0, 3).map(polName);
-          var namesLine = names.length
-            ? names.join(', ') + (pids.length > names.length ? ' and ' + (pids.length - names.length) + ' more' : '')
-            : '';
-          return '<div class="efmv-card efmv-card--ballot">' +
-            '<div class="efmv-card-h"><span class="efmv-card-ico" aria-hidden="true">🧭</span>' +
-              '<div><div class="efmv-card-k">Personalized</div><h3 class="efmv-card-t">Relevant to My Ballot</h3></div></div>' +
-            '<p class="efmv-card-d">The people you\'re weighing, with the two-way scorecard, promises and receipts already filtered to them' +
-              (namesLine ? ' — <b style="color:#c7d4e8;">' + esc(namesLine) + '</b>' : '') + '.</p>' +
-            '<div class="efmv-avatars">' + shown + extra + '</div>' +
-            '<div class="efmv-card-spacer"></div>' +
-            '<div class="efmv-actions"><button type="button" class="efmv-btn" data-efmv="see-ballot">🔍 See who\'s on my ballot</button></div>' +
-          '</div>';
-        }
-        function lockerCard() {
-          var n = lockerCount();
-          var badge = n > 0
-            ? '<span class="efmv-badge">Saved so far <span class="efmv-badge-n msv-nav-count">' + (n > 99 ? '99+' : n) + '</span></span>'
-            : '<span class="efmv-badge" style="color:#7f93b3;">Nothing saved yet</span>';
-          return '<div class="efmv-card efmv-card--locker">' +
-            '<div class="efmv-card-h"><span class="efmv-card-ico" aria-hidden="true">🔖</span>' +
-              '<div><div class="efmv-card-k">Your Workspace</div><h3 class="efmv-card-t">My Evidence Locker</h3></div></div>' +
-            '<p class="efmv-card-d">Every receipt, issue and politician you\'ve kept from the All-Seeing Eye — organized, tagged and ready to revisit.</p>' +
-            badge +
-            '<div class="efmv-card-spacer"></div>' +
-            '<div class="efmv-actions">' +
-              '<button type="button" class="efmv-btn efmv-btn--gold" data-efmv="open-locker">🔖 Open my Evidence Locker</button>' +
-              '<button type="button" class="efmv-btn efmv-btn--ghost" data-efmv="open-library">🔎 Full Library</button>' +
-            '</div>' +
-          '</div>';
-        }
-        // ── Signals card: per-politician preview builders ──────────────────
-        // Read-only helpers that pull the SAME per-politician data the profile
-        // pages already use, so the Signals card surfaces the richest, most
-        // actionable evidence for each teammate instead of a generic pooled
-        // list. Each returns compact { ico, t, s, cls, attrs } rows that route
-        // straight into the relevant tool. Structured as an ordered set of
-        // small "collectors" so a later signal type (an AI "what changed this
-        // week" line, richer verdicts, location weighting) slots in as one more
-        // push without disturbing the layout.
-
-        // Human label for an issue key, via the site's shared resolver.
-        function issueLabelFor(key) {
-          if (!key) return '';
-          try { if (typeof window._issueLabel === 'function') { var l = window._issueLabel(key); if (l) return l; } } catch (e) {}
-          return '';
-        }
-        // A politician's resolved (kept/broken) promises — the headline
-        // accountability signal. Broken first, since a missed promise is the
-        // more urgent thing a voter wants to see.
-        function polPromises(pid) {
-          var d = polRec(pid);
-          if (!d || !Array.isArray(d.promises)) return [];
-          return d.promises
-            .filter(function (p) { return p && p.title && (p.verdict === 'kept' || p.verdict === 'broken'); })
-            .sort(function (a, b) { return (a.verdict === 'broken' ? 0 : 1) - (b.verdict === 'broken' ? 0 : 1); })
-            .map(function (p) {
-              // Carry through any date-ish fields so downstream recency scoring
-              // can pick them up. Promise records are undated today, so this is
-              // a no-op now and automatically benefits records that gain a date.
-              return {
-                title: p.title, verdict: p.verdict,
-                issueKey: p.issueKey || '', issueLabel: issueLabelFor(p.issueKey),
-                date: p.date, reported_date: p.reported_date, updated_at: p.updated_at, timestamp: p.timestamp
-              };
-            });
-        }
-        // The voter's own saved receipts tied to one politician.
-        function polSavedReceipts(pid) {
-          return receipts().filter(function (s) {
-            return (s.polId || (s.nav && s.nav.polId) || '') === pid;
-          });
-        }
-        // ── getTopEvidenceForPolitician: the single source of truth ─────────
-        // Returns an ordered array of the strongest evidence items for one
-        // politician, richest/most-accountable first. This is the ONE place the
-        // Signals card (and any future feature) should ask "what are the
-        // strongest signals on this person?" — it is strictly READ-ONLY and only
-        // reads the shared data layers the rest of the app already exposes
-        // (_pdxFunding, promise records on PROFILES, PDXSpotlight, PDXSaved and
-        // the Evidence Locker's inferred-stance index). It never writes team or
-        // saved state.
-        //
-        // Each returned item has a consistent shape so callers can render it
-        // without knowing where it came from:
-        //   {
-        //     type:     'broken_promise' | 'money' | 'spotlight' |
-        //               'kept_promise'  | 'saved_receipt' | 'strong_stance' |
-        //               'none' (sparse fallback),
-        //     title:    short, human-readable headline,
-        //     summary:  one-line description / amount / theme,
-        //     priority: number — higher = stronger (used for ordering),
-        //     issueKey: issue slug used for de-duplication ('' when none),
-        //     icon:     emoji cue for the row,
-        //     cls:      color-cue class already defined in #efmv-styles
-        //               (is-money / is-broken / is-kept / is-spot / is-receipt /
-        //                is-issue),
-        //     nav:      routing info — { action, pol, issue, slug } — consumed by
-        //               the delegated click handler (navAttrs() renders it),
-        //     isFallback: true only on the sparse "nothing on record" item.
-        //   }
-        //
-        // Priority ladder (see EV_PRIORITY): broken promise → money → spotlight →
-        // kept promise → saved receipt → strong stance. To add a new signal type
-        // later, add a priority and drop in one more collector below — nothing
-        // else has to change.
-        var EV_PRIORITY = {
-          broken_promise: 100, // highest accountability urgency
-          money:           80, // who bankrolls them
-          spotlight:       60, // active/notable feature
-          kept_promise:    50, // a promise they actually delivered
-          saved_receipt:   40, // the voter's own kept receipts
-          strong_stance:   20, // inferred stance (bumped by receipt count)
-          none:             0  // sparse fallback
-        };
-
-        // ── Recency weighting ──────────────────────────────────────────────
-        // A lightweight, additive boost that lets *when* something happened
-        // nudge the ordering: a fresh broken promise or a recent money signal
-        // should surface above an older one of the same type, WITHOUT rewriting
-        // the type-based priority ladder above. The boost is added on top of the
-        // base priority as one of the final steps before sorting, so the ladder
-        // stays intact and any signal with no usable date is left untouched.
-        //
-        // Everything is tunable from this one config object (also exposed as
-        // window.PDXRecencyConfig) so the window and weights can be adjusted
-        // later — or driven by future logic like "what changed since your last
-        // visit" — without touching the scanning/scoring code below.
-        var RECENCY = {
-          WINDOW_MONTHS: 9,   // dated within this many months → standard boost
-          FRESH_DAYS:    60,  // dated within this many days   → larger "very recent" boost
-          RECENT_BOOST:  12,  // additive priority points for in-window items
-          FRESH_BOOST:   18   // additive priority points for very-recent items
-        };
-        try { window.PDXRecencyConfig = RECENCY; } catch (e) {}
-
-        // Field names we treat as "when did this happen" across the different
-        // data layers. Kept broad on purpose — each layer names its date field
-        // differently (savedAt on receipts, updated on spotlights, etc.) and new
-        // sources can be picked up just by using any of these names.
-        var RECENCY_DATE_FIELDS = [
-          'date', 'created_at', 'createdAt', 'updated_at', 'updatedAt', 'updated',
-          'timestamp', 'ts', 'reported_date', 'reportedDate', 'savedAt', 'when', 'asOf'
-        ];
-
-        // Parse one raw date-ish value into epoch-ms, or null if unusable.
-        // Tolerates epoch numbers (seconds or ms), ISO strings, and the human
-        // strings the app already stores ("June 24, 2026", "Updated June 2026").
-        function parseEvidenceDate(val) {
-          if (val == null) return null;
-          if (typeof val === 'number') {
-            if (!isFinite(val)) return null;
-            return val < 1e12 ? val * 1000 : val; // seconds → ms when small
-          }
-          var s = String(val).trim().replace(/^(updated|as of|reported|filed)\s*:?\s*/i, '');
-          if (!s) return null;
-          var t = Date.parse(s);
-          return isNaN(t) ? null : t;
-        }
-
-        // Find the most recent usable date on a source record. Scans the known
-        // date fields and, for records that carry a timeline/events array, the
-        // newest dated entry in it. Returns epoch-ms or null (no usable date →
-        // neutral, so date-less signals behave exactly as before).
-        function pickEvidenceDate(src) {
-          if (!src || typeof src !== 'object') return null;
-          var best = null;
-          for (var i = 0; i < RECENCY_DATE_FIELDS.length; i++) {
-            var t = parseEvidenceDate(src[RECENCY_DATE_FIELDS[i]]);
-            if (t != null && (best == null || t > best)) best = t;
-          }
-          var arrs = [src.timeline, src.events, src.updates];
-          for (var a = 0; a < arrs.length; a++) {
-            if (!Array.isArray(arrs[a])) continue;
-            for (var j = 0; j < arrs[a].length; j++) {
-              var e = arrs[a][j];
-              var et = e && parseEvidenceDate(e.date || e.when || e.timestamp);
-              if (et != null && (best == null || et > best)) best = et;
-            }
-          }
-          return best;
-        }
-
-        // Turn a timestamp into additive priority points. Two tiers: a larger
-        // bump for the very recent window, a standard bump for the wider window,
-        // nothing beyond it. Future-dated values are clamped to "now" so a stray
-        // upcoming date can't score negatively.
-        function recencyBoost(ts, now) {
-          if (ts == null) return 0;
-          var ageDays = (now - ts) / 86400000;
-          if (ageDays < 0) ageDays = 0;
-          if (ageDays <= RECENCY.FRESH_DAYS) return RECENCY.FRESH_BOOST;
-          if (ageDays <= RECENCY.WINDOW_MONTHS * 30.4) return RECENCY.RECENT_BOOST;
-          return 0;
-        }
-
-        // ── "Since your last visit" weighting ──────────────────────────────
-        // A second additive layer that turns the Signals card into a "what's
-        // new since you were last here" view. On top of the type-priority +
-        // recency scoring above, any evidence dated AFTER the moment the user
-        // last opened the site gets a flat bump, so a fresh broken promise a
-        // returning voter hasn't seen yet clearly outranks an older one of the
-        // same type. It is purely additive — the accountability ladder and the
-        // recency tiers are untouched.
-        //
-        // Everything is tunable from this one config object (exposed as
-        // window.PDXVisitConfig). BOOST is deliberately small so it nudges
-        // ordering within a tier without ever leapfrogging the type ladder
-        // (e.g. a "new" kept promise can't outrank a broken one). Structured so
-        // a later "what changed since you last looked at THIS politician" or
-        // per-section last-seen model can slot in by feeding a different
-        // baseline timestamp into sinceLastVisitBoost() — no core rewrite.
-        var VISIT = {
-          KEY:   'pd_last_visit', // where we store this device's visit stamp
-          BOOST: 20               // additive points for post-last-visit items (tune 15–25)
-        };
-
-        // Keys we'll honor if the app (or a future feature) already records a
-        // visit/last-seen stamp somewhere — checked in order, first usable wins.
-        // Keeps us from double-storing if such a value already exists.
-        var VISIT_KEYS = [
-          'pd_last_visit', 'poltidex_last_visit', 'politidex_last_visit',
-          'pdx_last_visit', 'lastVisit', 'lastSeen', 'lastActive', 'pd_last_seen'
-        ];
-
-        // Read the most recent stored visit stamp as epoch-ms, or null if none
-        // exists / none is usable. Reuses the tolerant parseEvidenceDate() so an
-        // epoch number OR an ISO string both work.
-        function readStoredLastVisit() {
-          try {
-            var best = null;
-            for (var i = 0; i < VISIT_KEYS.length; i++) {
-              var raw = localStorage.getItem(VISIT_KEYS[i]);
-              if (raw == null || raw === '') continue;
-              var t = parseEvidenceDate(raw);
-              if (t != null && (best == null || t > best)) best = t;
-            }
-            return best;
-          } catch (e) { return null; }
-        }
-
-        // Baseline captured ONCE at module load, BEFORE markVisit() stamps the
-        // current visit — so the helper always compares evidence against the
-        // *previous* visit, never against "now" (which would boost nothing).
-        // null on a first-ever visit → neutral behavior, exactly as before.
-        var LAST_VISIT_TS = readStoredLastVisit();
-
-        // Stamp "this visit" for next time. Called once when the panel boots.
-        // Lightweight: a single epoch number under one clear key, no schema.
-        function markVisit() {
-          try { localStorage.setItem(VISIT.KEY, String(Date.now())); } catch (e) {}
-        }
-
-        // Additive boost for evidence dated strictly after the given baseline
-        // (defaults to the captured last-visit). Neutral (0) when there is no
-        // baseline (first visit) or the item has no usable date, so those cases
-        // behave identically to before. `baseline` is a param purely for
-        // future-proofing per-politician / per-section "since you last looked"
-        // variants — callers today can omit it.
-        function sinceLastVisitBoost(ts, baseline) {
-          var base = baseline == null ? LAST_VISIT_TS : baseline;
-          if (ts == null || base == null || !isFinite(base)) return 0;
-          return ts > base ? (VISIT.BOOST || 0) : 0;
-        }
-
-        // Expose the tunable config + a read-only view of the captured baseline.
-        try { window.PDXVisitConfig = VISIT; VISIT.lastVisit = function () { return LAST_VISIT_TS; }; } catch (e) {}
-
-        // Build the data-efmv routing attributes for a canonical nav object.
-        // Mirrors the actions the delegated onClick handler already understands,
-        // so evidence items route straight into the existing tools.
-        function navAttrs(nav) {
-          nav = nav || {};
-          var parts = ['data-efmv="' + esc(nav.action || 'profile') + '"'];
-          if (nav.pol) parts.push('data-pol="' + esc(nav.pol) + '"');
-          if (nav.issue) parts.push('data-issue="' + esc(nav.issue) + '"');
-          if (nav.slug) parts.push('data-slug="' + esc(nav.slug) + '"');
-          return parts.join(' ');
-        }
-
-        function getTopEvidenceForPolitician(politicianId, limit) {
-          var pid = String(politicianId || '');
-          limit = limit || 3;
-          if (!pid) return [];
-          var items = [];
-          function push(it) { if (it) items.push(it); }
-
-          // 1 ── Promise verdicts — the headline accountability signal. Broken
-          //      promises rank highest; kept promises still surface (lower).
-          try {
-            polPromises(pid).forEach(function (pr) {
-              var broken = pr.verdict === 'broken';
-              push({
-                type: broken ? 'broken_promise' : 'kept_promise',
-                title: pr.title,
-                summary: (broken ? 'Promise broken' : 'Promise kept') + (pr.issueLabel ? ' · ' + pr.issueLabel : ''),
-                priority: broken ? EV_PRIORITY.broken_promise : EV_PRIORITY.kept_promise,
-                issueKey: pr.issueKey || '',
-                icon: broken ? '❌' : '✅',
-                cls: broken ? 'is-broken' : 'is-kept',
-                nav: pr.issueKey
-                  ? { action: 'open-receipt', pol: pid, issue: pr.issueKey }
-                  : { action: 'profile', pol: pid },
-                src: pr
-              });
-            });
-          } catch (e) {}
-
-          // 2 ── Money / funding — who bankrolls them (from the shared FEC read).
-          try {
-            var f = (typeof window._pdxFunding === 'function') ? window._pdxFunding(pid) : null;
-            if (f) {
-              var c = f.character || {};
-              var word = c.kind === 'grassroots' ? 'Grassroots-funded'
-                : c.kind === 'bigmoney' ? 'Big-money funded'
-                : c.kind === 'mixed' ? 'Mixed funding' : 'Funding on file';
-              var top = f.topFunder && f.topFunder.name ? ' · Top: ' + f.topFunder.name : '';
-              push({
-                type: 'money',
-                title: (f.raisedFmt || 'On file') + (f.raisedFmt ? ' raised' : ''),
-                summary: word + top,
-                priority: EV_PRIORITY.money,
-                issueKey: '',
-                icon: c.icon || '💰',
-                cls: 'is-money',
-                nav: { action: 'open-funding', pol: pid },
-                src: f
-              });
-            }
-          } catch (e) {}
-
-          // 3 ── An active / notable spotlight featuring this politician.
-          try {
-            var sps = (window.PDXSpotlight && window.PDXSpotlight.forPolitician)
-              ? (window.PDXSpotlight.forPolitician(pid) || []) : [];
-            if (sps.length && sps[0] && sps[0].slug) {
-              var sp = sps[0];
-              push({
-                type: 'spotlight',
-                title: sp.title || 'Issue Spotlight',
-                summary: sp.place || 'Active Spotlight',
-                priority: EV_PRIORITY.spotlight,
-                issueKey: sp.issueKey || '',
-                icon: '🔦',
-                cls: 'is-spot',
-                nav: { action: 'open-spot', slug: sp.slug },
-                src: sp
-              });
-            }
-          } catch (e) {}
-
-          // 4 ── The voter's own saved receipts for this politician.
-          try {
-            polSavedReceipts(pid).forEach(function (s) {
-              var ik = s.issueKey || (s.nav && s.nav.issueKey) || '';
-              push({
-                type: 'saved_receipt',
-                title: s.topic || s.title || 'Saved receipt',
-                summary: 'Saved receipt' + (issueLabelFor(ik) ? ' · ' + issueLabelFor(ik) : ''),
-                priority: EV_PRIORITY.saved_receipt,
-                issueKey: ik,
-                icon: s.icon || '🧾',
-                cls: 'is-receipt',
-                nav: { action: 'open-receipt', pol: pid, issue: ik },
-                src: s
-              });
-            });
-          } catch (e) {}
-
-          // 5 ── Strong inferred stances from the Locker index. Stances backed by
-          //      more receipts rank higher (a small bump per corroborating receipt).
-          try {
-            var inf = (typeof window._pdxEvidenceInferredStancesForPerson === 'function')
-              ? window._pdxEvidenceInferredStancesForPerson(pid) : null;
-            if (inf) {
-              Object.keys(inf).forEach(function (k) {
-                var v = inf[k] || {}, count = v.count || 0;
-                var dir = v.dir === 'support' ? 'Supports' : v.dir === 'oppose' ? 'Opposes' : 'Mixed record on';
-                push({
-                  type: 'strong_stance',
-                  title: dir + ' ' + (v.label || k),
-                  summary: count + (count === 1 ? ' receipt on record' : ' receipts on record'),
-                  priority: EV_PRIORITY.strong_stance + Math.min(count, 9),
-                  issueKey: k,
-                  icon: v.icon || '🎯',
-                  cls: 'is-issue',
-                  nav: { action: 'open-receipt', pol: pid, issue: k },
-                  src: v
-                });
-              });
-            }
-          } catch (e) {}
-
-          // ── Recency + "since last visit" boosts (final scoring step) ─────
-          // Score each collected item's date once, then fold two additive
-          // boosts into its base priority: the recency tier (how fresh in
-          // absolute terms) and the since-last-visit bump (is it newer than the
-          // last time this voter opened the site). Both are additive and layer
-          // on top of the type-priority ladder, so the ladder stays intact.
-          // Items with no usable date — and every item on a first-ever visit —
-          // get +0, so date-less / first-visit behavior is unchanged. The
-          // per-item source ref is internal only — drop it before returning.
-          var now = Date.now();
-          items.forEach(function (it) {
-            it.recencyTs = pickEvidenceDate(it.src);
-            var slvBoost = sinceLastVisitBoost(it.recencyTs);
-            it.priority = (it.priority || 0)
-              + recencyBoost(it.recencyTs, now)
-              + slvBoost;
-            // Read-only flag the renderer can key off: true only when this item
-            // actually earned the since-last-visit boost (i.e. it is dated after
-            // the previous visit). On a first-ever visit LAST_VISIT_TS is null so
-            // the boost is 0 for everything → no flags, exactly as required.
-            it.isNewSinceLastVisit = slvBoost > 0;
-            delete it.src;
-          });
-
-          // Order by (boosted) priority, then — for items that end up level — the
-          // more recent one wins. Items without a date keep their original order
-          // among themselves (stable sort), then de-dupe so the same issue never
-          // appears twice (empty issueKeys are kept, since distinct
-          // promises/money have no shared key).
-          items.sort(function (a, b) {
-            var pd = (b.priority || 0) - (a.priority || 0);
-            if (pd) return pd;
-            return (b.recencyTs || 0) - (a.recencyTs || 0);
-          });
-          var seen = {}, top = [];
-          for (var i = 0; i < items.length && top.length < limit; i++) {
-            var it = items[i];
-            if (it.issueKey && seen[it.issueKey]) continue;
-            if (it.issueKey) seen[it.issueKey] = 1;
-            top.push(it);
-          }
-
-          // Sparse / not-yet-loaded → a calm fallback so the politician still
-          // renders cleanly instead of vanishing.
-          if (!top.length) {
-            top.push({
-              type: 'none',
-              title: 'No major receipts yet',
-              summary: 'Open profile to start tracking',
-              priority: EV_PRIORITY.none,
-              issueKey: '',
-              icon: '🗂',
-              cls: 'efmv-signal--muted',
-              nav: { action: 'profile', pol: pid },
-              isFallback: true
-            });
-          }
-          return top;
-        }
-        // Back-compat alias for existing call sites + a lightweight read-only
-        // handle for future features that want the same "strongest signals" data.
-        function polSignals(pid, max) { return getTopEvidenceForPolitician(pid, max); }
-        try { window.PDXTopEvidence = getTopEvidenceForPolitician; } catch (e) {}
-
-        // ── "New since last visit" indicator ──────────────────────────────
-        // Presentation tokens for the calm badge shown on evidence that arrived
-        // after the voter's previous visit. Kept in one place (exposed on
-        // window.PDXNewBadge) so the label / class can be retuned later, and so
-        // the SAME badge can be reused anywhere an item carries the read-only
-        // isNewSinceLastVisit flag — Evidence Locker rows, politician profiles,
-        // or a future "What's New" summary at the top of the card — by calling
-        // newBadgeHtml(item). Deliberately static: no animation, so it satisfies
-        // prefers-reduced-motion without any extra rule.
-        var NEW_BADGE = {
-          TEXT:  'New',                       // compact pill text
-          LABEL: 'New since your last visit', // accessible / hover description
-          CLASS: 'efmv-new'                   // style hook (see CSS above)
-        };
-        function newBadgeHtml(it) {
-          if (!it || !it.isNewSinceLastVisit) return '';
-          return '<span class="' + NEW_BADGE.CLASS + '" title="' + esc(NEW_BADGE.LABEL) +
-            '" aria-label="' + esc(NEW_BADGE.LABEL) + '">' +
-            '<span class="' + NEW_BADGE.CLASS + '-dot" aria-hidden="true"></span>' +
-            esc(NEW_BADGE.TEXT) + '</span>';
-        }
-        try { window.PDXNewBadge = { config: NEW_BADGE, html: newBadgeHtml }; } catch (e) {}
-
-        // ── "What's New" summary line ─────────────────────────────────────
-        // A single calm line at the very top of the Signals card that makes
-        // the "since last visit" behavior explicit for returning voters: it
-        // counts how many rows across the shown politicians carry the
-        // read-only isNewSinceLastVisit flag and renders ONCE, only when that
-        // count is > 0 (zero new → nothing rendered, card looks as it does
-        // today). Kept beside the New badge (exposed on window.PDXNewSummary)
-        // and driven by the SAME flag so wording / accent live in one place.
-        // The element carries a data-efmv-newsummary hook and data-count so a
-        // later enhancement — click-to-scroll to the first new row, or a
-        // "clear new" action — can hang off it without a rewrite. Static: no
-        // animation, so it satisfies prefers-reduced-motion by design.
-        var NEW_SUMMARY = {
-          CLASS: 'efmv-newsum',                 // style hook (see CSS above)
-          // Count-aware wording kept as a formatter so the copy (and its
-          // pluralization) can be retuned in exactly one spot.
-          noun: function (n) { return n === 1 ? 'new signal' : 'new signals'; },
-          tail: 'since your last visit'
-        };
-        // Count rows carrying the read-only isNewSinceLastVisit flag across a
-        // list of { sigs } groups — i.e. the politicians actually rendered in
-        // the card, so the number always matches what the voter can see.
-        function countNewSignals(groups) {
-          var n = 0;
-          (groups || []).forEach(function (g) {
-            ((g && g.sigs) || []).forEach(function (s) { if (s && s.isNewSinceLastVisit) n++; });
-          });
-          return n;
-        }
-        // The calm summary line. Emits nothing when there is nothing new, so
-        // the card is byte-for-byte unchanged for first-time / caught-up
-        // voters. The count is emphasized with the section's gold accent; the
-        // rest stays calm and informative.
-        function newSummaryHtml(count) {
-          if (!count || count < 1) return '';
-          var label = count + ' ' + NEW_SUMMARY.noun(count) + ' ' + NEW_SUMMARY.tail;
-          return '<div class="' + NEW_SUMMARY.CLASS + '" data-efmv-newsummary data-count="' + count +
-            '" title="' + esc(label) + '">' +
-            '<span class="' + NEW_SUMMARY.CLASS + '-dot" aria-hidden="true"></span>' +
-            '<span class="' + NEW_SUMMARY.CLASS + '-tx">' +
-              '<span class="' + NEW_SUMMARY.CLASS + '-n">' + esc(String(count)) + '</span> ' +
-              esc(NEW_SUMMARY.noun(count) + ' ' + NEW_SUMMARY.tail) +
-            '</span></div>';
-        }
-        try { window.PDXNewSummary = { config: NEW_SUMMARY, count: countNewSignals, html: newSummaryHtml }; } catch (e) {}
-
-        // One compact signal row, rendered from a canonical evidence item.
-        function sigRow(it) {
-          return '<button type="button" class="efmv-signal ' + (it.cls || '') +
-            (it.isNewSinceLastVisit ? ' is-new' : '') + '" ' + navAttrs(it.nav) + '>' +
-            '<span class="efmv-signal-ico" aria-hidden="true">' + esc(it.icon) + '</span>' +
-            '<span class="efmv-signal-b"><span class="efmv-signal-t">' + esc(it.title) + '</span>' +
-            '<span class="efmv-signal-s">' + esc(it.summary) + '</span></span>' +
-            newBadgeHtml(it) + '</button>';
-        }
-        // A non-interactive mini avatar (the group header itself is the button).
-        function avatarMini(id) {
-          var url = photoFor(id), d = polRec(id), ico = (d && d.icon) || '🏛';
-          var inner = url
-            ? '<img src="' + esc(url) + '" alt="" loading="lazy" onerror="this.style.display=\'none\';this.parentNode.textContent=\'' + esc(ico) + '\'">'
-            : esc(ico);
-          return '<span class="efmv-av efmv-av--mini" aria-hidden="true">' + inner + '</span>';
-        }
-        // One politician's group: a header that opens their profile, then their
-        // strongest evidence rows. getTopEvidenceForPolitician always returns at
-        // least one item — a calm "nothing on record yet" fallback when sparse —
-        // so a teammate never renders empty.
-        function polSignalGroup(pid, sigs) {
-          var head = '<button type="button" class="efmv-sigpol-h" data-efmv="profile" data-pol="' + esc(pid) + '" title="Open ' + esc(polName(pid)) + '’s profile">' +
-            avatarMini(pid) +
-            '<span class="efmv-sigpol-id"><span class="efmv-sigpol-n">' + esc(polName(pid)) + '</span>' +
-            (polSub(pid) ? '<span class="efmv-sigpol-s">' + esc(polSub(pid)) + '</span>' : '') +
-            '</span></button>';
-          var rows = (sigs && sigs.length ? sigs : getTopEvidenceForPolitician(pid, 1)).map(sigRow).join('');
-          return '<div class="efmv-sigpol">' + head + '<div class="efmv-signals">' + rows + '</div></div>';
-        }
-        // Original pooled behavior, kept as a graceful fallback for when no
-        // per-politician evidence has loaded yet: team spotlights + saved
-        // receipts flattened into canonical items, then the calm empty note.
-        function fallbackSignals(pids) {
-          var spots = teamSpotlights(pids), recs = teamReceipts(pids), items = [];
-          spots.slice(0, 3).forEach(function (sp) {
-            if (sp && sp.slug) items.push({ cls: 'is-spot', icon: '🔦', title: sp.title || 'Issue Spotlight', summary: sp.place || 'Active Spotlight',
-              nav: { action: 'open-spot', slug: sp.slug } });
-          });
-          if (items.length < 3) {
-            recs.slice(0, 3 - items.length).forEach(function (s) {
-              var pid = s.polId || (s.nav && s.nav.polId) || '', ik = s.issueKey || (s.nav && s.nav.issueKey) || '';
-              items.push({ cls: 'is-receipt', icon: s.icon || '🧾', title: s.topic || s.title || 'Saved receipt',
-                summary: s.polName || polName(pid),
-                nav: { action: 'open-receipt', pol: pid, issue: ik } });
-            });
-          }
-          if (items.length) return '<div class="efmv-signals">' + items.map(sigRow).join('') + '</div>';
-          return '<p class="efmv-note">No active spotlights on your ballot yet. As you add politicians and save receipts, the ones that matter most will surface here.</p>';
-        }
-        function signalsCard(pids) {
-          var MAX_POLS = 3, PER_POL = 3;
-          // Ask the single source of truth for each teammate's strongest evidence,
-          // then lead with the ones that actually have real signals on record.
-          // A teammate is "rich" when at least one item isn't the sparse fallback.
-          var built = pids.map(function (pid) { return { pid: pid, sigs: getTopEvidenceForPolitician(pid, PER_POL) }; });
-          function hasReal(b) { return b.sigs.some(function (s) { return !s.isFallback; }); }
-          var rich = built.filter(hasReal);
-          var body, sub = '', whatsNew = '';
-          if (rich.length) {
-            // Richest teammates first; pad with sparse ones (light state) up to
-            // the cap so the card stays honest about coverage without noise.
-            var sparse = built.filter(function (b) { return !hasReal(b); });
-            var shown = rich.concat(sparse).slice(0, MAX_POLS);
-            // Calm "What's New" line, counted across exactly the politicians
-            // rendered below — empty string when nothing is new.
-            whatsNew = newSummaryHtml(countNewSignals(shown));
-            body = '<div class="efmv-sigpols">' + shown.map(function (b) { return polSignalGroup(b.pid, b.sigs); }).join('') + '</div>';
-            var remaining = pids.length - shown.length;
-            if (remaining > 0) {
-              body += '<button type="button" class="efmv-sigmore" data-efmv="see-ballot">+' + remaining + ' more on your ballot →</button>';
-            }
-            sub = '<p class="efmv-card-d">The money, promise verdicts and spotlights on record for each politician on your ballot.</p>';
-          } else {
-            // No per-politician evidence loaded yet — fall back to the pooled list.
-            body = fallbackSignals(pids);
-          }
-          return '<div class="efmv-card">' +
-            '<div class="efmv-card-h"><span class="efmv-card-ico" aria-hidden="true">🔦</span>' +
-              '<div><div class="efmv-card-k">On the Record</div><h3 class="efmv-card-t">Active Spotlights &amp; Receipts</h3></div></div>' +
-            whatsNew +
-            sub +
-            body +
-            '<div class="efmv-card-spacer"></div>' +
-            '<div class="efmv-actions"><button type="button" class="efmv-btn efmv-btn--ghost" data-efmv="open-library">🗄 Browse the Evidence Library</button></div>' +
-          '</div>';
-        }
-
-        // ── onboarding / empty state ──────────────────────────────────────
-        // Ballot-first onboarding. Two calm variants keyed on whether a Home
-        // Base (location) is set:
-        //   • no location  → lead with "Set your Home Base" as the primary CTA
-        //   • located, no team → confirm the Home Base, nudge to add local picks
-        // Both keep the manual "browse / look up" paths. The branches are kept
-        // small and data-light so a later "suggested representatives from your
-        // area" block slots straight into the located path without disturbing
-        // the copy or the layout. Reuses the site's shared location flow
-        // (window.toggleChangeLocation — the same one the homepage uses).
-        var EFMV_EYE_SVG =
-          '<svg viewBox="0 0 24 24" fill="none">' +
-            '<path d="M2.5 12C5.2 7.4 8.4 5.4 12 5.4s6.8 2 9.5 6.6c-2.7 4.6-5.9 6.6-9.5 6.6S5.2 16.6 2.5 12Z" fill="none" stroke="currentColor" stroke-width="1.5"/>' +
-            '<circle cx="11" cy="12" r="3.4" fill="none" stroke="#f5c842" stroke-width="1.6"/>' +
-            '<path d="M13.5 14.5 16.3 17.3" stroke="#f5c842" stroke-width="1.8" stroke-linecap="round"/>' +
-            '<circle cx="11" cy="12" r="1.3" fill="#f5c842"/>' +
-          '</svg>';
-
-        // Has the voter set a Home Base / location yet? Prefer the shared global
-        // flag, then the live location object, then the persisted store — so the
-        // check holds even before every module has hydrated.
-        function hasHomeBase() {
-          try { if (window._hasUserLocation) return true; } catch (e) {}
-          var loc = null;
-          try { loc = window._currentVoterLocation || null; } catch (e) {}
-          if (!loc) { try { loc = JSON.parse(localStorage.getItem('politidex_voter_location') || 'null'); } catch (e) {} }
-          return !!(loc && (loc.state || loc.city || loc.county || loc.district));
-        }
-        // Short, human label for the saved area (e.g. "Orange County · CA · District 4").
-        function homeBaseArea() {
-          var loc = null;
-          try { loc = window._currentVoterLocation || null; } catch (e) {}
-          if (!loc) { try { loc = JSON.parse(localStorage.getItem('politidex_voter_location') || 'null'); } catch (e) {} }
-          if (!loc) return '';
-          var parts = [loc.city || loc.county || '', loc.state || ''].map(function (x) { return String(x == null ? '' : x).trim(); }).filter(Boolean);
-          var d = String(loc.district == null ? '' : loc.district).replace(/[^0-9A-Za-z]/g, '');
-          if (d) parts.push('District ' + d);
-          return parts.join(' · ');
-        }
-
-        function emptyState() {
-          var eye = '<div class="efmv-empty-eye" aria-hidden="true">' + EFMV_EYE_SVG + '</div>';
-          var foot = '<div class="efmv-empty-foot">Already saving evidence? <button type="button" class="efmv-link" data-efmv="open-locker">Open your Evidence Locker →</button></div>';
-
-          if (hasHomeBase()) {
-            // Located, but no team yet — celebrate the Home Base, then point at
-            // the one remaining step: add the politicians from their area.
-            var area = homeBaseArea();
-            return '<div class="efmv-empty">' +
-              eye +
-              '<div class="efmv-empty-loc">📍 Location set' + (area ? ' · ' + esc(area) : '') + '</div>' +
-              '<h3 class="efmv-empty-h">You\'re set up — now add the people on your ballot</h3>' +
-              '<p class="efmv-empty-p">Your <b>location</b> is set, so we know which races are yours. Add the politicians from your area to <b>your ballot</b> and this page fills with the receipts, promises and spotlights tied to your actual ballot.</p>' +
-              '<div class="efmv-empty-why"><span class="efmv-empty-why-ico">🎯</span><p class="efmv-empty-why-t">We know <b>where</b> you vote — the last step is telling us <b>who</b> you\'re weighing, so every receipt and spotlight here is personalized to your vote.</p></div>' +
-              '<div class="efmv-empty-actions">' +
-                '<a href="#voter-hub" class="efmv-btn efmv-btn--primary">⭐ Add politicians from my area</a>' +
-                '<button type="button" class="efmv-btn efmv-btn--gold" data-efmv="set-home-base">📍 Update location</button>' +
-                '<button type="button" class="efmv-btn" data-efmv="focus-eye">🔎 Look up a politician</button>' +
-              '</div>' +
-              foot +
-            '</div>';
-          }
-
-          // No location yet — lead with Home Base as the prominent primary action.
-          return '<div class="efmv-empty">' +
-            eye +
-            '<h3 class="efmv-empty-h">Start with your ballot — set your location</h3>' +
-            '<p class="efmv-empty-p">Tell us where you vote and PolitiDex pulls up <b>the politicians who actually represent you</b>. Then this page fills with the evidence, receipts and spotlights tied to your ballot — personalized to your vote.</p>' +
-            '<div class="efmv-empty-why"><span class="efmv-empty-why-ico">🧭</span><p class="efmv-empty-why-t">Your <b>location</b> is what makes this page personal: it maps your U.S. House, State Senate &amp; State House races so every spotlight and receipt is <b>relevant to your vote</b> — not just national noise.</p></div>' +
-            '<div class="efmv-empty-actions">' +
-              '<button type="button" class="efmv-btn efmv-btn--primary" data-efmv="set-home-base">📍 Set your location</button>' +
-              '<a href="#voter-hub" class="efmv-btn efmv-btn--gold">🏛 Browse the Voter Hub</a>' +
-              '<button type="button" class="efmv-btn" data-efmv="focus-eye">🔎 Look up a politician</button>' +
-            '</div>' +
-            foot +
-          '</div>';
-        }
-
-        // ── render ─────────────────────────────────────────────────────────
-        function render() {
-          var host = panel(); if (!host) return;
-          var pids = teamPids();
-          if (!pids.length) { host.innerHTML = emptyState(); return; }
-          var stats = '<div class="efmv-stats">' +
-            statTile(pids.length, pids.length === 1 ? 'Politician on your ballot' : 'Politicians on your ballot') +
-            statTile(relevantEvidenceCount(pids), 'Evidence relevant to you') +
-            statTile(teamSpotlights(pids).length, 'Active spotlights') +
-            statTile(receipts().length, receipts().length === 1 ? 'Saved receipt' : 'Saved receipts') +
-          '</div>';
-          host.innerHTML = stats +
-            '<div class="efmv-section-label">Your research cockpit</div>' +
-            '<div class="efmv-grid">' + ballotCard(pids) + lockerCard() + signalsCard(pids) + '</div>';
-        }
-
-        // ── actions (delegated) ────────────────────────────────────────────
-        function scrollTo(id, cb) {
-          var el = document.getElementById(id);
-          if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          if (typeof cb === 'function') { try { cb(); } catch (e) {} }
-        }
-        function onClick(ev) {
-          var btn = ev.target.closest ? ev.target.closest('[data-efmv]') : null;
-          if (!btn) return;
-          var a = btn.getAttribute('data-efmv');
-          if (a === 'see-ballot') { scrollTo('relevant-section'); }
-          else if (a === 'open-locker') { if (typeof window._renderMySaved === 'function') window._renderMySaved(); scrollTo('my-saved'); }
-          // The locker is a door on this page now, so "open the library" has to
-          // OPEN it rather than scroll to a closed band. The locker's own opener
-          // mounts the workspace and scrolls once it has laid out; the plain
-          // scroll stays as the fallback for a page where the module is absent.
-          else if (a === 'open-library') {
-            if (window.PDXEvidenceLocker && typeof window.PDXEvidenceLocker.open === 'function') window.PDXEvidenceLocker.open();
-            else scrollTo('evidence-locker');
-          }
-          else if (a === 'profile') { var pid = btn.getAttribute('data-pol'); if (pid && typeof window.showProfile === 'function') window.showProfile(pid); }
-          else if (a === 'open-spot') { var slug = btn.getAttribute('data-slug'); if (slug && window.PDXSpotlight && typeof window.PDXSpotlight.open === 'function') window.PDXSpotlight.open(slug); }
-          else if (a === 'open-funding') {
-            // Open the politician's profile and jump straight to its Money &
-            // Funding section once the modal has painted.
-            var fp = btn.getAttribute('data-pol');
-            if (fp && typeof window.showProfile === 'function') {
-              window.showProfile(fp);
-              setTimeout(function () { try { if (typeof window._pdxNavJump === 'function') window._pdxNavJump('pdxsec-funding'); } catch (e) {} }, 420);
-            }
-          }
-          else if (a === 'open-receipt') {
-            var rp = btn.getAttribute('data-pol'), rk = btn.getAttribute('data-issue');
-            if (typeof window._pdxOpenEvidenceLocker === 'function') window._pdxOpenEvidenceLocker({ pol: rp || '', issue: rk || '' });
-            else if (rp && typeof window.showProfile === 'function') window.showProfile(rp);
-          }
-          else if (a === 'set-home-base') {
-            // Open the site's shared Home Base / location flow — the same one the
-            // homepage "Set your Home Base" step uses. Falls back to the modal
-            // opener directly if the toggle helper isn't present.
-            if (typeof window.toggleChangeLocation === 'function') window.toggleChangeLocation();
-            else if (typeof window.openLocationModal === 'function') window.openLocationModal();
-          }
-          else if (a === 'focus-eye') {
-            var inp = document.getElementById('pdx-eye-input');
-            if (inp) { try { inp.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(function () { inp.focus(); }, 350); } catch (e) {} }
-          }
-        }
-
-        // ── boot + live sync ───────────────────────────────────────────────
-        function boot() {
-          var host = panel(); if (!host) return;
-          // Stamp this visit so the NEXT visit's "since last visit" boost has a
-          // baseline. LAST_VISIT_TS was already captured at module load, so
-          // writing "now" here doesn't affect this session's ranking.
-          markVisit();
-          host.addEventListener('click', onClick);
-          render();
-          // Setting a Home Base that resolves no representatives won't fire
-          // pdx-team-change, so piggyback on the site's central location reaction
-          // to repaint the onboarding state (located vs not). Non-destructive:
-          // the original runs first and its return value is preserved.
-          try {
-            var origLocReaction = window._triggerLocationReaction;
-            if (typeof origLocReaction === 'function' && !origLocReaction._efmvWrapped) {
-              var wrapped = function () {
-                var r; try { r = origLocReaction.apply(this, arguments); } finally { try { render(); } catch (e) {} }
-                return r;
-              };
-              wrapped._efmvWrapped = true;
-              window._triggerLocationReaction = wrapped;
-            }
-          } catch (e) {}
-          // PROFILES / photos and the Locker index load async — repaint once they land.
-          window.addEventListener('pdx-team-change', render);
-          window.addEventListener('pdx-saved-change', render);
-          document.addEventListener('pdx-evidence-ready', render);
-          window.addEventListener('storage', function (e) {
-            if (!e || !e.key) { render(); return; }
-            if (e.key.indexOf('pdx_my_saved') === 0 || e.key === 'politidex_my_politicians' || e.key === 'politidex_my_team' || e.key === 'politidex_voter_location' || e.key.indexOf('politidex_team_v2') === 0) render();
-          });
-          // A couple of delayed repaints catch the initial Firestore/roster hydrate.
-          setTimeout(render, 800);
-          setTimeout(render, 2500);
-        }
-        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-        else boot();
-      })();
-      </script>
+           NOTHING WAS DELETED. Every receipt, note and tag is still in the
+           store; the ballot side of the cross-reference is still Door 2's, at
+           /ballot. Only the mount moved. door2-spine.js no longer declares a
+           "view of the ballot workspace" strip for this id, because there is no
+           longer a mount here for a strip to label.
+           ═══════════════════════════════════════════════════════════════════ -->
 
       <!-- ═══════════════════════════════════════════════════════════════════
            WHAT CHANGED · the personal notifications digest
@@ -10519,8 +9458,26 @@ window.PDXLazy = (function () {
       })();
       </script>
 
-      <section id="my-saved" class="mb-14 md:mb-16 animate-on-scroll" style="transition-delay:0.05s;" aria-label="My Saved — the politicians, issues and evidence I've saved">
-        <div id="my-saved-panel" class="msv-panel"></div>
+      <!-- ── THE DESK MOVED. THE DOOR STAYED. ──────────────────────────────
+           #my-saved kept its id because the anchor is still true: a reader who
+           follows an old link to it should land on the thing that tells them
+           where their saved work is, not at the top of the page. What is inside
+           is one card now — an eyebrow, a title, one sentence and one pill that
+           leaves. The four-tab workspace, and the Evidence For My Vote panel
+           that used to sit above it, are one region of /me. See the tombstone
+           above #pdx-wsc-styles.
+
+           The static sentence below is true before any script runs: saved work
+           IS kept in the workspace, whatever the count. The module near </body>
+           replaces it with the count — including an honest "nothing saved yet"
+           when that is the count. -->
+      <section id="my-saved" class="mb-14 md:mb-16 animate-on-scroll" style="transition-delay:0.05s;" aria-labelledby="wsc-t">
+        <div class="wsc" id="wsc">
+          <p class="wsc-eyebrow">🔖 Your workspace</p>
+          <h2 class="wsc-title" id="wsc-t">My saved</h2>
+          <p class="wsc-line" id="wsc-count">Your saved receipts, issues and politicians are kept in your workspace.</p>
+          <p class="wsc-go"><a class="wsc-b" href="/me">Open my workspace &rarr;</a></p>
+        </div>
       </section>
 
       <!-- Hidden elements for legacy JS compatibility to prevent crashes -->
@@ -29198,176 +28155,52 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   </script>
 
   <!-- ═══════════════════════════════════════════════════════════════════
-       MY SAVED / MY EVIDENCE — the dedicated workspace (Phase 4)
-       Turns saving from a hidden search-dropdown list into a first-class page.
-       Reads the shared window.PDXSaved store (receipts / issues / spotlights) and
-       the My Team roster (localStorage 'politidex_my_politicians'), and paints the
-       #my-saved section with four tabs: All Saved, My Evidence (receipts), Issues &
-       Spotlights, and Politicians. Each receipt renders a canonical window.PDXStance
-       pill, the politician + context, a source label and snippet, an optional
-       personal "why I saved this" note, and quick actions into the Evidence Locker
-       and the profile. Stays live by listening for 'pdx-saved-change'. Framework-
-       free, keyboard-navigable (roving-tabindex tabs) and mobile-friendly.
+       MY SAVED / MY EVIDENCE MOVED TO /me. THIS IS THE TOMBSTONE.
+       ────────────────────────────────────────────────────────────────────
+       What stood here: ~1,700 lines that painted a reader's entire research
+       desk onto the homepage. Four tabs (All Saved · My Evidence · Issues &
+       Spotlights · Politicians), receipts with canonical stance pills and
+       personal "why I saved this" notes, an inline tag editor, a persisted
+       tag filter with a List/Grouped toggle, the My Team roster, and — a few
+       thousand lines up the page — a second panel, Evidence For My Vote,
+       that cross-referenced the same store against the ballot.
+
+       WHY IT LEFT. The homepage has one job: who represents me, and where is
+       the record. The desk is not that job. It is where a reader goes AFTER
+       they have found something, and it was the tallest block on the page for
+       a visitor who had saved nothing — a cathedral with no congregation.
+       Both surfaces are one region of /me now, which is the reader's own
+       document and already reads the same two stores.
+
+       WHAT IS LEFT HERE. One card, in #my-saved, that counts and points. Its
+       style is below; the module that fills it is the short one near </body>
+       where the four-tab renderer used to be. It renders no item and opens no
+       tab, and when the count is zero it says so in one sentence.
+
+       THE ANCHOR STAYED. #my-saved kept its id: an old link to it should land
+       on the thing that tells the reader where their saved work went, not at
+       the top of the page. Nav rows point at /me directly.
+
+       NOTHING WAS DELETED FROM ANY STORE. window.PDXSaved, the roster and
+       every saved item are untouched; only the mount moved.
        ═══════════════════════════════════════════════════════════════════ -->
-  <style id="pdx-msv-styles">
-    .msv-wrap{max-width:72rem;margin:0 auto;padding:1.5rem 1.4rem 1.7rem;border-radius:1.4rem;background:linear-gradient(180deg,rgba(15,23,42,0.82),rgba(10,15,30,0.9));border:1px solid rgba(148,163,184,0.16);box-shadow:0 20px 60px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.03);}
-    .msv-head{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;}
-    .msv-eyebrow{display:inline-flex;align-items:center;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:#e9d8a6;margin-bottom:0.3rem;}
-    .msv-eyebrow .msv-eyebrow-dot{width:0.45rem;height:0.45rem;border-radius:9999px;background:#f5c842;box-shadow:0 0 10px rgba(245,200,66,0.7);}
-    .msv-title{font-family:'Bebas Neue','Barlow Condensed',sans-serif;font-size:2.1rem;line-height:1;letter-spacing:0.02em;color:#eaf1fd;margin:0;}
-    .msv-title b{color:#f5c842;font-weight:inherit;}
-    .msv-sub{font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;color:#9fb4d4;margin-top:0.35rem;max-width:38rem;line-height:1.45;}
-    /* Live-count summary strip pinned to the top of the panel — an at-a-glance
-       tally of what's saved, plus the team-level "Clear my team" control. */
-    .msv-summary{display:flex;align-items:center;justify-content:space-between;gap:0.8rem;flex-wrap:wrap;margin-bottom:1rem;padding:0.6rem 0.85rem;border-radius:0.85rem;background:rgba(148,163,184,0.06);border:1px solid rgba(148,163,184,0.14);}
-    .msv-summary-counts{display:flex;align-items:center;gap:0.55rem;flex-wrap:wrap;font-family:'Barlow Condensed',sans-serif;font-size:0.86rem;color:#9fb4d4;letter-spacing:0.01em;}
-    .msv-summary-stat{color:#c7d4e8;}
-    .msv-summary-stat b{color:#f5c842;font-weight:800;font-size:0.98rem;}
-    .msv-summary-dot{color:rgba(148,163,184,0.5);}
-    @media (max-width:640px){.msv-summary{padding:0.7rem 0.8rem;}.msv-summary .msv-act{flex:0 1 auto;}}
-    .msv-eye-link{background:none;border:none;color:#f5c842;font:inherit;cursor:pointer;text-decoration:underline;padding:0;}
-    /* ── Tabs (role=tablist, roving tabindex) ─────────────────────────── */
-    .msv-tabs{display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:1.1rem;padding-bottom:0.2rem;}
-    .msv-tab{display:inline-flex;align-items:center;gap:0.4rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;color:#9fb4d4;background:rgba(148,163,184,0.08);border:1px solid rgba(148,163,184,0.18);border-radius:9999px;padding:0.42rem 0.85rem;cursor:pointer;transition:color .15s ease,background .15s ease,border-color .15s ease,box-shadow .15s ease;}
-    .msv-tab:hover{color:#e7eefb;background:rgba(148,163,184,0.14);}
-    .msv-tab:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(245,200,66,0.35);}
-    .msv-tab.is-on{color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border-color:rgba(245,200,66,0.9);box-shadow:0 0 14px rgba(245,200,66,0.3);}
-    .msv-tab-n{min-width:1.2rem;height:1.2rem;padding:0 0.32rem;border-radius:9999px;background:rgba(10,15,30,0.28);color:inherit;font-size:0.66rem;line-height:1.2rem;text-align:center;font-weight:800;}
-    .msv-tab:not(.is-on) .msv-tab-n{background:rgba(148,163,184,0.16);color:#c7d4e8;}
-    /* ── Groups (All Saved view) ──────────────────────────────────────── */
-    .msv-group{margin-bottom:1.5rem;}
-    .msv-group:last-child{margin-bottom:0;}
-    .msv-group-h{display:flex;align-items:center;gap:0.5rem;margin:0 0.15rem 0.7rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.16em;text-transform:uppercase;color:#8aa0c0;}
-    .msv-group-h .msv-group-dot{width:0.4rem;height:0.4rem;border-radius:9999px;flex-shrink:0;}
-    .msv-group-more{margin-left:auto;background:none;border:none;color:#e9d8a6;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;padding:0;}
-    .msv-group-more:hover{color:#f5c842;text-decoration:underline;}
-    /* ── Card grid ────────────────────────────────────────────────────── */
-    .msv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(19rem,1fr));gap:0.8rem;}
-    .msv-card{display:flex;flex-direction:column;gap:0.6rem;padding:0.85rem 0.9rem;border-radius:1rem;background:linear-gradient(180deg,rgba(13,21,38,0.72),rgba(10,15,30,0.5));border:1px solid rgba(148,163,184,0.16);transition:border-color .15s ease,box-shadow .15s ease,transform .12s ease;}
-    .msv-card:hover{border-color:rgba(245,200,66,0.32);box-shadow:0 8px 26px rgba(0,0,0,0.32);}
-    /* Team receipts — belong to a representative or a tracked politician. A warm
-       left rail + gold border makes them read as a cluster at a glance. */
-    .msv-card--team{border-color:rgba(245,200,66,0.42);box-shadow:inset 3px 0 0 rgba(245,200,66,0.7);background:linear-gradient(180deg,rgba(38,31,12,0.62),rgba(15,17,20,0.5));}
-    .msv-card--team:hover{border-color:rgba(245,200,66,0.55);box-shadow:inset 3px 0 0 rgba(245,200,66,0.85),0 8px 26px rgba(0,0,0,0.34);}
-    .msv-card-top{display:flex;align-items:flex-start;gap:0.65rem;}
-    .msv-thumb{flex-shrink:0;width:2.6rem;height:2.6rem;border-radius:9999px;overflow:hidden;background:linear-gradient(135deg,rgba(30,53,96,0.7),rgba(10,15,30,0.85));border:1.5px solid rgba(148,163,184,0.28);display:flex;align-items:center;justify-content:center;font-size:1.15rem;}
-    .msv-thumb img{width:100%;height:100%;object-fit:cover;object-position:top center;}
-    .msv-thumb.msv-thumb--issue{border-radius:0.7rem;border-color:rgba(251,146,60,0.42);background:linear-gradient(135deg,rgba(120,53,15,0.5),rgba(10,15,30,0.85));}
-    .msv-card-body{min-width:0;flex:1;}
-    .msv-card-title{font-family:'Barlow',sans-serif;font-weight:600;font-size:0.98rem;color:#eaf1fd;line-height:1.25;}
-    .msv-card-meta{font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;letter-spacing:0.01em;color:#9fb4d4;margin-top:0.15rem;}
-    .msv-card-meta b{color:#cdd9ec;font-weight:600;}
-    .msv-pill-row{display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;margin-top:0.1rem;}
-    .msv-snip{font-family:'Barlow',sans-serif;font-size:0.86rem;line-height:1.45;color:#c2d0e6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
-    .msv-tag{flex-shrink:0;display:inline-block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;padding:0.14rem 0.46rem;border-radius:9999px;white-space:nowrap;color:#a9b8d0;background:rgba(148,163,184,0.12);border:1px solid rgba(148,163,184,0.24);}
-    .msv-tag--src{color:#8fd3c4;background:rgba(45,212,164,0.1);border-color:rgba(45,212,164,0.28);}
-    .msv-tag--badge{color:#e9d8a6;background:rgba(245,200,66,0.12);border-color:rgba(245,200,66,0.3);}
-    .msv-tag--pledge{color:#c4b5fd;background:rgba(167,139,250,0.12);border-color:rgba(167,139,250,0.32);}
-    .msv-tag--team{color:#f5d97a;background:rgba(245,200,66,0.16);border-color:rgba(245,200,66,0.5);}
-    .msv-party{flex-shrink:0;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.04em;padding:0.12rem 0.4rem;border-radius:9999px;}
-    /* ── Personal note ("why I saved this") ───────────────────────────── */
-    .msv-note{border-left:2px solid rgba(245,200,66,0.5);padding:0.15rem 0 0.15rem 0.6rem;}
-    .msv-note-q{font-family:'Barlow',sans-serif;font-style:italic;font-size:0.84rem;color:#d7c79a;line-height:1.4;white-space:pre-wrap;overflow-wrap:anywhere;}
-    /* Long notes render a calm 3-line preview until the reader expands them. */
-    .msv-note-q.is-clamped{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;}
-    .msv-note-more{display:inline-flex;align-items:center;gap:0.25rem;margin-top:0.3rem;padding:0;background:none;border:none;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.64rem;letter-spacing:0.09em;text-transform:uppercase;color:#8aa0c0;transition:color .13s ease;}
-    .msv-note-more:hover{color:#d7c79a;}
-    .msv-note-more:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(245,200,66,0.28);border-radius:0.3rem;}
-    .msv-note-more-caret{font-size:0.6rem;line-height:1;opacity:0.85;}
-    .msv-note-lbl{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#8aa0c0;margin-bottom:0.15rem;}
-    .msv-note-ta{width:100%;box-sizing:border-box;min-height:5.5rem;max-height:16rem;resize:vertical;background:rgba(10,15,30,0.7);border:1px solid rgba(148,163,184,0.3);border-radius:0.6rem;color:#e7eefb;font-family:'Barlow',sans-serif;font-size:0.86rem;line-height:1.45;padding:0.5rem 0.6rem;outline:none;}
-    .msv-note-ta:focus{border-color:rgba(245,200,66,0.6);box-shadow:0 0 0 3px rgba(245,200,66,0.14);}
-    .msv-note-actions{display:flex;gap:0.4rem;margin-top:0.4rem;}
-    /* ── User tags (chips) ─────────────────────────────────────────────── */
-    .msv-tags{display:flex;flex-direction:column;gap:0.3rem;}
-    .msv-tags-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#8aa0c0;}
-    .msv-chips{display:flex;flex-wrap:wrap;gap:0.35rem;align-items:center;}
-    .msv-chip{display:inline-flex;align-items:center;gap:0.28rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.04em;color:#e9d8a6;background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.3);border-radius:9999px;padding:0.18rem 0.5rem;cursor:pointer;transition:color .13s ease,background .13s ease,border-color .13s ease,box-shadow .13s ease;}
-    .msv-chip:hover{color:#fbe9b0;background:rgba(245,200,66,0.18);border-color:rgba(245,200,66,0.5);}
-    .msv-chip:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(245,200,66,0.32);}
-    .msv-chip .msv-chip-x{font-size:0.85rem;line-height:1;opacity:0.75;}
-    .msv-chip:hover .msv-chip-x{opacity:1;}
-    .msv-chip-label{text-transform:capitalize;}
-    .msv-chip--add{color:#9fb4d4;background:rgba(148,163,184,0.1);border:1px dashed rgba(148,163,184,0.4);}
-    .msv-chip--add:hover{color:#e7eefb;background:rgba(148,163,184,0.18);border-color:rgba(148,163,184,0.6);}
-    .msv-chip--done{color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border-color:rgba(245,200,66,0.9);}
-    .msv-chip--done:hover{color:#0a0f1e;background:linear-gradient(135deg,#ffe488,#f0c400);}
-    .msv-tag-add{display:inline-flex;align-items:center;gap:0.35rem;}
-    .msv-tag-input{width:8.5rem;box-sizing:border-box;background:rgba(10,15,30,0.7);border:1px solid rgba(148,163,184,0.3);border-radius:9999px;color:#e7eefb;font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;letter-spacing:0.02em;padding:0.2rem 0.6rem;outline:none;}
-    .msv-tag-input:focus{border-color:rgba(245,200,66,0.6);box-shadow:0 0 0 3px rgba(245,200,66,0.14);}
-    /* ── Action strip ─────────────────────────────────────────────────── */
-    .msv-acts{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:auto;}
-    .msv-act{display:inline-flex;align-items:center;gap:0.32rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.04em;color:#b9c6dc;background:rgba(148,163,184,0.1);border:1px solid rgba(148,163,184,0.2);border-radius:0.55rem;padding:0.34rem 0.6rem;cursor:pointer;transition:color .13s ease,background .13s ease,border-color .13s ease,box-shadow .13s ease;}
-    .msv-act:hover{color:#eaf1fd;background:rgba(148,163,184,0.18);border-color:rgba(148,163,184,0.34);}
-    .msv-act:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(245,200,66,0.32);}
-    .msv-act .msv-act-ico{font-size:0.85rem;line-height:1;}
-    .msv-act--primary{color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border-color:rgba(245,200,66,0.9);}
-    .msv-act--primary:hover{color:#0a0f1e;background:linear-gradient(135deg,#ffe488,#f0c400);}
-    .msv-act--danger{color:#f7b0a3;background:rgba(248,113,90,0.1);border-color:rgba(248,113,90,0.28);}
-    .msv-act--danger:hover{color:#ffd9d0;background:rgba(248,113,90,0.18);}
-    /* ── Tag filter bar + view controls (My Evidence) ─────────────────── */
-    .msv-filter{display:flex;flex-direction:column;gap:0.7rem;margin-bottom:1.1rem;padding:0.8rem 0.9rem;border-radius:0.9rem;background:linear-gradient(180deg,rgba(13,21,38,0.5),rgba(10,15,30,0.34));border:1px solid rgba(148,163,184,0.14);}
-    .msv-filter-row{display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;}
-    .msv-filter-lbl{flex-shrink:0;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.14em;text-transform:uppercase;color:#8aa0c0;}
-    .msv-fchips{display:flex;flex-wrap:wrap;gap:0.35rem;}
-    .msv-fchip{display:inline-flex;align-items:center;gap:0.34rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.03em;text-transform:capitalize;color:#e9d8a6;background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.26);border-radius:9999px;padding:0.2rem 0.55rem;cursor:pointer;transition:color .13s ease,background .13s ease,border-color .13s ease,box-shadow .13s ease;}
-    .msv-fchip:hover{color:#fbe9b0;background:rgba(245,200,66,0.16);border-color:rgba(245,200,66,0.46);}
-    .msv-fchip:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(245,200,66,0.3);}
-    .msv-fchip.is-on{color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);border-color:rgba(245,200,66,0.9);box-shadow:0 0 12px rgba(245,200,66,0.25);}
-    .msv-fchip-n{font-size:0.62rem;font-weight:800;line-height:1.05rem;min-width:1.05rem;padding:0 0.28rem;text-align:center;border-radius:9999px;background:rgba(148,163,184,0.18);color:#c7d4e8;}
-    .msv-fchip.is-on .msv-fchip-n{background:rgba(10,15,30,0.24);color:inherit;}
-    .msv-filter-clear{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.06em;text-transform:uppercase;color:#b9c6dc;background:rgba(148,163,184,0.1);border:1px solid rgba(148,163,184,0.24);border-radius:9999px;padding:0.22rem 0.62rem;cursor:pointer;transition:color .13s ease,background .13s ease,border-color .13s ease;}
-    .msv-filter-clear:hover{color:#eaf1fd;background:rgba(148,163,184,0.2);border-color:rgba(148,163,184,0.38);}
-    .msv-seg{display:inline-flex;gap:0.15rem;padding:0.16rem;border-radius:9999px;background:rgba(10,15,30,0.5);border:1px solid rgba(148,163,184,0.2);}
-    .msv-seg-btn{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.68rem;letter-spacing:0.06em;text-transform:uppercase;color:#9fb4d4;background:none;border:none;border-radius:9999px;padding:0.26rem 0.72rem;cursor:pointer;transition:color .13s ease,background .13s ease;}
-    .msv-seg-btn:hover{color:#e7eefb;}
-    .msv-seg-btn.is-on{color:#0a0f1e;background:linear-gradient(135deg,#fad96a,#e6b800);}
-    .msv-seg-btn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(245,200,66,0.3);}
-    .msv-filter-note{font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;color:#8aa0c0;}
-    .msv-filter-note b{color:#e9d8a6;font-weight:700;text-transform:capitalize;}
-    /* ── Touch / coarse-pointer polish ─────────────────────────────────────
-       These personal-organization controls get heavy use on phones. Pressed
-       states give tactile feedback on every device; the coarse-pointer query
-       (no hover, finger-sized pointer) grows the chips, filter pills and card
-       actions into comfortable ~44px tap targets and relaxes their spacing so
-       adding/removing tags and filtering never depend on a hover the device
-       can't produce. Same gold/steel language — just larger. */
-    .msv-chip:active{transform:scale(0.94);background:rgba(245,200,66,0.24);}
-    .msv-chip--add:active{background:rgba(148,163,184,0.22);}
-    .msv-chip--done:active{background:linear-gradient(135deg,#ffe488,#f0c400);}
-    .msv-fchip:active{transform:scale(0.94);background:rgba(245,200,66,0.2);}
-    .msv-fchip.is-on:active{background:linear-gradient(135deg,#ffe488,#f0c400);}
-    .msv-act:active{transform:scale(0.95);background:rgba(148,163,184,0.26);}
-    .msv-act--primary:active{background:linear-gradient(135deg,#ffe488,#f0c400);}
-    .msv-act--danger:active{background:rgba(248,113,90,0.26);}
-    .msv-filter-clear:active{transform:scale(0.95);background:rgba(148,163,184,0.24);}
-    .msv-seg-btn:active{color:#e7eefb;}
-    @media (hover:none) and (pointer:coarse){
-      .msv-chips{gap:0.5rem;}
-      .msv-chip{font-size:0.78rem;padding:0.42rem 0.72rem;gap:0.38rem;}
-      .msv-chip .msv-chip-x{font-size:1.05rem;opacity:1;margin:-0.25rem -0.12rem -0.25rem 0.05rem;padding:0.25rem 0.18rem;}
-      .msv-chip--add,.msv-chip--done{padding:0.46rem 0.85rem;}
-      .msv-tag-input{font-size:1rem;padding:0.42rem 0.8rem;width:10rem;}
-      .msv-fchips{gap:0.5rem;}
-      .msv-fchip{font-size:0.82rem;padding:0.46rem 0.82rem;gap:0.4rem;}
-      .msv-fchip-n{font-size:0.68rem;line-height:1.25rem;min-width:1.25rem;}
-      .msv-filter-clear{font-size:0.72rem;padding:0.44rem 0.88rem;}
-      .msv-seg-btn{font-size:0.76rem;padding:0.46rem 0.98rem;}
-      .msv-acts{gap:0.5rem;}
-      .msv-act{font-size:0.8rem;padding:0.55rem 0.88rem;min-height:2.6rem;}
-    }
-    .msv-group-tagname{text-transform:capitalize;color:#e9d8a6;}
-    /* ── Empty states ─────────────────────────────────────────────────── */
-    .msv-empty{text-align:center;padding:2.4rem 1.2rem;}
-    .msv-empty-eye{font-size:2.2rem;margin-bottom:0.5rem;filter:drop-shadow(0 0 14px rgba(245,200,66,0.35));}
-    .msv-empty-h{font-family:'Bebas Neue','Barlow Condensed',sans-serif;font-size:1.55rem;letter-spacing:0.02em;color:#eaf1fd;margin-bottom:0.4rem;}
-    .msv-empty-p{font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;color:#9fb4d4;line-height:1.5;max-width:32rem;margin:0 auto;}
+  <style id="pdx-wsc-styles">
+    /* The workspace card. Deliberately the same shape as the judicial door
+       card in judicial-retention.css: an eyebrow, a title, one line of true
+       sentence, and one pill that leaves. There is nowhere in it to put a
+       number in gold, a bar, a ring or a status colour, because the card has
+       no finding to report — it is a door with a count on it. */
+    .wsc{max-width:72rem;margin:0 auto;padding:1.15rem 1.3rem 1.25rem;border-radius:1.1rem;background:linear-gradient(180deg,rgba(15,23,42,0.82),rgba(10,15,30,0.9));border:1px solid rgba(148,163,184,0.16);box-shadow:0 14px 40px rgba(0,0,0,0.34),inset 0 1px 0 rgba(255,255,255,0.03);}
+    .wsc-eyebrow{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:#e9d8a6;margin:0 0 0.3rem;}
+    .wsc-title{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;letter-spacing:0.02em;color:#f3f7ff;margin:0 0 0.35rem;}
+    .wsc-line{font-family:'Barlow',sans-serif;font-size:0.88rem;line-height:1.5;color:#9fb4d4;margin:0;max-width:46rem;}
+    .wsc-go{margin:0.85rem 0 0;}
+    .wsc-b{display:inline-flex;align-items:center;gap:0.35rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.76rem;letter-spacing:0.14em;text-transform:uppercase;color:#0a0f1e;background:#e9d8a6;border-radius:9999px;padding:0.42rem 0.95rem;text-decoration:none;}
+    .wsc-b:hover{background:#f5e7bd;}
     @media (max-width:640px){
-      .msv-wrap{padding:1.15rem 0.95rem 1.3rem;border-radius:1.2rem;}
-      .msv-title{font-size:1.75rem;}
-      .msv-grid{grid-template-columns:1fr;}
-      .msv-act{flex:1 1 auto;justify-content:center;}
-      .msv-tab{font-size:0.72rem;padding:0.4rem 0.7rem;}
+      .wsc{padding:1rem 1rem 1.1rem;border-radius:0.9rem;}
+      .wsc-title{font-size:1.2rem;}
+      .wsc-line{font-size:0.85rem;}
     }
   </style>
 
@@ -29996,62 +28829,44 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   <script>
   (function () {
     'use strict';
-    var PANEL_ID = 'my-saved-panel';
-    // all | evidence | issues | pols. The four workspace views.
-    var activeTab = 'all';
-    var editingNoteId = null;   // idOf() of the receipt whose note editor is open
-    var addingTagId = null;     // idOf() of the receipt whose "add tag" input is open
-    var expandedNotes = {};     // idOf() → true for receipts whose long note is expanded inline
-    var evTagFilter = [];       // My Evidence: selected tags (AND logic); persisted per-browser
-    var evGroupMode = false;    // My Evidence: false = flat list, true = grouped by tag; persisted
-    var focusTabAfterRender = false; // set by keyboard tab nav so we restore focus
-    var wired = false;
+    // ── THE WORKSPACE CARD ────────────────────────────────────────────────
+    // The whole of what the homepage still does about saved work: count it,
+    // and point at the room that holds it. See the tombstone above
+    // #pdx-wsc-styles for what used to be here and why it left.
+    //
+    // WHAT THIS MAY DO. Read the two stores the desk reads, turn them into
+    // one sentence, and paint that sentence into #wsc-count plus the number
+    // onto the nav badges. It renders no saved item, opens no tab, filters
+    // nothing, writes nothing and forms no opinion. Everything that could
+    // have an opinion is at /me, where me-desk.js owns it.
+    //
+    // THE EMPTY STATE IS A SENTENCE. If the count is zero the card says so.
+    // An empty workspace is a true fact about this browser, and the old
+    // answer to it — a full-height illustrated void — was the single tallest
+    // thing a first-time visitor saw.
+    //
+    // THE TWO SEAMS IT KEEPS. all-seeing-eye.js calls
+    // window._pdxOpenMyEvidenceByTag() from a receipt connection (with '')
+    // and from its data-conn-act="evidence" action (with a tag), and several
+    // nav rows called window._renderMySaved(). Both names survive, because a
+    // refusal is not a delete: _renderMySaved repaints this card and the
+    // badges, and _pdxOpenMyEvidenceByTag performs one real navigation to
+    // /me, carrying the tag in the query string instead of dropping it on the
+    // floor. me-desk.js reads ?tag= on arrival.
+    var LINE_ID = 'wsc-count';
+    var BADGE_SEL = '.pdx-saved-count';
+    var ME_HREF = '/me';
+    var EMPTY_LINE = 'Nothing saved yet — the bookmark on any receipt, issue or ' +
+      'politician files it here.';
 
-    // ── organization state persistence ────────────────────────────────
-    // The active tag filters and List/Grouped view are the user's way of
-    // organizing their evidence, so they should feel durable — survive a
-    // reload or a trip through another tab. We keep them in a small dedicated
-    // localStorage key (separate from the pdx_my_saved item store) so the
-    // concern stays isolated and lightweight. Per-browser for now; this can
-    // grow into account-scoped sync later without touching callers.
-    var EV_VIEW_KEY = 'pdx_ev_view';
-    function loadEvView() {
-      try {
-        var v = JSON.parse(localStorage.getItem(EV_VIEW_KEY) || '{}');
-        if (!v || typeof v !== 'object') return { tags: [], group: false };
-        var tags = Array.isArray(v.tags) ? v.tags.filter(function (t) { return typeof t === 'string' && t; }) : [];
-        return { tags: tags, group: !!v.group };
-      } catch (e) { return { tags: [], group: false }; }
+    // ── data access ───────────────────────────────────────────────────────
+    // Both readers are copies of what the four-tab module used, for the same
+    // reason it had them: PDXSaved is the one store for receipts, issues and
+    // spotlights, and the roster answers through the PDXTeamView adapter when
+    // it is loaded and through the legacy key when it is not.
+    function savedList() {
+      return (window.PDXSaved && window.PDXSaved.list) ? window.PDXSaved.list() : [];
     }
-    function saveEvView() {
-      try { localStorage.setItem(EV_VIEW_KEY, JSON.stringify({ tags: evTagFilter, group: evGroupMode })); } catch (e) {}
-    }
-    // Pull the last-used filter + view mode into the live state. Called at boot
-    // and whenever we (re)enter the My Evidence tab.
-    function restoreEvView() {
-      var v = loadEvView();
-      evTagFilter = v.tags.slice();
-      evGroupMode = v.group;
-    }
-
-    function esc(s) {
-      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
-        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-      });
-    }
-    function panel() { return document.getElementById(PANEL_ID); }
-    function toast(m) { if (typeof window._showToast === 'function') window._showToast(m); }
-    function idOf(s) { return String(s.type || '') + '::' + String(s.key || ''); }
-
-    // ── data access ───────────────────────────────────────────────────
-    function savedList() { return (window.PDXSaved && window.PDXSaved.list) ? window.PDXSaved.list() : []; }
-    function receipts() { return savedList().filter(function (s) { return s.type === 'receipt'; }); }
-    function savedIssues() { return savedList().filter(function (s) { return s.type === 'issue' || s.type === 'spotlight'; }); }
-    // The tracked-politician roster that fills the "Politicians · My Team" tab.
-    // Phase 3: prefer the unified PDXTeamView adapter (roster() maps to the v2
-    // getTracked source), and only read the legacy politidex_my_politicians store
-    // directly when the adapter is unavailable — so behavior is byte-for-byte
-    // unchanged on a device that has only ever written the legacy store.
     function teamIds() {
       try {
         var v = window.PDXTeamView;
@@ -30060,707 +28875,71 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           if (Array.isArray(r)) return r.filter(Boolean).map(String);
         }
       } catch (e) {}
-      try { var a = JSON.parse(localStorage.getItem('politidex_my_politicians') || '[]'); return Array.isArray(a) ? a : []; }
-      catch (e) { return []; }
-    }
-
-    // The full set of politician IDs the Evidence Locker treats as "on my team",
-    // sourced through PDXTeamView (Phase 3). "On my team" spans three things the
-    // adapter already unifies: the people committed on the ballot (bySeat picks),
-    // the politicians actively tracked (roster), and — when a location is known —
-    // the officials who represent the voter (representsMe). PDXTeamView prefers the
-    // unified v2 source and falls back to the legacy stores internally, so this is
-    // correct even before v2 data exists. If the adapter is entirely absent we
-    // reproduce the pre-refactor reads directly (roster store + committed ballot).
-    var _evTeamSet = null; // recomputed once per render() so cards share one pass
-    function teamPidSet() {
-      var set = new Set(), got = false;
-      var v = window.PDXTeamView;
-      if (v && typeof v === 'object') {
-        try {
-          if (typeof v.roster === 'function') {
-            (v.roster() || []).forEach(function (id) { if (id) { set.add(String(id)); got = true; } });
-          }
-        } catch (e) {}
-        try {
-          if (typeof v.bySeat === 'function') {
-            var bal = v.bySeat() || {};
-            for (var k in bal) { if (bal[k]) { set.add(String(bal[k])); got = true; } }
-          }
-        } catch (e) {}
-        try {
-          if (typeof v.representsMe === 'function') {
-            (v.representsMe() || []).forEach(function (r) { if (r && r.pid) { set.add(String(r.pid)); got = true; } });
-          }
-        } catch (e) {}
-      }
-      if (got) return set;
-      // Fallback — unified source unavailable: read the legacy stores directly,
-      // exactly as the Evidence Locker did before Phase 3.
-      teamIds().forEach(function (id) { if (id) set.add(String(id)); });
       try {
-        var sel = JSON.parse(localStorage.getItem('politidex_my_team') || '{}') || {};
-        for (var s in sel) { if (sel[s]) set.add(String(sel[s])); }
-      } catch (e) {}
-      return set;
-    }
-    // Cheap per-card predicate against the set computed at the top of render().
-    function receiptOnTeam(polId) {
-      return !!(polId && _evTeamSet && _evTeamSet.has(String(polId)));
-    }
-    // A stable reorder that floats team receipts to the front so they read as a
-    // clear cluster in the flat list, without disturbing the saved order within
-    // each group. Grouped-by-tag view keeps its tag order; the ⭐ badge carries
-    // the team signal there.
-    function teamFirst(list) {
-      var team = [], rest = [];
-      list.forEach(function (s) {
-        var polId = s.polId || (s.nav && s.nav.polId) || '';
-        (receiptOnTeam(polId) ? team : rest).push(s);
-      });
-      return team.concat(rest);
-    }
-    function polRec(id) {
-      var p = null;
-      try { if (window.PROFILES && window.PROFILES[id]) p = window.PROFILES[id]; } catch (e) {}
-      if (!p) { try { if (typeof CMP_DATA !== 'undefined' && CMP_DATA && CMP_DATA[id]) p = CMP_DATA[id]; } catch (e) {} }
-      return p;
-    }
-    function photoFor(id) { try { if (typeof window._getPhotoUrl === 'function') return window._getPhotoUrl(id) || ''; } catch (e) {} return ''; }
-    function partyChip(raw) {
-      var p = String(raw || '').trim().toUpperCase();
-      if (!p) return null;
-      var c = p.charAt(0);
-      if (c === 'R') return { label: 'R', color: '#f87171' };
-      if (c === 'D') return { label: 'D', color: '#60a5fa' };
-      if (c === 'I') return { label: 'IND', color: '#a78bfa' };
-      return { label: p.slice(0, 3), color: '#94a3b8' };
+        var a = JSON.parse(localStorage.getItem('politidex_my_politicians') || '[]');
+        return Array.isArray(a) ? a : [];
+      } catch (e) { return []; }
     }
 
-    // Canonical four-state stance for a saved receipt — prefer the stored raw
-    // stance, and fall back to parsing the legacy sub line ("Supports · …") for
-    // items saved before the snapshot carried a stance field.
-    function stanceKeyOf(s) {
-      var raw = s.stance || s.pos || '';
-      if (!raw && s.sub) { var m = /^\s*(Supports|Opposes|Mixed)/i.exec(s.sub); if (m) raw = m[1]; }
-      try { return window.PDXStance ? window.PDXStance.resolveStance(raw) : 'none'; } catch (e) { return 'none'; }
+    function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
+    // A part with a zero is left out rather than printed as "0 receipts". The
+    // sentence should read as a description of this browser, not a form with
+    // blanks in it.
+    function joinParts(p) {
+      if (p.length === 1) return p[0];
+      if (p.length === 2) return p[0] + ' and ' + p[1];
+      return p.slice(0, p.length - 1).join(', ') + ' and ' + p[p.length - 1];
     }
-    function stancePillHtml(s) {
-      try { if (window.PDXStance && window.PDXStance.stancePill) return window.PDXStance.stancePill(stanceKeyOf(s)); } catch (e) {}
-      return '';
-    }
-
-    // ── card renderers ────────────────────────────────────────────────
-    function thumbHtml(polId, fallbackIcon, issueLike) {
-      var url = polId ? photoFor(polId) : '';
-      var cls = 'msv-thumb' + (issueLike ? ' msv-thumb--issue' : '');
-      if (url) {
-        return '<span class="' + cls + '"><img src="' + esc(url) + '" alt="" loading="lazy" ' +
-          'onerror="this.style.display=\'none\';this.parentNode.textContent=\'' + esc(fallbackIcon) + '\'"></span>';
+    function countLine() {
+      var list = savedList(), rec = 0, iss = 0;
+      for (var i = 0; i < list.length; i++) {
+        var t = list[i] && list[i].type;
+        if (t === 'receipt') rec++;
+        else if (t === 'issue' || t === 'spotlight') iss++;
       }
-      return '<span class="' + cls + '">' + esc(fallbackIcon) + '</span>';
-    }
-    function act(id, ico, label, extraAttrs, cls) {
-      return '<button type="button" class="msv-act' + (cls ? ' ' + cls : '') + '" data-msv-act="' + id + '" ' + (extraAttrs || '') + '>' +
-        '<span class="msv-act-ico" aria-hidden="true">' + esc(ico) + '</span>' + esc(label) + '</button>';
-    }
-
-    // A saved receipt — the heart of "My Evidence".
-    function receiptCard(s) {
-      var id = idOf(s);
-      var polId = s.polId || (s.nav && s.nav.polId) || '';
-      var issueKey = s.issueKey || (s.nav && s.nav.issueKey) || '';
-      var onTeam = receiptOnTeam(polId);
-      var metaBits = [];
-      if (s.polName) metaBits.push('<b>' + esc(s.polName) + '</b>');
-      if (s.polSub) metaBits.push(esc(s.polSub));
-      var meta = metaBits.join(' · ');
-
-      var pills = '<div class="msv-pill-row">' +
-        (onTeam ? '<span class="msv-tag msv-tag--team" title="This receipt belongs to someone on your ballot — a representative or a politician you track">⭐ Your pick</span>' : '') +
-        stancePillHtml(s) +
-        (s.pledge ? '<span class="msv-tag msv-tag--pledge">Pledge</span>' : '') +
-        (s.sourceLabel ? '<span class="msv-tag msv-tag--src">' + esc(s.sourceLabel) + '</span>' : '') + '</div>';
-
-      var noteHtml = noteBlock(s, id);
-      var tagsHtml = tagsBlock(s, id);
-
-      var acts = '<div class="msv-acts">' +
-        act('evidence', '🗄', 'Evidence Locker', 'data-pol="' + esc(polId) + '" data-issue="' + esc(issueKey) + '"', 'msv-act--primary') +
-        (polId ? act('profile', '👤', 'Jump to politician', 'data-pol="' + esc(polId) + '"') : '') +
-        act('remove', '✕', 'Remove', 'data-type="' + esc(s.type) + '" data-key="' + esc(s.key) + '"', 'msv-act--danger') +
-        '</div>';
-
-      return '<div class="msv-card' + (onTeam ? ' msv-card--team' : '') + '">' +
-        '<div class="msv-card-top">' + thumbHtml(polId, s.icon || '🧾', false) +
-          '<div class="msv-card-body">' +
-            '<div class="msv-card-title">' + esc(s.topic || s.title || 'Saved receipt') + '</div>' +
-            (meta ? '<div class="msv-card-meta">' + meta + '</div>' : '') +
-            pills +
-          '</div>' +
-        '</div>' +
-        (s.snippet ? '<div class="msv-snip">' + esc(s.snippet) + '</div>' : '') +
-        noteHtml +
-        tagsHtml +
-        acts +
-      '</div>';
+      var pols = teamIds().length;
+      var parts = [];
+      if (rec) parts.push(plural(rec, 'receipt', 'receipts'));
+      if (iss) parts.push(plural(iss, 'issue', 'issues'));
+      if (pols) parts.push(plural(pols, 'politician', 'politicians'));
+      if (!parts.length) return EMPTY_LINE;
+      return joinParts(parts) + ' saved in this browser.';
     }
 
-    // A note earns the truncated preview when it's tall enough that showing it
-    // in full would crowd the card — either many characters or several lines.
-    function noteIsLong(note) {
-      var t = String(note == null ? '' : note);
-      return t.length > 170 || t.split('\n').length > 3;
-    }
-
-    // The optional personal note — display, edit-in-place, or an invitation.
-    // Multi-line notes are supported end to end: the editor is a real textarea,
-    // and long notes collapse to a calm 3-line preview with Read more / Show less.
-    function noteBlock(s, id) {
-      if (editingNoteId === id) {
-        var cap = (window.PDXSaved && window.PDXSaved.NOTE_MAX_LEN) || 3000;
-        return '<div class="msv-note-edit">' +
-          '<span class="msv-note-lbl">Why I saved this</span>' +
-          '<textarea class="msv-note-ta" rows="5" maxlength="' + cap + '" placeholder="A note to your future self — what this proves, why it matters. Multiple lines are fine.">' + esc(s.note || '') + '</textarea>' +
-          '<div class="msv-note-actions">' +
-            act('note-save', '✓', 'Save note', 'data-type="' + esc(s.type) + '" data-key="' + esc(s.key) + '"', 'msv-act--primary') +
-            act('note-cancel', '↩', 'Cancel', '') +
-          '</div>' +
-        '</div>';
-      }
-      if (s.note) {
-        var long = noteIsLong(s.note);
-        var open = !!expandedNotes[id];
-        var clamp = (long && !open) ? ' is-clamped' : '';
-        var toggle = '';
-        if (long) {
-          toggle = open
-            ? '<button type="button" class="msv-note-more" data-msv-act="note-collapse" data-id="' + esc(id) + '">Show less <span class="msv-note-more-caret" aria-hidden="true">▲</span></button>'
-            : '<button type="button" class="msv-note-more" data-msv-act="note-expand" data-id="' + esc(id) + '">Read more <span class="msv-note-more-caret" aria-hidden="true">▼</span></button>';
-        }
-        return '<div class="msv-note">' +
-          '<span class="msv-note-lbl">Why I saved this</span>' +
-          '<div class="msv-note-q' + clamp + '">' + esc(s.note) + '</div>' +
-          toggle +
-          '<div class="msv-note-actions">' + act('note-open', '✎', 'Edit note', 'data-id="' + esc(id) + '"') + '</div>' +
-        '</div>';
-      }
-      return '<div class="msv-note-actions">' + act('note-open', '＋', 'Why I saved this', 'data-id="' + esc(id) + '"') + '</div>';
-    }
-
-    // User-chosen tags for a receipt: existing tags as removable chips, plus a
-    // calm "+ Add tag" affordance that reveals an inline input (commit on Enter
-    // or comma). Everything routes through window.PDXSaved.setTags, so edits
-    // persist to localStorage and re-render the panel immediately.
-    function tagsBlock(s, id) {
-      var tags = (window.PDXSaved && window.PDXSaved.normTags)
-        ? window.PDXSaved.normTags(s.tags)
-        : (Array.isArray(s.tags) ? s.tags : []);
-      var chips = '';
-      for (var i = 0; i < tags.length; i++) {
-        chips += '<button type="button" class="msv-chip" data-msv-act="tag-remove" ' +
-          'data-type="' + esc(s.type) + '" data-key="' + esc(s.key) + '" data-tag="' + esc(tags[i]) + '" ' +
-          'title="Remove tag" aria-label="Remove tag ' + esc(tags[i]) + '">' +
-          '<span class="msv-chip-x" aria-hidden="true">×</span>' +
-          '<span class="msv-chip-label">' + esc(tags[i]) + '</span></button>';
-      }
-      var adder;
-      if (addingTagId === id) {
-        adder = '<span class="msv-tag-add">' +
-          '<input type="text" class="msv-tag-input" maxlength="40" placeholder="Add tag…" ' +
-            'data-type="' + esc(s.type) + '" data-key="' + esc(s.key) + '" ' +
-            'aria-label="Add a tag" autocomplete="off" spellcheck="false">' +
-          '<button type="button" class="msv-chip msv-chip--done" data-msv-act="tag-add-close">Done</button>' +
-        '</span>';
-      } else {
-        adder = '<button type="button" class="msv-chip msv-chip--add" data-msv-act="tag-add-open" data-id="' + esc(id) + '">＋ Add tag</button>';
-      }
-      var lbl = tags.length ? '<span class="msv-tags-lbl">Tags</span>' : '';
-      return '<div class="msv-tags">' + lbl +
-        '<div class="msv-chips">' + chips + adder + '</div>' +
-      '</div>';
-    }
-
-    // A saved issue or Spotlight.
-    function issueCard(s) {
-      var badge = s.type === 'spotlight' ? 'Spotlight' : 'Issue';
-      var open = s.type === 'spotlight'
-        ? act('open-spot', '🔦', 'Open Spotlight', 'data-slug="' + esc((s.nav && s.nav.slug) || s.slug || '') + '"', 'msv-act--primary')
-        : act('open-issue', '🧭', 'Who stands where', 'data-issue="' + esc(s.issueKey || (s.nav && s.nav.issueKey) || '') + '"', 'msv-act--primary');
-      return '<div class="msv-card">' +
-        '<div class="msv-card-top">' + thumbHtml('', s.icon || (s.type === 'spotlight' ? '🔦' : '🎯'), true) +
-          '<div class="msv-card-body">' +
-            '<div class="msv-card-title">' + esc(s.title || 'Saved issue') + '</div>' +
-            (s.sub ? '<div class="msv-card-meta">' + esc(s.sub) + '</div>' : '') +
-            '<div class="msv-pill-row"><span class="msv-tag msv-tag--badge">' + badge + '</span></div>' +
-          '</div>' +
-        '</div>' +
-        '<div class="msv-acts">' + open +
-          act('remove', '✕', 'Remove', 'data-type="' + esc(s.type) + '" data-key="' + esc(s.key) + '"', 'msv-act--danger') +
-        '</div>' +
-      '</div>';
-    }
-
-    // A saved politician (from My Team).
-    function polCard(id) {
-      var d = polRec(id);
-      var name = (d && d.name) || String(id).replace(/_/g, ' ');
-      var sub = d ? [d.office, d.district, d.state].map(function (x) { return String(x == null ? '' : x).trim(); }).filter(Boolean).join(' · ') : '';
-      var pc = d ? partyChip(d.party) : null;
-      var party = pc ? '<span class="msv-party" style="color:' + pc.color + ';background:' + pc.color + '22;border:1px solid ' + pc.color + '55;">' + esc(pc.label) + '</span>' : '';
-      return '<div class="msv-card">' +
-        '<div class="msv-card-top">' + thumbHtml(id, (d && d.icon) || '🏛', false) +
-          '<div class="msv-card-body">' +
-            '<div class="msv-card-title">' + esc(name) + '</div>' +
-            (sub ? '<div class="msv-card-meta">' + esc(sub) + '</div>' : '') +
-            (party ? '<div class="msv-pill-row">' + party + '</div>' : '') +
-          '</div>' +
-        '</div>' +
-        '<div class="msv-acts">' +
-          act('profile', '👤', 'View profile', 'data-pol="' + esc(id) + '"', 'msv-act--primary') +
-          act('evidence', '🗄', 'Evidence Locker', 'data-pol="' + esc(id) + '" data-issue=""') +
-          act('remove-pol', '✕', 'Remove from ballot', 'data-pol="' + esc(id) + '"', 'msv-act--danger') +
-        '</div>' +
-      '</div>';
-    }
-
-    function grid(cards) { return '<div class="msv-grid">' + cards.join('') + '</div>'; }
-
-    // A group in the "All Saved" view: a header (with an optional "view all"
-    // that switches to the dedicated tab) and a capped grid.
-    function groupBlock(title, color, tab, cards, cap) {
-      if (!cards.length) return '';
-      var shown = cards.slice(0, cap);
-      var more = cards.length > cap
-        ? '<button type="button" class="msv-group-more" data-msv-act="tab" data-tab="' + tab + '">View all ' + cards.length + ' →</button>'
-        : (tab ? '<button type="button" class="msv-group-more" data-msv-act="tab" data-tab="' + tab + '">Open →</button>' : '');
-      return '<div class="msv-group">' +
-        '<div class="msv-group-h"><span class="msv-group-dot" style="background:' + color + ';"></span>' + esc(title) +
-          '<span style="color:#64748b;font-weight:700;">' + cards.length + '</span>' + more + '</div>' +
-        grid(shown) +
-      '</div>';
-    }
-
-    function emptyBlock(icon, head, para) {
-      return '<div class="msv-empty"><div class="msv-empty-eye">' + esc(icon) + '</div>' +
-        '<div class="msv-empty-h">' + esc(head) + '</div>' +
-        '<div class="msv-empty-p">' + para + '</div></div>';
-    }
-
-    // ── tabs ──────────────────────────────────────────────────────────
-    function tabsHtml(counts) {
-      var defs = [
-        { key: 'all', label: 'All Saved', n: counts.all },
-        { key: 'evidence', label: 'My Evidence', n: counts.receipts },
-        { key: 'issues', label: 'Issues & Spotlights', n: counts.issues },
-        { key: 'pols', label: 'Politicians', n: counts.pols }
-      ];
-      var h = '<div class="msv-tabs" role="tablist" aria-label="My Saved views">';
-      defs.forEach(function (d) {
-        var on = activeTab === d.key;
-        h += '<button type="button" role="tab" class="msv-tab' + (on ? ' is-on' : '') + '" ' +
-          'aria-selected="' + (on ? 'true' : 'false') + '" tabindex="' + (on ? '0' : '-1') + '" ' +
-          'data-msv-act="tab" data-tab="' + d.key + '">' + esc(d.label) +
-          '<span class="msv-tab-n">' + d.n + '</span></button>';
-      });
-      return h + '</div>';
-    }
-
-    // The team-level "Clear my team" control. Reused in the summary strip and the
-    // Politicians tab header. Rendered only when there's actually a team to clear.
-    function clearTeamBtn() {
-      return act('clear-team', '🗑', 'Clear my ballot', 'aria-label="Clear my ballot — removes every pick from your ballot"', 'msv-act--danger');
-    }
-
-    // Live-count summary strip pinned to the top of the panel. Pluralizes cleanly
-    // and reuses the already-computed counts so it adds no new data source.
-    function summaryHtml(counts) {
-      function stat(n, one, many) {
-        return '<span class="msv-summary-stat"><b>' + n + '</b> ' + (n === 1 ? one : many) + '</span>';
-      }
-      var parts = [
-        stat(counts.pols, 'politician', 'politicians'),
-        stat(counts.receipts, 'evidence receipt', 'evidence receipts'),
-        stat(counts.issues, 'issue &amp; spotlight', 'issues &amp; spotlights')
-      ];
-      return '<div class="msv-summary">' +
-          '<div class="msv-summary-counts">' +
-            parts.join('<span class="msv-summary-dot" aria-hidden="true">·</span>') +
-          '</div>' +
-          (counts.pols > 0 ? clearTeamBtn() : '') +
-        '</div>';
-    }
-
-    // ── My Evidence: tag filtering + grouping ─────────────────────────
-    // Normalized tags for one receipt (routes through the shared normalizer so
-    // the values match what the chips and the store use).
-    function evTags(s) {
-      return (window.PDXSaved && window.PDXSaved.normTags)
-        ? window.PDXSaved.normTags(s.tags)
-        : (Array.isArray(s.tags) ? s.tags : []);
-    }
-    // Every tag currently in use across the saved receipts, with a count each.
-    // Returns { tags:[sorted names], counts:{tag:n} }.
-    function evTagUniverse(rc) {
-      var counts = {};
-      for (var i = 0; i < rc.length; i++) {
-        var t = evTags(rc[i]);
-        for (var j = 0; j < t.length; j++) counts[t[j]] = (counts[t[j]] || 0) + 1;
-      }
-      return { tags: Object.keys(counts).sort(), counts: counts };
-    }
-    // Receipts that carry ALL currently selected tags (AND logic). With no
-    // selection every receipt passes through untouched.
-    function evFiltered(rc) {
-      if (!evTagFilter.length) return rc;
-      return rc.filter(function (s) {
-        var t = evTags(s);
-        for (var i = 0; i < evTagFilter.length; i++) {
-          if (t.indexOf(evTagFilter[i]) === -1) return false;
-        }
-        return true;
-      });
-    }
-    // The filter bar: a clickable chip per tag (with count + selected state),
-    // a "Clear filters" escape hatch, and a List/Grouped view toggle.
-    function evFilterBar(universe) {
-      if (!universe.tags.length) return '';
-      var chips = universe.tags.map(function (tag) {
-        var on = evTagFilter.indexOf(tag) !== -1;
-        return '<button type="button" class="msv-fchip' + (on ? ' is-on' : '') + '" ' +
-          'data-msv-act="ev-filter-tag" data-tag="' + esc(tag) + '" ' +
-          'aria-pressed="' + (on ? 'true' : 'false') + '">' +
-          '<span class="msv-fchip-label">' + esc(tag) + '</span>' +
-          '<span class="msv-fchip-n">' + universe.counts[tag] + '</span></button>';
-      }).join('');
-      var clear = evTagFilter.length
-        ? '<button type="button" class="msv-filter-clear" data-msv-act="ev-filter-clear">Clear filters ✕</button>'
-        : '';
-      var seg = '<div class="msv-seg" role="group" aria-label="Evidence view mode">' +
-        '<button type="button" class="msv-seg-btn' + (!evGroupMode ? ' is-on' : '') + '" ' +
-          'data-msv-act="ev-view" data-view="list" aria-pressed="' + (!evGroupMode ? 'true' : 'false') + '">List</button>' +
-        '<button type="button" class="msv-seg-btn' + (evGroupMode ? ' is-on' : '') + '" ' +
-          'data-msv-act="ev-view" data-view="grouped" aria-pressed="' + (evGroupMode ? 'true' : 'false') + '">Grouped</button>' +
-      '</div>';
-      var note = '';
-      if (evTagFilter.length) {
-        var named = evTagFilter.map(function (t) { return '<b>' + esc(t) + '</b>'; });
-        var joined = named.length === 1 ? named[0]
-          : named.slice(0, -1).join(', ') + ' and ' + named[named.length - 1];
-        note = '<span class="msv-filter-note">Showing receipts tagged ' + joined + '.</span>';
-      }
-      return '<div class="msv-filter">' +
-        '<div class="msv-filter-row">' +
-          '<span class="msv-filter-lbl">Filter by tag</span>' +
-          '<div class="msv-fchips">' + chips + '</div>' +
-          clear +
-        '</div>' +
-        '<div class="msv-filter-row">' + seg + note + '</div>' +
-      '</div>';
-    }
-    // One tag's group in the grouped view: a gold-dotted header + a card grid.
-    function evTagGroup(title, cards, isUntagged) {
-      return '<div class="msv-group">' +
-        '<div class="msv-group-h">' +
-          '<span class="msv-group-dot" style="background:' + (isUntagged ? '#64748b' : '#f5c842') + ';"></span>' +
-          (isUntagged ? '<span>' + esc(title) + '</span>' : '<span class="msv-group-tagname">' + esc(title) + '</span>') +
-          '<span style="color:#64748b;font-weight:700;">' + cards.length + '</span>' +
-        '</div>' + grid(cards) +
-      '</div>';
-    }
-    // Grouped view: place each (filtered) receipt under every tag it carries,
-    // with any untagged receipts collected into a trailing "Untagged" group.
-    // Selected tags float to the top so a multi-select stays scannable.
-    function evGroupedHtml(rc) {
-      var byTag = {}, untagged = [];
-      rc.forEach(function (s) {
-        var t = evTags(s);
-        if (!t.length) { untagged.push(s); return; }
-        t.forEach(function (tag) { (byTag[tag] = byTag[tag] || []).push(s); });
-      });
-      var tags = Object.keys(byTag).sort(function (a, b) {
-        var sa = evTagFilter.indexOf(a) !== -1, sb = evTagFilter.indexOf(b) !== -1;
-        if (sa !== sb) return sa ? -1 : 1;
-        return a < b ? -1 : a > b ? 1 : 0;
-      });
-      var out = tags.map(function (tag) { return evTagGroup(tag, byTag[tag].map(receiptCard), false); }).join('');
-      if (untagged.length) out += evTagGroup('Untagged', untagged.map(receiptCard), true);
-      return out;
-    }
-    // The whole My Evidence body: filter bar + list-or-grouped content.
-    function renderEvidence(rc) {
-      if (!rc.length) {
-        return emptyBlock('🧾', 'No evidence saved yet', 'Search a position or promise in <button type="button" class="msv-eye-link" data-msv-act="focus-eye">the All-Seeing Eye</button> and choose <b>Save this receipt</b> to build your evidence file.');
-      }
-      var universe = evTagUniverse(rc);
-      // Drop any selected tags that no longer exist (e.g. the last receipt
-      // carrying them was removed or retagged) so the filter can't strand itself.
-      var beforePrune = evTagFilter.length;
-      evTagFilter = evTagFilter.filter(function (t) { return universe.counts[t]; });
-      if (evTagFilter.length !== beforePrune) saveEvView();  // keep storage in sync with the prune
-      var filtered = evFiltered(rc);
-      var content;
-      if (!filtered.length) {
-        content = emptyBlock('🔍', 'No receipts match these tags',
-          'No saved receipt carries every selected tag. <button type="button" class="msv-eye-link" data-msv-act="ev-filter-clear">Clear the filters</button> to see everything again.');
-      } else {
-        content = evGroupMode ? evGroupedHtml(filtered) : grid(teamFirst(filtered).map(receiptCard));
-      }
-      return evFilterBar(universe) + content;
-    }
-
-    // ── main render ───────────────────────────────────────────────────
-    function render() {
-      var host = panel();
-      if (!host) return;
-      // Resolve "on my team" once per render through PDXTeamView so every receipt
-      // card can highlight and cluster without recomputing the set per card.
-      _evTeamSet = teamPidSet();
-      var rc = receipts(), iss = savedIssues(), team = teamIds();
-      var counts = { receipts: rc.length, issues: iss.length, pols: team.length, all: rc.length + iss.length + team.length };
-
-      var body = '';
-      if (counts.all === 0) {
-        body = emptyBlock('🔖', 'Nothing saved yet',
-          'Open <button type="button" class="msv-eye-link" data-msv-act="focus-eye">the All-Seeing Eye</button> and hit <b>Save</b> on any receipt, issue or Spotlight — or add a politician to <b>your ballot</b>. Everything you keep lands right here.');
-      } else if (activeTab === 'evidence') {
-        body = renderEvidence(rc);
-      } else if (activeTab === 'issues') {
-        body = iss.length ? grid(iss.map(issueCard))
-          : emptyBlock('🎯', 'No issues saved yet', 'Save an <b>Issue</b> or a <b>Hot Topic Spotlight</b> from search and it will wait for you here.');
-      } else if (activeTab === 'pols') {
-        body = team.length
-          ? '<div class="msv-summary" style="margin-bottom:0.9rem;">' +
-              '<div class="msv-summary-counts">' +
-                '<span class="msv-summary-stat"><b>' + team.length + '</b> ' +
-                  (team.length === 1 ? 'politician' : 'politicians') + ' on your ballot</span>' +
-              '</div>' + clearTeamBtn() +
-            '</div>' + grid(team.map(polCard))
-          : emptyBlock('🏛', 'Your ballot is empty', 'Add representatives to <b>your ballot</b> from any profile or the All-Seeing Eye, and they will appear here.');
-      } else {
-        // All Saved — a compact overview of every group, newest surfaces first.
-        body = groupBlock('My Evidence — Receipts', '#5eead4', 'evidence', teamFirst(rc).map(receiptCard), 4) +
-          groupBlock('Issues & Spotlights', '#fb923c', 'issues', iss.map(issueCard), 4) +
-          groupBlock('Politicians · Your Ballot', '#f5c842', 'pols', team.map(polCard), 6);
-      }
-
-      host.innerHTML =
-        '<div class="msv-wrap" id="msv-wrap">' +
-          '<div class="msv-head">' +
-            '<div>' +
-              '<div class="msv-eyebrow"><span class="msv-eyebrow-dot"></span>My Workspace</div>' +
-              '<h2 class="msv-title">My <b>Saved</b></h2>' +
-              '<div class="msv-sub">Everything you\'ve kept from the All-Seeing Eye — your <b>evidence receipts</b>, the issues and Spotlights you\'re tracking, and your ballot — in one place.</div>' +
-            '</div>' +
-          '</div>' +
-          (counts.all > 0 ? summaryHtml(counts) : '') +
-          tabsHtml(counts) +
-          '<div class="msv-views">' + body + '</div>' +
-        '</div>';
-
-      if (focusTabAfterRender) {
-        focusTabAfterRender = false;
-        var on = host.querySelector('.msv-tab.is-on');
-        if (on) on.focus();
-      }
-      if (editingNoteId) {
-        var ta = host.querySelector('.msv-note-ta');
-        if (ta) { try { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); } catch (e) {} }
-      }
-      if (addingTagId) {
-        var ti = host.querySelector('.msv-tag-input');
-        if (ti) { try { ti.focus(); } catch (e) {} }
-      }
-      wire();
-    }
-
-    function updateNavCount() {
+    // textContent, not innerHTML: nothing in the sentence comes from a saved
+    // item, and keeping it that way means no saved title can ever reach the
+    // homepage as markup.
+    function paint() {
+      var el = document.getElementById(LINE_ID);
+      if (el) el.textContent = countLine();
       var n = savedList().length + teamIds().length;
-      var els = document.querySelectorAll('.msv-nav-count');
-      for (var i = 0; i < els.length; i++) {
-        els[i].textContent = n > 99 ? '99+' : String(n);
-        els[i].style.display = n > 0 ? '' : 'none';
+      var badges = document.querySelectorAll(BADGE_SEL);
+      for (var i = 0; i < badges.length; i++) {
+        badges[i].textContent = n > 99 ? '99+' : String(n);
+        badges[i].style.display = n > 0 ? '' : 'none';
       }
     }
 
-    // ── event wiring (delegated, attached once) ───────────────────────
-    function setTab(tab, viaKeyboard) {
-      if (tab === activeTab) return;
-      activeTab = tab;
-      editingNoteId = null;   // leaving a view cancels an open note editor
-      addingTagId = null;     // …and any open tag input
-      // Entering My Evidence restores the last-used filter + view so the user's
-      // organization persists across tab switches (rather than resetting).
-      if (tab === 'evidence') restoreEvView();
-      focusTabAfterRender = !!viaKeyboard;
-      render();
-    }
-    // Commit whatever is in an inline tag input: merge it onto the item's
-    // existing tags (normTags trims/lowercases/dedupes) and persist. Keeps the
-    // input open and clears it so several tags can be added in a row.
-    function commitTag(input) {
-      if (!input || !window.PDXSaved || !window.PDXSaved.setTags) return;
-      var type = input.getAttribute('data-type'), key = input.getAttribute('data-key');
-      var raw = input.value || '';
-      input.value = '';
-      if (!raw.trim()) return;
-      var cur = (window.PDXSaved.get(type, key) || {}).tags || [];
-      window.PDXSaved.setTags(type, key, cur.concat([raw]));   // fires pdx-saved-change → re-render
-      toast('Tag added ✓');
-    }
-    function wire() {
-      var host = panel();
-      if (!host || wired) return;
-      wired = true;
-      host.addEventListener('click', function (ev) {
-        var btn = ev.target.closest('[data-msv-act]');
-        if (!btn || !host.contains(btn)) return;
-        var a = btn.getAttribute('data-msv-act');
-
-        if (a === 'tab') { setTab(btn.getAttribute('data-tab'), false); return; }
-        if (a === 'ev-filter-tag') {
-          var ft = btn.getAttribute('data-tag') || '';
-          var at = evTagFilter.indexOf(ft);
-          if (at === -1) evTagFilter = evTagFilter.concat([ft]);
-          else evTagFilter = evTagFilter.filter(function (x) { return x !== ft; });
-          saveEvView();
-          render();
-          return;
-        }
-        if (a === 'ev-filter-clear') { evTagFilter = []; saveEvView(); render(); return; }
-        if (a === 'ev-view') { evGroupMode = btn.getAttribute('data-view') === 'grouped'; saveEvView(); render(); return; }
-        if (a === 'focus-eye') {
-          var inp = document.getElementById('pdx-eye-input');
-          if (inp) { try { inp.focus(); inp.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {} }
-          return;
-        }
-        if (a === 'evidence') {
-          var pol = btn.getAttribute('data-pol') || '', issue = btn.getAttribute('data-issue') || '';
-          if (typeof window._pdxOpenEvidenceLocker === 'function') window._pdxOpenEvidenceLocker({ pol: pol, issue: issue });
-          else if (pol && typeof window.showProfile === 'function') window.showProfile(pol);
-          return;
-        }
-        if (a === 'profile') {
-          var pid = btn.getAttribute('data-pol');
-          if (pid && typeof window.showProfile === 'function') window.showProfile(pid);
-          return;
-        }
-        if (a === 'open-spot') {
-          var slug = btn.getAttribute('data-slug');
-          if (slug && window.PDXSpotlight && typeof window.PDXSpotlight.open === 'function') window.PDXSpotlight.open(slug);
-          return;
-        }
-        if (a === 'open-issue') {
-          var ik = btn.getAttribute('data-issue');
-          if (ik && typeof window._pdxOpenEvidenceLocker === 'function') window._pdxOpenEvidenceLocker({ issue: ik });
-          else { var ht = document.getElementById('hot-topics'); if (ht) ht.scrollIntoView({ behavior: 'smooth' }); }
-          return;
-        }
-        if (a === 'remove') {
-          var t = btn.getAttribute('data-type'), k = btn.getAttribute('data-key');
-          if (window.PDXSaved) { window.PDXSaved.remove(t, k); toast('Removed from My Saved'); } // fires pdx-saved-change → re-render
-          return;
-        }
-        if (a === 'remove-pol') {
-          var rp = btn.getAttribute('data-pol');
-          if (rp && typeof window.mypolToggleAnimated === 'function') window.mypolToggleAnimated(null, rp);
-          render(); updateNavCount();
-          return;
-        }
-        if (a === 'clear-team') {
-          // Team-level clear: wipes BOTH the flexible My Voting Team roster
-          // (mypolClearAll → roster + active ballot) and the protected saved
-          // Home Team (homeBaseClearAll → politidex_home_base). Neither helper
-          // emits a same-tab pdx-saved-change, so re-render + recount locally.
-          if (!window.confirm('Clear your ballot? This removes every pick from your ballot. Your evidence receipts and saved issues are kept.')) return;
-          if (typeof window.mypolClearAll === 'function') window.mypolClearAll();
-          if (typeof window.homeBaseClearAll === 'function') window.homeBaseClearAll();
-          toast('Ballot cleared');
-          render(); updateNavCount();
-          return;
-        }
-        if (a === 'note-open') { editingNoteId = btn.getAttribute('data-id'); addingTagId = null; render(); return; }
-        if (a === 'note-expand') { expandedNotes[btn.getAttribute('data-id')] = true; render(); return; }
-        if (a === 'note-collapse') { delete expandedNotes[btn.getAttribute('data-id')]; render(); return; }
-        if (a === 'note-cancel') { editingNoteId = null; render(); return; }
-        if (a === 'note-save') {
-          var nt = btn.getAttribute('data-type'), nk = btn.getAttribute('data-key');
-          var ta = host.querySelector('.msv-note-ta');
-          var val = ta ? ta.value : '';
-          editingNoteId = null;
-          if (window.PDXSaved && window.PDXSaved.setNote) { window.PDXSaved.setNote(nt, nk, val); toast(val.trim() ? 'Note saved ✓' : 'Note cleared'); }
-          else render();
-          return;
-        }
-        if (a === 'tag-add-open') { addingTagId = btn.getAttribute('data-id'); editingNoteId = null; render(); return; }
-        if (a === 'tag-add-close') {
-          var inp = host.querySelector('.msv-tag-input');
-          if (inp) commitTag(inp);   // capture any half-typed tag before closing
-          addingTagId = null; render();
-          return;
-        }
-        if (a === 'tag-remove') {
-          var tt = btn.getAttribute('data-type'), tk = btn.getAttribute('data-key'), tag = btn.getAttribute('data-tag');
-          if (window.PDXSaved && window.PDXSaved.setTags) {
-            var cur = window.PDXSaved.normTags((window.PDXSaved.get(tt, tk) || {}).tags);
-            var next = cur.filter(function (x) { return x !== tag; });
-            window.PDXSaved.setTags(tt, tk, next);   // fires pdx-saved-change → re-render
-            toast('Tag removed');
-          }
-          return;
-        }
-      });
-
-      // Roving-tabindex keyboard nav across the tablist.
-      host.addEventListener('keydown', function (ev) {
-        // Inline tag input: Enter or comma commits, Escape closes.
-        var tagInput = ev.target.closest ? ev.target.closest('.msv-tag-input') : null;
-        if (tagInput) {
-          if (ev.key === 'Enter' || ev.key === ',') { ev.preventDefault(); commitTag(tagInput); }
-          else if (ev.key === 'Escape') { ev.preventDefault(); addingTagId = null; render(); }
-          return;
-        }
-        var tab = ev.target.closest('[role="tab"]');
-        if (!tab) return;
-        var order = ['all', 'evidence', 'issues', 'pols'];
-        var i = order.indexOf(activeTab);
-        if (ev.key === 'ArrowRight' || ev.key === 'ArrowDown') { ev.preventDefault(); setTab(order[(i + 1) % order.length], true); }
-        else if (ev.key === 'ArrowLeft' || ev.key === 'ArrowUp') { ev.preventDefault(); setTab(order[(i - 1 + order.length) % order.length], true); }
-        else if (ev.key === 'Home') { ev.preventDefault(); setTab(order[0], true); }
-        else if (ev.key === 'End') { ev.preventDefault(); setTab(order[order.length - 1], true); }
-      });
-    }
-
-    // ── boot + live sync ──────────────────────────────────────────────
-    function boot() { restoreEvView(); render(); updateNavCount(); }
-    window._renderMySaved = function () { render(); updateNavCount(); };
-    // Deep-link from elsewhere (the eye's "Your Connections" map): jump into My
-    // Evidence pre-filtered to a single user tag. Stays entirely client-side —
-    // it just sets the same view state a tag-chip click would and scrolls here.
+    window._renderMySaved = function () { paint(); };
     window._pdxOpenMyEvidenceByTag = function (tag) {
-      var norm = (window.PDXSaved && window.PDXSaved.normTags) ? window.PDXSaved.normTags(tag) : [tag];
-      var t = norm[0] || '';
-      activeTab = 'evidence';
-      editingNoteId = null; addingTagId = null;
-      evGroupMode = false;
-      evTagFilter = t ? [t] : [];
-      saveEvView();   // deep-link sets the persisted state too, so a reload keeps it
-      render(); updateNavCount();
-      try {
-        var host = document.getElementById('my-saved');
-        if (host && host.scrollIntoView) host.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } catch (e) {}
+      var t = (tag == null) ? '' : String(tag);
+      var url = ME_HREF + (t ? ('?tag=' + encodeURIComponent(t)) : '') + '#me-saved';
+      try { window.location.assign(url); }
+      catch (e) { try { window.location.href = url; } catch (_) {} }
     };
-    window.addEventListener('pdx-saved-change', function () { render(); updateNavCount(); });
-    window.addEventListener('storage', function (e) {
-      if (!e) return;
-      // Match the saved store by PREFIX so both the shared guest key
-      // ('pdx_my_saved') and any per-account key ('pdx_my_saved__u_<uid>') from
-      // another tab trigger a re-render.
-      if ((e.key && e.key.indexOf('pdx_my_saved') === 0) || e.key === 'politidex_my_politicians') { render(); updateNavCount(); }
-      // Another window changed the filter/view — mirror it if we're showing it.
-      else if (e.key === EV_VIEW_KEY && activeTab === 'evidence') { restoreEvView(); render(); }
-    });
+
+    function boot() {
+      paint();
+      try {
+        window.addEventListener('pdx-saved-change', paint);
+        window.addEventListener('storage', function (ev) {
+          if (!ev || !ev.key || /pdx_my_saved|politidex_my_politicians/.test(ev.key)) paint();
+        });
+      } catch (e) {}
+      // One delayed repaint, for the same reason the desk had two: the roster
+      // and the saved store can hydrate from Firestore after first paint.
+      setTimeout(paint, 900);
+    }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
     else boot();
   })();

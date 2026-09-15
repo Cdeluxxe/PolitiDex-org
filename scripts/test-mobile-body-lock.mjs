@@ -490,9 +490,21 @@ const vn = Number(ver[1].slice(1));
 ok(vn >= 178, `CACHE_VERSION is ${ver[1]}; this pass changed the shell (/, /app.css, /mobile-polish.css, ` +
   '/pdx-stability.js) and a warm device would keep serving the old one');
 ok(SW.includes(`// ${ver[1]} -`), `sw.js has no version-log entry for ${ver[1]}`);
-const logEntry = SW.slice(SW.indexOf(`// ${ver[1]} -`), SW.indexOf('const CACHE_VERSION'));
+// THE ENTRY THIS FENCE IS ABOUT IS v178'S, NOT WHATEVER THE CURRENT ONE IS.
+// It used to read the log entry for the LIVE CACHE_VERSION and require it to
+// name this pass's four files — which was true on the day it was written and
+// false the moment anybody else bumped the version for their own reasons. That
+// is a scope fence that expires, and it expired: the next pass to touch a shell
+// asset was failed by three assertions about files it had not gone near.
+//
+// The durable claim is that THIS pass's shell change travelled with a bump and
+// said so. v178 is the version it shipped on, the entry is immutable history,
+// and reading it by name is stable across every future bump.
+const V178 = SW.indexOf('// v178 -');
+must(V178 !== -1, 'sw.js no longer carries the v178 log entry — this pass\'s bump has lost its record');
+const logEntry = SW.slice(V178, SW.indexOf('// v177 -', V178) === -1 ? SW.length : SW.indexOf('// v177 -', V178));
 for (const f of ['index.html', 'app.css', 'mobile-polish.css', 'pdx-stability.js']) {
-  ok(logEntry.includes(f), `the ${ver[1]} log entry does not name ${f}, which this pass changed`);
+  ok(logEntry.includes(f), `the v178 log entry does not name ${f}, which this pass changed`);
 }
 // The two Your File files are deliberately NOT precached; if that ever changes
 // they have to travel with a bump like everything else.
@@ -537,23 +549,38 @@ for (const re of SCORE_PCT) {
 }
 // The donate card's own copy must stay free of the vocabulary too.
 ok(!/\bscore\b|\brating\b|\brank(ed|ing)?\b/i.test(CARD), 'the donate card uses scoring vocabulary');
-// door2-spine's two new views describe a job; they must not compute one.
+// door2-spine's views describe a job; they must not compute one.
+//
+// THE TWO MID-PAGE SURFACES THIS PASS RELABELLED ARE GONE FROM THE DOCUMENT,
+// so the fence that asserted they were DECLARED has had its subject removed and
+// is asserted in reverse. When this file was written, #evidence-for-my-vote and
+// #my-saved were panels under the fold inside the same Door 2 section as the
+// workspace, each with its own full-width heading, neither saying it showed the
+// same ballot as the tool three screens above — and labelling them as views was
+// the right answer to a strip over a panel. The research desk is one region of
+// /me now: the four-tab workspace and the ballot cross-reference are a single
+// surface at the reader's own address, the efmv mount does not ship at all, and
+// what is left on '/' is a door card in #my-saved.
+//
+// So the claim this pass actually needs is the one door2-spine.js writes above
+// VIEWS itself: a view whose mount stopped shipping is REMOVED rather than left
+// to paint a "View of your ballot workspace" strip over nothing. Both entries
+// are asserted ABSENT, which is what keeps the phone report answered — a strip
+// above a two-line door is the same defect as an unlabelled panel, pointing the
+// other way. test-door2-authority.mjs's VIEWS tripwire holds the count.
 const SPINE = read('door2-spine.js');
-must(/evidence-for-my-vote/.test(SPINE) && /'my-saved'/.test(SPINE),
-  'door2-spine.js does not carry evidence-for-my-vote and my-saved as views, so the two mid-page surfaces still ' +
-  'read as separate ballot products');
 const viewsBlock = SPINE.slice(SPINE.indexOf('var VIEWS = ['), SPINE.indexOf('var DEMOTE = ['));
+must(viewsBlock.length > 200, 'door2-spine.js VIEWS block could not be located — this probe is stale');
 const ids = (viewsBlock.match(/id: '([a-z-]+)'/g) || []).map((s) => s.split("'")[1]);
-// Three, not five: the two ghosts above are still declared (the must() proves it),
-// and the other two entries left the list for the same reason, one pass apart.
-// #my-politicians — the side-by-side picks panel — went when the workspace became
-// its own document at /ballot; #your-ballot went when the homepage stopped
-// painting a second ballot builder and your-ballot.js stopped inventing a host
-// for itself. Neither mount ships in any document now, and a "View of your
-// ballot workspace" strip above nothing labels something that is not there. See
-// door2-spine.js's own notes where the entries used to be, and
-// test-door2-authority.mjs's VIEWS tripwire.
-ok(ids.length === 3, `door2-spine.js declares ${ids.length} views; expected the two ghosts plus the finished slate`);
+for (const gone of ['evidence-for-my-vote', 'my-saved']) {
+  ok(!ids.includes(gone),
+    `door2-spine.js still declares the ${gone} view, whose mount no longer ships — the strip would label nothing`);
+}
+// One, not three: the two above left with their mounts, and #my-politicians and
+// #your-ballot left the same way one pass apart — the side-by-side picks panel
+// when the workspace became its own document at /ballot, and the second ballot
+// builder when your-ballot.js stopped inventing a host for itself.
+ok(ids.length === 1, `door2-spine.js declares ${ids.length} views; expected the finished slate alone`);
 ok(!/%|directionMatch|partyLean/.test(viewsBlock), 'a view description carries a score or party read');
 ok(/_decided\(\)/.test(SPINE) && /_seats\(\)/.test(SPINE),
   'door2-spine.js stopped reading its count from the workspace, which means it is computing one');

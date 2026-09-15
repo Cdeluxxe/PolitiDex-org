@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════════════════════
-   judicial-ballot.js — the third branch, on the two doors
+   judicial-ballot.js — the third branch, in a room of its own
    ──────────────────────────────────────────────────────────────────────────
    Two surfaces, one owner. Both read judicial-retention.js and neither one
    decides anything for itself.
@@ -18,11 +18,13 @@
    wall of judges to get there, and the archive listing in particular is not
    about their ballot at all.
 
-   So both surfaces now paint into #judicial-lane, a static section in
-   index.html that sits BELOW the workspace and below the picks. What is left
-   inside #ballot-workspace is one line — #jr-line — that says retention is
-   separate from the builder and offers a jump down to the lane. One line is
-   the whole Door 2 footprint.
+   So both surfaces moved into #judicial-lane, a static section in index.html
+   that sits BELOW the workspace and below the picks — and then, in the pass
+   below, out of that document altogether. What is left inside
+   #ballot-workspace is one line — #jr-line — that says retention is separate
+   from the builder and offers a jump down to the lane. One line is the whole
+   Door 2 footprint, and the lane it points at now holds the door to the room
+   rather than the room itself.
 
    Both mounts are SIBLINGS of the elements another module owns, never children
    of them: ballot-workspace.js's sync() assigns #bw-body.innerHTML in a single
@@ -36,6 +38,46 @@
    acts at once and the spine has no pick engine for the second one. The lane
    shows the question. It does not ask the reader to pick a winner, and there
    is no pick to save.
+
+   ── THE ROOM MOVED. THE DOOR STAYED. ────────────────────────────────────
+   The lane was the second-tallest block on the homepage: the reader's own
+   retention questions, and under them the whole Utah courts archive — every
+   judge on file, by court, under a heading reading "ARCHIVE · UTAH COURTS ·
+   NOT A BALLOT". None of that is the front page's job, which is two doors
+   (who represents me, and find the record), and a reader who wanted the courts
+   had no address to bookmark and no link to send.
+
+   So both rosters now live at /courts (courts.html, the ninth shell) and the
+   homepage keeps ONE SHORT CARD. There are now two ways this module paints and
+   the document says which, through one flag it sets before any script runs:
+
+     window.__PDX_COURTS_DOC  #courts-ballot gets the reader's own questions,
+                              #courts-archive gets the roster. Both mounts are
+                              STATIC MARKUP in courts.html, under two static
+                              region labels, and this module never creates
+                              either one — the labels are the whole reason that
+                              page has two regions, and a module that could
+                              invent a mount could put the archive under the
+                              wrong label.
+     everything else          #judicial-lane gets #jr-card and nothing else: an
+                              eyebrow, "Judges on your ballot", the COUNT of
+                              questions the resolver can defend for this
+                              location, and a link into the room. No name, no
+                              roster, no archive. A reader with no location set
+                              is told to set one, which is the only honest thing
+                              a card can say before it has a location.
+
+   SAME DATA, SAME RETAIN CONTROLS, NEW ADDRESS. bandHtml() and archHtml() are
+   untouched by the move: what /courts renders in region A is byte-for-byte what
+   the homepage strip used to render for the same location, because it is the
+   same function reading the same owner. The card is the only new copy, it holds
+   one number and that number is b.rows.length — the resolver's own count of
+   resolved questions — not a score, not a total, and not a percentage.
+
+   AND THE CARD MAKES NO CLAIM THE STRIP DID NOT. It is built from the same
+   ballot() answer, so a reader outside Utah gets the resolver's own sentence
+   about that rather than a count of somebody else's ballot, and a Utah reader
+   whose county we cannot place gets zero questions and the room to read why.
 
    ── WHAT IT REFUSES TO DO ────────────────────────────────────────────────
    Outside Utah it prints no judge. Statewide retention — Supreme Court and
@@ -56,9 +98,10 @@
    about the archive no matter where the reader is standing — and it is the
    answer to "the ballot can't help me here, is there anything to read".
 
-   It renders in the lane, under the reader's own questions. It never renders
-   above the workspace, because a listing that makes no claim about the reader
-   has no business interrupting the one flow that does.
+   It renders at /courts, in region B, under the reader's own questions and
+   under its own label. It renders nowhere on the homepage at all — a listing
+   that makes no claim about the reader has no business on the page whose whole
+   job is two claims about them.
 
    States. Does not gate. This module appends; it never blocks a click, never
    rewrites another module's DOM, and is safe to no-op.
@@ -93,8 +136,45 @@
   var LINE_TEXT = 'Judicial retention is separate from this ballot builder.';
   var LINE_CTA = 'See the judicial questions ↓';
 
+  // ── THE ROOM, AND THE CARD THAT OPENS IT ────────────────────────────────
+  // The two mounts courts.html declares, and the one this module builds in the
+  // lane on every other document. CARD_ID is created; the two CT_ ids are NOT
+  // — see the header.
+  var CARD_ID = 'jr-card';
+  var CT_BAND_ID = 'courts-ballot';
+  var CT_ARCH_ID = 'courts-archive';
+  var COURTS_HREF = '/courts';
+  var LOC_HREF = '/#who-represents-me';
+
+  // The whole homepage footprint, and it is three lines and a link. "Judges on
+  // your ballot" is a ballot claim, so it is a TITLE and the COUNT underneath it
+  // is what carries the claim's scope: the number is the resolver's own
+  // b.rows.length, the location it was resolved for is named next to it, and a
+  // reader who has set no location is told that rather than shown a zero. A zero
+  // and an unknown are different answers and a card that printed "0" for both
+  // would be reporting a finding it does not have.
+  var CARD_EYEBROW = '⚖️ The third branch';
+  var CARD_TITLE = 'Judges on your ballot';
+  var CARD_UNSET = 'Set location to see retention questions.';
+  var CARD_CTA = 'Open courts →';
+
+  // Region A on /courts is a LABELLED region, so it has to say something: an
+  // empty box under the heading "On your ballot" reads as "no questions", which
+  // is a claim. The sentence it says instead is ballot().note — the resolver's
+  // own — so this file still holds no vocabulary of its own for the state it is
+  // describing.
+  var CT_UNSET_KICKER = 'Judicial retention · nothing claimed yet';
+  var CT_UNSET_LINK = 'Set where you vote';
+  var CT_UNSET_TAIL = ' and your own questions appear here. Region B below is the archive ' +
+    'and reads the same for everybody.';
+
   function fn(x) { return typeof x === 'function'; }
   function J() { return window.PDXJudicial || null; }
+  // ONE FLAG, NO PATH SNIFF. courts.html sets window.__PDX_COURTS_DOC before
+  // any module can look for it, for the same reason me.html sets __PDX_ME_DOC:
+  // /courts, /courts/ and a preview server's /courts.html are three spellings
+  // of one document that a location.pathname test gets differently.
+  function isCourtsDoc() { try { return window.__PDX_COURTS_DOC === true; } catch (e) { return false; } }
   function esc(s) {
     if (s == null) return '';
     return String(s).replace(/[&<>"]/g, function (c) {
@@ -230,6 +310,59 @@
     return out;
   }
 
+  // ── The homepage card ───────────────────────────────────────────────────
+  // Reads the SAME ballot() answer the strip read, and reports one thing off it.
+  // Every branch here is a branch of the resolver's, not of this file's: not
+  // located, located-and-not-Utah, and located-in-Utah-with-N-questions. There
+  // is no fourth state for a card to invent.
+  function cardHtml() {
+    var Jj = J();
+    if (!Jj || !fn(Jj.ballot)) return '';
+    var b = Jj.ballot(reps());
+
+    var line;
+    if (!b.located) {
+      line = CARD_UNSET;
+    } else if (!b.utah) {
+      // The resolver's own sentence about a state it holds no records for. A
+      // count here would be a count of somebody else's ballot.
+      line = b.note;
+    } else {
+      // The location the number was resolved FOR, named next to the number.
+      // County when we placed one, state otherwise — the same order the band's
+      // own .jr-where line uses.
+      var where = b.county || b.state || 'your location';
+      var n = b.rows.length;
+      line = n
+        ? (n + (n === 1 ? ' retention question' : ' retention questions') +
+           ' resolved for ' + where + '.')
+        : ('No retention question is resolved for ' + where + ' yet.');
+    }
+
+    return '<p class="jr-kicker">' + esc(CARD_EYEBROW) + '</p>' +
+      '<p class="jr-card-t">' + esc(CARD_TITLE) + '</p>' +
+      '<p class="jr-card-l">' + esc(line) + '</p>' +
+      '<p class="jr-card-go"><a class="jr-card-b" href="' + COURTS_HREF + '">' +
+        esc(CARD_CTA) + '</a></p>';
+  }
+
+  // ── /courts region A ────────────────────────────────────────────────────
+  // bandHtml() unchanged when it has an answer — that is the point of the move,
+  // and it is why region A and the old homepage strip are the same bytes for the
+  // same location. The only thing added is what to print when it has none.
+  function courtsBandHtml() {
+    var h = bandHtml();
+    if (h) return h;
+    var Jj = J();
+    var b = (Jj && fn(Jj.ballot)) ? Jj.ballot(reps()) : null;
+    var note = (b && b.note) ? b.note : '';
+    if (!note) return '';
+    return '<p class="jr-kicker">' + esc(CT_UNSET_KICKER) + '</p>' +
+      '<p class="jr-lead">' + esc(note) + '</p>' +
+      '<p class="jr-note"><a class="jr-plink" href="' + LOC_HREF + '">' +
+        esc(CT_UNSET_LINK) + '</a>' + esc(CT_UNSET_TAIL) + '</p>';
+  }
+
   // ── Door 2: the one line ────────────────────────────────────────────────
 
   function lineHtml() {
@@ -304,32 +437,54 @@
   }
   function bandSlot() { return laneSlot(BAND_ID, 'jr-band'); }
   function archSlot() { return laneSlot(ARCH_ID, 'jr-band jr-band--arch'); }
+  function cardSlot() { return laneSlot(CARD_ID, 'jr-band jr-band--card'); }
 
-  function paint() {
-    var band = bandSlot();
-    if (band) {
-      var h = bandHtml();
-      band.innerHTML = h;
+  // ── THE ROOM: /courts ───────────────────────────────────────────────────
+  // Two writes into two mounts the document declared. NOTHING IS CREATED HERE:
+  // a missing mount is a stripped or partial document, and the correct answer to
+  // it is silence rather than a band appended wherever a host happens to be —
+  // the two static region labels are the only thing that tells a reader which of
+  // these two lists is a claim about them.
+  function paintCourts() {
+    var band = document.getElementById(CT_BAND_ID);
+    if (band) band.innerHTML = courtsBandHtml();
+    var arch = document.getElementById(CT_ARCH_ID);
+    if (arch) arch.innerHTML = archHtml();
+  }
+
+  // ── THE DOOR: every other document ──────────────────────────────────────
+  // The lane gets the card and nothing else. bandSlot() and archSlot() are not
+  // called on this path, so no roster and no archive can reach a homepage: the
+  // ids they would mount under are never created, which is stronger than
+  // creating them empty.
+  function paintDoor() {
+    var card = cardSlot();
+    var ch = '';
+    if (card) {
+      ch = cardHtml();
+      card.innerHTML = ch;
       try {
-        if (h) band.removeAttribute('hidden');
-        else band.setAttribute('hidden', 'hidden');
+        if (ch) card.removeAttribute('hidden');
+        else card.setAttribute('hidden', 'hidden');
       } catch (e) {}
     }
-    var arch = archSlot();
-    var ah = '';
-    if (arch) { ah = archHtml(); arch.innerHTML = ah; }
 
     // The line is only worth a reader's attention if the lane has something in
     // it. An empty lane with a signpost pointing at it is worse than silence.
     var line = lineSlot();
     if (line) {
-      var show = !!((band && band.innerHTML) || ah);
+      var show = !!ch;
       line.innerHTML = show ? lineHtml() : '';
       try {
         if (show) line.removeAttribute('hidden');
         else line.setAttribute('hidden', 'hidden');
       } catch (e) {}
     }
+  }
+
+  function paint() {
+    if (isCourtsDoc()) { paintCourts(); return; }
+    paintDoor();
   }
 
   function sync() { try { paint(); } catch (e) {} }
@@ -373,12 +528,22 @@
     _band: bandHtml,
     _arch: archHtml,
     _line: lineHtml,
+    _card: cardHtml,
+    _courtsBand: courtsBandHtml,
     _boot: boot,
+    isCourtsDoc: isCourtsDoc,
     BAND_ID: BAND_ID,
     ARCH_ID: ARCH_ID,
     LINE_ID: LINE_ID,
     LANE_ID: LANE_ID,
+    CARD_ID: CARD_ID,
+    CT_BAND_ID: CT_BAND_ID,
+    CT_ARCH_ID: CT_ARCH_ID,
+    COURTS_HREF: COURTS_HREF,
     LINE_TEXT: LINE_TEXT,
-    LINE_CTA: LINE_CTA
+    LINE_CTA: LINE_CTA,
+    CARD_TITLE: CARD_TITLE,
+    CARD_UNSET: CARD_UNSET,
+    CARD_CTA: CARD_CTA
   };
 })();

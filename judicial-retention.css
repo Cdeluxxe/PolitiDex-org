@@ -37,6 +37,63 @@
 
 .jr-band--arch { margin-top: 1.6rem; }
 
+/* ── THE HOMEPAGE CARD ────────────────────────────────────────────────────
+   The whole footprint judicial retention has on the front page now that the
+   rosters live at /courts: an eyebrow, a title, one count sentence and a link.
+
+   IT IS DRAWN AS A CARD AND NOT AS A TILE, and the number in it is set in the
+   BODY FACE at BODY SIZE inside a sentence. Every other count on this product
+   that got its own display face grew into a figure a reader reads as a grade,
+   and this one is a tally of ballot questions — "2 retention questions
+   resolved for Davis County" is a fact about a ballot, so it is written the
+   way a fact is written. There is deliberately nowhere in these rules to put a
+   big gold numeral, a ring, a bar or a status colour, for the same reason the
+   header of this sheet gives. */
+.jr-band--card { padding-bottom: 1rem; }
+
+.jr-card-t {
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+  font-size: 1.35rem;
+  line-height: 1.1;
+  letter-spacing: 0.03em;
+  color: #e6eefb;
+  margin: 0.1rem 0 0;
+}
+
+.jr-card-l {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: #9fb4d4;
+  margin: 0.35rem 0 0;
+  max-width: 40rem;
+}
+
+.jr-card-go { margin: 0.75rem 0 0; }
+
+/* A real anchor with a real href, so cmd-click opens a tab — the room is
+   another address, not a panel, and the reader is owed the ability to see
+   where the link goes. Quiet by default: this is one of two doors on a page
+   that has other work to do. */
+.jr-card-b {
+  display: inline-block;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #cfe0fb;
+  text-decoration: none;
+  border: 1px solid rgba(207, 224, 251, 0.26);
+  border-radius: 0.55rem;
+  padding: 0.4rem 0.8rem;
+}
+
+.jr-card-b:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
 /* ── The Door 2 line ──────────────────────────────────────────────────────
    The entire footprint judicial retention has inside the ballot workspace:
    one sentence and a jump. Styled as a quiet rule, not a card, because a card
@@ -81,11 +138,14 @@
 
 .jr-line-b:hover { color: #e6eefb; border-bottom-color: #e6eefb; }
 
-/* ── The lane ─────────────────────────────────────────────────────────────
-   #judicial-lane is static markup in index.html (see the comment there): a
-   section of its own, below the workspace and below the picks, holding the
-   retention band and the courts archive. The header here is intentionally
-   plain — the lane is a place to read, not a scoreboard. */
+/* ── The room's own header ────────────────────────────────────────────────
+   THESE FOUR RULES MOVED WITH THE ROOM. They used to dress #judicial-lane's
+   static header on index.html — an eyebrow, a title and one sentence, above
+   the retention band and the courts archive. The rosters live at /courts now
+   and the lane keeps only the card above, so the header they draw is
+   courts.html's own page head and .jl-title is that document's h1. The rules
+   are unchanged: the header is intentionally plain, because a room full of
+   judges is a place to read and not a scoreboard. */
 .jl-inner {
   max-width: 47rem;
   margin: 0 auto;

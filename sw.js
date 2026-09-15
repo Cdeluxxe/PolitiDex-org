@@ -6131,7 +6131,58 @@
 //     mapping's own field or says it is not written — and desktop /i/<key> is
 //     byte-identical apart from the two wrappers the phone rules need.
 
-const CACHE_VERSION = 'v202';
+// v203 - THE COURTS AND THE READER'S OWN DESK LEAVE THE HOMEPAGE.
+//
+//     The front page was hosting two rooms that were not its job. The whole
+//     third branch sat in #judicial-lane — a page head, the retention questions
+//     resolved for the reader's location, and beneath them the complete Utah
+//     courts archive, every judge on file by court under an
+//     "ARCHIVE · UTAH COURTS · NOT A BALLOT" banner — and the reader's research
+//     desk sat in two places at once, #evidence-for-my-vote and #my-saved, both
+//     reading one store, together about 1,700 lines of four-tab workspace and
+//     ballot cross-reference that were tallest for a visitor who had saved
+//     nothing.
+//     · THE COURTS ARE A DOCUMENT NOW. courts.html is THE NINTH SHELL, 22 KB,
+//       served at /courts and /courts/ by two new exact 200 rewrites, and it
+//       prints two labelled regions so they cannot be read as one list:
+//       A · On your ballot (only what the resolver can defend for the location
+//       saved in this browser) and B · Archive (every record on file, stating
+//       that a listing is not a claim about anybody's ballot). The fail-closed
+//       geography is unchanged — the district, juvenile and justice courts have
+//       no map, so the archive names every judge on them while region A names
+//       nobody as the reader's, and the honest "no judicial district map"
+//       sentence is still the resolver's own.
+//     · THE HOMEPAGE KEEPS A DOOR. judicial-ballot.js gained a courts mode and
+//       a card: #judicial-lane now holds #jr-card, which prints the COUNT of
+//       resolved retention questions for this location and "Open courts →", or
+//       says a location is not set. No name list is in the first paint.
+//     · THE DESK IS ONE REGION OF /me. me-desk.js region e now groups receipts,
+//       issues & spotlights and the politicians a reader follows, with counts,
+//       and honours the ?tag= the Eye's gesture arrives with. #my-saved kept its
+//       id on the homepage and holds one card — a count and "Open my workspace
+//       →". A zero count says so in one sentence.
+//
+//     WHY THE BUMP, AND THE FILES THAT MOVED. index.html, judicial-ballot.js,
+//     judicial-retention.css, me-desk.js and me-desk.css are all precached, and
+//     courts.html is NEW ON SHELL_ASSETS. A warm v202 device would otherwise go
+//     on serving the homepage that still carries the judge list and the
+//     four-tab workspace, and would have no copy of the ninth shell at all.
+//     COURTS_NAV_RE (/^\/courts\/?$/) and a seventh offline fallback branch are
+//     added on exactly the terms the other six are written on, LAST so none of
+//     /p/, /i/, /issue/, /ballot, /stances or /evidence can be intercepted;
+//     SUB_SHELL_BANNER_RE gained `courts` and NINTH so no other address can be
+//     served the courts body and /courts cannot be served a homepage.
+//
+//     DID NOT MOVE. No new score, no WVA or Direction Match change, no party
+//     sort. Nothing became a grade on a judge and PolitiDex still takes no
+//     position on retention; "no JPEC report on file" and the Hagen-class "no
+//     longer on the court" line are the same sentences in the same words. No
+//     store was touched: every saved receipt, note, tag and followed politician
+//     is where it was, and no per-judge address was minted — /courts is in the
+//     sitemap, the judges on it are not, because a judge is a person and a
+//     person's address is /p/<pid> behind the same publication floor.
+
+const CACHE_VERSION = 'v203';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -6224,6 +6275,20 @@ const SHELL_ASSETS = [
   // entry — already below, and they are what paints /stances now.
   // spotlight-hub.js stays runtime-cached: that shelf is not the room.
   '/evidence-locker.js',
+  // THE NINTH SHELL: the third branch. netlify.toml rewrites /courts and
+  // /courts/ here, so this is the document the courts room actually receives,
+  // and like /ballot, /me, /stances and /evidence it is a SINGLE address —
+  // there is no per-judge and no per-court segment, so navDocKey gives it no
+  // key and this one entry answers every arrival.
+  //
+  // WHAT IT COSTS OFFLINE: nothing new. courts.html is 22 KB of chrome, and its
+  // whole critical path is already on this list — /judicial-data.js,
+  // /judicial-retention.js, /judicial-ballot.js, /judicial-retention.css and
+  // /person-link.js are all entries here. Only /voter-hub-location.js and
+  // /ballot-breakdown.js stay runtime-cached, and the room is honest without
+  // them: with no resolver on hand region A says it cannot place the reader and
+  // region B — the archive, which is the same for everybody — still paints.
+  '/courts.html',
   '/css/tailwind.css',
   // The above-the-fold record card. Parser-blocking in index.html, so on a
   // repeat visit these two must come from the cache or they add latency to the
@@ -6982,6 +7047,16 @@ const BALLOT_NAV_RE = /^\/ballot\/?$/;
 const STANCES_NAV_RE = /^\/stances\/?$/;
 const EVIDENCE_NAV_RE = /^\/evidence\/?$/;
 
+// ─── THE THIRD BRANCH ───────────────────────────────────────────────────────
+// On exactly the same terms: two exact spellings, no capture group, nothing
+// after the optional slash. /courts is a SINGLE address — there is no per-judge
+// and no per-court segment, and the reader's location is not in the path at all
+// (it is read out of their own browser), which is why one document answers every
+// arrival and one fallback covers every reader. /courtss and /courts/district
+// are not this address, matching netlify.toml, where the same two exact rules are
+// declared with no wildcard.
+const COURTS_NAV_RE = /^\/courts\/?$/;
+
 // How many person documents to keep. Each USED to be the whole ~2 MB app shell;
 // since the split it is person.html, ~234 KB, so four slots now cost less than
 // one did. Still a storage decision and not a correctness one: correctness is the
@@ -7002,6 +7077,7 @@ const PERSON_DOC_LIMIT = 4;
 //   ballot.html — THE FIFTH SHELL. /ballot IS ITS OWN DOCUMENT.
 //   stances.html — THE SEVENTH SHELL. /stances IS ITS OWN DOCUMENT.
 //   evidence.html — THE EIGHTH SHELL. /evidence IS ITS OWN DOCUMENT.
+//   courts.html — THE NINTH SHELL. /courts IS ITS OWN DOCUMENT.
 //
 // SIXTH IS ABSENT ON PURPOSE: me.html opens "/me — THE VOTER'S OWN FILE" and
 // never uses this wording. That costs the guard nothing — a body is only
@@ -7022,7 +7098,7 @@ const PERSON_DOC_LIMIT = 4;
 // sent, and none of them separates two documents served from one origin with one
 // content type — a Netlify rewrite is transparent, so /p/lee and '/' answer with
 // identical header sets. The identity only exists in the body.
-const SUB_SHELL_BANNER_RE = /\b(person|issue|spotlight|ballot|stances|evidence)\.html\s*—\s*THE\s+(?:SECOND|THIRD|FOURTH|FIFTH|SEVENTH|EIGHTH)\s+SHELL\b/;
+const SUB_SHELL_BANNER_RE = /\b(person|issue|spotlight|ballot|stances|evidence|courts)\.html\s*—\s*THE\s+(?:SECOND|THIRD|FOURTH|FIFTH|SEVENTH|EIGHTH|NINTH)\s+SHELL\b/;
 
 // The prefix ceiling, in decoded characters. The furthest of the three banners
 // sits ~283 characters in, so this is an order of magnitude of headroom: a banner
@@ -7138,6 +7214,9 @@ async function handleNavigate(req) {
   // so these choose a FALLBACK, and one document answers every filter of a room.
   const isStances = !isHome && !!(url && url.origin === self.location.origin && STANCES_NAV_RE.test(url.pathname));
   const isEvidence = !isHome && !!(url && url.origin === self.location.origin && EVIDENCE_NAV_RE.test(url.pathname));
+  // Seventh of the same kind: navDocKey gives /courts no key either, so this
+  // chooses a FALLBACK, and the one precached document answers every reader.
+  const isCourts = !isHome && !!(url && url.origin === self.location.origin && COURTS_NAV_RE.test(url.pathname));
 
   // A PERSON DOCUMENT IS A RUNTIME ENTRY, NOT A SHELL ONE. It is keyed to a single
   // address, it is not on SHELL_ASSETS, and nothing on the precache list depends on
@@ -7269,6 +7348,21 @@ async function handleNavigate(req) {
   if (isEvidence) {
     const evidenceDoc = await shell.match('/evidence.html');
     if (evidenceDoc) return evidenceDoc;
+  }
+
+  // Offline in the courts room. Ninth shell, and now LAST of the seven so none
+  // of /p/, /i/, /issue/, /ballot, /stances or /evidence can be intercepted by
+  // it — none could be as these regexes are written, and the order keeps that
+  // true after the next edit. /courts.html is precached and so is every module
+  // that paints it, and the room degrades honestly rather than emptily: region B,
+  // the archive, is the same for everybody and comes out of /judicial-data.js,
+  // and region A says it cannot place the reader rather than naming a judge as
+  // theirs. Before '/', which since this pass carries the DOOR and not the room:
+  // falling back to it would hand a reader who asked for the courts a homepage
+  // card that points back at the address they just asked for.
+  if (isCourts) {
+    const courtsDoc = await shell.match('/courts.html');
+    if (courtsDoc) return courtsDoc;
   }
 
   // Everything else: '/' is the app shell and it names nobody — the honest
