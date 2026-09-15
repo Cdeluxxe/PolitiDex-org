@@ -2593,6 +2593,37 @@ const swNote = swWaveNote();
     "scripts/test-ballot-shell.mjs",
     "scripts/test-spotlight-shell.mjs",
     "scripts/test-stance-shelves.mjs",
+    // UTAH'S STATEWIDE SEATS NAME THE PEOPLE THE ARCHIVE ALREADY LISTS, on those
+    // same later-wave terms. A Layton reader's Who Represents Me printed both
+    // U.S. Senate rows and the Governor row as "No record on file yet / we'd
+    // rather leave this blank than name the wrong person" while the archive band
+    // one screen down listed John Curtis and Mike Lee, in office, under "U.S.
+    // Senate · Utah". Two classifiers had drifted apart: the archive reads a
+    // record through _pdxBrowseType/_pdxBrowseStateOf, and _pdxStatewideSeats
+    // read the office string and the state field directly, so a plain "Senator",
+    // a "Governor of Utah" or a "UT" state fell through to blank. The resolver
+    // now asks the archive's own classifiers when a Utah statewide seat comes
+    // back empty, and holds a curated floor of the three sitting occupants
+    // (curtis, lee, cox) behind a still-in-office check.
+    //   WHAT THIS WAVE'S SUBJECTS SEE OF IT: nothing. No roll, mapping,
+    // admission, seed, migration, floor, key, weight, tier, figure or census
+    // output is touched, and no surface gained a score, a party sort or a
+    // Direction Match read — the agreement walk reads chamber, state and
+    // in-office status only. The district levels are untouched: outside Utah,
+    // U.S. House and the two state chambers still blank with the existing
+    // "needs a district map" copy. sw.js does not move, because
+    // voter-hub-location.js is a runtime-cached asset and not a shell asset.
+    //   scripts/test-seat-never-unnamed.mjs is the harness this pass has to
+    // declare by name, and it is a re-pin, not a relaxation. Its section 1
+    // proved the "once named, never un-named" ledger by flattening a Utah
+    // payload until the seats went blank; a curated Utah floor makes that
+    // payload non-destructive on purpose, so the counterfactual moved to Ohio,
+    // where no floor exists, and a new part (b) additionally requires a cold
+    // Layton page meeting the same payload to resolve all six seats.
+    //   voter-hub-location.js is declared above already.
+    // scripts/test-utah-statewide-named.mjs is a new file, which this fence does
+    // not price.
+    "scripts/test-seat-never-unnamed.mjs",
   ]);
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }
