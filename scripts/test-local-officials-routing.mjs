@@ -343,8 +343,25 @@ ok(ctrlGroups.some((g) => g !== "local"),
 // state. This is the Layton reader's complaint, asserted from Ohio.
 ok(ctrlGroups.indexOf("cabinet") === -1,
   "control: an out-of-coverage visitor is still shown a CABINET / APPOINTED group on their ballot");
+// READ THE EXEMPT LIST, DO NOT RETYPE IT. This loop used to skip "senator" and
+// "president" by hand and point at _RELEVANT_STATE_EXEMPT_GK in a comment — which
+// is two copies of one list, and the copies parted: the shipped list also exempts
+// fed_cabinet, on the stated ground that a cabinet secretary's `state` is their
+// HOME state and never a claim about who they serve, so twenty-two correct records
+// read as twenty-two out-of-state bugs here. Parsing the real list means the skip
+// set is whatever compare-hub.js actually exempts, and a group QUIETLY ADDED to
+// that list is caught by the floor below rather than waved through.
+const EXEMPT_GK = (() => {
+  const m = /_RELEVANT_STATE_EXEMPT_GK = \{([^}]*)\}/.exec(R("compare-hub.js"));
+  must(!!m, "compare-hub.js no longer declares _RELEVANT_STATE_EXEMPT_GK — the scope rule this control " +
+    "reads was renamed or removed");
+  return [...m[1].matchAll(/([A-Za-z_]+)\s*:\s*1/g)].map((x) => x[1]);
+})();
+eq(EXEMPT_GK.slice().sort().join(","), "fed_cabinet,president,senator",
+  "the state-scope exemption covers a group other than the two federal layers and the Senate seat — " +
+  "every other group on a reader's ballot is a claim about their state");
 ctrlGroups.forEach((g) => {
-  if (g === "senator" || g === "president") return;   // see _RELEVANT_STATE_EXEMPT_GK
+  if (EXEMPT_GK.indexOf(g) >= 0) return;
   (ctrl.groups[g] || []).forEach((pid) => {
     const st = String((ctrl.win._pdxBrowseStateOf && ctrl.win._pdxBrowseStateOf(pid)) || "").toLowerCase();
     eq(st, "ohio",

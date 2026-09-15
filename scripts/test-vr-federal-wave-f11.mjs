@@ -544,8 +544,19 @@ const NO_POLE = (() => {
         try { sb = work.PDXConsistency.rowResult(q); } catch { sb = { __err: 1 }; }
         if (!sa || !sb) continue;
         if (WITHDRAWN[pid] === r.key) {
-          if (!(sa.state === "tested" && sb.state === "untested" && sb.pct === null &&
-                (q.verdict || {}).token === "pending")) {
+          // AND THE PAIR OUTLIVES ITS OWN TRANSITION. "tested at HEAD, untested
+          // here" is a sentence about an uncommitted withdrawal: the day the
+          // word-first gate pass lands, HEAD reads untested too, the pair becomes
+          // untested → untested, and the strict form above fails on a tree where
+          // the withdrawal is exactly as it should be. What is required of this
+          // pair either way is that the WORKING COPY publishes no finding on it —
+          // untested, no percentage, verdict pending — and that HEAD is either the
+          // tested reading being withdrawn or the withdrawn reading already
+          // shipped. Nothing else about the pair is permitted, and every other row
+          // in the sweep is still compared field for field.
+          const gone = (s, row) => s.state === "untested" && s.pct === null &&
+            ((row.verdict || {}).token === "pending");
+          if (!(gone(sb, q) && (sa.state === "tested" || gone(sa, r)))) {
             rowBad++;
             failures.push(`${pid}/${r.key}: the withdrawn mapping did not simply stop being tested — ` +
               `${sa.state}/${sa.pct} → ${sb.state}/${sb.pct}`);
@@ -651,7 +662,51 @@ if (!process.env.NETLIFY_DB_URL) {
   try { base = runFpi([]); }
   catch (e) { failures.push(`the FPI projection would not run, so this wave's coverage claim is unverified: ${e && e.message}`); }
 
-  if (base) {
+  // THE PROJECTION HAS A DEPLOY DATE. Sections 6 and 7 are a measurement of what
+  // F11's seeds WOULD change if they were laid over the live corpus: one mapping row
+  // overlaid, one roll call projected, 936 reads gained. Every one of those figures is
+  // a difference against a database that does not hold F11's rows yet — so the moment
+  // the migration is applied, the overlay becomes a no-op, the corpus already contains
+  // what the seed offers, and each figure reads zero. Asserting the pre-deploy numbers
+  // then does not verify the wave; it fails on a tree where the wave shipped exactly
+  // as promised, and the only ways to make it pass again are to unapply a migration or
+  // to rewrite the seed as a census of nothing. The seed is the ledger of what F11 did.
+  // It is history, and history is not re-measured.
+  //   So the overlay itself says which day this is, and it can only say it because the
+  // seed still claims its row: an overlay that adds nothing while the seed claims one
+  // row means the row is already live. In that state what is asserted instead is that
+  // the overlay IS a no-op in every direction — nothing to add, nothing to project,
+  // nothing left to gain — together with the invariants that never depended on the
+  // deploy date: no read lost, no member weakened, no split gained, no floor moved.
+  const landed = !!base && base.seed.added === 0 && (C.mappingRowsAdded || 0) > 0;
+  if (base && landed) {
+    console.log("      (F11's mapping row is already in the live corpus — the pre-deploy projection is spent, so the " +
+      "overlay is checked for being the no-op it must now be)");
+    eq(base.seed.retracted, 0, "the overlay still retracts rows against a corpus that already holds this wave");
+    eq(base.voteSeed.rolls, 0, "the vote seed still projects a roll call the corpus already stores");
+    eq(base.voteSeed.memberVotes, 0, "the vote seed still projects member votes the corpus already stores");
+    eq(base.voteSeed.measures, 0, "F11 creates no measure — both of its bills were already in the corpus");
+    eq((base.gainedReads || []).length, 0,
+      "a read is still waiting to be gained from F11's seeds, so the corpus holds the mapping row but not the votes " +
+      "behind it — half of this wave is live");
+    eq((base.lostReads || []).length, 0,
+      `rows stopped being characterised: ${(base.lostReads || []).slice(0, 8).map((r) => `${r.pid}/${r.key}`).join(", ")}`);
+    eq(base.after.empty, base.before.empty, "the empty-member count moved in a wave that moves no floor");
+    eq(base.weakened.length, 0, `tier weakening: ${base.weakened.join(", ")} — a coverage wave may not weaken a member`);
+    eq(base.newSplits.length, 0, `members gained a split row: ${base.newSplits.join(", ")}`);
+    // AND THE LEDGERS THEMSELVES DID NOT MOVE. What the figures above used to prove is
+    // now carried by the two seed files being byte for byte what HEAD has: the wave's
+    // measurement stands as recorded, and a regeneration against the post-deploy corpus
+    // — which would zero every figure in them — fails here.
+    for (const f of [MAP_SEED, VOTE_SEED]) {
+      let h = null;
+      try { h = execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }); } catch { h = null; }
+      if (ok(h !== null, `HEAD:${f} is unreadable, so the seed ledger could not be compared`))
+        eq(R(f), h, `${f} moved after the wave landed — it records what F11 measured before the deploy, and ` +
+          "re-running its generator against a corpus that already holds F11 rewrites it as a wave that changes nothing");
+    }
+  }
+  if (base && !landed) {
     // ── 6. the two filled keys move, and nothing else loses a read ──────
     eq(base.seed.added, C.mappingRowsAdded, "the FPI overlaid a different number of rows than the seed claims");
     eq(base.seed.retracted, C.mappingRowsRetracted, "the FPI retracted a different number of rows than the seed claims");
@@ -757,14 +812,26 @@ if (!process.env.NETLIFY_DB_URL) {
     const live = `m${r.n}-${String(r.h).slice(0, 12)}`;
     await cl.end();
     const applied = live === pk.mappingVersionEnd;
-    ok(applied || live === pk.mappingVersionStart,
-      `the live mapping version is ${live}, which is neither the recorded start (${pk.mappingVersionStart}) nor the recorded end (${pk.mappingVersionEnd}) — `
-      + `something changed vr_measure_issues between this seed and this run, so the pack fingerprint this wave promised is not the one that will ship`);
-    console.log(`      (pack: live mappingVersion ${live} — migration ${applied ? "APPLIED" : "not yet applied"})`);
+    // THE FINGERPRINT IS A HASH OF THE WHOLE TABLE, so every wave after F11 moves it
+    // too — which means "live is the recorded start or the recorded end" is a statement
+    // about F11's own deploy window and about no later day. What F11 is owed forever is
+    // that its rows reached the table and the fingerprint MOVED off the pre-wave value;
+    // who moved it afterwards is somebody else's wave and somebody else's suite.
+    const stillPreWave = live === pk.mappingVersionStart;
+    ok(applied || stillPreWave || r.n >= C.mappingRowsAfter,
+      `the live mapping version is ${live}, which is neither the recorded start (${pk.mappingVersionStart}) nor the `
+      + `recorded end (${pk.mappingVersionEnd}), and vr_measure_issues holds ${r.n} rows — fewer than the `
+      + `${C.mappingRowsAfter} F11 leaves behind, so this is not a later wave having moved the fingerprint; F11's own `
+      + `rows are not in the table`);
+    console.log(`      (pack: live mappingVersion ${live} — migration ${applied ? "APPLIED" : (stillPreWave ? "not yet applied" : "applied, and moved again by a later wave")})`);
     if (applied) {
       eq(r.n, C.mappingRowsAfter, "the applied row count does not match the seed's after figure");
-    } else {
+    } else if (stillPreWave) {
       eq(r.n, C.mappingRowsBefore, "the pre-migration row count does not match the seed's before figure");
+    } else {
+      ok(r.n >= C.mappingRowsAfter,
+        `vr_measure_issues holds ${r.n} rows, fewer than the ${C.mappingRowsAfter} F11 leaves behind — a later wave ` +
+        "cannot have removed them, so F11's rows are gone from the table");
     }
   } catch (e) {
     failures.push(`the pack fingerprint could not be read, so the stale-blob guarantee is unverified: ${e && e.message}`);

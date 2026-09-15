@@ -414,8 +414,21 @@ const roster = J("db/vr-roster-admitted.json");
   eq(scopeNoted.energy_production, true, "energy_production lost its written scope note");
   eq(scopeNoted.permitting_reform, true, "permitting_reform lost its written scope note");
   eq(scopeNoted.climate_action, true, "climate_action lost its written scope note");
-  eq(scopeNoted.lands_energy, false,
-    "lands_energy gained a scope note — welcome, but this wave did not write it, so something else edited a published boundary in this tree");
+  // THE FOURTH KEY IS RECORDED, NOT PINNED. lands_energy had no written scope when
+  // F6 shipped, and the line below used to hold that absence in place — with a
+  // message that called a later note "welcome" while failing on it anyway. Pinning
+  // the ABSENCE of documentation is the one thing this suite should never do. What
+  // F6 can honestly ask is that the note did not appear in THIS tree: if HEAD
+  // carries it, it is a published boundary somebody wrote after F6 and none of F6's
+  // business; if HEAD does not carry it, then whatever is uncommitted here wrote it,
+  // and that is F6's byte-identity claim below coming apart.
+  if (scopeNoted.lands_energy && /^\s*lands_energy:\s*\{/m.test(head("issue-scope.js") || "")) {
+    console.log("      (lands_energy has a written scope note at HEAD — written after F6, and not by this tree)");
+  } else {
+    eq(scopeNoted.lands_energy, false,
+      "lands_energy gained a scope note in this tree — welcome as documentation, but this wave did not write it, " +
+      "and a published boundary moving under an uncommitted pass is what this section exists to catch");
+  }
 }
 
 // ── 6. the walls, and the F2/F3/F5 assertion they rest on ───────────────
@@ -901,8 +914,19 @@ function boot(get, label) {
         try { sb = work.PDXConsistency.rowResult(q); } catch (e) { sb = { __err: 1 }; }
         if (!sa || !sb) continue;
         if (WITHDRAWN[pid] === r.key) {
-          if (!(sa.state === "tested" && sb.state === "untested" && sb.pct === null &&
-                (q.verdict || {}).token === "pending")) {
+          // AND THE PAIR OUTLIVES ITS OWN TRANSITION. "tested at HEAD, untested
+          // here" is a sentence about an uncommitted withdrawal: the day the
+          // word-first gate pass lands, HEAD reads untested too, the pair becomes
+          // untested → untested, and the strict form above fails on a tree where
+          // the withdrawal is exactly as it should be. What is required of this
+          // pair either way is that the WORKING COPY publishes no finding on it —
+          // untested, no percentage, verdict pending — and that HEAD is either the
+          // tested reading being withdrawn or the withdrawn reading already
+          // shipped. Nothing else about the pair is permitted, and every other row
+          // in the sweep is still compared field for field.
+          const gone = (s, row) => s.state === "untested" && s.pct === null &&
+            ((row.verdict || {}).token === "pending");
+          if (!(gone(sb, q) && (sa.state === "tested" || gone(sa, r)))) {
             rowBad++;
             failures.push(`${pid}/${r.key}: the withdrawn mapping did not simply stop being tested — ` +
               `${sa.state}/${sa.pct} → ${sb.state}/${sb.pct}`);

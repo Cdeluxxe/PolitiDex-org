@@ -605,9 +605,19 @@ section("PHASE 6 — the fence, and the bump");
   const ver = (SW.match(/const\s+CACHE_VERSION\s*=\s*'(v\d+)'/) || [])[1];
   must(!!ver, "sw.js has no CACHE_VERSION");
   ok(Number(ver.slice(1)) >= 200, `CACHE_VERSION is ${ver} — the three files this pass changed are precached and a warm device would keep the broken boot`);
-  const entry = SW.slice(SW.indexOf("// " + ver + " -"), SW.indexOf("const CACHE_VERSION"));
+  // THE ENTRY THIS FENCE READS IS v200's, NAMED, NOT WHATEVER IS LIVE.
+  // An earlier draft sliced the log at the CURRENT CACHE_VERSION and asserted the
+  // entry named the files THIS pass changed. That is true of exactly one entry —
+  // the one written by this pass — so the assertion held until the next unrelated
+  // bump and then failed with a message about somebody else's pass. The log is
+  // append-only and its entries are immutable, so the pin is the version that
+  // made the claim; the live version is still checked, as a floor, above.
+  const at = SW.indexOf("// v200 - ");
+  ok(at >= 0, "the v200 entry — the one that shipped this boot and render-ordering fix — is gone from the log");
+  const next = SW.indexOf("\n// v201 - ", at);
+  const entry = at >= 0 ? SW.slice(at, next > at ? next : at + 12000) : "";
   for (const f of ["firebase-boot.js", "evidence.html", "evidence-locker.js"]) {
-    ok(entry.includes(f), `the ${ver} log entry does not name ${f}, which this pass changed`);
+    ok(entry.includes(f), `the v200 log entry no longer names ${f}, which that pass changed`);
   }
   ok(/\/firebase-boot\.js/.test(SW), "firebase-boot.js is no longer precached");
 

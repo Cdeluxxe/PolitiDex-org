@@ -788,8 +788,18 @@ section("5 · one address, one control in Door 2, and the copy");
   const navBlob = nav.slice(Math.max(0, nav.length - 400000)).match(/<nav[\s\S]*?<\/nav>/g)?.join(" ") || "";
   ok(navBlob.length > 1000, "the nav probe matched nothing");
   lacks(navBlob, "data-pdxyf-open", "the overlay hook was added to the nav");
-  eq((navBlob.match(/href="\/me"/g) || []).length, 1,
-    "the nav does not carry exactly one entry for the reader's file — a second one is the pill this forbids");
+  // TWO ENTRIES, AND BOTH WERE ALREADY THERE. The count was one when the mobile
+  // drawer's "🎯 My Stances" row was repointed; the later pass that moved My
+  // Saved off the homepage repointed a SECOND already-existing row — the
+  // desktop rooms menu's "My Saved Evidence", now "My Workspace" — to the same
+  // address, because the panel it used to open no longer ships. That is still a
+  // repointing and not a pill: what this guard is actually for is the PRIMARY
+  // BAR, which must gain nothing, and a stray #my-stances left behind to drift
+  // away from whichever row now owns the file. Both are asserted below, so the
+  // count here is a ceiling on rooms rows rather than the claim itself.
+  const navMe = (navBlob.match(/href="\/me"/g) || []).length;
+  ok(navMe >= 1 && navMe <= 2,
+    `the nav carries ${navMe} entries for the reader's file — more than the two repointed rooms rows is the pill this forbids`);
   lacks(navBlob, 'href="#my-stances"',
     "the nav still points at the homepage stance region, which is the second editor this pass removes");
   // A real anchor, so it can be copied and middle-clicked — and now bookmarked,
@@ -1015,21 +1025,29 @@ section("6 · the address answers once, and the visible controls reach it");
   has(nextBody, "Work your ballot", "the action row lost a control");
   has(nextBody, "localButton(cov)", "the action row lost My local officials");
 
-  // THE SIGNED-IN ACCOUNT MENU: FOUR DOORS, ONE ROOM. It carried two labels
-  // reaching two surfaces — "Your file" as <a href="#your-file"> (an overlay on
-  // the current document) and "My Views" as a button calling PDXStances
-  // .openViews() (a scroll to a homepage region). Both labels survive on
-  // purpose, because readers learned them and a menu that silently drops an
-  // entry reads as a feature being removed, and both now lead to /me. Two
-  // widths × two labels = four, and that count IS the claim: neither label was
-  // dropped, and no fifth entry was added.
+  // THE SIGNED-IN ACCOUNT CHIP: ONE DOOR PER WIDTH, ONE ROOM. The history is
+  // worth keeping because this count went down on purpose. The menu carried two
+  // labels reaching two surfaces — "Your file" as <a href="#your-file"> (an
+  // overlay on the current document) and "My Views" as a button calling
+  // PDXStances.openViews() (a scroll to a homepage region). Repointing both at
+  // /me made four controls across two widths for one address, and "My Views" a
+  // second name for a room that already had one. So the hover panel went, and
+  // the chip the reader was already clicking became the door: the avatar, their
+  // name and "My Account", as a single anchor, at each width. Two is now the
+  // claim — one per width, no panel, and no second name for the same room.
+  // Log Out moved onto the desk (region a); the mobile sheet keeps its existing
+  // Logout row, which is overflow that predates this and not the chip.
   const SIGNED_IN = HUB_JS.slice(HUB_JS.indexOf("function updateNavAuth"));
   const signedOutAt = SIGNED_IN.indexOf("} else {");
   const signedInBranch = SIGNED_IN.slice(0, signedOutAt > 0 ? signedOutAt : 8000);
-  eq((signedInBranch.match(/href="\/me"/g) || []).length, 4,
-    "the account menu does not carry both file doors on both desktop and mobile");
-  has(signedInBranch, "Your file", "the account menu lost the Your file label");
-  has(signedInBranch, "My Views", "the account menu lost the My Views label");
+  eq((signedInBranch.match(/href="\/me"/g) || []).length, 2,
+    "the account chip is not exactly one door onto /me at each of the two widths");
+  has(signedInBranch, "My Account", "the account chip no longer names the room it opens");
+  lacks(strip(signedInBranch), "My Views",
+    "the account chip carries a \"My Views\" label again — it was never a destination of its own, and two names " +
+    "for one room teach the reader there are two rooms");
+  lacks(signedInBranch, "group-hover",
+    "the account chip has a hover panel again, which is the four-doors-one-room menu returning");
   lacks(signedInBranch, "data-pdxyf-open",
     "an account-menu door still carries the overlay hook on top of its /me href — two navigations for one tap");
   lacks(signedInBranch, "PDXStances.openViews",

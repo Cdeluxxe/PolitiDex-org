@@ -467,36 +467,55 @@
     // That threw away the dropdown the reader was hovering (the markup holding
     // :hover IS the markup being replaced) and re-laid-out the bar for no
     // change. A session that changes nothing now paints nothing.
-    // ── THE ACCOUNT MENU'S FOUR DOORS NOW LEAD TO ONE ROOM ──────────────────
-    // WHAT THEY WERE. "Your file" was <a href="#your-file" data-pdxyf-open="1">,
+    // ── THE ACCOUNT CHIP IS ONE CONTROL, AND IT GOES TO ONE ROOM ────────────
+    // WHAT IT WAS, FIRST. "Your file" was <a href="#your-file" data-pdxyf-open="1">,
     // which opened an overlay on whatever document the reader was standing on —
     // and since this menu only exists on the homepage, that document was always
     // the homepage. "My Views" was a <button> that called PDXStances.openViews()
     // and fell back to location.hash = '#my-stances', a scroll to a different
     // region of that same homepage. Two labels, two surfaces, one person's file,
     // and neither of them an address: you could not bookmark either, link
-    // either, or press Back out of either.
+    // either, or press Back out of either. An earlier pass made all four
+    // entries plain <a href="/me">, which fixed the address and left the shape.
     //
-    // WHAT THEY ARE. Four plain <a href="/me">. Both labels survive on purpose —
-    // readers learned them, and a menu that silently drops an entry reads as a
-    // feature being removed — but they now lead to the same document, which is
-    // the fix rather than a duplication.
+    // WHAT IT IS NOW. NO MENU AT ALL. Four doors to one room is three doors too
+    // many: once every entry led to /me, the hover panel was a disclosure widget
+    // whose only job was to let the reader choose between identical
+    // destinations, and "My Views" was a second NAME for a place that is not a
+    // second place. So the chip IS the control — one <a href="/me"> carrying the
+    // avatar, the name and "My Account" — and the panel, the caret that promised
+    // it, and the duplicate label are gone. The mobile sheet's row is the same
+    // control in the same shape: the avatar and the name are inside the anchor.
+    //
+    // AND LOG OUT WENT WITH IT, TO THE PAGE IT BELONGS ON. It was the panel's
+    // third row. /me is the document about this account, and me-desk.js region a
+    // carries the control now — see signOut() there. The mobile sheet keeps its
+    // own Logout button, because that row is an EXISTING OVERFLOW rather than
+    // this chip. An account surface a reader cannot leave from would be the real
+    // regression; there are two ways out rather than none.
+    //
+    // WHAT THIS DID NOT COST. The hover panel was pure CSS (group-hover on the
+    // markup below — there was never a JS open handler), so removing it removes
+    // no behaviour and no listener. What it does remove is the markup that HELD
+    // the :hover, which is why the signature guard below still matters: a
+    // re-announcement of the same session must not re-insert the chip while the
+    // reader is mid-tap on it.
     //
     // WHY AN ANCHOR AND NOT location.assign('/me') IN AN onclick. A same-origin
     // anchor IS an assign: it pushes, so the browser's own Back returns the
-    // reader to the page they opened the menu on, which is the address contract
-    // /me is built to. It also works with JavaScript off, it middle-clicks and
+    // reader to the page they were on, which is the address contract /me is
+    // built to. It also works with JavaScript off, it middle-clicks and
     // cmd-clicks into a new tab like every other link on the site, and it needs
-    // no handler to be correct. The mobile pair keep their onclick, which now
-    // does one thing: close the mobile menu behind them.
+    // no handler to be correct. The mobile control keeps its onclick, which does
+    // one thing: close the mobile menu behind it.
     //
-    // AND WHY data-pdxyf-open IS GONE FROM ALL FOUR. That attribute is
-    // your-file.js's capturing open hook. On a non-/me document the module now
-    // answers it by redirecting to /me and returning false — deliberately not
-    // claiming the click — so an anchor still carrying the attribute would fire
-    // the module's location.replace AND its own href: two navigations for one
-    // tap. The attribute's handler stays in the module for the overlay fallback
-    // on an older shell; nothing in this app hands it a click any more.
+    // AND WHY data-pdxyf-open IS ON NEITHER. That attribute is your-file.js's
+    // capturing open hook. On a non-/me document the module answers it by
+    // redirecting to /me and returning false — deliberately not claiming the
+    // click — so an anchor still carrying the attribute would fire the module's
+    // location.replace AND its own href: two navigations for one tap. The
+    // attribute's handler stays in the module for the overlay fallback on an
+    // older shell; nothing in this app hands it a click any more.
     var _navAuthSig = null;
     function updateNavAuth(user) {
       const desktop = document.getElementById('nav-auth-desktop');
@@ -531,50 +550,26 @@
 
         if (desktop) {
           desktop.innerHTML = `
-            <div class="relative group">
-              <button class="flex items-center gap-2 bg-navy-800/90 hover:bg-navy-700/90 border border-crimson-500/40 hover:border-crimson-500/60 rounded-lg px-3 py-1.5 transition-all text-left shadow-lg" style="box-shadow:0 4px 16px rgba(192,21,42,0.15);">
-                ${avatarHtml}
-                <div class="hidden lg:flex flex-col leading-none">
-                  <span class="text-white font-display text-sm tracking-wider max-w-[100px] truncate">${displayName}</span>
-                  <span class="text-steel-400 font-condensed text-[10px] tracking-wider uppercase mt-0.5">My Account</span>
-                </div>
-                <svg class="w-3.5 h-3.5 text-steel-400 hidden lg:block" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
-              </button>
-              <div class="absolute right-0 top-full mt-2 w-52 bg-navy-800 border border-crimson-500/30 rounded-lg overflow-hidden shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50" style="box-shadow:0 12px 40px rgba(0,0,0,0.6),0 0 20px rgba(192,21,42,0.12);">
-                <div class="px-3 py-2.5 border-b border-white/5 flex items-center gap-2.5">
-                  ${avatarHtml}
-                  <div class="min-w-0">
-                    <div class="text-white font-display text-xs tracking-wider truncate">${displayName}</div>
-                    <div class="text-steel-500 text-[10px] lowercase truncate">${user.email || 'Logged In'}</div>
-                  </div>
-                </div>
-                <a href="/me" class="w-full text-left font-condensed font-700 text-xs tracking-widest uppercase px-3 py-3 hover:bg-white/5 text-steel-300 hover:text-white transition-colors flex items-center gap-2 border-b border-white/5 no-underline">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z"/></svg>
-                  Your file
-                </a>
-                <a href="/me" class="w-full text-left font-condensed font-700 text-xs tracking-widest uppercase px-3 py-3 hover:bg-white/5 text-steel-300 hover:text-white transition-colors flex items-center gap-2 border-b border-white/5 no-underline">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                  My Views
-                </a>
-                <button onclick="auth.signOut()" class="w-full text-left font-condensed font-700 text-xs tracking-widest uppercase px-3 py-3 hover:bg-white/5 text-red-400 hover:text-red-300 transition-colors flex items-center gap-2">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></svg>
-                  Log Out
-                </button>
+            <a href="/me" title="Your file \u2014 your positions, your starred issues, your ballot picks and your saved evidence" class="flex items-center gap-2 bg-navy-800/90 hover:bg-navy-700/90 border border-crimson-500/40 hover:border-crimson-500/60 rounded-lg px-3 py-1.5 transition-all text-left shadow-lg no-underline" style="box-shadow:0 4px 16px rgba(192,21,42,0.15);">
+              ${avatarHtml}
+              <div class="hidden lg:flex flex-col leading-none">
+                <span class="text-white font-display text-sm tracking-wider max-w-[100px] truncate">${displayName}</span>
+                <span class="text-steel-400 font-condensed text-[10px] tracking-wider uppercase mt-0.5">My Account</span>
               </div>
-            </div>
+            </a>
           `;
         }
 
         if (mobile) {
           mobile.innerHTML = `
             <div class="flex items-center gap-3 px-3.5 py-3 bg-navy-800/60 border border-crimson-500/40 rounded-xl" style="box-shadow:0 4px 18px rgba(192,21,42,0.15);">
-              ${avatarHtml}
-              <div class="flex-1 min-w-0">
-                <div class="text-white font-display text-base tracking-wider truncate">${displayName}</div>
-                <div class="text-gold-400 font-condensed font-700 text-[11px] tracking-widest uppercase mt-0.5">My Account</div>
-              </div>
-              <a href="/me" onclick="document.getElementById('mobileMenu')&&document.getElementById('mobileMenu').classList.add('hidden');" class="bg-navy-700/60 border border-white/10 text-steel-200 px-3 py-1.5 rounded-lg text-xs font-700 tracking-wider hover:bg-navy-700 transition-colors flex-shrink-0 no-underline">🗂️ Your file</a>
-              <a href="/me" onclick="document.getElementById('mobileMenu')&&document.getElementById('mobileMenu').classList.add('hidden');" class="bg-navy-700/60 border border-white/10 text-steel-200 px-3 py-1.5 rounded-lg text-xs font-700 tracking-wider hover:bg-navy-700 transition-colors flex-shrink-0 no-underline">👁 My Views</a>
+              <a href="/me" onclick="document.getElementById('mobileMenu')&&document.getElementById('mobileMenu').classList.add('hidden');" class="flex items-center gap-3 flex-1 min-w-0 no-underline">
+                ${avatarHtml}
+                <span class="flex-1 min-w-0 block">
+                  <span class="text-white font-display text-base tracking-wider truncate block">${displayName}</span>
+                  <span class="text-gold-400 font-condensed font-700 text-[11px] tracking-widest uppercase mt-0.5 block">My Account</span>
+                </span>
+              </a>
               <button onclick="auth.signOut()" class="bg-red-950/40 border border-red-500/20 text-red-400 px-3 py-1.5 rounded-lg text-xs font-700 tracking-wider hover:bg-red-900/30 transition-colors flex-shrink-0">Logout</button>
             </div>
           `;
@@ -604,11 +599,14 @@
     // ── THE ACCOUNT PULL, AND WHAT AN OPEN MENU IS ALLOWED TO COST ───────────
     // WHAT WAS REPORTED. Signed in on a desktop, clicking the account chip put
     // Chrome's "Page Unresponsive" dialog on screen with the account dropdown
-    // still open. The dropdown is not the slow part and never was: it is pure
-    // CSS (group-hover on the markup printed above — there is no JS open handler
-    // to make faster). What the reader was waiting on was this pull and the
-    // repaints hanging off it, and three things about the shape below paid for
-    // it:
+    // still open. The dropdown was not the slow part and never was: it was pure
+    // CSS (a group-hover panel in the markup printed above — there was never a
+    // JS open handler to make faster), and it is gone now, the chip having
+    // become one anchor to /me. What the reader was waiting on was this pull and
+    // the repaints hanging off it, and three things about the shape below paid
+    // for it. The hold below is kept for the same reason it was taken: a pull
+    // landing mid-gesture is expensive whether the gesture opened a panel or
+    // followed a link.
     //
     //   1. FIVE READS IN A CHAIN. users/{uid}, then its votes, then its
     //      comments, then userTeams/{uid}, then userTeams/{uid}/teams/{main} —

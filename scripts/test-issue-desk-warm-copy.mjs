@@ -747,14 +747,30 @@ section("10 · the files travel together");
   }
   has(SW, `// v${m[1]} - `, `sw.js has no prose log entry for v${m[1]}`);
   // Both halves of this pass are shell assets, and the note names them, because a
-  // warm device that took one and not the other is the failure this bump prevents.
-  const note = SW.slice(SW.indexOf(`// v${m[1]} - `), SW.indexOf("const CACHE_VERSION"));
+  // warm device that took one and not the other is the failure that bump prevented.
+  // THE ENTRY THIS FENCE READS IS v134's, NAMED, NOT WHATEVER IS LIVE.
+  // An earlier draft sliced the log at the CURRENT CACHE_VERSION and asserted the
+  // entry named the two files THIS pass changed. That is true of exactly one entry — the one v134
+  // wrote — so it held while that pass was uncommitted and then failed on the
+  // next unrelated bump, with a message about somebody else's pass. The log is
+  // append-only and its entries are immutable, so the pin is the version that
+  // made the claim; the live version is still checked, as a floor, above.
+  // One log entry ends where the next version line begins. The log is not in
+  // ascending order — v141 follows v109 in the file — so this looks for the next
+  // marker of any version rather than for the pinned version plus one.
+  const entryEnd = (s, i) => {
+    const m = /\n\/\/ v\d+ [-\u2014] /.exec(s.slice(i + 10));
+    return m ? i + 10 + m.index : i + 12000;
+  };
+  const at = SW.indexOf("// v134 - ");
+  ok(at >= 0, "the v134 entry — the one that shipped the measure-aware census — is gone from the log");
+  const note = at >= 0 ? SW.slice(at, entryEnd(SW, at)) : "";
   for (const f of ["door1-workspace.js", "door1-workspace.css"]) {
-    has(note, f, `the v${m[1]} note does not name ${f}`);
+    has(note, f, `the v134 note does not name ${f}`);
     ok(new RegExp(`['"]/?${f.replace(".", "\\.")}['"]`).test(SW) || SW.indexOf("/" + f) >= 0,
       `${f} is not in the precached shell`);
   }
-  console.log(`      shell v${m[1]}; both files named in the note and precached`);
+  console.log(`      shell v${m[1]}; both files named in v134's note and precached`);
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

@@ -269,7 +269,7 @@ const COPIES = [
   // an earlier edit to index.html shifts line numbers — when it does, the header
   // comment in me.html and this table move TOGETHER, which is the whole point of
   // pinning it in one place.
-  { from: "index.html", src: INDEX, a: 28019, b: 28441, what: "PDXSaved" },
+  { from: "index.html", src: INDEX, a: 26977, b: 27399, what: "PDXSaved" },
 ];
 for (const c of COPIES) {
   const header = new RegExp(`COPIED VERBATIM FROM ${c.from.replace(".", "\\.")} LINES ${c.a}[^0-9]{1,3}${c.b}`);
@@ -286,13 +286,37 @@ for (const c of COPIES) {
 // ═════════════════════════════════════════════════════════════════════════════
 section("5 · every door points at the address, and none of them fires twice");
 
-// THE ACCOUNT MENU. Two names ("Your file", "My Views") for one person's file;
-// both are now the same plain anchor, and neither carries the attribute that
-// would make one tap two navigations.
-const menuMatch = HUB_CODE.match(/function updateNavAuth[\s\S]*?\n  \}/);
-const MENU = menuMatch ? menuMatch[0] : HUB_CODE;
-ok((MENU.match(/href="\/me"/g) || []).length >= 4,
-  `menu: all four account-menu controls are href="/me" (found ${(MENU.match(/href="\/me"/g) || []).length})`);
+// THE ACCOUNT CHIP. This once asserted FOUR /me anchors — two widths times two
+// labels, "Your file" and "My Views", after both names were repointed from the
+// overlay to the address. Four controls for one room is three too many, and one
+// of those names was never a room of its own, so the panel went and the chip
+// itself became the control: one anchor per width, two in the whole painter.
+// The claim being made has not moved — the nav reaches this document by its
+// address at both widths, and nothing in it carries the attribute that would
+// make one tap two navigations.
+// A BRACE-BALANCED BODY, NOT A LAZY MATCH. The old probe was
+// /function updateNavAuth[\s\S]*?\n  \}/ against the comment-stripped file,
+// and because stripping replaces a comment with a space rather than deleting
+// the line, the first `\n  }` it could find was 459 KB downstream — so "the
+// account menu" was very nearly the whole of compare-hub.js, and every count
+// and every absence below was measured over the wrong text. Balance the braces
+// instead: a probe that cannot drift is worth more than one that reads.
+const MENU = (function () {
+  const i = HUB_CODE.indexOf("function updateNavAuth");
+  if (i < 0) return "";
+  let depth = 0;
+  for (let j = HUB_CODE.indexOf("{", i); j < HUB_CODE.length; j++) {
+    if (HUB_CODE[j] === "{") depth++;
+    else if (HUB_CODE[j] === "}" && !--depth) return HUB_CODE.slice(i, j + 1);
+  }
+  return "";
+})();
+ok(MENU.length > 2000 && MENU.length < 20000,
+  `menu: the updateNavAuth probe matched ${MENU.length} chars, which is not one function`);
+const MENU_ME = (MENU.match(/href="\/me"/g) || []).length;
+ok(MENU_ME === 2,
+  `menu: the account chip is one /me anchor per width, desktop and mobile (found ${MENU_ME}, want 2)`);
+lacks(MENU, "My Views", "menu: 'My Views' is not a second name for this same room");
 lacks(MENU, "data-pdxyf-open", "menu: the overlay attribute is gone from the account menu");
 lacks(MENU, "PDXStances.openViews", "menu: 'My Views' no longer scrolls to a homepage region");
 lacks(MENU, 'href="#your-file"', "menu: no control still points at the hash");

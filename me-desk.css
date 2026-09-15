@@ -29,9 +29,11 @@
        thread shape or avatar row — see the block over .me-voicetag, and
        district-voice.css, which is not loaded here and owns the board itself.
 
-   THE EDITOR IS NOT RESTYLED HERE. Region b is your-file.js's own eight rows,
-   painted by your-file.js into a host this document supplies, styled by
-   your-file.css. This sheet contributes exactly one rule to it — the
+   THE EDITOR IS NOT RESTYLED HERE. Region b's FACE is a snapshot this sheet
+   owns — chips carrying the sides the reader chose, and one door. Behind the
+   door are your-file.js's own eight rows, painted by your-file.js into a host
+   this document supplies, styled by your-file.css. This sheet contributes
+   exactly one rule to them — the
    .pdxyf-body--inline modifier below, which un-does the overlay scroller
    because on THIS document the region is the page and the page is the scroller.
    Every other .pdxyf* rule is your-file.css's, unchanged, so the eight rows are
@@ -195,16 +197,130 @@
 }
 .me-where strong { color: #e2e8f0; font-weight: 600; }
 
-/* ── REGION b · THE EDITOR'S HOST ─────────────────────────────────────────── */
-/* your-file.js paints .pdxyf-head + .pdxyf-body in here, and the head it paints
-   IS this region's heading — its title, its line ("Not a vote. Not a district
-   poll.") and its count. The region ships no heading of its own, so the sentence
-   "N answers of 8 on file" has exactly one author on this page: the module's own
-   countSentence(), which its patchRow() already keeps current when an answer
-   changes. A second heading here would be this document paraphrasing the
-   editor, and a paraphrase is a thing that can go stale.
+/* THE ONE WAY OUT. Quiet on purpose: ending a session is not the thing a reader
+   came to this page to do, and a chip louder than the account's own name would
+   read as the page's main verb. Sits at the end of the identity row and takes
+   the same outline shape "Work seat" takes — one border, no fill, no red. Red
+   here would be a verdict palette on the one control that is only ever the
+   reader's own choice. */
+.me-signout {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 0.5rem;
+  background: transparent;
+  font-family: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9fb4d4;
+  cursor: pointer;
+}
+.me-signout:hover, .me-signout:focus-visible {
+  border-color: rgba(125, 211, 252, 0.5);
+  color: #e0f2fe;
+}
 
-   THE ONE RULE THIS SHEET CONTRIBUTES TO THE EDITOR. .pdxyf-body is the single
+/* ── REGION b · THE SNAPSHOT, AND THE EDITOR'S HOST UNDER IT ──────────────── */
+/* WHAT CHANGED. This region used to BE the editor: eight rows and thirty-two
+   controls, painted the same way for a reader with eight answers and a reader
+   with none. It is a snapshot now — the sides this reader actually chose, as
+   chips — and the editor mounts into the host below it when the one door is
+   used. The editor's own sheet (your-file.css) still styles the editor; nothing
+   below restyles a single .pdxyf* rule.
+
+   A CHIP IS A LABEL, NOT A CONTROL, and the shapes say so: no hover lift, no
+   pressed state, no cursor:pointer, no aria-pressed anywhere for one to arrive
+   in. The only control in the region is .me-door.
+
+   THE COLOUR IS THE ISSUE'S, AND IT IS THE ONLY COLOUR HERE. [data-ic] is the
+   gate issue-colors.js sets, and the four --pdx-ic* properties ride inline on
+   the chip exactly as they do on a bill letterhead's topic chips. A key that
+   resolves to no Core National Issue carries NO attribute, so it keeps the
+   unthemed steel below — which is the honest outcome and the reason the base
+   rule is a full rule rather than a fallback. NO SIDE HAS A COLOUR: Support is
+   not green and Oppose is not red, because a position is not a verdict and this
+   sheet gives a later edit nowhere to make it one. */
+.me-pchips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.me-pchip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.09);
+  font-size: 0.78rem;
+  line-height: 1.3;
+  color: #cbd5e1;
+}
+.me-pchip[data-ic] {
+  border-color: var(--pdx-ic, rgba(148, 163, 184, 0.24));
+  background: var(--pdx-ic-soft, rgba(148, 163, 184, 0.09));
+}
+.me-pchip[data-ic] .me-pchip-l { color: var(--pdx-ic-ink, #cbd5e1); }
+.me-pchip-l { font-weight: 600; }
+/* The side the reader chose, set apart from the issue by weight and case rather
+   than by a colour — see the block above. */
+.me-pchip-s {
+  font-family: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8fa3bf;
+  white-space: nowrap;
+}
+/* A starter carries no side, because the reader has not chosen one. Dashed, so
+   it reads as an opening rather than as a stored answer. */
+.me-pchip--start {
+  border-style: dashed;
+  background: transparent;
+}
+.me-pchip--start[data-ic] { background: transparent; }
+
+/* THE ONE DOOR. */
+.me-pgo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin: 0.85rem 0 0;
+}
+.me-door {
+  padding: 0.42rem 0.8rem;
+  border: 1px solid rgba(125, 211, 252, 0.42);
+  border-radius: 0.5rem;
+  background: rgba(56, 130, 246, 0.14);
+  font-family: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #dbeafe;
+  cursor: pointer;
+}
+.me-door:hover, .me-door:focus-visible {
+  border-color: rgba(147, 197, 253, 0.7);
+  color: #f0f9ff;
+}
+/* "N more" — the leftover the face did not print. A count in words beside the
+   door, never a badge on it and never a ratio. */
+.me-pmore {
+  font-size: 0.76rem;
+  color: #7f95ad;
+}
+
+/* THE ONE RULE THIS SHEET CONTRIBUTES TO THE EDITOR. .pdxyf-body is the single
    scroller inside a fixed overlay, and it is bounded by that overlay's height.
    There is no overlay here and no bounded height, so an inner scroller would be
    a box that never scrolls sitting inside a page that does. It grows instead
@@ -464,6 +580,8 @@
 }
 
 @media (max-width: 32rem) {
+  .me-id { flex-wrap: wrap; }
+  .me-signout { margin-left: 0; }
   .me-seat { flex-wrap: wrap; }
   .me-work { margin-left: auto; }
   .me-rhead { flex-wrap: wrap; }

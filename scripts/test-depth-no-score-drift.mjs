@@ -637,7 +637,19 @@ for (const pid of PIDS) {
       // The one row the withdrawal is spent on: it held a Direction match with no
       // act under it, and it must now read as an untested row with no figure, no
       // metric and no lane — not as a different finding.
-      eq(sa.state, "tested", `${pid}/${r.key}: withdrawn — the row was not tested before, so nothing was withdrawn`);
+      //
+      // THE WITNESS CHANGES WITH THE TREE, for the reason the lifted block above
+      // spells out at length. `sa.state === "tested"` is the evidence that
+      // something was withdrawn, and it is true exactly once: while the removal is
+      // still uncommitted. The moment the pass lands, HEAD *is* the after-state,
+      // the baseline reads the same untested row, and an assertion demanding a
+      // tested baseline reports one failure describing nothing that is wrong —
+      // which is what it did. What stays testable in either tree is that this row
+      // is untested here and that the baseline is not some THIRD state: a row that
+      // came back as tested, or drifted into a different finding, still fails.
+      ok(sa.state === "tested" || sa.state === sb.state,
+        `${pid}/${r.key}: withdrawn — the baseline row is neither the tested row that was withdrawn ` +
+        `nor the untested row this tree prints (${sa.state} → ${sb.state})`);
       eq(sb.state, "untested", `${pid}/${r.key}: withdrawn — the row is still tested`);
       eq(sb.pct, null, `${pid}/${r.key}: withdrawn — the row still carries a percentage`);
       ok(!sb.metric, `${pid}/${r.key}: withdrawn — the row still names a metric`);

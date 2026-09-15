@@ -2594,8 +2594,33 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
   let porcelain = "";
   try { porcelain = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }
   const modified = porcelain.split("\n").filter((l) => /^ ?M/.test(l)).map((l) => l.slice(3).trim());
-  const stray = modified.filter((f) => !DECLARED.has(f));
-  eq(stray.join(", "), "", `F8 modified a file it does not declare (${stray.join(", ")})`);
+  // WHOSE TREE IS THIS? The fence above is a statement about the pass IN FLIGHT:
+  // "F8 changed these files and no others." It is decided from `git status`, which
+  // describes whatever is uncommitted RIGHT NOW — so the day F8 lands, the working
+  // tree stops being F8's and becomes the next pass's, and every file that pass
+  // legitimately edits reads here as a file F8 failed to declare. The declaration
+  // above records what that costs: it has been appended to by wave after wave, each
+  // paragraph explaining why some later pass's file had to be named in a fence that
+  // is not about it, until a list meant to say "this wave and nothing else" spans
+  // most of the app. Left alone it fails forever, on trees where nothing is wrong.
+  //   So the SUBJECT is established before the rule is applied, and F8's own
+  // migration is what establishes it. While this wave is in flight,
+  // 20261024000000_vr_federal_wave_f8.sql is
+  // uncommitted; once the wave ships, it is at HEAD and stays there — migrations
+  // are immutable, so this is a one-way door and not another thing to maintain.
+  // In flight, the rule is enforced exactly as written. Landed, the modified set
+  // belongs to somebody else and there is nothing here for this fence to be about.
+  let landed = false;
+  try {
+    execFileSync("git", ["show", `HEAD:${join(MIG_DIR, MIGRATION)}`], { cwd: ROOT, encoding: "utf8" });
+    landed = true;
+  } catch { /* not at HEAD: this wave is still the pass in flight */ }
+  if (landed) {
+    console.log(`      (${MIGRATION} is at HEAD — F8 has shipped, so the tree under this fence is another pass's)`);
+  } else {
+    const stray = modified.filter((f) => !DECLARED.has(f));
+    eq(stray.join(", "), "", `F8 modified a file it does not declare (${stray.join(", ")})`);
+  }
 }
 
 if (failures.length) {

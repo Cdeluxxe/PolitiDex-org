@@ -8,11 +8,17 @@
    open. Opening Your File or My Views from that same menu felt like the same
    family of freeze.
 
-   WHAT THE DROPDOWN IS NOT. It is not a JS menu. updateNavAuth prints markup
-   whose dropdown is shown by `group-hover` — pure CSS — so there is no open
-   handler to make faster and no frame of ours to win back. Everything the
+   WHAT THE DROPDOWN WAS NOT. It was never a JS menu. updateNavAuth printed
+   markup whose dropdown was shown by `group-hover` — pure CSS — so there was no
+   open handler to make faster and no frame of ours to win back. Everything the
    reader was waiting on was bookkeeping that happened to land under the open
    menu, and four things were paying for it:
+
+   (The panel itself is gone now. Four controls led to one address, /me, so the
+   chip became the single anchor onto it and the panel went with them. That
+   removes the same cost a different way and removes the surface too; section 1
+   asserts it cannot come back as JavaScript, which is the only version of it
+   this file would have to measure again.)
 
      1. THE ACCOUNT PULL WAS FIVE READS IN A CHAIN. users/{uid} → its votes →
         its comments → userTeams/{uid} → userTeams/{uid}/teams/{main}, each
@@ -151,10 +157,19 @@ ok(/user\.photoURL/.test(NAV) && /displayName/.test(NAV),
 ok(/nav-auth-desktop/.test(NAV) && /nav-auth-mobile/.test(NAV),
   'updateNavAuth no longer paints both the desktop chip and the mobile sheet slot');
 
-// The dropdown is CSS. If that ever changes, this file's premise changes with it.
-ok(/group-hover/.test(NAV),
-  'the account dropdown is no longer shown by group-hover. It was pure CSS on purpose: a menu with no open ' +
-  'handler cannot be slow to open, and any JS open path has to be measured again');
+// THERE IS NO DROPDOWN LEFT, AND THAT IS WHY THIS FILE'S PREMISE SURVIVES.
+// The panel used to be shown by `group-hover` — pure CSS, no open handler, so
+// none of the freeze this file measures was ever the menu opening. The chip is
+// now one anchor to /me with no panel behind it at all, which removes the same
+// cost the same way and removes the surface with it. What this still forbids is
+// the panel coming back as JavaScript: a menu with an open handler is a frame of
+// ours to lose, and it would have to be measured here before it shipped.
+ok(!/group-hover/.test(NAV),
+  'the account chip has a hover panel again. It was removed because four doors led to one room; if a panel ' +
+  'returns it must not return as CSS hover that this file can no longer reason about');
+ok(!/addEventListener\('(?:click|mouseenter|pointerdown)'/.test(NAV),
+  'updateNavAuth now binds its own open handler. The chip is a navigation, not a menu — an open path here is a ' +
+  'frame of ours to lose and has to be measured before it ships');
 
 // ═════════════════════════════════════════════════════════════════════════════
 section('2 · the account pull reads in parallel and repaints a frame later');
@@ -304,21 +319,27 @@ ok(/_held/.test(MS_OV),
   'the overlay hold is not guarded against a double release — close() is reachable from the backdrop, the ✕ and ' +
   'Escape');
 
-// BOTH DOORS ARE STILL THERE, AND THEY NOW LEAD TO ONE ROOM. This used to probe
-// for data-pdxyf-open and PDXStances.openViews, which were the two mechanisms
-// the two labels reached their two surfaces by — an overlay on the current
-// document, and a scroll to a homepage region. The voter's file is a document at
-// /me now, so both entries are plain anchors to it and neither mechanism is in
-// this markup any more. The claim the old probes stood for is unchanged and is
-// asserted on the labels instead: a reader who opens this menu can still get to
-// their file, and can still get to it by the name they learned.
+// ONE DOOR, NOT FOUR. The history here is worth keeping, because the assertions
+// inverted. This probe first looked for data-pdxyf-open and PDXStances.openViews
+// — the two mechanisms by which the labels "Your file" and "My Views" reached an
+// overlay and a homepage region. When the file became a document those became
+// two anchors to /me, and the probe asserted exactly two. Then the desktop chip
+// and the mobile row became anchors to /me as well, which made four controls in
+// one menu for one address, and "My Views" a second name for the same room. So
+// the panel is gone: the chip itself is the single control, it goes to /me, and
+// the labels it used to hide with it. What is asserted now is that there is one
+// /me door in the desktop markup and no second name for the room.
 const MENU = (NAV.match(/desktop\.innerHTML = `[\s\S]*?`;/) || [''])[0];
-must(MENU.length > 200, 'the desktop account-menu markup probe matched nothing');
+must(MENU.length > 200, 'the desktop account-chip markup probe matched nothing');
 const MENU_ME = (MENU.match(/href="\/me"/g) || []).length;
-ok(/href="\/me"[\s\S]*?Your file/.test(MENU), 'the account menu lost its Your File door');
-ok(/href="\/me"[\s\S]*?My Views/.test(MENU), 'the account menu lost its My Views door');
-ok(MENU_ME === 2, 'the desktop account menu does not carry exactly two /me doors (got ' + MENU_ME + ') — a ' +
-  'third would be a nav pill, and one would be the silent removal of a label readers learned');
+ok(MENU_ME === 1, 'the desktop account chip does not carry exactly one /me door (got ' + MENU_ME + ') — two ' +
+  'was the menu this pass removed, and zero would strand the reader\'s file behind no control at all');
+ok(/<a href="\/me"/.test(MENU),
+  'the account chip is not an anchor onto /me. A button that calls location.assign cannot be middle-clicked, ' +
+  'cmd-clicked or read as a link by a screen reader');
+ok(!/My Views/.test(MENU),
+  'the desktop chip carries a "My Views" label again. My Views is not a separate destination — it was a second ' +
+  'name for /me, and two names for one room is the confusion this pass exists to remove');
 // AND NEITHER DOOR CARRIES THE OLD HOOK. data-pdxyf-open is your-file.js's
 // capturing open hook, which on a non-/me document answers by redirecting to
 // /me and returning false — deliberately not claiming the click. An anchor
@@ -329,7 +350,17 @@ ok(!/data-pdxyf-open/.test(MENU),
 ok(!/PDXStances\.openViews|location\.hash\s*=\s*'#my-stances'/.test(MENU),
   'an account-menu door still opens the homepage stance region instead of the file\'s own address, which is the ' +
   'second editor this pass exists to remove');
-ok(/auth\.signOut/.test(MENU), 'the account menu lost Log Out');
+// LOG OUT MOVED, IT WAS NOT DELETED. The desktop chip has no panel to hold it,
+// so the control lives on /me — region a, beside the reader's own name — and the
+// mobile sheet keeps its existing Logout row because that sheet is overflow that
+// predates this pass, not the chip. A signOut call reappearing in the desktop
+// chip markup means the panel came back with it.
+ok(!/signOut/.test(MENU),
+  'the desktop account chip carries a sign-out control again, which means it is a menu again. Log Out lives on ' +
+  '/me now; the mobile sheet\'s existing Logout row is the one permitted overflow');
+ok(/auth\.signOut/.test(NAV),
+  'updateNavAuth lost sign-out entirely. Moving the control to /me does not license removing it from the mobile ' +
+  'sheet that already had it — a reader who can sign in on a phone has to be able to sign out on one');
 ok(!/renderRelevantToMe|_alignRefreshAll|syncUserDataFromFirestore/.test(MENU),
   'a control in the account menu calls a whole-surface repaint or the account pull from its own onclick');
 

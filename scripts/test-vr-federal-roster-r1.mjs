@@ -475,8 +475,19 @@ section("6 · no Direction Match drift — twin boot, HEAD against this tree");
   // pinned half. The block lists which keys sit under which heading. It reads no member.
   const REGIONED = ["alignment-tool.js"];
   const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && h !== R(f); });
-  eq(touched.filter((f) => !SEAMED.includes(f) && !REGIONED.includes(f)).join(", "), "cmp-data.js",
+  // TWO CLAIMS WERE WELDED INTO ONE LINE, AND ONLY ONE OF THEM LASTS. "The set of
+  // booted files that differ from HEAD is exactly cmp-data.js" says both "nothing
+  // but the roster moved" — which is what a roster wave promises, forever — and
+  // "the roster HAS moved", which is true only while R1 is the uncommitted pass. On
+  // the day R1 lands, cmp-data.js matches HEAD, the set is empty, and the welded
+  // form fails on a tree where the wave is exactly as it shipped. So the durable
+  // half is asserted always, and the in-flight half only while cmp-data.js is
+  // actually the file in flight.
+  const other = touched.filter((f) => !SEAMED.includes(f) && !REGIONED.includes(f) && f !== "cmp-data.js");
+  eq(other.join(", "), "",
     "a roster wave changed a booted file other than the roster — identity is the only thing it admits");
+  if (touched.includes("cmp-data.js")) ok(true, "the roster is the file in flight");
+  else console.log(`      (cmp-data.js matches HEAD — ${WAVE} has landed, so the admissions are checked against the roster itself)`);
   if (touched.includes("alignment-tool.js"))
     assertParentTableIsTheOnlyMove({ ok, eq }, headSrc("alignment-tool.js"), R("alignment-tool.js"), "roster R1");
   seamCheck("consistency.js", CJ_SEAMS, assertConsistencySeams);
@@ -487,9 +498,21 @@ section("6 · no Direction Match drift — twin boot, HEAD against this tree");
     && ok(!!(work.PDXWordAction && work.PDXWordAction.read), "the current engine did not boot")) {
     const PIDS = Object.keys(head.CMP_DATA || {});
     ok(PIDS.length > 100, `the pre-wave roster booted (${PIDS.length} profiles)`);
-    // The roster GREW — this is the one wave for which an unchanged count would be the bug.
-    ok(Object.keys(work.CMP_DATA || {}).length > PIDS.length,
-      "the roster did not grow, though this wave's entire product is 315 admissions");
+    // THE ROSTER HOLDS THE 315, WHICH IS THE CLAIM THAT DOES NOT EXPIRE. This asked
+    // for a roster strictly LARGER than HEAD's — true on the day of the wave, false
+    // every day after it, and it would also have been satisfied by 315 admissions
+    // going missing and one stranger arriving. What R1's product actually is, is a
+    // named list, so it is checked as one: every slug the wave admits has a roster
+    // row here, and the roster still holds everyone HEAD had (asserted immediately
+    // below). While the wave is in flight that necessarily means growth, and the
+    // growth is still asserted then, because cmp-data.js is dirty and HEAD predates
+    // the admissions.
+    const missing = waveSlugs.filter((sl) => !(work.CMP_DATA || {})[sl]);
+    eq(missing.join(", "), "",
+      `the roster is missing ${missing.length} of this wave's 315 admissions — a person with no file is a vote ` +
+      "with nowhere to go, which is the whole reason R1 exists");
+    ok(Object.keys(work.CMP_DATA || {}).length >= PIDS.length,
+      "the roster shrank against HEAD — a wave whose entire product is admissions removed somebody");
     eq(PIDS.filter((p) => !work.CMP_DATA[p]).length, 0, "the wave dropped someone HEAD had");
 
     const READ_KEYS = ["pct", "publishable", "word", "testedWeight"];

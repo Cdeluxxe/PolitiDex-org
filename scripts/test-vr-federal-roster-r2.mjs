@@ -409,11 +409,26 @@ section("4 · the mullin correction moved the label and nothing that is judged")
           `mullin's ${k} moved — an identity-only office correction touches the label and nothing that is judged`);
       }
       eq(JSON.stringify(now.issues), JSON.stringify(before.issues), "mullin's issue chips moved");
-      eq(before.office, "U.S. Senator", "HEAD did not have mullin as a sitting U.S. Senator, so this is not the correction the census describes");
       // Exactly which keys changed, so a field arriving under cover of this fix is named.
       const moved = [...new Set([...Object.keys(before), ...Object.keys(now)])]
         .filter((k) => JSON.stringify(before[k]) !== JSON.stringify(now[k])).sort();
-      eq(moved.join(", "), "office, termEnd, termStart", "the mullin correction moved fields beyond the office label and its dates");
+      // ONE CORRECTION, TWO TRUE DESCRIPTIONS OF IT. While R2 is the pass in flight,
+      // HEAD still calls Mullin a sitting senator and the delta is exactly three
+      // fields — the strongest statement of the fix, and it is made here. Once the
+      // wave lands, HEAD carries the correction too, there is no delta to name, and
+      // the delta form fails on a tree where the fix is precisely as it shipped. So
+      // HEAD decides which reading applies, and the part that never expires — the
+      // label this tree publishes for him — is asserted on both paths.
+      const FIXED = "Former U.S. Senator";
+      if (before.office === FIXED) {
+        console.log("      (mullin's office correction is at HEAD — landed, so there is no delta left to name)");
+        eq(now.office, FIXED, "mullin's office label is no longer the corrected one the census describes");
+        eq(moved.join(", "), "", "mullin's row moved in this tree, on a wave whose correction is already at HEAD");
+      } else {
+        eq(before.office, "U.S. Senator", "HEAD did not have mullin as a sitting U.S. Senator, so this is not the correction the census describes");
+        eq(now.office, FIXED, "the correction did not put mullin's office where the census says it goes");
+        eq(moved.join(", "), "office, termEnd, termStart", "the mullin correction moved fields beyond the office label and its dates");
+      }
     }
   }
 
@@ -526,8 +541,16 @@ section("6 · no Direction Match or formal-brief drift — twin boot, HEAD vs th
   // and nowhere else, and a second copy of it would have been a second taxonomy.
   const REGIONED = ["alignment-tool.js"];
   const touched = FILES.filter((f) => { const h = HEAD(f); return h !== null && h !== R(f); });
-  eq(touched.filter((f) => !SEAMED.includes(f) && !REGIONED.includes(f)).join(", "), "cmp-data.js",
+  // THE WALL AND THE WAVE ARE TWO CLAIMS. "The booted files differing from HEAD are
+  // exactly cmp-data.js" asserts both that nothing but the roster moved — the wall,
+  // and permanent — and that the roster IS moving, which is only true while R2 is
+  // uncommitted. Landed, the set is empty and the welded form fails on a correct
+  // tree. The wall is asserted always; the flight is noted, not required.
+  const other = touched.filter((f) => !SEAMED.includes(f) && !REGIONED.includes(f) && f !== "cmp-data.js");
+  eq(other.join(", "), "",
     "a roster wave changed a booted file other than the roster — identity is the only thing it admits");
+  if (!touched.includes("cmp-data.js"))
+    console.log("      (cmp-data.js matches HEAD — this wave has landed, so its admissions are checked against the roster itself)");
   seamCheck("consistency.js", CJ_SEAMS, assertConsistencySeams);
   seamCheck("stance-helpers.js", SH_SEAMS, assertStanceHelpersSeam);
   seamCheck("word-action.js", WA_SEAMS, assertWordActionSeams);
@@ -536,13 +559,26 @@ section("6 · no Direction Match or formal-brief drift — twin boot, HEAD vs th
     && ok(!!(work.PDXWordAction && work.PDXWordAction.read), "the current engine did not boot")) {
     const PIDS = Object.keys(head.CMP_DATA || {});
     ok(PIDS.length > 1000, `the pre-wave roster booted (${PIDS.length} profiles)`);
-    eq(Object.keys(work.CMP_DATA || {}).length, PIDS.length + ADM.length,
-      "the roster did not grow by exactly the twelve this wave admits");
+    // GROWTH IS MEASURED AGAINST WHAT HEAD WAS MISSING, which is the twelve while the
+    // wave is in flight and none of them once it lands — one arithmetic covering both
+    // days, rather than a figure that is right for one of them. The admissions
+    // themselves are then checked by NAME against the roster this tree ships, which
+    // is the claim the count was standing in for and the one that does not expire.
+    const fresh = ADM.filter((a) => !head.CMP_DATA[a.slug]);
+    eq(Object.keys(work.CMP_DATA || {}).length, PIDS.length + fresh.length,
+      `the roster did not grow by exactly the ${fresh.length} of this wave's ${ADM.length} admissions HEAD was missing`);
     eq(PIDS.filter((p) => !work.CMP_DATA[p]).length, 0, "the wave dropped someone HEAD had");
-    // And none of the twelve was already there — an admission of someone who already had a
-    // row is how a person gets two files.
-    eq(ADM.filter((a) => head.CMP_DATA[a.slug]).map((a) => a.slug).join(", "), "",
-      "this wave admitted someone who already had a roster row at HEAD");
+    eq(ADM.filter((a) => !work.CMP_DATA[a.slug]).map((a) => a.slug).join(", "), "",
+      "an admitted member has no roster row in this tree — a person with no file is a vote with nowhere to go");
+    // AND THE TWELVE ARRIVE TOGETHER OR NOT AT ALL. Before the wave none of them has a
+    // row; after it, all twelve do. A tree where SOME of them are at HEAD and the rest
+    // are not is the real defect this line was written to catch — a half-landed wave,
+    // or an admission of someone who already had a file, which is how one person ends
+    // up with two.
+    const already = ADM.filter((a) => head.CMP_DATA[a.slug]).map((a) => a.slug);
+    ok(already.length === 0 || already.length === ADM.length,
+      `${already.length} of this wave's ${ADM.length} admissions already had a roster row at HEAD and the rest ` +
+      `did not (${already.slice(0, 4).join(", ")}…) — the admissions do not travel as one wave`);
 
     const READ_KEYS = ["pct", "publishable", "word", "testedWeight"];
     const COV_KEYS = ["word", "scorable", "tested", "untested", "issueLinked",
@@ -605,9 +641,19 @@ section("6 · no Direction Match or formal-brief drift — twin boot, HEAD vs th
     const drifted = Object.keys(headIndex.personRecord || {})
       .filter((pid) => JSON.stringify((shareIndex.personRecord || {})[pid]) !== JSON.stringify(headIndex.personRecord[pid]));
     eq(drifted.slice(0, 8).join(", "), "", `${drifted.length} pre-wave formal brief(s) moved on a wave that re-pulled no roll`);
-    // The index grew by the eleven who had votes waiting and no name, and by nobody else.
-    eq(Object.keys(shareIndex.personRecord || {}).length - Object.keys(headIndex.personRecord || {}).length, 11,
-      "the formal-brief index did not grow by exactly the eleven admitted members whose votes were already stored");
+    // THE ELEVEN, BY NAME RATHER THAN BY DELTA. This read the difference between the
+    // two index sizes and required 11 — which is 11 on the day of the wave and 0 on
+    // every day after it, when HEAD's index already holds them. Counting them in the
+    // index this tree ships says the same thing and keeps saying it, and the delta is
+    // still spent on the question a count cannot answer: whether anyone the wave did
+    // not admit arrived alongside them.
+    const briefed = ADM.map((a) => a.slug).filter((sl) => (shareIndex.personRecord || {})[sl]);
+    eq(briefed.length, 11,
+      "the formal-brief index does not hold exactly the eleven admitted members whose votes were already stored");
+    const strangers = Object.keys(shareIndex.personRecord || {})
+      .filter((pid) => !(headIndex.personRecord || {})[pid] && !ADM.some((a) => a.slug === pid));
+    eq(strangers.join(", "), "",
+      "the formal-brief index gained a brief for somebody this wave did not admit");
   }
 }
 
@@ -633,14 +679,37 @@ section("7 · ship discipline — cache, census, floor, and the identity wall");
     ok(new RegExp(`^// ${ver(sw)} [-—]`, "m").test(sw), `sw.js has no note explaining what ${ver(sw)} ships`);
   }
 
-  // THE CENSUS IS THE LEDGER, so it must still be what its generator would write.
-  try {
-    execFileSync("node", ["scripts/vr-federal-roster-r2-census.mjs", "--check"],
-      { cwd: ROOT, encoding: "utf8", stdio: "pipe" });
-    passed++;
-  } catch (e) {
-    failures.push("db/vr-federal-roster-r2-census.json is not what its generator would write now — " +
-      "re-run scripts/vr-federal-roster-r2-census.mjs (network needed)");
+  // THE CENSUS IS THE LEDGER, so it must still be what its generator would write —
+  // FOR AS LONG AS THE GENERATOR IS ASKING THE SAME QUESTION. It measures the wave
+  // against the CURRENT roster: before the admissions land it finds twelve members to
+  // admit, and after they land it finds the same twelve "already had a row", a roster
+  // of 1120 → 1120, an empty admitted[] and no photo hosts. So --check has a shelf
+  // life, and running it against a landed wave does not verify the ledger — it asks
+  // for the ledger to be REWRITTEN as a statement about nothing, which would erase the
+  // census the other seven thousand checks in this file read. The census records what
+  // R2 did. That is history, and history is not regenerated.
+  //   So reproducibility is asserted while the roster still lacks the admissions, and
+  // once they are in, immutability is asserted in its place: the ledger is byte for
+  // byte what HEAD has. Both readings are decided by the roster itself, which is the
+  // same thing the generator's own "wave applied" line reads.
+  const rosterHasWave = ADM.every((a) => CMP[a.slug]);
+  if (!rosterHasWave) {
+    try {
+      execFileSync("node", ["scripts/vr-federal-roster-r2-census.mjs", "--check"],
+        { cwd: ROOT, encoding: "utf8", stdio: "pipe" });
+      passed++;
+    } catch (e) {
+      failures.push("db/vr-federal-roster-r2-census.json is not what its generator would write now — " +
+        "re-run scripts/vr-federal-roster-r2-census.mjs (network needed)");
+    }
+  } else {
+    const ledgerHead = HEAD("db/vr-federal-roster-r2-census.json");
+    if (ok(ledgerHead !== null, "HEAD:db/vr-federal-roster-r2-census.json is unreadable, so the ledger could not be compared")) {
+      eq(R("db/vr-federal-roster-r2-census.json"), ledgerHead,
+        "db/vr-federal-roster-r2-census.json moved after the wave landed — the census is the record of what R2 " +
+        "admitted, and re-running its generator against a roster that already holds the twelve rewrites it as a " +
+        "census of nobody");
+    }
   }
   eq(census.waveApplied, true, "the census does not agree that the wave has been applied to the roster");
   eq(census.rosterSizeAfter, ROSTER_SIZE, "the census's post-wave roster size is not the roster's size");
@@ -680,9 +749,15 @@ section("7 · ship discipline — cache, census, floor, and the identity wall");
     const beforeU = urls(sitemapHead), afterU = urls(sitemap);
     const gained = [...afterU].filter((p) => !beforeU.has(p)).sort();
     const lost = [...beforeU].filter((p) => !afterU.has(p)).sort();
-    eq(gained.join(", "),
-      ADM.filter((a) => a.chamber === "house").map((a) => a.slug).sort().join(", "),
-      "the sitemap did not gain exactly the nine House members the existing floor admits");
+    // PRESENT, NOT GAINED. A delta against HEAD is empty once the sitemap regeneration
+    // lands, so what is asserted is that the nine House admissions ARE advertised in
+    // the sitemap this tree ships — and, separately, that nothing else appeared beside
+    // them. Together those are exactly what the delta used to say, on every day.
+    const houseNine = ADM.filter((a) => a.chamber === "house").map((a) => a.slug).sort();
+    eq(houseNine.filter((sl) => !afterU.has(sl)).join(", "), "",
+      "the sitemap does not advertise all nine House members the existing floor admits");
+    eq(gained.filter((pid) => !houseNine.includes(pid)).join(", "), "",
+      "the sitemap gained an address this wave did not admit");
     eq(lost.join(", "), "", "the sitemap lost an address — this wave publishes, it does not unpublish");
     for (const a of ADM.filter((x) => x.chamber === "senate")) {
       ok(!afterU.has(a.slug), `${a.slug} is in the sitemap — the three senators do not clear the floor, ` +

@@ -344,11 +344,11 @@ const COPIES = [
   [2012, 2035, "the Firebase compat bundles, the key injection, the stub and firebase-boot.js"],
   [2040, 2085, "the share furniture share-preview.ts rewrites"],
   [3569, 3632, "the crawl-header guard"],
-  [17522, 18444, "the funding lane, up to the cut"],
-  [20334, 20368, "the profile modal down to #modal-content"],
-  [20429, 20475, "the stance popover, the record overlay and the share sheet"],
-  [27405, 27525, "PDXStance"],
-  [30793, 30988, "the PWA runtime and the service-worker registration"],
+  [16481, 17403, "the funding lane, up to the cut"],
+  [19293, 19327, "the profile modal down to #modal-content"],
+  [19388, 19435, "the stance popover, the record overlay and the share sheet"],
+  [26364, 26485, "PDXStance"],
+  [28974, 29173, "the PWA runtime and the service-worker registration"],
 ];
 // THESE NUMBERS ARE ANCHORS INTO index.html AND THEY MOVE WHEN IT DOES. The
 // ones re-based here were re-based by the fourth split, which lifted the ballot
@@ -397,6 +397,24 @@ const COPIES = [
 // two very different things, and the two assertions below separate them: an
 // "out of range or empty" failure is a stale anchor, and a "NOT byte-identical"
 // failure on an in-range slice is real drift between the two documents.
+//
+// AND THEN THE ARITHMETIC RAN OUT. The five anchors above were carried forward
+// pass by pass by adding each pass's deletion to the previous number, and the
+// chain of sums drifted off the blocks it was pointing at: the last one had run
+// PAST THE END of a 29,171-line index.html, so it was reading an empty slice —
+// which is exactly the failure the first of the two assertions below exists to
+// name, and it named it. They are no longer carried forward by arithmetic. Each
+// one was re-derived by locating its copied block verbatim in the CURRENT
+// index.html — walk person.html line by line, and for each line take the longest
+// run that also appears in index.html from some line onward; every block over
+// twenty-five lines comes back as one run with both files' ranges, and the five
+// runs below are those ranges. The lengths moved by a line or four where the old
+// sums had clipped a block's first or last line (the popovers gained one,
+// PDXStance one, the PWA runtime four); not one byte of any copied block changed,
+// and the eight anchors above them were re-derived the same way and came back
+// unchanged, which is the check on the method. Re-derive rather than add when
+// this fails again: the run is a fact about the two files, a sum is a claim about
+// a history of passes.
 for (const [a, b, what] of COPIES) {
   const slice = idxLines.slice(a - 1, b).join("\n");
   ok(slice.split("\n").length === b - a + 1 && slice.trim().length > 0,

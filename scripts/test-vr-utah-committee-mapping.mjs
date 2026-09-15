@@ -58,6 +58,7 @@ const J = (f) => JSON.parse(R(f));
 
 let passed = 0;
 const failures = [];
+const skips = [];
 const ok = (cond, msg) => { if (cond) passed++; else failures.push(msg); };
 const eq = (a, b, msg) => ok(a === b, `${msg} — expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`);
 const has = (hay, needle, msg) => ok(String(hay).indexOf(needle) >= 0, `${msg} — "${needle}" missing`);
@@ -132,7 +133,63 @@ section("1 · every bill in the bucket is decided, exactly once");
 // The bucket is not restated here: it is recomputed by the shipped ingest, so a
 // bill that leaves or joins the bucket breaks this test instead of being silently
 // dropped from the pass.
-{
+// THE RECOMPUTE NEEDS THE INGEST'S OWN SCRATCH, AND THAT IS NOT IN THE REPOSITORY.
+// `--verify` recomputes the bucket through scripts/vr-utah-committee-ingest.mjs,
+// which reads a per-session bill-and-vote cache fetched from le.utah.gov into
+// /tmp/bucket-<session>.json. On the curator's machine those files exist and this
+// section is the strongest thing in the file: the bucket is DERIVED rather than
+// restated, so a bill joining or leaving it fails here. On a machine that has never
+// run the ingest they do not exist, and the shipped script exits with the command
+// you are supposed to run — which this harness used to let escape as an uncaught
+// throw, taking all seven sections down with it and reporting a crash where the
+// honest answer is "that measurement was not taken here". So the recompute is
+// attempted, and when its inputs are absent the claim is DISCLOSED as unchecked
+// and the half that needs no network is asserted anyway: the decision files are
+// the record of what this lane decided, and they can be read on any machine.
+const BUCKETS = SESSIONS.map((s) => `/tmp/bucket-${s}.json`);
+const MISSING = BUCKETS.filter((f) => !existsSync(f));
+if (MISSING.length) {
+  skips.push(`section 1's bucket recompute needs the ingest cache (${MISSING.join(", ")}) — ` +
+    "whether the live bucket still holds exactly the bills this lane decided was NOT checked in this run; " +
+    "rebuild with: node scripts/vr-utah-committee-ingest.mjs --bucket --session <session> --json > /tmp/bucket-<session>.json");
+  // What the decision files alone still owe the reader. The counts are the ones the
+  // recompute prints, restated here against the shipped ledgers: if a bill were
+  // dropped from a decision file the totals move, even though nobody can tell from
+  // here whether the bucket moved with it.
+  for (const [s, bucket, admitted, refused] of [["2025GS", 170, 78, 95], ["2024GS", 140, 66, 75],
+                                                ["2023GS", 135, 68, 67]]) {
+    eq(DEC[s].bills.length, admitted, `${s}: the decision file admits the ${admitted} bills this lane mapped`);
+    eq(DEC[s]._refused.length, refused, `${s}: …and refuses the other ${refused} in writing`);
+    // AND THE EXITS COME OFF THE TOTAL, which is the whole reason they are flagged:
+    // a refusal marked leftTheBucket is a bill this lane declined AND that the bucket
+    // no longer holds, so counting it against the bucket would make the ledger
+    // over-account by exactly the number of documented exits.
+    const exits = DEC[s]._refused.filter((r) => r.leftTheBucket).length;
+    eq(DEC[s].bills.length + DEC[s]._refused.length - exits, bucket,
+      `${s}: admitted plus refused, less the ${exits} documented exit(s), is the whole ${bucket}-bill bucket, ` +
+      "with nothing unaccounted");
+  }
+  // The exits, by name and by session, read off the flag rather than off --verify.
+  for (const [s, expected] of [["2025GS", "SB0026, SB0316, SB0336"], ["2024GS", "HB0348"], ["2023GS", ""]]) {
+    const flagged = DEC[s]._refused.filter((r) => r.leftTheBucket).map((r) => r.bill);
+    eq(flagged.join(", "), expected,
+      `${s}: the bills that left this lane for the formal one are exactly the ones named in writing`);
+    for (const b of flagged) {
+      const r = DEC[s]._refused.find((x) => x.bill === b);
+      ok(/vocab-wave-V1|vocabulary wave V1/.test(String(r.why)), `${s}: ${b}'s refusal says which wave took it`);
+      ok(!DEC[s].bills.some((x) => x.bill === b), `${s}: ${b} is not also admitted here — one lane maps a bill, not two`);
+      ok(!SEED[s].measures.some((m) => m.utahBill === b), `${s}: ${b} carries no measure in this lane's seed`);
+    }
+    if (flagged.length) has(String(DEC[s]._leftTheBucket || ""), "leftTheBucket",
+      `${s}: the decision file explains the flag in its own words`);
+  }
+  for (const s of SESSIONS) {
+    const adm = DEC[s].bills.map((b) => b.bill), ref = DEC[s]._refused.map((b) => b.bill);
+    eq(new Set(adm).size, adm.length, `${s}: no bill is admitted twice`);
+    eq(new Set(ref).size, ref.length, `${s}: no bill is refused twice`);
+    eq(adm.filter((b) => ref.includes(b)).length, 0, `${s}: no bill is both admitted and refused`);
+  }
+} else {
   const out = execFileSync(process.execPath,
     [join(ROOT, "scripts/vr-utah-committee-mapping.mjs"), "--verify", "--session", "2025GS"],
     { cwd: ROOT, encoding: "utf8" }) +
@@ -648,6 +705,8 @@ function boot() {
   return win;
 }
 
-console.log(`\n${failures.length ? "✗" : "✓"} vr-utah-committee-mapping: ${passed} assertion(s) passed, ${failures.length} failed`);
+console.log(`\n${failures.length ? "✗" : "✓"} vr-utah-committee-mapping: ${passed} assertion(s) passed, ${failures.length} failed` +
+  `${skips.length ? `, ${skips.length} not checked` : ""}`);
+for (const k of skips) console.log(`   ~ ${k}`);
 for (const f of failures) console.error(`   ✗ ${f}`);
 process.exit(failures.length ? 1 : 0);

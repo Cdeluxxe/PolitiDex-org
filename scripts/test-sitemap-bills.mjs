@@ -197,18 +197,22 @@ const issueFiles = locs.filter((u) => u.startsWith(ORIGIN + "/i/"));
 // with no seat, no poll and no member, which is a refusal dressed as an index
 // entry — the same standing rule the /i/ half applies above. Asserted below.
 const districtFiles = locs.filter((u) => u.startsWith(ORIGIN + "/d/"));
-// THE SIXTH AND SEVENTH KINDS ARE NAMED, NOT WAIVED, and they are the only two
-// entries that are ROOMS rather than records. /stances is the issue browser and
-// /evidence is the evidence locker; both used to be sections of the front page,
-// reachable only by a hash, and both are now documents of their own. They are
-// listed because a public browse surface with an address is exactly what a
-// sitemap is for — and they are listed as EXACTLY two flat addresses, because
-// what a reader filters to inside either room is a query string, and a query is
-// not a page. The two private workspaces beside them (/ballot and /me, which
-// are one voter's own desks) are deliberately NOT advertised, and this check is
-// what keeps that distinction from eroding: adding a room here means naming it
-// here.
-const ROOMS = [ORIGIN + "/stances", ORIGIN + "/evidence"];
+// THE SIXTH, SEVENTH AND EIGHTH KINDS ARE NAMED, NOT WAIVED, and they are the
+// only entries that are ROOMS rather than records. /stances is the issue browser,
+// /evidence is the evidence locker and /courts is the judicial archive; all three
+// used to be sections of the front page, reachable only by a hash, and all three
+// are now documents of their own. They are listed because a public browse surface
+// with an address is exactly what a sitemap is for — and they are listed as
+// EXACTLY three flat addresses, because what a reader filters to inside any of
+// them is a query string, and a query is not a page. That last rule is doing real
+// work on /courts: the archive names a hundred and twenty-six judges and its chip
+// row filters them by court and by judicial district, and NONE of that mints an
+// address. A judge is a person, and a person's address is /p/<pid> behind the
+// same publication floor as everybody else. The two private workspaces beside
+// them (/ballot and /me, which are one voter's own desks) are deliberately NOT
+// advertised, and this check is what keeps that distinction from eroding: adding
+// a room here means naming it here.
+const ROOMS = [ORIGIN + "/stances", ORIGIN + "/evidence", ORIGIN + "/courts"];
 for (const room of ROOMS) {
   eq(locs.filter((u) => u === room).length, 1, `${room} is advertised exactly once`);
   ok(!locs.some((u) => u.startsWith(room + "/") || u.startsWith(room + "?")),

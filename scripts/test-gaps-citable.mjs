@@ -527,15 +527,26 @@ section('11 · wiring: receipts stage, spine, precache');
   // Shipped together: a phone holding the old shell that picks up only
   // profiles-full.js emits a section its gaps.js cannot render.
   has(SW, "'/gaps.js'", 'sw.js does not precache gaps.js');
-  // person-file.js and profiles-full.js are NOT in SHELL_ASSETS — they are
-  // stale-while-revalidate RUNTIME_CACHE entries. That is fine and it is why the
-  // version bump ships the SHELL half of them together: SHELL_CACHE is built from
-  // CACHE_VERSION, so renaming it re-issues the whole precache on activate. The
-  // runtime half — profiles-full.js among it — is not thrown away by the rename
-  // any more (v182); it is refreshed by handleStatic's revalidating write, so a
-  // phone is not left serving the old profiles-full.js beside the new gaps.js.
-  ok(!/SHELL_ASSETS[\s\S]*'\/profiles-full\.js'[\s\S]*?\n\];/.test(SW),
-    'profiles-full.js was added to the precache list — it is a runtime-cached asset');
+  // THIS CLAIM INVERTED, AND THE REASON IS IN sw.js. When this section was
+  // written, person-file.js and profiles-full.js were stale-while-revalidate
+  // RUNTIME_CACHE entries and precaching either of them would have been a
+  // mistake: a person file was a modal on a warm homepage, so nothing a first
+  // paint needed lived in them. The person.html split changed that. /p/<pid> is
+  // its own document now, and sw.js says so where it precaches the file: "a
+  // person address that opens with no profiles-full.js has nothing to render".
+  // So profiles-full.js IS on the precache list on purpose, and what this
+  // assertion has to hold instead is the thing it was always about — that the
+  // record and the section that renders it travel in the SAME half, because a
+  // device holding one without the other emits a section it cannot paint.
+  const SHELL_LIST = (/const SHELL_ASSETS = \[([\s\S]*?)\n\];/.exec(SW) || [, ''])[1];
+  ok(SHELL_LIST.length > 500, 'sw.js no longer declares SHELL_ASSETS as one literal array');
+  const precached = (f) => SHELL_LIST.indexOf("'" + f + "'") >= 0;
+  ok(precached('/profiles-full.js') === precached('/gaps.js'),
+    'profiles-full.js and gaps.js are in different cache halves — a device can pick up the file that ' +
+    'emits the gaps section without the one that renders it');
+  ok(precached('/profiles-full.js'),
+    'profiles-full.js came off the precache list — /p/<pid> is a whole document now, and sw.js records ' +
+    'that a person address opening without it has nothing to render');
   // SW CACHE POLICY MOVED IN v182: the runtime bucket is deliberately unversioned
   // now, so a bump no longer throws away the runtime-cached profiles-full.js.
   // The bump is still what re-issues the PRECACHED shell (index.html and friends), and what

@@ -6182,7 +6182,54 @@
 //     sitemap, the judges on it are not, because a judge is a person and a
 //     person's address is /p/<pid> behind the same publication floor.
 
-const CACHE_VERSION = 'v203';
+// v204 - THE DESK BECOMES A SNAPSHOT, THE ARCHIVE BECOMES A LIST WITH A MAP,
+//     AND THE ACCOUNT CHIP BECOMES ONE CONTROL. v203 moved two rooms off the
+//     homepage; this is the polish on those two, and all of it is subtraction.
+//     · /me's POSITIONS REGION WAS AN EIGHT-WIDE FORM — a fixed octet of
+//       Support / Oppose / Mixed / Not sure, painted whether the reader had
+//       answered anything or not, so the desk read as a survey they owed. It is
+//       a SNAPSHOT now: the keys they have set, as chips carrying the side they
+//       chose, six on the face with "N more" behind one door; or, at zero,
+//       three starter chips from the alignment tool's own quick picks and a
+//       line pointing at My Stances. The editor is not duplicated — "Set all
+//       issues →" mounts your-file.js's own eight-row editor into the host it
+//       always used. Positions stay compare-input only.
+//     · EVERY ISSUE CHIP ON /me READS PDXIssueColors the way a bill letterhead
+//       does (data-ic + --pdx-ic), which is why me.html gained issue-colors.js
+//       after issue-map.js, where the core-issue fallback lives; a key with no
+//       colour on file stays unthemed steel.
+//     · THE ACCOUNT CHIP IS ONE LINK. The nav carried four controls onto /me —
+//       two widths times two labels, "Your file" and "My Views" — behind a CSS
+//       hover panel. Four doors to one room is three too many, so the panel is
+//       gone: the avatar, the name and "My Account" are one <a href="/me"> at
+//       each width, and Log Out moved onto the desk. The mobile sheet keeps its
+//       Logout row.
+//     · REGION B AT /courts IS FILTERABLE. A hundred and twenty-six names in
+//       one scroll became a chip row — All courts, Supreme, Appeals, District,
+//       Juvenile, Justice, each with its count — plus the eight judicial
+//       district numbers, printed only for the two trial courts the divisions
+//       apply to and only where judges sit. It opens on whichever court
+//       outnumbers all the others together (District, 78 of 126) by a
+//       comparison rather than a hard-coded choice, and the hiding is CSS
+//       against one attribute on the region root, so the pressed state and the
+//       list agree before a script runs.
+//
+//     WHY THE BUMP. me.html is precached and gained a script tag; me-desk.js,
+//     me-desk.css, judicial-ballot.js, judicial-retention.css and index.html
+//     are precached and all changed, so a warm v203 device would keep painting
+//     the eight-issue form from a stylesheet with no rules for it, and an
+//     unfilterable archive from a shell holding the chips' CSS. compare-hub.js
+//     is a runtime entry: its chip change lands a visit later, not a 741 KB
+//     install.
+//
+//     DID NOT MOVE. No new address, no per-judge URL, /me still out of the
+//     sitemap as an account surface; no new score, no WVA or Direction Match
+//     change, no party sort, no new issue key. A region B chip filters the LIST
+//     and resolves nothing: region A is still the only surface here that says
+//     anything about this reader, the trial courts still name nobody as their
+//     judge, and no store was touched.
+
+const CACHE_VERSION = 'v204';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

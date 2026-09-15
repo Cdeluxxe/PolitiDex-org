@@ -665,8 +665,9 @@ section("3 · Utah gets the rows on file or an honest blank; nowhere else gets a
   const order = w.__page.children.map((c) => c.id);
   ok(order.indexOf("judicial-lane") > order.indexOf("relevant-section"),
      "the self-created judicial lane did not land after Relevant to Me");
-  eq(w.__byId["jr-band"].parentNode === lane, true,
-     "the band mounted outside the self-created lane");
+  // The door card is what the homepage lane carries now; the room is /courts.
+  eq(w.__byId["jr-card"].parentNode === lane, true,
+     "the door card mounted outside the self-created lane");
   eq(w.__wrm.children.length, 0,
      "with no lane in the markup, judicial content fell back into the Who-Represents-Me host");
 }
@@ -813,7 +814,13 @@ const FILE_HTML = W.PDXJudgeFile._html(J.judge(PID));
 // banned-token sweep in section 6 deliberately does NOT strip anything: none of
 // those words belongs on a judge surface even inside a denial.
 // ─────────────────────────────────────────────────────────────────────────────
-const NEGATION_CLASSES = ["jf-wall", "jf-note", "jr-note"];
+// The paragraph classes that are structurally DISCLAIMERS, and so are stripped
+// before the "does this surface claim anything about the reader" probes run.
+// jr-fnote joined them when region B gained its filter chips: the one sentence
+// on that control row exists to say the chips change the LIST and not the
+// reader's ballot, and a denial that is punished for containing the phrase it
+// denies would push the product towards saying nothing at all.
+const NEGATION_CLASSES = ["jf-wall", "jf-note", "jr-note", "jr-fnote"];
 const claims = (html) => {
   let out = String(html);
   NEGATION_CLASSES.forEach((cls) => {
@@ -1102,7 +1109,13 @@ section("9 · the archive lists Utah courts, alphabetically, with no party and n
   lacks(claims(arch), "your ballot",
         "the archive listing makes a claim about the reader's ballot outside its own disclaimer");
   lacks(arch, "represents you", "the archive listing claims to name someone who represents the reader");
-  ok(wOh.__byId["jr-arch"], "the archive listing did not mount for a reader outside Utah");
+  // The archive is a room now, not a homepage block: it mounts on /courts, for
+  // an Ohio reader as for a Utah one, because a roster slice makes no seat claim.
+  const oCourts = sandbox({ reps: OHIO, runTimers: true, courts: true });
+  ok(oCourts.__byId["courts-archive"] && oCourts.__byId["courts-archive"].innerHTML.length > 200,
+     "the archive listing did not mount for a reader outside Utah");
+  eq(wOh.__byId["jr-arch"] || null, null,
+     "the archive listing mounted on the homepage, which is the dump this pass moved to /courts");
   // No party chip, no composite.
   ["party", "%", "score"].forEach((t) => {
     lacks(claims(arch), t, `the archive listing carries "${t}" as a claim, which a roster slice of a non-partisan office cannot have`);

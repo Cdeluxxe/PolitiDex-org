@@ -1831,7 +1831,7 @@
 </script>
 <script src="/firebase-boot.js" defer></script>
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 28019–28441 ═════════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 26977–27399 ═════════════════════
        PDXSaved — region e's store, and the reason region e is a list rather
        than a promise. It already existed: the All-Seeing Eye and the receipt
        cards write into it, it namespaces itself per account off
@@ -2274,7 +2274,7 @@
   })();
   </script>
 
-  <!-- ══ THE DEFERRED CRITICAL PATH — EIGHT FILES, IN THIS ORDER ════════════
+  <!-- ══ THE DEFERRED CRITICAL PATH — NINE FILES, IN THIS ORDER ═════════════
        Deferred scripts run in document order after the parse, so this list is a
        dependency chain and not a preference:
 
@@ -2282,15 +2282,31 @@
                              one owner of a person's URL and the desk's first
                              paint links picks.
          browse-photos.js    the portrait map region d reads.
-         issue-map.js        the issue register my-stances.js filters against.
+         issue-map.js        the issue register my-stances.js filters against. It
+                             also declares CORE_NATIONAL_ISSUES and
+                             window.coreIssueForKey, which is what lets the next
+                             file resolve a leaf key without the Alignment tool
+                             being on this document.
+         issue-colors.js     the app's ONE answer to "what colour is this issue".
+                             Region b's chips and District Voice's tag both read
+                             it through skin(), so an issue is the same colour on
+                             this desk as on a bill letterhead — and a key it
+                             does not recognise gets no attribute at all, which
+                             is how an unthemed chip stays honest instead of
+                             borrowing a hue that means something else. Loaded
+                             AFTER issue-map.js because it reads that file's
+                             leaf-to-core lookup.
          voter-hub-location  location + TEAM_POSITIONS. Its own boot tail calls
                              window._vhBallotRerender(), which on the homepage
                              and on /ballot belongs to ballot-breakdown.js and
                              HERE belongs to the desk — which is why me-desk.js
                              claims that name before this file can call it.
          my-stances.js       the stars store and _msPriorityWeight.
-         your-file.js        must define PDXYourFile.inline before the desk mounts
-                             region b into it.
+         your-file.js        the editor of record for the eight positions. Region
+                             b reads its answered() / position() / POSITIONS /
+                             COPY for the snapshot, and mounts its inline()
+                             editor into the host under that snapshot when the
+                             reader uses the one door.
          district-voice.js   the ONE owner of District Voice: which seat a saved
                              ballot location names, whether the board is open in
                              it, the board's address, and the sentence that says
@@ -2310,6 +2326,7 @@
   <script src="/person-link.js"></script>
   <script defer src="/browse-photos.js"></script>
   <script defer src="/issue-map.js"></script>
+  <script defer src="/issue-colors.js"></script>
   <script defer src="/voter-hub-location.js"></script>
   <script defer src="/my-stances.js"></script>
   <script defer src="/your-file.js"></script>

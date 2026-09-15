@@ -565,8 +565,24 @@ section("6 · a citation is a destination, not a search term");
     const first = ALL_ROWS(prev.search(q))[0];
     return !first || first.kind !== "bill" || first.id !== num;
   }).map(([q]) => q);
-  ok(moved.length > 0,
-    "every citation already led its lane before this pass, so the promotion above proves nothing");
+  // THE WITNESS CHANGES ONCE THE PASS LANDS. `moved.length > 0` is the evidence
+  // that the promotion is load-bearing, and it is true exactly once: while the
+  // panel's fix is still uncommitted. After it lands, HEAD *is* the promoted
+  // panel, every citation leads there too, and an assertion demanding at least
+  // one miss fails while describing nothing that is wrong. What stays testable in
+  // either tree is the direction: a citation that led in the previous revision
+  // and does NOT lead here is a regression, and that is the failure worth
+  // keeping. The claim itself — every shape in CITES leads its lane — is asserted
+  // against the tree under test above, not here.
+  const regressed = CITES.filter(([q, num]) => {
+    const was = ALL_ROWS(prev.search(q))[0];
+    const now = ALL_ROWS(B.search(q))[0];
+    const led = !!was && was.kind === "bill" && was.id === num;
+    const leads = !!now && now.kind === "bill" && now.id === num;
+    return led && !leads;
+  }).map(([q]) => q);
+  eq(regressed.length, 0,
+    `a citation led its lane in the previous revision and does not lead it here (${regressed.join(", ")})`);
 
   // AND AN AMBIGUOUS BARE NUMBER IS NOT A CITATION. Two measures are numbered
   // 400, so a reader typing "400" has named neither: the lane keeps the answer
@@ -681,8 +697,24 @@ section("8 · the guards are load-bearing");
     if (rankOf(r, LEE) > rankOf(r, TWIN_ID)) wrongThen.push(`${q}: an identical-name stub over the senator`);
   }
   if (POL_IDS(was.search("mike lee"))[0] !== LEE) wrongThen.push('mike lee: led with someone else');
-  ok(wrongThen.length > 0,
-    "the previous revision already ordered every one of these queries correctly, so section 3 asserts nothing");
+  // SAME SHAPE, SAME REASON as the citation comparison in section 6: "the
+  // previous revision got this wrong" is evidence only until the fix is
+  // committed, after which HEAD is the fixed panel and the count is legitimately
+  // zero. The direction is what endures — a query the previous revision ordered
+  // correctly may not come out wrong here — and section 3 asserts the ordering
+  // itself against the tree under test.
+  const nowP = boot();
+  nowP.lane("formal");
+  const nowWrong = [];
+  const chewNow = POL_IDS(nowP.search("chew"));
+  if (rankOf(chewNow, PID) > rankOf(chewNow, STUB_ID)) nowWrong.push("chew: stub over the file");
+  for (const q of ["lee", "mike lee"]) {
+    const r = POL_IDS(nowP.searchAll(q));
+    if (rankOf(r, LEE) > rankOf(r, TWIN_ID)) nowWrong.push(`${q}: an identical-name stub over the senator`);
+  }
+  if (POL_IDS(nowP.search("mike lee"))[0] !== LEE) nowWrong.push("mike lee: led with someone else");
+  eq(nowWrong.length, 0,
+    `this tree orders a query worse than the revision before it (${nowWrong.join("; ")})`);
   console.log("      no stub → no pile · no index → no count · no measures → no measure row");
   console.log(`      the previous revision got ${wrongThen.length} of these wrong (${wrongThen.join("; ")})`);
 }
