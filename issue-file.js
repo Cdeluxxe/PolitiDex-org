@@ -501,17 +501,48 @@
     // are low. The wording is issue-view's, read live off the desk so this file
     // cannot drift into a second sentence about one row cap.
     var clip = clipped(c) ? truncNote(c) : '';
+    // ── TWO WRAPPERS, ONE LETTERHEAD ──────────────────────────────────────
+    // WHAT WAS WRONG. On a phone this block is the whole first screen: the chip,
+    // the scope sentence, the inventory, the clip note, "How this issue was
+    // tested" with its four rows, the two jumps and the district room — and the
+    // measures the reader came for opened somewhere around the second or third
+    // swipe. A file whose first screen is its own letterhead is a letterhead
+    // with a record attached.
+    //
+    // WHY IT IS TWO <div>s AND NOT A SECOND RENDERER. Reordering this page means
+    // putting the ledger's measure list between the identity and everything
+    // else, and the ledger host is a SIBLING of this block that has to stay
+    // byte-identical to PDXDoor1.issueProfile(key). CSS cannot reparent, so the
+    // one thing that can move the measures up is `order` — and `order` only
+    // reaches flex ITEMS, so the pieces that go above the record and the pieces
+    // that go below it have to be two boxes rather than nine loose paragraphs.
+    //   · .pdxif-hid   — WHO this file is: the chip, the scope, the counts, the
+    //                    clip note that qualifies them. Never folds, on any
+    //                    width; it is the identity the address resolved to.
+    //   · .pdxif-htail — everything that ELABORATES: how the issue was tested,
+    //                    the desk and share jumps, the district room. Below the
+    //                    record on a phone, because a reader who has not yet
+    //                    seen a single bill has nothing for it to elaborate.
+    // The order of the nine pieces INSIDE the two is untouched, which is what
+    // keeps every claim about this string true: the process block still sits
+    // under the inventory and immediately above the jumps, and issue-file.css
+    // gives both wrappers `display: contents` so on every width above the phone
+    // breakpoint they are not in the layout at all.
     return '<div class="pdxif-head"' + skinAttr(key) + '>' +
-        (chip ? '<p class="pdxif-chip">' + esc(chip) + '</p>' : '') +
-        '<p class="pdxif-scope' + (sc.defined ? '' : ' is-blank') + '">' + esc(sc.text) + '</p>' +
-        (reading(c)
-          ? '<p class="pdxif-busy" role="status">' + esc(BUSY) +
-              '<span class="pdxif-sofar">' + esc(SO_FAR) + '</span></p>'
-          : (inv ? '<p class="pdxif-inv">' + esc(inv) + '</p>' : '')) +
-        (clip ? '<p class="pdxif-clip">' + esc(clip) + '</p>' : '') +
-        (reading(c) ? '' : procHtml(c)) +
-        jumpsHtml(key) +
-        districtRoom(key) +
+        '<div class="pdxif-hid">' +
+          (chip ? '<p class="pdxif-chip">' + esc(chip) + '</p>' : '') +
+          '<p class="pdxif-scope' + (sc.defined ? '' : ' is-blank') + '">' + esc(sc.text) + '</p>' +
+          (reading(c)
+            ? '<p class="pdxif-busy" role="status">' + esc(BUSY) +
+                '<span class="pdxif-sofar">' + esc(SO_FAR) + '</span></p>'
+            : (inv ? '<p class="pdxif-inv">' + esc(inv) + '</p>' : '')) +
+          (clip ? '<p class="pdxif-clip">' + esc(clip) + '</p>' : '') +
+        '</div>' +
+        '<div class="pdxif-htail">' +
+          (reading(c) ? '' : procHtml(c)) +
+          jumpsHtml(key) +
+          districtRoom(key) +
+        '</div>' +
       '</div>';
   }
 

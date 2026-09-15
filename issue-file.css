@@ -320,6 +320,15 @@
   border-left-color: var(--pdx-ic);
   background: var(--pdx-ic-wash);
 }
+/* ── The letterhead's two halves ────────────────────────────────────────────
+   Identity (chip, scope, counts, clip note) and elaboration (how the issue was
+   tested, the jumps, the district room). They exist so the phone block at the
+   foot of this file can put the measure list BETWEEN them with `order`, which
+   only reaches flex items — and they are `display: contents` everywhere else so
+   that above the breakpoint the letterhead is exactly the one box it has always
+   been: no extra block, no extra margin, nothing to collapse differently. */
+.pdxif-hid,
+.pdxif-htail { display: contents; }
 /* The register's one-line statement of the key. */
 .pdxif-chip {
   margin: 0 0 0.4rem;
@@ -556,6 +565,97 @@
   .pdxif-jump { flex: 1 1 8rem; }
   .pdxif-title { font-size: 1rem; }
   .pdxif-kick { font-size: 0.54rem; gap: 0.3rem; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PHONE · THE FIRST SCREEN IS THE PROVISIONS
+   ═══════════════════════════════════════════════════════════════════════════
+   WHAT WAS WRONG. /i/<key> on a phone opened on its own letterhead — chip,
+   scope, inventory, clip note, the four-row process block, two jumps, the
+   district room — and the mapped-measure list, which is what the address is
+   FOR, began somewhere past the second swipe. Everything up there is true and
+   none of it is the record.
+
+   WHAT THIS BLOCK DOES, AND THE ONE THING IT DOES NOT. It reorders. It does not
+   fork a renderer, hide a block, restyle a card or change a single figure: every
+   piece of this page is still on this page, in the same markup, at the same
+   size, saying the same thing. Three items in the scroller —
+
+     1  .pdxif-hid            who this file is: the chip, the scope sentence, the
+                              counts, the clip note that qualifies them
+     2  #pdx-issue-file-ledger  the record, whose own first child is reordered
+                              below so the measures lead it
+     3  .pdxif-htail          how the issue was tested, the desk and share
+                              jumps, the district room
+
+   — because the work order's rule is that if something has to fold it is the
+   member patterns and the related issues, never the bills.
+
+   THE LETTERHEAD'S BOX MOVES ONTO ITS HALVES. .pdxif-head is the element that
+   carries the border, the radius, the family rail and the wash, and it becomes
+   `display: contents` here so its two children can be items of the scroller —
+   which means it stops painting. So the chrome is restated on both halves. The
+   [data-ic] custom properties still inherit through a contents box, so the rail
+   and the wash are still the family's own colour off the one palette and there
+   is still no hand-authored colour in this file.
+
+   NOTHING SHRINKS. The scroller has a definite height, so a column flex
+   container would let its items compress rather than overflow — which would
+   squash the record instead of scrolling it. flex: 0 0 auto on all three, and on
+   every child of the ledger, keeps the page a scroll.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  .pdxif-body { display: flex; flex-direction: column; }
+  /* The two hosts step out of the layout so the letterhead's halves and the
+     ledger are siblings in one column. The ids/classes are unchanged, so
+     issue-file.js still mounts into exactly what it always mounted into. */
+  #pdx-issue-file-head,
+  .pdxif-head { display: contents; }
+  .pdxif-hid,
+  .pdxif-htail { display: block; }
+  .pdxif-hid,
+  #pdx-issue-file-ledger,
+  .pdxif-htail { flex: 0 0 auto; min-width: 0; }
+  .pdxif-hid { order: 1; }
+  #pdx-issue-file-ledger { order: 2; }
+  .pdxif-htail { order: 3; }
+  /* The letterhead's card, on each half. */
+  .pdxif-hid,
+  .pdxif-htail {
+    padding: 0.75rem 0.8rem 0.7rem;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-left: 4px solid rgba(255, 255, 255, 0.14);
+    border-radius: 0.85rem;
+    background: rgba(255, 255, 255, 0.035);
+  }
+  .pdxif-hid { margin: 0.9rem 0 0; }
+  .pdxif-htail { margin: 1.1rem 0 0; }
+  .pdxif-head[data-ic] > .pdxif-hid,
+  .pdxif-head[data-ic] > .pdxif-htail {
+    border-left-color: var(--pdx-ic);
+    background: var(--pdx-ic-wash);
+  }
+  /* The process block is the first thing in the tail now, and its rule-off was a
+     separator from the inventory that is no longer above it. */
+  .pdxif-htail > .pdxif-proc:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+  /* ── AND INSIDE THE RECORD, THE MEASURES LEAD ─────────────────────────────
+     Same instrument, one level down: the ledger host is the desk's builder
+     string and may not be edited from here, so its children are reordered
+     instead. The scope line stays first because it is the sentence the rest of
+     the pane is filed against, an honest "still reading" or "nobody has a
+     readable act yet" stays with it because it is about the cards directly
+     below, and then the measures. Everything else — the people census, the
+     ordering note, the slice chips, the five pattern bands, the folded tail and
+     the lane's wall — takes the default below them, in the order the builder
+     printed it. A block this file has never heard of lands there too, which is
+     the safe side of the record for it to land on. */
+  #pdx-issue-file-ledger { display: flex; flex-direction: column; }
+  #pdx-issue-file-ledger > * { order: 6; flex: 0 0 auto; min-width: 0; }
+  #pdx-issue-file-ledger > .d1-scope { order: 1; }
+  #pdx-issue-file-ledger > .d1-claim-busy,
+  #pdx-issue-file-ledger > .d1-empty { order: 2; }
+  #pdx-issue-file-ledger > .d1-led-meas { order: 3; margin-top: 0.75rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

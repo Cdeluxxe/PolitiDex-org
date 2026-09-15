@@ -6081,7 +6081,57 @@
 //     Word-vs-Action change, no party sort, and /stances and its shelves are
 //     untouched.
 
-const CACHE_VERSION = 'v201';
+// v202 - THE ISSUE FILE OPENS ON THE PROVISIONS, AND EVERY ROW SAYS WHY.
+//
+//     /i/<key> on a phone opened on its own letterhead — chip, scope sentence,
+//     inventory, clip note, "How this issue was tested" with its four rows, the
+//     two jumps, the district room — and the mapped-measure list, which is what
+//     the address is for, began past the second swipe. The rows themselves
+//     printed a number, a title and a label and said nothing at all about why
+//     the bill sits on this issue.
+//     · THE FIRST SCREEN IS THE RECORD. issue-file.js's letterhead is now two
+//       sibling wrappers — .pdxif-hid (identity: chip, scope, counts, clip) and
+//       .pdxif-htail (elaboration: the process block, the jumps, the district
+//       room) — in the same order, with the same markup, and `display: contents`
+//       above the phone breakpoint so nothing changes there. issue-file.css's
+//       new max-width:480 block makes the scroller a column and orders it
+//       identity → record → elaboration, and orders the ledger's own children so
+//       the measures follow the scope line. Nothing is hidden: the member
+//       patterns, the slice chips and the census move BELOW the bills, which is
+//       the work order's rule about what folds.
+//     · EVERY MAPPED MEASURE ROW CARRIES A WHY. door1-workspace.js carries the
+//       curator's rationale for THIS key onto the folded measure face and prints
+//       it under the lane badge, cleaned by receipt-cards.js's one reader
+//       sentence (window._pdxReaderRationale, the same function the bill file
+//       takes) and cut on a sentence boundary at two sentences. It is a prefix of
+//       what the curator wrote, never a summary. An empty or wholly-internal
+//       rationale prints "Mapped to this issue; rationale not written yet".
+//     · THE ROW IS THE DOOR. A tap on the row's own space opens the bill file
+//       through the number's existing opener; a tap on one of the row's three
+//       controls is still that control's tap. The why-line is a <span> and the
+//       <li> takes no role, no tabindex and no accessible name, so nothing
+//       interactive is nested inside anything interactive.
+//
+//     WHY THE BUMP. issue-file.js, issue-file.css, door1-workspace.js and
+//     door1-workspace.css are all precached, so a warm v201 device would go on
+//     serving the letterhead-first panel and the why-less rows from its own
+//     cache.
+//
+//     WHAT THE BUMP CARRIES, NOT WHAT THIS PASS CHANGED. Renaming SHELL_CACHE
+//     re-issues the WHOLE precache, so every SHELL_ASSETS entry travels with
+//     v202 — index.html, evidence.html, stances.html, firebase-boot.js, app.css,
+//     mobile-polish.css, pdx-stability.js, door1-workspace.js,
+//     door1-workspace.css, word-action.js, word-action.css, issue-file.js,
+//     issue-file.css, issue-view.js, pdx-issue-profile.js, pdx-issue-family.js,
+//     alignment-tool.js, stance-tree.js and issue-colors.js among them — only
+//     because the bucket's name moved, so netlify.toml is as v201 left it.
+//
+//     DID NOT MOVE. No new score, no WVA or Direction Match change, no party
+//     sort, no new issue key, no rationale invented — the why-line prints the
+//     mapping's own field or says it is not written — and desktop /i/<key> is
+//     byte-identical apart from the two wrappers the phone rules need.
+
+const CACHE_VERSION = 'v202';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
