@@ -48,6 +48,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import vm from 'node:vm';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
@@ -212,7 +213,157 @@ ok(RAW <= 1,
   'the bus');
 
 // ═════════════════════════════════════════════════════════════════════════════
-section('3 · the chip has three states and paints only on a change');
+section('3 · a superseded announcement is dropped, not delivered');
+// ═════════════════════════════════════════════════════════════════════════════
+// WHAT THE PASS ABOVE LEFT ON THE TABLE. One job per task fixed the freeze, and
+// the chip has painted on the auth event's own task ever since. What it did not
+// fix is how many tasks a sign-in costs, because a cold visit ending in one
+// Google tap is not one announcement — it is three. Firebase says "nobody",
+// our own signInAnonymously lands, and then the account arrives, and each of
+// those queued a full fan-out into the same FIFO. Measured on the real bus, the
+// sequence ran 29 jobs, 14 of them handing a subscriber a user that a later
+// announcement had already replaced: every module was told "signed out", then
+// "anonymous", after the member's name was already on the chip. Their own data
+// was job #20 of 29.
+//
+// The fix is an epoch, not a rewrite — the bus keeps the shape pinned above,
+// one job per task on an idle callback with a timer backstop. Each job is
+// stamped with the announcement that queued it, a new announcement bumps the
+// counter, and the pump throws away anything stamped older. What must stay true
+// is that discarding is cheap (a stale job costs an array shift, not a task of
+// its own to discover it has nothing to do) and that the exemption for a
+// late-registering subscriber cannot be mistaken for a live epoch.
+ok(/_authEpoch/.test(BOOT),
+  'the bus no longer tracks which announcement queued a job, so a burst of three delivers all three — the ' +
+  'reader\'s own data waits behind two rounds of subscribers being told about sessions that are already over');
+ok(ANN.indexOf('_authEpoch++') > -1 && ANN.indexOf('_authEpoch++') < ANN.indexOf('PDXAuth.known = true'),
+  'the epoch is bumped after the new answer is published rather than before it, which leaves a window where ' +
+  'a job queued by the previous announcement still counts as current');
+ok(ANN.indexOf('updateNavAuth(PDXAuth.user, PDXAuth.state)') < ANN.indexOf('_authFanOut('),
+  'the chip is no longer painted before the fan-out is queued. Retiring the old queue is bookkeeping; it may ' +
+  'not come between the auth event and the one paint the reader is waiting for');
+
+const PUMP = fnSrc(BOOT, '_authPump');
+must(PUMP.length > 100, '_authPump is gone from firebase-boot.js');
+ok(/while \(_authJobs\.length\)/.test(PUMP),
+  'the pump takes one job per call and checks it there, so discovering a stale job costs a whole idle ' +
+  'callback — three announcements of dead work would still be spent, one task at a time, to skip it');
+ok(PUMP.indexOf('while (_authJobs.length)') < PUMP.indexOf('_pdxOffTask'),
+  'the pump schedules before it selects, which puts the skipping back on the scheduler');
+ok(/_authDropped\+\+/.test(PUMP),
+  'dropped jobs are not counted, so the saving this section exists to defend cannot be measured again');
+ok(/AUTH_EXEMPT === -1|AUTH_EXEMPT = -1/.test(BOOT),
+  'the exemption marker is not a value the epoch counter can never reach. _authEpoch only increments, so a ' +
+  'negative marker is safe and a positive one would eventually mean "current"');
+
+const FAN = fnSrc(BOOT, '_authFanOut');
+must(FAN.length > 60, '_authFanOut is gone from firebase-boot.js');
+ok(/ep: ep/.test(FAN) && /_authJobs\.push/.test(FAN),
+  'jobs are queued without the announcement that queued them, so nothing downstream can tell current work ' +
+  'from work a newer session has already replaced');
+ok(/_authFanOut\(\[function \(\) \{ if \(!rec\.off\) rec\.cb\(PDXAuth\.user\); \}\], true\)/.test(SUBS),
+  'a subscriber that registers mid-burst is queued against the current epoch, so the next announcement drops ' +
+  'its replay and that module is never called at all');
+ok(/rec\.cb\(PDXAuth\.user\)/.test(SUBS),
+  'the late replay hands over a captured user rather than reading PDXAuth.user when it runs, which is the one ' +
+  'reason it is allowed to skip the epoch check');
+
+const STATS = (BOOT.match(/window\.PDXAuthStats = function[\s\S]*?\n  \};/) || [''])[0];
+ok(STATS.length > 40, 'PDXAuthStats is gone, so the cost of a sign-in is back to being argued rather than read');
+ok(!/uid|email|displayName|token|PDXAuth\.user/i.test(STATS),
+  'PDXAuthStats reports something about the reader. It exists to report counts — epoch, dropped, queued — and ' +
+  'a diagnostic that publishes identity is a diagnostic that has to be authorised');
+
+// ── DRIVEN: the real bus, three announcements, a virtual clock ───────────────
+// The regexes above pin the shape; this drives it. The bus's own functions are
+// lifted out of firebase-boot.js and run against a clock that grants an idle
+// callback at its timeout deadline — what a busy main thread actually does with
+// one, and the end of the contract the reader feels.
+const busDecls = (BOOT.match(/^  var (?:_auth|AUTH_)[A-Za-z]* = [^\n]*$/gm) || []).join('\n');
+must(/_authJobs/.test(busDecls) && /_authEpoch/.test(busDecls),
+  'the bus no longer declares _authJobs / _authEpoch at module level — the driven run below would measure a ' +
+  'different bus than the one that ships');
+const driven = (() => {
+  let now = 0, seq = 0;
+  const q = [], log = [];
+  const at = (d, fn) => { q.push({ due: now + d, seq: seq++, fn }); };
+  const win = {
+    console: { log() {}, warn() {}, error() {} },
+    requestIdleCallback: (fn, o) => { at((o && o.timeout) || 50, fn); return seq; },
+    setTimeout: (fn, ms) => { at(ms || 0, fn); return seq; },
+    PDXAuth: { state: 'unknown', user: null, known: false },
+    PDXStore: { enableAccountSync() {}, disableAccountSync() {} },
+    PDXRememberAccount: () => {},
+    __pdxAuthQueue: null,
+  };
+  win.window = win;
+  const ctx = vm.createContext(win);
+  vm.runInContext(
+    'var auth = { currentUser: null, signInAnonymously: function () { return { catch: function () {} }; } };\n' +
+    'var updateNavAuth = function (u, s) { window.__log("CHIP", s); };\n' +
+    'var syncUserDataFromFirestore = function () { window.__log("job", "account pull"); };\n' +
+    'var _startVotesListener = function () { window.__log("job", "votes"); };\n' +
+    'var _loadCommentCounts = function () { window.__log("job", "comments"); };\n' +
+    'var _lastAuthUser = null;\nvar _fbAuthResolve = function () {};\n' +
+    busDecls + '\n' +
+    [fnSrc(BOOT, '_pdxOffTask'), fnSrc(BOOT, '_authPump'), fnSrc(BOOT, '_authFanOut'),
+     fnSrc(BOOT, '_pdxAuthSub'), fnSrc(BOOT, '_pdxAuthAnnounce'), fnSrc(BOOT, '_pdxAuthOwnJobs')].join('\n') +
+    '\nthis.announce = _pdxAuthAnnounce; this.sub = _pdxAuthSub;' +
+    '\nthis.dropped = function () { return _authDropped; };',
+    ctx
+  );
+  win._loadLocalUserData = () => win.__log('job', 'local rehydrate');
+  win.__log = (kind, what) => log.push({ t: now, kind, what });
+
+  // Seven subscribers, which is roughly what registers against the bus today.
+  for (let i = 0; i < 7; i++) {
+    ctx.sub((u) => win.__log('job', 'sub: user=' + (u ? (u.isAnonymous ? 'anon' : u.uid) : 'null')));
+  }
+
+  const MEMBER = { uid: 'g-abc', displayName: 'A Member', email: 'a@example.com', isAnonymous: false };
+  ctx.announce(null);                        // Firebase: nobody
+  now += 40; ctx.announce({ uid: 'anon-1', isAnonymous: true });  // our own anonymous session
+  now += 900; const tap = now; ctx.announce(MEMBER);             // the reader taps Google, once
+  let n = 0;
+  while (q.length && n++ < 4000) {
+    q.sort((a, b) => (a.due - b.due) || (a.seq - b.seq));
+    const t = q.shift();
+    now = Math.max(now, t.due);
+    try { t.fn(); } catch (e) {}
+  }
+  const jobs = log.filter((e) => e.kind === 'job');
+  return {
+    chip: log.filter((e) => e.kind === 'CHIP'),
+    jobs,
+    stale: jobs.filter((e) => /user=null|user=anon/.test(e.what)),
+    pull: jobs.findIndex((e) => e.what === 'account pull'),
+    dropped: ctx.dropped(),
+    tap,
+    log,
+  };
+})();
+
+must(driven.chip.length >= 3, 'the driven bus never painted a chip — the harness is not exercising _pdxAuthAnnounce');
+ok(driven.chip[0].t === 0,
+  `the chip first painted ${driven.chip[0].t} ms after the auth event rather than on its own task. That is the ` +
+  'long beat before the account chip, and it is the one thing that may never be deferred');
+ok(driven.stale.length === 0,
+  `${driven.stale.length} of the ${driven.jobs.length} jobs on a cold-visit-then-Google sequence handed a ` +
+  'subscriber a signed-out or anonymous user AFTER the member\'s session was live. Every one of those is a ' +
+  'task the reader waits through to be told something untrue');
+ok(driven.dropped > 0,
+  'nothing was dropped across three announcements, so either the epoch is not being enforced or the fan-out ' +
+  'stopped queueing per announcement');
+ok(driven.pull === 0,
+  `the member's own account pull was job #${driven.pull + 1} of ${driven.jobs.length} once their session ` +
+  'arrived. It is the only job the reader can see the result of, so it goes first');
+ok(driven.jobs.length > 0 && driven.jobs[driven.jobs.length - 1].t - driven.tap < 1500,
+  `the last job of the sign-in sequence landed ${driven.jobs.length ? driven.jobs[driven.jobs.length - 1].t - driven.tap : -1} ms ` +
+  'after the tap. The bus is allowed to be patient, but not to still be working through a retired session a ' +
+  'second and a half later');
+
+// ═════════════════════════════════════════════════════════════════════════════
+section('4 · the chip has three states and paints only on a change');
 
 const NAV = fnSrc(HUB, 'updateNavAuth');
 must(NAV.length > 200, 'updateNavAuth is gone from compare-hub.js');
@@ -255,7 +406,7 @@ ok(/NAV_UNKNOWN_MS/.test(HUB) && /_navUnknownExpired/.test(HUB),
   'for the whole visit with no way to sign in');
 
 // ═════════════════════════════════════════════════════════════════════════════
-section('4 · one Google sign-in at a time');
+section('5 · one Google sign-in at a time');
 
 const GOOGLE = fnSrc(HUB, 'loginWithGoogle');
 must(GOOGLE.length > 100, 'loginWithGoogle is gone from compare-hub.js');
@@ -305,7 +456,7 @@ ok(unknownPaint.length > 40 && !/openAuthModal/.test(unknownPaint),
   'the unknown chip offers a sign-in door. The page does not know yet whether the reader needs one');
 
 // ═════════════════════════════════════════════════════════════════════════════
-section('5 · no Firebase error code reaches the reader');
+section('6 · no Firebase error code reaches the reader');
 
 must(/var AUTH_MSG = \{/.test(HUB), 'the AUTH_MSG table is gone from compare-hub.js');
 const TABLE = HUB.slice(HUB.indexOf('var AUTH_MSG = {'), HUB.indexOf('var AUTH_MSG_FALLBACK'));
@@ -329,7 +480,7 @@ ok(!/showAuthError\((?:error|e)\.message\)/.test(HUB),
   'a catch handler still passes error.message straight to showAuthError');
 
 // ═════════════════════════════════════════════════════════════════════════════
-section('6 · the shells changed, so the cache did');
+section('7 · the shells changed, so the cache did');
 
 const ver = /const CACHE_VERSION = 'v(\d+)'/.exec(SW);
 must(!!ver, 'CACHE_VERSION is gone from sw.js');
@@ -340,7 +491,7 @@ ok(/v208/.test(SW) && /auth/i.test(SW.slice(SW.indexOf('v208'), SW.indexOf('v208
   'the version bump has no note saying what moved, which is how the next reader of this file loses the reason');
 
 // ═════════════════════════════════════════════════════════════════════════════
-section('7 · nothing else was touched');
+section('8 · nothing else was touched');
 
 const touched = {
   'firebase-boot.js · _pdxAuthAnnounce': ANN,

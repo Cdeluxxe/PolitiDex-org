@@ -814,7 +814,14 @@ section("5 · one address, one control in Door 2, and the copy");
   // that explains why is not a second one.
   const INDEX_TAGS = INDEX.replace(/<!--[\s\S]*?-->/g, " ");
   const wrm = INDEX_TAGS.slice(INDEX_TAGS.indexOf('id="who-represents-me"'));
-  const wrmBlock = wrm.slice(0, 20000);
+  // 34,000 CHARS, NOT 20,000, BECAUSE THE BAND GREW A LOCATION SETTER ABOVE ITS
+  // ACTION ROW. The window is a cheap way of saying "in the door, not somewhere
+  // else on a 2 MB page", and it was sized when the row sat near the top of the
+  // section. The one location setter now sits between the section heading and
+  // that row, which pushed the control 76 characters past the old edge — and a
+  // window that clips the thing it is measuring reports a missing control that
+  // is right there, which is what it did.
+  const wrmBlock = wrm.slice(0, 34000);
   // THE CONTROL IS AN ADDRESS NOW, AND data-pdxyf-open IS GONE FROM THE PAGE.
   // It used to be counted here: exactly one <a href="#your-file"
   // data-pdxyf-open="1">, an overlay opened on whatever document the reader was
@@ -832,13 +839,29 @@ section("5 · one address, one control in Door 2, and the copy");
     "navigations for one tap");
   has(wrmBlock, 'href="/me"', "the Your file control is not in the Who Represents Me door");
   has(wrmBlock, "Your file", 'the control is not labelled "Your file"');
-  // In the existing row, not a new one: it sits alongside the two controls that
-  // were already there, inside the same .wrm-ctarow.
+  // In the existing row, not a new one: it sits in the same .wrm-ctarow it was
+  // added to.
+  //
+  // AND THAT ROW IS DOWN TO THIS ONE CONTROL, WHICH IS THE POINT AND NOT A LOSS.
+  // It used to hold "See who represents me" and "Find it on the map" beside the
+  // file link, and both of those were location controls: buttons whose job was
+  // to scroll to this band and open a picker, sitting inside the band they
+  // scrolled to. The one location setter is now at the top of this same section,
+  // so the two of them were controls that went and fetched the thing the reader
+  // was already looking at. What this pin defends is that the file link is in
+  // the band's own action row rather than promoted to a nav pill, so it is
+  // stated that way: the row exists, the link is in it, and the location
+  // controls that used to share it are gone from the whole band rather than
+  // moved somewhere else in it.
   const row = wrmBlock.slice(wrmBlock.indexOf('class="wrm-ctarow"'));
   const rowEnd = row.indexOf("</div>");
+  ok(rowEnd > 0, "the .wrm-ctarow action row has left the band, so the file control has no row to be in");
   has(row.slice(0, rowEnd), 'href="/me"', "the control was not put in the existing action row");
-  has(row.slice(0, rowEnd), "See who represents me", "the existing action row lost a control");
-  has(row.slice(0, rowEnd), "Find it on the map", "the existing action row lost a control");
+  lacks(wrmBlock, "See who represents me",
+    "a 'see who represents me' control is back inside the band it scrolls to — one setter means the band " +
+    "offers the setter, not a button that goes and finds it");
+  lacks(wrmBlock, "Find it on the map",
+    "a second map control is back in the band's action row, beside the setter that already offers one");
   // STILL NOT A NAV PILL. The mobile drawer does carry one /me entry — but it is
   // the entry that used to read "🎯 My Stances" and point at #my-stances, a
   // scroll to a homepage region that was the file's SECOND editor. Repointing an

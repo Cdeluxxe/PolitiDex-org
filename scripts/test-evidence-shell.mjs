@@ -273,7 +273,7 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // opening script tag through the firebase-boot.js include, so a stub fix that
 // lands on one document and not the other fails here rather than in a room.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 26420, b: 26540, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 26498, b: 26618, what: "the PDXStance vocabulary" },
   { from: "person.html", src: PERSON, a: 2006, b: 2060, what: "the Firebase boot" },
 ];
 for (const c of COPIES) {

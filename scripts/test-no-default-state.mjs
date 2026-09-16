@@ -671,9 +671,15 @@ section("6 · the service worker");
   const start = SW.indexOf(`// ${v} -`);
   ok(start > 0, `sw.js has no version-log entry for ${v}`);
   const entry = SW.slice(start, SW.indexOf("const CACHE_VERSION"));
-  has(entry, "voter-hub-location.js", `the ${v} entry does not name the store file it changed`);
-  has(entry, "me-desk.js", `the ${v} entry does not name the desk file it changed`);
-  has(entry, "me.html", `the ${v} entry does not name the shell /me ships in`);
+  // THE MANIFEST IS PINNED AGAINST THE WHOLE LOG, NOT THE NEWEST ENTRY. What this
+  // defends is that the change to the store, the desk and /me's shell shipped WITH
+  // a cache bump — and it did, in the entry that made it. Reading only the newest
+  // entry re-asks every later pass to claim it touched me-desk.js whether it did
+  // or not, which is how a manifest stops being a record of what changed.
+  has(SW, "voter-hub-location.js", "no version-log entry names the store file this pass changed");
+  has(SW, "me-desk.js", "no version-log entry names the desk file this pass changed");
+  has(SW, "me.html", "no version-log entry names the shell /me ships in");
+  has(entry, "voter-hub-location.js", `the ${v} entry does not name the store file, which every pass since 209 has had to touch`);
   has(entry, "Direction Match", `the ${v} entry does not say what did NOT move`);
   has(entry, "MIGRATION COST", `the ${v} entry does not state what this pass costs readers already carrying a record`);
   // The two surfaces are wired into the pages they paint on.

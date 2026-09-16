@@ -75,6 +75,8 @@
 
   var SECTION_ID = 'who-represents-me';
   var BODY_ID = 'wrm-reps';
+  // The one location setter, at the top of this band (index.html).
+  var LOCBAR_ID = 'wrm-locbar';
 
   function esc(s) {
     return String(s == null ? '' : s)
@@ -86,6 +88,14 @@
     return String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
   }
 
+  // Scroll one element into view, whichever of the two APIs the engine has.
+  function bring(el) {
+    if (!el || !el.scrollIntoView) return false;
+    try { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    catch (e) { el.scrollIntoView(true); }
+    return true;
+  }
+
   // ── The one action every entry point calls ─────────────────────────────────
   // Nav pill, homepage CTA and the Team Builder's step ① all route here, so the
   // lookup behaves identically wherever it was started from: land on the front
@@ -93,16 +103,57 @@
   // the app already uses. It never invents its own picker and never writes a
   // location; it hands off to whichever of the two existing openers is present.
   window.pdxFindMyReps = function () {
+    // WHERE THIS LANDS DEPENDS ON WHAT IS MISSING, because the two readers who
+    // press it want opposite things. With no location the answer is the setter:
+    // scrolling to the top of the band would put the section heading on screen
+    // and the one control that can help below the fold. With a location the
+    // answer is the seats — the reader already told us where they are and is
+    // asking who holds the seats, not to be shown the address form again.
     var sec = document.getElementById(SECTION_ID);
-    if (sec && sec.scrollIntoView) {
-      try { sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-      catch (e) { sec.scrollIntoView(true); }
+    if (window._hasUserLocation) {
+      if (!bring(document.getElementById(BODY_ID))) bring(sec);
+      return;
     }
-    if (window._hasUserLocation) return;
+    if (!bring(document.getElementById(LOCBAR_ID))) bring(sec);
     setTimeout(function () {
       var open = window.openLocationModal || window.toggleChangeLocation;
       if (typeof open === 'function') { try { open(); } catch (e) {} }
     }, 260);
+  };
+
+  // ── ONE SETTER, AND THIS IS THE DOOR TO IT ─────────────────────────────────
+  // The page used to carry three location cards: this band's, the Voter Hub's,
+  // and the one the "Relevant to Me" empty state painted — each with its own
+  // Detect and its own map button, each able to be the one the reader last
+  // touched. There is one now, at the top of this band, and every other control
+  // on the page that used to open a picker of its own comes through here
+  // instead: scroll to the setter, then open the picker it offers.
+  //
+  // WHY SCROLL FIRST AND OPEN SECOND. A modal that appears over a page the
+  // reader did not scroll leaves them, on dismissal, exactly where they were —
+  // which is next to a "set your location" button that now looks like it did
+  // nothing. Landing on the setter means the surface that owns the answer is
+  // what is behind the picker and what is there when it closes.
+  //
+  // mode 'form' asks for the typed-address panel, 'map' for the district map,
+  // and no argument takes whichever the app offers by default.
+  window.pdxSetLocation = function (mode) {
+    var bar = document.getElementById(LOCBAR_ID);
+    if (!bring(bar)) bring(document.getElementById(SECTION_ID));
+    setTimeout(function () {
+      try {
+        if (mode === 'map' && typeof window.toggleChangeLocation === 'function') {
+          window.toggleChangeLocation();
+          return;
+        }
+        if (mode === 'form' && typeof window.openLocationModal === 'function') {
+          window.openLocationModal({ forceForm: true });
+          return;
+        }
+        var open = window.openLocationModal || window.toggleChangeLocation;
+        if (typeof open === 'function') open();
+      } catch (e) {}
+    }, bar ? 260 : 0);
   };
 
   // ── One representative row ─────────────────────────────────────────────────

@@ -1094,10 +1094,23 @@
     var pmStateSel  = document.getElementById('pm-state-sel');
     var pmCountySel = document.getElementById('pm-county-sel');
 
+    // WHICH FACE THE ONE SETTER WEARS. The card at the top of Who Represents Me
+    // offers three doors while there is nothing to change and one door once
+    // there is, and this attribute is what decides between them (the CSS is in
+    // index.html). It is set here rather than in the band's own module because
+    // the question it answers — is there a stamped location — is this file's to
+    // answer, and two owners would be two answers.
+    var locBar = document.getElementById('wrm-locbar');
+    if (locBar) locBar.setAttribute('data-pdxloc', window._hasUserLocation ? 'set' : 'empty');
+
     if (!window._hasUserLocation) {
       if (cityEl) cityEl.innerHTML = 'Your ' + grad + 'Area</span>';
-      if (subEl)  subEl.textContent = 'Set Your Location to see your representatives';
-      if (labelEl) labelEl.innerHTML = '📍 Set Your Location to see your representatives';
+      // NOT "your representatives" — "who holds your seats". The band below
+      // this line names six seats and fills the ones it can resolve; the
+      // instruction is for the reader who has not told us where they vote, and
+      // it says what setting a location buys them in the band's own words.
+      if (subEl)  subEl.textContent = 'Set your location to see who holds your seats';
+      if (labelEl) labelEl.innerHTML = '📍 Set your location to see who holds your seats';
       if (pmStateSel)  pmStateSel.value = '';
       if (pmCountySel) pmCountySel.value = 'all';
       if (typeof window.pmFilterLocation === 'function') window.pmFilterLocation();
@@ -1147,7 +1160,7 @@
       } else {
         subEl.innerHTML = (countyDisp || state)
           ? '<span style="color:#ef4444;">📍</span> <strong style="color:#fff;">' + [countyDisp, state].filter(Boolean).join(', ') + '</strong> — your districts are mapped below'
-          : 'Set Your Location to see your representatives';
+          : 'Set your location to see who holds your seats';
       }
     }
     if (titleEl) titleEl.textContent = displayLoc + districtText;
@@ -2431,6 +2444,20 @@
   // those seats, so the next step ("see who represents me") is one tap away.
   // District numbers come from the same authoritative Key Races data the
   // "Relevant to Me" ballot uses, so the two surfaces can never disagree.
+  // ── EVERY OTHER "SET MY LOCATION" ON THE PAGE COMES THROUGH HERE ───────────
+  // There is one location setter, at the top of Who Represents Me, and controls
+  // elsewhere are doors to it rather than pickers of their own. This is the hop:
+  // the band's module owns the scroll-then-open, and this falls back to the
+  // picker directly on any document that does not carry the band, so a missing
+  // module can never leave a reader with a dead button.
+  window._pdxGoSetLocation = function () {
+    try {
+      if (typeof window.pdxSetLocation === 'function') { window.pdxSetLocation(); return; }
+      var open = window.openLocationModal || window.toggleChangeLocation;
+      if (typeof open === 'function') open();
+    } catch (e) {}
+  };
+
   window._vhSyncDistrictStrip = function() {
     var host = document.getElementById('vh-district-strip');
     if (!host) return;
@@ -2475,7 +2502,7 @@
           '</div>' +
           '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.74rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7f93b4;margin-bottom:0.7rem;">Your seats → compare the field → pick for your ballot.</div>' +
           '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">' +
-            '<button type="button" onclick="window.toggleChangeLocation&&window.toggleChangeLocation()" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.04em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#2563eb,#3b82f6);border:1px solid rgba(96,165,250,0.5);border-radius:0.7rem;padding:0.5rem 0.95rem;cursor:pointer;white-space:nowrap;min-height:44px;">📍 Set my location →</button>' +
+            '<button type="button" onclick="_pdxGoSetLocation()" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.04em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#2563eb,#3b82f6);border:1px solid rgba(96,165,250,0.5);border-radius:0.7rem;padding:0.5rem 0.95rem;cursor:pointer;white-space:nowrap;min-height:44px;">📍 Set my location →</button>' +
             '<button type="button" onclick="window.openDistrictMapModal&&window.openDistrictMapModal()" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.04em;text-transform:uppercase;color:#5eead4;background:none;border:1px solid rgba(45,212,191,0.5);border-radius:0.7rem;padding:0.5rem 0.85rem;cursor:pointer;white-space:nowrap;min-height:44px;">🗺️ Open map</button>' +
           '</div>' +
         '</div>';
@@ -2500,7 +2527,7 @@
           '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.82rem;letter-spacing:0.01em;color:#aebfd8;line-height:1.4;margin-bottom:0.7rem;">' +
             'You are focused on <strong style="color:#93c5fd;">federal offices</strong> nationally, so there are no seats to list here yet. Pick a state and we will name your senators and governor — and your U.S. House, State Senate and State House seats wherever we map districts.' +
           '</div>' +
-          '<button type="button" onclick="window.toggleChangeLocation&&window.toggleChangeLocation()" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.04em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#2563eb,#3b82f6);border:1px solid rgba(96,165,250,0.5);border-radius:0.7rem;padding:0.5rem 0.95rem;cursor:pointer;min-height:44px;">📍 Pick my state →</button>' +
+          '<button type="button" onclick="_pdxGoSetLocation()" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.04em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#2563eb,#3b82f6);border:1px solid rgba(96,165,250,0.5);border-radius:0.7rem;padding:0.5rem 0.95rem;cursor:pointer;min-height:44px;">📍 Pick my state →</button>' +
         '</div>';
       return;
     }
@@ -2646,7 +2673,7 @@
             'Set your location and we instantly map your <strong style="color:#93c5fd;">U.S. House</strong>, <strong style="color:#c4b5fd;">State Senate</strong> &amp; <strong style="color:#5eead4;">State House</strong> districts — then show exactly who represents you in each.' +
           '</span>' +
           '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">' +
-            '<button type="button" onclick="window.toggleChangeLocation()" style="' + btnLink + '" onmouseover="this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.transform=\'\'">📍 Set location →</button>' +
+            '<button type="button" onclick="_pdxGoSetLocation()" style="' + btnLink + '" onmouseover="this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.transform=\'\'">📍 Set location →</button>' +
             '<button type="button" onclick="window.openDistrictMapModal&&window.openDistrictMapModal()" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.04em;text-transform:uppercase;color:#5eead4;background:none;border:1px solid rgba(45,212,191,0.5);border-radius:0.7rem;padding:0.5rem 0.85rem;cursor:pointer;white-space:nowrap;min-height:44px;transition:transform .15s,background .15s;" onmouseover="this.style.transform=\'translateY(-1px)\';this.style.background=\'rgba(45,212,191,0.12)\'" onmouseout="this.style.transform=\'\';this.style.background=\'none\'">🗺️ Open map</button>' +
           '</div>' +
         '</div>';
@@ -3106,7 +3133,7 @@
 
     var guidance = allKnown
       ? 'These are <strong style="color:#fff;">your</strong> seats — they decide your taxes, schools, roads and local laws. Here\'s who holds them and who\'s running in 2026.'
-      : 'Pick your city in <button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:#93c5fd;text-decoration:underline;">Change Location</button> and we\'ll fill in every district seat automatically.';
+      : 'Pick your city in <button type="button" onclick="_pdxGoSetLocation()" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:#93c5fd;text-decoration:underline;">Change Location</button> and we\'ll fill in every district seat automatically.';
 
     // Prominent, inviting map trigger — the primary "do this next" action for the
     // location card. Full-width, two-line label + map cue, with clear hover/tap states.

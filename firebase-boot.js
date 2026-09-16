@@ -137,21 +137,69 @@
 
   // The fan-out queue. ONE job per task: a subscriber that rebuilds a grid gets
   // its own slice, and the frame in between belongs to the browser.
+  //
+  // ── AND A SUPERSEDED ANNOUNCEMENT IS DROPPED, NOT DELIVERED ────────────────
+  // WHAT WAS MEASURED (scripts/measure-signin-cost.mjs, on this bus). A cold
+  // visit that ends in one tap on Google is not one announcement, it is three:
+  // Firebase says "nobody" the moment it has read local persistence, our own
+  // signInAnonymously lands a moment later, and the account arrives when the
+  // popup closes. Each one queued a full fan-out, so the sequence ran 29 jobs —
+  // and 14 of them carried a user that a LATER announcement had already
+  // replaced. Every subscriber on the page was told "signed out", then
+  // "anonymous", AFTER the member's own session was live and the chip was
+  // already painted with their name. The reader's own data was job #20 of 29 and
+  // landed about 2.5 seconds after the tap, behind nineteen jobs about two
+  // sessions that no longer existed.
+  //
+  // That is the long beat, and it is not the chip: the chip is painted inline by
+  // _pdxAuthAnnounce and measures 0 ms: the same task as the auth event. What
+  // the reader waits for is everything keyed to WHO they are, sitting behind a
+  // queue of work about who they were.
+  //
+  // So each announcement stamps its jobs with the epoch it was made in, and the
+  // pump discards any job whose epoch has been overtaken. Nothing about the
+  // shape changes — one job per task, idle-with-a-timer, the frame in between
+  // still the browser's — because that shape is what stopped the freeze and
+  // this is not a second attempt at it. What changes is that the queue stops
+  // carrying answers to a question the app has already re-asked.
+  //
+  // ONE KIND OF JOB IS EXEMPT, AND IT HAS TO BE. The job _pdxAuthSub queues when
+  // a late subscriber registers reads PDXAuth.user at the moment it RUNS rather
+  // than closing over a snapshot, so it is never stale and dropping it would
+  // mean a module that registered during a burst of announcements was never
+  // called at all. It is queued exempt and always delivered.
   var _authSubs = [];
   var _authJobs = [];
   var _authPumping = false;
+  var _authEpoch = 0;
+  var _authDropped = 0;
+  var AUTH_EXEMPT = -1;
   function _authPump() {
-    if (!_authJobs.length) { _authPumping = false; return; }
-    var job = _authJobs.shift();
+    // Skipping is not a task. Stale jobs are shifted off here, in this one
+    // pass, so a burst of three announcements costs the queue a few array
+    // shifts rather than an idle callback each to discover it has nothing to do.
+    var job = null;
+    while (_authJobs.length) {
+      var next = _authJobs.shift();
+      if (next.ep === AUTH_EXEMPT || next.ep === _authEpoch) { job = next; break; }
+      _authDropped++;
+    }
+    if (!job) { _authPumping = false; return; }
     _pdxOffTask(function () {
-      try { job(); } catch (e) {}
+      try { job.run(); } catch (e) {}
       _authPump();
     });
   }
-  function _authFanOut(jobs) {
-    for (var i = 0; i < jobs.length; i++) _authJobs.push(jobs[i]);
+  function _authFanOut(jobs, exempt) {
+    var ep = exempt ? AUTH_EXEMPT : _authEpoch;
+    for (var i = 0; i < jobs.length; i++) _authJobs.push({ run: jobs[i], ep: ep });
     if (!_authPumping) { _authPumping = true; _authPump(); }
   }
+  // Reported so the cost can be measured again rather than argued about. Counts
+  // only; it publishes no identity and authorises nothing.
+  window.PDXAuthStats = function () {
+    return { epoch: _authEpoch, dropped: _authDropped, queued: _authJobs.length };
+  };
 
   var _rawOnAuth = null;
   try {
@@ -173,7 +221,9 @@
     var rec = { cb: cb, off: false };
     _authSubs.push(rec);
     if (PDXAuth.known) {
-      _authFanOut([function () { if (!rec.off) rec.cb(PDXAuth.user); }]);
+      // Exempt: this reads PDXAuth.user when it runs, so it cannot go stale —
+      // and a subscriber that registered mid-burst must still be answered.
+      _authFanOut([function () { if (!rec.off) rec.cb(PDXAuth.user); }], true);
     }
     return function () {
       rec.off = true;
@@ -691,6 +741,10 @@
   // is a job, one task each, through the bus. The callback returns in
   // microseconds and the tab keeps painting while the work lands behind it.
   function _pdxAuthAnnounce(user) {
+    // A NEW ANSWER RETIRES THE OLD ONE'S QUEUE. Bumped before anything else so
+    // every job still waiting from the previous announcement — including this
+    // file's own — is stale from this line onward.
+    _authEpoch++;
     PDXAuth.known = true;
     PDXAuth.user = user || null;
     PDXAuth.state = (user && !user.isAnonymous) ? 'in' : 'out';

@@ -5692,6 +5692,121 @@ window.PDXLazy = (function () {
       <h2 id="wrm-title" class="wrm-title">SEE WHO <span class="wrm-accent">REPRESENTS ME</span></h2>
       <p class="wrm-lead">Find the officials with power over you &mdash; <strong>then see their records.</strong></p>
 
+      <!-- ══════════════ THE ONE LOCATION SETTER ══════════════════════════
+           WHAT THIS IS, AND WHY IT IS HERE RATHER THAN IN THE HUB. Who
+           Represents Me asks one question, and answering it needs one input.
+           This block is that input, and it is the only one on the page: it was
+           lifted whole out of #voter-hub, two sections down, where it sat below
+           the Door-2 election block. Location first, then seats — the order the
+           reader's own sentence has.
+
+           WHAT IT SAYS WHEN IT KNOWS NOTHING. "Your area", and an instruction.
+           No state, no county, no district, no seat count, no incumbent: with
+           no location every one of those would be a guess printed as a fact,
+           which is the default this band spent a whole pass removing. The three
+           controls are three genuinely different doors to the same answer —
+           the browser's own geolocation, a pin on the district map, and a typed
+           address — and #wrm-reps below stays empty until one of them lands.
+
+           WHAT IT SAYS WHEN IT KNOWS. The place, then the districts that place
+           resolves to, then one control: Change location. Every word of it is
+           written by _vhSyncBanner in voter-hub-location.js, which is the same
+           function that drives the seat list below and the strip in the hub, so
+           the three can never disagree about where the reader is. -->
+      <div id="wrm-locbar" class="pm-location-bar" data-pdxloc="empty">
+        <style>
+          #wrm-locbar{max-width:56rem;margin:0 auto 1.15rem;text-align:left;}
+          #wrm-locbar .wrm-locinner{position:relative;z-index:1;padding:1.15rem 1.15rem 1.25rem;
+            background:linear-gradient(135deg,rgba(192,21,42,0.12) 0%,rgba(26,58,107,0.18) 50%,rgba(192,21,42,0.12) 100%);
+            border-radius:1.25rem;border:2px solid rgba(255,255,255,0.1);
+            box-shadow:0 0 40px rgba(192,21,42,0.15),0 0 80px rgba(26,58,107,0.1);}
+          #wrm-locbar .wrm-locrow{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+          #wrm-locbar .wrm-locid{display:flex;align-items:center;gap:1rem;min-width:0;}
+          #wrm-locbar .wrm-lockicker{display:inline-flex;align-items:center;gap:0.4rem;
+            font-family:'Barlow Condensed',sans-serif;font-size:0.82rem;letter-spacing:0.2em;text-transform:uppercase;
+            color:#ef4444;line-height:1;margin-bottom:0.4rem;font-weight:800;text-shadow:0 0 30px rgba(239,68,68,0.5);}
+          #wrm-locbar .wrm-locdot{width:0.4rem;height:0.4rem;border-radius:50%;background:#ef4444;box-shadow:0 0 8px #ef4444;}
+          /* The controls the two states offer. One setter, two faces: the three
+             doors while there is nothing to change, and one door once there is. */
+          #wrm-locbar[data-pdxloc="set"] .wrm-locwhen-empty{display:none;}
+          #wrm-locbar:not([data-pdxloc="set"]) .wrm-locwhen-set{display:none;}
+          #wrm-locbar .wrm-locacts{display:flex;gap:0.55rem;flex-wrap:wrap;align-items:center;}
+          #wrm-locbar .wrm-locbtn{display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;
+            min-height:44px;padding:0.6rem 0.95rem;border-radius:0.75rem;cursor:pointer;
+            font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.78rem;
+            letter-spacing:0.09em;text-transform:uppercase;color:#fff;transition:transform .15s ease;}
+          #wrm-locbar .wrm-locbtn:hover{transform:translateY(-1px);}
+          #wrm-locbar .wrm-locbtn--map{background:#2563eb;border:1px solid rgba(96,165,250,0.5);}
+          #wrm-locbar .wrm-locbtn--detect{background:#334155;border:1px solid rgba(148,163,184,0.4);}
+          #wrm-locbar .wrm-locbtn--form{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.16);color:#c7d6f0;}
+          @media (max-width:640px){
+            #wrm-locbar .wrm-locrow{flex-direction:column;align-items:flex-start;}
+            #wrm-locbar .wrm-locacts{width:100%;}
+            #wrm-locbar .wrm-locbtn{flex:1 1 auto;}
+          }
+        </style>
+        <div class="wrm-locinner">
+          <div class="wrm-locrow">
+            <div class="wrm-locid">
+              <!-- Location map badge: a lightweight inline Utah silhouette with the
+                   brand-red pin dropped on the voter's county, giving instant visual
+                   confirmation that the detected location is right. The pin is
+                   repositioned by county in _vhSyncBanner (window._vhPositionLocPin);
+                   pure inline SVG so there's no asset to load. Keeps the .pm-loc-iconbox
+                   class so the existing responsive sizing rules still apply. -->
+              <div class="pm-loc-iconbox" id="vh-loc-mapbadge" style="position:relative;width:5rem;height:5rem;border-radius:1.15rem;background:radial-gradient(120% 120% at 30% 20%,rgba(26,58,107,0.35),rgba(10,15,30,0.55));display:flex;align-items:center;justify-content:center;box-shadow:0 0 34px rgba(192,21,42,0.35),0 0 18px rgba(26,58,107,0.3),inset 0 0 0 1px rgba(255,255,255,0.07);border:2px solid rgba(255,255,255,0.16);flex-shrink:0;overflow:visible;">
+                <svg viewBox="0 0 100 116" width="100%" height="100%" style="display:block;padding:0.5rem;box-sizing:border-box;overflow:visible;" aria-hidden="true" focusable="false">
+                  <defs>
+                    <linearGradient id="vh-utah-fill" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0" stop-color="#60a5fa" stop-opacity="0.32"/>
+                      <stop offset="1" stop-color="#1a3a6b" stop-opacity="0.16"/>
+                    </linearGradient>
+                    <filter id="vh-pin-glow" x="-80%" y="-80%" width="260%" height="260%">
+                      <feGaussianBlur stdDeviation="2.4" result="b"/>
+                      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                  </defs>
+                  <!-- Utah outline: a rectangle with the Wyoming notch cut from the NE corner. -->
+                  <path d="M8 6 L66 6 L66 34 L92 34 L92 110 L8 110 Z"
+                        fill="url(#vh-utah-fill)" stroke="#cbd5e1" stroke-opacity="0.55"
+                        stroke-width="2.5" stroke-linejoin="round"/>
+                  <!-- Pin group; transform is set to the county location by _vhPositionLocPin. -->
+                  <g id="vh-loc-mappin" transform="translate(42,26)" style="transition:transform .5s cubic-bezier(.34,1.56,.64,1);">
+                    <circle class="vh-pin-halo" r="9" cx="0" cy="0" fill="#ef4444" fill-opacity="0.2"/>
+                    <g filter="url(#vh-pin-glow)">
+                      <path d="M0 0 C -4.4 -7 -7.6 -8.6 -7.6 -13.2 A 7.6 7.6 0 1 1 7.6 -13.2 C 7.6 -8.6 4.4 -7 0 0 Z"
+                            fill="#ef4444" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/>
+                      <circle cx="0" cy="-13.2" r="2.9" fill="#ffffff"/>
+                    </g>
+                  </g>
+                </svg>
+              </div>
+              <div style="min-width:0;">
+                <div class="wrm-lockicker"><span class="wrm-locdot" aria-hidden="true"></span>YOUR VOTING LOCATION</div>
+                <!-- The static text IS the empty state, so the band reads correctly
+                     in the first frame, before any script has run, and says nothing
+                     about a place nobody has named. -->
+                <div id="vh-loc-city" class="font-display text-4xl sm:text-5xl tracking-wider text-white" style="line-height:1.1;font-weight:900;">Your Area</div>
+                <p id="vh-loc-subdesc" class="font-condensed text-sm text-steel-300 tracking-wide mt-1.5">Set your location to see who holds your seats</p>
+              </div>
+            </div>
+            <div class="wrm-locacts pm-loc-actions">
+              <!-- Three doors to one answer, offered only while there is no answer. -->
+              <button type="button" id="detect-loc-btn" class="wrm-locbtn wrm-locbtn--detect wrm-locwhen-empty btn-tap"
+                      onclick="window.triggerManualLocationDetection&amp;&amp;window.triggerManualLocationDetection()">🌐 Detect</button>
+              <button type="button" class="wrm-locbtn wrm-locbtn--map wrm-locwhen-empty btn-tap"
+                      onclick="window.toggleChangeLocation&amp;&amp;window.toggleChangeLocation()">🗺️ Change on map</button>
+              <button type="button" class="wrm-locbtn wrm-locbtn--form wrm-locwhen-empty btn-tap"
+                      onclick="window.openLocationModal?window.openLocationModal({forceForm:true}):(window.toggleChangeLocation&amp;&amp;window.toggleChangeLocation())">📍 Set my location</button>
+              <!-- And one, once there is. -->
+              <button type="button" class="wrm-locbtn wrm-locbtn--map wrm-locwhen-set btn-tap"
+                      onclick="window.toggleChangeLocation&amp;&amp;window.toggleChangeLocation()">🗺️ Change location</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
       <div class="wrm-cold">
         <div class="wrm-steps">
           <div class="wrm-step wrm-step--now">
@@ -5709,8 +5824,14 @@ window.PDXLazy = (function () {
         </div>
 
         <div class="wrm-ctarow">
-          <button type="button" class="wrm-cta btn-tap" onclick="window.pdxFindMyReps&amp;&amp;window.pdxFindMyReps()">📍 See who represents me</button>
-          <button type="button" class="wrm-cta2 btn-tap" onclick="window.openDistrictMapModal&amp;&amp;window.openDistrictMapModal()">🗺️ Find it on the map</button>
+          <!-- THE TWO LOCATION CTAs THAT STOOD HERE ARE GONE, AND THEY ARE NOT
+               MISSING. "See who represents me" scrolled to this band and opened
+               the picker; "Find it on the map" opened the district map. Both are
+               now controls on the setter a few lines above this row — the reader
+               is already looking at the thing those buttons used to go and get.
+               Two more copies of it here is how a page ends up with three ways
+               to set a location and no single place that owns it. What is left
+               in this row is the one control that is not about location. -->
           <!-- YOUR FILE. One control, reusing the secondary slot beside the map
                opener rather than taking a nav pill: this is the reader's half of
                the comparison the two controls above set up, so it belongs where
@@ -5777,8 +5898,13 @@ window.PDXLazy = (function () {
       <div class="pdxbb-actions">
         <a id="pdx-ballot-door" class="pdxbb-primary" href="/ballot"
            aria-label="Work the ballot — open your ballot workspace">Work the ballot &rarr;</a>
+        <!-- A DOOR TO THE ONE SETTER, NOT A SECOND PICKER. This used to open the
+             location modal over the band, which left the reader — on dismissal —
+             beside a button that appeared to have done nothing. It now lands on
+             the setter at the top of Who Represents Me and opens the picker
+             there, so the surface that owns the answer is what is behind it. -->
         <button type="button" class="pdxbb-secondary btn-tap"
-                onclick="if(window.openLocationModal){window.openLocationModal();}else if(window.pdxFindMyReps){window.pdxFindMyReps();}else{location.hash='#who-represents-me';}">Change location</button>
+                onclick="if(window._pdxGoSetLocation){window._pdxGoSetLocation();}else if(window.pdxFindMyReps){window.pdxFindMyReps();}else{location.hash='#who-represents-me';}">Change location</button>
       </div>
     </div>
     <script>
@@ -7099,70 +7225,22 @@ window.PDXLazy = (function () {
         </div>
       </div>
 
-      <!-- ── Prominent Location Selector Card ──────────────── -->
-      <div class="pm-location-bar mb-6 animate-on-scroll" style="transition-delay:0.04s;">
-        <div style="position:relative;z-index:1;padding:1.5rem;background:linear-gradient(135deg,rgba(192,21,42,0.12) 0%,rgba(26,58,107,0.18) 50%,rgba(192,21,42,0.12) 100%);border-radius:1.25rem;border:2px solid rgba(255,255,255,0.1);box-shadow:0 0 40px rgba(192,21,42,0.15),0 0 80px rgba(26,58,107,0.1);">
-          <div class="flex items-center justify-between gap-4 flex-wrap">
-            <div class="flex items-center gap-4">
-              <!-- Location map badge: a lightweight inline Utah silhouette with the
-                   brand-red pin dropped on the voter's county, giving instant visual
-                   confirmation that the detected location is right. The pin is
-                   repositioned by county in _vhSyncBanner (window._vhPositionLocPin);
-                   pure inline SVG so there's no asset to load. Keeps the .pm-loc-iconbox
-                   class so the existing responsive sizing rules still apply. -->
-              <div class="pm-loc-iconbox" id="vh-loc-mapbadge" style="position:relative;width:5rem;height:5rem;border-radius:1.15rem;background:radial-gradient(120% 120% at 30% 20%,rgba(26,58,107,0.35),rgba(10,15,30,0.55));display:flex;align-items:center;justify-content:center;box-shadow:0 0 34px rgba(192,21,42,0.35),0 0 18px rgba(26,58,107,0.3),inset 0 0 0 1px rgba(255,255,255,0.07);border:2px solid rgba(255,255,255,0.16);flex-shrink:0;overflow:visible;">
-                <svg viewBox="0 0 100 116" width="100%" height="100%" style="display:block;padding:0.5rem;box-sizing:border-box;overflow:visible;" aria-hidden="true" focusable="false">
-                  <defs>
-                    <linearGradient id="vh-utah-fill" x1="0" y1="0" x2="1" y2="1">
-                      <stop offset="0" stop-color="#60a5fa" stop-opacity="0.32"/>
-                      <stop offset="1" stop-color="#1a3a6b" stop-opacity="0.16"/>
-                    </linearGradient>
-                    <filter id="vh-pin-glow" x="-80%" y="-80%" width="260%" height="260%">
-                      <feGaussianBlur stdDeviation="2.4" result="b"/>
-                      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-                    </filter>
-                  </defs>
-                  <!-- Utah outline: a rectangle with the Wyoming notch cut from the NE corner. -->
-                  <path d="M8 6 L66 6 L66 34 L92 34 L92 110 L8 110 Z"
-                        fill="url(#vh-utah-fill)" stroke="#cbd5e1" stroke-opacity="0.55"
-                        stroke-width="2.5" stroke-linejoin="round"/>
-                  <!-- Pin group; transform is set to the county location by _vhPositionLocPin. -->
-                  <g id="vh-loc-mappin" transform="translate(42,26)" style="transition:transform .5s cubic-bezier(.34,1.56,.64,1);">
-                    <circle class="vh-pin-halo" r="9" cx="0" cy="0" fill="#ef4444" fill-opacity="0.2"/>
-                    <g filter="url(#vh-pin-glow)">
-                      <path d="M0 0 C -4.4 -7 -7.6 -8.6 -7.6 -13.2 A 7.6 7.6 0 1 1 7.6 -13.2 C 7.6 -8.6 4.4 -7 0 0 Z"
-                            fill="#ef4444" stroke="#ffffff" stroke-width="1.5" stroke-linejoin="round"/>
-                      <circle cx="0" cy="-13.2" r="2.9" fill="#ffffff"/>
-                    </g>
-                  </g>
-                </svg>
-              </div>
-              <div>
-                <div class="font-display" style="display:inline-flex;align-items:center;gap:0.4rem;font-size:1.05rem;letter-spacing:0.2em;text-transform:uppercase;color:#ef4444;line-height:1;margin-bottom:0.4rem;font-weight:800;text-shadow:0 0 30px rgba(239,68,68,0.5);"><span style="width:0.4rem;height:0.4rem;border-radius:50%;background:#ef4444;box-shadow:0 0 8px #ef4444;"></span>YOUR VOTING LOCATION</div>
-                <div id="vh-loc-city" class="font-display text-4xl sm:text-5xl tracking-wider text-white" style="line-height:1.1;font-weight:900;">Your Area</div>
-                <p id="vh-loc-subdesc" class="font-condensed text-sm text-steel-300 tracking-wide mt-1.5">Set Your Location to see your representatives</p>
-              </div>
-            </div>
-            <!-- Map is the primary way to adjust location: the blue button opens the
-                 district map directly so a voter can drop a pin and see their exact
-                 seats. "Detect my location" sits beside it as the one-tap shortcut. -->
-            <div class="pm-loc-actions flex gap-2.5 flex-wrap items-center">
-              <button id="detect-loc-btn" onclick="window.triggerManualLocationDetection()" class="btn-glow font-condensed text-xs font-700 tracking-wider uppercase text-white bg-slate-700 hover:bg-slate-600 border border-slate-500/40 px-4 py-2.5 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-md flex items-center gap-1.5 min-h-[44px]">🌐 Detect my location</button>
-              <button onclick="window.toggleChangeLocation()" class="btn-glow font-condensed text-xs font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-4 py-2.5 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-md flex items-center gap-1.5 min-h-[44px]">🗺️ Change location on map</button>
-            </div>
-          </div>
-
-          <!-- ── YOUR DISTRICTS strip ──────────────────────────────────────────
-               Once a location is set, this spells out the exact voting districts
-               that location belongs to (U.S. House, State Senate, State House) and
-               links straight to the people who hold those seats. Before a location
-               is set it explains, in one line, what setting a location unlocks — so
-               a first-time visitor immediately knows what to do and why. Populated
-               entirely by window._vhSyncDistrictStrip(). -->
-          <div id="vh-district-strip" style="margin-top:1.1rem;"></div>
-
-          <div style="height:3px;background:linear-gradient(90deg,transparent,#ef4444 20%,#ffffff 50%,#3b82f6 80%,transparent);margin-top:0.9rem;border-radius:2px;opacity:0.7;"></div>
-        </div>
+      <!-- ── WHO REPRESENTS YOU NOW · the hub's seat block ──────────────────
+           THE LOCATION SETTER IS NOT HERE ANY MORE. It stood immediately above
+           this strip as a full card — the Utah badge, the place line and the
+           Detect / Change-on-map buttons — which put the one control that makes
+           this page mean anything two whole sections below the band that asks
+           the question. A reader who came in on "Who Represents Me" met the
+           question, then an empty seat list, and had to scroll past the Door-2
+           election block to find the answer to "how do I tell it where I am".
+           The card now opens the Who Represents Me band (#wrm-locbar), which is
+           where the question is asked, and there is exactly one of it on the
+           page. This strip keeps its place and its job: the PEOPLE holding the
+           district seats that location resolves to. Populated entirely by
+           window._vhSyncDistrictStrip(), which points its own empty state at
+           the one setter rather than printing a second copy of it. -->
+      <div class="mb-6 animate-on-scroll" style="transition-delay:0.04s;">
+        <div id="vh-district-strip"></div>
       </div>
 
       <!-- ══════════════════════════════════════════════════════════════════

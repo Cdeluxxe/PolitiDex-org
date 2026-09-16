@@ -292,7 +292,7 @@ section("1 · One surface, served at its own address, shipped whole");
   // restated as the thing it was defending rather than the one element it
   // happened to be measured against: ONE door, and a location step above it.
   const iHub = HTML.indexOf('id="voter-hub"');
-  const iLoc = HTML.indexOf("pm-location-bar");
+  const iLoc = HTML.indexOf('id="wrm-locbar"');
   const iWrm = HTML.indexOf('id="who-represents-me"');
   const iDoor = HTML.indexOf('id="pdx-ballot-door"');
   ok(iDoor > 0, "Door 2 has no entrance on the homepage");
@@ -300,8 +300,25 @@ section("1 · One surface, served at its own address, shipped whole");
     "the homepage carries more than one primary Door 2 entrance, so two of them describe the desk");
   ok(iWrm > 0 && iDoor > iWrm,
     "the door sits above Who Represents Me, the location step the desk depends on");
-  ok(iHub > 0 && iLoc > 0 && iLoc > iHub,
-    "the voter hub or its location card left the homepage, so the step the desk depends on is gone");
+  // AND THE LOCATION STEP HAS SINCE MOVED ABOVE THE DOOR RATHER THAN BELOW IT.
+  // The card used to be .pm-location-bar inside #voter-hub, two sections under
+  // this door, so this line read "iLoc > iHub" — the door is above the hub, the
+  // card was in the hub, and the pin was satisfied by the card being LATER in
+  // the document than the thing that needs it. That was never the property; it
+  // was the accident of where the card happened to live. The setter is now
+  // #wrm-locbar at the top of Who Represents Me, which is above the door, so the
+  // pin is stated as what it always meant: there is exactly one location setter
+  // on the homepage, and the reader passes it before they reach the door.
+  ok(iLoc > 0, "the homepage has no location setter, so the step the desk depends on is gone");
+  ok(HTML.split('id="wrm-locbar"').length === 2,
+    "the homepage carries more than one location setter, so two surfaces can each be the one the reader " +
+    "last touched and neither owns where they vote");
+  ok(iHub > 0 && iLoc < iHub,
+    "the location setter is back below the voter hub, which puts the one control the desk depends on two " +
+    "sections beneath the band that asks for it");
+  ok(iLoc < iDoor,
+    "the door to the desk now comes before the location setter, so a reader reaches the ballot workspace " +
+    "before anything has asked them where they vote");
   // The band's own controls, which are the reason it can lead the hub: the place
   // (or the offer to set one) and a single anchor to the desk, no candidate, no
   // party, no count.

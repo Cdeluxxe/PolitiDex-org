@@ -6403,7 +6403,54 @@
 //     untouched; no score, party read, issue key or roster field changed, and no
 //     Direction Match read, formal-record brief or record-ledger figure is
 //     touched.
-const CACHE_VERSION = 'v209';
+// v210 - ONE LOCATION SETTER, AT THE TOP OF WHO REPRESENTS ME, AND A SIGN-IN
+//        THAT STOPS PAYING FOR SESSIONS THAT ARE ALREADY OVER
+//
+//     REPORTED. The homepage had stopped inventing Utah, but the Detect /
+//     Change-on-map card still sat two sections below the band that asks who
+//     represents you. And a sign-in was still slow: a hitch, or a long beat.
+//
+//     THE CARD. There were three location setters on '/', not two: the band's
+//     cold CTAs, the Voter Hub's .pm-location-bar, and the one ballot-breakdown
+//     painted in the Relevant-to-Me empty state, each with its own Detect and
+//     map button. There is one, #wrm-locbar atop #who-represents-me, two faces:
+//     three doors (Detect, Change on map, Set my location) until there is
+//     something to change, one (Change location) after. Which face is
+//     voter-hub-location.js's call, because whether a location is stamped is
+//     that file's question and two owners would be two answers. The six
+//     controls that used to open their own pickers — four in the districts
+//     strip, one on the ballot band, one in the empty state — route through
+//     window._pdxGoSetLocation; pdxFindMyReps lands on the setter with no
+//     location and on the seats with one.
+//
+//     THE SIGN-IN. The v208 bus is unchanged in shape — one job per task, idle
+//     callback with a timer backstop — and the chip was never the delay: it
+//     paints on the auth event's own task, measured at 0 ms. The cost was
+//     count. A cold visit ending in one Google tap is THREE announcements
+//     (Firebase says nobody, our own anonymous session lands, the account
+//     arrives), each queuing a full fan-out into one FIFO: 29 jobs, 14 handing
+//     a subscriber a user a later announcement had replaced, the member's own
+//     data job #20 at ~2520 ms. Jobs now carry the announcement that queued
+//     them, a new one retires the old queue, and the pump drops stale jobs in
+//     one pass instead of a task each. Same sequence: 10 jobs, 20 dropped, 0
+//     deliveries of a retired session, the member's data first at 120 ms.
+//
+//     WHY THE BUMP. index.html and me.html both ship precached, and three
+//     precached scripts changed under them: who-represents-me.js,
+//     voter-hub-location.js and firebase-boot.js, which me.html loads too. The
+//     halves degrade rather than lie: an old script finds #wrm-locbar and
+//     leaves it on its static empty face, a new one falls back to the section.
+//
+//     MIGRATION COST. None to any stored record: no location, provenance stamp
+//     or resolved district is rewritten or re-asked, and a reader who had set
+//     Davis still opens to Davis.
+//
+//     DID NOT MOVE. No default state, the provenance stamp, /me's 2/6/15
+//     memory, every score, the 121 denominator, /courts and the archive-by-
+//     chamber list are untouched; no new persistence and no new auth provider.
+//     No score, party read, issue key or roster field changed, and no
+//     Direction Match read or record-ledger figure moved.
+const CACHE_VERSION = 'v210';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

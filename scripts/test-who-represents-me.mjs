@@ -112,8 +112,33 @@ has(SEC, LEAD,
 has(SEC, 'then see their records',
   'front door: the supporting line dropped the handoff to records, so the band promises a list and\n' +
   '    not accountability — the bridge to Door 1 is the reason this sits where it sits');
-has(SEC, '>' + CTA + '<',
-  `front door: the primary CTA is no longer the agreed copy "${CTA}"`);
+// ── THE BAND'S PRIMARY CONTROL IS THE LOCATION SETTER ────────────────────────
+// It used to be a "📍 See who represents me" button in the cold row, which
+// scrolled to this band and opened a picker — a control whose whole job was to
+// go and fetch the thing the reader was already looking at. The setter itself
+// now sits at the top of the band, so the button is the setter's own and the
+// two copies of it in the cold row are gone. The property this file was
+// defending is unchanged and still asserted: the entry point is STATIC markup
+// in index.html, so a visitor whose deferred module 404s still has a way in.
+has(SEC, 'id="wrm-locbar"',
+  'front door: the one location setter is not in the band\'s static markup. A setter painted by a\n' +
+  '    deferred module is an entry point that quietly stops existing when that module 404s');
+ok(SEC.indexOf('id="wrm-locbar"') < SEC.indexOf('id="wrm-reps"'),
+  'front door: the seat list is above the location setter. Location, then seats — a reader who has not\n' +
+  '    said where they vote meets an empty list before the one control that can fill it');
+has(SEC, '>📍 Set my location<',
+  'front door: the setter lost its typed-address door, which is the one that works for a reader who\n' +
+  '    refuses geolocation and cannot find their block on a map');
+has(SEC, '>🌐 Detect<',
+  'front door: the setter lost its Detect door');
+has(SEC, '>🗺️ Change on map<',
+  'front door: the setter lost its map door');
+has(SEC, '>🗺️ Change location<',
+  'front door: the setter offers no control once a location IS set, so a reader who moved or mistyped\n' +
+  '    has no way back');
+ok(!/>\s*📍 See who represents me\s*</.test(SEC),
+  'front door: the band carries a second location CTA alongside the setter. One setter — a button that\n' +
+  '    scrolls to the control directly above it is how a page ends up with three of them');
 has(SEC, 'Free public service',
   'front door: the band no longer says this is a public service, which is the line that stops it\n' +
   '    reading as a ballot toy');
