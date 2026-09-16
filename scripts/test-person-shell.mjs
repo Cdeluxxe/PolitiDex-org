@@ -347,7 +347,7 @@ const COPIES = [
   [16481, 17403, "the funding lane, up to the cut"],
   [19293, 19327, "the profile modal down to #modal-content"],
   [19388, 19435, "the stance popover, the record overlay and the share sheet"],
-  [26364, 26485, "PDXStance"],
+  [26420, 26541, "PDXStance"],
   [28974, 29173, "the PWA runtime and the service-worker registration"],
 ];
 // THESE NUMBERS ARE ANCHORS INTO index.html AND THEY MOVE WHEN IT DOES. The

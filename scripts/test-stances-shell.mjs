@@ -244,8 +244,8 @@ section("3 · the two copied blocks are byte-identical to index.html's");
 const lines = (s) => String(s).split("\n");
 const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 26321, b: 26345, what: "the .pdxis-stance* pill rules" },
-  { from: "index.html", src: INDEX, a: 26364, b: 26485, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 26377, b: 26401, what: "the .pdxis-stance* pill rules" },
+  { from: "index.html", src: INDEX, a: 26420, b: 26541, what: "the PDXStance vocabulary" },
 ];
 for (const c of COPIES) {
   const header = new RegExp(`COPIED VERBATIM FROM ${c.from.replace(".", "\\.")} LINES ${c.a}[^0-9]{1,3}${c.b}`);

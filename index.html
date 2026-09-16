@@ -2030,7 +2030,49 @@ window.PDXLazy = (function () {
   window._pdxFullPending = window._pdxFullPending || {};
   function setDoc(docRef, data, options) { return docRef.set(data, options); }
   db = { collection: null }; firestore = db;
-  auth = { currentUser: null, onAuthStateChanged: function (cb) { try { cb(null); } catch (e) {} return function () {}; }, signInAnonymously: function () { return Promise.reject(new Error('auth pending')); }, signOut: function () { return Promise.resolve(); } };
+  // AUTH UNKNOWN IS NOT AUTH SIGNED-OUT, AND THIS STUB USED TO SAY IT WAS.
+  // onAuthStateChanged here answered every registration with cb(null) —
+  // synchronously, before the Firebase SDK had even downloaded — so every module
+  // that asked "who is signed in" while the document was parsing was told
+  // "nobody". For a returning member that is a false answer, and it is the one
+  // the chrome acted on: the bar painted JOIN THE PEOPLE and the account chip
+  // only arrived a beat later, when the real session resolved. A restore looked
+  // like a logout, on every load.
+  //
+  // So the stub no longer answers. It QUEUES each registration — keeping the
+  // unsubscribe live, so a caller that gives up before the SDK lands is still
+  // dropped — and firebase-boot.js replays the queue onto the real auth object
+  // the moment it exists. Until then window.PDXAuth.state is 'unknown', the
+  // honest third state the nav chrome now paints for (see updateNavAuth in
+  // compare-hub.js). Nothing is lost by waiting: every subscriber still receives
+  // the first real answer Firebase gives, which is the only one worth acting on.
+  window.PDXAuth = window.PDXAuth || { state: 'unknown', user: null, known: false };
+  window.__pdxAuthQueue = window.__pdxAuthQueue || [];
+  auth = { currentUser: null, onAuthStateChanged: function (cb) { var rec = { cb: cb, off: false, unsub: null }; window.__pdxAuthQueue.push(rec); return function () { rec.off = true; if (rec.unsub) { try { rec.unsub(); } catch (e) {} } }; }, signInAnonymously: function () { return Promise.reject(new Error('auth pending')); }, signOut: function () { return Promise.resolve(); } };
+  // AND THE QUEUE IS NOT A TRAP. If firebase-boot.js never arrives to drain it —
+  // a blocked SDK, a failed deploy, a warm shell paired with an older copy of
+  // that file out of the runtime cache — the registrations above would wait for
+  // the whole visit and nothing on the page would ever learn there is no
+  // session. So the queue self-heals: once the SDK has had every chance to land,
+  // whatever is still queued is flushed with null, which is exactly the answer
+  // this stub used to give instantly. A LATE fallback is a different thing from
+  // a first guess — the first guess was the bug, and five seconds is not a
+  // guess, it is a timeout. firebase-boot.js nulls the queue when it replays, so
+  // on every normal load this is a no-op.
+  setTimeout(function () {
+    var q = window.__pdxAuthQueue;
+    if (!q) return;
+    window.__pdxAuthQueue = null;
+    try {
+      window.PDXAuth.known = true;
+      window.PDXAuth.state = 'out';
+      window.PDXAuth.user = null;
+      if (typeof window.updateNavAuth === 'function') window.updateNavAuth(null, 'out');
+    } catch (e) {}
+    for (var i = 0; i < q.length; i++) {
+      if (q[i] && !q[i].off && typeof q[i].cb === 'function') { try { q[i].cb(null); } catch (e) {} }
+    }
+  }, 5000);
 </script>
 <script src="/firebase-boot.js" defer></script>
 <head>
@@ -3851,14 +3893,24 @@ window.PDXLazy = (function () {
 
         <!-- Account / sign-in — ALWAYS visible on every breakpoint, pinned far
              right and flex-shrink-0 so it can never be cut off on mobile.
-             Populated by updateNavAuth(); markup below is the static fallback
-             shown until Firebase auth resolves. -->
-        <div id="nav-auth-desktop" class="flex items-center gap-2 flex-shrink-0">
-          <button onclick="if(typeof openAuthModal==='function')openAuthModal()" class="relative bg-gradient-to-r from-crimson-600 via-crimson-500 to-crimson-600 hover:from-crimson-500 hover:via-crimson-400 hover:to-crimson-500 text-white font-display tracking-widest uppercase rounded-lg shadow-lg transition-all flex items-center gap-1.5 hover:scale-105 active:scale-95" style="white-space:nowrap;font-size:10px;letter-spacing:0.1em;padding:4.5px 10px;border:1.5px solid rgba(255,255,255,0.25);text-shadow:0 1px 4px rgba(0,0,0,0.4);">
-            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.766z"/></svg>
-            <span>JOIN THE PEOPLE</span>
-            <span style="font-size:7.5px;background:rgba(255,255,255,0.22);padding:1px 5px;border-radius:4px;letter-spacing:0.06em;font-weight:700;">FREE</span>
-          </button>
+             Populated by updateNavAuth().
+
+             THE STATIC FALLBACK IS THE 'unknown' STATE, and it used to be the
+             Join CTA. That was the false logout in its first frame: this markup
+             is what a returning member saw on every load of this page, before a
+             single line of auth code had run, and it told them to go and sign
+             up. It is now the quiet "Checking account…" pill — no CTA, no chip,
+             no "signed out" copy, nothing claimed about the reader at all.
+             compare-hub.js upgrades it to the reader's own (disabled) chip when
+             this device has painted one before, and to the real chip or the Join
+             CTA when Firebase finally answers. data-pdx-nav-sig is the paint
+             guard's read-back; 'unknown' here means the first real call always
+             differs from it. -->
+        <div id="nav-auth-desktop" class="flex items-center gap-2 flex-shrink-0" data-pdx-nav-sig="unknown">
+          <span aria-live="polite" class="flex items-center gap-2 bg-navy-800/60 border border-white/10 rounded-lg select-none" style="white-space:nowrap;padding:5px 10px;opacity:0.72;cursor:default;">
+            <span class="animate-pulse2 rounded-full" aria-hidden="true" style="width:7px;height:7px;background:#94a3b8;flex-shrink:0;"></span>
+            <span class="text-steel-300 font-condensed font-700" style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;">Checking account&hellip;</span>
+          </span>
         </div>
 
         <button class="lg:hidden text-steel-300 flex-shrink-0" onclick="document.getElementById('mobileMenu').classList.toggle('hidden')">
@@ -4379,16 +4431,15 @@ window.PDXLazy = (function () {
     </style>
     <div id="mobileMenu" class="hidden lg:hidden border-t border-white/5 bg-navy-900/98 px-4 py-3 flex flex-col gap-0.5 font-condensed font-600 text-sm tracking-widest uppercase text-steel-300">
       <!-- Account / sign-in — pinned to the very top of the menu so the full
-           profile + logout controls are always reachable on mobile (the bar's
-           account chip is hover-only). The #nav-auth-mobile slot is populated by
-           updateNavAuth(); the markup below is a static fallback shown until
-           Firebase auth resolves. -->
-      <div id="nav-auth-mobile" class="-mx-4 -mt-3 mb-2 px-4 pt-3.5 pb-4 border-b border-white/10 bg-gradient-to-b from-crimson-950/30 to-transparent">
-        <button onclick="if(typeof openAuthModal==='function')openAuthModal();document.getElementById('mobileMenu').classList.add('hidden');" class="w-full relative bg-gradient-to-r from-crimson-600 via-crimson-500 to-crimson-600 hover:from-crimson-500 hover:via-crimson-400 hover:to-crimson-500 text-white rounded-xl text-center font-display tracking-widest uppercase flex items-center justify-center gap-2" style="font-size:15px;letter-spacing:0.11em;padding:14px 16px;border:1.5px solid rgba(255,255,255,0.25);text-shadow:0 1px 4px rgba(0,0,0,0.4);">
-          <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.766z"/></svg>
-          <span>JOIN THE PEOPLE</span>
-          <span style="font-size:9px;background:rgba(255,255,255,0.22);padding:1.5px 7px;border-radius:4px;letter-spacing:0.06em;font-weight:700;">FREE</span>
-        </button>
+           profile + logout controls are always reachable on mobile. The
+           #nav-auth-mobile slot is populated by updateNavAuth(); the markup
+           below is the 'unknown' state, for the same reason the bar's slot
+           carries it — see the note there. -->
+      <div id="nav-auth-mobile" class="-mx-4 -mt-3 mb-2 px-4 pt-3.5 pb-4 border-b border-white/10 bg-gradient-to-b from-crimson-950/30 to-transparent" data-pdx-nav-sig="unknown">
+        <div aria-live="polite" class="w-full flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-navy-800/50 select-none" style="padding:14px 16px;opacity:0.72;cursor:default;">
+          <span class="animate-pulse2 rounded-full" aria-hidden="true" style="width:8px;height:8px;background:#94a3b8;flex-shrink:0;"></span>
+          <span class="text-steel-300 font-condensed font-700" style="font-size:13px;letter-spacing:0.11em;text-transform:uppercase;">Checking account&hellip;</span>
+        </div>
       </div>
       <!-- ── PRIMARY · the same hierarchy the bar shows ────────────────────
            The drawer used to open with "The Record" (one item) and then "Your
@@ -19795,14 +19846,19 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
           </div>
 
           <!-- Google Login Button -->
-          <button id="auth-google-btn" onclick="loginWithGoogle()" class="w-full bg-white/5 hover:bg-white/10 active:bg-white/15 border border-white/10 rounded-xl py-3 px-4 flex items-center justify-center gap-3 text-white text-xs font-condensed tracking-widest uppercase transition-all">
+          <!-- ONE IN-FLIGHT SIGN-IN. loginWithGoogle() is the lock (the promise
+               is), and it disables this button for as long as the popup is in
+               the air, so a second tap cannot cancel the first one's popup and
+               turn a working sign-in into auth/cancelled-popup-request.
+               #auth-google-label is what it swaps to "Waiting for Google…". -->
+          <button id="auth-google-btn" type="button" onclick="loginWithGoogle()" class="w-full bg-white/5 hover:bg-white/10 active:bg-white/15 border border-white/10 rounded-xl py-3 px-4 flex items-center justify-center gap-3 text-white text-xs font-condensed tracking-widest uppercase transition-all disabled:opacity-60" style="">
             <svg class="w-4 h-4" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.18 1-.78 1.85-1.63 2.42v2.77h2.63c1.54-1.42 2.42-3.5 2.42-5.46z" fill="#4285F4"/>
               <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-2.63-2.77c-.73.49-1.66.78-2.65.78-2.04 0-3.77-1.38-4.38-3.23H6.83v2.85c1.8 3.58 5.4 6.03 9.57 6.03z" fill="#34A853"/>
               <path d="M7.62 15.12C7.46 14.62 7.38 14.1 7.38 13.5s.08-1.12.24-1.62V9.03H6.83C6.21 10.28 5.86 11.83 5.86 13.5s.35 3.22.97 4.47l.79-2.85z" fill="#FBBC05"/>
               <path d="M12 7.42c1.62 0 3.08.56 4.22 1.66l3.17-3.17C17.45 4.09 14.96 3 12 3 7.83 3 4.23 5.45 2.43 9.03l2.85 2.85c.61-1.85 2.34-3.23 4.38-3.23z" fill="#EA4335"/>
             </svg>
-            <span>Google Sign-In</span>
+            <span id="auth-google-label">Google Sign-In</span>
           </button>
         </div>
       </div>
