@@ -342,13 +342,13 @@ const COPIES = [
   [1410, 1919, "the promise ledger and the deferred-event capture"],
   [1936, 2010, "PDXLazy"],
   [2012, 2032, "the Firebase compat bundles, the key injection, the stub and firebase-boot.js"],
-  [2081, 2126, "the share furniture share-preview.ts rewrites"],
-  [3610, 3673, "the crawl-header guard"],
-  [16610, 17532, "the funding lane, up to the cut"],
-  [19422, 19456, "the profile modal down to #modal-content"],
-  [19517, 19564, "the stance popover, the record overlay and the share sheet"],
-  [26498, 26619, "PDXStance"],
-  [29108, 29307, "the PWA runtime and the service-worker registration"],
+  [2146, 2191, "the share furniture share-preview.ts rewrites"],
+  [3675, 3738, "the crawl-header guard"],
+  [14835, 15757, "the funding lane, up to the cut"],
+  [17647, 17681, "the profile modal down to #modal-content"],
+  [17742, 17789, "the stance popover, the record overlay and the share sheet"],
+  [24477, 24598, "PDXStance"],
+  [27087, 27286, "the PWA runtime and the service-worker registration"],
 ];
 // THESE NUMBERS ARE ANCHORS INTO index.html AND THEY MOVE WHEN IT DOES. The
 // ones re-based here were re-based by the fourth split, which lifted the ballot
@@ -423,6 +423,21 @@ const COPIES = [
 // unchanged, which is the check on the method. Re-derive rather than add when
 // this fails again: the run is a fact about the two files, a sum is a claim about
 // a history of passes.
+// THE THREE-ROOM SPLIT RE-DERIVED SEVEN OF THEM, THE SAME WAY, AND IN BOTH
+// DIRECTIONS AT ONCE — which is the clearest illustration yet of why these are
+// facts and not sums. The People's Mandate, District Voice and Follow the Money
+// each became their own document (/mandate, /voice, /money), so index.html lost
+// the agenda wall, the proposals wall and the submit overlay along with five
+// inline <script> blocks and a 55 KB style injector, and gained a door card, a
+// one-hop hash table in <head> and a <script src="/mandate-lane.js">. The
+// additions sit HIGH in the file and the deletions LOW, so the share furniture
+// and the crawl guard moved DOWN by +65 while everything under the agenda wall
+// moved UP: the funding lane, the profile modal and the popovers by −1775, and
+// PDXStance and the PWA runtime by −2021. Every one of the seven came back as a
+// single verbatim run of its declared length (the popovers, PDXStance and the
+// PWA runtime kept the lengths the last re-derivation gave them), and the six
+// anchors above the <head> additions came back unchanged, which is again the
+// check on the method. Not one byte of any copied block changed.
 for (const [a, b, what] of COPIES) {
   const slice = idxLines.slice(a - 1, b).join("\n");
   ok(slice.split("\n").length === b - a + 1 && slice.trim().length > 0,

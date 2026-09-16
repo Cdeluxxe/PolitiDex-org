@@ -269,8 +269,12 @@ const COPIES = [
   // an earlier edit to index.html shifts line numbers — when it does, the header
   // comment in me.html and this table move TOGETHER, which is the whole point of
   // pinning it in one place.
-  { from: "index.html", src: INDEX, a: 27111, b: 27533, what: "PDXSaved" },
+  { from: "index.html", src: INDEX, a: 25090, b: 25512, what: "PDXSaved" },
 ];
+// The three-room split moved PDXSaved by −2021: the Mandate, Voice and Money
+// lanes left index.html for their own documents and pulled everything below the
+// agenda wall up with them. Re-derived by locating the block verbatim in the new
+// index.html, not by subtracting — the run came back at its full 423 lines.
 for (const c of COPIES) {
   const header = new RegExp(`COPIED VERBATIM FROM ${c.from.replace(".", "\\.")} LINES ${c.a}[^0-9]{1,3}${c.b}`);
   ok(header.test(ME), `copy: me.html declares its ${c.what} block as ${c.from} ${c.a}–${c.b}`);

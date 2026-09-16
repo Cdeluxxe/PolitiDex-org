@@ -1,0 +1,1586 @@
+/* ═════════════════════════════════════════════════════════════════════════════
+   mandate-lane.css — THE PEOPLE'S MANDATE, DRESSED AT ITS OWN ADDRESS
+   ────────────────────────────────────────────────────────────────────────────
+   WHAT THIS SHEET IS. Every component rule the Mandate lane's markup depends
+   on, lifted out of app.css by selector: the section frame and its star
+   accents, the stat bar, the quick-jump rail, the Reform Hub filter bar, the
+   .agenda-card grid, the .pp-* proposals board, and the four site-wide
+   affordances those cards are built out of (.card-holo, .btn-glow,
+   .badge-live, .animate-on-scroll).
+
+   WHY IT EXISTS. mandate.html does not load app.css. That sheet is 986 KB of
+   homepage cascade and the room at /mandate needs about five percent of it, so
+   the shells follow courts.html's rule — declare what the page needs, inherit
+   nothing from a stylesheet the document does not fetch. This is the same move
+   evidence.html made when the Evidence Locker got its own address.
+
+   THIS IS A COPY, AND app.css STILL HAS THE ORIGINALS. It was not cut out of
+   that sheet, for one reason: the lane's selectors are interleaved across six
+   separate regions of app.css, several of them inside multi-selector rules
+   that also dress surfaces the front page still paints (.wealth-card,
+   .ftm-lb-card, .dir-card, .browse-chip, #el-results). Deleting by selector
+   from a 986 KB sheet to save the front page bytes it already has cached is a
+   different job from giving the lane an address, and it is not this one. What
+   IS asserted, by scripts/test-mandate-shell.mjs, is that this file stays a
+   subset of app.css: every rule here must still match its app.css original, so
+   a change made on one side and not the other fails the suite instead of
+   shipping two Mandates that look different.
+
+   The extraction is mechanical (by selector, rules kept whole), so a few
+   multi-selector rules arrived carrying selectors that match nothing on this
+   document. They are inert and they are left exactly as app.css has them,
+   because rewriting a selector list is how a copy stops being a copy.
+
+   WHAT IS NOT HERE. No Tailwind utilities — mandate.html links
+   /css/tailwind.css for those, the same 78 KB sheet index.html uses. No
+   html{scroll-padding-top}: the shell declares its own chrome offset, because
+   the chrome at /mandate is one row rather than the front page's two.
+   ═════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Card holographic effect ───────────────────────── */
+    .card-holo {
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.35s cubic-bezier(0.34,1.4,0.64,1), box-shadow 0.35s ease;
+    }
+
+.card-holo::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        135deg,
+        transparent 20%, rgba(255,255,255,0.05) 40%,
+        rgba(255,255,255,0.11) 50%, rgba(255,255,255,0.05) 60%,
+        transparent 80%
+      );
+      background-size: 200% 200%;
+      opacity: 0;
+      transition: opacity 0.35s;
+      z-index: 2;
+      pointer-events: none;
+      border-radius: inherit;
+    }
+
+@media (hover: hover) {
+.card-holo:hover::before { opacity: 1; animation: shimmer 1.5s linear infinite; }
+
+.card-holo:hover {
+        transform: translateY(-7px) scale(1.012);
+        box-shadow: 0 22px 60px rgba(0,0,0,0.55), 0 0 32px rgba(192,21,42,0.16);
+      }
+}
+
+.card-holo:active { transform: scale(0.975); transition: transform 0.12s ease; }
+
+/* ── Scroll-triggered fade in ──────────────────────── */
+    .animate-on-scroll {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+.animate-on-scroll.visible { opacity: 1; transform: translateY(0); }
+
+/* JS adds visible class - but we default to visible so nothing hides */
+
+    /* ── Button glow (hover-device only) ───────────────── */
+    .btn-glow { transition: all 0.22s ease; }
+
+@media (hover: hover) {
+.btn-glow:hover {
+        box-shadow: 0 0 20px rgba(192,21,42,0.6), 0 0 40px rgba(192,21,42,0.16);
+        transform: translateY(-1px);
+      }
+}
+
+.btn-glow:active { transform: scale(0.96); }
+
+/* ── Badge pulse ───────────────────────────────────── */
+    .badge-live { animation: pulse2 2s ease-in-out infinite; }
+
+@media (max-width: 768px) {
+/* Agenda cards */
+      .agenda-card { padding: 1rem !important; }
+
+/* Reform Hub filter bar */
+      .rh-filter-bar { padding: 0.75rem !important; }
+
+.rh-filters-row { gap: 0.5rem !important; }
+
+.rh-filter-wrap { width: 100% !important; }
+}
+
+@media print {
+nav, #modal-overlay, #comment-overlay, .animate-float, .badge-live, .stars-bg, .scanline { display: none !important; }
+
+.card-holo { box-shadow: none !important; border: 1px solid #ddd !important; background: #f9f9f9 !important; }
+}
+
+/* Card highlight when checked */
+    .card-holo:has(.compare-cb:checked),
+    .card-holo.cmp-highlight {
+      box-shadow: 0 0 0 2px #3b82f6, 0 0 20px rgba(59,130,246,0.25) !important;
+    }
+
+/* ── Reform Hub Filter Bar ────────────────────────────────── */
+    .rh-filter-bar {
+      background: rgba(10,15,30,0.7); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 1rem; padding: 1rem 1.125rem 0.875rem; margin-bottom: 1.5rem;
+      display: flex; flex-direction: column; gap: 0.75rem;
+    }
+
+.rh-search-wrap {
+      position: relative; display: flex; align-items: center;
+    }
+
+.rh-search-icon {
+      position: absolute; left: 0.75rem; width: 0.9rem; height: 0.9rem;
+      color: #7596c0; pointer-events: none; flex-shrink: 0;
+    }
+
+.rh-search-input {
+      width: 100%; padding: 0.6rem 2.25rem 0.6rem 2.25rem;
+      background: rgba(30,53,96,0.5); border: 1px solid rgba(159,180,212,0.18);
+      border-radius: 0.625rem; color: white;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.85rem;
+      letter-spacing: 0.04em; outline: none; transition: border-color 0.15s;
+    }
+
+.rh-search-input::placeholder { color: #4e72a0; }
+
+.rh-search-input:focus { border-color: rgba(192,21,42,0.5); }
+
+#rh-search-clear {
+      position: absolute; right: 0.75rem; background: none; border: none;
+      color: #7596c0; cursor: pointer; padding: 0.2rem; line-height: 1;
+      transition: color 0.15s;
+    }
+
+#rh-search-clear:hover { color: #f87171; }
+
+.rh-filters-row {
+      display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;
+    }
+
+.rh-filter-wrap {
+      display: flex; flex-direction: column; gap: 0.2rem; flex: 1 1 120px; min-width: 100px;
+    }
+
+.rh-filter-label {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.52rem;
+      font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #4e72a0; padding-left: 0.1rem;
+    }
+
+.rh-select {
+      background: rgba(30,53,96,0.5); border: 1px solid rgba(159,180,212,0.18);
+      border-radius: 0.5rem; color: #9fb4d4;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.75rem;
+      letter-spacing: 0.05em; padding: 0.45rem 0.6rem; outline: none;
+      transition: border-color 0.15s; cursor: pointer; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%237596c0' viewBox='0 0 24 24'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 0.5rem center;
+      background-size: 0.75rem; padding-right: 1.75rem;
+    }
+
+.rh-select:focus { border-color: rgba(192,21,42,0.45); }
+
+.rh-select option { background: #0d1526; color: #9fb4d4; }
+
+.rh-reset-btn {
+      background: rgba(192,21,42,0.12); border: 1px solid rgba(192,21,42,0.28);
+      color: #f87171; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.55rem 0.875rem; border-radius: 0.5rem; cursor: pointer;
+      transition: all 0.15s; white-space: nowrap; align-self: flex-end;
+      min-height: unset;
+    }
+
+.rh-reset-btn:hover { background: rgba(192,21,42,0.22); border-color: rgba(248,113,113,0.45); }
+
+.rh-active-row {
+      display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+      padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+.rh-chip {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      background: rgba(192,21,42,0.15); border: 1px solid rgba(192,21,42,0.3);
+      border-radius: 999px; padding: 0.15rem 0.5rem 0.15rem 0.6rem;
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem;
+      font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #f87171;
+      cursor: pointer; transition: all 0.15s;
+    }
+
+.rh-chip:hover { background: rgba(192,21,42,0.25); }
+
+.rh-chip svg { width: 0.6rem; height: 0.6rem; opacity: 0.7; }
+
+/* Card hidden state */
+    .agenda-card.rh-hidden { display: none !important; }
+
+#agenda.mandate-section {
+      background: linear-gradient(175deg, rgba(8,10,35,0.98) 0%, rgba(25,12,40,0.95) 20%, rgba(12,18,55,0.97) 45%, rgba(30,10,30,0.95) 70%, rgba(8,12,40,0.98) 100%);
+      border-top: 3px solid;
+      border-bottom: 3px solid;
+      border-image: linear-gradient(90deg, transparent 2%, #f5c842 15%, #c0152a 35%, #3b82f6 55%, #f5c842 75%, #c0152a 90%, transparent 98%) 1;
+      position: relative;
+      overflow: hidden;
+      padding-top: 5rem;
+      padding-bottom: 5rem;
+    }
+
+#agenda.mandate-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 90% 60% at 50% -5%, rgba(245,200,66,0.1) 0%, transparent 65%),
+                  radial-gradient(ellipse 70% 50% at 15% 85%, rgba(59,130,246,0.08) 0%, transparent 55%),
+                  radial-gradient(ellipse 70% 50% at 85% 85%, rgba(192,21,42,0.08) 0%, transparent 55%),
+                  radial-gradient(circle at 50% 50%, rgba(245,200,66,0.03) 0%, transparent 40%);
+      pointer-events: none;
+    }
+
+#agenda.mandate-section::after {
+      content: '✦ ✧ ★ ✦ ✧ ★ ✦ ✧ ★ ✦';
+      position: absolute;
+      top: 12px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 0.6rem;
+      letter-spacing: 2rem;
+      color: rgba(245,200,66,0.2);
+      pointer-events: none;
+      animation: mandate-sparkle 4s ease-in-out infinite;
+    }
+
+.mandate-header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: linear-gradient(135deg, rgba(245,200,66,0.2), rgba(192,21,42,0.15), rgba(59,130,246,0.1));
+      border: 2px solid rgba(245,200,66,0.45);
+      border-radius: 999px;
+      padding: 0.5rem 1.5rem;
+      margin-bottom: 1.5rem;
+      animation: mandate-border-flow 4s ease infinite;
+      box-shadow: 0 2px 20px rgba(245,200,66,0.1);
+    }
+
+.mandate-star-accents {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+.mandate-star-accents span {
+      position: absolute;
+      color: rgba(245,200,66,0.15);
+      animation: mandate-star-float 6s ease-in-out infinite;
+    }
+
+.mandate-title {
+      background: linear-gradient(135deg, #ffffff 0%, #ffd75a 18%, #ffffff 33%, #ff5e5e 50%, #4f9dff 65%, #ffd75a 80%, #ffffff 100%);
+      background-size: 300% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: mandate-shimmer 5s linear infinite, mandate-title-glow 3.2s ease-in-out infinite;
+      line-height: 1.1;
+    }
+
+.mandate-subtitle {
+      color: #ffd75a;
+      text-shadow: 0 0 35px rgba(245,200,66,0.45), 0 0 65px rgba(245,200,66,0.18);
+      font-size: 1.85rem;
+      animation: mandate-subtitle-pulse 3s ease-in-out infinite;
+    }
+
+.mandate-tagline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(147,197,253,0.8);
+      margin-top: 0.5rem;
+    }
+
+.mandate-tagline .star-sep {
+      color: rgba(245,200,66,0.5);
+      font-size: 0.6rem;
+    }
+
+.mandate-desc {
+      color: #d4e0f0;
+      max-width: 48rem;
+      margin: 0 auto;
+      font-size: 1.15rem;
+      line-height: 1.95;
+    }
+
+.mandate-desc strong {
+      color: #f5c842;
+      font-weight: 700;
+      text-shadow: 0 0 12px rgba(245,200,66,0.2);
+    }
+
+.mandate-desc .desc-highlight {
+      color: #f87171;
+      font-weight: 600;
+    }
+
+.mandate-desc .desc-blue {
+      color: #93c5fd;
+      font-weight: 600;
+    }
+
+.mandate-submit-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.85rem;
+      background: linear-gradient(135deg, #b5102a, #e8243b 40%, #c0152a 70%, #d41832);
+      background-size: 250% auto;
+      color: white;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 1.25rem 3.25rem;
+      border-radius: 1rem;
+      border: 2.5px solid rgba(245,200,66,0.6);
+      animation: mandate-btn-glow 3s ease-in-out infinite;
+      transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+      position: relative;
+      overflow: hidden;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+
+.mandate-submit-btn::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(135deg, transparent 30%, rgba(245,200,66,0.2) 50%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s;
+      transform: rotate(25deg);
+    }
+
+.mandate-submit-btn::after {
+      content: '✦';
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.7rem;
+      color: rgba(245,200,66,0.6);
+      animation: mandate-sparkle 2s ease-in-out infinite;
+    }
+
+@media (hover: hover) {
+.mandate-submit-btn:hover {
+        transform: translateY(-4px) scale(1.05);
+        box-shadow: 0 12px 48px rgba(192,21,42,0.6), 0 0 80px rgba(245,200,66,0.3), 0 0 160px rgba(192,21,42,0.15);
+        border-color: rgba(245,200,66,0.9);
+        background-position: right center;
+      }
+
+.mandate-submit-btn:hover::before {
+        opacity: 1;
+      }
+}
+
+.mandate-submit-btn:active {
+      transform: scale(0.97);
+    }
+
+.mandate-submit-btn .btn-icon {
+      width: 2.25rem;
+      height: 2.25rem;
+      background: linear-gradient(135deg, rgba(245,200,66,0.4), rgba(255,255,255,0.18));
+      border: 1.5px solid rgba(245,200,66,0.5);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 12px rgba(245,200,66,0.25);
+    }
+
+.mandate-stat-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 1.75rem;
+      padding: 1.5rem 2.5rem;
+      background: linear-gradient(135deg, rgba(245,200,66,0.08), rgba(59,130,246,0.06), rgba(192,21,42,0.08));
+      border: 1px solid rgba(245,200,66,0.2);
+      border-radius: 1.25rem;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+.mandate-stat {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.3rem 0;
+    }
+
+.mandate-stat-num {
+      font-family: 'Teko', sans-serif;
+      font-size: 2.25rem;
+      line-height: 1;
+      font-weight: 700;
+    }
+
+.mandate-stat-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #8899b4;
+    }
+
+.mandate-stat-divider {
+      width: 1px;
+      height: 2.5rem;
+      background: linear-gradient(180deg, transparent, rgba(245,200,66,0.4), transparent);
+    }
+
+/* ═══════ THE PEOPLE'S PROPOSALS — live participation layer ═══════ */
+    .pp-section {
+      margin-top: 3.5rem;
+      padding-top: 2.75rem;
+      border-top: 1px solid rgba(245,200,66,0.18);
+      position: relative;
+    }
+
+.pp-section::before {
+      /* A subtle gold seam so the community board reads as its own chapter. */
+      content: '';
+      position: absolute;
+      top: -1px; left: 50%;
+      transform: translateX(-50%);
+      width: 160px; height: 3px;
+      background: linear-gradient(90deg, transparent, #f5c842, transparent);
+      box-shadow: 0 0 14px rgba(245,200,66,0.5);
+    }
+
+.pp-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.35rem 1rem;
+      border: 1px solid rgba(74,222,128,0.3);
+      border-radius: 999px;
+      background: rgba(74,222,128,0.07);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #4ade80;
+      margin-bottom: 0.9rem;
+    }
+
+.pp-title {
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      line-height: 1.02;
+      color: #fff;
+      margin-bottom: 0.6rem;
+      text-shadow: 0 2px 24px rgba(245,200,66,0.18);
+    }
+
+.pp-subtitle {
+      max-width: 40rem;
+      margin: 0 auto;
+      color: #9fb4d4;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+.pp-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin: 1.75rem 0 1.5rem;
+      padding: 0.85rem 1.1rem;
+      background: linear-gradient(135deg, rgba(245,200,66,0.06), rgba(59,130,246,0.05));
+      border: 1px solid rgba(245,200,66,0.16);
+      border-radius: 1rem;
+    }
+
+.pp-livestat {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.9rem;
+      letter-spacing: 0.03em;
+      color: #c7d3e6;
+    }
+
+.pp-stat-num { color: #f5c842; font-weight: 700; }
+
+.pp-dot { color: rgba(245,200,66,0.5); margin: 0 0.15rem; }
+
+.pp-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; }
+
+.pp-sort {
+      display: inline-flex;
+      padding: 0.2rem;
+      background: rgba(10,15,30,0.6);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 0.7rem;
+    }
+
+.pp-sort-btn {
+      appearance: none;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #8899b4;
+      padding: 0.4rem 0.75rem;
+      border-radius: 0.5rem;
+      transition: all 0.2s ease;
+    }
+
+.pp-sort-btn.is-active {
+      background: rgba(245,200,66,0.15);
+      color: #f5c842;
+      box-shadow: inset 0 0 0 1px rgba(245,200,66,0.3);
+    }
+
+.pp-sort-btn:not(.is-active):hover { color: #c7d3e6; }
+
+.pp-propose-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.74rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #fff;
+      padding: 0.55rem 1.1rem;
+      border-radius: 0.7rem;
+      background: linear-gradient(135deg, #c0152a, #e0243b);
+      border: 1px solid rgba(245,200,66,0.35);
+      box-shadow: 0 4px 16px rgba(192,21,42,0.35);
+      transition: transform 0.15s ease, box-shadow 0.2s ease;
+    }
+
+.pp-propose-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(192,21,42,0.45); }
+
+.pp-propose-btn:active { transform: scale(0.97); }
+
+.pp-propose-btn--lg { font-size: 0.82rem; padding: 0.8rem 1.6rem; }
+
+.pp-state {
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+
+.pp-spinner {
+      width: 2.25rem; height: 2.25rem;
+      margin: 0 auto;
+      border: 3px solid rgba(245,200,66,0.2);
+      border-top-color: #f5c842;
+      border-radius: 50%;
+      animation: pp-spin 0.8s linear infinite;
+    }
+
+.pp-retry-btn {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700; font-size: 0.72rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: #f5c842; cursor: pointer;
+      padding: 0.5rem 1.25rem;
+      border: 1px solid rgba(245,200,66,0.4);
+      border-radius: 0.6rem;
+      background: rgba(245,200,66,0.08);
+      transition: background 0.2s ease;
+    }
+
+.pp-retry-btn:hover { background: rgba(245,200,66,0.16); }
+
+.pp-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+
+/* One community proposal card. Mirrors the curated card aesthetic but with a
+       green (community) accent so the two sources are visually distinguishable. */
+    .pp-card {
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(150deg, rgba(18,28,58,0.97), rgba(12,18,42,0.99));
+      border: 1px solid rgba(74,222,128,0.18);
+      border-radius: 1.25rem;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), border-color 0.3s, box-shadow 0.3s;
+      animation: pp-card-in 0.4s ease both;
+    }
+
+.pp-card::after {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, #4ade80, rgba(255,255,255,0.12), #4ade80);
+      opacity: 0.8;
+    }
+
+@media (hover: hover) {
+.pp-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(74,222,128,0.45);
+        box-shadow: 0 16px 44px rgba(0,0,0,0.45), 0 0 28px rgba(74,222,128,0.12);
+      }
+}
+
+.pp-card-body { padding: 1.1rem 1.15rem 0.5rem; flex: 1; }
+
+.pp-card-top { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+
+.pp-tag {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700;
+      color: #4ade80;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      background: rgba(74,222,128,0.12);
+      border: 1px solid rgba(74,222,128,0.28);
+    }
+
+.pp-badge-new {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.55rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700;
+      color: #f5c842;
+      padding: 0.12rem 0.45rem; border-radius: 999px;
+      background: rgba(245,200,66,0.14); border: 1px solid rgba(245,200,66,0.3);
+    }
+
+.pp-community-chip {
+      margin-left: auto;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: #8899b4;
+    }
+
+/* ── Linked politicians (proposal → profile) ──────────────────────────────
+       A compact row of clickable chips on a proposal card, plus the matching
+       chips inside the submit modal's picker. Gold accent so a "who this affects"
+       link reads distinctly from the green category/support system. */
+    .pp-linked {
+      display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center;
+      margin: 0.1rem 0 0.7rem;
+    }
+
+.pp-linked-lead {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: #7a8aa8; margin-right: 0.05rem;
+    }
+
+.pp-link-chip {
+      display: inline-flex; align-items: center; gap: 0.28rem; cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.62rem; letter-spacing: 0.06em; font-weight: 700;
+      color: #f5c842;
+      padding: 0.16rem 0.55rem; border-radius: 999px;
+      background: rgba(245,200,66,0.1); border: 1px solid rgba(245,200,66,0.3);
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    }
+
+@media (hover: hover) {
+.pp-link-chip:hover { background: rgba(245,200,66,0.2); border-color: rgba(245,200,66,0.6); transform: translateY(-1px); }
+}
+
+.pp-link-chip .pp-link-x {
+      font-size: 0.72rem; line-height: 1; color: #c7b061; margin-left: 0.1rem;
+    }
+
+@media (hover: hover) {
+.pp-link-chip.is-removable:hover .pp-link-x { color: #fff; }
+}
+
+/* Submit-modal politician picker */
+    .pp-picker-wrap { position: relative; }
+
+.pp-picker-results {
+      position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 20;
+      max-height: 220px; overflow-y: auto;
+      background: #0d1424; border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 0.85rem; box-shadow: 0 18px 40px rgba(0,0,0,0.55);
+      padding: 0.3rem;
+    }
+
+.pp-picker-opt {
+      display: flex; align-items: center; gap: 0.6rem; width: 100%;
+      text-align: left; cursor: pointer;
+      padding: 0.5rem 0.6rem; border-radius: 0.6rem;
+      background: transparent; border: none; color: #dce6f5;
+      transition: background 0.12s ease;
+    }
+
+.pp-picker-opt:hover, .pp-picker-opt.is-active { background: rgba(245,200,66,0.12); }
+
+.pp-picker-opt .pp-opt-name { font-family: 'Barlow', sans-serif; font-size: 0.85rem; color: #fff; line-height: 1.15; }
+
+.pp-picker-opt .pp-opt-office { font-family: 'Barlow Condensed', sans-serif; font-size: 0.65rem; letter-spacing: 0.06em; text-transform: uppercase; color: #7596c0; }
+
+.pp-picker-empty { padding: 0.7rem 0.75rem; font-size: 0.78rem; color: #7a8aa8; font-family: 'Barlow', sans-serif; }
+
+.pp-picker-selected { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.6rem; }
+
+.pp-picker-selected .pp-link-chip { animation: ppChipIn 0.16s ease; }
+
+/* Overflow marker when a card links more politicians than we show inline. */
+    .pp-link-more {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.6rem; letter-spacing: 0.06em; font-weight: 700;
+      color: #9db0cc; padding: 0.16rem 0.5rem; border-radius: 999px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+    }
+
+/* ── Team-aware Mandate (Phase 3) ─────────────────────────────────────────
+       A proposal that touches someone the visitor actually follows — one of
+       their representatives or a politician they've starred — earns a gold cue
+       layered over the green community accent, so "this concerns your team"
+       reads at a glance without hiding that it's still a community proposal. */
+    .pp-card.is-team {
+      border-color: rgba(245,200,66,0.55);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25), 0 0 0 1px rgba(245,200,66,0.18) inset;
+    }
+
+.pp-card.is-team::after {
+      background: linear-gradient(90deg, #f5c842, rgba(255,255,255,0.14), #f5c842);
+      opacity: 0.9;
+    }
+
+@media (hover: hover) {
+.pp-card.is-team:hover {
+        border-color: rgba(245,200,66,0.75);
+        box-shadow: 0 16px 44px rgba(0,0,0,0.45), 0 0 28px rgba(245,200,66,0.16);
+      }
+}
+
+/* The "on your team" pill in a card's top row. */
+    .pp-team-badge {
+      display: inline-flex; align-items: center; gap: 0.22rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700;
+      color: #f5c842;
+      padding: 0.12rem 0.5rem; border-radius: 999px;
+      background: rgba(245,200,66,0.16); border: 1px solid rgba(245,200,66,0.4);
+    }
+
+.pp-team-badge.is-rep {
+      color: #ffe08a;
+      background: rgba(245,200,66,0.22); border-color: rgba(245,200,66,0.6);
+    }
+
+/* A linked chip that resolves to someone on the visitor's team is emphasized
+       over the neutral chips beside it. */
+    .pp-link-chip.is-team {
+      color: #ffe08a;
+      background: rgba(245,200,66,0.22); border-color: rgba(245,200,66,0.62);
+    }
+
+/* The "Involves my team" filter toggle, sitting beside the sort controls.
+       Hidden entirely until the visitor actually has a team to filter against. */
+    .pp-team-btn {
+      display: inline-flex; align-items: center; gap: 0.3rem; cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.7rem; letter-spacing: 0.06em; font-weight: 700; text-transform: uppercase;
+      color: #c7d3e6;
+      padding: 0.4rem 0.85rem; border-radius: 999px;
+      background: rgba(245,200,66,0.08); border: 1px solid rgba(245,200,66,0.3);
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+
+@media (hover: hover) {
+.pp-team-btn:hover { background: rgba(245,200,66,0.16); border-color: rgba(245,200,66,0.5); color: #fff; }
+}
+
+.pp-team-btn.is-active {
+      color: #10151f;
+      background: linear-gradient(135deg, #f5c842, #e0a82e);
+      border-color: rgba(245,200,66,0.9);
+    }
+
+/* Friendly in-grid message when the team filter is on but nothing matches. */
+    .pp-team-empty {
+      grid-column: 1 / -1;
+      text-align: center; padding: 2.25rem 1rem;
+      color: #9fb4d4; font-family: 'Barlow', sans-serif;
+    }
+
+.pp-team-empty .pp-team-empty-cta {
+      background: none; border: none; cursor: pointer; padding: 0;
+      color: #f5c842; font-weight: 700; text-decoration: underline;
+    }
+
+@media (max-width: 640px) {
+.pp-link-chip { padding: 0.3rem 0.62rem; font-size: 0.68rem; }
+
+.pp-link-chip .pp-link-x { font-size: 0.82rem; }
+
+.pp-picker-opt { padding: 0.7rem 0.65rem; }
+
+.pp-picker-results { max-height: 46vh; }
+}
+
+.pp-card-title {
+      font-family: 'Teko', sans-serif;
+      font-size: 1.35rem; line-height: 1.1; letter-spacing: 0.02em;
+      color: #fff; margin-bottom: 0.4rem;
+    }
+
+.pp-card-desc {
+      font-size: 0.82rem; line-height: 1.55; color: #9fb4d4;
+      margin-bottom: 0.6rem;
+    }
+
+.pp-card-meta {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.68rem; letter-spacing: 0.05em; color: #7a8aa8;
+    }
+
+.pp-card-foot {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.75rem 1.15rem 1rem;
+    }
+
+/* THE SUPPORT BUTTON IS NOT A VERDICT.
+       It used to be #4ade80 / #86efac on rgba(74,222,128,*) — the app's
+       good-green, which everywhere else on this site means one specific thing:
+       the formal record came out the way the person's stated position said it
+       would. Wearing that green on a social button says a tap is a kind of
+       vindication, and puts a click in the same visual class as a sourced roll
+       call. The lane wears the Mandate's own gold instead (#f5c842), which
+       carries no verdict anywhere in this codebase, and it has no red state
+       because there is no "against" here to render. Nothing below scales with
+       the count. See support-lane.js / support-lane.css. */
+    .pp-support-btn {
+      flex: 1;
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+      cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.74rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700;
+      color: #f5c842;
+      padding: 0.55rem 0.75rem;
+      border-radius: 0.7rem;
+      background: rgba(245,200,66,0.07);
+      border: 1.5px solid rgba(245,200,66,0.28);
+      transition: all 0.18s ease;
+    }
+
+@media (hover: hover) {
+.pp-support-btn:hover { background: rgba(245,200,66,0.15); box-shadow: 0 4px 16px rgba(245,200,66,0.2); }
+}
+
+.pp-support-btn:active { transform: scale(0.96); }
+
+.pp-support-btn.is-supported {
+      background: rgba(245,200,66,0.2);
+      border-color: rgba(245,200,66,0.7);
+      color: #ffe08a;
+    }
+
+.pp-support-btn .pp-heart { transition: transform 0.2s ease; }
+
+.pp-support-btn.is-supported .pp-heart { transform: scale(1.15); }
+
+/* The count and its noun travel together — a bare tally beside a record
+       surface reads as a measurement of something. */
+    .pp-support-tally {
+      display: inline-flex; flex-direction: column; align-items: center;
+      gap: 0.02rem; min-width: 3.2ch;
+    }
+
+.pp-support-count {
+      font-family: 'Teko', sans-serif;
+      font-size: 1.05rem; font-weight: 700; min-width: 1.5ch; text-align: center;
+      color: #f5c842;
+    }
+
+.pp-support-count-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.5rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #7a8aa8; line-height: 1;
+    }
+
+@media (max-width: 640px) {
+.pp-controls { flex-direction: column; align-items: stretch; }
+
+.pp-actions { justify-content: space-between; }
+
+.pp-grid { grid-template-columns: 1fr; }
+}
+
+/* ═══════ END THE PEOPLE'S PROPOSALS ═══════ */
+
+
+    /* Mandate card overrides — ultra-bold version */
+    #agenda.mandate-section .agenda-card {
+      background: linear-gradient(150deg, rgba(18,28,58,0.97), rgba(12,18,42,0.99)) !important;
+      border: 1px solid rgba(245,200,66,0.15) !important;
+      border-radius: 1.25rem !important;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+      transition: all 0.35s cubic-bezier(0.4,0,0.2,1) !important;
+    }
+
+#agenda.mandate-section .agenda-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--card-accent, #f5c842), rgba(255,255,255,0.1), var(--card-accent, #f5c842));
+      opacity: 0.85;
+      pointer-events: none;
+    }
+
+@media (hover: hover) {
+#agenda.mandate-section .agenda-card:hover {
+        transform: translateY(-6px) scale(1.01) !important;
+        border-color: var(--card-accent, rgba(245,200,66,0.35)) !important;
+        box-shadow: 0 16px 48px rgba(0,0,0,0.45), 0 0 30px var(--card-glow, rgba(245,200,66,0.12)) !important;
+      }
+}
+
+#agenda.mandate-section .agenda-card .text-2xl.flex-shrink-0 {
+      font-size: 1.85rem;
+      width: 3rem;
+      height: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0.85rem;
+      background: var(--card-icon-bg, rgba(245,200,66,0.12));
+      border: 1.5px solid var(--card-icon-border, rgba(245,200,66,0.25));
+      box-shadow: 0 4px 16px var(--card-glow, rgba(245,200,66,0.1)), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+#agenda.mandate-section .issue-pill {
+      background: linear-gradient(135deg, rgba(59,130,246,0.14), rgba(139,92,246,0.08)) !important;
+      border: 1px solid rgba(59,130,246,0.25) !important;
+      color: #93c5fd !important;
+      font-weight: 600 !important;
+    }
+
+#agenda.mandate-section .agenda-vote-up {
+      background: rgba(74,222,128,0.06);
+      border-width: 1.5px !important;
+    }
+
+#agenda.mandate-section .agenda-vote-down {
+      background: rgba(248,113,113,0.06);
+      border-width: 1.5px !important;
+    }
+
+@media (hover: hover) {
+#agenda.mandate-section .agenda-vote-up:hover {
+        background: rgba(74,222,128,0.15);
+        box-shadow: 0 4px 16px rgba(74,222,128,0.2);
+      }
+
+#agenda.mandate-section .agenda-vote-down:hover {
+        background: rgba(248,113,113,0.15);
+        box-shadow: 0 4px 16px rgba(248,113,113,0.2);
+      }
+}
+
+#agenda.mandate-section #agenda-grid {
+      gap: 1.5rem !important;
+    }
+
+/* CTA card override — ultra bold */
+    #agenda.mandate-section .rh-cta-card {
+      background: linear-gradient(150deg, rgba(192,21,42,0.15), rgba(245,200,66,0.04), rgba(20,25,50,0.95)) !important;
+      border: 2px dashed rgba(245,200,66,0.35) !important;
+      border-radius: 1.25rem !important;
+      animation: mandate-pulse-glow 3s ease infinite;
+    }
+
+@media (hover: hover) {
+#agenda.mandate-section .rh-cta-card:hover {
+        border-color: rgba(245,200,66,0.6) !important;
+        background: linear-gradient(150deg, rgba(192,21,42,0.22), rgba(245,200,66,0.06), rgba(20,25,50,0.9)) !important;
+        transform: translateY(-4px) !important;
+      }
+}
+
+#agenda.mandate-section .rh-cta-card .w-14 {
+      width: 4.5rem !important;
+      height: 4.5rem !important;
+      border-radius: 1.25rem !important;
+      background: linear-gradient(135deg, rgba(245,200,66,0.2), rgba(192,21,42,0.15)) !important;
+      border: 1.5px solid rgba(245,200,66,0.4) !important;
+      font-size: 2.25rem !important;
+      box-shadow: 0 4px 24px rgba(245,200,66,0.15) !important;
+    }
+
+.mandate-bottom-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.25rem;
+      padding: 1.5rem 0 0;
+      border-top: 2px solid;
+      border-image: linear-gradient(90deg, transparent, rgba(245,200,66,0.2), rgba(192,21,42,0.2), transparent) 1;
+    }
+
+.mandate-bottom-cta {
+      background: linear-gradient(135deg, rgba(192,21,42,0.2), rgba(245,200,66,0.1));
+      border: 2px solid rgba(245,200,66,0.4);
+      color: #f5c842;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.75rem 1.75rem;
+      border-radius: 0.85rem;
+      transition: all 0.3s;
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(245,200,66,0.08);
+    }
+
+@media (hover: hover) {
+.mandate-bottom-cta:hover {
+        background: linear-gradient(135deg, rgba(192,21,42,0.35), rgba(245,200,66,0.2));
+        border-color: rgba(245,200,66,0.7);
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 24px rgba(245,200,66,0.2);
+      }
+}
+
+@media (max-width: 640px) {
+.mandate-stat-bar { gap: 0.75rem; padding: 1rem 0.85rem; border-radius: 1rem; }
+
+.mandate-stat-num { font-size: 1.65rem; }
+
+.mandate-stat-label { font-size: 0.62rem; }
+
+.mandate-stat-divider { display: none; }
+
+.mandate-stat { gap: 0.5rem; }
+
+.mandate-submit-btn {
+        padding: 1.15rem 2.25rem;
+        font-size: 1rem;
+        border-radius: 0.85rem;
+        width: 100%;
+        max-width: 380px;
+        justify-content: center;
+      }
+
+.mandate-submit-btn .btn-icon {
+        width: 2.25rem;
+        height: 2.25rem;
+      }
+
+#agenda.mandate-section .agenda-card .text-2xl.flex-shrink-0 { width: 2.5rem; height: 2.5rem; font-size: 1.4rem; }
+
+.mandate-desc { font-size: 0.98rem; line-height: 1.8; padding: 0 0.25rem; }
+
+.mandate-subtitle { font-size: 1.5rem; }
+
+.mandate-title { padding: 0 0.25rem !important; }
+
+.mandate-tagline { font-size: 0.68rem; gap: 0.4rem; flex-wrap: wrap; justify-content: center; }
+
+.mandate-header-badge { padding: 0.45rem 1.15rem; gap: 0.5rem; }
+
+.mandate-header-badge .font-condensed { font-size: 0.68rem; }
+
+#agenda.mandate-section { padding-top: 3.5rem; padding-bottom: 3.5rem; }
+
+#agenda.mandate-section::after { letter-spacing: 1rem; font-size: 0.5rem; top: 8px; }
+
+.mandate-star-accents span { font-size: 0.5rem !important; }
+
+.mandate-bottom-bar { flex-direction: column; align-items: stretch; gap: 1rem; padding-top: 1.25rem; }
+
+.mandate-bottom-cta { text-align: center; padding: 0.85rem 1.5rem; font-size: 0.78rem; }
+
+#agenda.mandate-section #agenda-grid { gap: 1rem !important; }
+}
+
+@media (max-width: 400px) {
+.mandate-title { font-size: 2.5rem !important; }
+
+.mandate-subtitle { font-size: 1.25rem; }
+
+.mandate-desc { font-size: 0.92rem; }
+
+.mandate-submit-btn { padding: 1rem 1.5rem; font-size: 0.92rem; }
+}
+
+/* ═══════ MANDATE QUICK-JUMP NAV ═══════
+       Sticky, horizontally-scrollable pill bar that maps the People's Mandate
+       section. Sticks just below the global fixed navbar while the section is
+       on screen. Pills, active-state and count badge all echo the section's
+       gold-on-dark language. */
+    .mandate-jump {
+      position: sticky;
+      /* Pinned to the measured chrome rather than a 62px guess, so the rail sits
+         flush under the nav on a notched phone too. */
+      top: calc(var(--pdx-chrome, 7.125rem) + 5px);
+      z-index: 30;
+      display: flex;
+      gap: 0.5rem;
+      max-width: 72rem;
+      margin: 0 auto 2.25rem;
+      padding: 0.5rem;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;              /* Firefox */
+      -webkit-overflow-scrolling: touch;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(13,21,38,0.92), rgba(10,15,30,0.92));
+      border: 1px solid rgba(245,200,66,0.22);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+    }
+
+.mandate-jump::-webkit-scrollbar { display: none; }
+
+/* Chrome/Safari/Edge */
+    .mandate-jump-pill {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      min-height: 44px;          /* ≥44px touch target */
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      color: #cbd5e1;
+      font-family: inherit;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+    }
+
+.mandate-jump-pill[hidden] { display: none; }
+
+.mandate-jump-pill .mj-ico { font-size: 0.95rem; line-height: 1; }
+
+.mandate-jump-pill .mj-count {
+      min-width: 1.1rem;
+      padding: 0 0.35rem;
+      border-radius: 999px;
+      background: rgba(245,200,66,0.16);
+      border: 1px solid rgba(245,200,66,0.3);
+      color: #f5c842;
+      font-size: 0.6rem;
+      line-height: 1.05rem;
+      text-align: center;
+    }
+
+.mandate-jump-pill:hover {
+      color: #fff;
+      background: rgba(245,200,66,0.1);
+      border-color: rgba(245,200,66,0.35);
+      transform: translateY(-1px);
+    }
+
+.mandate-jump-pill:focus-visible {
+      outline: 2px solid #f5c842;
+      outline-offset: 2px;
+    }
+
+.mandate-jump-pill.is-active {
+      color: #0a0f1e;
+      background: linear-gradient(135deg, #fad96a, #e6b800);
+      border-color: rgba(245,200,66,0.9);
+      box-shadow: 0 0 16px rgba(245,200,66,0.4), inset 0 1px 0 rgba(255,255,255,0.35);
+    }
+
+.mandate-jump-pill.is-active .mj-count {
+      background: rgba(10,15,30,0.18);
+      border-color: rgba(10,15,30,0.25);
+      color: #0a0f1e;
+    }
+
+/* These targets need clearance BEYOND the fixed chrome: .mandate-jump is a
+       sticky rail that sits directly under it. The chrome itself comes from
+       html{scroll-padding-top}, so the only thing stated here is the rail —
+       0.5rem of padding on each side of a 44px pill. 120px used to mean
+       "chrome + rail" and so double-counted the chrome the scrollport already
+       subtracts. */
+    #mandate-overview, #mandate-stats, #rh-filter-bar, #agenda-grid, #mandate-submit {
+      scroll-margin-top: 3.75rem;
+    }
+
+@media (prefers-reduced-motion: reduce) {
+.mandate-jump-pill { transition: none; }
+
+.mandate-jump-pill:hover { transform: none; }
+}
+
+@media (max-width: 640px) {
+.mandate-jump { border-radius: 1rem; margin-bottom: 1.5rem; }
+
+.mandate-jump-pill { font-size: 0.66rem; padding: 0.4rem 0.8rem; }
+}
+
+/* ═══════ END PEOPLE'S MANDATE STYLES ═══════ */
+
+    /* Active filter highlight on selects */
+    .rh-select.rh-active { border-color: rgba(192,21,42,0.5); color: white; }
+
+@media (max-width: 640px) {
+.rh-filter-wrap { flex: 1 1 calc(50% - 0.25rem); }
+
+.rh-reset-btn { flex: 0 0 auto; align-self: flex-end; }
+}
+
+/* ══════════════════════════════════════════════════════════
+       FINAL POLISH PASS v2
+       ══════════════════════════════════════════════════════════ */
+
+    /* ── Unified transition timing ────────────────────────── */
+    .pm-btn-profile, .pm-btn-compare, .like-btn, .bp-compare-btn,
+    .chub-add-btn, .mypol-star, .pm-filter-chip, .rh-chip,
+    .tr-btn-learn, .tr-btn-support, .veh-tool-card, .btn-glow,
+    .tr-nav-btn, .tr-dot, .mypol-remove-btn,
+    .rh-reset-btn, .tr-propose-btn {
+      transition: all 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+/* ── Consistent button active state ───────────────────── */
+    .pm-btn-profile:active, .pm-btn-compare:active,
+    .chub-add-btn:active, .chub-launch-btn:active,
+    .tr-btn-learn:active, .tr-btn-support:active,
+    .btn-glow:active, .tr-propose-btn:active,
+    .mypol-remove-btn:active, .rh-reset-btn:active,
+    .tr-nav-btn:active {
+      transform: scale(0.96);
+      transition-duration: 0.08s;
+    }
+
+@media (hover: hover) {
+.btn-glow:hover {
+        box-shadow: 0 0 20px rgba(192,21,42,0.5), 0 0 40px rgba(192,21,42,0.15), 0 4px 12px rgba(0,0,0,0.3);
+        transform: translateY(-2px);
+      }
+
+.rh-reset-btn:hover {
+        transform: translateY(-1px);
+      }
+
+.agenda-vote-up:hover, .agenda-vote-down:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      }
+}
+
+.rh-chip {
+      transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+    }
+
+@media (hover: hover) {
+.rh-chip:hover {
+        box-shadow: 0 0 10px rgba(192,21,42,0.22);
+        transform: translateY(-1px);
+      }
+}
+
+.card-holo {
+      transition: transform 0.32s cubic-bezier(0.34,1.4,0.64,1), box-shadow 0.32s ease;
+    }
+
+@media (hover: hover) {
+.card-holo:hover .tracker-hs {
+        border-color: rgba(192,21,42,0.4) !important;
+        box-shadow: 0 3px 14px rgba(0,0,0,0.45), 0 0 10px rgba(192,21,42,0.14);
+      }
+}
+
+@media (max-width: 640px) {
+.card-holo .px-4 { padding-left: 0.875rem; padding-right: 0.875rem; }
+
+.card-holo .sm\:px-5 { padding-left: 0.875rem; padding-right: 0.875rem; }
+}
+
+/* ── Agenda vote buttons consistent ────────────────────── */
+    .agenda-vote-up, .agenda-vote-down {
+      transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+    }
+
+.agenda-vote-up:active, .agenda-vote-down:active {
+      transform: scale(0.96);
+      transition-duration: 0.08s;
+    }
+
+/* ── Improved focus ring for accessibility ─────────────── */
+    .pm-filter-chip:focus-visible, .pm-btn-profile:focus-visible,
+    .pm-btn-compare:focus-visible, .chub-add-btn:focus-visible,
+    .btn-glow:focus-visible, .tr-btn-learn:focus-visible,
+    .tr-btn-support:focus-visible, .agenda-vote-up:focus-visible,
+    .agenda-vote-down:focus-visible {
+      outline: 2px solid rgba(192,21,42,0.7);
+      outline-offset: 2px;
+    }
+
+/* ════════════════════════════════════════════════════════════
+       FINAL POLISH PASS — Premium refinements
+       ════════════════════════════════════════════════════════════ */
+
+    /* ── GPU-accelerated transforms for smoother animations ── */
+    .card-holo, .btn-glow, .pm-card, .veh-tool-card,
+    .tr-slide, .pm-btn-profile, .pm-btn-compare,
+    .tr-btn-learn, .tr-btn-support, .tr-propose-btn,
+    .like-btn,
+    .agenda-vote-up, .agenda-vote-down, .nav-link::after,
+    #our-mission .grid > a, .venmo-qr-frame {
+      will-change: transform;
+    }
+
+/* ── Unified button base: consistent border-radius & font ─ */
+    .pm-btn-profile, .pm-btn-compare, .bp-compare-btn,
+    .chub-add-btn, .tr-btn-learn, .tr-btn-support,
+    .tr-propose-btn,
+    .rh-reset-btn, .mypol-remove-btn,
+    .cmp-btn-profile, .spotlight-show-more {
+      border-radius: 0.5rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: all 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+/* ── Consistent CTA button style: crimson primary ─────── */
+    .btn-glow, .tr-btn-support,
+    a[href="#submit"].bg-crimson-600,
+    #mobileMenu a.bg-crimson-600 {
+      background: linear-gradient(135deg, #c0152a 0%, #a6122a 100%);
+      border: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+.btn-glow::after, .tr-btn-support::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent 60%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+@media (hover: hover) {
+.btn-glow:hover::after, .tr-btn-support:hover::after {
+        opacity: 1;
+      }
+}
+
+@media (hover: hover) {
+.agenda-card:hover {
+        box-shadow: 0 8px 28px rgba(0,0,0,0.3);
+        border-color: rgba(255,255,255,0.12);
+      }
+}
+
+/* ── Consistent card border radius across sections ────── */
+    .wealth-card, .agenda-card, #methodology .bg-navy-800\/60 {
+      border-radius: 1rem;
+    }
+
+/* ── Compare Hub cards: smooth selection ───────────────── */
+    .card-holo:has(.compare-cb:checked),
+    .card-holo.cmp-highlight {
+      transition: box-shadow 0.3s ease;
+    }
+
+/* ── Agenda vote buttons: matching style pair ─────────── */
+    .agenda-vote-up, .agenda-vote-down {
+      border-radius: 0.5rem;
+      transition: all 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+.btn-glow:active, .pm-btn-profile:active,
+    .tr-btn-support:active {
+      animation: btnRipple 0.4s ease-out;
+    }
+
+@media (max-width: 480px) {
+.rh-filter-bar {
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+      }
+
+.rh-search-input {
+        font-size: 0.78rem;
+        padding: 0.5rem 2rem 0.5rem 2rem;
+      }
+}
+
+/* ── Agenda cards: hover and active state polish ──────────── */
+    .agenda-card {
+      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+@media (hover: hover) {
+.agenda-card:hover {
+        transform: translateY(-2px);
+      }
+}
+
+.agenda-card:active {
+      transform: scale(0.99);
+      transition-duration: 0.08s;
+    }
+
+@media (max-width: 640px) {
+#agenda, #methodology {
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+      }
+}
+
+/* ════════════════════════════════════════════════════════════
+       COHESIVE POLISH PASS — Spacing, alignment & mobile
+       ════════════════════════════════════════════════════════════ */
+
+    /* ── Global tap highlight removal for buttery mobile ────── */
+    a, button, select, input, textarea, [onclick], .dir-card,
+    .pm-filter-chip, .browse-scope-btn, .browse-chip, .filter-chip,
+    .veh-tool-card, .veh-card, .agenda-card, .ftm-lb-card {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+@media (max-width: 480px) {
+#agenda-grid {
+        gap: 0.75rem !important;
+      }
+
+#agenda .mandate-stat-bar {
+        margin-bottom: 1.5rem;
+      }
+
+#agenda .rh-filter-bar {
+        margin-bottom: 1rem;
+      }
+}
+
+/* ── Consistent card border-radius across all sections ────── */
+    .ftm-lb-card,
+    .veh-card,
+    .dir-card.card-holo {
+      border-radius: 1rem;
+    }
+
+/* ── Consistent active filter chip animation ───────────────── */
+    .browse-chip, .rh-chip, .filter-chip {
+      transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+    }
+
+/* ── Agenda section: consistent header spacing ──────────── */
+    #agenda .text-center {
+      margin-bottom: 1.75rem;
+    }
+
+/* ── Consistent hover transition on all anchor-cards ──── */
+    #our-mission .grid > a,
+    #voter-education .veh-card,
+    .agenda-card,
+    .dir-card {
+      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+/* ── Patriot Premium Button Styles, Gradients & Shadows ─────────────── */
+    .btn-glow, 
+    button:not(.close-btn):not(.browse-search-clear), 
+    a.btn-tap {
+      border-radius: 0.75rem;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+/* ── Beautiful Rarity Cards & Hover Glows ────────────────────────────── */
+    .card-holo {
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      background: linear-gradient(145deg, rgba(17, 29, 54, 0.9) 0%, rgba(10, 15, 30, 0.98) 100%) !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+    }
+
+@media (hover: hover) {
+.card-holo:hover {
+        border-color: rgba(255, 255, 255, 0.18) !important;
+        transform: translateY(-6px) scale(1.015) !important;
+      }
+}
+
+@media (max-width: 768px) {
+/* ── 4 · BUTTONS — consistent, thumb-friendly tap targets ──────────── */
+      .kr-action-btn, .kr-mini-btn, .myteam-add-btn, .myteam-remove-btn,
+      .chub-add-btn, .rh-reset-btn { min-height: 46px !important; }
+}
+
+@media (max-width: 768px) {
+/* ── 3 · BUTTONS — round out the remaining small secondary controls ── */
+      .bp-compare-btn,
+      .myteam-slot-compare-btn,
+      .mandate-bottom-cta,
+      .cmp-empty-cta { min-height: 44px !important; }
+}
+
+/* ── Run 1 perf: CSS containment on long, below-the-fold lists/sections. */
+/* content-visibility:auto lets the browser skip layout+paint for off-screen */
+/* content; contain-intrinsic-size (auto + fallback) keeps the scrollbar stable. */
+#digital-library, #dlib-grid,
+#all-spotlights, #shub-grid, #chub-all-grid,
+#stance-library,
+#pdxsec-record,
+#relevant-browse-grid, #li-grid, #pp-grid, #myteam-browse-grid,
+#el-results, #el-pol-results, #el-issue-grid, #el-feat-grid {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 700px;
+}
+
+/* ── Run 3 perf: PER-CARD/ROW containment (extends Run 1 container-level). */
+/* content-visibility:auto lets the browser skip layout+paint for OFF-SCREEN */
+/* cards/rows inside a long on-screen list (the paint-level form of windowing). */
+/* Visible cards render normally; contain-intrinsic-size (auto+fallback) keeps  */
+/* the scrollbar stable. Purely additive and reversible — no DOM/JS change.     */
+.card-holo { content-visibility: auto; contain-intrinsic-size: auto 360px; }

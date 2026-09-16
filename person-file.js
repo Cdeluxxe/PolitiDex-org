@@ -387,7 +387,16 @@
   var SECTION_HASH = {
     gaps: 'pdxsec-gaps',            // What the record can't test yet
     record: 'pdxsec-standout',      // What the formal record points to
-    verdict: 'pdxsec-wordaction'    // Direction Match, where it publishes
+    verdict: 'pdxsec-wordaction',   // Direction Match, where it publishes
+    // Follow the Money's per-person section, whose anchor finance-lane.js has
+    // published as SECTION_ID ('pdxsec-funding') since the letterhead chip
+    // shipped. It gets an alias now because /money is its own document, and the
+    // one thing that address is NOT allowed to do is render a second copy of a
+    // person file: money-room.js forwards /money?p=<pid> to /p/<pid>#money, so
+    // the jump the lane advertises has to resolve here rather than open the file
+    // at the top. The alias is 'money', not 'funding', because that is the word
+    // the lane, the nav and the chip all use out loud.
+    money: 'pdxsec-funding'
   };
   function sectionFromHash(h) {
     try {

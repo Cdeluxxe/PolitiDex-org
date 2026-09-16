@@ -244,9 +244,14 @@ section("3 · the two copied blocks are byte-identical to index.html's");
 const lines = (s) => String(s).split("\n");
 const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 26455, b: 26479, what: "the .pdxis-stance* pill rules" },
-  { from: "index.html", src: INDEX, a: 26498, b: 26619, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 24434, b: 24458, what: "the .pdxis-stance* pill rules" },
+  { from: "index.html", src: INDEX, a: 24477, b: 24598, what: "the PDXStance vocabulary" },
 ];
+// Both index.html ranges moved by −2021 for the three-room split: the People's
+// Mandate, District Voice and Follow the Money became /mandate, /voice and
+// /money, and the agenda wall they took with them sat above both of these
+// blocks. Re-derived by locating each block verbatim in the new index.html — the
+// pill rules came back as 25 lines and the vocabulary as 122, unchanged.
 for (const c of COPIES) {
   const header = new RegExp(`COPIED VERBATIM FROM ${c.from.replace(".", "\\.")} LINES ${c.a}[^0-9]{1,3}${c.b}`);
   ok(header.test(ST), `copy: stances.html declares ${c.what} as ${c.from} ${c.a}–${c.b}`);

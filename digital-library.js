@@ -144,7 +144,11 @@
             hay: ((m.name || '') + ' ' + (m.title || '') + ' ' + keys.map(issueLabel).join(' ')).toLowerCase()
           });
           _openMap[id] = (function (k) {
-            return function () { if (typeof focus === 'function') focus(k); else location.hash = '#agenda'; };
+            // The fallback is /mandate rather than #agenda: the People's Mandate
+            // lane is its own document now, so the fragment no longer reaches a
+            // reform card. focus() is still tried first — when the lane IS on
+            // this document it lands on the exact reform, which a path cannot.
+            return function () { if (typeof focus === 'function') focus(k); else location.assign('/mandate'); };
           })(m.issueKey || keys[0] || '');
         });
       }
@@ -245,7 +249,7 @@
     push('🧾', 'Say vs. Do', 'Receipts where the record met the rhetoric.', rcN, '#f6d873',
       function () { location.hash = '#say-vs-do'; });
     push('✊', 'Mandates & Reforms', 'The citizen-backed reform agenda.', mdN, '#c084fc',
-      function () { location.hash = '#agenda'; });
+      function () { location.assign('/mandate'); });
     push('🏛️', 'Major Bills', 'Every bill & omnibus package, vote by vote.', null, '#5eead4',
       function () { if (typeof window._pdxDlibSetMode === 'function') { window._pdxDlibSetMode('legislation'); var h = document.getElementById('digital-library'); if (h && h.scrollIntoView) h.scrollIntoView({ behavior: 'smooth', block: 'start' }); } else if (window.PDXHR1 && window.PDXHR1.open) { window.PDXHR1.open(); } else { location.hash = '#hr1-showcase'; } });
     push('❤️', 'Community', 'Leads, evidence and debate from the community.', null, '#fca5a5',

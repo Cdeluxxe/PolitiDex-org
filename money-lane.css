@@ -1,0 +1,630 @@
+/* ═════════════════════════════════════════════════════════════════════════════
+   money-lane.css — FOLLOW THE MONEY, DRESSED AT ITS OWN ADDRESS
+   ────────────────────────────────────────────────────────────────────────────
+   WHAT THIS SHEET IS. Every component rule the Follow the Money lane's markup
+   depends on, lifted out of app.css by selector: the .dir-card grid the funding
+   cards are built on, the .pdx-fund-* composition block inside them, the
+   .pdx-fchip filing chip, the donor rows, the sector bars, the pie segments,
+   the .modal-section frame the per-person funding stage borrows, and the
+   site-wide affordances those cards are built out of (.card-holo, .badge-live,
+   .animate-on-scroll, .section-title, .pdx-act-share).
+
+   WHAT IS NOT HERE, AND IT IS THE LANE'S OWN TOKENS. The money pair itself —
+   --pdx-money-fill / --pdx-money-line / --pdx-money-ink / --pdx-money-text, the
+   letterhead chip, the money header and the composition bar — lives in
+   finance-lane.css, which money.html links beside this file. That sheet is the
+   lane's one owner of the pair, it is already self-contained, and copying its
+   :root block here would give the theme a second answer. THIS IS THE ONLY PAGE
+   ON THE SITE WHERE THE GREEN-GOLD MONEY THEME IS THE HOUSE STYLE: it is
+   scoped, on every other document, to the lane's own surfaces.
+
+   WHY IT EXISTS. money.html does not load app.css. That sheet is 986 KB of
+   homepage cascade and the room at /money needs about two percent of it, so the
+   shells follow courts.html's rule — declare what the page needs, inherit
+   nothing from a stylesheet the document does not fetch. Same move
+   evidence.html made for the Evidence Locker and mandate.html made for the
+   Mandate.
+
+   THIS IS A COPY, AND app.css STILL HAS THE ORIGINALS. It was not cut out of
+   that sheet, for one reason: the front page still paints Follow the Money
+   itself. The FTM markup and its tracker are still in index.html — see the
+   refusal note in money.html's banner and in .netlify/results.md — and several
+   of the rules below arrive inside multi-selector lists that also dress
+   .ftm-lb-card (the wealth leaderboard, which did NOT move), .pm-card, .veh-card
+   and .agenda-card. Deleting by selector from a 986 KB sheet is a different job
+   from giving the lane an address, and it is not this one. What IS asserted, by
+   scripts/test-money-shell.mjs, is that this file stays a subset of app.css:
+   every rule here must still match its app.css original, so a change made on
+   one side and not the other fails the suite instead of shipping two money
+   lanes that look different.
+
+   The extraction is mechanical (by selector, rules kept whole), so a few
+   multi-selector rules arrived carrying selectors that match nothing on this
+   document. They are inert and they are left exactly as app.css has them,
+   because rewriting a selector list is how a copy stops being a copy.
+
+   WHAT ELSE IS NOT HERE. No Tailwind utilities — money.html links
+   /css/tailwind.css for those, the same 78 KB sheet index.html uses. No
+   html{scroll-padding-top}: the shell declares its own chrome offset, because
+   the chrome at /money is one row rather than the front page's two. And no
+   0-100 anything: there is no grade, tier, ramp or traffic light in this sheet
+   to colour, because finance-lane.js publishes `scored: false` and there is
+   nothing on this lane for a ramp to read.
+   ═════════════════════════════════════════════════════════════════════════════ */
+
+/* ── The anchored-jump offset this lane's one in-page target needs ──────────
+   Declared here rather than in app.css's homepage measurement, for the same
+   reason mandate-lane.css declares its own: the chrome at this address is one
+   row. */
+#follow-the-money, #ftm-grid { scroll-margin-top: 3.75rem; }
+
+.section-title{ font-size: clamp(2rem,  10vw, 3.5rem); }
+
+/* ── Card holographic effect ───────────────────────── */
+    .card-holo {
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.35s cubic-bezier(0.34,1.4,0.64,1), box-shadow 0.35s ease;
+    }
+
+.card-holo::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        135deg,
+        transparent 20%, rgba(255,255,255,0.05) 40%,
+        rgba(255,255,255,0.11) 50%, rgba(255,255,255,0.05) 60%,
+        transparent 80%
+      );
+      background-size: 200% 200%;
+      opacity: 0;
+      transition: opacity 0.35s;
+      z-index: 2;
+      pointer-events: none;
+      border-radius: inherit;
+    }
+
+@media (hover: hover) {
+.card-holo:hover::before { opacity: 1; animation: shimmer 1.5s linear infinite; }
+
+.card-holo:hover {
+        transform: translateY(-7px) scale(1.012);
+        box-shadow: 0 22px 60px rgba(0,0,0,0.55), 0 0 32px rgba(192,21,42,0.16);
+      }
+}
+
+.card-holo:active { transform: scale(0.975); transition: transform 0.12s ease; }
+
+/* ── Scroll-triggered fade in ──────────────────────── */
+    .animate-on-scroll {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+.animate-on-scroll.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Badge pulse ───────────────────────────────────── */
+    .badge-live { animation: pulse2 2s ease-in-out infinite; }
+
+/* ── Directory cards ───────────────────────────────── */
+    .dir-card { cursor: pointer; }
+
+@media (hover: hover) {
+.dir-card:hover .dir-card-name { color: #f0213c; }
+}
+
+.dir-card .dir-score-bar { transition: width 0.9s cubic-bezier(0.4,0,0.2,1); }
+
+.modal-section {
+      /* Tapered hairline divider — fades left-to-right so each section reads as
+         a distinct, letterhead-style block without the flat, boxy look of a
+         full-width rule. The shared gap keeps every section on the same rhythm. */
+      border-top: 1px solid transparent;
+      border-image: linear-gradient(90deg, rgba(255,255,255,0.17), rgba(255,255,255,0.05) 55%, rgba(255,255,255,0)) 1;
+      margin-top: var(--modal-gap); padding-top: calc(var(--modal-gap) - 0.15rem);
+      scroll-margin-top: 0.75rem;
+    }
+
+.modal-section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: 0.12em; font-size: 1.2rem;
+      color: #dbe6f6; margin-bottom: 0.95rem;
+      text-transform: uppercase;
+      display: flex; align-items: center; gap: 0.55rem;
+    }
+
+/* Leading accent rule gives every section a consistent, ledger-like
+       anchor on the left — strengthens the scan hierarchy without clutter. */
+    .modal-section-title::before {
+      content: ""; flex-shrink: 0;
+      width: 3px; height: 1.05em; border-radius: 2px;
+      background: currentColor; opacity: 0.9;
+    }
+
+/* Short descriptive line under a section title — sets context so each
+       profile section reads as a self-contained, professional block. Pulled
+       snug to the title, then a clear gap before the section's content. */
+    .modal-section-sub {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.74rem;
+      color: #8ba6cc; line-height: 1.5; margin: -0.45rem 0 0.95rem;
+      letter-spacing: 0.01em;
+    }
+
+/* Zero-height in-flow markers the pills scroll to. scroll-margin keeps a
+       section clear of the sticky rail even on native anchor jumps. */
+    .pdx-nav-anchor { display: block; height: 0; scroll-margin-top: 4.25rem; }
+
+@media print {
+nav, #modal-overlay, #comment-overlay, .animate-float, .badge-live, .stars-bg, .scanline { display: none !important; }
+
+.card-holo { box-shadow: none !important; border: 1px solid #ddd !important; background: #f9f9f9 !important; }
+}
+
+/* ── Campaign Finance / Follow the Money ──────── */
+    .ftm-sector-bar {
+      height: 20px; border-radius: 4px; transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+      position: relative; overflow: hidden;
+    }
+
+.ftm-sector-bar::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%);
+      background-size: 200% 100%; animation: shimmer 3s linear infinite;
+    }
+
+.ftm-donor-row { border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.14s; }
+
+.ftm-donor-row:last-child { border-bottom: none; }
+
+@media (hover: hover) {
+.ftm-donor-row:hover { background: rgba(255,255,255,0.025); }
+}
+
+.ftm-pie-segment { transition: opacity 0.2s; }
+
+.ftm-pie-segment:hover { opacity: 0.8; }
+
+/* ── Funding chip — compact, at-a-glance "who funds them" indicator ──────
+       A single reusable pill used on Home Team ballot cards (and reusable on
+       other surfaces later). Mirrors the Compare page's 🌱/⚖️/🏦 colour system:
+       green = grassroots, amber = mixed, red = big-money, steel = unknown. */
+    .pdx-fchip {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      border-radius: 0.5rem; padding: 0.16rem 0.5rem;
+      font-size: 0.62rem; letter-spacing: 0.03em; line-height: 1.25; white-space: nowrap;
+    }
+
+.pdx-fchip .pdx-fchip-ico { font-size: 0.78rem; line-height: 1; }
+
+.pdx-fchip b { font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 0.95rem; letter-spacing: 0.02em; }
+
+.pdx-fchip .pdx-fchip-word { font-size: 0.5rem; letter-spacing: 0.09em; text-transform: uppercase; opacity: 0.85; }
+
+/* THE DONOR-MIX RAMP IS GONE, AND THIS IS THE BAN, NOT A RESTYLE.
+       These five rules were a green → amber → red ladder keyed to how much of a
+       filing came from small donors: is-grass green, is-mixed amber, is-big red.
+       That is the retired 0-100 Constituents-First grade — its three levels, its
+       three colours, its cut-offs — surviving as CSS after the arithmetic was
+       deleted. A reader did not need the tooltip to know which pill they were
+       meant to disapprove of, which is exactly what a colour ramp is for.
+         All five states now take the one money pair, at one weight. The dollar
+       figure and the mix word inside still say what the filing says; the pill
+       says only "this is the money lane". is-none is no longer dashed either:
+       an outline that frays when there is no filing reads as an unfinished
+       record rather than an absent one, and the absence is the archive's, not
+       the person's. Missing data stays words. */
+    .pdx-fchip.is-grass,
+    .pdx-fchip.is-mixed,
+    .pdx-fchip.is-big,
+    .pdx-fchip.is-unknown,
+    .pdx-fchip.is-none {
+      color: var(--pdx-money-text, #bcd3c6);
+      background: var(--pdx-money-fill, rgba(15, 61, 46, 0.55));
+      border: 1px solid var(--pdx-money-line-soft, rgba(201, 153, 47, 0.45));
+    }
+
+.pdx-fchip .pdx-fchip-ico { color: var(--pdx-money-line, #c9992f); }
+
+.pdx-fchip b { color: var(--pdx-money-ink, #e3c176); }
+
+.pdx-fchip.is-none b, .pdx-fchip.is-none .pdx-fchip-word {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; letter-spacing: 0.03em; text-transform: none; opacity: 1;
+    }
+
+/* ── Profile "Money & Funding" section — the full, scannable read on a
+       politician profile. Same lookup + language as Compare, laid out for a
+       single profile: two stat tiles (raised · top funder), the funding-base
+       character chip, an optional "why it matters" note, and one-tap paths to
+       the primary filings and into a side-by-side Compare. */
+    .pdx-fund .pdx-fund-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 0.7rem; }
+
+.pdx-fund-stat { background: rgba(10,15,30,0.55); border: 1px solid rgba(159,180,212,0.16); border-radius: 0.7rem; padding: 0.7rem 0.8rem; min-width: 0; }
+
+.pdx-fund-stat-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: #7596c0; margin-bottom: 0.25rem; }
+
+.pdx-fund-raised { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; line-height: 1; color: var(--pdx-money-ink, #e3c176); }
+
+.pdx-fund-top-name { font-size: 0.84rem; font-weight: 700; color: #dbe6f5; line-height: 1.2; word-break: break-word; }
+
+.pdx-fund-top-amt { font-family: 'Barlow Condensed', sans-serif; font-size: 0.64rem; letter-spacing: 0.04em; color: #7596c0; margin-top: 0.15rem; text-transform: capitalize; }
+
+.pdx-fund-dim { color: #7d92b5; font-weight: 600; font-style: italic; }
+
+/* THE SIZE TIER AND THE DONOR-MIX PILL ARE DELETED, NOT DORMANT.
+       `.pdx-fund-scale` painted "Large war chest" / "Modest war chest" — a
+       three-step ranking of a dollar figure printed in full an inch away — and
+       `.pdx-fund-base` painted the "Grassroots / Mixed / Big-money" pill that was
+       the retired Constituents-First grade's three levels written as prose. The
+       money section now leads with PDXFinanceLane.countsHtml instead, so nothing
+       emits either class. The rules go with the markup: a retired grade with live
+       CSS waiting for it is a retired grade that comes back. */
+    .pdx-fund-why { font-size: 0.76rem; color: #b9cae3; line-height: 1.6; margin: 0 0 0.7rem; padding: 0.55rem 0.7rem; background: rgba(139,92,246,0.06); border-left: 2px solid rgba(139,92,246,0.4); border-radius: 0.4rem; }
+
+.pdx-fund-why strong { color: #c4b5fd; }
+
+.pdx-fund-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+
+.pdx-fund-src, .pdx-fund-cmp {
+      display: inline-flex; align-items: center; gap: 0.3rem; cursor: pointer;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.66rem;
+      letter-spacing: 0.06em; text-transform: uppercase; text-decoration: none;
+      padding: 0.4rem 0.7rem; border-radius: 0.5rem; transition: all 0.15s;
+    }
+
+.pdx-fund-src { color: #93c5fd; background: rgba(59,130,246,0.08); border: 1px solid rgba(96,165,250,0.28); }
+
+.pdx-fund-src:hover { color: #bfdbfe; border-color: rgba(96,165,250,0.55); background: rgba(59,130,246,0.16); }
+
+.pdx-fund-cmp { color: #c4b5fd; background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.32); }
+
+.pdx-fund-cmp:hover { color: #ddd6fe; border-color: rgba(139,92,246,0.6); background: rgba(139,92,246,0.2); }
+
+/* ONE DOOR IN BOTH STATES, INCLUDING THE FRAME. This box used to draw itself
+       with `1px dashed` and dim its 💰 to 0.8 opacity, which is the money lane's
+       own stated ban: "Missing data stays words — never a dimmer pill, a dashed
+       frame or a greyer glyph" (FINANCE_INTEGRITY.md). A dashed, faded panel
+       announces an unfinished thing before the words are read, and an
+       untranscribed filing is a fact about our archive rather than about the
+       person the panel is sitting on. Solid, full-strength, same money pair as
+       the on-file blocks; only the sentence inside differs. */
+    .pdx-fund-none { display: flex; gap: 0.7rem; align-items: flex-start; padding: 0.8rem 0.9rem; background: var(--pdx-money-fill, rgba(15, 61, 46, 0.55)); border: 1px solid var(--pdx-money-line-soft, rgba(201, 153, 47, 0.45)); border-left: 3px solid var(--pdx-money-line, #c9992f); border-radius: 0.7rem; margin-bottom: 0.7rem; }
+
+.pdx-fund-none-ico { font-size: 1.5rem; line-height: 1; }
+
+.pdx-fund-none-t { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.9rem; letter-spacing: 0.03em; color: #c8d6ec; }
+
+.pdx-fund-none-s { font-size: 0.74rem; color: #9fb4d4; line-height: 1.5; margin-top: 0.15rem; }
+
+/* Card highlight when checked */
+    .card-holo:has(.compare-cb:checked),
+    .card-holo.cmp-highlight {
+      box-shadow: 0 0 0 2px #3b82f6, 0 0 20px rgba(59,130,246,0.25) !important;
+    }
+
+/* ── Pokédex-style Profile Directory ────────────────────── */
+    .dir-card-photo {
+      width: 52px; height: 52px; border-radius: 50%; overflow: hidden;
+      flex-shrink: 0; border: 2px solid rgba(255,255,255,0.1);
+      background: rgba(30,53,96,0.4); transition: border-color 0.2s;
+    }
+
+.dir-card:hover .dir-card-photo { border-color: rgba(192,21,42,0.5); }
+
+.dir-card-photo img { width:100%; height:100%; object-fit:cover; object-position:top center; }
+
+.card-holo {
+      transition: transform 0.32s cubic-bezier(0.34,1.4,0.64,1), box-shadow 0.32s ease;
+    }
+
+@media (hover: hover) {
+.card-holo:hover .tracker-hs {
+        border-color: rgba(192,21,42,0.4) !important;
+        box-shadow: 0 3px 14px rgba(0,0,0,0.45), 0 0 10px rgba(192,21,42,0.14);
+      }
+}
+
+/* ── Photo placeholder styling ─────────────────────────── */
+    .pm-card-photo-placeholder, .dir-card-photo-placeholder {
+      background: linear-gradient(135deg, rgba(30,53,96,0.7), rgba(10,15,30,0.8));
+      font-size: 1.4rem;
+    }
+
+.pm-card-photo img, .dir-card-photo img, .tracker-hs img, .modal-headshot img {
+      transition: opacity 0.35s ease;
+    }
+
+@media (max-width: 640px) {
+.card-holo .px-4 { padding-left: 0.875rem; padding-right: 0.875rem; }
+
+.card-holo .sm\:px-5 { padding-left: 0.875rem; padding-right: 0.875rem; }
+
+.section-title {
+        font-size: clamp(1.8rem, 8vw, 3rem);
+      }
+}
+
+/* ── Premium feel: text-shadow on titles ───────────────── */
+    .section-title {
+      text-shadow: 0 2px 24px rgba(0,0,0,0.45), 0 0 8px rgba(192,21,42,0.06);
+    }
+
+/* ════════════════════════════════════════════════════════════
+       FINAL POLISH PASS — Premium refinements
+       ════════════════════════════════════════════════════════════ */
+
+    /* ── GPU-accelerated transforms for smoother animations ── */
+    .card-holo, .btn-glow, .pm-card, .veh-tool-card,
+    .tr-slide, .pm-btn-profile, .pm-btn-compare,
+    .tr-btn-learn, .tr-btn-support, .tr-propose-btn,
+    .like-btn,
+    .agenda-vote-up, .agenda-vote-down, .nav-link::after,
+    #our-mission .grid > a, .venmo-qr-frame {
+      will-change: transform;
+    }
+
+@media (hover: hover) {
+.dir-card:hover {
+        box-shadow: 0 8px 28px rgba(0,0,0,0.35), 0 0 12px rgba(192,21,42,0.06);
+      }
+}
+
+@media (hover: hover) {
+.dir-card:hover .score-ring svg circle:last-child {
+        filter: drop-shadow(0 0 4px currentColor);
+        transition: filter 0.3s ease;
+      }
+}
+
+@media (max-width: 640px) {
+.section-title {
+        letter-spacing: 0.06em;
+      }
+}
+
+/* ── Compare Hub cards: smooth selection ───────────────── */
+    .card-holo:has(.compare-cb:checked),
+    .card-holo.cmp-highlight {
+      transition: box-shadow 0.3s ease;
+    }
+
+/* ── Smoother progress-fill bars everywhere ────────────── */
+    .progress-fill, .dir-score-bar, .cmp-bar-fill, .ftm-sector-bar {
+      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+/* ── Section titles: consistent gradient underline ─────────── */
+    .section-title {
+      position: relative;
+      display: inline-block;
+    }
+
+@media (max-width: 640px) {
+.dir-card {
+        border-radius: 0.75rem;
+      }
+}
+
+/* ── Smooth image loading: fade in on load ─────────────────── */
+    .pm-card-photo img, .dir-card-photo img,
+    .tracker-hs img, .modal-headshot img,
+    .chub-card img {
+      opacity: 1;
+      transition: opacity 0.4s ease;
+    }
+
+@media (max-width: 640px) {
+.section-title {
+        font-size: clamp(1.8rem, 9vw, 3rem) !important;
+        word-break: break-word;
+      }
+
+#profiles .section-title .text-steel-400 {
+        display: block;
+        margin-top: 0.25rem;
+        font-size: 0.85rem;
+      }
+}
+
+@media (max-width: 640px) {
+#profiles .dir-card {
+        padding: 0.625rem;
+      }
+
+.dir-card-photo {
+        width: 44px;
+        height: 44px;
+      }
+
+.dir-card-name {
+        font-size: 0.88rem;
+      }
+}
+
+@media (max-width: 640px) {
+#wealth-leaderboard .section-title {
+        font-size: clamp(1.6rem, 8vw, 2.8rem) !important;
+      }
+}
+
+@media (max-width: 640px) {
+#follow-the-money .section-title {
+        font-size: clamp(1.6rem, 8vw, 2.8rem) !important;
+      }
+
+.ftm-sector-bar {
+        height: 16px;
+      }
+}
+
+@media (max-width: 640px) {
+#methodology .section-title {
+        font-size: clamp(1.8rem, 9vw, 3rem) !important;
+      }
+}
+
+@media (max-width: 480px) {
+#compare-hub .section-title {
+        font-size: clamp(1.8rem, 9vw, 3rem) !important;
+      }
+}
+
+@media (max-width: 640px) {
+#tracker .section-title {
+        font-size: clamp(1.8rem, 9vw, 3rem) !important;
+      }
+}
+
+/* ════════════════════════════════════════════════════════════
+       COHESIVE POLISH PASS — Spacing, alignment & mobile
+       ════════════════════════════════════════════════════════════ */
+
+    /* ── Global tap highlight removal for buttery mobile ────── */
+    a, button, select, input, textarea, [onclick], .dir-card,
+    .pm-filter-chip, .browse-scope-btn, .browse-chip, .filter-chip,
+    .veh-tool-card, .veh-card, .agenda-card, .ftm-lb-card {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+/* ── Consistent section title bottom margin ───────────────── */
+    #hot-topics .section-title,
+    #voter-education .section-title,
+    #our-mission .section-title,
+    #wealth-leaderboard .section-title,
+    #follow-the-money .section-title,
+    #methodology .section-title {
+      margin-bottom: 0.75rem;
+    }
+
+/* ── Consistent card border-radius across all sections ────── */
+    .ftm-lb-card,
+    .veh-card,
+    .dir-card.card-holo {
+      border-radius: 1rem;
+    }
+
+/* ── Smooth image loading placeholders ─────────────────────── */
+    .dir-card-photo, .pm-card-photo, .modal-headshot,
+    .cmp-col-avatar, .ftm-lb-card [style*="border-radius:50%"] {
+      background: rgba(30,53,96,0.4);
+    }
+
+/* ── Consistent hover transition on all anchor-cards ──── */
+    #our-mission .grid > a,
+    #voter-education .veh-card,
+    .agenda-card,
+    .dir-card {
+      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+@media (max-width: 640px) {
+#trending-reforms .section-title {
+        font-size: clamp(1.8rem, 9vw, 3rem) !important;
+      }
+}
+
+/* ── Card photo placeholders: consistent size ──────────── */
+    .dir-card-photo,
+    .pm-card-photo,
+    .tracker-hs {
+      flex-shrink: 0;
+    }
+
+/* ── Beautiful Rarity Cards & Hover Glows ────────────────────────────── */
+    .card-holo {
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      background: linear-gradient(145deg, rgba(17, 29, 54, 0.9) 0%, rgba(10, 15, 30, 0.98) 100%) !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+    }
+
+@media (hover: hover) {
+.card-holo:hover {
+        border-color: rgba(255, 255, 255, 0.18) !important;
+        transform: translateY(-6px) scale(1.015) !important;
+      }
+}
+
+@media (max-width: 768px) {
+/* Better Mobile Card Padding & Clean Alignment */
+      .pm-card, .dir-card, .ftm-lb-card {
+        padding: 1.15rem !important;
+        margin-bottom: 0.5rem;
+      }
+}
+
+@media (max-width: 768px) {
+/* Directory / leaderboard cards stay roomy and single column too. */
+      .dir-card { padding: 1.1rem !important; }
+
+#modal-body, #modal-body p, #modal-body a, #modal-body li, #modal-body td,
+      .modal-section, .modal-section-sub {
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+
+.modal-section { padding-top: 1.25rem !important; }
+
+.modal-section-title { font-size: 1.02rem !important; }
+}
+
+/* ── Compact card Share button — shared by the unified browse action row
+       (_pdxTeamActions) and the lightweight compare/profile row
+       (_pdxCompareActions). Icon-only and calm so it sits beside Compare /
+       Profile without competing with the primary "Add to My Team" action. */
+    .pdx-act-share {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      min-width: 38px;
+      padding: 0 0.55rem;
+      background: rgba(30,53,96,0.4);
+      border: 1px solid rgba(117,150,192,0.22);
+      color: #9fb4d4;
+      border-radius: 0.6rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+.pdx-act-share:hover {
+      background: rgba(30,53,96,0.62);
+      border-color: rgba(117,150,192,0.45);
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 3px 12px rgba(0,0,0,0.25);
+    }
+
+.pdx-act-share svg { width: 1rem; height: 1rem; }
+
+@media (max-width: 640px) {
+.pdx-act-share { min-height: 44px; min-width: 44px; }
+}
+
+/* In the lightweight flex row, keep Share compact instead of stretching to
+       a full-width child like Compare/Profile do on phones. */
+    .pdx-snap-actions > button.pdx-act-share { flex: 0 0 auto !important; min-width: 44px; padding: 0 0.6rem !important; }
+
+@media (max-width: 768px) {
+/* ── 1 · READABILITY — comfortable leading for body copy on phones ──── */
+      #our-mission p, #voter-academy p, #trending-reforms p,
+      #modal-body p, .modal-section p, .modal-section li {
+        line-height: 1.62 !important;
+      }
+
+.dir-card { margin-bottom: 0 !important; }
+}
+
+@media (max-width: 768px) {
+/* ── 5 · READABILITY — a little more vertical rhythm between sections
+         and their lead paragraphs on small screens. */
+      .section-title { line-height: 1.05 !important; }
+}
+
+/* ── Run 3 perf: PER-CARD/ROW containment (extends Run 1 container-level). */
+/* content-visibility:auto lets the browser skip layout+paint for OFF-SCREEN */
+/* cards/rows inside a long on-screen list (the paint-level form of windowing). */
+/* Visible cards render normally; contain-intrinsic-size (auto+fallback) keeps  */
+/* the scrollbar stable. Purely additive and reversible — no DOM/JS change.     */
+.card-holo { content-visibility: auto; contain-intrinsic-size: auto 360px; }

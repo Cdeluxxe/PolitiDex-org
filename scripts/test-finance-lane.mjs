@@ -308,7 +308,11 @@ const L = laneBox().PDXFinanceLane;
   const onFile = L.entryHtml(SEED_IDS[0]);
   ok(onFile.length > 100, "the on-file entry row renders");
   has(visible(onFile), "Campaign finance", "…labelled as the finance lane");
-  has(onFile, 'href="#follow-the-money"', "…and it is the door into the full breakdown");
+  // THE DOOR IS AN ADDRESS NOW. This row is printed on person and issue files
+  // as well as on the front page, where "#follow-the-money" named nothing at
+  // all; the lane is /money, one document, and the link resolves from every
+  // surface that prints it.
+  has(onFile, 'href="/money"', "…and it is the door into the full breakdown");
   has(visible(onFile), "Largest reported source", "…naming the largest reported source");
   ok(/\$\d/.test(visible(onFile)), "…in dollars");
 

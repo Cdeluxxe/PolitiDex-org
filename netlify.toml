@@ -817,6 +817,125 @@
   to = "/courts.html"
   status = 200
 
+# ═════════════════════════════════════════════════════════════════════════════
+# THE THREE SIDE LANES GET THEIR OWN DOCUMENTS
+#   /mandate -> mandate.html   /voice -> voice.html   /money -> money.html
+# ─────────────────────────────────────────────────────────────────────────────
+# WHAT THESE ADDRESSES FIX. The front page was hosting three whole rooms in its
+# own body. The People's Mandate was a 112 KB section, an 8 KB submit modal and
+# 62 KB of inline script; Follow the Money was a 11 KB section over 64 KB of
+# inline tracker; District Voice had no front-page address at all — it was a
+# block inside a district file, and /d/<seat-key> is itself a rewrite to
+# index.html. So every reader of a two-megabyte document paid for all three,
+# including the reader who arrived to answer "who represents me" and nothing
+# else, and a reader who wanted one of the three had nothing to bookmark, nothing
+# to send, and nothing that survived a reload. #agenda and #follow-the-money were
+# scroll positions, not places, and a District Voice reader had to already know
+# their seat key.
+#
+# THREE ROOMS, THREE DOCUMENTS, ON THE PATTERN /me AND /courts ALREADY SET: no
+# app.css, no compare-hub.js, no ballot-breakdown.js, no Door 1 work layer, no
+# Evidence Locker template, no Who Represents Me card, no ballot workspace and no
+# homepage hero on any of the three. Each loads its own lane's module(s), the
+# shared bar sheet, and the smallest auth surface that can answer "is somebody
+# signed in" — which is shell-account-chip.js, 9 KB against compare-hub.js's
+# 758 KB, answering the identical three-state contract.
+#
+# THE FRONT PAGE KEEPS THE DOORS. A short card that names the lane and links to
+# it, exactly as it keeps one for /courts and one for /evidence — and the card
+# prints no count: a tally on the front page is a read the door does not need
+# and a second place for one number to be wrong. The room moved; the door
+# stayed.
+#
+# WHY THESE THREE SPELLINGS AND NO FOURTH. /mandate, /voice and /money are the
+# whole set. No /peoples-mandate, no /district-voice, no /follow-the-money and no
+# alias for any of them: two live 200 spellings of one document split the
+# canonical, which is the ambiguity the /locker -> /evidence 301 below exists to
+# remove. The old front-page hashes are not redirected here either — they cannot
+# be, because a fragment never reaches the server. index.html forwards a reader
+# who lands on #agenda, #follow-the-money or #district-voice to the room that
+# now owns it (see the LANE table in its <head>, and the same table in
+# stances.html and evidence.html), and on arrival the fragment is handled by the
+# room: #agenda is a real element id inside mandate.html, so the browser's own
+# anchor handling lands it, and money-room.js clears the stale
+# #follow-the-money with replaceState in one hop so the address bar settles on
+# /money. /voice has no inbound hash to answer — District Voice never had a
+# front-page fragment; that is the reason the address exists.
+#
+# ORDER: SIX EXACT PATHS, NO PREFIX, NO SPLAT — AND THE POSITION IS A STATED
+# NO-OP, on the same terms as /me and /courts above. All six are disjoint by
+# inspection of the literal strings from /p/*, /i/*, /issue/*, /ballot, /me,
+# /stances, /evidence, /courts, /vote/*, /d/*, /b/* and /locker, so declaring
+# them here is correct and would also have been correct anywhere else in the
+# file. THE INVARIANT WRITTEN DOWN FOR THE NEXT PERSON TO ADD A RULE ABOVE:
+# nothing that matches these six paths may be declared earlier, and the day a
+# prefix rule or a catch-all appears — an SPA "rewrite everything to index.html"
+# is the one that would silently eat all six — these exact paths must stay in
+# front of it, exactly as /me's and /courts' do. There is no catch-all in this
+# file today; that is a property to preserve, not an accident to rely on.
+# scripts/test-mandate-shell.mjs, test-voice-shell.mjs and test-money-shell.mjs
+# each assert their own pair is present, is a 200, points at its own .html, and
+# is not preceded by anything that matches it.
+# ═════════════════════════════════════════════════════════════════════════════
+[[redirects]]
+  from = "/mandate"
+  to = "/mandate.html"
+  status = 200
+
+# The trailing-slash form, declared rather than left to a redirect, so a pasted
+# /mandate/ is the room instead of a hop. It is ALSO why every same-origin path
+# inside mandate.html is root-absolute, with no exceptions: served at /mandate/,
+# a bare src="mandate-lane.js" resolves to /mandate/mandate-lane.js, this rule
+# answers that with the HTML document, the browser parses HTML as JavaScript, and
+# the reader gets an empty room with no error that names the cause.
+# scripts/test-mandate-shell.mjs fails the build if a relative same-origin path
+# ever appears in that document. ballot.html, me.html, stances.html, evidence.html
+# and courts.html carry the same rule for the same reason.
+[[redirects]]
+  from = "/mandate/"
+  to = "/mandate.html"
+  status = 200
+
+# DISTRICT VOICE, AND THE SEAT FILE IS NOT BEING REPLACED. /d/<seat-key> is
+# still where a SEAT is read and it still rewrites to index.html; /voice is where
+# a READER is placed — it asks district-voice.js which seat the reader's own
+# saved location names and mounts that seat's board, or prints the honest standing
+# when there is no location, no lane in that state, or no board open in the seat
+# yet. One owner answers both addresses, so the two can never disagree.
+[[redirects]]
+  from = "/voice"
+  to = "/voice.html"
+  status = 200
+
+# The trailing-slash form. Same root-absolute rule as above, for the same reason:
+# served at /voice/, a bare src="district-voice.js" would be answered with this
+# HTML document. scripts/test-voice-shell.mjs fails the build on a relative
+# same-origin path in voice.html.
+[[redirects]]
+  from = "/voice/"
+  to = "/voice.html"
+  status = 200
+
+# FOLLOW THE MONEY. The lane's own address, and the only page on this site where
+# the green-gold money pair is the house style. No 0-100, no grass/mixed/big
+# traffic light, no per-person funding grade: finance-lane.js publishes
+# `scored: false` and a NEVER_FEEDS wall, and this document borrows both rather
+# than restating either. ?p=<pid> on this path is a JUMP, not a second person
+# file — money-room.js forwards it to /p/<pid> and the money section that already
+# exists there.
+[[redirects]]
+  from = "/money"
+  to = "/money.html"
+  status = 200
+
+# The trailing-slash form. Same root-absolute rule as above.
+# scripts/test-money-shell.mjs fails the build on a relative same-origin path in
+# money.html.
+[[redirects]]
+  from = "/money/"
+  to = "/money.html"
+  status = 200
+
 # THE OLD LOCKER ADDRESS, NOW AN ALIAS. /locker was a 200 rewrite to index.html
 # from the pass that first put the locker behind a door: the front page was the
 # only document that held the workspace, so /locker had to be the front page,

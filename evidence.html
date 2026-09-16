@@ -1079,7 +1079,7 @@
   })();
   </script>
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 26498–26618 ═══════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 24477–24597 ═══════════════════
        PDXStance — the four-state stance language, and ONE OF EXACTLY TWO
        unguarded global reads in evidence-locker.js. _elStancePill (line 3256)
        and _issueFocusStanceChip (line 3850) both call
@@ -1423,12 +1423,23 @@
     // _wireRoutes re-opens on it), so it is deliberately absent from the table.
     // The rest are homepage sections reachable from the workspace's cross-links,
     // and #stance-library is the other room.
-    var HASH_HOME = { 'open-forum': 1, 'agenda': 1, 'issue-front-door': 1, 'all-spotlights': 1 };
+    //
+    // THREE OF THEM STOPPED BEING HOMEPAGE SECTIONS IN v211. The People's
+    // Mandate, Follow the Money and District Voice are documents now, so they
+    // move out of HASH_HOME and into the room table below: /#agenda would land
+    // the reader on the front page's door card, which is one hop short of the
+    // reforms they asked for.
+    var HASH_ROOM = {
+      'agenda': '/mandate', 'mandate': '/mandate', 'peoples-mandate': '/mandate',
+      'follow-the-money': '/money', 'district-voice': '/voice'
+    };
+    var HASH_HOME = { 'open-forum': 1, 'issue-front-door': 1 };
     function onHash() {
       var h = String(location.hash || '').replace(/^#/, '');
       if (!h) return;
       if (h === 'stance-library') { go('/stances'); return; }
       if (h === 'all-spotlights') { go('/stances#all-spotlights'); return; }
+      if (HASH_ROOM[h]) { go(HASH_ROOM[h]); return; }
       if (HASH_HOME[h]) { go('/#' + h); return; }
     }
 

@@ -395,7 +395,10 @@
         '<div class="pdx-ilx-fnote">Itemized public filings' +
           (sig.cycle ? ' · ' + esc(String(sig.cycle)) : '') +
           ' · composition as filed, not a score</div>' +
-        '<a class="pdx-ilx-morelink" href="#follow-the-money">Full finance breakdown →</a>' +
+        // /money, not #follow-the-money: this column is printed on person files and
+        // issue files as well as the front page, and the fragment only ever
+        // resolved on one of them.
+        '<a class="pdx-ilx-morelink" href="/money">Full finance breakdown →</a>' +
       '</div>';
   }
 

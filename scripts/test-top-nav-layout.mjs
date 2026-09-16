@@ -255,7 +255,12 @@ ok(/<span>JOIN THE PEOPLE<\/span>/.test(HUB), 'the account button still says JOI
 
 /* Every control the report names is still in the bar, with its handler intact. */
 for (const [needle, what] of [
-  ['href="#agenda" class="nav-mandate-btn', '✊ Mandate'],
+  /* The address, not the fragment. #agenda was a scroll position on this
+     document; the People's Mandate is /mandate now, and the pill in the bar is
+     the door to it. The CONTROL is what this line pins — it is still in the bar,
+     still styled by nav-mandate-btn, still reachable at every width measured
+     below — and pinning the old hash would demand the room move back. */
+  ['href="/mandate" class="nav-mandate-btn', '✊ Mandate'],
   ['href="#local-issues"', '🔦 Local Issues'],
   ['href="#community-exchange" class="pdx-navmenu__btn', 'Community'],
   ['id="wc-bell"', 'the notification bell'],
