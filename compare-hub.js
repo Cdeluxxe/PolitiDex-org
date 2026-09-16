@@ -1029,36 +1029,54 @@
               var _nextLoc = JSON.stringify(data.voter_location);
               localStorage.setItem('politidex_voter_location', _nextLoc);
               if (typeof window.loadVoterLocation === 'function') window.loadVoterLocation();
-              var _ls = document.getElementById('voter-state-sel');
-              if (_ls) _ls.value = data.voter_location.state || '';
-              // The light half now: these three write text into lines that are
-              // already on screen, and a reader whose area has just been restored
-              // should see it named rather than watch a stale one.
-              ['updateRelevantLocationText','updateMyTeamLocationText','_vhSyncBanner'].forEach(function(fn) {
-                try { if (typeof window[fn] === 'function') window[fn](); } catch(e) {}
-              });
-              // The heavy half — five grid rebuilds, one of which is the whole
-              // relevant-to-me tree — one frame later, and ONLY when the restored
-              // area is not the one this device already had. An unchanged area
-              // skips this entirely: nothing to re-rank, so renderRelevantToMe is
-              // not deferred, not queued, not called.
+              // THE OWNER DECIDES WHETHER THIS IS A PLACE, AND NOTHING BELOW RUNS
+              // UNTIL IT HAS SAID SO. loadVoterLocation() reads a saved record back
+              // only when it carries the provenance stamp saveVoterLocation() writes,
+              // or has the shape of a gesture that predates the stamp — the gate that
+              // stops an IP guess from becoming "You are set to Utah". A mirrored
+              // record from before that stamp existed can fail it, and this block
+              // used to paint the state into the selector and three lines of copy
+              // regardless: a state label on screen that the store itself had
+              // declined, which is the same invented place arriving by another door.
+              // Asking _hasUserLocation keeps ONE gate in ONE place — this file does
+              // not re-derive the test — and a member whose mirrored record is not
+              // read simply sets their location once, exactly as a guest would.
               //
-              // AND WHEN IT DID CHANGE IT IS ONE PASS. This used to take the paint
-              // hold around the fan-out, which meant the release then flushed the
-              // engine's sixteen-wide refresh over the same grids the fan-out had
-              // just rebuilt — a location change cost two whole-surface passes plus
-              // an idle wait. No hold here: the list below already names
-              // renderRelevantToMe, and myteamBrowseFilter's own tail call to it is
-              // suppressed for the duration so the tree is rebuilt once.
-              if (_prevLoc !== _nextLoc) {
-                _syncSoon(function() {
-                  _chubRosterOnly++;
-                  try {
-                    ['_updateTeamPositionsForLocation','updateRacesAndPositions','_vhBallotRerender','renderRelevantToMe','myteamBrowseFilter','pmFilterLocation'].forEach(function(fn) {
-                      try { if (typeof window[fn] === 'function') window[fn](); } catch(e) {}
-                    });
-                  } finally { _chubRosterOnly--; }
+              // A CONDITIONAL RATHER THAN AN EARLY RETURN: the enclosing callback
+              // still has the potential/favourites grid rebuilds to do after this
+              // block, and they are not about this reader's location.
+              if (window._hasUserLocation) {
+                var _ls = document.getElementById('voter-state-sel');
+                if (_ls) _ls.value = data.voter_location.state || '';
+                // The light half now: these three write text into lines that are
+                // already on screen, and a reader whose area has just been restored
+                // should see it named rather than watch a stale one.
+                ['updateRelevantLocationText','updateMyTeamLocationText','_vhSyncBanner'].forEach(function(fn) {
+                  try { if (typeof window[fn] === 'function') window[fn](); } catch(e) {}
                 });
+                // The heavy half — five grid rebuilds, one of which is the whole
+                // relevant-to-me tree — one frame later, and ONLY when the restored
+                // area is not the one this device already had. An unchanged area
+                // skips this entirely: nothing to re-rank, so renderRelevantToMe is
+                // not deferred, not queued, not called.
+                //
+                // AND WHEN IT DID CHANGE IT IS ONE PASS. This used to take the paint
+                // hold around the fan-out, which meant the release then flushed the
+                // engine's sixteen-wide refresh over the same grids the fan-out had
+                // just rebuilt — a location change cost two whole-surface passes plus
+                // an idle wait. No hold here: the list below already names
+                // renderRelevantToMe, and myteamBrowseFilter's own tail call to it is
+                // suppressed for the duration so the tree is rebuilt once.
+                if (_prevLoc !== _nextLoc) {
+                  _syncSoon(function() {
+                    _chubRosterOnly++;
+                    try {
+                      ['_updateTeamPositionsForLocation','updateRacesAndPositions','_vhBallotRerender','renderRelevantToMe','myteamBrowseFilter','pmFilterLocation'].forEach(function(fn) {
+                        try { if (typeof window[fn] === 'function') window[fn](); } catch(e) {}
+                      });
+                    } finally { _chubRosterOnly--; }
+                  });
+                }
               }
             } catch(e) { console.warn('Restore voter_location failed:', e); }
           }

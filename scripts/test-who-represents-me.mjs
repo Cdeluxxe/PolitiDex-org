@@ -378,12 +378,23 @@ eq(byKey(full, 'house').statewide, false,
 
 // The honesty case. A level with no officeholder must survive as an explicit
 // unresolved entry, because a list of two reads as complete.
+//
+// THE THIN THING HERE IS THE BALLOT, NOT THE AREA. This fixture used to pair a
+// one-office ballot with `matched: false`, which is a state the app cannot
+// actually produce: the curated ballot resolves its area through
+// _krCurrentLocationId(), so a ballot with a district in it is by construction a
+// ballot for an area that matched. The resolver now says so out loud — it reads
+// the curated tables only when an area really matched, because that helper ends
+// `_krInferLocation() || 'davis'` and an unmatched reader was being handed Davis
+// County's districts and incumbents as their own. So the area matches here (as
+// it does in redrawnThin below) and the thinness is where this case always meant
+// it to be: one office on the ballot, two seats with nobody in them.
 const partial = mkResolverCtx({
   _pdxVoterBallot: () => ({
     districts: { house: '1' },
     byOffice: { representative: { incumbentPid: 'p-house' } },
   }),
-  keyRacesRelevantData: () => ({ matched: false }),
+  keyRacesRelevantData: () => ({ matched: true, label: 'Bountiful, Davis County', byRace: {} }),
 }).pdxRepsForMe();
 eq(partial.levels.length, 6,
   'resolver: an unresolved seat was DROPPED from the list — the remaining rows then read as the\n' +

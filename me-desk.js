@@ -287,8 +287,39 @@
 
   var DIST_NONE = 'not on file';
   var DIST_NOMAP = 'needs a district map';
-  function districtsHtml() {
-    var rows = districts();
+
+  // ── WHAT THE LOCATION CONTROL IS CALLED, AND WHY IT IS NOT ALWAYS THE SAME ─
+  // "Change location" is the right label for a reader whose place is settled.
+  // It was the WRONG label for the reported state: an account block showing
+  // "District 2" and then "needs a district map" twice, under a control offering
+  // to CHANGE something the reader could see was not finished. A control named
+  // for the work still outstanding is the difference between a dead end and a
+  // next step, so the four rows that make a location usable — the county and the
+  // three legislative districts — decide the word.
+  //
+  // IT READS THE ROWS REGION a IS ALREADY PRINTING. Not the store, not the
+  // resolver, not a second completeness test: the same districts() list, so the
+  // label cannot say "change" over a row that says it is missing. And there is no
+  // figure in it — no "4 of 5 set", no bar — because a reader's own address is
+  // not a score.
+  var LOC_SET = 'Set your location';
+  var LOC_CHANGE = 'Change location';
+  var LOC_NEEDED = { 'County': 1, 'U.S. House': 1, 'State Senate': 1, 'State House': 1 };
+  function locComplete(rows) {
+    rows = rows || districts();
+    if (!rows.length) return false;
+    var seen = 0;
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i];
+      if (!r || !LOC_NEEDED[r.label]) continue;
+      seen++;
+      if (r.none) return false;
+    }
+    return seen === 4;
+  }
+  function locLabel(rows) { return locComplete(rows) ? LOC_CHANGE : LOC_SET; }
+  function districtsHtml(rows) {
+    rows = rows || districts();
     if (!rows.length) return '';
     return '<dl class="me-dists">' + rows.map(function (d) {
       return '<div class="me-dist' + (d.none ? ' me-dist--none' : '') + '">' +
@@ -651,12 +682,13 @@
     // and the labelled list below says all of it, including the rows we do not
     // hold. See districts().
     var p = place();
+    var rows = districts();
     var where = p.located && p.label
       ? '<p class="me-where">Your ballot is built for <strong>' + esc(p.label) + '</strong>. ' +
-          '<button type="button" class="me-link" data-me-loc="1">Change location</button></p>' +
-          districtsHtml()
+          '<button type="button" class="me-link" data-me-loc="1">' + esc(locLabel(rows)) + '</button></p>' +
+          districtsHtml(rows)
       : '<p class="me-where">We do not know where you vote yet, so the seats below are the ones we cannot resolve. ' +
-          '<button type="button" class="me-link" data-me-loc="1">Set where you vote</button></p>';
+          '<button type="button" class="me-link" data-me-loc="1">' + esc(LOC_SET) + '</button></p>';
 
     return '<section class="me-region" id="me-identity" aria-labelledby="me-identity-t">' +
       '<div class="me-rhead"><h2 class="me-rtitle" id="me-identity-t">This account</h2></div>' +
@@ -1593,6 +1625,29 @@
     // a gesture that did not change a single fact on the page.
     try { window.addEventListener('popstate', function () { applyTab(true); }); } catch (e) {}
 
+    // ── COMING BACK FROM WHERE THE LOCATION IS SET ────────────────────────────
+    // Region a's one control is a trip to / (seamLocation), because Who Represents
+    // Me is the surface that asks the question. So the reader leaves this document
+    // to answer it and then presses Back — and Back is where the reported stale
+    // row lived: a bfcache restore runs no script, and even a warm reload had
+    // voter-hub-location.js's own store read behind it from before the trip. Either
+    // way /me repainted, or did not repaint, from a location record it had already
+    // parsed, and a reader who had just watched Who Represents Me name District 6
+    // met "needs a district map" on the seat they had this second resolved.
+    //
+    // ONE EVENT, ONE RE-READ, THE STORE'S OWN READER. pageshow fires on both the
+    // fresh load and the bfcache restore, which is exactly the pair this has to
+    // cover. loadVoterLocation() is voter-hub-location.js's own parse of its own
+    // key — nothing here reads localStorage, so the provenance rule and the
+    // resolved-seat restore are applied once, by their owner — and the repaint is
+    // the same debounced render every other store signal goes through.
+    try {
+      window.addEventListener('pageshow', function () {
+        try { if (fn(window.loadVoterLocation)) window.loadVoterLocation(); } catch (e2) {}
+        renderSoon();
+      });
+    } catch (e) {}
+
     // THE FOUR STORES THAT CAN MOVE UNDER THIS DOCUMENT, each through its own
     // published event. Region b is not among them — your-file.js patches its own
     // row in place and a full repaint would undo the very thing patchRow exists
@@ -1631,6 +1686,12 @@
     districts: districts,
     DIST_NONE: DIST_NONE,
     DIST_NOMAP: DIST_NOMAP,
+    // The location control's own two words and the rule that picks between them,
+    // exported so a test reads the label off the rule rather than off the paint.
+    locComplete: locComplete,
+    locLabel: locLabel,
+    LOC_SET: LOC_SET,
+    LOC_CHANGE: LOC_CHANGE,
     seats: seats,
     gate: gate,
     picks: picks,

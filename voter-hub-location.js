@@ -515,16 +515,62 @@
   // Tracks whether the user has actually chosen/saved a location.
   window._hasUserLocation = false;
 
+  // ── WHAT COUNTS AS THIS READER'S PLACE, AND WHAT IS ONLY A GUESS ──────────
+  // WHAT THE READER SAW. A signed-out first paint of / read "You are set to
+  // Utah", with Who Represents Me showing three of six seats — the two U.S.
+  // Senate rows and the Governor, which are exactly the seats that resolve from
+  // a state name alone. Nobody had told us Utah. detectVoterLocation() ran on
+  // load, and where the browser's geolocation was unavailable or declined it fell
+  // through to a silent ipapi.co lookup whose answer it wrote straight into this
+  // key through saveVoterLocation() — so an approximate region derived from an IP
+  // address became "you are set to", persisted, and survived every later visit.
+  // A reader in Ohio behind a Utah-routed VPN was "set to Utah" too, and the
+  // sentence that told them so was the app's own.
+  //
+  // THE RULE NOW: THIS RECORD IS A CHOICE, OR IT IS NOT READ. Every writer that
+  // runs off a real gesture — the picker, the map, the address search, the Detect
+  // button, a curated-area pick, the Home Base anchor — goes through
+  // saveVoterLocation(), which stamps PDX_LOC_SRC. Nothing else may claim to be where
+  // this reader votes: an inference is welcome to OFFER a place through the CTA,
+  // and it may not answer the question on the reader's behalf.
+  //
+  // AND THE RULE IS APPLIED TO RECORDS ALREADY IN BROWSERS, because a writer
+  // removed today does not un-write what it wrote last month. A legacy record
+  // (saved before the stamp existed) is accepted only where its SHAPE is one a
+  // gesture produces: a district, a map pin, or a municipality distinct from the
+  // county. The detector wrote exactly two shapes — a bare state (the IP path) and
+  // a state whose city and county are the same string with no district (the
+  // reverse-geocode path) — and neither carries any of those marks. Where the two
+  // are indistinguishable the record is not read, which costs a reader who set
+  // only a state one tap on a CTA and costs a reader who set nothing the false
+  // sentence they have been reading.
+  var PDX_LOC_KEY = 'politidex_voter_location';
+  var PDX_LOC_SRC = 'set';
+  function _pdxLocWasChosen(parsed) {
+    if (!parsed || typeof parsed !== 'object') return false;
+    if (parsed.src === PDX_LOC_SRC) return true;
+    if (parsed.src) return false;            // stamped as something else — not a choice
+    var city = String(parsed.city || '').trim();
+    var county = String(parsed.county || '').trim();
+    return !!(String(parsed.district || '').trim() ||
+              String(parsed.stateHouseDistrict || '').trim() ||
+              String(parsed.stateSenateDistrict || '').trim() ||
+              parsed.mapSelected ||
+              (city && city.toLowerCase() !== county.toLowerCase()));
+  }
+
   window.loadVoterLocation = function() {
     window._hasUserLocation = false;
     try {
-      var saved = localStorage.getItem('politidex_voter_location');
+      var saved = localStorage.getItem(PDX_LOC_KEY);
       if (saved) {
         var parsed = JSON.parse(saved);
         // Only treat this as a real saved location when an actual state / region is
-        // present. A blank or malformed record (e.g. left over from clearing the form)
-        // falls back to the neutral "Set Your Location" prompt — never to a default state.
-        if (parsed && typeof parsed === 'object' && (parsed.state || '').trim()) {
+        // present AND this reader chose it (see above). A blank or malformed record
+        // (e.g. left over from clearing the form), or one no gesture stands behind,
+        // falls back to the neutral "Set Your Location" prompt — never to a default
+        // state.
+        if (parsed && typeof parsed === 'object' && (parsed.state || '').trim() && _pdxLocWasChosen(parsed)) {
           window._currentVoterLocation = {
             state: parsed.state || '',
             city: parsed.city || '',
@@ -537,7 +583,13 @@
             stateSenateDistrict: (parsed.stateSenateDistrict == null ? '' : String(parsed.stateSenateDistrict)).replace(/[^0-9]/g, ''),
             // True when the active districts were chosen on the map — drives the
             // small "set via map" indicator across the location surfaces.
-            mapSelected: !!parsed.mapSelected
+            mapSelected: !!parsed.mapSelected,
+            // THE SEATS THIS PLACE ALREADY RESOLVED, on whichever document had the
+            // curated tables to resolve them. Restored here so a document without
+            // those tables reads the same answer instead of a thinner one — see
+            // _pdxResolvedRead() and pdxRepsForMe().
+            resolved: (parsed.resolved && typeof parsed.resolved === 'object') ? parsed.resolved : null,
+            src: PDX_LOC_SRC
           };
           window._hasUserLocation = true;
         } else {
@@ -571,7 +623,14 @@
   window.saveVoterLocation = function() {
     window._hasUserLocation = true;
     try {
-      localStorage.setItem('politidex_voter_location', JSON.stringify(window._currentVoterLocation));
+      // THE STAMP IS APPLIED HERE AND NOWHERE ELSE, because every gesture that
+      // sets a location already comes through this function and nothing that is
+      // not a gesture is allowed to. It is what loadVoterLocation() reads back to
+      // tell a choice from an inference — see the block over PDX_LOC_SRC.
+      if (window._currentVoterLocation && typeof window._currentVoterLocation === 'object') {
+        window._currentVoterLocation.src = PDX_LOC_SRC;
+      }
+      localStorage.setItem(PDX_LOC_KEY, JSON.stringify(window._currentVoterLocation));
     } catch(e) {}
     // Persist to the signed-in member's account so their location follows them
     // across devices (My Team, Relevant to Me, ballot slots all read from it).
@@ -832,7 +891,7 @@
     if (!state) {
       window._currentVoterLocation = { state: '', city: '', county: '', district: '' };
       window._hasUserLocation = false;
-      try { localStorage.removeItem('politidex_voter_location'); } catch(e) {}
+      try { localStorage.removeItem(PDX_LOC_KEY); } catch(e) {}
     } else if (state === 'National') {
       window._currentVoterLocation.city = '';
       window._currentVoterLocation.county = '';
@@ -926,8 +985,13 @@
     } else {
       areaName = 'your area';
     }
-    var stateDisplay = loc.state || 'Utah';
-    textEl.innerHTML = '📍 Showing politicians for <strong class="text-blue-300">' + areaName + '</strong>, ' + stateDisplay + ' – your direct representatives. ' +
+    // NO STATE STANDS IN FOR A MISSING ONE. This line used to read
+    // `loc.state || 'Utah'`, which meant a located reader whose state field was
+    // somehow blank was told they were being shown Utah's politicians. There is
+    // no honest substitute for a state we do not have, so the clause naming it is
+    // dropped and the area stands alone.
+    var stateDisplay = String(loc.state || '').trim();
+    textEl.innerHTML = '📍 Showing politicians for <strong class="text-blue-300">' + areaName + '</strong>' + (stateDisplay ? (', ' + stateDisplay) : '') + ' – your direct representatives. ' +
       '<button type="button" onclick="window.toggleChangeLocation()" style="background:none;border:none;color:#60a5fa;text-decoration:underline;cursor:pointer;padding:0;font:inherit;">change area</button>';
   };
 
@@ -995,6 +1059,14 @@
   // Sync the prominent "YOUR LOCATION" banner (Power Map) — 100% dynamic from localStorage saved city/county/state/district.
   // No hardcoded state or default city. Purely reflects whatever the user saved.
   window._vhSyncBanner = function() {
+    // FIRST, WRITE DOWN WHAT THIS PLACE RESOLVES TO. This is the location-sync
+    // signal — it fires when a location is established at load, restored from an
+    // account, or changed — and it is therefore the write path for the per-chamber
+    // district memory the OTHER documents read. It has to run before the paints
+    // below rather than after, because they are the readers: the homepage card
+    // resolves from the curated tables it has, /me resolves from this record, and
+    // the record has to be current by the time anything asks.
+    try { if (typeof window.pdxRememberResolved === 'function') window.pdxRememberResolved(); } catch (e) {}
     try { if (typeof window._vhPositionLocPin === 'function') window._vhPositionLocPin(); } catch (e) {}
     try { if (typeof window._vhSyncDistrictStrip === 'function') window._vhSyncDistrictStrip(); } catch (e) {}
     // The homepage front door reads the same resolver as the strip above, so it
@@ -1855,6 +1927,154 @@
     _pdxSwSeatLedgerSig = null;
   };
 
+  // The sticky-seat ledger above is a self-contained block, and it is read as one:
+  // test-ballot-shell evaluates it standalone to prove a U.S. Senate seat is keyed
+  // on the state alone. The persisted district memory below is a different concern
+  // — it touches window and localStorage — so it sits after that block rather than
+  // inside it.
+
+  // ── _pdxResolvedRead / _pdxResolvedWrite() — THE DISTRICTS, WRITTEN DOWN ───
+  // WHAT THE READER SAW, and it is the specification for this pair. One browser,
+  // one saved location (Layton / Davis County). On / the Who Represents Me card
+  // printed all three district seats and all three names:
+  //
+  //     U.S. House District 2   · Celeste Maloy
+  //     State Senate District 6 · Jerry Stevenson
+  //     State House District 15 · Ariel Defay
+  //
+  // On /me, the same reader, the same second: "District 2" on the account block,
+  // then "needs a district map" on State Senate and State House, and no name on
+  // either seat. Two documents, one location, two different answers about which
+  // districts a person votes in — and the thinner one was printed as a statement
+  // about our COVERAGE, which it was not.
+  //
+  // WHY IT DIFFERED. pdxRepsForMe() resolves the three district seats out of the
+  // curated tables in ballot-breakdown.js, through keyRacesRelevantData() and
+  // _pdxVoterBallot(). That file is 407 KB of race rosters and /me does not carry
+  // it — deliberately, and it is still not going to. So on /me `vb` was null,
+  // `matched` was false, and the walk had nothing to answer the district branch
+  // with. The U.S. House row survived only because it had a second source: the
+  // reader's own saved `loc.district`. The other two had none, and printed the
+  // no-map sentence for a map this app had already drawn for them.
+  //
+  // SO THE ANSWER IS SAVED WHERE THE QUESTION IS ALREADY ANSWERED. A walk that
+  // HAD the curated tables writes what it resolved into the reader's own location
+  // record — the same politidex_voter_location key, no second store, no second
+  // schema — and a walk that has NOT got them reads it back as its fallback. The
+  // resolver stays the one source of "which districts am I in": /me reads
+  // pdxRepsForMe() exactly as before and gets the same three numbers and the same
+  // three pids, because they came from the walk that could see them.
+  //
+  // FOUR RULES, EACH ONE A DEFECT THIS FILE ALREADY DOCUMENTS ELSEWHERE:
+  //
+  //   · IT IS KEYED ON THE PLACE. The record carries _pdxLocSig(), and a read
+  //     whose signature does not match the reader's current location returns
+  //     nothing. A reader who looks up Layton and then Columbus does not keep
+  //     Davis County's seats — the same scope the in-memory ledger above has, for
+  //     the same reason, except that this one survives a reload.
+  //   · THE NAME AND THE NUMBER MOVE TOGETHER. Each chamber remembers a district
+  //     and a pid as ONE entry, and a remembered pid is only used where the
+  //     district it was remembered with is the district the walk resolved. This
+  //     is _pdxHouseRedistrict()'s rule and _pdxStickLevels()'s rule, applied to
+  //     the persisted copy so a redrawn seat cannot pair yesterday's member with
+  //     today's line.
+  //   · IT ONLY EVER FILLS A BLANK. Every read below is a FALLBACK: a walk that
+  //     resolves a seat itself ignores the record entirely and then overwrites
+  //     it. Nothing here can contradict live curated data, which is what makes it
+  //     safe to keep.
+  //   · IT NAMES NOBODY THE ROSTER HAS DROPPED. A remembered pid goes through
+  //     _pdxRosterKeeps(), which passes everything while the roster is still
+  //     loading (a wait is not an absence — pdxSeatHolders() carries rosterCold
+  //     for exactly that beat) and rejects a pid a loaded roster no longer holds.
+  //
+  // WHAT IT MAY NOT HOLD. No statewide seat — those resolve from a state name in
+  // all fifty states, on every document, so remembering them would be caching an
+  // answer that is never unavailable. No county, no city, no area label, no local
+  // roster, no score, no party: three chambers, one district and one pid each.
+  var _PDX_RESOLVED_KEYS = { house: 1, statesenate: 1, statehouse: 1 };
+  var _pdxResolvedLastWrite = null;
+
+  function _pdxDigits(v) { return String(v == null ? '' : v).replace(/[^0-9]/g, ''); }
+
+  function _pdxResolvedRead(loc, state) {
+    var r = loc && loc.resolved;
+    if (!r || typeof r !== 'object') return null;
+    if (String(r.sig || '') !== _pdxLocSig(loc, state)) return null;
+    return r;
+  }
+
+  // The remembered district for one chamber, or the caller's own fallback. The
+  // reader's saved `loc.district` is the fallback the U.S. House row passes in,
+  // and the remembered number wins over it: both are about the same seat, and the
+  // remembered one came from the curated map rather than from a form.
+  function _pdxResolvedDist(mem, key, fallback) {
+    var d = (mem && mem[key]) ? _pdxDigits(mem[key].d) : '';
+    if (d) return d;
+    return (fallback != null ? fallback : null);
+  }
+
+  // The remembered holder for one chamber, paired with the district it was
+  // remembered against. A district the walk has since resolved differently gets
+  // no name from here.
+  function _pdxResolvedPid(mem, key, district) {
+    var e = (mem && mem[key]) ? mem[key] : null;
+    if (!e || !e.pid) return null;
+    var d = _pdxDigits(district);
+    if (d && _pdxDigits(e.d) !== d) return null;
+    return _pdxRosterKeeps(e.pid) ? e.pid : null;
+  }
+
+  var _pdxLastWalk = null;
+
+  // ── pdxRememberResolved() — THE ONE WRITE PATH FOR THE RESOLVED SEATS ──────
+  // Called from the location-sync signal (_vhSyncBanner), which is the moment a
+  // location is established, restored or changed — and on the home page that
+  // signal runs on DOMContentLoaded, after the curated ballot tables have
+  // executed. It resolves once, then writes down what that walk could see.
+  //
+  // WHY THIS IS NOT IN pdxRepsForMe(). Every surface in the app asks the
+  // resolver, most of them while painting. A store write hanging off that call
+  // makes "what does this row say" and "what is saved about this reader" the
+  // same question, which is how a paint ends up owning a record.
+  window.pdxRememberResolved = function () {
+    try {
+      var reps = window.pdxRepsForMe();
+      if (!reps) return false;
+      var w = _pdxLastWalk;
+      if (!w) return false;
+      _pdxResolvedWrite(w.loc, w.state, w.levels);
+      return true;
+    } catch (e) { return false; }
+  };
+
+  function _pdxResolvedWrite(loc, state, levels) {
+    try {
+      if (!window._hasUserLocation || !loc || !levels) return;
+      var prev = _pdxResolvedRead(loc, state);
+      var rec = { sig: _pdxLocSig(loc, state) };
+      levels.forEach(function (lv) {
+        if (!lv || !lv.key || lv.statewide || !_PDX_RESOLVED_KEYS[lv.key]) return;
+        var was = (prev && prev[lv.key]) ? prev[lv.key] : null;
+        var d = _pdxDigits(lv.district);
+        var pid = lv.pid || '';
+        // A seat this walk resolved nothing for keeps what was already written:
+        // the walk that wrote it could see more than this one can.
+        if (!d && !pid) { if (was) rec[lv.key] = was; return; }
+        if (!pid && was && was.pid && _pdxDigits(was.d) === d) pid = was.pid;
+        if (!d && was && was.d) d = _pdxDigits(was.d);
+        rec[lv.key] = { d: d, pid: pid };
+      });
+      var json = JSON.stringify(rec);
+      // The resolver is called on every paint of every location surface. This is
+      // the guard that keeps a write to localStorage down to the beats where the
+      // answer actually changed.
+      if (json === _pdxResolvedLastWrite) return;
+      _pdxResolvedLastWrite = json;
+      loc.resolved = rec;
+      try { localStorage.setItem(PDX_LOC_KEY, JSON.stringify(loc)); } catch (e2) {}
+    } catch (e) {}
+  }
+
   // ── window.pdxRepsForMe() — the ONE resolution of "who represents me" ───────
   // Two surfaces now answer this question: the Voter Hub's "Who Represents You
   // Now" strip (below) and the homepage front door (who-represents-me.js), which
@@ -1923,10 +2143,27 @@
     var utah = String(state).trim().toLowerCase() === 'utah';
 
     var krd = (typeof window.keyRacesRelevantData === 'function') ? window.keyRacesRelevantData() : null;
+    var matched = !!(krd && krd.matched && utah);
     // The curated ballot is Utah-only data. Outside Utah it is not a weaker
     // answer, it is somebody else's answer, so it is not read at all.
-    var vb  = (utah && typeof window._pdxVoterBallot === 'function') ? window._pdxVoterBallot() : null;
-    var matched = !!(krd && krd.matched && utah);
+    //
+    // AND INSIDE UTAH IT IS READ ONLY FOR A READER IT IS ACTUALLY ABOUT. This
+    // used to be gated on `utah` alone, and _pdxVoterBallot() never fails: its
+    // area comes from _krCurrentLocationId(), which ends `_krInferLocation() ||
+    // 'davis'`. So a reader whose saved location was the state and nothing else —
+    // picked "Utah" in the form, no county, no city — was handed DAVIS COUNTY's
+    // ballot as their own: U.S. House District 2 with Celeste Maloy, State Senate
+    // District 6 with Jerry Stevenson, State House District 15 with Ariel Defay,
+    // printed as the seats they vote in and counted as six of six resolved. Three
+    // real people, correctly labelled, none of them theirs — the same defect this
+    // file documents for an out-of-state visitor, one state further in.
+    //
+    // `matched` is the gate because it is the fact in question: the area was
+    // either chosen by this reader or inferred from a county or city they saved.
+    // Where it is only the compiled fallback there is no curated ballot to read,
+    // the district rows go blank, and the CTA asks for the county that would fill
+    // them. A blank is a question. Davis was an answer to a question nobody asked.
+    var vb  = (utah && matched && typeof window._pdxVoterBallot === 'function') ? window._pdxVoterBallot() : null;
 
     var dist = function (seatKey, vbKey, fallback) {
       if (vb && vb.districts && vb.districts[vbKey] != null) return vb.districts[vbKey];
@@ -1943,18 +2180,25 @@
       return pid || null;
     };
 
-    var hd = utah ? dist('house', 'house', loc.district) : null;
-    var sd = utah ? dist('statesenate', 'senate', null) : null;
-    var ld = utah ? dist('statehouse', 'lower', null) : null;
-    var hp = utah ? inc('house', 'representative') : null;
-    var sp = utah ? inc('statesenate', 'state_senator') : null;
-    var lp = utah ? inc('statehouse', 'state_rep') : null;
+    // WHAT THIS PLACE ALREADY RESOLVED, on whichever document had the curated
+    // tables. Read as a FALLBACK only, and only for this exact location — see the
+    // block over _pdxResolvedRead(). It is what lets /me print the three district
+    // numbers and the three names the homepage card prints, without /me carrying
+    // the 407 KB of race rosters that resolved them.
+    var mem = _pdxResolvedRead(loc, state);
+
+    var hd = utah ? dist('house', 'house', _pdxResolvedDist(mem, 'house', loc.district)) : null;
+    var sd = utah ? dist('statesenate', 'senate', _pdxResolvedDist(mem, 'statesenate', null)) : null;
+    var ld = utah ? dist('statehouse', 'lower', _pdxResolvedDist(mem, 'statehouse', null)) : null;
+    var hp = utah ? (inc('house', 'representative') || _pdxResolvedPid(mem, 'house', hd)) : null;
+    var sp = utah ? (inc('statesenate', 'state_senator') || _pdxResolvedPid(mem, 'statesenate', sd)) : null;
+    var lp = utah ? (inc('statehouse', 'state_rep') || _pdxResolvedPid(mem, 'statehouse', ld)) : null;
     var redrawn = false;
 
     try {
       // Same gate: the redistricting bridge reads the curated area too, so outside
       // Utah it would claim a redrawn seat for a map that does not cover the voter.
-      var hr = (utah && typeof window._pdxHouseRedistrict === 'function') ? window._pdxHouseRedistrict() : null;
+      var hr = (utah && matched && typeof window._pdxHouseRedistrict === 'function') ? window._pdxHouseRedistrict() : null;
       if (hr && hr.changed) {
         redrawn = true;
         // THE NAME AND THE DISTRICT NUMBER MOVE TOGETHER OR NOT AT ALL, AND THE
@@ -2050,6 +2294,21 @@
       level('statehouse', 'statehouse', 'State House', 'State House', '#2dd4bf', ld, lp)
     ];
     if (located && !national) levels = _pdxStickLevels(levels, loc, state);
+    // AND THE WALK IS REMEMBERED IN MEMORY — NOT WRITTEN TO THE STORE.
+    //
+    // Asking who represents this reader is a READ, and a read that writes
+    // localStorage is a surface with a side effect: painting a seat row, opening
+    // a compare sheet or rendering the hub would each leave a different record
+    // behind, and test-seat-spine pins exactly that ("the spine reads the stores;
+    // it must never write one"). So the walk leaves its ingredients here, where
+    // _pdxStickLevels' ledgers already live, and the one caller that IS a write
+    // path — pdxRememberResolved(), called from the location-sync signal — is
+    // what puts them in the record. Only a walk that could see the curated
+    // tables is worth remembering: a walk reading the record back must never
+    // write its own read down as if it had resolved it.
+    _pdxLastWalk = (located && !national && (vb || matched))
+      ? { loc: loc, state: state, levels: levels }
+      : null;
 
     return {
       located: located,
@@ -3211,10 +3470,12 @@
     window._triggerLocationReaction();
   };
 
-  window._applyDetectedState = function(state) {
-    if (!state) return;
-    window._applyDetectedLocation({ state: state });
-  };
+  // _applyDetectedState() USED TO LIVE HERE. It took a bare state name and
+  // applied it as the reader's own location — the one line that let an inference
+  // become a choice with no gesture behind it, and the IP path was its only
+  // caller. Both are gone; the block over window.detectVoterLocation() below is
+  // the whole reasoning. _applyDetectedLocation above is kept because the Detect
+  // BUTTON calls it, with force, on a tap.
 
   // Helper for JSONP calls
   function getJSONP(url, callbackName, timeoutMs) {
@@ -3580,67 +3841,39 @@
     );
   };
 
-  // Set of valid U.S. state / DC names (built from the centroid table) used to
-  // sanity-check whatever a detection source hands back before we apply it.
-  window._isKnownState = function(name) {
-    if (!name) return false;
-    var arr = window._STATE_CENTROIDS || [];
-    for (var i = 0; i < arr.length; i++) { if (arr[i][0] === name) return true; }
+  // ── DETECTION MAY OFFER A PLACE. IT MAY NOT ANSWER FOR THE READER. ────────
+  // WHAT THIS REPLACED, and why it is a refusal rather than a smaller version of
+  // itself. Two functions used to run on load with no gesture behind either:
+  //
+  //   detectVoterLocation()        prompted for browser geolocation on first
+  //                                arrival and, on a hit, wrote the reverse-
+  //                                geocoded state and county into the saved
+  //                                location through _applyDetectedLocation().
+  //   _detectVoterLocationByIP()   its fallback for a declined or unavailable
+  //                                prompt: fetched ipapi.co and applied the
+  //                                region it returned, silently, as the reader's
+  //                                own place.
+  //
+  // Both flipped _hasUserLocation and persisted. So the homepage told a reader
+  // who had never set anything "You are set to Utah", printed the three seats a
+  // state name resolves, and kept doing it on every later visit because the guess
+  // was now in the store — and an approximate region off an IP address is not a
+  // place a person votes. It is not even reliably their state: a VPN, a mobile
+  // carrier's regional egress or a university's netblock each move it.
+  //
+  // THE OFFER IS THE CTA, AND THE CTA IS ALREADY EVERYWHERE. Every location
+  // surface in this app opens with "Set my location" / "Find it on the map" /
+  // "Detect my location" and says, until one of them is used, that it will not
+  // guess. triggerManualLocationDetection() above is the Detect button: the same
+  // geolocation read, behind a tap, applied with force because a tap is consent.
+  // That is the whole of detection now, and it is enough.
+  //
+  // THE NAME IS KEPT AND ANSWERS FALSE so a caller that still asks for load-time
+  // detection gets a documented no rather than a ReferenceError, and so the one
+  // line at the foot of this file that used to call it reads as a decision.
+  window.detectVoterLocation = function() {
     return false;
   };
-
-  // IP-based fallback. Silent (no permission prompt): looks up the visitor's
-  // approximate state from their IP via ipapi.co and applies it the same way an
-  // explicit picker change would. Runs only when no location is saved and the
-  // browser geolocation path did not yield a state.
-  window._detectVoterLocationByIP = function() {
-    try {
-      if (window._hasUserLocation) return;
-      fetch('https://ipapi.co/json/')
-        .then(function(r) { return r && r.ok ? r.json() : null; })
-        .then(function(data) {
-          if (!data || window._hasUserLocation) return;
-          // ipapi only returns a meaningful state for U.S. visitors; ignore others.
-          if (data.country_code && data.country_code !== 'US') return;
-          var st = (data.region || '').trim();
-          if (window._isKnownState(st)) window._applyDetectedState(st);
-        })
-        .catch(function() { /* network blocked / offline — stay neutral */ });
-    } catch (e) { /* never let detection break page load */ }
-  };
-
-  // Automatic location detection on page load. Runs ONLY when the user has no
-  // saved location. First tries browser geolocation (prompted at most once per
-  // browser so a returning visitor who declined is never nagged); if that is
-  // unavailable, denied, or inconclusive, it silently falls back to an IP lookup.
-  window.detectVoterLocation = function() {
-    try {
-      if (window._hasUserLocation) return;
-      if (!('geolocation' in navigator)) { window._detectVoterLocationByIP(); return; }
-      var FLAG = 'politidex_geo_prompted';
-      if (localStorage.getItem(FLAG) === '1') { window._detectVoterLocationByIP(); return; }
-      localStorage.setItem(FLAG, '1');
-      navigator.geolocation.getCurrentPosition(
-        function(pos) {
-          if (window._hasUserLocation) return; // user set it manually in the meantime
-          window._reverseGeocode(pos.coords.latitude, pos.coords.longitude)
-            .then(function(loc) {
-              if (loc && loc.state) {
-                window._applyDetectedLocation(loc);
-              } else {
-                window._detectVoterLocationByIP();
-              }
-            })
-            .catch(function() {
-              window._detectVoterLocationByIP();
-            });
-        },
-        function() { window._detectVoterLocationByIP(); }, // denied / unavailable — fall back to IP
-        { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }
-      );
-    } catch (e) { try { window._detectVoterLocationByIP(); } catch (e2) {} }
-  };
-
 
   window.jumpToRelevantAccordion = function(officeKey) {
     var categoryKey = '';
@@ -3774,5 +4007,7 @@
   } else {
     window._vhSyncBanner();
   }
-  window.detectVoterLocation();
+  // NO DETECTION ON LOAD. The initial load above reads the store and paints what
+  // the reader themselves saved; where they saved nothing, every surface says so
+  // and offers the CTA. See window.detectVoterLocation() for the whole of why.
   

@@ -1333,7 +1333,13 @@
         district: String(loc.district == null ? '' : loc.district).replace(/[^0-9]/g, ''),
         stateHouseDistrict: String(loc.stateHouseDistrict == null ? '' : loc.stateHouseDistrict).replace(/[^0-9]/g, ''),
         stateSenateDistrict: String(loc.stateSenateDistrict == null ? '' : loc.stateSenateDistrict).replace(/[^0-9]/g, ''),
-        mapSelected: !!(loc.stateHouseDistrict || loc.stateSenateDistrict)
+        mapSelected: !!(loc.stateHouseDistrict || loc.stateSenateDistrict),
+        // THE PROVENANCE STAMP voter-hub-location.js's loadVoterLocation() reads
+        // back. A Home Base is a place this reader built and protected, so the
+        // location it anchors is a choice and has to say so — an unstamped record
+        // is indistinguishable from the load-time guesses that key no longer
+        // accepts, and it would be dropped on the next read.
+        src: 'set'
       };
       window._hasUserLocation = true;
       try { localStorage.setItem('politidex_voter_location', JSON.stringify(window._currentVoterLocation)); } catch (e) {}

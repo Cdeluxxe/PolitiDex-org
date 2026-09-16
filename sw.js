@@ -6356,7 +6356,54 @@
 //     is touched — the record is painted from the same data by the same
 //     functions, and every Firestore read is the same read with the same guards.
 //     Only WHEN it runs is different.
-const CACHE_VERSION = 'v208';
+// v209 - NO DEFAULT STATE, AND /me PRINTS THE DISTRICTS THE HOME CARD RESOLVED
+//
+//     REPORTED. A signed-out visitor was told "You are set to Utah" over a band
+//     reading "3 of 6 seats resolved" — a place nobody had chosen. And a reader
+//     whose home card already named U.S. House District 2, State Senate
+//     District 6 and State House District 15 opened /me to find District 2 on
+//     the account block, "needs a district map" on both state chambers, and no
+//     names on either. Two causes, one shape: the app answered a question the
+//     reader had not answered. detectVoterLocation() ran at module load in
+//     voter-hub-location.js and wrote an IP-derived state straight through
+//     saveVoterLocation(), which is the flag every surface reads as "this reader
+//     told us where they vote"; and the curated ballot resolves its area through
+//     _krCurrentLocationId(), which ends `_krInferLocation() || 'davis'`, so a
+//     state-only record was handed Davis County's three districts as its own.
+//     Load-time detection is gone, the Detect button stays because a tap is
+//     consent, a saved record is read back only when it carries the provenance
+//     stamp saveVoterLocation() now writes, and the resolver's curated reads are
+//     gated on a real area match. The asymmetry was the second half:
+//     ballot-breakdown.js is not on /me, so the numbers the home card computes
+//     existed nowhere /me could read them. The walk that holds those tables now
+//     persists what it resolved — district and officeholder per chamber, keyed
+//     to the place it resolved them for — into the same location record, and the
+//     resolver reads it back as a fallback. /me asks the same pdxRepsForMe() and
+//     gets the same three numbers and the same three pids, without 407 KB.
+//
+//     WHY THE BUMP. Two precached shells changed, index.html and me.html, and
+//     two precached scripts with them: voter-hub-location.js (the store, the
+//     resolver, the removed detector) and me-desk.js (the district rows and the
+//     location control). A warm device pairs a cached shell with a revalidated
+//     script, so the halves must be able to disagree for one navigation without
+//     lying: an old me-desk.js reads `resolved` as a field it does not know and
+//     falls through to the behaviour it has today, and a new me-desk.js against
+//     a record with no `resolved` key prints the same "needs a district map".
+//
+//     MIGRATION COST, STATED PLAINLY. Provenance is new, so records already in
+//     browsers carry no stamp and are read by shape. A record holding a
+//     district, a map selection, or a city differing from its county was a
+//     reader's own gesture and is still honoured. A record holding nothing but a
+//     state — or a city equal to its county, which is what the reverse geocoder
+//     wrote — is what the detector left behind and is no longer read. Those
+//     readers are asked to set their location once.
+//
+//     DID NOT MOVE. No new shapefile and no new district geometry. The auth
+//     unknown state from v208, every score, the 121 denominator and /courts are
+//     untouched; no score, party read, issue key or roster field changed, and no
+//     Direction Match read, formal-record brief or record-ledger figure is
+//     touched.
+const CACHE_VERSION = 'v209';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
