@@ -76,8 +76,16 @@ const DRAWER = NAV.slice(drawerAt);
 
 /* The left group is the primary list. It ends at ✊ Mandate, which is the first
    control painted in the right-hand half — the same seam test-top-nav-layout.mjs
-   measures the overlap across. */
-const seamAt = ROW.indexOf('<a href="#agenda"');
+   measures the overlap across.
+
+   THE SEAM IS AN ADDRESS NOW, NOT A FRAGMENT. The three-room split gave the
+   People's Mandate its own document, so this button navigates to /mandate
+   instead of jumping to #agenda on the front page. Only the href moved: the
+   button is the same button, in the same seat, still the first control of the
+   right-hand half, and every assertion below about what is LEFT of it is
+   unchanged. Pinning the old fragment here would have demanded the lane move
+   back into index.html. */
+const seamAt = ROW.indexOf('<a href="/mandate"');
 must(seamAt > 0, 'the ✊ Mandate button is gone; the left-group slice has no end');
 const LEFT = ROW.slice(0, seamAt);
 /* #hero is the 🏠 brand lockup — a home link and the document's own logo, not an

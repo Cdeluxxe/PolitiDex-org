@@ -537,7 +537,7 @@
       : ('Reported receipts: <span style="color:' + THEME.ink + ';">' + esc(c.receiptsFmt) + '</span>');
     return '<div style="' + box + '">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">' + head +
-        '<a href="#follow-the-money" style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;color:' + THEME.ink + ';text-decoration:none;white-space:nowrap;">Follow the Money \u2192</a>' +
+        '<a href="/money" style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;color:' + THEME.ink + ';text-decoration:none;white-space:nowrap;">Follow the Money \u2192</a>' +
       '</div>' +
       '<p style="font-family:\'Barlow\',sans-serif;font-size:0.7rem;color:' + THEME.text + ';line-height:1.55;margin:0.3rem 0 0;">' + lead +
         ' <span style="color:#7596c0;">\u00b7 ' + c.rows.length + ' reported source' +

@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+<!-- ══════════════════════════════════════════════════════════════════════════════
+     mandate.html — THE TENTH SHELL. /mandate IS ITS OWN DOCUMENT.
+     ────────────────────────────────────────────────────────────────────────────
+     WHAT WAS WRONG. The People's Mandate was 174 KB of one two-megabyte
+     document: a 112 KB section, an 8 KB submit modal and four inline <script>
+     blocks totalling 62 KB. Every reader of the front page — including every
+     reader who arrived to answer "who represents me" and nothing else —
+     downloaded and parsed all of it, and every reader who actually wanted the
+     Mandate had no address to bookmark, nothing to send, and nothing that
+     survived a reload. #agenda was a scroll position, not a place.
+
+     So the room moved and the door stayed. The front page keeps ONE short card
+     naming the Mandate and linking here — and it prints NO COUNT, because a
+     count on the front page is a Firestore read the door does not need and a
+     second place for a tally to be wrong. This document owns the Mandate.
+
+     WHAT IS ON THIS PAGE, AND IT IS ONE LANE. The People's Mandate: the reform
+     board, the counts, the named proposals, and the sign / support controls
+     that already existed. Nothing else came with it — and each of these is a
+     rule, not a current state of the data:
+       · NO SCORE. A support count is not a score, and nothing on this page is
+         coloured, ranked, sorted or gated by how high one is. support-lane.js
+         owns the vocabulary ("momentum", "backing", never "votes"), the
+         palette (the Mandate's own gold, never the verdict greens) and the
+         NEVER_FEEDS wall, and this document borrows all three rather than
+         restating any of them.
+       · NO DIRECTION MATCH, NO PARTY, NO FINANCE. A match percentage is a
+         claim about a person's record; this page holds no person's record. The
+         money lane is its own address, /money, for the same reason this one is.
+       · NO SECOND SCORE anywhere, and no new issue key, mapping or ingest.
+       · THE EMPTY STATE IS THE SHIPPED ONE. When the board has nothing on it,
+         the proposals engine prints its own "no proposals yet" copy — not a
+         zero dressed as a finding, and not a claim that a reform was verified.
+
+     THE CRITICAL PATH, AND WHY EACH FILE IS ON IT. Four scripts and two
+     sheets, which is the whole document:
+       person-link.js      one owner of "what is this person's URL", so a
+                           linked chip on a proposal goes to the same /p/
+                           address the rest of the site uses.
+       support-lane.js     the one owner of what a support count is called, what
+                           colour it is allowed to be, and what it may never
+                           feed. The lane asks it; it does not answer for
+                           itself.
+       mandate-lane.js     the four inline blocks that used to be on the front
+                           page, now one file loaded by BOTH documents so there
+                           is one tally engine rather than two.
+       firebase-boot.js    the session and the roster. The counts are Firestore
+                           documents and the support route is metered per
+                           participant, so this page is signed-in-aware even
+                           though it opens no sign-in UI of its own.
+       css/tailwind.css    78 KB of utilities the card markup is built out of —
+                           the same sheet index.html links. NOT app.css.
+       mandate-lane.css    the lane's component rules, lifted out of app.css by
+                           selector. 55 KB instead of 986.
+
+     WHAT IS DELIBERATELY NOT HERE. No app.css. No compare-hub.js (758 KB of
+     homepage engine — the account chip is shell-account-chip.js instead, 9 KB
+     answering the same three-state contract). No ballot-breakdown.js (407 KB;
+     nothing on this page resolves a district). No Door 1 work layer, no
+     Evidence Locker template, no Who Represents Me card, no ballot workspace,
+     no homepage hero. No cmp-data.js and no All-Seeing Eye: the front page's
+     search reaches everything there is to search and this bar links to it.
+     ballot.html, me.html, stances.html, evidence.html and courts.html are the
+     precedent for every one of those.
+
+     THE ONE CONTROL THAT DID NOT COME. Each reform card's Comment button opens
+     like-dislike.js's #comment-overlay, which opens the evidence-submission
+     modal behind it. That chain is the front page, so on this document the
+     control is not painted and the discussion stays exactly where it is — on
+     /, reachable from the Mandate card. mandate-lane.js's _gateMandateDiscuss
+     holds that, and says why at the site.
+
+     THE RULE THIS DOCUMENT LIVES BY: EVERY SAME-ORIGIN PATH IS ROOT-ABSOLUTE.
+     /mandate/ is served with HTTP 200 at a trailing-slash path, so a bare src
+     of mandate-lane.js would resolve to /mandate/mandate-lane.js, the rewrite
+     would catch it, and the browser would be handed this document and told to
+     parse HTML as JavaScript. A leading slash is correct at every depth.
+     scripts/test-mandate-shell.mjs fails on a relative src or href here.
+
+     THIS IS A PUBLIC BROWSE ROOM, so like /courts it is indexable and carries a
+     real canonical on www.politidex.fyi. NO NEW URL SHAPE IS PUBLISHED FROM
+     HERE: a proposal is a row on this board, a person is /p/<pid>, and both
+     already have owners. No JSON-LD — index.html's WebSite/Organization block
+     describes the front page, and a browse room is not the front page.
+     ════════════════════════════════════════════════════════════════════════════════ -->
+
+  <!-- The share tags, in share-preview.ts's attribute order (`property` then
+       `content`, `rel` then `href`) for the same reason the other shells carry
+       them that way — that edge function rewrites by an attribute-ordered
+       regex, so a reshuffle here would be a silent no-op there rather than an
+       error, on the day /mandate is added to its config.path. -->
+  <title>The People's Mandate &middot; reforms the people are asking for &middot; PolitiDex</title>
+  <link rel="canonical" href="https://www.politidex.fyi/mandate" />
+  <meta name="description" content="The People's Mandate — the reforms people are asking for, with how many are backing each one. Momentum, not evidence: a support count is not a score and feeds no ranking on this site." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PolitiDex" />
+  <meta property="og:title" content="The People's Mandate &middot; PolitiDex" />
+  <meta property="og:description" content="The reforms people are asking for, and how many are backing each one. Momentum, not evidence — no score, no ranking, no party." />
+  <meta property="og:url" content="https://www.politidex.fyi/mandate" />
+  <meta property="og:image" content="https://www.politidex.fyi/og-image.png" />
+  <meta property="og:image:alt" content="PolitiDex — The People's Mandate" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="The People's Mandate &middot; PolitiDex" />
+  <meta name="twitter:description" content="The reforms people are asking for, and how many are backing each one." />
+  <meta name="theme-color" content="#0a0f1e" />
+
+  <!-- The three files a first paint actually waits on: the utilities the cards
+       are built out of, the lane's own rules, and the engine that fills them. -->
+  <link rel="preload" as="style" href="/css/tailwind.css" />
+  <link rel="preload" as="style" href="/mandate-lane.css" />
+  <link rel="preload" as="script" href="/mandate-lane.js" />
+
+  <!-- Barlow / Bebas Neue, non-blocking, with the same swap index.html,
+       person.html, issue.html, spotlight.html, ballot.html, me.html,
+       stances.html, evidence.html and courts.html use. A swap written
+       differently on one document is a visible font flash on exactly one URL
+       shape. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
+
+  <!-- THE TWO SHEETS THAT DRAW THIS PAGE, render-blocking on purpose: they are
+       the page. /css/tailwind.css is the same utility sheet index.html links —
+       the card markup came off that document unchanged, so it still speaks
+       those utilities. /mandate-lane.css is the component half, lifted out of
+       app.css by selector; the long note at its head says what it is and why it
+       is a copy rather than a cut. -->
+  <link rel="stylesheet" href="/css/tailwind.css" />
+  <link rel="stylesheet" href="/shell-chrome.css" />
+  <link rel="stylesheet" href="/mandate-lane.css" />
+
+  <!-- support-lane.css, ON THE SAME LOW-PRIORITY SWAP INDEX.HTML GIVES IT. Two
+       rules, .pdxsup-note and .pdxsup-note-wall, and this document renders the
+       first of them: the momentum note under the board. support-lane.js owns the
+       sentence and this sheet owns how it looks, so shipping the module without
+       the sheet would paint the one line on this page that says "momentum, not
+       evidence" as unstyled body text. Deferred rather than render-blocking for
+       the reason the front page defers it — the note sits below the board and
+       nothing above the fold measures against it. -->
+  <link rel="stylesheet" href="/support-lane.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/support-lane.css" /></noscript>
+
+  <style>
+    /* THE FIXED CHROME, MEASURED ONCE. Same contract person.html, issue.html,
+       spotlight.html, ballot.html, me.html, stances.html, evidence.html and
+       courts.html answer for their own chrome, and for the same reason: a
+       custom property that is never declared invalidates every calc() that
+       reads it. This document's chrome is ONE row and no search — the Eye on
+       the front page already reaches everything there is to search. The
+       @supports guard is the one every other shell carries: a custom property
+       accepts any token sequence, so an engine that cannot parse env() would
+       swallow the declaration and invalidate every calc() reading it; an
+       engine without env() also has no notch. */
+    :root { --pdx-chrome: 3.25rem; color-scheme: dark; }
+    @supports (padding-top: env(safe-area-inset-top)) {
+      :root { --pdx-chrome: calc(3.25rem + env(safe-area-inset-top, 0px)); }
+    }
+    /* No app.css here, so the page's own ground colour is declared rather than
+       inherited from a 986 KB stylesheet this document does not load. And the
+       chrome offset an anchored jump has to clear is declared here rather than
+       read off the front page's two-row measurement. */
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--pdx-chrome) + 0.5rem); }
+    html, body { background: #070b16; color: #e7eefb; }
+    body {
+      margin: 0;
+      font-family: 'Barlow', system-ui, -apple-system, sans-serif;
+      padding-top: calc(var(--pdx-chrome) + 0.75rem);
+    }
+
+    main#mandate-room { padding: 0 0 2rem; }
+
+    /* The only thing a reader sees if JavaScript never runs. It claims what
+       this address is, which is true, rather than leaving them with a board of
+       dead counters. */
+    .pdx-sh-note {
+      max-width: 40rem; margin: 2.5rem auto; padding: 0 1.1rem;
+      font: 400 1rem/1.6 'Barlow', system-ui, sans-serif; color: #9fb4d4;
+    }
+    .pdx-sh-note a { color: #f5d77a; }
+  </style>
+
+  <!-- ══ THE FLAG — ONE DECLARATION, READ THROUGH ONE MODULE ══════════════
+       This is the first script on the document, before any module can look for
+       it, and it is the ONLY place the flag is set. Nothing in mandate-lane.js
+       currently branches on it — that file guards on its mounts instead, which
+       is the stronger test — and it is declared anyway for the same reason
+       __PDX_COURTS_DOC and __PDX_ME_DOC are: the day a module needs to know
+       which document it is on, the answer must already exist and must not be a
+       location.pathname sniff. /mandate, /mandate/ and a local preview
+       server's /mandate.html are three spellings of one document that a path
+       test gets differently.
+       ════════════════════════════════════════════════════════════════════ -->
+  <script>window.__PDX_MANDATE_DOC = true;</script>
+
+  <!-- ══ COPIED VERBATIM FROM me.html LINES 1809–1864 ══════════════════
+       FIREBASE. The three compat bundles, the request-time key injection, and
+       the synchronous stub that guarantees `db` / `auth` / `PROFILES` exist
+       before anything can touch them.
+
+       THE SAME STUB AS THE OTHER INNER SHELLS, NOT A THIRD ONE. person.html,
+       me.html, issue.html and evidence.html all carry this block, byte for
+       byte, and the suite fences it: a shell that writes its own version of
+       "has Firebase answered yet" is a shell that can answer it differently.
+
+       ON THIS DOCUMENT IT IS NOT OPTIONAL. The per-card tallies are Firestore
+       documents (handleAgendaVote writes one) and the proposals board's support
+       route is metered per participant AND per account, so the page has to know
+       whether there is a session. It still opens no sign-in UI of its own: the
+       front page owns that, and the bar's chip is a trip there.
+       ═════════════════════════════════════════════════════════════════════════ -->
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<!-- The Firebase Web API key is injected at request time from the Netlify
+     environment variable FIREBASE_API_KEY by netlify/edge-functions/firebase-config.ts.
+     It is intentionally NOT hardcoded here so the value never lives in source
+     control or the deployed HTML (and the build's secrets scanner passes). -->
+<script defer src="/firebase-config.js"></script>
+<script>
+  // Run 1 perf: the Firebase SDKs and the bootstrap below are DEFERRED so they no
+  // longer block first paint. This tiny synchronous stub guarantees the globals
+  // that other inline code could touch at parse time exist; firebase-boot.js
+  // (deferred → runs after the SDK, before DOMContentLoaded) then replaces them
+  // with the live Firebase objects and starts the lightweight roster load. Net
+  // effect: identical behavior, but the ~800 KB compat SDK no longer gates paint.
+  var app, db, firestore, auth;
+  var PROFILES = window.PROFILES || {}; window.PROFILES = PROFILES;
+  window._pdxFullIds = window._pdxFullIds || new Set();
+  window._pdxFullPending = window._pdxFullPending || {};
+  function setDoc(docRef, data, options) { return docRef.set(data, options); }
+  db = { collection: null }; firestore = db;
+  // AUTH UNKNOWN IS NOT AUTH SIGNED-OUT. This stub used to answer every
+  // registration with cb(null) before the SDK had loaded, which told every
+  // module that a returning member was a guest. It queues instead;
+  // firebase-boot.js replays the queue onto the real auth object, and until then
+  // window.PDXAuth.state is 'unknown'. See the long note in index.html.
+  window.PDXAuth = window.PDXAuth || { state: 'unknown', user: null, known: false };
+  window.__pdxAuthQueue = window.__pdxAuthQueue || [];
+  auth = { currentUser: null, onAuthStateChanged: function (cb) { var rec = { cb: cb, off: false, unsub: null }; window.__pdxAuthQueue.push(rec); return function () { rec.off = true; if (rec.unsub) { try { rec.unsub(); } catch (e) {} } }; }, signInAnonymously: function () { return Promise.reject(new Error('auth pending')); }, signOut: function () { return Promise.resolve(); } };
+  // AND THE QUEUE IS NOT A TRAP. If firebase-boot.js never arrives to drain it —
+  // a blocked SDK, a failed deploy, a warm shell paired with an older copy of
+  // that file out of the runtime cache — the registrations above would wait for
+  // the whole visit and nothing on the page would ever learn there is no
+  // session. So the queue self-heals: once the SDK has had every chance to land,
+  // whatever is still queued is flushed with null, which is exactly the answer
+  // this stub used to give instantly. A LATE fallback is a different thing from
+  // a first guess — the first guess was the bug, and five seconds is not a
+  // guess, it is a timeout. firebase-boot.js nulls the queue when it replays, so
+  // on every normal load this is a no-op.
+  setTimeout(function () {
+    var q = window.__pdxAuthQueue;
+    if (!q) return;
+    window.__pdxAuthQueue = null;
+    try {
+      window.PDXAuth.known = true;
+      window.PDXAuth.state = 'out';
+      window.PDXAuth.user = null;
+      if (typeof window.updateNavAuth === 'function') window.updateNavAuth(null, 'out');
+    } catch (e) {}
+    for (var i = 0; i < q.length; i++) {
+      if (q[i] && !q[i].off && typeof q[i].cb === 'function') { try { q[i].cb(null); } catch (e) {} }
+    }
+  }, 5000);
+</script>
+<script src="/firebase-boot.js" defer></script>
+
+  <script src="/person-link.js"></script>
+  <script defer src="/support-lane.js"></script>
+  <script defer src="/mandate-lane.js"></script>
+  <script defer src="/shell-account-chip.js"></script>
+
+</head>
+<body>
+
+  <!-- ══ THE BAR ════════════════════════════════════════════════════════
+       THE SAME SIX DESTINATIONS ON ALL THREE SIDE-LANE SHELLS, in the same
+       order, so the row is a fixed place rather than a per-page guess. The two
+       front-page doors keep their front-page addresses — Who Represents Me and
+       Find the Record are surfaces of / and they are not being moved here —
+       and the three lanes are the three new documents. The current room is
+       marked with aria-current and still navigates, because a self-link that
+       does nothing is a control that lies.
+
+       The account slot is LAST and it is EMPTY in the markup. What fills it is
+       shell-account-chip.js, and until Firebase answers it fills it with
+       "Checking account…" — never the Join CTA. A returning member must not be
+       told to sign up in the loudest control on the page because an 800 KB
+       deferred SDK has not landed yet. See the contract in that file.
+       ═════════════════════════════════════════════════════════════════════════ -->
+  <header class="pdx-sh-bar">
+    <a class="pdx-sh-wordmark" href="/" title="PolitiDex — the front page">POLITI<span>DEX</span></a>
+    <nav class="pdx-sh-links" aria-label="PolitiDex">
+      <a class="pdx-sh-link" href="/#who-represents-me">🏛️ Who Represents Me</a>
+      <a class="pdx-sh-link" href="/#say-vs-do">👁️ Find the Record</a>
+      <a class="pdx-sh-link" href="/ballot">⭐ Your Ballot</a>
+      <a class="pdx-sh-link" href="/mandate" aria-current="page">✊ Mandate</a>
+      <a class="pdx-sh-link" href="/voice">📣 District Voice</a>
+      <a class="pdx-sh-link" href="/money">💰 Follow the Money</a>
+      <a class="pdx-sh-link" href="/">&larr; Home</a>
+    </nav>
+    <div id="pdx-shell-acct" data-pdx-acct-sig="unknown"></div>
+  </header>
+
+  <!-- The no-JavaScript answer. The board below is built in this browser from
+       /api/mandate-proposals plus the Firestore tallies — there is no
+       server-rendered reform table to print — so rather than pretend, this says
+       what the address is. -->
+  <noscript>
+    <p class="pdx-sh-note">
+      <strong>The People's Mandate.</strong> The reforms people are asking for, and
+      how many are backing each one. Every count on this page is read live from
+      PolitiDex's proposals API and the community tallies, so the board needs
+      JavaScript. A support count is momentum, never evidence: it is not part of
+      any person's record and it feeds no score or ranking on this site.
+      <a href="/">Go to PolitiDex</a>.
+    </p>
+  </noscript>
+
+  <main id="mandate-room">
+
+  <section id="agenda" class="py-16 md:py-24 mandate-section">
+  <div class="mandate-star-accents" aria-hidden="true">
+    <span style="top:8%;left:6%;font-size:1.2rem;animation-delay:0s;">✦</span>
+    <span style="top:5%;right:8%;font-size:0.8rem;animation-delay:1.2s;">★</span>
+    <span style="top:18%;left:15%;font-size:0.6rem;animation-delay:2.4s;">✧</span>
+    <span style="top:12%;right:18%;font-size:1rem;animation-delay:0.8s;">✦</span>
+    <span style="bottom:15%;left:10%;font-size:0.9rem;animation-delay:1.8s;">★</span>
+    <span style="bottom:8%;right:6%;font-size:1.1rem;animation-delay:3s;">✧</span>
+    <span style="top:35%;left:3%;font-size:0.7rem;animation-delay:2s;">✦</span>
+    <span style="bottom:30%;right:4%;font-size:0.65rem;animation-delay:0.5s;">★</span>
+  </div>
+  <div class="max-w-6xl mx-auto px-4" style="position:relative;z-index:1;">
+
+    <!-- Section Header -->
+    <div id="mandate-overview" class="text-center mb-10 animate-on-scroll">
+      <div class="mandate-header-badge">
+        <span class="w-3 h-3 rounded-full badge-live" style="background:#f5c842;box-shadow:0 0 10px rgba(245,200,66,0.6), 0 0 20px rgba(245,200,66,0.3);"></span>
+        <span class="font-condensed text-xs tracking-widest uppercase font-700" style="color:#f5c842;">★ The People's Direct Voice · Live Voting ★</span>
+      </div>
+      <h1 class="mandate-title font-display text-5xl sm:text-6xl md:text-8xl tracking-wider mb-3" style="padding:0 0.5rem;">THE PEOPLE'S MANDATE</h1>
+      <div class="mandate-subtitle font-display text-2xl sm:text-3xl tracking-wider mb-3" style="font-style:italic;">✦ Forging Tomorrow ✦</div>
+      <div class="mandate-tagline mb-5"><span class="star-sep">★</span> Where Citizens Lead <span class="star-sep">★</span> Ideas Become Policy <span class="star-sep">★</span> The Future Is Ours <span class="star-sep">★</span></div>
+      <p class="mandate-desc font-body leading-relaxed">
+        This is <strong>We the People</strong> at our most powerful — <span class="desc-highlight">shaping the laws that govern our lives</span>. Right here, right now, your voice becomes action. Submit bold ideas, rally your neighbors' votes, and forge the reforms that define America's next chapter — <span class="desc-blue">term limits, campaign finance overhaul, protecting our freedoms</span>, and every cause that matters to you. This isn't a suggestion box. <strong>This is the launchpad for real change.</strong>
+      </p>
+      <div class="mt-10 flex flex-col items-center gap-3">
+        <button onclick="openAgendaSubmit()" class="mandate-submit-btn">
+          <span class="btn-icon">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+          </span>
+          Submit Your Idea — Shape the Future
+        </button>
+        <span class="font-condensed text-xs tracking-widest uppercase" style="color:rgba(245,200,66,0.5);">✦ Add your voice and help shape the agenda ✦</span>
+      </div>
+    </div>
+
+    <!-- ── QUICK-JUMP NAV ───────────────────────────────────────────
+         Sticky map of the People's Mandate section. Each pill declares the
+         id of the block it scrolls to via data-target. buildMandateNav()
+         (see script below) self-gates any pill whose target is missing/empty,
+         keeps the live proposal count fresh, and drives the scroll-spy
+         highlight. Starts hidden so it only appears once the map is built. -->
+    <nav class="mandate-jump" id="mandate-jump" aria-label="Jump to a Mandate section" hidden>
+      <button type="button" class="mandate-jump-pill" data-target="mandate-overview">
+        <span class="mj-ico" aria-hidden="true">📢</span>Overview
+      </button>
+      <button type="button" class="mandate-jump-pill" data-target="mandate-stats">
+        <span class="mj-ico" aria-hidden="true">📊</span>Live Tally
+      </button>
+      <button type="button" class="mandate-jump-pill" data-target="rh-filter-bar">
+        <span class="mj-ico" aria-hidden="true">🔍</span>Find Reforms
+      </button>
+      <button type="button" class="mandate-jump-pill" data-target="agenda-grid">
+        <span class="mj-ico" aria-hidden="true">🗳️</span>The Agenda
+        <span class="mj-count" id="mandate-jump-count" aria-hidden="true">—</span>
+      </button>
+      <button type="button" class="mandate-jump-pill" data-target="mandate-submit">
+        <span class="mj-ico" aria-hidden="true">✍️</span>Submit
+      </button>
+    </nav>
+
+    <!-- Stats bar — both figures are live, not hardcoded. "Active Proposals" is
+         the number of reform cards currently shown (set by filterAgenda); "Total
+         Votes Cast" sums the live up/down vote counts pulled from Firestore. The
+         earlier "Community Members" / "Ideas Submitted" figures were removed
+         because no real data source backed them. -->
+    <div id="mandate-stats" class="mandate-stat-bar animate-on-scroll" style="transition-delay:0.05s;">
+      <div class="mandate-stat">
+        <span class="mandate-stat-num" style="color:#f5c842;" id="rh-count">—</span>
+        <span class="mandate-stat-label">Active Proposals</span>
+      </div>
+      <div class="mandate-stat-divider hidden sm:block"></div>
+      <div class="mandate-stat">
+        <span class="mandate-stat-num" style="color:#4ade80;" id="rh-total-votes">—</span>
+        <span class="mandate-stat-label">Total Votes Cast</span>
+      </div>
+    </div>
+
+    <!-- ── REFORM HUB FILTER BAR ──────────────────────────────────── -->
+    <div class="rh-filter-bar animate-on-scroll" style="transition-delay:0.08s;" id="rh-filter-bar">
+      <!-- Search -->
+      <div class="rh-search-wrap">
+        <svg class="rh-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg>
+        <input id="rh-search" type="text" placeholder="Search reforms or keywords…"
+          class="rh-search-input" oninput="filterAgenda()" autocomplete="off" spellcheck="false">
+        <button id="rh-search-clear" onclick="clearRhSearch()" title="Clear search" style="display:none;">
+          <svg style="width:0.75rem;height:0.75rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <!-- Filter dropdowns -->
+      <div class="rh-filters-row">
+        <div class="rh-filter-wrap">
+        <label class="rh-filter-label">🏷 Type</label>
+        <select id="rh-type" class="rh-select " onchange="filterAgenda()">
+          <option value="">All</option>
+          <option value="Fiscal Reform">Fiscal Reform</option>
+          <option value="Constitutional Rights">Constitutional Rights</option>
+          <option value="Environmental Protection">Environmental Protection</option>
+          <option value="Healthcare">Healthcare</option>
+          <option value="Education">Education</option>
+          <option value="Term Limits">Term Limits</option>
+          <option value="Campaign Finance">Campaign Finance</option>
+          <option value="Transparency">Transparency</option>
+        </select>
+      </div>
+        <div class="rh-filter-wrap">
+        <label class="rh-filter-label">📊 Demand</label>
+        <select id="rh-demand" class="rh-select " onchange="filterAgenda()">
+          <option value="">All</option>
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+          <option value="Low">Low</option>
+        </select>
+      </div>
+        <div class="rh-filter-wrap">
+        <label class="rh-filter-label">⚡ Urgency</label>
+        <select id="rh-urgency" class="rh-select " onchange="filterAgenda()">
+          <option value="">All</option>
+          <option value="Immediate">Immediate</option>
+          <option value="Short-term">Short-term</option>
+          <option value="Long-term">Long-term</option>
+        </select>
+      </div>
+        <div class="rh-filter-wrap">
+        <label class="rh-filter-label">👥 Affects</label>
+        <select id="rh-affects" class="rh-select " onchange="filterAgenda()">
+          <option value="">All</option>
+          <option value="All Citizens">All Citizens</option>
+          <option value="Taxpayers">Taxpayers</option>
+          <option value="Rural Communities">Rural Communities</option>
+          <option value="Urban Areas">Urban Areas</option>
+          <option value="Veterans">Veterans</option>
+          <option value="Small Businesses">Small Businesses</option>
+          <option value="Families">Families</option>
+        </select>
+      </div>
+        <div class="rh-filter-wrap">
+        <label class="rh-filter-label">↕ Sort By</label>
+        <select id="rh-sort" class="rh-select " onchange="filterAgenda()">
+          <option value="">All</option>
+          <option value="popular">Most Popular</option>
+          <option value="urgent">Most Urgent</option>
+          <option value="az">A → Z</option>
+          <option value="za">Z → A</option>
+        </select>
+      </div>
+        <button id="rh-reset-btn" onclick="resetAgendaFilters()" class="rh-reset-btn">Reset</button>
+      </div>
+      <!-- Active filter chips + result count -->
+      <div class="rh-active-row" id="rh-active-row" style="display:none;">
+        <span class="font-condensed text-xs tracking-widest uppercase text-steel-400" id="rh-result-count"></span>
+        <div id="rh-chips" class="flex flex-wrap gap-1.5 items-center"></div>
+      </div>
+    </div>
+
+    <!-- ── CARDS GRID ──────────────────────────────────────────────── -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6" id="agenda-grid">
+
+      <div class="agenda-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" style="transition-delay:0.06s;" data-type="Constitutional Rights" data-demand="High" data-urgency="Immediate" data-affects="All Citizens" data-title="term limits for congress" data-body="3 terms max for house (6 yrs). 2 terms max for senate (12 yrs). end the career politician class. both parties have blocked this for decades." data-up="2847" data-rank="1">
+        <div class="flex items-start gap-3 px-4 pt-4 pb-3 sm:px-5 border-b border-white/5" style="background:rgba(245,200,66,0.07);">
+          <span class="text-2xl flex-shrink-0 mt-0.5">⏳</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="font-condensed text-xs tracking-widest uppercase" style="color:#f5c842;">Term Limits</span>
+              <span class="text-xs font-condensed font-700 px-1.5 py-0.5 rounded-full tracking-widest uppercase flex-shrink-0" style="background:rgba(245,200,66,0.2);border:1px solid rgba(245,200,66,0.3);color:#f5c842;">#1</span>
+            </div>
+            <h4 class="font-display text-base sm:text-lg tracking-wider text-white leading-tight">Term Limits for Congress</h4>
+          </div>
+        </div>
+        <div class="px-4 py-3 sm:px-5">
+          <p class="text-xs text-steel-300 leading-relaxed mb-2">3 terms max for House (6 yrs). 2 terms max for Senate (12 yrs). End the career politician class. Both parties have blocked this for decades.</p>
+          <div class="flex flex-wrap gap-1 items-center mb-1">
+            <span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Congress</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Bipartisan</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Constitutional</span>
+            <span class="ml-auto font-condensed text-xs" style="color:#f5c842;opacity:0.7;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;">Immediate · High demand</span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="handleAgendaVote(this,'agenda-termlimits','up')" class="agenda-vote-up flex items-center gap-1 border border-green-400/25 hover:border-green-400/60 active:scale-95 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="handleAgendaVote(this,'agenda-termlimits','down')" class="agenda-vote-down flex items-center gap-1 border border-red-400/25 hover:border-red-400/60 active:scale-95 text-red-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="openAgendaComment('Term Limits for Congress')" class="flex items-center justify-center border border-steel-400/20 hover:border-steel-300/50 text-steel-400 hover:text-steel-300 px-2.5 py-2 rounded-lg transition-all" title="Comment"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" style="transition-delay:0.1s;" data-type="Transparency" data-demand="High" data-urgency="Immediate" data-affects="All Citizens" data-title="ban congressional stock trading" data-body="ban members of congress and their families from trading individual stocks while in office. mandatory blind trusts. end insider trading by the people who write the rules." data-up="3102" data-rank="2">
+        <div class="flex items-start gap-3 px-4 pt-4 pb-3 sm:px-5 border-b border-white/5" style="background:rgba(74,222,128,0.06);">
+          <span class="text-2xl flex-shrink-0 mt-0.5">📈</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="font-condensed text-xs tracking-widest uppercase" style="color:#4ade80;">Anti-Corruption</span>
+              <span class="text-xs font-condensed font-700 px-1.5 py-0.5 rounded-full tracking-widest uppercase flex-shrink-0" style="background:rgba(74,222,128,0.2);border:1px solid rgba(74,222,128,0.3);color:#4ade80;">#2</span>
+            </div>
+            <h4 class="font-display text-base sm:text-lg tracking-wider text-white leading-tight">Ban Congressional Stock Trading</h4>
+          </div>
+        </div>
+        <div class="px-4 py-3 sm:px-5">
+          <p class="text-xs text-steel-300 leading-relaxed mb-2">Ban members of Congress and their families from trading individual stocks while in office. Mandatory blind trusts. End insider trading by the people who write the rules.</p>
+          <div class="flex flex-wrap gap-1 items-center mb-1">
+            <span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Ethics</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Bipartisan</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Transparency</span>
+            <span class="ml-auto font-condensed text-xs" style="color:#4ade80;opacity:0.7;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;">Immediate · High demand</span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="handleAgendaVote(this,'agenda-stocks','up')" class="agenda-vote-up flex items-center gap-1 border border-green-400/25 hover:border-green-400/60 active:scale-95 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="handleAgendaVote(this,'agenda-stocks','down')" class="agenda-vote-down flex items-center gap-1 border border-red-400/25 hover:border-red-400/60 active:scale-95 text-red-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="openAgendaComment('Ban Congressional Stock Trading')" class="flex items-center justify-center border border-steel-400/20 hover:border-steel-300/50 text-steel-400 hover:text-steel-300 px-2.5 py-2 rounded-lg transition-all" title="Comment"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" style="transition-delay:0.14s;" data-type="Campaign Finance" data-demand="High" data-urgency="Immediate" data-affects="All Citizens" data-title="campaign finance reform" data-body="hard donation caps on all political contributions. full pac transparency. end dark money. politicians should answer to voters — not to whoever writes the biggest check." data-up="2214" data-rank="3">
+        <div class="flex items-start gap-3 px-4 pt-4 pb-3 sm:px-5 border-b border-white/5" style="background:rgba(192,21,42,0.07);">
+          <span class="text-2xl flex-shrink-0 mt-0.5">💸</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="font-condensed text-xs tracking-widest uppercase" style="color:#f87171;">Campaign Finance</span>
+              <span class="text-xs font-condensed font-700 px-1.5 py-0.5 rounded-full tracking-widest uppercase flex-shrink-0" style="background:rgba(192,21,42,0.2);border:1px solid rgba(192,21,42,0.3);color:#f87171;">#3</span>
+            </div>
+            <h4 class="font-display text-base sm:text-lg tracking-wider text-white leading-tight">Campaign Finance Reform</h4>
+          </div>
+        </div>
+        <div class="px-4 py-3 sm:px-5">
+          <p class="text-xs text-steel-300 leading-relaxed mb-2">Hard donation caps on all political contributions. Full PAC transparency. End dark money. Politicians should answer to voters — not to whoever writes the biggest check.</p>
+          <div class="flex flex-wrap gap-1 items-center mb-1">
+            <span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Dark Money</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Elections</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Transparency</span>
+            <span class="ml-auto font-condensed text-xs" style="color:#f87171;opacity:0.7;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;">Immediate · High demand</span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="handleAgendaVote(this,'agenda-campaign','up')" class="agenda-vote-up flex items-center gap-1 border border-green-400/25 hover:border-green-400/60 active:scale-95 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="handleAgendaVote(this,'agenda-campaign','down')" class="agenda-vote-down flex items-center gap-1 border border-red-400/25 hover:border-red-400/60 active:scale-95 text-red-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="openAgendaComment('Campaign Finance Reform')" class="flex items-center justify-center border border-steel-400/20 hover:border-steel-300/50 text-steel-400 hover:text-steel-300 px-2.5 py-2 rounded-lg transition-all" title="Comment"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" style="transition-delay:0.18s;" data-type="Fiscal Reform" data-demand="High" data-urgency="Short-term" data-affects="Taxpayers" data-title="balanced budget amendment" data-body="require congress to pass a balanced budget every year by constitutional mandate. emergency exceptions require a 2/3 supermajority. stop spending money we don't have." data-up="1876" data-rank="4">
+        <div class="flex items-start gap-3 px-4 pt-4 pb-3 sm:px-5 border-b border-white/5" style="background:rgba(159,180,212,0.07);">
+          <span class="text-2xl flex-shrink-0 mt-0.5">⚖️</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="font-condensed text-xs tracking-widest uppercase" style="color:#9fb4d4;">Fiscal Reform</span>
+              <span class="text-xs font-condensed font-700 px-1.5 py-0.5 rounded-full tracking-widest uppercase flex-shrink-0" style="background:rgba(159,180,212,0.15);border:1px solid rgba(159,180,212,0.25);color:#9fb4d4;">#4</span>
+            </div>
+            <h4 class="font-display text-base sm:text-lg tracking-wider text-white leading-tight">Balanced Budget Amendment</h4>
+          </div>
+        </div>
+        <div class="px-4 py-3 sm:px-5">
+          <p class="text-xs text-steel-300 leading-relaxed mb-2">Require Congress to pass a balanced budget every year by constitutional mandate. Emergency exceptions require a 2/3 supermajority. Stop spending money we don't have.</p>
+          <div class="flex flex-wrap gap-1 items-center mb-1">
+            <span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Federal Debt</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Constitutional</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Taxpayers</span>
+            <span class="ml-auto font-condensed text-xs" style="color:#9fb4d4;opacity:0.7;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;">Short-term · High demand</span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="handleAgendaVote(this,'agenda-budget','up')" class="agenda-vote-up flex items-center gap-1 border border-green-400/25 hover:border-green-400/60 active:scale-95 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="handleAgendaVote(this,'agenda-budget','down')" class="agenda-vote-down flex items-center gap-1 border border-red-400/25 hover:border-red-400/60 active:scale-95 text-red-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="openAgendaComment('Balanced Budget Amendment')" class="flex items-center justify-center border border-steel-400/20 hover:border-steel-300/50 text-steel-400 hover:text-steel-300 px-2.5 py-2 rounded-lg transition-all" title="Comment"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" style="transition-delay:0.22s;" data-type="Fiscal Reform" data-demand="High" data-urgency="Short-term" data-affects="Taxpayers" data-title="full audit of the federal reserve" data-body="complete, independent audit of the fed's operations, assets, and decisions. they control the money supply for 330m americans with almost zero public transparency." data-up="1543" data-rank="5">
+        <div class="flex items-start gap-3 px-4 pt-4 pb-3 sm:px-5 border-b border-white/5" style="background:rgba(245,200,66,0.06);">
+          <span class="text-2xl flex-shrink-0 mt-0.5">🏦</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="font-condensed text-xs tracking-widest uppercase" style="color:#f5c842;">Monetary Policy</span>
+              <span class="text-xs font-condensed font-700 px-1.5 py-0.5 rounded-full tracking-widest uppercase flex-shrink-0" style="background:rgba(245,200,66,0.15);border:1px solid rgba(245,200,66,0.25);color:#f5c842;">#5</span>
+            </div>
+            <h4 class="font-display text-base sm:text-lg tracking-wider text-white leading-tight">Full Audit of the Federal Reserve</h4>
+          </div>
+        </div>
+        <div class="px-4 py-3 sm:px-5">
+          <p class="text-xs text-steel-300 leading-relaxed mb-2">Complete, independent audit of the Fed's operations, assets, and decisions. They control the money supply for 330M Americans with almost zero public transparency.</p>
+          <div class="flex flex-wrap gap-1 items-center mb-1">
+            <span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Federal Reserve</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Transparency</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Fiscal</span>
+            <span class="ml-auto font-condensed text-xs" style="color:#f5c842;opacity:0.7;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;">Short-term · High demand</span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="handleAgendaVote(this,'agenda-fed','up')" class="agenda-vote-up flex items-center gap-1 border border-green-400/25 hover:border-green-400/60 active:scale-95 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="handleAgendaVote(this,'agenda-fed','down')" class="agenda-vote-down flex items-center gap-1 border border-red-400/25 hover:border-red-400/60 active:scale-95 text-red-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="openAgendaComment('Full Audit of the Federal Reserve')" class="flex items-center justify-center border border-steel-400/20 hover:border-steel-300/50 text-steel-400 hover:text-steel-300 px-2.5 py-2 rounded-lg transition-all" title="Comment"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" style="transition-delay:0.26s;" data-type="Transparency" data-demand="High" data-urgency="Immediate" data-affects="All Citizens" data-title="post bills 72 hrs before any vote" data-body="require every bill to be publicly posted online for at least 72 hours before any congressional vote. no more "we have to pass it to find out what's in it." read it first." data-up="1288" data-rank="6">
+        <div class="flex items-start gap-3 px-4 pt-4 pb-3 sm:px-5 border-b border-white/5" style="background:rgba(96,165,250,0.06);">
+          <span class="text-2xl flex-shrink-0 mt-0.5">📖</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="font-condensed text-xs tracking-widest uppercase" style="color:#60a5fa;">Legislative Reform</span>
+              <span class="text-xs font-condensed font-700 px-1.5 py-0.5 rounded-full tracking-widest uppercase flex-shrink-0" style="background:rgba(59,130,246,0.15);border:1px solid rgba(96,165,250,0.25);color:#60a5fa;">#6</span>
+            </div>
+            <h4 class="font-display text-base sm:text-lg tracking-wider text-white leading-tight">Post Bills 72 Hrs Before Any Vote</h4>
+          </div>
+        </div>
+        <div class="px-4 py-3 sm:px-5">
+          <p class="text-xs text-steel-300 leading-relaxed mb-2">Require every bill to be publicly posted online for at least 72 hours before any congressional vote. No more "we have to pass it to find out what's in it." Read it first.</p>
+          <div class="flex flex-wrap gap-1 items-center mb-1">
+            <span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Transparency</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Process</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Congress</span>
+            <span class="ml-auto font-condensed text-xs" style="color:#60a5fa;opacity:0.7;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;">Immediate · High demand</span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="handleAgendaVote(this,'agenda-readbills','up')" class="agenda-vote-up flex items-center gap-1 border border-green-400/25 hover:border-green-400/60 active:scale-95 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="handleAgendaVote(this,'agenda-readbills','down')" class="agenda-vote-down flex items-center gap-1 border border-red-400/25 hover:border-red-400/60 active:scale-95 text-red-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="openAgendaComment('Post Bills 72 Hrs Before Any Vote')" class="flex items-center justify-center border border-steel-400/20 hover:border-steel-300/50 text-steel-400 hover:text-steel-300 px-2.5 py-2 rounded-lg transition-all" title="Comment"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" style="transition-delay:0.3s;" data-type="Fiscal Reform" data-demand="High" data-urgency="Immediate" data-affects="Taxpayers" data-title="ban omnibus spending bills" data-body="require every spending bill to be voted on individually. no more 4,000-page omnibus packages jammed with hidden pork nobody read. one bill, one subject, one vote." data-up="1644" data-rank="7">
+        <div class="flex items-start gap-3 px-4 pt-4 pb-3 sm:px-5 border-b border-white/5" style="background:rgba(249,115,22,0.06);">
+          <span class="text-2xl flex-shrink-0 mt-0.5">🚫</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="font-condensed text-xs tracking-widest uppercase" style="color:#fb923c;">Legislative Reform</span>
+              <span class="text-xs font-condensed font-700 px-1.5 py-0.5 rounded-full tracking-widest uppercase flex-shrink-0" style="background:rgba(249,115,22,0.15);border:1px solid rgba(251,146,60,0.25);color:#fb923c;">#7</span>
+            </div>
+            <h4 class="font-display text-base sm:text-lg tracking-wider text-white leading-tight">Ban Omnibus Spending Bills</h4>
+          </div>
+        </div>
+        <div class="px-4 py-3 sm:px-5">
+          <p class="text-xs text-steel-300 leading-relaxed mb-2">Require every spending bill to be voted on individually. No more 4,000-page omnibus packages jammed with hidden pork nobody read. One bill, one subject, one vote.</p>
+          <div class="flex flex-wrap gap-1 items-center mb-1">
+            <span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Spending</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Accountability</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Congress</span>
+            <span class="ml-auto font-condensed text-xs" style="color:#fb923c;opacity:0.7;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;">Immediate · High demand</span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="handleAgendaVote(this,'agenda-omnibus','up')" class="agenda-vote-up flex items-center gap-1 border border-green-400/25 hover:border-green-400/60 active:scale-95 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="handleAgendaVote(this,'agenda-omnibus','down')" class="agenda-vote-down flex items-center gap-1 border border-red-400/25 hover:border-red-400/60 active:scale-95 text-red-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="openAgendaComment('Ban Omnibus Spending Bills')" class="flex items-center justify-center border border-steel-400/20 hover:border-steel-300/50 text-steel-400 hover:text-steel-300 px-2.5 py-2 rounded-lg transition-all" title="Comment"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" style="transition-delay:0.34s;" data-type="Healthcare" data-demand="High" data-urgency="Immediate" data-affects="Veterans" data-title="mandatory funding floor for va healthcare" data-body="require congress to fund va healthcare at a minimum of 1.2% of gdp each year. no more veterans waiting 6+ months for mental health care or prosthetics. non-negotiable baseline." data-up="1821" data-rank="8">
+        <div class="flex items-start gap-3 px-4 pt-4 pb-3 sm:px-5 border-b border-white/5" style="background:rgba(96,165,250,0.07);">
+          <span class="text-2xl flex-shrink-0 mt-0.5">🎖️</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="font-condensed text-xs tracking-widest uppercase" style="color:#60a5fa;">Veterans</span>
+              <span class="text-xs font-condensed font-700 px-1.5 py-0.5 rounded-full tracking-widest uppercase flex-shrink-0" style="background:rgba(59,130,246,0.15);border:1px solid rgba(96,165,250,0.25);color:#60a5fa;">#8</span>
+            </div>
+            <h4 class="font-display text-base sm:text-lg tracking-wider text-white leading-tight">Mandatory Funding Floor for VA Healthcare</h4>
+          </div>
+        </div>
+        <div class="px-4 py-3 sm:px-5">
+          <p class="text-xs text-steel-300 leading-relaxed mb-2">Require Congress to fund VA healthcare at a minimum of 1.2% of GDP each year. No more veterans waiting 6+ months for mental health care or prosthetics. Non-negotiable baseline.</p>
+          <div class="flex flex-wrap gap-1 items-center mb-1">
+            <span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Veterans</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Healthcare</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Mandatory</span>
+            <span class="ml-auto font-condensed text-xs" style="color:#60a5fa;opacity:0.7;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;">Immediate · High demand</span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="handleAgendaVote(this,'agenda-vets','up')" class="agenda-vote-up flex items-center gap-1 border border-green-400/25 hover:border-green-400/60 active:scale-95 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="handleAgendaVote(this,'agenda-vets','down')" class="agenda-vote-down flex items-center gap-1 border border-red-400/25 hover:border-red-400/60 active:scale-95 text-red-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="openAgendaComment('Mandatory Funding Floor for VA Healthcare')" class="flex items-center justify-center border border-steel-400/20 hover:border-steel-300/50 text-steel-400 hover:text-steel-300 px-2.5 py-2 rounded-lg transition-all" title="Comment"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" style="transition-delay:0.38s;" data-type="Transparency" data-demand="Medium" data-urgency="Short-term" data-affects="Rural Communities" data-title="universal rural broadband access by 2027" data-body="every american household — rural or urban — deserves reliable broadband by 2027. require isps receiving federal subsidies to hit actual coverage benchmarks or return the money." data-up="1127" data-rank="9">
+        <div class="flex items-start gap-3 px-4 pt-4 pb-3 sm:px-5 border-b border-white/5" style="background:rgba(139,92,246,0.07);">
+          <span class="text-2xl flex-shrink-0 mt-0.5">📡</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="font-condensed text-xs tracking-widest uppercase" style="color:#a78bfa;">Rural Development</span>
+              <span class="text-xs font-condensed font-700 px-1.5 py-0.5 rounded-full tracking-widest uppercase flex-shrink-0" style="background:rgba(139,92,246,0.15);border:1px solid rgba(167,139,250,0.25);color:#a78bfa;">#9</span>
+            </div>
+            <h4 class="font-display text-base sm:text-lg tracking-wider text-white leading-tight">Universal Rural Broadband Access by 2027</h4>
+          </div>
+        </div>
+        <div class="px-4 py-3 sm:px-5">
+          <p class="text-xs text-steel-300 leading-relaxed mb-2">Every American household — rural or urban — deserves reliable broadband by 2027. Require ISPs receiving federal subsidies to hit actual coverage benchmarks or return the money.</p>
+          <div class="flex flex-wrap gap-1 items-center mb-1">
+            <span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Rural</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Infrastructure</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Small Businesses</span>
+            <span class="ml-auto font-condensed text-xs" style="color:#a78bfa;opacity:0.7;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;">Short-term · Medium demand</span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="handleAgendaVote(this,'agenda-broadband','up')" class="agenda-vote-up flex items-center gap-1 border border-green-400/25 hover:border-green-400/60 active:scale-95 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="handleAgendaVote(this,'agenda-broadband','down')" class="agenda-vote-down flex items-center gap-1 border border-red-400/25 hover:border-red-400/60 active:scale-95 text-red-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="openAgendaComment('Universal Rural Broadband Access by 2027')" class="flex items-center justify-center border border-steel-400/20 hover:border-steel-300/50 text-steel-400 hover:text-steel-300 px-2.5 py-2 rounded-lg transition-all" title="Comment"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" style="transition-delay:0.42s;" data-type="Education" data-demand="High" data-urgency="Short-term" data-affects="Families" data-title="federal education savings accounts" data-body="redirect federal k-12 funding to follow the student, not the system. parents choose public, charter, private, or homeschool. esas funded at $8,000 per child annually." data-up="1389" data-rank="10">
+        <div class="flex items-start gap-3 px-4 pt-4 pb-3 sm:px-5 border-b border-white/5" style="background:rgba(52,211,153,0.07);">
+          <span class="text-2xl flex-shrink-0 mt-0.5">🏫</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="font-condensed text-xs tracking-widest uppercase" style="color:#34d399;">Education</span>
+              <span class="text-xs font-condensed font-700 px-1.5 py-0.5 rounded-full tracking-widest uppercase flex-shrink-0" style="background:rgba(52,211,153,0.15);border:1px solid rgba(52,211,153,0.25);color:#34d399;">#10</span>
+            </div>
+            <h4 class="font-display text-base sm:text-lg tracking-wider text-white leading-tight">Federal Education Savings Accounts</h4>
+          </div>
+        </div>
+        <div class="px-4 py-3 sm:px-5">
+          <p class="text-xs text-steel-300 leading-relaxed mb-2">Redirect federal K-12 funding to follow the student, not the system. Parents choose public, charter, private, or homeschool. ESAs funded at $8,000 per child annually.</p>
+          <div class="flex flex-wrap gap-1 items-center mb-1">
+            <span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Education</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Parents</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Choice</span>
+            <span class="ml-auto font-condensed text-xs" style="color:#34d399;opacity:0.7;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;">Short-term · High demand</span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="handleAgendaVote(this,'agenda-schoolchoice','up')" class="agenda-vote-up flex items-center gap-1 border border-green-400/25 hover:border-green-400/60 active:scale-95 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="handleAgendaVote(this,'agenda-schoolchoice','down')" class="agenda-vote-down flex items-center gap-1 border border-red-400/25 hover:border-red-400/60 active:scale-95 text-red-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="openAgendaComment('Federal Education Savings Accounts')" class="flex items-center justify-center border border-steel-400/20 hover:border-steel-300/50 text-steel-400 hover:text-steel-300 px-2.5 py-2 rounded-lg transition-all" title="Comment"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" style="transition-delay:0.46s;" data-type="Fiscal Reform" data-demand="Medium" data-urgency="Long-term" data-affects="Small Businesses" data-title="automatic sunset on all new regulations" data-body="every new federal regulation expires in 10 years unless congress affirmatively renews it. no more rules that outlive their purpose by decades. agencies must justify every rule's continued existence." data-up="998" data-rank="11">
+        <div class="flex items-start gap-3 px-4 pt-4 pb-3 sm:px-5 border-b border-white/5" style="background:rgba(245,200,66,0.07);">
+          <span class="text-2xl flex-shrink-0 mt-0.5">🌅</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="font-condensed text-xs tracking-widest uppercase" style="color:#f5c842;">Regulatory Reform</span>
+              <span class="text-xs font-condensed font-700 px-1.5 py-0.5 rounded-full tracking-widest uppercase flex-shrink-0" style="background:rgba(245,200,66,0.15);border:1px solid rgba(245,200,66,0.25);color:#f5c842;">#11</span>
+            </div>
+            <h4 class="font-display text-base sm:text-lg tracking-wider text-white leading-tight">Automatic Sunset on All New Regulations</h4>
+          </div>
+        </div>
+        <div class="px-4 py-3 sm:px-5">
+          <p class="text-xs text-steel-300 leading-relaxed mb-2">Every new federal regulation expires in 10 years unless Congress affirmatively renews it. No more rules that outlive their purpose by decades. Agencies must justify every rule's continued existence.</p>
+          <div class="flex flex-wrap gap-1 items-center mb-1">
+            <span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Deregulation</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Small Businesses</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Accountability</span>
+            <span class="ml-auto font-condensed text-xs" style="color:#f5c842;opacity:0.7;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;">Long-term · Medium demand</span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="handleAgendaVote(this,'agenda-sunset','up')" class="agenda-vote-up flex items-center gap-1 border border-green-400/25 hover:border-green-400/60 active:scale-95 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="handleAgendaVote(this,'agenda-sunset','down')" class="agenda-vote-down flex items-center gap-1 border border-red-400/25 hover:border-red-400/60 active:scale-95 text-red-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="openAgendaComment('Automatic Sunset on All New Regulations')" class="flex items-center justify-center border border-steel-400/20 hover:border-steel-300/50 text-steel-400 hover:text-steel-300 px-2.5 py-2 rounded-lg transition-all" title="Comment"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" style="transition-delay:0.5s;" data-type="Environmental Protection" data-demand="High" data-urgency="Short-term" data-affects="Rural Communities" data-title="protect western water compact rights" data-body="federal law must respect existing state water compacts. no federal agency can reallocate colorado river or great basin water without state legislative consent and full public environmental review." data-up="876" data-rank="12">
+        <div class="flex items-start gap-3 px-4 pt-4 pb-3 sm:px-5 border-b border-white/5" style="background:rgba(56,189,248,0.07);">
+          <span class="text-2xl flex-shrink-0 mt-0.5">💧</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="font-condensed text-xs tracking-widest uppercase" style="color:#38bdf8;">Environmental</span>
+              <span class="text-xs font-condensed font-700 px-1.5 py-0.5 rounded-full tracking-widest uppercase flex-shrink-0" style="background:rgba(14,165,233,0.15);border:1px solid rgba(56,189,248,0.25);color:#38bdf8;">#12</span>
+            </div>
+            <h4 class="font-display text-base sm:text-lg tracking-wider text-white leading-tight">Protect Western Water Compact Rights</h4>
+          </div>
+        </div>
+        <div class="px-4 py-3 sm:px-5">
+          <p class="text-xs text-steel-300 leading-relaxed mb-2">Federal law must respect existing state water compacts. No federal agency can reallocate Colorado River or Great Basin water without state legislative consent and full public environmental review.</p>
+          <div class="flex flex-wrap gap-1 items-center mb-1">
+            <span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Water Rights</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Western States</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Rural</span>
+            <span class="ml-auto font-condensed text-xs" style="color:#38bdf8;opacity:0.7;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;">Short-term · High demand</span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="handleAgendaVote(this,'agenda-water','up')" class="agenda-vote-up flex items-center gap-1 border border-green-400/25 hover:border-green-400/60 active:scale-95 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="handleAgendaVote(this,'agenda-water','down')" class="agenda-vote-down flex items-center gap-1 border border-red-400/25 hover:border-red-400/60 active:scale-95 text-red-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="openAgendaComment('Protect Western Water Compact Rights')" class="flex items-center justify-center border border-steel-400/20 hover:border-steel-300/50 text-steel-400 hover:text-steel-300 px-2.5 py-2 rounded-lg transition-all" title="Comment"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" style="transition-delay:0.54s;" data-type="Transparency" data-demand="High" data-urgency="Short-term" data-affects="Taxpayers" data-title="end no-bid federal contracts over $1m" data-body="any federal contract over $1 million must be competitively bid and posted publicly for 30 days. sole-source exceptions require written secretary-level justification published in the federal register." data-up="1144" data-rank="13">
+        <div class="flex items-start gap-3 px-4 pt-4 pb-3 sm:px-5 border-b border-white/5" style="background:rgba(248,113,113,0.07);">
+          <span class="text-2xl flex-shrink-0 mt-0.5">📋</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="font-condensed text-xs tracking-widest uppercase" style="color:#f87171;">Transparency</span>
+              <span class="text-xs font-condensed font-700 px-1.5 py-0.5 rounded-full tracking-widest uppercase flex-shrink-0" style="background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.25);color:#f87171;">#13</span>
+            </div>
+            <h4 class="font-display text-base sm:text-lg tracking-wider text-white leading-tight">End No-Bid Federal Contracts Over $1M</h4>
+          </div>
+        </div>
+        <div class="px-4 py-3 sm:px-5">
+          <p class="text-xs text-steel-300 leading-relaxed mb-2">Any federal contract over $1 million must be competitively bid and posted publicly for 30 days. Sole-source exceptions require written Secretary-level justification published in the Federal Register.</p>
+          <div class="flex flex-wrap gap-1 items-center mb-1">
+            <span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Government Waste</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Transparency</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Taxpayers</span>
+            <span class="ml-auto font-condensed text-xs" style="color:#f87171;opacity:0.7;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;">Short-term · High demand</span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="handleAgendaVote(this,'agenda-contracts','up')" class="agenda-vote-up flex items-center gap-1 border border-green-400/25 hover:border-green-400/60 active:scale-95 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="handleAgendaVote(this,'agenda-contracts','down')" class="agenda-vote-down flex items-center gap-1 border border-red-400/25 hover:border-red-400/60 active:scale-95 text-red-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="openAgendaComment('End No-Bid Federal Contracts Over $1M')" class="flex items-center justify-center border border-steel-400/20 hover:border-steel-300/50 text-steel-400 hover:text-steel-300 px-2.5 py-2 rounded-lg transition-all" title="Comment"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" style="transition-delay:0.58s;" data-type="Healthcare" data-demand="High" data-urgency="Immediate" data-affects="Families" data-title="enforce hospital price transparency" data-body="hospitals already required to post prices under 2021 law — but 70% still don't comply. $3m/day fines for non-compliance. real price transparency so patients can shop and compare before procedures." data-up="1673" data-rank="14">
+        <div class="flex items-start gap-3 px-4 pt-4 pb-3 sm:px-5 border-b border-white/5" style="background:rgba(52,211,153,0.07);">
+          <span class="text-2xl flex-shrink-0 mt-0.5">🏥</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="font-condensed text-xs tracking-widest uppercase" style="color:#34d399;">Healthcare</span>
+              <span class="text-xs font-condensed font-700 px-1.5 py-0.5 rounded-full tracking-widest uppercase flex-shrink-0" style="background:rgba(52,211,153,0.15);border:1px solid rgba(52,211,153,0.25);color:#34d399;">#14</span>
+            </div>
+            <h4 class="font-display text-base sm:text-lg tracking-wider text-white leading-tight">Enforce Hospital Price Transparency</h4>
+          </div>
+        </div>
+        <div class="px-4 py-3 sm:px-5">
+          <p class="text-xs text-steel-300 leading-relaxed mb-2">Hospitals already required to post prices under 2021 law — but 70% still don't comply. $3M/day fines for non-compliance. Real price transparency so patients can shop and compare before procedures.</p>
+          <div class="flex flex-wrap gap-1 items-center mb-1">
+            <span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Healthcare</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Families</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Transparency</span>
+            <span class="ml-auto font-condensed text-xs" style="color:#34d399;opacity:0.7;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;">Immediate · High demand</span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="handleAgendaVote(this,'agenda-healthcare','up')" class="agenda-vote-up flex items-center gap-1 border border-green-400/25 hover:border-green-400/60 active:scale-95 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="handleAgendaVote(this,'agenda-healthcare','down')" class="agenda-vote-down flex items-center gap-1 border border-red-400/25 hover:border-red-400/60 active:scale-95 text-red-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="openAgendaComment('Enforce Hospital Price Transparency')" class="flex items-center justify-center border border-steel-400/20 hover:border-steel-300/50 text-steel-400 hover:text-steel-300 px-2.5 py-2 rounded-lg transition-all" title="Comment"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" style="transition-delay:0.62s;" data-type="Education" data-demand="High" data-urgency="Short-term" data-affects="Families" data-title="federal parental rights in education act" data-body="parents have the right to review all curriculum, opt children out of any instruction conflicting with family values, and access school mental health records. no federal funding for schools that violate this." data-up="1502" data-rank="15">
+        <div class="flex items-start gap-3 px-4 pt-4 pb-3 sm:px-5 border-b border-white/5" style="background:rgba(139,92,246,0.07);">
+          <span class="text-2xl flex-shrink-0 mt-0.5">👨‍👩‍👧</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="font-condensed text-xs tracking-widest uppercase" style="color:#a78bfa;">Parental Rights</span>
+              <span class="text-xs font-condensed font-700 px-1.5 py-0.5 rounded-full tracking-widest uppercase flex-shrink-0" style="background:rgba(139,92,246,0.15);border:1px solid rgba(167,139,250,0.25);color:#a78bfa;">#15</span>
+            </div>
+            <h4 class="font-display text-base sm:text-lg tracking-wider text-white leading-tight">Federal Parental Rights in Education Act</h4>
+          </div>
+        </div>
+        <div class="px-4 py-3 sm:px-5">
+          <p class="text-xs text-steel-300 leading-relaxed mb-2">Parents have the right to review all curriculum, opt children out of any instruction conflicting with family values, and access school mental health records. No federal funding for schools that violate this.</p>
+          <div class="flex flex-wrap gap-1 items-center mb-1">
+            <span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Parents</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Education</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Families</span>
+            <span class="ml-auto font-condensed text-xs" style="color:#a78bfa;opacity:0.7;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;">Short-term · High demand</span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="handleAgendaVote(this,'agenda-parents','up')" class="agenda-vote-up flex items-center gap-1 border border-green-400/25 hover:border-green-400/60 active:scale-95 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="handleAgendaVote(this,'agenda-parents','down')" class="agenda-vote-down flex items-center gap-1 border border-red-400/25 hover:border-red-400/60 active:scale-95 text-red-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="openAgendaComment('Federal Parental Rights in Education Act')" class="flex items-center justify-center border border-steel-400/20 hover:border-steel-300/50 text-steel-400 hover:text-steel-300 px-2.5 py-2 rounded-lg transition-all" title="Comment"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="agenda-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" style="transition-delay:0.66s;" data-type="Fiscal Reform" data-demand="High" data-urgency="Short-term" data-affects="Taxpayers" data-title="line-item veto for the president" data-body="give the president authority to strike individual spending items from appropriations bills without vetoing the entire package. 44 states already give governors this power. end the all-or-nothing budget hostage game." data-up="1287" data-rank="16">
+        <div class="flex items-start gap-3 px-4 pt-4 pb-3 sm:px-5 border-b border-white/5" style="background:rgba(249,115,22,0.07);">
+          <span class="text-2xl flex-shrink-0 mt-0.5">✂️</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="font-condensed text-xs tracking-widest uppercase" style="color:#fb923c;">Fiscal Reform</span>
+              <span class="text-xs font-condensed font-700 px-1.5 py-0.5 rounded-full tracking-widest uppercase flex-shrink-0" style="background:rgba(251,146,60,0.2);border:1px solid rgba(251,146,60,0.3);color:#fb923c;">#16</span>
+            </div>
+            <h4 class="font-display text-base sm:text-lg tracking-wider text-white leading-tight">Line-Item Veto for the President</h4>
+          </div>
+        </div>
+        <div class="px-4 py-3 sm:px-5">
+          <p class="text-xs text-steel-300 leading-relaxed mb-2">Give the President authority to strike individual spending items from appropriations bills without vetoing the entire package. 44 states already give governors this power. End the all-or-nothing budget hostage game.</p>
+          <div class="flex flex-wrap gap-1 items-center mb-1">
+            <span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Spending</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Executive Power</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Budget Reform</span>
+            <span class="ml-auto font-condensed text-xs" style="color:#fb923c;opacity:0.7;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;">Short-term · High demand</span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="handleAgendaVote(this,'agenda-lineitem','up')" class="agenda-vote-up flex items-center gap-1 border border-green-400/25 hover:border-green-400/60 active:scale-95 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="handleAgendaVote(this,'agenda-lineitem','down')" class="agenda-vote-down flex items-center gap-1 border border-red-400/25 hover:border-red-400/60 active:scale-95 text-red-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="openAgendaComment('Line-Item Veto for the President')" class="flex items-center justify-center border border-steel-400/20 hover:border-steel-300/50 text-steel-400 hover:text-steel-300 px-2.5 py-2 rounded-lg transition-all" title="Comment"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" style="transition-delay:0.7s;" data-type="Transparency" data-demand="High" data-urgency="Immediate" data-affects="Taxpayers" data-title="full audit of all u.s. foreign aid" data-body="complete independent audit of every dollar in foreign aid — who receives it, what it funds, and what results were achieved. not one more dollar without a full accounting." data-up="2341" data-rank="17">
+        <div class="flex items-start gap-3 px-4 pt-4 pb-3 sm:px-5 border-b border-white/5" style="background:rgba(159,180,212,0.07);">
+          <span class="text-2xl flex-shrink-0 mt-0.5">🌍</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="font-condensed text-xs tracking-widest uppercase" style="color:#9fb4d4;">Transparency</span>
+              <span class="text-xs font-condensed font-700 px-1.5 py-0.5 rounded-full tracking-widest uppercase flex-shrink-0" style="background:rgba(159,180,212,0.15);border:1px solid rgba(159,180,212,0.25);color:#9fb4d4;">#17</span>
+            </div>
+            <h4 class="font-display text-base sm:text-lg tracking-wider text-white leading-tight">Full Audit of All U.S. Foreign Aid</h4>
+          </div>
+        </div>
+        <div class="px-4 py-3 sm:px-5">
+          <p class="text-xs text-steel-300 leading-relaxed mb-2">Complete independent audit of every dollar in foreign aid — who receives it, what it funds, and what results were achieved. Not one more dollar without a full accounting.</p>
+          <div class="flex flex-wrap gap-1 items-center mb-1">
+            <span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Foreign Aid</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Transparency</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Taxpayers</span>
+            <span class="ml-auto font-condensed text-xs" style="color:#9fb4d4;opacity:0.7;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;">Immediate · High demand</span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="handleAgendaVote(this,'agenda-foreignaid','up')" class="agenda-vote-up flex items-center gap-1 border border-green-400/25 hover:border-green-400/60 active:scale-95 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="handleAgendaVote(this,'agenda-foreignaid','down')" class="agenda-vote-down flex items-center gap-1 border border-red-400/25 hover:border-red-400/60 active:scale-95 text-red-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="openAgendaComment('Full Audit of All U.S. Foreign Aid')" class="flex items-center justify-center border border-steel-400/20 hover:border-steel-300/50 text-steel-400 hover:text-steel-300 px-2.5 py-2 rounded-lg transition-all" title="Comment"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" style="transition-delay:0.74s;" data-type="Education" data-demand="High" data-urgency="Short-term" data-affects="Families" data-title="mandatory civics & constitution test for high school graduation" data-body="require every american high school student to pass a basic civics and constitutional literacy exam before graduation. same test given to naturalized citizens. if immigrants must pass it, so should our graduates." data-up="1876" data-rank="18">
+        <div class="flex items-start gap-3 px-4 pt-4 pb-3 sm:px-5 border-b border-white/5" style="background:rgba(52,211,153,0.07);">
+          <span class="text-2xl flex-shrink-0 mt-0.5">📚</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="font-condensed text-xs tracking-widest uppercase" style="color:#34d399;">Education</span>
+              <span class="text-xs font-condensed font-700 px-1.5 py-0.5 rounded-full tracking-widest uppercase flex-shrink-0" style="background:rgba(52,211,153,0.15);border:1px solid rgba(52,211,153,0.25);color:#34d399;">#18</span>
+            </div>
+            <h4 class="font-display text-base sm:text-lg tracking-wider text-white leading-tight">Mandatory Civics & Constitution Test for High School Graduation</h4>
+          </div>
+        </div>
+        <div class="px-4 py-3 sm:px-5">
+          <p class="text-xs text-steel-300 leading-relaxed mb-2">Require every American high school student to pass a basic civics and Constitutional literacy exam before graduation. Same test given to naturalized citizens. If immigrants must pass it, so should our graduates.</p>
+          <div class="flex flex-wrap gap-1 items-center mb-1">
+            <span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Education</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Civics</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Bipartisan</span>
+            <span class="ml-auto font-condensed text-xs" style="color:#34d399;opacity:0.7;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;">Short-term · High demand</span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="handleAgendaVote(this,'agenda-civics','up')" class="agenda-vote-up flex items-center gap-1 border border-green-400/25 hover:border-green-400/60 active:scale-95 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="handleAgendaVote(this,'agenda-civics','down')" class="agenda-vote-down flex items-center gap-1 border border-red-400/25 hover:border-red-400/60 active:scale-95 text-red-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="openAgendaComment('Mandatory Civics & Constitution Test for High School Graduation')" class="flex items-center justify-center border border-steel-400/20 hover:border-steel-300/50 text-steel-400 hover:text-steel-300 px-2.5 py-2 rounded-lg transition-all" title="Comment"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" style="transition-delay:0.78s;" data-type="Campaign Finance" data-demand="High" data-urgency="Long-term" data-affects="All Citizens" data-title="abolish super pacs completely" data-body="end the supreme court's citizens united era by constitutional amendment. no more unlimited anonymous corporate money in elections. politicians should answer to voters — not to billionaire-funded shadow campaigns." data-up="2788" data-rank="19">
+        <div class="flex items-start gap-3 px-4 pt-4 pb-3 sm:px-5 border-b border-white/5" style="background:rgba(248,113,113,0.07);">
+          <span class="text-2xl flex-shrink-0 mt-0.5">🏛</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="font-condensed text-xs tracking-widest uppercase" style="color:#f87171;">Campaign Finance</span>
+              <span class="text-xs font-condensed font-700 px-1.5 py-0.5 rounded-full tracking-widest uppercase flex-shrink-0" style="background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.25);color:#f87171;">#19</span>
+            </div>
+            <h4 class="font-display text-base sm:text-lg tracking-wider text-white leading-tight">Abolish Super PACs Completely</h4>
+          </div>
+        </div>
+        <div class="px-4 py-3 sm:px-5">
+          <p class="text-xs text-steel-300 leading-relaxed mb-2">End the Supreme Court's Citizens United era by constitutional amendment. No more unlimited anonymous corporate money in elections. Politicians should answer to voters — not to billionaire-funded shadow campaigns.</p>
+          <div class="flex flex-wrap gap-1 items-center mb-1">
+            <span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Dark Money</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Elections</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Constitutional</span>
+            <span class="ml-auto font-condensed text-xs" style="color:#f87171;opacity:0.7;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;">Long-term · High demand</span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="handleAgendaVote(this,'agenda-superpac','up')" class="agenda-vote-up flex items-center gap-1 border border-green-400/25 hover:border-green-400/60 active:scale-95 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="handleAgendaVote(this,'agenda-superpac','down')" class="agenda-vote-down flex items-center gap-1 border border-red-400/25 hover:border-red-400/60 active:scale-95 text-red-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="openAgendaComment('Abolish Super PACs Completely')" class="flex items-center justify-center border border-steel-400/20 hover:border-steel-300/50 text-steel-400 hover:text-steel-300 px-2.5 py-2 rounded-lg transition-all" title="Comment"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" style="transition-delay:0.82s;" data-type="Healthcare" data-demand="Medium" data-urgency="Short-term" data-affects="All Citizens" data-title="decriminalize personal drug possession nationwide" data-body="possession of small amounts of any drug for personal use should be a civil fine, not a criminal offense. redirect savings from prosecution and incarceration to addiction treatment. evidence from portugal and oregon shows it works." data-up="1544" data-rank="20">
+        <div class="flex items-start gap-3 px-4 pt-4 pb-3 sm:px-5 border-b border-white/5" style="background:rgba(139,92,246,0.07);">
+          <span class="text-2xl flex-shrink-0 mt-0.5">⚖️</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="font-condensed text-xs tracking-widest uppercase" style="color:#a78bfa;">Criminal Justice</span>
+              <span class="text-xs font-condensed font-700 px-1.5 py-0.5 rounded-full tracking-widest uppercase flex-shrink-0" style="background:rgba(139,92,246,0.15);border:1px solid rgba(167,139,250,0.25);color:#a78bfa;">#20</span>
+            </div>
+            <h4 class="font-display text-base sm:text-lg tracking-wider text-white leading-tight">Decriminalize Personal Drug Possession Nationwide</h4>
+          </div>
+        </div>
+        <div class="px-4 py-3 sm:px-5">
+          <p class="text-xs text-steel-300 leading-relaxed mb-2">Possession of small amounts of any drug for personal use should be a civil fine, not a criminal offense. Redirect savings from prosecution and incarceration to addiction treatment. Evidence from Portugal and Oregon shows it works.</p>
+          <div class="flex flex-wrap gap-1 items-center mb-1">
+            <span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Criminal Justice</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Drug Policy</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Bipartisan</span>
+            <span class="ml-auto font-condensed text-xs" style="color:#a78bfa;opacity:0.7;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;">Short-term · Medium demand</span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="handleAgendaVote(this,'agenda-prisondrug','up')" class="agenda-vote-up flex items-center gap-1 border border-green-400/25 hover:border-green-400/60 active:scale-95 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="handleAgendaVote(this,'agenda-prisondrug','down')" class="agenda-vote-down flex items-center gap-1 border border-red-400/25 hover:border-red-400/60 active:scale-95 text-red-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="openAgendaComment('Decriminalize Personal Drug Possession Nationwide')" class="flex items-center justify-center border border-steel-400/20 hover:border-steel-300/50 text-steel-400 hover:text-steel-300 px-2.5 py-2 rounded-lg transition-all" title="Comment"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" style="transition-delay:0.86s;" data-type="Transparency" data-demand="High" data-urgency="Immediate" data-affects="All Citizens" data-title="5-year cooling-off period for former elected officials" data-body="no former senator, representative, or senior executive branch official may register as a federal lobbyist for five years after leaving office. quadruple the current 2-year ban. the revolving door corrupts democracy." data-up="2156" data-rank="21">
+        <div class="flex items-start gap-3 px-4 pt-4 pb-3 sm:px-5 border-b border-white/5" style="background:rgba(245,200,66,0.07);">
+          <span class="text-2xl flex-shrink-0 mt-0.5">🚪</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="font-condensed text-xs tracking-widest uppercase" style="color:#f5c842;">Transparency</span>
+              <span class="text-xs font-condensed font-700 px-1.5 py-0.5 rounded-full tracking-widest uppercase flex-shrink-0" style="background:rgba(245,200,66,0.15);border:1px solid rgba(245,200,66,0.25);color:#f5c842;">#21</span>
+            </div>
+            <h4 class="font-display text-base sm:text-lg tracking-wider text-white leading-tight">5-Year Cooling-Off Period for Former Elected Officials</h4>
+          </div>
+        </div>
+        <div class="px-4 py-3 sm:px-5">
+          <p class="text-xs text-steel-300 leading-relaxed mb-2">No former Senator, Representative, or senior Executive Branch official may register as a federal lobbyist for five years after leaving office. Quadruple the current 2-year ban. The revolving door corrupts democracy.</p>
+          <div class="flex flex-wrap gap-1 items-center mb-1">
+            <span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Lobbying</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Anti-Corruption</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Bipartisan</span>
+            <span class="ml-auto font-condensed text-xs" style="color:#f5c842;opacity:0.7;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;">Immediate · High demand</span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="handleAgendaVote(this,'agenda-lobbyban','up')" class="agenda-vote-up flex items-center gap-1 border border-green-400/25 hover:border-green-400/60 active:scale-95 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="handleAgendaVote(this,'agenda-lobbyban','down')" class="agenda-vote-down flex items-center gap-1 border border-red-400/25 hover:border-red-400/60 active:scale-95 text-red-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="openAgendaComment('5-Year Cooling-Off Period for Former Elected Officials')" class="flex items-center justify-center border border-steel-400/20 hover:border-steel-300/50 text-steel-400 hover:text-steel-300 px-2.5 py-2 rounded-lg transition-all" title="Comment"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" style="transition-delay:0.9s;" data-type="Fiscal Reform" data-demand="High" data-urgency="Immediate" data-affects="Taxpayers" data-title="full department of defense financial audit" data-body="the pentagon has never passed a full financial audit in its history. $858b annual budget. six consecutive audit failures (2018-2023). this is not a partisan issue — it's basic accountability. freeze dod budget increases until it passes." data-up="1932" data-rank="22">
+        <div class="flex items-start gap-3 px-4 pt-4 pb-3 sm:px-5 border-b border-white/5" style="background:rgba(96,165,250,0.07);">
+          <span class="text-2xl flex-shrink-0 mt-0.5">🎖️</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="font-condensed text-xs tracking-widest uppercase" style="color:#60a5fa;">Fiscal Reform</span>
+              <span class="text-xs font-condensed font-700 px-1.5 py-0.5 rounded-full tracking-widest uppercase flex-shrink-0" style="background:rgba(59,130,246,0.15);border:1px solid rgba(96,165,250,0.25);color:#60a5fa;">#22</span>
+            </div>
+            <h4 class="font-display text-base sm:text-lg tracking-wider text-white leading-tight">Full Department of Defense Financial Audit</h4>
+          </div>
+        </div>
+        <div class="px-4 py-3 sm:px-5">
+          <p class="text-xs text-steel-300 leading-relaxed mb-2">The Pentagon has NEVER passed a full financial audit in its history. $858B annual budget. Six consecutive audit failures (2018-2023). This is not a partisan issue — it's basic accountability. Freeze DoD budget increases until it passes.</p>
+          <div class="flex flex-wrap gap-1 items-center mb-1">
+            <span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Military</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Fiscal</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Accountability</span>
+            <span class="ml-auto font-condensed text-xs" style="color:#60a5fa;opacity:0.7;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;">Immediate · High demand</span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="handleAgendaVote(this,'agenda-militaryaudit','up')" class="agenda-vote-up flex items-center gap-1 border border-green-400/25 hover:border-green-400/60 active:scale-95 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="handleAgendaVote(this,'agenda-militaryaudit','down')" class="agenda-vote-down flex items-center gap-1 border border-red-400/25 hover:border-red-400/60 active:scale-95 text-red-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="openAgendaComment('Full Department of Defense Financial Audit')" class="flex items-center justify-center border border-steel-400/20 hover:border-steel-300/50 text-steel-400 hover:text-steel-300 px-2.5 py-2 rounded-lg transition-all" title="Comment"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="agenda-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" style="transition-delay:0.94s;" data-type="Environmental Protection" data-demand="High" data-urgency="Short-term" data-affects="Rural Communities" data-title="honor all existing federal tribal land treaties" data-body="the united states has violated over 500 treaties with native american tribes. full treaty enforcement — water rights, hunting rights, and sovereign land guarantees — with compensation for documented violations. no new extraction on sacred lands without tribal consent." data-up="987" data-rank="23">
+        <div class="flex items-start gap-3 px-4 pt-4 pb-3 sm:px-5 border-b border-white/5" style="background:rgba(52,211,153,0.07);">
+          <span class="text-2xl flex-shrink-0 mt-0.5">🌲</span>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="font-condensed text-xs tracking-widest uppercase" style="color:#34d399;">Environmental Protection</span>
+              <span class="text-xs font-condensed font-700 px-1.5 py-0.5 rounded-full tracking-widest uppercase flex-shrink-0" style="background:rgba(52,211,153,0.15);border:1px solid rgba(52,211,153,0.25);color:#34d399;">#23</span>
+            </div>
+            <h4 class="font-display text-base sm:text-lg tracking-wider text-white leading-tight">Honor All Existing Federal Tribal Land Treaties</h4>
+          </div>
+        </div>
+        <div class="px-4 py-3 sm:px-5">
+          <p class="text-xs text-steel-300 leading-relaxed mb-2">The United States has violated over 500 treaties with Native American tribes. Full treaty enforcement — water rights, hunting rights, and sovereign land guarantees — with compensation for documented violations. No new extraction on sacred lands without tribal consent.</p>
+          <div class="flex flex-wrap gap-1 items-center mb-1">
+            <span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Indigenous Rights</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Environmental</span><span class="issue-pill" style="font-size:0.55rem;padding:0.12rem 0.35rem;">Bipartisan</span>
+            <span class="ml-auto font-condensed text-xs" style="color:#34d399;opacity:0.7;font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;">Short-term · High demand</span>
+          </div>
+          <div class="flex items-center gap-2 mt-2">
+            <button onclick="handleAgendaVote(this,'agenda-indigenous','up')" class="agenda-vote-up flex items-center gap-1 border border-green-400/25 hover:border-green-400/60 active:scale-95 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="handleAgendaVote(this,'agenda-indigenous','down')" class="agenda-vote-down flex items-center gap-1 border border-red-400/25 hover:border-red-400/60 active:scale-95 text-red-400 font-condensed font-700 text-xs tracking-widest uppercase px-2.5 py-2 rounded-lg transition-all flex-1 justify-center" data-count="0"><svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg><span class="vote-count">0</span></button>
+            <button onclick="openAgendaComment('Honor All Existing Federal Tribal Land Treaties')" class="flex items-center justify-center border border-steel-400/20 hover:border-steel-300/50 text-steel-400 hover:text-steel-300 px-2.5 py-2 rounded-lg transition-all" title="Comment"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit CTA card (always last, never filtered) -->
+      <div class="rh-cta-card card-holo bg-gradient-to-br from-crimson-600/10 to-navy-800 rounded-2xl border border-crimson-600/25 overflow-hidden flex flex-col items-center justify-center p-6 text-center min-h-[200px] animate-on-scroll" style="transition-delay:0.66s;">
+        <div class="w-14 h-14 rounded-2xl bg-crimson-600/20 border border-crimson-600/35 flex items-center justify-center text-2xl mb-4">✊</div>
+        <h4 class="font-display text-xl tracking-wider mb-2" style="color:#f5c842;">Your Voice Matters</h4>
+        <p class="text-steel-400 text-xs leading-relaxed mb-5">Have a policy reform <strong style="color:#fff;">We the People</strong> need? Submit it and let the community vote it into action.</p>
+        <button onclick="openAgendaSubmit()" class="bg-crimson-600 hover:bg-crimson-500 active:bg-crimson-400 text-white font-condensed font-700 text-xs tracking-widest uppercase px-5 py-3 rounded-lg btn-glow transition-all" style="border:1px solid rgba(245,200,66,0.3);box-shadow:0 4px 16px rgba(192,21,42,0.3);">+ Submit Your Idea</button>
+      </div>
+    </div><!-- /agenda-grid -->
+
+    <!-- No results state -->
+    <div id="rh-empty" style="display:none;" class="text-center py-16">
+      <div style="font-size:2.5rem;margin-bottom:0.75rem;">🔍</div>
+      <div class="font-display text-2xl tracking-wider text-white mb-2">No Reforms Found</div>
+      <p class="text-steel-400 text-sm">Try adjusting your filters or <button onclick="resetAgendaFilters()" class="text-crimson-400 hover:text-crimson-300 underline underline-offset-2">reset all filters</button>.</p>
+    </div>
+
+    <!-- ══════════════════ THE PEOPLE'S PROPOSALS ══════════════════
+         The live participation layer. Everything above is the curated agenda;
+         everything in this block is community-submitted and rendered at runtime
+         from /api/mandate-proposals (Netlify DB). It is fully additive — the
+         vision text, filters and curated cards above are untouched. All cards,
+         stats and states inside #pp-list are built by renderProposals(); the
+         markup here is just the chrome and the empty/loading placeholders. -->
+    <div id="peoples-proposals" class="pp-section animate-on-scroll" style="transition-delay:0.1s;">
+
+      <!-- Heading -->
+      <div class="text-center mb-6">
+        <div class="pp-kicker">
+          <span class="w-2.5 h-2.5 rounded-full badge-live" style="background:#4ade80;box-shadow:0 0 10px rgba(74,222,128,0.6);"></span>
+          <span>★ Live From The People ★</span>
+        </div>
+        <h3 class="pp-title font-display tracking-wider">THE PEOPLE'S PROPOSALS</h3>
+        <p class="pp-subtitle font-body">
+          Ideas straight from citizens like you. <span style="color:#f5c842;">Back the reforms you believe in</span> — every tap of support pushes them up the board. <strong>Your voice becomes action.</strong>
+        </p>
+        <!-- Said once, at the top, in body copy rather than fine print: this
+             board's numbers are momentum. They are not part of anybody's record
+             and they feed no score. Filled at runtime from
+             PDXSupportLane.noteHtml() so the wording lives in one file; this is
+             the no-JS text. -->
+        <div id="pp-momentum-note" style="max-width:44rem;margin:0.6rem auto 0;">
+          <p class="pdxsup-note">Momentum, not evidence: support counts show how many people asked for a reform to be tracked. They are not part of any record and feed no score.</p>
+        </div>
+      </div>
+
+      <!-- Live stat + sort controls -->
+      <div class="pp-controls">
+        <div class="pp-livestat" id="pp-livestat">
+          <span class="w-2 h-2 rounded-full badge-live" style="background:#4ade80;box-shadow:0 0 8px rgba(74,222,128,0.6);"></span>
+          <!-- "shows of support", not "total votes". A vote on this site is a roll
+               call: a formal act with a date, a chamber and a citation. Spending
+               that word on a tap blurs the one distinction the archive rests on.
+               The label is owned by PDXSupportLane.WORDS.statLabel; this markup is
+               the no-JS fallback and is kept in step with it by the suite. -->
+          <span id="pp-stat-text"><span class="pp-stat-num" id="pp-count">—</span> proposals submitted <span class="pp-dot">•</span> <span class="pp-stat-num" id="pp-votes">—</span> <span id="pp-stat-label">shows of support</span></span>
+        </div>
+        <div class="pp-actions">
+          <div class="pp-sort" role="tablist" aria-label="Sort proposals">
+            <button type="button" class="pp-sort-btn is-active" data-sort="top" onclick="setProposalSort('top')">🔥 Most Supported</button>
+            <button type="button" class="pp-sort-btn" data-sort="new" onclick="setProposalSort('new')">✨ Newest</button>
+          </div>
+          <button type="button" class="pp-team-btn" id="pp-team-toggle" style="display:none;" aria-pressed="false" title="Show only proposals that involve your representatives or the people you follow" onclick="toggleProposalTeamFilter(this)">
+            🎯 <span id="pp-team-toggle-label">Involves my picks</span>
+          </button>
+          <button type="button" class="pp-propose-btn" onclick="openAgendaSubmit()">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+            Propose a Change
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading state -->
+      <div id="pp-loading" class="pp-state">
+        <div class="pp-spinner" aria-hidden="true"></div>
+        <p class="text-steel-400 text-sm font-condensed tracking-wider mt-3">Loading the people's proposals…</p>
+      </div>
+
+      <!-- Empty state (first-time / no proposals yet) -->
+      <div id="pp-empty" class="pp-state" style="display:none;">
+        <div style="font-size:2.75rem;margin-bottom:0.5rem;">✊</div>
+        <div class="font-display text-2xl sm:text-3xl tracking-wider text-white mb-2">Be The First To Forge Tomorrow</div>
+        <p class="text-steel-400 text-sm leading-relaxed max-w-md mx-auto mb-5">No community proposals yet — the board is wide open. Drop the first bold reform idea and rally the votes behind it.</p>
+        <button type="button" class="pp-propose-btn pp-propose-btn--lg" onclick="openAgendaSubmit()">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+          Submit The First Idea
+        </button>
+      </div>
+
+      <!-- Error / offline state -->
+      <div id="pp-error" class="pp-state" style="display:none;">
+        <div style="font-size:2.25rem;margin-bottom:0.5rem;">📡</div>
+        <div class="font-display text-xl tracking-wider text-white mb-2">Couldn't Load Proposals</div>
+        <p class="text-steel-400 text-sm mb-4">The live board is momentarily unreachable.</p>
+        <button type="button" class="pp-retry-btn" onclick="loadProposals()">Try Again</button>
+      </div>
+
+      <!-- The live grid — cards injected by renderProposals() -->
+      <div id="pp-grid" class="pp-grid" style="display:none;"></div>
+
+    </div>
+    <!-- ════════════════ END THE PEOPLE'S PROPOSALS ════════════════ -->
+
+    <!-- Bottom CTA -->
+    <div id="mandate-submit" class="mandate-bottom-bar animate-on-scroll" style="transition-delay:0.7s;">
+      <div class="flex items-center gap-3">
+        <span class="w-3 h-3 rounded-full badge-live" style="background:#4ade80;box-shadow:0 0 8px rgba(74,222,128,0.5), 0 0 16px rgba(74,222,128,0.2);"></span>
+        <p class="text-steel-500 text-xs font-condensed tracking-wider">★ Ranked by community upvotes · <span style="color:#f5c842;">Your ideas shape America's future</span> · New ideas reviewed within 48 hrs ★</p>
+      </div>
+      <button onclick="openAgendaSubmit()" class="mandate-bottom-cta">✦ Submit New Reform Idea</button>
+    </div>
+
+  </div>
+  </section>
+
+  <!-- ═══════════════════ AGENDA SUBMIT MODAL ═══════════════ -->
+  <div id="agenda-submit-overlay" class="fixed inset-0 z-[55] bg-black/80 backdrop-blur-sm items-center justify-center p-4" style="display:none;" onclick="if(event.target===this)closeAgendaSubmit()">
+    <div class="relative w-full max-w-lg bg-navy-800 rounded-2xl border border-white/10 overflow-hidden flex flex-col" style="box-shadow:0 24px 64px rgba(0,0,0,0.7),0 0 0 1px rgba(255,255,255,0.04);max-height:90vh;">
+      <!-- Header -->
+      <div class="flex-shrink-0 flex items-center justify-between px-5 py-4 border-b border-white/8 bg-navy-900/70" style="backdrop-filter:blur(8px);">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-xl bg-crimson-600/20 border border-crimson-600/30 flex items-center justify-center">📜</div>
+          <div>
+            <div class="font-display text-base tracking-wider text-white leading-none">Submit a Reform Idea</div>
+            <div class="font-condensed text-xs tracking-widest uppercase text-steel-400 mt-0.5">The People's Mandate</div>
+          </div>
+        </div>
+        <button onclick="closeAgendaSubmit()" class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-steel-300 hover:text-white transition-all flex items-center justify-center flex-shrink-0" style="min-height:unset;">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <!-- Body -->
+      <div class="flex-1 overflow-y-auto p-5 sm:p-6" style="overscroll-behavior:contain;">
+        <div class="flex gap-2.5 items-start bg-navy-900/60 border border-steel-400/15 rounded-xl px-4 py-3 mb-5">
+          <svg class="w-4 h-4 text-steel-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <p class="text-xs text-steel-400 leading-relaxed">Share a bold reform idea. Only a title and description are required — add a category, a source, or your name if you like. Your proposal goes live on the board instantly for the community to support.</p>
+        </div>
+        <div id="agenda-form-wrap" class="space-y-4">
+          <div>
+            <label class="font-condensed text-xs tracking-widest uppercase text-steel-400 block mb-1.5">Reform Title <span class="text-crimson-400">*</span></label>
+            <input id="af-title" type="text" placeholder="e.g. Require all bills to be posted online 72 hours before a vote" class="w-full bg-navy-900/80 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-body placeholder-steel-500/60 focus:border-steel-400/50 focus:outline-none transition-colors" style="background:rgba(10,15,30,0.7);" />
+          </div>
+          <div>
+            <label class="font-condensed text-xs tracking-widest uppercase text-steel-400 block mb-1.5">Category</label>
+            <select id="af-category" class="w-full bg-navy-900/80 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-condensed tracking-wider focus:border-steel-400/50 focus:outline-none transition-colors" style="background:rgba(10,15,30,0.7);">
+              <option value="constitutional">Constitutional Reform</option>
+              <option value="elections">Elections &amp; Campaign Finance</option>
+              <option value="fiscal">Fiscal &amp; Budget Policy</option>
+              <option value="corruption">Anti-Corruption &amp; Ethics</option>
+              <option value="healthcare">Healthcare</option>
+              <option value="education">Education</option>
+              <option value="immigration">Immigration &amp; Border</option>
+              <option value="national-security">National Security</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-condensed text-xs tracking-widest uppercase text-steel-400 block mb-1.5">Description <span class="text-crimson-400">*</span></label>
+            <textarea id="af-desc" rows="4" placeholder="Explain the reform, why it matters, and what specific problem it solves. Be specific." class="w-full bg-navy-900/80 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-body placeholder-steel-500/60 focus:border-steel-400/50 focus:outline-none transition-colors resize-none leading-relaxed" style="background:rgba(10,15,30,0.7);"></textarea>
+          </div>
+          <div>
+            <label class="font-condensed text-xs tracking-widest uppercase text-steel-400 block mb-1.5">Link Politicians <span class="text-steel-500">(optional)</span></label>
+            <div class="pp-picker-wrap">
+              <input id="af-link-search" type="text" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="af-link-results" placeholder="Search a politician this reform affects…" oninput="afLinkSearch(this.value)" onfocus="afLinkSearch(this.value)" onkeydown="afLinkKey(event)" class="w-full bg-navy-900/80 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-body placeholder-steel-500/60 focus:border-steel-400/50 focus:outline-none transition-colors" style="background:rgba(10,15,30,0.7);" />
+              <div id="af-link-results" class="pp-picker-results" style="display:none;"></div>
+            </div>
+            <p class="text-[0.68rem] text-steel-500 mt-1.5 font-condensed tracking-wider">Tie this reform to the people it targets — it will show on their profile and on the proposal card.</p>
+            <div id="af-link-selected" class="pp-picker-selected"></div>
+          </div>
+          <div>
+            <label class="font-condensed text-xs tracking-widest uppercase text-steel-400 block mb-1.5">Source URL <span class="text-steel-500">(optional)</span></label>
+            <input id="af-source" type="url" placeholder="https://..." class="w-full bg-navy-900/80 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-body placeholder-steel-500/60 focus:border-steel-400/50 focus:outline-none transition-colors" style="background:rgba(10,15,30,0.7);" />
+          </div>
+          <div>
+            <label class="font-condensed text-xs tracking-widest uppercase text-steel-400 block mb-1.5">Your Name <span class="text-steel-500">(optional — defaults to Anonymous)</span></label>
+            <input id="af-name" type="text" placeholder="Jane Smith" class="w-full bg-navy-900/80 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-body placeholder-steel-500/60 focus:border-steel-400/50 focus:outline-none transition-colors" style="background:rgba(10,15,30,0.7);" />
+          </div>
+          <div id="af-error" class="hidden flex gap-2 items-center bg-red-500/10 border border-red-500/25 rounded-xl px-4 py-3">
+            <svg class="w-4 h-4 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <p id="af-error-text" class="text-xs text-red-300 font-condensed tracking-wider"></p>
+          </div>
+        </div>
+        <div id="agenda-success" class="hidden text-center py-6">
+          <div class="text-4xl mb-3">🎯</div>
+          <div class="font-display text-2xl tracking-wider text-white mb-2">IDEA IS LIVE!</div>
+          <p class="text-steel-300 text-sm leading-relaxed max-w-xs mx-auto">Your reform is now on The People's Proposals board for the community to support. Rally the votes and forge tomorrow.</p>
+          <div class="mt-4 bg-navy-900/60 border border-white/5 rounded-xl px-4 py-3 text-xs text-steel-400 font-condensed tracking-wider">Proposal ID: <span id="af-submission-id" class="text-white"></span></div>
+        </div>
+      </div>
+      <!-- Footer -->
+      <div id="agenda-footer" class="flex-shrink-0 flex gap-3 px-5 py-4 border-t border-white/8 bg-navy-900/60" style="backdrop-filter:blur(8px);">
+        <button onclick="closeAgendaSubmit()" class="flex-1 border border-steel-400/30 hover:border-white/50 text-steel-300 hover:text-white font-condensed font-700 text-xs tracking-widest uppercase py-3 rounded-xl transition-all">Cancel</button>
+        <button id="af-submit-btn" onclick="submitAgendaIdea()" class="flex-1 text-white font-condensed font-700 text-xs tracking-widest uppercase py-3 rounded-xl transition-all btn-glow" style="background:#c0152a;">
+          <span id="af-btn-label">Submit Idea →</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  </main>
+
+</body>
+</html>

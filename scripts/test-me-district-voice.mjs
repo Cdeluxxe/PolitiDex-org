@@ -346,9 +346,14 @@ const slots = {};
   has(slot, "Daggett County", "verified: the county is the one this reader saved");
   has(slot, "me-voicetag", "verified: the badge is on");
   has(slot, "Verified resident", "verified: and it says what it certifies");
-  // THE CTA IS THE BOARD'S OWN ADDRESS, asked of the owner.
+  // THE GATE IS STILL THE OWNER'S ANSWER, AND THE DESTINATION IS THE ROOM.
+  // PDXVoice.path(seat) is what decides whether this CTA appears at all — '' is
+  // "no board here" — and that has not changed. Where it POINTS has: /d/<seat>
+  // is a rewrite to index.html, so the desk's Voice button was a 1.9 MB trip to
+  // read one board. /voice is 28 KB and resolves this same seat through this
+  // same module. Same gate, same seat, one twentieth of the bytes.
   eq(w.PDXVoice.path(HD68), "/d/" + HD68, "verified: the owner holds the board's address");
-  has(slot, `href="/d/${HD68}"`, "verified: the CTA is the board's real address");
+  has(slot, 'href="/voice"', "verified: the CTA is the District Voice room");
   has(slot, "Open District Voice", "verified: and it says so");
   lacks(slot, "board not live yet", "verified: the board IS live in this seat, so that sentence is absent");
 }

@@ -660,7 +660,7 @@
         '<div class="sl-block-note" id="sl-community-body">Loading discussions on this issue…</div>' +
         '<div class="sl-block-acts">' +
           '<button type="button" class="sl-btn" id="sl-discuss-2">💬 Start a discussion</button>' +
-          '<a class="sl-btn" href="#agenda" style="text-decoration:none;display:inline-block;">📜 Propose a reform</a>' +
+          '<a class="sl-btn" href="/mandate" style="text-decoration:none;display:inline-block;">📜 Propose a reform</a>' +
         '</div>' +
       '</div>';
   }

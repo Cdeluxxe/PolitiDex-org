@@ -6450,7 +6450,36 @@
 //     chamber list are untouched; no new persistence and no new auth provider.
 //     No score, party read, issue key or roster field changed, and no
 //     Direction Match read or record-ledger figure moved.
-const CACHE_VERSION = 'v210';
+// v211 - MANDATE, DISTRICT VOICE AND FOLLOW THE MONEY EACH GET A DOCUMENT
+//
+//     THE THREE NEW SHELLS. /mandate (mandate.html, the tenth), /voice (voice.html,
+//     the eleventh) and /money (money.html, the twelfth), each an inner shell in the
+//     shape /me and /courts already established: its own HTML, its own scoped sheet,
+//     the same PDXAuth queue stub, the same top bar, the same account chip — and
+//     none of the homepage's 2 MB of hero, Door 1 work layer, Evidence Locker
+//     template, Who-Represents-Me card, ballot workspace or ballot-breakdown.js.
+//
+//     WHY THE BUMP. Nothing precached changed its meaning, but three documents and
+//     seven assets are new to the shell list — mandate.html, voice.html, money.html,
+//     shell-chrome.css, shell-account-chip.js, mandate-lane.js, mandate-lane.css,
+//     voice-room.js, money-room.js, money-lane.css — and a v210 shell cache has no
+//     copy of any of them, so it would have answered /mandate cold and offline not
+//     at all. index.html changed too: the mandate lane's markup and its five inline
+//     script blocks left it for mandate-lane.js, and the nav, footer and in-page
+//     doors that said #agenda or #follow-the-money now say /mandate and /money.
+//     MIGRATION COST: none. No stored record migrates, and old fragments keep
+//     working — index.html forwards an inbound #agenda or #follow-the-money to the
+//     new document in one replaceState hop, so a bookmark does not land on a retired
+//     layer.
+//
+//     DID NOT MOVE. No default location, no score, no party sort, no second grade
+//     and no Direction Match on any of the three; the money lane prints amounts,
+//     composition and coverage and no 0-100. voter-hub-location.js is untouched —
+//     still the one store that says where the reader is, read by all three and
+//     written by none, which is why /voice says it cannot place you rather than
+//     inventing a place. Sitemap, robots.txt and canonicals untouched, /me stays
+//     /me, no issue key, mapping or ingest moved.
+const CACHE_VERSION = 'v211';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -6557,6 +6586,32 @@ const SHELL_ASSETS = [
   // them: with no resolver on hand region A says it cannot place the reader and
   // region B — the archive, which is the same for everybody — still paints.
   '/courts.html',
+
+  // THE TENTH, ELEVENTH AND TWELFTH SHELLS, the first three that came OUT of
+  // index.html rather than arriving new. netlify.toml rewrites /mandate, /voice
+  // and /money (plus each trailing-slash form) here; each is a SINGLE address,
+  // so navDocKey gives them no key and one entry answers every arrival.
+  '/mandate.html',
+  '/voice.html',
+  '/money.html',
+  // The chrome all three share — the bar-and-chip sheet and the chip's own small
+  // module — and the only two files /me and /courts did not already bring.
+  '/shell-chrome.css',
+  '/shell-account-chip.js',
+  // WHAT /mandate COSTS OFFLINE: these two, because together they ARE the room.
+  // support-lane.js stays runtime-cached for the reason spotlight-hub.js does:
+  // it decorates the lane, it is not the lane.
+  '/mandate-lane.js',
+  '/mandate-lane.css',
+  // WHAT /voice COSTS OFFLINE: one 16 KB decider. Everything it reads is already
+  // an entry here — /district-voice.js, /district-voice.css, /issue-map.js,
+  // /issue-colors.js, /person-link.js — bar /voter-hub-location.js, which stays
+  // runtime-cached; with no resolver the standing says it cannot place the reader.
+  '/voice-room.js',
+  // WHAT /money COSTS OFFLINE: the re-homing module and the lane's rules;
+  // /finance-lane.js and /finance-lane.css are already entries below.
+  '/money-room.js',
+  '/money-lane.css',
   '/css/tailwind.css',
   // The above-the-fold record card. Parser-blocking in index.html, so on a
   // repeat visit these two must come from the cache or they add latency to the
@@ -7325,6 +7380,19 @@ const EVIDENCE_NAV_RE = /^\/evidence\/?$/;
 // declared with no wildcard.
 const COURTS_NAV_RE = /^\/courts\/?$/;
 
+// ─── THE FOURTH, FIFTH AND SIXTH BRANCHES ───────────────────────────────────
+// On exactly the same terms again: two exact spellings each, no capture group,
+// nothing after the optional slash, matching the six exact rules netlify.toml
+// declares for them with no wildcard. All three are SINGLE addresses. /mandate
+// has no per-proposal segment — a proposal is an id inside the lane. /voice has
+// no per-seat segment: the seat comes out of the reader's saved location, never
+// the path, which is why the room can say "we cannot place you". /money takes a
+// pid as a QUERY and forwards it; navDocKey drops a search string, so one
+// fallback answers every arrival.
+const MANDATE_NAV_RE = /^\/mandate\/?$/;
+const VOICE_NAV_RE = /^\/voice\/?$/;
+const MONEY_NAV_RE = /^\/money\/?$/;
+
 // How many person documents to keep. Each USED to be the whole ~2 MB app shell;
 // since the split it is person.html, ~234 KB, so four slots now cost less than
 // one did. Still a storage decision and not a correctness one: correctness is the
@@ -7346,6 +7414,9 @@ const PERSON_DOC_LIMIT = 4;
 //   stances.html — THE SEVENTH SHELL. /stances IS ITS OWN DOCUMENT.
 //   evidence.html — THE EIGHTH SHELL. /evidence IS ITS OWN DOCUMENT.
 //   courts.html — THE NINTH SHELL. /courts IS ITS OWN DOCUMENT.
+//   mandate.html — THE TENTH SHELL. /mandate IS ITS OWN DOCUMENT.
+//   voice.html — THE ELEVENTH SHELL. /voice IS ITS OWN DOCUMENT.
+//   money.html — THE TWELFTH SHELL. /money IS ITS OWN DOCUMENT.
 //
 // SIXTH IS ABSENT ON PURPOSE: me.html opens "/me — THE VOTER'S OWN FILE" and
 // never uses this wording. That costs the guard nothing — a body is only
@@ -7366,10 +7437,11 @@ const PERSON_DOC_LIMIT = 4;
 // sent, and none of them separates two documents served from one origin with one
 // content type — a Netlify rewrite is transparent, so /p/lee and '/' answer with
 // identical header sets. The identity only exists in the body.
-const SUB_SHELL_BANNER_RE = /\b(person|issue|spotlight|ballot|stances|evidence|courts)\.html\s*—\s*THE\s+(?:SECOND|THIRD|FOURTH|FIFTH|SEVENTH|EIGHTH|NINTH)\s+SHELL\b/;
+const SUB_SHELL_BANNER_RE = /\b(person|issue|spotlight|ballot|stances|evidence|courts|mandate|voice|money)\.html\s*—\s*THE\s+(?:SECOND|THIRD|FOURTH|FIFTH|SEVENTH|EIGHTH|NINTH|TENTH|ELEVENTH|TWELFTH)\s+SHELL\b/;
 
-// The prefix ceiling, in decoded characters. The furthest of the three banners
-// sits ~283 characters in, so this is an order of magnitude of headroom: a banner
+// The prefix ceiling, in decoded characters. The furthest banner of the ten
+// sits ~283 characters in — the three newest land at 252 — so this is an order
+// of magnitude of headroom: a banner
 // that somehow drifted past it stops being FOUND, which fails open, rather than
 // being misread.
 const SHELL_SNIFF_CHARS = 4096;
@@ -7462,8 +7534,8 @@ async function handleNavigate(req) {
   try { url = new URL(req.url); } catch (e) { url = null; }
   const key = navDocKey(url);
   // THE HOMEPAGE NAVIGATION, NAMED ONCE — and then made a factor in every shell
-  // flag below. '/' cannot match any of the six *_NAV_RE as they are written, but
-  // that is a property of six regexes elsewhere in this file, and a later edit
+  // flag below. '/' cannot match any of the nine *_NAV_RE as they are written, but
+  // that is a property of nine regexes elsewhere in this file, and a later edit
   // that widened one would hand '/' a sub-shell and reproduce the defect v188
   // exists to close. So it is excluded HERE, where the fallbacks are chosen.
   const isHome = key === '/';
@@ -7485,6 +7557,13 @@ async function handleNavigate(req) {
   // Seventh of the same kind: navDocKey gives /courts no key either, so this
   // chooses a FALLBACK, and the one precached document answers every reader.
   const isCourts = !isHome && !!(url && url.origin === self.location.origin && COURTS_NAV_RE.test(url.pathname));
+  // Eighth, ninth and tenth of the same kind: navDocKey gives none of the three
+  // new lanes a key either, so each chooses a FALLBACK and one precached
+  // document answers every arrival — /money?p=<pid> included, because the pid is
+  // a query and money-room.js is what forwards it.
+  const isMandate = !isHome && !!(url && url.origin === self.location.origin && MANDATE_NAV_RE.test(url.pathname));
+  const isVoice = !isHome && !!(url && url.origin === self.location.origin && VOICE_NAV_RE.test(url.pathname));
+  const isMoney = !isHome && !!(url && url.origin === self.location.origin && MONEY_NAV_RE.test(url.pathname));
 
   // A PERSON DOCUMENT IS A RUNTIME ENTRY, NOT A SHELL ONE. It is keyed to a single
   // address, it is not on SHELL_ASSETS, and nothing on the precache list depends on
@@ -7618,12 +7697,12 @@ async function handleNavigate(req) {
     if (evidenceDoc) return evidenceDoc;
   }
 
-  // Offline in the courts room. Ninth shell, and now LAST of the seven so none
-  // of /p/, /i/, /issue/, /ballot, /stances or /evidence can be intercepted by
-  // it — none could be as these regexes are written, and the order keeps that
-  // true after the next edit. /courts.html is precached and so is every module
-  // that paints it, and the room degrades honestly rather than emptily: region B,
-  // the archive, is the same for everybody and comes out of /judicial-data.js,
+  // Offline in the courts room. Ninth shell. Nothing above it — /p/, /i/,
+  // /issue/, /ballot, /stances, /evidence — can be intercepted by it, none could
+  // be as these regexes are written, and the order keeps that true after the next
+  // edit. It is no longer last: three lanes follow it. /courts.html is precached
+  // and so is every module that paints it, and the room degrades honestly rather
+  // than emptily: region B, the archive, comes out of /judicial-data.js,
   // and region A says it cannot place the reader rather than naming a judge as
   // theirs. Before '/', which since this pass carries the DOOR and not the room:
   // falling back to it would hand a reader who asked for the courts a homepage
@@ -7631,6 +7710,37 @@ async function handleNavigate(req) {
   if (isCourts) {
     const courtsDoc = await shell.match('/courts.html');
     if (courtsDoc) return courtsDoc;
+  }
+
+  // Offline in the Mandate lane. Tenth shell. /mandate.html and mandate-lane.js
+  // are both precached, and the lane's counts and named items come out of the
+  // same held assets the front page read them from. Before '/', and the reason is
+  // sharper here than for the rooms above: '/' now carries a DOOR CARD where the
+  // lane used to be, so falling back to it would hand a reader who asked for the
+  // mandate a link to the address they just asked for.
+  if (isMandate) {
+    const mandateDoc = await shell.match('/mandate.html');
+    if (mandateDoc) return mandateDoc;
+  }
+
+  // Offline in District Voice. Eleventh shell, and the one where "degrades
+  // honestly" is the design: with no network voice-room.js holds its checking
+  // state for the grace window, then says it cannot place the reader and points
+  // at Who Represents Me — no district, no neighbours, no guessed state.
+  if (isVoice) {
+    const voiceDoc = await shell.match('/voice.html');
+    if (voiceDoc) return voiceDoc;
+  }
+
+  // Offline in Follow the Money. Twelfth shell, and LAST of the ten so none of
+  // the nine addresses above can be intercepted by it — none could be as these
+  // regexes are written, and the order keeps that true after the next edit.
+  // /money.html carries the filings and the tracker in its own body, so amounts,
+  // composition and coverage all paint with no network; the two person controls
+  // re-homed onto /p/<pid>#money resolve against the precached person shell.
+  if (isMoney) {
+    const moneyDoc = await shell.match('/money.html');
+    if (moneyDoc) return moneyDoc;
   }
 
   // Everything else: '/' is the app shell and it names nobody — the honest

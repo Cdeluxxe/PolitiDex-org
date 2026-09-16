@@ -221,7 +221,7 @@
     .pdx-stx-note a { color: #f5d77a; }
   </style>
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 26455–26479 ═══════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 24434–24458 ═══════════════════
        THE STANCE PILLS. stance-library.css reuses the shared .pdxis-stance*
        vocabulary "verbatim" (its own header says so) and defines none of it.
        index.html declares the base rules inline, mid-document, and they are the
@@ -332,7 +332,9 @@
            fragments. #evidence-locker is now /evidence; #stance-library is the
            section directly above this one, so it stays a fragment and is the one
            href here that still legitimately is one; #issue-front-door and
-           #agenda live on the front page, so they are /#… trips home.
+           #issue-front-door lives on the front page, so it is a /#… trip
+           home; the Mandate is /mandate, its own document since v211, so that
+           one is a path and not a fragment at all.
        ═══════════════════════════════════════════════════════════════════ -->
       <div id="all-spotlights">
         <div class="shub-head">
@@ -358,11 +360,11 @@
           <a class="shub-crossnav-link" href="/evidence">🔎 Evidence Library</a>
           <a class="shub-crossnav-link" href="#stance-library">🎯 Issues &amp; Stances</a>
           <a class="shub-crossnav-link" href="/#issue-front-door">🧭 Browse Issues</a>
-          <a class="shub-crossnav-link" href="/#agenda">✊ The Mandate</a>
+          <a class="shub-crossnav-link" href="/mandate">✊ The Mandate</a>
         </div>
       </div>
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 26498–26619 ═══════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 24477–24598 ═══════════════════
        PDXStance — the four-state stance language. stance-library.js reads it
        through its guarded G('PDXStance') and calls stancePill()/resolveStance()
        for every row on the desk; without it every stance row would render as a
@@ -621,11 +623,20 @@
     // are homepage sections, so they become trips home carrying their fragment;
     // #evidence-locker becomes the room. #all-spotlights is a real element on
     // THIS page, so it is deliberately not in the table.
-    var HASH_HOME = { 'open-forum': 1, 'agenda': 1, 'issue-front-door': 1 };
+    // THE LANE TABLE, ahead of HASH_HOME. Three fragments that used to be
+    // homepage sections are documents of their own since v211, so they are
+    // rooms to go to and not trips home: sending #agenda to /#agenda would land
+    // the reader on the front page's door card, one hop short of the reforms.
+    var HASH_ROOM = {
+      'evidence-locker': '/evidence',
+      'agenda': '/mandate', 'mandate': '/mandate', 'peoples-mandate': '/mandate',
+      'follow-the-money': '/money', 'district-voice': '/voice'
+    };
+    var HASH_HOME = { 'open-forum': 1, 'issue-front-door': 1 };
     function onHash() {
       var h = String(location.hash || '').replace(/^#/, '');
       if (!h) return;
-      if (h === 'evidence-locker') { go('/evidence'); return; }
+      if (HASH_ROOM[h]) { go(HASH_ROOM[h]); return; }
       if (HASH_HOME[h]) { go('/#' + h); return; }
     }
 

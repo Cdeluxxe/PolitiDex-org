@@ -56,6 +56,17 @@ const LANE_SRC = R("support-lane.js");
 const LANE_CSS = R("support-lane.css");
 const APP_CSS = R("app.css");
 const INDEX = R("index.html");
+// THE LANE'S MARKUP MOVED AND THIS FILE FOLLOWED IT. The People's Mandate is its
+// own document at /mandate since the three-room split: the board, its headline
+// stat and the People's Proposals wall are mandate.html's markup now, and the
+// engine that paints them — including the profile's Related Proposals block — is
+// mandate-lane.js. support-lane.js itself did not move, and neither did anything
+// this file asserts ABOUT it; what changed is which shipped surface the lane
+// decorates. index.html is still read below for the door card and for the
+// negative pins, because the wording this section retired must not come back on
+// the front page either.
+const MANDATE = R("mandate.html");
+const MANDATE_LANE = R("mandate-lane.js");
 const FN = R("netlify/functions/mandate-proposals.mts");
 const RL = R("netlify/lib/rate-limit.ts");
 const RL_CORE = R("netlify/lib/rate-limit-core.mjs");
@@ -150,12 +161,16 @@ has(L.statLabel(), "support", "the headline stat label says what it counts");
 
 // The shipped markup agrees. The Mandate page's headline stat is the one place
 // this wording was actually wrong, so the retirement is asserted on the file.
-ok(!/id="pp-votes">—<\/span>\s*total votes/.test(INDEX),
+ok(!/id="pp-votes">—<\/span>\s*total votes/.test(MANDATE),
   "the Mandate headline stat no longer reads 'total votes'");
-has(INDEX, 'id="pp-stat-label"', "the stat label is a labelled element the lane can own");
-has(INDEX, 'id="pp-momentum-note"', "the Mandate board has a momentum-note host");
-has(INDEX, '<script defer src="/support-lane.js"></script>', "support-lane.js ships");
-has(INDEX, 'href="/support-lane.css"', "support-lane.css ships");
+ok(!/total votes/i.test(INDEX),
+  "the front page says 'total votes' again — the wording was retired on both surfaces");
+has(MANDATE, 'id="pp-stat-label"', "the stat label is a labelled element the lane can own");
+has(MANDATE, 'id="pp-momentum-note"', "the Mandate board has a momentum-note host");
+has(MANDATE, '<script defer src="/support-lane.js"></script>', "support-lane.js ships on /mandate");
+has(MANDATE, 'href="/support-lane.css"', "support-lane.css ships on /mandate");
+has(INDEX, '<script defer src="/support-lane.js"></script>', "support-lane.js still ships on the front page");
+has(INDEX, 'href="/support-lane.css"', "support-lane.css still ships on the front page");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("3 · 'not evidence, feeds no score' is said in words, twice");
@@ -177,8 +192,9 @@ eq(visible(wallNote), L.WALL_NOTE, "the rendered wall note is exactly the lane's
 // The note has to be able to appear on a person file. The profile's Related
 // Proposals block is where a count sits next to a record, so that is where the
 // stronger wording is required.
-has(INDEX, "_wallNote()", "the profile's Related Proposals block renders the wall note");
-has(INDEX, "PDXSupportLane.noteHtml", "the client reads the note from the lane, not a copy");
+has(MANDATE_LANE, "_wallNote()", "the profile's Related Proposals block renders the wall note");
+has(MANDATE_LANE, "PDXSupportLane.noteHtml", "the client reads the note from the lane, not a copy");
+has(MANDATE, "PDXSupportLane", "the Mandate document loads the lane it is decorated by");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("4 · counts are counts — no score shape, no percentage, no ramp");

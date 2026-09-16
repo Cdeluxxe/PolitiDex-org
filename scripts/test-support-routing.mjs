@@ -297,7 +297,7 @@ section("2 · the four surfaces, and what each one hit before");
 const BEFORE = [
   { surface: "mobile hamburger (#mobileMenu)", was: "#support-politidex", note: "set the hash; the native jump finished on another section" },
   { surface: "desktop overflow (Community ▾ → Donate)", was: "#support-politidex", note: "worked — this is the card the others must reach" },
-  { surface: "footer (About column)", was: "", note: "no money control existed; the nearest label was People's Mandate → #agenda" },
+  { surface: "footer (About column)", was: "", note: "no money control existed; the nearest label was People's Mandate → /mandate" },
   { surface: "profile rail (#my-profile)", was: "", note: "no money control existed; the rail's gold CTA was → #voter-hub" },
 ];
 BEFORE.forEach((b) => console.log(`      ${b.surface}: ${b.was ? b.was : "(none)"} — ${b.note}`));
@@ -354,7 +354,10 @@ section("3 · the other products keep their own ids");
 // None of their controls may carry the donate hash, and none of them may be
 // pointed at Venmo.
 const NOT_MONEY = [
-  { what: "the People's Mandate", href: "#agenda" },
+  // The Mandate is its own document now, so its controls spell an address
+  // rather than a fragment. What this section asserts is unchanged: a Mandate
+  // control is not a money control, wherever it points.
+  { what: "the People's Mandate", href: "/mandate" },
   { what: "the Open Discussion forum", href: "#open-forum" },
   { what: "the Community Exchange", href: "#community-exchange" },
 ];

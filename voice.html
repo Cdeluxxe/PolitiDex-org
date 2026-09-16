@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+<!-- ══════════════════════════════════════════════════════════════════════════════
+     voice.html — THE ELEVENTH SHELL. /voice IS ITS OWN DOCUMENT.
+     ────────────────────────────────────────────────────────────────────────────
+     WHAT WAS WRONG. District Voice had exactly one address: the Voice block
+     inside a district file at /d/<seat-key>, and /d/<seat-key> is a rewrite to
+     index.html. So a resident who wanted to read their own seat's board paid
+     for a two-megabyte document, the homepage hero, Door 1's work layer, the
+     Evidence Locker template, the ballot workspace and 400 KB of ballot
+     machinery — to read one question and a handful of neighbours' sentences.
+     Worse, they had to already know their seat key, because nothing on the site
+     turned "where I live" into "my board" at an address you could bookmark.
+
+     /voice is that address, and it is the only thing on it. The seat file at
+     /d/<seat-key> did not move and did not change: it is still where a SEAT is
+     read, this is where a READER is placed, and district-voice.js answers both.
+
+     WHAT IS ON THIS PAGE, AND IT IS ONE LANE. District Voice: the reader's
+     standing at their own seat, and — when a board is open in it — the board
+     district-voice.js already renders. Each of the following is a rule, not a
+     current state of the data:
+       · NO DEFAULT LOCATION, AND UTAH IS NOT A GUESS. The one seat with a live
+         board today happens to be in Utah. That is a fact about the rollout,
+         not an assumption about a stranger, and this document never pre-fills
+         it. A reader with no saved location is pointed at the two doors that
+         SET one and told nothing else.
+       · NO INVENTED NEIGHBOURS AND NO POLL OF THE INTERNET. Every neighbour,
+         take, answer and count on this page comes from /api/district-voice
+         under the claim the reader themselves saved. When the board is empty it
+         says so in district-voice.js's own shipped copy.
+       · NO "HOW THE MEMBER VOTED." The board's week strip reads the seat's
+         formal record, best-effort, and says which of its three states it is in;
+         it never renders a person's vote as a verdict. The seated member is not
+         even resolved on this document — district-voice.js asks
+         pdxSeatedMemberFor() and fails soft to '' when ballot-breakdown.js is
+         absent, which it is here, deliberately.
+       · NO SCORE, NO DIRECTION MATCH, NO PARTY, NO FINANCE. A take is not a
+         metric on anybody's file. The money lane is its own address, /money,
+         for the same reason this one is.
+       · "BOARD NOT LIVE YET" STAYS. It is true in every seat but one, and a
+         true empty state is worth more than a page that pretends otherwise.
+
+     THE CRITICAL PATH, AND WHY EACH FILE IS ON IT. Six scripts and three
+     sheets, which is the whole document:
+       person-link.js      one owner of "what is this person's URL", so any
+                           linked chip the board prints goes to the same /p/
+                           address the rest of the site uses.
+       issue-map.js        the issue vocabulary. A take is keyed to an issue and
+                           the board prints that issue's LABEL; without this file
+                           district-voice.js falls back to the raw key, which is
+                           legible but is not the site's word for it.
+       issue-colors.js     the one answer to "what colour is this issue". The
+                           board's per-take skin reads it; nothing here invents
+                           a hue.
+       voter-hub-location  the app's ONE location resolver — pdxRepsForMe() and
+                           _currentVoterLocation, which are the two things
+                           district-voice.js's claim() reads. Without it every
+                           reader is unplaced, which is why it is on the path
+                           rather than deferred behind an interaction.
+       district-voice.js   the ONE owner of District Voice: the seat allow-list,
+                           the seat-key shape, what counts as a claim, which
+                           seat a claim names, whether a board is open in it, the
+                           board's address, the frame sentence, and the board
+                           itself. This document asks it everything.
+       voice-room.js       the only thing on this page that DECIDES anything, and
+                           what it decides is one question: which of five
+                           standings this reader is in. It borrows every fact
+                           from district-voice.js and answers none of them.
+       css/tailwind.css    the utility sheet the shared chrome is built out of.
+                           NOT app.css.
+       shell-chrome.css    the bar and the account chip, shared by the three
+                           side-lane shells.
+       district-voice.css  the board's own shapes, 18 KB, self-contained under
+                           .pdxv-*. /me deliberately does NOT load this sheet
+                           because /me shows a standing and never a board; this
+                           document shows both, so here it belongs.
+
+     WHAT IS DELIBERATELY NOT HERE. No app.css (986 KB). No compare-hub.js
+     (758 KB of homepage engine — the account chip is shell-account-chip.js
+     instead, 9 KB answering the same three-state contract). NO
+     ballot-breakdown.js (407 KB): nothing on this page renders a ballot, and
+     the one thing it would add is the seated member's name, which the board
+     already knows how to do without. No Door 1 work layer, no Evidence Locker
+     template, no Who Represents Me card, no ballot workspace, no homepage hero,
+     no cmp-data.js and no All-Seeing Eye — the front page's search reaches
+     everything there is to search and this bar links to it. ballot.html,
+     me.html, stances.html, evidence.html and courts.html are the precedent for
+     every one of those.
+
+     THE RULE THIS DOCUMENT LIVES BY: EVERY SAME-ORIGIN PATH IS ROOT-ABSOLUTE.
+     /voice/ is served with HTTP 200 at a trailing-slash path, so a bare src of
+     district-voice.js would resolve to /voice/district-voice.js, the rewrite
+     would catch it, and the browser would be handed this document and told to
+     parse HTML as JavaScript. A leading slash is correct at every depth.
+     scripts/test-voice-shell.mjs fails on a relative src or href here.
+
+     THIS PAGE IS ABOUT THE READER, so unlike /courts and /mandate it is a
+     personal surface: the canonical is real and the page is indexable, because
+     what a stranger sees here is an honest description of what District Voice
+     is plus the two doors that place them — but nothing on it is
+     reader-specific until a location the reader saved says so. NO NEW URL SHAPE
+     IS PUBLISHED FROM HERE: a seat is /d/<seat-key>, a room is
+     /d/<seat-key>/<issue>, a person is /p/<pid>, and all three already have
+     owners. No JSON-LD — index.html's WebSite/Organization block describes the
+     front page, and this is not the front page.
+     ════════════════════════════════════════════════════════════════════════════════ -->
+
+  <!-- The share tags, in share-preview.ts's attribute order (`property` then
+       `content`, `rel` then `href`) for the same reason the other shells carry
+       them that way — that edge function rewrites by an attribute-ordered
+       regex, so a reshuffle here would be a silent no-op there rather than an
+       error, on the day /voice is added to its config.path. -->
+  <title>District Voice &middot; your seat&rsquo;s board &middot; PolitiDex</title>
+  <link rel="canonical" href="https://www.politidex.fyi/voice" />
+  <meta name="description" content="District Voice — one seat&rsquo;s board: the live question and the verified neighbors&rsquo; own takes. Not a poll of the internet, and not how the member voted. Set your location once and this page knows which board is yours." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PolitiDex" />
+  <meta property="og:title" content="District Voice &middot; PolitiDex" />
+  <meta property="og:description" content="One seat&rsquo;s board: the live question and the verified neighbors&rsquo; own takes. Not a poll of the internet. Not how the member voted." />
+  <meta property="og:url" content="https://www.politidex.fyi/voice" />
+  <meta property="og:image" content="https://www.politidex.fyi/og-image.png" />
+  <meta property="og:image:alt" content="PolitiDex — District Voice" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="District Voice &middot; PolitiDex" />
+  <meta name="twitter:description" content="One seat&rsquo;s board: the live question and the verified neighbors&rsquo; own takes." />
+  <meta name="theme-color" content="#0a0f1e" />
+
+  <!-- The three files a first paint actually waits on: the chrome's utilities,
+       the board's own sheet, and the resolver that decides whether there is a
+       board to show at all. -->
+  <link rel="preload" as="style" href="/css/tailwind.css" />
+  <link rel="preload" as="style" href="/district-voice.css" />
+  <link rel="preload" as="script" href="/district-voice.js" />
+
+  <!-- Barlow / Bebas Neue, non-blocking, with the same swap index.html,
+       person.html, issue.html, spotlight.html, ballot.html, me.html,
+       stances.html, evidence.html and courts.html use. A swap written
+       differently on one document is a visible font flash on exactly one URL
+       shape. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
+
+  <!-- THE THREE SHEETS THAT DRAW THIS PAGE, render-blocking on purpose: they
+       are the page. /css/tailwind.css is the same utility sheet index.html
+       links. /shell-chrome.css is the bar and the chip, shared with /mandate and
+       /money so one row cannot be three rows. /district-voice.css is the board,
+       unchanged and already self-contained under .pdxv-*. -->
+  <link rel="stylesheet" href="/css/tailwind.css" />
+  <link rel="stylesheet" href="/shell-chrome.css" />
+  <link rel="stylesheet" href="/district-voice.css" />
+
+  <style>
+    /* THE FIXED CHROME, MEASURED ONCE. Same contract person.html, issue.html,
+       spotlight.html, ballot.html, me.html, stances.html, evidence.html and
+       courts.html answer for their own chrome, and for the same reason: a
+       custom property that is never declared invalidates every calc() that
+       reads it. This document's chrome is ONE row and no search — the Eye on
+       the front page already reaches everything there is to search. The
+       @supports guard is the one every other shell carries: a custom property
+       accepts any token sequence, so an engine that cannot parse env() would
+       swallow the declaration and invalidate every calc() reading it; an
+       engine without env() also has no notch. */
+    :root { --pdx-chrome: 3.25rem; color-scheme: dark; }
+    @supports (padding-top: env(safe-area-inset-top)) {
+      :root { --pdx-chrome: calc(3.25rem + env(safe-area-inset-top, 0px)); }
+    }
+    /* No app.css here, so the page's own ground colour is declared rather than
+       inherited from a 986 KB stylesheet this document does not load. And the
+       chrome offset an anchored jump has to clear is declared here rather than
+       read off the front page's two-row measurement. */
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--pdx-chrome) + 0.5rem); }
+    html, body { background: #070b16; color: #e7eefb; }
+    body {
+      margin: 0;
+      font-family: 'Barlow', system-ui, -apple-system, sans-serif;
+      padding-top: calc(var(--pdx-chrome) + 0.75rem);
+    }
+
+    main#voice-room { padding: 0 0 2rem; }
+
+    /* ── THE STANDING BLOCK ────────────────────────────────────────────────
+       voice-room.js's five states, dressed here and nowhere else. The prefix
+       was checked against every shipped file before use: no other module
+       defines or references `pdxvr-`, and the board's own `pdxv-` rules are
+       district-voice.css's, untouched. A sheet that silently restyles another
+       module's surface is the bug this separation prevents. */
+    .pdxvr-wrap { max-width: 44rem; margin: 0 auto; padding: 1.25rem 1.1rem 0; }
+    .pdxvr-kick {
+      margin: 0 0 0.35rem; font: 700 0.72rem/1 'Barlow Condensed', 'Barlow', sans-serif;
+      letter-spacing: 0.16em; text-transform: uppercase; color: #7fb2ff;
+    }
+    .pdxvr-h1 {
+      margin: 0 0 0.6rem;
+      font: 400 clamp(1.9rem, 6vw, 2.9rem)/1.05 'Bebas Neue', 'Barlow Condensed', sans-serif;
+      letter-spacing: 0.01em; color: #eef4ff;
+    }
+    .pdxvr-sub {
+      margin: 0 0 1.5rem; max-width: 38rem;
+      font: 400 1rem/1.6 'Barlow', system-ui, sans-serif; color: #9fb4d4;
+    }
+
+    .pdxvr-card {
+      margin: 0 0 1.5rem; padding: 1.1rem 1.15rem;
+      border: 1px solid rgba(127, 178, 255, 0.18); border-radius: 0.75rem;
+      background: rgba(18, 27, 48, 0.72);
+    }
+    .pdxvr-hd {
+      margin: 0 0 0.5rem;
+      font: 600 1.12rem/1.3 'Barlow Condensed', 'Barlow', sans-serif;
+      letter-spacing: 0.01em; color: #eef4ff;
+    }
+    .pdxvr-seat {
+      margin: 0 0 0.5rem;
+      font: 600 1.02rem/1.35 'Barlow', system-ui, sans-serif; color: #cfe0ff;
+    }
+    .pdxvr-line {
+      margin: 0 0 0.55rem;
+      font: 400 0.95rem/1.6 'Barlow', system-ui, sans-serif; color: #9fb4d4;
+    }
+    /* The frame sentence, borrowed from district-voice.js and printed only where
+       the board is NOT painting it. Quieter than the copy above it because it is
+       a definition, not news. */
+    .pdxvr-frame {
+      margin: 0.7rem 0 0; padding-top: 0.6rem;
+      border-top: 1px solid rgba(127, 178, 255, 0.14);
+      font: 400 0.84rem/1.55 'Barlow', system-ui, sans-serif; color: #7a8aa8;
+    }
+    .pdxvr-doors { margin: 0.9rem 0 0; display: flex; flex-wrap: wrap; gap: 0.55rem; }
+    .pdxvr-door {
+      display: inline-flex; align-items: center; padding: 0.42rem 0.8rem;
+      border: 1px solid rgba(127, 178, 255, 0.34); border-radius: 999px;
+      font: 600 0.85rem/1 'Barlow', system-ui, sans-serif;
+      color: #cfe0ff; text-decoration: none; background: rgba(127, 178, 255, 0.08);
+    }
+    .pdxvr-door:hover { background: rgba(127, 178, 255, 0.16); }
+    .pdxvr-door--quiet { border-color: rgba(159, 180, 212, 0.24); color: #9fb4d4; background: none; }
+    .pdxvr-perma {
+      font: 600 0.85rem/1 'Barlow', system-ui, sans-serif;
+      color: #7fb2ff; text-decoration: none;
+    }
+    .pdxvr-perma:hover { text-decoration: underline; }
+
+    /* "CHECKING WHERE YOU VOTE…" IS A STATE, NOT A SPINNER. Same shape and same
+       six-second bound as the account chip's "Checking account…", because two
+       quiet asking-states on one document that expired at different times would
+       read as a bug. The dot is the only motion on the page and it is dropped
+       entirely under prefers-reduced-motion. */
+    .pdxvr-card--wait { border-color: rgba(159, 180, 212, 0.16); background: rgba(18, 27, 48, 0.5); }
+    .pdxvr-card--wait .pdxvr-line { margin: 0; color: #8fa3c2; }
+    .pdxvr-dot {
+      display: inline-block; width: 0.42rem; height: 0.42rem; margin-right: 0.5rem;
+      border-radius: 50%; background: #7fb2ff; vertical-align: 0.05rem;
+      animation: pdxvrPulse 1.5s ease-in-out infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .pdxvr-dot { animation: none; }
+    }
+    @keyframes pdxvrPulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+
+    .pdxvr-card--seated { border-color: rgba(127, 178, 255, 0.24); }
+    /* The board's host. Empty until district-voice.js mounts into it, and an
+       empty one takes no space rather than leaving a hole where a board is not. */
+    .pdxvr-board:empty { display: none; }
+    .pdxvr-board { margin: 0 0 2rem; }
+
+    /* The only thing a reader sees if JavaScript never runs. It claims what this
+       address is, which is true, rather than leaving them with an empty card. */
+    .pdx-sh-note {
+      max-width: 40rem; margin: 2.5rem auto; padding: 0 1.1rem;
+      font: 400 1rem/1.6 'Barlow', system-ui, sans-serif; color: #9fb4d4;
+    }
+    .pdx-sh-note a { color: #f5d77a; }
+  </style>
+
+  <!-- ══ THE FLAG — ONE DECLARATION, READ THROUGH ONE MODULE ══════════════
+       This is the first script on the document, before any module can look for
+       it, and it is the ONLY place the flag is set. Nothing in district-voice.js
+       or voice-room.js currently branches on it — both guard on their mounts
+       instead, which is the stronger test — and it is declared anyway for the
+       same reason __PDX_COURTS_DOC, __PDX_ME_DOC and __PDX_MANDATE_DOC are: the
+       day a module needs to know which document it is on, the answer must
+       already exist and must not be a location.pathname sniff. /voice, /voice/
+       and a local preview server's /voice.html are three spellings of one
+       document that a path test gets differently.
+       ════════════════════════════════════════════════════════════════════ -->
+  <script>window.__PDX_VOICE_DOC = true;</script>
+
+  <!-- ══ COPIED VERBATIM FROM me.html LINES 1809–1864 ══════════════════
+       FIREBASE. The three compat bundles, the request-time key injection, and
+       the synchronous stub that guarantees `db` / `auth` / `PROFILES` exist
+       before anything can touch them.
+
+       THE SAME STUB AS THE OTHER INNER SHELLS, NOT A THIRD ONE. person.html,
+       me.html, issue.html and evidence.html all carry this block, byte for
+       byte, and the suite fences it: a shell that writes its own version of
+       "has Firebase answered yet" is a shell that can answer it differently.
+
+       ON THIS DOCUMENT IT IS NOT OPTIONAL, AND NOT BECAUSE OF THE CHIP. The
+       saved ballot location voter-hub-location.js restores is keyed to the
+       reader's account, and the board's write routes are authenticated per
+       resident. So whether this page can place a reader at all depends on
+       whether there is a session — which is exactly why the standing starts at
+       "checking" and not at "we do not know where you vote". Reading the board
+       stays open to everyone; posting to it does not. This document still opens
+       no sign-in UI of its own: the front page owns that, and the bar's chip is
+       a trip there.
+       ═════════════════════════════════════════════════════════════════════════ -->
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<!-- The Firebase Web API key is injected at request time from the Netlify
+     environment variable FIREBASE_API_KEY by netlify/edge-functions/firebase-config.ts.
+     It is intentionally NOT hardcoded here so the value never lives in source
+     control or the deployed HTML (and the build's secrets scanner passes). -->
+<script defer src="/firebase-config.js"></script>
+<script>
+  // Run 1 perf: the Firebase SDKs and the bootstrap below are DEFERRED so they no
+  // longer block first paint. This tiny synchronous stub guarantees the globals
+  // that other inline code could touch at parse time exist; firebase-boot.js
+  // (deferred → runs after the SDK, before DOMContentLoaded) then replaces them
+  // with the live Firebase objects and starts the lightweight roster load. Net
+  // effect: identical behavior, but the ~800 KB compat SDK no longer gates paint.
+  var app, db, firestore, auth;
+  var PROFILES = window.PROFILES || {}; window.PROFILES = PROFILES;
+  window._pdxFullIds = window._pdxFullIds || new Set();
+  window._pdxFullPending = window._pdxFullPending || {};
+  function setDoc(docRef, data, options) { return docRef.set(data, options); }
+  db = { collection: null }; firestore = db;
+  // AUTH UNKNOWN IS NOT AUTH SIGNED-OUT. This stub used to answer every
+  // registration with cb(null) before the SDK had loaded, which told every
+  // module that a returning member was a guest. It queues instead;
+  // firebase-boot.js replays the queue onto the real auth object, and until then
+  // window.PDXAuth.state is 'unknown'. See the long note in index.html.
+  window.PDXAuth = window.PDXAuth || { state: 'unknown', user: null, known: false };
+  window.__pdxAuthQueue = window.__pdxAuthQueue || [];
+  auth = { currentUser: null, onAuthStateChanged: function (cb) { var rec = { cb: cb, off: false, unsub: null }; window.__pdxAuthQueue.push(rec); return function () { rec.off = true; if (rec.unsub) { try { rec.unsub(); } catch (e) {} } }; }, signInAnonymously: function () { return Promise.reject(new Error('auth pending')); }, signOut: function () { return Promise.resolve(); } };
+  // AND THE QUEUE IS NOT A TRAP. If firebase-boot.js never arrives to drain it —
+  // a blocked SDK, a failed deploy, a warm shell paired with an older copy of
+  // that file out of the runtime cache — the registrations above would wait for
+  // the whole visit and nothing on the page would ever learn there is no
+  // session. So the queue self-heals: once the SDK has had every chance to land,
+  // whatever is still queued is flushed with null, which is exactly the answer
+  // this stub used to give instantly. A LATE fallback is a different thing from
+  // a first guess — the first guess was the bug, and five seconds is not a
+  // guess, it is a timeout. firebase-boot.js nulls the queue when it replays, so
+  // on every normal load this is a no-op.
+  setTimeout(function () {
+    var q = window.__pdxAuthQueue;
+    if (!q) return;
+    window.__pdxAuthQueue = null;
+    try {
+      window.PDXAuth.known = true;
+      window.PDXAuth.state = 'out';
+      window.PDXAuth.user = null;
+      if (typeof window.updateNavAuth === 'function') window.updateNavAuth(null, 'out');
+    } catch (e) {}
+    for (var i = 0; i < q.length; i++) {
+      if (q[i] && !q[i].off && typeof q[i].cb === 'function') { try { q[i].cb(null); } catch (e) {} }
+    }
+  }, 5000);
+</script>
+<script src="/firebase-boot.js" defer></script>
+
+  <script src="/person-link.js"></script>
+  <script defer src="/issue-map.js"></script>
+  <script defer src="/issue-colors.js"></script>
+  <script defer src="/voter-hub-location.js"></script>
+  <script defer src="/district-voice.js"></script>
+  <script defer src="/voice-room.js"></script>
+  <script defer src="/shell-account-chip.js"></script>
+
+</head>
+<body>
+
+  <!-- ══ THE BAR ════════════════════════════════════════════════════════
+       THE SAME SIX DESTINATIONS ON ALL THREE SIDE-LANE SHELLS, in the same
+       order, so the row is a fixed place rather than a per-page guess. The two
+       front-page doors keep their front-page addresses — Who Represents Me and
+       Find the Record are surfaces of / and they are not being moved here —
+       and the three lanes are the three new documents. The current room is
+       marked with aria-current and still navigates, because a self-link that
+       does nothing is a control that lies.
+
+       The account slot is LAST and it is EMPTY in the markup. What fills it is
+       shell-account-chip.js, and until Firebase answers it fills it with
+       "Checking account…" — never the Join CTA. A returning member must not be
+       told to sign up in the loudest control on the page because an 800 KB
+       deferred SDK has not landed yet. See the contract in that file.
+       ═════════════════════════════════════════════════════════════════════════ -->
+  <header class="pdx-sh-bar">
+    <a class="pdx-sh-wordmark" href="/" title="PolitiDex — the front page">POLITI<span>DEX</span></a>
+    <nav class="pdx-sh-links" aria-label="PolitiDex">
+      <a class="pdx-sh-link" href="/#who-represents-me">🏛️ Who Represents Me</a>
+      <a class="pdx-sh-link" href="/#say-vs-do">👁️ Find the Record</a>
+      <a class="pdx-sh-link" href="/ballot">⭐ Your Ballot</a>
+      <a class="pdx-sh-link" href="/mandate">✊ Mandate</a>
+      <a class="pdx-sh-link" href="/voice" aria-current="page">📣 District Voice</a>
+      <a class="pdx-sh-link" href="/money">💰 Follow the Money</a>
+      <a class="pdx-sh-link" href="/">&larr; Home</a>
+    </nav>
+    <div id="pdx-shell-acct" data-pdx-acct-sig="unknown"></div>
+  </header>
+
+  <main id="voice-room">
+    <div class="pdxvr-wrap">
+      <p class="pdxvr-kick">District Voice</p>
+      <h1 class="pdxvr-h1">Your district&rsquo;s board</h1>
+      <p class="pdxvr-sub">One seat, one live question, and the verified neighbors&rsquo;
+        own takes. This page shows the board for the district your saved location
+        names &mdash; and says so plainly when there is no location to read.</p>
+
+      <!-- THE STANDING, AND ITS FIRST PAINT IS THE QUIET ONE. This markup is the
+           same card voice-room.js's checkingHtml() produces, in the document, so
+           the honest arrival is the immediate one and there is no flash of a
+           wrong answer before the deferred resolver lands. voice-room.js
+           replaces it in place; it is never appended to. -->
+      <div id="pdx-voice-standing" data-pdxvr-standing="checking">
+        <div class="pdxvr-card pdxvr-card--wait" aria-live="polite">
+          <p class="pdxvr-line"><span class="pdxvr-dot" aria-hidden="true"></span>Checking where you vote&hellip;</p>
+        </div>
+      </div>
+
+      <!-- THE BOARD'S HOST, AND IT IS EMPTY. district-voice.js's mount() paints
+           its own busy line into it and then the board; it returns false without
+           painting anything in a seat with no board, which is the case this
+           document has a standing for above. No class of the board's own goes
+           here: render() emits the .pdxv section itself, and two nested copies of
+           one wrapper is the kind of drift a stylesheet notices later. -->
+      <div id="pdx-voice-board" class="pdxvr-board"></div>
+    </div>
+
+    <noscript>
+      <p class="pdx-sh-note">
+        District Voice is one seat&rsquo;s board: the live question and the
+        verified neighbors&rsquo; own takes &mdash; not a poll of the internet,
+        and not how the member voted. It needs JavaScript to read your saved
+        location and the seat&rsquo;s board. You can still
+        <a href="/#who-represents-me">see who represents you</a> or
+        <a href="/ballot">set your location on Your Ballot</a>.
+      </p>
+    </noscript>
+  </main>
+
+</body>
+</html>

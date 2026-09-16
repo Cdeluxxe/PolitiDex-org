@@ -1,0 +1,136 @@
+/* ═════════════════════════════════════════════════════════════════════════════
+   shell-chrome.css — THE ONE ROW AT THE TOP OF AN INNER SHELL
+   ────────────────────────────────────────────────────────────────────────────
+   WHAT THIS IS. The fixed top bar and the account chip for the documents that
+   are not the front page: /mandate, /voice and /money. Three shells, one sheet,
+   because three copies of a bar are three bars that drift — and a top row that
+   is 2px taller on one address is the kind of thing a reader feels without
+   being able to name.
+
+   WHY IT IS NOT IN EACH SHELL'S <style>. courts.html, ballot.html and me.html
+   each declare their own chrome inline, and that was right when each had a
+   different bar: one row, two links, no chip. These three have the SAME bar —
+   the five destinations a reader in a side lane actually wants, plus the chip —
+   so the bar became a file and the shells kept only what is theirs.
+
+   THE MEASUREMENT CONTRACT, which every shell answers the same way:
+   --pdx-chrome is declared by the SHELL, not here, because a custom property
+   that is never declared invalidates every calc() that reads it, and a sheet
+   that fails to load must not be able to take a document's whole layout with
+   it. This file reads the property and never writes it.
+
+   SELF-SUFFICIENT: every colour is a literal. There is no app.css on these
+   documents to inherit a palette from — same rule judicial-retention.css lives
+   by, for the same reason.
+   ═════════════════════════════════════════════════════════════════════════════ */
+
+/* ── THE BAR ────────────────────────────────────────────────────────────────
+   Real anchors with real hrefs, so cmd-click opens a tab and middle-click
+   works. "Home" is a plain <a href="/">, never a history.back(): a reader may
+   have arrived cold from a bookmark or a pasted link, in which case there is
+   no entry behind them to go back to. */
+.pdx-sh-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1200;
+  display: flex; align-items: center; gap: 0.75rem;
+  height: 3.25rem; padding: env(safe-area-inset-top, 0px) 0.85rem 0;
+  background: rgba(10, 15, 30, 0.86); backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.pdx-sh-bar a { text-decoration: none; }
+
+.pdx-sh-wordmark {
+  flex: none;
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+  font-size: 1.15rem; letter-spacing: 0.12em; color: #fff;
+}
+.pdx-sh-wordmark span { color: #e0273f; }
+
+/* The destination cluster yields space first (min-width: 0) and scrolls
+   sideways on a narrow screen rather than wrapping into a second row, because
+   a chrome that changes height changes --pdx-chrome's meaning. */
+.pdx-sh-links {
+  display: flex; align-items: center; gap: 0.35rem;
+  flex: 1 1 auto; min-width: 0;
+  overflow-x: auto; overflow-y: hidden;
+  scrollbar-width: none; -ms-overflow-style: none;
+}
+.pdx-sh-links::-webkit-scrollbar { display: none; }
+
+.pdx-sh-link {
+  flex: none;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem;
+  letter-spacing: 0.14em; text-transform: uppercase; color: #9fb4d4;
+  border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 0.5rem;
+  padding: 0.3rem 0.6rem; white-space: nowrap; background: transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.pdx-sh-link:hover { color: #e7eefb; border-color: rgba(255, 255, 255, 0.26); }
+
+/* THE CURRENT ROOM IS MARKED, NOT REMOVED. A reader who lands on /money from a
+   pasted link needs to see where they are in the same list that shows them
+   where else they can go — and the link still works, because a self-link that
+   does nothing is a control that lies. aria-current carries it for a screen
+   reader; this is only the paint. */
+.pdx-sh-link[aria-current="page"] {
+  color: #0a0f1e; background: linear-gradient(135deg, #fad96a, #e6b800);
+  border-color: rgba(245, 200, 66, 0.9);
+}
+
+/* ── THE ACCOUNT SLOT ───────────────────────────────────────────────────────
+   Pinned right and flex-shrink-0, so it can never be clipped: the chip is the
+   first thing a reader looks for and the last thing that may be cut. The
+   contract behind the three states it can hold is in shell-account-chip.js. */
+#pdx-shell-acct { flex: none; display: flex; align-items: center; }
+
+.pdx-acct {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase;
+  white-space: nowrap; border-radius: 0.5rem; padding: 0.3rem 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.pdx-acct-lb { max-width: 9rem; overflow: hidden; text-overflow: ellipsis; }
+
+/* 'unknown' — the quiet pill. No CTA, no chip, no "signed out" copy. */
+.pdx-acct--wait {
+  color: #9fb4d4; background: rgba(30, 41, 59, 0.6);
+  opacity: 0.72; cursor: default; user-select: none;
+}
+.pdx-acct-dot {
+  width: 7px; height: 7px; border-radius: 9999px; flex: none;
+  background: #94a3b8; animation: pdxAcctPulse 1.8s ease-in-out infinite;
+}
+@keyframes pdxAcctPulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .pdx-acct-dot { animation: none; }
+}
+
+/* 'in' — the chip. One anchor onto /me, which is the one address that answers
+   "my file"; there is no dropdown here and there is not one on the front page
+   either any more. */
+.pdx-acct--in {
+  color: #e7eefb; background: rgba(15, 23, 42, 0.9);
+  border-color: rgba(224, 39, 63, 0.4);
+}
+.pdx-acct--in:hover { border-color: rgba(224, 39, 63, 0.65); }
+.pdx-acct-av {
+  width: 1.35rem; height: 1.35rem; border-radius: 9999px; flex: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem; letter-spacing: 0; color: #fff;
+  background: rgba(192, 21, 42, 0.3); border: 1.5px solid rgba(224, 39, 63, 0.5);
+}
+
+/* 'out' — and only now. */
+.pdx-acct--join {
+  color: #fff; background: linear-gradient(135deg, #c0152a, #e0273f);
+  border-color: rgba(255, 255, 255, 0.25);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+.pdx-acct--join:hover { filter: brightness(1.08); }
+
+@media (max-width: 640px) {
+  .pdx-sh-bar { gap: 0.5rem; padding-left: 0.65rem; padding-right: 0.65rem; }
+  .pdx-sh-link { font-size: 0.64rem; padding: 0.28rem 0.5rem; letter-spacing: 0.1em; }
+  .pdx-acct-lb { max-width: 5.5rem; }
+}

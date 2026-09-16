@@ -3356,7 +3356,7 @@
       '<div style="background:rgba(10,15,30,0.4);border:1px solid rgba(159,180,212,0.18);border-radius:0.9rem;padding:0.9rem 1rem;">' +
         '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.6rem;">' +
           '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1rem;letter-spacing:0.05em;color:#dbe6f6;">🏛️ Where the money came from</div>' +
-          '<a href="#follow-the-money" style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:#7cc4ff;text-decoration:none;white-space:nowrap;">Follow the Money →</a>' +
+          '<a href="/money" style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:#7cc4ff;text-decoration:none;white-space:nowrap;">Follow the Money →</a>' +
         '</div>' +
         '<p style="font-size:0.7rem;color:#9fb4d4;line-height:1.55;margin:0 0 0.65rem;">A separate <strong style="color:#c8d8ea;">disclosure lane</strong> — <strong style="color:#c8d8ea;">not a score</strong> and not one of the record reads. It reports the composition of their itemized public filing in dollars: how much came from small-dollar donors, from large individual contributions, from PACs, from self-funding and from party transfers. It infers no motive, and nothing in it is read by Direction Match, by the formal pattern tiers, or by any ranking.</p>' +
         window._pdxFinanceSignalHTML(finSig) +

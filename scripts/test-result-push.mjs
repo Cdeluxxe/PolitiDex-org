@@ -392,10 +392,16 @@ section("6 · no surface reaches the renderer without trying the funnel first");
     "instead of going to the person's own document and leaves nothing for Back to return to");
 
   // NOT VACUOUS: the two that were fixed this pass are real call sites, and the
-  // funnel is what they reach now.
-  const chip = R("index.html");
+  // funnel is what they reach now. The linked-person chip is READ OUT OF
+  // mandate-lane.js rather than index.html since the three-room split: the
+  // People's Proposals wall it belongs to moved to /mandate as its own document,
+  // and the chip travelled with the wall, funnel-first ordering and all. The
+  // pinned surface is the one that ships the call site — if this pin had been
+  // left pointing at index.html it would have gone quiet the moment the wall
+  // left, which is the failure mode a not-vacuous pin exists to prevent.
+  const chip = R("mandate-lane.js");
   ok(/window\.showProfile\b[\s\S]{0,120}?openModal/.test(chip),
-    "index.html's linked-person chip no longer tries the funnel before the renderer");
+    "the People's Proposals linked-person chip no longer tries the funnel before the renderer");
   const cmp = R("compare-table.js");
   ok(/cmp-btn-profile[\s\S]{0,300}?window\.showProfile/.test(cmp),
     "the compare table's Full Profile button no longer goes through the funnel");

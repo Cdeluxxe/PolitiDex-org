@@ -261,7 +261,13 @@ section("5 · the path survives only as prose explaining its retirement");
 // two, so "we deleted the explanation" and "we deleted the call" don't look the
 // same from the outside — the prose is the thing that stops the next pass from
 // helpfully re-adding the endpoint.
-for (const f of ["index.html", "like-dislike.js", "sw.js"]) {
+// mandate-lane.js CARRIES THE EXPLANATION INDEX.HTML USED TO. The agenda vote
+// handler is where the mirror POST actually sat, and the three-room split moved
+// that handler — with its paragraph — out of index.html and into the module
+// /mandate loads. The prose belongs beside the write it warns about, so the list
+// follows the code rather than the file it used to be in; index.html no longer
+// contains an agenda vote handler for anyone to helpfully re-add a fan-out to.
+for (const f of ["mandate-lane.js", "like-dislike.js", "sw.js"]) {
   has(R(f), LEGACY, `${f} no longer explains that ${LEGACY} is retired — say so, or the next pass rebuilds it`);
 }
 has(R("like-dislike.js"), "169,076",

@@ -860,11 +860,41 @@ section("10 · nothing on the do-not list moved");
       "polItem() changed by more than the declared avatar box — the row builder is otherwise untouched");
     // AND THE SURFACES THIS PASS WAS TOLD TO LEAVE ALONE ARE THE SAME FILES.
     for (const f of ["hero-showcase.js",
-                     "finance-lane.js", "judicial-retention.js", "judicial-data.js",
+                     "judicial-retention.js", "judicial-data.js",
                      "profile-evidence.js"]) {
       const h = HEAD(f);
       must(h != null, `${f} could not be read out of HEAD`);
       eq(R(f) === h, true, `${f} is not byte-identical with HEAD — it is on the do-not-touch list`);
+    }
+    // finance-lane.js CAME OFF THAT LIST, on the same terms person-link.js did
+    // below, and for the narrowest reason a file can: its ONE address changed.
+    // The pin was a proxy for a claim this suite has at stake — the Eye's rows
+    // and the filing chip read the same filings index, and the money lane does
+    // not grow a second opinion about who has filed. The three-room split then
+    // gave Follow the Money its own document at /money, and the chip's "Follow
+    // the Money →" link had to stop being a fragment on the front page, because
+    // the fragment now resolves to a door card rather than to the lane. That is
+    // an address rewrite, not a change of what the lane says, and a whole-file
+    // pin cannot tell the difference. So the one href is subtracted by name and
+    // the rest of the file is compared byte for byte: HEAD's source with
+    // "#follow-the-money" read as "/money" IS the shipped source, and if a later
+    // pass moves anything else in this file, this says so.
+    {
+      const f = "finance-lane.js", h = HEAD(f);
+      must(h != null, `${f} could not be read out of HEAD`);
+      const now = R(f);
+      const OLD = '<a href="#follow-the-money" style=', NEW = '<a href="/money" style=';
+      eq((now.match(/<a href="\/money" style=/g) || []).length, 1,
+        "finance-lane.js's filing chip no longer carries exactly one /money door");
+      ok(!now.includes(OLD), "finance-lane.js still points the chip at the retired #follow-the-money fragment");
+      eq(now, h.split(OLD).join(NEW),
+        "finance-lane.js differs from HEAD by more than the one declared href — it is on the " +
+        "do-not-touch list apart from the address the money room took with it");
+      // And it is an address rewrite, not a new lane: the money theme, the
+      // coverage sentence and the refusal to grade are all still where HEAD left
+      // them, byte for byte, by the comparison above.
+      eq((now.match(/coverageHtml/g) || []).length, (h.match(/coverageHtml/g) || []).length,
+        "finance-lane.js gained or lost a caller of the coverage sentence");
     }
     // person-link.js CAME OFF THAT LIST, on the same terms door2-spine.js did
     // below. The byte pin was a proxy for one claim this suite has at stake: the

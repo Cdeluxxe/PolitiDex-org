@@ -423,10 +423,24 @@
 
     out.standing = 'verified';
     out.name = 'State House District ' + n + ' \u00b7 ' + county;
-    // The board's own address when Voice is open in this seat, and '' when it is
+    // THE BOARD'S OWN ADDRESS WHEN VOICE IS OPEN IN THIS SEAT, and '' when it is
     // not. '' is not a failure and is not hidden — it is the state the copy has
     // a sentence for.
-    try { out.href = (fn(V.path) ? (V.path(seat) || '') : ''); } catch (e) { out.href = ''; }
+    //
+    // THE GATE IS STILL district-voice.js's, AND ONLY THE DESTINATION MOVED.
+    // path(seat) is asked exactly as before and its answer is still what decides
+    // whether there is a link at all — an empty path means no board and no CTA,
+    // the same as it always did. What changed in v211 is where the link goes.
+    // /d/<seat-key> is the DISTRICT FILE, which netlify.toml rewrites to
+    // index.html: the reader who tapped "Open District Voice" from this desk
+    // paid 1.9 MB of front page to reach a board that is now a 28 KB document
+    // at /voice. And /voice needs no seat in its path, because it resolves the
+    // seat the same way this function just did — out of the reader's own saved
+    // location, through this same module. Same gate, same seat, one twentieth
+    // of the bytes.
+    var open = false;
+    try { open = !!(fn(V.path) && V.path(seat)); } catch (e) { open = false; }
+    out.href = open ? '/voice' : '';
     return out;
   }
 
