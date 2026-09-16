@@ -108,17 +108,25 @@ function bodyOf(src, decl) {
 const NAV = bodyOf(HUB, 'function updateNavAuth');
 must(NAV.length > 2000, 'updateNavAuth body probe matched nothing in compare-hub.js');
 
-/* The signed-in branch of each width is the FIRST innerHTML assignment; the
-   second is the signed-out "JOIN THE PEOPLE" button. Both are captured so §3
-   can prove the signed-out nav advertises no file at all. */
+/* The signed-in branch of each width is the FIRST innerHTML assignment and the
+   signed-out "JOIN THE PEOPLE" button is the LAST. Both are captured so §3 can
+   prove the signed-out nav advertises no file at all.
+
+   THERE ARE FOUR WRITES PER WIDTH, NOT TWO, and the two in the middle are
+   neither state this file measures: the auth-restore pass gave the chrome a
+   third state for "Firebase has not answered yet" — the reader's last-known
+   chip, disabled, or a "Checking account…" pill when this device has never seen
+   an account. Neither one carries a door (that is the point of them), so they
+   are deliberately skipped rather than asserted over: a door in an unknown
+   state is asserted absent in scripts/test-auth-restore.mjs instead. */
 const dBlocks = NAV.match(/desktop\.innerHTML = `[\s\S]*?`;/g) || [];
 const mBlocks = NAV.match(/mobile\.innerHTML = `[\s\S]*?`;/g) || [];
-must(dBlocks.length === 2, `expected 2 desktop innerHTML writes, found ${dBlocks.length}`);
-must(mBlocks.length === 2, `expected 2 mobile innerHTML writes, found ${mBlocks.length}`);
+must(dBlocks.length === 4, `expected 4 desktop innerHTML writes, found ${dBlocks.length}`);
+must(mBlocks.length === 4, `expected 4 mobile innerHTML writes, found ${mBlocks.length}`);
 
 const WIDTHS = [
-  { name: 'desktop chip', inMarkup: dBlocks[0], outMarkup: dBlocks[1], signOut: false },
-  { name: 'mobile drawer', inMarkup: mBlocks[0], outMarkup: mBlocks[1], signOut: true },
+  { name: 'desktop chip', inMarkup: dBlocks[0], outMarkup: dBlocks[dBlocks.length - 1], signOut: false },
+  { name: 'mobile drawer', inMarkup: mBlocks[0], outMarkup: mBlocks[mBlocks.length - 1], signOut: true },
 ];
 
 /* Every anchor in a block, as { href, onclick, text }. */

@@ -341,14 +341,14 @@ const COPIES = [
   [1300, 1409, "PDXTeamView"],
   [1410, 1919, "the promise ledger and the deferred-event capture"],
   [1936, 2010, "PDXLazy"],
-  [2012, 2035, "the Firebase compat bundles, the key injection, the stub and firebase-boot.js"],
-  [2040, 2085, "the share furniture share-preview.ts rewrites"],
-  [3569, 3632, "the crawl-header guard"],
-  [16481, 17403, "the funding lane, up to the cut"],
-  [19293, 19327, "the profile modal down to #modal-content"],
-  [19388, 19435, "the stance popover, the record overlay and the share sheet"],
-  [26364, 26485, "PDXStance"],
-  [28974, 29173, "the PWA runtime and the service-worker registration"],
+  [2012, 2032, "the Firebase compat bundles, the key injection, the stub and firebase-boot.js"],
+  [2081, 2126, "the share furniture share-preview.ts rewrites"],
+  [3610, 3673, "the crawl-header guard"],
+  [16610, 17532, "the funding lane, up to the cut"],
+  [19422, 19456, "the profile modal down to #modal-content"],
+  [19517, 19564, "the stance popover, the record overlay and the share sheet"],
+  [26498, 26619, "PDXStance"],
+  [29108, 29307, "the PWA runtime and the service-worker registration"],
 ];
 // THESE NUMBERS ARE ANCHORS INTO index.html AND THEY MOVE WHEN IT DOES. The
 // ones re-based here were re-based by the fourth split, which lifted the ballot
@@ -397,6 +397,14 @@ const COPIES = [
 // two very different things, and the two assertions below separate them: an
 // "out of range or empty" failure is a stale anchor, and a "NOT byte-identical"
 // failure on an in-range slice is real drift between the two documents.
+//
+// THE ONE-SETTER PASS MOVED THE SAME FIVE BY +79, AND BY THE RE-DERIVED METHOD
+// BELOW RATHER THAN BY A SUM. The location setter went into #who-represents-me
+// (index.html ~line 5716) as its own card, and the Voter Hub's .pm-location-bar
+// came out (~line 7100), leaving a net 79 lines above every one of these five
+// blocks and none inside any of them: each run came back the same LENGTH at a
+// start 79 lines lower, which is what "the markup above me moved" looks like and
+// what drift would not.
 //
 // AND THEN THE ARITHMETIC RAN OUT. The five anchors above were carried forward
 // pass by pass by adding each pass's deletion to the previous number, and the

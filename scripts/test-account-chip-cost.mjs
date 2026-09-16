@@ -239,7 +239,13 @@ ok(/_prevLoc !== _nextLoc/.test(SYNC),
 // Brace-balanced, because the block nests a forEach whose own `});` a lazy
 // regex would stop at — and the assertion about the release is below it.
 const fanout = (() => {
-  const i = SYNC.indexOf('_syncSoon(function() {\n                  _chubRosterOnly++;');
+  // MATCHED ON SHAPE, NOT ON COLUMN. This used to index a literal carrying the
+  // block's exact leading whitespace, so nesting the restore one level deeper —
+  // which it now is, because the paints below it only run once the location owner
+  // has accepted the record — made the probe match nothing and reported a stale
+  // harness rather than the thing it guards.
+  const m = /_syncSoon\(function\(\) \{\s*\n\s*_chubRosterOnly\+\+;/.exec(SYNC);
+  const i = m ? m.index : -1;
   if (i < 0) return '';
   let depth = 0, started = false;
   for (let j = i; j < SYNC.length; j++) {

@@ -263,9 +263,18 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // page ABOVE this script, so the same bytes now start at a lower line. That is
 // what a range pin is for — it failed loudly on the shift instead of quietly
 // pinning a slice of some other block.
+//
+// Both ranges moved again when the pre-SDK auth stub stopped answering for the
+// SDK. index.html's PDXStance block shifted 56 lines down the document without
+// a character of it changing (the note and the queueing stub above it are what
+// grew), and the Firebase boot block itself got thirty lines longer in both
+// documents at once — the queue, and the timeout that flushes it if
+// firebase-boot.js never arrives. The pin is deliberately the WHOLE block,
+// opening script tag through the firebase-boot.js include, so a stub fix that
+// lands on one document and not the other fails here rather than in a room.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 26364, b: 26484, what: "the PDXStance vocabulary" },
-  { from: "person.html", src: PERSON, a: 2006, b: 2030, what: "the Firebase boot" },
+  { from: "index.html", src: INDEX, a: 26498, b: 26618, what: "the PDXStance vocabulary" },
+  { from: "person.html", src: PERSON, a: 2006, b: 2060, what: "the Firebase boot" },
 ];
 for (const c of COPIES) {
   const header = new RegExp(`COPIED VERBATIM FROM ${c.from.replace(".", "\\.")} LINES ${c.a}[^0-9]{1,3}${c.b}`);

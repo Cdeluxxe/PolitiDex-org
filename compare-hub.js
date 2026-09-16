@@ -312,7 +312,10 @@
       document.getElementById('auth-password').value = '';
       const nameInput = document.getElementById('auth-name');
       if (nameInput) nameInput.value = '';
-      document.getElementById('auth-error').classList.add('hidden');
+      clearAuthError();
+      // The Google button reflects the promise, not the modal: reopening the
+      // panel while a popup is still in the air must not offer a second click.
+      _googleBtnBusy(!!_googleInFlight);
 
       _authMode = 'signup'; 
       toggleAuthMode();
@@ -341,11 +344,64 @@
       }, 220);
     }
 
+    // ── WHAT THE MODAL IS ALLOWED TO SAY ─────────────────────────────────────
+    // Every failure used to arrive here as error.message, which for Firebase is
+    // a sentence with the machine code inside it: "Firebase: Error
+    // (auth/cancelled-popup-request)." A reader who double-clicked Google got
+    // that string, and it is not a message — it names an internal identifier,
+    // says nothing about what to do, and reads like a crash. Worse, the two
+    // commonest codes in this app are not errors at all in any sense the reader
+    // caused: cancelled-popup-request means WE opened a second popup and the
+    // first one was closed for us, and popup-closed-by-user means they closed
+    // it. Both are "nothing happened, go again".
+    //
+    // So codes are translated, never printed. AUTH_MSG below is the whole
+    // vocabulary; anything unlisted gets one plain fallback. showAuthError
+    // itself is the backstop: if a raw `auth/...` code ever reaches it from a
+    // path that forgot to translate, it prints the fallback instead. That is
+    // belt and braces on purpose — the rule "no Firebase code reaches the
+    // reader" is worth enforcing at the one place that can enforce it.
+    var AUTH_MSG = {
+      'auth/cancelled-popup-request': 'Sign-in was interrupted. Try once.',
+      'auth/popup-closed-by-user': 'Sign-in was interrupted. Try once.',
+      'auth/popup-blocked': 'Your browser blocked the sign-in window. Allow pop-ups for this site, then try again.',
+      'auth/network-request-failed': "We couldn't reach the sign-in service. Check your connection and try again.",
+      'auth/too-many-requests': 'Too many attempts. Wait a minute, then try again.',
+      'auth/invalid-email': "That email address doesn't look right.",
+      'auth/missing-password': 'Enter your password.',
+      'auth/user-not-found': 'No account with that email yet. Create one instead.',
+      'auth/wrong-password': "That password doesn't match that email.",
+      'auth/invalid-credential': "That email and password don't match.",
+      'auth/invalid-login-credentials': "That email and password don't match.",
+      'auth/user-disabled': 'That account has been disabled.',
+      'auth/email-already-in-use': 'There is already an account with that email. Sign in instead.',
+      'auth/weak-password': 'Pick a password with at least six characters.',
+      'auth/account-exists-with-different-credential':
+        'That email is already registered a different way. Sign in with the method you used first.',
+      'auth/operation-not-allowed': 'That sign-in method is not enabled for this site.',
+      'auth/unauthorized-domain': 'Sign-in is not allowed from this address.'
+    };
+    var AUTH_MSG_FALLBACK = "Sign-in didn't go through. Try again in a moment.";
+    function authMessage(error) {
+      var code = (error && error.code) || '';
+      if (AUTH_MSG[code]) return AUTH_MSG[code];
+      return AUTH_MSG_FALLBACK;
+    }
+    window.PDXAuthMessage = authMessage;
+
     function showAuthError(msg) {
       const errorEl = document.getElementById('auth-error');
       const errorText = document.getElementById('auth-error-text');
-      errorText.textContent = msg;
+      if (!errorEl || !errorText) return;
+      var out = String(msg || AUTH_MSG_FALLBACK);
+      // The backstop. A raw provider code is not a sentence a reader can act on.
+      if (/auth\/[a-z-]+/i.test(out) || /^firebase:/i.test(out)) out = AUTH_MSG_FALLBACK;
+      errorText.textContent = out;
       errorEl.classList.remove('hidden');
+    }
+    function clearAuthError() {
+      var errorEl = document.getElementById('auth-error');
+      if (errorEl) errorEl.classList.add('hidden');
     }
 
     let _authMode = 'signin'; 
@@ -408,8 +464,8 @@
           console.log("Registration success:", user);
           closeAuthModal();
         }).catch(function(error) {
-          console.error("Registration failed:", error.message);
-          showAuthError(error.message);
+          console.error("Registration failed:", error && error.code, error && error.message);
+          showAuthError(authMessage(error));
         }).finally(function() {
           submitBtn.disabled = false;
           submitBtn.style.opacity = '1';
@@ -421,8 +477,8 @@
           console.log("Sign in success:", userCredential.user);
           closeAuthModal();
         }).catch(function(error) {
-          console.error("Sign in failed:", error.message);
-          showAuthError(error.message);
+          console.error("Sign in failed:", error && error.code, error && error.message);
+          showAuthError(authMessage(error));
         }).finally(function() {
           submitBtn.disabled = false;
           submitBtn.style.opacity = '1';
@@ -431,16 +487,62 @@
       }
     }
 
-    function loginWithGoogle() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider).then(function(result) {
-        console.log("Google sign in success:", result.user);
-        closeAuthModal();
-      }).catch(function(error) {
-        console.error("Google sign in failed:", error.message);
-        showAuthError(error.message);
-      });
+    // ── ONE IN-FLIGHT GOOGLE SIGN-IN, AND WHY THERE WAS EVER TWO ─────────────
+    // signInWithPopup CANCELS any popup already in the air and rejects the first
+    // call with auth/cancelled-popup-request. So a reader who taps Google twice
+    // — an impatient double-tap, or a second tap because the popup took a beat
+    // to appear on a cold connection — cancels their own sign-in and is then
+    // shown the cancellation as an error. Nothing was wrong with either attempt;
+    // the second one destroyed the first.
+    //
+    // The fix is the obvious one and it is a promise, not a flag on a button:
+    // the in-flight promise IS the lock, so it holds across the modal being
+    // closed and reopened, across the button being re-rendered, and across a
+    // programmatic call from anywhere else. A second call while one is pending
+    // returns the SAME promise and never reaches signInWithPopup. The button is
+    // disabled for the same window so the reader can see why the second tap did
+    // nothing, and it is re-enabled when — and only when — the promise settles.
+    var _googleInFlight = null;
+    function _googleBtnBusy(on) {
+      var btn = document.getElementById('auth-google-btn');
+      var label = document.getElementById('auth-google-label');
+      if (btn) {
+        btn.disabled = !!on;
+        btn.setAttribute('aria-busy', on ? 'true' : 'false');
+        btn.style.opacity = on ? '0.6' : '';
+        btn.style.cursor = on ? 'progress' : '';
+      }
+      if (label) label.textContent = on ? 'Waiting for Google…' : 'Google Sign-In';
     }
+    function loginWithGoogle() {
+      if (_googleInFlight) return _googleInFlight;
+      clearAuthError();
+      _googleBtnBusy(true);
+      var pr;
+      try {
+        var provider = new firebase.auth.GoogleAuthProvider();
+        pr = auth.signInWithPopup(provider);
+      } catch (e) {
+        _googleBtnBusy(false);
+        showAuthError(authMessage(e));
+        return Promise.resolve(null);
+      }
+      _googleInFlight = pr.then(function (result) {
+        console.log("Google sign in success:", result && result.user && result.user.uid);
+        closeAuthModal();
+        return result;
+      }).catch(function (error) {
+        console.error("Google sign in failed:", error && error.code);
+        showAuthError(authMessage(error));
+        return null;
+      }).then(function (out) {
+        _googleInFlight = null;
+        _googleBtnBusy(false);
+        return out;
+      });
+      return _googleInFlight;
+    }
+    window._pdxGoogleSignInPending = function () { return !!_googleInFlight; };
 
     // YOUR FILE IN THE ACCOUNT MENU. This file is saved to the signed-in uid, so
     // the account menu is the one place in the chrome where it is unambiguously
@@ -516,17 +618,129 @@
     // location.replace AND its own href: two navigations for one tap. The
     // attribute's handler stays in the module for the overlay fallback on an
     // older shell; nothing in this app hands it a click any more.
+    // ══════════════════════════════════════════════════════════════════════════
+    // THE BAR HAS THREE STATES, NOT TWO
+    // ──────────────────────────────────────────────────────────────────────────
+    // WHAT WAS REPORTED. After /me → Home the bar showed JOIN THE PEOPLE for a
+    // long beat and then the account chip. A signed-in member was told, in the
+    // loudest control on the page, to go and sign up.
+    //
+    // WHY. This function took one argument and branched on it: a user, or not a
+    // user. "Not a user" had to serve two completely different facts — "Firebase
+    // says nobody is signed in" and "Firebase has not answered yet" — and the
+    // second is the whole of a cold load. Every reload of / painted the Join CTA
+    // first, unconditionally, because that is what the absence of an answer
+    // looked like. On a fast connection it was a flicker. Behind an 800 KB
+    // deferred SDK and a network round trip it was a sentence the reader had
+    // time to read.
+    //
+    // WHAT IT IS NOW. Three states, from window.PDXAuth (see firebase-boot.js):
+    //
+    //   'unknown'  Firebase has not answered. NO Join CTA and no fake chip —
+    //              either the last identity this bar painted, wearing a
+    //              "Checking account…" caption and inert (no href, no handler,
+    //              aria-disabled), or a quiet "Checking account…" pill when this
+    //              device has never had one. Nothing here claims anything about
+    //              the reader that is not already true on this device.
+    //   'in'       A real, non-anonymous account. The chip, exactly as before.
+    //   'out'      Firebase answered with null, or with the anonymous session the
+    //              roster warm signs in. The Join CTA, exactly as before.
+    //
+    // AND THE ONE BOUND ON 'unknown'. If the SDK never lands at all — blocked,
+    // offline, a 404 on the compat bundle — "Checking account…" would sit there
+    // for the whole visit with no way to sign in. So on a device with NO
+    // remembered account, unknown falls to the Join CTA after a grace period:
+    // the reader gets a working control instead of a permanent spinner. On a
+    // device that HAS one the disabled chip stays, because for that reader the
+    // Join CTA is the wrong claim no matter how long the wait is, and /me is
+    // reachable from the chip's own address once the session resolves.
+    //
+    // AND THE SIGNATURE CARRIES THE STATE, which is what keeps the paint guard
+    // below correct now that there are three of them: unknown → in is a change
+    // and paints, in → in is not and paints nothing. Everything else about this
+    // function's budget is unchanged — see the note above it.
+    // ══════════════════════════════════════════════════════════════════════════
+
+    // ── THE LAST IDENTITY THIS BAR PAINTED ───────────────────────────────────
+    // Kept in this browser so a cold load has something honest to show while the
+    // session resolves. It is a LABEL, not a credential: a uid, a display name
+    // and a photo url, no token, no email, and it authorises nothing — every
+    // read on the site is still gated by the real Firebase session, and the chip
+    // it paints is inert until that session arrives. Cleared the moment Firebase
+    // says there is no account, so a sign-out on this device does not leave a
+    // ghost for the next visit.
+    var PDX_ACCT_KEY = 'pdx_last_account';
+    function PDXLastAccount() {
+      try {
+        var raw = localStorage.getItem(PDX_ACCT_KEY);
+        if (!raw) return null;
+        var o = JSON.parse(raw);
+        return (o && o.uid) ? o : null;
+      } catch (e) { return null; }
+    }
+    function PDXRememberAccount(user) {
+      try {
+        if (user && user.uid && !user.isAnonymous) {
+          localStorage.setItem(PDX_ACCT_KEY, JSON.stringify({
+            uid: user.uid,
+            label: user.displayName || (user.email ? user.email.split('@')[0] : 'Member'),
+            photoURL: user.photoURL || ''
+          }));
+        } else {
+          localStorage.removeItem(PDX_ACCT_KEY);
+        }
+      } catch (e) {}
+    }
+    window.PDXLastAccount = PDXLastAccount;
+    window.PDXRememberAccount = PDXRememberAccount;
+
+    // The grace period on 'unknown', and its one effect: a device with no
+    // remembered account stops waiting and gets the Join CTA, so sign-in is
+    // reachable even if the SDK never loads. It does not cancel, fail or alter
+    // the auth load, and a real answer arriving later still paints over it.
+    var NAV_UNKNOWN_MS = 6000;
+    var _navUnknownExpired = false;
+
+    function _navAvatarHtml(photoURL, label, dim) {
+      var initial = String(label || 'M').charAt(0).toUpperCase();
+      var ring = dim ? 'border-white/20 bg-white/10' : 'border-crimson-500/50 bg-crimson-600/30';
+      var fallback = '<div class="w-8 h-8 rounded-full border-2 ' + ring +
+        ' flex items-center justify-center font-display text-xs text-white">' + initial + '</div>';
+      if (!photoURL) return fallback;
+      var fallbackAttr = fallback.replace(/"/g, '&quot;');
+      return '<img loading="lazy" decoding="async" src="' + photoURL + '" referrerpolicy="no-referrer" ' +
+        'onerror="this.outerHTML=\'' + fallbackAttr + '\'" class="w-8 h-8 rounded-full border-2 ' +
+        (dim ? 'border-white/20' : 'border-crimson-500/50') + ' object-cover" />';
+    }
+
+    // Resolve the three-state answer. An explicit state wins (firebase-boot
+    // passes one on every announcement); otherwise read the published state, and
+    // only fall to 'out' when something has actually said so.
+    function _navAuthStateOf(user, state) {
+      if (state === 'unknown' || state === 'in' || state === 'out') return state;
+      if (user && !user.isAnonymous) return 'in';
+      var A = window.PDXAuth;
+      if (A && !A.known) return 'unknown';
+      return 'out';
+    }
+
     var _navAuthSig = null;
-    function updateNavAuth(user) {
+    function updateNavAuth(user, state) {
       const desktop = document.getElementById('nav-auth-desktop');
       const mobile = document.getElementById('nav-auth-mobile');
 
-      var sig = (user && !user.isAnonymous)
+      var st = _navAuthStateOf(user, state);
+      var last = (st === 'unknown') ? PDXLastAccount() : null;
+      // The bound described above: no remembered account and the wait has run
+      // out → give the reader a control instead of a spinner.
+      if (st === 'unknown' && !last && _navUnknownExpired) st = 'out';
+
+      var sig = (st === 'in')
         ? 'in|' + (user.uid || '') + '|' + (user.displayName || '') + '|' + (user.email || '') + '|' + (user.photoURL || '')
-        : 'out';
+        : (st === 'unknown' ? 'unknown|' + ((last && last.uid) || '') : 'out');
       // Read back what is actually in the slots rather than trusting the variable
-      // alone: the static fallback markup in index.html carries no signature, so
-      // the first real call always paints even if it matches a remembered one.
+      // alone: the static fallback markup in index.html carries its own
+      // signature, so the first real call always paints when it differs.
       var painted = null;
       try {
         painted = (desktop && desktop.getAttribute('data-pdx-nav-sig')) ||
@@ -539,18 +753,13 @@
         if (mobile) mobile.setAttribute('data-pdx-nav-sig', sig);
       } catch (e) {}
 
-      if (user && !user.isAnonymous) {
+      if (st === 'in') {
         const displayName = user.displayName || (user.email ? user.email.split('@')[0] : 'Member');
-        const initial = displayName.charAt(0).toUpperCase();
-        const avatarFallback = `<div class="w-8 h-8 rounded-full border-2 border-crimson-500/50 bg-crimson-600/30 flex items-center justify-center font-display text-xs text-white">${initial}</div>`;
-        const avatarFallbackAttr = avatarFallback.replace(/"/g, '&quot;');
-        const avatarHtml = user.photoURL
-          ? `<img loading="lazy" decoding="async" src="${user.photoURL}" referrerpolicy="no-referrer" onerror="this.outerHTML='${avatarFallbackAttr}'" class="w-8 h-8 rounded-full border-2 border-crimson-500/50 object-cover" />`
-          : avatarFallback;
+        const avatarHtml = _navAvatarHtml(user.photoURL, displayName, false);
 
         if (desktop) {
           desktop.innerHTML = `
-            <a href="/me" title="Your file \u2014 your positions, your starred issues, your ballot picks and your saved evidence" class="flex items-center gap-2 bg-navy-800/90 hover:bg-navy-700/90 border border-crimson-500/40 hover:border-crimson-500/60 rounded-lg px-3 py-1.5 transition-all text-left shadow-lg no-underline" style="box-shadow:0 4px 16px rgba(192,21,42,0.15);">
+            <a href="/me" title="Your file — your positions, your starred issues, your ballot picks and your saved evidence" class="flex items-center gap-2 bg-navy-800/90 hover:bg-navy-700/90 border border-crimson-500/40 hover:border-crimson-500/60 rounded-lg px-3 py-1.5 transition-all text-left shadow-lg no-underline" style="box-shadow:0 4px 16px rgba(192,21,42,0.15);">
               ${avatarHtml}
               <div class="hidden lg:flex flex-col leading-none">
                 <span class="text-white font-display text-sm tracking-wider max-w-[100px] truncate">${displayName}</span>
@@ -573,6 +782,50 @@
               <button onclick="auth.signOut()" class="bg-red-950/40 border border-red-500/20 text-red-400 px-3 py-1.5 rounded-lg text-xs font-700 tracking-wider hover:bg-red-900/30 transition-colors flex-shrink-0">Logout</button>
             </div>
           `;
+        }
+      } else if (st === 'unknown') {
+        // No Join CTA, no live chip and no "signed out" copy anywhere in here.
+        if (last) {
+          const avatarHtml = _navAvatarHtml(last.photoURL, last.label, true);
+          if (desktop) {
+            desktop.innerHTML = `
+              <span aria-disabled="true" aria-live="polite" title="Checking your account…" class="flex items-center gap-2 bg-navy-800/60 border border-white/10 rounded-lg px-3 py-1.5 text-left select-none" style="opacity:0.62;cursor:default;">
+                ${avatarHtml}
+                <span class="hidden lg:flex flex-col leading-none">
+                  <span class="text-white font-display text-sm tracking-wider max-w-[100px] truncate">${last.label}</span>
+                  <span class="text-steel-400 font-condensed text-[10px] tracking-wider uppercase mt-0.5">Checking account…</span>
+                </span>
+              </span>
+            `;
+          }
+          if (mobile) {
+            mobile.innerHTML = `
+              <div aria-disabled="true" aria-live="polite" class="flex items-center gap-3 px-3.5 py-3 bg-navy-800/50 border border-white/10 rounded-xl select-none" style="opacity:0.62;cursor:default;">
+                ${avatarHtml}
+                <span class="flex-1 min-w-0 block">
+                  <span class="text-white font-display text-base tracking-wider truncate block">${last.label}</span>
+                  <span class="text-steel-400 font-condensed font-700 text-[11px] tracking-widest uppercase mt-0.5 block">Checking account…</span>
+                </span>
+              </div>
+            `;
+          }
+        } else {
+          if (desktop) {
+            desktop.innerHTML = `
+              <span aria-live="polite" class="flex items-center gap-2 bg-navy-800/60 border border-white/10 rounded-lg select-none" style="white-space:nowrap;padding:5px 10px;opacity:0.72;cursor:default;">
+                <span class="animate-pulse2 rounded-full" aria-hidden="true" style="width:7px;height:7px;background:#94a3b8;flex-shrink:0;"></span>
+                <span class="text-steel-300 font-condensed font-700" style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;">Checking account…</span>
+              </span>
+            `;
+          }
+          if (mobile) {
+            mobile.innerHTML = `
+              <div aria-live="polite" class="w-full flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-navy-800/50 select-none" style="padding:14px 16px;opacity:0.72;cursor:default;">
+                <span class="animate-pulse2 rounded-full" aria-hidden="true" style="width:8px;height:8px;background:#94a3b8;flex-shrink:0;"></span>
+                <span class="text-steel-300 font-condensed font-700" style="font-size:13px;letter-spacing:0.11em;text-transform:uppercase;">Checking account…</span>
+              </div>
+            `;
+          }
         }
       } else {
         if (desktop) {
@@ -776,36 +1029,54 @@
               var _nextLoc = JSON.stringify(data.voter_location);
               localStorage.setItem('politidex_voter_location', _nextLoc);
               if (typeof window.loadVoterLocation === 'function') window.loadVoterLocation();
-              var _ls = document.getElementById('voter-state-sel');
-              if (_ls) _ls.value = data.voter_location.state || '';
-              // The light half now: these three write text into lines that are
-              // already on screen, and a reader whose area has just been restored
-              // should see it named rather than watch a stale one.
-              ['updateRelevantLocationText','updateMyTeamLocationText','_vhSyncBanner'].forEach(function(fn) {
-                try { if (typeof window[fn] === 'function') window[fn](); } catch(e) {}
-              });
-              // The heavy half — five grid rebuilds, one of which is the whole
-              // relevant-to-me tree — one frame later, and ONLY when the restored
-              // area is not the one this device already had. An unchanged area
-              // skips this entirely: nothing to re-rank, so renderRelevantToMe is
-              // not deferred, not queued, not called.
+              // THE OWNER DECIDES WHETHER THIS IS A PLACE, AND NOTHING BELOW RUNS
+              // UNTIL IT HAS SAID SO. loadVoterLocation() reads a saved record back
+              // only when it carries the provenance stamp saveVoterLocation() writes,
+              // or has the shape of a gesture that predates the stamp — the gate that
+              // stops an IP guess from becoming "You are set to Utah". A mirrored
+              // record from before that stamp existed can fail it, and this block
+              // used to paint the state into the selector and three lines of copy
+              // regardless: a state label on screen that the store itself had
+              // declined, which is the same invented place arriving by another door.
+              // Asking _hasUserLocation keeps ONE gate in ONE place — this file does
+              // not re-derive the test — and a member whose mirrored record is not
+              // read simply sets their location once, exactly as a guest would.
               //
-              // AND WHEN IT DID CHANGE IT IS ONE PASS. This used to take the paint
-              // hold around the fan-out, which meant the release then flushed the
-              // engine's sixteen-wide refresh over the same grids the fan-out had
-              // just rebuilt — a location change cost two whole-surface passes plus
-              // an idle wait. No hold here: the list below already names
-              // renderRelevantToMe, and myteamBrowseFilter's own tail call to it is
-              // suppressed for the duration so the tree is rebuilt once.
-              if (_prevLoc !== _nextLoc) {
-                _syncSoon(function() {
-                  _chubRosterOnly++;
-                  try {
-                    ['_updateTeamPositionsForLocation','updateRacesAndPositions','_vhBallotRerender','renderRelevantToMe','myteamBrowseFilter','pmFilterLocation'].forEach(function(fn) {
-                      try { if (typeof window[fn] === 'function') window[fn](); } catch(e) {}
-                    });
-                  } finally { _chubRosterOnly--; }
+              // A CONDITIONAL RATHER THAN AN EARLY RETURN: the enclosing callback
+              // still has the potential/favourites grid rebuilds to do after this
+              // block, and they are not about this reader's location.
+              if (window._hasUserLocation) {
+                var _ls = document.getElementById('voter-state-sel');
+                if (_ls) _ls.value = data.voter_location.state || '';
+                // The light half now: these three write text into lines that are
+                // already on screen, and a reader whose area has just been restored
+                // should see it named rather than watch a stale one.
+                ['updateRelevantLocationText','updateMyTeamLocationText','_vhSyncBanner'].forEach(function(fn) {
+                  try { if (typeof window[fn] === 'function') window[fn](); } catch(e) {}
                 });
+                // The heavy half — five grid rebuilds, one of which is the whole
+                // relevant-to-me tree — one frame later, and ONLY when the restored
+                // area is not the one this device already had. An unchanged area
+                // skips this entirely: nothing to re-rank, so renderRelevantToMe is
+                // not deferred, not queued, not called.
+                //
+                // AND WHEN IT DID CHANGE IT IS ONE PASS. This used to take the paint
+                // hold around the fan-out, which meant the release then flushed the
+                // engine's sixteen-wide refresh over the same grids the fan-out had
+                // just rebuilt — a location change cost two whole-surface passes plus
+                // an idle wait. No hold here: the list below already names
+                // renderRelevantToMe, and myteamBrowseFilter's own tail call to it is
+                // suppressed for the duration so the tree is rebuilt once.
+                if (_prevLoc !== _nextLoc) {
+                  _syncSoon(function() {
+                    _chubRosterOnly++;
+                    try {
+                      ['_updateTeamPositionsForLocation','updateRacesAndPositions','_vhBallotRerender','renderRelevantToMe','myteamBrowseFilter','pmFilterLocation'].forEach(function(fn) {
+                        try { if (typeof window[fn] === 'function') window[fn](); } catch(e) {}
+                      });
+                    } finally { _chubRosterOnly--; }
+                  });
+                }
               }
             } catch(e) { console.warn('Restore voter_location failed:', e); }
           }
@@ -983,16 +1254,37 @@
     // for guests / anonymous visitors (anyone not signed into a real account): it
     // never touches Firestore, so a team built on this device survives refreshes
     // and return visits instead of being wiped by an empty cloud profile.
+    // ── AND IT DOES NOT RUN AS ONE WALK ──────────────────────────────────────
+    // This is called from the auth announcement, which on a cold load lands in
+    // the same stretch of main thread as the roster merge and every module's own
+    // auth listener. The three localStorage READS are microseconds and stay
+    // inline — the sets have to be right before anything paints from them. The
+    // six PAINTS are not: three grid rebuilds, a heart refresh across the whole
+    // document and filterDirectory(), which re-walks the entire roster. Run back
+    // to back they are the long task the reader experiences as a frozen tab, and
+    // none of them needs to be in the same one. One task each, and the browser
+    // gets to paint in between.
     function _loadLocalUserData() {
       try { _mypolLoad(); } catch (e) {}
       try { _loadFavorites(); } catch (e) {}
       try { _potentialLoad(); } catch (e) {}
-      try { _mypolBuildGrid(); } catch (e) {}
-      try { _favoritesBuildGrid(); } catch (e) {}
-      try { _potentialBuildGrid(); } catch (e) {}
-      try { _refreshAllHeartUI(); } catch (e) {}
-      try { _mypolUpdateCount(); } catch (e) {}
-      try { if (typeof filterDirectory === 'function') filterDirectory(); } catch (e) {}
+      var paints = [
+        function () { _mypolBuildGrid(); },
+        function () { _favoritesBuildGrid(); },
+        function () { _potentialBuildGrid(); },
+        function () { _refreshAllHeartUI(); },
+        function () { _mypolUpdateCount(); },
+        function () { if (typeof filterDirectory === 'function') filterDirectory(); }
+      ];
+      (function step(i) {
+        if (i >= paints.length) return;
+        var run = function () {
+          try { paints[i](); } catch (e) {}
+          step(i + 1);
+        };
+        if (typeof window.PDXOffTask === 'function') window.PDXOffTask(run);
+        else setTimeout(run, 0);
+      })(0);
     }
     window._loadLocalUserData = _loadLocalUserData;
 
@@ -1008,11 +1300,32 @@
     // Reconcile the nav account indicator with whatever auth state Firebase has
     // already resolved. This covers the case where onAuthStateChanged fired
     // before updateNavAuth() existed, which previously left the nav blank.
+    //
+    // AND IT IS THE FIRST PAINT OF 'unknown'. This file is a synchronous script,
+    // so it runs BEFORE the deferred Firebase SDK and firebase-boot.js: at this
+    // moment nothing knows who is signed in, and that is exactly the state the
+    // call below now paints. It used to pass null, which the two-state painter
+    // read as "signed out" and answered with the Join CTA — the false logout, on
+    // every single load of this page, produced by this line.
     try {
-      var _navAuthUser = (typeof _lastAuthUser !== 'undefined' && _lastAuthUser)
-        ? _lastAuthUser
-        : ((typeof auth !== 'undefined' && auth.currentUser && !auth.currentUser.isAnonymous) ? auth.currentUser : null);
-      updateNavAuth(_navAuthUser);
+      var A = window.PDXAuth;
+      var _navState = (A && A.state) ? A.state : 'unknown';
+      var _navAuthUser = (A && A.user) ? A.user
+        : ((typeof _lastAuthUser !== 'undefined' && _lastAuthUser) ? _lastAuthUser
+          : ((typeof auth !== 'undefined' && auth && auth.currentUser && !auth.currentUser.isAnonymous) ? auth.currentUser : null));
+      if (_navAuthUser && _navState === 'unknown') _navState = 'in';
+      updateNavAuth(_navAuthUser, _navState);
+      // The bound on waiting, armed once. If Firebase has still said nothing by
+      // the time this fires, a device with no remembered account gets the Join
+      // CTA so sign-in stays reachable; a device that has one keeps its disabled
+      // chip. Either way the real answer, whenever it lands, paints over this.
+      setTimeout(function () {
+        _navUnknownExpired = true;
+        try {
+          var B = window.PDXAuth;
+          if (!B || !B.known) updateNavAuth(null, 'unknown');
+        } catch (e) {}
+      }, NAV_UNKNOWN_MS);
     } catch (e) { /* leave static fallback in place */ }
     window._favoritesBuildGrid = _favoritesBuildGrid;
 

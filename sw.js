@@ -6316,7 +6316,141 @@
 //     Direction Match are exactly as they were, no consistency ranking runs and
 //     no party sort moved, and no store schema changed.
 
-const CACHE_VERSION = 'v206';
+// v208 - AN AUTH RESTORE STOPS LOOKING LIKE A LOGOUT, AND STOPS FREEZING THE TAB
+//
+//     REPORTED. Signing in with Google, or returning to / with a live session,
+//     put "Page Unresponsive" on screen; after /me → Home the bar showed JOIN
+//     THE PEOPLE for a long beat before the chip; a second Google tap printed
+//     "auth/cancelled-popup-request" in the modal. One shape behind all three:
+//     the app treated not-knowing-yet as an answer. Firebase calls every
+//     onAuthStateChanged subscriber synchronously and this app has about a
+//     dozen, so one sign-in ran the roster warm, the account pull, the local
+//     rehydrate, the streams and the gates back to back with no chance to paint
+//     — firebase-boot.js now owns ONE real listener and fans out to subscribers
+//     a task each. "Unknown" and "signed out" were both null, and the pre-SDK
+//     stub in each shell handed cb(null) to every registration during parse, so
+//     the chrome painted the CTA over a live member on every load — the stub
+//     queues now, window.PDXAuth publishes a third state, and the bar paints a
+//     quiet "Checking account…", the reader's own chip disabled, or the CTA once
+//     Firebase has said nobody is signed in. And signInWithPopup kills any popup
+//     already open and rejects the first call, so one in-flight promise is the
+//     lock, the button is disabled until it settles, and no auth/* code reaches
+//     a reader.
+//
+//     WHY THE BUMP. Five precached shells changed — index.html ('/'), me.html,
+//     person.html, issue.html and evidence.html — each carrying the stub that
+//     was answering "signed out" during parse, and index.html also carrying the
+//     nav slot markup that was the CTA in the page's first frame and is now the
+//     'unknown' pill. firebase-boot.js and compare-hub.js are stale-while-
+//     revalidate RUNTIME entries, not precached, so a warm device can pair the
+//     new shells with the previous copy of either for one navigation. That is
+//     why the stub self-heals instead of trusting the boot file to drain its
+//     queue: whatever is still queued after five seconds is flushed with null,
+//     which is the behaviour the reader had before this pass, and the refresh
+//     after it has the whole fix.
+//
+//     DID NOT MOVE. No new provider, no password-reset change, no CD shapefile.
+//     Scores, /me geography, the district maps, the 121 denominator and /courts
+//     are untouched; no score, party read, issue key or store schema changed,
+//     and no Direction Match read, formal-record brief or record-ledger figure
+//     is touched — the record is painted from the same data by the same
+//     functions, and every Firestore read is the same read with the same guards.
+//     Only WHEN it runs is different.
+// v209 - NO DEFAULT STATE, AND /me PRINTS THE DISTRICTS THE HOME CARD RESOLVED
+//
+//     REPORTED. A signed-out visitor was told "You are set to Utah" over a band
+//     reading "3 of 6 seats resolved" — a place nobody had chosen. And a reader
+//     whose home card already named U.S. House District 2, State Senate
+//     District 6 and State House District 15 opened /me to find District 2 on
+//     the account block, "needs a district map" on both state chambers, and no
+//     names on either. Two causes, one shape: the app answered a question the
+//     reader had not answered. detectVoterLocation() ran at module load in
+//     voter-hub-location.js and wrote an IP-derived state straight through
+//     saveVoterLocation(), which is the flag every surface reads as "this reader
+//     told us where they vote"; and the curated ballot resolves its area through
+//     _krCurrentLocationId(), which ends `_krInferLocation() || 'davis'`, so a
+//     state-only record was handed Davis County's three districts as its own.
+//     Load-time detection is gone, the Detect button stays because a tap is
+//     consent, a saved record is read back only when it carries the provenance
+//     stamp saveVoterLocation() now writes, and the resolver's curated reads are
+//     gated on a real area match. The asymmetry was the second half:
+//     ballot-breakdown.js is not on /me, so the numbers the home card computes
+//     existed nowhere /me could read them. The walk that holds those tables now
+//     persists what it resolved — district and officeholder per chamber, keyed
+//     to the place it resolved them for — into the same location record, and the
+//     resolver reads it back as a fallback. /me asks the same pdxRepsForMe() and
+//     gets the same three numbers and the same three pids, without 407 KB.
+//
+//     WHY THE BUMP. Two precached shells changed, index.html and me.html, and
+//     two precached scripts with them: voter-hub-location.js (the store, the
+//     resolver, the removed detector) and me-desk.js (the district rows and the
+//     location control). A warm device pairs a cached shell with a revalidated
+//     script, so the halves must be able to disagree for one navigation without
+//     lying: an old me-desk.js reads `resolved` as a field it does not know and
+//     falls through to the behaviour it has today, and a new me-desk.js against
+//     a record with no `resolved` key prints the same "needs a district map".
+//
+//     MIGRATION COST, STATED PLAINLY. Provenance is new, so records already in
+//     browsers carry no stamp and are read by shape. A record holding a
+//     district, a map selection, or a city differing from its county was a
+//     reader's own gesture and is still honoured. A record holding nothing but a
+//     state — or a city equal to its county, which is what the reverse geocoder
+//     wrote — is what the detector left behind and is no longer read. Those
+//     readers are asked to set their location once.
+//
+//     DID NOT MOVE. No new shapefile and no new district geometry. The auth
+//     unknown state from v208, every score, the 121 denominator and /courts are
+//     untouched; no score, party read, issue key or roster field changed, and no
+//     Direction Match read, formal-record brief or record-ledger figure is
+//     touched.
+// v210 - ONE LOCATION SETTER, AT THE TOP OF WHO REPRESENTS ME, AND A SIGN-IN
+//        THAT STOPS PAYING FOR SESSIONS THAT ARE ALREADY OVER
+//
+//     REPORTED. The homepage had stopped inventing Utah, but the Detect /
+//     Change-on-map card still sat two sections below the band that asks who
+//     represents you. And a sign-in was still slow: a hitch, or a long beat.
+//
+//     THE CARD. There were three location setters on '/', not two: the band's
+//     cold CTAs, the Voter Hub's .pm-location-bar, and the one ballot-breakdown
+//     painted in the Relevant-to-Me empty state, each with its own Detect and
+//     map button. There is one, #wrm-locbar atop #who-represents-me, two faces:
+//     three doors (Detect, Change on map, Set my location) until there is
+//     something to change, one (Change location) after. Which face is
+//     voter-hub-location.js's call, because whether a location is stamped is
+//     that file's question and two owners would be two answers. The six
+//     controls that used to open their own pickers — four in the districts
+//     strip, one on the ballot band, one in the empty state — route through
+//     window._pdxGoSetLocation; pdxFindMyReps lands on the setter with no
+//     location and on the seats with one.
+//
+//     THE SIGN-IN. The v208 bus is unchanged in shape — one job per task, idle
+//     callback with a timer backstop — and the chip was never the delay: it
+//     paints on the auth event's own task, measured at 0 ms. The cost was
+//     count. A cold visit ending in one Google tap is THREE announcements
+//     (Firebase says nobody, our own anonymous session lands, the account
+//     arrives), each queuing a full fan-out into one FIFO: 29 jobs, 14 handing
+//     a subscriber a user a later announcement had replaced, the member's own
+//     data job #20 at ~2520 ms. Jobs now carry the announcement that queued
+//     them, a new one retires the old queue, and the pump drops stale jobs in
+//     one pass instead of a task each. Same sequence: 10 jobs, 20 dropped, 0
+//     deliveries of a retired session, the member's data first at 120 ms.
+//
+//     WHY THE BUMP. index.html and me.html both ship precached, and three
+//     precached scripts changed under them: who-represents-me.js,
+//     voter-hub-location.js and firebase-boot.js, which me.html loads too. The
+//     halves degrade rather than lie: an old script finds #wrm-locbar and
+//     leaves it on its static empty face, a new one falls back to the section.
+//
+//     MIGRATION COST. None to any stored record: no location, provenance stamp
+//     or resolved district is rewritten or re-asked, and a reader who had set
+//     Davis still opens to Davis.
+//
+//     DID NOT MOVE. No default state, the provenance stamp, /me's 2/6/15
+//     memory, every score, the 121 denominator, /courts and the archive-by-
+//     chamber list are untouched; no new persistence and no new auth provider.
+//     No score, party read, issue key or roster field changed, and no
+//     Direction Match read or record-ledger figure moved.
+const CACHE_VERSION = 'v210';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

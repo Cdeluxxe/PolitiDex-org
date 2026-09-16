@@ -199,7 +199,29 @@ section('3 · sign-in is quieter, not smaller and not gone');
 
 const authAt = ROW.indexOf('id="nav-auth-desktop"');
 must(authAt > 0, 'the account cluster is gone from the toolbar row');
-const AUTH = ROW.slice(authAt);
+
+/* THE SIGNED-OUT CTA MOVED INTO THE PAINTER. index.html's account slots hold the
+   "Checking account…" pill now — the chrome has a third state for "Firebase has
+   not answered yet", and a CTA in the document's first frame was a claim about
+   the session that nothing had checked. JOIN THE PEOPLE is printed by
+   updateNavAuth in compare-hub.js once the SDK has actually said nobody is
+   signed in, so the markup this section measures is read from there: the LAST
+   desktop and mobile innerHTML writes in that function, which are its
+   signed-out branch. Same bytes, same assertions, one file over. */
+const _hubNav = (() => {
+  const i = HUB.indexOf('function updateNavAuth(');
+  if (i < 0) return { desktop: '', mobile: '' };
+  let depth = 0, started = false, end = HUB.length;
+  for (let j = i; j < HUB.length; j++) {
+    if (HUB[j] === '{') { depth++; started = true; }
+    else if (HUB[j] === '}') { depth--; if (started && depth === 0) { end = j + 1; break; } }
+  }
+  const body = HUB.slice(i, end);
+  const d = body.match(/desktop\.innerHTML = `[\s\S]*?`;/g) || [];
+  const m = body.match(/mobile\.innerHTML = `[\s\S]*?`;/g) || [];
+  return { desktop: d.length ? d[d.length - 1] : '', mobile: m.length ? m[m.length - 1] : '' };
+})();
+const AUTH = ROW.slice(authAt) + _hubNav.desktop;
 ok(/<span>JOIN THE PEOPLE<\/span>/.test(AUTH), 'the button still says JOIN THE PEOPLE');
 ok(/>FREE</.test(AUTH), 'the FREE chip is still there');
 ok(/openAuthModal\(\)/.test(AUTH), 'and it still opens the auth modal');
@@ -220,8 +242,8 @@ ok(!/rgba\(192,21,42/.test(authRest[1]),
   'the resting shadow carries no crimson bloom — that is what hover is for');
 
 /* The drawer's copy of the same control, likewise intact. */
-ok(/<span>JOIN THE PEOPLE<\/span>/.test(DRAWER), 'the drawer CTA still says JOIN THE PEOPLE');
-ok(/padding:14px 16px/.test(DRAWER), 'at its full drawer size');
+ok(/<span>JOIN THE PEOPLE<\/span>/.test(DRAWER + _hubNav.mobile), 'the drawer CTA still says JOIN THE PEOPLE');
+ok(/padding:14px 16px/.test(DRAWER + _hubNav.mobile), 'at its full drawer size');
 
 /* ───────────────────────────────────────────────────────────────────────────
    4 · THE LADDER

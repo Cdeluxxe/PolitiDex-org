@@ -1333,7 +1333,13 @@
         district: String(loc.district == null ? '' : loc.district).replace(/[^0-9]/g, ''),
         stateHouseDistrict: String(loc.stateHouseDistrict == null ? '' : loc.stateHouseDistrict).replace(/[^0-9]/g, ''),
         stateSenateDistrict: String(loc.stateSenateDistrict == null ? '' : loc.stateSenateDistrict).replace(/[^0-9]/g, ''),
-        mapSelected: !!(loc.stateHouseDistrict || loc.stateSenateDistrict)
+        mapSelected: !!(loc.stateHouseDistrict || loc.stateSenateDistrict),
+        // THE PROVENANCE STAMP voter-hub-location.js's loadVoterLocation() reads
+        // back. A Home Base is a place this reader built and protected, so the
+        // location it anchors is a choice and has to say so — an unstamped record
+        // is indistinguishable from the load-time guesses that key no longer
+        // accepts, and it would be dropped on the next read.
+        src: 'set'
       };
       window._hasUserLocation = true;
       try { localStorage.setItem('politidex_voter_location', JSON.stringify(window._currentVoterLocation)); } catch (e) {}
@@ -2917,17 +2923,24 @@
     // silently presenting a default district's ballot as the visitor's own.
     window._relevantLocationPrompt = function() {
       // Clean, non-partisan empty state shown before a location is set. No
-      // politicians are pre-loaded here — the two prominent actions (browser
-      // geolocation and the map/address picker) are the only way in, so whatever
-      // appears afterward is genuinely the visitor's own area.
+      // politicians are pre-loaded here, so whatever appears afterward is
+      // genuinely the visitor's own area.
+      //
+      // AND IT NO LONGER CARRIES ITS OWN DETECT AND ITS OWN MAP BUTTON. This
+      // block used to be a second location card — same two prominent actions,
+      // same promise, a page and a half below the one at the top of Who
+      // Represents Me. Two of them meant two surfaces that could each be the
+      // one the reader last touched, and a reader who set a location down here
+      // had no reason to believe the band up there knew about it. It is one
+      // control now, and it is a door to that setter rather than a copy of it:
+      // the place that asks the question is the place that takes the answer.
       var h = '';
       h += '<div class="pdx-loc-empty" style="padding:2.25rem 1.5rem;border-radius:1.25rem;text-align:center;background:linear-gradient(135deg,rgba(30,58,138,0.22),rgba(96,165,250,0.06));border:1px solid rgba(59,130,246,0.35);max-width:44rem;margin:0 auto;">';
       h += '<div style="font-size:2.6rem;line-height:1;margin-bottom:0.75rem;" aria-hidden="true">📍</div>';
       h += '<div style="font-family:\'Bebas Neue\',sans-serif;letter-spacing:0.04em;font-size:1.7rem;color:#fff;margin-bottom:0.5rem;">Set your location to see your representatives</div>';
       h += '<p style="font-family:\'Barlow Condensed\',sans-serif;font-size:1rem;color:#cbd9ee;line-height:1.55;margin:0 auto 1.4rem;max-width:34rem;">Tell us where you vote and this becomes your personal ballot — the people who represent you today and the candidates running for those seats, across every level of government. Nothing is pre-loaded, and it works for any state.</p>';
       h += '<div style="display:flex;flex-wrap:wrap;gap:0.7rem;justify-content:center;">';
-      h += '<button type="button" onclick="window.triggerManualLocationDetection && window.triggerManualLocationDetection()" class="btn-glow font-condensed text-sm font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-5 py-3 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-md flex items-center gap-2 min-h-[48px]">🌐 Detect My Location</button>';
-      h += '<button type="button" onclick="window.toggleChangeLocation && window.toggleChangeLocation()" class="btn-glow font-condensed text-sm font-700 tracking-wider uppercase text-white bg-slate-700 hover:bg-slate-600 border border-slate-500/40 px-5 py-3 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-md flex items-center gap-2 min-h-[48px]">🗺️ Change Location on Map</button>';
+      h += '<button type="button" onclick="window._pdxGoSetLocation ? window._pdxGoSetLocation() : (window.toggleChangeLocation && window.toggleChangeLocation())" class="btn-glow font-condensed text-sm font-700 tracking-wider uppercase text-white bg-blue-600 hover:bg-blue-500 border border-blue-400/40 px-5 py-3 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-md flex items-center gap-2 min-h-[48px]">📍 Set my location</button>';
       h += '</div>';
       h += '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.8rem;color:#8ba0c2;margin-top:1.1rem;">🔒 Your location stays on your device — we never store where you live.</div>';
       h += '</div>';

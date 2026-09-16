@@ -43,6 +43,208 @@
       signOut: function () { return Promise.resolve(); }
     };
   }
+  // ══════════════════════════════════════════════════════════════════════════
+  // A RESTORED SESSION IS SAID OUT LOUD — browserLocalPersistence
+  // ──────────────────────────────────────────────────────────────────────────
+  // It is the SDK's web default, and relying on a default for the one behaviour
+  // this whole pass is about is how "signed in yesterday, Join CTA today" gets
+  // shipped twice. Named explicitly: the session lives in this browser's
+  // storage, survives a reload, a new tab and a restart, and is restored BEFORE
+  // the first onAuthStateChanged fires — which is what lets the chrome treat
+  // "no event yet" as unknown rather than signed out. A failure here is not
+  // fatal; the SDK keeps whatever default it had.
+  try {
+    if (auth && typeof auth.setPersistence === 'function' && typeof firebase !== 'undefined' &&
+        firebase.auth && firebase.auth.Auth && firebase.auth.Auth.Persistence) {
+      var _p = auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+      if (_p && typeof _p.catch === 'function') {
+        _p.catch(function (e) { console.warn('Auth persistence not set:', e && e.message); });
+      }
+    }
+  } catch (e) {}
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // THE AUTH BUS — one Firebase listener, many subscribers, none of them on
+  // Firebase's own task
+  // ──────────────────────────────────────────────────────────────────────────
+  // WHAT WAS REPORTED. Signing in with Google — or simply returning to / with a
+  // live session — put Chrome's "Page Unresponsive" dialog on screen. And after
+  // /me → Home the bar showed JOIN THE PEOPLE for a long beat before the
+  // account chip arrived, so a restore looked like a logout.
+  //
+  // WHY THE FREEZE. Firebase calls every registered onAuthStateChanged listener
+  // SYNCHRONOUSLY, in ONE task, and this app has a dozen of them: the roster
+  // warm below, the account pull, the local-store rehydrate that rebuilds six
+  // grids and re-filters the directory, the alignment engine's Firestore
+  // stream, the discussion cache drop (a document-wide querySelectorAll), the
+  // desk, the district room, the evidence locker, the admin gate and two
+  // lazy-module gates. One sign-in ran all of them back to back with no chance
+  // to paint in between. That is not a slow page, it is a frozen tab.
+  //
+  // WHY THE FALSE LOGOUT. "We have not heard from Firebase yet" and "Firebase
+  // says nobody is signed in" were the same value — null — so every reader of
+  // it took the first for the second and painted a guest over a live member.
+  //
+  // WHAT THIS IS. auth.onAuthStateChanged is replaced by a dispatcher over ONE
+  // real Firebase listener (attached at the bottom of this file). Each
+  // announcement does two cheap things on Firebase's task — remember the
+  // identity, paint the bar — and then hands every subscriber a task of its
+  // own, so the browser paints between them and the Firebase callback itself
+  // returns immediately. Callers are unchanged: same call, same unsubscribe,
+  // and a late subscriber still receives the current state (one task later
+  // rather than inline, which is what the SDK's own contract already allows).
+  //
+  // AND IT PUBLISHES THE THIRD STATE. window.PDXAuth.state is 'unknown' until
+  // Firebase has answered once, then 'in' (a real account) or 'out' (null, or
+  // the anonymous session the roster warm signs in — an anonymous uid is not an
+  // account and never paints as one). Nothing may read 'unknown' as 'out'; see
+  // updateNavAuth in compare-hub.js, which paints all three.
+  //
+  // WHAT IT IS NOT. Not a second auth stack, not a second source of truth, and
+  // not a cache of the session: Firebase remains the only thing that decides
+  // who is signed in, every subscriber still receives the SDK's own user object,
+  // and no read anywhere is authorised by anything published here.
+  // ══════════════════════════════════════════════════════════════════════════
+
+  // Seeded by each shell's pre-SDK stub (see index.html); created here for a
+  // shell that ships none.
+  var PDXAuth = window.PDXAuth || { state: 'unknown', user: null, known: false };
+  window.PDXAuth = PDXAuth;
+
+  // Run fn on a task of its own — soon, but never on the caller's. Idle first
+  // with a short deadline so the browser gets to paint before we take the
+  // thread back; a timer backstop covers background tabs (where
+  // requestIdleCallback does not fire at all) and queues that are never idle on
+  // a page still compiling bundles. Whichever fires first makes the other a
+  // no-op, so the work runs exactly once.
+  function _pdxOffTask(fn) {
+    var done = false;
+    function go() {
+      if (done) return;
+      done = true;
+      try { fn(); } catch (e) { console.error('Deferred auth work failed:', e && e.message); }
+    }
+    var idled = false;
+    try {
+      if (typeof window.requestIdleCallback === 'function') {
+        window.requestIdleCallback(go, { timeout: 120 });
+        idled = true;
+      }
+    } catch (e) {}
+    setTimeout(go, idled ? 150 : 0);
+  }
+  window.PDXOffTask = _pdxOffTask;
+
+  // The fan-out queue. ONE job per task: a subscriber that rebuilds a grid gets
+  // its own slice, and the frame in between belongs to the browser.
+  //
+  // ── AND A SUPERSEDED ANNOUNCEMENT IS DROPPED, NOT DELIVERED ────────────────
+  // WHAT WAS MEASURED (scripts/measure-signin-cost.mjs, on this bus). A cold
+  // visit that ends in one tap on Google is not one announcement, it is three:
+  // Firebase says "nobody" the moment it has read local persistence, our own
+  // signInAnonymously lands a moment later, and the account arrives when the
+  // popup closes. Each one queued a full fan-out, so the sequence ran 29 jobs —
+  // and 14 of them carried a user that a LATER announcement had already
+  // replaced. Every subscriber on the page was told "signed out", then
+  // "anonymous", AFTER the member's own session was live and the chip was
+  // already painted with their name. The reader's own data was job #20 of 29 and
+  // landed about 2.5 seconds after the tap, behind nineteen jobs about two
+  // sessions that no longer existed.
+  //
+  // That is the long beat, and it is not the chip: the chip is painted inline by
+  // _pdxAuthAnnounce and measures 0 ms: the same task as the auth event. What
+  // the reader waits for is everything keyed to WHO they are, sitting behind a
+  // queue of work about who they were.
+  //
+  // So each announcement stamps its jobs with the epoch it was made in, and the
+  // pump discards any job whose epoch has been overtaken. Nothing about the
+  // shape changes — one job per task, idle-with-a-timer, the frame in between
+  // still the browser's — because that shape is what stopped the freeze and
+  // this is not a second attempt at it. What changes is that the queue stops
+  // carrying answers to a question the app has already re-asked.
+  //
+  // ONE KIND OF JOB IS EXEMPT, AND IT HAS TO BE. The job _pdxAuthSub queues when
+  // a late subscriber registers reads PDXAuth.user at the moment it RUNS rather
+  // than closing over a snapshot, so it is never stale and dropping it would
+  // mean a module that registered during a burst of announcements was never
+  // called at all. It is queued exempt and always delivered.
+  var _authSubs = [];
+  var _authJobs = [];
+  var _authPumping = false;
+  var _authEpoch = 0;
+  var _authDropped = 0;
+  var AUTH_EXEMPT = -1;
+  function _authPump() {
+    // Skipping is not a task. Stale jobs are shifted off here, in this one
+    // pass, so a burst of three announcements costs the queue a few array
+    // shifts rather than an idle callback each to discover it has nothing to do.
+    var job = null;
+    while (_authJobs.length) {
+      var next = _authJobs.shift();
+      if (next.ep === AUTH_EXEMPT || next.ep === _authEpoch) { job = next; break; }
+      _authDropped++;
+    }
+    if (!job) { _authPumping = false; return; }
+    _pdxOffTask(function () {
+      try { job.run(); } catch (e) {}
+      _authPump();
+    });
+  }
+  function _authFanOut(jobs, exempt) {
+    var ep = exempt ? AUTH_EXEMPT : _authEpoch;
+    for (var i = 0; i < jobs.length; i++) _authJobs.push({ run: jobs[i], ep: ep });
+    if (!_authPumping) { _authPumping = true; _authPump(); }
+  }
+  // Reported so the cost can be measured again rather than argued about. Counts
+  // only; it publishes no identity and authorises nothing.
+  window.PDXAuthStats = function () {
+    return { epoch: _authEpoch, dropped: _authDropped, queued: _authJobs.length };
+  };
+
+  var _rawOnAuth = null;
+  try {
+    if (auth && typeof auth.onAuthStateChanged === 'function') {
+      _rawOnAuth = auth.onAuthStateChanged.bind(auth);
+    }
+  } catch (e) {}
+
+  // The dispatcher every caller in the app now registers against. Accepts the
+  // SDK's own two shapes (a function, or an observer with .next) so no call
+  // site has to change.
+  function _pdxAuthSub(nextOrObserver) {
+    var cb = null;
+    if (typeof nextOrObserver === 'function') cb = nextOrObserver;
+    else if (nextOrObserver && typeof nextOrObserver.next === 'function') {
+      cb = function (u) { nextOrObserver.next(u); };
+    }
+    if (!cb) return function () {};
+    var rec = { cb: cb, off: false };
+    _authSubs.push(rec);
+    if (PDXAuth.known) {
+      // Exempt: this reads PDXAuth.user when it runs, so it cannot go stale —
+      // and a subscriber that registered mid-burst must still be answered.
+      _authFanOut([function () { if (!rec.off) rec.cb(PDXAuth.user); }], true);
+    }
+    return function () {
+      rec.off = true;
+      var i = _authSubs.indexOf(rec);
+      if (i >= 0) _authSubs.splice(i, 1);
+    };
+  }
+  try { auth.onAuthStateChanged = _pdxAuthSub; } catch (e) {}
+
+  // Replay whatever registered against the shell's pre-SDK stub while this file
+  // was still downloading. The stub answered nobody (that was the bug); it
+  // queued, and the unsubscribe it handed out stays live through rec.unsub.
+  try {
+    var _q = window.__pdxAuthQueue || [];
+    window.__pdxAuthQueue = null;
+    for (var _qi = 0; _qi < _q.length; _qi++) {
+      var _rec = _q[_qi];
+      if (_rec && !_rec.off && typeof _rec.cb === 'function') _rec.unsub = _pdxAuthSub(_rec.cb);
+    }
+  } catch (e) {}
+
   function setDoc(docRef, data, options) {
     return docRef.set(data, options);
   }
@@ -524,50 +726,116 @@
   // updateNavAuth() is defined further down the page (avoids a blank nav).
   var _lastAuthUser = null;
 
-  auth.onAuthStateChanged(function(user) {
-    _fbAuthResolve();
+  // ── WHAT AN ANNOUNCEMENT IS ALLOWED TO COST ──────────────────────────────
+  // This function IS the Firebase callback, so everything it does inline is
+  // done before the browser is allowed to paint again. Exactly three things
+  // qualify, and all three are the reader's own answer rather than the app's
+  // bookkeeping:
+  //
+  //   · publish the state, so no later reader has to guess it;
+  //   · remember the identity for the NEXT cold start's 'unknown' chip;
+  //   · paint the bar.
+  //
+  // Everything else — the account pull, the local rehydrate, the sync switch,
+  // the votes listener, the comment counts, and every other module's listener —
+  // is a job, one task each, through the bus. The callback returns in
+  // microseconds and the tab keeps painting while the work lands behind it.
+  function _pdxAuthAnnounce(user) {
+    // A NEW ANSWER RETIRES THE OLD ONE'S QUEUE. Bumped before anything else so
+    // every job still waiting from the previous announcement — including this
+    // file's own — is stale from this line onward.
+    _authEpoch++;
+    PDXAuth.known = true;
+    PDXAuth.user = user || null;
+    PDXAuth.state = (user && !user.isAnonymous) ? 'in' : 'out';
+    _lastAuthUser = (PDXAuth.state === 'in') ? user : null;
+    try {
+      if (typeof window.PDXRememberAccount === 'function') window.PDXRememberAccount(_lastAuthUser);
+    } catch (e) {}
+    try {
+      if (typeof updateNavAuth === 'function') updateNavAuth(PDXAuth.user, PDXAuth.state);
+    } catch (e) {}
+    try { if (typeof _fbAuthResolve === 'function') _fbAuthResolve(); } catch (e) {}
+
+    var jobs = _pdxAuthOwnJobs(user);
+    _authSubs.slice().forEach(function (rec) {
+      jobs.push(function () { if (!rec.off) rec.cb(user); });
+    });
+    _authFanOut(jobs);
+  }
+
+  // This file's OWN reaction to a session, as a list of jobs rather than one
+  // straight line. Every step is the step it always was, with the same guards
+  // in the same order; the only change is that each gets a task of its own so
+  // no single one of them can hold the frame. _loadLocalUserData in particular
+  // rebuilds three grids, refreshes every heart on the page and re-filters the
+  // whole directory — that is the sync walk the report was about, and it is no
+  // longer on the click.
+  function _pdxAuthOwnJobs(user) {
+    var jobs = [];
     if (user) {
-      _lastAuthUser = user.isAnonymous ? null : user;
-      if (typeof updateNavAuth === 'function') updateNavAuth(user);
       if (user.isAnonymous) {
-        console.log("Firebase signed in anonymously:", user.uid);
-        // Guest/anonymous visitors have no saved cloud profile, so their My Team,
-        // Favorites and Watching lists live entirely in this browser's
-        // localStorage. Reading the (empty) anonymous Firestore profile here would
-        // overwrite a team the visitor already built on this device — the bug that
-        // made "My Team" appear to reset on every refresh. Load from localStorage
-        // instead so selections persist across refreshes and browser sessions.
-        if (typeof window._loadLocalUserData === 'function') window._loadLocalUserData();
-        // Anonymous = local-only for PDX sync too: an anonymous uid is per-browser
-        // and ephemeral, so we never sync it (the server rejects it anyway).
-        try { if (window.PDXStore) window.PDXStore.disableAccountSync(); } catch (e) {}
+        jobs.push(function () {
+          console.log("Firebase signed in anonymously:", user.uid);
+          // Guest/anonymous visitors have no saved cloud profile, so their My Team,
+          // Favorites and Watching lists live entirely in this browser's
+          // localStorage. Reading the (empty) anonymous Firestore profile here would
+          // overwrite a team the visitor already built on this device — the bug that
+          // made "My Team" appear to reset on every refresh. Load from localStorage
+          // instead so selections persist across refreshes and browser sessions.
+          if (typeof window._loadLocalUserData === 'function') window._loadLocalUserData();
+        });
+        jobs.push(function () {
+          // Anonymous = local-only for PDX sync too: an anonymous uid is per-browser
+          // and ephemeral, so we never sync it (the server rejects it anyway).
+          try { if (window.PDXStore) window.PDXStore.disableAccountSync(); } catch (e) {}
+        });
       } else {
-        console.log("Firebase signed in as user:", user.uid, user.email);
-        if (typeof syncUserDataFromFirestore === 'function') syncUserDataFromFirestore(user.uid);
-        // Real account → turn on authenticated cross-device sync of 'saved'.
-        // getToken returns a fresh Firebase ID token for the Authorization header;
-        // getIdToken() transparently refreshes it when it's near expiry.
-        try {
-          if (window.PDXStore) window.PDXStore.enableAccountSync({
-            userId: user.uid,
-            getToken: function () {
-              var u = auth.currentUser;
-              return u ? u.getIdToken().catch(function () { return null; })
-                       : Promise.resolve(null);
-            }
-          });
-        } catch (e) {}
+        jobs.push(function () {
+          console.log("Firebase signed in as user:", user.uid, user.email);
+          if (typeof syncUserDataFromFirestore === 'function') syncUserDataFromFirestore(user.uid);
+        });
+        jobs.push(function () {
+          // Real account → turn on authenticated cross-device sync of 'saved'.
+          // getToken returns a fresh Firebase ID token for the Authorization header;
+          // getIdToken() transparently refreshes it when it's near expiry.
+          try {
+            if (window.PDXStore) window.PDXStore.enableAccountSync({
+              userId: user.uid,
+              getToken: function () {
+                var u = auth.currentUser;
+                return u ? u.getIdToken().catch(function () { return null; })
+                         : Promise.resolve(null);
+              }
+            });
+          } catch (e) {}
+        });
       }
     } else {
-      _lastAuthUser = null;
-      console.log("No user, signing in anonymously...");
-      if (typeof updateNavAuth === 'function') updateNavAuth(null);
-      // Signed out → back to local-only until a real account signs in again.
-      try { if (window.PDXStore) window.PDXStore.disableAccountSync(); } catch (e) {}
-      auth.signInAnonymously().catch(function(e) {
-        console.warn("Firebase anon auth failed:", e.message);
+      jobs.push(function () {
+        console.log("No user, signing in anonymously...");
+        // Signed out → back to local-only until a real account signs in again.
+        try { if (window.PDXStore) window.PDXStore.disableAccountSync(); } catch (e) {}
+        try {
+          auth.signInAnonymously().catch(function (e) {
+            console.warn("Firebase anon auth failed:", e && e.message);
+          });
+        } catch (e) {}
       });
     }
-    if (typeof _startVotesListener === 'function') _startVotesListener();
-    if (typeof _loadCommentCounts === 'function') _loadCommentCounts();
-  });
+    jobs.push(function () { if (typeof _startVotesListener === 'function') _startVotesListener(); });
+    jobs.push(function () { if (typeof _loadCommentCounts === 'function') _loadCommentCounts(); });
+    return jobs;
+  }
+
+  // THE ONE REAL LISTENER. Everything else in the app registers against the bus
+  // installed at the top of this file, which is why this is the only call to the
+  // SDK's own onAuthStateChanged left anywhere.
+  if (_rawOnAuth) {
+    _rawOnAuth(function (user) { _pdxAuthAnnounce(user); });
+  } else {
+    // No SDK at all (init threw, or firebase never loaded). That is a genuine
+    // "nobody is signed in" rather than an unknown, and saying so is what keeps
+    // the chrome from parking on "Checking account…" forever.
+    _pdxAuthAnnounce(null);
+  }

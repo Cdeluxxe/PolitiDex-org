@@ -410,7 +410,13 @@ const rooted = (v) => /^(\/|https?:|\/\/|data:|#|mailto:)/.test(v);
 //
 // THE NUMBERS BELOW ARE LINE NUMBERS, SO THEY MOVE, AND THAT IS NOT DRIFT. Each
 // range shifted +32 when person.html gained its __PDX_PERSON_DOC block near the
-// top of the document (the person file declaring that it is the person file).
+// top of the document (the person file declaring that it is the person file). A
+// later pass shifted the last four +31 again, and grew the Firebase block itself
+// by the same amount, when the pre-SDK auth stub stopped answering cb(null) for
+// the SDK and started queueing registrations with a timeout that flushes them if
+// firebase-boot.js never lands. That block's pin was extended to its real end —
+// the firebase-boot.js include — so the queue and its flush are inside the
+// byte-identity promise rather than just above it.
 // The blocks themselves were not touched — every one of the six is still
 // byte-identical, which is what the assertion actually checks. When a pin fails,
 // read the failure as "either the bytes changed or the offsets did" and check
@@ -421,11 +427,11 @@ const rooted = (v) => /^(\/|https?:|\/\/|data:|#|mailto:)/.test(v);
 const personLines = person.split("\n");
 const COPIES = [
   [1405, 1914, "the promise ledger and the deferred-event capture (firebase-boot.js reads _firestoreLoaded and _checkAndTrigger as bare identifiers)"],
-  [2006, 2029, "the Firebase compat bundles, the key injection, the synchronous stub and firebase-boot.js"],
-  [2032, 2066, "the split-seam stubs (_pdxMandateForIssue is called unguarded from inside stance-helpers.js)"],
-  [2084, 2128, "the share furniture share-preview.ts rewrites"],
-  [2191, 2194, "the Bebas Neue / Barlow preload swap"],
-  [3676, 3872, "the PWA runtime and the service-worker registration"],
+  [2006, 2060, "the Firebase compat bundles, the key injection, the synchronous stub and firebase-boot.js"],
+  [2063, 2097, "the split-seam stubs (_pdxMandateForIssue is called unguarded from inside stance-helpers.js)"],
+  [2115, 2159, "the share furniture share-preview.ts rewrites"],
+  [2222, 2225, "the Bebas Neue / Barlow preload swap"],
+  [3707, 3903, "the PWA runtime and the service-worker registration"],
 ];
 for (const [a, b, what] of COPIES) {
   const slice = personLines.slice(a - 1, b).join("\n");

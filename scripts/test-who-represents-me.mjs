@@ -112,8 +112,33 @@ has(SEC, LEAD,
 has(SEC, 'then see their records',
   'front door: the supporting line dropped the handoff to records, so the band promises a list and\n' +
   '    not accountability — the bridge to Door 1 is the reason this sits where it sits');
-has(SEC, '>' + CTA + '<',
-  `front door: the primary CTA is no longer the agreed copy "${CTA}"`);
+// ── THE BAND'S PRIMARY CONTROL IS THE LOCATION SETTER ────────────────────────
+// It used to be a "📍 See who represents me" button in the cold row, which
+// scrolled to this band and opened a picker — a control whose whole job was to
+// go and fetch the thing the reader was already looking at. The setter itself
+// now sits at the top of the band, so the button is the setter's own and the
+// two copies of it in the cold row are gone. The property this file was
+// defending is unchanged and still asserted: the entry point is STATIC markup
+// in index.html, so a visitor whose deferred module 404s still has a way in.
+has(SEC, 'id="wrm-locbar"',
+  'front door: the one location setter is not in the band\'s static markup. A setter painted by a\n' +
+  '    deferred module is an entry point that quietly stops existing when that module 404s');
+ok(SEC.indexOf('id="wrm-locbar"') < SEC.indexOf('id="wrm-reps"'),
+  'front door: the seat list is above the location setter. Location, then seats — a reader who has not\n' +
+  '    said where they vote meets an empty list before the one control that can fill it');
+has(SEC, '>📍 Set my location<',
+  'front door: the setter lost its typed-address door, which is the one that works for a reader who\n' +
+  '    refuses geolocation and cannot find their block on a map');
+has(SEC, '>🌐 Detect<',
+  'front door: the setter lost its Detect door');
+has(SEC, '>🗺️ Change on map<',
+  'front door: the setter lost its map door');
+has(SEC, '>🗺️ Change location<',
+  'front door: the setter offers no control once a location IS set, so a reader who moved or mistyped\n' +
+  '    has no way back');
+ok(!/>\s*📍 See who represents me\s*</.test(SEC),
+  'front door: the band carries a second location CTA alongside the setter. One setter — a button that\n' +
+  '    scrolls to the control directly above it is how a page ends up with three of them');
 has(SEC, 'Free public service',
   'front door: the band no longer says this is a public service, which is the line that stops it\n' +
   '    reading as a ballot toy');
@@ -378,12 +403,23 @@ eq(byKey(full, 'house').statewide, false,
 
 // The honesty case. A level with no officeholder must survive as an explicit
 // unresolved entry, because a list of two reads as complete.
+//
+// THE THIN THING HERE IS THE BALLOT, NOT THE AREA. This fixture used to pair a
+// one-office ballot with `matched: false`, which is a state the app cannot
+// actually produce: the curated ballot resolves its area through
+// _krCurrentLocationId(), so a ballot with a district in it is by construction a
+// ballot for an area that matched. The resolver now says so out loud — it reads
+// the curated tables only when an area really matched, because that helper ends
+// `_krInferLocation() || 'davis'` and an unmatched reader was being handed Davis
+// County's districts and incumbents as their own. So the area matches here (as
+// it does in redrawnThin below) and the thinness is where this case always meant
+// it to be: one office on the ballot, two seats with nobody in them.
 const partial = mkResolverCtx({
   _pdxVoterBallot: () => ({
     districts: { house: '1' },
     byOffice: { representative: { incumbentPid: 'p-house' } },
   }),
-  keyRacesRelevantData: () => ({ matched: false }),
+  keyRacesRelevantData: () => ({ matched: true, label: 'Bountiful, Davis County', byRace: {} }),
 }).pdxRepsForMe();
 eq(partial.levels.length, 6,
   'resolver: an unresolved seat was DROPPED from the list — the remaining rows then read as the\n' +
