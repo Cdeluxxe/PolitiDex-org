@@ -257,8 +257,14 @@ section("3 · the two copied blocks are byte-identical to their origins");
 // shifts, the header comment in evidence.html and this table move TOGETHER.
 const lines = (s) => String(s).split("\n");
 const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
+// The index.html range moved by roughly a thousand lines without a single
+// character of the block changing: the passes that gave the courts archive and
+// the reader's own desk their own documents took that much markup off the front
+// page ABOVE this script, so the same bytes now start at a lower line. That is
+// what a range pin is for — it failed loudly on the shift instead of quietly
+// pinning a slice of some other block.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 27406, b: 27524, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 26364, b: 26484, what: "the PDXStance vocabulary" },
   { from: "person.html", src: PERSON, a: 2006, b: 2030, what: "the Firebase boot" },
 ];
 for (const c of COPIES) {
@@ -561,14 +567,21 @@ ok(!!ver, "sw: CACHE_VERSION is declared");
 ok(ver && Number(ver.slice(1)) >= 199,
   `sw: CACHE_VERSION was bumped for the new shells (found ${ver}, expected v199 or later)`);
 has(SW, `// ${ver} - `, `sw: ${ver} has a version-log entry in the file's own style`);
-// The house rule for a bump: the entry names every file the new bucket carries,
-// so a reader of the log can tell what a device is about to re-download.
+// THE ENTRY THIS SUITE READS IS v199's, NAMED, NOT WHATEVER IS LIVE.
+// An earlier draft read the log entry belonging to the CURRENT CACHE_VERSION and
+// asserted it named evidence.html, stances.html, evidence-locker.js and
+// index.html. That is true of exactly one entry — the one written by the pass
+// that shipped those two shells — so the assertion held until the next unrelated
+// bump and then failed with a message about a bump that had nothing to do with
+// this room. The log is append-only and its entries are immutable, so the pin
+// is the version that made the claim.
 {
-  const at = SW.indexOf(`// ${ver} - `);
-  const next = SW.indexOf("\nconst CACHE_VERSION", at);
-  const entry = at >= 0 ? SW.slice(at, next > at ? next : at + 8000) : "";
+  const at = SW.indexOf("// v199 - ");
+  ok(at >= 0, "sw: the v199 entry — the one that shipped the seventh and eighth shells — is gone from the log");
+  const next = SW.indexOf("\n// v200 - ", at);
+  const entry = at >= 0 ? SW.slice(at, next > at ? next : at + 12000) : "";
   for (const f of ["evidence.html", "stances.html", "evidence-locker.js", "index.html"])
-    has(entry, f, `sw: the ${ver} note says the bump carries ${f}`);
+    has(entry, f, `sw: the v199 note no longer says the bump carried ${f}`);
 }
 
 // THE SITEMAP. A public browse room is listed; the legacy alias is not, because

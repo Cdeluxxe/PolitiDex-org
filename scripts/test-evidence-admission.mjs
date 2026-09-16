@@ -670,9 +670,19 @@ section("PHASE 6 — the fence, and the bump");
     `CACHE_VERSION is ${ver} — evidence-locker.js is precached, so a warm device would keep serving the ungated locker`);
   ok(/'\/evidence-locker\.js'/.test(SW) || /"\/evidence-locker\.js"/.test(SW),
     "evidence-locker.js is no longer precached — then this bump was not needed and the reasoning above it is wrong");
-  const entry = SW.slice(SW.indexOf("// " + ver + " -"), SW.indexOf("const CACHE_VERSION"));
-  ok(entry.includes("evidence-locker.js"), `the ${ver} log entry does not name evidence-locker.js, the file this pass changed`);
-  ok(/refus|admit/i.test(entry), `the ${ver} log entry does not say what the bump carries`);
+  // THE ENTRY THIS FENCE READS IS v201's, NAMED, NOT WHATEVER IS LIVE.
+  // An earlier draft sliced the log at the CURRENT CACHE_VERSION and asserted the
+  // entry named the files THIS pass changed. That is true of exactly one entry —
+  // the one written by this pass — so the assertion held until the next unrelated
+  // bump and then failed with a message about somebody else's pass. The log is
+  // append-only and its entries are immutable, so the pin is the version that
+  // made the claim; the live version is still checked, as a floor, above.
+  const at = SW.indexOf("// v201 - ");
+  ok(at >= 0, "the v201 entry — the one that shipped the admission gate — is gone from the log");
+  const next = SW.indexOf("\n// v202 - ", at);
+  const entry = at >= 0 ? SW.slice(at, next > at ? next : at + 12000) : "";
+  ok(entry.includes("evidence-locker.js"), "the v201 log entry no longer names evidence-locker.js, the file that pass changed");
+  ok(/refus|admit/i.test(entry), "the v201 log entry no longer says what the bump carried");
 
   // No new score. The gate decides what is SHOWN; it does not grade anything,
   // and the Strong / Moderate / Limited coverage label is computed from the same

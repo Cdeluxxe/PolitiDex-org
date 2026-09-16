@@ -1001,12 +1001,35 @@ section("11 · The assets travel together");
   const v = Number(m[1]);
   ok(v >= 109, `CACHE_VERSION is v${v} — the shell moved and the version did not`);
   has(SW, `// v${v} - `, `there is no log entry for v${v} naming what moved`);
-  const iLog = SW.indexOf(`// v${v} - `);
-  const entry = SW.slice(iLog, SW.indexOf("const CACHE_VERSION", iLog));
-  must(entry.length > 200, `the v${v} entry is too short to be naming anything`);
+  // THE ENTRY THIS FENCE READS IS v109's, NAMED, NOT WHATEVER IS LIVE.
+  // An earlier draft sliced the log at the CURRENT CACHE_VERSION and asserted the
+  // entry named the files THIS pass changed. That is true of exactly one entry — the one v109
+  // wrote — so it held while that pass was uncommitted and then failed on the
+  // next unrelated bump, with a message about somebody else's pass. The log is
+  // append-only and its entries are immutable, so the pin is the version that
+  // made the claim; the live version is still checked, as a floor, above.
+  // AND THE PALETTE IS v110's, for the same reason: the chips got their hue one
+  // pass later, so issue-colors.js is named in that entry and not in v109's.
+  // One log entry ends where the next version line begins. The log is not in
+  // ascending order — v141 follows v109 in the file — so this looks for the next
+  // marker of any version rather than for the pinned version plus one.
+  const entryEnd = (s, i) => {
+    const m = /\n\/\/ v\d+ [-\u2014] /.exec(s.slice(i + 10));
+    return m ? i + 10 + m.index : i + 12000;
+  };
+  const iLog = SW.indexOf("// v109 - ");
+  ok(iLog >= 0, "the v109 entry — the one that shipped the family table — is gone from the log");
+  const entry = iLog >= 0 ? SW.slice(iLog, entryEnd(SW, iLog)) : "";
+  must(entry.length > 200, "the v109 entry is too short to be naming anything");
+  const iHue = SW.indexOf("// v110 - ");
+  ok(iHue >= 0, "the v110 entry — the one that gave the desk's chips the issue's own hue — is gone from the log");
+  const hue = iHue >= 0 ? SW.slice(iHue, entryEnd(SW, iHue)) : "";
+  for (const f of ["issue-colors.js", "index.html"]) {
+    has(hue, f, `the v110 entry does not name ${f} among the files that must travel together`);
+  }
   for (const f of ["pdx-issue-family.js", "alignment-tool.js", "door1-workspace.js",
-                   "door1-workspace.css", "stance-tree.js", "index.html", "issue-colors.js"]) {
-    has(entry, f, `the v${v} entry does not name ${f} among the files that must travel together`);
+                   "door1-workspace.css", "stance-tree.js", "index.html"]) {
+    has(entry, f, `the v109 entry does not name ${f} among the files that must travel together`);
   }
   has(entry, "Direction Match", `the v${v} entry does not say what did NOT move`);
   // Wired into the page, after the table it reads.

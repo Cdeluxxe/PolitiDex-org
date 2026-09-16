@@ -536,16 +536,32 @@ section("6 · the files travel together");
       "four-integer pane and the index-only measure count");
   }
   has(SW, `// v${m[1]} - `, `sw.js has no prose log entry for v${m[1]}`);
-  const note = SW.slice(SW.indexOf(`// v${m[1]} - `), SW.indexOf("const CACHE_VERSION"));
+  // THE ENTRY THIS FENCE READS IS v136's, NAMED, NOT WHATEVER IS LIVE.
+  // An earlier draft sliced the log at the CURRENT CACHE_VERSION and asserted the
+  // entry named the seven files THIS pass changed. That is true of exactly one entry — the one v136
+  // wrote — so it held while that pass was uncommitted and then failed on the
+  // next unrelated bump, with a message about somebody else's pass. The log is
+  // append-only and its entries are immutable, so the pin is the version that
+  // made the claim; the live version is still checked, as a floor, above.
+  // One log entry ends where the next version line begins. The log is not in
+  // ascending order — v141 follows v109 in the file — so this looks for the next
+  // marker of any version rather than for the pinned version plus one.
+  const entryEnd = (s, i) => {
+    const m = /\n\/\/ v\d+ [-\u2014] /.exec(s.slice(i + 10));
+    return m ? i + 10 + m.index : i + 12000;
+  };
+  const at = SW.indexOf("// v136 - ");
+  ok(at >= 0, "the v136 entry — the one that shipped the denominator chip and the one-integer pane — is gone from the log");
+  const note = at >= 0 ? SW.slice(at, entryEnd(SW, at)) : "";
   // EVERY FILE IN THE PASS, NAMED. A warm device that took one and not another
-  // is the failure this bump exists to prevent, and the note is the only record
+  // is the failure that bump existed to prevent, and the note is the only record
   // of which files that is.
   for (const f of ["word-action.js", "word-action.css", "door1-workspace.js",
                    "door1-workspace.css", "issue-file.js", "issue-file.css", "issue-view.js"]) {
-    has(note, f, `the v${m[1]} note does not name ${f}`);
+    has(note, f, `the v136 note does not name ${f}`);
     ok(SW.indexOf("/" + f) >= 0, `${f} is not in the precached shell`);
   }
-  console.log(`      shell v${m[1]}; all seven files named in the note and precached`);
+  console.log(`      shell v${m[1]}; all seven files named in v136's note and precached`);
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

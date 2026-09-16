@@ -37,6 +37,63 @@
 
 .jr-band--arch { margin-top: 1.6rem; }
 
+/* ── THE HOMEPAGE CARD ────────────────────────────────────────────────────
+   The whole footprint judicial retention has on the front page now that the
+   rosters live at /courts: an eyebrow, a title, one count sentence and a link.
+
+   IT IS DRAWN AS A CARD AND NOT AS A TILE, and the number in it is set in the
+   BODY FACE at BODY SIZE inside a sentence. Every other count on this product
+   that got its own display face grew into a figure a reader reads as a grade,
+   and this one is a tally of ballot questions — "2 retention questions
+   resolved for Davis County" is a fact about a ballot, so it is written the
+   way a fact is written. There is deliberately nowhere in these rules to put a
+   big gold numeral, a ring, a bar or a status colour, for the same reason the
+   header of this sheet gives. */
+.jr-band--card { padding-bottom: 1rem; }
+
+.jr-card-t {
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+  font-size: 1.35rem;
+  line-height: 1.1;
+  letter-spacing: 0.03em;
+  color: #e6eefb;
+  margin: 0.1rem 0 0;
+}
+
+.jr-card-l {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: #9fb4d4;
+  margin: 0.35rem 0 0;
+  max-width: 40rem;
+}
+
+.jr-card-go { margin: 0.75rem 0 0; }
+
+/* A real anchor with a real href, so cmd-click opens a tab — the room is
+   another address, not a panel, and the reader is owed the ability to see
+   where the link goes. Quiet by default: this is one of two doors on a page
+   that has other work to do. */
+.jr-card-b {
+  display: inline-block;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #cfe0fb;
+  text-decoration: none;
+  border: 1px solid rgba(207, 224, 251, 0.26);
+  border-radius: 0.55rem;
+  padding: 0.4rem 0.8rem;
+}
+
+.jr-card-b:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
 /* ── The Door 2 line ──────────────────────────────────────────────────────
    The entire footprint judicial retention has inside the ballot workspace:
    one sentence and a jump. Styled as a quiet rule, not a card, because a card
@@ -81,11 +138,14 @@
 
 .jr-line-b:hover { color: #e6eefb; border-bottom-color: #e6eefb; }
 
-/* ── The lane ─────────────────────────────────────────────────────────────
-   #judicial-lane is static markup in index.html (see the comment there): a
-   section of its own, below the workspace and below the picks, holding the
-   retention band and the courts archive. The header here is intentionally
-   plain — the lane is a place to read, not a scoreboard. */
+/* ── The room's own header ────────────────────────────────────────────────
+   THESE FOUR RULES MOVED WITH THE ROOM. They used to dress #judicial-lane's
+   static header on index.html — an eyebrow, a title and one sentence, above
+   the retention band and the courts archive. The rosters live at /courts now
+   and the lane keeps only the card above, so the header they draw is
+   courts.html's own page head and .jl-title is that document's h1. The rules
+   are unchanged: the header is intentionally plain, because a room full of
+   judges is a place to read and not a scoreboard. */
 .jl-inner {
   max-width: 47rem;
   margin: 0 auto;
@@ -301,6 +361,119 @@
 /* An unmapped court is dimmer than one with rows, and that is the only visual
    difference between them. It is not marked with a warning. */
 .jr-court--unmapped .jr-court-l { color: #8296b4; }
+
+/* ── THE ARCHIVE FILTER ───────────────────────────────────────────────────
+   A CHIP IS A FILTER, NOT A VERDICT. These are the only pressable controls on
+   this sheet, and they are drawn deliberately unlike the Retain / Do not retain
+   pair above them: a chip is a small outlined pill that reads as a view
+   control, the inert ballot boxes are squares that read as a printed ballot,
+   and a reader must never mistake one for the other.
+
+   THE PRESSED CHIP IS BRIGHTER INK AND A FILLED BACKGROUND — not a colour. No
+   green, no amber, no crimson: slate again, because "District Court" being the
+   selected view is not a good or a bad outcome, and a party-coloured chip on a
+   page about judges is the exact misreading this whole sheet is built to avoid.
+
+   THE HIDING IS DONE HERE, AND THAT IS ON PURPOSE. judicial-ballot.js prints
+   the whole archive every time and marks each group and each row with the court
+   and district it belongs to; which of them a reader is looking at is one
+   attribute on the root. So the filter works before any script has run, the
+   printed pressed-state always matches the visible list, and a repaint on a
+   settle timer cannot quietly widen the view back out. There is one rule per
+   court and one per division rather than a clever selector, because CSS cannot
+   compare two attributes and a reader of this file should not have to wonder
+   whether it can. */
+
+.jr-fchips,
+.jr-fjds {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0.55rem 0 0;
+}
+
+.jr-fjds { margin-top: 0.4rem; }
+
+.jr-fjds-l {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8296b4;
+  margin-right: 0.15rem;
+}
+
+.jr-fchip {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: #a9bad6;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 0.24rem 0.6rem;
+  cursor: pointer;
+  transition: color 0.12s, background 0.12s, border-color 0.12s;
+}
+
+.jr-fchip:hover {
+  color: #e8f0fb;
+  border-color: rgba(255, 255, 255, 0.26);
+}
+
+.jr-fchip[aria-pressed="true"] {
+  color: #0d1420;
+  background: #cfdcf0;
+  border-color: #cfdcf0;
+}
+
+.jr-fchip:focus-visible {
+  outline: 2px solid rgba(207, 224, 251, 0.75);
+  outline-offset: 2px;
+}
+
+/* The count is a fact about the archive, so it is dimmer than the label and
+   never the other way round: the name of the court is what a reader is
+   choosing, the number is only how long that list is. */
+.jr-fn {
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: #71839f;
+  margin-left: 0.32rem;
+}
+
+.jr-fchip[aria-pressed="true"] .jr-fn { color: #3c4c66; }
+
+.jr-fnote {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  color: #8296b4;
+  margin: 0.45rem 0 0;
+}
+
+/* One rule per court. */
+.jr-archive[data-ct="supreme"] .jr-group:not([data-ct="supreme"]),
+.jr-archive[data-ct="appeals"] .jr-group:not([data-ct="appeals"]),
+.jr-archive[data-ct="district"] .jr-group:not([data-ct="district"]),
+.jr-archive[data-ct="juvenile"] .jr-group:not([data-ct="juvenile"]),
+.jr-archive[data-ct="justice"] .jr-group:not([data-ct="justice"]) { display: none; }
+
+/* One rule per geographical division. A statewide row carries no data-jd and
+   is left alone by these — it is already out of view, because a division can
+   only be selected while a trial court is. */
+.jr-archive[data-jd="1"] .jr-li[data-jd]:not([data-jd="1"]),
+.jr-archive[data-jd="2"] .jr-li[data-jd]:not([data-jd="2"]),
+.jr-archive[data-jd="3"] .jr-li[data-jd]:not([data-jd="3"]),
+.jr-archive[data-jd="4"] .jr-li[data-jd]:not([data-jd="4"]),
+.jr-archive[data-jd="5"] .jr-li[data-jd]:not([data-jd="5"]),
+.jr-archive[data-jd="6"] .jr-li[data-jd]:not([data-jd="6"]),
+.jr-archive[data-jd="7"] .jr-li[data-jd]:not([data-jd="7"]),
+.jr-archive[data-jd="8"] .jr-li[data-jd]:not([data-jd="8"]) { display: none; }
 
 .jr-group { margin-top: 0.9rem; }
 

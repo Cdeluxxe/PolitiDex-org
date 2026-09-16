@@ -185,16 +185,32 @@ has(ICCSS, '#issue-compare:has(#ic-body:not(:empty))',
 section('4 · index.html did not grow');
 // ═════════════════════════════════════════════════════════════════════════════
 // The pin in test-spotlight-shell allows 8 KB of drift for an ordinary copy
-// change. This pass was a trim, so the bar here is stricter: not one byte up.
+// change. THIS ONE USED TO ALLOW NONE: HEAD against this tree, not one byte up,
+// on the reasoning that the pass that wrote it was a trim. That is a claim about
+// one pass, and it expires the moment that pass ships — every later pass that
+// adds a line of copy to the homepage then fails a fence about somebody else's
+// work, and the only way to pass it is to delete something unrelated. What
+// ENDURES from the trim is a ceiling: the shelves, the spotlight wall and the
+// locker workspace left the front page and may not come back, which is what the
+// sections above check by name and what the number below checks by weight. So
+// the pin is now an absolute ceiling with headroom for ordinary copy, plus the
+// same 8 KB per-pass drift allowance its sibling uses — a homepage that gains
+// more than that in one pass has taken a room back, not edited a sentence.
+const CEILING = 2100 * 1024;
 let headIdx = null;
 try {
   headIdx = execFileSync('git', ['show', 'HEAD:index.html'], { cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 } catch (e) { headIdx = null; }
+{
+  const now = Buffer.byteLength(INDEX);
+  ok(now <= CEILING,
+    `index.html is ${(now / 1024).toFixed(1)} KB, over the ${(CEILING / 1024).toFixed(0)} KB ceiling the trim bought — a room came back to the front page`);
+}
 if (headIdx) {
   const now = Buffer.byteLength(INDEX);
   const before = Buffer.byteLength(headIdx);
-  ok(now <= before,
-    `index.html grew: ${(before / 1024).toFixed(1)} → ${(now / 1024).toFixed(1)} KB. A trim pass must net-shrink the homepage.`);
+  ok(now - before <= 8 * 1024,
+    `index.html grew ${((now - before) / 1024).toFixed(1)} KB in one pass: ${(before / 1024).toFixed(1)} → ${(now / 1024).toFixed(1)} KB. That is more than a copy change — a trimmed room is being re-inserted.`);
   console.log(`      index.html: ${(before / 1024).toFixed(1)} → ${(now / 1024).toFixed(1)} KB ` +
     `(${now <= before ? '−' : '+'}${(Math.abs(before - now) / 1024).toFixed(1)} KB)`);
 } else {

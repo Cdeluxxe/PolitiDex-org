@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+<!-- ═════════════════════════════════════════════════════════════════════════════
+     courts.html — THE NINTH SHELL. /courts IS ITS OWN DOCUMENT.
+     ────────────────────────────────────────────────────────────────────────────
+     WHAT WAS WRONG. The third branch was one of the two tallest blocks on the
+     homepage and it was not the homepage's job. #judicial-lane carried the
+     reader's own retention questions AND the full Utah courts archive — every
+     judge on file, by court, roughly two hundred names under a heading reading
+     "ARCHIVE · UTAH COURTS · NOT A BALLOT" — wedged into the front page whose
+     actual job is two doors: who represents me, and find the record. A reader
+     who arrived to answer either of those scrolled a roster of judges to get
+     past it, and a reader who actually wanted the courts had no address to
+     bookmark, no link to send and nothing that survived a reload.
+
+     So the room moved and the door stayed. The homepage keeps ONE short card —
+     the count of retention questions PolitiDex can resolve for the location
+     saved in that browser, and a link here. This document owns the rest.
+
+     TWO REGIONS, LABELLED SO THEY CANNOT BE READ AS ONE. They are the same two
+     surfaces judicial-ballot.js has always painted, at a new address:
+
+       A · ON YOUR BALLOT   #courts-ballot. Only the questions the resolver can
+                            defend for THIS location. Statewide retention
+                            (Supreme Court, Court of Appeals) resolves from a
+                            state. A trial-court question resolves from the
+                            county the location owner publishes, through the
+                            eight geographical divisions of Utah Code
+                            § 78A-1-102, and prints the judges of THAT division
+                            and no other. A county we cannot place, and the
+                            justice courts, name WHICH MAP OR ROSTER IS MISSING
+                            and claim nobody. Retain / Do not retain is drawn as
+                            two inert ballot boxes, because the answer is the
+                            reader's to give at the polls.
+       B · ARCHIVE          #courts-archive. The full roster by court, for every
+                            reader anywhere, under its own heading and its own
+                            disclaimer: a listing here is not a claim that these
+                            questions are on your ballot. A judge who has left
+                            the bench still says "no longer on the court" rather
+                            than disappearing.
+
+     WHAT THIS DOCUMENT DOES NOT DO, and each of these is a rule:
+       · NO SCORE ON A JUDGE. No rating, no tier, no grade, no match, no party
+         and no promise. Retention is an office on a ballot, not a report card,
+         and the one figure anywhere near a judge is the JPEC phrase the
+         commission itself published — or "no JPEC report on file".
+       · NO POSITION. "PolitiDex takes no position on it and publishes no rating
+         of a judge" is printed on the reader's own questions, by the module
+         that owns them.
+       · NO SECOND RESOLVER. This document holds no county table, no district
+         map and no location of its own. voter-hub-location.js answers where
+         this reader votes and judicial-retention.js maps it; region A is
+         whatever those two can defend together.
+       · NO VOCABULARY OF ITS OWN. Every sentence a reader sees below the two
+         static region labels comes from judicial-retention.js through
+         judicial-ballot.js. This file supplies two mounts and a frame.
+
+     THE CRITICAL PATH, AND WHY EACH FILE IS ON IT. Six scripts, which is the
+     whole document:
+       person-link.js      one owner of "what is this person's URL", so a
+                           judge's name links to the same /p/ address the rest
+                           of the site uses.
+       judicial-data.js    the roster, the slates, the JPEC records.
+       judicial-retention.js the one owner of the retention vocabulary and of
+                           every fail-closed answer. It decides; nothing here
+                           does.
+       voter-hub-location.js the one owner of where this account votes. It is
+                           what makes region A a claim about THIS reader rather
+                           than a list.
+       ballot-breakdown.js  ON THE PATH FOR ONE FIELD, and it is the county.
+                           pdxRepsForMe() publishes `county` only when
+                           keyRacesRelevantData() — which lives here — matches
+                           the saved location, and the resolver's own comment
+                           calls an empty county "a caller's cue to fail closed
+                           rather than guess". Without this file every
+                           trial-court row on this page would collapse into "we
+                           could not resolve your county" for a reader whose
+                           county we can in fact resolve. The alternative was a
+                           second county table on this document, which is a
+                           second answer. Its own section markup is absent, so
+                           its paints no-op.
+       judicial-ballot.js   the renderer, last, in the courts mode the flag
+                           below turns on.
+
+     WHAT IS DELIBERATELY NOT HERE. No app.css (986 KB of homepage cascade for
+     two regions), no Firebase and no PDXStore — nothing on this page is written
+     and nothing is per-account, so there is no store to carry. No PWA runtime
+     and no service-worker registration, no cmp-data.js, no search, no account
+     menu. ballot.html, me.html, stances.html and evidence.html are the
+     precedent for every one of those.
+
+     THE RULE THIS DOCUMENT LIVES BY: EVERY SAME-ORIGIN PATH IS ROOT-ABSOLUTE.
+     /courts/ is served with HTTP 200 at a trailing-slash path, so a bare src of
+     judicial-ballot.js would resolve to /courts/judicial-ballot.js, the rewrite
+     would catch it, and the browser would be handed this document and told to
+     parse HTML as JavaScript. A leading slash is correct at every depth.
+     scripts/test-courts-shell.mjs fails on a relative src or href here.
+
+     THIS IS A PUBLIC BROWSE ROOM, so unlike /ballot and /me it is indexable, it
+     carries a real canonical on www.politidex.fyi, and it is listed in
+     sitemap.xml. NO PER-JUDGE URL IS PUBLISHED FROM HERE: a judge's file is
+     /p/<pid>, which person.html already owns and the sitemap already governs.
+     No JSON-LD: index.html's WebSite/Organization block describes the front
+     page, and a browse room is not the front page.
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+
+  <!-- The share tags, in share-preview.ts's attribute order (`property` then
+       `content`, `rel` then `href`) for the same reason the other shells carry
+       them that way — that edge function rewrites by an attribute-ordered
+       regex, so a reshuffle here would be a silent no-op there rather than an
+       error, on the day /courts is added to its config.path. -->
+  <title>Utah courts &middot; judicial retention &middot; PolitiDex</title>
+  <link rel="canonical" href="https://www.politidex.fyi/courts" />
+  <meta name="description" content="Judicial retention in Utah — the yes-or-no questions on your ballot for the location you saved, and the full court archive by court. No rating of a judge, and no position on the question." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PolitiDex" />
+  <meta property="og:title" content="Utah courts &middot; judicial retention &middot; PolitiDex" />
+  <meta property="og:description" content="The yes-or-no retention questions on your ballot, and the full Utah court archive by court. No rating of a judge, and no position on the question." />
+  <meta property="og:url" content="https://www.politidex.fyi/courts" />
+  <meta property="og:image" content="https://www.politidex.fyi/og-image.png" />
+  <meta property="og:image:alt" content="PolitiDex — Utah courts" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Utah courts &middot; judicial retention &middot; PolitiDex" />
+  <meta name="twitter:description" content="The yes-or-no retention questions on your ballot, and the full Utah court archive by court." />
+  <meta name="twitter:image" content="https://www.politidex.fyi/og-image.png" />
+  <meta name="theme-color" content="#0a0f1e" />
+
+  <!-- The four files a first paint actually waits on: the roster, the owner of
+       every answer, the renderer, and the sheet that draws them. -->
+  <link rel="preload" as="script" href="/judicial-data.js" />
+  <link rel="preload" as="script" href="/judicial-retention.js" />
+  <link rel="preload" as="script" href="/judicial-ballot.js" />
+  <link rel="preload" as="style" href="/judicial-retention.css" />
+
+  <!-- Barlow / Bebas Neue, non-blocking, with the same swap index.html,
+       person.html, issue.html, spotlight.html, ballot.html, me.html,
+       stances.html and evidence.html use. A swap written differently on one
+       document is a visible font flash on exactly one URL shape. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
+
+  <!-- THE SHEET THAT ALREADY DREW BOTH SURFACES, render-blocking on purpose:
+       it is the page. Self-sufficient — every colour in it is a literal,
+       because there is no app.css on this document to inherit a palette from.
+       The .jl-* lane header rules it carries are used by the page head below;
+       they came off index.html with the room. -->
+  <link rel="stylesheet" href="/judicial-retention.css" />
+
+  <style>
+    /* THE FIXED CHROME, MEASURED ONCE. Same contract person.html, issue.html,
+       spotlight.html, ballot.html, me.html, stances.html and evidence.html
+       answer for their own chrome, and for the same reason: a custom property
+       that is never declared invalidates every calc() that reads it. This
+       document's chrome is ONE row and no search — there is nothing on this
+       page to search that the Eye on the front page does not already reach.
+       The @supports guard is the one every other shell carries: a custom
+       property accepts any token sequence, so an engine that cannot parse
+       env() would swallow the declaration and invalidate every calc() reading
+       it; an engine without env() also has no notch. */
+    :root { --pdx-chrome: 3.25rem; color-scheme: dark; }
+    @supports (padding-top: env(safe-area-inset-top)) {
+      :root { --pdx-chrome: calc(3.25rem + env(safe-area-inset-top, 0px)); }
+    }
+    /* No app.css here, so the page's own ground colour is declared rather than
+       inherited from a 986 KB stylesheet this document does not load. */
+    html, body { background: #070b16; color: #e7eefb; }
+    body {
+      margin: 0;
+      font-family: 'Barlow', system-ui, -apple-system, sans-serif;
+      padding-top: calc(var(--pdx-chrome) + 0.75rem);
+    }
+
+    /* The one-row shell bar, on ballot.html's and me.html's terms: real anchors
+       with real hrefs, so cmd-click opens a tab and middle-click works. "← Home"
+       is a plain <a href="/"> and not a history.back() — a reader may have
+       arrived cold from a bookmark or a pasted link, in which case there is no
+       entry behind them to go back to. */
+    .pdx-ct-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1200;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.75rem; height: 3.25rem; padding: env(safe-area-inset-top, 0px) 1rem 0;
+      background: rgba(10, 15, 30, 0.86); backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .pdx-ct-bar a { text-decoration: none; }
+    .pdx-ct-wordmark {
+      font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+      font-size: 1.15rem; letter-spacing: 0.12em; color: #fff;
+    }
+    .pdx-ct-wordmark span { color: #e0273f; }
+    .pdx-ct-links { display: flex; align-items: center; gap: 0.4rem; min-width: 0; }
+    .pdx-ct-link {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem;
+      letter-spacing: 0.14em; text-transform: uppercase; color: #9fb4d4;
+      border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 0.5rem;
+      padding: 0.3rem 0.65rem; white-space: nowrap; background: transparent;
+    }
+    .pdx-ct-link--room { color: #cfe0fb; border-color: rgba(207, 224, 251, 0.26); }
+
+    main#courts { padding: 0 1.1rem 4rem; }
+
+    /* THE TWO REGION LABELS, AND THEY ARE STATIC MARKUP. The whole reason this
+       page has two regions is that the reader's own questions and the archive
+       are different claims, so the labels that separate them are in the
+       document rather than painted by a module: a JavaScript failure that left
+       both mounts empty must not also be able to take the labels off, and no
+       module gets to decide at runtime that the archive is part of "your
+       ballot". Drawn as a rule and a word, in the flat register the rest of
+       this sheet uses — a heavier header here would read as a scoreboard. */
+    .ct-region { max-width: 47rem; margin: 2.1rem auto 0; }
+    .ct-region:first-of-type { margin-top: 1.6rem; }
+    .ct-rlabel {
+      display: flex; align-items: baseline; gap: 0.6rem;
+      margin: 0 0 0.35rem; padding-bottom: 0.4rem;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    }
+    .ct-rnum {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.66rem;
+      font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+      color: #71839f; flex: none;
+    }
+    .ct-rtitle {
+      font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+      font-size: 1.25rem; line-height: 1.1; letter-spacing: 0.04em;
+      color: #e6eefb; margin: 0;
+    }
+    .ct-rline {
+      font-family: 'Barlow', sans-serif; font-size: 0.82rem; line-height: 1.55;
+      color: #8296b4; margin: 0 0 0.2rem; max-width: 42rem;
+    }
+    .ct-rline a { color: #cfe0fb; }
+
+    /* The only thing a reader sees if JavaScript never runs. It claims what
+       this address is, which is true, rather than showing them two empty
+       boxes. */
+    .pdx-ct-note {
+      max-width: 40rem; margin: 2.5rem auto; padding: 0 1.1rem;
+      font: 400 1rem/1.6 'Barlow', system-ui, sans-serif; color: #9fb4d4;
+    }
+    .pdx-ct-note a { color: #f5d77a; }
+
+    @media (max-width: 640px) {
+      main#courts { padding: 0 0.85rem 3.25rem; }
+      .ct-rtitle { font-size: 1.1rem; }
+    }
+  </style>
+
+  <!-- ══ THE FLAG — ONE DECLARATION, READ THROUGH ONE MODULE ═════════════════
+       This is the first script on the document, before any module can look for
+       it, and it is the ONLY place the flag is set. judicial-ballot.js reads it
+       to decide which of its two mounts it is painting into: with the flag it
+       paints the band into #courts-ballot and the archive into #courts-archive
+       and it draws no homepage card; without it, it paints the one short card
+       into #judicial-lane and no roster at all.
+
+       ONE FLAG, NO HEURISTICS. The module does not sniff location.pathname, and
+       nothing else in the app is allowed to either — a path test is a second
+       answer to "which document is this", and /courts, /courts/ and a local
+       preview server's /courts.html are three spellings of one document that a
+       path test gets differently. me.html's __PDX_ME_DOC is the precedent and
+       the reasoning there is the reasoning here.
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <script>window.__PDX_COURTS_DOC = true;</script>
+
+  <script src="/person-link.js"></script>
+  <script defer src="/judicial-data.js"></script>
+  <script defer src="/judicial-retention.js"></script>
+  <script defer src="/voter-hub-location.js"></script>
+  <script defer src="/ballot-breakdown.js"></script>
+  <script defer src="/judicial-ballot.js"></script>
+
+</head>
+<body>
+
+  <header class="pdx-ct-bar">
+    <a class="pdx-ct-wordmark" href="/" id="pdx-ct-home-mark">POLITI<span>DEX</span></a>
+    <nav class="pdx-ct-links" aria-label="PolitiDex">
+      <a class="pdx-ct-link pdx-ct-link--room" href="/ballot">Work your ballot &rarr;</a>
+      <a class="pdx-ct-link" href="/" id="pdx-ct-home">&larr; Home</a>
+    </nav>
+  </header>
+
+  <!-- The no-JavaScript answer. Both regions below are built client-side from
+       the roster plus the location saved in this browser — there is no
+       server-rendered retention table to print — so rather than pretend, this
+       says what the address is and hands over the one thing that needs no
+       JavaScript, which is a judge's own file. -->
+  <noscript>
+    <p class="pdx-ct-note">
+      <strong>Utah courts.</strong> Judicial retention is a yes-or-no question on one
+      judge's name — no opponent, no party, and nothing for PolitiDex to rate. Both
+      regions on this page are built in your browser from the court roster and the
+      location you saved, so they need JavaScript. Every judge's own file is at
+      <code>/p/&lt;name&gt;</code> and reads without it &mdash;
+      <a href="/">go to PolitiDex</a>.
+    </p>
+  </noscript>
+
+  <main id="courts">
+
+    <!-- The page head, MOVED off index.html's #judicial-lane rather than
+         rewritten: same three lines, same .jl-* classes, same sheet. The one
+         change is "above" — the ballot builder is not above this any more, it
+         is at /ballot — and the promotion of the title to this document's h1,
+         which it now is. -->
+    <div class="jl-inner">
+      <p class="jl-eyebrow">&#9878;&#65039; The third branch</p>
+      <h1 class="jl-title">Judicial retention</h1>
+      <p class="jl-sub">Separate from the ballot builder. Retention is a
+        yes-or-no question on one judge's name &mdash; no opponent, no party, and
+        nothing for PolitiDex to rate.</p>
+    </div>
+
+    <!-- ══ A · ON YOUR BALLOT ═══════════════════════════════════════════════
+         judicial-ballot.js paints the reader's own questions into #courts-ballot
+         and NOTHING is pre-rendered inside it: an empty band shipped in the
+         markup would be a shape that looks like data to a reader whose
+         JavaScript failed. The label and the sentence below it are static, and
+         the sentence is the only place on this page that describes the
+         fail-closed rule in the frame's own voice — the module states it again,
+         per court, in judicial-retention.js's words, naming the specific map
+         that is missing. ═══════════════════════════════════════════════════ -->
+    <section class="ct-region" id="courts-ballot-region" aria-labelledby="ct-a-t">
+      <div class="ct-rlabel">
+        <span class="ct-rnum">A</span>
+        <h2 class="ct-rtitle" id="ct-a-t">On your ballot</h2>
+      </div>
+      <p class="ct-rline">Only the questions PolitiDex can defend for the location saved
+        in this browser. Statewide retention resolves from your state; a trial-court
+        question resolves from your county. Where the map or roster for a court is not
+        on file, this page names the missing map and names nobody as yours.</p>
+      <div id="courts-ballot" class="jr-band"></div>
+    </section>
+
+    <!-- ══ B · ARCHIVE ══════════════════════════════════════════════════════
+         The full roster by court, for every reader anywhere. The disclaimer is
+         in the static label AND in the module's own note, which is deliberate:
+         a claim and a denial that read alike are how a listing turns into a
+         seat assignment, so the denial is printed twice and in two registers.
+         ═══════════════════════════════════════════════════════════════════ -->
+    <section class="ct-region" id="courts-archive-region" aria-labelledby="ct-b-t">
+      <div class="ct-rlabel">
+        <span class="ct-rnum">B</span>
+        <h2 class="ct-rtitle" id="ct-b-t">Archive</h2>
+      </div>
+      <p class="ct-rline">Every judicial retention record on file, by court. This is the
+        archive, not a ballot: a listing here is not a claim that these questions are on
+        your ballot.</p>
+      <div id="courts-archive" class="jr-band jr-band--arch"></div>
+    </section>
+
+  </main>
+
+</body>
+</html>

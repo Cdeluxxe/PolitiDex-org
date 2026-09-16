@@ -13,21 +13,32 @@
    the reader to the tool that owns each part. SEVEN REGIONS, NOT SIX PRODUCTS:
 
      a · WHO THIS IS      the signed-in name and email exactly as the account
-                          menu prints them, plus where this account votes — the
-                          input regions c and d both read — and one way to
-                          change it.
-     b · POSITIONS        your-file.js's OWN eight-issue editor, painted into a
-                          host this document supplies. Not a copy of it: the
-                          same module, the same store, the same renderer. Change
-                          an answer here and the /ballot ranking that reads the
-                          alignment store sees it, because there is one store.
+                          chip prints them, plus where this account votes AND
+                          EVERY DISTRICT THAT LOCATION RESOLVES — the input
+                          regions c and d both read, labelled one row per level
+                          and fail-closed to "not on file" — one way to change
+                          it, and the one way to leave the account. Logging out
+                          lives here because the chrome's chip is a single
+                          control to this document now rather than a dropdown
+                          with three rows in it.
+     b · POSITIONS        A SNAPSHOT of what this reader has already said, and
+                          one door to the editor that owns it. The rows are
+                          still your-file.js's own — same module, same store,
+                          same renderer, and the list is the whole issue
+                          vocabulary rather than a starter octet — but they are
+                          no longer the FACE of the region: a desk that opens on
+                          a wall of Support / Oppose / Mixed / Not sure is a
+                          form, and a form is what you fill in rather than what
+                          you read. See regionPositions().
      c · STARRED          the issues this reader flagged to count harder, read
                           through the SAME hook the match engine weights with.
                           Add and remove is a jump to My Stances, not a second
                           editor.
-     d · BALLOT SNAPSHOT  one line per seat: office, the current pick as a link
-                          to /p/<pid>, or the honest blank. "Work this seat"
-                          opens /ballot with that seat already open.
+     d · BALLOT SNAPSHOT  one line per seat: office, WHO HOLDS IT NOW as a link
+                          to /p/<pid> (or "No officeholder on file" — never a
+                          guessed name), and under that the reader's own pick
+                          when they have made one. "Work this seat" opens
+                          /ballot with that seat already open.
      e · SAVED EVIDENCE   the receipts this account saved, each linking back to
                           the record it came from.
      f · JUMPS            three text links. Not a second navigation bar.
@@ -39,10 +50,12 @@
 
      · IT NEVER SCORES THE VOTER. There is no percentage, no grade, no "you are
        80% aligned with Utah" and no completeness figure anywhere in here. Every
-       count is a COUNT — "2 answers of 8 on file", "4 of 6 seats picked" — and
-       every one of them is the length of a real list, never a literal and never
-       a ratio dressed as progress. Search this file for Math.round and there is
-       nothing to find.
+       count is a COUNT — "2 of 121 set", "4 of 6 seats picked" — and every one
+       of them is the length of a real list over the length of another real
+       list, never a literal and never a ratio dressed as progress. Search this
+       file for Math.round and there is nothing to find, and search it for the
+       size of the issue vocabulary and there is nothing to find either: that
+       number belongs to the register, and this document reads it.
      · IT NEVER PUBLISHES. /me is this reader's own desk. Nothing here reads
        another account, nothing here writes a public snapshot, and the document
        is noindex.
@@ -150,6 +163,139 @@
       }
     } catch (e) {}
     return out;
+  }
+
+
+  // ── EVERY DISTRICT THIS LOCATION RESOLVES ─────────────────────────────────
+  // WHAT WAS WRONG. Region a printed "Davis County, Utah · District 2" — one
+  // number, unlabelled, taken from _voterLocationLabel's `detail`. A voter does
+  // not sit in "District 2". They sit in a U.S. House district AND a State
+  // Senate district AND a State House district AND a county AND a municipality
+  // at the same time, and every one of those elects somebody different. One
+  // bare number taught the reader they had one district, and it did not even
+  // say which of the four it was.
+  //
+  // SO THE BLOCK IS A LABELLED LIST, FROM THE SAME RESOLVER THE BALLOT USES.
+  // Nothing here derives a district: every row is either something
+  // pdxRepsForMe() resolved, something the reader themselves saved (their own
+  // typed or map-pinned datum, which is not an inference), or the words "not on
+  // file".
+  //
+  // FAIL CLOSED, ROW BY ROW. A row with nothing behind it says "not on file" —
+  // it does not borrow the number above it, does not fall back to a curated
+  // default area, and does not invent one. That is the whole rule, and it is
+  // why the missing rows are still PRINTED: a reader whose State Senate
+  // district we do not hold learns that we do not hold it, which is a fact
+  // about our coverage. Dropping the row would have read as "you have three
+  // districts", which is the same lie in a quieter voice.
+  //
+  // WHY THE READER'S OWN SAVED FIELDS ARE READ AS A FALLBACK. The resolver
+  // gates its district branch on Utah, because the curated geometry is Utah's
+  // and a county name is not unique across states (see pdxRepsForMe). That gate
+  // is about WHO HOLDS THE SEAT — it refuses to pair a bare number with an
+  // officeholder. This list makes no claim about an officeholder, so where the
+  // reader pinned their own State Senate district on the map, printing it back
+  // to them under its own label is repeating their input, not answering a
+  // question we cannot answer. The officeholder question is region d's, and
+  // region d resolves it through pdxSeatHolders or says nobody is on file.
+  //
+  // THE JUDICIAL ROW IS CONDITIONAL, and this is not an oversight. Trial-court
+  // districts are drawn by county and PDXJudicial.districtForCounty() is their
+  // one owner — but that module and its 111 KB of data live on /courts and are
+  // NOT on this document. So the row appears only where the question is
+  // answerable at all: with the module present, the county's division or an
+  // honest blank; without it, no row, because /me has nothing to say about it
+  // rather than something unknown to report.
+  function judicialApi() { try { return window.PDXJudicial || null; } catch (e) { return null; } }
+
+  function levelFor(reps, key) {
+    if (!reps || !reps.levels) return null;
+    for (var i = 0; i < reps.levels.length; i++) {
+      var l = reps.levels[i];
+      if (l && l.key === key) return l;
+    }
+    return null;
+  }
+  // A district number, as digits or ''. Both sources go through this, so a
+  // stored "2nd" and a resolved 2 cannot print differently.
+  function distNum(v) {
+    return String(v == null ? '' : v).replace(/[^0-9]/g, '');
+  }
+  // A BLANK ROW CARRIES THE REASON IT IS BLANK. "not on file" is the right
+  // sentence for a county or a municipality the reader simply has not told us —
+  // it is a fact about their record. It is the WRONG sentence for a state
+  // legislative district, because there the record is fine and the DISTRICT MAP
+  // is what we do not have: a Davis County reader whose U.S. House district
+  // resolved to 2 read "State Senate · not on file" directly underneath it and
+  // could only conclude the app had lost their district. It had never drawn it.
+  //
+  // And neither sentence may be the sentence region d prints over a seat with
+  // nobody in it. Those are three different facts — no record, no map, no
+  // person — and a row that shares a string with the wrong one of them teaches
+  // the reader the wrong thing about what is missing.
+  function distRow(label, value, why) {
+    var v = String(value == null ? '' : value).trim();
+    return { label: label, value: v, none: !v, why: (why || DIST_NONE) };
+  }
+
+  function districts() {
+    var out = [];
+    var loc = {};
+    try { loc = window._currentVoterLocation || {}; } catch (e) { loc = {}; }
+    if (!window._hasUserLocation) return out;
+    var r = reps();
+    var state = String(loc.state || (r && r.state) || '').trim();
+
+    // COUNTY AND STATE, which region a already had. The resolver's county is
+    // published match-gated, so the reader's own saved county is the fallback,
+    // and the state is the scope both of them sit in.
+    var county = String((r && r.county) || loc.county || '').trim();
+    out.push(distRow('County', [county, state].filter(Boolean).join(', ')));
+
+    // THE THREE LEGISLATIVE SEATS. The resolver first, the reader's own saved
+    // field second, and third an admission about OUR map rather than about their
+    // record: these three lines are drawn geometry, /me carries none of it, and
+    // when neither the resolver nor the reader's own saved field has a number
+    // the honest sentence names the missing map.
+    var hl = levelFor(r, 'house');
+    var hn = distNum(hl && hl.district) || distNum(loc.district);
+    out.push(distRow('U.S. House', hn ? ('District ' + hn) : '', DIST_NOMAP));
+
+    var sl = levelFor(r, 'statesenate');
+    var sn = distNum(sl && sl.district) || distNum(loc.stateSenateDistrict);
+    out.push(distRow('State Senate', sn ? ('District ' + sn) : '', DIST_NOMAP));
+
+    var ll = levelFor(r, 'statehouse');
+    var ln = distNum(ll && ll.district) || distNum(loc.stateHouseDistrict);
+    out.push(distRow('State House', ln ? ('District ' + ln) : '', DIST_NOMAP));
+
+    // LOCAL IS A JURISDICTION, NOT A NUMBER. The municipality this location
+    // names is the local ballot's scope — mayor, council, school board — and it
+    // is the only local line this document holds: the local ROSTER is curated
+    // for the same areas the district geometry is, and /me does not carry it.
+    out.push(distRow('Local', String(loc.city || '').trim()));
+
+    // JUDICIAL, only where the module that owns the question is on the page.
+    var J = judicialApi();
+    if (J && fn(J.districtForCounty)) {
+      var jd = '';
+      try { jd = county ? (J.districtForCounty(county) || '') : ''; } catch (e2) { jd = ''; }
+      out.push(distRow('Judicial', jd ? String(jd) : ''));
+    }
+    return out;
+  }
+
+  var DIST_NONE = 'not on file';
+  var DIST_NOMAP = 'needs a district map';
+  function districtsHtml() {
+    var rows = districts();
+    if (!rows.length) return '';
+    return '<dl class="me-dists">' + rows.map(function (d) {
+      return '<div class="me-dist' + (d.none ? ' me-dist--none' : '') + '">' +
+        '<dt class="me-distlb">' + esc(d.label) + '</dt>' +
+        '<dd class="me-distv">' + esc(d.none ? (d.why || DIST_NONE) : d.value) + '</dd>' +
+      '</div>';
+    }).join('') + '</dl>';
   }
 
   // ── THE SEATS ─────────────────────────────────────────────────────────────
@@ -438,6 +584,12 @@
           if (to && ik) to += '?issue=' + encodeURIComponent(String(ik));
         }
         out.push({
+          // THE TYPE TRAVELS WITH THE CARD. The store already separates a
+          // receipt from an issue from a spotlight, and region e now prints
+          // those as three named groups rather than one undifferentiated list —
+          // so the type is carried, not re-derived from the title.
+          type: String(it.type || ''),
+          tags: Array.isArray(it.tags) ? it.tags.filter(Boolean).map(String) : [],
           title: it.title || it.polName || it.key || 'Saved item',
           sub: it.sub || it.polSub || it.sourceLabel || it.topic || '',
           icon: it.icon || '\u{1F4CE}',
@@ -475,7 +627,10 @@
         '<span class="me-idtext">' +
           '<span class="me-name">' + esc(nm) + '</span>' +
           '<span class="me-mail">' + esc(u.email || 'Signed in') + '</span>' +
-        '</span></div>';
+        '</span>' +
+        // THE ONE WAY OUT, ON THE ONE PAGE ABOUT THIS ACCOUNT. See signOut().
+        '<button type="button" class="me-signout" data-me-signout="1">Log out</button>' +
+      '</div>';
     } else {
       // SIGNED OUT SAYS SO. It does not print a name, it does not print a
       // placeholder account, and the regions below it do not invent answers for
@@ -490,11 +645,16 @@
         ' to keep it on your account and read it on another device.</p>';
     }
 
+    // THE PLACE, THEN EVERY DISTRICT IT RESOLVES. `p.detail` is deliberately
+    // NOT printed here any more: it is _voterLocationLabel's single "District 2"
+    // — one unlabelled number for a voter who is in four districts at once —
+    // and the labelled list below says all of it, including the rows we do not
+    // hold. See districts().
     var p = place();
     var where = p.located && p.label
-      ? '<p class="me-where">Your ballot is built for <strong>' + esc(p.label) + '</strong>' +
-          (p.detail ? ' <span class="me-mail">' + esc(p.detail) + '</span>' : '') + '. ' +
-          '<button type="button" class="me-link" data-me-loc="1">Change location</button></p>'
+      ? '<p class="me-where">Your ballot is built for <strong>' + esc(p.label) + '</strong>. ' +
+          '<button type="button" class="me-link" data-me-loc="1">Change location</button></p>' +
+          districtsHtml()
       : '<p class="me-where">We do not know where you vote yet, so the seats below are the ones we cannot resolve. ' +
           '<button type="button" class="me-link" data-me-loc="1">Set where you vote</button></p>';
 
@@ -505,42 +665,261 @@
   }
 
   // ── b · POSITIONS ─────────────────────────────────────────────────────────
-  // A HOST, NOT A COPY. This region ships an empty element and your-file.js
-  // paints its own letterhead and its own eight rows into it, through
-  // PDXYourFile.inline(). So the count sentence on this page is written by the
-  // one function that writes it in the panel, the four controls on a row are the
-  // same four, an answer goes through the same set() into the same per-account
-  // key, and there is nothing here for the two to drift apart on.
+  // WHAT WAS WRONG. This region opened with the whole editor: every row of it,
+  // four controls each, painted identically for a reader who had answered them
+  // all and for one who had never been here. A
+  // desk is a thing you READ — "here is what you told us" — and the first thing
+  // on it was a form. Worse, the form was the tallest block on the page for the
+  // reader who had least reason to care about it, because the empty state and
+  // the full state were the same shape.
   //
-  // THE REGION HAS NO HEADING OF ITS OWN, on purpose: the editor's letterhead is
-  // the heading — "Your positions on eight issues", and under it the line that
-  // has to stay on screen while a reader answers ("Not a vote. Not a district
-  // poll."). A second title over it would be this document paraphrasing the
-  // module, which is the first step to contradicting it.
+  // WHAT IT IS NOW. A SNAPSHOT AND ONE DOOR.
+  //
+  //   · ONE OR MORE ANSWERS ON FILE → only those keys are listed, each as one
+  //     chip carrying the issue and THE SIDE THIS READER CHOSE. Not the four
+  //     options; the one they picked. The face is capped at SNAP_CAP so a
+  //     reader who has answered forty gets a snapshot rather than a list, and
+  //     the leftover is counted in words on the door beside it.
+  //   · NOTHING ON FILE → the starter chips, which are three keys the editor
+  //     already owns (see STARTERS), and one sentence pointing at My Stances for
+  //     the rest. A STARTER IS A HINT, NOT A DENOMINATOR: three chips is an
+  //     invitation to begin, and the count above them is still measured against
+  //     the whole vocabulary. A screenful of "Not sure" is a chore.
+  //   · EITHER WAY, ONE DOOR. "Set all issues" mounts your-file.js's editor —
+  //     the SAME module into the SAME host, through PDXYourFile.inline(), which
+  //     is why this is not a second setter and cannot drift from the first. It
+  //     is mounted on the gesture rather than on the paint, which is the whole
+  //     change: the editor still lives here, it just is not what the region
+  //     opens as.
+  //
+  // WHAT IT STILL IS NOT:
+  //
+  //   1. NOT A SECOND STORE. Every side printed below comes out of
+  //      PDXYourFile.position() — the accessor the alignment read itself uses.
+  //      This region writes nothing; the door hands the reader to the editor and
+  //      the editor writes, through its own set(), as it always did.
+  //   2. NOT A SCORE, AND NOT AGAINST A STARTER OCTET. "2 of 121 set" is the
+  //      length of the answered list over the length of THE VOCABULARY THE
+  //      SETTER OFFERS — PDXYourFile.KEYS, which that module derives from
+  //      ISSUE_MAP grouped by CORE_NATIONAL_ISSUES. Positions are held against
+  //      the issue register, so the register is the denominator; this file
+  //      writes no number of its own down and cannot. No ratio, no bar, no
+  //      percentage, and the count sentence's single author is still the
+  //      editor's own countSentence() wherever the editor is on screen.
+  //   3. NOT A VOTE. The line under the heading is the editor's OWN COPY.line,
+  //      read off the module rather than paraphrased here, so "Not a vote. Not
+  //      a district poll." cannot be reworded on one surface and not the other.
+  //   4. NOT A COLOUR OF ITS OWN. A chip's colour is PDXIssueColors' answer for
+  //      that key, taken through skin() — the same data-ic + --pdx-ic pair a
+  //      bill letterhead uses. A key the colour system does not recognise gets
+  //      NO attribute and reads as unthemed steel, which is the honest outcome:
+  //      a whole region of neutral chips means "these are not core issues",
+  //      never "the colour system is off".
+  var SNAP_CAP = 6;
+
+  function yf() { try { return window.PDXYourFile || null; } catch (e) { return null; } }
+  function yfKeys() {
+    var Y = yf();
+    return (Y && Array.isArray(Y.KEYS)) ? Y.KEYS.slice() : [];
+  }
+  // The answered keys, in the editor's own declared order, through the editor's
+  // own accessor. A key whose stored answer is not one of the four is already
+  // dropped by that module's normalize(), so nothing here re-validates it.
+  function positions() {
+    var Y = yf();
+    if (!Y || !fn(Y.answered)) return [];
+    var keys = [];
+    try { keys = Y.answered() || []; } catch (e) { keys = []; }
+    var out = [];
+    keys.forEach(function (k) {
+      var pos = null;
+      try { pos = fn(Y.position) ? Y.position(k) : null; } catch (e2) { pos = null; }
+      if (pos) out.push({ key: k, pos: pos });
+    });
+    return out;
+  }
+  // The side's label, off the editor's POSITIONS table. A side this desk cannot
+  // name is not printed as a raw slug: the chip falls back to the key alone,
+  // because "housing · mixed" is vocabulary and "housing · oppose_maybe" is a
+  // leak.
+  function sideLabel(pos) {
+    var Y = yf();
+    var list = (Y && Array.isArray(Y.POSITIONS)) ? Y.POSITIONS : [];
+    for (var i = 0; i < list.length; i++) {
+      if (list[i] && list[i].key === pos) return String(list[i].label || '');
+    }
+    return '';
+  }
+  // THE STARTERS ARE NOT A NEW VOCABULARY. Every one is a key the editor already
+  // owns AND one of the Alignment tool's own quick picks, so a reader who starts
+  // here and a reader who starts there are being offered the same issues. Three
+  // topics, not three flavours of one — and the list is filtered against the
+  // editor's own KEYS at read time, so a key the editor stops owning simply
+  // stops being offered rather than becoming a chip that leads nowhere.
+  var STARTERS = ['housing', 'gun_rights', 'school_choice'];
+  function starters() {
+    var own = yfKeys();
+    var have = {};
+    own.forEach(function (k) { have[k] = 1; });
+    var out = STARTERS.filter(function (k) { return !!have[k]; });
+    // The editor is not on the page yet (deferred, or an older cached copy
+    // without KEYS). Offering its first three keys is still its vocabulary.
+    if (!out.length) out = own.slice(0, 3);
+    return out.slice(0, 3);
+  }
+  // THE ISSUE'S OWN LABEL, off the register every other surface reads. An
+  // unregistered key prints as itself rather than as a blank chip.
+  function issueLabel(k) {
+    try {
+      var IM = (window.ISSUE_MAP && typeof window.ISSUE_MAP === 'object') ? window.ISSUE_MAP : {};
+      var r = IM[k];
+      if (r && r.label) return String(r.label);
+    } catch (e) {}
+    return String(k || '');
+  }
+  // ── THE ISSUE'S OWN COLOUR, BORROWED AND NEVER INVENTED ───────────────────
+  // Spelled exactly as district-voice.js spells it on this same document, which
+  // is the point: PDXIssueColors.skin() hands back the whole
+  // ` data-ic="on" style="--pdx-ic:…"` fragment, and an unresolved key gets an
+  // EMPTY fragment by that module's own design. A COLOUR IS NOT A VERDICT — it
+  // says "this is the housing chip", never "this answer is right" — and nothing
+  // downstream reads it.
+  function icAttr(key) {
+    try {
+      var C = window.PDXIssueColors;
+      if (!C || !fn(C.skin)) return '';
+      var sk = C.skin(String(key == null ? '' : key), window.PDXIssueFamily);
+      return (sk && sk.attr) ? String(sk.attr) : '';
+    } catch (e) { return ''; }
+  }
+
+  // A chip is a LABEL, not a control: it carries what the reader said and it
+  // does not offer to change it. The one thing that changes an answer on this
+  // page is the door below, which is the editor.
+  function posChip(k, pos) {
+    var side = sideLabel(pos);
+    return '<li class="me-pchip"' + icAttr(k) + '>' +
+      '<span class="me-pchip-l">' + esc(issueLabel(k)) + '</span>' +
+      (side ? '<span class="me-pchip-s">' + esc(side) + '</span>' : '') +
+    '</li>';
+  }
+  // A starter chip is a label too. It names an issue this reader could speak to;
+  // the gesture that answers it is the same single door.
+  function startChip(k) {
+    return '<li class="me-pchip me-pchip--start"' + icAttr(k) + '>' +
+      '<span class="me-pchip-l">' + esc(issueLabel(k)) + '</span>' +
+    '</li>';
+  }
+
+  // THE DOOR. A real control, wired in wire() to mountPositions(), which is the
+  // editor of record appearing below this snapshot. data-me-setall carries no
+  // argument: there is one door, and it opens the whole editor rather than a
+  // single row, because a per-row door would be thirty-two controls again in a
+  // different shape.
+  function setAllDoor(extra) {
+    return '<p class="me-pgo">' +
+      '<button type="button" class="me-door" data-me-setall="1">Set all issues &rarr;</button>' +
+      (extra ? '<span class="me-pmore">' + esc(extra) + '</span>' : '') +
+    '</p>';
+  }
+
   function regionPositions() {
-    return '<section class="me-region" id="me-positions" aria-label="Your positions on eight issues">' +
+    var list = positions();
+    var own = yfKeys();
+    var body;
+    var extra = '';
+
+    if (list.length) {
+      var face = list.slice(0, SNAP_CAP);
+      var left = list.length - face.length;
+      body = '<ul class="me-pchips">' + face.map(function (r) {
+        return posChip(r.key, r.pos);
+      }).join('') + '</ul>';
+      if (left > 0) extra = left + ' more';
+    } else {
+      // THE HONEST EMPTY, WITH SOMEWHERE TO GO. Not a form and not a scold: the
+      // three issues most readers start with, and the sentence that says where
+      // the other five live.
+      body = '<ul class="me-pchips me-pchips--start">' +
+        starters().map(startChip).join('') + '</ul>' +
+        '<p class="me-rline">Nothing on file yet. ' +
+          'Set the rest in <a class="me-link" href="/#my-stances">My Stances</a>.</p>';
+    }
+
+    // THE DENOMINATOR IS THE VOCABULARY, MEASURED, AND IT IS NOT A NUMBER THIS
+    // FILE KNOWS. own.length is PDXYourFile.KEYS.length — the keys the stance
+    // setter actually offers, which that module derives from ISSUE_MAP and the
+    // CORE_NATIONAL_ISSUES families at runtime. There is no literal anywhere on
+    // this path: numerator and denominator are both lengths of lists read off
+    // the same owner, so a key added to the register moves both without an edit
+    // here. On a document where the editor has not parsed, own.length is 0 and
+    // no count is printed at all — a count with a made-up denominator would be
+    // the defect this replaced.
+    var count = (own.length && list.length)
+      ? esc(list.length + ' of ' + own.length + ' set')
+      : '';
+
+    return '<section class="me-region" id="me-positions" aria-labelledby="me-positions-t">' +
+      '<div class="me-rhead">' +
+        '<h2 class="me-rtitle" id="me-positions-t">Your positions</h2>' +
+        (count ? '<span class="me-rcount">' + count + '</span>' : '') +
+      '</div>' +
+      '<p class="me-rline">' + esc(posLine()) + '</p>' +
+      body +
+      setAllDoor(extra) +
       '<div id="me-yf-host"></div>' +
     '</section>';
   }
 
+  // THE LINE IS THE EDITOR'S OWN. Read off PDXYourFile.COPY so "Not a vote. Not
+  // a district poll." has one author; the literal below is the fallback for a
+  // document where the module has not parsed, and it is the same sentence.
+  function posLine() {
+    var Y = yf();
+    try {
+      if (Y && Y.COPY && Y.COPY.line) return String(Y.COPY.line);
+    } catch (e) {}
+    return 'Your positions. Used to compare formal records. Not a vote. Not a district poll.';
+  }
+
+  // MOUNTED ON THE GESTURE, NOT ON THE PAINT. Called from wire() when the door
+  // is used, and from a repaint only when the editor is ALREADY up — so a
+  // location resolving underneath the desk does not push a form onto a reader
+  // who never asked for one, and does not tear one away from a reader who did.
   function mountPositions() {
     var host = el('me-yf-host');
-    if (!host) return;
-    var YF = window.PDXYourFile;
-    if (!YF || !fn(YF.inline)) {
+    if (!host) return false;
+    var Y = yf();
+    if (!Y || !fn(Y.inline)) {
       // your-file.js has not parsed yet, or this is an older cached copy of it
-      // without an inline host. Say what is missing; do not paint eight rows
-      // this document would then own.
-      if (!host.firstChild) {
-        host.innerHTML = empty('The positions editor is still loading. If it does not appear, ' +
-          '<a href="/">reload PolitiDex</a>.');
-      }
-      return;
+      // without an inline host. Say what is missing; do not paint rows this
+      // document would then own.
+      host.innerHTML = empty('The positions editor is still loading. If it does not appear, ' +
+        '<a href="/">reload PolitiDex</a>.');
+      return false;
     }
-    if (host.getAttribute('data-me-mounted') === '1') { try { YF.render(); } catch (e) {} return; }
+    if (host.getAttribute('data-me-mounted') === '1') { try { Y.render(); } catch (e) {} return true; }
     try {
-      if (YF.inline(host)) host.setAttribute('data-me-mounted', '1');
-    } catch (e) {}
+      if (Y.inline(host)) { host.setAttribute('data-me-mounted', '1'); return true; }
+    } catch (e2) {}
+    return false;
+  }
+  function isSetterOpen() {
+    var host = el('me-yf-host');
+    return !!(host && host.getAttribute('data-me-mounted') === '1');
+  }
+  // The gesture: mount if it is not up, then put the reader on it. goTab marks
+  // the region and scrolls, which is the desk's one way of landing on a region.
+  function openSetter() {
+    var ok = mountPositions();
+    try { goTab('positions'); } catch (e) {}
+    if (ok) {
+      try {
+        var host = el('me-yf-host');
+        if (host && fn(host.scrollIntoView)) host.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (e2) {}
+    }
+    return ok;
   }
 
   // ── c · STARRED ───────────────────────────────────────────────────────────
@@ -566,6 +945,86 @@
   }
 
   // ── d · BALLOT SNAPSHOT ───────────────────────────────────────────────────
+  // WHO ALREADY HOLDS THE SEAT, AND THEN THE PICK.
+  //
+  // WHAT WAS WRONG. Six rows, each an office and the word "No pick". A reader
+  // who had never opened /ballot got a column of blanks — a to-do list from a
+  // desk that already knew, for most of those seats, who is in the chair right
+  // now. The one thing a voter wants from a ballot they have not worked yet is
+  // the incumbent, and we were withholding it to make room for an absence.
+  //
+  // SO EACH ROW LEADS WITH THE OFFICEHOLDER. The name comes from
+  // pdxSeatHolders(seat) — voter-hub-location.js's one owner of "who holds this
+  // seat", which answers from pdxRepsForMe()'s own levels — and it is printed
+  // as a link to that person's /p/<pid> record. NO NAME IS GUESSED: the seat
+  // either resolved a pid or the row says "No officeholder on file". Two pids
+  // on a U.S. Senate row is not a defect, it is the Senate: both are named.
+  //
+  // WHAT RESOLVES HERE AND WHAT DOES NOT, stated so a later pass does not read
+  // the blanks as a bug. The statewide seats (both U.S. Senate seats, Governor)
+  // resolve from the state ROSTER, which this document does have — not the
+  // bundled one (cmp-data.js is not on /me, and me.html's PROFILES-into-CMP_DATA
+  // merge is gated on a global that document never creates) but the LIVE
+  // Firestore index in window.PROFILES, which the resolver now reads as the
+  // roster wherever the bundle is absent. It arrives after the first paint, so
+  // this block subscribes to its arrival and repaints (see seamRoster) and says
+  // "Still loading seats…" until then rather than printing a coverage admission
+  // it has no grounds for yet. The district seats (U.S. House, State Senate,
+  // State House) resolve from the curated ballot in ballot-breakdown.js
+  // (407 KB), which this document deliberately does not carry, so they come back
+  // with no pid and the row says so. The local slot has no level at all. That is
+  // an honest gap in one direction only: /me can under-name a seat and never
+  // mis-name one.
+  //
+  // AND THE PICK IS STILL THE READER'S. It prints UNDER the incumbent, prefixed
+  // "Your pick:", and it is printed whether or not it equals the incumbent —
+  // re-electing the person in the chair is a pick, and a desk that hid it would
+  // be reading the reader's ballot back to them wrong.
+  //
+  // THIS IS STILL NOT A SECOND BALLOT AND NOT "THE COMPLETE BALLOT". No
+  // challenger is pulled onto this document, no field is listed, nothing here
+  // can make a pick, and the one control on the row is the same
+  // /ballot?seat=<key> link it always was. The count is unchanged: picks over
+  // the seats on this reader's own slate.
+  function holdersFor(seatKey) {
+    try {
+      if (!fn(window.pdxSeatHolders)) return { ok: false, pids: [], rosterCold: false };
+      var h = window.pdxSeatHolders(seatKey);
+      return (h && h.pids) ? h : { ok: false, pids: [], rosterCold: false };
+    } catch (e) { return { ok: false, pids: [], rosterCold: false }; }
+  }
+  var HOLD_NONE = 'No officeholder on file';
+  var HOLD_WAIT = 'Still loading seats\u2026';
+  // THREE STATES, THREE SENTENCES, AND THE ROW NEVER GUESSES WHICH IT IS IN.
+  //
+  //   · the roster this document resolves seats from has not arrived → "Still
+  //     loading seats…". This is the state that shipped wrong: /me carries no
+  //     bundled roster, so before Firestore answers there is no index to walk,
+  //     and the row was printing a coverage admission over people the product
+  //     holds full files for. A wait is not an absence.
+  //   · the roster is here and this seat resolved nobody → "No officeholder on
+  //     file". The honest empty, unchanged, and the only one of the three that
+  //     is a claim about our coverage.
+  //   · the roster is here and the seat resolved N people → the N names, each a
+  //     door to /p/<pid>. Two on a U.S. Senate row is the Senate, not a defect.
+  //
+  // WHICH STATE IT IS IN IS THE RESOLVER'S ANSWER, NOT THIS FILE'S GUESS.
+  // pdxSeatHolders() carries rosterCold on every reply it makes, including the
+  // ones that carry no pids, so the desk reads the wait off the one owner of
+  // "who holds this seat" instead of second-guessing it from a roster global it
+  // would then be the second reader of.
+  function holdsLine(h) {
+    var pids = (h && h.pids) || [];
+    if (!pids.length) {
+      return (h && h.rosterCold)
+        ? '<span class="me-holds me-holds--wait">' + esc(HOLD_WAIT) + '</span>'
+        : '<span class="me-holds me-holds--none">' + esc(HOLD_NONE) + '</span>';
+    }
+    return '<span class="me-holds">' + pids.map(function (pid) {
+      return personAnchor(pid, nameOf(pid));
+    }).join('<span class="me-holdsep">, </span>') + '</span>';
+  }
+
   function regionBallot() {
     var list = seats();
     var r = reps();
@@ -581,19 +1040,29 @@
       workable++;
       if (pid) picked++;
 
-      var face;
-      if (pid) {
-        var ph = faceOf(pid);
-        face = ph
-          ? '<span class="me-face"><img src="' + esc(ph) + '" alt="" loading="lazy" /></span>'
-          : '<span class="me-face" aria-hidden="true">\u{1F3DB}</span>';
-      } else {
-        face = '<span class="me-seatico" aria-hidden="true">' + s.icon + '</span>';
-      }
+      var hold = holdersFor(s.key);
+      var held = hold.pids || [];
 
-      var line = pid
-        ? '<span class="me-pick">' + personAnchor(pid, nameOf(pid)) + '</span>'
-        : '<span class="me-pick me-pick--none">No pick</span>';
+      // THE FACE BELONGS TO WHOEVER THE ROW LEADS WITH, and the row leads with
+      // the officeholder. One holder → their portrait. Two (the Senate) → the
+      // seat glyph, because a row about two people cannot wear one of their
+      // faces. No holder → the pick's portrait if there is a pick, and the seat
+      // glyph otherwise.
+      var facePid = (held.length === 1) ? held[0] : (held.length ? '' : (pid || ''));
+      var ph = facePid ? faceOf(facePid) : '';
+      var face = ph
+        ? '<span class="me-face"><img src="' + esc(ph) + '" alt="" loading="lazy" /></span>'
+        : (facePid
+            ? '<span class="me-face" aria-hidden="true">\u{1F3DB}</span>'
+            : '<span class="me-seatico" aria-hidden="true">' + s.icon + '</span>');
+
+      // The incumbent, then the pick beneath it when there is one. A pick that
+      // names the incumbent is printed all the same.
+      var line = holdsLine(hold) +
+        (pid
+          ? '<span class="me-pick"><span class="me-picklb">Your pick:</span> ' +
+              personAnchor(pid, nameOf(pid)) + '</span>'
+          : '');
 
       // WORK THIS SEAT IS A REAL ADDRESS. /ballot?seat=<key> — the desk reads
       // ?seat= itself and opens that seat, and it only honours a key that is on
@@ -637,27 +1106,168 @@
     '</section>';
   }
 
-  // ── e · SAVED EVIDENCE ────────────────────────────────────────────────────
+  // ── e · SAVED WORK ────────────────────────────────────────────────────────
+  // THIS REGION ABSORBED THE HOMEPAGE'S RESEARCH DESK. Two surfaces used to
+  // read the same store a few thousand lines apart on `/`: My Saved (a
+  // four-tab workspace) and Evidence For My Vote (a ballot cross-reference).
+  // Neither was the homepage's job, both were tall before a reader had saved
+  // anything, and both were about THIS reader — so they are one region here,
+  // and `/` keeps a card that counts and points.
+  //
+  // WHAT IT OWNS. Saved receipts, saved issues and spotlights, the politicians
+  // this reader follows, and the counts of those three. Same store, same
+  // items, new address.
+  //
+  // WHAT IT STILL DOES NOT OWN, and the list is the reason it is short:
+  //
+  //   1. NOT THE OFFICIAL BALLOT. Region d prints the slate. This region holds
+  //      no seat, no pick and no denominator, and its one link to Door 2 is a
+  //      link — "Work the ballot" is a jump to /ballot, not a second ballot.
+  //   2. NOT THE LOCKER GRID. A saved receipt is a title, a context line and a
+  //      link back to the record it came from. No stance pill is recomputed, no
+  //      filter grid is built, nothing is re-ranked. /evidence is the locker.
+  //   3. NO EDITOR. The four-tab module let a reader retag, renote, regroup and
+  //      unsave in place. This lists. PDXSaved.setNote / setTags are not called
+  //      from here, so nothing on this page can disagree with the store.
+  //   4. NO SCORE AND NO ORDER OF MERIT. Newest first, which is PDXSaved.list()'s
+  //      own order. No count is turned into a ratio, a percentage or a bar —
+  //      see plural() above and me-desk.css, which give a later edit nowhere to
+  //      put one.
+  //   5. NOTHING ABOUT A JUDGE. Retention is /courts', and a saved item that
+  //      happens to name a judge is listed as what it is — a saved item.
+  //
+  // THE TAG ARRIVES IN THE URL. all-seeing-eye.js asks to open a reader's
+  // evidence filtered to one tag, and the homepage module it used to ask
+  // answers by navigating here with ?tag=<tag>. Honouring it is how the move
+  // stays a move: the alternative is a gesture that silently drops its own
+  // argument. An unknown tag is not an error — the filter simply matches
+  // nothing, says so, and offers the way back to everything.
+  var TAG_RE = /[?&]tag=([^&]*)/;
+  function tagOf(search) {
+    var m = String(search == null ? '' : search).match(TAG_RE);
+    if (!m) return '';
+    var t = '';
+    try { t = decodeURIComponent(m[1] || ''); } catch (e) { t = String(m[1] || ''); }
+    return t.trim().toLowerCase().slice(0, 60);
+  }
+  function hasTag(c, t) {
+    if (!t) return true;
+    for (var i = 0; i < c.tags.length; i++) {
+      if (String(c.tags[i]).trim().toLowerCase() === t) return true;
+    }
+    return false;
+  }
+
+  // THE FOLLOWED ROSTER, READ THE WAY EVERY OTHER SURFACE READS IT. Preferred
+  // through the PDXTeamView adapter when that module is on the page, and
+  // otherwise straight off the one legacy key — which me.html registers with
+  // PDXStore, so it syncs with the rest of the account. This is a read of one
+  // key, like picks() above, for the same stated reason.
+  var ROSTER_KEY = 'politidex_my_politicians';
+  function roster() {
+    try {
+      var v = window.PDXTeamView;
+      if (v && fn(v.roster)) {
+        var r = v.roster();
+        if (Array.isArray(r)) return r.filter(Boolean).map(String);
+      }
+    } catch (e) {}
+    var st = store();
+    if (st && fn(st.read)) {
+      try { var a = st.read(ROSTER_KEY, []); if (Array.isArray(a)) return a.filter(Boolean).map(String); } catch (e2) {}
+    }
+    try {
+      var s2 = localStorage.getItem(ROSTER_KEY);
+      var b = s2 ? JSON.parse(s2) : [];
+      return Array.isArray(b) ? b.filter(Boolean).map(String) : [];
+    } catch (e3) { return []; }
+  }
+  // A followed politician as a card. THE GATE IS THE PID, not the display
+  // record — personOf() may not have merged on this frame, and the honest row
+  // is then the id with a working link to their file.
+  function rosterCards() {
+    return roster().map(function (pid) {
+      var pr = personOf(pid);
+      return {
+        type: 'politician',
+        tags: [],
+        title: (pr && (pr.name || pr.fullName)) || pid,
+        sub: (pr && (pr.office || pr.title)) || '',
+        icon: '⭐',
+        href: personHref(pid)
+      };
+    });
+  }
+
+  function savedList(c) {
+    return '<ul class="me-saved">' + c.map(function (x) {
+      var head = x.href
+        ? '<a href="' + esc(x.href) + '">' + esc(x.title) + '</a>'
+        : esc(x.title);
+      return '<li class="me-card">' +
+        '<span aria-hidden="true">' + esc(x.icon) + '</span> ' + head +
+        (x.sub ? '<span class="me-cardsub">' + esc(x.sub) + '</span>' : '') +
+      '</li>';
+    }).join('') + '</ul>';
+  }
+  // A group prints only when it has something in it. An empty group under its
+  // own heading reads as a claim that the reader has none of that thing, which
+  // is true but is three headings' worth of nothing on a page that already
+  // says what is missing in one sentence.
+  function savedGroup(id, label, cards) {
+    if (!cards.length) return '';
+    return '<h3 class="me-gtitle" id="' + id + '">' + esc(label) +
+      ' <span class="me-gcount">' + esc(String(cards.length)) + '</span></h3>' +
+      savedList(cards);
+  }
+
   function regionSaved() {
-    var list = savedCards();
-    var body = list.length
-      ? '<ul class="me-saved">' + list.map(function (c) {
-          var head = c.href
-            ? '<a href="' + esc(c.href) + '">' + esc(c.title) + '</a>'
-            : esc(c.title);
-          return '<li class="me-card">' +
-            '<span aria-hidden="true">' + esc(c.icon) + '</span> ' + head +
-            (c.sub ? '<span class="me-cardsub">' + esc(c.sub) + '</span>' : '') +
-          '</li>';
-        }).join('') + '</ul>'
-      : empty('Nothing saved yet. When you save a record from a profile it is filed here, ' +
-          'with a link back to the evidence it came from.');
+    var tag = tagOf(location.search);
+    var all = savedCards();
+    var pols = rosterCards();
+    var receipts = [], issues = [], other = [];
+    all.forEach(function (c) {
+      if (!hasTag(c, tag)) return;
+      if (c.type === 'receipt') receipts.push(c);
+      else if (c.type === 'issue' || c.type === 'spotlight') issues.push(c);
+      else other.push(c);
+    });
+    // A tag is a filter on saved items, so it does not filter the roster: a
+    // politician is followed, not tagged, and dropping the group would read as
+    // "you follow nobody".
+    var shown = receipts.length + issues.length + other.length + (tag ? 0 : pols.length);
+    var total = all.length + pols.length;
+
+    var body = '';
+    if (tag) {
+      body += '<p class="me-rline"><strong>Filtered to &ldquo;' + esc(tag) + '&rdquo;.</strong> ' +
+        plural(receipts.length + issues.length + other.length, 'saved item carries', 'saved items carry') +
+        ' this tag. <a class="me-link" href="/me#me-saved">Show everything saved</a>.</p>';
+    }
+    body += savedGroup('me-saved-rec', 'Receipts', receipts);
+    body += savedGroup('me-saved-iss', 'Issues &amp; Spotlights', issues);
+    if (!tag) body += savedGroup('me-saved-pol', 'Politicians you follow', pols);
+    body += savedGroup('me-saved-oth', 'Other saved items', other);
+    if (!shown) {
+      body += tag
+        ? empty('Nothing saved carries that tag. Your saved work is all still here — ' +
+            'the link above shows it.')
+        : empty('Nothing saved yet. When you save a record from a profile, an issue from the ' +
+            'library or a politician you want to follow, it is filed here with a link back to ' +
+            'the evidence it came from.');
+    }
+
     return '<section class="me-region" id="me-saved" aria-labelledby="me-saved-t">' +
       '<div class="me-rhead">' +
-        '<h2 class="me-rtitle" id="me-saved-t">Saved evidence</h2>' +
-        (list.length ? '<span class="me-rcount">' + esc(plural(list.length, 'saved', 'saved')) + '</span>' : '') +
+        '<h2 class="me-rtitle" id="me-saved-t">Saved work</h2>' +
+        (total ? '<span class="me-rcount">' + esc(plural(total, 'saved', 'saved')) + '</span>' : '') +
       '</div>' +
+      '<p class="me-rline">The receipts, issues and politicians you have saved in this account. ' +
+        'Nothing here is published and nothing here is a score.</p>' +
       body +
+      '<p class="me-rline" style="margin:0.7rem 0 0;"><a class="me-link" href="/ballot">Work the ballot</a>' +
+        ' to put this next to the seats you are deciding — the ballot is Door 2’s, and it ' +
+        'stays there.</p>' +
     '</section>';
   }
 
@@ -680,7 +1290,7 @@
   //      not a participation rate, and this region holds no number at all.
   //   3. IT DOES NOT ENTER THE MATCH. Nothing here reads or writes the alignment
   //      store, the stance store, Direction Match, Your Match, the formal
-  //      pattern or the ballot order. The board is the public lane; the eight
+  //      pattern or the ballot order. The board is the public lane; the
   //      answers above it are the private one; this region carries no wire
   //      between them.
   //   4. IT DOES NOT PARTY-GATE AND CARRIES NO PARTY. No letter, no colour, no
@@ -782,10 +1392,12 @@
         'for a voter and no grade for a party.</p>';
   }
 
-  // THE WHOLE DESK, EXCEPT THE EDITOR. Region b is a mounted module and its host
-  // is preserved across a repaint — remounting it would throw away the eight
-  // rows your-file.js is holding, mid-tap, to paint the same eight back. So the
-  // host is lifted out, the rest is replaced, and the host is put back.
+  // THE WHOLE DESK, EXCEPT THE EDITOR. Region b's host is preserved across a
+  // repaint — remounting it would throw away the rows your-file.js is holding,
+  // mid-tap, to paint the same rows back. So the host is lifted out,
+  // the rest is replaced, and the host is put back. An UNMOUNTED host is not
+  // lifted and not remounted: the editor is now opened by a gesture, and a
+  // location resolving underneath the desk is not that gesture.
   function render() {
     var mount = el(MOUNT);
     if (!mount) return;
@@ -802,7 +1414,9 @@
       }
     }
     _painted = true;
-    mountPositions();
+    // Only a setter that was ALREADY up is re-rendered. Where it was not, the
+    // snapshot stands and the door is the way in.
+    if (keep) mountPositions();
     applyTab(false);
   }
 
@@ -894,6 +1508,27 @@
     if (!fn(window._vhBallotRerender)) window._vhBallotRerender = renderSoon;
   }
 
+  // ── AND THE REPAINT WHEN THE ROSTER LANDS ─────────────────────────────────
+  // The first paint waits for nothing, which is right — but on this document the
+  // roster region d names its officeholders from is the LIVE Firestore index,
+  // and that arrives after the desk has already painted. Without this the reader
+  // keeps whatever the cold read said for the rest of the visit: that is the
+  // second half of the reported blank, and it is the same failure the homepage
+  // band had before voter-hub-location.js published this subscription.
+  //
+  // It is a SUBSCRIPTION, not a poll and not a loader. The resolver owns the
+  // arrival — it is the module whose own most important input is deferred — and
+  // it announces it exactly once, immediately if the roster is already there. The
+  // desk's job is to repaint, which render() does without disturbing a setter the
+  // reader has open.
+  var _rosterHooked = false;
+  function seamRoster() {
+    if (_rosterHooked) return;
+    if (!fn(window.pdxRosterReady)) return;
+    _rosterHooked = true;
+    try { window.pdxRosterReady(renderSoon); } catch (e) { _rosterHooked = false; }
+  }
+
   // SEAM 3 — a bare '#my-stances' is a trip home. my-stances.js is loaded here
   // for its store and its priority hook, but its section needs a homepage mount
   // it does not have, so PDXStances.open() would scroll to nothing. The anchors
@@ -917,6 +1552,23 @@
     home('#join');
   }
 
+  // ── LEAVING, AND WHY IT LIVES HERE ────────────────────────────────────────
+  // The account chip in the chrome used to be a hover dropdown whose third row
+  // was "Log Out". The chip is a single control that goes to /me now, so the
+  // one door that ended a session went with the dropdown — and an account
+  // surface a reader cannot sign out of is not an account surface. This is the
+  // same auth object every other control on the page uses; nothing is
+  // reimplemented, and a failure is silent rather than a claim that the reader
+  // has been signed out when they have not.
+  function signOut() {
+    try {
+      var a = (typeof auth !== 'undefined' && auth) ? auth
+            : (window.firebase && fn(window.firebase.auth) ? window.firebase.auth() : null);
+      if (a && fn(a.signOut)) { a.signOut(); return true; }
+    } catch (e) {}
+    return false;
+  }
+
   function wire() {
     try {
       document.addEventListener('click', function (ev) {
@@ -925,6 +1577,8 @@
         var t = ev.target;
         if (!t || !t.closest) return;
         if (t.closest('[data-me-signin]')) { ev.preventDefault(); signIn(); return; }
+        if (t.closest('[data-me-signout]')) { ev.preventDefault(); signOut(); return; }
+        if (t.closest('[data-me-setall]')) { ev.preventDefault(); openSetter(); return; }
         if (t.closest('[data-me-loc]')) { ev.preventDefault(); home('#who-represents-me'); return; }
         var tab = t.closest('[data-me-tab]');
         if (tab) {
@@ -970,13 +1624,45 @@
     member: member,
     displayNameOf: displayNameOf,
     place: place,
+    // Region a's district list, exported so a test reads the rows rather than
+    // scraping them out of the paint — and so "not on file" is asserted as a
+    // resolved ROW with nothing in it, which is the honest state, rather than
+    // as a missing row.
+    districts: districts,
+    DIST_NONE: DIST_NONE,
+    DIST_NOMAP: DIST_NOMAP,
     seats: seats,
     gate: gate,
     picks: picks,
     pickFor: pickFor,
+    // Who holds a seat, as region d asks it: the resolver's own answer, never a
+    // second derivation on this document.
+    holders: holdersFor,
+    HOLD_NONE: HOLD_NONE,
+    HOLD_WAIT: HOLD_WAIT,
     stars: stars,
     voice: voice,
     savedCards: savedCards,
+    // Region b's reads. positions() is the snapshot's whole input, starters() is
+    // what an empty file is offered, and SNAP_CAP is the face's ceiling — all
+    // three exported so a test compares them against the editor's own store
+    // rather than against a shape written down twice.
+    positions: positions,
+    starters: starters,
+    issueLabel: issueLabel,
+    icAttr: icAttr,
+    SNAP_CAP: SNAP_CAP,
+    openSetter: openSetter,
+    isSetterOpen: isSetterOpen,
+    // The one way out of the account, exported so the suite asserts the control
+    // reaches the same auth object every other surface signs out through.
+    signOut: signOut,
+    // Region e's three reads, exported for the same reason picks() is: a test
+    // compares them against the store rather than against a number written
+    // down twice. tagOf is the ?tag= the Eye's gesture arrives with.
+    tagOf: tagOf,
+    roster: roster,
+    rosterCards: rosterCards,
     nameOf: nameOf,
     faceOf: faceOf,
     personHref: personHref,
@@ -995,11 +1681,13 @@
   seamLocation();
   seamRerender();
   seamStances();
+  seamRoster();
   wire();
 
   function beat() {
     seamLocation();
     seamRerender();
+    seamRoster();
     renderSoon();
   }
 

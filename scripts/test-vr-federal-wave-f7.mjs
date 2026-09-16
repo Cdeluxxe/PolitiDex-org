@@ -1099,8 +1099,19 @@ function boot(get, label) {
         try { sb = work.PDXConsistency.rowResult(q); } catch (e) { sb = { __err: 1 }; }
         if (!sa || !sb) continue;
         if (WITHDRAWN[pid] === r.key) {
-          if (!(sa.state === "tested" && sb.state === "untested" && sb.pct === null &&
-                (q.verdict || {}).token === "pending")) {
+          // AND THE PAIR OUTLIVES ITS OWN TRANSITION. "tested at HEAD, untested
+          // here" is a sentence about an uncommitted withdrawal: the day the
+          // word-first gate pass lands, HEAD reads untested too, the pair becomes
+          // untested → untested, and the strict form above fails on a tree where
+          // the withdrawal is exactly as it should be. What is required of this
+          // pair either way is that the WORKING COPY publishes no finding on it —
+          // untested, no percentage, verdict pending — and that HEAD is either the
+          // tested reading being withdrawn or the withdrawn reading already
+          // shipped. Nothing else about the pair is permitted, and every other row
+          // in the sweep is still compared field for field.
+          const gone = (s, row) => s.state === "untested" && s.pct === null &&
+            ((row.verdict || {}).token === "pending");
+          if (!(gone(sb, q) && (sa.state === "tested" || gone(sa, r)))) {
             rowBad++;
             failures.push(`${pid}/${r.key}: the withdrawn mapping did not simply stop being tested — ` +
               `${sa.state}/${sa.pct} → ${sb.state}/${sb.pct}`);

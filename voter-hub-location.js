@@ -1249,27 +1249,88 @@
   // the reader's browser — and within a session a fresh answer always beats it.
   var _pdxStatewideBest = {};
 
+  // ── WHICH INDEX IS "THE ROSTER" ON THIS DOCUMENT ──────────────────────────
+  // Every read below used to name window.CMP_DATA directly, and that one word is
+  // why /me printed "No officeholder on file" on all six ballot rows for a Davis
+  // County reader while Who Represents Me named the same reader's senators on the
+  // homepage. CMP_DATA is created by cmp-data.js, and cmp-data.js is not on /me:
+  // me.html gates its whole PROFILES-into-CMP_DATA merge on
+  // `typeof CMP_DATA !== 'undefined'`, so on that document the global is never
+  // created, `_pdxRosterSize()` answered 0 forever, the statewide walk never ran,
+  // and six honest-looking blanks were painted over three people the product
+  // holds full files for.
+  //
+  // The roster is not a GLOBAL NAME, it is whichever people index the document
+  // actually carries, and there are two of them: the bundled roster (CMP_DATA,
+  // on the shells that load cmp-data.js) and the live Firestore roster
+  // (window.PROFILES, on every shell that boots Firebase, /me included). Both
+  // hold the same record shape — the `office` and `state` strings the statewide
+  // walk matches on, and the pid the row links to — because me.html and
+  // index.html merge one into the other where both exist.
+  //
+  // So this file asks ONE question in ONE place: what is the roster here? The
+  // bundle wins where it has rows, because on the shells that carry it the live
+  // index has already been merged into it; the live index answers where the
+  // bundle is absent. Nothing here is a second seat-holder table and nothing here
+  // names a person: it is the same walk over the same records, pointed at the
+  // index this document has rather than at the one it does not.
+  function _pdxRosterTable() {
+    var r = null;
+    try {
+      r = window.CMP_DATA;
+      if (r && typeof r === 'object') { for (var k in r) { if (Object.prototype.hasOwnProperty.call(r, k)) return r; } }
+    } catch (e) {}
+    try {
+      r = window.PROFILES;
+      if (r && typeof r === 'object') { for (var j in r) { if (Object.prototype.hasOwnProperty.call(r, j)) return r; } }
+    } catch (e2) {}
+    return null;
+  }
+
+  // One record, looked up across both indexes. A lookup is asked in the
+  // generous direction on purpose: every caller of it either NAMES somebody or
+  // declines to un-name them, so a pid that either index still holds is a pid
+  // this page still knows.
+  function _pdxRosterRec(pid) {
+    if (!pid) return null;
+    try {
+      var c = window.CMP_DATA;
+      if (c && c[pid]) return c[pid];
+    } catch (e) {}
+    try {
+      var p = window.PROFILES;
+      if (p && p[pid]) return p[pid];
+    } catch (e2) {}
+    return null;
+  }
+
   function _pdxRosterSize() {
     try {
-      var r = window.CMP_DATA;
+      var r = _pdxRosterTable();
       return r ? Object.keys(r).length : 0;
     } catch (e) { return 0; }
   }
+
+  // ── IS THE ROSTER HERE YET? PUBLISHED, BECAUSE A BLANK HAS TWO MEANINGS ────
+  // "This seat resolved nobody" and "the index this page resolves seats from has
+  // not arrived" are different sentences, and only the surface printing the row
+  // can choose between them. pdxSeatHolders() below carries the answer on every
+  // reply it makes; this is the same fact for a caller that has no seat in hand.
+  window.pdxRosterWarm = function () {
+    return !!_pdxRosterSize();
+  };
 
   // Is this pid still a record in the roster at all? The one question that
   // separates "a payload flattened their office string" from "we no longer hold
   // this person" — and therefore the one thing that may un-name a seat.
   function _pdxRosterHas(pid) {
     if (!pid) return false;
-    try {
-      var r = window.CMP_DATA;
-      return !!(r && r[pid]);
-    } catch (e) { return false; }
+    return !!_pdxRosterRec(pid);
   }
 
-  // …AND THE ROSTER ONLY GETS A VOTE WHILE IT HAS ROWS. An empty window.CMP_DATA
-  // is a page mid-load, not a page whose officeholders resigned, so "is this pid
-  // gone?" is a question it is not entitled to answer yet. Every carry-forward
+  // …AND THE ROSTER ONLY GETS A VOTE WHILE IT HAS ROWS. An empty roster is a page
+  // mid-load, not a page whose officeholders resigned, so "is this pid gone?" is
+  // a question it is not entitled to answer yet. Every carry-forward
   // below asks THIS, not the raw lookup: absence of a roster is never evidence of
   // absence of a person.
   function _pdxRosterKeeps(pid) {
@@ -1379,7 +1440,8 @@
     var res = { senators: [], governor: null };
     if (!_pdxArchiveReady()) return res;
     try {
-      var roster = window.CMP_DATA;
+      var roster = _pdxRosterTable();
+      if (!roster) return res;
       for (var pid in roster) {
         if (!Object.prototype.hasOwnProperty.call(roster, pid)) continue;
         var rec = roster[pid];
@@ -1422,7 +1484,7 @@
   function _pdxPinnable(pid) {
     if (!pid || !_pdxRosterKeeps(pid)) return false;
     try {
-      var rec = (window.CMP_DATA || {})[pid];
+      var rec = _pdxRosterRec(pid);
       if (!rec) return true;
       var o = String(rec.office || '');
       if (!o) return true;
@@ -1448,7 +1510,7 @@
 
     var out = { senators: [], governor: null, ambiguous: false };
     try {
-      var roster = rn ? window.CMP_DATA : null;
+      var roster = rn ? _pdxRosterTable() : null;
       if (roster) {
         var sens = [], govs = [];
         for (var pid in roster) {
@@ -1589,10 +1651,11 @@
   // these levels subscribes instead of growing a poll of its own — three polls
   // would be three different moments to repaint one answer.
   //
-  // WHAT IT PROMISES. The callback runs exactly once, when window.CMP_DATA first
-  // has rows in it; a callback registered after that runs immediately, so a
-  // subscriber that loaded late is never waiting for an event that has already
-  // happened. The statewide memo is dropped at that moment too — belt and braces
+  // WHAT IT PROMISES. The callback runs exactly once, when the roster this
+  // document carries first has rows in it — the bundle or the live Firestore
+  // index, whichever this shell has (see _pdxRosterTable); a callback registered
+  // after that runs immediately, so a subscriber that loaded late is never
+  // waiting for an event that has already happened. The statewide memo is dropped at that moment too — belt and braces
   // beside the size key it is already stamped with — so the repaint cannot be
   // served the pre-roster answer it is repainting to replace.
   //
@@ -1625,7 +1688,13 @@
   // every other deadline this page waits on, and nothing reschedules after it —
   // an absent roster is a page with no names to print, which is a different
   // problem than a stale paint.
-  var _PDX_ROSTER_WAIT = [0, 120, 350, 800, 1600, 3200, 6400, 12000];
+  // The tail past twelve seconds is for the shells whose roster is the LIVE one:
+  // /me has no bundled roster to read and waits on a Firestore round trip, an
+  // auth handshake and a document merge before its first record exists, and on a
+  // cold mobile connection that is slower than any deferred script. A subscriber
+  // that is told "still loading" and never told otherwise is its own wrong
+  // answer, so the ladder outlives the load rather than the load outliving it.
+  var _PDX_ROSTER_WAIT = [0, 120, 350, 800, 1600, 3200, 6400, 12000, 20000, 30000];
   function _pdxRosterWatch() {
     if (_pdxRosterWatching || _pdxRosterFired) return;
     _pdxRosterWatching = true;
@@ -2070,8 +2139,12 @@
 
   window.pdxSeatHolders = function (seatKey) {
     var rk = window.pdxSeatKey(seatKey);
+    // rosterCold travels on EVERY reply, including the early returns: a caller
+    // that got no pids needs to know whether that is an answer or a wait, and
+    // the early returns are exactly the replies where it cannot tell on its own.
     var out = { ok: false, seat: rk, located: false, statewide: false,
-                districtGap: false, sticky: false, pids: [], levels: [] };
+                districtGap: false, sticky: false, rosterCold: !_pdxRosterSize(),
+                pids: [], levels: [] };
     if (!rk) return out;
     var reps = null;
     try { reps = window.pdxRepsForMe(); } catch (e) { reps = null; }

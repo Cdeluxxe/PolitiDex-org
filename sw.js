@@ -6131,7 +6131,192 @@
 //     mapping's own field or says it is not written — and desktop /i/<key> is
 //     byte-identical apart from the two wrappers the phone rules need.
 
-const CACHE_VERSION = 'v202';
+// v203 - THE COURTS AND THE READER'S OWN DESK LEAVE THE HOMEPAGE.
+//
+//     The front page was hosting two rooms that were not its job. The whole
+//     third branch sat in #judicial-lane — a page head, the retention questions
+//     resolved for the reader's location, and beneath them the complete Utah
+//     courts archive, every judge on file by court under an
+//     "ARCHIVE · UTAH COURTS · NOT A BALLOT" banner — and the reader's research
+//     desk sat in two places at once, #evidence-for-my-vote and #my-saved, both
+//     reading one store, together about 1,700 lines of four-tab workspace and
+//     ballot cross-reference that were tallest for a visitor who had saved
+//     nothing.
+//     · THE COURTS ARE A DOCUMENT NOW. courts.html is THE NINTH SHELL, 22 KB,
+//       served at /courts and /courts/ by two new exact 200 rewrites, and it
+//       prints two labelled regions so they cannot be read as one list:
+//       A · On your ballot (only what the resolver can defend for the location
+//       saved in this browser) and B · Archive (every record on file, stating
+//       that a listing is not a claim about anybody's ballot). The fail-closed
+//       geography is unchanged — the district, juvenile and justice courts have
+//       no map, so the archive names every judge on them while region A names
+//       nobody as the reader's, and the honest "no judicial district map"
+//       sentence is still the resolver's own.
+//     · THE HOMEPAGE KEEPS A DOOR. judicial-ballot.js gained a courts mode and
+//       a card: #judicial-lane now holds #jr-card, which prints the COUNT of
+//       resolved retention questions for this location and "Open courts →", or
+//       says a location is not set. No name list is in the first paint.
+//     · THE DESK IS ONE REGION OF /me. me-desk.js region e now groups receipts,
+//       issues & spotlights and the politicians a reader follows, with counts,
+//       and honours the ?tag= the Eye's gesture arrives with. #my-saved kept its
+//       id on the homepage and holds one card — a count and "Open my workspace
+//       →". A zero count says so in one sentence.
+//
+//     WHY THE BUMP, AND THE FILES THAT MOVED. index.html, judicial-ballot.js,
+//     judicial-retention.css, me-desk.js and me-desk.css are all precached, and
+//     courts.html is NEW ON SHELL_ASSETS. A warm v202 device would otherwise go
+//     on serving the homepage that still carries the judge list and the
+//     four-tab workspace, and would have no copy of the ninth shell at all.
+//     COURTS_NAV_RE (/^\/courts\/?$/) and a seventh offline fallback branch are
+//     added on exactly the terms the other six are written on, LAST so none of
+//     /p/, /i/, /issue/, /ballot, /stances or /evidence can be intercepted;
+//     SUB_SHELL_BANNER_RE gained `courts` and NINTH so no other address can be
+//     served the courts body and /courts cannot be served a homepage.
+//
+//     DID NOT MOVE. No new score, no WVA or Direction Match change, no party
+//     sort. Nothing became a grade on a judge and PolitiDex still takes no
+//     position on retention; "no JPEC report on file" and the Hagen-class "no
+//     longer on the court" line are the same sentences in the same words. No
+//     store was touched: every saved receipt, note, tag and followed politician
+//     is where it was, and no per-judge address was minted — /courts is in the
+//     sitemap, the judges on it are not, because a judge is a person and a
+//     person's address is /p/<pid> behind the same publication floor.
+
+// v204 - THE DESK BECOMES A SNAPSHOT, THE ARCHIVE BECOMES A LIST WITH A MAP,
+//     AND THE ACCOUNT CHIP BECOMES ONE CONTROL. v203 moved two rooms off the
+//     homepage; this is the polish on those two, and all of it is subtraction.
+//     · /me's POSITIONS REGION WAS AN EIGHT-WIDE FORM — a fixed octet of
+//       Support / Oppose / Mixed / Not sure, painted whether the reader had
+//       answered anything or not, so the desk read as a survey they owed. It is
+//       a SNAPSHOT now: the keys they have set, as chips carrying the side they
+//       chose, six on the face with "N more" behind one door; or, at zero,
+//       three starter chips from the alignment tool's own quick picks and a
+//       line pointing at My Stances. The editor is not duplicated — "Set all
+//       issues →" mounts your-file.js's own eight-row editor into the host it
+//       always used. Positions stay compare-input only.
+//     · EVERY ISSUE CHIP ON /me READS PDXIssueColors the way a bill letterhead
+//       does (data-ic + --pdx-ic), which is why me.html gained issue-colors.js
+//       after issue-map.js, where the core-issue fallback lives; a key with no
+//       colour on file stays unthemed steel.
+//     · THE ACCOUNT CHIP IS ONE LINK. The nav carried four controls onto /me —
+//       two widths times two labels, "Your file" and "My Views" — behind a CSS
+//       hover panel. Four doors to one room is three too many, so the panel is
+//       gone: the avatar, the name and "My Account" are one <a href="/me"> at
+//       each width, and Log Out moved onto the desk. The mobile sheet keeps its
+//       Logout row.
+//     · REGION B AT /courts IS FILTERABLE. A hundred and twenty-six names in
+//       one scroll became a chip row — All courts, Supreme, Appeals, District,
+//       Juvenile, Justice, each with its count — plus the eight judicial
+//       district numbers, printed only for the two trial courts the divisions
+//       apply to and only where judges sit. It opens on whichever court
+//       outnumbers all the others together (District, 78 of 126) by a
+//       comparison rather than a hard-coded choice, and the hiding is CSS
+//       against one attribute on the region root, so the pressed state and the
+//       list agree before a script runs.
+//
+//     WHY THE BUMP. me.html is precached and gained a script tag; me-desk.js,
+//     me-desk.css, judicial-ballot.js, judicial-retention.css and index.html
+//     are precached and all changed, so a warm v203 device would keep painting
+//     the eight-issue form from a stylesheet with no rules for it, and an
+//     unfilterable archive from a shell holding the chips' CSS. compare-hub.js
+//     is a runtime entry: its chip change lands a visit later, not a 741 KB
+//     install.
+//
+//     DID NOT MOVE. No new address, no per-judge URL, /me still out of the
+//     sitemap as an account surface; no new score, no WVA or Direction Match
+//     change, no party sort, no new issue key. A region B chip filters the LIST
+//     and resolves nothing: region A is still the only surface here that says
+//     anything about this reader, the trial courts still name nobody as their
+//     judge, and no store was touched.
+
+// v205 - THE DENOMINATOR BECOMES THE VOCABULARY, THE DISTRICT BECOMES EVERY
+//     DISTRICT, AND THE BALLOT ROW LEADS WITH WHOEVER HOLDS THE SEAT. Three
+//     things /me taught wrong — a number and two names it had no right to — all
+//     three fixed by reading a list somebody else already owns.
+//     · "2 OF 8 ON FILE" IS GONE, AND SO IS THE OCTET BEHIND IT. Positions are
+//       held against the issue register, not a starter set, so your-file.js
+//       derives its rows from ISSUE_MAP grouped by the CORE_NATIONAL_ISSUES
+//       families — 121 keys in 13 groups — memoized only once ISSUE_MAP has
+//       actually parsed, with the eight slugs it shipped with kept as a floor
+//       for a shell where it never does. A hundred-odd rows is a form nobody
+//       finishes if you paint it flat, so each family is one collapsed
+//       <details> carrying its own "n of m set", opened when it holds an
+//       answer. /me's caption is "N of <vocabulary> set", the denominator read
+//       off PDXYourFile.KEYS and never written down. Storage stopped gating on
+//       membership at the same time and gates on slug SHAPE instead, with the
+//       pull reconciler unioning both sides' keys — so a laptop deriving a
+//       shorter list can no longer delete an answer a phone really recorded.
+//     · REGION A LISTS EVERY DISTRICT THIS LOCATION RESOLVES. It printed
+//       "Davis County, Utah · District 2" — one unlabelled number for a voter
+//       who sits in a U.S. House district AND a State Senate district AND a
+//       State House district AND a county AND a municipality at once, without
+//       saying which of them that number was. It is a labelled list now, from
+//       pdxRepsForMe()'s own levels plus the reader's saved fields, fail-closed
+//       row by row: a row with nothing behind it says "not on file", borrows no
+//       number from the row above and invents none. The judicial row appears
+//       only where PDXJudicial is on the document, which on /me it is not.
+//     · THE BALLOT SNAPSHOT NAMES THE INCUMBENT FIRST. Six rows reading "No
+//       pick" was a to-do list from a desk that already knew who is in most of
+//       those chairs. Each row leads with pdxSeatHolders(seat)'s own answer now
+//       — linked to /p/<pid>, both senators where a seat has two — or with "No
+//       officeholder on file", never a guess. The reader's pick sits under it
+//       behind a "Your pick:" label, printed even when it names the incumbent.
+//
+//     WHY THE BUMP. me.html, me-desk.js, me-desk.css and index.html are
+//     precached and all four changed. A warm v204 device would otherwise paint
+//     an unlabelled "District 2", "No pick" over an incumbent it could have
+//     named, and an eight-key caption under a setter offering 121.
+//     your-file.js, your-file.css and who-represents-me.js are runtime entries
+//     and land a visit later.
+//
+//     DID NOT MOVE. No new room, address, issue key, score or party sort; WVA
+//     and Direction Match untouched. No challenger is pulled onto /me — the
+//     field is still Door 2's — region d still cannot make a pick, and no store
+//     schema changed: the same answers under the same per-account key, now
+//     readable against a wider list.
+
+// v206 - /me NAMES THE OFFICEHOLDERS IT ALREADY HELD, AND A BLANK SAYS WHICH
+//     THING IS MISSING. A Davis County reader read "No officeholder on file" on
+//     all six ballot rows while Who Represents Me named their senators and
+//     governor from the same saved location. One resolver, one location, two
+//     answers.
+//     · THE ROSTER IS WHICHEVER INDEX THE DOCUMENT CARRIES. voter-hub-location
+//       read window.CMP_DATA, and only that global, for every roster question it
+//       asks. cmp-data.js is not on /me and me.html gates its whole
+//       PROFILES-into-CMP_DATA merge on `typeof CMP_DATA !== 'undefined'`, so
+//       the global is never created there: roster size zero, no statewide walk,
+//       no pid on any level, six blanks over three people with full files at
+//       /p/curtis, /p/lee and /p/cox. The file now asks once, in one place,
+//       which people index is here — the bundle where a shell loads it, the live
+//       Firestore roster in window.PROFILES where none does — and walks that.
+//       Same walk, same records, same single owner of "who holds this seat".
+//     · A COLD ROSTER IS A WAIT, NOT AN ABSENCE. /me's roster is a Firestore
+//       round trip, so every first paint was the empty state. pdxSeatHolders
+//       carries rosterCold on every reply, region d prints "Still loading
+//       seats…" until it lands, and it subscribes to pdxRosterReady so the
+//       arrival repaints instead of leaving the cold read up for the visit.
+//       Three states, three sentences: loading, nobody on file, the names.
+//     · "NEEDS A DISTRICT MAP" IS NOT "NOT ON FILE". State Senate and State
+//       House read "not on file" directly under a U.S. House district that had
+//       resolved, which reads as the app losing a district it never drew. Those
+//       rows name the missing map now, and none of the three shares a string
+//       with region d's "No officeholder on file".
+//
+//     WHY THE BUMP. me-desk.js, me-desk.css and me.html are precached and the
+//     first two changed. A warm v205 device pairs the old desk with the new
+//     resolver: six "No officeholder on file" rows, no loading state, and no
+//     rule for the .me-holds--wait span. voter-hub-location.js is a runtime
+//     entry and lands a visit later.
+//
+//     DID NOT MOVE. No shapefile, no district geometry and no invented district
+//     number — an unresolved state legislative line still resolves nobody. No
+//     second seat table: the desk asks pdxSeatHolders and classifies no office
+//     itself. The 121 denominator, the chip cap, "Set all issues", the account
+//     chip and the /courts filters are untouched. No new score: WVA and
+//     Direction Match are exactly as they were, no consistency ranking runs and
+//     no party sort moved, and no store schema changed.
+
+const CACHE_VERSION = 'v206';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -6224,6 +6409,20 @@ const SHELL_ASSETS = [
   // entry — already below, and they are what paints /stances now.
   // spotlight-hub.js stays runtime-cached: that shelf is not the room.
   '/evidence-locker.js',
+  // THE NINTH SHELL: the third branch. netlify.toml rewrites /courts and
+  // /courts/ here, so this is the document the courts room actually receives,
+  // and like /ballot, /me, /stances and /evidence it is a SINGLE address —
+  // there is no per-judge and no per-court segment, so navDocKey gives it no
+  // key and this one entry answers every arrival.
+  //
+  // WHAT IT COSTS OFFLINE: nothing new. courts.html is 22 KB of chrome, and its
+  // whole critical path is already on this list — /judicial-data.js,
+  // /judicial-retention.js, /judicial-ballot.js, /judicial-retention.css and
+  // /person-link.js are all entries here. Only /voter-hub-location.js and
+  // /ballot-breakdown.js stay runtime-cached, and the room is honest without
+  // them: with no resolver on hand region A says it cannot place the reader and
+  // region B — the archive, which is the same for everybody — still paints.
+  '/courts.html',
   '/css/tailwind.css',
   // The above-the-fold record card. Parser-blocking in index.html, so on a
   // repeat visit these two must come from the cache or they add latency to the
@@ -6982,6 +7181,16 @@ const BALLOT_NAV_RE = /^\/ballot\/?$/;
 const STANCES_NAV_RE = /^\/stances\/?$/;
 const EVIDENCE_NAV_RE = /^\/evidence\/?$/;
 
+// ─── THE THIRD BRANCH ───────────────────────────────────────────────────────
+// On exactly the same terms: two exact spellings, no capture group, nothing
+// after the optional slash. /courts is a SINGLE address — there is no per-judge
+// and no per-court segment, and the reader's location is not in the path at all
+// (it is read out of their own browser), which is why one document answers every
+// arrival and one fallback covers every reader. /courtss and /courts/district
+// are not this address, matching netlify.toml, where the same two exact rules are
+// declared with no wildcard.
+const COURTS_NAV_RE = /^\/courts\/?$/;
+
 // How many person documents to keep. Each USED to be the whole ~2 MB app shell;
 // since the split it is person.html, ~234 KB, so four slots now cost less than
 // one did. Still a storage decision and not a correctness one: correctness is the
@@ -7002,6 +7211,7 @@ const PERSON_DOC_LIMIT = 4;
 //   ballot.html — THE FIFTH SHELL. /ballot IS ITS OWN DOCUMENT.
 //   stances.html — THE SEVENTH SHELL. /stances IS ITS OWN DOCUMENT.
 //   evidence.html — THE EIGHTH SHELL. /evidence IS ITS OWN DOCUMENT.
+//   courts.html — THE NINTH SHELL. /courts IS ITS OWN DOCUMENT.
 //
 // SIXTH IS ABSENT ON PURPOSE: me.html opens "/me — THE VOTER'S OWN FILE" and
 // never uses this wording. That costs the guard nothing — a body is only
@@ -7022,7 +7232,7 @@ const PERSON_DOC_LIMIT = 4;
 // sent, and none of them separates two documents served from one origin with one
 // content type — a Netlify rewrite is transparent, so /p/lee and '/' answer with
 // identical header sets. The identity only exists in the body.
-const SUB_SHELL_BANNER_RE = /\b(person|issue|spotlight|ballot|stances|evidence)\.html\s*—\s*THE\s+(?:SECOND|THIRD|FOURTH|FIFTH|SEVENTH|EIGHTH)\s+SHELL\b/;
+const SUB_SHELL_BANNER_RE = /\b(person|issue|spotlight|ballot|stances|evidence|courts)\.html\s*—\s*THE\s+(?:SECOND|THIRD|FOURTH|FIFTH|SEVENTH|EIGHTH|NINTH)\s+SHELL\b/;
 
 // The prefix ceiling, in decoded characters. The furthest of the three banners
 // sits ~283 characters in, so this is an order of magnitude of headroom: a banner
@@ -7138,6 +7348,9 @@ async function handleNavigate(req) {
   // so these choose a FALLBACK, and one document answers every filter of a room.
   const isStances = !isHome && !!(url && url.origin === self.location.origin && STANCES_NAV_RE.test(url.pathname));
   const isEvidence = !isHome && !!(url && url.origin === self.location.origin && EVIDENCE_NAV_RE.test(url.pathname));
+  // Seventh of the same kind: navDocKey gives /courts no key either, so this
+  // chooses a FALLBACK, and the one precached document answers every reader.
+  const isCourts = !isHome && !!(url && url.origin === self.location.origin && COURTS_NAV_RE.test(url.pathname));
 
   // A PERSON DOCUMENT IS A RUNTIME ENTRY, NOT A SHELL ONE. It is keyed to a single
   // address, it is not on SHELL_ASSETS, and nothing on the precache list depends on
@@ -7269,6 +7482,21 @@ async function handleNavigate(req) {
   if (isEvidence) {
     const evidenceDoc = await shell.match('/evidence.html');
     if (evidenceDoc) return evidenceDoc;
+  }
+
+  // Offline in the courts room. Ninth shell, and now LAST of the seven so none
+  // of /p/, /i/, /issue/, /ballot, /stances or /evidence can be intercepted by
+  // it — none could be as these regexes are written, and the order keeps that
+  // true after the next edit. /courts.html is precached and so is every module
+  // that paints it, and the room degrades honestly rather than emptily: region B,
+  // the archive, is the same for everybody and comes out of /judicial-data.js,
+  // and region A says it cannot place the reader rather than naming a judge as
+  // theirs. Before '/', which since this pass carries the DOOR and not the room:
+  // falling back to it would hand a reader who asked for the courts a homepage
+  // card that points back at the address they just asked for.
+  if (isCourts) {
+    const courtsDoc = await shell.match('/courts.html');
+    if (courtsDoc) return courtsDoc;
   }
 
   // Everything else: '/' is the app shell and it names nobody — the honest

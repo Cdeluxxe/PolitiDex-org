@@ -806,10 +806,23 @@ section("8 · The assets travel together");
                    "all-seeing-eye.js", "index.html"]) {
     has(LOG, f, `the version log never names ${f} among the files this pane travels with`);
   }
-  // The NEWEST entry still has to name the desk, its stylesheet and the page —
-  // any bump that reaches this pane reaches those three.
+  // AND v108's ENTRY — THE PASS THAT BUILT THIS PANE — NAMES ITS THREE FILES.
+  // An earlier draft asked this of the NEWEST entry instead, on the reasoning
+  // that any bump reaching this pane reaches those three. A bump reaches every
+  // precached file, so the newest entry is written by whichever pass happened
+  // last, and a pass that moved only the courts archive owes no sentence about
+  // door1-workspace.js. That draft therefore held while v108 was the live
+  // version and failed on the next unrelated bump. The log is append-only and
+  // its entries are immutable, so the pin is the version that made the claim;
+  // the live version is still checked, as a floor, above, and the whole-log
+  // sweep above it still requires every one of these files to be named
+  // somewhere with the version at which it last moved.
+  const iLedger = SW.indexOf("// v108 - ");
+  ok(iLedger >= 0, "the v108 entry — the one that turned the issue desk into a record ledger — is gone from the log");
+  const marker = /\n\/\/ v\d+ [-\u2014] /.exec(SW.slice(iLedger + 10));
+  const ledgerEntry = SW.slice(iLedger, marker ? iLedger + 10 + marker.index : iLedger + 12000);
   for (const f of ["door1-workspace.js", "door1-workspace.css", "index.html"]) {
-    has(entry, f, `the v${v} entry does not name ${f} among the files that must travel together`);
+    has(ledgerEntry, f, `the v108 entry does not name ${f} among the files that must travel together`);
   }
   has(entry, "Direction Match", `the v${v} entry does not say what did NOT move`);
   // The pane is wired into the page it paints on.

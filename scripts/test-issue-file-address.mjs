@@ -723,11 +723,26 @@ section("8 · The files travel together");
   // sw.js's own long-standing choice for it — so it is not asserted here.)
   ok(new RegExp("^// " + ver + " [-\\u2014]", "m").test(SW),
     `sw.js has no prose note for ${ver}`);
-  const note = SW.slice(SW.search(new RegExp("^// " + ver + " [-\\u2014]", "m")));
-  const noteEnd = note.indexOf("\nconst") > 0 ? note.slice(0, note.indexOf("\nconst")) : note;
+  // THE ENTRY THIS FENCE READS IS v113's, NAMED, NOT WHATEVER IS LIVE.
+  // An earlier draft sliced the log at the CURRENT CACHE_VERSION and asserted the
+  // entry named the files THIS pass changed. That is true of exactly one entry — the one v113
+  // wrote — so it held while that pass was uncommitted and then failed on the
+  // next unrelated bump, with a message about somebody else's pass. The log is
+  // append-only and its entries are immutable, so the pin is the version that
+  // made the claim; the live version is still checked, as a floor, above.
+  // One log entry ends where the next version line begins. The log is not in
+  // ascending order — v141 follows v109 in the file — so this looks for the next
+  // marker of any version rather than for the pinned version plus one.
+  const entryEnd = (s, i) => {
+    const m = /\n\/\/ v\d+ [-\u2014] /.exec(s.slice(i + 10));
+    return m ? i + 10 + m.index : i + 12000;
+  };
+  const iLog = SW.indexOf("// v113 - ");
+  ok(iLog >= 0, "the v113 entry — the one that made /i/<key> open the file rather than the homepage desk — is gone from the log");
+  const noteEnd = iLog >= 0 ? SW.slice(iLog, entryEnd(SW, iLog)) : "";
   for (const f of ["pdx-issue-profile.js", "door1-workspace.js", "netlify.toml",
                    "issue-file.js", "issue-file.css"]) {
-    has(noteEnd, f, `the ${ver} note does not name ${f} as travelling with this pass`);
+    has(noteEnd, f, `the v113 note does not name ${f} as travelling with this pass`);
   }
   console.log(`      ${ver} · /i/* → index.html 200 · address, panel and stage precached`);
 }

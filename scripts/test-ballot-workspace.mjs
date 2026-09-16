@@ -940,6 +940,87 @@ section("12 · The rail outranks the address it arrived on");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+section("13 · A Work seat control on the /me desk lands on that seat's desk");
+
+// WHY THIS LIVES HERE AND NOT ON THE DESK. The /me desk prints one "Work seat"
+// control per office. The claim under test is not that the control is styled or
+// that the row highlights — it is that pressing it ARRIVES, on this workspace,
+// with that office open. Half of that is the desk's job (does it print the
+// address?) and half is this file's (does that address open that seat?), and
+// this file owns the expensive half: the roster, the seat model, the rail and
+// the paint are already standing up here.
+//
+// So the two halves are asserted where each one can actually be observed.
+// test-me-snapshot.mjs section 5 resolves the desk's painted Senate row and
+// asserts the href is /ballot?seat=senate and that the control is an anchor
+// rather than a button that only restyles the row. Here the SAME address the
+// desk builds is taken out of me-desk.js and driven through the real boot.
+//
+// The failure mode this catches is a link that looks right and opens the wrong
+// desk: a Work seat pointing at bare /ballot (arrive on the first undecided
+// seat, not the one pressed), at #senate (the desk reads no hash — section 12
+// pins that), or at a key the seat model does not use.
+{
+  const DESK = R("me-desk.js");
+
+  // The desk's own expression, not a copy of it. If the template moves, this
+  // extraction fails loudly rather than testing a string this file invented.
+  const cta = /class="me-work" href="([^"]*)'\s*\+\s*encodeURIComponent\(([^)]+)\)/.exec(DESK);
+  must(!!cta, "me-desk.js no longer builds the Work seat control as one href + an encoded seat key");
+  eq(cta[1], "/ballot?seat=", `the Work seat control points somewhere else now ("${cta && cta[1]}")`);
+  has(cta[2], "key", "the Work seat control encodes something other than the seat's key into the address");
+
+  // U.S. Senate, named, because the brief names it — and because a vacuous pass
+  // on a seat the fixture does not carry would prove nothing.
+  const senate = SEATS.filter((x) => x.key === "senate")[0];
+  must(!!senate, "the fixture ballot no longer carries a U.S. Senate seat");
+  has(String(senate.label).toLowerCase(), "senate",
+    `the seat keyed "senate" is not the Senate row a reader would press ("${senate.label}")`);
+
+  // Build the href exactly as the desk does, then arrive on it the way a
+  // browser would: parse the address, hand the workspace only its query.
+  const href = cta[1] + encodeURIComponent(senate.key);
+  eq(href, "/ballot?seat=senate", `the desk would print "${href}" for the Senate row`);
+  const arrival = new URL(href, "https://politidex.example");
+  eq(arrival.pathname, "/ballot", "the Work seat control leaves the ballot room to open a seat");
+
+  const openKey = (html) => {
+    const m = String(html).match(/<button[^>]*class="bw-seat is-open[^"]*"[^>]*data-sk="([^"]+)"/);
+    return m ? m[1] : "";
+  };
+
+  {
+    const w = boot({ search: arrival.search });
+    eq(openKey(paint(w)), "senate",
+      "pressing Work seat on the Senate row does not open the Senate desk");
+
+    // AND IT IS THE DESK, NOT JUST A HIGHLIGHT. The seat that opened has to be
+    // the one the workspace is actually working: its field is on the page and
+    // its own name is in the desk, not only in the rail.
+    const sheet = paint(w);
+    const body = sheet.slice(sheet.indexOf("bw-seat is-open"));
+    has(body, senate.label, "the Senate desk opened without naming the office being worked");
+    const sm = w.PDXRaceSheet._seat("senate");
+    must(!!sm, "the seat model does not know the key the Work seat control sends");
+    ok(w.PDXRaceSheet._field(sm.key).length > 0,
+      "the Senate desk opened with no field to work — the arrival opened a shell");
+  }
+
+  // A SECOND PRESS IS NOT A TRAP. A reader who worked Governor, went back to
+  // /me and pressed Work seat on Senate arrives on Senate; the rail's memory of
+  // the earlier seat is not allowed to outrank a fresh arrival from the desk.
+  {
+    const w = boot({ search: arrival.search });
+    eq(openKey(paint(w)), "senate", "the first arrival did not open Senate");
+    w.pdxBallotWorkspaceOpen("governor");
+    eq(openKey(paint(w)), "governor", "the rail could not move off an arriving Senate");
+    const back = boot({ search: arrival.search });
+    eq(openKey(paint(back)), "senate",
+      "arriving again from the desk did not reopen Senate — a stale seat outranks the control pressed");
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 console.log(
   `\n${failures.length ? "✗" : "✓"} ballot workspace: ${passed} checks passed` +
   (failures.length ? `, ${failures.length} failed` : "")

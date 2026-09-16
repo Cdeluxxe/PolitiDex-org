@@ -901,9 +901,23 @@ const NO_SUB = "if (false) window.pdxRosterReady(sync);";
     const early = w.PDXWordAction.figure(FLASH, w.CMP_DATA[FLASH]);
     const c = mountCard(w, FLASH, { src });
     const seen = pcts(c.html);
-    ok(seen.length === 1 && seen[0] === early.pct,
-      `counterfactual (f): HEAD's card does not print the warming figure (${early.pct}%) — got ${JSON.stringify(seen)}`);
-    console.log(`      HEAD's card printed ${seen.join(",")}% over a record still landing; this one prints nothing`);
+    // WHICH TREE HEAD IS DEPENDS ON WHETHER THE FIX HAS LANDED, and this probe
+    // has to survive both. Before the pass was committed, HEAD was the renderer
+    // that printed a warming figure and `seen` was that one number: the shipped
+    // defect, reproduced. After it landed, HEAD *is* this renderer, so HEAD
+    // withholds the figure too and `seen` is empty — and an assertion demanding
+    // the defect fails while describing nothing that is wrong. So the claim is
+    // stated as the pair of readings that are both correct, and what still fails
+    // is the one that never is: HEAD printing a DIFFERENT figure from this tree,
+    // which is drift between the two renderers rather than a fix.
+    const shipped = seen.length === 1 && seen[0] === early.pct;
+    const healed = seen.length === 0;
+    ok(shipped || healed,
+      `counterfactual (f): HEAD's card prints ${JSON.stringify(seen)} for a record still landing — neither the ` +
+      `warming figure this pass withholds (${early.pct}%) nor nothing at all`);
+    console.log(shipped
+      ? `      HEAD's card printed ${seen.join(",")}% over a record still landing; this one prints nothing`
+      : "      the fix is committed, so HEAD withholds the warming figure exactly as this tree does");
   }
 }
 

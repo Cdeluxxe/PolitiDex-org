@@ -758,6 +758,65 @@
   to = "/evidence.html"
   status = 200
 
+# THE THIRD BRANCH GETS ITS OWN DOCUMENT: /courts -> courts.html
+# ─────────────────────────────────────────────────────────────────────────────
+# WHAT THIS ADDRESS FIXES. The homepage was hosting the whole judicial branch in
+# its own body: a page head, the retention questions resolved for the reader's
+# location, and beneath them the complete Utah courts archive — every judge on
+# file, by court, under an "ARCHIVE · UTAH COURTS · NOT A BALLOT" banner. That
+# is a two-hundred-name list shipped in the first paint of a 2 MB document to
+# every visitor, located or not, on a page whose job is "who represents me" and
+# "find the record". It had no address, so there was nothing to bookmark and no
+# way to send somebody the courts without sending them the homepage.
+#
+# /courts is that room, and courts.html is 22 KB of shell: no locker grid, no
+# Compare Hub, no alignment engine, no stance library, no voting-record
+# prefetch, and no store at all — this is a public read surface, so it carries
+# neither PDXStore nor PDXSaved nor Firebase.
+#
+# TWO REGIONS, LABELLED SO THEY CANNOT BE READ AS ONE. A · On your ballot holds
+# only the questions the resolver can defend for the location saved in this
+# browser; B · Archive holds every retention record on file, stating that a
+# listing there is not a claim the question is on anybody's ballot. The
+# fail-closed rule is unchanged and is the reason the split has to be visible:
+# the district, juvenile and justice courts have no map, so the archive may name
+# every judge on them while region A names nobody as the reader's. The homepage
+# keeps one card — a count and a door — and hosts neither region.
+#
+# NO SUB-ADDRESSES, AND NO PER-JUDGE URL IN THIS PASS. A judge is a person, and
+# a person already has /p/<pid>; a court is not a document. There is nothing for
+# a /courts/* rule to match that a typo would not also match, and the location
+# is not in the path at all — it is the reader's saved location, read by
+# voter-hub-location.js, which is why /courts is one address for everybody and
+# still answers differently for each reader.
+#
+# ORDER: TWO EXACT PATHS, NO PREFIX, NO SPLAT — AND THE POSITION IS A STATED
+# NO-OP, on the same terms as the four above. /courts and /courts/ are disjoint
+# by inspection of the literal strings from /p/*, /i/*, /issue/*, /ballot, /me,
+# /stances, /evidence, /vote/*, /d/*, /b/* and /locker, so declaring them here
+# is correct and would also have been correct anywhere else in the file. The
+# invariant written down for the next person to add a rule above: nothing that
+# matches these two paths may be declared earlier, and the day a prefix rule
+# like /c/* or a catch-all appears, these two exact paths must stay in front.
+[[redirects]]
+  from = "/courts"
+  to = "/courts.html"
+  status = 200
+
+# The trailing-slash form, declared rather than left to a redirect, so a pasted
+# /courts/ is the room instead of a hop. It is ALSO why every same-origin path
+# inside courts.html is root-absolute, with no exceptions: served at /courts/, a
+# bare src="judicial-ballot.js" resolves to /courts/judicial-ballot.js, this rule
+# answers that with the HTML document, the browser parses HTML as JavaScript, and
+# the reader gets an empty room with no error that names the cause.
+# scripts/test-courts-shell.mjs fails the build if a relative same-origin path
+# ever appears in that document. ballot.html, me.html, stances.html and
+# evidence.html carry the same rule for the same reason.
+[[redirects]]
+  from = "/courts/"
+  to = "/courts.html"
+  status = 200
+
 # THE OLD LOCKER ADDRESS, NOW AN ALIAS. /locker was a 200 rewrite to index.html
 # from the pass that first put the locker behind a door: the front page was the
 # only document that held the workspace, so /locker had to be the front page,

@@ -1001,7 +1001,17 @@ section("8c · no cache layer may serve one person's document at another's addre
   has(SW, "function navDocKey", "sw.js derives a cache key from the navigation's address");
   has(SW, "const PERSON_NAV_RE = /^\\/p\\/([A-Za-z0-9_]+)\\/?$/",
     "…recognising a person address with the same pattern the edge and the app use");
-  ok(/return '\/p\/' \+ person\[1\]/.test(SW), "…and giving a person address a key of its own");
+  // SPELLED TWO WAYS, ONE KEY. This read `return '/p/' + person[1]` verbatim until
+  // the sentinel guard landed: /p/null is not a person and must not evict a real
+  // file, so the return became a ternary and the literal pin went red against code
+  // that still does precisely what this line is about. The claim is that a person
+  // address gets a key of its OWN, which is the key expression — asserted wherever
+  // in the return it now sits, and then the gate asserted separately.
+  ok(/'\/p\/' \+ person\[1\]/.test(SW), "…and giving a person address a key of its own");
+  ok(/return '\/p\/' \+ person\[1\]/.test(SW)
+     || /\?\s*''\s*:\s*'\/p\/' \+ person\[1\]/.test(SW),
+    "…by that route and no other: either unconditionally, or with '' — serve the shell, " +
+    "store nothing — for a sentinel that only looks like a person");
 
   // THE REGRESSION, NAMED. Neither of the two lines that caused it may come back.
   ok(!/cache\.put\('\/', res/.test(nav),
@@ -1017,11 +1027,18 @@ section("8c · no cache layer may serve one person's document at another's addre
 
   // A person address with no entry of its own must reach the NETWORK, not borrow
   // '/'. The fallback to the shell exists, and it is after the network.
+  // TWO SPELLINGS AGAIN, AND FOR GOOD REASONS BOTH TIMES. `cache.match('/')` became
+  // `shell.match('/')` when a person document moved to RUNTIME_CACHE: on a person
+  // navigation `cache` IS the runtime cache, so the shell fallback had to name the
+  // shell handle to keep reaching the precached document. And `const cached` became
+  // `let cached`, because the refusal that drops a poisoned '/' entry has to be able
+  // to put down what it just read. Neither edit touches the order or the key this
+  // section is about, so both readings are accepted and the ORDER is what is asserted.
   const netAt = nav.indexOf("const res = await network");
-  const shellAt = nav.indexOf("cache.match('/')");
+  const shellAt = Math.max(nav.indexOf("cache.match('/')"), nav.indexOf("shell.match('/')"));
   ok(netAt > 0 && shellAt > netAt,
     "a cold person address goes to the network first, and only falls back to the shell when that fails");
-  ok(nav.indexOf("const cached = key ? await cache.match(key) : null") > 0,
+  ok(/(?:const|let) cached = key \? await cache\.match\(key\) : null/.test(nav),
     "…and a cached document is only ever read from this address's own key");
 
   // The shell is dropped outright on this deploy, because the poisoned '/' entry
@@ -1373,9 +1390,34 @@ section("9 · the engines did not move");
           .replace("out.push({", "return {")
           .replace(/\}\);$/, "};");
         const nowBody = flat(between(rowFn, "  function _fpiRowFor(r) {\n", "\n  }"));
-        eq(sha(nowBody), sha(wasBody),
-          "the single-row builder is not HEAD's loop body moved — something in the characterisation, " +
-          "the three rungs, the fail-closed gate or the row model was rewritten on the way out");
+        // ONCE THE EXTRACTION LANDS, THERE IS NOTHING LEFT TO SUBTRACT. The
+        // reconstruction above rebuilds the new function out of HEAD's LOOP body,
+        // which is only HEAD's loop body while the extraction is uncommitted: the
+        // day it ships, HEAD's loop is the two-line call too, `wasBody` is that
+        // call reshaped, and the comparison can only mismatch on a tree where
+        // nothing is wrong. Same trap the proveFace() note further down records
+        // paying for, same answer — the exact form runs while it can be stated,
+        // and the durable half runs always: the builder is where the seam says it
+        // is, it still walks the three rungs in order, it still fails closed on a
+        // row with no formal signal, and it RETURNS its row rather than pushing it.
+        if (sha(bodyOf(ca, "the loop that now calls it")) === sha(bodyOf(cb, "the loop that now calls it"))) {
+          console.log("      (the single-row builder: landed — the exact subtraction is spent, the durable half stands)");
+          has(rowFn, "function _fpiRowFor(r) {", "the extracted single-row builder is not where the seam says it is");
+          has(rowFn, "if (!r || !r.key) return null;", "…and a keyless row is no longer refused at the door");
+          for (const [rung, why] of [["_stPatternTier(r)", "the characterisation engine"],
+                                     ["_stThinDirRead(r)", "the uniform-run split"],
+                                     ["_fpiPublishedRead(r)", "the browse lane's published read"]])
+            has(rowFn, rung, `the builder no longer offers a row ${why} — a rung of the ladder went missing in the move`);
+          has(rowFn, "var refused = !!(t && t.tier === 'none');",
+            "a refusal is no longer carried as a refusal — `read` would go back to meaning two things at once");
+          has(rowFn, "if (!t && !refused && held <= 0) return null;",
+            "the extracted builder no longer fails closed on a row with no formal signal");
+          ok(!/out\.push/.test(rowFn), "the extracted builder pushes instead of returning — it is a loop body again");
+        } else {
+          eq(sha(nowBody), sha(wasBody),
+            "the single-row builder is not HEAD's loop body moved — something in the characterisation, " +
+            "the three rungs, the fail-closed gate or the row model was rewritten on the way out");
+        }
 
         // THE EXPORTS ARE NAMES, not a second engine hung off the index.
         eq([...expA.matchAll(/^\s*([A-Za-z_]+):/gm)].map((m) => m[1]).join(","),
@@ -1414,6 +1456,17 @@ section("9 · the engines did not move");
           eq(i, was.length,
             `${what}: a line HEAD published was removed, renamed or reordered — this seam appends fields, ` +
             "it does not edit the row");
+          // AND THE GROWTH IS THE ONE-PASS HALF. "HEAD's row plus fields" is a
+          // statement about an uncommitted diff; on the day the fields land, HEAD
+          // carries them too, the two sides are one row, and demanding that the
+          // working copy be LONGER than HEAD asks the seam to append something new
+          // every pass forever. The part that does not expire is the part above —
+          // every line HEAD published is still here, in order — so once the sides
+          // converge that is what is enforced, and the note says which reading ran.
+          if (now.length === was.length) {
+            console.log(`      (${what}: landed — the exact subtraction is spent, the durable half stands)`);
+            return;
+          }
           ok(now.length > was.length, `${what}: the seam is declared but nothing was appended`);
         };
 
@@ -1425,12 +1478,31 @@ section("9 · the engines did not move");
         const wasChip = bodyOf(ca, "the chip reading that fill instead of spelling it");
         const nowPaint = bodyOf(cb, "the badge's lane word and its fill rule, named");
         const ladder = (t) => flatLines(t).filter((l) => /^var (tone|bg)\b|^: \(t/.test(l)).join(" ");
-        eq(ladder(nowPaint),
-          ladder(wasChip)
-            .replace("_ST_PAT_TONE[t.tone]", "_ST_PAT_TONE[(t && t.tone) || 'muted']")
-            .replace(/\(t\.weight ===/g, "(t && t.weight ==="),
-          "the extracted fill rule is not HEAD's inline ladder plus a null guard — which tiers get their " +
-          "tone's fill was rewritten while being moved, and the card and the person file would disagree");
+        // THE SAME TWO READINGS, AND THE SAME REASON. While the lift is uncommitted,
+        // HEAD's chip still spells the ladder inline and the extracted rule can be
+        // stated as that ladder plus its null guard — the strongest form of the
+        // claim, because it is decided against the code the rule was taken FROM.
+        // Once it lands, HEAD's chip reads `_stPatPaint(t)` like every other caller,
+        // there is no inline ladder left to subtract, and the reconstruction would
+        // fail against a correct tree. So after the convergence the RULE ITSELF is
+        // pinned here, verbatim: the tone lookup with its muted fallback, and the
+        // ladder that gives only the two strong weights their tone's fill. HEAD's own
+        // chip is what says which reading applies: while the lift is pending it still
+        // holds the ladder, and once the lift is HEAD's it reads _stPatPaint(t) back.
+        if (wasChip.indexOf("_stPatPaint(t)") >= 0) {
+          eq(ladder(nowPaint),
+            "var tone = _ST_PAT_TONE[(t && t.tone) || 'muted'] || _ST_PAT_TONE.muted; " +
+            "var bg = (t && t.weight === 'full') ? tone.full : (t && t.weight === 'strong') ? tone.strong : _ST_PAT_QUIET;",
+            "the one named fill rule is no longer the ladder both surfaces agreed on — which tiers get their " +
+            "tone's fill was rewritten, and the homepage card and the person file would disagree");
+        } else {
+          eq(ladder(nowPaint),
+            ladder(wasChip)
+              .replace("_ST_PAT_TONE[t.tone]", "_ST_PAT_TONE[(t && t.tone) || 'muted']")
+              .replace(/\(t\.weight ===/g, "(t && t.weight ==="),
+            "the extracted fill rule is not HEAD's inline ladder plus a null guard — which tiers get their " +
+            "tone's fill was rewritten while being moved, and the card and the person file would disagree");
+        }
         has(nowPaint, "var _ST_PAT_LANE = '🏛 Record';",
           "the badge's lane word is not the two words HEAD's chip prints in front of every label");
         // H2. AND THE CHIP READS IT BACK. Two lines where the ladder was; the chip's
@@ -2204,9 +2276,27 @@ section("9 · the engines did not move");
           const HAND = "    return figureOf(pid, (sr && sr.main) || null, sr);\n";
           eq(now.split(HAND).length, 2, "figure() no longer hands its read to the one owner, once");
           const i = was.indexOf(HOLD), j = was.lastIndexOf("    };\n");
-          must(i > 0 && j > i, "HEAD's figure() no longer reads as this subtraction was written");
-          const lifted = was.slice(i + HOLD.length, j + "    };\n".length);
-          if (sha(now) !== sha(was)) {
+          // BOTH READINGS OF HEAD ARE CORRECT, AT DIFFERENT TIMES, and this used to
+          // be a must() that killed the file on the second one. While the lift was
+          // uncommitted, HEAD's figure() still held the arithmetic, and subtracting
+          // the delegation from it is what proved the body moved WHOLE rather than
+          // being retyped. The moment it shipped, HEAD's figure() IS the delegation:
+          // there is nothing left to subtract, and a harness that treats that as
+          // staleness exits 2 over its own success. So the landed reading gets the
+          // claim that endures — the entry point every surface calls is
+          // byte-identical to HEAD's and still hands its read to the one owner —
+          // and the line-by-line comparison below runs only while there is a
+          // pre-lift HEAD to compare against.
+          const preLift = i > 0 && j > i;
+          if (!preLift) {
+            eq(sha(now), sha(was),
+              "figure() is not HEAD's figure() — the entry point every surface calls moved in a pass " +
+              "that was not allowed to move it");
+            has(was, HAND, "HEAD's figure() neither holds the arithmetic nor hands it to the owner, so " +
+              "this file can no longer tell which side of the lift HEAD is on");
+          }
+          const lifted = preLift ? was.slice(i + HOLD.length, j + "    };\n".length) : "";
+          if (preLift && sha(now) !== sha(was)) {
             eq(sha(now.replace(HAND, lifted)), sha(was),
               "figure() is not HEAD's figure() with its body handed to the owner — the entry point " +
               "every surface calls grew or lost something on the way");

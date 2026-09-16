@@ -145,6 +145,10 @@ function sandbox(opts) {
   page.appendChild(put("my-politicians"));
   page.appendChild(put("relevant-section"));
   if (!opts.noLane) page.appendChild(put("judicial-lane"));
+  // THE ROOM'S OWN DOCUMENT. courts.html declares both mounts in its markup and
+  // sets one flag; judicial-ballot.js creates nothing there, so a courts probe
+  // has to put them on the page the way the document does.
+  if (opts.courts) { page.appendChild(put("courts-ballot")); page.appendChild(put("courts-archive")); }
   const wrm = mk();
   put("modal-content"); put("modal-icon"); put("modal-name-small");
   put("modal-office-small"); put("modal-overlay"); put("modal-body");
@@ -170,6 +174,7 @@ function sandbox(opts) {
     localStorage: { getItem() { return null; }, setItem() {}, removeItem() {} },
     console: { log() {}, warn() {}, error() {} },
     pdxRepsForMe: opts.reps ? () => opts.reps : undefined,
+    __PDX_COURTS_DOC: opts.courts ? true : undefined,
     PDXPersonLink: {
       anchor(pid, label, o) {
         const cls = o && o.cls ? ` class="${o.cls}"` : "";
@@ -527,31 +532,45 @@ section("3 · Utah gets the rows on file or an honest blank; nowhere else gets a
   eq(w.PDXJudicialBallot._band(), "", "the band rendered before a location was set");
 }
 
-// Judges are in a LANE OF THEIR OWN, below the workspace and below the picks —
-// and Door 2 keeps exactly one line about them.
+// THE ROOM MOVED TO /courts; THE LANE HOLDS THE DOOR. This section used to pin
+// the retention band and the courts archive INSIDE #judicial-lane on the
+// homepage, which was the right claim while the room was on the homepage: the
+// regression it closed was a wall of judges mounting inside #ballot-workspace
+// and inside #who-represents-me .wrm-inner, between the reader's seat list and
+// the candidates they were choosing.
 //
-// The regression this pins: the band mounted inside #ballot-workspace and the
-// courts archive mounted into #who-represents-me .wrm-inner, which put a long
-// list of judges directly between the reader's seat list and the workspace
-// where they choose candidates. A retention question is a yes/no on one name
-// with no opponent and no pick to save, so it does not belong in the pick flow
-// at all — it belongs after it.
+// The room is its own document now. index.html's first paint carries no judge
+// list at all, and #judicial-lane holds exactly one thing — #jr-card, a count
+// and a door. The claims that survive the move, and each is asserted below:
+//
+//   · THE LANE CARRIES THE CARD AND NOTHING ELSE. Not the band, not the
+//     archive. A two-hundred-name list in the first paint of the front page is
+//     what this pass removed, and this is what would catch it coming back.
+//   · THE LANE KEEPS ITS POSITION. Still below the workspace and below the
+//     picks — that was never about the band, it was about where the third
+//     branch sits relative to the pick flow, and the door inherits it.
+//   · NOTHING JUDICIAL IS IN THE PICK FLOW. Unchanged, and still the original
+//     regression: the workspace carries only the one line, and the
+//     Who-Represents-Me host carries nothing.
+//   · THE CARD COUNTS, IT DOES NOT ASK. It prints how many questions resolved
+//     and where; it must not carry the retention question itself.
 {
   const w = sandbox({ reps: UTAH, runTimers: true });
   const ws = w.__byId["ballot-workspace"];
   const lane = w.__byId["judicial-lane"];
-  const band = w.__byId["jr-band"];
-  const arch = w.__byId["jr-arch"];
+  const card = w.__byId["jr-card"];
   const line = w.__byId["jr-line"];
-  must(band, "the retention band did not mount — this probe is stale");
   must(lane, "#judicial-lane is gone from the harness — this probe is stale");
+  must(card, "the judicial door card did not mount — this probe is stale");
 
-  eq(band.parentNode === lane, true,
-     "the retention band mounted outside #judicial-lane");
-  eq(arch ? arch.parentNode === lane : false, true,
-     "the courts archive mounted outside #judicial-lane");
-  ok(band.parentNode.id !== "bw-body",
-     "the band mounted INSIDE #bw-body, whose innerHTML sync() overwrites in one write — it would vanish on the next repaint");
+  eq(card.parentNode === lane, true, "the judicial card mounted outside #judicial-lane");
+  eq(w.__byId["jr-band"] || null, null,
+     "the retention band still mounts on the homepage — that is the judge list this pass removed");
+  eq(w.__byId["jr-arch"] || null, null,
+     "the courts archive still mounts on the homepage — that is the ARCHIVE dump this pass removed");
+  const laneKids = lane.children.map((c) => c.id || "");
+  eq(JSON.stringify(laneKids), JSON.stringify(["jr-card"]),
+     "#judicial-lane carries something other than the one door card");
 
   // Nothing judicial is inside the workspace except the one line, and nothing
   // judicial is in the Who-Represents-Me host at all.
@@ -577,20 +596,64 @@ section("3 · Utah gets the rows on file or an honest blank; nowhere else gets a
   w.PDXJudicialBallot.jump();
   eq(lane.scrolled, 1, "the Door 2 jump does not scroll to the judicial lane");
 
-  // A second paint does not mount a second band, archive or line.
+  // A second paint does not mount a second card or line.
   w.PDXJudicialBallot.sync();
-  ["jr-band", "jr-arch", "jr-line"].forEach((id) => {
+  ["jr-card", "jr-line"].forEach((id) => {
     const n = lane.children.filter((c) => c.id === id).length +
               ws.children.filter((c) => c.id === id).length;
     eq(n, 1, `a repaint mounted a second ${id}`);
   });
 
-  has(band.innerHTML, "be retained", "the mounted band does not carry the retention question");
-  // The unit each row was resolved by, on the row. On a ballot that now runs
-  // five courts, "why is this judge on MY ballot" is answered by that label.
-  has(band.innerHTML, "Statewide", "the mounted band does not say which rows stand statewide");
+  // THE CARD COUNTS AND POINTS. A count, a place and a door — never the question.
+  has(card.innerHTML, "Judges on your ballot", "the card does not name the office it is a door to");
+  has(card.innerHTML, 'href="/courts"', "the card does not carry the address of the room");
+  has(card.innerHTML, "Davis County", "the card does not say which location it resolved for");
+  lacks(card.innerHTML, "be retained",
+        "the homepage card is asking the retention question instead of counting it");
+  // An unlocated reader gets the brief's sentence, and no count.
+  {
+    const u = sandbox({ reps: NOWHERE, runTimers: true });
+    const uc = u.__byId["jr-card"];
+    must(uc, "the card did not mount for an unlocated reader");
+    has(uc.innerHTML, "Set location to see retention questions.",
+        "an unlocated reader is not told what to do to see their questions");
+    lacks(uc.innerHTML, "be retained", "an unlocated reader was shown a retention question");
+  }
+}
+
+// THE ROOM: /courts. Region A mounts what the homepage strip used to show for
+// the same fixture location, and region B is the archive, labelled so it cannot
+// be read as a ballot. Same owner, same data, new address — which is why region
+// A is asserted EQUAL to _band(), the very output this suite pins everywhere
+// else, rather than re-described here.
+{
+  const w = sandbox({ reps: UTAH, runTimers: true, courts: true });
+  const band = w.__byId["courts-ballot"];
+  const arch = w.__byId["courts-archive"];
+  must(band && arch, "courts.html's two mounts did not paint — this probe is stale");
+  eq(w.PDXJudicialBallot.isCourtsDoc(), true, "the courts flag did not reach the module");
+  eq(band.innerHTML, w.PDXJudicialBallot._band(),
+     "region A is not the same rows the homepage strip used to show for this location");
+  has(band.innerHTML, "be retained", "region A does not carry the retention question");
+  has(band.innerHTML, "Statewide", "region A does not say which rows stand statewide");
   has(band.innerHTML, "Judicial District",
-      "the mounted band does not name the judicial district its trial-court rows came from");
+      "region A does not name the judicial district its trial-court rows came from");
+  ok(arch.innerHTML.length > 200, "region B did not paint the archive");
+  // NOT A BALLOT, in the document's own words and in the archive's own banner.
+  const CT = R("courts.html");
+  has(CT, "not a claim", "courts.html does not say a listing in the archive is not a ballot claim");
+  has(CT, "Archive", "courts.html does not label region B as the archive");
+  has(CT, "On your ballot", "courts.html does not label region A");
+  // And the door card does NOT mount here: the room is not its own door.
+  eq(w.__byId["jr-card"] || null, null, "the homepage door card mounted inside the room");
+
+  // FAIL CLOSED SURVIVES THE MOVE. A county the statute's map cannot place gets
+  // the missing-map sentence and no judge named as theirs.
+  const off = sandbox({ reps: UTAH_OFFMAP, runTimers: true, courts: true });
+  const ob = off.__byId["courts-ballot"];
+  must(ob, "the off-map probe did not paint region A");
+  has(ob.innerHTML, "judicial district map",
+      "an unmapped county is not told which map is missing");
 }
 
 // No lane in the markup: the module builds one AFTER the sections it must
@@ -602,8 +665,9 @@ section("3 · Utah gets the rows on file or an honest blank; nowhere else gets a
   const order = w.__page.children.map((c) => c.id);
   ok(order.indexOf("judicial-lane") > order.indexOf("relevant-section"),
      "the self-created judicial lane did not land after Relevant to Me");
-  eq(w.__byId["jr-band"].parentNode === lane, true,
-     "the band mounted outside the self-created lane");
+  // The door card is what the homepage lane carries now; the room is /courts.
+  eq(w.__byId["jr-card"].parentNode === lane, true,
+     "the door card mounted outside the self-created lane");
   eq(w.__wrm.children.length, 0,
      "with no lane in the markup, judicial content fell back into the Who-Represents-Me host");
 }
@@ -750,7 +814,13 @@ const FILE_HTML = W.PDXJudgeFile._html(J.judge(PID));
 // banned-token sweep in section 6 deliberately does NOT strip anything: none of
 // those words belongs on a judge surface even inside a denial.
 // ─────────────────────────────────────────────────────────────────────────────
-const NEGATION_CLASSES = ["jf-wall", "jf-note", "jr-note"];
+// The paragraph classes that are structurally DISCLAIMERS, and so are stripped
+// before the "does this surface claim anything about the reader" probes run.
+// jr-fnote joined them when region B gained its filter chips: the one sentence
+// on that control row exists to say the chips change the LIST and not the
+// reader's ballot, and a denial that is punished for containing the phrase it
+// denies would push the product towards saying nothing at all.
+const NEGATION_CLASSES = ["jf-wall", "jf-note", "jr-note", "jr-fnote"];
 const claims = (html) => {
   let out = String(html);
   NEGATION_CLASSES.forEach((cls) => {
@@ -1039,7 +1109,13 @@ section("9 · the archive lists Utah courts, alphabetically, with no party and n
   lacks(claims(arch), "your ballot",
         "the archive listing makes a claim about the reader's ballot outside its own disclaimer");
   lacks(arch, "represents you", "the archive listing claims to name someone who represents the reader");
-  ok(wOh.__byId["jr-arch"], "the archive listing did not mount for a reader outside Utah");
+  // The archive is a room now, not a homepage block: it mounts on /courts, for
+  // an Ohio reader as for a Utah one, because a roster slice makes no seat claim.
+  const oCourts = sandbox({ reps: OHIO, runTimers: true, courts: true });
+  ok(oCourts.__byId["courts-archive"] && oCourts.__byId["courts-archive"].innerHTML.length > 200,
+     "the archive listing did not mount for a reader outside Utah");
+  eq(wOh.__byId["jr-arch"] || null, null,
+     "the archive listing mounted on the homepage, which is the dump this pass moved to /courts");
   // No party chip, no composite.
   ["party", "%", "score"].forEach((t) => {
     lacks(claims(arch), t, `the archive listing carries "${t}" as a claim, which a roster slice of a non-partisan office cannot have`);

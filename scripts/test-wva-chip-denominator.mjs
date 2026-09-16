@@ -515,9 +515,22 @@ section("9 · the files travel together");
     if (pm) ok(Number(m[1]) > Number(pm[1]),
       `CACHE_VERSION did not move past HEAD's v${pm[1]} — a warm device would keep painting the bare chip`);
   }
-  const note = SW.slice(SW.indexOf(`// v${m[1]} - `), SW.indexOf("const CACHE_VERSION"));
+  // THE ENTRY THIS FENCE READS IS v136's, NAMED, NOT WHATEVER IS LIVE.
+  // An earlier draft sliced the log at the CURRENT CACHE_VERSION and asserted the
+  // entry named the renderer and the stylesheet THIS pass changed. That is true
+  // of exactly one entry — the one v136 wrote, which is where the chip got its
+  // denominator — so it held while that pass was uncommitted and then failed on
+  // the next unrelated bump, with a message about somebody else's pass. The log
+  // is append-only and its entries are immutable, so the pin is the version that
+  // made the claim; the live version is still checked, as a floor, above.
+  // One entry ends where the next version line begins, and the log is not in
+  // ascending order, so this looks for the next marker of any version.
+  const at = SW.indexOf("// v136 - ");
+  ok(at >= 0, "the v136 entry — the one that gave the chip its denominator — is gone from the log");
+  const edge = /\n\/\/ v\d+ [-\u2014] /.exec(SW.slice(at + 10));
+  const note = at >= 0 ? SW.slice(at, edge ? at + 10 + edge.index : at + 12000) : "";
   for (const f of ["word-action.js", "word-action.css"]) {
-    has(note, f, `the v${m[1]} note does not name ${f}`);
+    has(note, f, `the v136 note does not name ${f}`);
     ok(SW.indexOf("/" + f) >= 0, `${f} is not in the precached shell`);
   }
   // The skin travels with the markup, and it is quieter than the verdict word it

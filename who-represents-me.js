@@ -343,7 +343,7 @@
   function yourFileButton(hasWs) {
     return '<a class="wrm-next-btn' + (hasWs ? ' wrm-next-btn--sub' : '') + '"' +
       ' href="/me"' +
-      ' title="Your positions on eight issues \u2014 used to compare formal records. Not a vote, and not a district poll.">' +
+      ' title="Your positions on the issues \u2014 used to compare formal records. Not a vote, and not a district poll.">' +
       '\u{1F5C2}\uFE0F Your file</a>';
   }
 

@@ -1,8 +1,9 @@
 /* ─────────────────────────────────────────────────────────────────────────────
-   your-file.css — Your file, the reader's own positions on eight issues
+   your-file.css — Your file, the reader's own positions on the issues
    ─────────────────────────────────────────────────────────────────────────────
    One thing lives in here: the .pdxyf* panel painted by your-file.js — its
-   letterhead, the eight rows and the four answer controls on each row. It does
+   letterhead, the collapsed family groups, the rows inside them and the four
+   answer controls on each row. It does
    not reach into any other sheet's class names and no other sheet reaches into
    these.
 
@@ -16,8 +17,9 @@
    until one of them is chosen, and then the chosen one is simply the lit one.
 
    AND NOTHING IN HERE IS A METER. No bar, no fill, no length, no percentage and
-   no intensity — there is no number on this panel for a style to read. Eight
-   answers and one answer look the same; the count on the letterhead is text.
+   no intensity — there is no number on this panel for a style to read. Forty
+   answers and one answer look the same; the count on the letterhead, and the
+   one on each family's summary, are text.
 
    The issue chip takes its colour from the four custom properties
    PDXIssueColors.styleFor writes inline (--pdx-ic and friends), so an issue is
@@ -223,7 +225,69 @@
   border-bottom-color: rgba(125, 211, 252, 0.85);
 }
 
-/* ── THE EIGHT ROWS ───────────────────────────────────────────────────────── */
+/* ── THE FAMILIES ─────────────────────────────────────────────────────────── */
+/* The list is the app's whole issue vocabulary, so it arrives grouped: one
+   <details> per CORE_NATIONAL_ISSUES family, closed unless it holds an answer.
+   The summary is the only thing a reader sees of a family they are not working
+   in, so it carries the family's label and its own "n of m set" and nothing
+   else. The marker is left to the engine — a custom triangle is one more thing
+   to keep on the right side of the text in both writing directions. */
+.pdxyf-fams {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0 0;
+}
+
+.pdxyf-fam {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.3);
+}
+
+.pdxyf-famsum {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px 12px;
+  touch-action: manipulation;
+  cursor: pointer;
+  list-style-position: inside;
+}
+
+.pdxyf-famsum:focus-visible {
+  outline: 2px solid #7dd3fc;
+  outline-offset: 2px;
+}
+
+.pdxyf-famlb {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  min-width: 0;
+}
+
+.pdxyf-famn {
+  flex: 0 0 auto;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #94a3b8;
+  font-variant-numeric: tabular-nums;
+}
+
+.pdxyf-fam[open] > .pdxyf-famsum {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.pdxyf-fam[open] > .pdxyf-list {
+  margin: 0;
+  padding: 10px 12px 12px;
+}
+
+/* ── THE ROWS ──────────────────────────────────────────────────────────────── */
 .pdxyf-list {
   margin: 12px 0 0;
   padding: 0;

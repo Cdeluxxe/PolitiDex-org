@@ -128,16 +128,39 @@ section("2 · nothing claims a complete ballot");
     /\bevery contest you\b/,
     /\bevery seat on your ballot\b/,
   ];
+  // A DENIAL IS NOT AN INSTANCE OF WHAT IT DENIES. On an uncertified retention
+  // list judicial-retention.js prints "What is below is what PolitiDex holds, not
+  // the complete ballot — check <the official list>." That sentence is this
+  // section's rule being obeyed out loud, in the reader's own words, at the one
+  // moment the reader needs it — and a scan that cannot see the negator in front
+  // of the phrase forbids the site from saying plainly what it does not have. The
+  // fail-closed sentence is worth more than a regex with no memory, so negated
+  // forms come out before the scan.
+  //   AND ONLY NEGATED FORMS. The negator has to sit immediately in front of the
+  // phrase, article and all, so a "not" earlier in the paragraph cannot launder a
+  // promise downstream of it. The control below is the proof of that, and it runs
+  // every time rather than being asserted in this comment.
+  const DENIALS = [
+    /\b(?:not|never|isn't|isn’t|is not|are not|rather than)\s+(?:an?|the|your|their)?\s*(?:complete|full|whole|entire)\s+ballot\b/g,
+  ];
+  const scanOf = (t) => DENIALS.reduce((acc, d) => acc.replace(d, " "), t.toLowerCase());
+  const CONTROL = "we do not guess. this is the complete ballot for your address.";
+  ok(OVERCLAIMS.some((p) => p.test(scanOf(CONTROL))),
+    "the denial strip launders a promise that merely follows a negator somewhere upstream");
   const SURFACES = ["index.html", ...SHIPPED, "your-ballot.css", "app.css", "ballot-workspace.css"];
   for (const f of SURFACES) {
     const src = f.endsWith(".css")
       ? R(f).replace(/\/\*[\s\S]*?\*\//g, "")
       : (f === "index.html" ? HTML : CODE(f));
     for (const p of OVERCLAIMS) {
-      ok(!p.test(src.toLowerCase()),
+      ok(!p.test(scanOf(src)),
         `${f} promises ${p} — PolitiDex holds the contests it has researched, which is never the whole ballot`);
     }
   }
+  // …and the denial the exemption exists for is asserted to still be there, so the
+  // strip can never become cover for the sentence going quietly missing.
+  has(CODE("judicial-retention.js"), "PolitiDex holds, not the complete ballot",
+    "the uncertified retention list no longer tells the reader that what it shows is not the complete ballot");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

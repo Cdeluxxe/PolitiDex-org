@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   test-me-menu-doors.mjs — the account menu's doors land on /me, both widths
+   test-me-menu-doors.mjs — the account chip lands on /me, both widths
    ────────────────────────────────────────────────────────────────────────────
    WHAT WAS REPORTED
 
@@ -8,13 +8,22 @@
    #your-file hash plus data-pdxyf-open, "My Views" via a <button> calling
    PDXStances.openViews(). The address was real and the menu did not use it.
 
+   WHAT CHANGED AFTER THAT FIX, and why this suite's counts inverted. Pointing
+   both labels at the address left FOUR controls — two widths × two labels —
+   all landing on the same room, one of them under a name ("My Views") that was
+   never a destination of its own. So the panel was removed: the account chip
+   IS the control now, one anchor to /me per width, with the reader's own name
+   and "My Account" on it. The contract this file guards did not change — the
+   reader can still reach their file from the nav, at both widths, by an address
+   rather than an overlay — but "two doors per width" became "exactly one", and
+   "My Views is present" became "My Views is not a second name for this room".
+
    WHY A SEPARATE SUITE, when test-your-file.mjs already counts /me hrefs. It
-   counts FOUR across the whole signed-in branch and checks that each label
-   appears SOMEWHERE in it. That cannot tell the two widths apart: delete both
-   mobile rows, add two more desktop rows, and the count is still four and both
-   labels are still present. "Both labels, BOTH WIDTHS" needs the desktop and
-   mobile markup measured as two separate documents, which is what §1 and §2
-   do here.
+   counts them across the whole signed-in branch and checks a label appears
+   SOMEWHERE in it. That cannot tell the two widths apart: delete the mobile
+   row, add a second desktop row, and the totals are unchanged. "BOTH WIDTHS"
+   needs the desktop and mobile markup measured as two separate documents,
+   which is what §1 and §2 do here.
 
    THE FIVE FAILURE MODES THIS EXISTS TO CATCH
 
@@ -34,8 +43,11 @@
      4. A door stops being an <a>, or gains a handler that preventDefaults
         unconditionally — which silently kills middle-click and cmd-click into
         a new tab, the one affordance readers use to keep their place.
-     5. One width drifts from the other, or a label readers learned quietly
-        disappears.
+     5. One width drifts from the other, or the chip stops naming the room at
+        all — an avatar with no label is not a door a reader can find.
+     6. The dropdown comes back, or a second control in the nav is pointed at
+        /me. Either way the reader is being offered the same room twice, which
+        is the confusion this pass removed.
 
    WHAT THIS SUITE DELIBERATELY DOES NOT ASSERT. It does not touch the desk's
    layout, the eight-issue editor's internals, the ballot snapshot, stars,
@@ -105,8 +117,8 @@ must(dBlocks.length === 2, `expected 2 desktop innerHTML writes, found ${dBlocks
 must(mBlocks.length === 2, `expected 2 mobile innerHTML writes, found ${mBlocks.length}`);
 
 const WIDTHS = [
-  { name: 'desktop dropdown', inMarkup: dBlocks[0], outMarkup: dBlocks[1] },
-  { name: 'mobile drawer', inMarkup: mBlocks[0], outMarkup: mBlocks[1] },
+  { name: 'desktop chip', inMarkup: dBlocks[0], outMarkup: dBlocks[1], signOut: false },
+  { name: 'mobile drawer', inMarkup: mBlocks[0], outMarkup: mBlocks[1], signOut: true },
 ];
 
 /* Every anchor in a block, as { href, onclick, text }. */
@@ -126,9 +138,9 @@ function anchors(block) {
 console.log('\n   test-me-menu-doors — the menu uses the address\n');
 
 /* ── 1 · 2 · each width, measured on its own ───────────────────────────── */
-section('1 · both labels, both widths, one address');
+section('1 · one door, both widths, one address');
 
-const DOORS = { 'Your file': [], 'My Views': [] };
+const DOORS = [];
 
 // THE BRIEF ALLOWED TWO SPELLINGS — /me or /me?tab=positions — but demanded one
 // of them be used everywhere. So a door is recognised by where it LANDS (its
@@ -144,13 +156,25 @@ const LANDS_ON_ME = (href) => {
 for (const w of WIDTHS) {
   const a = anchors(w.inMarkup);
   const me = a.filter((x) => LANDS_ON_ME(x.href));
-  eq(me.length, 2, `the ${w.name} does not carry exactly two doors onto /me`);
+  // EXACTLY ONE. Zero strands the file behind no nav control; two is the menu
+  // this pass removed, whatever the second one is labelled.
+  eq(me.length, 1, `the ${w.name} does not carry exactly one door onto /me`);
+  if (me[0]) DOORS.push({ width: w.name, ...me[0] });
 
-  for (const label of ['Your file', 'My Views']) {
-    const hit = me.filter((x) => new RegExp(label, 'i').test(x.text));
-    eq(hit.length, 1, `the ${w.name} lost its "${label}" door`);
-    if (hit[0]) DOORS[label].push({ width: w.name, ...hit[0] });
-  }
+  // THE DOOR HAS TO SAY WHERE IT GOES. An avatar alone is a picture; the chip
+  // names the room in words at both widths, which is what makes it findable by
+  // a reader who has never hovered it.
+  ok(/My Account/i.test(w.inMarkup),
+    `the ${w.name} no longer names the room — an avatar with no label is not a door readers can find`);
+
+  // MY VIEWS IS NOT A DESTINATION. It was a second name for this same room, and
+  // a menu offering one room under two names teaches the reader there are two.
+  ok(!/My Views/i.test(w.inMarkup),
+    `the ${w.name} carries a "My Views" label again — it is not a separate destination`);
+  // AND THERE IS NO PANEL BEHIND THE CHIP. The dropdown was a group/group-hover
+  // wrapper in this markup; if it returns, the counts above go back to two.
+  ok(!/group-hover/.test(w.inMarkup),
+    `the ${w.name} has a hover panel again, which is the four-doors-one-room menu returning`);
 
   // The hook, the hash and the overlay call are all gone from the ROW markup.
   ok(!/data-pdxyf-open/.test(w.inMarkup),
@@ -161,8 +185,18 @@ for (const w of WIDTHS) {
     `the ${w.name} still calls PDXStances.openViews() — My Views is an address now`);
   ok(!/travelToMe/.test(w.inMarkup),
     `the ${w.name} calls travelToMe() from markup; the href IS the navigation`);
-  // Log Out is the one control in this menu that is legitimately a button.
-  ok(/auth\.signOut/.test(w.inMarkup), `the ${w.name} lost Log Out`);
+  // LOG OUT MOVED TO /me, AND ONE OVERFLOW KEPT IT. The desktop chip has no
+  // panel to hold a second control, so sign-out lives on the desk itself —
+  // region a, beside the reader's name. The mobile sheet is an existing
+  // overflow, not the chip, so its Logout row stays: a reader who signed in on
+  // a phone has to be able to sign out on one without loading another document.
+  if (w.signOut) {
+    ok(/auth\.signOut/.test(w.inMarkup),
+      `the ${w.name} lost Log Out — that sheet is the one overflow permitted to keep it`);
+  } else {
+    ok(!/signOut/.test(w.inMarkup),
+      `the ${w.name} carries a sign-out control again, which means it is a menu again rather than one link`);
+  }
 
   // §3 · the signed-out reader is offered no file.
   ok(!/href="\/me[?"]/.test(w.outMarkup),
@@ -174,21 +208,19 @@ for (const w of WIDTHS) {
 /* ── 2 · the doors are real links, so the browser's own gestures work ──── */
 section('2 · anchors, not handlers — middle-click and cmd-click survive');
 
-for (const label of ['Your file', 'My Views']) {
-  eq(DOORS[label].length, 2, `"${label}" is not present at both widths`);
-  for (const d of DOORS[label]) {
-    // An <a href> IS the navigation. Anything that navigates from the handler
-    // instead is what breaks cmd-click, JS-off, and the Back entry.
-    ok(!/\bopen\s*\(|openViews|travelToMe|location\.(assign|replace|href)/.test(d.onclick),
-      `the ${d.width} "${label}" door navigates from onclick rather than its href`);
-    ok(!/preventDefault|return\s+false/.test(d.onclick),
-      `the ${d.width} "${label}" door cancels its own default — cmd-click would not open a tab`);
-    // The mobile rows legitimately close the drawer behind them; that is the
-    // only thing their handler may do.
-    if (d.onclick) {
-      ok(/mobileMenu/.test(d.onclick),
-        `the ${d.width} "${label}" door has an onclick that does something other than close the drawer: ${d.onclick}`);
-    }
+eq(DOORS.length, 2, 'the file is not reachable from the nav at both widths');
+for (const d of DOORS) {
+  // An <a href> IS the navigation. Anything that navigates from the handler
+  // instead is what breaks cmd-click, JS-off, and the Back entry.
+  ok(!/\bopen\s*\(|openViews|travelToMe|location\.(assign|replace|href)/.test(d.onclick),
+    `the ${d.width} door navigates from onclick rather than its href`);
+  ok(!/preventDefault|return\s+false/.test(d.onclick),
+    `the ${d.width} door cancels its own default — cmd-click would not open a tab`);
+  // The mobile row legitimately closes the drawer behind it; that is the only
+  // thing its handler may do.
+  if (d.onclick) {
+    ok(/mobileMenu/.test(d.onclick),
+      `the ${d.width} door has an onclick that does something other than close the drawer: ${d.onclick}`);
   }
 }
 
@@ -216,23 +248,21 @@ const BASES = [
   ['/ballot', 'https://www.politidex.fyi/ballot'],
 ];
 
-for (const label of ['Your file', 'My Views']) {
-  for (const d of DOORS[label]) {
-    ok(d.href.startsWith('/'),
-      `the ${d.width} "${label}" door href is not root-absolute (${d.href}) — it would resolve per-document`);
-    for (const [where, base] of BASES) {
-      const landed = new URL(d.href, base);
-      eq(landed.pathname, '/me',
-        `from ${where}, the ${d.width} "${label}" door lands on ${landed.pathname}`);
-      eq(landed.origin, 'https://www.politidex.fyi',
-        `from ${where}, the ${d.width} "${label}" door leaves the origin`);
-    }
+for (const d of DOORS) {
+  ok(d.href.startsWith('/'),
+    `the ${d.width} door href is not root-absolute (${d.href}) — it would resolve per-document`);
+  for (const [where, base] of BASES) {
+    const landed = new URL(d.href, base);
+    eq(landed.pathname, '/me',
+      `from ${where}, the ${d.width} door lands on ${landed.pathname}`);
+    eq(landed.origin, 'https://www.politidex.fyi',
+      `from ${where}, the ${d.width} door leaves the origin`);
   }
 }
 
-/* One address, used everywhere. The brief allowed My Views to be /me or
-   /me?tab=positions — either, but not one of each. */
-const TARGETS = new Set([...DOORS['Your file'], ...DOORS['My Views']].map((d) => d.href));
+/* One address, used everywhere. The brief allowed /me or /me?tab=positions —
+   either, but not one of each, because the two widths are the same door. */
+const TARGETS = new Set(DOORS.map((d) => d.href));
 eq(TARGETS.size, 1,
   `the menu uses more than one spelling of the address — pick one and use it everywhere: ${[...TARGETS].sort().join(' , ')}`);
 ok(['/me', '/me?tab=positions'].includes([...TARGETS][0]),

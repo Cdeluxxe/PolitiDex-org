@@ -10,7 +10,7 @@
 
      · NO METER, NO PERCENTAGE, NO GRADE. There is no bar, no fill, no ring and
        no length anywhere in this file, because there is no number on this
-       document for a style to read. "2 of 8 on file" is a sentence. A voter is
+       document for a style to read. "2 of 121 set" is a sentence. A voter is
        not a completion rate and this sheet gives a later edit nowhere to put
        one.
      · NO VERDICT PALETTE. your-file.css states the doctrine at length and it
@@ -29,9 +29,11 @@
        thread shape or avatar row — see the block over .me-voicetag, and
        district-voice.css, which is not loaded here and owns the board itself.
 
-   THE EDITOR IS NOT RESTYLED HERE. Region b is your-file.js's own eight rows,
-   painted by your-file.js into a host this document supplies, styled by
-   your-file.css. This sheet contributes exactly one rule to it — the
+   THE EDITOR IS NOT RESTYLED HERE. Region b's FACE is a snapshot this sheet
+   owns — chips carrying the sides the reader chose, and one door. Behind the
+   door are your-file.js's own eight rows, painted by your-file.js into a host
+   this document supplies, styled by your-file.css. This sheet contributes
+   exactly one rule to them — the
    .pdxyf-body--inline modifier below, which un-does the overlay scroller
    because on THIS document the region is the page and the page is the scroller.
    Every other .pdxyf* rule is your-file.css's, unchanged, so the eight rows are
@@ -195,16 +197,182 @@
 }
 .me-where strong { color: #e2e8f0; font-weight: 600; }
 
-/* ── REGION b · THE EDITOR'S HOST ─────────────────────────────────────────── */
-/* your-file.js paints .pdxyf-head + .pdxyf-body in here, and the head it paints
-   IS this region's heading — its title, its line ("Not a vote. Not a district
-   poll.") and its count. The region ships no heading of its own, so the sentence
-   "N answers of 8 on file" has exactly one author on this page: the module's own
-   countSentence(), which its patchRow() already keeps current when an answer
-   changes. A second heading here would be this document paraphrasing the
-   editor, and a paraphrase is a thing that can go stale.
+/* EVERY DISTRICT, ONE ROW EACH. A voter is in a U.S. House district AND a State
+   Senate district AND a State House district AND a county AND a municipality,
+   so this is a definition list: the level is the term, the district is the
+   definition. Label above value on a phone, side by side once there is room.
 
-   THE ONE RULE THIS SHEET CONTRIBUTES TO THE EDITOR. .pdxyf-body is the single
+   THE MISSING ROWS LOOK MISSING AND ARE STILL HERE. "not on file" and "needs a
+   district map" are both dimmed and italic — the same treatment every other
+   absence on this page gets — because a row we cannot fill is a fact about our
+   coverage, not a blank to be tidied away. They are two different facts and the
+   markup says which is which in words; one dimmed treatment is right for both,
+   because the reader's next move is the same either way. It is NOT red: there is
+   nothing wrong with a reader whose State Senate district we do not draw. */
+.me-dists {
+  margin: 0.55rem 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.3rem 0.9rem;
+}
+.me-dist {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 0.5rem;
+  min-width: 0;
+}
+.me-distlb {
+  flex: 0 0 8.5rem;
+  font-family: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8fa3bf;
+}
+.me-distv {
+  flex: 1 1 auto;
+  margin: 0;
+  min-width: 0;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: #e2e8f0;
+}
+.me-dist--none .me-distv {
+  color: #8fa3bf;
+  font-style: italic;
+}
+
+@media (min-width: 40rem) {
+  .me-dists { grid-template-columns: 1fr 1fr; }
+}
+
+/* THE ONE WAY OUT. Quiet on purpose: ending a session is not the thing a reader
+   came to this page to do, and a chip louder than the account's own name would
+   read as the page's main verb. Sits at the end of the identity row and takes
+   the same outline shape "Work seat" takes — one border, no fill, no red. Red
+   here would be a verdict palette on the one control that is only ever the
+   reader's own choice. */
+.me-signout {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 0.5rem;
+  background: transparent;
+  font-family: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9fb4d4;
+  cursor: pointer;
+}
+.me-signout:hover, .me-signout:focus-visible {
+  border-color: rgba(125, 211, 252, 0.5);
+  color: #e0f2fe;
+}
+
+/* ── REGION b · THE SNAPSHOT, AND THE EDITOR'S HOST UNDER IT ──────────────── */
+/* WHAT CHANGED. This region used to BE the editor: eight rows and thirty-two
+   controls, painted the same way for a reader with eight answers and a reader
+   with none. It is a snapshot now — the sides this reader actually chose, as
+   chips — and the editor mounts into the host below it when the one door is
+   used. The editor's own sheet (your-file.css) still styles the editor; nothing
+   below restyles a single .pdxyf* rule.
+
+   A CHIP IS A LABEL, NOT A CONTROL, and the shapes say so: no hover lift, no
+   pressed state, no cursor:pointer, no aria-pressed anywhere for one to arrive
+   in. The only control in the region is .me-door.
+
+   THE COLOUR IS THE ISSUE'S, AND IT IS THE ONLY COLOUR HERE. [data-ic] is the
+   gate issue-colors.js sets, and the four --pdx-ic* properties ride inline on
+   the chip exactly as they do on a bill letterhead's topic chips. A key that
+   resolves to no Core National Issue carries NO attribute, so it keeps the
+   unthemed steel below — which is the honest outcome and the reason the base
+   rule is a full rule rather than a fallback. NO SIDE HAS A COLOUR: Support is
+   not green and Oppose is not red, because a position is not a verdict and this
+   sheet gives a later edit nowhere to make it one. */
+.me-pchips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.me-pchip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.09);
+  font-size: 0.78rem;
+  line-height: 1.3;
+  color: #cbd5e1;
+}
+.me-pchip[data-ic] {
+  border-color: var(--pdx-ic, rgba(148, 163, 184, 0.24));
+  background: var(--pdx-ic-soft, rgba(148, 163, 184, 0.09));
+}
+.me-pchip[data-ic] .me-pchip-l { color: var(--pdx-ic-ink, #cbd5e1); }
+.me-pchip-l { font-weight: 600; }
+/* The side the reader chose, set apart from the issue by weight and case rather
+   than by a colour — see the block above. */
+.me-pchip-s {
+  font-family: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8fa3bf;
+  white-space: nowrap;
+}
+/* A starter carries no side, because the reader has not chosen one. Dashed, so
+   it reads as an opening rather than as a stored answer. */
+.me-pchip--start {
+  border-style: dashed;
+  background: transparent;
+}
+.me-pchip--start[data-ic] { background: transparent; }
+
+/* THE ONE DOOR. */
+.me-pgo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin: 0.85rem 0 0;
+}
+.me-door {
+  padding: 0.42rem 0.8rem;
+  border: 1px solid rgba(125, 211, 252, 0.42);
+  border-radius: 0.5rem;
+  background: rgba(56, 130, 246, 0.14);
+  font-family: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #dbeafe;
+  cursor: pointer;
+}
+.me-door:hover, .me-door:focus-visible {
+  border-color: rgba(147, 197, 253, 0.7);
+  color: #f0f9ff;
+}
+/* "N more" — the leftover the face did not print. A count in words beside the
+   door, never a badge on it and never a ratio. */
+.me-pmore {
+  font-size: 0.76rem;
+  color: #7f95ad;
+}
+
+/* THE ONE RULE THIS SHEET CONTRIBUTES TO THE EDITOR. .pdxyf-body is the single
    scroller inside a fixed overlay, and it is bounded by that overlay's height.
    There is no overlay here and no bounded height, so an inner scroller would be
    a box that never scrolls sitting inside a page that does. It grows instead
@@ -243,8 +411,14 @@
 .me-starico { font-size: 0.75rem; }
 
 /* ── REGION d · THE BALLOT SNAPSHOT ───────────────────────────────────────── */
-/* One line per seat. Office, then the pick or the honest blank, then the way to
-   work it. No progress bar: the count is in the region head as a sentence. */
+/* One line per seat. Office, then WHO HOLDS IT NOW, then the reader's own pick
+   underneath when they have made one, then the way to work it. No progress bar:
+   the count is in the region head as a sentence.
+
+   THE INCUMBENT IS THE ROW'S SUBJECT and reads at full strength; the pick sits
+   under it, smaller, behind its own "Your pick:" label. That order is the whole
+   point of the region — the seat is held by somebody today whether or not this
+   reader has decided anything — and the type sizes say so without a heading. */
 .me-seats {
   margin: 0;
   padding: 0;
@@ -289,19 +463,54 @@
   text-transform: uppercase;
   color: #8fa3bf;
 }
-.me-pick {
+/* The officeholder. Wraps rather than truncates when a seat has two of them
+   (both U.S. Senate seats are one ballot seat), because a truncated second
+   senator is a name we half-printed. */
+.me-holds {
   display: block;
   font-size: 0.92rem;
   line-height: 1.35;
   color: #e2e8f0;
+  min-width: 0;
+}
+.me-holds a { color: #bfdbfe; text-decoration: none; }
+.me-holds a:hover, .me-holds a:focus-visible { text-decoration: underline; }
+/* "No officeholder on file" and "we do not resolve this seat" are the same kind
+   of sentence — something we do not have — so they read the same way, and
+   neither is red. */
+.me-holds--none { color: #8fa3bf; font-style: italic; }
+/* A WAIT IS NOT AN ABSENCE, AND IT MUST NOT LOOK LIKE ONE. "Still loading
+   seats…" is printed while the roster this document resolves seats from is
+   still in flight, and the row repaints into a name the moment it lands — so it
+   is dimmer than a name and dimmer still than the honest empty, which is a
+   claim we are standing behind. No spinner and no pulse: the block repaints
+   once, and an animation on six rows would read as six separate things
+   happening. */
+.me-holds--wait { color: #6f8099; font-style: italic; }
+.me-holdsep { color: #8fa3bf; }
+.me-pick {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: #bcd0ea;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .me-pick a { color: #bfdbfe; text-decoration: none; }
 .me-pick a:hover, .me-pick a:focus-visible { text-decoration: underline; }
-/* "No pick" and "we do not resolve this seat" are the same kind of sentence —
-   something we do not have — so they read the same way. */
+.me-picklb {
+  font-family: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8fa3bf;
+}
+/* Kept: older cached paints of this document may still carry a .me-pick--none
+   node, and a rule that vanishes under them would leave a bare-white "No pick"
+   reading as a name. */
 .me-pick--none { color: #8fa3bf; }
 .me-work {
   flex: 0 0 auto;
@@ -343,6 +552,28 @@
   display: block;
   margin-top: 0.15rem;
   font-size: 0.76rem;
+  color: #7f95ad;
+}
+/* THE THREE GROUP HEADINGS — Receipts, Issues & Spotlights, Politicians you
+   follow. Region e absorbed the homepage's four-tab workspace, and a heading is
+   what replaced the tab: it is a label over a list, not a control, so there is
+   no active state, no border, no pill and nothing to click. The count beside it
+   is a plain number in the same muted colour as the label, deliberately NOT the
+   gold the region count uses — a group of three saved receipts is not an
+   achievement and this gives a later edit nowhere to treat it as one. */
+.me-gtitle {
+  margin: 1.1rem 0 0.35rem;
+  font-family: 'Barlow Condensed', 'Barlow', sans-serif;
+  font-weight: 700;
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8fa3bf;
+}
+.me-gtitle:first-of-type { margin-top: 0.2rem; }
+.me-gcount {
+  font-weight: 600;
+  letter-spacing: 0.05em;
   color: #7f95ad;
 }
 
@@ -442,6 +673,8 @@
 }
 
 @media (max-width: 32rem) {
+  .me-id { flex-wrap: wrap; }
+  .me-signout { margin-left: 0; }
   .me-seat { flex-wrap: wrap; }
   .me-work { margin-left: auto; }
   .me-rhead { flex-wrap: wrap; }
