@@ -197,22 +197,29 @@ const issueFiles = locs.filter((u) => u.startsWith(ORIGIN + "/i/"));
 // with no seat, no poll and no member, which is a refusal dressed as an index
 // entry — the same standing rule the /i/ half applies above. Asserted below.
 const districtFiles = locs.filter((u) => u.startsWith(ORIGIN + "/d/"));
-// THE SIXTH, SEVENTH AND EIGHTH KINDS ARE NAMED, NOT WAIVED, and they are the
-// only entries that are ROOMS rather than records. /stances is the issue browser,
-// /evidence is the evidence locker and /courts is the judicial archive; all three
-// used to be sections of the front page, reachable only by a hash, and all three
-// are now documents of their own. They are listed because a public browse surface
-// with an address is exactly what a sitemap is for — and they are listed as
-// EXACTLY three flat addresses, because what a reader filters to inside any of
-// them is a query string, and a query is not a page. That last rule is doing real
-// work on /courts: the archive names a hundred and twenty-six judges and its chip
-// row filters them by court and by judicial district, and NONE of that mints an
-// address. A judge is a person, and a person's address is /p/<pid> behind the
-// same publication floor as everybody else. The two private workspaces beside
-// them (/ballot and /me, which are one voter's own desks) are deliberately NOT
-// advertised, and this check is what keeps that distinction from eroding: adding
-// a room here means naming it here.
-const ROOMS = [ORIGIN + "/stances", ORIGIN + "/evidence", ORIGIN + "/courts"];
+// THE KINDS AFTER THE RECORDS ARE NAMED, NOT WAIVED, and they are the only
+// entries that are ROOMS rather than records. /stances is the issue browser,
+// /evidence is the evidence locker, /courts is the judicial archive, /mandate is
+// the People's Mandate, /voice is District Voice and /money is Follow the Money.
+// Every one of the six used to be a section of the front page, reachable only by
+// a hash — invisible to a server, so impossible to crawl, link to or index as
+// itself — and every one is now a document of its own at an address of its own.
+// They are listed because a public browse surface with an address is exactly what
+// a sitemap is for, and they are listed as EXACTLY six flat addresses, because
+// what a reader filters to inside any of them is a query string, and a query is
+// not a page. That last rule is doing real work in two places: on /courts, whose
+// archive names a hundred and twenty-six judges and whose chip row filters them by
+// court and by judicial district without minting one address (a judge is a person,
+// and a person's address is /p/<pid> behind the same publication floor as
+// everybody else); and on /money, which forwards a ?p= to the person file's money
+// section — a hop onto an address this file already carries, not a second address.
+// The two private workspaces beside them (/ballot and /me, which are one voter's
+// own desks) are deliberately NOT advertised, and this check is what keeps that
+// distinction from eroding: adding a room here means naming it here.
+const ROOMS = [
+  ORIGIN + "/stances", ORIGIN + "/evidence", ORIGIN + "/courts",
+  ORIGIN + "/mandate", ORIGIN + "/voice", ORIGIN + "/money",
+];
 for (const room of ROOMS) {
   eq(locs.filter((u) => u === room).length, 1, `${room} is advertised exactly once`);
   ok(!locs.some((u) => u.startsWith(room + "/") || u.startsWith(room + "?")),
@@ -298,12 +305,28 @@ console.log(`      ${issueFiles.length} issue files advertised, every one bounde
   eq(unseated.length, 0,
     `${unseated.length} district file(s) are advertised for a seat with no row in the district table ` +
     `(e.g. ${unseated.slice(0, 3).join(", ")}) — no seat, no poll and no member is a refusal, not an index entry`);
-  // AND NO VOICE ADDRESS PER PERSON. District Voice lives inside the district
-  // file; a per-member Voice URL would be a second address for one record.
-  const voiceUrls = locs.filter((u) => /\/(voice|neighbors|neighbours)\b/.test(u));
+  // AND NO VOICE ADDRESS PER SEAT OR PER PERSON. This gate used to forbid ANY
+  // path containing /voice, which was right when District Voice had no address at
+  // all: it lived only as a block inside the district file, so every /voice URL
+  // would have been a second address for a seat that already had one.
+  //
+  // /voice IS A DOCUMENT NOW — voice.html, named in ROOMS above — and it is a
+  // different thing from /d/<seatKey>, which is why one flat address is allowed
+  // and no other is. /d/<seatKey> is where a SEAT is read: name the seat in the
+  // path and that seat's board opens, for anyone. /voice is where a READER is
+  // PLACED: it carries no seat in its path, asks district-voice.js which seat the
+  // reader's own saved location resolves to, and says it cannot place you rather
+  // than inventing somewhere. So it is one crawlable page, not one per seat.
+  //
+  // What stays forbidden is the per-seat and per-member form — /voice/<seatKey>,
+  // /d/<seatKey>/voice, /p/<pid>/voice — because each of those WOULD be a second
+  // address for a record this file already advertises.
+  const voiceUrls = locs.filter((u) =>
+    u !== ORIGIN + "/voice" && /\/(voice|neighbors|neighbours)\b/.test(u));
   eq(voiceUrls.length, 0,
-    `${voiceUrls.length} address(es) advertise District Voice on their own (e.g. ${voiceUrls.slice(0, 3).join(", ")}) — ` +
-    `Voice is a block inside /d/<seatKey>, not a page of its own`);
+    `${voiceUrls.length} address(es) advertise District Voice per seat or per person ` +
+    `(e.g. ${voiceUrls.slice(0, 3).join(", ")}) — /voice places the reader and is ONE page; a board ` +
+    `for a named seat is read at /d/<seatKey>, which already has an address`);
   console.log(`      ${districtFiles.length} district file(s) advertised, every one shipped and seated`);
 }
 

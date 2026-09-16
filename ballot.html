@@ -95,20 +95,29 @@
        be a silent no-op there rather than an error, on the day /ballot is ever
        added to its config.path. -->
   <title>Your ballot · PolitiDex</title>
-  <link rel="canonical" href="https://politidex.us/ballot" />
+  <!-- THE HOST IS www.politidex.fyi, the one origin this site publishes under —
+       the host the apex 301s to, the host every <loc> in sitemap.xml carries, and
+       the host scripts/gen-sitemap.mjs and share-preview.ts both declare as
+       ORIGIN. This said politidex.us, an older spelling that no longer resolves
+       at all, so the canonical was pointing at a dead domain. It is a noindex
+       document either way and /ballot is not in the sitemap (a workspace over the
+       reader's own localStorage is not a record), but a self-referencing
+       canonical has to actually reference itself. Same correction me.html's own
+       note above its canonical describes. -->
+  <link rel="canonical" href="https://www.politidex.fyi/ballot" />
   <meta name="robots" content="noindex, follow" />
   <meta name="description" content="Your ballot workspace — one seat at a time. Open a seat, compare the field on the formal record, make your pick, move to the next seat we can resolve." />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="PolitiDex" />
   <meta property="og:title" content="Your ballot · PolitiDex" />
   <meta property="og:description" content="Your ballot workspace — one seat at a time. Open a seat, compare the field on the formal record, make your pick, move to the next seat we can resolve." />
-  <meta property="og:url" content="https://politidex.us/ballot" />
-  <meta property="og:image" content="https://politidex.us/og-image.png" />
+  <meta property="og:url" content="https://www.politidex.fyi/ballot" />
+  <meta property="og:image" content="https://www.politidex.fyi/.netlify/images?url=%2Fassets%2Fog-default.svg&fm=png&w=1200&h=630&fit=cover" />
   <meta property="og:image:alt" content="PolitiDex — your ballot workspace" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Your ballot · PolitiDex" />
   <meta name="twitter:description" content="Your ballot workspace — one seat at a time. Open a seat, compare the field on the formal record, make your pick, move to the next seat we can resolve." />
-  <meta name="twitter:image" content="https://politidex.us/og-image.png" />
+  <meta name="twitter:image" content="https://www.politidex.fyi/.netlify/images?url=%2Fassets%2Fog-default.svg&fm=png&w=1200&h=630&fit=cover" />
   <meta name="theme-color" content="#0a0f1e" />
 
   <!-- The three files a first paint actually waits on: where this voter votes,

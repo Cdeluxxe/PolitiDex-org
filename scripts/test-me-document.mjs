@@ -550,7 +550,7 @@ function bootDesk(opts) {
   const mount = win.document.__node("main");
   mount.id = "me-desk";
   win.document.body.appendChild(mount);
-  win.location = { href: "https://politidex.us/me" + (o.search || ""), pathname: "/me", search: o.search || "", hash: "", origin: "https://politidex.us", replace() {}, assign() {} };
+  win.location = { href: "https://www.politidex.fyi/me" + (o.search || ""), pathname: "/me", search: o.search || "", hash: "", origin: "https://www.politidex.fyi", replace() {}, assign() {} };
   win.__pushed = [];
   win.history = { pushState(s, t, u) { win.__pushed.push(String(u)); }, replaceState() {} };
   win.localStorage = {

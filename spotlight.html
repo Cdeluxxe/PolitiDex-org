@@ -90,19 +90,28 @@
        live DOM. The static values are the ones an address with no slug should
        unfurl with — a Spotlight overwrites every one of them. -->
   <title>Issue Spotlights · PolitiDex</title>
-  <link rel="canonical" href="https://politidex.us/" />
+  <!-- THE HOST IS www.politidex.fyi, the one origin this site publishes under.
+       This said politidex.us, an older spelling that no longer resolves — so the
+       fallback canonical on the document behind every /issue/<slug> address was
+       naming a dead domain. share-preview.ts overwrites this tag with the
+       Spotlight's own www address on every real slug, which is why the breakage
+       was invisible; the static value is what an /issue address with no slug
+       unfurls with, and it has to name a host that exists. The path is left at
+       "/" deliberately: a slugless address names no Spotlight, so the front door
+       is the honest answer, and it is the same value index.html carries. -->
+  <link rel="canonical" href="https://www.politidex.fyi/" />
   <meta name="description" content="Issue Spotlights — calm, sourced explainers on the fights shaping 2026. What happened, who stands where, and the receipts behind it." />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="PolitiDex" />
   <meta property="og:title" content="Issue Spotlights · PolitiDex" />
   <meta property="og:description" content="Issue Spotlights — calm, sourced explainers on the fights shaping 2026. What happened, who stands where, and the receipts behind it." />
-  <meta property="og:url" content="https://politidex.us/" />
-  <meta property="og:image" content="https://politidex.us/og-image.png" />
+  <meta property="og:url" content="https://www.politidex.fyi/" />
+  <meta property="og:image" content="https://www.politidex.fyi/.netlify/images?url=%2Fassets%2Fog-default.svg&fm=png&w=1200&h=630&fit=cover" />
   <meta property="og:image:alt" content="PolitiDex Issue Spotlight" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Issue Spotlights · PolitiDex" />
   <meta name="twitter:description" content="Issue Spotlights — calm, sourced explainers on the fights shaping 2026. What happened, who stands where, and the receipts behind it." />
-  <meta name="twitter:image" content="https://politidex.us/og-image.png" />
+  <meta name="twitter:image" content="https://www.politidex.fyi/.netlify/images?url=%2Fassets%2Fog-default.svg&fm=png&w=1200&h=630&fit=cover" />
   <meta name="theme-color" content="#0a0f1e" />
 
   <!-- The corpus is the critical path on this document, so it is preloaded with

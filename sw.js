@@ -6479,7 +6479,49 @@
 //     written by none, which is why /voice says it cannot place you rather than
 //     inventing a place. Sitemap, robots.txt and canonicals untouched, /me stays
 //     /me, no issue key, mapping or ingest moved.
-const CACHE_VERSION = 'v211';
+// v212 - ONE ORIGIN, AND THE THREE NEW ROOMS GET ADVERTISED
+//
+//     THE PASS v211 DEFERRED. That entry closes by noting sitemap, robots.txt and
+//     canonicals were left untouched; the three shells' own harnesses say the same
+//     in their own words ("advertising the three new addresses is its own pass").
+//     This is that pass. /mandate, /voice and /money are now three <loc> lines in
+//     sitemap.xml — one flat address each, no trailing-slash twin, no query form —
+//     which takes the file from 1,396 to 1,399 addresses and removes none.
+//
+//     THE CANONICAL BUG UNDER IT, which is the half that was actually costing
+//     indexing. share-preview.ts built every record's canonical and og:url as
+//     `url.origin + canonicalPath(target)` — the host that answered the request.
+//     Every address it touches answers 200 on www, on the apex (which 301s), and on
+//     politidex-org.netlify.app plus a per-deploy preview subdomain, so one person
+//     file declared itself canonical separately on each: the same record telling a
+//     crawler it lives in several places, each copy vouching for wherever it was
+//     fetched from. It is now pinned to the one published origin, the same literal
+//     scripts/gen-sitemap.mjs writes every <loc> with.
+//
+//     AND THE DEAD DOMAIN. ballot.html and spotlight.html canonicalised onto
+//     politidex.us — a retired spelling that no longer resolves at all — and those
+//     two plus me.html pointed og:image at a /og-image.png that 404s besides. All
+//     three now name the www host and the same rasterised card index.html uses.
+//
+//     WHY THE BUMP. Three precached documents changed: spotlight.html, ballot.html
+//     and me.html, all in SHELL_ASSETS. Only <head> metadata moved in each, so a
+//     v211 shell does not break — it just keeps serving a canonical naming a domain
+//     that does not resolve, which is the whole thing this pass is fixing.
+//
+//     MIGRATION COST: none. No stored record migrates and no cached document
+//     changes meaning; a warm device picks up corrected <head> tags.
+//
+//     DID NOT MOVE. No mapping, no score, no location, no auth. voter-hub-location.js
+//     is untouched — still the one store that says where the reader is, which is why
+//     /voice keeps saying it cannot place you rather than inventing a place — and
+//     me-desk.js, who-represents-me.js and me.html's body are untouched beside it;
+//     only me.html's <head> card URLs changed. No roster field, issue key, ingest or
+//     Direction Match read moved, and no record-ledger figure did. og:image stays on
+//     the REQUEST origin on purpose so a preview still renders the preview's own card
+//     — an image URL is not an identity claim. /me and /ballot are still not
+//     advertised, and still noindex: a workspace over the reader's own saved state
+//     gets a canonical, not a crawl.
+const CACHE_VERSION = 'v212';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

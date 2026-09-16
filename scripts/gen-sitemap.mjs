@@ -458,6 +458,36 @@ const urls = [
   // exist and a record that has not cleared the floor. A court is not a
   // document either: region B's court headings are sections of one page.
   "/courts",
+  // ── THE THREE ROOMS THE FRONT PAGE GAVE UP ────────────────────────────────
+  // /mandate, /voice and /money, appended last on the same convention every list
+  // above follows: a new address is added at the end, so it can never move,
+  // rename or drop a line that was already here.
+  //
+  // WHY THEY BELONG IN A FILE THAT LISTS RECORDS. Each of the three was a section
+  // of index.html — a scroll position behind a hash — until netlify.toml gave it a
+  // document and an address of its own (see the three [[redirects]] blocks under
+  // "/mandate -> mandate.html" there). A hash is invisible to a server, so none of
+  // them could be crawled, linked to, or indexed as itself; now each is one
+  // document at one path, carrying its own <title>, description, canonical and
+  // og:url on the ORIGIN above. That is the same standing this file already grants
+  // /stances, /evidence and /courts: a public browse surface over the record set,
+  // not a workspace over the reader's own localStorage.
+  //
+  // ONE ADDRESS EACH, AND THE SPELLING WITHOUT THE SLASH. Each room also answers
+  // at /mandate/, /voice/ and /money/ — netlify.toml serves the same document to
+  // both — and the trailing-slash form is deliberately NOT listed, exactly as
+  // /stances/ and /evidence/ are not: one canonical spelling per room, matching
+  // the <link rel="canonical"> each document carries. Nor is any query form: the
+  // ?p= that /money forwards to a person file is a hop onto an address this file
+  // already lists, and #agenda and #follow-the-money are hashes, which are not
+  // addresses at all.
+  //
+  // /me AND /ballot ARE STILL NOT IN HERE and this is not a precedent for them.
+  // Both are noindex documents over the reader's own saved state, which is why
+  // they have a canonical and no sitemap line.
+  "/mandate",
+  "/voice",
+  "/money",
 ];
 
 // Two addresses reaching the same page would be this file recommending a record
