@@ -43,6 +43,34 @@ import {
 // canonical person address, and the ?p= form is a query on some other surface.
 const PERSON_PATH = /^\/p\/([A-Za-z0-9_]+)\/?$/;
 
+// ── The one public origin ───────────────────────────────────────────────────
+// The www host: the one Google has indexed, the one the apex 301s to, and the one
+// every <loc> in sitemap.xml is spelled with. Hardcoded rather than taken from the
+// request, and that is the whole point of the constant.
+//
+// WHAT THIS REPLACED, AND WHY IT MATTERED. The canonical and og:url below used to
+// be built from `url.origin` — the host that happened to serve the request. Every
+// address this function touches is reachable on at least three hosts: www, the
+// apex (which 301s), and politidex-org.netlify.app plus a per-deploy preview
+// subdomain, all of which answer 200. So /p/aaron_ford served off the netlify.app
+// host declared ITSELF canonical there, and the same record served off www
+// declared itself canonical on www. That is not one record with one address; it is
+// the same record telling a crawler it lives in two places, each copy vouching
+// for the host it arrived on. A search engine resolves that by picking one and
+// dropping the rest — which is the shape of "~1,200 URLs discovered, almost no
+// /p/ indexed". A self-canonical on a preview host is the same bug with a worse
+// blast radius: it invites an unreleased deploy into the index under its own name.
+//
+// Pinning it means a /p/ page says "my address is on www" no matter which host
+// answered — apex, netlify.app, or a deploy preview. The redirect still does its
+// job for readers; the canonical now agrees with the sitemap on all of them.
+//
+// SCOPE: canonical and og:url ONLY. og:image below stays on the REQUEST origin on
+// purpose — it points at this deploy's own /.netlify/images card, so a preview
+// keeps rendering the preview's card rather than fetching production's. An image
+// URL is not an identity claim, so it is not a host that has to be pinned.
+const ORIGIN = "https://www.politidex.fyi";
+
 // Escape a value for an HTML double-quoted attribute.
 function attr(s: string): string {
   return String(s == null ? "" : s)
@@ -470,7 +498,7 @@ export default async (req: Request, context: Context): Promise<Response | undefi
     // an /issue/ path, the ?issue= form of a Spotlight that also has a clean
     // path — normalizes to the one address that opens this record. og:url gets
     // the same value so three shares of one record unfurl as one entity.
-    const canonical = url.origin + canonicalPath(target);
+    const canonical = ORIGIN + canonicalPath(target);
     let html = applyMeta(await res.text(), resolved, url.origin, canonical);
 
     // The body block, on a person file's own address only. Scoped by the PATH and

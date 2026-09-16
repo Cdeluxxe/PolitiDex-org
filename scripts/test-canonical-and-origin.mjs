@@ -114,6 +114,23 @@ section("1 · there is exactly one public origin in the repo");
   const apexHits = files.filter((f) => APEX.test(R(f)));
   eq(apexHits, [], "no absolute URL names the apex host — it 301s to www, so emitting it publishes a redirect as an address");
 
+  // ── AND THE RETIRED .us DOMAIN, WHICH NO LONGER RESOLVES AT ALL ───────────
+  // politidex.us was an older spelling of this site. It is not a redirect and not
+  // a second host — the name does not resolve — so an absolute URL naming it is a
+  // dead link, not merely a non-canonical one. Three documents still carried it
+  // after the .org sweep, because that sweep looked for .org: ballot.html and
+  // spotlight.html canonicalised onto it (spotlight.html being the document behind
+  // every /issue/<slug> address), and ballot.html, me.html and spotlight.html all
+  // pointed og:image at a /og-image.png that 404s on the live host besides. Swept
+  // by ABSOLUTE URL rather than by bare name so the three prose notes that record
+  // the correction are not hits: a comment explaining which host was wrong is the
+  // opposite of the bug. The sandbox window.location stubs in this directory were
+  // moved onto the live host rather than exempted — a stub host is arbitrary, so
+  // there is no reason for it to be the one spelling this gate forbids.
+  const DEAD = new RegExp("https?://" + "politidex" + "\\." + "us", "i");
+  const deadHits = files.filter((f) => DEAD.test(R(f)));
+  eq(deadHits, [], "no absolute URL names the retired .us domain — it does not resolve, so it is a dead address");
+
   // WHAT IS DELIBERATELY NOT SWEPT: the bare hostname with no scheme. Cards paint
   // "politidex.fyi" as the wordmark, the footer prints it as a signature, the
   // methodology line on a share card reads "politidex.fyi/#methodology", and the
@@ -242,7 +259,24 @@ section("3 · the edge function rewrites canonical, not just og:url");
   has(sp, "canonicalPath", "share-preview imports the canonical deriver");
   has(sp, "function setCanonical", "share-preview can rewrite a canonical href");
   has(sp, "setCanonical(html", "…and actually calls it on the served HTML");
-  has(sp, "url.origin + canonicalPath(target)", "the canonical is built from the target, not from url.toString()");
+  // THE CANONICAL IS BUILT FROM THE PINNED ORIGIN AND THE TARGET — neither half
+  // from the request. This pin used to read "url.origin + canonicalPath(target)",
+  // which guarded the path half and left the HOST half free to be whatever
+  // answered: every address this function touches is reachable on www, on the
+  // apex, and on politidex-org.netlify.app plus a per-deploy preview subdomain,
+  // all answering 200. So one record self-canonicalised onto each host it was
+  // fetched from, which is the duplicate-host bug section 1 exists to catch,
+  // arriving through the one code path section 1 could not see.
+  has(sp, 'const ORIGIN = "https://www.politidex.fyi"',
+     "share-preview pins the one public origin rather than trusting the request host");
+  has(sp, "ORIGIN + canonicalPath(target)",
+     "the canonical is built from the pinned origin and the target, not from the request");
+  ok(!/url\.origin \+ canonicalPath/.test(sp),
+     "…and no longer from url.origin, which would self-canonicalise onto the apex or a preview host");
+  // og:image is the deliberate exception and stays on the request origin: it
+  // points at THIS deploy's own /.netlify/images card, so a preview renders the
+  // preview's card. An image URL is not an identity claim.
+  has(sp, "function ogImageUrl(origin: string", "…while the card URL still follows the deploy it is served from");
   ok(!/applyMeta\([^)]*url\.toString\(\)/.test(sp),
     "og:url is still the raw request URL — a tracking param would become part of the record's identity");
 

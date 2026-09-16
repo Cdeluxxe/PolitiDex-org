@@ -15,6 +15,14 @@ import type { Context, Config } from "@netlify/edge-functions";
 
 const SHARE_PARAM = "views";
 
+// The one public origin, for the og:url this function emits. Same constant and
+// same reason as share-preview.ts: the www host is what the apex 301s to and what
+// every <loc> in sitemap.xml is spelled with, so a link shared from the apex or
+// from a netlify.app host must still unfurl as one address rather than seeding a
+// second spelling of it. The og:image below deliberately stays on the REQUEST
+// origin — it points at this deploy's own /.netlify/images card.
+const ORIGIN = "https://www.politidex.fyi";
+
 function b64urlToStr(tok: string): string {
   const b64 = tok.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(tok.length / 4) * 4, "=");
   const bin = atob(b64);
@@ -82,7 +90,7 @@ export default async (req: Request, context: Context): Promise<Response> => {
     const desc = `${parts.join(" · ")}. See how every politician lines up on these positions — no spin, just where they stand.`;
 
     const origin = url.origin;
-    const shareUrl = origin + url.pathname + "?" + SHARE_PARAM + "=" + tok;
+    const shareUrl = ORIGIN + url.pathname + "?" + SHARE_PARAM + "=" + tok;
     // Rasterize the dynamic SVG card to PNG through the Netlify Image CDN so
     // scrapers that require a raster image still get one.
     const ogImage =

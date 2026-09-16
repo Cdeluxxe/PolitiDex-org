@@ -213,7 +213,7 @@ function bootDesk(opts) {
   const mount = win.document.__node("main");
   mount.id = "me-desk";
   win.document.body.appendChild(mount);
-  win.location = { href: "https://politidex.us/me", pathname: "/me", search: "", hash: "", origin: "https://politidex.us", replace() {}, assign() {} };
+  win.location = { href: "https://www.politidex.fyi/me", pathname: "/me", search: "", hash: "", origin: "https://www.politidex.fyi", replace() {}, assign() {} };
   win.history = { pushState() {}, replaceState() {} };
   win.localStorage = { getItem: () => null, setItem() {}, removeItem() {} };
   win.addEventListener = () => {};
@@ -393,7 +393,7 @@ const slots = {};
     setTimeout: () => 0, clearTimeout() {}, requestAnimationFrame(f) { try { f(); } catch (e) {} return 0; } };
   win.window = win; win.self = win; win.document = makeDoc(); win.__PDX_ME_DOC = true;
   const mount = win.document.__node("main"); mount.id = "me-desk"; win.document.body.appendChild(mount);
-  win.location = { href: "https://politidex.us/me", pathname: "/me", search: "", hash: "", origin: "https://politidex.us", replace() {}, assign() {} };
+  win.location = { href: "https://www.politidex.fyi/me", pathname: "/me", search: "", hash: "", origin: "https://www.politidex.fyi", replace() {}, assign() {} };
   win.history = { pushState() {}, replaceState() {} };
   win.localStorage = { getItem: () => null, setItem() {}, removeItem() {} };
   win.addEventListener = () => {}; win.removeEventListener = () => {}; win.dispatchEvent = () => true;
