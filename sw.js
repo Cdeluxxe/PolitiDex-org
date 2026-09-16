@@ -6316,7 +6316,60 @@
 //     Direction Match are exactly as they were, no consistency ranking runs and
 //     no party sort moved, and no store schema changed.
 
-const CACHE_VERSION = 'v206';
+// v207 - AN AUTH RESTORE STOPS LOOKING LIKE A LOGOUT, AND STOPS FREEZING THE TAB
+//
+//     WHAT WAS REPORTED. Signing in with Google, or simply returning to / with a
+//     live session, put Chrome's "Page Unresponsive" dialog on screen. After
+//     /me → Home the bar showed JOIN THE PEOPLE for a long beat and then the
+//     account chip. A second tap on Google produced the raw string
+//     "auth/cancelled-popup-request" inside the modal.
+//
+//     WHAT WAS ACTUALLY WRONG, in three parts:
+//     · EVERY LISTENER RAN IN ONE TASK. Firebase calls onAuthStateChanged
+//       subscribers synchronously, and this app has about a dozen — the roster
+//       warm, the account pull, the local rehydrate that rebuilds three grids
+//       and re-filters the whole directory, the alignment stream, the discussion
+//       cache drop, the desk, the district room, the locker, the admin gate and
+//       two lazy-module gates. One sign-in ran all of them back to back with no
+//       chance to paint. firebase-boot.js now owns ONE real listener and fans
+//       out to subscribers a task each, so the callback returns immediately.
+//     · "AUTH UNKNOWN" WAS SPELLED THE SAME AS "SIGNED OUT". Both were null, and
+//       the pre-SDK stub in each shell handed cb(null) to every registration
+//       during parse — so the chrome painted the Join CTA over a live member on
+//       every load. The stub queues now, window.PDXAuth publishes a third state,
+//       and the bar paints all three: a quiet "Checking account…", the reader's
+//       own chip disabled while the session resolves, or the CTA once Firebase
+//       has actually said nobody is signed in.
+//     · TWO POPUPS CANCELLED EACH OTHER. signInWithPopup kills any popup already
+//       open and rejects the first call, so an impatient double-tap destroyed
+//       its own sign-in and was then shown the cancellation as an error message
+//       with the provider's code in it. One in-flight promise is the lock, the
+//       button is disabled until it settles, and no auth/* code reaches a reader.
+//
+//     WHY THE BUMP. Five precached shells changed — index.html ('/'), me.html,
+//     person.html, issue.html and evidence.html — and every one of them carries
+//     the pre-SDK stub that was answering "signed out" during parse. index.html
+//     also carries the nav slot's static markup, which was the Join CTA in the
+//     page's first frame and is now the 'unknown' pill. A warm v206 device would
+//     otherwise keep painting the CTA over a live session on every load.
+//
+//     AND THE TWO FILES THAT ARRIVE A VISIT LATER. firebase-boot.js and
+//     compare-hub.js are stale-while-revalidate RUNTIME entries, not precached
+//     ones, so a warm device may pair the new shells with the previous copy of
+//     either for exactly one navigation. That pairing is why the new stub
+//     self-heals rather than trusting the boot file to drain its queue: an old
+//     boot that never replays is flushed with null after five seconds, which is
+//     the behaviour the reader had before this pass, and the refresh after it has
+//     the whole fix.
+//
+//     DID NOT MOVE. No new provider, no password-reset change, no CD shapefile.
+//     Scores, /me geography, the district maps, the 121 denominator and /courts
+//     are untouched; no score, party read, issue key or store schema changed, and
+//     no Direction Match read, formal-record brief or record-ledger figure is
+//     touched by any of this — the record is painted from the same data by the
+//     same functions. Every Firestore read is the same read with the same guards;
+//     only WHEN it runs is different.
+const CACHE_VERSION = 'v207';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
