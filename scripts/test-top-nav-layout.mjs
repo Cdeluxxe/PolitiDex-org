@@ -33,6 +33,7 @@ const ROOT = path.resolve(new URL('.', import.meta.url).pathname, '..');
 const rd = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const HTML = rd('index.html');
 const APPCSS = rd('app.css');
+const HUB = rd('compare-hub.js');
 
 let pass = 0, fail = 0;
 const ok = (cond, msg) => { if (cond) pass++; else { fail++; console.error('  ✗ ' + msg); } };
@@ -245,7 +246,12 @@ must(tinyMq, 'the narrow-phone brand step is no longer its own max-width query')
 const TINY = Number(tinyMq[1]);
 ok(TINY >= 375, `the brand steps down at ${TINY}px and below, which includes the 375px iPhone`);
 ok(TINY < 390, `and not at ${TINY}px — the 390px-and-wider phones keep the full-size lockup`);
-ok(/<span>JOIN THE PEOPLE<\/span>/.test(NAV), 'the account button still says JOIN THE PEOPLE at every width');
+/* The CTA is printed by updateNavAuth in compare-hub.js now, not carried in the
+   document: index.html's account slots hold the "Checking account…" pill until
+   Firebase has answered, so a CTA in the first frame would be a claim about a
+   session nothing had checked yet. The copy assertion follows it one file over;
+   the geometry above still comes from the bar's own markup and CSS. */
+ok(/<span>JOIN THE PEOPLE<\/span>/.test(HUB), 'the account button still says JOIN THE PEOPLE at every width');
 
 /* Every control the report names is still in the bar, with its handler intact. */
 for (const [needle, what] of [

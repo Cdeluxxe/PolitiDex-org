@@ -333,10 +333,10 @@ section('6 · the shells changed, so the cache did');
 
 const ver = /const CACHE_VERSION = 'v(\d+)'/.exec(SW);
 must(!!ver, 'CACHE_VERSION is gone from sw.js');
-ok(Number(ver[1]) >= 207,
+ok(Number(ver[1]) >= 208,
   `CACHE_VERSION is still v${ver[1]}. All five precached shells changed — the pre-SDK stub in each of them and ` +
   'index.html\'s nav markup — so a warm device would keep painting the Join CTA over a live session');
-ok(/v207/.test(SW) && /auth/i.test(SW.slice(SW.indexOf('v207'), SW.indexOf('v207') + 1200)),
+ok(/v208/.test(SW) && /auth/i.test(SW.slice(SW.indexOf('v208'), SW.indexOf('v208') + 1200)),
   'the version bump has no note saying what moved, which is how the next reader of this file loses the reason');
 
 // ═════════════════════════════════════════════════════════════════════════════

@@ -368,7 +368,26 @@ NOT_MONEY.forEach(({ what, href }) => {
   ok(hits.every((c) => hrefOf(c) !== HASH), `${what} resolves to the donate hash`);
 });
 // Join the People is an auth control: a button, no href, and it must stay that way.
-const joinCtl = controls(INDEX_H).filter((c) => /JOIN THE PEOPLE/i.test(c.label));
+// The CTA lives in compare-hub.js's painter now — index.html's account slots
+// hold the "Checking account…" pill until Firebase has answered — so the control
+// is read from the painted markup rather than from the document.
+const HUB_OUT = (() => {
+  const hub = R("compare-hub.js");
+  const i = hub.indexOf("function updateNavAuth(");
+  if (i < 0) return "";
+  let depth = 0, started = false, end = hub.length;
+  for (let j = i; j < hub.length; j++) {
+    if (hub[j] === "{") { depth++; started = true; }
+    else if (hub[j] === "}") { depth--; if (started && depth === 0) { end = j + 1; break; } }
+  }
+  const body = hub.slice(i, end);
+  const d = body.match(/desktop\.innerHTML = `[\s\S]*?`;/g) || [];
+  const m = body.match(/mobile\.innerHTML = `[\s\S]*?`;/g) || [];
+  // The LAST write at each width is the signed-out branch; the earlier ones are
+  // the account chip and the two "Checking account…" states, which carry no CTA.
+  return (d.length ? d[d.length - 1] : "") + (m.length ? m[m.length - 1] : "");
+})();
+const joinCtl = controls(INDEX_H + HUB_OUT).filter((c) => /JOIN THE PEOPLE/i.test(c.label));
 must(joinCtl.length > 0, "index.html no longer has a Join the People control");
 joinCtl.forEach((c) => {
   eq(hrefOf(c), "", "Join the People gained an href");

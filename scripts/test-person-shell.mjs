@@ -341,14 +341,14 @@ const COPIES = [
   [1300, 1409, "PDXTeamView"],
   [1410, 1919, "the promise ledger and the deferred-event capture"],
   [1936, 2010, "PDXLazy"],
-  [2012, 2035, "the Firebase compat bundles, the key injection, the stub and firebase-boot.js"],
-  [2040, 2085, "the share furniture share-preview.ts rewrites"],
-  [3569, 3632, "the crawl-header guard"],
-  [16481, 17403, "the funding lane, up to the cut"],
-  [19293, 19327, "the profile modal down to #modal-content"],
-  [19388, 19435, "the stance popover, the record overlay and the share sheet"],
+  [2012, 2032, "the Firebase compat bundles, the key injection, the stub and firebase-boot.js"],
+  [2081, 2126, "the share furniture share-preview.ts rewrites"],
+  [3610, 3673, "the crawl-header guard"],
+  [16531, 17453, "the funding lane, up to the cut"],
+  [19343, 19377, "the profile modal down to #modal-content"],
+  [19438, 19485, "the stance popover, the record overlay and the share sheet"],
   [26420, 26541, "PDXStance"],
-  [28974, 29173, "the PWA runtime and the service-worker registration"],
+  [29029, 29228, "the PWA runtime and the service-worker registration"],
 ];
 // THESE NUMBERS ARE ANCHORS INTO index.html AND THEY MOVE WHEN IT DOES. The
 // ones re-based here were re-based by the fourth split, which lifted the ballot
