@@ -350,12 +350,12 @@ const COPIES = [
   [1410, 1919, "the promise ledger and the deferred-event capture"],
   [1936, 2010, "PDXLazy"],
   [2012, 2032, "the Firebase compat bundles, the key injection, the stub and firebase-boot.js"],
-  [2146, 2191, "the share furniture share-preview.ts rewrites"],
-  [3675, 3738, "the crawl-header guard"],
-  [16728, 16762, "the profile modal down to #modal-content"],
-  [16823, 16870, "the stance popover, the record overlay and the share sheet"],
-  [23560, 23681, "PDXStance"],
-  [26170, 26369, "the PWA runtime and the service-worker registration"],
+  [2162, 2208, "the share furniture share-preview.ts rewrites"],
+  [3690, 3754, "the crawl-header guard"],
+  [14090, 14124, "the profile modal down to #modal-content"],
+  [14185, 14232, "the stance popover, the record overlay and the share sheet"],
+  [20884, 21005, "PDXStance"],
+  [23494, 23692, "the PWA runtime and the service-worker registration"],
 ];
 // THESE NUMBERS ARE ANCHORS INTO index.html AND THEY MOVE WHEN IT DOES. The
 // ones re-based here were re-based by the fourth split, which lifted the ballot
@@ -455,6 +455,23 @@ const COPIES = [
 // PWA runtime kept the lengths the last re-derivation gave them), and the six
 // anchors above the <head> additions came back unchanged, which is again the
 // check on the method. Not one byte of any copied block changed.
+//
+// THE COMMUNITY SPLIT AND THE MONEY-DOOR PASS RE-DERIVED SIX OF THEM, AND ONE OF
+// THE SIX HAD ALREADY GONE SILENTLY WRONG — which is the best argument in this
+// file for re-deriving rather than adding. /community took the Exchange and the
+// Open board out of index.html; the pass after it made the front page a DOOR to
+// the money lane, deleting #follow-the-money, the Wealth Transparency board and
+// the retired #N-by-funding leaderboard (the first two moved to /money, the
+// third was deleted outright, because it ranked people by a hand-set 0-100
+// grade the money lane exists to refuse). Everything below those cuts came up.
+//   The PWA runtime anchor ran past the end of the file and named itself: "out
+// of range or empty". The PDXStance anchor did NOT, and that is the interesting
+// one. Its stale numbers had drifted far enough down to land INSIDE the PWA
+// runtime block — a 122-line window over a run person.html also copies, so the
+// byte-identity assertion passed while the anchor pointed at a different block
+// entirely. An anchor carried forward by arithmetic can be wrong in a way that
+// is GREEN, and only re-derivation finds that. All six were re-derived by the
+// method above; the ones that came back unchanged are again the check on it.
 for (const [a, b, what] of COPIES) {
   const slice = idxLines.slice(a - 1, b).join("\n");
   ok(slice.split("\n").length === b - a + 1 && slice.trim().length > 0,

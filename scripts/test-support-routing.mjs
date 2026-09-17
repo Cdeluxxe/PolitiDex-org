@@ -354,12 +354,21 @@ section("3 · the other products keep their own ids");
 // None of their controls may carry the donate hash, and none of them may be
 // pointed at Venmo.
 const NOT_MONEY = [
-  // The Mandate is its own document now, so its controls spell an address
-  // rather than a fragment. What this section asserts is unchanged: a Mandate
-  // control is not a money control, wherever it points.
+  // All three are their own documents now, so their controls spell an address
+  // rather than a fragment. What this section asserts is unchanged: a Mandate,
+  // forum or Exchange control is not a money control, wherever it points — only
+  // the address it wears has changed.
+  //
+  // The Mandate left first, for /mandate. The Open Discussion forum and the
+  // Community Exchange left together for /community: the Exchange IS that room,
+  // so its door is the bare path, while the forum is a section inside it and
+  // keeps its old fragment behind the new path. Note that #open-forum and
+  // #community-exchange are both still live ids — they just live on
+  // community.html now, which is exactly why the href a HOMEPAGE control wears
+  // had to change and the id did not.
   { what: "the People's Mandate", href: "/mandate" },
-  { what: "the Open Discussion forum", href: "#open-forum" },
-  { what: "the Community Exchange", href: "#community-exchange" },
+  { what: "the Open Discussion forum", href: "/community#open-forum" },
+  { what: "the Community Exchange", href: "/community" },
 ];
 NOT_MONEY.forEach(({ what, href }) => {
   const hits = controls(INDEX_H).filter((c) => hrefOf(c) === href);

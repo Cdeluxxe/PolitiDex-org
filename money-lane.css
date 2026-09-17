@@ -26,13 +26,15 @@
    Mandate.
 
    THIS IS A COPY, AND app.css STILL HAS THE ORIGINALS. It was not cut out of
-   that sheet, for one reason: the front page still paints Follow the Money
-   itself. The FTM markup and its tracker are still in index.html — see the
-   refusal note in money.html's banner and in .netlify/results.md — and several
-   of the rules below arrive inside multi-selector lists that also dress
-   .ftm-lb-card (the wealth leaderboard, which did NOT move), .pm-card, .veh-card
-   and .agenda-card. Deleting by selector from a 986 KB sheet is a different job
-   from giving the lane an address, and it is not this one. What IS asserted, by
+   that sheet. When this file was made, the reason was that the front page still
+   painted Follow the Money itself; the front page's copy of the section, its
+   sector filter, its card grid and its five-card funding leaderboard have since
+   been deleted, and the Wealth Transparency board followed the filings here. The
+   reason not to cut is now the ordinary one: several of the rules below arrive
+   inside multi-selector lists that also dress .pm-card, .veh-card and
+   .agenda-card, which are still front-page surfaces. Deleting by selector from a
+   986 KB sheet is a different job from giving the lane an address, and it is not
+   this one. What IS asserted, by
    scripts/test-money-shell.mjs, is that this file stays a subset of app.css:
    every rule here must still match its app.css original, so a change made on
    one side and not the other fails the suite instead of shipping two money
@@ -56,7 +58,8 @@
    Declared here rather than in app.css's homepage measurement, for the same
    reason mandate-lane.css declares its own: the chrome at this address is one
    row. */
-#follow-the-money, #ftm-grid { scroll-margin-top: 3.75rem; }
+#follow-the-money, #ftm-grid,
+#wealth-leaderboard, #wl-grid { scroll-margin-top: 3.75rem; }
 
 .section-title{ font-size: clamp(2rem,  10vw, 3.5rem); }
 
