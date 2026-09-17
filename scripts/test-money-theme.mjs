@@ -85,6 +85,7 @@ const INDEX = R("index.html");
 // The filings and the renderers that print them were pasted inline into three
 // documents; they are one module now, and every lift below reads it there.
 const FTM_SRC = R("ftm-data.js");
+const MONEY_DOC = R("money.html");
 const LANE_SRC = R("finance-lane.js");
 const LANE_CSS = R("finance-lane.css");
 
@@ -179,7 +180,14 @@ const L = laneBox();
   };
   const CSS_OF = { fill: "fill", "fill-hi": "fillHi", line: "line", "line-soft": "lineSoft",
                    ink: "ink", text: "text", rest: "rest" };
-  for (const f of ["app.css", "index.html", "my-profile.css", "impact-ledger.css"]) {
+  // money.html, not index.html. The front page carried the money eyebrow and the
+  // funding pills until the lane moved: #follow-the-money and the Wealth
+  // Transparency board are both on /money now, and what is left on the front
+  // page is a nav item and a chip, neither of which is painted in the money
+  // pair. A document with no money surface on it cannot be asked to reference
+  // the money token — so the shipped surface that DOES carry the markup is the
+  // one held to the fallback rule.
+  for (const f of ["app.css", "money.html", "my-profile.css", "impact-ledger.css"]) {
     const src = f.endsWith(".css") ? stripCss(R(f)) : R(f);
     const uses = tokenUses(src);
     ok(uses.length > 0, `${f} actually references the money token`);
@@ -555,7 +563,9 @@ const L = laneBox();
   // fact about the shipped markup rather than about the stylesheet alone.
   for (const cls of ["pdx-money-h", "pdx-money-eyebrow"]) {
     has(LANE_CSS, "." + cls, `finance-lane.css declares .${cls}`);
-    has(INDEX + "\n" + FTM_SRC, cls, `…and a shipped money surface uses .${cls}`);
+    // Same move as the token loop above: the section markup that wears these
+    // classes is money.html's now, not index.html's.
+    has(MONEY_DOC + "\n" + FTM_SRC, cls, `…and a shipped money surface uses .${cls}`);
   }
   has(R("impact-ledger.js"), "pdx-money-h",
     "the ledger's Follow the Money header wears the money header class too");

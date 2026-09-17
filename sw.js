@@ -6521,7 +6521,46 @@
 //     — an image URL is not an identity claim. /me and /ballot are still not
 //     advertised, and still noindex: a workspace over the reader's own saved state
 //     gets a canonical, not a crawl.
-const CACHE_VERSION = 'v212';
+// v213 - HOME MONEY IS A DOOR. WEALTH LIVES ON /money.
+//
+//     WHAT CHANGED. The front page stopped painting the money lane and became a
+//     door to it. Three blocks left index.html: the Follow the Money card grid
+//     with its sector filter, the Wealth Transparency Leaderboard, and the
+//     five-card "#1 by funding" board. The first two MOVED to /money, which is
+//     now one page with two blocks — campaign filings (what a campaign raised,
+//     from /ftm-data.js) then wealth disclosures (what a person owns, from the
+//     new /wealth-lane.js). The third was DELETED rather than moved: it ranked
+//     people by a hand-set 0-100 integrity grade, which is exactly what this
+//     lane publishes `scored: false` to refuse.
+//
+//     WHY THE BUMP. Two precached documents changed and they changed each
+//     other's meaning: index.html no longer contains the sections, money.html
+//     now contains both. A warm v212 device would serve an old front page with
+//     the boards still on it AND an old /money without the wealth block —
+//     the reader would see the lane twice on the page it left and not at all
+//     at its own address. /wealth-lane.js needs no entry of its own: a
+//     non-precached same-origin static is runtime stale-while-revalidate and
+//     arrives fresh on first request.
+//
+//     MIGRATION COST: none. No stored record migrates. A reader whose bookmark
+//     is /#follow-the-money, /#wealth-leaderboard or /#ftm-leaderboard is
+//     forwarded to /money by the LANE table in index.html's head; the nav item,
+//     the hero chip and the footer links already pointed there.
+//
+//     DID NOT MOVE. The 💰 letterhead chip on a person file is finance-lane.js's,
+//     computed off /ftm-data.js, and it was never part of the deleted sections —
+//     index.html still loads both modules for it, in that order. No filing
+//     figure, no roster field, no issue key, no auth and no mapping changed.
+//     Nothing here is scored: Direction Match, Word vs Action, the formal
+//     pattern tiers, the publication floor, the ballot sort and every
+//     cross-person ordering are untouched, and the new wealth block is an input
+//     to none of them — finance-lane.js's NEVER_FEEDS wall is unchanged and
+//     wealth-lane.js cannot see a filing. No record-ledger figure moved.
+//     voter-hub-location.js is untouched — still the one store that says where
+//     the reader is, so /voice keeps saying it cannot place you rather than
+//     inventing a place, and no money surface asks it anything. /community is
+//     untouched too, and still answers 200 from its own shell.
+const CACHE_VERSION = 'v213';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

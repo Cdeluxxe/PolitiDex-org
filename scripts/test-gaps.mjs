@@ -61,6 +61,14 @@ const GAPS_SRC = read('gaps.js');
 const WA_SRC = read('word-action.js');
 const WA_CSS = read('word-action.css');
 const INDEX = read('index.html');
+// THE EXCHANGE IS ITS OWN DOCUMENT AND ITS OWN MODULE NOW. The gap composer,
+// the openForGap door and the moderator queue were inline on the front page
+// when this file was written, so every claim about them was read out of
+// index.html. The Community split moved the Exchange to /community, and its
+// behaviour to community-exchange.js — index.html keeps a door card. The
+// assertions below did not change their meaning, only where they look: a claim
+// about what the composer does belongs against the file that is the composer.
+const EXCHANGE = read('community-exchange.js');
 const COMMUNITY = read('netlify/functions/community.mts');
 const SCHEMA = read('db/schema.ts');
 const MIGRATION = read('netlify/database/migrations/20260825000000_cee_posts_gap_and_politician_links/migration.sql');
@@ -381,8 +389,8 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
   const html = G.panelHtml('booker', {});
   const askCount = (html.match(/pdxg-ask-btn/g) || []).length;
   eq(askCount, 1, 'exactly the one askable gap in this world may offer to take a lead');
-  ok(/openForGap/.test(INDEX), 'PDXCommunity.openForGap is missing');
-  ok(/if \(gap\.askable === false\) return;/.test(INDEX),
+  ok(/openForGap/.test(EXCHANGE), 'PDXCommunity.openForGap is missing');
+  ok(/if \(gap\.askable === false\) return;/.test(EXCHANGE),
     'openForGap must refuse a non-askable gap even if a caller asks');
   // And the server will not store one either.
   ['circular_hold', 'spoken_for', 'below_floor'].forEach((t) => {
@@ -575,7 +583,7 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
     ok(!re.test(GAPS_SRC), `gaps.js must not contain ${re}`);
   });
   // The composer's framing sentence is the load-bearing one, verbatim.
-  ok(INDEX.includes('You are suggesting something for us to check — not adding to the record. A curator verifies and sources anything that becomes part of it.'),
+  ok(EXCHANGE.includes('You are suggesting something for us to check — not adding to the record. A curator verifies and sources anything that becomes part of it.'),
     'the Suggest-a-lead framing sentence is missing or altered');
 }
 
@@ -706,16 +714,16 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
 // ═════════════════════════════════════════════════════════════════════════════
 {
   // One composer, not a second one: the existing Exchange overlay is reused.
-  ok(/composeGap/.test(INDEX), 'the Exchange composer has no gap-locked mode');
-  ok(/composeKind = composeGap \? 'lead'/.test(INDEX),
+  ok(/composeGap/.test(EXCHANGE), 'the Exchange composer has no gap-locked mode');
+  ok(/composeKind = composeGap \? 'lead'/.test(EXCHANGE),
     'a gap-locked compose must be a lead by construction — the kind is not the submitter’s to change');
-  ok(/body\.linkedPoliticianIds = \[composeGap\.pid\]/.test(INDEX), 'the locked politician must travel with the submission');
-  ok(/body\.gapKey = composeGap\.key/.test(INDEX) && /body\.gapType = composeGap\.type/.test(INDEX),
+  ok(/body\.linkedPoliticianIds = \[composeGap\.pid\]/.test(EXCHANGE), 'the locked politician must travel with the submission');
+  ok(/body\.gapKey = composeGap\.key/.test(EXCHANGE) && /body\.gapType = composeGap\.type/.test(EXCHANGE),
     'the locked gap must travel with the submission');
-  ok(/Claim to check/.test(INDEX), 'the gap composer should ask for a claim to check, not a headline');
-  ok(/Notes for the curator/.test(INDEX), 'the gap composer should ask for notes for the curator');
-  ok(/strongly encouraged/.test(INDEX), 'the source link should be strongly encouraged on a lead');
-  ok(/cee-chip-lock/.test(INDEX), 'the locked politician + gap must render as read-only chips');
+  ok(/Claim to check/.test(EXCHANGE), 'the gap composer should ask for a claim to check, not a headline');
+  ok(/Notes for the curator/.test(EXCHANGE), 'the gap composer should ask for notes for the curator');
+  ok(/strongly encouraged/.test(EXCHANGE), 'the source link should be strongly encouraged on a lead');
+  ok(/cee-chip-lock/.test(EXCHANGE), 'the locked politician + gap must render as read-only chips');
   // No parallel comment system was introduced anywhere: no new table, and the
   // rows embed the shared control rather than their own thread.
   ok(!/gap_comments|pdx_gap/i.test(MIGRATION + GAPS_SRC + COMMUNITY),
@@ -1011,10 +1019,10 @@ const untestedItem = (reason, extra = {}) => Object.assign({ test: { reason }, w
   // All five states render, and the two vocabularies agree across the two files.
   ['has_source', 'needs_source', 'checking', 'answered', 'dead_end'].forEach((s) => {
     ok(new RegExp('\\b' + s + ':').test(GAPS_SRC), `the profile lead card cannot render the ${s} state`);
-    ok(new RegExp('\\b' + s + ':').test(INDEX), `the moderator UI cannot render the ${s} state`);
+    ok(new RegExp('\\b' + s + ':').test(EXCHANGE), `the moderator UI cannot render the ${s} state`);
   });
   // The moderator's change must actually reach an open profile.
-  ok(/pdx-gap-lead-updated/.test(INDEX), 'the moderator UI must announce a lead state change');
+  ok(/pdx-gap-lead-updated/.test(EXCHANGE), 'the moderator UI must announce a lead state change');
   ok(/addEventListener\('pdx-gap-lead-updated'/.test(GAPS_SRC),
     'the profile must listen for a moderator lead state change');
   ok(/delete _leadCache\[pid\]/.test(GAPS_SRC),

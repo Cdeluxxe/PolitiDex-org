@@ -15,11 +15,27 @@
      that survived a reload. #follow-the-money was a scroll position, not a
      place.
 
-     WHAT IS ON THIS PAGE, AND IT IS ONE LANE. Campaign finance: the filings on
-     file, the amounts, the composition, the named top contributors the filings
-     report, and the coverage sentence that says how much of the roster any of
-     that covers. Each of the following is a rule, not a current state of the
-     data:
+     WHAT IS ON THIS PAGE. ONE PAGE, TWO BLOCKS, TWO ARCHIVES, in this order:
+
+       1 · CAMPAIGN FILINGS — what a campaign RAISED. The filings on file, the
+           amounts, the composition, the named top contributors the filings
+           report, and the coverage sentence that says how much of the roster
+           any of that covers. Owned by /ftm-data.js, read by finance-lane.js.
+       2 · WEALTH DISCLOSURES — what a person OWNS. Net worth before office
+           against net worth now, from personal financial disclosures, with the
+           disclaimer that says what the difference does and does not mean.
+           Owned by wealth-lane.js. It moved here off the front page in the
+           same pass that deleted the front page's copy of block 1.
+
+     AMOUNTS RAISED AND AMOUNTS OWNED ARE NOT THE SAME CLAIM, and putting them
+     on one page is not a claim that they are. They are two questions a reader
+     asks at the same address, answered separately, each naming its own source.
+     Nothing in block 2 reaches block 1: no wealth figure feeds the 💰 chip, the
+     composition read, the largest reported source, the coverage sentence or any
+     other number above it. Delete wealth-lane.js and every campaign finance
+     figure on this page is byte-identical.
+
+     Each of the following is a rule, not a current state of the data:
        · NO SCORE, UNDER ANY NAME. No 0-100, no grass / mixed / big traffic
          light, no tier, no ramp, no ranking and no sort by dollars.
          finance-lane.js publishes `scored: false` and a NEVER_FEEDS wall naming
@@ -43,9 +59,15 @@
          every other document the theme is scoped to the lane's own surfaces.
          finance-lane.css owns the tokens; money-lane.css carries the component
          rules; neither declares the other's.
-       · NO WEALTH LEADERBOARD. Net worth is a different lane with a different
-         source and it did NOT move — it is still #wealth-leaderboard on the
-         front page. Amounts raised and amounts owned are not the same claim.
+       · THE WEALTH BLOCK IS A DISCLOSURE, NOT A GRADE, AND IT IS NOT IN THE
+         CHIP MATH. Its two tabs sort one list two ways and its badges name a
+         magnitude, not a verdict; its own disclaimer, printed directly under
+         its heading, says that net worth change alone does not prove integrity
+         or corruption. It is an input to nothing — not the 💰 letterhead chip,
+         not the filings composition, not Direction Match, not the pattern
+         tiers, not any ballot or cross-person ordering. The NO SCORE rule above
+         is the filings lane's; this is the same posture for the other archive,
+         stated once in each place because they are two different data sets.
        · NO PERSON FILE. /money?p=<pid> is a JUMP: money-room.js forwards it to
          /p/<pid>#money, the money section the person file already owns. A
          second copy of a person file at a money address would be a second
@@ -348,6 +370,10 @@
   <script defer src="/ftm-data.js"></script>
   <script defer src="/finance-lane.js"></script>
   <script defer src="/money-room.js"></script>
+  <!-- The second block's controller. Independent of the three above it: it
+       reads no filing, publishes no accessor and is named by none of them.
+       Deferred, and it returns immediately on any document with no #wl-grid. -->
+  <script defer src="/wealth-lane.js"></script>
   <script defer src="/shell-account-chip.js"></script>
 
 </head>
@@ -384,14 +410,22 @@
 
   <main id="money-room">
 
-  <!-- ══ VERBATIM FROM index.html LINES 14758–14833 ═══════════════════════
-       THE SECTION, BYTE FOR BYTE, with exactly one change: `section-title` is an
-       <h1> here rather than an <h2>, because on the front page this was one
-       section among twenty and here it is the whole document.
-       scripts/test-money-shell.mjs re-reads both slices out of index.html on
-       every run and compares them to this document after normalising that one
-       tag pair. The two copies cannot drift; see the long note in the banner for
-       why there are two at all.
+  <!-- ══ BLOCK 1 · CAMPAIGN FILINGS — WHAT A CAMPAIGN RAISED ══════════════
+       THIS IS NOW THE ONLY COPY. It arrived here as index.html's markup with
+       one change — `section-title` is an <h1> here rather than an <h2>, because
+       on the front page this was one section among twenty and here it opens the
+       document — and for one pass it was a COPY: the front page kept its own,
+       and scripts/test-money-shell.mjs re-read the line range out of index.html
+       on every run and byte-compared the two so they could not drift.
+
+       The fence is retired because the copy is. The front page's Follow the
+       Money grid, its sector filter and its five-card "#1 by funding"
+       leaderboard were deleted; what is left there is a door — the nav item and
+       the pulse chip, both pointing at /money — and the 💰 chip on a person
+       file, which is finance-lane.js's and was never this section's. There is
+       nothing left for a byte fence to hold two ends of. The test now asserts
+       the opposite: that index.html carries no <section id="follow-the-money">
+       and that this document does.
        ═════════════════════════════════════════════════════════════════════ -->
   <section id="follow-the-money" class="py-16 md:py-24 px-4 max-w-6xl mx-auto">
     <div class="text-center mb-8 animate-on-scroll">
@@ -510,6 +544,112 @@
         and <a href="https://www.opensecrets.org" rel="noopener noreferrer">OpenSecrets.org</a>.
       </p>
     </noscript>
+
+  <!-- ══ BLOCK 2 · WEALTH DISCLOSURES — WHAT A PERSON OWNS ═════════════════
+       THE SECOND BLOCK, AND IT IS A SECOND CLAIM, NOT A SECOND OPINION ABOUT
+       THE FIRST. Everything above this line is campaign finance: money a
+       campaign RAISED, from FEC and state filings, owned by /ftm-data.js.
+       Everything below it is personal net worth: money a person OWNS, from
+       personal financial disclosures, owned by wealth-lane.js. The two archives
+       do not touch. No figure here feeds the 💰 letterhead chip, the
+       composition read, the largest reported source or the coverage sentence
+       printed above; nothing above is read down here.
+
+       IT IS A DISCLOSURE, NOT A GRADE. The ⚠ disclaimer is the first thing in
+       the section after its own title, before any card and before any control,
+       because a reader who sees only one line of this block should see that
+       one: net worth change alone does not prove integrity or corruption. The
+       two tabs sort one list two ways. The badges name a magnitude. Neither is
+       a verdict, and neither is an input to Direction Match, Word vs Action, a
+       pattern tier, the publication floor, a ballot sort or any cross-person
+       ordering anywhere else on the site.
+
+       WHY IT IS HERE AT ALL. It was #wealth-leaderboard on the front page,
+       downloaded and parsed by every reader who arrived to look up who
+       represents them, and bookmarkable by nobody. /money is where a money
+       question has an address, so the block moved to the address instead of
+       the address being explained to the reader. The front page keeps the same
+       door it keeps for the filings: the nav item and the chip.
+
+       <h2>, NOT <h1>. Block 1 opens the document and owns the only <h1> on it.
+       This is the second section of that document, which is what an <h2> means.
+
+       THE THREE CONTROLS IN EACH CARD. The cards wealth-lane.js writes address
+       openMediumModal(), showProfile() and window.pdxSharePolitician() — the
+       person overlay, the profile jump and the share glyph, none of which this
+       room ships. money-room.js re-homes the first two onto /p/<pid>#money and
+       does not paint the third, for this grid exactly as it already did for the
+       filings grid above. Same rule, one owner, no second implementation.
+       ═════════════════════════════════════════════════════════════════════ -->
+  <section id="wealth-leaderboard" class="py-16 md:py-24 px-4 max-w-6xl mx-auto">
+    <div class="text-center mb-8 animate-on-scroll">
+      <div class="inline-flex items-center gap-2 bg-navy-700/60 border border-gold-400/25 rounded-full px-4 py-1.5 mb-3">
+        <span class="w-2 h-2 rounded-full bg-gold-400 badge-live"></span>
+        <span class="font-condensed text-xs tracking-widest uppercase text-gold-400">Financial Accountability</span>
+      </div>
+      <h2 class="section-title font-display text-4xl md:text-5xl lg:text-6xl tracking-wider mb-3">
+        <span class="text-gold-400">📈</span> WEALTH TRANSPARENCY <span class="text-crimson-400">LEADERBOARD</span>
+      </h2>
+      <p class="font-display text-lg md:text-xl tracking-wider text-steel-300 mb-2">Net Worth Growth While in Office</p>
+      <p class="text-steel-400 font-body max-w-2xl mx-auto text-sm" style="line-height:1.7;">
+        Real leaders serve the people, not their bank accounts. Data from public financial disclosures (FEC, OpenSecrets, etc.). Not investment advice.
+      </p>
+      <div style="max-width:48rem;margin:1.25rem auto 0;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:0.75rem;padding:0.85rem 1.1rem;">
+        <p style="font-family:'Barlow',sans-serif;font-size:0.78rem;color:#fad96a;line-height:1.65;margin:0;text-align:center;">
+          <strong style="letter-spacing:0.04em;">⚠ DISCLAIMER:</strong> Net worth change alone does not prove integrity or corruption. Gains or losses can come from legitimate business, investments, inheritance, or other factors. All data is from public disclosures (FEC, OpenSecrets, state filings). Users should review full context and sources.
+        </p>
+      </div>
+      <div class="flex items-center justify-center gap-6 mt-5 flex-wrap">
+        <div class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:#f87171;"></span><span class="font-condensed text-xs tracking-widest uppercase text-steel-400">Red Flag (High Growth)</span></div>
+        <div class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:#fb923c;"></span><span class="font-condensed text-xs tracking-widest uppercase text-steel-400">Watch (Moderate)</span></div>
+        <div class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:#4ade80;"></span><span class="font-condensed text-xs tracking-widest uppercase text-steel-400">Low / Declining Growth</span></div>
+      </div>
+    </div>
+
+    <!-- Two-Tab System -->
+    <div class="animate-on-scroll" style="transition-delay:0.1s;">
+      <!-- Tab Buttons -->
+      <div style="display:flex;gap:0;margin-bottom:0;">
+        <button id="wl-tab-gainers" onclick="setWealthTab('gainers')" style="flex:1;padding:0.85rem 1rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.25s;border-radius:1rem 1rem 0 0;display:flex;align-items:center;justify-content:center;gap:0.5rem;background:rgba(248,113,113,0.15);border:2px solid rgba(248,113,113,0.4);border-bottom:none;color:#f87171;">
+          <span style="font-size:1.1rem;">🔴</span> Highest Wealth Gainers
+        </button>
+        <button id="wl-tab-integrity" onclick="setWealthTab('integrity')" style="flex:1;padding:0.85rem 1rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.25s;border-radius:1rem 1rem 0 0;display:flex;align-items:center;justify-content:center;gap:0.5rem;background:transparent;border:2px solid rgba(255,255,255,0.08);border-bottom:none;color:#7596c0;">
+          <span style="font-size:1.1rem;">🟢</span> Low / Declining Growth
+        </button>
+      </div>
+
+      <!-- Controls Bar (toggle + count) -->
+      <div id="wl-controls-bar" class="bg-navy-800/70 border border-white/8 rounded-b-2xl p-4 mb-6" style="border-top:2px solid rgba(248,113,113,0.4);">
+        <div class="flex items-center justify-between flex-wrap gap-3">
+          <!-- Sort Toggle Switch -->
+          <div style="display:flex;align-items:center;gap:0;">
+            <button id="wl-sort-pct" onclick="setWealthSort('pct')" style="padding:0.5rem 1rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.25s;border-radius:0.625rem 0 0 0.625rem;background:transparent;border:1px solid rgba(255,255,255,0.1);color:#7596c0;">% Change Ranking</button>
+            <button id="wl-sort-dollar" onclick="setWealthSort('dollar')" style="padding:0.5rem 1rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.25s;border-radius:0 0.625rem 0.625rem 0;background:rgba(248,113,113,0.18);border:1px solid rgba(248,113,113,0.35);border-left:none;color:#f87171;">$ Amount Gained Ranking</button>
+          </div>
+          <div id="wl-count" class="font-condensed text-xs tracking-widest uppercase text-steel-400"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leaderboard Grid -->
+    <div id="wl-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <!-- Populated by JS -->
+    </div>
+
+    <noscript>
+      <p class="pdx-sh-note">
+        The Wealth Transparency board compares a person's reported net worth
+        before taking office with their reported net worth now, using public
+        financial disclosures (FEC, OpenSecrets, state filings). A change in net
+        worth is not by itself evidence of wrongdoing — gains and losses come
+        from business, investments, inheritance and markets as well as from
+        office. The cards need JavaScript to render. You can read the
+        disclosures yourself at
+        <a href="https://www.opensecrets.org/personal-finances" rel="noopener noreferrer">OpenSecrets.org</a>.
+      </p>
+    </noscript>
+  </section>
+
   </main>
 
 </body>

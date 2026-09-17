@@ -273,13 +273,20 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // opening script tag through the firebase-boot.js include, so a stub fix that
 // lands on one document and not the other fails here rather than in a room.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 24477, b: 24597, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 20884, b: 21005, what: "the PDXStance vocabulary" },
   { from: "person.html", src: PERSON, a: 2006, b: 2060, what: "the Firebase boot" },
 ];
 // The three-room split moved the index.html range by −2021 — /mandate, /voice
 // and /money took the agenda wall, the proposals wall and five inline blocks out
 // of the front page, and PDXStance sits below all of it. Re-derived by locating
 // the block, not by subtracting; person.html's Firebase boot did not move.
+//   It moved again for the same reason twice over: /community took the Exchange
+// and the Open board off the front page, and the pass after it made the front
+// page a DOOR to the money lane — #follow-the-money, the Wealth Transparency
+// board and the retired #N-by-funding leaderboard all came out of index.html,
+// the first two landing on /money. PDXStance sits below every one of those
+// cuts. Re-derived again by locating the run, and again evidence.html's own
+// declared range moved with it in the same edit.
 for (const c of COPIES) {
   const header = new RegExp(`COPIED VERBATIM FROM ${c.from.replace(".", "\\.")} LINES ${c.a}[^0-9]{1,3}${c.b}`);
   ok(header.test(EV), `copy: evidence.html declares ${c.what} as ${c.from} ${c.a}–${c.b}`);

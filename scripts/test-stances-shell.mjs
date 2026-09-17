@@ -244,14 +244,27 @@ section("3 · the two copied blocks are byte-identical to index.html's");
 const lines = (s) => String(s).split("\n");
 const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 24434, b: 24458, what: "the .pdxis-stance* pill rules" },
-  { from: "index.html", src: INDEX, a: 24477, b: 24598, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 20841, b: 20865, what: "the .pdxis-stance* pill rules" },
+  { from: "index.html", src: INDEX, a: 20884, b: 21005, what: "the PDXStance vocabulary" },
 ];
-// Both index.html ranges moved by −2021 for the three-room split: the People's
-// Mandate, District Voice and Follow the Money became /mandate, /voice and
-// /money, and the agenda wall they took with them sat above both of these
-// blocks. Re-derived by locating each block verbatim in the new index.html — the
-// pill rules came back as 25 lines and the vocabulary as 122, unchanged.
+// Both index.html ranges have now moved TWICE. First by −2021 for the three-room
+// split (People's Mandate, District Voice and Follow the Money became /mandate,
+// /voice and /money, and the agenda wall they took with them sat above both of
+// these blocks), and again by a further −1572 when the Community Exchange left
+// for /community and the homepage's money surfaces — the Follow the Money card
+// grid, the #N-by-funding board and the Wealth Transparency leaderboard — were
+// deleted or moved to /money. Both departures sat above these two blocks, so
+// both ranges slid up together by the same amount.
+//
+// RE-DERIVED BY LOCATING THE RUN VERBATIM, NEVER BY SUBTRACTING A DIFF. The
+// numbers below came from searching index.html for the longest run that still
+// appears byte-identical in stances.html, not from arithmetic on the old pair.
+// That distinction is not pedantry: a sibling suite once carried a range that
+// arithmetic had walked INSIDE an unrelated block, and it kept passing green
+// because the assertion only ever compared two copies of whatever happened to
+// live at those lines. The pill rules came back as 25 lines and the vocabulary
+// as 122 — both unchanged in length, which is the check that the run found is
+// the run meant.
 for (const c of COPIES) {
   const header = new RegExp(`COPIED VERBATIM FROM ${c.from.replace(".", "\\.")} LINES ${c.a}[^0-9]{1,3}${c.b}`);
   ok(header.test(ST), `copy: stances.html declares ${c.what} as ${c.from} ${c.a}–${c.b}`);

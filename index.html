@@ -2087,18 +2087,24 @@ window.PDXLazy = (function () {
 
          /#agenda, /#mandate, /#peoples-mandate   →  /mandate
          /#follow-the-money, /#ftm                →  /money
+         /#wealth-leaderboard, /#ftm-leaderboard  →  /money
          /#district-voice, /#voice                →  /voice
          the two community fragments               →  /community
 
        #agenda is the one that would otherwise BREAK: the People's Mandate lane
        is not on this page any more, so that fragment resolves to a door card
        and the reader who bookmarked a reform lands on a link instead of the
-       reform. #follow-the-money still resolves to a live section here, and is
-       forwarded anyway for a different reason — the lane has an address now,
-       that address is a 100 KB document instead of a 1.9 MB one, and every nav
-       row, footer row and in-page door on this page already points there. A
-       bookmark should not be the one path left that still pays for the whole
-       front page to read one section. #district-voice never existed here at
+       reform. #follow-the-money and #wealth-leaderboard are now the same case:
+       the campaign filings grid and the Wealth Transparency board both moved to
+       /money, so both fragments would resolve to nothing on this page. When
+       #follow-the-money was first added to this table it still named a live
+       section and was forwarded for a softer reason — the lane had an address
+       and a bookmark should not be the one path left that pays for a 1.9 MB
+       page to read one section. The section is gone now and the forward is load
+       bearing. #ftm-leaderboard is the odd one: the board it named was DELETED
+       rather than moved, because it ranked people by a hand-set 0-100 grade
+       that the money lane refuses to publish, so the fragment forwards to the
+       lane that replaced it rather than to a copy of it. #district-voice never existed here at
        all; it is in the table so the spelling lands somewhere true. The two
        community fragments are the newest arrivals and they are the #agenda case
        exactly: the Exchange and the Open board are not on this page any more, so
@@ -2117,7 +2123,7 @@ window.PDXLazy = (function () {
        that is a person ask and money-room.js forwards /money?p=<pid> to that
        person's own file. Nothing else is invented: no fragment not in this
        table is touched, and a fragment this page really does own (#voter-hub,
-       #wealth-leaderboard, #hot-topics, every #pdxsec-*) is left alone.
+       #hot-topics, #say-vs-do, every #pdxsec-*) is left alone.
 
        ONE HOP, ALWAYS. The destinations are three other documents, so a
        forward can never re-enter this script. The hashchange arm exists for
@@ -2133,6 +2139,8 @@ window.PDXLazy = (function () {
       'peoples-mandate': '/mandate',
       'follow-the-money': '/money',
       'ftm': '/money',
+      'wealth-leaderboard': '/money',
+      'ftm-leaderboard': '/money',
       'district-voice': '/voice',
       'voice': '/voice',
       'community-exchange': '/community',
@@ -2553,8 +2561,8 @@ window.PDXLazy = (function () {
            swipe into the page or a browser back-gesture. -->
   <style id="pdx-perf-styles">
     html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
-    #hot-topics, #trending-reforms, #compare-hub, #ftm-leaderboard, #election-countdown,
-    #wealth-leaderboard, #follow-the-money, #dig-deeper, #voter-academy, #our-mission,
+    #hot-topics, #trending-reforms, #compare-hub, #election-countdown,
+    #dig-deeper, #voter-academy, #our-mission,
     #submit, #say-vs-do, #issue-front-door, #hr1-showcase {
       content-visibility: auto;
       contain-intrinsic-size: 900px;            /* fallback for engines w/o the auto keyword */
@@ -3939,7 +3947,7 @@ window.PDXLazy = (function () {
               <a href="#myteam-browse-panel" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🏛</span><span class="pdx-navmenu__lb">All Politicians</span></a>
               <a href="/money" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">💰</span><span class="pdx-navmenu__lb">Follow the Money</span></a>
               <a href="/money" onclick="if(window.PDXContracts&&window.PDXContracts.open){event.preventDefault();window.PDXContracts.open();}" role="menuitem" class="pdx-navmenu__item" title="Federal Spending Tracker — major government contracts"><span class="pdx-navmenu__ico" aria-hidden="true">🏛️</span><span class="pdx-navmenu__lb">Government Contracts</span></a>
-              <a href="#wealth-leaderboard" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">📈</span><span class="pdx-navmenu__lb">Wealth Leaderboard</span></a>
+              <a href="/money#wealth-leaderboard" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">📈</span><span class="pdx-navmenu__lb">Wealth Leaderboard</span></a>
               <div class="pdx-navmenu__sep" data-admin-only style="display:none;"></div>
               <a href="#database-expansion" data-admin-only role="menuitem" class="pdx-navmenu__item pdx-navmenu__item--admin" style="display:none;"><span class="pdx-navmenu__ico" aria-hidden="true">🔄</span><span class="pdx-navmenu__lb">Expand Database</span></a>
               <a href="#politician-manager" data-admin-only role="menuitem" class="pdx-navmenu__item pdx-navmenu__item--admin" style="display:none;"><span class="pdx-navmenu__ico" aria-hidden="true">🛠</span><span class="pdx-navmenu__lb">Manage Politicians</span></a>
@@ -4587,7 +4595,7 @@ window.PDXLazy = (function () {
       <div class="mnav-group-label mnav-group-label--money">💰 Money &amp; Spending</div>
       <a href="/money" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-money flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">💰 Follow the Money</a>
       <a href="/money" title="Federal Spending Tracker — major government contracts by agency, company &amp; state" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.PDXContracts&&window.PDXContracts.open){event.preventDefault();window.PDXContracts.open();}" class="clr-money flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🏛️ Government Contracts &amp; Spending</a>
-      <a href="#wealth-leaderboard" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-wealth flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">📈 Wealth Leaderboard</a>
+      <a href="/money#wealth-leaderboard" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-wealth flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">📈 Wealth Leaderboard</a>
       <!-- ── Education, elevated to its own hub. Was a single buried "Education"
            row; now a lead destination with jump-links straight into each Voter
            Academy curriculum track so the connection to the deep-dive content
@@ -10849,30 +10857,18 @@ window.PDXLazy = (function () {
 
   </section>
 
-  <!-- ═══════════════════════ FOLLOW THE MONEY LEADERBOARD ══════ -->
-  <section id="ftm-leaderboard" class="relative py-12 md:py-16 px-4 overflow-hidden" style="background:linear-gradient(180deg,rgba(13,21,38,0.9) 0%,rgba(10,15,30,0.95) 100%);">
-    <div class="absolute inset-0 pointer-events-none">
-      <div class="absolute top-1/3 left-1/4 w-80 h-80 bg-green-900/8 rounded-full blur-3xl"></div>
-      <div class="absolute bottom-1/4 right-1/3 w-64 h-64 bg-crimson-600/5 rounded-full blur-3xl"></div>
-    </div>
-    <div class="relative max-w-6xl mx-auto">
-      <div class="text-center mb-8">
-        <div class="inline-flex items-center gap-2 bg-green-900/20 border border-green-400/25 rounded-full px-4 py-1.5 mb-4">
-          <span class="w-2 h-2 rounded-full bg-green-400 badge-live"></span>
-          <span class="font-condensed text-xs tracking-widest uppercase text-green-400">Campaign Finance Spotlight</span>
-        </div>
-        <h2 class="section-title font-display text-3xl sm:text-4xl md:text-5xl tracking-wider mb-2">FOLLOW THE <span class="text-green-400">MONEY</span> <span class="text-crimson-400">LEADERBOARD</span></h2>
-        <p class="text-steel-300 font-body max-w-xl mx-auto text-sm leading-relaxed">Top politicians ranked by net-worth growth and donor concentration. Transparency is accountability.</p>
-      </div>
-      <div id="ftm-lb-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-      </div>
-      <div class="text-center mt-6">
-        <a href="/money" class="inline-flex items-center gap-2 border border-green-400/30 hover:border-green-400/60 bg-green-400/8 hover:bg-green-400/15 text-green-400 font-condensed font-700 text-xs tracking-widest uppercase px-6 py-3 rounded-xl transition-all">
-          Explore Full Finance Tracker →
-        </a>
-      </div>
-    </div>
-  </section>
+  <!-- ── #ftm-leaderboard was here, and it was deleted rather than moved ──
+       A "FOLLOW THE MONEY LEADERBOARD": five cards ranked #1 to #5, each with a
+       hand-set 0-100 integrity grade and a named top donor, subtitled "Top
+       politicians ranked by net-worth growth and donor concentration".
+
+       It is not on /money and it is not anywhere. The money lane reports
+       filings and refuses to score them — finance-lane.js publishes
+       `scored: false`, and scripts/test-finance-lane.mjs sweeps every shipped
+       module for a per-person 0-100 funding number under any name — so a board
+       that ranked people by a number someone typed was the retired grade in a
+       new costume. Its "Explore Full Finance Tracker →" link went to /money;
+       the nav item and the hero chip already do that, and one door is enough. -->
 
   <!-- ═══════════════════════ ELECTION COUNTDOWN & READY TO VOTE ══════ -->
   <section id="election-countdown" class="relative py-16 px-4 stars-bg scanline overflow-hidden">
@@ -12174,387 +12170,42 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   function resetDirectory() {}
   </script>
 
-  <!-- ═══════════════════════════════ WEALTH TRANSPARENCY LEADERBOARD ═════════ -->
-  <section id="wealth-leaderboard" class="py-16 md:py-24 px-4 max-w-6xl mx-auto">
-    <div class="text-center mb-8 animate-on-scroll">
-      <div class="inline-flex items-center gap-2 bg-navy-700/60 border border-gold-400/25 rounded-full px-4 py-1.5 mb-3">
-        <span class="w-2 h-2 rounded-full bg-gold-400 badge-live"></span>
-        <span class="font-condensed text-xs tracking-widest uppercase text-gold-400">Financial Accountability</span>
-      </div>
-      <h2 class="section-title font-display text-4xl md:text-5xl lg:text-6xl tracking-wider mb-3">
-        <span class="text-gold-400">📈</span> WEALTH TRANSPARENCY <span class="text-crimson-400">LEADERBOARD</span>
-      </h2>
-      <p class="font-display text-lg md:text-xl tracking-wider text-steel-300 mb-2">Net Worth Growth While in Office</p>
-      <p class="text-steel-400 font-body max-w-2xl mx-auto text-sm" style="line-height:1.7;">
-        Real leaders serve the people, not their bank accounts. Data from public financial disclosures (FEC, OpenSecrets, etc.). Not investment advice.
-      </p>
-      <div style="max-width:48rem;margin:1.25rem auto 0;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:0.75rem;padding:0.85rem 1.1rem;">
-        <p style="font-family:'Barlow',sans-serif;font-size:0.78rem;color:#fad96a;line-height:1.65;margin:0;text-align:center;">
-          <strong style="letter-spacing:0.04em;">⚠ DISCLAIMER:</strong> Net worth change alone does not prove integrity or corruption. Gains or losses can come from legitimate business, investments, inheritance, or other factors. All data is from public disclosures (FEC, OpenSecrets, state filings). Users should review full context and sources.
-        </p>
-      </div>
-      <div class="flex items-center justify-center gap-6 mt-5 flex-wrap">
-        <div class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:#f87171;"></span><span class="font-condensed text-xs tracking-widest uppercase text-steel-400">Red Flag (High Growth)</span></div>
-        <div class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:#fb923c;"></span><span class="font-condensed text-xs tracking-widest uppercase text-steel-400">Watch (Moderate)</span></div>
-        <div class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:#4ade80;"></span><span class="font-condensed text-xs tracking-widest uppercase text-steel-400">Low / Declining Growth</span></div>
-      </div>
-    </div>
+  <!-- ══ THE MONEY LANE IS A DOOR ON THIS PAGE. IT LIVES AT /money ═════════
+       WHAT USED TO BE HERE, AND WHERE IT WENT.
 
-    <!-- Two-Tab System -->
-    <div class="animate-on-scroll" style="transition-delay:0.1s;">
-      <!-- Tab Buttons -->
-      <div style="display:flex;gap:0;margin-bottom:0;">
-        <button id="wl-tab-gainers" onclick="setWealthTab('gainers')" style="flex:1;padding:0.85rem 1rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.25s;border-radius:1rem 1rem 0 0;display:flex;align-items:center;justify-content:center;gap:0.5rem;background:rgba(248,113,113,0.15);border:2px solid rgba(248,113,113,0.4);border-bottom:none;color:#f87171;">
-          <span style="font-size:1.1rem;">🔴</span> Highest Wealth Gainers
-        </button>
-        <button id="wl-tab-integrity" onclick="setWealthTab('integrity')" style="flex:1;padding:0.85rem 1rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.25s;border-radius:1rem 1rem 0 0;display:flex;align-items:center;justify-content:center;gap:0.5rem;background:transparent;border:2px solid rgba(255,255,255,0.08);border-bottom:none;color:#7596c0;">
-          <span style="font-size:1.1rem;">🟢</span> Low / Declining Growth
-        </button>
-      </div>
+         · #wealth-leaderboard — the Wealth Transparency board: net worth before
+           office against net worth now, ten cards, the tab and sort controls,
+           and the ⚠ disclaimer. MOVED, whole, to /money#wealth-leaderboard.
+           The markup is in money.html; the controller is /wealth-lane.js.
+         · #follow-the-money — the campaign filings section: the money eyebrow,
+           the disclaimer, the donor legend, the "what the money lane reports"
+           panel, the sector filter and #ftm-grid. MOVED to /money, where it is
+           the document's opening block and owns its only <h1>.
+         · The tracker script under both of them. Already gone in an earlier
+           pass: /ftm-data.js is the one owner of every filing figure, loaded
+           from this document's head, by money.html and by person.html.
 
-      <!-- Controls Bar (toggle + count) -->
-      <div id="wl-controls-bar" class="bg-navy-800/70 border border-white/8 rounded-b-2xl p-4 mb-6" style="border-top:2px solid rgba(248,113,113,0.4);">
-        <div class="flex items-center justify-between flex-wrap gap-3">
-          <!-- Sort Toggle Switch -->
-          <div style="display:flex;align-items:center;gap:0;">
-            <button id="wl-sort-pct" onclick="setWealthSort('pct')" style="padding:0.5rem 1rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.25s;border-radius:0.625rem 0 0 0.625rem;background:transparent;border:1px solid rgba(255,255,255,0.1);color:#7596c0;">% Change Ranking</button>
-            <button id="wl-sort-dollar" onclick="setWealthSort('dollar')" style="padding:0.5rem 1rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.25s;border-radius:0 0.625rem 0.625rem 0;background:rgba(248,113,113,0.18);border:1px solid rgba(248,113,113,0.35);border-left:none;color:#f87171;">$ Amount Gained Ranking</button>
-          </div>
-          <div id="wl-count" class="font-condensed text-xs tracking-widest uppercase text-steel-400"></div>
-        </div>
-      </div>
-    </div>
+       WHY. Both blocks were answering money questions in the middle of a page a
+       reader opens to find out who represents them. Every visitor downloaded
+       and parsed them; a reader who actually wanted either had a scroll
+       position rather than an address to bookmark or send. /money is that
+       address, and it is now one page with two blocks: campaign filings first
+       (what a campaign RAISED), wealth disclosures second (what a person OWNS).
 
-    <!-- Leaderboard Grid -->
-    <div id="wl-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      <!-- Populated by JS -->
-    </div>
-  </section>
+       ONE DOOR, AND IT ALREADY EXISTED. The 💰 Follow the Money item in the
+       desktop and mobile nav and the pulse chip in the hero all point at
+       /money, and they did before this. Nothing new was added here to replace
+       what was removed, because a second door to one room is how two rooms
+       start. The old #follow-the-money and #wealth-leaderboard fragments are
+       forwarded by the LANE table in this document's <head>, so a bookmark on
+       either lands on /money instead of on a fragment that names nothing.
 
-  <script>
-  // ═══════════════════════════════════════════════
-  // WEALTH TRANSPARENCY LEADERBOARD
-  // ═══════════════════════════════════════════════
-  (function() {
-    const WEALTH_DATA = [
-      { id:'trump',     name:'Donald Trump',         office:'President',                    photo:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Donald_Trump_official_portrait.jpg/500px-Donald_Trump_official_portrait.jpg',   unit:'B', before:4.5, current:6.5, blurb:'Largest absolute dollar gain of any sitting president in modern history. Business empire grew while shaping trade and tax policy.', source:'https://www.opensecrets.org/', sparkHistory:[4.5,4.7,5.0,5.3,5.6,5.9,6.2,6.5] },
-      { id:'cox',       name:'Spencer Cox',          office:'Governor · Utah',              photo:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Spencer_Cox_official_photo.jpg/440px-Spencer_Cox_official_photo.jpg',     unit:'M', before:1.2, current:2.8, blurb:'Net worth more than doubled since taking office. Real estate holdings in booming Utah market raise questions.', source:'https://www.opensecrets.org/', sparkHistory:[1.2,1.4,1.6,1.9,2.1,2.3,2.5,2.8] },
-      { id:'lee',       name:'Mike Lee',             office:'U.S. Senator · Utah',          photo:'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000577.jpg', unit:'M', before:0.8, current:1.8, blurb:'More than doubled net worth during Senate tenure. Book deals and speaking fees alongside policy votes.', source:'https://www.opensecrets.org/', sparkHistory:[0.8,0.9,1.0,1.1,1.3,1.5,1.6,1.8] },
-      { id:'curtis',    name:'John Curtis',          office:'U.S. Senator · Utah',          photo:'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001114.jpg',           unit:'M', before:2.1, current:3.2, blurb:'Significant growth tied to commercial real estate in Utah County market.', source:'https://www.opensecrets.org/', sparkHistory:[2.1,2.3,2.4,2.6,2.7,2.9,3.0,3.2] },
-      { id:'massie',    name:'Thomas Massie',        office:'U.S. Representative · KY',     photo:'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001184.jpg',     unit:'M', before:1.5, current:3.0, blurb:'Net worth doubled. Farm and tech patent portfolio grew substantially during Congressional service.', source:'https://www.opensecrets.org/', sparkHistory:[1.5,1.7,1.9,2.1,2.3,2.5,2.7,3.0] },
-      { id:'owens',     name:'Burgess Owens',        office:'U.S. Representative · UT',     photo:'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/O000086.jpg',     unit:'M', before:3.5, current:4.6, blurb:'Moderate growth rate. Media appearances and book sales contribute to wealth alongside Congressional salary.', source:'https://www.opensecrets.org/', sparkHistory:[3.5,3.7,3.8,4.0,4.1,4.3,4.4,4.6] },
-      { id:'maloy',     name:'Celeste Maloy',        office:'U.S. Representative · UT',     photo:'https://bioguide.congress.gov/bioguide/photo/M/M001228.jpg',     unit:'M', before:0.6, current:1.0, blurb:'Relatively modest growth since taking office. Among the lower-wealth members of the Utah delegation.', source:'https://www.opensecrets.org/', sparkHistory:[0.6,0.65,0.7,0.75,0.8,0.85,0.9,1.0] },
-      { id:'kennedy',   name:'Mike Kennedy',         office:'Congressional Candidate · UT', photo:'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000403.jpg', unit:'M', before:2.0, current:2.9, blurb:'Medical practice and investments grew during political career. State legislature service preceded Congressional bid.', source:'https://www.opensecrets.org/', sparkHistory:[2.0,2.1,2.2,2.4,2.5,2.6,2.7,2.9] },
-      { id:'bilzerian', name:'Dan Bilzerian',        office:'Candidate · FL-06',            photo:'',                                                                                                                                       unit:'M', before:100, current:30,  blurb:'Rare case of massive wealth decline. Lost ~$70M before entering politics — poker and lifestyle brand losses.', source:'https://www.opensecrets.org/', sparkHistory:[100,90,80,65,55,45,38,30] },
-      { id:'gallrein',  name:'Ed Gallrein',          office:'Republican Nominee · KY-04',   photo:'',           unit:'M', before:1.8, current:2.5, blurb:'Family farm and restaurant business grew moderately. Growth largely tracks regional economic trends.', source:'https://www.opensecrets.org/', sparkHistory:[1.8,1.9,2.0,2.1,2.2,2.3,2.4,2.5] },
-    ];
-
-    WEALTH_DATA.forEach(p => {
-      p.dollarChange = p.current - p.before;
-      p.pctChange = ((p.current - p.before) / p.before) * 100;
-    });
-
-    let currentTab = 'gainers';
-    let currentSort = 'dollar';
-
-    function fmt$(val, unit) {
-      if (Math.abs(val) >= 1000) return '$' + (val/1000).toFixed(1) + (unit === 'B' ? 'T' : 'B');
-      return '$' + val.toFixed(1) + unit;
-    }
-
-    function getStatusInfo(pct, tab) {
-      if (tab === 'integrity') {
-        if (pct <= 0)  return { label:'Declining Wealth', color:'#4ade80', bg:'rgba(74,222,128,0.12)', border:'rgba(74,222,128,0.3)', stripe:'linear-gradient(90deg,#16a34a,#4ade80)' };
-        if (pct <= 40) return { label:'Modest Growth', color:'#86efac', bg:'rgba(134,239,172,0.10)', border:'rgba(134,239,172,0.25)', stripe:'linear-gradient(90deg,#15803d,#86efac)' };
-        if (pct <= 80) return { label:'Moderate Change', color:'#fbbf24', bg:'rgba(251,191,36,0.10)', border:'rgba(251,191,36,0.25)', stripe:'linear-gradient(90deg,#78350f,#fbbf24)' };
-        return { label:'High Growth', color:'#fb923c', bg:'rgba(251,146,60,0.10)', border:'rgba(251,146,60,0.25)', stripe:'linear-gradient(90deg,#9a3412,#fb923c)' };
-      }
-      if (pct > 80) return { label:'Potential Red Flag', color:'#f87171', bg:'rgba(248,113,113,0.12)', border:'rgba(248,113,113,0.3)', stripe:'linear-gradient(90deg,#991b1b,#f87171)' };
-      if (pct > 40) return { label:'Worth Watching', color:'#fb923c', bg:'rgba(251,146,60,0.12)', border:'rgba(251,146,60,0.3)', stripe:'linear-gradient(90deg,#9a3412,#fb923c)' };
-      if (pct > 0)  return { label:'Moderate Change', color:'#fbbf24', bg:'rgba(251,191,36,0.12)', border:'rgba(251,191,36,0.3)', stripe:'linear-gradient(90deg,#78350f,#fbbf24)' };
-      return { label:'Low Growth', color:'#4ade80', bg:'rgba(74,222,128,0.12)', border:'rgba(74,222,128,0.3)', stripe:'linear-gradient(90deg,#16a34a,#4ade80)' };
-    }
-
-    function buildSparklineSVG(data, color) {
-      if (!data || data.length < 2) return '';
-      const w = 80, h = 24, pad = 2;
-      const min = Math.min(...data), max = Math.max(...data);
-      const range = max - min || 1;
-      const pts = data.map((v, i) => {
-        const x = pad + (i / (data.length - 1)) * (w - 2 * pad);
-        const y = h - pad - ((v - min) / range) * (h - 2 * pad);
-        return `${x},${y}`;
-      }).join(' ');
-      return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block;" xmlns="http://www.w3.org/2000/svg">
-        <defs><linearGradient id="spk-${color.replace('#','')}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity="0.3"/><stop offset="100%" stop-color="${color}" stop-opacity="0.0"/></linearGradient></defs>
-        <polygon points="${pad},${h - pad} ${pts} ${w - pad},${h - pad}" fill="url(#spk-${color.replace('#','')})" />
-        <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>`;
-    }
-
-    function buildWealthCard(p, rank) {
-      const s = getStatusInfo(p.pctChange, currentTab);
-      const sign = p.pctChange >= 0 ? '+' : '';
-      const dollarSign = p.dollarChange >= 0 ? '+' : '';
-      const icon = currentTab === 'integrity'
-        ? (p.pctChange <= 0 ? '🟢' : p.pctChange <= 40 ? '🟢' : p.pctChange <= 80 ? '🟡' : '🟠')
-        : (p.pctChange > 80 ? '🔴' : p.pctChange > 40 ? '🟠' : p.pctChange > 0 ? '🟡' : '🟢');
-      const accentColor = currentTab === 'integrity' ? '#4ade80' : '#f87171';
-      const btnBg = currentTab === 'integrity' ? 'rgba(74,222,128,0.85)' : 'rgba(192,21,42,0.85)';
-      const btnHover = currentTab === 'integrity' ? '#22c55e' : '#d91a31';
-
-      return `<div class="dir-card card-holo bg-gradient-to-br from-navy-700 to-navy-800 rounded-2xl border border-white/8 overflow-hidden animate-on-scroll" onclick="openMediumModal('${p.id}', event)" style="cursor:pointer;transition-delay:${rank*0.06}s;">
-        <div style="height:3px;background:${s.stripe};"></div>
-        <div class="px-4 pt-4 pb-3 sm:px-5 sm:pt-5 border-b border-white/5">
-          <div style="display:flex;gap:0.75rem;margin-bottom:0.75rem;align-items:flex-start;">
-            <div style="width:56px;height:56px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid rgba(255,255,255,0.14);background:rgba(30,53,96,0.5);box-shadow:0 4px 14px rgba(0,0,0,0.4);">
-              ${p.photo ? `<img loading="lazy" decoding="async" src="${p.photo}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;object-position:top;" onerror="this.parentElement.innerHTML='<div style=\\'display:flex;align-items:center;justify-content:center;height:100%;font-size:1.5rem;background:linear-gradient(135deg,rgba(30,53,96,0.7),rgba(10,15,30,0.8));\\'>🏛</div>'">` : `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:1.5rem;background:linear-gradient(135deg,rgba(30,53,96,0.7),rgba(10,15,30,0.8));">🏛</div>`}
-            </div>
-            <div style="flex:1;min-width:0;">
-              <div class="font-display text-xl sm:text-2xl tracking-wider text-white leading-tight">${p.name}</div>
-              <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.68rem;letter-spacing:0.09em;text-transform:uppercase;color:#7596c0;margin-top:0.15rem;">${p.office}</div>
-            </div>
-            <div style="text-align:right;flex-shrink:0;">
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;line-height:1;color:${s.color};">${sign}${Math.abs(p.pctChange).toFixed(0)}%</div>
-              <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;">Change</div>
-            </div>
-          </div>
-          <div style="display:flex;flex-wrap:wrap;gap:0.35rem;align-items:center;">
-            <span style="display:inline-flex;align-items:center;gap:0.25rem;background:${s.bg};border:1px solid ${s.border};color:${s.color};font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;padding:0.18rem 0.5rem;border-radius:999px;">${icon} ${s.label}</span>
-            <span style="display:inline-flex;align-items:center;background:rgba(22,39,74,0.8);border:1px solid rgba(159,180,212,0.18);color:#9fb4d4;font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.18rem 0.5rem;border-radius:999px;">🏅 #${rank + 1}</span>
-          </div>
-        </div>
-        <div class="px-4 py-3 sm:px-5 sm:py-4">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem;">
-            <div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.625rem;padding:0.6rem 0.75rem;">
-              <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;margin-bottom:0.2rem;">Before Office</div>
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.35rem;color:#9fb4d4;line-height:1;">${fmt$(p.before, p.unit)}</div>
-            </div>
-            <div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.625rem;padding:0.6rem 0.75rem;">
-              <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;margin-bottom:0.2rem;">Current Net Worth</div>
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.35rem;color:white;line-height:1;">${fmt$(p.current, p.unit)}</div>
-            </div>
-          </div>
-          <div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.625rem;padding:0.6rem 0.75rem;margin-bottom:0.75rem;display:flex;align-items:center;justify-content:space-between;">
-            <div>
-              <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;margin-bottom:0.2rem;">$ Change</div>
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:${s.color};line-height:1;">${dollarSign}${fmt$(Math.abs(p.dollarChange), p.unit)}</div>
-            </div>
-            <div style="height:28px;width:1px;background:rgba(255,255,255,0.08);"></div>
-            <div style="text-align:right;">
-              <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;margin-bottom:0.2rem;">% Change</div>
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:${s.color};line-height:1;">${sign}${Math.abs(p.pctChange).toFixed(1)}%</div>
-            </div>
-          </div>
-          <!-- Sparkline -->
-          <div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.625rem;padding:0.5rem 0.75rem;margin-bottom:0.75rem;display:flex;align-items:center;justify-content:space-between;">
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:#7596c0;">Wealth Trend</div>
-            ${buildSparklineSVG(p.sparkHistory, s.color)}
-          </div>
-          <!-- Why This Matters -->
-          <div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.625rem;padding:0.6rem 0.75rem;margin-bottom:0.75rem;">
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;color:${accentColor};margin-bottom:0.3rem;">Why This Matters</div>
-            <div style="font-family:'Barlow',sans-serif;font-size:0.72rem;color:#9fb4d4;line-height:1.5;">${p.blurb}</div>
-          </div>
-          <!-- Source -->
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
-            <a href="${p.source}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();" style="font-family:'Barlow Condensed',sans-serif;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;transition:color 0.2s;" onmouseenter="this.style.color='${accentColor}'" onmouseleave="this.style.color='#7596c0'">📄 Source: OpenSecrets / FEC</a>
-          </div>
-          <div style="display:flex;gap:0.5rem;align-items:stretch;">
-            <button style="flex:1;min-width:0;background:${btnBg};color:white;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;padding:0.6rem;border-radius:0.625rem;border:none;cursor:pointer;transition:all 0.2s;" onmouseenter="this.style.background='${btnHover}'" onmouseleave="this.style.background='${btnBg}'" onclick="showProfile('${p.id}', event)">View Full Profile →</button>
-            <button class="pdx-act-share" onclick="event.stopPropagation();window.pdxSharePolitician('${p.id}',event)" aria-label="Share this profile" title="Share this profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg></button>
-          </div>
-        </div>
-      </div>`;
-    }
-
-    function normalizeForDollarSort(p) {
-      return p.unit === 'B' ? p.dollarChange * 1000 : p.dollarChange;
-    }
-
-    function renderWealthLeaderboard() {
-      const sorted = [...WEALTH_DATA].sort((a, b) => {
-        if (currentTab === 'gainers') {
-          return currentSort === 'pct'
-            ? b.pctChange - a.pctChange
-            : normalizeForDollarSort(b) - normalizeForDollarSort(a);
-        }
-        return currentSort === 'pct'
-          ? a.pctChange - b.pctChange
-          : normalizeForDollarSort(a) - normalizeForDollarSort(b);
-      });
-      const grid = document.getElementById('wl-grid');
-      grid.innerHTML = sorted.map((p, i) => buildWealthCard(p, i)).join('');
-      document.getElementById('wl-count').textContent = sorted.length + ' politicians tracked';
-
-      const tabG = document.getElementById('wl-tab-gainers');
-      const tabI = document.getElementById('wl-tab-integrity');
-      const ctrlBar = document.getElementById('wl-controls-bar');
-      const sortPct = document.getElementById('wl-sort-pct');
-      const sortDollar = document.getElementById('wl-sort-dollar');
-
-      if (currentTab === 'gainers') {
-        tabG.style.background = 'rgba(248,113,113,0.15)';
-        tabG.style.borderColor = 'rgba(248,113,113,0.4)';
-        tabG.style.color = '#f87171';
-        tabI.style.background = 'transparent';
-        tabI.style.borderColor = 'rgba(255,255,255,0.08)';
-        tabI.style.color = '#7596c0';
-        ctrlBar.style.borderTopColor = 'rgba(248,113,113,0.4)';
-        if (currentSort === 'pct') {
-          sortPct.style.background = 'rgba(248,113,113,0.18)';
-          sortPct.style.borderColor = 'rgba(248,113,113,0.35)';
-          sortPct.style.color = '#f87171';
-          sortDollar.style.background = 'transparent';
-          sortDollar.style.borderColor = 'rgba(255,255,255,0.1)';
-          sortDollar.style.color = '#7596c0';
-        } else {
-          sortDollar.style.background = 'rgba(248,113,113,0.18)';
-          sortDollar.style.borderColor = 'rgba(248,113,113,0.35)';
-          sortDollar.style.color = '#f87171';
-          sortPct.style.background = 'transparent';
-          sortPct.style.borderColor = 'rgba(255,255,255,0.1)';
-          sortPct.style.color = '#7596c0';
-        }
-      } else {
-        tabI.style.background = 'rgba(74,222,128,0.15)';
-        tabI.style.borderColor = 'rgba(74,222,128,0.4)';
-        tabI.style.color = '#4ade80';
-        tabG.style.background = 'transparent';
-        tabG.style.borderColor = 'rgba(255,255,255,0.08)';
-        tabG.style.color = '#7596c0';
-        ctrlBar.style.borderTopColor = 'rgba(74,222,128,0.4)';
-        if (currentSort === 'pct') {
-          sortPct.style.background = 'rgba(74,222,128,0.18)';
-          sortPct.style.borderColor = 'rgba(74,222,128,0.35)';
-          sortPct.style.color = '#4ade80';
-          sortDollar.style.background = 'transparent';
-          sortDollar.style.borderColor = 'rgba(255,255,255,0.1)';
-          sortDollar.style.color = '#7596c0';
-        } else {
-          sortDollar.style.background = 'rgba(74,222,128,0.18)';
-          sortDollar.style.borderColor = 'rgba(74,222,128,0.35)';
-          sortDollar.style.color = '#4ade80';
-          sortPct.style.background = 'transparent';
-          sortPct.style.borderColor = 'rgba(255,255,255,0.1)';
-          sortPct.style.color = '#7596c0';
-        }
-      }
-    }
-
-    window.setWealthTab = function(tab) {
-      currentTab = tab;
-      renderWealthLeaderboard();
-    };
-
-    window.setWealthSort = function(mode) {
-      currentSort = mode;
-      renderWealthLeaderboard();
-    };
-
-    window.setWealthFilter = function(mode) {
-      currentTab = mode;
-      renderWealthLeaderboard();
-    };
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', renderWealthLeaderboard);
-    } else {
-      renderWealthLeaderboard();
-    }
-  })();
-  </script>
-
-  <!-- ═══════════════════════════════ FOLLOW THE MONEY ═════════ -->
-  <section id="follow-the-money" class="py-16 md:py-24 px-4 max-w-6xl mx-auto">
-    <div class="text-center mb-8 animate-on-scroll">
-      <!-- The money eyebrow and glyph wear the lane's one pair — deep forest fill,
-           gold outline and gold 💰 — so this header, the letterhead chip, the
-           library's money row and a profile's funding block read as four doors
-           into one lane. It replaced bright #4ade80, which is this codebase's YES
-           colour and had no business being the house style of a disclosure lane,
-           and it replaced crimson on the word MONEY, which put the site's NO
-           colour on the name of the section. Neither hue said anything true about
-           campaign finance; both said something about approval. -->
-      <div class="pdx-money-eyebrow mb-3">
-        <span class="w-2 h-2 rounded-full badge-live" style="background:var(--pdx-money-line, #c9992f);"></span>
-        <span>Campaign Finance Tracker</span>
-      </div>
-      <h2 class="section-title font-display text-4xl md:text-5xl lg:text-6xl tracking-wider mb-3">
-        <span style="color:var(--pdx-money-line, #c9992f);">💰</span> FOLLOW THE <span style="color:var(--pdx-money-ink, #e3c176);">MONEY</span>
-      </h2>
-      <p class="font-display text-lg md:text-xl tracking-wider text-steel-300 mb-2">Who Funds Your Representatives?</p>
-      <p class="text-steel-400 font-body max-w-2xl mx-auto text-sm" style="line-height:1.7;">
-        Campaign contributions reveal who has financial access to power. Transparency lets voters decide if their representatives serve the people — or their donors.
-      </p>
-      <div style="max-width:48rem;margin:1.25rem auto 0;background:var(--pdx-money-fill, rgba(15, 61, 46, 0.55));border:1px solid var(--pdx-money-line-soft, rgba(201, 153, 47, 0.45));border-radius:0.75rem;padding:0.85rem 1.1rem;">
-        <p style="font-family:'Barlow',sans-serif;font-size:0.78rem;color:var(--pdx-money-text, #bcd3c6);line-height:1.65;margin:0;text-align:center;">
-          <strong style="letter-spacing:0.04em;">⚠ DISCLAIMER:</strong> Campaign contributions are legal and do not imply corruption. Donations reflect supporter priorities, not guaranteed policy influence. All data is sourced from public FEC filings and OpenSecrets.org. Figures are representative totals from the most recent available election cycles. Users should verify current data at <a href="https://www.opensecrets.org" target="_blank" rel="noopener noreferrer" style="color:var(--pdx-money-ink, #e3c176);text-decoration:underline;">OpenSecrets.org</a> and <a href="https://www.fec.gov" target="_blank" rel="noopener noreferrer" style="color:var(--pdx-money-ink, #e3c176);text-decoration:underline;">FEC.gov</a>.
-        </p>
-      </div>
-      <div class="flex items-center justify-center gap-6 mt-5 flex-wrap">
-        <div class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:#ff8a8a;box-shadow:0 0 6px rgba(255,138,138,0.4);"></span><span class="font-condensed text-xs tracking-widest uppercase text-steel-300" style="font-weight:600;">Industry / Corporate PAC</span></div>
-        <div class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:#7cc4ff;box-shadow:0 0 6px rgba(124,196,255,0.4);"></span><span class="font-condensed text-xs tracking-widest uppercase text-steel-300" style="font-weight:600;">Individual Donors</span></div>
-        <div class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-full" style="background:#c4a6ff;box-shadow:0 0 6px rgba(196,166,255,0.4);"></span><span class="font-condensed text-xs tracking-widest uppercase text-steel-300" style="font-weight:600;">Leadership PAC / Other</span></div>
-      </div>
-    </div>
-
-    <!-- The money lane: what the filings report, and how little of the roster
-         they cover. This panel used to document a 0-100 "Constituents-First
-         signal" with three graded levels; the score is retired (see
-         finance-lane.js for why) and what is documented now is the composition
-         and its coverage. -->
-    <details style="margin:0 0 1rem;background:rgba(10,15,30,0.4);border:1px solid rgba(159,180,212,0.18);border-radius:0.75rem;padding:0.5rem 0.9rem;">
-      <summary style="cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:#7cc4ff;padding:0.35rem 0;list-style:none;">🎚 What the money lane reports — and what it refuses to</summary>
-      <div style="padding:0.4rem 0 0.6rem;">
-        <p style="font-family:'Barlow',sans-serif;font-size:0.78rem;color:#c8d8ea;line-height:1.6;margin:0 0 0.6rem;">This lane reports <strong>composition, not a grade</strong>. For each person with an itemized filing it shows the dollars in each bucket the FEC itself reports, that bucket's share of the itemized base, and the largest reported source named as a fact about a sorted list. There is <strong>no 0&ndash;100 number, no level and no letter</strong> — the "Constituents-First signal" that used to sit here has been retired, arithmetic and all.</p>
-        <p style="font-family:'Barlow',sans-serif;font-size:0.78rem;color:#c8d8ea;line-height:1.6;margin:0 0 0.6rem;">Sourcing is disclosure-based: itemized public filings (FEC for federal offices, Utah's disclosure system for state and local), split into the FEC's own buckets. Outside ("dark-money") spending is reported at the level the filing supports and never as a dollar figure, because outside spending is not itemized to the candidate. <strong>No motive is inferred anywhere.</strong> A filing shows where money came from. It does not show why anyone voted for anything, and this lane never says it does.</p>
-        <p style="font-family:'Barlow',sans-serif;font-size:0.78rem;color:#9fb4d4;line-height:1.6;margin:0 0 0.6rem;"><strong style="color:#c8d8ea;">Coverage, stated up front.</strong> Itemized filings are on file for a small minority of the people PolitiDex carries, and every profile says so. Where a filing is missing that is <em>missing data</em> — it is not a finding about the person, and no surface reads it as one.</p>
-        <p style="font-family:'Barlow',sans-serif;font-size:0.78rem;color:#9fb4d4;line-height:1.6;margin:0;"><strong style="color:#c8d8ea;">The wall.</strong> Nothing on this lane is an input to <strong>Direction Match</strong>, to <strong>⚖️ Word vs Action</strong>, to a formal pattern tier, to the publication floor, to any count of formal acts, to Your&nbsp;Match, or to any ordering of one person against another. It is a separate lane and it ends where it is printed.</p>
-      </div>
-    </details>
-
-    <!-- Sector Filter -->
-    <div class="animate-on-scroll mb-6" style="transition-delay:0.1s;">
-      <div class="bg-navy-800/70 border border-white/8 rounded-2xl p-4">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.5rem;">Filter by Sector</div>
-        <div class="flex items-center justify-between flex-wrap gap-3">
-          <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap;">
-            <button onclick="setFTMSector('all')" id="ftm-sec-all" style="padding:0.5rem 1rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.25s;border-radius:0.625rem 0 0 0.625rem;background:rgba(74,222,128,0.18);border:1px solid rgba(74,222,128,0.35);color:#4ade80;">All Sectors</button>
-            <button onclick="setFTMSector('tech')" id="ftm-sec-tech" style="padding:0.5rem 1rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.25s;background:transparent;border:1px solid rgba(255,255,255,0.1);border-left:none;color:#7596c0;">Tech</button>
-            <button onclick="setFTMSector('finance')" id="ftm-sec-finance" style="padding:0.5rem 1rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.25s;background:transparent;border:1px solid rgba(255,255,255,0.1);border-left:none;color:#7596c0;">Finance</button>
-            <button onclick="setFTMSector('realestate')" id="ftm-sec-realestate" style="padding:0.5rem 1rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.25s;background:transparent;border:1px solid rgba(255,255,255,0.1);border-left:none;color:#7596c0;">Real Estate</button>
-            <button onclick="setFTMSector('energy')" id="ftm-sec-energy" style="padding:0.5rem 1rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.25s;background:transparent;border:1px solid rgba(255,255,255,0.1);border-left:none;color:#7596c0;">Energy</button>
-            <button onclick="setFTMSector('pharma')" id="ftm-sec-pharma" style="padding:0.5rem 1rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.25s;background:transparent;border:1px solid rgba(255,255,255,0.1);border-left:none;color:#7596c0;">Pharma</button>
-            <button onclick="setFTMSector('defense')" id="ftm-sec-defense" style="padding:0.5rem 1rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.25s;background:transparent;border:1px solid rgba(255,255,255,0.1);border-left:none;color:#7596c0;">Defense</button>
-            <button onclick="setFTMSector('others')" id="ftm-sec-others" style="padding:0.5rem 1rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.25s;border-radius:0 0.625rem 0.625rem 0;background:transparent;border:1px solid rgba(255,255,255,0.1);border-left:none;color:#7596c0;">Others</button>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.15rem;">
-            <div id="ftm-count" class="font-condensed text-xs tracking-widest uppercase text-steel-400"></div>
-            <div id="ftm-asof" class="font-condensed text-xs tracking-widest uppercase" style="color:#5b7196;"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Follow The Money Grid -->
-    <div id="ftm-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      <!-- Populated by JS -->
-    </div>
-  </section>
-
-  <!-- ══ THE FILINGS THEMSELVES LIVE IN /ftm-data.js ══════════════════════
-       The grid above is painted by the Follow the Money data module, which is
-       loaded once further down this document, immediately before
-       finance-lane.js — the module that reads it. The figures used to be pasted
-       inline HERE, and again into money.html, and a third time into
-       person.html, with a byte-identity fence in the test suite holding the
-       three copies together. One owner replaces the fence: every hand-verified
-       dollar figure is edited in one file, this page no longer ships 64 KB of
-       campaign finance data to answer "who represents me", and /money, the
-       money door below, the 💰 chip on a person file and /p/<pid>#money cannot
-       disagree about one person's money because there is only one answer to
-       disagree about. See ftm-data.js and scripts/test-ftm-data-owner.mjs. -->
+       WHAT DID NOT MOVE, AND MUST NOT BE CONFUSED WITH THIS. The 💰 letterhead
+       chip on a person file is finance-lane.js's, computed off /ftm-data.js,
+       and it was never part of these sections. Both <script defer> tags stay in
+       this document's head for exactly that reason: the chip is the front
+       page's remaining money surface and it reads the filings directly.
+       ═════════════════════════════════════════════════════════════════════ -->
 
   <!-- ═══════════════════════ DIG DEEPER · TOOLS & REFERENCES ════════ -->
   <!--
@@ -13093,7 +12744,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
             <div class="va-takeaway"><span class="va-co-ico">💡</span><span><strong>Follow the chain:</strong> donor → committee → vote. When all three line up against the public interest, you've found a story worth telling.</span></div>
             <div class="va-links">
               <a href="/money">💰 Follow the Money</a>
-              <a href="#wealth-leaderboard">📈 Wealth Leaderboard</a>
+              <a href="/money#wealth-leaderboard">📈 Wealth Leaderboard</a>
               <a href="https://www.opensecrets.org/" target="_blank" rel="noopener noreferrer">🔗 OpenSecrets</a>
             </div>
           </div></div>
@@ -14382,7 +14033,7 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
                 <a href="#voter-hub" class="hover:text-white transition-colors">Voter Hub</a>
                 <a href="/ballot" class="hover:text-white transition-colors">Work Your Ballot</a>
                 <a href="#compare-hub" class="hover:text-white transition-colors">Compare Tool</a>
-                <a href="#wealth-leaderboard" class="hover:text-white transition-colors">Wealth Tracker</a>
+                <a href="/money#wealth-leaderboard" class="hover:text-white transition-colors">Wealth Tracker</a>
                 <a href="/money" class="hover:text-white transition-colors">Follow the Money</a>
                 <a href="#dig-deeper" class="hover:text-white transition-colors">Dig Deeper · Tools</a>
               </div>
@@ -17071,63 +16722,25 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
   })();
   </script>
 
-  <!-- ── Follow the Money Leaderboard + Follow functionality ── -->
-  <script>
-  (function() {
-    var FTM_LB_DATA = [
-      { id:'trump', name:'Donald Trump', office:'President', photo:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Donald_Trump_official_portrait.jpg/500px-Donald_Trump_official_portrait.jpg', nwBefore:'$4.5B', nwNow:'$6.5B', nwGain:'+$2.0B', pctGain:44, corpPct:62, smallPct:28, integrity:32, topDonor:'Timothy Mellon ($150M)' },
-      { id:'cox', name:'Spencer Cox', office:'Governor · UT', photo:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Spencer_Cox_official_photo.jpg/440px-Spencer_Cox_official_photo.jpg', nwBefore:'$1.2M', nwNow:'$2.8M', nwGain:'+$1.6M', pctGain:133, corpPct:58, smallPct:30, integrity:54, topDonor:'Real Estate ($1.85M)' },
-      { id:'lee', name:'Mike Lee', office:'U.S. Senator · UT', photo:'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000577.jpg', nwBefore:'$0.8M', nwNow:'$1.8M', nwGain:'+$1.0M', pctGain:125, corpPct:55, smallPct:32, integrity:48, topDonor:'Club for Growth ($1.2M)' },
-      { id:'massie', name:'Thomas Massie', office:'U.S. Rep · KY', photo:'https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001184.jpg', nwBefore:'$1.5M', nwNow:'$3.0M', nwGain:'+$1.5M', pctGain:100, corpPct:22, smallPct:65, integrity:78, topDonor:'Small Donors ($1.8M)' },
-      { id:'bilzerian', name:'Dan Bilzerian', office:'Candidate · FL', photo:'', nwBefore:'$100M', nwNow:'$30M', nwGain:'-$70M', pctGain:-70, corpPct:12, smallPct:8, integrity:35, topDonor:'Self-Funded ($1.2M)' }
-    ];
+  <!-- ── Follow the Money: the follow button, and NOT a leaderboard ──
+       WHAT USED TO BE HERE. An IIFE holding FTM_LB_DATA — five politicians,
+       each with a hand-set `integrity:` number from 0 to 100 and a top-donor
+       string — that painted #ftm-leaderboard: a "#1 … #5 by funding" ranking
+       with a grade under each name.
 
-    FTM_LB_DATA.sort(function(a, b) { return b.pctGain - a.pctGain; });
+       IT WAS DELETED, NOT MOVED. It did not go to /money with the rest of the
+       money lane and it is not anywhere else. The money lane's standing rule is
+       that a filing is reported, never scored: finance-lane.js publishes
+       `scored: false` and a NEVER_FEEDS wall, and scripts/test-finance-lane.mjs
+       sweeps every shipped module for a per-person 0-100 funding number under
+       any name. That board was the retired grade with a different label on it
+       and a rank column added, so relocating it would have moved the one thing
+       the lane exists to refuse. /money reports amounts and composition and
+       ranks nobody.
 
-    var grid = document.getElementById('ftm-lb-grid');
-    if (!grid) return;
-
-    var html = FTM_LB_DATA.map(function(p, i) {
-      var intClass = p.integrity >= 65 ? 'ftm-integrity-high' : p.integrity >= 45 ? 'ftm-integrity-mid' : 'ftm-integrity-low';
-      var intLabel = p.integrity >= 65 ? 'HIGH' : p.integrity >= 45 ? 'MID' : 'LOW';
-      var intIcon = p.integrity >= 65 ? '🛡️' : p.integrity >= 45 ? '⚠️' : '🚩';
-      var changeColor = p.pctGain > 50 ? '#f87171' : p.pctGain < 0 ? '#4ade80' : '#f5c842';
-      var changeClass = p.pctGain > 0 ? 'ftm-lb-nw-up' : 'ftm-lb-nw-down';
-      var photoHtml = p.photo
-        ? '<img loading="lazy" decoding="async" src="' + p.photo + '" alt="' + p.name + '" style="width:100%;height:100%;object-fit:cover;object-position:top;" onerror="this.parentElement.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.2rem;background:linear-gradient(135deg,rgba(30,53,96,0.7),rgba(10,15,30,0.8));\\\'>🏛</div>\'">'
-        : '<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.2rem;background:linear-gradient(135deg,rgba(30,53,96,0.7),rgba(10,15,30,0.8));">🏛</div>';
-
-      return '<div class="ftm-lb-card animate-on-scroll" onclick="openMediumModal(\'' + p.id + '\')" style="transition-delay:' + (i * 0.08) + 's;">' +
-        '<div class="ftm-lb-rank">#' + (i + 1) + '</div>' +
-        '<div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.6rem;">' +
-          '<div style="width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid rgba(74,222,128,0.25);">' + photoHtml + '</div>' +
-          '<div style="flex:1;min-width:0;">' +
-            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.8rem;color:white;letter-spacing:0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + p.name + '</div>' +
-            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:#7596c0;">' + p.office + '</div>' +
-          '</div>' +
-        '</div>' +
-        '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:0.35rem;">' +
-          '<div class="ftm-lb-nw-change ' + changeClass + '">' + p.nwGain + '</div>' +
-          '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.55rem;color:' + changeColor + ';font-weight:700;">' + (p.pctGain >= 0 ? '+' : '') + p.pctGain + '%</div>' +
-        '</div>' +
-        '<div style="display:flex;gap:0.25rem;margin-bottom:0.5rem;">' +
-          '<div style="height:4px;flex:' + p.corpPct + ';background:#ff8a8a;border-radius:2px;" title="Corp ' + p.corpPct + '%"></div>' +
-          '<div style="height:4px;flex:' + p.smallPct + ';background:#7cc4ff;border-radius:2px;" title="Small ' + p.smallPct + '%"></div>' +
-          '<div style="height:4px;flex:' + (100 - p.corpPct - p.smallPct) + ';background:#c4a6ff;border-radius:2px;" title="Other"></div>' +
-        '</div>' +
-        '<div style="display:flex;align-items:center;justify-content:space-between;">' +
-          '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.55rem;color:#4e72a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%;">' + p.topDonor + '</div>' +
-          '<div class="ftm-integrity-badge ' + intClass + '" style="font-size:0.55rem;padding:0.15rem 0.45rem;border-width:1px;">' + intIcon + ' ' + p.integrity + '</div>' +
-        '</div>' +
-      '</div>';
-    }).join('');
-
-    grid.innerHTML = html;
-
-    setTimeout(function() {
-      grid.querySelectorAll('.animate-on-scroll').forEach(function(el) { el.classList.add('visible'); });
-    }, 300);
-  })();
+       WHAT SURVIVES BELOW IS THE FOLLOW BUTTON, which is not part of that: it
+       is the reader's own list, it is painted into the profile modal, and it
+       has nothing to do with funding rank. ── -->
 
   window.toggleFollowMoney = function(pid) {
     var user = auth.currentUser;

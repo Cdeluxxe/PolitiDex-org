@@ -95,6 +95,13 @@ const jsBare = (s) => cssBare(s).replace(/^[ \t]*\/\/.*$/gm, blank);
 // thing it is looking for.
 const MY_BARE = scriptBare(styleBare(htmlBare(MY)));
 const MY_MARKUP = htmlBare(MY);   // comments out, scripts and styles kept
+// THE FRONT PAGE, WITH ITS COMMENTS OUT AND ITS SCRIPTS KEPT. Same reason as
+// above, and on index.html it is now load bearing: where the money lane used to
+// be there is a long note naming everything that moved and everything that was
+// deleted — #ftm-leaderboard, FTM_LB_DATA, #wealth-leaderboard, the lot. A
+// sweep over the raw file would fail on the note that records the deletion,
+// which would mean the only way to pass is to delete the explanation.
+const INDEX_NC = htmlBare(INDEX);
 const CODE = jsBare(ROOM);
 
 let passed = 0;
@@ -312,7 +319,7 @@ console.log(`  /money: ${(MY.length / 1024).toFixed(0)} KB raw / ${(gz / 1024).t
 // ═════════════════════════════════════════════════════════════════════════════
 // 3 · THE LANE IS THE WHOLE DOCUMENT
 // ═════════════════════════════════════════════════════════════════════════════
-section("3 · the lane came, the homepage did not, and nothing here is a grade");
+section("3 · two blocks came, the homepage did not, and neither block is a grade");
 
 // WHAT CAME. The section, the sector filter, the grid, the as-of line and the
 // coverage host — amounts, composition and coverage, which is the brief.
@@ -321,13 +328,66 @@ section("3 · the lane came, the homepage did not, and nothing here is a grade")
   ['id="ftm-count"', "the count line"],
   ['id="ftm-asof"', "the as-of line — a filing with no date is a figure with no provenance"],
   ['id="ftm-sec-all"', "the sector filter"],
-  ['id="pdx-money-coverage"', "the coverage host"]].forEach(([n, what]) =>
+  ['id="pdx-money-coverage"', "the coverage host"],
+  // BLOCK 2. The Wealth Transparency board followed the filings here in a later
+  // pass, so /money is one page with two blocks and two archives: what a
+  // campaign RAISED above, what a person OWNS below.
+  ['<section id="wealth-leaderboard"', "the wealth disclosures section"],
+  ['id="wl-grid"', "the wealth card grid"],
+  ['id="wl-count"', "the wealth count line"],
+  ['id="wl-tab-gainers"', "the wealth tabs"],
+  ['<script defer src="/wealth-lane.js"></script>', "the wealth block's controller"]].forEach(([n, what]) =>
   has(MY_MARKUP, n, `came: ${what} did not come with the room`));
+
+// AND THE FILINGS COME FIRST. "Campaign filings, then wealth disclosures" is the
+// reading order, not a preference: the block with the coverage sentence and the
+// unprompted disclaimer opens the document.
+ok(MY.indexOf('<section id="follow-the-money"') < MY.indexOf('<section id="wealth-leaderboard"'),
+  "order: the wealth block is printed ABOVE the campaign filings — amounts owned is the second question at this " +
+  "address, not the first");
+
+// THE WEALTH BLOCK IS A DISCLOSURE, NOT A GRADE, AND IT SAYS SO BEFORE IT SAYS
+// ANYTHING ELSE. The ⚠ line is inside the section and above the first control.
+{
+  const wa = MY_BARE.indexOf('<section id="wealth-leaderboard"');
+  const wb = MY_BARE.indexOf("</section>", wa);
+  ok(wa > 0 && wb > wa, "wealth: the wealth section is not a closed run of markup");
+  const WEALTH = MY_BARE.slice(wa, wb);
+  has(WEALTH, "Net worth change alone does not prove integrity or corruption",
+    "wealth: the disclaimer is gone — a net-worth delta with no disclaimer reads as an accusation");
+  ok(WEALTH.indexOf("DISCLAIMER") < WEALTH.indexOf('id="wl-tab-gainers"'),
+    "wealth: a control is printed above the disclaimer — the qualification has to arrive before the ranking does");
+  ok(WEALTH.indexOf("<h1") < 0, "wealth: the second section took an h1 — block 1 opens the document");
+  has(WEALTH, "OpenSecrets", "wealth: the block does not name the archive a reader can check for themselves");
+}
+
+// AND IT IS NOT IN THE 💰 CHIP MATH. The chip, the composition read and the
+// coverage sentence are finance-lane.js's, computed off /ftm-data.js. The wealth
+// module is named by none of them and names none of them back; the two archives
+// meet on this page and nowhere in the code.
+{
+  const WL = jsBare(R("wealth-lane.js"));
+  ok(!/\bFTM_DATA\b|\bFTM_FUNDING\b|\bFTM_AS_OF\b|\b_FTM_BY_ID\b/.test(WL),
+    "wealth: wealth-lane.js can see the filings index — amounts owned must not be able to move amounts raised");
+  ["_pdxFinanceFiling", "_pdxFinanceSignal", "_pdxFinanceRecord", "PDXFinanceLane"].forEach((sym) =>
+    lacks(WL, sym, `wealth: wealth-lane.js reads ${sym} — the wealth block is an input to no filings figure`));
+  ["WEALTH_DATA", "wealth-lane", "wl-grid"].forEach((sym) =>
+    lacks(jsBare(FIN), sym, `chip math: finance-lane.js references ${sym} — the 💰 chip does not read net worth`));
+  lacks(jsBare(R("ftm-data.js")), "WEALTH_DATA", "chip math: the filings module references the wealth data");
+  // The mount gate: a module that assumes its grid throws on every document
+  // without one, and this one is loaded from a shell that may outlive the block.
+  has(WL, "getElementById('wl-grid')", "wealth: the module does not look its mount up");
+  ok(/if\s*\(!grid\)\s*return/.test(WL),
+    "wealth: wealth-lane.js has no mount gate — it would throw on every document with no #wl-grid");
+}
 // ONE h1, AND IT IS THE LANE'S NAME. On the front page this was an <h2> among
 // twenty sections; here it is the document. That single tag pair is also the ONLY
 // difference the fence in section 4 normalises.
 eq((MY_BARE.match(/<h1/g) || []).length, 1, "came: the document does not have exactly one h1");
-eq((MY_BARE.match(/class="section-title/g) || []).length, 1, "came: the section header is not exactly one element");
+// TWO section-titles, ONE h1. Both blocks wear the house header class; only the
+// first one is the document's heading.
+eq((MY_BARE.match(/class="section-title/g) || []).length, 2,
+  "came: the document no longer has exactly two section headers — campaign filings and wealth disclosures");
 // COVERAGE IS SAID OUT LOUD, AND IT IS THE LANE'S SENTENCE, NOT THIS PAGE'S.
 has(CODE, "coverageHtml",
   "coverage: money-room.js no longer asks finance-lane.js for the sentence — a second copy of 'N of M filed' is a " +
@@ -352,11 +412,22 @@ has(FIN, "function coverageHtml", "coverage: finance-lane.js no longer publishes
   ['id="voter-hub"', "the ballot workspace"],
   ['id="agenda"', "the Mandate, which is its own address"],
   ['id="judicial-lane"', "the courts lane, which is its own address"],
-  ['id="wealth-leaderboard"', "the net-worth lane — amounts raised and amounts owned are not the same claim"],
   ["<template", "an inert template — the Evidence Locker's is the big one and it is not here"],
   ["el-workspace-tpl", "the Evidence Locker workspace template"],
-  ["ms-shell-tpl", "the my-stances shell template"]].forEach(([n, what]) =>
+  ["ms-shell-tpl", "the my-stances shell template"],
+  // THE ONE MONEY SURFACE THAT DID NOT COME, AND WAS NOT KEPT EITHER. The front
+  // page's #ftm-leaderboard ranked five people #1–#5 with a hand-set 0-100
+  // integrity grade under each. It was DELETED in the pass that moved the other
+  // two blocks here, because a board that ranks people by a typed number is the
+  // grade this lane publishes `scored: false` to refuse. It is not on /money and
+  // it is not on the front page.
+  ['id="ftm-leaderboard"', "the retired #N-by-funding board, which was deleted rather than moved"],
+  ["ftm-lb-rank", "the retired board's rank column"]].forEach(([n, what]) =>
   lacks(MY_BARE, n, `walls: ${what} is on this document — that is the front page wearing a new URL`));
+[['id="ftm-leaderboard"', "the #N-by-funding board"],
+  ["ftm-lb-rank", "its rank column"],
+  ["FTM_LB_DATA", "its hand-set integrity grades"]].forEach(([n, what]) =>
+  lacks(INDEX_NC, n, `walls: ${what} is still on the front page — it was deleted, not relocated`));
 
 // THE DENYLIST. The lane publishes `scored: false`; nothing on this page may
 // imply otherwise.
@@ -396,70 +467,68 @@ lacks(CODE, "api.open.fec.gov", "fec: money-room.js names the FEC API");
 has(MY, "NO LIVE FEC", "fec: the banner no longer states the rule, which is the only place a future pass would read it");
 
 // ═════════════════════════════════════════════════════════════════════════════
-// 4 · THE SECTION IS STILL FENCED; THE FIGURES ARE NO LONGER COPIED AT ALL
+// 4 · NOTHING IS COPIED ANY MORE — NOT THE FIGURES, AND NOT THE MARKUP
 // ═════════════════════════════════════════════════════════════════════════════
-section("4 · the section markup is byte-identical, and the filings are a module");
+section("4 · the lane moved off the front page, and the front page kept a door");
 
-// WHAT THIS SECTION USED TO BE, AND WHY IT IS SMALLER NOW. It fenced TWO slices
-// of index.html: the section markup, and the tracker script under it — 931 lines
-// of hand-verified campaign finance data, re-read out of index.html on every run
+// WHAT THIS SECTION USED TO BE, AND WHY IT IS A DIFFERENT SHAPE NOW.
+//
+// It fenced TWO slices of index.html. First the tracker script — 931 lines of
+// hand-verified campaign finance data, re-read out of index.html on every run
 // and byte-compared against the paste in this document, because a figure edited
-// on one side only is two answers about one candidate's money.
+// on one side only is two answers about one candidate's money. Then, after that
+// became /ftm-data.js, just the section MARKUP: index.html's lines, normalised
+// by exactly one declared change (h2 → h1, because here the section IS the
+// document), with the range spelled out in money.html so the next reader did
+// not have to search for it.
 //
-// The tracker is not copied any more. It is /ftm-data.js, loaded by index.html,
-// money.html and person.html, and a fence around one file is just the file. What
-// replaces the byte-comparison is stronger than it was: an identity check (does
-// this document load the module?), an ordering check (does it load it before the
-// lane that reads it?), and an absence check (is there a single filings literal
-// left inline anywhere in this document?). scripts/test-finance-lane.mjs holds
-// the other half — that exactly two shipped modules can see the filings index,
-// and that only one of them declares it.
+// BOTH COPIES ARE GONE, so both fences are. The front page no longer carries
+// the Follow the Money section, the sector filter, the card grid or the Wealth
+// Transparency board; all of it is on /money, and the Wealth board came here in
+// the same pass. A byte fence needs two ends and there is one left.
 //
-// THE MARKUP IS STILL A COPY, so its fence stays. The section is index.html's
-// markup with exactly one deliberate change: the header is an <h1> here, because
-// here the section IS the document.
-//
-// THESE LINE NUMBERS MOVE. WHEN THEY GO STALE, RE-DERIVE THEM BY LOCATING THE
-// RUN — find `<section id="follow-the-money"` in index.html and read the line
-// numbers off. DO NOT recompute them by arithmetic from a diff:
-// test-person-shell.mjs records the same rule, in the same words, for the copies
-// it fences, and the one time that rule was broken in this codebase the
-// arithmetic produced a range that still matched a DIFFERENT run of bytes.
-const SEC_A = 14758, SEC_B = 14833;
+// WHAT REPLACES IT IS AN ABSENCE TEST AND A DOOR TEST, which is the stronger
+// pair for a move: the front page must not still be painting the lane (that is
+// how a "move" quietly becomes a second copy), and it must still be able to
+// reach it (that is how a move becomes a deletion the reader finds out about by
+// hitting a dead nav item).
 {
-  const lines = INDEX.split("\n");
-  const sec = lines.slice(SEC_A - 1, SEC_B).join("\n");
+  // ── THE FRONT PAGE DOES NOT PAINT THE LANE ─────────────────────────────────
+  [['<section id="follow-the-money"', "the campaign filings section"],
+    ['id="ftm-grid"', "the filings card grid"],
+    ['id="ftm-sec-all"', "the sector filter"],
+    ['id="ftm-count"', "the filings count line"],
+    ['id="ftm-asof"', "the filings as-of line"],
+    ['<section id="wealth-leaderboard"', "the Wealth Transparency board"],
+    ['id="wl-grid"', "the wealth card grid"],
+    ["setWealthTab", "the wealth tab controls"]].forEach(([n, what]) =>
+    lacks(INDEX_NC, n, `moved: ${what} is still on index.html — the lane moved, so a copy on the front page is a ` +
+      "second answer that nothing keeps in step with the first"));
 
-  // THE FIXTURE FIRST: the declared range must actually name the run it claims
-  // to. A stale range that happens to contain plausible markup would otherwise
-  // turn every assertion below into a tautology.
-  must(/^\s*<section id="follow-the-money"/.test(sec),
-    `index.html lines ${SEC_A}–${SEC_B} are not the Follow the Money section — re-derive the range by locating ` +
-    '`<section id="follow-the-money"` in index.html');
-  must(/<\/section>\s*$/.test(sec), `index.html line ${SEC_B} is not the section's closing tag`);
+  // ── AND IT STILL HAS EXACTLY ONE DOOR TO IT ────────────────────────────────
+  // The nav item and the hero chip both pointed at /money before this pass. No
+  // new door was added to replace what was removed: a second door to one room
+  // is how two rooms start.
+  ok(INDEX.indexOf('href="/money"') > 0,
+    "door: the front page has no plain /money link left — the lane is unreachable from the page it left");
+  has(INDEX, "💰 Follow the Money",
+    "door: the nav item that names the lane is gone — a reader who used it now has nothing to use");
+  // THE OLD FRAGMENTS ARE FORWARDED. Three of them named live sections on this
+  // page and now name nothing, so a bookmark has to land on the room.
+  ["'follow-the-money': '/money'", "'wealth-leaderboard': '/money'", "'ftm-leaderboard': '/money'"].forEach((k) =>
+    has(INDEX, k, `door: the fragment forwarder is missing ${k} — an old bookmark lands on a fragment that names ` +
+      "nothing on this page"));
 
-  // AND THE DOCUMENT SAYS WHICH LINES IT COPIED, so the next reader does not
-  // have to find out by searching.
-  has(MY, `VERBATIM FROM index.html LINES ${SEC_A}–${SEC_B}`,
-    "fence: money.html does not declare the section's source range");
-
-  // THE SECTION: EXACT AFTER ONE NORMALISATION, and the normalisation is
-  // declared rather than loose. h2 → h1, both tags, nothing else.
-  const norm = sec.replace(/<h2 /g, "<h1 ").replace(/<\/h2>/g, "</h1>");
-  ok(MY.indexOf(norm) > 0,
-    `fence: the copied section differs from index.html lines ${SEC_A}–${SEC_B} by more than the one declared ` +
-    "change (the section header being an h1 here rather than an h2)");
-  ok(MY.indexOf(sec) < 0,
-    "fence: the section was copied WITHOUT the h1 swap — then this document's only heading is an h2 and the page " +
-    "has no h1 at all");
-  eq((sec.match(/<h2 /g) || []).length, 1,
-    "fence: the front page's copy of the section no longer has exactly one h2 — the normalisation above is a " +
-    "one-tag rule and it needs re-deriving with the markup");
-
-  // THE FRONT PAGE KEEPS ITS DOOR. The section was never the thing that moved;
-  // the data under it was.
-  has(INDEX, '<section id="follow-the-money"',
-    "fence: the section was DELETED from index.html — the front page's door still opens the lane");
+  // ── THE 💰 CHIP ON A PERSON FILE IS NOT PART OF ANY OF THIS ────────────────
+  // It is finance-lane.js's, computed off /ftm-data.js, and it was never in the
+  // sections above. Both script tags stay on the front page for exactly that
+  // reason, and the test that would otherwise catch their removal is this one.
+  has(INDEX, '<script defer src="/ftm-data.js"></script>',
+    "chip: index.html stopped loading the filings module — the person-file 💰 chip reads it directly");
+  has(INDEX, '<script defer src="/finance-lane.js"></script>',
+    "chip: index.html stopped loading the finance lane — the 💰 chip is painted by it");
+  ok(INDEX.indexOf('src="/ftm-data.js"') < INDEX.indexOf('src="/finance-lane.js"'),
+    "chip: index.html loads /ftm-data.js AFTER /finance-lane.js — the lane would read an index that is not there yet");
 
   // ── ONE OWNER FOR THE FIGURES ──────────────────────────────────────────────
   // Not one filings literal is left in this document, or in the front page. The
@@ -471,8 +540,6 @@ const SEC_A = 14758, SEC_B = 14833;
     "owner: index.html still carries a filings literal — the front page reads the module like everyone else");
   has(MY, '<script defer src="/ftm-data.js"></script>',
     "owner: money.html does not load the shared filings module");
-  has(INDEX, '<script defer src="/ftm-data.js"></script>',
-    "owner: index.html does not load the shared filings module");
 
   // ORDER IS THE CONTRACT, AND ON THIS DOCUMENT IT IS NOT A FORMALITY. Both tags
   // are `defer`, deferred scripts run in document order, and finance-lane.js
@@ -485,11 +552,15 @@ const SEC_A = 14758, SEC_B = 14833;
     "owner: money.html loads /ftm-data.js AFTER /finance-lane.js — the lane would read an index that is not there yet");
   ok(MY.slice(0, MY.indexOf("</head>")).indexOf('src="/ftm-data.js"') > 0,
     "owner: the filings module is not in this document's <head>, where it has to be to precede the lane");
+  // The wealth controller has the same requirement for a different reason: it
+  // must be deferred, because it renders into markup further down the document.
+  has(MY, '<script defer src="/wealth-lane.js"></script>',
+    "owner: the wealth controller is not deferred — it would run before its own grid exists");
 
   has(ROOM, "test-money-shell.mjs",
     "fence: money-room.js's header no longer names the test that fences its copy — the note is how the next " +
     "reader learns what may and may not drift");
-  console.log(`  fence: section ${SEC_B - SEC_A + 1} lines (one h2→h1) · filings: one module, zero inline literals`);
+  console.log("  moved: filings + wealth on /money, zero copies on / · door: nav, chip, 3 forwarded fragments");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

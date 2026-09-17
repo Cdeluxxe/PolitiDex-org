@@ -279,7 +279,7 @@ window.__PDX_PERSON_DOC = true;
   <script defer src="/share-links.js"></script>
   <script defer src="/cmp-data.js"></script>
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 312–1295 ════════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 316–1299 ════════════════════
        PDXStore / PDXTeam / PDXTeamV2 — the storage seam. Every module that
        remembers anything goes through it, and several shipped here read it
        without a guard because on index.html it is always present this early.
@@ -1270,7 +1270,7 @@ window.__PDX_PERSON_DOC = true;
 })();
 </script>
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 1296–1405 ═══════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 1300–1409 ═══════════════════
        PDXTeamView — the read side of the same store. Kept because the letterhead
        and the share sheet ask it whether this person is already on the reader's
        ballot; it renders nothing itself. ════════════════════════════════════ -->
@@ -1385,7 +1385,7 @@ window.__PDX_PERSON_DOC = true;
   })();
 </script>
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 1406–1915 ═══════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 1410–1919 ═══════════════════
        THE PROMISE LEDGER AND THE DEFERRED-EVENT CAPTURE. Two jobs in one block:
 
        window._pdxDisplayScore and _pdxMergeRosterRecord, which are how a Word
@@ -1913,7 +1913,7 @@ window.__PDX_PERSON_DOC = true;
   }
 </script>
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 1932–2006 ═══════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 1936–2010 ═══════════════════
        PDXLazy — the on-demand script/style injector. Shipped because it is the
        seam the shared modules use to reach anything heavy, so its absence turns
        an optional feature into a thrown TypeError rather than a missing block.
@@ -1994,7 +1994,7 @@ window.PDXLazy = (function () {
 })();
 </script>
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 2008–2030 ═══════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 2012–2032 ═══════════════════
        FIREBASE, ANONYMOUS ONLY. The three compat bundles, the request-time key
        injection, and the synchronous stub that guarantees `db` / `auth` /
        `PROFILES` exist before anything can touch them. firebase-boot.js then
@@ -2096,7 +2096,7 @@ window.PDXLazy = (function () {
   }
   </script>
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 2146–2191 ═══════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 2162–2208 ═══════════════════
        THE SHARE FURNITURE. Every tag here is an anchor that
        netlify/edge-functions/share-preview.ts rewrites at request time: it
        regex-replaces <title>, name="description", the og:* and twitter:* pairs
@@ -2283,7 +2283,7 @@ window.PDXLazy = (function () {
       </head>
 <body class="bg-navy-900 text-white font-body">
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 3675–3738 ═══════════════════ -->
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 3690–3754 ═══════════════════ -->
   <!-- ═══════════════════════════════════════════════════════════════════════
        THE CRAWL HEADER BELONGS TO THIS ADDRESS, OR IT SAYS NOTHING.
 
@@ -2388,7 +2388,7 @@ window.PDXLazy = (function () {
        paints nothing it has no mount for. The tag is below, immediately before
        finance-lane.js. -->
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 17647–17681 ═════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 14090–14124 ═════════════════
        THE PROFILE MODAL — the surface a person file is painted into. person-file
        .js's cold open resolves the address and calls showProfile(), which fills
        #modal-content. Four of these ids are read without a null check by the
@@ -2453,7 +2453,7 @@ window.PDXLazy = (function () {
     </div>
   </div>
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 17742–17789 ═════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 14185–14232 ═════════════════
        The three layers that open ON TOP of a person file: the stance evidence
        popover, the Full Stance Record overlay reached at #record/<id>, and the
        share sheet the header button opens. index.html's medium/summary modal
@@ -2640,7 +2640,7 @@ window.PDXLazy = (function () {
        scripts/test-person-shell.mjs can hold them to it. -->
   <script src="/profile-evidence.js"></script>
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 24477–24598 ═════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 20884–21005 ═════════════════
        PDXStance — the shared four-state stance language (support / oppose /
        mixed / none), read by the profile's Key Issue Stances. Copied rather than
        re-derived so both documents speak the identical vocabulary; the Issue
@@ -2768,7 +2768,7 @@ window.PDXLazy = (function () {
   })();
   </script>
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 27087–27286 ═════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 23494–23692 ═════════════════
        THE PWA RUNTIME. Same registration, same first-install guard, same
        update handling — sw.js now precaches /person.html and this document's
        module list, and serves a person address from /person.html rather than

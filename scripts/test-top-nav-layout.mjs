@@ -118,7 +118,11 @@ ok(/id="nav-auth-desktop" class="[^"]*flex-shrink-0/.test(NAV), 'the account clu
    of this page. Same control, same place in the row — only the address moved. */
 const iLastLeft = NAV.indexOf('href="/ballot"');
 const iMandate = NAV.indexOf('nav-mandate-btn');
-const iCommunity = NAV.indexOf('#community-exchange" class="pdx-navmenu__btn');
+/* Community's pill spells its address href="/community" now that the Exchange
+   and the Open board are their own document; it was href="#community-exchange"
+   while both boards lived in sections of this page. Same control, same place in
+   the gateway row, same seam against #wc-bell — only the address moved. */
+const iCommunity = NAV.indexOf('href="/community" class="pdx-navmenu__btn');
 const iBell = NAV.indexOf('id="wc-bell"');
 must(iLastLeft > 0 && iMandate > 0 && iCommunity > 0 && iBell > 0, 'one of the four reported controls is gone from the nav');
 ok(iLastLeft < iMandate, '⭐ Your Ballot is the left group\'s last item and ✊ Mandate is painted after it');
@@ -262,7 +266,10 @@ for (const [needle, what] of [
      below — and pinning the old hash would demand the room move back. */
   ['href="/mandate" class="nav-mandate-btn', '✊ Mandate'],
   ['href="#local-issues"', '🔦 Local Issues'],
-  ['href="#community-exchange" class="pdx-navmenu__btn', 'Community'],
+  /* Same move as ✊ Mandate, one room later: #community-exchange was a scroll
+     position on this document and the Exchange is /community now. The CONTROL
+     is what this line pins. */
+  ['href="/community" class="pdx-navmenu__btn', 'Community'],
   ['id="wc-bell"', 'the notification bell'],
   ['id="nav-auth-desktop"', 'the account cluster'],
   ["getElementById('mobileMenu').classList.toggle('hidden')", 'the hamburger'],

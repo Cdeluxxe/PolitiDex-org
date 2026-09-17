@@ -19,8 +19,8 @@
    filings, finance-lane.js reads them, and no other shipped module can see them.
 
    WHICH LEAVES ONE PROBLEM, AND IT IS THIS FILE'S WHOLE REASON, UNCHANGED BY ANY
-   OF THAT. Three of the controls in the shared renderer's cards are addressed to
-   functions that only exist on the front page:
+   OF THAT. Three of the controls in a money card are addressed to functions that
+   only exist on the front page:
 
        openMediumModal(pid, event)   profiles-full.js — the person overlay
        showProfile(pid, event)       profiles-full.js — "View Full Profile →"
@@ -43,13 +43,24 @@
        inert: `hidden` plus `aria-hidden`, so a screen reader is not read a
        control that cannot act either. The front page still has both.
 
+   BOTH GRIDS, ONE RULE. /money is one page with two blocks: campaign filings
+   (what a campaign RAISED, rendered by /ftm-data.js into #ftm-grid) and wealth
+   disclosures (what a person OWNS, rendered by wealth-lane.js into #wl-grid).
+   They are two archives and two claims, and this file takes no position on
+   either — but both write the same .dir-card markup with the same three
+   homepage-only onclick attributes in it, so both get the same treatment from
+   the same place. GRID_IDS below is that list. The wealth block arrived second
+   and deliberately did NOT bring its own answer to "what happens when a money
+   card is clicked"; a second implementation of that is exactly the thing one
+   owner is for.
+
    IT REWRITES CONTROLS AND NOTHING ELSE. No figure, no composition, no bucket,
    no coverage count, no sentence and no colour on this page is produced here.
-   Every one of those comes from the copied tracker (the data) or from
-   finance-lane.js (the vocabulary, the buckets, the coverage sentence, the
-   theme tokens, `scored: false` and the NEVER_FEEDS wall). This file could be
-   deleted and /money would still tell the truth — it would just have four
-   controls that do nothing.
+   Every one of those comes from /ftm-data.js (the filings), wealth-lane.js (the
+   disclosures) or finance-lane.js (the vocabulary, the buckets, the coverage
+   sentence, the theme tokens, `scored: false` and the NEVER_FEEDS wall). This
+   file could be deleted and /money would still tell the truth — it would just
+   have four controls that do nothing.
 
    THE TWO ADDRESSES IT ANSWERS
 
@@ -75,7 +86,14 @@
 (function () {
   'use strict';
 
-  var GRID_ID = 'ftm-grid';
+  // BOTH GRIDS ON THE PAGE, NOT JUST THE FILINGS ONE. /money is one page with
+  // two blocks — campaign filings above, wealth disclosures below — and both
+  // write .dir-card markup addressing the same three homepage-only functions.
+  // The wealth block arrived second; it did NOT arrive with its own answer to
+  // "what happens when a money card is clicked", because one owner for that is
+  // the whole point of this file. A grid id that is not on the document is
+  // skipped, so this list is also the list of documents this file is safe on.
+  var GRID_IDS = ['ftm-grid', 'wl-grid'];
   var COVERAGE_ID = 'pdx-money-coverage';
 
   // The person-file alias for the money section. person-file.js owns the map
@@ -222,11 +240,13 @@
   }
 
   function rehomeGrid() {
-    var grid = el(GRID_ID);
-    if (!grid) return;
-    var cards = [];
-    try { cards = grid.querySelectorAll('.dir-card'); } catch (e) { cards = []; }
-    for (var i = 0; i < cards.length; i++) rehomeCard(cards[i]);
+    for (var g = 0; g < GRID_IDS.length; g++) {
+      var grid = el(GRID_IDS[g]);
+      if (!grid) continue;
+      var cards = [];
+      try { cards = grid.querySelectorAll('.dir-card'); } catch (e) { cards = []; }
+      for (var i = 0; i < cards.length; i++) rehomeCard(cards[i]);
+    }
     // The composition block's Compare button is built by the same IIFE into the
     // per-person funding stage, which can be painted outside a card.
     var cmp = [];
@@ -261,18 +281,20 @@
     } catch (e) {}
   }
 
-  // The grid is written by the copied IIFE at DOMContentLoaded and again on every
-  // sector filter change, so the re-home has to run on each paint. A single
-  // observer on the grid is cheaper and more certain than hooking a function
-  // this file does not own.
+  // Each grid is written by its own module at DOMContentLoaded and again on
+  // every control change — the sector filter above, the tab and sort toggles
+  // below — so the re-home has to run on each paint. One observer per grid is
+  // cheaper and more certain than hooking two functions this file does not own.
   function watch() {
-    var grid = el(GRID_ID);
-    if (!grid) return;
-    try {
-      if (!window.MutationObserver) return;
-      new window.MutationObserver(function () { rehomeGrid(); })
-        .observe(grid, { childList: true });
-    } catch (e) {}
+    if (!window.MutationObserver) return;
+    for (var g = 0; g < GRID_IDS.length; g++) {
+      var grid = el(GRID_IDS[g]);
+      if (!grid) continue;
+      try {
+        new window.MutationObserver(function () { rehomeGrid(); })
+          .observe(grid, { childList: true });
+      } catch (e) {}
+    }
   }
 
   var COV_TICKS = [0, 500, 1500, 3500, 6000];
@@ -296,7 +318,7 @@
   try { document.addEventListener('click', onClick, false); } catch (e) {}
 
   window.PDXMoneyRoom = {
-    GRID_ID: GRID_ID,
+    GRID_IDS: GRID_IDS,
     COVERAGE_ID: COVERAGE_ID,
     MONEY_HASH: MONEY_HASH,
     OLD_HASH: OLD_HASH,

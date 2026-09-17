@@ -419,11 +419,18 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
      "brief: it opens the lane through PDXFinanceLane.openSection(), the module that owns the reveal-then-measure jump");
   ok(/openSection\(\);\}else if\(window\._pdxNavJump\)/.test(withShare),
      "brief: …with _pdxNavJump as the fallback, so a page where the lane never loaded still scrolls");
-  // The claim that the destination always exists is a claim about index.html,
-  // so it is checked there rather than assumed here: the anchor must be emitted
-  // ahead of the branch that asks whether there is a filing.
+  // The claim that the destination always exists is a claim about whoever emits
+  // the funding section, so it is checked there rather than assumed here: the
+  // anchor must be emitted ahead of the branch that asks whether there is a
+  // filing.
+  //   THAT IS /ftm-data.js NOW, NOT index.html. The tracker used to be an inline
+  // block on the front page and this read it there; it became one shared module
+  // — loaded by index.html, money.html and person.html — so that a filing figure
+  // has exactly one home. Reading the front page for it went on passing until
+  // the front page stopped carrying it at all, which is when this named the move
+  // instead of the drift.
   {
-    const FS = read("index.html");
+    const FS = read("ftm-data.js");
     const fn = FS.slice(FS.indexOf("window._pdxFundingSection = function"));
     const body = fn.slice(0, fn.indexOf("\n    };"));
     const anchor = body.indexOf('id="pdxsec-funding"');
