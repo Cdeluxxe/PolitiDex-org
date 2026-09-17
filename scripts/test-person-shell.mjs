@@ -350,12 +350,12 @@ const COPIES = [
   [1410, 1919, "the promise ledger and the deferred-event capture"],
   [1936, 2010, "PDXLazy"],
   [2012, 2032, "the Firebase compat bundles, the key injection, the stub and firebase-boot.js"],
-  [2162, 2208, "the share furniture share-preview.ts rewrites"],
-  [3690, 3754, "the crawl-header guard"],
-  [14090, 14124, "the profile modal down to #modal-content"],
-  [14185, 14232, "the stance popover, the record overlay and the share sheet"],
-  [20884, 21005, "PDXStance"],
-  [23494, 23692, "the PWA runtime and the service-worker registration"],
+  [2174, 2220, "the share furniture share-preview.ts rewrites"],
+  [3702, 3766, "the crawl-header guard"],
+  [14114, 14148, "the profile modal down to #modal-content"],
+  [14209, 14256, "the stance popover, the record overlay and the share sheet"],
+  [20956, 21077, "PDXStance"],
+  [23566, 23764, "the PWA runtime and the service-worker registration"],
 ];
 // THESE NUMBERS ARE ANCHORS INTO index.html AND THEY MOVE WHEN IT DOES. The
 // ones re-based here were re-based by the fourth split, which lifted the ballot
@@ -472,6 +472,17 @@ const COPIES = [
 // entirely. An anchor carried forward by arithmetic can be wrong in a way that
 // is GREEN, and only re-derivation finds that. All six were re-derived by the
 // method above; the ones that came back unchanged are again the check on it.
+//
+// THE DIGITAL LIBRARY SPLIT MOVED THE SAME SIX, AND IT MOVED THEM DOWN. Every
+// shift before this one ran upward: a room left index.html and everything under
+// it came up. This pass took the #digital-library warehouse out of the front
+// page and left a longer note where it stood, and added a paragraph to the head
+// forwarder above it, so the document GREW by twelve lines in two places — the
+// six anchors below the head note gained twelve, and the four below the section
+// gained twenty-four. The first six anchors, all of them above line 2113, came
+// back byte-identical at their original numbers, which is the check on the
+// method one more time. Re-derived by locating each run verbatim in the new
+// file, never by adding a diff's line count to an old number.
 for (const [a, b, what] of COPIES) {
   const slice = idxLines.slice(a - 1, b).join("\n");
   ok(slice.split("\n").length === b - a + 1 && slice.trim().length > 0,

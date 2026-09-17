@@ -695,6 +695,13 @@
 # and is kept — as a 301 to /evidence, below — because links a reader made to it
 # are in the wild, and because two live 200 spellings of one room is exactly the
 # ambiguity this pass exists to remove.
+#   /library IS LIVE NOW, AND IT IS NOT THIS ROOM. Declining it here was a
+# decision about what to call the STANCE shelf, taken when the name was
+# unclaimed — and it is exactly why the name was free when the Digital Library
+# needed it. /library answers with library.html, the searchable archive and the
+# Legislation catalog over it (see its own block further down). Nothing about
+# this room moved: the stance shelf is /stances and only /stances, and no
+# /library rule points at stances.html under any status.
 #
 # WHY THE ENGINES ARE NOT DUPLICATED. stance-library.js, spotlight-hub.js and
 # evidence-locker.js are unchanged modules loaded by the new documents the same
@@ -1024,6 +1031,99 @@
 [[redirects]]
   from = "/community/*"
   to = "/community.html"
+  status = 200
+
+# ═════════════════════════════════════════════════════════════════════════════
+# THE DIGITAL LIBRARY GETS ITS OWN DOCUMENT
+#   /library  -> library.html
+#   /library/ -> library.html
+# ─────────────────────────────────────────────────────────────────────────────
+# WHAT THIS ADDRESS FIXES. The Digital Library was the section #digital-library
+# in the body of index.html: the searchable archive, the collection tiles, the
+# type and issue filters and the Legislation tab, plus the ~97 KB controller that
+# draws all of it. Every reader of a two-megabyte front page paid for the whole
+# warehouse, including the reader who arrived to answer "who represents me" and
+# nothing else — and a reader who wanted the archive, or wanted to send someone a
+# bill catalog, had nothing to bookmark and nothing that survived a reload.
+# #digital-library was a scroll position, not a place. It was also the room whose
+# deepest door suffered most for it: "Legislation / Bills" had to select a tab
+# inside a section the same page kept re-rendering underneath it, which is why
+# that entrance kept landing readers back on the archive.
+#
+# ONE DOCUMENT FOR THE WHOLE ROOM, NOT ONE PER TAB. Explore and Legislation are
+# two modes of ONE controller over one search box and one grid — the tab strip is
+# digital-library.js's own, it has always been, and splitting it would publish two
+# addresses for one idea and duplicate the module behind both. They are two tabs
+# on one page, exactly as they were on the front page, and ?mode=legislation is
+# how the nav asks for the second one.
+#
+# SAME SHAPE AS /money AND /community, ON THE PATTERN /me AND /courts SET: no
+# app.css, no /css/tailwind.css, no compare-hub.js, no profiles-full.js, no
+# ballot-breakdown.js, no alignment-tool.js, no evidence-locker.js, no
+# bill-detail.js, no Door 1 work layer, no Who Represents Me card, no ballot
+# workspace and no homepage hero. The room loads the module that draws it, the
+# spotlight registry its archive is floored on, the contracts dataset and the
+# bills client its two lists read, the issue vocabulary and colour system its
+# chips are tinted from, the shared bar sheet, and the smallest auth surface that
+# can answer "is somebody signed in" — shell-account-chip.js, 9 KB against
+# compare-hub.js's 758 KB. It links no room stylesheet at all, because
+# digital-library.js injects its own (#dlib-css) and every class on the document
+# is .dlib-*.
+#
+# THE FRONT PAGE KEEPS THE DOOR. The Explore & Discover menu stays exactly where
+# it was, in the desktop nav and in the mobile menu; its "Digital Library" and
+# "Legislation / Bills" items point at this address instead of at one fragment.
+# The H.R.1 / Omnibus Showcase is NOT in this move — it is a Door 1 surface with
+# its own entrances and its own module, and folding a single-measure showcase
+# into the catalog of every measure would be a second bill product, which is the
+# one thing this pass refuses to build.
+#
+# WHY THIS SPELLING. /library is the archive and it is the whole set: no
+# /archive, no /digital-library, no /bills, no /legislation and no alias for any
+# of them, because two live 200 spellings of one room split the canonical — the
+# ambiguity the /locker -> /evidence 301 further down exists to remove. Note that
+# the /stances block above says "/stances, not /library" — that was a decision
+# about what to call the STANCE shelf, made when /library was unclaimed, and it
+# is why this name was free. The archive's modes and filters are the query string
+# (?mode=, ?q=, ?type=, ?issue=, ?category=, ?phase=, ?sort=, ?followed=, all of
+# them read by library.html's arrive seam and handed to the focus() call the room
+# already published), and not one of them is a path.
+#
+# NO SPLAT, AND THAT IS THE DIFFERENCE FROM /community. That room carries
+# /community/* because six modules across the site hand it intents and readers
+# have published deeper paths under it. Nothing has ever been served under
+# /library: the room is new, every door to it is a link this pass wrote, and
+# every one of them lands on /library or /library?<query>. An exact pair is the
+# honest declaration for that, and a /library/* that answered any depth with this
+# HTML would also answer /library/digital-library.js with it — HTML parsed as
+# JavaScript, an empty room, and no error naming the cause. EVERY SAME-ORIGIN
+# PATH IN library.html IS ROOT-ABSOLUTE REGARDLESS, without exception, so the
+# trailing-slash form below is safe and a splat could be added later without
+# breaking a single asset.
+#
+# ORDER: TWO PATHS, AND THE POSITION IS A STATED NO-OP. Both are disjoint by
+# inspection of the literal strings from /p/*, /i/*, /issue/*, /ballot, /me,
+# /stances, /evidence, /courts, /mandate, /voice, /money, /community*, /vote/*,
+# /d/*, /b/* and /locker, so declaring them here is correct and would also have
+# been correct anywhere else in the file. /api/* is a different prefix and is
+# untouched by both. THE INVARIANT, unchanged from the blocks above: nothing that
+# matches these paths may be declared earlier, and the day a catch-all appears —
+# an SPA "rewrite everything to index.html" is the one that would silently eat
+# them — these must stay in front of it. There is no catch-all in this file
+# today; that is a property to preserve.
+# ═════════════════════════════════════════════════════════════════════════════
+[[redirects]]
+  from = "/library"
+  to = "/library.html"
+  status = 200
+
+# The trailing-slash form, declared rather than left to a redirect, so a pasted
+# /library/ is the room instead of a hop. Same root-absolute rule as /money and
+# /community: served at /library/, a bare src="digital-library.js" would resolve
+# to /library/digital-library.js.
+[[redirects]]
+  from = "/library/"
+  to = "/library.html"
   status = 200
 
 # THE OLD LOCKER ADDRESS, NOW AN ALIAS. /locker was a 200 rewrite to index.html

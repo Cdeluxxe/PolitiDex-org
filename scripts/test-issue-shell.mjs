@@ -666,8 +666,17 @@ ok(/<body class="bg-navy-900 text-white font-body">/.test(html),
   // roster below has to name every shipped document or a correctly-precached
   // engine reads as an orphan. Each one is read from disk and skipped if it is not
   // there, so the list is safe to extend before a document exists.
+  //   AND THE ROSTER HAS TO KEEP UP, which it had stopped doing. Five shipped
+  // shells were missing from it — courts.html, mandate.html, voice.html,
+  // money.html and community.html — and the Digital Library split found that
+  // out: digital-library.js came off index.html and onto library.html, a new
+  // SHELL_ASSETS entry, and this gate called a correctly-precached room
+  // controller an orphan because the document that loads it was not on the list.
+  // Every shipped shell is named below now. A document missing from here does
+  // not weaken the claim, it fakes a violation of it.
   const SHELLS = ["index.html", "person.html", "issue.html", "spotlight.html", "ballot.html",
-                  "me.html", "stances.html", "evidence.html"]
+                  "me.html", "stances.html", "evidence.html", "courts.html", "mandate.html",
+                  "voice.html", "money.html", "community.html", "library.html"]
     .filter((d) => { try { read(d); return true; } catch (e) { return false; } })
     .map((d) => read(d));
   for (const f of DENY) {

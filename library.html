@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+<!-- ══════════════════════════════════════════════════════════════════════════════
+     library.html — THE FOURTEENTH SHELL. /library IS ITS OWN DOCUMENT.
+     ────────────────────────────────────────────────────────────────────────────
+     WHAT WAS WRONG. The Digital Library was the section #digital-library in the
+     body of a two-megabyte front page: the searchable archive, the collection
+     tiles, the type and issue filters and the Legislation tab, all of it a scroll
+     position rather than a place. Every reader of / downloaded and parsed the
+     warehouse and its controller, including every reader who arrived to answer
+     "who represents me" and nothing else — and the reader who actually wanted
+     the archive had no address to bookmark, nothing to send, and nothing that
+     survived a reload. Worse, the one door that reaches DEEPEST into the room —
+     "Legislation / Bills" — had to open a tab inside a section that the same
+     page was still re-rendering underneath it.
+
+     WHAT IS ON THIS PAGE. ONE ROOM, the whole room, and nothing else:
+
+       · THE ARCHIVE (the Explore tab) — the unified browse grid over the
+         bounded, client-side collections the app already ships: Issue
+         Spotlights, the H.R.1 / omnibus entry, the Federal Spending Tracker's
+         contracts, and the People's Mandate reforms when that lane is present.
+         Filter by type or by issue, search across everything, paginated.
+       · THE COLLECTION TILES — one front door per source, including the
+         unbounded ones the archive cannot fold in (every receipt, every stance,
+         every vote, the community boards). Each tile is a trip to that source's
+         own room.
+       · LEGISLATION (the Bills tab) — one row per measure over
+         /api/voting-record/measures, with the congress / chamber / status /
+         topic facets and the inline "what's inside" expander.
+
+     ALL THREE ARE digital-library.js's OWN SURFACES. This document adds no
+     second archive, no second bill product and no control the room did not
+     already publish. It is the same markup that stood on the front page with one
+     change — `dlib-title` is an <h1> here rather than an <h2>, because on / this
+     was one section among twenty and here the section IS the document.
+
+     THIS IS A MOVE, NOT A COPY. There is no #digital-library on index.html any
+     more: the front page's nav entries, hamburger rows and Explore chips point
+     at this address, and the head forwarder there sends #digital-library and the
+     library's live fragments here so a bookmark lands in the room instead of
+     scrolling nowhere. Nothing to drift, nothing to byte-fence.
+
+     WHAT IS DELIBERATELY NOT HERE. The precedent is money.html, community.html,
+     evidence.html, stances.html, ballot.html, me.html, courts.html, mandate.html
+     and voice.html, and it is the same list every time: no app.css, no
+     /css/tailwind.css, no compare-hub.js, no profiles-full.js, no
+     alignment-tool.js, no ballot-breakdown.js, no evidence-locker.js, no
+     Door 1 work layer, no Who Represents Me card, no ballot workspace, no
+     homepage hero, no All-Seeing Eye.
+
+     NO TAILWIND SHEET, AND THAT IS NOT AN OVERSIGHT. money.html links
+     /css/tailwind.css because its card markup came off the front page built out
+     of those utilities. This room never did. Every class in the markup below and
+     every class digital-library.js emits is .dlib-*, and that module INJECTS its
+     own stylesheet (`#dlib-css`) — which is why there is no library-room.css
+     either. The only same-origin sheet here is /shell-chrome.css, for the bar.
+     The one thing the front-page markup did borrow was `py-16 md:py-24 px-4` on
+     the <section>; that is four padding utilities and they are declared in this
+     document's own <style> instead of linking 78 KB to answer them.
+
+     ONE H1, AND IT IS THE ROOM'S OWN TITLE. Unlike /community and /evidence —
+     which host two PEER rooms each and therefore promote neither — this document
+     is one room with one name, so the name is the heading.
+
+     THE CRITICAL PATH, AND WHY EACH FILE IS ON IT. Seven scripts and one sheet:
+       person-link.js      the one owner of "what is this person's URL", so the
+                           search's politician rows land on the same /p/ address
+                           the rest of the site uses. Synchronous, for the same
+                           reason it is on person.html, money.html and
+                           community.html: anything that paints a person row may
+                           ask for it at any time.
+       issue-map.js        the issue vocabulary — CORE_NATIONAL_ISSUES and the
+                           leaf → core reverse lookup. It is here because
+                           issue-colors.js reads exactly those two globals, and
+                           without them a leaf key like `housing` resolves to no
+                           core bundle and every topic chip on the page paints
+                           the fallback grey. It is the vocabulary, not the 351 KB
+                           scoring engine it was copied out of — see the note at
+                           the head of that file.
+       issue-colors.js     the one owner of "what colour is this topic", so a
+                           topic reads the same here, on a bill letterhead, on an
+                           issue page and on a person surface.
+       spotlight-index.js  THE ARCHIVE'S FLOOR. digital-library.js's render()
+                           returns false until PDXSpotlight.list() answers with
+                           rows, so without this file there is no archive at all
+                           — the room would paint its chrome over an empty grid.
+                           ~86 KB of slug/title/place/blurb/issue-keys, shipped
+                           with the document; the 1.2 MB corpus stayed at
+                           /issue/<slug> where the writeups are.
+       gov-contracts.js    the Federal Spending Tracker — its records are archive
+                           items and its overlay is what the 💰 collection tile
+                           opens. Self-contained.
+       bills.js            the Legislation tab's data source: a thin client over
+                           /api/voting-record/measures. ~9 KB, and the list it
+                           renders is fetched on demand the first time that tab
+                           opens.
+       digital-library.js  the room.
+       shell-account-chip.js  the bar's account slot, 9 KB against
+                           compare-hub.js's 758 KB.
+
+     NO pdx-lazy-data.js, AND THAT IS A DELIBERATE OMISSION. bills.js prefers the
+     light inline index through that loader and falls back to the live route when
+     it is absent, which is the real bill list either way. Loading the loader to
+     save one fetch would also hand this document acct-spotlight-data.js (~700 KB)
+     and cmp-data-detail.js on the first tap, for a room that reads neither.
+
+     NO bill-detail.js. The rich measure panel is 140 KB of surface that reads a
+     dozen homepage globals this document does not ship. PDXBills.open() already
+     has an honest answer without it — the measure's canonical source — and
+     /b/<sitting>/<number> is the bill's PolitiDex record for a reader who wants
+     the panel. A panel painted here over globals that are not here would be a
+     control that lies; the precedent is evidence.html's bill seam below.
+
+     THE HANDLERS THAT DID NOT COME, AND WHAT THEY BECAME. digital-library.js's
+     collection tiles and search rows address surfaces that live on other
+     documents — the Evidence Locker, the Spotlight shelf, the Stance Library,
+     the person modal, Say vs. Do, the issue front door, the community boards.
+     Every one of those call sites is already written as a guarded lookup with a
+     `location.hash` fallback, so none of them is edited. Two seams answer all of
+     them instead, and both are declared in this <head> before any module can
+     look for them:
+       1 · THE NAMES THAT MEAN AN ADDRESS — _pdxOpenEvidenceLocker, showProfile /
+           openModal, PDXSpotlightHub, PDXStanceLibrary. Each turns its arguments
+           into the query the receiving document already reads on arrival, so the
+           filter survives the hop. This is index.html's own navigation-shim
+           pattern and evidence.html's seam block, applied here.
+       2 · THE FRAGMENTS THIS DOCUMENT DOES NOT OWN — the `location.hash = '#…'`
+           fallback in every one of those call sites. A hash-out forwarder maps
+           each to the document that owns it. #digital-library is NOT in that
+           table, deliberately: it is this room's own anchor and forwarding it
+           would be a loop.
+
+     THE FLAG IS LOAD-BEARING HERE, unlike on the shells that declare one for
+     symmetry. digital-library.js opens with `if (window.PDXDigitalLibrary)
+     return;` — so anything that defines that name before it runs SHADOWS the
+     real controller and the room never boots. index.html now carries exactly
+     such a shim (PDXDigitalLibrary.focus → /library). window.__PDX_LIBRARY_DOC
+     is the first thing this document declares and that shim stands down on it,
+     so the Home door can never become the room's ceiling.
+     ══════════════════════════════════════════════════════════════════════════ -->
+
+  <!-- ══ THE FLAG — FIRST SCRIPT ON THE DOCUMENT ══════════════════════════
+       Before any module, seam or shim can look for it. /library, /library/ and
+       a local preview server's /library.html are three spellings of one document
+       that a location.pathname sniff gets differently, which is why this is a
+       declaration and not a path test. Same contract as __PDX_MONEY_DOC,
+       __PDX_COMMUNITY_DOC, __PDX_COURTS_DOC, __PDX_ME_DOC, __PDX_MANDATE_DOC and
+       __PDX_VOICE_DOC — and unlike those, this one is actually read: see THE FLAG
+       IS LOAD-BEARING above.
+       ════════════════════════════════════════════════════════════════════ -->
+  <script>window.__PDX_LIBRARY_DOC = true;</script>
+
+  <!-- ══ THE FRAGMENTS THIS DOCUMENT DOES NOT OWN, FORWARDED ══════════════
+       The mirror image of index.html's head forwarder, and it exists for the
+       same reason: a hash that names a room somewhere else must land in that
+       room rather than scroll nowhere.
+
+       WHO SETS THESE. Not the reader — every one is the `else` branch of a
+       guarded lookup inside digital-library.js or gov-contracts.js, written when
+       both files only ever ran on a document that had all of those sections:
+
+         '#evidence-locker'      the Evidence Locker tile, and the search's
+                                 "search the Locker for …" row
+         '#all-spotlights'       the Issue Spotlights tile
+         '#stance-library'       the Stances & Positions tile
+         '#issue-front-door'     the Voting Records tile
+         '#say-vs-do'            the Say vs. Do tile
+         '#community-exchange'   the Community tile
+         '#hr1-showcase'         the Major Bills tile's last resort
+
+       Seam 1 below answers the first three before they reach a hash at all;
+       these are kept anyway, because a fallback chain whose last link is a dead
+       fragment is exactly the defect this pass exists to remove, and because a
+       guard can be reached in an order this document does not control.
+
+       #digital-library IS ABSENT FROM THIS TABLE ON PURPOSE. It is this room's
+       own anchor — digital-library.js scrolls to it on every focus() — and
+       forwarding it would send the room to itself in a loop.
+
+       location.replace, not assign: the fragment does not go into history, so
+       Back returns the reader to wherever they came from. ONE HOP, ALWAYS: every
+       destination is another document, so a forward cannot re-enter this script.
+       ════════════════════════════════════════════════════════════════════ -->
+  <script>
+  (function () {
+    var ELSEWHERE = {
+      'evidence-locker': '/evidence',
+      'locker': '/evidence',
+      'all-spotlights': '/stances#all-spotlights',
+      'stance-library': '/stances',
+      'issue-front-door': '/#issue-front-door',
+      'say-vs-do': '/#say-vs-do',
+      'hr1-showcase': '/#hr1-showcase',
+      'community-exchange': '/community',
+      'open-forum': '/community',
+      'agenda': '/mandate',
+      'peoples-mandate': '/mandate',
+      'follow-the-money': '/money',
+      'district-voice': '/voice'
+    };
+    function forward() {
+      var h = '';
+      try { h = String(location.hash || '').replace(/^#/, ''); } catch (e) { return; }
+      if (!h) return;
+      var to = ELSEWHERE[h];
+      if (!to) return;
+      try { location.replace(to); } catch (e) {}
+    }
+    forward();
+    window.addEventListener('hashchange', forward);
+  })();
+  </script>
+
+  <!-- ── Primary Meta ─────────────────────────────────────── -->
+  <title>Digital Library &middot; the complete PolitiDex archive &middot; PolitiDex</title>
+  <link rel="canonical" href="https://www.politidex.fyi/library" />
+  <meta name="description" content="The Digital Library — every spotlight, bill, reform, receipt and federal contract PolitiDex tracks, gathered into one searchable archive. Browse by type or issue, or open the Legislation tab for one row per measure." />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PolitiDex" />
+  <meta property="og:title" content="Digital Library &middot; PolitiDex" />
+  <meta property="og:description" content="One searchable archive over everything PolitiDex tracks — spotlights, bills, reforms, receipts and federal contracts — plus the Legislation catalog, one row per measure." />
+  <meta property="og:url" content="https://www.politidex.fyi/library" />
+  <meta property="og:image" content="https://www.politidex.fyi/.netlify/images?url=%2Fassets%2Fog-default.svg&fm=png&w=1200&h=630&fit=cover" />
+  <meta property="og:image:alt" content="PolitiDex — Digital Library" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Digital Library &middot; PolitiDex" />
+  <meta name="twitter:description" content="One searchable archive over everything PolitiDex tracks, plus the Legislation catalog — one row per measure." />
+  <meta name="theme-color" content="#0a0f1e" />
+
+  <!-- ── Favicon (SVG + emoji fallback) — the same pair every shell carries ── -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23c0152a'/><text y='46' x='5' font-size='42' font-family='Arial Black,sans-serif' font-weight='900' fill='white' letter-spacing='-2'>PX</text></svg>" />
+  <link rel="alternate icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏛</text></svg>" />
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- The two files a first paint actually waits on: the archive's floor (no
+       spotlight rows, no grid) and the module that draws the room. -->
+  <link rel="preload" as="script" href="/spotlight-index.js" />
+  <link rel="preload" as="script" href="/digital-library.js" />
+
+  <!-- Barlow / Bebas Neue, non-blocking, with the same swap index.html,
+       person.html, issue.html, spotlight.html, ballot.html, me.html,
+       stances.html, evidence.html, courts.html, money.html and community.html
+       use. A swap written differently on one document is a visible font flash on
+       exactly one URL shape. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
+
+  <!-- THE ONE SAME-ORIGIN SHEET ON THIS DOCUMENT: the bar and the account chip.
+       Everything else the room draws comes from digital-library.js's own
+       injected #dlib-css. See NO TAILWIND SHEET above. -->
+  <link rel="stylesheet" href="/shell-chrome.css" />
+
+  <style>
+    /* THE FIXED CHROME, MEASURED ONCE. Same contract person.html, issue.html,
+       spotlight.html, ballot.html, me.html, stances.html, evidence.html,
+       courts.html, money.html and community.html answer for their own chrome,
+       and for the same reason: a custom property that is never declared
+       invalidates every calc() that reads it. This document's chrome is ONE row
+       and no search — the Eye on the front page already reaches everything there
+       is to search, and this room has its own search box for its own archive.
+       The @supports guard is the one every other shell carries: a custom
+       property accepts any token sequence, so an engine that cannot parse env()
+       would swallow the declaration and invalidate every calc() reading it; an
+       engine without env() also has no notch. */
+    :root { --pdx-chrome: 3.25rem; color-scheme: dark; }
+    @supports (padding-top: env(safe-area-inset-top)) {
+      :root { --pdx-chrome: calc(3.25rem + env(safe-area-inset-top, 0px)); }
+    }
+    /* No app.css here, so the page's own ground colour is declared rather than
+       inherited from a 986 KB stylesheet this document does not load. And the
+       chrome offset an anchored jump has to clear is declared here rather than
+       read off the front page's two-row measurement. */
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--pdx-chrome) + 0.5rem); }
+    html, body { background: #070b16; color: #e7eefb; }
+    body {
+      margin: 0;
+      font-family: 'Barlow', system-ui, -apple-system, sans-serif;
+      padding-top: calc(var(--pdx-chrome) + 0.75rem);
+    }
+
+    main#library-room { padding: 0 0 2rem; }
+
+    /* THE FOUR PADDING UTILITIES, DECLARED RATHER THAN LINKED. On the front page
+       the section carried `py-16 md:py-24 px-4` from /css/tailwind.css. Those
+       four rules are the only Tailwind this room ever used — see NO TAILWIND
+       SHEET above — so they are spelled here and the 78 KB sheet stays off the
+       document. The gradient, the two hairlines and the scroll margin came off
+       the section's own inline style attribute, which is now this block. */
+    #digital-library {
+      padding: 4rem 1rem;
+      background: linear-gradient(180deg, rgba(11,17,32,0.96) 0%, rgba(13,21,38,0.92) 100%);
+      border-top: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    @media (min-width: 768px) { #digital-library { padding: 6rem 1rem; } }
+
+    /* The room's title is an <h1> here (it was an <h2> on the front page), so the
+       one rule digital-library.js writes for `.dlib-title` is re-stated for the
+       new element. Identical values — this is the same heading, promoted. */
+    h1.dlib-title {
+      font: 800 clamp(1.9rem, 5vw, 3rem)/1 'Bebas Neue', 'Barlow Condensed', sans-serif;
+      letter-spacing: 0.03em; color: #fff; margin: 0 0 0.4rem;
+    }
+
+    /* The only thing a reader sees if JavaScript never runs. It claims what this
+       address is, which is true, rather than leaving them with an empty grid. */
+    .pdx-sh-note {
+      max-width: 40rem; margin: 2.5rem auto; padding: 0 1.1rem;
+      font: 400 1rem/1.6 'Barlow', system-ui, sans-serif; color: #9fb4d4;
+    }
+    .pdx-sh-note a { color: #9ec8ff; }
+  </style>
+
+  <!-- ══ COPIED VERBATIM FROM money.html / community.html ══════════════════
+       FIREBASE. The three compat bundles, the request-time key injection, and
+       the synchronous stub that guarantees `db` / `auth` / `PROFILES` exist
+       before anything can touch them.
+
+       THE SAME STUB AS THE OTHER INNER SHELLS, NOT A FOURTEENTH ONE.
+       person.html, me.html, issue.html, evidence.html, money.html and
+       community.html all carry this block, byte for byte, and the suite fences
+       it: a shell that writes its own version of "has Firebase answered yet" is
+       a shell that can answer it differently.
+
+       WHAT IT IS FOR HERE, AND IT IS TWO SMALL THINGS. firebase-boot.js starts
+       the lightweight roster load into window.PROFILES, which is the pool the
+       archive's cross-source search offers politician rows out of — and it is
+       what the bar's chip reads. No collection, archive item, bill row or facet
+       on this page depends on a session: the archive is public and this document
+       opens no sign-in UI of its own. The front page owns that, and the bar's
+       chip is a trip there.
+       ═════════════════════════════════════════════════════════════════════════ -->
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<!-- The Firebase Web API key is injected at request time from the Netlify
+     environment variable FIREBASE_API_KEY by netlify/edge-functions/firebase-config.ts.
+     It is intentionally NOT hardcoded here so the value never lives in source
+     control or the deployed HTML (and the build's secrets scanner passes). -->
+<script defer src="/firebase-config.js"></script>
+<script>
+  // Run 1 perf: the Firebase SDKs and the bootstrap below are DEFERRED so they no
+  // longer block first paint. This tiny synchronous stub guarantees the globals
+  // that other inline code could touch at parse time exist; firebase-boot.js
+  // (deferred → runs after the SDK, before DOMContentLoaded) then replaces them
+  // with the live Firebase objects and starts the lightweight roster load. Net
+  // effect: identical behavior, but the ~800 KB compat SDK no longer gates paint.
+  var app, db, firestore, auth;
+  var PROFILES = window.PROFILES || {}; window.PROFILES = PROFILES;
+  window._pdxFullIds = window._pdxFullIds || new Set();
+  window._pdxFullPending = window._pdxFullPending || {};
+  function setDoc(docRef, data, options) { return docRef.set(data, options); }
+  db = { collection: null }; firestore = db;
+  // AUTH UNKNOWN IS NOT AUTH SIGNED-OUT. This stub used to answer every
+  // registration with cb(null) before the SDK had loaded, which told every
+  // module that a returning member was a guest. It queues instead;
+  // firebase-boot.js replays the queue onto the real auth object, and until then
+  // window.PDXAuth.state is 'unknown'. See the long note in index.html.
+  window.PDXAuth = window.PDXAuth || { state: 'unknown', user: null, known: false };
+  window.__pdxAuthQueue = window.__pdxAuthQueue || [];
+  auth = { currentUser: null, onAuthStateChanged: function (cb) { var rec = { cb: cb, off: false, unsub: null }; window.__pdxAuthQueue.push(rec); return function () { rec.off = true; if (rec.unsub) { try { rec.unsub(); } catch (e) {} } }; }, signInAnonymously: function () { return Promise.reject(new Error('auth pending')); }, signOut: function () { return Promise.resolve(); } };
+  // AND THE QUEUE IS NOT A TRAP. If firebase-boot.js never arrives to drain it —
+  // a blocked SDK, a failed deploy, a warm shell paired with an older copy of
+  // that file out of the runtime cache — the registrations above would wait for
+  // the whole visit and nothing on the page would ever learn there is no
+  // session. So the queue self-heals: once the SDK has had every chance to land,
+  // whatever is still queued is flushed with null, which is exactly the answer
+  // this stub used to give instantly. A LATE fallback is a different thing from
+  // a first guess — the first guess was the bug, and five seconds is not a
+  // guess, it is a timeout. firebase-boot.js nulls the queue when it replays, so
+  // on every normal load this is a no-op.
+  setTimeout(function () {
+    var q = window.__pdxAuthQueue;
+    if (!q) return;
+    window.__pdxAuthQueue = null;
+    try {
+      window.PDXAuth.known = true;
+      window.PDXAuth.state = 'out';
+      window.PDXAuth.user = null;
+      if (typeof window.updateNavAuth === 'function') window.updateNavAuth(null, 'out');
+    } catch (e) {}
+    for (var i = 0; i < q.length; i++) {
+      if (q[i] && !q[i].off && typeof q[i].cb === 'function') { try { q[i].cb(null); } catch (e) {} }
+    }
+  }, 5000);
+</script>
+<script src="/firebase-boot.js" defer></script>
+
+  <!-- ══ SEAM 1 — THE NAMES THAT MEAN AN ADDRESS ══════════════════════════
+       Declared BEFORE the modules below, so nothing can look for one of these
+       names and find it missing. Every name here is already reached through a
+       typeof/truthiness guard at its call site, so not one call site is edited:
+       the honest fix is to leave the name callable and have it MEAN the new
+       address, which is exactly the pattern index.html uses for PDXStanceLibrary
+       and PDXSpotlightHub and evidence.html uses for its person and bill seams.
+
+       EACH ONE CARRIES ITS FILTER. A call that used to pre-filter a grid in
+       place now pre-filters the grid in the room, because the argument is turned
+       into the query the receiving document already reads on arrival.
+
+       location.assign(), never history.replaceState(): these are real trips to
+       real documents, so Back has to come back here.
+
+       AND EACH IS GUARDED ON ITS OWN NAME. On the day one of these modules ships
+       for the inner shells, its real implementation wins and these stand down
+       rather than shadowing it. The room's own controller is the reason that
+       matters — see THE FLAG IS LOAD-BEARING at the top of this document.
+       ════════════════════════════════════════════════════════════════════ -->
+  <script>
+  (function () {
+    'use strict';
+
+    function go(to) {
+      if (!to) return false;
+      try { location.assign(to); return true; } catch (e) {}
+      try { location.href = to; return true; } catch (e2) {}
+      try { location.replace(to); return true; } catch (e3) {}
+      return false;
+    }
+    function q(name, val) {
+      var v = String(val == null ? '' : val);
+      return v ? (name + '=' + encodeURIComponent(v)) : '';
+    }
+
+    // ── THE EVIDENCE LOCKER IS AN ADDRESS ──────────────────────────────────
+    // digital-library.js reaches this name twice: the 📂 collection tile
+    // (unfiltered) and the search's "Search the Locker for …" row
+    // ({ search: q }). evidence-locker.js owns the name on every document that
+    // ships it and already navigates when it cannot mount a workspace; this is
+    // the same href it builds, spelled with the same key set and the same fixed
+    // key ORDER, so two readers who ask the same thing get the same string.
+    if (typeof window._pdxOpenEvidenceLocker !== 'function') {
+      var NAV_KEYS = ['pol', 'pols', 'issue', 'category', 'type', 'search', 'bill', 'uid', 'mandate'];
+      window._pdxOpenEvidenceLocker = function (filters) {
+        filters = filters || {};
+        var parts = [];
+        NAV_KEYS.forEach(function (k) {
+          var v = filters[k];
+          if (v == null || v === '') return;
+          if (Object.prototype.toString.call(v) === '[object Array]') {
+            v = v.filter(function (x) { return x != null && x !== ''; }).join(',');
+            if (!v) return;
+          }
+          parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(String(v)));
+        });
+        return go('/evidence' + (parts.length ? '?' + parts.join('&') : ''));
+      };
+    }
+
+    // ── A PERSON IS AN ADDRESS ─────────────────────────────────────────────
+    // The archive's cross-source search offers politician rows out of the roster
+    // firebase-boot.js loads, and each row calls showProfile(pid) — the front
+    // page's modal, which lives in profiles-full.js (598 KB) and is not here.
+    // /p/<pid> is what that modal was always a preview of. person-link.js is the
+    // one owner of the spelling; the literal is the same fallback every other
+    // seam on the site uses when it has not loaded yet.
+    if (typeof window.showProfile !== 'function') {
+      var openPerson = function (id, ev) {
+        if (ev && ev.stopPropagation) ev.stopPropagation();
+        var pid = id ? String(id) : ''; if (!pid) return false;
+        var to = '';
+        try {
+          var PL = window.PDXPersonLink;
+          if (PL && typeof PL.href === 'function') to = PL.href(pid) || '';
+        } catch (e) {}
+        if (!to) to = '/p/' + encodeURIComponent(pid);
+        return go(to);
+      };
+      window.showProfile = openPerson;
+      if (typeof window.openModal !== 'function') window.openModal = openPerson;
+      if (typeof window.closeModal !== 'function') window.closeModal = function () {};
+    }
+
+    // ── THE TWO BROWSE SHELVES ARE ONE ADDRESS, AND IT IS /stances ─────────
+    // Both collection tiles reach these two names, spelled exactly as
+    // index.html's own navigation shim spells them, so a tile means the same
+    // room whichever document the reader pressed it on.
+    if (!window.PDXStanceLibrary) {
+      window.PDXStanceLibrary = {
+        open: function (issueKey) {
+          var i = q('issue', typeof issueKey === 'string' ? issueKey : '');
+          return go('/stances' + (i ? '?' + i : ''));
+        },
+        render: function () { return false; }
+      };
+    }
+    if (!window.PDXSpotlightHub) {
+      window.PDXSpotlightHub = {
+        focus: function (opts) {
+          opts = opts || {};
+          var p = [];
+          var sc = q('scope', opts.scope); if (sc) p.push(sc);
+          var se = q('q', opts.q != null ? opts.q : opts.search); if (se) p.push(se);
+          return go('/stances' + (p.length ? '?' + p.join('&') : '') + '#all-spotlights');
+        },
+        render: function () { return false; }
+      };
+    }
+  })();
+  </script>
+
+  <!-- ══ SEAM 2 — ARRIVE. THE ADDRESS IS THE VIEW ═════════════════════════
+       PDXDigitalLibrary.focus() already accepts everything this room can be
+       opened to — { mode, q, type, issue } for the archive, plus
+       { issue, category, phase, sort, followed } for Legislation. What it never
+       had was an address to be asked from. This turns the query string into that
+       call, once, after the module has published itself.
+
+       THE ONE DOOR THAT MATTERS IS ?mode=legislation. "Legislation / Bills" in
+       the front page's nav and hamburger is the deepest reach into this room,
+       and it is the SAME mode of the SAME controller the 🏛️ tab selects — not a
+       second bill product. Everything else here is the archive's own filters
+       spelled as parameters.
+
+       IT WAITS RATHER THAN GUESSES. digital-library.js is deferred and boots off
+       its own retry loop (render() declines until the spotlight registry
+       answers), so a focus() fired at parse time would be dropped. This polls
+       for the controller on the same bounded schedule pdxOpenBills() used on the
+       front page — ~3 seconds, then it stops asking — and does nothing at all
+       when the query names nothing, which is the common case.
+
+       replaceState, NOT assign, and only to TIDY: once the view is applied the
+       query has done its job, and leaving ?mode=legislation in the bar would
+       re-apply it on every reload even after the reader switched tabs. The path
+       is unchanged, so this is not a navigation and Back still leaves the room.
+       ════════════════════════════════════════════════════════════════════ -->
+  <script>
+  (function () {
+    'use strict';
+    var KEYS = ['mode', 'q', 'type', 'issue', 'category', 'phase', 'sort', 'followed'];
+    function opts() {
+      var s = '';
+      try { s = String(location.search || ''); } catch (e) { return null; }
+      if (!s || s.charAt(0) !== '?') return null;
+      var out = null;
+      s.slice(1).split('&').forEach(function (pair) {
+        if (!pair) return;
+        var eq = pair.indexOf('=');
+        var k = eq === -1 ? pair : pair.slice(0, eq);
+        var v = eq === -1 ? '' : pair.slice(eq + 1).replace(/\+/g, ' ');
+        try { k = decodeURIComponent(k); } catch (e) {}
+        try { v = decodeURIComponent(v); } catch (e2) {}
+        if (KEYS.indexOf(k) === -1 || v === '') return;
+        if (!out) out = {};
+        out[k] = (k === 'followed') ? (v === '1' || v === 'true') : v;
+      });
+      if (out && out.mode !== 'legislation') out.mode = 'library';
+      return out;
+    }
+    var want = opts();
+    if (!want) return;
+    function arrive(tries) {
+      var L = window.PDXDigitalLibrary;
+      if (L && typeof L.focus === 'function') {
+        try { L.focus(want); } catch (e) {}
+        try { history.replaceState(null, '', location.pathname); } catch (e2) {}
+        return;
+      }
+      if (tries >= 20) return;                       // ~3s, then it stops asking
+      setTimeout(function () { arrive(tries + 1); }, 150);
+    }
+    function start() { arrive(0); }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+    else start();
+  })();
+  </script>
+
+  <!-- THE ORDER IS THE CONTRACT. `defer` runs in document order, so: the issue
+       vocabulary is attached before the colour system that reads it, the colour
+       system before the room that tints its chips with it, the spotlight
+       registry and the contracts dataset before the room that builds its archive
+       out of them, and bills.js before the room that asks it for the Legislation
+       list. person-link.js is synchronous for the same reason it is on
+       person.html, money.html and community.html: it is the one owner of a
+       person's URL and anything that paints a person row may ask for it at any
+       time. -->
+  <script src="/person-link.js"></script>
+  <script defer src="/issue-map.js"></script>
+  <script defer src="/issue-colors.js"></script>
+  <script defer src="/spotlight-index.js"></script>
+  <script defer src="/gov-contracts.js"></script>
+  <script defer src="/bills.js"></script>
+  <script defer src="/digital-library.js"></script>
+  <script defer src="/shell-account-chip.js"></script>
+
+</head>
+<body>
+
+  <!-- ══ THE BAR ════════════════════════════════════════════════════════
+       THE SAME SIX DESTINATIONS AS THE OTHER INNER SHELLS, in the same order,
+       so the row is a fixed place rather than a per-page guess. NOTHING WAS
+       ADDED FOR THIS ROOM: there is no seventh "Digital Library" entry here or
+       on /mandate, /voice, /money and /community, because the row is shared and
+       a product that appears on one of five shells is five different rows. The
+       front page's Explore & Discover menu is this room's door and it is the
+       door that changed. The two front-page entries keep their front-page
+       addresses — Who Represents Me and Find the Record are surfaces of / and
+       they are not being moved here.
+
+       The account slot is LAST and it is EMPTY in the markup. What fills it is
+       shell-account-chip.js, and until Firebase answers it fills it with
+       "Checking account…" — never the Join CTA. A returning member must not be
+       told to sign up in the loudest control on the page because an 800 KB
+       deferred SDK has not landed yet. See the contract in that file.
+       ═════════════════════════════════════════════════════════════════════════ -->
+  <header class="pdx-sh-bar">
+    <a class="pdx-sh-wordmark" href="/" title="PolitiDex — the front page">POLITI<span>DEX</span></a>
+    <nav class="pdx-sh-links" aria-label="PolitiDex">
+      <a class="pdx-sh-link" href="/#who-represents-me">🏛️ Who Represents Me</a>
+      <a class="pdx-sh-link" href="/#say-vs-do">👁️ Find the Record</a>
+      <a class="pdx-sh-link" href="/ballot">⭐ Your Ballot</a>
+      <a class="pdx-sh-link" href="/mandate">✊ Mandate</a>
+      <a class="pdx-sh-link" href="/voice">📣 District Voice</a>
+      <a class="pdx-sh-link" href="/money">💰 Follow the Money</a>
+      <a class="pdx-sh-link" href="/">&larr; Home</a>
+    </nav>
+    <div id="pdx-shell-acct" data-pdx-acct-sig="unknown"></div>
+  </header>
+
+  <main id="library-room">
+
+  <!-- ══ MOVED FROM index.html — THE DIGITAL LIBRARY ═══════════════════════
+       THE SECTION, WITH ONE CHANGE. `dlib-title` is an <h1> here rather than an
+       <h2>: on the front page this was one section among twenty, and here the
+       section IS the document. Everything else — the ids, the order, the
+       placeholder, the aria labels, the empty-state sentence — is exactly what
+       stood on /, because digital-library.js addresses all of it by id and a
+       renamed host is a surface that silently stops painting.
+
+       The section's inline style attribute (the gradient and the two hairlines)
+       and its four Tailwind padding utilities are in this document's own <style>
+       instead; see NO TAILWIND SHEET at the head of this file.
+
+       EVERY ONE OF THESE HOSTS IS EMPTY ON PURPOSE. The mode tabs, the
+       collection tiles, the type chips, the issue <select>'s options, the
+       Legislation facet bar, the count, the grid and the jump list are all
+       written by digital-library.js. This markup gives each of them a place to
+       sit and says nothing about what it says.
+
+       THIS IS A MOVE, NOT A COPY. index.html has no #digital-library any more —
+       its nav, hamburger and Explore chips are links to this address, and its
+       head forwarder sends #digital-library here. There is no second copy of
+       this markup to drift from and nothing for a byte fence to hold two ends
+       of.
+       ═════════════════════════════════════════════════════════════════════ -->
+  <section id="digital-library">
+    <div class="dlib-shell">
+      <div class="dlib-head">
+        <div class="dlib-eyebrow"><span aria-hidden="true">📚</span> The Complete Archive</div>
+        <h1 class="dlib-title">Digital Library</h1>
+        <p class="dlib-sub">Every receipt, spotlight, stance, bill, reform and government contract PolitiDex tracks — gathered into one searchable archive. Search across everything at once, or open a collection to dig in.</p>
+      </div>
+      <div class="dlib-searchbar">
+        <span class="dlib-search-ico" aria-hidden="true">🔍</span>
+        <input id="dlib-search" type="search" autocomplete="off" placeholder="Search the archive — a politician, issue, bill, or keyword…" aria-label="Search the Digital Library">
+        <button type="button" id="dlib-search-clear" class="dlib-search-clear" aria-label="Clear search" hidden>×</button>
+      </div>
+      <div id="dlib-jump" class="dlib-jump" hidden></div>
+
+      <!-- Library mode toggle: Explore (the archive) vs Legislation (the
+           Bill/Legislation browse). Rendered + wired by digital-library.js; the
+           search box above is shared across both modes. ?mode=legislation on
+           this address selects the second one — see SEAM 2 above. -->
+      <div id="dlib-modes" class="dlib-modes" role="tablist" aria-label="Library mode"></div>
+
+      <div class="dlib-section-head" id="dlib-head-collections"><h3>Collections</h3><span>Jump into any part of the record</span></div>
+      <div id="dlib-collections" class="dlib-collections"></div>
+
+      <div class="dlib-section-head" id="dlib-head-browse"><h3>Browse the archive</h3><span>Filter by type or issue</span></div>
+      <div id="dlib-type-chips" class="dlib-chips" role="group" aria-label="Filter by type"></div>
+      <div class="dlib-filters">
+        <label for="dlib-issue-filter">Issue <select id="dlib-issue-filter"><option value="">All issues</option></select></label>
+      </div>
+      <!-- Legislation facet bar: congress / chamber / status / issue. Shown only
+           in Legislation mode; built by digital-library.js. -->
+      <div id="dlib-bill-facets" class="dlib-billfacets" hidden></div>
+      <div class="dlib-count" id="dlib-count" aria-live="polite"></div>
+      <div id="dlib-grid" class="dlib-grid"></div>
+      <div id="dlib-empty" class="dlib-empty" hidden>Nothing in the archive matches that yet. Try a broader keyword, clear the issue filter, or switch the type back to Everything.</div>
+      <div class="dlib-more-wrap"><button type="button" id="dlib-more" class="dlib-more" hidden>Show more</button></div>
+
+      <noscript>
+        <p class="pdx-sh-note">
+          The Digital Library is the searchable archive over everything PolitiDex
+          tracks — Issue Spotlights, bills and measures, reform proposals,
+          sourced receipts and federal contract records. The grid, the filters
+          and the Legislation catalog all need JavaScript to render. In the
+          meantime you can browse
+          <a href="/stances">issues and stances</a>,
+          <a href="/evidence">the Evidence Locker</a>,
+          <a href="/mandate">the People’s Mandate</a> or
+          <a href="/money">the money</a> directly.
+        </p>
+      </noscript>
+    </div>
+  </section>
+
+  </main>
+
+</body>
+</html>

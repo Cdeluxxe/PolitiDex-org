@@ -2112,6 +2112,17 @@ window.PDXLazy = (function () {
        nav menu instead of the conversation. Their keys are spelled below without
        a leading #, like every other key in the table.
 
+       #digital-library IS THE NEWEST KEY, AND IT IS THE #agenda CASE AGAIN. The
+       Digital Library — the archive grid and the Legislation tab over it — is the
+       document at /library now, so that fragment names nothing on this page. It
+       is also the fragment with the most callers anywhere: the nav's two Explore
+       entries, both mobile-menu rows, the collection-tile fallbacks inside
+       digital-library.js, and whatever readers bookmarked of the one searchable
+       surface on the site. All of them land in the room. There is deliberately
+       no 'library', 'legislation' or 'bills' key beside it — those spellings were
+       never published as fragments here, and this table is for links that exist,
+       not for a vocabulary someone might type.
+
        WHY IT IS HERE AND NOT AT THE BOTTOM. This runs before app.css, before
        the Firebase SDK and before 1.9 MB of parsing — so the forward costs the
        reader one request rather than one whole page they were never going to
@@ -2144,7 +2155,8 @@ window.PDXLazy = (function () {
       'district-voice': '/voice',
       'voice': '/voice',
       'community-exchange': '/community',
-      'open-forum': '/community'
+      'open-forum': '/community',
+      'digital-library': '/library'
     };
     function forward() {
       var h = '';
@@ -3892,7 +3904,7 @@ window.PDXLazy = (function () {
                new Digital Library (the central archive); the caret reveals the full
                group plus the deeper reference destinations. -->
           <div class="pdx-navmenu" data-navmenu>
-            <a href="#digital-library" class="pdx-navmenu__btn nav-link transition-all duration-200 hover:scale-105 py-1 text-blue-300 hover:text-blue-200" title="Explore & Discover — spotlights, issues, the Digital Library and major bills"><span class="pdx-navmenu__glyph" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/><circle cx="18.5" cy="18.5" r="2.3"/></svg></span> Explore &amp; Discover</a>
+            <a href="/library" class="pdx-navmenu__btn nav-link transition-all duration-200 hover:scale-105 py-1 text-blue-300 hover:text-blue-200" title="Explore & Discover — spotlights, issues, the Digital Library and major bills"><span class="pdx-navmenu__glyph" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/><circle cx="18.5" cy="18.5" r="2.3"/></svg></span> Explore &amp; Discover</a>
             <button type="button" class="pdx-navmenu__caret" aria-haspopup="true" aria-expanded="false" aria-label="Open Explore & Discover menu">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>
             </button>
@@ -3939,8 +3951,8 @@ window.PDXLazy = (function () {
                    single row that leads there. "Browse Issues" below is a different
                    surface (#issue-front-door, on this page) and keeps its own row. -->
               <a href="/stances" role="menuitem" class="pdx-navmenu__item" title="Browse by issue: who stands where, the receipts, and every Issue Spotlight"><span class="pdx-navmenu__ico" aria-hidden="true">🎯</span><span class="pdx-navmenu__lb">Issues &amp; Stances</span></a>
-              <a href="#digital-library" onclick="window.PDXDigitalLibrary&&window.PDXDigitalLibrary.focus&&window.PDXDigitalLibrary.focus()" role="menuitem" class="pdx-navmenu__item pdx-navmenu__item--primary" title="The central searchable archive of everything PolitiDex tracks"><span class="pdx-navmenu__ico" aria-hidden="true">📚</span><span class="pdx-navmenu__lb">Digital Library</span></a>
-              <a href="#digital-library" onclick="if(window.pdxOpenBills)window.pdxOpenBills();" role="menuitem" class="pdx-navmenu__item" title="Bills & measures — the Legislation library"><span class="pdx-navmenu__ico" aria-hidden="true">🏛️</span><span class="pdx-navmenu__lb">Legislation / Bills</span></a>
+              <a href="/library" role="menuitem" class="pdx-navmenu__item pdx-navmenu__item--primary" title="The central searchable archive of everything PolitiDex tracks"><span class="pdx-navmenu__ico" aria-hidden="true">📚</span><span class="pdx-navmenu__lb">Digital Library</span></a>
+              <a href="/library?mode=legislation" role="menuitem" class="pdx-navmenu__item" title="Bills & measures — the Legislation library"><span class="pdx-navmenu__ico" aria-hidden="true">🏛️</span><span class="pdx-navmenu__lb">Legislation / Bills</span></a>
               <a href="#hr1-showcase" onclick="if(window.pdxOpenSurface)window.pdxOpenSurface('hr1-showcase');" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🏛️</span><span class="pdx-navmenu__lb">H.R.1 / Omnibus Showcase</span></a>
               <div class="pdx-navmenu__sep"></div>
               <a href="#issue-front-door" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🧭</span><span class="pdx-navmenu__lb">Browse Issues</span></a>
@@ -4589,8 +4601,8 @@ window.PDXLazy = (function () {
       <div class="mnav-group-label">Explore &amp; Discover</div>
       <a href="#hot-topics" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-orange-300 hover:text-orange-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🔥 Hot Topics / Spotlights</a>
       <a href="/stances" title="Browse by issue: who stands where, the receipts, and every Issue Spotlight" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-blue-300 hover:text-blue-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🎯 Issues &amp; Stances</a>
-      <a href="#digital-library" title="The central searchable archive of everything PolitiDex tracks" onclick="document.getElementById('mobileMenu').classList.add('hidden');window.PDXDigitalLibrary&&window.PDXDigitalLibrary.focus&&window.PDXDigitalLibrary.focus()" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#9ec8ff;">📚 Digital Library</a>
-      <a href="#digital-library" title="Bills &amp; measures — the Legislation library" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxOpenBills)window.pdxOpenBills();" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#9ff0bd;">🏛️ Legislation / Bills</a>
+      <a href="/library" title="The central searchable archive of everything PolitiDex tracks" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#9ec8ff;">📚 Digital Library</a>
+      <a href="/library?mode=legislation" title="Bills &amp; measures — the Legislation library" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#9ff0bd;">🏛️ Legislation / Bills</a>
       <a href="#hr1-showcase" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxOpenSurface)window.pdxOpenSurface('hr1-showcase');" class="text-gold-300 hover:text-gold-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🏛️ H.R.1 / Omnibus Showcase</a>
       <div class="mnav-group-label mnav-group-label--money">💰 Money &amp; Spending</div>
       <a href="/money" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-money flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">💰 Follow the Money</a>
@@ -6402,33 +6414,36 @@ window.PDXLazy = (function () {
         return land(id);
       };
 
-      // ── window.pdxOpenBills() · the bill catalog ────────────────────────────
+      // ── window.pdxOpenBills() · the bill catalog, which is an ADDRESS now ───
       // The Digital Library's Legislation tab IS the bill catalog — one row per
       // measure, each opening the one bill file (PDXBillDetail, whose shareable
-      // address is /b/<sitting>/<number>). It lives in the open, not in this
-      // layer, so all this has to do is make sure the tab that is actually
-      // selected is Legislation.
+      // address is /b/<sitting>/<number>). That library is the document at
+      // /library, so this name means a navigation rather than a tab selection.
       //
-      // The library is a deferred module fed by data that arrives lazily, so a tap
-      // can genuinely land before it exists. Scroll first — the reader is moving
-      // immediately either way — then keep asking for the tab for a few seconds.
-      // Returning false rather than doing nothing is what lets the link fall back
-      // to its own href instead of dying quietly.
-      function openBills(tries) {
-        tries = tries || 0;
-        if (!tries) {
-          var host = document.getElementById('digital-library');
-          if (host && host.scrollIntoView) { try { host.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {} }
-        }
-        var L = window.PDXDigitalLibrary;
-        if (L && typeof L.focus === 'function') {
-          try { L.focus({ mode: 'legislation' }); return true; } catch (e) {}
-        }
-        if (tries >= 20) return false;                 // ~3s, then it stops asking
-        setTimeout(function () { openBills(tries + 1); }, 150);
-        return true;
+      // WHAT THIS USED TO BE, AND WHY IT COULD NOT STAY. It scrolled to
+      // #digital-library and then asked window.PDXDigitalLibrary.focus() for the
+      // Legislation tab on a 150 ms retry for ~3 seconds, because the library was
+      // a deferred module over lazily-arriving data and a tap could land before it
+      // existed. Every part of that is now false on this page: there is no
+      // #digital-library to scroll to and no controller to wait for. Retrying
+      // against an absent module is a link that appears to work and does nothing
+      // — the exact failure the "Legislation / Bills" entrance kept producing.
+      //
+      // ?mode=legislation is the room's own arrival key, read by library.html's
+      // arrive seam and handed to the focus() call the controller already
+      // published, so the reader lands on bill rows rather than on the archive
+      // and then has to find the tab. location.assign, not replaceState: this is
+      // a real navigation and Back must return the reader here. `true` is still
+      // the answer on success so pdxDoor('bills') and the nav rows keep their
+      // fall-through contract.
+      function openBills() {
+        var to = '/library?mode=legislation';
+        try { location.assign(to); return true; } catch (e) {}
+        try { location.href = to; return true; } catch (e2) {}
+        try { location.replace(to); return true; } catch (e3) {}
+        return false;
       }
-      window.pdxOpenBills = function () { return openBills(0); };
+      window.pdxOpenBills = function () { return openBills(); };
 
       window.pdxDoor = function (mode) {
         switch (mode) {
@@ -6480,10 +6495,11 @@ window.PDXLazy = (function () {
           // ── BILLS · the catalog behind that one measure ─────────────────────
           // Not a door in the chooser, for the same reason 'receipts' is not: it
           // is what the nav's "Legislation / Bills" entry resolves to. The
-          // catalog is the Digital Library's Legislation tab, and the bill file
-          // it opens is /b/<sitting>/<number> — the same panel the showcase, the
-          // Eye's bill results and a person file's measure rows all open. There
-          // is no second bill product here and this adds none.
+          // catalog is the Digital Library's Legislation tab — /library?mode=
+          // legislation now that the library is its own document — and the bill
+          // file it opens is /b/<sitting>/<number>, the same panel the showcase,
+          // the Eye's bill results and a person file's measure rows all open.
+          // There is no second bill product here and this adds none.
           case 'bills':
             return window.pdxOpenBills();
 
@@ -9940,52 +9956,60 @@ window.PDXLazy = (function () {
     </div>
   </section>
 
-  <!-- ═══════════════════════ DIGITAL LIBRARY ═══════════════════════════════
-       The central, searchable archive — one front door over the Evidence
-       Locker, Issue Spotlights, stances & voting records, mandates, major bills
-       and the community boards. Rendered by digital-library.js (window.
-       PDXDigitalLibrary) entirely from globals the app already ships: it builds
-       a unified, filterable browse grid from the bounded client-side
-       collections (spotlights + mandates + bills + top receipts), a cross-source
-       search that jumps into politicians / issues / the Evidence Locker, and a
-       grid of collection tiles that open each source's own rich surface. Purely
-       additive: no existing surface is replaced. -->
-  <section id="digital-library" class="py-16 md:py-24 px-4" style="background:linear-gradient(180deg,rgba(11,17,32,0.96) 0%,rgba(13,21,38,0.92) 100%);border-top:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.05);">
-    <div class="dlib-shell">
-      <div class="dlib-head">
-        <div class="dlib-eyebrow"><span aria-hidden="true">📚</span> The Complete Archive</div>
-        <h2 class="dlib-title">Digital Library</h2>
-        <p class="dlib-sub">Every receipt, spotlight, stance, bill, reform and government contract PolitiDex tracks — gathered into one searchable archive. Search across everything at once, or open a collection to dig in.</p>
-      </div>
-      <div class="dlib-searchbar">
-        <span class="dlib-search-ico" aria-hidden="true">🔍</span>
-        <input id="dlib-search" type="search" autocomplete="off" placeholder="Search the archive — a politician, issue, bill, or keyword…" aria-label="Search the Digital Library">
-        <button type="button" id="dlib-search-clear" class="dlib-search-clear" aria-label="Clear search" hidden>×</button>
-      </div>
-      <div id="dlib-jump" class="dlib-jump" hidden></div>
+  <!-- ══════════ THE DIGITAL LIBRARY IS A DOCUMENT NOW: /library ══════════════
+       WHAT STOOD HERE. The whole archive room, as one section of this page: the
+       eyebrow and display heading, the cross-source search box with its jump
+       strip, the Explore / Legislation tab rail, the grid of collection tiles,
+       the type chips and the issue select, the Legislation facet bar, the count
+       line, the browse grid, the empty state and the Show-more button — about
+       fifty lines of markup over a ~97 KB controller and the sheet it injects.
+       Every reader of this page paid for all of it, including the reader who
+       arrived to answer "who represents me" and nothing else; and a reader who
+       wanted the archive, or wanted to send someone a bill catalog, had nothing
+       to bookmark and nothing that survived a reload. #digital-library was a
+       scroll position, not a place.
 
-      <!-- Library mode toggle (Phase 1): Explore (the archive) vs Legislation
-           (the Bill/Legislation browse). Rendered + wired by digital-library.js;
-           the search box above is shared across both modes. -->
-      <div id="dlib-modes" class="dlib-modes" role="tablist" aria-label="Library mode"></div>
+       WHERE IT WENT. library.html, id for id — every #dlib-* hook the controller
+       binds to is spelled there exactly as it was spelled here, with one change:
+       the room's own name is the document's <h1> rather than an <h2> under this
+       page's. digital-library.js is NOT linked from this document any more,
+       which is the point: the day someone re-adds a .dlib-* class here it will
+       be visibly unstyled instead of quietly half-styled, because the sheet
+       (#dlib-css) is injected by the module and the module is not here.
 
-      <div class="dlib-section-head" id="dlib-head-collections"><h3>Collections</h3><span>Jump into any part of the record</span></div>
-      <div id="dlib-collections" class="dlib-collections"></div>
+       THE DOOR STAYED, AND IT IS THE EXPLORE & DISCOVER MENU. "Digital Library"
+       points at /library and "Legislation / Bills" at /library?mode=legislation,
+       in the desktop nav and in the mobile menu, as four ordinary links with no
+       in-page handler left on them. That second address is the fix for the
+       entrance that never really worked: the bill catalog is a MODE of the one
+       library controller, so asking for it used to mean selecting a tab inside a
+       section this page kept re-rendering underneath the reader. Now it is an
+       address the room reads on arrival, and the reader lands on bill rows.
 
-      <div class="dlib-section-head" id="dlib-head-browse"><h3>Browse the archive</h3><span>Filter by type or issue</span></div>
-      <div id="dlib-type-chips" class="dlib-chips" role="group" aria-label="Filter by type"></div>
-      <div class="dlib-filters">
-        <label for="dlib-issue-filter">Issue <select id="dlib-issue-filter"><option value="">All issues</option></select></label>
-      </div>
-      <!-- Legislation facet bar (Phase 1): congress / chamber / status / issue.
-           Shown only in Legislation mode; built by digital-library.js. -->
-      <div id="dlib-bill-facets" class="dlib-billfacets" hidden></div>
-      <div class="dlib-count" id="dlib-count" aria-live="polite"></div>
-      <div id="dlib-grid" class="dlib-grid"></div>
-      <div id="dlib-empty" class="dlib-empty" hidden>Nothing in the archive matches that yet. Try a broader keyword, clear the issue filter, or switch the type back to Everything.</div>
-      <div class="dlib-more-wrap"><button type="button" id="dlib-more" class="dlib-more" hidden>Show more</button></div>
-    </div>
-  </section>
+       THE H.R.1 / OMNIBUS SHOWCASE IS NOT PART OF THIS MOVE. It is still on this
+       page, still #hr1-showcase, still reached by pdxDoor('bill'). It is one
+       measure read across every issue it touches — a different room from the
+       catalog of every measure — and folding it into /library would have built a
+       second bill product out of a page move.
+
+       WHAT KEEPS WORKING WITHOUT ONE CALLER BEING EDITED. window.pdxOpenBills()
+       above and window.PDXDigitalLibrary below are both still callable names on
+       this page; they mean the address now, and they turn their arguments into
+       the query the receiving document reads (see the navigation shims further
+       down). So bill-detail.js's issue chips, gov-contracts.js's render() ping
+       and pdxDoor('bills') all still do the right thing untouched. gov-contracts
+       .js, bills.js and spotlight-index.js STAY on this page — the contracts
+       dataset also paints a profile's "Major Contracts" section, the bills
+       client also feeds the bill panel, and the spotlight index feeds Local
+       Issues and the search suggestions. None of the three was here for the
+       library alone.
+
+       AND THE OLD FRAGMENT IS FORWARDED. #digital-library is a key in the LANE
+       table at the top of <head>, alongside the mandate, money, voice and
+       community spellings, and for the same reason: a bookmark or a shared link
+       carrying it must land in the room rather than on a page that no longer
+       holds it. A fragment never reaches the server, so this cannot be a
+       redirect rule. -->
 
   <!-- ══════════════ THE TWO COMMUNITY TRACKS ARE A DOCUMENT NOW: /community ══
        WHAT STOOD HERE. Two whole rooms — the Community Evidence Exchange (the
@@ -15722,8 +15746,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        PDX_ELECTION_DATA, PDXImpact and PDXStore (all defined earlier) for a
        private, opt-in contact + deadline-reminder layer. -->
   <script defer src="/ballot-actions.js"></script>
-  <!-- ═══════════════ THE TWO BROWSE ROOMS · NAVIGATION SHIMS ════════════════
-       stance-library.js AND spotlight-hub.js ARE BOTH GONE FROM THIS DOCUMENT.
+  <!-- ═══════════════ THE THREE BROWSE ROOMS · NAVIGATION SHIMS ══════════════
+       stance-library.js, spotlight-hub.js AND digital-library.js ARE ALL GONE
+       FROM THIS DOCUMENT.
        They render the two grids that used to stack here — the issue cards and the
        Issue Spotlight collection — and both now load, unchanged, from
        stances.html. Nothing on this page has a #sl-body or an #all-spotlights for
@@ -15746,8 +15771,30 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        location.assign, NOT history.replaceState: this is a real navigation to a
        real document, and Back has to return the reader to where they were
        standing. render() is answered `false` rather than left undefined, because
-       both modules publish it and a caller that asks this document to repaint a
-       grid it does not have should be told no, not throw. -->
+       all three modules publish it and a caller that asks this document to
+       repaint a grid it does not have should be told no, not throw.
+
+       PDXDigitalLibrary IS THE THIRD, AND IT IS THE ONE WITH TEETH.
+       digital-library.js opens with `if (window.PDXDigitalLibrary) return;`, so
+       on the document that really owns the room a shim of this name would
+       silently prevent the controller from ever booting — chrome over a
+       permanently empty grid, and no error naming the cause. That is why the
+       whole block below is fenced behind `!window.__PDX_LIBRARY_DOC`, the flag
+       library.html sets as its first statement, and behind `!window
+       .PDXDigitalLibrary` so the real module always wins a tie. This file is
+       never served at /library and the fence should therefore never fire; it is
+       here because the cost of being wrong about that is an archive that shows
+       nothing.
+
+       ITS CALLERS ARE NOT HYPOTHETICAL. bill-detail.js asks focus() for
+       { mode: 'library', issue } when a reader taps an issue chip on a measure
+       and for { mode: 'legislation', issue } for the same chip's catalog link,
+       and both fire from a panel this page still opens. gov-contracts.js asks
+       render() after its dataset lands. focus() and search() become the address
+       with the intent in the query; render() answers false AND NAVIGATES
+       NOWHERE, because a dataset arriving is not a reader asking to go
+       anywhere — a render() that hopped to /library would teleport a visitor
+       out of the page mid-scroll. -->
   <script>
   (function () {
     'use strict';
@@ -15783,6 +15830,29 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       },
       render: function () { return false; }
     };
+    // PDXDigitalLibrary.focus(opts) → /library?<the same opts>. The keys are the
+    // ones the controller itself reads and library.html's arrive seam parses:
+    // mode / q / type / issue for the archive, plus category / phase / sort /
+    // followed for Legislation. NOT DEFINED on the document that owns the room
+    // (see the fence above) and never over a real module.
+    if (!window.__PDX_LIBRARY_DOC && !window.PDXDigitalLibrary) {
+      var DLIB_KEYS = ['mode', 'q', 'type', 'issue', 'category', 'phase', 'sort'];
+      window.PDXDigitalLibrary = {
+        focus: function (opts) {
+          opts = opts || {};
+          var p = [];
+          DLIB_KEYS.forEach(function (k) { var v = q(k, opts[k]); if (v) p.push(v); });
+          if (opts.followed === true) p.push('followed=1');
+          return go('/library' + (p.length ? '?' + p.join('&') : ''));
+        },
+        search: function (term) {
+          var t = q('q', term);
+          return go('/library' + (t ? '?' + t : ''));
+        },
+        // Answers the question, moves nobody: see the note above.
+        render: function () { return false; }
+      };
+    }
   })();
   </script>
   <!-- My Stances — the signed-in visitor's own positions on issues. `defer` places
@@ -15991,12 +16061,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        now lands on. Loads after bills.js + bill-detail.js (a row opens a bill
        profile through them) and reads issue-scope.js for its locked scope prose. -->
   <script defer src="/issue-page.js"></script>
-  <!-- Digital Library — the central searchable archive (window.PDXDigitalLibrary).
-       Aggregates spotlights, mandates, bills and receipts into one filterable
-       browse grid, with cross-source search and collection tiles into every
-       source. Loads after the data modules it reads (PDXSpotlight, PDXReceipts,
-       PDXHR1, _pdxMandateItems). -->
-  <script defer src="/digital-library.js"></script>
+  <!-- NO digital-library.js HERE. It renders the archive room — the browse grid,
+       the collection tiles, the cross-source search and the Legislation tab — and
+       that room is the document at /library, which loads this module unchanged
+       after spotlight-index.js, gov-contracts.js and bills.js exactly as this
+       document used to. Nothing on this page has a #digital-library for it to
+       mount into, so shipping it here would have been ~97 KB of controller with
+       no surface. window.PDXDigitalLibrary is still defined on this page — as the
+       navigation shim above, next to PDXStanceLibrary and PDXSpotlightHub. -->
   <!-- ⚖️ Word vs Action (window.PDXWordAction) — the unified accountability model:
        one pool of documented word in three weighted tiers (explicit pledge /
        stated position / campaign branding), tested only against the Official

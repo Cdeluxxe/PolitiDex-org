@@ -154,11 +154,24 @@ for (const addr of ["/stances", "/stances/"]) {
 ok(!RULES.some((r) => r.from && /^\/stances/.test(r.from) && r.from.includes("*")),
   "rewrite: no /stances* wildcard rule exists — an issue is a query, not a segment");
 
-// ONE SPELLING. /library was the other candidate and was not taken, so it must
-// not exist as a second live 200 — two addresses answering with one document is
-// the canonical splitting in half.
-ok(!RULES.some((r) => r.from && /^\/library/.test(r.from) && String(r.status) === "200"),
-  "rewrite: /library is not a second 200 for this room — one spelling, used everywhere");
+// ONE SPELLING. /library was the other candidate for THIS room and was not
+// taken, so no /library rule may answer with stances.html — two addresses
+// serving one document is the canonical splitting in half.
+//
+// THE PROBE USED TO BE WIDER THAN THE CLAIM, and the Digital Library split found
+// that out. It rejected ANY /library* rule with status 200 regardless of what
+// that rule pointed AT, so the day /library became a real address for a real
+// other document — library.html, the archive room, which is where the searchable
+// browse grid and the Legislation catalog live now — this failed while the
+// sentence above it stayed true. What matters is the destination: the stance
+// shelf answers at /stances and nowhere else. /library answering with
+// library.html is not a second spelling of this room, it is a first spelling of
+// a different one.
+const LIB_200 = RULES.filter((r) => r.from && /^\/library/.test(r.from) && String(r.status) === "200");
+ok(!LIB_200.some((r) => String(r.to) === "/stances.html"),
+  "rewrite: a /library rule answers with stances.html — one spelling for this room, used everywhere");
+ok(!RULES.some((r) => r.from && /^\/library/.test(r.from) && String(r.to) === "/stances.html"),
+  "rewrite: /library redirects or rewrites to the stance shelf under any status");
 
 // THE ADDRESSES THIS SPLIT MUST NOT STEAL.
 for (const [addr, expect] of [
@@ -244,10 +257,17 @@ section("3 · the two copied blocks are byte-identical to index.html's");
 const lines = (s) => String(s).split("\n");
 const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 20841, b: 20865, what: "the .pdxis-stance* pill rules" },
-  { from: "index.html", src: INDEX, a: 20884, b: 21005, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 20913, b: 20937, what: "the .pdxis-stance* pill rules" },
+  { from: "index.html", src: INDEX, a: 20956, b: 21077, what: "the PDXStance vocabulary" },
 ];
-// Both index.html ranges have now moved TWICE. First by −2021 for the three-room
+// Both index.html ranges have now moved THREE TIMES, and the third ran the other
+// way. The Digital Library split took #digital-library out of index.html but left
+// a longer note where it stood and added a paragraph to the head forwarder, so
+// the front page GREW by twelve lines in two places ABOVE both blocks and both
+// ranges slid DOWN by twenty-four — to 20913–20937 and 20956–21077. A pin that
+// only ever drifts one direction is a pin nobody re-derives.
+//
+// Before that, both index.html ranges moved TWICE. First by −2021 for the three-room
 // split (People's Mandate, District Voice and Follow the Money became /mandate,
 // /voice and /money, and the agenda wall they took with them sat above both of
 // these blocks), and again by a further −1572 when the Community Exchange left

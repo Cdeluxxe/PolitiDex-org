@@ -273,7 +273,7 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // opening script tag through the firebase-boot.js include, so a stub fix that
 // lands on one document and not the other fails here rather than in a room.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 20884, b: 21005, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 20956, b: 21077, what: "the PDXStance vocabulary" },
   { from: "person.html", src: PERSON, a: 2006, b: 2060, what: "the Firebase boot" },
 ];
 // The three-room split moved the index.html range by −2021 — /mandate, /voice
@@ -287,6 +287,13 @@ const COPIES = [
 // the first two landing on /money. PDXStance sits below every one of those
 // cuts. Re-derived again by locating the run, and again evidence.html's own
 // declared range moved with it in the same edit.
+//   And once more, this time UPWARD IN NUMBER rather than down: the Digital
+// Library split took the #digital-library warehouse out of index.html but left
+// a longer note in its place and added a paragraph to the head forwarder, so
+// the front page grew by twelve lines above this block and PDXStance moved DOWN
+// the document to 20956–21077. A pin that only ever drifts one direction is a
+// pin nobody re-derives; this one was re-derived by locating the 122-line run
+// verbatim, like every move before it.
 for (const c of COPIES) {
   const header = new RegExp(`COPIED VERBATIM FROM ${c.from.replace(".", "\\.")} LINES ${c.a}[^0-9]{1,3}${c.b}`);
   ok(header.test(EV), `copy: evidence.html declares ${c.what} as ${c.from} ${c.a}–${c.b}`);

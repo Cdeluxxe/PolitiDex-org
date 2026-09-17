@@ -13,6 +13,15 @@
 //     archive grid over their bill list. The room looked identical to "Digital
 //     Library", which is exactly what was reported.
 //
+//     THAT ENTRANCE IS AN ADDRESS NOW, AND SO IS THE ARCHIVE'S. The library left
+//     index.html: the archive grid and the Legislation tab over it are the
+//     document library.html, served at /library, and the two menu entries are
+//     ordinary links to /library and /library?mode=legislation. The re-render
+//     race cannot happen to a reader who arrives with the mode in the query, and
+//     the rule that made it survivable in the first place (render() repaints the
+//     SELECTED mode) is still pinned below against digital-library.js itself —
+//     which is where it always belonged, because that module is what moved.
+//
 //   · "H.R.1 / Omnibus Showcase" (nav menu, hamburger, homepage pulse chip)
 //     pointed a bare hash at a section that lives inside Door 1's work layer,
 //     which starts at display:none. The hamburger's hash reached the layer's hash
@@ -23,13 +32,19 @@
 // WHAT THIS FILE PINS:
 //   1. THREE ENTRANCES, ONE BEHAVIOUR. Desktop nav, mobile hamburger and the
 //      homepage chip carry the same href and resolve through the same call. No
-//      entrance is left to a bare hash into a closed layer.
+//      entrance is left to a bare hash into a closed layer — and no entrance to
+//      the library is left to a hash into a section this page no longer holds.
 //   2. THE SEAM OPENS THE ROOM. pdxOpenSurface() paints the surface, opens the
 //      work layer and scrolls; it declines anything that is not in that layer, so
 //      the plain smooth-scroll still owns every other anchor.
 //   3. THE CATALOG KEEPS THE TAB IT WAS GIVEN. A re-render of the library
 //      repaints the SELECTED mode, and "Digital Library" with no mode named is
-//      still the archive.
+//      still the archive. Tested against digital-library.js, which is the file
+//      that owns the rule, on the document that now loads it.
+//   3b. ONE LIBRARY, ONE OWNER. /library carries the room's markup and sets the
+//      flag that keeps the front page's navigation shim from ever defining
+//      window.PDXDigitalLibrary over the real controller — the module returns
+//      early on that name, so shadowing it is an archive that shows nothing.
 //   4. ONE BILL FILE, AND IT IS /b/<sitting>/<number>. A row in the catalog opens
 //      the same panel every other entrance opens, carrying the sitting that makes
 //      a repeated bill number unambiguous. Nothing here invents a second bill
@@ -48,6 +63,7 @@ import vm from "node:vm";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
 const INDEX = R("index.html");
+const LIBRARY = R("library.html");
 const DLIB = R("digital-library.js");
 const BILLS = R("bills.js");
 const SHARE = R("share-links.js");
@@ -93,19 +109,22 @@ const anchorsFor = (href) => ANCHORS.filter((a) => a.includes(`href="${href}"`))
     "    same surface mid-scroll");
 }
 {
-  // Legislation / Bills: same href in both menus, same call in both menus, and
-  // the call is the bills entry point rather than a raw library focus.
+  // Legislation / Bills: the same real address in both menus, carrying the mode
+  // that opens the bill list rather than a call into a section this page no
+  // longer holds.
   const leg = ANCHORS.filter((a) => /Bills (?:&|&amp;) measures/.test(a));
   eq(leg.length, 2,
     "the page does not carry exactly two Legislation / Bills entries (desktop nav + hamburger). A\n" +
     "    missing one is a destination a phone cannot reach; an extra one is a fourth place to keep in sync");
   for (const a of leg) {
-    ok(a.includes('href="#digital-library"'),
-      "a Legislation / Bills entry no longer falls back to the library's own anchor, so a tap that\n" +
-      "    lands before the module has loaded goes nowhere at all");
-    ok(a.includes("pdxOpenBills()"),
-      "a Legislation / Bills entry does not call pdxOpenBills(), which is what retries the tab until\n" +
-      "    the library exists instead of asking once and giving up:\n    " + a.slice(0, 140));
+    ok(a.includes('href="/library?mode=legislation"'),
+      "a Legislation / Bills entry does not point at /library?mode=legislation. The bill catalog is a\n" +
+      "    mode of the library document, and the mode has to travel in the address or the reader lands\n" +
+      "    on the archive and has to find the tab:\n    " + a.slice(0, 160));
+    ok(!a.includes("pdxOpenBills()") && !a.includes("PDXDigitalLibrary"),
+      "a Legislation / Bills entry still calls into the in-page library. There is no library on this\n" +
+      "    page to call — a handler that retries an absent module is a link that appears to work and\n" +
+      "    does nothing:\n    " + a.slice(0, 160));
   }
   // Digital Library keeps its own entrance, and it is NOT the bills one.
   const LIB_TITLE = 'title="The central searchable archive of everything PolitiDex tracks"';
@@ -114,10 +133,42 @@ const anchorsFor = (href) => ANCHORS.filter((a) => a.includes(`href="${href}"`))
     "the Digital Library's own menu entries are gone. The archive and the bill catalog are two rooms\n" +
     "    behind one anchor, and the library must still open the library");
   for (const a of lib) {
-    ok(a.includes("PDXDigitalLibrary.focus()") && !a.includes("legislation"),
-      "a Digital Library entry now asks for a mode, which is how the archive door started opening the\n" +
-      "    bill catalog:\n    " + a.slice(0, 140));
+    ok(a.includes('href="/library"') && !a.includes("legislation"),
+      "a Digital Library entry does not point at a bare /library, which is how the archive door\n" +
+      "    started opening the bill catalog:\n    " + a.slice(0, 160));
   }
+  // The warehouse itself is gone, and so is the module that paints it.
+  ok(!/<section id="digital-library"/.test(INDEX),
+    "the Digital Library section is still mounted in index.html. It is the document at /library now,\n" +
+    "    and two live copies of one room is two rooms to keep in sync");
+  ok(!/<script[^>]+src="\/digital-library\.js"/.test(INDEX),
+    "index.html still loads digital-library.js. There is no #digital-library for it to mount into, so\n" +
+    "    that is ~97 KB of controller with no surface");
+  ok(/'digital-library': '\/library'/.test(INDEX),
+    "#digital-library is not forwarded to /library in the head LANE table, so every bookmark and\n" +
+    "    shared link carrying the old fragment lands on a page that no longer holds the room");
+}
+{
+  // 3b · One library, one owner.
+  ok(/window\.__PDX_LIBRARY_DOC\s*=\s*true/.test(LIBRARY),
+    "library.html does not set window.__PDX_LIBRARY_DOC, which is the only thing standing between the\n" +
+    "    front page's shim and digital-library.js's `if (window.PDXDigitalLibrary) return;`");
+  ok(/!window\.__PDX_LIBRARY_DOC && !window\.PDXDigitalLibrary/.test(INDEX),
+    "the front page defines its PDXDigitalLibrary shim unconditionally. On the document that owns the\n" +
+    "    room that name shadows the real controller and the archive never boots");
+  ok(/<script[^>]+src="\/digital-library\.js"/.test(LIBRARY),
+    "library.html does not load digital-library.js — the room has no controller");
+  for (const id of ["dlib-search", "dlib-modes", "dlib-grid", "dlib-bill-facets", "dlib-type-chips",
+                    "dlib-issue-filter", "dlib-count", "dlib-empty", "dlib-more", "digital-library"]) {
+    ok(LIBRARY.includes(`id="${id}"`),
+      `library.html has no #${id}. Every one of these is bound by name inside digital-library.js, and a\n` +
+      "    missing hook is a control that silently does nothing");
+  }
+  // Root-absolute, because /library/ is a live spelling of this document.
+  const rel = (LIBRARY.match(/\s(?:src|href)="(?!https?:|\/|#|data:|mailto:)[^"]+"/g) || []);
+  eq(rel.length, 0,
+    `library.html carries ${rel.length} relative asset path(s): ${rel.slice(0, 4).join(" ")}\n` +
+    "    Served at /library/ a bare src resolves one directory deeper and the room loads nothing");
 }
 
 // ── 2 · The seam opens the room ──────────────────────────────────────────────
@@ -192,51 +243,59 @@ function runSeam(over) {
     "    halfway");
 }
 {
-  // pdxOpenBills: the library's Legislation tab, with the reader moving first.
-  const r = runSeam({});
-  const focused = [];
-  r.PDXDigitalLibrary = { focus: (o) => focused.push(o) };
+  // pdxOpenBills: the library's Legislation tab, which is an address now.
+  //
+  // IT USED TO RETRY. The library was a deferred module on this page, so a tap
+  // could land before it existed and this scrolled to #digital-library and then
+  // asked focus() for the tab on a 150 ms loop for ~3 seconds. Both halves of
+  // that are false here: there is no section to scroll to and no controller to
+  // wait for, and retrying against an absent module is the silent failure the
+  // whole file exists to prevent. What is pinned now is the navigation.
+  const navSeam = (extra) => {
+    const nav = [];
+    const ctx = runSeam({
+      location: {
+        hash: "",
+        assign(u) { nav.push(String(u)); },
+        replace(u) { nav.push("replace:" + String(u)); },
+        set href(u) { nav.push("href:" + String(u)); },
+        get href() { return "https://www.politidex.fyi/"; },
+      },
+      ...(extra || {}),
+    });
+    ctx.nav = nav;
+    return ctx;
+  };
+  const r = navSeam();
   const took = r.pdxOpenBills();
-  eq(took, true, "pdxOpenBills() did not report success with the library present");
-  eq(focused.length, 1, "pdxOpenBills() did not ask the library for a mode exactly once");
-  eq(focused[0] && focused[0].mode, "legislation",
-    "pdxOpenBills() does not select the Legislation tab, which is the whole difference between the\n" +
-    "    bill catalog and the archive");
-  ok(r.calls.includes("scroll:digital-library"),
-    "pdxOpenBills() never scrolls to the library, so on a phone the tab changes somewhere off-screen");
-  // A tap that beats the module's own <script> tag. digital-library.js is loaded
-  // low on the page, so on a cold phone the reader can absolutely get there first.
-  const r2 = runSeam({});
-  const late = [];
+  eq(took, true, "pdxOpenBills() did not report success, so its callers fall through to a second arrival");
+  eq(r.nav.length, 1,
+    "pdxOpenBills() did not navigate exactly once. Zero is the original bug wearing a new face; two is\n" +
+    "    a reader who cannot get Back out of the room");
+  eq(r.nav[0], "/library?mode=legislation",
+    "pdxOpenBills() does not carry mode=legislation to the library document, which is the whole\n" +
+    "    difference between the bill catalog and the archive");
+  ok(!r.calls.some((c) => c.startsWith("scroll:")),
+    "pdxOpenBills() still scrolls this page before leaving it — a scroll the reader watches get thrown\n" +
+    "    away by the navigation");
+  ok(r.timers === 0,
+    `pdxOpenBills() scheduled ${r.timers} timer(s). There is no module on this page to wait for, and a\n` +
+    "    retry that outlives the tap is a navigation that can fire after the reader has gone elsewhere");
+  // No in-page library is consulted on the way out.
+  const rSpy = navSeam();
   let looks = 0;
-  Object.defineProperty(r2, "PDXDigitalLibrary", {
-    get() { return ++looks < 4 ? undefined : { focus: (o) => late.push(o) }; },
-  });
-  r2.pdxOpenBills();
-  eq(late.length, 1,
-    "a tap that lands before digital-library.js does is never retried, so the reader is left on the\n" +
-    "    archive with the tab they asked for silently dropped");
-  eq(late[0] && late[0].mode, "legislation", "the retry lost the mode it was retrying for");
-  ok(r2.calls.includes("scroll:digital-library"),
-    "with the module still absent the reader is not even taken to the library section, which is the\n" +
-    "    honest fallback the anchor already promised");
-  // And the retrying is bounded — a page where the module never arrives stops asking.
-  // (Timers run synchronously in this sandbox, so the retry chain runs to its end
-  // inside the call and the count below IS the bound.)
-  const r3a = runSeam({});
-  r3a.timers = 0;
-  r3a.pdxOpenBills();
-  ok(r3a.timers > 1 && r3a.timers <= 40,
-    `pdxOpenBills() scheduled ${r3a.timers} retries with the module never arriving. It has to keep\n` +
-    "    asking long enough to cover a slow script and then stop — an unbounded retry is a timer that\n" +
-    "    outlives the tap that started it, and zero retries is the original bug");
+  Object.defineProperty(rSpy, "PDXDigitalLibrary", { get() { looks++; return undefined; } });
+  rSpy.pdxOpenBills();
+  eq(looks, 0,
+    "pdxOpenBills() still reads window.PDXDigitalLibrary. On this page that name is the navigation\n" +
+    "    shim, so asking it would mean two navigations for one tap");
+  eq(rSpy.nav[0], "/library?mode=legislation", "the navigation changed when a library global was in reach");
   // The bills door is a mode of the existing router, not a new global.
-  const r3 = runSeam({});
-  const f3 = [];
-  r3.PDXDigitalLibrary = { focus: (o) => f3.push(o) };
+  const r3 = navSeam();
   r3.pdxDoor("bills");
-  eq(f3.length, 1, "pdxDoor('bills') does not route to the bill catalog, so the router and the nav disagree\n" +
+  eq(r3.nav.length, 1, "pdxDoor('bills') does not route to the bill catalog, so the router and the nav disagree\n" +
     "    about where bills live");
+  eq(r3.nav[0], "/library?mode=legislation", "pdxDoor('bills') routes somewhere other than the catalog");
   // ...and adding it did not add a sixth button to the chooser.
   eq((INDEX.match(/window\.pdxDoor&&window\.pdxDoor\('/g) || []).length, 5,
     "the door chooser no longer carries exactly five buttons. 'bills' is a nav destination, not a\n" +

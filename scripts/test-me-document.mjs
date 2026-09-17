@@ -269,18 +269,21 @@ const COPIES = [
   // an earlier edit to index.html shifts line numbers — when it does, the header
   // comment in me.html and this table move TOGETHER, which is the whole point of
   // pinning it in one place.
-  { from: "index.html", src: INDEX, a: 21497, b: 21919, what: "PDXSaved" },
+  { from: "index.html", src: INDEX, a: 21569, b: 21991, what: "PDXSaved" },
 ];
-// PDXSaved's declared range has now moved three times, always for the same
+// PDXSaved's declared range has now moved four times, always for the same
 // reason and always re-derived the same way: LOCATE THE 423-LINE RUN VERBATIM IN
 // THE NEW index.html, never subtract a diff's line count from the old range.
 // The three-room split (Mandate, Voice and Money to their own documents) moved
-// it by −2021; the Community split moved it again; and the pass that made the
-// front page a DOOR to the money lane — deleting #follow-the-money, the Wealth
+// it by −2021; the Community split moved it again; the pass that made the front
+// page a DOOR to the money lane — deleting #follow-the-money, the Wealth
 // Transparency board and the retired #N-by-funding leaderboard from index.html,
-// with the first two moving to /money — moved it to 21497–21919. The run came
-// back at its full 423 lines each time, which is the check that the range names
-// the block rather than merely being in range.
+// with the first two moving to /money — moved it to 21497–21919; and the Digital
+// Library split (the #digital-library warehouse out of index.html and into
+// /library, against a longer head note) moved it DOWN to 21569–21991, which is
+// the first of these moves to run forwards rather than back. The run came back
+// at its full 423 lines each time, which is the check that the range names the
+// block rather than merely being in range.
 for (const c of COPIES) {
   const header = new RegExp(`COPIED VERBATIM FROM ${c.from.replace(".", "\\.")} LINES ${c.a}[^0-9]{1,3}${c.b}`);
   ok(header.test(ME), `copy: me.html declares its ${c.what} block as ${c.from} ${c.a}–${c.b}`);

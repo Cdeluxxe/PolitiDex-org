@@ -6560,7 +6560,53 @@
 //     the reader is, so /voice keeps saying it cannot place you rather than
 //     inventing a place, and no money surface asks it anything. /community is
 //     untouched too, and still answers 200 from its own shell.
-const CACHE_VERSION = 'v213';
+// v214 - THE DIGITAL LIBRARY IS A DOCUMENT. /library.
+//
+//     WHAT CHANGED. The archive room left index.html. The section
+//     #digital-library — the cross-source search box, the Explore / Legislation
+//     tab rail, the collection tiles, the type chips and issue select, the
+//     Legislation facet bar and the browse grid — is now the whole of
+//     library.html, served at /library and /library/ by two exact 200 rewrites,
+//     the same pair shape /money and /community use. The front page keeps the
+//     door: Explore & Discover's two entries point at /library and
+//     /library?mode=legislation, which is the fix for the entrance that never
+//     really worked — the bill catalog is a MODE of the one library controller,
+//     so asking for it used to mean selecting a tab inside a section the page
+//     kept re-rendering underneath the reader.
+//
+//     WHY THE BUMP. Two precached documents changed each other's meaning:
+//     index.html no longer contains the room OR the module that paints it, and
+//     library.html is new on SHELL_ASSETS. A warm v213 device would serve an old
+//     front page whose two Explore entries still call an in-page library that
+//     the new deploy does not ship — a tap that appears to work and does
+//     nothing, which is exactly the entrance this pass repairs.
+//
+//     WHAT /library COSTS OFFLINE: the document and its controller, for the
+//     reason evidence-locker.js and me-desk.js are on this list — together they
+//     ARE the room, and one arriving without the other paints nothing at all.
+//     digital-library.js MOVES onto the list rather than being added to it:
+//     index.html used to load it on every visit, so a warm device has always
+//     been paying for it. spotlight-index.js, gov-contracts.js and bills.js
+//     stay runtime-cached, unchanged — they are shared with front-page surfaces
+//     (Local Issues, the search suggestions, Major Contracts, the bill panel).
+//
+//     MIGRATION COST: none. No stored record migrates. A bookmark on
+//     /#digital-library is forwarded to /library by the LANE table in
+//     index.html's head, and every in-page caller that survived the move
+//     (bill-detail.js's issue chips, gov-contracts.js's render() ping,
+//     pdxDoor('bills')) reaches it through window.PDXDigitalLibrary and
+//     window.pdxOpenBills, navigation shims on the front page now.
+//
+//     DID NOT MOVE. The H.R.1 / Omnibus Showcase is still #hr1-showcase on
+//     index.html, still opened by pdxDoor('bill') — one measure read across
+//     every issue it touches is a different room from the catalog of every
+//     measure. No roster field, issue key, mapping, auth path or ingest
+//     changed, and voter-hub-location.js is untouched: the archive never asks
+//     where the reader is. Nothing here is scored — Direction Match, Word vs
+//     Action, the formal pattern tiers, the publication floor and every
+//     cross-person ordering are untouched. /money and /community still answer
+//     200 from their own shells; the 💰 chip and /p/<pid> are untouched.
+const CACHE_VERSION = 'v214';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -6693,6 +6739,24 @@ const SHELL_ASSETS = [
   // /finance-lane.js and /finance-lane.css are already entries below.
   '/money-room.js',
   '/money-lane.css',
+
+  // THE THIRTEENTH SHELL, and the fourth to come OUT of index.html rather than
+  // arrive new. netlify.toml rewrites /library and /library/ here; it is a
+  // SINGLE address — mode, search text, type, issue, phase, sort and the
+  // followed flag are all QUERY keys — so navDocKey gives it no key and this one
+  // entry answers every arrival.
+  '/library.html',
+  // The room's controller, precached for the reason evidence-locker.js and
+  // me-desk.js are: it is the WHOLE of what paints /library, including the sheet
+  // (#dlib-css) it injects itself, so a document that arrives without it is
+  // chrome over an empty grid. This is a MOVE onto the list, not an addition to
+  // it — index.html used to load the same file on every visit, so a warm device
+  // has always been paying for it; it is simply paid for at the address that
+  // needs it now. Its three data sources stay runtime-cached exactly as they
+  // were when the library was on the front page: /spotlight-index.js,
+  // /gov-contracts.js and /bills.js are all shared with surfaces that are still
+  // there, and the room degrades honestly without any of them.
+  '/digital-library.js',
   '/css/tailwind.css',
   // The above-the-fold record card. Parser-blocking in index.html, so on a
   // repeat visit these two must come from the cache or they add latency to the
