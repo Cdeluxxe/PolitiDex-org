@@ -43,7 +43,7 @@
 //
 //   node scripts/test-finance-id-alias.mjs
 //
-// The REAL shipped accessor block is lifted out of index.html and run in a
+// The REAL shipped accessor block is lifted out of ftm-data.js and run in a
 // node:vm sandbox with the REAL finance-lane.js and the REAL 1,120-person
 // roster, because a fixture of this table would keep passing while the shipped
 // filings broke — which is precisely how the gap got here.
@@ -56,7 +56,7 @@ import { makeSandbox } from "./gen-hero-showcase.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
-const INDEX = R("index.html");
+const FTM_SRC = R("ftm-data.js");
 const LANE_SRC = R("finance-lane.js");
 
 let passed = 0;
@@ -78,19 +78,19 @@ const must = (cond, msg) => {
   process.exit(1);
 };
 
-// ── The REAL accessor block, lifted out of index.html ───────────────────────
+// ── The REAL accessor block, lifted out of ftm-data.js ───────────────────────
 // One contiguous slice from the FTM_DATA literal through the end of
 // `window._pdxFunding`, so the seed, the index, the alias table, the resolver
 // and all five pid-keyed accessors are the shipped ones rather than retyped.
 // Everything in that span is a declaration; nothing in it touches the DOM at
 // load time.
 function liftAccessorBlock() {
-  const at = INDEX.indexOf("    var FTM_DATA = [");
-  must(at > 0, "FTM_DATA is no longer in index.html");
+  const at = FTM_SRC.indexOf("    var FTM_DATA = [");
+  must(at > 0, "FTM_DATA is no longer in ftm-data.js");
   const endMark = "    // Small escapers so the funding UI is safe";
-  const end = INDEX.indexOf(endMark, at);
+  const end = FTM_SRC.indexOf(endMark, at);
   must(end > at, "could not find the end of the finance accessor block");
-  const src = INDEX.slice(at, end);
+  const src = FTM_SRC.slice(at, end);
   for (const needed of [
     "var FTM_FUNDING = {", "FTM_DATA.forEach(function(p) { if (FTM_FUNDING[p.id])",
     "var FTM_AS_OF", "function _financeSignal(p)", "var _FTM_BY_ID = {}",
@@ -110,7 +110,7 @@ function boot(strip) {
   const ctx = vm.createContext(win);
   vm.runInContext(R("cmp-data.js"), ctx, { filename: "cmp-data.js" });
   vm.runInContext(LANE_SRC, ctx, { filename: "finance-lane.js" });
-  vm.runInContext(BLOCK_SRC, ctx, { filename: "index.html#finance" });
+  vm.runInContext(BLOCK_SRC, ctx, { filename: "ftm-data.js#accessors" });
   must(win.PDXFinanceLane, "finance-lane.js did not install PDXFinanceLane");
   must(typeof win._pdxFinanceFiling === "function", "the accessor block did not install _pdxFinanceFiling");
   must(win.CMP_DATA && Object.keys(win.CMP_DATA).length > 500, "cmp-data.js did not load a roster");

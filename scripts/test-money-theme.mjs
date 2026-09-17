@@ -50,7 +50,7 @@
 //   node scripts/test-money-theme.mjs
 //
 // Real shipped modules in node:vm sandboxes, with the REAL FTM_FUNDING seed
-// lifted out of index.html — so the chips compared here are browser chips.
+// lifted out of ftm-data.js — so the chips compared here are browser chips.
 
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -82,16 +82,19 @@ const stripJs = (s) => s.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, " ");
 const stripCss = (s) => s.replace(/\/\*[\s\S]*?\*\//g, " ");
 
 const INDEX = R("index.html");
+// The filings and the renderers that print them were pasted inline into three
+// documents; they are one module now, and every lift below reads it there.
+const FTM_SRC = R("ftm-data.js");
 const LANE_SRC = R("finance-lane.js");
 const LANE_CSS = R("finance-lane.css");
 
 // ── the real seed, lifted, not retyped ──────────────────────────────────────
 function liftSeed() {
-  const at = INDEX.indexOf("var FTM_FUNDING = {");
-  if (at < 0) die("FTM_FUNDING is no longer in index.html");
-  const end = INDEX.indexOf("\n    };", at);
+  const at = FTM_SRC.indexOf("var FTM_FUNDING = {");
+  if (at < 0) die("FTM_FUNDING is no longer in ftm-data.js");
+  const end = FTM_SRC.indexOf("\n    };", at);
   if (end < at) die("could not find the end of the FTM_FUNDING literal");
-  const literal = INDEX.slice(at + "var FTM_FUNDING = ".length, end + "\n    }".length);
+  const literal = FTM_SRC.slice(at + "var FTM_FUNDING = ".length, end + "\n    }".length);
   return new Function("return (" + literal + ");")();
 }
 const SEED = liftSeed();
@@ -103,7 +106,7 @@ function laneBox() {
   const ctx = vm.createContext(win);
   win._FTM_BY_ID = {};
   for (const id of Object.keys(SEED)) win._FTM_BY_ID[id] = { id, name: id, funding: SEED[id] };
-  win.FTM_AS_OF = (INDEX.match(/var FTM_AS_OF = '([^']*)'/) || [])[1] || "";
+  win.FTM_AS_OF = (FTM_SRC.match(/var FTM_AS_OF = '([^']*)'/) || [])[1] || "";
   vm.runInContext(LANE_SRC, ctx, { filename: "finance-lane.js" });
   if (!win.PDXFinanceLane) die("finance-lane.js did not install PDXFinanceLane");
   return win.PDXFinanceLane;
@@ -315,8 +318,8 @@ const L = laneBox();
     if (RETIRED_FAMILIES.includes(family)) {
       eq(grass.length + mixed.length + big.length, 0,
         `.${family} is retired: no level of it resolves to any rule at all`);
-      lacks(stripJs(INDEX), `${family} `,
-        `…and index.html emits no ${family} pill for the counts lead to sit beside`);
+      lacks(stripJs(INDEX + "\n" + FTM_SRC), `${family} `,
+        `…and nothing shipped emits a ${family} pill for the counts lead to sit beside`);
       continue;
     }
     ok(grass.length > 0, `.${family}.is-grass still resolves to a rule`);
@@ -334,9 +337,9 @@ const L = laneBox();
   // Scoped to the renderer, not to the whole file: one candidate's `whyItMatters`
   // prose calls a rival's fundraising "incumbent war chests", which is record
   // narrative quoting a filing's context rather than a tier this lane assigns.
-  const sectAt = INDEX.indexOf("window._pdxFundingSection = function");
-  if (sectAt < 0) die("_pdxFundingSection is no longer in index.html");
-  const sectFn = stripJs(INDEX.slice(sectAt, INDEX.indexOf("\n    };", sectAt)));
+  const sectAt = FTM_SRC.indexOf("window._pdxFundingSection = function");
+  if (sectAt < 0) die("_pdxFundingSection is no longer in ftm-data.js");
+  const sectFn = stripJs(FTM_SRC.slice(sectAt, FTM_SRC.indexOf("\n    };", sectAt)));
   for (const dead of ["pdx-fund-scale", "war chest", "pdx-fund-baserow", "_pdxFundWord("]) {
     lacks(APP, dead, `app.css carries no ${dead} rule`);
     lacks(sectFn, dead, `the profile money section emits no ${dead}`);
@@ -347,9 +350,9 @@ const L = laneBox();
   // The glyph ramp behind the colour ramp. 🌱 / ⚖️ / 🏦 was the same three-step
   // judgement drawn in pictures, and the ⚖️ in the middle was Word vs Action's
   // own badge borrowed for a donor mix.
-  const charAt = INDEX.indexOf("function _fundingCharacter(p)");
-  if (charAt < 0) die("_fundingCharacter is no longer in index.html");
-  const charFn = stripJs(INDEX.slice(charAt, INDEX.indexOf("\n    }", charAt)));
+  const charAt = FTM_SRC.indexOf("function _fundingCharacter(p)");
+  if (charAt < 0) die("_fundingCharacter is no longer in ftm-data.js");
+  const charFn = stripJs(FTM_SRC.slice(charAt, FTM_SRC.indexOf("\n    }", charAt)));
   eq((charFn.match(/icon = /g) || []).length, 1,
     "_fundingCharacter assigns its glyph exactly once, for every level");
   has(charFn, "icon = '\u{1F4B0}'", "…and that glyph is 💰");
@@ -552,7 +555,7 @@ const L = laneBox();
   // fact about the shipped markup rather than about the stylesheet alone.
   for (const cls of ["pdx-money-h", "pdx-money-eyebrow"]) {
     has(LANE_CSS, "." + cls, `finance-lane.css declares .${cls}`);
-    has(INDEX, cls, `…and index.html uses .${cls} on a money surface`);
+    has(INDEX + "\n" + FTM_SRC, cls, `…and a shipped money surface uses .${cls}`);
   }
   has(R("impact-ledger.js"), "pdx-money-h",
     "the ledger's Follow the Money header wears the money header class too");

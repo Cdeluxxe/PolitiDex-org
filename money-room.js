@@ -5,21 +5,22 @@
    WHY THIS FILE EXISTS
 
    Follow the Money's tracker came to /money as a VERBATIM COPY of the block
-   index.html still ships: the same section markup, the same inline IIFE, the
-   same hand-verified dollar figures, byte for byte, fenced by
-   scripts/test-money-shell.mjs so the two copies cannot drift. The reasons that
-   copy is a copy rather than a move are written out in money.html's banner and
-   in .netlify/results.md, and the short version is that the filings index has
-   exactly one declared owner today — scripts/test-finance-lane.mjs asserts
-   `FTM_DATA` / `FTM_FUNDING` / `FTM_AS_OF` / `_FTM_BY_ID` are visible to ONE
-   shipped module — and scripts/finance-integrity-refresh.mjs plus five tests
-   brace-match those literals out of index.html by name. Extracting them into a
-   shared module overnight would have rewritten a wall and a hand-verification
-   pipeline in the same pass. That is a morning job with the owner awake.
+   index.html shipped: the same section markup, the same inline IIFE, the same
+   hand-verified dollar figures, byte for byte, fenced by
+   scripts/test-money-shell.mjs so the two copies could not drift.
 
-   WHICH LEAVES ONE PROBLEM, AND IT IS THIS FILE'S WHOLE REASON. Three of the
-   controls in that copied markup are addressed to functions that only exist on
-   the front page:
+   THE FIGURES ARE NOT A COPY ANY MORE. They are /ftm-data.js, loaded by this
+   room, by the front page and by person.html — one owner, one edit, one answer
+   about a person's money. The fence around the tracker is retired with the copy
+   it fenced; the section MARKUP above is still index.html's, still byte-checked,
+   because markup with one deliberate <h1> swap is a copy and should say so.
+   scripts/test-finance-lane.mjs still holds the data seam shut, restated as what
+   it always meant: a CLOSED, NAMED set of two files — /ftm-data.js defines the
+   filings, finance-lane.js reads them, and no other shipped module can see them.
+
+   WHICH LEAVES ONE PROBLEM, AND IT IS THIS FILE'S WHOLE REASON, UNCHANGED BY ANY
+   OF THAT. Three of the controls in the shared renderer's cards are addressed to
+   functions that only exist on the front page:
 
        openMediumModal(pid, event)   profiles-full.js — the person overlay
        showProfile(pid, event)       profiles-full.js — "View Full Profile →"

@@ -7016,6 +7016,13 @@ const SHELL_ASSETS = [
   '/issue-map.js',
   // Whether a record clears the bar to be published as a citable /p/ address.
   '/publication-floor.js',
+  // ftm-data.js is the ONE OWNER of the filings — the hand-verified amounts, the
+  // FEC buckets, the review stamp and the accessors finance-lane.js reads. It was
+  // inline on index.html, money.html and person.html; it is one file now, which
+  // means one cache entry serves all three documents instead of 64 KB riding
+  // inside each of them. It MUST be precached alongside the lane: a lane with no
+  // index answers "no money file" for every person on the site.
+  '/ftm-data.js',
   '/finance-lane.js',
   '/finance-lane.css',
   // THE EXECUTIVE LANE. Not optional once /p/* serves one document for every

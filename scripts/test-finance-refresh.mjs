@@ -93,17 +93,17 @@ section('2 · the roster is derived, so no filing is silently skipped');
   // The script must audit exactly the ids that ship. A hand-kept roster here is
   // how a filing joins the site and quietly stops being refreshed — which is the
   // failure this whole script exists to prevent.
-  const INDEX = read('index.html');
-  const at = INDEX.indexOf('var FTM_FUNDING = {');
-  must(at > -1, 'FTM_FUNDING is no longer in index.html under that name');
-  const open = INDEX.indexOf('{', at);
+  const FTM = read('ftm-data.js');
+  const at = FTM.indexOf('var FTM_FUNDING = {');
+  must(at > -1, 'FTM_FUNDING is no longer in ftm-data.js under that name');
+  const open = FTM.indexOf('{', at);
   let depth = 0, end = -1;
-  for (let i = open; i < INDEX.length; i++) {
-    if (INDEX[i] === '{') depth++;
-    else if (INDEX[i] === '}') { depth--; if (!depth) { end = i; break; } }
+  for (let i = open; i < FTM.length; i++) {
+    if (FTM[i] === '{') depth++;
+    else if (FTM[i] === '}') { depth--; if (!depth) { end = i; break; } }
   }
-  must(end > -1, 'FTM_FUNDING is not brace-balanced in index.html');
-  const shipped = new Function(`return ${INDEX.slice(open, end + 1)};`)();
+  must(end > -1, 'FTM_FUNDING is not brace-balanced in ftm-data.js');
+  const shipped = new Function(`return ${FTM.slice(open, end + 1)};`)();
   const shippedIds = Object.keys(shipped).sort();
   must(shippedIds.length > 0, 'FTM_FUNDING evaluated to nothing');
 
@@ -112,7 +112,9 @@ section('2 · the roster is derived, so no filing is silently skipped');
     'the audited set is not exactly the shipped set');
 
   has(SRC, "src.indexOf('var FTM_FUNDING = {')",
-    'the script does not read the shipped filings out of index.html');
+    'the script does not read the shipped filings out of ftm-data.js');
+  has(SRC, "readFileSync(join(ROOT, 'ftm-data.js'), 'utf8')",
+    'the script reads the filings from somewhere other than their one owner');
   has(SRC, 'The roster is DERIVED from the shipped FTM_FUNDING',
     'the derived-roster rule is not documented in the script');
   // No parallel table of figures. Identifiers are fine; dollar amounts are not.
@@ -174,12 +176,15 @@ section('4 · it writes nothing, ever');
   must(fsImport, 'the fs import is not a named-import list any more');
   eq(fsImport.trim(), 'readFileSync', 'the refresh script imports more than readFileSync from node:fs');
 
-  const before = ['index.html', 'finance-lane.js', 'FINANCE_INTEGRITY.md']
+  // ftm-data.js is on this list now and index.html no longer needs to be for
+  // this reason: the filings moved into their own module, and "never edits the
+  // shipped data" has to name the file the data is actually in.
+  const before = ['ftm-data.js', 'index.html', 'finance-lane.js', 'FINANCE_INTEGRITY.md']
     .map((f) => `${f}:${read(f).length}`).join('|');
   run();
   run(['--json']);
   run(['--fetch']);
-  const after = ['index.html', 'finance-lane.js', 'FINANCE_INTEGRITY.md']
+  const after = ['ftm-data.js', 'index.html', 'finance-lane.js', 'FINANCE_INTEGRITY.md']
     .map((f) => `${f}:${read(f).length}`).join('|');
   eq(after, before, 'running the refresh script changed a shipped file');
 
@@ -394,7 +399,7 @@ section('11 · documented, and the shipped comment agrees');
   // stayed that way: a hard-coded expectation enforces the drift it was meant to
   // catch. Counted from the same two files the script counts, the fence now fails
   // when the doc is stale rather than when the roster changes.
-  const _idx = read('index.html');
+  const _idx = read('ftm-data.js');
   const _from = _idx.indexOf('var FTM_FUNDING = {');
   const _block = _idx.slice(_from, _idx.indexOf('\n    };', _from));
   const _fundKeys = (_block.match(/^\s{6}[a-z0-9_]+:\s*\{/gm) || []).length;
@@ -406,11 +411,13 @@ section('11 · documented, and the shipped comment agrees');
   has(DOC, 'documented limitation, not a pending feature',
     'the doc leaves the state lane looking like pending work');
 
-  // index.html's own comment must point at the same script and must not promise a
-  // scoring methodology that no longer exists.
-  const INDEX = read('index.html');
-  const at = INDEX.indexOf('var FTM_FUNDING = {');
-  const header = INDEX.slice(Math.max(0, at - 2600), at);
+  // The comment that sits above the funding seed must point at the same script
+  // and must not promise a scoring methodology that no longer exists. It
+  // travelled with the seed when the block became ftm-data.js — the curator
+  // instructions belong next to the thing a curator edits.
+  const FTMSRC = read('ftm-data.js');
+  const at = FTMSRC.indexOf('var FTM_FUNDING = {');
+  const header = FTMSRC.slice(Math.max(0, at - 2600), at);
   has(header, 'scripts/finance-integrity-refresh.mjs',
     'the FTM_FUNDING comment does not point at the refresh script');
   has(header, 'FEC_API_KEY', 'the FTM_FUNDING comment does not name the env key');
@@ -418,7 +425,7 @@ section('11 · documented, and the shipped comment agrees');
     'the FTM_FUNDING comment still promises a scoring methodology');
   no(header, 'full scoring methodology',
     'the FTM_FUNDING comment still points at a retired scoring methodology');
-  has(header, 'finance-lane.js', 'the FTM_FUNDING comment still credits index.html for the read');
+  has(header, 'finance-lane.js', 'the FTM_FUNDING comment no longer credits finance-lane.js for the read');
   // The old header said party transfers were "treated as neutral" — a statement
   // about arithmetic that no longer exists.
   no(header, '(treated as neutral)',

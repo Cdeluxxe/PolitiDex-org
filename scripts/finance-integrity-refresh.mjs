@@ -10,12 +10,12 @@
 // FINANCE_INTEGRITY.md documents the wall around it.
 //
 // A pure lane still rots. Filings age, cycles roll over, and a hand-edited
-// dollar figure in a 2 MB index.html is exactly the kind of number nobody
+// dollar figure in the shipped ftm-data.js is exactly the kind of number nobody
 // notices going stale. This script is the maintenance path for that, and it has
 // two halves — deliberately, because only one of them needs a key:
 //
 //   AUDIT  (no key, no network, always available)
-//     Reads the shipped FTM_FUNDING out of index.html and checks every record
+//     Reads the shipped FTM_FUNDING out of ftm-data.js and checks every record
 //     against what the lane is allowed to say: buckets present and
 //     non-negative, a base above zero, the base not exceeding reported
 //     receipts, an outside LEVEL from the fixed vocabulary and never a dollar
@@ -28,7 +28,7 @@
 //   FETCH  (needs FEC_API_KEY)
 //     Pulls current FEC totals for the federal records and DIFFS them against
 //     what is shipped, printing the FTM_FUNDING-shaped draft for a human to
-//     verify and paste. It never writes to index.html, and a fetched figure is
+//     verify and paste. It never writes to ftm-data.js, and a fetched figure is
 //     never "the new truth" — it is a lead on a filing to go and read.
 //
 //   node scripts/finance-integrity-refresh.mjs                  # audit + plan
@@ -38,7 +38,7 @@
 //   FEC_API_KEY=… node scripts/finance-integrity-refresh.mjs --fetch
 //
 // ── HONESTY RULES (matching the rest of the site) ──────────────────────────
-//   • NEVER edits index.html. It prints; a human verifies against the live
+//   • NEVER edits ftm-data.js. It prints; a human verifies against the live
 //     filing and hand-updates FTM_FUNDING. Nothing unverified ships.
 //   • The roster is DERIVED from the shipped FTM_FUNDING, never kept as a
 //     second hand-maintained list here. A second list is how a filing gets
@@ -96,13 +96,13 @@ if (has('help') || argv.includes('-h')) {
 }
 
 // ── The shipped data, read out of the shipped file ─────────────────────────
-// Brace-matched out of index.html and evaluated as the object literal it is, so
+// Brace-matched out of ftm-data.js and evaluated as the object literal it is, so
 // the audit is against what actually ships rather than against a copy that can
 // disagree with it.
 function shipped() {
-  const src = readFileSync(join(ROOT, 'index.html'), 'utf8');
+  const src = readFileSync(join(ROOT, 'ftm-data.js'), 'utf8');
   const at = src.indexOf('var FTM_FUNDING = {');
-  if (at === -1) return { error: 'FTM_FUNDING is not in index.html under that name' };
+  if (at === -1) return { error: 'FTM_FUNDING is not in ftm-data.js under that name' };
   const open = src.indexOf('{', at);
   let depth = 0, end = -1;
   for (let i = open; i < src.length; i++) {
@@ -462,7 +462,7 @@ async function main() {
 
 function finish(broken) {
   console.log('  ' + '─'.repeat(72));
-  console.log('  Nothing above was written. FTM_FUNDING lives in index.html and is edited');
+  console.log('  Nothing above was written. FTM_FUNDING lives in ftm-data.js and is edited');
   console.log('  by a human who has read the filing; a fetched figure is a lead on a');
   console.log('  document, not a replacement for reading it. After any edit, re-run this');
   console.log('  audit and scripts/test-finance-lane.mjs.');
