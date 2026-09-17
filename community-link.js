@@ -42,7 +42,10 @@
        the caller already had. This file introduces no key of its own.
      · NO NEW URL SHAPE. /community, /community?issue=, /community?topic= and the
        two section fragments are the whole surface, and netlify.toml serves the
-       first of those from an exact pair with no splat.
+       first of those at status 200 from an exact pair plus one /community/*
+       splat, so a stray trailing segment lands on the room instead of a 404.
+       No caller here emits a deeper path; the splat exists for hand-typed and
+       historical addresses only.
    ════════════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';

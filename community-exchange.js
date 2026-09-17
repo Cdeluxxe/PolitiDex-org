@@ -1131,8 +1131,21 @@
     // Click outside the modal closes it.
     document.getElementById('cee-overlay').addEventListener('click', function (e) { if (e.target.id === 'cee-overlay') closeOverlay(); });
 
-    // Moderator queue auto-loads for the site owner once auth resolves.
-    function maybeLoadMod() { if (isModerator()) loadModeration(); }
+    // Moderator queue auto-loads for the site owner once auth resolves — AND IT
+    // REVEALS ITS OWN PANEL, which on the front page it did not have to. There,
+    // #cee-mod carried data-admin-only and index.html's applyAdminGate() flipped
+    // the inline display:none for the one allowed account; this room has no
+    // homepage admin gate on it and must not grow a second owner of "who is an
+    // admin", so the reveal is moved next to the check that was already here.
+    // Exactly what community-forum.js does for #fbd-mod, including the else: an
+    // account change away from the moderator re-hides the panel rather than
+    // leaving a queue on screen for whoever signs in next. The API enforces the
+    // same check on every request, so this is presentation, not permission.
+    function maybeLoadMod() {
+      var mod = document.getElementById('cee-mod');
+      if (isModerator()) { if (mod) mod.style.display = 'block'; loadModeration(); }
+      else if (mod) { mod.style.display = 'none'; }
+    }
     maybeLoadMod();
     try { if (typeof auth !== 'undefined' && auth && auth.onAuthStateChanged) auth.onAuthStateChanged(function () { maybeLoadMod(); }); } catch (e) {}
   }

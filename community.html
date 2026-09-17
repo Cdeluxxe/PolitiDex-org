@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+<!-- ══════════════════════════════════════════════════════════════════════════════
+     community.html — THE THIRTEENTH SHELL. /community IS ITS OWN DOCUMENT.
+     ────────────────────────────────────────────────────────────────────────────
+     WHAT WAS WRONG. The two community tracks were two sections of index.html:
+     the Community Evidence Exchange (#community-exchange) and the Open
+     Discussion board (#open-forum), each with its own 20 KB <style> block above
+     it and its own ~1,300-line and ~550-line inline controller below it. Every
+     reader of a two-megabyte front page downloaded and parsed all four blocks —
+     including every reader who arrived to answer "who represents me" and nothing
+     else — and a reader who actually wanted to post, read a thread or share a
+     conversation had no address to bookmark, nothing to send, and nothing that
+     survived a reload. #community-exchange and #open-forum were scroll
+     positions, not places.
+
+     WHAT IS ON THIS PAGE, AND IT IS TWO TRACKS THAT NEVER MIX. That separation
+     is the whole design of the room and it predates this document:
+       · THE VERIFIED TRACK — the Community Evidence Exchange. A contribution is
+         a lead or a piece of evidence, it can be triaged, reviewed and — only by
+         a human moderator, only with attribution — graduated into the curated
+         Evidence Locker. Reactions are per POST and stay on the post.
+       · THE OPEN TRACK — the Open Discussion board. Free conversation: post,
+         vote, reply. It has its own tables and its own function (/api/forum),
+         it shares NOTHING with the verified layer, and there is no promotion
+         path from here into the Locker. Moderation is reactive only.
+     Each section says which track it is, in its own markup, and links across to
+     the other one. Those two cross-links were fragments on the front page and
+     they are fragments here, for the first time correctly: both sections are
+     genuinely on this document, so #open-forum and #community-exchange resolve
+     to elements a reader can actually be scrolled to.
+
+     WHAT IS DELIBERATELY NOT HERE, AND IT IS THE REST OF THE FRONT PAGE.
+     Education, Submit a lead and Donate stay on Home — they are surfaces of /
+     and they are not being moved by this pass. Nor is anything a community board
+     never reads: no app.css, no compare-hub.js, no profiles-full.js, no
+     ballot-breakdown.js, no alignment-tool.js, no Door 1 work layer, no Evidence
+     Locker template, no Who Represents Me card, no ballot workspace, no homepage
+     hero, no All-Seeing Eye — the front page's search reaches everything there
+     is to search and this bar links to it. ballot.html, me.html, stances.html,
+     evidence.html, courts.html, mandate.html, voice.html and money.html are the
+     precedent for every one of those.
+
+     NO TAILWIND SHEET, AND THAT IS NOT AN OVERSIGHT. money.html links
+     /css/tailwind.css because its card markup came off the front page built out
+     of those utilities. These two sections never did: every class in the markup
+     below and every class either controller emits is .cee-* or .fbd-*, which is
+     exactly why the rules could be lifted whole into /community-room.css. The
+     note at the head of that file says so, and it was true of the inline blocks
+     before it. A utility sheet linked here would be 78 KB answering nothing.
+
+     NO h1 ON THIS DOCUMENT, DELIBERATELY. The two section titles were <h2> on
+     the front page and they are <h2> here, byte for byte. Promoting one of them
+     would make the other read as its child, and these are two PEER rooms — the
+     whole point of the two-track design is that neither contains the other.
+     evidence.html and stances.html ship the same way for the same reason.
+
+     THE CRITICAL PATH, AND WHY EACH FILE IS ON IT. Five scripts and two sheets,
+     which is the whole document:
+       person-link.js        the one owner of "what is this person's URL", so the
+                             moderator queue's profile chips go to the same /p/
+                             address the rest of the site uses.
+       issue-map.js          the issue vocabulary — ISSUE_MAP and
+                             CORE_NATIONAL_ISSUES. The Exchange's category
+                             filter, its issue chips and its issue labels read
+                             those two globals and read them UNGUARDED-ish (a
+                             miss degrades to a raw key). This is the same file
+                             person.html links for the same reason: the register
+                             without alignment-tool.js's 351 KB of engine.
+       community-exchange.js the verified track's controller, and the one owner
+                             of every word, pill and state in it. Publishes
+                             window.PDXCommunity.
+       community-forum.js    the open track's controller. Publishes
+                             window.PDXForum. The two files share no state and
+                             talk to two different functions.
+       shell-account-chip.js the bar's chip, and the smallest thing that can
+                             answer "is somebody signed in" — 9 KB against
+                             compare-hub.js's 758 KB, same three-state contract.
+       firebase-boot.js      the session both controllers read for identity, and
+                             the roster window.PROFILES they name people out of.
+       shell-chrome.css      the bar and the chip, shared with /me, /mandate,
+                             /voice and /money so one row cannot become five.
+       community-room.css    both tracks' rules, lifted out of index.html's two
+                             inline <style> blocks by selector. The long note at
+                             its head says what it is.
+
+     COMMUNITY-LINK.JS IS NOT LOADED HERE, AND THAT IS ENFORCED FROM BOTH ENDS.
+     That file is the shim the FRONT PAGE loads: it publishes window.PDXCommunity
+     and window.PDXForum with the same method names so that gaps.js,
+     evidence-locker.js, profiles-full.js, spotlight-engine.js, stance-library.js
+     and digital-library.js did not have to change shape — and its methods hand
+     the intent to this address and navigate. Here the REAL controllers publish
+     the REAL objects and the real objects scroll, because here the sections
+     genuinely are under the reader. __PDX_COMMUNITY_DOC below is what the shim
+     checks before it publishes anything; it returns early on this document.
+
+     HOW AN INTENT ARRIVES. /community?issue=<key> and /community?topic=<key>
+     are addresses — pasteable, bookmarkable, arrivable-at from a cold tab — and
+     sessionStorage carries the richer half (a coverage-gap object, a composer
+     prefill) that has no business in a URL. takeHandoff() in each controller is
+     the receiving end. NO NEW URL SHAPE IS PUBLISHED FROM HERE: /community, its
+     two query forms and its two section fragments are the whole surface.
+
+     THE RULE THIS DOCUMENT LIVES BY: EVERY SAME-ORIGIN PATH IS ROOT-ABSOLUTE.
+     /community/ is served with HTTP 200 at a trailing-slash path, so a bare src
+     of community-exchange.js would resolve to /community/community-exchange.js,
+     the rewrite would catch it, and the browser would be handed this document
+     and told to parse HTML as JavaScript. A leading slash is correct at every
+     depth.
+
+     THIS IS A PUBLIC BROWSE ROOM, so like /courts, /mandate and /money it is
+     indexable and carries a real canonical on www.politidex.fyi. No JSON-LD —
+     index.html's WebSite/Organization block describes the front page, and a
+     browse room is not the front page.
+     ════════════════════════════════════════════════════════════════════════════════ -->
+
+  <!-- The share tags, in share-preview.ts's attribute order (`property` then
+       `content`, `rel` then `href`) for the same reason the other shells carry
+       them that way — that edge function rewrites by an attribute-ordered
+       regex, so a reshuffle here would be a silent no-op there rather than an
+       error, on the day /community is added to its config.path. -->
+  <title>Community &middot; the Evidence Exchange and the Open board &middot; PolitiDex</title>
+  <link rel="canonical" href="https://www.politidex.fyi/community" />
+  <meta name="description" content="PolitiDex Community — two tracks that never mix. The Community Evidence Exchange is the verified track: post a lead or a receipt, discuss it, and the best-sourced contributions can be reviewed and graduated into the curated Evidence Locker with credit. The Open Discussion board is the free-conversation track: post, vote, reply, no verification bar." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PolitiDex" />
+  <meta property="og:title" content="Community &middot; PolitiDex" />
+  <meta property="og:description" content="Two tracks that never mix: the verified Evidence Exchange, where a sourced contribution can be graduated into the curated record, and the Open Discussion board, where conversation is free and stays open." />
+  <meta property="og:url" content="https://www.politidex.fyi/community" />
+  <meta property="og:image" content="https://www.politidex.fyi/og-image.png" />
+  <meta property="og:image:alt" content="PolitiDex — Community" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Community &middot; PolitiDex" />
+  <meta name="twitter:description" content="The verified Evidence Exchange and the Open Discussion board — two community tracks, one address." />
+  <meta name="theme-color" content="#0a0f1e" />
+
+  <!-- The two files a first paint actually waits on, and the controller the
+       first list load is behind. -->
+  <link rel="preload" as="style" href="/community-room.css" />
+  <link rel="preload" as="script" href="/community-exchange.js" />
+
+  <!-- Barlow / Bebas Neue, non-blocking, with the same swap index.html,
+       person.html, issue.html, spotlight.html, ballot.html, me.html,
+       stances.html, evidence.html, courts.html and money.html use. A swap
+       written differently on one document is a visible font flash on exactly
+       one URL shape. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
+
+  <!-- THE TWO SHEETS THAT DRAW THIS PAGE, render-blocking on purpose: they are
+       the page. /shell-chrome.css is the bar and the chip. /community-room.css
+       is both tracks, and it is the one owner of every .cee-* and .fbd-* rule on
+       the site. NOT app.css, and NOT /css/tailwind.css — see the banner. -->
+  <link rel="stylesheet" href="/shell-chrome.css" />
+  <link rel="stylesheet" href="/community-room.css" />
+
+  <style>
+    /* THE FIXED CHROME, MEASURED ONCE. Same contract person.html, issue.html,
+       spotlight.html, ballot.html, me.html, stances.html, evidence.html,
+       courts.html and money.html answer for their own chrome, and for the same
+       reason: a custom property that is never declared invalidates every calc()
+       that reads it. This document's chrome is ONE row and no search — the Eye
+       on the front page already reaches everything there is to search. The
+       @supports guard is the one every other shell carries: a custom property
+       accepts any token sequence, so an engine that cannot parse env() would
+       swallow the declaration and invalidate every calc() reading it; an engine
+       without env() also has no notch. */
+    :root { --pdx-chrome: 3.25rem; color-scheme: dark; }
+    @supports (padding-top: env(safe-area-inset-top)) {
+      :root { --pdx-chrome: calc(3.25rem + env(safe-area-inset-top, 0px)); }
+    }
+    /* No app.css here, so the page's own ground colour is declared rather than
+       inherited from a 986 KB stylesheet this document does not load. And the
+       chrome offset an anchored jump has to clear is declared here rather than
+       read off the front page's two-row measurement — which matters more on this
+       document than on most, because the two cross-track links between the
+       sections are real in-page anchors. */
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--pdx-chrome) + 0.5rem); }
+    html, body { background: #070b16; color: #e7eefb; }
+    body {
+      margin: 0;
+      font-family: 'Barlow', system-ui, -apple-system, sans-serif;
+      padding-top: calc(var(--pdx-chrome) + 0.75rem);
+    }
+
+    main#community-room { padding: 0 0 2rem; }
+
+    /* The seam between the two rooms, so the open track reads as a second place
+       rather than as more of the first. The sections' own padding does the
+       spacing; this is one line. */
+    main#community-room > #open-forum { border-top: 1px solid rgba(159,180,212,0.14); }
+
+    /* The only thing a reader sees if JavaScript never runs. It claims what this
+       address is, which is true, rather than leaving them with two empty
+       boards. */
+    .pdx-sh-note {
+      max-width: 40rem; margin: 2.5rem auto; padding: 0 1.1rem;
+      font: 400 1rem/1.6 'Barlow', system-ui, sans-serif; color: #9fb4d4;
+    }
+    .pdx-sh-note a { color: #f5d77a; }
+  </style>
+
+  <!-- ══ THE FLAG — ONE DECLARATION, READ THROUGH ONE MODULE ══════════════
+       This is the first script on the document, before any module can look for
+       it, and it is the ONLY place the flag is set. Unlike the other shells'
+       flags this one is LOAD-BEARING: community-link.js returns early on it, so
+       the front page's navigating shim can never shadow the real controllers
+       here. It is also why a path sniff would have been the wrong test —
+       /community, /community/ and a local preview server's /community.html are
+       three spellings of one document that location.pathname gets differently.
+       ════════════════════════════════════════════════════════════════════ -->
+  <script>window.__PDX_COMMUNITY_DOC = true;</script>
+
+  <!-- ══ COPIED VERBATIM FROM me.html LINES 1809–1864 ══════════════════
+       FIREBASE. The three compat bundles, the request-time key injection, and
+       the synchronous stub that guarantees `db` / `auth` / `PROFILES` exist
+       before anything can touch them.
+
+       THE SAME STUB AS THE OTHER INNER SHELLS, NOT A THIRD ONE. person.html,
+       me.html, issue.html, evidence.html and money.html all carry this block,
+       byte for byte, and the suite fences it: a shell that writes its own
+       version of "has Firebase answered yet" is a shell that can answer it
+       differently.
+
+       ON THIS DOCUMENT IT IS NOT OPTIONAL, AND THE REASON IS IDENTITY. Both
+       tracks are places a reader WRITES: a post, a thread, a comment, a
+       reaction, a vote. Every one of those goes through each controller's
+       signedIn() / currentUser(), which read the `auth` this block declares,
+       and the moderator queues are revealed off an auth state change. The
+       roster this boots is also what the Exchange names a linked politician
+       out of (window.PROFILES). Reading both boards needs no session at all,
+       and the controllers are written that way on purpose — the lists load for
+       a signed-out visitor and only the write controls ask.
+
+       AND THE "UNKNOWN IS NOT SIGNED-OUT" RULE IS LOAD-BEARING HERE. Arriving
+       cold at /community with an intent to compose, the deferred 800 KB SDK has
+       not landed when drainPending() runs; both controllers wait for an answer
+       rather than reading a null currentUser and sending a returning member to
+       a sign-in prompt they do not need. The stub's five-second self-heal is
+       what guarantees that wait is bounded. See the long notes at the foot of
+       community-exchange.js and community-forum.js.
+       ═════════════════════════════════════════════════════════════════════════ -->
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<!-- The Firebase Web API key is injected at request time from the Netlify
+     environment variable FIREBASE_API_KEY by netlify/edge-functions/firebase-config.ts.
+     It is intentionally NOT hardcoded here so the value never lives in source
+     control or the deployed HTML (and the build's secrets scanner passes). -->
+<script defer src="/firebase-config.js"></script>
+<script>
+  // Run 1 perf: the Firebase SDKs and the bootstrap below are DEFERRED so they no
+  // longer block first paint. This tiny synchronous stub guarantees the globals
+  // that other inline code could touch at parse time exist; firebase-boot.js
+  // (deferred → runs after the SDK, before DOMContentLoaded) then replaces them
+  // with the live Firebase objects and starts the lightweight roster load. Net
+  // effect: identical behavior, but the ~800 KB compat SDK no longer gates paint.
+  var app, db, firestore, auth;
+  var PROFILES = window.PROFILES || {}; window.PROFILES = PROFILES;
+  window._pdxFullIds = window._pdxFullIds || new Set();
+  window._pdxFullPending = window._pdxFullPending || {};
+  function setDoc(docRef, data, options) { return docRef.set(data, options); }
+  db = { collection: null }; firestore = db;
+  // AUTH UNKNOWN IS NOT AUTH SIGNED-OUT. This stub used to answer every
+  // registration with cb(null) before the SDK had loaded, which told every
+  // module that a returning member was a guest. It queues instead;
+  // firebase-boot.js replays the queue onto the real auth object, and until then
+  // window.PDXAuth.state is 'unknown'. See the long note in index.html.
+  window.PDXAuth = window.PDXAuth || { state: 'unknown', user: null, known: false };
+  window.__pdxAuthQueue = window.__pdxAuthQueue || [];
+  auth = { currentUser: null, onAuthStateChanged: function (cb) { var rec = { cb: cb, off: false, unsub: null }; window.__pdxAuthQueue.push(rec); return function () { rec.off = true; if (rec.unsub) { try { rec.unsub(); } catch (e) {} } }; }, signInAnonymously: function () { return Promise.reject(new Error('auth pending')); }, signOut: function () { return Promise.resolve(); } };
+  // AND THE QUEUE IS NOT A TRAP. If firebase-boot.js never arrives to drain it —
+  // a blocked SDK, a failed deploy, a warm shell paired with an older copy of
+  // that file out of the runtime cache — the registrations above would wait for
+  // the whole visit and nothing on the page would ever learn there is no
+  // session. So the queue self-heals: once the SDK has had every chance to land,
+  // whatever is still queued is flushed with null, which is exactly the answer
+  // this stub used to give instantly. A LATE fallback is a different thing from
+  // a first guess — the first guess was the bug, and five seconds is not a
+  // guess, it is a timeout. firebase-boot.js nulls the queue when it replays, so
+  // on every normal load this is a no-op.
+  setTimeout(function () {
+    var q = window.__pdxAuthQueue;
+    if (!q) return;
+    window.__pdxAuthQueue = null;
+    try {
+      window.PDXAuth.known = true;
+      window.PDXAuth.state = 'out';
+      window.PDXAuth.user = null;
+      if (typeof window.updateNavAuth === 'function') window.updateNavAuth(null, 'out');
+    } catch (e) {}
+    for (var i = 0; i < q.length; i++) {
+      if (q[i] && !q[i].off && typeof q[i].cb === 'function') { try { q[i].cb(null); } catch (e) {} }
+    }
+  }, 5000);
+</script>
+<script src="/firebase-boot.js" defer></script>
+
+  <!-- ══ THE SIGN-IN SEAM, AND IT IS A DOOR RATHER THAN A MODAL ═══════════
+       Both controllers' requireSignIn() asks for window.openAuthModal and does
+       NOTHING if it is absent — which on the front page it never was, because
+       compare-hub.js (758 KB of homepage engine) defines it. Loading that here
+       to open one dialog would undo the entire point of this address, and
+       shell-account-chip.js is explicit that an inner shell ships no sign-in UI
+       of its own: "the front page owns the auth modal. Join is a plain
+       <a href="/">: a trip to the room that has it."
+
+       So the seam is that trip, declared once, before either controller can
+       look for it. A signed-out reader who presses New Post or New Thread is
+       taken to the room that can sign them in, instead of pressing a control
+       that silently does nothing — which is the defect this exists to prevent.
+       It is guarded, so on the day a real opener ships for the inner shells
+       this line stands down rather than shadowing it.
+       ════════════════════════════════════════════════════════════════════ -->
+  <script>
+    if (typeof window.openAuthModal !== 'function') {
+      window.openAuthModal = function () {
+        try { location.assign('/'); return; } catch (e) {}
+        try { location.href = '/'; } catch (e) {}
+      };
+    }
+  </script>
+
+  <!-- THE ORDER IS THE CONTRACT. `defer` runs in document order, so the
+       vocabulary is attached before the controller that labels issues out of it,
+       and both controllers run after the Firebase stub above has declared the
+       globals they read. person-link.js is synchronous for the same reason it is
+       on person.html and money.html: it is the one owner of a person's URL and
+       anything that paints a person chip may ask for it at any time. -->
+  <script src="/person-link.js"></script>
+  <script defer src="/issue-map.js"></script>
+  <script defer src="/community-exchange.js"></script>
+  <script defer src="/community-forum.js"></script>
+  <script defer src="/shell-account-chip.js"></script>
+
+</head>
+<body>
+
+  <!-- ══ THE BAR ════════════════════════════════════════════════════════
+       THE SAME SIX DESTINATIONS AS THE OTHER INNER SHELLS, in the same order,
+       so the row is a fixed place rather than a per-page guess. NOTHING WAS
+       ADDED FOR THIS ROOM: there is no seventh "Community" entry here or on
+       /mandate, /voice and /money, because the row is shared and a product that
+       appears on one of four shells is four different rows. The front page's
+       Community dropdown is this room's door and it is the door that changed.
+       The two front-page entries keep their front-page addresses — Who
+       Represents Me and Find the Record are surfaces of / and they are not
+       being moved here.
+
+       The account slot is LAST and it is EMPTY in the markup. What fills it is
+       shell-account-chip.js, and until Firebase answers it fills it with
+       "Checking account…" — never the Join CTA. A returning member must not be
+       told to sign up in the loudest control on the page because an 800 KB
+       deferred SDK has not landed yet. See the contract in that file.
+       ═════════════════════════════════════════════════════════════════════════ -->
+  <header class="pdx-sh-bar">
+    <a class="pdx-sh-wordmark" href="/" title="PolitiDex — the front page">POLITI<span>DEX</span></a>
+    <nav class="pdx-sh-links" aria-label="PolitiDex">
+      <a class="pdx-sh-link" href="/#who-represents-me">🏛️ Who Represents Me</a>
+      <a class="pdx-sh-link" href="/#say-vs-do">👁️ Find the Record</a>
+      <a class="pdx-sh-link" href="/ballot">⭐ Your Ballot</a>
+      <a class="pdx-sh-link" href="/mandate">✊ Mandate</a>
+      <a class="pdx-sh-link" href="/voice">📣 District Voice</a>
+      <a class="pdx-sh-link" href="/money">💰 Follow the Money</a>
+      <a class="pdx-sh-link" href="/">&larr; Home</a>
+    </nav>
+    <div id="pdx-shell-acct" data-pdx-acct-sig="unknown"></div>
+  </header>
+
+  <main id="community-room">
+
+  <!-- ══ MOVED FROM index.html — THE VERIFIED TRACK ════════════════════════
+       THE SECTION, BYTE FOR BYTE. Its two <h2>s, its badge, its two track
+       notes and its cross-link to the open board are exactly what stood on the
+       front page; the only thing that changed is that the cross-link now
+       resolves, because the board it names is on this document. The rules that
+       dress it are /community-room.css and the behaviour is
+       /community-exchange.js — neither of which index.html links any more.
+
+       THIS IS A MOVE, NOT A COPY. There is no second copy of this markup to
+       drift from: the front page's Community dropdown points at /community, and
+       the six modules that used to call into this section in-page now go through
+       community-link.js, which navigates here.
+       ═════════════════════════════════════════════════════════════════════ -->
+  <section id="community-exchange">
+    <div class="cee-shell">
+      <div class="cee-head">
+        <span class="cee-badge">★ Community Submitted · A Citizen Voice ★</span>
+        <h2 class="cee-title">Community Evidence <span class="cee-accent">Exchange</span></h2>
+        <p class="cee-sub">A space for the community to surface evidence, topics, and issues that may have been missed. Post a lead, discuss it, and let quality reactions push the strongest ones to the top.</p>
+        <p class="cee-note">📌 This is a separate discussion layer. Posts here are <strong>not</strong> part of the curated Evidence Locker and are clearly marked “Community Submitted.” The strongest, best-sourced posts can be suggested for review and manually promoted by a moderator.</p>
+        <p class="cee-note" style="background:rgba(45,212,191,0.07);border-color:rgba(45,212,191,0.22);color:#8fd9cf;">🗣 Looking to just talk it out? The <a href="#open-forum" style="color:#5eead4;font-weight:700;text-decoration:underline;">Open Discussion board</a> is the free-conversation track — post anything, vote, and reply, with no verification bar. This Exchange is the <strong>verified</strong> track; the Open board is the <strong>open</strong> one, and the two never mix.</p>
+      </div>
+
+      <div class="cee-toolbar">
+        <div class="cee-tabs" id="cee-tabs" role="tablist">
+          <button class="cee-tab active" data-sort="trending" role="tab">🔥 Trending</button>
+          <button class="cee-tab" data-sort="newest" role="tab">🆕 Newest</button>
+          <button class="cee-tab" data-sort="top" role="tab">⭐ Top Quality</button>
+        </div>
+        <div class="cee-controls">
+          <select class="cee-select" id="cee-cat-filter" style="width:auto;min-width:12rem;" aria-label="Filter by issue category">
+            <option value="">All categories</option>
+          </select>
+          <button class="cee-btn cee-btn-primary" id="cee-new-btn">＋ New Post</button>
+        </div>
+      </div>
+
+      <div id="cee-list">
+        <div class="cee-skel"></div><div class="cee-skel"></div><div class="cee-skel"></div>
+      </div>
+
+      <!-- Public credit wall: contributions a moderator has verified and graduated
+           into the curated Evidence Locker, each crediting its contributor. Hidden
+           until at least one contribution has been promoted. -->
+      <div class="cee-grad" id="cee-grad" style="display:none;">
+        <div class="cee-grad-head">
+          <span class="cee-grad-title">★ Graduated to the Evidence Locker</span>
+          <span class="cee-grad-sub">Community contributions verified by a moderator and promoted to the curated record — with credit to the members who surfaced them.</span>
+        </div>
+        <div class="cee-grad-grid" id="cee-grad-grid"></div>
+      </div>
+
+      <!-- Moderator-only review queue. Hidden by default; the existing admin gate
+           reveals it for the site owner, and the API enforces the same check. -->
+      <div class="cee-mod" id="cee-mod" data-admin-only style="display:none;">
+        <div class="cee-mod-head">
+          <span class="cee-mod-tag">🛡 Moderation Queue</span>
+          <div class="cee-tabs" style="margin-left:auto;">
+            <button class="cee-tab active" id="cee-mod-tab-incoming" data-modtab="incoming">🆕 Incoming</button>
+            <button class="cee-tab" id="cee-mod-tab-leads" data-modtab="leads">💡 Leads</button>
+            <button class="cee-tab" id="cee-mod-tab-flagged" data-modtab="flagged">🚩 Flagged</button>
+            <button class="cee-tab" id="cee-mod-tab-suggested" data-modtab="suggested">⭐ Suggested</button>
+            <button class="cee-btn cee-btn-ghost" id="cee-mod-refresh">↻ Refresh</button>
+          </div>
+        </div>
+        <div id="cee-mod-body"><p class="cee-empty">Loading queue…</p></div>
+      </div>
+    </div>
+
+    <!-- Compose / detail overlay -->
+    <div class="cee-overlay" id="cee-overlay">
+      <div class="cee-modal" id="cee-modal"><!-- filled dynamically --></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════ OPEN DISCUSSION BOARD ═══════════════════════
+       The OPEN track of the two-track community system. Where the Community
+       Evidence Exchange above is the VERIFIED pipeline (triage → moderate →
+       graduate to the curated Locker with attribution), this board is for free,
+       low-friction conversation: post anything, up/down vote, and reply. It is
+       backed by its own Netlify Function + tables (/api/forum, pdx_forum_*) and
+       shares NOTHING with the verified layer — there is no promotion path from
+       here into the Evidence Locker. Moderation is reactive (spam/hate) only. -->
+
+  <section id="open-forum">
+    <div class="fbd-shell">
+      <div class="fbd-head">
+        <span class="fbd-badge">💬 Open Discussion · Unverified · Free Speech Zone</span>
+        <h2 class="fbd-title">Community <span class="fbd-accent">Forum</span></h2>
+        <p class="fbd-sub">A low-friction place to talk politics, stances, reforms, and whatever's on your mind. No approval needed — post, vote, and reply. The community decides what rises.</p>
+        <div class="fbd-tracks">
+          <div class="fbd-track-note fbd-track-open">🗣 <strong>You're on the Open track.</strong> Conversation here is <strong>not verified</strong> and <strong>never enters the Evidence Locker</strong>. Think of it as the town square.</div>
+          <div class="fbd-track-note fbd-track-verified">🔎 Got something verifiable? The <a href="#community-exchange">Community Evidence Exchange</a> is the verified track — evidence there can be triaged, reviewed, and graduated into the curated record.</div>
+        </div>
+        <p class="fbd-rules">🤝 <strong style="color:#9fd8cf;">House rules:</strong> keep it civil — no personal attacks, no spam, no hate. Play the ball, not the person. Anything crossing that line can be flagged and removed.</p>
+      </div>
+
+      <div class="fbd-toolbar">
+        <div class="fbd-tabs" id="fbd-tabs" role="tablist">
+          <button class="fbd-tab active" data-sort="hot" role="tab">🔥 Hot</button>
+          <button class="fbd-tab" data-sort="new" role="tab">🆕 New</button>
+          <button class="fbd-tab" data-sort="top" role="tab">⭐ Top</button>
+        </div>
+        <div class="fbd-controls">
+          <select class="fbd-select" id="fbd-topic-filter" style="width:auto;min-width:11rem;" aria-label="Filter by topic">
+            <option value="">All topics</option>
+          </select>
+          <button class="fbd-btn fbd-btn-primary" id="fbd-new-btn">＋ New Thread</button>
+        </div>
+      </div>
+
+      <div id="fbd-list">
+        <div class="fbd-skel"></div><div class="fbd-skel"></div><div class="fbd-skel"></div>
+      </div>
+
+      <!-- Moderator-only queue. Hidden by default; the admin gate reveals it and the
+           API enforces the same check. Reactive spam/hate removal only. -->
+      <div class="fbd-mod" id="fbd-mod" data-admin-only style="display:none;">
+        <div class="fbd-mod-head">
+          <span class="fbd-mod-tag">🛡 Forum Moderation — flagged (spam / hate)</span>
+          <button class="fbd-btn fbd-btn-ghost" id="fbd-mod-refresh" style="margin-left:auto;">↻ Refresh</button>
+        </div>
+        <div id="fbd-mod-body"><p class="fbd-empty">Loading queue…</p></div>
+      </div>
+    </div>
+
+    <div class="fbd-overlay" id="fbd-overlay">
+      <div class="fbd-modal" id="fbd-modal"><!-- filled dynamically --></div>
+    </div>
+  </section>
+
+    <noscript>
+      <p class="pdx-sh-note">
+        PolitiDex Community is two boards, and they never mix. The
+        <strong>Community Evidence Exchange</strong> is the verified track: post
+        a lead or a sourced receipt, discuss it, and the best-sourced
+        contributions can be reviewed by a moderator and graduated into the
+        curated record with credit to whoever surfaced them. The
+        <strong>Open Discussion board</strong> is the free-conversation track:
+        post, vote and reply, with no verification bar and no path into the
+        record. Both boards need JavaScript to load their posts. The rest of the
+        site reads fine without it — start at
+        <a href="/">the front page</a>.
+      </p>
+    </noscript>
+  </main>
+
+</body>
+</html>

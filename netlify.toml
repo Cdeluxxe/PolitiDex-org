@@ -936,6 +936,96 @@
   to = "/money.html"
   status = 200
 
+# ═════════════════════════════════════════════════════════════════════════════
+# THE TWO COMMUNITY TRACKS GET ONE DOCUMENT
+#   /community -> community.html
+# ─────────────────────────────────────────────────────────────────────────────
+# WHAT THIS ADDRESS FIXES. The Community Evidence Exchange and the Open
+# Discussion board were two sections of index.html, each with a ~20 KB inline
+# <style> block over it and a ~1,300-line and ~550-line inline controller under
+# it. Every reader of a two-megabyte front page paid for all four blocks,
+# including the reader who arrived to answer "who represents me" and nothing
+# else — and a reader who wanted to post, read a thread, or send someone a
+# conversation had nothing to bookmark, nothing to share and nothing that
+# survived a reload. #community-exchange and #open-forum were scroll positions,
+# not places.
+#
+# ONE DOCUMENT FOR BOTH, NOT ONE EACH, and that is deliberate. The two tracks
+# are defined by their separation — verified vs open, with no promotion path
+# from the second into the first — and each section's markup says so and links
+# across to the other. Two documents would turn those two cross-links into two
+# navigations and would publish two addresses for one idea. They are two <section>s
+# on one page, exactly as they were on the front page, and for the first time
+# their fragments resolve to elements the reader is actually on.
+#
+# SAME SHAPE AS /mandate, /voice AND /money, ON THE PATTERN /me AND /courts SET:
+# no app.css, no compare-hub.js, no profiles-full.js, no ballot-breakdown.js, no
+# alignment-tool.js, no Door 1 work layer, no Evidence Locker template, no Who
+# Represents Me card, no ballot workspace and no homepage hero. The room loads
+# its own two controllers, the issue vocabulary they label with, the shared bar
+# sheet, and the smallest auth surface that can answer "is somebody signed in" —
+# shell-account-chip.js, 9 KB against compare-hub.js's 758 KB.
+#
+# THE FRONT PAGE KEEPS THE DOOR. The Community dropdown stays exactly where it
+# was, in the desktop nav and in the mobile menu; its two items point at this
+# address instead of at two fragments. Education, Submit a lead and Donate are
+# NOT in this move — they are surfaces of / and they stay there.
+#
+# WHY THIS SPELLING AND NO SECOND ONE. /community is the whole set. No
+# /exchange, no /forum, no /community-exchange, no /open-forum and no alias for
+# any of them: two live 200 spellings of one document split the canonical, which
+# is the ambiguity the /locker -> /evidence 301 below exists to remove. The two
+# section fragments and the two query forms (?issue= and ?topic=, which
+# community-link.js writes and the controllers read) are the rest of the surface,
+# and neither is a path.
+#
+# THE SPLAT IS HERE ON PURPOSE, AND IT IS THE ONE DIFFERENCE FROM /money. The
+# three lanes above are declared as exact pairs because nothing has ever been
+# published under them. This room has six modules across the site handing
+# intents to it (gaps.js, evidence-locker.js, profiles-full.js,
+# spotlight-engine.js, stance-library.js and digital-library.js, all of them
+# through community-link.js), plus two section fragments and two query forms, so
+# a stray or hand-typed /community/<anything> is a real shape a reader can
+# arrive at — and a 404 on the room's own prefix is a worse answer than the room
+# itself. The document reads its own query and fragment, so a deeper path lands
+# on the boards rather than on nothing. THIS IS ALSO WHY EVERY SAME-ORIGIN PATH
+# IN community.html IS ROOT-ABSOLUTE, WITHOUT EXCEPTION: served at /community/,
+# a bare src="community-exchange.js" resolves to
+# /community/community-exchange.js, this splat answers that with the HTML
+# document, the browser parses HTML as JavaScript, and the reader gets two empty
+# boards with no error that names the cause.
+#
+# ORDER: THREE PATHS, AND THE POSITION IS A STATED NO-OP. All three are disjoint
+# by inspection of the literal strings from /p/*, /i/*, /issue/*, /ballot, /me,
+# /stances, /evidence, /courts, /mandate, /voice, /money, /vote/*, /d/*, /b/* and
+# /locker, so declaring them here is correct and would also have been correct
+# anywhere else in the file. /api/community and /api/forum are a different prefix
+# and are untouched by all three. THE INVARIANT, unchanged from the block above:
+# nothing that matches these paths may be declared earlier, and the day a
+# catch-all appears — an SPA "rewrite everything to index.html" is the one that
+# would silently eat them — these must stay in front of it. There is no
+# catch-all in this file today; that is a property to preserve.
+# ═════════════════════════════════════════════════════════════════════════════
+[[redirects]]
+  from = "/community"
+  to = "/community.html"
+  status = 200
+
+# The trailing-slash form, declared rather than left to a redirect, so a pasted
+# /community/ is the room instead of a hop.
+[[redirects]]
+  from = "/community/"
+  to = "/community.html"
+  status = 200
+
+# And the prefix, so nothing under the room's own address 404s the document. See
+# the note above for why this one lane carries a splat and the other three do
+# not.
+[[redirects]]
+  from = "/community/*"
+  to = "/community.html"
+  status = 200
+
 # THE OLD LOCKER ADDRESS, NOW AN ALIAS. /locker was a 200 rewrite to index.html
 # from the pass that first put the locker behind a door: the front page was the
 # only document that held the workspace, so /locker had to be the front page,
