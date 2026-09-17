@@ -41,7 +41,8 @@
 //   node scripts/test-finance-lane.mjs
 //
 // Real shipped modules in a node:vm sandbox, and the REAL FTM_FUNDING seed lifted
-// out of index.html, so what is composed here is what a browser composes.
+// out of ftm-data.js — the one owner of the filings — so what is composed here
+// is what a browser composes.
 
 import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -53,6 +54,11 @@ import { buildCorpus } from "./vr-record-corpus.mjs";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
 const INDEX = R("index.html");
+// THE FILINGS MOVED, AND THAT IS WHY THIS CONSTANT EXISTS. FTM_DATA, FTM_FUNDING,
+// FTM_AS_OF and the _FTM_BY_ID index used to be pasted inline into index.html,
+// money.html and person.html, and this harness lifted the seed out of the front
+// page because that was where the newest copy lived. There is one copy now.
+const FTM_SRC = R("ftm-data.js");
 const LANE_SRC = R("finance-lane.js");
 
 let passed = 0;
@@ -72,22 +78,22 @@ const must = (cond, msg) => {
   process.exit(1);
 };
 
-// ── The real seed, lifted out of index.html ─────────────────────────────────
-// The funding buckets live in an inline script. Reading them here rather than
-// re-typing them is the whole point: a fixture would pass while the shipped data
+// ── The real seed, lifted out of ftm-data.js ─────────────────────────────────
+// Reading the shipped buckets here rather than re-typing them is the whole point: a fixture would pass while the shipped data
 // broke. `new Function` over the literal only — no page script is executed.
 function liftSeed() {
-  const at = INDEX.indexOf("var FTM_FUNDING = {");
-  must(at > 0, "FTM_FUNDING is no longer in index.html");
-  const end = INDEX.indexOf("\n    };", at);
+  const at = FTM_SRC.indexOf("var FTM_FUNDING = {");
+  must(at > 0, "FTM_FUNDING is no longer in ftm-data.js");
+  const end = FTM_SRC.indexOf("\n    };", at);
   must(end > at, "could not find the end of the FTM_FUNDING literal");
-  const literal = INDEX.slice(at + "var FTM_FUNDING = ".length, end + "\n    }".length);
+  const literal = FTM_SRC.slice(at + "var FTM_FUNDING = ".length, end + "\n    }".length);
   return new Function("return (" + literal + ");")();
 }
 const SEED = liftSeed();
 const SEED_IDS = Object.keys(SEED);
 must(SEED_IDS.length >= 10, `the funding seed is unexpectedly small (${SEED_IDS.length})`);
-const AS_OF = (INDEX.match(/var FTM_AS_OF = '([^']*)'/) || [])[1] || "";
+const AS_OF = (FTM_SRC.match(/var FTM_AS_OF = '([^']*)'/) || [])[1] || "";
+must(AS_OF, "the review stamp is no longer readable out of ftm-data.js");
 
 // A sandbox with the lane loaded and the real seed indexed the way index.html
 // indexes it, so read()/entryHtml() resolve exactly as they do in a browser.
@@ -168,18 +174,22 @@ const L = laneBox().PDXFinanceLane;
   ];
   // Comments stripped: the block that replaced the arithmetic documents what it
   // replaced, and has to be able to name it.
-  const CODE = INDEX.replace(/<!--[\s\S]*?-->/g, " ").replace(/^\s*\/\/[^\n]*$/gm, " ");
-  for (const d of DEAD) lacks(CODE, d, `index.html no longer contains ${d}`);
+  const CODE = (INDEX + "\n" + FTM_SRC)
+    .replace(/<!--[\s\S]*?-->/g, " ").replace(/^\s*\/\/[^\n]*$/gm, " ");
+  for (const d of DEAD) lacks(CODE, d, `neither index.html nor ftm-data.js contains ${d}`);
 
   // …and the one accessor everything went through now delegates to the lane.
-  has(INDEX, "function _financeSignal(p) {", "the accessor is still there for its callers");
-  has(INDEX, "return L.compose(p, { asOf: FTM_AS_OF });",
+  // The accessor travelled WITH the data when the block became a module, which is
+  // where it belongs: it is the thing that turns a stored filing into a composed
+  // read, and a reader of it needs the filings on the same side of the seam.
+  has(FTM_SRC, "function _financeSignal(p) {", "the accessor is still there for its callers");
+  has(FTM_SRC, "return L.compose(p, { asOf: FTM_AS_OF });",
     "…and it delegates to the single composition read");
   has(INDEX, '<script defer src="/finance-lane.js"></script>', "the lane is shipped");
 
   // No user-visible string anywhere still grades anyone. Comments are exempt on
   // purpose — they are how the retirement stays explained — so this strips them.
-  const noComments = INDEX
+  const noComments = (INDEX + "\n" + FTM_SRC)
     .replace(/<!--[\s\S]*?-->/g, " ")
     .replace(/^\s*\/\/[^\n]*$/gm, " ");
   for (const bad of ["Constituents-First signal is scored", "65–100 Constituents-First",
@@ -435,15 +445,32 @@ const L = laneBox().PDXFinanceLane;
     ok(!FIN.test(src), `${f} does not name the finance lane or any funding bucket`);
   }
 
-  // THE DATA SEAM HAS EXACTLY ONE OWNER, which is the structural form of the
+  // THE DATA SEAM IS A CLOSED, NAMED SET, which is the structural form of the
   // claim above. NEVER_FEEDS is an enumeration, and an enumeration is only ever
-  // as complete as the list someone remembered to extend. This is not: the
-  // filings live in one index built inside index.html's Follow-the-Money IIFE
-  // and published as `window._FTM_BY_ID`, so a module that never names that
-  // index (or the as-of stamp, or the funding table) cannot read a filing at
-  // all, whatever it later decides it wants to weigh. finance-lane.js is the
-  // only shipped module allowed to see it, and every other lane is therefore
-  // fenced by construction rather than by memory.
+  // as complete as the list someone remembered to extend. This is not: a module
+  // that never names the filings index (or the as-of stamp, or the funding
+  // table) cannot read a filing at all, whatever it later decides it wants to
+  // weigh. Every other lane on the site is therefore fenced by construction
+  // rather than by memory.
+  //
+  // THE SET HAS TWO FILES NOW, AND THE WALL IS NOT WEAKER FOR IT. The filings
+  // used to be built inside index.html's inline Follow-the-Money IIFE, so
+  // exactly one shipped .js could see them and this assertion read "one". That
+  // was never the property worth holding — it was an artefact of the data being
+  // pasted into a document rather than owned by a module, and the cost of the
+  // artefact was three copies of every hand-verified dollar figure (index.html,
+  // money.html, person.html) held together by a byte-identity fence.
+  //
+  // The property worth holding is that the set is SHORT, NAMED HERE, and split
+  // by job:
+  //     ftm-data.js       DEFINES the filings. Data plus accessors. It composes
+  //                       nothing and grades nothing; it hands finance-lane.js a
+  //                       record and the lane decides what may be said about it.
+  //     finance-lane.js   READS them. The composition, the coverage sentence, the
+  //                       chip's three states, `scored: false` and NEVER_FEEDS.
+  // A third name appearing in this list is the event this test exists to catch,
+  // and it fails loudly with the new file named. Widening the set is a decision,
+  // not an accident — which is exactly what a wall is for.
   //   Comments are stripped before the sweep, for the reason
   // test-accountability-retired.mjs strips them: every file this lane touched
   // carries a note saying what used to read the filings there and why it does not
@@ -460,8 +487,35 @@ const L = laneBox().PDXFinanceLane;
     .filter((f) => !f.startsWith("sw") && !f.includes(".min."));
   ok(SHIPPED.length > 40, `the seam sweep sees the shipped module set (${SHIPPED.length} files)`);
   const seamOwners = SHIPPED.filter((f) => SEAM.test(STRIP(R(f))));
-  eq(seamOwners.join(","), "finance-lane.js",
-    "finance-lane.js is the only shipped module that can see the filings index");
+  eq(seamOwners.join(","), "finance-lane.js,ftm-data.js",
+    "exactly two shipped modules can see the filings index, and they are named here");
+
+  // AND ONLY ONE OF THE TWO DEFINES ANYTHING. The sweep above is about who can
+  // SEE a filing; this is about who OWNS one. If a second file ever declares the
+  // data, "one owner" is over whatever the sweep says, because two declarations
+  // are two answers about one person's money — the precise failure the three
+  // inline copies were one bad paste away from.
+  const DECLARES = /var\s+FTM_(?:DATA|FUNDING|AS_OF)\s*=/;
+  const definers = SHIPPED.filter((f) => DECLARES.test(STRIP(R(f))));
+  eq(definers.join(","), "ftm-data.js",
+    "ftm-data.js is the only shipped module that DECLARES the filings");
+
+  // THE DOCUMENTS CARRY NONE OF IT. Three HTML files used to hold a copy each.
+  // They hold a <script> tag each now, and a tag cannot drift from a tag.
+  for (const doc of ["index.html", "money.html", "person.html"]) {
+    const src = R(doc);
+    ok(!SEAM.test(src),
+      `${doc} carries not one filings literal — every figure has exactly one home`);
+    has(src, '<script defer src="/ftm-data.js"></script>',
+      `${doc} loads the shared filings module`);
+    // ORDER IS THE CONTRACT: both tags are `defer`, deferred scripts run in
+    // document order, and the lane reads what the data module attaches. On
+    // money.html the lane is in <head> and the section is in <body>, so this is
+    // not a formality — a tag placed where the old inline block sat would run
+    // after the lane that needs it.
+    ok(src.indexOf('src="/ftm-data.js"') < src.indexOf('src="/finance-lane.js"'),
+      `${doc} loads /ftm-data.js BEFORE /finance-lane.js`);
+  }
 
   // NO PER-PERSON 0-100 FUNDING NUMBER, ANYWHERE, UNDER ANY NAME. profiles-full.js
   // carried one until this pass: a `FINANCE_INTEGRITY` map of thirteen hand-set
@@ -598,7 +652,7 @@ const L = laneBox().PDXFinanceLane;
   // off the person file, so the id it jumps to is the money section's own anchor
   // on the profile — never the site-level #follow-the-money index.
   eq(CL.SECTION_ID, "pdxsec-funding", "the chip targets the money section on this person file");
-  has(R("index.html"), `id="${CL.SECTION_ID}"`, "…and that anchor is emitted by the money section");
+  has(FTM_SRC, `id="${CL.SECTION_ID}"`, "…and that anchor is emitted by the money section");
   const PFF = R("profiles-full.js");
   has(PFF, "PDXFinanceLane.letterheadChipMount(id)",
     "the letterhead mounts the chip");

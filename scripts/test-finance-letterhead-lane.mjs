@@ -49,6 +49,7 @@ import { buildCorpus } from "./vr-record-corpus.mjs";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
 const INDEX = R("index.html");
+const FTM_SRC = R("ftm-data.js");
 const LANE_SRC = R("finance-lane.js");
 
 let passed = 0;
@@ -69,22 +70,22 @@ const must = (cond, msg) => {
   process.exit(1);
 };
 
-// ── The real seed, lifted out of index.html ─────────────────────────────────
+// ── The real seed, lifted out of ftm-data.js ─────────────────────────────────
 // Same lift test-finance-lane.mjs performs, for the same reason: a fixture would
 // keep passing while the shipped filings broke. `new Function` over the object
 // literal only — no page script runs.
 function liftSeed() {
-  const at = INDEX.indexOf("var FTM_FUNDING = {");
-  must(at > 0, "FTM_FUNDING is no longer in index.html");
-  const end = INDEX.indexOf("\n    };", at);
+  const at = FTM_SRC.indexOf("var FTM_FUNDING = {");
+  must(at > 0, "FTM_FUNDING is no longer in ftm-data.js");
+  const end = FTM_SRC.indexOf("\n    };", at);
   must(end > at, "could not find the end of the FTM_FUNDING literal");
-  const literal = INDEX.slice(at + "var FTM_FUNDING = ".length, end + "\n    }".length);
+  const literal = FTM_SRC.slice(at + "var FTM_FUNDING = ".length, end + "\n    }".length);
   return new Function("return (" + literal + ");")();
 }
 const SEED = liftSeed();
 const SEED_IDS = Object.keys(SEED);
 must(SEED_IDS.length >= 10, `the funding seed is unexpectedly small (${SEED_IDS.length})`);
-const AS_OF = (INDEX.match(/var FTM_AS_OF = '([^']*)'/) || [])[1] || "";
+const AS_OF = (FTM_SRC.match(/var FTM_AS_OF = '([^']*)'/) || [])[1] || "";
 
 // The two people the smoke names, and they have to actually be in the seed or
 // the smoke is asserting nothing.
@@ -321,7 +322,7 @@ console.log(`   finance letterhead: ${SEED_IDS.length} filings · ${Object.keys(
   // The target exists in the shipped page, and it is the profile's own section
   // rather than the site-level index.
   eq(L.SECTION_ID, "pdxsec-funding", "the control targets the money section on the person file");
-  has(INDEX, `id="${L.SECTION_ID}"`, "…and that anchor is emitted by the shipped money section");
+  has(FTM_SRC, `id="${L.SECTION_ID}"`, "…and that anchor is emitted by the shipped money section");
   for (const id of SMOKE_ON_FILE.concat(NO_FILE.slice(0, 2))) {
     const html = L.letterheadChipHtml(id);
     has(html, "PDXFinanceLane.openSection()", `${id}: the control's one action is that jump`);
@@ -475,7 +476,7 @@ console.log(`   finance letterhead: ${SEED_IDS.length} filings · ${Object.keys(
     let expectedRepaints = 0;
     if (mountControl) {
       // FIRST, THE RACE THE DEFERRED RE-READ EXISTS FOR: a letterhead built before
-      // index.html's Follow-the-Money IIFE has attached its index. Every chip
+      // /ftm-data.js has attached its index. Every chip
       // mounts empty, the index arrives, and the queued re-reads repaint — which
       // is the only branch of that callback that ever writes to the DOM.
       const cold = mountRound();

@@ -75,8 +75,11 @@ wiring problem. `/p/trump` showed "No money file yet" on its letterhead while th
 money section a few hundred pixels below it drew a $780M composition. Trump has a
 filing; the chip could not see it.
 
-`FTM_DATA` and its `_FTM_BY_ID` index are built inside the Follow-the-Money IIFE
-in `index.html`, so `_FTM_BY_ID` was a local that never reached `window`.
+`FTM_DATA` and its `_FTM_BY_ID` index were built inside the Follow-the-Money IIFE
+that was inlined in `index.html`, so `_FTM_BY_ID` was a local that never reached
+`window`. (The block is `ftm-data.js` now — see *One owner for the filings*
+below — but the index is still a closure local there, deliberately, for the
+reason the fix below gives.)
 `finance-lane.js` read `W._FTM_BY_ID`, got `undefined` for every person on the
 roster, and rendered the empty chip for all 800 of them — including the 13 with
 filings. `coverage()` counted the same `undefined` and reported **0 filings on
@@ -92,8 +95,59 @@ can mutate the shipped record.
 and `test-money-theme.mjs` each attach their own `win._FTM_BY_ID` before booting
 the lane, so both were testing a wiring that existed only in the harness. A test
 that supplies the seam it is checking cannot fail when production stops
-providing it. The probe that found this lifts the real inline `<script>` out of
-`index.html` and runs that.
+providing it. The probe that found this lifts the real shipped accessor block out of
+`ftm-data.js` and runs that.
+
+### One owner for the filings
+
+The block described above was **inline HTML**, and it was inline three times:
+once in `index.html`, once in `money.html` and once in `person.html`. The three
+copies were held together by a byte-identity fence — `test-money-shell.mjs` and
+`test-person-shell.mjs` re-read line ranges out of `index.html` on every run and
+character-compared them against the pastes. The fence worked. It was still a
+fence around three copies of every hand-verified dollar figure, and the
+`person.html` copy was deliberately **truncated** six lines early, because the
+bootstrap it ended with called a grid renderer that assumed a `#ftm-grid` that
+document does not have. A copy with a hand-maintained cut in it is a trap with a
+test around it.
+
+It is one file now: **`ftm-data.js`**, loaded by all three documents with a
+single `<script defer src="/ftm-data.js">` placed **immediately before**
+`finance-lane.js`. `defer` runs in document order, so that placement is the
+guarantee that the index exists before the lane reads it. On `money.html` this is
+load-bearing rather than tidy: the lane is in `<head>` and the section is in
+`<body>`, so a tag where the old inline block sat would run too late.
+
+What the move changed, and what it did not:
+
+* **The seam wall got more precise, not weaker.** `test-finance-lane.mjs` now
+  asserts two things instead of one: the sweep over every shipped `.js` must
+  return exactly `finance-lane.js,ftm-data.js`, *and* only `ftm-data.js` may
+  **declare** `FTM_DATA` / `FTM_FUNDING` / `FTM_AS_OF`. Seeing a filing and owning
+  one are different permissions and are now checked separately.
+* **The three documents carry zero filings literals**, and the same test asserts
+  that too, per document, alongside the load and the ordering.
+* **The renderer asks for its mount.** `renderFTM()` returns early when there is
+  no `#ftm-grid`, and the count element is null-guarded. That is what retires the
+  truncated copy: `person.html` gets the accessors and paints no grid, because it
+  has none.
+* **`FTM_AS_OF` is published on `window` now, and that is a visible fix.**
+  `finance-lane.js`'s `compose()` has always read `W.FTM_AS_OF` to stamp a filing
+  that carries no date of its own. It was a closure `var`, so that read found
+  `undefined` in every browser and the cycle line fell through to *"filing date on
+  source"* — while the grid a few inches away, reading the same closure variable
+  directly, printed *"Data last reviewed July 2026"*. Same dataset, two answers.
+  None of the thirteen `FTM_FUNDING` records carries its own `asOf` and `compose()`
+  prefers a per-record date, so this is a fallback stamp, never an override.
+* **`_FTM_BY_ID` is still NOT published as an object**, on purpose. Readers get
+  `_pdxFinanceFiling` / `_pdxFinanceIds`, which hand back copies, so a display
+  module cannot mutate the record it is reporting on. The lane tries those
+  accessors first and only names the raw index as a harness fallback.
+* **The curator pipeline moved with the data.** `finance-integrity-refresh.mjs`
+  brace-matches the funding seed out of `ftm-data.js`, and the curator
+  instructions that used to sit above the literal in `index.html` sit above it
+  there. `test-finance-refresh.mjs` checks that comment in its new home and adds
+  `ftm-data.js` to the list of files the refresh script must never write to.
 
 ## The money theme: one pair, wayfinding, not a grade
 
@@ -303,11 +357,14 @@ that orders a field or holds a pick (`alignment-tool.js`, `door2-spine.js`,
 
 **By construction** — `NEVER_FEEDS` is an enumeration, and an enumeration is only
 ever as complete as the list someone remembered to extend. So the fence also holds
-the *data seam* to a single owner: the filings live in one index built inside
-index.html's Follow-the-Money block and published as `window._FTM_BY_ID`, and
-`finance-lane.js` is the only shipped module permitted to name it (or `FTM_AS_OF`
-/ `FTM_FUNDING` / `FTM_DATA`). A module that cannot see a filing cannot weigh one,
-whatever it later decides it wants. Comments are stripped before that sweep, so
+the *data seam* to a **closed, named set of two files**: `ftm-data.js` **defines**
+the filings (`FTM_DATA`, `FTM_FUNDING`, `FTM_AS_OF`, the `_FTM_BY_ID` index) and
+`finance-lane.js` **reads** them. No other shipped module may name any of those
+four symbols, and only `ftm-data.js` may declare one. A module that cannot see a
+filing cannot weigh one, whatever it later decides it wants. The set was one file
+while the data was pasted inline into three documents; the number was never the
+property worth holding, and widening it is a decision the sweep forces you to
+make out loud rather than an accident. Comments are stripped before that sweep, so
 the retirement notes explaining what used to read the filings stay legal.
 
 **At runtime** — a twin boot. Seeding a full filing onto the member under test
@@ -343,7 +400,7 @@ coverage line wherever there is no filing.
 ## The data
 
 Each tracked politician has an itemized funding breakdown for one representative
-cycle in `FTM_FUNDING` (in the Follow-the-Money block of `index.html`), sourced
+cycle in `FTM_FUNDING` (in `ftm-data.js`), sourced
 from public filings:
 
 - **Federal** offices → the **FEC** (`fec.gov/data`) and OpenSecrets.
@@ -439,7 +496,7 @@ node scripts/finance-integrity-refresh.mjs --json
 node scripts/finance-integrity-refresh.mjs --audit --today 2026-08   # pin "now"
 ```
 
-It reads the shipped `FTM_FUNDING` straight out of `index.html` (brace-matched
+It reads the shipped `FTM_FUNDING` straight out of `ftm-data.js` (brace-matched
 and evaluated, so the audit is against what actually ships) and checks every
 record against what this lane is allowed to say:
 

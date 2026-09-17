@@ -396,54 +396,53 @@ lacks(CODE, "api.open.fec.gov", "fec: money-room.js names the FEC API");
 has(MY, "NO LIVE FEC", "fec: the banner no longer states the rule, which is the only place a future pass would read it");
 
 // ═════════════════════════════════════════════════════════════════════════════
-// 4 · THE FENCE
+// 4 · THE SECTION IS STILL FENCED; THE FIGURES ARE NO LONGER COPIED AT ALL
 // ═════════════════════════════════════════════════════════════════════════════
-section("4 · both copied slices are byte-identical to index.html's");
+section("4 · the section markup is byte-identical, and the filings are a module");
 
-// WHY THIS IS TWO SLICES AND NOT ONE. The section markup and the tracker script
-// are adjacent in index.html but they are fenced separately because they are
-// normalised differently: the section has exactly one deliberate change (the
-// header is an <h1> here, not an <h2>) and the tracker has NONE.
+// WHAT THIS SECTION USED TO BE, AND WHY IT IS SMALLER NOW. It fenced TWO slices
+// of index.html: the section markup, and the tracker script under it — 931 lines
+// of hand-verified campaign finance data, re-read out of index.html on every run
+// and byte-compared against the paste in this document, because a figure edited
+// on one side only is two answers about one candidate's money.
 //
-// THESE LINE NUMBERS MOVE, AND THE THREE-ROOM SPLIT ALREADY MOVED THEM ONCE:
-// the Mandate's deletion sits above this region in index.html, so both ranges
-// came UP by 1775 lines from the 16533/16610 they were written as. WHEN THEY GO
-// STALE, RE-DERIVE THEM BY LOCATING THE RUN — find `<section
-// id="follow-the-money"` and the tracker's own opening comment in index.html and
-// read the line numbers off. DO NOT recompute them by arithmetic from a diff:
-// test-person-shell.mjs records the same rule, in the same words, for the seven
-// copies it fences, and the one time that rule was broken in this codebase the
+// The tracker is not copied any more. It is /ftm-data.js, loaded by index.html,
+// money.html and person.html, and a fence around one file is just the file. What
+// replaces the byte-comparison is stronger than it was: an identity check (does
+// this document load the module?), an ordering check (does it load it before the
+// lane that reads it?), and an absence check (is there a single filings literal
+// left inline anywhere in this document?). scripts/test-finance-lane.mjs holds
+// the other half — that exactly two shipped modules can see the filings index,
+// and that only one of them declares it.
+//
+// THE MARKUP IS STILL A COPY, so its fence stays. The section is index.html's
+// markup with exactly one deliberate change: the header is an <h1> here, because
+// here the section IS the document.
+//
+// THESE LINE NUMBERS MOVE. WHEN THEY GO STALE, RE-DERIVE THEM BY LOCATING THE
+// RUN — find `<section id="follow-the-money"` in index.html and read the line
+// numbers off. DO NOT recompute them by arithmetic from a diff:
+// test-person-shell.mjs records the same rule, in the same words, for the copies
+// it fences, and the one time that rule was broken in this codebase the
 // arithmetic produced a range that still matched a DIFFERENT run of bytes.
 const SEC_A = 14758, SEC_B = 14833;
-const TRK_A = 14835, TRK_B = 15765;
 {
   const lines = INDEX.split("\n");
   const sec = lines.slice(SEC_A - 1, SEC_B).join("\n");
-  const trk = lines.slice(TRK_A - 1, TRK_B).join("\n");
 
-  // THE FIXTURE FIRST: the declared ranges must actually name the runs they
-  // claim to. A stale range that happens to contain plausible markup would
-  // otherwise turn every assertion below into a tautology.
+  // THE FIXTURE FIRST: the declared range must actually name the run it claims
+  // to. A stale range that happens to contain plausible markup would otherwise
+  // turn every assertion below into a tautology.
   must(/^\s*<section id="follow-the-money"/.test(sec),
     `index.html lines ${SEC_A}–${SEC_B} are not the Follow the Money section — re-derive the range by locating ` +
     '`<section id="follow-the-money"` in index.html');
   must(/<\/section>\s*$/.test(sec), `index.html line ${SEC_B} is not the section's closing tag`);
-  must(/^\s*<script>/.test(trk) && /<\/script>\s*$/.test(trk),
-    `index.html lines ${TRK_A}–${TRK_B} are not one complete <script> element — re-derive the range`);
-  has(trk, "FTM_DATA", "the tracker slice does not contain the filings index, so it is not the tracker");
 
   // AND THE DOCUMENT SAYS WHICH LINES IT COPIED, so the next reader does not
   // have to find out by searching.
   has(MY, `VERBATIM FROM index.html LINES ${SEC_A}–${SEC_B}`,
     "fence: money.html does not declare the section's source range");
-  has(MY, `VERBATIM FROM index.html LINES ${TRK_A}–${TRK_B}`,
-    "fence: money.html does not declare the tracker's source range");
 
-  // THE TRACKER: EXACT. Not one byte, not one figure, not one comment.
-  ok(MY.indexOf(trk) > 0,
-    `fence: the copied tracker is not byte-identical to index.html lines ${TRK_A}–${TRK_B}. Either a figure was ` +
-    "edited on one side only — which is two answers about one candidate's money — or the declared range is stale " +
-    "and must be RE-DERIVED by locating the run");
   // THE SECTION: EXACT AFTER ONE NORMALISATION, and the normalisation is
   // declared rather than loose. h2 → h1, both tags, nothing else.
   const norm = sec.replace(/<h2 /g, "<h1 ").replace(/<\/h2>/g, "</h1>");
@@ -457,19 +456,40 @@ const TRK_A = 14835, TRK_B = 15765;
     "fence: the front page's copy of the section no longer has exactly one h2 — the normalisation above is a " +
     "one-tag rule and it needs re-deriving with the markup");
 
-  // THE FRONT PAGE KEEPS ITS COPY, AND THAT IS THE DELIBERATE PART. The reason
-  // is written into money-room.js's header and into the banner: the filings
-  // index has one declared owner and five tests brace-match it out of
-  // index.html by name.
+  // THE FRONT PAGE KEEPS ITS DOOR. The section was never the thing that moved;
+  // the data under it was.
   has(INDEX, '<section id="follow-the-money"',
-    "fence: the section was DELETED from index.html — five tests and finance-integrity-refresh.mjs read the " +
-    "filings literals out of that document by name, and the front page's door still opens the lane");
-  has(INDEX, "var FTM_FUNDING = {",
-    "fence: FTM_FUNDING left index.html — scripts/finance-integrity-refresh.mjs brace-matches it out of that file");
+    "fence: the section was DELETED from index.html — the front page's door still opens the lane");
+
+  // ── ONE OWNER FOR THE FIGURES ──────────────────────────────────────────────
+  // Not one filings literal is left in this document, or in the front page. The
+  // grid above is markup; the numbers in it come from one file.
+  const LITERALS = /\bFTM_DATA\b|\bFTM_FUNDING\b|\bFTM_AS_OF\b|\b_FTM_BY_ID\b/;
+  ok(!LITERALS.test(MY),
+    "owner: money.html still carries a filings literal — every figure has exactly one home and it is /ftm-data.js");
+  ok(!LITERALS.test(INDEX),
+    "owner: index.html still carries a filings literal — the front page reads the module like everyone else");
+  has(MY, '<script defer src="/ftm-data.js"></script>',
+    "owner: money.html does not load the shared filings module");
+  has(INDEX, '<script defer src="/ftm-data.js"></script>',
+    "owner: index.html does not load the shared filings module");
+
+  // ORDER IS THE CONTRACT, AND ON THIS DOCUMENT IT IS NOT A FORMALITY. Both tags
+  // are `defer`, deferred scripts run in document order, and finance-lane.js
+  // reads the index /ftm-data.js attaches. Here the lane is in <head> while the
+  // section markup is in <body> — so a tag placed where the old inline block sat
+  // would run AFTER the lane that needs it. It goes in the head, above the lane.
+  const iData = MY.indexOf('src="/ftm-data.js"');
+  const iLane = MY.indexOf('src="/finance-lane.js"');
+  ok(iData > 0 && iLane > 0 && iData < iLane,
+    "owner: money.html loads /ftm-data.js AFTER /finance-lane.js — the lane would read an index that is not there yet");
+  ok(MY.slice(0, MY.indexOf("</head>")).indexOf('src="/ftm-data.js"') > 0,
+    "owner: the filings module is not in this document's <head>, where it has to be to precede the lane");
+
   has(ROOM, "test-money-shell.mjs",
     "fence: money-room.js's header no longer names the test that fences its copy — the note is how the next " +
-    "reader learns the two copies cannot drift");
-  console.log(`  fence: section ${SEC_B - SEC_A + 1} lines (one h2→h1), tracker ${TRK_B - TRK_A + 1} lines exact`);
+    "reader learns what may and may not drift");
+  console.log(`  fence: section ${SEC_B - SEC_A + 1} lines (one h2→h1) · filings: one module, zero inline literals`);
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

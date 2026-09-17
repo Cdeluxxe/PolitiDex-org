@@ -275,26 +275,34 @@ for (const t of TAGS) {
   ok(hasSrc || isData || t.body.trim().length > 0, "inline: no empty <script> tags left behind");
 }
 
-// The funding lane's cut, asserted directly: renderFTM() dereferences #ftm-grid
-// and #ftm-count with no null check and neither id exists on this document, so
-// index.html's `DOMContentLoaded → renderFTM` bootstrap must NOT have come with
-// the copy. It would throw at boot on every single /p/ address.
-ok(!/addEventListener\(\s*['"]DOMContentLoaded['"]\s*,\s*renderFTM\s*\)/.test(bare),
-  "funding: index.html's renderFTM bootstrap is not copied — it would dereference #ftm-grid on a document that has no funding section");
+// ── THE FUNDING LANE IS LOADED, NOT COPIED ───────────────────────────────────
+// This document used to carry a DELIBERATELY TRUNCATED paste of index.html's
+// funding block. The cut was load-bearing: index.html's copy ended with a
+// `DOMContentLoaded → renderFTM` bootstrap, renderFTM() dereferenced #ftm-grid
+// and #ftm-count with no null check, and neither id is on this document — so
+// copying the block whole would have thrown at boot on every /p/ address. A cut
+// that has to be re-made by hand on every edit is a copy with a trap in it.
+//
+// /ftm-data.js is the one owner now. Its renderer asks for its mount instead of
+// assuming one, so there is no cut to maintain and no truncation to verify: this
+// document loads the same bytes /money and the front page load. What is still
+// asserted is the pair of facts the cut used to buy — no funding literals inline
+// here, and no funding-section DOM for the renderer to find.
+ok(/<script defer src="\/ftm-data\.js"><\/script>/.test(html),
+  "funding: person.html loads the shared filings module rather than pasting it");
+ok(!/\bFTM_DATA\b|\bFTM_FUNDING\b|\bFTM_AS_OF\b|\b_FTM_BY_ID\b/.test(html),
+  "funding: not one filings literal is left inline on this document — the figures have exactly one owner");
 {
-  // renderFTM may still be DEFINED (it is, at the end of the copied region) as
-  // long as nothing on this document can reach it. Its one surviving call site
-  // is inside window.setFTMSector, which only the homepage's own sector buttons
-  // invoke — and those are not here.
-  // The lookbehind skips the DECLARATION (`function renderFTM()`); what is
-  // being counted is call sites.
-  const calls = [...bare.matchAll(/(?<!function )(?<![.\w])renderFTM\s*\(\s*\)/g)].length;
-  ok(calls === 1, `funding: renderFTM has exactly one reachable-by-nothing call site left (found ${calls})`);
-  ok(/window\.setFTMSector = function\(sector\) \{\s*\n\s*ftmCurrentSector = sector;\s*\n\s*renderFTM\(\);/.test(bare),
-    "funding: that call site is inside window.setFTMSector, which no control on this document invokes");
+  // ORDER IS THE CONTRACT. Both tags are `defer`, deferred scripts run in
+  // document order, and finance-lane.js reads the index this module attaches.
+  // A tag that lands after the lane is a tag that lands too late.
+  const iData = html.indexOf('src="/ftm-data.js"');
+  const iLane = html.indexOf('src="/finance-lane.js"');
+  ok(iData !== -1 && iLane !== -1 && iData < iLane,
+    "funding: /ftm-data.js is loaded BEFORE /finance-lane.js, which is the module that reads it");
 }
 ok(!/id="ftm-grid"/.test(bare) && !/id="ftm-count"/.test(bare) && !/id="ftm-sec-/.test(bare),
-  "funding: the homepage funding section's own DOM is absent, which is why the bootstrap had to be cut");
+  "funding: the homepage funding section's own DOM is still absent — the shared renderer finds no mount here and paints nothing");
 
 // ── 4. Every same-origin asset reference is root-absolute ────────────────────
 // THE HTML-AS-JS BUG. /p/<pid> is served by a rewrite that returns HTTP 200 for
@@ -344,11 +352,10 @@ const COPIES = [
   [2012, 2032, "the Firebase compat bundles, the key injection, the stub and firebase-boot.js"],
   [2146, 2191, "the share furniture share-preview.ts rewrites"],
   [3675, 3738, "the crawl-header guard"],
-  [14835, 15757, "the funding lane, up to the cut"],
-  [17647, 17681, "the profile modal down to #modal-content"],
-  [17742, 17789, "the stance popover, the record overlay and the share sheet"],
-  [24477, 24598, "PDXStance"],
-  [27087, 27286, "the PWA runtime and the service-worker registration"],
+  [16728, 16762, "the profile modal down to #modal-content"],
+  [16823, 16870, "the stance popover, the record overlay and the share sheet"],
+  [23560, 23681, "PDXStance"],
+  [26170, 26369, "the PWA runtime and the service-worker registration"],
 ];
 // THESE NUMBERS ARE ANCHORS INTO index.html AND THEY MOVE WHEN IT DOES. The
 // ones re-based here were re-based by the fourth split, which lifted the ballot
@@ -393,7 +400,17 @@ const COPIES = [
 // funding lane, the modal and the popovers moved by −391, PDXStance by −609 and
 // the PWA runtime by −625; the crawl guard, which sits above the highest of those
 // deletions, moved +5 on a note that grew instead. Again not one byte of any
-// copied block changed. So a failure here means one of
+// copied block changed.
+//
+// THE FUNDING LANE IS NO LONGER ON THIS LIST AT ALL, and that is the point of
+// the pass that removed it: the block became /ftm-data.js, loaded by this
+// document and by index.html and money.html, so there is nothing left to hold
+// byte-identical. Deleting its 931 lines out of index.html moved the four
+// remaining anchors, which all sit below it — the modal and the popovers by
+// −919, and PDXStance and the PWA runtime by −917 (two lines less, because the
+// replacement pointer comment and the new <script> tag both land between them).
+// One fewer pin here is one fewer thing that can go stale, which is the whole
+// argument for owners over fences. So a failure here means one of
 // two very different things, and the two assertions below separate them: an
 // "out of range or empty" failure is a stale anchor, and a "NOT byte-identical"
 // failure on an in-range slice is real drift between the two documents.
