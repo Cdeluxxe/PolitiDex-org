@@ -332,13 +332,11 @@
   color: #8fa3bf;
   white-space: nowrap;
 }
-/* A starter carries no side, because the reader has not chosen one. Dashed, so
-   it reads as an opening rather than as a stored answer. */
-.me-pchip--start {
-  border-style: dashed;
-  background: transparent;
-}
-.me-pchip--start[data-ic] { background: transparent; }
+/* NO STARTER CHIP RULE LIVES HERE ANY MORE. There used to be a .me-pchip--start
+   that drew a dashed, side-less chip in this same row. Every chip in .me-pchips
+   means "a side this reader holds", so a dashed one under the sentence "Nothing
+   on file yet." said both things at once. The empty state is words and a door
+   now; see regionPositions() in me-desk.js. */
 
 /* THE ONE DOOR. */
 .me-pgo {
@@ -348,7 +346,15 @@
   flex-wrap: wrap;
   margin: 0.85rem 0 0;
 }
+/* THE DOOR IS AN ANCHOR NOW, so it says so: no underline, laid out as a block
+   so the padding is real, and never shorter than a thumb. It used to be a
+   <button> that mounted an editor below the snapshot; it is a link to
+   /my-stances, which is the one place a position is set. */
 .me-door {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  text-decoration: none;
   padding: 0.42rem 0.8rem;
   border: 1px solid rgba(125, 211, 252, 0.42);
   border-radius: 0.5rem;

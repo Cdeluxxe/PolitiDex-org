@@ -668,6 +668,40 @@ export const AT_SEAMS = [
   ["    function _alignRefreshAll() {\n",
    "      _alignSyncAllChips();\n      _alignUpdateStatus();\n",
    "the refresh guard under a hold"],
+  // ── the two 🎯 My Stances buttons (v218) ──────────────────────────────────
+  // TWO SPANS, EACH ONE LINE, AND WHAT MOVES INSIDE THEM IS A FALLBACK THAT
+  // COULD NOT WORK. Both buttons read, character for character:
+  //
+  //     if (window.PDXStances && PDXStances.open) PDXStances.open();
+  //     else location.hash = '#my-stances';
+  //
+  // and the `else` was the defect. '#my-stances' was a FRAGMENT on the
+  // homepage, so on any document where my-stances.js is absent — which is the
+  // only case the fallback exists for — the branch set a hash naming no section
+  // at all, and on the homepage it named whichever band happened to render at
+  // that offset. /my-stances is a real document now, so the fallback is
+  // location.assign('/my-stances') and it lands somewhere whether or not any
+  // stance module ever parsed.
+  //
+  // A WAVE'S STAKE IN THESE TWO SPANS IS NOTHING, which is why they are
+  // admissible. Neither line touches ISSUE_MAP, a keyword, a lean, a category,
+  // a weight or a comparison: the first branch is unchanged and is the one that
+  // fires wherever alignment-tool.js actually ships, and the second is a
+  // navigation. No key can move through here, no scope can widen, and no
+  // percentage can change — the most either line can do is decide which
+  // document a reader lands on after leaving this one.
+  //
+  // The anchors are the unchanged lines on either side of each button: the
+  // profile head and the empty-state sentence in the zero branch, the count
+  // pill and the strength sentence in the populated one. Each is unique in the
+  // file on both sides of the comparison, so a pass that moves one of THEM
+  // fails as a failure rather than quietly carving the wrong bytes.
+  ["'<div class=\"align-profile-head\"><div class=\"align-profile-title\">\u{1F9ED} My Alignment Profile</div>' +\n",
+   "          '<div class=\"align-profile-empty\">You haven",
+   "the zero-stance profile's My Stances door"],
+  ["          '<span class=\"align-count-pill\">' + n + ' position'",
+   "        '<div class=\"align-profile-strength\">' + sentence + '</div>' +\n",
+   "the populated profile's My Stances door"],
 ];
 
 // ── word-action.js: the shared figure, the chip, the section, the gate, the mounts ────

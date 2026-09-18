@@ -881,7 +881,7 @@
       if (adoptOpen) {
         var PS = G('PDXStances');
         if (PS && typeof PS.open === 'function') PS.open(adoptOpen.getAttribute('data-sl-adopt-open'));
-        else { try { location.hash = '#my-stances'; } catch (e3) {} }
+        else { try { location.assign('/my-stances'); } catch (e3) {} }
         return;
       }
       if (t.closest && t.closest('#sl-back')) { state.view = 'browse'; renderBrowse(); return; }

@@ -4643,7 +4643,7 @@
       if (n === 0) {
         el.innerHTML =
           '<div class="align-profile-head"><div class="align-profile-title">🧭 My Alignment Profile</div>' +
-          '<button type="button" class="align-mystances-link" onclick="if(window.PDXStances&&PDXStances.open)PDXStances.open();else location.hash=\'#my-stances\';" title="Build saved stances with priorities, private notes and an optional public showcase">🎯 My Stances</button></div>' +
+          '<button type="button" class="align-mystances-link" onclick="if(window.PDXStances&&PDXStances.open)PDXStances.open();else location.assign(\'/my-stances\');" title="Build saved stances with priorities, private notes and an optional public showcase">🎯 My Stances</button></div>' +
           '<div class="align-profile-empty">You haven\'t set any stances yet. Check the issues you agree with below — pick as many as you like and tap <b>Strongly Support</b> through <b>Strongly Oppose</b> to set your stance on each. These are your stances (also saved in <b>My Stances</b>), and every politician then gets a <b>🎯 Your Match</b>. Where their formal record is deep enough to test, a <b>🏛️ Official Record</b> read sits beside it.</div>';
         return;
       }
@@ -4715,7 +4715,7 @@
         '<div class="align-profile-head">' +
           '<div class="align-profile-title">🧭 My Alignment Profile</div>' +
           '<span class="align-count-pill">' + n + ' position' + (n > 1 ? 's' : '') + '</span>' +
-          '<button type="button" class="align-mystances-link" onclick="if(window.PDXStances&&PDXStances.open)PDXStances.open();else location.hash=\'#my-stances\';" title="Manage these as saved stances — add priorities, private notes, and a public showcase">🎯 My Stances' + (_msSaved ? '<span class="align-ms-n">' + _msSaved + '</span>' : '') + '</button>' +
+          '<button type="button" class="align-mystances-link" onclick="if(window.PDXStances&&PDXStances.open)PDXStances.open();else location.assign(\'/my-stances\');" title="Manage these as saved stances — add priorities, private notes, and a public showcase">🎯 My Stances' + (_msSaved ? '<span class="align-ms-n">' + _msSaved + '</span>' : '') + '</button>' +
         '</div>' +
         '<div class="align-profile-strength">' + sentence + '</div>' +
         meter +

@@ -105,6 +105,20 @@
 /* Thin steps are dimmed, never hidden — "nothing here yet" is information. */
 .pdxdo-step.pdxdo-thin .pdxdo-step-v { color: #8294b4; }
 .pdxdo-none { color: #7f90ad; font-style: italic; }
+/* THE READER'S OWN SIDE. A footnote-weight link in the issue step, deliberately
+   quieter than the issue chip beside it: the row is a formal record, and the
+   reader's position is an invitation next to it, not a rival claim. 44px floor
+   because it is a real tap target on a phone. */
+.pdxdo-myside {
+  display: inline-flex; align-items: center; min-height: 44px;
+  font-family: 'Barlow', system-ui, sans-serif;
+  font-size: 0.74rem; font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #8fb6e8; text-decoration: none;
+}
+.pdxdo-myside:hover, .pdxdo-myside:focus-visible {
+  color: #cfe3ff; text-decoration: underline; text-underline-offset: 2px;
+}
 
 .pdxdo-src {
   font: 700 0.6rem/1.4 'Barlow Condensed', sans-serif;

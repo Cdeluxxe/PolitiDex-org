@@ -1655,9 +1655,23 @@
   }
 
   // ── Empty / no-stance states ───────────────────────────────────────────────
+  // WHERE "SET MY POSITIONS" GOES, AND IT IS ONE PLACE NOW.
+  //
+  // This used to be a three-way guess at whichever picker happened to be on the
+  // document: _krAlignGuideToPicker, then openAlignBoard, then — when neither
+  // existed — pdxRaceSheetClose(). That last branch is the one that mattered,
+  // because this sheet is also mounted on /ballot, where neither picker is
+  // loaded: a reader there tapped "Set my positions →" and the sheet simply
+  // shut. The button did the opposite of what it said.
+  //
+  // Positions are set on /my-stances and nowhere else, so this is an address.
+  // The sheet is closed first because it is a full-screen overlay and leaving
+  // it up behind a navigation strands it in history; ?add=1 lands the reader on
+  // the issue picker rather than on an empty library, which is what they asked
+  // for by tapping this.
   function ctaOpen() {
-    return fn('_krAlignGuideToPicker') ? 'window._krAlignGuideToPicker()'
-      : (fn('openAlignBoard') ? 'window.openAlignBoard()' : 'window.pdxRaceSheetClose()');
+    return 'try{window.pdxRaceSheetClose()}catch(e){};' +
+      "location.assign('/my-stances?add=1')";
   }
   function ctaHtml() {
     var open = ctaOpen();
@@ -2116,10 +2130,16 @@
 
     // Only when the field could be ranked and the visitor has given it nothing
     // to rank on. A link, not a lecture: one line, one destination.
+    // A REAL LINK, not a button that asks a module to navigate for it. The seat
+    // row is clickable, so the click is stopped from reaching it — but the
+    // element is an <a href="/my-stances">, which means a middle click opens a
+    // tab, a long press offers "copy link", and the destination is visible in
+    // the status bar before the tap. ?add=1 opens the picker, because a reader
+    // who taps this line has already said they want to add a position.
     var stanceLine = (entry && axis().length === 0)
-      ? '<button type="button" class="rs-seat-stance"' +
-          ' onclick="event.stopPropagation();if(window.PDXStances&&window.PDXStances.open)window.PDXStances.open();else location.hash=\'#my-stances\';">' +
-          'Set stances to rank this race \u203a</button>'
+      ? '<a class="rs-seat-stance" href="/my-stances?add=1"' +
+          ' onclick="event.stopPropagation();">' +
+          'Set stances to rank this race \u203a</a>'
       : '';
 
     // ── INTO THE WORKSPACE, WHERE THE PICK ACTUALLY HAPPENS ────────────────

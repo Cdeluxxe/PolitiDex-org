@@ -134,10 +134,18 @@
     });
     return { name: (obj.n || 'A PolitiDex member').toString().slice(0, 60), items: items };
   }
+  // A SHARED LINK NAMES THE DOCUMENT STANCES LIVE ON, and it is not built out of
+  // whatever page the sharer happened to be standing on. This used to be
+  // `location.pathname + '#my-stances'`, which meant the link a reader pasted
+  // into a group chat was a scroll offset on the homepage — and once the stance
+  // section moved off the homepage it was a scroll offset to nothing. It also
+  // meant the same file produced a different link from /, /me and /person,
+  // three of which are wrong. /my-stances answers this link from one place.
+  var SHARE_DOC = '/my-stances';
   function shareUrl(s) {
     var tok = publicToken(s);
     if (!tok) return '';
-    return location.origin + location.pathname + '?' + SHARE_PARAM + '=' + tok + '#my-stances';
+    return location.origin + SHARE_DOC + '?' + SHARE_PARAM + '=' + tok;
   }
   function copyShareLink() {
     var s = load();
@@ -168,7 +176,7 @@
     var list = items || activeItems();
     var n = list.length;
     var tok = token || encodeViews(name || displayName(), list);
-    var url = location.origin + location.pathname + '?' + SHARE_PARAM + '=' + tok + '#my-stances';
+    var url = location.origin + SHARE_DOC + '?' + SHARE_PARAM + '=' + tok;
     var text = 'Here’s where I stand on ' + n + ' issue' + (n !== 1 ? 's' : '') + ' — see how politicians line up on PolitiDex:';
     return { url: url, text: text, title: 'My Stances · PolitiDex', name: name || displayName(), items: list };
   }
@@ -1372,22 +1380,34 @@
   }
 
   // ── Boot / lazy mount ─────────────────────────────────────────────────────
-  // THE SECTION IS A CLOSED DOOR ON THE HOMEPAGE NOW. index.html used to carry
-  // this whole collection mounted: the search box, the filter rail, a card per
-  // issue in ISSUE_MAP, the showcase. It was laid out and painted on every load
-  // of /, and it was also the second place the eight answers of record could be
-  // edited — the reader's own file being the first. The file has a document of
-  // its own at /me, so the homepage now carries a short card that says so, with
-  // the collection sitting inert in <template id="ms-shell-tpl"> underneath.
+  // THE SECTION LIVES ON /my-stances NOW, AND IT IS NOT ON THE HOMEPAGE AT ALL.
   //
-  // WHAT THIS COLLECTION STILL UNIQUELY OWNS, AND WHY IT IS A TEMPLATE RATHER
-  // THAN A DELETION: priority, the private note and the optional public
-  // showcase, across the whole issue vocabulary rather than the eight. Eight
-  // other modules say "go set a position" by calling PDXStances.open(), and
-  // /me's Starred issues region links here to add or remove a star because the
-  // priority editor lives nowhere else. Every one of those callers still lands
-  // on a working editor, because _mount() puts the markup back before init()
-  // looks for it — no id moved and nothing inside the template was rewritten.
+  // For a long time index.html carried this whole collection mounted: the
+  // search box, the filter rail, a card per issue in ISSUE_MAP, the showcase —
+  // laid out and painted on every load of /. Then it became a one-line card
+  // with the collection inert in a <template> behind it, which halved the cost
+  // and kept the real defect: the fragment #my-stances was a SCROLL POSITION,
+  // so every "go set a position" door on the site resolved to "somewhere on
+  // the homepage", and on a page this long it resolved to the wrong band.
+  //
+  // The section is now a document: my-stances.html. Same id, same template id,
+  // same ids inside (#ms-body, #ms-heading, #ms-door-count, #ms-door-more), so
+  // nothing in this file had to learn a new shape — it simply finds them on a
+  // document that is only this. Above it on that page sits stance-studio.js,
+  // which teaches a reader with nothing on file how to set their first side;
+  // this collection is the every-issue library underneath, and it is what
+  // "Every issue on file →" opens.
+  //
+  // WHAT THIS COLLECTION UNIQUELY OWNS: priority, the private note and the
+  // optional public showcase, across the whole issue vocabulary. The studio
+  // sets a side and nothing else, which is why both exist on one page rather
+  // than one replacing the other.
+  //
+  // WHY THE STUDIO IS HIDDEN WHEN THIS MOUNTS. Two surfaces for the same issue
+  // in one viewport would be two places to answer the same question, and the
+  // reader has just said which one they want. The studio is hidden, not
+  // destroyed, so a page that never had one is unaffected and nothing needs
+  // rebuilding if it is ever shown again.
   var _mounted = false;
   function mountShell() {
     if (_mounted) return true;
@@ -1409,6 +1429,12 @@
     if (section.classList) section.classList.remove('ms-closed');
     var door = el('ms-door');
     if (door) door.hidden = true;
+    // The stance studio's host, on the one document that has one. Hidden by id
+    // rather than through PDXStanceStudio, because this must work whether or
+    // not that module parsed — an unhidden tutorial above a mounted library is
+    // the same question asked twice.
+    var studio = el('mst');
+    if (studio) studio.hidden = true;
     return true;
   }
 
@@ -1447,11 +1473,22 @@
     var host = el('my-stances');
     if (!host) return;
     wireDoor();
-    // Deep-link straight to the section → mount now. A bookmarked #my-stances is
-    // still an address this module answers, and answering it is why the hash
-    // listener below stays: the door does not break an old link.
-    if (location.hash === '#my-stances') { init(); return; }
-    window.addEventListener('hashchange', function () { if (location.hash === '#my-stances') init(); });
+    // THERE IS NO FRAGMENT DEEP-LINK ANY MORE, AND NOTHING REPLACES IT.
+    //
+    // This used to read `location.hash === '#my-stances'` and mount the whole
+    // collection on a match, with a hashchange listener for the same string
+    // behind it. Both were the module treating a SCROLL OFFSET as an address:
+    // on /ballot that hash named no section at all, and on the homepage it
+    // named whichever band happened to render at that offset. The address is a
+    // document now, and index.html forwards an old /#my-stances bookmark here
+    // before it paints, so no link is stranded by the deletion.
+    //
+    // AND THE DOCUMENT FLAG IS DELIBERATELY NOT USED TO AUTO-MOUNT HERE. Being
+    // on /my-stances is not a request for all 121 issue cards — stance-studio.js
+    // owns the top of this page, and mountShell() hides the studio when this
+    // collection appears. Mounting on arrival would mean the reader who came to
+    // set their first position never sees the surface that teaches them how.
+    // The gesture is the door: "Every issue on file →", wired just above.
     // THERE IS NO SCROLL-INTO-VIEW MOUNT ANY MORE, AND THAT IS THE POINT. The
     // IntersectionObserver that used to sit here mounted the whole collection
     // for every reader who scrolled past this band, which is every reader who
@@ -1476,7 +1513,10 @@
         init();
         if (!_inited) return;             // nothing mounted — do not scroll to a card
         scrollTo('my-stances');
-        try { if (location.hash !== '#my-stances') location.hash = '#my-stances'; } catch (_e2) {}
+        // NO HASH IS WRITTEN. The door only exists on /my-stances now, so the
+        // reader is already at the address; stamping '#my-stances' onto it
+        // bought nothing and cost a spurious history entry that made Back
+        // scroll instead of leave.
       });
     }
     paintDoorCount();
@@ -1595,7 +1635,7 @@
     }).join('');
     return '<div class="msvs">' + head +
       '<div class="msvs-list">' + body + '</div>' +
-      (opts.foot === false ? '' : '<div class="msvs-foot">Your saved position lined up against their documented record. <button type="button" class="ms-link" onclick="if(window.PDXStances&&PDXStances.open)PDXStances.open();else location.hash=\'#my-stances\';">Manage in My Stances</button></div>') +
+      (opts.foot === false ? '' : '<div class="msvs-foot">Your saved position lined up against their documented record. <button type="button" class="ms-link" onclick="if(window.PDXStances&&PDXStances.open)PDXStances.open();else location.assign(\'/my-stances\');">Manage in My Stances</button></div>') +
       '</div>';
   }
 
@@ -1629,8 +1669,46 @@
     myStanceChip: myStanceChipHtml,
     vsRecordHtml: vsRecordHtml,
     syncToAlignment: reconcileWithAlignment,
-    // navigation / render
-    open: function (issueKey) { init(); scrollTo('my-stances'); if (issueKey) setTimeout(function () { gotoIssue(issueKey); }, 60); },
+    // ── navigation / render ──────────────────────────────────────────────
+    // OPEN IS AN ADDRESS NOW, NOT A SCROLL. This used to be init() +
+    // scrollTo('my-stances'), which was only ever correct on ONE document. On
+    // /me — which carries this module and has no such section — it scrolled to
+    // nothing. On /ballot, /p/<pid>, /i/<key> and every other shell the module
+    // is absent entirely, so eight callers fell back to location.hash =
+    // '#my-stances', a hash no document on the site answered any more; ballot.html
+    // forwarded it to the homepage, where the reader landed near
+    // Relevant-to-me with no editor in sight. "Go set a position" has a
+    // surface now, so it has a URL, and this is the one place that knows it.
+    //
+    // ON /my-stances ITSELF IT IS STILL A SCROLL, because the surface is
+    // already under the reader and navigating to the page you are standing on
+    // is a flicker and a lost scroll position. The document declares
+    // __PDX_STANCES_DOC and this reads it — one flag, no path sniffing, the
+    // same shape __PDX_ME_DOC already has for /me. ?issue= is how a caller
+    // names an issue across a navigation; gotoIssue() is how it names one
+    // without.
+    //
+    // AND ON THIS DOCUMENT THE STUDIO GETS FIRST REFUSAL. stance-studio.js owns
+    // the top of /my-stances and owns the ?issue= beat — one issue, its locked
+    // scope sentence, Support / Oppose / Not sure. Mounting the 121-card
+    // collection instead would hide the studio (see mountShell) to answer a
+    // question the studio answers in one screen, so a named issue goes to
+    // pick() and only a bare open() falls through to the library.
+    open: function (issueKey) {
+      if (window.__PDX_STANCES_DOC) {
+        var St = window.PDXStanceStudio;
+        if (issueKey && knownIssue(issueKey) && St && typeof St.pick === 'function' && !_mounted) {
+          try { St.pick(issueKey); scrollTo('my-stances'); return; } catch (e) {}
+        }
+        init();
+        scrollTo('my-stances');
+        if (issueKey) setTimeout(function () { gotoIssue(issueKey); }, 60);
+        return;
+      }
+      var url = '/my-stances';
+      if (issueKey && knownIssue(issueKey)) url += '?issue=' + encodeURIComponent(issueKey);
+      try { location.assign(url); } catch (e) { try { location.href = url; } catch (e2) {} }
+    },
     // Jump to the section and highlight the My Views showcase card (account menu).
     //
     // THIS IS ONE OF THE TWO ACCOUNT-MENU DOORS, AND IT OWNS ONE SECTION. The

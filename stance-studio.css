@@ -1,0 +1,250 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   stance-studio.css — /my-stances, THE STANCE STUDIO
+   ───────────────────────────────────────────────────────────────────────────
+   SELF-SUFFICIENT BY NECESSITY. my-stances.html does not load app.css, so
+   there is no palette to inherit and every colour here is a literal. The one
+   thing that arrives from outside is the PER-ISSUE COLOUR, which
+   PDXIssueColors.skin() sets as inline custom properties on the element that
+   needs it — --pdx-ic, --pdx-ic-soft, --pdx-ic-wash, --pdx-ic-ink. That is why
+   there is not one per-issue rule in this file and never should be: 121 keys
+   of colour belong to the module that owns them.
+
+   TOUCH TARGETS ARE 44px MINIMUM on every control. This is a surface a voter
+   uses once, on a phone, probably standing up.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.pdx-ms-main { max-width: 46rem; margin: 0 auto; padding: 0 1rem 4rem; }
+
+/* The document's one h1. Small and quiet: the reader knows where they are,
+   and a display heading here would be the billboard this address replaced. */
+.mst-doc-h {
+  margin: 0.75rem 0 1rem;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+  font-size: 0.92rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: #8aa0c4;
+}
+
+/* ── The card every beat paints into ────────────────────────────────────── */
+.mst-card {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 0.9rem;
+  background: linear-gradient(180deg, rgba(17, 24, 42, 0.92), rgba(12, 18, 33, 0.92));
+  padding: 1.15rem 1.1rem 1.05rem;
+}
+/* THE ISSUE'S OWN COLOUR, AS A HAIRLINE AND A WASH, and only where an issue is
+   actually the subject of the card — the ask and done beats. A colour on the
+   pick beat would be a colour for twelve issues at once, which is no colour. */
+.mst-card[data-beat="ask"], .mst-card[data-beat="done"] {
+  border-color: var(--pdx-ic-soft, rgba(148, 163, 184, 0.3));
+  box-shadow: inset 0 2px 0 0 var(--pdx-ic, transparent);
+}
+
+.mst-eyebrow {
+  margin: 0 0 0.35rem;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--pdx-ic-ink, #9fb4d4);
+}
+.mst-h {
+  margin: 0 0 0.5rem;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+  font-size: 1.5rem; line-height: 1.15; color: #f1f5f9;
+}
+.mst-sub, .mst-line {
+  margin: 0 0 0.85rem;
+  font: 400 0.95rem/1.55 'Barlow', system-ui, sans-serif; color: #b6c6e0;
+}
+
+/* ── THE LOCKED SCOPE SENTENCE ──────────────────────────────────────────────
+   The most important text on this surface, and styled to say so: bigger than
+   the body copy, quoted against the issue's own wash, and never truncated. It
+   is the definition the reader is being asked to rule on, so a line-clamp here
+   would be asking someone to agree to terms that scroll out of view. */
+.mst-scope {
+  margin: 0 0 0.9rem; padding: 0.8rem 0.9rem;
+  border-left: 3px solid var(--pdx-ic, rgba(148, 163, 184, 0.5));
+  border-radius: 0 0.5rem 0.5rem 0;
+  background: var(--pdx-ic-wash, rgba(148, 163, 184, 0.08));
+  font: 400 1rem/1.6 'Barlow', system-ui, sans-serif; color: #e2e8f5;
+}
+.mst-scope--thin { color: #9fb4d4; font-style: italic; }
+.mst-mine {
+  margin: 0 0 0.8rem;
+  font: 400 0.85rem/1.5 'Barlow', system-ui, sans-serif; color: #9fb4d4;
+}
+.mst-mine b { color: #e2e8f5; }
+
+/* ── Chips ──────────────────────────────────────────────────────────────── */
+.mst-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0 0 1.1rem; }
+.mst-chip {
+  min-height: 44px; padding: 0.5rem 0.85rem;
+  border: 1px solid var(--pdx-ic-soft, rgba(148, 163, 184, 0.35));
+  border-radius: 999px;
+  background: var(--pdx-ic-wash, rgba(30, 41, 59, 0.6));
+  color: #e8eefb; cursor: pointer;
+  font: 600 0.9rem/1.2 'Barlow', system-ui, sans-serif;
+}
+.mst-chip:hover, .mst-chip:focus-visible {
+  border-color: var(--pdx-ic, #93c5fd);
+  background: var(--pdx-ic-soft, rgba(51, 65, 85, 0.8));
+}
+/* A STARTER THE READER ALREADY HOLDS A POSITION ON. It is marked, not hidden:
+   removing it would make the starter row change shape as positions accumulate,
+   and a reader looking for the issue they just set would find a gap. */
+.mst-chip.is-on { border-color: var(--pdx-ic, #93c5fd); box-shadow: inset 0 0 0 1px var(--pdx-ic, #93c5fd); }
+
+/* ── The library's held chips ───────────────────────────────────────────────
+   TWO LINES: the issue, and the side actually held. There is no variant of
+   this shape for an issue with no position — a dashed or greyed chip in this
+   row would read as a saved answer that is not one, which is the exact defect
+   this pass removes from /me. Nothing enters this row without a record. */
+.mst-chips--held { gap: 0.55rem; }
+.mst-held {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 0.15rem;
+  min-height: 44px; padding: 0.5rem 0.85rem;
+  border: 1px solid var(--pdx-ic-soft, rgba(148, 163, 184, 0.35));
+  border-left: 3px solid var(--pdx-ic, rgba(148, 163, 184, 0.6));
+  border-radius: 0.6rem;
+  background: var(--pdx-ic-wash, rgba(30, 41, 59, 0.6));
+  cursor: pointer; text-align: left;
+}
+.mst-held:hover, .mst-held:focus-visible { border-color: var(--pdx-ic, #93c5fd); }
+.mst-held-l { font: 700 0.92rem/1.2 'Barlow', system-ui, sans-serif; color: #f1f5f9; }
+.mst-held-p {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--pdx-ic-ink, #9fb4d4);
+}
+
+/* ── The search ─────────────────────────────────────────────────────────── */
+.mst-find { margin: 0 0 0.9rem; }
+.mst-find-l {
+  display: block; margin: 0 0 0.3rem;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: #8aa0c4;
+}
+.mst-q {
+  width: 100%; box-sizing: border-box; min-height: 44px;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 0.6rem;
+  background: rgba(8, 13, 25, 0.8); color: #f1f5f9;
+  font: 400 1rem/1.4 'Barlow', system-ui, sans-serif;
+}
+.mst-q:focus-visible { outline: 2px solid #93c5fd; outline-offset: 1px; }
+/* THE LESSON, and it is not fine print. This line is the difference between a
+   reader who can find any of 121 issues and one who can only find twelve. */
+.mst-help {
+  margin: 0.4rem 0 0;
+  font: 400 0.82rem/1.5 'Barlow', system-ui, sans-serif; color: #93a7c7;
+}
+.mst-hits { display: flex; flex-direction: column; gap: 0.35rem; margin: 0.6rem 0 0; }
+.mst-hit {
+  display: flex; flex-direction: column; gap: 0.2rem;
+  min-height: 44px; padding: 0.55rem 0.75rem;
+  border: 1px solid var(--pdx-ic-soft, rgba(148, 163, 184, 0.28));
+  border-left: 3px solid var(--pdx-ic, rgba(148, 163, 184, 0.55));
+  border-radius: 0.5rem;
+  background: rgba(15, 23, 42, 0.7);
+  cursor: pointer; text-align: left;
+}
+.mst-hit:hover, .mst-hit:focus-visible { border-color: var(--pdx-ic, #93c5fd); background: rgba(30, 41, 59, 0.85); }
+.mst-hit-l { font: 700 0.92rem/1.25 'Barlow', system-ui, sans-serif; color: #f1f5f9; }
+/* The sentence is what decides whether this is the issue the reader meant, so
+   it is IN the hit rather than behind it. Clamped to three lines here — and
+   only here — because a hit list is a list; the full sentence is one tap away
+   on the ask beat, where it is never clamped. */
+.mst-hit-s {
+  font: 400 0.8rem/1.45 'Barlow', system-ui, sans-serif; color: #9fb4d4;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+/* ── The three answers ──────────────────────────────────────────────────────
+   SUPPORT AND OPPOSE ARE THE SAME WEIGHT, THE SAME COLOUR AND THE SAME SIZE,
+   and this is stated rather than left to happen. A studio that painted Support
+   green and Oppose red would be leaning on the reader at the exact moment it
+   asks them to decide, and the whole value of the answer depends on it not
+   having been nudged. "Not sure" is visibly quieter because it is an exit, not
+   a third position — it writes nothing. */
+.mst-answers { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0 0 0.9rem; }
+.mst-ans {
+  flex: 1 1 8rem; min-height: 48px; padding: 0.7rem 1rem;
+  border-radius: 0.6rem; cursor: pointer;
+  font: 700 1rem/1.2 'Barlow', system-ui, sans-serif;
+}
+.mst-ans-for, .mst-ans-against {
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(30, 41, 59, 0.7);
+  color: #f1f5f9;
+}
+.mst-ans-for:hover, .mst-ans-for:focus-visible,
+.mst-ans-against:hover, .mst-ans-against:focus-visible {
+  border-color: #93c5fd; background: rgba(51, 65, 85, 0.9);
+}
+.mst-ans-unsure {
+  flex: 0 1 auto;
+  border: 1px dashed rgba(148, 163, 184, 0.3);
+  background: transparent; color: #9fb4d4; font-weight: 600;
+}
+.mst-ans-unsure:hover, .mst-ans-unsure:focus-visible { color: #cfe0f5; border-color: rgba(148, 163, 184, 0.5); }
+
+/* ── The primary, the count, the quiet exits ────────────────────────────── */
+.mst-act { margin: 0.9rem 0 0; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.mst-cta {
+  min-height: 48px; padding: 0.7rem 1.15rem;
+  border: 1px solid rgba(147, 197, 253, 0.5); border-radius: 0.6rem;
+  background: rgba(37, 99, 235, 0.22); color: #eaf2ff; cursor: pointer;
+  font: 700 1rem/1.2 'Barlow', system-ui, sans-serif;
+}
+.mst-cta:hover, .mst-cta:focus-visible { background: rgba(37, 99, 235, 0.34); border-color: #93c5fd; }
+.mst-cta--quiet {
+  background: transparent; border-color: rgba(148, 163, 184, 0.3); color: #cfe0f5;
+  font-weight: 600;
+}
+/* A LENGTH, NEVER A GRADE. There is no bar, no ring, no denominator and no
+   colour that changes as the number rises — every rule that could have grown
+   into a progress meter is absent, and that absence is the point. */
+.mst-count {
+  margin: 0.7rem 0 0;
+  font: 400 0.85rem/1.5 'Barlow', system-ui, sans-serif; color: #8aa0c4;
+}
+.mst-foot { margin: 0.85rem 0 0; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+.mst-quiet {
+  min-height: 44px; padding: 0.35rem 0; border: none; background: none;
+  color: #93c5fd; cursor: pointer; text-decoration: underline; text-underline-offset: 2px;
+  font: 400 0.88rem/1.4 'Barlow', system-ui, sans-serif;
+}
+.mst-quiet:hover, .mst-quiet:focus-visible { color: #dbeafe; }
+.mst-clear { color: #f0a4a4; }
+.mst-clear:hover, .mst-clear:focus-visible { color: #ffc9c9; }
+
+/* THE SEAT LINE. A fact and a door, never a name and never a number: this
+   document has no record engine, so it hands the reader to the one that does
+   rather than printing a person with nothing under them. */
+.mst-seat {
+  margin: 0.2rem 0 0; padding: 0.7rem 0.8rem;
+  border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 0.6rem;
+  background: rgba(15, 23, 42, 0.6);
+  font: 400 0.9rem/1.55 'Barlow', system-ui, sans-serif; color: #b6c6e0;
+}
+.mst-seat-a { color: #93c5fd; text-decoration: none; border-bottom: 1px solid rgba(147, 197, 253, 0.45); }
+.mst-seat-a:hover, .mst-seat-a:focus-visible { color: #dbeafe; }
+
+/* ── The door to the every-issue collection ─────────────────────────────── */
+.ms-door {
+  max-width: 46rem; margin: 1.25rem auto 0; padding: 0.9rem 0;
+  display: flex; align-items: baseline; justify-content: center; gap: 0.6rem; flex-wrap: wrap;
+}
+.ms-door-count { margin: 0; font: 400 0.82rem/1.5 'Barlow', system-ui, sans-serif; color: #8aa0c4; }
+.ms-door-more {
+  min-height: 44px; background: none; border: none; padding: 0; cursor: pointer;
+  font: 400 0.85rem/1.4 'Barlow', system-ui, sans-serif; color: #93c5fd;
+  text-decoration: underline; text-underline-offset: 2px;
+}
+.ms-door-more:hover, .ms-door-more:focus-visible { color: #dbeafe; }
+
+@media (max-width: 30rem) {
+  .mst-h { font-size: 1.3rem; }
+  .mst-ans { flex: 1 1 100%; }
+  .mst-ans-unsure { flex: 1 1 100%; }
+}

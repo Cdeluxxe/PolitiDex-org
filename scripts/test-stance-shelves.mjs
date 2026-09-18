@@ -135,13 +135,33 @@ ok(fs.existsSync(path.join(ROOT, 'my-profile.css')), 'my-profile.css still exist
 // ═════════════════════════════════════════════════════════════════════════════
 section('3 · the retired blocks are one line each, pointing at their address');
 // ═════════════════════════════════════════════════════════════════════════════
-const MS_START = INDEX.indexOf('<section id="my-stances"');
-must(MS_START >= 0, '#my-stances is gone — the door to /me has nothing to check');
-const MS = INDEX.slice(MS_START, INDEX.indexOf('<template', MS_START));
-has(MS, 'href="/me"', '#my-stances: the door still names the address that owns the file');
-has(MS, 'Your file', '#my-stances: the door reads as one line, not an eyebrow over a title');
-lacks(MS, 'ms-eyebrow', '#my-stances: the marketing eyebrow is gone');
-ok(count(MS, /<h2/g) === 1, '#my-stances: one heading in the door, not a stacked billboard');
+// #my-stances IS NOT A ONE-LINE DOOR ANY MORE. IT IS NOT ANYTHING.
+//
+// The section stood on this page in three shapes in turn: the whole stance
+// collection painted on every load of /, then the collection inert in a
+// <template> behind a one-line card, then — this pass — gone. The trims halved
+// the cost twice and never touched the defect underneath, which was that
+// `#my-stances` was a SCROLL OFFSET rather than an address. Every "go set a
+// position" door in the product ultimately meant "somewhere on the homepage",
+// and on a page this long /#my-stances landed a reader in Relevant-to-me.
+//
+// It is a document now: /my-stances, the stance studio. So the assertion is the
+// absence — checked on markup with the comments stripped out, because the
+// comment index.html leaves in its place necessarily quotes the section tag it
+// is explaining, and a raw-text probe would read the gravestone as the body.
+const INDEX_TAGS = INDEX.replace(/<!--[\s\S]*?-->/g, ' ');
+lacks(INDEX_TAGS, '<section id="my-stances"', '#my-stances: the section is gone from the homepage');
+lacks(INDEX_TAGS, 'id="ms-shell-tpl"', '#my-stances: the collection template went with it');
+lacks(INDEX_TAGS, 'id="ms-body"', '#my-stances: the collection mount went with it');
+lacks(INDEX_TAGS, 'ms-eyebrow', '#my-stances: the marketing eyebrow is gone');
+// AND THE OLD FRAGMENT STILL ARRIVES SOMEWHERE. The forward table at the top of
+// index.html runs before app.css and before 1.9 MB of parsing, and it uses
+// location.replace so Back still leaves rather than bouncing.
+has(INDEX, "'my-stances': '/my-stances'", '#my-stances: the old fragment is not forwarded, so a decade of bookmarks land nowhere');
+has(INDEX, "'my-views': '/my-stances'", '#my-views: the showcase fragment is not forwarded');
+// The prose that replaced the band says where it went, which is the point of
+// leaving prose rather than a blank line.
+has(INDEX, 'MY STANCES', '#my-stances: the homepage does not record where the section went');
 
 const SL_START = INDEX.indexOf('<section id="stance-library"');
 must(SL_START >= 0, '#stance-library is gone from the homepage — the module has no mount');

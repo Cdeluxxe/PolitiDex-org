@@ -301,6 +301,27 @@
     } else {
       issueV += '<span class="pdxdo-none">No Issue Spotlight covers this one yet.</span>';
     }
+    // THE READER'S OWN SIDE, ON THE ISSUE THEY ARE ALREADY LOOKING AT.
+    //
+    // A dossier row is a formal record on one issue. The thing a reader most
+    // often wants immediately after reading one is to say where THEY stand on
+    // that same issue — and until now there was nowhere on this row to do it,
+    // so they had to find the stance editor themselves and then find this
+    // issue inside it. That is two searches for a thing this row already knows
+    // the key of.
+    //
+    // ?issue=<key> is /my-stances' own deep link: the studio opens on that one
+    // issue, shows its locked scope sentence, and offers Support / Oppose /
+    // Not sure. It is a plain <a href> and NOT a verdict of any kind — it
+    // makes no claim about whether this politician agrees with the reader, and
+    // nothing on this row changes once a side is set. The record above is the
+    // record either way; /ballot is where the two meet.
+    // No key, no link: '?issue=' with nothing after it would open the studio on
+    // a question it cannot name, which is worse than not offering the door.
+    if (d.issueKey) {
+      issueV += '<a class="pdxdo-myside" href="/my-stances?issue=' +
+        encodeURIComponent(d.issueKey) + '">set your side on this issue \u2192</a>';
+    }
 
     // ⑤ outcome — the shared verdict vocabulary and a pointer at the ONE score.
     // No percentage is emitted here, by design. The judged count is named in the

@@ -617,11 +617,30 @@
   function rulerHtml(n, hasIssues, scored) {
     if (n < 2) return '';
     if (!hasIssues) {
+      // ONE LINE AND ONE LINK, AND THE LINK IS AN ADDRESS.
+      //
+      // There used to be a 12-chip first-run coach mounted on this desk for
+      // exactly this case: pick an issue, read its scope, take a side. It is
+      // gone, and so is the button that used to stand here calling
+      // PDXStances.open() with a location.assign fallback behind it. Both are
+      // replaced by an <a href> to /my-stances, which is the document that
+      // teaches positions and holds them.
+      //
+      // WHY THE DESK DOES NOT TEACH. A coach here and a coach there meant one
+      // job with two first-runs, two empty states and two ideas of what
+      // "saved" looks like — and the reader who arrived at the desk from a
+      // dossier met a different one than the reader who went to their stances
+      // directly. The desk's job on this line is to say, truthfully, that the
+      // field is not ranked and what would rank it. That is a sentence, and
+      // the sentence ends in the address where the answer is given.
+      //
+      // ?add=1 opens that document straight onto the issue picker instead of
+      // on an empty library, because a reader who taps THIS line has already
+      // said they want to add something.
       return '<p class="bw-ruler">This field is <b>not ranked</b> — ranking it needs your own positions. ' +
         'It is listed with the officeholder first, then alphabetically.' +
-        '<span class="bw-ruler-alt"><button type="button" class="bw-cand-name" style="font-size:0.72rem;"' +
-        ' onclick="if(window.PDXStances&&window.PDXStances.open)window.PDXStances.open();else location.hash=\'#my-stances\';">' +
-        'Set your positions to rank this seat ›</button></span></p>';
+        '<span class="bw-ruler-alt"><a class="bw-cand-name" style="font-size:0.72rem;"' +
+        ' href="/my-stances?add=1">Rank this field with your positions →</a></span></p>';
     }
     if (!scored) {
       return '<p class="bw-ruler">Your positions are set, but <b>no one in this field has a formal record</b> ' +
@@ -1194,9 +1213,11 @@
   // this one name — so a reader's choice is recorded, the address is corrected
   // and the desk repaints in that order, once, from a single place. There is no
   // second opener for a future arrival key to sneak past. (A sweep for the
-  // others named in this bug found none: location.hash is read on this desk only
-  // for the #my-stances jump, and no data-seat attribute reaches it — ?seat= is
-  // the one arrival key the workspace has.)
+  // others named in this bug found none: this desk reads no fragment at all any
+  // more — the '#my-stances' jump it used to answer is a real document now, at
+  // /my-stances, reached by an <a href> from the unranked line — and no
+  // data-seat attribute reaches it, so ?seat= is the one arrival key the
+  // workspace has.)
   window.pdxBallotWorkspaceOpen = function (seatKey) {
     var list = seats(), hit = null;
     var R = rs();

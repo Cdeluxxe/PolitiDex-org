@@ -578,6 +578,50 @@
   to = "/me.html"
   status = 200
 
+# THE STANCE STUDIO GETS ITS OWN DOCUMENT: /my-stances -> my-stances.html
+# ─────────────────────────────────────────────────────────────────────────────
+# WHAT THIS ADDRESS FIXES. Setting a position had no address. The editor lived
+# inside the homepage as <section id="my-stances">, so every module that wanted
+# to say "go set a side" said it as a scroll — PDXStances.open() called
+# scrollTo('my-stances'), and eight callers fell back to location.hash =
+# '#my-stances' when the module was absent. On any document that is not the
+# homepage that fallback is a no-op or, worse, a jump to whatever the homepage
+# happens to render at that offset: /#my-stances landed a reader in
+# Relevant-to-me. /ballot's "Set your positions" opened nothing at all, because
+# ballot.html deliberately does not carry my-stances.js. A surface that eight
+# other surfaces point at needs a URL, not an offset.
+#
+# WHY A DOCUMENT AND NOT A BETTER ANCHOR. The thing at this address teaches
+# itself: on a first visit it is a tutorial that walks one issue from "what do
+# you care about" to a saved side, and on every visit after it is the library of
+# what is on file. That is a page, it is linkable (?issue=<key>, ?add=1), it is
+# shareable, and it must be reachable from documents that will never load the
+# homepage. /stances, /evidence and /courts moved out of the homepage body for
+# the same reason and this follows their pattern exactly.
+#
+# ORDERING. Netlify is first-match-wins and this file declares exact paths only,
+# so /my-stances cannot be shadowed by /me above it. The invariant for whoever
+# adds a rule above this one: nothing matching /my-stances may be declared
+# earlier, and the day a prefix rule like /m/* or a catch-all appears, these two
+# exact paths must stay in front of it.
+[[redirects]]
+  from = "/my-stances"
+  to = "/my-stances.html"
+  status = 200
+
+# The trailing-slash form, declared rather than left to a redirect, so a pasted
+# /my-stances/ is the studio instead of a hop. It is ALSO why every same-origin
+# path inside my-stances.html is root-absolute, with no exceptions: served at
+# /my-stances/, a bare src="stance-studio.js" resolves to
+# /my-stances/stance-studio.js, this rule answers that with the HTML document,
+# the browser parses HTML as JavaScript, and the reader gets a studio that never
+# paints and no error that names the cause. ballot.html, me.html, stances.html
+# and evidence.html carry the same rule for the same reason.
+[[redirects]]
+  from = "/my-stances/"
+  to = "/my-stances.html"
+  status = 200
+
 # District Room deep-links. THIS BLOCK FIXES THE URL SHAPE FOR THE ROOM, and it
 # is the only shape used anywhere in this pass:
 #

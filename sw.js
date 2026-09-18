@@ -6726,7 +6726,54 @@
 //     voter-hub-location.js is untouched. Door 1 was not redesigned, finance is
 //     not scored, and /library, /library?mode=legislation, /money, /community,
 //     me.html, the H.R.1 teaching card and /p/<pid> answer as in v216.
-const CACHE_VERSION = 'v217';
+// v218 - /my-stances IS THE STANCE STUDIO, AND IT IS A DOCUMENT.
+//
+//     Three defects, one address. '#my-stances' was a FRAGMENT on the homepage,
+//     so every "go set a position" door resolved to a scroll position:
+//     /#my-stances landed readers in Relevant-to-me, /ballot's "Set your
+//     positions" could not open an editor at all (it was a <template> on a
+//     document the reader was not on), and /me painted three dashed chips over
+//     "Nothing on file yet." — a row meaning "a side you hold", holding none.
+//
+//     So the editor is a document. '/my-stances.html' joins SHELL_ASSETS with
+//     '/stance-studio.js' and '/stance-studio.css'; netlify.toml rewrites
+//     /my-stances and /my-stances/ to it. Two modes on one page: a reader with
+//     nothing on file gets a self-tutorial — twelve starter chips off real
+//     ISSUE_MAP keys, a typeahead over label AND locked scope sentence so
+//     "turf" reaches water conservation, then that ONE issue with its scope
+//     and Support / Oppose / Not sure — and a reader with sides gets the
+//     library they hold, search always visible, starters folded away.
+//     ?issue=<key> and ?add=1 are the deep links every door above uses.
+//
+//     OUT, IN THE SAME BREATH: door2-first-run.js and door2-first-run.css, the
+//     12-chip coach that did half this job inside the ballot desk. Two
+//     first-runs for one task is how two empty states drift. /ballot now READS
+//     positions and, having none, prints one line and one link.
+//
+//     NOTHING HERE IS SCORED. No politician percentage on this page, no party,
+//     no Direction Match, no completion meter — three saved positions changes a
+//     button's label, never a grade. "Not sure", "Skip" and "clear" write no
+//     key at all; `mixed` remains a real mixed position, not "I do not know".
+//     The studio reads NO record engine: consistency.js, the stance corpus and
+//     voter-hub-location.js are all absent from this document's critical path,
+//     which is why the whole of /my-stances is precacheable and a reader can
+//     take a side on a train.
+//
+//     MIGRATION COST: NONE. One store, the existing one — pdx_my_stances_v1
+//     through PDXStances, projecting into the alignment signature exactly as
+//     before. No third key, no new bucket: the studio's own state is memory
+//     plus the URL, so the only thing a reload forgets is which beat was on
+//     screen, never a position. Nothing stored is renamed, re-scoped, deleted
+//     or re-weighted, and a reader arriving with forty positions sees the
+//     library on first paint and is never re-asked an answered one.
+//
+//     DID NOT CHANGE. /me still reads its positions off the same store and now
+//     links out instead of mounting a second editor; me.html, ballot.html and
+//     index.html ship the same chrome minus the markup named above. No roster
+//     field, issue key, mapping, stance corpus, auth path or ingest changed;
+//     voter-hub-location.js is untouched, and /library, /money, /courts,
+//     /evidence and /p/<pid> answer exactly as in v217.
+const CACHE_VERSION = 'v218';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -6798,6 +6845,19 @@ const SHELL_ASSETS = [
   // the positions, the stars, the ballot picks and the saved receipts are all
   // localStorage, and none of them needed the network to be true.
   '/me.html',
+  // THE SEVENTH SHELL: the stance studio. netlify.toml rewrites /my-stances and
+  // /my-stances/ here. A SINGLE address again — the issue in hand is a query
+  // (?issue=<key>, ?add=1), so there is nothing per-issue to key and navDocKey
+  // gives it none.
+  //
+  // This one earns its place more plainly than the six above it: the document
+  // needs NO network to be correct. The vocabulary is ISSUE_MAP and
+  // issue-scope.js, both shell entries; the store is localStorage inline in the
+  // document; and the studio prints no match, so none of the 3.6 MB of record
+  // engine is on this path. A reader on a train can learn what an issue means,
+  // take a side on it, and have /ballot read that side against a formal record
+  // the next time it can.
+  '/my-stances.html',
   // The desk's own two files, and the ONLY two this pass adds beyond the document
   // — precached rather than left to the runtime bucket for the reason the shell
   // itself is: they are the whole of what paints /me. Everything else on that
@@ -6906,12 +6966,14 @@ const SHELL_ASSETS = [
   // is a list of buttons with no rail and no sense of progress — which is the
   // exact failure the feature exists to fix. Shipped with its script below.
   '/ballot-workspace.css',
-  // The Door 2 first-run coach's stylesheet. Shipped with its script below for
-  // the same reason as the two above: the coach's first screen is a row of issue
-  // chips and a typeahead, and unstyled that is an undifferentiated stack of
-  // buttons — the exact "which of these do I press" problem the coach exists to
-  // remove. Tiny, and it is the first thing a cold reader meets on /ballot.
-  '/door2-first-run.css',
+  // The stance studio's stylesheet — render-blocking on /my-stances, which is
+  // why it is precached rather than left to the runtime bucket. It replaces
+  // door2-first-run.css, which dressed the same twelve chips inside /ballot and
+  // is gone: the coach is a document now, not a card on the desk. Unstyled, the
+  // studio's first screen is an undifferentiated stack of buttons — the exact
+  // "which of these do I press" problem it exists to remove — and it is the
+  // first thing a reader with nothing on file ever meets.
+  '/stance-studio.css',
   // The Door 1 workspace's stylesheet, for the reason the version log above
   // gives at length: the sheet is what makes the desk two regions instead of a
   // column. Shipped with its script below.
@@ -7056,13 +7118,22 @@ const SHELL_ASSETS = [
   // every fact it prints — offline with one and not the other, the mount paints
   // nothing at all.
   '/ballot-workspace.js',
-  // Door 2's first-run coach: one issue, one position, then that issue read on
-  // whoever holds the open seat. Precached with the desk it mounts inside,
-  // because it paints a sibling of #bw-body and reads the desk's open seat —
-  // offline with the desk and without this, a cold reader gets the workspace
-  // with no way in; with this and without the desk it has no mount and paints
-  // nothing, which is the safe half of the pair to lose.
-  '/door2-first-run.js',
+  // The stance studio: the self-tutorial on /my-stances for a reader with
+  // nothing on file, and the library of held positions for a reader who has
+  // something. It replaces door2-first-run.js, which did the first half of that
+  // job inside the ballot desk — two first-runs for one task, and the desk's
+  // one could not be bookmarked, shared or linked per-issue.
+  //
+  // WHY IT IS PRECACHED WITH ITS DOCUMENT AND NOT WITH THE DESK. It reads
+  // ISSUE_MAP and issue-scope.js (both already entries below) and the reader's
+  // own store, and it reads NO record engine at all — nothing on this page
+  // needs consistency.js, the stance corpus or voter-hub-location.js, because
+  // the studio never prints a match. So the whole of /my-stances is shell
+  // assets: offline, a reader can still set a position, and the ballot reads it
+  // the next time the desk resolves. Without this file the document falls back
+  // to the every-issue collection in my-stances.js, which is a working editor
+  // and a worse teacher — the safe half of the pair to lose.
+  '/stance-studio.js',
   // Door 1's workspace: the mode rail, the one open desk, and the view strips
   // on the four older Door 1 surfaces. Precached with the modules it reads —
   // claim-check.js, issue-view.js, consistency.js, bill-detail.js and

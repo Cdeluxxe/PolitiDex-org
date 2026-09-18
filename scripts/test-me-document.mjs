@@ -278,7 +278,7 @@ const COPIES = [
   // an earlier edit to index.html shifts line numbers — when it does, the header
   // comment in me.html and this table move TOGETHER, which is the whole point of
   // pinning it in one place.
-  { from: "index.html", src: INDEX, a: 20900, b: 21322, what: "PDXSaved" },
+  { from: "index.html", src: INDEX, a: 20865, b: 21287, what: "PDXSaved" },
 ];
 // PDXSaved's declared range has now moved four times, always for the same
 // reason and always re-derived the same way: LOCATE THE 423-LINE RUN VERBATIM IN
@@ -299,6 +299,13 @@ const COPIES = [
 // the <script> tag Follow the Money's departure had taken with it — all four on
 // index.html, all four above PDXSaved. 21683-22105, and the run came back at
 // its full 423 lines again.
+// A SIXTH MOVE, UPWARD BY 35, for the stance-studio pass: <section
+// id="my-stances"> and its <template> — the 69-line band that was the last of
+// the stance collection still on the homepage — came out of index.html and were
+// replaced by a 34-line comment recording where they went (/my-stances, a
+// document, because the fragment was a scroll offset and never an address).
+// 20865-21287, re-derived by locating the run verbatim rather than by
+// subtracting 35 from the old numbers, and it came back at 423 lines again.
 for (const c of COPIES) {
   const header = new RegExp(`COPIED VERBATIM FROM ${c.from.replace(".", "\\.")} LINES ${c.a}[^0-9]{1,3}${c.b}`);
   ok(header.test(ME), `copy: me.html declares its ${c.what} block as ${c.from} ${c.a}–${c.b}`);
@@ -414,35 +421,45 @@ ok(/_workable/.test(DESK_CODE), "desk: the snapshot exposes its slate so a test 
 // ═════════════════════════════════════════════════════════════════════════════
 // 7 · THE HOMEPAGE DEMOTION
 // ═════════════════════════════════════════════════════════════════════════════
-section("7 · one editor — the wall is a card over a template");
+section("7 · one editor — and it is a document, not a band on the homepage");
 
-const msSection = INDEX.match(/<section id="my-stances"[\s\S]*?<\/section>/);
-ok(!!msSection, "homepage: the #my-stances section still exists — the address is not broken");
-const MS_SECTION = msSection ? msSection[0] : "";
-has(MS_SECTION, 'class="ms-closed"', "homepage: the band ships closed");
-has(MS_SECTION, 'id="ms-shell-tpl"', "homepage: the collection sits in a <template>");
-has(MS_SECTION, 'href="/me"', "homepage: the card names the address the file lives at");
-// #ms-body must exist ONLY inside the template. Outside it, my-stances.js's
-// init() would find a mount and paint the whole wall on every load of /.
-{
-  const tplStart = MS_SECTION.indexOf('<template id="ms-shell-tpl">');
-  const bodyAt = MS_SECTION.indexOf('id="ms-body"');
-  ok(tplStart >= 0 && bodyAt > tplStart, "homepage: #ms-body exists only inside the template");
-  eq((INDEX.match(/id="ms-body"/g) || []).length, 1, "homepage: there is exactly one #ms-body");
-}
-// The card states a COUNT or nothing. A reader with three saved positions is
-// not 37% of a voter.
-lacks(MS_SECTION, "%", "homepage: the card carries no percentage");
-ok(/position/.test(MS_SECTION), "homepage: the card's one line counts positions");
+// THE DEMOTION FINISHED. This section used to assert the last stop on the way
+// out: a one-line card on the homepage with the whole stance collection inert
+// in a <template> behind it, mounted only on a gesture. That halved the cost
+// and left the defect, which was that `#my-stances` was a SCROLL OFFSET and not
+// an address — /#my-stances landed a reader in Relevant-to-me, and /ballot's
+// "Set your positions" set a fragment naming no section on that document at
+// all. The collection is a document now (my-stances.html, with stance-studio.js
+// above it), so the homepage carries none of it.
+//
+// Comments stripped before the markup probes: the prose index.html leaves in
+// the section's place has to quote the tag it is explaining.
+const INDEX_TAGS = INDEX.replace(/<!--[\s\S]*?-->/g, " ");
+lacks(INDEX_TAGS, '<section id="my-stances"', "homepage: the stance band is gone");
+lacks(INDEX_TAGS, 'id="ms-shell-tpl"', "homepage: the collection template is gone");
+lacks(INDEX_TAGS, 'class="ms-closed"', "homepage: the closed band is gone");
+eq((INDEX_TAGS.match(/id="ms-body"/g) || []).length, 0,
+  "homepage: a mount for the collection survives, so my-stances.js would paint the whole wall on every load of /");
+// AND THE OLD FRAGMENT IS FORWARDED rather than dropped, from the table at the
+// top of this file that runs before app.css and 1.9 MB of parsing.
+has(INDEX, "'my-stances': '/my-stances'", "homepage: the old stance fragment is not forwarded");
+has(INDEX, "'my-views': '/my-stances'", "homepage: the showcase fragment is not forwarded");
 
-// AND THE COLLECTION IS STILL REACHABLE, because the priority editor lives
-// nowhere else and /me's Starred issues region links here to use it.
+// THE COLLECTION IS STILL REACHABLE, because the priority editor, the private
+// note and the public showcase live nowhere else — and /me's Starred issues
+// region links here to use them. It moved address; it did not lose its door.
 ok(/function mountShell\s*\(/.test(MS_CODE), "my-stances.js: a mount-on-request door exists");
 ok(/ms-shell-tpl/.test(MS_CODE), "my-stances.js: the door clones the template");
 ok(/if\s*\(!el\(MOUNT\)\)\s*mountShell\(\)/.test(MS_CODE),
   "my-stances.js: init() mounts before it looks for its mount, so PDXStances.open() still lands somewhere");
-ok(/hashchange[\s\S]{0,120}#my-stances/.test(MS_CODE),
-  "my-stances.js: a bookmarked #my-stances still opens the collection");
+has(MS_CODE, "/my-stances", "my-stances.js: the module does not know the address it now lives at");
+ok(!/location\.hash\s*=\s*['"]#my-stances/.test(MS_CODE),
+  "my-stances.js: the module still writes the fragment it stopped answering");
+ok(!/hashchange[\s\S]{0,120}#my-stances/.test(MS_CODE),
+  "my-stances.js: the fragment listener is back, which is the scroll-not-address defect");
+// AND THE TEMPLATE IS ON EXACTLY ONE DOCUMENT — its own.
+eq((R("my-stances.html").replace(/<!--[\s\S]*?-->/g, " ").match(/id="ms-shell-tpl"/g) || []).length, 1,
+  "my-stances.html: the collection template is not on the document that owns it, exactly once");
 // NO LAZY MOUNT. The IntersectionObserver deferred the cost of the wall; it
 // never avoided it, because every reader who scrolls the page scrolls past it.
 lacks(MS_CODE, "IntersectionObserver", "my-stances.js: the scroll-into-view mount is gone");

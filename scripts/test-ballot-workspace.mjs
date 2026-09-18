@@ -529,9 +529,25 @@ section("4 · The formal record is the ruler, and the panel says so");
   w.pdxBallotWorkspaceOpen(SEAT);
   const html = paint(w);
   has(html, "not ranked", "with no positions the panel still claims an order");
-  has(html, "Set your positions", "the panel does not say what would rank the field");
-  ok((html.match(/Set your positions/g) || []).length <= 2,
+  // ONE LINE AND ONE LINK, AND THE LINK IS AN ADDRESS.
+  //
+  // This used to read "Set your positions", which was the copy on a control
+  // that set `location.hash = '#my-stances'` — a fragment naming no section on
+  // this document, so the one button on the one screen that needs positions
+  // did nothing at all. /my-stances is the stance studio now, and the desk is
+  // explicitly forbidden to remount its twelve-chip tutorial here: a reader who
+  // needs positions gets a sentence and an anchor, and takes them where they
+  // are taught.
+  has(html, "Rank this field with your positions",
+    "the panel does not say what would rank the field");
+  has(html, '/my-stances', "the panel's prompt is not an address");
+  ok(!/location\.hash\s*=\s*['"]#my-stances/.test(html),
+    "the prompt still sets a fragment this document does not answer");
+  ok((html.match(/Rank this field with your positions/g) || []).length <= 2,
     "the no-positions prompt is repeated as a stack");
+  // The desk teaches nothing: no starter chips, no scope sentences, no wizard.
+  ok(!/mst-chip|mst-card|data-beat=/.test(html),
+    "the desk mounted the stance studio inside itself — /ballot reads positions, it does not run a second wizard");
   ok(!/class="bw-score-n"/.test(html), "the panel prints a match figure it cannot compute");
   has(html, "bw-field", "the field disappears when there are no positions");
 }

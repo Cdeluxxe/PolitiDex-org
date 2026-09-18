@@ -266,8 +266,8 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // locating the run, as always — the arithmetic agreed afterwards, which is the
 // order that catches a bad pin rather than confirming one.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 20244, b: 20268, what: "the .pdxis-stance* pill rules" },
-  { from: "index.html", src: INDEX, a: 20287, b: 20408, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 20209, b: 20233, what: "the .pdxis-stance* pill rules" },
+  { from: "index.html", src: INDEX, a: 20252, b: 20373, what: "the PDXStance vocabulary" },
 ];
 // Both index.html ranges have now moved THREE TIMES, and the third ran the other
 // way. The Digital Library split took #digital-library out of index.html but left

@@ -399,7 +399,7 @@ const sideOf = (chip) =>
 console.log("\n   test-me-snapshot — region b is a snapshot, not a form\n");
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("1 · zero positions: no form, a starter set, one door");
+section("1 · zero positions: no form, no ghosts, one address");
 // ═════════════════════════════════════════════════════════════════════════════
 const zero = bootDesk({ uid: "u_zero" });
 ok(!zero.__err, `the desk boots with an empty file (${zero.__err ? zero.__err.message : "ok"})`);
@@ -423,8 +423,8 @@ const z = regionOf(zero, "me-positions");
 must(z.length > 120, "region b did not paint for a reader with nothing on file");
 
 eq(zero.PDXMeDesk.positions().length, 0, "a reader with an empty file has positions on the desk");
-eq(chipsIn(z).filter((c) => !/me-pchip--start/.test(c)).length, 0,
-  "a reader who has answered nothing is shown answer chips");
+eq(chipsIn(z).length, 0,
+  "a reader who has answered nothing is shown chips in the row where a chip means a side held");
 
 // THE OCTET IS NOT HERE. Two independent tells, because either one alone can be
 // satisfied by markup that is still a form: the editor's own row class, and the
@@ -437,40 +437,50 @@ const sidesOnFace = sideWords.reduce(
   (n, w) => n + (String(z).match(new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g")) || []).length, 0);
 ok(sidesOnFace === 0,
   `region b prints ${sidesOnFace} side words for a reader with nothing on file — an empty desk offers no sides to choose`);
-// THE STARTERS ARE THE EDITOR'S OWN VOCABULARY, AND THEY ARE A HINT, NOT THE
-// DENOMINATOR. Three chips, every one of them a key the editor already offers —
-// a starter from anywhere else would be inviting the reader to answer a question
-// this module cannot save. What they are NOT is the size of the list: the count
-// beside them is over N_KEYS, and three starters on a 121-key vocabulary must
-// never print "of 3".
-const starters = zero.PDXMeDesk.starters();
-ok(starters.length >= 2 && starters.length <= 3,
-  `the zero state offers ${starters.length} starters — the brief asked for two or three`);
-starters.forEach((k) => {
-  ok(KEYS.indexOf(k) >= 0, `the starter "${k}" is not one of the keys the editor can save`);
-});
-eq(chipsIn(z).filter((c) => /me-pchip--start/.test(c)).length, starters.length,
-  "the starter chips painted do not match the starter set");
-has(z, "Set the rest in", "the zero state does not say where the other issues are set");
-has(z, 'href="/#my-stances"', "the zero state's one link is not the existing stance surface");
+// THERE ARE NO STARTER CHIPS HERE ANY MORE, AND THAT IS A FIX, NOT A LOSS.
+//
+// This region used to paint three dashed "starter" chips — housing, gun rights,
+// school choice — in the row directly above the sentence "Nothing on file yet."
+// Two things were wrong with them at once, and the second is the one that
+// mattered. A chip in this row means A SIDE YOU HOLD everywhere else on the
+// desk, so three chips holding no side made the row and the sentence beneath it
+// contradict each other, and the row is louder. And they were <li> elements
+// with no handler behind them: a reader who took the invitation and tapped one
+// got nothing at all. The honest empty state is a sentence, and the sentence
+// says what the one gesture is.
+//
+// WHERE THE GESTURE GOES. /my-stances is the stance studio now — a document
+// that opens on a self-tutorial when the file is empty, with twelve starter
+// chips of its own over both poles of every fight in them and a locked scope
+// sentence under each. Starters belong there, where tapping one asks a
+// question and saves an answer. They do not belong on a read-only desk.
+lacks(z, "me-pchip--start", "the desk paints starter chips again — a chip in this row means a side held");
+lacks(z, "me-yf-host", "the desk declares a mount for a second positions editor");
+has(z, "Nothing on file yet", "the empty desk does not say plainly that the file is empty");
+has(z, "it takes one tap", "the empty desk does not say what the one gesture costs");
 // NOT A SCOLD AND NOT A SCORE.
 lacks(z, "%", "the zero state prints a percentage");
 lacks(z, "incomplete", "the zero state tells the reader they are incomplete");
 lacks(z, "of 8", "the zero state prints a denominator over answers nobody gave");
-ok(String(z).indexOf("of " + starters.length) < 0,
-  "the zero state counts against its starter set, which would make three chips the universe of issues");
 
-// ONE DOOR, AND IT IS THE ONLY WAY THE EDITOR ARRIVES.
+// ONE DOOR, AND IT IS AN ADDRESS — not a mount, not a hash.
+//
+// "Set all issues" used to open your-file.js inline, under this region, on a
+// desk whose whole job is reading a file back. That left the product with two
+// editors for one store: two empty states, two first-runs, and one of them
+// wrong the day the other changed. It is now a plain <a href="/my-stances">,
+// which a middle click and a copy-link both handle correctly and which the
+// reader can press Back out of.
 has(z, "data-me-setall", "the zero state has no door to the editor");
 has(z, "Set all issues", "the door does not say where it goes");
 eq((String(z).match(/data-me-setall/g) || []).length, 1,
   "region b carries more than one door to the same editor");
-has(z, 'id="me-yf-host"', "the editor's host is not declared — the door would have nowhere to mount");
-const zHost = zero.document.getElementById("me-yf-host");
-must(!!zHost, "the editor's host is not findable by id — the door would have nowhere to mount");
-eq(String(zHost.innerHTML), "",
-  "the editor mounted itself without a gesture, which is the form again");
-eq(zHost.children.length, 0, "the editor's host already holds nodes before any gesture");
+has(z, 'href="/my-stances"', "the door is not an address — /my-stances is the document positions are set on");
+lacks(z, '#my-stances"', "the door is a fragment again, which is the scroll-not-address defect");
+must(typeof zero.PDXMeDesk.starters !== "function",
+  "me-desk.js publishes starters() again — the desk paints no starter chips, so nothing should ask it for any");
+ok(typeof zero.PDXMeDesk.openSetter !== "function",
+  "me-desk.js can still mount an editor of its own — /my-stances is the one editor");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("2 · two positions: those two, their own sides, and nothing else");
@@ -611,35 +621,42 @@ ok(!new RegExp(themedHex.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i").test(CSS_C
 // ═════════════════════════════════════════════════════════════════════════════
 section("5 · the door, the seat, and the bump");
 // ═════════════════════════════════════════════════════════════════════════════
-// THE DOOR OPENS THE OWNER'S EDITOR, AND THERE IS NO SECOND SETTER. me-desk.js
-// may not contain a setter of its own: the marker is that the only thing
-// openSetter() does about the editor is hand it a host.
+// THE DESK READS POSITIONS AND DOES NOT SET THEM, AND THE DOOR IS AN ADDRESS.
+//
+// What this section used to assert was that "Set all issues" mounted
+// your-file.js inline, under region b, into a #me-yf-host the desk declared —
+// and that the editor which arrived was the owner's markup rather than a copy.
+// The mount was the right answer to the wrong question. /my-stances is a
+// document now, so the product had two editors over one store: two empty
+// states, two first-runs, two places to learn the same lingo, and one of them
+// wrong the day the other changed. The desk kept the half it is good at.
+//
+// WHAT STILL HAS TO BE TRUE. The desk must read positions through their owner
+// rather than reaching into storage, and it must not write a side anywhere.
+// your-file.js itself is untouched by this pass — it still publishes
+// PDXYourFile and its own modal, and scripts/test-your-file.mjs still owns
+// that claim; the desk simply no longer mounts it.
 has(DESK_CODE, "PDXYourFile", "the desk does not reference the module that owns the positions");
-has(DESK_CODE, "inline(", "the door does not mount the owner's own editor");
 lacks(DESK_CODE, "data-pdxyf-pos",
   "me-desk.js writes the editor's side controls itself, which is a second owner of the reader's answers");
-ok(typeof zero.PDXMeDesk.openSetter === "function", "the desk exports no door to the editor");
-ok(zero.PDXMeDesk.isSetterOpen() === false, "the editor reports itself open before any gesture");
+lacks(DESK_CODE, "function openSetter", "the desk can still mount an editor of its own");
+lacks(DESK_CODE, "me-yf-host", "the desk still declares a host for a second editor");
+ok(typeof zero.PDXMeDesk.openSetter !== "function",
+  "the desk exports a mount for a second editor — the door is an <a href> now");
+ok(typeof zero.PDXMeDesk.isSetterOpen !== "function",
+  "the desk still reports on an inline editor it no longer has");
+must(!!zero.PDXMeDesk.positions, "the desk stopped exporting its read of the positions — this suite is stale");
 {
-  // The gesture, through the desk's own door rather than a synthesised click.
-  const opened = zero.PDXMeDesk.openSetter();
-  ok(opened === true, "the door did not mount the editor when it was asked to");
-  ok(zero.PDXMeDesk.isSetterOpen() === true, "the editor is not open after the door was used");
-  // THE OWNER'S OWN TWO NODES, by the ids your-file.js declares. That is the
-  // marker that the editor which arrived is the module's and not a copy: these
-  // ids exist in your-file.js and nowhere in me-desk.js.
-  const host = zero.document.getElementById("me-yf-host");
-  ok(!!host && host.children.length === 2,
-    `the editor's host holds ${host ? host.children.length : "no"} nodes after the door was used, not the owner's two`);
-  ok(!!zero.document.getElementById("pdx-your-file-head"),
-    "the editor's head did not mount, so the copy line the reader answers under is not on screen");
-  const yfBody = zero.document.getElementById("pdx-your-file-scroll");
-  ok(!!yfBody && String(yfBody.innerHTML).length > 200,
-    "the editor's rows did not paint into the host the door handed it");
-  // AND NOW the editor is legitimately on the page — asked for, in the owner's
-  // markup, in the owner's host. That is the whole difference this pass made.
-  has(String(yfBody.innerHTML), "pdxyf-row",
-    "the editor mounted without its own rows, so the door opened onto nothing");
+  // THE DOOR, READ OFF THE PAINT. One anchor, root-absolute, no fragment, and
+  // it survives a repaint — a reader who signs in and back out must not lose it.
+  const doorRegion = regionOf(zero, "me-positions");
+  const door = (String(doorRegion).match(/<a[^>]*data-me-setall[^>]*>/) || [])[0] || "";
+  ok(!!door, "the positions door is not an anchor any more");
+  has(door, 'href="/my-stances"', "the positions door does not name the document positions are set on");
+  ok(!/href="\/?#/.test(door), "the positions door is a fragment, which is the defect this pass removed");
+  zero.PDXMeDesk.render();
+  has(String(regionOf(zero, "me-positions")), 'href="/my-stances"',
+    "the positions door does not survive a repaint");
 }
 
 // LOG OUT LIVES ON THE DESK. The nav chip is one link now (test-me-menu-doors
