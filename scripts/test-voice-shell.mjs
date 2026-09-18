@@ -221,7 +221,7 @@ lacks(CODE, "location.pathname",
 // the seven copies it fences, and the three-room split had to re-derive every
 // one of them.
 {
-  const a = 1809, b = 1864;
+  const a = 1815, b = 1870;
   const slice = ME.split("\n").slice(a - 1, b).join("\n");
   has(VD, `COPIED VERBATIM FROM me.html LINES ${a}–${b}`,
     "auth: voice.html does not declare which lines of me.html its Firebase block is");

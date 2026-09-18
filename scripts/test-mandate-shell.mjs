@@ -221,7 +221,7 @@ lacks(CODE, "location.pathname",
 // recompute it by arithmetic. test-person-shell.mjs states the same rule for the
 // seven copies it fences, and this pass had to re-derive every one of them.
 {
-  const a = 1809, b = 1864;
+  const a = 1815, b = 1870;
   const ME = R("me.html");
   const slice = ME.split("\n").slice(a - 1, b).join("\n");
   has(MD, `COPIED VERBATIM FROM me.html LINES ${a}\u2013${b}`,

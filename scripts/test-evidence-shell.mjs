@@ -272,9 +272,18 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // firebase-boot.js never arrives. The pin is deliberately the WHOLE block,
 // opening script tag through the firebase-boot.js include, so a stub fix that
 // lands on one document and not the other fails here rather than in a room.
+//   AND ONCE MORE, UP BY 783, for the pass that took the curator's tools OFF
+// the front page rather than gating them there. The Bulk Import / Database
+// Expansion tool, the Politician Manager, the <template> that wrapped them, the
+// head CSS lock, the allow-list, the gate and the four gated nav rows all left
+// index.html for admin.html at /admin, and the front page lost 783 lines net.
+// Every one of those cuts is above this block, which is the only fact the pin
+// cares about; not a character of the block itself changed. Re-derived by
+// locating the run, as always — the arithmetic agreed afterwards, which is the
+// order that catches a bad pin rather than confirming one.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 21070, b: 21191, what: "the PDXStance vocabulary" },
-  { from: "person.html", src: PERSON, a: 2006, b: 2060, what: "the Firebase boot" },
+  { from: "index.html", src: INDEX, a: 20287, b: 20408, what: "the PDXStance vocabulary" },
+  { from: "person.html", src: PERSON, a: 2012, b: 2066, what: "the Firebase boot" },
 ];
 // The three-room split moved the index.html range by −2021 — /mandate, /voice
 // and /money took the agenda wall, the proposals wall and five inline blocks out

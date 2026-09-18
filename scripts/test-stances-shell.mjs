@@ -256,9 +256,18 @@ section("3 · the two copied blocks are byte-identical to index.html's");
 // shifts, the header comment in stances.html and this table move TOGETHER.
 const lines = (s) => String(s).split("\n");
 const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
+//   AND ONCE MORE, UP BY 783, for the pass that took the curator's tools OFF
+// the front page rather than gating them there. The Bulk Import / Database
+// Expansion tool, the Politician Manager, the <template> that wrapped them, the
+// head CSS lock, the allow-list, the gate and the four gated nav rows all left
+// index.html for admin.html at /admin, and the front page lost 783 lines net.
+// Every one of those cuts is above this block, which is the only fact the pin
+// cares about; not a character of the block itself changed. Re-derived by
+// locating the run, as always — the arithmetic agreed afterwards, which is the
+// order that catches a bad pin rather than confirming one.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 21027, b: 21051, what: "the .pdxis-stance* pill rules" },
-  { from: "index.html", src: INDEX, a: 21070, b: 21191, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 20244, b: 20268, what: "the .pdxis-stance* pill rules" },
+  { from: "index.html", src: INDEX, a: 20287, b: 20408, what: "the PDXStance vocabulary" },
 ];
 // Both index.html ranges have now moved THREE TIMES, and the third ran the other
 // way. The Digital Library split took #digital-library out of index.html but left

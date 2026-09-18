@@ -1265,7 +1265,7 @@
 })();
 </script>
 
-  <!-- ══ COPIED VERBATIM FROM person.html LINES 1405–1914 ══════════════════════
+  <!-- ══ COPIED VERBATIM FROM person.html LINES 1405–1920 ══════════════════════
        THE PROMISE LEDGER AND THE DEFERRED-EVENT CAPTURE. The second half is a
        HARD dependency, not a convenience: firebase-boot.js references the BARE
        identifiers _firestoreLoaded and _checkAndTrigger, so without this block
@@ -1737,7 +1737,13 @@
       if (typeof _populateDirData === 'function') {
         _populateDirData();
       }
-      // Update Database Expansion stats
+      // The curator's roster counter, if anything on this page ever defines it.
+      // It does not: expansion-controller.js owns updateExpansionStats() and it
+      // is injected by the gate on admin.html, which is where the tool that
+      // reads the counter lives now. The guard is kept rather than deleted
+      // because it is the one line that let that room move without this one
+      // throwing, and it is what would let a future roster surface on Home
+      // publish a count again without re-plumbing the data-load path.
       if (typeof updateExpansionStats === 'function') {
         updateExpansionStats();
       }
@@ -1788,7 +1794,7 @@
   }
 </script>
 
-  <!-- ══ COPIED VERBATIM FROM person.html LINES 2006–2029 ══════════════════════
+  <!-- ══ COPIED VERBATIM FROM person.html LINES 2012–2035 ══════════════════════
        FIREBASE. The three compat bundles, the request-time key injection, and
        the synchronous stub that guarantees `db` / `auth` / `PROFILES` exist
        before anything can touch them.
@@ -1862,7 +1868,7 @@
 </script>
 <script src="/firebase-boot.js" defer></script>
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 21683–22105 ═════════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 20900–21322 ═════════════════════
        PDXSaved — region e's store, and the reason region e is a list rather
        than a promise. It already existed: the All-Seeing Eye and the receipt
        cards write into it, it namespaces itself per account off

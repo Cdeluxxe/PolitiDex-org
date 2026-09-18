@@ -6647,7 +6647,40 @@
 //     floor and every cross-person ordering are as they were. /library,
 //     /library?mode=legislation, /money, /community, the 💰 chip and /p/<pid>
 //     all still answer from their own shells.
-const CACHE_VERSION = 'v215';
+// v216 - THE CURATOR'S TOOLS LEFT THE FRONT PAGE. HOME NO LONGER HOSTS THEM.
+//
+//     Home no longer hosts curator tools: the DATABASE EXPANSION / Bulk Import
+//     tool, its AI-Assisted Database Expansion panel and the Politician Manager
+//     were 650 lines of markup on index.html, and v215 wrapped them in an inert
+//     <template> behind a positive html.pdx-admin lock so no anonymous reader
+//     could see them — three locks that worked, on a room still built in the
+//     lobby. This pass moves the room: the markup, the <template>, the
+//     ADMIN_EMAILS allow-list, the gate, the four gated nav rows and the head
+//     lock are all gone from index.html, which now contains none of the strings
+//     DATABASE EXPANSION, BULK IMPORT MODE, AI-ASSISTED DATABASE or Ready for
+//     Discovery Scan in any case, in markup or comment, and mountAdminTools()
+//     no longer exists on that document to inject them. They live at /admin
+//     (admin.html, a new 1,207-line shell served by an exact rewrite pair with
+//     no splat), carrying the same three locks and the same one-address
+//     allow-list, noindex in its own head and by X-Robots-Tag, linked from
+//     nothing and absent from SHELL_ASSETS on purpose — nobody's phone should
+//     precache the curator's door, and index.html shrank 783 lines, which IS the
+//     gate. WHY THE BUMP: index.html is precached, so a warm v215 device would
+//     keep serving a front page whose DOM is one cleared style away from the
+//     expansion wall. No file joins or leaves SHELL_ASSETS; the 451 KB of admin
+//     JS is still injected on demand and is now named by no shell.
+//     MIGRATION COST: none — no stored record, key or mapping migrates, the
+//     allow-list is the same single address, and a curator who bookmarked
+//     /#database-expansion lands on the front page instead of a section, which
+//     is the one visible loss and is the point. DID NOT CHANGE: the file
+//     voter-hub-location.js is untouched (the tools never asked where the
+//     reader is), and nothing here is scored —
+//     Direction Match, Word vs Action, the formal pattern tiers, the publication
+//     floor and every cross-person ordering are as they were. /library,
+//     /library?mode=legislation, /money, /community, me.html, the H.R.1 teaching
+//     card, the restored footer script and /p/<pid> all answer exactly as in
+//     v215.
+const CACHE_VERSION = 'v216';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

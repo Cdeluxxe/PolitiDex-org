@@ -98,7 +98,7 @@
   <script defer src="/share-links.js"></script>
   <script defer src="/cmp-data.js"></script>
 
-  <!-- ══ COPIED VERBATIM FROM person.html LINES 1405–1914 ═════════════════
+  <!-- ══ COPIED VERBATIM FROM person.html LINES 1405–1920 ═════════════════
        THE PROMISE LEDGER AND THE FIRESTORE GATE. This block is on this document
        for one narrow, unavoidable reason: firebase-boot.js reads the BARE
        identifiers `_firestoreLoaded` and `_checkAndTrigger` (lines 208, 209,
@@ -582,7 +582,13 @@
       if (typeof _populateDirData === 'function') {
         _populateDirData();
       }
-      // Update Database Expansion stats
+      // The curator's roster counter, if anything on this page ever defines it.
+      // It does not: expansion-controller.js owns updateExpansionStats() and it
+      // is injected by the gate on admin.html, which is where the tool that
+      // reads the counter lives now. The guard is kept rather than deleted
+      // because it is the one line that let that room move without this one
+      // throwing, and it is what would let a future roster surface on Home
+      // publish a count again without re-plumbing the data-load path.
       if (typeof updateExpansionStats === 'function') {
         updateExpansionStats();
       }
@@ -633,7 +639,7 @@
   }
 </script>
 
-  <!-- ══ COPIED VERBATIM FROM person.html LINES 2006–2060 ═════════════════
+  <!-- ══ COPIED VERBATIM FROM person.html LINES 2012–2066 ═════════════════
        FIREBASE, ANONYMOUS ONLY — the three compat bundles, the request-time key
        injection, the synchronous stub that guarantees `db` / `auth` / `PROFILES`
        exist before anything can touch them, and the boot that signs in
@@ -698,7 +704,7 @@
 </script>
 <script src="/firebase-boot.js" defer></script>
 
-  <!-- ══ COPIED VERBATIM FROM person.html LINES 2063–2097 ═════════════════
+  <!-- ══ COPIED VERBATIM FROM person.html LINES 2069–2103 ═════════════════
        THE SPLIT SEAM. The same two stubs, unchanged, because the first of them
        is required here for the same reason and by the same file: stance-helpers
        .js ships on this document, it publishes window._pdxMandateChip, and it
@@ -751,7 +757,7 @@
   }
   </script>
 
-  <!-- ══ COPIED VERBATIM FROM person.html LINES 2115–2159 ═════════════════
+  <!-- ══ COPIED VERBATIM FROM person.html LINES 2121–2165 ═════════════════
        THE SHARE FURNITURE. Every tag here is an anchor that
        netlify/edge-functions/share-preview.ts regex-replaces at request time:
        <title>, name="description", the og:* and twitter:* pairs and
@@ -861,7 +867,7 @@
   <noscript><link rel="stylesheet" href="/mobile-polish.css" /></noscript>
 
 
-  <!-- ══ COPIED VERBATIM FROM person.html LINES 2222–2225 ═════════════════
+  <!-- ══ COPIED VERBATIM FROM person.html LINES 2228–2231 ═════════════════
        The two display faces and their non-blocking swap, unchanged: the wordmark
        above and the ledger's own headings are Bebas Neue and Barlow Condensed,
        and a swap that is written differently on one document is a visible font
@@ -1213,7 +1219,7 @@
        identical order and scripts/test-issue-shell.mjs can hold them to it. -->
   <script src="/profile-evidence.js"></script>
 
-  <!-- ══ COPIED VERBATIM FROM person.html LINES 3707–3903 ═════════════════
+  <!-- ══ COPIED VERBATIM FROM person.html LINES 3713–3909 ═════════════════
        THE PWA RUNTIME. Same registration, same first-install guard, same update
        handling — sw.js now precaches /issue.html and this document's module list,
        and serves an /i/ address from /issue.html rather than from the 2.3 MB

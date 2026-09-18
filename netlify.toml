@@ -1150,6 +1150,58 @@
   to = "/evidence"
   status = 301
 
+# ═════════════════════════════════════════════════════════════════════════════
+# /admin — THE CURATOR'S ROOM. THE ONE ADDRESS NOTHING ON THE SITE LINKS TO.
+#
+# WHAT MOVED AND WHY THERE IS A RULE AT ALL. The Bulk Import / Database
+# Expansion tool and the Politician Manager were 650 lines of markup on
+# index.html, gated three ways so no reader would see them. Three locks that
+# work are still three locks on a room built in the lobby, so the room moved to
+# admin.html and the front page no longer contains the markup, the allow-list,
+# or a link. This pair is how the curator gets there.
+#
+# NO SPLAT, AND IT IS THE SAME ARGUMENT /library MAKES, WITH MORE AT STAKE. The
+# gate on that document injects /admin-politician-manager.js and
+# /expansion-controller.js — 451 KB of JavaScript — by createElement, from
+# root-absolute paths. A /admin/* rule would answer /admin/expansion-controller.js
+# with admin.html: HTML handed to the browser as JavaScript, a tool that never
+# mounts, and no error naming the cause. Every same-origin path in admin.html is
+# root-absolute regardless, without exception, which is what makes the
+# trailing-slash form below safe; scripts/test-admin-shell.mjs fails the build on
+# a relative one and on any splat under this prefix.
+#
+# NOT INDEXED, THREE WAYS, none of which depends on the other two: admin.html
+# says noindex,nofollow in its own head, robots.txt is generated and does not
+# name it, and the header block further down sends X-Robots-Tag on this path.
+# There is no canonical on the document because a canonical publishes an
+# address, and this one is not published. It is also deliberately absent from
+# sw.js's SHELL_ASSETS — no reader's phone should precache the curator's door.
+#
+# ORDER: TWO PATHS, AND THE POSITION IS A STATED NO-OP. Both are disjoint by
+# inspection of the literal strings from /p/*, /i/*, /issue/*, /ballot, /me,
+# /stances, /evidence, /courts, /mandate, /voice, /money, /community*, /library,
+# /locker*, /vote/*, /d/* and /b/*, so declaring them here is correct and would
+# also have been correct anywhere else in the file. /api/* is a different prefix
+# and is untouched by both. THE INVARIANT, unchanged from the blocks above:
+# nothing that matches these paths may be declared earlier, and the day a
+# catch-all appears — an SPA "rewrite everything to index.html" is the one that
+# would silently eat them — these must stay in front of it. There is no catch-all
+# in this file today; that is a property to preserve.
+# ═════════════════════════════════════════════════════════════════════════════
+[[redirects]]
+  from = "/admin"
+  to = "/admin.html"
+  status = 200
+
+# The trailing-slash form, declared rather than left to a redirect, so a pasted
+# /admin/ is the room instead of a hop. Same root-absolute rule as /money,
+# /library and /community: served at /admin/, a bare src of a controller file
+# would resolve under that path and 404.
+[[redirects]]
+  from = "/admin/"
+  to = "/admin.html"
+  status = 200
+
 # /api/votes IS RETIRED, AND ON PURPOSE THERE IS NO RULE FOR IT HERE.
 #
 # Netlify's top-resources-not-found report for Aug 12 - Sep 11 put /api/votes at
@@ -1198,6 +1250,22 @@
     "https://le\\.utah\\.gov/.*",                 # official Utah legislature portraits
     "https://insurance\\.utah\\.gov/.*"           # official Utah agency portrait
   ]
+
+# THE CURATOR'S ROOM IS NOT CRAWLABLE, SAID AT THE EDGE AS WELL AS IN THE HEAD.
+# admin.html carries <meta name="robots" content="noindex, nofollow"> and the
+# generated robots.txt does not name the path. This is the third statement, and
+# it is the only one of the three a crawler gets before it parses anything — a
+# fetcher that reads headers and skips the body still learns the answer. Both
+# spellings, because both are live 200s.
+[[headers]]
+  for = "/admin"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/admin/"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
 
 # PWA service worker must never be served stale, or clients get stuck on an
 # old worker and miss shell updates. Force revalidation on every request.

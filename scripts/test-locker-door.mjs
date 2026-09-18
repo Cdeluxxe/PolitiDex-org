@@ -162,16 +162,19 @@ const EV_FIRST_PAINT = EV.slice(evSecStart, tplStart);  // what /evidence paints
   // So the assertion is an ALLOWLIST: every template on the page is a door this
   // repo has deliberately built, and an id nobody has justified fails here.
   const tplIds = [...BARE.matchAll(/<template\b[^>]*\bid="([^"]*)"/g)].map((m) => m[1]);
-  // pdx-admin-tools is the third deliberate one, and it is here for the same
-  // reason as the other two: a surface the homepage should not lay out on every
-  // load. The curator's DATABASE EXPANSION and politician manager were painting
-  // for anonymous visitors, so they were wrapped inert and are cloned into place
-  // only on the allowed branch of the admin gate. Inertness is the point of the
-  // wrapper — a template is parsed outside the document tree, so for everyone
-  // who is not the admin those sections are not in the accessibility tree and
-  // getElementById cannot reach them, which is a stronger guarantee than a
-  // display rule. A fourth id still fails here until somebody justifies it.
-  const KNOWN_TPL = ["ms-shell-tpl", "pdx-admin-tools"];
+  // BACK TO ONE, AND THE REMOVAL IS THE RECORD OF A ROOM LEAVING. For one pass
+  // this list also carried pdx-admin-tools: the curator's DATABASE EXPANSION and
+  // Politician Manager had been painting for anonymous visitors, so they were
+  // wrapped inert here and cloned into place only on the allowed branch of the
+  // front page's admin gate. That wrapper is not on this document any more —
+  // the tools are admin.html, served at /admin, and index.html no longer holds
+  // the markup, the template, the allow-list or a link to it. So the id comes
+  // back off the allowlist rather than being left in as a courtesy: an
+  // allowlist that still names a template nobody ships is an allowlist that
+  // would silently welcome it back. admin.html carries its own copy, and
+  // scripts/test-admin-shell.mjs is what fences the wrapper there. A third id
+  // still fails here until somebody justifies it.
+  const KNOWN_TPL = ["ms-shell-tpl"];
   const strays = tplIds.filter((id) => !KNOWN_TPL.includes(id));
   eq(strays.join(","), "", "index.html carries a <template> no door has justified");
   eq(tplIds.filter((id) => id === "el-workspace-tpl").length, 0,

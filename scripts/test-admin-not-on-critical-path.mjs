@@ -14,6 +14,14 @@
 // a byte of it. The admin gate now injects both, in their original order, the
 // first time an admin is actually recognized.
 //
+// AND THE GATE IS NOT ON index.html ANY MORE. The sections it drives moved to
+// admin.html, served at /admin, so this file's probes moved with them: the gate
+// is read out of that document, and index.html is now checked for the OPPOSITE —
+// that it declares no ADMIN_EMAILS at all. The critical-path claim in section 1
+// got wider rather than narrower in the process: it used to ask one document
+// whether it loads 451 KB of admin JS, and it now asks every shipped shell,
+// including admin.html itself, where the gate still has to be what fetches it.
+//
 // One piece of that pair was never admin-only: the data-hygiene layer behind
 // window._cleanProfiles(), which the PUBLIC directory and dashboard counts read
 // through. It lived inside expansion-controller.js for historical reasons, so
@@ -58,17 +66,35 @@ const must = (c, m) => { if (c) return; console.error(`✗ admin critical path: 
 const ADMIN = ["admin-politician-manager.js", "expansion-controller.js"];
 const INDEX = R("index.html");
 const HTML = INDEX.replace(/<!--[\s\S]*?-->/g, "");
+// The curator's room. Its gate is the one that fetches the pair now, and its
+// own markup is the one place either <section> exists.
+const ADMIN_DOC = R("admin.html");
+const ADMIN_HTML = ADMIN_DOC.replace(/<!--[\s\S]*?-->/g, "");
+// Every document this repo ships, so the "no sync tag" claim is about the site
+// rather than about one file. Read from disk and comment-stripped, because a
+// commented-out script tag is not a download.
+const SHELLS = readdirSync(ROOT)
+  .filter((f) => f.endsWith(".html"))
+  .map((f) => [f, R(f).replace(/<!--[\s\S]*?-->/g, "")]);
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("1 · neither controller is on the critical path");
 // ═════════════════════════════════════════════════════════════════════════════
 {
+  // EVERY SHELL, NOT JUST THE FRONT PAGE. admin.html is the interesting one: it
+  // is the document that legitimately drives these two files, and a tag there
+  // would hand 451 KB to anyone who merely guesses the address, before the
+  // allow-list has said a word.
+  must(SHELLS.length >= 10, `the shell sweep sees the repo (${SHELLS.length} documents)`);
+  must(SHELLS.some(([f]) => f === "admin.html"), "admin.html is not on disk — the curator's room moved or was renamed");
   for (const f of ADMIN) {
     const esc = f.replace(/\./g, "\\.");
-    ok(!new RegExp(`<script[^>]*src\\s*=\\s*["'][^"']*${esc}`).test(HTML),
-      `index.html has no <script src> for ${f} — 451 KB of admin JS on every visit`);
-    ok(!new RegExp(`<link[^>]*(preload|prefetch|modulepreload)[\\s\\S]{0,200}?${esc}`).test(HTML),
-      `index.html does not preload/prefetch ${f} — a warmed cache entry is still a download`);
+    for (const [doc, src] of SHELLS) {
+      ok(!new RegExp(`<script[^>]*src\\s*=\\s*["'][^"']*${esc}`).test(src),
+        `${doc} has a <script src> for ${f} — 451 KB of admin JS on a document load`);
+      ok(!new RegExp(`<link[^>]*(preload|prefetch|modulepreload)[\\s\\S]{0,200}?${esc}`).test(src),
+        `${doc} preloads/prefetches ${f} — a warmed cache entry is still a download`);
+    }
   }
   // The size claim in the retirement note is load-bearing, so keep it true-ish:
   // if these files ever shrink to nothing, the note should stop bragging.
@@ -80,11 +106,23 @@ section("1 · neither controller is on the critical path");
 section("2 · the admin gate is what fetches them");
 // ═════════════════════════════════════════════════════════════════════════════
 {
+  // ONE OWNER OF THE ALLOW-LIST, AND IT IS NOT THE FRONT PAGE. This is the half
+  // of the /admin split that a test can state outright: the string that decides
+  // who a curator is appears on admin.html and on no other document. When it was
+  // on index.html, drawing a gated nav link required the front page to hold an
+  // opinion about it; now the front page has none.
+  ok(!INDEX.includes("ADMIN_EMAILS"),
+    "index.html declares ADMIN_EMAILS again — the front page is deciding who an admin is");
+  for (const [doc, src] of SHELLS) {
+    if (doc === "admin.html") continue;
+    ok(!src.includes("ADMIN_EMAILS"), `${doc} carries a second copy of the admin allow-list`);
+  }
+
   // The gate is one inline IIFE. Pull it out by its own landmarks rather than by
   // line number so an edit above it cannot silently move the probe.
-  const start = INDEX.indexOf("var ADMIN_EMAILS");
-  must(start > 0, "index.html no longer declares ADMIN_EMAILS — the admin gate moved or was renamed");
-  const gate = INDEX.slice(start, INDEX.indexOf("</script>", start));
+  const start = ADMIN_DOC.indexOf("var ADMIN_EMAILS");
+  must(start > 0, "admin.html no longer declares ADMIN_EMAILS — the admin gate moved or was renamed");
+  const gate = ADMIN_DOC.slice(start, ADMIN_DOC.indexOf("</script>", start));
 
   for (const f of ADMIN) has(gate, f, `the gate injects ${f}`);
   has(gate, "adminModulesRequested", "the injection is once-only, not per auth event");
@@ -126,6 +164,12 @@ section("4 · the public data-hygiene layer stayed public");
   ok(existsSync(join(ROOT, "data-hygiene.js")), "data-hygiene.js exists");
   ok(/<script[^>]*src\s*=\s*["']\/data-hygiene\.js["']/.test(HTML),
     "index.html loads /data-hygiene.js synchronously — the public directory reads through it");
+  // IT DID NOT GO WITH THE TOOLS, AND IT DID NOT GET COPIED EITHER. The
+  // curator's room needs the same cleaned view the public directory needs, so
+  // admin.html links the same root-absolute file rather than either document
+  // owning a private copy of the de-duplication rules.
+  ok(/<script[^>]*src\s*=\s*["']\/data-hygiene\.js["']/.test(ADMIN_HTML),
+    "admin.html does not load /data-hygiene.js — the tools would de-duplicate against nothing");
   const hy = R("data-hygiene.js");
   has(hy, "window._cleanProfiles = function", "data-hygiene.js owns _cleanProfiles");
   has(hy, "window._dataHygiene", "…and the reported result alongside it");
@@ -169,22 +213,43 @@ section("5 · nothing outside the gate reaches an admin global unguarded");
     return false;
   };
 
-  // index.html, minus the two admin <section>s (markup inside them is only ever
-  // interactive for an admin, who has the modules by then).
-  const secStart = HTML.indexOf('<section id="database-expansion"');
-  const pmStart = HTML.indexOf('<section id="politician-manager"');
+  // THE EXCLUSION WINDOW MOVED, AND ON index.html THERE IS NO WINDOW LEFT. This
+  // used to carve the two admin <section>s and the gate out of the front page
+  // before scanning it, because markup inside them is only ever interactive for
+  // an admin, who has the modules by then. Neither the sections nor the gate is
+  // on that document any more, so the ENTIRE front page is scanned — a stricter
+  // test than the one it replaces, and the reason the guard on
+  // updateExpansionStats() in the data-load path still has to be there: on Home
+  // that call can now never resolve.
+  const scan = (label, src, lines) => {
+    for (const name of ADMIN_ONLY) {
+      const re = new RegExp(`(?<![\\w$.])${name}\\s*\\(`);
+      lines.forEach((ln, i) => {
+        if (!re.test(ln) && !ln.includes("window." + name)) return;
+        ok(guarded(lines, i, name),
+          `${label} calls the admin-only ${name}() outside the gate without a typeof guard — for a reader it is undefined`);
+      });
+    }
+  };
+  // A `//` LINE IS PROSE, NOT A CALL SITE, AND THE .js BRANCH BELOW ALREADY
+  // KNOWS THAT. index.html's data-load path keeps its typeof guard on
+  // updateExpansionStats() and explains in seven commented lines above the guard
+  // why the guard outlived the tool — one of those lines names the function with
+  // its parentheses, which the naive line scan read as an unguarded call three
+  // lines too high to see the guard. Blank the comment lines rather than the
+  // whole line array, so the indices the guard lookback walks stay the document's
+  // own and a real call on line N is still reported as line N.
+  const codeLines = (src) => src.replace(/^\s*\/\/.*$/gm, "").split("\n");
+  scan("index.html", HTML, codeLines(HTML));
+
+  // admin.html keeps a window, and it is the same two landmarks it always was.
+  const secStart = ADMIN_HTML.indexOf('<section id="database-expansion"');
+  const pmStart = ADMIN_HTML.indexOf('<section id="politician-manager"');
   must(secStart > 0 && pmStart > 0, "the admin sections were renamed — the exclusion no longer matches");
-  const gateEnd = HTML.indexOf("var ADMIN_EMAILS");
-  const publicHtml = HTML.slice(0, Math.min(secStart, pmStart)) + "\n" + HTML.slice(gateEnd);
-  const hLines = publicHtml.split("\n");
-  for (const name of ADMIN_ONLY) {
-    const re = new RegExp(`(?<![\\w$.])${name}\\s*\\(`);
-    hLines.forEach((ln, i) => {
-      if (!re.test(ln) && !ln.includes("window." + name)) return;
-      ok(guarded(hLines, i, name),
-        `index.html calls the admin-only ${name}() outside the gate without a typeof guard — for a reader it is undefined`);
-    });
-  }
+  const gateEnd = ADMIN_HTML.indexOf("var ADMIN_EMAILS");
+  must(gateEnd > pmStart, "admin.html's gate no longer sits after its sections — the exclusion window is inverted");
+  const publicAdmin = ADMIN_HTML.slice(0, Math.min(secStart, pmStart)) + "\n" + ADMIN_HTML.slice(gateEnd);
+  scan("admin.html", publicAdmin, codeLines(publicAdmin));
 
   for (const f of SHIPPED) {
     const lines = R(f).replace(/^\s*\/\/.*$/gm, "").split("\n");

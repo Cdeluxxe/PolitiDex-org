@@ -259,17 +259,26 @@ section("4 · the four copied stores are byte-identical to their origins");
 // instead of as a silent divergence nobody is looking for.
 const lines = (s) => String(s).split("\n");
 const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
+//   AND ONCE MORE, UP BY 783, for the pass that took the curator's tools OFF
+// the front page rather than gating them there. The Bulk Import / Database
+// Expansion tool, the Politician Manager, the <template> that wrapped them, the
+// head CSS lock, the allow-list, the gate and the four gated nav rows all left
+// index.html for admin.html at /admin, and the front page lost 783 lines net.
+// Every one of those cuts is above this block, which is the only fact the pin
+// cares about; not a character of the block itself changed. Re-derived by
+// locating the run, as always — the arithmetic agreed afterwards, which is the
+// order that catches a bad pin rather than confirming one.
 const COPIES = [
   { from: "person.html", src: PERSON, a: 288, b: 1271, what: "PDXStore" },
-  { from: "person.html", src: PERSON, a: 1405, b: 1914, what: "the promise ledger" },
-  { from: "person.html", src: PERSON, a: 2006, b: 2029, what: "firebase" },
+  { from: "person.html", src: PERSON, a: 1405, b: 1920, what: "the promise ledger" },
+  { from: "person.html", src: PERSON, a: 2012, b: 2035, what: "firebase" },
   // The one block whose origin is index.html rather than person.html: person.html
   // does not carry PDXSaved, and index.html is the origin of all four, so taking
   // it from the origin keeps the chain a chain. Its declared range moves whenever
   // an earlier edit to index.html shifts line numbers — when it does, the header
   // comment in me.html and this table move TOGETHER, which is the whole point of
   // pinning it in one place.
-  { from: "index.html", src: INDEX, a: 21683, b: 22105, what: "PDXSaved" },
+  { from: "index.html", src: INDEX, a: 20900, b: 21322, what: "PDXSaved" },
 ];
 // PDXSaved's declared range has now moved four times, always for the same
 // reason and always re-derived the same way: LOCATE THE 423-LINE RUN VERBATIM IN

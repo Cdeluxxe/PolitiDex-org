@@ -17,6 +17,19 @@
 //      in the document for every visitor, hidden by one inline style and
 //      revealed by one line of JavaScript. That is a reveal, not a gate.
 //
+//      AND THE FIX FOR (2) WAS REPLACED BY A BETTER ONE. The first pass wrapped
+//      the tools in an inert <template> behind a positive html.pdx-admin lock and
+//      cloned them only for the allowed account — three locks, each failing
+//      closed alone, and this suite ran the gate in a sandbox across six session
+//      states to prove it. The tools have since moved to admin.html, served at
+//      /admin, and the front page holds none of it: no markup, no template, no
+//      allow-list, no gate, no gated nav rows. So section 2 below asserts
+//      ABSENCE rather than gating, which is the one claim about Home that no
+//      failed stylesheet, stale service worker or reader-mode extension can
+//      turn back into a visible expansion wall. The behavioural simulation did
+//      not disappear with it — it moved to scripts/test-admin-shell.mjs, which
+//      runs the same gate against the document that now owns it.
+//
 //   3. THE LESSON BEHIND A DOOR. The H.R.1 teaching case lived only inside
 //      #hr1-showcase, which starts display:none inside #pdx-door-work, so the
 //      one thing most worth learning was the one thing a reader had to hunt for.
@@ -25,9 +38,9 @@
 //
 //   · Zero source text is visible in the body, and toggleFollowMoney is defined
 //     inside a real script block that parses.
-//   · The admin tools FAIL CLOSED. Anonymous and signed-in-non-admin get no
-//     admin markup in the document at all — not hidden, absent — and the gate
-//     removes it again when an admin signs out. The tools are gated, not gone.
+//   · The admin tools are NOT ON THIS DOCUMENT. Not gated, not hidden, not
+//     inert inside a template: absent. And not deleted either — admin.html has
+//     them, and scripts/test-admin-shell.mjs is what proves that end of it.
 //   · Home carries ONE compact H.R.1 card, outside #pdx-door-work, with 2–4
 //     issue chips the measure actually maps to, one control to the bill's own
 //     address, no percentage, no party and no second catalog.
@@ -122,127 +135,98 @@ has(R("profiles-full.js"), "toggleFollowMoney(",
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("2 · the admin tools fail closed for everyone who is not the admin");
+section("2 · the curator's tools are not on this document at all");
 // ═════════════════════════════════════════════════════════════════════════════
-const TPL_OPEN = '<template id="pdx-admin-tools">';
+// THE STRONGEST STATEMENT A TEST CAN MAKE ABOUT A SURFACE IS THAT IT IS NOT
+// THERE. Everything below is an absence, and every one of them used to be a
+// presence with a lock on it.
 {
-  const tplOpen = INDEX.indexOf(TPL_OPEN);
-  must(tplOpen > 0, "index.html no longer wraps the admin tools in <template id=\"pdx-admin-tools\">");
-  const tplClose = INDEX.indexOf("</template>", tplOpen);
-  must(tplClose > tplOpen, "the admin template is never closed");
-  for (const id of ["database-expansion", "politician-manager"]) {
-    const at = INDEX.indexOf(`<section id="${id}"`);
-    must(at > 0, `<section id="${id}"> was renamed — this suite no longer knows what it is guarding`);
-    ok(at > tplOpen && at < tplClose,
-      `#${id} is NOT inside <template id="pdx-admin-tools"> — it is in the document for every anonymous visitor`);
-    // Second lock: the parser's own inline style, on the copy that gets cloned.
-    const tag = INDEX.slice(at, INDEX.indexOf(">", at));
-    ok(/style="[^"]*display:\s*none/.test(tag), `#${id} lost its inline display:none — the second of three locks`);
+  // THE FOUR STRINGS THE BRIEF NAMED, CASE-INSENSITIVELY AND TWICE OVER: once
+  // against the visible body text the tokenizer above produced — which is what a
+  // signed-out reader can actually read, including anything a cleared style would
+  // reveal, because <template> content is markup and the tokenizer keeps it —
+  // and once against the RAW FILE, comments included. The second is stricter than
+  // the brief asks and it is the one that catches a relocation that left a
+  // commented-out copy behind, which is how 650 lines of markup usually die.
+  const BANNED = ["DATABASE EXPANSION", "BULK IMPORT MODE", "AI-ASSISTED DATABASE",
+                  "Ready for discovery scan"];
+  const upperVisible = visibleText.toUpperCase();
+  const upperFile = INDEX.toUpperCase();
+  for (const phrase of BANNED) {
+    const needle = phrase.toUpperCase();
+    ok(!upperVisible.includes(needle),
+      `a signed-out index.html paints ${JSON.stringify(phrase)} as visible body text — the expansion wall is back on Home`);
+    ok(!upperFile.includes(needle),
+      `index.html still contains ${JSON.stringify(phrase)} somewhere in the file — a commented-out or inert copy is still a copy`);
   }
-  // Third lock, and the one that holds at first paint: a POSITIVE rule in <head>,
-  // so the absence of the class hides rather than the presence of one revealing.
-  const headEnd = INDEX.indexOf("</head>");
-  const cssAt = INDEX.indexOf('<style id="pdx-admin-gate-css">');
-  must(cssAt > 0, "the head CSS lock (#pdx-admin-gate-css) is gone");
-  ok(cssAt < headEnd, "the admin CSS lock is not in <head> — a rule that arrives after first paint is a flash of curator chrome");
-  const css = INDEX.slice(cssAt, INDEX.indexOf("</style>", cssAt));
-  for (const sel of ["html:not(.pdx-admin) #database-expansion",
-                     "html:not(.pdx-admin) #politician-manager",
-                     "html:not(.pdx-admin) [data-admin-only]"]) {
-    has(css, sel, "the CSS lock does not cover it");
+
+  // THE MACHINERY, EACH PIECE BY NAME. Markup is checked against the
+  // comment-stripped document, because this file's own prose has to be able to
+  // say "data-admin-only" while explaining why there is no longer one.
+  const MARKUP = INDEX.replace(/<!--[\s\S]*?-->/g, "");
+  for (const needle of ['<template id="pdx-admin-tools">',
+                        '<section id="database-expansion"',
+                        '<section id="politician-manager"',
+                        '<style id="pdx-admin-gate-css">',
+                        "data-admin-only",
+                        "pdx-navmenu__item--admin"]) {
+    ok(!MARKUP.includes(needle),
+      `index.html still carries ${JSON.stringify(needle)} — the curator's markup did not leave the front page`);
   }
-  has(css, "!important", "the CSS lock does not outrank an inline style, so clearing one reveals the tools");
-  // The tools are GATED, NOT DELETED — the brief's own line.
-  for (const marker of ["AI-Assisted Database Expansion", "Bulk Import", "id=\"politician-manager\""]) {
-    has(INDEX, marker, "the admin tool itself was deleted rather than gated");
+  // …and the code. mountAdminTools() must not exist here to inject anything,
+  // which is the brief's own line, and ADMIN_EMAILS must not exist here to
+  // decide anything.
+  for (const needle of ["ADMIN_EMAILS", "mountAdminTools", "unmountAdminTools",
+                        "applyAdminGate", "loadAdminModules", "isAdminUser"]) {
+    ok(!INDEX.includes(needle),
+      `index.html still defines or names ${needle} — the front page still holds an opinion about who a curator is`);
   }
+  // No [data-admin-only] element means no querySelectorAll over it either, and
+  // no `.pdx-admin` class to switch on. Checked on the raw file: a live line and
+  // a leftover line look identical to a browser.
+  ok(!/classList\.(?:add|remove|toggle)\(\s*['"]pdx-admin['"]/.test(INDEX),
+    "index.html still toggles the .pdx-admin class — the front page still has an admin state");
+
+  // THE FRONT PAGE DOES NOT ADDRESS THE 451 KB PAIR. Section 1 of
+  // test-admin-not-on-critical-path.mjs owns the script-tag claim for every
+  // shell; this is the companion that belongs next to the absences above, and
+  // it is about ADDRESSES rather than mentions. Prose may name the two files —
+  // the note above the data-hygiene tag has to, to explain where they went, and
+  // so does the guard left on updateExpansionStats() — but nothing on this
+  // document may hold either one in a quoted path, which is the only form a
+  // browser can act on. Checked against the whole raw file, comments included,
+  // because a quoted path inside a JS comment is one uncomment away from a
+  // fetch.
+  for (const f of ["admin-politician-manager.js", "expansion-controller.js"]) {
+    // A quote, then nothing but path characters, then the file name: that is a
+    // path and an apostrophe three words earlier in a sentence is not.
+    const esc = f.replace(/\./g, "\\.");
+    ok(!new RegExp(`["'\`][\\w./-]*${esc}`).test(INDEX),
+      `index.html holds /${f} in a quoted path — the front page can still fetch the curator's controllers`);
+  }
+  // …but the public hygiene layer STAYED. It was never admin-only, and the
+  // directory and the dashboard counts read through it.
+  has(INDEX, 'src="/data-hygiene.js"',
+    "index.html stopped loading /data-hygiene.js — the tools took the public de-duplication layer with them");
 }
 
-// THE GATE, RUN. Static shape is not the assertion that matters here; what
-// matters is what the gate DOES for four states in the order a real session
-// produces them: first paint with no user, an anonymous session, a signed-in
-// non-admin, the admin, and then the admin signing out again.
+// RELOCATED, NOT DELETED — the brief's own line, and the half of it this suite
+// can still see from here. The tools have to be SOMEWHERE, and the somewhere has
+// to be one place. Deep assertions about that document belong to
+// scripts/test-admin-shell.mjs; these three are the seam between the two suites,
+// so that deleting the room cannot pass as cleaning the front page.
 {
-  const at = INDEX.indexOf("var ADMIN_EMAILS");
-  must(at > 0, "index.html no longer declares ADMIN_EMAILS — the gate moved or was renamed");
-  const open = INDEX.lastIndexOf("<script>", at);
-  const code = INDEX.slice(open + "<script>".length, INDEX.indexOf("</script>", at));
-
-  const run = () => {
-    const state = { mounted: 0, unmounted: [], cls: new Set(), injected: [], sections: {}, links: [{ style: {} }, { style: {} }] };
-    const mkSection = (id) => ({
-      id, style: { display: "none" },
-      parentNode: { removeChild(el) { state.unmounted.push(el.id); delete state.sections[el.id]; } },
-    });
-    const tpl = {
-      id: "pdx-admin-tools",
-      content: { cloneNode: () => ({ nodeType: 11 }) },
-      parentNode: {
-        insertBefore() {
-          state.mounted++;
-          for (const id of ["database-expansion", "politician-manager"]) state.sections[id] = mkSection(id);
-        },
-      },
-    };
-    const document = {
-      readyState: "complete",
-      documentElement: { classList: { add: (c) => state.cls.add(c), remove: (c) => state.cls.delete(c), contains: (c) => state.cls.has(c) } },
-      head: { appendChild(el) { state.injected.push(el.src); if (el.onload) el.onload(); } },
-      body: { appendChild() {} },
-      getElementById: (id) => (id === "pdx-admin-tools" ? tpl : state.sections[id] || null),
-      querySelectorAll: (s) => (s === "[data-admin-only]" ? state.links : []),
-      createElement: () => ({}),
-      addEventListener() {}, removeEventListener() {},
-    };
-    const auth = { currentUser: null, onAuthStateChanged(cb) { state.fire = cb; } };
-    const sandbox = { window: {}, document, auth, console: { warn() {}, log() {}, error() {} }, setTimeout, clearTimeout };
-    sandbox.window.document = document;
-    new vm.Script(code, { filename: "index.html#admin-gate" }).runInNewContext(sandbox);
-    must(typeof state.fire === "function", "the gate never registered an auth listener, so this simulation proves nothing");
-    return state;
-  };
-
-  const s = run();
-  // First paint, no user at all.
-  ok(s.mounted === 0, "first paint with no user MOUNTED the admin tools");
-  ok(!s.cls.has("pdx-admin"), "first paint with no user put .pdx-admin on <html>");
-  ok(s.injected.length === 0, "first paint with no user fetched the 451 KB admin pair");
-  ok(s.links.every((l) => l.style.display === "none"), "the admin nav links are visible with no user signed in");
-
-  // An anonymous session, then a signed-in non-admin. Neither is the admin.
-  for (const [user, who] of [[{ isAnonymous: true, email: null }, "an anonymous session"],
-                             [{ isAnonymous: false, email: "voter@example.com" }, "a signed-in non-admin"],
-                             [{ isAnonymous: false, email: "CDELUXXE@GMAIL.COM.evil.test" }, "a lookalike address"]]) {
-    s.fire(user);
-    ok(s.mounted === 0, `${who} mounted the admin tools`);
-    ok(!s.cls.has("pdx-admin"), `${who} got .pdx-admin on <html>`);
-    ok(s.injected.length === 0, `${who} fetched the admin modules`);
-    ok(s.sections["database-expansion"] === undefined,
-      `${who} can reach #database-expansion with getElementById — the markup is in the document`);
+  let ADMIN_DOC = null;
+  try { ADMIN_DOC = R("admin.html"); } catch (e) { /* reported below */ }
+  must(ADMIN_DOC, "admin.html does not exist — the curator's tools were deleted rather than moved");
+  for (const marker of ["AI-Assisted Database Expansion", "Bulk Import",
+                        'id="politician-manager"', '<template id="pdx-admin-tools">',
+                        "var ADMIN_EMAILS"]) {
+    has(ADMIN_DOC, marker, "admin.html does not carry the relocated tool — the move lost it");
   }
-
-  // The admin, in both letter cases Firebase can hand back.
-  for (const email of ["Cdeluxxe@gmail.com", "cdeluxxe@gmail.com"]) {
-    const a = run();
-    a.fire({ isAnonymous: false, email });
-    ok(a.mounted === 1, `the admin (${email}) did not get the tools mounted exactly once (got ${a.mounted})`);
-    ok(a.cls.has("pdx-admin"), `the admin (${email}) did not get .pdx-admin on <html>`);
-    ok(a.links.every((l) => l.style.display === ""), `the admin (${email}) still has the admin nav links hidden`);
-    ok(a.sections["database-expansion"] && a.sections["database-expansion"].style.display === "",
-      `the admin (${email}) got the section mounted but still display:none`);
-    ok(a.injected.join(",") === "/admin-politician-manager.js,/expansion-controller.js",
-      `the admin (${email}) did not fetch both modules in order — got ${JSON.stringify(a.injected)}`);
-    // Signing out must take the markup back out of the document.
-    a.fire(null);
-    ok(!a.cls.has("pdx-admin"), "signing out left .pdx-admin on <html>");
-    ok(a.unmounted.sort().join(",") === "database-expansion,politician-manager",
-      `signing out left admin markup standing — removed ${JSON.stringify(a.unmounted)}`);
-    ok(a.sections["politician-manager"] === undefined,
-      "signing out left #politician-manager reachable by getElementById");
-    // And a second admin sign-in remounts rather than leaving a blank hole.
-    a.fire({ isAnonymous: false, email });
-    ok(a.mounted === 2, "a second admin sign-in did not remount the tools");
-  }
+  const TOML = R("netlify.toml");
+  has(TOML, 'from = "/admin"', "there is no /admin rewrite, so the relocated tools have no address");
+  has(TOML, 'to = "/admin.html"', "the /admin rewrite does not point at the curator's document");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -334,4 +318,4 @@ if (failures.length) {
   failures.forEach((f) => console.error(`   · ${f}`));
   process.exit(1);
 }
-console.log(`✓ home hygiene: no source text in the body, the curator tools fail closed, one H.R.1 card in the open — ${passed} assertions passed\n`);
+console.log(`✓ home hygiene: no source text in the body, no curator tools on the page at all, one H.R.1 card in the open — ${passed} assertions passed\n`);
