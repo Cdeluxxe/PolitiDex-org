@@ -6606,7 +6606,48 @@
 //     Action, the formal pattern tiers, the publication floor and every
 //     cross-person ordering are untouched. /money and /community still answer
 //     200 from their own shells; the 💰 chip and /p/<pid> are untouched.
-const CACHE_VERSION = 'v214';
+// v215 - HOME HYGIENE. THREE DEFECTS ON THE FRONT PAGE, NO NEW ROOM.
+//
+//     WHAT CHANGED, ALL OF IT ON index.html. (1) The footer leak: when Follow
+//     the Money left for /money, the deleted leaderboard IIFE took the opening
+//     <script> tag of the block it shared with window.toggleFollowMoney, so the
+//     browser painted that function's SOURCE as text under the footer and the
+//     name was never defined — the 💰 button in the profile modal threw on
+//     click. The tag is restored; the function is unchanged, because
+//     profiles-full.js still calls it by name. (2) The admin tools fail closed:
+//     DATABASE EXPANSION / Bulk Import / AI-Assisted Database Expansion and the
+//     Politician Manager now ship inert inside <template id="pdx-admin-tools">
+//     and are CLONED into the document only when the admin account is
+//     recognized, behind a positive html.pdx-admin CSS lock in the head. An
+//     anonymous or non-admin reader no longer has that markup in the DOM, the
+//     accessibility tree, find-in-page or reader mode. Nothing was deleted, and
+//     the 451 KB of admin JS stays gated as before. (3) The H.R.1 lesson is
+//     visible: one compact card above Door 1 — kicker, title, one sentence of
+//     civics, four issue chips, one control to the bill's own address — outside
+//     #pdx-door-work, so no door has to be opened to read it.
+//
+//     WHY THE BUMP. index.html is precached. A warm v214 device would keep
+//     serving the front page that paints raw JavaScript under the footer and
+//     carries the curator sections in its DOM for every visitor — the two
+//     defects this deploy exists to fix. No file joins or leaves SHELL_ASSETS:
+//     no module was added, none moved, library.html and digital-library.js stay
+//     exactly where v214 put them, and the runtime bucket is untouched.
+//
+//     MIGRATION COST: none. No stored record, key or mapping migrates, and the
+//     admin allow-list is the same one address it was. #hr1-showcase is still
+//     the deep read at its own anchor, still opened by the 🏛️ Door 1 chip and
+//     the nav item through pdxOpenSurface(); the card is a summary beside it,
+//     not a second copy, and it is not folded into /library this pass.
+//
+//     DID NOT CHANGE. The card prints no percentage, no party and no verdict:
+//     nothing on it is computed. No roster field, issue key, stance, mapping,
+//     auth path or ingest changed, and voter-hub-location.js is untouched — the
+//     lesson is the same measure wherever the reader is. Nothing here is scored:
+//     Direction Match, Word vs Action, the formal pattern tiers, the publication
+//     floor and every cross-person ordering are as they were. /library,
+//     /library?mode=legislation, /money, /community, the 💰 chip and /p/<pid>
+//     all still answer from their own shells.
+const CACHE_VERSION = 'v215';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -316,9 +316,28 @@ function runRouter(over) {
       `the word "${w}" appears in Door 1's entry system. The doors sort by intent, never by side`);
   }
   // No second score and no bare figure. A door is a direction, not a reading.
-  ok(!/%/.test(chooser),
+  //
+  // Measured in two halves, because the entry system now carries a real link —
+  // the H.R.1 teaching card's "Open the bill" points at /b/119/H.R.%201, and a
+  // measure whose printed number contains a space has a percent-escape in its
+  // address. A flat /%/ over the whole region read that escape as a reading and
+  // failed, which is a proxy catching the wrong thing: a percent-encoded octet
+  // inside an href is not a figure, and refusing it would mean either an address
+  // that does not resolve or no link at all. So the URL-bearing attributes are
+  // set aside and checked on their own terms, and the rest of the region — every
+  // word a visitor can read, every label, every script — still refuses a percent
+  // outright. "73%" is caught wherever it is written, including inside an href,
+  // because a percentage is never a valid two-hex-digit escape.
+  const urls = chooser.match(/\b(?:href|src|action|data-[a-z-]+)="[^"]*"/g) || [];
+  const chooserProse = chooser.replace(/\b(?:href|src|action|data-[a-z-]+)="[^"]*"/g, "");
+  ok(!/%/.test(chooserProse),
     "a percentage appeared in Door 1's entry system. Every figure on this site carries its\n" +
     "    denominator on the surface that computes it, and a navigation control computes nothing");
+  for (const u of urls) {
+    ok(!/%(?![0-9A-Fa-f]{2})/.test(u),
+      `an address in Door 1's entry system carries a percent that is not an escape: ${u}\n` +
+      "    Either a figure is hiding in a URL, or the address is malformed — both are wrong here");
+  }
   for (const w of ["Direction Match", "consistency score", "grade"]) {
     ok(chooser.indexOf(w) === -1,
       `"${w}" appears in the entry system. The doors state no verdict about anyone — they open the\n` +

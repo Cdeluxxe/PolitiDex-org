@@ -351,11 +351,11 @@ const COPIES = [
   [1936, 2010, "PDXLazy"],
   [2012, 2032, "the Firebase compat bundles, the key injection, the stub and firebase-boot.js"],
   [2174, 2220, "the share furniture share-preview.ts rewrites"],
-  [3702, 3766, "the crawl-header guard"],
-  [14114, 14148, "the profile modal down to #modal-content"],
-  [14209, 14256, "the stance popover, the record overlay and the share sheet"],
-  [20956, 21077, "PDXStance"],
-  [23566, 23764, "the PWA runtime and the service-worker registration"],
+  [3715, 3779, "the crawl-header guard"],
+  [14219, 14253, "the profile modal down to #modal-content"],
+  [14314, 14361, "the stance popover, the record overlay and the share sheet"],
+  [21070, 21191, "PDXStance"],
+  [23680, 23878, "the PWA runtime and the service-worker registration"],
 ];
 // THESE NUMBERS ARE ANCHORS INTO index.html AND THEY MOVE WHEN IT DOES. The
 // ones re-based here were re-based by the fourth split, which lifted the ballot
@@ -483,6 +483,17 @@ const COPIES = [
 // back byte-identical at their original numbers, which is the check on the
 // method one more time. Re-derived by locating each run verbatim in the new
 // file, never by adding a diff's line count to an old number.
+//
+// HOME HYGIENE MOVED THEM BY FOUR DIFFERENT AMOUNTS AT ONCE, which is the
+// cleanest argument in this file against arithmetic. Nothing left index.html
+// and nothing arrived from it; four unrelated repairs were inserted at four
+// depths. Below the head's new admin-gate CSS lock the shift is +13. Below the
+// H.R.1 teaching card above Door 1 and the <template> that now wraps the two
+// admin expansion sections it is +105. Below the restored <script> tag — the one
+// Follow the Money's departure took with it, whose absence was painting raw
+// JavaScript under the footer — it is +114. And the six anchors above the head
+// lock did not move at all. One number added to all twelve would have been
+// wrong eleven times. Each was re-derived by locating its run verbatim.
 for (const [a, b, what] of COPIES) {
   const slice = idxLines.slice(a - 1, b).join("\n");
   ok(slice.split("\n").length === b - a + 1 && slice.trim().length > 0,

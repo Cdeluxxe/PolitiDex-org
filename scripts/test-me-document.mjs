@@ -269,7 +269,7 @@ const COPIES = [
   // an earlier edit to index.html shifts line numbers — when it does, the header
   // comment in me.html and this table move TOGETHER, which is the whole point of
   // pinning it in one place.
-  { from: "index.html", src: INDEX, a: 21569, b: 21991, what: "PDXSaved" },
+  { from: "index.html", src: INDEX, a: 21683, b: 22105, what: "PDXSaved" },
 ];
 // PDXSaved's declared range has now moved four times, always for the same
 // reason and always re-derived the same way: LOCATE THE 423-LINE RUN VERBATIM IN
@@ -284,6 +284,12 @@ const COPIES = [
 // the first of these moves to run forwards rather than back. The run came back
 // at its full 423 lines each time, which is the check that the range names the
 // block rather than merely being in range.
+// A FIFTH MOVE, DOWNWARD BY 114, for the Home-hygiene pass: a head CSS lock
+// for the admin expansion tools, an H.R.1 teaching card above Door 1, a
+// <template> wrapper that keeps the two admin sections out of the document, and
+// the <script> tag Follow the Money's departure had taken with it — all four on
+// index.html, all four above PDXSaved. 21683-22105, and the run came back at
+// its full 423 lines again.
 for (const c of COPIES) {
   const header = new RegExp(`COPIED VERBATIM FROM ${c.from.replace(".", "\\.")} LINES ${c.a}[^0-9]{1,3}${c.b}`);
   ok(header.test(ME), `copy: me.html declares its ${c.what} block as ${c.from} ${c.a}–${c.b}`);

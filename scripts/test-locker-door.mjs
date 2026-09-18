@@ -162,7 +162,16 @@ const EV_FIRST_PAINT = EV.slice(evSecStart, tplStart);  // what /evidence paints
   // So the assertion is an ALLOWLIST: every template on the page is a door this
   // repo has deliberately built, and an id nobody has justified fails here.
   const tplIds = [...BARE.matchAll(/<template\b[^>]*\bid="([^"]*)"/g)].map((m) => m[1]);
-  const KNOWN_TPL = ["ms-shell-tpl"];
+  // pdx-admin-tools is the third deliberate one, and it is here for the same
+  // reason as the other two: a surface the homepage should not lay out on every
+  // load. The curator's DATABASE EXPANSION and politician manager were painting
+  // for anonymous visitors, so they were wrapped inert and are cloned into place
+  // only on the allowed branch of the admin gate. Inertness is the point of the
+  // wrapper — a template is parsed outside the document tree, so for everyone
+  // who is not the admin those sections are not in the accessibility tree and
+  // getElementById cannot reach them, which is a stronger guarantee than a
+  // display rule. A fourth id still fails here until somebody justifies it.
+  const KNOWN_TPL = ["ms-shell-tpl", "pdx-admin-tools"];
   const strays = tplIds.filter((id) => !KNOWN_TPL.includes(id));
   eq(strays.join(","), "", "index.html carries a <template> no door has justified");
   eq(tplIds.filter((id) => id === "el-workspace-tpl").length, 0,

@@ -257,8 +257,8 @@ section("3 · the two copied blocks are byte-identical to index.html's");
 const lines = (s) => String(s).split("\n");
 const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 20913, b: 20937, what: "the .pdxis-stance* pill rules" },
-  { from: "index.html", src: INDEX, a: 20956, b: 21077, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 21027, b: 21051, what: "the .pdxis-stance* pill rules" },
+  { from: "index.html", src: INDEX, a: 21070, b: 21191, what: "the PDXStance vocabulary" },
 ];
 // Both index.html ranges have now moved THREE TIMES, and the third ran the other
 // way. The Digital Library split took #digital-library out of index.html but left
@@ -285,6 +285,15 @@ const COPIES = [
 // live at those lines. The pill rules came back as 25 lines and the vocabulary
 // as 122 — both unchanged in length, which is the check that the run found is
 // the run meant.
+//
+// A FOURTH MOVE, AGAIN DOWNWARD, AGAIN BY THE SAME 114 LINES for both ranges.
+// The Home-hygiene pass edited only the front page, and only above these two
+// blocks: a head CSS lock for the admin expansion tools, a short H.R.1 teaching
+// card above Door 1, a <template> wrapper that keeps the admin sections out of
+// the document, and the restored <script> tag whose loss had been painting
+// toggleFollowMoney's source under the footer. The pill rules came back as 25
+// lines and the vocabulary as 122, both at their full length, which is again the
+// check that the run found is the run meant.
 for (const c of COPIES) {
   const header = new RegExp(`COPIED VERBATIM FROM ${c.from.replace(".", "\\.")} LINES ${c.a}[^0-9]{1,3}${c.b}`);
   ok(header.test(ST), `copy: stances.html declares ${c.what} as ${c.from} ${c.a}–${c.b}`);

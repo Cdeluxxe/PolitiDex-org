@@ -3696,6 +3696,19 @@ window.PDXLazy = (function () {
     }
   </style>
 
+  <!-- ── THE ADMIN LOCK, IN CSS, IN THE HEAD ──────────────────────────────
+       The curator tools are hidden unless <html> carries .pdx-admin, which only
+       the allowed branch of the admin gate at the foot of this document adds.
+       Inline, above any content, because the rule must hold at first paint.
+       Third of three locks, each failing closed alone (see the <template> that
+       wraps the tools); the test is positive, so a gate that never runs —
+       Firebase blocked, a thrown listener, JS off — still hides. -->
+  <style id="pdx-admin-gate-css">
+    html:not(.pdx-admin) #database-expansion,
+    html:not(.pdx-admin) #politician-manager,
+    html:not(.pdx-admin) [data-admin-only] { display: none !important; }
+  </style>
+
       </head>
 <body class="bg-navy-900 text-white font-body">
 
@@ -6193,6 +6206,53 @@ window.PDXLazy = (function () {
       </button>
     </div>
   </nav>
+
+  <!-- ── H.R.1 · THE LESSON, IN THE OPEN ─────────────────────────────────────
+       The teaching case for what PolitiDex does to an omnibus — one roll call
+       that keeps one promise and breaks another — lived only inside
+       #hr1-showcase, which starts display:none inside #pdx-door-work, so a
+       reader had to pick a door to be told why one vote can be two verdicts.
+       This is the short version with no door in front of it: four chips, one
+       sentence, one control, nothing computed. The deep read is still the
+       showcase, still opened by the 🏛️ Door 1 chip and the nav item through
+       pdxOpenSurface(). No percentage (no depth marker or denominator fits on a
+       card this short), no party (the chips name issues, not `lean`), no verdict
+       ("kept" and "broken" belong beside the member whose promise it was).
+       Passing one chamber is not law — the lesson — but this measure did become
+       law, so the sentence teaches the rule and then says what happened:
+       hr1-showcase.js's sourced timeline has final passage Jul 3, 2025 (Roll
+       Call 190, 218–214) and the signature Jul 4. The control is the bill's own
+       /b/ address, the printed number's space escaped, handed to PDXBillDetail
+       when that panel is on the page — door1-workspace.js's own pair. -->
+  <section id="pdx-hr1-card" aria-labelledby="pdx-hr1-card-h">
+    <style>
+      #pdx-hr1-card{max-width:64rem;margin:0.35rem auto 0;padding:0 1.25rem}
+      .phc-wrap{border-radius:0.85rem;padding:0.85rem 1rem 0.9rem;border:1px solid rgba(245,200,66,0.26);border-left:3px solid #f5c842;background:linear-gradient(160deg,rgba(60,48,16,0.42),rgba(12,18,36,0.5))}
+      .phc-kicker,.phc-chip,.phc-open{font-family:'Barlow Condensed',sans-serif;font-weight:800}
+      .phc-kicker{font-size:0.63rem;letter-spacing:0.13em;text-transform:uppercase;color:#d9b44a}
+      .phc-title{font-family:'Bebas Neue',sans-serif;font-size:1.28rem;letter-spacing:0.035em;color:#fff;line-height:1.1;margin:0.2rem 0 0.3rem}
+      .phc-lede{font-family:'Barlow',sans-serif;font-size:0.82rem;line-height:1.5;color:#9fb4d0;margin:0 0 0.55rem;max-width:52rem}
+      .phc-chips{display:flex;flex-wrap:wrap;gap:0.35rem;margin:0 0 0.65rem;padding:0;list-style:none}
+      .phc-chip{font-size:0.7rem;font-weight:700;letter-spacing:0.04em;color:#cbd9ec;white-space:nowrap;background:rgba(255,255,255,0.05);border:1px solid rgba(148,163,184,0.26);border-radius:9999px;padding:0.2rem 0.6rem}
+      .phc-open{display:inline-flex;align-items:center;gap:0.4rem;text-decoration:none;font-size:0.72rem;letter-spacing:0.13em;text-transform:uppercase;color:#f5c842;background:rgba(245,200,66,0.12);border:1px solid rgba(245,200,66,0.35);border-radius:9999px;padding:0.42rem 0.95rem;transition:background .15s ease,border-color .15s ease}
+      .phc-open:hover,.phc-open:focus-visible{background:rgba(245,200,66,0.2);border-color:#f5c842}
+      @media (max-width:480px){#pdx-hr1-card{padding:0 0.9rem}
+      .phc-title{font-size:1.14rem}.phc-lede{font-size:0.78rem}}
+    </style>
+    <div class="phc-wrap">
+      <div class="phc-kicker">🏛️ One measure, many issues</div>
+      <h2 id="pdx-hr1-card-h" class="phc-title">H.R.1 — the 2025 reconciliation and tax package</h2>
+      <p class="phc-lede">A package that passes the House is not law by itself — it becomes law only when the Senate passes it too and the president signs it, which is what happened to H.R.1 on July 4, 2025, the day after the House cleared it 218&ndash;214.</p>
+      <ul class="phc-chips" aria-label="Issues this one measure maps to">
+        <li class="phc-chip" data-issue="lower_taxes">💵 Taxes</li>
+        <li class="phc-chip" data-issue="healthcare">🏥 Health care</li>
+        <li class="phc-chip" data-issue="family_support">🍎 Food aid</li>
+        <li class="phc-chip" data-issue="border_security">🛂 Border enforcement</li>
+      </ul>
+      <a id="pdx-hr1-card-open" class="phc-open" href="/b/119/H.R.%201"
+        onclick="return !(window.PDXBillDetail&&typeof window.PDXBillDetail.open==='function'&&window.PDXBillDetail.open('H.R. 1','119')!==false);">📜 Open the bill</a>
+    </div>
+  </section>
 
   <!-- ── LIVE PROOF · the record as this browser actually has it ──────────────
        A three-chip strip naming the newest publishable Official Record cards the
@@ -11324,14 +11384,25 @@ window.PDXLazy = (function () {
   <!-- ═══════════════════════ DATABASE EXPANSION TOOL ════════ -->
   <!--
     ╔══════════════════════════════════════════════════════════════════╗
-    ║  ADMIN-ONLY: Bulk Import / Database Expansion tool.                ║
-    ║  Hidden from everyone by default (display:none below).            ║
-    ║  It is only revealed for the logged-in admin account — the email  ║
-    ║  is set in the ADMIN_EMAIL constant inside the gating script at   ║
-    ║  the end of this section. To change who can see the import tool,   ║
-    ║  search for "ADMIN_EMAIL" and update that value.                  ║
+    ║  ADMIN-ONLY: Bulk Import / Database Expansion tool. Not in the    ║
+    ║  document at all until an admin is recognized; mounted only for   ║
+    ║  the account named in ADMIN_EMAILS, in the gating script at the   ║
+    ║  end of this section. Search "ADMIN_EMAILS" to change who.        ║
     ╚══════════════════════════════════════════════════════════════════╝
+
+    WHY A <template> AND NOT JUST display:none. Both tools used to stand in the
+    document for every reader, hidden by one inline style and revealed by one
+    line of JavaScript. That is a reveal, not a gate: the markup was in the DOM,
+    the accessibility tree, find-in-page and reader mode, and one cleared style
+    put DATABASE EXPANSION, Bulk Import and AI-Assisted Database Expansion on an
+    anonymous voter's front page. Inside <template> the parser keeps it INERT —
+    nothing renders, is announced or is findable, and getElementById cannot reach
+    it, as evidence.html does with <template id="el-workspace-tpl">. Nothing is
+    deleted: the gate clones this content back into the same position the first
+    time the admin account is recognized, so both section anchors land where they
+    always did, and nothing public reads an id from in here (93 ids, checked).
   -->
+  <template id="pdx-admin-tools">
   <section id="database-expansion" class="py-14 md:py-20 border-b border-white/5" style="display:none; background:linear-gradient(180deg,rgba(10,20,50,0.9) 0%,rgba(5,8,20,0.95) 100%);">
     <style>
       /* Potential-duplicate suggestion cards stay hidden until the user opts in. */
@@ -11961,6 +12032,8 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
     </div>
   </section>
 
+  </template>
+
   <!-- ────────────────────────────────────────────────────────────────
        CRITICAL-PATH STRIP: the two admin controllers no longer load here.
 
@@ -12019,34 +12092,66 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
         return false;
       }
 
+      // ── MOUNT, NOT REVEAL ────────────────────────────────────────────
+      // Both tools ship inert inside the pdx-admin-tools template: for a
+      // non-admin they are not in the document, not in the accessibility tree
+      // and not reachable by getElementById. The clone is taken once, where the
+      // template stands, so the two section anchors keep their position.
+      var adminMounted = false;
+
+      function mountAdminTools() {
+        if (adminMounted) return;
+        var tpl = document.getElementById('pdx-admin-tools');
+        // No <template> support, or the element is gone: the tools do not
+        // appear. Failing to mount is the safe direction.
+        if (!tpl || !tpl.content || !tpl.parentNode) return;
+        tpl.parentNode.insertBefore(tpl.content.cloneNode(true), tpl);
+        adminMounted = true;
+      }
+
+      function unmountAdminTools() {
+        // An admin signing out — or a second account signing in over them — must
+        // not leave the tools standing. REMOVED, not re-hidden: hidden admin
+        // markup in a non-admin document is the defect, not the remedy.
+        if (!adminMounted) return;
+        var ids = ['database-expansion', 'politician-manager'];
+        for (var i = 0; i < ids.length; i++) {
+          var el = document.getElementById(ids[i]);
+          if (el && el.parentNode) el.parentNode.removeChild(el);
+        }
+        adminMounted = false;
+      }
+
       function applyAdminGate(user) {
         var allowed = isAdminUser(user);
-        // Both admin-only sections are gated the same way: the Bulk Import /
-        // Database Expansion tool and the new Politician Manager.
-        var sectionIds = ['database-expansion', 'politician-manager'];
-        for (var s = 0; s < sectionIds.length; s++) {
-          var section = document.getElementById(sectionIds[s]);
-          if (section) {
-            // Show only for the admin; stay hidden for everyone else
-            // (logged out, anonymous, or a different account).
-            section.style.display = allowed ? '' : 'none';
-          }
-        }
+        // The CSS lock in <head> keys off this class and this is the only place
+        // that adds it, so every other state — logged out, anonymous, another
+        // account, a gate that never ran — leaves it off.
+        if (allowed) document.documentElement.classList.add('pdx-admin');
+        else document.documentElement.classList.remove('pdx-admin');
         // The admin nav links (desktop + mobile) are entry points to these
-        // tools, so gate them the same way.
+        // tools, so they are gated the same way.
         var links = document.querySelectorAll('[data-admin-only]');
         for (var i = 0; i < links.length; i++) {
           links[i].style.display = allowed ? '' : 'none';
         }
-        // When the admin is allowed in, fetch the tools (once) and then make
-        // sure the Politician Manager list reflects the latest loaded data. The
-        // callback runs after both modules have executed, so this is also what
-        // paints the list on the very first admin load.
+        // Mount the sections, clear the parser's display:none on the copies now
+        // in the document, then fetch the tools (once) and repaint the manager
+        // list — the callback runs after both modules execute, so it is also
+        // what paints that list on a first admin load.
         if (allowed) {
+          mountAdminTools();
+          var sectionIds = ['database-expansion', 'politician-manager'];
+          for (var s = 0; s < sectionIds.length; s++) {
+            var section = document.getElementById(sectionIds[s]);
+            if (section) section.style.display = '';
+          }
           loadAdminModules(function () {
             if (typeof window.pmRenderList === 'function') window.pmRenderList();
           });
           if (typeof window.pmRenderList === 'function') window.pmRenderList();
+        } else {
+          unmountAdminTools();
         }
       }
 
@@ -16812,8 +16917,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
        WHAT SURVIVES BELOW IS THE FOLLOW BUTTON, which is not part of that: it
        is the reader's own list, it is painted into the profile modal, and it
-       has nothing to do with funding rank. ── -->
+       has nothing to do with funding rank.
 
+       THE OPENING <script> TAG BELOW WAS LOST WITH THAT BOARD. The deleted IIFE
+       and this function shared one block, so removing the first half took the tag
+       and left the second half standing in the document as TEXT: the browser
+       painted toggleFollowMoney's source under the footer, and the name was
+       never defined, so the 💰 Follow This Money Trail button in the profile
+       modal threw on click. The tag is restored rather than the function deleted
+       because profiles-full.js still calls it by name. ── -->
+
+  <script>
   window.toggleFollowMoney = function(pid) {
     var user = auth.currentUser;
     if (!user || user.isAnonymous) {
