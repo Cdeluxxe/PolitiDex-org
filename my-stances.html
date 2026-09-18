@@ -5,281 +5,187 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
   <!-- ═══════════════════════════════════════════════════════════════════════════════
-       /me — THE VOTER'S OWN FILE. ONE DOCUMENT, ONE ADDRESS, ONE EDITOR.
+       /my-stances — THE STANCE STUDIO. IT TEACHES ITSELF, THEN IT IS A LIBRARY.
        ──────────────────────────────────────────────────────────────────────────────
-       WHAT THIS ADDRESS FIXES. This account had two names and two surfaces. The
-       account menu's "Your File" was the hash #your-file on the homepage; its
-       "My Views" was a scroll to a very long My Stances region on that same
-       homepage. Ballot picks were a third place — the /ballot desk — and starred
-       issues a fourth. One person, four addresses, none of them shareable or
-       bookmarkable, and Back from any of them meant "the front page, roughly
-       where you were." Two editors of the same answers is a pair that can
-       drift; four addresses for one desk is a thing nobody can link to.
+       WHAT THIS ADDRESS FIXES. Setting a position was the one thing this site
+       asks a voter to do, and it had no address. The editor lived inside the
+       homepage as <section id="my-stances">, which meant:
 
-       So /me is the desk, /me is the ONLY address for it, and the homepage keeps
-       no editor of record. netlify.toml rewrites /me and /me/ to this file, and
-       both account-menu controls now assign('/me') instead of setting a hash.
-       #your-file still WORKS — it replace-hops here once, because a bookmark a
-       reader made last year is not a thing to break — but it is no longer a
-       place where those answers can be edited.
+         · PDXStances.open() was a SCROLL — scrollTo('my-stances') — so on any
+           document that is not the homepage it scrolled to nothing. me.html
+           carries my-stances.js and has no such section; the module's own
+           comment said so.
+         · Eight modules fell back to location.hash = '#my-stances' when the
+           module was absent. On /ballot that is a no-op, and ballot.html then
+           forwarded it to the homepage, where the address resolved to a
+           one-line door sitting inside Relevant-to-me. A reader who clicked
+           "Set your positions" on the ballot desk arrived at the front page,
+           somewhere near a heading about something else, with no editor.
+         · /me's empty state drew three DASHED GHOST CHIPS — issue names with no
+           side on them — under the words "Nothing on file yet." A chip that
+           looks like a saved position and is not one is the one shape a file
+           may never draw.
 
-       WHAT IS ON IT. Seven regions, described where they are built (me-desk.js),
-       and not one of them is a product: who this account is, the issue
-       editor, the starred issues, a snapshot of the ballot, the saved evidence,
-       three text links to the tools that own the real work, and this reader's
-       standing with the district board. It is a desk. It summarizes and it hands
-       off. The board itself, like the ballot workspace, lives at its own
-       address.
+       So the studio is a document, /my-stances is its only address, and nothing
+       anywhere sets that hash any more.
+
+       WHAT IS ON IT — ONE DOCUMENT, TWO MODES, decided by what is already on
+       file and described where they are built (stance-studio.js):
+
+         MODE A · FIRST VISIT (no side on file). A self-tutorial, one beat at a
+         time. What do you care about first → that issue's LOCKED SCOPE SENTENCE
+         → Support / Oppose / Not sure → what that just did. It teaches the
+         three things a reader has to know to use the rest of the site: how to
+         find an issue in words they would actually use, that the scope sentence
+         is the definition, and that a side is a thing you hold on a file.
+
+         MODE B · RETURNING (one side or more). The library first: a chip per
+         position actually on file, the search that found them, and the starter
+         row folded away under "Add an issue". Tap a chip to change it or clear
+         it.
 
        WHAT IS DELIBERATELY NOT ON IT.
-         · NO SCORE FOR THE VOTER, of any kind. No percentage, no grade, no
-           completeness figure, no "80% aligned with Utah". Every count on this
-           page is the length of a real list written as a sentence.
-         · NO SECOND EDITOR. Region b is your-file.js's own renderer painted into
-           a host this document supplies. Same module, same store, same
-           rows, same set(). There is nothing here for the panel to drift from.
-         · NO BALLOT. The snapshot lists seats and names picks. It cannot make
-           one, it carries no field of candidates, and ballot-workspace.js is not
-           on this document. /ballot is one link away and owns all of that.
-         · NO PARTY CHIP ON THE VOTER, and no party metric anywhere.
-         · NOBODY ELSE'S FILE. This document reads this browser's own account and
-           has no path that can address another. It is noindex.
-         · NO ENGINE. alignment-tool.js, the consistency lane, the voting-record
-           prefetch, compare-hub.js and profiles-full.js are all absent. A desk
-           that summarizes what you hold does not need the machine that compares
-           it — and a reader who wants that machine has a link to it.
-         · NO DISTRICT BOARD. Region g says which of three standings this reader
-           has with District Voice and offers the one control that standing can
-           honour. It holds no thread, no take, no poll, no count and no feed of
-           bills; it reads no formal-record module; it enters neither the match
-           nor the ballot order; and district-voice.css is not loaded, so the
-           board's own shapes cannot arrive on this document by accident.
+         · NO MATCH PERCENTAGE, no Direction Match, no Word vs Action, no
+           blended score, and no politician scored anywhere on this document.
+           Setting a side is not the place to be shown a number about a person.
+         · NO PARTY, in any form, on the reader or on anyone else.
+         · NO COMPLETION METER. The count is "3 positions on file", which is the
+           length of a list. There is no denominator, no "1 of 3", no ring and
+           no grade. Three is where a button changes its label and nothing else.
+         · NO SECOND STORE. Every write on this page goes through PDXStances
+           into pdx_my_stances_v1 — the same store /me's editor writes, the same
+           store the alignment signature reads. The studio declares no storage
+           key of its own beyond a dismissed/collapsed UI flag.
+         · NO RECORD ENGINE. consistency.js, the politician stance corpus and
+           the voting-record waves are ~3.6 MB and they are all absent. This
+           document cannot print a formal pattern, so it does not pretend to:
+           where a seat is already resolved it NAMES the seat and links to
+           /ballot, which is the surface that owns record-versus-position. A
+           person's name printed here with no record under it would be the exact
+           inversion of "formal record primary".
+         · NO SKIP THAT INVENTS ANYTHING. "Not sure", "Skip for now" and clear
+           write nothing at all. Mixed is a real position — a reader who holds
+           both halves of an issue — and it is NOT what "I don't know" means, so
+           nothing on this page can produce it by accident.
 
-       THE CRITICAL PATH, AND WHY EACH FILE IS ON IT. Four inline blocks and
-       eight scripts, which is the whole document:
-         PDXStore        the storage seam every store below writes through.
-         the ledger      firebase-boot.js reads _firestoreLoaded and
-                         _checkAndTrigger as BARE identifiers, so this block is a
-                         hard dependency of the roster load, not a convenience.
-         firebase        MANDATORY HERE, and this is the reason the whole pass
-                         exists: your-file.js keys its store per account
-                         (pdx_your_file_v1__u_<uid>) and learns the uid from the
-                         pdx-account-change event that firebase-boot.js's auth
-                         handler causes. Without Firebase on this document /me
-                         would read the un-namespaced key while the homepage read
-                         the per-account one — two files for one reader, which is
-                         the exact defect being closed. It is also the only name
-                         source region d has (see browse-photos below).
-         PDXSaved        region e's store. It already existed; this lists it.
-         person-link.js  one owner of "what is this person's URL", so a pick's
-                         name links to the same /p/ address everywhere else does.
-         browse-photos   faces for the picks, and nothing else — 114 KB of map
-                         instead of cmp-data.js's 384 KB of records, because a
-                         row needs a portrait and a name, the roster index above
-                         carries the name, and this carries the portrait.
-         issue-map.js    the issue register. my-stances.js drops any answer whose
-                         key is not in it, so without this region c is empty for
-                         every reader.
-         voter-hub-loc.  the one owner of where this account votes AND of
-                         TEAM_POSITIONS, the slate regions a and d both read.
-                         Flagged in .netlify/results.md as the one file here that
-                         is outside the brief's minimal list: the alternative is
-                         a second per-state slate table and a second location
-                         reader inside me-desk.js, which is the drift this pass
-                         exists to end.
-         my-stances.js   the stars store, and _msPriorityWeight — the SAME hook
-                         the match engine weights with. Loaded without its
-                         section: init() bails on a missing #ms-body and leaves
-                         itself uninitialised, so a later PDXStances.open() on
-                         the homepage still mounts normally.
-         your-file.js    the positions editor of record, painted inline here.
-         district-voice  the one owner of District Voice's seat allow-list, of
-                         the seat a saved ballot location names, of the board's
-                         address and of the sentence that frames what the board
-                         is. Region g asks it and decides nothing; the
-                         alternative is a second copy of that allow-list here.
-                         Inert on this document: no mount, no host, no fetch.
-         me-desk.js      the desk.
+       THE CRITICAL PATH, AND WHY EACH FILE IS ON IT. Three inline blocks and
+       seven scripts, which is the whole document:
+         PDXStore        the storage seam the stance store writes through, and
+                         the collection registrar that makes it sync to the
+                         account. Parse-time by necessity: my-stances.js
+                         registers its snapshot and reconciler synchronously.
+         the ledger      firebase-boot.js reads the BARE identifiers
+                         _firestoreLoaded and _checkAndTrigger, so this block is
+                         a hard dependency of sign-in, not a convenience.
+         firebase        MANDATORY HERE. This is the store's own home; a
+                         position set at this address must reach the account the
+                         same way one set at /me does, or the two surfaces drift.
+         person-link     the one owner of the /p/<pid> address shape.
+         issue-map       the 121-key issue vocabulary, which is what the chips
+                         and the typeahead are drawn from. No key is invented
+                         here.
+         issue-scope     the 51 LOCKED SCOPE SENTENCES. Screen B reads the
+                         sentence out of this file rather than paraphrasing it,
+                         because the sentence is the contract — it is what the
+                         site means by the issue, and a paraphrase would be a
+                         second definition.
+         issue-colors    the per-issue colour every other surface uses, so a
+                         chip here is the same colour as the same issue there.
+         my-stances.js   THE STORE, and the full collection behind "every issue
+                         on file" — priority, the private note and the optional
+                         public showcase, which live nowhere else.
+         stance-studio   the two modes.
 
        WHAT IS NOT HERE THAT THE OTHER SHELLS CARRY. No app.css (986 KB of
-       homepage cascade for seven regions), no PWA runtime and no service-worker
-       registration, no /manifest.json, no pdx-perf.js, no share furniture beyond
-       the tags below, no JSON-LD. ballot.html is the precedent for every one of
-       those, and for the same reason: a private workspace is not the front page.
+       homepage cascade), no PWA runtime, no service-worker registration, no
+       /manifest.json, no pdx-perf.js, no JSON-LD, no roster, no alignment
+       engine. ballot.html and me.html are the precedent for every one of those.
 
        EVERY SAME-ORIGIN PATH IN THIS DOCUMENT IS ROOT-ABSOLUTE, with no
-       exceptions and this is not a style preference. /me is served from a path
-       with no trailing segment, but /me/ is rewritten to this same file, and on
-       THAT address a bare src="me-desk.js" resolves to /me/me-desk.js — which
-       the rewrite answers with this HTML document. The browser then parses HTML
-       as JavaScript, every module is silently absent, and the page renders a
-       blank desk with no error that names the cause.
+       exceptions, and this is not a style preference. /my-stances is served
+       from a path with no trailing segment, but /my-stances/ is rewritten to
+       this same file, and on THAT address a bare src="stance-studio.js"
+       resolves to /my-stances/stance-studio.js — which the rewrite answers with
+       this HTML document. The browser then parses HTML as JavaScript, every
+       module is silently absent, and the reader gets a studio that never paints
+       with no error that names the cause.
        ═══════════════════════════════════════════════════════════════════════════════ -->
 
-  <!-- A personal desk is private: there is nothing here to unfurl and nothing a
-       crawler should index. The tags exist so a link pasted into a chat window
-       says what the address is rather than showing a bare URL, and they are in
-       share-preview.ts's attribute order (`property` then `content`, `rel` then
-       `href`) for the same reason ballot.html's are — that edge function
-       rewrites by an attribute-ordered regex, so a reshuffle here would be a
-       silent no-op there rather than an error, on the day /me is ever added to
+  <!-- A personal surface is private: nothing here to unfurl, nothing a crawler
+       should index. The tags exist so a pasted link says what the address is
+       rather than showing a bare URL, and they are in share-preview.ts's
+       attribute order (`property` then `content`, `rel` then `href`) for the
+       same reason me.html's and ballot.html's are — that edge function rewrites
+       by an attribute-ordered regex, so a reshuffle here would be a silent
+       no-op there rather than an error, on the day /my-stances is ever added to
        its config.path. -->
-  <title>Your file &middot; PolitiDex</title>
-  <!-- THE HOST IS www.politidex.fyi, WHICH IS THE HOST EVERY OTHER ROOM USES.
-       This said politidex.us, an older spelling of the same site. It is a
-       noindex document either way, so the canonical was never doing crawler
-       work — but it IS the address share-preview.ts and og:url agree on, and
-       two spellings of one room is how a self-referencing canonical quietly
-       stops referencing itself. scripts/gen-sitemap.mjs declares the same
-       ORIGIN; /me is not IN the sitemap (a private workspace is not a browse
-       room) and this is the host it would use if it ever were. -->
-  <link rel="canonical" href="https://www.politidex.fyi/me" />
+  <title>Your stances &middot; PolitiDex</title>
+  <link rel="canonical" href="https://www.politidex.fyi/my-stances" />
   <meta name="robots" content="noindex, follow" />
-  <meta name="description" content="Your file on PolitiDex — your positions on the issues, the issues you rank harder, your ballot so far, and the evidence you saved. Private by default. Never a score." />
+  <meta name="description" content="Set where you stand on the issues you care about, in the same words PolitiDex uses for every politician. Private by default. Never a score." />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="PolitiDex" />
-  <meta property="og:title" content="Your file &middot; PolitiDex" />
-  <meta property="og:description" content="Your file on PolitiDex — your positions, the issues you rank harder, your ballot so far, and the evidence you saved. Private by default. Never a score." />
-  <meta property="og:url" content="https://www.politidex.fyi/me" />
+  <meta property="og:title" content="Your stances &middot; PolitiDex" />
+  <meta property="og:description" content="Set where you stand on the issues you care about, in the same words PolitiDex uses for every politician. Private by default. Never a score." />
+  <meta property="og:url" content="https://www.politidex.fyi/my-stances" />
   <meta property="og:image" content="https://www.politidex.fyi/.netlify/images?url=%2Fassets%2Fog-default.svg&fm=png&w=1200&h=630&fit=cover" />
-  <meta property="og:image:alt" content="PolitiDex — your file" />
+  <meta property="og:image:alt" content="PolitiDex — your stances" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Your file &middot; PolitiDex" />
-  <meta name="twitter:description" content="Your file on PolitiDex — your positions, the issues you rank harder, your ballot so far, and the evidence you saved. Private by default. Never a score." />
+  <meta name="twitter:title" content="Your stances &middot; PolitiDex" />
+  <meta name="twitter:description" content="Set where you stand on the issues you care about, in the same words PolitiDex uses for every politician. Private by default. Never a score." />
   <meta name="twitter:image" content="https://www.politidex.fyi/.netlify/images?url=%2Fassets%2Fog-default.svg&fm=png&w=1200&h=630&fit=cover" />
   <meta name="theme-color" content="#0a0f1e" />
 
-  <!-- The four files a first paint actually waits on: where this voter votes,
-       the desk, its stylesheet and the editor's. Everything else below is
-       deferred data the desk fills in as it arrives. -->
-  <link rel="preload" as="script" href="/voter-hub-location.js" />
-  <link rel="preload" as="script" href="/me-desk.js" />
-  <link rel="preload" as="style" href="/me-desk.css" />
-  <link rel="preload" as="style" href="/your-file.css" />
+  <!-- The four files a first paint actually waits on: the vocabulary the chips
+       are drawn from, the locked sentences screen B reads, the studio, and its
+       stylesheet. Everything else below is deferred. -->
+  <link rel="preload" as="script" href="/issue-map.js" />
+  <link rel="preload" as="script" href="/issue-scope.js" />
+  <link rel="preload" as="script" href="/stance-studio.js" />
+  <link rel="preload" as="style" href="/stance-studio.css" />
 
   <!-- Barlow / Bebas Neue, non-blocking, with the same swap index.html,
-       person.html, issue.html, spotlight.html and ballot.html use. A swap
-       written differently on one document is a visible font flash on exactly one
-       URL shape. -->
+       person.html, issue.html, spotlight.html, ballot.html and me.html use. A
+       swap written differently on one document is a visible font flash on
+       exactly one URL shape. -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" />
   <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
 
-  <!-- THE EDITOR'S OWN STYLESHEET, FIRST. Region b is your-file.js's own rows
-       and this is what styles them — the same sheet, so a row looks the same
-       here as in the panel. It loads BEFORE me-desk.css because the one rule
-       me-desk.css contributes to the editor (.pdxyf-body--inline, which un-does
-       the overlay's inner scroller) carries exactly the same specificity as the
-       rule it overrides, so source order is the whole mechanism. Swap these two
-       lines and region b grows a dead scrollbar. -->
-  <link rel="stylesheet" href="/your-file.css" />
-  <!-- The desk's own stylesheet. Render-blocking on purpose: it is the page.
+  <!-- THE STUDIO'S OWN STYLESHEET. Render-blocking on purpose: it is the page.
        Self-sufficient — every colour in it is a literal, because there is no
        app.css on this document to inherit a palette from. -->
-  <link rel="stylesheet" href="/me-desk.css" />
+  <link rel="stylesheet" href="/stance-studio.css" />
+  <!-- THE FULL COLLECTION'S STYLESHEET, non-blocking. my-stances.css dresses
+       the every-issue editor that mounts from <template id="ms-shell-tpl">
+       below, and that editor does not exist until a reader asks for it, so its
+       sheet is not allowed to hold up the first paint of the studio. Same
+       media/onload pattern race-sheet.css uses, with the <noscript> pair so a
+       scripting-off reader who somehow reaches the collection still gets it. -->
+  <link rel="stylesheet" href="/my-stances.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/my-stances.css" /></noscript>
 
-  <style>
-    /* THE FIXED CHROME, MEASURED ONCE. Same contract person.html, issue.html,
-       spotlight.html and ballot.html answer for their own chrome, and for the
-       same reason: a custom property that is never declared invalidates every
-       calc() that reads it. This document's chrome is ONE row and no search, so
-       the number is the height of the bar declared below. The @supports guard is
-       the one all four carry — a custom property accepts any token sequence, so
-       an engine that cannot parse env() would swallow the declaration and
-       invalidate every calc() reading it; an engine without env() also has no
-       notch. */
-    :root { --pdx-chrome: 3.25rem; color-scheme: dark; }
-    @supports (padding-top: env(safe-area-inset-top)) {
-      :root { --pdx-chrome: calc(3.25rem + env(safe-area-inset-top, 0px)); }
-    }
-    /* No app.css here, so the page's own ground colour is declared rather than
-       inherited from a 986 KB stylesheet this document does not load. */
-    html, body { background: #070b16; color: #e7eefb; }
-    body {
-      margin: 0;
-      font-family: 'Barlow', system-ui, -apple-system, sans-serif;
-      padding-top: calc(var(--pdx-chrome) + 0.75rem);
-    }
+  <!-- ══ COPIED VERBATIM FROM me.html LINES 283–1870 ════════════════════════════
+       The storage seam, the promise ledger and the firebase block, in one
+       1,588-line run, byte-for-byte off /me. Two provenance headers of me.html's
+       own are inside this run and are kept — person.html 1405–1920 and
+       2012–2035 — because the chain is the point: index.html is the origin,
+       person.html copied it, me.html copied person.html, and this document
+       copied me.html. A fix at the origin surfaces as one test failure per
+       document that took a copy, and a renumbered pin is that failure being
+       reported honestly rather than papered over.
 
-    /* The one-row shell bar. Static: no search field, no account menu, no layout
-       observer, no measurement pass, nothing that reads the viewport. The
-       account menu is absent on purpose — this document IS the thing that menu
-       points at, and a menu here would be a door back into the room you are
-       standing in. */
-    .pdx-me-bar {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 1200;
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 0.75rem; height: 3.25rem; padding: env(safe-area-inset-top, 0px) 1rem 0;
-      background: rgba(10, 15, 30, 0.86); backdrop-filter: blur(8px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    }
-    .pdx-me-bar a { text-decoration: none; }
-    .pdx-me-wordmark {
-      font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
-      font-size: 1.15rem; letter-spacing: 0.12em; color: #fff;
-    }
-    .pdx-me-wordmark span { color: #e0273f; }
-    .pdx-me-links { display: flex; align-items: center; gap: 0.4rem; min-width: 0; }
-    .pdx-me-home {
-      font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem;
-      letter-spacing: 0.14em; text-transform: uppercase; color: #9fb4d4;
-      border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 0.5rem;
-      padding: 0.3rem 0.65rem; white-space: nowrap; cursor: pointer;
-      background: transparent;
-    }
-
-    /* THE OVERLAY THAT MUST NOT OPEN HERE, BELT AND BRACES. your-file.js's panel
-       is fixed and full-bleed; on this document its rows are already on
-       the page, so a panel over them would be the same editor twice. The module
-       is what prevents that (see its isMeDoc() trampoline) and this rule is the
-       second lock: it costs one selector and it means a stale cached copy of
-       your-file.js cannot cover the desk. .pdxyf-body--inline is region b's own
-       body and is NOT inside .pdxyf, so it is untouched by this. */
-    .pdxyf { display: none !important; }
-
-    /* The only thing a reader sees if JavaScript never runs. It claims what this
-       address is, which is true, rather than showing them an empty desk. */
-    .pdx-me-note {
-      max-width: 40rem; margin: 2.5rem auto; padding: 0 1.1rem;
-      font: 400 1rem/1.6 'Barlow', system-ui, sans-serif; color: #9fb4d4;
-    }
-    .pdx-me-note a { color: #f5d77a; }
-  </style>
-
-  <!-- ══ THE FLAG — ONE DECLARATION, READ THROUGH ONE ACCESSOR ═══════════════
-       This is the first script on the document, before any module can look for
-       it, and it is the ONLY place the flag is set. Two modules read it:
-
-         me-desk.js  refuses to boot unless it is true, so a stray script tag on
-                     the homepage cannot paint a second desk over the real one.
-         your-file.js reads it to decide what #your-file MEANS. On this document
-                     the rows are already on the page, so the hash and the
-                     account-menu click are satisfied by scrolling to region b.
-                     On every other document they are an ADDRESS: the module
-                     replace-hops to /me once and the overlay never opens.
-
-       ONE FLAG, NO HEURISTICS. Neither module sniffs location.pathname, and
-       nothing else in the app is allowed to either — a path test is a second
-       answer to "which document is this", and /me, /me/ and a local preview
-       server's /me.html are three spellings of one document that a path test
-       gets differently.
-       ═══════════════════════════════════════════════════════════════════════ -->
-  <script>window.__PDX_ME_DOC = true;</script>
-
-  <!-- ══ COPIED VERBATIM FROM person.html LINES 288–1271 ════════════════════════
-       PDXStore / PDXTeam / PDXTeamV2 — the storage seam. Every store on this
-       document writes through it: your-file.js's answers, my-stances.js's
-       stars, PDXSaved below, and the ballot map region d reads. It touches
-       localStorage and nothing else: no DOM, no network, no account.
-
-       IT IS ALSO WHY REGION d AND /ballot CANNOT DISAGREE. PDXStore.read() is a
-       plain getRaw on the LITERAL key — the store namespaces nothing itself,
-       each feature that wants an account key builds its own — so
-       'politidex_my_team' is the same string here, on the homepage, and in
-       ballot-breakdown.js's _ballotLoad, which reads it raw on /ballot because
-       that shell carries no store at all.
-       ═══════════════════════════════════════════════════════════════════════ -->
+       WHY A COPY AT ALL, when a /pdx-store.js would be one file. PDXStore is a
+       PARSE-TIME seam: every collection on the page calls defineCollection()
+       while it parses, so the seam has to exist before any deferred script
+       runs. A <script src> — even without defer — is a second request on the
+       critical path of a document whose entire job is letting someone take one
+       position, and a <script defer src> would arrive after the collections
+       that need it. Inlining is the cheaper honesty; scripts/test-my-stances.mjs
+       and scripts/test-me-document.mjs hold the pins that keep the copies
+       identical.
+       ═══════════════════════════════════════════════════════════════════════════ -->
 <script>
 (function () {
   'use strict';
@@ -1868,548 +1774,201 @@
 </script>
 <script src="/firebase-boot.js" defer></script>
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 20866–21288 ═════════════════════
-       PDXSaved — region e's store, and the reason region e is a list rather
-       than a promise. It already existed: the All-Seeing Eye and the receipt
-       cards write into it, it namespaces itself per account off
-       pdx-account-change, and it registers its own snapshot and reconciler with
-       PDXStore for cross-device sync. This document READS it and writes nothing.
+  <style>
+    /* THE FIXED CHROME, MEASURED ONCE. Same contract person.html, issue.html,
+       spotlight.html, ballot.html and me.html answer for their own chrome, and
+       for the same reason: a custom property that is never declared invalidates
+       every calc() that reads it. This document's chrome is ONE row and no
+       search, so the number is the height of the bar declared below. The
+       @supports guard is the one all five carry — a custom property accepts any
+       token sequence, so an engine that cannot parse env() would swallow the
+       declaration and invalidate every calc() reading it; an engine without
+       env() also has no notch. */
+    :root { --pdx-chrome: 3.25rem; color-scheme: dark; }
+    @supports (padding-top: env(safe-area-inset-top)) {
+      :root { --pdx-chrome: calc(3.25rem + env(safe-area-inset-top, 0px)); }
+    }
+    /* No app.css here, so the page's own ground colour is declared rather than
+       inherited from a 986 KB stylesheet this document does not load. */
+    html, body { background: #070b16; color: #e7eefb; }
+    body {
+      margin: 0;
+      font-family: 'Barlow', system-ui, -apple-system, sans-serif;
+      padding-top: calc(var(--pdx-chrome) + 0.75rem);
+    }
 
-       WHY THIS ONE COPY IS FROM index.html AND NOT FROM person.html, which is
-       where the other three came from: person.html does not carry it. index.html
-       is the origin of all four blocks and person.html is a link in the chain,
-       so taking this one from the origin keeps the chain a chain — a fix to
-       index.html still surfaces as one test failure per document that copied it.
+    /* The one-row shell bar, copied in shape from me.html's. Static: no search
+       field, no account menu, no layout observer, no measurement pass, nothing
+       that reads the viewport. */
+    .pdx-ms-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1200;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.75rem; height: 3.25rem; padding: env(safe-area-inset-top, 0px) 1rem 0;
+      background: rgba(10, 15, 30, 0.86); backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .pdx-ms-bar a { text-decoration: none; }
+    .pdx-ms-wordmark {
+      font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+      font-size: 1.15rem; letter-spacing: 0.12em; color: #fff;
+    }
+    .pdx-ms-wordmark span { color: #e0273f; }
+    .pdx-ms-links { display: flex; align-items: center; gap: 0.4rem; min-width: 0; }
+    .pdx-ms-links a {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem;
+      letter-spacing: 0.14em; text-transform: uppercase; color: #9fb4d4;
+      border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 0.5rem;
+      padding: 0.3rem 0.65rem; white-space: nowrap; background: transparent;
+    }
 
-       THE ALTERNATIVE WAS WORSE. me-desk.js could have read 'pdx_my_saved'
-       directly, and then this document would hold its own copy of the
-       per-account key rule that PDXSaved's activeKey() already owns — a second
-       copy of a rule, which is the thing every other seam on this page refuses
-       to make. 423 lines of store is the cheaper honesty.
+    /* The only thing a reader sees if JavaScript never runs. It claims what this
+       address is, which is true, rather than showing them an empty studio. */
+    .pdx-ms-note {
+      max-width: 40rem; margin: 2.5rem auto; padding: 0 1.1rem;
+      font: 400 1rem/1.6 'Barlow', system-ui, sans-serif; color: #9fb4d4;
+    }
+    .pdx-ms-note a { color: #f5d77a; }
+  </style>
+
+  <!-- ══ THE FLAG — ONE DECLARATION, READ THROUGH ONE ACCESSOR ═══════════════
+       This is the first script on the document, before any module can look for
+       it, and it is the ONLY place the flag is set. One module reads it:
+
+         my-stances.js  reads it to decide what PDXStances.open() MEANS. On this
+                        document the studio and the collection are already here,
+                        so open() is a scroll and a jump to the issue's own row.
+                        On every other document it is an ADDRESS: the module
+                        assigns /my-stances (or /my-stances?issue=<key>) and the
+                        caller lands on a surface that can actually take an
+                        answer.
+
+       ONE FLAG, NO HEURISTICS. The module does not sniff location.pathname, and
+       nothing else in the app is allowed to either — a path test is a second
+       answer to "which document is this", and /my-stances, /my-stances/ and a
+       local preview server's /my-stances.html are three spellings of one
+       document that a path test gets differently. __PDX_ME_DOC is the same flag
+       for /me and this is deliberately the same shape.
        ═══════════════════════════════════════════════════════════════════════ -->
-  <script>
-  (function () {
-    'use strict';
-    var KEY = 'pdx_my_saved';
-    // Upper bound on a personal note. Generous enough for a real multi-paragraph
-    // "why this matters" writeup, small enough to stay comfortably inside
-    // localStorage. Exposed on the store so the editor can share the same cap.
-    var NOTE_MAX_LEN = 3000;
+  <script>window.__PDX_STANCES_DOC = true;</script>
 
-    // ── Per-account local-storage isolation ──────────────────────────────────
-    // 'saved' is the only account-synced collection, so it is the only place a
-    // SHARED localStorage key could leak one person's data into another's account
-    // on a shared browser: e.g. User A saves while signed in, signs out, User B
-    // signs in — a single shared key would let A's saves merge up into B's synced
-    // collection. We prevent that by NAMESPACING the storage key by the signed-in
-    // user's id, so each account reads and writes its own isolated key:
-    //
-    //   guest / signed-out → 'pdx_my_saved'            (shared key, byte-for-byte
-    //                                                    the original behavior —
-    //                                                    unauthenticated users are
-    //                                                    completely unaffected)
-    //   signed in as <uid> → 'pdx_my_saved__u_<uid>'   (private, per-account)
-    //
-    // The active uid is PUSHED to us by PDXStore's account context (set on sign-in,
-    // cleared on sign-out) via the 'pdx-account-change' event, so switching users
-    // transparently switches which key every read/write below hits. On sign-in the
-    // reconciler then merges this account's isolated LOCAL data (its prior saves on
-    // this device, e.g. offline edits) with the server snapshot — see mergeItems.
-    var _uid = null;   // active signed-in user id, or null for guest
-
-    // Firebase uids are already url-safe, but sanitize defensively so a malformed
-    // id can never collide with another key or break the namespace format.
-    function nsFor(uid) {
-      return KEY + '__u_' + String(uid).replace(/[^A-Za-z0-9_-]/g, '_');
-    }
-    // The localStorage key for the CURRENT account context. This is the single
-    // choke point that makes isolation transparent to every caller below.
-    function activeKey() { return _uid ? nsFor(_uid) : KEY; }
-
-    // Persistence now routes through the PDXStore foundation (see the module at
-    // the top of the file) so this collection can later be account-synced with
-    // zero caller changes. PDXStore.read/write hit the per-account key returned by
-    // activeKey() ('pdx_my_saved' for guests, 'pdx_my_saved__u_<uid>' when signed
-    // in) and every write auto-marks the 'saved' collection dirty for a future push.
-    // A direct-localStorage fallback is kept so the local-only experience can
-    // never regress if the store is somehow unavailable.
-    function load() {
-      var k = activeKey();
-      if (window.PDXStore) { var v = window.PDXStore.read(k, []); return Array.isArray(v) ? v : []; }
-      try { var a = JSON.parse(localStorage.getItem(k) || '[]'); return Array.isArray(a) ? a : []; }
-      catch (e) { return []; }
-    }
-    function persist(arr) {
-      var k = activeKey();
-      // Pass the collection explicitly: a namespaced key is NOT in PDXStore's
-      // key→collection map (only the base 'pdx_my_saved' is registered), so dirty
-      // tracking would otherwise miss a signed-in user's writes. Naming 'saved'
-      // here keeps push/pull working identically for guest and per-account keys.
-      if (window.PDXStore) { window.PDXStore.write(k, arr, { collection: 'saved' }); }  // writes + marks 'saved' dirty
-      else { try { localStorage.setItem(k, JSON.stringify(arr)); } catch (e) {} }
-      try { window.dispatchEvent(new CustomEvent('pdx-saved-change', { detail: { count: arr.length } })); } catch (e) {}
-    }
-    // A stable identity for a saved thing: its type + its key. Two saves of the
-    // same receipt collapse to one entry (idempotent), so "Save" is a safe toggle.
-    function idOf(type, key) { return String(type || '') + '::' + String(key || ''); }
-    // Normalize a set of user tags into a clean array of strings. Accepts an
-    // array, a single string, or a comma-separated string (and array elements may
-    // themselves be comma-separated). Each tag is trimmed, lowercased, length-
-    // capped and de-duplicated, with empties dropped — so tagging stays tidy and
-    // "Housing", " housing " and "housing" all collapse to one tag.
-    function normTags(tags) {
-      var arr;
-      if (Array.isArray(tags)) arr = tags;
-      else if (tags == null) arr = [];
-      else arr = [tags];
-      var out = [], seen = {};
-      for (var i = 0; i < arr.length; i++) {
-        var parts = String(arr[i] == null ? '' : arr[i]).split(',');
-        for (var j = 0; j < parts.length; j++) {
-          var t = parts[j].trim().toLowerCase();
-          if (!t) continue;
-          if (t.length > 40) t = t.slice(0, 40);
-          if (Object.prototype.hasOwnProperty.call(seen, t)) continue;
-          seen[t] = 1; out.push(t);
-        }
-      }
-      return out;
-    }
-    function indexOf(arr, type, key) {
-      var id = idOf(type, key);
-      for (var i = 0; i < arr.length; i++) { if (idOf(arr[i].type, arr[i].key) === id) return i; }
-      return -1;
-    }
-
-    // ── Bind to the shared, collection-agnostic sync core ────────────────────
-    // All merge / tombstone / watermark / reconcile logic lives in PDXSyncCore
-    // (see the block above). 'saved' is now a THIN WRAPPER: it supplies a tiny
-    // config — its identity function and its two independently-editable fields
-    // (note, tags) — and the storage layer below; everything else is the core.
-    var CORE = window.PDXSyncCore;
-    var COL = CORE.createCollection({
-      idOf: idOf,                                       // classic type::key identity
-      fields: [
-        { field: 'note', tsField: 'noteUpdatedAt' },   // free-text note  (field-level LWW)
-        { field: 'tags', tsField: 'tagsUpdatedAt' }     // user tag array  (field-level LWW)
-      ]
-    });
-
-    // ── Tombstones: tracked deletions so removals survive a union merge ───────
-    // Stored in a SEPARATE per-account localStorage key beside the items key (so
-    // per-account isolation applies identically) and ride along in the pushed
-    // snapshot under `tombstones` so every device learns every deletion. The map's
-    // shape and merge/GC rules are the core's; here we only persist it. Normalizing
-    // on read (CORE.readTombs) keeps old, tombstone-free snapshots merging fine.
-    function tombKey() { return activeKey() + '__tomb'; }
-    function loadTombs() {
-      var k = tombKey();
-      var raw;
-      if (window.PDXStore) raw = window.PDXStore.read(k, null);
-      else { try { raw = JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { raw = null; } }
-      return CORE.readTombs(raw);
-    }
-    // Persist the tombstone map. Routed through PDXStore with an explicit
-    // collection: like the namespaced items key, tombKey() isn't in the store's
-    // key→collection map, so naming 'saved' is what marks the collection dirty so
-    // a recorded deletion actually gets pushed. Direct-localStorage fallback keeps
-    // deletions tracked even if the store is unavailable.
-    function persistTombs(map) {
-      var k = tombKey();
-      if (window.PDXStore) { window.PDXStore.write(k, map, { collection: 'saved' }); }
-      else { try { localStorage.setItem(k, JSON.stringify(map)); } catch (e) {} }
-    }
-
-    // ── Device watermarks: safe, bounded tombstone garbage-collection ─────────
-    // A watermark is "how far has this device synced" — a per-device timestamp
-    // `{ [deviceId]: ms }` carried in the snapshot beside items and tombstones, so
-    // a tombstone can be GC'd only once every known device has synced strictly past
-    // it (see CORE.reconcile / CORE.pruneTombstones) — never risking resurrection on
-    // a long-offline device. The map's shape, forward-only union and stale-device
-    // retirement are all the core's; here we only persist it per account. The device
-    // id itself is the core's single shared per-browser identity (CORE.deviceId).
-    function wmKey() { return activeKey() + '__wm'; }
-    function loadWatermarks() {
-      var k = wmKey(), raw;
-      if (window.PDXStore) raw = window.PDXStore.read(k, null);
-      else { try { raw = JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { raw = null; } }
-      return CORE.readWatermarks(raw);
-    }
-    // Persist the watermark map. Routed through PDXStore naming 'saved' (same
-    // reason as persistTombs): the namespaced key isn't in the store's key→
-    // collection map, so naming the collection is what marks it dirty and lets the
-    // advanced watermark get pushed so other devices can see it.
-    function persistWatermarks(map) {
-      var k = wmKey();
-      if (window.PDXStore) { window.PDXStore.write(k, map, { collection: 'saved' }); }
-      else { try { localStorage.setItem(k, JSON.stringify(map)); } catch (e) {} }
-    }
-    // ── Reconciliation / merge for the 'saved' collection ────────────────────
-    // The merge STRATEGY is entirely the core's: union of local ∪ server items,
-    // field-level last-write-wins resolving note vs tags independently (a note edit
-    // on one device and a tag edit on another never clobber each other), tombstones
-    // winning ties + anything older, and watermark-gated GC. COL.mergeItems /
-    // COL.reconcile (built above from this collection's idOf + note/tags spec) carry
-    // all of it; reconcileFromServer below is the only 'saved'-specific glue — it
-    // loads local state, calls COL.reconcile, and persists whatever actually changed
-    // (so a no-op pull never re-dirties). Backward compat is unchanged: an old
-    // tombstone-/watermark-free snapshot normalizes its missing maps to {} and merges
-    // exactly like the original union. COL.mergeItems / COL.mergeOne are also exported
-    // on window.PDXSaved for reuse/testing.
-
-    // The reconciler PDXStore invokes on pull(): merge the server snapshot into
-    // the local list and persist the result — but ONLY when the merge actually
-    // changed something, so a no-op pull doesn't needlessly re-dirty and re-push.
-    // Persisting marks 'saved' dirty, which lets the merged UNION get pushed back
-    // up, so every device converges to the same combined list.
-    function reconcileFromServer(serverSnapshot, ctx) {
-      ctx = ctx || {};
-      // `now` and `deviceId` are injectable (ctx) so the merge simulation can
-      // drive a deterministic timeline; in the app they fall back to the real
-      // wall clock and this browser's stable device id.
-      var now = ctx.now != null ? ctx.now : Date.now();
-      var myDevice = ctx.deviceId || CORE.deviceId();
-
-      var localItems = load();
-      var localTombs = loadTombs();
-      var localWm = loadWatermarks();
-      var serverItems = (serverSnapshot && Array.isArray(serverSnapshot.items))
-        ? serverSnapshot.items : [];
-      // Old snapshots have no `tombstones` / `watermarks` field → readTombs and
-      // readWatermarks yield {} → this merges exactly like before (backward compat).
-      var serverTombs = CORE.readTombs(serverSnapshot && serverSnapshot.tombstones);
-      var serverWm = CORE.readWatermarks(serverSnapshot && serverSnapshot.watermarks);
-
-      // The whole merge is the shared core's: union tombstones + watermarks,
-      // field-merge items (note vs tags) against them, advance THIS device's own
-      // watermark (heartbeat that lets other devices GC what it has acknowledged),
-      // retire stale devices, and GC tombstones every device has synced past.
-      var result = COL.reconcile({
-        localItems: localItems, serverItems: serverItems,
-        localTombs: localTombs, serverTombs: serverTombs,
-        localWm: localWm, serverWm: serverWm,
-        dirty: ctx.dirty, now: now, deviceId: myDevice
-      });
-      var merged = result.items, prunedTombs = result.tombstones, wm = result.watermarks;
-
-      // Only persist what actually changed, so a no-op pull doesn't needlessly
-      // re-dirty and re-push. persist()/persistTombs()/persistWatermarks() all mark
-      // 'saved' dirty, which lets the merged UNION (items + tombstones + the
-      // advanced watermarks) flow back up so every device converges.
-      var itemsChanged = !CORE.sameItems(localItems, merged);
-      var tombsChanged = !CORE.sameMap(localTombs, prunedTombs);
-      var wmChanged = !CORE.sameMap(localWm, wm);
-      if (tombsChanged) persistTombs(prunedTombs);
-      if (wmChanged) persistWatermarks(wm);
-      if (itemsChanged) persist(merged);   // persist() marks 'saved' dirty + emits pdx-saved-change
-      return {
-        changed: itemsChanged || tombsChanged || wmChanged,
-        count: merged.length,
-        fromServer: serverItems.length,
-        tombstones: Object.keys(prunedTombs).length,
-        watermarks: Object.keys(wm).length
-      };
-    }
-
-    window.PDXSaved = {
-      // Newest first — the natural reading order for a growing collection.
-      list: function () {
-        return load().slice().sort(function (a, b) { return (b.savedAt || 0) - (a.savedAt || 0); });
-      },
-      count: function () { return load().length; },
-      has: function (type, key) { return indexOf(load(), type, key) !== -1; },
-      get: function (type, key) { var a = load(); var i = indexOf(a, type, key); return i === -1 ? null : a[i]; },
-      // item: { type, key, title, sub, icon, nav, ...snapshot }. Stamps savedAt.
-      // A saved item may also grow optional `note` / `tags` plus their
-      // independent `noteUpdatedAt` / `tagsUpdatedAt` edit stamps (see
-      // setNote/setTags and the field-level merge in mergeOne).
-      add: function (item) {
-        if (!item || !item.type || item.key == null) return false;
-        var a = load();
-        if (indexOf(a, item.type, item.key) !== -1) return false;
-        var rec = {};
-        for (var k in item) { if (Object.prototype.hasOwnProperty.call(item, k)) rec[k] = item[k]; }
-        rec.savedAt = Date.now();
-        a.push(rec);
-        persist(a);
-        // Re-saving is an explicit, intentional resurrection: drop any tombstone
-        // for this id so a stale deletion (here or on another device) can't remove
-        // the freshly re-added item on the next merge. (Its new savedAt would beat
-        // an equal-or-older tombstone anyway; clearing it keeps the set tidy.)
-        var t = loadTombs(), id = idOf(item.type, item.key);
-        if (Object.prototype.hasOwnProperty.call(t, id)) { delete t[id]; persistTombs(t); }
-        return true;
-      },
-      remove: function (type, key) {
-        var a = load(); var i = indexOf(a, type, key);
-        var removed = false;
-        if (i !== -1) { a.splice(i, 1); removed = true; }
-        // Record a tombstone so this deletion PROPAGATES: without it a union merge
-        // would resurrect the item as soon as another device (which still has it)
-        // pushed its copy back up. deletedAt (now) orders the delete against any
-        // save of the same id. Written even if the item wasn't in the local list,
-        // so an intended deletion is still tracked and pushed.
-        var t = loadTombs();
-        t[idOf(type, key)] = Date.now();
-        persistTombs(t);
-        if (removed) persist(a);
-        return removed;
-      },
-      // Attach (or clear, with '') a personal note — "why I saved this" — to an
-      // existing saved item. A no-op if the item isn't in the collection.
-      // Notes may be multi-line: internal newlines are preserved (only the
-      // leading/trailing whitespace is trimmed), and the whole thing is capped
-      // at NOTE_MAX_LEN so a runaway paste can't bloat localStorage.
-      setNote: function (type, key, note) {
-        var a = load(); var i = indexOf(a, type, key);
-        if (i === -1) return false;
-        var n = String(note == null ? '' : note).replace(/\r\n/g, '\n').trim().slice(0, NOTE_MAX_LEN);
-        if (n) a[i].note = n; else delete a[i].note;
-        // Stamp the NOTE's own edit time and bump savedAt (overall ordering +
-        // backward compat). tagsUpdatedAt is left untouched, so a concurrent tag
-        // edit on another device merges in independently (see mergeOne).
-        var now = Date.now();
-        a[i].noteUpdatedAt = now;
-        a[i].savedAt = now;
-        persist(a); return true;
-      },
-      // Expose the tag normalizer so callers can dedupe/merge before saving.
-      normTags: normTags,
-      // The note length cap, so the editor and the store agree on one number.
-      NOTE_MAX_LEN: NOTE_MAX_LEN,
-      // Replace the user-chosen tags on an existing saved item with a clean,
-      // normalized array (see normTags). A no-op if the item isn't in the
-      // collection. Passing an empty/blank set clears tags entirely.
-      setTags: function (type, key, tags) {
-        var a = load(); var i = indexOf(a, type, key);
-        if (i === -1) return false;
-        var t = normTags(tags);
-        if (t.length) a[i].tags = t; else delete a[i].tags;
-        // Stamp the TAGS' own edit time and bump savedAt (overall ordering +
-        // backward compat). noteUpdatedAt is left untouched, so a concurrent
-        // note edit on another device merges in independently (see mergeOne).
-        var now = Date.now();
-        a[i].tagsUpdatedAt = now;
-        a[i].savedAt = now;
-        persist(a); return true;
-      },
-      // Returns true when the item is now saved, false when it was just removed.
-      toggle: function (item) {
-        if (!item || !item.type || item.key == null) return false;
-        if (this.has(item.type, item.key)) { this.remove(item.type, item.key); return false; }
-        this.add(item); return true;
-      },
-      clear: function () {
-        // Tombstone every current item first so "clear" propagates as real
-        // deletions instead of being undone by another device's union re-push.
-        var a = load(), t = loadTombs(), now = Date.now();
-        for (var i = 0; i < a.length; i++) {
-          if (a[i] && a[i].type != null && a[i].key != null) t[idOf(a[i].type, a[i].key)] = now;
-        }
-        persistTombs(t);
-        persist([]);
-      },
-      // The full serializable state of the 'saved' collection — receipts,
-      // issues/Spotlights, their tags and notes, PLUS the tombstones (tracked
-      // deletions) and the device watermarks (how far each device has synced, for
-      // safe tombstone GC). This is exactly the payload a remote backend receives
-      // in push('saved') and would return from pull(). version 3 signals watermark
-      // support; older v1 (tombstone-free) and v2 (no-watermark) snapshots still
-      // merge correctly (readTombs/readWatermarks normalize the missing fields).
-      snapshot: function () { return { key: KEY, version: 3, items: load(), tombstones: loadTombs(), watermarks: loadWatermarks() }; },
-      // Sync status helpers, mirroring PDXTeam, so any surface can show/trigger
-      // a push/pull without reaching into PDXStore internals.
-      isDirty: function () { return !!(window.PDXStore && window.PDXStore.isDirty('saved')); },
-      push: function () { return window.PDXStore ? window.PDXStore.push('saved') : Promise.resolve({ pushed: false, reason: 'no-store' }); },
-      // Pull the server's 'saved' snapshot and merge it into local state (see the
-      // merge strategy note above). Graceful no-op when no backend is registered.
-      pull: function () { return window.PDXStore ? window.PDXStore.pull('saved') : Promise.resolve({ pulled: false, reason: 'no-store' }); },
-      // The pure merge function (local ∪ server, field-level LWW per item,
-      // minus tombstoned ids), exposed for reuse/testing. Now the shared core's,
-      // bound to this collection's note/tags spec. Does not touch storage.
-      mergeItems: COL.mergeItems,
-      // The pure per-item field merger (note vs tags resolved independently),
-      // exposed for reuse/testing. Does not touch storage.
-      mergeOne: COL.mergeOne,
-      // The pure tombstone-union helper (newest deletedAt per id), exposed for
-      // reuse/testing. Does not touch storage.
-      mergeTombstones: CORE.mergeTombstones,
-      // The pure watermark-union helper (newest ms per device), exposed for
-      // reuse/testing. Does not touch storage.
-      mergeWatermarks: CORE.mergeWatermarks,
-      // The pure, safe tombstone GC (drop only those every device synced past),
-      // exposed for reuse/testing. Does not touch storage.
-      pruneTombstones: CORE.pruneTombstones,
-      // The collection-agnostic normalizers + watermark retirement. These now live
-      // in PDXSyncCore; re-exposed here for backward compatibility with any caller
-      // that reached for them via window.PDXSaved. All pure.
-      readTombs: CORE.readTombs,
-      readWatermarks: CORE.readWatermarks,
-      pruneWatermarks: CORE.pruneWatermarks,
-      // This browser's stable device id (the shared core identity; used as the
-      // watermark map key).
-      deviceId: CORE.deviceId,
-      // A snapshot copy of the current account's tombstone map, for inspection.
-      tombstones: function () { return loadTombs(); },
-      // A snapshot copy of the current account's device-watermark map.
-      watermarks: function () { return loadWatermarks(); }
-    };
-
-    // Register this collection's shaped snapshot with PDXStore so a remote
-    // backend can push it. Guarded so the store staying local-only (or absent)
-    // never breaks: with no PDXStore, PDXSaved keeps its localStorage fallback.
-    if (window.PDXStore && typeof window.PDXStore.registerSnapshot === 'function') {
-      window.PDXStore.registerSnapshot('saved', function () {
-        return { key: KEY, version: 3, items: load(), tombstones: loadTombs(), watermarks: loadWatermarks() };
-      });
-    }
-
-    // Register the pull-side reconciler so PDXStore can merge a server snapshot
-    // into local state (see mergeItems above). Only 'saved' registers one, which
-    // is what scopes two-way sync to this collection. Guarded so a store that is
-    // absent or lacks the API leaves the local-only path untouched.
-    if (window.PDXStore && typeof window.PDXStore.registerReconciler === 'function') {
-      window.PDXStore.registerReconciler('saved', reconcileFromServer);
-    }
-
-    // ── React to account switches (the isolation switch) ─────────────────────
-    // PDXStore fires 'pdx-account-change' with { userId } whenever the signed-in
-    // account changes: a uid on sign-in, null on sign-out / anonymous. We repoint
-    // activeKey() at the new context and emit a 'pdx-saved-change' so any open
-    // surface immediately re-renders from the NEW user's data. The OUTGOING user's
-    // items are left untouched in their own namespaced key — isolated, never
-    // cleared — so signing back in on this device restores them and the next
-    // person never sees them.
-    //
-    // EDGE CASE — auth resolves before this late <script> parses: the auth handler
-    // near the top of the file may have already called enableAccountSync (setting
-    // the account context) before this block ran, so its one-shot event was missed.
-    // We therefore also ADOPT whatever account context is already established, via
-    // getAccount(), on init. Between the two we can't miss a context.
-    //
-    // NOTE ON GUEST → ACCOUNT: we intentionally do NOT auto-migrate the shared
-    // guest buffer ('pdx_my_saved') into an account on first sign-in. On a shared
-    // browser the guest buffer may belong to someone else, so adopting it is the
-    // very leak this change exists to prevent. A signed-in account's data lives in
-    // its own namespace and syncs via the server instead. (An explicit, opt-in
-    // "import your guest saves?" prompt is noted as a future improvement.)
-    function applyAccount(uid) {
-      var next = uid || null;
-      if (next === _uid) return;   // no real change → no wasteful re-render
-      _uid = next;
-      // The underlying list changed wholesale (different key): tell surfaces to re-read.
-      try { window.dispatchEvent(new CustomEvent('pdx-saved-change', { detail: { count: load().length } })); } catch (e) {}
-    }
-    try {
-      window.addEventListener('pdx-account-change', function (e) {
-        applyAccount(e && e.detail && e.detail.userId);
-      });
-      if (window.PDXStore && typeof window.PDXStore.getAccount === 'function') {
-        applyAccount(window.PDXStore.getAccount());   // adopt an already-established context
-      }
-    } catch (e) { /* isolation is best-effort; a listener failure must not break saving */ }
-  })();
-  </script>
-
-  <!-- ══ THE DEFERRED CRITICAL PATH — NINE FILES, IN THIS ORDER ═════════════
-       Deferred scripts run in document order after the parse, so this list is a
-       dependency chain and not a preference:
-
-         person-link.js      synchronous, like ballot.html's, because it is the
-                             one owner of a person's URL and the desk's first
-                             paint links picks.
-         browse-photos.js    the portrait map region d reads.
-         issue-map.js        the issue register my-stances.js filters against. It
-                             also declares CORE_NATIONAL_ISSUES and
-                             window.coreIssueForKey, which is what lets the next
-                             file resolve a leaf key without the Alignment tool
-                             being on this document.
-         issue-colors.js     the app's ONE answer to "what colour is this issue".
-                             Region b's chips and District Voice's tag both read
-                             it through skin(), so an issue is the same colour on
-                             this desk as on a bill letterhead — and a key it
-                             does not recognise gets no attribute at all, which
-                             is how an unthemed chip stays honest instead of
-                             borrowing a hue that means something else. Loaded
-                             AFTER issue-map.js because it reads that file's
-                             leaf-to-core lookup.
-         voter-hub-location  location + TEAM_POSITIONS. Its own boot tail calls
-                             window._vhBallotRerender(), which on the homepage
-                             and on /ballot belongs to ballot-breakdown.js and
-                             HERE belongs to the desk — which is why me-desk.js
-                             claims that name before this file can call it.
-         my-stances.js       the stars store and _msPriorityWeight.
-         your-file.js        the editor of record for the positions. Region
-                             b reads its answered() / position() / POSITIONS /
-                             COPY for the snapshot, and mounts its inline()
-                             editor into the host under that snapshot when the
-                             reader uses the one door.
-         district-voice.js   the ONE owner of District Voice: which seat a saved
-                             ballot location names, whether the board is open in
-                             it, the board's address, and the sentence that says
-                             what the board is. Region g asks it all four and
-                             decides none of them — the alternative is a second
-                             copy of the seat allow-list on this document, which
-                             is a second answer. Inert here: it mounts nothing
-                             without a host, fetches nothing until a board asks
-                             it to, and this document never gives it either.
-                             district-voice.css is deliberately NOT loaded — the
-                             board's own shapes have no business on a desk.
-         me-desk.js          last, and it renders synchronously at parse time:
-                             signed out, unplaced and empty, this document still
-                             has seven honest regions, so the honest arrival is
-                             the immediate one.
-       ══════════════════════════════════════════════════════════════════════ -->
+  <!-- THE VOCABULARY, THE LOCKED SENTENCES, THE COLOURS, THE STORE, THE STUDIO.
+       person-link.js is NOT deferred for the same reason every other shell
+       loads it that way: it owns the /p/<pid> address shape and anything that
+       prints a name needs it to already be there. -->
   <script src="/person-link.js"></script>
-  <script defer src="/browse-photos.js"></script>
   <script defer src="/issue-map.js"></script>
+  <script defer src="/issue-scope.js"></script>
   <script defer src="/issue-colors.js"></script>
-  <script defer src="/voter-hub-location.js"></script>
   <script defer src="/stance-sides.js"></script>
   <script defer src="/my-stances.js"></script>
-  <script defer src="/your-file.js"></script>
-  <script defer src="/district-voice.js"></script>
-  <script defer src="/me-desk.js"></script>
-
+  <script defer src="/stance-studio.js"></script>
 </head>
 <body>
 
   <!-- ══ THE SHELL BAR — THIS DOCUMENT'S ONLY CHROME ════════════════════════
        index.html's nav is two fixed rows, a search field, the account menu and a
        layout observer. None of that belongs on an address whose whole job is to
-       show one reader what they already hold. Two controls: whose site this is,
-       and the way home.
+       let one reader say where they stand. Three controls: whose site this is,
+       the way home, and the file these answers land in.
 
-       "← HOME" IS THE SHELL CLOSE RULE, COPIED FROM ballot.html. It is a real
-       navigation with a plain <a href="/">, not a history.back(): the reader may
-       have arrived here cold from the account menu on a freshly-opened tab, from
-       a bookmark, or from a #your-file link in an old email, in which case there
-       is either no history to go back through or the entry behind them was
-       consumed by the redirect. An assign leaves an entry, so the browser's own
-       Back still returns them to the document they came from — which is the
-       brief's rule for this address, and it needs no handler to be correct.
+       "← HOME" IS THE SHELL CLOSE RULE, COPIED FROM ballot.html AND me.html. It
+       is a real navigation with a plain <a href="/">, not a history.back(): the
+       reader may have arrived cold from a bookmark, from /ballot, from a
+       dossier's "set your side on this issue", or from an old #my-stances link,
+       in which case there is either no history behind them or the entry behind
+       them was consumed by a redirect.
        ══════════════════════════════════════════════════════════════════════ -->
-  <header class="pdx-me-bar">
-    <a href="/" class="pdx-me-wordmark" aria-label="PolitiDex home">POLITI<span>DEX</span></a>
-    <span class="pdx-me-links">
-      <a href="/" class="pdx-me-home" id="pdx-me-home">← Home</a>
+  <header class="pdx-ms-bar">
+    <a href="/" class="pdx-ms-wordmark" aria-label="PolitiDex home">POLITI<span>DEX</span></a>
+    <span class="pdx-ms-links">
+      <a href="/me">Your file</a>
+      <a href="/" id="pdx-ms-home">← Home</a>
     </span>
   </header>
 
   <!-- ══ THE MOUNT ══════════════════════════════════════════════════════════
-       me-desk.js paints seven regions in here and NOTHING is pre-rendered: an
-       empty region shipped in the markup would be a shape that looks like data
-       to a reader whose JavaScript failed, and every region's honest state is a
-       sentence the desk writes. So the markup carries the note instead, the desk
-       replaces it wholesale, and a reader with no JavaScript reads what this
-       address is rather than looking at seven empty boxes.
+       ONE SECTION, AND IT KEEPS THE ID IT HAS ALWAYS HAD. #my-stances was the
+       homepage's address for this surface; it is this document's now, which is
+       what makes an old bookmarked /#my-stances survivable — index.html
+       replace-hops here, and the hash still resolves to the right thing after
+       the hop because the id came with it.
+
+       NOTHING IS PRE-RENDERED except the note. An empty chip row shipped in the
+       markup would be a shape that looks like data to a reader whose JavaScript
+       failed — which is the exact defect this pass removes from /me — so the
+       markup carries a sentence, and the studio replaces it wholesale.
        ══════════════════════════════════════════════════════════════════════ -->
-  <main id="me-desk" aria-label="Your file">
-    <p class="pdx-me-note" id="pdx-me-note">
-      Loading your file — your positions, the issues you rank harder, your ballot
-      so far, and the evidence you saved. If it does not appear,
-      <a href="/">go to PolitiDex</a>.
-    </p>
+  <main class="pdx-ms-main">
+    <section id="my-stances" aria-labelledby="mst-h">
+      <h1 class="mst-doc-h" id="mst-h">Your stances</h1>
+
+      <!-- The studio. stance-studio.js paints one mode in here and owns every
+           control inside it. -->
+      <div id="mst" class="mst">
+        <p class="pdx-ms-note" id="pdx-ms-note">
+          Loading your stances — the issues you care about and where you stand on
+          each. If it does not appear, <a href="/">go to PolitiDex</a>.
+        </p>
+      </div>
+
+      <!-- ── THE DOOR TO THE FULL COLLECTION · A CLOSED FOLD ────────────────
+           EVERY ISSUE, not just the ones with a side: priority, the private
+           note and the optional public showcase, which live nowhere else in the
+           app.
+
+           IT USED TO BE A BUTTON, AND THE BUTTON WAS A TRAPDOOR. "Every issue
+           on file →" called my-stances.js's init(), which mounted the 121-card
+           collection into this section and HID the studio above it. So the one
+           reader who tapped it — someone who had just been taught how to take a
+           side and wanted to see the rest — lost the surface that taught them
+           and landed in the warehouse, with a panel selling a match score on
+           the one page that is not allowed to show one. A door out of a room
+           should not delete the room.
+
+           SO IT IS A <details>, CLOSED. Mode B stays under the reader; the
+           catalog unfolds BELOW it, into #ms-door-body, and the studio is not
+           hidden. Closed is the shipped state and there is no attribute here
+           that opens it, which is what "not a visible warehouse on first paint"
+           means in markup rather than in a promise.
+
+           THE IDS ARE my-stances.js's OWN. wireDoor() listens for this
+           element's `toggle` — the fold IS the gesture, so there is no second
+           button inside it to press — and paintDoorCount() writes
+           #ms-door-count, which is already the sentence this pass wants: "3
+           positions on file", a length, hidden entirely at zero rather than
+           nagging with a nought. No percentage, no denominator, no grade. -->
+      <details class="ms-door" id="ms-door">
+        <summary class="ms-door-sum">
+          <span class="ms-door-sum-l">Browse every issue</span>
+          <span class="ms-door-count" id="ms-door-count" hidden></span>
+        </summary>
+        <div class="ms-door-body" id="ms-door-body"></div>
+      </details>
+
+      <!-- ── THE COLLECTION · inert until something asks for it ──────────────
+           MOVED HERE FROM index.html, byte-for-byte apart from the lede.
+           Template contents are parsed into an inert fragment outside the
+           document tree, so this costs zero layout, zero paint and zero height
+           until my-stances.js's _mount() clones it into this section. Nothing
+           inside was rewritten and no id moved, which is why #ms-body,
+           #ms-heading, my-stances.css and every existing deep link still
+           resolve the moment it is mounted.
+
+           THE LEDE IS THE ONE EDIT. It used to sell the Alignment Tool and
+           "who matches what you stand for", which is a match score named on the
+           one page that is not allowed to show one. What it says now is what
+           this surface does. -->
+      <template id="ms-shell-tpl">
+      <div class="ms-shell">
+        <div class="ms-head">
+          <span class="ms-eyebrow">🎯 What you stand for</span>
+          <h2 class="ms-title" id="ms-heading">EVERY <span>ISSUE</span></h2>
+          <p class="ms-lede">Every issue PolitiDex tracks, in the same vocabulary it uses for every politician. Take a <strong>Support</strong>, <strong>Oppose</strong> or <strong>Mixed</strong> position, mark the ones you rank harder, and keep a private note on any of them. <strong>Mixed means you hold both halves of the argument</strong> — it does not mean undecided, and nothing here will guess a side for you. <strong>Private by default</strong>, yours to control.</p>
+        </div>
+        <div id="ms-body"><div class="ms-status">Loading the issues…</div></div>
+      </div>
+      </template>
+    </section>
   </main>
 
 </body>

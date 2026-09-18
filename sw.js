@@ -6680,7 +6680,147 @@
 //     /library?mode=legislation, /money, /community, me.html, the H.R.1 teaching
 //     card, the restored footer script and /p/<pid> all answer exactly as in
 //     v215.
-const CACHE_VERSION = 'v216';
+// v217 - DOOR 2 FIRST RUN: SET ONE STANCE, THEN USE THE DESK.
+//
+//     The ballot workspace could already read a voter's own positions against
+//     the formal record of whoever holds their seats, and an ordinary voter
+//     never found that out: the match has an input they had not given, and the
+//     only place to give it was a 121-key dropdown. So /ballot now carries a
+//     coach — door2-first-run.js and door2-first-run.css, both added to
+//     SHELL_ASSETS below, alongside the desk they mount inside.
+//
+//     Three beats, one at a time. Twelve starter issue chips off real ISSUE_MAP
+//     keys, a typeahead over label and scope sentence capped at five hits, and a
+//     visible "Skip for now"; then that ONE issue with its LOCKED scope sentence
+//     from issue-scope.js and Support / Oppose / Not sure; then the holder of
+//     the open seat with their formal pattern ON THAT ISSUE from
+//     PDXConsistency.formalPatternIndex.rowFor and their stated word under it.
+//     Where no ballot seat resolves it falls back to the resolver's own list.
+//
+//     THE STORE IS THE EXISTING STORE. An answer goes through PDXStances.set()
+//     where that module is loaded and window.alignSetIntensity() where it is
+//     not — two ends of one lineage, since my-stances.js projects into the
+//     alignment signature and adopts back out of it. One issue answered is one
+//     key in the store the Team Builder already reads.
+//
+//     NOTHING HERE IS SCORED. No Direction Match number, no Word vs Action
+//     verdict, no blend, no party, no completion percentage — three issues is
+//     where a button changes, never a grade. "Not sure" and "Skip for now"
+//     write no key at all: the store speaks support / oppose / mixed and
+//     `mixed` is a real mixed position, not "I do not know".
+//
+//     MIGRATION COST: NONE, AND NOTHING IS REWRITTEN. The coach reads the keys
+//     already in the reader's own store and adds to them only when asked, so a
+//     reader who arrives holding positions keeps every one of them, sees neither
+//     of the first two screens, and is never re-asked a question they answered.
+//     No stored shape changed: no key is renamed, re-scoped, deleted or
+//     re-weighted, and the coach's own flags (dismissed, collapsed, location
+//     skipped, and which issue is in hand) live in a bucket nothing else reads. A
+//     reader with storage switched off loses only the memory of which beat they
+//     were on, never a position.
+//
+//     DID NOT CHANGE. ballot-workspace.js gained one pure read (_open, the seat
+//     it had already chosen) so the coach keeps no second copy of that
+//     precedence; the pick control is still the desk's. No roster field, issue
+//     key, mapping, stance corpus, auth path or ingest changed, and
+//     voter-hub-location.js is untouched. Door 1 was not redesigned, finance is
+//     not scored, and /library, /library?mode=legislation, /money, /community,
+//     me.html, the H.R.1 teaching card and /p/<pid> answer as in v216.
+// v218 - /my-stances IS THE STANCE STUDIO, AND IT IS A DOCUMENT.
+//
+//     Three defects, one address. '#my-stances' was a FRAGMENT on the homepage,
+//     so every "go set a position" door resolved to a scroll position:
+//     /#my-stances landed readers in Relevant-to-me, /ballot's "Set your
+//     positions" could not open an editor at all (it was a <template> on a
+//     document the reader was not on), and /me painted three dashed chips over
+//     "Nothing on file yet." — a row meaning "a side you hold", holding none.
+//
+//     So the editor is a document. '/my-stances.html' joins SHELL_ASSETS with
+//     '/stance-studio.js' and '/stance-studio.css'; netlify.toml rewrites
+//     /my-stances and /my-stances/ to it. Two modes on one page: a reader with
+//     nothing on file gets a self-tutorial — twelve starter chips off real
+//     ISSUE_MAP keys, a typeahead over label AND locked scope sentence so
+//     "turf" reaches water conservation, then that ONE issue with its scope
+//     and Support / Oppose / Not sure — and a reader with sides gets the
+//     library they hold, search always visible, starters folded away.
+//     ?issue=<key> and ?add=1 are the deep links every door above uses.
+//
+//     OUT, IN THE SAME BREATH: door2-first-run.js and door2-first-run.css, the
+//     12-chip coach that did half this job inside the ballot desk. Two
+//     first-runs for one task is how two empty states drift. /ballot now READS
+//     positions and, having none, prints one line and one link.
+//
+//     NOTHING HERE IS SCORED. No politician percentage on this page, no party,
+//     no Direction Match, no completion meter — three saved positions changes a
+//     button's label, never a grade. "Not sure", "Skip" and "clear" write no
+//     key at all; `mixed` remains a real mixed position, not "I do not know".
+//     The studio reads NO record engine: consistency.js, the stance corpus and
+//     voter-hub-location.js are all absent from this document's critical path,
+//     which is why the whole of /my-stances is precacheable and a reader can
+//     take a side on a train.
+//
+//     MIGRATION COST: NONE. One store, the existing one — pdx_my_stances_v1
+//     through PDXStances, projecting into the alignment signature exactly as
+//     before. No third key, no new bucket: the studio's own state is memory
+//     plus the URL, so the only thing a reload forgets is which beat was on
+//     screen, never a position. Nothing stored is renamed, re-scoped, deleted
+//     or re-weighted, and a reader arriving with forty positions sees the
+//     library on first paint and is never re-asked an answered one.
+//
+//     DID NOT CHANGE. /me still reads its positions off the same store and now
+//     links out instead of mounting a second editor; me.html, ballot.html and
+//     index.html ship the same chrome minus the markup named above. No roster
+//     field, issue key, mapping, stance corpus, auth path or ingest changed;
+//     voter-hub-location.js is untouched, and /library, /money, /courts,
+//     /evidence and /p/<pid> answer exactly as in v217.
+// v219 - ONE STORE, ONE STUDIO FACE, ISSUE COLOUR ON THE CATALOG.
+//
+//     THREE READERS ANSWERED ONE QUESTION AND ONE OF THEM ANSWERED BLANK. The
+//     studio read PDXStances.all() (an ARRAY, pdx_my_stances_v1), /me read
+//     PDXYourFile.answered() (a map, under the setter's OWN second key), and
+//     /ballot's rank axis walked window._alignIssues. So three saved positions
+//     were three sides in the studio, three on the ballot — and NONE on /me,
+//     which printed "Nothing on file yet." under "Your positions". Nothing
+//     threw; all three modules were internally correct. There were three.
+//
+//     stance-sides.js IS THE ONE READER, and it stores nothing and adds no key.
+//     It walks the stance array with the trap written down beside the loop
+//     (Object.keys over an array yields "0","1","2", so the list comes back
+//     empty in silence), then asks PDXYourFile's own answered()/position() —
+//     directly, because that editor reaches the alignment signature through
+//     alignment-tool.js and there is no engine on /me — then merges what is
+//     left of the signature, taking direction from the engine's declared
+//     ALIGN_DEFAULT_LEVEL rather than a guess. First source wins per issue.
+//     Local-first through PDXStore, so a signed-in reader never meets the empty
+//     sentence while local holds sides.
+//
+//     "EVERY ISSUE ON FILE" NO LONGER OPENS A MANIFESTO. The door is a CLOSED
+//     <details> "Browse every issue": Mode B stays under the reader, the
+//     catalog mounts inside the fold instead of hiding the studio, and the
+//     Alignment Tool / Your Match / Say-vs-Do / Direction Match copy that sold
+//     a match score on the one page not allowed to show one is gone outright,
+//     stylesheet included. A star stays a star on a row.
+//
+//     ISSUE COLOUR REACHES THE CATALOG. Summary chips, bundle filters, group
+//     heads and issue rows take PDXIssueColors.skin() — the road a bill
+//     letterhead takes, ROLLUP_PARENT included — so the gold "active filter"
+//     paint is gone and each chip wears its own issue's colour.
+//
+//     SHELL FILES THIS PASS TOUCHED: /stance-sides.js (NEW, precached below),
+//     /my-stances.html, /my-stances.js, /my-stances.css, /stance-studio.js,
+//     /stance-studio.css, /me.html, /me-desk.js, /ballot.html, /race-sheet.js,
+//     /index.html. DID NOT CHANGE: /app.css, /mobile-polish.css, /issue-map.js,
+//     /issue-colors.js, /issue-scope.js, /your-file.js, /alignment-tool.js,
+//     /consistency.js, /voter-hub-location.js, /cmp-data.js, the stance corpus,
+//     /library, /money, /courts, /evidence, /mandate, /voice and /p/<pid>.
+//
+//     MIGRATION COST: NONE. Both position stores keep their keys, their shapes
+//     and their contents; the new file only reads them, so a reader arriving
+//     with forty positions and a record already cached sees the same forty, and
+//     nothing stored is renamed, re-scoped, re-weighted or dropped.
+//
+//     NO new store key, no DM number, no party, twin-boot DM unchanged.
+const CACHE_VERSION = 'v219';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -6752,6 +6892,19 @@ const SHELL_ASSETS = [
   // the positions, the stars, the ballot picks and the saved receipts are all
   // localStorage, and none of them needed the network to be true.
   '/me.html',
+  // THE SEVENTH SHELL: the stance studio. netlify.toml rewrites /my-stances and
+  // /my-stances/ here. A SINGLE address again — the issue in hand is a query
+  // (?issue=<key>, ?add=1), so there is nothing per-issue to key and navDocKey
+  // gives it none.
+  //
+  // This one earns its place more plainly than the six above it: the document
+  // needs NO network to be correct. The vocabulary is ISSUE_MAP and
+  // issue-scope.js, both shell entries; the store is localStorage inline in the
+  // document; and the studio prints no match, so none of the 3.6 MB of record
+  // engine is on this path. A reader on a train can learn what an issue means,
+  // take a side on it, and have /ballot read that side against a formal record
+  // the next time it can.
+  '/my-stances.html',
   // The desk's own two files, and the ONLY two this pass adds beyond the document
   // — precached rather than left to the runtime bucket for the reason the shell
   // itself is: they are the whole of what paints /me. Everything else on that
@@ -6860,6 +7013,14 @@ const SHELL_ASSETS = [
   // is a list of buttons with no rail and no sense of progress — which is the
   // exact failure the feature exists to fix. Shipped with its script below.
   '/ballot-workspace.css',
+  // The stance studio's stylesheet — render-blocking on /my-stances, which is
+  // why it is precached rather than left to the runtime bucket. It replaces
+  // door2-first-run.css, which dressed the same twelve chips inside /ballot and
+  // is gone: the coach is a document now, not a card on the desk. Unstyled, the
+  // studio's first screen is an undifferentiated stack of buttons — the exact
+  // "which of these do I press" problem it exists to remove — and it is the
+  // first thing a reader with nothing on file ever meets.
+  '/stance-studio.css',
   // The Door 1 workspace's stylesheet, for the reason the version log above
   // gives at length: the sheet is what makes the desk two regions instead of a
   // column. Shipped with its script below.
@@ -7004,6 +7165,29 @@ const SHELL_ASSETS = [
   // every fact it prints — offline with one and not the other, the mount paints
   // nothing at all.
   '/ballot-workspace.js',
+  // The stance studio: the self-tutorial on /my-stances for a reader with
+  // nothing on file, and the library of held positions for a reader who has
+  // something. It replaces door2-first-run.js, which did the first half of that
+  // job inside the ballot desk — two first-runs for one task, and the desk's
+  // one could not be bookmarked, shared or linked per-issue.
+  //
+  // WHY IT IS PRECACHED WITH ITS DOCUMENT AND NOT WITH THE DESK. It reads
+  // ISSUE_MAP and issue-scope.js (both already entries below) and the reader's
+  // own store, and it reads NO record engine at all — nothing on this page
+  // needs consistency.js, the stance corpus or voter-hub-location.js, because
+  // the studio never prints a match. So the whole of /my-stances is shell
+  // assets: offline, a reader can still set a position, and the ballot reads it
+  // the next time the desk resolves. Without this file the document falls back
+  // to the every-issue collection in my-stances.js, which is a working editor
+  // and a worse teacher — the safe half of the pair to lose.
+  '/stance-studio.js',
+  // THE ONE READER OF "WHICH SIDES DOES THIS PERSON HOLD". Tiny, no storage, no
+  // vocabulary of its own — and it is on four shells (/, /me, /ballot,
+  // /my-stances) because those are the four documents that print a side. Losing
+  // it offline is the one failure that brings back the defect it fixes: /me
+  // would have no reader at all and would print its empty sentence over a full
+  // file. It is listed here so it is never the asset that did not arrive.
+  '/stance-sides.js',
   // Door 1's workspace: the mode rail, the one open desk, and the view strips
   // on the four older Door 1 surfaces. Precached with the modules it reads —
   // claim-check.js, issue-view.js, consistency.js, bill-detail.js and

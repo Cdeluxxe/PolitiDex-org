@@ -86,27 +86,27 @@
 .ms-chip.is-support { border-color: rgba(74, 222, 128, 0.45); }
 .ms-chip.is-oppose { border-color: rgba(248, 113, 113, 0.45); }
 .ms-chip.is-mixed { border-color: rgba(250, 204, 21, 0.45); }
-.ms-chip.is-priority { box-shadow: 0 0 0 1px rgba(250, 204, 21, 0.45), 0 0 10px rgba(250, 204, 21, 0.15); background: rgba(250, 204, 21, 0.08); }
+/* A STAR IS A STAR ON A ROW, NOT A SECOND PRODUCT. A high-priority chip used to
+   be flooded gold — a whole second colour language sitting beside the issue
+   colours and the three side colours, competing with both. The ⭐ glyph says it
+   now, and the chip keeps its issue's own wash. */
+.ms-chip.is-priority { box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.35); }
 .ms-chip-prio { color: #fcd34d; }
+.ms-chip[data-ic="on"] { background: var(--pdx-ic-wash); border-color: color-mix(in srgb, var(--pdx-ic) 52%, transparent); }
+.ms-chip[data-ic="on"] .ms-chip-lbl { color: var(--pdx-ic-ink); }
+/* The SIDE still outranks the issue on the chip's border, because the side is
+   what the reader said and the colour is only which issue they said it about. */
+.ms-chip[data-ic="on"].is-support { border-color: rgba(74, 222, 128, 0.55); }
+.ms-chip[data-ic="on"].is-oppose { border-color: rgba(248, 113, 113, 0.55); }
+.ms-chip[data-ic="on"].is-mixed { border-color: rgba(250, 204, 21, 0.55); }
 
-/* ── "What your stances power" ──────────────────────────────────────────── */
-.ms-powers {
-  background: linear-gradient(135deg, rgba(96, 165, 250, 0.08), rgba(250, 204, 21, 0.05));
-  border: 1px solid rgba(96, 165, 250, 0.18); border-radius: 1rem;
-  padding: 1.05rem 1.1rem; margin-bottom: 1.1rem;
-}
-.ms-powers.is-live { border-color: rgba(250, 204, 21, 0.3); }
-.ms-pow-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; letter-spacing: 0.05em; text-transform: uppercase; color: #fcd34d; margin-bottom: 0.4rem; }
-.ms-pow-body { color: #a9bdda; font-size: 0.92rem; line-height: 1.55; margin: 0 0 0.85rem; }
-.ms-pow-body strong { color: #fcd34d; }
-.ms-pow-body em { color: #e7ecf6; font-style: normal; font-weight: 600; }
-.ms-pow-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.ms-pow-btn {
-  cursor: pointer; background: rgba(6, 12, 24, 0.7); border: 1px solid rgba(96, 165, 250, 0.28);
-  border-radius: 0.6rem; padding: 0.5rem 0.85rem; color: #cfe0fb; font: inherit; font-size: 0.86rem; font-weight: 600;
-  transition: background 0.12s, border-color 0.12s, transform 0.12s;
-}
-.ms-pow-btn:hover { background: rgba(96, 165, 250, 0.14); border-color: rgba(96, 165, 250, 0.5); transform: translateY(-1px); }
+/* ── THE "WHAT YOUR STANCES POWER" PANEL IS GONE, AND SO ARE ITS RULES ────
+   .ms-powers / .ms-pow-title / .ms-pow-body / .ms-pow-actions / .ms-pow-btn
+   dressed a block that named the Alignment Tool, Your Match and Say-vs-Do on
+   the one document that may not show a match score, and two of its three
+   buttons scrolled to ids this document does not contain. The markup went with
+   it; leaving the stylesheet behind would have left the next author a styled
+   shape to fill. See renderPowers' absence in my-stances.js. */
 
 /* ── Showcase / public toggle ───────────────────────────────────────────── */
 .ms-showcase {
@@ -154,7 +154,26 @@
   transition: background 0.12s, border-color 0.12s, color 0.12s;
 }
 .ms-fchip:hover { border-color: rgba(96, 165, 250, 0.4); color: #cfe0fb; }
-.ms-fchip.is-on { background: rgba(250, 204, 21, 0.16); border-color: rgba(250, 204, 21, 0.5); color: #fcd34d; }
+/* ── NO GOLD FOCUS PAINT ──────────────────────────────────────────────────
+   The selected bundle chip used to be rgba(250, 204, 21, …) — the same gold a
+   STARRED issue wears. So "Healthcare is the active filter" and "Healthcare is
+   weighted high" were rendered in one colour, and that colour was not
+   healthcare's. Selection now deepens the chip's OWN issue colour, which
+   PDXIssueColors.skin() has already put on the element as --pdx-ic*, and the
+   star keeps the star.
+
+   THERE IS NO PER-ISSUE RULE HERE AND THERE CANNOT BE. Every value below is a
+   local custom property set inline by skin(); this stylesheet never learns
+   which issue it is painting. A chip whose key did not resolve carries no
+   [data-ic] at all and falls through to the steel selected state underneath,
+   which is the honest look for "not a core issue". */
+.ms-fchip.is-on { background: rgba(148, 163, 184, 0.18); border-color: rgba(148, 163, 184, 0.5); color: #e6edf9; }
+.ms-fchip[data-ic="on"] { border-color: color-mix(in srgb, var(--pdx-ic) 34%, transparent); }
+.ms-fchip[data-ic="on"]:hover { border-color: color-mix(in srgb, var(--pdx-ic) 62%, transparent); color: #eaf1ff; }
+.ms-fchip[data-ic="on"].is-on {
+  background: var(--pdx-ic-wash); border-color: var(--pdx-ic);
+  color: var(--pdx-ic-ink); font-weight: 600;
+}
 
 .ms-groups { display: flex; flex-direction: column; gap: 0.6rem; }
 .ms-group { background: rgba(13, 21, 38, 0.5); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 0.85rem; overflow: hidden; }
@@ -165,6 +184,11 @@
 }
 .ms-group-head:hover { background: rgba(96, 165, 250, 0.06); }
 .ms-group-lbl { flex: 1; }
+/* The bundle's own colour, resolved through PDXIssueColors.ROLLUP_PARENT for a
+   bundle key and through the leaf index for a leaf — one road, skin(). */
+.ms-group[data-ic="on"] { border-left: 3px solid color-mix(in srgb, var(--pdx-ic) 58%, transparent); }
+.ms-group[data-ic="on"] > .ms-group-head { color: var(--pdx-ic-ink); }
+.ms-group[data-ic="on"] > .ms-group-head:hover { background: var(--pdx-ic-wash); }
 .ms-group-badge {
   flex: none; background: rgba(250, 204, 21, 0.16); color: #fcd34d; border-radius: 999px;
   padding: 0.05rem 0.5rem; font-size: 0.8rem; font-weight: 700; font-family: 'Barlow', sans-serif;
@@ -187,7 +211,14 @@
 .ms-issue.is-active.is-mixed { border-left-color: #facc15; }
 /* High-priority active row — a stronger, gold-tinged accent so the issues that
    weigh most in matches read as such at a glance. */
-.ms-issue.is-priority { box-shadow: inset 3px 0 0 rgba(250, 204, 21, 0.55), 0 0 0 1px rgba(250, 204, 21, 0.14); }
+.ms-issue.is-priority { box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.2); }
+/* The row's own issue colour. The LEFT edge stays the side (green / red /
+   amber) on an answered row, because that is the reader's answer; the issue
+   shows in the label and the wash, which is the same division the summary chip
+   above makes. An inactive row is unwashed — a tint on all 121 rows would be a
+   wall of colour saying nothing. */
+.ms-issue[data-ic="on"] .ms-issue-lbl { color: var(--pdx-ic-ink); }
+.ms-issue[data-ic="on"].is-active { background: var(--pdx-ic-wash); }
 .ms-issue-pri {
   display: inline-block; margin-left: 0.5rem; vertical-align: middle;
   font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;

@@ -726,24 +726,27 @@
   //     options; the one they picked. The face is capped at SNAP_CAP so a
   //     reader who has answered forty gets a snapshot rather than a list, and
   //     the leftover is counted in words on the door beside it.
-  //   · NOTHING ON FILE → the starter chips, which are three keys the editor
-  //     already owns (see STARTERS), and one sentence pointing at My Stances for
-  //     the rest. A STARTER IS A HINT, NOT A DENOMINATOR: three chips is an
-  //     invitation to begin, and the count above them is still measured against
-  //     the whole vocabulary. A screenful of "Not sure" is a chore.
-  //   · EITHER WAY, ONE DOOR. "Set all issues" mounts your-file.js's editor —
-  //     the SAME module into the SAME host, through PDXYourFile.inline(), which
-  //     is why this is not a second setter and cannot drift from the first. It
-  //     is mounted on the gesture rather than on the paint, which is the whole
-  //     change: the editor still lives here, it just is not what the region
-  //     opens as.
+  //   · NOTHING ON FILE → ONE SENTENCE AND ONE DOOR, AND NO CHIPS AT ALL.
+  //     There used to be three dashed starter chips here. They are gone: see
+  //     the long note in regionPositions() for why a chip that carries no side
+  //     sitting in the row where every other chip does was the defect, not the
+  //     invitation.
+  //   · EITHER WAY, ONE DOOR, AND IT IS AN ADDRESS. "Set all issues" is a
+  //     LINK TO /my-stances. It used to mount your-file.js inline into a host
+  //     below this snapshot, and that was one editor too many: /my-stances is
+  //     now the stance studio — it teaches the vocabulary on a first visit and
+  //     is the library on every one after — so a second copy of the setter
+  //     living under the account desk gave the same job two surfaces, two
+  //     empty states and two first-run stories. This region reads; that
+  //     document writes. Same store either way (see 1 below).
   //
   // WHAT IT STILL IS NOT:
   //
   //   1. NOT A SECOND STORE. Every side printed below comes out of
   //      PDXYourFile.position() — the accessor the alignment read itself uses.
-  //      This region writes nothing; the door hands the reader to the editor and
-  //      the editor writes, through its own set(), as it always did.
+  //      This region writes nothing at all; the door hands the reader to
+  //      /my-stances and the studio there writes, into the one stance store
+  //      both surfaces already read.
   //   2. NOT A SCORE, AND NOT AGAINST A STARTER OCTET. "2 of 121 set" is the
   //      length of the answered list over the length of THE VOCABULARY THE
   //      SETTER OFFERS — PDXYourFile.KEYS, which that module derives from
@@ -768,50 +771,57 @@
     var Y = yf();
     return (Y && Array.isArray(Y.KEYS)) ? Y.KEYS.slice() : [];
   }
-  // The answered keys, in the editor's own declared order, through the editor's
-  // own accessor. A key whose stored answer is not one of the four is already
-  // dropped by that module's normalize(), so nothing here re-validates it.
+  // ── THE SIDES, THROUGH THE ONE READER ─────────────────────────────────────
+  // THIS REGION WAS THE THIRD READER, AND IT WAS THE ONE THAT WENT BLANK.
+  //
+  // It used to ask PDXYourFile.answered() + .position(). That accessor is
+  // honest about its own store — pdx_your_file_v1, the setter's key — and it is
+  // not the store the stance studio writes. So a reader who set three
+  // positions on /my-stances had three sides in the studio, three on /ballot's
+  // rank axis, and NONE here: this heading said "Your positions" and the body
+  // under it said "Nothing on file yet." Nothing threw, nothing logged, and
+  // both modules were internally correct. There were simply three readers.
+  //
+  // There is one now, in stance-sides.js, and every surface that prints a side
+  // asks it: the studio's library, this region, and race-sheet.js's rank axis.
+  // It reads PDXStances — the studio's own store — and merges the alignment
+  // signature, which is where an answer given in the older Your File editor or
+  // in the Alignment Tool itself lands. So a position set anywhere shows up
+  // here, and a position set nowhere does not.
+  //
+  // LOCAL FIRST, WHICH IS WHY A SIGNED-IN READER NEVER MEETS THE EMPTY
+  // SENTENCE WHILE HOLDING SIDES. PDXStances reads through PDXStore, which
+  // returns the local snapshot synchronously and merges the account pull into
+  // it afterwards, announcing itself with 'pdx-stances-change' — an event this
+  // desk already re-paints on (see the listener at the foot of this file). A
+  // write made a moment ago is on screen on the next paint, before any network
+  // has answered; a file arriving from another device lands when the pull does.
+  // Nothing on this path waits for a server before it is willing to say what
+  // the reader holds.
+  //
+  // NO STORE IS ADDED AND NONE IS MERGED HERE. This region still writes
+  // nothing at all; it reads one list and prints it.
   function positions() {
-    var Y = yf();
-    if (!Y || !fn(Y.answered)) return [];
-    var keys = [];
-    try { keys = Y.answered() || []; } catch (e) { keys = []; }
+    var S = null;
+    try { S = window.PDXStanceSides; } catch (e) { S = null; }
+    if (!S || !fn(S.list)) return [];
+    var rows = [];
+    try { rows = S.list() || []; } catch (e2) { rows = []; }
     var out = [];
-    keys.forEach(function (k) {
-      var pos = null;
-      try { pos = fn(Y.position) ? Y.position(k) : null; } catch (e2) { pos = null; }
-      if (pos) out.push({ key: k, pos: pos });
-    });
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i] && rows[i].key && rows[i].position) out.push({ key: rows[i].key, pos: rows[i].position });
+    }
     return out;
   }
-  // The side's label, off the editor's POSITIONS table. A side this desk cannot
-  // name is not printed as a raw slug: the chip falls back to the key alone,
-  // because "housing · mixed" is vocabulary and "housing · oppose_maybe" is a
-  // leak.
+  // The side's label, off the one reader's own table. A side it cannot name is
+  // not printed as a raw slug: the chip falls back to the key alone, because
+  // "housing · mixed" is vocabulary and "housing · oppose_maybe" is a leak.
   function sideLabel(pos) {
-    var Y = yf();
-    var list = (Y && Array.isArray(Y.POSITIONS)) ? Y.POSITIONS : [];
-    for (var i = 0; i < list.length; i++) {
-      if (list[i] && list[i].key === pos) return String(list[i].label || '');
-    }
+    try {
+      var S = window.PDXStanceSides;
+      if (S && fn(S.label)) return S.label(pos) || '';
+    } catch (e) {}
     return '';
-  }
-  // THE STARTERS ARE NOT A NEW VOCABULARY. Every one is a key the editor already
-  // owns AND one of the Alignment tool's own quick picks, so a reader who starts
-  // here and a reader who starts there are being offered the same issues. Three
-  // topics, not three flavours of one — and the list is filtered against the
-  // editor's own KEYS at read time, so a key the editor stops owning simply
-  // stops being offered rather than becoming a chip that leads nowhere.
-  var STARTERS = ['housing', 'gun_rights', 'school_choice'];
-  function starters() {
-    var own = yfKeys();
-    var have = {};
-    own.forEach(function (k) { have[k] = 1; });
-    var out = STARTERS.filter(function (k) { return !!have[k]; });
-    // The editor is not on the page yet (deferred, or an older cached copy
-    // without KEYS). Offering its first three keys is still its vocabulary.
-    if (!out.length) out = own.slice(0, 3);
-    return out.slice(0, 3);
   }
   // THE ISSUE'S OWN LABEL, off the register every other surface reads. An
   // unregistered key prints as itself rather than as a blank chip.
@@ -849,22 +859,24 @@
       (side ? '<span class="me-pchip-s">' + esc(side) + '</span>' : '') +
     '</li>';
   }
-  // A starter chip is a label too. It names an issue this reader could speak to;
-  // the gesture that answers it is the same single door.
-  function startChip(k) {
-    return '<li class="me-pchip me-pchip--start"' + icAttr(k) + '>' +
-      '<span class="me-pchip-l">' + esc(issueLabel(k)) + '</span>' +
-    '</li>';
-  }
-
-  // THE DOOR. A real control, wired in wire() to mountPositions(), which is the
-  // editor of record appearing below this snapshot. data-me-setall carries no
-  // argument: there is one door, and it opens the whole editor rather than a
-  // single row, because a per-row door would be thirty-two controls again in a
-  // different shape.
+  // THE DOOR, AND IT IS AN ADDRESS RATHER THAN A MOUNT.
+  //
+  // An <a href="/my-stances">, not a button that grows an editor underneath
+  // this snapshot. Three reasons, in the order they matter:
+  //   · ONE EDITOR. /my-stances is the stance studio. A second setter mounted
+  //     here would have its own empty state, its own first-run and its own
+  //     idea of what "nothing on file" should say, and the two would drift.
+  //   · THE READER CAN GET BACK. A real address is bookmarkable, shareable and
+  //     reachable from the six other surfaces that already point at it; an
+  //     inline mount existed only for as long as this paint did.
+  //   · IT COSTS THIS DOCUMENT NOTHING. The editor's weight now loads on the
+  //     document that is only the editor.
+  // data-me-setall stays on it so the suite can still find the one door by the
+  // attribute it has always been found by, and so nothing that reads "is there
+  // exactly one way out of this region" has to learn a new selector.
   function setAllDoor(extra) {
     return '<p class="me-pgo">' +
-      '<button type="button" class="me-door" data-me-setall="1">Set all issues &rarr;</button>' +
+      '<a class="me-door" data-me-setall="1" href="/my-stances">Set all issues &rarr;</a>' +
       (extra ? '<span class="me-pmore">' + esc(extra) + '</span>' : '') +
     '</p>';
   }
@@ -883,13 +895,24 @@
       }).join('') + '</ul>';
       if (left > 0) extra = left + ' more';
     } else {
-      // THE HONEST EMPTY, WITH SOMEWHERE TO GO. Not a form and not a scold: the
-      // three issues most readers start with, and the sentence that says where
-      // the other five live.
-      body = '<ul class="me-pchips me-pchips--start">' +
-        starters().map(startChip).join('') + '</ul>' +
-        '<p class="me-rline">Nothing on file yet. ' +
-          'Set the rest in <a class="me-link" href="/#my-stances">My Stances</a>.</p>';
+      // THE HONEST EMPTY, AND IT DRAWS NO CHIPS AT ALL.
+      //
+      // WHAT USED TO BE HERE: three issue names in the same chip row shape as a
+      // real position, dashed, above the words "Nothing on file yet." Two
+      // things were wrong with it and the second is the serious one.
+      //   · A CHIP IN THIS ROW MEANS "A SIDE YOU HOLD". Every other chip on
+      //     this desk carries a position. Three that carried none sat in the
+      //     identical row, in the issue's own colour, directly under a sentence
+      //     saying nothing was on file — so the row and the sentence
+      //     contradicted each other, and the row is the louder of the two.
+      //   · THEY WERE NOT CONTROLS. They were <li> elements with no handler, so
+      //     a reader who read them as "tap to set this" — which is the only
+      //     thing that shape can mean — tapped three times on nothing.
+      // A file with nothing in it should say so in words and offer one door,
+      // which is the setAllDoor() below. That is the whole of the honest empty.
+      body = '<p class="me-rline">Nothing on file yet. ' +
+        'Pick an issue and say where you stand \u2014 it takes one tap, and every ' +
+        'seat on your ballot is read against it afterwards.</p>';
     }
 
     // THE DENOMINATOR IS THE VOCABULARY, MEASURED, AND IT IS NOT A NUMBER THIS
@@ -913,7 +936,6 @@
       '<p class="me-rline">' + esc(posLine()) + '</p>' +
       body +
       setAllDoor(extra) +
-      '<div id="me-yf-host"></div>' +
     '</section>';
   }
 
@@ -926,46 +948,6 @@
       if (Y && Y.COPY && Y.COPY.line) return String(Y.COPY.line);
     } catch (e) {}
     return 'Your positions. Used to compare formal records. Not a vote. Not a district poll.';
-  }
-
-  // MOUNTED ON THE GESTURE, NOT ON THE PAINT. Called from wire() when the door
-  // is used, and from a repaint only when the editor is ALREADY up — so a
-  // location resolving underneath the desk does not push a form onto a reader
-  // who never asked for one, and does not tear one away from a reader who did.
-  function mountPositions() {
-    var host = el('me-yf-host');
-    if (!host) return false;
-    var Y = yf();
-    if (!Y || !fn(Y.inline)) {
-      // your-file.js has not parsed yet, or this is an older cached copy of it
-      // without an inline host. Say what is missing; do not paint rows this
-      // document would then own.
-      host.innerHTML = empty('The positions editor is still loading. If it does not appear, ' +
-        '<a href="/">reload PolitiDex</a>.');
-      return false;
-    }
-    if (host.getAttribute('data-me-mounted') === '1') { try { Y.render(); } catch (e) {} return true; }
-    try {
-      if (Y.inline(host)) { host.setAttribute('data-me-mounted', '1'); return true; }
-    } catch (e2) {}
-    return false;
-  }
-  function isSetterOpen() {
-    var host = el('me-yf-host');
-    return !!(host && host.getAttribute('data-me-mounted') === '1');
-  }
-  // The gesture: mount if it is not up, then put the reader on it. goTab marks
-  // the region and scrolls, which is the desk's one way of landing on a region.
-  function openSetter() {
-    var ok = mountPositions();
-    try { goTab('positions'); } catch (e) {}
-    if (ok) {
-      try {
-        var host = el('me-yf-host');
-        if (host && fn(host.scrollIntoView)) host.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } catch (e2) {}
-    }
-    return ok;
   }
 
   // ── c · STARRED ───────────────────────────────────────────────────────────
@@ -985,7 +967,7 @@
       '</div>' +
       body +
       '<p class="me-rline" style="margin:0.7rem 0 0;">' +
-        '<a class="me-link" href="/#my-stances">Add or remove a star in My Stances</a>' +
+        '<a class="me-link" href="/my-stances">Add or remove a star in your stances</a>' +
       '</p>' +
     '</section>';
   }
@@ -1438,31 +1420,19 @@
         'for a voter and no grade for a party.</p>';
   }
 
-  // THE WHOLE DESK, EXCEPT THE EDITOR. Region b's host is preserved across a
-  // repaint — remounting it would throw away the rows your-file.js is holding,
-  // mid-tap, to paint the same rows back. So the host is lifted out,
-  // the rest is replaced, and the host is put back. An UNMOUNTED host is not
-  // lifted and not remounted: the editor is now opened by a gesture, and a
-  // location resolving underneath the desk is not that gesture.
+  // THE WHOLE DESK, AND NOTHING IS PRESERVED ACROSS THE REPAINT.
+  //
+  // This function used to lift a mounted editor out of region b, replace the
+  // rest, and put the editor back — because a location resolving underneath
+  // the desk would otherwise have thrown away rows your-file.js was holding
+  // mid-tap. There is no editor on this document any more: region b's door is
+  // an address to /my-stances, so a repaint here cannot interrupt anybody's
+  // half-finished answer and the whole lift-and-replace dance is gone with it.
   function render() {
     var mount = el(MOUNT);
     if (!mount) return;
-    var host = el('me-yf-host');
-    var keep = (host && host.getAttribute('data-me-mounted') === '1') ? host : null;
-    if (keep && keep.parentNode) { try { keep.parentNode.removeChild(keep); } catch (e) { keep = null; } }
-
     try { mount.innerHTML = html(); } catch (e) { return; }
-
-    if (keep) {
-      var slot = el('me-yf-host');
-      if (slot && slot.parentNode) {
-        try { slot.parentNode.replaceChild(keep, slot); } catch (e2) {}
-      }
-    }
     _painted = true;
-    // Only a setter that was ALREADY up is re-rendered. Where it was not, the
-    // snapshot stands and the door is the way in.
-    if (keep) mountPositions();
     applyTab(false);
   }
 
@@ -1575,15 +1545,22 @@
     try { window.pdxRosterReady(renderSoon); } catch (e) { _rosterHooked = false; }
   }
 
-  // SEAM 3 — a bare '#my-stances' is a trip home. my-stances.js is loaded here
-  // for its store and its priority hook, but its section needs a homepage mount
-  // it does not have, so PDXStances.open() would scroll to nothing. The anchors
-  // in region c are already real hrefs to /#my-stances; this catches the hash
-  // being set by anything else.
+  // SEAM 3 — a bare '#my-stances' is a trip to /my-stances. It used to be a
+  // trip HOME, which was the best answer available while the editor was a
+  // homepage section: my-stances.js is loaded here for its store and its
+  // priority hook, but the section needed a mount this document does not have,
+  // so PDXStances.open() scrolled to nothing and the hash had to be forwarded
+  // to the front page. The studio is a document now, so the honest answer is
+  // its address — and PDXStances.open() reaches it on its own, which is why
+  // this seam is only here to catch the hash being set by something older.
+  // '#my-views' goes to the same place: the showcase lives in the every-issue
+  // collection on that document.
   function seamStances() {
     window.addEventListener('hashchange', function () {
       var h = location.hash || '';
-      if (h === '#my-stances' || h === '#my-views') home('#my-stances');
+      if (h === '#my-stances' || h === '#my-views') {
+        try { location.assign('/my-stances'); } catch (e) { home('#my-stances'); }
+      }
     });
   }
 
@@ -1624,7 +1601,6 @@
         if (!t || !t.closest) return;
         if (t.closest('[data-me-signin]')) { ev.preventDefault(); signIn(); return; }
         if (t.closest('[data-me-signout]')) { ev.preventDefault(); signOut(); return; }
-        if (t.closest('[data-me-setall]')) { ev.preventDefault(); openSetter(); return; }
         if (t.closest('[data-me-loc]')) { ev.preventDefault(); home('#who-represents-me'); return; }
         var tab = t.closest('[data-me-tab]');
         if (tab) {
@@ -1718,17 +1694,15 @@
     stars: stars,
     voice: voice,
     savedCards: savedCards,
-    // Region b's reads. positions() is the snapshot's whole input, starters() is
-    // what an empty file is offered, and SNAP_CAP is the face's ceiling — all
-    // three exported so a test compares them against the editor's own store
-    // rather than against a shape written down twice.
+    // Region b's reads. positions() is the snapshot's whole input and SNAP_CAP
+    // is the face's ceiling — both exported so a test compares them against
+    // the editor's own store rather than against a shape written down twice.
+    // starters()/openSetter()/isSetterOpen() are gone: there are no starter
+    // chips and no editor to open, only the address in setAllDoor().
     positions: positions,
-    starters: starters,
     issueLabel: issueLabel,
     icAttr: icAttr,
     SNAP_CAP: SNAP_CAP,
-    openSetter: openSetter,
-    isSetterOpen: isSetterOpen,
     // The one way out of the account, exported so the suite asserts the control
     // reaches the same auth object every other surface signs out through.
     signOut: signOut,

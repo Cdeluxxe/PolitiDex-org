@@ -282,7 +282,7 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // locating the run, as always — the arithmetic agreed afterwards, which is the
 // order that catches a bad pin rather than confirming one.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 20287, b: 20408, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 20252, b: 20373, what: "the PDXStance vocabulary" },
   { from: "person.html", src: PERSON, a: 2012, b: 2066, what: "the Firebase boot" },
 ];
 // The three-room split moved the index.html range by −2021 — /mandate, /voice

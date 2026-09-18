@@ -266,8 +266,8 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // locating the run, as always — the arithmetic agreed afterwards, which is the
 // order that catches a bad pin rather than confirming one.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 20244, b: 20268, what: "the .pdxis-stance* pill rules" },
-  { from: "index.html", src: INDEX, a: 20287, b: 20408, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 20210, b: 20234, what: "the .pdxis-stance* pill rules" },
+  { from: "index.html", src: INDEX, a: 20253, b: 20373, what: "the PDXStance vocabulary" },
 ];
 // Both index.html ranges have now moved THREE TIMES, and the third ran the other
 // way. The Digital Library split took #digital-library out of index.html but left
@@ -303,6 +303,35 @@ const COPIES = [
 // toggleFollowMoney's source under the footer. The pill rules came back as 25
 // lines and the vocabulary as 122, both at their full length, which is again the
 // check that the run found is the run meant.
+//
+// A FIFTH MOVE, DOWNWARD BY EXACTLY ONE LINE. The pass that gave /my-stances,
+// /me, /ballot and this document one reader for "sides this person holds" added
+// a single <script src="/stance-sides.js"> tag to index.html's shell, and that
+// tag sits above both of these blocks. Nothing else on the front page changed.
+// The pill rules came back at their full 25 lines at 20210–20234, and neither
+// the line above nor the line below appears in stances.html, so that run is
+// maximal as well as unchanged — which is the pair of facts a pin is for.
+//
+// THE VOCABULARY PIN LOST A LINE OFF ITS TAIL, AND THAT IS A CORRECTION, NOT A
+// SHIFT. Searching for the old 122-line run came back with TWO answers,
+// 20252–20373 and 20253–20374, because the block is fenced by a blank line at
+// each end and a blank line is shared by every document that has one. Reading
+// the boundaries settles it: 20252 is blank, 20253 is <script>, 20373 is
+// </script>, 20374 is blank. So the run of SUBSTANCE is 20253–20373 and it is
+// 121 lines; the historical 122 had always carried the trailing blank, and the
+// pin now names the <script>…</script> run and nothing else. A pin whose range
+// ends on whitespace is a pin that can slide a line in either direction and
+// still come up green, which is the failure mode this whole table exists to
+// avoid. The same correction was made to the PDXSaved pin in
+// scripts/test-me-document.mjs during this pass, for the same reason.
+//
+// evidence.html, spotlight.html and person.html copy this same vocabulary block
+// and their pins still declare it as 20252–20373 — one line early at the head,
+// carrying the leading blank instead of the trailing one. Those suites are
+// green, because that is exactly the slop described above. Correcting them is a
+// deliberate separate pass over every pin those three documents carry, not a
+// drive-by from this one, and it is recorded here so the next author reads the
+// disagreement as known rather than as a clue.
 for (const c of COPIES) {
   const header = new RegExp(`COPIED VERBATIM FROM ${c.from.replace(".", "\\.")} LINES ${c.a}[^0-9]{1,3}${c.b}`);
   ok(header.test(ST), `copy: stances.html declares ${c.what} as ${c.from} ${c.a}–${c.b}`);

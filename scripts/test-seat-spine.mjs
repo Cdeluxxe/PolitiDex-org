@@ -352,7 +352,17 @@ section("5 · Zero stances: the compare still opens, honestly");
   eq(w.PDXRaceSheet._axis().length, 0, "the fixture visitor already has positions");
   const strip = w.pdxSeatStrip(SEAT, {});
   has(strip, "Set stances to rank this race", "no stance line for a visitor with no positions");
-  has(strip, "PDXStances", "the stance line does not lead to My Stances");
+  // THE LINE IS AN ANCHOR NOW, NOT A CALL INTO A MODULE THAT MAY NOT BE HERE.
+  //
+  // This used to assert the markup mentioned PDXStances, because the control
+  // called PDXStances.open() and fell back to a fragment when the module was
+  // absent — which on this document it always is. The fragment named no section
+  // here, so the line did nothing at all for exactly the reader it was written
+  // for. /my-stances is a document now, so the line is a real <a href> with
+  // ?add=1 on it, and it works whether or not any stance module ever parsed.
+  has(strip, 'href="/my-stances?add=1"', "the stance line does not lead to the stance studio");
+  ok(!/PDXStances/.test(strip),
+    "the stance line still calls into a module this document does not load");
   // A line, not a lecture.
   ok(strip.split("Set stances to rank this race").length === 2,
     "the stance line is repeated");

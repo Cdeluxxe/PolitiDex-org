@@ -2162,7 +2162,17 @@ window.PDXLazy = (function () {
       'voice': '/voice',
       'community-exchange': '/community',
       'open-forum': '/community',
-      'digital-library': '/library'
+      'digital-library': '/library',
+      /* THE STANCE STUDIO. '#my-stances' was the oldest bookmark on this page
+         and for a long time the most broken one: the section it named stopped
+         being an editor and became a one-line card, so the fragment scrolled a
+         reader to a sentence about a different address instead of to the thing
+         they asked for. The editor is a document now — /my-stances — so the
+         fragment forwards like every other moved room. '#my-views' is the same
+         destination because the public showcase is a lane inside that
+         document's collection, not a room of its own. */
+      'my-stances': '/my-stances',
+      'my-views': '/my-stances'
     };
     function forward() {
       var h = '';
@@ -10208,86 +10218,41 @@ window.PDXLazy = (function () {
        still publishes window.PDXProfile; nothing on / mounts it, so nothing on
        / loads a profile. The one row that pointed here now reads "Your File"
        and goes to /me, which is the address it was always describing. -->
-  <!-- ═══════════════════════════ MY STANCES ═══════════════════════════════
-       A CLOSED DOOR NOW, AND THE REASON IS THAT THE READER'S OWN FILE HAS AN
-       ADDRESS. This was the wall where the visitor's positions were set: the
-       full ISSUE_MAP vocabulary, Support / Oppose / Mixed, a priority and a
-       private note, rendered into #ms-body by my-stances.js and laid out on
-       every load of / whether or not anyone scrolled to it. It was also the
-       SECOND place the eight answers of record could be edited — the account
-       menu's "Your file" overlay was the first — which is two surfaces, one
-       person, and two stores (pdx_your_file_v1 and pdx_my_stances_v1) that both
-       project into the same alignment engine and can therefore disagree about
-       the same issue.
-       So the eight answers of record now have exactly one default surface, and
-       it is /me. What stands here is a short card that says so, with a real
-       link to it. The collection itself — priority, private note, the optional
-       public showcase, across the whole issue list rather than the eight — is
-       the thing only this surface does, so it is kept and moved behind the
-       card, inert in <template id="ms-shell-tpl"> until something asks for it.
-       WHAT ASKS FOR IT, AND WHY THE TEMPLATE IS NOT A DELETION. PDXStances.open()
-       is how eight other modules say "go set a position" — my-profile.js,
-       alignment-tool.js, race-sheet.js, issue-compare.js, stance-library.js and
-       ballot-workspace.js among them — and /me's own Starred issues region
-       links here to add or remove a star, because the priority editor lives
-       nowhere else. Every one of those callers still lands on a working editor:
-       _mount() clones the template back into this section, no id moved and
-       nothing inside was rewritten, which is why every deep link, the ?views=
-       share overlay and my-stances.css all still resolve once it is mounted.
-       The hash #my-stances also still opens it, so a bookmark is not broken.
-       Saving a stance still projects into the Alignment Signature
-       (window.alignSetIntensity), so match %, the Compare My Team table and the
-       profile comparison update for free. Private by default; local-first and
-       synced to the Firebase account. -->
-  <section id="my-stances" class="ms-closed" aria-labelledby="ms-door-heading">
-      <style>
-        /* ONE LINE. The card that stood here was a product — eyebrow, display
-           heading, two-sentence lede, a gradient button and a footnote — for a
-           region whose whole job is to name an address that is not this page.
-           A line is the honest size of that job. Same ids, so my-stances.js's
-           wireDoor() still finds the count and the "full collection" control. */
-        .ms-door{max-width:44rem;margin:0 auto;padding:1.15rem 1rem;display:flex;
-          align-items:baseline;justify-content:center;gap:0.55rem;flex-wrap:wrap;}
-        .ms-door-title{margin:0;font-family:'Barlow Condensed',sans-serif;font-weight:800;
-          font-size:0.92rem;letter-spacing:0.14em;text-transform:uppercase;color:#cfe0f5;}
-        .ms-door-title a{color:#93c5fd;text-decoration:none;border-bottom:1px solid rgba(147,197,253,0.45);}
-        .ms-door-title a:hover,.ms-door-title a:focus-visible{color:#dbeafe;}
-        .ms-door-count{margin:0;font-family:'Barlow',sans-serif;font-size:0.8rem;color:#8aa0c4;}
-        .ms-door-more{background:none;border:none;padding:0;cursor:pointer;
-          font-family:'Barlow',sans-serif;font-size:0.8rem;color:#93c5fd;
-          text-decoration:underline;text-underline-offset:2px;}
-        .ms-door-more:hover,.ms-door-more:focus-visible{color:#dbeafe;}
-        /* The collection replaces the line in place, so the section keeps its
-           address (#my-stances) whether it is open or shut. */
-        #my-stances.ms-closed .ms-shell{display:none;}
-      </style>
-      <div class="ms-door" id="ms-door">
-        <h2 class="ms-door-title" id="ms-door-heading">Your file &rarr;
-          <a href="/me" title="Your positions, your starred issues, your ballot picks and your saved evidence">/me</a></h2>
-        <p class="ms-door-count" id="ms-door-count" hidden></p>
-        <button type="button" class="ms-door-more" id="ms-door-more">full stance collection</button>
-      </div>
+  <!-- ═════════════════ MY STANCES · MOVED OUT ═════════════════
+       NOTHING IS HERE, AND THAT IS THE FIX. This was <section id="my-stances">:
+       a one-line card pointing at /me, with the whole every-issue collection
+       parked inert in a template behind it, mounted when PDXStances.open()
+       asked for it.
 
-    <!-- ── THE COLLECTION · inert until something asks for it ───────────────────
-         Byte-for-byte the markup that used to be mounted here, in the same
-         order, with the same ids and the same classes. The only change is the
-         <template> around it: template contents are parsed into an inert
-         fragment outside the document tree, so this costs zero layout, zero
-         paint and zero height until my-stances.js's _mount() clones it back
-         into this section. Nothing inside was rewritten and no id moved, which
-         is why #ms-body, #ms-heading, my-stances.css and every existing deep
-         link still resolve the moment it is mounted. -->
-    <template id="ms-shell-tpl">
-    <div class="ms-shell">
-      <div class="ms-head">
-        <span class="ms-eyebrow">🎯 What you stand for</span>
-        <h2 class="ms-title" id="ms-heading">MY <span>STANCES</span></h2>
-        <p class="ms-lede">This is <strong>what you stand for</strong> — take a <strong>Support</strong>, <strong>Oppose</strong> or <strong>Mixed</strong> position on the issues you care about, using the same issue vocabulary PolitiDex uses for every politician. It's step one of a loop: your stances power the <strong>Alignment Tool</strong>, which shows <strong>who matches what you stand for — and whether their record backs it up</strong>. Set them here, then see your matches and work your ballot. <strong>Private by default</strong>, yours to control.</p>
-      </div>
-      <div id="ms-body"><div class="ms-status">Loading the issues…</div></div>
-    </div>
-    </template>
-  </section>
+       WHY IT COULD NOT STAY. The section owned the fragment #my-stances, so
+       every "go set a position" door on the site — eight modules' worth — was
+       ultimately a SCROLL ON THIS PAGE rather than an address. Three things
+       followed from that and all three were defects a reader hit:
+         · /#my-stances landed in whatever section happened to render at that
+           offset, which for most of this page's life was Relevant-to-me.
+         · /ballot's "Set your positions" could not open an editor at all: it
+           sent the reader to a fragment on a document they were not on, and
+           the editor was a template on a page 1.9 MB into its own boot.
+         · The collection could only ever be as reachable as this page's
+           scroll position. Not bookmarkable, not shareable, not linkable
+           per-issue.
+
+       WHERE IT WENT. /my-stances — my-stances.html, a document of its own. It
+       carries my-stances.js (the same collection, the same store, the same
+       pdx_my_stances_v1 key, the same ids #ms-body / #ms-door-count /
+       #ms-door-more) plus stance-studio.js, which is the part this page never
+       had: a self-tutorial for a reader with nothing on file, and a library
+       for a reader who has something. The fragment is forwarded by the LANE
+       table near the top of this file, so an old /#my-stances bookmark still
+       works and costs one redirect instead of one whole homepage.
+
+       WHAT IS DELIBERATELY NOT HERE. No replacement card, no billboard, no
+       "set your stances" strip. A door on / for the stance studio would be a
+       fourth surface naming the same job; the nav row's "Your File → /me"
+       already names the account, and /me's own positions region names
+       /my-stances. Rooms are documents on this site, and the homepage is not
+       a table of contents for them.
+       ══════════════════════════════════════════════════════════════════════════ -->
 
   <!-- ISSUE COMPARISON · AN ADDRESS, NOT A BILLBOARD. What stood here was an
        eyebrow, a display heading, a two-sentence lede and a static "Loading…"
@@ -15181,6 +15146,7 @@ window.PDXLazy = (function () {
        it after alignment-tool.js (it projects into the Alignment Signature via
        window.alignSetIntensity) and the ISSUE_MAP / CORE_NATIONAL_ISSUES globals it
        browses, and after the inline PDXStore/PDXImpact modules it persists through. -->
+  <script defer src="/stance-sides.js"></script>
   <script defer src="/my-stances.js"></script>
   <!-- Voting Record — profile "what they actually did" section. `defer` places it
        after stance-helpers.js (the Phase-2 stance-vs-record engine it calls) and

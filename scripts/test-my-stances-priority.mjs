@@ -118,6 +118,22 @@ function boot() {
   };
   win.auth = { currentUser: null };
   win._cmpSelected = [];
+  // THIS SANDBOX IS STANDING ON /my-stances, AND IT HAS TO SAY SO.
+  //
+  // PDXStances.open() used to be init() + scrollTo('my-stances'), which was a
+  // no-op anywhere the section was absent and a scroll to the wrong band on the
+  // homepage, where the section's id was a SCROLL OFFSET rather than an
+  // address. It is a navigation now: on any other document it calls
+  // location.assign('/my-stances'), and in a sandbox a navigation mounts
+  // nothing — which is exactly right, and which left this file asserting
+  // priority controls on an empty string.
+  //
+  // The flag is how the module tells the two cases apart: one boolean the
+  // document declares before any script parses, no path sniffing, the same
+  // shape __PDX_ME_DOC already has for /me. This harness pre-registers #ms-body
+  // and #my-stances precisely because it wants the real rendered rows, so it is
+  // the document, and the flag is the honest way to say it.
+  win.__PDX_STANCES_DOC = true;
   const byId = miniDom(win);
   const sandbox = vm.createContext(win);
   win.PROFILES = win.CMP_DATA;
@@ -414,11 +430,25 @@ section("8 · the copy claims exactly what the stars do");
 {
   const w = stanced();
   const html = msHtml(w);
-  has(html, "Your Match", "the copy never names what a star actually changes");
-  has(html, "Direction Match", "the copy never says what a star does NOT change");
-  has(html, "party filters", "the copy does not rule out party filters");
-  has(html, "formal verdicts", "the copy does not rule out formal verdicts");
-  has(html, "does not change", "the copy has no negative claim at all");
+  // THE CLAIM IS THE SAME; THE NAMES IT USED ARE NOT ALLOWED ON THIS DOCUMENT.
+  // This used to require the words "Your Match", "Direction Match", "party
+  // filters" and "formal verdicts" verbatim. Those four named surfaces the
+  // stance studio does not and must not show — the whole reason "Every issue on
+  // file" stopped being a door into the alignment manifesto is that this page
+  // was selling a match score it is not allowed to print. Naming a score in
+  // order to disclaim it still teaches the reader that a score is what a star is
+  // for. So the assertion holds the copy to the CLAIM rather than to the
+  // vocabulary: it must say what a star does (weigh an issue in a ranked field)
+  // and it must say, in the negative, what a star leaves alone (the record, the
+  // verdict, the party filter).
+  has(html, "ranked field", "the copy never names what a star actually changes");
+  has(html, "weigh", "the copy never says what weighting an issue means");
+  has(html, "no party filter", "the copy does not rule out party filters");
+  has(html, "no verdict", "the copy does not rule out formal verdicts");
+  has(html, "changes no record", "the copy has no negative claim at all");
+  // AND THE FOUR NAMES ARE ABSENT, which is the other half of the same rule.
+  ["Alignment Tool", "Your Match", "Say-vs-Do", "Direction Match"].forEach((t) =>
+    lacks(html, t, `"${t}" is printed on /my-stances — this document shows no match`));
 
   // No overclaim in the other direction: a star must not be sold as changing a
   // politician's own record, score, or grade.

@@ -403,7 +403,7 @@
     var stances = savedStances();
     if (!stances.length) {
       return '<div class="ic-strip ic-strip--empty">'
-        + '<span class="ic-strip-lead">💡 Tip:</span> Set a stance in <button type="button" class="ic-link" onclick="location.hash=\'#my-stances\'">My Stances</button> and start here — “you took a position on X, see who actually lines up.”'
+        + '<span class="ic-strip-lead">💡 Tip:</span> Set a stance in <button type="button" class="ic-link" onclick="location.assign(\'/my-stances\')">My Stances</button> and start here — “you took a position on X, see who actually lines up.”'
         + '</div>';
     }
     var chips = stances.slice(0, 12).map(function (s) {
@@ -824,7 +824,7 @@
         if (isFn(window.openCompare)) window.openCompare();
       } catch (e) {}
     },
-    adopt: function (issueKey) { try { if (window.PDXStances && isFn(window.PDXStances.open)) window.PDXStances.open(issueKey); else location.hash = '#my-stances'; } catch (e) {} },
+    adopt: function (issueKey) { try { if (window.PDXStances && isFn(window.PDXStances.open)) window.PDXStances.open(issueKey); else location.assign('/my-stances'); } catch (e) {} },
     refresh: function () { if (_inited && isVisible()) render(); }
   };
 })();

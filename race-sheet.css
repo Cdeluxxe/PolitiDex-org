@@ -510,6 +510,11 @@ a.rs-name:hover, a.rs-name:focus-visible { color: #93c5fd; text-decoration: unde
 .rs-seat-work-go { opacity: 0.7; }
 
 /* Footnote weight, deliberately: it explains an absence, it is not the CTA. */
+/* IT IS AN ANCHOR NOW — a real href to /my-stances, not a button asking some
+   module on the page to navigate on its behalf. No underline until it is
+   touched; everything else below, including the 44px floor in the media
+   queries, applies to it unchanged. */
+a.rs-seat-stance { text-decoration: none; }
 .rs-seat-stance {
   align-self: flex-start; min-height: 32px; padding: 0.25rem 0;
   background: none; border: 0; cursor: pointer;

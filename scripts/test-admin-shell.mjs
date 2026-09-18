@@ -353,9 +353,17 @@ section("6 · one owner of the allow-list, and the markup arrived intact");
   const v = (SW.match(/const CACHE_VERSION = '(v\d+)';/) || [])[1];
   must(v, "sw.js has no CACHE_VERSION");
   ok(Number(v.slice(1)) >= 216, `CACHE_VERSION is ${v} — the front page changed and the shell was not re-issued`);
-  const entry = SW.slice(SW.indexOf(`// ${v} - `), SW.indexOf("const CACHE_VERSION"));
-  has(entry, "curator", `the ${v} entry does not say the curator's tools left the front page`);
-  has(entry, "/admin", `the ${v} entry does not name the address they moved to`);
+  // AND THE MOVE IS DOCUMENTED IN THE LOG — in the entry for the pass that made
+  // it, which is v216. This used to read the entry for whatever CACHE_VERSION
+  // happens to be, which made a later, unrelated bump look like the admin move
+  // had gone undocumented. The claim is about one historical pass, so it names
+  // that pass: the log is append-only and v216's paragraph does not move.
+  const entryAt = SW.indexOf("// v216 - ");
+  must(entryAt > 0, "sw.js has no v216 log entry — the pass that moved the curator's tools");
+  const nextAt = SW.indexOf("\n// v2", entryAt + 8);
+  const entry = SW.slice(entryAt, nextAt > 0 ? nextAt : SW.indexOf("const CACHE_VERSION"));
+  has(entry, "curator", "the v216 entry does not say the curator's tools left the front page");
+  has(entry, "/admin", "the v216 entry does not name the address they moved to");
 }
 
 console.log("");

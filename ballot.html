@@ -145,6 +145,11 @@
        Also self-sufficient: every var() in it carries a literal fallback. -->
   <link rel="stylesheet" href="/race-sheet.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/race-sheet.css" /></noscript>
+  <!-- NO COACH STYLESHEET HERE ANY MORE. door2-first-run.css dressed a 12-chip
+       first-run wizard that used to paint inside the desk. The desk does not
+       teach positions now: /my-stances does, and it is a document that teaches
+       itself. The desk READS positions and, when there are none, offers one
+       line and one link to that document. A line needs no stylesheet. -->
 
   <style>
     /* THE FIXED CHROME, MEASURED ONCE. Same contract person.html, issue.html and
@@ -303,21 +308,25 @@
     document.addEventListener('DOMContentLoaded', seamLocation);
     window.addEventListener('load', seamLocation);
 
-    // ── SEAM 2: "tell us your positions" is a trip home ─────────────────
-    // The desk and the race sheet both offer a link to the stance editor, and
-    // both spell it the same guarded way: open window.PDXStances if it is there,
-    // otherwise set location.hash = '#my-stances'. my-stances.js is a separate
-    // 86 KB product that needs its own homepage mount, so it is NOT loaded here
-    // and PDXStances is NOT stubbed — a fake .count() would let the record lane
-    // believe this reader has saved stances when they have none, and the desk
-    // would silently claim a ranking it cannot support. It says "not ranked"
-    // instead, which is true.
+    // ── SEAM 2: "tell us your positions" is a trip to /my-stances ─────────
+    // The desk and the race sheet both offer a link to the stance editor. Both
+    // now spell it as an address — /my-stances, the document that owns the
+    // editor — so nothing on this page needs intercepting for the ordinary
+    // case. my-stances.js is still NOT loaded here and PDXStances is still NOT
+    // stubbed: a fake .count() would let the record lane believe this reader
+    // has saved stances when they have none, and the desk would silently claim
+    // a ranking it cannot support. It says "not ranked" instead, which is true.
     //
-    // So the fallback branch fires, and a bare hash on a document with no
-    // #my-stances is a no-op. Catching it here turns it into the navigation it
-    // was always trying to be.
+    // This seam survives only for the OLD SPELLING. An older cached copy of a
+    // module — or a stale bookmark — can still set location.hash =
+    // '#my-stances', and a bare hash on a document that has no such section is
+    // a no-op: the reader taps and nothing happens. Forwarding it to the real
+    // address turns that dead tap into the navigation it was always trying to
+    // be. location.replace, so the dead fragment does not sit in history and
+    // Back does not bounce the reader through it again.
     window.addEventListener('hashchange', function () {
-      if ((location.hash || '') === '#my-stances') home('#my-stances');
+      if ((location.hash || '') !== '#my-stances') return;
+      try { location.replace('/my-stances'); } catch (e) { home('#my-stances'); }
     });
 
     // ── SEAM 3: opening a person is a navigation to /p/<pid> ────────────
@@ -432,6 +441,7 @@
        race-sheet.rank(list, 'record') calls to order a field on the formal
        record. No floor, mapping or weight in this document changes it. -->
   <script defer src="/alignment-tool.js"></script>
+  <script defer src="/stance-sides.js"></script>
   <script defer src="/pdx-issue-family.js"></script>
   <script defer src="/issue-colors.js"></script>
   <script defer src="/issue-scope.js"></script>
@@ -451,6 +461,20 @@
 
   <!-- The desk. -->
   <script defer src="/ballot-workspace.js"></script>
+
+  <!-- NO COACH MODULE HERE ANY MORE, AND IT IS NOT COMING BACK.
+       door2-first-run.js mounted a 12-chip wizard inside the desk: pick an
+       issue, read its locked scope, take a side, then see that side read
+       against whoever holds the open seat. Every part of that job is now
+       /my-stances', which teaches the same twelve chips and the same locked
+       sentences on a document whose whole purpose is teaching them — and which
+       a reader can bookmark, share and come back to.
+       TWO WIZARDS FOR ONE JOB WAS THE DEFECT. A reader sent here from /me or
+       from a dossier met a different first-run than a reader who went to their
+       stances directly: two empty states, two vocabularies of copy, and two
+       modules that could disagree about what "saved" looks like. The desk has
+       exactly one thing to say to a reader with nothing on file — where the
+       positions are set — and ballot-workspace.js says it in one line. -->
 
   <!-- ══ THE MOUNT — BUILT, NOT SHIPPED ═════════════════════════════════
        ballot-workspace.js paints into #bw-body inside #ballot-workspace and

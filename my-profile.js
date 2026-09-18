@@ -443,7 +443,7 @@
         eyebrow: 'Step 1 of 3 · Start here',
         title: 'Begin with what you stand for',
         body: 'PolitiDex works best when it knows your positions. Take a stance on an issue you care about — then it can show you which politicians actually align, and where the money behind them comes from.',
-        primary: { label: 'Set your first stance', href: '#my-stances' }
+        primary: { label: 'Set your first stance', href: '/my-stances' }
       };
     }
     if (t === 0) {
@@ -455,7 +455,7 @@
           ? 'You\'ve set your first stance. Add one more if you like, then build your voting team — PolitiDex compares each politician against your positions so you can see who lines up.'
           : 'You\'ve set ' + s + ' stances. Build your voting team and PolitiDex will compare each politician against your positions, so you can see who genuinely aligns.'),
         primary: { label: 'Build your voting team', href: '#voter-hub' },
-        secondary: { label: 'Add another stance', href: '#my-stances' }
+        secondary: { label: 'Add another stance', href: '/my-stances' }
       };
     }
     // Has both stances and a team → the two-way refine loop.
@@ -475,7 +475,7 @@
         eyebrow: 'Step 3 of 3 · Compare & refine',
         title: 'Add a couple more stances',
         body: 'Your stances and team are connected. Add a few more positions to deepen every comparison — the more you weigh in, the clearer your alignment becomes.',
-        primary: { label: 'Add another stance', href: '#my-stances' },
+        primary: { label: 'Add another stance', href: '/my-stances' },
         secondary: { label: 'Refine your team', href: '#voter-hub' }
       };
     }
@@ -485,7 +485,7 @@
       title: 'Stances and team, working together',
       body: 'You\'ve connected your positions with a voting team. Explore how they align above, and follow the money behind them below — then keep refining whenever you like.',
       primary: { label: 'Refine your team', href: '#voter-hub' },
-      secondary: { label: 'Review your stances', href: '#my-stances' }
+      secondary: { label: 'Review your stances', href: '/my-stances' }
     };
   }
 
@@ -570,7 +570,7 @@
     });
     var body;
     if (!list.length) {
-      body = emptyState('🎯', 'You haven\'t set any positions yet. Take a Support, Oppose or Mixed stance on the issues you care about — then PolitiDex shows you who actually aligns.', '#my-stances', 'Set your first stance', true);
+      body = emptyState('🎯', 'You haven\'t set any positions yet. Take a Support, Oppose or Mixed stance on the issues you care about — then PolitiDex shows you who actually aligns.', '/my-stances', 'Set your first stance', true);
     } else {
       body = list.slice(0, 6).map(function (s) {
         var posCls = s.position === 'support' ? 'is-support' : s.position === 'oppose' ? 'is-oppose' : 'is-mixed';
@@ -593,7 +593,7 @@
         if (line) body += '<div class="mp-link-notes">' + line + '</div>';
       }
     }
-    return section('What you stand for', '🧭', list.length ? '#my-stances' : null, 'Manage', body);
+    return section('What you stand for', '🧭', list.length ? '/my-stances' : null, 'Manage', body);
   }
 
   function alignBadge(al) {
@@ -636,7 +636,7 @@
       }).join('') + '</div>';
       if (pids.length > 9) body += '<p class="mp-sub" style="margin-top:0.7rem">+ ' + (pids.length - 9) + ' more on your team.</p>';
       if (!ctx.stanceCount) {
-        body += '<p class="mp-link-notes"><span class="mp-link-note">🎯 Set a stance or two and each teammate shows how they align with you. <button type="button" class="mp-inline-btn" onclick="location.hash=\'#my-stances\'">Set a stance</button>.</span></p>';
+        body += '<p class="mp-link-notes"><span class="mp-link-note">🎯 Set a stance or two and each teammate shows how they align with you. <button type="button" class="mp-inline-btn" onclick="location.assign(\'/my-stances\')">Set a stance</button>.</span></p>';
       }
     }
     return section('Your voting team', '⭐', pids.length ? '#my-politicians' : null, 'Manage', body);

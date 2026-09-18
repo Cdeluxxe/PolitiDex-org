@@ -82,6 +82,42 @@
   function coreIssues() { return Array.isArray(window.CORE_NATIONAL_ISSUES) ? window.CORE_NATIONAL_ISSUES : []; }
   function knownIssue(k) { return !!issueMap()[k]; }
 
+  // ── THE ISSUE'S OWN COLOUR, BORROWED AND NEVER INVENTED ───────────────────
+  // ONE ROAD, AND IT IS THE ROAD A BILL LETTERHEAD TAKES. PDXIssueColors.skin()
+  // hands back the whole ` data-ic="on" style="--pdx-ic:…"` fragment for a key,
+  // and my-stances.css consumes those four local custom properties without ever
+  // knowing which issue it got — so there is not one per-issue rule in this
+  // component's stylesheet and there cannot be.
+  //
+  // IT ANSWERS FOR A BUNDLE TOO, WHICH IS WHY THE FILTER RAIL CAN USE IT.
+  // skin() → styleFor() → coreKeyFor() consults the leaf index FIRST and
+  // PDXIssueColors.ROLLUP_PARENT last, so a leaf key ('housing') gets its own
+  // bundle's colour and a bundle key gets the core issue that bundle DECLARES
+  // it inherits from. Neither is decided here. A rollup with no honest parent
+  // ('tech' has none — its keys split between energy and civil rights) resolves
+  // to nothing and gets no attribute, which is the truthful outcome.
+  //
+  // AN UNRESOLVED KEY GETS NO ATTRIBUTE AT ALL, by that module's own design, so
+  // a chip whose key stopped resolving renders exactly as it did before the
+  // treatment existed. A card full of neutral chips therefore reads as "these
+  // are not core issues", never as "the colour system is off".
+  //
+  // WHAT REPLACED THE GOLD. The active filter chip used to be painted
+  // rgba(250,204,21,…) — gold, the same gold as a starred issue, on a control
+  // that has nothing to do with priority. So "Healthcare is selected" and
+  // "Healthcare is starred" were the same colour, and neither was healthcare's.
+  // The selected chip now deepens its OWN issue colour and the star keeps the
+  // star. A COLOUR IS NOT A VERDICT here: it says "this is the housing chip",
+  // never "this answer is right", and nothing downstream reads it.
+  function skin(key) {
+    try {
+      var C = window.PDXIssueColors;
+      if (!C || typeof C.skin !== 'function') return '';
+      var sk = C.skin(String(key == null ? '' : key), window.coreIssueForKey);
+      return (sk && sk.attr) ? String(sk.attr) : '';
+    } catch (e) { return ''; }
+  }
+
   // ── Public share link (self-contained, no backend) ─────────────────────────
   // The showcase is made viewable by OTHERS the same way My Team sharing works:
   // the notes-free public summary is packed into a URL token, so anyone who opens
@@ -134,10 +170,18 @@
     });
     return { name: (obj.n || 'A PolitiDex member').toString().slice(0, 60), items: items };
   }
+  // A SHARED LINK NAMES THE DOCUMENT STANCES LIVE ON, and it is not built out of
+  // whatever page the sharer happened to be standing on. This used to be
+  // `location.pathname + '#my-stances'`, which meant the link a reader pasted
+  // into a group chat was a scroll offset on the homepage — and once the stance
+  // section moved off the homepage it was a scroll offset to nothing. It also
+  // meant the same file produced a different link from /, /me and /person,
+  // three of which are wrong. /my-stances answers this link from one place.
+  var SHARE_DOC = '/my-stances';
   function shareUrl(s) {
     var tok = publicToken(s);
     if (!tok) return '';
-    return location.origin + location.pathname + '?' + SHARE_PARAM + '=' + tok + '#my-stances';
+    return location.origin + SHARE_DOC + '?' + SHARE_PARAM + '=' + tok;
   }
   function copyShareLink() {
     var s = load();
@@ -168,7 +212,7 @@
     var list = items || activeItems();
     var n = list.length;
     var tok = token || encodeViews(name || displayName(), list);
-    var url = location.origin + location.pathname + '?' + SHARE_PARAM + '=' + tok + '#my-stances';
+    var url = location.origin + SHARE_DOC + '?' + SHARE_PARAM + '=' + tok;
     var text = 'Here’s where I stand on ' + n + ' issue' + (n !== 1 ? 's' : '') + ' — see how politicians line up on PolitiDex:';
     return { url: url, text: text, title: 'My Stances · PolitiDex', name: name || displayName(), items: list };
   }
@@ -883,7 +927,6 @@
     html += renderAccount(s, items);
     html += renderSummary(s, items);
     html += renderStarNudge(s, items);
-    html += renderPowers(items);
     html += renderShowcase(s, items);
     html += renderBrowse(s, byKey);
     html += '</div>';
@@ -916,14 +959,14 @@
     if (!n) {
       return '<div class="ms-summary is-empty">' +
         '<div class="ms-sum-emptytitle">You haven’t taken any positions yet</div>' +
-        '<div class="ms-sum-emptybody">Pick an issue below and choose <strong>Support</strong>, <strong>Oppose</strong> or <strong>Mixed</strong> — this is <strong>what you stand for</strong>. As you do, the <strong>Alignment Tool</strong> shows <em>who matches</em> you — and, where their formal record is deep enough to test, whether it backs them up. Set stances → see matches → work your ballot.</div>' +
+        '<div class="ms-sum-emptybody">Pick an issue below and choose <strong>Support</strong>, <strong>Oppose</strong> or <strong>Mixed</strong> — this is <strong>what you stand for</strong>. Each one is read against the <strong>formal record</strong> of the people on your ballot: their votes and filed actions on that same issue. <strong>Mixed</strong> means you hold both halves of the argument, not that you are undecided.</div>' +
         '</div>';
     }
     var chips = items.map(function (r) {
       var d = issueMap()[r.issueKey] || {};
       var pos = POSITIONS.filter(function (p) { return p.key === r.position; })[0] || POSITIONS[0];
       var isHigh = r.priority === 'high';
-      return '<button type="button" class="ms-chip ' + pos.cls + (isHigh ? ' is-priority' : '') + '" data-ms-goto="' + esc(r.issueKey) + '" title="' + (isHigh ? 'High priority · ' : '') + 'Edit your position">' +
+      return '<button type="button" class="ms-chip ' + pos.cls + (isHigh ? ' is-priority' : '') + '"' + skin(r.issueKey) + ' data-ms-goto="' + esc(r.issueKey) + '" title="' + (isHigh ? 'High priority · ' : '') + 'Edit your position">' +
         '<span class="ms-chip-pos">' + pos.icon + '</span>' +
         '<span class="ms-chip-lbl">' + esc(d.label || r.issueKey) + '</span>' +
         (isHigh ? '<span class="ms-chip-prio" aria-label="High priority">⭐</span>' : '') +
@@ -957,26 +1000,29 @@
       '</div>';
   }
 
-  function renderPowers(items) {
-    var n = items.length;
-    var live = n > 0;
-    var actions = '';
-    if (live) {
-      actions =
-        '<button type="button" class="ms-pow-btn" data-ms-act="team">⚖️ Compare my picks by match</button>' +
-        '<button type="button" class="ms-pow-btn" data-ms-act="align">🎯 Open the Alignment Tool</button>' +
-        '<button type="button" class="ms-pow-btn" data-ms-act="library">📚 See where politicians stand</button>';
-    }
-    return '<div class="ms-powers' + (live ? ' is-live' : '') + '">' +
-      '<div class="ms-pow-title">What your stances power</div>' +
-      '<p class="ms-pow-body">' + (live
-        ? 'These <strong>' + n + '</strong> stance' + (n > 1 ? 's' : '') + ' now power the <strong>Alignment Tool</strong>: every politician gets a <strong>🎯 Your Match</strong> (how their stated positions fit yours), wherever they appear. Where their formal record is deep enough to test, a <strong>⚖️ Say-vs-Do</strong> read sits beside it — and where it is not, the profile says so rather than grading them anyway. <strong>High-priority</strong> stances count more toward the match; <strong>Low</strong> count less.'
-        : 'Set a stance and the <strong>Alignment Tool</strong> starts working: it shows <em>who matches what you stand for</em> — and, where the formal record runs deep enough to test, whether it backs them up — turning your values into a yardstick you can point at a record.') +
-      '</p>' +
-      (actions ? '<div class="ms-pow-actions">' + actions + '</div>' : '') +
-      '</div>';
-  }
-
+  // THERE IS NO "WHAT YOUR STANCES POWER" PANEL, AND ITS ABSENCE IS THE POINT.
+  //
+  // What stood here was three buttons and two paragraphs: "🎯 Open the
+  // Alignment Tool", "⚖️ Compare my picks by match", "📚 See where politicians
+  // stand", over prose promising that every politician would get a 🎯 Your
+  // Match, that a ⚖️ Say-vs-Do read would sit beside it, and that High-priority
+  // stances count more toward the match. Three problems, in the order they
+  // matter:
+  //
+  //   · IT ADVERTISED A SCORE ON THE ONE SURFACE THAT MAY NOT SHOW ONE. This
+  //     document is where a reader says what they believe. A panel naming Your
+  //     Match and Direction Match turns that act into the price of a grade, and
+  //     the grade is issued somewhere the reader cannot see it being computed.
+  //   · IT NAMED THINGS THAT ARE NOT HERE. The Alignment Tool panel and the
+  //     match engine live on the homepage; /my-stances loads neither. Two of
+  //     the three buttons therefore fell through to a scrollTo() for an id this
+  //     document does not contain, which is a control that cannot work.
+  //   · IT WAS BETWEEN THE READER AND THE EDITOR. On a page opened to set a
+  //     position, the tallest block above the rows was promotional.
+  //
+  // What a position actually does is said once, plainly, where it belongs: in
+  // the studio's own done beat ("your ballot will use this when it reads
+  // someone's formal record on this issue") and in the empty summary below.
   function renderShowcase(s, items) {
     var on = !!s.settings.public;
     var n = items.length;
@@ -1144,9 +1190,11 @@
     var cores = coreIssues();
 
     // Filter chips (the 12 core national issues + All).
+    // ALL ISSUES IS NOT AN ISSUE, so it takes no skin — it is the absence of a
+    // filter and colouring it would have to pick one of the twelve to borrow.
     var filterChips = '<button type="button" class="ms-fchip' + (filter === '' ? ' is-on' : '') + '" data-ms-filter="">All issues</button>';
     cores.forEach(function (ci) {
-      filterChips += '<button type="button" class="ms-fchip' + (filter === ci.key ? ' is-on' : '') + '" data-ms-filter="' + esc(ci.key) + '">' + esc(ci.label) + '</button>';
+      filterChips += '<button type="button" class="ms-fchip' + (filter === ci.key ? ' is-on' : '') + '"' + skin(ci.key) + ' data-ms-filter="' + esc(ci.key) + '">' + esc(ci.label) + '</button>';
     });
 
     var groupsHtml = '';
@@ -1171,7 +1219,7 @@
       // Open a group when it's the active filter, when searching, when it holds a
       // stance, or when the user expanded it.
       var open = !!filter || !!q || activeInGroup > 0 || !!uiState.open[ci.key];
-      groupsHtml += '<div class="ms-group' + (open ? ' is-open' : '') + '" data-ms-group="' + esc(ci.key) + '">' +
+      groupsHtml += '<div class="ms-group' + (open ? ' is-open' : '') + '"' + skin(ci.key) + ' data-ms-group="' + esc(ci.key) + '">' +
         '<button type="button" class="ms-group-head" data-ms-toggle="' + esc(ci.key) + '">' +
         '<span class="ms-group-lbl">' + esc(ci.label) + '</span>' +
         (activeInGroup ? '<span class="ms-group-badge">' + activeInGroup + '</span>' : '') +
@@ -1185,7 +1233,7 @@
     return '<div class="ms-browse">' +
       '<div class="ms-browse-head">' +
       '<h3 class="ms-browse-title">Browse issues &amp; set your position</h3>' +
-      '<p class="ms-browse-sub">⭐ <strong>Counts: High</strong> weights <strong>Your Match</strong> ranking for races and browse — how a record or a stated position lines up with what you care about most. It does not change <strong>Direction Match</strong>, party filters, or formal verdicts.</p>' +
+      '<p class="ms-browse-sub">⭐ <strong>Counts: High</strong> asks a ranked field to weigh that issue harder than the rest. It is a weight on your own list and nothing else: it changes no record, no verdict and no party filter, and a star on an issue nobody in the field ever acted on changes nothing at all.</p>' +
       '<div class="ms-search"><span class="ms-search-ic">🔎</span>' +
       '<input type="search" class="ms-search-in" placeholder="Search issues…" value="' + esc(uiState.query) + '" data-ms-search="1" aria-label="Search issues" /></div>' +
       '</div>' +
@@ -1215,13 +1263,13 @@
         var ico = (p.key === 'high') ? (on ? '⭐' : '☆') : p.icon;
         return '<button type="button" class="ms-prio-btn is-' + p.key + (on ? ' is-on' : '') + '"' +
           ' data-ms-prio="' + p.key + '" data-issue="' + esc(k) + '" aria-pressed="' + (on ? 'true' : 'false') + '"' +
-          ' title="' + esc(p.label) + ' — weights Your Match ranking, not Direction Match">' +
+          ' title="' + esc(p.label) + ' — how hard a ranked field weighs this issue. Changes no record.">' +
           '<span class="ms-prio-ic" aria-hidden="true">' + ico + '</span>' +
           '<span class="ms-prio-lbl">' + esc(p.short) + '</span></button>';
       }).join('');
       var hasNote = rec.note && rec.note.length;
       controls = '<div class="ms-row-controls">' +
-        '<div class="ms-prio" role="group" aria-label="How much ' + esc(d.label || k) + ' counts toward your matches">' +
+        '<div class="ms-prio" role="group" aria-label="How hard a ranked field weighs ' + esc(d.label || k) + '">' +
         '<span class="ms-prio-cap">Counts</span>' + prioBtns + '</div>' +
         '<button type="button" class="ms-notebtn' + (hasNote ? ' has-note' : '') + '" data-ms-notetoggle="' + esc(k) + '">' + (hasNote ? '📝 Note' : '＋ Add note') + '</button>' +
         '<button type="button" class="ms-remove" data-ms-remove="' + esc(k) + '" title="Remove this stance">✕</button>' +
@@ -1232,10 +1280,10 @@
         '</div>';
     }
 
-    return '<div class="ms-issue' + (active ? ' is-active ' + posClass(rec.position) + (rec.priority === 'high' ? ' is-priority' : '') : '') + '" data-ms-row="' + esc(k) + '">' +
+    return '<div class="ms-issue' + (active ? ' is-active ' + posClass(rec.position) + (rec.priority === 'high' ? ' is-priority' : '') : '') + '"' + skin(k) + ' data-ms-row="' + esc(k) + '">' +
       '<div class="ms-issue-main">' +
       '<div class="ms-issue-text"><div class="ms-issue-lbl">' + esc(d.label || k) +
-      (active && rec.priority === 'high' ? '<span class="ms-issue-pri" title="High priority — counts more toward your matches">⭐ Priority</span>' : '') + '</div>' +
+      (active && rec.priority === 'high' ? '<span class="ms-issue-pri" title="High priority — a ranked field weighs this issue harder">⭐ Priority</span>' : '') + '</div>' +
       (d.chip ? '<div class="ms-issue-chip">' + esc(d.chip) + '</div>' : '') + '</div>' +
       '<div class="ms-pos-group" role="group" aria-label="Your position on ' + esc(d.label || k) + '">' + posBtns + '</div>' +
       '</div>' +
@@ -1292,7 +1340,6 @@
     if ((b = t.closest('[data-ms-copylink]'))) { copyShareLink(); return; }
     if ((b = t.closest('[data-ms-share]'))) { handleShare(b.getAttribute('data-ms-share'), shareCtx()); return; }
     if ((b = t.closest('[data-ms-signin]'))) { openSignIn(); return; }
-    if ((b = t.closest('[data-ms-act]'))) { powerAction(b.getAttribute('data-ms-act')); return; }
   }
 
   function onChange(e) {
@@ -1346,21 +1393,6 @@
     if (row) { row.scrollIntoView({ behavior: 'smooth', block: 'center' }); row.classList.add('ms-flash'); setTimeout(function () { row.classList.remove('ms-flash'); }, 1200); }
   }
 
-  function powerAction(act) {
-    if (act === 'team') {
-      if (typeof window.myteamCompareAll === 'function') { try { window.myteamCompareAll(); return; } catch (e) {} }
-      scrollTo('my-politicians');
-    } else if (act === 'align') {
-      // Open the Alignment Tool AND glide to it, so the two surfaces read as one
-      // continuous flow rather than two disconnected places.
-      var panel = el('alignment-panel');
-      if (panel) { try { panel.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {} }
-      if (typeof window.alignTogglePanel === 'function') { try { window.alignTogglePanel(true); return; } catch (e) {} }
-    } else if (act === 'library') {
-      if (window.PDXStanceLibrary && typeof window.PDXStanceLibrary.open === 'function') { try { window.PDXStanceLibrary.open(); return; } catch (e) {} }
-      scrollTo('stance-library');
-    }
-  }
   function scrollTo(id) { var n = el(id); if (n) n.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 
   function openSignIn() {
@@ -1372,23 +1404,58 @@
   }
 
   // ── Boot / lazy mount ─────────────────────────────────────────────────────
-  // THE SECTION IS A CLOSED DOOR ON THE HOMEPAGE NOW. index.html used to carry
-  // this whole collection mounted: the search box, the filter rail, a card per
-  // issue in ISSUE_MAP, the showcase. It was laid out and painted on every load
-  // of /, and it was also the second place the eight answers of record could be
-  // edited — the reader's own file being the first. The file has a document of
-  // its own at /me, so the homepage now carries a short card that says so, with
-  // the collection sitting inert in <template id="ms-shell-tpl"> underneath.
+  // THE SECTION LIVES ON /my-stances NOW, AND IT IS NOT ON THE HOMEPAGE AT ALL.
   //
-  // WHAT THIS COLLECTION STILL UNIQUELY OWNS, AND WHY IT IS A TEMPLATE RATHER
-  // THAN A DELETION: priority, the private note and the optional public
-  // showcase, across the whole issue vocabulary rather than the eight. Eight
-  // other modules say "go set a position" by calling PDXStances.open(), and
-  // /me's Starred issues region links here to add or remove a star because the
-  // priority editor lives nowhere else. Every one of those callers still lands
-  // on a working editor, because _mount() puts the markup back before init()
-  // looks for it — no id moved and nothing inside the template was rewritten.
+  // For a long time index.html carried this whole collection mounted: the
+  // search box, the filter rail, a card per issue in ISSUE_MAP, the showcase —
+  // laid out and painted on every load of /. Then it became a one-line card
+  // with the collection inert in a <template> behind it, which halved the cost
+  // and kept the real defect: the fragment #my-stances was a SCROLL POSITION,
+  // so every "go set a position" door on the site resolved to "somewhere on
+  // the homepage", and on a page this long it resolved to the wrong band.
+  //
+  // The section is now a document: my-stances.html. Same id, same template id,
+  // same ids inside (#ms-body, #ms-heading, #ms-door-count, #ms-door-more), so
+  // nothing in this file had to learn a new shape — it simply finds them on a
+  // document that is only this. Above it on that page sits stance-studio.js,
+  // which teaches a reader with nothing on file how to set their first side;
+  // this collection is the every-issue library underneath, and it is what
+  // "Browse every issue" unfolds.
+  //
+  // WHAT THIS COLLECTION UNIQUELY OWNS: priority, the private note and the
+  // optional public showcase, across the whole issue vocabulary. The studio
+  // sets a side and nothing else, which is why both exist on one page rather
+  // than one replacing the other.
+  //
+  // AND WHY THE STUDIO IS NO LONGER HIDDEN WHEN THIS MOUNTS. See mountShell:
+  // the catalog is behind a closed fold now, so "is it on screen" is the fold's
+  // own state and there is nothing to hide. What this collection also stopped
+  // doing is SELLING. It used to carry a "What your stances power" panel and
+  // two paragraphs naming the Alignment Tool, Your Match, Say-vs-Do and
+  // Direction Match — a match score advertised on the one surface in the app
+  // that is not allowed to show one, above an editor the reader had opened to
+  // set a position. The panel is gone and the copy is gone; what is left says
+  // what a position does, which is get read against a formal record.
   var _mounted = false;
+  // IT CLONES INTO THE FOLD, AND IT HIDES NOTHING.
+  //
+  // WHAT THIS USED TO DO, and both halves were wrong in the same way: it
+  // appended the collection to the bottom of #my-stances, then set
+  // `#ms-door.hidden` and `#mst.hidden` — the door it had just come through and
+  // the studio the reader had been using. The justification was "two surfaces
+  // for the same issue in one viewport is the same question asked twice", and
+  // that is true of two surfaces STACKED AND BOTH OPEN. It is not true of a
+  // surface and a fold: a closed <details> asks nothing, and an open one is a
+  // place the reader deliberately went. Hiding the studio meant the only way
+  // back to it was a reload.
+  //
+  // So the clone goes into #ms-door-body when the document has a fold, and the
+  // fold's own open/closed state is the whole of the "is the catalog on screen"
+  // question. Nothing is hidden by id from here any more. A document that ships
+  // no fold — index.html carried this section for a long time, and other shells
+  // load this module without any section at all — still gets the old behaviour
+  // of appending to the section, minus the two hides, because there is no
+  // surface on those pages for the hides to have been protecting.
   function mountShell() {
     if (_mounted) return true;
     var section = el('my-stances');
@@ -1397,18 +1464,17 @@
     // and person.html carry this module without the section): nothing to clone.
     if (el(MOUNT)) { _mounted = true; return true; }
     var tpl = el('ms-shell-tpl');
-    if (!tpl || !tpl.content || !section.appendChild) return false;
+    var into = el('ms-door-body') || section;
+    if (!tpl || !tpl.content || !into.appendChild) return false;
     _mounted = true;
     try {
-      section.appendChild(tpl.content.cloneNode(true));
+      into.appendChild(tpl.content.cloneNode(true));
     } catch (e) {
       _mounted = false;
       return false;
     }
     if (!el(MOUNT)) { _mounted = false; return false; }
     if (section.classList) section.classList.remove('ms-closed');
-    var door = el('ms-door');
-    if (door) door.hidden = true;
     return true;
   }
 
@@ -1447,11 +1513,22 @@
     var host = el('my-stances');
     if (!host) return;
     wireDoor();
-    // Deep-link straight to the section → mount now. A bookmarked #my-stances is
-    // still an address this module answers, and answering it is why the hash
-    // listener below stays: the door does not break an old link.
-    if (location.hash === '#my-stances') { init(); return; }
-    window.addEventListener('hashchange', function () { if (location.hash === '#my-stances') init(); });
+    // THERE IS NO FRAGMENT DEEP-LINK ANY MORE, AND NOTHING REPLACES IT.
+    //
+    // This used to read `location.hash === '#my-stances'` and mount the whole
+    // collection on a match, with a hashchange listener for the same string
+    // behind it. Both were the module treating a SCROLL OFFSET as an address:
+    // on /ballot that hash named no section at all, and on the homepage it
+    // named whichever band happened to render at that offset. The address is a
+    // document now, and index.html forwards an old /#my-stances bookmark here
+    // before it paints, so no link is stranded by the deletion.
+    //
+    // AND THE DOCUMENT FLAG IS DELIBERATELY NOT USED TO AUTO-MOUNT HERE. Being
+    // on /my-stances is not a request for all 121 issue cards — stance-studio.js
+    // owns the top of this page, and the studio is the surface a reader who came
+    // to set their first position needs to meet. Mounting on arrival would put
+    // the warehouse under them before they had been handed a shelf. The gesture
+    // is the fold: "Browse every issue", wired just above.
     // THERE IS NO SCROLL-INTO-VIEW MOUNT ANY MORE, AND THAT IS THE POINT. The
     // IntersectionObserver that used to sit here mounted the whole collection
     // for every reader who scrolled past this band, which is every reader who
@@ -1467,7 +1544,36 @@
   // a copy-link should too. "Open the full stance collection here" is the only
   // control that mounts in place — the collection is what this surface has that
   // /me does not, so it is the only thing worth opening without leaving.
+  // THE DOOR IS A FOLD, AND THE FOLD IS THE GESTURE.
+  //
+  // This used to wire a click on a <button id="ms-door-more"> and then scroll
+  // the reader to the top of the section, which was the tell: the collection
+  // REPLACED what was above it, so arriving needed a scroll. The door is a
+  // <details> now — opening it mounts the catalog underneath the studio and
+  // leaves the studio where it was, so there is nothing to scroll to and
+  // nothing is stolen from the reader who opened it.
+  //
+  // ONE LISTENER, ON 'toggle', AND IT ONLY EVER MOUNTS. Closing the fold does
+  // not unmount: the reader may have a note half-typed in there, and a
+  // collapsed <details> already costs nothing to leave in the tree. The button
+  // path is kept for any document that still ships a <button id="ms-door-more">
+  // rather than a fold, because this module is loaded by five shells and it is
+  // not the place to decide which markup each of them uses.
+  //
+  // NO HASH IS WRITTEN on either path. The door only exists on /my-stances, so
+  // the reader is already at the address; stamping '#my-stances' onto it bought
+  // nothing and cost a spurious history entry that made Back scroll instead of
+  // leave.
   function wireDoor() {
+    var fold = el('ms-door');
+    if (fold && fold.tagName === 'DETAILS' && !fold.__msWired) {
+      fold.__msWired = true;
+      fold.addEventListener('toggle', function () {
+        if (!fold.open) return;
+        init();
+      });
+      if (fold.open) init();
+    }
     var more = el('ms-door-more');
     if (more && !more.__msWired) {
       more.__msWired = true;
@@ -1476,7 +1582,6 @@
         init();
         if (!_inited) return;             // nothing mounted — do not scroll to a card
         scrollTo('my-stances');
-        try { if (location.hash !== '#my-stances') location.hash = '#my-stances'; } catch (_e2) {}
       });
     }
     paintDoorCount();
@@ -1595,7 +1700,7 @@
     }).join('');
     return '<div class="msvs">' + head +
       '<div class="msvs-list">' + body + '</div>' +
-      (opts.foot === false ? '' : '<div class="msvs-foot">Your saved position lined up against their documented record. <button type="button" class="ms-link" onclick="if(window.PDXStances&&PDXStances.open)PDXStances.open();else location.hash=\'#my-stances\';">Manage in My Stances</button></div>') +
+      (opts.foot === false ? '' : '<div class="msvs-foot">Your saved position lined up against their documented record. <button type="button" class="ms-link" onclick="if(window.PDXStances&&PDXStances.open)PDXStances.open();else location.assign(\'/my-stances\');">Manage in My Stances</button></div>') +
       '</div>';
   }
 
@@ -1629,8 +1734,46 @@
     myStanceChip: myStanceChipHtml,
     vsRecordHtml: vsRecordHtml,
     syncToAlignment: reconcileWithAlignment,
-    // navigation / render
-    open: function (issueKey) { init(); scrollTo('my-stances'); if (issueKey) setTimeout(function () { gotoIssue(issueKey); }, 60); },
+    // ── navigation / render ──────────────────────────────────────────────
+    // OPEN IS AN ADDRESS NOW, NOT A SCROLL. This used to be init() +
+    // scrollTo('my-stances'), which was only ever correct on ONE document. On
+    // /me — which carries this module and has no such section — it scrolled to
+    // nothing. On /ballot, /p/<pid>, /i/<key> and every other shell the module
+    // is absent entirely, so eight callers fell back to location.hash =
+    // '#my-stances', a hash no document on the site answered any more; ballot.html
+    // forwarded it to the homepage, where the reader landed near
+    // Relevant-to-me with no editor in sight. "Go set a position" has a
+    // surface now, so it has a URL, and this is the one place that knows it.
+    //
+    // ON /my-stances ITSELF IT IS STILL A SCROLL, because the surface is
+    // already under the reader and navigating to the page you are standing on
+    // is a flicker and a lost scroll position. The document declares
+    // __PDX_STANCES_DOC and this reads it — one flag, no path sniffing, the
+    // same shape __PDX_ME_DOC already has for /me. ?issue= is how a caller
+    // names an issue across a navigation; gotoIssue() is how it names one
+    // without.
+    //
+    // AND ON THIS DOCUMENT THE STUDIO GETS FIRST REFUSAL. stance-studio.js owns
+    // the top of /my-stances and owns the ?issue= beat — one issue, its locked
+    // scope sentence, Support / Oppose / Not sure. Mounting the 121-card
+    // collection instead would hide the studio (see mountShell) to answer a
+    // question the studio answers in one screen, so a named issue goes to
+    // pick() and only a bare open() falls through to the library.
+    open: function (issueKey) {
+      if (window.__PDX_STANCES_DOC) {
+        var St = window.PDXStanceStudio;
+        if (issueKey && knownIssue(issueKey) && St && typeof St.pick === 'function' && !_mounted) {
+          try { St.pick(issueKey); scrollTo('my-stances'); return; } catch (e) {}
+        }
+        init();
+        scrollTo('my-stances');
+        if (issueKey) setTimeout(function () { gotoIssue(issueKey); }, 60);
+        return;
+      }
+      var url = '/my-stances';
+      if (issueKey && knownIssue(issueKey)) url += '?issue=' + encodeURIComponent(issueKey);
+      try { location.assign(url); } catch (e) { try { location.href = url; } catch (e2) {} }
+    },
     // Jump to the section and highlight the My Views showcase card (account menu).
     //
     // THIS IS ONE OF THE TWO ACCOUNT-MENU DOORS, AND IT OWNS ONE SECTION. The
