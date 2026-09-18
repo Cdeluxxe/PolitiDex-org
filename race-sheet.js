@@ -507,12 +507,29 @@
   // issue pinned to the top of the axis is exactly the issue pulling hardest on
   // the number beside it. A stance set in the Alignment Tool alone has no
   // priority record and weighs 1, landing it in the middle tier.
+  //
+  // THE KEYS COME FROM THE ONE READER. PDXStanceSides.keys() is the same list
+  // the stance studio paints its library from and /me prints its chips from, so
+  // "rank this field with your positions" ranks it against exactly the
+  // positions those two surfaces show. This used to walk window._alignIssues
+  // directly, which is the engine's own projection of the same answers and is
+  // where that reader still falls back on a document without the module — the
+  // move is not about correcting a wrong set, it is about there being one set
+  // with one name. A key held in the store but not yet projected into the
+  // signature is on the axis now, which is the honest outcome: the reader holds
+  // that side.
   function axis() {
     var keys = [];
     try {
-      var s = window._alignIssues;
-      if (s && typeof s.forEach === 'function') s.forEach(function (k) { keys.push(k); });
+      var S = window.PDXStanceSides;
+      if (S && typeof S.keys === 'function') keys = S.keys() || [];
     } catch (e) {}
+    if (!keys.length) {
+      try {
+        var s = window._alignIssues;
+        if (s && typeof s.forEach === 'function') s.forEach(function (k) { keys.push(k); });
+      } catch (e2) {}
+    }
     var W = fn('_msPriorityWeight');
     var wOf = function (k) { try { var w = W ? W(k) : 1; return (typeof w === 'number' && isFinite(w) && w > 0) ? w : 1; } catch (e) { return 1; } };
     var IM = window.ISSUE_MAP || {};

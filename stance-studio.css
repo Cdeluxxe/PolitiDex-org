@@ -230,18 +230,42 @@
 .mst-seat-a { color: #93c5fd; text-decoration: none; border-bottom: 1px solid rgba(147, 197, 253, 0.45); }
 .mst-seat-a:hover, .mst-seat-a:focus-visible { color: #dbeafe; }
 
-/* ── The door to the every-issue collection ─────────────────────────────── */
+/* ── The door to the every-issue collection · A CLOSED FOLD ──────────────
+   It was a <button> and a line of count text, laid out as a centred row. The
+   button mounted the 121-card collection over this studio and hid it, so the
+   widest possible target on the page led away from the surface that teaches.
+   It is a <details> now: the summary is the whole of the control, closed is the
+   shipped state, and the catalog unfolds into .ms-door-body BELOW the studio
+   rather than on top of it.
+
+   THE SUMMARY IS SIZED AS A TARGET, not as a link. 44px of height and the
+   marker drawn by hand, because the native disclosure triangle is a 10px hit
+   area and the reader on a phone is the reader this whole document is for. */
 .ms-door {
-  max-width: 46rem; margin: 1.25rem auto 0; padding: 0.9rem 0;
-  display: flex; align-items: baseline; justify-content: center; gap: 0.6rem; flex-wrap: wrap;
+  max-width: 46rem; margin: 1.25rem auto 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.16);
 }
-.ms-door-count { margin: 0; font: 400 0.82rem/1.5 'Barlow', system-ui, sans-serif; color: #8aa0c4; }
-.ms-door-more {
-  min-height: 44px; background: none; border: none; padding: 0; cursor: pointer;
+.ms-door-sum {
+  min-height: 44px; display: flex; align-items: center; justify-content: center;
+  gap: 0.55rem; flex-wrap: wrap; padding: 0.85rem 0.6rem; cursor: pointer;
+  list-style: none;
   font: 400 0.85rem/1.4 'Barlow', system-ui, sans-serif; color: #93c5fd;
-  text-decoration: underline; text-underline-offset: 2px;
 }
-.ms-door-more:hover, .ms-door-more:focus-visible { color: #dbeafe; }
+/* Both spellings — WebKit still wants the pseudo-element, everyone else takes
+   `list-style: none` above. Without the pair the native triangle sits beside
+   the one this rule draws. */
+.ms-door-sum::-webkit-details-marker { display: none; }
+.ms-door-sum::marker { content: ''; }
+.ms-door-sum:hover, .ms-door-sum:focus-visible { color: #dbeafe; }
+.ms-door-sum-l { text-decoration: underline; text-underline-offset: 2px; }
+.ms-door-sum-l::after {
+  content: ' \25BE'; text-decoration: none; display: inline-block;
+  transition: transform 0.16s ease;
+}
+.ms-door[open] .ms-door-sum-l::after { transform: rotate(180deg); }
+.ms-door-count { margin: 0; font: 400 0.82rem/1.5 'Barlow', system-ui, sans-serif; color: #8aa0c4; }
+.ms-door-count[hidden] { display: none; }
+.ms-door-body:empty { display: none; }
 
 @media (max-width: 30rem) {
   .mst-h { font-size: 1.3rem; }

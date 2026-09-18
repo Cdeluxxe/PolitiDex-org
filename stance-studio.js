@@ -177,48 +177,38 @@
     return '';
   }
 
-  // ── The store · ONE store, read through its own front door ────────────────
-  // PDXStances.all() returns an ARRAY of records, each { issueKey, position,
-  // priority, ... }. It is written down here because reading it as a key/value
-  // map is a mistake that fails silently: Object.keys() over an array yields
-  // "0","1","2", none of which is an issue key, so the list comes back empty
-  // and the studio decides a returning reader is a new one.
+  // ── The store · ONE READER, AND IT IS NOT IN THIS FILE ────────────────────
+  // sides() used to be implemented here: walk PDXStances.all(), fall back to
+  // the alignment signature when the collection manager had not arrived. It
+  // was correct, and that was the problem — /me walked a different store and
+  // /ballot walked the signature, so three surfaces answered "which sides does
+  // this person hold" three ways and one of them printed "Nothing on file yet"
+  // over three saved positions.
+  //
+  // THE ANSWER LIVES IN stance-sides.js NOW and this asks it. The trap that
+  // makes the question worth centralising — PDXStances.all() is an ARRAY, so
+  // Object.keys() over it yields "0","1","2" and the list comes back empty
+  // without throwing — is written down there, once, beside the loop that must
+  // not re-enter it.
+  //
+  // AN ABSENT MODULE RETURNS NOTHING, deliberately. There is no second walk
+  // behind this one: a private copy kept "just in case" is how the three
+  // readers happened in the first place. /my-stances ships stance-sides.js, and
+  // scripts/test-stance-sides.mjs asserts every document that prints a side
+  // carries it.
   function sides() {
-    var out = [];
     try {
-      var P = window.PDXStances;
-      if (P && fn(P.all)) {
-        var rows = P.all() || [];
-        if (rows && rows.length) {
-          for (var i = 0; i < rows.length; i++) {
-            var r = rows[i];
-            if (!r || !r.issueKey || !known(r.issueKey)) continue;
-            if (!r.position) continue;
-            out.push({ key: r.issueKey, position: r.position, priority: r.priority || 'medium' });
-          }
-          return out;
-        }
-      }
+      var S = window.PDXStanceSides;
+      if (S && fn(S.list)) return S.list() || [];
     } catch (e) {}
-    // The signature, when the collection manager has not arrived yet. Same two
-    // ends of the same lineage the rest of the app uses; not a second store.
-    try {
-      var set = window._alignIssues;
-      var lv = window._alignIntensity || {};
-      if (set && fn(set.forEach)) {
-        set.forEach(function (k) {
-          if (!known(k)) return;
-          var p = lv[k] === 'oppose' ? 'oppose' : (lv[k] === 'neutral' ? 'mixed' : 'support');
-          out.push({ key: k, position: p, priority: 'medium' });
-        });
-      }
-    } catch (e2) {}
-    return out;
+    return [];
   }
   function count() { return sides().length; }
   function positionOf(k) {
-    var l = sides();
-    for (var i = 0; i < l.length; i++) if (l[i].key === k) return l[i].position;
+    try {
+      var S = window.PDXStanceSides;
+      if (S && fn(S.position)) return S.position(k) || '';
+    } catch (e) {}
     return '';
   }
 
@@ -441,9 +431,17 @@
       (n ? '<p class="mst-count">' + countLine(n) + '</p>' : '') +
     '</div>';
   }
-  // THE COUNT IS A LENGTH, WRITTEN AS A SENTENCE. Same words my-stances.js's
-  // own door count uses, deliberately: one phrasing for one fact.
+  // THE COUNT IS A LENGTH, WRITTEN AS A SENTENCE — and the sentence has one
+  // author. PDXStanceSides.countLine() spells it for the studio's done beat,
+  // the library heading and /my-stances' own door count, so "3 positions on
+  // file" cannot become "3 positions saved" on one of the three. The literal
+  // below is what a document without that module would print, and it is the
+  // same words.
   function countLine(n) {
+    try {
+      var S = window.PDXStanceSides;
+      if (S && fn(S.countLine)) return S.countLine(n);
+    } catch (e) {}
     return String(n) + (n === 1 ? ' position' : ' positions') + ' on file';
   }
   function openSeat() {

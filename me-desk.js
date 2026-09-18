@@ -771,32 +771,56 @@
     var Y = yf();
     return (Y && Array.isArray(Y.KEYS)) ? Y.KEYS.slice() : [];
   }
-  // The answered keys, in the editor's own declared order, through the editor's
-  // own accessor. A key whose stored answer is not one of the four is already
-  // dropped by that module's normalize(), so nothing here re-validates it.
+  // ── THE SIDES, THROUGH THE ONE READER ─────────────────────────────────────
+  // THIS REGION WAS THE THIRD READER, AND IT WAS THE ONE THAT WENT BLANK.
+  //
+  // It used to ask PDXYourFile.answered() + .position(). That accessor is
+  // honest about its own store — pdx_your_file_v1, the setter's key — and it is
+  // not the store the stance studio writes. So a reader who set three
+  // positions on /my-stances had three sides in the studio, three on /ballot's
+  // rank axis, and NONE here: this heading said "Your positions" and the body
+  // under it said "Nothing on file yet." Nothing threw, nothing logged, and
+  // both modules were internally correct. There were simply three readers.
+  //
+  // There is one now, in stance-sides.js, and every surface that prints a side
+  // asks it: the studio's library, this region, and race-sheet.js's rank axis.
+  // It reads PDXStances — the studio's own store — and merges the alignment
+  // signature, which is where an answer given in the older Your File editor or
+  // in the Alignment Tool itself lands. So a position set anywhere shows up
+  // here, and a position set nowhere does not.
+  //
+  // LOCAL FIRST, WHICH IS WHY A SIGNED-IN READER NEVER MEETS THE EMPTY
+  // SENTENCE WHILE HOLDING SIDES. PDXStances reads through PDXStore, which
+  // returns the local snapshot synchronously and merges the account pull into
+  // it afterwards, announcing itself with 'pdx-stances-change' — an event this
+  // desk already re-paints on (see the listener at the foot of this file). A
+  // write made a moment ago is on screen on the next paint, before any network
+  // has answered; a file arriving from another device lands when the pull does.
+  // Nothing on this path waits for a server before it is willing to say what
+  // the reader holds.
+  //
+  // NO STORE IS ADDED AND NONE IS MERGED HERE. This region still writes
+  // nothing at all; it reads one list and prints it.
   function positions() {
-    var Y = yf();
-    if (!Y || !fn(Y.answered)) return [];
-    var keys = [];
-    try { keys = Y.answered() || []; } catch (e) { keys = []; }
+    var S = null;
+    try { S = window.PDXStanceSides; } catch (e) { S = null; }
+    if (!S || !fn(S.list)) return [];
+    var rows = [];
+    try { rows = S.list() || []; } catch (e2) { rows = []; }
     var out = [];
-    keys.forEach(function (k) {
-      var pos = null;
-      try { pos = fn(Y.position) ? Y.position(k) : null; } catch (e2) { pos = null; }
-      if (pos) out.push({ key: k, pos: pos });
-    });
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i] && rows[i].key && rows[i].position) out.push({ key: rows[i].key, pos: rows[i].position });
+    }
     return out;
   }
-  // The side's label, off the editor's POSITIONS table. A side this desk cannot
-  // name is not printed as a raw slug: the chip falls back to the key alone,
-  // because "housing · mixed" is vocabulary and "housing · oppose_maybe" is a
-  // leak.
+  // The side's label, off the one reader's own table. A side it cannot name is
+  // not printed as a raw slug: the chip falls back to the key alone, because
+  // "housing · mixed" is vocabulary and "housing · oppose_maybe" is a leak.
   function sideLabel(pos) {
-    var Y = yf();
-    var list = (Y && Array.isArray(Y.POSITIONS)) ? Y.POSITIONS : [];
-    for (var i = 0; i < list.length; i++) {
-      if (list[i] && list[i].key === pos) return String(list[i].label || '');
-    }
+    try {
+      var S = window.PDXStanceSides;
+      if (S && fn(S.label)) return S.label(pos) || '';
+    } catch (e) {}
     return '';
   }
   // THE ISSUE'S OWN LABEL, off the register every other surface reads. An

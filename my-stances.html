@@ -1859,6 +1859,7 @@
   <script defer src="/issue-map.js"></script>
   <script defer src="/issue-scope.js"></script>
   <script defer src="/issue-colors.js"></script>
+  <script defer src="/stance-sides.js"></script>
   <script defer src="/my-stances.js"></script>
   <script defer src="/stance-studio.js"></script>
 </head>
@@ -1910,23 +1911,39 @@
         </p>
       </div>
 
-      <!-- ── THE DOOR TO THE FULL COLLECTION ────────────────────────────────
+      <!-- ── THE DOOR TO THE FULL COLLECTION · A CLOSED FOLD ────────────────
            EVERY ISSUE, not just the ones with a side: priority, the private
            note and the optional public showcase, which live nowhere else in the
-           app. It is a door and not the page because 121 folded issue cards is
-           not what a reader who came here to set one position needs to meet
-           first — that was the homepage's mistake and it is the reason this
-           address exists.
+           app.
 
-           THE IDS ARE my-stances.js's OWN. wireDoor() finds #ms-door-more and
-           paintDoorCount() writes #ms-door-count, and that count is already the
-           sentence this pass wants — "3 positions on file", a length, hidden
-           entirely at zero rather than nagging with a nought. No percentage, no
-           denominator, no grade. -->
-      <div class="ms-door" id="ms-door">
-        <p class="ms-door-count" id="ms-door-count" hidden></p>
-        <button type="button" class="ms-door-more" id="ms-door-more">Every issue on file &rarr;</button>
-      </div>
+           IT USED TO BE A BUTTON, AND THE BUTTON WAS A TRAPDOOR. "Every issue
+           on file →" called my-stances.js's init(), which mounted the 121-card
+           collection into this section and HID the studio above it. So the one
+           reader who tapped it — someone who had just been taught how to take a
+           side and wanted to see the rest — lost the surface that taught them
+           and landed in the warehouse, with a panel selling a match score on
+           the one page that is not allowed to show one. A door out of a room
+           should not delete the room.
+
+           SO IT IS A <details>, CLOSED. Mode B stays under the reader; the
+           catalog unfolds BELOW it, into #ms-door-body, and the studio is not
+           hidden. Closed is the shipped state and there is no attribute here
+           that opens it, which is what "not a visible warehouse on first paint"
+           means in markup rather than in a promise.
+
+           THE IDS ARE my-stances.js's OWN. wireDoor() listens for this
+           element's `toggle` — the fold IS the gesture, so there is no second
+           button inside it to press — and paintDoorCount() writes
+           #ms-door-count, which is already the sentence this pass wants: "3
+           positions on file", a length, hidden entirely at zero rather than
+           nagging with a nought. No percentage, no denominator, no grade. -->
+      <details class="ms-door" id="ms-door">
+        <summary class="ms-door-sum">
+          <span class="ms-door-sum-l">Browse every issue</span>
+          <span class="ms-door-count" id="ms-door-count" hidden></span>
+        </summary>
+        <div class="ms-door-body" id="ms-door-body"></div>
+      </details>
 
       <!-- ── THE COLLECTION · inert until something asks for it ──────────────
            MOVED HERE FROM index.html, byte-for-byte apart from the lede.

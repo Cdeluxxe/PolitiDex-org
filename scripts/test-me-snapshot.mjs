@@ -119,6 +119,13 @@ const ME = R("me.html");
 const DESK_JS = R("me-desk.js");
 const DESK_CSS = R("me-desk.css");
 const YF_JS = R("your-file.js");
+// THE ONE READER, loaded because /me loads it. Region b used to walk
+// PDXYourFile itself, which is how it went blank over positions written in the
+// stance studio; it asks PDXStanceSides now. The editor's own answers still
+// reach it here — your-file.js projects every sided answer into the alignment
+// signature from its parse-time adopt(), and the reader merges that signature
+// with the stance store — so the fixtures below are unchanged.
+const SIDES_JS = R("stance-sides.js");
 const MAP_JS = R("issue-map.js");
 const IC_JS = R("issue-colors.js");
 const VHL_JS = R("voter-hub-location.js");
@@ -295,6 +302,7 @@ function bootDesk(opts) {
   try {
     vm.runInContext(MAP_JS, ctx, { filename: "issue-map.js" });
     vm.runInContext(IC_JS, ctx, { filename: "issue-colors.js" });
+    vm.runInContext(SIDES_JS, ctx, { filename: "stance-sides.js" });
     if (!o.withoutEditor) vm.runInContext(YF_JS, ctx, { filename: "your-file.js" });
     vm.runInContext(DESK_JS, ctx, { filename: "me-desk.js" });
   } catch (e) { win.__err = e; }
@@ -372,6 +380,7 @@ function bootLive(opts) {
     // asserted rather than assumed in section 9.
     win.PROFILES = o.people || {};
     win.loadVoterLocation();
+    vm.runInContext(SIDES_JS, ctx, { filename: "stance-sides.js" });
     vm.runInContext(YF_JS, ctx, { filename: "your-file.js" });
     vm.runInContext(DESK_JS, ctx, { filename: "me-desk.js" });
   } catch (e) { win.__err = e; }

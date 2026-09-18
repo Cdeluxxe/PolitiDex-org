@@ -6773,7 +6773,54 @@
 //     field, issue key, mapping, stance corpus, auth path or ingest changed;
 //     voter-hub-location.js is untouched, and /library, /money, /courts,
 //     /evidence and /p/<pid> answer exactly as in v217.
-const CACHE_VERSION = 'v218';
+// v219 - ONE STORE, ONE STUDIO FACE, ISSUE COLOUR ON THE CATALOG.
+//
+//     THREE READERS ANSWERED ONE QUESTION AND ONE OF THEM ANSWERED BLANK. The
+//     studio read PDXStances.all() (an ARRAY, pdx_my_stances_v1), /me read
+//     PDXYourFile.answered() (a map, under the setter's OWN second key), and
+//     /ballot's rank axis walked window._alignIssues. So three saved positions
+//     were three sides in the studio, three on the ballot — and NONE on /me,
+//     which printed "Nothing on file yet." under "Your positions". Nothing
+//     threw; all three modules were internally correct. There were three.
+//
+//     stance-sides.js IS THE ONE READER, and it stores nothing and adds no key.
+//     It walks the stance array with the trap written down beside the loop
+//     (Object.keys over an array yields "0","1","2", so the list comes back
+//     empty in silence), then asks PDXYourFile's own answered()/position() —
+//     directly, because that editor reaches the alignment signature through
+//     alignment-tool.js and there is no engine on /me — then merges what is
+//     left of the signature, taking direction from the engine's declared
+//     ALIGN_DEFAULT_LEVEL rather than a guess. First source wins per issue.
+//     Local-first through PDXStore, so a signed-in reader never meets the empty
+//     sentence while local holds sides.
+//
+//     "EVERY ISSUE ON FILE" NO LONGER OPENS A MANIFESTO. The door is a CLOSED
+//     <details> "Browse every issue": Mode B stays under the reader, the
+//     catalog mounts inside the fold instead of hiding the studio, and the
+//     Alignment Tool / Your Match / Say-vs-Do / Direction Match copy that sold
+//     a match score on the one page not allowed to show one is gone outright,
+//     stylesheet included. A star stays a star on a row.
+//
+//     ISSUE COLOUR REACHES THE CATALOG. Summary chips, bundle filters, group
+//     heads and issue rows take PDXIssueColors.skin() — the road a bill
+//     letterhead takes, ROLLUP_PARENT included — so the gold "active filter"
+//     paint is gone and each chip wears its own issue's colour.
+//
+//     SHELL FILES THIS PASS TOUCHED: /stance-sides.js (NEW, precached below),
+//     /my-stances.html, /my-stances.js, /my-stances.css, /stance-studio.js,
+//     /stance-studio.css, /me.html, /me-desk.js, /ballot.html, /race-sheet.js,
+//     /index.html. DID NOT CHANGE: /app.css, /mobile-polish.css, /issue-map.js,
+//     /issue-colors.js, /issue-scope.js, /your-file.js, /alignment-tool.js,
+//     /consistency.js, /voter-hub-location.js, /cmp-data.js, the stance corpus,
+//     /library, /money, /courts, /evidence, /mandate, /voice and /p/<pid>.
+//
+//     MIGRATION COST: NONE. Both position stores keep their keys, their shapes
+//     and their contents; the new file only reads them, so a reader arriving
+//     with forty positions and a record already cached sees the same forty, and
+//     nothing stored is renamed, re-scoped, re-weighted or dropped.
+//
+//     NO new store key, no DM number, no party, twin-boot DM unchanged.
+const CACHE_VERSION = 'v219';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -7134,6 +7181,13 @@ const SHELL_ASSETS = [
   // to the every-issue collection in my-stances.js, which is a working editor
   // and a worse teacher — the safe half of the pair to lose.
   '/stance-studio.js',
+  // THE ONE READER OF "WHICH SIDES DOES THIS PERSON HOLD". Tiny, no storage, no
+  // vocabulary of its own — and it is on four shells (/, /me, /ballot,
+  // /my-stances) because those are the four documents that print a side. Losing
+  // it offline is the one failure that brings back the defect it fixes: /me
+  // would have no reader at all and would print its empty sentence over a full
+  // file. It is listed here so it is never the asset that did not arrive.
+  '/stance-sides.js',
   // Door 1's workspace: the mode rail, the one open desk, and the view strips
   // on the four older Door 1 surfaces. Precached with the modules it reads —
   // claim-check.js, issue-view.js, consistency.js, bill-detail.js and

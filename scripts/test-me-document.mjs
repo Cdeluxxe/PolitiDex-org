@@ -278,7 +278,7 @@ const COPIES = [
   // an earlier edit to index.html shifts line numbers — when it does, the header
   // comment in me.html and this table move TOGETHER, which is the whole point of
   // pinning it in one place.
-  { from: "index.html", src: INDEX, a: 20865, b: 21287, what: "PDXSaved" },
+  { from: "index.html", src: INDEX, a: 20866, b: 21288, what: "PDXSaved" },
 ];
 // PDXSaved's declared range has now moved four times, always for the same
 // reason and always re-derived the same way: LOCATE THE 423-LINE RUN VERBATIM IN
@@ -306,6 +306,18 @@ const COPIES = [
 // document, because the fragment was a scroll offset and never an address).
 // 20865-21287, re-derived by locating the run verbatim rather than by
 // subtracting 35 from the old numbers, and it came back at 423 lines again.
+// A SEVENTH MOVE, DOWNWARD BY ONE, for the one-reader pass: index.html grew a
+// single <script defer src="/stance-sides.js"> tag, and it sits above this
+// block. 20866-21288.
+//
+// RE-DERIVED, AND THE BOUNDARY IS WORTH WRITING DOWN because this is the first
+// of the seven moves where the search offered TWO answers. Sliding the window a
+// line further down also matches, since the block is followed by a BLANK line
+// in both files and a blank line matches anywhere — so the naive "longest run"
+// is 424 lines and starts one line late. The pin names the run of substance:
+// it opens on index.html's `<script>` at 20866 and closes on its `</script>` at
+// 21288, one line earlier is not in me.html at all, and it came back at its
+// full 423 lines again.
 for (const c of COPIES) {
   const header = new RegExp(`COPIED VERBATIM FROM ${c.from.replace(".", "\\.")} LINES ${c.a}[^0-9]{1,3}${c.b}`);
   ok(header.test(ME), `copy: me.html declares its ${c.what} block as ${c.from} ${c.a}–${c.b}`);

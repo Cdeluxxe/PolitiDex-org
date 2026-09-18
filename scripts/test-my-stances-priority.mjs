@@ -430,11 +430,25 @@ section("8 · the copy claims exactly what the stars do");
 {
   const w = stanced();
   const html = msHtml(w);
-  has(html, "Your Match", "the copy never names what a star actually changes");
-  has(html, "Direction Match", "the copy never says what a star does NOT change");
-  has(html, "party filters", "the copy does not rule out party filters");
-  has(html, "formal verdicts", "the copy does not rule out formal verdicts");
-  has(html, "does not change", "the copy has no negative claim at all");
+  // THE CLAIM IS THE SAME; THE NAMES IT USED ARE NOT ALLOWED ON THIS DOCUMENT.
+  // This used to require the words "Your Match", "Direction Match", "party
+  // filters" and "formal verdicts" verbatim. Those four named surfaces the
+  // stance studio does not and must not show — the whole reason "Every issue on
+  // file" stopped being a door into the alignment manifesto is that this page
+  // was selling a match score it is not allowed to print. Naming a score in
+  // order to disclaim it still teaches the reader that a score is what a star is
+  // for. So the assertion holds the copy to the CLAIM rather than to the
+  // vocabulary: it must say what a star does (weigh an issue in a ranked field)
+  // and it must say, in the negative, what a star leaves alone (the record, the
+  // verdict, the party filter).
+  has(html, "ranked field", "the copy never names what a star actually changes");
+  has(html, "weigh", "the copy never says what weighting an issue means");
+  has(html, "no party filter", "the copy does not rule out party filters");
+  has(html, "no verdict", "the copy does not rule out formal verdicts");
+  has(html, "changes no record", "the copy has no negative claim at all");
+  // AND THE FOUR NAMES ARE ABSENT, which is the other half of the same rule.
+  ["Alignment Tool", "Your Match", "Say-vs-Do", "Direction Match"].forEach((t) =>
+    lacks(html, t, `"${t}" is printed on /my-stances — this document shows no match`));
 
   // No overclaim in the other direction: a star must not be sold as changing a
   // politician's own record, score, or grade.

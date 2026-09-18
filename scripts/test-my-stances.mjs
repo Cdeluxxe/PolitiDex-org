@@ -89,6 +89,11 @@ const DOC = R("my-stances.html");
 const STUDIO_JS = R("stance-studio.js");
 const STUDIO_CSS = R("stance-studio.css");
 const STANCES_JS = R("my-stances.js");
+// THE ONE READER OF "SIDES THIS PERSON HOLDS", and it loads here because the
+// document loads it — /my-stances ships it before both modules below. The
+// studio has no private walk of the store any more: it asks PDXStanceSides, so
+// a boot without this file measures a studio that correctly reports nothing.
+const SIDES_JS = R("stance-sides.js");
 const MAP_JS = R("issue-map.js");
 const SCOPE_JS = R("issue-scope.js");
 const IC_JS = R("issue-colors.js");
@@ -283,6 +288,7 @@ function boot(opts) {
     vm.runInContext(MAP_JS, ctx, { filename: "issue-map.js" });
     vm.runInContext(SCOPE_JS, ctx, { filename: "issue-scope.js" });
     vm.runInContext(IC_JS, ctx, { filename: "issue-colors.js" });
+    vm.runInContext(SIDES_JS, ctx, { filename: "stance-sides.js" });
     vm.runInContext(STANCES_JS, ctx, { filename: "my-stances.js" });
     vm.runInContext(STUDIO_JS, ctx, { filename: "stance-studio.js" });
   } catch (e) { win.__err = e; }
@@ -426,8 +432,16 @@ lacks(ret.__paint(), "What do you care about first?",
   eq(ret.PDXStanceStudio.sides().length, 1, "the studio dropped the one position in the store");
   eq(ret.PDXStanceStudio.sides()[0].key, "housing", "the studio read an index where an issue key belongs");
 }
-has(STUDIO_CODE, "P.all()", "the studio no longer calls the store's own front door");
-lacks(STUDIO_CODE, "Object.keys(P.all", "the studio reads the position array as a key/value map");
+// THE FRONT DOOR MOVED, ONCE, ON PURPOSE. The studio used to call P.all()
+// itself; it asks PDXStanceSides now, because three surfaces asking three
+// different questions is what put "Nothing on file yet." on /me over a full
+// file. So the call this assertion protects is asserted where it now lives —
+// and the studio is held to having no private walk left behind it, which is the
+// only way "one reader" survives the next edit.
+has(SIDES_JS, "P.all()", "the one reader no longer calls the store's own front door");
+lacks(SIDES_JS, "Object.keys(P.all", "the one reader reads the position array as a key/value map");
+has(STUDIO_CODE, "PDXStanceSides", "the studio does not ask the one reader for the sides it paints");
+lacks(STUDIO_CODE, "P.all()", "the studio grew a private walk of the store again — there is one reader");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("3 · the lesson: the typeahead reaches the words in the placeholder");
