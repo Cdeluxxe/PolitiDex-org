@@ -426,12 +426,12 @@ const rooted = (v) => /^(\/|https?:|\/\/|data:|#|mailto:)/.test(v);
 // table and a half-update fails louder than no update.
 const personLines = person.split("\n");
 const COPIES = [
-  [1405, 1914, "the promise ledger and the deferred-event capture (firebase-boot.js reads _firestoreLoaded and _checkAndTrigger as bare identifiers)"],
-  [2006, 2060, "the Firebase compat bundles, the key injection, the synchronous stub and firebase-boot.js"],
-  [2063, 2097, "the split-seam stubs (_pdxMandateForIssue is called unguarded from inside stance-helpers.js)"],
-  [2115, 2159, "the share furniture share-preview.ts rewrites"],
-  [2222, 2225, "the Bebas Neue / Barlow preload swap"],
-  [3707, 3903, "the PWA runtime and the service-worker registration"],
+  [1405, 1920, "the promise ledger and the deferred-event capture (firebase-boot.js reads _firestoreLoaded and _checkAndTrigger as bare identifiers)"],
+  [2012, 2066, "the Firebase compat bundles, the key injection, the synchronous stub and firebase-boot.js"],
+  [2069, 2103, "the split-seam stubs (_pdxMandateForIssue is called unguarded from inside stance-helpers.js)"],
+  [2121, 2165, "the share furniture share-preview.ts rewrites"],
+  [2228, 2231, "the Bebas Neue / Barlow preload swap"],
+  [3713, 3909, "the PWA runtime and the service-worker registration"],
 ];
 for (const [a, b, what] of COPIES) {
   const slice = personLines.slice(a - 1, b).join("\n");
@@ -666,8 +666,17 @@ ok(/<body class="bg-navy-900 text-white font-body">/.test(html),
   // roster below has to name every shipped document or a correctly-precached
   // engine reads as an orphan. Each one is read from disk and skipped if it is not
   // there, so the list is safe to extend before a document exists.
+  //   AND THE ROSTER HAS TO KEEP UP, which it had stopped doing. Five shipped
+  // shells were missing from it — courts.html, mandate.html, voice.html,
+  // money.html and community.html — and the Digital Library split found that
+  // out: digital-library.js came off index.html and onto library.html, a new
+  // SHELL_ASSETS entry, and this gate called a correctly-precached room
+  // controller an orphan because the document that loads it was not on the list.
+  // Every shipped shell is named below now. A document missing from here does
+  // not weaken the claim, it fakes a violation of it.
   const SHELLS = ["index.html", "person.html", "issue.html", "spotlight.html", "ballot.html",
-                  "me.html", "stances.html", "evidence.html"]
+                  "me.html", "stances.html", "evidence.html", "courts.html", "mandate.html",
+                  "voice.html", "money.html", "community.html", "library.html"]
     .filter((d) => { try { read(d); return true; } catch (e) { return false; } })
     .map((d) => read(d));
   for (const f of DENY) {

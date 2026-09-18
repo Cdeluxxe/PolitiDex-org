@@ -259,28 +259,46 @@ section("4 · the four copied stores are byte-identical to their origins");
 // instead of as a silent divergence nobody is looking for.
 const lines = (s) => String(s).split("\n");
 const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
+//   AND ONCE MORE, UP BY 783, for the pass that took the curator's tools OFF
+// the front page rather than gating them there. The Bulk Import / Database
+// Expansion tool, the Politician Manager, the <template> that wrapped them, the
+// head CSS lock, the allow-list, the gate and the four gated nav rows all left
+// index.html for admin.html at /admin, and the front page lost 783 lines net.
+// Every one of those cuts is above this block, which is the only fact the pin
+// cares about; not a character of the block itself changed. Re-derived by
+// locating the run, as always — the arithmetic agreed afterwards, which is the
+// order that catches a bad pin rather than confirming one.
 const COPIES = [
   { from: "person.html", src: PERSON, a: 288, b: 1271, what: "PDXStore" },
-  { from: "person.html", src: PERSON, a: 1405, b: 1914, what: "the promise ledger" },
-  { from: "person.html", src: PERSON, a: 2006, b: 2029, what: "firebase" },
+  { from: "person.html", src: PERSON, a: 1405, b: 1920, what: "the promise ledger" },
+  { from: "person.html", src: PERSON, a: 2012, b: 2035, what: "firebase" },
   // The one block whose origin is index.html rather than person.html: person.html
   // does not carry PDXSaved, and index.html is the origin of all four, so taking
   // it from the origin keeps the chain a chain. Its declared range moves whenever
   // an earlier edit to index.html shifts line numbers — when it does, the header
   // comment in me.html and this table move TOGETHER, which is the whole point of
   // pinning it in one place.
-  { from: "index.html", src: INDEX, a: 21497, b: 21919, what: "PDXSaved" },
+  { from: "index.html", src: INDEX, a: 20900, b: 21322, what: "PDXSaved" },
 ];
-// PDXSaved's declared range has now moved three times, always for the same
+// PDXSaved's declared range has now moved four times, always for the same
 // reason and always re-derived the same way: LOCATE THE 423-LINE RUN VERBATIM IN
 // THE NEW index.html, never subtract a diff's line count from the old range.
 // The three-room split (Mandate, Voice and Money to their own documents) moved
-// it by −2021; the Community split moved it again; and the pass that made the
-// front page a DOOR to the money lane — deleting #follow-the-money, the Wealth
+// it by −2021; the Community split moved it again; the pass that made the front
+// page a DOOR to the money lane — deleting #follow-the-money, the Wealth
 // Transparency board and the retired #N-by-funding leaderboard from index.html,
-// with the first two moving to /money — moved it to 21497–21919. The run came
-// back at its full 423 lines each time, which is the check that the range names
-// the block rather than merely being in range.
+// with the first two moving to /money — moved it to 21497–21919; and the Digital
+// Library split (the #digital-library warehouse out of index.html and into
+// /library, against a longer head note) moved it DOWN to 21569–21991, which is
+// the first of these moves to run forwards rather than back. The run came back
+// at its full 423 lines each time, which is the check that the range names the
+// block rather than merely being in range.
+// A FIFTH MOVE, DOWNWARD BY 114, for the Home-hygiene pass: a head CSS lock
+// for the admin expansion tools, an H.R.1 teaching card above Door 1, a
+// <template> wrapper that keeps the two admin sections out of the document, and
+// the <script> tag Follow the Money's departure had taken with it — all four on
+// index.html, all four above PDXSaved. 21683-22105, and the run came back at
+// its full 423 lines again.
 for (const c of COPIES) {
   const header = new RegExp(`COPIED VERBATIM FROM ${c.from.replace(".", "\\.")} LINES ${c.a}[^0-9]{1,3}${c.b}`);
   ok(header.test(ME), `copy: me.html declares its ${c.what} block as ${c.from} ${c.a}–${c.b}`);

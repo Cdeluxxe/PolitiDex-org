@@ -216,7 +216,7 @@ lacks(CODE, "location.pathname === ",
 // recompute it by arithmetic. test-person-shell.mjs states the same rule for the
 // seven copies it fences.
 {
-  const a = 1809, b = 1864;
+  const a = 1815, b = 1870;
   const slice = ME.split("\n").slice(a - 1, b).join("\n");
   has(MY, `COPIED VERBATIM FROM me.html LINES ${a}–${b}`,
     "auth: money.html does not declare which lines of me.html its Firebase block is");

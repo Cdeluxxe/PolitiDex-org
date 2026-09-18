@@ -6560,7 +6560,127 @@
 //     the reader is, so /voice keeps saying it cannot place you rather than
 //     inventing a place, and no money surface asks it anything. /community is
 //     untouched too, and still answers 200 from its own shell.
-const CACHE_VERSION = 'v213';
+// v214 - THE DIGITAL LIBRARY IS A DOCUMENT. /library.
+//
+//     WHAT CHANGED. The archive room left index.html. The section
+//     #digital-library — the cross-source search box, the Explore / Legislation
+//     tab rail, the collection tiles, the type chips and issue select, the
+//     Legislation facet bar and the browse grid — is now the whole of
+//     library.html, served at /library and /library/ by two exact 200 rewrites,
+//     the same pair shape /money and /community use. The front page keeps the
+//     door: Explore & Discover's two entries point at /library and
+//     /library?mode=legislation, which is the fix for the entrance that never
+//     really worked — the bill catalog is a MODE of the one library controller,
+//     so asking for it used to mean selecting a tab inside a section the page
+//     kept re-rendering underneath the reader.
+//
+//     WHY THE BUMP. Two precached documents changed each other's meaning:
+//     index.html no longer contains the room OR the module that paints it, and
+//     library.html is new on SHELL_ASSETS. A warm v213 device would serve an old
+//     front page whose two Explore entries still call an in-page library that
+//     the new deploy does not ship — a tap that appears to work and does
+//     nothing, which is exactly the entrance this pass repairs.
+//
+//     WHAT /library COSTS OFFLINE: the document and its controller, for the
+//     reason evidence-locker.js and me-desk.js are on this list — together they
+//     ARE the room, and one arriving without the other paints nothing at all.
+//     digital-library.js MOVES onto the list rather than being added to it:
+//     index.html used to load it on every visit, so a warm device has always
+//     been paying for it. spotlight-index.js, gov-contracts.js and bills.js
+//     stay runtime-cached, unchanged — they are shared with front-page surfaces
+//     (Local Issues, the search suggestions, Major Contracts, the bill panel).
+//
+//     MIGRATION COST: none. No stored record migrates. A bookmark on
+//     /#digital-library is forwarded to /library by the LANE table in
+//     index.html's head, and every in-page caller that survived the move
+//     (bill-detail.js's issue chips, gov-contracts.js's render() ping,
+//     pdxDoor('bills')) reaches it through window.PDXDigitalLibrary and
+//     window.pdxOpenBills, navigation shims on the front page now.
+//
+//     DID NOT MOVE. The H.R.1 / Omnibus Showcase is still #hr1-showcase on
+//     index.html, still opened by pdxDoor('bill') — one measure read across
+//     every issue it touches is a different room from the catalog of every
+//     measure. No roster field, issue key, mapping, auth path or ingest
+//     changed, and voter-hub-location.js is untouched: the archive never asks
+//     where the reader is. Nothing here is scored — Direction Match, Word vs
+//     Action, the formal pattern tiers, the publication floor and every
+//     cross-person ordering are untouched. /money and /community still answer
+//     200 from their own shells; the 💰 chip and /p/<pid> are untouched.
+// v215 - HOME HYGIENE. THREE DEFECTS ON THE FRONT PAGE, NO NEW ROOM.
+//
+//     WHAT CHANGED, ALL OF IT ON index.html. (1) The footer leak: when Follow
+//     the Money left for /money, the deleted leaderboard IIFE took the opening
+//     <script> tag of the block it shared with window.toggleFollowMoney, so the
+//     browser painted that function's SOURCE as text under the footer and the
+//     name was never defined — the 💰 button in the profile modal threw on
+//     click. The tag is restored; the function is unchanged, because
+//     profiles-full.js still calls it by name. (2) The admin tools fail closed:
+//     DATABASE EXPANSION / Bulk Import / AI-Assisted Database Expansion and the
+//     Politician Manager now ship inert inside <template id="pdx-admin-tools">
+//     and are CLONED into the document only when the admin account is
+//     recognized, behind a positive html.pdx-admin CSS lock in the head. An
+//     anonymous or non-admin reader no longer has that markup in the DOM, the
+//     accessibility tree, find-in-page or reader mode. Nothing was deleted, and
+//     the 451 KB of admin JS stays gated as before. (3) The H.R.1 lesson is
+//     visible: one compact card above Door 1 — kicker, title, one sentence of
+//     civics, four issue chips, one control to the bill's own address — outside
+//     #pdx-door-work, so no door has to be opened to read it.
+//
+//     WHY THE BUMP. index.html is precached. A warm v214 device would keep
+//     serving the front page that paints raw JavaScript under the footer and
+//     carries the curator sections in its DOM for every visitor — the two
+//     defects this deploy exists to fix. No file joins or leaves SHELL_ASSETS:
+//     no module was added, none moved, library.html and digital-library.js stay
+//     exactly where v214 put them, and the runtime bucket is untouched.
+//
+//     MIGRATION COST: none. No stored record, key or mapping migrates, and the
+//     admin allow-list is the same one address it was. #hr1-showcase is still
+//     the deep read at its own anchor, still opened by the 🏛️ Door 1 chip and
+//     the nav item through pdxOpenSurface(); the card is a summary beside it,
+//     not a second copy, and it is not folded into /library this pass.
+//
+//     DID NOT CHANGE. The card prints no percentage, no party and no verdict:
+//     nothing on it is computed. No roster field, issue key, stance, mapping,
+//     auth path or ingest changed, and voter-hub-location.js is untouched — the
+//     lesson is the same measure wherever the reader is. Nothing here is scored:
+//     Direction Match, Word vs Action, the formal pattern tiers, the publication
+//     floor and every cross-person ordering are as they were. /library,
+//     /library?mode=legislation, /money, /community, the 💰 chip and /p/<pid>
+//     all still answer from their own shells.
+// v216 - THE CURATOR'S TOOLS LEFT THE FRONT PAGE. HOME NO LONGER HOSTS THEM.
+//
+//     Home no longer hosts curator tools: the DATABASE EXPANSION / Bulk Import
+//     tool, its AI-Assisted Database Expansion panel and the Politician Manager
+//     were 650 lines of markup on index.html, and v215 wrapped them in an inert
+//     <template> behind a positive html.pdx-admin lock so no anonymous reader
+//     could see them — three locks that worked, on a room still built in the
+//     lobby. This pass moves the room: the markup, the <template>, the
+//     ADMIN_EMAILS allow-list, the gate, the four gated nav rows and the head
+//     lock are all gone from index.html, which now contains none of the strings
+//     DATABASE EXPANSION, BULK IMPORT MODE, AI-ASSISTED DATABASE or Ready for
+//     Discovery Scan in any case, in markup or comment, and mountAdminTools()
+//     no longer exists on that document to inject them. They live at /admin
+//     (admin.html, a new 1,207-line shell served by an exact rewrite pair with
+//     no splat), carrying the same three locks and the same one-address
+//     allow-list, noindex in its own head and by X-Robots-Tag, linked from
+//     nothing and absent from SHELL_ASSETS on purpose — nobody's phone should
+//     precache the curator's door, and index.html shrank 783 lines, which IS the
+//     gate. WHY THE BUMP: index.html is precached, so a warm v215 device would
+//     keep serving a front page whose DOM is one cleared style away from the
+//     expansion wall. No file joins or leaves SHELL_ASSETS; the 451 KB of admin
+//     JS is still injected on demand and is now named by no shell.
+//     MIGRATION COST: none — no stored record, key or mapping migrates, the
+//     allow-list is the same single address, and a curator who bookmarked
+//     /#database-expansion lands on the front page instead of a section, which
+//     is the one visible loss and is the point. DID NOT CHANGE: the file
+//     voter-hub-location.js is untouched (the tools never asked where the
+//     reader is), and nothing here is scored —
+//     Direction Match, Word vs Action, the formal pattern tiers, the publication
+//     floor and every cross-person ordering are as they were. /library,
+//     /library?mode=legislation, /money, /community, me.html, the H.R.1 teaching
+//     card, the restored footer script and /p/<pid> all answer exactly as in
+//     v215.
+const CACHE_VERSION = 'v216';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -6693,6 +6813,24 @@ const SHELL_ASSETS = [
   // /finance-lane.js and /finance-lane.css are already entries below.
   '/money-room.js',
   '/money-lane.css',
+
+  // THE THIRTEENTH SHELL, and the fourth to come OUT of index.html rather than
+  // arrive new. netlify.toml rewrites /library and /library/ here; it is a
+  // SINGLE address — mode, search text, type, issue, phase, sort and the
+  // followed flag are all QUERY keys — so navDocKey gives it no key and this one
+  // entry answers every arrival.
+  '/library.html',
+  // The room's controller, precached for the reason evidence-locker.js and
+  // me-desk.js are: it is the WHOLE of what paints /library, including the sheet
+  // (#dlib-css) it injects itself, so a document that arrives without it is
+  // chrome over an empty grid. This is a MOVE onto the list, not an addition to
+  // it — index.html used to load the same file on every visit, so a warm device
+  // has always been paying for it; it is simply paid for at the address that
+  // needs it now. Its three data sources stay runtime-cached exactly as they
+  // were when the library was on the front page: /spotlight-index.js,
+  // /gov-contracts.js and /bills.js are all shared with surfaces that are still
+  // there, and the room degrades honestly without any of them.
+  '/digital-library.js',
   '/css/tailwind.css',
   // The above-the-fold record card. Parser-blocking in index.html, so on a
   // repeat visit these two must come from the cache or they add latency to the

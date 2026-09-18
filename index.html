@@ -1867,7 +1867,13 @@
       if (typeof _populateDirData === 'function') {
         _populateDirData();
       }
-      // Update Database Expansion stats
+      // The curator's roster counter, if anything on this page ever defines it.
+      // It does not: expansion-controller.js owns updateExpansionStats() and it
+      // is injected by the gate on admin.html, which is where the tool that
+      // reads the counter lives now. The guard is kept rather than deleted
+      // because it is the one line that let that room move without this one
+      // throwing, and it is what would let a future roster surface on Home
+      // publish a count again without re-plumbing the data-load path.
       if (typeof updateExpansionStats === 'function') {
         updateExpansionStats();
       }
@@ -2112,6 +2118,17 @@ window.PDXLazy = (function () {
        nav menu instead of the conversation. Their keys are spelled below without
        a leading #, like every other key in the table.
 
+       #digital-library IS THE NEWEST KEY, AND IT IS THE #agenda CASE AGAIN. The
+       Digital Library — the archive grid and the Legislation tab over it — is the
+       document at /library now, so that fragment names nothing on this page. It
+       is also the fragment with the most callers anywhere: the nav's two Explore
+       entries, both mobile-menu rows, the collection-tile fallbacks inside
+       digital-library.js, and whatever readers bookmarked of the one searchable
+       surface on the site. All of them land in the room. There is deliberately
+       no 'library', 'legislation' or 'bills' key beside it — those spellings were
+       never published as fragments here, and this table is for links that exist,
+       not for a vocabulary someone might type.
+
        WHY IT IS HERE AND NOT AT THE BOTTOM. This runs before app.css, before
        the Firebase SDK and before 1.9 MB of parsing — so the forward costs the
        reader one request rather than one whole page they were never going to
@@ -2144,7 +2161,8 @@ window.PDXLazy = (function () {
       'district-voice': '/voice',
       'voice': '/voice',
       'community-exchange': '/community',
-      'open-forum': '/community'
+      'open-forum': '/community',
+      'digital-library': '/library'
     };
     function forward() {
       var h = '';
@@ -3684,6 +3702,15 @@ window.PDXLazy = (function () {
     }
   </style>
 
+  <!-- NO ADMIN LOCK HERE ANY MORE, AND THAT IS THE STRONGER ANSWER. This head
+       carried a .pdx-admin CSS lock over #database-expansion, #politician-manager
+       and [data-admin-only] because the curator's tools were markup on this
+       document, gated three ways. They are not on this document at all now —
+       they are admin.html, served at /admin — so there is nothing here to lock,
+       no allow-list on the front page to decide who may see it, and no way for a
+       failed stylesheet or a stale shell to open a door that is not in the
+       building. The three locks moved with the room. -->
+
       </head>
 <body class="bg-navy-900 text-white font-body">
 
@@ -3892,7 +3919,7 @@ window.PDXLazy = (function () {
                new Digital Library (the central archive); the caret reveals the full
                group plus the deeper reference destinations. -->
           <div class="pdx-navmenu" data-navmenu>
-            <a href="#digital-library" class="pdx-navmenu__btn nav-link transition-all duration-200 hover:scale-105 py-1 text-blue-300 hover:text-blue-200" title="Explore & Discover — spotlights, issues, the Digital Library and major bills"><span class="pdx-navmenu__glyph" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/><circle cx="18.5" cy="18.5" r="2.3"/></svg></span> Explore &amp; Discover</a>
+            <a href="/library" class="pdx-navmenu__btn nav-link transition-all duration-200 hover:scale-105 py-1 text-blue-300 hover:text-blue-200" title="Explore & Discover — spotlights, issues, the Digital Library and major bills"><span class="pdx-navmenu__glyph" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/><circle cx="18.5" cy="18.5" r="2.3"/></svg></span> Explore &amp; Discover</a>
             <button type="button" class="pdx-navmenu__caret" aria-haspopup="true" aria-expanded="false" aria-label="Open Explore & Discover menu">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></svg>
             </button>
@@ -3939,8 +3966,8 @@ window.PDXLazy = (function () {
                    single row that leads there. "Browse Issues" below is a different
                    surface (#issue-front-door, on this page) and keeps its own row. -->
               <a href="/stances" role="menuitem" class="pdx-navmenu__item" title="Browse by issue: who stands where, the receipts, and every Issue Spotlight"><span class="pdx-navmenu__ico" aria-hidden="true">🎯</span><span class="pdx-navmenu__lb">Issues &amp; Stances</span></a>
-              <a href="#digital-library" onclick="window.PDXDigitalLibrary&&window.PDXDigitalLibrary.focus&&window.PDXDigitalLibrary.focus()" role="menuitem" class="pdx-navmenu__item pdx-navmenu__item--primary" title="The central searchable archive of everything PolitiDex tracks"><span class="pdx-navmenu__ico" aria-hidden="true">📚</span><span class="pdx-navmenu__lb">Digital Library</span></a>
-              <a href="#digital-library" onclick="if(window.pdxOpenBills)window.pdxOpenBills();" role="menuitem" class="pdx-navmenu__item" title="Bills & measures — the Legislation library"><span class="pdx-navmenu__ico" aria-hidden="true">🏛️</span><span class="pdx-navmenu__lb">Legislation / Bills</span></a>
+              <a href="/library" role="menuitem" class="pdx-navmenu__item pdx-navmenu__item--primary" title="The central searchable archive of everything PolitiDex tracks"><span class="pdx-navmenu__ico" aria-hidden="true">📚</span><span class="pdx-navmenu__lb">Digital Library</span></a>
+              <a href="/library?mode=legislation" role="menuitem" class="pdx-navmenu__item" title="Bills & measures — the Legislation library"><span class="pdx-navmenu__ico" aria-hidden="true">🏛️</span><span class="pdx-navmenu__lb">Legislation / Bills</span></a>
               <a href="#hr1-showcase" onclick="if(window.pdxOpenSurface)window.pdxOpenSurface('hr1-showcase');" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🏛️</span><span class="pdx-navmenu__lb">H.R.1 / Omnibus Showcase</span></a>
               <div class="pdx-navmenu__sep"></div>
               <a href="#issue-front-door" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🧭</span><span class="pdx-navmenu__lb">Browse Issues</span></a>
@@ -3948,9 +3975,12 @@ window.PDXLazy = (function () {
               <a href="/money" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">💰</span><span class="pdx-navmenu__lb">Follow the Money</span></a>
               <a href="/money" onclick="if(window.PDXContracts&&window.PDXContracts.open){event.preventDefault();window.PDXContracts.open();}" role="menuitem" class="pdx-navmenu__item" title="Federal Spending Tracker — major government contracts"><span class="pdx-navmenu__ico" aria-hidden="true">🏛️</span><span class="pdx-navmenu__lb">Government Contracts</span></a>
               <a href="/money#wealth-leaderboard" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">📈</span><span class="pdx-navmenu__lb">Wealth Leaderboard</span></a>
-              <div class="pdx-navmenu__sep" data-admin-only style="display:none;"></div>
-              <a href="#database-expansion" data-admin-only role="menuitem" class="pdx-navmenu__item pdx-navmenu__item--admin" style="display:none;"><span class="pdx-navmenu__ico" aria-hidden="true">🔄</span><span class="pdx-navmenu__lb">Expand Database</span></a>
-              <a href="#politician-manager" data-admin-only role="menuitem" class="pdx-navmenu__item pdx-navmenu__item--admin" style="display:none;"><span class="pdx-navmenu__ico" aria-hidden="true">🛠</span><span class="pdx-navmenu__lb">Manage Politicians</span></a>
+              <!-- THE TWO CURATOR ROWS ARE GONE, not hidden. "Expand Database"
+                   and "Manage Politicians" sat here behind data-admin-only and an
+                   inline display:none, flipped by the front page's admin gate.
+                   Drawing them required the allow-list to live on this document,
+                   which is the thing the /admin split removes: the tools are
+                   admin.html now and the curator reaches them by address. -->
             </div>
           </div>
 
@@ -4589,8 +4619,8 @@ window.PDXLazy = (function () {
       <div class="mnav-group-label">Explore &amp; Discover</div>
       <a href="#hot-topics" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-orange-300 hover:text-orange-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🔥 Hot Topics / Spotlights</a>
       <a href="/stances" title="Browse by issue: who stands where, the receipts, and every Issue Spotlight" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-blue-300 hover:text-blue-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🎯 Issues &amp; Stances</a>
-      <a href="#digital-library" title="The central searchable archive of everything PolitiDex tracks" onclick="document.getElementById('mobileMenu').classList.add('hidden');window.PDXDigitalLibrary&&window.PDXDigitalLibrary.focus&&window.PDXDigitalLibrary.focus()" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#9ec8ff;">📚 Digital Library</a>
-      <a href="#digital-library" title="Bills &amp; measures — the Legislation library" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxOpenBills)window.pdxOpenBills();" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#9ff0bd;">🏛️ Legislation / Bills</a>
+      <a href="/library" title="The central searchable archive of everything PolitiDex tracks" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#9ec8ff;">📚 Digital Library</a>
+      <a href="/library?mode=legislation" title="Bills &amp; measures — the Legislation library" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="color:#9ff0bd;">🏛️ Legislation / Bills</a>
       <a href="#hr1-showcase" onclick="document.getElementById('mobileMenu').classList.add('hidden');if(window.pdxOpenSurface)window.pdxOpenSurface('hr1-showcase');" class="text-gold-300 hover:text-gold-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🏛️ H.R.1 / Omnibus Showcase</a>
       <div class="mnav-group-label mnav-group-label--money">💰 Money &amp; Spending</div>
       <a href="/money" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-money flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">💰 Follow the Money</a>
@@ -4625,8 +4655,8 @@ window.PDXLazy = (function () {
       <a href="#myteam-browse-panel" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-gold-400 hover:text-gold-300 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase">🏛 All Politicians</a>
       <a href="/mandate" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-gold-300 hover:text-gold-200 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700">✊ Mandate</a>
       <a href="#support-politidex" data-pdx-support onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors" style="color:#f2d38a;">💛 Support PolitiDex</a>
-      <a href="#database-expansion" data-admin-only onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-crimson-400 hover:text-crimson-300 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="display:none;">🔄 Expand Database</a>
-      <a href="#politician-manager" data-admin-only onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="text-crimson-400 hover:text-crimson-300 flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors font-700 w-full text-left font-condensed text-sm tracking-widest uppercase" style="display:none;">🛠 Manage Politicians</a>
+      <!-- The drawer's two curator rows are gone for the same reason as the
+           desktop pair above: the tools they pointed at are /admin now. -->
       <a href="#submit" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="hover:text-white active:text-crimson-400 flex items-center py-3.5 transition-colors">Submit</a>
     </div>
   </nav>
@@ -6182,6 +6212,53 @@ window.PDXLazy = (function () {
     </div>
   </nav>
 
+  <!-- ── H.R.1 · THE LESSON, IN THE OPEN ─────────────────────────────────────
+       The teaching case for what PolitiDex does to an omnibus — one roll call
+       that keeps one promise and breaks another — lived only inside
+       #hr1-showcase, which starts display:none inside #pdx-door-work, so a
+       reader had to pick a door to be told why one vote can be two verdicts.
+       This is the short version with no door in front of it: four chips, one
+       sentence, one control, nothing computed. The deep read is still the
+       showcase, still opened by the 🏛️ Door 1 chip and the nav item through
+       pdxOpenSurface(). No percentage (no depth marker or denominator fits on a
+       card this short), no party (the chips name issues, not `lean`), no verdict
+       ("kept" and "broken" belong beside the member whose promise it was).
+       Passing one chamber is not law — the lesson — but this measure did become
+       law, so the sentence teaches the rule and then says what happened:
+       hr1-showcase.js's sourced timeline has final passage Jul 3, 2025 (Roll
+       Call 190, 218–214) and the signature Jul 4. The control is the bill's own
+       /b/ address, the printed number's space escaped, handed to PDXBillDetail
+       when that panel is on the page — door1-workspace.js's own pair. -->
+  <section id="pdx-hr1-card" aria-labelledby="pdx-hr1-card-h">
+    <style>
+      #pdx-hr1-card{max-width:64rem;margin:0.35rem auto 0;padding:0 1.25rem}
+      .phc-wrap{border-radius:0.85rem;padding:0.85rem 1rem 0.9rem;border:1px solid rgba(245,200,66,0.26);border-left:3px solid #f5c842;background:linear-gradient(160deg,rgba(60,48,16,0.42),rgba(12,18,36,0.5))}
+      .phc-kicker,.phc-chip,.phc-open{font-family:'Barlow Condensed',sans-serif;font-weight:800}
+      .phc-kicker{font-size:0.63rem;letter-spacing:0.13em;text-transform:uppercase;color:#d9b44a}
+      .phc-title{font-family:'Bebas Neue',sans-serif;font-size:1.28rem;letter-spacing:0.035em;color:#fff;line-height:1.1;margin:0.2rem 0 0.3rem}
+      .phc-lede{font-family:'Barlow',sans-serif;font-size:0.82rem;line-height:1.5;color:#9fb4d0;margin:0 0 0.55rem;max-width:52rem}
+      .phc-chips{display:flex;flex-wrap:wrap;gap:0.35rem;margin:0 0 0.65rem;padding:0;list-style:none}
+      .phc-chip{font-size:0.7rem;font-weight:700;letter-spacing:0.04em;color:#cbd9ec;white-space:nowrap;background:rgba(255,255,255,0.05);border:1px solid rgba(148,163,184,0.26);border-radius:9999px;padding:0.2rem 0.6rem}
+      .phc-open{display:inline-flex;align-items:center;gap:0.4rem;text-decoration:none;font-size:0.72rem;letter-spacing:0.13em;text-transform:uppercase;color:#f5c842;background:rgba(245,200,66,0.12);border:1px solid rgba(245,200,66,0.35);border-radius:9999px;padding:0.42rem 0.95rem;transition:background .15s ease,border-color .15s ease}
+      .phc-open:hover,.phc-open:focus-visible{background:rgba(245,200,66,0.2);border-color:#f5c842}
+      @media (max-width:480px){#pdx-hr1-card{padding:0 0.9rem}
+      .phc-title{font-size:1.14rem}.phc-lede{font-size:0.78rem}}
+    </style>
+    <div class="phc-wrap">
+      <div class="phc-kicker">🏛️ One measure, many issues</div>
+      <h2 id="pdx-hr1-card-h" class="phc-title">H.R.1 — the 2025 reconciliation and tax package</h2>
+      <p class="phc-lede">A package that passes the House is not law by itself — it becomes law only when the Senate passes it too and the president signs it, which is what happened to H.R.1 on July 4, 2025, the day after the House cleared it 218&ndash;214.</p>
+      <ul class="phc-chips" aria-label="Issues this one measure maps to">
+        <li class="phc-chip" data-issue="lower_taxes">💵 Taxes</li>
+        <li class="phc-chip" data-issue="healthcare">🏥 Health care</li>
+        <li class="phc-chip" data-issue="family_support">🍎 Food aid</li>
+        <li class="phc-chip" data-issue="border_security">🛂 Border enforcement</li>
+      </ul>
+      <a id="pdx-hr1-card-open" class="phc-open" href="/b/119/H.R.%201"
+        onclick="return !(window.PDXBillDetail&&typeof window.PDXBillDetail.open==='function'&&window.PDXBillDetail.open('H.R. 1','119')!==false);">📜 Open the bill</a>
+    </div>
+  </section>
+
   <!-- ── LIVE PROOF · the record as this browser actually has it ──────────────
        A three-chip strip naming the newest publishable Official Record cards the
        page genuinely built, newest vote first. Its job is to answer the one thing
@@ -6402,33 +6479,36 @@ window.PDXLazy = (function () {
         return land(id);
       };
 
-      // ── window.pdxOpenBills() · the bill catalog ────────────────────────────
+      // ── window.pdxOpenBills() · the bill catalog, which is an ADDRESS now ───
       // The Digital Library's Legislation tab IS the bill catalog — one row per
       // measure, each opening the one bill file (PDXBillDetail, whose shareable
-      // address is /b/<sitting>/<number>). It lives in the open, not in this
-      // layer, so all this has to do is make sure the tab that is actually
-      // selected is Legislation.
+      // address is /b/<sitting>/<number>). That library is the document at
+      // /library, so this name means a navigation rather than a tab selection.
       //
-      // The library is a deferred module fed by data that arrives lazily, so a tap
-      // can genuinely land before it exists. Scroll first — the reader is moving
-      // immediately either way — then keep asking for the tab for a few seconds.
-      // Returning false rather than doing nothing is what lets the link fall back
-      // to its own href instead of dying quietly.
-      function openBills(tries) {
-        tries = tries || 0;
-        if (!tries) {
-          var host = document.getElementById('digital-library');
-          if (host && host.scrollIntoView) { try { host.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {} }
-        }
-        var L = window.PDXDigitalLibrary;
-        if (L && typeof L.focus === 'function') {
-          try { L.focus({ mode: 'legislation' }); return true; } catch (e) {}
-        }
-        if (tries >= 20) return false;                 // ~3s, then it stops asking
-        setTimeout(function () { openBills(tries + 1); }, 150);
-        return true;
+      // WHAT THIS USED TO BE, AND WHY IT COULD NOT STAY. It scrolled to
+      // #digital-library and then asked window.PDXDigitalLibrary.focus() for the
+      // Legislation tab on a 150 ms retry for ~3 seconds, because the library was
+      // a deferred module over lazily-arriving data and a tap could land before it
+      // existed. Every part of that is now false on this page: there is no
+      // #digital-library to scroll to and no controller to wait for. Retrying
+      // against an absent module is a link that appears to work and does nothing
+      // — the exact failure the "Legislation / Bills" entrance kept producing.
+      //
+      // ?mode=legislation is the room's own arrival key, read by library.html's
+      // arrive seam and handed to the focus() call the controller already
+      // published, so the reader lands on bill rows rather than on the archive
+      // and then has to find the tab. location.assign, not replaceState: this is
+      // a real navigation and Back must return the reader here. `true` is still
+      // the answer on success so pdxDoor('bills') and the nav rows keep their
+      // fall-through contract.
+      function openBills() {
+        var to = '/library?mode=legislation';
+        try { location.assign(to); return true; } catch (e) {}
+        try { location.href = to; return true; } catch (e2) {}
+        try { location.replace(to); return true; } catch (e3) {}
+        return false;
       }
-      window.pdxOpenBills = function () { return openBills(0); };
+      window.pdxOpenBills = function () { return openBills(); };
 
       window.pdxDoor = function (mode) {
         switch (mode) {
@@ -6480,10 +6560,11 @@ window.PDXLazy = (function () {
           // ── BILLS · the catalog behind that one measure ─────────────────────
           // Not a door in the chooser, for the same reason 'receipts' is not: it
           // is what the nav's "Legislation / Bills" entry resolves to. The
-          // catalog is the Digital Library's Legislation tab, and the bill file
-          // it opens is /b/<sitting>/<number> — the same panel the showcase, the
-          // Eye's bill results and a person file's measure rows all open. There
-          // is no second bill product here and this adds none.
+          // catalog is the Digital Library's Legislation tab — /library?mode=
+          // legislation now that the library is its own document — and the bill
+          // file it opens is /b/<sitting>/<number>, the same panel the showcase,
+          // the Eye's bill results and a person file's measure rows all open.
+          // There is no second bill product here and this adds none.
           case 'bills':
             return window.pdxOpenBills();
 
@@ -9940,52 +10021,60 @@ window.PDXLazy = (function () {
     </div>
   </section>
 
-  <!-- ═══════════════════════ DIGITAL LIBRARY ═══════════════════════════════
-       The central, searchable archive — one front door over the Evidence
-       Locker, Issue Spotlights, stances & voting records, mandates, major bills
-       and the community boards. Rendered by digital-library.js (window.
-       PDXDigitalLibrary) entirely from globals the app already ships: it builds
-       a unified, filterable browse grid from the bounded client-side
-       collections (spotlights + mandates + bills + top receipts), a cross-source
-       search that jumps into politicians / issues / the Evidence Locker, and a
-       grid of collection tiles that open each source's own rich surface. Purely
-       additive: no existing surface is replaced. -->
-  <section id="digital-library" class="py-16 md:py-24 px-4" style="background:linear-gradient(180deg,rgba(11,17,32,0.96) 0%,rgba(13,21,38,0.92) 100%);border-top:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.05);">
-    <div class="dlib-shell">
-      <div class="dlib-head">
-        <div class="dlib-eyebrow"><span aria-hidden="true">📚</span> The Complete Archive</div>
-        <h2 class="dlib-title">Digital Library</h2>
-        <p class="dlib-sub">Every receipt, spotlight, stance, bill, reform and government contract PolitiDex tracks — gathered into one searchable archive. Search across everything at once, or open a collection to dig in.</p>
-      </div>
-      <div class="dlib-searchbar">
-        <span class="dlib-search-ico" aria-hidden="true">🔍</span>
-        <input id="dlib-search" type="search" autocomplete="off" placeholder="Search the archive — a politician, issue, bill, or keyword…" aria-label="Search the Digital Library">
-        <button type="button" id="dlib-search-clear" class="dlib-search-clear" aria-label="Clear search" hidden>×</button>
-      </div>
-      <div id="dlib-jump" class="dlib-jump" hidden></div>
+  <!-- ══════════ THE DIGITAL LIBRARY IS A DOCUMENT NOW: /library ══════════════
+       WHAT STOOD HERE. The whole archive room, as one section of this page: the
+       eyebrow and display heading, the cross-source search box with its jump
+       strip, the Explore / Legislation tab rail, the grid of collection tiles,
+       the type chips and the issue select, the Legislation facet bar, the count
+       line, the browse grid, the empty state and the Show-more button — about
+       fifty lines of markup over a ~97 KB controller and the sheet it injects.
+       Every reader of this page paid for all of it, including the reader who
+       arrived to answer "who represents me" and nothing else; and a reader who
+       wanted the archive, or wanted to send someone a bill catalog, had nothing
+       to bookmark and nothing that survived a reload. #digital-library was a
+       scroll position, not a place.
 
-      <!-- Library mode toggle (Phase 1): Explore (the archive) vs Legislation
-           (the Bill/Legislation browse). Rendered + wired by digital-library.js;
-           the search box above is shared across both modes. -->
-      <div id="dlib-modes" class="dlib-modes" role="tablist" aria-label="Library mode"></div>
+       WHERE IT WENT. library.html, id for id — every #dlib-* hook the controller
+       binds to is spelled there exactly as it was spelled here, with one change:
+       the room's own name is the document's <h1> rather than an <h2> under this
+       page's. digital-library.js is NOT linked from this document any more,
+       which is the point: the day someone re-adds a .dlib-* class here it will
+       be visibly unstyled instead of quietly half-styled, because the sheet
+       (#dlib-css) is injected by the module and the module is not here.
 
-      <div class="dlib-section-head" id="dlib-head-collections"><h3>Collections</h3><span>Jump into any part of the record</span></div>
-      <div id="dlib-collections" class="dlib-collections"></div>
+       THE DOOR STAYED, AND IT IS THE EXPLORE & DISCOVER MENU. "Digital Library"
+       points at /library and "Legislation / Bills" at /library?mode=legislation,
+       in the desktop nav and in the mobile menu, as four ordinary links with no
+       in-page handler left on them. That second address is the fix for the
+       entrance that never really worked: the bill catalog is a MODE of the one
+       library controller, so asking for it used to mean selecting a tab inside a
+       section this page kept re-rendering underneath the reader. Now it is an
+       address the room reads on arrival, and the reader lands on bill rows.
 
-      <div class="dlib-section-head" id="dlib-head-browse"><h3>Browse the archive</h3><span>Filter by type or issue</span></div>
-      <div id="dlib-type-chips" class="dlib-chips" role="group" aria-label="Filter by type"></div>
-      <div class="dlib-filters">
-        <label for="dlib-issue-filter">Issue <select id="dlib-issue-filter"><option value="">All issues</option></select></label>
-      </div>
-      <!-- Legislation facet bar (Phase 1): congress / chamber / status / issue.
-           Shown only in Legislation mode; built by digital-library.js. -->
-      <div id="dlib-bill-facets" class="dlib-billfacets" hidden></div>
-      <div class="dlib-count" id="dlib-count" aria-live="polite"></div>
-      <div id="dlib-grid" class="dlib-grid"></div>
-      <div id="dlib-empty" class="dlib-empty" hidden>Nothing in the archive matches that yet. Try a broader keyword, clear the issue filter, or switch the type back to Everything.</div>
-      <div class="dlib-more-wrap"><button type="button" id="dlib-more" class="dlib-more" hidden>Show more</button></div>
-    </div>
-  </section>
+       THE H.R.1 / OMNIBUS SHOWCASE IS NOT PART OF THIS MOVE. It is still on this
+       page, still #hr1-showcase, still reached by pdxDoor('bill'). It is one
+       measure read across every issue it touches — a different room from the
+       catalog of every measure — and folding it into /library would have built a
+       second bill product out of a page move.
+
+       WHAT KEEPS WORKING WITHOUT ONE CALLER BEING EDITED. window.pdxOpenBills()
+       above and window.PDXDigitalLibrary below are both still callable names on
+       this page; they mean the address now, and they turn their arguments into
+       the query the receiving document reads (see the navigation shims further
+       down). So bill-detail.js's issue chips, gov-contracts.js's render() ping
+       and pdxDoor('bills') all still do the right thing untouched. gov-contracts
+       .js, bills.js and spotlight-index.js STAY on this page — the contracts
+       dataset also paints a profile's "Major Contracts" section, the bills
+       client also feeds the bill panel, and the spotlight index feeds Local
+       Issues and the search suggestions. None of the three was here for the
+       library alone.
+
+       AND THE OLD FRAGMENT IS FORWARDED. #digital-library is a key in the LANE
+       table at the top of <head>, alongside the mandate, money, voice and
+       community spellings, and for the same reason: a bookmark or a shared link
+       carrying it must land in the room rather than on a page that no longer
+       holds it. A fragment never reaches the server, so this cannot be a
+       redirect rule. -->
 
   <!-- ══════════════ THE TWO COMMUNITY TRACKS ARE A DOCUMENT NOW: /community ══
        WHAT STOOD HERE. Two whole rooms — the Community Evidence Exchange (the
@@ -11297,778 +11386,35 @@ window.PDXLazy = (function () {
   })();
   </script>
 
-  <!-- ═══════════════════════ DATABASE EXPANSION TOOL ════════ -->
-  <!--
-    ╔══════════════════════════════════════════════════════════════════╗
-    ║  ADMIN-ONLY: Bulk Import / Database Expansion tool.                ║
-    ║  Hidden from everyone by default (display:none below).            ║
-    ║  It is only revealed for the logged-in admin account — the email  ║
-    ║  is set in the ADMIN_EMAIL constant inside the gating script at   ║
-    ║  the end of this section. To change who can see the import tool,   ║
-    ║  search for "ADMIN_EMAIL" and update that value.                  ║
-    ╚══════════════════════════════════════════════════════════════════╝
-  -->
-  <section id="database-expansion" class="py-14 md:py-20 border-b border-white/5" style="display:none; background:linear-gradient(180deg,rgba(10,20,50,0.9) 0%,rgba(5,8,20,0.95) 100%);">
-    <style>
-      /* Potential-duplicate suggestion cards stay hidden until the user opts in. */
-      #expansion-results-list:not(.show-dups) .expansion-dup-card { display: none; }
-    </style>
-    <div class="max-w-6xl mx-auto px-4">
-
-      <!-- ── Header ────────────────────────────────────────── -->
-      <div class="text-center mb-10 animate-on-scroll">
-        <!-- Prominent ADMIN banner so it's unmistakable this section is the
-             admin-only Bulk Import tool when it appears. -->
-        <div class="inline-flex items-center gap-2 bg-crimson-600/25 border border-crimson-500/50 rounded-full px-4 py-1.5 mb-4" style="box-shadow:0 0 18px rgba(220,38,38,0.35);">
-          <span aria-hidden="true">🔒</span>
-          <span class="font-condensed text-xs font-700 tracking-widest uppercase text-crimson-200">ADMIN: Bulk Import Tool</span>
-        </div>
-        <div class="inline-flex items-center gap-2 bg-crimson-600/15 border border-crimson-600/30 rounded-full px-4 py-1.5 mb-4">
-          <span class="w-2 h-2 rounded-full bg-crimson-400 badge-live"></span>
-          <span class="font-condensed text-xs tracking-widest uppercase text-crimson-400">🤖 AI-Assisted Database Expansion</span>
-        </div>
-        <h2 class="font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">DATABASE <span class="text-crimson-400">EXPANSION</span></h2>
-        <p class="text-steel-300 font-body max-w-2xl mx-auto leading-relaxed">
-          Grow our transparent, non-partisan database. Leverage AI to discover missing legislators and 2026 candidates, and verify their profiles with one-click imports.
-        </p>
-        <!-- Refresh Stats: re-queries the live Firestore "politicians" collection on demand.
-             The numbers below already load automatically from the database on page load. -->
-        <div class="mt-5">
-          <button type="button" id="stats-refresh-btn" onclick="refreshDashboardStats()"
-            class="inline-flex items-center gap-2 bg-navy-800/80 hover:bg-navy-700/80 border border-gold-500/30 hover:border-gold-400/60 text-gold-300 hover:text-gold-200 font-condensed text-xs font-700 tracking-widest uppercase px-4 py-2 rounded-full transition-all">
-            <span aria-hidden="true">🔄</span>
-            <span id="stats-refresh-label">Refresh Stats</span>
-          </button>
-          <div id="stats-live-note" class="mt-2 font-condensed text-[10px] font-700 tracking-widest uppercase text-steel-500">Waiting for live Firestore counts...</div>
-        </div>
-      </div>
-
-      <!-- ── Stats Panel ───────────────────────────────────── -->
-      <!-- Top row: headline totals -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <!-- Card 1: Total Database Count -->
-        <div class="bg-navy-800/80 border border-white/10 rounded-2xl p-6 relative overflow-hidden" style="box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
-          <div class="absolute top-0 right-0 p-4 opacity-10 text-4xl font-display text-steel-400">📊</div>
-          <h4 class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-400 mb-2">Total Database Size</h4>
-          <div id="stats-total-all" class="font-display text-4xl md:text-5xl text-white mb-2">—</div>
-          <p id="stats-total-detail" class="text-xs text-steel-300 leading-relaxed font-body">Politicians currently tracked across the entire PolitiDex platform.</p>
-        </div>
-
-        <!-- Card 2: Utah Specific Total -->
-        <div class="bg-navy-800/80 border border-white/10 rounded-2xl p-6 relative overflow-hidden" style="box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
-          <div class="absolute top-0 right-0 p-4 opacity-10 text-4xl font-display text-steel-400">🗺️</div>
-          <h4 class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-400 mb-2">Utah Database Coverage</h4>
-          <div class="flex items-baseline gap-2 mb-3">
-            <div id="stats-utah-total" class="font-display text-4xl md:text-5xl text-gold-400">— <span class="text-sm font-condensed text-steel-400">/ —</span></div>
-            <span id="stats-utah-pct" class="font-condensed text-sm font-700 tracking-wide text-gold-300/90 bg-gold-500/10 border border-gold-500/30 rounded-full px-2.5 py-0.5">—</span>
-          </div>
-          <!-- Overall coverage bar -->
-          <div class="w-full bg-navy-950 rounded-full h-2.5 overflow-hidden border border-white/5 mb-3">
-            <div id="stats-utah-overall-bar" class="bg-gradient-to-r from-crimson-500 via-gold-400 to-gold-300 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
-          </div>
-          <p class="text-xs text-steel-300 leading-relaxed font-body">Verified Utah officials and 2026 candidates tracked, against our target roster of federal, statewide, legislative, and county seats.</p>
-          <p id="stats-utah-detail" class="text-[11px] text-steel-500 leading-relaxed font-body mt-1.5">Live Utah records are counted from Firestore.</p>
-        </div>
-      </div>
-
-      <!-- Expansion Coverage by category -->
-      <div class="bg-navy-800/80 border border-white/10 rounded-2xl p-6 md:p-7 mb-10 relative overflow-hidden" style="box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
-        <div class="flex items-center justify-between gap-3 flex-wrap mb-5">
-          <h4 class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-400">Expansion Coverage by Category</h4>
-          <span class="font-condensed text-[10px] font-700 tracking-widest uppercase text-steel-400">Seats tracked / total seats</span>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-5 font-body">
-          <!-- Federal Delegation -->
-          <div>
-            <div class="flex justify-between items-center text-xs font-semibold text-steel-200 mb-1.5">
-              <span class="flex items-center gap-1.5"><span class="text-sm">🏛️</span> Federal Delegation</span>
-              <span id="stats-cat-federal-pct" class="font-condensed tracking-wide text-steel-300">— / 6</span>
-            </div>
-            <div id="stats-cat-federal-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: …</div>
-            <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
-              <div id="stats-cat-federal-bar" class="bg-gradient-to-r from-blue-600 to-blue-400 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
-            </div>
-          </div>
-          <!-- Statewide Offices -->
-          <div>
-            <div class="flex justify-between items-center text-xs font-semibold text-steel-200 mb-1.5">
-              <span class="flex items-center gap-1.5"><span class="text-sm">⭐</span> Statewide Offices</span>
-              <span id="stats-cat-statewide-pct" class="font-condensed tracking-wide text-steel-300">— / 5</span>
-            </div>
-            <div id="stats-cat-statewide-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: …</div>
-            <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
-              <div id="stats-cat-statewide-bar" class="bg-gradient-to-r from-gold-500 to-gold-300 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
-            </div>
-          </div>
-          <!-- State Senate -->
-          <div>
-            <div class="flex justify-between items-center text-xs font-semibold text-steel-200 mb-1.5">
-              <span class="flex items-center gap-1.5"><span class="text-sm">🏢</span> State Senate</span>
-              <span id="stats-cat-senate-pct" class="font-condensed tracking-wide text-steel-300">— / 29</span>
-            </div>
-            <div id="stats-cat-senate-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: …</div>
-            <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
-              <div id="stats-cat-senate-bar" class="bg-gradient-to-r from-crimson-600 to-crimson-400 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
-            </div>
-          </div>
-          <!-- State House -->
-          <div>
-            <div class="flex justify-between items-center text-xs font-semibold text-steel-200 mb-1.5">
-              <span class="flex items-center gap-1.5"><span class="text-sm">🏛</span> State House</span>
-              <span id="stats-cat-house-pct" class="font-condensed tracking-wide text-steel-300">— / 75</span>
-            </div>
-            <div id="stats-cat-house-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: …</div>
-            <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
-              <div id="stats-cat-house-bar" class="bg-gradient-to-r from-crimson-500 to-crimson-300 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
-            </div>
-          </div>
-          <!-- Local & County -->
-          <div>
-            <div class="flex justify-between items-center text-xs font-semibold text-steel-200 mb-1.5">
-              <span class="flex items-center gap-1.5"><span class="text-sm">📍</span> Local &amp; County</span>
-              <span id="stats-cat-local-pct" class="font-condensed tracking-wide text-steel-300">— / 60</span>
-            </div>
-            <div id="stats-cat-local-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: …</div>
-            <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
-              <div id="stats-cat-local-bar" class="bg-gradient-to-r from-steel-500 to-steel-300 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
-            </div>
-          </div>
-          <!-- 2026 Candidates -->
-          <div>
-            <div class="flex justify-between items-center text-xs font-semibold text-steel-200 mb-1.5">
-              <span class="flex items-center gap-1.5"><span class="text-sm">🗳️</span> 2026 Candidates</span>
-              <span id="stats-cat-cand-pct" class="font-condensed tracking-wide text-steel-300">— / 24</span>
-            </div>
-            <div id="stats-cat-cand-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: …</div>
-            <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
-              <div id="stats-cat-cand-bar" class="bg-gradient-to-r from-gold-600 to-gold-400 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
-            </div>
-          </div>
-        </div>
-        <!-- Honesty note: federal/statewide/legislative targets are Utah's fixed
-             seat counts; local and 2026-candidate targets are working estimates of
-             a field that has no single official roster, so those bars track
-             progress toward a goal rather than a fixed denominator. -->
-        <p class="text-[11px] text-steel-500 leading-relaxed font-body mt-5 pt-4 border-t border-white/5">
-          <span class="text-steel-400 font-semibold">How to read these:</span> Federal, statewide, and legislative targets are Utah's actual seat counts (4 U.S. House + 2 Senate, 5 statewide offices, 29 Senate and 75 House districts). <span class="text-steel-400">Local &amp; county</span> and <span class="text-steel-400">2026 candidate</span> targets are working estimates — there's no single official roster for them — so those bars show momentum toward a goal we keep expanding, not a finished count.
-        </p>
-      </div>
-
-      <!-- ── Interactive Expansion Tool Workspace ────────────── -->
-      <div class="bg-navy-800/60 border-2 border-white/10 rounded-3xl p-6 md:p-8" style="box-shadow: 0 12px 40px rgba(0,0,0,0.5);">
-
-        <!-- ⚡ Bulk Import Mode banner (admin-focused) -->
-        <div class="flex flex-col sm:flex-row sm:items-center gap-3 bg-gradient-to-r from-crimson-950/70 via-navy-900/70 to-navy-900/70 border border-crimson-500/40 rounded-2xl px-5 py-3.5 mb-8" style="box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);">
-          <div class="flex items-center gap-3 flex-1">
-            <span class="text-2xl flex-shrink-0">⚡</span>
-            <div>
-              <p class="font-condensed text-sm font-700 tracking-widest uppercase text-crimson-300">Bulk Import Mode</p>
-              <p class="text-xs text-steel-300 font-body leading-snug">For adding many politicians quickly — search, multi-select, and import to the database in one batch.</p>
-            </div>
-          </div>
-          <span class="self-start sm:self-center font-condensed text-[10px] font-700 tracking-widest uppercase text-gold-300 bg-gold-500/10 border border-gold-500/30 rounded-full px-3 py-1 whitespace-nowrap">🛠 Admin Tool</span>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          <!-- Control Panel Column (Left side) -->
-          <div class="lg:col-span-5 space-y-6">
-            <div>
-              <h3 class="font-display text-2xl tracking-wider text-white mb-2">Expansion Criteria</h3>
-              <p class="text-sm text-steel-300 font-body">Select the legislative level or campaign cycle you want to expand, and configure parameters for AI search.</p>
-            </div>
-
-            <!-- Target Selection -->
-            <div>
-              <label class="block font-condensed text-xs font-700 tracking-widest uppercase text-steel-400 mb-2">Target Legislative Level</label>
-              <select id="expansion-level" class="w-full bg-navy-950 border-2 border-white/10 rounded-xl p-3.5 text-sm font-semibold text-white focus:border-gold-400 focus:outline-none focus:ring-0 transition-colors" style="background-color:#0a0f1e;color:#ffffff;">
-                <option value="utah-leg" selected style="background-color:#0a0f1e;color:#ffffff;">🇺🇸 Utah State Legislature</option>
-                <option value="utah-cand-2026" style="background-color:#0a0f1e;color:#ffffff;">🗳️ Utah 2026 Candidates</option>
-                <option value="utah-statewide" style="background-color:#0a0f1e;color:#ffffff;">🏛️ Utah Statewide &amp; Federal</option>
-              </select>
-            </div>
-
-            <!-- Custom Context Prompt (highlighted — best results) -->
-            <div class="bg-gradient-to-br from-gold-500/10 to-navy-900/40 border border-gold-500/30 rounded-2xl p-4 space-y-2.5">
-              <div class="flex items-center justify-between gap-2 flex-wrap">
-                <label class="block font-condensed text-xs font-700 tracking-widest uppercase text-gold-300">✨ Custom AI Prompt — Power Search</label>
-                <span class="font-condensed text-[10px] font-700 tracking-widest uppercase text-gold-300/90 bg-gold-500/10 border border-gold-500/30 rounded-full px-2 py-0.5 whitespace-nowrap">★ Best Results</span>
-              </div>
-              <p class="text-xs text-steel-300 font-body leading-snug">Describe exactly who you want and the AI casts a wider net. The more specific the request, the bigger and better the batch it returns.</p>
-              <textarea id="expansion-custom-prompt" placeholder="e.g., All Utah State House members from Salt Lake & Davis counties, plus any 2026 county-commission candidates." class="w-full bg-navy-950 border-2 border-gold-500/20 rounded-xl p-3 text-sm text-white placeholder-steel-500 focus:border-gold-400 focus:outline-none h-24 font-body transition-colors" style="background-color:#0a0f1e;color:#ffffff;"></textarea>
-              <div class="flex flex-wrap items-center gap-2">
-                <span class="text-[10px] uppercase tracking-widest font-condensed text-steel-400">Try one:</span>
-                <button type="button" onclick="setExpansionPromptExample('All Utah State Senate members, including leadership and committee chairs.')" class="text-[11px] font-body text-gold-300 hover:text-gold-200 bg-navy-950/80 border border-gold-500/30 hover:border-gold-400/60 rounded-full px-2.5 py-1 transition-colors">🏛 Full Senate roster</button>
-                <button type="button" onclick="setExpansionPromptExample('Every 2026 Utah candidate for federal and statewide office, all parties.')" class="text-[11px] font-body text-gold-300 hover:text-gold-200 bg-navy-950/80 border border-gold-500/30 hover:border-gold-400/60 rounded-full px-2.5 py-1 transition-colors">🗳️ All 2026 candidates</button>
-              </div>
-            </div>
-
-            <!-- Action Button -->
-            <button id="expansion-trigger-btn" onclick="triggerExpansionAISearch()" class="w-full btn-glow relative bg-gradient-to-r from-crimson-600 via-crimson-500 to-crimson-600 hover:from-crimson-500 hover:via-crimson-400 hover:to-crimson-500 text-white font-display tracking-widest uppercase rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-95" style="font-size:16px;letter-spacing:0.12em;padding:14px 16px;border:1.5px solid rgba(255,255,255,0.25);text-shadow:0 1px 4px rgba(0,0,0,0.4);">
-              <span>⚡ Trigger AI Search</span>
-            </button>
-
-            <!-- ── OR divider ─────────────────────────────────── -->
-            <div class="flex items-center gap-3 py-1">
-              <span class="flex-1 h-px bg-white/10"></span>
-              <span class="font-condensed text-[10px] font-700 tracking-widest uppercase text-steel-500">Or paste a list</span>
-              <span class="flex-1 h-px bg-white/10"></span>
-            </div>
-
-            <!-- ── Paste-a-List Importer ──────────────────────── -->
-            <div class="bg-gradient-to-br from-blue-500/10 to-navy-900/40 border border-blue-500/30 rounded-2xl p-4 space-y-2.5">
-              <div class="flex items-center justify-between gap-2 flex-wrap">
-                <label class="block font-condensed text-xs font-700 tracking-widest uppercase text-blue-200">📋 Paste a List of Politicians</label>
-                <span class="font-condensed text-[10px] font-700 tracking-widest uppercase text-blue-200/90 bg-blue-500/10 border border-blue-500/30 rounded-full px-2 py-0.5 whitespace-nowrap">AI-friendly</span>
-              </div>
-              <p class="text-xs text-steel-300 font-body leading-snug">
-                Paste a list from anywhere — one politician per line. Plain names work, or use a structured row:
-                <span class="block mt-1 font-mono text-[11px] text-blue-200 bg-navy-950/70 border border-white/5 rounded-lg px-2 py-1">Name | District | Office | County | Party</span>
-              </p>
-              <textarea id="expansion-paste-list" placeholder="Jane Doe | District 30 | State Representative | Salt Lake County | Republican
-John Smith | District 12 | State Senator | Utah County | Democrat
-Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-3 text-sm text-white placeholder-steel-500 focus:border-blue-400 focus:outline-none h-32 font-body transition-colors" style="background-color:#0a0f1e;color:#ffffff;"></textarea>
-              <div class="flex items-center justify-between gap-2 flex-wrap">
-                <span id="expansion-paste-hint" class="text-[10px] uppercase tracking-widest font-condensed text-steel-400">Names &amp; pipe-separated rows both supported</span>
-                <button type="button" onclick="document.getElementById('expansion-paste-list').value='';document.getElementById('expansion-paste-hint').textContent='Names &amp; pipe-separated rows both supported';document.getElementById('expansion-paste-hint').className='text-[10px] uppercase tracking-widest font-condensed text-steel-400';" class="text-[11px] font-body text-steel-400 hover:text-crimson-400 transition-colors">🗑️ Clear</button>
-              </div>
-              <button id="expansion-process-list-btn" onclick="processPastedExpansionList()" class="w-full btn-glow bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-500 hover:to-blue-600 text-white font-display tracking-widest uppercase rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-95" style="font-size:14px;letter-spacing:0.1em;padding:12px 16px;border:1.5px solid rgba(255,255,255,0.22);text-shadow:0 1px 4px rgba(0,0,0,0.4);">
-                <span>🔎 Process List &amp; Check Duplicates</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- AI Suggested Output Column (Right side) -->
-          <div class="lg:col-span-7 space-y-6">
-            <div>
-              <h3 class="font-display text-2xl tracking-wider text-white mb-2">Suggested Discoveries</h3>
-              <p class="text-sm text-steel-300 font-body">Results from an AI search <span class="text-steel-400">or your pasted list</span> appear here, each tagged <span class="text-green-300 font-semibold">✦ New</span> or <span class="text-amber-300 font-semibold">⚠ Potential Duplicate</span>. New picks are pre-selected — multi-select and import a whole batch, or toggle on duplicates to review and re-import them too.</p>
-            </div>
-
-            <!-- Suggestion Results Display -->
-            <div class="relative bg-navy-950/80 border border-white/10 rounded-2xl p-6 min-h-[300px] flex flex-col justify-center items-center" style="box-shadow: inset 0 4px 20px rgba(0,0,0,0.5);">
-              
-              <!-- Loader State (hidden by default) -->
-              <div id="expansion-loader" class="hidden flex flex-col items-center justify-center space-y-4">
-                <div class="w-12 h-12 rounded-full border-4 border-crimson-600/30 border-t-crimson-500 animate-spin"></div>
-                <div class="text-center font-condensed">
-                  <p id="expansion-loader-msg" class="text-sm font-bold tracking-wider uppercase text-gold-400 animate-pulse2">AI model is processing credentials & public records...</p>
-                  <p class="text-xs text-steel-400 mt-1">Cross-referencing PolitiDex Firestore entries...</p>
-                </div>
-              </div>
-
-              <!-- Idle State -->
-              <div id="expansion-idle" class="flex flex-col items-center justify-center text-center max-w-md space-y-4">
-                <div class="text-5xl">🤖</div>
-                <p class="font-condensed font-700 text-lg tracking-wide text-white uppercase">Ready for Discovery Scan</p>
-                <p class="text-xs text-steel-300 font-body leading-relaxed">
-                  Select a targeted level on the left and trigger the search. Our AI model will scour current campaign filings, official registries, and legislative transcripts to identify viable candidates missing from PolitiDex.
-                </p>
-              </div>
-
-              <!-- Results List (hidden by default) -->
-              <div id="expansion-results-container" class="hidden w-full space-y-4">
-
-                <!-- Count + Clear row -->
-                <div class="flex justify-between items-center border-b border-white/10 pb-3">
-                  <span id="expansion-results-count-label" class="font-condensed text-xs font-bold text-steel-400 uppercase tracking-widest">0 suggestions found</span>
-                  <button onclick="clearExpansionResults()" class="font-condensed text-xs text-steel-400 hover:text-crimson-400 flex items-center gap-1 transition-colors">
-                    <span>🗑️ Clear</span>
-                  </button>
-                </div>
-
-                <!-- Bulk action toolbar -->
-                <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between bg-navy-900/70 border border-white/10 rounded-xl px-4 py-3">
-                  <div class="flex items-center gap-4 flex-wrap">
-                    <label class="flex items-center gap-2 cursor-pointer select-none">
-                      <input type="checkbox" id="expansion-select-all" onchange="toggleExpansionSelectAll(this)" class="w-4 h-4 rounded border-2 border-steel-500 bg-navy-950 accent-crimson-500 cursor-pointer">
-                      <span class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-300">Select All</span>
-                    </label>
-                    <span id="expansion-selection-counter" class="font-condensed text-xs font-bold text-gold-400 tracking-wide">0 selected out of 0 shown</span>
-                    <label class="flex items-center gap-2 cursor-pointer select-none" title="Show politicians that may already exist in the database">
-                      <input type="checkbox" id="expansion-show-dups" onchange="toggleExpansionShowDuplicates(this)" class="w-4 h-4 rounded border-2 border-amber-500/60 bg-navy-950 accent-amber-500 cursor-pointer">
-                      <span class="font-condensed text-xs font-700 tracking-widest uppercase text-amber-300">Include potential duplicates</span>
-                    </label>
-                  </div>
-                  <button id="expansion-bulk-import-btn" onclick="bulkImportSelectedPoliticians()" disabled class="btn-glow bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-500 hover:to-blue-600 disabled:cursor-not-allowed text-white font-display tracking-widest uppercase rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95" style="font-size:13px;letter-spacing:0.1em;padding:11px 18px;border:1.5px solid rgba(255,255,255,0.22);opacity:0.5;white-space:nowrap;">
-                    <span id="expansion-bulk-import-label">📥 Import Selected to Database</span>
-                  </button>
-                </div>
-
-                <!-- Import feedback (hidden until an import runs) -->
-                <div id="expansion-bulk-feedback" class="hidden text-sm font-body rounded-xl px-4 py-3 border"></div>
-
-                <div id="expansion-results-list" class="space-y-4 max-h-[500px] overflow-y-auto pr-1">
-                  <!-- Dynamic suggestion cards injected here -->
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ═══════════════════════ ADMIN: POLITICIAN MANAGER ═══════════════════════
-       Dedicated, admin-only tool to search, view, edit, and delete politician
-       records directly in the live Firestore "politicians" collection.
-
-       • Hidden by default (display:none). Revealed ONLY for the admin account by
-         the existing admin-gate script (it now toggles this section too).
-       • Intentionally separate from the Database Expansion / Bulk Import area so
-         day-to-day clean-up never goes through the import flow (which is what
-         tends to create duplicates).
-       • All reads come from the in-memory PROFILES mirror (loaded from Firestore
-         on page load); all writes go straight back to Firestore.
-       ───────────────────────────────────────────────────────────────────────── -->
-  <section id="politician-manager" class="py-14 md:py-20 border-b border-white/5" style="display:none; background:linear-gradient(180deg,rgba(24,8,14,0.92) 0%,rgba(5,8,20,0.95) 100%);">
-    <div class="max-w-6xl mx-auto px-4">
-
-      <!-- ── Header ────────────────────────────────────────── -->
-      <div class="text-center mb-8">
-        <div class="inline-flex items-center gap-2 bg-crimson-600/25 border border-crimson-500/50 rounded-full px-4 py-1.5 mb-4" style="box-shadow:0 0 18px rgba(220,38,38,0.35);">
-          <span aria-hidden="true">🔒</span>
-          <span class="font-condensed text-xs font-700 tracking-widest uppercase text-crimson-200">ADMIN: Politician Manager</span>
-        </div>
-        <h2 class="font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">POLITICIAN <span class="text-crimson-400">MANAGER</span></h2>
-        <p class="text-steel-300 font-body max-w-2xl mx-auto leading-relaxed">
-          Search, filter, create, edit, and clean up the live politician database. Track <strong>database coverage</strong> to spot missing Utah seats and offices, flag duplicates, promote stubs to full profiles, and add new records — all writing directly to Firestore, no re-import required.
-        </p>
-      </div>
-
-      <!-- ── Toolbar: actions + search + filters + counts ──────── -->
-      <div class="bg-navy-800/80 border border-white/10 rounded-2xl p-4 md:p-5 mb-6" style="box-shadow:0 8px 32px rgba(0,0,0,0.4);">
-        <!-- Row 1: search + primary actions -->
-        <div class="flex flex-col md:flex-row md:items-center gap-3">
-          <div class="relative flex-1">
-            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-steel-400" aria-hidden="true">🔍</span>
-            <input id="pm-search" type="text" placeholder="Search by name, office, state, party, or ID…" oninput="window.pmRenderList && window.pmRenderList()" autocomplete="off"
-              class="w-full bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-xl pl-9 pr-3 py-2.5 text-sm text-white placeholder-steel-500 outline-none transition-colors font-body" />
-          </div>
-          <div class="flex items-center gap-2 flex-wrap">
-            <button type="button" onclick="window.pmCreateNew && window.pmCreateNew()"
-              class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all" style="box-shadow:0 0 16px rgba(22,163,74,0.35);">
-              <span aria-hidden="true">➕</span> New Politician
-            </button>
-            <button type="button" id="pm-quick-btn" onclick="window.pmToggleQuickAdd && window.pmToggleQuickAdd()"
-              class="inline-flex items-center gap-2 bg-crimson-600 hover:bg-crimson-500 text-white font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all" style="box-shadow:0 0 16px rgba(220,38,38,0.4);">
-              <span aria-hidden="true">⚡</span> Quick Add / Paste JSON
-            </button>
-            <button type="button" id="pm-dupes-btn" onclick="window.pmToggleDupes && window.pmToggleDupes()"
-              class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-amber-500/30 hover:border-amber-400/60 text-amber-300 font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all">
-              <span aria-hidden="true">🔎</span> <span id="pm-dupes-label">Find Duplicates</span>
-            </button>
-            <button type="button" id="pm-coverage-btn" onclick="window.pmToggleCoverage && window.pmToggleCoverage()"
-              class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-sky-500/30 hover:border-sky-400/60 text-sky-300 font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all">
-              <span aria-hidden="true">📊</span> <span id="pm-coverage-label">Database Coverage</span>
-            </button>
-            <button type="button" id="pm-quality-btn" onclick="window.pmToggleQuality && window.pmToggleQuality()"
-              class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-purple-500/30 hover:border-purple-400/60 text-purple-300 font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all">
-              <span aria-hidden="true">🩺</span> <span id="pm-quality-label">Quality &amp; Weak Spots</span>
-            </button>
-            <button type="button" onclick="window.pmReload && window.pmReload()"
-              class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-gold-500/30 hover:border-gold-400/60 text-gold-300 font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all">
-              <span aria-hidden="true">🔄</span><span id="pm-reload-label">Reload</span>
-            </button>
-          </div>
-        </div>
-        <!-- Row 2: filters -->
-        <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 mt-3">
-          <select id="pm-filter-status" onchange="window.pmRenderList && window.pmRenderList()"
-            class="bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
-            <option value="all">All records</option>
-            <option value="full">Full profiles</option>
-            <option value="stub">Stubs only</option>
-          </select>
-          <select id="pm-filter-state" onchange="window.pmRenderList && window.pmRenderList()"
-            class="bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
-            <option value="all">All states</option>
-          </select>
-          <select id="pm-filter-office" onchange="window.pmRenderList && window.pmRenderList()"
-            class="bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
-            <option value="all">All office types</option>
-            <option value="senate">U.S. Senate</option>
-            <option value="house">U.S. House</option>
-            <option value="governor">Governor</option>
-            <option value="executive">Executive</option>
-            <option value="state">State Legislature</option>
-            <option value="local">Local / Mayor</option>
-            <option value="candidate">Candidate</option>
-            <option value="other">Other</option>
-          </select>
-          <select id="pm-filter-party" onchange="window.pmRenderList && window.pmRenderList()"
-            class="bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
-            <option value="all">All parties</option>
-            <option value="rep">Republican</option>
-            <option value="dem">Democrat</option>
-            <option value="ind">Independent</option>
-            <option value="other">Other / Unlisted</option>
-          </select>
-          <select id="pm-filter-sort" onchange="window.pmRenderList && window.pmRenderList()" title="Sort the list"
-            class="bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
-            <option value="name">Sort: Name A–Z</option>
-            <option value="state">Sort: State</option>
-            <option value="status">Sort: Stubs first</option>
-            <option value="updated">Sort: Recently updated</option>
-          </select>
-          <button type="button" onclick="window.pmClearFilters && window.pmClearFilters()"
-            class="inline-flex items-center gap-1.5 text-steel-400 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-2.5 py-2 rounded-lg transition-colors">
-            <span aria-hidden="true">✕</span> Clear filters
-          </button>
-        </div>
-        <!-- Counts -->
-        <div class="flex items-center flex-wrap gap-x-5 gap-y-1 mt-3 text-xs font-condensed tracking-widest uppercase text-steel-400">
-          <span>Showing: <span id="pm-count-shown" class="text-white font-700">0</span></span>
-          <span>Total: <span id="pm-count-total" class="text-white font-700">0</span></span>
-          <span>Full: <span id="pm-count-full" class="text-green-400 font-700">0</span></span>
-          <span>Stubs: <span id="pm-count-stub" class="text-amber-400 font-700">0</span></span>
-          <span>Possible dupes: <span id="pm-count-dupe" class="text-amber-300 font-700">0</span></span>
-          <span>Utah seats: <span id="pm-count-utah-seats" class="text-sky-300 font-700">0/0</span></span>
-        </div>
-      </div>
-
-      <!-- ── Quick Add / Paste JSON (bulk create + update) ─────────
-           Hidden by default; toggled by the toolbar's "Quick Add" button.
-           Lets an admin paste one record or many at once instead of filling
-           the single-politician form. Matching + writes live in the controller
-           script below (window.pmQuickProcess). -->
-      <div id="pm-quick-panel" class="hidden bg-navy-800/80 border border-crimson-500/30 rounded-2xl p-4 md:p-5 mb-6" style="box-shadow:0 8px 32px rgba(0,0,0,0.4);">
-        <div class="flex items-start justify-between gap-3 mb-3">
-          <div class="min-w-0">
-            <div class="font-condensed text-sm font-700 tracking-widest uppercase text-crimson-200 flex items-center gap-2">
-              <span aria-hidden="true">⚡</span> Quick Add / Paste JSON
-            </div>
-            <p class="text-steel-300 font-body text-sm mt-1 max-w-3xl leading-relaxed">
-              Paste a single politician object or an <strong>array of many</strong>. Each record is matched to an existing
-              profile by <strong>id</strong> first, then by <strong>name</strong> — matches are <strong>updated</strong> (your
-              fields merged in), everything else is <strong>created</strong>. All changes are written to Firestore in one batch.
-            </p>
-          </div>
-          <button type="button" onclick="window.pmToggleQuickAdd && window.pmToggleQuickAdd(false)"
-            class="flex-shrink-0 inline-flex items-center gap-1.5 text-steel-400 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-2.5 py-2 rounded-lg transition-colors">
-            <span aria-hidden="true">✕</span> Close
-          </button>
-        </div>
-
-        <details class="mb-3 text-xs font-body text-steel-400">
-          <summary class="cursor-pointer text-steel-300 hover:text-white transition-colors select-none">Accepted format &amp; fields</summary>
-          <div class="mt-2 bg-navy-950/70 border border-white/10 rounded-lg p-3 leading-relaxed space-y-1.5">
-            <div>Supported shapes: a single <code class="text-crimson-200">{ … }</code> object, an array <code class="text-crimson-200">[ { … }, { … } ]</code>, or a keyed map <code class="text-crimson-200">{ "id": { … } }</code>.</div>
-            <div>Common fields: <code class="text-steel-200">id, name, office, district, state, party, tier, icon, photo, bio, quote, quoteSource, keyIssues, stances, score, promises, accountability, spotlight</code>.</div>
-            <div><code class="text-steel-200">keyIssues</code> may be an array or newline-separated text. <code class="text-steel-200">stances</code> and <code class="text-steel-200">accountability</code> are merged onto any existing values; other fields overwrite. <strong>Only</strong> <code class="text-steel-200">name</code> is required for a new record.</div>
-            <div><code class="text-steel-200">spotlight</code> is the optional <strong>personal-integrity</strong> layer — public statements, conduct and notable actions that show whether an official's words match their actions, kept deliberately separate from <code class="text-steel-200">promises</code> (formal in-office votes/bills/pledges that drive Promise&nbsp;%). Provide 3–5 summarized highlights, e.g. <code class="text-steel-200">[{ "headline": "…", "facts": "…", "why": "…", "date": "2024", "impact": "negative", "category": "redflags", "source": { "label": "Reuters", "url": "https://…" } }]</code>. Entries with <code class="text-steel-200">impact</code> set to <code class="text-steel-200">"positive"</code> (words match actions) or <code class="text-steel-200">"negative"</code> (reversal/inconsistency/controversy) are tagged as Accountability&nbsp;Score drivers: they move the integrity score, appear under “Spotlight items feeding this score” in the Accountability card, and tap back and forth between the two sections. <code class="text-steel-200">category</code> may match an accountability key (<code class="text-steel-200">promise, voting, rhetoric, redflags, transparency</code>) to label which part of the score the item touches. <code class="text-steel-200">source</code> is an optional <code class="text-steel-200">{ label, url }</code> rendered as a linked citation on the item. Set <code class="text-steel-200">impact</code> to <code class="text-steel-200">"neutral"</code> to show an item as context explicitly marked “no score impact”; entries with no <code class="text-steel-200">impact</code> appear as recent news.</div>
-          </div>
-        </details>
-
-        <textarea id="pm-quick-input" rows="10" spellcheck="false"
-          placeholder='[{ "name": "Jane Q. Public", "office": "U.S. Senator", "state": "Utah", "party": "Republican", "bio": "…", "keyIssues": ["Term limits", "Border security"] }]'
-          class="w-full bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-xl px-3 py-2.5 text-sm text-white placeholder-steel-600 outline-none transition-colors font-mono leading-relaxed resize-y"></textarea>
-
-        <div class="flex flex-wrap items-center gap-2 mt-3">
-          <button type="button" onclick="window.pmQuickProcess && window.pmQuickProcess()"
-            class="inline-flex items-center gap-2 bg-crimson-600 hover:bg-crimson-500 text-white font-condensed text-xs font-700 tracking-widest uppercase px-5 py-2.5 rounded-lg transition-all" style="box-shadow:0 0 16px rgba(220,38,38,0.4);">
-            <span aria-hidden="true">⚡</span> Process JSON
-          </button>
-          <button type="button" onclick="window.pmQuickExample && window.pmQuickExample()"
-            class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-gold-500/30 hover:border-gold-400/60 text-gold-300 font-condensed text-xs font-700 tracking-widest uppercase px-4 py-2.5 rounded-lg transition-all">
-            <span aria-hidden="true">📋</span> Load example
-          </button>
-          <button type="button" onclick="window.pmQuickClear && window.pmQuickClear()"
-            class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-white/10 text-steel-300 hover:text-white font-condensed text-xs font-700 tracking-widest uppercase px-4 py-2.5 rounded-lg transition-all">
-            <span aria-hidden="true">✕</span> Clear
-          </button>
-        </div>
-
-        <div id="pm-quick-feedback" class="hidden mt-4 text-sm font-body rounded-lg px-3 py-2 border"></div>
-      </div>
-
-      <!-- ── Database Coverage / Missing Politicians ───────────────
-           Hidden by default; toggled by the toolbar's "Database Coverage"
-           button. Surfaces gaps the editor can't: which Utah legislative
-           seats and statewide offices still have no profile, plus broader
-           by-state / by-office coverage. Rendered by window.pmRenderCoverage
-           in the controller below. -->
-      <div id="pm-coverage-panel" class="hidden bg-navy-800/80 border border-sky-500/30 rounded-2xl p-4 md:p-5 mb-6" style="box-shadow:0 8px 32px rgba(0,0,0,0.4);">
-        <div class="flex items-start justify-between gap-3 mb-3">
-          <div class="min-w-0">
-            <div class="font-condensed text-sm font-700 tracking-widest uppercase text-sky-200 flex items-center gap-2">
-              <span aria-hidden="true">📊</span> Database Coverage &amp; Missing Politicians
-            </div>
-            <p class="text-steel-300 font-body text-sm mt-1 max-w-3xl leading-relaxed">
-              A live map of what's in the database versus what should exist. Utah's legislative
-              seats and statewide offices are tracked seat-by-seat — click any
-              <span class="text-sky-300 font-semibold">missing seat</span> to start a pre-filled new record.
-            </p>
-          </div>
-          <button type="button" onclick="window.pmToggleCoverage && window.pmToggleCoverage(false)"
-            class="flex-shrink-0 inline-flex items-center gap-1.5 text-steel-400 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-2.5 py-2 rounded-lg transition-colors">
-            <span aria-hidden="true">✕</span> Close
-          </button>
-        </div>
-        <div id="pm-coverage-toolbar" class="flex flex-wrap items-center gap-2 mb-4">
-          <button type="button" id="pm-standardize-btn" onclick="window.pmStandardizeDistricts && window.pmStandardizeDistricts()"
-            class="inline-flex items-center gap-1.5 bg-navy-900 hover:bg-sky-500/15 border border-sky-500/40 hover:border-sky-400 text-sky-200 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-3 py-2 rounded-lg transition-all">
-            <span aria-hidden="true">🧹</span> Standardize Districts
-          </button>
-          <span class="text-[11px] font-body text-steel-400 leading-snug">Cleans every Utah legislator's <code class="text-sky-300">district</code> field to one consistent format — <span class="text-steel-300">“Dist. 6”, “D6”, “District 06”, “6th”, even “District Six” or “District IV”</span> all become “District 6”. Out-of-range and truly unparseable values are left for the bulk worklist. Only the district field is touched.</span>
-        </div>
-        <div id="pm-coverage-toolbar-2" class="flex flex-wrap items-center gap-2 mb-4">
-          <button type="button" id="pm-bulk-btn" onclick="window.pmBulkAssign && window.pmBulkAssign()"
-            class="inline-flex items-center gap-1.5 bg-navy-900 hover:bg-sky-500/15 border border-sky-500/40 hover:border-sky-400 text-sky-200 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-3 py-2 rounded-lg transition-all">
-            <span aria-hidden="true">📍</span> Bulk Assign Districts
-          </button>
-          <span class="text-[11px] font-body text-steel-400 leading-snug">Opens a fast worklist of every record in <span class="text-amber-300">Needs Review</span>. Filter by chamber, group split/duplicate records by similar name, type district numbers down the list and save them in one batch, or select several rows and assign one district at once. A from→to preview confirms every write; <strong class="text-steel-300">nothing is saved without your click</strong>.</span>
-        </div>
-        <div id="pm-standardize-result" class="hidden mb-4"></div>
-        <div id="pm-bulk-result" class="hidden mb-4"></div>
-        <div id="pm-coverage-body" class="space-y-5">
-          <!-- coverage cards + tables injected here -->
-        </div>
-      </div>
-
-      <!-- ── Profile Quality & Weak Spot Finder ────────────────────
-           Hidden by default; toggled by the toolbar's "Quality & Weak Spots"
-           button. Scores every profile 0–100% on completeness, flags the
-           specific things each weak profile is missing, and lists everyone
-           worst-first so work can be aimed where it matters. Records can be
-           marked Reviewed / Verified to drop them off the weak list. Rendered
-           by window.pmRenderQuality in the controller below. -->
-      <div id="pm-quality-panel" class="hidden bg-navy-800/80 border border-purple-500/30 rounded-2xl p-4 md:p-5 mb-6" style="box-shadow:0 8px 32px rgba(0,0,0,0.4);">
-        <div class="flex items-start justify-between gap-3 mb-3">
-          <div class="min-w-0">
-            <div class="font-condensed text-sm font-700 tracking-widest uppercase text-purple-200 flex items-center gap-2">
-              <span aria-hidden="true">🩺</span> Profile Quality &amp; Weak Spot Finder
-            </div>
-            <p class="text-steel-300 font-body text-sm mt-1 max-w-3xl leading-relaxed">
-              Every profile is scored <strong>0–100%</strong> on completeness and flagged for exactly what it's missing — short bios,
-              untracked promises, missing district/office, placeholder text, and more. The list runs <span class="text-purple-300 font-semibold">weakest&nbsp;first</span>
-              so you (or an agent) can fix the profiles that need it most. Mark a profile <span class="text-sky-300 font-semibold">Reviewed</span> or
-              <span class="text-green-300 font-semibold">Verified</span> to drop it off the weak list.
-            </p>
-          </div>
-          <button type="button" onclick="window.pmToggleQuality && window.pmToggleQuality(false)"
-            class="flex-shrink-0 inline-flex items-center gap-1.5 text-steel-400 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-2.5 py-2 rounded-lg transition-colors">
-            <span aria-hidden="true">✕</span> Close
-          </button>
-        </div>
-
-        <!-- Summary stats -->
-        <div id="pm-quality-stats" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mb-4"></div>
-
-        <!-- Filters -->
-        <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 mb-4">
-          <div class="relative flex-1 min-w-[180px]">
-            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-steel-400" aria-hidden="true">🔍</span>
-            <input id="pm-q-search" type="text" placeholder="Search name, office, state…" oninput="window.pmRenderQuality && window.pmRenderQuality()" autocomplete="off"
-              class="w-full bg-navy-950 border border-white/10 focus:border-purple-400/70 rounded-xl pl-9 pr-3 py-2 text-sm text-white placeholder-steel-500 outline-none transition-colors font-body" />
-          </div>
-          <select id="pm-q-state" onchange="window.pmRenderQuality && window.pmRenderQuality()"
-            class="bg-navy-950 border border-white/10 focus:border-purple-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
-            <option value="all">All states</option>
-          </select>
-          <select id="pm-q-office" onchange="window.pmRenderQuality && window.pmRenderQuality()"
-            class="bg-navy-950 border border-white/10 focus:border-purple-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
-            <option value="all">All office types</option>
-            <option value="senate">U.S. Senate</option>
-            <option value="house">U.S. House</option>
-            <option value="governor">Governor</option>
-            <option value="executive">Executive</option>
-            <option value="state">State Legislature</option>
-            <option value="local">Local / Mayor</option>
-            <option value="candidate">Candidate</option>
-            <option value="other">Other</option>
-          </select>
-          <select id="pm-q-sev" onchange="window.pmRenderQuality && window.pmRenderQuality()" title="Filter by worst missing-data severity"
-            class="bg-navy-950 border border-white/10 focus:border-purple-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
-            <option value="all">Any severity</option>
-            <option value="critical">🔴 Critical only</option>
-            <option value="high">🟠 High &amp; up</option>
-            <option value="medium">🟡 Medium &amp; up</option>
-            <option value="weak">⚠ Needs work (under 70%)</option>
-          </select>
-          <select id="pm-q-sort" onchange="window.pmRenderQuality && window.pmRenderQuality()" title="Sort the list"
-            class="bg-navy-950 border border-white/10 focus:border-purple-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
-            <option value="weakest">Sort: Weakest first</option>
-            <option value="strongest">Sort: Strongest first</option>
-            <option value="updated">Sort: Recently updated</option>
-            <option value="name">Sort: Name A–Z</option>
-          </select>
-          <label class="inline-flex items-center gap-2 text-xs font-condensed tracking-widest uppercase text-steel-300 cursor-pointer select-none px-2 py-2">
-            <input id="pm-q-hidereviewed" type="checkbox" checked onchange="window.pmRenderQuality && window.pmRenderQuality()"
-              class="w-4 h-4 rounded border-white/20 bg-navy-950 accent-purple-500" />
-            Hide reviewed
-          </label>
-          <button type="button" onclick="window.pmQualityCopy && window.pmQualityCopy()" title="Copy an agent-friendly worklist of the shown profiles"
-            class="inline-flex items-center gap-1.5 bg-navy-900 hover:bg-purple-500/15 border border-purple-500/40 hover:border-purple-400 text-purple-200 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-3 py-2 rounded-lg transition-all">
-            <span aria-hidden="true">📋</span> Copy worklist
-          </button>
-        </div>
-
-        <div id="pm-quality-note" class="text-[11px] font-body text-steel-400 mb-3"></div>
-        <div id="pm-quality-body" class="space-y-2 max-h-[640px] overflow-y-auto pr-1">
-          <!-- quality rows injected here -->
-        </div>
-        <div id="pm-quality-empty" class="hidden text-center text-steel-400 font-body text-sm py-10"></div>
-      </div>
-
-      <!-- ── Two-column workspace: list (left) + editor (right) ── -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-        <!-- List -->
-        <div class="bg-navy-800/70 border border-white/10 rounded-2xl p-3 md:p-4" style="box-shadow:0 8px 32px rgba(0,0,0,0.4);">
-          <div id="pm-list" class="space-y-2 max-h-[560px] overflow-y-auto pr-1">
-            <!-- politician rows injected here -->
-          </div>
-          <div id="pm-list-empty" class="hidden text-center text-steel-400 font-body text-sm py-10">No politicians match your search.</div>
-        </div>
-
-        <!-- Editor -->
-        <div class="bg-navy-800/70 border border-white/10 rounded-2xl p-4 md:p-5 lg:sticky lg:top-24" style="box-shadow:0 8px 32px rgba(0,0,0,0.4);">
-          <div id="pm-editor-empty" class="text-center text-steel-400 font-body text-sm py-16">
-            Select a politician from the list to view and edit their record.
-          </div>
-          <div id="pm-editor" class="hidden">
-            <!-- editor form injected here -->
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- ────────────────────────────────────────────────────────────────
-       CRITICAL-PATH STRIP: the two admin controllers no longer load here.
+       WHAT THE CURATOR'S TOOLS LEFT BEHIND, AND WHY IT IS ONE FILE.
 
        /admin-politician-manager.js (191 KB) and /expansion-controller.js
        (260 KB) used to sit at this position as plain parser-blocking scripts —
        451 KB of JavaScript downloaded, parsed and compiled on every visit, by
-       every visitor, to drive two <section>s that are display:none for everyone
-       except one hardcoded admin email. The admin gate below now injects them,
-       in the same order, the first time an admin is actually recognized. An
-       anonymous reader never fetches either file.
+       every visitor, to drive two <section>s that were display:none for
+       everyone except one hardcoded admin email. A first pass moved them off
+       the critical path and behind a gate; this pass moved the sections they
+       drive off this document entirely. Both controllers are injected by the
+       gate on admin.html now, and NEITHER FILE IS NAMED ANYWHERE ON THIS PAGE.
 
-       The one piece of this pair that was NOT admin-only — the data-hygiene
-       layer behind window._cleanProfiles(), which the public directory and the
-       dashboard counts read through — was lifted out first and still loads on
-       every visit, immediately below. Gating it away would have quietly put
-       duplicate people and stub records back on the public roster.
+       The one piece of that pair that was NOT admin-only stayed: the
+       data-hygiene layer behind window._cleanProfiles(), which the public
+       directory and the dashboard counts read through, loads below on every
+       visit exactly as it did. Gating it away — or moving it to /admin with the
+       tools — would have quietly put duplicate people and stub records back on
+       the public roster. admin.html loads the same file, from the same root
+       path, rather than either document owning a copy.
 
-       Everything that calls into the admin controllers is either inside those
-       gated sections or already typeof-guarded (index.html's data-load path
-       calls updateExpansionStats() that way), so their absence is a no-op for
-       a reader rather than an error. scripts/test-admin-not-on-critical-path.mjs
-       fails the build if either file returns to a synchronous script tag.
+       Everything on this page that ever called into the admin controllers was
+       already typeof-guarded (the data-load path calls updateExpansionStats()
+       that way), so their absence is a no-op for a reader rather than an error.
+       scripts/test-admin-not-on-critical-path.mjs fails the build if either
+       file returns to a synchronous script tag on any shell, and
+       scripts/test-admin-shell.mjs fails it if the curator's markup comes back
+       to this document.
        ──────────────────────────────────────────────────────────────── -->
   <script src="/data-hygiene.js"></script>
-
-  <!-- ────────────────────────────────────────────────────────────────
-       ADMIN GATE for the Bulk Import / Database Expansion tool.
-
-       The section above is hidden by default (display:none). This script
-       reveals it ONLY when the logged-in Firebase user's email matches the
-       admin email below.
-
-       👉 TO CHANGE WHO CAN SEE THE IMPORT TOOL: edit the ADMIN_EMAILS list
-          below. You can list more than one admin by adding emails to the array.
-       ──────────────────────────────────────────────────────────────── -->
-  <script>
-    (function () {
-      // Hardcoded admin account allowed to use the Bulk Import tool.
-      // Change this to your own admin email.
-      var ADMIN_EMAILS = ["Cdeluxxe@gmail.com"];
-
-      function isAdminUser(user) {
-        // Simple, reliable check requested for the admin gate:
-        //   if (user && user.email === "Cdeluxxe@gmail.com")
-        if (user && user.email === "Cdeluxxe@gmail.com") {
-          return true;
-        }
-        // Reliability guard: Firebase can return the email in a different
-        // letter case than it was typed (e.g. "cdeluxxe@gmail.com"), which
-        // would make the strict check above miss the admin. Compare again
-        // case-insensitively so the tool reliably appears for the admin.
-        if (user && typeof user.email === "string" &&
-            user.email.toLowerCase() === "cdeluxxe@gmail.com") {
-          return true;
-        }
-        return false;
-      }
-
-      function applyAdminGate(user) {
-        var allowed = isAdminUser(user);
-        // Both admin-only sections are gated the same way: the Bulk Import /
-        // Database Expansion tool and the new Politician Manager.
-        var sectionIds = ['database-expansion', 'politician-manager'];
-        for (var s = 0; s < sectionIds.length; s++) {
-          var section = document.getElementById(sectionIds[s]);
-          if (section) {
-            // Show only for the admin; stay hidden for everyone else
-            // (logged out, anonymous, or a different account).
-            section.style.display = allowed ? '' : 'none';
-          }
-        }
-        // The admin nav links (desktop + mobile) are entry points to these
-        // tools, so gate them the same way.
-        var links = document.querySelectorAll('[data-admin-only]');
-        for (var i = 0; i < links.length; i++) {
-          links[i].style.display = allowed ? '' : 'none';
-        }
-        // When the admin is allowed in, fetch the tools (once) and then make
-        // sure the Politician Manager list reflects the latest loaded data. The
-        // callback runs after both modules have executed, so this is also what
-        // paints the list on the very first admin load.
-        if (allowed) {
-          loadAdminModules(function () {
-            if (typeof window.pmRenderList === 'function') window.pmRenderList();
-          });
-          if (typeof window.pmRenderList === 'function') window.pmRenderList();
-        }
-      }
-
-      // ── Admin-only code is fetched on demand, never on the critical path ──
-      // These two controllers are 451 KB together and drive nothing a reader can
-      // see. They are injected the first time an admin is recognized, in the same
-      // order they used to appear in the document, and sequentially rather than in
-      // parallel because expansion-controller reads helpers the politician manager
-      // defines (window._pmIsUtah and friends). Everything is typeof-guarded on
-      // both sides, so a slow or failed fetch degrades to "tool not ready yet"
-      // instead of throwing.
-      var ADMIN_MODULES = ['/admin-politician-manager.js', '/expansion-controller.js'];
-      var adminModulesRequested = false;
-
-      function loadAdminModules(done) {
-        if (adminModulesRequested) return;
-        adminModulesRequested = true;
-        var i = 0;
-        (function next() {
-          if (i >= ADMIN_MODULES.length) { if (done) done(); return; }
-          var el = document.createElement('script');
-          el.src = ADMIN_MODULES[i++];
-          el.async = false;
-          // A failure here must not strand the chain: the next module still gets
-          // its chance, and the admin sees a partly-loaded tool rather than none.
-          el.onload = next;
-          el.onerror = function () {
-            try { console.warn('Admin module failed to load: ' + el.src); } catch (e) {}
-            next();
-          };
-          document.head.appendChild(el);
-        })();
-      }
-
-      // React to Firebase auth changes. Adding our own listener leaves the
-      // existing auth/login flow untouched (Firebase supports multiple).
-      function wireAdminGate() {
-        if (typeof auth === 'undefined' || !auth || !auth.onAuthStateChanged) {
-          return setTimeout(wireAdminGate, 200);
-        }
-        applyAdminGate(auth.currentUser || null);
-        auth.onAuthStateChanged(function (user) { applyAdminGate(user); });
-      }
-      wireAdminGate();
-    })();
-  </script>
 <!-- ═══════════════════════ THE PEOPLE'S MANDATE — THE DOOR ══════════ -->
   <!-- THE LANE LEFT THIS DOCUMENT IN v211. What used to sit here was ~830 lines
        of markup plus five inline <script> blocks — the vote handler, the card
@@ -15722,8 +15068,9 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        PDX_ELECTION_DATA, PDXImpact and PDXStore (all defined earlier) for a
        private, opt-in contact + deadline-reminder layer. -->
   <script defer src="/ballot-actions.js"></script>
-  <!-- ═══════════════ THE TWO BROWSE ROOMS · NAVIGATION SHIMS ════════════════
-       stance-library.js AND spotlight-hub.js ARE BOTH GONE FROM THIS DOCUMENT.
+  <!-- ═══════════════ THE THREE BROWSE ROOMS · NAVIGATION SHIMS ══════════════
+       stance-library.js, spotlight-hub.js AND digital-library.js ARE ALL GONE
+       FROM THIS DOCUMENT.
        They render the two grids that used to stack here — the issue cards and the
        Issue Spotlight collection — and both now load, unchanged, from
        stances.html. Nothing on this page has a #sl-body or an #all-spotlights for
@@ -15746,8 +15093,30 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        location.assign, NOT history.replaceState: this is a real navigation to a
        real document, and Back has to return the reader to where they were
        standing. render() is answered `false` rather than left undefined, because
-       both modules publish it and a caller that asks this document to repaint a
-       grid it does not have should be told no, not throw. -->
+       all three modules publish it and a caller that asks this document to
+       repaint a grid it does not have should be told no, not throw.
+
+       PDXDigitalLibrary IS THE THIRD, AND IT IS THE ONE WITH TEETH.
+       digital-library.js opens with `if (window.PDXDigitalLibrary) return;`, so
+       on the document that really owns the room a shim of this name would
+       silently prevent the controller from ever booting — chrome over a
+       permanently empty grid, and no error naming the cause. That is why the
+       whole block below is fenced behind `!window.__PDX_LIBRARY_DOC`, the flag
+       library.html sets as its first statement, and behind `!window
+       .PDXDigitalLibrary` so the real module always wins a tie. This file is
+       never served at /library and the fence should therefore never fire; it is
+       here because the cost of being wrong about that is an archive that shows
+       nothing.
+
+       ITS CALLERS ARE NOT HYPOTHETICAL. bill-detail.js asks focus() for
+       { mode: 'library', issue } when a reader taps an issue chip on a measure
+       and for { mode: 'legislation', issue } for the same chip's catalog link,
+       and both fire from a panel this page still opens. gov-contracts.js asks
+       render() after its dataset lands. focus() and search() become the address
+       with the intent in the query; render() answers false AND NAVIGATES
+       NOWHERE, because a dataset arriving is not a reader asking to go
+       anywhere — a render() that hopped to /library would teleport a visitor
+       out of the page mid-scroll. -->
   <script>
   (function () {
     'use strict';
@@ -15783,6 +15152,29 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
       },
       render: function () { return false; }
     };
+    // PDXDigitalLibrary.focus(opts) → /library?<the same opts>. The keys are the
+    // ones the controller itself reads and library.html's arrive seam parses:
+    // mode / q / type / issue for the archive, plus category / phase / sort /
+    // followed for Legislation. NOT DEFINED on the document that owns the room
+    // (see the fence above) and never over a real module.
+    if (!window.__PDX_LIBRARY_DOC && !window.PDXDigitalLibrary) {
+      var DLIB_KEYS = ['mode', 'q', 'type', 'issue', 'category', 'phase', 'sort'];
+      window.PDXDigitalLibrary = {
+        focus: function (opts) {
+          opts = opts || {};
+          var p = [];
+          DLIB_KEYS.forEach(function (k) { var v = q(k, opts[k]); if (v) p.push(v); });
+          if (opts.followed === true) p.push('followed=1');
+          return go('/library' + (p.length ? '?' + p.join('&') : ''));
+        },
+        search: function (term) {
+          var t = q('q', term);
+          return go('/library' + (t ? '?' + t : ''));
+        },
+        // Answers the question, moves nobody: see the note above.
+        render: function () { return false; }
+      };
+    }
   })();
   </script>
   <!-- My Stances — the signed-in visitor's own positions on issues. `defer` places
@@ -15991,12 +15383,14 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
        now lands on. Loads after bills.js + bill-detail.js (a row opens a bill
        profile through them) and reads issue-scope.js for its locked scope prose. -->
   <script defer src="/issue-page.js"></script>
-  <!-- Digital Library — the central searchable archive (window.PDXDigitalLibrary).
-       Aggregates spotlights, mandates, bills and receipts into one filterable
-       browse grid, with cross-source search and collection tiles into every
-       source. Loads after the data modules it reads (PDXSpotlight, PDXReceipts,
-       PDXHR1, _pdxMandateItems). -->
-  <script defer src="/digital-library.js"></script>
+  <!-- NO digital-library.js HERE. It renders the archive room — the browse grid,
+       the collection tiles, the cross-source search and the Legislation tab — and
+       that room is the document at /library, which loads this module unchanged
+       after spotlight-index.js, gov-contracts.js and bills.js exactly as this
+       document used to. Nothing on this page has a #digital-library for it to
+       mount into, so shipping it here would have been ~97 KB of controller with
+       no surface. window.PDXDigitalLibrary is still defined on this page — as the
+       navigation shim above, next to PDXStanceLibrary and PDXSpotlightHub. -->
   <!-- ⚖️ Word vs Action (window.PDXWordAction) — the unified accountability model:
        one pool of documented word in three weighted tiers (explicit pledge /
        stated position / campaign branding), tested only against the Official
@@ -16740,8 +16134,17 @@ Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-
 
        WHAT SURVIVES BELOW IS THE FOLLOW BUTTON, which is not part of that: it
        is the reader's own list, it is painted into the profile modal, and it
-       has nothing to do with funding rank. ── -->
+       has nothing to do with funding rank.
 
+       THE OPENING <script> TAG BELOW WAS LOST WITH THAT BOARD. The deleted IIFE
+       and this function shared one block, so removing the first half took the tag
+       and left the second half standing in the document as TEXT: the browser
+       painted toggleFollowMoney's source under the footer, and the name was
+       never defined, so the 💰 Follow This Money Trail button in the profile
+       modal threw on click. The tag is restored rather than the function deleted
+       because profiles-full.js still calls it by name. ── -->
+
+  <script>
   window.toggleFollowMoney = function(pid) {
     var user = auth.currentUser;
     if (!user || user.isAnonymous) {

@@ -1862,7 +1862,13 @@ window.__PDX_PERSON_DOC = true;
       if (typeof _populateDirData === 'function') {
         _populateDirData();
       }
-      // Update Database Expansion stats
+      // The curator's roster counter, if anything on this page ever defines it.
+      // It does not: expansion-controller.js owns updateExpansionStats() and it
+      // is injected by the gate on admin.html, which is where the tool that
+      // reads the counter lives now. The guard is kept rather than deleted
+      // because it is the one line that let that room move without this one
+      // throwing, and it is what would let a future roster surface on Home
+      // publish a count again without re-plumbing the data-load path.
       if (typeof updateExpansionStats === 'function') {
         updateExpansionStats();
       }

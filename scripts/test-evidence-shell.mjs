@@ -272,9 +272,18 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // firebase-boot.js never arrives. The pin is deliberately the WHOLE block,
 // opening script tag through the firebase-boot.js include, so a stub fix that
 // lands on one document and not the other fails here rather than in a room.
+//   AND ONCE MORE, UP BY 783, for the pass that took the curator's tools OFF
+// the front page rather than gating them there. The Bulk Import / Database
+// Expansion tool, the Politician Manager, the <template> that wrapped them, the
+// head CSS lock, the allow-list, the gate and the four gated nav rows all left
+// index.html for admin.html at /admin, and the front page lost 783 lines net.
+// Every one of those cuts is above this block, which is the only fact the pin
+// cares about; not a character of the block itself changed. Re-derived by
+// locating the run, as always — the arithmetic agreed afterwards, which is the
+// order that catches a bad pin rather than confirming one.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 20884, b: 21005, what: "the PDXStance vocabulary" },
-  { from: "person.html", src: PERSON, a: 2006, b: 2060, what: "the Firebase boot" },
+  { from: "index.html", src: INDEX, a: 20287, b: 20408, what: "the PDXStance vocabulary" },
+  { from: "person.html", src: PERSON, a: 2012, b: 2066, what: "the Firebase boot" },
 ];
 // The three-room split moved the index.html range by −2021 — /mandate, /voice
 // and /money took the agenda wall, the proposals wall and five inline blocks out
@@ -287,6 +296,23 @@ const COPIES = [
 // the first two landing on /money. PDXStance sits below every one of those
 // cuts. Re-derived again by locating the run, and again evidence.html's own
 // declared range moved with it in the same edit.
+//   And once more, this time UPWARD IN NUMBER rather than down: the Digital
+// Library split took the #digital-library warehouse out of index.html but left
+// a longer note in its place and added a paragraph to the head forwarder, so
+// the front page grew by twelve lines above this block and PDXStance moved DOWN
+// the document to 20956–21077. A pin that only ever drifts one direction is a
+// pin nobody re-derives; this one was re-derived by locating the 122-line run
+// verbatim, like every move before it.
+//   AND ONCE MORE, DOWN AGAIN BY 114, for a pass that added nothing to a room
+// and took nothing out of one. Home hygiene put four things above this block:
+// a CSS lock in the head that hides the admin expansion tools for anyone the
+// gate has not recognized, a compact H.R.1 teaching card above Door 1, a
+// <template> wrapper that keeps the two admin sections out of the document
+// entirely, and the <script> tag that Follow the Money's departure had taken
+// with it — the tag whose absence was painting raw JavaScript under the footer.
+// None of them is anywhere near PDXStance; all four sit above it, which is the
+// only fact this pin cares about. 21070-21191, re-derived by locating the
+// 122-line run.
 for (const c of COPIES) {
   const header = new RegExp(`COPIED VERBATIM FROM ${c.from.replace(".", "\\.")} LINES ${c.a}[^0-9]{1,3}${c.b}`);
   ok(header.test(EV), `copy: evidence.html declares ${c.what} as ${c.from} ${c.a}–${c.b}`);

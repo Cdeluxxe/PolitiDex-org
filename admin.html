@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ════════════════════════════════════════════════════════════════════════════════
+       /admin — THE CURATOR'S ROOM. THE TOOLS ARE HERE AND NOWHERE ELSE.
+
+       WHAT THIS DOCUMENT IS. The Bulk Import / Database Expansion tool and the
+       Politician Manager. Both were markup on index.html for their whole life,
+       and the front page is where they stopped being defensible: 650 lines of
+       curator chrome parsed by every reader of the front page in order to serve
+       one account. Three locks kept them from being SEEN — a head CSS lock, a
+       <template> wrapper, and a gate that only cloned on the allowed branch —
+       and all three worked. But a lock on the front door of a room nobody but
+       the curator may enter is still a room built in the lobby. A reader whose
+       service worker handed them a stale shell, a reader whose CSS failed, a
+       reader running a reader-mode extension that walks <template> content:
+       every one of those is a way a lock can be wrong, and none of them exist
+       once the room is not on the page.
+
+       SO THE MARKUP MOVED HERE VERBATIM, and index.html no longer contains the
+       word ADMIN_EMAILS, a #database-expansion, a #politician-manager, a
+       <template id="pdx-admin-tools">, or a single [data-admin-only] link. It is
+       not gated there. It is not there. That is the only gate that cannot fail
+       open, and it is why this file exists.
+
+       THE ALLOW-LIST HAS EXACTLY ONE OWNER NOW, and it is the gate at the foot
+       of this document. When it lived on the front page there were two claims
+       about who an admin is in the repo (this one, and community-exchange.js's
+       isModerator()); there are still two, but neither is on a document 3.5
+       million readers a year land on, and this one governs a URL nothing links
+       to. The curator reaches the tools by typing /admin. That is the whole
+       entry system, on purpose: a gated link on the front page would have meant
+       keeping the allow-list on the front page to decide whether to draw it.
+
+       THE THREE LOCKS CAME WITH IT AND STILL FAIL CLOSED INDEPENDENTLY.
+         1. The head CSS lock below: html:not(.pdx-admin) hides both sections.
+            Positive test, so a gate that never runs — Firebase blocked, a thrown
+            listener, JS off — still hides.
+         2. <template id="pdx-admin-tools">: the parser keeps the markup INERT.
+            Not rendered, not announced, not findable by find-in-page, not
+            reachable by getElementById. Same device evidence.html uses for
+            <template id="el-workspace-tpl">.
+         3. The gate clones the template only on the allowed branch, and removes
+            the clone on any account change away from the admin.
+       A visitor who guesses this address and is not on the list gets the door
+       card below and nothing else — no tool markup, and no fetch of either
+       451 KB controller, because those are injected by the allowed branch too.
+
+       NOINDEX, AND NO CANONICAL. Not a public room, so it is not in the
+       sitemap, robots.txt is generated and does not name it, and this document
+       says noindex,nofollow in its own head as well — three statements, none of
+       which depend on the other two. There is no canonical because a canonical
+       publishes an address, and this address is not published. No og:* tags for
+       the same reason: nothing here is shareable.
+
+       ROOT-ABSOLUTE, WITHOUT EXCEPTION, and it is the same reason /library and
+       /money carry the rule. /admin is a 200 rewrite onto this file, and the
+       trailing-slash form /admin/ is declared too. Served at /admin/, a bare
+       expansion-controller.js in a script source would resolve to
+       /admin/expansion-controller.js, the rewrite would not catch it (there is
+       deliberately no splat), and the fetch would 404 — or worse, with a splat,
+       would be answered with this HTML and handed to the browser as
+       JavaScript. Every same-origin path in this
+       file begins with a slash, including the two the gate injects.
+       scripts/test-admin-shell.mjs fails the build on a relative one.
+
+       WHAT IS DELIBERATELY NOT HERE. No app.css (987 KB for three selectors —
+       they are declared below instead, as evidence.html does). No compare-hub,
+       no voter-hub, no profiles-full, no ballot, no scoring, no Direction Match.
+       No sign-in UI: the curator signs in on the front page, and the chip in the
+       bar is a trip there. And this file is NOT in sw.js's SHELL_ASSETS — no
+       reader's phone should precache the curator's door.
+       ════════════════════════════════════════════════════════════════════════════════ -->
+
+  <title>Curator Tools &middot; PolitiDex</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="description" content="PolitiDex curator tools. Not a public page." />
+  <meta name="theme-color" content="#0a0f1e" />
+
+  <!-- ── Favicon (SVG + emoji fallback) — the same pair every shell carries ── -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23c0152a'/><text y='46' x='5' font-size='42' font-family='Arial Black,sans-serif' font-weight='900' fill='white' letter-spacing='-2'>PX</text></svg>" />
+  <link rel="alternate icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏛</text></svg>" />
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Barlow / Bebas Neue, non-blocking, with the same swap index.html,
+       person.html, issue.html, spotlight.html, ballot.html, me.html,
+       stances.html, evidence.html, courts.html, money.html, community.html and
+       library.html use. A swap written differently on one document is a visible
+       font flash on exactly one URL shape. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
+
+  <!-- THE TWO SHEETS THAT DRESS THIS DOCUMENT. /css/tailwind.css is the same
+       utility sheet index.html links — the tool markup below came off that
+       document unchanged, so it still speaks those utilities, all 295 of them.
+       /shell-chrome.css is the bar and the account chip, shared with /money,
+       /library, /mandate and /voice. -->
+  <link rel="stylesheet" href="/css/tailwind.css" />
+  <link rel="stylesheet" href="/shell-chrome.css" />
+
+  <style>
+    /* THE FIXED CHROME, MEASURED ONCE. Same contract person.html, issue.html,
+       spotlight.html, ballot.html, me.html, stances.html, evidence.html,
+       courts.html, money.html and library.html answer for their own chrome, and
+       for the same reason: a custom property that is never declared invalidates
+       every calc() that reads it. One row, no search. The @supports guard is the
+       one every other shell carries: a custom property accepts any token
+       sequence, so an engine that cannot parse env() would swallow the
+       declaration and invalidate every calc() reading it; an engine without
+       env() also has no notch. */
+    :root { --pdx-chrome: 3.25rem; color-scheme: dark; }
+    @supports (padding-top: env(safe-area-inset-top)) {
+      :root { --pdx-chrome: calc(3.25rem + env(safe-area-inset-top, 0px)); }
+    }
+    /* No app.css here, so the page's own ground colour is declared rather than
+       inherited from a 987 KB stylesheet this document does not load. */
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--pdx-chrome) + 0.5rem); }
+    html, body { background: #070b16; color: #e7eefb; }
+    body {
+      margin: 0;
+      font-family: 'Barlow', system-ui, -apple-system, sans-serif;
+      padding-top: calc(var(--pdx-chrome) + 0.75rem);
+    }
+
+    /* THE THREE CLASSES THE TOOL MARKUP USES THAT LIVE IN app.css, DECLARED
+       LOCALLY. The markup below is verbatim, so it still names them. These are
+       the only three app.css selectors the 295 it speaks resolve to there rather
+       than in /css/tailwind.css, and they are six lines — which is the whole
+       argument for not loading 987 KB to get them. The other twelve app.css-
+       sounding classes the markup carries (font-700, text-steel-200,
+       bg-navy-950, text-crimson-300 and nine more) resolve to NO rule in either
+       sheet and never did on the front page either; they are dead on arrival
+       here exactly as they were dead there, and inventing rules for them now
+       would be a redesign wearing a relocation's clothes.
+
+       .animate-on-scroll is app.css's own default state, opacity:1, with the
+       comment "JS adds visible class - but we default to visible so nothing
+       hides." That default is the one that matters here: index.html has an
+       IntersectionObserver that adds .visible and this document does not, so a
+       rule that started hidden would leave the tool headers permanently
+       invisible. Copied at its visible value, without the transition, because
+       there is nothing here to transition from. */
+    .animate-on-scroll { opacity: 1; transform: none; }
+    .badge-live { animation: pulse2 2s ease-in-out infinite; }
+    .btn-glow { transition: all 0.22s ease; }
+    @media (hover: hover) {
+      .btn-glow:hover {
+        box-shadow: 0 0 20px rgba(192,21,42,0.6), 0 0 40px rgba(192,21,42,0.16);
+        transform: translateY(-1px);
+      }
+    }
+    .btn-glow:active { transform: scale(0.96); }
+
+    /* ── THE DOOR CARD ─────────────────────────────────────────────────────
+       What everyone who is not the curator sees, which is everyone. It says
+       what this address is and offers the front page, rather than leaving a
+       blank document that reads as a broken deploy. It is REPLACED, not layered
+       over: the gate hides it on the allowed branch, so the curator never
+       scrolls past an explanation of a room they are standing in. */
+    #pdx-curator-door {
+      max-width: 34rem; margin: 4rem auto; padding: 1.6rem 1.4rem;
+      border: 1px solid rgba(255,255,255,0.10); border-radius: 1rem;
+      background: rgba(13,21,38,0.6); text-align: center;
+    }
+    #pdx-curator-door h1 {
+      margin: 0 0 0.6rem; font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+      font-size: 1.9rem; letter-spacing: 0.08em; color: #fff;
+    }
+    #pdx-curator-door p { margin: 0 0 0.9rem; font-size: 0.95rem; line-height: 1.65; color: #9fb4d4; }
+    #pdx-curator-door p:last-of-type { margin-bottom: 1.2rem; }
+    #pdx-curator-door a {
+      display: inline-block; padding: 0.6rem 1.1rem; border-radius: 0.6rem;
+      border: 1px solid rgba(255,255,255,0.16); color: #f5d77a;
+      text-decoration: none; font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase;
+    }
+    html.pdx-admin #pdx-curator-door { display: none; }
+
+    /* ── THE TOAST HOST ────────────────────────────────────────────────────
+       voter-hub-location.js owns window._showToast on the front page and that
+       file is not on this document — it is a 4,000-line location engine and the
+       toast is nine lines of it. Every call site in both controllers is
+       typeof-guarded, so the honest minimum here was to ship nothing and let
+       the tool go quiet. That is worse than it sounds: "Bulk import complete —
+       added 42 politicians" is the only confirmation the curator gets that a
+       write landed. So the nine lines are declared below instead, against this
+       host, with the same 3.5s dwell. */
+    #pdx-admin-toast {
+      position: fixed; left: 50%; bottom: 1.4rem; transform: translateX(-50%) translateY(0.6rem);
+      z-index: 1400; max-width: min(34rem, calc(100vw - 2rem));
+      padding: 0.7rem 1.1rem; border-radius: 0.7rem;
+      border: 1px solid rgba(255,255,255,0.14); background: rgba(10,15,30,0.94);
+      color: #e7eefb; font-size: 0.9rem; line-height: 1.45; text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+      opacity: 0; pointer-events: none; transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+    #pdx-admin-toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* The only thing a reader sees if JavaScript never runs. */
+    .pdx-sh-note {
+      max-width: 40rem; margin: 2.5rem auto; padding: 0 1.1rem;
+      font: 400 1rem/1.6 'Barlow', system-ui, sans-serif; color: #9fb4d4;
+    }
+    .pdx-sh-note a { color: #f5d77a; }
+  </style>
+
+  <!-- ── LOCK 1 OF 3: THE ADMIN LOCK, IN CSS, IN THE HEAD ──────────────────
+       The curator tools are hidden unless <html> carries .pdx-admin, which only
+       the allowed branch of the gate at the foot of this document adds. Inline,
+       above any content, because the rule must hold at first paint. The test is
+       positive, so a gate that never runs — Firebase blocked, a thrown
+       listener, JS off — still hides. This is the lock that came off
+       index.html's head; it is the same three lines minus the
+       [data-admin-only] selector, because there is no such element on this
+       document and a lock naming nothing is a lock nobody maintains. -->
+  <style id="pdx-admin-gate-css">
+    html:not(.pdx-admin) #database-expansion,
+    html:not(.pdx-admin) #politician-manager { display: none !important; }
+  </style>
+
+  <!-- ══ THE FLAG — ONE DECLARATION, READ THROUGH ONE MODULE ══════════════
+       First script on the document, before any module can look for it, and the
+       ONLY place it is set. Nothing branches on it today — both controllers
+       guard on their mounts instead, which is the stronger test — and it is
+       declared anyway for the same reason __PDX_MONEY_DOC, __PDX_COURTS_DOC,
+       __PDX_ME_DOC, __PDX_MANDATE_DOC and __PDX_VOICE_DOC are: the day a module
+       needs to know which document it is on, the answer must already exist and
+       must not be a location.pathname sniff. /admin, /admin/ and a local
+       preview server's /admin.html are three spellings of one document that a
+       path test gets differently.
+       ════════════════════════════════════════════════════════════════════ -->
+  <script>window.__PDX_ADMIN_DOC = true;</script>
+
+  <!-- ══ COPIED VERBATIM FROM money.html LINES 313–367 ══════════════════
+       FIREBASE. The three compat bundles, the request-time key injection, and
+       the synchronous stub that guarantees `db` / `auth` / `PROFILES` exist
+       before anything can touch them.
+
+       THE SAME STUB AS THE OTHER INNER SHELLS, NOT A THIRD ONE. person.html,
+       me.html, issue.html, evidence.html and money.html all carry this block,
+       byte for byte, and the suite fences it: a shell that writes its own
+       version of "has Firebase answered yet" is a shell that can answer it
+       differently.
+
+       ON THIS DOCUMENT IT IS THE GATE'S ONLY INPUT. `auth` is what decides
+       whether the curator tools exist at all, and `db` is what every write in
+       both controllers goes through. The auth-unknown queue matters more here
+       than anywhere: a stub that answered cb(null) instantly would tell the
+       gate the curator is a guest, hide the tools from the one account that may
+       use them, and look exactly like a broken deploy. It queues instead.
+       ═════════════════════════════════════════════════════════════════════════ -->
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<!-- The Firebase Web API key is injected at request time from the Netlify
+     environment variable FIREBASE_API_KEY by netlify/edge-functions/firebase-config.ts.
+     It is intentionally NOT hardcoded here so the value never lives in source
+     control or the deployed HTML (and the build's secrets scanner passes). -->
+<script defer src="/firebase-config.js"></script>
+<script>
+  // Run 1 perf: the Firebase SDKs and the bootstrap below are DEFERRED so they no
+  // longer block first paint. This tiny synchronous stub guarantees the globals
+  // that other inline code could touch at parse time exist; firebase-boot.js
+  // (deferred → runs after the SDK, before DOMContentLoaded) then replaces them
+  // with the live Firebase objects and starts the lightweight roster load. Net
+  // effect: identical behavior, but the ~800 KB compat SDK no longer gates paint.
+  var app, db, firestore, auth;
+  var PROFILES = window.PROFILES || {}; window.PROFILES = PROFILES;
+  window._pdxFullIds = window._pdxFullIds || new Set();
+  window._pdxFullPending = window._pdxFullPending || {};
+  function setDoc(docRef, data, options) { return docRef.set(data, options); }
+  db = { collection: null }; firestore = db;
+  // AUTH UNKNOWN IS NOT AUTH SIGNED-OUT. This stub used to answer every
+  // registration with cb(null) before the SDK had loaded, which told every
+  // module that a returning member was a guest. It queues instead;
+  // firebase-boot.js replays the queue onto the real auth object, and until then
+  // window.PDXAuth.state is 'unknown'. See the long note in index.html.
+  window.PDXAuth = window.PDXAuth || { state: 'unknown', user: null, known: false };
+  window.__pdxAuthQueue = window.__pdxAuthQueue || [];
+  auth = { currentUser: null, onAuthStateChanged: function (cb) { var rec = { cb: cb, off: false, unsub: null }; window.__pdxAuthQueue.push(rec); return function () { rec.off = true; if (rec.unsub) { try { rec.unsub(); } catch (e) {} } }; }, signInAnonymously: function () { return Promise.reject(new Error('auth pending')); }, signOut: function () { return Promise.resolve(); } };
+  // AND THE QUEUE IS NOT A TRAP. If firebase-boot.js never arrives to drain it —
+  // a blocked SDK, a failed deploy, a warm shell paired with an older copy of
+  // that file out of the runtime cache — the registrations above would wait for
+  // the whole visit and nothing on the page would ever learn there is no
+  // session. So the queue self-heals: once the SDK has had every chance to land,
+  // whatever is still queued is flushed with null, which is exactly the answer
+  // this stub used to give instantly. A LATE fallback is a different thing from
+  // a first guess — the first guess was the bug, and five seconds is not a
+  // guess, it is a timeout. firebase-boot.js nulls the queue when it replays, so
+  // on every normal load this is a no-op.
+  setTimeout(function () {
+    var q = window.__pdxAuthQueue;
+    if (!q) return;
+    window.__pdxAuthQueue = null;
+    try {
+      window.PDXAuth.known = true;
+      window.PDXAuth.state = 'out';
+      window.PDXAuth.user = null;
+      if (typeof window.updateNavAuth === 'function') window.updateNavAuth(null, 'out');
+    } catch (e) {}
+    for (var i = 0; i < q.length; i++) {
+      if (q[i] && !q[i].off && typeof q[i].cb === 'function') { try { q[i].cb(null); } catch (e) {} }
+    }
+  }, 5000);
+</script>
+<script src="/firebase-boot.js" defer></script>
+
+  <!-- THE ONE NON-ADMIN MODULE THIS PAIR EVER NEEDED. The data-hygiene layer
+       behind window._cleanProfiles() is what both controllers de-duplicate the
+       roster through, and it is public on purpose — the front page's directory
+       and dashboard counts read through it too, which is why it stays on
+       index.html as well rather than moving here. Loaded synchronously for the
+       same reason it is on the front page: the controllers call into it the
+       moment they mount, and a deferred copy would have them mount first. -->
+  <script src="/data-hygiene.js"></script>
+  <script defer src="/shell-account-chip.js"></script>
+
+</head>
+<body>
+
+  <!-- ══ THE BAR ════════════════════════════════════════════════════════
+       THE SAME SIX DESTINATIONS AS /money, /library, /mandate and /voice, in
+       the same order, so the row is a fixed place rather than a per-page guess.
+       This room is not one of the six and carries no aria-current: it is not a
+       destination, it is a workshop, and a bar that advertised it would be the
+       front-page link this pass exists to remove.
+
+       The account slot is LAST and it is EMPTY in the markup. What fills it is
+       shell-account-chip.js, and until Firebase answers it fills it with
+       "Checking account…" — never the Join CTA. See the contract in that file.
+       ═════════════════════════════════════════════════════════════════════════ -->
+  <header class="pdx-sh-bar">
+    <a class="pdx-sh-wordmark" href="/" title="PolitiDex — the front page">POLITI<span>DEX</span></a>
+    <nav class="pdx-sh-links" aria-label="PolitiDex">
+      <a class="pdx-sh-link" href="/#who-represents-me">🏛️ Who Represents Me</a>
+      <a class="pdx-sh-link" href="/#say-vs-do">👁️ Find the Record</a>
+      <a class="pdx-sh-link" href="/ballot">⭐ Your Ballot</a>
+      <a class="pdx-sh-link" href="/mandate">✊ Mandate</a>
+      <a class="pdx-sh-link" href="/voice">📣 District Voice</a>
+      <a class="pdx-sh-link" href="/money">💰 Follow the Money</a>
+      <a class="pdx-sh-link" href="/">&larr; Home</a>
+    </nav>
+    <div id="pdx-shell-acct" data-pdx-acct-sig="unknown"></div>
+  </header>
+
+  <main id="admin-room">
+
+  <!-- The door. Visible to everyone, which in practice is everyone who is not
+       the one account on the allow-list, and hidden by the head lock's positive
+       counterpart the moment that account is recognized. It names no tool and
+       makes no claim about what is behind it. -->
+  <div id="pdx-curator-door">
+    <h1>Curator Tools</h1>
+    <p>This address is the PolitiDex curator's workbench. There is nothing here
+       to read and nothing here to browse.</p>
+    <p>If you were looking for the site, the front page is where everything
+       public lives — who represents you, the record, the money, the bills.</p>
+    <a href="/">Go to PolitiDex</a>
+  </div>
+
+  <noscript>
+    <p class="pdx-sh-note">These tools are a JavaScript application. Nothing on
+      this address works without it, and there is no public content here to fall
+      back to — <a href="/">the front page</a> is what you want.</p>
+  </noscript>
+
+  <!-- ══ LOCK 2 OF 3 — MOVED VERBATIM FROM index.html ═══════════════════════
+       ╔══════════════════════════════════════════════════════════════════╗
+       ║  ADMIN-ONLY: Bulk Import / Database Expansion tool and the        ║
+       ║  Politician Manager. Not in the document at all until an admin is  ║
+       ║  recognized; mounted only for the account named in ADMIN_EMAILS,   ║
+       ║  in the gating script at the end of this document. Search          ║
+       ║  "ADMIN_EMAILS" to change who.                                     ║
+       ╚══════════════════════════════════════════════════════════════════╝
+
+       WHY A <template> AND NOT JUST display:none, KEPT EVEN THOUGH THE ROOM
+       MOVED. Both tools used to stand in index.html's document for every
+       reader, hidden by one inline style and revealed by one line of
+       JavaScript. That is a reveal, not a gate: the markup was in the DOM, the
+       accessibility tree, find-in-page and reader mode, and one cleared style
+       put DATABASE EXPANSION, Bulk Import and AI-Assisted Database Expansion on
+       an anonymous voter's front page. Moving to a private address fixes that
+       for the front page and says nothing about this one — anyone may type
+       /admin. So the template comes too: inside it the parser keeps the markup
+       INERT, nothing renders, is announced or is findable, and getElementById
+       cannot reach it, as evidence.html does with <template id="el-workspace-tpl">.
+       The gate clones this content back into the same position the first time
+       the admin account is recognized, so both section anchors land where they
+       always did, and nothing else on this document reads an id from in here.
+       ═════════════════════════════════════════════════════════════════════════ -->
+  <template id="pdx-admin-tools">
+  <section id="database-expansion" class="py-14 md:py-20 border-b border-white/5" style="display:none; background:linear-gradient(180deg,rgba(10,20,50,0.9) 0%,rgba(5,8,20,0.95) 100%);">
+    <style>
+      /* Potential-duplicate suggestion cards stay hidden until the user opts in. */
+      #expansion-results-list:not(.show-dups) .expansion-dup-card { display: none; }
+    </style>
+    <div class="max-w-6xl mx-auto px-4">
+
+      <!-- ── Header ────────────────────────────────────────── -->
+      <div class="text-center mb-10 animate-on-scroll">
+        <!-- Prominent ADMIN banner so it's unmistakable this section is the
+             admin-only Bulk Import tool when it appears. -->
+        <div class="inline-flex items-center gap-2 bg-crimson-600/25 border border-crimson-500/50 rounded-full px-4 py-1.5 mb-4" style="box-shadow:0 0 18px rgba(220,38,38,0.35);">
+          <span aria-hidden="true">🔒</span>
+          <span class="font-condensed text-xs font-700 tracking-widest uppercase text-crimson-200">ADMIN: Bulk Import Tool</span>
+        </div>
+        <div class="inline-flex items-center gap-2 bg-crimson-600/15 border border-crimson-600/30 rounded-full px-4 py-1.5 mb-4">
+          <span class="w-2 h-2 rounded-full bg-crimson-400 badge-live"></span>
+          <span class="font-condensed text-xs tracking-widest uppercase text-crimson-400">🤖 AI-Assisted Database Expansion</span>
+        </div>
+        <h2 class="font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">DATABASE <span class="text-crimson-400">EXPANSION</span></h2>
+        <p class="text-steel-300 font-body max-w-2xl mx-auto leading-relaxed">
+          Grow our transparent, non-partisan database. Leverage AI to discover missing legislators and 2026 candidates, and verify their profiles with one-click imports.
+        </p>
+        <!-- Refresh Stats: re-queries the live Firestore "politicians" collection on demand.
+             The numbers below already load automatically from the database on page load. -->
+        <div class="mt-5">
+          <button type="button" id="stats-refresh-btn" onclick="refreshDashboardStats()"
+            class="inline-flex items-center gap-2 bg-navy-800/80 hover:bg-navy-700/80 border border-gold-500/30 hover:border-gold-400/60 text-gold-300 hover:text-gold-200 font-condensed text-xs font-700 tracking-widest uppercase px-4 py-2 rounded-full transition-all">
+            <span aria-hidden="true">🔄</span>
+            <span id="stats-refresh-label">Refresh Stats</span>
+          </button>
+          <div id="stats-live-note" class="mt-2 font-condensed text-[10px] font-700 tracking-widest uppercase text-steel-500">Waiting for live Firestore counts...</div>
+        </div>
+      </div>
+
+      <!-- ── Stats Panel ───────────────────────────────────── -->
+      <!-- Top row: headline totals -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- Card 1: Total Database Count -->
+        <div class="bg-navy-800/80 border border-white/10 rounded-2xl p-6 relative overflow-hidden" style="box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
+          <div class="absolute top-0 right-0 p-4 opacity-10 text-4xl font-display text-steel-400">📊</div>
+          <h4 class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-400 mb-2">Total Database Size</h4>
+          <div id="stats-total-all" class="font-display text-4xl md:text-5xl text-white mb-2">—</div>
+          <p id="stats-total-detail" class="text-xs text-steel-300 leading-relaxed font-body">Politicians currently tracked across the entire PolitiDex platform.</p>
+        </div>
+
+        <!-- Card 2: Utah Specific Total -->
+        <div class="bg-navy-800/80 border border-white/10 rounded-2xl p-6 relative overflow-hidden" style="box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
+          <div class="absolute top-0 right-0 p-4 opacity-10 text-4xl font-display text-steel-400">🗺️</div>
+          <h4 class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-400 mb-2">Utah Database Coverage</h4>
+          <div class="flex items-baseline gap-2 mb-3">
+            <div id="stats-utah-total" class="font-display text-4xl md:text-5xl text-gold-400">— <span class="text-sm font-condensed text-steel-400">/ —</span></div>
+            <span id="stats-utah-pct" class="font-condensed text-sm font-700 tracking-wide text-gold-300/90 bg-gold-500/10 border border-gold-500/30 rounded-full px-2.5 py-0.5">—</span>
+          </div>
+          <!-- Overall coverage bar -->
+          <div class="w-full bg-navy-950 rounded-full h-2.5 overflow-hidden border border-white/5 mb-3">
+            <div id="stats-utah-overall-bar" class="bg-gradient-to-r from-crimson-500 via-gold-400 to-gold-300 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+          </div>
+          <p class="text-xs text-steel-300 leading-relaxed font-body">Verified Utah officials and 2026 candidates tracked, against our target roster of federal, statewide, legislative, and county seats.</p>
+          <p id="stats-utah-detail" class="text-[11px] text-steel-500 leading-relaxed font-body mt-1.5">Live Utah records are counted from Firestore.</p>
+        </div>
+      </div>
+
+      <!-- Expansion Coverage by category -->
+      <div class="bg-navy-800/80 border border-white/10 rounded-2xl p-6 md:p-7 mb-10 relative overflow-hidden" style="box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
+        <div class="flex items-center justify-between gap-3 flex-wrap mb-5">
+          <h4 class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-400">Expansion Coverage by Category</h4>
+          <span class="font-condensed text-[10px] font-700 tracking-widest uppercase text-steel-400">Seats tracked / total seats</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-5 font-body">
+          <!-- Federal Delegation -->
+          <div>
+            <div class="flex justify-between items-center text-xs font-semibold text-steel-200 mb-1.5">
+              <span class="flex items-center gap-1.5"><span class="text-sm">🏛️</span> Federal Delegation</span>
+              <span id="stats-cat-federal-pct" class="font-condensed tracking-wide text-steel-300">— / 6</span>
+            </div>
+            <div id="stats-cat-federal-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: …</div>
+            <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
+              <div id="stats-cat-federal-bar" class="bg-gradient-to-r from-blue-600 to-blue-400 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+            </div>
+          </div>
+          <!-- Statewide Offices -->
+          <div>
+            <div class="flex justify-between items-center text-xs font-semibold text-steel-200 mb-1.5">
+              <span class="flex items-center gap-1.5"><span class="text-sm">⭐</span> Statewide Offices</span>
+              <span id="stats-cat-statewide-pct" class="font-condensed tracking-wide text-steel-300">— / 5</span>
+            </div>
+            <div id="stats-cat-statewide-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: …</div>
+            <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
+              <div id="stats-cat-statewide-bar" class="bg-gradient-to-r from-gold-500 to-gold-300 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+            </div>
+          </div>
+          <!-- State Senate -->
+          <div>
+            <div class="flex justify-between items-center text-xs font-semibold text-steel-200 mb-1.5">
+              <span class="flex items-center gap-1.5"><span class="text-sm">🏢</span> State Senate</span>
+              <span id="stats-cat-senate-pct" class="font-condensed tracking-wide text-steel-300">— / 29</span>
+            </div>
+            <div id="stats-cat-senate-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: …</div>
+            <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
+              <div id="stats-cat-senate-bar" class="bg-gradient-to-r from-crimson-600 to-crimson-400 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+            </div>
+          </div>
+          <!-- State House -->
+          <div>
+            <div class="flex justify-between items-center text-xs font-semibold text-steel-200 mb-1.5">
+              <span class="flex items-center gap-1.5"><span class="text-sm">🏛</span> State House</span>
+              <span id="stats-cat-house-pct" class="font-condensed tracking-wide text-steel-300">— / 75</span>
+            </div>
+            <div id="stats-cat-house-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: …</div>
+            <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
+              <div id="stats-cat-house-bar" class="bg-gradient-to-r from-crimson-500 to-crimson-300 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+            </div>
+          </div>
+          <!-- Local & County -->
+          <div>
+            <div class="flex justify-between items-center text-xs font-semibold text-steel-200 mb-1.5">
+              <span class="flex items-center gap-1.5"><span class="text-sm">📍</span> Local &amp; County</span>
+              <span id="stats-cat-local-pct" class="font-condensed tracking-wide text-steel-300">— / 60</span>
+            </div>
+            <div id="stats-cat-local-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: …</div>
+            <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
+              <div id="stats-cat-local-bar" class="bg-gradient-to-r from-steel-500 to-steel-300 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+            </div>
+          </div>
+          <!-- 2026 Candidates -->
+          <div>
+            <div class="flex justify-between items-center text-xs font-semibold text-steel-200 mb-1.5">
+              <span class="flex items-center gap-1.5"><span class="text-sm">🗳️</span> 2026 Candidates</span>
+              <span id="stats-cat-cand-pct" class="font-condensed tracking-wide text-steel-300">— / 24</span>
+            </div>
+            <div id="stats-cat-cand-detail" class="text-[11px] text-steel-500 mb-1.5 font-body">Live records: …</div>
+            <div class="w-full bg-navy-950 rounded-full h-2 overflow-hidden border border-white/5">
+              <div id="stats-cat-cand-bar" class="bg-gradient-to-r from-gold-600 to-gold-400 h-full rounded-full transition-all duration-1000" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Honesty note: federal/statewide/legislative targets are Utah's fixed
+             seat counts; local and 2026-candidate targets are working estimates of
+             a field that has no single official roster, so those bars track
+             progress toward a goal rather than a fixed denominator. -->
+        <p class="text-[11px] text-steel-500 leading-relaxed font-body mt-5 pt-4 border-t border-white/5">
+          <span class="text-steel-400 font-semibold">How to read these:</span> Federal, statewide, and legislative targets are Utah's actual seat counts (4 U.S. House + 2 Senate, 5 statewide offices, 29 Senate and 75 House districts). <span class="text-steel-400">Local &amp; county</span> and <span class="text-steel-400">2026 candidate</span> targets are working estimates — there's no single official roster for them — so those bars show momentum toward a goal we keep expanding, not a finished count.
+        </p>
+      </div>
+
+      <!-- ── Interactive Expansion Tool Workspace ────────────── -->
+      <div class="bg-navy-800/60 border-2 border-white/10 rounded-3xl p-6 md:p-8" style="box-shadow: 0 12px 40px rgba(0,0,0,0.5);">
+
+        <!-- ⚡ Bulk Import Mode banner (admin-focused) -->
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 bg-gradient-to-r from-crimson-950/70 via-navy-900/70 to-navy-900/70 border border-crimson-500/40 rounded-2xl px-5 py-3.5 mb-8" style="box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);">
+          <div class="flex items-center gap-3 flex-1">
+            <span class="text-2xl flex-shrink-0">⚡</span>
+            <div>
+              <p class="font-condensed text-sm font-700 tracking-widest uppercase text-crimson-300">Bulk Import Mode</p>
+              <p class="text-xs text-steel-300 font-body leading-snug">For adding many politicians quickly — search, multi-select, and import to the database in one batch.</p>
+            </div>
+          </div>
+          <span class="self-start sm:self-center font-condensed text-[10px] font-700 tracking-widest uppercase text-gold-300 bg-gold-500/10 border border-gold-500/30 rounded-full px-3 py-1 whitespace-nowrap">🛠 Admin Tool</span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          <!-- Control Panel Column (Left side) -->
+          <div class="lg:col-span-5 space-y-6">
+            <div>
+              <h3 class="font-display text-2xl tracking-wider text-white mb-2">Expansion Criteria</h3>
+              <p class="text-sm text-steel-300 font-body">Select the legislative level or campaign cycle you want to expand, and configure parameters for AI search.</p>
+            </div>
+
+            <!-- Target Selection -->
+            <div>
+              <label class="block font-condensed text-xs font-700 tracking-widest uppercase text-steel-400 mb-2">Target Legislative Level</label>
+              <select id="expansion-level" class="w-full bg-navy-950 border-2 border-white/10 rounded-xl p-3.5 text-sm font-semibold text-white focus:border-gold-400 focus:outline-none focus:ring-0 transition-colors" style="background-color:#0a0f1e;color:#ffffff;">
+                <option value="utah-leg" selected style="background-color:#0a0f1e;color:#ffffff;">🇺🇸 Utah State Legislature</option>
+                <option value="utah-cand-2026" style="background-color:#0a0f1e;color:#ffffff;">🗳️ Utah 2026 Candidates</option>
+                <option value="utah-statewide" style="background-color:#0a0f1e;color:#ffffff;">🏛️ Utah Statewide &amp; Federal</option>
+              </select>
+            </div>
+
+            <!-- Custom Context Prompt (highlighted — best results) -->
+            <div class="bg-gradient-to-br from-gold-500/10 to-navy-900/40 border border-gold-500/30 rounded-2xl p-4 space-y-2.5">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <label class="block font-condensed text-xs font-700 tracking-widest uppercase text-gold-300">✨ Custom AI Prompt — Power Search</label>
+                <span class="font-condensed text-[10px] font-700 tracking-widest uppercase text-gold-300/90 bg-gold-500/10 border border-gold-500/30 rounded-full px-2 py-0.5 whitespace-nowrap">★ Best Results</span>
+              </div>
+              <p class="text-xs text-steel-300 font-body leading-snug">Describe exactly who you want and the AI casts a wider net. The more specific the request, the bigger and better the batch it returns.</p>
+              <textarea id="expansion-custom-prompt" placeholder="e.g., All Utah State House members from Salt Lake & Davis counties, plus any 2026 county-commission candidates." class="w-full bg-navy-950 border-2 border-gold-500/20 rounded-xl p-3 text-sm text-white placeholder-steel-500 focus:border-gold-400 focus:outline-none h-24 font-body transition-colors" style="background-color:#0a0f1e;color:#ffffff;"></textarea>
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-[10px] uppercase tracking-widest font-condensed text-steel-400">Try one:</span>
+                <button type="button" onclick="setExpansionPromptExample('All Utah State Senate members, including leadership and committee chairs.')" class="text-[11px] font-body text-gold-300 hover:text-gold-200 bg-navy-950/80 border border-gold-500/30 hover:border-gold-400/60 rounded-full px-2.5 py-1 transition-colors">🏛 Full Senate roster</button>
+                <button type="button" onclick="setExpansionPromptExample('Every 2026 Utah candidate for federal and statewide office, all parties.')" class="text-[11px] font-body text-gold-300 hover:text-gold-200 bg-navy-950/80 border border-gold-500/30 hover:border-gold-400/60 rounded-full px-2.5 py-1 transition-colors">🗳️ All 2026 candidates</button>
+              </div>
+            </div>
+
+            <!-- Action Button -->
+            <button id="expansion-trigger-btn" onclick="triggerExpansionAISearch()" class="w-full btn-glow relative bg-gradient-to-r from-crimson-600 via-crimson-500 to-crimson-600 hover:from-crimson-500 hover:via-crimson-400 hover:to-crimson-500 text-white font-display tracking-widest uppercase rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-95" style="font-size:16px;letter-spacing:0.12em;padding:14px 16px;border:1.5px solid rgba(255,255,255,0.25);text-shadow:0 1px 4px rgba(0,0,0,0.4);">
+              <span>⚡ Trigger AI Search</span>
+            </button>
+
+            <!-- ── OR divider ─────────────────────────────────── -->
+            <div class="flex items-center gap-3 py-1">
+              <span class="flex-1 h-px bg-white/10"></span>
+              <span class="font-condensed text-[10px] font-700 tracking-widest uppercase text-steel-500">Or paste a list</span>
+              <span class="flex-1 h-px bg-white/10"></span>
+            </div>
+
+            <!-- ── Paste-a-List Importer ──────────────────────── -->
+            <div class="bg-gradient-to-br from-blue-500/10 to-navy-900/40 border border-blue-500/30 rounded-2xl p-4 space-y-2.5">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <label class="block font-condensed text-xs font-700 tracking-widest uppercase text-blue-200">📋 Paste a List of Politicians</label>
+                <span class="font-condensed text-[10px] font-700 tracking-widest uppercase text-blue-200/90 bg-blue-500/10 border border-blue-500/30 rounded-full px-2 py-0.5 whitespace-nowrap">AI-friendly</span>
+              </div>
+              <p class="text-xs text-steel-300 font-body leading-snug">
+                Paste a list from anywhere — one politician per line. Plain names work, or use a structured row:
+                <span class="block mt-1 font-mono text-[11px] text-blue-200 bg-navy-950/70 border border-white/5 rounded-lg px-2 py-1">Name | District | Office | County | Party</span>
+              </p>
+              <textarea id="expansion-paste-list" placeholder="Jane Doe | District 30 | State Representative | Salt Lake County | Republican
+John Smith | District 12 | State Senator | Utah County | Democrat
+Maria Lopez" class="w-full bg-navy-950 border-2 border-blue-500/20 rounded-xl p-3 text-sm text-white placeholder-steel-500 focus:border-blue-400 focus:outline-none h-32 font-body transition-colors" style="background-color:#0a0f1e;color:#ffffff;"></textarea>
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <span id="expansion-paste-hint" class="text-[10px] uppercase tracking-widest font-condensed text-steel-400">Names &amp; pipe-separated rows both supported</span>
+                <button type="button" onclick="document.getElementById('expansion-paste-list').value='';document.getElementById('expansion-paste-hint').textContent='Names &amp; pipe-separated rows both supported';document.getElementById('expansion-paste-hint').className='text-[10px] uppercase tracking-widest font-condensed text-steel-400';" class="text-[11px] font-body text-steel-400 hover:text-crimson-400 transition-colors">🗑️ Clear</button>
+              </div>
+              <button id="expansion-process-list-btn" onclick="processPastedExpansionList()" class="w-full btn-glow bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-500 hover:to-blue-600 text-white font-display tracking-widest uppercase rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-95" style="font-size:14px;letter-spacing:0.1em;padding:12px 16px;border:1.5px solid rgba(255,255,255,0.22);text-shadow:0 1px 4px rgba(0,0,0,0.4);">
+                <span>🔎 Process List &amp; Check Duplicates</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- AI Suggested Output Column (Right side) -->
+          <div class="lg:col-span-7 space-y-6">
+            <div>
+              <h3 class="font-display text-2xl tracking-wider text-white mb-2">Suggested Discoveries</h3>
+              <p class="text-sm text-steel-300 font-body">Results from an AI search <span class="text-steel-400">or your pasted list</span> appear here, each tagged <span class="text-green-300 font-semibold">✦ New</span> or <span class="text-amber-300 font-semibold">⚠ Potential Duplicate</span>. New picks are pre-selected — multi-select and import a whole batch, or toggle on duplicates to review and re-import them too.</p>
+            </div>
+
+            <!-- Suggestion Results Display -->
+            <div class="relative bg-navy-950/80 border border-white/10 rounded-2xl p-6 min-h-[300px] flex flex-col justify-center items-center" style="box-shadow: inset 0 4px 20px rgba(0,0,0,0.5);">
+              
+              <!-- Loader State (hidden by default) -->
+              <div id="expansion-loader" class="hidden flex flex-col items-center justify-center space-y-4">
+                <div class="w-12 h-12 rounded-full border-4 border-crimson-600/30 border-t-crimson-500 animate-spin"></div>
+                <div class="text-center font-condensed">
+                  <p id="expansion-loader-msg" class="text-sm font-bold tracking-wider uppercase text-gold-400 animate-pulse2">AI model is processing credentials & public records...</p>
+                  <p class="text-xs text-steel-400 mt-1">Cross-referencing PolitiDex Firestore entries...</p>
+                </div>
+              </div>
+
+              <!-- Idle State -->
+              <div id="expansion-idle" class="flex flex-col items-center justify-center text-center max-w-md space-y-4">
+                <div class="text-5xl">🤖</div>
+                <p class="font-condensed font-700 text-lg tracking-wide text-white uppercase">Ready for Discovery Scan</p>
+                <p class="text-xs text-steel-300 font-body leading-relaxed">
+                  Select a targeted level on the left and trigger the search. Our AI model will scour current campaign filings, official registries, and legislative transcripts to identify viable candidates missing from PolitiDex.
+                </p>
+              </div>
+
+              <!-- Results List (hidden by default) -->
+              <div id="expansion-results-container" class="hidden w-full space-y-4">
+
+                <!-- Count + Clear row -->
+                <div class="flex justify-between items-center border-b border-white/10 pb-3">
+                  <span id="expansion-results-count-label" class="font-condensed text-xs font-bold text-steel-400 uppercase tracking-widest">0 suggestions found</span>
+                  <button onclick="clearExpansionResults()" class="font-condensed text-xs text-steel-400 hover:text-crimson-400 flex items-center gap-1 transition-colors">
+                    <span>🗑️ Clear</span>
+                  </button>
+                </div>
+
+                <!-- Bulk action toolbar -->
+                <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between bg-navy-900/70 border border-white/10 rounded-xl px-4 py-3">
+                  <div class="flex items-center gap-4 flex-wrap">
+                    <label class="flex items-center gap-2 cursor-pointer select-none">
+                      <input type="checkbox" id="expansion-select-all" onchange="toggleExpansionSelectAll(this)" class="w-4 h-4 rounded border-2 border-steel-500 bg-navy-950 accent-crimson-500 cursor-pointer">
+                      <span class="font-condensed text-xs font-700 tracking-widest uppercase text-steel-300">Select All</span>
+                    </label>
+                    <span id="expansion-selection-counter" class="font-condensed text-xs font-bold text-gold-400 tracking-wide">0 selected out of 0 shown</span>
+                    <label class="flex items-center gap-2 cursor-pointer select-none" title="Show politicians that may already exist in the database">
+                      <input type="checkbox" id="expansion-show-dups" onchange="toggleExpansionShowDuplicates(this)" class="w-4 h-4 rounded border-2 border-amber-500/60 bg-navy-950 accent-amber-500 cursor-pointer">
+                      <span class="font-condensed text-xs font-700 tracking-widest uppercase text-amber-300">Include potential duplicates</span>
+                    </label>
+                  </div>
+                  <button id="expansion-bulk-import-btn" onclick="bulkImportSelectedPoliticians()" disabled class="btn-glow bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-500 hover:to-blue-600 disabled:cursor-not-allowed text-white font-display tracking-widest uppercase rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95" style="font-size:13px;letter-spacing:0.1em;padding:11px 18px;border:1.5px solid rgba(255,255,255,0.22);opacity:0.5;white-space:nowrap;">
+                    <span id="expansion-bulk-import-label">📥 Import Selected to Database</span>
+                  </button>
+                </div>
+
+                <!-- Import feedback (hidden until an import runs) -->
+                <div id="expansion-bulk-feedback" class="hidden text-sm font-body rounded-xl px-4 py-3 border"></div>
+
+                <div id="expansion-results-list" class="space-y-4 max-h-[500px] overflow-y-auto pr-1">
+                  <!-- Dynamic suggestion cards injected here -->
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ ADMIN: POLITICIAN MANAGER ═══════════════════════
+       Dedicated, admin-only tool to search, view, edit, and delete politician
+       records directly in the live Firestore "politicians" collection.
+
+       • Hidden by default (display:none). Revealed ONLY for the admin account by
+         the existing admin-gate script (it now toggles this section too).
+       • Intentionally separate from the Database Expansion / Bulk Import area so
+         day-to-day clean-up never goes through the import flow (which is what
+         tends to create duplicates).
+       • All reads come from the in-memory PROFILES mirror (loaded from Firestore
+         on page load); all writes go straight back to Firestore.
+       ───────────────────────────────────────────────────────────────────────── -->
+  <section id="politician-manager" class="py-14 md:py-20 border-b border-white/5" style="display:none; background:linear-gradient(180deg,rgba(24,8,14,0.92) 0%,rgba(5,8,20,0.95) 100%);">
+    <div class="max-w-6xl mx-auto px-4">
+
+      <!-- ── Header ────────────────────────────────────────── -->
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center gap-2 bg-crimson-600/25 border border-crimson-500/50 rounded-full px-4 py-1.5 mb-4" style="box-shadow:0 0 18px rgba(220,38,38,0.35);">
+          <span aria-hidden="true">🔒</span>
+          <span class="font-condensed text-xs font-700 tracking-widest uppercase text-crimson-200">ADMIN: Politician Manager</span>
+        </div>
+        <h2 class="font-display text-4xl sm:text-5xl md:text-6xl tracking-wider mb-4">POLITICIAN <span class="text-crimson-400">MANAGER</span></h2>
+        <p class="text-steel-300 font-body max-w-2xl mx-auto leading-relaxed">
+          Search, filter, create, edit, and clean up the live politician database. Track <strong>database coverage</strong> to spot missing Utah seats and offices, flag duplicates, promote stubs to full profiles, and add new records — all writing directly to Firestore, no re-import required.
+        </p>
+      </div>
+
+      <!-- ── Toolbar: actions + search + filters + counts ──────── -->
+      <div class="bg-navy-800/80 border border-white/10 rounded-2xl p-4 md:p-5 mb-6" style="box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+        <!-- Row 1: search + primary actions -->
+        <div class="flex flex-col md:flex-row md:items-center gap-3">
+          <div class="relative flex-1">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-steel-400" aria-hidden="true">🔍</span>
+            <input id="pm-search" type="text" placeholder="Search by name, office, state, party, or ID…" oninput="window.pmRenderList && window.pmRenderList()" autocomplete="off"
+              class="w-full bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-xl pl-9 pr-3 py-2.5 text-sm text-white placeholder-steel-500 outline-none transition-colors font-body" />
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button type="button" onclick="window.pmCreateNew && window.pmCreateNew()"
+              class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all" style="box-shadow:0 0 16px rgba(22,163,74,0.35);">
+              <span aria-hidden="true">➕</span> New Politician
+            </button>
+            <button type="button" id="pm-quick-btn" onclick="window.pmToggleQuickAdd && window.pmToggleQuickAdd()"
+              class="inline-flex items-center gap-2 bg-crimson-600 hover:bg-crimson-500 text-white font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all" style="box-shadow:0 0 16px rgba(220,38,38,0.4);">
+              <span aria-hidden="true">⚡</span> Quick Add / Paste JSON
+            </button>
+            <button type="button" id="pm-dupes-btn" onclick="window.pmToggleDupes && window.pmToggleDupes()"
+              class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-amber-500/30 hover:border-amber-400/60 text-amber-300 font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all">
+              <span aria-hidden="true">🔎</span> <span id="pm-dupes-label">Find Duplicates</span>
+            </button>
+            <button type="button" id="pm-coverage-btn" onclick="window.pmToggleCoverage && window.pmToggleCoverage()"
+              class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-sky-500/30 hover:border-sky-400/60 text-sky-300 font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all">
+              <span aria-hidden="true">📊</span> <span id="pm-coverage-label">Database Coverage</span>
+            </button>
+            <button type="button" id="pm-quality-btn" onclick="window.pmToggleQuality && window.pmToggleQuality()"
+              class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-purple-500/30 hover:border-purple-400/60 text-purple-300 font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all">
+              <span aria-hidden="true">🩺</span> <span id="pm-quality-label">Quality &amp; Weak Spots</span>
+            </button>
+            <button type="button" onclick="window.pmReload && window.pmReload()"
+              class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-gold-500/30 hover:border-gold-400/60 text-gold-300 font-condensed text-xs font-700 tracking-widest uppercase px-3.5 py-2.5 rounded-xl transition-all">
+              <span aria-hidden="true">🔄</span><span id="pm-reload-label">Reload</span>
+            </button>
+          </div>
+        </div>
+        <!-- Row 2: filters -->
+        <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 mt-3">
+          <select id="pm-filter-status" onchange="window.pmRenderList && window.pmRenderList()"
+            class="bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
+            <option value="all">All records</option>
+            <option value="full">Full profiles</option>
+            <option value="stub">Stubs only</option>
+          </select>
+          <select id="pm-filter-state" onchange="window.pmRenderList && window.pmRenderList()"
+            class="bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
+            <option value="all">All states</option>
+          </select>
+          <select id="pm-filter-office" onchange="window.pmRenderList && window.pmRenderList()"
+            class="bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
+            <option value="all">All office types</option>
+            <option value="senate">U.S. Senate</option>
+            <option value="house">U.S. House</option>
+            <option value="governor">Governor</option>
+            <option value="executive">Executive</option>
+            <option value="state">State Legislature</option>
+            <option value="local">Local / Mayor</option>
+            <option value="candidate">Candidate</option>
+            <option value="other">Other</option>
+          </select>
+          <select id="pm-filter-party" onchange="window.pmRenderList && window.pmRenderList()"
+            class="bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
+            <option value="all">All parties</option>
+            <option value="rep">Republican</option>
+            <option value="dem">Democrat</option>
+            <option value="ind">Independent</option>
+            <option value="other">Other / Unlisted</option>
+          </select>
+          <select id="pm-filter-sort" onchange="window.pmRenderList && window.pmRenderList()" title="Sort the list"
+            class="bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
+            <option value="name">Sort: Name A–Z</option>
+            <option value="state">Sort: State</option>
+            <option value="status">Sort: Stubs first</option>
+            <option value="updated">Sort: Recently updated</option>
+          </select>
+          <button type="button" onclick="window.pmClearFilters && window.pmClearFilters()"
+            class="inline-flex items-center gap-1.5 text-steel-400 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-2.5 py-2 rounded-lg transition-colors">
+            <span aria-hidden="true">✕</span> Clear filters
+          </button>
+        </div>
+        <!-- Counts -->
+        <div class="flex items-center flex-wrap gap-x-5 gap-y-1 mt-3 text-xs font-condensed tracking-widest uppercase text-steel-400">
+          <span>Showing: <span id="pm-count-shown" class="text-white font-700">0</span></span>
+          <span>Total: <span id="pm-count-total" class="text-white font-700">0</span></span>
+          <span>Full: <span id="pm-count-full" class="text-green-400 font-700">0</span></span>
+          <span>Stubs: <span id="pm-count-stub" class="text-amber-400 font-700">0</span></span>
+          <span>Possible dupes: <span id="pm-count-dupe" class="text-amber-300 font-700">0</span></span>
+          <span>Utah seats: <span id="pm-count-utah-seats" class="text-sky-300 font-700">0/0</span></span>
+        </div>
+      </div>
+
+      <!-- ── Quick Add / Paste JSON (bulk create + update) ─────────
+           Hidden by default; toggled by the toolbar's "Quick Add" button.
+           Lets an admin paste one record or many at once instead of filling
+           the single-politician form. Matching + writes live in the controller
+           script below (window.pmQuickProcess). -->
+      <div id="pm-quick-panel" class="hidden bg-navy-800/80 border border-crimson-500/30 rounded-2xl p-4 md:p-5 mb-6" style="box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="min-w-0">
+            <div class="font-condensed text-sm font-700 tracking-widest uppercase text-crimson-200 flex items-center gap-2">
+              <span aria-hidden="true">⚡</span> Quick Add / Paste JSON
+            </div>
+            <p class="text-steel-300 font-body text-sm mt-1 max-w-3xl leading-relaxed">
+              Paste a single politician object or an <strong>array of many</strong>. Each record is matched to an existing
+              profile by <strong>id</strong> first, then by <strong>name</strong> — matches are <strong>updated</strong> (your
+              fields merged in), everything else is <strong>created</strong>. All changes are written to Firestore in one batch.
+            </p>
+          </div>
+          <button type="button" onclick="window.pmToggleQuickAdd && window.pmToggleQuickAdd(false)"
+            class="flex-shrink-0 inline-flex items-center gap-1.5 text-steel-400 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-2.5 py-2 rounded-lg transition-colors">
+            <span aria-hidden="true">✕</span> Close
+          </button>
+        </div>
+
+        <details class="mb-3 text-xs font-body text-steel-400">
+          <summary class="cursor-pointer text-steel-300 hover:text-white transition-colors select-none">Accepted format &amp; fields</summary>
+          <div class="mt-2 bg-navy-950/70 border border-white/10 rounded-lg p-3 leading-relaxed space-y-1.5">
+            <div>Supported shapes: a single <code class="text-crimson-200">{ … }</code> object, an array <code class="text-crimson-200">[ { … }, { … } ]</code>, or a keyed map <code class="text-crimson-200">{ "id": { … } }</code>.</div>
+            <div>Common fields: <code class="text-steel-200">id, name, office, district, state, party, tier, icon, photo, bio, quote, quoteSource, keyIssues, stances, score, promises, accountability, spotlight</code>.</div>
+            <div><code class="text-steel-200">keyIssues</code> may be an array or newline-separated text. <code class="text-steel-200">stances</code> and <code class="text-steel-200">accountability</code> are merged onto any existing values; other fields overwrite. <strong>Only</strong> <code class="text-steel-200">name</code> is required for a new record.</div>
+            <div><code class="text-steel-200">spotlight</code> is the optional <strong>personal-integrity</strong> layer — public statements, conduct and notable actions that show whether an official's words match their actions, kept deliberately separate from <code class="text-steel-200">promises</code> (formal in-office votes/bills/pledges that drive Promise&nbsp;%). Provide 3–5 summarized highlights, e.g. <code class="text-steel-200">[{ "headline": "…", "facts": "…", "why": "…", "date": "2024", "impact": "negative", "category": "redflags", "source": { "label": "Reuters", "url": "https://…" } }]</code>. Entries with <code class="text-steel-200">impact</code> set to <code class="text-steel-200">"positive"</code> (words match actions) or <code class="text-steel-200">"negative"</code> (reversal/inconsistency/controversy) are tagged as Accountability&nbsp;Score drivers: they move the integrity score, appear under “Spotlight items feeding this score” in the Accountability card, and tap back and forth between the two sections. <code class="text-steel-200">category</code> may match an accountability key (<code class="text-steel-200">promise, voting, rhetoric, redflags, transparency</code>) to label which part of the score the item touches. <code class="text-steel-200">source</code> is an optional <code class="text-steel-200">{ label, url }</code> rendered as a linked citation on the item. Set <code class="text-steel-200">impact</code> to <code class="text-steel-200">"neutral"</code> to show an item as context explicitly marked “no score impact”; entries with no <code class="text-steel-200">impact</code> appear as recent news.</div>
+          </div>
+        </details>
+
+        <textarea id="pm-quick-input" rows="10" spellcheck="false"
+          placeholder='[{ "name": "Jane Q. Public", "office": "U.S. Senator", "state": "Utah", "party": "Republican", "bio": "…", "keyIssues": ["Term limits", "Border security"] }]'
+          class="w-full bg-navy-950 border border-white/10 focus:border-crimson-400/70 rounded-xl px-3 py-2.5 text-sm text-white placeholder-steel-600 outline-none transition-colors font-mono leading-relaxed resize-y"></textarea>
+
+        <div class="flex flex-wrap items-center gap-2 mt-3">
+          <button type="button" onclick="window.pmQuickProcess && window.pmQuickProcess()"
+            class="inline-flex items-center gap-2 bg-crimson-600 hover:bg-crimson-500 text-white font-condensed text-xs font-700 tracking-widest uppercase px-5 py-2.5 rounded-lg transition-all" style="box-shadow:0 0 16px rgba(220,38,38,0.4);">
+            <span aria-hidden="true">⚡</span> Process JSON
+          </button>
+          <button type="button" onclick="window.pmQuickExample && window.pmQuickExample()"
+            class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-gold-500/30 hover:border-gold-400/60 text-gold-300 font-condensed text-xs font-700 tracking-widest uppercase px-4 py-2.5 rounded-lg transition-all">
+            <span aria-hidden="true">📋</span> Load example
+          </button>
+          <button type="button" onclick="window.pmQuickClear && window.pmQuickClear()"
+            class="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-700 border border-white/10 text-steel-300 hover:text-white font-condensed text-xs font-700 tracking-widest uppercase px-4 py-2.5 rounded-lg transition-all">
+            <span aria-hidden="true">✕</span> Clear
+          </button>
+        </div>
+
+        <div id="pm-quick-feedback" class="hidden mt-4 text-sm font-body rounded-lg px-3 py-2 border"></div>
+      </div>
+
+      <!-- ── Database Coverage / Missing Politicians ───────────────
+           Hidden by default; toggled by the toolbar's "Database Coverage"
+           button. Surfaces gaps the editor can't: which Utah legislative
+           seats and statewide offices still have no profile, plus broader
+           by-state / by-office coverage. Rendered by window.pmRenderCoverage
+           in the controller below. -->
+      <div id="pm-coverage-panel" class="hidden bg-navy-800/80 border border-sky-500/30 rounded-2xl p-4 md:p-5 mb-6" style="box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="min-w-0">
+            <div class="font-condensed text-sm font-700 tracking-widest uppercase text-sky-200 flex items-center gap-2">
+              <span aria-hidden="true">📊</span> Database Coverage &amp; Missing Politicians
+            </div>
+            <p class="text-steel-300 font-body text-sm mt-1 max-w-3xl leading-relaxed">
+              A live map of what's in the database versus what should exist. Utah's legislative
+              seats and statewide offices are tracked seat-by-seat — click any
+              <span class="text-sky-300 font-semibold">missing seat</span> to start a pre-filled new record.
+            </p>
+          </div>
+          <button type="button" onclick="window.pmToggleCoverage && window.pmToggleCoverage(false)"
+            class="flex-shrink-0 inline-flex items-center gap-1.5 text-steel-400 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-2.5 py-2 rounded-lg transition-colors">
+            <span aria-hidden="true">✕</span> Close
+          </button>
+        </div>
+        <div id="pm-coverage-toolbar" class="flex flex-wrap items-center gap-2 mb-4">
+          <button type="button" id="pm-standardize-btn" onclick="window.pmStandardizeDistricts && window.pmStandardizeDistricts()"
+            class="inline-flex items-center gap-1.5 bg-navy-900 hover:bg-sky-500/15 border border-sky-500/40 hover:border-sky-400 text-sky-200 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-3 py-2 rounded-lg transition-all">
+            <span aria-hidden="true">🧹</span> Standardize Districts
+          </button>
+          <span class="text-[11px] font-body text-steel-400 leading-snug">Cleans every Utah legislator's <code class="text-sky-300">district</code> field to one consistent format — <span class="text-steel-300">“Dist. 6”, “D6”, “District 06”, “6th”, even “District Six” or “District IV”</span> all become “District 6”. Out-of-range and truly unparseable values are left for the bulk worklist. Only the district field is touched.</span>
+        </div>
+        <div id="pm-coverage-toolbar-2" class="flex flex-wrap items-center gap-2 mb-4">
+          <button type="button" id="pm-bulk-btn" onclick="window.pmBulkAssign && window.pmBulkAssign()"
+            class="inline-flex items-center gap-1.5 bg-navy-900 hover:bg-sky-500/15 border border-sky-500/40 hover:border-sky-400 text-sky-200 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-3 py-2 rounded-lg transition-all">
+            <span aria-hidden="true">📍</span> Bulk Assign Districts
+          </button>
+          <span class="text-[11px] font-body text-steel-400 leading-snug">Opens a fast worklist of every record in <span class="text-amber-300">Needs Review</span>. Filter by chamber, group split/duplicate records by similar name, type district numbers down the list and save them in one batch, or select several rows and assign one district at once. A from→to preview confirms every write; <strong class="text-steel-300">nothing is saved without your click</strong>.</span>
+        </div>
+        <div id="pm-standardize-result" class="hidden mb-4"></div>
+        <div id="pm-bulk-result" class="hidden mb-4"></div>
+        <div id="pm-coverage-body" class="space-y-5">
+          <!-- coverage cards + tables injected here -->
+        </div>
+      </div>
+
+      <!-- ── Profile Quality & Weak Spot Finder ────────────────────
+           Hidden by default; toggled by the toolbar's "Quality & Weak Spots"
+           button. Scores every profile 0–100% on completeness, flags the
+           specific things each weak profile is missing, and lists everyone
+           worst-first so work can be aimed where it matters. Records can be
+           marked Reviewed / Verified to drop them off the weak list. Rendered
+           by window.pmRenderQuality in the controller below. -->
+      <div id="pm-quality-panel" class="hidden bg-navy-800/80 border border-purple-500/30 rounded-2xl p-4 md:p-5 mb-6" style="box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="min-w-0">
+            <div class="font-condensed text-sm font-700 tracking-widest uppercase text-purple-200 flex items-center gap-2">
+              <span aria-hidden="true">🩺</span> Profile Quality &amp; Weak Spot Finder
+            </div>
+            <p class="text-steel-300 font-body text-sm mt-1 max-w-3xl leading-relaxed">
+              Every profile is scored <strong>0–100%</strong> on completeness and flagged for exactly what it's missing — short bios,
+              untracked promises, missing district/office, placeholder text, and more. The list runs <span class="text-purple-300 font-semibold">weakest&nbsp;first</span>
+              so you (or an agent) can fix the profiles that need it most. Mark a profile <span class="text-sky-300 font-semibold">Reviewed</span> or
+              <span class="text-green-300 font-semibold">Verified</span> to drop it off the weak list.
+            </p>
+          </div>
+          <button type="button" onclick="window.pmToggleQuality && window.pmToggleQuality(false)"
+            class="flex-shrink-0 inline-flex items-center gap-1.5 text-steel-400 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-2.5 py-2 rounded-lg transition-colors">
+            <span aria-hidden="true">✕</span> Close
+          </button>
+        </div>
+
+        <!-- Summary stats -->
+        <div id="pm-quality-stats" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mb-4"></div>
+
+        <!-- Filters -->
+        <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 mb-4">
+          <div class="relative flex-1 min-w-[180px]">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-steel-400" aria-hidden="true">🔍</span>
+            <input id="pm-q-search" type="text" placeholder="Search name, office, state…" oninput="window.pmRenderQuality && window.pmRenderQuality()" autocomplete="off"
+              class="w-full bg-navy-950 border border-white/10 focus:border-purple-400/70 rounded-xl pl-9 pr-3 py-2 text-sm text-white placeholder-steel-500 outline-none transition-colors font-body" />
+          </div>
+          <select id="pm-q-state" onchange="window.pmRenderQuality && window.pmRenderQuality()"
+            class="bg-navy-950 border border-white/10 focus:border-purple-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
+            <option value="all">All states</option>
+          </select>
+          <select id="pm-q-office" onchange="window.pmRenderQuality && window.pmRenderQuality()"
+            class="bg-navy-950 border border-white/10 focus:border-purple-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
+            <option value="all">All office types</option>
+            <option value="senate">U.S. Senate</option>
+            <option value="house">U.S. House</option>
+            <option value="governor">Governor</option>
+            <option value="executive">Executive</option>
+            <option value="state">State Legislature</option>
+            <option value="local">Local / Mayor</option>
+            <option value="candidate">Candidate</option>
+            <option value="other">Other</option>
+          </select>
+          <select id="pm-q-sev" onchange="window.pmRenderQuality && window.pmRenderQuality()" title="Filter by worst missing-data severity"
+            class="bg-navy-950 border border-white/10 focus:border-purple-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
+            <option value="all">Any severity</option>
+            <option value="critical">🔴 Critical only</option>
+            <option value="high">🟠 High &amp; up</option>
+            <option value="medium">🟡 Medium &amp; up</option>
+            <option value="weak">⚠ Needs work (under 70%)</option>
+          </select>
+          <select id="pm-q-sort" onchange="window.pmRenderQuality && window.pmRenderQuality()" title="Sort the list"
+            class="bg-navy-950 border border-white/10 focus:border-purple-400/70 rounded-xl px-3 py-2 text-sm text-steel-200 font-condensed tracking-wide outline-none">
+            <option value="weakest">Sort: Weakest first</option>
+            <option value="strongest">Sort: Strongest first</option>
+            <option value="updated">Sort: Recently updated</option>
+            <option value="name">Sort: Name A–Z</option>
+          </select>
+          <label class="inline-flex items-center gap-2 text-xs font-condensed tracking-widest uppercase text-steel-300 cursor-pointer select-none px-2 py-2">
+            <input id="pm-q-hidereviewed" type="checkbox" checked onchange="window.pmRenderQuality && window.pmRenderQuality()"
+              class="w-4 h-4 rounded border-white/20 bg-navy-950 accent-purple-500" />
+            Hide reviewed
+          </label>
+          <button type="button" onclick="window.pmQualityCopy && window.pmQualityCopy()" title="Copy an agent-friendly worklist of the shown profiles"
+            class="inline-flex items-center gap-1.5 bg-navy-900 hover:bg-purple-500/15 border border-purple-500/40 hover:border-purple-400 text-purple-200 hover:text-white font-condensed text-[11px] font-700 tracking-widest uppercase px-3 py-2 rounded-lg transition-all">
+            <span aria-hidden="true">📋</span> Copy worklist
+          </button>
+        </div>
+
+        <div id="pm-quality-note" class="text-[11px] font-body text-steel-400 mb-3"></div>
+        <div id="pm-quality-body" class="space-y-2 max-h-[640px] overflow-y-auto pr-1">
+          <!-- quality rows injected here -->
+        </div>
+        <div id="pm-quality-empty" class="hidden text-center text-steel-400 font-body text-sm py-10"></div>
+      </div>
+
+      <!-- ── Two-column workspace: list (left) + editor (right) ── -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        <!-- List -->
+        <div class="bg-navy-800/70 border border-white/10 rounded-2xl p-3 md:p-4" style="box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+          <div id="pm-list" class="space-y-2 max-h-[560px] overflow-y-auto pr-1">
+            <!-- politician rows injected here -->
+          </div>
+          <div id="pm-list-empty" class="hidden text-center text-steel-400 font-body text-sm py-10">No politicians match your search.</div>
+        </div>
+
+        <!-- Editor -->
+        <div class="bg-navy-800/70 border border-white/10 rounded-2xl p-4 md:p-5 lg:sticky lg:top-24" style="box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+          <div id="pm-editor-empty" class="text-center text-steel-400 font-body text-sm py-16">
+            Select a politician from the list to view and edit their record.
+          </div>
+          <div id="pm-editor" class="hidden">
+            <!-- editor form injected here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  </template>
+
+  </main>
+
+  <!-- The toast host. Empty; the nine lines below are its only writer. -->
+  <div id="pdx-admin-toast" role="status" aria-live="polite"></div>
+
+  <script>
+    // THE FRONT PAGE'S TOAST, RE-DECLARED FOR ITS ONE CALLER SET HERE.
+    // voter-hub-location.js owns window._showToast on index.html and writes into
+    // #myteam-share-toast. That file is a location engine and is not on this
+    // document, so this is the same nine lines against this document's own host,
+    // with the same 3.5-second dwell and the same console fallback. Both
+    // controllers guard every call with typeof, so this is an improvement on
+    // silence rather than a dependency either one has.
+    window._showToast = window._showToast || function (msg) {
+      var toast = document.getElementById('pdx-admin-toast');
+      if (toast) {
+        toast.textContent = msg;
+        toast.classList.add('visible');
+        setTimeout(function () { toast.classList.remove('visible'); }, 3500);
+      } else {
+        console.log('Toast: ' + msg);
+      }
+    };
+  </script>
+
+  <!-- ══ LOCK 3 OF 3 — THE ADMIN GATE, MOVED FROM index.html ════════════════
+       ADMIN GATE for the Bulk Import / Database Expansion tool and the
+       Politician Manager.
+
+       The sections above ship inside <template> and are hidden by the head lock
+       besides. This script clones and reveals them ONLY when the signed-in
+       Firebase user's email matches the allow-list below.
+
+       👉 TO CHANGE WHO CAN USE THE TOOLS: edit the ADMIN_EMAILS list below. You
+          can list more than one admin by adding emails to the array. THIS IS NOW
+          THE ONLY COPY OF THAT LIST ON A DOCUMENT — index.html no longer
+          contains the string.
+       ═════════════════════════════════════════════════════════════════════════ -->
+  <script>
+    (function () {
+      // Hardcoded admin account allowed to use the Bulk Import tool.
+      // Change this to your own admin email.
+      var ADMIN_EMAILS = ["Cdeluxxe@gmail.com"];
+
+      function isAdminUser(user) {
+        // Simple, reliable check requested for the admin gate:
+        //   if (user && user.email === "Cdeluxxe@gmail.com")
+        if (user && user.email === "Cdeluxxe@gmail.com") {
+          return true;
+        }
+        // Reliability guard: Firebase can return the email in a different
+        // letter case than it was typed (e.g. "cdeluxxe@gmail.com"), which
+        // would make the strict check above miss the admin. Compare again
+        // case-insensitively so the tool reliably appears for the admin.
+        if (user && typeof user.email === "string" &&
+            user.email.toLowerCase() === "cdeluxxe@gmail.com") {
+          return true;
+        }
+        return false;
+      }
+
+      // ── MOUNT, NOT REVEAL ────────────────────────────────────────────
+      // Both tools ship inert inside the pdx-admin-tools template: for a
+      // non-admin they are not in the document, not in the accessibility tree
+      // and not reachable by getElementById. The clone is taken once, where the
+      // template stands, so the two section anchors keep their position.
+      var adminMounted = false;
+
+      function mountAdminTools() {
+        if (adminMounted) return;
+        var tpl = document.getElementById('pdx-admin-tools');
+        // No <template> support, or the element is gone: the tools do not
+        // appear. Failing to mount is the safe direction.
+        if (!tpl || !tpl.content || !tpl.parentNode) return;
+        tpl.parentNode.insertBefore(tpl.content.cloneNode(true), tpl);
+        adminMounted = true;
+      }
+
+      function unmountAdminTools() {
+        // An admin signing out — or a second account signing in over them — must
+        // not leave the tools standing. REMOVED, not re-hidden: hidden admin
+        // markup in a non-admin document is the defect, not the remedy.
+        if (!adminMounted) return;
+        var ids = ['database-expansion', 'politician-manager'];
+        for (var i = 0; i < ids.length; i++) {
+          var el = document.getElementById(ids[i]);
+          if (el && el.parentNode) el.parentNode.removeChild(el);
+        }
+        adminMounted = false;
+      }
+
+      function applyAdminGate(user) {
+        var allowed = isAdminUser(user);
+        // The CSS lock in <head> keys off this class and this is the only place
+        // that adds it, so every other state — logged out, anonymous, another
+        // account, a gate that never ran — leaves it off. It is also what hides
+        // the door card: #pdx-curator-door has a positive html.pdx-admin rule,
+        // so the curator is not made to scroll past a description of the room
+        // they are already in.
+        if (allowed) document.documentElement.classList.add('pdx-admin');
+        else document.documentElement.classList.remove('pdx-admin');
+        // NO [data-admin-only] LOOP HERE, and its absence is the point of the
+        // move. On index.html this gate also flipped four gated nav links —
+        // two in the desktop menu, two in the mobile drawer — that pointed at
+        // #database-expansion and #politician-manager. Those links are gone
+        // from the front page along with the sections, and this document has no
+        // element carrying the attribute, so a loop over it would be a
+        // querySelectorAll that can only ever return nothing.
+        //
+        // Mount the sections, clear the parser's display:none on the copies now
+        // in the document, then fetch the tools (once) and repaint the manager
+        // list — the callback runs after both modules execute, so it is also
+        // what paints that list on a first admin load.
+        if (allowed) {
+          mountAdminTools();
+          var sectionIds = ['database-expansion', 'politician-manager'];
+          for (var s = 0; s < sectionIds.length; s++) {
+            var section = document.getElementById(sectionIds[s]);
+            if (section) section.style.display = '';
+          }
+          loadAdminModules(function () {
+            if (typeof window.pmRenderList === 'function') window.pmRenderList();
+          });
+          if (typeof window.pmRenderList === 'function') window.pmRenderList();
+        } else {
+          unmountAdminTools();
+        }
+      }
+
+      // ── Admin-only code is fetched on demand, never on arrival ────────────
+      // These two controllers are 451 KB together. On index.html that mattered
+      // because every reader of the front page paid for anything on its critical
+      // path; here the only visitor is either the curator or someone who typed
+      // an address they have no use for, and the reason is now the second one:
+      // a stranger who guesses /admin must not be handed the machinery. They are
+      // injected the first time an admin is recognized, in the same order they
+      // used to appear in the document, and sequentially rather than in parallel
+      // because expansion-controller reads helpers the politician manager
+      // defines (window._pmIsUtah and friends). Everything is typeof-guarded on
+      // both sides, so a slow or failed fetch degrades to "tool not ready yet"
+      // instead of throwing. Both paths are root-absolute: served at /admin/,
+      // a bare 'expansion-controller.js' would resolve under that path and 404.
+      var ADMIN_MODULES = ['/admin-politician-manager.js', '/expansion-controller.js'];
+      var adminModulesRequested = false;
+
+      function loadAdminModules(done) {
+        if (adminModulesRequested) return;
+        adminModulesRequested = true;
+        var i = 0;
+        (function next() {
+          if (i >= ADMIN_MODULES.length) { if (done) done(); return; }
+          var el = document.createElement('script');
+          el.src = ADMIN_MODULES[i++];
+          el.async = false;
+          // A failure here must not strand the chain: the next module still gets
+          // its chance, and the admin sees a partly-loaded tool rather than none.
+          el.onload = next;
+          el.onerror = function () {
+            try { console.warn('Admin module failed to load: ' + el.src); } catch (e) {}
+            next();
+          };
+          document.head.appendChild(el);
+        })();
+      }
+
+      // React to Firebase auth changes. Adding our own listener leaves the
+      // existing auth/login flow untouched (Firebase supports multiple).
+      function wireAdminGate() {
+        if (typeof auth === 'undefined' || !auth || !auth.onAuthStateChanged) {
+          return setTimeout(wireAdminGate, 200);
+        }
+        applyAdminGate(auth.currentUser || null);
+        auth.onAuthStateChanged(function (user) { applyAdminGate(user); });
+      }
+      wireAdminGate();
+    })();
+  </script>
+
+</body>
+</html>
