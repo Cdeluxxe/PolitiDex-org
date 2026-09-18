@@ -1,0 +1,221 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   door2-first-run.css — the coach that sits on the desk
+   ────────────────────────────────────────────────────────────────────────────
+   Styles one card: door2-first-run.js's three screens plus the two one-line
+   states it shrinks to. It is a SIBLING of #bw-body inside #ballot-workspace,
+   so it has to read as part of the same binder without competing with the seat
+   rail for the reader's eye. Hence: the desk's border radius and glass, a
+   quieter border, and no accent bar of its own.
+
+   COLOUR DISCIPLINE
+   ─────────────────
+   Per-issue colour arrives INLINE, from PDXIssueColors.skin() — the same four
+   custom properties (--pdx-ic, --pdx-ic-soft, --pdx-ic-wash, --pdx-ic-ink) the
+   rest of the site uses. This file only says where to spend them, so an issue
+   can never be one colour here and another on its own page. Nothing is coloured
+   by party, because nothing in this feature reads party.
+
+   The three answers are NOT a good/bad ramp. Support and Oppose are equal
+   weights in the same neutral frame — a green Support next to a red Oppose
+   would tell the reader which answer we wanted. Only "Not sure" is quieter, and
+   only because it writes nothing.
+
+   Targets are 44px minimum on every control, same as the desk.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.d2fr {
+  position: relative;
+  margin: 0 0 0.9rem;
+  border-radius: 1.1rem;
+  border: 1px solid rgba(147, 197, 253, 0.22);
+  background: linear-gradient(160deg, rgba(20, 34, 62, 0.72), rgba(8, 12, 24, 0.9));
+  padding: 1.05rem 1.1rem 0.9rem;
+  color: #e6edf7;
+}
+.d2fr[data-size="line"] {
+  padding: 0.7rem 2.4rem 0.7rem 0.9rem;
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(147, 197, 253, 0.14);
+}
+
+/* Dismiss. Small, always reachable, never the thing the eye lands on first. */
+.d2fr-x {
+  position: absolute; top: 0.35rem; right: 0.35rem;
+  min-width: 44px; min-height: 44px;
+  border: 0; background: none; cursor: pointer;
+  color: rgba(226, 232, 240, 0.5);
+  font-size: 1.25rem; line-height: 1;
+}
+.d2fr-x:hover { color: #e2e8f0; }
+
+.d2fr-eyebrow {
+  margin: 0 0 0.25rem;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: #93c5fd;
+}
+.d2fr-h {
+  margin: 0 2rem 0.35rem 0;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: clamp(1.15rem, 4vw, 1.5rem); line-height: 1.15;
+  color: #fff;
+}
+.d2fr-h[data-ic="on"] { color: var(--pdx-ic-ink, #fff); }
+.d2fr-sub, .d2fr-scope, .d2fr-mine, .d2fr-line {
+  margin: 0 0 0.6rem; font-size: 0.92rem; line-height: 1.45;
+  color: rgba(226, 232, 240, 0.82);
+}
+/* The locked scope sentence. Set apart because it is the definition the answer
+   is being given against, not flavour copy. */
+.d2fr-scope {
+  border-left: 3px solid var(--pdx-ic, rgba(147, 197, 253, 0.45));
+  padding: 0.2rem 0 0.2rem 0.65rem;
+}
+.d2fr-mine { color: #bfdbfe; font-weight: 600; }
+.d2fr-line { margin: 0; }
+.d2fr-thin { color: rgba(226, 232, 240, 0.6); font-style: italic; }
+
+/* ── Screen A: the chips ──────────────────────────────────────────────────── */
+.d2fr-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 0.85rem; }
+.d2fr-chip {
+  min-height: 44px; padding: 0.4rem 0.8rem;
+  border-radius: 999px; cursor: pointer;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: rgba(30, 41, 59, 0.6);
+  color: #e2e8f0;
+  font-family: 'Barlow', sans-serif; font-size: 0.86rem; font-weight: 600;
+  text-align: left;
+}
+.d2fr-chip[data-ic="on"] {
+  border-color: var(--pdx-ic-soft, rgba(148, 163, 184, 0.3));
+  background: var(--pdx-ic-wash, rgba(30, 41, 59, 0.6));
+  color: var(--pdx-ic-ink, #e2e8f0);
+}
+.d2fr-chip:hover { border-color: var(--pdx-ic, #93c5fd); }
+
+/* ── Screen A: the typeahead ──────────────────────────────────────────────── */
+.d2fr-find { margin: 0 0 0.5rem; }
+.d2fr-lab {
+  display: block; margin: 0 0 0.25rem;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+  font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(147, 197, 253, 0.85);
+}
+.d2fr-q {
+  width: 100%; min-height: 44px; box-sizing: border-box;
+  padding: 0.5rem 0.7rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: rgba(8, 12, 24, 0.7);
+  color: #e6edf7; font-family: 'Barlow', sans-serif; font-size: 0.95rem;
+}
+.d2fr-q:focus { outline: 2px solid rgba(147, 197, 253, 0.6); outline-offset: 1px; }
+.d2fr-hits:empty { display: none; }
+.d2fr-hits {
+  display: flex; flex-direction: column; gap: 0.3rem;
+  margin: 0.4rem 0 0;
+}
+.d2fr-hit {
+  display: block; width: 100%; min-height: 44px;
+  padding: 0.45rem 0.65rem; cursor: pointer; text-align: left;
+  border-radius: 0.55rem;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(30, 41, 59, 0.5);
+  color: #e2e8f0;
+}
+.d2fr-hit[data-ic="on"] { border-left: 3px solid var(--pdx-ic, #93c5fd); }
+.d2fr-hit:hover { background: rgba(51, 65, 85, 0.65); }
+.d2fr-hit-l {
+  display: block;
+  font-family: 'Barlow', sans-serif; font-weight: 600; font-size: 0.9rem;
+}
+.d2fr-hit-s {
+  display: block; margin-top: 0.1rem;
+  font-size: 0.78rem; line-height: 1.35; color: rgba(226, 232, 240, 0.65);
+}
+
+/* ── Screen B: the three answers ──────────────────────────────────────────── */
+.d2fr-answers {
+  display: grid; gap: 0.45rem; margin: 0.15rem 0 0.7rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 30rem) {
+  .d2fr-answers { grid-template-columns: repeat(3, 1fr); }
+}
+.d2fr-ans {
+  min-height: 48px; padding: 0.55rem 0.8rem; cursor: pointer;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(30, 41, 59, 0.7);
+  color: #f1f5f9;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 1rem; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.d2fr-ans:hover { border-color: #93c5fd; background: rgba(51, 65, 85, 0.8); }
+/* SUPPORT AND OPPOSE ARE THE SAME WEIGHT, STATED RATHER THAN LEFT IMPLICIT.
+   The two hooks exist so this decision is addressable, and they carry identical
+   treatment on purpose: a green Support beside a red Oppose would tell the
+   reader which answer we were hoping for, on the one screen where they are
+   being asked what they actually think. */
+.d2fr-ans-for, .d2fr-ans-against {
+  border-color: rgba(148, 163, 184, 0.35);
+  background: rgba(30, 41, 59, 0.7);
+  color: #f1f5f9;
+}
+.d2fr-ans-unsure {
+  font-weight: 600; text-transform: none; letter-spacing: 0;
+  color: rgba(226, 232, 240, 0.78);
+  border-style: dashed;
+  background: rgba(15, 23, 42, 0.55);
+}
+
+/* ── Screen C: the holders and their rows ─────────────────────────────────── */
+.d2fr-holders { list-style: none; margin: 0 0 0.7rem; padding: 0; }
+.d2fr-holder {
+  padding: 0.5rem 0 0.5rem 0.65rem;
+  border-left: 3px solid var(--pdx-ic, rgba(147, 197, 253, 0.4));
+}
+.d2fr-holder + .d2fr-holder { border-top: 1px solid rgba(148, 163, 184, 0.16); }
+.d2fr-nm {
+  display: inline-block; min-height: 28px;
+  border: 0; background: none; padding: 0; cursor: pointer;
+  color: #fff; text-decoration: none;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1.05rem;
+}
+.d2fr-nm:hover { color: #bfdbfe; text-decoration: underline; }
+/* The formal pattern and the stated word, one above the other, with no verdict
+   between them. Word vs Action is a different surface and stays there. */
+.d2fr-pat {
+  display: block; margin-top: 0.1rem;
+  font-size: 0.88rem; line-height: 1.4; color: #e2e8f0;
+}
+.d2fr-said {
+  display: block; margin-top: 0.1rem;
+  font-size: 0.8rem; line-height: 1.35; color: rgba(191, 219, 254, 0.8);
+}
+
+/* ── The primary, and the quiet ways out ──────────────────────────────────── */
+.d2fr-act { margin: 0.2rem 0 0; }
+.d2fr-cta {
+  min-height: 48px; width: 100%; padding: 0.6rem 1rem; cursor: pointer;
+  border-radius: 0.7rem; border: 1px solid rgba(96, 165, 250, 0.5);
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+  color: #fff;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  font-size: 1.02rem; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.d2fr-cta:hover { filter: brightness(1.1); }
+@media (min-width: 30rem) { .d2fr-cta { width: auto; min-width: 16rem; } }
+.d2fr-foot { margin: 0.3rem 0 0; font-size: 0.85rem; }
+.d2fr-quiet {
+  min-height: 44px; border: 0; background: none; padding: 0 0.1rem; cursor: pointer;
+  color: rgba(147, 197, 253, 0.9);
+  font-family: 'Barlow', sans-serif; font-size: 0.85rem;
+  text-decoration: underline;
+}
+.d2fr-quiet:hover { color: #dbeafe; }
+.d2fr-dot { color: rgba(148, 163, 184, 0.6); padding: 0 0.3rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .d2fr-cta:hover, .d2fr-chip:hover, .d2fr-hit:hover, .d2fr-ans:hover { transition: none; }
+}

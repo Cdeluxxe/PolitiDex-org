@@ -6680,7 +6680,53 @@
 //     /library?mode=legislation, /money, /community, me.html, the H.R.1 teaching
 //     card, the restored footer script and /p/<pid> all answer exactly as in
 //     v215.
-const CACHE_VERSION = 'v216';
+// v217 - DOOR 2 FIRST RUN: SET ONE STANCE, THEN USE THE DESK.
+//
+//     The ballot workspace could already read a voter's own positions against
+//     the formal record of whoever holds their seats, and an ordinary voter
+//     never found that out: the match has an input they had not given, and the
+//     only place to give it was a 121-key dropdown. So /ballot now carries a
+//     coach — door2-first-run.js and door2-first-run.css, both added to
+//     SHELL_ASSETS below, alongside the desk they mount inside.
+//
+//     Three beats, one at a time. Twelve starter issue chips off real ISSUE_MAP
+//     keys, a typeahead over label and scope sentence capped at five hits, and a
+//     visible "Skip for now"; then that ONE issue with its LOCKED scope sentence
+//     from issue-scope.js and Support / Oppose / Not sure; then the holder of
+//     the open seat with their formal pattern ON THAT ISSUE from
+//     PDXConsistency.formalPatternIndex.rowFor and their stated word under it.
+//     Where no ballot seat resolves it falls back to the resolver's own list.
+//
+//     THE STORE IS THE EXISTING STORE. An answer goes through PDXStances.set()
+//     where that module is loaded and window.alignSetIntensity() where it is
+//     not — two ends of one lineage, since my-stances.js projects into the
+//     alignment signature and adopts back out of it. One issue answered is one
+//     key in the store the Team Builder already reads.
+//
+//     NOTHING HERE IS SCORED. No Direction Match number, no Word vs Action
+//     verdict, no blend, no party, no completion percentage — three issues is
+//     where a button changes, never a grade. "Not sure" and "Skip for now"
+//     write no key at all: the store speaks support / oppose / mixed and
+//     `mixed` is a real mixed position, not "I do not know".
+//
+//     MIGRATION COST: NONE, AND NOTHING IS REWRITTEN. The coach reads the keys
+//     already in the reader's own store and adds to them only when asked, so a
+//     reader who arrives holding positions keeps every one of them, sees neither
+//     of the first two screens, and is never re-asked a question they answered.
+//     No stored shape changed: no key is renamed, re-scoped, deleted or
+//     re-weighted, and the coach's own flags (dismissed, collapsed, location
+//     skipped, and which issue is in hand) live in a bucket nothing else reads. A
+//     reader with storage switched off loses only the memory of which beat they
+//     were on, never a position.
+//
+//     DID NOT CHANGE. ballot-workspace.js gained one pure read (_open, the seat
+//     it had already chosen) so the coach keeps no second copy of that
+//     precedence; the pick control is still the desk's. No roster field, issue
+//     key, mapping, stance corpus, auth path or ingest changed, and
+//     voter-hub-location.js is untouched. Door 1 was not redesigned, finance is
+//     not scored, and /library, /library?mode=legislation, /money, /community,
+//     me.html, the H.R.1 teaching card and /p/<pid> answer as in v216.
+const CACHE_VERSION = 'v217';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -6860,6 +6906,12 @@ const SHELL_ASSETS = [
   // is a list of buttons with no rail and no sense of progress — which is the
   // exact failure the feature exists to fix. Shipped with its script below.
   '/ballot-workspace.css',
+  // The Door 2 first-run coach's stylesheet. Shipped with its script below for
+  // the same reason as the two above: the coach's first screen is a row of issue
+  // chips and a typeahead, and unstyled that is an undifferentiated stack of
+  // buttons — the exact "which of these do I press" problem the coach exists to
+  // remove. Tiny, and it is the first thing a cold reader meets on /ballot.
+  '/door2-first-run.css',
   // The Door 1 workspace's stylesheet, for the reason the version log above
   // gives at length: the sheet is what makes the desk two regions instead of a
   // column. Shipped with its script below.
@@ -7004,6 +7056,13 @@ const SHELL_ASSETS = [
   // every fact it prints — offline with one and not the other, the mount paints
   // nothing at all.
   '/ballot-workspace.js',
+  // Door 2's first-run coach: one issue, one position, then that issue read on
+  // whoever holds the open seat. Precached with the desk it mounts inside,
+  // because it paints a sibling of #bw-body and reads the desk's open seat —
+  // offline with the desk and without this, a cold reader gets the workspace
+  // with no way in; with this and without the desk it has no mount and paints
+  // nothing, which is the safe half of the pair to lose.
+  '/door2-first-run.js',
   // Door 1's workspace: the mode rail, the one open desk, and the view strips
   // on the four older Door 1 surfaces. Precached with the modules it reads —
   // claim-check.js, issue-view.js, consistency.js, bill-detail.js and

@@ -1253,6 +1253,12 @@
     // browser: where a chip has to put the scroller, and -1 wherever the answer
     // is "do not move".
     _railTarget: railTarget, _reveal: revealSeat,
+    // WHICH SEAT IS OPEN, as this module already decided it. Exposed so a
+    // sibling surface inside this mount (the first-run coach) can read the
+    // holder of the seat on screen without keeping a second copy of readOpen's
+    // four-step precedence — URL, session, first undecided, first. A pure read:
+    // it does not write the session key and does not move the rail.
+    _open: function () { try { return readOpen(seats()); } catch (e) { return ''; } },
     _decided: function () {
       // Same function the seat list comes from, so "3 of 11" is one read of one
       // store rather than two reads that happen to agree. The local walk below

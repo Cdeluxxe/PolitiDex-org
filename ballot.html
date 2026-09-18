@@ -145,6 +145,13 @@
        Also self-sufficient: every var() in it carries a literal fallback. -->
   <link rel="stylesheet" href="/race-sheet.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/race-sheet.css" /></noscript>
+  <!-- The first-run coach that sits on the desk. Non-blocking on purpose: it
+       paints only after the resolver, the issue vocabulary and the formal index
+       have landed, all of which are deferred, so this stylesheet is never the
+       thing keeping the card off screen — and a reader who dismissed the coach
+       should not pay a render-blocking request for a card they will not see. -->
+  <link rel="stylesheet" href="/door2-first-run.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="/door2-first-run.css" /></noscript>
 
   <style>
     /* THE FIXED CHROME, MEASURED ONCE. Same contract person.html, issue.html and
@@ -451,6 +458,12 @@
 
   <!-- The desk. -->
   <script defer src="/ballot-workspace.js"></script>
+
+  <!-- The coach on the desk: one issue, one position, then that issue read on
+       whoever holds the open seat. Last in the lane because it paints a sibling
+       of #bw-body inside the desk's own mount and reads the desk's open seat —
+       it is a passenger on this surface, never a gate in front of it. -->
+  <script defer src="/door2-first-run.js"></script>
 
   <!-- ══ THE MOUNT — BUILT, NOT SHIPPED ═════════════════════════════════
        ballot-workspace.js paints into #bw-body inside #ballot-workspace and
