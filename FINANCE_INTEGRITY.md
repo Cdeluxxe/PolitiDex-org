@@ -598,6 +598,16 @@ A zip index or a yearly `.txt` index is **not** a chip: it resolves to a
 directory of twelve hundred other people, not to this person's form. Where only
 an index page was in hand, empty stayed the true sentence.
 
+**SD-3 Johnson is the empty-document proof for the Utah COI** — looked for, not
+chipped, because there is no member URL. `scripts/test-johnson-file.mjs` boots
+his file and holds that state in place: two money pills, both empty, pill 2
+carrying no dollar sign and no digit, no key in either finance table, and the
+Utah archive's challenge page absent from both. He is the Utah-first
+full-spine fixture the way Trump is the filled federal one — a real legislative record beside an
+honestly blank money side — so a future wave that writes a Utah row has to
+write a real member document, and a future wave that writes nothing still has a
+file proving what nothing looks like.
+
 **The archive label comes off the URL host and is never typed.**
 `disclosures-clerk.house.gov` → `House Clerk`, `efdsearch.senate.gov` →
 `Senate EFD`, `disclosures.utah.gov` → `Utah`, OGE's hosts → `OGE`. A `.gov`
