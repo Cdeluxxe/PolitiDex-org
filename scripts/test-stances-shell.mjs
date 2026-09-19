@@ -266,8 +266,8 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // locating the run, as always — the arithmetic agreed afterwards, which is the
 // order that catches a bad pin rather than confirming one.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 20219, b: 20243, what: "the .pdxis-stance* pill rules" },
-  { from: "index.html", src: INDEX, a: 20262, b: 20382, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 20206, b: 20230, what: "the .pdxis-stance* pill rules" },
+  { from: "index.html", src: INDEX, a: 20249, b: 20369, what: "the PDXStance vocabulary" },
 ];
 // Both index.html ranges have now moved THREE TIMES, and the third ran the other
 // way. The Digital Library split took #digital-library out of index.html but left
@@ -343,6 +343,16 @@ const COPIES = [
 // boundaries. The one-line disagreement with evidence.html, spotlight.html and
 // person.html described above is unchanged — those pins moved by the same nine
 // and kept their leading blank.
+//
+// THE THIRTEEN-LINE MOVE, UPWARD. The person-file Money trim deleted the
+// fabricated transparency card from the profile modal, which took the 💰 Follow
+// This Money Trail button with it — and with the button gone, the thirteen lines
+// of index.html at ~16090 that defined window.toggleFollowMoney and explained why
+// it had outlived the funding leaderboard had no caller left. Removing them
+// pulled everything below UP by thirteen: the pill rules are now 20206-20230 and
+// the vocabulary 20249-20369, each located verbatim and each still maximal at its
+// own boundaries. The one-line disagreement with the other three documents is
+// unchanged — they moved by the same thirteen and kept their leading blank.
 for (const c of COPIES) {
   const header = new RegExp(`COPIED VERBATIM FROM ${c.from.replace(".", "\\.")} LINES ${c.a}[^0-9]{1,3}${c.b}`);
   ok(header.test(ST), `copy: stances.html declares ${c.what} as ${c.from} ${c.a}–${c.b}`);

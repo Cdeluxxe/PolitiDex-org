@@ -40,6 +40,14 @@
 //   8. TWIN BOOT. Direction Match, the formal pattern index, the publication
 //      floor and the mapped counts are byte-identical with BOTH chips mounted
 //      and with neither, and the mount leaves no new global behind.
+//   9. AND BEHIND THE DOORS, TWO BLOCKS AND NOTHING ELSE. The person file used
+//      to carry a third money surface: a deferred drawer with a 0-100 funding
+//      integrity number under a HIGH / MODERATE / LOW badge, three net-worth
+//      tiles with a percent change, a wealth-over-time chart drawn from five
+//      hand-written members, and an authored donor list. It is deleted, and
+//      section 11 renders the real section to say so — no tier word, no report
+//      card, no canvas, no percent change, no donor string that is not a line
+//      on the filing, and no control that leaves the person file.
 //
 //   node scripts/test-money-two-chips.mjs
 //
@@ -886,6 +894,24 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   ok(ver && ver !== "v219", `the cache version moved past v219 for the new shell file (${ver})`);
   has(SW, `// ${ver} -`, "…and the changelog above the constant has an entry for it");
 
+  // /money SAYS WHAT IT IS, ABOVE ITS OWN BOARD. The net-worth leaderboard there
+  // is an estimate board with a percent change on it, and a reader who has just
+  // met the disclosure pill on a person file has to be told that this is not the
+  // same figure — in the block that is not the filing, before any card.
+  {
+    const MON = R("money.html");
+    const at = MON.indexOf("Estimates, not a filing:");
+    ok(at > 0, "/money's estimate board does not say it is not the person-file disclosure pill");
+    has(MON.slice(at, at + 400), "not the person file's 💰 disclosure pill",
+      "…the sentence does not name the pill it is distinguishing itself from");
+    has(MON.slice(at, at + 400), "no figure on it is a filed FD figure",
+      "…and does not say its figures are not filed FD figures");
+    ok(at < MON.indexOf("⚠ DISCLAIMER:</strong> Net worth change"),
+      "…and it arrives after the board's own disclaimer rather than at the top of the box");
+  }
+  lacks(R("money.html"), 'src="/pdx-finance.js"',
+    "/money still does not load the disclosure module — the sentence is copy, not a second pill");
+
   // AND THE DOCTRINE IS WRITTEN DOWN WHERE IT IS ENFORCED. Both empty-state
   // sentence shapes, and the sum wall, in the lane's own integrity note.
   const DOC = R("FINANCE_INTEGRITY.md");
@@ -893,6 +919,227 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   has(DOC, "No in-office wealth file on hand", "…and the disclosure absence sentence");
   has(DOC, "$1–5M disclosed", "…and the disclosure pill's own shape");
   has(DOC, "itemized receipts", "…and the receipts pill's own shape");
+}
+
+// ── 11 · the rendered money section is two blocks and nothing else ──────────
+{
+  section("11 · the person-file money DOM carries no tier, no report card, no chart, no % change");
+
+  // WHAT THIS SECTION IS FOR. The two pills are doors, and until now the pins on
+  // them were pins on the DOORS. This one renders what is BEHIND them — the real
+  // _pdxFundingSection from the shipped ftm-data.js, over the real roster and the
+  // real seed — and reads the markup a person actually receives.
+  //
+  // It exists because the person file used to carry a third money surface: a
+  // deferred drawer holding a "FINANCIAL TRANSPARENCY REPORT" with a 0-100
+  // funding-integrity number under a HIGH / MODERATE / LOW badge, three
+  // net-worth tiles with a percent change, a "Wealth Over Time" chart drawn from
+  // a table of five hand-written members, and a donor list that was not the
+  // lines of any filing on the page. All of it is deleted. Source-level pins in
+  // test-profile-spine.mjs say the markup is not in profiles-full.js; these say
+  // the assembled DOM does not contain it either, which is the claim a reader
+  // cares about.
+  const secBox = () => {
+    const win = box();
+    const ctx = vm.createContext(win);
+    // ftm-data.js whole, not a lifted slice: _pdxFundingSection composes the
+    // filings block, the coverage line and _pdxWealthBlock, and a slice would
+    // let a removed piece survive in the part that was not lifted.
+    vm.runInContext(FTM_SRC, ctx, { filename: "ftm-data.js" });
+    must(typeof win._pdxFundingSection === "function",
+      "ftm-data.js installed no _pdxFundingSection — the money section cannot be rendered at all");
+    return win;
+  };
+  const W = secBox();
+  // Three kinds of profile, because the section has two branches and the pills
+  // have two states: people with a real filing in the seed, and people with
+  // none, which is nearly everyone.
+  const filed = SEED_IDS.filter((id) => W.CMP_DATA[id]).slice(0, 6);
+  const unfiled = Object.keys(W.CMP_DATA).filter((id) => !SEED[id]).slice(0, 12);
+  must(filed.length >= 3, `too few seeded pids resolve against the roster to test the on-file branch (${filed.length})`);
+  const subjects = filed.concat(unfiled);
+
+  // THE WHOLE MONEY SURFACE OF A PERSON FILE, assembled the way the document
+  // assembles it: the two letterhead pills, then the section both of them open.
+  const moneyDom = (id) => {
+    const p = W.CMP_DATA[id] || null;
+    return String(W.PDXFinanceLane.letterheadChipMount(id)) +
+           String(W.PDXFinanceLane.wealthLetterheadChipMount(id, p)) +
+           String(W._pdxFundingSection(id, p) || "");
+  };
+
+  // 11a. THE BANNED SHAPES, AS PHRASES. These are the names the deleted card
+  //      went by, and they are checked case-insensitively over both the markup
+  //      and the visible text, so a class name or an aria-label counts.
+  const PHRASES = [
+    [/transparency report/i, "a financial transparency report"],
+    [/net worth over time/i, "a net-worth-over-time series"],
+    [/wealth over time/i, "a wealth-over-time series"],
+    [/%\s*change/i, "a percent change"],
+    [/follow the money/i, "a duplicate follow-the-money heading"],
+    [/integrity (score|number|rating)/i, "a funding integrity score"],
+    [/\b(?:\d{1,2}|100)\s*\/\s*100\b/, "an x-out-of-100 figure"],
+    [/out of 100\b/i, "an out-of-100 figure"],
+    [/<canvas/i, "a canvas to draw a chart into"],
+    [/Chart\s*\(/, "a Chart.js construction"],
+  ];
+  // TIER WORDS. The brief's own regex is /LOW|MED|HIGH/i, and applied to English
+  // prose as a bare alternation it matches "named", "medium", "follow" and
+  // "highest" as substrings — it cannot distinguish a badge from a sentence. So
+  // the tier check is the badge FORM: a standalone tier word, case-sensitively
+  // uppercase, which is exactly how the deleted badge printed HIGH, MODERATE and
+  // LOW, plus the same words as standalone lowercase words anywhere in the
+  // visible text. One filed field legitimately uses one of those words and is
+  // carved out below, in one place, by name.
+  const TIER_UPPER = /\b(?:LOW|MED|MEDIUM|MODERATE|HIGH)\b/;
+  const TIER_WORD = /\b(?:low|med|medium|moderate|high)\b/i;
+  // THE ONE CARVE-OUT, NAMED AND BOUNDED. finance-lane.js prints the filing's own
+  // outside-spending level in the composition eyebrow — "Outside spending
+  // reported — low" — as text, with the note and the source link beside it. That
+  // is a field of the filing being reported, not a rating of the person: it
+  // describes independent expenditure volume, it carries its own provenance, and
+  // it is not derived from anything. It is removed from the string the tier sweep
+  // reads, and then checked separately for the provenance that makes it a report.
+  const stripOutsideEyebrow = (html) =>
+    html.replace(/🕳️ Outside spending reported[^<]*/g, "🕳️ Outside spending reported");
+
+  let checked = 0;
+  for (const id of subjects) {
+    const dom = moneyDom(id);
+    must(dom.length > 200, `${id}: the money surface rendered almost nothing (${dom.length} chars)`);
+    const vis = visible(dom);
+    for (const [re, what] of PHRASES) {
+      ok(!re.test(dom), `${id}: the money DOM contains ${what}`);
+    }
+    const scrubbed = stripOutsideEyebrow(dom);
+    ok(!TIER_UPPER.test(scrubbed),
+      `${id}: the money DOM prints an uppercase tier badge — that is the retired grade's own\n` +
+      `    typography, and the money surface reports a filing rather than rating one`);
+    ok(!TIER_WORD.test(visible(stripOutsideEyebrow(dom)).replace(/[^\w\s]/g, " ")),
+      `${id}: a bare tier word is visible in the money section outside the filing's own\n` +
+      `    outside-spending field — a one-word verdict beside a dollar figure is a grade`);
+    // AND NO SCORING LANGUAGE — EXCEPT WHERE THE LANE REFUSES IT. Two fixed
+    // sentences in the filings block say the counts are "not a rating" and that
+    // "nothing here is rated, ranked, or read by" the verdict surfaces. Those are
+    // the refusal, not the thing refused, so any sentence that negates the word
+    // is dropped before the sweep reads what is left.
+    const claims = vis.split(/(?<=[.!])\s+|\s+—\s+/).filter((t) =>
+      !/not a (?:rating|score|grade|finding)|nothing (?:here )?is (?:rated|ranked)|nothing is compared|is not read as one|nothing on this lane/i.test(t));
+    ok(!/\b(?:score|grade|rating|rank(?:ed|ing)?)\b/i.test(claims.join(" ")),
+      `${id}: the money section uses the language of scoring, ranking or grading in a sentence\n` +
+      `    that is not refusing it — "${(claims.find((t) => /\b(?:score|grade|rating|rank(?:ed|ing)?)\b/i.test(t)) || "").slice(0, 90)}"`);
+    checked++;
+  }
+  ok(checked === subjects.length, `every subject's money DOM was read (${checked}/${subjects.length})`);
+
+  // THE CARVE-OUT IS A REPORT, NOT A BADGE. Where the level prints, the note and
+  // the source that make it a filed field print with it.
+  {
+    const withLevel = filed.map(moneyDom).filter((d) => /Outside spending reported — /.test(d));
+    if (withLevel.length) {
+      for (const d of withLevel) {
+        has(d, "Outside spending is not itemized to the candidate",
+          "the outside-spending level prints without the sentence that says why it has no dollar figure");
+        ok(/Outside spending reported — [^<]+<\/span><br>[^<]/.test(d),
+          "the outside-spending level prints without the filing's own note beneath it");
+      }
+      ok(true, `the outside-spending carve-out was exercised on a real filing (${withLevel.length} of ${filed.length})`);
+    } else {
+      ok(true, "no seeded filing carries an outside-spending level today, so the carve-out is unused");
+    }
+  }
+
+  // 11b. TWO BLOCKS, IN ORDER, AND NO THIRD ONE. The section is the filings
+  //      block then the disclosures block. A third money block is how the
+  //      transparency card arrived the first time.
+  for (const id of [filed[0], unfiled[0]]) {
+    const dom = String(W._pdxFundingSection(id, W.CMP_DATA[id] || null) || "");
+    const f = dom.indexOf("Campaign filings");
+    const d = dom.indexOf("Disclosures while serving");
+    ok(f > 0, `${id}: the section renders the campaign filings block`);
+    ok(d > f, `${id}: …and the disclosures block after it`);
+    eq(dom.split("Disclosures while serving").length - 1, 1,
+      `${id}: the disclosures block renders exactly once`);
+    eq((dom.match(/data-pdx-money-block="/g) || []).length, 2,
+      `${id}: the money section is two labelled blocks — a third block is the transparency card's shape`);
+  }
+
+  // 11c. THE EMPTY DISCLOSURE BLOCK, IN THE DOM, ON EVERY ROSTERED PROFILE. The
+  //      table ships empty, so this is the state of the whole roster: heading,
+  //      the "on hand" sentence, the missing-data paragraph. No figure, no axis,
+  //      no percent, no before-and-after.
+  {
+    const bad = { dollar: [], digitless: [], percent: [], words: [], chart: [] };
+    const ids = Object.keys(W.CMP_DATA);
+    for (const id of ids) {
+      const blk = String(W.PDXFinanceLane.wealthBlockHtml(id, W.CMP_DATA[id]) || "");
+      const vis = visible(blk);
+      // The coverage sentence under the block counts the roster, so digits are
+      // expected there and nowhere else: the block's own copy is checked with the
+      // coverage line removed.
+      const own = vis.slice(0, vis.indexOf("Coverage") === -1 ? vis.length : vis.indexOf("Coverage"));
+      if (/\$/.test(own)) bad.dollar.push(id);
+      if (/\d/.test(own)) bad.digitless.push(id);
+      if (/%/.test(vis)) bad.percent.push(id);
+      if (own.indexOf("No in-office wealth file on hand") < 0 ||
+          own.indexOf("not a disclosure of zero") < 0) bad.words.push(id);
+      if (/<canvas|Chart\s*\(|axis/i.test(blk)) bad.chart.push(id);
+    }
+    const nameList = (a) => a.slice(0, 8).join(", ") + (a.length > 8 ? `, +${a.length - 8} more` : "");
+    eq(bad.dollar.length, 0, `the empty disclosure block prints a dollar sign on ${bad.dollar.length} profiles (${nameList(bad.dollar)})`);
+    eq(bad.digitless.length, 0, `…and a digit on ${bad.digitless.length} profiles (${nameList(bad.digitless)})`);
+    eq(bad.percent.length, 0, `…and a percent on ${bad.percent.length} profiles (${nameList(bad.percent)})`);
+    eq(bad.words.length, 0, `…and reads wrong on ${bad.words.length} profiles (${nameList(bad.words)})`);
+    eq(bad.chart.length, 0, `…and draws something on ${bad.chart.length} profiles (${nameList(bad.chart)})`);
+    ok(ids.length > 500, `the DOM sweep covered the whole roster (${ids.length} pids)`);
+  }
+
+  // 11d. NO DONOR NAME THAT IS NOT A LINE ON THE FILING IN BLOCK 1. The deleted
+  //      card listed donors of its own. Every donor string the section prints now
+  //      has to be findable in the filing record the lane read for that pid — not
+  //      similar to one, IN it.
+  for (const id of filed) {
+    const rec = W._pdxFinanceFiling ? W._pdxFinanceFiling(id) : null;
+    must(rec, `${id}: the lane has no filing record to check the rendered donors against`);
+    const fromRecord = JSON.stringify(rec);
+    const dom = String(W._pdxFundingSection(id, W.CMP_DATA[id]) || "");
+    // Donor and bucket labels are the only free text the filings block prints
+    // from data; everything else is fixed copy. Both label shapes are collected.
+    const labels = [...dom.matchAll(/class="pdx-fund-top-name"[^>]*>([^<]+)</g)].map((m) => m[1])
+      .concat([...dom.matchAll(/<span style="flex:1;min-width:0;[^"]*">([^<]+)<\/span>/g)].map((m) => m[1]));
+    // A sweep over an empty list is a pass that means nothing, so the extraction
+    // itself is checked: the filings block prints a top funder and its buckets.
+    ok(labels.length >= 2,
+      `${id}: no donor or bucket labels were extracted from the filings block — the markup shape\n` +
+      `    moved and this donor-provenance sweep is reading nothing (${labels.length} found)`);
+    for (const raw of labels) {
+      const label = raw.replace(/&amp;/g, "&").trim();
+      if (!label) continue;
+      ok(fromRecord.indexOf(label) >= 0 || /contributions|transfers|self-funding/i.test(label),
+        `${id}: the filings block prints "${label}", which is not a line on the filing it read —\n` +
+        `    a donor name that is not in the record is an authored donor list`);
+    }
+  }
+
+  // 11e. NO CROSS-PERSON DOOR OUT OF EITHER BLOCK. The ⚖️ Compare funding button
+  //      stood in the filings block and closed the person file to open the
+  //      Compare tool with this person in it. A compare launched from a filing is
+  //      the ranking read the lane refuses, and a reader who taps inside a money
+  //      block should still be on the file they were reading.
+  for (const id of [filed[0], unfiled[0]]) {
+    const dom = String(W._pdxFundingSection(id, W.CMP_DATA[id] || null) || "");
+    lacks(dom, "pdx-fund-cmp", `${id}: the compare-funding control is back in the money section`);
+    lacks(dom, "_pdxCompareWith", `${id}: …or its handler is, which is the same door`);
+    lacks(dom, "openCompare", `${id}: …or a second way into the compare tool`);
+    lacks(dom, "closeModal", `${id}: nothing in the money section closes the person file`);
+  }
+  // The function itself stays defined: /money scrubs any .pdx-fund-cmp it finds
+  // rather than assuming none renders, and the Compare Hub is documented against
+  // that entry point. What is gone is the markup that called it.
+  has(FTM_SRC, "window._pdxCompareWith = function",
+    "the compare entry point was deleted as well — /money's scrub and the Compare Hub both name it");
+  lacks(R("profiles-full.js"), "pdx-fund-cmp",
+    "profiles-full.js grew its own compare-funding control");
 }
 
 // ── report ───────────────────────────────────────────────────────────────────

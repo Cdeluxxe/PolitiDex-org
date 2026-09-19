@@ -439,6 +439,55 @@ PDXFinance.wealth(pid)   // { rangeOrExact, year, formUrl, tenureYears } | null
 consumer could quietly do arithmetic on. `PDXFinance.scored` is `false` and it
 declares the same `NEVER_FEEDS` list as the lane.
 
+## The person file's money section is two blocks, and nothing else
+
+The two pills are doors. What stood behind them until now was three surfaces, not
+two: the campaign-filings block, the disclosures block, and a deferred **Full
+financial record** drawer holding a card that was authored here rather than
+filed anywhere.
+
+That card is deleted. What was in it, and why each piece could not stay:
+
+| What it printed | Why it is gone |
+| --- | --- |
+| A "FINANCIAL TRANSPARENCY REPORT" with a 0–100 funding-integrity number | The retired Constituents-First grade with a different label. `scripts/test-finance-lane.mjs` sweeps every shipped module for a per-person 0–100 funding number under any name; this was that number, mounted on the person file. |
+| A `HIGH` / `MODERATE` / `LOW` badge over it, in green, amber and red | The retired grade's colour ramp and its typography. A one-word verdict beside a dollar figure is a rating of the person, and the ramp told a reader how bad it was before the sentence under it got to say what it was. |
+| Three net-worth tiles — before, after, and a **% change** | Point estimates with a percentage change: not filed figures, and the exact shape this lane retired. |
+| A "Wealth Over Time" line chart | Drawn from a hardcoded table of five sitting members, written in `profiles-full.js`. Five hand-typed series is not a disclosure lane. |
+| A donor list | Not the lines of the filing in the block above it. A donor name that is not in the filing record is an authored donor list. |
+| A 💰 **Follow This Money Trail** button | A control on a card that no longer exists, writing a `followMoney` doc no surface reads back. `window.toggleFollowMoney` went with it, under this file's own rule: if the caller is gone the function should be too. |
+| An ⚖️ **Compare funding** button in the filings block | The one control in the section that left the person file — it closed the profile and opened the Compare tool with this person selected. A compare launched from a filing is the ranking read this lane refuses. `window._pdxCompareWith` stays defined, because /money scrubs any `.pdx-fund-cmp` it finds rather than assuming none renders; what is gone is the markup that called it. |
+
+What the section contains now, in this order:
+
+1. **Campaign filings** — the existing receipts lane. Composition as filed: the
+   buckets, the counts, the named top source, the cycle, the archive link, and
+   the coverage sentence. No grade, no rank, no comparison to another person.
+2. **Disclosures while serving** — the disclosure block. With the table empty,
+   which is the state of the whole roster, it is a heading, the "No in-office
+   wealth file on hand" sentence and the paragraph saying a blank is missing data
+   and not a disclosure of zero. No chart, no dollar axis, no before-and-after,
+   no percent.
+
+There is no third money block and no money drawer. `profile-spine.js` emits no
+lid for a drawer spec with no chunks, so deleting both `dw:money` chunks removed
+the drawer; the spec went with them, because its subtitle — "Net worth over time,
+campaign finance detail and donor breakdown" — was the last copy on the site
+promising material that no longer exists.
+
+### /money keeps its estimate board, and says so
+
+The net-worth leaderboard on `/money` is unchanged, and it is an estimate board:
+point estimates, a before and after, a percentage change, sorted. Its disclaimer
+box now opens with one sentence saying what it is not —
+
+> **Estimates, not a filing:** this board is not the person file's 💰 disclosure
+> pill and no figure on it is a filed FD figure.
+
+— because a reader who meets both surfaces has to be told which one is the
+filing, in the block that is not. `pdx-finance.js` is still not loaded on that
+document; the sentence is copy, not a second pill.
+
 ## The wall
 
 Declared on the object as `PDXFinanceLane.NEVER_FEEDS` and asserted by
@@ -720,6 +769,18 @@ rank or a word about being wealthy; the shipped disclosure table really is empty
 and a twin boot that mounts 108 of each pill leaves Direction Match, the formal
 pattern index, the publication floor and the mapped counts byte-identical with a
 disclosure filed on the member under test, with no new global on the window.
+
+Its section 11 renders the real `_pdxFundingSection` from the shipped
+`ftm-data.js` over the real roster and reads the DOM a person actually receives:
+no "transparency report", no wealth- or net-worth-over-time series, no percent
+change, no duplicate follow-the-money heading, no x-out-of-100, no `<canvas>`, no
+uppercase tier badge and no bare tier word outside the filing's own
+outside-spending field — which is carved out by name, and checked to arrive with
+the note and source that make it a report rather than a badge. Then: exactly two
+labelled money blocks in order, an empty disclosure block with no dollar sign, no
+digit and no percent on all 1,120 rostered profiles, every donor and bucket label
+findable in the filing record the lane read for that pid, and no control in
+either block that closes the person file or opens the compare tool.
 
 `scripts/test-money-theme.mjs` — the fence around the token: the two copies agree
 value for value; **Lee's $8.6M chip and an empty Utah chip open with byte-identical

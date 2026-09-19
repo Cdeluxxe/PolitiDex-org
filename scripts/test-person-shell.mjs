@@ -354,8 +354,8 @@ const COPIES = [
   [3727, 3791, "the crawl-header guard"],
   [13401, 13435, "the profile modal down to #modal-content"],
   [13496, 13543, "the stance popover, the record overlay and the share sheet"],
-  [20261, 20382, "PDXStance"],
-  [22871, 23069, "the PWA runtime and the service-worker registration"],
+  [20248, 20369, "PDXStance"],
+  [22858, 23056, "the PWA runtime and the service-worker registration"],
 ];
 // THESE NUMBERS ARE ANCHORS INTO index.html AND THEY MOVE WHEN IT DOES. The
 // ones re-based here were re-based by the fourth split, which lifted the ballot
@@ -503,6 +503,15 @@ const COPIES = [
 // index.html anchors moved. Both runs were located verbatim in the new
 // index.html; the arithmetic agreed afterwards, which is the order that catches a
 // bad pin instead of confirming one.
+//   AND THE SAME TWO CAME BACK UP BY THIRTEEN when the person file's Money
+// section was cut to its two filed blocks. The fabricated transparency card left
+// the profile modal and took the 💰 Follow This Money Trail button with it, which
+// left window.toggleFollowMoney in index.html with no caller at all — so the
+// function and the paragraph explaining why it had outlived the funding
+// leaderboard came out too, thirteen lines at ~16090, above both anchors. Every
+// deletion in that pass lives in profiles-full.js, app.css and index.html's
+// script block; not a byte of either copied run changed, and both were located
+// verbatim in the new index.html before these numbers were written down.
 for (const [a, b, what] of COPIES) {
   const slice = idxLines.slice(a - 1, b).join("\n");
   ok(slice.split("\n").length === b - a + 1 && slice.trim().length > 0,

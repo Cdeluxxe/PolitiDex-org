@@ -286,8 +286,15 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // above this block, like every move before it — so PDXStance moved to
 // 20261–20382. Located verbatim again; person.html's Firebase boot is above its
 // own document's new tag and did not move.
+//   AND UP BY THIRTEEN, for the person-file money trim. The block that defined
+// window.toggleFollowMoney came out of index.html at ~16090 when its only caller
+// — the Follow This Money Trail button on the deleted transparency card — left
+// the profile modal, and thirteen lines went with it: the function, and the
+// comment paragraph that explained why the function had outlived the leaderboard
+// it shipped with. Everything below it moved UP, so PDXStance is now 20248-20369.
+// Located verbatim, as ever; the arithmetic agreed afterwards.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 20261, b: 20382, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 20248, b: 20369, what: "the PDXStance vocabulary" },
   { from: "person.html", src: PERSON, a: 2012, b: 2066, what: "the Firebase boot" },
 ];
 // The three-room split moved the index.html range by −2021 — /mandate, /voice

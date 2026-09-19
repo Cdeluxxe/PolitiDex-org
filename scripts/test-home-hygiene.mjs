@@ -112,25 +112,43 @@ for (const [re, what] of SOURCE_TELLS) {
   ok(!m, `index.html paints ${what} as visible body text — ${JSON.stringify(String(m && m[0]).slice(0, 60))}`);
 }
 
-// The repair was to restore the tag, not to delete the function: profiles-full.js
-// still calls it by name from the profile modal's money button.
-has(R("profiles-full.js"), "toggleFollowMoney(",
-  "profiles-full.js no longer calls toggleFollowMoney — if the caller is gone the function should be too, and this pin is what says so");
+// THE SECOND HALF OF THE RULE THIS SUITE WROTE DOWN. When the Follow the Money
+// leaderboard IIFE was deleted it took the opening <script> tag of the block it
+// shared with window.toggleFollowMoney, and the function's source painted as
+// body text under the footer. The repair then was to restore the tag rather than
+// delete the function, because profiles-full.js still called it by name — and
+// this suite recorded the condition: if the caller is gone the function should be
+// too. The caller is now gone. The 💰 Follow This Money Trail button sat on the
+// fabricated transparency card in the person file's money section, and that card
+// was removed, so the function became a writer to a followMoney doc that no
+// surface reads back. So the pin flips: the definition must be ABSENT, and the
+// orphan check still runs against whatever shares that neighbourhood.
+ok(!/toggleFollowMoney\s*=/.test(R("profiles-full.js")) && R("profiles-full.js").indexOf("toggleFollowMoney(") === -1,
+  "profiles-full.js calls toggleFollowMoney again — the control it belonged to was deleted with\n" +
+  "    the transparency card, and the person file's money section is two blocks and nothing else");
+ok(INDEX.indexOf("window.toggleFollowMoney = function") === -1,
+  "index.html defines window.toggleFollowMoney again — nothing calls it, and a write with no\n" +
+  "    caller is how a dead control comes back as a live one later");
 {
-  const at = INDEX.indexOf("window.toggleFollowMoney = function");
-  must(at > 0, "index.html no longer defines window.toggleFollowMoney");
+  // WHAT REPLACED IT IN THAT BLOCK, AND WHY IT STAYED. The sync wrapper is a
+  // READ: on sign-in it pulls any followMoney doc the reader already has into
+  // memory. It writes nothing and, with the toggle gone, has no way to grow the
+  // list. It also has to survive the same orphaning the leaderboard caused, so
+  // its block is checked whole: a real opening tag, and source that parses.
+  const at = INDEX.indexOf("window.syncUserDataFromFirestore = function");
+  must(at > 0, "the followMoney sync wrapper is gone from index.html — a signed-in reader's existing\n" +
+               "    followed trails no longer load, which is a silent data loss, not a deletion");
   const open = INDEX.lastIndexOf("<script>", at);
   const close = INDEX.indexOf("</script>", at);
-  must(open > 0 && close > at, "the toggleFollowMoney block has no surrounding script tags at all");
-  // Nothing may stand between the opening tag and the definition except
-  // whitespace and comments: that gap is exactly where the deleted IIFE used to
-  // be, and a second orphaned half would land here.
+  must(open > 0 && close > at, "the followMoney sync block has no surrounding script tags at all — this is exactly the\n" +
+                               "    orphaning that painted JavaScript under the footer last time");
   const body = INDEX.slice(open + "<script>".length, close);
-  ok(body.trim().startsWith("window.toggleFollowMoney = function"),
-    "the restored block does not open on the definition — something else is sharing this block again");
+  ok(body.indexOf("toggleFollowMoney") === -1,
+    "the deleted toggle is back inside the sync block — that block is a read, and mixing a write\n" +
+    "    into it is how both halves end up sharing one tag again");
   let parsed = true;
-  try { new vm.Script(body, { filename: "index.html#toggleFollowMoney" }); }
-  catch (e) { parsed = false; failures.push(`the restored toggleFollowMoney block does not parse — ${e.message}`); }
+  try { new vm.Script(body, { filename: "index.html#followMoneySync" }); }
+  catch (e) { parsed = false; failures.push("the followMoney sync block does not parse — " + e.message); }
   if (parsed) passed++;
 }
 

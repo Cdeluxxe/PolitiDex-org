@@ -16091,57 +16091,44 @@ window.PDXLazy = (function () {
   })();
   </script>
 
-  <!-- ── Follow the Money: the follow button, and NOT a leaderboard ──
-       WHAT USED TO BE HERE. An IIFE holding FTM_LB_DATA — five politicians,
-       each with a hand-set `integrity:` number from 0 to 100 and a top-donor
+  <!-- ── Follow the Money: neither a leaderboard nor a follow button now ──
+       WHAT USED TO BE HERE, IN TWO PASSES OF DELETION.
+
+       FIRST, THE LEADERBOARD. An IIFE holding FTM_LB_DATA — five politicians,
+       each with a hand-set integrity number from 0 to 100 and a top-donor
        string — that painted #ftm-leaderboard: a "#1 … #5 by funding" ranking
-       with a grade under each name.
+       with a grade under each name. It was deleted, not moved: it did not go to
+       /money with the rest of the money lane and it is not anywhere else. The
+       money lane's standing rule is that a filing is reported, never scored —
+       finance-lane.js publishes scored:false and a NEVER_FEEDS wall, and
+       scripts/test-finance-lane.mjs sweeps every shipped module for a
+       per-person 0-100 funding number under any name. That board was the
+       retired grade with a different label on it and a rank column added, so
+       relocating it would have moved the one thing the lane exists to refuse.
+       /money reports amounts and composition and ranks nobody.
 
-       IT WAS DELETED, NOT MOVED. It did not go to /money with the rest of the
-       money lane and it is not anywhere else. The money lane's standing rule is
-       that a filing is reported, never scored: finance-lane.js publishes
-       `scored: false` and a NEVER_FEEDS wall, and scripts/test-finance-lane.mjs
-       sweeps every shipped module for a per-person 0-100 funding number under
-       any name. That board was the retired grade with a different label on it
-       and a rank column added, so relocating it would have moved the one thing
-       the lane exists to refuse. /money reports amounts and composition and
-       ranks nobody.
+       THAT DELETION ALSO TOOK THE OPENING <script> TAG. The removed IIFE and
+       window.toggleFollowMoney shared one block, so the first half's departure
+       left the second half standing in the document as TEXT: the browser
+       painted the function's source under the footer, and the name was never
+       defined, so the 💰 Follow This Money Trail button in the profile modal
+       threw on click. The tag was restored rather than the function deleted,
+       because profiles-full.js still called it by name.
 
-       WHAT SURVIVES BELOW IS THE FOLLOW BUTTON, which is not part of that: it
-       is the reader's own list, it is painted into the profile modal, and it
-       has nothing to do with funding rank.
+       SECOND, THE FUNCTION — now that nothing calls it. The person-file Money
+       section holds two blocks and nothing else: Campaign filings as filed, and
+       Disclosures while serving. The Follow This Money Trail button sat on the
+       fabricated transparency card between them and went when that card did, so
+       toggleFollowMoney became a writer with no caller for a followMoney doc
+       that no surface reads back. The rule this file wrote down when it restored
+       the tag — if the caller is gone the function should be too — is the rule
+       applied here. scripts/test-home-hygiene.mjs holds both halves of it.
 
-       THE OPENING <script> TAG BELOW WAS LOST WITH THAT BOARD. The deleted IIFE
-       and this function shared one block, so removing the first half took the tag
-       and left the second half standing in the document as TEXT: the browser
-       painted toggleFollowMoney's source under the footer, and the name was
-       never defined, so the 💰 Follow This Money Trail button in the profile
-       modal threw on click. The tag is restored rather than the function deleted
-       because profiles-full.js still calls it by name. ── -->
+       WHAT SURVIVES BELOW is the sync wrapper, which is a read, not a control:
+       it pulls any followMoney doc a signed-in reader already has into memory on
+       sign-in. It writes nothing and no longer has a way to grow the list. ── -->
 
   <script>
-  window.toggleFollowMoney = function(pid) {
-    var user = auth.currentUser;
-    if (!user || user.isAnonymous) {
-      alert('Please sign in to follow a politician\'s money trail.');
-      return;
-    }
-    var ref = db.collection('followMoney').doc(user.uid);
-    var btn = document.getElementById('ftm-follow-btn');
-    ref.get().then(function(doc) {
-      var pols = (doc.exists && doc.data().politicians) ? doc.data().politicians : [];
-      var idx = pols.indexOf(pid);
-      if (idx !== -1) {
-        pols.splice(idx, 1);
-        if (btn) { btn.classList.remove('ftm-following'); btn.innerHTML = '💰 Follow This Money Trail'; }
-      } else {
-        pols.push(pid);
-        if (btn) { btn.classList.add('ftm-following'); btn.innerHTML = '✅ Following Money Trail'; }
-      }
-      return ref.set({ politicians: pols, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
-    }).catch(function(e) { console.warn('Follow money toggle failed:', e); });
-  };
-
   // Sync followed money trails to My Politicians section
   (function() {
     var _origSync = window.syncUserDataFromFirestore;

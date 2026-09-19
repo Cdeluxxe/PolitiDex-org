@@ -15551,59 +15551,22 @@
       transition: opacity 0.3s ease;
     }
 
-    /* ── Follow the Money Modal Section ──────────────── */
-    .ftm-modal-wrap {
-      background: rgba(10,15,30,0.5);
-      border: 1px solid rgba(74,222,128,0.15);
-      border-radius: 0.875rem;
-      overflow: hidden;
-    }
-    .ftm-modal-header {
-      display: flex; align-items: center; gap: 0.5rem;
-      padding: 0.6rem 0.875rem;
-      background: rgba(74,222,128,0.06);
-      border-bottom: 1px solid rgba(74,222,128,0.12);
-    }
-    .ftm-modal-donor-row {
-      display: flex; align-items: center; gap: 0.6rem;
-      padding: 0.5rem 0.875rem;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-      transition: background 0.14s;
-    }
-    .ftm-modal-donor-row:last-child { border-bottom: none; }
-    @media (hover: hover) { .ftm-modal-donor-row:hover { background: rgba(255,255,255,0.025); } }
-    .ftm-integrity-badge {
-      display: inline-flex; align-items: center; gap: 0.4rem;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.1rem; letter-spacing: 0.06em;
-      padding: 0.4rem 0.9rem;
-      border-radius: 999px;
-      border: 2px solid;
-    }
-    .ftm-integrity-high { background: rgba(74,222,128,0.12); border-color: rgba(74,222,128,0.4); color: #4ade80; }
-    .ftm-integrity-mid { background: rgba(245,200,66,0.12); border-color: rgba(245,200,66,0.4); color: #f5c842; }
-    .ftm-integrity-low { background: rgba(248,113,113,0.12); border-color: rgba(248,113,113,0.4); color: #f87171; }
-    .ftm-bar-corp { background: linear-gradient(90deg, #ff8a8a, #ff6b6b); border-radius: 4px; height: 10px; transition: width 1s ease; }
-    .ftm-bar-small { background: linear-gradient(90deg, #7cc4ff, #60a5fa); border-radius: 4px; height: 10px; transition: width 1s ease; }
-    .ftm-follow-btn {
-      display: inline-flex; align-items: center; gap: 0.4rem;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 700; font-size: 0.7rem;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      padding: 0.5rem 1rem;
-      border-radius: 0.625rem;
-      border: 1px solid rgba(74,222,128,0.3);
-      background: rgba(74,222,128,0.08);
-      color: #4ade80;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .ftm-follow-btn:hover { background: rgba(74,222,128,0.15); border-color: rgba(74,222,128,0.5); }
-    .ftm-follow-btn.ftm-following {
-      background: rgba(74,222,128,0.2);
-      border-color: rgba(74,222,128,0.6);
-      color: #86efac;
-    }
+    /* ── Follow the Money modal section — DELETED WITH ITS MARKUP ──────
+       Fifty lines of rules for one card in the profile modal: .ftm-modal-wrap,
+       .ftm-modal-header, .ftm-modal-donor-row, .ftm-integrity-badge and its
+       high/mid/low colour trio, the .ftm-bar-corp / .ftm-bar-small funding bars
+       and .ftm-follow-btn. The card they styled — FINANCIAL TRANSPARENCY
+       REPORT, with a 0-100 integrity badge, three net-worth tiles, a percent
+       change, a net-worth chart and a hand-written donor list — was deleted
+       from profiles-full.js, so these rules had nothing left to match.
+         THE COLOURS ARE WHY THIS IS NOT MERELY DEAD CSS. .ftm-integrity-high /
+       -mid / -low were a green-amber-red ramp over a per-person funding score,
+       which is the retired grade's colour language; leaving them behind leaves
+       the next author a ramp to reach for. The money surface's own tokens are
+       the deep-forest-and-gold pair in --pdx-money-*, fenced by
+       scripts/test-money-theme.mjs, and the filed blocks in the Money section
+       use those.
+       ────────────────────────────────────────────────────────────────── */
 
     /* ── Follow the Money Leaderboard ──────────────── */
     .ftm-lb-card {

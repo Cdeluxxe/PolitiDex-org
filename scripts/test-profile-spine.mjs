@@ -501,9 +501,16 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
     ok(stageTags.has(k), `sentinels: at least one block claims the '${k}' stage`);
   });
   const dwTags = new Set(tags.filter((t) => t.startsWith("dw:")).map((t) => t.slice(3)));
-  ["positions", "votes", "promises", "money", "activity"].forEach((k) => {
+  // 'money' was the fifth name in this list. Both chunks tagged into it were the
+  // fabricated transparency card and the wealth chart, and both are deleted, so
+  // there is nothing left to tag — the person file's money surface is the two
+  // letterhead pills and the two blocks they open, neither of which is a drawer.
+  ["positions", "votes", "promises", "activity"].forEach((k) => {
     ok(dwTags.has(k), `sentinels: the '${k}' drawer has content tagged into it`);
   });
+  ok(!dwTags.has("money"),
+     "sentinels: a money drawer is being tagged again — the deep money card was removed, and a\n" +
+     "    drawer is the one place its content could come back without passing either pill");
   // Every drawer id that content is tagged into must have a spec, or the content
   // is parked in the generic deep end with no lid describing it.
   dwTags.forEach((k) => {
@@ -564,20 +571,52 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
 
   // 6d. Massie. The profile this was designed against — and the one whose depth
   //     is now behind drawers instead of in front of the reader.
-  ok(/massie: \[/.test(PF) && /massie:\s*\{ nwBefore/.test(PF) && /massie:\s*\{ label:'Thomas Massie'/.test(PF),
-     "massie: his deep record is intact — key votes, campaign finance detail, and wealth-over-time series");
+  // WHAT THIS PIN USED TO ASK FOR, AND WHY IT ASKS FOR LESS NOW. It used to
+  // require three Massie-keyed literals in profiles-full.js: his key votes, a
+  // { nwBefore, nwAfter } net-worth pair, and a { label:'Thomas Massie' } series
+  // for a wealth-over-time chart. The last two were hardcoded money numbers for
+  // five sitting members, invented in this file and rendered as if disclosed.
+  // They are deleted, so the pin now guards only the part that came from a real
+  // record — and a second assertion makes sure the invented pair cannot return.
+  ok(/massie: \[/.test(PF),
+     "massie: his deep record is intact — the key votes this spine was designed against");
+  ok(!/nwBefore/.test(PF) && !/label:'Thomas Massie'/.test(PF),
+     "massie: a hardcoded net-worth pair or wealth series is back in profiles-full.js — those\n" +
+     "    numbers were authored here, not disclosed anywhere, and the person file prints only\n" +
+     "    what the filing and the FD say");
   const vrBlock = PF.slice(PF.indexOf("<!--PDXSP:record-->\n      <!-- Key Voting Record -->"));
   ok(/<!--PDXSP:dw:votes-->/.test(vrBlock.slice(0, vrBlock.indexOf("<!--PDXSP:tension-->"))),
      "massie: his six tracked votes split where they should — highlights on the spine, the full table in the votes drawer");
-  const wealthAt = PF.indexOf("<!--PDXSP:dw:money-->");
-  ok(wealthAt !== -1 && PF.indexOf("Wealth Over Time", wealthAt) > wealthAt,
-     "massie: the wealth chart moved into the money drawer with the rest of the financial record");
+  // THE MONEY DRAWER IS GONE, NOT MOVED. This used to check that the wealth
+  // chart had been relocated into the dw:money drawer. There is no dw:money
+  // chunk any more and no money drawer spec: the person file's whole money
+  // surface is the two letterhead pills and the two blocks they open, and a
+  // drawer spec with no chunks emits nothing, so the lid went with the content.
+  ok(PF.indexOf("<!--PDXSP:dw:money-->") === -1,
+     "massie: a dw:money chunk is back — the money drawer was deleted, and anything mounted\n" +
+     "    there is by definition not the filing block or the disclosure block");
+  // Checked against the source with HTML comments stripped. The deletion note
+  // left in profiles-full.js names the panel it replaced, in prose, so a raw
+  // grep would read the gravestone as the body.
+  const PFnc = PF.replace(/<!--(?!PDXSP:)[\s\S]*?-->/g, "");
+  ok(!/Wealth Over Time/i.test(PFnc) && !/wealthChart/.test(PFnc),
+     "massie: 'Wealth Over Time' is back in profiles-full.js — the person file has no wealth\n" +
+     "    chart and no series to draw one from");
 
   // 6e. Charts inside closed drawers. A canvas in a max-height:0 box measures
-  //     zero and Chart.js will not reliably redraw on reveal, so both charts are
-  //     parked and drawn on first open. Without this the drawers look broken.
-  ok(/_pdxDrawerChart\('wealthChart'/.test(PF) && /_pdxDrawerChart\('ftmNwChart'/.test(PF),
-     "charts: both drawer charts are deferred rather than drawn into a zero-height canvas");
+  //     zero and Chart.js will not reliably redraw on reveal, so a drawer chart
+  //     is parked and drawn on first open. Both of the charts that used this —
+  //     wealthChart and ftmNwChart — were money charts and are deleted, so today
+  //     nothing registers. The machinery stays: it is the only correct way to
+  //     draw into a deferred drawer, the queue is still reset and drained on the
+  //     same edges, and the next drawer chart has to use it rather than
+  //     re-learning why a zero-height canvas comes out blank.
+  ok(/function _pdxDrawerChart/.test(PF) && /function _pdxDrainCharts/.test(PF) && /function _pdxResetChartQueue/.test(PF),
+     "charts: the deferred-chart queue is gone — a future drawer chart will be drawn into a\n" +
+     "    zero-height canvas and come out blank");
+  ok(!/_pdxDrawerChart\('wealthChart'/.test(PF) && !/_pdxDrawerChart\('ftmNwChart'/.test(PF),
+     "charts: a money chart is queued from a profile render again — the person file's money\n" +
+     "    section has no chart, no dollar axis and no before-and-after");
   ok(/function _pdxDrainCharts/.test(PF) && /if \(!isOpen\) _pdxDrainCharts\(\);/.test(PF),
      "charts: toggleDD draws any pending chart on the open that first gives its canvas a size");
   // The toggle's own body, sliced at its closing brace rather than by a character
@@ -774,9 +813,15 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
     const next = specs.indexOf("{ id: '", at);
     return specs.slice(at, next === -1 ? specs.length : next);
   };
-  ["positions", "votes", "promises", "money"].forEach((k) => {
+  // The money drawer used to be the fourth deferred drawer, and the heaviest of
+  // them: two charts, a donor table and a score card. Its spec is gone with its
+  // content, so the list is three.
+  ["positions", "votes", "promises"].forEach((k) => {
     ok(/defer: true/.test(spec(k)), `defer: the '${k}' drawer is deferred — it is heavy and nothing outside it needs its nodes before it opens`);
   });
+  ok(spec("money") === "",
+     "defer: a money drawer spec is back — its subtitle was the last copy on the site promising\n" +
+     "    net worth over time and a donor breakdown, and there is no such content to promise");
   ok(spec("activity") !== "" && !/defer: true/.test(spec("activity")),
      "defer: the activity drawer is deliberately NOT deferred — it is a short freshness block holding the anchor the nav rail spies on");
 
@@ -807,12 +852,21 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
      "defer: _pdxDrainCharts keeps a job whose canvas is missing rather than discarding it — not mounted yet is not the same as gone");
   ok(/function _pdxResetChartQueue/.test(PFC) && (PFC.match(/_pdxResetChartQueue\(\)/g) || []).length >= 3,
      "defer: the queue is emptied at the two moments a parked job really is dead — a new profile render and modal close");
-  const wealth = PFC.slice(PFC.indexOf("_pdxDrawerChart('wealthChart'"), PFC.indexOf("_pdxDrawerChart('wealthChart'") + 400);
-  ok(/getElementById\('wealthChart'\)/.test(wealth),
-     "defer: the wealth chart resolves its canvas inside the job body, at draw time — capturing it at render time would queue nothing at all");
-  const ftm = PFC.slice(PFC.indexOf("_pdxDrawerChart('ftmNwChart'"), PFC.indexOf("_pdxDrawerChart('ftmNwChart'") + 400);
-  ok(/getElementById\('ftmNwChart'\)/.test(ftm),
-     "defer: and so does the net-worth chart in the money drawer");
+  // THE RULE THE TWO DELETED CHARTS WERE THE WORKED EXAMPLES OF. Both money
+  // charts resolved their canvas INSIDE the job body, at draw time, because a
+  // canvas captured at render time does not exist yet and the job would queue
+  // nothing. With both deleted there is no live caller to check, so the rule is
+  // checked where it is written instead: _pdxDrawerChart's own contract, which
+  // takes a canvas ID and not a node. A job handed a node cannot be deferred at
+  // all, and this is the pin that says so for whoever registers the next one.
+  const dcDef = PFC.slice(PFC.indexOf("function _pdxDrawerChart"), PFC.indexOf("function _pdxDrawerChart") + 400);
+  ok(/_pdxDrawerChart\s*\(\s*(canvasId|id)\s*,/.test(dcDef),
+     "defer: _pdxDrawerChart no longer takes a canvas ID — a queue that is handed a node captures\n" +
+     "    an element that does not exist at render time, which is how a deferred chart never draws");
+  const dcIds = (PFC.match(/_pdxDrawerChart\('/g) || []).length;
+  ok(dcIds === 0 || /getElementById/.test(PFC.slice(PFC.indexOf("_pdxDrawerChart('"), PFC.indexOf("_pdxDrawerChart('") + 400)),
+     "defer: a drawer chart was registered without resolving its canvas inside the job body — at\n" +
+     "    render time the canvas is still a string, so that job queues nothing at all");
 
   // 9e. The one seam back into the profile. The re-arm goes through the coalescing
   //      entry point rather than calling the arm directly: a reader who opens three
@@ -823,8 +877,13 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
      "defer: on reveal the profile drains its chart queue and re-arms the nav, so the new subtree joins the jump rail");
   ok(!/_pdxInitProfileNav/.test(after),
      "defer: and it does not arm the rail synchronously mid-mutation — that is what the coalescer is for");
-  ok(/ftm-follow-btn/.test(after) && /_pdxFollowMoneyOn/.test(after),
-     "defer: and re-applies the Follow Money Trail state that was fetched while the button was still a string, so a following reader does not see an un-followed button");
+  // The third thing this used to do was re-apply Follow Money Trail state to
+  // #ftm-follow-btn, a control on the deleted transparency card. The button, the
+  // fetch behind it and window.toggleFollowMoney are all gone, so the re-apply
+  // has nothing to re-apply and asking for it would pin a dead reference.
+  ok(!/ftm-follow-btn/.test(after) && !/_pdxFollowMoneyOn/.test(after),
+     "defer: the reveal hook reaches for the Follow Money Trail button again — that control left\n" +
+     "    with the fabricated transparency card and there is nothing for it to open");
 
   // 9f. The voting record. It used to demand its container synchronously before it
   //     would even fetch, so deferring the votes drawer would have switched the
@@ -1305,10 +1364,11 @@ const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "
   //      drawer spec and every deferral flag must be exactly as Phase 2 left them.
   const specs = [...PFL.matchAll(/\{ id: '([a-z]+)', stage: '([a-z]+)',/g)].map((m) => m[1] + ":" + m[2]);
   ok(JSON.stringify(specs) === JSON.stringify([
-    "positions:drawers", "votes:drawers", "promises:drawers", "money:drawers", "activity:drawers",
-  ]), "keep: the five drawers are untouched and still land in the full-record stage");
-  ok((PFL.match(/^\s+defer: true,$/gm) || []).length === 4,
-     "keep: the same four drawers are still deferred — the reorder did not un-defer a heavy inner");
+    "positions:drawers", "votes:drawers", "promises:drawers", "activity:drawers",
+  ]), "keep: the four remaining drawers are untouched and still land in the full-record stage —\n" +
+      "    money left this list when its content was deleted, not when the order changed");
+  ok((PFL.match(/^\s+defer: true,$/gm) || []).length === 3,
+     "keep: the same three drawers are still deferred — the reorder did not un-defer a heavy inner");
 }
 
 

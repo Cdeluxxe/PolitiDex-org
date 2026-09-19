@@ -1071,7 +1071,20 @@
         +   (f.whyItMatters ? '<p class="pdx-fund-why"><strong>Why it matters:</strong> ' + _pdxFEsc(f.whyItMatters) + '</p>' : '')
         +   '<div class="pdx-fund-actions">'
         +     '<a class="pdx-fund-src" href="' + _pdxFAttr(f.source) + '" target="_blank" rel="noopener noreferrer">📄 FEC / OpenSecrets ↗</a>'
-        +     '<button type="button" class="pdx-fund-cmp" onclick="window._pdxCompareWith && window._pdxCompareWith(\'' + _pdxFAttr(pid) + '\', event)">⚖️ Compare funding</button>'
+        //   THE ⚖️ COMPARE FUNDING BUTTON STOOD HERE, AND IT WAS THE ONE CONTROL
+        //   IN THIS SECTION THAT LEFT THE PERSON FILE. It called _pdxCompareWith,
+        //   which closes the open profile, adds this person to the compare
+        //   selection, pulls in their race peers and opens the Compare tool — a
+        //   cross-person compare launched from a filing block. The person file's
+        //   money section is now two blocks and two doors: campaign filings as
+        //   filed, and disclosures while serving. Composition, not standing; this
+        //   person's filing, not this person against another's. A reader who
+        //   wants a side-by-side still has /money and the Compare tool itself.
+        //
+        //   _pdxCompareWith IS DELIBERATELY STILL DEFINED BELOW. /money hides any
+        //   .pdx-fund-cmp it finds rather than assuming none renders, and the
+        //   Compare Hub is documented against that entry point, so the function
+        //   stays as the one way in while nothing in shipped markup calls it.
         +   '</div>'
         +   _covOn
         + '</div>'

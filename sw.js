@@ -6904,7 +6904,48 @@
 //     and stance are untouched and no key changes shape. The bump exists because
 //     pdx-finance.js changed and a warm device would otherwise pair the new
 //     letterhead with the old shell copy of it.
-const CACHE_VERSION = 'v221';
+// v222 - THE PERSON FILE'S MONEY SECTION IS TWO DOORS AND NOTHING ELSE.
+//
+//     WHAT LEFT THE PROFILE. The money drawer carried a fabricated card:
+//     a "FINANCIAL TRANSPARENCY REPORT" with a 0-100 funding-integrity number
+//     and a HIGH / MODERATE / LOW badge over it, three net-worth tiles with a
+//     percent change, a "Wealth Over Time" line chart drawn from a hardcoded
+//     table of five sitting members, and a donor list that was not the lines of
+//     any filing on the page. All of it is deleted - both drawer chunks, the
+//     chart instances, the hardcoded table, the donor rows, the corporate-versus-
+//     small-donor bars, the follow control and its index.html function, and the
+//     app.css block whose .ftm-integrity-high / -mid / -low classes were a
+//     green-amber-red ramp over a per-person score. The retired 0-100 grade does
+//     not get to come back wearing a money-coloured badge.
+//
+//     WHAT THE SECTION IS NOW. Exactly the two letterhead pills and the two
+//     blocks they open: campaign filings, composition as filed, no grade and no
+//     cross-person compare; and disclosures while serving, which with an empty
+//     disclosure table is a heading plus the "no in-office wealth file on hand"
+//     sentence and the paragraph saying blank means missing data, not zero. No
+//     chart, no dollar axis, no before-and-after, no percent. A suite now greps
+//     the rendered person-file money DOM for LOW, MED, HIGH, "transparency
+//     report", "net worth over time" and a percent change and requires zero
+//     matches on every one.
+//
+//     /money KEEPS ITS ESTIMATE BOARD, WITH A LINE SAYING SO. The net-worth
+//     leaderboard there is an estimate board, and its disclaimer box now opens
+//     with one sentence: it is not the person file's disclosure pill and no
+//     figure on it is a filed FD figure. A reader who meets both surfaces is
+//     told which one is the filing. pdx-finance.js is still not on that page.
+//
+//     STORES AND SHELL. Location, resolved district, team and stance are
+//     untouched: no key read, written, renamed or re-asked, and voter-hub-location.js
+//     is unchanged on disk and still the only owner of tenure. This pass only
+//     deletes rendered markup. Direction Match, the formal pattern index and the
+//     publication floor are byte-identical across the twin boot, and no global
+//     leaked.
+//
+//     MIGRATION COST. None to any stored record. The bump exists because
+//     profiles-full.js, index.html, app.css and money.html all changed, and a
+//     warm device would otherwise open the new letterhead pills onto the old
+//     shell's transparency card.
+const CACHE_VERSION = 'v222';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

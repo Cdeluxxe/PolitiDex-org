@@ -278,7 +278,7 @@ const COPIES = [
   // an earlier edit to index.html shifts line numbers — when it does, the header
   // comment in me.html and this table move TOGETHER, which is the whole point of
   // pinning it in one place.
-  { from: "index.html", src: INDEX, a: 20875, b: 21297, what: "PDXSaved" },
+  { from: "index.html", src: INDEX, a: 20862, b: 21284, what: "PDXSaved" },
 ];
 // PDXSaved's declared range has now moved four times, always for the same
 // reason and always re-derived the same way: LOCATE THE 423-LINE RUN VERBATIM IN
@@ -323,6 +323,14 @@ const COPIES = [
 // script tag plus the eight-line load-order note above it went into index.html at
 // line 15020, between the filings index and the lane that reads it. That is above
 // this block, like all eight before it. 20875-21297, located verbatim, opening on
+// `<script>` and closing on `</script>` as the boundary note above requires, and
+// back at its full 423 lines.
+// A NINTH MOVE, UPWARD BY THIRTEEN, for the person-file money trim: deleting the
+// profile modal's fabricated transparency card took its Follow This Money Trail
+// button, and window.toggleFollowMoney — thirteen lines at index.html ~16090,
+// function plus the paragraph explaining why it had outlived the leaderboard it
+// shipped with — went with its only caller. Above this block, like all nine
+// before it, so the run moved UP: 20862-21284, located verbatim, opening on
 // `<script>` and closing on `</script>` as the boundary note above requires, and
 // back at its full 423 lines.
 for (const c of COPIES) {

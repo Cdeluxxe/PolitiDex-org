@@ -6795,34 +6795,29 @@
           })()} — each one linked in the section it appears in. This opens the scoring methodology: what is counted, how the tiers are weighted, and what is deliberately left out.</p>
       </div>
 
-      <!--PDXSP:dw:money-->
-      <!-- Financial Transparency — Wealth Over Time -->
-      ${(function(){
-        const wealthData = {
-          trump:    { label:'Donald Trump',    unit:'B', years:[2015,2017,2019,2021,2023,2025,2026], values:[4.5,3.7,3.1,2.5,2.6,5.8,6.5] },
-          cox:      { label:'Spencer Cox',     unit:'M', years:[2018,2019,2020,2021,2022,2023,2024,2025,2026], values:[1.2,1.3,1.4,1.6,1.8,2.1,2.3,2.5,2.8] },
-          lee:      { label:'Mike Lee',        unit:'M', years:[2011,2013,2015,2017,2019,2021,2023,2025,2026], values:[0.8,0.9,1.0,1.1,1.3,1.5,1.6,1.7,1.8] },
-          curtis:   { label:'John Curtis',     unit:'M', years:[2017,2019,2021,2023,2025,2026], values:[2.1,2.3,2.5,2.8,3.0,3.2] },
-          massie:   { label:'Thomas Massie',   unit:'M', years:[2012,2014,2016,2018,2020,2022,2024,2026], values:[1.5,1.6,1.8,2.0,2.2,2.5,2.7,3.0] },
-          owens:    { label:'Burgess Owens',   unit:'M', years:[2020,2021,2022,2023,2024,2025,2026], values:[3.5,3.6,3.8,4.0,4.2,4.4,4.6] },
-          maloy:    { label:'Celeste Maloy',   unit:'M', years:[2022,2023,2024,2025,2026], values:[0.6,0.7,0.8,0.9,1.0] },
-          kennedy:  { label:'Mike Kennedy',    unit:'M', years:[2018,2020,2022,2024,2026], values:[2.0,2.2,2.4,2.6,2.9] },
-          bilzerian:{ label:'Dan Bilzerian',   unit:'M', years:[2014,2016,2018,2020,2022,2024,2026], values:[100,120,80,50,40,35,30] },
-          gallrein: { label:'Ed Gallrein',     unit:'M', years:[2018,2020,2022,2024,2026], values:[1.8,2.0,2.1,2.3,2.5] }
-        };
-        const wd = wealthData[id];
-        if (!wd) return '';
-        window.__wealthChartData = wd;
-        return '<div class="modal-section">' +
-          '<div class="modal-section-title">\u{1F4C8} Wealth Over Time (Public Disclosures)</div>' +
-          '<div style="background:rgba(10,15,30,0.5);border:1px solid rgba(255,255,255,0.06);border-radius:0.875rem;padding:1rem;">' +
-            '<div style="position:relative;width:100%;height:260px;">' +
-              '<canvas id="wealthChart" style="width:100%!important;height:100%!important;"></canvas>' +
-            '</div>' +
-            '<p style="font-size:0.65rem;color:#4e72a0;line-height:1.5;margin:0.75rem 0 0;text-align:center;">Data from public financial disclosures, FEC, and OpenSecrets. Not investment advice.</p>' +
-          '</div>' +
-        '</div>';
-      })()}
+      <!-- ══ WEALTH OVER TIME IS GONE, AND SO IS THE TABLE IT DREW FROM ══════
+           WHAT STOOD HERE. A 📈 "Wealth Over Time (Public Disclosures)" panel
+           with a Chart.js line for ten hand-picked people: series like
+           trump [4.5, 3.7, 3.1, 2.5, 2.6, 5.8, 6.5] in billions, lee
+           [0.8 … 1.8] in millions, written into this file by hand and labelled
+           as coming from public disclosures.
+
+           WHY IT COULD NOT STAY. Not one of those points was transcribed from a
+           form. No filing was cited, no year was linked, and no source could be
+           opened — a reader following the caption to "public financial
+           disclosures, FEC, and OpenSecrets" would have found nothing to check
+           the line against, because the line was authored here. A chart is the
+           most confident shape a number can take, and these numbers had no
+           right to it.
+
+           WHAT ANSWERS THE SAME QUESTION NOW. The Disclosures while serving
+           block in the Money section, which prints exactly one figure — the
+           range or amount a person told a clerk they own, as filed, with the
+           form's own year — and prints "No in-office wealth file on hand" for
+           everybody the site has no form for, which today is everybody. One
+           filed figure and an honest blank replace a decade of invented points.
+           No chart, no axis, no before-and-after, no percentage.
+           ═════════════════════════════════════════════════════════════════ -->
 
       <!--PDXSP:record-->
       <!-- Key Voting Record -->
@@ -7601,88 +7596,39 @@
         '</div>';
       })()}
 
-      <!--PDXSP:dw:money-->
-      <!-- Follow the Money — Campaign Finance in Modal -->
-      ${(function(){
-        var ftmModalData = {
-          trump:    { nwBefore:'$4.5B', nwNow:'$6.5B', nwGain:'+$2.0B', pctGain:44, officeYear:2017, donors:[{name:'Timothy Mellon (Shipping)',amt:'$150M'},{name:'Miriam Adelson (Casinos)',amt:'$100M'},{name:'Elon Musk / America PAC',amt:'$97M'},{name:'Real Estate Industry',amt:'$28.7M'}], corpPct:62, smallPct:28, otherPct:10, integrity:32 },
-          cox:      { nwBefore:'$1.2M', nwNow:'$2.8M', nwGain:'+$1.6M', pctGain:133, officeYear:2021, donors:[{name:'Real Estate Industry',amt:'$1.85M'},{name:'Republican Governors Assoc.',amt:'$2.1M'},{name:'Health Professionals',amt:'$890K'},{name:'Insurance Industry',amt:'$720K'}], corpPct:58, smallPct:30, otherPct:12, integrity:54 },
-          lee:      { nwBefore:'$0.8M', nwNow:'$1.8M', nwGain:'+$1.0M', pctGain:125, officeYear:2011, donors:[{name:'Club for Growth',amt:'$1.2M'},{name:'Securities & Investment',amt:'$980K'},{name:'Real Estate Industry',amt:'$870K'},{name:'Oil & Gas Industry',amt:'$650K'}], corpPct:55, smallPct:32, otherPct:13, integrity:48 },
-          curtis:   { nwBefore:'$2.1M', nwNow:'$3.2M', nwGain:'+$1.1M', pctGain:52, officeYear:2017, donors:[{name:'Real Estate Industry',amt:'$720K'},{name:'Health Professionals',amt:'$480K'},{name:'Oil & Gas Industry',amt:'$420K'},{name:'NRSC',amt:'$380K'}], corpPct:48, smallPct:38, otherPct:14, integrity:68 },
-          massie:   { nwBefore:'$1.5M', nwNow:'$3.0M', nwGain:'+$1.5M', pctGain:100, officeYear:2012, donors:[{name:'Small Individual Donors',amt:'$1.8M'},{name:'Gun Rights Groups',amt:'$320K'},{name:'Real Estate Industry',amt:'$210K'},{name:'Farm Bureau',amt:'$180K'}], corpPct:22, smallPct:65, otherPct:13, integrity:78 },
-          owens:    { nwBefore:'$3.5M', nwNow:'$4.6M', nwGain:'+$1.1M', pctGain:31, officeYear:2021, donors:[{name:'Small Individual Donors',amt:'$3.2M'},{name:'Real Estate Industry',amt:'$580K'},{name:'Securities & Investment',amt:'$420K'},{name:'Republican Main Street PAC',amt:'$350K'}], corpPct:42, smallPct:45, otherPct:13, integrity:58 },
-          maloy:    { nwBefore:'$0.6M', nwNow:'$1.0M', nwGain:'+$0.4M', pctGain:67, officeYear:2023, donors:[{name:'Small Individual Donors',amt:'$980K'},{name:'GOP Committees',amt:'$520K'},{name:'Real Estate Industry',amt:'$280K'},{name:'Oil & Gas',amt:'$210K'}], corpPct:40, smallPct:42, otherPct:18, integrity:62 },
-          kennedy:  { nwBefore:'$2.0M', nwNow:'$2.9M', nwGain:'+$0.9M', pctGain:45, officeYear:2013, donors:[{name:'Health Professionals',amt:'$420K'},{name:'GOP of Utah',amt:'$380K'},{name:'Real Estate Industry',amt:'$240K'},{name:'Pharma/Devices',amt:'$160K'}], corpPct:50, smallPct:35, otherPct:15, integrity:55 },
-          bilzerian:{ nwBefore:'$100M', nwNow:'$30M', nwGain:'-$70M', pctGain:-70, officeYear:2026, donors:[{name:'Self-Funded',amt:'$1.2M'},{name:'Entertainment Industry',amt:'$85K'},{name:'Cannabis Industry',amt:'$62K'},{name:'Small Donors',amt:'$95K'}], corpPct:12, smallPct:8, otherPct:80, integrity:35 },
-          gallrein: { nwBefore:'$1.8M', nwNow:'$2.5M', nwGain:'+$0.7M', pctGain:39, officeYear:2026, donors:[{name:'Agriculture PACs',amt:'$320K'},{name:'Restaurant Industry',amt:'$140K'},{name:'Small Donors',amt:'$180K'},{name:'GOP Committees',amt:'$210K'}], corpPct:38, smallPct:45, otherPct:17, integrity:64 }
-        };
-        var fd = ftmModalData[id];
-        if (!fd) return '';
-        var intClass = fd.integrity >= 65 ? 'ftm-integrity-high' : fd.integrity >= 45 ? 'ftm-integrity-mid' : 'ftm-integrity-low';
-        var intLabel = fd.integrity >= 65 ? 'HIGH' : fd.integrity >= 45 ? 'MODERATE' : 'LOW';
-        var intIcon = fd.integrity >= 65 ? '🛡️' : fd.integrity >= 45 ? '⚠️' : '🚩';
-        var donorRows = fd.donors.map(function(d) {
-          return '<div class="ftm-modal-donor-row">' +
-            '<div style="flex:1;min-width:0;">' +
-              '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.8rem;color:white;letter-spacing:0.01em;">' + d.name + '</div>' +
-            '</div>' +
-            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1rem;color:#4ade80;letter-spacing:0.03em;">' + d.amt + '</div>' +
-          '</div>';
-        }).join('');
-        return '<div class="modal-section">' +
-          '<div class="modal-section-title">💰 Follow the Money — Campaign Finance & Net Worth</div>' +
-          '<div class="ftm-modal-wrap">' +
-            '<div class="ftm-modal-header">' +
-              '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:0.85rem;letter-spacing:0.1em;color:#4ade80;">FINANCIAL TRANSPARENCY REPORT</span>' +
-              '<div class="ftm-integrity-badge ' + intClass + '">' + intIcon + ' ' + fd.integrity + ' ' + intLabel + '</div>' +
-            '</div>' +
-            '<div style="padding:0.875rem;">' +
-              '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">' +
-                '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:#9fb4d4;">Net Worth Change</div>' +
-                '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;color:#4e72a0;">Since entering office (' + fd.officeYear + ')</div>' +
-              '</div>' +
-              '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin-bottom:1rem;">' +
-                '<div style="background:rgba(10,15,30,0.6);border:1px solid rgba(255,255,255,0.06);border-radius:0.75rem;padding:0.6rem;text-align:center;">' +
-                  '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;color:#9fb4d4;line-height:1;">' + fd.nwBefore + '</div>' +
-                  '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#4e72a0;margin-top:0.15rem;">Before Office</div>' +
-                '</div>' +
-                '<div style="background:rgba(10,15,30,0.6);border:1px solid rgba(255,255,255,0.06);border-radius:0.75rem;padding:0.6rem;text-align:center;">' +
-                  '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;color:white;line-height:1;">' + fd.nwNow + '</div>' +
-                  '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#4e72a0;margin-top:0.15rem;">Current</div>' +
-                '</div>' +
-                '<div style="background:rgba(10,15,30,0.6);border:1px solid ' + (fd.pctGain > 50 ? 'rgba(248,113,113,0.2)' : 'rgba(74,222,128,0.15)') + ';border-radius:0.75rem;padding:0.6rem;text-align:center;">' +
-                  '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.2rem;color:' + (fd.pctGain > 50 ? '#f87171' : fd.pctGain < 0 ? '#4ade80' : '#f5c842') + ';line-height:1;">' + fd.nwGain + '</div>' +
-                  '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.5rem;letter-spacing:0.1em;text-transform:uppercase;color:#4e72a0;margin-top:0.15rem;">' + (fd.pctGain >= 0 ? '+' : '') + fd.pctGain + '% Change</div>' +
-                '</div>' +
-              '</div>' +
-              '<div style="margin-bottom:1rem;">' +
-                '<canvas id="ftmNwChart" style="width:100%!important;height:160px!important;"></canvas>' +
-              '</div>' +
-              '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.5rem;">Top Donors & Funding Sources</div>' +
-              donorRows +
-              '<div style="margin-top:0.75rem;">' +
-                '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:#9fb4d4;margin-bottom:0.4rem;">Funding Breakdown</div>' +
-                '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.35rem;">' +
-                  '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;color:#ff8a8a;width:5.5rem;text-align:right;">Corp/PAC ' + fd.corpPct + '%</span>' +
-                  '<div style="flex:1;height:10px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;"><div class="ftm-bar-corp" style="width:' + fd.corpPct + '%;"></div></div>' +
-                '</div>' +
-                '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.35rem;">' +
-                  '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;color:#7cc4ff;width:5.5rem;text-align:right;">Small Donors ' + fd.smallPct + '%</span>' +
-                  '<div style="flex:1;height:10px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;"><div class="ftm-bar-small" style="width:' + fd.smallPct + '%;"></div></div>' +
-                '</div>' +
-                '<div style="display:flex;align-items:center;gap:0.5rem;">' +
-                  '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;color:#c4a6ff;width:5.5rem;text-align:right;">Other ' + fd.otherPct + '%</span>' +
-                  '<div style="flex:1;height:10px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;"><div style="background:linear-gradient(90deg,#c4a6ff,#a78bfa);border-radius:4px;height:10px;width:' + fd.otherPct + '%;transition:width 1s ease;"></div></div>' +
-                '</div>' +
-              '</div>' +
-              '<div style="margin-top:0.75rem;display:flex;align-items:center;justify-content:space-between;">' +
-                '<button id="ftm-follow-btn" class="ftm-follow-btn" onclick="toggleFollowMoney(\'' + id + '\')" data-pid="' + id + '">💰 Follow This Money Trail</button>' +
-                '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.5rem;color:#4e72a0;letter-spacing:0.06em;">Data: FEC, OpenSecrets, public disclosures</span>' +
-              '</div>' +
-            '</div>' +
-          '</div>' +
-        '</div>';
-      })()}
+      <!-- ══ THE FINANCIAL TRANSPARENCY REPORT IS GONE ════════════════════════
+           WHAT STOOD HERE. A 💰 "Follow the Money — Campaign Finance & Net
+           Worth" card, headed FINANCIAL TRANSPARENCY REPORT, carrying: a 0-100
+           integrity number with a HIGH / MODERATE / LOW badge and a shield,
+           warning or flag glyph; three net-worth tiles (before office, current,
+           gain) with a percent-change caption coloured red above +50%; a
+           net-worth bar chart; a top-donor list with dollar amounts; and a
+           Corp/PAC-versus-small-donor percentage breakdown. All of it came from
+           one hand-written table in this file, keyed by ten politician ids.
+
+           WHY ALL FIVE HAD TO GO, not just the score. The 0-100 with a tier
+           label IS the retired Constituents-First grade wearing the word
+           "integrity" — a per-person funding score is the one thing the money
+           lane exists to refuse, and finance-lane.js publishes scored:false
+           and a NEVER_FEEDS wall saying so. The net-worth tiles and the percent
+           change were a causal claim about office and wealth built out of
+           figures nobody filed. The donor rows were not lines on any filing
+           this site holds: they were sector names and round numbers. And the
+           heading duplicated the Money section's own, so a reader met the same
+           question twice and got the invented answer second.
+
+           WHAT ANSWERS THE SAME QUESTIONS NOW. Campaign filings — receipts as
+           filed, composition as reported, coverage counted — and Disclosures
+           while serving, in the Money section above, each reached by its own
+           💰 pill on the letterhead. Two blocks, two archives, no third number
+           over the pair, and no verdict on either.
+
+           THE FOLLOW BUTTON WENT WITH THE CARD. 💰 Follow This Money Trail was
+           a control on this panel, not a reading of a filing; it wrote to a
+           followMoney doc that no surface on the site reads back. The Money
+           section holds the two filed blocks and nothing else, so the button
+           has no home here and window.toggleFollowMoney went with its caller.
+           ═════════════════════════════════════════════════════════════════ -->
 
       <!--PDXSP:dw:activity-->
       <!-- Activity — a compact, honest "last touched / how much is tracked"
@@ -7772,13 +7718,16 @@
               // through a reveal first (see _pdxRevealTarget).
               defer: true,
               sub: 'Every tracked pledge with its own verdict and receipt, plus how each one is judged.' },
-            { id: 'money', stage: 'drawers', ico: '💰', title: 'Full financial record',
-              // Deferred: two Chart.js canvases and the full finance report. The
-              // charts were already queued rather than drawn (a canvas in a closed
-              // drawer measures zero), so they only needed the queue to tolerate a
-              // canvas that does not exist yet as well as one that has no size.
-              defer: true,
-              sub: 'Net worth over time, campaign finance detail and donor breakdown from public disclosures.' },
+            // NO MONEY DRAWER. It held exactly two chunks — the wealth-over-time
+            // chart and the financial transparency report — and both were
+            // deleted, so the lid would advertise a full financial record and
+            // open on nothing. Its own subtitle was the last copy on the site
+            // promising "net worth over time … and donor breakdown", which is
+            // the promise the deletions retired. The filed material lives in
+            // the Money section, above the drawers, reached by the two 💰
+            // letterhead pills; assembleTagged emits no lid for a spec with no
+            // chunks, so removing the spec changes nothing a reader can see and
+            // removes a description nothing can keep.
             { id: 'activity', stage: 'drawers', ico: '🕑', title: 'Tracking activity',
               // NOT deferred, on purpose. It is a short freshness block — a few
               // counts and a timestamp — so there is nothing to win, and it holds
@@ -7802,156 +7751,21 @@
       try { window._pdxRelatedSpotlight(id); } catch (e) {}
     }
 
-    // Render wealth chart if data is available.
-    //
-    // The canvas is resolved when the chart is DRAWN, not when the job is queued:
-    // it sits inside the deferred money drawer, so at this point it is still part
-    // of a string. Capturing it here — and gating the whole job on `if (ctx)` —
-    // meant the net-worth chart was queued only for profiles whose drawer happened
-    // to be mounted already, i.e. never.
-    if (window.__wealthChartData) {
-      const wd = window.__wealthChartData;
-      delete window.__wealthChartData;
-      _pdxDrawerChart('wealthChart', function () { var ctx = document.getElementById('wealthChart'); if (!ctx) return; window.PDXLazy.chart().then(function () {
-        if (window.__wealthChartInstance) { window.__wealthChartInstance.destroy(); }
-        window.__wealthChartInstance = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: wd.years,
-            datasets: [{
-              label: 'Net Worth ($' + wd.unit + ')',
-              data: wd.values,
-              borderColor: '#4ade80',
-              backgroundColor: 'rgba(74,222,128,0.10)',
-              pointBackgroundColor: '#4ade80',
-              pointBorderColor: '#0a0f1e',
-              pointBorderWidth: 2,
-              pointRadius: 5,
-              pointHoverRadius: 7,
-              borderWidth: 2.5,
-              fill: true,
-              tension: 0.35
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                labels: { color: '#9fb4d4', font: { family: "'Barlow Condensed', sans-serif", size: 12, weight: '600' }, boxWidth: 14, padding: 12 }
-              },
-              tooltip: {
-                backgroundColor: 'rgba(10,15,30,0.95)',
-                titleColor: '#fff',
-                bodyColor: '#9fb4d4',
-                borderColor: 'rgba(74,222,128,0.3)',
-                borderWidth: 1,
-                padding: 10,
-                cornerRadius: 8,
-                titleFont: { family: "'Barlow Condensed', sans-serif", weight: '700', size: 13 },
-                bodyFont: { family: "'Barlow', sans-serif", size: 12 },
-                callbacks: { label: function(c) { return ' $' + c.parsed.y.toFixed(1) + wd.unit; } }
-              }
-            },
-            scales: {
-              x: {
-                ticks: { color: '#4e72a0', font: { family: "'Barlow Condensed', sans-serif", size: 11 } },
-                grid: { color: 'rgba(255,255,255,0.04)' },
-                border: { color: 'rgba(255,255,255,0.08)' }
-              },
-              y: {
-                ticks: { color: '#4e72a0', font: { family: "'Barlow Condensed', sans-serif", size: 11 }, callback: function(v) { return '$' + v + wd.unit; } },
-                grid: { color: 'rgba(255,255,255,0.04)' },
-                border: { color: 'rgba(255,255,255,0.08)' }
-              }
-            }
-          }
-        });
-      }).catch(function () {}); });
-    }
-
-    // Render FTM net worth bar chart. Same rule as the wealth chart above — the
-    // canvas is looked up at draw time, because it lives in the deferred money
-    // drawer and does not exist during this pass.
-    _pdxDrawerChart('ftmNwChart', function () {
-      var _ftmNwCanvas = document.getElementById('ftmNwChart');
-      if (!_ftmNwCanvas) return;
-      if (window.__ftmNwChartInstance) { window.__ftmNwChartInstance.destroy(); }
-      var _ftmNwData = {
-        trump:    { labels:['Before','2019','2021','2023','Now'], values:[4.5,3.1,2.5,2.6,6.5], unit:'B' },
-        cox:      { labels:['Before','2022','2023','2024','Now'], values:[1.2,1.6,2.1,2.3,2.8], unit:'M' },
-        lee:      { labels:['Before','2015','2019','2023','Now'], values:[0.8,1.0,1.3,1.6,1.8], unit:'M' },
-        curtis:   { labels:['Before','2019','2021','2023','Now'], values:[2.1,2.3,2.5,2.8,3.2], unit:'M' },
-        massie:   { labels:['Before','2016','2020','2024','Now'], values:[1.5,1.8,2.2,2.7,3.0], unit:'M' },
-        owens:    { labels:['Before','2022','2023','2024','Now'], values:[3.5,3.8,4.0,4.2,4.6], unit:'M' },
-        maloy:    { labels:['Before','2023','2024','2025','Now'], values:[0.6,0.7,0.8,0.9,1.0], unit:'M' },
-        kennedy:  { labels:['Before','2018','2022','2024','Now'], values:[2.0,2.2,2.4,2.6,2.9], unit:'M' },
-        bilzerian:{ labels:['Before','2018','2020','2022','Now'], values:[100,80,50,40,30], unit:'M' },
-        gallrein: { labels:['Before','2020','2022','2024','Now'], values:[1.8,2.0,2.1,2.3,2.5], unit:'M' }
-      };
-      var _ftmD = _ftmNwData[id];
-      if (_ftmD) window.PDXLazy.chart().then(function () {
-        window.__ftmNwChartInstance = new Chart(_ftmNwCanvas, {
-          type: 'bar',
-          data: {
-            labels: _ftmD.labels,
-            datasets: [{
-              label: 'Net Worth ($' + _ftmD.unit + ')',
-              data: _ftmD.values,
-              backgroundColor: _ftmD.values.map(function(v, i) {
-                return i === 0 ? 'rgba(159,180,212,0.4)' : i === _ftmD.values.length - 1 ? 'rgba(74,222,128,0.5)' : 'rgba(96,165,250,0.35)';
-              }),
-              borderColor: _ftmD.values.map(function(v, i) {
-                return i === 0 ? '#9fb4d4' : i === _ftmD.values.length - 1 ? '#4ade80' : '#60a5fa';
-              }),
-              borderWidth: 1.5,
-              borderRadius: 6
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { display: false },
-              tooltip: {
-                backgroundColor: 'rgba(10,15,30,0.95)',
-                titleColor: '#fff', bodyColor: '#9fb4d4',
-                borderColor: 'rgba(74,222,128,0.3)', borderWidth: 1,
-                padding: 8, cornerRadius: 8,
-                callbacks: { label: function(c) { return ' $' + c.parsed.y + _ftmD.unit; } }
-              }
-            },
-            scales: {
-              x: { ticks: { color: '#4e72a0', font: { family: "'Barlow Condensed', sans-serif", size: 10 } }, grid: { display: false }, border: { color: 'rgba(255,255,255,0.08)' } },
-              y: { ticks: { color: '#4e72a0', font: { family: "'Barlow Condensed', sans-serif", size: 10 }, callback: function(v) { return '$' + v + _ftmD.unit; } }, grid: { color: 'rgba(255,255,255,0.04)' }, border: { color: 'rgba(255,255,255,0.08)' } }
-            }
-          }
-        });
-      }).catch(function () {});
-    });
-
-    // Follow Money Trail button state.
-    //
-    // The button is resolved when the answer arrives rather than up front, and the
-    // answer is also recorded on _pdxFollowMoneyOn. The Firestore read is async and
-    // the button lives in the deferred money drawer, so it may be absent both now
-    // and when the promise settles; _pdxAfterDrawerReveal re-applies the state from
-    // that flag when the drawer finally mounts. Without it, a following user opened
-    // the money drawer to an un-followed button.
-    window._pdxFollowMoneyOn = false;
-    var _cu = auth.currentUser;
-    if (_cu && !_cu.isAnonymous) {
-      db.collection('followMoney').doc(_cu.uid).get().then(function(doc) {
-        if (doc.exists && doc.data().politicians && doc.data().politicians.indexOf(id) !== -1) {
-          window._pdxFollowMoneyOn = true;
-          var _fb = document.getElementById('ftm-follow-btn');
-          if (_fb) {
-            _fb.classList.add('ftm-following');
-            _fb.innerHTML = '✅ Following Money Trail';
-          }
-        }
-      }).catch(function() {});
-    }
+    // ── NO CHART IS QUEUED FROM A PROFILE RENDER ANY MORE ──────────────────
+    // Two Chart.js jobs used to be registered here — a wealth-over-time line and
+    // a net-worth bar — both drawing hand-written series out of this file, and
+    // both drawn inside the money drawer. The panels they painted are gone
+    // (see the two deletion notes in the body above), so the jobs are gone with
+    // them; nothing else on a profile holds a canvas.
+    //   THE QUEUE ITSELF STAYS. _pdxDrawerChart / _pdxDrainCharts /
+    // _pdxResetChartQueue are the only correct way to draw into a deferred
+    // drawer — a canvas in a closed .dd-body measures zero and Chart.js will not
+    // reliably redraw on reveal — so the machinery keeps standing for the next
+    // surface that needs it, and the reset above still runs on every render.
+    //   AND THE FOLLOW-MONEY READ IS GONE. It fetched a followMoney doc to paint
+    // one button's state. The button left with the card it sat on, and no other
+    // surface reads that flag, so the profile no longer opens a Firestore read
+    // on every render for a control that does not exist.
 
     console.log('✅ openModal built content for', id);
 
@@ -8084,8 +7898,11 @@
   }
 
   function closeModal() {
-    if (window.__wealthChartInstance) { window.__wealthChartInstance.destroy(); window.__wealthChartInstance = null; }
-    if (window.__ftmNwChartInstance) { window.__ftmNwChartInstance.destroy(); window.__ftmNwChartInstance = null; }
+    // No chart instance is held any more: the two money charts that used to be
+    // destroyed here were deleted with the panels they drew, and a destroy of a
+    // chart nobody creates is a comment pretending to be code. The queue is
+    // still emptied below, because a parked JOB can outlive a profile even when
+    // no chart was ever constructed.
     // Drop chart jobs still waiting on a drawer nobody opened. _pdxDrainCharts no
     // longer treats a missing canvas as a dead job — it cannot tell "deferred" from
     // "gone" — so the queue is emptied here, where the answer is unambiguous.
@@ -8191,15 +8008,10 @@
   window._pdxAfterDrawerReveal = function (drawerId, host) {
     // Charts parked because their canvas did not exist can now find it.
     try { _pdxDrainCharts(); } catch (e) {}
-    // The stored state of the Follow Money Trail button was read from Firestore
-    // during the profile render, when this button was still a string. Re-apply it
-    // rather than leaving a following user looking at an un-followed button.
-    try {
-      if (window._pdxFollowMoneyOn && host && host.querySelector) {
-        var fb = host.querySelector('#ftm-follow-btn');
-        if (fb) { fb.classList.add('ftm-following'); fb.innerHTML = '✅ Following Money Trail'; }
-      }
-    } catch (e) {}
+    // The Follow Money Trail button's stored state used to be re-applied here,
+    // because the fetch settled while the button was still a string inside a
+    // deferred drawer. Button, fetch and flag are all gone, so there is nothing
+    // to re-apply — and nothing in a money drawer to re-apply it to.
     // The rail spies on the ids that existed when it was armed, so a pill aimed
     // inside this drawer was skipped and the anchors below it have all just moved.
     // Re-arm — coalesced, so opening three drawers in a row costs one re-arm, and
