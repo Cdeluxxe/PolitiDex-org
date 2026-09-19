@@ -343,7 +343,14 @@ function flush(n = 12) {
 // `counts` is the fixture the endpoint would have returned; null means the read
 // failed (HTTP error, timeout, malformed body — the client cannot tell and does
 // not need to). `items` likewise for the archive.
-function boot({ counts, items, stances, files } = {}) {
+// THE DEFAULT FILE SET IS WHAT THE DOCUMENT SHIPS, minus the two modules a
+// sandbox cannot usefully boot (voting-record.js, stubbed below as its owner;
+// shell-account-chip.js, which paints chrome). issue-colors.js is here because
+// band 3's issue chip asks it for a token, and a fixture without it would test
+// the no-treatment fallback forever and never the chip.
+const BOOT_FILES = ["cmp-data.js", "issue-map.js", "issue-colors.js", "stance-sides.js"];
+
+function boot({ counts, items, stances, desk, noDesk, files } = {}) {
   const win = makeSandbox();
   const ctx = vm.createContext(win);
   const urls = [];
@@ -352,14 +359,30 @@ function boot({ counts, items, stances, files } = {}) {
     if (counts === null) return Promise.reject(new Error("fixture: read failed"));
     return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(counts) });
   };
-  for (const f of (files || ["cmp-data.js", "issue-map.js", "stance-sides.js"])) {
+  for (const f of (files || BOOT_FILES)) {
     vm.runInContext(R(f), ctx, { filename: f });
   }
+  // BOTH STORE OWNERS, THROUGH THEIR OWN PUBLISHED CONTRACTS and never a
+  // storage key. district-board.js reads PDXStanceSides; PDXStanceSides reads
+  // PDXStances.all() and PDXYourFile.answered()/.position(). These are the same
+  // two seams my-stances.js and your-file.js fill in the browser, and the
+  // document must ship BOTH — the whole defect this pass fixes was shipping one.
+  //
+  // THE DEFAULT IS BOTH PRESENT AND EMPTY, which is a signed-in visitor who has
+  // saved nothing: the reader is COMPLETE and its zero is a fact. `noDesk`
+  // reproduces the document as it WAS, with the account owner missing, where a
+  // zero is not a fact about anybody.
   if (stances) {
-    // Injected through the store's OWNER contract, not a storage key: the module
-    // reads PDXStanceSides, which reads PDXStances.all(). Same seam my-stances.js
-    // fills in the browser.
     win.PDXStances = { all: () => stances, count: () => stances.length };
+  } else {
+    win.PDXStances = { all: () => [], count: () => 0 };
+  }
+  if (!noDesk) {
+    const d = desk || {};
+    win.PDXYourFile = {
+      answered: () => Object.keys(d),
+      position: (k) => d[k] || null,
+    };
   }
   win.PDXVotingRecord = {
     fetchMember: () => (items === null
@@ -788,6 +811,320 @@ lacks(MOD_CODE, "pdx_your_file_v1", "…nor the second store");
 lacks(MOD_CODE, "_alignIssues", "…nor the engine's signature");
 
 // ═════════════════════════════════════════════════════════════════════════════
+// 8b · THE BOARD MAY NOT SAY "NO POSITIONS" AS A GUESS
+// ═════════════════════════════════════════════════════════════════════════════
+section("8b · one reader for the visitor's sides, and silence when it cannot run");
+// THE REPORT. /me listed three sides — Water Conservation, Housing
+// Affordability, Protect Public Lands — while this board said "You have no
+// positions on file" and the studio said "1 position on file" after a save.
+// Same morning, same account.
+//
+// THE CAUSE WAS NOT THE READER. stance-sides.js walks TWO stores through their
+// owners' published reads — my-stances.js's device key pdx_my_stances_v1 and
+// your-file.js's per-account key pdx_your_file_v1__u_<uid> — and this document
+// shipped the first owner only. So the reader read an empty device key,
+// answered zero, and this file printed the most confident sentence on the page
+// over a logged-in desk holding three.
+//
+// TWO THINGS FIX IT AND BOTH ARE ASSERTED HERE: the document ships both owners
+// (below), and a zero the reader cannot vouch for prints NOTHING.
+{
+  const DESK = { water: "support", housing: "support", lands_preserve: "support" };
+  const TABLE = ["water", "housing", "lands_preserve"];
+
+  // ── THE DOCUMENT SHIPS BOTH OWNERS ────────────────────────────────────────
+  // loads() reads DOC_BARE, whose <script> blocks are blanked wholesale, so it
+  // can only prove ABSENCE. A tag that must be PRESENT is matched against the
+  // raw document.
+  has(DOC, 'src="/my-stances.js"', "the board dropped the device store's owner");
+  has(DOC, 'src="/your-file.js"',
+    "the board does not load your-file.js — the shared reader can then only see half the visitor's file, " +
+    "and half a file is indistinguishable from an empty one. This is the defect, restated as a missing tag.");
+  has(DOC, 'src="/stance-sides.js"', "the board dropped the one reader");
+  has(DOC, 'src="/issue-colors.js"', "the board does not load the issue colour owner its table chips ask for");
+  // AND voter-hub-location.js IS STILL NOT HERE. Shipping a store owner is not
+  // permission to ship the owner of where a reader votes.
+  ok(!loads("voter-hub-location.js"), "voter-hub-location.js arrived on the board document");
+  ok(!loads("alignment-tool.js"), "the alignment engine arrived on the board document");
+
+  // ── FIXTURE: 0 SIDES, READER COMPLETE ─────────────────────────────────────
+  // Both owners present and both empty: a real zero, and it gets the add flow.
+  {
+    const { win } = boot({});
+    const B0 = win.PDXDistrictBoard;
+    eq(win.PDXStanceSides.complete(), true, "a fixture carrying both store owners reports an incomplete reader");
+    eq(win.PDXStanceSides.count(), 0, "the empty fixture is not empty");
+    const z = B0.stanceHtml([]);
+    has(z, 'href="/my-stances?add=1"', "a reader with no positions gets /my-stances?add=1");
+    has(z, 'data-pdxdb-stance="none"', "…in the no-positions state");
+    has(z, "no positions on file", "…with a sentence saying what is missing");
+    ok(!/\byet\b/i.test(tagBare(z)), '…and it does not say "yet"');
+  }
+
+  // ── FIXTURE: 3 SIDES ON THE DESK, DEVICE KEY EMPTY ────────────────────────
+  // The reported case. The board must not say they have none, in any spelling.
+  {
+    const { win } = boot({ desk: DESK });
+    const S = win.PDXStanceSides;
+    eq(S.count(), 3, "the reader returned the DEVICE key's count over a desk holding three — the defect is back");
+    const m = win.PDXDistrictBoard.stanceHtml(TABLE);
+    lacks(m, "no positions on file", "the board told a visitor holding three sides that they have none");
+    lacks(m, "You have no positions", "…in the exact sentence the report quoted");
+    lacks(m, 'data-pdxdb-stance="none"', "…and it painted the zero state over a full file");
+    has(m, 'data-pdxdb-stance="mine"', "three sides on this district's issues did not paint as the visitor's own");
+    // THEIR SIDES, BY NAME. "3" is not enough: the labels prove it read the desk.
+    ["Water Conservation", "Housing Affordability", "Protect Public Lands"].forEach((lbl) => {
+      has(m, lbl, `the board does not print ${lbl} — one of the three sides /me listed`);
+    });
+    // A READER WITH SIDES IS NOT A FIRST RUN, so they get the plain door.
+    has(m, 'href="/my-stances"', "a reader with sides has no way to add another");
+    lacks(m, 'href="/my-stances?add=1"', "the add flow — a first-run affordance — was offered to a visitor with three positions on file");
+  }
+
+  // ── FIXTURE: 3 SIDES, ONE ISSUE ON THE TABLE ──────────────────────────────
+  // "Show their sides that appear on this district's issue list. Sides on
+  // issues not on the table stay off the board."
+  {
+    const { win } = boot({ desk: DESK });
+    const one = win.PDXDistrictBoard.stanceHtml(["water"]);
+    has(one, "Water Conservation", "the one side on this district's list was not printed");
+    lacks(one, "Housing Affordability", "a side on an issue this table does not carry was printed on the board");
+    lacks(one, "Protect Public Lands", "…and so was the third");
+    eq((one.match(/class="pdxdb-side"/g) || []).length, 1,
+      "the filtered stance list printed more than the one side on this district's issues");
+  }
+
+  // ── FIXTURE: SIDES SPLIT ACROSS THE TWO STORES ────────────────────────────
+  // Neither store answers for the whole file. Both are read, first source wins.
+  {
+    const { win } = boot({
+      stances: [{ issueKey: "water", position: "oppose", priority: "high" }],
+      desk: { housing: "support", lands_preserve: "support" },
+    });
+    eq(win.PDXStanceSides.count(), 3, "the reader dropped one of the two stores");
+    const m = win.PDXDistrictBoard.stanceHtml(TABLE);
+    has(m, "Water Conservation", "the device store's side is missing from the board");
+    has(m, "Housing Affordability", "the account desk's side is missing from the board");
+    has(m, "Oppose", "the device store's SIDE was not read — first source wins per issue");
+  }
+
+  // ── FIXTURE: THE READER CANNOT RUN AT ALL ─────────────────────────────────
+  // "If the reader cannot run (no module on the document), omit the count
+  // sentence. Still link /my-stances. Never print 'no positions' as a guess."
+  {
+    const { win } = boot({ files: ["cmp-data.js", "issue-map.js", "issue-colors.js"] });
+    const B1 = win.PDXDistrictBoard;
+    ok(!win.PDXStanceSides, "the fixture loaded the reader it was supposed to withhold");
+    const u = B1.stanceHtml([]);
+    lacks(u, "no positions on file", "the board printed a zero sentence with no reader on the document to ask");
+    lacks(u, "You have no positions", "…in the exact sentence the report quoted");
+    lacks(u, 'data-pdxdb-stance="none"', "…and claimed the zero state");
+    has(u, 'data-pdxdb-stance="unread"', "an unreadable stance state is not marked as one");
+    has(u, 'href="/my-stances"', "the door to the studio closed when the reader could not run");
+    lacks(u, 'href="/my-stances?add=1"', "…and it guessed they were new");
+    ok(!/\b0 positions?\b/.test(tagBare(u)), "the unreadable state printed a number");
+  }
+
+  // ── FIXTURE: HALF A READER — my-stances.js HERE, your-file.js MISSING ─────
+  // This is the document AS IT WAS, and it is the branch that produced the lie.
+  // The count is 0 and the reader says it cannot vouch for that, so the board
+  // says nothing about their file rather than repeating the sentence.
+  {
+    const { win } = boot({ noDesk: true });
+    eq(win.PDXStanceSides.complete(), false,
+      "a reader missing the account store's owner reports itself complete — the false zero would be printable again");
+    eq(win.PDXStanceSides.count(), 0, "the half-read fixture is not zero, so it proves nothing");
+    const h = win.PDXDistrictBoard.stanceHtml([]);
+    lacks(h, "no positions on file", "the board printed \"no positions\" from a reader that could only see half the file");
+    has(h, 'data-pdxdb-stance="unread"', "a half-read reader is not treated as unreadable");
+    has(h, 'href="/my-stances"', "…and the door closed");
+  }
+
+  // ── A COUNT OF ONE OR MORE IS BELIEVED EITHER WAY ─────────────────────────
+  // A partial read can only under-report; a side that was found was found.
+  {
+    const { win } = boot({ noDesk: true, stances: [{ issueKey: "water", position: "support", priority: "high" }] });
+    eq(win.PDXStanceSides.complete(), false, "the half-read fixture reports complete");
+    const m = win.PDXDistrictBoard.stanceHtml(["water"]);
+    has(m, 'data-pdxdb-stance="mine"', "a side found by an incomplete reader was thrown away — a partial read can only under-report");
+    has(m, "Water Conservation", "…and the side itself was dropped");
+  }
+
+  // ── THE BOARD ASKS THE READER, IT DOES NOT SNIFF THE STORES ───────────────
+  // A surface that reached for window.PDXYourFile itself would be a second
+  // owner of "which stores back the reader", and the next store added there
+  // would leave it quietly wrong.
+  lacks(MOD_CODE, "PDXYourFile", "district-board.js reaches for the account store's owner directly");
+  lacks(MOD_CODE, "PDXStances", "district-board.js reaches for the device store's owner directly");
+  has(MOD_CODE, "S.complete", "district-board.js does not ask the reader whether its zero is a fact");
+  // AND THE READER PUBLISHES THAT FACT.
+  {
+    const SIDES = jsBare(R("stance-sides.js"));
+    has(SIDES, "function complete()", "stance-sides.js does not publish complete()");
+    has(SIDES, "function sources()", "stance-sides.js does not publish sources()");
+    has(SIDES, "complete: complete", "…and complete() is not on the public API");
+    lacks(SIDES, "localStorage", "the reader touches storage — it reads two owners and owns nothing");
+  }
+
+  // ── NO NEW STORE, NO WRITE, NO COPY ──────────────────────────────────────
+  for (const bad of ["pdx_my_stances_v2", "pdx_your_file_v2", "localStorage.setItem",
+                     "sessionStorage.setItem"]) {
+    lacks(MOD_CODE, bad, `district-board.js names ${bad}`);
+  }
+  // …AND NO VISITOR SIDE IS PUT AT THE COUNTS ENDPOINT. Band 2 is an aggregate
+  // read: the only request this module makes is a GET, and the suite already
+  // pins that. Re-asserted here because "do not PUT visitor sides into the
+  // district counts endpoint" is a rule about THIS pass.
+  {
+    const { win, urls } = boot({ desk: DESK, counts: { seat: "ut-statesenate-3", rooms: [] } });
+    win.PDXDistrictBoard.stanceHtml(TABLE);
+    ok(urls.every((u) => u.indexOf("water") < 0 && u.indexOf("housing") < 0 && u.indexOf("lands_preserve") < 0),
+      "a visitor's own issue keys reached the district counts endpoint as query text");
+    lacks(MOD_CODE, "method: 'PUT'", "district-board.js issues a PUT");
+    lacks(MOD_CODE, 'method: "PUT"', "district-board.js issues a PUT");
+    lacks(MOD_CODE, "method: 'POST'", "district-board.js issues a POST");
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 8c · ONE ROW PER MEASURE, AND THE ISSUE UNDER IT IS A CHIP
+// ═════════════════════════════════════════════════════════════════════════════
+section("8c · unique measures, and the issue label carries the issue's colour");
+// THE REPORT. Fairpark S.B. 336, S.B. 102 and S.B. 272 each appeared more than
+// once on the table. The archive returns one row per ACT, not one per bill: a
+// measure with a committee vote, a floor vote and a concurrence vote comes back
+// three times. Three copies of one bill, each beside the same room counts, read
+// as three measures and three separate rooms.
+{
+  // THE FIXTURE IS THE ARCHIVE'S OWN SHAPE: one measureId, three acts.
+  const act = (measureId, number, title, extra) => Object.assign({
+    kind: "vote", measureId, number, title,
+    measureIdent: { session: "2025GS", readFrom: null, readFromUrl: null, officialTitle: null, billUrl: null },
+    issues: [{ issueKey: "water", weight: 1, isPrimary: true, supportMeaning: "", rationale: null }],
+    congress: null,
+  }, extra || {});
+
+  const dupes = [
+    act(4101, "S.B. 336", "Fairpark District Amendments"),
+    act(4101, "S.B. 336", "Fairpark District Amendments"),
+    act(4101, "S.B. 336", "Fairpark District Amendments"),
+    act(4102, "S.B. 102", "Water Amendments"),
+    act(4102, "S.B. 102", "Water Amendments"),
+    act(4103, "S.B. 272", "Great Salt Lake Amendments"),
+  ];
+  const { win } = boot({ items: dupes });
+  const Bd = win.PDXDistrictBoard;
+  const html = Bd.tableHtml("ok", dupes, []);
+  eq((html.match(/class="pdxdb-row"/g) || []).length, 3,
+    "six acts on three bills painted more than three rows — the table is not unique by measure");
+  eq((html.match(/S\.B\. 336/g) || []).length, 1, "Fairpark S.B. 336 appears more than once");
+  eq((html.match(/S\.B\. 102/g) || []).length, 1, "S.B. 102 appears more than once");
+  eq((html.match(/S\.B\. 272/g) || []).length, 1, "S.B. 272 appears more than once");
+
+  // DEDUPED BY ID, NOT BY TITLE. Two different bills sharing a title are two
+  // rows; collapsing them would silently delete a measure from the table.
+  {
+    const twins = [
+      act(5001, "H.B. 1", "Amendments to Election Law"),
+      act(5002, "H.B. 2", "Amendments to Election Law"),
+    ];
+    const h = Bd.tableHtml("ok", twins, []);
+    eq((h.match(/class="pdxdb-row"/g) || []).length, 2,
+      "two different measures sharing a title collapsed into one row — the dedupe is by title, not by identity");
+  }
+  // AND THE SITTING IS PART OF THE IDENTITY when there is no id: the same bill
+  // number in two sessions is two bills.
+  {
+    const sessions = [
+      { kind: "vote", number: "S.B. 336", title: "Fairpark District Amendments", congress: null,
+        measureIdent: { session: "2025GS", readFrom: null, readFromUrl: null, officialTitle: null, billUrl: null },
+        issues: [{ issueKey: "water", weight: 1, isPrimary: true, supportMeaning: "", rationale: null }] },
+      { kind: "vote", number: "S.B. 336", title: "Fairpark District Amendments", congress: null,
+        measureIdent: { session: "2024GS", readFrom: null, readFromUrl: null, officialTitle: null, billUrl: null },
+        issues: [{ issueKey: "water", weight: 1, isPrimary: true, supportMeaning: "", rationale: null }] },
+      { kind: "vote", number: "S.B. 336", title: "Fairpark District Amendments", congress: null,
+        measureIdent: { session: "2024GS", readFrom: null, readFromUrl: null, officialTitle: null, billUrl: null },
+        issues: [{ issueKey: "water", weight: 1, isPrimary: true, supportMeaning: "", rationale: null }] },
+    ];
+    const h = Bd.tableHtml("ok", sessions, []);
+    eq((h.match(/class="pdxdb-row"/g) || []).length, 2,
+      "the same bill number in two sessions is two measures — identity is sitting + number, not number alone");
+  }
+  // A ROW WITH NO IDENTITY IS PRINTED, not hidden behind a guess that two
+  // unidentifiable rows are the same measure.
+  {
+    const nameless = [
+      { kind: "position", number: "", title: "A curated act", measureIdent: null, congress: null, issues: [] },
+      { kind: "position", number: "", title: "Another curated act", measureIdent: null, congress: null, issues: [] },
+    ];
+    const h = Bd.tableHtml("ok", nameless, []);
+    eq((h.match(/class="pdxdb-row"/g) || []).length, 2,
+      "two rows the archive cannot identify were merged — an unidentifiable row is printed, never guessed at");
+  }
+  // COUNTS STAY REAL OR ZERO, and no majority appears beside a deduped row.
+  {
+    const h = Bd.tableHtml("ok", dupes, [{ issueKey: "water", polls: 4, comments: 2 }]);
+    has(h, 'data-pdxdb-polls="4"', "the deduped row lost its real poll count");
+    has(h, 'data-pdxdb-comments="2"', "…and its real comment count");
+    ok(!/%/.test(tagBare(h)), "a percentage appeared on the table");
+    const zero = Bd.tableHtml("ok", dupes, []);
+    has(zero, 'data-pdxdb-polls="0"', "a measure with no activity does not print 0");
+  }
+
+  // ── THE ISSUE UNDER A ROW IS A PDXIssueColors CHIP ────────────────────────
+  // SAME TOKEN AS /my-stances FOR THE SAME KEY, byte for byte — which is the
+  // only claim worth making, since a second palette here would drift the first
+  // time a hex changes.
+  {
+    has(html, 'class="pdxdb-m-issue"', "the issue under a measure row is gone");
+    has(html, 'data-ic="on"', "the issue label carries no colour treatment — it is muted grey text again");
+    const C = win.PDXIssueColors;
+    must(C && typeof C.skin === "function", "issue-colors.js did not publish skin() in the fixture");
+    // THE SAME CALL /my-stances MAKES: skin(key, window.coreIssueForKey).
+    const want = C.skin("water", win.coreIssueForKey);
+    ok(want.on, "the water key stopped resolving to a core issue — the chip assertion is vacuous");
+    has(html, want.attr.trim(), "the row's chip does not carry the exact token PDXIssueColors hands out for water");
+    // …AND IT IS THE CALL /my-stances MAKES, in both files.
+    has(MOD_CODE, "window.coreIssueForKey",
+      "district-board.js passes a different lookup to skin() than /my-stances does — the same issue would carry two colours");
+    has(jsBare(R("my-stances.js")), "window.coreIssueForKey", "/my-stances stopped passing that lookup");
+    has(jsBare(R("stance-studio.js")), "window.coreIssueForKey", "the studio chips stopped passing that lookup");
+    // THE PROPERTIES THE STYLESHEET CONSUMES, and no per-key rule in the sheet.
+    has(html, "--pdx-ic:", "the chip carries no issue colour custom property");
+    has(DOC, '.pdxdb-m-issue[data-ic="on"]', "the document has no rule consuming the chip's token");
+    has(DOC, "var(--pdx-ic-wash)", "…and does not use the shared wash the /my-stances chip uses");
+    {
+      const keys = Object.keys(win.ISSUE_MAP || {});
+      const hard = keys.filter((k) => DOC.indexOf("--pdx-ic-" + k) >= 0);
+      eq(hard.length, 0, `the board document carries ${hard.length} per-issue colour rule(s) — the colour belongs to PDXIssueColors`);
+    }
+    // AN UNRESOLVED KEY GETS NO ATTRIBUTE, so a key that stopped resolving
+    // renders as it did before the treatment rather than painting one flat hue.
+    {
+      const odd = [act(7001, "S.B. 9", "Something", {
+        issues: [{ issueKey: "not_a_real_issue_key", weight: 1, isPrimary: true, supportMeaning: "", rationale: null }],
+      })];
+      const h = Bd.tableHtml("ok", odd, []);
+      ok(h.indexOf("pdxdb-m-issue") < 0 || h.indexOf('data-ic="on"') < 0,
+        "a key outside the vocabulary was given a colour treatment and a label");
+    }
+    // THE VISITOR'S OWN SIDE CARRIES THE SAME TOKEN as the row above it.
+    {
+      const { win: w2 } = boot({ desk: { water: "support" } });
+      const m = w2.PDXDistrictBoard.stanceHtml(["water"]);
+      has(m, want.attr.trim(), "the visitor's own side does not carry the same issue token the table row carries");
+    }
+  }
+  // NO NEW SCRAPE. One archive read, the same baseline query, and the dedupe is
+  // client-side over what it already returned.
+  {
+    const { urls } = boot({ items: dupes });
+    ok(urls.every((u) => u.indexOf("/api/district-board") >= 0),
+      `the board issued a request that is not its counts read: ${JSON.stringify(urls)}`);
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 // 9 · THE HARD WALLS
 // ═════════════════════════════════════════════════════════════════════════════
 section("9 · the money lane, the FD tables and the stores are all out of reach");
@@ -1010,13 +1347,25 @@ ok(LOG.length > 200, `…and it has something in it (${LOG.length} chars)`);
     `the ${VER} entry stays inside sw.js's changelog budget (${LOG.split("\n").length} lines) — ` +
     `the worker ships whole on every deploy`);
 }
-ok(/District 3 Voice reader shipped/i.test(LOG.replace(/\s+/g, " ")) ||
-   /DISTRICT 3 VOICE READER SHIPPED/i.test(LOG.replace(/\s+/g, " ")),
-  "…saying the District 3 Voice reader shipped");
-ok(/no equity copy/i.test(LOG), "…and that there is no equity copy");
-ok(/stores for\s+\/\/\s+location\/district\/team\/stance not migrated/i.test(LOG.replace(/\s+/g, " ")) ||
-   /location\/district\/team\/stance not migrated/i.test(LOG.replace(/\s*\n\/\/\s*/g, " ")),
-  "…and that the location/district/team/stance stores were not migrated");
+{
+  // WHAT THE ENTRY HAS TO SAY, read as one line so a claim broken across two
+  // comment lines still matches. Each of these is a fact a warm device's owner
+  // needs in order to know why the shell moved.
+  const FLAT = LOG.replace(/\s*\n\/\/\s*/g, " ").replace(/\s+/g, " ");
+  ok(/one stance reader/i.test(FLAT), "…saying the stance CTA and the studio count use the shared reader");
+  ok(/stance-sides\.js/.test(FLAT), "…and naming the reader");
+  ok(/your-file\.js/.test(FLAT), "…and the owner whose absence caused the false zero");
+  ok(/unique/i.test(FLAT) && /measure id/i.test(FLAT),
+    "…and that the SD-3 table is now unique by measure id");
+  ok(/PDXIssueColors/.test(FLAT), "…with issue colours on its rows");
+  ok(/no equity copy/i.test(FLAT), "…and that there is no equity copy");
+  ok(/location, district, team and stance stores are\s*untouched/i.test(FLAT) ||
+     /location\/district\/team\/stance/i.test(FLAT),
+    "…and that the location/district/team/stance stores were not migrated");
+  ok(/not migrated|untouched/i.test(FLAT),
+    "…in those words: the stores are read-only through their existing owners");
+  ok(/voter-hub-location\.js/.test(FLAT), "…and that the tenure owner is still unchanged and still absent");
+}
 
 // THE PRECACHE ENTRY. It is a bootable shell, which is what the list is for.
 // INSIDE THE ARRAY, not merely somewhere in the file: the offline branch below

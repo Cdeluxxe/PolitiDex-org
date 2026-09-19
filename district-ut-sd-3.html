@@ -76,7 +76,7 @@
          alignment-tool.js is not on this document and would not be called if
          it were.
 
-     THE CRITICAL PATH, AND WHY EACH FILE IS ON IT. Six scripts and two sheets:
+     THE CRITICAL PATH, AND WHY EACH FILE IS ON IT. Eight scripts and two sheets:
        cmp-data.js         the roster. Band 1's ONLY source: the seat's sitting
                            member is a row in that file, read for three fields
                            and no others.
@@ -89,13 +89,26 @@
                            followed by noteMember(): this is a district reader,
                            and seeding a member's record from it would make this
                            page an input to the record engines.
+       issue-colors.js     the per-issue colour token. Band 3's issue chip asks
+                           PDXIssueColors.skin(key, window.coreIssueForKey) for
+                           it, with the SAME second argument my-stances.js and
+                           stance-studio.js pass, so the same issue cannot
+                           carry two colours on two surfaces.
        stance-sides.js     the ONE answer to "which sides does this reader
                            hold". Asked for a count, to tell a reader with no
-                           positions from one who has some.
-       my-stances.js       the owner of that store, because stance-sides.js
-                           reads it rather than owning it. It writes nothing on
-                           a document with no studio host and no alignment
-                           engine, which is this one.
+                           positions from one who has some, and then for the
+                           list, to print the ones on this seat's issues.
+       my-stances.js       the owner of the DEVICE store (pdx_my_stances_v1),
+                           because stance-sides.js reads it rather than owning
+                           it. It writes nothing on a document with no studio
+                           host and no alignment engine, which is this one.
+       your-file.js        the owner of the ACCOUNT store (pdx_your_file_v1,
+                           namespaced per uid). BOTH ARE REQUIRED, and shipping
+                           one of the two is the bug this document had: the
+                           reader read the device key, found it empty, and this
+                           board printed "You have no positions on file" at a
+                           visitor whose /me was listing three sides from the
+                           account desk. Read-only here — see the tag.
        district-board.js   the ONE owner of this board: the seat, the alias, the
                            route, the copy, the three bands, the two reads and
                            the person-file control. This document asks it
@@ -109,7 +122,10 @@
      (758 KB of homepage engine — the account chip is shell-account-chip.js
      instead). No alignment-tool.js, no ballot-breakdown.js, no
      voter-hub-location.js (see the rule above), and NOTHING from the money
-     lane: no finance-lane.js, no wealth data, no disclosure table. The bar
+     lane: no finance-lane.js, no wealth data, no disclosure table.
+     AND NO THIRD STORE. The two store owners above are the two that already
+     exist; this pass added no key, no pdx_my_stances_v2, and no code anywhere
+     that copies one store's records into the other's. The bar
      links to /money because the bar is the same row on every side-lane shell,
      and a navigation link is not a read.
 
@@ -287,8 +303,32 @@
     .pdxdb-m-link { color: #cfe0fa; text-decoration: none; border-bottom: 1px solid #253855; }
     .pdxdb-m-link:hover, .pdxdb-m-link:focus-visible { color: #fff; border-bottom-color: #7fb2ff; }
     .pdxdb-m-plain { color: #b6c6de; }
-    .pdxdb-m-num, .pdxdb-m-issue {
-      display: block; margin-top: 0.15rem; font-size: 0.74rem; color: #7d8fa9;
+    .pdxdb-m-num { display: block; margin-top: 0.15rem; font-size: 0.74rem; color: #7d8fa9; }
+
+    /* THE ISSUE UNDER A MEASURE, AS A CHIP AND NOT AS SMALL GREY PRINT.
+       It was #7d8fa9 — the same muted slate as the bill number beside it — so
+       the one field on the row that tells a reader whether this measure is on
+       something they care about read as a footnote. It is now the issue's own
+       colour, and the four custom properties below arrive INLINE from
+       PDXIssueColors.skin(), which is why there is not one per-issue rule here
+       and cannot be. The shape is my-stances.css's for the same token
+       (.ms-chip[data-ic="on"], my-stances.css:95-96): wash behind, the issue's
+       colour mixed into the border, ink on top.
+
+       AN UNRESOLVED KEY CARRIES NO [data-ic] AT ALL, by that module's design,
+       so a key that stopped resolving — or a document where issue-colors.js
+       failed to load — renders exactly as it did before the treatment existed
+       rather than painting every row one neutral colour and implying the colour
+       system is off. That is the fallback in the first rule. */
+    .pdxdb-m-issue {
+      display: inline-block; margin-top: 0.3rem; padding: 0.1rem 0.42rem;
+      border: 1px solid #253855; border-radius: 0.3rem;
+      font: 600 0.72rem/1.45 'Barlow', sans-serif; color: #9fb2cb;
+    }
+    .pdxdb-m-issue[data-ic="on"] {
+      background: var(--pdx-ic-wash);
+      border-color: color-mix(in srgb, var(--pdx-ic) 52%, transparent);
+      color: var(--pdx-ic-ink);
     }
 
     /* The reader's own positions, and the door to set them. */
@@ -306,8 +346,22 @@
     .pdxdb-stance[data-pdxdb-stance="mine"] .pdxdb-stance-note { margin: 0 0 0.6rem; }
     .pdxdb-sides { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.35rem; }
     .pdxdb-side { display: flex; justify-content: space-between; gap: 0.75rem; font-size: 0.86rem; }
+    /* The reader's own side, carrying the same issue token the table row above
+       it carries for the same key — one border, so their Water Conservation
+       and the table's Water Conservation are visibly the same issue. */
+    .pdxdb-side[data-ic="on"] {
+      border-left: 3px solid color-mix(in srgb, var(--pdx-ic) 58%, transparent);
+      padding-left: 0.5rem;
+    }
     .pdxdb-side-k { color: #cfe0fa; }
+    .pdxdb-side[data-ic="on"] .pdxdb-side-k { color: var(--pdx-ic-ink); }
     .pdxdb-side-v { color: #8fd6b1; font-weight: 600; white-space: nowrap; }
+    .pdxdb-stance-act { margin: 0.7rem 0 0; }
+    .pdxdb-stance-more {
+      font-size: 0.82rem; color: #8fd6b1; text-decoration: none;
+      border-bottom: 1px solid #2c6a4d;
+    }
+    .pdxdb-stance-more:hover, .pdxdb-stance-more:focus-visible { color: #d9f5e6; border-bottom-color: #8fd6b1; }
 
     /* THE POSTING SEAM, PAINTED OFF. It looks like what it is: a field that is
        not ready. Not hidden, because hiding it would leave the free-versus-paid
@@ -416,15 +470,38 @@
   <script defer src="/cmp-data.js"></script>
   <!-- The issue vocabulary, for band 3's labels and the reader's own sides. -->
   <script defer src="/issue-map.js"></script>
+  <!-- The per-issue colour token, so band 3's issue chips carry the same
+       --pdx-ic properties /my-stances prints for the same key. 8 KB, and it
+       owns no state: it injects one <style> of :root variables and publishes
+       skin(). It is the SAME module /my-stances and the stance studio ask. -->
+  <script defer src="/issue-colors.js"></script>
   <!-- Band 3's archive read. See the head note on the baseline query. -->
   <script defer src="/voting-record.js"></script>
-  <!-- The reader's own positions: one owner (stance-sides.js) and the store it
-       reads (my-stances.js). NEITHER WRITES ANYTHING HERE. stance-sides.js owns
-       no state at all, and my-stances.js's setup() returns early without a
-       #my-stances host while its projection paths only write when the alignment
-       engine's globals exist — and alignment-tool.js is not on this document. -->
+  <!-- ONE READER OF THE VISITOR'S SIDES, AND BOTH STORES BEHIND IT.
+       stance-sides.js is the single answer to "which sides does this visitor
+       hold" and it walks TWO stores through their owners' published reads:
+       my-stances.js (pdx_my_stances_v1, the device key) and your-file.js
+       (pdx_your_file_v1, namespaced per account). BOTH TAGS ARE REQUIRED.
+
+       THIS IS THE BUG THIS PASS FIXES. With my-stances.js alone, a visitor
+       whose three positions live on the account desk read as ZERO here, and the
+       board printed "You have no positions on file" on the same morning that
+       /me listed three sides. The reader was correct on both documents; this
+       document had only given it one of the two stores to read. /me carries
+       both tags (me.html:2369-2370) and so, now, does /my-stances.
+
+       NEITHER WRITES ANYTHING HERE. stance-sides.js owns no state at all.
+       my-stances.js's setup() returns early without a #my-stances host, and its
+       projection paths only write when the alignment engine's globals exist —
+       alignment-tool.js is not on this document. your-file.js's boot is
+       adopt() + a hash check: adopt() only READS its key and projects into
+       window.alignSetIntensity, which is alignment-tool.js's and therefore
+       absent, so the projection is a no-op; its set() refuses every write while
+       signed out and there is no host and no [data-pdxyf-open] control on this
+       page for one to come from. -->
   <script defer src="/stance-sides.js"></script>
   <script defer src="/my-stances.js"></script>
+  <script defer src="/your-file.js"></script>
   <!-- The board itself. Everything above is a source it reads. -->
   <script defer src="/district-board.js"></script>
   <!-- The account chip, answering the same three-state contract compare-hub.js

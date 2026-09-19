@@ -62,9 +62,16 @@
 
      · NOT A STORE. No localStorage write, no sessionStorage write, no cookie,
        no IndexedDB. It does not write a location key, a district key, a team
-       key or a stance key — it READS the stance count through
-       PDXStanceSides.count() to tell a reader with no positions from one who
-       has some, and reads nothing else off the device. The one storage write
+       key or a stance key — it READS the reader's sides through
+       PDXStanceSides (count, list, label) to tell a reader with no positions
+       from one who has some, and reads nothing else off the device. It does not
+       create pdx_my_stances_v2 or any other key, it does not copy one store's
+       objects into another, and it does not PUT a visitor's sides into the
+       counts endpoint: band 2 is an aggregate read and stays structurally zero.
+       The two stores behind that reader are pdx_my_stances_v1 (my-stances.js)
+       and pdx_your_file_v1, per account (your-file.js); NEITHER is touched
+       here, by name or by key, and both are asked only through their owners'
+       published reads, which is what stance-sides.js is. The one storage write
        that happens on this page at all is PDXVotingRecord's own session copy of
        the PUBLIC record (its `?pageSize=100` baseline, the same key and the
        same query every warming caller in the app already uses), which is a
@@ -130,8 +137,16 @@
                                          to the record engines.
              window.ISSUE_MAP            the issue vocabulary, for labels.
      stance  PDXStanceSides.count()      how many positions the reader holds,
-                                         and nothing about what they are unless
-                                         they hold some.
+             PDXStanceSides.list()       and nothing about what they are unless
+             PDXStanceSides.label()      they hold some. THE ONLY ANSWER TO
+                                         THAT QUESTION ON THIS DOCUMENT; see
+                                         the stance band below on why a -1 from
+                                         it prints no sentence at all.
+             PDXIssueColors.skin()       the per-issue colour token, with the
+                                         SAME second argument /my-stances and
+                                         the studio pass, so the same issue
+                                         cannot carry two colours on two
+                                         surfaces.
 
    Public API: window.PDXDistrictBoard (see the assignment at the bottom).
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -229,7 +244,15 @@
                    'issue list gets read against something.',
     stanceMineNote: 'Your sides on the issues in this district’s list. Read from your own ' +
                     'saved positions and nowhere else.',
-    stanceHref: '/my-stances?add=1'
+    stanceMore: 'Add another',
+    // TWO DOORS, AND THE DIFFERENCE IS A CLAIM ABOUT THE READER. ?add=1 opens
+    // the studio's add flow and is only offered to a reader the shared reader
+    // says holds NOTHING. A reader who already holds sides is sent to the plain
+    // address, because the add flow is a first-run affordance and pointing an
+    // existing file at it is the small version of the same lie this pass is
+    // fixing: it treats somebody with three positions as somebody with none.
+    stanceHref: '/my-stances?add=1',
+    stanceMoreHref: '/my-stances'
   };
 
   function fn(v) { return typeof v === 'function'; }
@@ -346,6 +369,40 @@
   // AN EMPTY TABLE IS A PASSING STATE. If the issue-to-measure mapping is too
   // thin for this seat to have rows, the band prints its empty sentence and the
   // page is still correct. Nothing is scraped to fill it.
+  // ── WHICH ROWS THE TABLE PRINTS, DECIDED ONCE ─────────────────────────────
+  // ONE OWNER OF "what is on the table", because two callers need the answer:
+  // the table body, and the stance band's filter. Deriving it twice is how the
+  // band beneath a table comes to disagree with the table — a side printed for
+  // an issue whose only measure was past the cap would be this page telling a
+  // reader their position is on this seat's list while the list above it does
+  // not carry it.
+  //
+  // FIRST ACT ON A MEASURE WINS THE ROW; see measureKeyOf(). The archive's own
+  // order is kept and nothing here re-sorts, promotes or hides a row for being
+  // inconvenient. The cap counts ROWS KEPT rather than rows examined, so a seat
+  // whose first forty acts were all on one bill still fills the table.
+  // A row needs something to print in its measure cell. measureRow() refuses
+  // the same shape; this is the predicate, so the decision is made once and the
+  // cap is never spent on a row that would render as nothing.
+  function printable(item) {
+    if (!item) return false;
+    return !!(String(item.title || '').trim() || String(item.number || '').trim());
+  }
+  function tableRows(items) {
+    var list = Array.isArray(items) ? items : [];
+    var out = [];
+    var seen = {};
+    for (var i = 0; i < list.length && out.length < TABLE_CAP; i++) {
+      var it = list[i];
+      if (!printable(it)) continue;        // no title and no number: nothing to print
+      var mk = measureKeyOf(it);
+      if (mk && seen[mk]) continue;
+      if (mk) seen[mk] = 1;
+      out.push(it);
+    }
+    return out;
+  }
+
   function tableHtml(state, items, rooms) {
     if (state === 'unread') {
       return band('table', COPY.tableBand, COPY.tableNote,
@@ -364,19 +421,15 @@
         '<p class="pdxdb-none">' + esc(COPY.tableEmpty) + '</p>', COPY.tier);
     }
 
-    var tally = roomIndex(rooms);
-    var body = '';
-    var printed = 0;
-    for (var i = 0; i < list.length && printed < TABLE_CAP; i++) {
-      var r = measureRow(list[i], tally);
-      if (!r) continue;
-      body += r;
-      printed++;
-    }
-    if (!printed) {
+    var rows = tableRows(list);
+    if (!rows.length) {
       return band('table', COPY.tableBand, COPY.tableNote,
         '<p class="pdxdb-none">' + esc(COPY.tableEmpty) + '</p>', COPY.tier);
     }
+
+    var tally = roomIndex(rooms);
+    var body = '';
+    for (var i = 0; i < rows.length; i++) body += measureRow(rows[i], tally);
 
     return band('table', COPY.tableBand, COPY.tableNote,
       '<table class="pdxdb-table"><thead><tr>' +
@@ -403,6 +456,52 @@
   // primary; that is the one used, and when none is marked the first is. No
   // measure is counted under two issues, because then one poll answer would be
   // printed twice on one page.
+  // ── ONE ROW PER MEASURE, AND "MEASURE" IS AN ID ───────────────────────────
+  // THE BUG THIS FIXES. The archive returns one row per ACT, not one per bill:
+  // a measure that took a committee vote, a floor vote and a concurrence vote
+  // comes back three times, and band 3 printed all three. So the Fairpark bill
+  // sat on the table three times with the same title and the same two counts
+  // beside each copy, and a reader counting rows read three measures where the
+  // seat had one — and the poll count, which is a count of PEOPLE on that
+  // measure, appeared to be three separate rooms.
+  //
+  // DEDUPE BY IDENTITY, NEVER BY TITLE. A title is not an identity: two bills
+  // in one session can carry the same short title, a title can be blank on a
+  // row that still has a number, and "Amendments to Election Law" is the title
+  // of something in most sessions. Collapsing by title would silently drop a
+  // real second measure, which is a worse error than printing a duplicate.
+  //
+  // THE ID, IN PRECEDENCE ORDER.
+  //   1 · item.measureId — the archive's own primary key for the bill, shared
+  //       by every act on it. When it is there, nothing else is needed.
+  //   2 · sitting + number — the citation, for a payload with no id. The
+  //       sitting leads for the reason measureHref() spells out: "S.B. 336"
+  //       names a different bill in every Utah general session, so a number
+  //       alone would merge two sessions' bills into one row. The sitting is
+  //       read the way the app's published owner reads it (consistency.js's
+  //       window.pdxBillSit — measureIdent.session, else the congress); that
+  //       module is not on this document, so the precedence is repeated here
+  //       and nowhere else, over the two fields it names.
+  //   3 · nothing — a row with neither an id nor a number is NOT deduped and
+  //       IS printed. An unidentifiable row is the archive's problem, and
+  //       hiding it behind a guess would be this file deciding two measures are
+  //       one because it could not tell them apart.
+  function measureKeyOf(item) {
+    if (!item) return '';
+    var id = item.measureId;
+    if (typeof id === 'number' && isFinite(id)) return 'id:' + String(id);
+    if (typeof id === 'string' && id.trim()) return 'id:' + id.trim();
+    var number = String((item && item.number) || '').trim();
+    if (!number) return '';
+    var mi = item.measureIdent;
+    var sit = (mi && typeof mi.session === 'string') ? mi.session.trim() : '';
+    if (!sit) {
+      var c = item.congress;
+      sit = (typeof c === 'number' && isFinite(c) && c > 0) ? String(c) : '';
+    }
+    return 'n:' + sit + '|' + number;
+  }
+
   function primaryIssue(item) {
     var arr = (item && Array.isArray(item.issues)) ? item.issues : [];
     for (var i = 0; i < arr.length; i++) if (arr[i] && arr[i].isPrimary && arr[i].issueKey) return String(arr[i].issueKey);
@@ -421,6 +520,45 @@
       if (!e) return '';
       return String(e.label || e.name || e.title || '') || '';
     } catch (e) { return ''; }
+  }
+
+  // ── THE ISSUE'S OWN COLOUR, BORROWED AND NEVER INVENTED ───────────────────
+  // THE SAME ROAD /my-stances TAKES, down to the second argument.
+  // PDXIssueColors.skin(key, window.coreIssueForKey) hands back the whole
+  // ` data-ic="on" style="--pdx-ic:…"` fragment, and my-stances.js's own
+  // skin() calls it with exactly that lookup (my-stances.js:116) as does
+  // stance-studio.js's chip skin (stance-studio.js:173). Passing a DIFFERENT
+  // lookup here would resolve some keys to a different core issue and the same
+  // issue would carry two colours on two surfaces, which is the whole failure
+  // the shared module exists to prevent — so the argument is copied, not chosen.
+  //
+  // window.coreIssueForKey IS UNDEFINED ON THIS DOCUMENT, and that is correct
+  // rather than a gap: it is alignment-tool.js's, alignment-tool.js is not here
+  // (nor on /my-stances, nor on /me), and skin() falls through to the leaf index
+  // and then ROLLUP_PARENT — identically on all three. The token is therefore
+  // byte-identical to the one /my-stances prints for the same key.
+  //
+  // AN UNRESOLVED KEY GETS NO ATTRIBUTE AT ALL, by that module's design, so a
+  // key that stopped resolving prints the label with no treatment instead of
+  // painting every row the same neutral slate and implying a colour system that
+  // is off. An absent module does the same thing.
+  function issueSkin(key) {
+    try {
+      var C = window.PDXIssueColors;
+      if (!C || !fn(C.skin)) return '';
+      var sk = C.skin(String(key == null ? '' : key), window.coreIssueForKey);
+      return (sk && sk.attr) ? String(sk.attr) : '';
+    } catch (e) { return ''; }
+  }
+
+  // The issue under a measure row, as a CHIP rather than as grey small print.
+  // It was grey small print, and grey said "footnote" about the one field on the
+  // row that tells a reader whether this measure is on something they care
+  // about. Same element, same class, plus the shared token.
+  function issueChip(key) {
+    var label = issueLabel(key);
+    if (!label) return '';
+    return '<span class="pdxdb-m-issue"' + issueSkin(key) + '>' + esc(label) + '</span>';
   }
 
   // WHERE A ROW POINTS, in the order the site already canonicalises: the bill's
@@ -453,7 +591,7 @@
     if (!title && !number) return '';
 
     var key = primaryIssue(item);
-    var label = issueLabel(key);
+    var chip = issueChip(key);
     var t = tally[key] || null;
     var polls = t ? t.polls : 0;
     var comments = t ? t.comments : 0;
@@ -467,7 +605,7 @@
     return '<tr class="pdxdb-row"' + (key ? ' data-pdxdb-issue="' + esc(key) + '"' : '') + '>' +
         '<td class="pdxdb-m">' + cell +
           (number && title ? '<span class="pdxdb-m-num">' + esc(number) + '</span>' : '') +
-          (label ? '<span class="pdxdb-m-issue">' + esc(label) + '</span>' : '') +
+          chip +
         '</td>' +
         '<td class="pdxdb-num" data-pdxdb-polls="' + esc(String(polls)) + '">' + esc(String(polls)) + '</td>' +
         '<td class="pdxdb-num" data-pdxdb-comments="' + esc(String(comments)) + '">' + esc(String(comments)) + '</td>' +
@@ -476,27 +614,82 @@
 
   // ── THE READER'S OWN POSITIONS ────────────────────────────────────────────
   // ONE READ, THROUGH THE ONE OWNER. stance-sides.js is the single answer to
-  // "which sides does this person hold" and PDXStanceSides.count() is asked
-  // here — never a storage key, never a second store, never a party, never a
-  // score. A reader with nothing on file gets the same fixed door every other
-  // surface points at: /my-stances?add=1, a real address that opens the studio
-  // with the add flow, and not a control that closes a window.
+  // "which sides does this person hold". It is asked here exactly once per
+  // paint and its answer decides everything below — never a storage key, never
+  // a second store, never a party, never a score, and never a count this file
+  // composed out of what it happened to see.
+  //
+  // ── THE LIE THIS REPLACES, AND IT WAS THIS FUNCTION ───────────────────────
+  // The old shape was `if (n <= 0) print "You have no positions on file."`, and
+  // count() returns -1 here when the module is ABSENT. So the one case where
+  // this file knew nothing printed the most confident sentence on the page, and
+  // a reader whose /me listed three sides read "You have no positions on file"
+  // on the same morning from the same account. The count was not wrong; the
+  // question was never asked, and the answer was invented.
+  //
+  // THREE STATES, AND THE THIRD IS SILENCE. A count is a fact, zero is a fact,
+  // and "this document could not ask" is neither of those and must not be
+  // printed as either. It is the same three-state grammar the room band uses —
+  // a real number, an honest zero, or a read that did not happen — applied to
+  // the one band that had been collapsing the third onto the second.
+  //
+  //   unread  the reader module is not on this document, or it threw. NO
+  //           SENTENCE ABOUT THEIR FILE AT ALL. The door still opens, because
+  //           /my-stances is worth reaching whatever they hold.
+  //   none    the reader says zero. The zero sentence, and the add flow.
+  //   mine    the reader says one or more, and at least one is on this seat's
+  //           issue list. Their own sides, read back.
+  //   off-table
+  //           the reader says one or more and none is on this list. Says
+  //           nothing about their file either way: they are not new, and this
+  //           district's table is not a judgement on what they care about.
   //
   // WHAT A READER WITH POSITIONS GETS. Their own sides, and only for issues
   // that are on THIS district's table. It is their file read back to them beside
   // the seat's list; it is not a match, not a score, and it says nothing about
-  // the member.
-  function stanceHtml(tableIssues) {
-    var n = -1;
+  // the member. Sides on issues this table does not carry stay off the board.
+  // "Does the reader have every store it walks?" — asked of the reader, which
+  // owns the answer. This file deliberately does NOT sniff window.PDXStances or
+  // window.PDXYourFile: that would make it a second owner of which stores back
+  // the shared reader, and the next store added there would leave this wrong.
+  // An older stance-sides.js without complete() is treated as complete, so this
+  // module degrades to the count it is given rather than going silent.
+  function readerComplete() {
     try {
       var S = window.PDXStanceSides;
-      if (S && fn(S.count)) n = whole(S.count());
-    } catch (e) { n = -1; }
+      if (S && fn(S.complete)) return !!S.complete();
+    } catch (e) {}
+    return true;
+  }
 
-    // The module is absent (or threw): print the door, which is true for a
-    // reader with no positions and harmless for one with them. Never print a
-    // count this file could not read.
-    if (n <= 0) {
+  function stanceHtml(tableIssues) {
+    var S = null;
+    var n = -1;
+    try {
+      S = window.PDXStanceSides;
+      if (S && fn(S.count)) n = whole(S.count());
+    } catch (e) { S = null; n = -1; }
+
+    // THE READER COULD NOT FULLY RUN. The door and nothing else. Not the zero
+    // sentence, not a dash, not "0 positions" — a guess wearing a number.
+    //
+    // TWO WAYS IT CANNOT RUN, AND BOTH END HERE. The module is absent or threw
+    // (n stays -1); or it is here but one of the two stores it walks has no
+    // owner on this document, which it reports itself through complete(). The
+    // second is the case that produced the lie: a reader that can see the device
+    // key and not the account desk returns 0 for a visitor holding three, and
+    // this file has no way to tell that 0 from a real one. It does not guess.
+    // A COUNT OF ONE OR MORE IS BELIEVED EITHER WAY — a side that was found was
+    // found, and a partial read can only ever under-report.
+    if (n === 0 && !readerComplete()) n = -1;
+    if (n < 0) {
+      return '<div class="pdxdb-stance" data-pdxdb-stance="unread">' +
+          '<a class="pdxdb-stance-cta" href="' + esc(COPY.stanceMoreHref) + '"' +
+          ' data-pdxdb-stance-cta="open">' + esc(COPY.stanceCta) + '</a>' +
+        '</div>';
+    }
+
+    if (n === 0) {
       return '<div class="pdxdb-stance" data-pdxdb-stance="none">' +
           '<a class="pdxdb-stance-cta" href="' + esc(COPY.stanceHref) + '"' +
           ' data-pdxdb-stance-cta="set">' + esc(COPY.stanceCta) + '</a>' +
@@ -504,9 +697,12 @@
         '</div>';
     }
 
+    // THE FILTER. Their sides, intersected with this seat's issue list — the
+    // list band 3 actually printed, passed in rather than re-derived, so a side
+    // can never appear here for a measure that is not on the table above it.
     var mine = [];
     try {
-      var list = window.PDXStanceSides.list() || [];
+      var list = (S && fn(S.list) && S.list()) || [];
       var want = {};
       var ti = Array.isArray(tableIssues) ? tableIssues : [];
       for (var a = 0; a < ti.length; a++) if (ti[a]) want[String(ti[a])] = 1;
@@ -514,26 +710,32 @@
         var row = list[i];
         if (!row || !row.key || !want[row.key]) continue;
         var lbl = issueLabel(row.key);
-        var side = fn(window.PDXStanceSides.label) ? window.PDXStanceSides.label(row.position) : '';
+        var side = fn(S.label) ? S.label(row.position) : '';
         if (!lbl || !side) continue;
-        mine.push('<li class="pdxdb-side"><span class="pdxdb-side-k">' + esc(lbl) +
-          '</span><span class="pdxdb-side-v">' + esc(side) + '</span></li>');
+        mine.push('<li class="pdxdb-side"' + issueSkin(row.key) + '>' +
+          '<span class="pdxdb-side-k">' + esc(lbl) + '</span>' +
+          '<span class="pdxdb-side-v">' + esc(side) + '</span></li>');
       }
     } catch (e2) { mine = []; }
 
     if (!mine.length) {
       // They hold positions, but none on this seat's issues. That is not a
       // prompt to set more and it is not an empty state worth a sentence about
-      // them — the door stays available and says nothing about their file.
+      // them — the door stays available and says nothing about their file. It
+      // is the PLAIN address, not the add flow: they are not a first run.
       return '<div class="pdxdb-stance" data-pdxdb-stance="off-table">' +
-          '<a class="pdxdb-stance-cta" href="' + esc(COPY.stanceHref) + '"' +
-          ' data-pdxdb-stance-cta="set">' + esc(COPY.stanceCta) + '</a>' +
+          '<a class="pdxdb-stance-cta" href="' + esc(COPY.stanceMoreHref) + '"' +
+          ' data-pdxdb-stance-cta="open">' + esc(COPY.stanceCta) + '</a>' +
         '</div>';
     }
 
     return '<div class="pdxdb-stance" data-pdxdb-stance="mine">' +
         '<p class="pdxdb-stance-note">' + esc(COPY.stanceMineNote) + '</p>' +
         '<ul class="pdxdb-sides">' + mine.join('') + '</ul>' +
+        '<p class="pdxdb-stance-act">' +
+          '<a class="pdxdb-stance-more" href="' + esc(COPY.stanceMoreHref) + '"' +
+          ' data-pdxdb-stance-cta="more">' + esc(COPY.stanceMore) + '</a>' +
+        '</p>' +
       '</div>';
   }
 
@@ -634,9 +836,12 @@
     var rooms = (cState === 'ok' && _counts && Array.isArray(_counts.rooms)) ? _counts.rooms : [];
     var items = (tState === 'ok') ? _items : [];
 
+    // The issue list the stance band filters against is the issue list the
+    // TABLE ACTUALLY PRINTED, from the same function that printed it.
+    var shown = tableRows(items);
     var issues = [];
-    for (var i = 0; i < items.length; i++) {
-      var k = primaryIssue(items[i]);
+    for (var i = 0; i < shown.length; i++) {
+      var k = primaryIssue(shown[i]);
       if (k && issues.indexOf(k) === -1) issues.push(k);
     }
 

@@ -204,6 +204,18 @@
     return [];
   }
   function count() { return sides().length; }
+  // "Does that reader have every store it walks on this document?" Asked of the
+  // reader, which owns the answer — this module does not sniff PDXStances or
+  // PDXYourFile itself, because that would be a second owner of which stores
+  // back the one list. An older stance-sides.js without complete() is treated
+  // as complete, so this file degrades to today's copy rather than going vague.
+  function complete() {
+    try {
+      var S = window.PDXStanceSides;
+      if (S && fn(S.complete)) return !!S.complete();
+    } catch (e) {}
+    return true;
+  }
   function positionOf(k) {
     try {
       var S = window.PDXStanceSides;
@@ -474,8 +486,18 @@
               '<span class="mst-held-p">' + esc(posWord(r.position)) + '</span>' +
             '</button>';
           }).join('') + '</div>'
-        : '<h2 class="mst-h">Nothing on file yet.</h2>' +
-          '<p class="mst-sub">Search for an issue in your own words, or open the starter list.</p>') +
+        : (complete()
+            // NOTHING IS A CLAIM, AND IT IS ONLY MADE WHEN IT CAN BE CHECKED.
+            // The shared reader walks two stores through their owners; when one
+            // of those owners is not on this document it reports incomplete,
+            // and an empty list from half a file is indistinguishable from an
+            // empty file. This surface said "Nothing on file yet." over three
+            // saved positions for exactly that reason. It now says what it can
+            // support: there is a search and a starter list either way.
+            ? '<h2 class="mst-h">Nothing on file yet.</h2>' +
+              '<p class="mst-sub">Search for an issue in your own words, or open the starter list.</p>'
+            : '<h2 class="mst-h">Your stances</h2>' +
+              '<p class="mst-sub">Search for an issue in your own words, or open the starter list.</p>')) +
       findHtml() +
       '<p class="mst-act">' +
         '<button type="button" class="mst-cta mst-cta--quiet" onclick="window.PDXStanceStudio.add()">' +

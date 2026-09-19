@@ -101,6 +101,22 @@
    'neutral' means mixed. Reading it any other way would be this file inventing
    a position, which is the one thing it is not allowed to do.
 
+   ── A ZERO FROM HERE IS NOT ALWAYS A FACT ABOUT THE PERSON ─────────────
+   The two stores above are read through their OWNERS, so a document that ships
+   one owner and not the other gets a reader that can only see half the file —
+   and an empty list from half a file looks exactly like an empty file. That is
+   not a hypothetical: /my-stances and the SD-3 board shipped my-stances.js
+   without your-file.js, so a visitor with three positions on the account desk
+   was shown the studio's first-run coach and a board that said "You have no
+   positions on file."
+
+   complete() and sources() are published for that reason. complete() is true
+   only when BOTH stores have their owner on this document; a caller that would
+   print a sentence claiming the person holds nothing asks it first and prints
+   NOTHING when it is false. The fix for the documents above was to ship the
+   missing owner; this pair is the wall that stops the same omission from
+   becoming a confident sentence on the next surface.
+
    Public API: window.PDXStanceSides (see the assignment at the bottom).
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
@@ -198,6 +214,41 @@
     return 'support';
   }
 
+  // ── CAN A ZERO FROM THIS READER BE PRINTED AS "NO POSITIONS"? ─────────────
+  // NO, NOT ALWAYS, AND THAT IS THE WHOLE POINT OF THIS PAIR. count() cannot
+  // tell "this visitor holds nothing" from "one of the two stores has no owner
+  // on this document" — both are an empty out[], and the second is not a fact
+  // about the visitor. That confusion is exactly how the SD-3 board came to
+  // print "You have no positions on file" at a reader whose /me listed three:
+  // my-stances.js was there and your-file.js was not, so the device key
+  // answered for the whole file and the account desk was never asked.
+  //
+  // SO THE PRESENCE OF EACH SOURCE IS A PUBLISHED FACT, not something a caller
+  // infers by reaching for window.PDXYourFile itself. A surface that sniffed
+  // the store globals directly would be a second owner of "which stores back
+  // this reader", and the next store added here would leave it quietly wrong.
+  //
+  // THE SIGNATURE IS NOT REQUIRED and is reported separately. It is an engine's
+  // live selection rather than a store: alignment-tool.js is absent from /me,
+  // /my-stances and the district board by design, and its absence removes no
+  // saved record from anybody's file. Only the two STORES decide completeness.
+  //
+  // WHAT A CALLER DOES WITH complete() === false AND count() === 0: prints no
+  // sentence about the visitor's file. Not zero, not a dash, not "none on
+  // file". The honest output for a question that was never fully asked is
+  // silence, and the door to /my-stances stays open regardless.
+  function sources() {
+    var out = { stances: false, yourFile: false, signature: false };
+    try { var P = window.PDXStances; out.stances = !!(P && fn(P.all)); } catch (e) {}
+    try { var Y = window.PDXYourFile; out.yourFile = !!(Y && fn(Y.answered) && fn(Y.position)); } catch (e1) {}
+    try { var G = window._alignIssues; out.signature = !!(G && fn(G.forEach)); } catch (e2) {}
+    return out;
+  }
+  function complete() {
+    var s = sources();
+    return !!(s.stances && s.yourFile);
+  }
+
   function keys() { return list().map(function (r) { return r.key; }); }
   function count() { return list().length; }
   function position(k) {
@@ -223,6 +274,8 @@
     list: list,
     keys: keys,
     count: count,
+    sources: sources,
+    complete: complete,
     position: position,
     has: has,
     label: label,

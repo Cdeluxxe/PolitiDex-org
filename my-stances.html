@@ -1861,6 +1861,32 @@
   <script defer src="/issue-colors.js"></script>
   <script defer src="/stance-sides.js"></script>
   <script defer src="/my-stances.js"></script>
+  <!-- THE SECOND STORE BEHIND THAT READER, AND IT HAS TO BE HERE.
+       stance-sides.js answers "which sides does this visitor hold" by walking
+       TWO stores through their owners' published reads: my-stances.js's device
+       key (pdx_my_stances_v1) and your-file.js's per-account key
+       (pdx_your_file_v1__u_<uid>). Only the first was on this document, so the
+       studio asked the one reader and got back only half the file: a visitor
+       with three positions on the account desk was shown the first-run coach
+       ("What do you care about first?") as if they were new, and after one save
+       the done beat said "1 position on file" while /me — which carries both
+       tags, me.html:2369-2370 — listed three.
+
+       IT IS BEFORE stance-studio.js ON PURPOSE. your-file.js reads its key at
+       parse time and the studio's mode is STICKY, decided on its FIRST paint
+       from the reader's count (stance-studio.js's mode()); a tag ordered after
+       the studio would mean the first paint still saw an empty file and the
+       coach would still open over three saved positions. The suite pins this
+       order.
+
+       READ-ONLY ON THIS DOCUMENT. your-file.js's boot is adopt() plus a hash
+       check. adopt() only reads, and projects into window.alignSetIntensity,
+       which is alignment-tool.js's and not here, so the projection is a no-op;
+       there is no #pdxyf host and no [data-pdxyf-open] control on this page,
+       and its set() refuses every write while signed out. Nothing about this
+       tag adds a store, a key or a second write path — the studio still writes
+       through PDXStances and only through PDXStances. -->
+  <script defer src="/your-file.js"></script>
   <script defer src="/stance-studio.js"></script>
 </head>
 <body>

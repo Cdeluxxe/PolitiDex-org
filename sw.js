@@ -7118,7 +7118,53 @@
 //     MIGRATION COST: none. The bump exists because person.html, person-file.js
 //     and person-file.css all changed - a warm device would otherwise paint the
 //     old kicker with no door to the board.
-const CACHE_VERSION = 'v226';
+// v227 - ONE STANCE READER ON THE BOARD AND IN THE STUDIO; UNIQUE MEASURES WITH
+//     ISSUE COLOUR; NO EQUITY COPY; LOCATION/DISTRICT/TEAM/STANCE STORES STILL
+//     NOT MIGRATED.
+//     THE BUG. /me listed three sides (water, housing, public lands) while the
+//     SD-3 board said "You have no positions on file" and the studio said "1
+//     position on file" after a save - same morning, same account. stance-sides.js
+//     was already the one reader and was already correct: it walks TWO stores,
+//     my-stances.js's device key and your-file.js's per-account key, and only /me
+//     shipped both owners. my-stances.html and district-ut-sd-3.html shipped one,
+//     so the reader read an empty device key and reported zero over a logged-in
+//     desk. Both documents now carry your-file.js, ordered BEFORE stance-studio.js
+//     because the studio's mode is decided on its first paint. No store was added,
+//     no pdx_my_stances_v2 exists, no key was migrated and nothing copies one
+//     store's records into the other: the fix is two tags and one read.
+//     /my-stances' door summary now asks that same reader (and its countLine) too,
+//     so the sentence above the fold and the sentence below it cannot disagree.
+//
+//     THE BOARD'S STANCE BLOCK HAS THREE STATES, NOT TWO. A count, an honest
+//     zero, and SILENCE when the reader cannot run - the old code printed the
+//     zero sentence on a -1, which is how "no positions" became a guess. Zero
+//     gets /my-stances?add=1; one or more gets the visitor's own sides filtered to
+//     the issues the table actually printed, and the plain /my-stances door.
+//
+//     BAND 3 IS UNIQUE BY MEASURE ID. The archive returns one row per ACT, so a
+//     bill with a committee, floor and concurrence vote printed three times -
+//     S.B. 336, S.B. 102 and S.B. 272 each sat on the table repeatedly beside
+//     three copies of one room's count. Rows are now deduped by item.measureId,
+//     else sitting + number, NEVER by title, and the issue under each row is a
+//     PDXIssueColors chip carrying the same token /my-stances prints for that key.
+//     issue-colors.js is now on john_johnson's board for that and nothing else.
+//
+//     AND IT READS NO MONEY. No document row and no dollar row was added by this
+//     pass. PDX_FD_DOCUMENTS still holds its four (bmoore, maloy, kennedy, owens),
+//     PDX_FD_DISCLOSURES still ships zero dollar rows - both pinned by row count
+//     in three suites - and no file touched here names PDXFinance, WEALTH_DATA or
+//     either table. No equity copy anywhere: no shares, units, dues, 20% or
+//     freeze, swept by scripts/test-district-voice-sd3.mjs. Nothing was added to
+//     dd_districts, so the location, district, team and stance stores are
+//     untouched and band 2 stays aggregate and structurally zero - no visitor side
+//     is PUT into the counts endpoint. voter-hub-location.js, the owner of where a
+//     reader votes, is still unchanged and still absent from the board, which
+//     prints no personal "you are in SD-3" line. Direction Match, the formal
+//     pattern index and the publication floor twin-boot byte-identical.
+//     MIGRATION COST: none. The bump exists because my-stances.html, my-stances.js,
+//     district-ut-sd-3.html and district-board.js all changed - a warm device would
+//     otherwise serve the coach over a full file and a table with three of one bill.
+const CACHE_VERSION = 'v227';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

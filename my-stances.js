@@ -1591,13 +1591,43 @@
   // The card's one line. A COUNT, never a percentage and never a grade: a
   // reader with three saved positions is not 37% of a voter. Hidden entirely
   // when there is nothing to count, because "0 positions on file" is a nag.
+  //
+  // ── IT ASKS THE SHARED READER, NOT THIS FILE'S STORE ──────────────────────
+  // "How many sides does this visitor hold" has ONE answer in this app and it
+  // is stance-sides.js, which walks BOTH stores: this module's device key
+  // (pdx_my_stances_v1) and your-file.js's per-account key (pdx_your_file_v1).
+  // count() above is this collection's own length and is the right number for
+  // every OTHER caller in this file — the collection's cards, its filters, its
+  // projection — but it is the wrong number for this sentence, because this
+  // sentence is a claim about the visitor's FILE and not about this collection.
+  //
+  // WHY IT MATTERS ON THIS DOCUMENT IN PARTICULAR. The stance studio sits
+  // directly above this summary and prints the SAME sentence from the shared
+  // reader. With three positions on the account desk and one here, the two
+  // would have read "3 positions on file" and "1 position on file", six
+  // centimetres apart, on one page. The shared reader also SPELLS it —
+  // countLine() — so the two cannot drift to "3 positions saved" either.
+  //
+  // THE FALLBACK IS THIS FILE'S OWN COUNT, and it is safe because the zero case
+  // prints NOTHING: a document without stance-sides.js states a true fact about
+  // this collection or states nothing at all. It never guesses a zero.
   function paintDoorCount() {
     var line = el('ms-door-count');
     if (!line) return;
+    var S = null;
+    try { S = window.PDXStanceSides; } catch (e0) { S = null; }
     var n = 0;
-    try { n = count(); } catch (e) { return; }
+    try { n = (S && typeof S.count === 'function') ? S.count() : count(); } catch (e) { return; }
     if (!n) { line.hidden = true; return; }
-    line.textContent = String(n) + (n === 1 ? ' position' : ' positions') + ' on file';
+    var text = '';
+    try {
+      text = (S && typeof S.countLine === 'function')
+        ? S.countLine(n)
+        : String(n) + (n === 1 ? ' position' : ' positions') + ' on file';
+    } catch (e2) {
+      text = String(n) + (n === 1 ? ' position' : ' positions') + ' on file';
+    }
+    line.textContent = text;
     line.hidden = false;
   }
 

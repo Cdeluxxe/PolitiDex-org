@@ -129,3 +129,34 @@ instrument, no percentage, no price. The suite sweeps the served document and
 both new files for that vocabulary and fails the build on a single match: the
 one thing a public district board cannot afford to look like is a place to buy
 into.
+
+**The visitor's own sides are read, never stored, and read in one place.** Band
+3's stance block asks `stance-sides.js` — the same reader `/me` and the stance
+studio ask — and it asks it three questions only: how many sides does this
+visitor hold, what are they, and *can you vouch for that number*. The last
+question exists because the reader walks **two** stores through their owners:
+`pdx_my_stances_v1`, the device-wide key `my-stances.js` owns, and
+`pdx_your_file_v1__u_<uid>`, the per-account desk `your-file.js` owns and
+refuses to write while signed out. A document that ships one owner and not the
+other gets an honest-looking `0` from half a file, and **an empty list from half
+a file is indistinguishable from an empty file** — which is exactly how this
+board came to tell a reader with three positions that they had none. Two rules
+came out of it, and both are pinned by
+`scripts/test-district-voice-sd3.mjs` and `scripts/test-my-stances.mjs`:
+
+- **Every surface that asks the question ships both owners**, in that order,
+  ahead of anything that paints on first read. The fix for the false zero was
+  two `<script>` tags — not a sync, not a third store, not a migration. There is
+  no `pdx_my_stances_v2`, nothing copies one store's records into the other, and
+  no visitor side is ever `PUT` into the district counts endpoint: band 2 stays
+  an aggregate read.
+- **A zero the reader cannot vouch for prints nothing.** `PDXStanceSides.complete()`
+  is the reader's own statement about its sources, so no surface has to know
+  which stores back it. The stance block therefore has three states and not two
+  — a count, an honest zero with the add-flow door, and silence with the plain
+  `/my-stances` door — which is the same *on hand / present-zero / failed-read*
+  grammar band 2 uses for the room, applied to the file instead of the district.
+
+A side is printed on this board only if its issue is on the table that was
+actually rendered, from the same function that rendered it; sides on issues this
+district carries no measure for stay off the board entirely.
