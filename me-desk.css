@@ -24,10 +24,13 @@
        class for one to arrive in.
      · NO SECOND NAV. Region f is three text links in a paragraph. It shares the
        .me-jump class with nothing that could become a button bar.
-     · NO BOARD ON THIS DOCUMENT. Region g is a standing line and one control.
-       This sheet gives it a tag, a link and a sentence and NO list, card grid,
-       thread shape or avatar row — see the block over .me-voicetag, and
-       district-voice.css, which is not loaded here and owns the board itself.
+     · NO BOARD ON THIS DOCUMENT. Region g is a SNAPSHOT — the seats this
+       account's location resolves, one line each, and one control to /voice,
+       which is the hallway that owns them. A plain list of seat names is the
+       whole of it: this sheet gives it a tag, a link, a sentence and NO card
+       grid, thread shape, avatar row, take, answer or count — see the block
+       over .me-voicetag and the one over .me-voiceseats, and district-voice.css,
+       which is not loaded here and owns the board itself.
 
    THE EDITOR IS NOT RESTYLED HERE. Region b's FACE is a snapshot this sheet
    owns — chips carrying the sides the reader chose, and one door. Behind the
@@ -656,14 +659,41 @@
   border-color: rgba(125, 211, 252, 0.5);
   color: #e0f2fe;
 }
-/* "Verified, and the board is not open in your seat yet." A SENTENCE, and it is
-   styled as one — no border, no chrome, nothing that could be pressed. It reads
-   like the honest empty above it because it is one. */
-.me-voicedark {
+/* ── THE SEATS ON FILE ──────────────────────────────────────────────────────
+   A LIST, MARKED UP AS ONE, because six seats is a list of six things and a
+   screen reader is owed the count before the first item. This is the SNAPSHOT
+   of what /voice lists in full: chamber and district on the left, whether a
+   board is on hand on the right, and nothing else per row. No person link, no
+   door, no card — duplicating the hallway here is how two documents start
+   telling one reader two things about the same seat.
+
+   AND THERE IS NOTHING HERE A COUNT COULD LAND IN. No width, no fill, no track,
+   no length, no cell grid. The only state a row carries is which of two words
+   prints in .me-voicestate, and neither of them is a number. A row in this block
+   must never be able to become a meter of how busy somebody's district is. */
+.me-voiceseats {
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.me-voiceseat {
   margin: 0;
-  font-size: 0.8rem;
-  line-height: 1.55;
+  padding: 0.3rem 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+.me-voiceseat:first-child { border-top: 0; }
+/* "board on hand" / "board not on hand". A PHRASE, styled as one — quieter than
+   the seat it describes, no border, no chrome, nothing that could be pressed and
+   no colour that reads as approval or its absence. A board we have not built is
+   not a board that is coming, so the words are the same either way and only the
+   "not" moves. */
+.me-voicestate {
+  font-size: 0.78rem;
   color: #8fa3bf;
+  white-space: nowrap;
 }
 
 /* ── THE FOOT ─────────────────────────────────────────────────────────────── */

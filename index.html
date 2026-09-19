@@ -3965,7 +3965,7 @@ window.PDXLazy = (function () {
                    about the seat you vote in, and it carries no promise about what
                    is there: with no location set the room says so and points back
                    at Who Represents Me. -->
-              <a href="/voice" title="District Voice — verified neighbours in your own district. Not a poll of the internet, and not how the member voted." role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🗣️</span><span class="pdx-navmenu__lb">District Voice</span></a>
+              <a href="/voice" title="District Voice — the rooms for the seats you vote in. Anyone can read a board; only verified residents of that seat get a voice that counts. Not a poll of the internet, and not how the member voted." role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🗣️</span><span class="pdx-navmenu__lb">District Voice</span></a>
               <div class="pdx-navmenu__sep"></div>
               <div class="pdx-navmenu__hd">Explore &amp; Discover</div>
               <a href="#hot-topics" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">🔥</span><span class="pdx-navmenu__lb">Hot Topics / Spotlights</span></a>
@@ -4613,7 +4613,7 @@ window.PDXLazy = (function () {
            retention questions this browser's location can defend, and below
            them the full archive, labelled so the two cannot be read as one. -->
       <a href="/courts" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">⚖️ Courts</a>
-      <a href="/voice" title="District Voice — verified neighbours in your own district" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🗣️ District Voice</a>
+      <a href="/voice" title="District Voice — the rooms for the seats you vote in" onclick="document.getElementById('mobileMenu').classList.add('hidden')" class="clr-voter flex items-center gap-2 py-3.5 border-b border-white/5 transition-colors">🗣️ District Voice</a>
       <!-- YOUR FILE. Was "🎯 My Stances" pointing at #my-stances, a scroll to a
            region of this same page. It is the reader's own file and it has its
            own address, so this is a plain link to it — one row, one destination,
@@ -18833,6 +18833,18 @@ window.PDXLazy = (function () {
       if (!_selected.house && !_selected.senate) return;
       applyToLocation();
       window.closeDistrictMapModal();
+      // THE RETURN INTENT, FIRST AND WITH AN EARLY RETURN. A reader who arrived
+      // here from "set your location so you can use District Voice" asked for
+      // one thing, and this is the moment they have it — the districts are
+      // applied and the picker is closed. Everything below (the Home Team
+      // onboarding modal, the welcome→ballot scroll, the location toast) is the
+      // front page's own follow-through, and running any of it before leaving
+      // would open a modal on a document this reader is already navigating off
+      // of. voter-hub-location.js owns the parameter, the allow-list and the
+      // decision; this is the trigger and nothing more. Returns false for the
+      // reader with no `next`, which is the ordinary case, and the front page
+      // behaves exactly as it did.
+      try { if (window.PDXReturn && window.PDXReturn.consume()) return; } catch (e) {}
       // First-time voter with no saved Home Team yet → guide them into the
       // one-tap "Build My Home Team" confirmation (a preview of their real reps
       // plus the Home Team vs Research explainer), which then carries them to

@@ -824,7 +824,12 @@ section("8 · The assets travel together");
   for (const f of ["door1-workspace.js", "door1-workspace.css", "index.html"]) {
     has(ledgerEntry, f, `the v108 entry does not name ${f} among the files that must travel together`);
   }
-  has(entry, "Direction Match", `the v${v} entry does not say what did NOT move`);
+  // AND THE SAME PIN FOR THE SENTENCE ABOUT WHAT DID NOT MOVE. This asked it of
+  // the newest entry, which is the same mistake as the paragraph above and failed
+  // the same way: a later pass that moved the Voice hallway owes no sentence about
+  // Direction Match, because it did not go near it. The claim belongs to the pass
+  // that made it, so it is read out of v108's own immutable entry.
+  has(ledgerEntry, "Direction Match", "the v108 entry does not say what did NOT move");
   // The pane is wired into the page it paints on.
   has(HTML, "door1-workspace.js", "the desk script is not wired into index.html");
   has(HTML, "door1-workspace.css", "the desk stylesheet is not wired into index.html");

@@ -811,8 +811,22 @@ console.log(`   johnson file: ${PID} · ${Object.keys(ROSTER).length} rostered �
   const entry = SW.slice(entryAt, Math.min(nextHead ? entryAt + 1 + nextHead.index : constAt, constAt));
   ok(entry.split("\n").length <= 48,
     `the ${ver} entry stays inside the changelog budget (${entry.split("\n").length} lines)`);
-  const low = entry.toLowerCase();
-  has(low, "johnson", `the ${ver} entry names the file this pass pinned`);
+  // THE CLAIMS ARE READ OUT OF v225 — THE PASS THAT PINNED THIS FILE — NOT OUT OF
+  // WHATEVER IS LIVE. An earlier draft asked the newest entry to name Johnson and
+  // to say that no document row, no dollar row and none of the four stores moved.
+  // A bump renames both cache buckets, so every later pass bumps too, and a pass
+  // that moved something else entirely owes no sentence about this file; the draft
+  // therefore passed while v225 was live and failed on the next unrelated bump.
+  // The log is append-only and its entries are immutable, so the pin is the
+  // version that made the claim. The live version is still checked as a floor
+  // above, and the live entry is still held to the changelog budget.
+  const PIN = "v225";
+  const pinAt = SW.indexOf(`// ${PIN} - `);
+  ok(pinAt > 0, `the changelog still carries the ${PIN} entry — the one that pinned this file`);
+  const pinNext = SW.slice(pinAt + 1).match(/\n\/\/ v\d+ - /);
+  const pinned = SW.slice(pinAt, pinNext ? pinAt + 1 + pinNext.index : constAt);
+  const low = pinned.toLowerCase();
+  has(low, "johnson", `the ${PIN} entry names the file that pass pinned`);
   has(low, "no document row", "…and says no document row was added");
   has(low, "no dollar row", "…nor a dollar row");
   for (const store of ["location", "district", "team", "stance"]) {

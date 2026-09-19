@@ -666,11 +666,19 @@ section("6 · the service worker");
 {
   const m = /const CACHE_VERSION = '(v\d+)'/.exec(SW);
   must(m, "sw.js has no CACHE_VERSION");
-  const v = m[1];
-  ok(Number(v.slice(1)) >= 209, `CACHE_VERSION is ${v} — /me, the store and the resolver changed and the shell was not re-issued`);
+  const live = m[1];
+  ok(Number(live.slice(1)) >= 209, `CACHE_VERSION is ${live} — /me, the store and the resolver changed and the shell was not re-issued`);
+  // AND THE ENTRY THIS PASS FILED IS v209, PINNED. The three assertions below
+  // are about what THIS pass claimed, and the note just under them already says
+  // so — but they were reading the NEWEST entry, which asks every later bump to
+  // re-make this pass's claims or fail. Sliced from its own heading to the next
+  // heading, so a later entry cannot satisfy it either.
+  const v = "v209";
   const start = SW.indexOf(`// ${v} -`);
   ok(start > 0, `sw.js has no version-log entry for ${v}`);
-  const entry = SW.slice(start, SW.indexOf("const CACHE_VERSION"));
+  const nextHead = SW.slice(start + 1).search(/\n\/\/ v\d+ - /);
+  const constAt = SW.indexOf("const CACHE_VERSION");
+  const entry = SW.slice(start, nextHead >= 0 ? Math.min(start + 1 + nextHead + 1, constAt) : constAt);
   // THE MANIFEST IS PINNED AGAINST THE WHOLE LOG, NOT THE NEWEST ENTRY. What this
   // defends is that the change to the store, the desk and /me's shell shipped WITH
   // a cache bump — and it did, in the entry that made it. Reading only the newest

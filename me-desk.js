@@ -382,65 +382,80 @@
 
   // ── DISTRICT VOICE STANDING, AND NOTHING ELSE ABOUT THE BOARD ─────────────
   // district-voice.js is the one owner of every fact this reader needs here: the
-  // saved location as a claim (claim()), the seat that claim names (seatForMe()),
-  // whether Voice is OPEN in that seat (path()), and the sentence that frames
-  // what the board is (COPY.frame). This function asks it and decides nothing.
-  // A copy of the allow-list, of the seat-key shape or of the frame sentence on
-  // THIS document would be a second answer, and a second answer is the defect.
+  // seats the saved location resolves (seatsForMe(), which reads pdxRepsForMe()
+  // and composes nothing of its own), which of those seats has a board
+  // (boardPath(), one table, one row today), and the sentences that say what a
+  // board is and what its absence is (COPY). This function asks it and decides
+  // nothing. A copy of the allow-list, of the seat-key shape or of the frame
+  // sentence on THIS document would be a second answer, and a second answer is
+  // the defect.
+  //
+  // WHAT CHANGED, AND WHY IT IS THE SAME CHANGE /voice MADE. This used to answer
+  // "your district" — one seat, the State House one, because that is the seat
+  // the /d/ lane is keyed on. A reader does not have A district. The saved
+  // location resolves a state House seat, a state Senate seat, a U.S. House
+  // seat, both U.S. Senate seats and a governor, and a desk that named one of
+  // the six was printing a sixth of the truth as the whole of it.
   //
   // THREE STANDINGS, AND THE DEFAULT IS THE WEAKEST ONE. 'out' for a reader
-  // with no account, 'unverified' for an account with no district we hold, and
-  // 'verified' only when a name can be built out of the two fields already
-  // stored for this reader. Every early return below lands on a weaker
-  // standing, so a missing module, a missing resolver or a missing field can
-  // only ever UNDERSTATE what this reader has — never invent a board for
-  // somebody who has none.
+  // with no account, 'unverified' for an account whose location resolves no
+  // seats we can name, and 'verified' only when at least one seat resolved.
+  // Every early return below lands on a weaker standing, so a missing module, a
+  // missing resolver or a missing field can only ever UNDERSTATE what this
+  // reader has — never invent a board for somebody who has none.
+  //
+  // IT DOES NOT DUPLICATE THE HALLWAY. /voice prints the full card per seat: the
+  // sitting member, the person link, the door or the two-sentence absence. This
+  // is a SNAPSHOT — one line per seat, chamber and whether a board is on hand —
+  // and one control, to the address that owns the rest. Two full copies of one
+  // reader's seat list on two documents is how they start disagreeing.
   function voiceApi() { try { return window.PDXVoice || null; } catch (e) { return null; } }
 
   function voice() {
-    var out = { standing: 'out', name: '', href: '', frame: '' };
+    var out = { standing: 'out', seats: [], href: '', finder: '', frame: '' };
     var V = voiceApi();
     // Borrowed, never written here: one owner for the sentence that says what
     // the board is, so /me and the board cannot describe it differently.
     try { if (V && V.COPY && V.COPY.frame) out.frame = String(V.COPY.frame); } catch (e) {}
+    // THE DOOR THAT SETS A LOCATION, CARRYING THE INTENT TO COME BACK TO VOICE.
+    // voter-hub-location.js owns the parameter, the allow-list and the encoding.
+    // A boot without that module degrades to today's plain finder address rather
+    // than to a second copy of how the intent is spelled.
+    out.finder = '/#who-represents-me';
+    try {
+      var R = window.PDXReturn;
+      if (R && fn(R.finderHref)) out.finder = R.finderHref('/voice');
+    } catch (e2) {}
 
     if (!member()) return out;
     out.standing = 'unverified';
-    if (!V || !fn(V.seatForMe) || !fn(V.claim)) return out;
+    if (!V || !fn(V.seatsForMe)) return out;
 
-    var seat = '';
-    try { seat = V.seatForMe() || ''; } catch (e) { seat = ''; }
-    if (!seat) return out;
-
-    // THE NAME IS THE FIELDS WE ALREADY STORE, OR THERE IS NO NAME AND NO
-    // VERIFIED STANDING. Nothing here composes a district name out of anything
-    // this reader did not save: no county table, no geometry, no label corpus.
-    var c = {};
-    try { c = V.claim() || {}; } catch (e) { c = {}; }
-    var n = String(c.houseDistrict == null ? '' : c.houseDistrict);
-    var county = String(c.county == null ? '' : c.county);
-    if (!n || !county) return out;
+    // EVERY SEAT THE SAVED LOCATION RESOLVED, in the resolver's own order, from
+    // the module that resolved them. Nothing here composes a district name out
+    // of anything this reader did not save: no county table, no geometry, no
+    // label corpus, no chamber list. No seats is the unverified standing, which
+    // is the honest answer for a location this app cannot name a seat in.
+    var seats = [];
+    try { seats = V.seatsForMe() || []; } catch (e3) { seats = []; }
+    if (!seats.length) return out;
 
     out.standing = 'verified';
-    out.name = 'State House District ' + n + ' \u00b7 ' + county;
-    // THE BOARD'S OWN ADDRESS WHEN VOICE IS OPEN IN THIS SEAT, and '' when it is
-    // not. '' is not a failure and is not hidden — it is the state the copy has
-    // a sentence for.
-    //
-    // THE GATE IS STILL district-voice.js's, AND ONLY THE DESTINATION MOVED.
-    // path(seat) is asked exactly as before and its answer is still what decides
-    // whether there is a link at all — an empty path means no board and no CTA,
-    // the same as it always did. What changed in v211 is where the link goes.
-    // /d/<seat-key> is the DISTRICT FILE, which netlify.toml rewrites to
-    // index.html: the reader who tapped "Open District Voice" from this desk
-    // paid 1.9 MB of front page to reach a board that is now a 28 KB document
-    // at /voice. And /voice needs no seat in its path, because it resolves the
-    // seat the same way this function just did — out of the reader's own saved
-    // location, through this same module. Same gate, same seat, one twentieth
-    // of the bytes.
-    var open = false;
-    try { open = !!(fn(V.path) && V.path(seat)); } catch (e) { open = false; }
-    out.href = open ? '/voice' : '';
+    out.seats = seats.map(function (s) {
+      return {
+        name: String((s && s.name) || ''),
+        board: !!(s && s.board)
+      };
+    }).filter(function (s) { return !!s.name; });
+    if (!out.seats.length) { out.standing = 'unverified'; out.seats = []; return out; }
+
+    // ONE CONTROL, AND IT GOES TO THE HALLWAY, NOT TO A BOARD. This desk does
+    // not pick one of this reader's seats to be "theirs" — /voice lists all of
+    // them and each card carries its own door, so the destination is the same
+    // whether or not any one seat has a board. The address needs no seat in its
+    // path because it resolves the seats the same way this function just did,
+    // out of this reader's own saved location, through this same module.
+    out.href = '/voice';
     return out;
   }
 
@@ -1341,15 +1356,33 @@
   //               button, because it is a trip to another address and the reader
   //               is owed the ability to see where it goes, open it in a tab and
   //               copy it.
-  //   verified    a LINK to the board, or — when Voice has not opened in this
-  //               reader's seat — a plain, unlinked sentence saying so. An
-  //               anchor to a board that is not there would be a promise this
-  //               app cannot keep.
+  //   verified    the seats on file, one line each, and a LINK to the hallway
+  //               that owns them. Every line says whether a board is on hand for
+  //               that seat, because a list where some rooms open and some do not
+  //               has to say which is which on the line itself — a reader who
+  //               taps through expecting a door is owed that here.
+  //
+  // "ON HAND", NEVER "YET". Both strings are district-voice.js's, so the desk
+  // and the hallway describe one reader's seat the same way. A board we have not
+  // built is not a board that is coming, and "yet" is a promise this app has not
+  // made — the same refusal the record makes with "no formal record on file".
   function regionVoice() {
     var v = voice();
     var badge = v.standing === 'verified'
       ? '<span class="me-voicetag">Verified resident</span>'
       : '';
+    var V = voiceApi();
+    var onHand = 'board on hand';
+    var notOnHand = 'board not on hand';
+    try {
+      if (V && V.COPY && V.COPY.boardNone) {
+        // The desk's line is the hallway's sentence in lower case and without
+        // its full stop, because it is half of a line and not a sentence of its
+        // own. Derived from the one string rather than written twice.
+        notOnHand = String(V.COPY.boardNone).replace(/\s*for this seat\.?\s*$/i, '').toLowerCase();
+        onHand = notOnHand.replace(/\bnot\s+/, '');
+      }
+    } catch (e) {}
 
     var body;
     if (v.standing === 'out') {
@@ -1357,15 +1390,22 @@
         '<p class="me-rline" style="margin:0.7rem 0 0;">' +
           '<button type="button" class="me-link" data-me-signin="1">Sign in</button></p>';
     } else if (v.standing === 'unverified') {
-      body = '<p class="me-rline">Not verified for a district yet.</p>' +
+      body = '<p class="me-rline">No seats on file for this account.</p>' +
         '<p class="me-rline" style="margin:0.7rem 0 0;">' +
-          '<a class="me-voicecta" href="/#who-represents-me">Verify my district</a></p>';
+          '<a class="me-voicecta" href="' + esc(v.finder) + '">Set my location</a></p>';
     } else {
-      body = '<p class="me-rline">Verified for <strong>' + esc(v.name) + '</strong>.</p>' +
-        (v.href
-          ? '<p class="me-rline" style="margin:0.7rem 0 0;">' +
-              '<a class="me-voicecta" href="' + esc(v.href) + '">Open District Voice</a></p>'
-          : '<p class="me-voicedark">District Voice \u2014 board not live yet</p>');
+      // ONE BLOCK, ONE LINE PER SEAT. A list, marked up as one, so the count is
+      // read before the first item. No card, no person link, no door per row —
+      // that is the hallway's job and duplicating it here is how the two
+      // documents start telling one reader two things.
+      var rows = v.seats.map(function (s) {
+        return '<li class="me-voiceseat">' + esc(s.name) +
+          ' <span class="me-voicestate">' + esc(s.board ? onHand : notOnHand) + '</span></li>';
+      }).join('');
+      body = '<p class="me-rline">Seats on file:</p>' +
+        '<ul class="me-voiceseats">' + rows + '</ul>' +
+        '<p class="me-rline" style="margin:0.7rem 0 0;">' +
+          '<a class="me-voicecta" href="' + esc(v.href) + '">Open District Voice</a></p>';
     }
 
     return '<section class="me-region" id="me-voice" aria-labelledby="me-voice-t">' +

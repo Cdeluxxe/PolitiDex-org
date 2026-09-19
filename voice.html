@@ -68,17 +68,24 @@
                            board's address, the frame sentence, and the board
                            itself. This document asks it everything.
        voice-room.js       the only thing on this page that DECIDES anything, and
-                           what it decides is one question: which of five
+                           what it decides is one question: which of four
                            standings this reader is in. It borrows every fact
                            from district-voice.js and answers none of them.
        css/tailwind.css    the utility sheet the shared chrome is built out of.
                            NOT app.css.
        shell-chrome.css    the bar and the account chip, shared by the three
                            side-lane shells.
-       district-voice.css  the board's own shapes, 18 KB, self-contained under
-                           .pdxv-*. /me deliberately does NOT load this sheet
-                           because /me shows a standing and never a board; this
-                           document shows both, so here it belongs.
+
+     AND district-voice.css IS NO LONGER HERE, WHICH IS THE POINT OF THIS PASS.
+     This address used to mount a board inline, so it carried the board's 18 KB
+     of `.pdxv-*` shapes. It is a HALLWAY now: one card per seat the saved
+     location resolves, each card a name, a person link and a door or the honest
+     absence of one. The board is a document of its own at its own address and
+     it brings its own sheet. A stylesheet for a surface that never renders is
+     18 KB every reader downloads to look at nothing, and keeping it would also
+     leave the board's shapes sitting on a page that could grow into them by
+     accident. The hallway's own rules are in this document's <style>, under
+     `.pdxvr-*`, which is the prefix nothing else in the app uses.
 
      WHAT IS DELIBERATELY NOT HERE. No app.css (986 KB). No compare-hub.js
      (758 KB of homepage engine — the account chip is shell-account-chip.js
@@ -115,26 +122,25 @@
        them that way — that edge function rewrites by an attribute-ordered
        regex, so a reshuffle here would be a silent no-op there rather than an
        error, on the day /voice is added to its config.path. -->
-  <title>District Voice &middot; your seat&rsquo;s board &middot; PolitiDex</title>
+  <title>District Voice &middot; the rooms for your seats &middot; PolitiDex</title>
   <link rel="canonical" href="https://www.politidex.fyi/voice" />
-  <meta name="description" content="District Voice — one seat&rsquo;s board: the live question and the verified neighbors&rsquo; own takes. Not a poll of the internet, and not how the member voted. Set your location once and this page knows which board is yours." />
+  <meta name="description" content="District Voice — the rooms for the seats you vote in. Anyone can read a board. Only verified residents of that seat get a voice that counts. Set your location once and this page lists every seat it names, and says plainly which of them have a board on hand." />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="PolitiDex" />
   <meta property="og:title" content="District Voice &middot; PolitiDex" />
-  <meta property="og:description" content="One seat&rsquo;s board: the live question and the verified neighbors&rsquo; own takes. Not a poll of the internet. Not how the member voted." />
+  <meta property="og:description" content="The rooms for the seats you vote in. Anyone can read a board. Only verified residents of that seat get a voice that counts." />
   <meta property="og:url" content="https://www.politidex.fyi/voice" />
   <meta property="og:image" content="https://www.politidex.fyi/og-image.png" />
   <meta property="og:image:alt" content="PolitiDex — District Voice" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="District Voice &middot; PolitiDex" />
-  <meta name="twitter:description" content="One seat&rsquo;s board: the live question and the verified neighbors&rsquo; own takes." />
+  <meta name="twitter:description" content="The rooms for the seats you vote in. Anyone can read a board; only verified residents of that seat get a voice that counts." />
   <meta name="theme-color" content="#0a0f1e" />
 
-  <!-- The three files a first paint actually waits on: the chrome's utilities,
-       the board's own sheet, and the resolver that decides whether there is a
-       board to show at all. -->
+  <!-- The two files a first paint actually waits on: the chrome's utilities,
+       and the module that owns the seat list and the board allow-list this page
+       is a hallway onto. -->
   <link rel="preload" as="style" href="/css/tailwind.css" />
-  <link rel="preload" as="style" href="/district-voice.css" />
   <link rel="preload" as="script" href="/district-voice.js" />
 
   <!-- Barlow / Bebas Neue, non-blocking, with the same swap index.html,
@@ -147,14 +153,13 @@
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" />
   <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
 
-  <!-- THE THREE SHEETS THAT DRAW THIS PAGE, render-blocking on purpose: they
-       are the page. /css/tailwind.css is the same utility sheet index.html
-       links. /shell-chrome.css is the bar and the chip, shared with /mandate and
-       /money so one row cannot be three rows. /district-voice.css is the board,
-       unchanged and already self-contained under .pdxv-*. -->
+  <!-- THE TWO SHEETS THAT DRAW THIS PAGE, render-blocking on purpose: they are
+       the page. /css/tailwind.css is the same utility sheet index.html links.
+       /shell-chrome.css is the bar and the chip, shared with /mandate and /money
+       so one row cannot be three rows. The hallway's own shapes are inline
+       below — see the note on district-voice.css in the header. -->
   <link rel="stylesheet" href="/css/tailwind.css" />
   <link rel="stylesheet" href="/shell-chrome.css" />
-  <link rel="stylesheet" href="/district-voice.css" />
 
   <style>
     /* THE FIXED CHROME, MEASURED ONCE. Same contract person.html, issue.html,
@@ -185,12 +190,13 @@
 
     main#voice-room { padding: 0 0 2rem; }
 
-    /* ── THE STANDING BLOCK ────────────────────────────────────────────────
-       voice-room.js's five states, dressed here and nowhere else. The prefix
-       was checked against every shipped file before use: no other module
-       defines or references `pdxvr-`, and the board's own `pdxv-` rules are
-       district-voice.css's, untouched. A sheet that silently restyles another
-       module's surface is the bug this separation prevents. */
+    /* ── THE STANDING BLOCK AND THE SEAT CARDS ─────────────────────────────
+       voice-room.js's four standings and its seat cards, dressed here and
+       nowhere else. The prefix was checked against every shipped file before
+       use: no other module defines or references `pdxvr-`, and the board's own
+       `pdxv-` rules stay in district-voice.css, which this document no longer
+       loads. A sheet that silently restyles another module's surface is the bug
+       this separation prevents. */
     .pdxvr-wrap { max-width: 44rem; margin: 0 auto; padding: 1.25rem 1.1rem 0; }
     .pdxvr-kick {
       margin: 0 0 0.35rem; font: 700 0.72rem/1 'Barlow Condensed', 'Barlow', sans-serif;
@@ -241,11 +247,52 @@
     }
     .pdxvr-door:hover { background: rgba(127, 178, 255, 0.16); }
     .pdxvr-door--quiet { border-color: rgba(159, 180, 212, 0.24); color: #9fb4d4; background: none; }
-    .pdxvr-perma {
-      font: 600 0.85rem/1 'Barlow', system-ui, sans-serif;
-      color: #7fb2ff; text-decoration: none;
+    /* ── ONE CARD PER SEAT ──────────────────────────────────────────────────
+       A LIST, AND IT IS MARKED UP AS ONE. Six seats is a list of six things and
+       a screen reader is owed the count before the first one. The shapes here
+       are deliberately the SAME card, name and line as the standing block above
+       them: a hallway where the "we do not know where you vote" card and a seat
+       card looked like different kinds of object would read as two pages.
+
+       AND THERE IS NOTHING HERE A COUNT COULD LAND IN. No width, no fill, no
+       length, no track, no bar, no grid of cells — nothing a later edit could
+       turn into a meter of how busy somebody's district is. The one piece of
+       state a card carries is data-pdxvr-board, which is on or off, and the only
+       thing it changes is which of two sentence shapes prints. */
+    .pdxvr-seatwrap:empty { display: none; }
+    .pdxvr-seats {
+      margin: 0 0 2rem; padding: 0; list-style: none;
+      display: flex; flex-direction: column; gap: 0.7rem;
     }
-    .pdxvr-perma:hover { text-decoration: underline; }
+    .pdxvr-seat {
+      margin: 0; padding: 0.95rem 1.05rem;
+      border: 1px solid rgba(127, 178, 255, 0.18); border-radius: 0.75rem;
+      background: rgba(18, 27, 48, 0.72);
+    }
+    /* THE CHAMBER AND THE DISTRICT, and it is the loudest thing on the card
+       because it is the only thing on it a reader is scanning for. */
+    .pdxvr-chamber {
+      margin: 0 0 0.3rem;
+      font: 600 1.02rem/1.35 'Barlow', system-ui, sans-serif; color: #eef4ff;
+    }
+    .pdxvr-who {
+      margin: 0 0 0.6rem;
+      font: 400 0.9rem/1.55 'Barlow', system-ui, sans-serif; color: #9fb4d4;
+    }
+    .pdxvr-name { color: #7fb2ff; text-decoration: none; }
+    .pdxvr-name:hover, .pdxvr-name:focus-visible { text-decoration: underline; }
+    /* "BOARD NOT ON HAND FOR THIS SEAT." A SENTENCE, styled as one — no border,
+       no chrome, nothing that could be pressed, and no greyed-out door beside
+       it. A disabled control still says "control", and this card is not offering
+       one. Same shape /me's .me-voicedark uses for the same fact. */
+    .pdxvr-none {
+      margin: 0;
+      font: 400 0.88rem/1.55 'Barlow', system-ui, sans-serif; color: #8fa3bf;
+    }
+    .pdxvr-why {
+      margin: 0.15rem 0 0;
+      font: 400 0.82rem/1.55 'Barlow', system-ui, sans-serif; color: #7a8aa8;
+    }
 
     /* "CHECKING WHERE YOU VOTE…" IS A STATE, NOT A SPINNER. Same shape and same
        six-second bound as the account chip's "Checking account…", because two
@@ -264,11 +311,6 @@
     }
     @keyframes pdxvrPulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
 
-    .pdxvr-card--seated { border-color: rgba(127, 178, 255, 0.24); }
-    /* The board's host. Empty until district-voice.js mounts into it, and an
-       empty one takes no space rather than leaving a hole where a board is not. */
-    .pdxvr-board:empty { display: none; }
-    .pdxvr-board { margin: 0 0 2rem; }
 
     /* The only thing a reader sees if JavaScript never runs. It claims what this
        address is, which is true, rather than leaving them with an empty card. */
@@ -411,10 +453,22 @@
   <main id="voice-room">
     <div class="pdxvr-wrap">
       <p class="pdxvr-kick">District Voice</p>
-      <h1 class="pdxvr-h1">Your district&rsquo;s board</h1>
-      <p class="pdxvr-sub">One seat, one live question, and the verified neighbors&rsquo;
-        own takes. This page shows the board for the district your saved location
-        names &mdash; and says so plainly when there is no location to read.</p>
+      <h1 class="pdxvr-h1">The rooms for your seats</h1>
+      <!-- THE FOUR SENTENCES THAT SAY WHAT THIS ADDRESS IS, and they are in the
+           document rather than painted by a module because they are true before
+           any location resolves, true while one is resolving and true for a
+           reader who has none. The line they replace said "one seat, one live
+           question", which was this page's old shape and its old mistake: a
+           person does not have A district, they have every seat their location
+           resolves, and the hallway lists all of them.
+
+           "ANYONE CAN READ A BOARD" IS THE FIRST HALF AND IT IS NOT A
+           CONCESSION. Reading is open on purpose. The gate is on the VOICE — a
+           take, an answer, a count — and it is residency in that exact seat,
+           which is what makes a board worth reading at all. -->
+      <p class="pdxvr-sub">District Voice is the rooms for your seats. Anyone can
+        read a board. Only verified residents of that seat get a voice that
+        counts. This page lists the seats for the location on file.</p>
 
       <!-- THE STANDING, AND ITS FIRST PAINT IS THE QUIET ONE. This markup is the
            same card voice-room.js's checkingHtml() produces, in the document, so
@@ -427,21 +481,22 @@
         </div>
       </div>
 
-      <!-- THE BOARD'S HOST, AND IT IS EMPTY. district-voice.js's mount() paints
-           its own busy line into it and then the board; it returns false without
-           painting anything in a seat with no board, which is the case this
-           document has a standing for above. No class of the board's own goes
-           here: render() emits the .pdxv section itself, and two nested copies of
-           one wrapper is the kind of drift a stylesheet notices later. -->
-      <div id="pdx-voice-board" class="pdxvr-board"></div>
+      <!-- THE SEAT CARDS' HOST, AND IT IS EMPTY UNTIL A LOCATION RESOLVES.
+           voice-room.js paints one <li> per seat district-voice.js's seatsForMe()
+           returns, and nothing else ever writes here. An empty host takes no
+           space rather than leaving a hole where a hallway is not, which is the
+           state a reader with no saved location stays in — the card above says
+           why, and carries the one door that changes it. -->
+      <div id="pdx-voice-seats" class="pdxvr-seatwrap"></div>
     </div>
 
     <noscript>
       <p class="pdx-sh-note">
-        District Voice is one seat&rsquo;s board: the live question and the
-        verified neighbors&rsquo; own takes &mdash; not a poll of the internet,
-        and not how the member voted. It needs JavaScript to read your saved
-        location and the seat&rsquo;s board. You can still
+        District Voice is the rooms for the seats you vote in. Anyone can read a
+        board; only verified residents of that seat get a voice that counts
+        &mdash; it is not a poll of the internet, and not how the member voted.
+        Listing your seats needs JavaScript, because it reads the location saved
+        in this browser. You can still
         <a href="/#who-represents-me">see who represents you</a> or
         <a href="/ballot">set your location on Your Ballot</a>.
       </p>

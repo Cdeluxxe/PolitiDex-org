@@ -949,10 +949,18 @@
 
 # DISTRICT VOICE, AND THE SEAT FILE IS NOT BEING REPLACED. /d/<seat-key> is
 # still where a SEAT is read and it still rewrites to index.html; /voice is where
-# a READER is placed — it asks district-voice.js which seat the reader's own
-# saved location names and mounts that seat's board, or prints the honest standing
-# when there is no location, no lane in that state, or no board open in the seat
-# yet. One owner answers both addresses, so the two can never disagree.
+# a READER is placed — it asks district-voice.js which seats the reader's own
+# saved location resolves and lists them, one card each, with a door to the seat's
+# board where one exists and the plain sentence that there is not one where it
+# does not. One owner answers both addresses, so the two can never disagree.
+#
+# IT IS A HALLWAY, NOT A ROOM, which is why there is no wildcard anywhere near
+# it. /voice mounts no board of its own; the boards live at their own addresses
+# and /voice links the one or two that exist for the seats a particular reader
+# votes in. Adding a board is a row in district-voice.js's allow-list and an
+# exact rewrite below it — never a splat, because a splat answers 200 for every
+# district slug a stranger can type and turns "we have not built that room" into
+# a blank page that looks broken.
 [[redirects]]
   from = "/voice"
   to = "/voice.html"
