@@ -81,3 +81,51 @@ confident wrong district instead of an honest blank. Until all five items above
 are done for a state, `districtsResolvable` stays false there and the district
 rows stay empty — which is a true statement, and the one the product is built
 to make.
+
+---
+
+## SD-3 is the first district with a board at its own address
+
+`/district/ut-sd-3` — Utah Senate District 3, North Ogden and the rest of Weber
+County — is the first **District Voice reader**: a district read as a *place*
+rather than as a person or as a router. Three bands, in order: the seat (the
+`john_johnson` roster row and a link to `/p/john_johnson`), who is in the room
+(counts only), and what is on the table (the measures already in this archive
+for the seat).
+
+**It does not widen the map, and that is deliberate.** Nothing in the five items
+above moved. This is one hand-written address in `netlify.toml` — three exact
+`200` rules for the bare path, the trailing-slash form and the `.html` form,
+and **no `/district/*` splat**, because a splat would publish a board at every
+address in the state and every one of them would render three bands of zeroes
+over a seat nobody had mapped. A second district is three more lines and a
+second entry in one allow-list, in both `district-board.js` and
+`netlify/functions/district-board.mts`. It is not a pattern yet.
+
+**The counts are structurally zero, and the page says which kind of zero.**
+Nothing was seeded: no `dd_districts` row, no residency record, no poll, no
+migration. So band 2 answers in one of three grammars, never two — a real
+integer from a store; `0` beside the money lane's "on hand" when the store does
+not exist; or "we could not read the room" when the read *failed*, which is
+never painted as a zero. There is no integer literal in the render path, which
+`scripts/test-district-voice-sd3.mjs` pins two ways: it mounts the page against
+a fixture holding nothing and asserts every figure is `0`, then against one
+holding seven and asserts it prints seven.
+
+**A later pass owns three things this one does not.** The **paid composer** —
+tonight's posting seam is a disabled field and one sentence, because a box that
+kept a reader's sentence on their own device would look like a post to their
+district and would not be one. The **identity vendor** — no Stripe Identity, no
+Veriff, nothing wired; verified residency is described as *how a voice is
+counted, not how a page is read*, and until a vendor lands the verified count is
+whatever the store holds, which is zero. And the **residency flag on the
+visitor** — there is no client-side one today, so this page resolves no personal
+standing at all and prints no "you appear to be in SD-3" line. That line belongs
+to the one owner of "where does this reader vote", `voter-hub-location.js`,
+which is deliberately not on this document.
+
+**Member equity is not this surface.** No units, no shares, no dues, no
+instrument, no percentage, no price. The suite sweeps the served document and
+both new files for that vocabulary and fails the build on a single match: the
+one thing a public district board cannot afford to look like is a place to buy
+into.

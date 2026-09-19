@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+<!-- ══════════════════════════════════════════════════════════════════════════════
+     district-ut-sd-3.html — THE FIRST DISTRICT BOARD WITH AN ADDRESS.
+     ────────────────────────────────────────────────────────────────────────────
+     /district/ut-sd-3 IS UTAH SENATE DISTRICT 3 — North Ogden and the rest of
+     Weber County — read as a PLACE.
+
+     WHAT WAS MISSING. A district already had two addresses on this site and
+     neither of them was the district:
+       /p/john_johnson   the PERSON who sits in the seat. His record, his votes,
+                         his positions, his money. A dossier, correctly.
+       /voice            the READER. It asks where you saved your location and
+                         puts you at whatever seat that names — a router, not a
+                         place, and it can only answer for somebody who has
+                         already told it where they live.
+       /d/ut-sd-3        the seat file, which is a rewrite to index.html: two
+                         megabytes of homepage to read one seat.
+     None of those is a thing you can hand to a neighbour and say "this is our
+     district". This is. It is one flat document at one bookmarkable address,
+     and everything on it is about the place.
+
+     WHAT IS ON IT, AND IT IS THREE BANDS IN THIS ORDER:
+       1 · THE SEAT             who sits here now, the office as the roster
+                                spells it, and a link to the full record. No
+                                bio, no score, no party, no issue chips — a
+                                district page that printed a scorecard would be
+                                a person page wearing a place's title.
+       2 · WHO IS IN THE ROOM   counts only, every one of them from a store in
+                                Postgres, read through /api/district-board. No
+                                name, no address, no email — this document is
+                                never handed one, because that endpoint
+                                aggregates and never selects.
+       3 · ON THE TABLE         the measures and acts already in this archive
+                                for this seat, each linked to its own record,
+                                with the count of people who answered a poll
+                                or wrote a comment on it. Never a proportion,
+                                never a winning side, and never "this district
+                                supports X".
+
+     THE RULES, WHICH ARE RULES AND NOT A DESCRIPTION OF TODAY'S DATA:
+       · NO INVENTED HEADCOUNT. There is no integer literal in the render path
+         of district-board.js. Every number comes off the wire or is 0.
+       · THREE ANSWERS, NEVER TWO. A real count; 0 plus "no … on hand" when
+         there is no store for that fact; and "we could not read the room" when
+         the request FAILED. The third is the one that matters most: a failed
+         read painted as 0 verified residents would be this page telling a
+         reader their district is empty because a Function timed out.
+         The absence grammar is the money lane's, borrowed exactly — "on hand",
+         never "yet", because "yet" promises a record that may never come.
+       · NO WORKING COMPOSER, AND NO FAKE ONE. Posting is not built. The field
+         near the bottom is really there and really disabled, with one sentence
+         saying posting ships next. What was deliberately NOT built is a box
+         that keeps a sentence in localStorage and paints it back into the
+         board: the reader would believe they had posted to their district when
+         nothing left the machine, and the sentence would render beside a
+         verified-resident count as though it were a verified resident's.
+       · NO IDENTITY VENDOR IS WIRED, so there is no personal residency
+         standing on this surface at all — not resolved, not guessed, not asked
+         for. The page says what residency is FOR (it is how a voice is
+         counted) and what it is not for (it is not how a page is read).
+       · NO PERSONAL "YOU ARE IN SD-3" LINE. The app has exactly one owner of
+         "where does this reader vote" — voter-hub-location.js — and that
+         module is deliberately NOT on this document. Re-deriving a district
+         here from anything else would be a second answer to a question that
+         already has an owner, and two answers to that question is the defect,
+         not the feature. A reader who wants to be placed has /voice.
+       · NO SCORE, NO GRADE, NO DIRECTION MATCH, NO PARTY, NO FINANCE.
+         district-board.js publishes `scored: false` and a NEVER_FEEDS list;
+         this document borrows both rather than restating either. The Direction
+         Match engine has no district-scoped read and nothing here invents one —
+         alignment-tool.js is not on this document and would not be called if
+         it were.
+
+     THE CRITICAL PATH, AND WHY EACH FILE IS ON IT. Six scripts and two sheets:
+       cmp-data.js         the roster. Band 1's ONLY source: the seat's sitting
+                           member is a row in that file, read for three fields
+                           and no others.
+       issue-map.js        the issue vocabulary, so band 3 prints the site's
+                           word for an issue instead of its internal key.
+       voting-record.js    the archive read. `?pageSize=100`, the baseline query
+                           every warming caller in the app already uses, so this
+                           page reuses their memo instead of issuing a second
+                           request against a cache key nobody reads. It is NOT
+                           followed by noteMember(): this is a district reader,
+                           and seeding a member's record from it would make this
+                           page an input to the record engines.
+       stance-sides.js     the ONE answer to "which sides does this reader
+                           hold". Asked for a count, to tell a reader with no
+                           positions from one who has some.
+       my-stances.js       the owner of that store, because stance-sides.js
+                           reads it rather than owning it. It writes nothing on
+                           a document with no studio host and no alignment
+                           engine, which is this one.
+       district-board.js   the ONE owner of this board: the seat, the alias, the
+                           route, the copy, the three bands, the two reads and
+                           the person-file control. This document asks it
+                           everything and decides nothing.
+       css/tailwind.css    the utility sheet the shared chrome is built from.
+                           NOT app.css.
+       shell-chrome.css    the bar and the account chip, shared with /voice,
+                           /mandate and /money so one row cannot be four rows.
+
+     WHAT IS DELIBERATELY NOT HERE. No app.css (986 KB). No compare-hub.js
+     (758 KB of homepage engine — the account chip is shell-account-chip.js
+     instead). No alignment-tool.js, no ballot-breakdown.js, no
+     voter-hub-location.js (see the rule above), and NOTHING from the money
+     lane: no finance-lane.js, no wealth data, no disclosure table. The bar
+     links to /money because the bar is the same row on every side-lane shell,
+     and a navigation link is not a read.
+
+     THE RULE THIS DOCUMENT LIVES BY: EVERY SAME-ORIGIN PATH IS ROOT-ABSOLUTE.
+     /district/ut-sd-3/ is served with HTTP 200 at a trailing-slash path, so a
+     bare src of district-board.js would resolve to
+     /district/ut-sd-3/district-board.js, the rewrite would catch it, and the
+     browser would be handed this document and told to parse HTML as
+     JavaScript. A leading slash is correct at every depth.
+     scripts/test-district-voice-sd3.mjs fails the build on a relative
+     same-origin src or href here.
+
+     INDEXABLE, AND THE CANONICAL IS THE BARE PATH. What a stranger sees here is
+     an honest description of one real district plus the public record for its
+     seat, so there is no reason to hide it — and nothing on the page is
+     reader-specific except a link to the stance studio. The trailing-slash and
+     .html spellings both serve this document and neither is canonical. NO NEW
+     URL SHAPE IS PUBLISHED FROM HERE: a measure is /b/<sitting>/<number>, an
+     issue is /i/<key>, a person is /p/<pid>, a seat file is /d/<seat-key>, and
+     all four already have owners.
+     ════════════════════════════════════════════════════════════════════════════════ -->
+
+  <!-- The share tags, in share-preview.ts's attribute order (`property` then
+       `content`, `rel` then `href`) for the same reason the other shells carry
+       them that way — that edge function rewrites by an attribute-ordered
+       regex, so a reshuffle here would be a silent no-op there rather than an
+       error, on the day this path is added to its config.path. -->
+  <title>Utah Senate District 3 &middot; district board &middot; PolitiDex</title>
+  <link rel="canonical" href="https://www.politidex.fyi/district/ut-sd-3" />
+  <meta name="description" content="Utah Senate District 3 &mdash; North Ogden and Weber County. The seat, the count of who has shown up in the room, and the measures already on this district&rsquo;s table. Counts only: no names, no addresses. Reading this board is free." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PolitiDex" />
+  <meta property="og:title" content="Utah Senate District 3 &middot; district board" />
+  <meta property="og:description" content="The seat, who is in the room, and what is on the table. Counts only &mdash; no names, no addresses, and no majority claimed on anyone&rsquo;s behalf." />
+  <meta property="og:url" content="https://www.politidex.fyi/district/ut-sd-3" />
+  <meta property="og:image" content="https://www.politidex.fyi/og-image.png" />
+  <meta property="og:image:alt" content="PolitiDex &mdash; Utah Senate District 3" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Utah Senate District 3 &middot; district board" />
+  <meta name="twitter:description" content="The seat, who is in the room, and what is on the table. Counts only." />
+  <meta name="theme-color" content="#0a0f1e" />
+
+  <!-- The two files a first paint actually waits on: the chrome's utilities and
+       the module that paints all three bands. -->
+  <link rel="preload" as="style" href="/css/tailwind.css" />
+  <link rel="preload" as="script" href="/district-board.js" />
+
+  <!-- Barlow / Bebas Neue, non-blocking, with the same swap index.html,
+       person.html, issue.html, ballot.html, me.html, stances.html,
+       evidence.html, courts.html and voice.html use. A swap written differently
+       on one document is a visible font flash on exactly one URL shape. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
+
+  <!-- THE TWO SHEETS THAT DRAW THIS PAGE, render-blocking on purpose: they are
+       the page. /css/tailwind.css is the same utility sheet index.html links.
+       /shell-chrome.css is the bar and the chip, shared with /voice, /mandate
+       and /money so one row cannot be four rows. The bands' own shapes are in
+       the <style> below rather than a third sheet, because they are 4 KB and
+       this is the only document that has them. -->
+  <link rel="stylesheet" href="/css/tailwind.css" />
+  <link rel="stylesheet" href="/shell-chrome.css" />
+
+  <style>
+    /* THE FIXED CHROME, MEASURED ONCE. Same contract person.html, issue.html,
+       ballot.html, me.html, stances.html, evidence.html, courts.html and
+       voice.html answer for their own chrome, and for the same reason: a custom
+       property that is never declared invalidates every calc() that reads it.
+       This document's chrome is ONE row and no search — the Eye on the front
+       page already reaches everything there is to search. The @supports guard is
+       the one every other shell carries: a custom property accepts any token
+       sequence, so an engine that cannot parse env() would swallow the
+       declaration and invalidate every calc() reading it; an engine without
+       env() also has no notch. */
+    :root { --pdx-chrome: 3.25rem; color-scheme: dark; }
+    @supports (padding-top: env(safe-area-inset-top)) {
+      :root { --pdx-chrome: calc(3.25rem + env(safe-area-inset-top, 0px)); }
+    }
+    /* No app.css here, so the page's own ground colour is declared rather than
+       inherited from a 986 KB stylesheet this document does not load. */
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--pdx-chrome) + 0.5rem); }
+    html, body { background: #070b16; color: #e7eefb; }
+    body {
+      margin: 0;
+      font-family: 'Barlow', system-ui, -apple-system, sans-serif;
+      padding-top: calc(var(--pdx-chrome) + 0.75rem);
+    }
+
+    /* ── THE BANDS ──────────────────────────────────────────────────────────
+       The prefix was checked against every shipped file before use: no other
+       module defines or references `pdxdb-`, and the neighbouring district
+       surfaces own `pdxv-` (district-voice.css), `pdxdr-` (district-room.js)
+       and `pdxvr-` (voice.html), all untouched. A sheet that silently restyles
+       another module's surface is the bug this separation prevents. */
+    .pdxdb-wrap { max-width: 46rem; margin: 0 auto; padding: 1.25rem 1.1rem 2.5rem; }
+    .pdxdb-kick {
+      margin: 0 0 0.35rem; font: 700 0.72rem/1 'Barlow Condensed', 'Barlow', sans-serif;
+      letter-spacing: 0.16em; text-transform: uppercase; color: #7fb2ff;
+    }
+    .pdxdb-h1 {
+      margin: 0 0 0.25rem; font: 400 2.5rem/1 'Bebas Neue', 'Barlow Condensed', sans-serif;
+      letter-spacing: 0.01em; color: #f2f7ff;
+    }
+    .pdxdb-where {
+      margin: 0 0 0.6rem; font: 600 0.9rem/1.3 'Barlow Condensed', 'Barlow', sans-serif;
+      letter-spacing: 0.04em; text-transform: uppercase; color: #93a8c6;
+    }
+    .pdxdb-sub { margin: 0 0 1.4rem; font-size: 0.95rem; line-height: 1.55; color: #b6c6de; max-width: 40rem; }
+
+    .pdxdb-band {
+      margin: 0 0 1.15rem; padding: 1rem 1.05rem;
+      background: #0c1324;
+      border: 1px solid #1b2942; border-radius: 0.65rem;
+    }
+    .pdxdb-h2 {
+      margin: 0 0 0.3rem; font: 700 0.78rem/1 'Barlow Condensed', 'Barlow', sans-serif;
+      letter-spacing: 0.14em; text-transform: uppercase; color: #8fb6ef;
+    }
+    .pdxdb-note { margin: 0 0 0.85rem; font-size: 0.82rem; line-height: 1.5; color: #8496b0; }
+    /* THE BAND FOOTER. Where the free-versus-paid sentence and the residency
+       sentence live — quieter than the band's own content, because neither is a
+       fact about this district. */
+    .pdxdb-foot {
+      margin: 0.9rem 0 0; padding-top: 0.7rem; border-top: 1px solid #16223a;
+      font-size: 0.8rem; line-height: 1.5; color: #7d8fa9;
+    }
+
+    /* Band 1 */
+    .pdxdb-seat-name { margin: 0 0 0.15rem; font-size: 1.15rem; font-weight: 600; }
+    .pdxdb-seat-link { color: #cfe0fa; text-decoration: none; border-bottom: 1px solid #2b3f63; }
+    .pdxdb-seat-link:hover, .pdxdb-seat-link:focus-visible { color: #fff; border-bottom-color: #7fb2ff; }
+    .pdxdb-seat-office { margin: 0 0 0.1rem; font-size: 0.9rem; color: #a9bcd8; }
+    .pdxdb-seat-where { margin: 0; font-size: 0.84rem; color: #8396b2; }
+
+    /* Band 2 — the counts. A DEFINITION LIST, because each row is a term and a
+       value and not a statistic in a dashboard. */
+    .pdxdb-counts { margin: 0; display: grid; gap: 0.7rem; }
+    .pdxdb-count { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem 0.75rem; }
+    .pdxdb-count-k { margin: 0; flex: 1 1 14rem; font-size: 0.88rem; color: #b6c6de; }
+    .pdxdb-count-v {
+      margin: 0; flex: 0 0 auto; font: 400 1.35rem/1 'Bebas Neue', 'Barlow Condensed', sans-serif;
+      letter-spacing: 0.02em; color: #eaf2ff;
+    }
+    /* A COUNT WITH NO STORE BEHIND IT IS NOT DRESSED AS DATA. Dimmer, and the
+       reason sits on the same row rather than in a tooltip. */
+    .pdxdb-count--nostore .pdxdb-count-v { color: #7f8fa6; }
+    .pdxdb-count-note {
+      display: block; margin-top: 0.2rem; max-width: 26rem;
+      font: 400 0.76rem/1.45 'Barlow', sans-serif; letter-spacing: 0; color: #74849c;
+    }
+
+    /* The two honest non-answers. Neither is styled as an error, because a store
+       that does not exist is not a fault and a read that failed is not the
+       reader's problem. */
+    .pdxdb-wait, .pdxdb-none, .pdxdb-unread { margin: 0; font-size: 0.88rem; line-height: 1.5; color: #93a5bf; }
+    .pdxdb-unread { color: #c4b58a; }
+    .pdxdb-dot {
+      display: inline-block; width: 0.45rem; height: 0.45rem; margin-right: 0.45rem;
+      border-radius: 50%; background: #7fb2ff; vertical-align: middle;
+    }
+
+    /* Band 3 — the table. Scrolls on a narrow screen rather than reflowing into
+       cards: these rows are a measure and two integers, and a card per row would
+       make three fields look like a dossier. */
+    .pdxdb-table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+    .pdxdb-table th {
+      padding: 0 0.5rem 0.45rem 0; text-align: left; border-bottom: 1px solid #1b2942;
+      font: 700 0.68rem/1 'Barlow Condensed', 'Barlow', sans-serif;
+      letter-spacing: 0.12em; text-transform: uppercase; color: #7d8fa9;
+    }
+    .pdxdb-table td { padding: 0.55rem 0.5rem 0.55rem 0; border-bottom: 1px solid #131d31; vertical-align: top; }
+    .pdxdb-num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; color: #cbd9ee; }
+    .pdxdb-m-link { color: #cfe0fa; text-decoration: none; border-bottom: 1px solid #253855; }
+    .pdxdb-m-link:hover, .pdxdb-m-link:focus-visible { color: #fff; border-bottom-color: #7fb2ff; }
+    .pdxdb-m-plain { color: #b6c6de; }
+    .pdxdb-m-num, .pdxdb-m-issue {
+      display: block; margin-top: 0.15rem; font-size: 0.74rem; color: #7d8fa9;
+    }
+
+    /* The reader's own positions, and the door to set them. */
+    .pdxdb-stance {
+      margin: 0 0 1.15rem; padding: 0.95rem 1.05rem;
+      background: #0b1a17; border: 1px solid #1d3a33; border-radius: 0.65rem;
+    }
+    .pdxdb-stance-cta {
+      display: inline-block; padding: 0.5rem 0.9rem; border-radius: 0.45rem;
+      background: #17402f; border: 1px solid #2c6a4d; color: #d9f5e6;
+      font-weight: 600; font-size: 0.88rem; text-decoration: none;
+    }
+    .pdxdb-stance-cta:hover, .pdxdb-stance-cta:focus-visible { background: #1d5039; border-color: #3f8f69; color: #fff; }
+    .pdxdb-stance-note { margin: 0.55rem 0 0; font-size: 0.8rem; line-height: 1.5; color: #8aa79a; }
+    .pdxdb-stance[data-pdxdb-stance="mine"] .pdxdb-stance-note { margin: 0 0 0.6rem; }
+    .pdxdb-sides { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.35rem; }
+    .pdxdb-side { display: flex; justify-content: space-between; gap: 0.75rem; font-size: 0.86rem; }
+    .pdxdb-side-k { color: #cfe0fa; }
+    .pdxdb-side-v { color: #8fd6b1; font-weight: 600; white-space: nowrap; }
+
+    /* THE POSTING SEAM, PAINTED OFF. It looks like what it is: a field that is
+       not ready. Not hidden, because hiding it would leave the free-versus-paid
+       sentence describing a control the reader cannot see. */
+    .pdxdb-compose {
+      margin: 0; padding: 0.95rem 1.05rem;
+      background: #0c1324; border: 1px dashed #24344f; border-radius: 0.65rem;
+    }
+    .pdxdb-compose-l {
+      display: block; margin-bottom: 0.4rem;
+      font: 700 0.7rem/1 'Barlow Condensed', 'Barlow', sans-serif;
+      letter-spacing: 0.12em; text-transform: uppercase; color: #7d8fa9;
+    }
+    .pdxdb-compose-i {
+      width: 100%; box-sizing: border-box; padding: 0.55rem 0.7rem;
+      background: #0a1020; border: 1px solid #1b2942; border-radius: 0.4rem;
+      color: #6d7d95; font-family: inherit; font-size: 0.9rem;
+    }
+    .pdxdb-compose-i[disabled] { cursor: not-allowed; opacity: 1; }
+    .pdxdb-compose-n { margin: 0.55rem 0 0; font-size: 0.78rem; line-height: 1.5; color: #74849c; }
+
+    @media (max-width: 34rem) {
+      .pdxdb-h1 { font-size: 2rem; }
+      .pdxdb-count-k { flex: 1 1 100%; }
+    }
+  </style>
+
+  <!-- THE DOCUMENT FLAG. One boolean, set synchronously before anything else
+       runs, for the same reason __PDX_VOICE_DOC, __PDX_STANCES_DOC, __PDX_ME_DOC
+       and __PDX_MANDATE_DOC are: a module that needs to know which document it
+       is on should ask a flag the document sets, not a path test that a rewrite
+       gets differently. Three paths serve this file. -->
+  <script>window.__PDX_DISTRICT_BOARD_DOC = true;</script>
+
+<!-- ═════════════════════════════════════════════════════════════════════════
+     THE FIREBASE STUB — THE SAME BLOCK AS THE OTHER INNER SHELLS, NOT A THIRD
+     ONE. person.html, me.html, issue.html, evidence.html and voice.html all
+     carry this verbatim, and the suite fences it: a shell that writes its own
+     version of "has Firebase answered yet" is a shell that can answer it
+     differently.
+
+     ON THIS DOCUMENT IT IS FOR THE CHIP AND NOTHING ELSE. Every fact on this
+     page is public and none of it is gated: reading the board needs no account,
+     the counts endpoint is unauthenticated, and there is no write path here to
+     authenticate. What the stub is for is the account chip in the bar — which
+     must not tell a returning member to sign up because an 800 KB deferred SDK
+     has not landed yet. This document opens no sign-in UI of its own: the front
+     page owns that, and the bar's chip is a trip there.
+     ═════════════════════════════════════════════════════════════════════════ -->
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<!-- The Firebase Web API key is injected at request time from the Netlify
+     environment variable FIREBASE_API_KEY by netlify/edge-functions/firebase-config.ts.
+     It is intentionally NOT hardcoded here so the value never lives in source
+     control or the deployed HTML (and the build's secrets scanner passes). -->
+<script defer src="/firebase-config.js"></script>
+<script>
+  // Run 1 perf: the Firebase SDKs and the bootstrap below are DEFERRED so they no
+  // longer block first paint. This tiny synchronous stub guarantees the globals
+  // that other inline code could touch at parse time exist; firebase-boot.js
+  // (deferred → runs after the SDK, before DOMContentLoaded) then replaces them
+  // with the live Firebase objects and starts the lightweight roster load. Net
+  // effect: identical behavior, but the ~800 KB compat SDK no longer gates paint.
+  var app, db, firestore, auth;
+  var PROFILES = window.PROFILES || {}; window.PROFILES = PROFILES;
+  window._pdxFullIds = window._pdxFullIds || new Set();
+  window._pdxFullPending = window._pdxFullPending || {};
+  function setDoc(docRef, data, options) { return docRef.set(data, options); }
+  db = { collection: null }; firestore = db;
+  // AUTH UNKNOWN IS NOT AUTH SIGNED-OUT. This stub used to answer every
+  // registration with cb(null) before the SDK had loaded, which told every
+  // module that a returning member was a guest. It queues instead;
+  // firebase-boot.js replays the queue onto the real auth object, and until then
+  // window.PDXAuth.state is 'unknown'. See the long note in index.html.
+  window.PDXAuth = window.PDXAuth || { state: 'unknown', user: null, known: false };
+  window.__pdxAuthQueue = window.__pdxAuthQueue || [];
+  auth = { currentUser: null, onAuthStateChanged: function (cb) { var rec = { cb: cb, off: false, unsub: null }; window.__pdxAuthQueue.push(rec); return function () { rec.off = true; if (rec.unsub) { try { rec.unsub(); } catch (e) {} } }; }, signInAnonymously: function () { return Promise.reject(new Error('auth pending')); }, signOut: function () { return Promise.resolve(); } };
+  // AND THE QUEUE IS NOT A TRAP. If firebase-boot.js never arrives to drain it —
+  // a blocked SDK, a failed deploy, a warm shell paired with an older copy of
+  // that file out of the runtime cache — the registrations above would wait for
+  // the whole visit and nothing on the page would ever learn there is no
+  // session. So the queue self-heals: once the SDK has had every chance to land,
+  // whatever is still queued is flushed with null, which is exactly the answer
+  // this stub used to give instantly. A LATE fallback is a different thing from
+  // a first guess — the first guess was the bug, and five seconds is not a
+  // guess, it is a timeout. firebase-boot.js nulls the queue when it replays, so
+  // on every normal load this is a no-op.
+  setTimeout(function () {
+    var q = window.__pdxAuthQueue;
+    if (!q) return;
+    window.__pdxAuthQueue = null;
+    try {
+      window.PDXAuth.known = true;
+      window.PDXAuth.state = 'out';
+      window.PDXAuth.user = null;
+      if (typeof window.updateNavAuth === 'function') window.updateNavAuth(null, 'out');
+    } catch (e) {}
+    for (var i = 0; i < q.length; i++) {
+      if (q[i] && !q[i].off && typeof q[i].cb === 'function') { try { q[i].cb(null); } catch (e) {} }
+    }
+  }, 5000);
+</script>
+<script src="/firebase-boot.js" defer></script>
+  <!-- Band 1's only source. Read for three fields on one row and nothing else. -->
+  <script defer src="/cmp-data.js"></script>
+  <!-- The issue vocabulary, for band 3's labels and the reader's own sides. -->
+  <script defer src="/issue-map.js"></script>
+  <!-- Band 3's archive read. See the head note on the baseline query. -->
+  <script defer src="/voting-record.js"></script>
+  <!-- The reader's own positions: one owner (stance-sides.js) and the store it
+       reads (my-stances.js). NEITHER WRITES ANYTHING HERE. stance-sides.js owns
+       no state at all, and my-stances.js's setup() returns early without a
+       #my-stances host while its projection paths only write when the alignment
+       engine's globals exist — and alignment-tool.js is not on this document. -->
+  <script defer src="/stance-sides.js"></script>
+  <script defer src="/my-stances.js"></script>
+  <!-- The board itself. Everything above is a source it reads. -->
+  <script defer src="/district-board.js"></script>
+  <!-- The account chip, answering the same three-state contract compare-hub.js
+       does on the front page in 9 KB instead of 758 KB. -->
+  <script defer src="/shell-account-chip.js"></script>
+
+</head>
+<body>
+
+  <!-- ══ THE BAR ════════════════════════════════════════════════════════
+       THE SAME SEVEN DESTINATIONS AS THE OTHER SIDE-LANE SHELLS, in the same
+       order, so the row is a fixed place rather than a per-page guess. NO
+       aria-current HERE: this document is not one of the seven, it is one
+       district's board, and marking a link current when none of them leads to
+       this page would point a screen reader at the wrong room.
+
+       "Follow the Money" is in this row and that is not a contradiction of the
+       money wall in the head: this page reads no finance module, no wealth data
+       and neither disclosure table. A navigation link to another lane is not a
+       read of it.
+
+       The account slot is LAST and it is EMPTY in the markup. What fills it is
+       shell-account-chip.js, and until Firebase answers it fills it with
+       "Checking account…" — never the Join CTA.
+       ═════════════════════════════════════════════════════════════════════════ -->
+  <header class="pdx-sh-bar">
+    <a class="pdx-sh-wordmark" href="/" title="PolitiDex — the front page">POLITI<span>DEX</span></a>
+    <nav class="pdx-sh-links" aria-label="PolitiDex">
+      <a class="pdx-sh-link" href="/#who-represents-me">🏛️ Who Represents Me</a>
+      <a class="pdx-sh-link" href="/#say-vs-do">👁️ Find the Record</a>
+      <a class="pdx-sh-link" href="/ballot">⭐ Your Ballot</a>
+      <a class="pdx-sh-link" href="/mandate">✊ Mandate</a>
+      <a class="pdx-sh-link" href="/voice">📣 District Voice</a>
+      <a class="pdx-sh-link" href="/money">💰 Follow the Money</a>
+      <a class="pdx-sh-link" href="/">&larr; Home</a>
+    </nav>
+    <div id="pdx-shell-acct" data-pdx-acct-sig="unknown"></div>
+  </header>
+
+  <main id="district-board">
+    <div class="pdxdb-wrap">
+      <p class="pdxdb-kick">District board</p>
+      <h1 class="pdxdb-h1">Utah Senate District 3</h1>
+      <p class="pdxdb-where">North Ogden and Weber County</p>
+      <p class="pdxdb-sub">The public record for this seat, and the count of who has
+        shown up in it. Reading this board is free and open to everyone &mdash; no
+        account, no location, no verification.</p>
+
+      <!-- THE THREE BANDS' HOST, AND IT IS EMPTY OF FACTS. district-board.js's
+           mount() paints all three into it: band 1 immediately from the roster,
+           bands 2 and 3 in their waiting state until their reads answer. The
+           markup below is the waiting state IN THE DOCUMENT so the honest
+           arrival is the immediate one and there is no flash of a wrong answer —
+           and note what it does NOT contain: not one integer. A zero in this
+           markup would be a count nobody has read yet. mount() replaces this
+           node's contents in place; it is never appended to. -->
+      <div id="pdx-district-board" data-pdxdb-boot="waiting">
+        <p class="pdxdb-wait" role="status">
+          <span class="pdxdb-dot" aria-hidden="true"></span>Reading this district&rsquo;s record&hellip;
+        </p>
+      </div>
+    </div>
+
+    <noscript>
+      <div class="pdxdb-wrap">
+        <p class="pdx-sh-note">
+          This is the district board for Utah Senate District 3 &mdash; North Ogden
+          and Weber County. It needs JavaScript to read the seat&rsquo;s roster row,
+          the count of who is in the room, and the measures on this
+          district&rsquo;s table. You can still
+          <a href="/p/john_johnson">read the sitting member&rsquo;s record</a>,
+          <a href="/#who-represents-me">see who represents you</a>, or
+          <a href="/my-stances">set your own positions</a>.
+        </p>
+      </div>
+    </noscript>
+  </main>
+
+</body>
+</html>

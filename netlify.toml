@@ -967,6 +967,70 @@
   to = "/voice.html"
   status = 200
 
+# ═════════════════════════════════════════════════════════════════════════════
+# THE FIRST DISTRICT VOICE READER: /district/ut-sd-3 -> district-ut-sd-3.html
+# ─────────────────────────────────────────────────────────────────────────────
+# WHAT THIS ADDRESS IS. Utah Senate District 3 — North Ogden and the rest of
+# Weber County — read as a PLACE rather than as a person. /p/john_johnson is the
+# sitting member's file and /voice is where a reader is placed at whatever seat
+# their own saved location names. Neither of those is an address you can hand to
+# a neighbour and say "this is our district". This is.
+#
+# WHY A FLAT FILE AND NOT A PATTERN. The obvious rule here was /district/* to
+# one template that reads the seat off the path, and it is deliberately NOT what
+# this is. A splat would publish an address for all 29 Utah senate seats, all
+# 75 house seats and anything else anybody typed, and every one of those pages
+# would load, render three bands and print zeroes — a board that exists at every
+# address in the state on the night one board opened. /api/district-board
+# answers a seat that is not on its allow-list with 404 for the same reason. One
+# district has a reader, so one district has an address; the second one is three
+# more lines in this file, and those three lines are the record that a decision
+# was made.
+#
+# THREE SPELLINGS, ONE DOCUMENT. The bare path is canonical and the only one
+# printed anywhere — in district-board.js's ROUTE, in the control on Johnson's
+# person file, and in the <link rel="canonical"> of the document itself. The
+# trailing slash is declared rather than left to Netlify's own 301 so a pasted
+# /district/ut-sd-3/ is the page instead of a hop; it is ALSO the reason every
+# same-origin path inside district-ut-sd-3.html is root-absolute with no
+# exceptions, because served at /district/ut-sd-3/ a bare src="district-board.js"
+# resolves to /district/ut-sd-3/district-board.js, this rule answers that with
+# the HTML document, and the browser is handed HTML and told to parse it as
+# JavaScript. The .html form is declared because /voice, /money and /my-stances
+# all serve an .html file from an extensionless path, so a reader who guesses the
+# underlying filename guesses THIS shape — and a guess that 404s teaches nothing.
+# scripts/test-district-voice-sd3.mjs asserts all three are present, all three
+# are 200, all three point at the same document, and nothing above them matches.
+#
+# ORDER: THREE EXACT PATHS, NO PREFIX, NO SPLAT. Disjoint by inspection of the
+# literal strings from every rule above — /d/* is a different first segment from
+# /district/, which is the one collision worth saying out loud, since /d/ut-sd-3
+# and /district/ut-sd-3 name the same seat and are two different documents on
+# purpose: the former is the seat file inside index.html, this is the board. The
+# invariant for whoever adds a rule above: nothing matching /district/ut-sd-3 may
+# be declared earlier, and the day a /district/* or a catch-all appears these
+# three must stay in front of it.
+# ═════════════════════════════════════════════════════════════════════════════
+[[redirects]]
+  from = "/district/ut-sd-3"
+  to = "/district-ut-sd-3.html"
+  status = 200
+
+# The trailing-slash form — see the root-absolute rule above, which exists
+# because of this line specifically.
+[[redirects]]
+  from = "/district/ut-sd-3/"
+  to = "/district-ut-sd-3.html"
+  status = 200
+
+# The filename a reader might guess from the extensionless path. Same document,
+# not a second canonical: district-ut-sd-3.html's <link rel="canonical"> names
+# the bare /district/ut-sd-3 and nothing on the site links this spelling.
+[[redirects]]
+  from = "/district/ut-sd-3.html"
+  to = "/district-ut-sd-3.html"
+  status = 200
+
 # FOLLOW THE MONEY. The lane's own address, and the only page on this site where
 # the green-gold money pair is the house style. No 0-100, no grass/mixed/big
 # traffic light, no per-person funding grade: finance-lane.js publishes

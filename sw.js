@@ -7071,7 +7071,54 @@
 //     MIGRATION COST. None. The bump exists because finance-lane.js and
 //     profiles-full.js both changed, and a warm device would otherwise serve the
 //     old empty-disclosure copy under the old dead button.
-const CACHE_VERSION = 'v225';
+// v226 - DISTRICT 3 VOICE READER SHIPPED; NO EQUITY COPY; STORES FOR
+//     LOCATION/DISTRICT/TEAM/STANCE NOT MIGRATED.
+//     /district/ut-sd-3 is the first district board with an address of its own:
+//     Utah Senate District 3, North Ogden and Weber County, in three bands - the
+//     seat (the john_johnson roster row and a link to /p/john_johnson), who is in
+//     the room (counts only, from /api/district-board), and what is on the table
+//     (the measures already in this archive for the seat). One new document,
+//     district-ut-sd-3.html, plus district-board.js, added to the precache list
+//     below for the same reason every other shell is on it: it is bootable.
+//
+//     WHAT IT DOES NOT SAY. No equity copy anywhere in the UI: no offer, no
+//     instrument, no percentage, no membership price and no identity vendor.
+//     scripts/test-district-voice-sd3.mjs sweeps the served document for that
+//     vocabulary and fails the build on a single match, because the one thing a
+//     public district board cannot afford to look like is a place to buy into.
+//
+//     WHAT IT DOES NOT COUNT. Every number in band 2 comes off the wire or is
+//     zero - no integer literal in the render path - and a store that does not
+//     exist prints 0 beside the money lane's absence grammar ("on hand", never
+//     "yet"). A read that FAILED says so and never prints a zero. The suite
+//     mounts the page against a fixture returning nothing and asserts every
+//     figure is 0, then against one holding seven, so a hardcoded headcount
+//     fails one or the other.
+//
+//     STORES NOT MIGRATED, AND THAT IS THE HONEST STATE. Nothing was added to
+//     dd_districts, so no location, district, team or stance store was moved,
+//     seeded or backfilled for this seat: the counts are structurally zero and
+//     the page says so in three grammars depending on which zero is true. It
+//     writes none of those keys - it reads the reader's own position COUNT
+//     through stance-sides.js and nothing else off the device.
+//     voter-hub-location.js, the owner of where a reader votes, is unchanged and
+//     deliberately absent from the new document: rather than copy its arithmetic
+//     the board prints no personal "you are in SD-3" line at all.
+//
+//     AND IT READS NO MONEY. No document row and no dollar row was added by this
+//     pass. PDX_FD_DOCUMENTS still holds its four (bmoore, maloy, kennedy,
+//     owens), PDX_FD_DISCLOSURES still ships zero dollar rows - both pinned by
+//     row count in three suites - and neither new file carries an identifier
+//     naming PDXFinance, WEALTH_DATA or either table.
+//
+//     NEVER_FEEDS. district-board.js publishes `scored: false` and a NEVER_FEEDS
+//     list, and the suite twin-boots the engines: Direction Match, the formal
+//     pattern index and the publication floor are byte-identical with and without
+//     it, no global leaked, and person.html still denylists alignment-tool.js.
+//     MIGRATION COST: none. The bump exists because person.html, person-file.js
+//     and person-file.css all changed - a warm device would otherwise paint the
+//     old kicker with no door to the board.
+const CACHE_VERSION = 'v226';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -7199,6 +7246,16 @@ const SHELL_ASSETS = [
   '/mandate.html',
   '/voice.html',
   '/money.html',
+
+  // THE THIRTEENTH SHELL, and the first that is ONE PLACE rather than one lane.
+  // netlify.toml rewrites all three spellings of /district/ut-sd-3 here; like
+  // the three above it is a SINGLE address, so navDocKey gives it no key and one
+  // entry answers every arrival. Offline, band 1 still paints from the already
+  // precached roster, and bands 2 and 3 say they could not READ - never a zero,
+  // because a cached board showing 0 verified residents is the one failure this
+  // page must not have.
+  '/district-ut-sd-3.html',
+  '/district-board.js',
   // The chrome all three share — the bar-and-chip sheet and the chip's own small
   // module — and the only two files /me and /courts did not already bring.
   '/shell-chrome.css',
@@ -8061,6 +8118,14 @@ const MANDATE_NAV_RE = /^\/mandate\/?$/;
 const VOICE_NAV_RE = /^\/voice\/?$/;
 const MONEY_NAV_RE = /^\/money\/?$/;
 
+// ─── THE SEVENTH BRANCH ─────────────────────────────────────────────────────
+// THREE exact spellings, because netlify.toml declares three exact rules for
+// this address. No capture group and nothing after the last segment, which is
+// the whole reason this is an alternation and not /^\/district\//: one district
+// has a board, so one district has a fallback, and the second one is a second
+// regex somebody has to decide to write.
+const DISTRICT_BOARD_NAV_RE = /^\/district\/ut-sd-3(?:\/|\.html)?$/;
+
 // How many person documents to keep. Each USED to be the whole ~2 MB app shell;
 // since the split it is person.html, ~234 KB, so four slots now cost less than
 // one did. Still a storage decision and not a correctness one: correctness is the
@@ -8232,6 +8297,11 @@ async function handleNavigate(req) {
   const isMandate = !isHome && !!(url && url.origin === self.location.origin && MANDATE_NAV_RE.test(url.pathname));
   const isVoice = !isHome && !!(url && url.origin === self.location.origin && VOICE_NAV_RE.test(url.pathname));
   const isMoney = !isHome && !!(url && url.origin === self.location.origin && MONEY_NAV_RE.test(url.pathname));
+  // Eleventh of the same kind, and navDocKey gives this one no key either — it
+  // returns '' for any path it does not recognise, and /district/... is not one
+  // of the shapes it knows, so nothing has ever been cached under a key for this
+  // address and adding a fallback here cannot collide with a held entry.
+  const isDistrictBoard = !isHome && !!(url && url.origin === self.location.origin && DISTRICT_BOARD_NAV_RE.test(url.pathname));
 
   // A PERSON DOCUMENT IS A RUNTIME ENTRY, NOT A SHELL ONE. It is keyed to a single
   // address, it is not on SHELL_ASSETS, and nothing on the precache list depends on
@@ -8409,6 +8479,18 @@ async function handleNavigate(req) {
   if (isMoney) {
     const moneyDoc = await shell.match('/money.html');
     if (moneyDoc) return moneyDoc;
+  }
+
+  // Offline on the district board. Thirteenth shell, and AFTER /money for the
+  // same ordering reason /money sits after the nine above it: none of the
+  // addresses already handled can be intercepted by this branch — none could be
+  // as these regexes are written, and keeping it last-but-one keeps that true
+  // after the next edit. See the precache note for what this is worth with no
+  // network: the seat paints from the roster, and the two counted bands say they
+  // could not read rather than showing a zero they did not read.
+  if (isDistrictBoard) {
+    const boardDoc = await shell.match('/district-ut-sd-3.html');
+    if (boardDoc) return boardDoc;
   }
 
   // Everything else: '/' is the app shell and it names nobody — the honest
