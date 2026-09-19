@@ -65,6 +65,45 @@
    has learned that this site puts a money chip on people with money, "no chip"
    says clean. It is not clean; nobody has looked yet.
 
+   ── THE FIRST CURATION WAVE RAN, UTAH-FIRST, AND FOUND NOTHING TO FILE ─────
+
+   The first wave went looking for filed in-office figures for the Utah slice
+   PolitiDex already carries — the governor, both US senators, the four US House
+   members who represent Utah, and the Utah Legislature's District 3 people. It
+   shipped ZERO ROWS, and the reason is a fact about the forms rather than a gap
+   in the looking:
+
+     1. UTAH'S OWN IN-OFFICE FORM CARRIES NO VALUE AT ALL. The state's conflict
+        -of-interest disclosure (Utah Code 20A-11-1603 / 1604) asks for
+        employers, entities held, income sources above a threshold, holdings
+        above a fair-market-value threshold, positions and real property. It
+        reports WHAT, not HOW MUCH: there is no band, no category ladder, and no
+        total anywhere on it. There is no figure on that form to quote.
+
+     2. THE FEDERAL FD HAS NO TOTAL LINE. A House or Senate annual disclosure
+        reports a CATEGORY OF VALUE per asset, asset by asset. It prints no
+        aggregate, no net worth and no summary band. Turning a page of ticked
+        categories into one figure means adding ranges together — which is the
+        midpoint arithmetic this file exists to refuse, and the sum would be a
+        figure the filer never filed.
+
+     3. THE THIRD-PARTY TOTALS ARE THE THING WE ARE NOT. Forbes, OpenSecrets'
+        net-worth estimates and this site's own /money board all publish a
+        single number per person. Every one of them is an ESTIMATE somebody
+        else computed, which is precisely what a chip reading "disclosed" must
+        not be carrying.
+
+   So the wave's finding is that the documents exist and are linkable — the
+   clerk's yearly index resolves a member to a document id and a PDF URL — but
+   the FIGURE does not exist on them. A row needs both. Where it cannot have
+   both, there is no row, and the pill says "No in-office wealth file on hand",
+   which for these people is the true sentence.
+
+   What is in place instead of rows is the machinery the next wave needs, both
+   pieces tested: the filed-category lookup below, so a ticked box can be shown
+   in a pill without being parsed, and the curation gate, so a row that cannot
+   point at a form cannot be typed in later without a test going red.
+
    ROW SHAPE, for the wave that fills it:
 
        'mike_lee': {
@@ -97,6 +136,143 @@
   // carry is a federal or state annual financial disclosure and a label that
   // varies per row is a label a reader has to learn.
   var FORM_LABEL = 'FD';
+
+  // ── THE FILED CATEGORY LADDER, AND THE ONE COMPRESSION ALLOWED ────────────
+  // A federal financial disclosure does not print a figure. It prints a TICKED
+  // BOX: the filer chooses a category of value for an asset, and that category's
+  // printed language IS the disclosure. So a row stores that language the way the
+  // form spells it — '$1,000,001 - $5,000,000' — and `wealth()` hands it back
+  // unchanged, like every other figure in this file.
+  //
+  // A letterhead pill cannot hold twenty-three characters of it. This object is
+  // the ONE place a filed category may be shortened for display, and it is a
+  // LOOKUP, not a formatter: literal key, literal value, one pair per box on the
+  // form, typed by hand. Nothing here reads a digit. There is no split on the
+  // dash, no strip of the commas, no parse of the bounds, no rounding rule and
+  // therefore no way for a mapping to invent a bound the form does not carry —
+  // the worst a wrong pair can do is misquote a band that a test is pinning
+  // value-for-value. scripts/test-money-two-chips.mjs pins this table entry by
+  // entry, which is the condition the wave was allowed under.
+  //
+  // A FIGURE THAT IS NOT IN HERE PASSES THROUGH VERBATIM. An exact filed number
+  // ('$247,003'), a band a jurisdiction spells its own way, the form's own
+  // 'None (or less than $1,001)' — none of them are keys, so all of them print as
+  // filed. Unknown input is never guessed at, reformatted, or dropped.
+  //
+  // SPELLING IS PART OF THE KEY. The clerk's forms print a spaced hyphen; the
+  // same band is written with an en dash elsewhere. Both spellings get their own
+  // literal pair rather than a normaliser, because a normaliser is code that
+  // rewrites a filed string before matching it, and the first thing it would have
+  // to decide is which characters in somebody's disclosure do not matter. A third
+  // spelling gets a third pair.
+  var FILED_BAND_LABELS = {
+    '$1,001 - $15,000':            '$1–15K',
+    '$1,001–$15,000':         '$1–15K',
+    '$15,001 - $50,000':           '$15–50K',
+    '$15,001–$50,000':        '$15–50K',
+    '$50,001 - $100,000':          '$50–100K',
+    '$50,001–$100,000':       '$50–100K',
+    '$100,001 - $250,000':         '$100–250K',
+    '$100,001–$250,000':      '$100–250K',
+    '$250,001 - $500,000':         '$250–500K',
+    '$250,001–$500,000':      '$250–500K',
+    '$500,001 - $1,000,000':       '$500K–1M',
+    '$500,001–$1,000,000':    '$500K–1M',
+    '$1,000,001 - $5,000,000':     '$1–5M',
+    '$1,000,001–$5,000,000':  '$1–5M',
+    '$5,000,001 - $25,000,000':    '$5–25M',
+    '$5,000,001–$25,000,000': '$5–25M',
+    '$25,000,001 - $50,000,000':   '$25–50M',
+    '$25,000,001–$50,000,000':'$25–50M',
+    'Over $50,000,000':            'over $50M',
+    'over $50,000,000':            'over $50M'
+  };
+
+  // ONE ANSWER FOR EVERY SURFACE. The pill, the pill's accessible label and the
+  // long-form disclosures block all ask this, so the three cannot end up quoting
+  // one archive three ways. A band stays a band through it: in and out are both
+  // strings, and no arithmetic happens in between.
+  function bandLabel(figure) {
+    if (figure == null) return '';
+    var raw = String(figure).trim();
+    if (!raw) return '';
+    return Object.prototype.hasOwnProperty.call(FILED_BAND_LABELS, raw)
+      ? FILED_BAND_LABELS[raw] : raw;
+  }
+
+  // ── THE CURATION GATE: WHAT MAY BE TYPED INTO THE TABLE ───────────────────
+  // The table is hand-written, which means the thing to defend against is not a
+  // bad parser, it is a tired person at 1am with a news article open. These are
+  // the rules a row has to satisfy to be allowed in, expressed as code so the
+  // suite can run them rather than as a paragraph somebody has to remember:
+  //
+  //   FIGURE   a non-empty string, as filed. Never '$0' and never '0' — a zero is
+  //            a figure, and the one thing a blank on this lane must never become.
+  //   YEAR     the form's own four-digit year. Which document this came off.
+  //   FORM URL an https link to the DOCUMENT. No row may point at a news story,
+  //            a net-worth estimate or a leaderboard, so the host has to be a
+  //            .gov: that is where filed disclosures live, and it is the cheapest
+  //            check that excludes Forbes, OpenSecrets and this site's own /money
+  //            board by construction rather than by a blocklist somebody has to
+  //            keep up to date. An official non-.gov host would be a decision to
+  //            make out loud, with a test, not a silent pass.
+  //   NO YEARS OF SERVICE. A row may not carry tenure in any spelling. Time in
+  //            office has exactly one owner — window._pdxTenure, off the person
+  //            file's sworn date — and a second copy stored beside a dollar
+  //            figure is how the money chip and the tenure pill start disagreeing
+  //            about the same person in the same row.
+  //   NOTHING ELSE. Three fields, no fourth. An unrecognised key is a defect and
+  //            not a feature, because a field this file does not print is a field
+  //            somebody expected to be printed.
+  //
+  // It reports rather than repairs: a defect names the pid and the broken rule,
+  // never the value, and the suite asserts the SHIPPED table has none. Nothing
+  // here silently drops a row — a row quietly swallowed is a row nobody fixes.
+  var ROW_FIELDS = ['rangeOrExact', 'year', 'formUrl'];
+  //   The list names the spellings a person might reach for; it is not the whole
+  // defence, because anything it misses lands on "unrecognised field" below. It
+  // deliberately does NOT spell the two date fields a person record carries, so
+  // that this module still contains no term-date identifier anywhere — the suite
+  // sweeps its whole body for them, and a gate that had to name them to forbid
+  // them would be the one place tenure arithmetic could grow back.
+  var TENURE_FIELDS = ['tenureYears', 'years', 'yearsInOffice', 'tenure',
+                       'yearsServed', 'yearsSworn', 'sinceTakingOffice'];
+  function rowDefects(pid, row) {
+    var out = [];
+    if (!row || typeof row !== 'object') return [pid + ': row is not an object'];
+    var fig = (row.rangeOrExact == null) ? '' : String(row.rangeOrExact).trim();
+    if (!fig) out.push(pid + ': rangeOrExact is empty — a row with no figure is not a row');
+    if (fig === '$0' || fig === '0') out.push(pid + ': rangeOrExact is a zero, which is a figure and not a blank');
+    var yr = (row.year == null) ? '' : String(row.year).trim();
+    if (!/^[12][0-9]{3}$/.test(yr)) out.push(pid + ': year is not a four-digit form year');
+    var url = (row.formUrl == null) ? '' : String(row.formUrl).trim();
+    if (!url) {
+      out.push(pid + ': formUrl is empty — no row without the form it came off');
+    } else if (!/^https:\/\/[^\/?#]*\.gov(?:[:\/?#]|$)/i.test(url)) {
+      out.push(pid + ': formUrl is not an https link to a .gov document');
+    }
+    for (var i = 0; i < TENURE_FIELDS.length; i++) {
+      if (Object.prototype.hasOwnProperty.call(row, TENURE_FIELDS[i])) {
+        out.push(pid + ': carries ' + TENURE_FIELDS[i] + ' — tenure comes only from _pdxTenure');
+      }
+    }
+    for (var k in row) {
+      if (!Object.prototype.hasOwnProperty.call(row, k)) continue;
+      if (ROW_FIELDS.indexOf(k) >= 0) continue;
+      if (TENURE_FIELDS.indexOf(k) >= 0) continue;
+      out.push(pid + ': unrecognised field ' + k);
+    }
+    return out;
+  }
+  function curationDefects(table) {
+    var t = (table && typeof table === 'object') ? table : PDX_FD_DISCLOSURES;
+    var out = [];
+    for (var pid in t) {
+      if (!Object.prototype.hasOwnProperty.call(t, pid)) continue;
+      out = out.concat(rowDefects(pid, t[pid]));
+    }
+    return out;
+  }
 
   // ── FILINGS: ONE DOOR, AND IT KNOCKS RATHER THAN REACHING IN ──────────────
   // finance-lane.js owns the campaign filing lookup — the two seams, the shipped
@@ -237,6 +413,14 @@
     coverage: coverage,
     FORM_LABEL: FORM_LABEL,
     THIN_AT: THIN_AT,
+    // The one display compression a filed category is allowed, and the table it
+    // reads. Published so finance-lane.js has one owner to ask instead of a
+    // second copy of the ladder, and so the suite can pin it pair by pair.
+    bandLabel: bandLabel,
+    FILED_BAND_LABELS: FILED_BAND_LABELS,
+    // What a hand-written row has to satisfy to be in the table at all. Empty
+    // list means the shipped table is clean; the suite asserts exactly that.
+    curationDefects: curationDefects,
     // Declared, so the wall is readable off the object as well as off the
     // header. Asserted by scripts/test-money-two-chips.mjs.
     scored: false,

@@ -439,6 +439,86 @@ PDXFinance.wealth(pid)   // { rangeOrExact, year, formUrl, tenureYears } | null
 consumer could quietly do arithmetic on. `PDXFinance.scored` is `false` and it
 declares the same `NEVER_FEEDS` list as the lane.
 
+### The first curation wave ran Utah-first and shipped zero rows
+
+The first wave went looking for filed in-office figures for the Utah slice the
+site already carries — Governor Cox, Senators Lee and Curtis, the four US House
+members who represent Utah (Moore, Maloy, Kennedy, Owens), and the Utah
+Legislature's District 3 people (John Johnson, SD 3 / North Ogden; Jason
+Thompson, HD 3). It shipped **zero rows**. The reason is a fact about the
+documents, not a gap in the looking, and it is written here because a zero-row
+wave that leaves no trace reads, to the next person, as a wave that never ran:
+
+| What we looked at | What it prints | Why no row |
+| --- | --- | --- |
+| Utah's in-office disclosure (Utah Code **20A-11-1603** / 1604) | employers, entities held, income sources over a threshold, holdings over a fair-market-value threshold, positions, real property | it reports **what**, not how much — no band, no ladder, no total. There is no figure on the form to quote. |
+| House / Senate annual FD | a **category of value** per asset, asset by asset | no aggregate line, no net worth, no summary band. One figure out of a page of ticked boxes is ranges added together. |
+| Forbes / OpenSecrets net worth, `WEALTH_DATA` on /money | one number per person | each is somebody's **estimate**, which is the one thing a pill reading "disclosed" must not carry. |
+
+The documents themselves *are* reachable — the clerk's yearly index resolves a
+member to a document id and a PDF URL, and the real 2024–25 Utah ids were
+captured in this pass. The blocker is the **figure**, not the form: the PDFs are
+image-only scans with no text layer, and even fully transcribed they would hand
+back a page of categories rather than a total. A row needs a figure and a form.
+Where it cannot have both, there is no row, and the pill says *"No in-office
+wealth file on hand"* — which for these people is the true sentence.
+
+**The path a later wave takes**, so nobody has to re-find it: the House clerk
+publishes a yearly index at
+`disclosures-clerk.house.gov/public_disc/financial-pdfs/<year>FD.zip`, which
+contains `<year>FD.txt` — tab-separated, one row per filing, ending in a document
+id — and the document itself is at
+`…/financial-pdfs/<year>/<DocID>.pdf`. The real 2024–25 Utah ids were captured in
+this pass. Those PDFs are encrypted, image-only scans with no text layer, so
+transcription is hand work with the page open; and what comes out of it is a page
+of ticked categories, which is why a row stores the category and the lookup below
+exists to display it. Senate filings come off `efdsearch.senate.gov`, Utah's own
+forms off `disclosures.utah.gov`, and the gate accepts either because both are
+`.gov`.
+
+So the wave's deliverable is the machinery the next one needs, both halves
+tested rather than described:
+
+**The filed-category lookup.** A federal FD prints a ticked box, and the box's
+own language is the disclosure — so a row stores `$1,000,001 - $5,000,000`
+verbatim. A pill cannot hold twenty-three characters of it, so
+`PDXFinance.bandLabel()` shortens it to `$1–5M`. It is a **lookup, not a
+formatter**: an object of literal keys and literal values, one pair per box on
+the form, typed by hand and pinned pair by pair in the suite. Nothing in it reads
+a digit — no split on the dash, no strip of the commas, no parse of the bounds,
+no rounding rule — so the worst a wrong pair can do is misquote a band a test is
+holding value-for-value. Spelling is part of the key: the clerk prints a spaced
+hyphen, the same band is written elsewhere with an en dash, and both get their
+own literal pair rather than a normaliser, because a normaliser is code that
+rewrites somebody's filed string before matching it. Anything that is not a
+printed category — an exact figure, a state's own phrasing, the form's own
+`None (or less than $1,001)` — is not a key and prints exactly as filed. Every
+shortened value keeps two ends or the word that says there is no upper one, so no
+compression can produce a single figure.
+
+The compression happens **once per read**, in `finance-lane.js`'s `wealthRead()`,
+so the pill, its accessible name and the disclosures block quote one string. The
+block prints that string *and*, underneath it, the box the filer actually ticked,
+word for word: the short form is a display convenience, the long form is the
+document.
+
+**The curation gate.** The table is hand-written, so the thing to defend against
+is not a bad parser, it is a tired person at 1am with a news article open.
+`PDXFinance.curationDefects()` is those rules as code:
+
+| Rule | Why |
+| --- | --- |
+| a non-empty `rangeOrExact`, as filed, never `$0` or `0` | a zero is a figure, and the one thing a blank on this lane must never become |
+| a four-digit `year` | which document this came off |
+| an `https` `formUrl` on a **.gov** host | filed disclosures live on .gov; it is the cheapest check that excludes Forbes, OpenSecrets, a news story and this site's own /money board by construction rather than by a blocklist somebody has to maintain. An official non-.gov host would be a decision made out loud, with a test. |
+| no years of service, in any spelling | tenure has exactly one owner — `window._pdxTenure`, off the person file's sworn date. A copy stored beside a dollar figure is how the money chip and the 🗓️ pill start disagreeing about the same person in the same row. |
+| three fields, no fourth | a field this lane does not print is a field somebody expected to be printed |
+
+It **reports rather than repairs**, and a defect names the pid and the broken
+rule and never echoes the value. Nothing silently drops a row: a row quietly
+swallowed is a row nobody fixes. The suite asserts the shipped table has no
+defect, and drives thirteen illegal rows through it one broken rule at a time.
+
 ## The person file's money section is two blocks, and nothing else
 
 The two pills are doors. What stood behind them until now was three surfaces, not
@@ -765,7 +845,9 @@ click targets are checked by **calling** both against a document and watching
 which block takes focus, with neither taking an exit off the person file; no
 surface prints a combined read and the disclosure module cannot see a receipts
 figure; neither pill's text or accessible name carries a percentage, a level, a
-rank or a word about being wealthy; the shipped disclosure table really is empty;
+rank or a word about being wealthy; the shipped disclosure table really is empty
+and its emptiness is the first curation wave's finding rather than an untouched
+stub;
 and a twin boot that mounts 108 of each pill leaves Direction Match, the formal
 pattern index, the publication floor and the mapped counts byte-identical with a
 disclosure filed on the member under test, with no new global on the window.
@@ -781,6 +863,23 @@ labelled money blocks in order, an empty disclosure block with no dollar sign, n
 digit and no percent on all 1,120 rostered profiles, every donor and bucket label
 findable in the filing record the lane read for that pid, and no control in
 either block that closes the person file or opens the compare tool.
+
+Its section 12 fences the curation wave: the shipped table is empty and carries
+no row off an estimate, the finding is on the record in this file and in the
+module header, the filed-category ladder is pinned pair by pair with every
+shortened value still a band and every unmapped figure passing through verbatim,
+`pdx-finance.js` contains no arithmetic that could touch a figure, and five rows
+shaped exactly as a curated row must be shaped are printed and taken apart —
+figure, tenure span and form year removed by name, with no dollar sign and no
+digit left over. Then: no pid outside the table prints a dollar sign, a digit or
+a zero on its pill in either boot, and no digit but the coverage counts in its
+accessible name; Trump stays empty in both, because this pass holds no document
+URL for him; the filings block quotes pill 1 and the disclosures block quotes
+pill 2 with neither carrying the other's figure; every row's form URL renders as
+a real anchor with its year; and thirteen illegal rows — no URL, a Forbes profile,
+an OpenSecrets page, a news story, `http`, no figure, `$0`, no year, a
+half-written year, stored tenure in two spellings, and two kinds of fourth field
+— each fail the gate by name.
 
 `scripts/test-money-theme.mjs` — the fence around the token: the two copies agree
 value for value; **Lee's $8.6M chip and an empty Utah chip open with byte-identical

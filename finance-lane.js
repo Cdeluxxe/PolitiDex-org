@@ -1033,6 +1033,26 @@
     var lbl = (F && F.FORM_LABEL) ? String(F.FORM_LABEL) : 'FD';
     return lbl;
   }
+  // THE FIGURE AS IT GOES ON A SURFACE, WHICH IS STILL THE FIGURE AS FILED.
+  // A federal disclosure reports a ticked category, and the category's own
+  // language — "$1,000,001 - $5,000,000" — is what the row stores. pdx-finance.js
+  // owns the hand-written lookup that shortens exactly those printed categories
+  // to pill width ("$1–5M"), one literal pair per box on the form, and this asks
+  // it rather than carrying a second ladder: two ladders is two answers to "what
+  // does this band say", one on the pill and one in the block.
+  //   IT IS A LOOKUP MISS, NOT A FORMATTER FALLBACK. Anything that is not a
+  // printed category — an exact filed figure, a state's own phrasing — is not a
+  // key, comes back verbatim, and is printed verbatim. Where the archive is not
+  // loaded at all, the string is used as it arrived. No branch here can produce a
+  // figure that the row did not contain.
+  function bandFigure(figure) {
+    var raw = (figure == null) ? '' : String(figure);
+    var F = W.PDXFinance;
+    if (F && typeof F.bandLabel === 'function') {
+      try { var out = F.bandLabel(raw); if (out) return String(out); } catch (e) {}
+    }
+    return raw;
+  }
   function wealthCoverage() {
     var F = W.PDXFinance;
     if (F && typeof F.coverage === 'function') {
@@ -1059,10 +1079,16 @@
     // reaches a letterhead.
     if (!w || !w.rangeOrExact) {
       return { state: 'empty', pid: pid || null, sectionId: WEALTH_SECTION_ID,
-               disclosure: null, coverage: cov };
+               disclosure: null, figure: '', asFiled: '', coverage: cov };
     }
+    // `figure` is what every surface prints; `asFiled` is what the form printed.
+    // They are the same string unless the row carries a ticked federal category,
+    // and the compression happens ONCE, here, so the pill, its accessible name
+    // and the disclosures block cannot end up quoting one archive three ways.
+    // `disclosure` is still the archive's own read, untouched.
     return { state: 'file', pid: pid, sectionId: WEALTH_SECTION_ID,
-             disclosure: w, coverage: cov };
+             disclosure: w, figure: bandFigure(w.rangeOrExact),
+             asFiled: String(w.rangeOrExact), coverage: cov };
   }
 
   // Tenure in the width of a pill. Whole years, off the person file's own sworn
@@ -1085,7 +1111,7 @@
       // could reduce it to one number. The verb is "disclosed" — not "worth", not
       // "earned", not "made". It describes the act of filing, which is the only
       // thing the document is evidence of.
-      segs.push({ fig: true, text: w.rangeOrExact + ' disclosed' });
+      segs.push({ fig: true, text: (wr.figure || w.rangeOrExact) + ' disclosed' });
       // THE SPAN THE FIGURE SITS IN. A disclosed range with no tenure beside it
       // invites the reading that the office produced the money. With the years
       // printed, the reader has both facts and neither is a claim about the other
@@ -1114,9 +1140,11 @@
     if (wr.state === 'file') {
       var w = wr.disclosure;
       var ten = tenureText(w.tenureYears);
-      return w.rangeOrExact + ' in assets disclosed on ' +
+      var filedWords = (wr.asFiled && wr.asFiled !== wr.figure)
+        ? ' The form\u2019s own wording for that box is ' + wr.asFiled + '. ' : ' ';
+      return (wr.figure || w.rangeOrExact) + ' in assets disclosed on ' +
         (w.year ? w.year + "'s " : '') + 'personal financial disclosure form' +
-        (ten ? ', filed while serving ' + ten : '') + '. ' +
+        (ten ? ', filed while serving ' + ten : '') + '.' + filedWords +
         'Reported exactly as published: where the form states a range, the range ' +
         'is the disclosure and is not narrowed to a single figure here. ' +
         'This is personal wealth declared while in office, not campaign money, ' +
@@ -1180,8 +1208,19 @@
             '\ud83d\udcc4 ' + esc((w.year ? w.year + ' ' : '') + formLabel()) + ' \u2197</a>'
         : '<span class="pdx-money-block-src is-none">' +
             esc((w.year ? w.year + ' ' : '') + formLabel()) + ' \u00b7 no link on file</span>';
+      // THE SAME STRING THE PILL CARRIES — one read, one compression, quoted
+      // twice. And where that string is a shortened federal category, the box the
+      // filer actually ticked is printed under it word for word, because the
+      // short form is a display convenience and the long form is the document.
+      var filedLine = (wr.asFiled && wr.asFiled !== wr.figure)
+        ? '<p class="pdx-money-block-s pdx-money-block-filed">Ticked on the form as ' +
+            esc(wr.asFiled) + ' \u2014 the category is the disclosure; the shorter ' +
+            'form above is the same band written to fit a pill, and no figure ' +
+            'inside it is narrowed, averaged or added up.</p>'
+        : '';
       body =
-        '<div class="pdx-money-block-fig">' + esc(w.rangeOrExact) + ' <span>disclosed</span></div>' +
+        '<div class="pdx-money-block-fig">' + esc(wr.figure || w.rangeOrExact) + ' <span>disclosed</span></div>' +
+        filedLine +
         '<p class="pdx-money-block-s">' +
           'As published on ' + esc(first) + "'s own personal financial disclosure" +
           (w.year ? ' for ' + esc(w.year) : '') + (ten ? ', filed while serving ' + esc(ten) : '') + '. ' +

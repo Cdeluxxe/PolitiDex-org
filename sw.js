@@ -6945,7 +6945,48 @@
 //     profiles-full.js, index.html, app.css and money.html all changed, and a
 //     warm device would otherwise open the new letterhead pills onto the old
 //     shell's transparency card.
-const CACHE_VERSION = 'v222';
+// v223 - THE FIRST FD CURATION WAVE RAN UTAH-FIRST AND FILED NOTHING.
+//
+//     WHAT THE TABLE GAINED. Zero rows. PDX_FD_DISCLOSURES is still {}, and
+//     that is now a curated zero rather than an untouched stub. The wave went
+//     looking for filed in-office figures for the Utah slice the site carries -
+//     the governor, both senators, the four US House members who represent
+//     Utah, and the Legislature's District 3 people - and found that no form in
+//     that slice prints one. Utah's own in-office disclosure (Utah Code
+//     20A-11-1603) reports employers, entities, income sources and holdings over
+//     thresholds: what, never how much. A House or Senate FD reports a category
+//     of value per asset with no aggregate line. One figure out of a page of
+//     ticked boxes is ranges added together, and Forbes / OpenSecrets / the
+//     /money board each publish somebody's estimate instead. So every pill in
+//     the slice still says "No in-office wealth file on hand", which for these
+//     people is the true sentence.
+//
+//     WHAT SHIPPED INSTEAD. The machinery the next wave needs, both halves
+//     tested. PDXFinance.bandLabel() shortens a ticked federal category to pill
+//     width - "$1,000,001 - $5,000,000" to "$1-5M" - out of a hand-written table
+//     of literal keys, pinned pair by pair in the suite, with no digit read
+//     anywhere: no split on the dash, no parse of the bounds, no rounding, and
+//     anything that is not a printed category prints verbatim. finance-lane.js
+//     applies it once per read, so the pill, its accessible name and the
+//     disclosures block quote one string, and the block prints the ticked box
+//     word for word underneath it. PDXFinance.curationDefects() is the gate a
+//     hand-written row has to pass: a figure as filed and never $0, a four-digit
+//     form year, an https .gov link to the document, no stored years of service
+//     in any spelling, three fields and no fourth. It reports, never repairs,
+//     and never echoes the figure.
+//
+//     STORES AND SHELL. No stored record is read, written or migrated. The
+//     saved location, the district, the team and the stance stores are
+//     untouched, and voter-hub-location.js is unchanged - it is still the one
+//     owner of tenure, which is exactly why the gate refuses a row that carries
+//     years of service of its own. Direction Match, the formal pattern index,
+//     the publication floor and the mapped counts are byte-identical across the
+//     twin boot with the compression path inside it, and no global leaked.
+//
+//     MIGRATION COST. None. The bump exists because pdx-finance.js and
+//     finance-lane.js both changed, and a warm device would otherwise run the
+//     new lane against the old archive.
+const CACHE_VERSION = 'v223';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
