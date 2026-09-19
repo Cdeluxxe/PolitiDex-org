@@ -1313,7 +1313,8 @@
         'is still being built, so we do not advertise one for it yet.">record still being built</span>';
     }
 
-    host.innerHTML = '<span class="pf-kick-what">Person file</span>' + state + voiceLink(pid);
+    host.innerHTML = '<span class="pf-kick-what">Person file</span>' + state +
+      voiceLink(pid) + boardLink(pid);
   }
 
   // The address in the kicker is a real anchor so it can be copied, opened in a
@@ -1354,6 +1355,38 @@
       var V = window.PDXVoice;
       if (!V || !fn(V.personLinkHtml)) return '';
       return V.personLinkHtml(pid) || '';
+    } catch (e) { return ''; }
+  }
+
+  // ── "District 3 board" ────────────────────────────────────────────────────
+  // ONE control, for the one member who sits in a seat that has a district board
+  // at its own address — which is one member today, John Johnson in Utah Senate
+  // District 3. It goes to /district/ut-sd-3, a real document that really
+  // renders three real bands.
+  //
+  // IT IS NOT A DEAD BUTTON AND IT DOES NOT closeModal(). That is worth naming
+  // rather than assuming: the control this pattern replaces elsewhere in the app
+  // dismissed the file the reader was looking at, in the name of taking them
+  // somewhere, and took them nowhere. This is a plain anchor to a plain address —
+  // it opens in place, it copies, it opens in a new tab, and anything that
+  // scrapes links can see where it goes.
+  //
+  // WHAT IT IS NOT. Not a second Voice link: PDXVoice.personLinkHtml() answers
+  // for the SEAT's board inside the district file and this answers for the
+  // district's own page, so on a member who has both, both appear and each says
+  // which it is. Not a number — no count, no badge, no activity dot. A tally of a
+  // district's activity sitting on somebody's dossier would be a metric about the
+  // person, and this file publishes none it did not earn from the record.
+  //
+  // Rendered by window.PDXDistrictBoard.personLinkHtml(), which answers '' for
+  // every pid that does not sit in such a seat — so this file holds no allow-list
+  // of its own and degrades to exactly today's kicker when district-board.js is
+  // missing, which it is on every document but one.
+  function boardLink(pid) {
+    try {
+      var B = window.PDXDistrictBoard;
+      if (!B || !fn(B.personLinkHtml)) return '';
+      return B.personLinkHtml(pid) || '';
     } catch (e) { return ''; }
   }
 

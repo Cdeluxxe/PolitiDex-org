@@ -91,6 +91,37 @@
   text-underline-offset: 0.15em;
 }
 
+/* "District 3 board" — the one link on a person file to a district's OWN page,
+   for the member who sits in the one seat that has one. Same quiet treatment as
+   the Voice link beside it and for the same reason: it is a door to a place, not
+   a figure about the person, and a pill or a count here would read as one.
+
+   THE margin-left DANCE IS DELIBERATE. Both links want to sit at the far end of
+   the kicker row, so both claim `auto` — but when BOTH are rendered (the member
+   who has a seat board and a district page, which is one member today) two auto
+   margins would split the leftover space and strand the pair in the middle of
+   the row. The sibling rule below gives the auto to the first and a plain gap to
+   the second, so the pair travels together against the right edge whether one or
+   both are present. */
+.pf-kick-board {
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: #7f93b0;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+.pf-kick-voice + .pf-kick-board { margin-left: 0.75rem; }
+.pf-kick-board:hover,
+.pf-kick-board:focus-visible {
+  color: #cbd5e1;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
 .pf-kick-thin,
 .pf-kick-empty {
   color: #6b7c9c;

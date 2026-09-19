@@ -2594,6 +2594,21 @@ window.PDXLazy = (function () {
        together. See FINANCE_INTEGRITY.md and scripts/test-money-two-chips.mjs. -->
   <script defer src="/pdx-finance.js"></script>
   <script defer src="/finance-lane.js"></script>
+  <!-- THE ONE DISTRICT-BOARD CONTROL, AND IT IS HERE SO IT IS NOT A DEAD LINK.
+       district-board.js publishes personLinkHtml(pid), which person-file.js asks
+       for when it paints the kicker; it answers '' for every pid but the one
+       member who sits in a seat with a board at its own address. BEFORE
+       person-file.js on purpose — `defer` runs in document order, so loading it
+       after would mean the kicker asks for the control before the module that
+       owns it exists, and the link would silently never appear. That is exactly
+       the state the Voice link is in on this document today: district-voice.js is
+       not here, so voiceLink() fails soft to '' on every profile.
+
+       INERT OTHERWISE. mount() returns false without its #pdx-district-board
+       host, which this document does not have, so nothing is fetched, nothing is
+       painted and no band exists here. The board is at /district/ut-sd-3; this
+       is only the door to it. -->
+  <script defer src="/district-board.js"></script>
   <script defer src="/person-file.js"></script>
   <script defer src="/voting-record.js"></script>
 

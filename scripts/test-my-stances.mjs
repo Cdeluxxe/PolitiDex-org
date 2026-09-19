@@ -97,6 +97,12 @@ const SIDES_JS = R("stance-sides.js");
 const MAP_JS = R("issue-map.js");
 const SCOPE_JS = R("issue-scope.js");
 const IC_JS = R("issue-colors.js");
+// THE SECOND STORE BEHIND THE ONE READER. stance-sides.js walks my-stances.js's
+// device key AND your-file.js's per-account key, and /my-stances now ships both
+// owners — see the tag in my-stances.html and section 10. A sandbox that booted
+// only the first would be testing a document this repo does not serve, and it
+// would go on passing the day the tag was deleted.
+const YF_JS = R("your-file.js");
 const INDEX_HTML = R("index.html");
 const BALLOT_HTML = R("ballot.html");
 const BW_JS = R("ballot-workspace.js");
@@ -213,6 +219,10 @@ function makeDoc() {
 }
 
 const STORE_KEY = "pdx_my_stances_v1";
+// your-file.js's own base key, spelled here because the fixture writes it the
+// way that module writes it. A signed-in desk lives under KEY + '__u_' + uid;
+// see boot()'s `desk` / `uid` options.
+const DESK_KEY = "pdx_your_file_v1";
 
 function boot(opts) {
   const o = opts || {};
@@ -253,6 +263,19 @@ function boot(opts) {
   // that module's real load() and normalise rather than a fixture handed
   // straight to the studio.
   const store = {};
+  // THE ACCOUNT DESK, WRITTEN THE WAY ITS OWNER WRITES IT. `desk` seeds
+  // your-file.js's answers map; `uid` puts them under the per-account namespace
+  // and hands the module a PDXStore whose getAccount() names that uid, which is
+  // the branch a signed-in reader actually takes (your-file.js's activeKey() →
+  // nsFor(uid)). Without `uid` the base key is read, which is the guest branch.
+  if (o.desk) {
+    const answers = {};
+    Object.keys(o.desk).forEach((k) => {
+      answers[k] = { position: o.desk[k], updatedAt: 1700000000000 };
+    });
+    const blob = JSON.stringify({ version: 1, answers, updatedAt: 1700000000000 });
+    store[o.uid ? `${DESK_KEY}__u_${o.uid}` : DESK_KEY] = blob;
+  }
   if (o.held) {
     const items = {};
     Object.keys(o.held).forEach((k) => {
@@ -282,6 +305,25 @@ function boot(opts) {
   win.CustomEvent = function (t, d) { return { type: t, detail: (d && d.detail) || null }; };
   win.__store = store;
 
+  // THE ACCOUNT CONTEXT, WHEN THE FIXTURE ASKS FOR ONE. This is the only thing
+  // that makes your-file.js read its namespaced key rather than the base one,
+  // and it is the same seam the real app uses: PDXStore.getAccount(). read()
+  // falls through to localStorage so the blob above is the single source.
+  if (o.uid) {
+    win.PDXStore = {
+      getAccount: () => String(o.uid),
+      read: (k, dflt) => {
+        try {
+          const raw = win.localStorage.getItem(k);
+          return raw == null ? dflt : JSON.parse(raw);
+        } catch (e) { return dflt; }
+      },
+      write: (k, v) => { store[k] = JSON.stringify(v); },
+      defineCollection() {}, registerSnapshot() {}, registerReconciler() {},
+      markDirty() {},
+    };
+  }
+
   const ctx = vm.createContext(win);
   win.__err = null;
   try {
@@ -290,6 +332,12 @@ function boot(opts) {
     vm.runInContext(IC_JS, ctx, { filename: "issue-colors.js" });
     vm.runInContext(SIDES_JS, ctx, { filename: "stance-sides.js" });
     vm.runInContext(STANCES_JS, ctx, { filename: "my-stances.js" });
+    // BEFORE THE STUDIO, EXACTLY AS THE DOCUMENT ORDERS THE TAGS. The studio's
+    // mode is sticky and decided on its FIRST paint from the reader's count, so
+    // a your-file.js that parsed after it would leave the coach open over a full
+    // account desk — which is the bug, one tag later. Section 10 pins the order
+    // in the served markup; this pins that the sandbox reproduces it.
+    if (!o.noDesk) vm.runInContext(YF_JS, ctx, { filename: "your-file.js" });
     vm.runInContext(STUDIO_JS, ctx, { filename: "stance-studio.js" });
   } catch (e) { win.__err = e; }
   win.__host = () => win.document.getElementById("mst");
@@ -847,6 +895,197 @@ has(DOSSIER_JS, "set your side on this issue", "the dossier's door lost its copy
 });
 ok((STUDIO_CSS.match(/min-height:\s*(44px|2\.75rem)/g) || []).length >= 3,
   "fewer than three of the studio's controls declare a 44px minimum — these are all thumb targets");
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("10 · TWO STORES, ONE READER: the account desk is not an empty file");
+// ═════════════════════════════════════════════════════════════════════════════
+// THE REPORT THIS SECTION IS FOR, in the words it arrived in. /me listed three
+// sides — Water Conservation, Housing Affordability, Protect Public Lands. The
+// studio said "1 position on file" after a save. The SD-3 board said "You have
+// no positions on file." Same morning, same account.
+//
+// NOTHING WAS WRONG WITH THE READER. stance-sides.js was already the only
+// answer to "which sides does this visitor hold", and it was already correct:
+// it walks TWO stores through their owners' published reads —
+//
+//   pdx_my_stances_v1              my-stances.js   PDXStances.all()
+//   pdx_your_file_v1__u_<uid>      your-file.js    PDXYourFile.answered()
+//                                                  PDXYourFile.position(k)
+//
+// — and ONLY /me shipped both owners (me.html's two tags, my-stances.js then
+// your-file.js). /my-stances shipped the first. So on this document the reader
+// read an empty device key, reported zero, and the studio did what it is
+// supposed to do with a zero: opened the first-run coach and, after one save,
+// counted the one thing this device's store had.
+//
+// THE FIX IS A TAG AND A READ, NOT A STORE. No key was added, no
+// pdx_my_stances_v2 exists, nothing was migrated and nothing copies one store's
+// records into the other's. The two owners are read through their own published
+// functions, which is what stance-sides.js already was.
+{
+  // THE EXACT KEYS, PINNED AS TEXT. If either owner renames its key, the
+  // fixtures below would silently seed a key nobody reads and go on passing.
+  has(jsBare(R("my-stances.js")), "'pdx_my_stances_v1'", "my-stances.js no longer owns pdx_my_stances_v1 — the fixture key is stale");
+  has(jsBare(YF_JS), "'pdx_your_file_v1'", "your-file.js no longer owns pdx_your_file_v1 — the fixture key is stale");
+  has(jsBare(YF_JS), "KEY + '__u_'", "your-file.js no longer namespaces its key per account — the signed-in fixture is testing the wrong branch");
+  // AND THE READER STILL READS BOTH, through the owners rather than the keys.
+  const SIDES_CODE = jsBare(SIDES_JS);
+  has(SIDES_CODE, "window.PDXStances", "the one reader stopped asking the device store's owner");
+  has(SIDES_CODE, "window.PDXYourFile", "the one reader stopped asking the account store's owner");
+  lacks(SIDES_CODE, "pdx_your_file_v1", "the one reader reaches for the account store's KEY instead of its owner");
+  lacks(SIDES_CODE, "localStorage", "the one reader touches storage — it is a read of two owners and owns nothing");
+}
+// ── THE DOCUMENT SHIPS BOTH OWNERS, IN THE ORDER THAT MATTERS ───────────────
+{
+  const bare = htmlBare(DOC);
+  has(bare, '"/my-stances.js"', "/my-stances stopped shipping the device store's owner");
+  has(bare, '"/your-file.js"', "/my-stances does not ship the ACCOUNT store's owner — the reader can only see half the visitor's file, and half a file reads as an empty one");
+  has(bare, '"/stance-sides.js"', "/my-stances stopped shipping the one reader");
+  // THE ORDER IS LOAD-BEARING. The studio's mode is sticky and decided on its
+  // FIRST paint from the reader's count, so a your-file.js tag after the studio
+  // would leave the coach open over a full account desk — the same bug, one
+  // line later.
+  // THE SCRIPT TAGS, not the preload hint — /stance-studio.js is also a
+  // <link rel=preload> higher in the head, and comparing against that index
+  // would make the order assertion pass on any arrangement of the tags.
+  const yf = bare.indexOf('<script defer src="/your-file.js">');
+  const st = bare.indexOf('<script defer src="/stance-studio.js">');
+  const sd = bare.indexOf('<script defer src="/stance-sides.js">');
+  ok(yf > 0 && st > 0 && sd > 0, "one of the three stance tags is missing from /my-stances");
+  ok(yf < st, "your-file.js is loaded AFTER stance-studio.js — the studio's first paint decides the mode, so the coach would still open over a full desk");
+  ok(sd < st, "stance-sides.js is loaded after the studio that asks it");
+  // AND /me, THE DOCUMENT THAT WAS ALREADY RIGHT, STILL CARRIES BOTH.
+  const meDoc = htmlBare(R("me.html"));
+  has(meDoc, '"/my-stances.js"', "/me stopped shipping the device store's owner");
+  has(meDoc, '"/your-file.js"', "/me stopped shipping the account store's owner — this is the document whose three sides proved the other two wrong");
+}
+// ── FIXTURE: NOTHING ANYWHERE. The coach opens, and that is correct. ─────────
+{
+  const w = boot({});
+  const T = w.PDXStanceStudio;
+  eq(T.count(), 0, "the reader found a side in an empty fixture");
+  eq(T.mode(), "A", "a visitor with nothing on file did not get the first-run tutorial");
+  const html = w.__paint();
+  has(html, "What do you care about first?", "the empty first run stopped opening on the coach");
+  has(html, 'data-beat="pick"', "the empty first run did not paint the starter beat");
+}
+// ── FIXTURE: THREE SIDES ON THE ACCOUNT DESK, DEVICE KEY EMPTY ──────────────
+// THE REPORTED CASE, and the one branch /me takes: a signed-in uid, the answers
+// under your-file.js's per-account namespace, and pdx_my_stances_v1 absent.
+{
+  const DESK = { water: "support", housing: "support", lands_preserve: "support" };
+  const w = boot({ desk: DESK, uid: "uid-abc" });
+  const T = w.PDXStanceStudio;
+  const S = w.PDXStanceSides;
+  must(S, "stance-sides.js did not publish its reader in the sandbox");
+  // THE READER, FIRST. If this is not 3 nothing below means anything.
+  eq(S.count(), 3, "the one reader returned the DEVICE key's count over a logged-in desk holding three — this is the defect, restated");
+  eq(T.count(), 3, "the studio's count is not the reader's count");
+  // …AND IT IS READING THE NAMESPACED KEY, not the base one. Pins the branch.
+  ok(Object.keys(w.__store).some((k) => k === "pdx_your_file_v1__u_uid-abc"),
+    "the fixture did not seed the per-account key your-file.js actually reads");
+  ok(!Object.prototype.hasOwnProperty.call(w.__store, STORE_KEY),
+    "the fixture wrote the device key too — this fixture must prove the desk alone answers");
+  // NOT THE COACH. This is the line the brief draws: "never the 'What do you
+  // care about first?' empty coach as if they were new".
+  eq(T.mode(), "B", "a visitor with three positions on the account desk was put in the first-run tutorial");
+  const html = w.__paint();
+  has(html, 'data-beat="library"', "three sides on the desk did not paint the library");
+  has(html, "3 positions on file", "the library header does not count the visitor's actual file");
+  lacks(html, "What do you care about first?", "the coach opened over three saved positions");
+  lacks(html, "Nothing on file yet", "the studio told a visitor holding three sides that their file is empty");
+  // THE SIDES THEMSELVES, by label, so "3" is not a number that happens to match.
+  ["Water Conservation", "Housing Affordability", "Protect Public Lands"].forEach((lbl) => {
+    has(html, lbl, `the library does not print ${lbl} — the three sides /me listed`);
+  });
+}
+// ── AFTER A SAVE, THE CONFIRMATION COUNTS THE FILE — NOT THIS SESSION ───────
+// "the confirmation count is reader.count(), not 1 and not what this session
+// appended." Three on the desk, one saved here, and the done beat says four.
+{
+  const w = boot({ desk: { water: "support", housing: "support", lands_preserve: "support" }, uid: "uid-abc" });
+  const T = w.PDXStanceStudio;
+  T.pick("healthcare");
+  T.answer("healthcare", "oppose");
+  eq(T.count(), 4, "the reader did not see the desk's three plus the one just saved");
+  // The beat is the library here, because mode was B before the save — the
+  // count sentence is the library heading, and it is still the reader's.
+  const html = w.__paint();
+  has(html, "4 positions on file", "the count after a save reports what this session appended instead of the whole file");
+  lacks(html, "1 position on file", "the confirmation counted the one thing this session wrote");
+}
+// AND ON A GENUINE FIRST RUN THE DONE BEAT SAYS ONE, because one is true.
+{
+  const w = boot({});
+  const T = w.PDXStanceStudio;
+  T.pick("housing");
+  T.answer("housing", "support");
+  eq(T.beat(), "done", "a genuine first save did not land on the beat that explains it");
+  const html = w.__paint();
+  has(html, "1 position on file", "a genuine first save does not report one position");
+}
+// ── HALF A FILE IS NOT AN EMPTY FILE, AND THE READER SAYS SO ────────────────
+// complete() is the wall that stops this omission from becoming a confident
+// sentence on the NEXT surface: a document that ships one owner and not the
+// other gets a reader that cannot tell "holds nothing" from "was not asked".
+{
+  const full = boot({});
+  must(full.PDXStanceSides, "the reader did not publish in the sandbox");
+  eq(full.PDXStanceSides.complete(), true, "a document carrying BOTH store owners reports an incomplete reader");
+  const src = full.PDXStanceSides.sources();
+  eq(src.stances, true, "the reader does not see the device store's owner on a document that ships it");
+  eq(src.yourFile, true, "the reader does not see the account store's owner on a document that ships it");
+
+  // The document as it WAS: my-stances.js, no your-file.js.
+  const half = boot({ noDesk: true });
+  eq(half.PDXStanceSides.complete(), false, "a document missing the account store's owner reports a complete reader — the false zero is back");
+  eq(half.PDXStanceSides.count(), 0, "the half-read fixture is not empty, so it proves nothing");
+  // AND THE STUDIO DOES NOT CLAIM THE FILE IS EMPTY on that count.
+  const T = half.PDXStanceStudio;
+  T.skip();
+  const html = half.__paint();
+  has(html, 'data-beat="library"', "skip did not reach the library");
+  lacks(html, "Nothing on file yet", "the studio asserted an empty file from a reader that could only see half of one");
+  has(html, "Search for an issue in your own words", "the half-read library dropped the search — the reader still needs a way in");
+  // With BOTH owners and a genuinely empty file, the claim is allowed and made.
+  const T2 = full.PDXStanceStudio;
+  T2.skip();
+  has(full.__paint(), "Nothing on file yet", "a checkable empty file no longer says so — silence is only for the unreadable case");
+}
+// ── /my-stances' OWN DOOR COUNT ASKS THE SAME READER ───────────────────────
+// The door summary sits centimetres below the studio and printed the SAME
+// sentence from my-stances.js's own collection length. Three on the desk and
+// one here would have read "3 positions on file" and "1 position on file" on
+// one page.
+{
+  const MSC = jsBare(R("my-stances.js"));
+  const i = MSC.indexOf("function paintDoorCount");
+  must(i > 0, "my-stances.js no longer has paintDoorCount — the door count assertion is vacuous");
+  const body = MSC.slice(i, MSC.indexOf("\n  }", i) + 4);
+  has(body, "PDXStanceSides", "the door count does not ask the shared reader");
+  has(body, "countLine", "the door count spells the sentence itself instead of asking the reader that owns it");
+  // The fallback is this file's own count, which is a true statement about this
+  // collection — and it is only ever PRINTED, never used to claim a zero, since
+  // the zero case hides the line entirely.
+  has(body, "line.hidden = true", "the door count stopped hiding at zero — \"0 positions on file\" is a nag");
+}
+// ── NO NEW STORE, NO COPY, NO MIGRATION ─────────────────────────────────────
+{
+  const touched = ["my-stances.js", "stance-studio.js", "stance-sides.js", "district-board.js"];
+  for (const f of touched) {
+    const code = jsBare(R(f));
+    lacks(code, "pdx_my_stances_v2", `${f} created a second stance key`);
+    lacks(code, "pdx_your_file_v2", `${f} created a second account-desk key`);
+  }
+  // The studio still writes through ONE owner, and it is the one it always was.
+  const SC = jsBare(STUDIO_JS);
+  const wi = SC.indexOf("function write(");
+  must(wi > 0, "stance-studio.js no longer has write() — the one-write-path assertion is vacuous");
+  const wbody = SC.slice(wi, SC.indexOf("\n  }", wi) + 4);
+  has(wbody, "PDXStances", "the studio's write path no longer goes through the store's owner");
+  lacks(wbody, "PDXYourFile", "the studio writes into the account desk too — two write paths for one fact");
+  lacks(wbody, "localStorage", "the studio writes storage directly instead of through the owner");
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 console.log("");
