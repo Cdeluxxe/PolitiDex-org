@@ -269,8 +269,14 @@ ok(iHide < iUnlock, 'closeModal unlocks page scroll before hiding the overlay, s
 ok(iUnlock < iClear, 'closeModal empties #modal-content before the overlay is hidden and scroll unlocked — a ' +
   'frame can show the emptying');
 ok(iClear < iRestore, 'closeModal restores the address before emptying the node');
-ok(at('__wealthChartInstance') < iClear && at('_pdxResetChartQueue()') < iClear,
-  'the charts are destroyed after the node holding their canvases is thrown away');
+// This used to also require __wealthChartInstance.destroy() before the clear.
+// Both chart instances it named were money charts on the deleted transparency
+// card; there is no live Chart.js instance a profile render creates any more.
+// What still has to happen in this order is the queue reset: a parked job whose
+// canvas is inside the node about to be emptied is dead, and draining it after
+// the clear would look for a canvas that no longer exists.
+ok(at('_pdxResetChartQueue()') < iClear,
+  'the parked chart queue is emptied after the node holding its canvases is thrown away');
 
 // The paint hold. _alignRefreshAll is sixteen document-wide passes and an open
 // file covers all sixteen; the warm queue fires it while the file is up.

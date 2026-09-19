@@ -261,6 +261,15 @@
     // A lens of its own, deliberately after the proof layer so it never reads as
     // part of the integrity argument.
     'pdxsec-funding': 'money',
+    // The disclosures block inside the same money section — the far end of the
+    // letterhead's SECOND 💰 chip. Registered as its own target rather than
+    // folded into `pdxsec-funding` because the two chips are two doors: a reader
+    // who taps the disclosure pill and is revealed into the donor composition has
+    // been answered with the other archive. Same stage, because it is the same
+    // lens and the same reveal — what differs is which heading takes focus on
+    // arrival. Anchor emitted by ftm-data.js's _pdxFundingSection, in both its
+    // on-file and empty branches.
+    'pdxsec-wealth': 'money',
     'pdxsec-impact': 'money',
     'pdxsec-contracts': 'money',
     // you — the reader’s own stake

@@ -137,6 +137,19 @@
                            PDX_FINANCE_ID_ALIAS) that finance-lane.js reads.
                            Loaded BEFORE finance-lane.js: `defer` runs in
                            document order, and the lane reads what this attaches.
+       pdx-finance.js      DELIBERATELY NOT LOADED HERE. It owns the personal
+                           financial-disclosure table behind the person file's
+                           SECOND 💰 letterhead chip, and this room has no
+                           letterhead: /money's second block is wealth-lane.js's
+                           ten-row board, which is a different surface with
+                           different data (net-worth estimates, not filed
+                           disclosures) and reads nothing from it. finance-lane.js
+                           degrades to the stated empty state when PDXFinance is
+                           absent, so nothing here renders a blank where a figure
+                           belongs. index.html and person.html — the two documents
+                           that DO mount a letterhead — load it between ftm-data.js
+                           and the lane. This room's script budget is eight files
+                           and it is eight for the reason the budget exists.
        firebase-boot.js    the roster, which is the DENOMINATOR in the coverage
                            sentence, and the session the account chip needs.
        css/tailwind.css    78 KB of utilities the card markup is built out of —
@@ -595,6 +608,17 @@
         Real leaders serve the people, not their bank accounts. Data from public financial disclosures (FEC, OpenSecrets, etc.). Not investment advice.
       </p>
       <div style="max-width:48rem;margin:1.25rem auto 0;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:0.75rem;padding:0.85rem 1.1rem;">
+        <!-- THE ESTIMATE SENTENCE, AND IT IS FIRST IN THE BOX FOR A REASON.
+             The person file now carries a 💰 disclosure pill that prints one
+             figure straight off a filed personal financial disclosure form, with
+             the form's own year. The board below this line is not that: it is a
+             before-and-after estimate board with a percent change and a
+             magnitude badge, and its numbers are not lines on an FD. A reader
+             who meets both surfaces has to be told which one is the filing, in
+             the block that is not, before any card. -->
+        <p id="wl-not-the-pill" style="font-family:'Barlow',sans-serif;font-size:0.78rem;color:#fad96a;line-height:1.65;margin:0 0 0.5rem;text-align:center;">
+          <strong style="letter-spacing:0.04em;">Estimates, not a filing:</strong> this board is not the person file's 💰 disclosure pill and no figure on it is a filed FD figure.
+        </p>
         <p style="font-family:'Barlow',sans-serif;font-size:0.78rem;color:#fad96a;line-height:1.65;margin:0;text-align:center;">
           <strong style="letter-spacing:0.04em;">⚠ DISCLAIMER:</strong> Net worth change alone does not prove integrity or corruption. Gains or losses can come from legitimate business, investments, inheritance, or other factors. All data is from public disclosures (FEC, OpenSecrets, state filings). Users should review full context and sources.
         </p>

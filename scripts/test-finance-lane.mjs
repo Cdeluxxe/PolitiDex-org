@@ -689,29 +689,47 @@ const L = laneBox().PDXFinanceLane;
   const c = CL.read("lee");
   const lee = visible(CL.letterheadChipHtml("lee"));
   has(lee, c.receiptsFmt, "the figure is the lane's own itemized base");
-  has(lee, c.largest.short, "…and the top source, named");
-  has(lee, "13 of 757 filed", "…and the coverage counts, quoted");
   // THE DOLLARS CARRY THEIR UNIT, so the figure cannot be read as personal wealth.
   // A bare "$8.6M" beside a person's name is a number about a PERSON; the same
-  // figure with "itemized" and the filing's own cycle on it is a number about a
-  // DOCUMENT, and the chip has one line in which to say which it is.
-  has(lee, "itemized", "the figure states what kind of dollars it is");
-  has(lee, c.cycle + " cycle", "…and which cycle's filing they came out of");
+  // figure with "itemized receipts" on it is a number about a DOCUMENT, and the
+  // chip has one line in which to say which it is. This is the segment that has
+  // to survive everything, because the letterhead now carries a SECOND money
+  // pill reporting personal wealth — the unit is the only thing distinguishing
+  // two dollar figures four inches apart in the same row, under the same glyph.
+  has(lee, "itemized receipts", "the figure states what kind of dollars it is");
+  // …AND WHICH YEAR'S FILING, bare, as its own segment. It used to be welded into
+  // the unit ("$8.6M itemized 2024 cycle"), which meant the noun naming the KIND
+  // of money fell off exactly when the record stated no cycle. A dollar total
+  // with no span on it is a claim about a career.
+  has(lee, c.cycle, "…and which cycle's filing they came out of");
+  // THE TOP SOURCE AND THE COVERAGE COUNTS ARE NOT ON THE PILL ANY MORE. They came
+  // off when the disclosure chip joined the row: two chips cannot both run four
+  // segments long without becoming the strip this lane refuses to be, and those
+  // two are the segments a reader needs a bucket list and a denominator to read —
+  // which is to say they need the section. They are asserted below against the
+  // accessible name, which is where they went, and the section prints them in full.
+  lacks(lee, "top source:", "the pill no longer names the top source (it moved to the label)");
+  lacks(lee, "of 757 filed", "…nor quotes the coverage counts (same)");
   // …AND WHERE THE PAPERWORK IS, read off the filing's own source URL rather than
   // typed at the call site or guessed from the office — which is why this is
   // asserted against the host in the seed rather than against a literal. Lee's
   // filing is an OpenSecrets transcription; a federally-sourced one says "FEC".
-  const ARCHIVE_BY_HOST = [[/fec\.gov/, "FEC file"],
-                           [/disclosures\.utah\.gov/, "Utah disclosure file"],
-                           [/opensecrets\.org/, "OpenSecrets file"]];
-  const archiveTag = (url) => (ARCHIVE_BY_HOST.find(([re]) => re.test(String(url || ""))) || [])[1] || "filed";
-  has(lee, archiveTag(c.source), "…and the archive the filing was transcribed from");
+  //   THE PILL CARRIES THE BARE AUTHORITY ("FEC"), the longer surfaces carry the
+  // phrase ("FEC file") and the sentence ("Transcribed from the FEC"). Three
+  // lengths of one fact, one row in the lane's table, so they cannot come to name
+  // different authorities — asserted here at both lengths for that reason.
+  const ARCHIVE_BY_HOST = [[/fec\.gov/, "FEC", "FEC file"],
+                           [/disclosures\.utah\.gov/, "Utah disclosures", "Utah disclosure file"],
+                           [/opensecrets\.org/, "OpenSecrets", "OpenSecrets file"]];
+  const archiveShort = (url) => (ARCHIVE_BY_HOST.find(([re]) => re.test(String(url || ""))) || [])[1] || "filed";
+  const archiveTag = (url) => (ARCHIVE_BY_HOST.find(([re]) => re.test(String(url || ""))) || [])[2] || "filed";
+  has(lee, archiveShort(c.source), "…and the archive the filing was transcribed from");
   ok(SEED_IDS.some((id) => /fec\.gov/.test(String((SEED[id] || {}).source || ""))),
     "the seed holds at least one FEC-sourced filing to name");
   for (const id of SEED_IDS) {
     const cc = CL.read(id);
     if (!cc) continue;
-    has(visible(CL.letterheadChipHtml(id)), archiveTag(cc.source),
+    has(visible(CL.letterheadChipHtml(id)), archiveShort(cc.source),
       `${id}: the chip names the archive its own source URL points at`);
   }
   // The source COUNT gave up its place on the pill to that provenance and is still
@@ -720,6 +738,15 @@ const L = laneBox().PDXFinanceLane;
   const leeAria = (/aria-label="([^"]*)"/.exec(CL.letterheadChipHtml("lee")) || [])[1] || "";
   has(leeAria, c.rows.length + " reported source", "the accessible name still counts the sources");
   has(leeAria, "itemized campaign receipts", "…and says whose receipts these are");
+  has(leeAria, c.largest.label, "…and names the top source the pill gave up");
+  has(leeAria, "13 of the 757", "…and quotes the coverage counts the pill gave up");
+  has(leeAria, archiveTag(c.source).replace(" file", ""), "…and names the archive in full");
+  // AND IT SAYS THE TWO CHIPS ARE NOT ONE NUMBER. The letterhead now prints
+  // campaign receipts and disclosed personal wealth in the same row under the
+  // same glyph; a screen-reader user hearing two dollar figures in sequence has
+  // even less to go on than a sighted reader, so each label states its own kind
+  // of money and refuses the sum out loud.
+  has(leeAria.toLowerCase(), "not added", "the label refuses the sum with the other money chip");
   // NO GRADE, NO "GRASSROOTS". The unit and the provenance are facts about a
   // document; neither is a licence to characterise the money or the person.
   for (const bad of ["grassroots", "small-dollar funded", "people-powered", "self-funded candidate",
@@ -737,7 +764,7 @@ const L = laneBox().PDXFinanceLane;
   const emptyWords = visible(CL.letterheadChipHtml("chew_h68")).toLowerCase();
   has(emptyWords, "no money file on hand", "the empty chip says plainly that nothing is on file");
   const thinWords = visible(CL.letterheadChipHtml("partial_person")).toLowerCase();
-  has(thinWords, "partial money file", "the partial chip says the file is partial");
+  has(thinWords, "partial file", "the partial chip says the file is partial");
   ok(/\d+ items?/.test(thinWords), "…and counts what is on it");
   for (const bad of ["clean", "clear", "nothing to report", "no concerns", "good", "bad",
     "score", "grade", "level", "rank", "/100", "special-interest", "constituents-first"]) {

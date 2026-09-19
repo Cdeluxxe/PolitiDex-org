@@ -229,10 +229,12 @@ The ⚖️ in the middle of the glyph ramp was the worse offence of the two: tha
 glyph is Word vs Action's own badge, so a donor mix had borrowed the vocabulary
 of a promise-keeping measure.
 
-Missing data stays words — "No money file on hand", "Not on file" — never a
-dimmer pill, a dashed frame or a greyer glyph. An undigitised filing is a fact
-about the archive, and a door that weakens when the room behind it is empty
-reports it as a fact about the person.
+### Missing data stays words
+
+Missing data stays words — "No money file on hand", "No in-office wealth file on
+hand", "Not on file" — never a dimmer pill, a dashed frame or a greyer glyph. An
+undigitised filing is a fact about the archive, and a door that weakens when the
+room behind it is empty reports it as a fact about the person.
 
 That rule was written before the CSS obeyed it. `.pdx-fund-none` — the profile
 section's empty state — carried `border: 1px dashed` and an `opacity: 0.8` glyph:
@@ -324,6 +326,361 @@ branch ends by distinguishing an **unopened archive** from a search that came
 back empty — the two states a missing file collapses into if nobody separates
 them. No branch invents a donor, a committee, a filing date or a dollar figure,
 which `scripts/test-finance-lane.mjs` asserts per branch.
+
+## Two money pills on the letterhead, and they are not one number twice
+
+The person-file letterhead carries two 💰 chips, side by side, in the same pill
+row as ⚖️, in the same green-and-gold pair:
+
+```
+💰 $774M itemized receipts · 2024 · FEC
+💰 FD on file · 2025 · House Clerk
+```
+
+Two pills, two units, never one number — and only one of the two is money. The
+first is what a **campaign** raised and reported to an election authority under
+contribution limits. The second reports **which document a person filed** while
+holding the office, for which year, in whose archive. It carried a dollar band
+until the [first curation wave](#the-first-curation-wave-ran-utah-first-and-shipped-zero-rows)
+established that no form in the slice prints one; the claim then moved from *how
+much* to *which form*, which is [a document chip](#the-second-pill-is-a-document-chip-not-a-dollar-chip)
+and is the subject of its own section below. Different filer, different form,
+different span, different archive. The reason they are
+two pills and not one is that every shorter form of them is wrong: a single
+money pill has to pick one of the two facts and let a reader assume it covers
+both, and a combined figure describes nothing that exists on any form.
+
+**Sentence shapes.** Each pill has exactly three segments, and each segment
+carries its own unit so neither figure can be read as the other's:
+
+| Pill | On file | Thin | Nothing on file |
+|---|---|---|---|
+| Campaign receipts | `$774M itemized receipts · 2024 · FEC` | `Partial file · 3 items · FEC` | `No money file on hand` |
+| Disclosures while serving | `FD on file · 2025 · House Clerk` / `COI on file · 2024 · Utah` | — | `No in-office wealth file on hand` |
+
+`itemized receipts` and `on file` are unconditional: the unit is what stops a
+reader four inches away from reading the second pill as a second figure. The year
+on the receipts pill is the filing's own cycle; the year on the disclosure pill
+belongs to the form it came off, and the archive beside it is read off that
+form's URL host rather than typed by hand. The tenure span comes from the person file's sworn date through today or
+their last day in office, read off the site's one tenure owner (`_pdxTenure` in
+`voter-hub-location.js`) **and nothing else** — `pdx-finance.js` carries no copy
+of that arithmetic, parses no date and never reads the clock. It briefly did, as a
+fallback for documents that do not load the homepage module, and the copy was
+deleted: two implementations of "how long have they served" is how the money chip
+and the letterhead's own 🗓️ tenure pill come to disagree about one person in one
+row. Where the owner is absent — person.html today — the chip prints its form, its
+year and its archive with no tenure segment, which is what every other tenure
+consumer on that document already does; `voter-hub-location.js` is **not** loaded
+onto the person file to force a span, and no years are stored beside a row to
+stand in for one. The segment trails the three contract tokens rather than
+interrupting them. A member sworn in this year reads "under 1 yr in office"
+rather than "0 yrs", because a zero on a money-coloured chip reads as a zeroed
+figure. A person file with no sworn date prints no span at all rather than an
+invented one, and `tenureYears` is `null` rather than `0`.
+
+**Both absences speak one dialect.** "No money file on hand" and "No in-office
+wealth file on hand" — the same grammar, for the same reason ["yet" is
+gone](#missing-data-stays-words): both are statements about what PolitiDex holds
+today, not about a queue and not about the person. Neither pill ever renders
+`$0`, a dash, a dimmed glyph or nothing at all; a missing pill in a row of pills
+reads as "clean", which is a finding nobody filed.
+
+**Never a single figure out of a range.** Federal disclosures report bands —
+`$1,000,001 – $5,000,000` — and the band *is* the disclosure. No band reaches a
+pill at all now, because the disclosure pill reports a document; where one is
+ever displayed — a transcribed holding in the long block — PolitiDex prints it as
+filed and never narrows it: no midpoint, no "about $3M", no parse into a number.
+There is no arithmetic operator applied to a disclosed figure anywhere in
+`pdx-finance.js`, which `scripts/test-money-two-chips.mjs` asserts against the
+source as well as the output. Jurisdictions that publish an exact figure get that
+exact figure, unrounded and undressed as a range.
+
+**No sum, and structurally so.** Nothing adds, averages, ranks or divides the two
+figures — not "$774M raised against $1–5M held", not a per-year-in-office rate,
+not a ratio. `pdx-finance.js` cannot do it even by accident: it never sees a
+receipts figure, and the seam fence keeps the filings index visible to exactly
+two modules, so the disclosure helper asks the lane rather than opening the index
+a second time. Both pills say out loud, in their accessible names, that the two
+figures are not added together.
+
+**Two doors, two destinations.** The receipts pill opens the campaign-filings
+block (`pdxsec-funding`); the disclosure pill opens the disclosures block
+(`pdxsec-wealth`). Same profile, same section, different heading focused on
+arrival — which is why `pdxsec-wealth` is registered in `profile-spine.js`'s
+`TARGET_STAGE` in its own right. Two pills that landed a reader in the same place
+would be two labels on one door.
+
+**Coverage counts moved off the pills and into the section.** The pills carry a
+figure, a span and an archive; how many of the roster have a file is a fact about
+PolitiDex, and it belongs on the surface with room to state it. Both section
+blocks — **Campaign filings** and **Disclosures while serving** — print their own
+coverage sentence, including the on-file branch, which used not to: a reader
+looking at a real composition is the one most likely to assume everybody else
+came back clean. The disclosure block also links the form itself with its year
+and its archive. A row whose URL is missing is not a thinner version of the
+claim — there is no claim left to make — so the lookup refuses it and the pill
+stays in its empty state rather than rendering a dead anchor.
+
+### The dollar table ships empty, on purpose — and stays that way
+
+`PDX_FD_DISCLOSURES` in `pdx-finance.js` is `{}`, and it is not waiting to be
+filled. It is the table for a **filed dollar figure**, and the first curation
+wave established that the forms in question do not print one: Utah's in-office
+statement carries no values at all and a federal FD carries a category of value
+per asset with no total. So the zero is the finding, not a stopgap — the table
+that can fill is [the document index](#the-second-pill-is-a-document-chip-not-a-dollar-chip),
+and `wealth()` does not read this one at all any more. A figure typed in here
+lands nowhere: it cannot reach a pill, an accessible name or a block.
+
+The one wealth table that does exist — `WEALTH_DATA` in `wealth-lane.js`, behind
+/money — is not a source for this pill and is never read by it. It holds
+net-worth *point estimates* with a before/after and a percentage change, sorted
+into a board. A point estimate is not a filed figure, a percentage change is the
+shape this lane retired, and a sorted board is a ranking. The disclosure pill is
+fed by a filed form or by nothing.
+
+`PDXFinance` publishes exactly two reads, and `wealth()` answers `null` rather
+than a zeroed object when there is no row:
+
+```js
+PDXFinance.filing(pid)   // the lane's filing record, or null — not a second lookup
+PDXFinance.wealth(pid)   // { kind, year, formUrl, tenureYears } | null
+```
+
+`wealth()` answers off the document index. Not one of its three row fields is a
+figure, `year` is a string, and the read exposes no numeric field a consumer
+could quietly do arithmetic on — `tenureYears` is the only number on it, and it
+comes from the tenure owner rather than from a table. `PDXFinance.scored` is `false` and it
+declares the same `NEVER_FEEDS` list as the lane.
+
+### The first curation wave ran Utah-first and shipped zero rows
+
+The first wave went looking for filed in-office figures for the Utah slice the
+site already carries — Governor Cox, Senators Lee and Curtis, the four US House
+members who represent Utah (Moore, Maloy, Kennedy, Owens), and the Utah
+Legislature's District 3 people (John Johnson, SD 3 / North Ogden; Jason
+Thompson, HD 3). It shipped **zero rows**. The reason is a fact about the
+documents, not a gap in the looking, and it is written here because a zero-row
+wave that leaves no trace reads, to the next person, as a wave that never ran:
+
+| What we looked at | What it prints | Why no row |
+| --- | --- | --- |
+| Utah's in-office disclosure (Utah Code **20A-11-1603** / 1604) | employers, entities held, income sources over a threshold, holdings over a fair-market-value threshold, positions, real property | it reports **what**, not how much — no band, no ladder, no total. There is no figure on the form to quote. |
+| House / Senate annual FD | a **category of value** per asset, asset by asset | no aggregate line, no net worth, no summary band. One figure out of a page of ticked boxes is ranges added together. |
+| Forbes / OpenSecrets net worth, `WEALTH_DATA` on /money | one number per person | each is somebody's **estimate**, which is the one thing a pill reading "disclosed" must not carry. |
+
+The documents themselves *are* reachable — the clerk's yearly index resolves a
+member to a document id and a PDF URL, and the real 2024–25 Utah ids were
+captured in this pass. The blocker is the **figure**, not the form: the PDFs are
+image-only scans with no text layer, and even fully transcribed they would hand
+back a page of categories rather than a total. A row needs a figure and a form.
+Where it cannot have both, there is no row, and the pill says *"No in-office
+wealth file on hand"* — which for these people is the true sentence.
+
+**The path a later wave takes**, so nobody has to re-find it: the House clerk
+publishes a yearly index at
+`disclosures-clerk.house.gov/public_disc/financial-pdfs/<year>FD.zip`, which
+contains `<year>FD.txt` — tab-separated, one row per filing, ending in a document
+id — and the document itself is at
+`…/financial-pdfs/<year>/<DocID>.pdf`. The real 2024–25 Utah ids were captured in
+this pass. Those PDFs are encrypted, image-only scans with no text layer, so
+transcription is hand work with the page open; and what comes out of it is a page
+of ticked categories, which is why a row stores the category and the lookup below
+exists to display it. Senate filings come off `efdsearch.senate.gov`, Utah's own
+forms off `disclosures.utah.gov`, and the gate accepts either because both are
+`.gov`.
+
+So the wave's deliverable is the machinery the next one needs, both halves
+tested rather than described:
+
+**The filed-category lookup.** A federal FD prints a ticked box, and the box's
+own language is the disclosure — so a row stores `$1,000,001 - $5,000,000`
+verbatim. A pill cannot hold twenty-three characters of it, so
+`PDXFinance.bandLabel()` shortens it to `$1–5M`. It is a **lookup, not a
+formatter**: an object of literal keys and literal values, one pair per box on
+the form, typed by hand and pinned pair by pair in the suite. Nothing in it reads
+a digit — no split on the dash, no strip of the commas, no parse of the bounds,
+no rounding rule — so the worst a wrong pair can do is misquote a band a test is
+holding value-for-value. Spelling is part of the key: the clerk prints a spaced
+hyphen, the same band is written elsewhere with an en dash, and both get their
+own literal pair rather than a normaliser, because a normaliser is code that
+rewrites somebody's filed string before matching it. Anything that is not a
+printed category — an exact figure, a state's own phrasing, the form's own
+`None (or less than $1,001)` — is not a key and prints exactly as filed. Every
+shortened value keeps two ends or the word that says there is no upper one, so no
+compression can produce a single figure.
+
+The compression happens **once per read**, in `finance-lane.js`'s `wealthRead()`,
+so the pill, its accessible name and the disclosures block quote one string. The
+block prints that string *and*, underneath it, the box the filer actually ticked,
+word for word: the short form is a display convenience, the long form is the
+document.
+
+**The curation gate.** The table is hand-written, so the thing to defend against
+is not a bad parser, it is a tired person at 1am with a news article open.
+`PDXFinance.curationDefects()` is those rules as code:
+
+| Rule | Why |
+| --- | --- |
+| a non-empty `rangeOrExact`, as filed, never `$0` or `0` | a zero is a figure, and the one thing a blank on this lane must never become |
+| a four-digit `year` | which document this came off |
+| an `https` `formUrl` on a **.gov** host | filed disclosures live on .gov; it is the cheapest check that excludes Forbes, OpenSecrets, a news story and this site's own /money board by construction rather than by a blocklist somebody has to maintain. An official non-.gov host would be a decision made out loud, with a test. |
+| no years of service, in any spelling | tenure has exactly one owner — `window._pdxTenure`, off the person file's sworn date. A copy stored beside a dollar figure is how the money chip and the 🗓️ pill start disagreeing about the same person in the same row. |
+| three fields, no fourth | a field this lane does not print is a field somebody expected to be printed |
+
+It **reports rather than repairs**, and a defect names the pid and the broken
+rule and never echoes the value. Nothing silently drops a row: a row quietly
+swallowed is a row nobody fixes. The suite asserts the shipped table has no
+defect, and drives thirteen illegal rows through it one broken rule at a time.
+
+### The second pill is a document chip, not a dollar chip
+
+The first wave's finding closed the dollar question and left a second one open:
+*we know these people filed — why does the pill say we hold nothing?* It said so
+because it was waiting for a total that no form prints. The pill now reports the
+thing the archive can actually support:
+
+```
+💰 FD on file · 2025 · House Clerk        federal annual financial disclosure
+💰 COI on file · 2024 · Utah              Utah conflict-of-interest statement
+💰 No in-office wealth file on hand      no document in hand for this person
+```
+
+Same letterhead row, same green-and-gold pair, same 💰 glyph, same three-segment
+grammar. What changed is the claim: **which form, for which year, in whose
+archive.** That is checkable, it is true of people who have filed, and it never
+needs a number.
+
+**Neither form can yield a total, and the pill says so out loud.** A Utah
+conflict-of-interest statement reports sources and holdings — employers,
+entities, income over a threshold, holdings over a fair-market-value threshold,
+positions, real property — and no values. A federal FD reports a category of
+value per asset, asset by asset, with no aggregate line and no net worth.
+PolitiDex will not add those boxes into a figure, and the long block says that
+sentence to the reader rather than only to this file. The accessible name states
+that the pill is a **filed form**: not a net worth, not a band total, not a
+dollar figure of any kind, and — when empty — not a disclosure of `$0` and not a
+report that somebody failed to file. The pill is never hidden in either state.
+
+**The table.** `PDX_FD_DOCUMENTS` in `pdx-finance.js`, separate from the dollar
+table on purpose: overloading a `rangeOrExact` row with optional document fields
+is how a figure field gets read back out of one. Three fields, no fourth:
+
+```js
+pid: { kind: "FD" | "COI", year: 2024, formUrl: "https://…" /* .gov document */ }
+```
+
+No figure, no band, no tenure, and no assets array in this pass. If holdings are
+ever transcribed they are lines **as filed**, in the long block only — never
+summed, never copied onto the pill.
+
+**What shipped, and what deliberately did not.** Four rows, each a 2025 House
+annual financial disclosure whose PDF was fetched from the clerk's own host
+before the row was written:
+
+| pid | kind | year | document |
+| --- | --- | --- | --- |
+| `bmoore` (Blake Moore, UT-1) | FD | 2025 | `disclosures-clerk.house.gov/public_disc/financial-pdfs/2025/10074823.pdf` |
+| `maloy` (Celeste Maloy, UT-2) | FD | 2025 | `…/2025/10081600.pdf` |
+| `kennedy` (Mike Kennedy, UT-3) | FD | 2025 | `…/2025/10074834.pdf` |
+| `owens` (Burgess Owens, UT-4) | FD | 2025 | `…/2025/9116274.pdf` |
+
+The pids that were looked for and **not** written are as much a part of the wave:
+
+| Not written | Why |
+| --- | --- |
+| Cox; John Johnson SD-3; Jason Thompson HD-3 | `disclosures.utah.gov` answers a browser challenge, not a document. No member URL was obtainable this pass. |
+| Lee; Curtis | the Senate's archive needs an accepted-terms session; Curtis's only 2025 clerk row is a filing-type `E` extension rather than an annual `O`. |
+| Trump | no OGE document URL in hand this pass. |
+
+A zip index or a yearly `.txt` index is **not** a chip: it resolves to a
+directory of twelve hundred other people, not to this person's form. Where only
+an index page was in hand, empty stayed the true sentence.
+
+**The archive label comes off the URL host and is never typed.**
+`disclosures-clerk.house.gov` → `House Clerk`, `efdsearch.senate.gov` →
+`Senate EFD`, `disclosures.utah.gov` → `Utah`, OGE's hosts → `OGE`. A `.gov`
+host nobody mapped is labelled with the host itself rather than with a guess at
+which office runs it. A hand-typed archive the URL does not support is a pill
+naming an authority its own link does not go to.
+
+**The document gate.** `PDXFinance.documentDefects()` is the same discipline as
+the dollar gate, for the shape this table has:
+
+| Rule | Why |
+| --- | --- |
+| `kind` is exactly `FD` or `COI` | the pill prints it as the name of a form; free text there is a sentence, and a third kind is a decision made out loud with a test |
+| a four-digit `year` | which document this came off, not when it was fetched |
+| an `https` `formUrl` on a **.gov** host | filed disclosures live on .gov; the cheapest check that excludes Forbes, OpenSecrets, a news story and this site's own /money board by construction |
+| no figure field, in any spelling (`rangeOrExact`, `amount`, `total`, `netWorth`, `value`, `assets`, `holdings`, `band`, `figure`) | this is a document index. A number in it is the dollar table growing back in the wrong file. |
+| no years of service, in any spelling | tenure has exactly one owner — `window._pdxTenure` |
+| three fields, no fourth | a field this lane does not print is a field somebody expected to be printed |
+
+It reports rather than repairs. A defect names the **pid and the rule**, never a
+figure, and for a URL it prints **host and path only** — some archives carry a
+session id in the query string, and a defect list is read in a terminal and
+pasted into a ticket. The suite asserts the shipped index has no defect and
+drives twenty-one illegal rows through the gate one broken rule at a time.
+
+**The long block.** Where a row exists: the **Disclosures while serving**
+heading, `FD on file` / `COI on file` matching the pill, the year and the
+archive, the document as an anchor (`target="_blank" rel="noopener noreferrer"`),
+and the one sentence about what these forms report instead of a total. Nothing is
+transcribed in this pass, so the block stops there — no invented lines, no
+holdings table. Where there is no row: the existing empty copy, which says a
+blank is missing data on our side, not a disclosure of `$0` and not a finding
+that this person failed to file. The campaign filings block is untouched, there
+is no third chip, no compare control, no chart and no grade.
+
+## The person file's money section is two blocks, and nothing else
+
+The two pills are doors. What stood behind them until now was three surfaces, not
+two: the campaign-filings block, the disclosures block, and a deferred **Full
+financial record** drawer holding a card that was authored here rather than
+filed anywhere.
+
+That card is deleted. What was in it, and why each piece could not stay:
+
+| What it printed | Why it is gone |
+| --- | --- |
+| A "FINANCIAL TRANSPARENCY REPORT" with a 0–100 funding-integrity number | The retired Constituents-First grade with a different label. `scripts/test-finance-lane.mjs` sweeps every shipped module for a per-person 0–100 funding number under any name; this was that number, mounted on the person file. |
+| A `HIGH` / `MODERATE` / `LOW` badge over it, in green, amber and red | The retired grade's colour ramp and its typography. A one-word verdict beside a dollar figure is a rating of the person, and the ramp told a reader how bad it was before the sentence under it got to say what it was. |
+| Three net-worth tiles — before, after, and a **% change** | Point estimates with a percentage change: not filed figures, and the exact shape this lane retired. |
+| A "Wealth Over Time" line chart | Drawn from a hardcoded table of five sitting members, written in `profiles-full.js`. Five hand-typed series is not a disclosure lane. |
+| A donor list | Not the lines of the filing in the block above it. A donor name that is not in the filing record is an authored donor list. |
+| A 💰 **Follow This Money Trail** button | A control on a card that no longer exists, writing a `followMoney` doc no surface reads back. `window.toggleFollowMoney` went with it, under this file's own rule: if the caller is gone the function should be too. |
+| An ⚖️ **Compare funding** button in the filings block | The one control in the section that left the person file — it closed the profile and opened the Compare tool with this person selected. A compare launched from a filing is the ranking read this lane refuses. `window._pdxCompareWith` stays defined, because /money scrubs any `.pdx-fund-cmp` it finds rather than assuming none renders; what is gone is the markup that called it. |
+
+What the section contains now, in this order:
+
+1. **Campaign filings** — the existing receipts lane. Composition as filed: the
+   buckets, the counts, the named top source, the cycle, the archive link, and
+   the coverage sentence. No grade, no rank, no comparison to another person.
+2. **Disclosures while serving** — the disclosure block. With the table empty,
+   which is the state of the whole roster, it is a heading, the "No in-office
+   wealth file on hand" sentence and the paragraph saying a blank is missing data
+   and not a disclosure of zero. No chart, no dollar axis, no before-and-after,
+   no percent.
+
+There is no third money block and no money drawer. `profile-spine.js` emits no
+lid for a drawer spec with no chunks, so deleting both `dw:money` chunks removed
+the drawer; the spec went with them, because its subtitle — "Net worth over time,
+campaign finance detail and donor breakdown" — was the last copy on the site
+promising material that no longer exists.
+
+### /money keeps its estimate board, and says so
+
+The net-worth leaderboard on `/money` is unchanged, and it is an estimate board:
+point estimates, a before and after, a percentage change, sorted. Its disclaimer
+box now opens with one sentence saying what it is not —
+
+> **Estimates, not a filing:** this board is not the person file's 💰 disclosure
+> pill and no figure on it is a filed FD figure.
+
+— because a reader who meets both surfaces has to be told which one is the
+filing, in the block that is not. `pdx-finance.js` is still not loaded on that
+document; the sentence is copy, not a second pill.
 
 ## The wall
 
@@ -439,19 +796,29 @@ page.
 
 1. **Follow the Money cards** — each card leads with the total itemized
    receipts and the composition, then the outside-spending note.
-2. **Profile letterhead → the 💰 chip** (`letterheadChipMount`) — a one-line
-   pill among the status pills, sized to the ⚖️ Word vs Action badge beside it.
-   It prints the itemized-receipts figure, **how many reported sources it was
-   built from**, the top source named, and the coverage words — counts, never a
-   share. A percentage on the letterhead is the first screen of a score: one
-   number, no unit, comparable across people at a glance. The chip carried a
-   `38% small-dollar` segment and it does not any more; the fence now asserts
-   that no chip state contains a `%` at all.
-     It is a button: clicking it reveals and jumps to the money section below on
-   the same profile (`pdxsec-funding`). It is a door, not a summary — no chart,
-   no donor list, no ring, no colour that grades. It renders on every profile,
-   including the 787 with no filing, where it reads **"No money file on hand"** —
-   because a missing badge would read as "clean" rather than as "unknown".
+2. **Profile letterhead → the two 💰 chips** (`letterheadChipMount` and
+   `wealthLetterheadChipMount`) — two one-line pills among the status pills,
+   sized to the ⚖️ Word vs Action badge beside them, receipts first and both
+   before the party pill with nothing between them. The first prints the
+   itemized-receipts figure with its unit, the filing's cycle year and the
+   archive the filing was transcribed from; the second prints the disclosed
+   figure as filed, the tenure span it was filed during, and the form's year.
+   Neither carries a `%`. A percentage on the letterhead is the first screen of
+   a score: one number, no unit, comparable across people at a glance. The
+   receipts chip carried a `38% small-dollar` segment and it does not any more;
+   the fence asserts that no state of either chip contains a `%` at all. The
+   reported-source count and the coverage sentence also came off the pill — they
+   are in the accessible name and in both section blocks now, because the pill's
+   job is a figure and a door.
+     Both are buttons, and they are **two doors**: the receipts chip reveals and
+   jumps to the campaign-filings block (`pdxsec-funding`), the disclosure chip to
+   the disclosures block (`pdxsec-wealth`), on the same profile. Doors, not
+   summaries — no chart, no donor list, no ring, no colour that grades. Both
+   render on every profile, including the 787 with no filing, where the first
+   reads **"No money file on hand"**, and including all 1,120 today for the
+   second, which reads **"No in-office wealth file on hand"** — because a missing
+   badge would read as "clean" rather than as "unknown". See [the two pills
+   above](#two-money-pills-on-the-letterhead-and-they-are-not-one-number-twice).
 3. **Profile → 💰 Follow the Money** — the entry row (both states), the counts
    lead, the composition block, the source-gap line when there is no filing, and
    the coverage disclosure. This is the person file's one labelled door into the
@@ -580,9 +947,77 @@ the spine's own rule is that a jump chip must never aim at a self-gating section
 anchor — that `_pdxFundingSection` emits the `pdxsec-funding` anchor *above* its
 no-filing branch, so the destination exists on the 787 profiles with no file.
 
+`scripts/test-money-two-chips.mjs` — the fence around the pair: both pills mount
+in the pill row in order and adjacent, each guarded and each falling back to
+nothing rather than a placeholder; the receipts pill keeps its unit and names the
+archive its own source URL points at; the disclosure pill reports a document —
+form, year, archive, in that order, as one string — with no dollar sign and no
+digit on it but the form year, and no figure, midpoint, parse or estimate word in
+its text, its accessible name or its block; a missing document renders words with
+no digit and no dollar sign on every profile asked, with "not a disclosure of
+zero" in the long form; the two click targets are checked by **calling** both
+against a document and watching which block takes focus, with neither taking an
+exit off the person file; no surface prints a combined read and the disclosure
+module cannot see a receipts figure; neither pill's text or accessible name
+carries a percentage, a level, a rank or a word about being wealthy; the shipped
+dollar table really is empty and its emptiness is the first curation wave's
+finding rather than an untouched stub;
+and a twin boot that mounts 108 of each pill leaves Direction Match, the formal
+pattern index, the publication floor and the mapped counts byte-identical with
+both tables filled and a document filed on the member under test, with no new
+global on the window.
+
+Its section 11 renders the real `_pdxFundingSection` from the shipped
+`ftm-data.js` over the real roster and reads the DOM a person actually receives:
+no "transparency report", no wealth- or net-worth-over-time series, no percent
+change, no duplicate follow-the-money heading, no x-out-of-100, no `<canvas>`, no
+uppercase tier badge and no bare tier word outside the filing's own
+outside-spending field — which is carved out by name, and checked to arrive with
+the note and source that make it a report rather than a badge. Then: exactly two
+labelled money blocks in order, an empty disclosure block with no dollar sign, no
+digit and no percent on the 1,116 rostered profiles with no document on file —
+and, on the four that have one, a block that reports the form, links the document
+and still prints no figure, no percent and nothing drawn — every donor and bucket
+label findable in the filing record the lane read for that pid, and no control in
+either block that closes the person file or opens the compare tool.
+
+Its section 12 fences the curation wave: the shipped table is empty and carries
+no row off an estimate, the finding is on the record in this file and in the
+module header, the filed-category ladder is pinned pair by pair with every
+shortened value still a band and every unmapped figure passing through verbatim,
+`pdx-finance.js` contains no arithmetic that could touch a figure, and five rows
+shaped exactly as a curated row must be shaped reach **no pill and no block** —
+which is the wall that makes "pill 2 is a document chip" a property of the code
+rather than of today's data. Then: no pid without a document prints a dollar
+sign, a digit or a zero on its pill in either boot, and no digit but the coverage
+counts in its accessible name; Trump stays empty in both tables, because this
+pass holds no document URL for him; the filings block quotes pill 1 and the
+disclosures block reports pill 2's document with neither carrying the other's;
+and thirteen illegal dollar rows — no URL, a Forbes profile, an OpenSecrets page,
+a news story, `http`, no figure, `$0`, no year, a half-written year, stored tenure
+in two spellings, and two kinds of fourth field — each fail the gate by name.
+
+Its section 13 fences the document index: every shipped row taken apart against
+the lifted table — kind, four-digit year, `https` `.gov` document, three fields,
+no figure and no tenure field in any spelling, and a member's own PDF rather than
+a zip or a `.txt` index; the pill contract on each of those pids, and the empty
+copy with no `$` and no digit on the other 1,116; the pill never hidden on any of
+the 1,120; the archive label pinned host by host, with an unmapped `.gov` host
+named as itself and the lane's label asserted equal to the host's; the long block
+reporting the same form, year and archive as the pill, linking the document with
+`rel="noopener noreferrer"`, carrying the "not a dollar total … not a net worth"
+sentence verbatim and inventing no transcribed lines; pill 1's figure absent from
+the disclosure block and pill 2's words absent from the receipts pill; twenty-one
+illegal document rows failing the gate by name, with a defect that names the pid
+and the rule, echoes no figure and prints host and path rather than a query
+string carrying a session token; and the walls — `scored: false`, `NEVER_FEEDS`,
+no document index on /money, the shell bumped with the four pids and "zero dollar
+rows" in its changelog entry, and this file naming the table and the rows.
+
 `scripts/test-money-theme.mjs` — the fence around the token: the two copies agree
 value for value; **Lee's $8.6M chip and an empty Utah chip open with byte-identical
-markup** and carry the same 💰 in the same span; no surface maps `is-grass` /
+markup** and carry the same 💰 in the same span, as does the disclosure chip
+beside them, differing only in its lane attribute and its click target; no surface maps `is-grass` /
 `is-mixed` / `is-big` to different paint and no glyph ramp survives; no banned hex
 reaches a money surface, in source or in rendered output; every composition bar is
 one gold fill on one slate track, as long as its share and encoding nothing in

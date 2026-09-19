@@ -6820,7 +6820,211 @@
 //     nothing stored is renamed, re-scoped, re-weighted or dropped.
 //
 //     NO new store key, no DM number, no party, twin-boot DM unchanged.
-const CACHE_VERSION = 'v219';
+// v220 - TWO MONEY CHIPS ON THE LETTERHEAD: RECEIPTS, AND DISCLOSED WHILE SERVING.
+//
+//     ONE 💰 PILL WAS ANSWERING TWO QUESTIONS AND ONLY EVER SHOWED ONE. The
+//     letterhead chip reported campaign receipts — "$8.6M itemized 2024 cycle" —
+//     and a reader cannot tell from a pill whether a dollar figure beside a name
+//     is money a campaign raised under contribution limits or money the person
+//     owns. Two archives, two filers, two spans; and no per-person read of the
+//     second existed, because /money's wealth board is a ten-row leaderboard of
+//     net-worth estimates with a percentage change — not a disclosure.
+//
+//     TWO PILLS NOW, AND THEY NEVER MAKE A THIRD NUMBER. 💰 $774M itemized
+//     receipts · 2024 · FEC opens the campaign-filings block; 💰 $1–5M disclosed
+//     · 10 yrs in office · 2024 FD opens the disclosures block. Same row, same
+//     green-and-gold pair, same glyph, two jump targets. No sum, no ratio, no
+//     shared segment: pdx-finance.js — new, precached, loaded between ftm-data.js
+//     and finance-lane.js on index.html and person.html, deliberately absent from
+//     money.html — owns the disclosure table and the two named helpers
+//     PDXFinance.filing / .wealth, and cannot add the pills together because it
+//     never sees a receipts figure. A disclosed RANGE stays a string end to end,
+//     no midpoint and no parse, so a band never prints as one dollar figure.
+//     Tenure comes through voter-hub-location.js's _pdxTenure over the person
+//     file's sworn date, never stored again beside a disclosure; a first-year
+//     member reads "under 1 yr in office", never "0 yrs".
+//
+//     THE DISCLOSURE TABLE SHIPS EMPTY, VISIBLY. Transcribing personal financial
+//     disclosures is a later wave, so wealth() answers null for everybody and the
+//     second pill reads "No in-office wealth file on hand" on every profile, in
+//     words, beside a section block that says the same and names the form. Never
+//     $0, never an absent pill: to a reader who has learned this site puts a money
+//     chip on people with money, a missing chip says "clean". Nothing is invented.
+//
+//     The receipts pill gave up "top source:" and its coverage counts to make
+//     room; both moved into the aria-label and into BOTH section blocks, now
+//     labelled Campaign filings and Disclosures while serving. The money section
+//     gained the pdxsec-wealth anchor (money stage), coverage counts in its
+//     on-file branch, and two block rules in finance-lane.css.
+//
+//     NO new score, no %, no grade, no tier, no ballot path; PDXFinance declares
+//     scored:false and the same NEVER_FEEDS wall. Twin-boot byte-identical:
+//     Direction Match, the formal pattern index, the publication floor and the
+//     mapped counts read the same with both pills mounted and with neither.
+//
+//     MIGRATION COST. None to any stored record: nothing in this pass reads,
+//     writes or re-asks a saved location, provenance stamp, resolved district,
+//     team or stance, and no key changes shape. A warm device pairs the new shell
+//     with pdx-finance.js on first load; a device that misses the file sees the
+//     second pill's empty state, which is what every profile shows today anyway.
+// v221 - TENURE ON THE DISCLOSURE PILL HAS ONE OWNER, AND IT IS NOT THIS FILE.
+//
+//     v220 SHIPPED THE PILL WITH A SPARE CLOCK IN IT. pdx-finance.js asked
+//     voter-hub-location.js's _pdxTenure first and, where that owner was not on
+//     the document, parsed the person file's sworn date itself and subtracted
+//     years. Two code paths for one derived fact is how two profiles come to
+//     disagree about how long the same person has served: the owner counts whole
+//     months from a term table, the spare counted calendar years off a string,
+//     and nothing forced them to round the same way.
+//
+//     THE SPARE IS DELETED. tenureYears now comes through _pdxTenure and through
+//     nothing else — no local date parse, no new Date(), no year arithmetic
+//     anywhere in pdx-finance.js, which a test now fences by source. A member
+//     sworn this year still reads "under 1 yr in office" because that is the
+//     owner's own answer; a person with no sworn date on file answers null, and
+//     the pill prints its figure, form and year with no tenure segment rather
+//     than a span computed from a guess.
+//
+//     THE VISIBLE COST, STATED. voter-hub-location.js is wired into index.html
+//     but not person.html, so on the person document the disclosure pill carries
+//     no tenure segment — exactly what every other tenure consumer on that page
+//     already does when the owner is absent. A quietly divergent second copy was
+//     the alternative, and one owner per derived fact is the older rule.
+//
+//     No copy changed on either pill, no new asset, no route, no store, and the
+//     disclosure table still ships empty: the second pill reads "No in-office
+//     wealth file on hand" on all 1,120 rostered profiles, which the suite now
+//     sweeps whole rather than sampling — no digit, no dollar sign, same words,
+//     same "missing data, not a disclosure of zero" in every accessible name.
+//     Direction Match, the formal pattern index and the publication floor are
+//     byte-identical across the twin boot, as in v220.
+//
+//     MIGRATION COST. None to any stored record: this pass reads, writes and
+//     re-asks nothing saved — location, provenance stamp, resolved district, team
+//     and stance are untouched and no key changes shape. The bump exists because
+//     pdx-finance.js changed and a warm device would otherwise pair the new
+//     letterhead with the old shell copy of it.
+// v222 - THE PERSON FILE'S MONEY SECTION IS TWO DOORS AND NOTHING ELSE.
+//
+//     WHAT LEFT THE PROFILE. The money drawer carried a fabricated card:
+//     a "FINANCIAL TRANSPARENCY REPORT" with a 0-100 funding-integrity number
+//     and a HIGH / MODERATE / LOW badge over it, three net-worth tiles with a
+//     percent change, a "Wealth Over Time" line chart drawn from a hardcoded
+//     table of five sitting members, and a donor list that was not the lines of
+//     any filing on the page. All of it is deleted - both drawer chunks, the
+//     chart instances, the hardcoded table, the donor rows, the corporate-versus-
+//     small-donor bars, the follow control and its index.html function, and the
+//     app.css block whose .ftm-integrity-high / -mid / -low classes were a
+//     green-amber-red ramp over a per-person score. The retired 0-100 grade does
+//     not get to come back wearing a money-coloured badge.
+//
+//     WHAT THE SECTION IS NOW. Exactly the two letterhead pills and the two
+//     blocks they open: campaign filings, composition as filed, no grade and no
+//     cross-person compare; and disclosures while serving, which with an empty
+//     disclosure table is a heading plus the "no in-office wealth file on hand"
+//     sentence and the paragraph saying blank means missing data, not zero. No
+//     chart, no dollar axis, no before-and-after, no percent. A suite now greps
+//     the rendered person-file money DOM for LOW, MED, HIGH, "transparency
+//     report", "net worth over time" and a percent change and requires zero
+//     matches on every one.
+//
+//     /money KEEPS ITS ESTIMATE BOARD, WITH A LINE SAYING SO. The net-worth
+//     leaderboard there is an estimate board, and its disclaimer box now opens
+//     with one sentence: it is not the person file's disclosure pill and no
+//     figure on it is a filed FD figure. A reader who meets both surfaces is
+//     told which one is the filing. pdx-finance.js is still not on that page.
+//
+//     STORES AND SHELL. Location, resolved district, team and stance are
+//     untouched: no key read, written, renamed or re-asked, and voter-hub-location.js
+//     is unchanged on disk and still the only owner of tenure. This pass only
+//     deletes rendered markup. Direction Match, the formal pattern index and the
+//     publication floor are byte-identical across the twin boot, and no global
+//     leaked.
+//
+//     MIGRATION COST. None to any stored record. The bump exists because
+//     profiles-full.js, index.html, app.css and money.html all changed, and a
+//     warm device would otherwise open the new letterhead pills onto the old
+//     shell's transparency card.
+// v223 - THE FIRST FD CURATION WAVE RAN UTAH-FIRST AND FILED NOTHING.
+//
+//     WHAT THE TABLE GAINED. Zero rows. PDX_FD_DISCLOSURES is still {}, and
+//     that is now a curated zero rather than an untouched stub. The wave went
+//     looking for filed in-office figures for the Utah slice the site carries -
+//     the governor, both senators, the four US House members who represent
+//     Utah, and the Legislature's District 3 people - and found that no form in
+//     that slice prints one. Utah's own in-office disclosure (Utah Code
+//     20A-11-1603) reports employers, entities, income sources and holdings over
+//     thresholds: what, never how much. A House or Senate FD reports a category
+//     of value per asset with no aggregate line. One figure out of a page of
+//     ticked boxes is ranges added together, and Forbes / OpenSecrets / the
+//     /money board each publish somebody's estimate instead. So every pill in
+//     the slice still says "No in-office wealth file on hand", which for these
+//     people is the true sentence.
+//
+//     WHAT SHIPPED INSTEAD. The machinery the next wave needs, both halves
+//     tested. PDXFinance.bandLabel() shortens a ticked federal category to pill
+//     width - "$1,000,001 - $5,000,000" to "$1-5M" - out of a hand-written table
+//     of literal keys, pinned pair by pair in the suite, with no digit read
+//     anywhere: no split on the dash, no parse of the bounds, no rounding, and
+//     anything that is not a printed category prints verbatim. finance-lane.js
+//     applies it once per read, so the pill, its accessible name and the
+//     disclosures block quote one string, and the block prints the ticked box
+//     word for word underneath it. PDXFinance.curationDefects() is the gate a
+//     hand-written row has to pass: a figure as filed and never $0, a four-digit
+//     form year, an https .gov link to the document, no stored years of service
+//     in any spelling, three fields and no fourth. It reports, never repairs,
+//     and never echoes the figure.
+//
+//     STORES AND SHELL. No stored record is read, written or migrated. The
+//     saved location, the district, the team and the stance stores are
+//     untouched, and voter-hub-location.js is unchanged - it is still the one
+//     owner of tenure, which is exactly why the gate refuses a row that carries
+//     years of service of its own. Direction Match, the formal pattern index,
+//     the publication floor and the mapped counts are byte-identical across the
+//     twin boot with the compression path inside it, and no global leaked.
+//
+//     MIGRATION COST. None. The bump exists because pdx-finance.js and
+//     finance-lane.js both changed, and a warm device would otherwise run the
+//     new lane against the old archive.
+// v224 - THE SECOND MONEY PILL BECAME A DOCUMENT CHIP, AND FOUR ROWS FILLED IT.
+//
+//     WHAT THE INDEX GAINED. Four rows, in a NEW table - PDX_FD_DOCUMENTS -
+//     holding three fields each and not one figure: kind ("FD" or "COI"), the
+//     form's own four-digit year, and an https .gov URL to the member's own
+//     document. bmoore, maloy, kennedy and owens, each a 2025 House annual
+//     financial disclosure, each PDF fetched from the clerk's own host before
+//     the row was written. ZERO DOLLAR ROWS ADDED: PDX_FD_DISCLOSURES is still
+//     {}, and stays {} on purpose - v223's wave established there is no filed
+//     total to quote, so the pill's claim moved from how much to which form.
+//     Pill 2 now reads "FD on file - 2025 - House Clerk", or "COI on file -
+//     [year] - Utah" for a Utah conflict-of-interest statement, with the archive
+//     read off the URL's host and never typed by hand. Where there is no row it
+//     still reads "No in-office wealth file on hand", which is missing data on
+//     our side and not a report that somebody failed to file.
+//
+//     WHO WAS LOOKED FOR AND NOT WRITTEN. Cox, Johnson SD-3 and Thompson HD-3:
+//     disclosures.utah.gov answers a browser challenge rather than a document.
+//     Lee and Curtis: the Senate archive needs an accepted-terms session, and
+//     Curtis's only 2025 clerk row is an extension rather than an annual.
+//     Trump: no OGE URL in hand this pass. Empty stayed the true sentence.
+//     PDXFinance.documentDefects() is the new gate - kind is FD or COI, a
+//     four-digit year, an https .gov host, no figure field, no tenure field,
+//     three fields and no fourth - and its messages name the pid, the rule and
+//     the host and path, never a query string that could carry a session token.
+//
+//     STORES AND SHELL. No stored record is read, written or migrated. The
+//     saved location, the district, the team and the stance stores are
+//     untouched, and voter-hub-location.js is unchanged - still the one owner of
+//     tenure, which is why the tenure segment appears on this pill only where
+//     that module is already loaded and no years are stored beside a row.
+//     Direction Match, the formal pattern index, the publication floor and the
+//     mapped counts are byte-identical across the twin boot with both tables
+//     filled, and no global leaked.
+//
+//     MIGRATION COST. None. The bump exists because pdx-finance.js and
+//     finance-lane.js both changed, and a warm device would otherwise render the
+//     old dollar-shaped pill against the new archive.
+const CACHE_VERSION = 'v224';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -7384,6 +7588,13 @@ const SHELL_ASSETS = [
   // inside each of them. It MUST be precached alongside the lane: a lane with no
   // index answers "no money file" for every person on the site.
   '/ftm-data.js',
+  // THE PERSONAL-DISCLOSURE HELPERS behind the letterhead's second 💰 chip.
+  // Precached beside the lane for the same reason the filings index is: without
+  // it, finance-lane.js finds no PDXFinance and every profile's disclosure chip
+  // falls back to its empty state — which is the state it is in today anyway,
+  // but it would be in it for the wrong reason, and the reason is the whole
+  // content of that pill. It is a small inline table plus two readers.
+  '/pdx-finance.js',
   '/finance-lane.js',
   '/finance-lane.css',
   // THE EXECUTIVE LANE. Not optional once /p/* serves one document for every

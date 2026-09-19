@@ -245,22 +245,42 @@ const L = laneBox();
   const frame = (html) => html
     .slice(0, html.indexOf(">") + 1)
     .replace(/data-pdx-mchip="[^"]*"/, 'data-pdx-mchip="PID"')
+    .replace(/data-pdx-mchip-lane="[^"]*"/, 'data-pdx-mchip-lane="LANE"')
     .replace(/data-pdx-mchip-state="[^"]*"/, 'data-pdx-mchip-state="STATE"')
+    .replace(/onclick="[^"]*"/, 'onclick="OPEN"')
     .replace(/aria-label="[^"]*"/, 'aria-label="LABEL"');
   eq(frame(empty), frame(full),
     "the empty chip and the $8.6M chip open with byte-identical markup");
   ok(frame(full).includes('class="pdx-mchip"'),
     "…and that markup carries the one chip class and no state-keyed variant of it");
 
+  // THE SECOND MONEY PILL WEARS THE SAME DOOR. The letterhead now carries two
+  // 💰 chips — campaign receipts, and personal wealth disclosed while serving —
+  // and a reader has to be able to see at a glance that they belong to one lane.
+  // So the disclosure chip is held to the identical frame, which is also what
+  // stops it acquiring its own tint the first time someone decides personal
+  // wealth deserves a louder pill than fundraising. What differs between them is
+  // carried in data attributes and in the words; nothing visual differs at all.
+  const wealthEmpty = L.wealthLetterheadChipHtml("lee");
+  ok(wealthEmpty.length > 40, "the disclosure chip renders — it is never nothing");
+  eq(frame(wealthEmpty), frame(full),
+    "the disclosure chip and the receipts chip open with byte-identical markup");
+  eq((/data-pdx-mchip-lane="([^"]+)"/.exec(wealthEmpty) || [])[1], "wealth",
+    "…and is distinguished by its lane attribute rather than by its appearance");
+  eq((/data-pdx-mchip-lane="([^"]+)"/.exec(full) || [])[1], "receipts",
+    "…as is the receipts chip");
+
   // The gold 💰 leads both chips, at the same size, in the same span.
   const ico = (html) => (html.match(/<span class="pdx-mchip-ico"[^>]*>[^<]*<\/span>/) || [])[0];
   ok(!!ico(full), "the chip leads with the 💰 span");
   eq(ico(empty), ico(full), "the 💰 is byte-identical in both states — same glyph, same span, same class");
+  eq(ico(wealthEmpty), ico(full), "…and in the disclosure chip, which is the same lane and says so");
 
   // Every word on either chip wears a class from the same closed set. A new class
   // is how a "we only dim it a little when it's empty" variant would arrive.
   const CLASSES = ["pdx-mchip", "pdx-mchip-ico", "pdx-mchip-fig", "pdx-mchip-hi", "pdx-mchip-sep"];
-  for (const [name, html] of [["Lee's chip", full], ["the empty chip", empty]]) {
+  for (const [name, html] of [["Lee's chip", full], ["the empty chip", empty],
+                              ["the disclosure chip", wealthEmpty]]) {
     for (const m of html.matchAll(/class="(pdx-mchip[^"]*)"/g)) {
       ok(CLASSES.indexOf(m[1]) >= 0, `${name} uses only the chip's own classes (saw "${m[1]}")`);
     }
@@ -269,7 +289,8 @@ const L = laneBox();
   }
 
   // Belt and braces on the two ways a variant could sneak back in.
-  for (const [name, html] of [["Lee's chip", full], ["the empty chip", empty]]) {
+  for (const [name, html] of [["Lee's chip", full], ["the empty chip", empty],
+                              ["the disclosure chip", wealthEmpty]]) {
     ok(!/style="/.test(html), `${name} carries no inline colour of its own`);
     has(html, 'class="pdx-mchip"', `${name} wears the one chip class`);
   }
@@ -448,7 +469,13 @@ const L = laneBox();
   const RENDERED = [
     ["the composition block", L.compositionHtml(L.read("lee"))],
     ["the money entry row", L.entryHtml("lee")],
-    ["the letterhead chip", L.letterheadChipHtml("lee")]
+    ["the letterhead chip", L.letterheadChipHtml("lee")],
+    // The letterhead's second money pill and the section block it opens. Both are
+    // money surfaces and both are new, which makes them the two likeliest places
+    // for a borrowed verdict colour to arrive — a disclosed range is exactly the
+    // kind of figure somebody would want to paint amber above a threshold.
+    ["the disclosure chip", L.wealthLetterheadChipHtml("lee")],
+    ["the disclosures block", L.wealthBlockHtml("lee", { name: "Mike Lee" })]
   ];
   for (const [name, html] of RENDERED) {
     ok(html.length > 30, `${name} rendered something to check`);

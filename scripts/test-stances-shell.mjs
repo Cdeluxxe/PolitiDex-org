@@ -266,8 +266,8 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // locating the run, as always — the arithmetic agreed afterwards, which is the
 // order that catches a bad pin rather than confirming one.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 20210, b: 20234, what: "the .pdxis-stance* pill rules" },
-  { from: "index.html", src: INDEX, a: 20253, b: 20373, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 20206, b: 20230, what: "the .pdxis-stance* pill rules" },
+  { from: "index.html", src: INDEX, a: 20249, b: 20369, what: "the PDXStance vocabulary" },
 ];
 // Both index.html ranges have now moved THREE TIMES, and the third ran the other
 // way. The Digital Library split took #digital-library out of index.html but left
@@ -308,7 +308,8 @@ const COPIES = [
 // /me, /ballot and this document one reader for "sides this person holds" added
 // a single <script src="/stance-sides.js"> tag to index.html's shell, and that
 // tag sits above both of these blocks. Nothing else on the front page changed.
-// The pill rules came back at their full 25 lines at 20210–20234, and neither
+// The pill rules came back at their full 25 lines at what was then 20210–20234,
+// and neither
 // the line above nor the line below appears in stances.html, so that run is
 // maximal as well as unchanged — which is the pair of facts a pin is for.
 //
@@ -332,6 +333,26 @@ const COPIES = [
 // deliberate separate pass over every pin those three documents carry, not a
 // drive-by from this one, and it is recorded here so the next author reads the
 // disagreement as known rather than as a clue.
+//
+// THE NINE-LINE MOVE. `/pdx-finance.js` — the module behind the second
+// letterhead money pill, the personal-disclosure one — took a script tag and an
+// eight-line load-order note into index.html at line 15020, above both of these
+// blocks and above every other pin into this document. Both runs slid down by
+// nine and neither changed: the pill rules are at 20219–20243 and the vocabulary
+// at 20262–20382, each located verbatim and each still maximal at its own
+// boundaries. The one-line disagreement with evidence.html, spotlight.html and
+// person.html described above is unchanged — those pins moved by the same nine
+// and kept their leading blank.
+//
+// THE THIRTEEN-LINE MOVE, UPWARD. The person-file Money trim deleted the
+// fabricated transparency card from the profile modal, which took the 💰 Follow
+// This Money Trail button with it — and with the button gone, the thirteen lines
+// of index.html at ~16090 that defined window.toggleFollowMoney and explained why
+// it had outlived the funding leaderboard had no caller left. Removing them
+// pulled everything below UP by thirteen: the pill rules are now 20206-20230 and
+// the vocabulary 20249-20369, each located verbatim and each still maximal at its
+// own boundaries. The one-line disagreement with the other three documents is
+// unchanged — they moved by the same thirteen and kept their leading blank.
 for (const c of COPIES) {
   const header = new RegExp(`COPIED VERBATIM FROM ${c.from.replace(".", "\\.")} LINES ${c.a}[^0-9]{1,3}${c.b}`);
   ok(header.test(ST), `copy: stances.html declares ${c.what} as ${c.from} ${c.a}–${c.b}`);
