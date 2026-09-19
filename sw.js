@@ -6986,7 +6986,45 @@
 //     MIGRATION COST. None. The bump exists because pdx-finance.js and
 //     finance-lane.js both changed, and a warm device would otherwise run the
 //     new lane against the old archive.
-const CACHE_VERSION = 'v223';
+// v224 - THE SECOND MONEY PILL BECAME A DOCUMENT CHIP, AND FOUR ROWS FILLED IT.
+//
+//     WHAT THE INDEX GAINED. Four rows, in a NEW table - PDX_FD_DOCUMENTS -
+//     holding three fields each and not one figure: kind ("FD" or "COI"), the
+//     form's own four-digit year, and an https .gov URL to the member's own
+//     document. bmoore, maloy, kennedy and owens, each a 2025 House annual
+//     financial disclosure, each PDF fetched from the clerk's own host before
+//     the row was written. ZERO DOLLAR ROWS ADDED: PDX_FD_DISCLOSURES is still
+//     {}, and stays {} on purpose - v223's wave established there is no filed
+//     total to quote, so the pill's claim moved from how much to which form.
+//     Pill 2 now reads "FD on file - 2025 - House Clerk", or "COI on file -
+//     [year] - Utah" for a Utah conflict-of-interest statement, with the archive
+//     read off the URL's host and never typed by hand. Where there is no row it
+//     still reads "No in-office wealth file on hand", which is missing data on
+//     our side and not a report that somebody failed to file.
+//
+//     WHO WAS LOOKED FOR AND NOT WRITTEN. Cox, Johnson SD-3 and Thompson HD-3:
+//     disclosures.utah.gov answers a browser challenge rather than a document.
+//     Lee and Curtis: the Senate archive needs an accepted-terms session, and
+//     Curtis's only 2025 clerk row is an extension rather than an annual.
+//     Trump: no OGE URL in hand this pass. Empty stayed the true sentence.
+//     PDXFinance.documentDefects() is the new gate - kind is FD or COI, a
+//     four-digit year, an https .gov host, no figure field, no tenure field,
+//     three fields and no fourth - and its messages name the pid, the rule and
+//     the host and path, never a query string that could carry a session token.
+//
+//     STORES AND SHELL. No stored record is read, written or migrated. The
+//     saved location, the district, the team and the stance stores are
+//     untouched, and voter-hub-location.js is unchanged - still the one owner of
+//     tenure, which is why the tenure segment appears on this pill only where
+//     that module is already loaded and no years are stored beside a row.
+//     Direction Match, the formal pattern index, the publication floor and the
+//     mapped counts are byte-identical across the twin boot with both tables
+//     filled, and no global leaked.
+//
+//     MIGRATION COST. None. The bump exists because pdx-finance.js and
+//     finance-lane.js both changed, and a warm device would otherwise render the
+//     old dollar-shaped pill against the new archive.
+const CACHE_VERSION = 'v224';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

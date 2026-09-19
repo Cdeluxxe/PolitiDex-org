@@ -4,14 +4,22 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // The person-file letterhead carries TWO 💰 chips now:
 //
-//   💰 $774M itemized receipts · 2024 · FEC           → campaign filings block
-//   💰 $1–5M disclosed · 10 yrs in office · 2024 FD   → disclosures block
+//   💰 $774M itemized receipts · 2024 · FEC       → campaign filings block
+//   💰 FD on file · 2025 · House Clerk           → disclosures block
 //
 // They sit inches apart, in one row, under one glyph, in one colour pair — and
 // they are not two views of one number. The first is what a CAMPAIGN raised and
 // reported to an election authority under contribution limits. The second is
-// what a PERSON told a clerk they own while holding the office. Two archives,
-// two units, two spans.
+// not a figure at all: it reports WHICH DOCUMENT a person filed while holding
+// the office, for which year, in whose archive. Two archives, two units, and
+// only one of the two is money.
+//
+// The second pill used to wait for a dollar figure, and the first curation wave
+// proved there is none to wait for: Utah's in-office statement carries no value
+// at all, a federal FD carries a category of value per asset and no total, and
+// every single-number source is somebody's estimate. So the claim moved from
+// HOW MUCH to WHICH FORM — a claim the archive can actually support, and one
+// that is true of the people who have in fact filed.
 //
 // Everything this file fences follows from that one sentence:
 //
@@ -23,13 +31,14 @@
 //      URL. A bare dollar figure beside a person's name is the one reading we
 //      are certain is wrong, and with a personal-wealth pill four inches away
 //      the unit is the only thing telling the two figures apart.
-//   3. A RANGE NEVER BECOMES A NUMBER. A disclosure that reports "$1,000,001 –
-//      $5,000,000" prints that band. No midpoint, no parse, no single dollar
-//      figure anywhere on the pill, in the label, or in the section block —
-//      because the form does not contain one and the filer never filed one.
-//   4. MISSING IS NOT ZERO. No disclosure row means words, on every profile,
-//      never "$0", never an absent pill. The table ships EMPTY, so this is the
-//      state every profile on the site is in today.
+//   3. THE PILL NAMES A DOCUMENT AND NEVER A DOLLAR. "FD on file", the form's
+//      own year, the archive read off the form URL's host. No dollar sign, no
+//      figure, and no digit on it but the year — and a dollar row in the other
+//      table cannot reach it, because the pill does not read that table at all.
+//      The band lookup survives for the long block and is still arithmetic-free.
+//   4. MISSING IS NOT ZERO. No document row means words, on every profile,
+//      never "$0", never an absent pill. Four rows ship, so this is the state
+//      1,116 of the 1,120 rostered profiles are in today.
 //   5. THE CLICK TARGETS DIFFER. Receipts opens the campaign-filings block,
 //      wealth opens the disclosures block. Checked by CALLING both against a
 //      document and watching where focus lands, not by reading an attribute.
@@ -48,24 +57,27 @@
 //      section 11 renders the real section to say so — no tier word, no report
 //      card, no canvas, no percent change, no donor string that is not a line
 //      on the filing, and no control that leaves the person file.
-//  10. AND THE CURATION WAVE'S OWN RULES, because the table is hand-written and
-//      the first wave has now run. Section 12 pins what may be typed into a row
-//      (a figure as filed, the form's year, an https .gov link to the document,
-//      three fields and no fourth, and no stored years of service), pins the
-//      filed-category lookup pair by pair — the condition a ticked box is
-//      allowed to be shortened to pill width under — and asserts the wave's
-//      result: the Utah slice it went looking for ships ZERO rows, because
-//      Utah's own in-office form prints no value at all and a federal FD prints
-//      per-asset categories with no total, so there is no filed figure to quote
-//      without adding ranges together or borrowing somebody's estimate.
+//  10. AND THE CURATION WAVE'S OWN RULES, because both tables are hand-written.
+//      Section 12 is the DOLLAR table: it pins what may be typed into a row (a
+//      figure as filed, the form's year, an https .gov link, three fields and
+//      no fourth, no stored years of service), pins the filed-category lookup
+//      pair by pair, and asserts the first wave's result — ZERO rows, on
+//      purpose, and now also that such a row cannot reach a pill even if one
+//      were written.
+//  11. AND SECTION 13 IS THE DOCUMENT INDEX, the table that can fill: every
+//      shipped row's kind, year and .gov document; the pill contract for the
+//      pids that have one and the empty copy for the 1,116 that do not; the
+//      archive label derived from the URL host rather than typed by hand; and
+//      the document gate, one broken row at a time.
 //
 //   node scripts/test-money-two-chips.mjs
 //
 // Real shipped modules in a node:vm sandbox over the REAL FTM_FUNDING seed and
-// the real roster. The disclosure table is empty in the repo, so the on-file
-// disclosure states are exercised through PDXFinance._setWealthTable — the same
-// seam an ingest wave would fill — with rows shaped exactly as the header
-// documents them. Nothing here writes a disclosure into the shipped table.
+// the real roster. The SHIPPED document rows are lifted out of pdx-finance.js
+// and asserted as they ship; states the four of them do not cover are exercised
+// through PDXFinance._setDocumentTable, and dollar rows — which no pill reads
+// any more — through PDXFinance._setWealthTable. Those are the two seams an
+// ingest wave fills. Nothing here writes a row into either shipped table.
 
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -126,10 +138,39 @@ const FD_FIXTURE = {
   // string handling — the difference is in the document, not in our arithmetic.
   curtis: { rangeOrExact: "$2,480,119", year: "2023",
             formUrl: "https://disclosures-clerk.house.gov/example.pdf" },
-  // A band with no form link on file. The block must say so rather than render a
-  // dead anchor that looks live.
+  // A band with no form link on file. No pill reads this table any more, but the
+  // gate still has to refuse this row.
   owens: { rangeOrExact: "$100,001–$250,000", year: "2024", formUrl: "" },
 };
+
+// THE DOCUMENT ROWS, WHICH ARE WHAT PILL 2 ACTUALLY READS. Three fields, and
+// not one of them is a figure: which form, which year, which document. An FD in
+// the Senate's archive, an FD in the clerk's, and a Utah conflict-of-interest
+// statement — the three archives the shipped rows and the next wave's rows come
+// out of, so both label paths and both KINDS run here.
+const DOC_FIXTURE = {
+  lee: { kind: "FD", year: 2024,
+         formUrl: "https://efdsearch.senate.gov/search/view/annual/example/" },
+  curtis: { kind: "FD", year: 2023,
+            formUrl: "https://disclosures-clerk.house.gov/example.pdf" },
+  cox: { kind: "COI", year: 2024, formUrl: "https://disclosures.utah.gov/example-form" },
+};
+
+// THE ROWS THE REPO REALLY SHIPS, LIFTED RATHER THAN RETYPED. A fixture would
+// let the shipped table rot into something else — a news-story URL, a fourth
+// field, a figure — while every assertion here kept passing against a copy that
+// no reader ever sees. Section 13 takes these apart row by row.
+function liftDocuments() {
+  const at = FIN_SRC.indexOf("var PDX_FD_DOCUMENTS = {");
+  must(at > 0, "pdx-finance.js no longer declares PDX_FD_DOCUMENTS");
+  const end = FIN_SRC.indexOf("\n  };", at);
+  must(end > at, "could not find the end of the PDX_FD_DOCUMENTS literal");
+  const literal = FIN_SRC.slice(at + "var PDX_FD_DOCUMENTS = ".length, end + "\n  }".length);
+  return new Function("return (" + literal + ");")();
+}
+const SHIPPED_DOCS = liftDocuments();
+const DOC_PIDS = Object.keys(SHIPPED_DOCS);
+must(DOC_PIDS.length > 0, "the shipped document index is empty — pill 2 can never fill");
 
 // THE REAL TENURE OWNER, LIFTED RATHER THAN REIMPLEMENTED. pdx-finance.js asks
 // window._pdxTenure for the years on the disclosure pill and asks nobody else —
@@ -173,10 +214,12 @@ function box(opts) {
   vm.runInContext(LANE_SRC, ctx, { filename: "finance-lane.js" });
   must(win.PDXFinanceLane, "finance-lane.js did not install PDXFinanceLane");
   if (opts.disclosures) win.PDXFinance._setWealthTable(opts.disclosures);
+  if (opts.documents) win.PDXFinance._setDocumentTable(opts.documents);
   return win;
 }
-const BARE = box();                              // the repo as it ships: no FD rows
-const FILLED = box({ disclosures: FD_FIXTURE }); // the repo after the wave
+const BARE = box();                            // the repo exactly as it ships
+const FILLED = box({ documents: DOC_FIXTURE }); // the same repo, three other rows
+const DOLLARS = box({ disclosures: FD_FIXTURE }); // dollar rows and no document rows
 const L = BARE.PDXFinanceLane;
 const F = BARE.PDXFinance;
 const LF = FILLED.PDXFinanceLane;
@@ -184,7 +227,8 @@ const ROSTER = BARE.CMP_DATA || {};
 must(Object.keys(ROSTER).length > 500, "cmp-data.js did not load a roster");
 
 console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).length} rostered · ` +
-  `${Object.keys(FD_FIXTURE).length} disclosure rows under test`);
+  `${DOC_PIDS.length} documents shipped (${DOC_PIDS.join(", ")}) · ` +
+  `${Object.keys(DOC_FIXTURE).length} more under test`);
 
 // ── 1 · two chips, in order, in the pill row ─────────────────────────────────
 {
@@ -288,50 +332,85 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
 
 // ── 3 · a range never becomes a number ──────────────────────────────────────
 {
-  section("3 · a disclosed band prints as the band — no midpoint, no single figure");
+  section("3 · the disclosure pill names a document — no dollar, no digit but the year");
 
-  // $1–5M. A midpoint would be "$3M"; a parse would be 1000000 or 5000000; a
-  // "simplification" would be "$5M" or "$1M". None of those is in the document.
+  // WHAT THE PILL CLAIMS NOW. "FD on file", the form's year, the archive the
+  // link goes to. The old claim was a band, and a band is the one thing none of
+  // these forms prints: the wave went looking and found no filed total anywhere
+  // in the slice. This pill says a document exists, which is both true and
+  // checkable.
   const wr = LF.wealthRead("lee", ROSTER.lee || null);
-  eq(wr.state, "file", "a disclosure row reads as `file`");
+  eq(wr.state, "file", "a document row reads as `file`");
+  eq(wr.kind, "FD", "…and names which form it is");
+  eq(wr.year, "2024", "…and the form's own year");
+  eq(wr.archive, "Senate EFD", "…and the archive read off the form URL's host");
   const pill = visible(LF.wealthLetterheadChipHtml("lee", ROSTER.lee || null));
   const label = aria(LF.wealthLetterheadChipHtml("lee", ROSTER.lee || null));
   const block = LF.wealthBlockHtml("lee", ROSTER.lee || { name: "Mike Lee" });
-  has(pill, "$1–5M", "the pill prints the band exactly as filed");
-  has(pill, "disclosed", "…with the verb that describes the act of filing");
+  // THE THREE CONTRACT TOKENS, IN ORDER, AS ONE STRING. Split across the pill in
+  // any other order they would read as a different claim — an archive's year, a
+  // year's form — so the order is the pin.
+  has(pill, "FD on file · 2024 · Senate EFD",
+    "the pill reads: form on file · year · archive");
+  // AND NO DOLLAR, ANYWHERE ON IT. The year is the only digit the pill may
+  // carry, plus the tenure span where the document that renders it already
+  // knows one; everything else is removed by name and what is left must be
+  // digit-free, because anything the pill computed would be in the remainder.
+  const rest = pill.split("2024").join(" ")
+    .replace(/\b\d+ yrs? in office\b/g, " ")
+    .replace(/\bunder 1 yr in office\b/g, " ");
+  ok(!/\$/.test(pill), `the pill carries no dollar sign ("${pill}")`);
+  ok(!/\d/.test(rest), `…and no digit but the form year ("${rest.trim()}")`);
   for (const [name, text] of [["the pill", pill], ["its accessible name", label],
                               ["the disclosures block", visible(block)]]) {
-    // Every way the band could collapse into one number.
-    for (const bad of ["$3M", "$3.0M", "$2.5M", "$5M ", "$1M ", "3000000", "$1,000,001",
+    // Every shape a figure could arrive in on a surface that has none to report.
+    for (const bad of ["$1–5M", "$3M", "$3.0M", "3000000", "$1,000,001",
                        "midpoint", "average", "approximately", "roughly", "about $", "~$",
-                       "estimated", "est."]) {
-      lacks(text, bad, `${name} does not reduce the band ("${bad}")`);
+                       "estimated", "est.", "net worth of", "worth about"]) {
+      lacks(text, bad, `${name} reports no figure for a form that prints none ("${bad}")`);
     }
-    // And the band's own two ends are never printed alone as THE figure: no
-    // "or $5M", no "or about $3M". (Prose may say "added together or divided" —
-    // what is fenced is an "or" that offers a reader a number to settle on.)
     ok(!/\bor\s+(?:about\s+|roughly\s+|~)?\$/.test(text),
-      `${name} does not offer an end of the band to settle on`);
+      `${name} does not offer a reader a number to settle on`);
   }
-  // THE FIGURE IS A STRING END TO END. The helper hands back exactly what the row
-  // carried, with no numeric field alongside it that a consumer could reach for.
-  eq(typeof wr.disclosure.rangeOrExact, "string", "the disclosed figure is a string");
-  eq(wr.disclosure.rangeOrExact, FD_FIXTURE.lee.rangeOrExact,
-    "…and is byte-identical to the row as filed");
+  // THE READ IS THREE FIELDS AND A TENURE, AND NOT ONE OF THEM IS A FIGURE.
+  eq(Object.keys(wr.disclosure).sort().join(","), "formUrl,kind,tenureYears,year",
+    "the document read exposes exactly { kind, year, formUrl, tenureYears }");
+  ok(!("rangeOrExact" in wr.disclosure),
+    "…and carries no rangeOrExact for a consumer to print as a total");
+  eq(typeof wr.disclosure.year, "string", "the form year is a string");
   for (const k of Object.keys(wr.disclosure)) {
     if (k === "tenureYears") continue;
     ok(typeof wr.disclosure[k] !== "number",
-      `the disclosure read exposes no numeric ${k} a consumer could do arithmetic on`);
+      `the document read exposes no numeric ${k} a consumer could do arithmetic on`);
   }
-  // AN EXACT FIGURE IS ALSO REPORTED AS PUBLISHED — same field, same handling, no
-  // rounding into a band and no band invented around it.
-  const exact = visible(LF.wealthLetterheadChipHtml("curtis", ROSTER.curtis || null));
-  has(exact, "$2,480,119", "an exactly-published figure prints exactly");
-  lacks(exact, "$2.5M", "…and is not rounded into a tidier one");
-  lacks(exact, "–", "…nor dressed up as a range it was not filed as");
+  // A UTAH CONFLICT-OF-INTEREST STATEMENT IS ITS OWN KIND, said in its own
+  // words. It is not an FD and must not be labelled as one: it reports sources
+  // and holdings with no values on the form at all.
+  const coi = visible(LF.wealthLetterheadChipHtml("cox", ROSTER.cox || null));
+  has(coi, "COI on file · 2024 · Utah", "a Utah statement reads: COI on file · year · Utah");
+  lacks(coi, "FD", "…and is not labelled as a federal FD");
+  ok(!/\$/.test(coi), `…with no dollar sign on it either ("${coi}")`);
 
-  // NO MIDPOINT MATH IN THE SOURCE, either. The wall is a property of the code:
-  // there is no arithmetic operator applied to a disclosure figure anywhere.
+  // A DOLLAR ROW CANNOT REACH THIS PILL AT ALL. The dollar table still exists,
+  // still ships empty, and is still gated — but wealth() does not read it, so a
+  // figure typed into it lands nowhere. This is the wall that makes "pill 2 is a
+  // document chip" a property of the code rather than of the current data.
+  eq(DOLLARS.PDXFinance.wealth("lee", ROSTER.lee || null), null,
+    "a dollar row produces no disclosure read");
+  const dPill = visible(DOLLARS.PDXFinanceLane.wealthLetterheadChipHtml("lee", ROSTER.lee || null));
+  has(dPill, "No in-office wealth file on hand",
+    "…and the pill stays in its empty state, because no document was filed with us");
+  for (const bad of ["$1–5M", "$", "disclosed"]) {
+    lacks(dPill, bad, `…carrying none of the dollar row's content ("${bad}")`);
+  }
+  lacks(visible(DOLLARS.PDXFinanceLane.wealthBlockHtml("lee", ROSTER.lee || { name: "Mike Lee" })),
+    "$1–5M", "…and neither does the block behind it");
+
+  // THE BAND LOOKUP SURVIVES, AND STILL DOES NO ARITHMETIC. It is the long
+  // block's formatter for a transcribed holding, and section 12 holds it pair by
+  // pair; what matters here is that it never grew a parse.
+  eq(typeof F.bandLabel, "function", "the filed-band lookup is still published");
+  eq(F.bandLabel("$1,000,001 - $5,000,000"), "$1–5M", "…and still compresses by lookup");
   const STRIP = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
   const finBody = STRIP(FIN_SRC);
   for (const bad of ["parseFloat", "Number(", "parseInt(row", "/ 2", "* 0.5", "Math.round"]) {
@@ -344,12 +423,13 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
 {
   section("4 · no disclosure means words, on every profile — never $0, never an absent pill");
 
-  // THE SHIPPED STATE OF THE REPO. The disclosure table is empty, so this is
-  // every profile on the site today, which is exactly why the empty pill has to
-  // be right before the ingest wave rather than after it.
-  eq(F.wealth("lee", ROSTER.lee), null, "the shipped table answers null, not a zeroed object");
+  // THE SHIPPED STATE OF THE REPO. Four document rows exist; the other 1,116
+  // profiles are in the empty state, which is why the empty pill has to be right
+  // in its own terms rather than as a placeholder waiting to be replaced.
+  eq(F.wealth("lee", ROSTER.lee), null, "a pid with no document answers null, not a zeroed object");
   eq(F.wealth("nobody_at_all", null), null, "…for an id the roster does not carry either");
-  const sample = ["lee", "curtis", "mike_lee"].concat(Object.keys(ROSTER).slice(0, 25));
+  const sample = ["lee", "curtis", "mike_lee"]
+    .concat(Object.keys(ROSTER).filter((id) => !SHIPPED_DOCS[id]).slice(0, 25));
   let rendered = 0;
   for (const id of sample) {
     const html = L.wealthLetterheadChipMount(id, ROSTER[id] || null);
@@ -378,7 +458,7 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   // worth anything if it holds for the twelve-hundredth profile as well as the
   // first. Offenders are collected rather than asserted per pid so that a
   // regression prints the names that broke instead of one arbitrary first name.
-  const allIds = Object.keys(ROSTER);
+  const allIds = Object.keys(ROSTER).filter((id) => !SHIPPED_DOCS[id]);
   const noPill = [], withDollar = [], withDigit = [], wrongWords = [], wrongLabel = [];
   const ZEROISMS = ["$0", "none", "nil", "zero", "clean", "clear", "nothing to report",
                     "no concerns", "unremarkable", "not wealthy", "modest"];
@@ -399,7 +479,8 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   }
   const nameList = (a) => a.slice(0, 8).join(", ") + (a.length > 8 ? `, +${a.length - 8} more` : "");
   eq(noPill.length, 0,
-    `every one of the ${allIds.length} rostered profiles gets a disclosure pill (missing: ${nameList(noPill)})`);
+    `every one of the ${allIds.length} rostered profiles with no document on file gets a ` +
+    `disclosure pill (missing: ${nameList(noPill)})`);
   eq(withDollar.length, 0,
     `no rostered profile prints a dollar sign for a disclosure nobody has filed (${nameList(withDollar)})`);
   eq(withDigit.length, 0,
@@ -412,6 +493,22 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
     `every rostered profile carries "missing data, not a disclosure of zero" in its accessible name (${nameList(wrongLabel)})`);
   ok(allIds.length > 500,
     `the sweep really did cover the roster and not a truncated copy of it (${allIds.length} pids)`);
+  eq(allIds.length, Object.keys(ROSTER).length - DOC_PIDS.length,
+    `the sweep covered every rostered pid but the ${DOC_PIDS.length} with a document on file`);
+
+  // AND THE FOUR THAT DO HAVE A DOCUMENT ARE NOT IN THE EMPTY STATE — the carve-
+  // out above would otherwise be a hole somebody could widen until the sweep
+  // asserted nothing. Each of them reports its form, and none of them reports a
+  // dollar.
+  for (const id of DOC_PIDS) {
+    const html = L.wealthLetterheadChipMount(id, ROSTER[id] || null);
+    ok(!!html, `${id}: a pid with a document on file still gets a pill`);
+    const words = visible(html);
+    has(words, ` on file`, `${id}: …and it says a form is on file`);
+    lacks(words, "No in-office wealth file on hand",
+      `${id}: …rather than the empty copy, which would be false for this pid`);
+    ok(!/\$/.test(words), `${id}: …with no dollar sign on it`);
+  }
   // "YET" STAYS RETIRED, in the new copy as in the old. It describes a queue, and
   // for personal disclosures there is no scheduled wave to queue behind.
   const one = visible(L.wealthLetterheadChipHtml("lee", ROSTER.lee));
@@ -428,10 +525,14 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   // rows from a news article instead of a form.
   const shipped = FIN_SRC.slice(FIN_SRC.indexOf("var PDX_FD_DISCLOSURES = "),
                                 FIN_SRC.indexOf("var FORM_LABEL"));
-  has(shipped, "var PDX_FD_DISCLOSURES = {};", "the shipped disclosure table is empty");
+  has(shipped, "var PDX_FD_DISCLOSURES = {};", "the shipped dollar table is empty");
   lacks(shipped, "rangeOrExact:", "…with no figure written into it");
-  eq(F.coverage().onFile, 0, "…and coverage reports nothing on file rather than guessing");
+  eq(F.coverage().dollarRows, 0, "…and coverage reports zero dollar rows rather than guessing");
+  eq(F.coverage().onFile, DOC_PIDS.length,
+    "…while the count it reports to a reader is documents on file");
+  eq(F.coverage().roster, Object.keys(ROSTER).length, "…out of the whole roster");
   has(F.coverage().sentence, "missing data", "…in a sentence that says a blank is missing data");
+  lacks(F.coverage().sentence, "$", "…and carries no dollar sign of its own");
 }
 
 // ── 5 · the click targets differ ────────────────────────────────────────────
@@ -442,7 +543,7 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   // markup, each marking a different block. "Which block got focus" is the whole
   // question, so both are real and distinguishable here.
   function docBox() {
-    const win = box({ disclosures: FD_FIXTURE });
+    const win = box({ documents: DOC_FIXTURE });
     const CL = win.PDXFinanceLane;
     const log = [];
     const mk = (id, tag) => {
@@ -565,9 +666,11 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   const wPill = visible(LF.wealthLetterheadChipHtml("lee", ROSTER.lee));
   const c = LF.read("lee");
   has(rPill, c.receiptsFmt, "the receipts pill carries the receipts figure");
-  lacks(rPill, "$1–5M", "…and not the disclosed band");
-  has(wPill, "$1–5M", "the disclosure pill carries the disclosed band");
+  lacks(rPill, "on file", "…and not the disclosure pill's words");
+  lacks(rPill, "FD", "…nor the name of a form it is not");
+  has(wPill, "FD on file", "the disclosure pill names the document");
   lacks(wPill, c.receiptsFmt, "…and not the receipts figure");
+  ok(!/\$/.test(wPill), "…and carries no dollar figure of its own to be added to it");
   // …and each says out loud which kind of money it is, because a reader hearing
   // two dollar figures in a row has nothing else to go on.
   has(aria(LF.letterheadChipHtml("lee")).toLowerCase(), "not added",
@@ -579,8 +682,8 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   eq(typeof F.filing, "function", "PDXFinance.filing(pid) exists");
   eq(typeof F.wealth, "function", "PDXFinance.wealth(pid) exists");
   const w = FILLED.PDXFinance.wealth("lee", ROSTER.lee);
-  eq(Object.keys(w).sort().join(","), "formUrl,rangeOrExact,tenureYears,year",
-    "wealth() returns exactly { rangeOrExact, year, formUrl, tenureYears }");
+  eq(Object.keys(w).sort().join(","), "formUrl,kind,tenureYears,year",
+    "wealth() returns exactly { kind, year, formUrl, tenureYears }");
   eq(FILLED.PDXFinance.wealth("no_such_person", null), null, "…or null, with nothing in between");
   // filing() is the LANE'S lookup, not a second copy of it — two owners is how a
   // chip and a helper come to disagree about whether a person has a filing.
@@ -608,9 +711,14 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
     "wealthy", "rich", "millionaire", "billionaire", "top 1", "richest", "poorest",
     "above average", "below average", "more than most", "unusually"];
   const pills = [];
-  for (const id of ["lee", "curtis", "owens", "nobody_at_all"].concat(Object.keys(ROSTER).slice(0, 8))) {
+  for (const id of ["lee", "curtis", "cox", "nobody_at_all"].concat(Object.keys(ROSTER).slice(0, 8))) {
     pills.push([`${id} receipts`, LF.letterheadChipHtml(id)]);
     pills.push([`${id} wealth`, LF.wealthLetterheadChipHtml(id, ROSTER[id] || null)]);
+  }
+  // AND THE PIDS WHOSE DOCUMENTS REALLY SHIP, in the boot that has them. A wall
+  // exercised only against fixtures is a wall around the fixtures.
+  for (const id of DOC_PIDS) {
+    pills.push([`${id} wealth (shipped)`, L.wealthLetterheadChipHtml(id, ROSTER[id] || null)]);
   }
   for (const [name, html] of pills) {
     const words = visible(html).toLowerCase();
@@ -625,9 +733,13 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   }
   // THE DISCLOSURES BLOCK IS HELD TO THE SAME LINE, because a wall that stops at
   // the pill just moves the grade one jump away.
-  for (const id of ["lee", "curtis", "owens", "nobody_at_all"]) {
-    const t = visible(LF.wealthBlockHtml(id, ROSTER[id] || { name: "Someone" })).toLowerCase();
-    for (const bad of RATING) lacks(t, bad, `${id}: the disclosures block carries no "${bad}"`);
+  for (const id of ["lee", "curtis", "cox", "nobody_at_all"].concat(DOC_PIDS)) {
+    for (const [what, lane] of [["fixture", LF], ["shipped", L]]) {
+      const t = visible(lane.wealthBlockHtml(id, ROSTER[id] || { name: "Someone" })).toLowerCase();
+      for (const bad of RATING) {
+        lacks(t, bad, `${id}: the disclosures block (${what}) carries no "${bad}"`);
+      }
+    }
   }
   // …AND /money's NET-WORTH BOARD NEVER FEEDS IT. That board holds net-worth
   // point estimates with a before/after and a percentage change; it is a
@@ -659,34 +771,42 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   has(covered, "Coverage", "the disclosures block prints its own coverage line");
   has(covered, "missing data", "…and says a blank there is missing data");
 
-  // THE FORM, WITH ITS YEAR, AS A LINK A READER CAN OPEN. A figure a reader
-  // cannot trace to a document is an estimate.
+  // THE FORM, WITH ITS YEAR, AS A LINK A READER CAN OPEN. The pill's whole claim
+  // is that a document exists, so the document itself is the one thing the block
+  // must be able to hand over.
   const withLink = LF.wealthBlockHtml("lee", ROSTER.lee || { name: "Mike Lee" });
-  has(withLink, FD_FIXTURE.lee.formUrl, "the disclosures block links the form itself");
+  has(withLink, DOC_FIXTURE.lee.formUrl, "the disclosures block links the form itself");
   has(withLink, 'rel="noopener noreferrer"', "…safely");
   has(visible(withLink), "2024", "…and names the year the form is for");
   has(visible(withLink), "FD", "…and which form it is");
-  // NO DEAD ANCHOR. A row with no link says so instead of looking clickable.
-  const noLink = LF.wealthBlockHtml("owens", ROSTER.owens || { name: "Burgess Owens" });
-  has(noLink, "no link on file", "a row with no form URL says so");
-  lacks(noLink, "<a", "…and renders no anchor at all rather than a dead one");
+  has(visible(withLink), "Senate EFD", "…and the archive it came out of");
+  // NO ROW WITHOUT A DOCUMENT, SO NO DEAD ANCHOR. A row whose URL is missing is
+  // not a thinner version of this claim — there is no claim left to make — so
+  // the lookup refuses it outright and the pill stays in its empty state.
+  {
+    const win = box({ documents: { owens: { kind: "FD", year: 2024, formUrl: "" } } });
+    eq(win.PDXFinance.wealth("owens", win.CMP_DATA.owens || null), null,
+      "a document row with no URL is not a document on file");
+    const blk = win.PDXFinanceLane.wealthBlockHtml("owens", win.CMP_DATA.owens || { name: "Burgess Owens" });
+    has(visible(blk), "No in-office wealth file on hand", "…so the block says nothing is on hand");
+    lacks(blk, "<a", "…and renders no anchor at all rather than a dead one");
+  }
 
   // THE BLOCK QUOTES THE PILL. One read per lane, so the two cannot come to
-  // report the archive differently.
-  //   `owens`'s fixture is a filed federal CATEGORY, and the lookup in
-  // pdx-finance.js shortens exactly those to pill width — so the pill quotes the
-  // shortened band and the block quotes the same shortened band AND the ticked
-  // box word for word. The pair itself is pinned in section 12; here the claim is
-  // only that the two surfaces agree, and that the form's own language survives
-  // somewhere a reader can see it.
-  for (const id of ["lee", "curtis", "owens"]) {
+  // report the form, the year or the archive differently — which is exactly how a
+  // pill comes to name an authority that is not the one its link opens.
+  for (const id of Object.keys(DOC_FIXTURE)) {
     const p = ROSTER[id] || { name: id };
-    const filed = FD_FIXTURE[id].rangeOrExact;
-    const shown = FILLED.PDXFinance.bandLabel(filed);
-    has(visible(LF.wealthLetterheadChipHtml(id, p)), shown, `${id}: the pill quotes the filed figure`);
-    has(visible(LF.wealthBlockHtml(id, p)), shown, `${id}: …and so does the block it opens`);
-    has(visible(LF.wealthBlockHtml(id, p)), filed,
-      `${id}: …and the block still carries the form's own wording for it`);
+    const read = LF.wealthRead(id, p);
+    const pillText = visible(LF.wealthLetterheadChipHtml(id, p));
+    const blockText = visible(LF.wealthBlockHtml(id, p));
+    for (const [what, token] of [["form", read.kind], ["year", read.year],
+                                 ["archive", read.archive]]) {
+      has(pillText, token, `${id}: the pill names the ${what} ("${token}")`);
+      has(blockText, token, `${id}: …and so does the block it opens`);
+    }
+    has(LF.wealthBlockHtml(id, p), `href="${DOC_FIXTURE[id].formUrl}"`,
+      `${id}: …and the block hands over the document the pill is talking about`);
   }
   // EVEN WITH NOTHING ON FILE THE BLOCK IS THERE, saying so. A silently absent
   // block reads as "nothing to declare", which is a finding.
@@ -699,7 +819,11 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   // stored span beside the disclosure, and nothing to disagree with the 🗓️ pill.
   lacks(FIN_SRC.slice(FIN_SRC.indexOf("var PDX_FD_DISCLOSURES"),
                       FIN_SRC.indexOf("function filing")), "tenureYears:",
-    "the disclosure table stores no tenure of its own");
+    "neither hand-written table stores a tenure of its own");
+  for (const bad of ["tenureYears", "yearsInOffice", "yearsServed", "sinceTakingOffice"]) {
+    lacks(JSON.stringify(SHIPPED_DOCS), bad,
+      `…and no shipped document row carries one ("${bad}")`);
+  }
   has(FIN_SRC, "_pdxTenure", "…the one tenure owner is asked for it instead");
   {
     // The arithmetic itself must be GONE, not merely second in line: no date
@@ -713,7 +837,7 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   // THE REAL OWNER, ANSWERING FOR A REAL MEMBER: the span on the pill is the span
   // _pdxTenure reports for the same person file, to the year.
   {
-    const win = box({ disclosures: FD_FIXTURE });
+    const win = box({ documents: DOC_FIXTURE });
     const p = win.CMP_DATA.lee;
     const t = win._pdxTenure(p);
     must(t && typeof t.years === "number", "the lifted owner reports no tenure for lee");
@@ -725,7 +849,8 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   // A sworn date under a year old reads in words, because "0 yrs in office"
   // beside a dollar figure reads as a zeroed figure.
   {
-    const win = box({ disclosures: { fresh: { rangeOrExact: "$1–5M", year: "2025", formUrl: "" } } });
+    const win = box({ documents: { fresh: { kind: "FD", year: 2025,
+                                            formUrl: "https://example.gov/fd.pdf" } } });
     const now = new Date();
     win.CMP_DATA.fresh = { name: "Fresh Member", office: "U.S. Representative",
                            termStart: `${now.getFullYear()}-0${Math.min(9, now.getMonth() + 1)}` };
@@ -735,10 +860,11 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   }
   // AND A PERSON FILE WITH NO SWORN DATE GETS NO INVENTED SPAN.
   {
-    const win = box({ disclosures: { nodate: { rangeOrExact: "$1–5M", year: "2024", formUrl: "" } } });
+    const win = box({ documents: { nodate: { kind: "FD", year: 2024,
+                                             formUrl: "https://example.gov/fd.pdf" } } });
     win.CMP_DATA.nodate = { name: "No Date", office: "U.S. Senator" };
     const w = visible(win.PDXFinanceLane.wealthLetterheadChipHtml("nodate", win.CMP_DATA.nodate));
-    has(w, "$1–5M disclosed", "a row with no tenure on file still reports its figure");
+    has(w, "FD on file · 2024", "a row with no tenure on file still reports its form");
     lacks(w, "in office", "…and invents no span to print beside it");
     eq(win.PDXFinance.wealth("nodate", win.CMP_DATA.nodate).tenureYears, null,
       "…and the read reports null rather than zero years");
@@ -748,16 +874,21 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   // thing every other tenure consumer on that document does, and strictly better
   // than a second copy of the arithmetic that agrees until it doesn't.
   {
-    const win = box({ noTenure: true, disclosures: FD_FIXTURE });
+    const win = box({ noTenure: true, documents: DOC_FIXTURE });
     eq(typeof win._pdxTenure, "undefined", "the no-owner boot really has no tenure owner");
     const p = win.CMP_DATA.lee;
     eq(win.PDXFinance.wealth("lee", p).tenureYears, null,
       "with no owner loaded the disclosure read reports no tenure");
     const w = visible(win.PDXFinanceLane.wealthLetterheadChipHtml("lee", p));
-    has(w, "$1–5M disclosed", "…the pill still reports the filed figure");
-    has(w, "2024 FD", "…and still names the form and its year");
+    has(w, "FD on file · 2024 · Senate EFD",
+      "…the pill still reports the form, the year and the archive");
     lacks(w, "in office", "…and prints no span it could not read");
     ok(!/\b0 yrs?\b/.test(w), "…least of all a zero one");
+    // AND THE OWNER IS NOT PULLED IN TO FORCE ONE. person.html carries no
+    // voter-hub-location.js today, and the document chip is not a reason to load
+    // a homepage module onto a person file.
+    lacks(R("person.html"), 'src="/voter-hub-location.js"',
+      "person.html loads the tenure owner's homepage module to force a span onto the pill");
   }
 }
 
@@ -816,18 +947,22 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
     for (const id of SEED_IDS) win._FTM_BY_ID[id] = { id, name: id, funding: SEED[id] };
     vm.runInContext(FIN_SRC, ctx, { filename: "pdx-finance.js" });
     vm.runInContext(LANE_SRC, ctx, { filename: "finance-lane.js" });
-    // A disclosure on the member under test — the strongest form of the question:
-    // does a filed range on THIS person, rendered on THIS person's letterhead,
+    // A DOCUMENT ON THE MEMBER UNDER TEST — the strongest form of the question:
+    // does a filed form on THIS person, rendered on THIS person's letterhead,
     // move THIS person's record read?
-    const table = Object.assign({}, FD_FIXTURE);
-    table[PID] = { rangeOrExact: "$1–5M", year: "2024", formUrl: "https://example.gov/fd" };
-    // A TICKED FEDERAL CATEGORY TOO, so the band-compression path the curation
-    // wave added runs INSIDE the twin boot rather than beside it. A lookup that
-    // could move a record read would move it here.
+    const table = Object.assign({}, DOC_FIXTURE, SHIPPED_DOCS);
+    table[PID] = { kind: "FD", year: 2024, formUrl: "https://example.gov/fd.pdf" };
+    // A UTAH CONFLICT-OF-INTEREST ROW TOO, so both kinds, both sentences and both
+    // archive labels run INSIDE the twin boot rather than beside it. A lookup
+    // that could move a record read would move it here.
     const catPid = Object.keys(win.CMP_DATA).filter((k) => k !== PID && !table[k])[0];
-    if (catPid) table[catPid] = { rangeOrExact: "$1,000,001 - $5,000,000", year: "2024",
-                                  formUrl: "https://disclosures-clerk.house.gov/example.pdf" };
-    win.PDXFinance._setWealthTable(table);
+    if (catPid) table[catPid] = { kind: "COI", year: 2024,
+                                  formUrl: "https://disclosures.utah.gov/example-form" };
+    win.PDXFinance._setDocumentTable(table);
+    // AND THE DOLLAR TABLE FILLED AS WELL, in both boots. No pill reads it, which
+    // is precisely why it belongs here: if a figure typed into it could reach a
+    // record read by some other path, this is where that would show up.
+    win.PDXFinance._setWealthTable(FD_FIXTURE);
     const before = Object.keys(win).sort().join(",");
 
     const ids = [PID].concat(SEED_IDS).concat(Object.keys(win.CMP_DATA).slice(0, 40));
@@ -942,8 +1077,11 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   const DOC = R("FINANCE_INTEGRITY.md");
   has(DOC, "No money file on hand", "FINANCE_INTEGRITY.md carries the receipts absence sentence");
   has(DOC, "No in-office wealth file on hand", "…and the disclosure absence sentence");
-  has(DOC, "$1–5M disclosed", "…and the disclosure pill's own shape");
+  has(DOC, "FD on file", "…and the disclosure pill's own shape");
+  has(DOC, "COI on file", "…in both of the two kinds it can report");
   has(DOC, "itemized receipts", "…and the receipts pill's own shape");
+  lacks(DOC, "$1–5M disclosed",
+    "…and no longer documents a dollar-shaped disclosure pill, which is not what ships");
 }
 
 // ── 11 · the rendered money section is two blocks and nothing else ──────────
@@ -1089,13 +1227,14 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
       `${id}: the money section is two labelled blocks — a third block is the transparency card's shape`);
   }
 
-  // 11c. THE EMPTY DISCLOSURE BLOCK, IN THE DOM, ON EVERY ROSTERED PROFILE. The
-  //      table ships empty, so this is the state of the whole roster: heading,
-  //      the "on hand" sentence, the missing-data paragraph. No figure, no axis,
-  //      no percent, no before-and-after.
+  // 11c. THE EMPTY DISCLOSURE BLOCK, IN THE DOM, ON EVERY ROSTERED PROFILE WITH
+  //      NO DOCUMENT ON FILE. Four rows ship, so this is the state of the other
+  //      1,116: heading, the "on hand" sentence, the missing-data paragraph. No
+  //      figure, no axis, no percent, no before-and-after. The four that do have
+  //      a document are swept straight after, against their own contract.
   {
     const bad = { dollar: [], digitless: [], percent: [], words: [], chart: [] };
-    const ids = Object.keys(W.CMP_DATA);
+    const ids = Object.keys(W.CMP_DATA).filter((id) => !SHIPPED_DOCS[id]);
     for (const id of ids) {
       const blk = String(W.PDXFinanceLane.wealthBlockHtml(id, W.CMP_DATA[id]) || "");
       const vis = visible(blk);
@@ -1117,6 +1256,24 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
     eq(bad.words.length, 0, `…and reads wrong on ${bad.words.length} profiles (${nameList(bad.words)})`);
     eq(bad.chart.length, 0, `…and draws something on ${bad.chart.length} profiles (${nameList(bad.chart)})`);
     ok(ids.length > 500, `the DOM sweep covered the whole roster (${ids.length} pids)`);
+    eq(ids.length, Object.keys(W.CMP_DATA).length - DOC_PIDS.length,
+      "…minus exactly the pids with a document on file");
+
+    // AND THE FOUR WITH A DOCUMENT, IN THE SAME DOM. The block reports the form
+    // and hands over the document; it still draws nothing, rates nothing and
+    // prints no figure of its own.
+    for (const id of DOC_PIDS) {
+      const blk = String(W.PDXFinanceLane.wealthBlockHtml(id, W.CMP_DATA[id]) || "");
+      const vis = visible(blk);
+      const own = vis.slice(0, vis.indexOf("Coverage") === -1 ? vis.length : vis.indexOf("Coverage"));
+      has(own, "Disclosures while serving", `${id}: the filled block keeps the heading`);
+      has(own, " on file", `${id}: …and reports that a form is on file`);
+      has(blk, SHIPPED_DOCS[id].formUrl, `${id}: …and links the document itself`);
+      has(blk, 'rel="noopener noreferrer"', `${id}: …safely`);
+      ok(!/\$/.test(own), `${id}: …with no dollar sign in the block's own copy`);
+      ok(!/%/.test(vis), `${id}: …and no percent anywhere in it`);
+      ok(!/<canvas|Chart\s*\(|axis/i.test(blk), `${id}: …and nothing drawn`);
+    }
   }
 
   // 11d. NO DONOR NAME THAT IS NOT A LINE ON THE FILING IN BLOCK 1. The deleted
@@ -1217,16 +1374,22 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
            formUrl: "https://efdsearch.senate.gov/search/view/annual/example/" },
   };
   const WAVE_IDS = Object.keys(WAVE);
-  const WB = box({ disclosures: WAVE });
+  // The document index is CLEARED in this boot. Three of the five pids below have
+  // a real document row shipping today, and the claim being tested is what a
+  // DOLLAR row does on its own: with both tables filled, a passing assertion
+  // could be the document row's doing.
+  const WB = box({ disclosures: WAVE, documents: {} });
   const WL = WB.PDXFinanceLane;
   const WF = WB.PDXFinance;
   for (const id of WAVE_IDS) must(WB.CMP_DATA[id], `${id} is not on the roster — the wave fixture is stale`);
 
-  // 12a. THE SHIPPED TABLE IS EMPTY, AND ITS EMPTINESS IS THE WAVE'S FINDING.
-  //      Section 4 already asserts the literal; what is new here is that the
-  //      wave RAN, so this is a curated zero rather than an untouched stub, and
-  //      the reason is written down where the next person will find it.
-  eq(F.coverage().onFile, 0, "the first curation wave shipped zero rows");
+  // 12a. THE DOLLAR TABLE IS EMPTY, AND ITS EMPTINESS IS THE WAVE'S FINDING —
+  //      permanently, not pending. Section 4 already asserts the literal; what is
+  //      new here is that the wave RAN, so this is a curated zero rather than an
+  //      untouched stub, and the reason is written down where the next person
+  //      will find it. The pill that used to wait on this table is now a document
+  //      chip (section 13), which is why nothing about this zero is temporary.
+  eq(F.coverage().dollarRows, 0, "the first curation wave shipped zero dollar rows");
   const tableSlice = FIN_SRC.slice(FIN_SRC.indexOf("var PDX_FD_DISCLOSURES = "),
                                    FIN_SRC.indexOf("var FORM_LABEL"));
   has(tableSlice, "var PDX_FD_DISCLOSURES = {};", "…as an empty object literal, not a commented-out row");
@@ -1300,52 +1463,52 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
     lacks(finBody, bad, `the disclosure module does no arithmetic on a figure ("${bad}")`);
   }
 
-  // 12c. EVERY ROW A WAVE COULD WRITE PRINTS AS A BAND OR AN EXACT STRING, WITH
-  //      NO EXTRA ARITHMETIC ON THE LETTERHEAD. The pill is taken apart: the
-  //      figure, the tenure span and the form year are removed by name, and what
-  //      is left must contain no dollar sign and no digit at all. Anything the
-  //      pill computed would be in the remainder.
+  // 12c. AND A DOLLAR ROW, HOWEVER LEGAL, REACHES NO PILL AND NO BLOCK. Every
+  //      one of the five rows above passes the gate, and not one of them puts a
+  //      figure on a letterhead: wealth() reads the document index and nothing
+  //      else. This is the difference between "we have no dollar rows today" and
+  //      "a dollar row is not what this pill reports" — the first is data, the
+  //      second is the code, and it is the second that has to hold when somebody
+  //      finds a form with a number on it.
   for (const id of WAVE_IDS) {
     const person = WB.CMP_DATA[id];
     const row = WAVE[id];
     const shown = WF.bandLabel(row.rangeOrExact);
+    eq(WF.wealth(id, person), null, `${id}: a dollar row is not a document on file`);
     const pill = visible(WL.wealthLetterheadChipHtml(id, person));
-    has(pill, shown, `${id}: the pill prints the filed figure as filed`);
-    has(pill, "disclosed", `${id}: …with the verb that describes filing the form`);
-    has(pill, row.year + " FD", `${id}: …and which form, of which year`);
-    const rest = pill.split(shown).join(" ")
-      .replace(/\b\d+ yrs? in office\b/g, " ")
-      .replace(/\bunder 1 yr in office\b/g, " ")
-      .split(row.year).join(" ");
-    ok(!/\$/.test(rest),
-      `${id}: the pill prints no second dollar figure beside the filed one ("${rest.trim()}")`);
-    ok(!/\d/.test(rest),
-      `${id}: the pill prints no digit the form did not ("${rest.trim()}")`);
-    // AND NONE OF THE WAYS A BAND COLLAPSES. Checked on the pill, where there is
-    // no room for the form's own wording to explain itself.
-    for (const bad of ["$3M", "$3,000,000", "3000000", "$2.5M", "$25M ", "midpoint",
+    has(pill, "No in-office wealth file on hand",
+      `${id}: …so the pill reports what it actually has, which is no document`);
+    ok(!/\$/.test(pill), `${id}: …with no dollar sign on it ("${pill}")`);
+    ok(!/\d/.test(pill), `${id}: …and no digit at all ("${pill}")`);
+    for (const bad of [shown, row.rangeOrExact, row.year, "disclosed", "$3M", "midpoint",
                        "average", "approximately", "about $", "~$", "up to", "at least",
                        "%", "net worth", "wealthy"]) {
-      lacks(pill, bad, `${id}: the pill does not reduce or characterise the filed figure ("${bad}")`);
+      lacks(pill, bad, `${id}: the pill carries none of the dollar row's content ("${bad}")`);
     }
-    // THE SUM IS NOT THERE EITHER: the receipts figure is a different archive and
-    // must not appear on this pill, nor this figure on that one.
+    // NOR DOES THE BLOCK BEHIND IT. A figure that cannot reach the pill but can
+    // reach the block one jump away is the same claim in a larger typeface.
+    const blk = visible(WL.wealthBlockHtml(id, person));
+    lacks(blk, shown, `${id}: the disclosures block prints no dollar row's figure`);
+    lacks(blk, row.formUrl, `${id}: …and links no dollar row's form`);
+    has(blk, "No in-office wealth file on hand", `${id}: …it says nothing is on hand instead`);
+    // AND NEITHER PILL BORROWS FROM THE OTHER LANE.
     const r = WL.read(id);
     if (r && r.receiptsFmt) {
       lacks(pill, r.receiptsFmt, `${id}: the disclosure pill carries no campaign receipts figure`);
-      lacks(visible(WL.letterheadChipHtml(id)), shown, `${id}: …and the receipts pill carries no disclosed band`);
+      lacks(visible(WL.letterheadChipHtml(id)), shown,
+        `${id}: …and the receipts pill carries no disclosed band`);
     }
   }
 
-  // 12d. EVERY PID NOT IN THE TABLE STILL HAS NO $ AND NO DIGIT ON THE
+  // 12d. EVERY PID WITH NO DOCUMENT ON FILE STILL HAS NO $ AND NO DIGIT ON THE
   //      DISCLOSURE PILL. Swept over the whole roster in both boots: the repo as
-  //      it ships (no rows at all) and the repo with the wave's rows in, where
-  //      the risk is a pill borrowing a neighbour's figure.
-  for (const [what, win] of [["as shipped", BARE], ["with the wave's rows in", WB]]) {
+  //      it ships, and the repo with five legal DOLLAR rows in it, where the risk
+  //      is a pill borrowing a figure from the other table or from a neighbour.
+  for (const [what, win] of [["as shipped", BARE], ["with the wave's dollar rows in", WB]]) {
     const lane = win.PDXFinanceLane;
     const roster = win.CMP_DATA;
     const cov = win.PDXFinance.coverage();
-    const ids = Object.keys(roster).filter((id) => !(win === WB && WAVE[id]));
+    const ids = Object.keys(roster).filter((id) => !SHIPPED_DOCS[id]);
     ok(ids.length > 500, `${what}: the sweep covered the roster (${ids.length} pids)`);
     const withCash = [], withDigit = [], withZero = [], labelCash = [], labelDigit = [];
     for (const id of ids) {
@@ -1378,69 +1541,81 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   //      and he is the person a reader is most likely to arrive at with a number
   //      already in mind — which is exactly why an unsourced row on him would be
   //      the most expensive one on the site.
-  for (const [what, win] of [["as shipped", BARE], ["with the wave's rows in", WB]]) {
+  for (const [what, win] of [["as shipped", BARE], ["with the wave's dollar rows in", WB]]) {
     eq(win.PDXFinance.wealth("trump", win.CMP_DATA.trump || null), null,
       `${what}: trump has no disclosure row`);
     const t = visible(win.PDXFinanceLane.wealthLetterheadChipHtml("trump", win.CMP_DATA.trump || null));
     has(t, "No in-office wealth file on hand", `${what}: …and his pill says so in words`);
     ok(!/\$|\d/.test(t), `${what}: …with no figure and no digit on it ("${t}")`);
   }
-  lacks(tableSlice, "trump", "no trump row went into the shipped table");
+  lacks(tableSlice, "trump", "no trump row went into the shipped dollar table");
+  ok(!Object.prototype.hasOwnProperty.call(SHIPPED_DOCS, "trump"),
+    "…and none went into the shipped document index, which holds no OGE URL for him");
   ok(!Object.prototype.hasOwnProperty.call(WAVE, "trump"),
     "…and none is in the fixture either, because this pass holds no form URL for him");
 
   // 12f. PILL 1 IS THE FILINGS BLOCK'S FIGURE AND PILL 2 IS THE DISCLOSURES
-  //      BLOCK'S, AND NEITHER BLOCK CARRIES THE OTHER'S. One read per lane is
-  //      the mechanism; this is the read of the assembled markup.
+  //      BLOCK'S DOCUMENT, AND NEITHER BLOCK CARRIES THE OTHER'S. One read per
+  //      lane is the mechanism; this is the read of the assembled markup, over
+  //      the rows the repo really ships plus three more.
   const SB = (() => {
-    const win = box({ disclosures: WAVE });
+    const win = box({ disclosures: WAVE, documents: Object.assign({}, SHIPPED_DOCS, DOC_FIXTURE) });
     const ctx = vm.createContext(win);
     vm.runInContext(FTM_SRC, ctx, { filename: "ftm-data.js" });
     must(typeof win._pdxFundingSection === "function", "ftm-data.js installed no _pdxFundingSection");
     return win;
   })();
-  const seeded = WAVE_IDS.filter((id) => SEED[id]);
-  const subjects12 = seeded.concat(WAVE_IDS.filter((id) => !SEED[id]));
-  ok(subjects12.length >= 3, `too few wave pids to check both branches (${subjects12.length})`);
+  const docIds = Object.keys(SHIPPED_DOCS).concat(Object.keys(DOC_FIXTURE));
+  const seeded = docIds.filter((id) => SEED[id]);
+  const subjects12 = seeded.concat(docIds.filter((id) => !SEED[id]));
+  ok(subjects12.length >= 3, `too few document pids to check both branches (${subjects12.length})`);
   for (const id of subjects12) {
     const person = SB.CMP_DATA[id];
+    if (!person) continue;
     const dom = String(SB._pdxFundingSection(id, person) || "");
     const cut = dom.indexOf("Disclosures while serving");
     ok(cut > 0, `${id}: the section renders the disclosures block`);
     const filingBlock = dom.slice(0, cut);
     const discBlock = dom.slice(cut);
-    const shown = SB.PDXFinance.bandLabel(WAVE[id].rangeOrExact);
+    const read = SB.PDXFinanceLane.wealthRead(id, person);
+    const stamp = read.kind + " on file";
     const r = SB.PDXFinanceLane.read(id);
-    has(visible(discBlock), shown, `${id}: the disclosures block quotes pill 2's figure`);
-    lacks(visible(filingBlock), shown, `${id}: …and the filings block does not`);
+    has(visible(discBlock), stamp, `${id}: the disclosures block reports pill 2's document`);
+    has(discBlock, read.disclosure.formUrl, `${id}: …and links it`);
+    lacks(visible(filingBlock), stamp, `${id}: …and the filings block reports no document`);
+    lacks(visible(filingBlock), `${read.year} · ${read.archive}`,
+      `${id}: …nor the document's year-and-archive stamp, which belongs to the other lane`);
     if (r && r.receiptsFmt) {
       has(visible(filingBlock), r.receiptsFmt, `${id}: the filings block quotes pill 1's figure`);
-      lacks(visible(discBlock), r.receiptsFmt, `${id}: …and the disclosures block does not`);
+      lacks(visible(discBlock), r.receiptsFmt,
+        `${id}: …and pill 1's figure never appears in the disclosure block`);
+      // AND PILL 2'S WORDS ARE NEVER A RECEIPTS TOTAL. "on file" beside an
+      // itemized-receipts figure would read as a claim about the money.
+      lacks(visible(SB.PDXFinanceLane.letterheadChipHtml(id)), "on file",
+        `${id}: pill 2's words appear on the receipts pill`);
     }
     // NO SUM OF THE TWO ANYWHERE IN THE SECTION, and no percentage of one
     // against the other.
     lacks(visible(dom), "combined", `${id}: the section combines no two figures`);
     lacks(visible(dom), "% of", `${id}: …and takes no ratio of them`);
+    // AND THE DOLLAR ROWS ARE STILL IN THIS BOOT'S OTHER TABLE, REACHING NOTHING.
+    if (WAVE[id]) {
+      lacks(visible(dom), SB.PDXFinance.bandLabel(WAVE[id].rangeOrExact),
+        `${id}: a dollar row reached the assembled money section`);
+    }
   }
 
-  // 12g. THE SOURCE OF A ROW IS THE FORM, ASSERTED PRESENT. Every row carries an
-  //      https link to a .gov document, the block renders it as a real anchor,
-  //      and the gate refuses a row that cannot point at one.
-  eq(typeof WF.curationDefects, "function", "PDXFinance.curationDefects() is the gate");
+  // 12g. THE SOURCE OF A DOLLAR ROW IS STILL THE FORM, ASSERTED PRESENT. Nothing
+  //      renders these rows any more, and the gate is kept anyway: it is what
+  //      makes a future transcribed holding a curation decision rather than a
+  //      typing one, and a gate that is deleted while the table survives is how
+  //      an estimate gets in later.
+  eq(typeof WF.curationDefects, "function", "PDXFinance.curationDefects() is the dollar gate");
   eq(WF.curationDefects().join(" | "), "", "the shipped table has no curation defect");
   eq(WF.curationDefects(WAVE).join(" | "), "", "…and neither would the wave's rows");
   for (const id of WAVE_IDS) {
-    const row = WAVE[id];
-    ok(/^https:\/\/[^\/]*\.gov\//.test(row.formUrl), `${id}: the row points at an https .gov document`);
-    const blk = String(WL.wealthBlockHtml(id, WB.CMP_DATA[id]));
-    has(blk, row.formUrl, `${id}: the disclosures block links that document`);
-    has(blk, 'rel="noopener noreferrer"', `${id}: …safely`);
-    has(visible(blk), row.year, `${id}: …and names the form's year`);
-    // AND THE FORM'S OWN WORDING SURVIVES THE COMPRESSION, where there was one.
-    if (WF.bandLabel(row.rangeOrExact) !== row.rangeOrExact) {
-      has(visible(blk), row.rangeOrExact, `${id}: the block prints the ticked box word for word`);
-      has(visible(blk), "Ticked on the form as", `${id}: …and says that is what it is`);
-    }
+    ok(/^https:\/\/[^\/]*\.gov\//.test(WAVE[id].formUrl),
+      `${id}: the row points at an https .gov document`);
   }
   // THE GATE'S OWN RULES, ONE BROKEN ROW AT A TIME. Each fixture is the legal
   // row with exactly one thing wrong with it, so a rule that stopped working
@@ -1485,8 +1660,289 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   eq(WF.curationDefects(WAVE).length, 0, "running the gate twice over a clean table stays clean");
   eq(Object.keys(WAVE).length, WAVE_IDS.length, "…and the table it read is untouched");
 
-  console.log(`   wave · 0 rows shipped · ${LADDER.length} filed categories pinned · ` +
-    `${WAVE_IDS.length} legal rows and 13 illegal ones through the gate`);
+  console.log(`   dollar table · 0 rows shipped, on purpose · ${LADDER.length} filed categories ` +
+    `pinned · ${WAVE_IDS.length} legal rows and 13 illegal ones through the gate · ` +
+    `none of them reaching a pill`);
+}
+
+// ── 13 · the document index, which is the table that can fill ─────────────
+{
+  section("13 · the document index: which form, which year, whose archive, and the gate");
+
+  // WHAT THIS TABLE IS. Three fields per pid — kind, year, formUrl — and not one
+  // of them is a figure. It exists because the dollar table cannot fill: no form
+  // in the slice prints a total, so the only true thing to say about a person who
+  // HAS filed is that the document exists and here it is. That claim the archive
+  // supports, and this section is what it costs to make it.
+  //
+  // Four rows ship. Every one of them is a House annual FD (filing type O) whose
+  // PDF was fetched from the clerk's own host before it was written down. The
+  // pids that were looked for and NOT written are as much a part of the wave:
+  // Utah's disclosure site answers a browser challenge rather than a document,
+  // the Senate's archive needs an accepted-terms session, Curtis's only 2025 row
+  // is an extension rather than an annual, and no OGE URL for Trump was in hand.
+  // Empty stayed the true sentence for those.
+
+  // 13a. THE SHIPPED ROWS, TAKEN APART. Lifted from the module rather than
+  //      retyped, so this is the table a reader actually gets.
+  ok(DOC_PIDS.length >= 4, `the document index ships rows (${DOC_PIDS.length}: ${DOC_PIDS.join(", ")})`);
+  for (const pid of DOC_PIDS) {
+    const row = SHIPPED_DOCS[pid];
+    ok(!!ROSTER[pid], `${pid}: the document row is for somebody on the roster`);
+    ok(row.kind === "FD" || row.kind === "COI", `${pid}: kind is FD or COI ("${row.kind}")`);
+    ok(/^[12][0-9]{3}$/.test(String(row.year)), `${pid}: the year is four digits ("${row.year}")`);
+    ok(/^https:\/\/[^\/?#]*\.gov(?:[:\/?#]|$)/i.test(row.formUrl),
+      `${pid}: the form URL is https and on a .gov host`);
+    eq(Object.keys(row).sort().join(","), "formUrl,kind,year",
+      `${pid}: the row is exactly three fields`);
+    // NO FIGURE AND NO TENURE, IN ANY SPELLING. This table is a document index;
+    // a number in it is the dollar table growing back in the wrong file.
+    for (const bad of ["rangeOrExact", "amount", "total", "netWorth", "value", "assets",
+                       "holdings", "band", "figure", "tenureYears", "years", "yearsInOffice"]) {
+      ok(!(bad in row), `${pid}: the row carries no ${bad}`);
+    }
+    // AND IT POINTS AT THE MEMBER'S OWN DOCUMENT, not the index it was found in.
+    // The clerk publishes a year's filings as a zip and a tab-separated index;
+    // chipping either would put a pill on a person and hand the reader a
+    // directory of twelve hundred other people.
+    ok(!/\.zip(?:[?#]|$)/i.test(row.formUrl), `${pid}: the URL is not a zip index`);
+    ok(!/\.txt(?:[?#]|$)/i.test(row.formUrl), `${pid}: …nor the index text file`);
+    ok(/\/[^\/?#]+\.(?:pdf|aspx)(?:[?#]|$)/i.test(row.formUrl) || row.kind === "COI",
+      `${pid}: …it is a document, not a directory ("${row.formUrl}")`);
+  }
+  // THE SOURCE SLICE ITSELF CARRIES NO ESTIMATE AND NO FIGURE, which is the
+  // assertion that fails when somebody fills a row from a news story.
+  const docSlice = FIN_SRC.slice(FIN_SRC.indexOf("var PDX_FD_DOCUMENTS = {"),
+                                 FIN_SRC.indexOf("var KIND_LABELS"));
+  ok(docSlice.length > 100, "the document table slice was found in the module source");
+  for (const bad of ["forbes", "Forbes", "opensecrets", "OpenSecrets", "WEALTH_DATA",
+                     "rangeOrExact", "netWorth", "estimated", "sltrib", "http://"]) {
+    lacks(docSlice, bad, `no document row came in off an estimate or a story ("${bad}")`);
+  }
+
+  // 13b. THE PILL CONTRACT, ON THE PIDS THAT REALLY HAVE A DOCUMENT. Three
+  //      tokens in one order, and the accessible name saying what the pill is
+  //      not — because a money-coloured chip under a 💰 glyph is read as a figure
+  //      by anybody scanning, and this one is a filing.
+  for (const pid of DOC_PIDS) {
+    const row = SHIPPED_DOCS[pid];
+    const person = ROSTER[pid] || null;
+    const html = L.wealthLetterheadChipMount(pid, person);
+    ok(!!html, `${pid}: the pill is never hidden`);
+    const words = visible(html);
+    const label = aria(html);
+    has(words, `${row.kind} on file · ${row.year} · ${F.archiveFor(row.formUrl)}`,
+      `${pid}: the pill reads: form on file · year · archive`);
+    ok(!/\$/.test(words), `${pid}: …with no dollar sign on it ("${words}")`);
+    const rest = words.split(String(row.year)).join(" ")
+      .replace(/\b\d+ yrs? in office\b/g, " ")
+      .replace(/\bunder 1 yr in office\b/g, " ");
+    ok(!/\d/.test(rest), `${pid}: …and no digit but the form year ("${rest.trim()}")`);
+    // THE ACCESSIBLE NAME STATES WHAT IT IS AND WHAT IT IS NOT.
+    has(label, "on file", `${pid}: the accessible name says a document is on file`);
+    has(label, "not a net worth", `${pid}: …that it is not a net worth`);
+    has(label, "not a band total", `${pid}: …not a band total`);
+    has(label, "not a dollar figure", `${pid}: …and not a dollar figure of any kind`);
+    ok(!/\$/.test(label), `${pid}: …and carries no dollar sign itself`);
+    for (const bad of ["$0", "zero", "net worth of", "wealthy", "rich", "estimated"]) {
+      lacks(label.toLowerCase(), bad, `${pid}: the accessible name does not say "${bad}"`);
+    }
+  }
+  // AND THE PILL NEVER GOES MISSING ON ANY PROFILE, filled or empty — a hidden
+  // pill is the one state that reads as a finding about the person.
+  {
+    const missing = Object.keys(ROSTER).filter((id) =>
+      !L.wealthLetterheadChipMount(id, ROSTER[id] || null));
+    eq(missing.length, 0, `the disclosure pill is never hidden (${missing.slice(0, 6).join(", ")})`);
+  }
+
+  // 13c. THE ARCHIVE COMES OFF THE URL HOST AND IS NEVER TYPED BY HAND. A pill
+  //      that names an authority its link does not go to is the provenance bug
+  //      this lane exists to prevent.
+  eq(typeof F.archiveFor, "function", "PDXFinance.archiveFor(url) is published");
+  for (const [url, expected] of [
+    ["https://disclosures-clerk.house.gov/public_disc/financial-pdfs/2025/1.pdf", "House Clerk"],
+    ["https://efdsearch.senate.gov/search/view/annual/x/", "Senate EFD"],
+    ["https://disclosures.utah.gov/x", "Utah"],
+    ["https://extapps2.oge.gov/201/Presiden.nsf/x", "OGE"],
+  ]) {
+    eq(F.archiveFor(url), expected, `the host of ${url.slice(8, 40)}… is labelled "${expected}"`);
+  }
+  // A .gov HOST NOBODY MAPPED IS LABELLED WITH THE HOST ITSELF rather than with
+  // a guess at which office runs it.
+  eq(F.archiveFor("https://finance.example.gov/forms/1.pdf"), "finance.example.gov",
+    "an unmapped .gov host is named as the host it is");
+  eq(F.archiveFor(""), "", "no URL produces no archive label");
+  for (const pid of DOC_PIDS) {
+    const row = SHIPPED_DOCS[pid];
+    const read = L.wealthRead(pid, ROSTER[pid] || null);
+    eq(read.archive, F.archiveFor(row.formUrl),
+      `${pid}: the lane's archive label is the one the URL's host produces`);
+    ok(row.formUrl.indexOf(".gov") > 0, `${pid}: …and that host is a .gov host`);
+  }
+
+  // 13d. THE LONG BLOCK: the same form, the same year, the same archive, the
+  //      document as an anchor, and one sentence about why none of it is a total.
+  for (const pid of DOC_PIDS) {
+    const row = SHIPPED_DOCS[pid];
+    const blk = L.wealthBlockHtml(pid, ROSTER[pid] || { name: pid });
+    const vis = visible(blk);
+    has(vis, "Disclosures while serving", `${pid}: the block keeps its heading`);
+    has(vis, `${row.kind} on file`, `${pid}: …and reports the same form as the pill`);
+    has(vis, String(row.year), `${pid}: …with the form's year`);
+    has(vis, F.archiveFor(row.formUrl), `${pid}: …and the archive that published it`);
+    has(blk, `href="${row.formUrl}"`, `${pid}: …and renders the document as an anchor`);
+    has(blk, 'rel="noopener noreferrer"', `${pid}: …safely`);
+    has(blk, 'target="_blank"', `${pid}: …in a new tab, off the person file`);
+    // THE SENTENCE, VERBATIM. Both halves of it: what each form reports, and
+    // that PolitiDex will not turn either into a figure.
+    has(vis, "A Utah conflict-of-interest statement reports sources and holdings, not a " +
+             "dollar total; a federal FD reports per-asset categories, not a net worth.",
+      `${pid}: the block says what these forms report instead of a total`);
+    has(vis, "PolitiDex will not add those boxes into a figure.",
+      `${pid}: …and that we will not add them up`);
+    // NO HOLDINGS INVENTED. Nothing was transcribed in this pass, so the block
+    // stops at the document. A list here would be lines nobody read off a form.
+    for (const bad of ["<li", "<table", "Holdings", "Assets", "Reported assets", "Sources of income"]) {
+      lacks(blk, bad, `${pid}: the block invents no transcribed lines ("${bad}")`);
+    }
+    ok(!/\$/.test(vis.slice(0, vis.indexOf("Coverage") === -1 ? vis.length : vis.indexOf("Coverage"))),
+      `${pid}: …and prints no dollar figure of its own`);
+    // AND NO THIRD SURFACE GREW BACK IN IT.
+    for (const bad of ["<canvas", "transparency", "TRANSPARENCY", "% change", "pdx-fund-cmp",
+                       "out of 100", "grade"]) {
+      lacks(blk, bad, `${pid}: the disclosures block carries no ${bad}`);
+    }
+  }
+  // PILL 1'S FIGURE IS NOT IN THERE EITHER, on a pid that has both.
+  for (const pid of DOC_PIDS) {
+    const r = L.read(pid);
+    if (!r || !r.receiptsFmt) continue;
+    lacks(visible(L.wealthBlockHtml(pid, ROSTER[pid] || { name: pid })), r.receiptsFmt,
+      `${pid}: pill 1's figure appears in the disclosure block`);
+    lacks(visible(L.letterheadChipHtml(pid)), "on file",
+      `${pid}: …and pill 2's words appear on the receipts pill`);
+  }
+
+  // 13e. THE DOCUMENT GATE, ONE BROKEN ROW AT A TIME. Each fixture is the legal
+  //      row with exactly one thing wrong with it, so a rule that stopped
+  //      working fails here by name instead of quietly letting a row in.
+  eq(typeof F.documentDefects, "function", "PDXFinance.documentDefects() is the document gate");
+  eq(F.documentDefects().join(" | "), "", "the shipped document index has no defect");
+  eq(F.documentDefects(DOC_FIXTURE).join(" | "), "", "…and neither would the fixture rows");
+  const LEGAL_DOC = { kind: "FD", year: 2025,
+                      formUrl: "https://disclosures-clerk.house.gov/public_disc/financial-pdfs/2025/1.pdf" };
+  const brokeDoc = (patch) => {
+    const row = Object.assign({}, LEGAL_DOC, patch);
+    for (const k of Object.keys(patch)) if (patch[k] === undefined) delete row[k];
+    return F.documentDefects({ x: row }).join(" | ");
+  };
+  eq(F.documentDefects({ x: LEGAL_DOC }).join(" | "), "", "a legal document row passes the gate");
+  eq(F.documentDefects({ x: Object.assign({}, LEGAL_DOC, { kind: "COI" }) }).join(" | "), "",
+    "…and so does a Utah conflict-of-interest row");
+  has(brokeDoc({ kind: undefined }), "kind", "a row with no kind is a defect");
+  has(brokeDoc({ kind: "NET" }), "kind", "…as is a kind that is not FD or COI");
+  has(brokeDoc({ kind: "FD annual report" }), "kind", "…or a free-text description of one");
+  has(brokeDoc({ year: undefined }), "four-digit", "a row with no form year is a defect");
+  has(brokeDoc({ year: "25" }), "four-digit", "…as is a half-written one");
+  has(brokeDoc({ year: "2025-06-01" }), "four-digit", "…or a whole filing date");
+  has(brokeDoc({ formUrl: undefined }), "formUrl", "a row with no document URL is a defect");
+  has(brokeDoc({ formUrl: "" }), "formUrl", "…as is an empty one");
+  has(brokeDoc({ formUrl: "https://www.forbes.com/profile/example/" }), ".gov",
+    "…as is a net-worth estimate standing in for a form");
+  has(brokeDoc({ formUrl: "https://www.opensecrets.org/personal-finances/example" }), ".gov",
+    "…as is an outside aggregator's page");
+  has(brokeDoc({ formUrl: "http://disclosures-clerk.house.gov/1.pdf" }), ".gov",
+    "…as is an unencrypted link");
+  has(brokeDoc({ formUrl: "https://www.sltrib.com/news/politics/example/" }), ".gov",
+    "…as is a news story about the filing");
+  has(brokeDoc({ rangeOrExact: "$1–5M" }), "figure", "a figure on a document row is a defect");
+  has(brokeDoc({ netWorth: "$5M" }), "figure", "…in any spelling");
+  has(brokeDoc({ assets: [] }), "figure", "…including a holdings array");
+  has(brokeDoc({ tenureYears: 10 }), "tenure comes only from _pdxTenure",
+    "a row carrying years of service is a defect — tenure has one owner");
+  has(brokeDoc({ years: 10 }), "tenure comes only from _pdxTenure", "…in any spelling");
+  has(brokeDoc({ docId: "10074823" }), "unrecognised field docId",
+    "a fourth field is a defect, whatever it is called");
+  has(brokeDoc({ source: "Deseret News" }), "unrecognised field source",
+    "…including a second provenance beside the document");
+  eq(F.documentDefects({ x: null }).join(" | "), "x: row is not an object",
+    "and a row that is not a row says so");
+  // A DEFECT NAMES THE PID AND THE RULE, AND ECHOES NEITHER A FIGURE NOR A
+  // SESSION TOKEN. These lists are read in a terminal by somebody who has not
+  // opened the form yet, and some archives carry a session id in the query
+  // string: host and path are enough to find the row again.
+  for (const d of F.documentDefects({ x: Object.assign({}, LEGAL_DOC, { year: "25" }) })) {
+    has(d, "x", "a defect names the pid it belongs to");
+    has(d, "year", "…and the rule that was broken");
+  }
+  {
+    const tokened = "http://efdsearch.senate.gov/search/view/annual/x/?ROLLUP_TOKEN=abc123secret&s=1";
+    const out = F.documentDefects({ x: Object.assign({}, LEGAL_DOC, { formUrl: tokened }) }).join(" | ");
+    has(out, "efdsearch.senate.gov", "a URL defect names the host so the row can be found");
+    lacks(out, "ROLLUP_TOKEN", "…and does not echo the query string");
+    lacks(out, "abc123secret", "…or anything carried in it");
+  }
+  for (const d of F.documentDefects({ x: Object.assign({}, LEGAL_DOC, { rangeOrExact: "$9,999,999" }) })) {
+    lacks(d, "9,999,999", "a defect message never echoes a figure");
+  }
+  // RUNNING THE GATE IS A READ.
+  eq(F.documentDefects(SHIPPED_DOCS).length, 0, "running the gate over the shipped rows stays clean");
+  eq(Object.keys(SHIPPED_DOCS).length, DOC_PIDS.length, "…and the table it read is untouched");
+
+  // 13f. THE WALLS, THE SHELL AND THE WRITTEN RECORD.
+  eq(F.scored, false, "PDXFinance still declares scored: false");
+  for (const k of ["directionMatch", "wordVsAction", "formalPatternTier", "publicationFloor",
+                   "ballotSort", "anyCrossPersonRanking"]) {
+    ok((F.NEVER_FEEDS || []).indexOf(k) >= 0, `…and NEVER_FEEDS still names ${k}`);
+  }
+  // THE DOCUMENT INDEX IS NOT WIRED INTO /money. That page is an estimate board
+  // with a sort and a percent change on it; a filed-document claim rendered
+  // beside one would be read as the same kind of fact.
+  const MON = R("money.html");
+  for (const bad of ["PDX_FD_DOCUMENTS", "documentDefects", 'src="/pdx-finance.js"',
+                     "on file ·"]) {
+    lacks(MON, bad, `/money does not carry the document index ("${bad}")`);
+  }
+  // THE SHELL SHIPS THE NEW TABLE, and says what changed in it.
+  const SW13 = R("sw.js");
+  const ver13 = (SW13.match(/const CACHE_VERSION = '([^']+)'/) || [])[1];
+  ok(ver13 && ver13 !== "v223", `the cache version moved past v223 for the document index (${ver13})`);
+  // THIS VERSION'S ENTRY ALONE. Sliced from its own heading to the next one, so
+  // a claim satisfied by an older entry further down does not count.
+  const entryAt = SW13.indexOf(`// ${ver13} -`);
+  ok(entryAt > 0, `the changelog above the constant has an entry for ${ver13}`);
+  // WHERE THIS ENTRY ENDS. The newest entry sits directly above the constant,
+  // so its end is the constant — unless a later numbered heading exists, in
+  // which case that heading is the end. Matching a bare "// v" would stop at
+  // the first prose comment further down the worker that happens to start with
+  // a word beginning in v, and measure 700 lines of unrelated file manifest.
+  const nextHead = SW13.slice(entryAt + 1).match(/\n\/\/ v\d+ - /);
+  const constAt = SW13.indexOf("const CACHE_VERSION");
+  const endAt = nextHead ? entryAt + 1 + nextHead.index : constAt;
+  const entryText = SW13.slice(entryAt, Math.min(endAt, constAt));
+  ok(entryText.split("\n").length <= 48,
+    `the ${ver13} entry stays inside the shell's changelog budget (${entryText.split("\n").length} lines)`);
+  for (const pid of DOC_PIDS) {
+    has(entryText, pid, `the changelog entry lists the ${pid} document row`);
+  }
+  has(entryText.toLowerCase(), "zero dollar rows", "…and says no dollar rows were added");
+  for (const store of ["location", "district", "team", "stance"]) {
+    has(entryText, store, `…and that the ${store} store is untouched`);
+  }
+  has(entryText, "voter-hub-location.js", "…and names the tenure owner as unchanged");
+  // AND THE DOCTRINE IS WRITTEN DOWN.
+  const FI13 = R("FINANCE_INTEGRITY.md");
+  has(FI13, "document chip", "FINANCE_INTEGRITY.md says pill 2 is a document chip");
+  has(FI13, "PDX_FD_DOCUMENTS", "…and names the table that fills");
+  has(FI13, "on purpose", "…and that the dollar table stays empty on purpose");
+  for (const pid of DOC_PIDS) {
+    has(FI13, pid, `…and records the ${pid} row`);
+  }
+
+  console.log(`   documents · ${DOC_PIDS.length} rows shipped (${DOC_PIDS.join(", ")}) · ` +
+    `${Object.keys(ROSTER).length - DOC_PIDS.length} profiles in the empty state · ` +
+    `21 illegal rows through the document gate`);
 }
 
 // ── report ───────────────────────────────────────────────────────────────────

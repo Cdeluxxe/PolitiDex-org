@@ -1028,30 +1028,36 @@
   // Inventing a "partial disclosure" state would mean characterising the
   // completeness of somebody's financial disclosure from the absence of our own
   // transcription, which is a finding about a person made out of our own gap.
-  function formLabel() {
+  // WHICH FORM THIS IS, AND WHO PUBLISHED IT. Both come out of pdx-finance.js:
+  // the kind off the row through a two-entry label lookup, the archive off the
+  // form URL's own host. Neither is typed at a call site and neither is inferred
+  // from the office, so the words on the pill and the link under them cannot
+  // disagree — a chip reading "House Clerk" over a link to somewhere else is
+  // worse than a chip that names nobody.
+  function formLabel(kind) {
     var F = W.PDXFinance;
-    var lbl = (F && F.FORM_LABEL) ? String(F.FORM_LABEL) : 'FD';
-    return lbl;
-  }
-  // THE FIGURE AS IT GOES ON A SURFACE, WHICH IS STILL THE FIGURE AS FILED.
-  // A federal disclosure reports a ticked category, and the category's own
-  // language — "$1,000,001 - $5,000,000" — is what the row stores. pdx-finance.js
-  // owns the hand-written lookup that shortens exactly those printed categories
-  // to pill width ("$1–5M"), one literal pair per box on the form, and this asks
-  // it rather than carrying a second ladder: two ladders is two answers to "what
-  // does this band say", one on the pill and one in the block.
-  //   IT IS A LOOKUP MISS, NOT A FORMATTER FALLBACK. Anything that is not a
-  // printed category — an exact filed figure, a state's own phrasing — is not a
-  // key, comes back verbatim, and is printed verbatim. Where the archive is not
-  // loaded at all, the string is used as it arrived. No branch here can produce a
-  // figure that the row did not contain.
-  function bandFigure(figure) {
-    var raw = (figure == null) ? '' : String(figure);
-    var F = W.PDXFinance;
-    if (F && typeof F.bandLabel === 'function') {
-      try { var out = F.bandLabel(raw); if (out) return String(out); } catch (e) {}
+    if (F && typeof F.kindLabel === 'function') {
+      try { var k = F.kindLabel(kind); if (k) return String(k); } catch (e) {}
     }
-    return raw;
+    if (kind) return String(kind);
+    return (F && F.FORM_LABEL) ? String(F.FORM_LABEL) : 'FD';
+  }
+  function archiveLabel(url) {
+    var F = W.PDXFinance;
+    if (F && typeof F.archiveFor === 'function') {
+      try { var a = F.archiveFor(url); if (a) return String(a); } catch (e) {}
+    }
+    return '';
+  }
+  // WHAT THE FORM REPORTS, IN ONE SENTENCE, FOR THE LONG BLOCK ONLY. Neither
+  // form carries a total, and the block says which boxes it does carry instead
+  // of leaving a reader to assume a figure was withheld.
+  function formSentence(kind) {
+    var F = W.PDXFinance;
+    if (F && typeof F.kindSentence === 'function') {
+      try { var t = F.kindSentence(kind); if (t) return String(t); } catch (e) {}
+    }
+    return '';
   }
   function wealthCoverage() {
     var F = W.PDXFinance;
@@ -1073,22 +1079,21 @@
       try { w = F.wealth(pid, person); } catch (e) { w = null; }
     }
     var cov = wealthCoverage();
-    // A row with no figure in it is not a row. Re-checked here as well as in
-    // pdx-finance.js because this is the last gate before a pill gets printed, and
-    // an object whose shape is trusted over its contents is how "$0 disclosed"
-    // reaches a letterhead.
-    if (!w || !w.rangeOrExact) {
+    // A row that does not name a form or link one is not a row. Re-checked here
+    // as well as in pdx-finance.js because this is the last gate before a pill
+    // gets printed, and an object whose shape is trusted over its contents is how
+    // a chip comes to announce a document that nobody can open.
+    if (!w || !w.kind) {
       return { state: 'empty', pid: pid || null, sectionId: WEALTH_SECTION_ID,
-               disclosure: null, figure: '', asFiled: '', coverage: cov };
+               disclosure: null, kind: '', year: '', archive: '', coverage: cov };
     }
-    // `figure` is what every surface prints; `asFiled` is what the form printed.
-    // They are the same string unless the row carries a ticked federal category,
-    // and the compression happens ONCE, here, so the pill, its accessible name
-    // and the disclosures block cannot end up quoting one archive three ways.
-    // `disclosure` is still the archive's own read, untouched.
+    // ONE READ, THREE SURFACES. `kind`, `year` and `archive` are resolved once
+    // here — the archive off the form URL's host — so the pill, the pill's
+    // accessible name and the long block cannot describe one document three
+    // ways. `disclosure` is the archive's own read, untouched.
     return { state: 'file', pid: pid, sectionId: WEALTH_SECTION_ID,
-             disclosure: w, figure: bandFigure(w.rangeOrExact),
-             asFiled: String(w.rangeOrExact), coverage: cov };
+             disclosure: w, kind: formLabel(w.kind), year: String(w.year || ''),
+             archive: archiveLabel(w.formUrl), coverage: cov };
   }
 
   // Tenure in the width of a pill. Whole years, off the person file's own sworn
@@ -1105,57 +1110,72 @@
     var segs = [];
     if (wr.state === 'file') {
       var w = wr.disclosure;
-      // THE FIGURE AS PUBLISHED, WITH THE VERB ON IT. `rangeOrExact` arrives a
-      // string and is concatenated, never parsed: a chip carrying "$1–5M" prints
-      // "$1–5M disclosed" and there is no branch anywhere in this function that
-      // could reduce it to one number. The verb is "disclosed" — not "worth", not
-      // "earned", not "made". It describes the act of filing, which is the only
-      // thing the document is evidence of.
-      segs.push({ fig: true, text: (wr.figure || w.rangeOrExact) + ' disclosed' });
-      // THE SPAN THE FIGURE SITS IN. A disclosed range with no tenure beside it
-      // invites the reading that the office produced the money. With the years
-      // printed, the reader has both facts and neither is a claim about the other
-      // — this lane draws no line between them, computes no rate, and the section
-      // below says so in a sentence.
+      // WHICH FORM IS ON FILE. "FD on file" is a claim about PAPERWORK — a named
+      // document, in an archive, with a link under it — and it is the only claim
+      // this archive can support. There is no figure in this segment because
+      // there is no figure on the form: a federal FD reports a category of value
+      // per asset and a Utah conflict-of-interest statement reports sources and
+      // holdings, and neither carries a total. A pill that waited for one said
+      // nothing about people who had in fact filed.
+      segs.push({ fig: true, text: wr.kind + ' on file' });
+      // WHICH YEAR, AND WHOSE ARCHIVE — in that order, immediately after the
+      // form, because those three tokens ARE the pill's contract: what is on
+      // file, for when, held by whom. Same provenance discipline as chip 1: the
+      // year is the form's own, and the archive is read off the form URL's host,
+      // so the authority named on the pill is the authority the link goes to.
+      if (wr.year) segs.push({ fig: false, text: wr.year });
+      if (wr.archive) segs.push({ fig: false, text: wr.archive });
+      // THE SPAN THE FILING SITS IN, LAST, AND ONLY WHERE THIS DOCUMENT ALREADY
+      // KNOWS IT. Tenure has one owner — window._pdxTenure — and it is not
+      // loaded on every document that renders a letterhead. Where it is absent
+      // the segment is absent: no module is pulled in to force a span, and no
+      // years are stored beside the row to stand in for it. It trails the three
+      // contract tokens rather than interrupting them.
       var ten = tenureText(w.tenureYears);
       if (ten) segs.push({ fig: false, text: ten });
-      // WHICH FORM, WHICH YEAR. Same provenance discipline as chip 1's archive
-      // segment: a figure a reader cannot trace to a document is an estimate.
-      var form = (w.year ? w.year + ' ' : '') + formLabel();
-      segs.push({ fig: false, text: form });
     } else {
       // Built to chip 1's grammar of absence on purpose — "on hand", not "yet".
       // See the comment in chipSegments: "yet" promises a queue that does not
-      // exist, and for personal disclosures it would be promising a transcription
-      // wave that has not been scheduled. "In-office wealth" rather than plain
-      // "wealth" because the gap is specifically a missing FORM, filed while
-      // serving; we are not holding an estimate of what anybody owns.
+      // exist. "In-office wealth file" rather than plain "wealth" because the gap
+      // is specifically a missing FORM, filed while serving; we are not holding
+      // an estimate of what anybody owns. NO DIGIT AND NO DOLLAR SIGN IN IT: a
+      // zero here would be read as a disclosure of zero.
       segs.push({ fig: true, text: 'No in-office wealth file on hand' });
     }
     return segs;
   }
 
+  // THE ACCESSIBLE NAME SAYS WHAT THE PILL IS NOT. A money-coloured chip under a
+  // 💰 glyph will be read as a figure by anybody scanning, so the longer copy —
+  // the copy a screen-reader user actually receives in full — states in words
+  // that this is a filed form, that it is not a net worth, not a band total and
+  // not a zero, and that an empty one is our missing data rather than a report
+  // that somebody did not file.
   function wealthChipLabel(wr) {
     var cov = wr.coverage || {};
     if (wr.state === 'file') {
       var w = wr.disclosure;
       var ten = tenureText(w.tenureYears);
-      var filedWords = (wr.asFiled && wr.asFiled !== wr.figure)
-        ? ' The form\u2019s own wording for that box is ' + wr.asFiled + '. ' : ' ';
-      return (wr.figure || w.rangeOrExact) + ' in assets disclosed on ' +
-        (w.year ? w.year + "'s " : '') + 'personal financial disclosure form' +
-        (ten ? ', filed while serving ' + ten : '') + '.' + filedWords +
-        'Reported exactly as published: where the form states a range, the range ' +
-        'is the disclosure and is not narrowed to a single figure here. ' +
-        'This is personal wealth declared while in office, not campaign money, ' +
-        'and it is not added to the receipts figure beside it. ' +
-        'Open the disclosures block on this file for the form itself.';
+      var arc = wr.archive ? ' published by ' + wr.archive : '';
+      return (wr.kind === 'COI'
+        ? 'A Utah conflict-of-interest statement is on file'
+        : 'A federal annual financial disclosure is on file') +
+        (wr.year ? ' for ' + wr.year : '') + arc +
+        (ten ? ', filed while serving ' + ten : '') + '. ' +
+        'This says a document exists and can be read — it is not a net worth, ' +
+        'not a band total, and not a dollar figure of any kind. ' +
+        (formSentence(wr.kind) || '') +
+        ' PolitiDex does not add those boxes together into a figure. ' +
+        'This is also not campaign money and is not added to the receipts ' +
+        'figure beside it. Open the disclosures block on this file for the form ' +
+        'itself.';
     }
     return 'No in-office wealth file on hand for this person. ' +
       (cov.sentence || '') +
-      ' A blank here is missing data on our side, not a disclosure of zero. ' +
-      'Open the disclosures block on this file, which names the form this figure ' +
-      'would have come from.';
+      ' A blank here is missing data on our side: it is not a disclosure of zero, ' +
+      'it is not a net worth of nothing, and it is not a report that this person ' +
+      'failed to file. Open the disclosures block on this file, which names the ' +
+      'form this would have come from.';
   }
 
   function wealthLetterheadChipHtml(pid, person) {
@@ -1203,41 +1223,51 @@
     if (wr.state === 'file') {
       var w = wr.disclosure;
       var ten = tenureText(w.tenureYears);
+      // THE DOCUMENT ITSELF, AS A LINK A READER CAN OPEN, labelled with the same
+      // year and the same archive the pill named. The gate on the table refuses a
+      // row with no link, so the no-link branch is a defence rather than a state
+      // a shipped row can be in — and it says so instead of rendering a dead
+      // anchor that looks live.
+      var stamp = (w.year ? w.year + ' ' : '') + wr.kind +
+        (wr.archive ? ' \u00b7 ' + wr.archive : '');
       var link = w.formUrl
         ? '<a class="pdx-money-block-src" href="' + attr(w.formUrl) + '" target="_blank" rel="noopener noreferrer">' +
-            '\ud83d\udcc4 ' + esc((w.year ? w.year + ' ' : '') + formLabel()) + ' \u2197</a>'
-        : '<span class="pdx-money-block-src is-none">' +
-            esc((w.year ? w.year + ' ' : '') + formLabel()) + ' \u00b7 no link on file</span>';
-      // THE SAME STRING THE PILL CARRIES — one read, one compression, quoted
-      // twice. And where that string is a shortened federal category, the box the
-      // filer actually ticked is printed under it word for word, because the
-      // short form is a display convenience and the long form is the document.
-      var filedLine = (wr.asFiled && wr.asFiled !== wr.figure)
-        ? '<p class="pdx-money-block-s pdx-money-block-filed">Ticked on the form as ' +
-            esc(wr.asFiled) + ' \u2014 the category is the disclosure; the shorter ' +
-            'form above is the same band written to fit a pill, and no figure ' +
-            'inside it is narrowed, averaged or added up.</p>'
-        : '';
+            '\ud83d\udcc4 ' + esc(stamp) + ' \u2197</a>'
+        : '<span class="pdx-money-block-src is-none">' + esc(stamp) + ' \u00b7 no link on file</span>';
       body =
-        '<div class="pdx-money-block-fig">' + esc(wr.figure || w.rangeOrExact) + ' <span>disclosed</span></div>' +
-        filedLine +
+        // THE SAME WORDS THE PILL CARRIES. One read, quoted twice, so the door
+        // and the room behind it cannot describe one document two ways.
+        '<div class="pdx-money-block-fig">' + esc(wr.kind) + ' <span>on file</span></div>' +
         '<p class="pdx-money-block-s">' +
-          'As published on ' + esc(first) + "'s own personal financial disclosure" +
-          (w.year ? ' for ' + esc(w.year) : '') + (ten ? ', filed while serving ' + esc(ten) : '') + '. ' +
-          'Where the form states a range, the range is the disclosure — PolitiDex does not ' +
-          'narrow it to a single figure. This is personal wealth declared while in office: ' +
-          'it is a different fact from the campaign receipts above it, over a different span, ' +
-          'and the two are never added together or divided into one another.' +
+          'PolitiDex holds ' + esc(first) + "'s own in-office disclosure document" +
+          (wr.year ? ' for ' + esc(wr.year) : '') +
+          (wr.archive ? ', as published by ' + esc(wr.archive) : '') +
+          (ten ? ', filed while serving ' + esc(ten) : '') + '. ' +
+          // THE SENTENCE THE WHOLE PASS TURNS ON. A reader who has just been told
+          // a disclosure exists will ask what it says, and the honest answer is
+          // that neither form states a total. Saying so here is what stops the
+          // next person building a figure out of the boxes.
+          'A Utah conflict-of-interest statement reports sources and holdings, not a dollar ' +
+          'total; a federal FD reports per-asset categories, not a net worth. PolitiDex will ' +
+          'not add those boxes into a figure. ' +
+          // ONE SENTENCE ABOUT WHAT THE FORM REPORTS, AND IT IS THE ONE ABOVE.
+          // The per-kind sentence pdx-finance.js also publishes is for the
+          // accessible name, where the general one is not read out; printing both
+          // here would say the same thing twice to a reader who can see them.
+          'This is a filed form, not campaign money: it is a different fact from the receipts ' +
+          'above it, over a different span, and the two are never added together or divided ' +
+          'into one another.' +
         '</p>' + link;
     } else {
       body =
         '<div class="pdx-money-block-fig is-none">No in-office wealth file on hand</div>' +
         '<p class="pdx-money-block-s">' +
-          'PolitiDex holds no personal financial-disclosure form for ' + esc(first) + '. ' +
-          'That is missing data on our side — it is not a disclosure of zero, it is not a ' +
-          'finding about ' + esc(first) + ', and nothing here reads it as one. Transcribing ' +
-          'these forms is hand work that has not been done yet for this roster; where a form ' +
-          'exists, this block will quote its range or exact figure exactly as filed.' +
+          'PolitiDex holds no in-office disclosure document for ' + esc(first) + '. ' +
+          'That is missing data on our side \u2014 it is not a disclosure of zero, it is not a ' +
+          'finding about ' + esc(first) + ', it is not a report that ' + esc(first) + ' did not ' +
+          'file, and nothing here reads it as one. Collecting these forms is hand work that ' +
+          'has not been done yet for most of this roster; where the document exists, this ' +
+          'block names it, dates it and links it.' +
         '</p>';
     }
     return '<span id="' + WEALTH_SECTION_ID + '" class="pdx-nav-anchor" aria-hidden="true"></span>' +

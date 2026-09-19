@@ -9,8 +9,9 @@
        PDXFinance.filing(pid)   what a CAMPAIGN RAISED. FEC and state disclosure
                                 filings. Owned by /ftm-data.js, composed by
                                 finance-lane.js.
-       PDXFinance.wealth(pid)   what a PERSON DISCLOSED WHILE SERVING. Personal
-                                financial-disclosure forms. Owned here.
+       PDXFinance.wealth(pid)   WHETHER AN IN-OFFICE DISCLOSURE DOCUMENT IS ON
+                                FILE, which form it is, its year and its link.
+                                Owned here.
 
    Before this file the two lookups had no shared door: the campaign filing had
    two seams inside finance-lane.js and personal wealth had no per-person
@@ -19,6 +20,36 @@
    to print both had to reach into two private closures and invent the join. It
    is one door now, with two named methods, and the join it does NOT offer is
    the important part.
+
+   ── THE SECOND PILL IS A DOCUMENT CHIP, NOT A DOLLAR CHIP ──────────────────
+
+   IT STOPPED WAITING FOR A TOTAL THE FORMS DO NOT PRINT. The second pill was
+   built to carry a filed figure, and the first curation wave established that
+   for the people this site carries there is no such figure to carry: Utah's own
+   in-office statement (Utah Code 20A-11-1603 / 1604) reports employers,
+   entities, income sources and holdings over thresholds — what, never how much —
+   and a House or Senate FD reports a CATEGORY OF VALUE per asset with no
+   aggregate line anywhere on it. Waiting for a dollar total meant a pill that
+   could only ever say nothing, about people who had in fact filed.
+
+   So the pill now reports the thing the document actually establishes:
+
+       FD on file · 2025 · House Clerk          a federal annual disclosure
+       COI on file · 2024 · Utah                a Utah conflict-of-interest
+                                                statement
+       No in-office wealth file on hand         nothing on file here
+
+   That is a claim about PAPERWORK, and it is the only claim the archive can
+   support. It is not a net worth, not a band total, not "$0", and not a finding
+   that anybody failed to file — and the accessible name says each of those out
+   loud, because a money-coloured pill under a 💰 glyph will otherwise be read as
+   a figure by a reader who is scanning.
+
+   TWO TABLES, AND THE DOLLAR ONE IS STILL EMPTY. PDX_FD_DISCLOSURES holds dollar
+   rows and holds none; PDX_FD_DOCUMENTS holds "a document exists" rows and is
+   the table that can actually fill. They are separate objects rather than one
+   table with optional fields, because a row shaped like a figure is a row
+   somebody will eventually print as one.
 
    ── THE WALL, WHICH IS THE WHOLE REASON THE HELPERS ARE SEPARATE ───────────
 
@@ -104,15 +135,28 @@
    in a pill without being parsed, and the curation gate, so a row that cannot
    point at a form cannot be typed in later without a test going red.
 
-   ROW SHAPE, for the wave that fills it:
+   ROW SHAPE, dollar table, for a wave that ever finds a filed total:
 
-       'mike_lee': {
+       'someone': {
          rangeOrExact: '$1–5M',                    // AS PUBLISHED. String. Band
                                                    // or exact figure, never a
                                                    // midpoint, never computed.
          year: '2024',                             // the form's own year
          formUrl: 'https://efdsearch.senate.gov/…' // the form a reader can open
        }
+
+   ROW SHAPE, document table, which is what this pass fills:
+
+       'bmoore': {
+         kind: 'FD',                               // 'FD' or 'COI'. WHICH FORM,
+                                                   // not how much.
+         year: 2025,                               // the form's own year
+         formUrl: 'https://disclosures-clerk.house.gov/…/10074823.pdf'
+       }
+
+   THREE FIELDS. No figure, no band, no tenure, no assets array. If a later wave
+   transcribes holdings, they are LINES AS FILED in the long block only — never
+   summed, never averaged, and never copied onto the pill.
 
    `tenureYears` is NOT stored: it is read off the person file's own termStart /
    termEnd every time, through window._pdxTenure and through nothing else, so the
@@ -136,6 +180,103 @@
   // carry is a federal or state annual financial disclosure and a label that
   // varies per row is a label a reader has to learn.
   var FORM_LABEL = 'FD';
+
+  // ── THE DOCUMENT INDEX: WHICH FORM IS ON FILE, AND WHERE TO READ IT ───────
+  // Keyed by the person-file pid. THREE FIELDS AND NO FOURTH: which form, its
+  // own year, and the document itself on the archive that published it. No
+  // figure, no band, no tenure, no assets array — a field shaped like money is a
+  // field somebody prints as money.
+  //
+  // WHAT IS IN HERE AND WHY ONLY THIS. Every row was resolved through the House
+  // Clerk's own yearly index (the year's filing list, member to document id) and
+  // then fetched: each URL below returned a real PDF from
+  // disclosures-clerk.house.gov, and each is that member's ANNUAL in-office
+  // report rather than a candidate report, an extension or a periodic
+  // transaction notice. Nothing here was typed from a search page, a news story
+  // or a guessed id.
+  //
+  // WHAT IS DELIBERATELY MISSING, because a URL we could not open is not a row:
+  //   · Senators Lee and Curtis — Senate disclosures sit behind efdsearch's
+  //     accept-terms session, so this pass holds no document URL for either.
+  //     (Curtis's one row in the House index is not an annual in-office report.)
+  //   · Governor Cox, Sen. John Johnson (SD 3), Rep. Jason Thompson (HD 3) —
+  //     Utah's disclosure site answers a browser challenge rather than a
+  //     document URL, so there is no state COI link to point at yet.
+  //   · Trump — no OGE document URL in hand this pass. An unsourced row on the
+  //     person a reader is most likely to arrive at with a number already in
+  //     mind would be the most expensive row on the site.
+  // Each of those pids keeps the empty pill, which is the true sentence for them
+  // today: we are holding no document, and that is a fact about this archive.
+  var PDX_FD_DOCUMENTS = {
+    bmoore:  { kind: 'FD', year: 2025,
+               formUrl: 'https://disclosures-clerk.house.gov/public_disc/financial-pdfs/2025/10074823.pdf' },
+    maloy:   { kind: 'FD', year: 2025,
+               formUrl: 'https://disclosures-clerk.house.gov/public_disc/financial-pdfs/2025/10081600.pdf' },
+    kennedy: { kind: 'FD', year: 2025,
+               formUrl: 'https://disclosures-clerk.house.gov/public_disc/financial-pdfs/2025/10074834.pdf' },
+    owens:   { kind: 'FD', year: 2025,
+               formUrl: 'https://disclosures-clerk.house.gov/public_disc/financial-pdfs/2025/9116274.pdf' }
+  };
+
+  // WHICH FORM, AS A LABEL SHORT ENOUGH FOR A PILL. Two kinds, two literal
+  // labels, and an unknown kind falls back to the neutral default rather than
+  // printing whatever string a row happened to carry onto a letterhead.
+  var KIND_LABELS = { FD: 'FD', COI: 'COI' };
+  // WHAT EACH FORM ACTUALLY REPORTS, which is the sentence the long block owes a
+  // reader who has just been told a document exists. Neither form carries a
+  // total, and this is where that is said in words rather than implied by the
+  // absence of a figure.
+  var KIND_SENTENCE = {
+    FD: 'A federal annual financial disclosure reports a category of value for ' +
+        'each asset, asset by asset. It carries no total and no net worth.',
+    COI: 'A Utah conflict-of-interest statement reports employers, entities, ' +
+         'income sources and holdings above a threshold \u2014 what, not how much. ' +
+         'It carries no dollar total.'
+  };
+  function kindLabel(kind) {
+    var k = (kind == null) ? '' : String(kind).trim().toUpperCase();
+    return Object.prototype.hasOwnProperty.call(KIND_LABELS, k) ? KIND_LABELS[k] : FORM_LABEL;
+  }
+  function kindSentence(kind) {
+    var k = (kind == null) ? '' : String(kind).trim().toUpperCase();
+    return Object.prototype.hasOwnProperty.call(KIND_SENTENCE, k) ? KIND_SENTENCE[k] : '';
+  }
+
+  // ── THE ARCHIVE COMES OFF THE URL HOST AND NOWHERE ELSE ───────────────────
+  // The pill names the authority that published the document. That name is read
+  // off the LINK, never typed at a call site and never inferred from the office,
+  // so the label and the anchor beside it cannot disagree — a chip that says
+  // "House Clerk" over a link to somewhere else is worse than a chip that says
+  // nothing.
+  //   LITERAL HOSTS, like the band ladder: exact keys, exact labels, no pattern
+  // matching on a hostname. A host that is not in the list PRINTS ITSELF, which
+  // is still a name the URL supports — the gate below guarantees every shipped
+  // formUrl is an https .gov document, so an unrecognised host is a government
+  // archive nobody has written a short name for yet, not an unknown authority.
+  var DOC_ARCHIVES = {
+    'disclosures-clerk.house.gov': 'House Clerk',
+    'clerk.house.gov': 'House Clerk',
+    'efdsearch.senate.gov': 'Senate EFD',
+    'www.senate.gov': 'Senate',
+    'senate.gov': 'Senate',
+    'oge.gov': 'OGE',
+    'www.oge.gov': 'OGE',
+    'extapps2.oge.gov': 'OGE',
+    'disclosures.utah.gov': 'Utah',
+    'elections.utah.gov': 'Utah'
+  };
+  // THE HOST, BY REGEX AND NOT BY HAND. One capture of everything between the
+  // scheme and the first path, port or query character. No string surgery, so
+  // there is no branch here that could hand back part of a path as a hostname.
+  function hostOf(url) {
+    var m = /^https?:\/\/([^\/?#:]+)/i.exec(String(url || ''));
+    return m ? m[1].toLowerCase() : '';
+  }
+  function archiveFor(url) {
+    var host = hostOf(url);
+    if (!host) return '';
+    return Object.prototype.hasOwnProperty.call(DOC_ARCHIVES, host) ? DOC_ARCHIVES[host] : host;
+  }
 
   // ── THE FILED CATEGORY LADDER, AND THE ONE COMPRESSION ALLOWED ────────────
   // A federal financial disclosure does not print a figure. It prints a TICKED
@@ -340,27 +481,117 @@
     return null;
   }
 
-  // ── WEALTH: THE DISCLOSURE READ, OR NULL ──────────────────────────────────
-  // Returns exactly the four fields the consumers were promised and nothing
-  // else: { rangeOrExact, year, formUrl, tenureYears }. `rangeOrExact` is
-  // handed back as the string it was filed as. `tenureYears` is a number, or
-  // null when the person file records no sworn date — a chip with no tenure
-  // prints no tenure rather than a guessed span.
-  //   NULL, NOT A ZEROED OBJECT. A row that carries no figure is not a row: an
-  // object with an empty range in it is how "$0 disclosed" gets printed by a
-  // consumer that trusted its shape over its contents.
+  // ── WEALTH: THE DOCUMENT READ, OR NULL ────────────────────────────────────
+  // Returns the four fields the consumers were promised and nothing else:
+  // { kind, year, formUrl, tenureYears }. `kind` is which form ('FD' or 'COI'),
+  // normalised through the label lookup so a surface never prints a row's raw
+  // string. `tenureYears` is a number, or null when the person file records no
+  // sworn date or the tenure owner is not loaded on this document — a chip with
+  // no tenure prints no tenure rather than a guessed span.
+  //
+  //   NO FIGURE ON THIS OBJECT, THIS PASS. There is no `rangeOrExact` here, and
+  // that absence is the design: the consumers of this read print what it
+  // contains, so an object that cannot carry a figure is an object that cannot be
+  // rendered as one. The dollar table is still consulted by nothing.
+  //
+  //   NULL, NOT A ZEROED OBJECT. A row with no form link, no year or no
+  // recognised kind is not a row. An object whose shape is trusted over its
+  // contents is how "$0 disclosed" gets printed by a consumer that checked only
+  // whether it got something back.
   function wealth(pid, person) {
     if (!pid) return null;
-    var row = PDX_FD_DISCLOSURES[pid];
+    var row = PDX_FD_DOCUMENTS[pid];
     if (!row || typeof row !== 'object') return null;
-    var figure = (row.rangeOrExact == null) ? '' : String(row.rangeOrExact).trim();
-    if (!figure) return null;
+    var kind = kindLabel(row.kind);
+    var url = (row.formUrl == null) ? '' : String(row.formUrl).trim();
+    var year = (row.year == null) ? '' : String(row.year).trim();
+    if (!url || !year) return null;
+    if (!Object.prototype.hasOwnProperty.call(KIND_LABELS,
+          String(row.kind == null ? '' : row.kind).trim().toUpperCase())) return null;
     return {
-      rangeOrExact: figure,
-      year: (row.year == null) ? '' : String(row.year),
-      formUrl: (row.formUrl == null) ? '' : String(row.formUrl),
+      kind: kind,
+      year: year,
+      formUrl: url,
       tenureYears: tenureYears(person || personFor(pid))
     };
+  }
+
+  // ── THE DOCUMENT GATE: WHAT MAY BE TYPED INTO THE DOCUMENT INDEX ──────────
+  // Same posture as the dollar gate above, different rules, because the failure
+  // it guards against is different: not an invented figure but an invented
+  // document. A row here asserts that a named form exists and can be opened, so
+  // the rules are about the form and the link.
+  //
+  //   KIND     'FD' or 'COI'. Nothing else. A third kind is a decision about what
+  //            this pill claims, not a string somebody adds in passing.
+  //   YEAR     the form's own four-digit year.
+  //   FORM URL an https link on a .gov host, for the same reason the dollar gate
+  //            demands one: filed disclosures live on .gov, and a Forbes profile,
+  //            an OpenSecrets page, a news story about a form and an http link
+  //            all fail one rule rather than four.
+  //   NO FIGURE. A dollar field on a document row is the exact confusion these
+  //            two tables were split apart to prevent, so `rangeOrExact` and its
+  //            neighbours are named defects here rather than ignored fields.
+  //   NO YEARS OF SERVICE, in any spelling, for the reason the dollar gate gives:
+  //            tenure has one owner and a stored copy is a second answer.
+  //   NOTHING ELSE. Three fields, no fourth.
+  //
+  //   A DEFECT NAMES THE PID AND THE RULE, AND NEVER THE VALUE. For a URL it
+  // prints host and path only, never the query string: a disclosure search link
+  // can carry a session token, and a defect list gets pasted into a terminal, a
+  // ticket and a chat window by somebody trying to get help with it.
+  var DOC_FIELDS = ['kind', 'year', 'formUrl'];
+  var FIGURE_FIELDS = ['rangeOrExact', 'amount', 'total', 'netWorth', 'value',
+                       'assets', 'holdings', 'band', 'figure'];
+  function urlForMessage(url) {
+    var u = String(url || '');
+    var m = /^(https?:\/\/[^?#]*)/i.exec(u);
+    return m ? m[1] : '(no url)';
+  }
+  function documentRowDefects(pid, row) {
+    var out = [];
+    if (!row || typeof row !== 'object') return [pid + ': row is not an object'];
+    var k = (row.kind == null) ? '' : String(row.kind).trim().toUpperCase();
+    if (!Object.prototype.hasOwnProperty.call(KIND_LABELS, k)) {
+      out.push(pid + ': kind is not FD or COI');
+    }
+    var yr = (row.year == null) ? '' : String(row.year).trim();
+    if (!/^[12][0-9]{3}$/.test(yr)) out.push(pid + ': year is not a four-digit form year');
+    var url = (row.formUrl == null) ? '' : String(row.formUrl).trim();
+    if (!url) {
+      out.push(pid + ': formUrl is empty \u2014 no row without the document it names');
+    } else if (!/^https:\/\/[^\/?#]*\.gov(?:[:\/?#]|$)/i.test(url)) {
+      out.push(pid + ': formUrl is not an https link to a .gov document (' +
+        urlForMessage(url) + ')');
+    }
+    for (var i = 0; i < FIGURE_FIELDS.length; i++) {
+      if (Object.prototype.hasOwnProperty.call(row, FIGURE_FIELDS[i])) {
+        out.push(pid + ': carries ' + FIGURE_FIELDS[i] +
+          ' \u2014 a document row names a form, it does not carry a figure');
+      }
+    }
+    for (var j = 0; j < TENURE_FIELDS.length; j++) {
+      if (Object.prototype.hasOwnProperty.call(row, TENURE_FIELDS[j])) {
+        out.push(pid + ': carries ' + TENURE_FIELDS[j] + ' \u2014 tenure comes only from _pdxTenure');
+      }
+    }
+    for (var key in row) {
+      if (!Object.prototype.hasOwnProperty.call(row, key)) continue;
+      if (DOC_FIELDS.indexOf(key) >= 0) continue;
+      if (FIGURE_FIELDS.indexOf(key) >= 0) continue;
+      if (TENURE_FIELDS.indexOf(key) >= 0) continue;
+      out.push(pid + ': unrecognised field ' + key);
+    }
+    return out;
+  }
+  function documentDefects(table) {
+    var t = (table && typeof table === 'object') ? table : PDX_FD_DOCUMENTS;
+    var out = [];
+    for (var pid in t) {
+      if (!Object.prototype.hasOwnProperty.call(t, pid)) continue;
+      out = out.concat(documentRowDefects(pid, t[pid]));
+    }
+    return out;
   }
 
   // ── COVERAGE, ON THE SAME TERMS THE FILING LANE DISCLOSES ITS OWN ─────────
@@ -374,7 +605,12 @@
     var src = W.CMP_DATA || W.PROFILES;
     return (src && typeof src === 'object') ? Object.keys(src).length : 0;
   }
-  function onFileCount() {
+  //   IT COUNTS DOCUMENTS, BECAUSE THAT IS WHAT THE PILL REPORTS. The number
+  // beside "on file" has to be the number of people whose pill says something,
+  // or the sentence under the pills is describing a different table from the one
+  // a reader just looked at. `dollarRows` is reported separately and is zero:
+  // it is the count of filed TOTALS, which no form in this roster prints.
+  function dollarRowCount() {
     var n = 0;
     for (var k in PDX_FD_DISCLOSURES) {
       if (!Object.prototype.hasOwnProperty.call(PDX_FD_DISCLOSURES, k)) continue;
@@ -383,25 +619,35 @@
     }
     return n;
   }
+  function onFileCount() {
+    var n = 0;
+    for (var k in PDX_FD_DOCUMENTS) {
+      if (!Object.prototype.hasOwnProperty.call(PDX_FD_DOCUMENTS, k)) continue;
+      if (wealth(k, null)) n++;
+    }
+    return n;
+  }
   function coverage() {
     var on = onFileCount(), all = rosterSize();
     var thin = !all || on < all * THIN_AT;
     var sentence;
     if (!on) {
-      sentence = 'PolitiDex holds no personal financial-disclosure forms yet' +
+      sentence = 'PolitiDex holds no in-office disclosure documents yet' +
         (all ? (' for the ' + all + ' people it carries') : '') +
         '. Every blank here is missing data on our side — it is not a finding ' +
         'about the person, and nothing on this lane is read as one.';
     } else if (!all) {
-      sentence = 'Personal financial disclosures are shown only where a form is ' +
-        'on file. A blank here is missing data, not a finding.';
+      sentence = 'In-office disclosure documents are shown only where the form ' +
+        'itself is on file. A blank here is missing data, not a finding.';
     } else {
-      sentence = 'Personal financial-disclosure forms are on file for ' + on +
-        ' of the ' + all + ' people PolitiDex carries. Where a form is missing, ' +
-        'that is missing data — it is not a finding about the person, and ' +
-        'nothing on this lane is read as one.';
+      sentence = 'The in-office disclosure form itself is on file for ' + on +
+        ' of the ' + all + ' people PolitiDex carries. Where it is missing, ' +
+        'that is missing data — it is not a finding about the person, it is ' +
+        'not a report that they did not file, and nothing on this lane is read ' +
+        'as one.';
     }
-    return { onFile: on, roster: all, thin: thin, sentence: sentence };
+    return { onFile: on, roster: all, dollarRows: dollarRowCount(),
+             thin: thin, sentence: sentence };
   }
 
   W.PDXFinance = {
@@ -413,6 +659,14 @@
     coverage: coverage,
     FORM_LABEL: FORM_LABEL,
     THIN_AT: THIN_AT,
+    // Which form, and which archive published it. Both read off the row and the
+    // URL rather than typed at a call site, and published so finance-lane.js
+    // asks one owner instead of carrying a second host table.
+    kindLabel: kindLabel,
+    kindSentence: kindSentence,
+    archiveFor: archiveFor,
+    KIND_LABELS: KIND_LABELS,
+    DOC_ARCHIVES: DOC_ARCHIVES,
     // The one display compression a filed category is allowed, and the table it
     // reads. Published so finance-lane.js has one owner to ask instead of a
     // second copy of the ladder, and so the suite can pin it pair by pair.
@@ -421,6 +675,9 @@
     // What a hand-written row has to satisfy to be in the table at all. Empty
     // list means the shipped table is clean; the suite asserts exactly that.
     curationDefects: curationDefects,
+    // The same, for the document index: which form, which year, which .gov
+    // document, and no figure anywhere on the row.
+    documentDefects: documentDefects,
     // Declared, so the wall is readable off the object as well as off the
     // header. Asserted by scripts/test-money-two-chips.mjs.
     scored: false,
@@ -432,6 +689,12 @@
     // `rangeOrExact` is printed as the string it arrives as, whatever it says.
     _setWealthTable: function (table) {
       PDX_FD_DISCLOSURES = (table && typeof table === 'object') ? table : {};
+      return dollarRowCount();
+    },
+    // The same seam for the document index. Overriding it cannot introduce a
+    // figure: `wealth()` reads three fields and none of them is one.
+    _setDocumentTable: function (table) {
+      PDX_FD_DOCUMENTS = (table && typeof table === 'object') ? table : {};
       return onFileCount();
     }
   };
