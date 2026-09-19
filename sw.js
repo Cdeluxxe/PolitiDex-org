@@ -7024,7 +7024,54 @@
 //     MIGRATION COST. None. The bump exists because pdx-finance.js and
 //     finance-lane.js both changed, and a warm device would otherwise render the
 //     old dollar-shaped pill against the new archive.
-const CACHE_VERSION = 'v224';
+// v225 - JOHNSON SD-3 IS THE LOCAL PERSON FILE, AND IT STAYED EMPTY.
+//     Trump is the fixture the money lane is written against: a filing, a figure
+//     with a unit, and one of the four House FD rows behind pill 2. This bump
+//     pins the other end - Utah Sen. John Johnson, SD-3, North Ogden - as the
+//     local full-spine fixture: a real legislative record in the archive with an
+//     honestly empty money side beside it, which is the state 1,116 of the 1,120
+//     rostered profiles are in.
+//
+//     NO ROW WAS ADDED, WHICH IS THE POINT. No document row: PDX_FD_DOCUMENTS is
+//     still exactly bmoore, maloy, kennedy and owens, four 2025 House annuals
+//     from the clerk's own host. No dollar row: PDX_FD_DISCLOSURES is still {},
+//     zero dollar rows, on purpose. disclosures.utah.gov answers a browser
+//     challenge rather than a member document, so his form was looked for and
+//     not chipped - and neither the challenge page nor the statewide search
+//     index was written into a row as if it were his filing. Pill 2 reads "No
+//     in-office wealth file on hand" with no dollar sign and no digit on it, and
+//     pill 1 reads "No money file on hand" over a source-gap line naming the
+//     archive nobody has opened for this seat. Missing data on our side, not a
+//     report that anybody failed to file.
+//
+//     TWO THINGS ACTUALLY CHANGED, AND BOTH ARE SHARED COMPONENTS.
+//     finance-lane.js: the empty "Disclosures while serving" block now carries
+//     the sentence the on-file branch already prints - a Utah conflict-of-
+//     interest statement reports sources and holdings, not a dollar total, and a
+//     federal FD reports per-asset categories, not a net worth - because a
+//     reader told only "no document on hand" waits for a FIGURE to arrive when
+//     the hand work is done, and none is coming. profiles-full.js: the zero-
+//     positions "Set Up Match" control was a <button> whose every branch was a
+//     no-op on /p/<pid> except closeModal(), which closed the file the reader
+//     came to read; it is an <a href="/my-stances?add=1"> now, the same move and
+//     the same destination as the ballot desk's unranked line.
+//
+//     STORES AND SHELL. No stored record is read, written or migrated. The saved
+//     location, the district, the team and the stance stores are untouched -
+//     pdx_my_stances_v1 is still the one stance store - and voter-hub-location.js
+//     is unchanged and still absent from person.html, so no tenure segment was
+//     added to a letterhead to make the file look busier. Direction Match, the
+//     formal pattern index, the publication floor, the mapped counts and the
+//     formal index are byte-identical across a twin boot with his money surfaces
+//     rendered and with none of them, for his file and for a 120-roll-call
+//     federal member, and no global leaked. 75 sourced acts over 67 distinct
+//     measures across three Utah general sessions: the archive's own counts,
+//     pinned by scripts/test-johnson-file.mjs rather than invented.
+//
+//     MIGRATION COST. None. The bump exists because finance-lane.js and
+//     profiles-full.js both changed, and a warm device would otherwise serve the
+//     old empty-disclosure copy under the old dead button.
+const CACHE_VERSION = 'v225';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

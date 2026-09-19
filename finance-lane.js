@@ -1267,7 +1267,22 @@
           'finding about ' + esc(first) + ', it is not a report that ' + esc(first) + ' did not ' +
           'file, and nothing here reads it as one. Collecting these forms is hand work that ' +
           'has not been done yet for most of this roster; where the document exists, this ' +
-          'block names it, dates it and links it.' +
+          'block names it, dates it and links it. ' +
+          // WHAT THE MISSING FORM WOULD HAVE SAID, AND IT IS NOT A NUMBER. This
+          // is the same sentence the on-file branch prints, quoted here rather
+          // than written twice in different words — and it belongs on the empty
+          // branch for a reason the on-file branch does not have: a reader told
+          // only "no document on hand" is left expecting a DOLLAR FIGURE to
+          // arrive when the hand work gets done. None is coming. Neither form
+          // states a total, so the gap this block names is a gap in WHICH FORM we
+          // hold, never a gap in a figure — and saying so where the blank is is
+          // what stops the next curator, or the next reader, filling it with an
+          // estimate. It carries no digit and no dollar sign, which is what keeps
+          // the roster-wide sweep in scripts/test-money-two-chips.mjs true.
+          'A Utah conflict-of-interest statement reports sources and holdings, not a dollar ' +
+          'total; a federal FD reports per-asset categories, not a net worth. PolitiDex will ' +
+          'not add those boxes into a figure, and will not publish one here in place of the ' +
+          'form.' +
         '</p>';
     }
     return '<span id="' + WEALTH_SECTION_ID + '" class="pdx-nav-anchor" aria-hidden="true"></span>' +

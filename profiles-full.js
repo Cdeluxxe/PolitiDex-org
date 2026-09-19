@@ -6362,13 +6362,44 @@
           </div>`;
         }
         // Not set up yet → invite the visitor to unlock their match on this person.
+        //
+        // ── THE CONTROL IS AN ADDRESS, AND IT USED TO BE A DEAD BUTTON ───────
+        // What stood here was
+        //   <button onclick="closeModal();setTimeout(function(){
+        //      if(window._krAlignGuideToPicker){window._krAlignGuideToPicker();}
+        //      else{var el=document.getElementById('alignment-panel');
+        //           if(el)el.scrollIntoView(...);}},320)">
+        // and on a person DOCUMENT every branch of it was a no-op. /p/<pid>
+        // deliberately does not carry alignment-tool.js — see the denylist note
+        // at the top of person.html; only its issue register is split out, into
+        // issue-map.js — so `_krAlignGuideToPicker` is undefined there and
+        // #alignment-panel is not in that DOM. What DID run was closeModal(),
+        // which on the person document closes the file the reader came to read.
+        // So the one control on the page offering to set up a match took the
+        // record away and delivered nothing. It was the homepage's overlay
+        // gesture surviving on a document that is not the homepage.
+        //
+        // It is an <a href> to /my-stances now — the document that teaches
+        // positions and holds them, in the one store (pdx_my_stances_v1). Same
+        // move, same reasoning and the same destination as the unranked line on
+        // the ballot desk: see rulerHtml() in ballot-workspace.js. `?add=1` opens
+        // that document straight onto the issue picker rather than on an empty
+        // library, because a reader who taps THIS invitation has already said
+        // they want to add something.
+        //
+        // An anchor rather than a scripted navigation on purpose: it works
+        // without JS, it survives a middle-click, it shows its destination in the
+        // status bar, and it cannot be a dead control — there is no branch in it
+        // to fall through. Nothing here reads a stance store, computes a match or
+        // prints a figure: the zero-positions state says so in words and hands
+        // over the address where positions are set.
         return `<div id="modal-personalized-alignment-setup" class="modal-block" style="margin-bottom:1.25rem;display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;background:linear-gradient(135deg, rgba(88,28,135,0.28) 0%, rgba(139,92,246,0.05) 100%);border:1px dashed rgba(139,92,246,0.5);border-radius:0.85rem;padding:0.85rem 1rem;">
             <div style="width:38px;height:38px;border-radius:0.65rem;background:linear-gradient(135deg,#8b5cf6,#6d28d9);display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;box-shadow:0 0 14px rgba(139,92,246,0.4);">🎯</div>
             <div style="flex:1;min-width:170px;">
               <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.03em;color:#d8b4fe;font-size:0.9rem;text-transform:uppercase;">See your match with ${firstName}</div>
               <div style="font-family:'Barlow Condensed',sans-serif;color:#b9a8e6;font-size:0.76rem;line-height:1.4;margin-top:0.1rem;">Set the issues you care about and judge ${firstName} by your values — not their party.</div>
             </div>
-            <button type="button" onclick="closeModal();setTimeout(function(){if(window._krAlignGuideToPicker){window._krAlignGuideToPicker();}else{var el=document.getElementById('alignment-panel');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});}},320);" style="white-space:nowrap;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-size:0.76rem;color:#fff;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:1px solid rgba(167,139,250,0.5);border-radius:0.7rem;padding:0.55rem 1rem;cursor:pointer;box-shadow:0 4px 14px rgba(139,92,246,0.3);">🎯 Set Up Match</button>
+            <a href="/my-stances?add=1" data-pdx-match-cta="set" style="display:inline-block;text-decoration:none;white-space:nowrap;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-size:0.76rem;color:#fff;background:linear-gradient(135deg,#7c3aed,#6d28d9);border:1px solid rgba(167,139,250,0.5);border-radius:0.7rem;padding:0.55rem 1rem;cursor:pointer;box-shadow:0 4px 14px rgba(139,92,246,0.3);">🎯 Set Up Match</a>
           </div>`;
       })()}
 
