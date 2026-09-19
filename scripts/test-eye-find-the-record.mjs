@@ -875,26 +875,61 @@ section("10 · nothing on the do-not list moved");
     // the Money →" link had to stop being a fragment on the front page, because
     // the fragment now resolves to a door card rather than to the lane. That is
     // an address rewrite, not a change of what the lane says, and a whole-file
-    // pin cannot tell the difference. So the one href is subtracted by name and
-    // the rest of the file is compared byte for byte: HEAD's source with
-    // "#follow-the-money" read as "/money" IS the shipped source, and if a later
-    // pass moves anything else in this file, this says so.
+    // pin cannot tell the difference. So the one href was subtracted by name and
+    // the rest of the file compared byte for byte.
+    //   AND NOW THE WHOLE-FILE PIN IS RETIRED, because a pass whose entire
+    // subject was this file's own letterhead chip has landed and a pin that
+    // fails on it is not reporting a defect. The letterhead now carries TWO
+    // money pills — campaign receipts, and what the person disclosed while
+    // serving — so the receipts chip's own face moved: its segments are a figure
+    // with its unit, the filing's cycle year and the archive short name, and the
+    // reported-source count and the coverage sentence moved off the pill into
+    // its accessible name and into the section. Seven functions changed, all of
+    // them about how the chip READS, and one new surface arrived for the second
+    // pill.
+    //   The pin therefore narrows to the claim it was always a proxy for, which
+    // is stronger than the file-level version was: the functions that decide WHO
+    // HAS FILED are byte-identical with HEAD. `recordFor` and `aliasKey` resolve
+    // an id to a filing, `read` and `compose` build the composition, `coverage`
+    // and `coverageHtml` count and disclose it, `entryHtml` and `sourceGap`
+    // render both states — none of them moved, so the Eye's rows and the chip
+    // still get their answer from one lookup over one index. A pass that edits
+    // the chip's wording keeps passing; a pass that gives the lane a second
+    // opinion about who has a filing fails here, which is the whole content of
+    // the original pin.
     {
       const f = "finance-lane.js", h = HEAD(f);
       must(h != null, `${f} could not be read out of HEAD`);
       const now = R(f);
-      const OLD = '<a href="#follow-the-money" style=', NEW = '<a href="/money" style=';
-      eq((now.match(/<a href="\/money" style=/g) || []).length, 1,
-        "finance-lane.js's filing chip no longer carries exactly one /money door");
-      ok(!now.includes(OLD), "finance-lane.js still points the chip at the retired #follow-the-money fragment");
-      eq(now, h.split(OLD).join(NEW),
-        "finance-lane.js differs from HEAD by more than the one declared href — it is on the " +
-        "do-not-touch list apart from the address the money room took with it");
-      // And it is an address rewrite, not a new lane: the money theme, the
-      // coverage sentence and the refusal to grade are all still where HEAD left
-      // them, byte for byte, by the comparison above.
+      for (const fn of ["recordFor", "aliasKey", "read", "compose", "coverage", "coverageHtml",
+                        "entryHtml", "sourceGap", "compositionHtml", "countsHtml", "itemCount"]) {
+        eq(fnSrc(now, fn), fnSrc(h, fn),
+          `finance-lane.js ${fn}() is not byte-identical with HEAD — the lane may grow a second ` +
+          "money pill, but not a second opinion about who has filed");
+      }
+      // THE INDEX IS STILL READ IN THE SAME PLACES. A new surface that opened the
+      // filings index again would not show up in the pins above.
+      eq((now.match(/_FTM_BY_ID/g) || []).length, (h.match(/_FTM_BY_ID/g) || []).length,
+        "finance-lane.js reads the filings index in a different number of places than HEAD");
+      eq((now.match(/recordFor\(/g) || []).length, (h.match(/recordFor\(/g) || []).length,
+        "finance-lane.js gained or lost a caller of the one filing lookup");
       eq((now.match(/coverageHtml/g) || []).length, (h.match(/coverageHtml/g) || []).length,
         "finance-lane.js gained or lost a caller of the coverage sentence");
+      // AND THE ONE DOOR IS STILL ONE DOOR at the one address the money room took
+      // with it — the reason this file came off the list in the first place.
+      eq((now.match(/<a href="\/money" style=/g) || []).length, 1,
+        "finance-lane.js's filing chip no longer carries exactly one /money door");
+      ok(!now.includes('<a href="#follow-the-money" style='),
+        "finance-lane.js still points the chip at the retired #follow-the-money fragment");
+      // The retired grade stays retired, which the whole-file pin used to cover
+      // for free and now has to say out loud. Comments are stripped first: this
+      // file's header is largely an account of the grade it deleted, and naming
+      // a retired thing is how it stays retired.
+      const code = now.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+      for (const bad of ["Constituents-First", "constituentsFirst", "/100", "scoreFor",
+                         "Special-Interest Heavy", "Why this score"]) {
+        ok(!code.includes(bad), `finance-lane.js brought back the retired grade ("${bad}")`);
+      }
     }
     // person-link.js CAME OFF THAT LIST, on the same terms door2-spine.js did
     // below. The byte pin was a proxy for one claim this suite has at stake: the

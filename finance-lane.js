@@ -545,49 +545,91 @@
     '</div>';
   }
 
-  // ── THE LETTERHEAD MONEY CHIP — A DOOR, NOT A BLOCK ────────────────────────
-  // One chip in the person file's identity block: a number, two or three
-  // highlights, and a way down to the money section that shows the working. It is
-  // the finance twin of ⚖️ Word vs Action's compact letterhead badge, and it is
-  // deliberately built to the same rules, because the failure it is preventing is
-  // the same failure.
+  // ── THE TWO LETTERHEAD MONEY CHIPS — TWO DOORS, NOT A TOTAL ────────────────
+  // Two chips in the person file's identity block, in the same row as ⚖️ Word vs
+  // Action, both in the one green-and-gold money pair, both led by 💰 — and they
+  // are not two views of one number:
   //
-  // WHAT IT IS NOT. It is not a strip, a card, a chart, a donor table or a
-  // composition. Everything that explains the money — the buckets, the bar, the
-  // outside-spending note, the named top source, the as-of stamp, the coverage
-  // sentence in full — lives in ONE place, the money section below, and the chip's
-  // whole job is to get a reader there. A letterhead that answers the money
-  // question in place is a letterhead that has grown a second money section, and
-  // then the profile says the same thing twice at two different lengths, which is
-  // exactly the state the header stack above ⚖️ Word vs Action was cut out of.
+  //   💰 $774M itemized receipts · 2024 · FEC          → campaign filings block
+  //   💰 $1–5M disclosed · 10 yrs in office · 2024 FD  → disclosures block
   //
-  // NO SECOND ARITHMETIC. Every figure on the chip comes off read() — the one
-  // composition read in this file, the same call the section and the cards make.
-  // The dollar figure is the ITEMIZED BASE, the same base the shares are shares
-  // of, so the number and the percentage beside it are answers about one filing
-  // rather than two figures from two places that happen to sit in one pill. (The
-  // section's own "Total Raised" tile reports career receipts, which is a
-  // different and larger fact; the chip does not print it, because a share of a
-  // cycle's itemized base next to a career total is a ratio with two denominators.)
+  // TWO PILLS, TWO UNITS, NEVER ONE NUMBER. The first is what a CAMPAIGN raised
+  // and reported, under contribution limits, to an election authority. The second
+  // is what a PERSON told a clerk they own while holding the office. Different
+  // questions, different archives, different spans, and the single most damaging
+  // thing this letterhead could do is let a reader add them. So: no sum, no
+  // combined figure, no "total money" pill, no ratio of one to the other, and the
+  // two never share a segment. Two chips is not a redundancy waiting to be tidied
+  // into one; the separation IS the finding.
   //
-  // THREE STATES, AND THE EMPTY ONE ALWAYS RENDERS. This is the whole reason the
-  // chip is worth having on a site with filings for a small minority of the
-  // roster. If the chip only appeared where a filing exists, then "no chip" would
-  // be doing the talking, and what it would say — to a reader who has learned that
-  // this site puts a money chip on people with money problems — is "clean". It is
-  // not clean; it is unchecked. So every profile gets a chip, and where there is
-  // nothing on file the chip says that in words.
+  //   The unit rides on the figure in both, for the same reason it always has
+  // here: "$774M" alone is a number about a person. "$774M itemized receipts" is a
+  // number about a document. "$1–5M disclosed" is a number about a form somebody
+  // signed. A reader handed only the digits has been handed the one reading we are
+  // certain is wrong.
   //
-  //   on file   💰 $8.6M itemized 2024 cycle · top source: Large individual · FEC file · 13 of 757 filed
-  //   partial   💰 Partial file · 6 items
-  //   empty     💰 No money file yet
+  // NEVER $0, AND NOBODY "EARNED" ANYTHING. A missing filing and a missing
+  // disclosure are both rendered as WORDS, in both chips, on every profile —
+  // never as a zero, never as an empty pill, never as no pill at all. Zero is a
+  // figure, and a figure printed where nobody looked is a reading of a person
+  // assembled out of missing data. And no surface on this lane says a person
+  // "earned" or "made" a receipts figure: money that passed through a committee is
+  // not income, and $774M of itemized receipts describes a fundraising operation.
   //
-  // NO RING, NO RAMP, NO RANK. One neutral accent for all three states. A chip
-  // that is steel when the money is diffuse and amber when it is concentrated
-  // delivers a verdict with colour after the words have carefully declined to,
-  // which is the exact trick the retired Constituents-First badge was built on.
-  // Nothing here is a grade, a level, a 0–100, or a comparison to another person.
+  // WHAT THEY ARE NOT. Neither is a strip, a card, a chart, a table or a
+  // composition. Everything that explains either number — the buckets, the bar,
+  // the outside-spending note, the named top source, the as-of stamp, the
+  // disclosure form link, the coverage sentences in full — lives in ONE place per
+  // lane, in the money section below, and each chip's whole job is to get a reader
+  // to its own block there. A letterhead that answers the money question in place
+  // is a letterhead that has grown a second money section, and then the profile
+  // says the same thing twice at two different lengths, which is exactly the state
+  // the header stack above ⚖️ Word vs Action was cut out of.
+  //
+  // COVERAGE COUNTS AND THE TOP SOURCE CAME OFF THE PILL. The on-file receipts
+  // chip used to run four segments long: "$8.6M itemized 2024 cycle · top source:
+  // Large individual · OpenSecrets file · 13 of 1120 filed". Two chips in one row
+  // cannot both be four segments long without becoming the strip this lane
+  // refuses to be — and of everything the pill could give up, those two are the
+  // two that a reader needs a denominator and a bucket list to interpret, which is
+  // to say they need the section. Both are still spoken in full in the aria-label
+  // and printed in full in BOTH section blocks. Nothing was deleted; it moved one
+  // jump away, to where it can be read correctly.
+  //
+  // NO SECOND ARITHMETIC. Every receipts figure comes off read(), the one
+  // composition read in this file. Every disclosure figure comes off
+  // PDXFinance.wealth() as the STRING it was published as — see the wall in
+  // pdx-finance.js: no midpoint, no parse, no arithmetic on a band. A chip
+  // carrying only a range therefore cannot print a single dollar figure, because
+  // no code path in either file could produce one.
+  //
+  // THE EMPTY STATES ALWAYS RENDER. This is the whole reason the chips are worth
+  // having on a site with filings for a small minority of the roster and
+  // disclosure forms for none of it yet. If a chip appeared only where a file
+  // exists, "no chip" would be doing the talking — and what it would say, to a
+  // reader who has learned that this site puts a money chip on people with money,
+  // is "clean". It is not clean; it is unchecked.
+  //
+  //   receipts, on file   💰 $8.6M itemized receipts · 2024 · OpenSecrets
+  //   receipts, partial   💰 Partial file · 6 items · OpenSecrets
+  //   receipts, empty     💰 No money file on hand
+  //   wealth, on file     💰 $1–5M disclosed · 10 yrs in office · 2024 FD
+  //   wealth, empty       💰 No in-office wealth file on hand
+  //
+  // NO RING, NO RAMP, NO RANK, AND NO TELLING THE TWO APART BY COLOUR. One neutral
+  // accent across all five states and both chips. A chip that is steel when the
+  // money is diffuse and amber when it is concentrated delivers a verdict with
+  // colour after the words have carefully declined to, which is the exact trick
+  // the retired Constituents-First badge was built on. Nothing here is a grade, a
+  // level, a 0–100, a percentage or a comparison to another person.
+  //
+  // TWO DOORS, TWO TARGETS, ONE PAGE. The chips are not the same click: receipts
+  // jumps to the campaign-filings block, wealth jumps to the disclosures block,
+  // each focusing its own heading on arrival. A reader who taps the disclosure
+  // pill and lands on the donor composition has been answered with the other
+  // archive. Neither chip leaves the person file — see the wall over openSection.
   var SECTION_ID = 'pdxsec-funding';
+  var WEALTH_SECTION_ID = 'pdxsec-wealth';
 
   // Does a money file exist for this person at all — in whatever state? Separate
   // from read(), which reports null both for "no file" and for "a file we cannot
@@ -661,10 +703,13 @@
     var c = read(pid);
     if (!c) {
       return { state: 'thin', pid: pid, sectionId: SECTION_ID,
-               items: itemCount(rec), composition: null, coverage: cov };
+               items: itemCount(rec), composition: null,
+               source: (rec.funding && rec.funding.source) || rec.source || '',
+               coverage: cov };
     }
     return { state: 'file', pid: pid, sectionId: SECTION_ID,
-             items: c.rows.length, composition: c, coverage: c.coverage || cov };
+             items: c.rows.length, composition: c, source: c.source || '',
+             coverage: c.coverage || cov };
   }
 
   // ── WHICH ARCHIVE THE FIGURE CAME OUT OF ────────────────────────────────────
@@ -684,10 +729,15 @@
   // fact about disclosure, not about the person. It is the same class of statement as
   // the coverage counts beside it, and like them it has no tone, no colour and no
   // threshold anywhere in this file that reads it.
+//   THREE LENGTHS OF THE SAME FACT, one per surface that has room for it.
+  // `short` is the bare authority for a pill now sharing its row with a second
+  // chip ("FEC"), `tag` is the phrase for anywhere with a line to itself ("FEC
+  // file"), `name` is what a screen reader hears in a sentence ("Transcribed from
+  // the FEC"). Three lengths, one row, so they cannot name different authorities.
   var ARCHIVES = [
-    { re: /(^|\.)fec\.gov$/i,            tag: 'FEC file',           name: 'the FEC' },
-    { re: /(^|\.)disclosures\.utah\.gov$/i, tag: 'Utah disclosure file', name: 'Utah state disclosures' },
-    { re: /(^|\.)opensecrets\.org$/i,    tag: 'OpenSecrets file',   name: 'OpenSecrets' }
+    { re: /(^|\.)fec\.gov$/i,            tag: 'FEC file',             short: 'FEC',              name: 'the FEC' },
+    { re: /(^|\.)disclosures\.utah\.gov$/i, tag: 'Utah disclosure file', short: 'Utah disclosures', name: 'Utah state disclosures' },
+    { re: /(^|\.)opensecrets\.org$/i,    tag: 'OpenSecrets file',     short: 'OpenSecrets',      name: 'OpenSecrets' }
   ];
   function archiveOf(url) {
     var u = String(url || '');
@@ -698,16 +748,19 @@
     for (var i = 0; i < ARCHIVES.length; i++) {
       if (ARCHIVES[i].re.test(host)) return ARCHIVES[i];
     }
-    return { re: null, tag: 'filed', name: 'the published filing' };
+    return { re: null, tag: 'filed', short: 'filed', name: 'the published filing' };
   }
-  // The figure with its unit on it. "$780M" alone is a number about a person;
-  // "$780M itemized 2024 cycle" is a number about a document, and the difference is
-  // the whole point of this segment. The cycle is the filing's own (compose carries
-  // it straight off the record) and is dropped rather than invented where the record
-  // does not state one — "itemized receipts" is then the unit, and it is still a unit.
+  // The figure with its unit welded on. "$780M" alone is a number about a person;
+  // "$780M itemized receipts" is a number about a document, and that difference is
+  // the whole point of this segment. The unit no longer bends around the cycle —
+  // it used to read "$780M itemized 2024 cycle" when the record stated one and
+  // "$780M in itemized receipts" when it did not, which meant the noun naming WHAT
+  // KIND OF MONEY this is disappeared exactly when the filing was least specific.
+  // The unit is now unconditional and the year rides in its own segment beside it,
+  // where it can be dropped without taking the unit with it.
   function figureText(c) {
     if (!c) return '';
-    return c.receiptsFmt + (c.cycle ? ' itemized ' + c.cycle + ' cycle' : ' in itemized receipts');
+    return c.receiptsFmt + ' itemized receipts';
   }
 
   // Coverage, short enough to ride on one line. The chip quotes the two counts;
@@ -742,31 +795,30 @@
     var segs = [];
     if (cr.state === 'file') {
       var c = cr.composition;
-      // How much — the itemized base, the same base every share in the section is
+      // HOW MUCH — the itemized base, the same base every share in the section is
       // taken over, so the chip and the section are answers about one filing.
       segs.push({ fig: true, text: figureText(c) });
-      // Who — the largest reported source, named. "Largest" is a fact about a sorted
-      // list, and naming the top of a list is not ranking the person at the bottom.
-      if (c.largest) {
-        segs.push({ fig: false, text: c.largestTied
-          ? 'top source: tied'
-          : ('top source: ' + c.largest.short) });
-      }
-      // WHERE THE PAPERWORK IS. See the wall over archiveOf. This is the segment the
-      // bare source COUNT gave up its place for: "5 sources" restates the length of
-      // the list the segment above it already names the top of, and the aria-label
-      // below still speaks it in full, so nothing was dropped from the chip's own
-      // account of itself — a count moved to the longer form and a provenance took
-      // the line, which is the trade the one-line rule requires be made explicitly.
+      // WHEN — the filing's own cycle year, bare. It is the figure's span, and a
+      // dollar total with no span on it is a claim about a career. Dropped rather
+      // than invented where the record states no cycle; the unit above survives
+      // that drop on its own (see figureText).
+      if (c.cycle) segs.push({ fig: false, text: String(c.cycle) });
+      // WHERE THE PAPERWORK IS. See the wall over archiveOf. An unrecognised host
+      // names nobody rather than guessing an authority.
       var arc = archiveOf(c.source);
-      if (arc) segs.push({ fig: false, text: arc.tag });
-      // Disclosure — the coverage counts, so the figure above arrives already
-      // framed by how much of the roster this lane can speak about at all.
-      var tag = coverageTag(cr.coverage);
-      if (tag) segs.push({ fig: false, text: tag });
+      if (arc) segs.push({ fig: false, text: arc.short });
     } else if (cr.state === 'thin') {
-      segs.push({ fig: true, text: 'Partial money file' });
-      segs.push({ fig: false, text: cr.items + ' item' + (cr.items === 1 ? '' : 's') + ', no composition' });
+      segs.push({ fig: true, text: 'Partial file' });
+      // Counted, not characterised: reported items only — a total-raised line, the
+      // named donor rows, the sector rows. It is a count of what a reader will
+      // actually find in the block below, so the chip promises the section exactly
+      // what the section can deliver.
+      segs.push({ fig: false, text: cr.items + ' item' + (cr.items === 1 ? '' : 's') });
+      // A partial file is still a file, so it still says which archive it came out
+      // of. Provenance is the one segment that belongs on every state that has a
+      // document behind it — a figure a reader cannot trace is an estimate.
+      var tarc = archiveOf(cr.source);
+      if (tarc) segs.push({ fig: false, text: tarc.short });
     } else {
       // "No money file YET" was the wrong word and it was doing real work. "Yet"
       // describes a queue: it tells a reader the file is coming, which implies
@@ -774,6 +826,9 @@
       // roster nobody has looked, and there is no ingest scheduled to look. "On
       // hand" states the only thing we can stand behind — what PolitiDex is
       // holding — and leaves the reason to the source-gap line in the lane itself.
+      // The wealth chip's empty state is built to this same grammar, deliberately:
+      // two pills in one row speaking two dialects of absence would read as two
+      // different KINDS of absence, and they are the same kind.
       segs.push({ fig: true, text: 'No money file on hand' });
     }
     return segs;
@@ -801,16 +856,25 @@
       return c.receiptsFmt + ' in itemized campaign receipts' + (c.cycle ? ', ' + c.cycle + ' cycle' : '') +
         ' across ' + c.rows.length + ' reported source' + (c.rows.length === 1 ? '' : 's') + '. ' + top +
         (arc ? 'Transcribed from ' + arc.name + '. ' : '') +
-        'Open the money section on this file for the full composition, bucket by bucket.';
+        // The coverage counts came off the visible pill when the second chip
+        // joined the row (see the wall above), which makes this the surface that
+        // still speaks them. The longer form may say the same things more fully
+        // than the pill; it may not say fewer of them.
+        (cov.sentence ? cov.sentence + ' ' : '') +
+        'This is campaign money raised, not personal wealth, and it is not added ' +
+        'to the disclosure figure beside it. ' +
+        'Open the campaign filings block on this file for the full composition, bucket by bucket.';
     }
     if (cr.state === 'thin') {
+      var tarc2 = archiveOf(cr.source);
       return 'Partial money file — ' + cr.items + ' reported item' +
         (cr.items === 1 ? '' : 's') + ' and no itemized composition. ' +
-        (cov.sentence || '') + ' Open the money section on this file.';
+        (tarc2 && tarc2.re ? 'Transcribed from ' + tarc2.name + '. ' : '') +
+        (cov.sentence || '') + ' Open the campaign filings block on this file.';
     }
     return 'No money file on hand for this person. ' + (cov.sentence || '') +
-      ' Open the money section on this file, which names the disclosure source the ' +
-      'filing would have come from.';
+      ' Open the campaign filings block on this file, which names the disclosure ' +
+      'source the filing would have come from.';
   }
 
   // ── MOUNT-THEN-JUMP ────────────────────────────────────────────────────────
@@ -850,10 +914,12 @@
     return true;
   }
 
-  // The chip's one action. Exposed on the object so the inline handler is a call
-  // to a named function rather than a scroll expression pasted into markup.
-  function openSection() {
-    var id = SECTION_ID;
+  // The chips' one action, parameterised by target. Exposed as two named methods
+  // below so each inline handler is a call to a named function rather than a
+  // scroll expression pasted into markup — and so the two doors cannot drift into
+  // two different scroll behaviours, which is how one chip would end up revealing
+  // a deferred stage and the other jumping into a collapsed one.
+  function jumpTo(id) {
     try {
       if (typeof W._pdxNavJump === 'function') {
         W._pdxNavJump(id);
@@ -868,23 +934,42 @@
     try { focusSection(id); } catch (e) {}
     return false;
   }
+  function openSection() { return jumpTo(SECTION_ID); }
+  // Chip 2's door. Same page, same section, a different heading focused on
+  // arrival — see TWO DOORS, TWO TARGETS above.
+  function openWealthSection() { return jumpTo(WEALTH_SECTION_ID); }
+
+  // ONE BUILDER FOR BOTH PILLS. The two chips share every visual decision they
+  // have — the class, the glyph, the separator, the segment markup, the one
+  // accent — because they are two readings of one lane and a reader must be able
+  // to tell at a glance that they belong together. What differs is carried in
+  // data, not in a second copy of the markup: the lane name, the state, the label,
+  // and which door the click opens. A second hand-written button is how one pill
+  // acquires a ring, a tint or a size the other does not have.
+  function chipButtonHtml(o) {
+    var segs = o.segs || [];
+    var inner = '';
+    for (var i = 0; i < segs.length; i++) {
+      if (i) inner += '<span class="pdx-mchip-sep" aria-hidden="true">·</span>';
+      inner += '<span class="' + (segs[i].fig ? 'pdx-mchip-fig' : 'pdx-mchip-hi') + '">' +
+        esc(segs[i].text) + '</span>';
+    }
+    return '<button type="button" class="pdx-mchip" data-pdx-mchip="' + attr(String(o.pid || '')) + '"' +
+      ' data-pdx-mchip-lane="' + attr(o.lane) + '"' +
+      ' data-pdx-mchip-state="' + attr(o.state) + '"' +
+      ' onclick="event.stopPropagation();if(window.PDXFinanceLane)window.PDXFinanceLane.' + o.open + '();"' +
+      ' aria-label="' + attr(o.label) + '">' +
+        '<span class="pdx-mchip-ico" aria-hidden="true">💰</span>' + inner +
+      '</button>';
+  }
 
   function letterheadChipHtml(pid) {
     try {
       var cr = chipRead(pid);
-      var segs = chipSegments(cr);
-      var inner = '';
-      for (var i = 0; i < segs.length; i++) {
-        if (i) inner += '<span class="pdx-mchip-sep" aria-hidden="true">·</span>';
-        inner += '<span class="' + (segs[i].fig ? 'pdx-mchip-fig' : 'pdx-mchip-hi') + '">' +
-          esc(segs[i].text) + '</span>';
-      }
-      return '<button type="button" class="pdx-mchip" data-pdx-mchip="' + attr(String(pid || '')) + '"' +
-        ' data-pdx-mchip-state="' + attr(cr.state) + '"' +
-        ' onclick="event.stopPropagation();if(window.PDXFinanceLane)window.PDXFinanceLane.openSection();"' +
-        ' aria-label="' + attr(chipLabel(cr)) + '">' +
-          '<span class="pdx-mchip-ico" aria-hidden="true">💰</span>' + inner +
-        '</button>';
+      return chipButtonHtml({
+        pid: pid, lane: 'receipts', state: cr.state,
+        segs: chipSegments(cr), label: chipLabel(cr), open: 'openSection'
+      });
     } catch (e) { return ''; }
   }
 
@@ -919,6 +1004,211 @@
       bindLetterheadChip(uid, pid);
       return '<span class="pdx-mchip-host" data-pdx-mchip-host="' + attr(uid) + '">' + inner + '</span>';
     } catch (e) { return ''; }
+  }
+
+  // ── CHIP 2 — WHAT WAS DISCLOSED WHILE SERVING ───────────────────────────────
+  // The second pill's whole read. The DATA lives in pdx-finance.js (the
+  // disclosure table, PDXFinance.wealth(), the no-midpoint wall); the RENDERING
+  // lives here, beside chip 1, and that split is deliberate on both sides:
+  //
+  //   Here, because the two pills must not be able to disagree about what a money
+  // chip looks like or how it behaves. They share chipButtonHtml, the accent, the
+  // glyph, the one-line rule, the class, the focus-after-reveal jump. A wealth
+  // chip rendered in its own file grows its own version of all six.
+  //   Not here, because the wall that matters most — no midpoint, no arithmetic,
+  // no sum with receipts — is a wall around the DATA, and it holds better in a
+  // file that has never seen a receipts figure. Nothing in pdx-finance.js can add
+  // the two chips together because nothing in pdx-finance.js knows both numbers.
+  //
+  // TWO STATES, NOT THREE. Chip 1 has a "partial" state because a campaign filing
+  // can be half-transcribed: a total with no itemization is genuinely a file with
+  // less in it. A personal disclosure has no equivalent. The form either carries a
+  // figure for a reader to see — a band or an exact number, as filed — or this
+  // site is holding nothing, and there is no honest third reading between them.
+  // Inventing a "partial disclosure" state would mean characterising the
+  // completeness of somebody's financial disclosure from the absence of our own
+  // transcription, which is a finding about a person made out of our own gap.
+  function formLabel() {
+    var F = W.PDXFinance;
+    var lbl = (F && F.FORM_LABEL) ? String(F.FORM_LABEL) : 'FD';
+    return lbl;
+  }
+  function wealthCoverage() {
+    var F = W.PDXFinance;
+    if (F && typeof F.coverage === 'function') {
+      try { return F.coverage(); } catch (e) {}
+    }
+    return null;
+  }
+  // The chip's own read, published so a caller (or a test) can ask what the
+  // letterhead will say without rendering markup to find out — the same courtesy
+  // chipRead() extends for chip 1.
+  //   `person` is passed through rather than looked up here when the caller
+  // already holds the record: tenure is read off the person file's own termStart /
+  // termEnd, and the letterhead already has that object in hand.
+  function wealthRead(pid, person) {
+    var F = W.PDXFinance;
+    var w = null;
+    if (F && typeof F.wealth === 'function') {
+      try { w = F.wealth(pid, person); } catch (e) { w = null; }
+    }
+    var cov = wealthCoverage();
+    // A row with no figure in it is not a row. Re-checked here as well as in
+    // pdx-finance.js because this is the last gate before a pill gets printed, and
+    // an object whose shape is trusted over its contents is how "$0 disclosed"
+    // reaches a letterhead.
+    if (!w || !w.rangeOrExact) {
+      return { state: 'empty', pid: pid || null, sectionId: WEALTH_SECTION_ID,
+               disclosure: null, coverage: cov };
+    }
+    return { state: 'file', pid: pid, sectionId: WEALTH_SECTION_ID,
+             disclosure: w, coverage: cov };
+  }
+
+  // Tenure in the width of a pill. Whole years, off the person file's own sworn
+  // date, and BELOW ONE YEAR IT SAYS SO IN WORDS rather than printing "0 yrs in
+  // office" — a zero beside a dollar figure on a money chip reads as a zeroed
+  // figure, and this one is a real span that is simply shorter than its unit.
+  function tenureText(years) {
+    if (typeof years !== 'number' || !isFinite(years)) return '';
+    if (years < 1) return 'under 1 yr in office';
+    return years + ' yr' + (years === 1 ? '' : 's') + ' in office';
+  }
+
+  function wealthChipSegments(wr) {
+    var segs = [];
+    if (wr.state === 'file') {
+      var w = wr.disclosure;
+      // THE FIGURE AS PUBLISHED, WITH THE VERB ON IT. `rangeOrExact` arrives a
+      // string and is concatenated, never parsed: a chip carrying "$1–5M" prints
+      // "$1–5M disclosed" and there is no branch anywhere in this function that
+      // could reduce it to one number. The verb is "disclosed" — not "worth", not
+      // "earned", not "made". It describes the act of filing, which is the only
+      // thing the document is evidence of.
+      segs.push({ fig: true, text: w.rangeOrExact + ' disclosed' });
+      // THE SPAN THE FIGURE SITS IN. A disclosed range with no tenure beside it
+      // invites the reading that the office produced the money. With the years
+      // printed, the reader has both facts and neither is a claim about the other
+      // — this lane draws no line between them, computes no rate, and the section
+      // below says so in a sentence.
+      var ten = tenureText(w.tenureYears);
+      if (ten) segs.push({ fig: false, text: ten });
+      // WHICH FORM, WHICH YEAR. Same provenance discipline as chip 1's archive
+      // segment: a figure a reader cannot trace to a document is an estimate.
+      var form = (w.year ? w.year + ' ' : '') + formLabel();
+      segs.push({ fig: false, text: form });
+    } else {
+      // Built to chip 1's grammar of absence on purpose — "on hand", not "yet".
+      // See the comment in chipSegments: "yet" promises a queue that does not
+      // exist, and for personal disclosures it would be promising a transcription
+      // wave that has not been scheduled. "In-office wealth" rather than plain
+      // "wealth" because the gap is specifically a missing FORM, filed while
+      // serving; we are not holding an estimate of what anybody owns.
+      segs.push({ fig: true, text: 'No in-office wealth file on hand' });
+    }
+    return segs;
+  }
+
+  function wealthChipLabel(wr) {
+    var cov = wr.coverage || {};
+    if (wr.state === 'file') {
+      var w = wr.disclosure;
+      var ten = tenureText(w.tenureYears);
+      return w.rangeOrExact + ' in assets disclosed on ' +
+        (w.year ? w.year + "'s " : '') + 'personal financial disclosure form' +
+        (ten ? ', filed while serving ' + ten : '') + '. ' +
+        'Reported exactly as published: where the form states a range, the range ' +
+        'is the disclosure and is not narrowed to a single figure here. ' +
+        'This is personal wealth declared while in office, not campaign money, ' +
+        'and it is not added to the receipts figure beside it. ' +
+        'Open the disclosures block on this file for the form itself.';
+    }
+    return 'No in-office wealth file on hand for this person. ' +
+      (cov.sentence || '') +
+      ' A blank here is missing data on our side, not a disclosure of zero. ' +
+      'Open the disclosures block on this file, which names the form this figure ' +
+      'would have come from.';
+  }
+
+  function wealthLetterheadChipHtml(pid, person) {
+    try {
+      var wr = wealthRead(pid, person);
+      return chipButtonHtml({
+        pid: pid, lane: 'wealth', state: wr.state,
+        segs: wealthChipSegments(wr), label: wealthChipLabel(wr),
+        open: 'openWealthSection'
+      });
+    } catch (e) { return ''; }
+  }
+
+  // NO HOST AND NO DEFERRED RE-READ, UNLIKE CHIP 1, AND THE ASYMMETRY IS THE
+  // POINT. Chip 1 carries a host span and a one-shot repaint because the campaign
+  // filing index is assembled inside index.html's Follow-the-Money IIFE and a
+  // letterhead can legitimately render before it is attached — the repaint exists
+  // to stop a chip saying "no money file" above a section drawing $8.6M. The
+  // disclosure table is a plain inline object literal in pdx-finance.js, loaded
+  // before this file and before any profile renders: there is no seam it could
+  // arrive late through. A re-read seam that can never fire is worse than none,
+  // because the next reader of this file will trust it for a reason that is not
+  // true, and a timer per profile per chip is not free.
+  function wealthLetterheadChipMount(pid, person) {
+    try { return wealthLetterheadChipHtml(pid, person); } catch (e) { return ''; }
+  }
+
+  // ── THE DISCLOSURES BLOCK — CHIP 2'S OTHER END ─────────────────────────────
+  // What the second pill is a door TO. It carries the same figure as the chip, by
+  // construction: one wealthRead() per surface, no second lookup and no second
+  // formatting rule, so the pill and the block cannot end up quoting the archive
+  // differently. What it adds is everything a pill has no room for — the form
+  // itself as a link, the coverage counts, and the sentence saying what a blank
+  // means.
+  //   NO THIRD SCORE. This block has no tier, no band ladder, no "wealthy"
+  // characterisation, no comparison to the roster, no percentage and no arithmetic
+  // against the campaign figure one block up. It prints a figure, a span, a form
+  // and a coverage count, and stops.
+  function wealthBlockHtml(pid, p) {
+    var wr, cov;
+    try { wr = wealthRead(pid, p || null); } catch (e) { return ''; }
+    cov = wr.coverage || {};
+    var first = (p && p.name) ? String(p.name).split(' ')[0] : 'this official';
+    var body;
+    if (wr.state === 'file') {
+      var w = wr.disclosure;
+      var ten = tenureText(w.tenureYears);
+      var link = w.formUrl
+        ? '<a class="pdx-money-block-src" href="' + attr(w.formUrl) + '" target="_blank" rel="noopener noreferrer">' +
+            '\ud83d\udcc4 ' + esc((w.year ? w.year + ' ' : '') + formLabel()) + ' \u2197</a>'
+        : '<span class="pdx-money-block-src is-none">' +
+            esc((w.year ? w.year + ' ' : '') + formLabel()) + ' \u00b7 no link on file</span>';
+      body =
+        '<div class="pdx-money-block-fig">' + esc(w.rangeOrExact) + ' <span>disclosed</span></div>' +
+        '<p class="pdx-money-block-s">' +
+          'As published on ' + esc(first) + "'s own personal financial disclosure" +
+          (w.year ? ' for ' + esc(w.year) : '') + (ten ? ', filed while serving ' + esc(ten) : '') + '. ' +
+          'Where the form states a range, the range is the disclosure — PolitiDex does not ' +
+          'narrow it to a single figure. This is personal wealth declared while in office: ' +
+          'it is a different fact from the campaign receipts above it, over a different span, ' +
+          'and the two are never added together or divided into one another.' +
+        '</p>' + link;
+    } else {
+      body =
+        '<div class="pdx-money-block-fig is-none">No in-office wealth file on hand</div>' +
+        '<p class="pdx-money-block-s">' +
+          'PolitiDex holds no personal financial-disclosure form for ' + esc(first) + '. ' +
+          'That is missing data on our side — it is not a disclosure of zero, it is not a ' +
+          'finding about ' + esc(first) + ', and nothing here reads it as one. Transcribing ' +
+          'these forms is hand work that has not been done yet for this roster; where a form ' +
+          'exists, this block will quote its range or exact figure exactly as filed.' +
+        '</p>';
+    }
+    return '<span id="' + WEALTH_SECTION_ID + '" class="pdx-nav-anchor" aria-hidden="true"></span>' +
+      '<div class="pdx-money-block" data-pdx-money-block="wealth" data-pdx-wealth-state="' + attr(wr.state) + '">' +
+        '<h4 class="pdx-money-block-h">Disclosures while serving</h4>' +
+        body +
+        (cov.sentence
+          ? '<p class="pdx-money-block-cov"><span>Coverage</span> \u00b7 ' + esc(cov.sentence) + '</p>'
+          : '') +
+      '</div>';
   }
 
   // The disclosure, on its own, for a surface that shows the lane at site level.
@@ -965,6 +1255,25 @@
     letterheadChipHtml: letterheadChipHtml,
     letterheadChipMount: letterheadChipMount,
     openSection: openSection,
+    // ── Chip 2: what was disclosed while serving ─────────────────────────────
+    // The same five surfaces for the second pill — read, markup, mount, door,
+    // and the section block the door opens onto. wealthRead(pid, person) is
+    // two-valued ('file' | 'empty'); see the wall over it for why there is no
+    // third state. The figures come from PDXFinance.wealth() as published
+    // strings: nothing here parses, midpoints, ranks or sums them, and no
+    // surface in this file puts a receipts figure and a disclosure figure in
+    // one expression.
+    WEALTH_SECTION_ID: WEALTH_SECTION_ID,
+    wealthRead: wealthRead,
+    wealthLetterheadChipHtml: wealthLetterheadChipHtml,
+    wealthLetterheadChipMount: wealthLetterheadChipMount,
+    wealthBlockHtml: wealthBlockHtml,
+    openWealthSection: openWealthSection,
+    // The campaign-filing lookup, published so PDXFinance.filing(pid) can delegate
+    // to it instead of keeping a second copy of the two seams and the id alias.
+    // One owner for "does this person have a filing" — two owners is how the chip
+    // and the helper come to answer that differently.
+    filingRecord: recordFor,
     // Declared so the wall is readable from the object as well as from the header,
     // and asserted in scripts/test-finance-lane.mjs.
     scored: false,

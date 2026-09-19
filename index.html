@@ -15009,6 +15009,15 @@ window.PDXLazy = (function () {
        lazily at call time, so every consumer is guarded.
        See FINANCE_INTEGRITY.md and scripts/test-finance-lane.mjs. -->
   <script defer src="/ftm-data.js"></script>
+  <!-- 💰 The personal-disclosure read: PDXFinance.filing(pid) / .wealth(pid),
+       the two helpers behind the letterhead's TWO money chips. Loaded between
+       the filings index and the lane because `defer` runs in document order and
+       finance-lane.js asks it for the disclosure figure it prints. It ships an
+       EMPTY disclosure table on purpose — see the header — so the second chip is
+       in its stated empty state on every profile rather than absent. It does no
+       arithmetic on a disclosed range and nothing in it can add the two chips
+       together. See FINANCE_INTEGRITY.md and scripts/test-money-two-chips.mjs. -->
+  <script defer src="/pdx-finance.js"></script>
   <script defer src="/finance-lane.js"></script>
   <!-- The canonical person file — the one funnel every "open this politician"
        path routes through, and the owner of the durable /p/<id> address.

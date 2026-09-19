@@ -6820,7 +6820,54 @@
 //     nothing stored is renamed, re-scoped, re-weighted or dropped.
 //
 //     NO new store key, no DM number, no party, twin-boot DM unchanged.
-const CACHE_VERSION = 'v219';
+// v220 - TWO MONEY CHIPS ON THE LETTERHEAD: RECEIPTS, AND DISCLOSED WHILE SERVING.
+//
+//     ONE 💰 PILL WAS ANSWERING TWO QUESTIONS AND ONLY EVER SHOWED ONE. The
+//     letterhead chip reported campaign receipts — "$8.6M itemized 2024 cycle" —
+//     and a reader cannot tell from a pill whether a dollar figure beside a name
+//     is money a campaign raised under contribution limits or money the person
+//     owns. Two archives, two filers, two spans; and no per-person read of the
+//     second existed, because /money's wealth board is a ten-row leaderboard of
+//     net-worth estimates with a percentage change — not a disclosure.
+//
+//     TWO PILLS NOW, AND THEY NEVER MAKE A THIRD NUMBER. 💰 $774M itemized
+//     receipts · 2024 · FEC opens the campaign-filings block; 💰 $1–5M disclosed
+//     · 10 yrs in office · 2024 FD opens the disclosures block. Same row, same
+//     green-and-gold pair, same glyph, two jump targets. No sum, no ratio, no
+//     shared segment: pdx-finance.js — new, precached, loaded between ftm-data.js
+//     and finance-lane.js on index.html and person.html, deliberately absent from
+//     money.html — owns the disclosure table and the two named helpers
+//     PDXFinance.filing / .wealth, and cannot add the pills together because it
+//     never sees a receipts figure. A disclosed RANGE stays a string end to end,
+//     no midpoint and no parse, so a band never prints as one dollar figure.
+//     Tenure comes through voter-hub-location.js's _pdxTenure over the person
+//     file's sworn date, never stored again beside a disclosure; a first-year
+//     member reads "under 1 yr in office", never "0 yrs".
+//
+//     THE DISCLOSURE TABLE SHIPS EMPTY, VISIBLY. Transcribing personal financial
+//     disclosures is a later wave, so wealth() answers null for everybody and the
+//     second pill reads "No in-office wealth file on hand" on every profile, in
+//     words, beside a section block that says the same and names the form. Never
+//     $0, never an absent pill: to a reader who has learned this site puts a money
+//     chip on people with money, a missing chip says "clean". Nothing is invented.
+//
+//     The receipts pill gave up "top source:" and its coverage counts to make
+//     room; both moved into the aria-label and into BOTH section blocks, now
+//     labelled Campaign filings and Disclosures while serving. The money section
+//     gained the pdxsec-wealth anchor (money stage), coverage counts in its
+//     on-file branch, and two block rules in finance-lane.css.
+//
+//     NO new score, no %, no grade, no tier, no ballot path; PDXFinance declares
+//     scored:false and the same NEVER_FEEDS wall. Twin-boot byte-identical:
+//     Direction Match, the formal pattern index, the publication floor and the
+//     mapped counts read the same with both pills mounted and with neither.
+//
+//     MIGRATION COST. None to any stored record: nothing in this pass reads,
+//     writes or re-asks a saved location, provenance stamp, resolved district,
+//     team or stance, and no key changes shape. A warm device pairs the new shell
+//     with pdx-finance.js on first load; a device that misses the file sees the
+//     second pill's empty state, which is what every profile shows today anyway.
+const CACHE_VERSION = 'v220';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -7384,6 +7431,13 @@ const SHELL_ASSETS = [
   // inside each of them. It MUST be precached alongside the lane: a lane with no
   // index answers "no money file" for every person on the site.
   '/ftm-data.js',
+  // THE PERSONAL-DISCLOSURE HELPERS behind the letterhead's second 💰 chip.
+  // Precached beside the lane for the same reason the filings index is: without
+  // it, finance-lane.js finds no PDXFinance and every profile's disclosure chip
+  // falls back to its empty state — which is the state it is in today anyway,
+  // but it would be in it for the wrong reason, and the reason is the whole
+  // content of that pill. It is a small inline table plus two readers.
+  '/pdx-finance.js',
   '/finance-lane.js',
   '/finance-lane.css',
   // THE EXECUTIVE LANE. Not optional once /p/* serves one document for every

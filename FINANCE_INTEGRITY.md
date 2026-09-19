@@ -229,10 +229,12 @@ The ⚖️ in the middle of the glyph ramp was the worse offence of the two: tha
 glyph is Word vs Action's own badge, so a donor mix had borrowed the vocabulary
 of a promise-keeping measure.
 
-Missing data stays words — "No money file on hand", "Not on file" — never a
-dimmer pill, a dashed frame or a greyer glyph. An undigitised filing is a fact
-about the archive, and a door that weakens when the room behind it is empty
-reports it as a fact about the person.
+### Missing data stays words
+
+Missing data stays words — "No money file on hand", "No in-office wealth file on
+hand", "Not on file" — never a dimmer pill, a dashed frame or a greyer glyph. An
+undigitised filing is a fact about the archive, and a door that weakens when the
+room behind it is empty reports it as a fact about the person.
 
 That rule was written before the CSS obeyed it. `.pdx-fund-none` — the profile
 section's empty state — carried `border: 1px dashed` and an `opacity: 0.8` glyph:
@@ -324,6 +326,110 @@ branch ends by distinguishing an **unopened archive** from a search that came
 back empty — the two states a missing file collapses into if nobody separates
 them. No branch invents a donor, a committee, a filing date or a dollar figure,
 which `scripts/test-finance-lane.mjs` asserts per branch.
+
+## Two money pills on the letterhead, and they are not one number twice
+
+The person-file letterhead carries two 💰 chips, side by side, in the same pill
+row as ⚖️, in the same green-and-gold pair:
+
+```
+💰 $774M itemized receipts · 2024 · FEC
+💰 $1–5M disclosed · 10 yrs in office · 2024 FD
+```
+
+Two pills, two units, never one number. The first is what a **campaign** raised
+and reported to an election authority under contribution limits. The second is
+what a **person** told a clerk they own while holding the office. Different
+filer, different form, different span, different archive. The reason they are
+two pills and not one is that every shorter form of them is wrong: a single
+money pill has to pick one of the two facts and let a reader assume it covers
+both, and a combined figure describes nothing that exists on any form.
+
+**Sentence shapes.** Each pill has exactly three segments, and each segment
+carries its own unit so neither figure can be read as the other's:
+
+| Pill | On file | Thin | Nothing on file |
+|---|---|---|---|
+| Campaign receipts | `$774M itemized receipts · 2024 · FEC` | `Partial file · 3 items · FEC` | `No money file on hand` |
+| Disclosed while serving | `$1–5M disclosed · 10 yrs in office · 2024 FD` | — | `No in-office wealth file on hand` |
+
+`itemized receipts` and `disclosed` are unconditional: the unit is what stops a
+reader four inches away from adding the two. The year on the receipts pill is the
+filing's own cycle; the year on the disclosure pill belongs to the form it came
+off. The tenure span comes from the person file's sworn date through today or
+their last day in office, read off the site's one tenure owner (`_pdxTenure`),
+never stored a second time beside the disclosure. A member sworn in this year
+reads "under 1 yr in office" rather than "0 yrs" — a zero beside a dollar figure
+reads as a zeroed figure. A person file with no sworn date prints the figure with
+no span at all rather than an invented one.
+
+**Both absences speak one dialect.** "No money file on hand" and "No in-office
+wealth file on hand" — the same grammar, for the same reason ["yet" is
+gone](#missing-data-stays-words): both are statements about what PolitiDex holds
+today, not about a queue and not about the person. Neither pill ever renders
+`$0`, a dash, a dimmed glyph or nothing at all; a missing pill in a row of pills
+reads as "clean", which is a finding nobody filed.
+
+**Never a single figure out of a range.** Federal disclosures report bands —
+`$1,000,001 – $5,000,000` — and the band *is* the disclosure. PolitiDex prints it
+as filed and never narrows it: no midpoint, no "about $3M", no parse into a
+number, on the pill, in its accessible name, or in the section block. There is no
+arithmetic operator applied to a disclosed figure anywhere in `pdx-finance.js`,
+which `scripts/test-money-two-chips.mjs` asserts against the source as well as
+the output. Jurisdictions that publish an exact figure get that exact figure,
+unrounded and undressed as a range.
+
+**No sum, and structurally so.** Nothing adds, averages, ranks or divides the two
+figures — not "$774M raised against $1–5M held", not a per-year-in-office rate,
+not a ratio. `pdx-finance.js` cannot do it even by accident: it never sees a
+receipts figure, and the seam fence keeps the filings index visible to exactly
+two modules, so the disclosure helper asks the lane rather than opening the index
+a second time. Both pills say out loud, in their accessible names, that the two
+figures are not added together.
+
+**Two doors, two destinations.** The receipts pill opens the campaign-filings
+block (`pdxsec-funding`); the disclosure pill opens the disclosures block
+(`pdxsec-wealth`). Same profile, same section, different heading focused on
+arrival — which is why `pdxsec-wealth` is registered in `profile-spine.js`'s
+`TARGET_STAGE` in its own right. Two pills that landed a reader in the same place
+would be two labels on one door.
+
+**Coverage counts moved off the pills and into the section.** The pills carry a
+figure, a span and an archive; how many of the roster have a file is a fact about
+PolitiDex, and it belongs on the surface with room to state it. Both section
+blocks — **Campaign filings** and **Disclosures while serving** — print their own
+coverage sentence, including the on-file branch, which used not to: a reader
+looking at a real composition is the one most likely to assume everybody else
+came back clean. The disclosure block also links the form itself with its year,
+and says "no link on file" rather than rendering a dead anchor where a row has
+no URL.
+
+### The disclosure table ships empty, on purpose
+
+`PDX_FD_DISCLOSURES` in `pdx-finance.js` is `{}`. Every profile on the site
+therefore shows the second pill in its empty state today, and that is the
+honest state rather than a stopgap: **there is no transcribed personal-disclosure
+row in this repo.** Filling those rows is a curation wave, the same hand work the
+campaign filings took.
+
+The one wealth table that does exist — `WEALTH_DATA` in `wealth-lane.js`, behind
+/money — is not a source for this pill and is never read by it. It holds
+net-worth *point estimates* with a before/after and a percentage change, sorted
+into a board. A point estimate is not a filed figure, a percentage change is the
+shape this lane retired, and a sorted board is a ranking. The disclosure pill is
+fed by a filed form or by nothing.
+
+`PDXFinance` publishes exactly two reads, and `wealth()` answers `null` rather
+than a zeroed object when there is no row:
+
+```js
+PDXFinance.filing(pid)   // the lane's filing record, or null — not a second lookup
+PDXFinance.wealth(pid)   // { rangeOrExact, year, formUrl, tenureYears } | null
+```
+
+`rangeOrExact` is a string end to end, and the read exposes no numeric field a
+consumer could quietly do arithmetic on. `PDXFinance.scored` is `false` and it
+declares the same `NEVER_FEEDS` list as the lane.
 
 ## The wall
 
@@ -439,19 +545,29 @@ page.
 
 1. **Follow the Money cards** — each card leads with the total itemized
    receipts and the composition, then the outside-spending note.
-2. **Profile letterhead → the 💰 chip** (`letterheadChipMount`) — a one-line
-   pill among the status pills, sized to the ⚖️ Word vs Action badge beside it.
-   It prints the itemized-receipts figure, **how many reported sources it was
-   built from**, the top source named, and the coverage words — counts, never a
-   share. A percentage on the letterhead is the first screen of a score: one
-   number, no unit, comparable across people at a glance. The chip carried a
-   `38% small-dollar` segment and it does not any more; the fence now asserts
-   that no chip state contains a `%` at all.
-     It is a button: clicking it reveals and jumps to the money section below on
-   the same profile (`pdxsec-funding`). It is a door, not a summary — no chart,
-   no donor list, no ring, no colour that grades. It renders on every profile,
-   including the 787 with no filing, where it reads **"No money file on hand"** —
-   because a missing badge would read as "clean" rather than as "unknown".
+2. **Profile letterhead → the two 💰 chips** (`letterheadChipMount` and
+   `wealthLetterheadChipMount`) — two one-line pills among the status pills,
+   sized to the ⚖️ Word vs Action badge beside them, receipts first and both
+   before the party pill with nothing between them. The first prints the
+   itemized-receipts figure with its unit, the filing's cycle year and the
+   archive the filing was transcribed from; the second prints the disclosed
+   figure as filed, the tenure span it was filed during, and the form's year.
+   Neither carries a `%`. A percentage on the letterhead is the first screen of
+   a score: one number, no unit, comparable across people at a glance. The
+   receipts chip carried a `38% small-dollar` segment and it does not any more;
+   the fence asserts that no state of either chip contains a `%` at all. The
+   reported-source count and the coverage sentence also came off the pill — they
+   are in the accessible name and in both section blocks now, because the pill's
+   job is a figure and a door.
+     Both are buttons, and they are **two doors**: the receipts chip reveals and
+   jumps to the campaign-filings block (`pdxsec-funding`), the disclosure chip to
+   the disclosures block (`pdxsec-wealth`), on the same profile. Doors, not
+   summaries — no chart, no donor list, no ring, no colour that grades. Both
+   render on every profile, including the 787 with no filing, where the first
+   reads **"No money file on hand"**, and including all 1,120 today for the
+   second, which reads **"No in-office wealth file on hand"** — because a missing
+   badge would read as "clean" rather than as "unknown". See [the two pills
+   above](#two-money-pills-on-the-letterhead-and-they-are-not-one-number-twice).
 3. **Profile → 💰 Follow the Money** — the entry row (both states), the counts
    lead, the composition block, the source-gap line when there is no filing, and
    the coverage disclosure. This is the person file's one labelled door into the
@@ -580,9 +696,27 @@ the spine's own rule is that a jump chip must never aim at a self-gating section
 anchor — that `_pdxFundingSection` emits the `pdxsec-funding` anchor *above* its
 no-filing branch, so the destination exists on the 787 profiles with no file.
 
+`scripts/test-money-two-chips.mjs` — the fence around the pair: both pills mount
+in the pill row in order and adjacent, each guarded and each falling back to
+nothing rather than a placeholder; the receipts pill keeps its unit and names the
+archive its own source URL points at; a disclosed band never collapses into a
+midpoint, a parse, an end of the range or a rounded figure, on the pill, in its
+accessible name or in the block, and `pdx-finance.js` contains no arithmetic that
+could do it; a missing disclosure renders words with no digit and no dollar sign
+on every profile asked, with "not a disclosure of zero" in the long form; the two
+click targets are checked by **calling** both against a document and watching
+which block takes focus, with neither taking an exit off the person file; no
+surface prints a combined read and the disclosure module cannot see a receipts
+figure; neither pill's text or accessible name carries a percentage, a level, a
+rank or a word about being wealthy; the shipped disclosure table really is empty;
+and a twin boot that mounts 108 of each pill leaves Direction Match, the formal
+pattern index, the publication floor and the mapped counts byte-identical with a
+disclosure filed on the member under test, with no new global on the window.
+
 `scripts/test-money-theme.mjs` — the fence around the token: the two copies agree
 value for value; **Lee's $8.6M chip and an empty Utah chip open with byte-identical
-markup** and carry the same 💰 in the same span; no surface maps `is-grass` /
+markup** and carry the same 💰 in the same span, as does the disclosure chip
+beside them, differing only in its lane attribute and its click target; no surface maps `is-grass` /
 `is-mixed` / `is-big` to different paint and no glyph ramp survives; no banned hex
 reaches a money surface, in source or in rendered output; every composition bar is
 one gold fill on one slate track, as long as its share and encoding nothing in

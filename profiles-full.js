@@ -5747,6 +5747,30 @@
                  verdict in colour after the words declined to. See the block over
                  SECTION_ID in finance-lane.js. -->
             ${(window.PDXFinanceLane && typeof window.PDXFinanceLane.letterheadChipMount === 'function') ? window.PDXFinanceLane.letterheadChipMount(id) : ''}
+            <!-- THE SECOND MONEY CHIP — DISCLOSED WHILE SERVING, AND IT IS NOT THE
+                 SAME NUMBER. The pill above is what a CAMPAIGN raised and reported
+                 to an election authority; this one is what the PERSON declared they
+                 own, on a form they signed while holding the office. Two archives,
+                 two units, two spans — and the single worst thing this letterhead
+                 could do is let a reader add them. So they are two pills that never
+                 share a segment, never print a combined figure, and open two
+                 different blocks of the money section.
+
+                 Mounted immediately after its twin and before the party pill so the
+                 money reads as one run of the row: 💰 receipts, 💰 disclosures, then
+                 party. Between them is how the pair reads as two unrelated facts.
+
+                 Same always-renders rule, for the same reason as chip 1 and with
+                 more force: PolitiDex holds no disclosure forms at all yet, so this
+                 pill is in its empty state on every profile today. That is the
+                 honest state and it is rendered in words. Rendering nothing until
+                 forms exist would leave "no chip" to say "nothing to declare" —
+                 which is a finding, about a person, out of our own missing data.
+
+                 No range is ever narrowed to one number and no figure here is ever
+                 $0: see the walls in pdx-finance.js and over the chips in
+                 finance-lane.js. -->
+            ${(window.PDXFinanceLane && typeof window.PDXFinanceLane.wealthLetterheadChipMount === 'function') ? window.PDXFinanceLane.wealthLetterheadChipMount(id, p) : ''}
             ${p.party ? `<span class="profile-party">${p.party}</span>` : ''}
           </div>
         </div>

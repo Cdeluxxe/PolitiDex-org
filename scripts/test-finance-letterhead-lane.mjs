@@ -212,9 +212,17 @@ console.log(`   finance letterhead: ${SEED_IDS.length} filings · ${Object.keys(
     }
     // COUNTS / COMPOSITION / DISCLOSURE — the three things the control is for,
     // and each one is a fact about a document.
-    has(words, "itemized", `${id}: the dollars say what kind of dollars they are`);
-    has(words, "top source:", `${id}: …the composition names its largest reported source`);
-    ok(/\d+ of \d+ filed/.test(words) || /\d+ filings on file/.test(words),
+    has(words, "itemized receipts", `${id}: the dollars say what kind of dollars they are`);
+    // THE COMPOSITION AND THE COVERAGE MOVED TO THE LABEL when the disclosure
+    // chip joined this row. Two pills cannot both be four segments long without
+    // becoming a strip, and those two segments are the ones a reader needs a
+    // bucket list and a denominator to interpret — which means they need the
+    // section. Asserted here on the ACCESSIBLE NAME rather than dropped: the
+    // pill may say fewer things than the longer form, never more, and neither
+    // may say fewer things than before unless the section picked them up.
+    has(label, "largest reported source", `${id}: …the composition names its largest reported source`);
+    ok(/\d+ of the \d+ people/.test(label) || /\d+ filings on file/.test(label) ||
+       /blank here is missing data/.test(label),
       `${id}: …and the coverage counts ride along`);
     // …and none of the reads it must never feed is named on it.
     for (const k of (L.NEVER_FEEDS || [])) {
@@ -361,7 +369,7 @@ console.log(`   finance letterhead: ${SEED_IDS.length} filings · ${Object.keys(
     const label = aria(html);
     has(label, "missing data", `${id}: the accessible name carries the coverage disclosure`);
     has(label, "not a finding about the person", `${id}: …including that it is not a finding`);
-    has(label, "money section on this file", `${id}: …and where to go for the source gap`);
+    has(label, "campaign filings block on this file", `${id}: …and where to go for the source gap`);
   }
 
   // NO COLOUR GRADE ACROSS THE STATES. One class, no inline style, in all three

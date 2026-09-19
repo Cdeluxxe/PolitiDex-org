@@ -281,8 +281,13 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // cares about; not a character of the block itself changed. Re-derived by
 // locating the run, as always — the arithmetic agreed afterwards, which is the
 // order that catches a bad pin rather than confirming one.
+//   AND DOWN BY NINE, for the second letterhead money pill. `/pdx-finance.js`
+// took a script tag and an eight-line load-order note into index.html at 15020 —
+// above this block, like every move before it — so PDXStance moved to
+// 20261–20382. Located verbatim again; person.html's Firebase boot is above its
+// own document's new tag and did not move.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 20252, b: 20373, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 20261, b: 20382, what: "the PDXStance vocabulary" },
   { from: "person.html", src: PERSON, a: 2012, b: 2066, what: "the Firebase boot" },
 ];
 // The three-room split moved the index.html range by −2021 — /mandate, /voice

@@ -354,8 +354,8 @@ const COPIES = [
   [3727, 3791, "the crawl-header guard"],
   [13401, 13435, "the profile modal down to #modal-content"],
   [13496, 13543, "the stance popover, the record overlay and the share sheet"],
-  [20252, 20373, "PDXStance"],
-  [22862, 23060, "the PWA runtime and the service-worker registration"],
+  [20261, 20382, "PDXStance"],
+  [22871, 23069, "the PWA runtime and the service-worker registration"],
 ];
 // THESE NUMBERS ARE ANCHORS INTO index.html AND THEY MOVE WHEN IT DOES. The
 // ones re-based here were re-based by the fourth split, which lifted the ballot
@@ -494,6 +494,15 @@ const COPIES = [
 // JavaScript under the footer — it is +114. And the six anchors above the head
 // lock did not move at all. One number added to all twelve would have been
 // wrong eleven times. Each was re-derived by locating its run verbatim.
+//   AND THE LAST TWO MOVED BY NINE MORE, for the second letterhead money pill.
+// The personal-disclosure chip beside the campaign-receipts one arrived with a
+// new module, and `/pdx-finance.js`'s script tag plus its eight-line load-order
+// note went into index.html at line 15020 — between the filings index and the
+// lane that reads it, and above both PDXStance and the PWA runtime. person.html
+// got the same tag, but it sits BELOW every block this table pins, so only the
+// index.html anchors moved. Both runs were located verbatim in the new
+// index.html; the arithmetic agreed afterwards, which is the order that catches a
+// bad pin instead of confirming one.
 for (const [a, b, what] of COPIES) {
   const slice = idxLines.slice(a - 1, b).join("\n");
   ok(slice.split("\n").length === b - a + 1 && slice.trim().length > 0,

@@ -278,7 +278,7 @@ const COPIES = [
   // an earlier edit to index.html shifts line numbers — when it does, the header
   // comment in me.html and this table move TOGETHER, which is the whole point of
   // pinning it in one place.
-  { from: "index.html", src: INDEX, a: 20866, b: 21288, what: "PDXSaved" },
+  { from: "index.html", src: INDEX, a: 20875, b: 21297, what: "PDXSaved" },
 ];
 // PDXSaved's declared range has now moved four times, always for the same
 // reason and always re-derived the same way: LOCATE THE 423-LINE RUN VERBATIM IN
@@ -318,6 +318,13 @@ const COPIES = [
 // it opens on index.html's `<script>` at 20866 and closes on its `</script>` at
 // 21288, one line earlier is not in me.html at all, and it came back at its
 // full 423 lines again.
+// AN EIGHTH MOVE, DOWNWARD BY NINE, for the second letterhead money pill: the
+// personal-disclosure chip arrived with a new module, and `/pdx-finance.js`'s
+// script tag plus the eight-line load-order note above it went into index.html at
+// line 15020, between the filings index and the lane that reads it. That is above
+// this block, like all eight before it. 20875-21297, located verbatim, opening on
+// `<script>` and closing on `</script>` as the boundary note above requires, and
+// back at its full 423 lines.
 for (const c of COPIES) {
   const header = new RegExp(`COPIED VERBATIM FROM ${c.from.replace(".", "\\.")} LINES ${c.a}[^0-9]{1,3}${c.b}`);
   ok(header.test(ME), `copy: me.html declares its ${c.what} block as ${c.from} ${c.a}–${c.b}`);

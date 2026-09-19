@@ -914,6 +914,57 @@
     // The richer read shown on a politician profile. Same lookup and the same
     // words as Compare, laid out for one person. Renders a calm "Not on file"
     // state (never an empty gap or a fabricated figure) when there's no record.
+    //
+    // ── TWO LABELLED BLOCKS, BECAUSE THE LETTERHEAD NOW ASKS TWO QUESTIONS ──
+    // The section is one section with two named blocks in it:
+    //
+    //   Campaign filings         what a campaign raised and reported
+    //   Disclosures while serving  what a person declared they own, on a form
+    //
+    // Each letterhead money chip is a door to its OWN block, and each block
+    // quotes exactly the figure its chip quotes — one read per lane, shared, so a
+    // pill and the block it opens cannot disagree about the archive.
+    //   THEY ARE LABELLED RATHER THAN MERGED, and not for layout reasons. An
+    // unlabelled stack of two dollar figures under one 💰 heading is an invitation
+    // to read the second as a continuation of the first, and the two are not even
+    // the same kind of money: receipts passed through a committee under
+    // contribution limits, disclosures are what somebody told a clerk they own.
+    // The labels are the only thing standing between a reader and that sum.
+    //   NO THIRD FIGURE. There is no combined total, no ratio between the blocks,
+    // no "money score" over the pair, and no arithmetic anywhere in this function
+    // that has both a receipts figure and a disclosure figure in it. Coverage
+    // counts appear in BOTH blocks — they came off the chips when the second chip
+    // joined the letterhead row, and a count with no denominator is worse on a
+    // pill than it is missing.
+    // The disclosures block, from the lane that owns it. Rendered through one
+    // helper so BOTH branches of the section get it — a profile with no campaign
+    // filing is not a profile with no disclosure question, and an empty-state
+    // branch that quietly drops the second block is a reader being told the
+    // question does not apply to this person.
+    //   THE FALLBACK IS WORDS, NOT NOTHING. If finance-lane.js has not loaded,
+    // the heading and the same missing-data sentence still print. A silently
+    // absent block reads as "nothing to declare" — which is the exact failure the
+    // always-rendering empty chip exists to prevent, and it would be reintroduced
+    // here by a `? ... : ''`.
+    function _pdxWealthBlock(pid, p) {
+      var L = window.PDXFinanceLane;
+      if (L && typeof L.wealthBlockHtml === 'function') {
+        try {
+          var html = L.wealthBlockHtml(pid, p);
+          if (html) return html;
+        } catch (e) {}
+      }
+      var who = (p && p.name) ? _pdxFEsc(String(p.name).split(' ')[0]) : 'this official';
+      return '<span id="pdxsec-wealth" class="pdx-nav-anchor" aria-hidden="true"></span>'
+        + '<div class="pdx-money-block" data-pdx-money-block="wealth" data-pdx-wealth-state="empty">'
+        +   '<h4 class="pdx-money-block-h">Disclosures while serving</h4>'
+        +   '<div class="pdx-money-block-fig is-none">No in-office wealth file on hand</div>'
+        +   '<p class="pdx-money-block-s">PolitiDex holds no personal financial-disclosure form for '
+        +     who + '. That is missing data on our side — it is not a disclosure of zero and it is '
+        +     'not a finding about ' + who + '.</p>'
+        + '</div>';
+    }
+
     window._pdxFundingSection = function (pid, p) {
       p = p || {};
       var first = p.name ? String(p.name).split(' ')[0] : 'this official';
@@ -945,15 +996,19 @@
           ? window.PDXFinanceLane.coverageHtml() : '';
         return head
           + '<p class="modal-section-sub">Who bankrolls ' + _pdxFEsc(first) + ' — from public disclosure filings. This is a coverage statement, not a finding.</p>'
-          + '<div class="pdx-fund-none">'
-          +   '<div class="pdx-fund-none-ico">💰</div>'
-          +   '<div><div class="pdx-fund-none-t">No money file on hand</div>'
-          +   '<div class="pdx-fund-none-s">PolitiDex holds no itemized campaign-finance filing for '
-          +     _pdxFEsc(first) + '. That is missing data on our side — it is not a finding about '
-          +     _pdxFEsc(first) + ', and nothing here reads it as one.</div>'
-          +   _gap + '</div>'
+          + '<div class="pdx-money-block" data-pdx-money-block="filings">'
+          +   '<h4 class="pdx-money-block-h">Campaign filings</h4>'
+          +   '<div class="pdx-fund-none">'
+          +     '<div class="pdx-fund-none-ico">💰</div>'
+          +     '<div><div class="pdx-fund-none-t">No money file on hand</div>'
+          +     '<div class="pdx-fund-none-s">PolitiDex holds no itemized campaign-finance filing for '
+          +       _pdxFEsc(first) + '. That is missing data on our side — it is not a finding about '
+          +       _pdxFEsc(first) + ', and nothing here reads it as one.</div>'
+          +     _gap + '</div>'
+          +   '</div>'
+          +   _cov
           + '</div>'
-          + _cov
+          + _pdxWealthBlock(pid, p)
           + '</div>';
       }
 
@@ -993,20 +1048,34 @@
           + '<div class="pdx-fund-top-amt">' + _pdxFEsc(f.topFunder.amountFmt) + (f.topFunder.type ? ' · ' + _pdxFEsc(f.topFunder.type) : '') + '</div></div>'
         : '<div class="pdx-fund-stat"><div class="pdx-fund-stat-label">Top Funder</div><div class="pdx-fund-top-name pdx-fund-dim">Not itemized</div></div>';
 
+      // Coverage rides in the filings block now as well as the empty state's. It
+      // used to appear only where there was nothing on file, which is precisely
+      // backwards: a reader looking at a real $8.6M composition is the reader most
+      // likely to assume the other 1,107 people came back clean. And it is the
+      // segment the letterhead pill gave up when the second chip joined the row,
+      // so this is where it has to land.
+      var _covOn = (window.PDXFinanceLane && typeof window.PDXFinanceLane.coverageHtml === 'function')
+        ? window.PDXFinanceLane.coverageHtml() : '';
+
       return head
         + '<p class="modal-section-sub">Who bankrolls ' + _pdxFEsc(first) + ' — from public FEC / OpenSecrets filings. Donations are legal and don\'t imply corruption; this is about <em>who has financial access</em>.</p>'
-        + '<div class="pdx-fund-grid">'
-        +   '<div class="pdx-fund-stat"><div class="pdx-fund-stat-label">Total Raised</div>'
-        +     '<div class="pdx-fund-raised">' + _pdxFEsc(f.raisedFmt) + '</div></div>'
-        +   topBlock
+        + '<div class="pdx-money-block" data-pdx-money-block="filings">'
+        +   '<h4 class="pdx-money-block-h">Campaign filings</h4>'
+        +   '<div class="pdx-fund-grid">'
+        +     '<div class="pdx-fund-stat"><div class="pdx-fund-stat-label">Total Raised</div>'
+        +       '<div class="pdx-fund-raised">' + _pdxFEsc(f.raisedFmt) + '</div></div>'
+        +     topBlock
+        +   '</div>'
+        +   countsLead
+        +   (f.signal ? window._pdxFinanceSignalHTML(f.signal) : '')
+        +   (f.whyItMatters ? '<p class="pdx-fund-why"><strong>Why it matters:</strong> ' + _pdxFEsc(f.whyItMatters) + '</p>' : '')
+        +   '<div class="pdx-fund-actions">'
+        +     '<a class="pdx-fund-src" href="' + _pdxFAttr(f.source) + '" target="_blank" rel="noopener noreferrer">📄 FEC / OpenSecrets ↗</a>'
+        +     '<button type="button" class="pdx-fund-cmp" onclick="window._pdxCompareWith && window._pdxCompareWith(\'' + _pdxFAttr(pid) + '\', event)">⚖️ Compare funding</button>'
+        +   '</div>'
+        +   _covOn
         + '</div>'
-        + countsLead
-        + (f.signal ? window._pdxFinanceSignalHTML(f.signal) : '')
-        + (f.whyItMatters ? '<p class="pdx-fund-why"><strong>Why it matters:</strong> ' + _pdxFEsc(f.whyItMatters) + '</p>' : '')
-        + '<div class="pdx-fund-actions">'
-        +   '<a class="pdx-fund-src" href="' + _pdxFAttr(f.source) + '" target="_blank" rel="noopener noreferrer">📄 FEC / OpenSecrets ↗</a>'
-        +   '<button type="button" class="pdx-fund-cmp" onclick="window._pdxCompareWith && window._pdxCompareWith(\'' + _pdxFAttr(pid) + '\', event)">⚖️ Compare funding</button>'
-        + '</div>'
+        + _pdxWealthBlock(pid, p)
         + '</div>';
     };
 

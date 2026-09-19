@@ -239,3 +239,124 @@
   outline-offset: 4px;
   border-radius: 0.5rem;
 }
+
+/* ── THE TWO LABELLED SECTION BLOCKS ────────────────────────────────────────
+   The money section carries two named blocks — Campaign filings, and
+   Disclosures while serving — one per letterhead chip, each the far end of its
+   own pill's jump.
+
+   THE LABELS ARE STRUCTURAL, NOT DECORATIVE. Two dollar figures stacked under
+   one 💰 heading with nothing between them invites the reading that the second
+   continues the first, and they are not even the same kind of money: receipts
+   passed through a committee under contribution limits, disclosures are what
+   somebody told a clerk they own. The heading and the hairline are the only
+   things standing between a reader and that sum.
+
+   NEITHER BLOCK IS STYLED AS THE STRONGER ONE. Same fill, same border, same
+   heading weight, same ink, in both, in every state. A block that gets a
+   brighter border when it has a figure in it — or a dimmer one when it is
+   empty — is grading the person on our own coverage, and for the disclosure
+   block today that would mean dimming every profile on the site. Missing data
+   stays WORDS: `.is-none` changes the typeface's weight and colour to the same
+   muted body ink the rest of the lane uses for absences, and changes nothing
+   about the container it sits in.
+
+   NO RAMP, NO TIER, NO THIRD SCORE. There is no variant here keyed to a
+   figure's size, a band's height, a tenure length or a coverage count, and
+   there is no selector in this file that could be added to make one without
+   deleting this paragraph first. */
+.pdx-money-block {
+  border: 1px solid var(--pdx-money-line-soft);
+  border-radius: 0.55rem;
+  background: var(--pdx-money-fill);
+  padding: 0.7rem 0.8rem 0.75rem;
+  margin: 0.6rem 0 0;
+}
+.pdx-money-block-h {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pdx-money-ink);
+  margin: 0 0 0.5rem;
+  padding: 0 0 0.4rem;
+  border-bottom: 1px solid var(--pdx-money-line-soft);
+  font-weight: 600;
+}
+.pdx-money-block-fig {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.25rem;
+  line-height: 1.2;
+  color: var(--pdx-money-ink);
+}
+/* The unit, never detachable from the figure. See figureText() in
+   finance-lane.js: a dollar amount on a person's file with no noun on it is a
+   number a reader will supply their own noun for. */
+.pdx-money-block-fig > span {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pdx-money-text);
+}
+.pdx-money-block-fig.is-none {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--pdx-money-text);
+}
+.pdx-money-block-s {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.7rem;
+  line-height: 1.55;
+  color: var(--pdx-money-text);
+  margin: 0.35rem 0 0;
+}
+.pdx-money-block-src {
+  display: inline-block;
+  margin: 0.5rem 0 0;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pdx-money-ink);
+  text-decoration: none;
+  border: 1px solid var(--pdx-money-line-soft);
+  border-radius: 999px;
+  padding: 0.22rem 0.55rem;
+}
+.pdx-money-block-src:hover,
+.pdx-money-block-src:focus-visible {
+  border-color: var(--pdx-money-line);
+}
+/* A form with no link on file is not a link. It says so and it is not clickable
+   — a dead anchor styled like a live one is a promise the archive cannot keep. */
+.pdx-money-block-src.is-none {
+  color: var(--pdx-money-text);
+  border-style: dashed;
+}
+.pdx-money-block-cov {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.66rem;
+  line-height: 1.55;
+  color: #9fb4d4;
+  margin: 0.55rem 0 0;
+  padding: 0.5rem 0 0;
+  border-top: 1px solid var(--pdx-money-line-soft);
+}
+.pdx-money-block-cov > span {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.56rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7596c0;
+}
+/* Arrival, for the disclosures block's own anchor. Same soft ring as the
+   section's, because it is the same kind of event: a reader was sent here by a
+   pill and is being put inside the thing they asked for. */
+.pdx-money-block[tabindex]:focus { outline: none; }
+.pdx-money-block[tabindex]:focus-visible,
+.pdx-money-block[tabindex]:focus {
+  outline: 2px solid rgba(124, 196, 255, 0.5);
+  outline-offset: 4px;
+}
