@@ -357,11 +357,19 @@ carries its own unit so neither figure can be read as the other's:
 reader four inches away from adding the two. The year on the receipts pill is the
 filing's own cycle; the year on the disclosure pill belongs to the form it came
 off. The tenure span comes from the person file's sworn date through today or
-their last day in office, read off the site's one tenure owner (`_pdxTenure`),
-never stored a second time beside the disclosure. A member sworn in this year
-reads "under 1 yr in office" rather than "0 yrs" — a zero beside a dollar figure
-reads as a zeroed figure. A person file with no sworn date prints the figure with
-no span at all rather than an invented one.
+their last day in office, read off the site's one tenure owner (`_pdxTenure` in
+`voter-hub-location.js`) **and nothing else** — `pdx-finance.js` carries no copy
+of that arithmetic, parses no date and never reads the clock. It briefly did, as a
+fallback for documents that do not load the homepage module, and the copy was
+deleted: two implementations of "how long have they served" is how the money chip
+and the letterhead's own 🗓️ tenure pill come to disagree about one person in one
+row. Where the owner is absent — person.html today — the chip prints its figure,
+its form and its year with no tenure segment, which is what every other tenure
+consumer on that document already does. A member sworn in this year reads "under
+1 yr in office" rather than "0 yrs", because a zero beside a dollar figure reads
+as a zeroed figure. A person file with no sworn date prints the figure with no
+span at all rather than an invented one, and `tenureYears` is `null` rather than
+`0`.
 
 **Both absences speak one dialect.** "No money file on hand" and "No in-office
 wealth file on hand" — the same grammar, for the same reason ["yet" is

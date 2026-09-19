@@ -6867,7 +6867,44 @@
 //     team or stance, and no key changes shape. A warm device pairs the new shell
 //     with pdx-finance.js on first load; a device that misses the file sees the
 //     second pill's empty state, which is what every profile shows today anyway.
-const CACHE_VERSION = 'v220';
+// v221 - TENURE ON THE DISCLOSURE PILL HAS ONE OWNER, AND IT IS NOT THIS FILE.
+//
+//     v220 SHIPPED THE PILL WITH A SPARE CLOCK IN IT. pdx-finance.js asked
+//     voter-hub-location.js's _pdxTenure first and, where that owner was not on
+//     the document, parsed the person file's sworn date itself and subtracted
+//     years. Two code paths for one derived fact is how two profiles come to
+//     disagree about how long the same person has served: the owner counts whole
+//     months from a term table, the spare counted calendar years off a string,
+//     and nothing forced them to round the same way.
+//
+//     THE SPARE IS DELETED. tenureYears now comes through _pdxTenure and through
+//     nothing else — no local date parse, no new Date(), no year arithmetic
+//     anywhere in pdx-finance.js, which a test now fences by source. A member
+//     sworn this year still reads "under 1 yr in office" because that is the
+//     owner's own answer; a person with no sworn date on file answers null, and
+//     the pill prints its figure, form and year with no tenure segment rather
+//     than a span computed from a guess.
+//
+//     THE VISIBLE COST, STATED. voter-hub-location.js is wired into index.html
+//     but not person.html, so on the person document the disclosure pill carries
+//     no tenure segment — exactly what every other tenure consumer on that page
+//     already does when the owner is absent. A quietly divergent second copy was
+//     the alternative, and one owner per derived fact is the older rule.
+//
+//     No copy changed on either pill, no new asset, no route, no store, and the
+//     disclosure table still ships empty: the second pill reads "No in-office
+//     wealth file on hand" on all 1,120 rostered profiles, which the suite now
+//     sweeps whole rather than sampling — no digit, no dollar sign, same words,
+//     same "missing data, not a disclosure of zero" in every accessible name.
+//     Direction Match, the formal pattern index and the publication floor are
+//     byte-identical across the twin boot, as in v220.
+//
+//     MIGRATION COST. None to any stored record: this pass reads, writes and
+//     re-asks nothing saved — location, provenance stamp, resolved district, team
+//     and stance are untouched and no key changes shape. The bump exists because
+//     pdx-finance.js changed and a warm device would otherwise pair the new
+//     letterhead with the old shell copy of it.
+const CACHE_VERSION = 'v221';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

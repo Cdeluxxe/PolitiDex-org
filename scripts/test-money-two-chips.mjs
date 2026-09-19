@@ -113,13 +113,39 @@ const FD_FIXTURE = {
   owens: { rangeOrExact: "$100,001–$250,000", year: "2024", formUrl: "" },
 };
 
+// THE REAL TENURE OWNER, LIFTED RATHER THAN REIMPLEMENTED. pdx-finance.js asks
+// window._pdxTenure for the years on the disclosure pill and asks nobody else —
+// it carries no copy of the arithmetic, because two answers to "how long have
+// they served" is how the money chip and the letterhead's own 🗓️ pill come to
+// disagree in the same row. voter-hub-location.js owns it, and that module is a
+// homepage module with a DOM to boot, so its three tenure functions are lifted
+// out of the shipped source and run alone. A fixture here would be the second
+// implementation the shipped file just deleted.
+const LOC_SRC = R("voter-hub-location.js");
+function tenureOwnerSrc() {
+  const at = LOC_SRC.indexOf("var _PDX_TENURE_MONTHS");
+  must(at > 0, "voter-hub-location.js no longer opens its tenure block where expected");
+  const end = LOC_SRC.indexOf("window._pdxTenurePill = function");
+  must(end > at, "voter-hub-location.js no longer defines _pdxTenurePill after _pdxTenure");
+  const src = LOC_SRC.slice(at, end);
+  must(src.indexOf("window._pdxTenure = function") > 0,
+    "the lifted block does not contain _pdxTenure — the lift boundaries moved");
+  return src;
+}
+const TENURE_SRC = tenureOwnerSrc();
+
 // A box with the roster, the filings and the disclosure helpers, in the shipped
-// load order: ftm accessors, then pdx-finance.js, then the lane.
+// load order: ftm accessors, then pdx-finance.js, then the lane. `noTenure`
+// leaves window._pdxTenure out, which is the state of person.html today.
 function box(opts) {
   opts = opts || {};
   const win = makeSandbox();
   const ctx = vm.createContext(win);
   vm.runInContext(R("cmp-data.js"), ctx, { filename: "cmp-data.js" });
+  if (!opts.noTenure) {
+    vm.runInContext(TENURE_SRC, ctx, { filename: "voter-hub-location.js (tenure)" });
+    must(typeof win._pdxTenure === "function", "the lifted tenure block installed no _pdxTenure");
+  }
   win.PROFILES = win.CMP_DATA;
   win._FTM_BY_ID = {};
   for (const id of SEED_IDS) win._FTM_BY_ID[id] = { id, name: id, funding: SEED[id] };
@@ -305,9 +331,9 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   // be right before the ingest wave rather than after it.
   eq(F.wealth("lee", ROSTER.lee), null, "the shipped table answers null, not a zeroed object");
   eq(F.wealth("nobody_at_all", null), null, "…for an id the roster does not carry either");
-  const ids = ["lee", "curtis", "mike_lee"].concat(Object.keys(ROSTER).slice(0, 25));
+  const sample = ["lee", "curtis", "mike_lee"].concat(Object.keys(ROSTER).slice(0, 25));
   let rendered = 0;
-  for (const id of ids) {
+  for (const id of sample) {
     const html = L.wealthLetterheadChipMount(id, ROSTER[id] || null);
     if (!html) continue;
     rendered++;
@@ -326,7 +352,48 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
     has(label, "missing data", `${id}: the accessible name carries the coverage disclosure`);
     has(label, "not a disclosure of zero", `${id}: …and says outright that it is not a zero`);
   }
-  ok(rendered >= 20, `the empty pill renders on every profile asked (${rendered})`);
+  ok(rendered >= 20, `the empty pill reads right on every profile in the sample (${rendered})`);
+
+  // NOW THE WHOLE ROSTER, not a sample of it. The sample above carries the long
+  // failure messages because a named id is what a reader debugs with; this sweep
+  // carries the guarantee, because "no digit on a missing disclosure" is only
+  // worth anything if it holds for the twelve-hundredth profile as well as the
+  // first. Offenders are collected rather than asserted per pid so that a
+  // regression prints the names that broke instead of one arbitrary first name.
+  const allIds = Object.keys(ROSTER);
+  const noPill = [], withDollar = [], withDigit = [], wrongWords = [], wrongLabel = [];
+  const ZEROISMS = ["$0", "none", "nil", "zero", "clean", "clear", "nothing to report",
+                    "no concerns", "unremarkable", "not wealthy", "modest"];
+  const zeroism = [];
+  for (const id of allIds) {
+    const html = L.wealthLetterheadChipMount(id, ROSTER[id] || null);
+    if (!html) { noPill.push(id); continue; }
+    const words = visible(html);
+    const low = words.toLowerCase();
+    if (/\$/.test(words)) withDollar.push(id);
+    if (/\d/.test(words)) withDigit.push(id);
+    if (words.indexOf("No in-office wealth file on hand") < 0) wrongWords.push(id);
+    if (ZEROISMS.some((b) => low.indexOf(b) >= 0)) zeroism.push(id);
+    const label = (aria(html) || "").toLowerCase();
+    if (label.indexOf("missing data") < 0 || label.indexOf("not a disclosure of zero") < 0) {
+      wrongLabel.push(id);
+    }
+  }
+  const nameList = (a) => a.slice(0, 8).join(", ") + (a.length > 8 ? `, +${a.length - 8} more` : "");
+  eq(noPill.length, 0,
+    `every one of the ${allIds.length} rostered profiles gets a disclosure pill (missing: ${nameList(noPill)})`);
+  eq(withDollar.length, 0,
+    `no rostered profile prints a dollar sign for a disclosure nobody has filed (${nameList(withDollar)})`);
+  eq(withDigit.length, 0,
+    `…and no rostered profile prints a digit of any kind (${nameList(withDigit)})`);
+  eq(wrongWords.length, 0,
+    `every rostered profile says the absence in the same words (off-script: ${nameList(wrongWords)})`);
+  eq(zeroism.length, 0,
+    `no rostered profile reads the absence as a clean or zero finding (${nameList(zeroism)})`);
+  eq(wrongLabel.length, 0,
+    `every rostered profile carries "missing data, not a disclosure of zero" in its accessible name (${nameList(wrongLabel)})`);
+  ok(allIds.length > 500,
+    `the sweep really did cover the roster and not a truncated copy of it (${allIds.length} pids)`);
   // "YET" STAYS RETIRED, in the new copy as in the old. It describes a queue, and
   // for personal disclosures there is no scheduled wave to queue behind.
   const one = visible(L.wealthLetterheadChipHtml("lee", ROSTER.lee));
@@ -601,12 +668,33 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   has(emptyBlock, "No in-office wealth file on hand", "…and says what it is holding");
   has(emptyBlock, "not a disclosure of zero", "…and that a blank is not a zero");
 
-  // TENURE COMES OFF THE PERSON FILE, not off a second copy stored beside the
-  // disclosure. Two copies of "how long have they served" is how they disagree.
+  // TENURE HAS ONE OWNER AND THIS FILE IS NOT IT. No copy of the arithmetic, no
+  // stored span beside the disclosure, and nothing to disagree with the 🗓️ pill.
   lacks(FIN_SRC.slice(FIN_SRC.indexOf("var PDX_FD_DISCLOSURES"),
                       FIN_SRC.indexOf("function filing")), "tenureYears:",
     "the disclosure table stores no tenure of its own");
   has(FIN_SRC, "_pdxTenure", "…the one tenure owner is asked for it instead");
+  {
+    // The arithmetic itself must be GONE, not merely second in line: no date
+    // parse, no year subtraction, no clock read anywhere in the module.
+    const finBody = FIN_SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+    for (const bad of ["termStart", "termEnd", "new Date(", "getFullYear", "getMonth",
+                       "parseTermDate", "1776"]) {
+      lacks(finBody, bad, `pdx-finance.js derives no tenure of its own ("${bad}")`);
+    }
+  }
+  // THE REAL OWNER, ANSWERING FOR A REAL MEMBER: the span on the pill is the span
+  // _pdxTenure reports for the same person file, to the year.
+  {
+    const win = box({ disclosures: FD_FIXTURE });
+    const p = win.CMP_DATA.lee;
+    const t = win._pdxTenure(p);
+    must(t && typeof t.years === "number", "the lifted owner reports no tenure for lee");
+    eq(win.PDXFinance.wealth("lee", p).tenureYears, t.years,
+      "the disclosure read's tenure is the tenure owner's own number");
+    has(visible(win.PDXFinanceLane.wealthLetterheadChipHtml("lee", p)),
+      `${t.years} yrs in office`, "…and that is the span the pill prints");
+  }
   // A sworn date under a year old reads in words, because "0 yrs in office"
   // beside a dollar figure reads as a zeroed figure.
   {
@@ -616,8 +704,7 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
                            termStart: `${now.getFullYear()}-0${Math.min(9, now.getMonth() + 1)}` };
     const w = visible(win.PDXFinanceLane.wealthLetterheadChipHtml("fresh", win.CMP_DATA.fresh));
     ok(!/\b0 yrs?\b/.test(w), "a first-year member's pill prints no zero tenure");
-    ok(/under 1 yr in office/.test(w) || !/in office/.test(w),
-      "…it says the span is under a year, or says nothing about tenure at all");
+    has(w, "under 1 yr in office", "…it says the span is under a year instead");
   }
   // AND A PERSON FILE WITH NO SWORN DATE GETS NO INVENTED SPAN.
   {
@@ -626,6 +713,24 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
     const w = visible(win.PDXFinanceLane.wealthLetterheadChipHtml("nodate", win.CMP_DATA.nodate));
     has(w, "$1–5M disclosed", "a row with no tenure on file still reports its figure");
     lacks(w, "in office", "…and invents no span to print beside it");
+    eq(win.PDXFinance.wealth("nodate", win.CMP_DATA.nodate).tenureYears, null,
+      "…and the read reports null rather than zero years");
+  }
+  // NOR DOES A DOCUMENT WITHOUT THE OWNER GET ONE. person.html does not load
+  // voter-hub-location.js, so there the figure prints with no span — the same
+  // thing every other tenure consumer on that document does, and strictly better
+  // than a second copy of the arithmetic that agrees until it doesn't.
+  {
+    const win = box({ noTenure: true, disclosures: FD_FIXTURE });
+    eq(typeof win._pdxTenure, "undefined", "the no-owner boot really has no tenure owner");
+    const p = win.CMP_DATA.lee;
+    eq(win.PDXFinance.wealth("lee", p).tenureYears, null,
+      "with no owner loaded the disclosure read reports no tenure");
+    const w = visible(win.PDXFinanceLane.wealthLetterheadChipHtml("lee", p));
+    has(w, "$1–5M disclosed", "…the pill still reports the filed figure");
+    has(w, "2024 FD", "…and still names the form and its year");
+    lacks(w, "in office", "…and prints no span it could not read");
+    ok(!/\b0 yrs?\b/.test(w), "…least of all a zero one");
   }
 }
 

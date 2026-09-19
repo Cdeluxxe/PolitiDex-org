@@ -76,9 +76,11 @@
        }
 
    `tenureYears` is NOT stored: it is read off the person file's own termStart /
-   termEnd every time, through window._pdxTenure, so the years-in-office figure
-   on a money chip is the same figure the letterhead's 🗓️ tenure pill prints.
-   Two copies of "how long have they served" is how they come to disagree.
+   termEnd every time, through window._pdxTenure and through nothing else, so the
+   years-in-office figure on a money chip is the same figure the letterhead's 🗓️
+   tenure pill prints. Two copies of "how long have they served" is how they come
+   to disagree. Where that owner is not loaded, the chip prints its figure with no
+   tenure segment rather than deriving one here.
    ========================================================================= */
 (function () {
   'use strict';
@@ -134,48 +136,32 @@
   }
 
   // ── TENURE: SWORN DATE → NOW, OR → LAST DAY IN OFFICE ─────────────────────
-  // window._pdxTenure is the one owner (voter-hub-location.js). It parses
-  // termStart / termEnd, counts whole completed years, and returns null when no
-  // start date is recorded rather than guessing one. It is tried first so the
-  // years on a money chip are the years on the letterhead's tenure pill.
-  //   The fallback below exists because voter-hub-location.js is a homepage
-  // module and this file has to answer on documents that never load it. It is
-  // the same arithmetic, not a looser version of it: same date grammar (a year,
-  // a year-month, or a full ISO date), same whole-completed-years rule, same
-  // refusal to invent a start.
-  function parseTermDate(v) {
-    if (v === null || v === undefined || v === '') return null;
-    var m = String(v).trim().match(/^(\d{4})(?:-(\d{1,2}))?/);
-    if (!m) return null;
-    var year = parseInt(m[1], 10);
-    if (!year || year < 1776 || year > 2100) return null;
-    var month = m[2] ? parseInt(m[2], 10) : null;
-    if (month !== null && (month < 1 || month > 12)) month = null;
-    return { year: year, month: month };
-  }
+  // ONE OWNER, AND IT IS NOT THIS FILE. window._pdxTenure (voter-hub-location.js)
+  // parses termStart / termEnd, counts whole completed years, and returns null
+  // when no start date is recorded rather than guessing one. This file ASKS it
+  // and prints nothing when it cannot — it does not carry a copy of the
+  // arithmetic, because two implementations of "how long have they served" is
+  // exactly how the money chip and the letterhead's own tenure pill come to
+  // disagree about the same person in the same row.
+  //   This file used to carry that copy, for documents that do not load the
+  // homepage module — person.html is one — and the copy was deleted. The cost is
+  // visible and small: where the owner is absent, the disclosure chip prints its
+  // figure, its form and its year with NO tenure segment, which is the same thing
+  // every other tenure consumer on that document already does (profiles-full.js
+  // and compare-hub.js both guard on `typeof window._pdxTenure === 'function'`
+  // and render no pill without it). A missing span is a missing span; a second
+  // arithmetic that happens to agree today is a second answer tomorrow.
+  //   NULL IS NOT ZERO HERE EITHER. No sworn date on file means no span printed,
+  // never "0 yrs in office" beside a dollar figure.
   function tenureYears(person) {
     if (!person) return null;
     var T = W._pdxTenure;
-    if (typeof T === 'function') {
-      try {
-        var t = T(person);
-        if (t && typeof t.years === 'number' && isFinite(t.years)) return t.years;
-      } catch (e) {}
-      // _pdxTenure returning null means NO START DATE IS ON FILE, which is a
-      // different answer from "served zero years" and is reported as such.
-      if (!parseTermDate(person.termStart)) return null;
-    }
-    var start = parseTermDate(person.termStart);
-    if (!start) return null;
-    var end = parseTermDate(person.termEnd);
-    var nowY = 2026, nowM = 6;
-    try { var nd = new Date(); nowY = nd.getFullYear(); nowM = nd.getMonth() + 1; } catch (e) {}
-    var endY = end ? end.year : nowY;
-    var endM = end ? (end.month || 12) : nowM;
-    var years = endY - start.year;
-    if (endM < (start.month || 1)) years -= 1;
-    if (years < 0) years = 0;
-    return years;
+    if (typeof T !== 'function') return null;
+    try {
+      var t = T(person);
+      if (t && typeof t.years === 'number' && isFinite(t.years)) return t.years;
+    } catch (e) {}
+    return null;
   }
 
   // ── WEALTH: THE DISCLOSURE READ, OR NULL ──────────────────────────────────
