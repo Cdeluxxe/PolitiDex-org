@@ -354,9 +354,17 @@ const COPIES = [
   [3727, 3791, "the crawl-header guard"],
   [13401, 13435, "the profile modal down to #modal-content"],
   [13496, 13543, "the stance popover, the record overlay and the share sheet"],
-  [20248, 20369, "PDXStance"],
-  [22858, 23056, "the PWA runtime and the service-worker registration"],
+  [20260, 20381, "PDXStance"],
+  [22870, 23068, "the PWA runtime and the service-worker registration"],
 ];
+//   AND DOWN BY TWELVE, for the Voice-hub pass. window.pdxMapConfirm on
+// index.html grew the return-intent trigger — one guarded PDXReturn.consume()
+// call, plus the note explaining why it runs before the Home Team onboarding
+// branch rather than after it — twelve lines at ~18836, above this block like
+// every move before it. Everything below moved DOWN, so the last two are now
+// 20260-20381 and 22870-23068. Located verbatim by searching a window around the old start
+// rather than by adding twelve to it; the arithmetic agreed afterwards.
+
 // THESE NUMBERS ARE ANCHORS INTO index.html AND THEY MOVE WHEN IT DOES. The
 // ones re-based here were re-based by the fourth split, which lifted the ballot
 // workspace out of this document: removing the desk's script, stylesheet and

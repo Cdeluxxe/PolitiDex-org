@@ -293,8 +293,15 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // comment paragraph that explained why the function had outlived the leaderboard
 // it shipped with. Everything below it moved UP, so PDXStance is now 20248-20369.
 // Located verbatim, as ever; the arithmetic agreed afterwards.
+//   AND DOWN BY TWELVE, for the Voice-hub pass. window.pdxMapConfirm on
+// index.html grew the return-intent trigger — one guarded PDXReturn.consume()
+// call, plus the note explaining why it runs before the Home Team onboarding
+// branch rather than after it — twelve lines at ~18836, above this block like
+// every move before it. Everything below moved DOWN, so PDXStance is now
+// 20260-20381. Located verbatim by searching a window around the old start
+// rather than by adding twelve to it; the arithmetic agreed afterwards.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 20248, b: 20369, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 20260, b: 20381, what: "the PDXStance vocabulary" },
   { from: "person.html", src: PERSON, a: 2012, b: 2066, what: "the Firebase boot" },
 ];
 // The three-room split moved the index.html range by −2021 — /mandate, /voice

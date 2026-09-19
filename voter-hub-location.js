@@ -620,8 +620,134 @@
     window.addEventListener('keydown', arm, true);
   })();
 
+  // ── window.PDXReturn — ONE OWNER OF "WHERE WAS THIS READER GOING" ──────────
+  // THE BUG THIS CLOSES. Every door in the app that says "set your location so
+  // you can use District Voice" pointed at /#who-represents-me, which is the
+  // right place to SET a location and the wrong place to be left standing once
+  // you have. A reader tapped "Open District Voice" on /me, landed on the front
+  // page's finder, set their districts, watched the finder repaint — and was
+  // still on the finder, two megabytes deep, with no way back to the thing they
+  // had asked for except to find the nav again. The intent was thrown away at
+  // the door.
+  //
+  // So the intent travels WITH them, as one query parameter, and this module
+  // owns it end to end because it is the module that is loaded on every document
+  // that has a location door: /, /me, /voice, /ballot, /district/ut-sd-3 and
+  // /p/. A second copy of the parameter name, the allow-list or the finder's
+  // address on any one of those would be a second answer, and the one that
+  // drifts is always the one nobody is looking at.
+  //
+  // THE ALLOW-LIST IS THE WHOLE OF THE SAFETY, and it is an allow-list on
+  // purpose rather than a "does it start with /" test. `next` arrives in a URL,
+  // which means it arrives from anywhere — an email, a QR code, somebody else's
+  // page — and location.assign() on an attacker-chosen string is an open
+  // redirect. OK_RE admits four shapes and nothing else: /voice, /me, /ballot
+  // and /district/<slug>. Anything carrying a scheme, a backslash or a leading
+  // // is rejected outright before the pattern is even asked, so //evil.example
+  // (a protocol-relative URL that leaves this origin) and javascript:… cannot
+  // reach the test. A rejected value is not an error and does not strand
+  // anybody: it degrades to /voice, which is this lane's home.
+  //
+  // IT CANNOT NAVIGATE WITHOUT A SAVE. consume() returns false unless BOTH
+  // _pdxLocSaved (a real gesture came through saveVoterLocation on this page
+  // view) and _hasUserLocation (there is a location to have saved) are true — so
+  // a reader who opens the picker with ?next= in the URL and presses Escape stays
+  // exactly where they are. And it never navigates to the address it is already
+  // on, because a reader on /voice who updates their location wants the page to
+  // repaint, not to reload.
+  //
+  // NO PARAMETER, NO JUMP. Absent `next` means nobody expressed an intent, and
+  // inventing one — sending every reader who touched the front page's picker to
+  // /voice — would be this module deciding where somebody was going. The default
+  // in sanitize() is the fallback for a `next` that is PRESENT and unusable, not
+  // a default destination for a location save.
+  window.PDXReturn = (function () {
+    var HOME = '/voice';
+    var PARAM = 'next';
+    var FINDER = '/#who-represents-me';
+    // THE FRAGMENT ON ITS OWN, because the finder href puts a query BETWEEN the
+    // path and the fragment and FINDER carries the path's slash. Composing
+    // '/?next=…' + FINDER produced '/?next=%2Fvoice/#who-represents-me' — the
+    // slash landing inside the query value, so the intent read back as '/voice/'
+    // rather than '/voice'. Harmless today, because sanitize() tolerates a
+    // trailing slash and strip() removes it before the comparison, but it is a
+    // value that is not what anybody wrote, and the day the allow-list stops
+    // tolerating the slash it becomes a door that silently goes home instead.
+    var FRAGMENT = FINDER.slice(FINDER.indexOf('#'));
+    var OK_RE = /^\/(?:voice|me|ballot|district\/[a-z0-9][a-z0-9-]{0,63})\/?$/;
+
+    function strip(p) {
+      return String(p == null ? '' : p).replace(/\.html$/, '').replace(/\/+$/, '') || '/';
+    }
+
+    function sanitize(raw) {
+      var s = String(raw == null ? '' : raw);
+      if (!s) return '';
+      try { s = decodeURIComponent(s); } catch (e) {}
+      s = s.trim();
+      if (s.indexOf('//') === 0) return '';        // protocol-relative: off-origin
+      if (s.indexOf(':') >= 0) return '';          // any scheme at all
+      if (s.indexOf('\\') >= 0) return '';         // a backslash some engines read as /
+      var cut = s.search(/[?#]/);
+      if (cut >= 0) s = s.slice(0, cut);
+      s = s.toLowerCase();
+      return OK_RE.test(s) ? s : '';
+    }
+
+    // The intent in THIS page's URL, or '' when there is none. A `next` that is
+    // present and does not survive sanitize() lands on HOME rather than on '',
+    // because somebody did ask to go somewhere and /voice is where this lane
+    // lives — '' would silently strand a reader who followed a mangled link.
+    function read() {
+      var m = null;
+      try { m = /[?&]next=([^&#]*)/.exec(String(window.location.search || '')); } catch (e) { m = null; }
+      if (!m) return '';
+      return sanitize(m[1]) || HOME;
+    }
+
+    // Where a door on THIS document should send the reader back to: the address
+    // they are standing on when it is one of ours, and /voice otherwise. This is
+    // the rule that makes a location CTA on /district/ut-sd-3 return to that
+    // board instead of to the hub.
+    function here() {
+      var p = '';
+      try { p = String(window.location.pathname || ''); } catch (e) { p = ''; }
+      return sanitize(strip(p)) || HOME;
+    }
+
+    // THE DOOR ITSELF, built in one place. A real anchor to a real address with a
+    // real fragment — never href="#", never a button that needs JavaScript to
+    // mean anything. The fragment is the finder's own id, which is how every
+    // other link in the app reaches it.
+    function finderHref(next) {
+      return '/?' + PARAM + '=' + encodeURIComponent(sanitize(next) || HOME) + FRAGMENT;
+    }
+
+    function consume() {
+      var next = read();
+      if (!next) return false;
+      if (!window._pdxLocSaved || !window._hasUserLocation) return false;
+      var at = '';
+      try { at = strip(window.location.pathname); } catch (e) { at = ''; }
+      if (at === strip(next)) return false;
+      try { window.location.assign(next); return true; } catch (e) { return false; }
+    }
+
+    return {
+      HOME: HOME, PARAM: PARAM, FINDER: FINDER, OK_RE: OK_RE,
+      sanitize: sanitize, read: read, here: here,
+      finderHref: finderHref, consume: consume
+    };
+  })();
+
   window.saveVoterLocation = function() {
     window._hasUserLocation = true;
+    // A GESTURE HAPPENED ON THIS PAGE VIEW. PDXReturn.consume() will not
+    // navigate without it, which is what keeps an Escape out of the picker
+    // from carrying somebody to /voice. Set here rather than in the modal
+    // closers for the same reason the src stamp is: every gesture that sets a
+    // location comes through this function and nothing that is not one does.
+    window._pdxLocSaved = true;
     try {
       // THE STAMP IS APPLIED HERE AND NOWHERE ELSE, because every gesture that
       // sets a location already comes through this function and nothing that is
@@ -832,6 +958,13 @@
     // Welcome→ballot handoff (strictly one-shot and scoped to that flow — returning
     // users who simply tweak their location are never auto-scrolled).
     window._pdxRunWelcomeBallotHandoff();
+    // THE INTENT, HONOURED AT THE END OF THE FLOW AND NOT DURING IT.
+    // saveVoterLocation() fires on every field change (state, then county, then
+    // district), so a jump hung off the save would carry a reader away from the
+    // form mid-sentence. Closing the picker is the completion, so this is where
+    // the return happens — and it is a no-op for the reader who arrived with no
+    // `next` at all, which is nearly all of them.
+    try { if (window.PDXReturn && window.PDXReturn.consume()) return; } catch (e) {}
   };
 
   // Close the location modal with the Escape key.

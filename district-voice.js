@@ -79,6 +79,34 @@
   // THE WHOLE ALLOW-LIST. Adding a seat is adding a line.
   var VOICE_SEATS = { 'ut-statehouse-68': 1 };
 
+  // ── THE BOARD ALLOW-LIST, AND IT IS ONE TABLE ─────────────────────────────
+  // seatKey → the board's own address. ONE ROW TODAY, and adding a seat is
+  // adding a row: no pattern, no splat, no `/district/<anything>` rewrite that
+  // answers for districts this app has never drawn. netlify.toml rewrites the
+  // one address in it and nothing else, which is why a table and not a map.
+  //
+  // IT IS NOT VOICE_SEATS. VOICE_SEATS is "does this seat have a Voice block in
+  // its district file at /d/<seat-key>"; this is "does this seat have a BOARD at
+  // its own document". They are different questions with different answers — HD-68
+  // is in the first and not the second, SD-3 is in the second and not the first —
+  // and a surface that conflated them would offer a reader a room that is not
+  // there. /voice asks THIS one, because a hallway prints doors that open.
+  //
+  // WRONG-SEAT EXCLUSIVITY IS THE PRODUCT. A reader whose saved location resolves
+  // Davis County HD-15 gets an HD-15 card with no door, because SD-3's board is
+  // Weber County's room and not theirs. Layton is not North Ogden, and a board
+  // labelled "yours" for somebody who cannot vote in it is the one lie this
+  // whole lane exists to avoid.
+  var BOARD_ROUTES = { 'ut-statesenate-3': '/district/ut-sd-3' };
+
+  // The state name the saved location stores → the postal code a seat key is
+  // composed with. MIRRORED, spelling for spelling, from district-room.js's
+  // STATE_CODE — the suite holds the two copies to one answer — because this
+  // file loads as a plain script and cannot import it. A state that is not in
+  // this table composes no seat key, which is the honest answer for a state
+  // whose legislative districts this app does not draw.
+  var STATE_CODE = { utah: 'ut' };
+
   // THE STATES THIS LANE ACCEPTS A CLAIM FROM, and the prefix a claimed seat key
   // is composed with. Both mirrored from netlify/lib/district-voice-core.mjs —
   // VOICE_STATES and the `ut-statehouse-${n}` seatFromLocation() composes —
@@ -125,7 +153,23 @@
     sending: 'Posting…',
     sent: 'Posted.',
     answerSent: 'Answer recorded.',
-    signIn: 'Sign in and set your ballot location to post here. Reading stays open.'
+    signIn: 'Sign in and set your ballot location to post here. Reading stays open.',
+    // ── THE HALLWAY'S FOUR SENTENCES ───────────────────────────────────────
+    // /voice prints these and so does /me's snapshot, so the desk and the
+    // hallway cannot describe one reader's seat two different ways.
+    //
+    // "ON HAND", NEVER "YET". A board we have not built is not a board that is
+    // coming — "yet" is a promise this app has not made, and the absence
+    // grammar everywhere else in the record ("no formal record on file", "no
+    // citable address on hand") is the same refusal. AND THERE IS NO 0/0 TABLE:
+    // a seat with no board prints two sentences and a person link, never an
+    // empty poll with three zeroes in it pretending to be a room.
+    hubHd: 'District Voice is the rooms for your seats. Anyone can read a board. ' +
+      'Only verified residents of that seat get a voice that counts. This page ' +
+      'lists the seats for the location on file.',
+    boardOpen: 'Open board',
+    boardNone: 'Board not on hand for this seat.',
+    boardWhy: 'we have the seat; this room is not open.'
   };
 
   function fn(x) { return typeof x === 'function'; }
@@ -183,6 +227,18 @@
     var k = normalizeSeatKey(seatKey);
     return shipped(k) ? '/d/' + k : '';
   }
+
+  // Does this seat have a BOARD at its own address, and what is it? '' for every
+  // seat that does not — which is every seat but one — and '' is what a hallway
+  // prints the empty grammar for rather than a door onto nothing. The ONE owner
+  // of this question: a caller that built '/district/' + alias itself would be a
+  // second answer, and the first thing a second answer does is outlive the row
+  // that netlify.toml actually rewrites.
+  function boardPath(seatKey) {
+    var k = normalizeSeatKey(seatKey);
+    return (k && Object.prototype.hasOwnProperty.call(BOARD_ROUTES, k)) ? BOARD_ROUTES[k] : '';
+  }
+  function boarded(seatKey) { return !!boardPath(seatKey); }
   function seatNumber(seatKey) {
     var k = normalizeSeatKey(seatKey);
     var m = /-([0-9]+)$/.exec(k);
@@ -326,6 +382,84 @@
     if (!c.state || !c.county || !c.houseDistrict) return '';
     if (!stateAllowed(c.state)) return '';
     return normalizeSeatKey(SEAT_STATE + '-statehouse-' + c.houseDistrict);
+  }
+
+  // ── EVERY SEAT THE SAVED LOCATION RESOLVES, NOT "YOUR DISTRICT" ────────────
+  // seatForMe() answers ONE seat, the State House one, because the /d/ lane is
+  // keyed on it. /voice is not that lane: it is the hallway for the whole of
+  // what this reader's location already named — state House, state Senate, U.S.
+  // House, both U.S. Senate seats and the governor — and every one of those
+  // comes from pdxRepsForMe(), the app's one resolver. NOTHING HERE RESOLVES A
+  // LOCATION. This walks the levels that resolver already published and decides
+  // two things per level: what the seat is called, and whether a board opens.
+  //
+  // A LEVEL'S SEAT KEY, or ''. The same composition district-room.js's
+  // districtKeyFor() does, in the same order, and it is deliberately the only
+  // arithmetic in this function: state name → code, chamber → canonical
+  // chamber, district → digits. A statewide row composes nothing, which is
+  // correct and not a miss — the U.S. Senate and the governor are not districts
+  // and can never have a district board. normalizeSeatKey() is the chamber gate,
+  // so there is no second list of chamber names here.
+  function seatKeyForLevel(level, stateName) {
+    if (!level || level.statewide) return '';
+    var st = String(stateName == null ? '' : stateName).trim().toLowerCase();
+    var code = STATE_CODE[st] || '';
+    var seat = String((level.seat || level.key) || '').trim().toLowerCase();
+    var num = String(level.district == null ? '' : level.district).replace(/[^0-9]/g, '');
+    if (!code || !seat || !num || num === '0') return '';
+    return normalizeSeatKey(code + '-' + seat + '-' + String(parseInt(num, 10)));
+  }
+
+  // THE CARDS, IN THE RESOLVER'S OWN ORDER. One entry per seat this location
+  // names, and each entry carries only fields the resolver already published:
+  // the chamber's label, the district number it resolved, the county it resolved
+  // to, the pid it seated and the board path the table above allows. NO COUNTS,
+  // no activity, no "N neighbours" — a hallway says which rooms exist and says
+  // nothing about how busy they are.
+  //
+  // WHAT IT DROPS, AND WHY EACH DROP IS THE QUIET ANSWER:
+  //   · no saved location at all → [] , and the page prints the door that sets
+  //     one. There is no default location on this page and no default seat.
+  //   · a district row with no district → dropped. "State Senate" with no number
+  //     is not a seat we can name, and a card naming a chamber and no district
+  //     would read as a seat this reader does not have.
+  //   · a statewide row is KEPT with no seat key and therefore no board. Both
+  //     U.S. Senate seats and the governor are real seats this location resolves;
+  //     they simply have no district board and never will.
+  function seatsForMe() {
+    var reps = null;
+    try { reps = fn(window.pdxRepsForMe) ? window.pdxRepsForMe() : null; } catch (e) { reps = null; }
+    if (!reps || !reps.located) return [];
+    var levels = (reps && reps.levels) || [];
+    var county = String((reps && reps.county) || '');
+    var out = [];
+    for (var i = 0; i < levels.length; i++) {
+      var lv = levels[i];
+      if (!lv) continue;
+      var label = String(lv.label == null ? '' : lv.label).trim();
+      if (!label) continue;
+      var n = lv.statewide ? '' : String(lv.district == null ? '' : lv.district).replace(/[^0-9]/g, '');
+      if (!lv.statewide && !n) continue;
+      var seatKey = seatKeyForLevel(lv, reps.state);
+      // THE NAME IS THE FIELDS THE RESOLVER ALREADY PUBLISHED OR IT IS NOT A
+      // NAME. Chamber, district, county — nothing composed from a geometry table
+      // this file does not carry. A statewide row keeps the resolver's own
+      // heading, which names the state instead of a district for the same reason.
+      out.push({
+        key: String(lv.key == null ? '' : lv.key),
+        label: label,
+        district: n,
+        county: county,
+        statewide: !!lv.statewide,
+        name: lv.statewide
+          ? String(lv.distLabel || label)
+          : (label + ' District ' + n + (county ? ' \u00b7 ' + county : '')),
+        seatKey: seatKey,
+        pid: String(lv.pid == null ? '' : lv.pid),
+        board: boardPath(seatKey)
+      });
+    }
+    return out;
   }
 
   function claimQuery() {
@@ -908,16 +1042,45 @@
   // ONE link, and a quiet one. No count on it, no "N neighbors talking", no
   // activity dot and no badge — a number here would turn a neighbour's sentence
   // into a metric on somebody's file, which is the exact thing this slice is
-  // built not to do. It says where the place is and nothing about how busy it is.
+  // built not to do. It says where District Voice is and nothing about how busy
+  // it is.
+  //
+  // WHERE IT GOES, AND WHY IT MOVED. It used to point at /d/<seat-key> — the
+  // seat's own district file, which netlify.toml rewrites to index.html, so a
+  // reader tapped a quiet link on a person file and paid 1.9 MB of front page.
+  // It points at /voice now, which is 28 KB and is District Voice's home, and
+  // for a reader with no saved location it points at the door that sets one,
+  // carrying the intent to land back on /voice once it is set. Same gate, same
+  // one seat, one twentieth of the bytes, and nobody is left standing on a
+  // finder.
+  //
+  // AND IT IS NOT "THIS PERSON'S BOARD". /voice lists the seats the READER'S
+  // location resolves, which for almost everybody who opens this file are not
+  // this person's seat at all — that is the point. The label says District
+  // Voice, not "neighbors in this seat", because the old label promised the
+  // reader a room in somebody else's district. The one control that DOES answer
+  // for this person's own seat is district-board.js's, beside this one, and it
+  // still goes to that seat's board and nowhere else.
+  //
+  // THE GATE IS UNCHANGED. seatForPid() still decides whether there is a link at
+  // all, so this appears on exactly the files it appeared on before.
   function personLinkHtml(pid) {
     var seat = seatForPid(pid);
-    var href = path(seat);
-    if (!href) return '';
+    if (!seat) return '';
+    var href = '/voice';
+    var placed = false;
+    try { placed = !!window._hasUserLocation; } catch (e) { placed = false; }
+    if (!placed) {
+      try {
+        var R = window.PDXReturn;
+        href = (R && fn(R.finderHref)) ? R.finderHref('/voice') : '/#who-represents-me';
+      } catch (e2) { href = '/#who-represents-me'; }
+    }
     return '<a class="pf-kick-voice" href="' + esc(href) + '"' +
-      ' data-pdxdf-open="' + esc(seat) + '"' +
-      ' title="District Voice for this seat: one live question and the verified' +
-      ' neighbors\u2019 own takes. Not a comment section on this person, and not' +
-      ' how they voted.">Neighbors in this seat</a>';
+      ' title="District Voice: the rooms for the seats YOU vote in. Anyone can' +
+      ' read a board; only verified residents of that seat get a voice that' +
+      ' counts. Not a comment section on this person, and not how they voted.">' +
+      'District Voice</a>';
   }
 
   window.PDXVoice = {
@@ -932,6 +1095,14 @@
     isAlias: isAlias,
     shipped: shipped,
     path: path,
+    // THE BOARD ALLOW-LIST AND THE TWO QUESTIONS IT ANSWERS. Exported so /voice
+    // and /me read the table rather than each carrying a row of it.
+    BOARD_ROUTES: BOARD_ROUTES,
+    STATE_CODE: STATE_CODE,
+    boardPath: boardPath,
+    boarded: boarded,
+    seatKeyForLevel: seatKeyForLevel,
+    seatsForMe: seatsForMe,
     claim: claim,
     VOICE_STATES: VOICE_STATES,
     stateAllowed: stateAllowed,

@@ -8,9 +8,16 @@
 // it was discoverable only by arriving at a seat file and reading the composer's
 // closed note — which is to say, only by being told "no" somewhere else.
 //
-// So /me gets ONE region. It is a standing line and one control, and the whole
-// risk of it is that it grows into the board. The failure modes, every one of
-// which ships silently:
+// So /me gets ONE region. It is a standing line, a line per seat and one
+// control, and the whole risk of it is that it grows into the board. The
+// failure modes, every one of which ships silently:
+//
+// AND IT IS A LIST NOW, BECAUSE A READER HAS MORE THAN ONE SEAT. The first cut
+// of this region named a single district — "Verified for State House District
+// 68" — which was the same singular mistake /voice made: a saved address sits
+// in a House district AND a Senate district, and the desk could mention only
+// one of them. It now lists every seat the location resolves, each with whether
+// a board is on hand, and the one control opens the hub that holds them all.
 //
 //   1. A STATE GOES MISSING. Three standings, three sentences. A signed-out
 //      reader shown the unverified copy is told they failed a check nobody ran;
@@ -29,8 +36,10 @@
 //      pattern, the ballot order, a merge of pdx_your_file and pdx_my_stances —
 //      is the one thing neither lane survives.
 //   6. PARTY REACHES IT. A letter, a colour, a caucus, a gate.
-//   7. A FAKE ADDRESS. An anchor reading "Open District Voice" pointing at a
-//      seat where Voice has not opened is a promise the app cannot keep.
+//   7. A FAKE ADDRESS, OR A BOARD OFFERED TO THE WRONG SEAT. One board is open
+//      today, in Weber SD-3. Putting it on a Davis County reader's desk because
+//      it is the only board there is — or because the desk kept its own list of
+//      which seats have one — hands somebody a room they cannot speak in.
 //   8. A SECOND ALLOW-LIST. me-desk.js composing its own seat key, or carrying
 //      its own copy of which seats have a board, is a second answer — and the
 //      day a seat opens, one of the two is wrong.
@@ -47,7 +56,8 @@
 //      list and seat-key prefix are the gate's.
 //   2. THE CRITICAL PATH — /me loads the owner before the desk, and not the
 //      board's stylesheet.
-//   3. THE THREE STANDINGS, BOOTED — each one painted from real stores.
+//   3. THE THREE STANDINGS AND THE SEAT LIST, BOOTED — each one painted from
+//      real stores, over the resolver's real levels.
 //   4. THE DENYLIST — what the slot may never contain.
 //   5. THE SLOT IS NOT THE BOARD — no embed, no network, no merged store.
 //   6. THE SERVICE WORKER.
@@ -156,7 +166,7 @@ lacks(ME_BARE, "district-voice.css",
 // ═════════════════════════════════════════════════════════════════════════════
 // 3 · THE THREE STANDINGS, BOOTED
 // ═════════════════════════════════════════════════════════════════════════════
-section("3 · three standings, three sentences, painted from real stores");
+section("3 · three standings, one seat list, painted from real stores");
 
 function makeDoc() {
   const nodes = [];
@@ -232,7 +242,29 @@ function bootDesk(opts) {
   // the region's name is allowed to come from.
   win._currentVoterLocation = o.loc || { state: "", city: "", county: "", district: "" };
   win._hasUserLocation = !!(o.loc && o.loc.state);
-  win.pdxRepsForMe = () => ({ located: !!o.loc, state: (o.loc && o.loc.state) || "", county: "", levels: [] });
+  // THE SEATS COME FROM THE RESOLVER, WHICH IS WHERE THEY COME FROM ON THE REAL
+  // DOCUMENT. pdxRepsForMe() is voter-hub-location.js's answer for the saved
+  // location: one level per chamber, with the district number it resolved. The
+  // desk asks district-voice.js, district-voice.js asks this. Handing the desk a
+  // seat list directly would skip the composition that actually turns a level
+  // into a seat key, which is the step that decides whether a board exists.
+  win.pdxRepsForMe = () => ({
+    located: !!o.loc,
+    state: (o.loc && o.loc.state) || "",
+    county: (o.loc && o.loc.county) || "",
+    levels: o.levels || [],
+  });
+  // voter-hub-location.js's return-intent helper. It is on /me — the real desk
+  // reads the finder href out of it — and it is stubbed here rather than loaded
+  // because that file is 255 KB and the only thing the desk asks of it is one
+  // address. What that address actually looks like is pinned in the hub suite,
+  // against the real implementation.
+  if (!o.noReturn) {
+    win.PDXReturn = {
+      HOME: "/voice",
+      finderHref: (next) => "/?next=" + encodeURIComponent(next || "/voice") + "#who-represents-me",
+    };
+  }
   win.PROFILES = {};
   win.ISSUE_MAP = {};
   const ctx = vm.createContext(win);
@@ -254,6 +286,14 @@ function slotOf(win) {
 // Every standing's slot is collected here, so the denylist in section 4 runs
 // over all three paints rather than over whichever one was convenient.
 const slots = {};
+
+// THE LEVELS A SAVED LOCATION RESOLVES, in pdxRepsForMe()'s own shape. Two seats
+// for one reader, which is the whole reason /voice stopped being one board: a
+// Davis County address sits in a State House district AND a State Senate
+// district, and before this pass the desk could only ever mention one of them.
+const LV_HD15 = { key: "statehouse", seat: "statehouse", label: "State House", statewide: false, district: "15", pid: "rep_davis", resolved: true };
+const LV_SD3 = { key: "statesenate", seat: "statesenate", label: "State Senate", statewide: false, district: "3", pid: "john_johnson", resolved: true };
+const LV_GOV = { key: "governor", seat: "governor", label: "Governor", statewide: true, district: "", distLabel: "Utah", pid: "gov_ut", resolved: true };
 
 // ── STANDING 1 · NOT SIGNED IN ───────────────────────────────────────────────
 {
@@ -277,108 +317,147 @@ const slots = {};
   lacks(slot, "Open District Voice", "signed out: no board is offered");
 }
 
-// ── STANDING 2 · SIGNED IN, NOT VERIFIED ─────────────────────────────────────
+// ── STANDING 2 · SIGNED IN, NO SEATS ON FILE ─────────────────────────────────
+// The copy changed with the page. It used to read "Not verified for a district
+// yet" — which is two wrong things at once now: "a district" is singular, and
+// "yet" promises a check that is coming. What is actually missing is a saved
+// location, so that is what it says, and the control goes and gets one.
 {
   const w = bootDesk({ uid: "u_1" });
   ok(!w.__err, "unverified: the desk boots");
   const slot = slotOf(w);
   slots.unverified = slot;
   eq(w.PDXMeDesk.voice().standing, "unverified", "unverified: the standing is 'unverified'");
-  has(slot, "Not verified for a district yet.", "unverified: the region says what is missing");
+  has(slot, "No seats on file for this account.", "unverified: the region does not say what is missing");
   lacks(slot, "me-voicetag", "unverified: the badge is off");
   lacks(slot, "Open District Voice",
-    "unverified: no board is offered — the copy must not imply they already have one");
-  lacks(slot, "Verified for", "unverified: no district is named");
-  // THE VERIFY CONTROL IS A LINK. A trip to another address, so the reader can
-  // see where it goes, open it in a tab and copy it.
+    "unverified: a hub is offered — the copy must not imply seats we have not resolved");
+  lacks(slot, "me-voiceseat", "unverified: a seat row was painted for an account with no location");
+  lacks(slot.toLowerCase(), "yet",
+    "unverified: the missing location is described with 'yet', which promises a check nobody has queued");
+  // THE CONTROL IS A LINK, AND IT CARRIES THE WAY BACK. This is the jump the
+  // pass exists to fix: a reader who taps it from the desk sets a location and
+  // is returned to /voice, instead of being left standing on the finder holding
+  // an answer nobody asked them for.
   const cta = /<a class="me-voicecta" href="([^"]+)">([^<]+)<\/a>/.exec(slot);
-  ok(!!cta, "unverified: the verify control is an anchor with an href");
+  ok(!!cta, "unverified: the location control is an anchor with an href");
   if (cta) {
-    ok(cta[1].startsWith("/"), `unverified: the verify jump is a real root-absolute address (${cta[1]})`);
-    ok(/verify/i.test(cta[2]), `unverified: and it reads as the verify jump ("${cta[2]}")`);
+    ok(cta[1].startsWith("/"), `unverified: the jump is a real root-absolute address (${cta[1]})`);
+    ok(cta[1].indexOf("next=") >= 0, `unverified: the jump carries no return intent (${cta[1]})`);
+    ok(/voice/.test(decodeURIComponent(cta[1])), `unverified: the intent it carries is not /voice (${cta[1]})`);
+    ok(/location/i.test(cta[2]), `unverified: and it does not read as the location jump ("${cta[2]}")`);
   }
-  lacks(slot, "<button", "unverified: the verify control is a link, not a button");
+  lacks(slot, "<button", "unverified: the location control is a button rather than a link");
+  // AND WITH NO RETURN HELPER ON THE PAGE IT IS STILL A WORKING DOOR, just
+  // without the intent — a missing 255 KB file may cost the bounce-back, never
+  // the ability to set a location at all.
+  const bare = bootDesk({ uid: "u_1b", noReturn: true });
+  const bareCta = /<a class="me-voicecta" href="([^"]+)"/.exec(slotOf(bare));
+  ok(!!bareCta && bareCta[1].indexOf("who-represents-me") >= 0,
+    "unverified: with no PDXReturn on the document the control loses its href instead of falling back to the finder");
 }
 
-// ── STANDING 2b · A LOCATION THIS LANE CANNOT ACCEPT ─────────────────────────
-// Signed in, with a saved location — and still unverified, because the lane
-// resolves districts in Utah and nowhere else. Fail closed, and say so in the
-// same sentence rather than inventing a district for somebody.
+// ── STANDING 2b · A LOCATION THAT RESOLVES NOTHING ───────────────────────────
+// Signed in, with a saved location, and the resolver came back with no levels —
+// an address it could not place in any district. Fail closed and say the same
+// thing as an empty account: we have no seats. Do not invent one.
 {
   const w = bootDesk({
     uid: "u_2",
-    loc: { state: "Ohio", city: "Columbus", county: "Franklin County", stateHouseDistrict: "68" },
+    loc: { state: "Ohio", city: "Columbus", county: "Franklin County" },
+    levels: [],
   });
   eq(w.PDXMeDesk.voice().standing, "unverified",
-    "out-of-scope: a state this lane does not map is not verified, even with a district number saved");
-  eq(w.PDXVoice.seatForMe(), "", "out-of-scope: the owner names no seat for it");
-  lacks(slotOf(w), "Verified for", "out-of-scope: no district is named");
+    "unresolved: a location the resolver placed in no district is treated as verified");
+  eq(w.PDXVoice.seatsForMe().length, 0, "unresolved: the owner composed seats from a resolver that returned none");
+  has(slotOf(w), "No seats on file for this account.", "unresolved: the region claims something instead");
 }
 
-// ── STANDING 2c · A DISTRICT WE DO NOT HOLD ──────────────────────────────────
-// The name comes from the fields already stored, or the slot stays unverified.
-// This is the same reader with the county and without the district number.
+// ── STANDING 2c · STATEWIDE ONLY, WHICH IS NOT A SEAT ────────────────────────
+// A governor is a real level and it is not a district: there is no seat key to
+// compose, so there is no board to have or lack. The desk lists what the
+// resolver placed and nothing statewide can carry a board line.
 {
-  const w = bootDesk({ uid: "u_3", loc: { state: "Utah", city: "Manila", county: "Daggett County" } });
-  eq(w.PDXMeDesk.voice().standing, "unverified",
-    "no district saved: the slot stays unverified rather than naming the county alone");
-  lacks(slotOf(w), "Verified for", "no district saved: nothing is claimed");
+  const w = bootDesk({ uid: "u_3", loc: { state: "Utah", county: "Davis County" }, levels: [LV_GOV] });
+  const v = w.PDXMeDesk.voice();
+  eq(v.seats.length, 1, "statewide: the governor's row was dropped from the snapshot");
+  eq(v.seats[0].board, false, "statewide: a statewide office was given a board");
+  // Scoped to the row, because the region's own title is "District Voice" and
+  // the ban is on a statewide office WEARING a district number.
+  const row = (/<li class="me-voiceseat">[\s\S]*?<\/li>/.exec(slotOf(w)) || [""])[0];
+  ok(!/District \d/.test(row), `statewide: a statewide office was printed as a district — "${row}"`);
 }
 
-// ── STANDING 3 · VERIFIED, BOARD OPEN ───────────────────────────────────────
+// ── STANDING 3 · SEATS ON FILE, ONE OF THEM BOARDED ─────────────────────────
 {
   const w = bootDesk({
     uid: "u_4",
-    loc: { state: "Utah", city: "Manila", county: "Daggett County", stateHouseDistrict: "68" },
+    loc: { state: "Utah", city: "Layton", county: "Davis County" },
+    levels: [LV_HD15, LV_SD3],
   });
   ok(!w.__err, "verified: the desk boots");
   const v = w.PDXMeDesk.voice();
   const slot = slotOf(w);
   slots.verified = slot;
   eq(v.standing, "verified", "verified: the standing is 'verified'");
-  // THE SEAT IS THE OWNER'S ANSWER, and it is the seat the GATE resolves for the
-  // same saved location. Two derivations, one seat.
-  eq(w.PDXVoice.seatForMe(), CORE_SEAT, "verified: the client and the gate name the same seat");
-  // THE NAME IS THE TWO STORED FIELDS AND NOTHING ELSE. No county table, no
-  // geometry, no label corpus — both halves are in the saved location above.
-  has(slot, "Verified for", "verified: the region names the district");
-  has(slot, "68", "verified: the district number is the one this reader saved");
-  has(slot, "Daggett County", "verified: the county is the one this reader saved");
-  has(slot, "me-voicetag", "verified: the badge is on");
-  has(slot, "Verified resident", "verified: and it says what it certifies");
-  // THE GATE IS STILL THE OWNER'S ANSWER, AND THE DESTINATION IS THE ROOM.
-  // PDXVoice.path(seat) is what decides whether this CTA appears at all — '' is
-  // "no board here" — and that has not changed. Where it POINTS has: /d/<seat>
-  // is a rewrite to index.html, so the desk's Voice button was a 1.9 MB trip to
-  // read one board. /voice is 28 KB and resolves this same seat through this
-  // same module. Same gate, same seat, one twentieth of the bytes.
-  eq(w.PDXVoice.path(HD68), "/d/" + HD68, "verified: the owner holds the board's address");
-  has(slot, 'href="/voice"', "verified: the CTA is the District Voice room");
-  has(slot, "Open District Voice", "verified: and it says so");
-  lacks(slot, "board not live yet", "verified: the board IS live in this seat, so that sentence is absent");
+  // THE SEATS ARE THE OWNER'S, COMPOSED FROM THE RESOLVER'S LEVELS. Two
+  // derivations of one fact would drift; the desk performs none of its own.
+  eq(w.PDXVoice.seatsForMe().length, 2, "verified: the owner did not compose both resolved seats");
+  eq(v.seats.length, 2, "verified: the snapshot dropped a seat");
+  // ONE LINE PER SEAT, and the line is the chamber and the district the reader's
+  // own saved location resolved.
+  eq((slot.match(/class="me-voiceseat"/g) || []).length, 2, "verified: the desk did not print one row per seat");
+  has(slot, "Seats on file:", "verified: the block does not say what it is listing");
+  has(slot, "State House District 15", "verified: the House seat is not named");
+  has(slot, "State Senate District 3", "verified: the Senate seat is not named");
+  has(slot, "Davis County", "verified: the county the reader saved is not on the rows");
+  has(slot, "me-voicetag", "verified: the badge is off");
+  has(slot, "Verified resident", "verified: and it does not say what it certifies");
+  // BOARD ON HAND, SEAT BY SEAT. SD-3 is the one allow-listed board today, so
+  // exactly one of these two rows carries it — and the wording is the hallway's
+  // own sentence, lower-cased, so the two documents cannot describe one absence
+  // two ways.
+  eq((slot.match(/board on hand/g) || []).length, 1, "verified: 'board on hand' is not on exactly one row");
+  eq((slot.match(/board not on hand/g) || []).length, 1, "verified: 'board not on hand' is not on exactly one row");
+  lacks(slot.toLowerCase(), "yet", "verified: a seat with no board is described with 'yet'");
+  // ONE DOOR OUT OF THE WHOLE BLOCK, AND IT IS THE HUB.
+  has(slot, 'href="/voice"', "verified: the CTA is not the District Voice hub");
+  has(slot, "Open District Voice", "verified: and it does not say so");
+  eq((slot.match(/me-voicecta/g) || []).length, 1, "verified: the block has more than one control");
+  // AND THE HALLWAY IS NOT DUPLICATED HERE. The desk is a snapshot: no per-seat
+  // door, no person link, no empty-board explanation. /voice owns all of that,
+  // and a second copy is where one reader starts being told two things.
+  ["Open board", "/district/ut-sd-3", "/p/", "pdxvr-", "this room is not open"].forEach((n) =>
+    lacks(slot, n, `verified: the desk reproduces the hallway's "${n}" — the snapshot is a list, not a second hub`));
 }
 
-// ── STANDING 3b · VERIFIED, BOARD NOT OPEN IN THIS SEAT ─────────────────────
-// HD-67 is mapped, real, and has no Voice yet. That is true, and it is the
-// answer — an anchor reading "Open District Voice" pointing there would be a
-// promise the app cannot keep, so the sentence is unlinked.
+// ── STANDING 3b · SEATS ON FILE, NONE OF THEM BOARDED ───────────────────────
+// A Davis County reader in HD-15 alone. There is one board in the product and it
+// is not theirs, so the row says so plainly and the hub is still worth opening —
+// it is where the seat and its member live even when the room does not exist.
 {
   const w = bootDesk({
     uid: "u_5",
-    loc: { state: "Utah", city: "Roosevelt", county: "Duchesne County", stateHouseDistrict: "67" },
+    loc: { state: "Utah", city: "Layton", county: "Davis County" },
+    levels: [LV_HD15],
   });
   const v = w.PDXMeDesk.voice();
   const slot = slotOf(w);
   slots.dark = slot;
-  eq(v.standing, "verified", "no board yet: the reader is still verified for their district");
-  eq(w.PDXVoice.shipped("ut-statehouse-67"), false, "no board yet: Voice has not opened in HD-67");
-  eq(v.href, "", "no board yet: the owner offers no address");
-  has(slot, "Verified for", "no board yet: the district is still named");
-  has(slot, "board not live yet", "no board yet: the region says exactly that");
-  lacks(slot, "Open District Voice", "no board yet: nothing offers to open a board");
-  lacks(slot, "me-voicecta", "no board yet: there is no control at all — a sentence cannot be pressed");
-  // AND NO FAKE THREAD LIST in its place.
-  ok(!/<ul|<li/.test(slot), "no board yet: no list is painted where the board would be");
+  eq(v.standing, "verified", "no board: a reader with a seat and no board is not on file at all");
+  eq(w.PDXVoice.boardPath("ut-statehouse-15"), "", "no board: the allow-list answers for a seat it does not hold");
+  has(slot, "board not on hand", "no board: the row does not say the board is not on hand");
+  lacks(slot, "board on hand<", "no board: a board was claimed for a seat that has none");
+  // WRONG-SEAT EXCLUSIVITY, ON THE DESK TOO. Layton is not North Ogden, and the
+  // one open board must not appear on this reader's desk because it is the only
+  // one there is.
+  lacks(slot, "/district/ut-sd-3",
+    "no board: SD-3's board is on a Davis County reader's desk — a board belongs to its own seat's residents");
+  lacks(slot, "John Johnson", "no board: another seat's member is named on this reader's desk");
+  // AND THE HUB IS STILL OFFERED. The old desk went dark here — no control at
+  // all — which left the reader with a sentence and nowhere to go, on a page
+  // that does hold their seat and their member.
+  has(slot, 'href="/voice"', "no board: the hub is not offered to a reader whose seat has no board");
 }
 
 // ── THE OWNER MISSING ENTIRELY ──────────────────────────────────────────────
@@ -409,9 +488,12 @@ const slots = {};
   const slot = SLOT_RE.exec(String(mount.innerHTML));
   ok(!!slot, "owner absent: region g is still painted");
   if (slot) {
-    has(slot[0], "Not verified for a district yet.",
+    has(slot[0], "No seats on file for this account.",
       "owner absent: the region understates rather than inventing a board");
-    lacks(slot[0], "Verified for", "owner absent: no district is named without the module that owns seats");
+    lacks(slot[0], "me-voiceseat",
+      "owner absent: a seat row was painted without the module that composes seats");
+    lacks(slot[0], "Open District Voice",
+      "owner absent: the hub is offered as though we knew this reader had seats in it");
   }
   eq(win.PDXMeDesk.voice().standing, "unverified", "owner absent: the standing falls to the weakest one");
 }
@@ -446,7 +528,16 @@ section("4 · no score, no party, no match, in any standing");
 // document as a whole.
 for (const [name, body] of Object.entries(bodies)) {
   // A PERCENT SIGN IS THE WHOLE BAN, and it is banned in the quoted frame too.
-  lacks(slots[name], "%", `${name}: the slot carries no percent sign`);
+  // ONE EXEMPTION, AND IT IS NOT A FIGURE: the finder link carries its return
+  // intent as ?next=%2Fvoice, so the escape lives inside an href. The ban exists
+  // to keep a rate off this region, so it is enforced on everything a reader can
+  // read — attribute values stripped — and the raw slot is separately held to
+  // having no bare percent outside one.
+  const readable = slots[name].replace(/="[^"]*"/g, '=""');
+  lacks(readable, "%", `${name}: the slot carries a percent sign a reader can see`);
+  const hrefs = (slots[name].match(/href="[^"]*"/g) || []).join(" ");
+  ok(!/%(?![0-9A-F]{2})/i.test(hrefs),
+    `${name}: an href carries a percent that is not an escape — ${hrefs}`);
   // THE ONLY NUMBER IN THIS REGION IS THE READER'S OWN DISTRICT. Anything else
   // is a count, a rate or a rank that arrived without a name.
   const digits = texts[name].replace(/District \d+/g, "");

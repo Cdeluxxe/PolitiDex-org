@@ -707,9 +707,19 @@ eq((BAL_CODE.match(/'\/api\/[^']*'/g) || []).length, 0, "the module reaches zero
   }
 }
 
-// THE PERSON FILE'S ONE QUIET LINK IS UNCHANGED. Voice gives a person file a link
-// TO a place, and only for somebody who SITS in a Voice seat. The strip points the
-// other way — from the place to the person — and it added no link back.
+// THE PERSON FILE'S ONE QUIET LINK STILL BELONGS TO THE SEAT'S OWN MEMBER. Voice
+// gives a person file a link TO a place, and only for somebody who SITS in a Voice
+// seat. The strip points the other way — from the place to the person — and it
+// added no link back.
+//
+// THE GATE IS WHAT THIS BLOCK IS FOR, NOT THE ADDRESS. seatForPid() decides who
+// gets a link, and that is unchanged. The address the link carries moved: it used
+// to be /d/<seat-key>, which netlify.toml rewrites to the 1.9 MB front page and
+// which promised a reader a room in somebody ELSE'S district; it is /voice now,
+// District Voice's own hallway, which lists the seats the READER'S location
+// resolves. So the assertions below name /voice and the label "District Voice",
+// and the two old strings are banned rather than expected — the count, the
+// one-link-only rule and the seat→member direction are all as they were.
 {
   const V = W0.PDXVoice;
   must(V && typeof V.personLinkHtml === "function", "district-voice.js did not boot beside the strip");
@@ -718,10 +728,15 @@ eq((BAL_CODE.match(/'\/api\/[^']*'/g) || []).length, 0, "the module reaches zero
   for (const pid of ["maloy", "lyman", "curtis", "kennedy"]) {
     eq(V.personLinkHtml(pid), "", `${pid}'s still has none`);
   }
+  // The hub address is the one a reader with a saved location gets. Without one the
+  // link is the door that sets it, which is a different assertion and not this one's.
+  W0._hasUserLocation = true;
   const chewLink = V.personLinkHtml(CHEW);
-  has(chewLink, "/d/" + HD68, "Chew's still has the quiet HD-68 neighbour link");
+  has(chewLink, "/voice", "Chew's still has the one quiet Voice link, now pointed at the hallway");
   eq((chewLink.match(/<a /g) || []).length, 1, "exactly one link, and only the one");
-  has(chewLink, "Neighbors in this seat", "with the wording it already had");
+  has(chewLink, "District Voice", "labelled for the hallway it opens");
+  lacks(chewLink, "/d/" + HD68, "and no longer at the seat file that rewrites to the front page");
+  lacks(chewLink, "Neighbors in this seat", "nor promising a room in this person's district");
   eq(V.seatForPid("lee"), "", "and the seat→member direction is unchanged: Lee sits in no Voice seat");
   eq(V.seatForPid(CHEW), HD68, "Chew sits in this one");
 }

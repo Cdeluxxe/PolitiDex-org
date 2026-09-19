@@ -1906,8 +1906,20 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   }
   // THE SHELL SHIPS THE NEW TABLE, and says what changed in it.
   const SW13 = R("sw.js");
-  const ver13 = (SW13.match(/const CACHE_VERSION = '([^']+)'/) || [])[1];
-  ok(ver13 && ver13 !== "v223", `the cache version moved past v223 for the document index (${ver13})`);
+  // THE ENTRY THIS PASS FILED, WHICH IS v224 AND STAYS v224. The first draft read
+  // the version out of the worker and then demanded THIS pass's manifest — four
+  // document pids, "zero dollar rows", the four untouched stores — inside it, so
+  // every later bump failed here for not being about the document index: v228
+  // moved /voice to a multi-seat hub and was accused of dropping the bmoore row.
+  // A changelog entry is a historical record; the claims belong to the version
+  // that shipped them. So the entry is found by its own heading, and the live
+  // constant is only asked to be at least that new.
+  const VER13 = "v224";
+  const live13 = (SW13.match(/const CACHE_VERSION = '([^']+)'/) || [])[1];
+  ok(live13 && /^v\d+$/.test(live13), `sw.js declares a cache version (${live13})`);
+  ok(Number(String(live13).slice(1)) >= 224,
+    `the cache version is at least this pass's bump (${live13} >= ${VER13})`);
+  const ver13 = VER13;
   // THIS VERSION'S ENTRY ALONE. Sliced from its own heading to the next one, so
   // a claim satisfied by an older entry further down does not count.
   const entryAt = SW13.indexOf(`// ${ver13} -`);

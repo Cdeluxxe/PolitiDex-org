@@ -1318,9 +1318,18 @@ section("10 · the record engines are byte-identical with this board rendered");
 // ═════════════════════════════════════════════════════════════════════════════
 section("11 · one version bump, one precache entry, one offline branch");
 
-const VER = (SW.match(/const CACHE_VERSION = '(v\d+)';/) || [])[1] || "";
-ok(/^v\d+$/.test(VER), `CACHE_VERSION is set (${VER})`);
-ok(Number(VER.slice(1)) >= 226, `…and it was bumped for this pass (${VER})`);
+// THIS PASS'S ENTRY IS v227, AND IT IS PINNED TO v227 RATHER THAN TO WHATEVER
+// CACHE_VERSION HAPPENS TO SAY. The first draft read the version out of the
+// worker and then asserted THIS pass's wording against it, which made every
+// later bump a failure of this suite: v228 moved /voice to a multi-seat hub and
+// was immediately accused of not mentioning the SD-3 stance reader. A changelog
+// entry is a historical record — the claims this pass made belong to the version
+// it shipped in, forever — so the entry is found by its own heading and the live
+// constant is only asked to be at least that new.
+const VER = "v227";
+const LIVE = (SW.match(/const CACHE_VERSION = '(v\d+)';/) || [])[1] || "";
+ok(/^v\d+$/.test(LIVE), `CACHE_VERSION is set (${LIVE})`);
+ok(Number(LIVE.slice(1)) >= 227, `…and it is at least this pass's bump (${LIVE} >= ${VER})`);
 // The changelog entry, with the wording this pass owes.
 // THE ENTRY FOR THIS VERSION, SLICED THE WAY THE FILE IS ORDERED. This
 // changelog runs OLDEST-FIRST, so the newest entry sits immediately above the
@@ -1332,7 +1341,17 @@ ok(Number(VER.slice(1)) >= 226, `…and it was bumped for this pass (${VER})`);
 // assumed, because that is the mistake that actually happened.
 const logAt = SW.indexOf(`// ${VER} - `);
 ok(logAt > 0, `there is a ${VER} changelog block`);
-const LOG = logAt > 0 ? SW.slice(logAt, SW.indexOf("const CACHE_VERSION", logAt)) : "";
+// Heading to NEXT HEADING, or to the constant when this is still the newest
+// entry. The first draft sliced to the constant unconditionally, which swallowed
+// every entry filed after this one and measured the tail of the changelog as
+// this pass's paragraph.
+const logEnd = (() => {
+  if (logAt < 0) return -1;
+  const next = SW.slice(logAt + 8).search(/\n\/\/ v\d+ - /);
+  const cst = SW.indexOf("const CACHE_VERSION", logAt);
+  return next >= 0 ? Math.min(logAt + 8 + next + 1, cst) : cst;
+})();
+const LOG = logAt > 0 ? SW.slice(logAt, logEnd) : "";
 ok(LOG.length > 200, `…and it has something in it (${LOG.length} chars)`);
 {
   // The newest entry is the LAST one: no other version heading between it and
@@ -1340,9 +1359,17 @@ ok(LOG.length > 200, `…and it has something in it (${LOG.length} chars)`);
   // above an older heading measures as two entries and blows the budget.
   const between = LOG.match(/\n\/\/ v\d+ - /g) || [];
   eq(between.length, 0,
-    `no older changelog heading sits between the ${VER} entry and the constant — found ${JSON.stringify(between)}`);
+    `no other changelog heading sits inside the ${VER} entry — found ${JSON.stringify(between)}`);
   const prev = SW.indexOf("// v225 - ");
   ok(prev > 0 && prev < logAt, `…and the ${VER} entry is filed after v225, not above it`);
+  // AND EVERY LATER ENTRY IS FILED AFTER IT. The log runs oldest-first, so a
+  // newer bump that landed above this one would be invisible to a reader walking
+  // it and would also be measured as part of this paragraph.
+  const later = [...SW.matchAll(/\n\/\/ (v\d+) - /g)]
+    .filter((m) => Number(m[1].slice(1)) > Number(VER.slice(1)));
+  for (const m of later) {
+    ok(m.index > logAt, `the ${m[1]} entry is filed after ${VER}, not above it`);
+  }
   ok(LOG.split("\n").length <= 48,
     `the ${VER} entry stays inside sw.js's changelog budget (${LOG.split("\n").length} lines) — ` +
     `the worker ships whole on every deploy`);

@@ -7164,7 +7164,54 @@
 //     MIGRATION COST: none. The bump exists because my-stances.html, my-stances.js,
 //     district-ut-sd-3.html and district-board.js all changed - a warm device would
 //     otherwise serve the coach over a full file and a table with three of one bill.
-const CACHE_VERSION = 'v227';
+// v228 - /voice IS A MULTI-SEAT HUB; LOCATION RETURNS TO VOICE; ONE ALLOW-LISTED
+//     BOARD; NO EQUITY COPY; NO LOCATION KEY MIGRATED.
+//     THE BUG, IN TWO HALVES. /voice called itself "your district's board" and
+//     showed ONE seat - the State House one, the seat the /d/ lane is keyed on.
+//     A reader does not have A district: the location resolves a state House,
+//     state Senate and U.S. House seat, both U.S. Senate seats and a governor,
+//     and the page printed a sixth of that as the whole of it.
+//     And every "set your location so you can use District Voice" door pointed
+//     at /#who-represents-me, which SETS one and then leaves you standing there.
+//
+//     /voice IS A HALLWAY NOW. One card per seat pdxRepsForMe() resolves, in the
+//     resolver's own order: chamber, district and county, the sitting member
+//     linked to /p/<pid>, and either a door to that seat's board or two
+//     sentences saying there is not one. NOTHING MOUNTS THERE, so
+//     district-voice.css is off the document (18 KB per visit) - the board is a
+//     document of its own. No district search, no state picker, no national
+//     index: the page lists only the seats this location resolved.
+//     ONE ALLOW-LIST, ONE ROW. district-voice.js now owns BOARD_ROUTES, a
+//     seatKey -> boardPath table holding exactly ut-statesenate-3 ->
+//     /district/ut-sd-3, plus STATE_CODE mirrored from district-room.js and
+//     seatKeyForLevel() / seatsForMe(). Adding HD-15 later is one row, and NO
+//     /district/* splat: netlify.toml still rewrites one board address. A
+//     location resolving Davis HD-15 gets an HD-15 card with NO door - SD-3's
+//     board is Weber County's room, so "board not on hand for this seat", never
+//     "not yet", and never a 0/0 table dressed as a room.
+//
+//     THE INTENT NOW TRAVELS. voter-hub-location.js owns window.PDXReturn: one
+//     `next` parameter, one allow-list (/voice, /me, /ballot, /district/<slug>;
+//     a scheme, a backslash or a leading // is rejected before the pattern is
+//     asked, so an open redirect cannot reach location.assign), and consume()
+//     wired into closeLocationModal() and index.html's pdxMapConfirm. It cannot
+//     navigate without a real gesture (_pdxLocSaved) AND a location, and no
+//     parameter means no jump. Every Voice door is a real anchor from
+//     finderHref() - no href="#", no closeModal(). /me is a SNAPSHOT: seats on
+//     file, one line each with "board on hand" / "board not on hand", one
+//     control to /voice. The person file's generic Voice link goes to /voice
+//     (28 KB) instead of /d/<seat-key> (rewritten to index.html, 1.9 MB);
+//     Johnson's District 3 control is UNCHANGED at /district/ut-sd-3. No equity
+//     copy: no shares, stock, units, Reg CF, dues, 20% or freeze. No store added
+//     and NO KEY MIGRATED - the location key politidex_voter_location is
+//     unchanged and `next` lives only in a URL. SD-3's reader guts, money pills,
+//     FD tables, stance store, composer and Veriff untouched; the record engines
+//     still twin-boot byte-identical.
+//     MIGRATION COST: none. voice.html, voice-room.js, district-voice.js,
+//     voter-hub-location.js, index.html, me-desk.js, me-desk.css and
+//     person-file.js changed; a warm device would otherwise serve the one-seat
+//     page and the doors that drop the intent.
+const CACHE_VERSION = 'v228';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

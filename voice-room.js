@@ -1,115 +1,113 @@
 /* ─────────────────────────────────────────────────────────────────────────────
-   PolitiDex — THE VOICE ROOM (/voice)  ·  standing only, never a second answer
+   PolitiDex — THE VOICE HUB (/voice)  ·  a hallway, and never a second answer
    ─────────────────────────────────────────────────────────────────────────────
 
-   WHY THIS FILE EXISTS
+   WHAT THIS ADDRESS IS NOW, AND WHAT IT WAS
 
-   District Voice already had exactly one home: the district file's Voice block
-   at /d/<seat-key>, mounted by district-file.js into #pdx-district-file-voice.
-   That address is right for "show me THIS seat" and wrong for the far more
-   common arrival, which is a reader who wants their OWN board and does not know
-   their seat key. Until now the only way to that was the front page, which
-   means a two-megabyte document, the homepage hero, the work layer, the
-   Evidence Locker template and 400 KB of ballot machinery — to read a poll and
-   a handful of neighbours' sentences.
+   It was "your district's board": one seat, resolved out of the saved location,
+   with the board mounted inline underneath. That was wrong in a way a reader
+   felt immediately. A person does not have A district. The saved location
+   resolves a state House seat, a state Senate seat, a U.S. House seat, two U.S.
+   Senate seats and a governor — six seats, all of them theirs — and a page that
+   picked one of the six and called it "your district" was answering a question
+   nobody asked with five sixths of the answer missing.
 
-   /voice is that address. This file is the ONLY thing on it that decides
-   anything, and what it decides is one question:
+   So /voice is the HOME of District Voice, and it is a HALLWAY. One card per
+   seat the location already names, in the resolver's own order, each card saying
+   what the seat is, who sits in it, and whether there is a room to walk into.
+   Nav District Voice lands here. A location save that began here returns here.
 
-       WHICH STANDING IS THIS READER IN, RIGHT NOW, AT THEIR OWN SEAT?
+   WHAT A HALLWAY IS NOT
 
-   Everything else it borrows. district-voice.js is the one owner of the seat
-   allow-list (VOICE_SEATS), of the seat-key shape (normalizeSeatKey), of what
-   counts as a claim (claim()), of which seat a saved location names
-   (seatForMe()), of whether a board is open in that seat (shipped()/path()) and
-   of the sentence that says what the board is (COPY.frame). This file asks it
-   all six and answers none of them. A copy of the allow-list, of the seat-key
-   regex or of the frame sentence HERE would be a second answer, and a second
-   answer is the defect — the one /me already refused to make (see me-desk.js's
-   voice(), which this file is deliberately shaped like).
+     · NOT A DISTRICT SEARCH. There is no box to type a district into, no state
+       picker, no national index. The only seats on this page are the seats the
+       reader's own saved location resolved, and the only way to change them is
+       to change the location.
+     · NOT A BOARD. Nothing mounts here. The board is a document of its own at
+       its own address and district-board.js owns every pixel of it. This file
+       prints a door or prints that there is no door.
+     · NOT A ROOM WITH THE LIGHTS OFF. A seat with no board gets two sentences
+       and a person link — never an empty poll with three zeroes in it, never a
+       table of no rows, never a composer that cannot post. A shape that could
+       hold a feed is a shape somebody will eventually put a feed in.
+     · NOT SOMEBODY ELSE'S ROOM. The door on a card is the door to THAT card's
+       seat. A reader whose location resolves a state House seat in one county
+       does not get a state Senate board from another county offered as theirs.
+       That exclusivity is the product: a board is worth reading precisely
+       because everyone with a voice in it lives in the seat.
 
-   THE FIVE STANDINGS, AND THE DEFAULT IS THE QUIETEST ONE
+   IT OWNS ONE DECISION AND BORROWS EVERY FACT
 
-     checking   We do not know yet. The location resolver is 255 KB of deferred
+   district-voice.js is the one owner of the seat list (seatsForMe(), which reads
+   pdxRepsForMe() — the app's one location resolver — and composes nothing of its
+   own), of the board allow-list (boardPath(), one table, one row today), of the
+   seat-key shape (normalizeSeatKey, inside seatKeyForLevel) and of every
+   sentence this page prints about a board (COPY). This file asks it all four and
+   answers none of them. voter-hub-location.js owns the location and the return
+   intent (PDXReturn). person-link.js owns what a person's URL is.
+
+   A copy of the allow-list HERE, or of a board path, or of a state name, or of
+   the absence sentence, would be a second answer — and the second answer is
+   always the one that is still there after the table it disagrees with moved.
+   There is deliberately not one state name, seat key or board address anywhere
+   in this file, and the suite asserts that.
+
+   THE FOUR STANDINGS, AND THE DEFAULT IS THE QUIETEST ONE
+
+     checking   We do not know. The location resolver is 255 KB of deferred
                 script and the account it is keyed to arrives with Firebase, so
                 for the first moments after paint the honest answer is "asking",
-                not "you have nothing". THIS IS THE SAME RULE THE ACCOUNT CHIP
-                RUNS ON: unknown is not empty, and a returning resident must not
-                be told we have no idea where they vote because a deferred file
-                has not landed. Bounded by GRACE_MS, after which we stop saying
-                "checking" and say the weaker true thing.
+                not "you have nothing". THE SAME RULE THE ACCOUNT CHIP RUNS ON:
+                unknown is not empty, and a returning resident must not be told
+                we have no idea where they vote because a deferred file has not
+                landed. Bounded by GRACE_MS.
 
-     unplaced   No saved location we can read. Points at Who Represents Me and
-                Your Ballot — the two surfaces that SET a location — and names
-                no state, no county and no district. There is no default
-                location on this page. Utah is where the first board happens to
-                be open; it is not a guess we make about a stranger.
+     unplaced   No saved location we can read. One door, to the one surface that
+                sets a location, carrying the intent to come back here. It names
+                no state, no county and no district: there is no default location
+                on this page.
 
-     nolane     A location we can read, in a state District Voice does not cover
-                yet. Says so without naming a district: the claim did not
-                normalise to a seat key, so any seat name printed here would be
-                this file inventing a shape district-voice.js declined to give.
+     placed     The location resolved seats. One card each.
 
-     notlive    A real seat, named out of the two fields this reader already
-                saved, with no board open in it yet. "Board not live yet" is a
-                true sentence and it stays.
-
-     open       The board is open in this reader's seat. district-voice.js
-                mounts and owns every pixel of it from there.
+     boot       District Voice did not load. Said as a load failure, because that
+                is what it is — not as "you have no seats", which this file has
+                no way of knowing.
 
    EVERY EARLY RETURN LANDS ON A WEAKER STANDING. A missing module, a missing
    resolver, a missing field or a thrown getter can only ever UNDERSTATE what
-   this reader has. Nothing in here can invent a board for somebody who has
-   none, and nothing in here can name a district for somebody who never saved
-   one.
-
-   WHAT THIS FILE WILL NOT DO
-
-     · No neighbours of its own. No takes, no poll, no counts, no roster. The
-       board is district-voice.js's to render; this file paints a standing and a
-       mount point and then gets out of the way.
-     · No "how the member voted." The seated member is not resolved here at all:
-       district-voice.js's own seatedPid() asks pdxSeatedMemberFor() and fails
-       soft to '' when ballot-breakdown.js is absent — which it is on this
-       document, deliberately, because 407 KB of ballot machinery is not what a
-       reader came to /voice for.
-     · No identity vendor. PDXVoice.verify() rejects by design and nothing here
-       calls it.
-     · No location setter. It POINTS at the two doors that own that job. Moving
-       the setter is a separate branch.
+   this reader has. Nothing here can invent a seat, and nothing here can put a
+   door on a seat the allow-list did not give one.
 
    THE REPAINT HOOK
 
-   voter-hub-location.js calls window._vhBallotRerender() when the saved
-   location resolves or changes. On the homepage and on /ballot that name
-   belongs to ballot-breakdown.js; on /me it belongs to me-desk.js; HERE it
-   belongs to this file, and it is claimed before voter-hub-location.js can call
-   it for the same reason /me claims it — an unclaimed hook means the resolver
-   lands and nothing on the page notices. The standing is re-decided on every
-   call; the board is mounted ONCE PER SEAT, never on a repaint, because a
-   remount would tear down a half-typed take.
+   voter-hub-location.js calls window._vhBallotRerender() when the saved location
+   resolves or changes. On the homepage and /ballot that name belongs to
+   ballot-breakdown.js; on /me to me-desk.js; HERE to this file, claimed only if
+   unclaimed, for the same reason /me claims it — an unclaimed hook means the
+   resolver lands and nothing on the page notices.
    ───────────────────────────────────────────────────────────────────────────── */
 
 (function () {
   'use strict';
 
   var STANDING_ID = 'pdx-voice-standing';
-  var BOARD_ID = 'pdx-voice-board';
+  var SEATS_ID = 'pdx-voice-seats';
 
   // The same grace the account chip runs on (shell-account-chip.js UNKNOWN_MS),
   // for the same reason and deliberately the same number: two quiet "asking"
   // states on one document that expired at different times would read as a bug.
   var GRACE_MS = 6000;
 
-  // The two doors that OWN setting a location. Both are front-page surfaces and
-  // both keep their front-page addresses — this shell links to them, it does not
-  // reimplement either.
-  var HREF_WRM = '/#who-represents-me';
-  var HREF_BALLOT = '/ballot';
+  // The fallback door, for a boot where voter-hub-location.js never landed and
+  // PDXReturn is therefore absent. It is today's plain address with no intent
+  // attached — a STRICT DEGRADATION of the real door and not a second copy of
+  // how the intent is spelled. The parameter name, the allow-list and the
+  // encoding live in exactly one place and this is not it.
+  var HREF_FINDER_BARE = '/#who-represents-me';
 
   var _t0 = Date.now();
-  var _mountedSeat = '';
   var _lastSig = '';
+  var _seats = [];
 
   function fn(f) { return typeof f === 'function'; }
   function el(id) { try { return document.getElementById(id); } catch (e) { return null; } }
@@ -123,54 +121,67 @@
 
   // Borrowed, never written here. '' when district-voice.js has not landed, and
   // '' prints nothing rather than a sentence of this file's own invention.
-  function frame() {
+  function copy(k) {
     var V = api();
-    try { return (V && V.COPY && V.COPY.frame) ? String(V.COPY.frame) : ''; } catch (e) { return ''; }
+    try { return (V && V.COPY && V.COPY[k]) ? String(V.COPY[k]) : ''; } catch (e) { return ''; }
+  }
+
+  // The door that SETS a location, carrying the intent to come back to this
+  // address. voter-hub-location.js builds it; here() is what makes it return to
+  // wherever this file is running rather than to a hard-coded page.
+  function finderHref() {
+    try {
+      var R = window.PDXReturn;
+      if (R && fn(R.finderHref) && fn(R.here)) return R.finderHref(R.here());
+    } catch (e) {}
+    return HREF_FINDER_BARE;
+  }
+
+  // ── A PERSON'S NAME AND ADDRESS ───────────────────────────────────────────
+  // THE GATE IS THE PID, NOT THE DISPLAY RECORD — the rule who-represents-me.js,
+  // voter-hub-location.js and me-desk.js all state. This document carries no
+  // roster (that is the whole reason it is 28 KB and not 1.9 MB), so a name
+  // usually does not resolve here at all. A pid with no display record still
+  // gets a working anchor to the person's own file; what it does not get is a
+  // sentence reading as "nobody", and it does not get a raw id printed as if it
+  // were somebody's name.
+  function personOf(pid) {
+    if (!pid) return null;
+    try { if (fn(window._pdxPersonById)) return window._pdxPersonById(pid) || null; } catch (e) {}
+    try { if (window.CMP_DATA && window.CMP_DATA[pid]) return window.CMP_DATA[pid]; } catch (e2) {}
+    try { if (window.PROFILES && window.PROFILES[pid]) return window.PROFILES[pid]; } catch (e3) {}
+    return null;
+  }
+  function personHref(pid) {
+    try {
+      var PL = window.PDXPersonLink;
+      if (PL && fn(PL.href)) { var h = PL.href(pid); if (h) return h; }
+    } catch (e) {}
+    return pid ? '/p/' + encodeURIComponent(String(pid)) : '';
   }
 
   // ── THE DECISION ──────────────────────────────────────────────────────────
   // Reads district-voice.js and nothing else. Returns a standing and, for the
-  // two standings that have earned one, a seat key and a district name built
-  // ONLY out of fields the reader already saved.
+  // one standing that has earned them, the seat cards exactly as that module
+  // composed them.
   function decide() {
-    var out = { standing: 'unplaced', seat: '', name: '' };
+    var out = { standing: 'unplaced', seats: [] };
     var V = api();
-    if (!V || !fn(V.seatForMe) || !fn(V.claim) || !fn(V.shipped)) {
+    if (!V || !fn(V.seatsForMe) || !fn(V.boardPath)) {
       out.standing = 'boot';
       return out;
     }
-
-    var seat = '';
-    try { seat = V.seatForMe() || ''; } catch (e) { seat = ''; }
-
-    var c = {};
-    try { c = V.claim() || {}; } catch (e) { c = {}; }
-
-    if (!seat) {
-      // A claim we can read, in a state with no lane yet, is a different fact
-      // from no claim at all — and it is the only one of the two that is
-      // allowed to say "not here yet".
-      out.standing = (c && c.state) ? 'nolane' : 'unplaced';
-      return out;
-    }
-
-    out.seat = seat;
-    // THE NAME IS THE FIELDS WE ALREADY STORE OR THERE IS NO NAME. Same rule,
-    // same two fields and same spelling as me-desk.js's voice(), so the desk and
-    // this room cannot print one reader's district two different ways.
-    var n = String(c.houseDistrict == null ? '' : c.houseDistrict);
-    var county = String(c.county == null ? '' : c.county);
-    if (n && county) out.name = 'State House District ' + n + ' · ' + county;
-
-    var open = false;
-    try { open = !!V.shipped(seat); } catch (e) { open = false; }
-    out.standing = open ? 'open' : 'notlive';
+    var seats = [];
+    try { seats = V.seatsForMe() || []; } catch (e) { seats = []; }
+    if (!seats.length) return out;
+    out.standing = 'placed';
+    out.seats = seats;
     return out;
   }
 
-  // ── THE FIVE BLOCKS ───────────────────────────────────────────────────────
+  // ── THE BLOCKS ────────────────────────────────────────────────────────────
   function frameHtml() {
-    var f = frame();
+    var f = copy('frame');
     return f ? '<p class="pdxvr-frame">' + esc(f) + '</p>' : '';
   }
 
@@ -182,116 +193,140 @@
   }
 
   function bootHtml() {
-    // A load failure, said as a load failure. Not "you have no district" — this
+    // A load failure, said as a load failure. Not "you have no seats" — this
     // file has no idea whether they do, and saying so would be a guess dressed
     // as a finding.
     return '<div class="pdxvr-card">' +
       '<p class="pdxvr-line">District Voice did not load on this page. Reload, ' +
-      'or open a seat directly from its district file.</p>' +
+      'or open a board from the seat it belongs to.</p>' +
       '</div>';
   }
 
   function unplacedHtml() {
+    // ONE DOOR, AND IT IS AN ANCHOR. A real href to a real address, so it can be
+    // copied, opened in a tab and read by anything that scrapes links — and it
+    // carries the intent, so the reader who walks through it comes back here
+    // instead of being left standing on the finder.
     return '<div class="pdxvr-card">' +
       '<h2 class="pdxvr-hd">We do not know where you vote</h2>' +
-      '<p class="pdxvr-line">District Voice is one seat’s board, so it needs ' +
-      'your seat. Set your location once and this page knows which board is ' +
-      'yours — there is no default, and we do not guess.</p>' +
+      '<p class="pdxvr-line">Every room here is keyed to a seat, so this page ' +
+      'needs the seats you vote in. Set your location once and it lists them. ' +
+      'There is no default location on this page, and we do not guess one.</p>' +
       frameHtml() +
       '<p class="pdxvr-doors">' +
-        '<a class="pdxvr-door" href="' + esc(HREF_WRM) + '">Who Represents Me</a>' +
-        '<a class="pdxvr-door pdxvr-door--quiet" href="' + esc(HREF_BALLOT) + '">Set location on Your Ballot</a>' +
+        '<a class="pdxvr-door" href="' + esc(finderHref()) + '">Who Represents Me</a>' +
       '</p>' +
       '</div>';
   }
 
-  function nolaneHtml() {
-    return '<div class="pdxvr-card">' +
-      '<h2 class="pdxvr-hd">No board where you vote yet</h2>' +
-      '<p class="pdxvr-line">District Voice opens one seat at a time. Your saved ' +
-      'location is not in a seat with a board yet, so there is nothing here to ' +
-      'read — and nothing invented to fill the space.</p>' +
-      frameHtml() +
-      '<p class="pdxvr-doors">' +
-        '<a class="pdxvr-door pdxvr-door--quiet" href="' + esc(HREF_WRM) + '">Who Represents Me</a>' +
-      '</p>' +
-      '</div>';
+  // ── ONE CARD, ONE SEAT ────────────────────────────────────────────────────
+  // Three lines at most: what the seat is, who sits in it, and the door or the
+  // absence of one. No count, no activity dot, no badge, no meter — a hallway
+  // says which rooms exist and says nothing about how busy they are, and a
+  // number here would turn neighbours' sentences into a metric on the page that
+  // exists to keep them from being one.
+  function seatHtml(s) {
+    var name = String(s && s.name ? s.name : '');
+    if (!name) return '';
+    var board = String(s && s.board ? s.board : '');
+
+    var who = '';
+    var pid = String(s && s.pid ? s.pid : '');
+    var href = pid ? personHref(pid) : '';
+    if (href) {
+      var p = personOf(pid);
+      var label = (p && p.name) ? String(p.name) : '';
+      who = label
+        ? '<p class="pdxvr-who">Sitting member: ' +
+            '<a class="pdxvr-name" href="' + esc(href) + '">' + esc(label) + '</a></p>'
+        : '<p class="pdxvr-who">The member who holds this seat is on file. ' +
+            '<a class="pdxvr-name" href="' + esc(href) + '">Open the person file</a></p>';
+    } else {
+      // "On hand", not "on the way". We hold no holder for this seat and that is
+      // the whole of the sentence.
+      who = '<p class="pdxvr-who">No sitting member on hand for this seat.</p>';
+    }
+
+    var door;
+    if (board) {
+      // THE PRIMARY CONTROL, AND IT GOES TO THAT EXACT ADDRESS. The address is
+      // the allow-list's, asked for by seat key; this file composes none of it.
+      door = '<p class="pdxvr-doors">' +
+        '<a class="pdxvr-door" href="' + esc(board) + '">' +
+        esc(copy('boardOpen') || 'Open board') + '</a></p>';
+    } else {
+      // THE EMPTY GRAMMAR. Two sentences and no shape: no door onto nothing, no
+      // disabled control, no table of no rows. Both strings are
+      // district-voice.js's, so the desk and the hallway say it the same way.
+      door = '<p class="pdxvr-none">' + esc(copy('boardNone')) + '</p>' +
+        '<p class="pdxvr-why">' + esc(copy('boardWhy')) + '</p>';
+    }
+
+    return '<li class="pdxvr-seat" data-pdxvr-board="' + (board ? 'on' : 'off') + '">' +
+      '<p class="pdxvr-chamber">' + esc(name) + '</p>' +
+      who + door +
+      '</li>';
   }
 
-  function notliveHtml(d) {
-    var name = d.name ? '<p class="pdxvr-seat">' + esc(d.name) + '</p>' : '';
-    return '<div class="pdxvr-card">' +
-      '<h2 class="pdxvr-hd">Board not live yet in this seat</h2>' +
-      name +
-      '<p class="pdxvr-line">We have your seat. The board is not open in it yet, ' +
-      'so there is no question to answer and no neighbours to read here.</p>' +
-      frameHtml() +
-      '</div>';
+  function seatsHtml(seats) {
+    var rows = [];
+    for (var i = 0; i < seats.length; i++) {
+      var h = seatHtml(seats[i]);
+      if (h) rows.push(h);
+    }
+    if (!rows.length) return '';
+    return '<ul class="pdxvr-seats">' + rows.join('') + '</ul>';
   }
 
-  function openHtml(d) {
-    // The frame sentence is NOT printed here: district-voice.js's render() prints
-    // it unconditionally above the board's three blocks, and two copies of one
-    // sentence on one screen is the drift this codebase fences against.
-    var name = d.name ? '<p class="pdxvr-seat">' + esc(d.name) + '</p>' : '';
-    var href = '';
-    var V = api();
-    try { href = (V && fn(V.path)) ? (V.path(d.seat) || '') : ''; } catch (e) { href = ''; }
-    var link = href
-      ? '<a class="pdxvr-perma" href="' + esc(href) + '">Open this seat’s district file</a>'
-      : '';
-    return '<div class="pdxvr-card pdxvr-card--seated">' + name + link + '</div>';
-  }
-
-  function html(d) {
+  function standingHtml(d) {
     if (d.standing === 'checking') return checkingHtml();
     if (d.standing === 'boot') return bootHtml();
-    if (d.standing === 'nolane') return nolaneHtml();
-    if (d.standing === 'notlive') return notliveHtml(d);
-    if (d.standing === 'open') return openHtml(d);
+    // The frame sentence, printed ONCE, above the cards. It is the definition of
+    // what a board is and every card below it inherits it, so no card repeats it.
+    if (d.standing === 'placed') return frameHtml();
     return unplacedHtml();
   }
 
-  // ── THE BOARD, MOUNTED ONCE PER SEAT ──────────────────────────────────────
-  // district-file.js's rule, copied on purpose: paint may run many times on one
-  // visit, and a remount would tear down a poll answer or a half-typed take. Both
-  // checks fail soft — a missing module or a missing host paints the standing and
-  // leaves the host empty, which the stylesheet collapses.
-  function mountBoard(seat) {
-    if (!seat || _mountedSeat === seat) return;
-    var host = el(BOARD_ID);
-    if (!host) return;
-    var V = api();
-    if (!V || !fn(V.mount)) return;
-    var ok = false;
-    try { ok = V.mount(seat, BOARD_ID, []) !== false; } catch (e) { ok = false; }
-    if (ok) _mountedSeat = seat;
+  // ── PAINT ─────────────────────────────────────────────────────────────────
+  // Two hosts, one signature. The signature is every field that can appear on
+  // the page, so an unchanged answer never rewrites the DOM — and a card that
+  // gains a board, a member or a district number is a different signature and
+  // does.
+  function sigOf(d) {
+    var parts = [d.standing];
+    for (var i = 0; i < d.seats.length; i++) {
+      var s = d.seats[i] || {};
+      parts.push([s.key, s.name, s.seatKey, s.pid, s.board].join('~'));
+    }
+    return parts.join('|');
   }
 
   function paint() {
-    var host = el(STANDING_ID);
     var d = decide();
 
     // The two standings that mean "we have nothing for you" are held back until
     // the grace window closes, because before it closes they are not answers —
-    // they are the absence of one. 'nolane' and 'notlive' are NOT held: both rest
-    // on a location the resolver has already produced.
+    // they are the absence of one.
     if ((d.standing === 'unplaced' || d.standing === 'boot') && !graceOver()) {
-      d = { standing: 'checking', seat: '', name: '' };
+      d = { standing: 'checking', seats: [] };
     }
 
-    if (host) {
-      var sig = d.standing + '|' + d.seat + '|' + d.name;
-      if (sig !== _lastSig) {
+    var sig = sigOf(d);
+    if (sig !== _lastSig) {
+      var host = el(STANDING_ID);
+      if (host) {
         try {
-          host.innerHTML = html(d);
+          host.innerHTML = standingHtml(d);
           host.setAttribute('data-pdxvr-standing', d.standing);
-          _lastSig = sig;
         } catch (e) {}
       }
+      var seatHost = el(SEATS_ID);
+      if (seatHost) {
+        try { seatHost.innerHTML = seatsHtml(d.seats); } catch (e2) {}
+      }
+      _lastSig = sig;
+      _seats = d.seats;
     }
-
-    if (d.standing === 'open') mountBoard(d.seat);
     return d.standing;
   }
 
@@ -299,17 +334,15 @@
   // A bounded schedule, not a poll: the deferred resolver and the deferred SDK
   // both land inside the first few seconds, and the last tick sits just past the
   // grace window so the quiet "checking" state is always replaced by a real one.
-  // Ticks stop once the board is up, because after that there is nothing left for
-  // this file to decide.
+  // Every tick runs — unlike the board this page used to mount, a hallway has no
+  // half-typed take to protect, and the seat list can still change after the
+  // first paint when the roster merges a member's display record.
   var TICKS = [0, 400, 1200, 2500, 4000, GRACE_MS + 120];
 
   function schedule() {
     for (var i = 0; i < TICKS.length; i++) {
       (function (ms) {
-        setTimeout(function () {
-          if (_mountedSeat) return;
-          try { paint(); } catch (e) {}
-        }, ms);
+        setTimeout(function () { try { paint(); } catch (e) {} }, ms);
       })(TICKS[i]);
     }
   }
@@ -325,17 +358,19 @@
     window._vhBallotRerender = function () { try { paint(); } catch (e) {} };
   }
 
-  // Exposed for the suite and for nothing else: the standing as a word, decided
-  // by the same function that paints it, so a test never has to read the DOM to
-  // learn which of the five this reader is in.
+  // Exposed for the suite and for nothing else: the standing as a word and the
+  // cards as data, both from the same function that paints them, so a test never
+  // has to read the DOM to learn which seats this reader was shown.
   window.PDXVoiceRoom = {
     STANDING_ID: STANDING_ID,
-    BOARD_ID: BOARD_ID,
+    SEATS_ID: SEATS_ID,
     GRACE_MS: GRACE_MS,
     decide: decide,
     paint: paint,
+    seatHtml: seatHtml,
+    seatsHtml: seatsHtml,
     standing: function () { return _lastSig.split('|')[0] || ''; },
-    seated: function () { return _mountedSeat || ''; }
+    seats: function () { return _seats.slice(); }
   };
 
   if (document.readyState === 'loading') {

@@ -1333,19 +1333,27 @@
     return false;
   }
 
-  // ── "Neighbors in this seat" ───────────────────────────────────────────────
+  // ── "District Voice" ───────────────────────────────────────────────────────
   // ONE quiet link, and only for the member who actually sits in a seat where
-  // District Voice has opened — which is one seat today. It points at that
-  // district's file, /d/<seatKey>, and it is the only thing about Voice anywhere
+  // District Voice has opened — which is one seat today. It points at /voice,
+  // District Voice's home, and it is the only generic thing about Voice anywhere
   // near a person file.
   //
-  // WHAT IT IS NOT. Not a comment section on this person: the takes it leads to
-  // are keyed on the SEAT, so they do not follow whoever holds it and no take is
-  // ever printed on this file. Not a number: no count, no badge, no activity dot
-  // — a tally of neighbours' sentences sitting on somebody's dossier would be a
-  // metric about the person, and this file publishes none it did not earn from
-  // the record. Not a new nav destination either; it lives here and on the seat
-  // row in Who Represents Me, both inside Door 2.
+  // IT POINTS AT THE READER'S HALLWAY, NOT AT THIS PERSON'S ROOM. /voice lists
+  // the seats the READER's own saved location resolves, which for almost
+  // everybody who opens this file are not this person's seat — and that is the
+  // point of the lane. A reader with no location on file gets the door that sets
+  // one instead, carrying the intent to land on /voice once it is set, so
+  // nobody is left standing on the finder wondering what they just did. Both
+  // decisions are district-voice.js's; this file asks and does not choose.
+  //
+  // WHAT IT IS NOT. Not a comment section on this person: every take District
+  // Voice holds is keyed on a SEAT, so takes do not follow whoever holds it and
+  // no take is ever printed on this file. Not a number: no count, no badge, no
+  // activity dot — a tally of neighbours' sentences sitting on somebody's
+  // dossier would be a metric about the person, and this file publishes none it
+  // did not earn from the record. Not a new nav destination either; /voice is
+  // already the nav's District Voice, which is exactly why this link goes there.
   //
   // Rendered by window.PDXVoice.personLinkHtml(), which answers '' for every pid
   // that does not hold such a seat — so this file holds no allow-list of its own

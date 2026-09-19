@@ -1399,14 +1399,32 @@ has(ROOM_SRC, "Neighbors in this seat", "with the link the brief asks for");
 has(PERSON_SRC, "function voiceLink", "person-file.js has the one quiet link");
 has(PERSON_SRC, "PDXVoice.personLinkHtml", "rendered by PDXVoice, so the allow-list lives in one place");
 has(PERSON_CSS, ".pf-kick-voice", "and it has a style of its own");
+// AND THE DESTINATION MOVED, WHILE THE GATE DID NOT. The link used to point at
+// /d/<seat-key> — this member's OWN seat file — which read as "the room for this
+// person." It is not: a board belongs to a seat's residents, and this reader may
+// not be one of them. So the door goes to /voice, which lists the seats THEY
+// vote in, and the gate is unchanged: only a member who sits in a seat Voice
+// ships for gets a link at all.
 {
   const w = boot("/");
   const V = w.PDXVoice;
   eq(V.seatForPid(CHEW), HD68, "Chew sits in the seat Voice ships for");
+  // A reader who has saved a location, because that is the branch where the hub
+  // has something to paint. The other branch is asserted below.
+  w._hasUserLocation = true;
   const link = V.personLinkHtml(CHEW);
-  has(link, "/d/" + HD68, "so his person file links to that seat's place");
-  has(link, "Neighbors in this seat", "with the brief's own label");
+  has(link, '"/voice"', "so his person file points at the hub that lists the reader's own seats");
+  has(link, "District Voice", "with the product's own name on it");
+  no(link, "/d/" + HD68,
+    "and NOT at this member's own seat file — a board is not a comment section attached to a person");
+  no(link, "Neighbors in this seat",
+    "nor with the old label, which described a room the reader may have no standing in");
   eq((String(link).match(/<a /g) || []).length, 1, "ONE anchor, not a block of them");
+  // AND NO DELEGATED-OPEN HOOK. data-pdxdf-open is district-file.js's own
+  // attribute: a handler there intercepts the click and opens the seat file in
+  // place, which would swallow this navigation and leave the reader on the
+  // person file wondering what the link did.
+  no(link, "data-pdxdf-open", "and no district-file open hook to eat the click");
   // NO NUMBER ON IT. A tally of neighbours' sentences on somebody's dossier would
   // be a metric about the person.
   no(link, "%", "no percentage on the person-file link");
@@ -1416,6 +1434,23 @@ has(PERSON_CSS, ".pf-kick-voice", "and it has a style of its own");
   for (const pid of ["cox", "lee", "curtis", "", null, "not_a_person"]) {
     eq(V.personLinkHtml(pid), "", `${JSON.stringify(pid)} gets no Voice link`);
   }
+  // A READER WITH NO LOCATION IS SENT TO SET ONE, AND COMES BACK. The hub has
+  // nothing to show without a location, so the link becomes the finder carrying
+  // the return intent — the same door, one step longer.
+  const unplaced = boot("/");
+  unplaced._hasUserLocation = false;
+  unplaced.PDXReturn = { finderHref: (n) => "/?next=" + encodeURIComponent(n) + "#who-represents-me" };
+  const jump = unplaced.PDXVoice.personLinkHtml(CHEW);
+  ok(/next=/.test(jump) && /who-represents-me/.test(jump),
+    `a reader with no location is sent to the finder with the way back — got ${jump}`);
+  ok(/voice/.test(decodeURIComponent(jump)), "and the intent it carries is /voice");
+  // WITH NO RETURN HELPER, STILL A REAL ADDRESS. Never "#".
+  const bare = boot("/");
+  bare._hasUserLocation = false;
+  bare.PDXReturn = null;
+  const fallback = bare.PDXVoice.personLinkHtml(CHEW);
+  has(fallback, "/#who-represents-me", "and with no PDXReturn it still points at a door that can place them");
+  ok(!/href="#"/.test(fallback), "and never at a dead hash");
 }
 
 // NO NEW TOP-NAV DESTINATION. Voice is registered as a script and a sheet and
@@ -1777,11 +1812,26 @@ for (const k of ["weekBusy", "weekNone", "weekUnread"]) {
   has(voice.innerHTML, WEEK_NONE, "the strip says what it honestly has: nothing on this key");
 }
 
-// ── (4) THE PERSON LINK IS A REAL CONTROL ───────────────────────────────────
-// "Neighbors in this seat" was already a real anchor with a real href. What it
-// was not was a working control: the person modal and this panel share z-index 50
-// and document order decides, so the file opened UNDERNEATH the modal the reader
-// tapped it in. The file now hands the person file off on the way in.
+// ── (4) THE PERSON LINK IS A PLAIN NAVIGATION, AND THE HANDOFF STILL WORKS ──
+// Two things used to be one. The person-file link carried data-pdxdf-open, which
+// made it a control this file intercepted: the click was swallowed, the district
+// file opened in place, and — because the person modal and this panel share
+// z-index 50, with document order deciding — it opened UNDERNEATH the modal the
+// reader had tapped it in. The handoff below is the fix for that, and it stays,
+// because the district file's own seat rows still open this way.
+//
+// The person link no longer takes part in it. It goes to /voice, which is a
+// different document, so there is nothing to hand off and nothing to open
+// underneath anything: a browser navigation leaves no modal behind.
+{
+  const w = boot("/");
+  w._hasUserLocation = true;
+  const plain = w.PDXVoice.personLinkHtml(CHEW);
+  no(plain, "data-pdxdf-open",
+    "the person link still carries the open hook — district-file.js would preventDefault the click and the " +
+    "reader would be left on the person file with a panel opening behind it");
+  has(plain, 'href="/voice"', "and it is a real cross-document address");
+}
 {
   const w = boot("/");
   // The person modal, up, exactly as index.html and openModal leave it.
@@ -1796,17 +1846,21 @@ for (const k of ["weekBusy", "weekNone", "weekUnread"]) {
     over.style.display = "none";
   };
 
+  // THE SEAT ROW'S OWN HOOK, WHICH IS THE ONE THAT REMAINS. district-room.js
+  // composes it for every resolved seat on the district file, and the shape is
+  // read out of that file rather than typed here.
+  has(R("district-room.js"), 'data-pdxdf-open="',
+    "the district file's seat rows no longer carry the open hook, so nothing opens in place any more");
+  // STILL ONE QUIET LINE ON THE PERSON FILE. No chip, no count, no activity dot.
   const link = w.PDXVoice.personLinkHtml(CHEW);
-  has(link, 'data-pdxdf-open="' + HD68 + '"', "the link carries the seat the file opens on");
-  has(link, 'href="/d/' + HD68 + '"', "and is a real address that can be copied or opened in a tab");
-  // STILL ONE QUIET LINE. No chip, no count, no activity dot.
-  eq((String(link).match(/<a /g) || []).length, 1, "still exactly one anchor");
+  w._hasUserLocation = true;
+  eq((String(w.PDXVoice.personLinkHtml(CHEW)).match(/<a /g) || []).length, 1, "still exactly one anchor");
   no(link, "pdxv-dot", "no activity dot");
   no(link, "pdxv-chip", "no chip");
   ok(!/\d/.test(String(link).replace(/ut-statehouse-68|pf-kick-voice/g, "")),
     "and no count of any kind");
 
-  eq(w.PDXDistrictFile.enter(HD68), true, "tapping it opens the district file");
+  eq(w.PDXDistrictFile.enter(HD68), true, "an in-place open still opens the district file");
   eq(closes.length, 1, "and closes the person file it was tapped in, exactly once");
   eq(closes[0].pushed, 0, "before this file took the address, not after");
   eq(w.PDXDistrictFile.isOpen(), true, "the file is the surface the reader is left on");

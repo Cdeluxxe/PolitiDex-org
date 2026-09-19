@@ -278,7 +278,7 @@ const COPIES = [
   // an earlier edit to index.html shifts line numbers — when it does, the header
   // comment in me.html and this table move TOGETHER, which is the whole point of
   // pinning it in one place.
-  { from: "index.html", src: INDEX, a: 20862, b: 21284, what: "PDXSaved" },
+  { from: "index.html", src: INDEX, a: 20874, b: 21296, what: "PDXSaved" },
 ];
 // PDXSaved's declared range has now moved four times, always for the same
 // reason and always re-derived the same way: LOCATE THE 423-LINE RUN VERBATIM IN
@@ -331,6 +331,14 @@ const COPIES = [
 // function plus the paragraph explaining why it had outlived the leaderboard it
 // shipped with — went with its only caller. Above this block, like all nine
 // before it, so the run moved UP: 20862-21284, located verbatim, opening on
+// `<script>` and closing on `</script>` as the boundary note above requires, and
+// back at its full 423 lines.
+// A TENTH MOVE, DOWNWARD BY TWELVE, for the Voice-hub pass: window.pdxMapConfirm
+// grew the return-intent trigger — one guarded PDXReturn.consume() call and the
+// eleven-line note explaining why it sits above the Home Team onboarding branch
+// rather than below it — at index.html ~18836. Above this block, like all ten
+// before it, so the run moved DOWN: 20874-21296, located verbatim by searching a
+// window around the old start rather than by adding twelve to it, opening on
 // `<script>` and closing on `</script>` as the boundary note above requires, and
 // back at its full 423 lines.
 for (const c of COPIES) {

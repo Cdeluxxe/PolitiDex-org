@@ -266,8 +266,8 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // locating the run, as always — the arithmetic agreed afterwards, which is the
 // order that catches a bad pin rather than confirming one.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 20206, b: 20230, what: "the .pdxis-stance* pill rules" },
-  { from: "index.html", src: INDEX, a: 20249, b: 20369, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 20218, b: 20242, what: "the .pdxis-stance* pill rules" },
+  { from: "index.html", src: INDEX, a: 20261, b: 20381, what: "the PDXStance vocabulary" },
 ];
 // Both index.html ranges have now moved THREE TIMES, and the third ran the other
 // way. The Digital Library split took #digital-library out of index.html but left
@@ -353,6 +353,17 @@ const COPIES = [
 // the vocabulary 20249-20369, each located verbatim and each still maximal at its
 // own boundaries. The one-line disagreement with the other three documents is
 // unchanged — they moved by the same thirteen and kept their leading blank.
+//
+// THE TWELVE-LINE MOVE, DOWNWARD. The Voice-hub pass gave window.pdxMapConfirm a
+// twelve-line block that spends the saved return intent after a location save, so
+// somebody who set a location in order to use District Voice lands back on /voice
+// instead of on the finder. That block sits at ~18832, above both of these runs.
+// The pill rules are now 20218–20242 and the vocabulary 20261–20381, each located
+// by searching index.html for the run that appears byte-identical in stances.html
+// and each unchanged in length (25 and 121), which is the check that the run found
+// is the run meant. The arithmetic agreed afterwards; it was not the source. The
+// one-line disagreement with evidence.html, spotlight.html and person.html is
+// unchanged — those pins moved by the same twelve and kept their leading blank.
 for (const c of COPIES) {
   const header = new RegExp(`COPIED VERBATIM FROM ${c.from.replace(".", "\\.")} LINES ${c.a}[^0-9]{1,3}${c.b}`);
   ok(header.test(ST), `copy: stances.html declares ${c.what} as ${c.from} ${c.a}–${c.b}`);
