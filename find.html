@@ -925,6 +925,15 @@
         .pdx-dist-tip{background:#0c1426;border:1px solid rgba(245,200,66,0.4);color:#fff;border-radius:0.5rem;
           font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.04em;font-size:0.82rem;box-shadow:0 4px 14px rgba(0,0,0,0.5);}
         .pdx-dist-tip::before{display:none;}
+        /* A GHOST IS CONTEXT, NOT A CONTROL. The two chambers the reader is not
+           on stay drawn under the active one at a quarter of the ink, and this
+           rule is what keeps the canvas at exactly one picker: a path that takes
+           no pointer takes no hover, no tooltip and no click, so the tap always
+           lands on the hot layer (or, where none is drawn, on the map itself).
+           Leaflet's setStyle() will not add a className to a path that is
+           already in the DOM, so this class is toggled on the element by
+           setGhostClass() rather than passed through a style object. */
+        .pdx-map-canvas-wrap .pdx-ghost-path{pointer-events:none;}
 
         /* Selection / confirmation panel */
         .pdx-map-foot{flex-shrink:0;padding:0.85rem 1.25rem 1.1rem;}
@@ -1362,18 +1371,91 @@
     }
 
     // ── Styling ──────────────────────────────────────────────────────────────
+    // ══ THREE CHAMBERS ARE DRAWN AND ONE OF THEM IS HOT ═══════════════════════
+    // showLayer() used to REMOVE the two chambers the reader was not looking at,
+    // so the canvas held one set of outlines and every toggle redrew the map from
+    // nothing. But a tap resolves all three seats from one point — that is what
+    // resolveAllAt() is — which meant two thirds of the answer was produced off
+    // screen. The reader saw three district numbers in the chip row and one set
+    // of lines, with no way to see that the State Senate boundary runs clean
+    // across their State House district, or that the seat a chip claims is a real
+    // polygon they are actually inside.
+    //
+    // All three stay drawn now. The ACTIVE chamber is full colour, in front, and
+    // takes the pointer. The other two are GHOSTS: the same geometry at a quarter
+    // of the ink, sent to the back, and .pdx-ghost-path makes them
+    // pointer-events:none.
+    //
+    // THAT LAST PART IS THE WHOLE SAFETY OF IT — there is still exactly one
+    // picker on this canvas, because only one layer is reachable by a pointer.
+    // Which also settles what "no labels except hover" comes to in practice: the
+    // tooltip binding stays on every path, because a path becomes hot the moment
+    // its chamber is selected, but a ghost can never be hovered, so a ghost never
+    // shows a label. Nothing is drawn permanently on top of the lines.
+    var GHOST_OPACITY = 0.25;
     function baseStyle(layerType){
       return { color: STROKE[layerType], weight: 1, opacity: 0.75,
                fillColor: STROKE[layerType], fillOpacity: 0.08 };
+    }
+    function ghostStyle(layerType){
+      return { color: STROKE[layerType], weight: 1, opacity: GHOST_OPACITY,
+               fillColor: STROKE[layerType], fillOpacity: 0.03 };
     }
     function selStyle(){
       return { color: '#f5c842', weight: 3, opacity: 1,
                fillColor: '#34d399', fillOpacity: 0.42 };
     }
+    // ONE PLACE DECIDES WHAT A POLYGON LOOKS LIKE, and the first thing it asks is
+    // which chamber the polygon belongs to — not whether it is selected. Without
+    // that order, selectDistrict() would paint bright yellow onto a ghost: it
+    // fires for ALL THREE seats on every tap, from resolveAllAt(), so a reader
+    // who tapped once would see two more "selected" districts glowing on layers
+    // they are not looking at. A ghost is uniformly faint whatever it holds.
+    function styleFor(layerType, selected){
+      if (layerType !== _activeLayer) return ghostStyle(layerType);
+      return selected ? selStyle() : baseStyle(layerType);
+    }
+    // Leaflet's setStyle() does not apply `className` to a path already in the
+    // DOM, so the class that kills pointer events is toggled on the element
+    // itself. getElement() is the public accessor; _path is the field older builds
+    // expose; a path not yet added to the map has neither, which is harmless
+    // because showLayer() runs this again once the layer is on the canvas.
+    function setGhostClass(path, ghost){
+      if (!path) return;
+      var el = null;
+      try { el = (typeof path.getElement === 'function') ? path.getElement() : (path._path || null); } catch (e) { el = null; }
+      if (!el || !el.classList) return;
+      if (ghost) el.classList.add('pdx-ghost-path');
+      else el.classList.remove('pdx-ghost-path');
+    }
     function applyPathStyle(path, layerType, selected){
       if (!path) return;
-      path.setStyle(selected ? selStyle() : baseStyle(layerType));
-      if (selected && path.bringToFront) path.bringToFront();
+      var ghost = (layerType !== _activeLayer);
+      path.setStyle(styleFor(layerType, selected));
+      setGhostClass(path, ghost);
+      if (!ghost && selected && path.bringToFront) path.bringToFront();
+    }
+    // Paint every layer we hold in the role it currently has, and stack them so
+    // the hot one is on top. Called from showLayer() on every chamber switch and
+    // again from resolveAllAt()'s settle, so a boundary set that lands AFTER a
+    // switch takes the role it has now rather than the role that was current when
+    // it was built.
+    function repaintRoles(){
+      if (!_map) return;
+      SEATS.forEach(function(t){
+        var lyr = _layers[t];
+        if (!lyr) return;
+        try {
+          lyr.eachLayer(function(l){
+            var d = distOf(l.feature);
+            applyPathStyle(l, t, d != null && _selected[t] === d);
+          });
+        } catch (e) {}
+        if (t !== _activeLayer) { try { if (lyr.bringToBack) lyr.bringToBack(); } catch (e) {} }
+      });
+      var hot = _layers[_activeLayer];
+      try { if (hot && hot.bringToFront) hot.bringToFront(); } catch (e) {}
+      if (_marker && _marker.bringToFront) _marker.bringToFront();
     }
 
     // ── Status overlay (loading / error) ─────────────────────────────────────
@@ -1474,7 +1556,7 @@
 
     function buildLayer(layerType, geojson){
       return L.geoJSON(geojson, {
-        style: function(){ return baseStyle(layerType); },
+        style: function(){ return styleFor(layerType, false); },
         onEachFeature: function(feature, path){
           var dist = distOf(feature);
           if (dist == null) return;
@@ -1482,8 +1564,12 @@
             sticky: true, direction: 'top', className: 'pdx-dist-tip', opacity: 1
           });
           path.on({
-            mouseover: function(){ if (_selected[layerType] !== dist && _selPath[layerType] !== path) path.setStyle({ fillOpacity: 0.26, weight: 2 }); },
-            mouseout:  function(){ if (_selected[layerType] !== dist && _selPath[layerType] !== path) path.setStyle(baseStyle(layerType)); },
+            // The hover accent belongs to the chamber the reader is ON. A ghost
+            // cannot be hovered — pointer-events:none — but the guard is here as
+            // well as in the stylesheet, because a hover handler that brightens a
+            // path is the one thing that could put a ghost back at full ink.
+            mouseover: function(){ if (layerType === _activeLayer && _selected[layerType] !== dist && _selPath[layerType] !== path) path.setStyle({ fillOpacity: 0.26, weight: 2 }); },
+            mouseout:  function(){ if (layerType === _activeLayer && _selected[layerType] !== dist && _selPath[layerType] !== path) path.setStyle(styleFor(layerType, false)); },
             // A manual tap is the voter overriding the searched address, so the
             // search-derived curated area is dropped and their tapped point
             // drives all three seats.
@@ -1520,19 +1606,25 @@
 
     function showLayer(layerType, skipFit){
       if (!_geoCache[layerType]) return;
-      ['house','senate','congress'].forEach(function(t){
-        if (_layers[t] && _map.hasLayer(_layers[t]) && t !== layerType) _map.removeLayer(_layers[t]);
-      });
       if (!_layers[layerType]) _layers[layerType] = buildLayer(layerType, _geoCache[layerType]);
-      if (!_map.hasLayer(_layers[layerType])) _layers[layerType].addTo(_map);
+      // EVERY CHAMBER WE ALREADY HOLD GOES ON THE CANVAS, and nothing comes off.
+      // The three lines that used to stand here removed the other two layers, so
+      // switching tabs changed which boundaries EXISTED; it now changes only
+      // which ones are hot. A chamber whose geometry has not been fetched is
+      // simply absent — this draws what is cached, it does not start a request.
+      SEATS.forEach(function(t){
+        if (_layers[t] && !_map.hasLayer(_layers[t])) _layers[t].addTo(_map);
+      });
       if (!skipFit) { try { _map.fitBounds(_layers[layerType].getBounds(), { padding: [12, 12] }); } catch(e) {} }
-      // On the U.S. House reference layer, highlight the voter's own district (the
-      // one detected from their address) so they can see it on the court-ordered map.
-      if (layerType === 'congress' && _selected.congress != null) {
-        var cp = pathForDist('congress', _selected.congress);
-        if (cp) { _selPath.congress = cp; applyPathStyle(cp, 'congress', true); }
+      // The reader's own district on the chamber they are now looking at. This
+      // was congress-only, on the reasoning that congress was the one layer whose
+      // selection could have been made while a different layer was drawn. Since a
+      // tap resolves all three from one point, any of them can be.
+      if (_selected[layerType] != null) {
+        var sp = pathForDist(layerType, _selected[layerType]);
+        if (sp) _selPath[layerType] = sp;
       }
-      if (_marker && _marker.bringToFront) _marker.bringToFront();
+      repaintRoles();
     }
 
     // pickAt (optional {lat,lng}): the tap that asked, so one tap both draws the
@@ -1646,6 +1738,14 @@
         _resolvingAll = Math.max(0, _resolvingAll - 1);
         refreshMissingLine();
         if (_resolvingAll) return;
+        // THE OTHER TWO CHAMBERS ARE NOW GEOMETRY WE HOLD, SO DRAW THEM FAINT.
+        // This resolve fetched all three boundary sets to answer one point, which
+        // means by here the cache holds chambers the reader has never switched to.
+        // Putting them on the canvas as ghosts is what makes the two chips they
+        // did not tap mean something: the numbers came from polygons, and these
+        // are the polygons. Gated on the active layer already being painted so a
+        // resolve can never turn a deliberately empty finder into a drawn one.
+        try { if (isPainted(_activeLayer)) showLayer(_activeLayer, true); } catch (e) {}
         // ══ "AFTER A HOUSE-ONLY POLYGON PICK … SWITCH TO SENATE, THEN U.S.
         // HOUSE." ══════════════════════════════════════════════════════════
         // The tap resolved what it could. If a seat is STILL missing — a

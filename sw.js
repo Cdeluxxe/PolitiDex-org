@@ -7645,7 +7645,49 @@
 //     _pdxLocWasChosen and pdxRepsForMe() are untouched, there is still one
 //     resolver and one writer, no new state, no new board, no new route.
 //     MIGRATION COST: none. Nothing stored changed shape or name.
-const CACHE_VERSION = 'v238';
+// v239 - ONE ROSTER ON THE FRONT PAGE, AND /find DRAWS ALL THREE CHAMBERS.
+//     The homepage shipped 'Who Represents You Now' TWICE. #wrm-reps near the
+//     top and #vh-district-strip down in the Voter Hub printed the same six
+//     seats, the same Compare / Work-this-seat strip under each one, and two
+//     different spellings of every empty state - and the lower one was the
+//     stale spelling. It still said 'NOT RESOLVED YET' on a House seat the map
+//     had already placed, because its wording predates who-represents-me.js
+//     learning to tell 'we have no district for you' apart from 'we have your
+//     district and nobody on file for the seat'. Two owners for one question is
+//     two answers the moment they disagree, and they disagreed.
+//     THE DUPLICATE IS DELETED, NOT REWORDED. window._vhSyncDistrictStrip is
+//     768 lines lighter: it empties the host it used to paint and forwards to
+//     PDXWhoRepresentsMe.sync(), so its five guarded callers all still work and
+//     there is one renderer at the end of every one of them. What stands in that
+//     position now is the one thing it actually needed - a link back to the band
+//     that answers the question. A link, not a roster. who-represents-me.js did
+//     not need a byte for this: it was already the owner, which is the point.
+//     THE LOCATION HEADER NOW NAMES EVERY DISTRICT IT HAS. 'YOUR DISTRICTS' read
+//     one chamber out of three, because only the U.S. House lookup fell back to
+//     the location record when the curated ballot had no row for it; the two
+//     legislative lookups ended at null. It reads pdxRepsForMe() now - the one
+//     resolver, with its whole precedence chain - and prints a segment per
+//     located chamber. Statewide seats are excluded: a statewide seat has no
+//     district and must never be printed as one.
+//     ON /find, THE OTHER TWO CHAMBERS STAY ON THE MAP. The active layer is full
+//     colour, in front and clickable; the other two are drawn at 25% opacity,
+//     sent to the back and given pointer-events:none, so a tap can only ever
+//     reach the hot layer. A tap still runs resolveAllAt and still writes all
+//     three seats - the faint layers are context, not a second picker. Switching
+//     chamber repaints the roles instead of removing and re-adding layers, which
+//     is why the ghosts survive the switch. Tooltips stay bound on every path so
+//     they work the moment a layer goes hot; a ghost is unreachable by a pointer,
+//     so in practice it never shows one.
+//     A CACHE_VERSION MOVE IS REQUIRED because '/' and '/find.html' are both
+//     precached shell entries and both changed. voter-hub-location.js changed
+//     too and is runtime-cached by design, so it arrives fresh on its own. Those
+//     three files are the whole change: no new state, no new board, BOARD_ROUTES
+//     is still one row, and there is still one resolver and one writer.
+//     NO LOCATION KEY WAS RENAMED, COPIED OR MIGRATED. PDX_LOC_KEY,
+//     _pdxLocWasChosen and pdxRepsForMe() are untouched, and a reader already
+//     holding a record sees the same record - with one roster under it instead
+//     of two. MIGRATION COST: none. Nothing stored changed shape or name.
+const CACHE_VERSION = 'v239';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

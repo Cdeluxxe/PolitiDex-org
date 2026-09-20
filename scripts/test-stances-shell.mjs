@@ -282,9 +282,18 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // rules, 121 for the vocabulary, which is again the check that the run found is
 // the run meant. Re-derived by locating each run verbatim in the new
 // index.html; the arithmetic agreed afterwards.
+//
+// A SEVENTH MOVE, DOWNWARD BY 17 FOR BOTH, for the one-roster pass. The Voter
+// Hub's second copy of the represents-me roster came out of index.html and a
+// note plus one link back to the band went in where it stood (net 16 lines at
+// ~7560), and the homepage flash list gained a line when it was retargeted off
+// the retired host (1 line at ~17700). Every one of those edits is above both of
+// these blocks and none is inside either, so both ranges moved by the same 17 and
+// both came back at their full length — 25 lines for the pill rules, 121 for the
+// vocabulary. Re-derived by locating each run verbatim in the new index.html.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 19088, b: 19112, what: "the .pdxis-stance* pill rules" },
-  { from: "index.html", src: INDEX, a: 19131, b: 19251, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 19105, b: 19129, what: "the .pdxis-stance* pill rules" },
+  { from: "index.html", src: INDEX, a: 19148, b: 19268, what: "the PDXStance vocabulary" },
 ];
 // Both index.html ranges have now moved THREE TIMES, and the third ran the other
 // way. The Digital Library split took #digital-library out of index.html but left

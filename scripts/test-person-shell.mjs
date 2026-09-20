@@ -352,10 +352,10 @@ const COPIES = [
   [2013, 2033, "the Firebase compat bundles, the key injection and the stub"],
   [2185, 2230, "the share furniture share-preview.ts rewrites"],
   [3728, 3791, "the crawl-header guard"],
-  [13146, 13180, "the profile modal down to #modal-content"],
-  [13241, 13287, "the stance popover, the record overlay and the share sheet"],
-  [19131, 19251, "PDXStance"],
-  [21741, 21939, "the PWA runtime and the service-worker registration"],
+  [13162, 13196, "the profile modal down to #modal-content"],
+  [13257, 13303, "the stance popover, the record overlay and the share sheet"],
+  [19148, 19268, "PDXStance"],
+  [21758, 21956, "the PWA runtime and the service-worker registration"],
 ];
 //   AND THE FINDER MOVE RE-DERIVED NINE OF THE TWELVE, IN BOTH DIRECTIONS AT
 // ONCE AND ONE OF THEM BY CHANGING THE BLOCK ITSELF — which is the one case
@@ -563,6 +563,21 @@ const COPIES = [
 // deletion in that pass lives in profiles-full.js, app.css and index.html's
 // script block; not a byte of either copied run changed, and both were located
 // verbatim in the new index.html before these numbers were written down.
+//   AND THE ONE-ROSTER PASS MOVED FOUR OF THEM BY TWO DIFFERENT AMOUNTS, which
+// is the same lesson as HOME HYGIENE at a smaller scale. Nothing left index.html
+// for another document and nothing arrived from one; two unrelated markup edits
+// went in at two depths. The Voter Hub's second copy of the represents-me roster
+// — #vh-district-strip and its mount — came out, and a documented note plus one
+// link back to the band went in where it stood: net +16 at ~7560, so the profile
+// modal and the popovers moved to 13162-13196 and 13257-13303. Below that, the
+// homepage flash list was retargeted off the retired host and its comment
+// reworded, +1 more at ~17700, so PDXStance and the PWA runtime moved by 17, to
+// 19148-19268 and 21758-21956. The eight anchors above ~7560 came back unchanged,
+// which is the check on the method again. All four were located verbatim in the
+// new index.html, at their declared LENGTHS — the maximal run for three of them
+// runs one line longer, because the line after each block is blank in both files
+// and a blank line is shared by every document that has one; the declared range
+// is the run of substance, as the finder-move correction above established.
 for (const [a, b, what] of COPIES) {
   const slice = idxLines.slice(a - 1, b).join("\n");
   ok(slice.split("\n").length === b - a + 1 && slice.trim().length > 0,

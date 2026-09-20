@@ -1474,12 +1474,34 @@
     var placeName = city || 'Your Area';
     var _dnum = function(v) { return String(v == null ? '' : v).replace(/[^0-9]/g, ''); };
 
-    // Resolve the voter's three districts exactly as the strip below does.
-    var _hdrKrd = (typeof window.keyRacesRelevantData === 'function') ? window.keyRacesRelevantData() : null;
-    var _hdrMatched = !!(_hdrKrd && _hdrKrd.matched && state.toLowerCase() === 'utah');
-    var _hdrHouse  = (_hdrMatched && _hdrKrd.byRace && _hdrKrd.byRace.house)       ? _hdrKrd.byRace.house.district       : (loc.district || null);
-    var _hdrSenate = (_hdrMatched && _hdrKrd.byRace && _hdrKrd.byRace.statesenate) ? _hdrKrd.byRace.statesenate.district : null;
-    var _hdrLower  = (_hdrMatched && _hdrKrd.byRace && _hdrKrd.byRace.statehouse)  ? _hdrKrd.byRace.statehouse.district  : null;
+    // ── YOUR DISTRICTS NAMES EVERY CHAMBER THIS READER IS PLACED IN ──────
+    // This line used to resolve its own three numbers, and only one of the three
+    // had anywhere to fall back to: the U.S. House lookup ended
+    // `: (loc.district || null)`, while State Senate and State House ended
+    // `: null`. So a reader whose curated Key-Races area did not match — which is
+    // the entire population /find exists for, since it pins all three seats by
+    // point-in-polygon and writes them onto the location record — read
+    // "YOUR DISTRICTS: U.S. House District 1" above a location that knew all
+    // three numbers. The map had placed them; this header had never been told to
+    // look where the map writes.
+    //
+    // It is not told now either, because it no longer resolves anything.
+    // window.pdxRepsForMe() is the one answer to "which districts is this reader
+    // in", and it already carries the whole precedence chain these two rows were
+    // missing: curated ballot → curated Key-Races area → the cross-document
+    // resolved memo → the location record's own loc.district /
+    // loc.stateSenateDistrict / loc.stateHouseDistrict. Reading it means this
+    // line and the seat list cannot disagree, because nothing is left in here to
+    // disagree WITH. No new key, no new fallback, no second copy of the chain.
+    var _hdrReps = null;
+    try {
+      if (typeof window.pdxRepsForMe === 'function') _hdrReps = window.pdxRepsForMe();
+    } catch (e) {}
+    // A statewide seat has no district and must never be printed as one: the two
+    // U.S. Senate rows and the Governor row are a scope, not a place on a map.
+    var _hdrDistricts = ((_hdrReps && _hdrReps.levels) ? _hdrReps.levels : []).filter(function (lv) {
+      return lv && !lv.statewide && _dnum(lv.district);
+    });
 
     if (cityEl) {
       var _countyTail = (countyDisp || state)
@@ -1491,10 +1513,14 @@
       var _distSeg = function(label, num, color) {
         return '<span style="white-space:nowrap;"><span style="color:' + color + ';font-weight:800;">' + label + '</span> <span style="color:#e2e8f0;font-weight:700;">District ' + num + '</span></span>';
       };
-      var _segs = [];
-      if (_dnum(_hdrHouse))  _segs.push(_distSeg('U.S. House',   _dnum(_hdrHouse),  '#60a5fa'));
-      if (_dnum(_hdrSenate)) _segs.push(_distSeg('State Senate', _dnum(_hdrSenate), '#a78bfa'));
-      if (_dnum(_hdrLower))  _segs.push(_distSeg('State House',  _dnum(_hdrLower),  '#2dd4bf'));
+      // Each chamber names and colours itself off the level the resolver returned,
+      // so the list is as long as the reader's placement is — U.S. House, State
+      // Senate and State House when the map placed all three, and only what is
+      // actually known when it placed fewer. Nothing here can forget a chamber,
+      // because nothing here enumerates them.
+      var _segs = _hdrDistricts.map(function (lv) {
+        return _distSeg(lv.label, _dnum(lv.district), lv.color);
+      });
       if (_segs.length) {
         subEl.innerHTML = '<span style="color:#9fb4d4;font-weight:700;letter-spacing:0.05em;">YOUR DISTRICTS:</span> ' +
           _segs.join('<span style="color:#475569;margin:0 0.15rem;"> • </span>');
@@ -2915,773 +2941,39 @@
     } catch (e) {}
   };
 
+  // ── THE SECOND ROSTER IS RETIRED; THIS IS THE STUB THAT OUTLIVES IT ────
+  // This function used to paint an entire second "Who Represents You Now" card
+  // into #vh-district-strip on index.html — a lede, a seat row per level with
+  // its own avatar and party chip, the Compare / Work-this-seat strip under each
+  // row, a local-coverage footer, and some 570 further lines of pre-2025 legacy
+  // that the live branches returned before ever reaching. who-represents-me.js
+  // paints that same roster into #wrm-reps at the top of the same page, from the
+  // same window.pdxRepsForMe() resolver.
+  //
+  // TWO RENDERERS OF ONE ROSTER IS NOT REDUNDANCY, IT IS TWO ANSWERS. The copy
+  // here still printed "Not resolved yet" over a State House seat the district
+  // map had already placed, because its wording was written before the owner
+  // learned to tell "we have no district for you" apart from "we have your
+  // district and no member on file for it". Correcting a sentence in two places
+  // is the defect, not the repair — so the second renderer is deleted instead of
+  // patched, and the three-gap copy (statewide empty / district located, no
+  // member / district not placed) has exactly one author again.
+  //
+  // THE NAME STAYS BECAUSE FIVE GUARDED CALLERS SPEAK IT. race-sheet.js twice,
+  // ballot-breakdown.js twice and the location reaction in this file all call it
+  // behind `typeof === 'function'` on every location, pick and curated-area
+  // change. A stub is what keeps those sites honest without a sweep: a document
+  // still carrying #vh-district-strip from a service-worker cache gets the host
+  // EMPTIED rather than left holding a roster nothing updates any more, and the
+  // one surviving list is repainted by its owner on the way out.
   window._vhSyncDistrictStrip = function() {
     var host = document.getElementById('vh-district-strip');
-    if (!host) return;
-
-    // ── Removed: the "Your Voting Districts" strip ────────────────────────────
-    // This dark block re-listed the voter's three district rows (U.S. House,
-    // State Senate, State House) plus a "who represents you" directory — exactly
-    // what the My Voting Team cockpit below now shows in its Federal · Statewide ·
-    // State Legislative · Local tabs. Rendering it here duplicated that ballot map
-    // and pushed the team builder down the page, so the strip is retired. It's
-    // emptied and hidden (rather than deleted from the DOM) so every existing
-    // caller and scroll target stays valid and can't throw.
-    // ── "Who represents you now" — the introduction to who holds power ─────────
-    // The location card names the voter's districts up top; this strip introduces
-    // the PEOPLE who currently hold those district seats (U.S. House · State Senate
-    // · State House) so a first-time visitor immediately meets their real
-    // representatives, not just district numbers — the Hub's core teaching job. Each
-    // row opens that person's full record (promises, money, votes), and a footer
-    // link carries the voter down into their LOCAL representatives (mayor, council,
-    // school board, county). It reads from the SAME authoritative ballot data every
-    // other surface uses (_pdxVoterBallot → keyRacesRelevantData), so it can never
-    // disagree with the districts shown above or the team builder below. Kept
-    // deliberately compact (three rows + one link) so it informs without recreating
-    // the full team-builder cockpit that lives further down the page.
-    // ── No location yet ───────────────────────────────────────────────────────
-    // This used to hide the strip outright, which meant the hub's first
-    // substantive block simply was not there for the visitor who most needs it —
-    // and the only way to find the seat list was to scroll past the location card
-    // into the team builder. Now the block holds its place and states the one
-    // thing standing between them and their seats. It names NO officeholder: with
-    // no location there is no honest answer to "who is my House member", and a
-    // national placeholder would be a guess dressed as a fact.
-    if (!window._hasUserLocation) {
-      host.style.display = '';
-      host.innerHTML =
-        '<div style="background:linear-gradient(135deg,rgba(30,58,138,0.18),rgba(10,15,30,0.35));border:1px dashed rgba(96,165,250,0.4);border-radius:1rem;padding:0.9rem 0.95rem;">' +
-          '<div style="display:flex;align-items:baseline;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.25rem;">' +
-            '<span style="font-family:\'Bebas Neue\',sans-serif;letter-spacing:0.05em;font-size:1.1rem;color:#fff;">🏛️ Who Represents You Now</span>' +
-          '</div>' +
-          '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.82rem;letter-spacing:0.01em;color:#aebfd8;line-height:1.4;margin-bottom:0.3rem;">' +
-            'Set your location and we map your <strong style="color:#93c5fd;">U.S. House</strong>, <strong style="color:#c4b5fd;">State Senate</strong> &amp; <strong style="color:#5eead4;">State House</strong> seats — then show who holds each one. Until then we will not guess: no location, no representative.' +
-          '</div>' +
-          '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.74rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7f93b4;margin-bottom:0.7rem;">Your seats → compare the field → pick for your ballot.</div>' +
-          '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">' +
-            '<button type="button" onclick="_pdxGoSetLocation()" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.04em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#2563eb,#3b82f6);border:1px solid rgba(96,165,250,0.5);border-radius:0.7rem;padding:0.5rem 0.95rem;cursor:pointer;white-space:nowrap;min-height:44px;">📍 Set my location →</button>' +
-            '<button type="button" onclick="window.openDistrictMapModal&&window.openDistrictMapModal()" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.04em;text-transform:uppercase;color:#5eead4;background:none;border:1px solid rgba(45,212,191,0.5);border-radius:0.7rem;padding:0.5rem 0.85rem;cursor:pointer;white-space:nowrap;min-height:44px;">🗺️ Open map</button>' +
-          '</div>' +
-        '</div>';
-      return;
-    }
-
-    // Districts + officeholders come from the shared resolver above, which the
-    // homepage front door reads too. The rows below only present what it returns.
-    var _wrReps = window.pdxRepsForMe();
-
-    // National focus is a location, but not a place with seats: the resolver
-    // returns six blank rows for it. Painting those under "the people who hold
-    // power in your state" would read as a coverage failure rather than what it
-    // is — a scope the visitor chose. Ask for the state instead of listing blanks.
-    if (_wrReps && _wrReps.national) {
-      host.style.display = '';
-      host.innerHTML =
-        '<div style="background:linear-gradient(135deg,rgba(30,58,138,0.18),rgba(10,15,30,0.35));border:1px dashed rgba(96,165,250,0.4);border-radius:1rem;padding:0.9rem 0.95rem;">' +
-          '<div style="display:flex;align-items:baseline;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.25rem;">' +
-            '<span style="font-family:\'Bebas Neue\',sans-serif;letter-spacing:0.05em;font-size:1.1rem;color:#fff;">🏛️ Who Represents You Now</span>' +
-          '</div>' +
-          '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.82rem;letter-spacing:0.01em;color:#aebfd8;line-height:1.4;margin-bottom:0.7rem;">' +
-            'You are focused on <strong style="color:#93c5fd;">federal offices</strong> nationally, so there are no seats to list here yet. Pick a state and we will name your senators and governor — and your U.S. House, State Senate and State House seats wherever we map districts.' +
-          '</div>' +
-          '<button type="button" onclick="_pdxGoSetLocation()" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.04em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#2563eb,#3b82f6);border:1px solid rgba(96,165,250,0.5);border-radius:0.7rem;padding:0.5rem 0.95rem;cursor:pointer;min-height:44px;">📍 Pick my state →</button>' +
-        '</div>';
-      return;
-    }
-    var _wrEsc = function(s) {
-      return String(s == null ? '' : s)
-        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    };
-
-    var _wrParty = function(p) {
-      if (!p) return null;
-      var s = String(p).trim().toLowerCase();
-      if (s === 'r' || s.indexOf('republican') !== -1 || s === 'gop') return { l: 'R', c: '#f87171' };
-      if (s === 'd' || s.indexOf('democrat') !== -1) return { l: 'D', c: '#60a5fa' };
-      if (s === 'f' || s.indexOf('forward') !== -1) return { l: 'F', c: '#22d3ee' };
-      if (s === 'l' || s.indexOf('libertarian') !== -1) return { l: 'L', c: '#fbbf24' };
-      if (s === 'g' || s.indexOf('green') !== -1) return { l: 'G', c: '#4ade80' };
-      if (s === 'i' || s.indexOf('independent') !== -1 || s.indexOf('unaffiliated') !== -1) return { l: 'I', c: '#a78bfa' };
-      return null;
-    };
-    var _wrRow = function(cfg) {
-      var pid = cfg.pid;
-      var person = (pid && typeof window._pdxPersonById === 'function') ? window._pdxPersonById(pid) : null;
-      var color = cfg.color;
-      var photo = (pid && typeof window._getPhotoUrl === 'function') ? (window._getPhotoUrl(pid) || '') : '';
-      var avatar = photo
-        ? '<span style="width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid ' + color + ';background:#0a0f1e;box-shadow:0 0 0 2px ' + color + '26;display:block;"><img src="' + _wrEsc(photo) + '" alt="" style="width:100%;height:100%;object-fit:cover;" loading="lazy" onerror="this.parentElement.innerHTML=\'<span style=&quot;display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.15rem;color:#9fb4d4&quot;>🏛</span>\'"></span>'
-        : '<span style="width:44px;height:44px;border-radius:50%;flex-shrink:0;border:2px solid ' + color + '99;background:rgba(30,53,96,0.35);display:flex;align-items:center;justify-content:center;font-size:1.15rem;color:#9fb4d4;">🏛</span>';
-      // THE GATE IS THE PID, NOT THE DISPLAY RECORD. A resolved seat has a person
-      // in it and that person has a file at /p/<pid>; if the light roster has not
-      // merged their display record yet, the honest row is their id with a link to
-      // the file, never the sentence "no record on file yet" printed over a
-      // sitting senator. Same rule as the homepage band, which reads the same
-      // resolver — see the row() comment in who-represents-me.js.
-      var nameHtml, subLine, clickable = !!pid;
-      if (pid) {
-        var pm = person ? _wrParty(person.party) : null;
-        nameHtml = _wrEsc((person && person.name) || pid) + (pm ? ' <span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;font-weight:800;color:' + pm.c + ';">(' + pm.l + ')</span>' : '');
-        subLine = _wrEsc((person && person.office) || cfg.tierLabel);
-      } else {
-        // "Being confirmed" implied we knew the seat and were checking the name.
-        // Outside Utah we do not know the seat at all, and inside it we may simply
-        // hold no record — either way the honest word is "not resolved", matching
-        // the homepage band that reads the same resolver.
-        nameHtml = '<span style="color:#9fb4d4;">' + (cfg.statewide ? 'No record on file yet' : 'Not resolved yet') + '</span>';
-        subLine = _wrEsc(cfg.tierLabel);
+    if (host) { host.innerHTML = ''; host.style.display = 'none'; }
+    try {
+      if (window.PDXWhoRepresentsMe && typeof window.PDXWhoRepresentsMe.sync === 'function') {
+        window.PDXWhoRepresentsMe.sync();
       }
-      var pidJs = pid ? String(pid).replace(/\\/g, '\\\\').replace(/'/g, "\\'") : '';
-      var interactive = clickable
-        ? ' role="button" tabindex="0" onclick="window.showProfile&&window.showProfile(\'' + pidJs + '\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window.showProfile&&window.showProfile(\'' + pidJs + '\')}" title="See ' + (person ? _wrEsc(person.name) : 'this officeholder') + '’s full record"'
-        : '';
-      return '<div' + interactive + ' style="display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0.55rem;border-radius:0.7rem;background:rgba(10,15,30,0.4);border:1px solid ' + color + '2e;border-left:3px solid ' + color + ';' + (clickable ? 'cursor:pointer;' : '') + '">' +
-          avatar +
-          '<span style="min-width:0;flex:1;">' +
-            '<span style="display:block;font-family:\'Barlow Condensed\',sans-serif;font-size:0.62rem;font-weight:800;letter-spacing:0.07em;text-transform:uppercase;color:' + color + ';">' + _wrEsc(cfg.distLabel) + '</span>' +
-            '<span style="display:block;font-family:\'Bebas Neue\',sans-serif;font-size:1.05rem;letter-spacing:0.02em;color:#fff;line-height:1.18;">' + nameHtml + '</span>' +
-            '<span style="display:block;font-family:\'Barlow Condensed\',sans-serif;font-size:0.72rem;color:#9fb4d4;line-height:1.2;">' + subLine + '</span>' +
-          '</span>' +
-          (clickable ? '<span style="flex-shrink:0;font-family:\'Barlow Condensed\',sans-serif;font-size:0.64rem;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:' + color + ';">View ›</span>' : '') +
-        '</div>';
-    };
-
-    // Each seat row is followed by its own "compare the field" entry, rendered by
-    // race-sheet.js and dropped in unchanged. It is a SIBLING of the row, never a
-    // child: the row itself is role="button" and opens the officeholder's profile,
-    // so nesting a second button inside it would be both invalid and ambiguous.
-    // pdxRaceSheetEntry returns '' for any seat it cannot actually compare, so a
-    // seat with no rostered field simply gets no button — meeting the officeholder
-    // stays the whole job of the row, exactly as it is today.
-    // pdxSeatStrip is the shared seat contract (team slot + compare + the stance
-    // line for a visitor with no positions); the bare entry button is the older
-    // fallback, so this strip degrades rather than breaking if race-sheet.js is
-    // an older build in someone's service-worker cache.
-    var _wrCompare = function (lv) {
-      if (!lv) return '';
-      var h = '';
-      if (typeof window.pdxSeatStrip === 'function') h = window.pdxSeatStrip(lv.key, { compact: true });
-      else if (typeof window.pdxRaceSheetEntry === 'function') h = window.pdxRaceSheetEntry(lv.key, { compact: true });
-      return h ? '<div class="wrm-seatcompare">' + h + '</div>' : '';
-    };
-
-    var _wrRows = _wrReps.levels.map(function (lv) {
-      return _wrRow({ pid: lv.pid, color: lv.color, tierLabel: lv.tierLabel, distLabel: lv.distLabel, statewide: lv.statewide }) +
-             _wrCompare(lv);
-    }).join('');
-
-    // Same two-speed truth the homepage band states: statewide seats resolve from
-    // the state for every visitor, district seats need lines we only draw in Utah.
-    // Without this a visitor outside Utah reads three blank district rows as "this
-    // site has nothing on my state" when it has both senators and the governor.
-    var _wrDistrictsOk = !!_wrReps.districtsResolvable;
-    // One resolver for "does this visitor have local seats at all", shared with the
-    // homepage band and with the jump guard below. Absent (compare-hub not loaded
-    // yet) is treated as unresolved, which offers nothing and claims nothing —
-    // never as permission to offer the handoff anyway.
-    var _wrLocalCov = { resolved: false, ok: false, area: '', pids: [] };
-    try { if (typeof window.pdxLocalSeatsForMe === 'function') _wrLocalCov = window.pdxLocalSeatsForMe(); } catch (e) {}
-    var _wrLede = _wrDistrictsOk
-      ? 'Meet the people who hold power in your districts today. Tap any name to see their record — <strong style="color:#cdd9ec;">promises kept, money, and how they vote</strong>.'
-      : 'Meet the people who hold power in your state today. Tap any name to see their record — <strong style="color:#cdd9ec;">promises kept, money, and how they vote</strong>. Your U.S. House, State Senate and State House seats need district lines, which we map in Utah so far — those rows stay blank rather than naming someone else&rsquo;s district.';
-
-    host.style.display = '';
-    host.innerHTML =
-      '<div style="background:linear-gradient(135deg,rgba(30,58,138,0.18),rgba(10,15,30,0.35));border:1px solid rgba(96,165,250,0.28);border-radius:1rem;padding:0.9rem 0.95rem;">' +
-        '<div style="display:flex;align-items:baseline;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.25rem;">' +
-          '<span style="font-family:\'Bebas Neue\',sans-serif;letter-spacing:0.05em;font-size:1.1rem;color:#fff;">🏛️ Who Represents You Now</span>' +
-        '</div>' +
-        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.82rem;letter-spacing:0.01em;color:#aebfd8;line-height:1.4;margin-bottom:0.3rem;">' + _wrLede + '</div>' +
-        // The spine, in six words, above the rows it describes. A voter who reads
-        // only this line still knows what the next two taps are for.
-        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.74rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7f93b4;margin-bottom:0.7rem;">Your seats → compare the field → pick for your ballot.</div>' +
-        '<div style="display:flex;flex-direction:column;gap:0.5rem;">' + _wrRows + '</div>' +
-        // Local seats are NOT curated for the same areas the district seats are —
-        // districtsResolvable is true for all of Utah, and local rosters are built
-        // county by county. Gating on it offered this button in areas where the
-        // jump had no local group to open, and the jump's own fallback then
-        // scrolled the visitor to the ballot section's first groups: President and
-        // Cabinet. So the gate is the real count from window.pdxLocalSeatsForMe(),
-        // and where that count is zero the strip says so instead of offering a
-        // button it cannot honour. Same three states as the homepage band.
-        (_wrLocalCov.ok
-          ? '<button type="button" onclick="window.jumpToRelevantAccordion&&window.jumpToRelevantAccordion(\'local\')" style="display:flex;align-items:center;justify-content:center;gap:0.4rem;width:100%;margin-top:0.7rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.74rem;letter-spacing:0.03em;text-transform:uppercase;color:#fcd34d;background:linear-gradient(135deg,rgba(245,200,66,0.16),rgba(245,158,11,0.06));border:1px solid rgba(245,200,66,0.4);border-radius:0.6rem;padding:0.6rem 0.7rem;min-height:44px;cursor:pointer;transition:transform .12s ease;text-align:center;line-height:1.25;" onmouseover="this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.transform=\'\'">🏙️ See your local representatives — mayor, council, school board &amp; county → <span style="opacity:0.75;">(' + _wrLocalCov.pids.length + ')</span></button>'
-          : (_wrLocalCov.resolved
-            ? '<p style="font-family:\'Barlow\',sans-serif;font-size:0.73rem;line-height:1.45;color:#a9b8cf;background:rgba(148,163,184,0.07);border:1px solid rgba(148,163,184,0.22);border-radius:0.6rem;padding:0.5rem 0.6rem;margin:0.7rem 0 0;"><strong style="color:#d3dcea;">Local offices aren&rsquo;t mapped for ' + (_wrLocalCov.area ? _wrEsc(_wrLocalCov.area) : 'your area') + ' yet.</strong> Mayor, city council, school board and county seats are curated area by area, and this one isn&rsquo;t done. We would rather say so than hand you a list of people who don&rsquo;t represent you.</p>'
-            : '')) +
-      '</div>';
-    return;
-
-    // ── Unreachable below ─────────────────────────────────────────────────────
-    // Everything past this return is the pre-"Who Represents You Now" version of
-    // this strip. It is left in place rather than deleted because removing ~180
-    // lines is not this pass's job, but nothing below runs: the no-location and
-    // National branches above are the live ones. Do not edit copy down here
-    // expecting to see it.
-    var btnLink = 'font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.04em;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,#2563eb,#3b82f6);border:1px solid rgba(96,165,250,0.5);border-radius:0.7rem;padding:0.5rem 0.95rem;cursor:pointer;white-space:nowrap;min-height:44px;transition:transform .15s,box-shadow .15s;';
-
-    // ── No location yet: make the first step obvious and motivating. ──────────
-    if (!window._hasUserLocation) {
-      host.innerHTML =
-        '<div style="display:flex;align-items:center;gap:0.7rem;flex-wrap:wrap;background:rgba(10,15,30,0.45);border:1px dashed rgba(96,165,250,0.45);border-radius:0.9rem;padding:0.75rem 0.95rem;">' +
-          '<span style="font-size:1.2rem;line-height:1;">🧭</span>' +
-          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.94rem;letter-spacing:0.01em;color:#cdd9ec;line-height:1.4;flex:1;min-width:220px;">' +
-            'Set your location and we instantly map your <strong style="color:#93c5fd;">U.S. House</strong>, <strong style="color:#c4b5fd;">State Senate</strong> &amp; <strong style="color:#5eead4;">State House</strong> districts — then show exactly who represents you in each.' +
-          '</span>' +
-          '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">' +
-            '<button type="button" onclick="_pdxGoSetLocation()" style="' + btnLink + '" onmouseover="this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.transform=\'\'">📍 Set location →</button>' +
-            '<button type="button" onclick="window.openDistrictMapModal&&window.openDistrictMapModal()" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.04em;text-transform:uppercase;color:#5eead4;background:none;border:1px solid rgba(45,212,191,0.5);border-radius:0.7rem;padding:0.5rem 0.85rem;cursor:pointer;white-space:nowrap;min-height:44px;transition:transform .15s,background .15s;" onmouseover="this.style.transform=\'translateY(-1px)\';this.style.background=\'rgba(45,212,191,0.12)\'" onmouseout="this.style.transform=\'\';this.style.background=\'none\'">🗺️ Open map</button>' +
-          '</div>' +
-        '</div>';
-      return;
-    }
-
-    var loc = window._currentVoterLocation || { state: '', city: '', county: '', district: '' };
-    var state = loc.state || '';
-
-    // National / federal focus has no local voting districts to resolve.
-    if (state === 'National') {
-      host.innerHTML =
-        '<div style="display:flex;align-items:center;gap:0.7rem;flex-wrap:wrap;background:rgba(10,15,30,0.5);border:1px solid rgba(59,130,246,0.35);border-radius:0.9rem;padding:0.75rem 0.95rem;">' +
-          '<span style="font-size:1.2rem;line-height:1;">🇺🇸</span>' +
-          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.94rem;letter-spacing:0.01em;color:#cdd9ec;line-height:1.4;flex:1;min-width:220px;">' +
-            'You\'re focused on <strong style="color:#93c5fd;">federal offices</strong>. Pick your state to also see your U.S. House, State Senate &amp; State House districts.' +
-          '</span>' +
-          '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">' +
-            '<button type="button" onclick="var s=document.getElementById(\'relevant-section\');if(s)s.scrollIntoView({behavior:\'smooth\',block:\'start\'});" style="' + btnLink + '" onmouseover="this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.transform=\'\'">⭐ See who represents me →</button>' +
-            '<button type="button" onclick="window.openDistrictMapModal&&window.openDistrictMapModal()" style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.8rem;letter-spacing:0.04em;text-transform:uppercase;color:#5eead4;background:none;border:1px solid rgba(45,212,191,0.5);border-radius:0.7rem;padding:0.5rem 0.85rem;cursor:pointer;white-space:nowrap;min-height:44px;transition:transform .15s,background .15s;" onmouseover="this.style.transform=\'translateY(-1px)\';this.style.background=\'rgba(45,212,191,0.12)\'" onmouseout="this.style.transform=\'\';this.style.background=\'none\'">🗺️ Open map</button>' +
-          '</div>' +
-        '</div>';
-      return;
-    }
-
-    // District numbers: prefer the voter's matched curated Utah area (which knows
-    // all three seats), then fall back to whatever they typed for U.S. House.
-    // District numbers + officeholders come from the SAME authoritative source of
-    // truth the "Relevant to Me" ballot filters by (_pdxVoterBallot), so the two
-    // surfaces can never disagree. It resolves the voter's EXACT seat — an exact
-    // district they pinpointed on the map wins over the curated area default, which
-    // is what finally makes a split city like Layton show the right seat — and the
-    // sitting officeholder BY ID, so a real name appears the instant a location is
-    // set. We keep the curated keyRacesRelevantData() (krd) around only as a
-    // fallback for the summary label / other-race disclosures below.
-    var krd = (typeof window.keyRacesRelevantData === 'function') ? window.keyRacesRelevantData() : null;
-    var vb  = (typeof window._pdxVoterBallot === 'function') ? window._pdxVoterBallot() : null;
-    var matched = !!(krd && krd.matched && state.toLowerCase() === 'utah');
-    var house  = (vb && vb.districts.house  != null) ? vb.districts.house
-                 : ((matched && krd.byRace && krd.byRace.house)       ? krd.byRace.house.district       : (loc.district || null));
-    var senate = (vb && vb.districts.senate != null) ? vb.districts.senate
-                 : ((matched && krd.byRace && krd.byRace.statesenate) ? krd.byRace.statesenate.district : null);
-    var lower  = (vb && vb.districts.lower  != null) ? vb.districts.lower
-                 : ((matched && krd.byRace && krd.byRace.statehouse)  ? krd.byRace.statehouse.district  : null);
-    var areaLabel = (matched && krd && krd.label)
-      ? krd.label
-      : ([ (loc.city || loc.county || ''), state ].filter(Boolean).join(', ') || 'your area');
-
-    // Resolve the sitting officeholder(s) for a seat. The PRIMARY source is the
-    // curated Key Races roster — the SAME authoritative incumbent data the
-    // "Relevant to Me" ballot renders from — so the Hub shows the real current
-    // representative the instant a location is set, and the two surfaces can never
-    // disagree. District seats (U.S. House, State Senate, State House) read their
-    // incumbent straight from keyRacesRelevantData().byRace; Local pulls every
-    // sitting county/city/school officeholder from the curated local roster for
-    // the area. Only when the curated data carries no incumbent (e.g. a state we
-    // don't curate yet) do we fall back to computing one from CMP_DATA via the
-    // office-string matcher.
-    //
-    // That order is the whole fix: the old code used ONLY the computed path, which
-    // silently dropped real incumbents whose record didn't line up with the
-    // matcher — e.g. Celeste Maloy, whose `state` field reads "District 2" rather
-    // than "Utah - District 2", so the state check failed and her U.S. House seat
-    // fell through to a "being confirmed" placeholder even though she plainly holds
-    // it. Reading the curated incumbentPid sidesteps every one of those matcher
-    // fragilities. Only pids that resolve to a real person record are kept, so a
-    // row is never rendered empty and no name is ever invented.
-    function _vhAddPid(arr, pid) {
-      if (!pid || arr.indexOf(pid) !== -1) return;
-      if (typeof window._pdxPersonById === 'function' && !window._pdxPersonById(pid)) return;
-      arr.push(pid);
-    }
-    function _vhResolveHolder(seatKey) {
-      var pids = [];
-      var hasField = false;
-
-      // 0) Authoritative voter ballot — the SAME source of truth "Relevant to Me"
-      //    filters by. For the three district seats it resolves the sitting
-      //    officeholder BY ID (curated roster, or the district→incumbent map when
-      //    the voter's exact map seat differs from the area default), so the Hub
-      //    names a real person the instant a location is set instead of falling to
-      //    a "being confirmed" placeholder, and can never disagree with the ballot.
-      var VB_OFFICE = { house: 'representative', statesenate: 'state_senator', statehouse: 'state_rep' };
-      if (vb && VB_OFFICE[seatKey] && vb.byOffice && vb.byOffice[VB_OFFICE[seatKey]]) {
-        var bo = vb.byOffice[VB_OFFICE[seatKey]];
-        _vhAddPid(pids, bo.incumbentPid);
-        if (bo.incumbentPid) hasField = true;
-      }
-
-      // 1) Curated incumbent(s) — Local pulls its county/city/school officeholders
-      //    here; the district seats fall back to it when the ballot resolver above
-      //    could not name anyone (e.g. a state we don't curate an exact seat for).
-      if (!pids.length && matched && krd) {
-        if (seatKey === 'local') {
-          var localRaces = (window.KEY_RACES_LOCAL_BY_LOCATION && krd.locId)
-            ? (window.KEY_RACES_LOCAL_BY_LOCATION[krd.locId] || []) : [];
-          for (var li = 0; li < localRaces.length; li++) {
-            var lr = localRaces[li] || {};
-            _vhAddPid(pids, lr.incumbentPid);
-            (lr.incumbentPids || []).forEach(function(p) { _vhAddPid(pids, p); });
-            if (lr.incumbentPid || (lr.incumbentPids && lr.incumbentPids.length) || (lr.candidates && lr.candidates.length)) hasField = true;
-          }
-        } else {
-          var br = krd.byRace && krd.byRace[seatKey];
-          if (br) {
-            _vhAddPid(pids, br.incumbentPid);
-            (br.incumbentPids || []).forEach(function(p) { _vhAddPid(pids, p); });
-            if (br.pids && br.pids.length) hasField = true;
-          }
-        }
-      }
-
-      // 2) Fallback — compute from CMP_DATA for any state/seat the curated roster
-      //    doesn't cover, using the same officeholder test the Builder relies on.
-      if (!pids.length) {
-        var cands = [];
-        try {
-          cands = (typeof window._ballotCandidates === 'function') ? (window._ballotCandidates(seatKey) || []) : [];
-        } catch (e) { cands = []; }
-        for (var i = 0; i < cands.length; i++) {
-          if (typeof window._homeIsOfficeholder === 'function' && window._homeIsOfficeholder(cands[i].pid)) _vhAddPid(pids, cands[i].pid);
-        }
-        if (cands.length) hasField = true;
-      }
-
-      return { pids: pids, pid: pids[0] || null, hasField: hasField };
-    }
-    var houseInc  = _vhResolveHolder('house');
-    var senateInc = _vhResolveHolder('statesenate');
-    var lowerInc  = _vhResolveHolder('statehouse');
-    var localInc  = _vhResolveHolder('local');
-
-    // U.S. House redistricting (2026 court-ordered map). For a redrawn area, the
-    // sitting officeholder resolved above is the incumbent of the NEW ballot
-    // district — but the person representing this voter RIGHT NOW is the incumbent
-    // of the district they still sit in under the current map. Swap the house row
-    // to that current representative so "who represents you now" is accurate; the
-    // 2026 ballot district is surfaced separately in the panel. When no current
-    // officeholder resolves, empty the row so the panel shows an honest placeholder
-    // rather than the wrong (new-district) name.
-    var houseRedistrict = (typeof window._pdxHouseRedistrict === 'function') ? window._pdxHouseRedistrict() : null;
-    if (houseRedistrict && houseRedistrict.changed) {
-      houseInc = houseRedistrict.currentPid
-        ? { pids: [houseRedistrict.currentPid], pid: houseRedistrict.currentPid, hasField: true }
-        : { pids: [], pid: null, hasField: true };
-    }
-
-    // The voter's current team picks ({ raceKey: pid }), read straight from the
-    // shared ballot store so each card's "in your team" indicator always agrees
-    // with My Voting Team. Re-read on every render, so it stays live.
-    var teamSel = {};
-    try { var _tsRaw = localStorage.getItem('politidex_my_team'); if (_tsRaw) teamSel = JSON.parse(_tsRaw) || {}; } catch (e) {}
-
-    // Tiny HTML-text escaper for the names/labels injected below (this <script>
-    // block has no access to the shared _esc/_relTxt helpers).
-    function _distTxt(s) {
-      return String(s == null ? '' : s)
-        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    }
-
-    // Compact party label + color, normalized from the mixed letter / full-name
-    // shapes the data set carries (mirrors the Key Races party chip).
-    function _distPartyMeta(p) {
-      if (!p) return null;
-      var s = String(p).trim().toLowerCase();
-      if (!s) return null;
-      if (s === 'r' || s.indexOf('republican') !== -1 || s === 'gop') return { label: 'Republican', color: '#f87171' };
-      if (s === 'd' || s.indexOf('democrat') !== -1) return { label: 'Democrat', color: '#60a5fa' };
-      if (s === 'f' || s.indexOf('forward') !== -1) return { label: 'Forward', color: '#22d3ee' };
-      if (s === 'l' || s.indexOf('libertarian') !== -1) return { label: 'Libertarian', color: '#fbbf24' };
-      if (s === 'g' || s.indexOf('green') !== -1) return { label: 'Green', color: '#4ade80' };
-      if (s === 'i' || s.indexOf('independent') !== -1 || s.indexOf('unaffiliated') !== -1 || s.indexOf('no party') !== -1) return { label: 'Independent', color: '#a78bfa' };
-      return null;
-    }
-
-    // Avatar: real headshot when we have one, else a colored fallback chip.
-    // A larger ring + chamber-colored glow gives the officeholder real visual
-    // weight inside the compact card without adding row height.
-    function _distAvatar(pid, person, color) {
-      var url = (pid && typeof window._getPhotoUrl === 'function') ? window._getPhotoUrl(pid) : '';
-      var nm = _distTxt((person && person.name) || '');
-      if (url) {
-        return '<div style="width:52px;height:52px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid ' + color + ';background:#0a0f1e;box-shadow:0 0 0 3px ' + color + '26,0 3px 9px rgba(0,0,0,0.45);">' +
-          '<img src="' + url + '" alt="' + nm + '" style="width:100%;height:100%;object-fit:cover;" loading="lazy" onerror="this.parentElement.innerHTML=\'<div style=&quot;display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.35rem;color:#9fb4d4&quot;>🏛</div>\'"></div>';
-      }
-      return '<div style="width:52px;height:52px;border-radius:50%;flex-shrink:0;border:2px solid ' + color + '99;background:rgba(30,53,96,0.35);display:flex;align-items:center;justify-content:center;font-size:1.35rem;color:#9fb4d4;box-shadow:0 0 0 3px ' + color + '1a;">🏛</div>';
-    }
-
-    // ── Compact directory renderers ────────────────────────────────────────────
-    // The strip is a scannable directory: a horizontal row of four level buttons
-    // (U.S. House · State Senate · State House · Local) that each expand a downward
-    // panel listing only the CURRENT officeholder(s) for that level. All the data
-    // resolution above is reused unchanged — this is presentation only.
-
-    // Small, subtle "Add" affordance on an officeholder row. It keeps the directory
-    // read-first while preserving a light path into My Voting Team, and flips to a
-    // calm "On team" tag once that person is picked. Reuses the same
-    // ballotPickCardAnimated handler the rest of the builder uses, so team state
-    // can never disagree.
-    var _addLink   = 'display:inline-flex;align-items:center;gap:0.2rem;flex-shrink:0;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.04em;text-transform:uppercase;color:#fbbf24;background:none;border:1px solid transparent;border-radius:0.45rem;padding:0.32rem 0.42rem;min-height:34px;cursor:pointer;transition:background .15s,border-color .15s;';
-    var _onTeamTag = 'display:inline-flex;align-items:center;gap:0.24rem;flex-shrink:0;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.04em;text-transform:uppercase;color:#4ade80;padding:0.32rem 0.42rem;';
-    // Full-width "see the full field" bridge at the foot of each open panel.
-    var _seeAllBtn = 'display:flex;align-items:center;justify-content:center;gap:0.34rem;width:100%;margin-top:0.5rem;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.04em;text-transform:uppercase;color:#bcd3f5;background:linear-gradient(135deg,rgba(59,130,246,0.2),rgba(59,130,246,0.08));border:1px solid rgba(96,165,250,0.45);border-radius:0.6rem;padding:0.5rem 0.6rem;min-height:42px;cursor:pointer;transition:transform .12s,background .15s;';
-
-    // One compact officeholder row inside an expanded level panel: a small avatar +
-    // party dot, the name (opens the profile), the exact position + district and a
-    // party chip, one light tenure line when on file, and the subtle Add link.
-    function holderRow(pid, color, shortTitle, distNum, raceKey, opts) {
-      opts = opts || {};
-      var person = (pid && typeof window._pdxPersonById === 'function') ? window._pdxPersonById(pid) : null;
-      if (!person) return '';
-      var pm = _distPartyMeta(person.party);
-      var nm = _distTxt(person.name || 'Current officeholder');
-      // Prefer the officeholder's own title (e.g. "Davis County Sheriff"), which is
-      // more specific and accurate than the level's generic label; fall back to the
-      // level label, and append the district for the single-seat legislative levels.
-      var posLine = _distTxt(person.office || shortTitle) + (distNum ? ' · District ' + distNum : '');
-      var partyChip = pm
-        ? '<span style="display:inline-flex;align-items:center;gap:0.24rem;font-family:\'Barlow Condensed\',sans-serif;font-size:0.6rem;font-weight:700;letter-spacing:0.03em;color:' + pm.color + ';background:linear-gradient(135deg,' + pm.color + '2e,' + pm.color + '12);border:1px solid ' + pm.color + '66;padding:0.04rem 0.4rem 0.04rem 0.32rem;border-radius:999px;white-space:nowrap;">' +
-            '<span style="width:0.32rem;height:0.32rem;border-radius:50%;background:' + pm.color + ';box-shadow:0 0 5px ' + pm.color + ';flex-shrink:0;"></span>' + pm.label + '</span>'
-        : '';
-      var _tp = (typeof window._pdxTenurePill === 'function') ? window._pdxTenurePill(person) : '';
-      var tenureLine = _tp ? '<div style="margin-top:0.3rem;">' + _tp + '</div>' : '';
-      var avatarBlock =
-        '<div style="position:relative;flex-shrink:0;">' +
-          _distAvatar(pid, person, color) +
-          (pm ? '<span title="' + pm.label + '" style="position:absolute;right:-2px;bottom:-2px;width:0.9rem;height:0.9rem;border-radius:50%;background:' + pm.color + ';border:2px solid #0a0f1e;box-shadow:0 0 7px ' + pm.color + 'bb;"></span>' : '') +
-        '</div>';
-      // Local picks now live under per-seat keys (local_<raceKey>), not the shared
-      // 'local' key this strip passes, so match a local pick by pid across any key
-      // to keep the "✓ On team" badge accurate. Non-local rows keep their exact
-      // per-key check so nothing else changes.
-      var onTeam = (raceKey === 'local')
-        ? ((typeof window._pdxIsOnTeam === 'function') ? window._pdxIsOnTeam(pid) : (teamSel[raceKey] === pid))
-        : (teamSel[raceKey] && teamSel[raceKey] === pid);
-      // A redistricted "who represents you now" row is informational — the voter's
-      // 2026 ballot is a different district, so we don't offer to add this member
-      // as their team pick (the "See all candidates" bridge leads to the real 2026
-      // field). Every other row keeps the light Add / On-team affordance.
-      var action = opts.hideAdd
-        ? ''
-        : (onTeam
-          ? '<span style="' + _onTeamTag + '">✓ Your pick</span>'
-          : '<button type="button" title="Add to your ballot" onclick="window.ballotPickCardAnimated(this,\'' + raceKey + '\',\'' + pid + '\')" style="' + _addLink + '" onmouseover="this.style.background=\'rgba(251,191,36,0.12)\';this.style.borderColor=\'rgba(251,191,36,0.45)\'" onmouseout="this.style.background=\'none\';this.style.borderColor=\'transparent\'">＋ Add</button>');
-      // "Currently representing you" eyebrow makes the strip's promise explicit —
-      // every row is the sitting officeholder for the voter's own district, not a
-      // generic listing — directly answering "who represents me right now?". A
-      // redistricted seat overrides the label (e.g. "Represents you now") so the
-      // current-vs-2026 distinction stays honest.
-      var _eyebrowText = opts.eyebrow || 'Currently representing you';
-      var eyebrow = '<div style="display:flex;align-items:center;gap:0.28rem;font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:' + color + ';line-height:1;margin-bottom:0.2rem;">' +
-        '<span style="width:0.34rem;height:0.34rem;border-radius:50%;background:' + color + ';box-shadow:0 0 6px ' + color + ';"></span>' + _distTxt(_eyebrowText) + '</div>';
-      return '<div style="display:flex;align-items:center;gap:0.65rem;background:radial-gradient(120% 100% at 0% 0%,' + color + '20,transparent 62%),linear-gradient(135deg,' + color + '17,rgba(255,255,255,0.025));border:1px solid ' + color + '3d;border-radius:0.65rem;padding:0.55rem 0.62rem;margin-top:0.4rem;box-shadow:inset 0 1px 0 rgba(255,255,255,0.04);">' +
-        avatarBlock +
-        '<div style="min-width:0;flex:1;">' +
-          eyebrow +
-          '<button type="button" onclick="if(typeof openMediumModal===\'function\')openMediumModal(\'' + pid + '\')" style="display:block;text-align:left;background:none;border:none;padding:0;cursor:pointer;font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:1.02rem;letter-spacing:0.01em;color:#fff;line-height:1.12;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;text-shadow:0 1px 8px ' + color + '4d;">' + nm + '</button>' +
-          '<div style="display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;margin-top:0.24rem;">' +
-            partyChip +
-            '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.72rem;color:#aebccf;line-height:1.1;">' + posLine + '</span>' +
-          '</div>' +
-          tenureLine +
-        '</div>' +
-        action +
-      '</div>';
-    }
-
-    // One level button in the always-visible horizontal row. Shows the level name,
-    // its district chip (where known) and a light status cue — the current holder's
-    // name for a single seat, a count for Local, or a "See who's running" prompt
-    // when no officeholder is on file — plus a chevron reflecting the panel's open state.
-    function levelButton(levelKey, color, label, distVal, statusText, isOpen) {
-      var distNum = distVal ? String(distVal).replace(/[^0-9]/g, '') : '';
-      var distChip = distNum
-        ? '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:0.66rem;letter-spacing:0.04em;color:#fff;background:linear-gradient(135deg,' + color + '59,' + color + '1f);border:1px solid ' + color + '99;border-radius:0.4rem;padding:0.08rem 0.42rem;white-space:nowrap;flex-shrink:0;">Dist ' + distNum + '</span>'
-        : '';
-      // Closed cards used to share one flat dark fill with a faint border, so the
-      // four levels blended together. Each closed card now carries a subtle
-      // level-tinted gradient, a stronger accent border and real elevation (drop
-      // shadow + inset ring + top highlight) so the row reads as four distinct,
-      // raised cards. The open state keeps the same gradient language but pushes
-      // the ring, colored glow and lift further so the active level clearly wins.
-      var bBorder = isOpen ? color : (color + '80');
-      var bBg     = isOpen
-        ? ('linear-gradient(135deg,' + color + '40,' + color + '17)')
-        : ('linear-gradient(160deg,' + color + '24,rgba(9,13,26,0.74) 72%)');
-      var bShadow = isOpen
-        ? ('0 0 0 1.5px ' + color + '8c,0 0 24px ' + color + '33,0 10px 24px rgba(0,0,0,0.44)')
-        : ('0 3px 12px rgba(0,0,0,0.42),inset 0 0 0 1px ' + color + '2b,inset 0 1px 0 rgba(255,255,255,0.06)');
-      return '<button type="button" id="vh-level-btn-' + levelKey + '" data-color="' + color + '" aria-expanded="' + (isOpen ? 'true' : 'false') + '" onclick="window._vhToggleLevel(\'' + levelKey + '\')" ' +
-        'style="flex:1 1 10.5rem;min-width:9rem;display:flex;align-items:center;gap:0.5rem;text-align:left;border:1px solid ' + bBorder + ';background:' + bBg + ';box-shadow:' + bShadow + ';border-radius:0.8rem;padding:0.65rem 0.75rem;cursor:pointer;min-height:58px;transition:transform .14s,border-color .15s,background .15s,box-shadow .18s;" ' +
-        'onmouseover="this.style.transform=\'translateY(-2px)\'" onmouseout="this.style.transform=\'\'">' +
-        '<span style="width:0.68rem;height:0.68rem;border-radius:50%;background:' + color + ';box-shadow:0 0 11px ' + color + ',0 0 0 3px ' + color + '2b;flex-shrink:0;"></span>' +
-        '<span style="min-width:0;flex:1;display:flex;flex-direction:column;gap:0.16rem;">' +
-          '<span style="display:flex;align-items:center;gap:0.4rem;">' +
-            '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:0.9rem;letter-spacing:0.03em;text-transform:uppercase;color:#fff;line-height:1;white-space:nowrap;">' + label + '</span>' +
-            distChip +
-          '</span>' +
-          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.72rem;color:#9fb4d4;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + _distTxt(statusText) + '</span>' +
-        '</span>' +
-        '<span class="vh-lv-chev" style="font-size:0.72rem;color:#9fb4d4;flex-shrink:0;">' + (isOpen ? '▲' : '▼') + '</span>' +
-      '</button>';
-    }
-
-    // One expandable level panel: a light one-line seat summary, the compact
-    // officeholder rows, and the "See all candidates for this level" bridge into
-    // Relevant to Me. When no officeholder resolves (only expected for seats we
-    // don't yet curate), it states that plainly instead of implying a name is
-    // moments away — and still points the voter straight to the full field.
-    function levelPanel(levelKey, color, isOpen, pids, distVal, raceKey, shortTitle, summary, redistrict) {
-      var distNum = distVal ? String(distVal).replace(/[^0-9]/g, '') : '';
-      var rd = (redistrict && redistrict.changed) ? redistrict : null;
-      var rows = '';
-      if (rd) {
-        // Redistricted U.S. House seat: the officeholder row names the member who
-        // represents this voter under the CURRENT map (their prior district's
-        // incumbent), tagged with his real current district — never the new 2026
-        // ballot-district number. When no current officeholder resolves we fall
-        // through to the honest placeholder below rather than invent a name.
-        if (rd.currentPid) {
-          rows += holderRow(rd.currentPid, color, shortTitle, rd.currentDistrict, raceKey,
-            { eyebrow: 'Represents you now', hideAdd: true });
-        }
-      } else {
-        for (var i = 0; i < pids.length; i++) rows += holderRow(pids[i], color, shortTitle, distNum, raceKey);
-      }
-      var body = rows ||
-        ('<div style="display:flex;align-items:center;gap:0.6rem;background:rgba(255,255,255,0.035);border:1px solid rgba(148,163,184,0.18);border-radius:0.6rem;padding:0.55rem 0.62rem;margin-top:0.4rem;">' +
-          _distAvatar(null, null, color) +
-          '<div style="min-width:0;flex:1;">' +
-            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.84rem;color:#cdd9ec;line-height:1.2;">' + _distTxt(shortTitle) + (distNum ? ' · District ' + distNum : '') + '</div>' +
-            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.72rem;color:#9fb4d4;line-height:1.28;margin-top:0.14rem;">We don’t have this seat’s current officeholder on file yet. See everyone running below.</div>' +
-          '</div>' +
-        '</div>');
-      var summaryLine = summary
-        ? '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.8rem;font-weight:600;letter-spacing:0.01em;color:#c6d5ee;line-height:1.34;margin:0.15rem 0 0.1rem;">' + _distTxt(summary) + '</div>'
-        : '';
-      // Redistricting explainer: a calm, neutral banner naming the district move,
-      // shown ABOVE the current officeholder so the "who represents me now" row is
-      // read in context. Kept factual and unalarming — it states the change, not a
-      // warning. (2026 ballot line comes after the officeholder, below.)
-      var rdBanner = rd
-        ? ('<div style="display:flex;align-items:flex-start;gap:0.5rem;background:linear-gradient(135deg,rgba(251,191,36,0.14),rgba(251,191,36,0.05));border:1px solid rgba(251,191,36,0.42);border-radius:0.6rem;padding:0.5rem 0.6rem;margin-top:0.4rem;">' +
-            '<span style="font-size:0.95rem;line-height:1.2;flex-shrink:0;">⚖️</span>' +
-            '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.76rem;color:#f2dca0;line-height:1.34;">' +
-              '<strong style="color:#fde68a;">New U.S. House district for 2026.</strong> Utah’s court-ordered map moved your area from District ' + rd.currentDistrict + ' into District ' + rd.ballotDistrict + '. Below is who represents you now — and the district you’ll actually vote in this year.' +
-            '</div>' +
-          '</div>')
-        : '';
-      // The forward-looking half of the split: the district on the 2026 ballot,
-      // pointing straight at the real field via the same "See all candidates"
-      // bridge. Placed right below the current officeholder so the two read as one
-      // clear "now vs. 2026" pair.
-      var rd2026 = rd
-        ? ('<div style="display:flex;align-items:center;gap:0.5rem;background:radial-gradient(120% 100% at 0% 0%,' + color + '20,transparent 62%),linear-gradient(135deg,' + color + '14,rgba(255,255,255,0.02));border:1px solid ' + color + '3d;border-radius:0.6rem;padding:0.5rem 0.6rem;margin-top:0.4rem;">' +
-            '<span style="font-size:0.95rem;line-height:1.2;flex-shrink:0;">🗳️</span>' +
-            '<div style="min-width:0;flex:1;">' +
-              '<div style="display:flex;align-items:center;gap:0.28rem;font-family:\'Barlow Condensed\',sans-serif;font-size:0.58rem;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:' + color + ';line-height:1;">Your 2026 ballot district</div>' +
-              '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.82rem;color:#dbe6f7;line-height:1.28;margin-top:0.12rem;">You vote in the new <strong style="color:#fff;">District ' + rd.ballotDistrict + '</strong> this year — see who’s running below.</div>' +
-            '</div>' +
-          '</div>')
-        : '';
-      var seeAll = '<button type="button" onclick="window.jumpToRelevantAccordion(\'' + raceKey + '\')" style="' + _seeAllBtn + '" onmouseover="this.style.transform=\'translateY(-1px)\';this.style.background=\'linear-gradient(135deg,rgba(59,130,246,0.32),rgba(59,130,246,0.14))\'" onmouseout="this.style.transform=\'\';this.style.background=\'linear-gradient(135deg,rgba(59,130,246,0.2),rgba(59,130,246,0.08))\'">🔍 See all candidates for this level →</button>';
-      return '<div id="vh-level-panel-' + levelKey + '" style="display:' + (isOpen ? 'block' : 'none') + ';margin-top:0.5rem;">' +
-        summaryLine + rdBanner + body + rd2026 + seeAll +
-      '</div>';
-    }
-
-    // Light status cue for a level button: the current holder's name for a single
-    // seat, a count for Local, or a plain "See who's running" prompt on the rare
-    // seat with no officeholder on file.
-    function _levelStatus(inc, single) {
-      var n = (inc && inc.pids) ? inc.pids.length : 0;
-      if (!n) return 'See who’s running';
-      if (single) {
-        var p = (typeof window._pdxPersonById === 'function') ? window._pdxPersonById(inc.pids[0]) : null;
-        return (p && p.name) ? p.name : '1 in office';
-      }
-      return n + (n === 1 ? ' officeholder' : ' officeholders');
-    }
-
-    // Plain-language, one-line description of each seat, built from the resolved
-    // district numbers / area so every card carries useful, human context even
-    // before its officeholder is confirmed. Keeps the strip feeling like the
-    // "current reality / educational" layer.
-    function _seatSummary(rk, distVal) {
-      var n = distVal ? String(distVal).replace(/[^0-9]/g, '') : '';
-      var where = (matched && krd && krd.label)
-        ? krd.label
-        : (loc.county || loc.city || (state && state !== 'National' ? state : ''));
-      if (rk === 'house')       return n ? 'Your U.S. Representative for District ' + n : 'Your voice in the U.S. House of Representatives';
-      if (rk === 'statesenate') return n ? 'Your State Senator for District ' + n : ('Your State Senator' + (where ? ' representing ' + where : ''));
-      if (rk === 'statehouse')  return n ? 'Your State Representative for District ' + n : ('Your representative in the ' + (state || 'state') + ' House');
-      if (rk === 'local')       return 'Your mayor, city council, school board & county seats';
-      return '';
-    }
-
-    // Assemble the four levels into the always-visible button row + expandable
-    // panels wired as a single-open accordion. U.S. House starts expanded by
-    // default so the directory is never visually empty and gives immediate value
-    // on load; the other three start collapsed and open one-at-a-time as the voter
-    // clicks them (opening one collapses whichever was open — see _vhToggleLevel).
-    var _vhLevels = [
-      { key: 'house',       color: '#60a5fa', label: 'U.S. House',   short: 'U.S. Representative', dist: house,  race: 'house',       inc: houseInc,  single: true },
-      { key: 'statesenate', color: '#a78bfa', label: 'State Senate', short: 'State Senator',       dist: senate, race: 'statesenate', inc: senateInc, single: true },
-      { key: 'statehouse',  color: '#2dd4bf', label: 'State House',  short: 'State Representative', dist: lower,  race: 'statehouse',  inc: lowerInc,  single: true },
-      { key: 'local',       color: '#fbbf24', label: 'Local',        short: 'Local Official',      dist: null,   race: 'local',       inc: localInc,  single: false }
-    ];
-    var _vhOpenLevel = 'house';
-    var _vhRow = '', _vhPanels = '';
-    for (var _li = 0; _li < _vhLevels.length; _li++) {
-      var _L = _vhLevels[_li];
-      var _isOpen = (_L.key === _vhOpenLevel);
-      // U.S. House is the only level that can be redistricted for 2026. When it is,
-      // the button status reads "Now: <current rep>" (paired with the ballot-district
-      // chip) and the summary names the now-vs-2026 split; the panel carries the full
-      // banner. Every other level renders exactly as before.
-      var _rd = (_L.key === 'house') ? houseRedistrict : null;
-      var _status = (_rd && _rd.changed && _L.inc.pids && _L.inc.pids.length)
-        ? ('Now: ' + _levelStatus(_L.inc, _L.single))
-        : _levelStatus(_L.inc, _L.single);
-      var _summary = (_rd && _rd.changed)
-        ? ('Redrawn for 2026 — who represents you now, and the new District ' + _rd.ballotDistrict + ' on your ballot.')
-        : _seatSummary(_L.race, _L.dist);
-      _vhRow    += levelButton(_L.key, _L.color, _L.label, _L.dist, _status, _isOpen);
-      _vhPanels += levelPanel(_L.key, _L.color, _isOpen, (_L.inc.pids || []), _L.dist, _L.race, _L.short, _summary, _rd);
-    }
-    var directoryHtml =
-      '<div style="display:flex;flex-wrap:wrap;gap:0.5rem;">' + _vhRow + '</div>' +
-      _vhPanels;
-
-    var allKnown = house && senate && lower;
-
-    // Explicit "these are my three races" line near the top of the section — a
-    // single scannable row of colored chips so the voter instantly sees the exact
-    // U.S. House, State Senate and State House districts they vote in, before they
-    // even read the cards. Mirrors the card accent colors so the link is obvious.
-    var _scNum = function(v) { return String(v == null ? '' : v).replace(/[^0-9]/g, ''); };
-    function _sumChip(label, num, color) {
-      return '<span style="display:inline-flex;align-items:center;gap:0.32rem;font-family:\'Barlow Condensed\',sans-serif;font-size:0.74rem;font-weight:700;letter-spacing:0.02em;color:#e2e8f0;background:' + color + '1f;border:1px solid ' + color + '59;border-radius:999px;padding:0.18rem 0.6rem;white-space:nowrap;">' +
-        '<span style="width:0.42rem;height:0.42rem;border-radius:50%;background:' + color + ';box-shadow:0 0 7px ' + color + ';"></span>' +
-        label + ' <strong style="color:#fff;">' + num + '</strong></span>';
-    }
-    var summaryRow = '';
-    if (house || senate || lower) {
-      var _scChips = [];
-      if (house)  _scChips.push(_sumChip('U.S. House',   _scNum(house),  '#60a5fa'));
-      if (senate) _scChips.push(_sumChip('State Senate', _scNum(senate), '#a78bfa'));
-      if (lower)  _scChips.push(_sumChip('State House',  _scNum(lower),  '#2dd4bf'));
-      summaryRow =
-        '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem;margin:-0.2rem 0 0.75rem;">' +
-          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#7e93b4;">You vote in</span>' +
-          _scChips.join('') +
-        '</div>';
-    }
-
-    var guidance = allKnown
-      ? 'These are <strong style="color:#fff;">your</strong> seats — they decide your taxes, schools, roads and local laws. Here\'s who holds them and who\'s running in 2026.'
-      : 'Pick your city in <button type="button" onclick="_pdxGoSetLocation()" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:#93c5fd;text-decoration:underline;">Change Location</button> and we\'ll fill in every district seat automatically.';
-
-    // Prominent, inviting map trigger — the primary "do this next" action for the
-    // location card. Full-width, two-line label + map cue, with clear hover/tap states.
-    var mapTrigger =
-      '<button type="button" onclick="window.openDistrictMapModal&&window.openDistrictMapModal()" ' +
-        'style="flex:2 1 16rem;display:flex;align-items:center;gap:0.85rem;text-align:left;background:linear-gradient(135deg,rgba(21,128,61,0.92),rgba(14,116,144,0.92));border:1px solid rgba(45,212,191,0.55);border-radius:0.9rem;padding:0.7rem 0.95rem;cursor:pointer;min-height:56px;transition:transform .15s,box-shadow .15s,filter .15s;box-shadow:0 4px 18px rgba(14,116,144,0.28);" ' +
-        'onmouseover="this.style.transform=\'translateY(-2px)\';this.style.boxShadow=\'0 9px 26px rgba(14,116,144,0.5)\';this.style.filter=\'brightness(1.08)\'" onmouseout="this.style.transform=\'\';this.style.boxShadow=\'0 4px 18px rgba(14,116,144,0.28)\';this.style.filter=\'\'" ' +
-        'onmousedown="this.style.transform=\'translateY(0) scale(0.99)\'" onmouseup="this.style.transform=\'translateY(-2px)\'">' +
-        '<span style="font-size:1.55rem;line-height:1;flex-shrink:0;">🗺️</span>' +
-        '<span style="display:flex;flex-direction:column;gap:0.15rem;flex:1;min-width:0;">' +
-          '<span style="font-family:\'Bebas Neue\',sans-serif;font-size:1.05rem;letter-spacing:0.04em;color:#fff;line-height:1.05;">View or change your districts on the map</span>' +
-          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.76rem;letter-spacing:0.02em;color:rgba(255,255,255,0.82);line-height:1.15;">See exactly where your district lines fall — and adjust if needed</span>' +
-        '</span>' +
-        '<span style="font-size:1.1rem;color:#fff;flex-shrink:0;">→</span>' +
-      '</button>';
-
-    // ── Other races on the ballot (Statewide · Federal) ───────────────────────
-    // The strip stays laser-focused on the voter's three LOCAL district seats, but
-    // a real ballot also has statewide and federal offices. Rather than crowd those
-    // in (which would dilute the local focus), they live in two collapsed
-    // disclosures below the local cards: a gentle, scannable reminder that the rest
-    // of the ballot exists, each row one tap from the full field for that seat.
-    var _otherToggle = 'flex:1 1 13rem;display:flex;align-items:center;gap:0.55rem;text-align:left;background:rgba(10,15,30,0.5);border:1px solid rgba(148,163,184,0.28);border-radius:0.7rem;padding:0.6rem 0.8rem;cursor:pointer;min-height:48px;transition:transform .12s,border-color .15s,background .15s;';
-    function _otherRaceRow(icon, color, title, sub, key) {
-      return '<button type="button" onclick="window.jumpToRelevantAccordion(\'' + key + '\')" ' +
-        'style="display:flex;align-items:center;gap:0.6rem;width:100%;text-align:left;background:rgba(255,255,255,0.03);border:1px solid ' + color + '33;border-left:3px solid ' + color + ';border-radius:0.55rem;padding:0.5rem 0.6rem;margin-top:0.4rem;cursor:pointer;min-height:46px;transition:transform .12s,background .15s,border-color .15s;" ' +
-        'onmouseover="this.style.transform=\'translateX(2px)\';this.style.background=\'rgba(255,255,255,0.06)\';this.style.borderColor=\'' + color + '80\'" onmouseout="this.style.transform=\'\';this.style.background=\'rgba(255,255,255,0.03)\';this.style.borderColor=\'' + color + '33\'">' +
-        '<span style="font-size:1.05rem;line-height:1;flex-shrink:0;">' + icon + '</span>' +
-        '<span style="min-width:0;flex:1;">' +
-          '<span style="display:block;font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.86rem;color:#e2e8f0;line-height:1.15;">' + title + '</span>' +
-          '<span style="display:block;font-family:\'Barlow Condensed\',sans-serif;font-size:0.7rem;color:#9fb4d4;line-height:1.2;margin-top:0.05rem;">' + sub + '</span>' +
-        '</span>' +
-        '<span style="font-family:\'Barlow Condensed\',sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.04em;text-transform:uppercase;color:' + color + ';flex-shrink:0;white-space:nowrap;">See field →</span>' +
-      '</button>';
-    }
-    var _stState = _distTxt(state);
-    var statewidePanel =
-      '<div id="vh-statewide-panel" style="display:none;margin-top:0.5rem;">' +
-        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.72rem;color:#9fb4d4;line-height:1.35;margin-bottom:0.1rem;">Every ' + _stState + ' voter helps choose these — they run the whole state.</div>' +
-        _otherRaceRow('\u{1F985}', '#34d399', 'Governor', _stState + '’s chief executive', 'governor') +
-        _otherRaceRow('\u{1F3DB}️', '#5eead4', 'Lt. Governor', 'Runs alongside the Governor', 'ltgovernor') +
-        _otherRaceRow('⚖️', '#a78bfa', 'Attorney General', 'The state’s top law officer', 'attorneygeneral') +
-        _otherRaceRow('\u{1F4B0}', '#fbbf24', 'Treasurer &amp; Auditor', 'Watch over the state’s money', 'attorneygeneral') +
-      '</div>';
-    var federalPanel =
-      '<div id="vh-federal-panel" style="display:none;margin-top:0.5rem;">' +
-        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.72rem;color:#9fb4d4;line-height:1.35;margin-bottom:0.1rem;">Federal seats on your ballot — they shape national law.</div>' +
-        _otherRaceRow('\u{1F3DB}️', '#818cf8', 'U.S. Senate', _stState + '’s two U.S. Senators', 'senate') +
-        _otherRaceRow('\u{1F985}', '#ef4444', 'U.S. President', 'Head of the executive branch', 'president') +
-      '</div>';
-    var otherRaces =
-      '<div style="margin-top:0.9rem;padding-top:0.85rem;border-top:1px dashed rgba(148,163,184,0.22);">' +
-        '<div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.5rem;font-family:\'Barlow Condensed\',sans-serif;font-size:0.66rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#7e93b4;">' +
-          '<span aria-hidden="true">↓</span><span>Also on your ballot — beyond your local districts</span>' +
-        '</div>' +
-        '<div style="display:flex;flex-wrap:wrap;gap:0.5rem;">' +
-          '<button type="button" aria-expanded="false" onclick="window._vhToggleRacePanel(this,\'vh-statewide-panel\')" style="' + _otherToggle + '" onmouseover="this.style.transform=\'translateY(-1px)\';this.style.borderColor=\'rgba(52,211,153,0.5)\'" onmouseout="this.style.transform=\'\';this.style.borderColor=\'rgba(148,163,184,0.28)\'">' +
-            '<span style="font-size:1.2rem;line-height:1;flex-shrink:0;">\u{1F3DB}️</span>' +
-            '<span style="min-width:0;flex:1;"><span style="display:block;font-family:\'Bebas Neue\',sans-serif;letter-spacing:0.04em;font-size:0.98rem;color:#fff;line-height:1.05;">Statewide Races</span><span style="display:block;font-family:\'Barlow Condensed\',sans-serif;font-size:0.7rem;color:#9fb4d4;line-height:1.15;">Governor, Attorney General &amp; more</span></span>' +
-            '<span class="vh-bx-chev" style="font-size:0.7rem;color:#9fb4d4;flex-shrink:0;">▼</span>' +
-          '</button>' +
-          '<button type="button" aria-expanded="false" onclick="window._vhToggleRacePanel(this,\'vh-federal-panel\')" style="' + _otherToggle + '" onmouseover="this.style.transform=\'translateY(-1px)\';this.style.borderColor=\'rgba(129,140,248,0.5)\'" onmouseout="this.style.transform=\'\';this.style.borderColor=\'rgba(148,163,184,0.28)\'">' +
-            '<span style="font-size:1.2rem;line-height:1;flex-shrink:0;">\u{1F1FA}\u{1F1F8}</span>' +
-            '<span style="min-width:0;flex:1;"><span style="display:block;font-family:\'Bebas Neue\',sans-serif;letter-spacing:0.04em;font-size:0.98rem;color:#fff;line-height:1.05;">Federal Races</span><span style="display:block;font-family:\'Barlow Condensed\',sans-serif;font-size:0.7rem;color:#9fb4d4;line-height:1.15;">U.S. Senate &amp; President</span></span>' +
-            '<span class="vh-bx-chev" style="font-size:0.7rem;color:#9fb4d4;flex-shrink:0;">▼</span>' +
-          '</button>' +
-        '</div>' +
-        statewidePanel +
-        federalPanel +
-      '</div>';
-
-    host.innerHTML =
-      '<div style="background:linear-gradient(135deg,rgba(30,58,138,0.22),rgba(10,15,30,0.4));border:1px solid rgba(59,130,246,0.32);border-radius:1rem;padding:0.95rem 1rem;">' +
-        '<div style="display:flex;align-items:baseline;gap:0.55rem;flex-wrap:wrap;margin-bottom:0.4rem;">' +
-          '<span style="font-family:\'Bebas Neue\',sans-serif;letter-spacing:0.06em;font-size:1.05rem;color:#fff;">📍 Your Voting Districts</span>' +
-          '<span style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.74rem;letter-spacing:0.03em;color:#9fb4d4;">' + areaLabel + '</span>' +
-        '</div>' +
-        // Transparency: make it explicit these seats come from the precise location /
-        // boundary maps, not a blanket county assumption — the core trust message.
-        '<div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.7rem;font-family:\'Barlow Condensed\',sans-serif;font-size:0.72rem;letter-spacing:0.02em;color:#7ee7b8;line-height:1.3;">' +
-          '<span style="flex-shrink:0;">📐</span><span>Based on your <strong style="color:#a7f3d0;">precise location</strong> on the official district maps — not your county.</span>' +
-        '</div>' +
-        summaryRow +
-        directoryHtml +
-        '<div style="font-family:\'Barlow Condensed\',sans-serif;font-size:0.85rem;letter-spacing:0.01em;color:#aebfd8;line-height:1.4;margin-top:0.8rem;">' + guidance + '</div>' +
-        '<div style="display:flex;align-items:stretch;gap:0.6rem;flex-wrap:wrap;margin-top:0.8rem;">' +
-          mapTrigger +
-          '<button type="button" onclick="window.jumpToRelevantAccordion(\'house\')" style="flex:1 1 11rem;display:flex;align-items:center;justify-content:center;' + btnLink + '" onmouseover="this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.transform=\'\'">⭐ See who represents me →</button>' +
-        '</div>' +
-        otherRaces +
-      '</div>';
+    } catch (e) {}
   };
 
   // ── Live "Your Path" tracker ───────────────────────────────────────────────

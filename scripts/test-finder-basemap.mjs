@@ -883,22 +883,52 @@ const driveFinder = async (opts = {}) => {
   // Paths record the handlers the controller binds, which is the whole point:
   // the click that gets fired below is the one buildLayer() actually wired.
   const paths = [];
+  // ── A PATH THAT IS ENOUGH OF A LEAFLET PATH TO MEASURE A GHOST ────────────
+  // Three things were missing here and each one hid a whole clause of the layer
+  // contract. `feature` (Leaflet's own field name — the stub only set `_feature`)
+  // is what distOf() reads, so without it pathForDist() and every per-feature
+  // repaint walked past every polygon. `getElement()` is where the class that
+  // kills pointer events is toggled, so without it "a ghost takes no tap" was a
+  // source read rather than a measurement. And `bringToBack` is half of the
+  // stacking order. A stub that answers none of them makes a guarded controller
+  // look correct by making it do nothing at all.
   const mkPath = (feature) => {
-    const p = {
-      _feature: feature, _handlers: {}, _styles: [],
-      on(a, b) { if (typeof a === "string") p._handlers[a] = b; else Object.keys(a).forEach((k) => { p._handlers[k] = a[k]; }); return p; },
-      off() { return p; }, bindTooltip() { return p; }, setStyle(s) { p._styles.push(s); return p; },
-      bringToFront() { return p; }, addTo(m) { m.addLayer(p); return p; }, remove() { return p; },
+    const el = {
+      _cls: new Set(),
+      classList: {
+        add(c) { el._cls.add(c); }, remove(c) { el._cls.delete(c); },
+        contains(c) { return el._cls.has(c); },
+      },
     };
+    const p = {
+      feature, _feature: feature, _el: el, _handlers: {}, _styles: [], _z: [],
+      on(a, b) { if (typeof a === "string") p._handlers[a] = b; else Object.keys(a).forEach((k) => { p._handlers[k] = a[k]; }); return p; },
+      off() { return p; }, bindTooltip(t) { p._tip = String(t); return p; },
+      setStyle(s) { p._styles.push(s); return p; },
+      getElement() { return el; },
+      bringToFront() { p._z.push("front"); return p; },
+      bringToBack() { p._z.push("back"); return p; },
+      addTo(m) { m.addLayer(p); return p; }, remove() { return p; },
+    };
+    // The last style this path was given, which is what a reader would see.
+    Object.defineProperty(p, "style", { get() { return p._styles[p._styles.length - 1] || null; } });
+    Object.defineProperty(p, "ghosted", { get() { return el._cls.has("pdx-ghost-path"); } });
     paths.push(p);
     return p;
   };
   const layerish = (tag) => {
     const o = {
-      _tag: tag, on() { return o; }, off() { return o; }, addTo(m) { m.addLayer(o); return o; },
-      setStyle() { return o; }, bindTooltip() { return o; }, bringToFront() { return o; },
+      _tag: tag, _paths: [], _z: [],
+      on() { return o; }, off() { return o; }, addTo(m) { m.addLayer(o); return o; },
+      setStyle() { return o; }, bindTooltip() { return o; },
+      bringToFront() { o._z.push("front"); return o; },
+      bringToBack() { o._z.push("back"); return o; },
       getBounds() { return { isValid: () => true, pad: () => ({}) }; },
-      eachLayer() {}, clearLayers() { return o; }, remove() { return o; },
+      // A REAL eachLayer, over the paths this layer actually built. It was a
+      // no-op, which meant pathForDist() could never find a polygon and
+      // repaintRoles() could never reach one.
+      eachLayer(fn) { o._paths.forEach((pp) => fn(pp)); },
+      clearLayers() { return o; }, remove() { return o; },
     };
     return o;
   };
@@ -910,7 +940,9 @@ const driveFinder = async (opts = {}) => {
       const g = layerish("geojson");
       (data && data.features || []).forEach((f) => {
         const p = mkPath(f);
-        if (opts && opts.style) { try { opts.style(f); } catch (e) {} }
+        p._owner = g;
+        g._paths.push(p);
+        if (opts && opts.style) { try { p.setStyle(opts.style(f)); } catch (e) {} }
         if (opts && opts.onEachFeature) opts.onEachFeature(f, p);
       });
       return g;
@@ -1722,6 +1754,200 @@ section("15 · three seats, or a labelled partial save");
     has(els["pdx-map-missing"].textContent, "One more",
       "driven: the pinned bar does not tell a reader one seat from complete how close they are");
   }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 16 · THREE CHAMBERS DRAWN, ONE OF THEM HOT
+// ═════════════════════════════════════════════════════════════════════════════
+// The finder resolves all three Utah seats from one point, and it used to draw
+// exactly one of them: showLayer() REMOVED the other two layers from the map, so
+// two thirds of the answer was produced off screen. A reader saw three district
+// numbers in the chip row over one set of outlines, with no way to see that the
+// State Senate line cuts across their State House district, or that the seat a
+// chip claims is a polygon they are genuinely inside.
+//
+// The contract is: the ACTIVE chamber is full colour, in front and clickable; the
+// other two stay drawn at about a quarter of the ink, behind it, and unreachable
+// by a pointer. That last clause is what keeps the canvas at ONE picker — and it
+// is the clause a source read cannot check, because a ghost that still took a
+// click would look identical in the source and behave like a second picker in a
+// browser. So this section drives it: it reads the class the controller toggled on
+// each polygon's element, and the style each polygon was last given.
+section("16 · ghost layers: the other two chambers stay drawn and stay untappable");
+{
+  // A polygon's chamber, off the payload's own property names: the legislative
+  // layers expose DIST (House 15/16, Senate 7), the congressional layer DISTRICT.
+  const byChamber = (paths) => {
+    const g = { house: [], senate: [], congress: [] };
+    for (const p of paths) {
+      const pr = (p.feature && p.feature.properties) || {};
+      if (pr.DISTRICT != null) g.congress.push(p);
+      else if (pr.DIST === 7) g.senate.push(p);
+      else if (pr.DIST != null) g.house.push(p);
+    }
+    return g;
+  };
+  const faint = (st) => !!st && st.opacity === 0.25 && st.fillOpacity === 0.03;
+  const lit   = (st) => !!st && st.color === "#f5c842" && st.fillOpacity === 0.42;
+
+  // ══ DRIVEN — A SEARCH DRAWS ALL THREE, AND ONLY ONE IS REACHABLE ══════════
+  {
+    const { els, win, paths, pump, added } = await driveFinder();
+    els["pdx-map-search-input"].value = "123 Main St, Layton";
+    win.pdxMapSearchAddress();
+    await pump();
+
+    // The premise: the search really did resolve all three, so all three chambers
+    // are geometry this finder holds. Without that the rest is vacuous.
+    eq(els["pdx-sel-house"].querySelector().textContent, "District 15",
+      "ghost: the Layton search no longer resolves the State House seat, so there is no three-layer state to measure");
+    eq(els["pdx-sel-congress"].querySelector().textContent, "District 2",
+      "ghost: the Layton search no longer resolves the congressional seat");
+
+    const drawn = added.filter((l) => l._tag === "geojson");
+    eq(drawn.length, 3,
+      `ghost: ${drawn.length} of 3 chamber layers are on the canvas — the other two were removed again, ` +
+      "which is the defect: a reader sees three district numbers over one set of lines");
+
+    const ch = byChamber(paths);
+    ok(ch.house.length >= 1 && ch.senate.length >= 1 && ch.congress.length >= 1,
+      "ghost: the driven payload no longer builds a polygon for each of the three chambers");
+
+    // THE ACTIVE CHAMBER IS HOT. House is the layer the finder opens on, so its
+    // polygons carry no ghost class and its selected district is lit.
+    ch.house.forEach((p) => ok(!p.ghosted,
+      "ghost: a polygon on the ACTIVE chamber is marked pointer-events:none, so the layer the reader is on cannot be tapped"));
+    const h15 = ch.house.filter((p) => p.feature.properties.DIST === 15).pop();
+    must(h15, "the driven payload no longer contains House District 15");
+    ok(lit(h15.style),
+      `ghost: the selected district on the active chamber is not lit — last style ${JSON.stringify(h15.style)}`);
+
+    // THE OTHER TWO ARE GHOSTS. Every polygon: faint, classed, and NOT lit — even
+    // the ones the tap selected, which is the trap. selectDistrict() fires for all
+    // three seats from resolveAllAt(), so without a role-aware styler the reader
+    // would see two more districts glowing on chambers they are not looking at.
+    for (const t of ["senate", "congress"]) {
+      ch[t].forEach((p) => {
+        ok(p.ghosted,
+          `ghost: a ${t} polygon is not marked .pdx-ghost-path, so an inactive chamber can still take a hover, a tooltip and a tap — that is a second picker`);
+        ok(faint(p.style),
+          `ghost: a ${t} polygon is not drawn faint — last style ${JSON.stringify(p.style)}`);
+        ok(!lit(p.style),
+          `ghost: a ${t} polygon the point-resolve selected was painted with the SELECTED style on a layer the reader is not on`);
+      });
+    }
+    // Stacking: the faint layers went back, the hot one came forward.
+    drawn.forEach((l) => ok(l._z.length >= 1, "ghost: a chamber layer was never given a stacking order"));
+    ok(drawn.some((l) => l._z.indexOf("back") >= 0), "ghost: no chamber layer was ever sent to the back");
+    ok(drawn.some((l) => l._z[l._z.length - 1] === "front"), "ghost: the active chamber was never brought to the front");
+
+    // ── SWITCHING CHAMBERS SWAPS THE ROLES; IT DOES NOT SWAP THE MAP ────────
+    win.pdxMapSetLayer("senate");
+    await pump();
+    const stillDrawn = added.filter((l) => l._tag === "geojson");
+    eq(stillDrawn.length, 3,
+      `ghost: switching chamber left ${stillDrawn.length} layers on the canvas — a toggle must change which lines are HOT, not which lines exist`);
+    const ch2 = byChamber(paths);
+    ch2.senate.forEach((p) => ok(!p.ghosted, "ghost: the newly active chamber is still marked untappable"));
+    ch2.house.forEach((p) => ok(p.ghosted, "ghost: the chamber the reader just left is still hot, so two layers take the pointer"));
+    ch2.congress.forEach((p) => ok(p.ghosted, "ghost: a chamber nobody selected is hot"));
+    const s7 = ch2.senate.filter((p) => p.feature.properties.DIST === 7).pop();
+    must(s7, "the driven payload no longer contains Senate District 7");
+    ok(lit(s7.style), `ghost: the selected district on the newly active chamber is not lit — last style ${JSON.stringify(s7.style)}`);
+    const h15b = ch2.house.filter((p) => p.feature.properties.DIST === 15).pop();
+    ok(faint(h15b.style),
+      `ghost: the previously selected House district stayed lit after the switch — last style ${JSON.stringify(h15b.style)}`);
+
+    // ── A GHOST DOES NOT BRIGHTEN UNDER A POINTER ───────────────────────────
+    // pointer-events:none is what stops this reaching a ghost in a browser, and
+    // the stylesheet is pinned below. But the handler is bound to every polygon on
+    // every layer, so the guard inside it is the second lock: a build that lost
+    // the rule, or a platform that delivers a synthetic hover anyway, must not be
+    // able to repaint an inactive chamber at full ink. House 16 is the right
+    // probe because it is a ghost the reader has NOT selected — the pre-existing
+    // "is this the selected district" guard would mask the test on any other one.
+    const h16 = byChamber(paths).house.filter((p) => p.feature.properties.DIST === 16).pop();
+    must(h16, "the driven payload no longer contains an unselected House District 16 to hover");
+    h16._handlers.mouseover({});
+    ok(faint(h16.style),
+      `ghost: a hover repainted an inactive chamber's polygon at full ink — last style ${JSON.stringify(h16.style)}`);
+    h16._handlers.mouseout({});
+    ok(faint(h16.style),
+      `ghost: leaving an inactive chamber's polygon repainted it as the ACTIVE chamber's base style — ${JSON.stringify(h16.style)}`);
+
+    // ── AND A TAP STILL RESOLVES ALL THREE FROM ITS OWN POINT ───────────────
+    // The whole reason the ghosts exist is that one gesture answers three seats.
+    // Tapping the hot layer must still do that, and must not light the ghosts.
+    const s7click = ch2.senate.filter((p) => p.feature.properties.DIST === 7).pop();
+    s7click._handlers.click({ latlng: { lat: 40.7, lng: -111.7 } });
+    await pump();
+    eq(win._currentVoterLocation.stateHouseDistrict, "16",
+      "ghost: a tap on the hot layer no longer re-resolves the other chambers from its own point");
+    eq(win._currentVoterLocation.district, "2",
+      "ghost: a tap on the hot layer dropped the congressional seat");
+    byChamber(paths).congress.forEach((p) => ok(p.ghosted && !lit(p.style),
+      "ghost: the tap lit a congressional polygon on a layer the reader is not on"));
+  }
+
+  // ══ DRIVEN — A CANVAS TAP: THE GHOSTS ARRIVE AS THEIR BOUNDARIES LAND ════
+  // The search path calls showLayer() on its way out, so it would paint the
+  // ghosts even with no repaint hook at all. The TAP path is the one that needs
+  // one: the canvas tap draws the active chamber from the only geometry then in
+  // the cache, and the other two chambers are fetched afterwards, by the point
+  // resolve the tap kicks off. Without a repaint when that resolve settles, the
+  // reader ends a tap with three district numbers and one set of lines — the
+  // exact state this section exists to prevent, reached by the other door.
+  {
+    const { win, paths, pump, mapObj, added } = await driveFinder();
+    eq(added.filter((l) => l._tag === "geojson").length, 0,
+      "ghost: the finder drew a chamber before the reader asked for one");
+    mapObj._h.click({ latlng: { lat: 40.7, lng: -111.9 } });
+    await pump();
+    const drawn = added.filter((l) => l._tag === "geojson");
+    eq(drawn.length, 3,
+      `ghost: after a canvas tap ${drawn.length} of 3 chambers are drawn — the two the point resolve fetched ` +
+      "never reached the canvas, so the tap answered three seats and showed one");
+    eq(win._currentVoterLocation.stateSenateDistrict, "7",
+      "ghost: the canvas tap no longer resolves the other chambers from its own point");
+    const ch = byChamber(paths);
+    ch.house.forEach((p) => ok(!p.ghosted, "ghost: the tapped chamber is marked untappable"));
+    for (const t of ["senate", "congress"]) {
+      ch[t].forEach((p) => {
+        ok(p.ghosted, `ghost: a ${t} polygon drawn by the tap's point resolve takes the pointer`);
+        ok(faint(p.style), `ghost: a ${t} polygon drawn by the tap's point resolve is not faint — ${JSON.stringify(p.style)}`);
+      });
+    }
+  }
+
+  // ══ SOURCE — THE REMOVAL IS GONE, AND THE CLASS DOES THE WORK ════════════
+  // The body of a top-level controller function: from its signature to the first
+  // close at its own indentation. Two of them are read below, so it is one helper.
+  const bodyOf = (src, sig) => {
+    const i = src.indexOf(sig);
+    if (i < 0) return "";
+    const j = src.indexOf("\n    }", i);
+    return j < 0 ? src.slice(i) : src.slice(i, j + 6);
+  };
+  const SHOW = bodyOf(FIND, "function showLayer(layerType, skipFit){");
+  ok(SHOW.length > 200, "ghost: showLayer() could not be located in find.html");
+  no(SHOW, "removeLayer",
+    "ghost: showLayer() takes a layer off the map again — that is the line that made two of the three\n" +
+    "    chambers invisible, and no styling contract survives it");
+  has(FIND, ".pdx-ghost-path{pointer-events:none;}",
+    "ghost: the rule that makes an inactive chamber unreachable by a pointer is gone, so a ghost is a\n" +
+    "    second picker with faint ink");
+  has(FIND, "var GHOST_OPACITY = 0.25;", "ghost: the ~25% opacity the brief names is no longer stated once");
+  // ONE STYLER, ASKED IN THE RIGHT ORDER. styleFor() must decide the ROLE before
+  // it looks at the selection, or a selected ghost comes back lit.
+  const SF = bodyOf(FIND, "function styleFor(layerType, selected){");
+  ok(SF.indexOf("_activeLayer") >= 0 && SF.indexOf("_activeLayer") < SF.indexOf("selected ?"),
+    "ghost: styleFor() checks the selection before the chamber, so a district the point-resolve picked on an\n" +
+    "    inactive layer is painted as selected");
+  // AND STILL EXACTLY ONE PICKER: the definition, the polygon click and the
+  // tap-to-load pick are the only three mentions of the point resolver there
+  // should ever be.
+  eq((MAPC.match(/resolveAllAt\(/g) || []).length, 3,
+    "ghost: the number of resolveAllAt call sites moved — a fourth is a second picker, a second is a lost seat");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

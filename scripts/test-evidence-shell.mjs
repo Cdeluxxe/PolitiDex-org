@@ -330,8 +330,17 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // carried a byte-identical copy of that arm with no caller for it at all, so the
 // arm came out of person.html too. Six lines above the Firebase boot, nothing
 // inside it. Re-derived by locating the run, as ever.
+//   AND DOWN BY 17, for the one-roster pass. index.html stopped carrying a
+// second "Who Represents You Now" in the Voter Hub — #vh-district-strip and its
+// mount came out, and a documented note plus one link back to the band went in
+// where they stood — and the homepage flash list that used to name that host now
+// names #wrm-reps, with a reworded comment above it. Both edits are markup, both
+// sit above this block, and neither is inside it: 16 lines at ~7560 and 1 more at
+// ~17700, so 19131-19251 became 19148-19268 at its full 121 lines. Located
+// verbatim in the new index.html; the arithmetic agreed afterwards, which is the
+// order that catches a bad pin rather than confirming one.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 19131, b: 19251, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 19148, b: 19268, what: "the PDXStance vocabulary" },
   { from: "person.html", src: PERSON, a: 2005, b: 2059, what: "the Firebase boot" },
 ];
 // The three-room split moved the index.html range by −2021 — /mandate, /voice

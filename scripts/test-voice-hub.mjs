@@ -471,7 +471,12 @@ section("3 · a mocked save on /find?next=/voice lands the reader on /voice");
   has(landed.list(), "Weber County", "round trip: the county the reader saved on /find is not on the cards");
   // ONE RESOLVER, NAMED ONCE. The finder consumes the owner's export; it does
   // not ship a second copy of the join under another name.
-  eq((LOC.match(/window\.pdxRepsForMe\s*=/g) || []).length, 1,
+  // `\s*=` alone also matched `window.pdxRepsForMe === 'function'`, which is a
+  // READER guarding on the export, not a second publisher of it — and the
+  // location header became one such reader when it started naming every located
+  // chamber instead of only the U.S. House. `=[^=]` is what this line always
+  // meant: one assignment, and any number of callers.
+  eq((LOC.match(/window\.pdxRepsForMe\s*=[^=]/g) || []).length, 1,
     "round trip: voter-hub-location.js publishes pdxRepsForMe more than once");
   no(FIND, "pdxRepsForMe =", "round trip: find.html assigns its own pdxRepsForMe and the two answers can drift");
 }
@@ -803,7 +808,16 @@ section("8 · the record engines are byte-identical with the hallway rendered, a
 {
   const key = (/var PDX_LOC_KEY = '([^']+)';/.exec(LOC) || [, ""])[1];
   eq(key, "politidex_voter_location", "keys: the saved location key moved");
-  has(LOC, "'politidex_my_team'", "keys: the team store's key moved");
+  // THE TEAM KEY IS READ FROM ITS OWNER NOW, NOT FROM THE RESOLVER. This used to
+  // read LOC, because voter-hub-location.js named the key inside the second copy
+  // of the represents-me roster it painted into the Voter Hub — it read the team
+  // store to put a team chip on each seat row. That duplicate is deleted and the
+  // resolver resolves districts; the store it never owned is ballot-breakdown.js's
+  // BALLOT_KEY. Asserting against LOC would have been asserting that the
+  // duplicate is still there.
+  has(R("ballot-breakdown.js"), "'politidex_my_team'", "keys: the team store's key moved");
+  ok(LOC.indexOf("politidex_my_team") < 0,
+    "keys: the resolver names the team store again, which is a second reader of a store it does not own");
   // NO MIGRATION CODE IN EITHER FILE OF THIS PASS. Not a rename, not a copy,
   // not a read-old-write-new.
   for (const [name, src] of [["district-voice.js", DV], ["voice-room.js", VR]]) {

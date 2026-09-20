@@ -292,21 +292,51 @@ must(resFrom !== -1 && resTo > resFrom,
   '  shared-resolver contract this whole pass rests on is gone');
 const RESOLVER = VHL.slice(swFrom, resTo);
 
-// The strip must CONSUME the resolver rather than keep a private copy. Two
-// surfaces deriving districts separately is the failure mode worth a test. Only
-// the "who represents you now" rows are in scope here — the district-cards panel
-// further down the same function is a different render with its own history.
-const stripRowsEnd = VHL.indexOf('var btnLink =', resTo);
-must(stripRowsEnd > resTo,
-  'voter-hub-location.js no longer has the btnLink marker that ends the "who represents you now"\n' +
-  '  rows block — the slice below would swallow the district-cards panel and test the wrong code');
-const STRIPFN = VHL.slice(resTo, stripRowsEnd);
-has(STRIPFN, 'window.pdxRepsForMe()',
-  'resolver: the Voter Hub strip stopped reading the shared resolver, so the homepage band and the\n' +
-  '    Hub can now name different people for the same address');
-lacks(STRIPFN, '_pdxHouseRedistrict',
-  'resolver: the strip re-derives redistricting itself again — that lives in the resolver so both\n' +
-  '    surfaces tell the same story about a redrawn seat');
+// THE SECOND RENDERER IS RETIRED, AND THAT IS WHAT IS PINNED NOW.
+// This used to require that _vhSyncDistrictStrip CONSUME the resolver rather
+// than keep a private copy of the district walk, on the reasoning that two
+// surfaces deriving districts separately is the failure mode worth a test. It
+// was the right worry and the wrong remedy: sharing a resolver made the two
+// renderers agree about NUMBERS while they went on disagreeing about WORDS, and
+// the words are where the defect lived — the strip printed "Not resolved yet"
+// over a State House seat the district map had already placed, because its copy
+// predates who-represents-me.js learning to tell "no district for you" from
+// "your district, no member on file".
+//
+// The stronger form of "do not derive it twice" is "do not render it twice". The
+// strip is a stub: it empties any host a cached document still carries and
+// forwards to the one owner for the five guarded callers that speak its name.
+// So the pins below are the shape of its absence — no roster read, no seat row,
+// no compare strip, no second spelling of any gap — plus the one thing it must
+// still do.
+const STRIPFN = (() => {
+  const i = VHL.indexOf('window._vhSyncDistrictStrip = function()');
+  must(i > 0,
+    'voter-hub-location.js no longer defines _vhSyncDistrictStrip at all. Its five guarded callers —\n' +
+    '  race-sheet.js twice, ballot-breakdown.js twice and this file\'s own location reaction — would\n' +
+    '  then silently stop reaching the one roster on every location, pick and curated-area change');
+  const j = VHL.indexOf('\n  };', i);
+  return j < 0 ? VHL.slice(i) : VHL.slice(i, j + 5);
+})();
+lacks(STRIPFN, 'window.pdxRepsForMe()',
+  'resolver: the retired strip reads the seat resolver again, which is how it came to hold a second\n' +
+  '    roster in the first place. It has no rows left to fill');
+lacks(STRIPFN, 'wrm-seatcompare',
+  'resolver: the retired strip paints a Compare / Work-this-seat strip again — those live in the\n' +
+  '    upper band and nowhere else');
+lacks(STRIPFN, 'Not resolved yet',
+  'resolver: the retired strip carries its own "NOT RESOLVED YET" copy again, in a file that is not\n' +
+  '    the owner of the three-gap wording');
+lacks(STRIPFN, 'Who Represents You Now',
+  'resolver: a second "Who Represents You Now" card is back in voter-hub-location.js');
+has(STRIPFN, 'PDXWhoRepresentsMe.sync',
+  'resolver: the retired strip no longer forwards to the one roster, so a pick or a location change\n' +
+  '    arriving through the old hook stops repainting the seat list');
+// AND THE HOST IS GONE FROM THE DOCUMENT, not merely unfilled. A mount left in
+// the page is a mount something repaints.
+lacks(HTML, 'id="vh-district-strip"',
+  'index.html carries the second roster\'s mount again — #vh-district-strip is the host the duplicate\n' +
+  '    "Who Represents You Now" block was painted into');
 has(WRM, 'window.pdxRepsForMe',
   'resolver: the homepage band stopped reading the shared resolver');
 

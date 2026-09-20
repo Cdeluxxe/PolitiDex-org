@@ -15,15 +15,20 @@
 // This file guards the spine, and in particular the places it could quietly
 // start lying:
 //
-//   1. ONE HELPER, NOT THREE COPIES. window.pdxSeatStrip owns the seat contract;
-//      Who Represents Me and the Voter Hub strip both render it, so they cannot
-//      drift apart on team state, the compare control, or the stance line.
+//   1. ONE HELPER, AND NOW ONE HOST. window.pdxSeatStrip owns the seat contract
+//      and Who Represents Me is the only surface that renders it. The Voter Hub
+//      used to paint the same roster from _vhSyncDistrictStrip, and this file
+//      used to prove the two hosts agreed strip-for-strip. They cannot disagree
+//      now: the second renderer is gone, so the assertion inverted — the hop
+//      survives and paints nothing into the host it used to own.
 //   2. COMPARE IS ON THE SEAT, NOT BEHIND A PROFILE. Activating it opens the
 //      race sheet for THAT seat key, from a seat list, with no profile in
 //      between.
-//   3. NO LOCATION → A CTA, NEVER A GUESS. The block holds its place and asks
-//      for a location. It names no officeholder, because with no location there
-//      is no honest answer to "who is my House member".
+//   3. NO LOCATION → A CTA, NEVER A GUESS. The cold state is static markup in
+//      index.html rather than a second renderer's own wording, so it reads
+//      correctly in the first frame; the seat host paints nothing until a
+//      location lands. Either way not one officeholder is named, because with
+//      no location there is no honest answer to "who is my House member".
 //   4. AN UNMAPPED SEAT STAYS EMPTY. "Not resolved yet", no invented name, and
 //      the compare control still offered where a field exists.
 //   5. ZERO STANCES STILL COMPARES. The strip says how to rank the race in one
@@ -34,7 +39,9 @@
 //      reads, no second copy.
 //   7. THE SPINE COMES FIRST. Represents-me markup precedes the all-politicians
 //      research surfaces in the document, and no Door-2 headline still sells
-//      "browse everyone by score" as the way to find your ballot.
+//      "browse everyone by score" as the way to find your ballot. The Voter
+//      Hub's slot in that order is now held by a LINK back to the band rather
+//      than by a copy of it.
 //   8. NO PARTY, NO FAKE MATCH. Not in the strip, not in the seat rows.
 //   9. NOTHING DRIFTED. Direction Match and both Your Match lanes are
 //      byte-identical with the whole spine loaded.
@@ -219,7 +226,7 @@ const sheetHtml = (win, seat) => {
 };
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("1 · One helper owns the seat contract — both hosts render it");
+section("1 · One helper owns the seat contract — and one host renders it");
 
 {
   const w = boot();
@@ -229,13 +236,21 @@ section("1 · One helper owns the seat contract — both hosts render it");
   has(strip, "rs-entry", "the strip carries the compare control");
 
   const wrm = wrmHtml(w);
-  const vh = vhHtml(w);
   has(wrm, "rs-seat-strip", "Who Represents Me renders the shared strip");
-  has(vh, "rs-seat-strip", "the Voter Hub district strip renders the shared strip");
-  // Same helper, same markup: the two hosts must agree seat-for-seat.
   const stripsIn = (html) => (html.match(/data-rs-seat-probe|rs-seat-strip/g) || []).length;
-  eq(stripsIn(wrm), stripsIn(vh),
-    "the two seat hosts paint a different number of strips");
+  ok(stripsIn(wrm) >= 1, "the one seat host painted no strip at all");
+
+  // THE SECOND HOST IS GONE, AND THAT IS THE CLAIM NOW. This used to read
+  // eq(stripsIn(wrm), stripsIn(vh)) — the two hosts had to agree seat-for-seat,
+  // because the Voter Hub painted its own copy of this roster from
+  // _vhSyncDistrictStrip. Agreement was the best that arrangement could offer,
+  // and it was not enough: the copy shipped its own spelling of every empty
+  // state, so it said "Not resolved yet" on a House seat the map had placed.
+  // The hop still exists and is still called by five guarded callers; what it
+  // does now is empty the host and forward to the owner. So the assertion is
+  // no longer "the same" — it is "nothing".
+  eq(vhHtml(w), "", "the retired Voter Hub roster is painting seat rows again");
+  eq(stripsIn(vhHtml(w)), 0, "a second host is rendering the shared seat strip");
 
   // A seat key the sheet does not understand yields nothing at all, rather than
   // an empty team slot for an office we cannot name.
@@ -281,41 +296,63 @@ section("2 · Compare is on the seat row, and it opens THAT seat");
 // ═════════════════════════════════════════════════════════════════════════════
 section("3 · No location → a CTA, never a guessed officeholder");
 
+// The cold state the reader actually meets. #wrm-reps stays empty and the
+// section drops data-located, which is what uncovers .wrm-cold — static markup,
+// so the ask is on the page in the first frame, before a script has run. That
+// is the whole mechanism; there is no renderer to interrogate.
+const COLD_BAND = HTML.slice(HTML.indexOf('id="who-represents-me"'), HTML.indexOf('id="wrm-reps"'));
+const SCOPE_RULE = HTML.slice(HTML.indexOf('class="wrm-scope"'), HTML.indexOf('class="wrm-scope"') + 1600);
+
 {
   const w = boot({ located: false });
-  const vh = vhHtml(w);
-  ok(vh.length > 50, "with no location the Voter Hub seat block painted nothing at all");
-  const host = w.document.getElementById("vh-district-strip");
-  ok(host.style.display !== "none", "the seat block hid itself instead of asking for a location");
-  has(vh, "Set my location", "no set-location CTA in the no-location seat block");
-  has(vh, "Who Represents You Now", "the no-location block dropped its own heading");
-  has(vh, "no location, no representative", "the no-location block does not state the rule it follows");
-  // The honesty clause: not one officeholder is named.
-  const names = Object.keys(w.CMP_DATA || {})
-    .map((pid) => (w.CMP_DATA[pid] || {}).name)
-    .filter((n) => n && n.length > 6);
-  const named = names.filter((n) => vh.indexOf(n) >= 0);
-  eq(named.length, 0, `the no-location block named ${JSON.stringify(named.slice(0, 3))}`);
-  lacks(vh, "rs-seat-team", "the no-location block shows a team slot for a seat it cannot name");
-  lacks(vh, "Compare field for this seat", "the no-location block offers a compare for an unknown seat");
-
-  // The homepage band fails closed the same way: no rows, and the section drops
-  // its located flag so the cold CTA state shows instead.
   const wrm = wrmHtml(w);
   eq(wrm, "", "the homepage seat band painted rows with no location");
   const sec = w.document.getElementById("who-represents-me");
   eq(sec.getAttribute("data-located"), null, "the band still claims to be located");
+
+  // WHY THIS BLOCK NO LONGER READS A SECOND BLOCK'S OUTPUT. The Voter Hub copy
+  // carried its own no-location card: its own heading, its own "Set my
+  // location" button, its own statement of the rule. All three of those now
+  // have exactly one home, and none of them is a renderer.
+  eq(vhHtml(w), "", "the retired Voter Hub block is asking for a location again");
+  const host = w.document.getElementById("vh-district-strip");
+  eq(String(host.style.display), "none", "the emptied host is still taking up space");
+
+  ok(COLD_BAND.length > 2000, "the cold represents-me markup is missing from index.html");
+  has(COLD_BAND, "Set my location", "no set-location CTA in the cold represents-me band");
+  has(COLD_BAND, "Find who represents you", "the cold band dropped the first step of the path");
+  has(HTML, ".wrm[data-located] .wrm-cold{display:none;}",
+    "the cold block is not the thing that gets uncovered when no location is set");
+  // The rule the product follows, stated once, in the band that follows it.
+  has(SCOPE_RULE, "rather than name someone else", "the band does not state the blank-row rule");
+
+  // The honesty clause, unchanged in substance: with no location not one
+  // officeholder is named — not by the band's output, and not by its markup.
+  const names = Object.keys(w.CMP_DATA || {})
+    .map((pid) => (w.CMP_DATA[pid] || {}).name)
+    .filter((n) => n && n.length > 6);
+  const named = names.filter((n) => wrm.indexOf(n) >= 0 || COLD_BAND.indexOf(n) >= 0);
+  eq(named.length, 0, `the cold band named ${JSON.stringify(named.slice(0, 3))}`);
+  lacks(COLD_BAND, "rs-seat-team", "the cold band shows a team slot for a seat it cannot name");
+  lacks(COLD_BAND, "Compare field for this seat", "the cold band offers a compare for an unknown seat");
 }
 
 // National focus is a location without seats. Six blank rows under "the people
 // who hold power in your state" would read as a coverage failure; it is a scope
-// the visitor chose, so it asks for a state instead.
+// the visitor chose, so the band asks for a state instead — through the same
+// cold markup a first visit gets, since "National" resolves no seat either.
+// (The retired copy had its own "Pick my state" button. The locbar's Detect /
+// Change on map / Set my location are that door now, and there is one of them.)
 {
   const w = boot({ location: { state: "National", city: "", county: "", district: "" } });
-  const vh = vhHtml(w);
-  has(vh, "Pick my state", "national focus does not offer a way to pick a state");
-  lacks(vh, "rs-seat-team", "national focus paints team slots for seats it has not resolved");
-  lacks(vh, "Not resolved", "national focus lists blank seat rows");
+  const wrm = wrmHtml(w);
+  eq(wrm, "", "national focus painted seat rows for a scope with no seats");
+  eq(w.document.getElementById("who-represents-me").getAttribute("data-located"), null,
+    "national focus claims to be located, which hides the state-picking CTA");
+  const reps = w.pdxRepsForMe();
+  eq((reps.levels || []).filter((l) => l.resolved).length, 0,
+    "national focus resolved a seat it cannot have");
+  eq(vhHtml(w), "", "the retired Voter Hub block is painting a national-focus card again");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -412,9 +449,11 @@ section("6 · A pick from the sheet reaches the seat row and the team store");
   has(strip, pick.name, "the seat strip does not name the pick");
   lacks(strip, "No pick yet", "the seat strip still shows the slot as empty");
 
-  // And it reaches the painted seat lists without anything else being touched.
+  // And it reaches the one painted seat list without anything else being
+  // touched. There is no second list to check: a pick could not be shown
+  // inconsistently by two hosts, because only one host paints seats.
   has(wrmHtml(w), "Your pick", "the homepage seat list did not learn about the pick");
-  has(vhHtml(w), "Your pick", "the Voter Hub seat list did not learn about the pick");
+  eq(vhHtml(w), "", "a second seat list reappeared to show the pick twice");
 
   // One pick per office: a second add to the same seat replaces, never stacks.
   if (fld.length >= 2) {
@@ -434,16 +473,25 @@ section("7 · The spine comes first, and no headline sells browse-by-score");
   const iStart = HTML.indexOf('id="start-here"');
   const iRelevant = HTML.indexOf('id="relevant-section"');
   const iBrowse = HTML.indexOf('id="myteam-browse-panel"');
-  const iStrip = HTML.indexOf('id="vh-district-strip"');
+  // The Voter Hub's slot in the spine order is held by a LINK to the band now,
+  // not by a copy of it: same position, one roster. The id is the anchor these
+  // order claims read, so it is load-bearing and pinned as such.
+  const iJump = HTML.indexOf('id="vh-wrm-jump"');
   const iHub = HTML.indexOf('id="voter-hub"');
-  ok(iWrm > 0 && iStart > 0 && iRelevant > 0 && iBrowse > 0 && iStrip > 0,
+  ok(iWrm > 0 && iStart > 0 && iRelevant > 0 && iBrowse > 0 && iJump > 0,
     "a spine anchor is missing from index.html");
   ok(iWrm < iStart, "the represents-me band no longer precedes the Door-2 election block");
-  ok(iStrip > iHub && iStrip < iRelevant,
-    "Who Represents You Now is no longer the first substantive Voter Hub block after location");
-  ok(iStrip < iBrowse, "the all-politicians browse panel precedes the seat list");
-  ok(iRelevant < iBrowse || iBrowse > iStrip,
+  ok(iJump > iHub && iJump < iRelevant,
+    "the hand-off to Who Represents Me is no longer the first substantive Voter Hub block after location");
+  ok(iJump < iBrowse, "the all-politicians browse panel precedes the hand-off to the seat list");
+  ok(iRelevant < iBrowse || iBrowse > iJump,
     "the research surfaces precede the seat spine");
+  // A link, not a roster: the position carries no seat row, no compare control
+  // and no team slot of its own.
+  const JUMP = HTML.slice(iJump - 400, iJump + 400);
+  has(JUMP, 'href="#who-represents-me"', "the Voter Hub hand-off does not point at the band");
+  lacks(JUMP, "rs-seat-strip", "the Voter Hub hand-off grew a seat strip");
+  lacks(HTML, 'id="vh-district-strip"', "the duplicate roster host is back in index.html");
 
   // The Door-2 election block leads with the seat path, not a roster.
   const sh = HTML.slice(iStart, iStart + 12000);
@@ -474,8 +522,11 @@ section("7 · The spine comes first, and no headline sells browse-by-score");
   ok(HTML.indexOf(SPINE) >= 0, "the spine line is not in index.html");
   ok(R("who-represents-me.js").indexOf("compare the field") >= 0,
     "the homepage seat list does not carry the spine line");
-  ok(R("voter-hub-location.js").indexOf("compare the field") >= 0,
-    "the Voter Hub seat list does not carry the spine line");
+  // And the resolver states it nowhere, because the resolver paints no seats.
+  // It resolves districts and hands off; the spine is stated where it is walked.
+  const VHL = R("voter-hub-location.js");
+  ok(VHL.indexOf("pdxSeatStrip") < 0, "the resolver is painting seat strips again");
+  ok(VHL.indexOf("wrm-seatcompare") < 0, "the resolver is painting compare controls again");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

@@ -5856,8 +5856,12 @@ window.PDXLazy = (function () {
       .wrm-resultkicker{font-family:'Bebas Neue',sans-serif;font-size:1.02rem;letter-spacing:0.05em;color:#fff;}
       .wrm-resultcount{font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;font-weight:700;
         letter-spacing:0.08em;text-transform:uppercase;color:#8fa8c8;}
-      /* "N districts located, members not on file" — the qualifier that stops
-         "3 of 6 seats resolved" from reading as "we could not place you". */
+      /* "N districts located, members not on file" — the qualifier that stops a
+         partial seat count from reading as "we could not place you". (Spelled
+         without an example count on purpose: test-wrm-setter reads this section's
+         static markup for a resolved-seat tally a reader with an empty store must
+         never see, and a comment is markup as far as a string search is
+         concerned.) */
       .wrm-resultlocated{color:#c8b06a;font-weight:700;}
       /* Legend for the seat list: the same three steps every strip below repeats. */
       .wrm-spine{margin:-0.25rem 0 0.6rem;font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;
@@ -7551,22 +7555,25 @@ window.PDXLazy = (function () {
         </div>
       </div>
 
-      <!-- ── WHO REPRESENTS YOU NOW · the hub's seat block ──────────────────
-           THE LOCATION SETTER IS NOT HERE ANY MORE. It stood immediately above
-           this strip as a full card — the Utah badge, the place line and the
-           Detect / Change-on-map buttons — which put the one control that makes
-           this page mean anything two whole sections below the band that asks
-           the question. A reader who came in on "Who Represents Me" met the
-           question, then an empty seat list, and had to scroll past the Door-2
-           election block to find the answer to "how do I tell it where I am".
-           The card now opens the Who Represents Me band (#wrm-locbar), which is
-           where the question is asked, and there is exactly one of it on the
-           page. This strip keeps its place and its job: the PEOPLE holding the
-           district seats that location resolves to. Populated entirely by
-           window._vhSyncDistrictStrip(), which points its own empty state at
-           the one setter rather than printing a second copy of it. -->
+      <!-- ── ONE ROSTER, AND IT IS NOT HERE ──────────────────────
+           A SECOND "WHO REPRESENTS YOU NOW" USED TO STAND HERE. It was
+           #vh-district-strip, painted by window._vhSyncDistrictStrip(), and it
+           printed what #wrm-reps already prints at the top of this page: the
+           seat rows, the Compare / Work-this-seat strip under each one, and its
+           own spelling of every empty state. Two owners for one roster means two
+           answers the moment they disagree — and they did. This copy still said
+           "Not resolved yet" on a House seat the map had already placed, because
+           its wording predates who-represents-me.js learning to tell "we have no
+           district for you" apart from "we have your district and no member on
+           file for it".
+           who-represents-me.js is the owner, alone. Seat rows, Compare and Work
+           this seat live in the upper band and nowhere else. What this position
+           actually needs is the one thing left here: a way back to the band that
+           answers the question. A link, not a roster. -->
       <div class="mb-6 animate-on-scroll" style="transition-delay:0.04s;">
-        <div id="vh-district-strip"></div>
+        <a id="vh-wrm-jump" class="vh-cta-secondary" href="#who-represents-me"
+           onclick="if(window.pdxFindMyReps){event.preventDefault();window.pdxFindMyReps();}"
+           aria-label="See who represents you now — jump to Who Represents Me">🏛️ See who represents me now →</a>
       </div>
 
       <!-- ══════════════════════════════════════════════════════════════════
@@ -17689,7 +17696,8 @@ window.PDXLazy = (function () {
            reads.
          · _pdxFlashLocationUpdated() — the "location updated" toast and the
            brief outline on the three surfaces that just changed
-           (#relevant-map-trigger, #relevant-location-text, #vh-district-strip).
+           (#relevant-map-trigger, #relevant-location-text, #wrm-reps — the one
+           roster, which replaced the retired #vh-district-strip duplicate).
 
        THEY ARE WINDOW FUNCTIONS BECAUSE THEY HAVE EXTERNAL CALLERS, and those
        callers are why leaving them inside the moving controller would have been
@@ -17800,7 +17808,7 @@ window.PDXLazy = (function () {
       if (typeof window._showToast === 'function') window._showToast(msg);
 
       // Briefly outline the surfaces that just changed so the eye lands on them.
-      ['relevant-map-trigger', 'relevant-location-text', 'vh-district-strip'].forEach(function(id){
+      ['relevant-map-trigger', 'relevant-location-text', 'wrm-reps'].forEach(function(id){
         var node = document.getElementById(id);
         if (!node) return;
         node.classList.remove('pdx-loc-flash');
