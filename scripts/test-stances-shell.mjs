@@ -272,9 +272,19 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // allowed to move: by locating in index.html the run that this document actually
 // carries, not by adding the delta to the old start. The arithmetic agreed
 // afterwards, and the declared ranges in the copies moved in the same edit.
+//
+// A SIXTH MOVE, UPWARD BY 1,385 FOR BOTH, for the finder move. The district
+// finder became its own document, /find, so index.html lost the location
+// picker's markup, the map modal's markup, most of #pdx-district-map-styles and
+// the whole 1,200-line map controller. Every one of those deletions sits above
+// both of these blocks and none is inside either, so both ranges came up by the
+// same amount and both came back at their full length — 25 lines for the pill
+// rules, 121 for the vocabulary, which is again the check that the run found is
+// the run meant. Re-derived by locating each run verbatim in the new
+// index.html; the arithmetic agreed afterwards.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 20473, b: 20497, what: "the .pdxis-stance* pill rules" },
-  { from: "index.html", src: INDEX, a: 20516, b: 20636, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 19088, b: 19112, what: "the .pdxis-stance* pill rules" },
+  { from: "index.html", src: INDEX, a: 19131, b: 19251, what: "the PDXStance vocabulary" },
 ];
 // Both index.html ranges have now moved THREE TIMES, and the third ran the other
 // way. The Digital Library split took #digital-library out of index.html but left

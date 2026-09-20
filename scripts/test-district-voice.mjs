@@ -1444,12 +1444,17 @@ has(PERSON_CSS, ".pf-kick-voice", "and it has a style of its own");
   ok(/next=/.test(jump) && /who-represents-me/.test(jump),
     `a reader with no location is sent to the finder with the way back — got ${jump}`);
   ok(/voice/.test(decodeURIComponent(jump)), "and the intent it carries is /voice");
-  // WITH NO RETURN HELPER, STILL A REAL ADDRESS. Never "#".
+  // WITH NO RETURN HELPER, STILL A REAL ADDRESS. Never "#". The bare spelling is
+  // /find now rather than a fragment on the front page: the picker is its own
+  // document, so the fragment would land a reader on the homepage beside a band
+  // that has no map in it any more.
   const bare = boot("/");
   bare._hasUserLocation = false;
   bare.PDXReturn = null;
   const fallback = bare.PDXVoice.personLinkHtml(CHEW);
-  has(fallback, "/#who-represents-me", "and with no PDXReturn it still points at a door that can place them");
+  has(fallback, "/find", "and with no PDXReturn it still points at a door that can place them");
+  ok(!/#who-represents-me/.test(fallback),
+    "…and it is not the retired fragment, which no longer hosts the picker");
   ok(!/href="#"/.test(fallback), "and never at a dead hash");
 }
 

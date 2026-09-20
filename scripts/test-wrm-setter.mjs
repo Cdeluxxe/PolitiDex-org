@@ -300,12 +300,21 @@ has(BAND, '_pdxGoSetLocation',
 // ═════════════════════════════════════════════════════════════════════════════
 section('4 · driven: where each entry point lands');
 // ═════════════════════════════════════════════════════════════════════════════
+// THE PICKER IS ITS OWN DOCUMENT NOW — /find — so "scroll to the setter, then
+// open the picker on the next task" is a behaviour with a PRECONDITION rather
+// than an unconditional sequence. The band tests the DOM for the picker's form:
+// present, and the old two-step still runs, because the surface the reader is
+// being scrolled to is really there; absent, and the opener is a NAVIGATION, so
+// scrolling first would animate a page the reader is about to leave. Both sides
+// are driven below, and `picker: true` is what puts the form on the document.
 const runBand = (over) => {
+  const o = over || {};
   const els = {
     'who-represents-me': mkEl('who-represents-me'),
     'wrm-reps': mkEl('wrm-reps'),
     'wrm-locbar': mkEl('wrm-locbar'),
   };
+  if (o.picker) els['change-location-form'] = mkEl('change-location-form');
   const timers = [];
   const opened = [];
   const ctx = {
@@ -333,7 +342,7 @@ must(typeof runBand({}).ctx.pdxSetLocation === 'function',
 
 // Empty: the reader is sent to the setter, not to the section heading with the
 // one control that can help below the fold.
-const cold = runBand({});
+const cold = runBand({ picker: true });
 cold.ctx.pdxFindMyReps();
 ok(cold.els['wrm-locbar']._scrolled,
   'with no location, the lookup action does not land on the setter. The reader pressed "see who represents ' +
@@ -343,6 +352,20 @@ ok(!cold.els['wrm-reps']._scrolled,
 cold.flush();
 ok(cold.opened.length === 1,
   `an unlocated lookup opened ${cold.opened.length} pickers. One setter means one picker, once`);
+
+// AND WITH THE PICKER ON ANOTHER DOCUMENT, THE SCROLL IS THE BUG. The opener is
+// a trip to /find, so a 260 ms pan down to a bar the reader will never see is an
+// animation charged to the tap that was meant to answer them. No scroll, and the
+// door opens on the same task rather than after a timer nobody is waiting out.
+const away = runBand({});
+away.ctx.pdxFindMyReps();
+ok(!away.els['wrm-locbar']._scrolled,
+  'with the picker on another document the lookup still scrolls to a setter that is not there');
+ok(away.opened.length === 1,
+  `an unlocated lookup on a document with no picker opened ${away.opened.length} doors on the spot, not one`);
+away.flush();
+ok(away.opened.length === 1,
+  'the deferred opener fired as well, so the trip to the finder is queued twice');
 
 // Stamped: the reader already answered. Asking again is the bug.
 const warm = runBand({ _hasUserLocation: true, pdxRepsForMe: () => ({ located: true, levels: [] }) });
@@ -355,7 +378,7 @@ eq(warm.opened.length, 0,
   'the question on screen is who holds the seats');
 
 // And the door itself: scroll first, open second, in whichever mode was asked.
-const asMap = runBand({});
+const asMap = runBand({ picker: true });
 asMap.ctx.pdxSetLocation('map');
 ok(asMap.els['wrm-locbar']._scrolled, 'pdxSetLocation does not scroll to the setter before opening a picker');
 eq(asMap.opened.length, 0,
@@ -364,7 +387,15 @@ eq(asMap.opened.length, 0,
 asMap.flush();
 eq(asMap.opened[0], 'map', 'pdxSetLocation("map") does not open the district map');
 
-const asForm = runBand({});
+// Same door, picker not on the document: one hop, no scroll, no timer.
+const asMapAway = runBand({});
+asMapAway.ctx.pdxSetLocation('map');
+ok(!asMapAway.els['wrm-locbar']._scrolled,
+  'pdxSetLocation scrolls to a setter this document does not have');
+eq(asMapAway.opened.length, 1,
+  'pdxSetLocation defers a trip to another document behind a timer, so the tap appears to do nothing');
+
+const asForm = runBand({ picker: true });
 asForm.ctx.pdxSetLocation('form');
 asForm.flush();
 has(asForm.opened[0] || '', 'forceForm',

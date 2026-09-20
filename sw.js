@@ -7461,7 +7461,53 @@
 //     harnesses stay byte-identical by construction.
 //     MIGRATION COST: none. A warm device would otherwise keep a shell whose
 //     head advertises a hostname that now answers only a redirect.
-const CACHE_VERSION = 'v234';
+// v235 - THE FINDER IS /find. THE HOMEPAGE DOES NOT MOUNT THE MAP.
+//     v231 fixed two of the three things that froze a phone on 'Who Represents
+//     Me': the basemap stopped asking a keyed host for tiles, and the House
+//     layer stopped painting 75 polygons on open. The third cause was never the
+//     map - it was the HOST. index.html is a 1.5 MB document and every byte of
+//     it had to parse before #who-represents-me could move, because the picker,
+//     the modal and the 1,200-line map controller were all inside it. A
+//     location tap booted the archive homepage to draw a search box.
+//     /find IS THE FOURTEENTH SHELL, and it is the same tool: the same search
+//     box, the same chamber tabs, the same keyless OSM tiles with the same
+//     attribution and no key committed, the same empty-on-open rule, still one
+//     layer only after a pin lands, and the geojson still lazy. It opens the
+//     modal on arrival, so a reader who taps 'Who Represents Me' gets the map
+//     rather than a landing page about one. It does NOT carry the archive: no
+//     app.css, no ballot-breakdown.js, no cmp-data.js, no compare-hub.js -
+//     tailwind plus shell-chrome plus the picker, a twelfth of what it left.
+//     index.html LOST THE MAP CHUNK, which is the other half of the bump. The
+//     Leaflet arm is gone from its PDXLazy, the picker and modal markup are
+//     gone, the controller is gone, and #pdx-district-map-styles holds only the
+//     three families the front page still paints. The three indicator functions
+//     did NOT move: they paint homepage DOM and have live external callers, so
+//     they are re-homed in their own IIFE on the page that owns that DOM.
+//     #who-represents-me still prints the reader's seats from the saved
+//     location; it just has no map in it. person.html lost the same dead
+//     Leaflet arm from its own copy of the loader, so the copy stays a copy.
+//     NO LOCATION KEY WAS RENAMED, COPIED OR MIGRATED, and the location keys
+//     are untouched. voter-hub-location.js is still the single owner of the
+//     record, the modal gate, the geocode ceiling and pdxRepsForMe(); there is
+//     no second resolver, PDX_LOC_KEY is spelled the way it was and
+//     _pdxLocWasChosen is the same flag. The trip back is the existing
+//     PDXReturn owner, one 'next' param against the same allow-list:
+//     /find?next=/voice saves and lands on /voice with the seats it resolved.
+//     The ONE addition is a one-shot sessionStorage fact, 'pdx_finder_confirm',
+//     spent on read - it carries no location, and it exists only so the Home
+//     Team onboarding that used to fire inside the confirm handler still fires
+//     when the reader arrives back on the front page.
+//     WHY A CACHE_VERSION MOVE IS REQUIRED. Two precached shell documents
+//     changed: '/' no longer requests Leaflet and no longer holds the
+//     controller, and '/find.html' is new to the list. A warm device would
+//     otherwise keep the fat homepage that mounts the map and have no offline
+//     copy of the address every location tap now goes to.
+//     No new boards, no /district/* splat, no equity copy, no score change, no
+//     alias entry, no money pill. BOARD_ROUTES is still one row and
+//     /district/ut-sd-3 is untouched.
+//     MIGRATION COST: none. A warm device would otherwise keep a homepage whose
+//     location tap loads a map chunk that is no longer part of it.
+const CACHE_VERSION = 'v235';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -7487,7 +7533,10 @@ const RUNTIME_LEGACY_RE = /^politidex-runtime-v/;
 // precached. They load on demand via window.PDXLazy the first time a feature
 // needs them and are then kept by the stale-while-revalidate RUNTIME_CACHE
 // below, so they cost nothing on first paint and still work offline after
-// their first (online) use.
+// their first (online) use. As of v235 those two are reachable from DIFFERENT
+// documents - Chart.js from index.html, Leaflet only from /find.html, which is
+// the one page that mounts a map - so neither library is on any shell's first
+// paint and the homepage no longer even declares an arm for the one it lost.
 const SHELL_ASSETS = [
   '/',
   // THE SECOND SHELL. netlify.toml rewrites /p/* here rather than to index.html,
@@ -7640,6 +7689,28 @@ const SHELL_ASSETS = [
   // /gov-contracts.js and /bills.js are all shared with surfaces that are still
   // there, and the room degrades honestly without any of them.
   '/digital-library.js',
+
+  // THE FOURTEENTH SHELL, and the fifth to come OUT of index.html rather than
+  // arrive new. netlify.toml rewrites /find and /find/ here; it is a SINGLE
+  // address - the trip home is a QUERY (?next=/voice) - so navDocKey gives it
+  // no key and this one entry answers every arrival.
+  //
+  // It is here for the plainest reason on this list: this is the address every
+  // location tap goes to now. 'Who Represents Me', 'Change on map', the
+  // homepage Voice card's 'set location' and /voice's empty state all land
+  // here, and a reader who has opened the finder once should be able to open it
+  // again on a train. WHAT IT COSTS OFFLINE: nothing new. The document is 136 KB
+  // of chrome and its whole critical path is already on this list -
+  // /css/tailwind.css, /shell-chrome.css, /shell-account-chip.js - bar
+  // /voter-hub-location.js, which stays runtime-cached for the reason it does on
+  // every other shell. Offline the room is honest: the saved location still
+  // resolves seats from the record on the device, and the map says it could not
+  // reach its tiles rather than pretending to have them.
+  //
+  // Leaflet and the district geojson are NOT added by this entry and are not
+  // added anywhere else either - see the note above SHELL_ASSETS. They are
+  // on-demand by design, and that design is the whole point of the page.
+  '/find.html',
   '/css/tailwind.css',
   // The above-the-fold record card. Parser-blocking in index.html, so on a
   // repeat visit these two must come from the cache or they add latency to the

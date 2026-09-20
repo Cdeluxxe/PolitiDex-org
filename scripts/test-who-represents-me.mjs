@@ -507,16 +507,33 @@ const mkEl = (id) => {
   };
 };
 
+// `picker: true` PUTS THE LOCATION FORM ON THE FIXTURE'S DOCUMENT, and that is
+// now a meaningful difference rather than a detail. The picker moved to its own
+// document, /find, so the band's openers ask the DOM whether the form is here
+// before deciding what "open the picker" means: a modal over this page, or a
+// navigation to the page that owns it. Both are driven below. The flag is
+// removed before the rest of `over` is spread into the sandbox so it cannot
+// arrive as a stray global the band could read.
 const runBand = (over) => {
+  const o = over || {};
+  const picker = !!o.picker;
+  const rest = { ...o };
+  delete rest.picker;
   const sec = mkEl('who-represents-me');
   const host = mkEl('wrm-reps');
+  // Deliberately NOT a wrm-locbar: with the form present and the bar absent the
+  // band falls back to scrolling the section, which is what the assertions below
+  // have always measured.
+  const form = picker ? mkEl('change-location-form') : null;
   const timers = [];
   const ctx = {
     console, Math, JSON, String, Array, Object, Number, Boolean, RegExp,
     setTimeout: (fn, ms) => { timers.push({ fn, ms }); return timers.length; },
     document: {
       readyState: 'complete',
-      getElementById: (i) => (i === 'who-represents-me' ? sec : (i === 'wrm-reps' ? host : null)),
+      getElementById: (i) => (i === 'who-represents-me' ? sec
+        : (i === 'wrm-reps' ? host
+        : (i === 'change-location-form' ? form : null))),
       addEventListener: () => {},
     },
     _hasUserLocation: true,
@@ -536,12 +553,12 @@ const runBand = (over) => {
       resolved: true, ok: true, area: 'Bountiful, Davis County', county: 'Davis County',
       pids: ['loc-a', 'loc-b', 'loc-c'],
     }),
-    ...over,
+    ...rest,
   };
   ctx.window = ctx; ctx.globalThis = ctx;
   vm.createContext(ctx);
   vm.runInContext(WRM, ctx, { filename: 'who-represents-me.js' });
-  return { ctx, sec, host, timers };
+  return { ctx, sec, host, form, timers };
 };
 
 // Cold: no resolver at all. The band must fall back to the static markup rather
@@ -725,19 +742,40 @@ has(redrawnBand.host.innerHTML, 'redrawn',
   '    that the seat they vote in has changed');
 
 // The shared action: land on the band, and only open the picker when there is
-// nothing to show yet.
-const act = runBand({ pdxRepsForMe: () => ({ located: false, levels: [] }), _hasUserLocation: false, openLocationModal: function () { act.ctx._opened = true; } });
+// nothing to show yet. WITH THE PICKER ON THIS DOCUMENT the gesture is two
+// steps — bring the band into view, then open over a page the reader has
+// actually travelled — because a modal over an unscrolled page leaves them, on
+// dismissal, beside a control that looks like it did nothing.
+const act = runBand({ picker: true, pdxRepsForMe: () => ({ located: false, levels: [] }), _hasUserLocation: false, openLocationModal: function () { act.ctx._opened = true; } });
 must(typeof act.ctx.pdxFindMyReps === 'function', 'window.pdxFindMyReps was not exported — the entry points call nothing');
 act.ctx.pdxFindMyReps();
 eq(act.sec._scrolled, true,
   'action: the shared action does not bring the band into view, so a nav tap lands the visitor\n' +
   '    nowhere in particular');
 const opener = act.timers.filter((t) => t.ms === 260)[0];
-must(!!opener, 'the shared action no longer defers the picker open — the assertion below is vacuous');
+must(!!opener, 'the shared action no longer defers the picker open on a document that HOSTS the picker — the assertion below is vacuous');
 opener.fn();
 eq(act.ctx._opened, true,
   'action: with no location set the picker never opens, so the CTA scrolls to a band that cannot\n' +
   '    answer the question it just asked');
+
+// AND WITH THE PICKER ON /find, THE SECOND STEP IS A NAVIGATION, so the scroll
+// becomes the bug it was introduced to fix. Panning 260 ms down to a bar the
+// reader is about to leave charges the tap an animation for a surface they never
+// see, and the door they asked for opens a quarter-second late. This is the case
+// that applies to the real homepage: the location form is not on index.html any
+// more, so this is what a nav tap actually does now.
+const actAway = runBand({ pdxRepsForMe: () => ({ located: false, levels: [] }), _hasUserLocation: false, openLocationModal: function () { actAway.ctx._opened = true; } });
+actAway.ctx.pdxFindMyReps();
+eq(actAway.ctx._opened, true,
+  'action: with the picker on another document the CTA defers the trip behind a timer, so the tap\n' +
+  '    appears to do nothing and the reader presses it again');
+ok(!actAway.timers.some((t) => t.ms === 260),
+  'action: the band still queues the 260ms picker-open delay on a document that does not host the\n' +
+  '    picker — the delay exists to let a scroll settle, and nothing is being scrolled');
+ok(!actAway.sec._scrolled,
+  'action: the band scrolls to a location setter that is not on this document before navigating away\n' +
+  '    from it');
 
 const actWarm = runBand({
   pdxRepsForMe: () => ({ located: true, national: false, state: 'Utah', area: 'Bountiful', redrawn: false, districtsResolvable: true, levels: LEVELS6 }),

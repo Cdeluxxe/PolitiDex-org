@@ -345,18 +345,44 @@ const rooted = (v) => /^(\/|https?:|\/\/|data:|#|mailto:)/.test(v);
 const idxLines = index.split("\n");
 const COPIES = [
   [89, 241, "the cold-open prefetch and PDXPerf"],
-  [316, 1299, "PDXStore / PDXTeam / PDXTeamV2"],
+  [315, 1299, "PDXStore / PDXTeam / PDXTeamV2"],
   [1300, 1409, "PDXTeamView"],
   [1410, 1925, "the promise ledger and the deferred-event capture"],
-  [1942, 2016, "PDXLazy"],
-  [2018, 2038, "the Firebase compat bundles, the key injection, the stub and firebase-boot.js"],
-  [2190, 2236, "the share furniture share-preview.ts rewrites"],
-  [3727, 3791, "the crawl-header guard"],
-  [13526, 13560, "the profile modal down to #modal-content"],
-  [13621, 13668, "the stance popover, the record overlay and the share sheet"],
-  [20516, 20637, "PDXStance"],
-  [23126, 23324, "the PWA runtime and the service-worker registration"],
+  [1944, 2011, "PDXLazy"],
+  [2013, 2033, "the Firebase compat bundles, the key injection and the stub"],
+  [2185, 2230, "the share furniture share-preview.ts rewrites"],
+  [3728, 3791, "the crawl-header guard"],
+  [13146, 13180, "the profile modal down to #modal-content"],
+  [13241, 13287, "the stance popover, the record overlay and the share sheet"],
+  [19131, 19251, "PDXStance"],
+  [21741, 21939, "the PWA runtime and the service-worker registration"],
 ];
+//   AND THE FINDER MOVE RE-DERIVED NINE OF THE TWELVE, IN BOTH DIRECTIONS AT
+// ONCE AND ONE OF THEM BY CHANGING THE BLOCK ITSELF — which is the one case
+// this table's method is really for. The district finder became its own
+// document, /find, so index.html lost the location picker's markup, the map
+// modal's markup, most of #pdx-district-map-styles and the whole 1,200-line map
+// controller. Two of those deletions sit above the profile modal and the
+// popovers (−380 each) and the controller sits above PDXStance and the PWA
+// runtime (−1385 each).
+//   PDXLazy IS THE INTERESTING ONE. Its Leaflet arm had exactly one consumer on
+// earth — the picker — so the arm left index.html with the picker, and its
+// banner gained two lines saying where the library went. person.html carried a
+// byte-identical copy of that arm and no caller for it at all, so the arm came
+// out of person.html in the same edit: the copy is still a copy, and a document
+// that never mounts a map no longer ships the loader for one. That is why this
+// pin is SHORTER than it was (68 lines, not 75) rather than merely moved, and it
+// is the only length change in this table that is a real edit instead of a
+// boundary correction. The three anchors above the banner came back byte-
+// identical at their original numbers, which is the check on the method.
+//   THE OTHER LENGTH CHANGES ARE BOUNDARY CORRECTIONS, the same kind the
+// vocabulary pin took in test-stances-shell.mjs. Re-deriving each block as its
+// longest verbatim run and then trimming the blank lines off both ends named the
+// run of SUBSTANCE: the share furniture, the crawl guard, the popovers and
+// PDXStance each turned out to have been carrying one boundary blank line, so
+// each is a line shorter here while pointing at exactly the same block. Not one
+// byte of any copied run changed except PDXLazy's, and that one changed on both
+// documents in the same edit.
 //   AND DOWN BY TWELVE, for the Voice-hub pass. window.pdxMapConfirm on
 // index.html grew the return-intent trigger — one guarded PDXReturn.consume()
 // call, plus the note explaining why it runs before the Home Team onboarding

@@ -353,7 +353,7 @@ const LV_GOV = { key: "governor", seat: "governor", label: "Governor", statewide
   // the ability to set a location at all.
   const bare = bootDesk({ uid: "u_1b", noReturn: true });
   const bareCta = /<a class="me-voicecta" href="([^"]+)"/.exec(slotOf(bare));
-  ok(!!bareCta && bareCta[1].indexOf("who-represents-me") >= 0,
+  ok(!!bareCta && bareCta[1] === "/find",
     "unverified: with no PDXReturn on the document the control loses its href instead of falling back to the finder");
 }
 

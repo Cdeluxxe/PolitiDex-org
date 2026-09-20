@@ -193,7 +193,9 @@
   var CT_ARCH_ID = 'courts-archive';
   var ARCH_ROOT_ID = 'jr-archive';
   var COURTS_HREF = '/courts';
-  var LOC_HREF = '/#who-represents-me';
+  // The finder, which is its own document — a reader with no saved location is
+  // sent to the picker, not to the front page band that reads one back.
+  var LOC_HREF = '/find';
 
   // The whole homepage footprint, and it is three lines and a link. "Judges on
   // your ballot" is a ballot claim, so it is a TITLE and the COUNT underneath it

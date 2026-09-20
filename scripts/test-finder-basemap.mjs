@@ -44,7 +44,17 @@
 //  10. SOMETHING ELSE MOVED WITH IT. /voice, SD-3's board, the one-row
 //      allow-list, the homepage card, or the record engines.
 //
-// Ten sections, one per failure mode, plus the worker.
+// Ten sections, one per failure mode, an eleventh for the address the finder
+// moved to, plus the worker.
+//
+// WHERE THE FINDER LIVES, AS OF v235. The tiles and the empty first frame were
+// two of the three things that froze a phone here. The third was the HOST: the
+// picker, the modal and this 1,200-line controller all sat inside a 1.5 MB
+// index.html, so a location tap had to parse the archive homepage before the
+// search box could move. The finder is its own document now — /find, rewritten
+// from find.html — and every assertion below that used to read index.html reads
+// FIND instead. index.html joined section 10's map-free list in the same pass,
+// which is the assertion that stops the controller from quietly coming back.
 //
 //   node scripts/test-finder-basemap.mjs
 //
@@ -55,6 +65,7 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import vm from "node:vm";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -79,6 +90,7 @@ function report() {
 const must = (c, m) => { if (!c) { console.error(`✗ finder basemap: STALE HARNESS — ${m}`); process.exit(2); } };
 
 const INDEX = R("index.html");
+const FIND = R("find.html");
 const LOC = R("voter-hub-location.js");
 const LAZY = R("pdx-lazy-data.js");
 const DV = R("district-voice.js");
@@ -91,16 +103,16 @@ const stripJsComments = (s) => String(s)
 // ═════════════════════════════════════════════════════════════════════════════
 // THE MODULE, SLICED BY ITS OWN HEADING
 // ═════════════════════════════════════════════════════════════════════════════
-// The finder's controller is one inline IIFE in index.html. Slicing it by its
-// own banner comment and the next </script> keeps every assertion below aimed
-// at the map rather than at 1.6 MB of unrelated shell — a slice that silently
+// The finder's controller is one inline IIFE in find.html now. Slicing it by
+// its own banner comment and the next </script> keeps every assertion below
+// aimed at the map rather than at the whole shell — a slice that silently
 // widened to the whole document would pass on text from anywhere.
 const MAP = (() => {
-  const a = INDEX.indexOf("INTERACTIVE UTAH DISTRICT MAP");
-  must(a > 0, "index.html carries no INTERACTIVE UTAH DISTRICT MAP banner");
-  const b = INDEX.indexOf("</script>", a);
+  const a = FIND.indexOf("INTERACTIVE UTAH DISTRICT MAP");
+  must(a > 0, "find.html carries no INTERACTIVE UTAH DISTRICT MAP banner");
+  const b = FIND.indexOf("</script>", a);
   must(b > a, "the map controller's closing script tag is missing");
-  return INDEX.slice(a, b);
+  return FIND.slice(a, b);
 })();
 must(MAP.length > 20000, `the map controller slice is too thin to test (${MAP.length} chars)`);
 const MAPC = stripJsComments(MAP);
@@ -204,10 +216,10 @@ section("3 · keyless OSM tiles, attributed, with no env read");
 // ═════════════════════════════════════════════════════════════════════════════
 section("4 · address search and the chamber toggle are intact");
 {
-  has(INDEX, 'id="pdx-map-search-input"', "finder: the address search input is gone");
+  has(FIND, 'id="pdx-map-search-input"', "finder: the address search input is gone");
   has(MAPC, "window.pdxMapSearchAddress", "finder: the address search entry point is gone");
   for (const id of ["pdx-layer-house", "pdx-layer-senate", "pdx-layer-congress"]) {
-    has(INDEX, `id="${id}"`, `finder: the ${id} chamber tab is gone`);
+    has(FIND, `id="${id}"`, `finder: the ${id} chamber tab is gone`);
   }
   has(MAPC, "window.pdxMapSetLayer", "finder: the chamber toggle entry point is gone");
 }
@@ -416,12 +428,35 @@ section("9 · location, stance and team stores untouched");
 section("10 · /voice, SD-3, the allow-list and the engines");
 {
   // /voice and SD-3's board stay map-free: no Leaflet, no tiles, no finder.
+  // index.html JOINED THAT LIST in v235, and it is the point of the pass: the
+  // homepage is no longer the finder's host, so nothing on it may mount a map.
+  // Its comments still EXPLAIN where the map went — that is documentation, not
+  // a script tag — so the homepage is checked with its comments stripped, HTML
+  // and JS both, and then held to exactly the same five needles as the two
+  // documents that never had a map in the first place.
+  const MAPFREE = ["leaflet", "tileLayer", "cartocdn", "openstreetmap.org/{z}", "district-map-modal"];
   for (const f of ["voice.html", "district-ut-sd-3.html"]) {
     const src = R(f);
-    for (const n of ["leaflet", "tileLayer", "cartocdn", "openstreetmap.org/{z}", "district-map-modal"]) {
+    for (const n of MAPFREE) {
       ok(src.toLowerCase().indexOf(n.toLowerCase()) < 0, `${f}: ${n} appears — this document must stay map-free`);
     }
   }
+  const HOMEC = String(INDEX)
+    .replace(/<!--[\s\S]*?-->/g, " ")
+    .replace(/\/\*[\s\S]*?\*\//g, " ")
+    .replace(/^[ \t]*\/\/.*$/gm, " ");
+  for (const n of MAPFREE) {
+    ok(HOMEC.toLowerCase().indexOf(n.toLowerCase()) < 0,
+      `index.html: ${n} appears outside a comment — the homepage must not mount the map`);
+  }
+  // Not as markup either: the picker and the modal are at /find, and what is
+  // left behind on the homepage is a pointer comment, not a hidden surface.
+  for (const id of ["change-location-form", "pdx-map-search-input", "pdx-layer-house"]) {
+    no(HOMEC, id, `index.html: #${id} is still in the document — that surface moved to /find`);
+  }
+  // And no Leaflet arm in the homepage's lazy loader, which is what would pull
+  // the library back onto the front page without any markup changing at all.
+  no(HOMEC, "leaflet:", "index.html: PDXLazy still declares a leaflet arm");
   // The allow-list is still one row, and it is still Johnson's board.
   const ROUTES = (() => {
     const a = DV.indexOf("BOARD_ROUTES");
@@ -447,6 +482,290 @@ section("10 · /voice, SD-3, the allow-list and the engines");
   // And the record engines still twin-boot byte-identical.
   const twin = TREE.find(([p]) => p === "scripts/test-vr-pack-live-twin-boot.mjs");
   ok(!!twin, "engines: the twin-boot suite is gone, so byte-identity is no longer checked");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 11 · /find IS A SERVED ADDRESS, AND A LEAN ONE
+// ═════════════════════════════════════════════════════════════════════════════
+// Moving the finder off the homepage is only a fix if the new document is
+// actually reachable and is actually smaller. Both halves fail silently: a
+// missing rewrite pair serves the SPA fallback and the tap goes nowhere, and a
+// shell that drags app.css or the record engines along has moved the freeze
+// rather than removed it.
+section("11 · the finder's own document");
+{
+  const TOML11 = R("netlify.toml");
+  // The exact-path 200 pair, both spellings, the way every other room is served.
+  for (const from of ["/find", "/find/"]) {
+    const re = new RegExp(
+      "\\[\\[redirects\\]\\]\\s*\\n\\s*from = \"" + from.replace("/", "\\/") +
+      "\"\\s*\\n\\s*to = \"\\/find\\.html\"\\s*\\n\\s*status = 200");
+    ok(re.test(TOML11), `routes: netlify.toml has no 200 rewrite from ${from} to /find.html`);
+  }
+  // The document flags itself, the way every other shell does, so the owner can
+  // tell "I am the finder" from "I am a page that links to it".
+  has(FIND, "window.__PDX_FIND_DOC", "find: the document does not flag itself");
+  has(FIND, 'rel="canonical" href="https://politidex.fyi/find"', "find: the canonical does not name /find");
+
+  // WHAT IT MUST NOT CARRY. These four are the reason index.html could not host
+  // a map: 986 KB of stylesheet and three record engines that all have to parse
+  // before anything on the page can move. The document's own banner NAMES all
+  // four in order to say it left them behind, so this is checked with comments
+  // stripped — what is forbidden is a request, not a sentence about one.
+  const FINDC = String(FIND)
+    .replace(/<!--[\s\S]*?-->/g, " ")
+    .replace(/\/\*[\s\S]*?\*\//g, " ")
+    .replace(/^[ \t]*\/\/.*$/gm, " ");
+  for (const heavy of ["app.css", "ballot-breakdown.js", "cmp-data.js", "compare-hub.js"]) {
+    no(FINDC, heavy, `find: the finder document loads ${heavy} — the weight it was moved away from`);
+  }
+  // WHAT IT MUST CARRY: the lean chrome, and the ONE owner of the location.
+  for (const light of ["/css/tailwind.css", "/shell-chrome.css", "/voter-hub-location.js",
+                       "/shell-account-chip.js"]) {
+    has(FIND, light, `find: the finder document does not load ${light}`);
+  }
+  // ROOT-ABSOLUTE PATHS ONLY. A trailing-slash 200 rewrite means a relative
+  // same-origin src resolves under /find/ and is answered with HTML — a script
+  // tag that silently receives a document. Every other shell holds this rule.
+  const rel = [];
+  for (const m of String(FIND).matchAll(/(?:src|href)="([^"]+)"/g)) {
+    const v = m[1];
+    if (/^(\/|https:\/\/|#|data:|mailto:|tel:)/.test(v)) continue;
+    rel.push(v);
+  }
+  eq(rel.length, 0, `find: same-origin paths that are not root-absolute: ${rel.join(", ")}`);
+
+  // THE FINDER OPENS ON ARRIVAL. A reader who taps "Who Represents Me" asked
+  // for the map, not for a landing page about the map.
+  has(FIND, "function bootFinder(", "find: nothing opens the finder when the document arrives");
+  ok(/bootFinder[\s\S]{0,600}openDistrictMapModal\(\)/.test(FIND) ||
+     /openDistrictMapModal\(\)[\s\S]{0,600}bootFinder/.test(FIND),
+    "find: the arrival path never opens the modal");
+
+  // NO SECOND RESOLVER. voter-hub-location.js still owns the record, the modal
+  // gate, the geocode ceiling and pdxRepsForMe(); find.html is a caller.
+  no(MAPC, "politidex_voter_location", "find: the finder document spells the location key itself");
+  ok(!/function saveVoterLocation\s*\(/.test(String(FIND)) &&
+     !/window\.saveVoterLocation\s*=\s*function/.test(String(FIND)),
+    "find: the finder document defines its own saver — there must be one owner");
+  ok(!/window\.pdxRepsForMe\s*=\s*function/.test(String(FIND)),
+    "find: the finder document forks pdxRepsForMe");
+
+  // THE TRIP BACK is the existing PDXReturn owner, one param, one allow-list.
+  const LOC11 = stripJsComments(LOC);
+  has(LOC11, "var FINDER = '/find';", "return: PDXReturn does not name /find as the finder");
+  has(LOC11, "function finderHref(", "return: PDXReturn cannot build a finder href");
+  has(LOC11, "function settled(", "return: there is no settled() to send a saved reader home");
+  ok((LOC11.match(/var PARAM = /g) || []).length === 1, "return: PDXReturn declares more than one param name");
+  has(MAPC, "PDXReturn.settled()", "return: confirming a district on /find leaves the reader there");
+
+  // AND EVERY LOCATION TAP GOES THERE. The homepage band, the desk, the voice
+  // room, the courts room and the hallway all used to point at a fragment on a
+  // document that hosted the picker; the picker is not on that document now.
+  for (const [f, needle, why] of [
+    ["voice-room.js", "'/find'", "the /voice empty state's set-location control"],
+    ["judicial-ballot.js", "'/find'", "the courts room's location link"],
+    ["me-desk.js", "'/find'", "the desk's change-location seam"],
+    ["district-voice.js", "'/find'", "the hallway's person-link fallback"]
+  ]) {
+    has(R(f), needle, `taps: ${f} does not send ${why} to /find`);
+  }
+  // The homepage's own two openers navigate rather than scroll to a surface
+  // that is not there: the owner does it, so no inline handler had to change.
+  has(LOC11, "window.openDistrictMapModal = function", "taps: nothing navigates to /find when no map is on the page");
+  ok(/typeof window\.openDistrictMapModal !== 'function'/.test(LOC11),
+    "taps: the navigating default is unguarded, so it could overwrite the real controller on /find");
+
+  // THE WORKER HOLDS IT OFFLINE, and that is a shell entry rather than a
+  // runtime accident: this is the address every location tap now goes to.
+  has(SW, "'/find.html'", "worker: /find.html is not a precached shell asset");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 12 · DRIVEN: THE FINDER OPENS AND DRAWS NOTHING
+// ═════════════════════════════════════════════════════════════════════════════
+// Every assertion above about the empty first frame reads SOURCE. Source is
+// where the regression would be introduced, but it is not where it would be
+// felt, and a draw call can return by a route no needle is watching — a helper
+// that grew a paint, a toggle handler reused as an initialiser, a cache warmer.
+// So the controller is RUN here, against a Leaflet whose only job is to count.
+// The question is the one the reader asks by tapping: how many district
+// polygons exist on the canvas one frame after the finder opens? Zero, and a
+// prompt saying how to get some. Then one tap, and exactly one layer's worth.
+section("12 · driven: the finder opens, builds a basemap and draws no districts");
+{
+  const SRC = MAP.slice(MAP.indexOf("(function(){"));
+  must(SRC.indexOf("bootFinder") > 0, "the runnable slice of the controller does not reach bootFinder");
+
+  const count = { map: 0, tiles: [], geoJSON: 0, added: [], invalidate: 0, fetched: [], focused: 0 };
+  const mkEl = (id) => {
+    const el = {
+      id, innerHTML: "", textContent: "", value: "", className: "", disabled: false,
+      style: {}, _cls: new Set(),
+      classList: {
+        add(c) { el._cls.add(c); }, remove(c) { el._cls.delete(c); },
+        contains(c) { return el._cls.has(c); },
+        toggle(c, on) { if (on === undefined) { el._cls.has(c) ? el._cls.delete(c) : el._cls.add(c); } else if (on) el._cls.add(c); else el._cls.delete(c); },
+      },
+      setAttribute() {}, getAttribute() { return null; }, removeAttribute() {},
+      addEventListener() {}, removeEventListener() {},
+      focus() { count.focused++; },
+      appendChild() {}, remove() {},
+      querySelector() { return mkEl(id + "-child"); },
+      querySelectorAll() { return []; },
+    };
+    return el;
+  };
+  // Only the ids the open path actually reaches. Everything else resolves null
+  // and every helper in the module is written to survive that, which is itself
+  // worth knowing: a finder that throws on a missing panel is a blank page.
+  const els = {};
+  for (const id of ["district-map-modal", "pdx-district-map", "pdx-map-status", "pdx-map-status-text",
+                    "pdx-map-search-input", "pdx-map-search-note", "pdx-map-hint",
+                    "pdx-layer-house", "pdx-layer-senate", "pdx-layer-congress"]) {
+    els[id] = mkEl(id);
+  }
+
+  const timers = [];
+  const mapObj = {
+    setView() { return mapObj; },
+    invalidateSize() { count.invalidate++; return mapObj; },
+    on(ev, fn) { mapObj["_on_" + ev] = fn; return mapObj; },
+    hasLayer(l) { return count.added.indexOf(l) >= 0; },
+    addLayer(l) { count.added.push(l); return mapObj; },
+    removeLayer(l) { const i = count.added.indexOf(l); if (i >= 0) count.added.splice(i, 1); return mapObj; },
+    fitBounds() { return mapObj; }, setMaxBounds() { return mapObj; },
+    getZoom() { return 6; }, getCenter() { return { lat: 39.3, lng: -111.5 }; },
+    flyTo() { return mapObj; }, panTo() { return mapObj; },
+  };
+  const layerish = (tag) => {
+    const o = {
+      _tag: tag,
+      on() { return o; }, off() { return o; },
+      addTo(m) { m.addLayer(o); return o; },
+      setStyle() { return o; }, bindTooltip() { return o; }, bringToFront() { return o; },
+      getBounds() { return { isValid: () => true, pad: () => ({}) }; },
+      eachLayer() {}, clearLayers() { return o; }, remove() { return o; },
+    };
+    return o;
+  };
+  const L = {
+    map() { count.map++; return mapObj; },
+    tileLayer(url) { count.tiles.push(String(url)); return layerish("tiles"); },
+    geoJSON() { count.geoJSON++; return layerish("geojson"); },
+    marker() { return layerish("marker"); },
+    circleMarker() { return layerish("marker"); },
+    latLng(a, b) { return { lat: a, lng: b }; },
+    latLngBounds() { return { isValid: () => true, pad: () => ({}) }; },
+    control: { attribution: () => layerish("control") },
+    DomEvent: { stopPropagation() {}, preventDefault() {} },
+  };
+
+  const win = {
+    console, JSON, Math, Date, Promise, String, Number, Boolean, Array, Object, RegExp, Error,
+    parseInt, parseFloat, isNaN, encodeURIComponent, decodeURIComponent, setInterval() {}, clearInterval() {},
+    navigator: { userAgent: "node", onLine: true },
+    L,
+  };
+  win.window = win;
+  win.setTimeout = (fn, ms) => { timers.push({ fn, ms: ms || 0 }); return timers.length; };
+  win.clearTimeout = () => {};
+  win.requestAnimationFrame = (fn) => { timers.push({ fn, ms: 0 }); return timers.length; };
+  const listeners = {};
+  win.document = {
+    readyState: "loading",
+    body: { style: {}, classList: mkEl("body").classList, appendChild() {} },
+    documentElement: { style: {} },
+    getElementById: (id) => els[id] || null,
+    querySelector: () => null,
+    querySelectorAll: () => [],
+    createElement: (t) => mkEl(t),
+    addEventListener(ev, fn) { (listeners[ev] = listeners[ev] || []).push(fn); },
+    removeEventListener() {},
+  };
+  // THE LOCATION OWNER, STUBBED AT ITS PUBLISHED SURFACE — not reimplemented.
+  // Every request the finder makes goes through PDXFinder.fetch, so counting
+  // calls here counts every byte the open path puts on the wire.
+  win.PDXFinder = {
+    isOpen: () => true, markPending() {}, flush() {}, abort() {},
+    deadline: (p) => p, track: (x) => x,
+    fetch(url) { count.fetched.push(String(url)); return new Promise(() => {}); },
+  };
+  win.PDXReturn = { settled() {}, consume() { return false; }, finderHref: () => "/find" };
+  win.fetch = (url) => { count.fetched.push("bare:" + String(url)); return new Promise(() => {}); };
+  win._currentVoterLocation = {};
+  win._hasUserLocation = false;
+  win.location = { pathname: "/find", search: "", hash: "", href: "https://politidex.fyi/find", origin: "https://politidex.fyi", assign() {}, replace() {} };
+
+  let bootErr = null;
+  try { vm.runInContext(SRC, vm.createContext(win), { filename: "find.html#district-map" }); }
+  catch (e) { bootErr = e; }
+  ok(!bootErr, `driven: the finder controller does not boot (${bootErr ? bootErr.message : "ok"})`);
+  must(!bootErr, "the controller threw on load, so nothing below is measuring the finder");
+
+  // ARRIVAL IS THE TAP. readyState was 'loading', so the boot is a listener and
+  // firing it is what a real document does a moment later.
+  ok(typeof win.openDistrictMapModal === "function", "driven: openDistrictMapModal was never published");
+  ok((listeners.DOMContentLoaded || []).length === 1,
+    `driven: ${((listeners.DOMContentLoaded || []).length)} DOMContentLoaded listeners — arrival must open the finder exactly once`);
+  for (const fn of listeners.DOMContentLoaded || []) fn({});
+  eq(els["district-map-modal"].style.display, "flex", "driven: arriving at /find did not open the finder");
+
+  // THE DEFERRED BUILD. The module waits 80 ms so Leaflet measures a visible
+  // container; nothing is on the canvas until that runs.
+  eq(count.map, 0, "driven: the map was built before the container was revealed");
+  const queued = timers.splice(0, timers.length);
+  for (const t of queued) t.fn();
+
+  // A BASEMAP, MEASURED, KEYLESS.
+  eq(count.map, 1, `driven: L.map was called ${count.map} times for one open`);
+  eq(count.invalidate, 1, `driven: invalidateSize ran ${count.invalidate} times — Leaflet must re-measure once`);
+  eq(count.tiles.length, 1, `driven: ${count.tiles.length} tile layers were built`);
+  has(count.tiles[0], "https://tile.openstreetmap.org/{z}/{x}/{y}.png", "driven: the basemap is not the keyless OSM raster");
+  no(count.tiles[0], "cartocdn", "driven: the keyed Carto host came back at runtime");
+  no(count.tiles[0], "key=", "driven: the running tile template carries a key parameter");
+
+  // AND THIS IS THE WHOLE POINT: NO DISTRICTS. Not one geojson layer built, not
+  // one boundary request on the wire, and the only thing added to the map is
+  // the basemap itself.
+  eq(count.geoJSON, 0, `driven: ${count.geoJSON} district layers were built to open an empty finder`);
+  eq(count.fetched.length, 0,
+    `driven: opening the finder put ${count.fetched.length} request(s) on the wire: ${count.fetched.join(", ")}`);
+  eq(count.added.length, 1, `driven: ${count.added.length} layers are on the canvas — only the basemap belongs there`);
+  eq(count.added[0]._tag, "tiles", "driven: the layer on the canvas is not the basemap");
+
+  // A CANVAS WITH NOTHING ON IT MUST SAY WHY, over a live basemap rather than
+  // behind a curtain, and it must carry the control that fills it.
+  eq(els["pdx-map-status"].style.display, "flex", "driven: the empty canvas opens with no explanation on it");
+  ok(els["pdx-map-status"]._cls.has("pdx-map-status--idle"),
+    "driven: the prompt is a loading curtain rather than an idle hint over a working map");
+  has(els["pdx-map-status-text"].innerHTML, "Search your address above", "driven: the prompt does not say what to do");
+  has(els["pdx-map-status-text"].innerHTML, "window.pdxMapShowBoundaries()", "driven: the prompt carries no control to draw the layer");
+  // The chamber chrome is set with no draw behind it — that is what
+  // setLayerChrome() is for.
+  ok(els["pdx-layer-house"]._cls.has("is-active"), "driven: the active chamber is not marked on open");
+  ok(!els["pdx-layer-senate"]._cls.has("is-active"), "driven: a second chamber is marked active");
+
+  // ONE TAP, ONE LAYER. Lazy must mean deferred, not dead: the prompt's own
+  // button is a reader asking, and it is answered with exactly one request for
+  // the active chamber and nothing else.
+  win.pdxMapShowBoundaries();
+  eq(count.fetched.length, 1, `driven: asking for boundaries issued ${count.fetched.length} requests`);
+  has(count.fetched[0], "UtahHouseDistricts2022to2032", "driven: the tap did not request the active chamber's layer");
+  no(count.fetched.join(" "), "UtahSenateDistricts", "driven: a chamber nobody asked for was fetched alongside");
+  no(count.fetched.join(" "), "political_us_congress", "driven: the congressional layer was fetched by a State House tap");
+  // AND A TAP ON THE CANVAS WHILE THAT IS IN FLIGHT DOES NOT STACK A SECOND
+  // FETCH. The canvas is the surface a reader can hit repeatedly by accident —
+  // it covers the whole modal and a pan that does not move reads as a click —
+  // so it is the entry point that carries the in-flight guard, and this drives
+  // the guard rather than reading it.
+  ok(typeof mapObj._on_click === "function", "driven: the canvas takes no click, so there is no tap-to-draw path");
+  mapObj._on_click({ latlng: { lat: 39.3, lng: -111.5 } });
+  eq(count.fetched.length, 1,
+    `driven: a canvas tap during the load queued a duplicate fetch (${count.fetched.length} total)`);
+  // A tap with no coordinates is not a location and must not start anything.
+  mapObj._on_click({});
+  eq(count.fetched.length, 1, "driven: a click carrying no latlng started a layer load");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -495,6 +814,26 @@ section("worker · one bump, one entry");
     `sw: another version heading sits inside the ${PIN} entry`);
   const prev = SW.indexOf("// v230 - ");
   ok(prev > 0 && prev < at, `sw: the ${PIN} entry is filed above v230 rather than after it`);
+
+  // THE MOVE'S OWN ENTRY, addressed by its own version for the same reason the
+  // block above is: the pin only ever claims that v235 is still in the log and
+  // still says what it did, never that it is the newest thing in the file.
+  const PIN2 = "v235";
+  ok(CUR >= 235, `sw: CACHE_VERSION is ${m[1]} — the finder move needs ${PIN2} or later`);
+  const at2 = SW.indexOf(`// ${PIN2} - `);
+  ok(at2 > 0, `sw: there is no changelog entry for ${PIN2}`);
+  const nextAt2 = SW.slice(at2 + 1).search(/\n\/\/\s+v\d+ - /);
+  const LOG2 = SW.slice(at2, nextAt2 < 0 ? SW.indexOf("const CACHE_VERSION", at2) : at2 + 1 + nextAt2);
+  const FLAT2 = LOG2.replace(/^\s*\/\/\s?/gm, " ").replace(/\s+/g, " ");
+  ok(/\/find/.test(FLAT2), `sw: the ${PIN2} entry does not name /find`);
+  ok(/homepage/i.test(FLAT2) && /map/i.test(FLAT2),
+    `sw: the ${PIN2} entry does not say what the homepage stopped doing`);
+  ok(/location key/i.test(FLAT2) && /untouched/i.test(FLAT2),
+    `sw: the ${PIN2} entry does not say the location keys were left alone`);
+  ok(/MIGRATION COST: none/i.test(FLAT2), `sw: the ${PIN2} entry does not state a migration cost of none`);
+  eq((LOG2.match(/\n\/\/\s+v\d+ - /g) || []).length, 0,
+    `sw: another version heading sits inside the ${PIN2} entry`);
+  ok(at2 > at, `sw: the ${PIN2} entry is filed above ${PIN} rather than after it`);
 }
 
 report();

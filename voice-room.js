@@ -99,11 +99,19 @@
   var GRACE_MS = 6000;
 
   // The fallback door, for a boot where voter-hub-location.js never landed and
-  // PDXReturn is therefore absent. It is today's plain address with no intent
-  // attached — a STRICT DEGRADATION of the real door and not a second copy of
-  // how the intent is spelled. The parameter name, the allow-list and the
-  // encoding live in exactly one place and this is not it.
-  var HREF_FINDER_BARE = '/#who-represents-me';
+  // PDXReturn is therefore absent. It is the finder's plain address with no
+  // intent attached — a STRICT DEGRADATION of the real door and not a second
+  // copy of how the intent is spelled. The parameter name, the allow-list and
+  // the encoding live in exactly one place and this is not it.
+  //
+  // IT IS /find AND NOT /#who-represents-me, which is the same correction the
+  // real door got: the band on the front page is where a reader READS their
+  // seats and the finder is where they SET them, and sending somebody who has no
+  // location to the reading surface made them parse the whole archive homepage
+  // to reach a picker that then rebuilt it behind itself. The degraded door has
+  // to degrade to the right PLACE, or a failed boot of the location module is
+  // also a slower page.
+  var HREF_FINDER_BARE = '/find';
 
   var _t0 = Date.now();
   var _lastSig = '';

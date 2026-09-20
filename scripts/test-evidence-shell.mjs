@@ -314,9 +314,25 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // lines, all of them above this block like every move before it. So PDXStance is
 // now 20516-20637, located verbatim rather than by adding the delta; the arithmetic
 // agreed afterwards.
+//   AND UP BY 1,385, for the finder move. The district finder became its own
+// document, /find, so index.html lost the location picker's markup, the map
+// modal's markup, most of #pdx-district-map-styles and the whole 1,200-line map
+// controller — all of it above this block, none of it inside it. Re-derived by
+// locating the run verbatim, and the run came back one line SHORTER: the old
+// 122 had always carried the blank line above <script>, and a blank line is
+// shared by every document that has one, so 122 had two equally good answers.
+// Trimming to the run of substance names the <script>…</script> block and
+// nothing else — 19131-19251, 121 lines — which is the same correction
+// test-stances-shell.mjs made to its copy of this pin.
+//   THE person.html ANCHOR MOVED BY SIX IN THE SAME PASS, and for a reason
+// worth recording: PDXLazy's Leaflet arm had exactly one consumer on earth, the
+// district picker, so the arm left index.html with the picker — and person.html
+// carried a byte-identical copy of that arm with no caller for it at all, so the
+// arm came out of person.html too. Six lines above the Firebase boot, nothing
+// inside it. Re-derived by locating the run, as ever.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 20516, b: 20637, what: "the PDXStance vocabulary" },
-  { from: "person.html", src: PERSON, a: 2012, b: 2066, what: "the Firebase boot" },
+  { from: "index.html", src: INDEX, a: 19131, b: 19251, what: "the PDXStance vocabulary" },
+  { from: "person.html", src: PERSON, a: 2005, b: 2059, what: "the Firebase boot" },
 ];
 // The three-room split moved the index.html range by −2021 — /mandate, /voice
 // and /money took the agenda wall, the proposals wall and five inline blocks out

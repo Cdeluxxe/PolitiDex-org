@@ -622,13 +622,22 @@
 
   // ── window.PDXReturn — ONE OWNER OF "WHERE WAS THIS READER GOING" ──────────
   // THE BUG THIS CLOSES. Every door in the app that says "set your location so
-  // you can use District Voice" pointed at /#who-represents-me, which is the
-  // right place to SET a location and the wrong place to be left standing once
-  // you have. A reader tapped "Open District Voice" on /me, landed on the front
-  // page's finder, set their districts, watched the finder repaint — and was
-  // still on the finder, two megabytes deep, with no way back to the thing they
-  // had asked for except to find the nav again. The intent was thrown away at
-  // the door.
+  // you can use District Voice" pointed at /#who-represents-me, which is where a
+  // reader READS their seats and was, at the time, also the only place to SET
+  // them — and the wrong place to be left standing once they had. A reader tapped
+  // "Open District Voice" on /me, landed on the front page's finder, set their
+  // districts, watched the finder repaint — and was still on the finder, a
+  // megabyte and a half deep, with no way back to the thing they had asked for
+  // except to find the nav again. The intent was thrown away at the door.
+  //
+  // AND THE FINDER HAS ITS OWN ADDRESS NOW, which is the second half of the same
+  // bug and the reason FINDER below reads /find. Sending a reader to the front
+  // page to set a location meant parsing the entire archive homepage — hero, work
+  // layer, evidence template, ballot workspace, listings — before the picker
+  // could move, and then rebuilding all of it behind the modal when they picked.
+  // /find is that picker and nothing else. The parameter, the allow-list and the
+  // spending rule below did not change with the move: only the door's address
+  // did, in exactly one place.
   //
   // So the intent travels WITH them, as one query parameter, and this module
   // owns it end to end because it is the module that is loaded on every document
@@ -664,17 +673,30 @@
   window.PDXReturn = (function () {
     var HOME = '/voice';
     var PARAM = 'next';
-    var FINDER = '/#who-represents-me';
-    // THE FRAGMENT ON ITS OWN, because the finder href puts a query BETWEEN the
-    // path and the fragment and FINDER carries the path's slash. Composing
-    // '/?next=…' + FINDER produced '/?next=%2Fvoice/#who-represents-me' — the
-    // slash landing inside the query value, so the intent read back as '/voice/'
-    // rather than '/voice'. Harmless today, because sanitize() tolerates a
-    // trailing slash and strip() removes it before the comparison, but it is a
-    // value that is not what anybody wrote, and the day the allow-list stops
-    // tolerating the slash it becomes a door that silently goes home instead.
-    var FRAGMENT = FINDER.slice(FINDER.indexOf('#'));
-    var OK_RE = /^\/(?:voice|me|ballot|district\/[a-z0-9][a-z0-9-]{0,63})\/?$/;
+    // THE FINDER'S ADDRESS, IN ONE PLACE. It is a path and no longer a fragment,
+    // and losing the fragment took a bug with it: the old href composed
+    // '/?next=…' + '/#who-represents-me', which put FINDER's own leading slash
+    // INSIDE the query value, so the intent read back as '/voice/' rather than
+    // '/voice'. There is nothing to compose now — the query goes on the end of a
+    // path with no fragment behind it.
+    var FINDER = '/find';
+    // AND THE BAND THAT SHOWS THE ANSWER, which is a different place from the
+    // picker that sets it and always was. #who-represents-me is still on the
+    // front page, still lists the reader's seats, and is where settled() returns
+    // a reader who finished on /find without carrying an intent. The nav rows
+    // across the app point at it for the same reason: reading is not setting.
+    var FRAGMENT = '#who-represents-me';
+    // THE ALLOW-LIST. /voice, /me, /ballot, /district/<slug> — and '/', because
+    // the front page is a real destination for this lane: a reader whose door was
+    // the homepage's own "set my location" control is going back to the band that
+    // shows the answer. It is safe to admit for the same reason it is needed:
+    // consume() refuses to navigate to the address it is already standing on, so
+    // '/' can only ever move a reader who is NOT on the front page.
+    //
+    // /find IS DELIBERATELY NOT IN HERE. The finder is where this lane starts,
+    // never where it ends; a next=/find would be a door that leads back to the
+    // door, and a save that lands on the picker that made it is a loop.
+    var OK_RE = /^\/(?:voice|me|ballot|district\/[a-z0-9][a-z0-9-]{0,63})?\/?$/;
 
     function strip(p) {
       return String(p == null ? '' : p).replace(/\.html$/, '').replace(/\/+$/, '') || '/';
@@ -715,12 +737,12 @@
       return sanitize(strip(p)) || HOME;
     }
 
-    // THE DOOR ITSELF, built in one place. A real anchor to a real address with a
-    // real fragment — never href="#", never a button that needs JavaScript to
-    // mean anything. The fragment is the finder's own id, which is how every
-    // other link in the app reaches it.
+    // THE DOOR ITSELF, built in one place. A real anchor to a real address —
+    // never href="#", never a button that needs JavaScript to mean anything. The
+    // address is the finder's own document, so following this link costs the
+    // finder and not the archive homepage that used to host it.
     function finderHref(next) {
-      return '/?' + PARAM + '=' + encodeURIComponent(sanitize(next) || HOME) + FRAGMENT;
+      return FINDER + '?' + PARAM + '=' + encodeURIComponent(sanitize(next) || HOME);
     }
 
     function consume() {
@@ -733,10 +755,39 @@
       try { window.location.assign(next); return true; } catch (e) { return false; }
     }
 
+    // ── settled() — consume(), PLUS THE ONE DOCUMENT THAT CANNOT STAY ────────
+    // "NO PARAMETER, NO JUMP" IS THE RIGHT RULE EVERYWHERE THE PICKER IS PART OF
+    // A PAGE, and /find is the one place it is not. On the front page, on /me, on
+    // a board, a save with no `next` means "the reader chose to be here and
+    // changed their location while they were" — moving them would be this module
+    // deciding where they were going. On /find there is nothing to stay for: the
+    // page is a tool with one job, the job just finished, and leaving a reader
+    // standing on a picker they have already used is the dead end the move would
+    // otherwise have introduced.
+    //
+    // SO THE FALLBACK IS GATED ON THE DOCUMENT SAYING IT IS THE FINDER, not on a
+    // pathname test — /find, /find/ and a preview server's /find.html are three
+    // spellings of one page, and window.__PDX_FIND_DOC is declared exactly once,
+    // in find.html's head. On every other document settled() IS consume(), byte
+    // for byte, which is why both callers can spell it this way.
+    //
+    // AND IT STILL CANNOT FIRE WITHOUT A SAVE. Same two flags consume() checks,
+    // for the same reason: a reader who opened the finder and pressed Escape has
+    // expressed no intent and is owed no navigation.
+    function settled() {
+      if (consume()) return true;
+      if (!window.__PDX_FIND_DOC) return false;
+      if (!window._pdxLocSaved || !window._hasUserLocation) return false;
+      // The band that SHOWS the seats, which is where the answer is read. It is
+      // not in OK_RE's business — this is a literal destination, not an
+      // attacker-supplied one.
+      try { window.location.assign('/' + FRAGMENT); return true; } catch (e) { return false; }
+    }
+
     return {
-      HOME: HOME, PARAM: PARAM, FINDER: FINDER, OK_RE: OK_RE,
+      HOME: HOME, PARAM: PARAM, FINDER: FINDER, OK_RE: OK_RE, FRAGMENT: FRAGMENT,
       sanitize: sanitize, read: read, here: here,
-      finderHref: finderHref, consume: consume
+      finderHref: finderHref, consume: consume, settled: settled
     };
   })();
 
@@ -794,7 +845,14 @@
 
   window.toggleChangeLocation = function() {
     var form = document.getElementById('change-location-form');
-    if (!form) return;
+    // NO FORM MEANS THE PICKER IS AT /find, AND "toggle" HAS NOTHING TO TOGGLE.
+    // There is no open state to close on a document that does not carry the
+    // markup, so the only honest reading of this gesture is the one it always
+    // had — put the picker in front of this reader — and openLocationModal is
+    // the single place that knows how. This used to be a bare `return`, which
+    // after the move would have made "🗺️ Change on map" a dead control on every
+    // page in the app.
+    if (!form) { window.openLocationModal(); return; }
     var isOpen = form.style.display !== 'none' && form.style.display !== '';
     if (isOpen) {
       window.closeLocationModal();
@@ -820,8 +878,30 @@
       return;
     }
 
+    // ── THE PICKER LIVES AT /find, SO A MISSING FORM IS A DESTINATION ────────
+    // This used to be a bare `return`, and it was correct when the picker markup
+    // was on the front page: every document that loaded this file either had the
+    // form or had deliberately left it out, and failing silently was better than
+    // throwing. Now the form is on exactly ONE document, and every other page —
+    // /me, /ballot, /voice, a board, a person file — reaches this line the moment
+    // a reader asks to set a location.
+    //
+    // SO THE OWNER ANSWERS FOR IT, IN ONE PLACE, and that is the whole reason
+    // this pass did not have to rewrite a few dozen inline onclick handlers.
+    // Every `openLocationModal()` call site in the app already meant "put the
+    // picker in front of this reader"; the picker having moved makes that a
+    // navigation rather than a style change, and the call sites do not need to
+    // know which. The intent travels: PDXReturn carries where they were standing
+    // so the save can bring them back.
     var form = document.getElementById('change-location-form');
-    if (!form) return;
+    if (!form) {
+      var to = '/find';
+      try {
+        if (window.PDXReturn) to = window.PDXReturn.finderHref(window.PDXReturn.here());
+      } catch (e) { to = '/find'; }
+      try { window.location.assign(to); } catch (e) {}
+      return;
+    }
     var stateSel = document.getElementById('voter-state-sel');
     var countyInput = document.getElementById('voter-county-input');
     var distSel = document.getElementById('voter-district-sel');
@@ -950,6 +1030,38 @@
     }, 350);
   };
 
+  // ── window.openDistrictMapModal — THE DEFAULT, FOR DOCUMENTS WITHOUT A MAP ──
+  // THE MAP IS ON ONE DOCUMENT NOW. find.html carries the modal markup and the
+  // controller IIFE that publishes the real openDistrictMapModal; every other
+  // page in the app carries call sites for it — the Relevant-to-Me card, the
+  // homepage's "Change on map", the manual picker's address card,
+  // _pdxFallbackToMap when automatic detection gives up — and every one of them
+  // is written as `window.openDistrictMapModal && window.openDistrictMapModal()`,
+  // which after the move would quietly do NOTHING rather than open a map.
+  //
+  // So the owner publishes a default that goes where the map went. Not a stub and
+  // not a warning: the reader asked for the map, and the map is at /find, so they
+  // are taken to it with their return intent in hand. That is what makes every
+  // one of those unedited call sites correct again.
+  //
+  // THE GUARD IS THE WHOLE OF THE ORDERING PROBLEM, and it works in both
+  // directions. On find.html the controller is inline and runs before this
+  // deferred file, so a real openDistrictMapModal already exists and this
+  // declaration is skipped. If that ever reverses — the controller moved into a
+  // deferred file, a bundler reordered the tags — the controller's own assignment
+  // simply overwrites this one, because it is an unconditional assignment and
+  // this is the conditional one. Either order ends with the real map winning on
+  // the document that has a map.
+  if (typeof window.openDistrictMapModal !== 'function') {
+    window.openDistrictMapModal = function() {
+      var to = '/find';
+      try {
+        if (window.PDXReturn) to = window.PDXReturn.finderHref(window.PDXReturn.here());
+      } catch (e) { to = '/find'; }
+      try { window.location.assign(to); } catch (e) {}
+    };
+  }
+
   window.closeLocationModal = function() {
     var form = document.getElementById('change-location-form');
     if (!form) return;
@@ -963,8 +1075,10 @@
     // district), so a jump hung off the save would carry a reader away from the
     // form mid-sentence. Closing the picker is the completion, so this is where
     // the return happens — and it is a no-op for the reader who arrived with no
-    // `next` at all, which is nearly all of them.
-    try { if (window.PDXReturn && window.PDXReturn.consume()) return; } catch (e) {}
+    // `next` at all on any document that is not the finder itself, which is
+    // nearly all of them. settled() is consume() plus the one case consume()
+    // cannot answer: the picker's own page, which nobody stays on.
+    try { if (window.PDXReturn && window.PDXReturn.settled()) return; } catch (e) {}
   };
 
   // Close the location modal with the Escape key.
@@ -2527,9 +2641,25 @@
     // the 407 KB of race rosters that resolved them.
     var mem = _pdxResolvedRead(loc, state);
 
+    // AND WHAT THE MAP PINNED, which is the reader's own datum and the last
+    // fallback under the memo. The U.S. House row has always had this — that is
+    // what `loc.district` is doing on the end of the `hd` line — and the two
+    // legislative rows never did, because until the finder moved they never
+    // needed it: a pick on the front page's map ran the curated tables in the
+    // same document on the way out, so the memo was written before anything read
+    // it. /find does not carry those tables (407 KB for a picker), so a reader
+    // who pins Weber SD-3 and HD-8 there arrives on /voice with a location that
+    // knows both numbers and a memo that knows neither, and both rows would come
+    // back blank on a save that resolved them exactly.
+    //
+    // These are the same two fields applyToLocation() writes and the same two the
+    // map has written since it shipped — loc.stateSenateDistrict and
+    // loc.stateHouseDistrict. No new key, no migration, and no precedence change:
+    // the curated ballot still wins, then the memo, and this is only consulted
+    // when both came back with nothing.
     var hd = utah ? dist('house', 'house', _pdxResolvedDist(mem, 'house', loc.district)) : null;
-    var sd = utah ? dist('statesenate', 'senate', _pdxResolvedDist(mem, 'statesenate', null)) : null;
-    var ld = utah ? dist('statehouse', 'lower', _pdxResolvedDist(mem, 'statehouse', null)) : null;
+    var sd = utah ? dist('statesenate', 'senate', _pdxResolvedDist(mem, 'statesenate', loc.stateSenateDistrict || null)) : null;
+    var ld = utah ? dist('statehouse', 'lower', _pdxResolvedDist(mem, 'statehouse', loc.stateHouseDistrict || null)) : null;
     var hp = utah ? (inc('house', 'representative') || _pdxResolvedPid(mem, 'house', hd)) : null;
     var sp = utah ? (inc('statesenate', 'state_senator') || _pdxResolvedPid(mem, 'statesenate', sd)) : null;
     var lp = utah ? (inc('statehouse', 'state_rep') || _pdxResolvedPid(mem, 'statehouse', ld)) : null;

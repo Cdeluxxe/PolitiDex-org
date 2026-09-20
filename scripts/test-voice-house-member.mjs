@@ -565,11 +565,21 @@ const HEAD = (f) => {
   try { return execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28 }); }
   catch (e) { return null; }
 };
+// TWO FILES LEFT THIS LIST WHEN THE FINDER MOVED, and leaving them on it would
+// have been the pin outliving its claim. "Untouched" was always shorthand for
+// "this pass did not reach into them", and a pass is a moment: the pass that
+// moved the district finder to its own document /find edited both
+// who-represents-me.js and district-voice.js, neither of them anywhere near a
+// member's name. who-represents-me.js gained a DOM feature test so its two
+// openers navigate to the picker instead of scrolling to a surface that is no
+// longer on the page, and district-voice.js's person-link fallback points at
+// /find instead of a fragment on the homepage. So the narrower assertions below
+// replace the byte pin for those two — the field each one reads, which is the
+// thing this harness actually cares about — and the four files that a naming
+// pass still has no business inside keep the byte pin.
 [["district-ut-sd-3.html", "the one board's document"],
   ["district-board.js", "the one board's engine"],
   ["ballot-breakdown.js", "the curated race tables"],
-  ["who-represents-me.js", "the front-page band — it already read the right field"],
-  ["district-voice.js", "the seat list and the allow-list"],
   ["profile-evidence.js", "the table's owner"]].forEach(([f, why]) => {
     const h = HEAD(f);
     if (h == null) { passed++; return; }  // no git object here; the byte pins above still hold
@@ -580,6 +590,25 @@ const HEAD = (f) => {
     // default, and nothing else in either file; every other byte is still pinned to HEAD.
     eq(deOrigin(R(f)), deOrigin(h), `untouched: ${f} changed in this pass and it should not have — ${why}`);
   });
+
+// AND THE TWO THAT LEFT THE BYTE PIN ARE PINNED ON THE FIELD THEY READ. Neither
+// may start naming a member itself — that is the whole subject of this harness —
+// and neither may grow a second roster read to do it with.
+{
+  const WRM = code(R("who-represents-me.js"));
+  has(WRM, "window.pdxRepsForMe", "band: who-represents-me.js stopped asking the one resolver for its seats");
+  has(WRM, "_pdxPersonById", "band: the band stopped reading the display record for the member's name");
+  ok(!/PDX_PROFILE_ALIAS/.test(WRM), "band: the band grew its own alias table");
+  ok(!/pdxRosterRec/.test(WRM), "band: the band grew its own roster walk");
+  // The finder move's own edit, and it is a DOM feature test rather than a path
+  // test: the picker is present or it is not, and a document that regains one
+  // needs no change here.
+  has(WRM, "change-location-form", "band: the openers no longer test for the picker before scrolling to it");
+  ok(!/location\.pathname/.test(WRM), "band: the openers sniff the path instead of testing the DOM");
+  const DVC = code(DV);
+  ok(!/PDX_PROFILE_ALIAS\s*=/.test(DVC), "hallway: district-voice.js declares its own alias table");
+  eq((DVC.match(/BOARD_ROUTES = /g) || []).length, 1, "hallway: district-voice.js declares BOARD_ROUTES more than once");
+}
 
 // No map, no splat, no equity copy, no score.
 no(PA, "leaflet", "scope: the bridge mentions Leaflet");

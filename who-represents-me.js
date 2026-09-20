@@ -96,6 +96,34 @@
     return true;
   }
 
+  // ── IS THE PICKER ON THIS DOCUMENT? ────────────────────────────────────────
+  // It is not, any more. #change-location-form moved to /find, which means both
+  // openers below are NAVIGATIONS now rather than a modal appearing over this
+  // band — voter-hub-location.js takes the reader to the picker's own document
+  // when the markup is absent, which is the whole point of the move: a location
+  // tap costs the finder instead of 1.6 MB of front page.
+  //
+  // WHICH MAKES THE SCROLL-THEN-OPEN WRONG, AND ONLY IN THIS CASE. The comment
+  // under pdxSetLocation is still exactly right when the picker is here: a modal
+  // over an unscrolled page leaves the reader, on dismissal, beside a button that
+  // looks like it did nothing. But scrolling to a bar and then leaving the
+  // document 260 ms later is a lurch followed by a navigation — the reader gets
+  // the animation for a surface they never see. So when the picker is elsewhere
+  // the openers are called immediately and nothing is scrolled.
+  //
+  // IT IS A FEATURE TEST, NOT A PAGE TEST, and stays correct in both directions:
+  // the day the picker comes back to this document, or a second document grows
+  // the band without the form, this asks the DOM rather than a list of paths.
+  function pickerIsHere() {
+    try { return !!document.getElementById('change-location-form'); } catch (e) { return false; }
+  }
+
+  // Open whichever picker the app offers, now or after the scroll settles.
+  function openPicker(fn) {
+    if (!pickerIsHere()) { try { fn(); } catch (e) {} return; }
+    setTimeout(function () { try { fn(); } catch (e) {} }, 260);
+  }
+
   // ── The one action every entry point calls ─────────────────────────────────
   // Nav pill, homepage CTA and the Team Builder's step ① all route here, so the
   // lookup behaves identically wherever it was started from: land on the front
@@ -114,11 +142,11 @@
       if (!bring(document.getElementById(BODY_ID))) bring(sec);
       return;
     }
-    if (!bring(document.getElementById(LOCBAR_ID))) bring(sec);
-    setTimeout(function () {
+    if (pickerIsHere() && !bring(document.getElementById(LOCBAR_ID))) bring(sec);
+    openPicker(function () {
       var open = window.openLocationModal || window.toggleChangeLocation;
-      if (typeof open === 'function') { try { open(); } catch (e) {} }
-    }, 260);
+      if (typeof open === 'function') open();
+    });
   };
 
   // ── ONE SETTER, AND THIS IS THE DOOR TO IT ─────────────────────────────────
@@ -139,21 +167,19 @@
   // and no argument takes whichever the app offers by default.
   window.pdxSetLocation = function (mode) {
     var bar = document.getElementById(LOCBAR_ID);
-    if (!bring(bar)) bring(document.getElementById(SECTION_ID));
-    setTimeout(function () {
-      try {
-        if (mode === 'map' && typeof window.toggleChangeLocation === 'function') {
-          window.toggleChangeLocation();
-          return;
-        }
-        if (mode === 'form' && typeof window.openLocationModal === 'function') {
-          window.openLocationModal({ forceForm: true });
-          return;
-        }
-        var open = window.openLocationModal || window.toggleChangeLocation;
-        if (typeof open === 'function') open();
-      } catch (e) {}
-    }, bar ? 260 : 0);
+    if (pickerIsHere() && !bring(bar)) bring(document.getElementById(SECTION_ID));
+    openPicker(function () {
+      if (mode === 'map' && typeof window.toggleChangeLocation === 'function') {
+        window.toggleChangeLocation();
+        return;
+      }
+      if (mode === 'form' && typeof window.openLocationModal === 'function') {
+        window.openLocationModal({ forceForm: true });
+        return;
+      }
+      var open = window.openLocationModal || window.toggleChangeLocation;
+      if (typeof open === 'function') open();
+    });
   };
 
   // ── One representative row ─────────────────────────────────────────────────
