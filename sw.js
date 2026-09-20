@@ -7461,7 +7461,233 @@
 //     harnesses stay byte-identical by construction.
 //     MIGRATION COST: none. A warm device would otherwise keep a shell whose
 //     head advertises a hostname that now answers only a redirect.
-const CACHE_VERSION = 'v234';
+// v235 - THE FINDER IS /find. THE HOMEPAGE DOES NOT MOUNT THE MAP.
+//     v231 fixed two of the three things that froze a phone on 'Who Represents
+//     Me': the basemap stopped asking a keyed host for tiles, and the House
+//     layer stopped painting 75 polygons on open. The third cause was never the
+//     map - it was the HOST. index.html is a 1.5 MB document and every byte of
+//     it had to parse before #who-represents-me could move, because the picker,
+//     the modal and the 1,200-line map controller were all inside it. A
+//     location tap booted the archive homepage to draw a search box.
+//     /find IS THE FOURTEENTH SHELL, and it is the same tool: the same search
+//     box, the same chamber tabs, the same keyless OSM tiles with the same
+//     attribution and no key committed, the same empty-on-open rule, still one
+//     layer only after a pin lands, and the geojson still lazy. It opens the
+//     modal on arrival, so a reader who taps 'Who Represents Me' gets the map
+//     rather than a landing page about one. It does NOT carry the archive: no
+//     app.css, no ballot-breakdown.js, no cmp-data.js, no compare-hub.js -
+//     tailwind plus shell-chrome plus the picker, a twelfth of what it left.
+//     index.html LOST THE MAP CHUNK, which is the other half of the bump. The
+//     Leaflet arm is gone from its PDXLazy, the picker and modal markup are
+//     gone, the controller is gone, and #pdx-district-map-styles holds only the
+//     three families the front page still paints. The three indicator functions
+//     did NOT move: they paint homepage DOM and have live external callers, so
+//     they are re-homed in their own IIFE on the page that owns that DOM.
+//     #who-represents-me still prints the reader's seats from the saved
+//     location; it just has no map in it. person.html lost the same dead
+//     Leaflet arm from its own copy of the loader, so the copy stays a copy.
+//     NO LOCATION KEY WAS RENAMED, COPIED OR MIGRATED, and the location keys
+//     are untouched. voter-hub-location.js is still the single owner of the
+//     record, the modal gate, the geocode ceiling and pdxRepsForMe(); there is
+//     no second resolver, PDX_LOC_KEY is spelled the way it was and
+//     _pdxLocWasChosen is the same flag. The trip back is the existing
+//     PDXReturn owner, one 'next' param against the same allow-list:
+//     /find?next=/voice saves and lands on /voice with the seats it resolved.
+//     The ONE addition is a one-shot sessionStorage fact, 'pdx_finder_confirm',
+//     spent on read - it carries no location, and it exists only so the Home
+//     Team onboarding that used to fire inside the confirm handler still fires
+//     when the reader arrives back on the front page.
+//     WHY A CACHE_VERSION MOVE IS REQUIRED. Two precached shell documents
+//     changed: '/' no longer requests Leaflet and no longer holds the
+//     controller, and '/find.html' is new to the list. A warm device would
+//     otherwise keep the fat homepage that mounts the map and have no offline
+//     copy of the address every location tap now goes to.
+//     No new boards, no /district/* splat, no equity copy, no score change, no
+//     alias entry, no money pill. BOARD_ROUTES is still one row and
+//     /district/ut-sd-3 is untouched.
+//     MIGRATION COST: none. A warm device would otherwise keep a homepage whose
+//     location tap loads a map chunk that is no longer part of it.
+// v236 - SEARCH ON /find NO LONGER RELOADS /find.
+//     v235 moved the finder onto its own document and the search box stopped
+//     working the moment it got there. Tapping Search made the modal blink out
+//     and reopen empty: the typed address was gone, no geocode was ever issued,
+//     and 'Show boundaries' could sit on 'Loading...' forever with no fail line.
+//     ONE ROOT CAUSE, THREE SYMPTOMS. The controller read the location owner
+//     once, while it was being PARSED - 'var PDXF = window.PDXFinder'. On
+//     index.html that was safe, because voter-hub-location.js was a plain sync
+//     tag above it. On /find that file is deferred and the controller is an
+//     inline tag, so the read ran first and came back undefined. Opening the
+//     finder touches no PDXF, so nothing looked wrong until the first tap that
+//     used the network: PDXF.abort() threw on line one of the search, ahead of
+//     the busy state and the note, which is why the query was dropped and no
+//     lookup left the phone. The throw then escaped a <form onsubmit='...;
+//     return false'> before its 'return false' could be reached, so the browser
+//     ran the form's DEFAULT action and navigated to this same page - the blink
+//     was a real page load, and the 'blank picker' was the arrival boot doing
+//     its job over a fresh document. The same undefined read threw out of
+//     fetchGeo before loadAndShow had attached its .catch, which is the
+//     spinner that never cleared.
+//     THE OWNER IS NOW RESOLVED PER CALL, so parse order cannot matter again,
+//     and it is still the same owner: every arm delegates to the PDXFinder that
+//     voter-hub-location.js publishes. A SEARCH IS ALSO NO LONGER A
+//     SUBMISSION - the form is gone and the control is a type='button', with
+//     Enter wired explicitly - so no future throw in the search path can turn a
+//     keystroke into a navigation. What the form was carrying for free, a
+//     phone keyboard that shows an action key and a search landmark, is
+//     declared on the field instead of quietly lost with it. Both boundary call sites route a synchronous
+//     throw to the same fail line, which carries Try again, and the request is
+//     still issued in the same tick so the canvas in-flight guard still sees
+//     it. The arrival open is owed once per page load and takes a flag to
+//     prove it; the typed query survives a legitimate remount; a failed
+//     geocode keeps the modal up and says 'Couldn't find that address - try a
+//     street number', with the city/county selector still under it.
+//     WHY A CACHE_VERSION MOVE IS REQUIRED. '/find.html' is a precached shell
+//     document and it changed. A warm device would otherwise keep serving the
+//     copy whose Search button reloads the page.
+//     NO LOCATION KEY WAS RENAMED, COPIED OR MIGRATED. The record, PDX_LOC_KEY,
+//     _pdxLocWasChosen and pdxRepsForMe() are untouched, there is still exactly
+//     one resolver, and the layer URLs are the same absolute UGRC endpoints
+//     over the same keyless OSM basemap. No new boards, no /district/* splat,
+//     no equity copy, no score change, no alias entry, no money pill.
+//     BOARD_ROUTES is still one row and /district/ut-sd-3 is untouched.
+//     MIGRATION COST: none. Nothing stored changed shape or name.
+// v237 - ON /find, A TAP ON A DISTRICT NOW VISIBLY SELECTS IT.
+//     The finder would resolve a district and the reader could not tell. The
+//     gold info bar said 'State House District 15', the chamber chip filled in
+//     and the confirm button armed itself correctly - all of it below the fold,
+//     with no way to reach it. The modal box is a fixed-height column with
+//     overflow:hidden and NOTHING INSIDE IT COULD SCROLL, so on any short
+//     viewport the foot of the panel was not scrolled past, it was CUT OFF, and
+//     the foot of the panel is where the commit button lives. Head, search box,
+//     result banner, chamber toggle, map, hint, info bar, chips and actions is
+//     about a thousand pixels of content; a 667px phone, once the result banner
+//     appears, has roughly six hundred to put it in. That is the whole of
+//     'confirm is off-screen', and most of 'taps aren't landing' with it: the
+//     taps were landing, into a part of the panel the reader could not see.
+//     THE PANEL SCROLLS NOW and the commit row is sticky to the foot of that
+//     scrollport, so 'Use State House District 15' is on screen the instant a
+//     tap or a search resolves one. The box is sized in dvh rather than vh,
+//     because vh on a phone is the height WITHOUT the collapsing toolbar and can
+//     be taller than the screen actually is, and the map is given a height of
+//     its own instead of flex:1 - taking 'whatever is left' is how a 300px floor
+//     under the map became a clipped foot on the panel. The close button and the
+//     flag stripe stay pinned to the box, outside the scroll.
+//     THE STATUS PANEL IS A MESSAGE, NOT A LID. It covers the whole canvas at
+//     z-index 600 and it took the taps aimed at the polygons underneath. That is
+//     not only a loading-time annoyance: the fail line and the retry prompt are
+//     shown over a map that may ALREADY be painted - switch chamber, the new
+//     layer fails, the old polygons are still drawn - and there the curtain
+//     silently swallowed every pick until the reader found 'Try again'. It
+//     passes taps through now; its own buttons opt back in, and the canvas
+//     handler's in-flight guard is what stops a tap during a load stacking a
+//     second request.
+//     AND A PICK IS RECORDED BEFORE ANYTHING THAT CAN FAIL. A tap owes the
+//     reader two visible things - the chip and the armed confirm bar - and the
+//     restyling, the area lookup and the record write are bookkeeping that has
+//     more ways to fail on this document than it had on the homepage, because
+//     /find does not carry ballot-breakdown.js. The restyle used to run first,
+//     so a Leaflet throw on a rebuilt path took the chip and the button with it.
+//     State and UI first; nothing downstream can take them back. The confirm bar
+//     also names what it would commit now, because when it is the only
+//     acknowledgement a tap gets, 'Use this location' names nothing.
+//     THERE IS STILL ONE PICKER: the per-feature onEachFeature binding is the
+//     homepage's, unedited, and the canvas-level handler still stands down the
+//     moment polygons are drawn. No second listener races the first. A
+//     CACHE_VERSION MOVE IS REQUIRED because '/find.html' is a precached shell.
+//     NO LOCATION KEY WAS RENAMED, COPIED OR MIGRATED. No new state, no new
+//     board, no PDXFinder rewrite: PDX_LOC_KEY, _pdxLocWasChosen and
+//     pdxRepsForMe() are untouched, BOARD_ROUTES is still one row, and the
+//     city/county door is still at the foot of the panel. MIGRATION COST: none.
+// v238 - /find NOW OWES THE RECORD ALL THREE SEATS BEFORE IT LETS YOU LEAVE.
+//     Confirm with one chamber picked wrote that one district and handed off to
+//     PDXReturn, which dumped the reader on '/' with a third of an answer. The
+//     front page then read 3 of 6: Governor and both Senators, a State House
+//     number sitting in the record with nobody on file for it, and the Senate
+//     and U.S. House rows blank. Two separate faults about the same partial.
+//     THE CONGRESSIONAL DISTRICT WAS A DIFFERENT KIND OF THING. It lived in a
+//     private _searchCongress that only an address search could set, and every
+//     legislative polygon tap set it back to null - so a reader who searched
+//     their address and then tapped their House district DELETED the U.S. House
+//     seat the search had just resolved. It is a slot in _selected now, next to
+//     the other two, written by the one writer (selectDistrict) and shown on a
+//     chip of its own in the chamber row.
+//     A POINT ANSWERS ALL THREE LAYERS, NOT ONE. A geocode already did; a tap
+//     resolved only the chamber whose toggle happened to be active. resolveAllAt
+//     runs point-in-polygon against House, Senate and U.S. House at the tapped
+//     latlng - the same point, three answers - and a Leaflet path click carries
+//     latlng exactly as a canvas click does, so the polygon handler and the
+//     tap-to-load path share it rather than having two ideas of how many seats a
+//     tap is worth. Each boundary fetch is caught on its own: a congress layer
+//     that 500s can no longer take House and Senate down with it, and a layer
+//     whose polygons do not contain the point never un-sets a seat.
+//     CONFIRM IS A GATE. On House + Senate + U.S. House it commits and leaves
+//     exactly as before. On anything less it does NOT navigate: it advances the
+//     toggle to the missing chamber and says which one. A House-only pick moves
+//     the reader to Senate, then to U.S. House, and the sticky action row names
+//     what is still missing the whole time - 'Still missing: State Senate and
+//     U.S. House' - inside the pinned element, above the button it explains.
+//     A GATE THAT CANNOT BE OPENED DELIBERATELY IS A WALL, so there is a second,
+//     plainly labelled way out: 'Save these 2 seats only' / 'Save this one seat
+//     only', which commits the partial answer and states its own count.
+//     AND ON THE HOMEPAGE, A LOCATED DISTRICT IS NOT AN UNRESOLVED AREA. The
+//     reps band printed 'State House . District 4' as a row label and 'Not
+//     resolved for your area yet' as that same row's headline - two statements
+//     about one seat, the louder one false, telling a reader whose district was
+//     located perfectly well to go and fix their location. There are three kinds
+//     of gap: a statewide seat with no record ('No record on file yet'), a
+//     district located with no member ('District 4 - no member on file yet',
+//     'nothing to fix on your end'), and a district that could not be placed at
+//     all, which keeps the old wording because there it is true. The seat count
+//     still reports 5 of 6 and now says '1 district located, member not on file'.
+//     WHY A CACHE_VERSION MOVE IS REQUIRED. '/find.html' and '/index.html' are
+//     both precached shells and both changed, as did who-represents-me.js.
+//     NO LOCATION KEY WAS RENAMED, COPIED OR MIGRATED. PDX_LOC_KEY,
+//     _pdxLocWasChosen and pdxRepsForMe() are untouched, there is still one
+//     resolver and one writer, no new state, no new board, no new route.
+//     MIGRATION COST: none. Nothing stored changed shape or name.
+// v239 - ONE ROSTER ON THE FRONT PAGE, AND /find DRAWS ALL THREE CHAMBERS.
+//     The homepage shipped 'Who Represents You Now' TWICE. #wrm-reps near the
+//     top and #vh-district-strip down in the Voter Hub printed the same six
+//     seats, the same Compare / Work-this-seat strip under each one, and two
+//     different spellings of every empty state - and the lower one was the
+//     stale spelling. It still said 'NOT RESOLVED YET' on a House seat the map
+//     had already placed, because its wording predates who-represents-me.js
+//     learning to tell 'we have no district for you' apart from 'we have your
+//     district and nobody on file for the seat'. Two owners for one question is
+//     two answers the moment they disagree, and they disagreed.
+//     THE DUPLICATE IS DELETED, NOT REWORDED. window._vhSyncDistrictStrip is
+//     768 lines lighter: it empties the host it used to paint and forwards to
+//     PDXWhoRepresentsMe.sync(), so its five guarded callers all still work and
+//     there is one renderer at the end of every one of them. What stands in that
+//     position now is the one thing it actually needed - a link back to the band
+//     that answers the question. A link, not a roster. who-represents-me.js did
+//     not need a byte for this: it was already the owner, which is the point.
+//     THE LOCATION HEADER NOW NAMES EVERY DISTRICT IT HAS. 'YOUR DISTRICTS' read
+//     one chamber out of three, because only the U.S. House lookup fell back to
+//     the location record when the curated ballot had no row for it; the two
+//     legislative lookups ended at null. It reads pdxRepsForMe() now - the one
+//     resolver, with its whole precedence chain - and prints a segment per
+//     located chamber. Statewide seats are excluded: a statewide seat has no
+//     district and must never be printed as one.
+//     ON /find, THE OTHER TWO CHAMBERS STAY ON THE MAP. The active layer is full
+//     colour, in front and clickable; the other two are drawn at 25% opacity,
+//     sent to the back and given pointer-events:none, so a tap can only ever
+//     reach the hot layer. A tap still runs resolveAllAt and still writes all
+//     three seats - the faint layers are context, not a second picker. Switching
+//     chamber repaints the roles instead of removing and re-adding layers, which
+//     is why the ghosts survive the switch. Tooltips stay bound on every path so
+//     they work the moment a layer goes hot; a ghost is unreachable by a pointer,
+//     so in practice it never shows one.
+//     A CACHE_VERSION MOVE IS REQUIRED because '/' and '/find.html' are both
+//     precached shell entries and both changed. voter-hub-location.js changed
+//     too and is runtime-cached by design, so it arrives fresh on its own. Those
+//     three files are the whole change: no new state, no new board, BOARD_ROUTES
+//     is still one row, and there is still one resolver and one writer.
+//     NO LOCATION KEY WAS RENAMED, COPIED OR MIGRATED. PDX_LOC_KEY,
+//     _pdxLocWasChosen and pdxRepsForMe() are untouched, and a reader already
+//     holding a record sees the same record - with one roster under it instead
+//     of two. MIGRATION COST: none. Nothing stored changed shape or name.
+const CACHE_VERSION = 'v239';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -7487,7 +7713,10 @@ const RUNTIME_LEGACY_RE = /^politidex-runtime-v/;
 // precached. They load on demand via window.PDXLazy the first time a feature
 // needs them and are then kept by the stale-while-revalidate RUNTIME_CACHE
 // below, so they cost nothing on first paint and still work offline after
-// their first (online) use.
+// their first (online) use. As of v235 those two are reachable from DIFFERENT
+// documents - Chart.js from index.html, Leaflet only from /find.html, which is
+// the one page that mounts a map - so neither library is on any shell's first
+// paint and the homepage no longer even declares an arm for the one it lost.
 const SHELL_ASSETS = [
   '/',
   // THE SECOND SHELL. netlify.toml rewrites /p/* here rather than to index.html,
@@ -7640,6 +7869,28 @@ const SHELL_ASSETS = [
   // /gov-contracts.js and /bills.js are all shared with surfaces that are still
   // there, and the room degrades honestly without any of them.
   '/digital-library.js',
+
+  // THE FOURTEENTH SHELL, and the fifth to come OUT of index.html rather than
+  // arrive new. netlify.toml rewrites /find and /find/ here; it is a SINGLE
+  // address - the trip home is a QUERY (?next=/voice) - so navDocKey gives it
+  // no key and this one entry answers every arrival.
+  //
+  // It is here for the plainest reason on this list: this is the address every
+  // location tap goes to now. 'Who Represents Me', 'Change on map', the
+  // homepage Voice card's 'set location' and /voice's empty state all land
+  // here, and a reader who has opened the finder once should be able to open it
+  // again on a train. WHAT IT COSTS OFFLINE: nothing new. The document is 136 KB
+  // of chrome and its whole critical path is already on this list -
+  // /css/tailwind.css, /shell-chrome.css, /shell-account-chip.js - bar
+  // /voter-hub-location.js, which stays runtime-cached for the reason it does on
+  // every other shell. Offline the room is honest: the saved location still
+  // resolves seats from the record on the device, and the map says it could not
+  // reach its tiles rather than pretending to have them.
+  //
+  // Leaflet and the district geojson are NOT added by this entry and are not
+  // added anywhere else either - see the note above SHELL_ASSETS. They are
+  // on-demand by design, and that design is the whole point of the page.
+  '/find.html',
   '/css/tailwind.css',
   // The above-the-fold record card. Parser-blocking in index.html, so on a
   // repeat visit these two must come from the cache or they add latency to the

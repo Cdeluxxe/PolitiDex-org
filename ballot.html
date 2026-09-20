@@ -262,18 +262,35 @@
   (function () {
     'use strict';
 
-    // ── The way home ────────────────────────────────────────────────────
-    // One spelling of "this tab goes to the front page", same three-step
-    // fallback person-file.js's leaveHome() uses, and used by the chrome link
-    // and by the location seam below.
-    function home(hash) {
-      var to = '/' + (hash || '');
+    // ── The way out ─────────────────────────────────────────────────────
+    // One spelling of "this tab navigates", same three-step fallback
+    // person-file.js's leaveHome() uses. home() is the front page; away() is any
+    // address, which is what the location seam below needs now that the picker
+    // has one of its own.
+    function away(to) {
       try { location.assign(to); return true; } catch (e) {}
       try { location.href = to; return true; } catch (e2) {}
       try { location.replace(to); return true; } catch (e3) {}
       return false;
     }
+    function home(hash) { return away('/' + (hash || '')); }
     window._pdxBallotGoHome = home;
+
+    // ── The way to the finder, WITH THE WAY BACK ────────────────────────
+    // The picker is its own document — /find — so setting a location from here
+    // is a trip to it and not to the front page that used to host it. The intent
+    // rides along: PDXReturn spells the parameter and holds the destination to
+    // its allow-list, this file does neither, and a boot where that module never
+    // landed degrades to the bare path rather than to a second spelling of how
+    // the intent is written.
+    function finderTrip() {
+      var to = '/find';
+      try {
+        var R = window.PDXReturn;
+        if (R && typeof R.finderHref === 'function') to = R.finderHref(R.here());
+      } catch (e) { to = '/find'; }
+      return away(to);
+    }
 
     var homeLink = document.getElementById('pdx-bal-home');
     if (homeLink) {
@@ -292,17 +309,29 @@
     // control on the one screen a no-location reader sees would do nothing at
     // all: the worst possible failure on the worst possible screen.
     //
-    // Who Represents Me is the front step and it stays on /. So this is not a
-    // modal reimplemented on a second document — it is the reader being taken
-    // to the place that asks the question, which is where the answer has always
-    // been set. The same override serves the "Change location" button on a
-    // painted desk.
+    // AND THE PLACE THAT ASKS THE QUESTION IS /find, not the front page. When
+    // this seam was written the picker was a block in index.html, so "take them
+    // to the question" and "take them home" were the same navigation. They are
+    // not any more, and the difference is the whole of the fix: the reader gets a
+    // document that is the picker instead of an archive homepage with a picker
+    // inside it. So this is not a modal reimplemented on a second document — it
+    // is the reader being taken to the document that owns it, carrying the intent
+    // to come back here. The same override serves the "Change location" button on
+    // a painted desk.
+    //
+    // voter-hub-location.js now answers this case itself — its openLocationModal
+    // navigates to /find when #change-location-form is absent, which it is here
+    // — so this seam is a belt on top of that module's braces rather than the
+    // only thing standing between the reader and a dead control. It is kept
+    // because it also covers toggleChangeLocation, and because a seam that
+    // states the destination on the document it applies to is one fewer thing to
+    // infer at a distance.
     //
     // Applied on a timer as well as now because voter-hub-location.js is loaded
     // below and assigns both names at evaluation, which would overwrite these.
     function seamLocation() {
-      window.toggleChangeLocation = function () { return home('#who-represents-me'); };
-      window.openLocationModal = function () { return home('#who-represents-me'); };
+      window.toggleChangeLocation = finderTrip;
+      window.openLocationModal = finderTrip;
     }
     seamLocation();
     document.addEventListener('DOMContentLoaded', seamLocation);

@@ -538,11 +538,32 @@ section("6 · a hostname change moved a hostname and nothing else");
     "district-room.js", "issue-map.js", "word-action.js", "consistency.js",
     "profiles-full.js", "voter-hub-location.js", "profile-alias.js",
   ];
+  //
+  // AND THE CLAIM IS "NO HOSTNAME IN THEM", NOT "BYTE-IDENTICAL TO HEAD". It was
+  // byte-identity when the sweep was the working tree's own change, and that pin
+  // could pass exactly once: the next pass to touch any of these files for any
+  // unrelated reason fails it, indistinguishable from a sweep that overreached.
+  // v235 was that pass — moving the finder to /find edited district-voice.js,
+  // voice-room.js and voter-hub-location.js, none of them by a hostname. What
+  // still has teeth afterwards is the thing the comment above actually says:
+  // none of these files carries an absolute politidex address at all, so no
+  // hostname sweep has any business in one, and a later pass that put a
+  // hardcoded origin into the seat resolver or the record engines is caught.
+  for (const f of FROZEN) {
+    const src = R(f);
+    eq((src.match(new RegExp("politidex" + "\\.fyi", "gi")) || []).length, 0,
+       `${f} carries no absolute politidex hostname — a host sweep has no business in this file`);
+  }
+  // The twin-boot engines are held to the stronger form, because unlike the
+  // resolver and the hallway they have no reason to change in a routing or a
+  // finder pass: if one of these differs from its committed form, the drift
+  // harnesses downstream are no longer trivially identical.
+  const ENGINES = ["word-action.js", "consistency.js", "profiles-full.js"];
   if (baseline === null) {
-    console.log("      (no git baseline available — the frozen-file audit did not run here)");
+    console.log("      (no git baseline available — the engine audit did not run here)");
   } else {
-    const moved = FROZEN.filter((f) => { const b = gitShow(f); return b !== null && b !== R(f); });
-    eq(moved, [], "no District Voice, board, map or twin-boot engine file was touched by the hostname sweep");
+    const moved = ENGINES.filter((f) => { const b = gitShow(f); return b !== null && b !== R(f); });
+    eq(moved, [], "no twin-boot engine file was edited — the drift harnesses stay identical by construction");
   }
 
   // ── BOARD_ROUTES IS STILL EXACTLY ONE ROW ────────────────────────

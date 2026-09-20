@@ -279,7 +279,7 @@ window.__PDX_PERSON_DOC = true;
   <script defer src="/share-links.js"></script>
   <script defer src="/cmp-data.js"></script>
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 316–1299 ════════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 315–1299 ════════════════════
        PDXStore / PDXTeam / PDXTeamV2 — the storage seam. Every module that
        remembers anything goes through it, and several shipped here read it
        without a guard because on index.html it is always present this early.
@@ -1385,7 +1385,7 @@ window.__PDX_PERSON_DOC = true;
   })();
 </script>
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 1410–1919 ═══════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 1410–1925 ═══════════════════
        THE PROMISE LEDGER AND THE DEFERRED-EVENT CAPTURE. Two jobs in one block:
 
        window._pdxDisplayScore and _pdxMergeRosterRecord, which are how a Word
@@ -1919,7 +1919,7 @@ window.__PDX_PERSON_DOC = true;
   }
 </script>
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 1942–2016 ═══════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 1944–2011 ═══════════════════
        PDXLazy — the on-demand script/style injector. Shipped because it is the
        seam the shared modules use to reach anything heavy, so its absence turns
        an optional feature into a thrown TypeError rather than a missing block.
@@ -1979,28 +1979,21 @@ window.PDXLazy = (function () {
         if (typeof window.Chart !== 'undefined') return Promise.resolve();
         return loadScript('https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js');
       });
-    },
-
-    // Leaflet — used only by the Utah district-map picker. Ships JS + CSS, with
-    // the same SRI integrity hashes the blocking tags used before.
-    leaflet: function () {
-      return once('leaflet', function () {
-        if (typeof window.L !== 'undefined') return Promise.resolve();
-        loadStyle('https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css', {
-          integrity: 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=',
-          crossorigin: ''
-        });
-        return loadScript('https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js', {
-          integrity: 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=',
-          crossorigin: ''
-        });
-      });
     }
+
+    // AND THERE IS NO leaflet ARM HERE ANY MORE, because there is nothing on
+    // this document to call it. The Utah district-map picker was its only
+    // consumer and the picker lives at /find now, which carries its own copy of
+    // this loader with that one arm. The library is not "deferred" off the front
+    // page, it is GONE from it: a reader of the archive homepage never fetches
+    // Leaflet, never fetches a boundary layer and never pays for a basemap,
+    // which is the point of the move and is asserted by
+    // scripts/test-finder-basemap.mjs against this file's own bytes.
   };
 })();
 </script>
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 2018–2038 ═══════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 2013–2033 ═══════════════════
        FIREBASE, ANONYMOUS ONLY. The three compat bundles, the request-time key
        injection, and the synchronous stub that guarantees `db` / `auth` /
        `PROFILES` exist before anything can touch them. firebase-boot.js then
@@ -2102,7 +2095,7 @@ window.PDXLazy = (function () {
   }
   </script>
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 2190–2236 ═══════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 2185–2230 ═══════════════════
        THE SHARE FURNITURE. Every tag here is an anchor that
        netlify/edge-functions/share-preview.ts rewrites at request time: it
        regex-replaces <title>, name="description", the og:* and twitter:* pairs
@@ -2289,7 +2282,7 @@ window.PDXLazy = (function () {
       </head>
 <body class="bg-navy-900 text-white font-body">
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 3727–3791 ═══════════════════ -->
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 3728–3791 ═══════════════════ -->
   <!-- ═══════════════════════════════════════════════════════════════════════
        THE CRAWL HEADER BELONGS TO THIS ADDRESS, OR IT SAYS NOTHING.
 
@@ -2394,7 +2387,7 @@ window.PDXLazy = (function () {
        paints nothing it has no mount for. The tag is below, immediately before
        finance-lane.js. -->
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 13526–13560 ═════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 13162–13196 ═════════════════
        THE PROFILE MODAL — the surface a person file is painted into. person-file
        .js's cold open resolves the address and calls showProfile(), which fills
        #modal-content. Four of these ids are read without a null check by the
@@ -2459,7 +2452,7 @@ window.PDXLazy = (function () {
     </div>
   </div>
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 13621–13668 ═════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 13257–13303 ═════════════════
        The three layers that open ON TOP of a person file: the stance evidence
        popover, the Full Stance Record overlay reached at #record/<id>, and the
        share sheet the header button opens. index.html's medium/summary modal
@@ -2670,7 +2663,7 @@ window.PDXLazy = (function () {
        scripts/test-person-shell.mjs can hold them to it. -->
   <script src="/profile-evidence.js"></script>
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 20516–20637 ═════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 19148–19268 ═════════════════
        PDXStance — the shared four-state stance language (support / oppose /
        mixed / none), read by the profile's Key Issue Stances. Copied rather than
        re-derived so both documents speak the identical vocabulary; the Issue
@@ -2798,7 +2791,7 @@ window.PDXLazy = (function () {
   })();
   </script>
 
-  <!-- ══ COPIED VERBATIM FROM index.html LINES 23126–23324 ═════════════════
+  <!-- ══ COPIED VERBATIM FROM index.html LINES 21758–21956 ═════════════════
        THE PWA RUNTIME. Same registration, same first-install guard, same
        update handling — sw.js now precaches /person.html and this document's
        module list, and serves a person address from /person.html rather than

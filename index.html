@@ -1936,8 +1936,10 @@
        • OFFLINE-SAFE — once fetched online, the service worker's stale-while-
                      revalidate runtime cache serves these on later/offline loads.
 
-     Defined here in <head> so it exists long before any consumer (profile modal
-     charts, district-map picker) can call it.
+     Defined here in <head> so it exists long before any consumer (the profile
+     modal's finance charts, which are the only consumer left on this document)
+     can call it. find.html declares its own with a leaflet arm and no chart arm;
+     two documents, one library each, and neither pays for the other's.
      ══════════════════════════════════════════════════════════════════════════ -->
 <script>
 window.PDXLazy = (function () {
@@ -1994,23 +1996,16 @@ window.PDXLazy = (function () {
         if (typeof window.Chart !== 'undefined') return Promise.resolve();
         return loadScript('https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js');
       });
-    },
-
-    // Leaflet — used only by the Utah district-map picker. Ships JS + CSS, with
-    // the same SRI integrity hashes the blocking tags used before.
-    leaflet: function () {
-      return once('leaflet', function () {
-        if (typeof window.L !== 'undefined') return Promise.resolve();
-        loadStyle('https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css', {
-          integrity: 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=',
-          crossorigin: ''
-        });
-        return loadScript('https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js', {
-          integrity: 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=',
-          crossorigin: ''
-        });
-      });
     }
+
+    // AND THERE IS NO leaflet ARM HERE ANY MORE, because there is nothing on
+    // this document to call it. The Utah district-map picker was its only
+    // consumer and the picker lives at /find now, which carries its own copy of
+    // this loader with that one arm. The library is not "deferred" off the front
+    // page, it is GONE from it: a reader of the archive homepage never fetches
+    // Leaflet, never fetches a boundary layer and never pays for a basemap,
+    // which is the point of the move and is asserted by
+    // scripts/test-finder-basemap.mjs against this file's own bytes.
   };
 })();
 </script>
@@ -2543,13 +2538,19 @@ window.PDXLazy = (function () {
        and support-route.js. -->
   <link rel="stylesheet" href="/support-route.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="/support-route.css" /></noscript>
-  <!-- Chart.js (profile finance charts) and Leaflet (the interactive Utah
-       district-picker map) are CODE-SPLIT: they used to load render-blocking here
-       in <head> (~350 KB combined) even though the home page and Your Ballot never
-       touch them. They are now fetched on demand by window.PDXLazy the first time a
-       feature that needs them is opened (a profile's money charts / the map picker),
-       keeping them off the critical first-paint path. Preconnect warms the CDN so
-       that on-demand fetch is fast without blocking anything. -->
+  <!-- Chart.js (profile finance charts) is CODE-SPLIT: it used to load
+       render-blocking here in <head> even though the home page and Your Ballot
+       never touch it. It is now fetched on demand by window.PDXLazy the first
+       time a profile's money charts are opened, keeping it off the critical
+       first-paint path. Preconnect warms the CDN so that on-demand fetch is fast
+       without blocking anything.
+
+       LEAFLET USED TO BE THE OTHER HALF OF THIS SENTENCE, and it is not deferred
+       off this document any more — it is GONE from it. The interactive Utah
+       district-picker was the library's only consumer and the picker is its own
+       document now, at /find, which carries its own loader and its own leaflet
+       arm. This page fetches no map library, no boundary layer and no basemap
+       tile; the preconnect below still earns its place on Chart.js alone. -->
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -5855,6 +5856,13 @@ window.PDXLazy = (function () {
       .wrm-resultkicker{font-family:'Bebas Neue',sans-serif;font-size:1.02rem;letter-spacing:0.05em;color:#fff;}
       .wrm-resultcount{font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;font-weight:700;
         letter-spacing:0.08em;text-transform:uppercase;color:#8fa8c8;}
+      /* "N districts located, members not on file" — the qualifier that stops a
+         partial seat count from reading as "we could not place you". (Spelled
+         without an example count on purpose: test-wrm-setter reads this section's
+         static markup for a resolved-seat tally a reader with an empty store must
+         never see, and a comment is markup as far as a string search is
+         concerned.) */
+      .wrm-resultlocated{color:#c8b06a;font-weight:700;}
       /* Legend for the seat list: the same three steps every strip below repeats. */
       .wrm-spine{margin:-0.25rem 0 0.6rem;font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;
         font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7f93b4;}
@@ -5870,6 +5878,12 @@ window.PDXLazy = (function () {
       a.wrm-row{color:inherit;text-decoration:none;box-sizing:border-box;}
       .wrm-row--unresolved{cursor:default;opacity:0.8;}
       .wrm-row--unresolved:hover{background:rgba(10,15,30,0.45);transform:none;}
+      /* A DISTRICT WE HAVE, HELD BY SOMEBODY WE DO NOT. It is not the same row as
+         a seat we could not place, so it does not read as one: full opacity,
+         because nothing about the reader's own answer is faded, and the district
+         number stays in the headline where who-represents-me.js puts it. */
+      .wrm-row--nomember{opacity:1;background:rgba(10,15,30,0.55);}
+      .wrm-row--nomember .wrm-rowname--muted{color:#cfe0f7;}
       /* The landing mark for a shared race link whose sheet could not mount.
          Persistent rather than a flash: the reader arrived looking for one seat
          and needs to still be able to find it after the scroll settles. */
@@ -7541,22 +7555,25 @@ window.PDXLazy = (function () {
         </div>
       </div>
 
-      <!-- ── WHO REPRESENTS YOU NOW · the hub's seat block ──────────────────
-           THE LOCATION SETTER IS NOT HERE ANY MORE. It stood immediately above
-           this strip as a full card — the Utah badge, the place line and the
-           Detect / Change-on-map buttons — which put the one control that makes
-           this page mean anything two whole sections below the band that asks
-           the question. A reader who came in on "Who Represents Me" met the
-           question, then an empty seat list, and had to scroll past the Door-2
-           election block to find the answer to "how do I tell it where I am".
-           The card now opens the Who Represents Me band (#wrm-locbar), which is
-           where the question is asked, and there is exactly one of it on the
-           page. This strip keeps its place and its job: the PEOPLE holding the
-           district seats that location resolves to. Populated entirely by
-           window._vhSyncDistrictStrip(), which points its own empty state at
-           the one setter rather than printing a second copy of it. -->
+      <!-- ── ONE ROSTER, AND IT IS NOT HERE ──────────────────────
+           A SECOND "WHO REPRESENTS YOU NOW" USED TO STAND HERE. It was
+           #vh-district-strip, painted by window._vhSyncDistrictStrip(), and it
+           printed what #wrm-reps already prints at the top of this page: the
+           seat rows, the Compare / Work-this-seat strip under each one, and its
+           own spelling of every empty state. Two owners for one roster means two
+           answers the moment they disagree — and they did. This copy still said
+           "Not resolved yet" on a House seat the map had already placed, because
+           its wording predates who-represents-me.js learning to tell "we have no
+           district for you" apart from "we have your district and no member on
+           file for it".
+           who-represents-me.js is the owner, alone. Seat rows, Compare and Work
+           this seat live in the upper band and nowhere else. What this position
+           actually needs is the one thing left here: a way back to the band that
+           answers the question. A link, not a roster. -->
       <div class="mb-6 animate-on-scroll" style="transition-delay:0.04s;">
-        <div id="vh-district-strip"></div>
+        <a id="vh-wrm-jump" class="vh-cta-secondary" href="#who-represents-me"
+           onclick="if(window.pdxFindMyReps){event.preventDefault();window.pdxFindMyReps();}"
+           aria-label="See who represents you now — jump to Who Represents Me">🏛️ See who represents me now →</a>
       </div>
 
       <!-- ══════════════════════════════════════════════════════════════════
@@ -8190,193 +8207,52 @@ window.PDXLazy = (function () {
       })();
       </script>
 
-      <!-- Change Location Modal (State → County → District) -->
-      <div id="change-location-form" class="loc-modal-overlay" style="display:none;" onclick="if(event.target===this)window.closeLocationModal()">
-        <div class="loc-modal-box" role="dialog" aria-modal="true" aria-labelledby="loc-modal-title">
-          <button type="button" class="loc-modal-close" onclick="window.closeLocationModal()" aria-label="Close">&times;</button>
-          <div class="loc-modal-head">
-            <div class="loc-modal-icon">📍</div>
-            <div>
-              <div id="loc-modal-title" class="loc-modal-title">Set Your Voting Location</div>
-              <div class="loc-modal-sub">The most accurate way is to search your address on the map — it pinpoints your exact U.S. House, State Senate &amp; State House districts, even for cities split across several seats (like Layton).</div>
-            </div>
-          </div>
-          <div class="loc-modal-fields">
-            <div class="flex flex-col gap-1.5">
-            <label for="voter-state-sel" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider"><span class="text-blue-300">Step 1</span> · Select State / Region</label>
-            <select id="voter-state-sel" onchange="window.voterLocationStateChanged()" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[160px] min-h-[44px]">
+      <!-- ══ THE LOCATION PICKER IS AT /find ══════════════════════════════════
+           #change-location-form used to be right here: the 50-state select, the
+           address-and-map card and the city/county escape hatch, 133 lines of it,
+           in the middle of the archive homepage. It is find.html's markup now, and
+           the move is the third and largest of the three fixes to the freeze —
+           the other two (a keyed Carto basemap, and a modal that painted 75 State
+           House polygons on open) were in the map itself and were fixed in place.
+           This one was never in the map: it was that a reader who tapped "Change
+           on map" anywhere in the app had to parse 1.6 MB of THIS document before
+           the picker could move, and then watch the front page rebuild behind the
+           modal covering it.
 
-                <option value="">— Set your state —</option>
-                <option value="National">🇺🇸 National (Federal Focus)</option>
-                <option value="Alabama">Alabama</option>
-                <option value="Alaska">Alaska</option>
-                <option value="Arizona">Arizona</option>
-                <option value="Arkansas">Arkansas</option>
-                <option value="California">California</option>
-                <option value="Colorado">Colorado</option>
-                <option value="Connecticut">Connecticut</option>
-                <option value="Delaware">Delaware</option>
-                <option value="District of Columbia">District of Columbia</option>
-                <option value="Florida">Florida</option>
-                <option value="Georgia">Georgia</option>
-                <option value="Hawaii">Hawaii</option>
-                <option value="Idaho">Idaho</option>
-                <option value="Illinois">Illinois</option>
-                <option value="Indiana">Indiana</option>
-                <option value="Iowa">Iowa</option>
-                <option value="Kansas">Kansas</option>
-                <option value="Kentucky">Kentucky</option>
-                <option value="Louisiana">Louisiana</option>
-                <option value="Maine">Maine</option>
-                <option value="Maryland">Maryland</option>
-                <option value="Massachusetts">Massachusetts</option>
-                <option value="Michigan">Michigan</option>
-                <option value="Minnesota">Minnesota</option>
-                <option value="Mississippi">Mississippi</option>
-                <option value="Missouri">Missouri</option>
-                <option value="Montana">Montana</option>
-                <option value="Nebraska">Nebraska</option>
-                <option value="Nevada">Nevada</option>
-                <option value="New Hampshire">New Hampshire</option>
-                <option value="New Jersey">New Jersey</option>
-                <option value="New Mexico">New Mexico</option>
-                <option value="New York">New York</option>
-                <option value="North Carolina">North Carolina</option>
-                <option value="North Dakota">North Dakota</option>
-                <option value="Ohio">Ohio</option>
-                <option value="Oklahoma">Oklahoma</option>
-                <option value="Oregon">Oregon</option>
-                <option value="Pennsylvania">Pennsylvania</option>
-                <option value="Rhode Island">Rhode Island</option>
-                <option value="South Carolina">South Carolina</option>
-                <option value="South Dakota">South Dakota</option>
-                <option value="Tennessee">Tennessee</option>
-                <option value="Texas">Texas</option>
-                <option value="Utah">Utah</option>
-                <option value="Vermont">Vermont</option>
-                <option value="Virginia">Virginia</option>
-                <option value="Washington">Washington</option>
-                <option value="West Virginia">West Virginia</option>
-                <option value="Wisconsin">Wisconsin</option>
-                <option value="Wyoming">Wyoming</option>
+           NOTHING ON THIS PAGE LOST A CONTROL. Every location door here — the
+           locbar's "Change on map" and "Set my location", the ballot band's
+           "Change location", the Relevant-to-Me card, #detect-loc-btn's fallback
+           — still calls the same window function it always called. What changed is
+           what those functions do when the picker markup is not in the document:
+           voter-hub-location.js, which owns them and is still loaded here, takes
+           the reader to /find with their return intent in the query, and
+           PDXReturn brings them back to this band when the save completes.
 
-            </select>
-          </div>
+           AND THE BAND STAYED. #who-represents-me above is still where a reader
+           READS their seats — its reps list, its location header and its ballot
+           band are untouched, and every nav row in the app still points at it.
+           Reading is not setting; sharing one document for both was the bug.
+           ══════════════════════════════════════════════════════════════════════ -->
 
-          <!-- ── PRIMARY: address + map ────────────────────────────────────────
-               The recommended, most accurate way to set a location. Cities such as
-               Layton straddle several legislative seats, so a city name alone can't
-               pin the exact district — the map resolves the precise State House &
-               State Senate (and U.S. House) seats from a searched address or a tap.
-               Shown for Utah (the map's coverage) or before a state is picked. -->
-          <div id="voter-map-primary" class="loc-map-primary">
-            <div class="loc-map-primary-badge"><span class="text-blue-300">Recommended</span> · Most accurate</div>
-            <div id="voter-map-trigger-row" class="loc-map-trigger" onclick="window.openDistrictMapModal && window.openDistrictMapModal()" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.openDistrictMapModal&&window.openDistrictMapModal();}">
-              <div class="loc-map-trigger-ico" aria-hidden="true">🔍🗺️</div>
-              <div class="loc-map-trigger-text">
-                <div class="loc-map-trigger-title">Search your address on the map</div>
-                <div class="loc-map-trigger-sub">Type your address (or tap the map) to pinpoint your exact U.S. House, State Senate &amp; State House districts</div>
-              </div>
-              <div class="loc-map-trigger-arrow" aria-hidden="true">→</div>
-            </div>
-            <p class="loc-map-primary-note">🎯 Some cities are split across multiple districts — using the map gives more precise results than picking a county.</p>
-          </div>
-
-          <!-- Shown in place of the map card when the picked state is outside the
-               interactive map's coverage (currently Utah only). Explains why the
-               map is absent so out-of-state users aren't left wondering, and points
-               them at the city/county fields below. -->
-          <div id="voter-map-unavailable" class="loc-map-unavailable" style="display:none;">
-            <div class="loc-map-unavailable-ico" aria-hidden="true">🗺️</div>
-            <div class="loc-map-unavailable-text">
-              <div class="loc-map-unavailable-title">Interactive map coming to more states</div>
-              <div class="loc-map-unavailable-sub">Our tap-to-find district map currently covers <strong>Utah</strong>. Enter your city or county below and we’ll match the districts on your ballot.</div>
-            </div>
-          </div>
-
-          <!-- ── SECONDARY: manual city / county selector ──────────────────────
-               Kept available for anyone who prefers it, but de-emphasized behind a
-               toggle when the map is on offer, with a note about its lower precision. -->
-          <div id="voter-manual-section" class="loc-manual is-collapsed">
-            <button type="button" id="voter-manual-toggle" class="loc-manual-toggle" onclick="window.toggleManualLocationSection()" aria-expanded="false">
-              <span class="loc-manual-toggle-label">Use city/county instead</span>
-              <span class="loc-manual-toggle-caret" aria-hidden="true">▾</span>
-            </button>
-            <div class="loc-manual-fields">
-              <p id="voter-manual-warn" class="loc-manual-warn">⚠️ County-level selection is less precise — some cities are split across several districts. The map above gives exact results.</p>
-              <div id="voter-county-wrap" class="flex flex-col gap-1.5">
-                <label for="voter-county-input" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider"><span class="text-blue-300">Step 2</span> · City / County</label>
-                <input id="voter-county-input" type="text" placeholder="e.g. Orange County or Miami" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[200px] min-h-[44px]" oninput="window.voterLocationCountyChanged()" />
-                <p class="font-condensed text-xs text-steel-400 tracking-wide" style="line-height:1.4;margin:0;">💡 This is how we pinpoint your districts — your city tells us which U.S. House, State Senate &amp; State House seats are on your ballot.</p>
-              </div>
-
-              <div id="voter-district-wrap" class="flex flex-col gap-1.5" style="display:none;">
-                <label for="voter-district-sel" class="font-condensed text-xs font-600 text-steel-400 uppercase tracking-wider">U.S. House (Congressional) District <span class="text-steel-500 normal-case">(optional)</span></label>
-                <input id="voter-district-sel" type="number" min="1" max="99" inputmode="numeric" onchange="window.voterLocationDistrictChanged()" oninput="window.voterLocationDistrictChanged()" placeholder="e.g. 4" class="bg-navy-900 border border-white/10 text-white font-condensed font-600 text-sm rounded-xl px-3 py-2 min-w-[120px] min-h-[44px]" />
-                <p class="font-condensed text-xs text-steel-400 tracking-wide" style="line-height:1.4;margin:0;">Don't know your district number? Leave it blank — entering your city above lets us find it for you.</p>
-              </div>
-            </div>
-          </div>
-          </div>
-          <div class="loc-modal-foot">
-            <button type="button" onclick="window.closeLocationModal()" class="loc-modal-done">Done</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- ══ INTERACTIVE UTAH LEGISLATIVE DISTRICT MAP ════════════════════════
-           A Leaflet + GeoJSON map (boundaries from the Utah Geospatial Resource
-           Center) that lets a voter tap their precise State House / State Senate
-           district. Selecting a district highlights it, writes it into the shared
-           voter-location state, and refreshes every location surface — so the map
-           is part of the location system, not a disconnected widget. ═════════ -->
+      <!-- ══ THE DISTRICT MAP'S STYLES — WHAT IS LEFT OF THEM HERE ════════════
+           The map itself, its modal and the controller that drove it are at
+           /find. What stays in this block is what draws surfaces that are still
+           on THIS page and would be undrawn without it:
+             · .pdx-map-chip — the "set via map" badge, painted into
+               #relevant-map-indicator by _pdxRefreshMapIndicators below;
+             · .rel-map-* — the Relevant-to-Me trigger card, its district chips
+               and its CTA row;
+             · .pdx-loc-flash and its keyframes — the brief outline
+               _pdxFlashLocationUpdated puts on the surfaces that just changed.
+           The .loc-map-*, .loc-manual-* and .pdx-map-* families went with the
+           markup they shape, because they shape markup that is no longer here.
+           The id is kept: it is what the suite looks for to check that the
+           finder's own styles are NOT on this document. ══════════════════════ -->
       <style id="pdx-district-map-styles">
         /* Shared "set via map" chip used across the location surfaces */
         .pdx-map-chip{display:inline-flex;align-items:center;gap:0.3rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;
           font-size:0.66rem;letter-spacing:0.1em;text-transform:uppercase;color:#7ee7b8;background:rgba(16,185,129,0.12);
           border:1px solid rgba(52,211,153,0.4);border-radius:999px;padding:0.22rem 0.6rem;line-height:1.15;white-space:nowrap;}
-
-        /* "Map not available for this state" note, shown in place of the trigger */
-        .loc-map-unavailable{display:flex;align-items:flex-start;gap:0.7rem;border-radius:0.9rem;padding:0.8rem 0.95rem;
-          background:linear-gradient(135deg,rgba(37,99,235,0.14),rgba(14,116,144,0.12));border:1.5px solid rgba(96,165,250,0.28);}
-        .loc-map-unavailable-ico{font-size:1.4rem;line-height:1;flex-shrink:0;opacity:0.85;}
-        .loc-map-unavailable-text{min-width:0;flex:1;}
-        .loc-map-unavailable-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.9rem;letter-spacing:0.04em;color:#dbeafe;}
-        .loc-map-unavailable-sub{font-family:'Barlow Condensed',sans-serif;font-weight:500;font-size:0.8rem;line-height:1.4;color:#9db8dd;margin-top:0.15rem;}
-        .loc-map-unavailable-sub strong{color:#bfdbfe;}
-
-        /* Map trigger row inside the location modal */
-        .loc-map-trigger{display:flex;align-items:center;gap:0.85rem;cursor:pointer;border-radius:0.9rem;padding:0.8rem 0.95rem;
-          background:linear-gradient(135deg,rgba(21,128,61,0.18),rgba(14,116,144,0.16));border:1.5px solid rgba(34,197,94,0.32);
-          transition:border-color 0.2s ease,transform 0.2s ease,background 0.2s ease;}
-        .loc-map-trigger:hover{border-color:rgba(52,211,153,0.6);transform:translateY(-1px);background:linear-gradient(135deg,rgba(21,128,61,0.26),rgba(14,116,144,0.24));}
-        .loc-map-trigger:focus-visible{outline:2px solid #34d399;outline-offset:2px;}
-        .loc-map-trigger-ico{font-size:1.5rem;line-height:1;flex-shrink:0;}
-        .loc-map-trigger-text{min-width:0;flex:1;}
-        .loc-map-trigger-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.96rem;letter-spacing:0.04em;
-          text-transform:uppercase;color:#d7f5e4;line-height:1.15;}
-        .loc-map-trigger-sub{font-family:'Barlow Condensed',sans-serif;font-size:0.76rem;letter-spacing:0.02em;color:#8fcfb0;line-height:1.3;margin-top:0.15rem;}
-        .loc-map-trigger-arrow{font-size:1.2rem;color:#52d399;flex-shrink:0;}
-
-        /* Primary "address + map" block in the location modal */
-        .loc-map-primary{display:flex;flex-direction:column;gap:0.5rem;}
-        .loc-map-primary-badge{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.66rem;letter-spacing:0.12em;
-          text-transform:uppercase;color:#9fc7b6;}
-        .loc-map-primary-note{font-family:'Barlow Condensed',sans-serif;font-size:0.76rem;letter-spacing:0.02em;color:#8fcfb0;
-          line-height:1.4;margin:0;}
-
-        /* Secondary "use city/county instead" collapsible selector */
-        .loc-manual{display:flex;flex-direction:column;gap:0.6rem;}
-        .loc-manual-toggle{align-self:flex-start;display:inline-flex;align-items:center;gap:0.35rem;cursor:pointer;background:none;border:none;
-          padding:0.1rem 0;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.78rem;letter-spacing:0.04em;
-          text-transform:uppercase;color:#7596c0;transition:color 0.2s ease;}
-        .loc-manual-toggle:hover{color:#cfe0f7;}
-        .loc-manual-toggle:focus-visible{outline:2px solid #60a5fa;outline-offset:2px;border-radius:0.3rem;}
-        .loc-manual-toggle-caret{font-size:0.7rem;line-height:1;}
-        .loc-manual-fields{display:flex;flex-direction:column;gap:0.85rem;}
-        .loc-manual.is-collapsed .loc-manual-fields{display:none;}
-        .loc-manual-warn{font-family:'Barlow Condensed',sans-serif;font-size:0.76rem;letter-spacing:0.02em;color:#fad96a;
-          line-height:1.4;margin:0;}
 
         /* Compact map button under the Relevant-to-Me location line */
         .rel-map-btn{cursor:pointer;color:#a7f3d0;background:rgba(16,185,129,0.1);border:1px solid rgba(52,211,153,0.34);
@@ -8421,256 +8297,16 @@ window.PDXLazy = (function () {
           100%{box-shadow:0 0 0 0 rgba(52,211,153,0);}
         }
         .pdx-loc-flash{animation:pdxLocFlash 1.7s ease-out;border-radius:1rem;}
-
-        /* Modal shell */
-        .pdx-map-overlay{position:fixed;inset:0;z-index:11000;display:none;align-items:center;justify-content:center;
-          background:rgba(5,9,18,0.82);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:1rem;}
-        .pdx-map-box{position:relative;width:100%;max-width:880px;max-height:94vh;display:flex;flex-direction:column;overflow:hidden;
-          border-radius:1.25rem;background:linear-gradient(160deg,#0c1426 0%,#101d36 60%,#16274a 100%);
-          border:2px solid rgba(245,200,66,0.22);box-shadow:0 24px 70px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05);}
-        .pdx-map-box::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;z-index:2;
-          background:linear-gradient(90deg,#c0152a 0%,#c0152a 33%,#e9eef7 33%,#e9eef7 66%,#1e3a8a 66%,#1e3a8a 100%);opacity:0.9;}
-        .pdx-map-head{display:flex;align-items:flex-start;gap:0.85rem;padding:1.1rem 1.25rem 0.85rem;flex-shrink:0;}
-        .pdx-map-head-ico{font-size:1.7rem;line-height:1;width:2.9rem;height:2.9rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;
-          border-radius:0.85rem;background:linear-gradient(135deg,rgba(192,21,42,0.25),rgba(30,58,138,0.25));border:1px solid rgba(255,255,255,0.12);}
-        .pdx-map-title{font-family:'Bebas Neue',sans-serif;font-size:1.55rem;line-height:1;letter-spacing:0.03em;color:#fff;}
-        .pdx-map-sub{font-family:'Barlow Condensed',sans-serif;font-size:0.82rem;letter-spacing:0.03em;color:#7596c0;margin-top:0.25rem;line-height:1.35;}
-        .pdx-map-close{position:absolute;top:0.7rem;right:0.8rem;z-index:3;width:2.2rem;height:2.2rem;border-radius:999px;border:1px solid rgba(255,255,255,0.16);
-          background:rgba(8,13,28,0.7);color:#cbd5e1;font-size:1.4rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s ease;}
-        .pdx-map-close:hover{background:rgba(192,21,42,0.4);color:#fff;border-color:rgba(239,68,68,0.6);}
-
-        /* Address search bar */
-        .pdx-map-search{padding:0 1.25rem 0.75rem;flex-shrink:0;}
-        .pdx-map-search-field{display:flex;gap:0.5rem;align-items:stretch;}
-        .pdx-map-search-input{flex:1;min-width:0;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:0.95rem;letter-spacing:0.01em;
-          color:#fff;background:rgba(8,13,28,0.72);border:1.5px solid rgba(255,255,255,0.14);border-radius:0.7rem;padding:0.62rem 0.85rem;min-height:46px;
-          transition:border-color 0.2s ease,box-shadow 0.2s ease;}
-        .pdx-map-search-input::placeholder{color:#5d7299;}
-        .pdx-map-search-input:focus{outline:none;border-color:rgba(245,200,66,0.65);box-shadow:0 0 0 3px rgba(245,200,66,0.12);}
-        .pdx-map-search-btn{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;cursor:pointer;
-          font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.82rem;letter-spacing:0.06em;text-transform:uppercase;color:#fff;
-          border:none;border-radius:0.7rem;padding:0 1.1rem;min-height:46px;min-width:46px;white-space:nowrap;
-          background:linear-gradient(135deg,#1d4ed8,#0e7490);box-shadow:0 4px 16px rgba(29,78,216,0.3);transition:transform 0.15s ease,box-shadow 0.2s ease,opacity 0.2s ease;}
-        .pdx-map-search-btn:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(29,78,216,0.42);}
-        .pdx-map-search-btn:disabled{opacity:0.55;cursor:default;transform:none;box-shadow:none;}
-        .pdx-map-search-note{font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;letter-spacing:0.02em;line-height:1.35;margin:0.45rem 0 0;color:#7596c0;min-height:1.05rem;}
-        .pdx-map-search-note.is-error{color:#fca5a5;}
-        .pdx-map-search-note.is-ok{color:#7ee7b8;}
-        .pdx-map-search-note.is-warn{color:#fad96a;}
-        .pdx-map-search-note strong{color:#cfe0f7;font-weight:700;}
-        .pdx-map-search-btn .pdx-mini-spin{width:1rem;height:1rem;border-radius:999px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;animation:pdxspin 0.7s linear infinite;}
-
-        /* Post-search result banner */
-        .pdx-map-result{display:flex;align-items:center;gap:0.85rem;margin-top:0.6rem;padding:0.7rem 0.85rem;border-radius:0.85rem;
-          background:linear-gradient(135deg,rgba(16,185,129,0.16),rgba(14,116,144,0.18));border:1.5px solid rgba(52,211,153,0.55);
-          box-shadow:inset 0 0 18px rgba(52,211,153,0.1);animation:pdxResultIn 0.28s ease;}
-        @keyframes pdxResultIn{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:none;}}
-        .pdx-map-result-body{min-width:0;flex:1;}
-        .pdx-map-result-addr{display:flex;align-items:center;gap:0.35rem;min-width:0;}
-        .pdx-map-result-pin{font-size:0.9rem;line-height:1;flex-shrink:0;}
-        .pdx-map-result-addr-text{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:0.78rem;letter-spacing:0.01em;
-          color:#bfe7d4;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-        .pdx-map-result-dist{display:flex;align-items:baseline;gap:0.45rem;margin-top:0.12rem;flex-wrap:wrap;}
-        .pdx-map-result-dist-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.13em;
-          text-transform:uppercase;color:#7ee7b8;}
-        .pdx-map-result-dist-val{font-family:'Bebas Neue',sans-serif;font-size:1.32rem;line-height:1;letter-spacing:0.02em;color:#fff;}
-        .pdx-map-result-dist-val.is-none{font-family:'Barlow Condensed',sans-serif;font-size:0.9rem;font-weight:600;color:#fca5a5;}
-        .pdx-map-result-alt{font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;letter-spacing:0.01em;color:#9fc7b6;margin-top:0.2rem;line-height:1.3;}
-        .pdx-map-result-alt strong{color:#d7f5e4;font-weight:700;}
-        .pdx-result-altbtn{cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.04em;
-          text-transform:uppercase;color:#fff;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.22);border-radius:999px;
-          padding:0.05rem 0.5rem;margin-left:0.15rem;transition:all 0.15s ease;}
-        .pdx-result-altbtn:hover{background:rgba(255,255,255,0.22);border-color:rgba(255,255,255,0.4);}
-        .pdx-map-result-use{flex-shrink:0;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.05em;
-          text-transform:uppercase;font-size:0.82rem;color:#062018;border:none;border-radius:0.65rem;padding:0.6rem 0.95rem;min-height:46px;
-          background:linear-gradient(135deg,#34d399,#22d3ee);box-shadow:0 5px 18px rgba(52,211,153,0.34);transition:transform 0.15s ease,box-shadow 0.2s ease,opacity 0.2s ease;white-space:nowrap;}
-        .pdx-map-result-use:hover{transform:translateY(-1px);box-shadow:0 7px 24px rgba(52,211,153,0.46);}
-        .pdx-map-result-use:disabled{opacity:0.5;cursor:default;transform:none;box-shadow:none;background:#33415a;color:#9fb4d4;}
-
-        /* Layer toggle */
-        .pdx-map-toggle{display:flex;gap:0.4rem;padding:0 1.25rem 0.7rem;flex-shrink:0;}
-        .pdx-map-toggle-btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:0.4rem;cursor:pointer;
-          font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:0.84rem;letter-spacing:0.06em;text-transform:uppercase;
-          color:#9fb4d4;background:rgba(8,13,28,0.6);border:1.5px solid rgba(255,255,255,0.1);border-radius:0.7rem;padding:0.55rem 0.6rem;
-          min-height:44px;transition:all 0.2s ease;}
-        .pdx-map-toggle-btn:hover{border-color:rgba(255,255,255,0.24);color:#e6eefb;}
-        .pdx-map-toggle-btn.is-active{color:#fff;border-color:rgba(245,200,66,0.6);
-          background:linear-gradient(135deg,rgba(192,21,42,0.32),rgba(30,58,138,0.32));box-shadow:0 0 16px rgba(245,200,66,0.14);}
-
-        /* 2026 court-ordered congressional remap explainer (U.S. House layer) */
-        .pdx-congress-note{display:flex;gap:0.6rem;align-items:flex-start;margin:0 1.25rem 0.7rem;padding:0.7rem 0.85rem;
-          border-radius:0.8rem;background:linear-gradient(135deg,rgba(34,211,238,0.12),rgba(30,58,138,0.16));
-          border:1.5px solid rgba(34,211,238,0.4);box-shadow:inset 0 0 16px rgba(34,211,238,0.08);}
-        .pdx-congress-note-ico{font-size:1.15rem;line-height:1.2;flex-shrink:0;}
-        .pdx-congress-note-body{font-family:'Barlow Condensed',sans-serif;font-size:0.84rem;letter-spacing:0.01em;
-          line-height:1.4;color:#cbe7f2;min-width:0;}
-        .pdx-congress-note-body strong{color:#a5e9f5;font-weight:700;}
-
-        /* Map canvas */
-        .pdx-map-canvas-wrap{position:relative;flex:1;min-height:300px;margin:0 1.25rem;border-radius:0.9rem;overflow:hidden;border:1px solid rgba(255,255,255,0.1);}
-        #pdx-district-map{position:absolute;inset:0;width:100%;height:100%;background:#0a1120;}
-        .pdx-map-status{position:absolute;inset:0;z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.7rem;
-          text-align:center;padding:1.5rem;background:rgba(8,13,28,0.92);font-family:'Barlow Condensed',sans-serif;color:#bcd3f5;}
-        .pdx-map-spinner{width:2.2rem;height:2.2rem;border-radius:999px;border:3px solid rgba(96,165,250,0.25);border-top-color:#60a5fa;animation:pdxspin 0.8s linear infinite;}
-        @keyframes pdxspin{to{transform:rotate(360deg);}}
-        .pdx-map-retry{cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-size:0.8rem;
-          color:#fff;background:#2563eb;border:none;border-radius:0.6rem;padding:0.5rem 1.1rem;margin-top:0.3rem;}
-
-        /* Idle prompt: a ribbon that passes taps through to the live basemap,
-           unlike the loading and error curtains. */
-        .pdx-map-status--idle{inset:auto 0 0 0;z-index:600;padding:0.75rem 1rem 0.85rem;gap:0.4rem;pointer-events:none;
-          background:linear-gradient(0deg,rgba(8,13,28,0.96) 0%,rgba(8,13,28,0.86) 60%,rgba(8,13,28,0.55) 100%);
-          border-top:1px solid rgba(255,255,255,0.08);}
-        .pdx-map-status--idle .pdx-map-retry{pointer-events:auto;}
-
-        /* Leaflet dark-theme overrides */
-        /* Dark is a filter now, not a paid style: OSM's light raster inverted.
-           Only .leaflet-tile, so strokes, pin and controls are unaffected. */
-        .pdx-map-canvas-wrap .leaflet-tile{filter:invert(1) hue-rotate(185deg) brightness(0.93) contrast(0.92) saturate(0.55);}
-        .pdx-map-canvas-wrap .leaflet-container{background:#0a1120;font-family:'Barlow Condensed',sans-serif;}
-        .pdx-map-canvas-wrap .leaflet-control-zoom a{background:#101d36;color:#cbd5e1;border-color:rgba(255,255,255,0.12);}
-        .pdx-map-canvas-wrap .leaflet-control-zoom a:hover{background:#16274a;color:#fff;}
-        .pdx-map-canvas-wrap .leaflet-control-attribution{background:rgba(8,13,28,0.7);color:#6b82a8;font-size:9px;}
-        .pdx-map-canvas-wrap .leaflet-control-attribution a{color:#7596c0;}
-        .pdx-dist-tip{background:#0c1426;border:1px solid rgba(245,200,66,0.4);color:#fff;border-radius:0.5rem;
-          font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.04em;font-size:0.82rem;box-shadow:0 4px 14px rgba(0,0,0,0.5);}
-        .pdx-dist-tip::before{display:none;}
-
-        /* Selection / confirmation panel */
-        .pdx-map-foot{flex-shrink:0;padding:0.85rem 1.25rem 1.1rem;}
-        .pdx-map-hint{font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;letter-spacing:0.02em;color:#8aa3c8;line-height:1.35;margin:0 0 0.65rem;}
-
-        /* Currently-selected district info panel */
-        .pdx-map-info{display:flex;align-items:center;gap:0.7rem;border-radius:0.85rem;padding:0.6rem 0.85rem;margin:0 0 0.7rem;
-          background:rgba(8,13,28,0.6);border:1.5px solid rgba(255,255,255,0.1);transition:border-color 0.2s ease,background 0.2s ease;}
-        .pdx-map-info.is-set{border-color:rgba(245,200,66,0.5);background:linear-gradient(135deg,rgba(192,21,42,0.14),rgba(30,58,138,0.16));
-          box-shadow:inset 0 0 18px rgba(245,200,66,0.08);}
-        .pdx-map-info-ico{font-size:1.5rem;line-height:1;flex-shrink:0;}
-        .pdx-map-info-body{min-width:0;flex:1;}
-        .pdx-map-info-label{font-family:'Barlow Condensed',sans-serif;font-size:0.64rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#7596c0;}
-        .pdx-map-info-val{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;line-height:1.1;letter-spacing:0.02em;color:#fff;}
-        .pdx-map-info-val .pdx-info-dist{color:#f5c842;}
-        .pdx-map-selection{display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:0.8rem;}
-        .pdx-sel-card{flex:1;min-width:130px;display:flex;flex-direction:column;gap:0.15rem;border-radius:0.8rem;padding:0.6rem 0.85rem;
-          background:rgba(8,13,28,0.6);border:1.5px solid rgba(255,255,255,0.1);transition:border-color 0.2s ease,background 0.2s ease;}
-        .pdx-sel-card.is-set{border-color:rgba(52,211,153,0.5);background:rgba(16,185,129,0.08);}
-        .pdx-sel-label{font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#7596c0;}
-        .pdx-sel-val{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;line-height:1.05;letter-spacing:0.02em;color:#5ee7b0;}
-        .pdx-sel-val.is-empty{color:#48597a;font-family:'Barlow Condensed',sans-serif;font-size:0.92rem;font-weight:600;}
-        .pdx-map-actions{display:flex;gap:0.6rem;flex-wrap:wrap;}
-        .pdx-map-done{flex:1;min-width:140px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.08em;
-          text-transform:uppercase;font-size:0.9rem;color:#fff;border:none;border-radius:0.7rem;padding:0.7rem 1rem;min-height:46px;
-          background:linear-gradient(135deg,#15803d,#0e7490);box-shadow:0 6px 20px rgba(20,128,61,0.3);transition:transform 0.15s ease,box-shadow 0.2s ease;}
-        .pdx-map-done:hover{transform:translateY(-1px);box-shadow:0 8px 26px rgba(20,128,61,0.42);}
-        .pdx-map-done:disabled{opacity:0.5;cursor:default;transform:none;box-shadow:none;background:#33415a;}
-        .pdx-map-secondary{cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;
-          font-size:0.84rem;color:#9fb4d4;background:rgba(8,13,28,0.6);border:1.5px solid rgba(255,255,255,0.12);border-radius:0.7rem;padding:0.7rem 1rem;min-height:46px;transition:all 0.2s ease;}
-        .pdx-map-secondary:hover{color:#fff;border-color:rgba(255,255,255,0.28);}
-        .pdx-map-manual-link{display:block;width:100%;margin-top:0.65rem;text-align:center;cursor:pointer;background:none;border:none;
-          font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:0.78rem;letter-spacing:0.03em;color:#7596c0;
-          text-decoration:underline;text-underline-offset:2px;transition:color 0.2s ease;}
-        .pdx-map-manual-link:hover{color:#cfe0f7;}
-        @media (max-width:560px){
-          .pdx-map-box{max-height:96vh;border-radius:1rem;}
-          .pdx-map-title{font-size:1.3rem;}
-          .pdx-map-canvas-wrap{margin:0 0.85rem;min-height:260px;}
-          .pdx-map-head,.pdx-map-toggle,.pdx-map-foot,.pdx-map-search{padding-left:0.85rem;padding-right:0.85rem;}
-          .pdx-map-head{padding-top:0.9rem;}
-          .pdx-map-search-btn{padding:0 0.85rem;}
-          .pdx-map-search-btn-label{display:none;}
-          .pdx-map-toggle-btn span{display:none;}
-          .pdx-map-actions{flex-direction:column-reverse;}
-          .pdx-map-done,.pdx-map-secondary{width:100%;}
-          .pdx-map-result{flex-direction:column;align-items:stretch;gap:0.6rem;}
-          .pdx-map-result-use{width:100%;}
-        }
       </style>
 
-      <div id="district-map-modal" class="pdx-map-overlay" onclick="if(event.target===this)window.closeDistrictMapModal()">
-        <div class="pdx-map-box" role="dialog" aria-modal="true" aria-labelledby="pdx-map-title">
-          <button type="button" class="pdx-map-close" onclick="window.closeDistrictMapModal()" aria-label="Close map">&times;</button>
-          <div class="pdx-map-head">
-            <div class="pdx-map-head-ico" aria-hidden="true">🗺️</div>
-            <div style="min-width:0;">
-              <div id="pdx-map-title" class="pdx-map-title">Find Your Districts</div>
-              <div class="pdx-map-sub"><strong style="color:#9fc0ef;">The most accurate way to set your location.</strong> Search your address (or tap the map) and we'll detect your exact <strong style="color:#9fc0ef;">U.S. House</strong>, <strong style="color:#9fc0ef;">State House</strong> and <strong style="color:#9fc0ef;">State Senate</strong> seats — precise even where a city is split across districts.</div>
-            </div>
-          </div>
-          <div class="pdx-map-search">
-            <form class="pdx-map-search-field" onsubmit="window.pdxMapSearchAddress(); return false;">
-              <input id="pdx-map-search-input" class="pdx-map-search-input" type="text" inputmode="search" autocomplete="off"
-                     placeholder="Search your address or city, e.g. 123 Main St, Layton" aria-label="Search your address to find your districts" />
-              <button type="submit" id="pdx-map-search-btn" class="pdx-map-search-btn" aria-label="Search address">
-                <span id="pdx-map-search-ico" aria-hidden="true">🔍</span><span class="pdx-map-search-btn-label">Search</span>
-              </button>
-            </form>
-            <p id="pdx-map-search-note" class="pdx-map-search-note">Type an address to jump straight to your House &amp; Senate districts.</p>
-            <!-- Post-search result banner: the searched address + the district for the
-                 active toggle + a one-tap commit button. Hidden until a search lands. -->
-            <div id="pdx-map-result" class="pdx-map-result" style="display:none;" role="status">
-              <div class="pdx-map-result-body">
-                <div class="pdx-map-result-addr">
-                  <span class="pdx-map-result-pin" aria-hidden="true">📍</span>
-                  <span id="pdx-map-result-addr-text" class="pdx-map-result-addr-text"></span>
-                </div>
-                <div class="pdx-map-result-dist">
-                  <span id="pdx-map-result-dist-label" class="pdx-map-result-dist-label">Your district</span>
-                  <span id="pdx-map-result-dist-val" class="pdx-map-result-dist-val">District —</span>
-                </div>
-                <div id="pdx-map-result-alt" class="pdx-map-result-alt" style="display:none;"></div>
-              </div>
-              <button type="button" id="pdx-map-result-use" class="pdx-map-result-use" onclick="window.pdxMapConfirm()">✓ Use this district</button>
-            </div>
-          </div>
-          <div class="pdx-map-toggle" role="tablist" aria-label="District layer">
-            <button type="button" id="pdx-layer-house" class="pdx-map-toggle-btn is-active" role="tab" aria-selected="true" onclick="window.pdxMapSetLayer('house')">🏛️ State House <span style="opacity:0.6;">· 75</span></button>
-            <button type="button" id="pdx-layer-senate" class="pdx-map-toggle-btn" role="tab" aria-selected="false" onclick="window.pdxMapSetLayer('senate')">🏛️ State Senate <span style="opacity:0.6;">· 29</span></button>
-            <button type="button" id="pdx-layer-congress" class="pdx-map-toggle-btn" role="tab" aria-selected="false" onclick="window.pdxMapSetLayer('congress')">🦅 U.S. House <span style="opacity:0.6;">· 4</span></button>
-          </div>
-          <!-- Neutral explainer for the 2026 court-ordered congressional remap.
-               Shown only while the U.S. House layer is active so the voter sees
-               WHY their congressional district may have changed (northern Utah /
-               Davis County / Layton moved from District 1 into District 2). -->
-          <div id="pdx-congress-note" class="pdx-congress-note" style="display:none;">
-            <span class="pdx-congress-note-ico" aria-hidden="true">⚖️</span>
-            <div class="pdx-congress-note-body">
-              <strong>Utah's U.S. House map changed for 2026.</strong> After a 2025 court ruling on the state's congressional boundaries, the lines were redrawn. Davis County — including Layton and much of northern Utah — moved out of District&nbsp;1 and into District&nbsp;2. The boundaries shown here are the current, court-ordered 2026 map your ballot uses, so your U.S. House district is set automatically from your address.
-            </div>
-          </div>
-          <div class="pdx-map-canvas-wrap">
-            <div id="pdx-district-map"></div>
-            <div id="pdx-map-status" class="pdx-map-status">
-              <div class="pdx-map-spinner"></div>
-              <div id="pdx-map-status-text">Loading Utah district boundaries…</div>
-            </div>
-          </div>
-          <div class="pdx-map-foot">
-            <p class="pdx-map-hint" id="pdx-map-hint">Showing <strong style="color:#cfe0f7;">State House</strong> districts — search your address or tap the area where you live.</p>
-            <div id="pdx-map-info" class="pdx-map-info">
-              <div class="pdx-map-info-ico" id="pdx-map-info-ico" aria-hidden="true">📍</div>
-              <div class="pdx-map-info-body">
-                <div class="pdx-map-info-label" id="pdx-map-info-label">Currently viewing · State House</div>
-                <div class="pdx-map-info-val" id="pdx-map-info-val">No district selected yet</div>
-              </div>
-            </div>
-            <div class="pdx-map-selection">
-              <div id="pdx-sel-house" class="pdx-sel-card">
-                <span class="pdx-sel-label">State House</span>
-                <span class="pdx-sel-val is-empty">Not set</span>
-              </div>
-              <div id="pdx-sel-senate" class="pdx-sel-card">
-                <span class="pdx-sel-label">State Senate</span>
-                <span class="pdx-sel-val is-empty">Not set</span>
-              </div>
-            </div>
-            <div class="pdx-map-actions">
-              <button type="button" id="pdx-map-done" class="pdx-map-done" onclick="window.pdxMapConfirm()" disabled>Use this location</button>
-              <button type="button" class="pdx-map-secondary" onclick="window.pdxMapClearSelection()">Clear</button>
-            </div>
-            <button type="button" class="pdx-map-manual-link" onclick="window.openManualLocationForm && window.openManualLocationForm()">Prefer to pick by city/county? Use the manual selector</button>
-          </div>
-        </div>
-      </div>
+      <!-- #district-map-modal — the search field, the three chamber tabs, the
+           Leaflet canvas and the two selection cards — is find.html's markup now.
+           It opens there with no layer painted and fetches one chamber's
+           boundaries only after a search lands or the reader taps a tab, which is
+           the second of the three fixes. This document mounts no map: there is no
+           Leaflet on it, no PDXLazy.leaflet arm to fetch one, and no request to
+           any tile host. scripts/test-finder-basemap.mjs asserts all three
+           against these bytes. -->
 
 
       <!-- ── KNOW YOUR OFFICES — plain-English guide to the seats on the slate ── -->
@@ -18042,515 +17678,44 @@ window.PDXLazy = (function () {
   })();
   </script>
 
-  <!-- ══ INTERACTIVE UTAH DISTRICT MAP — controller ═══════════════════════════
-       Owns the Leaflet map, the House/Senate GeoJSON layers (fetched on demand
-       from the Utah Geospatial Resource Center), district selection, and the
-       hand-off back into the shared voter-location state. Self-contained IIFE;
-       every entry point is published on window for the inline onclick handlers. -->
+  <!-- ══ THE LOCATION SURFACES ON THIS PAGE — WHAT THE MAP LEFT BEHIND ════════
+       THIS IS WHAT DID NOT MOVE, and it did not move because it was never the
+       map. The district-map controller that used to sit here — Leaflet, the UGRC
+       boundary layers, point-in-polygon detection, the geocode chain — is at
+       /find now, and index.html fetches none of it. These three functions were
+       INSIDE that controller and belong to this document: every id they touch is
+       on this page and nowhere else.
+
+         · _pdxResolveVoterDistricts() — the three key seats (U.S. House, State
+           Senate, State House) from the curated Key-Races area where one
+           matched, and from the reader's own saved pins otherwise. This document
+           loads ballot-breakdown.js, so keyRacesRelevantData() is real here.
+         · _pdxRefreshMapIndicators() — paints the Relevant-to-Me trigger card
+           (#relevant-map-loc / -chips / -cta), plus the legacy chip and button
+           (#relevant-map-indicator, #relevant-map-btn) that other code still
+           reads.
+         · _pdxFlashLocationUpdated() — the "location updated" toast and the
+           brief outline on the three surfaces that just changed
+           (#relevant-map-trigger, #relevant-location-text, #wrm-reps — the one
+           roster, which replaced the retired #vh-district-strip duplicate).
+
+       THEY ARE WINDOW FUNCTIONS BECAUSE THEY HAVE EXTERNAL CALLERS, and those
+       callers are why leaving them inside the moving controller would have been
+       a silent break rather than a loud one: voter-hub-location.js calls the
+       refresh on every location reaction, ballot-breakdown.js calls it when the
+       curated area changes, and the home-voice-gate block below wraps it. Each
+       of those is a `typeof === 'function'` guard, so a missing owner does not
+       throw — it just stops painting, on a card that then shows the previous
+       reader's districts until a reload.
+
+       A READER WHO PINS A DISTRICT ON /find LANDS BACK HERE AND THESE RUN, off
+       the saved record, exactly as they ran when the modal was in this document.
+       That is the whole of the hand-off: the picker writes the location and
+       leaves; the surfaces that read it are here and read it.
+       ══════════════════════════════════════════════════════════════════════════ -->
   <script>
   (function(){
     'use strict';
-
-    // UGRC (Utah Geospatial Resource Center) FeatureServers, 2022–2032 maps.
-    // Geometry is server-simplified (maxAllowableOffset) and trimmed to the DIST
-    // field so the payloads stay small enough to load comfortably on mobile.
-    var GEO_URLS = {
-      house:  'https://services1.arcgis.com/99lidPhWCzftIe9K/ArcGIS/rest/services/UtahHouseDistricts2022to2032/FeatureServer/0/query?where=1%3D1&outFields=DIST&returnGeometry=true&outSR=4326&maxAllowableOffset=0.0025&geometryPrecision=5&f=geojson',
-      senate: 'https://services1.arcgis.com/99lidPhWCzftIe9K/ArcGIS/rest/services/UtahSenateDistricts2022to2032/FeatureServer/0/query?where=1%3D1&outFields=DIST&returnGeometry=true&outSR=4326&maxAllowableOffset=0.003&geometryPrecision=5&f=geojson',
-      // U.S. House: the CURRENT (2026–2032) court-ordered congressional map. This is
-      // the authoritative, boundary-based source for a voter's congressional district
-      // — point-in-polygon against these lines, never a county assumption. (It's
-      // fetched for detection only, not drawn as a toggle layer, so the map UI is
-      // unchanged.) The 2026 remap moved all of Davis County, including Layton, from
-      // District 1 into District 2 — which county-based logic missed.
-      congress: 'https://services1.arcgis.com/99lidPhWCzftIe9K/ArcGIS/rest/services/political_us_congress_districts_2026_to_2032/FeatureServer/0/query?where=1%3D1&outFields=DISTRICT&returnGeometry=true&outSR=4326&maxAllowableOffset=0.004&geometryPrecision=5&f=geojson'
-    };
-
-    var STROKE = { house: '#60a5fa', senate: '#f59e0b', congress: '#22d3ee' };
-    var LABEL  = { house: 'State House', senate: 'State Senate', congress: 'U.S. House' };
-
-    var _geoCache   = { house: null, senate: null, congress: null };
-    var _map        = null;
-    var _layers     = { house: null, senate: null, congress: null };
-    var _activeLayer = 'house';
-    var _selected   = { house: null, senate: null };   // chosen DIST numbers
-    var _selPath    = { house: null, senate: null, congress: null };   // chosen Leaflet path refs
-    var _lastPicked = null;                            // 'house' | 'senate'
-    var _marker     = null;                            // searched-address marker
-    var _searching  = false;
-    var _searchHit  = null;                            // last geocoded {lat,lng,name}
-    var _hasSearchView = false;                        // an address search is active
-    var _searchCongress = null;                        // U.S. House district for the searched point
-    var _searchAreaId = null;                          // curated Key-Races area id for the searched point
-    var _tiles = null, _tileErrors = 0;                // basemap layer (droppable)
-    var _loadingLayer = false;                         // a boundary fetch is on the wire
-    var _layerSeq = 0, _searchSeq = 0;                 // retire work the reader moved past
-    var SEARCH_DEADLINE_MS = 12000;                    // one ceiling over a whole search
-
-    // THE FINDER'S GATE AND ITS NETWORK MANNERS LIVE IN voter-hub-location.js,
-    // which owns the location record and loads before this block: PDXF.isOpen()
-    // is why a pick behind the modal does not rebuild the front page, and
-    // PDXF.fetch / .deadline / .track / .abort are why nothing the finder starts
-    // outlives it. Read the reasoning there; the call sites are below.
-    var PDXF = window.PDXFinder;
-    function reactToLocation(){
-      if (PDXF.isOpen()) { PDXF.markPending(); return; }
-      if (typeof window._triggerLocationReaction === 'function') window._triggerLocationReaction();
-    }
-    function stale(tok){ return tok !== _searchSeq; }
-
-    function distOf(feature){
-      var p = feature && feature.properties || {};
-      // House/Senate layers expose DIST; the congressional layer exposes DISTRICT.
-      var d = p.DIST != null ? p.DIST
-            : (p.dist != null ? p.dist
-            : (p.DISTRICT != null ? p.DISTRICT
-            : (p.district != null ? p.district : null)));
-      var n = parseInt(d, 10);
-      return isNaN(n) ? null : n;
-    }
-
-    // ── Point-in-polygon (ray casting) ─────────────────────────────────────────
-    // Lets us resolve which district contains a geocoded address, for both layers
-    // at once, without depending on whichever layer is currently drawn.
-    function pointInRing(lng, lat, ring){
-      var inside = false;
-      for (var i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-        var xi = ring[i][0], yi = ring[i][1];
-        var xj = ring[j][0], yj = ring[j][1];
-        var intersect = ((yi > lat) !== (yj > lat)) &&
-          (lng < (xj - xi) * (lat - yi) / ((yj - yi) || 1e-12) + xi);
-        if (intersect) inside = !inside;
-      }
-      return inside;
-    }
-    function pointInPolygon(lng, lat, rings){
-      // rings: [outer, hole1, hole2, ...]
-      if (!rings || !rings.length || !pointInRing(lng, lat, rings[0])) return false;
-      for (var h = 1; h < rings.length; h++) { if (pointInRing(lng, lat, rings[h])) return false; }
-      return true;
-    }
-    function featureContains(feature, lng, lat){
-      var g = feature && feature.geometry; if (!g) return false;
-      if (g.type === 'Polygon') return pointInPolygon(lng, lat, g.coordinates);
-      if (g.type === 'MultiPolygon') {
-        for (var p = 0; p < g.coordinates.length; p++) {
-          if (pointInPolygon(lng, lat, g.coordinates[p])) return true;
-        }
-      }
-      return false;
-    }
-    function districtAt(layerType, lng, lat){
-      var geo = _geoCache[layerType];
-      if (!geo || !geo.features) return null;
-      for (var i = 0; i < geo.features.length; i++) {
-        if (featureContains(geo.features[i], lng, lat)) return distOf(geo.features[i]);
-      }
-      return null;
-    }
-
-    // Public boundary-based U.S. House lookup: given a lat/lng, fetch the 2026
-    // congressional boundaries (cached) and return the district number containing
-    // the point, or null. Lets the auto-detect / reverse-geocode path resolve the
-    // congressional district from the real district lines instead of the Census
-    // "Current" vintage (which still serves the prior, pre-2026 map).
-    window._pdxCongressAt = function(lat, lng){
-      var x = parseFloat(lng), y = parseFloat(lat);
-      if (isNaN(x) || isNaN(y)) return Promise.resolve(null);
-      return fetchGeo('congress')
-        .then(function(){ return districtAt('congress', x, y); })
-        .catch(function(){ return null; });
-    };
-    // Find the drawn Leaflet path for a district number (building the layer if
-    // needed) so a searched district can be highlighted just like a tapped one.
-    function pathForDist(layerType, dist){
-      if (dist == null) return null;
-      if (!_layers[layerType] && _geoCache[layerType]) _layers[layerType] = buildLayer(layerType, _geoCache[layerType]);
-      var found = null;
-      if (_layers[layerType]) {
-        _layers[layerType].eachLayer(function(l){ if (found == null && distOf(l.feature) === dist) found = l; });
-      }
-      return found;
-    }
-
-    // ── Styling ──────────────────────────────────────────────────────────────
-    function baseStyle(layerType){
-      return { color: STROKE[layerType], weight: 1, opacity: 0.75,
-               fillColor: STROKE[layerType], fillOpacity: 0.08 };
-    }
-    function selStyle(){
-      return { color: '#f5c842', weight: 3, opacity: 1,
-               fillColor: '#34d399', fillOpacity: 0.42 };
-    }
-    function applyPathStyle(path, layerType, selected){
-      if (!path) return;
-      path.setStyle(selected ? selStyle() : baseStyle(layerType));
-      if (selected && path.bringToFront) path.bringToFront();
-    }
-
-    // ── Status overlay (loading / error) ─────────────────────────────────────
-    // idle=true is the prompt over a live basemap; otherwise it is a curtain.
-    function showStatus(html, withSpinner, idle){
-      var s = document.getElementById('pdx-map-status');
-      var t = document.getElementById('pdx-map-status-text');
-      if (!s) return;
-      s.classList.toggle('pdx-map-status--idle', !!idle);
-      s.style.display = 'flex';
-      var spin = s.querySelector('.pdx-map-spinner');
-      if (spin) spin.style.display = withSpinner ? 'block' : 'none';
-      if (t) t.innerHTML = html;
-    }
-    function hideStatus(){
-      var s = document.getElementById('pdx-map-status');
-      if (!s) return;
-      s.style.display = 'none';
-      s.classList.remove('pdx-map-status--idle');
-    }
-    // ── THE FINDER OPENS EMPTY, ON PURPOSE ────────────────────────────────────
-    // The House layer is 75 polygons plus 75 tooltips and used to be drawn the
-    // instant the modal opened. Nothing is drawn now without something to draw
-    // FOR: a RESULT, or a TAP (the canvas, a toggle, or this button).
-    function promptForLayer(){
-      showStatus(
-        '<strong style="color:#cfe0f7;">Search your address above</strong> — we’ll find your districts and draw them.' +
-        '<br><span style="font-size:0.78rem;color:#8aa3c8;">Or tap your area on the map to draw the ' +
-        LABEL[_activeLayer] + ' boundaries and pick by hand.</span>' +
-        '<br><button type="button" class="pdx-map-retry" onclick="window.pdxMapShowBoundaries()">Show ' +
-        LABEL[_activeLayer] + ' boundaries</button>', false, true);
-    }
-    function isPainted(layerType){
-      return !!(_layers[layerType] && _map && _map.hasLayer(_layers[layerType]));
-    }
-
-    // ── Data ─────────────────────────────────────────────────────────────────
-    function fetchGeo(layerType){
-      if (_geoCache[layerType]) return Promise.resolve(_geoCache[layerType]);
-      // Ceiling and canceller, like every other request the finder makes.
-      return PDXF.fetch(GEO_URLS[layerType], { cache: 'force-cache' })
-        .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-        .then(function(json){
-          if (!json || !json.features || !json.features.length) throw new Error('No districts returned');
-          _geoCache[layerType] = json;
-          return json;
-        });
-    }
-
-    // ── Map build ────────────────────────────────────────────────────────────
-    function ensureMap(){
-      if (_map) return _map;
-      _map = L.map('pdx-district-map', {
-        zoomControl: true, attributionControl: true,
-        scrollWheelZoom: true, minZoom: 5, maxZoom: 17
-      }).setView([39.32, -111.55], 6);
-
-      // ── THE BASEMAP CARRIES NO KEY, BECAUSE THERE IS NO KEY TO CARRY ────────
-      // This was Carto's dark_all. That CDN is keyed now, and an unkeyed request
-      // is not a 404 a tile layer would skip — it is a 200 PNG whose pixels say a
-      // key is required, so the finder re-fetched stamped tiles on every pan. No
-      // key exists here to restore and none can be committed, so this is OSM's
-      // keyless raster, attributed as its policy asks. See sw.js v231.
-      _tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19, detectRetina: false,
-        // A failed tile is a transparent pixel, not a broken-image icon.
-        errorTileUrl: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
-        attribution: 'Districts: UGRC · &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      });
-      // AND IT GIVES UP INSTEAD OF RETRYING FOREVER. After a handful of failures
-      // the layer is dropped; outlines, pin and controls remain a usable map.
-      _tiles.on('tileerror', function(){
-        _tileErrors++;
-        if (_tileErrors < 14 || !_tiles) return;
-        try { _map.removeLayer(_tiles); } catch(e) {}
-        _tiles = null;
-        var att = document.querySelector('.pdx-map-canvas-wrap .leaflet-control-attribution');
-        if (att) att.innerHTML = 'Districts: UGRC · basemap unavailable';
-      });
-      _tiles.addTo(_map);
-
-      // TAP-TO-LOAD. With nothing drawn, the map takes the tap, loads the active
-      // layer and picks the district there. Polygon clicks bubble here too, which
-      // is what the guard covers.
-      _map.on('click', function(e){
-        if (!e || !e.latlng) return;
-        if (_loadingLayer || isPainted(_activeLayer)) return;
-        loadAndShow(_activeLayer, true, e.latlng);
-      });
-
-      return _map;
-    }
-
-    function buildLayer(layerType, geojson){
-      return L.geoJSON(geojson, {
-        style: function(){ return baseStyle(layerType); },
-        onEachFeature: function(feature, path){
-          var dist = distOf(feature);
-          if (dist == null) return;
-          path.bindTooltip(LABEL[layerType] + ' District ' + dist, {
-            sticky: true, direction: 'top', className: 'pdx-dist-tip', opacity: 1
-          });
-          path.on({
-            mouseover: function(){ if (_selected[layerType] !== dist && _selPath[layerType] !== path) path.setStyle({ fillOpacity: 0.26, weight: 2 }); },
-            mouseout:  function(){ if (_selected[layerType] !== dist && _selPath[layerType] !== path) path.setStyle(baseStyle(layerType)); },
-            // A manual tap is the voter overriding the searched address, so drop the
-            // search-derived area/congress and let their tapped districts drive the
-            // resolved area (and thus the U.S. House district) for full consistency.
-            // The U.S. House layer is a reference view only — the congressional
-            // district is derived automatically from the voter's precise address —
-            // so a tap there just highlights the seat and shows its number.
-            click:     function(){
-              if (layerType === 'congress') {
-                if (_selPath.congress && _selPath.congress !== path) applyPathStyle(_selPath.congress, 'congress', false);
-                _selPath.congress = path; applyPathStyle(path, 'congress', true);
-                var lbl = document.getElementById('pdx-map-info-label');
-                var iv  = document.getElementById('pdx-map-info-val');
-                var ic  = document.getElementById('pdx-map-info-ico');
-                if (lbl) lbl.textContent = 'Viewing · U.S. House';
-                if (ic)  ic.textContent = '🦅';
-                if (iv)  iv.innerHTML = 'U.S. House <span class="pdx-info-dist">District ' + dist + '</span>';
-                return;
-              }
-              _searchAreaId = null; _searchCongress = null; selectDistrict(layerType, dist, path);
-            }
-          });
-          // Re-highlight a previously chosen district when the layer (re)builds.
-          if (_selected[layerType] === dist){ _selPath[layerType] = path; applyPathStyle(path, layerType, true); }
-        }
-      });
-    }
-
-    function showLayer(layerType, skipFit){
-      if (!_geoCache[layerType]) return;
-      ['house','senate','congress'].forEach(function(t){
-        if (_layers[t] && _map.hasLayer(_layers[t]) && t !== layerType) _map.removeLayer(_layers[t]);
-      });
-      if (!_layers[layerType]) _layers[layerType] = buildLayer(layerType, _geoCache[layerType]);
-      if (!_map.hasLayer(_layers[layerType])) _layers[layerType].addTo(_map);
-      if (!skipFit) { try { _map.fitBounds(_layers[layerType].getBounds(), { padding: [12, 12] }); } catch(e) {} }
-      // On the U.S. House reference layer, highlight the voter's own district (the
-      // one detected from their address) so they can see it on the court-ordered map.
-      if (layerType === 'congress' && _searchCongress != null) {
-        var cp = pathForDist('congress', _searchCongress);
-        if (cp) { _selPath.congress = cp; applyPathStyle(cp, 'congress', true); }
-      }
-      if (_marker && _marker.bringToFront) _marker.bringToFront();
-    }
-
-    // pickAt (optional {lat,lng}): the tap that asked, so one tap both draws the
-    // boundaries and picks the district under that point.
-    function loadAndShow(layerType, skipFit, pickAt){
-      var tok = ++_layerSeq;
-      _loadingLayer = true;
-      showStatus('Loading ' + LABEL[layerType] + ' boundaries…', true);
-      fetchGeo(layerType).then(function(){
-        _loadingLayer = false;
-        if (tok !== _layerSeq) return;   // the reader closed the finder, or moved on
-        hideStatus();
-        showLayer(layerType, skipFit);
-        if (pickAt && layerType !== 'congress') {
-          var d = districtAt(layerType, pickAt.lng, pickAt.lat);
-          if (d != null) {
-            // A tap overrides a searched address, as the polygon handler does.
-            _searchAreaId = null; _searchCongress = null;
-            selectDistrict(layerType, d, pathForDist(layerType, d));
-          } else {
-            setSearchNote('That spot is outside Utah’s ' + LABEL[layerType] +
-              ' district map. Tap inside Utah, or search your address.', 'is-warn');
-          }
-        }
-        setTimeout(function(){ if (_map) _map.invalidateSize(); }, 60);
-      }).catch(function(err){
-        _loadingLayer = false;
-        if (tok !== _layerSeq) return;
-        showStatus('Couldn’t load the district map.<br><span style="font-size:0.78rem;color:#8aa3c8;">' +
-          (err && err.message ? err.message : 'Network error') + '</span><br>' +
-          '<button type="button" class="pdx-map-retry" onclick="window.pdxMapRetry()">Try again</button>', false);
-      });
-    }
-
-    // ── Selection ────────────────────────────────────────────────────────────
-    function selectDistrict(layerType, dist, path){
-      // Clear the previous pick's styling in this layer.
-      if (_selPath[layerType] && _selPath[layerType] !== path) applyPathStyle(_selPath[layerType], layerType, false);
-      _selected[layerType] = dist;
-      _selPath[layerType]  = path || null;
-      _lastPicked = layerType;
-      applyPathStyle(path, layerType, true);
-      updateSelectionUI(layerType, dist);
-      applyToLocation();
-    }
-
-    function updateSelectionUI(justSet, dist){
-      ['house','senate'].forEach(function(t){
-        var card = document.getElementById('pdx-sel-' + t);
-        if (!card) return;
-        var val = card.querySelector('.pdx-sel-val');
-        if (_selected[t]) {
-          card.classList.add('is-set');
-          val.textContent = 'District ' + _selected[t];
-          val.classList.remove('is-empty');
-        } else {
-          card.classList.remove('is-set');
-          val.textContent = 'Not set';
-          val.classList.add('is-empty');
-        }
-      });
-      var hint = document.getElementById('pdx-map-hint');
-      if (hint && justSet && dist != null) {
-        hint.innerHTML = '✅ <strong style="color:#7ee7b8;">' + LABEL[justSet] + ' District ' + dist +
-          '</strong> selected — it’s now part of your location.' +
-          (justSet === 'house' ? ' Switch to <strong style="color:#cfe0f7;">State Senate</strong> to set that too.'
-                                : ' Switch to <strong style="color:#cfe0f7;">State House</strong> to set that too.');
-      }
-      refreshInfoPanel();
-      refreshResultBanner();
-      refreshConfirmBtn();
-    }
-
-    // Shorten a Nominatim display_name to the first few, most-recognisable parts.
-    function shortAddr(name){
-      if (!name) return 'Searched location';
-      return name.split(',').slice(0, 3).join(',').trim();
-    }
-
-    // Post-search banner: the searched address, the district for the active toggle,
-    // and a one-tap commit button. Mirrors the toggle so switching House/Senate
-    // updates which district it offers to use.
-    function refreshResultBanner(){
-      var box = document.getElementById('pdx-map-result');
-      if (!box) return;
-      if (!_hasSearchView) { box.style.display = 'none'; return; }
-      box.style.display = 'flex';
-      var addrEl = document.getElementById('pdx-map-result-addr-text');
-      var label  = document.getElementById('pdx-map-result-dist-label');
-      var val    = document.getElementById('pdx-map-result-dist-val');
-      var altEl  = document.getElementById('pdx-map-result-alt');
-      var useBtn = document.getElementById('pdx-map-result-use');
-      if (addrEl) addrEl.textContent = _searchHit ? shortAddr(_searchHit.name) : 'Searched location';
-      // On the U.S. House reference layer the district isn't a manual pick — it's the
-      // boundary-resolved congressional district detected from the address.
-      var isCongress = (_activeLayer === 'congress');
-      var dist  = isCongress ? _searchCongress : _selected[_activeLayer];
-      var other = _activeLayer === 'house' ? 'senate' : 'house';
-      if (label) label.textContent = LABEL[_activeLayer];
-      if (val) {
-        if (dist != null) { val.textContent = 'District ' + dist; val.classList.remove('is-none'); }
-        else { val.textContent = 'No district here'; val.classList.add('is-none'); }
-      }
-      if (altEl) {
-        if (_selected[other] != null) {
-          altEl.style.display = 'block';
-          altEl.innerHTML = 'Also matched <strong>' + LABEL[other] + ' District ' + _selected[other] +
-            '</strong> — <button type="button" class="pdx-result-altbtn" onclick="window.pdxMapSetLayer(\'' + other + '\')">switch</button>';
-        } else {
-          altEl.style.display = 'none';
-        }
-      }
-      if (useBtn) {
-        useBtn.disabled = !(_selected.house || _selected.senate);
-        useBtn.textContent = dist != null
-          ? '✓ Use ' + LABEL[_activeLayer] + ' District ' + dist
-          : (isCongress ? 'Search your address for your district' : 'Tap your district on the map');
-      }
-    }
-
-    // Info panel = details for the district on the layer the voter is looking at.
-    function refreshInfoPanel(){
-      var panel = document.getElementById('pdx-map-info');
-      var label = document.getElementById('pdx-map-info-label');
-      var val   = document.getElementById('pdx-map-info-val');
-      var ico   = document.getElementById('pdx-map-info-ico');
-      if (!panel || !label || !val) return;
-      // U.S. House is a read-only reference layer: the congressional district is
-      // resolved automatically from the voter's address against the 2026 court-
-      // ordered boundaries, so there's no manual pick — we just surface it.
-      if (_activeLayer === 'congress') {
-        label.textContent = 'Viewing · U.S. House (2026 court-ordered map)';
-        if (ico) ico.textContent = '🦅';
-        if (_searchCongress != null) {
-          panel.classList.add('is-set');
-          val.innerHTML = 'U.S. House <span class="pdx-info-dist">District ' + _searchCongress +
-            '</span> <span style="opacity:0.7;font-size:0.82em;">· auto-detected from your address</span>';
-        } else {
-          panel.classList.remove('is-set');
-          val.textContent = 'Search your address to see your U.S. House district';
-        }
-        return;
-      }
-      var dist = _selected[_activeLayer];
-      label.textContent = (dist ? 'Selected district · ' : 'Currently viewing · ') + LABEL[_activeLayer];
-      if (dist) {
-        panel.classList.add('is-set');
-        if (ico) ico.textContent = '🏛️';
-        val.innerHTML = LABEL[_activeLayer] + ' <span class="pdx-info-dist">District ' + dist + '</span>';
-      } else {
-        panel.classList.remove('is-set');
-        if (ico) ico.textContent = '📍';
-        val.textContent = 'No ' + LABEL[_activeLayer] + ' district selected yet';
-      }
-    }
-
-    // The confirm button only commits once at least one district is chosen.
-    function refreshConfirmBtn(){
-      var btn = document.getElementById('pdx-map-done');
-      if (!btn) return;
-      var any = !!(_selected.house || _selected.senate);
-      btn.disabled = !any;
-      var parts = [];
-      if (_selected.house)  parts.push('House ' + _selected.house);
-      if (_selected.senate) parts.push('Senate ' + _selected.senate);
-      btn.textContent = any ? 'Use this location · ' + parts.join(' · ') : 'Select a district first';
-    }
-
-    // Resolve the curated Key-Races area that best matches the chosen districts so
-    // the rest of the location system (Relevant to Me slate, ballot, voter map)
-    // updates to the right seats. An address search already pins the exact area
-    // from the geocoded city/county (_searchAreaId) — trust that directly so the
-    // committed location is the SAME area the main page resolves, rather than
-    // reverse-mapping from district numbers (which can be ambiguous).
-    function resolveArea(){
-      var locs = window.KEY_RACES_LOCATIONS || [];
-      if (_searchAreaId) {
-        for (var k = 0; k < locs.length; k++) { if (locs[k].id === _searchAreaId) return locs[k]; }
-      }
-      var h = _selected.house, s = _selected.senate;
-      var both = null, byH = null, byS = null;
-      for (var i = 0; i < locs.length; i++) {
-        var a = locs[i];
-        if (h && s && a.houseDistrict === h && a.senateDistrict === s && !both) both = a;
-        if (h && a.houseDistrict === h && !byH) byH = a;
-        if (s && a.senateDistrict === s && !byS) byS = a;
-      }
-      if (both) return both;
-      if (_lastPicked === 'senate') return byS || byH || null;
-      return byH || byS || null;
-    }
-
-    function applyToLocation(){
-      var loc = window._currentVoterLocation || { state: '', city: '', county: '', district: '' };
-      loc.state = 'Utah';
-      if (_selected.house)  loc.stateHouseDistrict  = String(_selected.house);
-      if (_selected.senate) loc.stateSenateDistrict = String(_selected.senate);
-      loc.mapSelected = true;
-
-      var area = resolveArea();
-      if (area) {
-        loc.city = area.city || loc.city;
-        loc.county = area.county || loc.county;
-        if (area.congressDistrict) loc.district = String(area.congressDistrict);
-        try { localStorage.setItem(window.KR_LOCATION_KEY || 'politidex_keyraces_location', area.id); } catch(e) {}
-      }
-
-      // U.S. House: _searchCongress is the boundary-resolved district (the 2026
-      // congressional map, by point-in-polygon), so a map/address search saves the
-      // voter's true congressional district regardless of county or Census staleness.
-      if (_searchCongress != null) loc.district = String(_searchCongress);
-
-      window._currentVoterLocation = loc;
-      window._hasUserLocation = true;
-      if (typeof window.saveVoterLocation === 'function') window.saveVoterLocation();
-      // Saved on every pick as before; only the rebuild waits. See PDXFinder.
-      reactToLocation();
-    }
 
     // ── "Set via map" indicator (called from _triggerLocationReaction) ─────────
     // Resolve the voter's three key seats — U.S. House, State Senate, State House —
@@ -18643,7 +17808,7 @@ window.PDXLazy = (function () {
       if (typeof window._showToast === 'function') window._showToast(msg);
 
       // Briefly outline the surfaces that just changed so the eye lands on them.
-      ['relevant-map-trigger', 'relevant-location-text', 'vh-district-strip'].forEach(function(id){
+      ['relevant-map-trigger', 'relevant-location-text', 'wrm-reps'].forEach(function(id){
         var node = document.getElementById(id);
         if (!node) return;
         node.classList.remove('pdx-loc-flash');
@@ -18654,591 +17819,58 @@ window.PDXLazy = (function () {
       });
     };
 
-    // ── Address search (geocode → zoom → auto-select) ──────────────────────────
-    function escapeHtml(s){
-      return String(s).replace(/[&<>"]/g, function(c){
-        return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c];
-      });
-    }
-    function setSearchNote(html, cls){
-      var n = document.getElementById('pdx-map-search-note');
-      if (!n) return;
-      n.className = 'pdx-map-search-note' + (cls ? ' ' + cls : '');
-      n.innerHTML = html;
-    }
-    function setSearchBusy(busy){
-      _searching = busy;
-      var btn = document.getElementById('pdx-map-search-btn');
-      var ico = document.getElementById('pdx-map-search-ico');
-      if (btn) btn.disabled = busy;
-      if (ico) ico.innerHTML = busy ? '<span class="pdx-mini-spin"></span>' : '🔍';
-    }
-    // ── Geocoding ──────────────────────────────────────────────────────────────
-    // Two sources, best-precision-first:
-    //   1. U.S. Census geocoder (TIGER) — rooftop/interpolated coordinates with far
-    //      better rural coverage than OSM, and it returns the point's Congressional
-    //      + State Legislative (upper/lower) districts in the SAME call. Loaded via
-    //      JSONP so it works cross-origin, mirroring window._reverseGeocode.
-    //   2. OpenStreetMap Nominatim — fallback for city/ZIP-only queries and any
-    //      address the Census can't parse. Utah-bounded first, then nationwide.
-    var _jsonpSeq = 0;
-    function pdxJsonp(url, timeoutMs){
-      return new Promise(function(resolve, reject){
-        var cb = 'pdx_geo_cb_' + (++_jsonpSeq);
-        var script = document.createElement('script');
-        var timer = setTimeout(function(){ cleanup(); reject(new Error('timeout')); }, timeoutMs || 7000);
-        function cleanup(){
-          clearTimeout(timer);
-          try { delete window[cb]; } catch(e){ window[cb] = undefined; }
-          if (script && script.parentNode) script.parentNode.removeChild(script);
-        }
-        window[cb] = function(data){ cleanup(); resolve(data); };
-        script.onerror = function(){ cleanup(); reject(new Error('load')); };
-        // JSONP cannot be cancelled, but it can be orphaned: callback deleted,
-        // tag pulled, so a late script calls nothing.
-        PDXF.track(function(){ cleanup(); reject(new Error('aborted')); });
-        script.src = url + (url.indexOf('?') === -1 ? '?' : '&') + 'callback=' + cb;
-        document.body.appendChild(script);
-      });
-    }
-    // Pull a district number out of a Census "geographies" bucket. Keys are year-
-    // prefixed (e.g. "119th Congressional Districts", "2024 State Legislative
-    // Districts - Upper"), so match on a stable substring.
-    function censusDist(geos, needle){
-      for (var k in geos){
-        if (k.toLowerCase().indexOf(needle) !== -1 && geos[k] && geos[k].length){
-          var o = geos[k][0];
-          var raw = o.BASENAME != null ? o.BASENAME : (o.NAME || '');
-          var m = String(raw).match(/\d+/);
-          if (m) return parseInt(m[0], 10);
-        }
-      }
-      return null;
-    }
-    // Pull a place/county NAME out of a Census "geographies" bucket (e.g. the
-    // "Counties" or "Incorporated Places" bucket), so we can resolve the curated
-    // Key-Races area for the address and mirror exactly what the main page shows.
-    function censusName(geos, needle){
-      for (var k in geos){
-        if (k.toLowerCase().indexOf(needle) !== -1 && geos[k] && geos[k].length){
-          var o = geos[k][0];
-          return ((o.BASENAME != null ? o.BASENAME : (o.NAME || '')) + '').trim();
-        }
-      }
-      return '';
-    }
-    // City BASENAMEs vary across Census buckets ("Incorporated Places",
-    // "Census Designated Places"); take whichever resolves first.
-    function censusPlaceName(geos){
-      return censusName(geos, 'incorporated places') ||
-             censusName(geos, 'census designated places') ||
-             censusName(geos, 'places');
-    }
-    // Utah bounding box (W,E,S,N in lng/lat). Used to bias geocoding to Utah and
-    // to reject out-of-state matches that would otherwise drop the pin on an
-    // identically-named street in another city/valley/state.
-    var UTAH_BBOX = { west: -114.10, east: -108.95, south: 36.95, north: 42.05 };
-    function inUtah(lat, lng){
-      return lng >= UTAH_BBOX.west && lng <= UTAH_BBOX.east &&
-             lat >= UTAH_BBOX.south && lat <= UTAH_BBOX.north;
-    }
-    // Append a Utah hint when the query names no state, so the geocoders resolve
-    // the Utah address rather than a same-named street elsewhere in the country.
-    function biasUtah(q){
-      return /\b(ut|utah)\b/i.test(q) ? q : (q + ', UT');
-    }
-    function geocodeCensus(q){
-      var url = 'https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?benchmark=Public_AR_Current&vintage=Current_Current&format=jsonp&address=' +
-        encodeURIComponent(q);
-      return pdxJsonp(url, 7000).then(function(data){
-        var matches = data && data.result && data.result.addressMatches;
-        if (!matches || !matches.length) return null;
-        // Prefer the first candidate whose coordinates fall inside Utah so an
-        // ambiguous match doesn't pin to another state; fall back to the top hit.
-        var m = null;
-        for (var mi = 0; mi < matches.length; mi++){
-          var mc = matches[mi].coordinates || {};
-          var mla = parseFloat(mc.y), mln = parseFloat(mc.x);
-          if (!isNaN(mla) && !isNaN(mln) && inUtah(mla, mln)) { m = matches[mi]; break; }
-        }
-        if (!m) m = matches[0];
-        var c = m.coordinates || {};
-        var lat = parseFloat(c.y), lng = parseFloat(c.x);
-        if (isNaN(lat) || isNaN(lng)) return null;
-        var geos = m.geographies || {};
-        var comp = m.addressComponents || {};
-        return {
-          lat: lat, lng: lng,
-          name: m.matchedAddress || q,
-          precise: true, source: 'census',
-          city:   (comp.city || censusPlaceName(geos) || '').trim(),
-          county: censusName(geos, 'counties'),
-          congress: censusDist(geos, 'congressional'),
-          senate:   censusDist(geos, 'legislative districts - upper'),
-          house:    censusDist(geos, 'legislative districts - lower')
-        };
-      }).catch(function(){ return null; });
-    }
-    function geocodeNominatim(q, utahBias){
-      var url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=us&addressdetails=1&q=' +
-        encodeURIComponent(q) + (utahBias ? '&viewbox=-114.10,42.10,-108.90,36.95&bounded=1' : '');
-      return PDXF.fetch(url, { headers: { 'Accept': 'application/json' } }, 8000)
-        .then(function(r){ if (!r.ok) throw new Error('geo'); return r.json(); })
-        .then(function(arr){
-          if (!arr || !arr.length) return null;
-          // Score candidates: a Utah hit beats an out-of-state one, and an exact
-          // street/building hit beats a town/region centroid, so the pin lands on
-          // the address rather than a far-off namesake.
-          function rankOf(o){ return o.place_rank != null ? parseInt(o.place_rank, 10) : 0; }
-          function isExact(o){
-            return o.addresstype === 'building' || o.addresstype === 'house' ||
-                   o.category === 'building' || rankOf(o) >= 26;
-          }
-          var best = null, bestScore = -1;
-          for (var i = 0; i < arr.length; i++){
-            var la = parseFloat(arr[i].lat), ln = parseFloat(arr[i].lon);
-            if (isNaN(la) || isNaN(ln)) continue;
-            var score = (inUtah(la, ln) ? 2 : 0) + (isExact(arr[i]) ? 1 : 0);
-            if (score > bestScore){ bestScore = score; best = arr[i]; }
-          }
-          if (!best) best = arr[0];
-          var lat = parseFloat(best.lat), lng = parseFloat(best.lon);
-          if (isNaN(lat) || isNaN(lng)) return null;
-          // A rooftop/building hit is precise; a town/region centroid is not.
-          var precise = isExact(best);
-          var ad = best.address || {};
-          var city = ad.city || ad.town || ad.village || ad.hamlet || ad.municipality || ad.suburb || '';
-          var county = ad.county || '';
-          return { lat: lat, lng: lng, name: best.display_name || q, precise: !!precise,
-                   source: 'nominatim', city: ('' + city).trim(), county: ('' + county).trim() };
-        }).catch(function(){ return null; });
-    }
-    // Best-precision-first chain. Census handles real street addresses (incl. rural);
-    // Nominatim covers city/ZIP-only queries and anything Census can't parse.
-    function resolveGeocode(q, tok){
-      // Try a Utah-biased query first so a stateless address (e.g. "1572 West
-      // Camelot Dr, Layton") resolves in Utah; fall back to the raw query so a
-      // fully-qualified address is still honoured verbatim.
-      // AND IT CHECKS THE TOKEN BETWEEN STEPS, or a cancelled provider's
-      // rejection politely starts the next one for a dead query.
-      var bq = biasUtah(q);
-      function next(hit){ return !hit && !stale(tok); }
-      return geocodeCensus(bq)
-        .then(function(hit){ return (next(hit) && bq !== q) ? geocodeCensus(q) : hit; })
-        .then(function(hit){ return next(hit) ? geocodeNominatim(bq, true) : hit; })
-        .then(function(hit){ return next(hit) ? geocodeNominatim(q, true) : hit; })
-        .then(function(hit){ return next(hit) ? geocodeNominatim(q, false) : hit; });
-    }
-    // Reverse Census lookup at a point — fills the Congressional + State Legislative
-    // districts for hits that didn't carry them (e.g. a Nominatim town centroid), so
-    // U.S. House detection works for every search, not just street addresses.
-    function censusAtPoint(lat, lng){
-      var url = 'https://geocoding.geo.census.gov/geocoder/geographies/coordinates?benchmark=Public_AR_Current&vintage=Current_Current&format=jsonp&x=' + lng + '&y=' + lat;
-      return pdxJsonp(url, 7000).then(function(data){
-        var geos = data && data.result && data.result.geographies;
-        if (!geos) return null;
-        return {
-          city:     censusPlaceName(geos),
-          county:   censusName(geos, 'counties'),
-          congress: censusDist(geos, 'congressional'),
-          senate:   censusDist(geos, 'legislative districts - upper'),
-          house:    censusDist(geos, 'legislative districts - lower')
-        };
-      }).catch(function(){ return null; });
+    // Reflect any saved map selection on first paint — including a selection
+    // that was made on a different document a moment ago, which after the move
+    // is the common case rather than the exotic one.
+    if (typeof window._pdxRefreshMapIndicators === 'function') {
+      try { window._pdxRefreshMapIndicators(); } catch(e) {}
     }
 
-    // ── Marker (clearly visible, pulsing red pin on the exact point) ────────────
-    function ensurePinStyles(){
-      if (document.getElementById('pdx-pin-styles')) return;
-      var st = document.createElement('style');
-      st.id = 'pdx-pin-styles';
-      st.textContent =
-        '.pdx-pin{position:relative;width:30px;height:30px;}' +
-        '.pdx-pin-dot{position:absolute;top:50%;left:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:#e01b32;border:3px solid #fff;box-shadow:0 1px 8px rgba(0,0,0,0.75),0 0 0 1.5px rgba(0,0,0,0.4);}' +
-        '.pdx-pin-pulse{position:absolute;top:50%;left:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:rgba(224,27,50,0.55);animation:pdxPinPulse 1.8s ease-out infinite;}' +
-        '@keyframes pdxPinPulse{0%{transform:scale(1);opacity:0.85;}70%{transform:scale(3.6);opacity:0;}100%{transform:scale(3.6);opacity:0;}}';
-      document.head.appendChild(st);
-    }
-    function placeMarker(hit){
-      if (!_map) return;
-      if (_marker) { _map.removeLayer(_marker); _marker = null; }
-      ensurePinStyles();
-      var icon = L.divIcon({
-        className: 'pdx-pin-wrap',
-        html: '<div class="pdx-pin"><div class="pdx-pin-pulse"></div><div class="pdx-pin-dot"></div></div>',
-        iconSize: [30, 30], iconAnchor: [15, 15]
-      });
-      _marker = L.marker([hit.lat, hit.lng], { icon: icon, zIndexOffset: 1000, keyboard: false }).addTo(_map);
-      var label = hit.name ? hit.name.split(',').slice(0, 2).join(',').trim() : 'Your address';
-      _marker.bindTooltip(label, { direction: 'top', className: 'pdx-dist-tip', opacity: 1, offset: [0, -12] }).openTooltip();
-    }
-
-    // ── Nearest-district fallback ───────────────────────────────────────────────
-    // Rough centroid (average of the first ring's vertices) of a feature — only used
-    // to pick the closest district when an exact point-in-polygon test comes up
-    // empty (e.g. a rural point that lands in a gap left by boundary simplification).
-    function featureCentroid(feature){
-      var g = feature && feature.geometry; if (!g) return null;
-      var ring = g.type === 'Polygon' ? g.coordinates[0]
-               : (g.type === 'MultiPolygon' ? g.coordinates[0][0] : null);
-      if (!ring || !ring.length) return null;
-      var sx = 0, sy = 0;
-      for (var i = 0; i < ring.length; i++){ sx += ring[i][0]; sy += ring[i][1]; }
-      return [sx / ring.length, sy / ring.length];
-    }
-    function nearestDistrict(layerType, lng, lat){
-      var geo = _geoCache[layerType];
-      if (!geo || !geo.features) return null;
-      var best = null, bestD = Infinity;
-      for (var i = 0; i < geo.features.length; i++){
-        var c = featureCentroid(geo.features[i]); if (!c) continue;
-        var dx = c[0] - lng, dy = c[1] - lat, d = dx * dx + dy * dy;
-        if (d < bestD){ bestD = d; best = distOf(geo.features[i]); }
-      }
-      return best;
-    }
-
-    function onGeocoded(hit, tok){
-      // THE RESULT IS WHAT EARNS THE PAINT: the one draw with no tap behind it.
-      // The token is checked first, so a late response paints nothing.
-      showStatus('Loading Utah district boundaries…', true);
-      // Load BOTH boundary sets so House and Senate can be resolved in one pass, and
-      // backfill the address's districts from Census if the geocoder didn't carry
-      // them (so U.S. House always resolves, even for a Nominatim town centroid).
-      var enrich = (hit.congress == null || hit.house == null || hit.senate == null || !hit.city || !hit.county)
-        ? censusAtPoint(hit.lat, hit.lng) : Promise.resolve(null);
-      // Also load the 2026 U.S. House boundary so the congressional district comes
-      // from the actual district lines (point-in-polygon), not a county assumption
-      // or the Census "Current" vintage (which still serves the prior 2022–2026 map
-      // — e.g. it reports Layton as District 1, when the 2026 map places it in 2).
-      // A congress-layer failure must not block House/Senate, so swallow its error.
-      Promise.all([fetchGeo('house'), fetchGeo('senate'), fetchGeo('congress').catch(function(){ return null; }), enrich]).then(function(res){
-        if (stale(tok)) return;
-        hideStatus();
-        var extra = res[3];
-        if (extra) {
-          if (hit.congress == null) hit.congress = extra.congress;
-          if (hit.house    == null) hit.house    = extra.house;
-          if (hit.senate   == null) hit.senate   = extra.senate;
-          if (!hit.city)   hit.city   = extra.city || '';
-          if (!hit.county) hit.county = extra.county || '';
-        }
-        setSearchBusy(false);
-        ensureMap();
-        // Precise (rooftop) hits earn a tight street-level view so the voter can
-        // see their exact spot; coarse city/ZIP hits stay at a neighborhood level
-        // so the whole place stays in frame. Neither zooms back out to the state.
-        _map.setView([hit.lat, hit.lng], hit.precise ? 16 : 13);
-
-        // District detection from the exact point. Point-in-polygon against the drawn
-        // UGRC boundaries is authoritative for the geometry (it's what gets
-        // highlighted); the Census-reported district is the backstop; a nearest-
-        // centroid match is the last resort so a locatable address never silently
-        // fails. These give the raw, point-precise districts.
-        var h = districtAt('house', hit.lng, hit.lat);
-        var s = districtAt('senate', hit.lng, hit.lat);
-        // True when the seat came straight from a point-in-polygon boundary hit (the
-        // real district line), as opposed to a Census/nearest fallback. A genuine
-        // boundary hit is trusted as-is and never re-aligned to a county area below.
-        var hExact = h != null, sExact = s != null;
-        var approxH = false, approxS = false;
-        if (h == null && hit.house  != null && pathForDist('house',  hit.house))  h = hit.house;
-        if (s == null && hit.senate != null && pathForDist('senate', hit.senate)) s = hit.senate;
-        if (h == null) { h = nearestDistrict('house',  hit.lng, hit.lat); approxH = h != null; }
-        if (s == null) { s = nearestDistrict('senate', hit.lng, hit.lat); approxS = s != null; }
-
-        // U.S. House — resolved from the ACTUAL 2026 congressional boundary by
-        // point-in-polygon. This is the trusted, map-based answer: it ignores county
-        // lines and the stale Census "Current" map, so a Davis County address such as
-        // Layton correctly resolves to District 2 (Celeste Maloy), not District 1.
-        var c = districtAt('congress', hit.lng, hit.lat);
-
-        // ── Resolve the curated Key-Races AREA (for the candidate roster only) ─────
-        // The area a voter's city/county maps to selects which curated slate (Key
-        // Races cards, Relevant to Me) is shown. It is NOT used to decide the
-        // districts — those come from the boundary above. The area only fills a gap
-        // where an exact point-in-polygon lookup was unavailable (e.g. a coarse
-        // centroid landing in a simplification seam), never overriding a real hit.
-        var areaId = (typeof window._krInferLocation === 'function')
-          ? window._krInferLocation(hit.city, hit.county) : '';
-        var curated = (areaId && typeof window._krDistrictsForLocation === 'function')
-          ? window._krDistrictsForLocation(areaId) : null;
-        if (curated) {
-          if (!hExact && curated.house != null && pathForDist('house', curated.house)) {
-            h = curated.house; approxH = false;
-          }
-          if (!sExact && curated.senate != null && pathForDist('senate', curated.senate)) {
-            s = curated.senate; approxS = false;
-          }
-        }
-        _searchAreaId = areaId || null;
-
-        if (h == null && s == null) {
-          _hasSearchView = false; _searchHit = null; _searchCongress = null; _searchAreaId = null;
-          refreshResultBanner();
-          placeMarker(hit);
-          setSearchNote('Found “' + escapeHtml(shortAddr(hit.name)) +
-            '”, but it’s outside Utah’s legislative district maps. Try a Utah address.', 'is-error');
-          return;
-        }
-
-        _searchHit = hit;
-        _hasSearchView = true;
-        // U.S. House precedence is boundary-first: the actual 2026 district line
-        // (point-in-polygon) wins, then the Census-reported district, then the
-        // curated area — so the county never decides the congressional district.
-        _searchCongress = (c != null) ? c
-                          : (hit.congress != null ? hit.congress
-                          : (curated && curated.congress != null ? curated.congress : null));
-        if (h != null) selectDistrict('house', h, pathForDist('house', h));
-        if (s != null) selectDistrict('senate', s, pathForDist('senate', s));
-        showLayer(_activeLayer, true);   // keep the searched-in zoom, don't refit
-        placeMarker(hit);                // drawn last so it sits on top
-        refreshResultBanner();
-
-        // Clear, explicit feedback naming every district detected for the point.
-        var seats = [];
-        if (_searchCongress != null) seats.push('U.S. House ' + _searchCongress);
-        if (s != null) seats.push('State Senate ' + s + (approxS ? '*' : ''));
-        if (h != null) seats.push('State House ' + h + (approxH ? '*' : ''));
-        var approx = approxH || approxS;
-        // Two independent kinds of imprecision are surfaced separately:
-        //  · approx  → the DISTRICT was a nearest-match (exact lookup unavailable)
-        //  · !precise → the PIN is a city/ZIP centroid, not a rooftop point
-        var lead;
-        if (approx) {
-          lead = '📍 Pinned “' + escapeHtml(shortAddr(hit.name)) + '”. Exact lookup was unavailable, so we matched the closest:';
-        } else if (!hit.precise) {
-          lead = '📍 Found “' + escapeHtml(shortAddr(hit.name)) + '” — pin shows the area center. You’re in:';
-        } else {
-          lead = '✅ Found “' + escapeHtml(shortAddr(hit.name)) + '”. You’re in:';
-        }
-        // Note that the districts come from the real boundary lines, not the county —
-        // reinforcing the map as the trusted, location-specific source of truth.
-        var corr = (!approx)
-          ? '<br><span style="opacity:0.85;">📐 Districts come from your exact location on the official boundary maps — not your county.</span>'
-          : '';
-        // For a coarse (city/ZIP) hit, tell the voter how to sharpen the pin.
-        var precNote = (!hit.precise && !approx)
-          ? '<br><span style="opacity:0.85;">Approximate location — add a street number for an exact pin, or tap your spot on the map.</span>'
-          : '';
-        setSearchNote(lead + ' <strong>' + seats.join('</strong> · <strong>') + '</strong>' +
-          (approx ? '<br><span style="opacity:0.85;">* closest district — confirm by tapping your area on the map.</span>' : (corr + precNote)),
-          (approx || !hit.precise) ? 'is-warn' : 'is-ok');
-      }).catch(function(){
-        if (stale(tok)) return;
-        hideStatus();
-        setSearchBusy(false);
-        setSearchNote('Couldn’t load district boundaries. Please try again.', 'is-error');
-      });
-    }
-
-    // ── Public entry points ────────────────────────────────────────────────────
-    window.pdxMapSearchAddress = function(){
-      var input = document.getElementById('pdx-map-search-input');
-      if (!input) return;
-      var q = (input.value || '').trim();
-      if (q.length < 3) { setSearchNote('Enter a street address, city, or ZIP to search.', 'is-error'); return; }
-      // A SECOND SEARCH REPLACES THE FIRST. This used to return early while busy,
-      // so a reader who fixed a typo was still waiting on the typo.
-      var tok = ++_searchSeq;
-      PDXF.abort();
-      setSearchBusy(true);
-      setSearchNote('Finding “' + escapeHtml(q) + '”…');
-      PDXF.deadline(resolveGeocode(q, tok), SEARCH_DEADLINE_MS).then(function(res){
-        if (stale(tok)) return;
-        if (res.timedOut) {
-          setSearchBusy(false);
-          setSearchNote('Address lookup timed out. Check your connection and try again, or tap your area on the map.', 'is-error');
-          return;
-        }
-        if (!res.hit) {
-          setSearchBusy(false);
-          setSearchNote('No match found. Add a city or ZIP (e.g. “Lapoint, UT 84039”) and try again.', 'is-error');
-          return;
-        }
-        onGeocoded(res.hit, tok);
-      });
-    };
-
-    window.pdxMapConfirm = function(){
-      if (!_selected.house && !_selected.senate) return;
-      applyToLocation();
-      window.closeDistrictMapModal();
-      // THE RETURN INTENT, FIRST AND WITH AN EARLY RETURN. A reader who arrived
-      // here from "set your location so you can use District Voice" asked for
-      // one thing, and this is the moment they have it — the districts are
-      // applied and the picker is closed. Everything below (the Home Team
-      // onboarding modal, the welcome→ballot scroll, the location toast) is the
-      // front page's own follow-through, and running any of it before leaving
-      // would open a modal on a document this reader is already navigating off
-      // of. voter-hub-location.js owns the parameter, the allow-list and the
-      // decision; this is the trigger and nothing more. Returns false for the
-      // reader with no `next`, which is the ordinary case, and the front page
-      // behaves exactly as it did.
-      try { if (window.PDXReturn && window.PDXReturn.consume()) return; } catch (e) {}
-      // First-time voter with no saved Home Team yet → guide them into the
-      // one-tap "Build My Home Team" confirmation (a preview of their real reps
-      // plus the Home Team vs Research explainer), which then carries them to
-      // their dashboard. Returning voters who already have a Home Team keep the
-      // lightweight flash + their existing "update your team?" prompt.
+    // ── THE ARRIVAL FROM /find, AND THE ONE FLOW THAT HAD TO COME WITH IT ─────
+    // WHAT THIS IS NOT: it is not the "location updated" toast. That existed to
+    // reassure a reader who had changed their location and was STAYING on the
+    // page they changed it on; a reader arriving from /find is looking at the new
+    // answer already, and announcing it would be telling them what they can see.
+    //
+    // WHAT IT IS: the "Build My Home Team" confirmation, which is the only route
+    // into the Home Team builder there has ever been and which used to be opened
+    // by pdxMapConfirm — a function that now lives on another document. Left
+    // alone, moving the map would have silently deleted a first-run flow. So
+    // /find records the bare fact that a map confirm happened (sessionStorage,
+    // one key, no location data in it) and this is where the DECISION is made,
+    // because the modal, the team and _homeHasBase() are all here.
+    //
+    // ONE-SHOT, AND SPENT ON READ. The flag is removed before anything is opened,
+    // so a reload does not re-onboard, a back button does not re-onboard, and a
+    // reader who declines is not asked again. A returning reader who already has
+    // a team gets the ordinary welcome→ballot handoff instead, exactly as they
+    // did when the confirm and the follow-through were in one document.
+    //
+    // ON DOMContentLoaded, because your-ballot.js wraps pdxOpenHomeTeamOnboard
+    // and ballot-breakdown.js publishes _homeHasBase, and deferred scripts have
+    // all run by then. Both are still `typeof`-guarded: this is a nice-to-have on
+    // arrival, not something worth throwing over.
+    function finderArrival(){
+      var confirmed = false;
+      try {
+        confirmed = sessionStorage.getItem('pdx_finder_confirm') === '1';
+        if (confirmed) sessionStorage.removeItem('pdx_finder_confirm');
+      } catch(e) { confirmed = false; }
+      if (!confirmed) return;
       var noBase = (typeof window._homeHasBase !== 'function') || !window._homeHasBase();
       var onboarded = false;
       if (noBase && typeof window.pdxOpenHomeTeamOnboard === 'function') {
         // The onboarding modal owns the next step, so cancel the welcome→ballot
         // scroll handoff — we don't want to also yank them down to the ballot.
         window._pdxWelcomeAwaitingBallot = false;
-        onboarded = window.pdxOpenHomeTeamOnboard();
+        try { onboarded = window.pdxOpenHomeTeamOnboard(); } catch(e) { onboarded = false; }
       }
       if (!onboarded && typeof window._pdxRunWelcomeBallotHandoff === 'function') {
-        window._pdxRunWelcomeBallotHandoff();
+        try { window._pdxRunWelcomeBallotHandoff(); } catch(e) {}
       }
-      // Confirmation lands after the modal clears so the highlighted main-page
-      // surfaces are visible behind it. The toast names the city + every detected
-      // district (see _pdxFlashLocationUpdated).
-      setTimeout(function(){
-        if (typeof window._pdxFlashLocationUpdated === 'function') window._pdxFlashLocationUpdated();
-      }, 180);
-    };
-
-    // Chrome only — so opening the finder can set the toggle without drawing.
-    function setLayerChrome(layerType){
-      [['house','pdx-layer-house'],['senate','pdx-layer-senate'],['congress','pdx-layer-congress']].forEach(function(p){
-        var btn = document.getElementById(p[1]);
-        if (btn) { btn.classList.toggle('is-active', layerType === p[0]); btn.setAttribute('aria-selected', layerType === p[0]); }
-      });
-      // The 2026 court-ordered remap explainer rides with the U.S. House layer.
-      var cnote = document.getElementById('pdx-congress-note');
-      if (cnote) cnote.style.display = (layerType === 'congress') ? 'flex' : 'none';
-      var hint = document.getElementById('pdx-map-hint');
-      if (hint) hint.innerHTML = (layerType === 'congress')
-        ? 'Showing the <strong style="color:#a5e9f5;">2026 U.S. House</strong> map — your congressional district is set automatically from your address.'
-        : 'Showing <strong style="color:#cfe0f7;">' + LABEL[layerType] +
-          '</strong> districts — search your address or tap the area where you live.';
-      refreshInfoPanel();
-      refreshResultBanner();
     }
-
-    window.pdxMapSetLayer = function(layerType){
-      if (layerType !== 'house' && layerType !== 'senate' && layerType !== 'congress') return;
-      _activeLayer = layerType;
-      setLayerChrome(layerType);
-      // PRESSING A TOGGLE IS A TAP: every caller here is a reader choosing a
-      // layer. The paint that fired on mere OPEN is gone.
-      if (_map) loadAndShow(layerType, _hasSearchView);
-    };
-
-    // The prompt's own button: draw the active layer, because it was asked for.
-    window.pdxMapShowBoundaries = function(){
-      if (_map) loadAndShow(_activeLayer, _hasSearchView);
-    };
-
-    window.pdxMapClearSelection = function(){
-      ['house','senate'].forEach(function(t){
-        if (_selPath[t]) applyPathStyle(_selPath[t], t, false);
-        _selected[t] = null; _selPath[t] = null;
-      });
-      // Drop any U.S. House reference highlight too (it carries no committed pick).
-      if (_selPath.congress) { applyPathStyle(_selPath.congress, 'congress', false); _selPath.congress = null; }
-      _lastPicked = null;
-      _hasSearchView = false; _searchHit = null; _searchCongress = null;
-      if (_marker && _map) { _map.removeLayer(_marker); _marker = null; }
-      updateSelectionUI();
-      var hint = document.getElementById('pdx-map-hint');
-      if (hint) hint.innerHTML = 'Selection cleared — search your address or tap a district to set it again.';
-      setSearchNote('Type an address to jump straight to your House &amp; Senate districts.');
-      var input = document.getElementById('pdx-map-search-input');
-      if (input) input.value = '';
-      // Drop the map flag from the saved location (manual entry remains intact).
-      var loc = window._currentVoterLocation || {};
-      loc.mapSelected = false; loc.stateHouseDistrict = ''; loc.stateSenateDistrict = '';
-      window._currentVoterLocation = loc;
-      if (typeof window.saveVoterLocation === 'function') window.saveVoterLocation();
-      reactToLocation();
-    };
-
-    window.pdxMapRetry = function(){ if (_map) loadAndShow(_activeLayer); };
-
-    window.openDistrictMapModal = function(){
-      var modal = document.getElementById('district-map-modal');
-      if (!modal) return;
-      if (typeof L === 'undefined') {
-        // Leaflet is code-split. Fetch it on first use, then reopen the modal so
-        // the guard below passes with L present. If the fetch fails (offline, or
-        // the CDN is blocked) fall back to the manual location picker — the exact
-        // degradation this branch provided when the library was render-blocking.
-        if (window.PDXLazy) {
-          window.PDXLazy.leaflet()
-            .then(function () { window.openDistrictMapModal(); })
-            .catch(function () {
-              if (typeof window.openLocationModal === 'function') window.openLocationModal({ forceForm: true });
-            });
-        } else if (typeof window.openLocationModal === 'function') {
-          window.openLocationModal({ forceForm: true });
-        }
-        return;
-      }
-      // Seed the selection from any districts already chosen on the map.
-      var loc = window._currentVoterLocation || {};
-      if (loc.mapSelected) {
-        var h = parseInt(loc.stateHouseDistrict, 10);
-        var s = parseInt(loc.stateSenateDistrict, 10);
-        _selected.house  = isNaN(h) ? null : h;
-        _selected.senate = isNaN(s) ? null : s;
-      }
-
-      modal.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-      updateSelectionUI();
-      setSearchNote(_selected.house || _selected.senate
-        ? 'Search a new address, or tap the map to adjust your districts.'
-        : 'Type an address to jump straight to your House &amp; Senate districts.');
-
-      // Address search is the primary, most accurate path — focus it on open so the
-      // voter can start typing immediately.
-      setTimeout(function(){
-        var input = document.getElementById('pdx-map-search-input');
-        if (input) { try { input.focus(); } catch(e) {} }
-      }, 120);
-
-      // Build the map after the container is visible so Leaflet measures it right.
-      // IT BUILDS THE MAP AND DRAWS NO DISTRICTS. This used to call
-      // pdxMapSetLayer(), painting 75 polygons just to open the modal.
-      setTimeout(function(){
-        ensureMap();
-        _map.invalidateSize();
-        setLayerChrome(_activeLayer);
-        if (isPainted(_activeLayer)) hideStatus();                 // already drawn earlier this visit
-        else if (_hasSearchView) loadAndShow(_activeLayer, true);  // a result is standing
-        else promptForLayer();
-      }, 80);
-    };
-
-    window.closeDistrictMapModal = function(){
-      var modal = document.getElementById('district-map-modal');
-      if (!modal) return;
-      modal.style.display = 'none';
-      document.body.style.overflow = '';
-      // NOTHING KEEPS RUNNING BEHIND A CLOSED FINDER: every request is cancelled
-      // and its token retired, so nothing late can paint here.
-      _searchSeq++; _layerSeq++; _loadingLayer = false;
-      PDXF.abort();
-      setSearchBusy(false);
-      // And the deferred rebuild runs now — once, over a visible page.
-      try { PDXF.flush(); } catch(e) {}
-    };
-
-    // Close on Escape (only when the map modal is the topmost open layer).
-    document.addEventListener('keydown', function(e){
-      if (e.key !== 'Escape') return;
-      var modal = document.getElementById('district-map-modal');
-      if (modal && modal.style.display === 'flex') window.closeDistrictMapModal();
-    });
-
-    // Reflect any saved map selection on first paint.
-    if (typeof window._pdxRefreshMapIndicators === 'function') {
-      try { window._pdxRefreshMapIndicators(); } catch(e) {}
-    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', finderArrival);
+    else finderArrival();
   })();
   </script>
 

@@ -292,21 +292,51 @@ must(resFrom !== -1 && resTo > resFrom,
   '  shared-resolver contract this whole pass rests on is gone');
 const RESOLVER = VHL.slice(swFrom, resTo);
 
-// The strip must CONSUME the resolver rather than keep a private copy. Two
-// surfaces deriving districts separately is the failure mode worth a test. Only
-// the "who represents you now" rows are in scope here — the district-cards panel
-// further down the same function is a different render with its own history.
-const stripRowsEnd = VHL.indexOf('var btnLink =', resTo);
-must(stripRowsEnd > resTo,
-  'voter-hub-location.js no longer has the btnLink marker that ends the "who represents you now"\n' +
-  '  rows block — the slice below would swallow the district-cards panel and test the wrong code');
-const STRIPFN = VHL.slice(resTo, stripRowsEnd);
-has(STRIPFN, 'window.pdxRepsForMe()',
-  'resolver: the Voter Hub strip stopped reading the shared resolver, so the homepage band and the\n' +
-  '    Hub can now name different people for the same address');
-lacks(STRIPFN, '_pdxHouseRedistrict',
-  'resolver: the strip re-derives redistricting itself again — that lives in the resolver so both\n' +
-  '    surfaces tell the same story about a redrawn seat');
+// THE SECOND RENDERER IS RETIRED, AND THAT IS WHAT IS PINNED NOW.
+// This used to require that _vhSyncDistrictStrip CONSUME the resolver rather
+// than keep a private copy of the district walk, on the reasoning that two
+// surfaces deriving districts separately is the failure mode worth a test. It
+// was the right worry and the wrong remedy: sharing a resolver made the two
+// renderers agree about NUMBERS while they went on disagreeing about WORDS, and
+// the words are where the defect lived — the strip printed "Not resolved yet"
+// over a State House seat the district map had already placed, because its copy
+// predates who-represents-me.js learning to tell "no district for you" from
+// "your district, no member on file".
+//
+// The stronger form of "do not derive it twice" is "do not render it twice". The
+// strip is a stub: it empties any host a cached document still carries and
+// forwards to the one owner for the five guarded callers that speak its name.
+// So the pins below are the shape of its absence — no roster read, no seat row,
+// no compare strip, no second spelling of any gap — plus the one thing it must
+// still do.
+const STRIPFN = (() => {
+  const i = VHL.indexOf('window._vhSyncDistrictStrip = function()');
+  must(i > 0,
+    'voter-hub-location.js no longer defines _vhSyncDistrictStrip at all. Its five guarded callers —\n' +
+    '  race-sheet.js twice, ballot-breakdown.js twice and this file\'s own location reaction — would\n' +
+    '  then silently stop reaching the one roster on every location, pick and curated-area change');
+  const j = VHL.indexOf('\n  };', i);
+  return j < 0 ? VHL.slice(i) : VHL.slice(i, j + 5);
+})();
+lacks(STRIPFN, 'window.pdxRepsForMe()',
+  'resolver: the retired strip reads the seat resolver again, which is how it came to hold a second\n' +
+  '    roster in the first place. It has no rows left to fill');
+lacks(STRIPFN, 'wrm-seatcompare',
+  'resolver: the retired strip paints a Compare / Work-this-seat strip again — those live in the\n' +
+  '    upper band and nowhere else');
+lacks(STRIPFN, 'Not resolved yet',
+  'resolver: the retired strip carries its own "NOT RESOLVED YET" copy again, in a file that is not\n' +
+  '    the owner of the three-gap wording');
+lacks(STRIPFN, 'Who Represents You Now',
+  'resolver: a second "Who Represents You Now" card is back in voter-hub-location.js');
+has(STRIPFN, 'PDXWhoRepresentsMe.sync',
+  'resolver: the retired strip no longer forwards to the one roster, so a pick or a location change\n' +
+  '    arriving through the old hook stops repainting the seat list');
+// AND THE HOST IS GONE FROM THE DOCUMENT, not merely unfilled. A mount left in
+// the page is a mount something repaints.
+lacks(HTML, 'id="vh-district-strip"',
+  'index.html carries the second roster\'s mount again — #vh-district-strip is the host the duplicate\n' +
+  '    "Who Represents You Now" block was painted into');
 has(WRM, 'window.pdxRepsForMe',
   'resolver: the homepage band stopped reading the shared resolver');
 
@@ -507,16 +537,33 @@ const mkEl = (id) => {
   };
 };
 
+// `picker: true` PUTS THE LOCATION FORM ON THE FIXTURE'S DOCUMENT, and that is
+// now a meaningful difference rather than a detail. The picker moved to its own
+// document, /find, so the band's openers ask the DOM whether the form is here
+// before deciding what "open the picker" means: a modal over this page, or a
+// navigation to the page that owns it. Both are driven below. The flag is
+// removed before the rest of `over` is spread into the sandbox so it cannot
+// arrive as a stray global the band could read.
 const runBand = (over) => {
+  const o = over || {};
+  const picker = !!o.picker;
+  const rest = { ...o };
+  delete rest.picker;
   const sec = mkEl('who-represents-me');
   const host = mkEl('wrm-reps');
+  // Deliberately NOT a wrm-locbar: with the form present and the bar absent the
+  // band falls back to scrolling the section, which is what the assertions below
+  // have always measured.
+  const form = picker ? mkEl('change-location-form') : null;
   const timers = [];
   const ctx = {
     console, Math, JSON, String, Array, Object, Number, Boolean, RegExp,
     setTimeout: (fn, ms) => { timers.push({ fn, ms }); return timers.length; },
     document: {
       readyState: 'complete',
-      getElementById: (i) => (i === 'who-represents-me' ? sec : (i === 'wrm-reps' ? host : null)),
+      getElementById: (i) => (i === 'who-represents-me' ? sec
+        : (i === 'wrm-reps' ? host
+        : (i === 'change-location-form' ? form : null))),
       addEventListener: () => {},
     },
     _hasUserLocation: true,
@@ -536,12 +583,12 @@ const runBand = (over) => {
       resolved: true, ok: true, area: 'Bountiful, Davis County', county: 'Davis County',
       pids: ['loc-a', 'loc-b', 'loc-c'],
     }),
-    ...over,
+    ...rest,
   };
   ctx.window = ctx; ctx.globalThis = ctx;
   vm.createContext(ctx);
   vm.runInContext(WRM, ctx, { filename: 'who-represents-me.js' });
-  return { ctx, sec, host, timers };
+  return { ctx, sec, host, form, timers };
 };
 
 // Cold: no resolver at all. The band must fall back to the static markup rather
@@ -635,7 +682,11 @@ has(OUT, 'Change my location',
 has(OUT, "my-politicians",
   'band: the Team Builder bridge does not target the builder section');
 
-// Honestly partial: one unresolved seat must be STATED.
+// Honestly partial: one unresolved seat must be STATED. Note what this fixture
+// actually is — LEVELS6's State Senate row carries District 23, so dropping its
+// pid leaves a seat that IS located and has no member on file. That is the
+// district-without-member case, and section 16 below is where its wording is
+// pinned; here the concern is only that the gap is stated at all and counted.
 const partialBand = runBand({
   pdxRepsForMe: () => ({
     located: true, national: false, state: 'Utah', area: 'Bountiful', redrawn: false, districtsResolvable: true,
@@ -643,7 +694,7 @@ const partialBand = runBand({
   }),
 });
 const POUT = partialBand.host.innerHTML;
-has(POUT, 'Not resolved for your area yet',
+has(POUT, 'no member on file yet',
   'band: an unresolved seat is rendered as nothing at all — the visitor then reads five rows as the\n' +
   '    complete answer, which is a completeness claim the data does not support');
 has(POUT, 'State Senate',
@@ -725,19 +776,40 @@ has(redrawnBand.host.innerHTML, 'redrawn',
   '    that the seat they vote in has changed');
 
 // The shared action: land on the band, and only open the picker when there is
-// nothing to show yet.
-const act = runBand({ pdxRepsForMe: () => ({ located: false, levels: [] }), _hasUserLocation: false, openLocationModal: function () { act.ctx._opened = true; } });
+// nothing to show yet. WITH THE PICKER ON THIS DOCUMENT the gesture is two
+// steps — bring the band into view, then open over a page the reader has
+// actually travelled — because a modal over an unscrolled page leaves them, on
+// dismissal, beside a control that looks like it did nothing.
+const act = runBand({ picker: true, pdxRepsForMe: () => ({ located: false, levels: [] }), _hasUserLocation: false, openLocationModal: function () { act.ctx._opened = true; } });
 must(typeof act.ctx.pdxFindMyReps === 'function', 'window.pdxFindMyReps was not exported — the entry points call nothing');
 act.ctx.pdxFindMyReps();
 eq(act.sec._scrolled, true,
   'action: the shared action does not bring the band into view, so a nav tap lands the visitor\n' +
   '    nowhere in particular');
 const opener = act.timers.filter((t) => t.ms === 260)[0];
-must(!!opener, 'the shared action no longer defers the picker open — the assertion below is vacuous');
+must(!!opener, 'the shared action no longer defers the picker open on a document that HOSTS the picker — the assertion below is vacuous');
 opener.fn();
 eq(act.ctx._opened, true,
   'action: with no location set the picker never opens, so the CTA scrolls to a band that cannot\n' +
   '    answer the question it just asked');
+
+// AND WITH THE PICKER ON /find, THE SECOND STEP IS A NAVIGATION, so the scroll
+// becomes the bug it was introduced to fix. Panning 260 ms down to a bar the
+// reader is about to leave charges the tap an animation for a surface they never
+// see, and the door they asked for opens a quarter-second late. This is the case
+// that applies to the real homepage: the location form is not on index.html any
+// more, so this is what a nav tap actually does now.
+const actAway = runBand({ pdxRepsForMe: () => ({ located: false, levels: [] }), _hasUserLocation: false, openLocationModal: function () { actAway.ctx._opened = true; } });
+actAway.ctx.pdxFindMyReps();
+eq(actAway.ctx._opened, true,
+  'action: with the picker on another document the CTA defers the trip behind a timer, so the tap\n' +
+  '    appears to do nothing and the reader presses it again');
+ok(!actAway.timers.some((t) => t.ms === 260),
+  'action: the band still queues the 260ms picker-open delay on a document that does not host the\n' +
+  '    picker — the delay exists to let a scroll settle, and nothing is being scrolled');
+ok(!actAway.sec._scrolled,
+  'action: the band scrolls to a location setter that is not on this document before navigating away\n' +
+  '    from it');
 
 const actWarm = runBand({
   pdxRepsForMe: () => ({ located: true, national: false, state: 'Utah', area: 'Bountiful', redrawn: false, districtsResolvable: true, levels: LEVELS6 }),
@@ -1049,9 +1121,151 @@ for (const [label, cov] of [
 }
 
 
+// ═════════════════════════════════════════════════════════════════════════════
+// 16 · A DISTRICT WITHOUT A MEMBER IS NOT AN UNRESOLVED AREA
+// ═════════════════════════════════════════════════════════════════════════════
+// THE REPORT'S SECOND HALF. "Who-Reps-Me shows 3/6: Gov + two Senators. House 4
+// number is in the record; Senate and CD are empty; House 4 has no roster
+// person." The 3/6 was honest. What was not honest was the House 4 row: the band
+// printed "State House · District 4" as its label and, two lines below it, "Not
+// resolved for your area yet" as its headline. Two statements about the same
+// seat, and the louder one was false — it told a reader whose district had been
+// located perfectly well to go and fix their location.
+//
+// There are THREE kinds of gap on this band, not two:
+//
+//   ① a STATEWIDE seat with no record        → "No record on file yet"
+//   ② a district LOCATED with no member      → "District N — no member on file yet"
+//   ③ a district seat that could not be placed → "Not resolved for your area yet"
+//
+// Only ③ is the visitor's to act on. ① and ② are ours, and saying so is the
+// difference between a gap a reader can trust and a gap that reads as their
+// mistake. Each of the three is driven below, against the real module.
+
+// ── ② THE REPORT'S OWN ROW: HOUSE 4, LOCATED, NOBODY ON FILE ────────────────
+const NOMEM = runBand({
+  pdxRepsForMe: () => ({
+    located: true, national: false, state: 'Utah', area: 'Bountiful', redrawn: false, districtsResolvable: true,
+    levels: LEVELS6.map((l) => (l.key === 'statehouse'
+      ? { ...l, district: '4', distLabel: 'State House · District 4', pid: null, resolved: false }
+      : l)),
+  }),
+}).host.innerHTML;
+must(NOMEM.length > 0, 'the band painted nothing for the located-no-member fixture — section 16 is vacuous');
+has(NOMEM, 'District 4 — no member on file yet',
+  'gap ②: a district the app LOCATED renders without saying so. This is the report: House 4 is in\n' +
+  '    the record, the label prints District 4, and the headline has to agree with it');
+lacks(NOMEM, 'Not resolved for your area yet',
+  'gap ②: a located district is still being called an unresolved area — the exact conflation the\n' +
+  '    report found. It blames the visitor for a hole in our roster and sends them back to the\n' +
+  '    location picker to fix something that is already correct');
+lacks(NOMEM, 'guess at your seat',
+  'gap ②: the sub-line still says we would rather not guess at the seat, when the seat is known.\n' +
+  '    The thing we do not hold is the person in it');
+has(NOMEM, 'nothing to fix on your end',
+  'gap ②: the row does not tell the visitor the gap is ours, so the only reading left is that their\n' +
+  '    location is wrong');
+has(NOMEM, 'wrm-row--nomember',
+  'gap ②: the located-no-member row carries no class of its own, so it cannot be styled apart from\n' +
+  '    a row that genuinely failed to resolve');
+has(NOMEM, '5 of 6 seats resolved',
+  'gap ②: the seat count stopped reporting the gap. A located district with no member is still an\n' +
+  '    unresolved seat — the fix is to name the gap accurately, not to claim it away');
+has(NOMEM, '1 district located, member not on file',
+  'gap ②: the headline count does not distinguish the located gap, so a reader who sees 5 of 6 has\n' +
+  '    no way to know the missing one is not theirs to fix');
+has(NOMEM, 'wrm-resultlocated',
+  'gap ②: the located-gap clause in the count is unstyled, so it reads as part of the resolved tally');
+
+// ── ③ GENUINELY UNPLACED: THE OLD WORDING IS STILL THE RIGHT WORDING ────────
+// Same seat, same missing member, district dropped. Nothing about the fix may
+// soften this case: here the visitor's location really is the thing to correct.
+const UNPLACED = runBand({
+  pdxRepsForMe: () => ({
+    located: true, national: false, state: 'Utah', area: 'Bountiful', redrawn: false, districtsResolvable: true,
+    levels: LEVELS6.map((l) => (l.key === 'statehouse'
+      ? { ...l, district: null, distLabel: 'State House', pid: null, resolved: false }
+      : l)),
+  }),
+}).host.innerHTML;
+has(UNPLACED, 'Not resolved for your area yet',
+  'gap ③: a seat that could not be placed at all no longer says so — the fix for gap ② swallowed\n' +
+  '    the one case where the visitor\'s own location IS the thing to correct');
+lacks(UNPLACED, 'no member on file yet',
+  'gap ③: an unplaced seat claims its district was located. There is no district number to show,\n' +
+  '    so this is a promise the row cannot keep');
+lacks(UNPLACED, 'wrm-row--nomember',
+  'gap ③: an unplaced seat is wearing the located-gap class, which is how the two collapse back\n' +
+  '    into one undifferentiated "unresolved"');
+lacks(UNPLACED, 'wrm-resultlocated',
+  'gap ③: the headline counts a located gap that does not exist');
+lacks(UNPLACED, 'district located, member not on file',
+  'gap ③: the headline claims a district was located when none was');
+
+{
+  // Scoped to the row's own avatar: the band's "Change my location" button also
+  // carries a pin, so an unscoped search for one would pass no matter what the
+  // row renders.
+  const av = (html) => {
+    const a = html.indexOf('wrm-avatar--empty');
+    return a < 0 ? '' : html.slice(a, html.indexOf('</span>', a));
+  };
+  has(av(NOMEM), '📍',
+    'gap ②: the located-no-member row wears the same empty-institution avatar as an unplaced seat');
+  has(av(UNPLACED), '🏛',
+    'gap ③: an unplaced seat wears the located pin, which claims a position on the map it does not have');
+}
+
+// ── ① A STATEWIDE SEAT WITH NO RECORD IS A THIRD THING AGAIN ────────────────
+// A Governor or a Senator needs no district, so neither wording above applies:
+// there is nothing to locate and nothing to place. It must not pick up a
+// district number, and it must not be counted as a located gap.
+const SWGAP = runBand({
+  pdxRepsForMe: () => ({
+    located: true, national: false, state: 'Utah', area: 'Bountiful', redrawn: false, districtsResolvable: true,
+    levels: LEVELS6.map((l) => (l.key === 'governor' ? { ...l, pid: null, resolved: false } : l)),
+  }),
+}).host.innerHTML;
+has(SWGAP, 'No record on file yet',
+  'gap ①: a statewide seat with no record borrowed one of the district wordings — it has no\n' +
+  '    district to be located or unplaced, so both of them are false for it');
+lacks(SWGAP, 'no member on file yet',
+  'gap ①: a statewide gap claims a district was located. A Governor does not have one');
+lacks(SWGAP, 'Not resolved for your area yet',
+  'gap ①: a statewide gap blames the visitor\'s area for a hole in the roster');
+lacks(SWGAP, 'wrm-resultlocated',
+  'gap ①: a statewide gap is counted as a located district');
+
+// ── The count is a count, so it has to agree with itself in the plural ──────
+const TWOGAP = runBand({
+  pdxRepsForMe: () => ({
+    located: true, national: false, state: 'Utah', area: 'Bountiful', redrawn: false, districtsResolvable: true,
+    levels: LEVELS6.map((l) => (l.key === 'statehouse' || l.key === 'statesenate'
+      ? { ...l, pid: null, resolved: false } : l)),
+  }),
+}).host.innerHTML;
+has(TWOGAP, '2 districts located, members not on file',
+  'gap ②: two located gaps do not pluralise, so the clause reads as a template rather than a count');
+has(TWOGAP, '4 of 6 seats resolved',
+  'gap ②: the resolved tally no longer agrees with the level set it was given');
+
+// ── The two new classes have to exist in the stylesheet that renders them ───
+has(HTML, '.wrm-row--nomember{',
+  'gap ②: index.html has no rule for the located-no-member row, so the class the band emits styles\n' +
+  '    nothing and a located gap still renders as dimmed-out failure');
+has(HTML, '.wrm-resultlocated{',
+  'gap ②: index.html has no rule for the located-gap clause in the headline count');
+{
+  const nm = HTML.slice(HTML.indexOf('.wrm-row--nomember{'), HTML.indexOf('}', HTML.indexOf('.wrm-row--nomember{')));
+  has(nm, 'opacity:1',
+    'gap ②: the located-no-member row inherits the unresolved row\'s dimming. A gap that is ours to\n' +
+    '    fill should not look like the visitor\'s answer failed');
+}
+
+
 if (failures.length) {
   console.error(`\n✗ who represents me: ${failures.length} failure(s)`);
   failures.forEach((f) => console.error('  · ' + f));
   process.exit(1);
 }
-console.log(`✓ who represents me: all ${passed} assertions passed — 3 entry points, 1 resolver, 6 seats in two classes, gaps stated not dropped, local coverage answered not inferred`);
+console.log(`✓ who represents me: all ${passed} assertions passed — 3 entry points, 1 resolver, 6 seats in two classes, gaps stated not dropped in three kinds, local coverage answered not inferred`);

@@ -285,15 +285,33 @@ const COPIES = [
   // an earlier edit to index.html shifts line numbers — when it does, the header
   // comment in me.html and this table move TOGETHER, which is the whole point of
   // pinning it in one place.
-  { from: "index.html", src: INDEX, a: 21129, b: 21551, what: "PDXSaved" },
+  { from: "index.html", src: INDEX, a: 19761, b: 20183, what: "PDXSaved" },
 ];
 // AND IT MOVED AGAIN FOR THE FINDER-BASEMAP PASS: the district-map controller
 // on index.html grew 271 lines above this block — a keyless OpenStreetMap tile
 // template in place of the keyed Carto one, no 75-polygon paint on open, and the
 // gate that defers the front page's rebuild while the finder is open — so
-// PDXSaved is now 21129-21551. Re-derived by locating the 423-line run, and
+// PDXSaved was 21129-21551. Re-derived by locating the 423-line run, and
 // me.html's own header moved in the same edit.
-// PDXSaved's declared range has now moved five times, always for the same
+// AND THEN THE CONTROLLER LEFT ENTIRELY. v235 moved the district finder to its
+// own document, /find, because the third cause of the freeze was never the map:
+// it was the HOST. index.html lost Leaflet, the map modal markup, the 1,140-line
+// controller and the boundary fetch-on-open, which is 1,385 lines gone from
+// above this block — the largest single move it has taken. PDXSaved is now
+// 19744–20166, and the 423-line run was located verbatim in the new document
+// rather than derived by subtracting 1,385 from the old range. THE ARITHMETIC
+// WOULD HAVE AGREED THIS TIME, which is exactly why it is not how the number was
+// obtained: an offset that happens to be right teaches nothing about the next
+// one, and the run being found intact is also the proof that the block itself
+// did not change.
+// AND DOWN BY 17 FOR THE ONE-ROSTER PASS, the first move in a while that went
+// down rather than up, and the first caused by nothing leaving index.html at
+// all. The Voter Hub's second copy of the represents-me roster came out and a
+// documented note plus one link back to the band went in where it stood (net +16
+// at ~7560), and the homepage flash list gained a line when it was retargeted
+// off the retired host (+1 at ~17700). Both edits are above this block, neither
+// is inside it: PDXSaved is 19761-20183, the 423-line run located verbatim.
+// PDXSaved's declared range has now moved six times, always for the same
 // reason and always re-derived the same way: LOCATE THE 423-LINE RUN VERBATIM IN
 // THE NEW index.html, never subtract a diff's line count from the old range.
 // The three-room split (Mandate, Voice and Money to their own documents) moved

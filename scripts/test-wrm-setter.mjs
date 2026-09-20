@@ -152,6 +152,30 @@ section('2 · driven: the two faces, and the copy on each');
 const BANNER = assignSrc(VHL, '_vhSyncBanner');
 must(BANNER.length > 400, '_vhSyncBanner is gone from voter-hub-location.js');
 
+// ── AND THE REAL RESOLVER UNDER IT, BECAUSE THE CARD NO LONGER HAS ITS OWN ──
+// The YOUR DISTRICTS line used to resolve its own three numbers out of
+// keyRacesRelevantData(), and only the U.S. House lookup had a fallback: a
+// reader placed by the district map rather than by a curated area read
+// "YOUR DISTRICTS: U.S. House District 1" over a location record that held all
+// three. It reads window.pdxRepsForMe() now, which already owns that whole
+// precedence chain.
+//
+// So this harness runs the RESOLVER in the same context as the banner instead of
+// handing the banner a hand-written object called pdxRepsForMe. A stub would make
+// every assertion below a statement about the stub: it would pass with the header
+// reading one chamber and the fixture offering three. The slice starts at the
+// statewide-seat cache because pdxRepsForMe reaches back into it and into
+// _pdxStickLevels / _pdxResolved* — module locals that are not on window, so a
+// narrower cut throws on the first call.
+const RESOLVER = (() => {
+  const a = VHL.indexOf('var _pdxStatewideCache = {};');
+  const b = VHL.indexOf('window._vhSyncDistrictStrip = function()', a);
+  must(a > 0 && b > a,
+    'voter-hub-location.js no longer runs from _pdxStatewideCache down to _vhSyncDistrictStrip — the\n' +
+    '  resolver slice the located card is measured against cannot be cut');
+  return VHL.slice(a, b);
+})();
+
 const mkEl = (id) => {
   const attrs = {};
   return {
@@ -192,6 +216,12 @@ const runBanner = (over) => {
   };
   ctx.window = ctx; ctx.globalThis = ctx;
   vm.createContext(ctx);
+  // The resolver first: the card reads window.pdxRepsForMe(), so without it the
+  // YOUR DISTRICTS line falls through its typeof guard and paints nothing — which
+  // is a harness that cannot tell a complete header from an empty one.
+  vm.runInContext(RESOLVER, ctx, { filename: 'voter-hub-location.js[pdxRepsForMe]' });
+  must(typeof ctx.pdxRepsForMe === 'function',
+    'the resolver slice ran but did not publish window.pdxRepsForMe, so the located card has nothing to read');
   vm.runInContext(BANNER, ctx, { filename: 'voter-hub-location.js[_vhSyncBanner]' });
   ctx._vhSyncBanner();
   return { els, ctx };
@@ -231,6 +261,39 @@ for (const [label, num] of [['U.S. House', '2'], ['State Senate', '6'], ['State 
 }
 lacks(set.els['vh-loc-subdesc'].textContent, EMPTY_LINE,
   'the located card still shows the empty-state instruction alongside the districts it resolved');
+
+// ══ THE MAP-PLACED READER, WHO THIS LINE WAS ACTUALLY WRONG FOR ══════════
+// The fixture above matches a curated Key-Races area, which is the one case the
+// old header got right. This is the other one, and it is the population /find
+// exists for: keyRacesRelevantData() reports nothing matched, and the three
+// district numbers are on the LOCATION RECORD, where the finder's
+// applyToLocation() writes them — district, stateSenateDistrict,
+// stateHouseDistrict.
+//
+// Before this pass the card read "YOUR DISTRICTS: U.S. House District 1" and
+// stopped there, because the U.S. House lookup was the only one of the three with
+// a fallback to the record; the two legislative lookups ended in `: null`. A
+// reader who had just tapped three polygons and pressed confirm was told the map
+// had placed one of them.
+const mapped = runBanner({
+  _hasUserLocation: true,
+  _currentVoterLocation: { state: 'Utah', city: 'Layton', county: 'Davis', district: '1',
+                           stateSenateDistrict: '18', stateHouseDistrict: '13', mapSelected: true },
+  keyRacesRelevantData: () => ({ matched: false }),
+});
+const msub = mapped.els['vh-loc-subdesc'].innerHTML;
+for (const [label, num] of [['U.S. House', '1'], ['State Senate', '18'], ['State House', '13']]) {
+  has(msub, label,
+    `the located card does not name the ${label} seat for a reader the DISTRICT MAP placed. The curated ` +
+    'area did not match, so this number came off the location record — which is where confirm puts it');
+  has(msub, 'District ' + num,
+    `the located card does not print ${label} District ${num} for a map-placed reader`);
+}
+// Three chambers, three numbers, and nothing invented for a fourth.
+eq((msub.match(/District /g) || []).length, 3,
+  'the located card prints a number of districts other than the three the location record holds');
+lacks(mapped.els['vh-loc-subdesc'].textContent, EMPTY_LINE,
+  'a reader the map placed in all three chambers is still being asked to set a location');
 
 // One owner. The band's own module must not also decide the face, because the
 // question behind it — is a location stamped — is the store's to answer.
@@ -281,15 +344,31 @@ ok(PROMPT.indexOf('toggleChangeLocation') === -1 ||
 lacks(PROMPT, '🗺️',
   'the Relevant-to-Me empty state has a map button of its own again');
 
+// THE DISTRICTS STRIP HAD FOUR SETTER BUTTONS. IT NOW HAS NONE.
+// This used to count how many of the strip's own "set my location" controls went
+// through the shared hop rather than opening a picker of their own — the strip was
+// the homepage's SECOND seat surface, and it carried a second set of CTAs with it.
+// The strip is retired: its rows, its lede, its local-coverage footer and its
+// buttons are gone, and the one roster's cold state is the only place that asks.
+// So the number to hold is zero. A control that reappears here is a second setter
+// whichever door it opens, two sections below the card that owns the answer.
 const STRIP = (() => {
   const i = VHL.indexOf('window._vhSyncDistrictStrip = function');
   must(i > 0, '_vhSyncDistrictStrip is gone from voter-hub-location.js');
-  return VHL.slice(i, VHL.indexOf('window._vhToggleRacePanel', i));
+  const j = VHL.indexOf('\n  };', i);
+  return j < 0 ? VHL.slice(i) : VHL.slice(i, j + 5);
 })();
-const stripHops = (STRIP.match(/_pdxGoSetLocation/g) || []).length;
-ok(stripHops >= 4,
-  `the districts strip routes only ${stripHops} of its setter buttons through the shared hop. Each one that ` +
-  'does not is a control that can open a picker while the reader is nowhere near the card that owns it');
+eq((STRIP.match(/<button/g) || []).length, 0,
+  'the retired districts strip paints a location button again');
+lacks(STRIP, 'openDistrictMapModal',
+  'the retired districts strip opens the district map itself again rather than leaving that to the setter');
+lacks(STRIP, '_pdxGoSetLocation',
+  'the retired districts strip reaches for the shared hop again — which means it has copy to hang it on, ' +
+  'and copy here is the second roster coming back');
+// AND THE HOP IS STILL DECLARED, ABOVE IT, FOR THE DOORS THAT DO USE IT.
+has(VHL, 'window._pdxGoSetLocation = function',
+  'voter-hub-location.js no longer declares the shared hop, so every door on the page that routes through ' +
+  'it silently stops landing the reader on the setter');
 const BAND = (() => {
   const i = HTML.indexOf('id="pdx-ballot-band"');
   return i > 0 ? HTML.slice(i, i + 4000) : '';
@@ -300,12 +379,21 @@ has(BAND, '_pdxGoSetLocation',
 // ═════════════════════════════════════════════════════════════════════════════
 section('4 · driven: where each entry point lands');
 // ═════════════════════════════════════════════════════════════════════════════
+// THE PICKER IS ITS OWN DOCUMENT NOW — /find — so "scroll to the setter, then
+// open the picker on the next task" is a behaviour with a PRECONDITION rather
+// than an unconditional sequence. The band tests the DOM for the picker's form:
+// present, and the old two-step still runs, because the surface the reader is
+// being scrolled to is really there; absent, and the opener is a NAVIGATION, so
+// scrolling first would animate a page the reader is about to leave. Both sides
+// are driven below, and `picker: true` is what puts the form on the document.
 const runBand = (over) => {
+  const o = over || {};
   const els = {
     'who-represents-me': mkEl('who-represents-me'),
     'wrm-reps': mkEl('wrm-reps'),
     'wrm-locbar': mkEl('wrm-locbar'),
   };
+  if (o.picker) els['change-location-form'] = mkEl('change-location-form');
   const timers = [];
   const opened = [];
   const ctx = {
@@ -333,7 +421,7 @@ must(typeof runBand({}).ctx.pdxSetLocation === 'function',
 
 // Empty: the reader is sent to the setter, not to the section heading with the
 // one control that can help below the fold.
-const cold = runBand({});
+const cold = runBand({ picker: true });
 cold.ctx.pdxFindMyReps();
 ok(cold.els['wrm-locbar']._scrolled,
   'with no location, the lookup action does not land on the setter. The reader pressed "see who represents ' +
@@ -343,6 +431,20 @@ ok(!cold.els['wrm-reps']._scrolled,
 cold.flush();
 ok(cold.opened.length === 1,
   `an unlocated lookup opened ${cold.opened.length} pickers. One setter means one picker, once`);
+
+// AND WITH THE PICKER ON ANOTHER DOCUMENT, THE SCROLL IS THE BUG. The opener is
+// a trip to /find, so a 260 ms pan down to a bar the reader will never see is an
+// animation charged to the tap that was meant to answer them. No scroll, and the
+// door opens on the same task rather than after a timer nobody is waiting out.
+const away = runBand({});
+away.ctx.pdxFindMyReps();
+ok(!away.els['wrm-locbar']._scrolled,
+  'with the picker on another document the lookup still scrolls to a setter that is not there');
+ok(away.opened.length === 1,
+  `an unlocated lookup on a document with no picker opened ${away.opened.length} doors on the spot, not one`);
+away.flush();
+ok(away.opened.length === 1,
+  'the deferred opener fired as well, so the trip to the finder is queued twice');
 
 // Stamped: the reader already answered. Asking again is the bug.
 const warm = runBand({ _hasUserLocation: true, pdxRepsForMe: () => ({ located: true, levels: [] }) });
@@ -355,7 +457,7 @@ eq(warm.opened.length, 0,
   'the question on screen is who holds the seats');
 
 // And the door itself: scroll first, open second, in whichever mode was asked.
-const asMap = runBand({});
+const asMap = runBand({ picker: true });
 asMap.ctx.pdxSetLocation('map');
 ok(asMap.els['wrm-locbar']._scrolled, 'pdxSetLocation does not scroll to the setter before opening a picker');
 eq(asMap.opened.length, 0,
@@ -364,7 +466,15 @@ eq(asMap.opened.length, 0,
 asMap.flush();
 eq(asMap.opened[0], 'map', 'pdxSetLocation("map") does not open the district map');
 
-const asForm = runBand({});
+// Same door, picker not on the document: one hop, no scroll, no timer.
+const asMapAway = runBand({});
+asMapAway.ctx.pdxSetLocation('map');
+ok(!asMapAway.els['wrm-locbar']._scrolled,
+  'pdxSetLocation scrolls to a setter this document does not have');
+eq(asMapAway.opened.length, 1,
+  'pdxSetLocation defers a trip to another document behind a timer, so the tap appears to do nothing');
+
+const asForm = runBand({ picker: true });
 asForm.ctx.pdxSetLocation('form');
 asForm.flush();
 has(asForm.opened[0] || '', 'forceForm',

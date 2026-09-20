@@ -516,7 +516,7 @@ function room(opts) {
   r.advance(GRACE + 1);
   eq(r.paint(), "unplaced", "unplaced: the standing never resolves after the grace");
   eq(r.attr(), "unplaced", "unplaced: the host's data-pdxvr-standing was not updated");
-  has(r.card(), "who-represents-me", "unplaced: the card does not point at Who Represents Me");
+  has(r.card(), "/find", "unplaced: the card does not point at the finder that can place the reader");
   has(r.card(), FRAME, "unplaced: the borrowed frame sentence is not printed");
   ["Utah", "District 68", "District 15", "ut-"].forEach((w) =>
     lacks(r.card(), w, `unplaced: the card names "${w}" for a reader who has saved nothing`));

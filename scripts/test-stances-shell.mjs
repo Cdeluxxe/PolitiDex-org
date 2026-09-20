@@ -272,9 +272,28 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // allowed to move: by locating in index.html the run that this document actually
 // carries, not by adding the delta to the old start. The arithmetic agreed
 // afterwards, and the declared ranges in the copies moved in the same edit.
+//
+// A SIXTH MOVE, UPWARD BY 1,385 FOR BOTH, for the finder move. The district
+// finder became its own document, /find, so index.html lost the location
+// picker's markup, the map modal's markup, most of #pdx-district-map-styles and
+// the whole 1,200-line map controller. Every one of those deletions sits above
+// both of these blocks and none is inside either, so both ranges came up by the
+// same amount and both came back at their full length — 25 lines for the pill
+// rules, 121 for the vocabulary, which is again the check that the run found is
+// the run meant. Re-derived by locating each run verbatim in the new
+// index.html; the arithmetic agreed afterwards.
+//
+// A SEVENTH MOVE, DOWNWARD BY 17 FOR BOTH, for the one-roster pass. The Voter
+// Hub's second copy of the represents-me roster came out of index.html and a
+// note plus one link back to the band went in where it stood (net 16 lines at
+// ~7560), and the homepage flash list gained a line when it was retargeted off
+// the retired host (1 line at ~17700). Every one of those edits is above both of
+// these blocks and none is inside either, so both ranges moved by the same 17 and
+// both came back at their full length — 25 lines for the pill rules, 121 for the
+// vocabulary. Re-derived by locating each run verbatim in the new index.html.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 20473, b: 20497, what: "the .pdxis-stance* pill rules" },
-  { from: "index.html", src: INDEX, a: 20516, b: 20636, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 19105, b: 19129, what: "the .pdxis-stance* pill rules" },
+  { from: "index.html", src: INDEX, a: 19148, b: 19268, what: "the PDXStance vocabulary" },
 ];
 // Both index.html ranges have now moved THREE TIMES, and the third ran the other
 // way. The Digital Library split took #digital-library out of index.html but left

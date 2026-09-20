@@ -282,8 +282,19 @@ const HOLD = {};
     const p = W.CMP_DATA[pid];
     ok(!!p, `${pid} is not on the roster, so the smoke report's premise is gone`);
   });
-  const OWNER = VHL.slice(VHL.indexOf("window.pdxSeatHolders = function"),
-    VHL.indexOf("window._vhSyncDistrictStrip = function"));
+  // THE SLICE IS THE FUNCTION, NOT THE GAP TO THE NEXT ONE. This used to run
+  // from pdxSeatHolders() to whatever window function happened to be declared
+  // after it, which meant every comment in between was inside the evidence. The
+  // retired district-strip stub that now sits there describes the roster it
+  // replaced — "its own avatar and party chip" — and that prose alone failed a
+  // pin about what the seat OWNER reads. The body ends where its own declaration
+  // does.
+  const OWNER = (() => {
+    const i = VHL.indexOf("window.pdxSeatHolders = function");
+    if (i < 0) return "";
+    const j = VHL.indexOf("\n  };", i);
+    return j < 0 ? VHL.slice(i) : VHL.slice(i, j + 5);
+  })();
   ok(OWNER.length > 200, "the seat owner function could not be located in the resolver");
   lacks(OWNER, "party", "the seat owner reads a party field");
   lacks(OWNER, "rank", "the seat owner ranks the holders it returns");

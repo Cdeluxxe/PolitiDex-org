@@ -96,6 +96,34 @@
     return true;
   }
 
+  // ── IS THE PICKER ON THIS DOCUMENT? ────────────────────────────────────────
+  // It is not, any more. #change-location-form moved to /find, which means both
+  // openers below are NAVIGATIONS now rather than a modal appearing over this
+  // band — voter-hub-location.js takes the reader to the picker's own document
+  // when the markup is absent, which is the whole point of the move: a location
+  // tap costs the finder instead of 1.6 MB of front page.
+  //
+  // WHICH MAKES THE SCROLL-THEN-OPEN WRONG, AND ONLY IN THIS CASE. The comment
+  // under pdxSetLocation is still exactly right when the picker is here: a modal
+  // over an unscrolled page leaves the reader, on dismissal, beside a button that
+  // looks like it did nothing. But scrolling to a bar and then leaving the
+  // document 260 ms later is a lurch followed by a navigation — the reader gets
+  // the animation for a surface they never see. So when the picker is elsewhere
+  // the openers are called immediately and nothing is scrolled.
+  //
+  // IT IS A FEATURE TEST, NOT A PAGE TEST, and stays correct in both directions:
+  // the day the picker comes back to this document, or a second document grows
+  // the band without the form, this asks the DOM rather than a list of paths.
+  function pickerIsHere() {
+    try { return !!document.getElementById('change-location-form'); } catch (e) { return false; }
+  }
+
+  // Open whichever picker the app offers, now or after the scroll settles.
+  function openPicker(fn) {
+    if (!pickerIsHere()) { try { fn(); } catch (e) {} return; }
+    setTimeout(function () { try { fn(); } catch (e) {} }, 260);
+  }
+
   // ── The one action every entry point calls ─────────────────────────────────
   // Nav pill, homepage CTA and the Team Builder's step ① all route here, so the
   // lookup behaves identically wherever it was started from: land on the front
@@ -114,11 +142,11 @@
       if (!bring(document.getElementById(BODY_ID))) bring(sec);
       return;
     }
-    if (!bring(document.getElementById(LOCBAR_ID))) bring(sec);
-    setTimeout(function () {
+    if (pickerIsHere() && !bring(document.getElementById(LOCBAR_ID))) bring(sec);
+    openPicker(function () {
       var open = window.openLocationModal || window.toggleChangeLocation;
-      if (typeof open === 'function') { try { open(); } catch (e) {} }
-    }, 260);
+      if (typeof open === 'function') open();
+    });
   };
 
   // ── ONE SETTER, AND THIS IS THE DOOR TO IT ─────────────────────────────────
@@ -139,21 +167,19 @@
   // and no argument takes whichever the app offers by default.
   window.pdxSetLocation = function (mode) {
     var bar = document.getElementById(LOCBAR_ID);
-    if (!bring(bar)) bring(document.getElementById(SECTION_ID));
-    setTimeout(function () {
-      try {
-        if (mode === 'map' && typeof window.toggleChangeLocation === 'function') {
-          window.toggleChangeLocation();
-          return;
-        }
-        if (mode === 'form' && typeof window.openLocationModal === 'function') {
-          window.openLocationModal({ forceForm: true });
-          return;
-        }
-        var open = window.openLocationModal || window.toggleChangeLocation;
-        if (typeof open === 'function') open();
-      } catch (e) {}
-    }, bar ? 260 : 0);
+    if (pickerIsHere() && !bring(bar)) bring(document.getElementById(SECTION_ID));
+    openPicker(function () {
+      if (mode === 'map' && typeof window.toggleChangeLocation === 'function') {
+        window.toggleChangeLocation();
+        return;
+      }
+      if (mode === 'form' && typeof window.openLocationModal === 'function') {
+        window.openLocationModal({ forceForm: true });
+        return;
+      }
+      var open = window.openLocationModal || window.toggleChangeLocation;
+      if (typeof open === 'function') open();
+    });
   };
 
   // ── One representative row ─────────────────────────────────────────────────
@@ -194,12 +220,39 @@
     var color = lv.color || '#60a5fa';
 
     if (!pid) {
-      var headline = lv.statewide ? 'No record on file yet' : 'Not resolved for your area yet';
+      // ── THREE DIFFERENT GAPS, AND THEY ARE NOT THE SAME ADMISSION ──────────
+      // This branch used to have two. A statewide row blank meant "we hold no
+      // record for the person in it"; anything else meant "we could not place
+      // your seat". There is a third, and it is the common one in Utah:
+      //
+      //     THE DISTRICT IS RESOLVED AND THE SEAT-HOLDER IS NOT.
+      //
+      // A reader who pins State House 4 in the finder has that number in their
+      // record, printed in their Voting Districts strip, printed on the trigger
+      // card, and printed at the top of this very row by lv.distLabel — and the
+      // row underneath it then said "Not resolved for your area yet. We'd rather
+      // leave this blank than guess at your seat." Two statements about the same
+      // seat, three lines apart, and the louder one was false: nothing was
+      // guessed and the area resolved fine. What is missing is a person, which
+      // is a fact about OUR roster and not about their address.
+      //
+      // Told the truth, the row also stops sending the reader back to the
+      // finder to fix something the finder already did.
+      var located = !lv.statewide && lv.district != null && String(lv.district) !== '';
+      var headline = lv.statewide
+        ? 'No record on file yet'
+        : (located ? 'District ' + esc(lv.district) + ' \u2014 no member on file yet'
+                   : 'Not resolved for your area yet');
       var sub = lv.statewide
         ? 'We&rsquo;d rather leave this blank than name the wrong person.'
-        : 'We&rsquo;d rather leave this blank than guess at your seat.';
-      return '<div class="wrm-row wrm-row--unresolved" data-rk="' + esc(rkOf(lv)) + '" style="border-left-color:' + color + '66;">' +
-        '<span class="wrm-avatar wrm-avatar--empty" aria-hidden="true">🏛</span>' +
+        : (located
+            ? 'Your district is set. We just don&rsquo;t hold a file for whoever sits in this seat yet &mdash; nothing to fix on your end.'
+            : 'We&rsquo;d rather leave this blank than guess at your seat.');
+      var cls = 'wrm-row wrm-row--unresolved' + (located ? ' wrm-row--nomember' : '');
+      return '<div class="' + cls + '" data-rk="' + esc(rkOf(lv)) + '" style="border-left-color:' + color + '66;">' +
+        '<span class="wrm-avatar wrm-avatar--empty"' +
+          (located ? ' style="border-color:' + color + '66;"' : '') +
+          ' aria-hidden="true">' + (located ? '📍' : '🏛') + '</span>' +
         '<span class="wrm-rowtext">' +
           '<span class="wrm-rowlevel" style="color:' + color + 'cc;">' + esc(lv.distLabel) + '</span>' +
           '<span class="wrm-rowname wrm-rowname--muted">' + headline + '</span>' +
@@ -522,6 +575,14 @@
     var rows = reps.levels.map(function (lv) { return row(lv, reps); }).join('');
     var area = reps.area ? esc(reps.area) : '';
     var resolved = reps.levels.filter(function (l) { return l.resolved; }).length;
+    // The seats whose DISTRICT we have and whose HOLDER we do not — the third
+    // kind of gap row() now states. Counted here because the headline is where
+    // "3 of 6" was doing the same conflation the rows were: a reader who had just
+    // pinned three districts in the finder read a number that said nothing had
+    // been placed. The districts were placed; the roster is what is short.
+    var located = reps.levels.filter(function (l) {
+      return !l.statewide && !l.resolved && l.district != null && String(l.district) !== '';
+    }).length;
 
     // The count is stated plainly rather than implied by the row list, so a
     // partial answer reads as partial. It counts over the levels ACTUALLY SHOWN —
@@ -533,7 +594,13 @@
       '<div class="wrm-result">' +
         '<div class="wrm-resulthd">' +
           '<span class="wrm-resultkicker">Your representatives' + (area ? ' · ' + area : '') + '</span>' +
-          '<span class="wrm-resultcount">' + resolved + ' of ' + reps.levels.length + ' seats resolved</span>' +
+          '<span class="wrm-resultcount">' + resolved + ' of ' + reps.levels.length + ' seats resolved' +
+            (located
+              ? ' <span class="wrm-resultlocated">\u00b7 ' + located +
+                (located === 1 ? ' district located, member not on file' : ' districts located, members not on file') +
+                '</span>'
+              : '') +
+          '</span>' +
         '</div>' +
         // The whole election path in six words, above the rows it describes.
         // Every seat below carries the same three-part strip, so this line is a

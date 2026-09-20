@@ -360,8 +360,10 @@ for (const s of localSrcs) {
   // control on the honest empty state would do nothing without an override.
   ok(/window\.toggleChangeLocation\s*=/.test(inline) && /window\.openLocationModal\s*=/.test(inline),
     "seam: ballot.html overrides toggleChangeLocation and openLocationModal");
-  ok(/who-represents-me/.test(inline),
-    "seam: the location override navigates to Who Represents Me on '/', which is where that question is asked");
+  ok(/['"]\/find['"]/.test(inline),
+    "seam: the location override navigates to /find, the document the picker lives on now");
+  ok(/PDXReturn/.test(inline) && /finderHref/.test(inline),
+    "seam: the trip to the finder carries no way back — PDXReturn holds the 'next' intent");
 
   // SEAM 2. The stance editor is a separate product and is NOT loaded here; the
   // guarded fallback sets a bare hash, which is a no-op on this document.

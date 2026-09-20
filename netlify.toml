@@ -1132,6 +1132,83 @@
   status = 200
 
 # ═════════════════════════════════════════════════════════════════════════════
+# THE DISTRICT FINDER GETS ITS OWN DOCUMENT: /find -> find.html
+# ─────────────────────────────────────────────────────────────────────────────
+# WHAT THIS ADDRESS FIXES, AND IT IS NOT THE MAP. The finder's two own defects —
+# a keyed Carto basemap and a modal that fetched and painted 75 State House
+# polygons just to open — were fixed in place, and the freeze stayed. It had to,
+# because the third cause was never in the map controller: the finder's HOST was
+# index.html. Every "Change on map", every "set my location", every empty-state
+# control on /voice pointed at /#who-represents-me, so a location tap meant
+# parsing 1.6 MB of front page — hero, Door 1's work layer, the Evidence Locker
+# template, the ballot workspace, the archive listings — before the picker could
+# move, and then rebuilding all of it BEHIND the modal covering the page being
+# rebuilt. PDXFinder's gate could defer that rebuild. Nothing could un-parse the
+# document.
+#
+# So the picker is a document. /find carries the location modal, the map modal
+# and the controller that used to sit in the front page's body, and index.html
+# now carries none of them: no Leaflet, no UGRC layer fetch, no district-map
+# controller. A location tap costs the finder.
+#
+# SAME SHAPE AS /mandate, /voice AND /money, ON THE PATTERN /me AND /courts SET:
+# no app.css, no compare-hub.js, no ballot-breakdown.js, no cmp-data.js, no
+# roster, no Key Races, no Door 1 work layer, no ballot workspace and no
+# homepage hero. It loads voter-hub-location.js — which is the whole point, that
+# file being the ONE owner of the location record, the modal gate, the geocode
+# ceiling and pdxRepsForMe() — the shared bar sheet, and the smallest auth
+# surface that can answer "is somebody signed in", which is shell-account-chip.js
+# at 9 KB against compare-hub.js's 758 KB.
+#
+# /#who-represents-me IS NOT BEING REPLACED AND IS NOT AN ALIAS FOR THIS. The
+# band on the front page is where a reader READS their seats, and it still is —
+# its reps list, its location header and its ballot band never moved, and the nav
+# rows across the app still point at it. /find is where a location is SET. Two
+# different jobs that happened to share a document, and the sharing was the bug.
+# Which is also why there is no redirect from the fragment: a fragment never
+# reaches the server, so the forwarding is done by the controls themselves, each
+# of which now points at this path with its return intent in the query.
+#
+# WHY THIS SPELLING AND NO SECOND ONE. /find is the whole set. No /finder, no
+# /districts, no /district-finder, no /who-represents-me and no alias for any of
+# them: two live 200 spellings of one document split the canonical, which is the
+# ambiguity the /locker -> /evidence 301 below exists to remove. The return
+# intent is a QUERY (/find?next=/voice, whose value PDXReturn holds to an
+# allow-list of /, /voice, /me, /ballot and /district/<slug>), never a segment,
+# so there is nothing for a /find/* rule to answer and none is declared.
+#
+# ORDER: TWO EXACT PATHS, NO PREFIX, NO SPLAT — AND THE POSITION IS A STATED
+# NO-OP, on the same terms as /me, /courts and the three lanes above. Both are
+# disjoint by inspection of the literal strings from /p/*, /i/*, /issue/*,
+# /ballot, /me, /stances, /evidence, /courts, /mandate, /voice, /money,
+# /community, /vote/*, /d/*, /b/* and /locker, so declaring them here is correct
+# and would also have been correct anywhere else in the file. THE INVARIANT
+# WRITTEN DOWN FOR THE NEXT PERSON TO ADD A RULE ABOVE: nothing that matches
+# /find or /find/ may be declared earlier, and the day a prefix rule or a
+# catch-all appears — an SPA "rewrite everything to index.html" is the one that
+# would silently eat both — these exact paths must stay in front of it.
+# scripts/test-finder-basemap.mjs asserts this pair is present, is a 200, points
+# at find.html, and is not preceded by anything that matches it.
+# ═════════════════════════════════════════════════════════════════════════════
+[[redirects]]
+  from = "/find"
+  to = "/find.html"
+  status = 200
+
+# The trailing-slash form, declared rather than left to a redirect, so a pasted
+# /find/ is the finder instead of a hop. It is ALSO why every same-origin path
+# inside find.html is root-absolute, with no exceptions: served at /find/, a
+# bare src="voter-hub-location.js" resolves to /find/voter-hub-location.js, this
+# rule answers that with the HTML document, the browser parses HTML as
+# JavaScript, and the reader gets a finder that cannot find anything and no error
+# that names the cause. scripts/test-finder-basemap.mjs fails the build if a
+# relative same-origin path ever appears in that document.
+[[redirects]]
+  from = "/find/"
+  to = "/find.html"
+  status = 200
+
+# ═════════════════════════════════════════════════════════════════════════════
 # THE TWO COMMUNITY TRACKS GET ONE DOCUMENT
 #   /community -> community.html
 # ─────────────────────────────────────────────────────────────────────────────

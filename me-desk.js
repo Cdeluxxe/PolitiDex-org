@@ -419,9 +419,11 @@
     try { if (V && V.COPY && V.COPY.frame) out.frame = String(V.COPY.frame); } catch (e) {}
     // THE DOOR THAT SETS A LOCATION, CARRYING THE INTENT TO COME BACK TO VOICE.
     // voter-hub-location.js owns the parameter, the allow-list and the encoding.
-    // A boot without that module degrades to today's plain finder address rather
-    // than to a second copy of how the intent is spelled.
-    out.finder = '/#who-represents-me';
+    // A boot without that module degrades to the finder's plain address — /find,
+    // the picker's own document — rather than to a second copy of how the intent
+    // is spelled, and rather than to the front page band that only READS a
+    // location back.
+    out.finder = '/find';
     try {
       var R = window.PDXReturn;
       if (R && fn(R.finderHref)) out.finder = R.finderHref('/voice');
@@ -1134,7 +1136,7 @@
     var body = rows.length
       ? '<ul class="me-seats">' + rows.join('') + '</ul>'
       : empty('We cannot resolve a ballot for you yet. ' +
-          '<a href="/#who-represents-me">Tell us where you vote</a> and the seats we hold ' +
+          '<a href="' + esc(finderHref()) + '">Tell us where you vote</a> and the seats we hold ' +
           'will appear here — we would rather show nothing than a slate you do not vote on.');
 
     return '<section class="me-region" id="me-ballot" aria-labelledby="me-ballot-t">' +
@@ -1533,24 +1535,46 @@
   // ═══════════════════════════════════════════════════════════════════════════
   // Each one becomes a real navigation here instead of a dead control, which is
   // the same answer ballot.html's shell seams give for the same four functions.
-  function home(hash) {
-    var to = '/' + (hash || '');
+  function away(to) {
     try { location.assign(to); return true; } catch (e) {}
     try { location.href = to; return true; } catch (e2) {}
     try { location.replace(to); return true; } catch (e3) {}
     return false;
   }
+  function home(hash) { return away('/' + (hash || '')); }
 
-  // SEAM 1 — setting a location is a trip home. Both functions behind the
+  // THE FINDER IS A DOCUMENT, SO SETTING A LOCATION IS A TRIP TO IT. It used to
+  // be a block inside index.html, which is why the seam below spelled "take them
+  // to the question" as "take them home" — the two were one navigation. They are
+  // not any more: /find is the picker and nothing else, so a reader who taps "set
+  // my location" on the desk gets a document that opens a map instead of an
+  // archive homepage that then opens one over itself.
+  //
+  // The intent rides along, and this file does not spell it: PDXReturn owns the
+  // parameter, the allow-list and the encoding, and here() is what makes the save
+  // come back to /me rather than to the lane's home. A boot without that module
+  // degrades to the bare path.
+  function finderHref() {
+    try {
+      var R = window.PDXReturn;
+      if (R && fn(R.finderHref) && fn(R.here)) return R.finderHref(R.here());
+    } catch (e) {}
+    return '/find';
+  }
+  function finderTrip() { return away(finderHref()); }
+
+  // SEAM 1 — setting a location is a trip to /find. Both functions behind the
   // homepage's location control open #change-location-form and return early when
-  // it is absent, and it IS absent here. Who Represents Me is the front step and
-  // it stays on /, so this is the reader being taken to the place that asks the
-  // question rather than a modal reimplemented on a second document. Re-applied
-  // on two later beats because voter-hub-location.js is deferred and assigns
-  // both names at evaluation.
+  // it is absent, and it IS absent here — and after the finder moved it is absent
+  // on the front page too, which is why voter-hub-location.js now navigates in
+  // that case on its own. This seam stays as the local statement of where the
+  // desk's location control goes, and it goes to the picker's own document
+  // carrying next=/me so the save lands the reader back on the desk they were
+  // reading. Re-applied on two later beats because voter-hub-location.js is
+  // deferred and assigns both names at evaluation.
   function seamLocation() {
-    window.toggleChangeLocation = function () { return home('#who-represents-me'); };
-    window.openLocationModal = function () { return home('#who-represents-me'); };
+    window.toggleChangeLocation = finderTrip;
+    window.openLocationModal = finderTrip;
   }
 
   // SEAM 2 — the location fan-out. voter-hub-location.js calls
@@ -1641,7 +1665,7 @@
         if (!t || !t.closest) return;
         if (t.closest('[data-me-signin]')) { ev.preventDefault(); signIn(); return; }
         if (t.closest('[data-me-signout]')) { ev.preventDefault(); signOut(); return; }
-        if (t.closest('[data-me-loc]')) { ev.preventDefault(); home('#who-represents-me'); return; }
+        if (t.closest('[data-me-loc]')) { ev.preventDefault(); finderTrip(); return; }
         var tab = t.closest('[data-me-tab]');
         if (tab) {
           var k = tab.getAttribute('data-me-tab') || '';

@@ -97,6 +97,14 @@ const toml = read("netlify.toml");
 const failures = [];
 let passed = 0;
 const ok = (cond, msg) => { cond ? passed++ : failures.push(msg); };
+// A PROBE THAT CAN NO LONGER REACH ITS TARGET IS STALE, NOT PASSING. Separate
+// exit code from a real failure because the two need different readers: a
+// failure means the document drifted, and this means the test lost its address.
+const must = (cond, msg) => {
+  if (cond) return;
+  console.error(`\u2717 issue shell: STALE HARNESS \u2014 ${msg}`);
+  process.exit(2);
+};
 
 // Budgets. Tripwires, not targets — raise them deliberately, with a reason. The
 // whole point of this document is that it is small; a number going red here is
@@ -425,16 +433,54 @@ const rooted = (v) => /^(\/|https?:|\/\/|data:|#|mailto:)/.test(v);
 // comments together, because the last loop in this section pins the prose to the
 // table and a half-update fails louder than no update.
 const personLines = person.split("\n");
+//
+// SEVENTH MOVE, AND THE FIRST ONE THAT WAS NOT A SHIFT. v235 moved the district
+// finder to its own document, and person.html lost seven lines on the way: its
+// PDXLazy is a byte-identical copy of index.html's, index.html's lost the
+// `leaflet:` arm because the picker that was its only caller moved to /find, and
+// so person.html's lost it too — a copy that keeps a branch its source dropped
+// is not a copy. Everything below that loader therefore sits seven lines higher.
+// FOUR PINS MOVED BY EXACTLY SEVEN and their blocks are untouched: the bytes
+// were found unchanged in the new file and the numbers re-derived from where
+// they were FOUND, never by adding seven to the old ones. The first pin did not
+// move at all, which is the check on the method — the promise ledger is ABOVE
+// the loader, so a pass that shifted it would have been a pass that shifted the
+// wrong thing.
+//
+// AND THE SIXTH PIN WAS NOT STALE, IT WAS DEAD, which this pass found by
+// accident and is the more useful half of the story. It read 3713–3909.
+// person.html is a little under 3000 lines and was a little under 3010 before
+// this pass, so that range has been past the end of the file for as long as
+// anyone can check.
+// Array.prototype.slice does not throw on an out-of-range window — it returns
+// [], join("\n") turns that into "", and String.includes("") is true for every
+// string on earth. So the pin asserting that issue.html holds a byte-identical
+// copy of the PWA runtime was asserting that issue.html is a string. It passed
+// green through every run, including the ones where it would have been the only
+// thing standing between a forked service-worker registration and production.
+// The block is real and it is still byte-identical; it lives at 2800–2995,
+// found by walking outward from the registration's own banner to the longest run
+// the two documents still share, then trimming the blank edges. THE BOUNDS GUARD
+// BELOW IS THE ACTUAL FIX: a window that does not fit the file is now a failure
+// with a number in it, so the next pin to slide off the end says so.
 const COPIES = [
   [1405, 1920, "the promise ledger and the deferred-event capture (firebase-boot.js reads _firestoreLoaded and _checkAndTrigger as bare identifiers)"],
-  [2012, 2066, "the Firebase compat bundles, the key injection, the synchronous stub and firebase-boot.js"],
-  [2069, 2103, "the split-seam stubs (_pdxMandateForIssue is called unguarded from inside stance-helpers.js)"],
-  [2121, 2165, "the share furniture share-preview.ts rewrites"],
-  [2228, 2231, "the Bebas Neue / Barlow preload swap"],
-  [3713, 3909, "the PWA runtime and the service-worker registration"],
+  [2005, 2059, "the Firebase compat bundles, the key injection, the synchronous stub and firebase-boot.js"],
+  [2062, 2096, "the split-seam stubs (_pdxMandateForIssue is called unguarded from inside stance-helpers.js)"],
+  [2114, 2158, "the share furniture share-preview.ts rewrites"],
+  [2221, 2224, "the Bebas Neue / Barlow preload swap"],
+  [2800, 2995, "the PWA runtime and the service-worker registration"],
 ];
 for (const [a, b, what] of COPIES) {
+  // AN EMPTY OR OUT-OF-RANGE WINDOW IS A DEAD PIN, NOT A PASSING ONE. Checked
+  // before the comparison and reported as a STALE HARNESS rather than a drift,
+  // because the document is not what is wrong when this fires — the numbers are.
+  must(a >= 1 && b >= a && b <= personLines.length,
+    `the pin for ${what} reads person.html lines ${a}–${b}, and that file is ${personLines.length} lines long ` +
+    "— an out-of-range slice is empty, and includes(\"\") is true for everything, so this pin asserted nothing");
   const slice = personLines.slice(a - 1, b).join("\n");
+  must(slice.trim().length > 0,
+    `the pin for ${what} (person.html ${a}–${b}) slices only whitespace, so it asserts nothing`);
   ok(html.includes(slice),
     `copy: ${what} is NOT byte-identical to person.html lines ${a}–${b} — the documents have drifted, and a fix to one will not reach the other`);
 }

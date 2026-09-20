@@ -1073,8 +1073,13 @@
     if (!placed) {
       try {
         var R = window.PDXReturn;
-        href = (R && fn(R.finderHref)) ? R.finderHref('/voice') : '/#who-represents-me';
-      } catch (e2) { href = '/#who-represents-me'; }
+        // /find, not /#who-represents-me: the finder is its own document now, so
+        // the degraded door (PDXReturn absent) points at the picker rather than
+        // at the front page that used to host it. Same strict-degradation rule as
+        // voice-room.js's HREF_FINDER_BARE — no intent attached, and not a second
+        // copy of how the intent is spelled.
+        href = (R && fn(R.finderHref)) ? R.finderHref('/voice') : '/find';
+      } catch (e2) { href = '/find'; }
     }
     return '<a class="pf-kick-voice" href="' + esc(href) + '"' +
       ' title="District Voice: the rooms for the seats YOU vote in. Anyone can' +

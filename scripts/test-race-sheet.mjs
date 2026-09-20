@@ -538,13 +538,23 @@ section("11 · the entry points and the wiring");
   const html = R("index.html");
   has(html, '<script defer src="/race-sheet.js"></script>', "the page loads the sheet");
   has(html, 'href="/race-sheet.css"', "…and its styles");
-  // One control, three hosts, all defensive: the entry returns '' for a seat it
-  // cannot compare, so no host can paint a button that leads nowhere.
+  // One control, TWO hosts now, both defensive: the entry returns '' for a seat
+  // it cannot compare, so no host can paint a button that leads nowhere.
+  //
+  // voter-hub-location.js WAS THE THIRD, AND ITS ABSENCE IS THE ASSERTION NOW.
+  // It painted a second copy of the represents-me roster into the Voter Hub —
+  // the same seats, the same compare control, and its own stale spelling of the
+  // empty states — so this file used to require it to offer the entry too. The
+  // duplicate is deleted: _vhSyncDistrictStrip empties its host and forwards to
+  // PDXWhoRepresentsMe.sync(), and the resolver resolves districts rather than
+  // painting seats. A compare control there again would mean two hosts for one
+  // roster, which is the defect this pins against rather than for.
   for (const [f, why] of [
     ["who-represents-me.js", "Who Represents Me offers a comparison per seat"],
-    ["voter-hub-location.js", "the Voter Hub seat rows offer one too"],
     ["ballot-breakdown.js", "and so does a My Voting Team seat card"],
   ]) has(R(f), "pdxRaceSheetEntry", why);
+  ok(R("voter-hub-location.js").indexOf("pdxRaceSheetEntry") < 0,
+    "the retired Voter Hub roster is painting compare controls again");
   eq(probe.pdxRaceSheetEntry("not-a-seat", {}), "",
     "an uncomparable seat yields no button at all");
   has(probe.pdxRaceSheetEntry("house", { compact: true }), "Compare field for this seat",

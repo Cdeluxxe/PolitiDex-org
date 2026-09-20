@@ -78,6 +78,7 @@ const R = (f) => readFileSync(join(ROOT, f), "utf8");
 
 const VOICE_HTML = R("voice.html");
 const INDEX = R("index.html");
+const FIND = R("find.html");
 const VR = R("voice-room.js");
 const DV = R("district-voice.js");
 const LOC = R("voter-hub-location.js");
@@ -210,12 +211,16 @@ function returnAt(pathname, search) {
   must(!!Rt && typeof Rt.finderHref === "function", "PDXReturn did not publish finderHref()");
   eq(Rt.HOME, "/voice", "return: the lane's home is not /voice");
 
-  // THE FINDER HREF. A real root-absolute address with the intent in the query
-  // and the card's own fragment on the end, so the reader arrives AT the finder
-  // rather than at the top of a 1.5 MB document.
+  // THE FINDER HREF. A real root-absolute address with the intent in the query.
+  // It used to be a fragment on the front page, and the fragment was the whole
+  // problem: arriving at #who-represents-me meant parsing 1.5 MB of archive
+  // homepage before the picker could move. The finder is its own document now,
+  // so the href is the document.
   const href = Rt.finderHref("/voice");
   has(href, "next=", "finder: the href carries no return intent");
-  has(href, "#who-represents-me", "finder: the href does not land on the finder card");
+  ok(href.indexOf("/find") === 0, `finder: the href does not point at the finder's own document (${href})`);
+  ok(href.indexOf("#who-represents-me") < 0,
+    "finder: the href still carries the front-page fragment the finder moved off");
   eq(decodeURIComponent((/next=([^&#]*)/.exec(href) || [, ""])[1]), "/voice",
     "finder: the intent it carries is not /voice");
   ok(href.startsWith("/"), `finder: the href is not root-absolute (${href})`);
@@ -237,11 +242,17 @@ function returnAt(pathname, search) {
     "/\\evil.example", "\\\\evil.example", "/admin", "/ballot/../admin", "//evil.example/voice"]) {
     eq(Rt.sanitize(bad), "", `redirect: ${JSON.stringify(bad)} survived sanitize()`);
   }
-  // AND THE FOUR SHAPES THAT ARE ALLOWED, spelled out, so widening the pattern
-  // is a visible diff rather than a silent one.
-  for (const good of ["/voice", "/me", "/ballot", "/district/ut-sd-3"]) {
+  // AND THE FIVE SHAPES THAT ARE ALLOWED, spelled out, so widening the pattern
+  // is a visible diff rather than a silent one. The front page joined the list
+  // when the finder left it: here() on "/" has to be able to name where it
+  // stands, and consume() refuses to navigate to the address it is already on,
+  // so admitting "/" adds a destination and not a hop.
+  for (const good of ["/voice", "/me", "/ballot", "/district/ut-sd-3", "/"]) {
     eq(Rt.sanitize(good), good, `redirect: ${good} is not in the allow-list and it must be`);
   }
+  // AND THE FINDER ITSELF IS NOT ON IT, deliberately: a save must never land
+  // back on the picker that made it.
+  eq(Rt.sanitize("/find"), "", "redirect: /find is in the allow-list and a save could bounce back to it");
   eq(Rt.sanitize("/VOICE"), "/voice", "redirect: a shouted path is not folded to the canonical one");
   eq(Rt.sanitize("/voice?x=1#y"), "/voice", "redirect: a query and fragment are not trimmed off the intent");
 }
@@ -309,7 +320,7 @@ const WEBER = { state: "Utah", city: "North Ogden", county: "Weber County" };
   // AND ONE DOOR, WHICH IS THE FINDER WITH THE WAY BACK.
   const cta = /<a class="pdxvr-door" href="([^"]+)">/.exec(h.card());
   must(!!cta, "no location: the hub offers no anchor to a page that can place the reader");
-  has(cta[1], "who-represents-me", "no location: the door does not point at Who Represents Me");
+  ok(cta[1].indexOf("/find") === 0, `no location: the door does not point at the finder (${cta[1]})`);
   has(cta[1], "next=", "no location: the door carries no return intent");
   eq(decodeURIComponent((/next=([^&#]*)/.exec(cta[1]) || [, ""])[1]), "/voice",
     "no location: the intent the door carries is not /voice");
@@ -324,12 +335,16 @@ const WEBER = { state: "Utah", city: "North Ogden", county: "Weber County" };
 // ═════════════════════════════════════════════════════════════════════════════
 // 3 · THE SAVE LANDS ON /voice
 // ═════════════════════════════════════════════════════════════════════════════
-section("3 · a mocked save carrying next=/voice lands the reader on /voice");
+section("3 · a mocked save on /find?next=/voice lands the reader on /voice");
 
 {
   // THE READER CAME FROM THE HUB. ?next=/voice in the URL, a save that completed,
   // and a location to show for it: consume() navigates, once, to that address.
-  const w = returnAt("/", "?next=%2Fvoice");
+  // THE PATHNAME IN THIS FIXTURE IS /find AND THAT IS THE POINT OF THE MOVE: the
+  // save now completes on the finder's own document, not on the archive homepage
+  // it used to be a fragment of, and the return trip is the same one either way
+  // because the intent rides in the query and not in the host page.
+  const w = returnAt("/find", "?next=%2Fvoice");
   w._pdxLocSaved = true;
   w._hasUserLocation = true;
   eq(w.PDXReturn.read(), "/voice", "save: the intent was not read back out of the URL");
@@ -346,13 +361,13 @@ section("3 · a mocked save carrying next=/voice lands the reader on /voice");
 {
   // NO SAVE, NO JUMP. The picker opened with ?next= in the URL and the reader
   // pressed Escape. Nothing was saved, so nothing moves.
-  const w = returnAt("/", "?next=%2Fvoice");
+  const w = returnAt("/find", "?next=%2Fvoice");
   w._pdxLocSaved = false;
   w._hasUserLocation = false;
   eq(w.PDXReturn.consume(), false, "escape: a reader who saved nothing was navigated anyway");
   eq(w.__assigned.length, 0, "escape: a reader who dismissed the picker was moved off the page");
   // A SAVE FLAG WITHOUT A LOCATION IS ALSO NOT A SAVE.
-  const half = returnAt("/", "?next=%2Fvoice");
+  const half = returnAt("/find", "?next=%2Fvoice");
   half._pdxLocSaved = true;
   half._hasUserLocation = false;
   eq(half.PDXReturn.consume(), false, "escape: a save flag with no location behind it navigated");
@@ -360,9 +375,10 @@ section("3 · a mocked save carrying next=/voice lands the reader on /voice");
 {
   // NO INTENT, NO JUMP — and this is the reading the brief's "default /voice"
   // gets. An ABSENT `next` means nobody said where they were going, so a reader
-  // who sets a location on the front page stays on the front page. The default
-  // is the fallback for an intent that is PRESENT and unusable.
-  const w = returnAt("/", "");
+  // who opened the finder on its own address stays on it and reads the answer
+  // there. The default is the fallback for an intent that is PRESENT and
+  // unusable, never a teleport for a reader who expressed nothing.
+  const w = returnAt("/find", "");
   w._pdxLocSaved = true;
   w._hasUserLocation = true;
   eq(w.PDXReturn.read(), "", "no intent: an absent next was read as an intent");
@@ -371,7 +387,7 @@ section("3 · a mocked save carrying next=/voice lands the reader on /voice");
 
   // A PRESENT BUT UNUSABLE INTENT IS THE LANE'S HOME, not a dead end and not an
   // off-origin navigation.
-  const evil = returnAt("/", "?next=%2F%2Fevil.example");
+  const evil = returnAt("/find", "?next=%2F%2Fevil.example");
   evil._pdxLocSaved = true;
   evil._hasUserLocation = true;
   eq(evil.PDXReturn.read(), "/voice", "unusable intent: an off-origin next did not degrade to the lane's home");
@@ -395,17 +411,74 @@ section("3 · a mocked save carrying next=/voice lands the reader on /voice");
   };
   const close = bodyOf(LOC, "window.closeLocationModal = function", "\n  };");
   ok(close.length > 200, `wiring: closeLocationModal could not be sliced (${close.length} chars)`);
-  has(close, "PDXReturn.consume()",
+  has(close, "PDXReturn.settled()",
     "wiring: closing the location picker does not spend the return intent");
-  const confirm = bodyOf(INDEX, "window.pdxMapConfirm = function", "\n    };");
-  ok(confirm.length > 200, `wiring: pdxMapConfirm could not be sliced (${confirm.length} chars)`);
-  has(confirm, "PDXReturn.consume()",
+  // pdxMapConfirm LIVES ON find.html NOW, and it spends the intent through
+  // settled() rather than consume(). settled() IS consume() plus one fallback
+  // that only fires on the finder's own document: a reader who saved a location
+  // with no next= to spend would otherwise be left standing on a blank tool
+  // page, so they go to the band that answers the question they asked.
+  // The confirm button is a GATE now - House, Senate and U.S. House, or the
+  // labelled partial save - so the hand-off moved one level down, into the one
+  // commit path both exits share. That is where the intent is spent, and
+  // pdxMapConfirm has to reach it rather than carry its own copy.
+  const confirm = bodyOf(FIND, "window.pdxMapConfirm = function", "\n    };");
+  ok(confirm.length > 200, `wiring: pdxMapConfirm could not be sliced out of find.html (${confirm.length} chars)`);
+  has(confirm, "commitAndLeave()",
+    "wiring: confirming the district map does not reach the one commit path, so it either spends the\n" +
+    "    return intent itself or does not spend it at all");
+  const commit = bodyOf(FIND, "function commitAndLeave(", "\n    }");
+  ok(commit.length > 200, `wiring: commitAndLeave could not be sliced out of find.html (${commit.length} chars)`);
+  has(commit, "PDXReturn.settled()",
     "wiring: confirming the district map does not spend the return intent");
-  ok(/PDXReturn\.consume\(\)\)\s*return;/.test(confirm),
-    "wiring: the map confirm does not early-return after navigating — the onboarding branch would run on a page that is leaving");
+  has(commit, "applyToLocation()",
+    "wiring: the commit path hands off the return intent without writing the districts first");
+  // No early return needed here and none wanted: the forty lines of front-page
+  // follow-through that used to run after the confirm did not move with it.
+  const SETTLED = bodyOf(LOC, "function settled(", "\n    }");
+  ok(SETTLED.length > 100, `wiring: settled() could not be sliced (${SETTLED.length} chars)`);
+  has(SETTLED, "consume()", "wiring: settled() does not spend the return intent first");
+  has(SETTLED, "__PDX_FIND_DOC", "wiring: settled()'s fallback is not scoped to the finder's own document");
+  ok(/_pdxLocSaved/.test(SETTLED) && /_hasUserLocation/.test(SETTLED),
+    "wiring: settled() would navigate without a completed save");
   // AND NO closeModal() ON THE WAY. The person file's modal closer rewrites the
   // address; calling it from this lane would eat the document the reader was on.
   no(RET_SRC, "closeModal", "wiring: the return helper reaches for closeModal() and would eat the person file");
+}
+// AND THE SEATS ON THE OTHER SIDE OF THE TRIP ARE THE SAME SEATS. The finder
+// moving to its own document would be a regression if the reader landed on
+// /voice and found a different answer than the one the picker resolved, so the
+// round trip is asserted end to end here: a save at /find?next=/voice navigates
+// to /voice, and a hub booted on THAT SAVED RECORD paints the seats the record
+// resolves. It is the same record and the same resolver either way — there is
+// exactly one pdxRepsForMe() and the finder did not fork it — which is why this
+// holds, and the check is here so that forking it later fails out loud.
+{
+  const trip = returnAt("/find", "?next=%2Fvoice");
+  trip._pdxLocSaved = true;
+  trip._hasUserLocation = true;
+  eq(trip.PDXReturn.consume(), true, "round trip: the save on /find did not navigate");
+  eq(trip.__assigned[0], "/voice", "round trip: the save on /find did not land on /voice");
+
+  const landed = hub({ loc: WEBER, levels: [LV.hd15, LV.sd3], people: { john_johnson: { name: "John Johnson" } } });
+  eq(landed.paint(), "placed", "round trip: the reader landed on /voice and the hub did not settle on 'placed'");
+  const seats = landed.win.PDXVoice.seatsForMe();
+  eq(seats.length, 2, `round trip: the record that was saved on /find resolves ${seats.length} seats on /voice`);
+  eq(seats.map((x) => x.seatKey).join("|"), "ut-statehouse-15|ut-statesenate-3",
+    "round trip: the seats after the hop are not the seats the saved record resolves");
+  has(landed.list(), "State House District 15", "round trip: the House seat did not survive the hop");
+  has(landed.list(), "State Senate District 3", "round trip: the Senate seat did not survive the hop");
+  has(landed.list(), "Weber County", "round trip: the county the reader saved on /find is not on the cards");
+  // ONE RESOLVER, NAMED ONCE. The finder consumes the owner's export; it does
+  // not ship a second copy of the join under another name.
+  // `\s*=` alone also matched `window.pdxRepsForMe === 'function'`, which is a
+  // READER guarding on the export, not a second publisher of it — and the
+  // location header became one such reader when it started naming every located
+  // chamber instead of only the U.S. House. `=[^=]` is what this line always
+  // meant: one assignment, and any number of callers.
+  eq((LOC.match(/window\.pdxRepsForMe\s*=[^=]/g) || []).length, 1,
+    "round trip: voter-hub-location.js publishes pdxRepsForMe more than once");
+  no(FIND, "pdxRepsForMe =", "round trip: find.html assigns its own pdxRepsForMe and the two answers can drift");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -735,7 +808,16 @@ section("8 · the record engines are byte-identical with the hallway rendered, a
 {
   const key = (/var PDX_LOC_KEY = '([^']+)';/.exec(LOC) || [, ""])[1];
   eq(key, "politidex_voter_location", "keys: the saved location key moved");
-  has(LOC, "'politidex_my_team'", "keys: the team store's key moved");
+  // THE TEAM KEY IS READ FROM ITS OWNER NOW, NOT FROM THE RESOLVER. This used to
+  // read LOC, because voter-hub-location.js named the key inside the second copy
+  // of the represents-me roster it painted into the Voter Hub — it read the team
+  // store to put a team chip on each seat row. That duplicate is deleted and the
+  // resolver resolves districts; the store it never owned is ballot-breakdown.js's
+  // BALLOT_KEY. Asserting against LOC would have been asserting that the
+  // duplicate is still there.
+  has(R("ballot-breakdown.js"), "'politidex_my_team'", "keys: the team store's key moved");
+  ok(LOC.indexOf("politidex_my_team") < 0,
+    "keys: the resolver names the team store again, which is a second reader of a store it does not own");
   // NO MIGRATION CODE IN EITHER FILE OF THIS PASS. Not a rename, not a copy,
   // not a read-old-write-new.
   for (const [name, src] of [["district-voice.js", DV], ["voice-room.js", VR]]) {
