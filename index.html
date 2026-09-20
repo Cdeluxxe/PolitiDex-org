@@ -5366,6 +5366,122 @@ window.PDXLazy = (function () {
          not "no call to action at all" — an empty hero simply handed the primary
          slot to whatever banner happened to be styled loudest. -->
 
+    <!-- ══════════════════ DISTRICT VOICE · ONE CARD, ONE DOOR ═══════════════
+         WHAT WAS MISSING. /voice has been a real document for a while and the
+         front page named it in exactly two places: the desktop nav menu and the
+         mobile sheet. Both are nav rows, and a stranger who never opens a nav
+         menu had no way to learn that the rooms for their own seats exist. This
+         is that one card. It is a card and not a third nav row because the
+         chrome already carries the rows it should, and the nav's District Voice
+         entries are unchanged and still point at /voice.
+
+         IT POINTS AT /voice AND NOTHING ELSE, AT EVERY STANDING. Not
+         #who-represents-me: that is the finder, and /voice's own empty state
+         already carries the finder door with the return intent attached, so
+         sending a stranger to the finder first would place them and then leave
+         them standing there — the exact bug the `next` parameter was added to
+         fix. And not /district/ut-sd-3: that is ONE seat's board, in Weber
+         County, and handing it to a stranger tells them they live somewhere they
+         may not. One address, and it resolves the reader itself.
+
+         THE ONLY THING JAVASCRIPT CHANGES IS THE VERB. The served markup reads
+         "Find your rooms"; a reader with a location on file reads "See your
+         rooms". The href is /voice in the document and is never rewritten, so
+         the card works with scripting off, survives a middle-click, and can be
+         copied out of the page. The standing is read off window._hasUserLocation
+         — voter-hub-location.js's own flag, the same one district-voice.js asks
+         — so nothing here parses a location record of its own, and
+         pdxRepsForMe() is not called. Resolving five seats to PREVIEW them is
+         how the fat resolver gets pulled onto this document's critical path, and
+         no answer it returns is needed here: /voice resolves the seats at
+         /voice. The card writes nothing — no location key, no stance store, no
+         team slate.
+
+         AND IT DESCRIBES WHAT EXISTS. One seat has a board today; every other
+         seat a location resolves gets a card naming the sitting member and
+         saying the room is not open. That is the third line, and it is a
+         reading of district-voice.js's BOARD_ROUTES — one row — rather than a
+         roadmap: no "coming soon", no "yet". The member is not named here
+         either; the hub names them when the location is the reader's own. No
+         map, no composer, no counts, no seeded numbers, no equity vocabulary.
+         Three sentences and one anchor. -->
+    <!-- pdx:home-voice-gate:begin -->
+    <style>
+      /* Prefix checked against every shipped file before use: nothing else in
+         the app defines or references `pdxhv-`. The tokens are /voice's own —
+         the same #7fb2ff accent and the same card ground — so the card a reader
+         taps here and the page it opens read as one surface. */
+      .pdxhv-card{max-width:36rem;margin:0 auto 1.75rem;padding:1rem 1.15rem 1.05rem;text-align:left;border:1px solid rgba(127,178,255,0.18);border-radius:0.75rem;background:rgba(18,27,48,0.72);}
+      .pdxhv-kick{margin:0 0 0.35rem;font:700 0.72rem/1 'Barlow Condensed','Barlow',sans-serif;letter-spacing:0.16em;text-transform:uppercase;color:#7fb2ff;}
+      .pdxhv-line{margin:0 0 0.85rem;font:400 0.95rem/1.6 'Barlow',system-ui,sans-serif;color:#cfe0ff;}
+      .pdxhv-door{display:inline-flex;align-items:center;padding:0.48rem 0.9rem;border:1px solid rgba(127,178,255,0.34);border-radius:999px;font:600 0.85rem/1 'Barlow',system-ui,sans-serif;color:#cfe0ff;text-decoration:none;background:rgba(127,178,255,0.08);transition:background 0.2s ease;}
+      .pdxhv-door:hover,.pdxhv-door:focus-visible{background:rgba(127,178,255,0.16);}
+      .pdxhv-note{margin:0.7rem 0 0;font:400 0.82rem/1.55 'Barlow',system-ui,sans-serif;color:#7a8aa8;}
+      @media (prefers-reduced-motion:reduce){.pdxhv-door{transition:none;}}
+    </style>
+    <div class="pdxhv-card">
+      <p class="pdxhv-kick">District Voice</p>
+      <p class="pdxhv-line">The rooms for your seats. Anyone can read. Only verified residents of that seat get a voice that counts.</p>
+      <a class="pdxhv-door" id="pdx-home-voice-door" data-pdxhv-standing="unplaced" href="/voice">Find your rooms</a>
+      <p class="pdxhv-note">One seat has a board on file today. The others list the member and say the room is not open.</p>
+    </div>
+    <script>
+      // THE LABEL, AND ONLY THE LABEL. Two strings, one element, no href. A
+      // reader with a location on file is not being asked to find anything, and
+      // a reader without one is not being promised a list that does not exist
+      // for them — but both of them are going to the same address, because that
+      // address is the thing that knows which of the two they are.
+      //
+      // WHY IT HANGS OFF _hasUserLocation AND NOT A STORE READ.
+      // voter-hub-location.js owns the location record, the key it is saved
+      // under and the question of whether a saved record represents an actual
+      // choice or an IP guess (_pdxLocWasChosen). That module publishes the
+      // answer as one boolean. Parsing politidex_voter_location here would be a
+      // second answer to a question that already has an owner, and it would be
+      // the wrong answer on the day the owner's rules change.
+      //
+      // WHY IT RE-SYNCS. _pdxRefreshMapIndicators is called by
+      // loadVoterLocation() at boot and by _triggerLocationReaction() on every
+      // save, so wrapping it once is the whole subscription — a reader who sets
+      // a location in the hub below sees the verb change without a reload. The
+      // wrap is guarded and idempotent, the same shape the Race Focus tool uses
+      // on _updateTeamPositionsForLocation further down this document. If the
+      // wrap never happens (module absent) the served label still stands and
+      // still opens /voice.
+      (function () {
+        var UNPLACED = 'Find your rooms';
+        var PLACED   = 'See your rooms';
+        function sync() {
+          var a = document.getElementById('pdx-home-voice-door');
+          if (!a) return;
+          var placed = false;
+          try { placed = !!window._hasUserLocation; } catch (e) { placed = false; }
+          var want = placed ? PLACED : UNPLACED;
+          if (a.textContent !== want) a.textContent = want;
+          a.setAttribute('data-pdxhv-standing', placed ? 'placed' : 'unplaced');
+        }
+        window._pdxVoiceGateSync = sync;
+        function boot() {
+          sync();
+          if (typeof window._pdxRefreshMapIndicators === 'function' && !window._pdxRefreshMapIndicators.__pdxhvWrapped) {
+            var orig = window._pdxRefreshMapIndicators;
+            window._pdxRefreshMapIndicators = function () {
+              var out = orig.apply(this, arguments);
+              try { sync(); } catch (e) {}
+              return out;
+            };
+            window._pdxRefreshMapIndicators.__pdxhvWrapped = true;
+          }
+        }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sync);
+        if (document.readyState === 'complete') boot(); else window.addEventListener('load', boot);
+        // A back-forward restore repaints from the bfcache without re-running
+        // boot, and the location may have changed on the page in between.
+        window.addEventListener('pageshow', sync);
+      })();
+    </script>
+    <!-- pdx:home-voice-gate:end -->
+
     <!-- ── HOW IT WORKS · deferred, not deleted ────────────────────────────────
          Everything in here used to be unconditional hero content, in this order:
          a 40-word explainer, a 55-word "why it matters" paragraph, and the purple

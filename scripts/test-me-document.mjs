@@ -268,6 +268,13 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // cares about; not a character of the block itself changed. Re-derived by
 // locating the run, as always — the arithmetic agreed afterwards, which is the
 // order that catches a bad pin rather than confirming one.
+//   AND ONE MORE MOVE, FOR THE HOMEPAGE DISTRICT VOICE GATE. The front page grew
+// a hero card pointing a stranger at /voice, its styles, and the standing read
+// that swaps the verb on it — 116 lines above the CSS pin and 117 above the
+// script block, all of them above both. Re-derived the only way this pin is ever
+// allowed to move: by locating in index.html the run that this document actually
+// carries, not by adding the delta to the old start. The arithmetic agreed
+// afterwards, and the declared ranges in the copies moved in the same edit.
 const COPIES = [
   { from: "person.html", src: PERSON, a: 288, b: 1271, what: "PDXStore" },
   { from: "person.html", src: PERSON, a: 1405, b: 1920, what: "the promise ledger" },
@@ -278,7 +285,7 @@ const COPIES = [
   // an earlier edit to index.html shifts line numbers — when it does, the header
   // comment in me.html and this table move TOGETHER, which is the whole point of
   // pinning it in one place.
-  { from: "index.html", src: INDEX, a: 20874, b: 21296, what: "PDXSaved" },
+  { from: "index.html", src: INDEX, a: 20990, b: 21412, what: "PDXSaved" },
 ];
 // PDXSaved's declared range has now moved four times, always for the same
 // reason and always re-derived the same way: LOCATE THE 423-LINE RUN VERBATIM IN

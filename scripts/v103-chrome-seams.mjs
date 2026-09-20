@@ -304,6 +304,20 @@ export const CJ_SEAMS = [
   ["      '.pdxgap-drv-t{flex:1 0 100%;font-size:0.63rem;color:#93a6c4;line-height:1.35;}' +\n",
    "      '.pdxgap-drv-p{flex:1 0 100%;",
    "the one-measure summary line's paint"],
+  // ── the issue drawer's ledger, and the fold the method went behind (v230) ──
+  // THE INVENTORY GOT A STYLESHEET, AND THE METHOD GOT A SUMMARY. The drawer used
+  // to open on three verdicts at once — a percentage, an index word and a stance
+  // word in the same inch — above a column of method, and a reader could not see
+  // from it how many BILLS and how many recorded ACTS were being characterised.
+  // The classes in this span paint that inventory: the one finding line, the
+  // counts, a table with a row per act, and the single `<details>` every sentence
+  // about weighting now sits behind. Paint only. There is no arithmetic, no
+  // threshold and no colour keyed to a party, a lane or a score in it — the two
+  // coloured tokens are the clerk's Yea and Nay, and the third is "neither",
+  // which is the same three-way split the record cards already print.
+  ["      '.pdxdos-empty{font-size:0.72rem;color:#8fa2c0;padding:0.25rem 0 0.4rem;line-height:1.45;}' +\n",
+   "      // ── The continuity line, directly under the issue title ────────────────\n",
+   "the ledger's stylesheet, and the method fold's"],
   // ── and three more for the bill door (v138): who wins the tap ─────────────
   // K4/K5. THE SAME BRANCH, MOVED TO THE FRONT. Every bill number is printed
   // inside a door already — a card face, a roll-up row, a proof line — and
@@ -484,9 +498,95 @@ export const CJ_SEAMS_BELOW = [
   ["    return '<div class=\"pdxgap-drv\" data-pdxgap-drv=\"' + escAttr(String(d.docs)) + '\">' +\n",
    "        // BOTH NUMBERS, BECAUSE THEY ARE DIFFERENT NUMBERS.",
    "the heading chosen by the count"],
-  ["      '<div class=\"pdxgap-h\">' +\n",
-   "        _dosBucketHtml(_dosRow) +\n",
+  // ── L8-L13: the ledger itself (v230) ───────────────────────────────────────
+  // WHAT THIS PASS IS. The drawer answered "how consistent is this person on this
+  // issue" before it answered "what did they actually do about it", and on the
+  // fixture it was written against — Massie × Voter ID, and Maloy × H.R. 8595 —
+  // the second question has an answer a table can hold and prose cannot: ONE
+  // statute, TWO recorded acts, a Nay on the motion to recommit and a Yea on
+  // passage. So the sheet now opens with the inventory (N bills · M formal acts,
+  // the engine's own for/against over them), then one row per act grouped into
+  // "Tried to change it" and "Voted on the result", and only then the method.
+  //
+  // WHY NO WAVE, ROSTER OR CRAWL PASS HAS A STAKE IN THESE SPANS. Nothing in them
+  // scores: every number printed is a COUNT of rows the engine already returned,
+  // and the for/against split is read through the canonical
+  // window._voteEffectiveSupport — the same reader the tallies use — rather than
+  // re-derived here. No floor, no publication threshold, no NEVER_FEEDS entry, no
+  // weight, no band, no percentage and no party is read or written inside them;
+  // the percentages, the bucket word, the stance chip, the depth caveat, the
+  // quiet-side note and "where this lands in the score" are all still emitted, by
+  // the same calls in the same order, one disclosure lower. Which is why the
+  // pinned remainder still holds the arithmetic byte for byte, and why the twin
+  // boot in every one of these suites still reports identical scores.
+  //
+  // AND WHAT THE SPANS REFUSE TO DO. The act-kind column prints the clerk's own
+  // question — amendment, recommit, passage, procedural — and prints the bare word
+  // "act" when the record does not say; it never guesses a kind, and it never
+  // writes amendment text. A drawer with no roll calls behind it takes none of
+  // this: `_lgOn` is false there and those sheets render the bytes they always
+  // did, which is what scripts/test-issue-ledger.mjs pins against HEAD.
+  //
+  // L8. THE READERS AND THE RENDERERS. Eight functions, all of them pure reads
+  // over the item list the dossier already builds: the kind classifier, the side
+  // word, the one-sentence why (whose source is a stored tag or title, clipped —
+  // never composed), the chips, the per-act direction, the counts, the one finding
+  // line and the two blocks. The span's tail is the summary's They-said line,
+  // which is suppressed for THIS caller only, because the ledger now prints that
+  // quote beside the acts rather than above the method; every other caller of the
+  // summary still gets it, which is why it is a flag and not a deletion.
+  ["  // would read as a second score.\n",
+   "      lines.push('<div class=\"pdxdos-line\"><span class=\"pdxdos-k\">They said</span>' +\n",
+   "the ledger's readers and renderers"],
+  // L9. THE INVENTORY, RESOLVED FIRST, because it decides the SHAPE of the sheet.
+  // Two statements: the counts, and whether there is anything to count. A record
+  // with no formal acts on this issue has no ledger to lead with and is left
+  // exactly as it was.
+  ["    var _dosRow = issueRow(pid, issueKey);\n",
+   "    // Relationship — only when BOTH sides carry a real %. Otherwise say so plainly.\n",
+   "the inventory, resolved before the prose"],
+  // L10. THE HEADER'S MOUNT, AND ITS ONE FINDING LINE. This span held the title
+  // door's mount alone; it is widened by two lines of the same statement, because
+  // the ledger pass changed what is mounted NEXT TO the title and there is no
+  // unique line between the two to anchor on. The header still mounts the title
+  // door exactly once — the assertion that says so is unchanged — and where a
+  // ledger exists the bucket line, the score chip and the stance chip move down
+  // into the scoring disclosure TOGETHER AND IN THAT ORDER, so the index's word
+  // still arrives before the index's number. Where there is no ledger the three
+  // stay in the header, unmoved.
+  ["    // a re-sizing, not a removal.\n",
+   "        // Whose record this is, on one line, under the finding. The eyebrow that\n",
    "the dossier title's mount"],
+  // L11. THE DEPTH NOTE, TRAVELLING WITH THE SCORE IT QUALIFIES. "3 judged votes
+  // on this issue" is an account of a denominator, so on a ledger sheet it sits
+  // with the denominator, inside the disclosure — not above a tally that already
+  // states the counts in the reader's own words. It is not rewritten and not
+  // dropped: the same gapNote string is emitted, one level down.
+  ["        _saShareHtml(pid, issueKey) +\n",
+   "    // 🏛️ Official Record side. omniBlock: the multi-issue disclosure on each vote\n",
+   "the depth note, moved with the score it qualifies"],
+  // L12. THE METHOD, BEHIND ONE DISCLOSURE — and the ledger, above it. Every
+  // sentence that was in the drawer is still in the drawer, in the order it was
+  // in: the assembled answer, the two lane panels, the wall between them, the
+  // composition counts, the "a pattern is not established at that depth" caveat,
+  // the quiet-side note, the suggest-a-lead door and the weighting sentence are
+  // assembled into one body here and handed to one `<details>`. One fold, not
+  // five: a method wall broken into five folds is still a method wall and costs
+  // five taps. What is above it is the inventory and the quote, which is the whole
+  // of the re-ordering.
+  ["          _sdGapHtml(pid, issueKey) +\n",
+   "      // ── L2 ── every instrument on this issue, closed. It sits below the two\n",
+   "the method, behind one disclosure"],
+  // L13. A SCROLL TO SOMETHING FOLDED SHUT IS A SCROLL TO NOWHERE. Both callers of
+  // this focus helper — the 🧾 tally control and the deep link — now name nodes
+  // that live inside the scoring disclosure, and a closed <details> has no height
+  // to scroll to and nothing to flash, so the control would appear to do nothing.
+  // Every disclosure between the target and the sheet is opened first, under a hop
+  // guard, which is precisely what the reader asked for by tapping a control that
+  // promises to take them there. It reads no data of any kind.
+  ["    if (!el) return false;\n",
+   "      var top = 0, n = el, hops = 0;\n",
+   "a scroll into something folded shut"],
   ["      TONE: _ST_PAT_TONE,\n",
    "      display: _stRecordDisplay,\n",
    "the badge's two exported tokens"],
@@ -496,6 +596,15 @@ export const CJ_SEAMS_BELOW = [
   ["      shape: _fpiShape,\n      TOPS_CAP: _FPI_TOPS_CAP,\n      SPLITS_CAP: _FPI_SPLITS_CAP,\n",
    "\n      VIEWS: _FPI_VIEW_ORDER,",
    "the exported fold length"],
+  // L14. THE LEDGER'S EXPORTS. Six names beside dossierSummaryHtml, published for
+  // the reason the rest of this module's exports are: each claim the inventory
+  // makes is tested where it is made rather than by parsing the assembled sheet
+  // for it. Reads only — the counts, the one finding line, the kind classifier,
+  // the side word and the two blocks — and scripts/test-issue-ledger.mjs is the
+  // suite that holds them to the archive.
+  ["    dossierSummaryHtml: _dosSummaryHtml,\n",
+   "    dossierRecordsHtml: function (pid, issueKey) {\n",
+   "the ledger's exports"],
 ];
 
 /** Both halves, in file order, for a suite that carves consistency.js whole. */
@@ -1390,6 +1499,20 @@ export function assertConsistencySeams(bodies, api, below) {
     ok(!/MIN_|FLOOR|floor|publishable|score|weight:|Math\.|party|\d\s*%/.test(strip(t)),
       "a bill-door span reads a floor, a weight, a score, a party or a percentage");
 
+  // C1. THE PAINT IS ONLY PAINT. Comment-and-string-stripped, the stylesheet span
+  // holds no statement at all: no branch, no arithmetic, no token keyed to a
+  // score, a lane or a party. The two coloured vote tokens are the clerk's Yea and
+  // Nay and a third for "neither", which is the same three-way split the record
+  // cards already paint.
+  const lgCss = cut("the ledger's stylesheet, and the method fold's");
+  has(lgCss, "'.pdxlg-t{width:100%;border-collapse:collapse;font-size:0.73rem;}' +",
+    "the ledger's act table has no stylesheet of its own");
+  has(lgCss, "'.pdxlg-v-y{color:#7fd4c1;}' +", "the Yea token lost its colour");
+  has(lgCss, "'.pdxlg-v-n{color:#f2a3a3;}' +", "the Nay token lost its colour");
+  has(lgCss, "'.pdxgap-how>summary{cursor:pointer;list-style:none;display:flex;align-items:center;' +",
+    "the one scoring disclosure has no summary of its own to tap");
+  ok(/^(?:''|\+|\s)*$/.test(flat(lgCss)),
+    "the ledger's stylesheet span grew a statement — it is paint, and paint does not branch");
   // And the export spans, wherever the caller cut them from.
   ok(!below || below.length === CJ_SEAMS_BELOW.length,
     `the lower half of consistency.js was carved into ${(below || []).length} spans, which is not ` +
@@ -1556,6 +1679,109 @@ export function assertConsistencyExportSeams(bodies, api) {
   for (const t of [sit, cardNum, cardTtl, emit, groupAddr, rollId, goStop])
     ok(!/MIN_|FLOOR|floor|publishable|score|Math\.|party|\d\s*%/.test(strip(t)),
       "a bill-door span in the lower half reads a floor, a score, a party or a percentage");
+
+  // ── seams L8-L14: the issue drawer's ledger (v230) ────────────────────────
+  // The drawer leads with the inventory now — how many bills, how many recorded
+  // acts, and which way each one went — and the method sits behind one fold below
+  // it. The spans are argued on three things: that they print COUNTS and never a
+  // second score, that the act-kind column quotes the clerk rather than guessing,
+  // and that everything the drawer used to say is still said.
+  //
+  // C2. THE READERS. Every number the ledger prints is a count of rows the engine
+  // already returned, the side of each act is the scorer's own primitive rather
+  // than a second opinion, and the kind column prints the clerk's words or the
+  // bare act — never a guess.
+  const lgFns = cut("the ledger's readers and renderers");
+  has(lgFns, "function _dosActKind(d) {", "the act-kind classifier is not where the seam says it is");
+  has(lgFns, "if (/recommit/i.test(act)) return { word: 'Recommit', group: 'result', known: true };",
+    "recommit is no longer read off the clerk's own line — the corpus files the same motion under two " +
+    "actionTypes, and the printed text is the stable fact");
+  has(lgFns, "return { word: act, group: 'result', known: false };",
+    "an unknown kind is dressed as a named one — the row prints the act, it does not guess");
+  has(lgFns, "function _dosActVote(d) {", "the side word is not read in one place");
+  has(lgFns, "return { word: 'Yea', cls: 'y' };", "Yea is no longer stated in the clerk's word");
+  has(lgFns, "return { word: 'Nay', cls: 'n' };", "Nay is no longer stated in the clerk's word");
+  has(lgFns, "var eff = window._voteEffectiveSupport(d.item, d.support);",
+    "the ledger decides which way an act cut for itself instead of asking the scorer's own primitive");
+  has(lgFns, "if (!d || d.held || d.lane !== 'record') continue;",
+    "the tally counts a row with no bill number, no question and no side into a table that has a Yea/Nay column");
+  has(lgFns, "t.same = t.bills === 1 && t.acts > 1;",
+    "the one-measure-several-acts case is decided on something other than the two counts");
+  has(lgFns, "'<div class=\"pdxlg-tally\" data-pdxlg-tally=\"1\">On this issue: <b>' + t.bills + ' ' + noun +",
+    "the tally no longer opens with how many measures this issue holds");
+  has(lgFns, "'Acts: ' + t.advances + ' for · ' + t.opposes + ' against'",
+    "the for/against line is not the engine's own two counts");
+  has(lgFns, "'<div class=\"pdxlg-same\">All ' + t.acts + ' acts are the same measure — '",
+    "the lesson this table exists to teach — one statute, several recorded acts — is no longer stated out loud");
+  has(lgFns, "{ id: 'change', h: 'Tried to change it', rows: [] },",
+    "the amendments group lost its heading");
+  has(lgFns, "{ id: 'result', h: 'Voted on the result', rows: [] }",
+    "the passage/recommit group lost its heading");
+  has(lgFns, "var num = _billDoor('pdxlg-num', d.billNum, d.billSit, d.ident,",
+    "the row's bill number is not the same door every other number on this sheet is");
+  has(lgFns, "if ((said || r.stance.label) && !(opts && opts.noSaid)) {",
+    "the summary's They-said line is no longer suppressible — the ledger prints that quote beside the acts, " +
+    "and two copies of it on one screen read as two claims");
+  ok(!/MIN_|FLOOR|publishable|NEVER_FEEDS|\.toFixed|Math\.round|party/.test(strip(lgFns)),
+    "a ledger reader reads a floor, a publication rule, a weight or a party — it counts rows, and nothing else");
+  ok(!/\d\s*%/.test(strip(lgFns)), "a percentage appeared in the ledger's readers");
+  // C3. THE INVENTORY DECIDES THE SHAPE, and a sheet with no roll calls behind it
+  // takes none of this.
+  const lgOn = cut("the inventory, resolved before the prose");
+  has(lgOn, "var _lgT = _dosTally(pid, issueKey, _dosRow && _dosRow.ov);",
+    "the sheet no longer resolves its inventory before composing its prose");
+  has(lgOn, "var _lgOn = _lgT.acts > 0;",
+    "the ledger shape is chosen on something other than whether there are recorded acts to print");
+  ok(!/MIN_|FLOOR|floor|publishable|score|party/.test(strip(lgOn)),
+    "the shape of the sheet is decided on a floor, a score or a party");
+  // C4. ONE FINDING LINE IN THE HEADER, and the other two moved down together.
+  has(mount, "(_lgOn ? _dosFindHtml(_dosRow, _lgT) : _dosBucketHtml(_dosRow) +",
+    "the header still stacks the bucket line and the verdict chip on a sheet that leads with a ledger — " +
+    "three headline verdicts in one inch read as three findings about one issue");
+  ok(mount.split("_dosFindHtml").length === 2, "the header states its finding more than once");
+  // C5. THE DEPTH NOTE TRAVELS WITH THE DENOMINATOR IT DESCRIBES. Emitted, not
+  // rewritten and not dropped: the same string, one level down.
+  const lgNote = cut("the depth note, moved with the score it qualifies");
+  has(lgNote, "(_lgOn ? '' : gapNote) +",
+    "the depth sentence is printed above the tally again, or it stopped being printed at all");
+  ok(!/gapNote\s*=/.test(lgNote), "the depth sentence is rewritten where it is moved — it moved, it did not change");
+  // C6. ONE FOLD, AND EVERYTHING STILL IN IT, IN ORDER. The assembled answer, the
+  // two lane panels, the wall, the depth note and the weighting sentence are one
+  // body handed to one <details>; the ledger and the quote sit above it. A method
+  // wall broken into five folds is still a method wall and costs five taps.
+  const lgHow = cut("the method, behind one disclosure");
+  has(lgHow, "var _scoredBody =", "the scored half is no longer assembled as one body");
+  has(lgHow, "_dosSummaryHtml(pid, issueKey, _dosRow, { noSaid: _lgOn })",
+    "the assembled answer is not inside the scoring disclosure, or it prints the quote twice");
+  has(lgHow, "_laneBandHtml(_dosRow);", "the lane-disagreement band is not the last thing in the scored body");
+  has(lgHow, "_dosLedgerHtml(pid, issueKey, _dosRow, _lgT) + _dosSaidHtml(_dosRow)",
+    "the inventory and the quote are not above the fold the method went behind");
+  has(lgHow, "'<summary><span aria-hidden=\"true\">⚖️</span> How this is scored</summary>'",
+    "the one disclosure does not say what is behind it in the words the brief named");
+  ok(lgHow.split("<details").length === 2,
+    "the method was folded into more than one disclosure — five folds is still a wall, at five taps");
+  ok(lgHow.indexOf("_dosBucketHtml") < lgHow.indexOf("pdxgap-meta") &&
+    lgHow.indexOf("pdxgap-meta") < lgHow.indexOf("_dosSummaryHtml") &&
+    lgHow.indexOf("_dosSummaryHtml") < lgHow.indexOf("pdxgap-sides") &&
+    lgHow.indexOf("pdxgap-sides") < lgHow.indexOf("_laneBandHtml"),
+    "the scored body reordered what it holds — it is the same column of method it always was, one fold lower");
+  ok(!/MIN_|FLOOR|publishable|\.toFixed|Math\.round/.test(strip(lgHow)),
+    "the fold reads a floor or computes a number on its way past — it moves markup, it does not score");
+  // C7. AND THE CONTROLS THAT POINT INTO IT STILL ARRIVE. A closed <details> has no
+  // height to scroll to; the 🧾 tally and the deep link would appear to do nothing.
+  const lgFocus = cut("a scroll into something folded shut");
+  has(lgFocus, "if (up.tagName === 'DETAILS' && !up.open) up.open = true;",
+    "a control that promises to take the reader to a node inside the fold no longer opens the fold");
+  has(lgFocus, "hops0 < 40", "the walk up to the sheet has no hop guard");
+  ok(!/querySelector|innerHTML|location|score/.test(strip(lgFocus)),
+    "the focus fix reaches for a node, a score or an address of its own");
+  // C8. THE EXPORTS. Six reads beside dossierSummaryHtml, so each claim the
+  // inventory makes is tested where it is made.
+  const lgEx = cut("the ledger's exports");
+  ok([...lgEx.matchAll(/^\s*(dossier[A-Za-z]+):/gm)].map((m) => m[1]).join(",") ===
+    "dossierSummaryHtml,dossierTally,dossierFinding,dossierActKind,dossierActVote,dossierLedgerHtml,dossierSaidHtml",
+    "the ledger's published pieces are not the six reads beside the summary that the suites hold to the archive");
+  ok(!/function\s*\(|=>/.test(strip(lgEx)), "an export line grew a function body instead of publishing a read");
 }
 
 /**

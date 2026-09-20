@@ -7211,7 +7211,98 @@
 //     voter-hub-location.js, index.html, me-desk.js, me-desk.css and
 //     person-file.js changed; a warm device would otherwise serve the one-seat
 //     page and the doors that drop the intent.
-const CACHE_VERSION = 'v228';
+// v229 - HOMEPAGE DISTRICT VOICE GATE -> /voice; NO EQUITY COPY; AND NO
+//     LOCATION KEY MIGRATED.
+//     THE BUG. /voice has been its own document for a while and the front page
+//     named it in exactly two places, both of them nav rows: the desktop nav
+//     menu and the mobile sheet. A stranger who never opens a nav menu had no
+//     way to learn that the rooms for their own seats exist, so the lane with
+//     the narrowest audience had the most hidden door on the site.
+//
+//     ONE CARD IN THE HERO, UNDER THE TWO RANKED DOORS. Eyebrow "District
+//     Voice", one line - the rooms for your seats, anyone can read, only
+//     verified residents of that seat get a voice that counts - one anchor, and
+//     one true sentence about the current allow-list: one seat has a board on
+//     file today, the others list the member and say the room is not open. No
+//     second nav row; the chrome's two District Voice entries are unchanged and
+//     still point at /voice.
+//     THE HREF IS /voice AT EVERY STANDING. Not /#who-represents-me - the
+//     finder with ?next=/voice is already /voice's own empty state, so pointing
+//     the card at the finder would place a reader and then leave them standing
+//     there. And not /district/ut-sd-3 - that is Weber County SD-3's board, and
+//     offering it to a stranger claims they live there. Johnson's District 3
+//     control on the person file is UNCHANGED at /district/ut-sd-3, and
+//     BOARD_ROUTES is still one row.
+//     JAVASCRIPT CHANGES THE VERB AND NOTHING ELSE. Served markup reads "Find
+//     your rooms"; a reader with a location on file reads "See your rooms". The
+//     card is a real anchor in the document, so it works with scripting off and
+//     survives a middle-click, and the href is never rewritten. The standing is
+//     read off window._hasUserLocation - voter-hub-location.js's own flag, the
+//     one district-voice.js already asks - so the card parses no location
+//     record of its own and pdxRepsForMe() is NOT called on the homepage:
+//     resolving five seats to preview them is how the fat resolver gets pulled
+//     onto index.html's critical path. The re-sync is one guarded wrap of
+//     _pdxRefreshMapIndicators, which loadVoterLocation() and
+//     _triggerLocationReaction() already call.
+//     NOTHING IS WRITTEN AND NOTHING IS ADDED. No store and no location key
+//     migrated: politidex_voter_location, the stance store and the team slate
+//     are all untouched by this card, which reads one boolean and writes
+//     nothing. No Carto/Leaflet, no finder map, no composer, no
+//     Veriff, no seeded counts, no /district/* splat, no "coming soon" and no
+//     "yet". No equity copy: no shares, stock, units, dues, 20%, 15%, freeze or
+//     Reg CF. Money pills, FD tables and SD-3's reader guts untouched; the
+//     record engines still twin-boot byte-identical.
+//     MIGRATION COST: none. index.html and scripts/test-home-voice-gate.mjs
+//     changed; a warm device would otherwise serve a front page with no door
+//     into the lane.
+// v230 - ISSUE DRAWER LEADS WITH BILLS/ACTS TABLE; SCORES UNCHANGED.
+//     THE BUG. The issue drawer opened on three verdicts at once - a percent
+//     hero, a bucket line and a stance chip - and then a wall of method: how
+//     Direction Match weights the issue, the depth caveat, the wall between the
+//     public and formal records, suggest-a-lead. A reader could not find out
+//     how many BILLS and how many ACTS were behind any of it. Massie x
+//     voter_id is the fixture; H.R. 8595 is one statute that a member votes on
+//     twice, once to send it back and once to pass it, and nothing on the
+//     screen said so.
+//     THE INVENTORY COMES FIRST. One finding line, then always the same two
+//     lines - on this issue N bills / M formal acts, then acts X for / Y
+//     against, read off the engine's own for-and-against - then, when one
+//     measure carries every act, the sentence that says which measure. Then a
+//     table with one row per ACT, not per essay: date, bill number linking to
+//     the same bill file the rest of the site links to, the kind of act in the
+//     clerk's words, Yea or Nay spelled out, and the issue chips that already
+//     existed. Grouped: tried to change it (amendments) above voted on the
+//     result (passage, recommit). The same bill number appearing twice is the
+//     lesson, not a bug.
+//     NO KIND IS GUESSED. Amendment comes off actionType/isAmendment;
+//     recommit and commit off the clerk's own action text, because actionType
+//     reads 'passage' for one member's recommit and 'motion' for another's; an
+//     unrecognised kind prints the act verbatim rather than a label. The why
+//     line is the stored rationale or title, clipped at a real sentence end -
+//     never at 'Division B Secs.' - and printed once per measure. No scrape.
+//     ROW DIRECTION IS THE CANONICAL READ. The per-row for/against counts call
+//     _voteEffectiveSupport, which applies advanceInverted: a nay on a motion
+//     to recommit ADVANCES the measure. Maloy x gov_services used to print
+//     'Acts: 1 for / 1 against' directly above the sheet's own 'both advanced
+//     it'. 2136 of 46702 record-lane items are affected by that inversion and
+//     the dossier's older _dosItemDir still omits it; that helper is untouched
+//     here, so published direction figures elsewhere do not move.
+//     THE METHOD IS FOLDED, NOT DELETED. The percent hero, bucket line, stance
+//     chip, depth note and both lane panels move together and IN ORDER into one
+//     disclosure, 'How this is scored'. Every sentence survives. _gapFocusSel
+//     now opens any closed details above its target, so the tally jump and the
+//     lane-disagreement jump still land on visible content. A drawer with no
+//     roll call - exec lane, curated formal action, public record only -
+//     renders exactly as it did before.
+//     NOTHING SCORED MOVED. No match percentage, publication floor or
+//     NEVER_FEEDS change; the profile's pooled figure stays behind the fold. No
+//     equity copy. Homepage gate, /voice, SD-3's board, money pills and FD
+//     tables untouched; the engines still twin-boot byte-identical. No store is
+//     written and no location key is migrated: politidex_voter_location is not
+//     read, not renamed and not migrated by a drawer that renders a table.
+//     MIGRATION COST: none. consistency.js and one new suite changed; a warm
+//     device would otherwise serve the old drawer shell against the new table.
+const CACHE_VERSION = 'v230';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -2349,6 +2349,63 @@
         'background:#ffffff06;border-radius:0.2rem;}' +
       '.pdxdos-menu b{color:#cfe0f8;font-weight:600;}' +
       '.pdxdos-empty{font-size:0.72rem;color:#8fa2c0;padding:0.25rem 0 0.4rem;line-height:1.45;}' +
+      // ── THE LEDGER: THE INVENTORY, ABOVE ANY READING OF IT ─────────────────
+      // One finding line, the counts, and a row per recorded act. Deliberately
+      // plainer than the panels below it: this level is a table of facts, and a
+      // table that competes with a verdict chip for attention teaches nothing.
+      '.pdxlg{margin-top:0.55rem;}' +
+      '.pdxlg-find{display:flex;flex-wrap:wrap;align-items:baseline;gap:0.25rem 0.5rem;' +
+        'margin-top:0.3rem;font-family:"Barlow Condensed",sans-serif;font-weight:700;' +
+        'font-size:1.02rem;letter-spacing:0.01em;line-height:1.25;color:var(--c,#e8eefc);}' +
+      '.pdxlg-find-q{font-family:system-ui,sans-serif;font-weight:400;font-size:0.72rem;' +
+        'letter-spacing:0;color:#8fa2c0;}' +
+      '.pdxlg-tally{font-size:0.8rem;line-height:1.45;color:#c6d4ec;}' +
+      '.pdxlg-tally b{color:#e8eefc;font-weight:700;}' +
+      '.pdxlg-side{font-size:0.72rem;color:#8fa2c0;line-height:1.5;}' +
+      '.pdxlg-same{margin-top:0.2rem;font-size:0.72rem;color:#f0cd8c;line-height:1.5;}' +
+      '.pdxlg-why-one{margin-top:0.3rem;font-size:0.7rem;color:#93a6c4;line-height:1.5;}' +
+      '.pdxlg-g{margin-top:0.5rem;}' +
+      '.pdxlg-gh{font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;' +
+        'letter-spacing:0.08em;font-size:0.64rem;color:#8fa2c0;margin-bottom:0.15rem;}' +
+      '.pdxlg-t{width:100%;border-collapse:collapse;font-size:0.73rem;}' +
+      '.pdxlg-t th{text-align:left;font-family:"Barlow Condensed",sans-serif;' +
+        'text-transform:uppercase;letter-spacing:0.06em;font-size:0.56rem;font-weight:700;' +
+        'color:#7e93b3;padding:0.1rem 0.4rem 0.18rem 0;' +
+        'border-bottom:1px solid rgba(255,255,255,0.1);}' +
+      '.pdxlg-t td{vertical-align:baseline;padding:0.3rem 0.4rem 0.3rem 0;' +
+        'border-top:1px solid rgba(255,255,255,0.06);color:#c6d4ec;line-height:1.4;}' +
+      '.pdxlg-t tbody tr:first-child td{border-top:none;}' +
+      '.pdxlg-d{white-space:nowrap;font-variant-numeric:tabular-nums;color:#8fa2c0;font-size:0.68rem;}' +
+      '.pdxlg-num{font-weight:700;color:#e8eefc;white-space:nowrap;}' +
+      '.pdxlg-k{color:#cfe0f8;}' +
+      '.pdxlg-v{font-weight:700;white-space:nowrap;}' +
+      '.pdxlg-v-y{color:#7fd4c1;}' +
+      '.pdxlg-v-n{color:#f2a3a3;}' +
+      '.pdxlg-v-o{color:#8fa2c0;font-weight:600;}' +
+      '.pdxlg-chips{display:inline-flex;flex-wrap:wrap;gap:0.18rem;}' +
+      '.pdxlg-chip{font-size:0.58rem;padding:0.08rem 0.3rem;border-radius:999px;' +
+        'border:1px solid rgba(255,255,255,0.14);color:#9fb4d4;white-space:nowrap;}' +
+      '.pdxlg-chip-p{color:#cfe0f8;border-color:rgba(159,219,255,0.4);}' +
+      '.pdxlg-whyr td{border-top:none;padding-top:0;}' +
+      '.pdxlg-why{font-size:0.68rem;color:#93a6c4;line-height:1.5;}' +
+      // What they said, beside the acts and never inside them.
+      '.pdxlg-said{margin-top:0.6rem;padding:0.35rem 0.55rem;border-radius:0.2rem;' +
+        'border-left:2px solid rgba(245,217,160,0.45);background:#ffffff06;}' +
+      '.pdxlg-said-k{font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;' +
+        'letter-spacing:0.06em;font-size:0.6rem;color:#7e93b3;}' +
+      '.pdxlg-said-v{font-size:0.74rem;color:#e8eefc;line-height:1.5;}' +
+      '.pdxlg-said-src{color:#9fdbff;font-size:0.66rem;white-space:nowrap;}' +
+      // ── AND THE METHOD, BEHIND ONE DISCLOSURE ──────────────────────────────
+      // Every sentence about weighting, depth, the wall between the two records
+      // and where this issue lands in the profile score lives in here. None of it
+      // is removed and none of it is softened; it is simply not the first thing.
+      '.pdxgap-how{margin-top:0.7rem;border-top:1px solid rgba(255,255,255,0.08);padding-top:0.15rem;}' +
+      '.pdxgap-how>summary{cursor:pointer;list-style:none;display:flex;align-items:center;' +
+        'gap:0.35rem;min-height:2.2rem;font-family:"Barlow Condensed",sans-serif;' +
+        'font-size:0.78rem;letter-spacing:0.03em;color:#dbe6f7;}' +
+      '.pdxgap-how>summary::-webkit-details-marker{display:none;}' +
+      '.pdxgap-how[open]>summary{color:#9fdbff;}' +
+      '.pdxgap-how-b{padding-top:0.1rem;}' +
       // ── The continuity line, directly under the issue title ────────────────
       // Named in the index's colour, in the index's word, so the header the tap
       // lands on repeats the header the tap left. Deliberately quieter than the
@@ -16333,14 +16390,369 @@
   // row model: no arithmetic happens in this function. It prints NO percentage —
   // the sheet's one number lives in the header hero, and a second copy of it here
   // would read as a second score.
-  function _dosSummaryHtml(pid, issueKey, r) {
+  // ══ THE LEDGER ══════════════════════════════════════════════════════════════
+  // WHAT A READER ASKS FIRST, AND WHAT THIS SHEET USED TO ANSWER FIRST. The
+  // question people arrive with is "what did they actually do about this" — how
+  // many measures, how many times the clerk recorded them, and which way each one
+  // went. The sheet answered with a percentage, a bucket word, a verdict chip and
+  // then a column of method: how the score is weighted, why a pattern is not
+  // established, how the two records are kept apart. All of that is true and none
+  // of it is the question, and three headline verdicts stacked into the first inch
+  // read as three different findings about the same issue.
+  //
+  // The ledger is the inventory, printed before any reading of it. It is built
+  // entirely from fields the record already carries — _dosItems for the acts,
+  // _ledSplit for the direction split — so it introduces no number the scorer does
+  // not already stand behind, and it changes no score: Direction Match, the
+  // publication floor and NEVER_FEEDS are untouched by everything below.
+  //
+  // THE LESSON IT EXISTS TO TEACH is that one statute can be voted on twice. A
+  // motion to recommit and a vote on passage are two acts on one bill, and a
+  // member can be on opposite sides of them honestly — recommit sends the bill
+  // back to committee, passage sends it out of the House. The old shape counted
+  // those as two votes and left the reader to discover the repeated bill number
+  // inside a collapsed list. The table prints the same bill number twice, in two
+  // groups, and says so out loud.
+
+  // Which KIND of act this row is, from the two fields the record already carries:
+  // the clerk's own action text and the engine's actionType.
+  //
+  // RECOMMIT IS TESTED FIRST, AND OFF THE TEXT. The corpus files the same motion
+  // under actionType 'passage' on one roll call and 'motion' on another — H.R.
+  // 8595's recommit is 'passage' on one member's row and 'motion' on the next — so
+  // the clerk's printed line is the stable fact and actionType is not. Testing the
+  // text first is what stops one bill's two recommits from landing in two
+  // different groups on two different sheets.
+  //
+  // AND AN UNKNOWN KIND PRINTS THE ACT. Not "Vote", not "Other", not a guess: the
+  // clerk's own words, which is what we hold. `known` says which of those two
+  // things happened, so a caller can tell a named kind from a quoted one.
+  function _dosActKind(d) {
+    var it = (d && d.item) || {};
+    var act = String(it.action || (d && d.question) || (d && d.act) || '').trim();
+    var at = String(it.actionType || '').toLowerCase();
+    if (at === 'amendment' || it.isAmendment === true) return { word: 'Amendment', group: 'change', known: true };
+    if (/recommit/i.test(act)) return { word: 'Recommit', group: 'result', known: true };
+    if (/^on motion to commit\b/i.test(act)) return { word: 'Commit', group: 'result', known: true };
+    if (at === 'passage') return { word: 'Passage', group: 'result', known: true };
+    if (at === 'concurrence') return { word: 'Concurrence', group: 'result', known: true };
+    if (it.isProcedural === true) return { word: 'Procedural', group: 'result', known: true };
+    return { word: act, group: 'result', known: false };
+  }
+
+  // Yea or Nay IN WORDS, from the position the roll call recorded. Everything that
+  // is neither gets the no-side vocabulary the rest of the dossier already uses —
+  // "Did not vote" is not a third direction and must never be printed as one.
+  function _dosActVote(d) {
+    var pos = String((d && d.item && d.item.position) || '').toLowerCase();
+    if (pos === 'yea' || pos === 'aye' || pos === 'yes') return { word: 'Yea', cls: 'y' };
+    if (pos === 'nay' || pos === 'no') return { word: 'Nay', cls: 'n' };
+    var ns = '';
+    try { ns = _dosNoSide(d) || ''; } catch (e) { ns = ''; }
+    return { word: ns || String((d && d.act) || '').replace(/^Voted\s+/i, '').trim() || 'No side', cls: 'o' };
+  }
+
+  // WHY THIS ACT IS ON THIS ISSUE, in one sentence, from prose that is already on
+  // file. The curator's mapping rationale is the one piece of writing that exists
+  // for every mapped act, so it is the source; the measure's own title is the
+  // fallback; and where neither exists the row prints the single fact we do hold —
+  // that the measure carried several issues — in three words rather than in a
+  // paragraph written to fill the slot. Nothing here is generated, and nothing is
+  // scraped: no field is read that the row was not already carrying.
+  function _dosWhySentence(d) {
+    var raw = String((d && d.rationale) || '').trim();
+    if (!raw) {
+      var t = String((d && d.title) || '').trim();
+      if (t) return /[.!?]$/.test(t) ? t : t + '.';
+      return (d && d.multi) ? 'Multi-issue vehicle.' : '';
+    }
+    // Clipped at a sentence boundary rather than at a character count, and only
+    // when the stored note runs longer than a row can hold — citation-length
+    // rationales are what the row's own fold below is for, and it still carries
+    // the whole thing.
+    //
+    // A PERIOD IS NOT A SENTENCE END. This prose is statutory: "Division B Secs.
+    // 506-508", "Pub. L. 117-58", "H.R. 22". Clipping at the first period printed
+    // "The act carries abortion-funding restrictions across four divisions:
+    // Division B Secs." — a fragment that ends on the word before the fact. So a
+    // candidate boundary has to survive two tests: the token before the period is
+    // not a known abbreviation, and what follows it starts a sentence rather than
+    // continuing a citation. Nothing acceptable in range means no sentence clip at
+    // all, and the width clip below takes it with an ellipsis that admits it.
+    if (raw.length <= 240) return raw;
+    var ABBR = /(?:^|[\s(])(?:Secs?|Nos?|Art|Div|Pub|Stat|Cl|Subsec|Subpara|Fig|pp|al|vs|Inc|Co|Corp|Jr|Sr|St|Mr|Ms|Mrs|Dr|Gen|Rep|Sen|Gov|Pres|U\.S|H\.R|S|H|e\.g|i\.e|cf|approx|est|No)\.$/;
+    var re = /[.!?](?=\s|$)/g, hit;
+    while ((hit = re.exec(raw))) {
+      var end = hit.index + 1;
+      if (end < 24) continue;
+      if (end > 240) break;
+      var head = raw.slice(0, end);
+      if (ABBR.test(head)) continue;
+      var rest = raw.slice(end).replace(/^\s+/, '');
+      if (rest && !/^["“'‘(]?[A-Z]/.test(rest)) continue;
+      return head.trim();
+    }
+    return raw.slice(0, 237).replace(/\s+\S*$/, '') + '…';
+  }
+
+  // The other issues this same act is mapped to, as chips. Names only: which way
+  // each of them cut is a question answered on that issue's own sheet, and the
+  // title says how strong the link there is in the vocabulary _dosOtherKeys
+  // already locked.
+  function _dosActChips(d, issueKey) {
+    var list = (d && d.item && d.item.issues) || [];
+    if (!list.length) return '';
+    var narrowAt = _dosNarrowAt(), out = [];
+    for (var i = 0; i < list.length; i++) {
+      var it = list[i];
+      if (!it || !it.issueKey || it.issueKey === issueKey) continue;
+      var lb = _issueLabel(it.issueKey);
+      if (!lb) continue;
+      var how = it.isPrimary ? 'the primary link there'
+        : (typeof it.weight === 'number' && it.weight <= narrowAt) ? 'a narrow link there'
+        : 'a supporting link there';
+      out.push('<span class="pdxlg-chip' + (it.isPrimary ? ' pdxlg-chip-p' : '') + '"' +
+        ' title="' + escAttr(lb + ' — ' + how) + '">' + esc(lb) + '</span>');
+    }
+    return out.length ? '<span class="pdxlg-chips">' + out.join('') + '</span>' : '';
+  }
+
+  // WHICH WAY ONE ACT CUT, from the primitive the scorer itself uses.
+  //
+  // WHY NOT _ledSplit, WHICH ALREADY COUNTS for/against ON THIS LIST. Because it
+  // reads _dosItemDir, and that function applies Yea/Nay × supportMeaning without
+  // the PROCEDURAL INVERSION — the correction for a roll call where a Yea BLOCKS
+  // the measure. A motion to recommit is exactly that roll call, and this table
+  // exists to teach recommit-versus-passage, so the one act type the whole screen
+  // is about is the one that primitive gets backwards: Maloy's Nay on recommitting
+  // H.R. 8595 helped the bill, and a ledger reading "1 for · 1 against" would sit
+  // directly above this sheet's own 🏛️ read saying "both advanced it".
+  //
+  // So the count comes from _voteEffectiveSupport — the shared helper in
+  // stance-helpers.js that Direction Match and the record-direction index both
+  // read, which applies item.advanceInverted before the mapping's supportMeaning.
+  // That is the engine's existing for/against, not a third one, and reading it
+  // changes no score: nothing here writes, weights or aggregates anything.
+  //
+  // Fails closed to the dossier's own word if the shared helper is not loaded, so
+  // a sheet rendered without stance-helpers.js still prints the counts it can.
+  function _dosActDir(d) {
+    if (!d || d.held) return '';
+    try {
+      if (typeof window._voteEffectiveSupport === 'function') {
+        var eff = window._voteEffectiveSupport(d.item, d.support);
+        return eff === true ? 'advances' : eff === false ? 'opposes' : '';
+      }
+    } catch (e) {}
+    try { return _dosItemDir(d) || ''; } catch (e2) { return ''; }
+  }
+
+  // HOW MANY MEASURES, HOW MANY ACTS, AND WHICH WAY THEY WENT. One pass over the
+  // dossier's own normalised list, so the table below and the counts above it
+  // cannot disagree — they are the same array.
+  //
+  // THE DIRECTION IS NOT DECIDED HERE — see _dosActDir, which defers to the
+  // scorer's own primitive. This function only counts what that returns, so there
+  // is one answer to "which way did this act cut" and the ledger is not a second
+  // place it can be got wrong.
+  function _dosTally(pid, issueKey, ov) {
+    var t = { acts: 0, bills: 0, ident: '', same: false, bill: true, amend: 0,
+      advances: 0, opposes: 0, noSide: 0, rows: [] };
+    var items = [];
+    try { items = _dosItems(pid, issueKey, ov) || []; } catch (e) { items = []; }
+    var seen = Object.create(null);
+    for (var i = 0; i < items.length; i++) {
+      var d = items[i];
+      // Roll-call lane only. An executive document and a migrated formal action are
+      // both formal record and both belong on this sheet, but neither has a bill
+      // number, a question or a side — a table with a Yea/Nay column has nothing
+      // honest to print in their rows, and the panels below already carry them.
+      if (!d || d.held || d.lane !== 'record') continue;
+      var k = _dosActKind(d), dir = _dosActDir(d);
+      t.rows.push({ d: d, i: i, kind: k, dir: dir, vote: _dosActVote(d), why: _dosWhySentence(d) });
+      t.acts++;
+      if (dir === 'advances') t.advances++;
+      else if (dir === 'opposes') t.opposes++;
+      else t.noSide++;
+      if (k.group === 'change') t.amend++;
+      var id = String(d.ident || '').trim(), lk = id.toLowerCase();
+      if (id && !seen[lk]) { seen[lk] = 1; t.bills++; if (!t.ident) t.ident = id; }
+      // The noun follows the record: an amendment and a resolution are not bills,
+      // and a tally that calls eight measures "8 bills" because most of them were
+      // is wrong on the rows where the distinction is the whole point.
+      var mt = String((d.item && d.item.measureType) || '').toLowerCase();
+      if (mt && mt !== 'bill') t.bill = false;
+    }
+    t.same = t.bills === 1 && t.acts > 1;
+    return t;
+  }
+
+  // ONE FINDING LINE. Not three.
+  //
+  // The word is the INDEX's word — the bucket this row was filed under, read from
+  // PDXWordAction, which is the same word the row the reader tapped carried. A
+  // thin row overrides it, because "too thin to call a pattern" IS the finding on
+  // those rows and a bucket word alone reads as a result that was reached.
+  //
+  // The qualifier is a fact about the inventory, never a second verdict: it is
+  // printed only from counts — one measure with acts on both sides, or a single
+  // act — and it says nothing at all when the shape is ordinary.
+  function _dosFinding(r, t) {
+    var res = _stResult(r), b = null;
+    try { b = _dosBucket(r); } catch (e) { b = null; }
+    var word = (res.state === 'thin') ? 'Too thin to call a pattern'
+      : ((b && b.short) ? b.short : res.label);
+    var noun = (t && t.bill) ? 'bill' : 'measure', q = '';
+    if (t && t.same && t.advances && t.opposes) {
+      q = (t.acts === 2) ? 'same ' + noun + ', two ways'
+        : 'same ' + noun + ', ' + t.acts + ' acts, both directions';
+    } else if (t && t.advances && t.opposes) {
+      q = 'the record went both ways';
+    } else if (t && t.acts === 1) {
+      q = 'one act on file';
+    }
+    return { word: word, q: q, ico: res.ico, color: res.color };
+  }
+  function _dosFindHtml(r, t) {
+    var f = _dosFinding(r, t);
+    return '<div class="pdxlg-find" style="--c:' + f.color + '">' +
+      '<span>' + esc(f.ico + ' ' + f.word) + '</span>' +
+      (f.q ? '<span class="pdxlg-find-q">' + esc('— ' + f.q) + '</span>' : '') +
+    '</div>';
+  }
+
+  // WHAT THEY SAID, in its own block. It sits beside the acts and never inside
+  // them: a stated position on Voter ID is sourced to a statement about the SAVE
+  // Act, and a reader who meets that sentence inside a table of votes on H.R. 8595
+  // has been told something false about what was voted on. Same facts as the line
+  // this replaces in the summary, same 320-character clip, plus the source link
+  // the stance already carries.
+  function _dosSaidHtml(r) {
+    var st = (r && r.stance) || {};
+    var said = st.text ? String(st.text) : '';
+    if (!said && !st.label) return '';
+    if (said.length > 320) said = said.slice(0, 317).replace(/\s+\S*$/, '') + '…';
+    var src = (st.source && st.source.url)
+      ? ' <a class="pdxlg-said-src" href="' + escAttr(st.source.url) + '" target="_blank" rel="noopener">' +
+        esc(st.source.label || 'Source') + '</a>'
+      : '';
+    return '<div class="pdxlg-said" data-pdxlg-said="1">' +
+      '<div class="pdxlg-said-k">They said' + (st.label ? ' · ' + esc(st.label) : '') + '</div>' +
+      '<div class="pdxlg-said-v">' + esc(said || st.label) + src + '</div>' +
+    '</div>';
+  }
+
+  // The ledger itself: the tally, then one row per act.
+  //
+  // GROUPED BY WHAT THE ACT TRIED TO DO, amendments first. "Tried to change it"
+  // and "Voted on the result" are the two things a member does to one bill, and
+  // the grouping is the part of this screen that teaches the difference. The
+  // headings appear once there is more than one row to tell apart — a single act
+  // needs no taxonomy — and a group with no rows prints nothing rather than an
+  // empty shelf.
+  //
+  // Chronological inside each group, because the story of a bill is the order it
+  // happened in: the motion to send it back, then the vote that sent it out.
+  function _dosLedgerHtml(pid, issueKey, r, t) {
+    r = r || issueRow(pid, issueKey);
+    t = t || _dosTally(pid, issueKey, r && r.ov);
+    if (!t || !t.acts) return '';
+    var noun = t.bill ? (t.bills === 1 ? 'bill' : 'bills') : (t.bills === 1 ? 'measure' : 'measures');
+    var out = '<div class="pdxlg" data-pdxlg="1">' +
+      '<div class="pdxlg-tally" data-pdxlg-tally="1">On this issue: <b>' + t.bills + ' ' + noun +
+        '</b> · <b>' + t.acts + ' formal ' + (t.acts === 1 ? 'act' : 'acts') + '</b></div>' +
+      // FOR AND AGAINST WHAT. The issue, not the stated position — those are two
+      // different questions with two different answers, and the second one lives
+      // inside the scoring disclosure under its own label ("1 aligned · 2
+      // against"). Said in the title so the distinction is available on the line
+      // that makes the claim without turning the tally into a paragraph.
+      '<div class="pdxlg-side" title="' + escAttr('Whether each act pushed this issue ' +
+        'forward or held it back. Not whether it matched their stated position — ' +
+        'that comparison is in How this is scored.') + '">' +
+        'Acts: ' + t.advances + ' for · ' + t.opposes + ' against' +
+        (t.noSide ? ' · ' + t.noSide + ' took no side' : '') + '</div>';
+    // The lesson, stated rather than left to be noticed: one statute, several
+    // recorded acts. Said where the repeated bill number is about to appear twice.
+    if (t.same) {
+      out += '<div class="pdxlg-same">All ' + t.acts + ' acts are the same measure — ' +
+        esc(t.ident) + '.</div>';
+    }
+    // ONE SENTENCE FOR THE MEASURE when every row would print the same one. A
+    // rationale repeated under each of three rows is not three explanations.
+    var whys = t.rows.map(function (p) { return p.why; });
+    var oneWhy = (t.rows.length > 1 && whys[0] &&
+      whys.every(function (w) { return w === whys[0]; })) ? whys[0] : '';
+    if (oneWhy) out += '<div class="pdxlg-why-one">' + esc(oneWhy) + '</div>';
+    var GROUPS = [
+      { id: 'change', h: 'Tried to change it', rows: [] },
+      { id: 'result', h: 'Voted on the result', rows: [] }
+    ];
+    var filled = 0, i, j;
+    for (i = 0; i < t.rows.length; i++) {
+      var grp = (t.rows[i].kind.group === 'change') ? GROUPS[0] : GROUPS[1];
+      grp.rows.push(t.rows[i]);
+    }
+    for (i = 0; i < GROUPS.length; i++) {
+      GROUPS[i].rows.sort(function (a, b) {
+        return String(a.d.date || '').localeCompare(String(b.d.date || ''));
+      });
+      if (GROUPS[i].rows.length) filled++;
+    }
+    var heads = filled > 1 || t.rows.length > 1;
+    for (i = 0; i < GROUPS.length; i++) {
+      var g = GROUPS[i];
+      if (!g.rows.length) continue;
+      out += '<div class="pdxlg-g" data-pdxlg-g="' + g.id + '">' +
+        (heads ? '<div class="pdxlg-gh">' + esc(g.h) + '</div>' : '') +
+        '<table class="pdxlg-t"><thead><tr>' +
+          '<th>Date</th><th>Measure</th><th>Kind</th><th>Vote</th><th>Also on</th>' +
+        '</tr></thead><tbody>';
+      // ONE SENTENCE PER MEASURE, NOT PER ROW. Two passage votes on H.R. 1 nine
+      // weeks apart carry the same curated rationale — it is a fact about the
+      // bill, not about the day — so it is printed under the first act of that
+      // measure and not again. Keyed on measure AND sentence, so a measure whose
+      // rows genuinely carry different notes still prints both.
+      var saidWhy = Object.create(null);
+      for (j = 0; j < g.rows.length; j++) {
+        var p = g.rows[j], d = p.d;
+        // The bill number is the door it already is everywhere else on this sheet:
+        // same attributes, same handler, same bill file. A row whose measure has no
+        // resolvable file prints the identity as text rather than as a dead control.
+        var num = _billDoor('pdxlg-num', d.billNum, d.billSit, d.ident,
+          esc(d.ident || d.billNum || 'Measure'));
+        var why = oneWhy ? '' : p.why;
+        var wkey = String(d.ident || '') + ' :: ' + why;
+        if (why && saidWhy[wkey]) why = '';
+        saidWhy[wkey] = 1;
+        out += '<tr data-pdxlg-row="' + p.i + '">' +
+            '<td class="pdxlg-d">' + esc(_dosDay(d.date) || '') + '</td>' +
+            '<td>' + num + '</td>' +
+            '<td class="pdxlg-k">' + esc(p.kind.word) + '</td>' +
+            '<td class="pdxlg-v pdxlg-v-' + p.vote.cls + '">' + esc(p.vote.word) + '</td>' +
+            '<td>' + _dosActChips(d, issueKey) + '</td>' +
+          '</tr>' +
+          (why ? '<tr class="pdxlg-whyr"><td></td>' +
+            '<td colspan="4" class="pdxlg-why">' + esc(why) + '</td></tr>' : '');
+      }
+      out += '</tbody></table></div>';
+    }
+    return out + '</div>';
+  }
+
+  function _dosSummaryHtml(pid, issueKey, r, opts) {
     r = r || issueRow(pid, issueKey);
     var res = _stResult(r), n = _stNoun(r), lines = [];
     // WHAT THEY SAID. The chip in the header carries the position; this carries
     // their own words, which is the thing the record is about to be checked against.
     var said = r.stance.text ? String(r.stance.text) : '';
     if (said.length > 320) said = said.slice(0, 317).replace(/\s+\S*$/, '') + '…';
-    if (said || r.stance.label) {
+    // SUPPRESSED WHERE THE LEDGER ALREADY PRINTS IT. The dossier's own header now
+    // carries a They-said block of its own, beside the table of acts rather than
+    // above a column of method, and two copies of the same quote on one screen read
+    // as two separate claims. Every other caller of this summary — the profile
+    // surfaces, the standalone export — is unaffected and still prints the line
+    // here, which is why this is a flag rather than a deletion.
+    if ((said || r.stance.label) && !(opts && opts.noSaid)) {
       lines.push('<div class="pdxdos-line"><span class="pdxdos-k">They said</span>' +
         '<span class="pdxdos-v">' + esc(said || r.stance.label) + '</span></div>');
     }
@@ -16558,6 +16970,15 @@
     // about the verdict, the depth, the composition and where the issue lands in the
     // profile score is read off this — the sheet computes no opinion of its own.
     var _dosRow = issueRow(pid, issueKey);
+    // ── THE INVENTORY, RESOLVED BEFORE ANY OF THE PROSE ──────────────────────
+    // How many measures, how many recorded acts, and the engine's own for/against
+    // over them. It decides the SHAPE of this sheet: a record of roll calls leads
+    // with the ledger and files the method behind one disclosure, and a record
+    // with no roll calls in it — an executive lane, a curated formal action, a
+    // public-record-only issue — keeps exactly the layout it has today, because a
+    // vote table with nothing to put in its Vote column is not an improvement.
+    var _lgT = _dosTally(pid, issueKey, _dosRow && _dosRow.ov);
+    var _lgOn = _lgT.acts > 0;
 
     // Relationship — only when BOTH sides carry a real %. Otherwise say so plainly.
     //
@@ -16669,13 +17090,20 @@
     // reading order among the person facts, and the arrival reader still gets
     // "same person, same card" within the first two lines. It is a re-ordering and
     // a re-sizing, not a removal.
+    // ONE FINDING LINE, on a sheet that leads with a ledger. The bucket line, the
+    // score chip and the stated-position chip all say something true about this
+    // issue, and stacked on top of each other they read as three different
+    // findings about it — 50%, "Contradicted" and "Mixed" in the same inch. On a
+    // ledger sheet they move down into the scoring disclosure, unchanged and in
+    // the same order, and the header states the finding once. Where there is no
+    // ledger they stay exactly where they were.
     var head =
       '<div class="pdxgap-h">' +
         _issueTitleHtml(issueKey, lbl, _titleAttr, pid) +
-        _dosBucketHtml(_dosRow) +
-        // Verdict first, stated position second. The verdict is what the reader came
-        // to check; the stance is the thing it was checked against.
-        '<div class="pdxgap-meta">' + relHtml + (stance || '') + '</div>' +
+        (_lgOn ? _dosFindHtml(_dosRow, _lgT) : _dosBucketHtml(_dosRow) +
+          // Verdict first, stated position second. The verdict is what the reader came
+          // to check; the stance is the thing it was checked against.
+          '<div class="pdxgap-meta">' + relHtml + (stance || '') + '</div>') +
         // Whose record this is, on one line, under the finding. The eyebrow that
         // used to sit above the name is folded in here as the lane cue it always
         // was, so the header carries the same facts in fewer rows.
@@ -16698,7 +17126,11 @@
         // own button unchanged: that one promises one specific vote and must stay
         // fail-closed and Official-Record-only.
         _saShareHtml(pid, issueKey) +
-        gapNote +
+        // The depth sentence goes with the score it qualifies: on a ledger sheet
+        // both are inside the scoring disclosure, because "3 judged votes on this
+        // issue" is an account of the denominator, and the counts a reader needs
+        // first are the ones in the tally directly below.
+        (_lgOn ? '' : gapNote) +
       '</div>';
 
     // 🏛️ Official Record side. omniBlock: the multi-issue disclosure on each vote
@@ -16847,18 +17279,43 @@
         '</div>';
     }
 
-    return head +
-      // ── L1 ── the assembled answer, open. Directly under the identity block,
-      // because the question a reader arrives with is "so what did they do about
-      // this", not "which panels exist".
-      _dosSummaryHtml(pid, issueKey, _dosRow) +
+    // ── HOW THIS IS SCORED ────────────────────────────────────────────────────
+    // The assembled answer, the two lane panels, the wall between them and the
+    // weighting sentence, in the order they have always been in. Nothing is cut:
+    // the composition counts, the "a pattern is not established at that depth"
+    // caveat, the quiet-side note, the public-vs-formal separation rule, the
+    // suggest-a-lead door and "where this lands in the score" are all in here,
+    // whole. What changed is that a reader meets the record before the method.
+    //
+    // One disclosure, not five. A method wall broken into five folds is still a
+    // method wall, and it costs five taps instead of one.
+    var _scoredBody =
+      // ── L1 ── the assembled answer. The bucket line and the verdict chip lead
+      // it on a ledger sheet: they came down from the header together, in that
+      // order, so the index's word still arrives before the index's number.
+      (_lgOn ? _dosBucketHtml(_dosRow) +
+        '<div class="pdxgap-meta">' + relHtml + (stance || '') + '</div>' +
+        gapNote : '') +
+      _dosSummaryHtml(pid, issueKey, _dosRow, { noSaid: _lgOn }) +
       '<div class="pdxgap-sides' + sidesCls + '">' + offSide + saySide + '</div>' +
       // ── THE WALL, EXPLAINED WHERE IT IS VISIBLE ──────────────────────────────
       // Immediately below the two columns, because that is the inch of screen where
       // a reader has just seen the lanes disagree and has no way to interpret it.
       // Prints on the shapes the detector recognises and nothing otherwise — see
       // laneDisagreement(). It reaches no verdict and shows no number.
-      _laneBandHtml(_dosRow) +
+      _laneBandHtml(_dosRow);
+
+    return head +
+      // ── THE LEDGER ── the inventory and one row per act, open. The question a
+      // reader arrives with is "so what did they actually do about this", and this
+      // is the only level that answers it in counts and dates.
+      (_lgOn ? _dosLedgerHtml(pid, issueKey, _dosRow, _lgT) + _dosSaidHtml(_dosRow) : '') +
+      (_lgOn
+        ? '<details class="pdxgap-how" data-pdxgap-how="1">' +
+            '<summary><span aria-hidden="true">⚖️</span> How this is scored</summary>' +
+            '<div class="pdxgap-how-b">' + _scoredBody + '</div>' +
+          '</details>'
+        : _scoredBody) +
       // ── L2 ── every instrument on this issue, closed. It sits below the two
       // record panels rather than above them because those panels quote the
       // DECISIVE items; this is the complete enumeration they were drawn from, and
@@ -17154,6 +17611,19 @@
     var el = null;
     try { el = body.querySelector && body.querySelector(sel); } catch (e) {}
     if (!el) return false;
+    // A SCROLL TO SOMETHING FOLDED SHUT IS A SCROLL TO NOWHERE. Both callers ask
+    // for a node that now lives inside the sheet's scoring disclosure, and a
+    // closed <details> has no height to scroll to and no content to flash — the
+    // 🧾 tally would simply appear to do nothing. So every disclosure between the
+    // target and the sheet is opened first, which is what the reader asked for by
+    // tapping a control that promises to take them to it.
+    try {
+      var up = el, hops0 = 0;
+      while (up && up !== body && hops0 < 40) {
+        if (up.tagName === 'DETAILS' && !up.open) up.open = true;
+        up = up.parentNode; hops0++;
+      }
+    } catch (e) {}
     try {
       var top = 0, n = el, hops = 0;
       while (n && n !== sheet && hops < 40) { top += n.offsetTop || 0; n = n.offsetParent; hops++; }
@@ -17806,6 +18276,18 @@
     // list (L2's data), one item's expanded detail (L3+L4), and the L1 summary.
     dossierItems: _dosItems,
     dossierSummaryHtml: _dosSummaryHtml,
+    // ── THE LEDGER ────────────────────────────────────────────────────────────
+    // The inventory the sheet now opens with, exported piece by piece so each
+    // claim it makes can be tested where it is made: the counts (bills vs acts,
+    // and the engine's own for/against), the one finding line, the act-kind
+    // classifier that must print the clerk's words rather than guess, and the
+    // rendered table itself.
+    dossierTally: _dosTally,
+    dossierFinding: _dosFinding,
+    dossierActKind: _dosActKind,
+    dossierActVote: _dosActVote,
+    dossierLedgerHtml: _dosLedgerHtml,
+    dossierSaidHtml: _dosSaidHtml,
     dossierRecordsHtml: function (pid, issueKey) {
       return _dosRecordsHtml(pid, issueKey, issueRow(pid, issueKey), officialIssue(pid, issueKey));
     },

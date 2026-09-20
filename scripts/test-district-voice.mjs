@@ -1459,7 +1459,15 @@ has(INDEX, '<script defer src="/district-voice.js"></script>', "district-voice.j
 has(INDEX, 'href="/district-voice.css"', "and so is its sheet");
 {
   // Every nav anchor in the document, and none of them is a Voice destination.
-  const navs = [...INDEX.matchAll(/<nav[\s\S]*?<\/nav>/g)].join(" ");
+  //
+  // Comment-free, and matching an opening TAG rather than the four letters
+  // "<nav": the hero's sheet describes the chrome as "a single fixed <nav>
+  // carrying TWO stacked rows", and reading that as an open tag swallows the
+  // hundred kilobytes down to the next real </nav> — so the assertion would
+  // then answer for prose it was never about.
+  const navs = [...String(INDEX).replace(/<!--[\s\S]*?-->/g, " ").replace(/\/\*[\s\S]*?\*\//g, " ")
+    .matchAll(/<nav\b[^>]*>[\s\S]*?<\/nav>/g)].join(" ");
+  must(navs.length > 500, "no <nav> element could be read out of index.html");
   no(navs, "district-voice", "no nav element mentions District Voice");
   no(navs, "/d/ut-", "and no nav element links to a district file");
   // The two data-hooks that open Voice's page are the two mounts, and both are
