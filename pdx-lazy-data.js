@@ -176,7 +176,21 @@
   // unchanged, so the data still arrives for a visitor who never taps at all.
   var IX = ['click', 'keydown', 'scroll'];
   var IX_OPTS = { passive: true };
+  // Is the district finder the thing being tapped? Two megabytes of curated data
+  // compiled while a reader is typing an address into the finder is the other
+  // half of the freeze: the modal's own first tap armed this warm, and the parse
+  // landed on top of the geocode and the boundary fetch. So the warm WAITS while
+  // the finder is open — and the arm is deliberately left in place (Trigger 1 and
+  // Trigger 3 still run regardless), so the next interaction after the finder
+  // closes warms the data as it always did. Nothing is cancelled, only postponed.
+  function finderOpen() {
+    try { return !!(window.PDXFinder && window.PDXFinder.isOpen()); } catch (e) { return false; }
+  }
+
   function onFirstInteraction() {
+    // Still armed: return WITHOUT removing the listeners, so the first tap after
+    // the finder closes is the one that warms.
+    if (finderOpen()) return;
     IX.forEach(function (ev) { window.removeEventListener(ev, onFirstInteraction, false); });
     // Deferred, not split: see warmSoon above. One idle callback with a short
     // timeout (a permanently busy main thread cannot starve the load every
@@ -194,7 +208,12 @@
     // The net for a visitor who never taps. Also one task, also all three: a
     // reader who has not interacted is exactly the reader who should not be
     // handed a staggered three-to-six-second warm the moment they finally do.
-    var run = function () { try { ensureAll(['cmpDetail', 'acctSpotlight']); } catch (e) {} };
+    var run = function () {
+      // The finder can be open before `load` fires on a deep link straight to
+      // #who-represents-me. Come back for it rather than parsing underneath it.
+      if (finderOpen()) { setTimeout(run, 1500); return; }
+      try { ensureAll(['cmpDetail', 'acctSpotlight']); } catch (e) {}
+    };
     if ('requestIdleCallback' in window) requestIdleCallback(run, { timeout: 4000 });
     else setTimeout(run, 3000);
   }

@@ -8516,8 +8516,17 @@ window.PDXLazy = (function () {
         .pdx-map-retry{cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-size:0.8rem;
           color:#fff;background:#2563eb;border:none;border-radius:0.6rem;padding:0.5rem 1.1rem;margin-top:0.3rem;}
 
+        /* Idle prompt: a ribbon that passes taps through to the live basemap,
+           unlike the loading and error curtains. */
+        .pdx-map-status--idle{inset:auto 0 0 0;z-index:600;padding:0.75rem 1rem 0.85rem;gap:0.4rem;pointer-events:none;
+          background:linear-gradient(0deg,rgba(8,13,28,0.96) 0%,rgba(8,13,28,0.86) 60%,rgba(8,13,28,0.55) 100%);
+          border-top:1px solid rgba(255,255,255,0.08);}
+        .pdx-map-status--idle .pdx-map-retry{pointer-events:auto;}
+
         /* Leaflet dark-theme overrides */
-        .pdx-map-canvas-wrap .leaflet-tile{filter:none;}
+        /* Dark is a filter now, not a paid style: OSM's light raster inverted.
+           Only .leaflet-tile, so strokes, pin and controls are unaffected. */
+        .pdx-map-canvas-wrap .leaflet-tile{filter:invert(1) hue-rotate(185deg) brightness(0.93) contrast(0.92) saturate(0.55);}
         .pdx-map-canvas-wrap .leaflet-container{background:#0a1120;font-family:'Barlow Condensed',sans-serif;}
         .pdx-map-canvas-wrap .leaflet-control-zoom a{background:#101d36;color:#cbd5e1;border-color:rgba(255,255,255,0.12);}
         .pdx-map-canvas-wrap .leaflet-control-zoom a:hover{background:#16274a;color:#fff;}
@@ -18067,13 +18076,28 @@ window.PDXLazy = (function () {
     var _selected   = { house: null, senate: null };   // chosen DIST numbers
     var _selPath    = { house: null, senate: null, congress: null };   // chosen Leaflet path refs
     var _lastPicked = null;                            // 'house' | 'senate'
-    var _booted     = false;
     var _marker     = null;                            // searched-address marker
     var _searching  = false;
     var _searchHit  = null;                            // last geocoded {lat,lng,name}
     var _hasSearchView = false;                        // an address search is active
     var _searchCongress = null;                        // U.S. House district for the searched point
     var _searchAreaId = null;                          // curated Key-Races area id for the searched point
+    var _tiles = null, _tileErrors = 0;                // basemap layer (droppable)
+    var _loadingLayer = false;                         // a boundary fetch is on the wire
+    var _layerSeq = 0, _searchSeq = 0;                 // retire work the reader moved past
+    var SEARCH_DEADLINE_MS = 12000;                    // one ceiling over a whole search
+
+    // THE FINDER'S GATE AND ITS NETWORK MANNERS LIVE IN voter-hub-location.js,
+    // which owns the location record and loads before this block: PDXF.isOpen()
+    // is why a pick behind the modal does not rebuild the front page, and
+    // PDXF.fetch / .deadline / .track / .abort are why nothing the finder starts
+    // outlives it. Read the reasoning there; the call sites are below.
+    var PDXF = window.PDXFinder;
+    function reactToLocation(){
+      if (PDXF.isOpen()) { PDXF.markPending(); return; }
+      if (typeof window._triggerLocationReaction === 'function') window._triggerLocationReaction();
+    }
+    function stale(tok){ return tok !== _searchSeq; }
 
     function distOf(feature){
       var p = feature && feature.properties || {};
@@ -18165,10 +18189,12 @@ window.PDXLazy = (function () {
     }
 
     // ── Status overlay (loading / error) ─────────────────────────────────────
-    function showStatus(html, withSpinner){
+    // idle=true is the prompt over a live basemap; otherwise it is a curtain.
+    function showStatus(html, withSpinner, idle){
       var s = document.getElementById('pdx-map-status');
       var t = document.getElementById('pdx-map-status-text');
       if (!s) return;
+      s.classList.toggle('pdx-map-status--idle', !!idle);
       s.style.display = 'flex';
       var spin = s.querySelector('.pdx-map-spinner');
       if (spin) spin.style.display = withSpinner ? 'block' : 'none';
@@ -18176,13 +18202,31 @@ window.PDXLazy = (function () {
     }
     function hideStatus(){
       var s = document.getElementById('pdx-map-status');
-      if (s) s.style.display = 'none';
+      if (!s) return;
+      s.style.display = 'none';
+      s.classList.remove('pdx-map-status--idle');
+    }
+    // ── THE FINDER OPENS EMPTY, ON PURPOSE ────────────────────────────────────
+    // The House layer is 75 polygons plus 75 tooltips and used to be drawn the
+    // instant the modal opened. Nothing is drawn now without something to draw
+    // FOR: a RESULT, or a TAP (the canvas, a toggle, or this button).
+    function promptForLayer(){
+      showStatus(
+        '<strong style="color:#cfe0f7;">Search your address above</strong> — we’ll find your districts and draw them.' +
+        '<br><span style="font-size:0.78rem;color:#8aa3c8;">Or tap your area on the map to draw the ' +
+        LABEL[_activeLayer] + ' boundaries and pick by hand.</span>' +
+        '<br><button type="button" class="pdx-map-retry" onclick="window.pdxMapShowBoundaries()">Show ' +
+        LABEL[_activeLayer] + ' boundaries</button>', false, true);
+    }
+    function isPainted(layerType){
+      return !!(_layers[layerType] && _map && _map.hasLayer(_layers[layerType]));
     }
 
     // ── Data ─────────────────────────────────────────────────────────────────
     function fetchGeo(layerType){
       if (_geoCache[layerType]) return Promise.resolve(_geoCache[layerType]);
-      return fetch(GEO_URLS[layerType], { cache: 'force-cache' })
+      // Ceiling and canceller, like every other request the finder makes.
+      return PDXF.fetch(GEO_URLS[layerType], { cache: 'force-cache' })
         .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function(json){
           if (!json || !json.features || !json.features.length) throw new Error('No districts returned');
@@ -18199,10 +18243,38 @@ window.PDXLazy = (function () {
         scrollWheelZoom: true, minZoom: 5, maxZoom: 17
       }).setView([39.32, -111.55], 6);
 
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        subdomains: 'abcd', maxZoom: 19,
-        attribution: 'Districts: UGRC · &copy; OpenStreetMap, &copy; CARTO'
-      }).addTo(_map);
+      // ── THE BASEMAP CARRIES NO KEY, BECAUSE THERE IS NO KEY TO CARRY ────────
+      // This was Carto's dark_all. That CDN is keyed now, and an unkeyed request
+      // is not a 404 a tile layer would skip — it is a 200 PNG whose pixels say a
+      // key is required, so the finder re-fetched stamped tiles on every pan. No
+      // key exists here to restore and none can be committed, so this is OSM's
+      // keyless raster, attributed as its policy asks. See sw.js v231.
+      _tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19, detectRetina: false,
+        // A failed tile is a transparent pixel, not a broken-image icon.
+        errorTileUrl: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+        attribution: 'Districts: UGRC · &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      });
+      // AND IT GIVES UP INSTEAD OF RETRYING FOREVER. After a handful of failures
+      // the layer is dropped; outlines, pin and controls remain a usable map.
+      _tiles.on('tileerror', function(){
+        _tileErrors++;
+        if (_tileErrors < 14 || !_tiles) return;
+        try { _map.removeLayer(_tiles); } catch(e) {}
+        _tiles = null;
+        var att = document.querySelector('.pdx-map-canvas-wrap .leaflet-control-attribution');
+        if (att) att.innerHTML = 'Districts: UGRC · basemap unavailable';
+      });
+      _tiles.addTo(_map);
+
+      // TAP-TO-LOAD. With nothing drawn, the map takes the tap, loads the active
+      // layer and picks the district there. Polygon clicks bubble here too, which
+      // is what the guard covers.
+      _map.on('click', function(e){
+        if (!e || !e.latlng) return;
+        if (_loadingLayer || isPainted(_activeLayer)) return;
+        loadAndShow(_activeLayer, true, e.latlng);
+      });
 
       return _map;
     }
@@ -18263,13 +18335,32 @@ window.PDXLazy = (function () {
       if (_marker && _marker.bringToFront) _marker.bringToFront();
     }
 
-    function loadAndShow(layerType, skipFit){
+    // pickAt (optional {lat,lng}): the tap that asked, so one tap both draws the
+    // boundaries and picks the district under that point.
+    function loadAndShow(layerType, skipFit, pickAt){
+      var tok = ++_layerSeq;
+      _loadingLayer = true;
       showStatus('Loading ' + LABEL[layerType] + ' boundaries…', true);
       fetchGeo(layerType).then(function(){
+        _loadingLayer = false;
+        if (tok !== _layerSeq) return;   // the reader closed the finder, or moved on
         hideStatus();
         showLayer(layerType, skipFit);
+        if (pickAt && layerType !== 'congress') {
+          var d = districtAt(layerType, pickAt.lng, pickAt.lat);
+          if (d != null) {
+            // A tap overrides a searched address, as the polygon handler does.
+            _searchAreaId = null; _searchCongress = null;
+            selectDistrict(layerType, d, pathForDist(layerType, d));
+          } else {
+            setSearchNote('That spot is outside Utah’s ' + LABEL[layerType] +
+              ' district map. Tap inside Utah, or search your address.', 'is-warn');
+          }
+        }
         setTimeout(function(){ if (_map) _map.invalidateSize(); }, 60);
       }).catch(function(err){
+        _loadingLayer = false;
+        if (tok !== _layerSeq) return;
         showStatus('Couldn’t load the district map.<br><span style="font-size:0.78rem;color:#8aa3c8;">' +
           (err && err.message ? err.message : 'Network error') + '</span><br>' +
           '<button type="button" class="pdx-map-retry" onclick="window.pdxMapRetry()">Try again</button>', false);
@@ -18457,7 +18548,8 @@ window.PDXLazy = (function () {
       window._currentVoterLocation = loc;
       window._hasUserLocation = true;
       if (typeof window.saveVoterLocation === 'function') window.saveVoterLocation();
-      if (typeof window._triggerLocationReaction === 'function') window._triggerLocationReaction();
+      // Saved on every pick as before; only the rebuild waits. See PDXFinder.
+      reactToLocation();
     }
 
     // ── "Set via map" indicator (called from _triggerLocationReaction) ─────────
@@ -18602,6 +18694,9 @@ window.PDXLazy = (function () {
         }
         window[cb] = function(data){ cleanup(); resolve(data); };
         script.onerror = function(){ cleanup(); reject(new Error('load')); };
+        // JSONP cannot be cancelled, but it can be orphaned: callback deleted,
+        // tag pulled, so a late script calls nothing.
+        PDXF.track(function(){ cleanup(); reject(new Error('aborted')); });
         script.src = url + (url.indexOf('?') === -1 ? '?' : '&') + 'callback=' + cb;
         document.body.appendChild(script);
       });
@@ -18687,7 +18782,7 @@ window.PDXLazy = (function () {
     function geocodeNominatim(q, utahBias){
       var url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=us&addressdetails=1&q=' +
         encodeURIComponent(q) + (utahBias ? '&viewbox=-114.10,42.10,-108.90,36.95&bounded=1' : '');
-      return fetch(url, { headers: { 'Accept': 'application/json' } })
+      return PDXF.fetch(url, { headers: { 'Accept': 'application/json' } }, 8000)
         .then(function(r){ if (!r.ok) throw new Error('geo'); return r.json(); })
         .then(function(arr){
           if (!arr || !arr.length) return null;
@@ -18720,16 +18815,19 @@ window.PDXLazy = (function () {
     }
     // Best-precision-first chain. Census handles real street addresses (incl. rural);
     // Nominatim covers city/ZIP-only queries and anything Census can't parse.
-    function resolveGeocode(q){
+    function resolveGeocode(q, tok){
       // Try a Utah-biased query first so a stateless address (e.g. "1572 West
       // Camelot Dr, Layton") resolves in Utah; fall back to the raw query so a
       // fully-qualified address is still honoured verbatim.
+      // AND IT CHECKS THE TOKEN BETWEEN STEPS, or a cancelled provider's
+      // rejection politely starts the next one for a dead query.
       var bq = biasUtah(q);
+      function next(hit){ return !hit && !stale(tok); }
       return geocodeCensus(bq)
-        .then(function(hit){ return hit || (bq !== q ? geocodeCensus(q) : null); })
-        .then(function(hit){ return hit || geocodeNominatim(bq, true); })
-        .then(function(hit){ return hit || geocodeNominatim(q, true); })
-        .then(function(hit){ return hit || geocodeNominatim(q, false); });
+        .then(function(hit){ return (next(hit) && bq !== q) ? geocodeCensus(q) : hit; })
+        .then(function(hit){ return next(hit) ? geocodeNominatim(bq, true) : hit; })
+        .then(function(hit){ return next(hit) ? geocodeNominatim(q, true) : hit; })
+        .then(function(hit){ return next(hit) ? geocodeNominatim(q, false) : hit; });
     }
     // Reverse Census lookup at a point — fills the Congressional + State Legislative
     // districts for hits that didn't carry them (e.g. a Nominatim town centroid), so
@@ -18800,7 +18898,10 @@ window.PDXLazy = (function () {
       return best;
     }
 
-    function onGeocoded(hit){
+    function onGeocoded(hit, tok){
+      // THE RESULT IS WHAT EARNS THE PAINT: the one draw with no tap behind it.
+      // The token is checked first, so a late response paints nothing.
+      showStatus('Loading Utah district boundaries…', true);
       // Load BOTH boundary sets so House and Senate can be resolved in one pass, and
       // backfill the address's districts from Census if the geocoder didn't carry
       // them (so U.S. House always resolves, even for a Nominatim town centroid).
@@ -18812,6 +18913,8 @@ window.PDXLazy = (function () {
       // — e.g. it reports Layton as District 1, when the 2026 map places it in 2).
       // A congress-layer failure must not block House/Senate, so swallow its error.
       Promise.all([fetchGeo('house'), fetchGeo('senate'), fetchGeo('congress').catch(function(){ return null; }), enrich]).then(function(res){
+        if (stale(tok)) return;
+        hideStatus();
         var extra = res[3];
         if (extra) {
           if (hit.congress == null) hit.congress = extra.congress;
@@ -18923,6 +19026,8 @@ window.PDXLazy = (function () {
           (approx ? '<br><span style="opacity:0.85;">* closest district — confirm by tapping your area on the map.</span>' : (corr + precNote)),
           (approx || !hit.precise) ? 'is-warn' : 'is-ok');
       }).catch(function(){
+        if (stale(tok)) return;
+        hideStatus();
         setSearchBusy(false);
         setSearchNote('Couldn’t load district boundaries. Please try again.', 'is-error');
       });
@@ -18934,15 +19039,26 @@ window.PDXLazy = (function () {
       if (!input) return;
       var q = (input.value || '').trim();
       if (q.length < 3) { setSearchNote('Enter a street address, city, or ZIP to search.', 'is-error'); return; }
-      if (_searching) return;
+      // A SECOND SEARCH REPLACES THE FIRST. This used to return early while busy,
+      // so a reader who fixed a typo was still waiting on the typo.
+      var tok = ++_searchSeq;
+      PDXF.abort();
       setSearchBusy(true);
       setSearchNote('Finding “' + escapeHtml(q) + '”…');
-      resolveGeocode(q)
-        .then(function(hit){
-          if (!hit) { setSearchBusy(false); setSearchNote('No match found. Add a city or ZIP (e.g. “Lapoint, UT 84039”) and try again.', 'is-error'); return; }
-          onGeocoded(hit);
-        })
-        .catch(function(){ setSearchBusy(false); setSearchNote('Address lookup failed. Check your connection and try again.', 'is-error'); });
+      PDXF.deadline(resolveGeocode(q, tok), SEARCH_DEADLINE_MS).then(function(res){
+        if (stale(tok)) return;
+        if (res.timedOut) {
+          setSearchBusy(false);
+          setSearchNote('Address lookup timed out. Check your connection and try again, or tap your area on the map.', 'is-error');
+          return;
+        }
+        if (!res.hit) {
+          setSearchBusy(false);
+          setSearchNote('No match found. Add a city or ZIP (e.g. “Lapoint, UT 84039”) and try again.', 'is-error');
+          return;
+        }
+        onGeocoded(res.hit, tok);
+      });
     };
 
     window.pdxMapConfirm = function(){
@@ -18985,9 +19101,8 @@ window.PDXLazy = (function () {
       }, 180);
     };
 
-    window.pdxMapSetLayer = function(layerType){
-      if (layerType !== 'house' && layerType !== 'senate' && layerType !== 'congress') return;
-      _activeLayer = layerType;
+    // Chrome only — so opening the finder can set the toggle without drawing.
+    function setLayerChrome(layerType){
       [['house','pdx-layer-house'],['senate','pdx-layer-senate'],['congress','pdx-layer-congress']].forEach(function(p){
         var btn = document.getElementById(p[1]);
         if (btn) { btn.classList.toggle('is-active', layerType === p[0]); btn.setAttribute('aria-selected', layerType === p[0]); }
@@ -19002,7 +19117,20 @@ window.PDXLazy = (function () {
           '</strong> districts — search your address or tap the area where you live.';
       refreshInfoPanel();
       refreshResultBanner();
+    }
+
+    window.pdxMapSetLayer = function(layerType){
+      if (layerType !== 'house' && layerType !== 'senate' && layerType !== 'congress') return;
+      _activeLayer = layerType;
+      setLayerChrome(layerType);
+      // PRESSING A TOGGLE IS A TAP: every caller here is a reader choosing a
+      // layer. The paint that fired on mere OPEN is gone.
       if (_map) loadAndShow(layerType, _hasSearchView);
+    };
+
+    // The prompt's own button: draw the active layer, because it was asked for.
+    window.pdxMapShowBoundaries = function(){
+      if (_map) loadAndShow(_activeLayer, _hasSearchView);
     };
 
     window.pdxMapClearSelection = function(){
@@ -19026,7 +19154,7 @@ window.PDXLazy = (function () {
       loc.mapSelected = false; loc.stateHouseDistrict = ''; loc.stateSenateDistrict = '';
       window._currentVoterLocation = loc;
       if (typeof window.saveVoterLocation === 'function') window.saveVoterLocation();
-      if (typeof window._triggerLocationReaction === 'function') window._triggerLocationReaction();
+      reactToLocation();
     };
 
     window.pdxMapRetry = function(){ if (_map) loadAndShow(_activeLayer); };
@@ -19074,11 +19202,15 @@ window.PDXLazy = (function () {
       }, 120);
 
       // Build the map after the container is visible so Leaflet measures it right.
+      // IT BUILDS THE MAP AND DRAWS NO DISTRICTS. This used to call
+      // pdxMapSetLayer(), painting 75 polygons just to open the modal.
       setTimeout(function(){
         ensureMap();
         _map.invalidateSize();
-        if (!_booted) { _booted = true; window.pdxMapSetLayer(_activeLayer); }
-        else { loadAndShow(_activeLayer); }
+        setLayerChrome(_activeLayer);
+        if (isPainted(_activeLayer)) hideStatus();                 // already drawn earlier this visit
+        else if (_hasSearchView) loadAndShow(_activeLayer, true);  // a result is standing
+        else promptForLayer();
       }, 80);
     };
 
@@ -19087,6 +19219,13 @@ window.PDXLazy = (function () {
       if (!modal) return;
       modal.style.display = 'none';
       document.body.style.overflow = '';
+      // NOTHING KEEPS RUNNING BEHIND A CLOSED FINDER: every request is cancelled
+      // and its token retired, so nothing late can paint here.
+      _searchSeq++; _layerSeq++; _loadingLayer = false;
+      PDXF.abort();
+      setSearchBusy(false);
+      // And the deferred rebuild runs now — once, over a visible page.
+      try { PDXF.flush(); } catch(e) {}
     };
 
     // Close on Escape (only when the map modal is the topmost open layer).

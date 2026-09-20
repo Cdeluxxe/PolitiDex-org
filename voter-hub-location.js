@@ -975,10 +975,104 @@
     }
   });
 
+  // ── THE DISTRICT FINDER'S GATE, AND ITS NETWORK MANNERS ─────────────────────
+  // This file already owns the location record, the modal that changes it and the
+  // reaction below, so it owns the two rules the finder needs and index.html's
+  // map controller only calls:
+  //
+  //   DON'T REBUILD THE PAGE NOBODY IS LOOKING AT. Every district pick used to
+  //   run _triggerLocationReaction() immediately, and that rebuilds the entire
+  //   front page — Key Races, the Relevant-to-Me slate, the team grid and browse
+  //   lane, the H.R.1 receipts grid, Local Issues, the ballot, the politician
+  //   manager, and through _vhSyncBanner the Who Represents Me band and the six
+  //   seats pdxRepsForMe() resolves. A city search picks a House district and
+  //   then a Senate district, so the whole rebuild ran TWICE, behind a modal
+  //   covering the page it was rebuilding, in the same frames that were drawing
+  //   district polygons. That is the tab that stopped responding. So a rebuild
+  //   asked for while the finder is open is RECORDED and replayed ONCE on close.
+  //   Deferred, never dropped, and the location itself is still saved on every
+  //   pick by its own owner — no key moves and nothing gains a second writer.
+  //
+  //   AND DON'T LEAVE WORK ON THE WIRE. Every request the finder makes registers
+  //   a canceller here, so a second search, or closing the modal, takes the
+  //   previous attempt off the network instead of letting it land on a surface
+  //   that has moved on. fetch() gets a per-request ceiling and deadline() gets
+  //   one over a whole provider chain, because five geocoders head-to-tail with
+  //   no timeout is a spinner with nothing left to cancel.
+  (function () {
+    var pending = false;
+    var inflight = [];
+    var DEFAULT_MS = 20000;
+    window.PDXFinder = {
+      isOpen: function () {
+        var m = document.getElementById('district-map-modal');
+        return !!(m && m.style.display === 'flex');
+      },
+      markPending: function () { pending = true; },
+      flush: function () {
+        if (!pending) return;
+        pending = false;
+        if (typeof window._triggerLocationReaction === 'function') window._triggerLocationReaction();
+      },
+      track: function (cancel) { inflight.push(cancel); },
+      abort: function () {
+        var list = inflight; inflight = [];
+        for (var i = 0; i < list.length; i++) { try { list[i](); } catch (e) {} }
+      },
+      // fetch with a ceiling and a canceller.
+      fetch: function (url, opts, ms) {
+        var ctrl = (typeof AbortController === 'function') ? new AbortController() : null;
+        var o = {}, k, timer;
+        if (opts) { for (k in opts) o[k] = opts[k]; }
+        if (ctrl) o.signal = ctrl.signal;
+        function kill() { clearTimeout(timer); if (ctrl) { try { ctrl.abort(); } catch (e) {} } }
+        timer = setTimeout(kill, ms || DEFAULT_MS);
+        this.track(kill);
+        return fetch(url, o).then(function (r) { clearTimeout(timer); return r; },
+                                  function (e) { clearTimeout(timer); throw e; });
+      },
+      // One ceiling over a whole chain; on expiry the wire is cleared and the
+      // caller is told, rather than left holding a spinner.
+      deadline: function (p, ms) {
+        var self = this;
+        return new Promise(function (resolve) {
+          var done = false, t;
+          function fin(v) { if (done) return; done = true; clearTimeout(t); resolve(v); }
+          t = setTimeout(function () { self.abort(); fin({ timedOut: true, hit: null }); }, ms);
+          p.then(function (v) { fin({ timedOut: false, hit: v || null }); },
+                 function () { fin({ timedOut: false, hit: null }); });
+        });
+      }
+    };
+  })();
+
   window._triggerLocationReaction = function() {
     var loc = window._currentVoterLocation || { state: '', city: '', county: '', district: '' };
     var state = loc.state || '';
-    
+
+    // NOT WHILE THE FINDER IS OPEN. Everything below this line rebuilds the
+    // front page: Key Races, the Relevant-to-Me slate, the team grid and browse
+    // lane, the H.R.1 receipts grid, Local Issues, the ballot, the politician
+    // manager, and — through _vhSyncBanner — who-represents-me's six-seat band
+    // and its pdxRepsForMe() preview. None of it is visible behind the district
+    // modal, and a city search sets a house district and then a senate district,
+    // so it used to run the whole rebuild TWICE over a page nobody was looking
+    // at. That is the "Page Unresponsive" in the report.
+    //
+    // The work is deferred, not dropped: the finder records that a rebuild is
+    // owed and closeDistrictMapModal() flushes it once, over a page the reader
+    // can actually see. The location itself is already saved by the caller —
+    // this gate changes WHEN the page repaints, never what is stored, and no
+    // location key or chooser flag is touched here.
+    try {
+      if (window.PDXFinder && window.PDXFinder.isOpen()) {
+        window.PDXFinder.markPending();
+        // The finder's own chrome is the one surface that IS on screen.
+        if (typeof window._pdxRefreshMapIndicators === 'function') window._pdxRefreshMapIndicators();
+        return;
+      }
+    } catch (e) {}
+
     if (typeof window._updateTeamPositionsForLocation === 'function') window._updateTeamPositionsForLocation();
     if (typeof window.updateRelevantLocationText === 'function') window.updateRelevantLocationText();
     if (typeof window._vhSyncBanner === 'function') window._vhSyncBanner();

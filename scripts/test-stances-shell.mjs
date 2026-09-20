@@ -273,8 +273,8 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // carries, not by adding the delta to the old start. The arithmetic agreed
 // afterwards, and the declared ranges in the copies moved in the same edit.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 20334, b: 20358, what: "the .pdxis-stance* pill rules" },
-  { from: "index.html", src: INDEX, a: 20377, b: 20497, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 20473, b: 20497, what: "the .pdxis-stance* pill rules" },
+  { from: "index.html", src: INDEX, a: 20516, b: 20636, what: "the PDXStance vocabulary" },
 ];
 // Both index.html ranges have now moved THREE TIMES, and the third ran the other
 // way. The Digital Library split took #digital-library out of index.html but left

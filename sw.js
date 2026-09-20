@@ -7302,7 +7302,37 @@
 //     read, not renamed and not migrated by a drawer that renders a table.
 //     MIGRATION COST: none. consistency.js and one new suite changed; a warm
 //     device would otherwise serve the old drawer shell against the new table.
-const CACHE_VERSION = 'v230';
+// v231 - FINDER MAP: KEYLESS BASEMAP, AND NO 75-POLYGON PAINT ON OPEN.
+//     THE BASEMAP HAS NO KEY BECAUSE IT NEEDS NONE. basemaps.cartocdn.com's
+//     dark_all style is keyed now and answers an unkeyed request with a 200 PNG
+//     whose pixels say a key is required - not a 404 Leaflet could skip - so
+//     every pan re-requested a stamped tile forever. The district finder's
+//     one tile template is now OpenStreetMap's keyless standard raster, made
+//     dark in CSS, attributed to OSM contributors alongside UGRC. No key is
+//     committed, no key is read from env, and there is no keyed tile URL left
+//     in the tree. If tiles fail 14 times the layer is removed and the
+//     attribution says so, rather than retrying behind the districts.
+//     AND THE FINDER OPENS EMPTY. Opening the modal used to fetch and draw the
+//     75-polygon State House layer immediately, and a city search then ran the
+//     whole front-page rebuild twice (house, then senate) behind the modal -
+//     Key Races, the Relevant-to-Me slate, the team grid, the H.R.1 grid, the
+//     ballot, and who-represents-me's pdxRepsForMe() band. That was the 'Page
+//     Unresponsive'. Now: nothing is drawn until a RESULT or a TAP exists, the
+//     rebuild is deferred until the modal closes and then runs ONCE, and the
+//     ~2 MB lazy data warm waits out an open finder instead of parsing under
+//     it. Geocodes carry a 12 s deadline, an 8-20 s per-request ceiling and
+//     abort in flight when the reader closes or searches again.
+//     LOCATION KEYS UNTOUCHED. politidex_voter_location and _pdxLocWasChosen
+//     keep their owner and their meaning: no location key is renamed, copied or
+//     migrated, and no location key is read by a module that was not already
+//     reading it. This pass changes WHEN the page repaints, never what is
+//     stored, and the city-centroid warning copy is unchanged.
+//     No new boards, no /district/* splat, no equity copy. /voice and
+//     /district/ut-sd-3 stay map-free; BOARD_ROUTES is still one row; the
+//     engines still twin-boot byte-identical.
+//     MIGRATION COST: none. A warm device would otherwise keep serving the
+//     stamped-tile finder and the on-open paint from the old shell.
+const CACHE_VERSION = 'v231';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
