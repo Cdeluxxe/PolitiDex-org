@@ -145,11 +145,22 @@
   // gets a working anchor to the person's own file; what it does not get is a
   // sentence reading as "nobody", and it does not get a raw id printed as if it
   // were somebody's name.
+  //
+  // AND THE LOOKUP IS THE RESOLVER'S, NOT A SECOND ONE. window.pdxRosterRec is
+  // the read voter-hub-location.js's own roster gate uses to decide whether a pid
+  // is still a person on this document — the two indexes, and the retired
+  // spellings PDX_PROFILE_ALIAS has ruled are the same officeholder. Asking it
+  // here is how the card that says "Sitting member" and the gate that lets the
+  // seat keep its member stay one answer: a Utah State House pid the resolver
+  // kept is a pid this file can name, rather than one it has to describe as
+  // merely "on file". The raw reads stay below it as the no-resolver lane, where
+  // this file is all there is.
   function personOf(pid) {
     if (!pid) return null;
     try { if (fn(window._pdxPersonById)) return window._pdxPersonById(pid) || null; } catch (e) {}
-    try { if (window.CMP_DATA && window.CMP_DATA[pid]) return window.CMP_DATA[pid]; } catch (e2) {}
-    try { if (window.PROFILES && window.PROFILES[pid]) return window.PROFILES[pid]; } catch (e3) {}
+    try { if (fn(window.pdxRosterRec)) { var r = window.pdxRosterRec(pid); if (r) return r; } } catch (e2) {}
+    try { if (window.CMP_DATA && window.CMP_DATA[pid]) return window.CMP_DATA[pid]; } catch (e3) {}
+    try { if (window.PROFILES && window.PROFILES[pid]) return window.PROFILES[pid]; } catch (e4) {}
     return null;
   }
   function personHref(pid) {

@@ -411,6 +411,16 @@
 <script src="/firebase-boot.js" defer></script>
 
   <script src="/person-link.js"></script>
+  <!-- THE RETIRED-KEY BRIDGE, 2 KB OF IT. profile-evidence.js owns
+       PDX_PROFILE_ALIAS — this repo's ruling that `scott_chew` and `chew_h68`
+       are one officeholder — and profile-evidence.js is 68 KB of Evidence Locker
+       machinery this document does not load. Without the ruling on the page the
+       resolver's roster gate asks the live Firestore index for `chew_h68`, finds
+       the document filed under the name slug instead, and un-names a Utah State
+       House seat it had already resolved: the card read "No sitting member on
+       hand for this seat" while the front page named the member. This is that
+       one table and nothing else, copied verbatim and pinned to its source. -->
+  <script defer src="/profile-alias.js"></script>
   <script defer src="/issue-map.js"></script>
   <script defer src="/issue-colors.js"></script>
   <script defer src="/voter-hub-location.js"></script>

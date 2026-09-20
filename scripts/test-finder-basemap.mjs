@@ -456,11 +456,28 @@ section("worker · one bump, one entry");
 {
   const m = SW.match(/const CACHE_VERSION = '(v\d+)';/);
   must(!!m, "sw.js no longer declares CACHE_VERSION");
-  const PIN = m[1];
-  eq(PIN, "v231", `sw: CACHE_VERSION is ${PIN}, not the single bump this pass owns`);
+  // ONE BUMP, AND THAT CLAIM EXPIRES THE DAY THIS PASS LANDS. While the finder
+  // pass is the working tree's own, CACHE_VERSION *is* v231 and reading the
+  // newest entry reads this pass's entry. The moment a later pass bumps the
+  // shell, "CACHE_VERSION is v231" stops being a statement about the finder and
+  // becomes a statement about whoever went last — a pin that can pass exactly
+  // once, in the tree of its author, and reports its own obsolescence forever
+  // after, indistinguishable from the regression it was meant to catch.
+  //
+  // What still has teeth after the pass lands: the version only ever goes UP,
+  // and the finder's own entry is still in the log, still filed after v230,
+  // where a reader of sw.js can find out why the tiles have no key. So the
+  // entry below is addressed by its OWN version, not by the newest one.
+  const PIN = "v231";
+  const CUR = Number(String(m[1]).slice(1));
+  ok(CUR >= 231, `sw: CACHE_VERSION went backwards to ${m[1]} — ${PIN} or later is the floor`);
   const at = SW.indexOf(`// ${PIN} - `);
   ok(at > 0, `sw: there is no changelog entry for ${PIN}`);
-  const LOG = SW.slice(at, SW.indexOf("const CACHE_VERSION", at));
+  // The entry ends at the next version heading, or at CACHE_VERSION when this
+  // pass is still the newest one. Slicing to CACHE_VERSION unconditionally
+  // would swallow every later entry and let their prose answer for this one.
+  const nextAt = SW.slice(at + 1).search(/\n\/\/\s+v\d+ - /);
+  const LOG = SW.slice(at, nextAt < 0 ? SW.indexOf("const CACHE_VERSION", at) : at + 1 + nextAt);
   const FLAT = LOG.replace(/^\s*\/\/\s?/gm, " ").replace(/\s+/g, " ");
   ok(/key/i.test(FLAT), `sw: the ${PIN} entry does not mention the basemap key at all`);
   ok(/openstreetmap/i.test(FLAT), `sw: the ${PIN} entry does not name the keyless basemap it swapped to`);
@@ -473,7 +490,7 @@ section("worker · one bump, one entry");
   ok(/no equity copy/i.test(FLAT), `sw: the ${PIN} entry does not say there is no equity copy`);
   ok(/MIGRATION COST: none/i.test(FLAT), `sw: the ${PIN} entry does not state a migration cost of none`);
   ok(/byte-identical/i.test(FLAT), `sw: the ${PIN} entry does not say the record engines did not move`);
-  // ONE bump: the entry is the newest, and no other version heading is inside it.
+  // ONE bump: no other version heading is inside this pass's own entry.
   eq((LOG.match(/\n\/\/\s+v\d+ - /g) || []).length, 0,
     `sw: another version heading sits inside the ${PIN} entry`);
   const prev = SW.indexOf("// v230 - ");

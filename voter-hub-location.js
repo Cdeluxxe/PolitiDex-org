@@ -1603,7 +1603,7 @@
   // generous direction on purpose: every caller of it either NAMES somebody or
   // declines to un-name them, so a pid that either index still holds is a pid
   // this page still knows.
-  function _pdxRosterRec(pid) {
+  function _pdxRosterRaw(pid) {
     if (!pid) return null;
     try {
       var c = window.CMP_DATA;
@@ -1615,6 +1615,83 @@
     } catch (e2) {}
     return null;
   }
+
+  // ── AND UNDER WHICHEVER KEY THE ROW IS ACTUALLY FILED ─────────────────────
+  // The lookup above is a RAW key lookup, and on a document whose only roster is
+  // the live Firestore index that is not the same question as "do we hold this
+  // person". For a handful of officeholders the live document is filed under the
+  // slug of their display name and the roster record under the legislative id
+  // the seat resolves to: `scott_chew` holds the document, `chew_h68` holds the
+  // record and the 90-act formal file. Ask window.PROFILES for `chew_h68` on a
+  // document with no cmp-data.js and the answer is nothing — which
+  // _pdxRosterKeeps() below then reads as the member having left the roster.
+  //
+  // That is how /voice printed "No sitting member on hand for this seat" on the
+  // Utah State House card for a Lapoint reader whose front-page band named Scott
+  // Chew in the same session, off the same pdxRepsForMe() seat list, out of the
+  // same remembered district. The seat resolved; the gate un-named it.
+  //
+  // So the raw miss is JOINED, not trusted. window.PDX_PROFILE_ALIAS is this
+  // repo's standing assertion that the id on its left names the same officeholder
+  // as the id on its right — the table profile-evidence.js declares, person-file's
+  // canonId, PDXPersonLink's href and data-hygiene's _hyCanonId all already read,
+  // and that profile-alias.js puts on the lean documents in 2 KB. Read in reverse
+  // it answers exactly the question a key lookup cannot: which OTHER keys a row
+  // for this pid may be filed under. If one of them has a row, the row exists and
+  // this page holds the person.
+  //
+  // THIS IS NOT A SECOND SEAT-HOLDER TABLE AND IT NAMES NOBODY. The join maps id
+  // to id; every pid it can reach came from the seat list, every pair it walks is
+  // a ruling made somewhere else, and the direction is one-hop — a canonical id
+  // to the retired spellings of itself, never a chain. Where the table is absent
+  // the gate behaves exactly as it did before it: a raw lookup, failing open
+  // through _pdxRosterKeeps().
+  var _PDX_NO_ALIAS = [];
+  var _pdxAliasRev = null, _pdxAliasSrc = null;
+  function _pdxAliasKeys(pid) {
+    if (!pid) return _PDX_NO_ALIAS;
+    var t = null;
+    try { t = window.PDX_PROFILE_ALIAS; } catch (e) {}
+    if (!t || typeof t !== 'object') return _PDX_NO_ALIAS;
+    // Rebuilt only when the table itself is replaced, so a per-seat gate check
+    // stays a hash lookup however many times a repaint asks it.
+    if (t !== _pdxAliasSrc) {
+      _pdxAliasSrc = t;
+      _pdxAliasRev = {};
+      try {
+        for (var k in t) {
+          if (!Object.prototype.hasOwnProperty.call(t, k)) continue;
+          var v = t[k];
+          if (!v || v === k) continue;
+          v = String(v);
+          (_pdxAliasRev[v] = _pdxAliasRev[v] || []).push(k);
+        }
+      } catch (e2) { _pdxAliasRev = {}; }
+    }
+    return _pdxAliasRev[pid] || _PDX_NO_ALIAS;
+  }
+
+  function _pdxRosterRec(pid) {
+    if (!pid) return null;
+    var rec = _pdxRosterRaw(pid);
+    if (rec) return rec;
+    var keys = _pdxAliasKeys(pid);
+    for (var i = 0; i < keys.length; i++) {
+      rec = _pdxRosterRaw(keys[i]);
+      if (rec) return rec;
+    }
+    return null;
+  }
+
+  // PUBLISHED, BECAUSE THE NAME AND THE GATE MUST BE ONE READ. voice-room.js
+  // prints the sitting member's name on a document that has no cmp-data.js and no
+  // _pdxPersonById, so its only source for a display record is the same live index
+  // this gate keys — and if it keyed it rawly while the gate joined, the resolver
+  // would keep a pid the hallway could not name and the card would fall back to
+  // "The member who holds this seat is on file". One function, asked twice: is
+  // this pid still a person here, and what record is that person. No caller
+  // composes a label, and nothing here decides which pid holds a seat.
+  window.pdxRosterRec = function (pid) { return _pdxRosterRec(pid) || null; };
 
   function _pdxRosterSize() {
     try {
