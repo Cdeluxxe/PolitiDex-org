@@ -7507,7 +7507,51 @@
 //     /district/ut-sd-3 is untouched.
 //     MIGRATION COST: none. A warm device would otherwise keep a homepage whose
 //     location tap loads a map chunk that is no longer part of it.
-const CACHE_VERSION = 'v235';
+// v236 - SEARCH ON /find NO LONGER RELOADS /find.
+//     v235 moved the finder onto its own document and the search box stopped
+//     working the moment it got there. Tapping Search made the modal blink out
+//     and reopen empty: the typed address was gone, no geocode was ever issued,
+//     and 'Show boundaries' could sit on 'Loading...' forever with no fail line.
+//     ONE ROOT CAUSE, THREE SYMPTOMS. The controller read the location owner
+//     once, while it was being PARSED - 'var PDXF = window.PDXFinder'. On
+//     index.html that was safe, because voter-hub-location.js was a plain sync
+//     tag above it. On /find that file is deferred and the controller is an
+//     inline tag, so the read ran first and came back undefined. Opening the
+//     finder touches no PDXF, so nothing looked wrong until the first tap that
+//     used the network: PDXF.abort() threw on line one of the search, ahead of
+//     the busy state and the note, which is why the query was dropped and no
+//     lookup left the phone. The throw then escaped a <form onsubmit='...;
+//     return false'> before its 'return false' could be reached, so the browser
+//     ran the form's DEFAULT action and navigated to this same page - the blink
+//     was a real page load, and the 'blank picker' was the arrival boot doing
+//     its job over a fresh document. The same undefined read threw out of
+//     fetchGeo before loadAndShow had attached its .catch, which is the
+//     spinner that never cleared.
+//     THE OWNER IS NOW RESOLVED PER CALL, so parse order cannot matter again,
+//     and it is still the same owner: every arm delegates to the PDXFinder that
+//     voter-hub-location.js publishes. A SEARCH IS ALSO NO LONGER A
+//     SUBMISSION - the form is gone and the control is a type='button', with
+//     Enter wired explicitly - so no future throw in the search path can turn a
+//     keystroke into a navigation. What the form was carrying for free, a
+//     phone keyboard that shows an action key and a search landmark, is
+//     declared on the field instead of quietly lost with it. Both boundary call sites route a synchronous
+//     throw to the same fail line, which carries Try again, and the request is
+//     still issued in the same tick so the canvas in-flight guard still sees
+//     it. The arrival open is owed once per page load and takes a flag to
+//     prove it; the typed query survives a legitimate remount; a failed
+//     geocode keeps the modal up and says 'Couldn't find that address - try a
+//     street number', with the city/county selector still under it.
+//     WHY A CACHE_VERSION MOVE IS REQUIRED. '/find.html' is a precached shell
+//     document and it changed. A warm device would otherwise keep serving the
+//     copy whose Search button reloads the page.
+//     NO LOCATION KEY WAS RENAMED, COPIED OR MIGRATED. The record, PDX_LOC_KEY,
+//     _pdxLocWasChosen and pdxRepsForMe() are untouched, there is still exactly
+//     one resolver, and the layer URLs are the same absolute UGRC endpoints
+//     over the same keyless OSM basemap. No new boards, no /district/* splat,
+//     no equity copy, no score change, no alias entry, no money pill.
+//     BOARD_ROUTES is still one row and /district/ut-sd-3 is untouched.
+//     MIGRATION COST: none. Nothing stored changed shape or name.
+const CACHE_VERSION = 'v236';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

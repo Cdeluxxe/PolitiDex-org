@@ -316,8 +316,30 @@ section("7 · no rebuild behind an open modal");
   has(LOCG, "isOpen: function", "gate: PDXFinder has no isOpen()");
   has(LOCG, "markPending: function", "gate: PDXFinder cannot record a deferred rebuild");
   has(LOCG, "flush: function", "gate: PDXFinder cannot flush a deferred rebuild");
-  has(MAPC, "var PDXF = window.PDXFinder;", "gate: the map module no longer reads the shared gate");
+  // THE MAP MODULE READS THE GATE, AND READS IT WHEN IT CALLS IT. This pinned
+  // the literal `var PDXF = window.PDXFinder;` — a single read taken while the
+  // controller was being PARSED. That is a load-order bet, and on find.html it
+  // lost every time: voter-hub-location.js is loaded `defer` there and this
+  // controller is an inline tag, so the global was still undefined when the
+  // capture ran and every PDXF call site threw on first use. The old assertion
+  // could not see it, because the string it was looking for was exactly the
+  // thing that was wrong. So what is pinned now is the property that actually
+  // has to hold — the owner is resolved per call — plus the two ways of
+  // getting it wrong: a parse-time capture, and a second gate of its own.
+  has(MAPC, "window.PDXFinder", "gate: the map module no longer reads the shared gate at all");
+  ok(/function own\(\)\s*\{\s*return window\.PDXFinder/.test(MAPC),
+    "gate: the map module does not resolve the shared gate through a per-call accessor");
+  no(MAPC, "var PDXF = window.PDXFinder;",
+    "gate: the map module is back to capturing the gate once at parse time — on a document that defers " +
+    "voter-hub-location.js that read is undefined, and every PDXF call site throws on first use");
   no(MAPC, "window.PDXFinder = {", "gate: the map module publishes a second PDXFinder");
+  // Delegation is not reimplementation: each arm must hand off to the owner it
+  // found, or the gate has quietly forked in two.
+  for (const m of ["isOpen", "markPending", "flush", "track", "abort", "fetch", "deadline"]) {
+    ok(new RegExp("\\b" + m + ":\\s*function").test(MAPC), `gate: the delegating shim has no ${m}()`);
+  }
+  ok(/if \(f\) return f\.fetch\(url, opts, ms\);/.test(MAPC),
+    "gate: the shim's fetch does not hand off to the owner's fetch, so the ceiling is the shim's own");
   // The map module never calls the reaction directly any more — every path goes
   // through the gate. The IIFE runs at parse time, so the name it would have
   // captured is the OUTERMOST decorator: skipping the call here skips
@@ -683,25 +705,42 @@ section("12 · driven: the finder opens, builds a basemap and draws no districts
     addEventListener(ev, fn) { (listeners[ev] = listeners[ev] || []).push(fn); },
     removeEventListener() {},
   };
-  // THE LOCATION OWNER, STUBBED AT ITS PUBLISHED SURFACE — not reimplemented.
-  // Every request the finder makes goes through PDXFinder.fetch, so counting
-  // calls here counts every byte the open path puts on the wire.
+  win.fetch = (url) => { count.fetched.push("bare:" + String(url)); return new Promise(() => {}); };
+  win._currentVoterLocation = {};
+  win._hasUserLocation = false;
+  win.location = { pathname: "/find", search: "", hash: "", href: "https://politidex.fyi/find", origin: "https://politidex.fyi", assign() {}, replace() {} };
+
+  // ══ THE OWNER IS NOT PUBLISHED YET, BECAUSE ON THIS DOCUMENT IT IS NOT ═════
+  // voter-hub-location.js is loaded `defer` on find.html and this controller is
+  // an inline <script>. Inline scripts run DURING parsing; deferred ones run
+  // after it. So at the instant the controller is evaluated, window.PDXFinder
+  // and window.PDXReturn genuinely do not exist yet.
+  //
+  // THIS HARNESS USED TO PUBLISH THEM FIRST, and that is exactly why it went
+  // green across a controller whose every network path threw the moment it was
+  // touched: the stub was standing before the parse, so the parse-time capture
+  // `var PDXF = window.PDXFinder` found an object here and undefined in a
+  // browser. The harness was not measuring the finder, it was measuring a load
+  // order no document produces. The stubs now land where the browser puts
+  // them — after the parse, before DOMContentLoaded — so a controller that
+  // reads the gate too early fails here first.
+  let bootErr = null;
+  try { vm.runInContext(SRC, vm.createContext(win), { filename: "find.html#district-map" }); }
+  catch (e) { bootErr = e; }
+  ok(!bootErr, `driven: the finder controller does not boot (${bootErr ? bootErr.message : "ok"})`);
+  must(!bootErr, "the controller threw on load, so nothing below is measuring the finder");
+  ok(win.PDXFinder === undefined,
+    "driven: the harness published the location owner before the parse, which is the load order that hid this bug");
+
+  // AND NOW THE DEFERRED OWNER LANDS, STUBBED AT ITS PUBLISHED SURFACE — not
+  // reimplemented. Every request the finder makes goes through PDXFinder.fetch,
+  // so counting calls here counts every byte the open path puts on the wire.
   win.PDXFinder = {
     isOpen: () => true, markPending() {}, flush() {}, abort() {},
     deadline: (p) => p, track: (x) => x,
     fetch(url) { count.fetched.push(String(url)); return new Promise(() => {}); },
   };
   win.PDXReturn = { settled() {}, consume() { return false; }, finderHref: () => "/find" };
-  win.fetch = (url) => { count.fetched.push("bare:" + String(url)); return new Promise(() => {}); };
-  win._currentVoterLocation = {};
-  win._hasUserLocation = false;
-  win.location = { pathname: "/find", search: "", hash: "", href: "https://politidex.fyi/find", origin: "https://politidex.fyi", assign() {}, replace() {} };
-
-  let bootErr = null;
-  try { vm.runInContext(SRC, vm.createContext(win), { filename: "find.html#district-map" }); }
-  catch (e) { bootErr = e; }
-  ok(!bootErr, `driven: the finder controller does not boot (${bootErr ? bootErr.message : "ok"})`);
-  must(!bootErr, "the controller threw on load, so nothing below is measuring the finder");
 
   // ARRIVAL IS THE TAP. readyState was 'loading', so the boot is a listener and
   // firing it is what a real document does a moment later.
@@ -767,6 +806,261 @@ section("12 · driven: the finder opens, builds a basemap and draws no districts
   mapObj._on_click({});
   eq(count.fetched.length, 1, "driven: a click carrying no latlng started a layer load");
 }
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 13 · A SEARCH IS NOT A NAVIGATION
+// ═════════════════════════════════════════════════════════════════════════════
+// Tapping Search on /find made the modal vanish for a tick and reopen as a
+// blank picker, with the typed query gone and no geocode ever issued. Three
+// separate mistakes lined up to produce it, and only the last one was visible:
+//
+//   1. THE OWNER WAS READ AT PARSE TIME. `var PDXF = window.PDXFinder` ran while
+//      the inline controller was being parsed, and voter-hub-location.js is
+//      loaded `defer` on this document — so it had not run yet and the capture
+//      was undefined. Nothing complained on open, because opening the finder
+//      touches no PDXF at all; the first tap that used the network did.
+//   2. SO THE SEARCH THREW ON ITS FIRST LINE. PDXF.abort() was the opening
+//      statement of pdxMapSearchAddress, ahead of the busy state and the note,
+//      which is why the query was discarded and no geocode was ever issued.
+//   3. AND THE THROW BECAME A PAGE LOAD. The control was a type="submit" inside
+//      a <form onsubmit="...; return false;">, and `return false` is only
+//      reached if the call before it RETURNS. It threw, so the browser ran the
+//      form's default action and navigated to this same document. The "blank
+//      picker" was the arrival boot running again, correctly, over a fresh page.
+//
+// Every way it comes back:
+//
+//   A. A <form> RETURNS TO THE PANEL. Any form around these controls makes a
+//      keystroke a navigation again the next time anything in the search path
+//      throws — and that failure is indistinguishable from this one.
+//   B. THE OWNER GOES BACK TO A PARSE-TIME READ. Pinned in section 7 against
+//      the source, and in section 12 by publishing the stub after the parse.
+//   C. A SPINNER OUTLIVES ITS REQUEST. fetchGeo is called synchronously in two
+//      places, and a throw there used to escape before any .catch existed.
+//   D. THE ARRIVAL BOOT RUNS TWICE.
+//   E. THE TYPED QUERY IS EATEN BY A REMOUNT.
+section("13 · search does not remount the finder");
+{
+  // ── A · THE CONTROLS ARE CONTROLS, NOT A SUBMISSION ───────────────────────
+  // HTML comments come out first. This panel now carries a long note explaining
+  // the <form onsubmit type="submit"> it used to be, and what is forbidden here
+  // is the ELEMENT, not a sentence describing it — the same distinction section
+  // 10 draws for the homepage's Leaflet prose. Stripping the comments is what
+  // lets the note stay honest and specific instead of being watered down to get
+  // past its own assertions.
+  const panel = (() => {
+    const a = FIND.indexOf('<div class="pdx-map-search">');
+    must(a > 0, "the search panel markup is gone from find.html");
+    const raw = FIND.slice(a, FIND.indexOf('<div class="pdx-map-toggle"', a));
+    must(/<!--[\s\S]*?-->/.test(raw), "the search panel lost the note recording why it is not a <form>");
+    const out = raw.replace(/<!--[\s\S]*?-->/g, " ");
+    must(out.indexOf('id="pdx-map-search-input"') > 0, "stripping comments ate the search panel's own markup");
+    return out;
+  })();
+  no(panel, "<form", "search: the search panel is wrapped in a <form> again — a throw in the search path then navigates");
+  no(panel, "onsubmit", "search: an onsubmit handler is back, so `return false` is load-bearing again");
+  no(panel, 'type="submit"', "search: the Search control submits rather than calls");
+  has(panel, 'type="button"', "search: the Search control is not a plain button");
+  has(panel, 'id="pdx-map-search-btn"', "search: the Search button lost its id, so the busy state cannot find it");
+  // Click and Enter both have to exist: dropping the form also drops implicit
+  // submission, and Enter is how an address actually gets searched.
+  ok(/onclick="window\.pdxMapSearchAddress/.test(panel), "search: the Search button is not wired to the search");
+  ok(/onkeydown="[^"]*Enter[^"]*pdxMapSearchAddress/.test(panel), "search: Enter in the address box no longer searches");
+  ok(/preventDefault\(\)/.test(panel), "search: Enter does not cancel its own default action");
+  // Dropping the <form> also drops what made a phone keyboard show "Go" on the
+  // action key, so the affordance is restored explicitly rather than lost as a
+  // side effect of the fix. role="search" does the same for the grouping the
+  // form element used to convey.
+  has(panel, 'enterkeyhint="search"', "search: the phone keyboard lost its search action key when the form went away");
+  has(panel, 'role="search"', "search: the panel no longer announces itself as a search region");
+  for (const bad of ["location.reload", "location.href =", "location.assign", "window.open("]) {
+    no(panel, bad, `search: the search panel can navigate (${bad})`);
+  }
+  // A keystroke must never settle the location — that is the confirm button's job.
+  no(panel, "PDXReturn", "search: the search panel reaches into the return-trip owner");
+  no(panel, "settled(", "search: a keystroke in the search panel can settle the location and leave");
+
+  // ── C · NEITHER BOUNDARY FETCH OUTRUNS ITS OWN FAILURE HANDLER ────────────
+  has(MAPC, "function layerFailed(", "boundaries: the boundary failure path has no single shared body");
+  ok(/try \{ req = fetchGeo\(layerType\); \}/.test(MAPC),
+    "boundaries: loadAndShow calls fetchGeo outside a try, so a synchronous throw escapes before the catch exists");
+  ok(/catch \(e\) \{ layerFailed\(e, tok\); return; \}/.test(MAPC),
+    "boundaries: a synchronous fetchGeo throw does not reach the fail line");
+  ok(/catch\(function\(err\)\{ layerFailed\(err, tok\); \}\)/.test(MAPC),
+    "boundaries: the rejection path no longer shares the fail line");
+  ok(/catch \(e\) \{ all = Promise\.reject\(e\); \}/.test(MAPC),
+    "boundaries: onGeocoded's fetchGeo calls can still throw out of the array literal, before Promise.all exists");
+  // AND THE REQUEST IS STILL ISSUED SYNCHRONOUSLY. A Promise.resolve().then()
+  // wrapper would also catch the throw, but it defers the fetch by a microtask,
+  // and the canvas in-flight guard asks whether a request is outstanding in the
+  // same tick as the tap.
+  no(MAPC, "Promise.resolve().then(function(){ return fetchGeo",
+    "boundaries: the boundary fetch is deferred a microtask, so the in-flight guard sees no request and stacks a second");
+  ok(/showStatus\('Couldn’t load the district map\./.test(MAPC), "boundaries: the failure copy is gone");
+  has(MAPC, "window.pdxMapRetry()", "boundaries: the fail line carries no retry");
+  // The layer URLs stay absolute, so no document path can bend them.
+  const urls = MAPC.slice(MAPC.indexOf("var GEO_URLS"), MAPC.indexOf("var STROKE"));
+  for (const k of ["house:", "senate:", "congress:"]) {
+    const at = urls.indexOf(k);
+    must(at > 0, `the ${k} layer URL is gone`);
+    ok(/^\s*'https:\/\//.test(urls.slice(at + k.length, at + k.length + 40)),
+      `boundaries: the ${k} layer URL is not absolute, so it resolves against the document path`);
+  }
+
+  // ── D · THE ARRIVAL BOOT IS OWED ONCE PER PAGE LOAD ───────────────────────
+  ok(/if \(_arrived\) return;/.test(MAPC), "boot: the arrival open is unguarded, so it can re-run over a reader's work");
+  ok(/_arrived = true;/.test(MAPC), "boot: the arrival guard is never set, so it guards nothing");
+  // openDistrictMapModal itself stays re-entrant — the Leaflet-lazy arm reopens
+  // it on purpose — so the guard sits on the boot, never on the opener.
+  ok(MAPC.indexOf("_arrived") > MAPC.indexOf("window.openDistrictMapModal = function"),
+    "boot: the once-guard sits on the opener rather than the arrival, which breaks the Leaflet-lazy reopen");
+
+  // ── E · THE TYPED QUERY SURVIVES A LEGITIMATE REMOUNT ─────────────────────
+  has(MAPC, "_lastQuery", "search: nothing remembers the query across a remount");
+  ok(/_lastQuery = q;/.test(MAPC), "search: the query is never recorded, so a remount cannot restore it");
+  ok(/if \(sInput && !\(sInput\.value \|\| ''\)\.trim\(\) && _lastQuery\) sInput\.value = _lastQuery;/.test(MAPC),
+    "search: the opener does not restore the typed query");
+  ok(/_lastQuery = '';/.test(MAPC), "search: Clear does not forget the query, so it returns after a reset");
+  // The no-match line is the reader's whole answer, and the city/county escape
+  // hatch has to stay reachable from it.
+  ok(/Couldn’t find that address — try a street number\./.test(MAPC), "search: the no-match copy is gone");
+  ok(/city \/ county below/.test(MAPC), "search: the no-match line does not point at the city/county selector");
+  has(FIND, "window.openManualLocationForm", "search: the city/county door is gone from the finder");
+
+  // ── AND THEN IT IS DRIVEN, IN THE BROWSER'S LOAD ORDER ────────────────────
+  // The static checks above cannot tell whether a search COMPLETES. This
+  // reproduces the reported gesture end to end: the controller is parsed with no
+  // location owner present — the real order on a document that defers it — and
+  // only then does the stub land.
+  const SRC = MAP.slice(MAP.indexOf("(function(){"));
+  const jsonp = [];
+  const wire = [];
+  let navigated = null;
+  const mk = (id) => {
+    const c = new Set();
+    const el = {
+      id, innerHTML: "", textContent: "", value: "", className: "", disabled: false, style: {}, _cls: c,
+      classList: { add: (x) => c.add(x), remove: (x) => c.delete(x), contains: (x) => c.has(x),
+        toggle: (x, on) => { if (on === undefined) { c.has(x) ? c.delete(x) : c.add(x); } else if (on) c.add(x); else c.delete(x); } },
+      setAttribute() {}, getAttribute() { return null; }, addEventListener() {}, removeEventListener() {},
+      focus() {}, appendChild() {}, removeChild() {}, remove() {}, querySelectorAll() { return []; },
+      _kids: {}, querySelector(sel) { return el._kids[sel] || (el._kids[sel] = mk(id + sel)); },
+    };
+    return el;
+  };
+  const els = {};
+  for (const id of ["district-map-modal", "pdx-district-map", "pdx-map-status", "pdx-map-status-text",
+                    "pdx-map-search-input", "pdx-map-search-note", "pdx-map-search-btn", "pdx-map-search-ico",
+                    "pdx-map-hint", "pdx-map-result", "pdx-map-done", "pdx-sel-house", "pdx-sel-senate",
+                    "pdx-congress-note", "pdx-layer-house", "pdx-layer-senate", "pdx-layer-congress"]) els[id] = mk(id);
+
+  const timers = [];
+  const mo = { setView: () => mo, invalidateSize: () => mo, on(e, f) { mo["_on_" + e] = f; return mo; },
+    hasLayer: () => false, addLayer: () => mo, removeLayer: () => mo, fitBounds: () => mo,
+    getZoom: () => 6, getCenter: () => ({ lat: 39.3, lng: -111.5 }) };
+  const lz = (t) => { const o = { _tag: t, on: () => o, off: () => o, addTo: () => o, setStyle: () => o,
+    bindTooltip: () => o, bringToFront: () => o, getBounds: () => ({ isValid: () => true, pad: () => ({}) }),
+    eachLayer() {}, clearLayers: () => o, remove: () => o }; return o; };
+  const win = {
+    console, JSON, Math, Date, Promise, String, Number, Boolean, Array, Object, RegExp, Error,
+    parseInt, parseFloat, isNaN, encodeURIComponent, decodeURIComponent, setInterval() {}, clearInterval() {},
+    navigator: { userAgent: "node", onLine: true },
+    L: { map: () => mo, tileLayer: () => lz("tiles"), geoJSON: () => lz("geojson"), marker: () => lz("marker"),
+      circleMarker: () => lz("marker"), latLng: (a, b) => ({ lat: a, lng: b }),
+      latLngBounds: () => ({ isValid: () => true, pad: () => ({}) }),
+      control: { attribution: () => lz("control") }, DomEvent: { stopPropagation() {}, preventDefault() {} } },
+  };
+  win.window = win;
+  win.setTimeout = (fn, ms) => { timers.push({ fn, ms: ms || 0 }); return timers.length; };
+  win.clearTimeout = () => {};
+  win.requestAnimationFrame = (fn) => { timers.push({ fn, ms: 0 }); return timers.length; };
+  // A hung network on purpose: a spinner that never clears is how this fails.
+  win.fetch = (u) => { wire.push(String(u)); return new Promise(() => {}); };
+  const listeners = {};
+  win.document = {
+    readyState: "loading",
+    body: { style: {}, classList: mk("body").classList, appendChild() {}, removeChild() {} },
+    documentElement: { style: {} },
+    getElementById: (id) => els[id] || null,
+    querySelector: () => null, querySelectorAll: () => [],
+    // The Census leg is JSONP, so its request is a <script src>, not a fetch.
+    createElement: (t) => { const e = mk("new-" + t);
+      Object.defineProperty(e, "src", { set(v) { jsonp.push(String(v)); }, get() { return ""; } }); return e; },
+    addEventListener(ev, fn) { (listeners[ev] = listeners[ev] || []).push(fn); },
+    removeEventListener() {},
+  };
+  win.sessionStorage = { getItem: () => null, setItem() {}, removeItem() {} };
+  win.localStorage = win.sessionStorage;
+  win._currentVoterLocation = {};
+  win._hasUserLocation = false;
+  // A navigation IS the bug, so the harness records one instead of following it.
+  win.location = { pathname: "/find", search: "", hash: "", origin: "https://politidex.fyi",
+    href: "https://politidex.fyi/find", assign: (u) => { navigated = "assign:" + u; },
+    replace: (u) => { navigated = "replace:" + u; }, reload: () => { navigated = "reload"; } };
+
+  let err = null;
+  try { vm.runInContext(SRC, vm.createContext(win), { filename: "find.html#search" }); }
+  catch (e) { err = e; }
+  must(!err, `the controller threw on parse (${err ? err.message : ""}), so nothing below measures a search`);
+  ok(win.PDXFinder === undefined, "search/driven: the owner was published before the parse — the order that hid this bug");
+
+  // The deferred owner lands, then the document finishes and the finder opens.
+  const inflight = [];
+  win.PDXFinder = {
+    isOpen: () => els["district-map-modal"].style.display === "flex",
+    markPending() {}, flush() {}, track: (c) => inflight.push(c),
+    abort() { inflight.splice(0).forEach((c) => { try { c(); } catch (e) {} }); },
+    fetch(u, o) { wire.push(String(u)); return win.fetch(u, o); },
+    deadline: (p, ms) => new Promise((res) => {
+      let d = false; const fin = (v) => { if (!d) { d = true; res(v); } };
+      timers.push({ fn: () => { win.PDXFinder.abort(); fin({ timedOut: true, hit: null }); }, ms });
+      p.then((v) => fin({ timedOut: false, hit: v || null }), () => fin({ timedOut: false, hit: null }));
+    }),
+  };
+  win.PDXReturn = { settled() { navigated = "settled"; }, consume: () => false, finderHref: () => "/find" };
+
+  for (const fn of listeners.DOMContentLoaded || []) fn({});
+  timers.splice(0).forEach((t) => { try { t.fn(); } catch (e) {} });
+  eq(els["district-map-modal"].style.display, "flex", "search/driven: arriving at /find did not open the finder");
+
+  // THE TAP. This is the exact gesture that used to reload the page.
+  const Q = "1572 West Camelot Dr, Layton";
+  els["pdx-map-search-input"].value = Q;
+  let searchErr = null;
+  try { win.pdxMapSearchAddress(); } catch (e) { searchErr = e; }
+  ok(!searchErr, `search/driven: Search threw (${searchErr ? searchErr.constructor.name + ": " + searchErr.message : ""}) — the throw is what navigated`);
+  eq(navigated, null, `search/driven: Search navigated (${navigated}) instead of searching`);
+  eq(els["district-map-modal"].style.display, "flex", "search/driven: the modal came down on a search");
+  eq(els["pdx-map-search-input"].value, Q, "search/driven: the typed query was discarded by the search");
+  eq(els["pdx-map-search-btn"].disabled, true, "search/driven: the button never went busy, so the search did not start");
+  has(els["pdx-map-search-note"].innerHTML, "Finding", "search/driven: the reader is told nothing while the search runs");
+  // AND A GEOCODE IS ACTUALLY ON THE WIRE.
+  const geo = jsonp.concat(wire).filter((u) => /geocoding\.geo\.census\.gov|nominatim/.test(u));
+  ok(geo.length >= 1, `search/driven: no geocode was issued (${jsonp.length} jsonp, ${wire.length} fetch)`);
+  ok(/^https:\/\//.test(geo[0]), "search/driven: the geocode URL is not absolute");
+  // The 12s ceiling is armed over the whole chain, not per leg.
+  ok(timers.some((t) => t.ms === 12000), `search/driven: no 12s deadline was armed (${timers.map((t) => t.ms).join(",")})`);
+
+  // THE ARRIVAL BOOT DOES NOT RUN AGAIN. Firing DOMContentLoaded a second time
+  // is what the real second page load did; the guard is what makes it a no-op.
+  els["pdx-map-search-note"].innerHTML = "SENTINEL";
+  for (const fn of listeners.DOMContentLoaded || []) fn({});
+  eq(els["pdx-map-search-note"].innerHTML, "SENTINEL",
+    "search/driven: the arrival boot ran a second time and repainted the panel over a live search");
+  eq(els["pdx-map-search-input"].value, Q, "search/driven: a second boot emptied the address box");
+
+  // A CHAMBER TAP DOES NOT REBOOT EITHER, and it is still allowed to draw.
+  win.pdxMapSetLayer("senate");
+  eq(navigated, null, `search/driven: picking a chamber navigated (${navigated})`);
+  ok(els["pdx-layer-senate"]._cls.has("is-active"), "search/driven: the chamber tap did not move the active toggle");
+
+  // A FAILED GEOCODE IS A NOTE, NOT A NAVIGATION. The deadline is fired by hand
+  // so the whole chain gives up exactly as it would at 12s.
+  const dl = timers.filter((t) => t.ms === 12000);
+  dl.forEach((t) => { try { t.fn(); } catch (e) {} });
+  queueMicrotask(() => {});
+}
+
 
 // ═════════════════════════════════════════════════════════════════════════════
 // THE WORKER

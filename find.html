@@ -966,13 +966,33 @@
             </div>
           </div>
           <div class="pdx-map-search">
-            <form class="pdx-map-search-field" onsubmit="window.pdxMapSearchAddress(); return false;">
+            <!-- ══ NO <form> HERE, AND THE BUTTON IS type="button" ══════════════
+                 This was a <form onsubmit="window.pdxMapSearchAddress(); return
+                 false;"> with a type="submit" button, and `return false` is only
+                 ever reached if the call before it RETURNS. That call threw on
+                 its first line — see the PDXF note in the controller — so the
+                 handler never produced a value, the browser fell through to the
+                 form's default action, and Search NAVIGATED to this same
+                 document. That is the whole of the reported bug: the modal
+                 blinked out, a real page load re-ran the arrival boot over an
+                 empty input, the typed query went with it, and no geocode was
+                 ever issued.
+                 A SEARCH IS NOT A NAVIGATION. There is no form to submit now, so
+                 no throw anywhere in the search path can turn a keystroke into a
+                 page load again — the worst a future error can do is leave a
+                 note unwritten on a modal that is still standing. Enter is wired
+                 explicitly because dropping the form also drops implicit
+                 submission, and Enter is how an address gets searched. -->
+            <div class="pdx-map-search-field" role="search">
               <input id="pdx-map-search-input" class="pdx-map-search-input" type="text" inputmode="search" autocomplete="off"
-                     placeholder="Search your address or city, e.g. 123 Main St, Layton" aria-label="Search your address to find your districts" />
-              <button type="submit" id="pdx-map-search-btn" class="pdx-map-search-btn" aria-label="Search address">
+                     enterkeyhint="search"
+                     placeholder="Search your address or city, e.g. 123 Main St, Layton" aria-label="Search your address to find your districts"
+                     onkeydown="if(event.key==='Enter'){event.preventDefault();window.pdxMapSearchAddress&&window.pdxMapSearchAddress();}" />
+              <button type="button" id="pdx-map-search-btn" class="pdx-map-search-btn" aria-label="Search address"
+                      onclick="window.pdxMapSearchAddress&&window.pdxMapSearchAddress()">
                 <span id="pdx-map-search-ico" aria-hidden="true">🔍</span><span class="pdx-map-search-btn-label">Search</span>
               </button>
-            </form>
+            </div>
             <p id="pdx-map-search-note" class="pdx-map-search-note">Type an address to jump straight to your House &amp; Senate districts.</p>
             <!-- Post-search result banner: the searched address + the district for the
                  active toggle + a one-tap commit button. Hidden until a search lands. -->
@@ -1084,14 +1104,78 @@
     var _tiles = null, _tileErrors = 0;                // basemap layer (droppable)
     var _loadingLayer = false;                         // a boundary fetch is on the wire
     var _layerSeq = 0, _searchSeq = 0;                 // retire work the reader moved past
+    var _lastQuery = '';                               // survives a legitimate remount
     var SEARCH_DEADLINE_MS = 12000;                    // one ceiling over a whole search
 
     // THE FINDER'S GATE AND ITS NETWORK MANNERS LIVE IN voter-hub-location.js,
-    // which owns the location record and loads before this block: PDXF.isOpen()
-    // is why a pick behind the modal does not rebuild the front page, and
-    // PDXF.fetch / .deadline / .track / .abort are why nothing the finder starts
-    // outlives it. Read the reasoning there; the call sites are below.
-    var PDXF = window.PDXFinder;
+    // which owns the location record: PDXF.isOpen() is why a pick behind the
+    // modal does not rebuild the front page, and PDXF.fetch / .deadline /
+    // .track / .abort are why nothing the finder starts outlives it. Read the
+    // reasoning there; the call sites are below.
+    //
+    // ══ AND IT IS READ WHEN IT IS CALLED, NOT WHEN THIS BLOCK IS PARSED ═════
+    // This was `var PDXF = window.PDXFinder;` — one read, at parse time — and on
+    // THIS document that read always came back undefined. voter-hub-location.js
+    // is loaded `defer` (see the tag in <head>); this controller is an inline
+    // <script>; inline scripts run DURING parsing and deferred ones run after
+    // it. The old comment's "loads before this block" was true on index.html,
+    // where that file was a plain sync tag ABOVE the controller. It stopped
+    // being true the moment the controller moved to a document that defers it,
+    // and nothing said so, because opening the finder touches no PDXF at all:
+    //
+    //   Search          → PDXF.abort() threw on line one of pdxMapSearchAddress,
+    //                     before setSearchBusy and before the note was written,
+    //                     so the query was discarded and no geocode was issued.
+    //                     The throw escaped the <form>'s onsubmit before its
+    //                     `return false`, so the browser ran the default action
+    //                     and reloaded the page. See the markup note above.
+    //   Show boundaries → showStatus('Loading…') painted, then PDXF.fetch threw
+    //                     out of fetchGeo BEFORE loadAndShow could attach its
+    //                     .catch, so nothing was left to clear the spinner. That
+    //                     is the hang with no fail line.
+    //
+    // The shim below resolves the owner on EVERY call, so parse order cannot
+    // matter again. It is not a second gate: whenever voter-hub-location.js is
+    // present — which, being `defer`, it is long before any of these can be
+    // reached — every method here IS that file's method, and the location
+    // record still has exactly one owner. The fallback arms cover only the case
+    // where that file never loaded at all, and they exist to DEGRADE rather
+    // than throw: a request still gets a ceiling, and a caller still gets an
+    // answer it can put on the screen instead of a spinner that never stops.
+    var PDXF = (function(){
+      function own(){ return window.PDXFinder || null; }
+      return {
+        isOpen: function(){
+          var f = own();
+          if (f) return f.isOpen();
+          var m = document.getElementById('district-map-modal');
+          return !!(m && m.style.display === 'flex');
+        },
+        markPending: function(){ var f = own(); if (f) f.markPending(); },
+        flush:       function(){ var f = own(); if (f) f.flush(); },
+        track:       function(c){ var f = own(); if (f) f.track(c); },
+        abort:       function(){ var f = own(); if (f) f.abort(); },
+        fetch: function(url, opts, ms){
+          var f = own();
+          if (f) return f.fetch(url, opts, ms);
+          return fetch(url, opts || {});
+        },
+        // The ceiling matters most in the fallback: without it a search on a
+        // document whose owner failed to load would sit on "Finding…" forever,
+        // which is the exact failure this whole block exists to remove.
+        deadline: function(pr, ms){
+          var f = own();
+          if (f) return f.deadline(pr, ms);
+          return new Promise(function(resolve){
+            var done = false, t;
+            function fin(v){ if (done) return; done = true; clearTimeout(t); resolve(v); }
+            t = setTimeout(function(){ fin({ timedOut: true, hit: null }); }, ms);
+            pr.then(function(v){ fin({ timedOut: false, hit: v || null }); },
+                    function(){ fin({ timedOut: false, hit: null }); });
+          });
+        }
+      };
+    })();
     function reactToLocation(){
       if (PDXF.isOpen()) { PDXF.markPending(); return; }
       if (typeof window._triggerLocationReaction === 'function') window._triggerLocationReaction();
@@ -1340,7 +1424,25 @@
       var tok = ++_layerSeq;
       _loadingLayer = true;
       showStatus('Loading ' + LABEL[layerType] + ' boundaries…', true);
-      fetchGeo(layerType).then(function(){
+      // ══ A SYNCHRONOUS THROW LANDS ON THE FAIL LINE, NOT PAST IT ═══════════
+      // fetchGeo() is called on the line below and its result is handled here.
+      // When PDXF was undefined that call threw SYNCHRONOUSLY, which escaped
+      // loadAndShow entirely — before the .catch at the foot of this chain had
+      // been attached to anything. "Loading…" was already on the status panel
+      // and nothing was left alive to clear it: the infinite spinner with no
+      // fail line. The try/catch below sends that throw to the SAME handler the
+      // rejection path uses, so this function now has exactly two visible
+      // outcomes — a drawn layer, or a fail line carrying Try again.
+      //
+      // AND IT IS A try/catch RATHER THAN A Promise.resolve().then() WRAPPER,
+      // because the wrapper would defer the request by a microtask. The fetch
+      // must still be on the wire by the time this call returns: a caller that
+      // asks whether the tap issued a request — the in-flight guard on the
+      // canvas, and the suite that drives it — asks synchronously.
+      var req;
+      try { req = fetchGeo(layerType); }
+      catch (e) { layerFailed(e, tok); return; }
+      req.then(function(){
         _loadingLayer = false;
         if (tok !== _layerSeq) return;   // the reader closed the finder, or moved on
         hideStatus();
@@ -1357,13 +1459,18 @@
           }
         }
         setTimeout(function(){ if (_map) _map.invalidateSize(); }, 60);
-      }).catch(function(err){
-        _loadingLayer = false;
-        if (tok !== _layerSeq) return;
-        showStatus('Couldn’t load the district map.<br><span style="font-size:0.78rem;color:#8aa3c8;">' +
-          (err && err.message ? err.message : 'Network error') + '</span><br>' +
-          '<button type="button" class="pdx-map-retry" onclick="window.pdxMapRetry()">Try again</button>', false);
-      });
+      }).catch(function(err){ layerFailed(err, tok); });
+    }
+
+    // The one place a boundary load is allowed to end badly — shared by the
+    // rejection path and by a synchronous throw out of fetchGeo, so neither can
+    // leave a spinner standing. A stale token still paints nothing.
+    function layerFailed(err, tok){
+      _loadingLayer = false;
+      if (tok !== _layerSeq) return;
+      showStatus('Couldn’t load the district map.<br><span style="font-size:0.78rem;color:#8aa3c8;">' +
+        (err && err.message ? err.message : 'Network error') + '</span><br>' +
+        '<button type="button" class="pdx-map-retry" onclick="window.pdxMapRetry()">Try again</button>', false);
     }
 
     // ── Selection ────────────────────────────────────────────────────────────
@@ -1837,7 +1944,17 @@
       // or the Census "Current" vintage (which still serves the prior 2022–2026 map
       // — e.g. it reports Layton as District 1, when the 2026 map places it in 2).
       // A congress-layer failure must not block House/Senate, so swallow its error.
-      Promise.all([fetchGeo('house'), fetchGeo('senate'), fetchGeo('congress').catch(function(){ return null; }), enrich]).then(function(res){
+      // Same hazard as loadAndShow, and easier to miss here: building this array
+      // CALLS fetchGeo three times, so a synchronous throw fired while the
+      // argument was still being evaluated — before Promise.all existed, let
+      // alone its .catch — stranding the reader on "Loading Utah district
+      // boundaries…". Converting it to a rejection hands it to the .catch at
+      // the foot of this chain, which already writes a fail line.
+      var all;
+      try {
+        all = Promise.all([fetchGeo('house'), fetchGeo('senate'), fetchGeo('congress').catch(function(){ return null; }), enrich]);
+      } catch (e) { all = Promise.reject(e); }
+      all.then(function(res){
         if (stale(tok)) return;
         hideStatus();
         var extra = res[3];
@@ -1964,6 +2081,10 @@
       if (!input) return;
       var q = (input.value || '').trim();
       if (q.length < 3) { setSearchNote('Enter a street address, city, or ZIP to search.', 'is-error'); return; }
+      // Held so that a remount of this panel — the Leaflet-lazy reopen below is
+      // the legitimate one — restores what the reader typed instead of clearing
+      // it. pdxMapClearSelection() is the one place that deliberately drops it.
+      _lastQuery = q;
       // A SECOND SEARCH REPLACES THE FIRST. This used to return early while busy,
       // so a reader who fixed a typo was still waiting on the typo.
       var tok = ++_searchSeq;
@@ -1978,8 +2099,15 @@
           return;
         }
         if (!res.hit) {
+          // A FAILED LOOKUP IS A NOTE. The modal stays standing, the typed query
+          // stays in the input, and the city / county selector at the foot of
+          // this panel stays exactly where it was — it is the escape hatch for a
+          // reader whose address no geocoder can resolve, and it is the reason
+          // this copy points down at it rather than dead-ending.
           setSearchBusy(false);
-          setSearchNote('No match found. Add a city or ZIP (e.g. “Lapoint, UT 84039”) and try again.', 'is-error');
+          setSearchNote('Couldn’t find that address — try a street number.' +
+            '<br><span style="font-size:0.78rem;color:#8aa3c8;">A city or ZIP works too ' +
+            '(e.g. “Lapoint, UT 84039”), or pick by city / county below.</span>', 'is-error');
           return;
         }
         onGeocoded(res.hit, tok);
@@ -2076,6 +2204,7 @@
       setSearchNote('Type an address to jump straight to your House &amp; Senate districts.');
       var input = document.getElementById('pdx-map-search-input');
       if (input) input.value = '';
+      _lastQuery = '';   // Clear means clear: this is the one door that forgets it.
       // Drop the map flag from the saved location (manual entry remains intact).
       var loc = window._currentVoterLocation || {};
       loc.mapSelected = false; loc.stateHouseDistrict = ''; loc.stateSenateDistrict = '';
@@ -2117,9 +2246,19 @@
       modal.style.display = 'flex';
       document.body.style.overflow = 'hidden';
       updateSelectionUI();
-      setSearchNote(_selected.house || _selected.senate
-        ? 'Search a new address, or tap the map to adjust your districts.'
-        : 'Type an address to jump straight to your House &amp; Senate districts.');
+      // KEEP WHAT THE READER TYPED ACROSS A REMOUNT. This function can legitimately
+      // run twice in one page load — the Leaflet-lazy arm above reopens the modal
+      // once the library lands — and the second pass must not hand back an empty
+      // box. Restoring only when the input is empty leaves a reader who is mid-edit
+      // alone, and the generic prompt is held back while a query is standing so it
+      // cannot overwrite the "couldn’t find that address" line they are reading.
+      var sInput = document.getElementById('pdx-map-search-input');
+      if (sInput && !(sInput.value || '').trim() && _lastQuery) sInput.value = _lastQuery;
+      if (!_lastQuery) {
+        setSearchNote(_selected.house || _selected.senate
+          ? 'Search a new address, or tap the map to adjust your districts.'
+          : 'Type an address to jump straight to your House &amp; Senate districts.');
+      }
 
       // Address search is the primary, most accurate path — focus it on open so the
       // voter can start typing immediately.
@@ -2175,7 +2314,25 @@
     // the reader asks for one. That is the whole reason this page exists, and
     // opening it automatically must not be the thing that quietly re-arms the
     // 75-polygon paint — see promptForLayer() above.
+    // AND IT RUNS ONCE PER PAGE LOAD. The arrival open is a response to the
+    // navigation that produced this document, so it is owed exactly once. The
+    // flag is not defensive bookkeeping against the bug above — that bug is
+    // gone, because Search no longer navigates and therefore no longer produces
+    // the second page load this used to boot on top of. It is here so that
+    // anything reached later by a tap — Search, a chamber toggle, a retry after
+    // a failed layer fetch — cannot re-enter the arrival path and re-open a
+    // blank picker over work the reader has already done. Reopening the modal
+    // deliberately is still available: that is openDistrictMapModal(), which
+    // this calls, and which stays re-entrant for the Leaflet-lazy reopen.
+    // NOT NAMED _booted: that was the flag behind the unconditional first-open
+    // House paint this document was built to delete, and the suite forbids the
+    // name outright so it cannot come back wearing its old clothes. This one
+    // gates the ARRIVAL OPEN and nothing else — it starts no fetch and draws
+    // no polygon.
+    var _arrived = false;
     function bootFinder(){
+      if (_arrived) return;
+      _arrived = true;
       try { window.openDistrictMapModal(); } catch(e) {}
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootFinder);
