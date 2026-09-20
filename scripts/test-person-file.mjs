@@ -147,12 +147,12 @@ function sandbox(opts) {
     // it is a setter rather than a string — assigned silently, it would be a hole.
     location: (function () {
       const loc = {
-        origin: "https://www.politidex.fyi", pathname: "/", search: "", hash: "",
+        origin: "https://politidex.fyi", pathname: "/", search: "", hash: "",
         assign(u) { calls.assign.push(String(u)); },
         replace(u) { calls.locReplace.push(String(u)); },
       };
       Object.assign(loc, opts.location || {});
-      let href = loc.href || ("https://www.politidex.fyi" + loc.pathname + loc.search + loc.hash);
+      let href = loc.href || ("https://politidex.fyi" + loc.pathname + loc.search + loc.hash);
       Object.defineProperty(loc, "href", {
         get() { return href; },
         set(u) { href = String(u); calls.assign.push(String(u)); },
@@ -205,7 +205,7 @@ must(P && typeof P.open === "function", "PDXPerson did not register in a sandbox
 
 eq(P.PREFIX, "/p/", "the address prefix moved");
 eq(P.path("mike_lee"), "/p/mike_lee", "PDXPerson.path does not mint the path form");
-eq(P.url("mike_lee"), "https://www.politidex.fyi/p/mike_lee", "PDXPerson.url does not mint the absolute form");
+eq(P.url("mike_lee"), "https://politidex.fyi/p/mike_lee", "PDXPerson.url does not mint the absolute form");
 ok(P.PATH_RE.test("/p/mike_lee"), "the path matcher does not recognise its own output");
 ok(P.PATH_RE.test("/p/mike_lee/"), "the path matcher rejects a trailing slash");
 ok(!P.PATH_RE.test("/p/"), "the path matcher accepts an empty pid");
@@ -424,7 +424,7 @@ has(INDEX, 'href="/person-file.css"', "index.html does not load /person-file.css
 // ─────────────────────────────────────────────────────────────────────────────
 // 7 · The cold arrival — the bug this section exists for
 // ─────────────────────────────────────────────────────────────────────────────
-// https://www.politidex.fyi/p/mike_lee served the app shell and never opened the
+// https://politidex.fyi/p/mike_lee served the app shell and never opened the
 // file. Two causes, both in the arrival path and neither in the rewrite:
 //
 //   · adopt() gated on record(pid) — an EXACT roster hit — while every in-app

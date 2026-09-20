@@ -152,8 +152,8 @@ function boot(get, files) {
   // is only checkable if every way out is watched.
   win.__nav = [];
   win.location = {
-    href: "https://www.politidex.fyi/p/" + UT_PID, pathname: "/p/" + UT_PID,
-    search: "", hash: "", origin: "https://www.politidex.fyi",
+    href: "https://politidex.fyi/p/" + UT_PID, pathname: "/p/" + UT_PID,
+    search: "", hash: "", origin: "https://politidex.fyi",
     assign(u) { win.__nav.push("assign:" + u); },
     replace(u) { win.__nav.push("replace:" + u); },
     reload() { win.__nav.push("reload"); },

@@ -339,7 +339,7 @@ export function parseTarget(url: URL): Target | null {
 // The one clean address for a record, derived from the TARGET rather than from
 // the request. This is what rel="canonical" and og:url are for, and it is the
 // reason both used to be wrong: index.html carries a single hardcoded
-// `<link rel="canonical" href="https://www.politidex.fyi/">`, so every share link —
+// `<link rel="canonical" href="https://politidex.fyi/">`, so every share link —
 // every profile, Spotlight, roll call, bill and receipt — told search engines it
 // was really the homepage, and og:url unfurled with whatever the reader happened
 // to have in their address bar (`?utm_source=…`, a stale `?p=` layered on an

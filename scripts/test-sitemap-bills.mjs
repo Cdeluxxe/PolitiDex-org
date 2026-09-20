@@ -49,7 +49,7 @@ const has = (h, n, m) => ok(String(h).includes(n), `${m} — missing ${JSON.stri
 const section = (t) => console.log(`\n   ── ${t}`);
 const must = (c, m) => { if (c) return; console.error(`✗ sitemap bills: STALE HARNESS — ${m}`); process.exit(2); };
 
-const ORIGIN = "https://www.politidex.fyi";
+const ORIGIN = "https://politidex.fyi";
 const XML = R("sitemap.xml");
 const locs = [...XML.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
 must(locs.length > 100, `the sitemap parsed (${locs.length} entries)`);

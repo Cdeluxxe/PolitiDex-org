@@ -251,9 +251,9 @@ function boot(opts) {
 
   const url = o.search || "";
   win.location = {
-    href: "https://www.politidex.fyi/my-stances" + url,
+    href: "https://politidex.fyi/my-stances" + url,
     pathname: "/my-stances", search: url, hash: "",
-    origin: "https://www.politidex.fyi",
+    origin: "https://politidex.fyi",
     replace() {}, assign(u) { win.__nav = String(u); },
   };
   win.history = { pushState() {}, replaceState(a, b, u) { win.__url = String(u); } };

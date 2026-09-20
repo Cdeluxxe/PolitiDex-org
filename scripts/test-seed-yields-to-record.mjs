@@ -163,7 +163,7 @@ function boot(opts) {
   const win = makeSandbox();
   if (o.path) {
     win.location.pathname = o.path;
-    win.location.href = "https://www.politidex.fyi" + o.path;
+    win.location.href = "https://politidex.fyi" + o.path;
   }
   if (o.header && !o.live) {
     win.document.querySelector = (s) => (s === "#pdx-crawl-person" ? o.header : null);

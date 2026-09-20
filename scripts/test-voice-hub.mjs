@@ -197,7 +197,7 @@ function returnAt(pathname, search) {
     pathname: pathname || "/",
     search: search || "",
     hash: "",
-    origin: "https://www.politidex.fyi",
+    origin: "https://politidex.fyi",
     assign(u) { win.__assigned.push(String(u)); },
     replace(u) { win.__assigned.push(String(u)); },
   };
@@ -261,7 +261,7 @@ function hub(opts) {
   const els = { "pdx-voice-standing": mk("pdx-voice-standing"), "pdx-voice-seats": mk("pdx-voice-seats") };
   win.document.getElementById = (id) => els[id] || null;
   win.__PDX_VOICE_DOC = true;
-  win.location = { href: "https://www.politidex.fyi/voice", pathname: "/voice", search: o.search || "", hash: "", origin: "https://www.politidex.fyi", assign() {}, replace() {} };
+  win.location = { href: "https://politidex.fyi/voice", pathname: "/voice", search: o.search || "", hash: "", origin: "https://politidex.fyi", assign() {}, replace() {} };
   win._hasUserLocation = !!(o.levels && o.levels.length);
   win._currentVoterLocation = o.loc || {};
   win.pdxRepsForMe = () => ({

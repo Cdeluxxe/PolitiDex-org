@@ -299,10 +299,10 @@ function makeDom(opts) {
   // A location that RECORDS. assign / href / replace are the three spellings
   // _navToLocker tries in that order, and all three are captured so the test
   // reads the same whichever one the sandbox allows.
-  let hrefStr = "https://www.politidex.fyi" + (opts.pathname || "/") + (opts.search || "") + (opts.hash || "");
+  let hrefStr = "https://politidex.fyi" + (opts.pathname || "/") + (opts.search || "") + (opts.hash || "");
   const location = {
     pathname: opts.pathname || "/", search: opts.search || "", hash: opts.hash || "",
-    origin: "https://www.politidex.fyi",
+    origin: "https://politidex.fyi",
     assign(to) { navs.push(to); },
     replace(to) { navs.push(to); },
     get href() { return hrefStr; },

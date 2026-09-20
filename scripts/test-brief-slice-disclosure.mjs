@@ -458,11 +458,19 @@ section("6 · the gate reads published counts, and moves nothing");
     // mentions the slice sentence. The slice line is a rendered note on a person
     // file; it has no address, so a sitemap that grew is not this pass growing.
     if (f === "sitemap.xml") {
-      const now = R(f);
-      const lost = h.split("\n").filter((l) => l.trim() && !now.includes(l));
+      // THE HOST IS NORMALISED OUT OF BOTH SIDES BEFORE DIFFING. This assertion is
+      // about which ADDRESSES the sitemap publishes, and a canonicalisation pass
+      // that moves every entry from one hostname to another changes all 1,399
+      // lines while dropping nothing. Compared raw, that reads as a total loss and
+      // says so in the least useful way available — 1,399 failures about a pass
+      // that de-listed nobody. Compared on the path, the real invariant survives a
+      // host migration and still catches an address that actually left.
+      const originless = (s2) => s2.replace(/<loc>https?:\/\/[^/<]+/g, "<loc>");
+      const now = originless(R(f)), was = originless(h);
+      const lost = was.split("\n").filter((l) => l.trim() && !now.includes(l));
       eq(lost.slice(0, 3).join(" | "), "",
         `${lost.length} line(s) left sitemap.xml — a regeneration may add addresses, never drop them`);
-      const grew = now.split("\n").filter((l) => !h.includes(l));
+      const grew = now.split("\n").filter((l) => !was.includes(l));
       ok(!grew.some((l) => /House rolls|career score|SLICE_/.test(l)),
         "sitemap.xml gained a line of the slice pass — the sentence is a rendered note, not an address");
       continue;

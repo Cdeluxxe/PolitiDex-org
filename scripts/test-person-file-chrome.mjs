@@ -157,7 +157,7 @@ function sandbox(opts) {
     // no-op that forgot to set the tab.
     location: Object.assign(
       {
-        origin: "https://www.politidex.fyi", pathname: "/", search: "", hash: "", href: "https://www.politidex.fyi/",
+        origin: "https://politidex.fyi", pathname: "/", search: "", hash: "", href: "https://politidex.fyi/",
         assign(u) { calls.assign.push(String(u)); },
         replace(u) { calls.assign.push(String(u)); },
       },

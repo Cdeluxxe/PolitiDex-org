@@ -53,7 +53,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { SH_SEAMS, carveSeams, assertStanceHelpersSeam,
-  assertRosterOfficeIsTheOnlyMove } from "./v103-chrome-seams.mjs";
+  assertRosterOfficeIsTheOnlyMove, deOrigin } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -439,7 +439,11 @@ const C = decide._counts || {};
     try { return execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }); }
     catch (e) { return null; }
   };
-  const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && h !== nowSrc(f); });
+  // The public hostname is normalised out of both trees first: this wall is about a
+  // wave editing an engine, and the site collapsing onto one public origin moved a
+  // baked share host and nothing else. See deOrigin in scripts/v103-chrome-seams.mjs
+  // for why that is normalised rather than waived. Every other byte still compared.
+  const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && deOrigin(h) !== deOrigin(nowSrc(f)); });
   // WHOSE EDIT THIS IS, AND WHY IT DOES NOT DISSOLVE THE CHECK. The sentence above
   // is about F10: a wave whose product is a measurement has no business editing the
   // thing it measured, and if F10's own diff reached one of these files the audit

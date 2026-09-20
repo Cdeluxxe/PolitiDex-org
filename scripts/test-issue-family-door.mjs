@@ -118,7 +118,7 @@ const CORE_LABEL = "Climate, Energy";
 const LEAF = "lands_preserve";
 const HUE = "#2ECC71";        // the family's own tint, from issue-colors.js
 const KIDS = 17;              // the keys the parent table files under it
-const ORIGIN = "https://www.politidex.fyi";
+const ORIGIN = "https://politidex.fyi";
 
 let passed = 0;
 const failures = [];

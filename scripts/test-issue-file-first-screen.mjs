@@ -121,7 +121,7 @@ const NUM = "H.R. 6644";
 const CAP_KEY = "israel_support";
 const CAP_NUM = "S. 1071";
 const SWEEP = ["housing", "climate_action", "cost_living", "lands_preserve", "immigration_enforce"];
-const ORIGIN = "https://www.politidex.fyi";
+const ORIGIN = "https://politidex.fyi";
 const BLANK = "Mapped to this issue; rationale not written yet";
 
 let passed = 0;

@@ -176,7 +176,7 @@ export function verifyUnsubToken(token: string): string | null {
 // a redirect costs the most — an unsubscribe link that hops hosts is the one link
 // a reader will not click twice, and some clients strip the query on a 301. There
 // is exactly one origin, and it is written here once.
-const SITE_URL = "https://www.politidex.fyi";
+const SITE_URL = "https://politidex.fyi";
 export function unsubscribeUrl(userId: string): string {
   return `${SITE_URL}/api/pdx-digest/unsubscribe?u=${encodeURIComponent(makeUnsubToken(userId))}`;
 }

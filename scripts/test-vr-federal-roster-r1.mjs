@@ -33,7 +33,7 @@ import vm from "node:vm";
 import { execFileSync } from "node:child_process";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { CJ_SEAMS_ALL as CJ_SEAMS, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
-  assertWordActionSeams, assertParentTableIsTheOnlyMove } from "./v103-chrome-seams.mjs";
+  assertWordActionSeams, assertParentTableIsTheOnlyMove, deOrigin } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -474,7 +474,11 @@ section("6 · no Direction Match drift — twin boot, HEAD against this tree");
   // identity moved no published boundary and no piece of the score, is entirely in the
   // pinned half. The block lists which keys sit under which heading. It reads no member.
   const REGIONED = ["alignment-tool.js"];
-  const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && h !== R(f); });
+  // The public hostname is normalised out of both trees first: this wall is about a
+  // wave editing an engine, and the site collapsing onto one public origin moved a
+  // baked share host and nothing else. See deOrigin in scripts/v103-chrome-seams.mjs
+  // for why that is normalised rather than waived. Every other byte still compared.
+  const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && deOrigin(h) !== deOrigin(R(f)); });
   // TWO CLAIMS WERE WELDED INTO ONE LINE, AND ONLY ONE OF THEM LASTS. "The set of
   // booted files that differ from HEAD is exactly cmp-data.js" says both "nothing
   // but the roster moved" — which is what a roster wave promises, forever — and

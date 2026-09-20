@@ -202,7 +202,7 @@ ok(existsSync(join(ROOT, "netlify/functions/district-board.mts")), "the counts e
 // ═════════════════════════════════════════════════════════════════════════════
 section("2 · the shell: canonical, root-absolute, one flag, the copied stub");
 
-has(DOC, `<link rel="canonical" href="https://www.politidex.fyi${ROUTE}" />`,
+has(DOC, `<link rel="canonical" href="https://politidex.fyi${ROUTE}" />`,
   "the canonical is the bare path");
 // Neither of the other two spellings may claim to be canonical.
 ok(!/rel="canonical"[^>]*ut-sd-3\.html/.test(DOC), "the .html spelling is not canonical");

@@ -155,9 +155,9 @@ has(CT, "/courts IS ITS OWN DOCUMENT", "banner: the banner names the address it 
 ok(!BRE.test(INDEX), "banner: index.html carries no shell banner — that is what makes the guard a discriminator");
 
 // A PUBLIC BROWSE ROOM: indexable, canonical on the www host the apex 301s to.
-has(CT, '<link rel="canonical" href="https://www.politidex.fyi/courts" />',
-  "head: the canonical is www.politidex.fyi/courts");
-has(CT, '<meta property="og:url" content="https://www.politidex.fyi/courts" />',
+has(CT, '<link rel="canonical" href="https://politidex.fyi/courts" />',
+  "head: the canonical is politidex.fyi/courts");
+has(CT, '<meta property="og:url" content="https://politidex.fyi/courts" />',
   "head: og:url matches the canonical");
 lacks(CT, 'name="robots"', "head: no robots meta — a public browse room is indexed");
 lacks(CT, "application/ld+json",

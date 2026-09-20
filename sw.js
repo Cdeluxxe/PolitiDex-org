@@ -7420,7 +7420,48 @@
 //     /district/ut-sd-3 untouched, no location key renamed, copied or migrated.
 //     MIGRATION COST: none. A warm device would otherwise serve the v232 pair
 //     and keep describing a member both pages can name.
-const CACHE_VERSION = 'v233';
+// v234 - ONE PUBLIC ORIGIN: APEX HTTPS ONLY. www AND http 301. NO PRELOAD.
+//     THE BUMP IS FOR THE PRECACHED SHELLS, AND ONLY FOR THEM. A tap from the
+//     Facebook in-app browser opened the www host over plain http with an
+//     ?fbclid= on it, and Xfinity Advanced Security painted 'This site could be
+//     risky' over the result. Desktop Chrome and incognito were clean, which is
+//     the tell: nothing is wrong with the content. What got scored was the shape
+//     of the first hop - cleartext, to the longer of two live hostnames, on a
+//     young .fyi, from a webview. So the site stopped having two spellings.
+//     https://politidex.fyi is the only public origin now; the apex over http,
+//     and www over either scheme, each 301 onto it in ONE hop by three forced
+//     rules at the top of netlify.toml. No chain: www does not route via the
+//     apex-on-http or via www-on-https first. netlify.toml also gained
+//     Strict-Transport-Security on /*, one year, includeSubDomains - which is
+//     what upgrades a stale www link before it ever leaves a warm device.
+//     NO preload, deliberately: it is a one-way door and this pass does not
+//     open it. scripts/test-canonical-and-origin.mjs pins its absence so a later
+//     pass cannot add it while believing it is finishing this one.
+//     WHY A CACHE_VERSION MOVE IS REQUIRED. netlify.toml and the HSTS header are
+//     config and are never cached by this worker, so on their own they would not
+//     justify a bump. The shell DOCUMENTS are the reason: every precached HTML
+//     entry - '/', '/person.html', '/issue.html', '/spotlight.html',
+//     '/ballot.html', '/me.html', '/my-stances.html', '/stances.html',
+//     '/evidence.html', '/courts.html', '/mandate.html', '/voice.html',
+//     '/money.html', '/library.html', '/district-ut-sd-3.html' - carries a
+//     rel=canonical and an og:url in its head, and all of them moved to the
+//     apex. Without this rename a warm device would keep serving heads that
+//     name the retired host, so a reader's own 'copy link' and every scraper
+//     reading the cached DOM would go on publishing the spelling this pass
+//     retired. The sitemap's 1,399 entries and the robots Sitemap line moved
+//     with them, regenerated from the single ORIGIN in scripts/gen-sitemap.mjs
+//     rather than hand-edited.
+//     NOTHING ELSE MOVED, AND THAT IS ASSERTED RATHER THAN CLAIMED. Every one
+//     of the 114 swept files differs from HEAD by the hostname alone. No new
+//     boards, no /district/* splat, no map change, no equity copy, no score
+//     change, no new shell asset, no 302 anywhere. BOARD_ROUTES is still one
+//     row, /district/ut-sd-3 untouched, /voice keeps both spellings and its
+//     personOf, the homepage Voice card is where it was, and no location key,
+//     alias or twin-boot engine file was edited - so the twin-boot drift
+//     harnesses stay byte-identical by construction.
+//     MIGRATION COST: none. A warm device would otherwise keep a shell whose
+//     head advertises a hostname that now answers only a redirect.
+const CACHE_VERSION = 'v234';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

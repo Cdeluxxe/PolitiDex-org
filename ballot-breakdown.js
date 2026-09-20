@@ -5675,10 +5675,10 @@
 
       // The link opens THIS team, not the front page. A share that ends at the
       // homepage asks the reader to rebuild by hand what they were just sent.
-      var url = _teamShareUrl('My 2026 ballot', selections) || 'https://www.politidex.fyi';
+      var url = _teamShareUrl('My 2026 ballot', selections) || 'https://politidex.fyi';
       var text = filled > 0
         ? '🗳️ My 2026 ballot (' + filled + '/6 picked):\n\n' + picks.join('\n') + '\n\nOpen this ballot → ' + url + '\n#PolitiDex #2026Ballot'
-        : 'Work your 2026 ballot at https://www.politidex.fyi #PolitiDex';
+        : 'Work your 2026 ballot at https://politidex.fyi #PolitiDex';
 
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(function() {

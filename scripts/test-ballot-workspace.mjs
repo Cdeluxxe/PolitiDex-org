@@ -159,7 +159,7 @@ function boot(opts) {
   // eleven sections above this one boot with the default '/' . Gating it keeps
   // those boots byte-identical to what they were.
   if (opts.address || opts.search !== undefined) {
-    const base = "https://www.politidex.fyi";
+    const base = "https://politidex.fyi";
     win.__nav = [];
     win.location = {
       href: base + "/ballot" + (opts.search || ""), origin: base,

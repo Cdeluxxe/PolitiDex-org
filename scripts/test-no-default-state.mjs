@@ -212,9 +212,9 @@ function boot(o) {
   win.self = win;
   win.document = makeDoc();
   win.location = {
-    href: o.desk ? "https://www.politidex.fyi/me" : "https://www.politidex.fyi/",
+    href: o.desk ? "https://politidex.fyi/me" : "https://politidex.fyi/",
     pathname: o.desk ? "/me" : "/", search: "", hash: "",
-    origin: "https://www.politidex.fyi", replace() {}, assign() {},
+    origin: "https://politidex.fyi", replace() {}, assign() {},
   };
   win.history = { pushState() {}, replaceState() {} };
   win.navigator = { userAgent: "node" };

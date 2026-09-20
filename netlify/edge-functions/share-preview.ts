@@ -69,7 +69,7 @@ const PERSON_PATH = /^\/p\/([A-Za-z0-9_]+)\/?$/;
 // purpose — it points at this deploy's own /.netlify/images card, so a preview
 // keeps rendering the preview's card rather than fetching production's. An image
 // URL is not an identity claim, so it is not a host that has to be pinned.
-const ORIGIN = "https://www.politidex.fyi";
+const ORIGIN = "https://politidex.fyi";
 
 // Escape a value for an HTML double-quoted attribute.
 function attr(s: string): string {

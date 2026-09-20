@@ -243,8 +243,8 @@ function bootDesk(opts) {
   mount.id = "me-desk";
   win.document.body.appendChild(mount);
   win.location = {
-    href: "https://www.politidex.fyi/me", pathname: "/me", search: "", hash: "",
-    origin: "https://www.politidex.fyi", replace() {}, assign() {},
+    href: "https://politidex.fyi/me", pathname: "/me", search: "", hash: "",
+    origin: "https://politidex.fyi", replace() {}, assign() {},
   };
   win.history = { pushState() {}, replaceState() {} };
 
@@ -343,8 +343,8 @@ function bootLive(opts) {
   mount.id = "me-desk";
   win.document.body.appendChild(mount);
   win.location = {
-    href: "https://www.politidex.fyi/me", pathname: "/me", search: "", hash: "",
-    origin: "https://www.politidex.fyi", replace() {}, assign() {},
+    href: "https://politidex.fyi/me", pathname: "/me", search: "", hash: "",
+    origin: "https://politidex.fyi", replace() {}, assign() {},
   };
   win.history = { pushState() {}, replaceState() {} };
   const store = {};
@@ -697,7 +697,7 @@ ok(!!workHref, "the U.S. Senate row has no Work seat control");
 ok(String(workHref).startsWith("/"),
   `the Work seat href is not root-absolute (${workHref}) — it would resolve differently per document`);
 if (workHref) {
-  const u = new URL(workHref, "https://www.politidex.fyi/me");
+  const u = new URL(workHref, "https://politidex.fyi/me");
   eq(u.pathname, "/ballot", "the Work seat control does not open the ballot workspace");
   eq(u.searchParams.get("seat"), "senate",
     "the Work seat control does not name the seat it was printed on");

@@ -169,10 +169,10 @@ function makeDom(opts = {}) {
   template.content = { cloneNode: () => mkEl("", "fragment") };
   nodes.set("el-workspace-tpl", template);
 
-  let href = "https://www.politidex.fyi" + (opts.pathname || "/evidence") + (opts.search || "");
+  let href = "https://politidex.fyi" + (opts.pathname || "/evidence") + (opts.search || "");
   const location = {
     pathname: opts.pathname || "/evidence", search: opts.search || "", hash: opts.hash || "",
-    origin: "https://www.politidex.fyi", host: "www.politidex.fyi",
+    origin: "https://politidex.fyi", host: "politidex.fyi",
     assign(t) { log.navs.push(t); }, replace(t) { log.navs.push(t); },
     get href() { return href; }, set href(v) { log.navs.push(v); href = v; },
   };

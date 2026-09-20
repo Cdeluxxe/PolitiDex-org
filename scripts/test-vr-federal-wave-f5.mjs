@@ -59,7 +59,7 @@ import { createHash } from "node:crypto";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { CJ_SEAMS_ALL as CJ_SEAMS, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
   assertWordActionSeams, assertParentTableIsTheOnlyMove,
-  PARENT_TABLE_MARK as TABLE_MARK } from "./v103-chrome-seams.mjs";
+  PARENT_TABLE_MARK as TABLE_MARK, deOrigin } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -521,11 +521,15 @@ function boot(get, label) {
     "alignment-tool.js": "CORE_NATIONAL_ISSUES gained a parent for the 24 published keys that had none",
   };
   const F5_REFUSED = ["H.R. 1069", "H.R. 973", "H.R. 8800", "H.Amdt. 245"];
+  // The public hostname is normalised out of both trees first: this wall is about a
+  // wave editing an engine, and the site collapsing onto one public origin moved a
+  // baked share host and nothing else. See deOrigin in scripts/v103-chrome-seams.mjs
+  // for why that is normalised rather than waived. Every other byte still compared.
   let touched = [];
   for (const f of FILES) {
     const h = headSrc(f);
     if (h === null) continue;
-    if (h !== nowSrc(f)) touched.push(f);
+    if (deOrigin(h) !== deOrigin(nowSrc(f))) touched.push(f);
   }
   const stray = touched.filter((f) => !LATER_WAVE_WAIVER[f]);
   eq(stray.length, 0, `F5 changed a booted file (${stray.join(", ")}) — a wave that writes no row has no business editing the engine`);

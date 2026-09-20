@@ -259,7 +259,7 @@ function runSeam(over) {
         assign(u) { nav.push(String(u)); },
         replace(u) { nav.push("replace:" + String(u)); },
         set href(u) { nav.push("href:" + String(u)); },
-        get href() { return "https://www.politidex.fyi/"; },
+        get href() { return "https://politidex.fyi/"; },
       },
       ...(extra || {}),
     });
@@ -349,7 +349,7 @@ function runLibrary() {
     setTimeout: () => 0, clearTimeout() {}, setInterval: () => 0, clearInterval() {},
     requestAnimationFrame: (fn) => { fn(); return 1; },
     document: doc,
-    location: { href: "https://www.politidex.fyi/", pathname: "/", search: "", hash: "", origin: "https://www.politidex.fyi" },
+    location: { href: "https://politidex.fyi/", pathname: "/", search: "", hash: "", origin: "https://politidex.fyi" },
     navigator: { userAgent: "node" },
     matchMedia: () => ({ matches: false, addEventListener() {}, addListener() {} }),
     addEventListener() {}, removeEventListener() {}, dispatchEvent() { return true; },

@@ -36,7 +36,7 @@ import vm from "node:vm";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
-const ORIGIN = "https://www.politidex.fyi";
+const ORIGIN = "https://politidex.fyi";
 
 let passed = 0;
 const failures = [];

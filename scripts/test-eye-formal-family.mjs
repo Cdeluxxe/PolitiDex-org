@@ -112,7 +112,7 @@ const CORE = "climate_energy";
 // The leaf the smoke taps by name — "Climate Action & Clean Energy", the first
 // child row "climate" paints — and the one the desk is scoped to in section 6.
 const FILE = "climate_action";
-const ORIGIN = "https://www.politidex.fyi";
+const ORIGIN = "https://politidex.fyi";
 // The two queries the smoke names, plus the family's own words.
 const QUERIES = ["land pres", "lands preserve", "climate", "climate energy"];
 // The reading, in the words the defect report quoted.

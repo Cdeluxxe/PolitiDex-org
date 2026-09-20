@@ -52,7 +52,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { CJ_SEAMS, CJ_SEAMS_BELOW, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
-  assertWordActionSeams, assertParentTableIsTheOnlyMove } from "./v103-chrome-seams.mjs";
+  assertWordActionSeams, assertParentTableIsTheOnlyMove, deOrigin } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -912,7 +912,11 @@ function boot(get, label) {
   const WAIVED = ["consistency.js", "cmp-data.js", "stance-helpers.js", "word-action.js", "alignment-tool.js"];
   // The seam arguments below want a substring assertion; these suites carry ok/eq only.
   const has = (s, n, m) => ok(String(s).includes(n), `${m} — missing ${JSON.stringify(n)}`);
-  const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && h !== nowSrc(f); });
+  // The public hostname is normalised out of both trees first: this wall is about a
+  // wave editing an engine, and the site collapsing onto one public origin moved a
+  // baked share host and nothing else. See deOrigin in scripts/v103-chrome-seams.mjs
+  // for why that is normalised rather than waived. Every other byte still compared.
+  const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && deOrigin(h) !== deOrigin(nowSrc(f)); });
   const stray = touched.filter((f) => !WAIVED.includes(f));
   eq(stray.join(", "), "",
     `F7 changed a booted file outside its declared waiver (${stray.join(", ")}) — a data wave has no business editing the engine`);

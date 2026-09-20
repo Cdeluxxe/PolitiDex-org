@@ -279,7 +279,7 @@ function boot(opts) {
       querySelector: () => null, querySelectorAll: () => [],
       addEventListener() {},
     },
-    location: { hash: "", origin: "https://www.politidex.fyi", pathname: "/" },
+    location: { hash: "", origin: "https://politidex.fyi", pathname: "/" },
     navigator: {},
     setTimeout: (fn) => { if (typeof fn === "function") fn(); return 0; },
     clearTimeout: () => {}, setInterval: () => 0, clearInterval: () => {},

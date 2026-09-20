@@ -249,8 +249,8 @@ function personFile(opts) {
   const win = {
     document: doc,
     location: {
-      origin: "https://www.politidex.fyi", pathname: opts.pathname || "/", search: "", hash: "",
-      href: "https://www.politidex.fyi" + (opts.pathname || "/"),
+      origin: "https://politidex.fyi", pathname: opts.pathname || "/", search: "", hash: "",
+      href: "https://politidex.fyi" + (opts.pathname || "/"),
       // A person file is its own document, so an open from anywhere else is a
       // navigation. Recorded rather than stubbed away, because the difference
       // between correcting an address and fetching a different one is the
@@ -467,7 +467,7 @@ function eyePanel(opts) {
     setTimeout: () => 0, clearTimeout() {}, setInterval: () => 0, clearInterval() {},
     parseInt, parseFloat, isNaN, isFinite, encodeURIComponent, decodeURIComponent,
     requestAnimationFrame: () => 0, fetch: () => new Promise(() => {}),
-    location: { href: "/", search: "", hash: "", pathname: "/", origin: "https://www.politidex.fyi" },
+    location: { href: "/", search: "", hash: "", pathname: "/", origin: "https://politidex.fyi" },
     history: { replaceState() {}, pushState() {} },
     localStorage: { getItem: () => null, setItem() {}, removeItem() {} },
     sessionStorage: { getItem: () => null, setItem() {}, removeItem() {} },
@@ -635,7 +635,7 @@ function firebaseBoot(opts) {
     Promise, Set, Map, Object, Array, String, Number, RegExp, Error,
     setTimeout: () => 0, clearTimeout() {}, encodeURIComponent, decodeURIComponent,
     fetch: () => new Promise(() => {}),
-    location: { href: "/", search: "", hash: "", pathname: "/", origin: "https://www.politidex.fyi" },
+    location: { href: "/", search: "", hash: "", pathname: "/", origin: "https://politidex.fyi" },
     localStorage: { getItem: () => null, setItem() {}, removeItem() {} },
     document: {
       readyState: "complete", body: mkEl(), head: mkEl(), createElement: mkEl,

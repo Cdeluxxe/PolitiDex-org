@@ -54,7 +54,7 @@ const has = (h, n, m) => ok(String(h).includes(n), `${m} — missing ${JSON.stri
 const section = (t) => console.log(`\n   ── ${t}`);
 const must = (c, m) => { if (c) return; console.error(`✗ sitemap floor: STALE HARNESS — ${m}`); process.exit(2); };
 
-const ORIGIN = "https://www.politidex.fyi";
+const ORIGIN = "https://politidex.fyi";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 1 · One floor, loaded the way the generator loads it

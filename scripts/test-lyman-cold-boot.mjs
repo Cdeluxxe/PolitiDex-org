@@ -130,7 +130,7 @@ function boot(o) {
   const win = makeSandbox();
   const path = opts.path || "/";
   win.location.pathname = path;
-  win.location.href = "https://www.politidex.fyi" + path;
+  win.location.href = "https://politidex.fyi" + path;
   win.location.search = "";
 
   const bus = new Map();

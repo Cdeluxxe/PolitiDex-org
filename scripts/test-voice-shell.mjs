@@ -184,9 +184,9 @@ has(VD, "/voice IS ITS OWN DOCUMENT", "banner: the banner names the address it s
 ok(!BRE.test(INDEX), "banner: index.html carries a shell banner — that is what makes the guard a discriminator");
 
 // A PUBLIC BROWSE ROOM: indexable, canonical on the www host the apex 301s to.
-has(VD, '<link rel="canonical" href="https://www.politidex.fyi/voice" />',
-  "head: the canonical is www.politidex.fyi/voice");
-has(VD, '<meta property="og:url" content="https://www.politidex.fyi/voice" />',
+has(VD, '<link rel="canonical" href="https://politidex.fyi/voice" />',
+  "head: the canonical is politidex.fyi/voice");
+has(VD, '<meta property="og:url" content="https://politidex.fyi/voice" />',
   "head: og:url matches the canonical");
 lacks(VD_MARKUP, 'name="robots"',
   "head: no robots meta — this page holds no personal data, only a public seat's board, and it is meant to be linked");
