@@ -1063,6 +1063,332 @@ section("13 · search does not remount the finder");
 
 
 // ═════════════════════════════════════════════════════════════════════════════
+// A TAP HAS TO LAND, AND THE READER HAS TO BE ABLE TO SEE THAT IT DID
+// ═════════════════════════════════════════════════════════════════════════════
+section("14 · a tap selects, and confirm is on screen to commit it");
+{
+  // ── The panel scrolls, so the foot of it is reachable ─────────────────────
+  // The box is a fixed-height column with overflow:hidden. With no scrollport
+  // inside it, every pixel of panel past 94vh was simply unreachable — and the
+  // confirm button is the last control in the panel. This is the "confirm is
+  // off-screen" half of the report, and it is also most of the "taps aren't
+  // landing" half: the chip and the button both updated correctly, below the fold.
+  has(FIND, ".pdx-map-scroll{", "layout: the panel has no scrollport, so its foot is unreachable again");
+  const scroll = FIND.slice(FIND.indexOf(".pdx-map-scroll{"), FIND.indexOf("}", FIND.indexOf(".pdx-map-scroll{")));
+  has(scroll, "overflow-y:auto", "layout: the panel scrollport does not scroll");
+  has(scroll, "min-height:0", "layout: the scrollport cannot shrink inside the flex column, so it will overflow instead of scrolling");
+  has(scroll, "flex:1 1 auto", "layout: the scrollport does not take the space the fixed rows leave");
+
+  // The wrapper has to actually CONTAIN the panel — an empty div that scrolls
+  // nothing would satisfy every assertion above.
+  {
+    const open = FIND.indexOf('<div class="pdx-map-scroll">');
+    must(open > 0, "the scroll wrapper is gone from the modal markup");
+    ok(open < FIND.indexOf('<div class="pdx-map-head">'), "layout: the head is outside the scrollport");
+    ok(open < FIND.indexOf('<div class="pdx-map-canvas-wrap">'), "layout: the map is outside the scrollport");
+    ok(open < FIND.indexOf('<div class="pdx-map-foot">'), "layout: the foot is outside the scrollport");
+    ok(open < FIND.indexOf('id="pdx-map-done"'), "layout: the confirm button is outside the scrollport");
+    ok(FIND.indexOf("/.pdx-map-scroll") > FIND.indexOf('id="pdx-map-done"'), "layout: the scrollport closes before the confirm button");
+    // The close button and the flag stripe stay pinned to the box.
+    ok(FIND.indexOf('class="pdx-map-close"') < open, "layout: the close button scrolls away with the panel");
+  }
+
+  // ── The real viewport height, not 94% of the wrong one ────────────────────
+  // vh on a phone is the height WITHOUT the collapsing browser toolbar, so 94vh
+  // can be taller than the screen actually is. dvh is the one that tracks it.
+  has(FIND, "max-height:calc(100dvh - 2rem)", "layout: the modal is not sized to the dynamic viewport");
+  has(FIND, "max-height:100dvh", "layout: the modal on a phone is not sized to the dynamic viewport");
+  has(FIND, "max-height:94vh", "layout: the pre-dvh fallback height is gone, so old browsers get no cap at all");
+  ok(/\.pdx-map-overlay\{padding:0;\}/.test(FIND), "layout: the overlay still spends padding a phone does not have");
+
+  // ── The map has a height of its own ───────────────────────────────────────
+  // It used to be flex:1 — "whatever is left" — which is how a 300px floor on
+  // the map became a clipped foot on the panel.
+  {
+    const wrap = FIND.slice(FIND.indexOf(".pdx-map-canvas-wrap{"), FIND.indexOf("}", FIND.indexOf(".pdx-map-canvas-wrap{")));
+    no(wrap, "flex:1", "layout: the map still takes all the leftover height and pushes confirm out");
+    no(wrap, "min-height:300px", "layout: the map still has a floor it can push the panel past");
+    has(wrap, "height:clamp(", "layout: the map has no height of its own");
+  }
+
+  // ── The status panel is a message, not a lid ──────────────────────────────
+  // inset:0 at z-index 600 over every polygon. It is shown while a layer loads
+  // AND left standing by layerFailed() over a map that may already be painted,
+  // and there it silently ate every pick until the reader found "Try again".
+  {
+    const st = FIND.slice(FIND.indexOf(".pdx-map-status{"), FIND.indexOf("}", FIND.indexOf(".pdx-map-status{")));
+    has(st, "pointer-events:none", "hits: the status panel still takes the taps aimed at the districts under it");
+    ok(/\.pdx-map-status button\{pointer-events:auto;\}/.test(FIND),
+      "hits: the status panel passes everything through, including its own Try again button");
+    // The idle ribbon's own pass-through rule is now redundant, but the class
+    // must still exist — it is what makes the prompt a ribbon and not a curtain.
+    has(FIND, ".pdx-map-status--idle{", "hits: the idle ribbon variant is gone");
+    has(FIND, "inset:auto 0 0 0", "hits: the idle prompt covers the whole canvas again instead of ribboning the foot");
+  }
+
+  // ── Confirm is pinned ─────────────────────────────────────────────────────
+  {
+    const act = FIND.slice(FIND.indexOf(".pdx-map-actions{"), FIND.indexOf("}", FIND.indexOf(".pdx-map-actions{")));
+    has(act, "position:sticky", "confirm: the commit row is not pinned to the foot of the scrollport");
+    has(act, "bottom:0", "confirm: the commit row is sticky to the wrong edge");
+    ok(/background:rgba\(/.test(act), "confirm: the pinned row is transparent, so the panel scrolls through it");
+  }
+  // And the city/county door is still under it.
+  has(FIND, "Prefer to pick by city/county? Use the manual selector", "confirm: the city/county door was dropped");
+  has(FIND, "openManualLocationForm", "confirm: the city/county door no longer opens anything");
+
+  // ── One picker, not two ───────────────────────────────────────────────────
+  // The report allowed rebinding on the geoJSON layer "the way the old homepage
+  // controller did" IF Leaflet were swallowing the event. It is not: this is
+  // already that binding, moved unedited, so the fix is ordering inside the
+  // handler rather than a second listener racing the first.
+  ok(/onEachFeature: function\(feature, path\)/.test(MAPC), "picker: the per-feature geoJSON binding is gone");
+  eq((MAPC.match(/onEachFeature/g) || []).length, 1, "picker: a second onEachFeature binding appeared");
+  eq((MAPC.match(/_map\.on\('click'/g) || []).length, 1, "picker: a second canvas-level click picker appeared");
+  has(MAPC, "if (_loadingLayer || isPainted(_activeLayer)) return;",
+    "picker: the canvas handler no longer stands down once polygons are drawn, so two pickers race one tap");
+
+  // ── The pick is recorded and shown before anything that can fail ──────────
+  {
+    const sel = MAPC.slice(MAPC.indexOf("function selectDistrict("), MAPC.indexOf("function updateSelectionUI("));
+    must(sel.length > 80, "selectDistrict is gone from the controller");
+    const iUI = sel.indexOf("updateSelectionUI(");
+    const iStyle = sel.indexOf("applyPathStyle(path");
+    const iSave = sel.indexOf("applyToLocation()");
+    ok(iUI > 0 && iStyle > 0 && iSave > 0, "tap: selectDistrict no longer updates the UI, the styling and the record");
+    ok(iUI < iStyle, "tap: the polygon restyle runs before the chip and the confirm bar, so a Leaflet throw takes the tap with it");
+    ok(iUI < iSave, "tap: the location write runs before the chip and the confirm bar");
+    has(sel, "try {", "tap: the restyle can still abort the handler");
+  }
+  {
+    const upd = MAPC.slice(MAPC.indexOf("function updateSelectionUI("), MAPC.indexOf("function shortAddr("));
+    must(upd.length > 80, "updateSelectionUI is gone from the controller");
+    ok(upd.indexOf("refreshConfirmBtn()") < upd.indexOf("refreshInfoPanel()"),
+      "confirm: the confirm bar is armed after the chrome, so a fault in the hint or the banner leaves it greyed out");
+    eq((upd.match(/refreshConfirmBtn\(\)/g) || []).length, 1, "confirm: refreshConfirmBtn is called twice per update");
+  }
+  // The bar says what it will commit.
+  has(MAPC, "'Use ' + LABEL[lead] + ' District ' + _selected[lead]",
+    "confirm: the pinned bar no longer names the chamber and district it would commit");
+  no(MAPC, "'Use this location · '", "confirm: the bar is back to a label that names nothing");
+
+  // ══ DRIVEN: A SEARCH ARMS CONFIRM, AND A POLYGON TAP RE-AIMS IT ═══════════
+  // This is the assertion the report is actually about, so it is driven rather
+  // than pinned: the controller is parsed, a hit is handed to it at the owner's
+  // published seam, the REAL onEachFeature binding is exercised, and the chip
+  // and the button are read out of the DOM afterwards.
+  {
+    const SRC = MAP.slice(MAP.indexOf("(function(){"));
+    const sq = (w, e, dist, key) => ({
+      type: "Feature", properties: { [key]: dist },
+      geometry: { type: "Polygon", coordinates: [[[w, 40.6], [e, 40.6], [e, 40.8], [w, 40.8], [w, 40.6]]] },
+    });
+    const PAYLOAD = {
+      house:    { type: "FeatureCollection", features: [sq(-112.0, -111.8, 15, "DIST"), sq(-111.8, -111.6, 16, "DIST")] },
+      senate:   { type: "FeatureCollection", features: [sq(-112.0, -111.6, 7, "DIST")] },
+      congress: { type: "FeatureCollection", features: [sq(-112.0, -111.6, 2, "DISTRICT")] },
+    };
+
+    const mkEl = (id) => {
+      let kid = null;
+      const el = {
+        id, innerHTML: "", textContent: "", value: "", className: "", disabled: false,
+        style: {}, _cls: new Set(),
+        classList: {
+          add(c) { el._cls.add(c); }, remove(c) { el._cls.delete(c); }, contains(c) { return el._cls.has(c); },
+          toggle(c, on) { if (on === undefined) { el._cls.has(c) ? el._cls.delete(c) : el._cls.add(c); } else if (on) el._cls.add(c); else el._cls.delete(c); },
+        },
+        setAttribute() {}, getAttribute() { return null; }, removeAttribute() {},
+        addEventListener() {}, removeEventListener() {}, focus() {}, appendChild() {}, remove() {},
+        // Memoised, so a caller that reads back what it wrote sees it.
+        querySelector() { return (kid = kid || mkEl(id + "-child")); },
+        querySelectorAll() { return []; },
+      };
+      return el;
+    };
+    const els = {};
+    for (const id of ["district-map-modal", "pdx-district-map", "pdx-map-status", "pdx-map-status-text",
+                      "pdx-map-search-input", "pdx-map-search-note", "pdx-map-search-btn", "pdx-map-search-ico",
+                      "pdx-map-hint", "pdx-map-done", "pdx-sel-house", "pdx-sel-senate",
+                      "pdx-map-info", "pdx-map-info-label", "pdx-map-info-val", "pdx-map-info-ico",
+                      "pdx-layer-house", "pdx-layer-senate", "pdx-layer-congress"]) els[id] = mkEl(id);
+
+    const timers = [];
+    const mapObj = {
+      _h: {},
+      setView() { return mapObj; }, invalidateSize() { return mapObj; },
+      on(ev, fn) { mapObj._h[ev] = fn; return mapObj; },
+      hasLayer(l) { return added.indexOf(l) >= 0; },
+      addLayer(l) { added.push(l); return mapObj; },
+      removeLayer(l) { const i = added.indexOf(l); if (i >= 0) added.splice(i, 1); return mapObj; },
+      fitBounds() { return mapObj; }, setMaxBounds() { return mapObj; },
+      getZoom() { return 6; }, getCenter() { return { lat: 39.3, lng: -111.5 }; },
+      flyTo() { return mapObj; }, panTo() { return mapObj; },
+    };
+    const added = [];
+    // Paths record the handlers the controller binds, which is the whole point:
+    // the click that gets fired below is the one buildLayer() actually wired.
+    const paths = [];
+    const mkPath = (feature) => {
+      const p = {
+        _feature: feature, _handlers: {}, _styles: [],
+        on(a, b) { if (typeof a === "string") p._handlers[a] = b; else Object.keys(a).forEach((k) => { p._handlers[k] = a[k]; }); return p; },
+        off() { return p; }, bindTooltip() { return p; }, setStyle(s) { p._styles.push(s); return p; },
+        bringToFront() { return p; }, addTo(m) { m.addLayer(p); return p; }, remove() { return p; },
+      };
+      paths.push(p);
+      return p;
+    };
+    const layerish = (tag) => {
+      const o = {
+        _tag: tag, on() { return o; }, off() { return o; }, addTo(m) { m.addLayer(o); return o; },
+        setStyle() { return o; }, bindTooltip() { return o; }, bringToFront() { return o; },
+        getBounds() { return { isValid: () => true, pad: () => ({}) }; },
+        eachLayer() {}, clearLayers() { return o; }, remove() { return o; },
+      };
+      return o;
+    };
+    const L = {
+      map() { return mapObj; },
+      tileLayer() { return layerish("tiles"); },
+      // THE REAL BINDING RUNS. onEachFeature is invoked exactly as Leaflet does.
+      geoJSON(data, opts) {
+        const g = layerish("geojson");
+        (data && data.features || []).forEach((f) => {
+          const p = mkPath(f);
+          if (opts && opts.style) { try { opts.style(f); } catch (e) {} }
+          if (opts && opts.onEachFeature) opts.onEachFeature(f, p);
+        });
+        return g;
+      },
+      marker() { return layerish("marker"); }, circleMarker() { return layerish("marker"); },
+      divIcon() { return { _icon: true }; }, point(a, b) { return { x: a, y: b }; },
+      latLng(a, b) { return { lat: a, lng: b }; },
+      latLngBounds() { return { isValid: () => true, pad: () => ({}) }; },
+      control: { attribution: () => layerish("control") },
+      DomEvent: { stopPropagation() {}, preventDefault() {} },
+    };
+
+    const win = {
+      console, JSON, Math, Date, Promise, String, Number, Boolean, Array, Object, RegExp, Error,
+      parseInt, parseFloat, isNaN, encodeURIComponent, decodeURIComponent, setInterval() {}, clearInterval() {},
+      navigator: { userAgent: "node", onLine: true }, L,
+    };
+    win.window = win;
+    win.setTimeout = (fn, ms) => { timers.push({ fn, ms: ms || 0 }); return timers.length; };
+    win.clearTimeout = () => {};
+    win.requestAnimationFrame = (fn) => { timers.push({ fn, ms: 0 }); return timers.length; };
+    const listeners = {};
+    win.document = {
+      readyState: "loading",
+      head: { appendChild() {} },
+      body: { style: {}, classList: mkEl("body").classList, appendChild() {} },
+      documentElement: { style: {} },
+      getElementById: (id) => els[id] || null,
+      querySelector: () => null, querySelectorAll: () => [],
+      createElement: (t) => mkEl(t),
+      addEventListener(ev, fn) { (listeners[ev] = listeners[ev] || []).push(fn); },
+      removeEventListener() {},
+    };
+    win.fetch = () => new Promise(() => {});
+    win._currentVoterLocation = {};
+    win._hasUserLocation = false;
+    win.location = { pathname: "/find", search: "", hash: "", href: "https://politidex.fyi/find", origin: "https://politidex.fyi", assign() {}, replace() {} };
+
+    let bootErr = null;
+    try { vm.runInContext(SRC, vm.createContext(win), { filename: "find.html#tap" }); }
+    catch (e) { bootErr = e; }
+    must(!bootErr, `the controller threw on load (${bootErr ? bootErr.message : ""}), so nothing below measures a tap`);
+
+    // The deferred owner lands, stubbed at its published surface. Boundary
+    // payloads are served through PDXFinder.fetch because that is the one seam
+    // every request in the finder goes through, and the geocode is answered at
+    // PDXFinder.deadline for the same reason — no geocoder is reimplemented here.
+    const HIT = { lat: 40.7, lng: -111.9, name: "123 Main St, Layton, UT 84041", precise: true,
+                  city: "Layton", county: "Davis", house: 15, senate: 7, congress: 2 };
+    win.PDXFinder = {
+      isOpen: () => true, markPending() {}, flush() {}, abort() {}, track: (x) => x,
+      deadline: () => Promise.resolve({ timedOut: false, hit: HIT }),
+      fetch(url) {
+        const u = String(url);
+        const k = u.indexOf("UtahHouseDistricts") > 0 ? "house"
+                : u.indexOf("UtahSenateDistricts") > 0 ? "senate"
+                : u.indexOf("political_us_congress_districts") > 0 ? "congress" : null;
+        if (!k) return new Promise(() => {});
+        return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(PAYLOAD[k]) });
+      },
+    };
+    win.PDXReturn = { settled() {}, consume() { return false; }, finderHref: () => "/find" };
+
+    const pump = async (rounds = 40) => {
+      for (let i = 0; i < rounds; i++) {
+        const q = timers.splice(0, timers.length);
+        for (const t of q) { try { t.fn(); } catch (e) {} }
+        await Promise.resolve(); await null;
+      }
+    };
+
+    for (const fn of listeners.DOMContentLoaded || []) fn({});
+    await pump();
+    eq(els["district-map-modal"].style.display, "flex", "driven: arriving at /find did not open the finder");
+
+    // Nothing is picked yet and the bar says so.
+    eq(els["pdx-map-done"].disabled, true, "driven: confirm is armed before any district is selected");
+
+    // ── A SEARCH ARMS CONFIRM WITHOUT A SECOND TAP ──────────────────────────
+    els["pdx-map-search-input"].value = "123 Main St, Layton";
+    win.pdxMapSearchAddress();
+    await pump();
+    eq(els["pdx-map-done"].disabled, false,
+      "driven: a search that already resolved a district left confirm greyed out — the reader has to tap the map too");
+    eq(els["pdx-map-done"].textContent, "Use State House District 15 · State Senate 7",
+      "driven: the pinned bar does not name the district the search resolved");
+    eq(els["pdx-sel-house"].querySelector().textContent, "District 15",
+      "driven: the State House chip was not filled in by the search");
+    eq(els["pdx-sel-senate"].querySelector().textContent, "District 7",
+      "driven: the State Senate chip was not filled in by the search");
+
+    // The real binding got wired for every polygon in both layers.
+    ok(paths.length >= 3, `driven: the geoJSON binding ran over ${paths.length} polygons — expected the House pair and the Senate seat`);
+    const p16 = paths.filter((p) => p._feature.properties.DIST === 16);
+    must(p16.length === 1, "the driven payload no longer contains exactly one District 16 polygon");
+    ok(typeof p16[0]._handlers.click === "function",
+      "driven: the District 16 polygon has no click handler, so a tap on it can never land");
+
+    // ── A POLYGON TAP RE-AIMS IT ────────────────────────────────────────────
+    let tapErr = null;
+    try { p16[0]._handlers.click({ latlng: { lat: 40.7, lng: -111.7 } }); } catch (e) { tapErr = e; }
+    await pump();
+    ok(!tapErr, `driven: tapping a district polygon threw (${tapErr ? tapErr.message : "ok"})`);
+    eq(els["pdx-sel-house"].querySelector().textContent, "District 16",
+      "driven: tapping the District 16 polygon did not move the State House chip");
+    eq(els["pdx-map-done"].disabled, false, "driven: a polygon tap left confirm greyed out");
+    eq(els["pdx-map-done"].textContent, "Use State House District 16 · State Senate 7",
+      "driven: the pinned bar does not name the district that was just tapped");
+    // The tap is the reader overriding the address, and it reaches the record.
+    eq(win._currentVoterLocation.stateHouseDistrict, "16",
+      "driven: the tapped district never reached the location record");
+    eq(win._hasUserLocation, true, "driven: a tap did not mark the location as chosen");
+
+    // AND THE TAP STILL LANDS WHEN EVERYTHING DOWNSTREAM OF IT FAILS. This is
+    // the ordering the fix is: a Leaflet throw on a restyle, or a record write
+    // that cannot complete on a document without the homepage's tables, must
+    // not be able to swallow the chip and the button.
+    const p15 = paths.filter((p) => p._feature.properties.DIST === 15)[0];
+    must(p15, "the driven payload no longer contains a District 15 polygon");
+    p15.setStyle = () => { throw new Error("leaflet: path was rebuilt"); };
+    let hardErr = null;
+    try { p15._handlers.click({ latlng: { lat: 40.7, lng: -111.9 } }); } catch (e) { hardErr = e; }
+    await pump();
+    eq(els["pdx-sel-house"].querySelector().textContent, "District 15",
+      `driven: a throw in the polygon restyle swallowed the tap (${hardErr ? hardErr.message : "no throw"})`);
+    eq(els["pdx-map-done"].textContent, "Use State House District 15 · State Senate 7",
+      "driven: a throw in the polygon restyle left the confirm bar naming the previous district");
+    eq(els["pdx-map-done"].disabled, false, "driven: a throw in the polygon restyle greyed out confirm");
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 // THE WORKER
 // ═════════════════════════════════════════════════════════════════════════════
 section("worker · one bump, one entry");

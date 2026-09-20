@@ -782,11 +782,29 @@
         /* Modal shell */
         .pdx-map-overlay{position:fixed;inset:0;z-index:11000;display:none;align-items:center;justify-content:center;
           background:rgba(5,9,18,0.82);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:1rem;}
-        .pdx-map-box{position:relative;width:100%;max-width:880px;max-height:94vh;display:flex;flex-direction:column;overflow:hidden;
+        .pdx-map-box{position:relative;width:100%;max-width:880px;max-height:94vh;max-height:calc(100dvh - 2rem);display:flex;flex-direction:column;overflow:hidden;
           border-radius:1.25rem;background:linear-gradient(160deg,#0c1426 0%,#101d36 60%,#16274a 100%);
           border:2px solid rgba(245,200,66,0.22);box-shadow:0 24px 70px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.05);}
         .pdx-map-box::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;z-index:2;
           background:linear-gradient(90deg,#c0152a 0%,#c0152a 33%,#e9eef7 33%,#e9eef7 66%,#1e3a8a 66%,#1e3a8a 100%);opacity:0.9;}
+
+        /* ══ THE PANEL SCROLLS, AND THAT IS WHY CONFIRM IS REACHABLE ═══════════
+           The box is a fixed-height column with overflow:hidden and nothing
+           inside it could scroll, so on any short viewport the bottom of the
+           panel was simply CUT OFF — and the bottom of the panel is where the
+           confirm button lives. Head + search + result banner + chamber toggle +
+           map + hint + info bar + chamber chips + actions is roughly 1000px of
+           content; a phone in landscape, or a 667px-tall phone once the result
+           banner appears, has about 600px of box to put it in. The reader could
+           tap a district, the chip and the button would both update correctly,
+           and they would never see either: "the tap did nothing".
+           A PLAIN BLOCK, NOT A FLEX COLUMN. Every child in here already declares
+           its own height or is sized by its content; as flex items they could be
+           SHRUNK to fit, which is the failure being removed, so nothing is given
+           the chance to shrink. overscroll-behavior keeps a flick at the end of
+           this list from scrolling the page behind the modal. */
+        .pdx-map-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;
+          -webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
         .pdx-map-head{display:flex;align-items:flex-start;gap:0.85rem;padding:1.1rem 1.25rem 0.85rem;flex-shrink:0;}
         .pdx-map-head-ico{font-size:1.7rem;line-height:1;width:2.9rem;height:2.9rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;
           border-radius:0.85rem;background:linear-gradient(135deg,rgba(192,21,42,0.25),rgba(30,58,138,0.25));border:1px solid rgba(255,255,255,0.12);}
@@ -864,21 +882,36 @@
         .pdx-congress-note-body strong{color:#a5e9f5;font-weight:700;}
 
         /* Map canvas */
-        .pdx-map-canvas-wrap{position:relative;flex:1;min-height:300px;margin:0 1.25rem;border-radius:0.9rem;overflow:hidden;border:1px solid rgba(255,255,255,0.1);}
+        .pdx-map-canvas-wrap{position:relative;height:320px;height:clamp(240px,40dvh,400px);margin:0 1.25rem;border-radius:0.9rem;overflow:hidden;border:1px solid rgba(255,255,255,0.1);}
         #pdx-district-map{position:absolute;inset:0;width:100%;height:100%;background:#0a1120;}
+/* ══ THE STATUS PANEL IS A MESSAGE, NOT A LID ══════════════════════════
+           It is absolutely positioned across the whole canvas at z-index 600, so
+           while it is up it sits ON TOP of every district polygon — and it used
+           to take the taps aimed at them. That is not only a loading-time
+           annoyance: the fail line and the retry prompt are shown over a map
+           that may ALREADY be painted (switch chamber, the new layer 404s, the
+           old polygons are still drawn underneath), and there the curtain
+           silently swallowed every pick until the reader found "Try again".
+           pointer-events:none hands those taps back to the map. Its own buttons
+           opt back in, so Try again / Show boundaries still work, and the
+           canvas click handler's own _loadingLayer guard is what stops a tap
+           landing during a load from stacking a second request. */
         .pdx-map-status{position:absolute;inset:0;z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.7rem;
-          text-align:center;padding:1.5rem;background:rgba(8,13,28,0.92);font-family:'Barlow Condensed',sans-serif;color:#bcd3f5;}
+          text-align:center;padding:1.5rem;background:rgba(8,13,28,0.92);font-family:'Barlow Condensed',sans-serif;color:#bcd3f5;
+          pointer-events:none;}
+        .pdx-map-status button{pointer-events:auto;}
         .pdx-map-spinner{width:2.2rem;height:2.2rem;border-radius:999px;border:3px solid rgba(96,165,250,0.25);border-top-color:#60a5fa;animation:pdxspin 0.8s linear infinite;}
         @keyframes pdxspin{to{transform:rotate(360deg);}}
         .pdx-map-retry{cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-size:0.8rem;
           color:#fff;background:#2563eb;border:none;border-radius:0.6rem;padding:0.5rem 1.1rem;margin-top:0.3rem;}
 
-        /* Idle prompt: a ribbon that passes taps through to the live basemap,
-           unlike the loading and error curtains. */
-        .pdx-map-status--idle{inset:auto 0 0 0;z-index:600;padding:0.75rem 1rem 0.85rem;gap:0.4rem;pointer-events:none;
+        /* Idle prompt: the same panel reduced to a bottom ribbon so the live
+           basemap stays visible behind it. It no longer needs a pass-through
+           rule of its own — every variant of the status panel passes taps
+           through now, which is the point of the note above. */
+        .pdx-map-status--idle{inset:auto 0 0 0;z-index:600;padding:0.75rem 1rem 0.85rem;gap:0.4rem;
           background:linear-gradient(0deg,rgba(8,13,28,0.96) 0%,rgba(8,13,28,0.86) 60%,rgba(8,13,28,0.55) 100%);
           border-top:1px solid rgba(255,255,255,0.08);}
-        .pdx-map-status--idle .pdx-map-retry{pointer-events:auto;}
 
         /* Leaflet dark-theme overrides */
         /* Dark is a filter now, not a paid style: OSM's light raster inverted.
@@ -914,7 +947,16 @@
         .pdx-sel-label{font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#7596c0;}
         .pdx-sel-val{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;line-height:1.05;letter-spacing:0.02em;color:#5ee7b0;}
         .pdx-sel-val.is-empty{color:#48597a;font-family:'Barlow Condensed',sans-serif;font-size:0.92rem;font-weight:600;}
-        .pdx-map-actions{display:flex;gap:0.6rem;flex-wrap:wrap;}
+/* ══ CONFIRM IS PINNED, BECAUSE A PICK YOU CANNOT COMMIT IS NOT A PICK ══
+           Sticky to the bottom of the scrollport above, full-bleed over the
+           foot's padding, so "Use State House District 15" is on screen the
+           instant a tap or a search resolves one — whatever the reader has
+           scrolled to. The city/county door below it is reachable by scrolling
+           the last few pixels, exactly as before. */
+        .pdx-map-actions{position:sticky;bottom:0;z-index:20;display:flex;gap:0.6rem;flex-wrap:wrap;
+          margin:0 -1.25rem;padding:0.7rem 1.25rem 0.55rem;
+          background:rgba(12,20,38,0.97);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+          border-top:1px solid rgba(255,255,255,0.08);}
         .pdx-map-done{flex:1;min-width:140px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.08em;
           text-transform:uppercase;font-size:0.9rem;color:#fff;border:none;border-radius:0.7rem;padding:0.7rem 1rem;min-height:46px;
           background:linear-gradient(135deg,#15803d,#0e7490);box-shadow:0 6px 20px rgba(20,128,61,0.3);transition:transform 0.15s ease,box-shadow 0.2s ease;}
@@ -928,9 +970,14 @@
           text-decoration:underline;text-underline-offset:2px;transition:color 0.2s ease;}
         .pdx-map-manual-link:hover{color:#cfe0f7;}
         @media (max-width:560px){
-          .pdx-map-box{max-height:96vh;border-radius:1rem;}
+          /* The overlay's own padding is given up here so the box really can be
+             100dvh: a phone has no room to spare, and dvh is the height that
+             accounts for the browser's collapsing toolbar. */
+          .pdx-map-overlay{padding:0;}
+          .pdx-map-box{max-height:96vh;max-height:100dvh;border-radius:1rem;}
           .pdx-map-title{font-size:1.3rem;}
-          .pdx-map-canvas-wrap{margin:0 0.85rem;min-height:260px;}
+          .pdx-map-canvas-wrap{margin:0 0.85rem;height:260px;height:clamp(200px,34dvh,320px);}
+          .pdx-map-actions{margin:0 -0.85rem;padding-left:0.85rem;padding-right:0.85rem;}
           .pdx-map-head,.pdx-map-toggle,.pdx-map-foot,.pdx-map-search{padding-left:0.85rem;padding-right:0.85rem;}
           .pdx-map-head{padding-top:0.9rem;}
           .pdx-map-search-btn{padding:0 0.85rem;}
@@ -958,6 +1005,10 @@
       <div id="district-map-modal" class="pdx-map-overlay" onclick="if(event.target===this)window.closeDistrictMapModal()">
         <div class="pdx-map-box" role="dialog" aria-modal="true" aria-labelledby="pdx-map-title">
           <button type="button" class="pdx-map-close" onclick="window.closeDistrictMapModal()" aria-label="Close map">&times;</button>
+          <!-- Everything between here and the foot of the panel scrolls. The close
+               button and the flag stripe sit outside it, on the box, so they stay
+               put; the confirm row inside it is sticky. See .pdx-map-scroll. -->
+          <div class="pdx-map-scroll">
           <div class="pdx-map-head">
             <div class="pdx-map-head-ico" aria-hidden="true">🗺️</div>
             <div style="min-width:0;">
@@ -1058,6 +1109,7 @@
             </div>
             <button type="button" class="pdx-map-manual-link" onclick="window.openManualLocationForm && window.openManualLocationForm()">Prefer to pick by city/county? Use the manual selector</button>
           </div>
+          </div><!-- /.pdx-map-scroll -->
         </div>
       </div>
 
@@ -1350,9 +1402,14 @@
       });
       _tiles.addTo(_map);
 
-      // TAP-TO-LOAD. With nothing drawn, the map takes the tap, loads the active
-      // layer and picks the district there. Polygon clicks bubble here too, which
-      // is what the guard covers.
+      // TAP-TO-LOAD, AND ONLY THAT. With nothing drawn, the map takes the tap,
+      // loads the active layer and picks the district there. Once polygons ARE
+      // drawn this handler stands down completely and the per-feature click
+      // bound in buildLayer() owns the pick — the isPainted guard is what draws
+      // that line, so there is one picker, not two. (It also covers the
+      // reverse: a tap that reaches the map while a load is in flight must not
+      // stack a second request, which is what _loadingLayer is for, and that
+      // matters more now that the status panel passes taps through.)
       _map.on('click', function(e){
         if (!e || !e.latlng) return;
         if (_loadingLayer || isPainted(_activeLayer)) return;
@@ -1474,14 +1531,29 @@
     }
 
     // ── Selection ────────────────────────────────────────────────────────────
+    // ══ A PICK IS RECORDED AND SHOWN BEFORE ANYTHING THAT CAN FAIL ═══════════
+    // A tap on a polygon owes the reader exactly two visible things: the chamber
+    // chip filled in, and the confirm bar armed with that district. Everything
+    // else here is bookkeeping — restyling two polygons through Leaflet,
+    // resolving a curated Key-Races area, writing the location record, reacting
+    // to it — and on THIS document that bookkeeping has strictly more ways to
+    // fail than it had on the homepage, because /find deliberately does not
+    // carry ballot-breakdown.js or the front page's reaction chain.
+    // The restyle used to run BEFORE the UI update, so a Leaflet throw on a path
+    // that had been rebuilt out from under us took the chip and the button with
+    // it, and the tap looked like it had never happened. Now the state and the
+    // UI go first and nothing downstream can take them back.
     function selectDistrict(layerType, dist, path){
-      // Clear the previous pick's styling in this layer.
-      if (_selPath[layerType] && _selPath[layerType] !== path) applyPathStyle(_selPath[layerType], layerType, false);
+      var prev = _selPath[layerType];
       _selected[layerType] = dist;
       _selPath[layerType]  = path || null;
       _lastPicked = layerType;
-      applyPathStyle(path, layerType, true);
       updateSelectionUI(layerType, dist);
+      try {
+        // Clear the previous pick's styling in this layer, then light this one.
+        if (prev && prev !== path) applyPathStyle(prev, layerType, false);
+        applyPathStyle(path, layerType, true);
+      } catch (e) {}
       applyToLocation();
     }
 
@@ -1500,6 +1572,11 @@
           val.classList.add('is-empty');
         }
       });
+      // THE CONFIRM BAR IS PART OF THE ANSWER, NOT PART OF THE CHROME, so it is
+      // armed here beside the chips rather than after the three refreshes below
+      // it. A hint line, an info bar and a result banner are all nice to have; a
+      // selected district the reader cannot commit is the bug being fixed.
+      refreshConfirmBtn();
       var hint = document.getElementById('pdx-map-hint');
       if (hint && justSet && dist != null) {
         hint.innerHTML = '✅ <strong style="color:#7ee7b8;">' + LABEL[justSet] + ' District ' + dist +
@@ -1509,7 +1586,6 @@
       }
       refreshInfoPanel();
       refreshResultBanner();
-      refreshConfirmBtn();
     }
 
     // Shorten a Nominatim display_name to the first few, most-recognisable parts.
@@ -1595,16 +1671,27 @@
       }
     }
 
-    // The confirm button only commits once at least one district is chosen.
+    // The confirm button only commits once at least one district is chosen, and
+    // it SAYS WHAT IT WILL COMMIT: "Use State House District 15". This bar is
+    // pinned to the foot of the panel now and it is frequently the only
+    // confirmation of a tap a reader on a phone can see without scrolling, so
+    // naming the chamber and the number is the difference between a button and
+    // an acknowledgement. "Use this location" named neither.
     function refreshConfirmBtn(){
       var btn = document.getElementById('pdx-map-done');
       if (!btn) return;
       var any = !!(_selected.house || _selected.senate);
       btn.disabled = !any;
-      var parts = [];
-      if (_selected.house)  parts.push('House ' + _selected.house);
-      if (_selected.senate) parts.push('Senate ' + _selected.senate);
-      btn.textContent = any ? 'Use this location · ' + parts.join(' · ') : 'Select a district first';
+      if (!any) { btn.textContent = 'Select a district first'; return; }
+      // Lead with the chamber the reader is actually looking at. U.S. House is a
+      // reference layer with nothing of its own to commit, so on that toggle the
+      // bar defers to whichever legislative seat is set.
+      var lead  = (_activeLayer !== 'congress' && _selected[_activeLayer] != null)
+                    ? _activeLayer : (_selected.house ? 'house' : 'senate');
+      var other = lead === 'house' ? 'senate' : 'house';
+      var txt   = 'Use ' + LABEL[lead] + ' District ' + _selected[lead];
+      if (_selected[other] != null) txt += ' · ' + LABEL[other] + ' ' + _selected[other];
+      btn.textContent = txt;
     }
 
     // Resolve the curated Key-Races area that best matches the chosen districts so

@@ -7551,7 +7551,54 @@
 //     no equity copy, no score change, no alias entry, no money pill.
 //     BOARD_ROUTES is still one row and /district/ut-sd-3 is untouched.
 //     MIGRATION COST: none. Nothing stored changed shape or name.
-const CACHE_VERSION = 'v236';
+// v237 - ON /find, A TAP ON A DISTRICT NOW VISIBLY SELECTS IT.
+//     The finder would resolve a district and the reader could not tell. The
+//     gold info bar said 'State House District 15', the chamber chip filled in
+//     and the confirm button armed itself correctly - all of it below the fold,
+//     with no way to reach it. The modal box is a fixed-height column with
+//     overflow:hidden and NOTHING INSIDE IT COULD SCROLL, so on any short
+//     viewport the foot of the panel was not scrolled past, it was CUT OFF, and
+//     the foot of the panel is where the commit button lives. Head, search box,
+//     result banner, chamber toggle, map, hint, info bar, chips and actions is
+//     about a thousand pixels of content; a 667px phone, once the result banner
+//     appears, has roughly six hundred to put it in. That is the whole of
+//     'confirm is off-screen', and most of 'taps aren't landing' with it: the
+//     taps were landing, into a part of the panel the reader could not see.
+//     THE PANEL SCROLLS NOW and the commit row is sticky to the foot of that
+//     scrollport, so 'Use State House District 15' is on screen the instant a
+//     tap or a search resolves one. The box is sized in dvh rather than vh,
+//     because vh on a phone is the height WITHOUT the collapsing toolbar and can
+//     be taller than the screen actually is, and the map is given a height of
+//     its own instead of flex:1 - taking 'whatever is left' is how a 300px floor
+//     under the map became a clipped foot on the panel. The close button and the
+//     flag stripe stay pinned to the box, outside the scroll.
+//     THE STATUS PANEL IS A MESSAGE, NOT A LID. It covers the whole canvas at
+//     z-index 600 and it took the taps aimed at the polygons underneath. That is
+//     not only a loading-time annoyance: the fail line and the retry prompt are
+//     shown over a map that may ALREADY be painted - switch chamber, the new
+//     layer fails, the old polygons are still drawn - and there the curtain
+//     silently swallowed every pick until the reader found 'Try again'. It
+//     passes taps through now; its own buttons opt back in, and the canvas
+//     handler's in-flight guard is what stops a tap during a load stacking a
+//     second request.
+//     AND A PICK IS RECORDED BEFORE ANYTHING THAT CAN FAIL. A tap owes the
+//     reader two visible things - the chip and the armed confirm bar - and the
+//     restyling, the area lookup and the record write are bookkeeping that has
+//     more ways to fail on this document than it had on the homepage, because
+//     /find does not carry ballot-breakdown.js. The restyle used to run first,
+//     so a Leaflet throw on a rebuilt path took the chip and the button with it.
+//     State and UI first; nothing downstream can take them back. The confirm bar
+//     also names what it would commit now, because when it is the only
+//     acknowledgement a tap gets, 'Use this location' names nothing.
+//     THERE IS STILL ONE PICKER: the per-feature onEachFeature binding is the
+//     homepage's, unedited, and the canvas-level handler still stands down the
+//     moment polygons are drawn. No second listener races the first. A
+//     CACHE_VERSION MOVE IS REQUIRED because '/find.html' is a precached shell.
+//     NO LOCATION KEY WAS RENAMED, COPIED OR MIGRATED. No new state, no new
+//     board, no PDXFinder rewrite: PDX_LOC_KEY, _pdxLocWasChosen and
+//     pdxRepsForMe() are untouched, BOARD_ROUTES is still one row, and the
+//     city/county door is still at the foot of the panel. MIGRATION COST: none.
+const CACHE_VERSION = 'v237';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
