@@ -7255,7 +7255,54 @@
 //     MIGRATION COST: none. index.html and scripts/test-home-voice-gate.mjs
 //     changed; a warm device would otherwise serve a front page with no door
 //     into the lane.
-const CACHE_VERSION = 'v229';
+// v230 - ISSUE DRAWER LEADS WITH BILLS/ACTS TABLE; SCORES UNCHANGED.
+//     THE BUG. The issue drawer opened on three verdicts at once - a percent
+//     hero, a bucket line and a stance chip - and then a wall of method: how
+//     Direction Match weights the issue, the depth caveat, the wall between the
+//     public and formal records, suggest-a-lead. A reader could not find out
+//     how many BILLS and how many ACTS were behind any of it. Massie x
+//     voter_id is the fixture; H.R. 8595 is one statute that a member votes on
+//     twice, once to send it back and once to pass it, and nothing on the
+//     screen said so.
+//     THE INVENTORY COMES FIRST. One finding line, then always the same two
+//     lines - on this issue N bills / M formal acts, then acts X for / Y
+//     against, read off the engine's own for-and-against - then, when one
+//     measure carries every act, the sentence that says which measure. Then a
+//     table with one row per ACT, not per essay: date, bill number linking to
+//     the same bill file the rest of the site links to, the kind of act in the
+//     clerk's words, Yea or Nay spelled out, and the issue chips that already
+//     existed. Grouped: tried to change it (amendments) above voted on the
+//     result (passage, recommit). The same bill number appearing twice is the
+//     lesson, not a bug.
+//     NO KIND IS GUESSED. Amendment comes off actionType/isAmendment;
+//     recommit and commit off the clerk's own action text, because actionType
+//     reads 'passage' for one member's recommit and 'motion' for another's; an
+//     unrecognised kind prints the act verbatim rather than a label. The why
+//     line is the stored rationale or title, clipped at a real sentence end -
+//     never at 'Division B Secs.' - and printed once per measure. No scrape.
+//     ROW DIRECTION IS THE CANONICAL READ. The per-row for/against counts call
+//     _voteEffectiveSupport, which applies advanceInverted: a nay on a motion
+//     to recommit ADVANCES the measure. Maloy x gov_services used to print
+//     'Acts: 1 for / 1 against' directly above the sheet's own 'both advanced
+//     it'. 2136 of 46702 record-lane items are affected by that inversion and
+//     the dossier's older _dosItemDir still omits it; that helper is untouched
+//     here, so published direction figures elsewhere do not move.
+//     THE METHOD IS FOLDED, NOT DELETED. The percent hero, bucket line, stance
+//     chip, depth note and both lane panels move together and IN ORDER into one
+//     disclosure, 'How this is scored'. Every sentence survives. _gapFocusSel
+//     now opens any closed details above its target, so the tally jump and the
+//     lane-disagreement jump still land on visible content. A drawer with no
+//     roll call - exec lane, curated formal action, public record only -
+//     renders exactly as it did before.
+//     NOTHING SCORED MOVED. No match percentage, publication floor or
+//     NEVER_FEEDS change; the profile's pooled figure stays behind the fold. No
+//     equity copy. Homepage gate, /voice, SD-3's board, money pills and FD
+//     tables untouched; the engines still twin-boot byte-identical. No store is
+//     written and no location key is migrated: politidex_voter_location is not
+//     read, not renamed and not migrated by a drawer that renders a table.
+//     MIGRATION COST: none. consistency.js and one new suite changed; a warm
+//     device would otherwise serve the old drawer shell against the new table.
+const CACHE_VERSION = 'v230';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

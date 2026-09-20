@@ -300,8 +300,15 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // every move before it. Everything below moved DOWN, so PDXStance is now
 // 20260-20381. Located verbatim by searching a window around the old start
 // rather than by adding twelve to it; the arithmetic agreed afterwards.
+//   AND DOWN BY 117, for the homepage District Voice gate. The front page grew
+// a hero card pointing a stranger at /voice, its styles, and the standing read
+// that swaps the verb on it — 117 lines, all of them above this block like every
+// move before it. So PDXStance is now 20377-20498. Located verbatim by searching
+// index.html for the 122-line run that evidence.html actually carries, not by
+// adding 117 to the old start; the arithmetic agreed afterwards. This pin was the
+// one thing the gate pass left behind, and it is exactly what the pin is for.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 20260, b: 20381, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 20377, b: 20498, what: "the PDXStance vocabulary" },
   { from: "person.html", src: PERSON, a: 2012, b: 2066, what: "the Firebase boot" },
 ];
 // The three-room split moved the index.html range by −2021 — /mandate, /voice

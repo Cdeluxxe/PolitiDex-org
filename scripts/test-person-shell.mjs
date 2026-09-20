@@ -352,10 +352,10 @@ const COPIES = [
   [2018, 2038, "the Firebase compat bundles, the key injection, the stub and firebase-boot.js"],
   [2190, 2236, "the share furniture share-preview.ts rewrites"],
   [3727, 3791, "the crawl-header guard"],
-  [13401, 13435, "the profile modal down to #modal-content"],
-  [13496, 13543, "the stance popover, the record overlay and the share sheet"],
-  [20260, 20381, "PDXStance"],
-  [22870, 23068, "the PWA runtime and the service-worker registration"],
+  [13517, 13551, "the profile modal down to #modal-content"],
+  [13612, 13659, "the stance popover, the record overlay and the share sheet"],
+  [20377, 20498, "PDXStance"],
+  [22987, 23185, "the PWA runtime and the service-worker registration"],
 ];
 //   AND DOWN BY TWELVE, for the Voice-hub pass. window.pdxMapConfirm on
 // index.html grew the return-intent trigger — one guarded PDXReturn.consume()
@@ -364,6 +364,14 @@ const COPIES = [
 // every move before it. Everything below moved DOWN, so the last two are now
 // 20260-20381 and 22870-23068. Located verbatim by searching a window around the old start
 // rather than by adding twelve to it; the arithmetic agreed afterwards.
+//   AND DOWN AGAIN, FOR THE HOMEPAGE DISTRICT VOICE GATE. The front page grew a
+// hero card pointing a stranger at /voice, its styles and the standing read that
+// swaps the verb on it: 116 lines above the two modal blocks, 117 above PDXStance
+// and the PWA runtime, and none of them anywhere near any of the four. So the
+// lower four are now 13517-13551, 13612-13659, 20377-20498 and 22987-23185 —
+// each re-derived by locating in index.html the run person.html actually carries,
+// never by adding the delta, and the declared ranges in person.html's own headers
+// moved in the same edit.
 
 // THESE NUMBERS ARE ANCHORS INTO index.html AND THEY MOVE WHEN IT DOES. The
 // ones re-based here were re-based by the fourth split, which lifted the ballot

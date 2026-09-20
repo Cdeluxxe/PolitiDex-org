@@ -137,6 +137,10 @@ const ALLOW = {
      "the dossier tag markup"],  // consistency.js:14997
     ["else if (d.primary === false) tags.push('<span class=\"pdxdos-tag\">supporting link</span>');",
      "the dossier tag markup"],  // consistency.js:14998
+    ["var how = it.isPrimary ? 'the primary link there'",
+     "the ledger chip's tooltip word for the OTHER issues one act reached"],  // consistency.js:16511
+    ["out.push('<span class=\"pdxlg-chip' + (it.isPrimary ? ' pdxlg-chip-p' : '') + '\"' +",
+     "the ledger chip's markup — a brighter border on a primary link, no label and no gate"],  // consistency.js:16514
   ],
   "receipt-cards.js": [
     ["if (!!ma.isPrimary !== !!mb.isPrimary) return ma.isPrimary ? -1 : 1;",

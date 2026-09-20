@@ -265,9 +265,16 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // cares about; not a character of the block itself changed. Re-derived by
 // locating the run, as always — the arithmetic agreed afterwards, which is the
 // order that catches a bad pin rather than confirming one.
+//   AND ONE MORE MOVE, FOR THE HOMEPAGE DISTRICT VOICE GATE. The front page grew
+// a hero card pointing a stranger at /voice, its styles, and the standing read
+// that swaps the verb on it — 116 lines above the CSS pin and 117 above the
+// script block, all of them above both. Re-derived the only way this pin is ever
+// allowed to move: by locating in index.html the run that this document actually
+// carries, not by adding the delta to the old start. The arithmetic agreed
+// afterwards, and the declared ranges in the copies moved in the same edit.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 20218, b: 20242, what: "the .pdxis-stance* pill rules" },
-  { from: "index.html", src: INDEX, a: 20261, b: 20381, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 20334, b: 20358, what: "the .pdxis-stance* pill rules" },
+  { from: "index.html", src: INDEX, a: 20377, b: 20497, what: "the PDXStance vocabulary" },
 ];
 // Both index.html ranges have now moved THREE TIMES, and the third ran the other
 // way. The Digital Library split took #digital-library out of index.html but left
