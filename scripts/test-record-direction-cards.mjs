@@ -166,7 +166,7 @@ function boot(withRecordDirection) {
       querySelector: () => null, querySelectorAll: () => [],
       addEventListener() {},
     },
-    location: { hash: "", origin: "https://www.politidex.fyi", pathname: "/" },
+    location: { hash: "", origin: "https://politidex.fyi", pathname: "/" },
     navigator: {},
     setTimeout: () => 0, clearTimeout: () => {},
     setInterval: () => 0, clearInterval: () => {},

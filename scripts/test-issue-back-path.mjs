@@ -80,7 +80,7 @@ const must = (cond, msg) => {
 
 const PID = "lee";
 const KEY = "gun_safety";
-const ORIGIN = "https://www.politidex.fyi";
+const ORIGIN = "https://politidex.fyi";
 // Everything one of these doors is rendered by, in index.html's order, plus the
 // two address owners. person-link.js is the one this suite exists to include:
 // without it profileUrl has no canonicaliser and emits no query at all, which is
@@ -331,7 +331,7 @@ section("4 · the bar, run against a stubbed arrival");
     };
     const win = {
       location: {
-        origin: ORIGIN, protocol: "https:", host: "www.politidex.fyi",
+        origin: ORIGIN, protocol: "https:", host: "politidex.fyi",
         pathname: `/i/${KEY}`, search: opts.search || "", hash: opts.hash || "",
         assign(u) { nav.push(["assign", u]); },
         set href(u) { nav.push(["href", u]); }, get href() { return ORIGIN + `/i/${KEY}`; },
@@ -486,7 +486,7 @@ section("6 · closing: a navigation on the issue shell, an overlay everywhere el
       getAttribute(k) { return this.attrs[k]; } };
     const win = {
       location: {
-        origin: ORIGIN, protocol: "https:", host: "www.politidex.fyi",
+        origin: ORIGIN, protocol: "https:", host: "politidex.fyi",
         pathname: o.pathname || `/i/${KEY}`, search: o.search || "", hash: o.hash || "",
         assign() {}, href: ORIGIN + (o.pathname || `/i/${KEY}`),
       },

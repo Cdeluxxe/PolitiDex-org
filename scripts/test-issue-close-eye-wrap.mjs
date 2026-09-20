@@ -180,9 +180,9 @@ function makeDom(opts) {
     matchMedia() { return { matches: false, addEventListener() {}, addListener() {} }; },
     getComputedStyle() { return { getPropertyValue() { return ""; } }; },
     location: {
-      href: "https://www.politidex.fyi" + (opts.pathname || "/"),
+      href: "https://politidex.fyi" + (opts.pathname || "/"),
       pathname: opts.pathname || "/", search: opts.search || "", hash: opts.hash || "",
-      origin: "https://www.politidex.fyi",
+      origin: "https://politidex.fyi",
     },
     history: {
       pushState(s, t, url) { history.push(["push", url]); win.location.pathname = String(url).split("?")[0].split("#")[0]; },

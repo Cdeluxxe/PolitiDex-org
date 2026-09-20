@@ -118,7 +118,7 @@ const SPLIT = "cost_living";
 // A key the record settles deep on, for the clipped-read frame: the letterhead
 // has real integers to publish there, which is the case the caveat is for.
 const DEEP = "climate_action";
-const ORIGIN = "https://www.politidex.fyi";
+const ORIGIN = "https://politidex.fyi";
 
 const corpus = buildCorpus(ROOT);
 must(corpus && corpus.byMember && corpus.byMember.size > 300,

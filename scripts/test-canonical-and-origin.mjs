@@ -4,8 +4,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // TWO BUGS, ONE FILE.
 //
-// 1. TWO DOMAINS. The public site is https://www.politidex.fyi — the host Google
-//    indexes, with the apex 301ing onto it. Seven places once named an
+// 1. TWO DOMAINS. The public site is https://politidex.fyi — the apex, on HTTPS,
+//    with www and both http spellings 301ing onto it. Seven places once named an
 //    old .org host that we do not serve, and they were not decorative: the digest
 //    library built every emailed UNSUBSCRIBE link from it (an unsubscribe link
 //    that 404s is a compliance problem, not a typo), the digest functions built
@@ -14,7 +14,7 @@
 //    the place to go. There is now exactly one origin in the repo.
 //
 // 2. A CANONICAL THAT LIES. index.html is a single document, so it carries a
-//    single hardcoded `<link rel="canonical" href="https://www.politidex.fyi/">` and
+//    single hardcoded `<link rel="canonical" href="https://politidex.fyi/">` and
 //    a single `og:url`. Every share link is a rewrite of that same document —
 //    /issue/<slug>, /vote/<congress>/<chamber>/<roll>, /p/<id>, /?bill=…,
 //    /?receipt=… — so every one of them shipped a HEAD whose title, description
@@ -80,39 +80,88 @@ section("1 · there is exactly one public origin in the repo");
   const hits = files.filter((f) => OLD.test(R(f)));
   eq(hits, [], "no file names the retired .org domain — including comments, docs and runbooks");
 
-  // ── THE PUBLIC ORIGIN IS THE www HOST ──────────────────────────────────────
-  // Google indexes https://www.politidex.fyi and the apex 301s onto it, so www is
-  // the address the site actually has. This gate used to pin the apex and forbid
-  // www, which had it exactly backwards: every absolute URL we emitted — the
-  // canonical, og:url, all 1,227 sitemap entries, the robots Sitemap line, every
-  // emailed record and unsubscribe link, every baked share URL — named a host that
-  // answers 301 and then hands the reader to a different one. A redirect is a hop
-  // a crawler did not need and a second address for one record, which is the same
-  // duplicate-host bug the .org sweep above exists to catch, wearing our own name.
-  const LIVE = "www.politidex.fyi";
-  has(R("index.html"), `<link rel="canonical" href="https://${LIVE}/"`, "index.html declares the www origin as its canonical");
+  // ── THE PUBLIC ORIGIN IS THE APEX, ON HTTPS ────────────────────────────────
+  // https://politidex.fyi is the one address the site has. www — on either
+  // scheme — and the apex on http all 301 onto it in a single hop, by the three
+  // rules at the top of netlify.toml that section 5 below pins.
+  //
+  // THIS PIN HAS NOW BEEN BOTH WAYS ROUND, so it is worth writing down why it
+  // landed here. It originally pinned the apex; a later pass flipped it to www on
+  // the grounds that www was the indexed host and the apex merely redirected to
+  // it. Both passes were arguing about which of two live hostnames to advertise.
+  // What settled it was not an SEO preference but an interstitial: a tap from
+  // inside the Facebook in-app browser opened the www host over plain http with an
+  // ?fbclid= click id attached, and Xfinity Advanced Security (safebrowse.io)
+  // painted "This site could be risky" over it. (The offending URL is described
+  // here rather than quoted, because the two sweeps below forbid writing it — this
+  // file is inside its own sweep, which is the point of assembling their patterns
+  // from parts.) Desktop Chrome and incognito were fine, which is the tell —
+  // there is nothing wrong with the content. What got scored was the SHAPE of the
+  // first hop: cleartext, to the longer of two hostnames, on a young .fyi, from a
+  // webview, with a click id attached.
+  //
+  // So the criterion changed. It is no longer "which host does Google have" but
+  // "how few hops, and how little cleartext, does a cold reader traverse" — and
+  // on that criterion the apex wins for a reason no preference can overturn: it
+  // is the shortest name that can serve the site, and every character of "www."
+  // is one more thing a link can carry that has to be redirected away. One origin,
+  // and the shortest one.
+  const LIVE = "politidex.fyi";
+  has(R("index.html"), `<link rel="canonical" href="https://${LIVE}/"`, "index.html declares the apex origin as its canonical");
   has(R("index.html"), `<meta property="og:url" content="https://${LIVE}/"`, "…and unfurls on the same host it canonicalizes to");
-  has(R("netlify/lib/digest.ts"), `https://${LIVE}`, "the digest library builds unsubscribe links on the www origin");
+  has(R("netlify/lib/digest.ts"), `https://${LIVE}`, "the digest library builds unsubscribe links on the apex origin");
   for (const f of ["netlify/functions/pdx-digest.mts", "netlify/functions/pdx-digest-cron.mts"]) {
-    has(R(f), `https://${LIVE}`, `${f} builds email links on the www origin`);
+    has(R(f), `https://${LIVE}`, `${f} builds email links on the apex origin`);
   }
 
-  // ONE SITEMAP, ONE HOST, AND IT IS THE INDEXED ONE. The generator writes both
-  // files from a single ORIGIN, so these two pins are what stops a hand edit from
-  // introducing a crawl entry point on one host and addresses on another.
+  // ONE SITEMAP, ONE HOST, AND IT IS THE CANONICAL ONE. The generator writes both
+  // files from a single ORIGIN — scripts/gen-sitemap.mjs — so these pins are what
+  // stops a hand edit from introducing a crawl entry point on one host and
+  // addresses on another. All 1,399 <loc> entries move when that constant moves,
+  // which is why this pass regenerated rather than hand-edited them.
   const sitemap = R("sitemap.xml"), robots = R("robots.txt");
-  has(sitemap, `<loc>https://${LIVE}/</loc>`, "sitemap.xml lists the homepage on the www origin");
+  has(sitemap, `<loc>https://${LIVE}/</loc>`, "sitemap.xml lists the homepage on the apex origin");
   eq(robots.match(/^Sitemap:/gm) || [], ["Sitemap:"], "robots.txt names exactly one sitemap — a second host would be a second site");
-  has(robots, `Sitemap: https://${LIVE}/sitemap.xml`, "…and that one sitemap is on the www origin");
+  has(robots, `Sitemap: https://${LIVE}/sitemap.xml`, "…and that one sitemap is on the apex origin");
   const locHosts = [...new Set([...sitemap.matchAll(/<loc>https?:\/\/([^/<]+)/g)].map((m) => m[1]))];
-  eq(locHosts, [LIVE], "every <loc> in the sitemap is on the one indexed host");
+  eq(locHosts, [LIVE], "every <loc> in the sitemap is on the one canonical host");
+  // THE SINGLE ORIGIN HELPER, PINNED AT ITS SOURCE. Every sitemap entry and the
+  // robots Sitemap line are built by concatenating this one constant, so pinning
+  // it is what makes the two assertions above a property of the generator rather
+  // than of a file somebody could hand-edit back.
+  has(R("scripts/gen-sitemap.mjs"), `export const ORIGIN = "https://${LIVE}"`,
+     "the sitemap generator's one ORIGIN constant is the apex on HTTPS");
 
-  // …and the apex form appears in no absolute URL anywhere in the tree. Assembled
-  // from parts for the same reason the .org pattern above is: written as one
-  // literal, this line would be its own first hit.
-  const APEX = new RegExp("https?://" + "politidex" + "\\." + "fyi", "i");
-  const apexHits = files.filter((f) => APEX.test(R(f)));
-  eq(apexHits, [], "no absolute URL names the apex host — it 301s to www, so emitting it publishes a redirect as an address");
+  // …and the www form appears in no absolute URL anywhere in the tree, on either
+  // scheme. This is the assertion the previous pass had inverted, and it is the
+  // one that keeps the flag from being re-earned: an absolute www URL anywhere we
+  // emit is a link that, when tapped, performs the exact redirect that got scored.
+  // Assembled from parts for the same reason the .org pattern above is — written
+  // as one literal, this line would be its own first hit.
+  //
+  // netlify.toml IS THE ONE EXEMPTION, AND IT HAS TO BE. The redirect table is the
+  // single place the retired spelling MUST still be written down, because naming
+  // it in a `from` is what retires it. A gate that forbade the string everywhere
+  // would forbid the rule that does the work. Nothing else is exempt: not a test
+  // stub, not a comment, not a doc.
+  const WWW = new RegExp("https?://" + "www" + "\\." + "politidex" + "\\." + "fyi", "i");
+  const REDIRECT_TABLE = "netlify.toml";
+  const wwwHits = files.filter((f) => f !== REDIRECT_TABLE && WWW.test(R(f)));
+  eq(wwwHits, [], "no absolute URL names the www host — it 301s to the apex, so emitting it publishes a redirect as an address");
+  // And the exemption is not a hole: the one file allowed to name www must name it
+  // ONLY inside a redirect `from`, never in a `to`. A www target would mean the
+  // table redirects onto the host it is retiring.
+  const tomlLines = R(REDIRECT_TABLE).split("\n").filter((l) => WWW.test(l) && /^\s*(from|to)\s*=/.test(l));
+  eq(tomlLines.filter((l) => /^\s*to\s*=/.test(l)), [],
+     "the redirect table never points a `to` at the www host — that would redirect onto the spelling being retired");
+  ok(tomlLines.length > 0, "…and it does still name www in a `from`, which is what retires it");
+
+  // NO http SPELLING OF OUR OWN HOST IS EMITTED EITHER, same exemption and same
+  // reason. The cleartext hop is half of what got scored, so a hardcoded http://
+  // link to ourselves is the bug even when the host after it is correct.
+  const INSECURE = new RegExp("http://" + "(www\\.)?" + "politidex" + "\\." + "fyi", "i");
+  const insecureHits = files.filter((f) => f !== REDIRECT_TABLE && INSECURE.test(R(f)));
+  eq(insecureHits, [], "no absolute URL names our host over http — cleartext is the hop the interstitial scored");
 
   // ── AND THE RETIRED .us DOMAIN, WHICH NO LONGER RESOLVES AT ALL ───────────
   // politidex.us was an older spelling of this site. It is not a redirect and not
@@ -157,7 +206,7 @@ section("2 · canonicalPath derives the record address, not the request");
   must(typeof S.canonicalPath === "function", "share-target.ts no longer exports canonicalPath");
 
   const canon = (u) => {
-    const t = S.parseTarget(new URL(u, "https://www.politidex.fyi"));
+    const t = S.parseTarget(new URL(u, "https://politidex.fyi"));
     return t ? S.canonicalPath(t) : null;
   };
 
@@ -267,7 +316,7 @@ section("3 · the edge function rewrites canonical, not just og:url");
   // all answering 200. So one record self-canonicalised onto each host it was
   // fetched from, which is the duplicate-host bug section 1 exists to catch,
   // arriving through the one code path section 1 could not see.
-  has(sp, 'const ORIGIN = "https://www.politidex.fyi"',
+  has(sp, 'const ORIGIN = "https://politidex.fyi"',
      "share-preview pins the one public origin rather than trusting the request host");
   has(sp, "ORIGIN + canonicalPath(target)",
      "the canonical is built from the pinned origin and the target, not from the request");
@@ -317,6 +366,226 @@ section("4 · the live document's canonical tracks the open record too");
   // Spotlight URL and every later close is wrong.
   const snapshot = block.slice(block.indexOf("if (!_meta)"), block.indexOf("document.title ="));
   has(snapshot, "_meta.canonical", "the canonical is captured in the same one-shot snapshot as the meta tags");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("5 · every other spelling 301s to the apex in one hop");
+// ═════════════════════════════════════════════════════════════════════════════
+// Sections 1–4 govern what the repo EMITS. This one governs what the edge DOES
+// with a link somebody already sent — the ones in feeds, texts, print-outs and
+// search indexes that still name www or http, and will keep naming them for
+// years. Those links are the population that earned the interstitial, and no
+// amount of correct canonical markup reaches them. Only the redirect table does.
+//
+// Parsed as TOML rather than grepped, because the three things that can be wrong
+// here are all structural: a rule can exist with the right hostnames and the
+// wrong status, it can be missing `force` and be silently shadowed by a static
+// file, or it can be in the wrong POSITION and never be consulted at all. A
+// substring match sees none of those.
+{
+  // A PURPOSE-BUILT READER RATHER THAN A TOML LIBRARY, DELIBERATELY. The only
+  // parsers on hand here (`toml`, `smol-toml`) are transitive dependencies of the
+  // Netlify CLI that resolve out of the build image's global node-deps, not out of
+  // this repo's package.json — a test that imported one would pass in CI and throw
+  // ERR_MODULE_NOT_FOUND on a contributor's machine. The subset this needs is
+  // small and the file's own shape is uniform: `[[table]]` headers, `key = value`
+  // lines, and one nested `[headers.values]`. Comments and blanks are skipped, so
+  // the long rationale blocks in netlify.toml cannot be misread as data.
+  const readTables = (src) => {
+    const out = { redirects: [], headers: [] };
+    let cur = null, sub = null;
+    for (const raw of src.split("\n")) {
+      const line = raw.trim();
+      if (!line || line.startsWith("#")) continue;
+      let m = /^\[\[(\w+)\]\]$/.exec(line);
+      if (m) { cur = out[m[1]] ? (out[m[1]].push({}), out[m[1]][out[m[1]].length - 1]) : null; sub = null; continue; }
+      m = /^\[(\w+)\.(\w+)\]$/.exec(line);
+      if (m) { sub = cur ? (cur[m[2]] = cur[m[2]] || {}) : null; continue; }
+      m = /^\[[^\]]+\]$/.exec(line);
+      if (m) { cur = null; sub = null; continue; }   // an unrelated table, e.g. [images]
+      m = /^([\w-]+)\s*=\s*(.+)$/.exec(line);
+      if (!m || !cur) continue;
+      let v = m[2].trim().replace(/\s*#.*$/, "");
+      if (/^".*"$/.test(v)) v = v.slice(1, -1);
+      else if (v === "true") v = true;
+      else if (v === "false") v = false;
+      else if (/^-?\d+$/.test(v)) v = Number(v);
+      (sub || cur)[m[1]] = v;
+    }
+    return out;
+  };
+  const cfg = readTables(R("netlify.toml"));
+  const rules = cfg.redirects || [];
+  // The reader is only trustworthy if it actually found the shapes it claims to
+  // read, so prove that before asserting anything about their contents.
+  must(rules.every((r) => typeof r.from === "string"), "the redirect reader parsed a `from` for every rule");
+  must((cfg.headers || []).some((h) => h.values), "the redirect reader parsed the nested [headers.values] tables");
+  must(rules.length > 10, `netlify.toml still carries its redirect table (${rules.length} rules)`);
+
+  const APEX = "https://politidex.fyi";
+  // The three spellings that can reach us and are not the canonical one. Written
+  // as host+scheme pairs rather than literals so the expected `from` is assembled
+  // the same way the sweeps in section 1 assemble their patterns — this file is
+  // inside those sweeps and may not write an absolute www or http URL of its own.
+  const W = "www" + ".politidex" + ".fyi";
+  const A = "politidex" + ".fyi";
+  const SPELLINGS = [
+    { from: `http://${A}/*`,  why: "the apex over cleartext" },
+    { from: `http://${W}/*`,  why: "www over cleartext — the exact first hop that got flagged" },
+    { from: `https://${W}/*`, why: "www over TLS" },
+  ];
+
+  for (const { from, why } of SPELLINGS) {
+    const r = rules.find((x) => x.from === from);
+    ok(r, `a redirect rule exists for ${why}`);
+    if (!r) continue;
+    // 301, NOT 302. A temporary redirect tells a crawler to keep asking at the old
+    // spelling, which means keep making the request that got scored.
+    eq(r.status, 301, `${why} answers 301 — permanent, not a 302 that invites the old spelling back`);
+    // force, or the static file at '/' answers first and no redirect happens.
+    eq(r.force, true, `${why} is forced — without it the publish directory's own index.html answers at 200 instead`);
+    // ONE HOP: the target is the canonical origin itself, not another redirecting
+    // spelling. This is what forbids http://www → http://apex → https://apex.
+    eq(r.to, `${APEX}/:splat`, `${why} lands on the canonical origin directly, in a single hop`);
+  }
+
+  // ── ORDER IS PART OF THE CONTRACT ──────────────────────────────────────
+  // Netlify evaluates this table top-down and the first match wins. Every other
+  // rule in the file is path-only in `from`, so it matches on ANY host: if a host
+  // redirect sits below one of them, a cleartext request to
+  // www/<a path those rules cover> matches the rewrite first and is served HTML at
+  // 200 over plain http on the non-canonical host. That is precisely the hop this
+  // whole pass exists to delete, so "the rules exist" is not enough — they have to
+  // be first.
+  const firstThree = rules.slice(0, 3).map((r) => r.from);
+  eq(firstThree, SPELLINGS.map((s2) => s2.from),
+     "the three host redirects are the FIRST three rules — a path-only rewrite above them would serve HTML on port 80");
+
+  // ── AND NOTHING ELSE IN THE TABLE REDIRECTS ONTO A NON-CANONICAL HOST ─────
+  // A `to` on another absolute host would be a second origin arriving through the
+  // one door section 1's file sweep cannot see, since it reads the table as text.
+  const badTargets = rules
+    .map((r) => String(r.to || ""))
+    .filter((t) => /^https?:\/\//.test(t) && !t.startsWith(`${APEX}/`) && !t.startsWith(APEX + "?"));
+  eq(badTargets, [], "no redirect in the table targets any absolute host but the canonical origin");
+
+  // ── HSTS: THE HOP THE REDIRECTS CANNOT REMOVE ─────────────────────
+  // A redirect catches a cleartext request after it has been sent. This header
+  // stops the next one being sent at all, which is the difference between "we
+  // handle the flagged shape" and "a warm browser cannot produce it."
+  const hsts = (cfg.headers || []).find(
+    (h) => h && h.values && h.values["Strict-Transport-Security"]
+  );
+  ok(hsts, "a Strict-Transport-Security header is declared");
+  if (hsts) {
+    eq(hsts.for, "/*", "HSTS rides every response, not one path — a scoped header teaches the browser nothing about the origin");
+    const v = hsts.values["Strict-Transport-Security"];
+    eq(v, "max-age=31536000; includeSubDomains",
+       "HSTS is one year and covers subdomains — includeSubDomains is what upgrades a www link before it leaves the device");
+    // NO preload, AND THIS ASSERTION IS THE POINT RATHER THAN AN OVERSIGHT.
+    // Preload is a one-way door: submission bakes the whole name into browser
+    // binaries and removal takes months to propagate. This pass canonicalizes and
+    // stops there deliberately, so the gate pins the ABSENCE — otherwise a later
+    // pass could add it by reflex while thinking it was finishing this one.
+    ok(!/preload/i.test(v), "HSTS does NOT carry preload — a one-way door this pass deliberately leaves shut");
+  }
+  // Belt and braces on the same point: no live directive anywhere in the config
+  // says preload, comments excluded so the note explaining the decision is not a hit.
+  const tomlNoComments = R("netlify.toml").split("\n").filter((l) => !/^\s*#/.test(l)).join("\n");
+  ok(!/preload/i.test(tomlNoComments), "…and no live line in netlify.toml mentions preload at all");
+}
+
+// Collect every redirect `from` in the table. Shared by sections 5 and 6; defined
+// at module scope because section 5's reader is block-scoped to its own braces.
+function readTablesFroms(src) {
+  return src
+    .split("\n")
+    .map((l) => /^\s*from\s*=\s*"([^"]+)"/.exec(l.replace(/^\s*#.*$/, "")))
+    .filter(Boolean)
+    .map((m) => m[1]);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("6 · a hostname change moved a hostname and nothing else");
+// ═════════════════════════════════════════════════════════════════════════════
+// THE RISK IN A SWEEP IS THE SWEEP. Retiring a hostname touched 114 files, and a
+// regex that rewrites 114 files is exactly the kind of change that quietly takes
+// something else with it. So this section does not re-test the District Voice
+// lane's behaviour — test-district-voice.mjs, test-district-voice-sd3.mjs,
+// test-finder-basemap.mjs and test-home-voice-gate.mjs own that, and they run in
+// the same suite. It asserts the narrower thing those suites cannot: that the
+// files carrying that behaviour were not edited by this pass at all, and that the
+// ones which WERE edited differ from their committed form by the hostname only.
+{
+  const gitShow = (f) => {
+    try {
+      return execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+    } catch { return null; }
+  };
+  const baseline = gitShow("netlify.toml");
+
+  // ── THE LANES THAT MUST NOT HAVE MOVED AT ALL ───────────────────────
+  // None of these carries an absolute URL, so a hostname sweep had no business in
+  // any of them — which makes "byte-identical to HEAD" the honest assertion rather
+  // than a proxy for one. district-voice.js owns BOARD_ROUTES and the seat
+  // resolver; voice-room.js owns personOf; the board and map engines own the SD-3
+  // room; and word-action.js / consistency.js / profiles-full.js are the engines
+  // the twin-boot drift harnesses re-boot against HEAD. If a file here is listed
+  // as differing, the twin boots downstream are no longer trivially identical and
+  // this pass has exceeded its mandate.
+  const FROZEN = [
+    "district-voice.js", "voice-room.js", "district-board.js", "district-file.js",
+    "district-room.js", "issue-map.js", "word-action.js", "consistency.js",
+    "profiles-full.js", "voter-hub-location.js", "profile-alias.js",
+  ];
+  if (baseline === null) {
+    console.log("      (no git baseline available — the frozen-file audit did not run here)");
+  } else {
+    const moved = FROZEN.filter((f) => { const b = gitShow(f); return b !== null && b !== R(f); });
+    eq(moved, [], "no District Voice, board, map or twin-boot engine file was touched by the hostname sweep");
+  }
+
+  // ── BOARD_ROUTES IS STILL EXACTLY ONE ROW ────────────────────────
+  // Asserted on the literal rather than inferred from the file being unchanged, so
+  // it holds even where no git baseline exists. One shipped seat, one row: the
+  // allow-list is what stops /district/<anything> promising a room that does not
+  // exist, and a second row here would be a new board — which this pass may not add.
+  const DV = R("district-voice.js");
+  const routesAt = DV.indexOf("var BOARD_ROUTES = {");
+  must(routesAt > 0, "district-voice.js no longer declares BOARD_ROUTES as an object literal");
+  const routesLit = DV.slice(routesAt, DV.indexOf("}", routesAt) + 1);
+  eq((routesLit.match(/:/g) || []).length, 1, "BOARD_ROUTES still holds exactly one row — one shipped seat, one board");
+  has(routesLit, "'ut-statesenate-3': '/district/ut-sd-3'", "…and it is still SD-3 pointing at its own address");
+
+  // ── NO SPLAT OVER /district/ ─────────────────────────────────
+  // The three host rules added at the top of the table are the only wildcards this
+  // pass introduced, and they are scoped by HOST. A /district/* wildcard would
+  // publish an address for every district in the country; only one has a file.
+  const districtFroms = (readTablesFroms(R("netlify.toml")) || []).filter((f) => f.startsWith("/district"));
+  eq(districtFroms.filter((f) => f.includes("*")), [],
+     "no /district/* splat redirect exists — exact paths only, one per shipped seat");
+  ok(districtFroms.includes("/district/ut-sd-3"), "…and SD-3's own exact rule is still there");
+
+  // ── /voice AND THE HOMEPAGE DOOR INTO IT ───────────────────────
+  const voiceFroms = (readTablesFroms(R("netlify.toml")) || []).filter((f) => f === "/voice" || f === "/voice/");
+  eq(voiceFroms, ["/voice", "/voice/"], "both spellings of /voice still route, and no third was added");
+  has(R("voice.html"), `<link rel="canonical" href="https://${"politidex" + ".fyi"}/voice" />`,
+     "voice.html canonicalises to /voice on the apex — the host moved, the address did not");
+  has(R("voice-room.js"), "function personOf(pid)", "voice-room.js still owns personOf, unrenamed");
+  has(R("index.html"), "<!-- pdx:home-voice-gate:begin -->", "the homepage Voice card is still on the front page");
+
+  // ── THE SD-3 BOARD DOCUMENT ───────────────────────────────
+  // Its head moved to the apex like every other shell. Nothing else in it may have,
+  // and unlike the frozen list above this file WAS edited, so the assertion is the
+  // stronger one: identical to HEAD once the hostname is normalised away.
+  const SD3 = "district-ut-sd-3.html";
+  has(R(SD3), `<link rel="canonical" href="https://${"politidex" + ".fyi"}/district/ut-sd-3" />`,
+     "the SD-3 board canonicalises to its own address on the apex");
+  const sd3Base = gitShow(SD3);
+  if (sd3Base !== null) {
+    const normalised = sd3Base.split("www" + ".politidex" + ".fyi").join("politidex" + ".fyi");
+    eq(normalised === R(SD3), true, "…and the SD-3 board differs from its committed form by the hostname alone");
+  }
 }
 
 console.log("");

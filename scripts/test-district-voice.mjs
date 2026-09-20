@@ -844,7 +844,7 @@ has(FN_CODE, "limit(TAKES_CAP)", "and the cap is applied in the query, not in th
     };
     w.setTimeout = () => 0;
     w.clearTimeout = () => {};
-    w.location = { pathname: "/", href: "https://www.politidex.fyi/", search: "", hash: "" };
+    w.location = { pathname: "/", href: "https://politidex.fyi/", search: "", hash: "" };
     w.localStorage = { getItem: () => null, setItem() {}, removeItem() {} };
     w.fetch = () => Promise.resolve({ ok: false, status: 0, json: () => Promise.resolve({}) });
     const ctx = vm.createContext(w);
@@ -974,8 +974,8 @@ function makeDom(pathname) {
   win.__nodes = nodes;
   win.__mk = (id) => { const n = node("div"); n.id = id; body.appendChild(n); return n; };
   win.location = {
-    href: "https://www.politidex.fyi" + pathname,
-    pathname, search: "", hash: "", origin: "https://www.politidex.fyi",
+    href: "https://politidex.fyi" + pathname,
+    pathname, search: "", hash: "", origin: "https://politidex.fyi",
   };
   win.__pushed = [];
   win.history = { pushState(s, t, u) { win.__pushed.push(String(u)); }, replaceState() {} };
@@ -1001,7 +1001,7 @@ const BALLOT_WIN = (() => {
   };
   w.setTimeout = () => 0;
   w.clearTimeout = () => {};
-  w.location = { pathname: "/", href: "https://www.politidex.fyi/", search: "", hash: "" };
+  w.location = { pathname: "/", href: "https://politidex.fyi/", search: "", hash: "" };
   w.fetch = () => Promise.resolve({ ok: false, status: 0, json: () => Promise.resolve({}) });
   vm.runInContext(BALLOT_SRC, vm.createContext(w), { filename: "ballot-breakdown.js" });
   return w;
@@ -1478,7 +1478,7 @@ has(INDEX, 'href="/district-voice.css"', "and so is its sheet");
 // ═════════════════════════════════════════════════════════════════════════════
 section("10 · The sitemap — the canonical seat, and not one URL per person");
 
-has(SITEMAP, "<loc>https://www.politidex.fyi/d/" + HD68 + "</loc>",
+has(SITEMAP, "<loc>https://politidex.fyi/d/" + HD68 + "</loc>",
   "the canonical seat file is crawled");
 eq((SITEMAP.match(/\/d\//g) || []).length, 1,
   "exactly ONE /d/ address in the sitemap");

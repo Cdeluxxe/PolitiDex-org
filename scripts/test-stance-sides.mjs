@@ -230,8 +230,8 @@ function bootDesk(o) {
   mount.id = 'me-desk';
   win.document.body.appendChild(mount);
   win.location = {
-    href: 'https://www.politidex.fyi/me', pathname: '/me', search: '', hash: '',
-    origin: 'https://www.politidex.fyi', replace() {}, assign() {},
+    href: 'https://politidex.fyi/me', pathname: '/me', search: '', hash: '',
+    origin: 'https://politidex.fyi', replace() {}, assign() {},
   };
   win.history = { pushState() {}, replaceState() {} };
   const seed = {};
@@ -286,8 +286,8 @@ function bootStudio(o) {
   doorBody.id = 'ms-door-body';
   door.appendChild(doorBody);
   win.location = {
-    href: 'https://www.politidex.fyi/my-stances', pathname: '/my-stances', search: '', hash: '',
-    origin: 'https://www.politidex.fyi', replace() {}, assign(u) { win.__nav = String(u); },
+    href: 'https://politidex.fyi/my-stances', pathname: '/my-stances', search: '', hash: '',
+    origin: 'https://politidex.fyi', replace() {}, assign(u) { win.__nav = String(u); },
   };
   win.history = { pushState() {}, replaceState(a, b, u) { win.__url = String(u); } };
   const seed = {};

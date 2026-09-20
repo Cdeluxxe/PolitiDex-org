@@ -98,10 +98,21 @@ const ROOT = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), ".."
 const CHECK = process.argv.includes("--check");
 const REPORT = process.argv.includes("--report");
 
-// The single public origin: the www host, which is the one Google has indexed and
-// the one the apex 301s to. The apex form is NOT a second address this file may
-// emit — a sitemap listing a host that redirects hands every crawler a hop it did
-// not need and invites the two forms to compete as duplicates of each other.
+// The single public origin: THE APEX ON HTTPS. Every other spelling — the apex
+// on http, and www on either scheme — 301s here in one hop, by the three rules
+// at the top of netlify.toml. Neither the www form nor any http form is a second
+// address this file may emit: a sitemap listing a host that redirects hands every
+// crawler a hop it did not need and invites the two forms to compete as
+// duplicates of each other.
+//
+// THIS CONSTANT USED TO BE THE www HOST, and moving it is the point of the pass
+// that changed this line. A tap from inside the Facebook in-app browser opened
+// https://politidex.fyi/?fbclid=… and Xfinity Advanced Security painted an
+// interstitial over it — not because of anything on the page, but because a
+// cleartext first hop to a second hostname on a young .fyi is the shape those
+// filters score. The site had two public spellings and advertised the longer one.
+// It has one now, and this is where every generated address gets it.
+//
 // Hardcoded rather than read from an env var: a sitemap is a published claim about
 // one site, and a sitemap that changes hostname with the environment is a sitemap
 // that can ship a preview URL to a search engine.
@@ -109,7 +120,7 @@ const REPORT = process.argv.includes("--report");
 // ONE HOST, ONE FILE. This constant also builds the single `Sitemap:` line in
 // robots.txt below, so the crawl entry point and the addresses inside it cannot
 // drift onto different hosts, and there is still exactly one sitemap host.
-export const ORIGIN = "https://www.politidex.fyi";
+export const ORIGIN = "https://politidex.fyi";
 
 const SITEMAP = path.join(ROOT, "sitemap.xml");
 const ROBOTS = path.join(ROOT, "robots.txt");

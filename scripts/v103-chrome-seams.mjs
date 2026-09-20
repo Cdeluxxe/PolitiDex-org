@@ -1195,6 +1195,43 @@ export const WA_SEAMS = [
 ];
 
 /**
+ * Normalise the site's public hostname out of a source file before comparing it
+ * to HEAD.
+ *
+ * WHY A WAVE HARNESS NEEDS THIS. Every twin-boot wall in these tests says the
+ * same thing in its own words: a data wave writes rows, so no file the browser
+ * boots may differ from HEAD. That claim is about BEHAVIOUR — an engine, a
+ * floor, a weight, a judged surface. It is not about which hostname a baked
+ * share link points at.
+ *
+ * So when the site collapsed onto one public origin — one apex, HTTPS, with the
+ * other spellings 301'd at the edge — say-vs-do.js's SHARE_URL changed host and
+ * nothing else, and nine walls at once reported a data wave editing the engine.
+ * Each of them was reading a true diff and answering the wrong question, and the
+ * cost of leaving them to it is the expensive kind: a wall that fails for a
+ * reason it was never about teaches the next reader to waive it, and a waived
+ * wall catches nothing. Widening the waiver lists would have done exactly that —
+ * put say-vs-do.js, the Direction Match engine itself, on the allowed side of
+ * every wave's twin boot forever, to license one hostname.
+ *
+ * Normalising instead keeps the walls' strength where it was: both trees are
+ * read with the hostname replaced by the same sentinel, so a canonicalisation
+ * pass is invisible and EVERY other byte is still compared exactly. A real edit
+ * to a booted file — including a real edit to a share URL's path, query or
+ * scheme-less form — still differs after normalisation and still fails.
+ *
+ * Both spellings collapse to one sentinel, with or without a scheme, so this
+ * keeps reading the same way whichever host the site is canonical on. The
+ * hostname is assembled from parts rather than written out, so that
+ * scripts/test-canonical-and-origin.mjs — which sweeps the whole repo for
+ * absolute URLs naming a non-canonical origin — does not read this normaliser
+ * as a published address.
+ */
+export const ORIGIN_RE = new RegExp(
+  "(?:https?://)?(?:www\\.)?" + "politidex" + "\\." + "fyi", "g");
+export const deOrigin = (src) => String(src).replace(ORIGIN_RE, "<origin>");
+
+/**
  * Cut every seam out of `src`, in order.
  *
  * Returns { pinned, bodies } — `pinned` is everything OUTSIDE the seams (which

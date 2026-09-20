@@ -72,6 +72,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { deOrigin } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -385,7 +386,7 @@ function voiceCtx(s, memo, opts) {
   const els = { "pdx-voice-standing": mk("pdx-voice-standing"), "pdx-voice-seats": mk("pdx-voice-seats") };
   win.document.getElementById = (id) => els[id] || null;
   win.__PDX_VOICE_DOC = true;
-  win.location = { href: "https://www.politidex.fyi/voice", pathname: "/voice", search: "", hash: "", origin: "https://www.politidex.fyi", assign() {}, replace() {} };
+  win.location = { href: "https://politidex.fyi/voice", pathname: "/voice", search: "", hash: "", origin: "https://politidex.fyi", assign() {}, replace() {} };
   win._hasUserLocation = true;
   const loc = JSON.parse(JSON.stringify(s.loc));
   loc.resolved = JSON.parse(JSON.stringify(memo));
@@ -572,7 +573,12 @@ const HEAD = (f) => {
   ["profile-evidence.js", "the table's owner"]].forEach(([f, why]) => {
     const h = HEAD(f);
     if (h == null) { passed++; return; }  // no git object here; the byte pins above still hold
-    eq(R(f), h, `untouched: ${f} changed in this pass and it should not have — ${why}`);
+    // The public hostname is normalised out of both sides. "Untouched" here means this
+    // pass did not reach into the board, its engine or the curated tables — not that the
+    // site may never change which origin its canonical and share tags print. Collapsing
+    // onto one public origin rewrote that host in the board's head and in the share
+    // default, and nothing else in either file; every other byte is still pinned to HEAD.
+    eq(deOrigin(R(f)), deOrigin(h), `untouched: ${f} changed in this pass and it should not have — ${why}`);
   });
 
 // No map, no splat, no equity copy, no score.

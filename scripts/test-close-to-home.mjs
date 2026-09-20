@@ -46,7 +46,7 @@ const section = (t) => console.log(`\n   ── ${t}`);
 const must = (c, m) => { if (c) return; console.error(`✗ close-to-home: STALE HARNESS — ${m}`); process.exit(2); };
 
 const SW = R("sw.js");
-const ORIGIN = "https://www.politidex.fyi";
+const ORIGIN = "https://politidex.fyi";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 1 · The close leaves

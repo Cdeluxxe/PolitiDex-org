@@ -73,7 +73,7 @@ import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { assertParentTableIsTheOnlyMove, CJ_SEAMS_ALL, IC_SEAMS, carveSeams,
-  assertIssueColorsSeams } from "./v103-chrome-seams.mjs";
+  assertIssueColorsSeams, deOrigin } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -163,7 +163,7 @@ must(typeof S.canonicalPersonId === "function", "share-target.ts no longer expor
 must(typeof S.parseTarget === "function" && typeof S.canonicalPath === "function", "share-target.ts lost parseTarget/canonicalPath");
 
 const canon = (u) => {
-  const t = S.parseTarget(new URL(u, "https://www.politidex.fyi"));
+  const t = S.parseTarget(new URL(u, "https://politidex.fyi"));
   return t ? S.canonicalPath(t) : null;
 };
 
@@ -195,7 +195,7 @@ function personFile(opts) {
   }
   const win = {
     document: doc,
-    location: { origin: "https://www.politidex.fyi", pathname: opts.pathname || "/", search: "", hash: "", href: "https://www.politidex.fyi/" },
+    location: { origin: "https://politidex.fyi", pathname: opts.pathname || "/", search: "", hash: "", href: "https://politidex.fyi/" },
     history: { replaceState(a, b, url) { calls.replace.push(url); }, pushState() {} },
     _listeners: {},
     addEventListener(t, f) { (win._listeners[t] = win._listeners[t] || []).push(f); },
@@ -292,7 +292,7 @@ const ctxNext = {
     new Response(INDEX_HTML, { status: 200, headers: { "content-type": "text/html; charset=utf-8" } }),
 };
 async function serve(path) {
-  const res = await EDGE.default(new Request("https://www.politidex.fyi" + path), ctxNext);
+  const res = await EDGE.default(new Request("https://politidex.fyi" + path), ctxNext);
   if (!res) return null; // fail-open passthrough: the page, exactly as it was
   return { status: res.status, html: await res.text() };
 }
@@ -311,8 +311,8 @@ must(LEE && LEE.html, "the edge returned nothing for /p/lee — it used to rewri
   // THE ASSERTION THE MISSION IS WRITTEN AROUND: an <h1> with the name, in the
   // fetched bytes, not after JavaScript.
   has(html, "<h1>Mike Lee</h1>", "/p/lee raw HTML contains an <h1> naming Mike Lee");
-  has(html, '<link rel="canonical" href="https://www.politidex.fyi/p/lee"', "…and canonicalises to its own address");
-  has(html, '<meta property="og:url" content="https://www.politidex.fyi/p/lee"', "…and unfurls on the same address");
+  has(html, '<link rel="canonical" href="https://politidex.fyi/p/lee"', "…and canonicalises to its own address");
+  has(html, '<meta property="og:url" content="https://politidex.fyi/p/lee"', "…and unfurls on the same address");
   has(html, 'data-pid="lee"', "…and the block names the canonical pid");
   has(html, "<title>Mike Lee", "…and keeps the unique title the previous pass shipped");
 
@@ -335,7 +335,7 @@ must(LEE && LEE.html, "the edge returned nothing for /p/lee — it used to rewri
   has(block, "Utah", "block: the state");
   has(block, "formal voting record on PolitiDex", "block: what the page is");
   has(block, "Person file. Formal record first.", "block: the framing line");
-  has(block, 'href="https://www.politidex.fyi/p/lee"', "block: a link to the canonical address");
+  has(block, 'href="https://politidex.fyi/p/lee"', "block: a link to the canonical address");
   has(block, "Open the full file", "block: …with words a reader can act on");
   has(block, "<section data-pdx-crawl-record>", "block: the formal-record section");
   has(block, "<h2>Formal record</h2>", "block: …named as a record, not as a score");
@@ -374,21 +374,21 @@ section("4 · one person, one document — whichever spelling arrived");
 {
   const alias = await serve("/p/mike_lee");
   must(alias && alias.html, "/p/mike_lee returned no rewritten document — the alias hop is not reaching the edge");
-  has(alias.html, '<link rel="canonical" href="https://www.politidex.fyi/p/lee"',
+  has(alias.html, '<link rel="canonical" href="https://politidex.fyi/p/lee"',
     "/p/mike_lee canonicalises to /p/lee in the tags");
-  has(alias.html, '<meta property="og:url" content="https://www.politidex.fyi/p/lee"', "…including og:url");
+  has(alias.html, '<meta property="og:url" content="https://politidex.fyi/p/lee"', "…including og:url");
   has(alias.html, "<h1>Mike Lee</h1>", "…and names the same person in the crawl block");
   has(alias.html, 'data-pid="lee"', "…under the canonical pid, not the one that was typed");
   has(alias.html, 'data-pdx-crawl-for="/p/mike_lee"',
     "…and stamps the ADDRESS it was generated at, which is the alias the reader arrived on");
-  hasnt(blockOf(alias.html), 'href="https://www.politidex.fyi/p/mike_lee"',
+  hasnt(blockOf(alias.html), 'href="https://politidex.fyi/p/mike_lee"',
     "the block never advertises the alias as an address to open");
 
   // Same for the retirement case, which is the one where a stray document under
   // the retired key used to open as a second current file for one seat.
   const chew = await serve("/p/scott_chew");
   must(chew && chew.html, "/p/scott_chew returned no rewritten document");
-  has(chew.html, '<link rel="canonical" href="https://www.politidex.fyi/p/chew_h68"',
+  has(chew.html, '<link rel="canonical" href="https://politidex.fyi/p/chew_h68"',
     "/p/scott_chew canonicalises to /p/chew_h68");
   has(chew.html, "<h1>Scott Chew</h1>", "…and names one Scott Chew");
   has(chew.html, 'data-pid="chew_h68"', "…under the roster id that holds the formal file");
@@ -831,7 +831,7 @@ section("8b · /p/<pid> is THAT person in the first HTML — never another membe
 // ═════════════════════════════════════════════════════════════════════════════
 // THE LIVE DEFECT THIS SECTION IS THE CONTRACT ON (Colt, 2026-08-30).
 //
-// https://www.politidex.fyi/p/khanna printed, in its FIRST HTML, before any script
+// https://politidex.fyi/p/khanna printed, in its FIRST HTML, before any script
 // finished:
 //
 //     U.S. Senator · Utah
@@ -1126,6 +1126,13 @@ section("9 · the engines did not move");
     "netlify/lib/vr-pack.ts", "netlify/lib/vr-normalize.ts", "db/issue-keys.json",
   ];
   const sha = (s) => createHash("sha256").update(s).digest("hex").slice(0, 16);
+  // THE PUBLIC HOSTNAME IS NORMALISED OUT BEFORE HASHING. What this wall promises is
+  // that the ENGINES did not move — Direction Match, the packs, the mappings. The one
+  // thing in say-vs-do.js that is not engine is the share address it bakes in, and when
+  // the site collapsed onto a single public origin that address changed host and nothing
+  // else. Hashing the raw bytes read that as an engine edit, which is a true observation
+  // about the wrong question. deOrigin (scripts/v103-chrome-seams.mjs) asks the question
+  // this block is named after; every other byte of every listed file is still hashed.
   let compared = 0;
   const moved = [];
   for (const f of ENGINES) {
@@ -1134,7 +1141,7 @@ section("9 · the engines did not move");
       head = execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 256 * 1024 * 1024 });
     } catch { continue; }
     compared++;
-    if (sha(head) !== sha(R(f))) moved.push(f);
+    if (sha(deOrigin(head)) !== sha(deOrigin(R(f)))) moved.push(f);
   }
   if (!compared) {
     console.log("      (no git baseline available — engine byte-identity not checked in this environment)");

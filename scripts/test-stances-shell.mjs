@@ -210,9 +210,9 @@ ok(!BANNER_RE.test(INDEX), "banner: index.html carries no shell banner — that 
 
 // A PUBLIC BROWSE ROOM, so unlike /ballot and /me it is indexable and carries a
 // real canonical — on the www host, which is the one the apex 301s to.
-has(ST, '<link rel="canonical" href="https://www.politidex.fyi/stances" />',
-  "head: the canonical is www.politidex.fyi/stances");
-has(ST, '<meta property="og:url" content="https://www.politidex.fyi/stances" />',
+has(ST, '<link rel="canonical" href="https://politidex.fyi/stances" />',
+  "head: the canonical is politidex.fyi/stances");
+has(ST, '<meta property="og:url" content="https://politidex.fyi/stances" />',
   "head: og:url matches the canonical");
 ok(/<title>[^<]*PolitiDex[^<]*<\/title>/.test(ST), "head: the title names PolitiDex");
 lacks(ST, 'name="robots"', "head: no robots meta — a public browse room is indexed");
@@ -645,8 +645,8 @@ has(SW, `// ${ver} - `, `sw: ${ver} has a version-log entry in the file's own st
 
 // THE SITEMAP. A public browse room is listed; the two private workspaces are
 // not, and this addition is not a precedent for them.
-has(SITEMAP, "<loc>https://www.politidex.fyi/stances</loc>", "sitemap: /stances is advertised");
-has(SITEMAP, "<loc>https://www.politidex.fyi/evidence</loc>", "sitemap: /evidence is advertised");
+has(SITEMAP, "<loc>https://politidex.fyi/stances</loc>", "sitemap: /stances is advertised");
+has(SITEMAP, "<loc>https://politidex.fyi/evidence</loc>", "sitemap: /evidence is advertised");
 lacks(SITEMAP, "politidex.fyi/me<", "sitemap: /me is NOT advertised — it is the reader's own desk");
 lacks(SITEMAP, "politidex.fyi/ballot<", "sitemap: /ballot is NOT advertised either");
 lacks(SITEMAP, "politidex.fyi/stances/", "sitemap: only one spelling of the room is listed");

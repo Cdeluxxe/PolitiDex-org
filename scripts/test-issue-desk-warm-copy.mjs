@@ -108,7 +108,7 @@ const BARE = "lands_keep_public";
 const COLD_BARE = "lands_local";
 const BLANK_SCOPE = "cost_living";
 const BILL = "H.R. 7567";
-const ORIGIN = "https://www.politidex.fyi";
+const ORIGIN = "https://politidex.fyi";
 
 const corpus = buildCorpus(ROOT);
 must(corpus && corpus.byMember && corpus.byMember.size > 300,

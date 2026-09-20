@@ -255,7 +255,7 @@ function boot(o) {
   win.localStorage = { getItem: () => null, setItem() {}, removeItem() {} };
   win.auth = { currentUser: null };
   // www, not the apex: the apex 301s onto it, so www is the address the site has.
-  win.location = { href: "https://www.politidex.fyi/", pathname: "/", search: "", hash: o.hash || "" };
+  win.location = { href: "https://politidex.fyi/", pathname: "/", search: "", hash: o.hash || "" };
   win.CSS = { supports: () => (o.noScrollPadding ? false : true) };
   win.getComputedStyle = () => ({ getPropertyValue: () => (o.chrome || "") });
   const winL = [], docL = [];

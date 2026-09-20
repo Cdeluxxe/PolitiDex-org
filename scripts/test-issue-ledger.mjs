@@ -48,6 +48,7 @@ import { execFileSync } from "node:child_process";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
+import { deOrigin } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -572,10 +573,16 @@ section("9 · the pass stayed in its lane");
        "stance-helpers.js", "voting-record.js", "word-action.js"]
     : ["index.html", "voice.html", "voter-hub-location.js", "money.html", "money-room.js",
        "pdx-finance.js", "finance-lane.js", "stance-helpers.js", "voting-record.js", "word-action.js"];
+  // The public hostname is normalised out first. "Must touch nothing else" is about
+  // THIS DRAWER'S markup and scoring reaching into a file it has no business in — not
+  // about the origin those files print a share link on. Collapsing the site onto one
+  // origin rewrote that host in money.html and read here as a drawer edit; every other
+  // byte of every lane file is still pinned to HEAD exactly. deOrigin lives in
+  // scripts/v103-chrome-seams.mjs, shared with every wave harness asking the same thing.
   for (const f of LANE_FILES) {
     const head = HEAD(f);
     if (head === null) continue;
-    ok(head === R(f), `${f} changed — this pass reshapes one drawer and must touch nothing else`);
+    ok(deOrigin(head) === deOrigin(R(f)), `${f} changed — this pass reshapes one drawer and must touch nothing else`);
   }
 
   // The shell the new markup ships inside is versioned, exactly one step, with a

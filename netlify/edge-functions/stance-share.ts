@@ -21,7 +21,7 @@ const SHARE_PARAM = "views";
 // from a netlify.app host must still unfurl as one address rather than seeding a
 // second spelling of it. The og:image below deliberately stays on the REQUEST
 // origin — it points at this deploy's own /.netlify/images card.
-const ORIGIN = "https://www.politidex.fyi";
+const ORIGIN = "https://politidex.fyi";
 
 function b64urlToStr(tok: string): string {
   const b64 = tok.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(tok.length / 4) * 4, "=");

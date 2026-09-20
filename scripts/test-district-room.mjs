@@ -190,7 +190,7 @@ function makeDom(pathname) {
   win.setTimeout = (f, ms) => { queue.push({ f, ms: Number(ms) || 0 }); return queue.length; };
   win.clearTimeout = () => {};
   win.document = doc;
-  win.location = { href: "https://www.politidex.fyi" + pathname, pathname, search: "", hash: "", origin: "https://www.politidex.fyi" };
+  win.location = { href: "https://politidex.fyi" + pathname, pathname, search: "", hash: "", origin: "https://politidex.fyi" };
   win.history = { pushState() {}, replaceState() {} };
   win.flushTimers = (maxDelay) => {
     const cap = maxDelay == null ? 0 : maxDelay;

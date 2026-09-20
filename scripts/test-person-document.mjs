@@ -188,13 +188,13 @@ function sandbox(opts) {
   const stack = [start];
   let at = 0;
   const apply = (url) => {
-    const u = new URL(url, "https://www.politidex.fyi");
+    const u = new URL(url, "https://politidex.fyi");
     win.location.pathname = u.pathname;
     win.location.search = u.search;
     win.location.hash = u.hash;
   };
   win.location = {
-    origin: "https://www.politidex.fyi", pathname: "/", search: "", hash: "",
+    origin: "https://politidex.fyi", pathname: "/", search: "", hash: "",
     assign(u) { calls.assign.push(String(u)); },
     replace(u) { calls.locReplace.push(String(u)); },
     get href() { return this.origin + this.pathname + this.search + this.hash; },
@@ -377,7 +377,7 @@ section("4 · ?issue= / ?record= open the card, and Back closes it without leavi
     "the card's canonical address is not /p/<pid>?issue=<key>");
   eq(s.P.cardPath("mike_lee", "tough_on_crime"), "/p/lee?issue=tough_on_crime",
     "the card address does not canonicalise its pid — an alias would publish a second address for one card");
-  eq(s.P.cardUrl("lee", "tough_on_crime"), "https://www.politidex.fyi/p/lee?issue=tough_on_crime",
+  eq(s.P.cardUrl("lee", "tough_on_crime"), "https://politidex.fyi/p/lee?issue=tough_on_crime",
     "the absolute form of the card address drifted from the path form");
   // ?issue= rather than ?record=<pid>~<key> for what the app WRITES: the pid is
   // already in the path, and two claims about who this is can disagree.
@@ -647,7 +647,7 @@ section("7 · Back — and the × — return to /ballot, or to '/' when there wa
   // The fixture is the reported journey: the reader is on /ballot, taps a name,
   // and the click becomes a real entry for /p/lee. `at` is /ballot so the
   // referrer and the entry behind agree, which is what a click actually leaves.
-  const s = sandbox({ at: "/ballot", personDoc: true, referrer: "https://www.politidex.fyi/ballot" });
+  const s = sandbox({ at: "/ballot", personDoc: true, referrer: "https://politidex.fyi/ballot" });
   s.win.history.pushState(null, "", "/p/lee");
   const before = s.calls.assign.length;
   s.P.restore();
@@ -659,7 +659,7 @@ section("7 · Back — and the × — return to /ballot, or to '/' when there wa
 // A referrer that is THIS path is this document re-entered — a reload, a hash
 // step — not a surface to return to.
 {
-  const s = sandbox({ at: "/p/lee", personDoc: true, referrer: "https://www.politidex.fyi/p/lee" });
+  const s = sandbox({ at: "/p/lee", personDoc: true, referrer: "https://politidex.fyi/p/lee" });
   s.P.restore();
   eq(s.calls.assign[s.calls.assign.length - 1], "/",
     "a referrer pointing at this very file was treated as somewhere else to go back to");

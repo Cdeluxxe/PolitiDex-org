@@ -172,9 +172,9 @@ ok(bm && bm[1] === "money",
 has(MY, "/money IS ITS OWN DOCUMENT", "banner: the banner names the address it serves");
 ok(!BRE.test(INDEX), "banner: index.html carries a shell banner — that is what makes the guard a discriminator");
 
-has(MY, '<link rel="canonical" href="https://www.politidex.fyi/money" />',
-  "head: the canonical is www.politidex.fyi/money");
-has(MY, '<meta property="og:url" content="https://www.politidex.fyi/money" />',
+has(MY, '<link rel="canonical" href="https://politidex.fyi/money" />',
+  "head: the canonical is politidex.fyi/money");
+has(MY, '<meta property="og:url" content="https://politidex.fyi/money" />',
   "head: og:url matches the canonical");
 lacks(MY_MARKUP, 'name="robots"', "head: no robots meta — a public disclosure lane is meant to be indexed and linked");
 // THE SITEMAP IS NOT ASSERTED HERE, DELIBERATELY — same reason as the other two
@@ -606,8 +606,8 @@ function room(opts) {
   const replaced = [];
   const assigned = [];
   w.location = {
-    href: "https://www.politidex.fyi/money", pathname: "/money", search: o.search || "", hash: o.hash || "",
-    origin: "https://www.politidex.fyi",
+    href: "https://politidex.fyi/money", pathname: "/money", search: o.search || "", hash: o.hash || "",
+    origin: "https://politidex.fyi",
     replace: (h) => replaced.push(h), assign: (h) => assigned.push(h),
   };
   const rs = [];

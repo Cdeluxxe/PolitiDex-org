@@ -171,9 +171,9 @@ has(MD, "/mandate IS ITS OWN DOCUMENT", "banner: the banner names the address it
 ok(!BRE.test(INDEX), "banner: index.html carries a shell banner — that is what makes the guard a discriminator");
 
 // A PUBLIC BROWSE ROOM: indexable, canonical on the www host the apex 301s to.
-has(MD, '<link rel="canonical" href="https://www.politidex.fyi/mandate" />',
-  "head: the canonical is www.politidex.fyi/mandate");
-has(MD, '<meta property="og:url" content="https://www.politidex.fyi/mandate" />',
+has(MD, '<link rel="canonical" href="https://politidex.fyi/mandate" />',
+  "head: the canonical is politidex.fyi/mandate");
+has(MD, '<meta property="og:url" content="https://politidex.fyi/mandate" />',
   "head: og:url matches the canonical");
 lacks(MD_MARKUP, 'name="robots"', "head: no robots meta — a public room the whole point of which is to be linked is indexed");
 // THE SITEMAP IS NOT ASSERTED HERE, DELIBERATELY. Advertising the three new

@@ -152,7 +152,7 @@ function arrival(opts) {
   const win = makeSandbox();
   const path = o.path || "/p/" + o.pid;
   win.location.pathname = path;
-  win.location.href = "https://www.politidex.fyi" + path;
+  win.location.href = "https://politidex.fyi" + path;
 
   const bus = new Map();
   win.addEventListener = (t, h) => { if (!bus.has(t)) bus.set(t, []); bus.get(t).push(h); };
@@ -189,7 +189,7 @@ function arrival(opts) {
     replaceState(_s, _t, url) {
       const u = String(url || "");
       win.location.pathname = u.split("?")[0].split("#")[0];
-      win.location.href = "https://www.politidex.fyi" + u;
+      win.location.href = "https://politidex.fyi" + u;
     },
   };
   win.URLSearchParams = URLSearchParams;

@@ -168,8 +168,8 @@ function makeDom(pathname) {
   win.clearTimeout = () => {};
   win.document = doc;
   win.location = {
-    href: "https://www.politidex.fyi" + pathname,
-    pathname, search: "", hash: "", origin: "https://www.politidex.fyi",
+    href: "https://politidex.fyi" + pathname,
+    pathname, search: "", hash: "", origin: "https://politidex.fyi",
   };
   win.__pushed = [];
   win.history = { pushState(s, t, u) { win.__pushed.push(String(u)); }, replaceState() {} };
@@ -197,7 +197,7 @@ const ENGINE = (() => {
   };
   w.setTimeout = () => 0;
   w.clearTimeout = () => {};
-  w.location = { pathname: "/", href: "https://www.politidex.fyi/", search: "", hash: "" };
+  w.location = { pathname: "/", href: "https://politidex.fyi/", search: "", hash: "" };
   w.localStorage = { getItem: () => null, setItem() {}, removeItem() {} };
   w.fetch = () => Promise.resolve({ ok: false, status: 0, json: () => Promise.resolve({}) });
   const c = vm.createContext(w);

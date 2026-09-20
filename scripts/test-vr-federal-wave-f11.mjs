@@ -74,7 +74,7 @@ import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { createHash } from "node:crypto";
 import { WA_SEAMS, CJ_SEAMS_ALL, AT_SEAMS, SH_SEAMS, carveSeams, assertConsistencySeams,
-  assertStanceHelpersSeam, assertRosterOfficeIsTheOnlyMove } from "./v103-chrome-seams.mjs";
+  assertStanceHelpersSeam, assertRosterOfficeIsTheOnlyMove, deOrigin } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -313,7 +313,11 @@ const NO_POLE = (() => {
     try { return execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }); }
     catch { return null; }
   };
-  const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && h !== nowSrc(f); });
+  // The public hostname is normalised out of both trees first: this wall is about a
+  // wave editing an engine, and the site collapsing onto one public origin moved a
+  // baked share host and nothing else. See deOrigin in scripts/v103-chrome-seams.mjs
+  // for why that is normalised rather than waived. Every other byte still compared.
+  const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && deOrigin(h) !== deOrigin(nowSrc(f)); });
 
   // THE WAIVER THE NOTE ABOVE ASKS FOR, WRITTEN DOWN, AND NARROWED TO ONE SPAN.
   // word-action.js moved after this wave landed, for a reason that has nothing to

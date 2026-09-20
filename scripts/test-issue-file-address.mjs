@@ -133,7 +133,7 @@ const TOML = R("netlify.toml");
 const KEY = "lands_preserve";
 const EMPTY = "lands_keep_public";
 const MISS = "not_a_key";
-const ORIGIN = "https://www.politidex.fyi";
+const ORIGIN = "https://politidex.fyi";
 
 let passed = 0;
 const failures = [];

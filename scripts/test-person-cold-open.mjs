@@ -137,8 +137,8 @@ function arrive(opts) {
   const win = {
     document: doc,
     location: {
-      origin: "https://www.politidex.fyi", pathname: o.pathname || "/p/lee",
-      search: "", hash: "", href: "https://www.politidex.fyi" + (o.pathname || "/p/lee"),
+      origin: "https://politidex.fyi", pathname: o.pathname || "/p/lee",
+      search: "", hash: "", href: "https://politidex.fyi" + (o.pathname || "/p/lee"),
     },
     history: { replaceState(a, b, url) { calls.replace.push(url); }, pushState() {} },
     _listeners: {},

@@ -157,7 +157,7 @@ const DOORS = [];
 // have made that rule a tautology: a door that drifted to the other spelling
 // would silently drop out of the set the rule is computed from.
 const LANDS_ON_ME = (href) => {
-  try { return new URL(href, 'https://www.politidex.fyi/').pathname === '/me'; }
+  try { return new URL(href, 'https://politidex.fyi/').pathname === '/me'; }
   catch (e) { return false; }
 };
 
@@ -251,9 +251,9 @@ section('3 · the assign lands on /me from /, /p/lee and /ballot');
 // from every address; a bare "me" does not, and the difference is invisible on
 // the homepage — which is where it would be eyeballed.
 const BASES = [
-  ['/', 'https://www.politidex.fyi/'],
-  ['/p/lee', 'https://www.politidex.fyi/p/lee'],
-  ['/ballot', 'https://www.politidex.fyi/ballot'],
+  ['/', 'https://politidex.fyi/'],
+  ['/p/lee', 'https://politidex.fyi/p/lee'],
+  ['/ballot', 'https://politidex.fyi/ballot'],
 ];
 
 for (const d of DOORS) {
@@ -263,7 +263,7 @@ for (const d of DOORS) {
     const landed = new URL(d.href, base);
     eq(landed.pathname, '/me',
       `from ${where}, the ${d.width} door lands on ${landed.pathname}`);
-    eq(landed.origin, 'https://www.politidex.fyi',
+    eq(landed.origin, 'https://politidex.fyi',
       `from ${where}, the ${d.width} door leaves the origin`);
   }
 }

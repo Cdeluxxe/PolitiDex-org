@@ -297,6 +297,78 @@
 [build.environment]
   SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES = "AIzaSyDNkLuB8wmLuz38dfL8ZP6rvnv-efZvnyU"
 
+# ═════════════════════════════════════════════════════════════════════════════
+# ONE PUBLIC ORIGIN: https://politidex.fyi. EVERY OTHER SPELLING 301s HERE IN
+# ONE HOP, AND THESE THREE RULES ARE FIRST IN THE FILE FOR THAT REASON.
+#
+# WHAT WENT WRONG. A tap from inside the Facebook in-app browser opened
+# http://www.politidex.fyi/?fbclid=… — plain HTTP, on the www spelling, of a
+# young .fyi domain — and Xfinity Advanced Security (safebrowse.io) painted
+# "This site could be risky." Desktop Chrome and incognito were fine, which is
+# the tell: nothing is wrong with the site's content. What the interstitial
+# reacted to is the SHAPE of the first hop. A cleartext request to a
+# recently-registered domain, arriving from an in-app webview with a click id
+# attached, is the profile those filters score on, and every extra hop before
+# the reader reaches TLS is another sample they get to score.
+#
+# So the fix is not a content change, it is removing the cleartext hop and the
+# second hostname. There is one origin now, it is the apex on HTTPS, and the
+# three rules below are the complete set of other spellings that can reach us.
+#
+# ONE HOP, NOT TWO, AND THE :splat IS WHY. Each rule names a FULL URL in `from`
+# — scheme and host — and sends the request straight to its final address on
+# https://politidex.fyi. http://www does NOT go via http://apex or via
+# https://www; it lands on the canonical origin in a single 301. A chain like
+# http://www → http://apex → https://apex would hand a scanner two cleartext
+# requests to look at instead of one, which is the thing this block exists to
+# stop.
+#
+# 301 AND force, ON ALL THREE. 301 because the move is permanent and a 302
+# tells a crawler to keep asking at the old spelling — and keep re-earning the
+# interstitial. `force` because these rules have to beat the static file that
+# would otherwise answer: '/' and '/index.html' exist in the publish
+# directory, so without it a request on the wrong host would be served the
+# document at 200 and no redirect would ever happen. With it, port 80 never
+# returns HTML — only a Location header.
+#
+# THESE RULES MUST STAY AT THE TOP. Netlify evaluates this table in order and
+# the first match wins. Every rewrite below is path-only in `from`, so it
+# matches on ANY host: move these down and a request to
+# http://www.politidex.fyi/vote/119/house/190 would match /vote/* first and be
+# served index.html at 200 over cleartext on the non-canonical host — exactly
+# the first hop that got flagged.
+#
+# NO preload, DELIBERATELY. The HSTS header at the bottom of this file carries
+# max-age and includeSubDomains but not `preload`, because preload is a
+# one-way door: submission bakes the whole name — every current and future
+# subdomain — into browser binaries, and removal takes months to propagate.
+# That is a commitment to make after this canonicalization has been observed
+# working, not in the same pass that introduces it.
+#
+# NOT HANDLED HERE, BECAUSE IT IS NOT A REPO SETTING: the apex and www must
+# both be assigned to the site in Netlify's domain management with a
+# certificate covering both names, and "Force HTTPS" left on. The www name has
+# to keep resolving and keep its cert — a host that stops answering cannot
+# serve the redirect that retires it, and the flagged link would start failing
+# to connect instead of arriving.
+[[redirects]]
+  from = "http://politidex.fyi/*"
+  to = "https://politidex.fyi/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://www.politidex.fyi/*"
+  to = "https://politidex.fyi/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://www.politidex.fyi/*"
+  to = "https://politidex.fyi/:splat"
+  status = 301
+  force = true
+
 # Shareable roll-call deep-links. A clean path like
 # /vote/119/house/190 must serve the same single-page document (HTTP 200 rewrite)
 # so the client-side router can read the congress/chamber/roll from the path and
@@ -1396,3 +1468,36 @@
   for = "/manifest.json"
   [headers.values]
     Cache-Control = "public, max-age=3600"
+
+# ═════════════════════════════════════════════════════════════════════════════
+# HSTS — THE SECOND HALF OF THE ONE-ORIGIN FIX, AND THE HALF THE REDIRECTS
+# CANNOT DO.
+#
+# The three rules at the top of this file catch a cleartext request once it
+# arrives. This header stops it being SENT. After one successful HTTPS
+# response, the browser refuses to issue a plain-HTTP request to this name for
+# a year — it rewrites the scheme internally and never opens port 80 at all.
+# That matters here specifically because of how the flag was earned: an
+# in-app-browser tap on http://www.politidex.fyi got scored by a security
+# filter on the shape of the cleartext hop. A redirect turns that hop into a
+# 301; HSTS removes the hop. A reader who has been here once cannot generate
+# the request that got flagged, no matter what spelling the link they tapped
+# used.
+#
+# for = "/*" so it rides every response, not just the document — a header
+# scoped to one path teaches the browser nothing about the rest of the origin.
+#
+# includeSubDomains covers www, which is the whole point: www is a name we
+# still answer on (it has to be, or the 301 above has nothing to serve from),
+# so it is a name a reader can still be sent to over cleartext. This directive
+# is what makes a warm browser upgrade that link before it leaves the device.
+#
+# NO preload. Deliberately, and this pass does not add it — see the long note
+# in the redirect block at the top of this file. max-age + includeSubDomains is
+# reversible by lowering max-age and waiting; preload is not reversible on any
+# timescale we would want to be committed to on a domain this young. The
+# ordering is: canonicalize, watch it hold, then consider the one-way door.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"

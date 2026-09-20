@@ -219,7 +219,7 @@ function sandbox(opts) {
     document: doc,
     pageYOffset: opts.scrollY || 0,
     location: Object.assign(
-      { origin: "https://www.politidex.fyi", pathname: "/", search: "", hash: "", href: "https://www.politidex.fyi/" },
+      { origin: "https://politidex.fyi", pathname: "/", search: "", hash: "", href: "https://politidex.fyi/" },
       opts.location || {}
     ),
     _listeners: {},
@@ -694,7 +694,7 @@ function personSandbox(opts) {
   const win = {
     document: doc,
     location: Object.assign(
-      { origin: "https://www.politidex.fyi", pathname: "/", search: "", hash: "", href: "" },
+      { origin: "https://politidex.fyi", pathname: "/", search: "", hash: "", href: "" },
       opts.location || {}
     ),
     history: {
@@ -744,7 +744,7 @@ must(P && typeof P.realPid === "function", "PDXPerson exports no realPid predica
   eq(P.url(v), "", `PDXPerson.url(${JSON.stringify(v)}) minted an address`);
 });
 eq(P.path("mike_lee"), "/p/mike_lee", "PDXPerson.path stopped minting real addresses");
-eq(P.url("mike_lee"), "https://www.politidex.fyi/p/mike_lee", "PDXPerson.url stopped minting real addresses");
+eq(P.url("mike_lee"), "https://politidex.fyi/p/mike_lee", "PDXPerson.url stopped minting real addresses");
 
 // THE ARRIVAL. /p/null opens nothing, says nothing (nobody typed it), and does
 // not leave the address as /p/null.

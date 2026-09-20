@@ -190,8 +190,8 @@ function makeDom() {
   win.__replaced = [];
   win.__assigned = [];
   win.location = {
-    href: "https://www.politidex.fyi/", pathname: "/", search: "", hash: "",
-    origin: "https://www.politidex.fyi",
+    href: "https://politidex.fyi/", pathname: "/", search: "", hash: "",
+    origin: "https://politidex.fyi",
     replace(u) { win.__replaced.push(String(u)); },
     assign(u) { win.__assigned.push(String(u)); },
   };
@@ -258,7 +258,7 @@ function boot(opts) {
   // which is the only way to observe what a cold /#your-file actually does.
   if (o.hash) {
     win.location.hash = o.hash;
-    win.location.href = "https://www.politidex.fyi/" + o.hash;
+    win.location.href = "https://politidex.fyi/" + o.hash;
   }
   // WHICH DOCUMENT THIS IS, SET BEFORE A MODULE IS EVALUATED. me.html's first
   // inline block declares __PDX_ME_DOC and your-file.js reads it through one
@@ -912,7 +912,7 @@ section("5 · one address, one control in Door 2, and the copy");
 // 6 · THE ADDRESS ANSWERS, AND IT ANSWERS ONCE
 // ─────────────────────────────────────────────────────────────────────────────
 // The bug this section exists to keep fixed: #your-file was reachable and the
-// module was on the page, but https://www.politidex.fyi/#your-file painted the
+// module was on the page, but https://politidex.fyi/#your-file painted the
 // homepage. The arrival was a setTimeout(0) plus a 'load' listener, and a
 // macrotask runs AFTER every DOMContentLoaded handler on the document — so on
 // this homepage the hash had to survive a queue of other people's arrival code
@@ -1063,11 +1063,11 @@ section("6 · the address answers once, and the visible controls reach it");
   ok(!inapp.PDXYourFile.isOpen(), "the panel opened at an address it does not own");
   eq(inapp.__replaced.length, 0, "an address the module does not own caused a redirect");
   inapp.location.hash = "#your-file";
-  inapp.location.href = "https://www.politidex.fyi/#your-file";
+  inapp.location.href = "https://politidex.fyi/#your-file";
   (inapp.__winOn["hashchange"] || []).forEach((f) => f({
     type: "hashchange",
-    oldURL: "https://www.politidex.fyi/#say-vs-do",
-    newURL: "https://www.politidex.fyi/#your-file",
+    oldURL: "https://politidex.fyi/#say-vs-do",
+    newURL: "https://politidex.fyi/#your-file",
   }));
   eq(inapp.__replaced.join(","), "/me", "an in-app hashchange to #your-file did not go to the file's address");
   ok(!inapp.PDXYourFile.isOpen(), "an in-app hashchange built the overlay instead of hopping");

@@ -64,7 +64,7 @@ import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { measureAddresses, billPath } from "./vr-measure-addresses.mjs";
 import { CJ_SEAMS, CJ_SEAMS_BELOW, SH_SEAMS, WA_SEAMS, carveSeams, assertConsistencySeams, assertStanceHelpersSeam,
-  assertWordActionSeams, assertParentTableIsTheOnlyMove } from "./v103-chrome-seams.mjs";
+  assertWordActionSeams, assertParentTableIsTheOnlyMove, deOrigin } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -838,7 +838,11 @@ const swNote = swWaveNote();
   const MAY_MOVE = ["consistency.js", "cmp-data.js", "stance-helpers.js", "word-action.js",
     "alignment-tool.js", "issue-scope.js"];
   const has = (x, n, m) => ok(String(x).includes(n), `${m} — missing ${JSON.stringify(n)}`);
-  const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && h !== R(f); });
+  // The public hostname is normalised out of both trees first: this wall is about a
+  // wave editing an engine, and the site collapsing onto one public origin moved a
+  // baked share host and nothing else. See deOrigin in scripts/v103-chrome-seams.mjs
+  // for why that is normalised rather than waived. Every other byte still compared.
+  const touched = FILES.filter((f) => { const h = headSrc(f); return h !== null && deOrigin(h) !== deOrigin(R(f)); });
   const strayBooted = touched.filter((f) => !MAY_MOVE.includes(f));
   eq(strayBooted.join(", "), "",
     `F9 changed a booted file it has no business editing (${strayBooted.join(", ") || "none"})`);
@@ -2663,8 +2667,18 @@ const swNote = swWaveNote();
   {
     let diff = "";
     try { diff = execFileSync("git", ["diff", "--unified=0", "--", "sitemap.xml"], { cwd: ROOT, encoding: "utf8" }); } catch { /* no git */ }
-    const gained = diff.split("\n").filter((l) => l.startsWith("+") && !l.startsWith("+++"));
-    const lost = diff.split("\n").filter((l) => l.startsWith("-") && !l.startsWith("---"));
+    // A LINE THAT ONLY CHANGED HOSTNAME IS NOT A DROPPED ADDRESS. sitemap.xml holds
+    // absolute URLs, so when the site collapsed onto one public origin every line in
+    // the file changed and a raw +/- diff read the regeneration as having removed the
+    // whole sitemap and added a new one. The claim here is about ADDRESSES — which
+    // paths the generator publishes — so the host is normalised out and lines that
+    // cancel against each other are not counted. A path that really left still does.
+    const mark = (l) => deOrigin(l.slice(1));
+    const minus = diff.split("\n").filter((l) => l.startsWith("-") && !l.startsWith("---"));
+    const plus = diff.split("\n").filter((l) => l.startsWith("+") && !l.startsWith("+++"));
+    const minusSet = new Set(minus.map(mark)), plusSet = new Set(plus.map(mark));
+    const gained = plus.filter((l) => !minusSet.has(mark(l)));
+    const lost = minus.filter((l) => !plusSet.has(mark(l)));
     eq(lost.length, 0, `regenerating the sitemap removed ${lost.length} address(es)`);
     if (f9Unmerged) {
       eq(gained.length, NUMBERS.length, `the sitemap gained ${gained.length} address(es), not this wave's ${NUMBERS.length}`);

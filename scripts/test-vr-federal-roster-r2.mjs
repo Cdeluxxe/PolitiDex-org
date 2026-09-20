@@ -41,7 +41,7 @@ import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCrawlRecord } from "./gen-crawl-record.mjs";
 import { CJ_SEAMS_ALL as CJ_SEAMS, SH_SEAMS, WA_SEAMS, PF_SEAMS, carveSeams, assertConsistencySeams,
   assertStanceHelpersSeam, assertWordActionSeams, assertPublicationFloorSeams,
-  assertParentTableIsTheOnlyMove } from "./v103-chrome-seams.mjs";
+  assertParentTableIsTheOnlyMove, deOrigin } from "./v103-chrome-seams.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -540,7 +540,18 @@ section("6 · no Direction Match or formal-brief drift — twin boot, HEAD vs th
   // in the engine block below instead — the taxonomy it finished is declared in that file
   // and nowhere else, and a second copy of it would have been a second taxonomy.
   const REGIONED = ["alignment-tool.js"];
-  const touched = FILES.filter((f) => { const h = HEAD(f); return h !== null && h !== R(f); });
+  // THE PUBLIC HOSTNAME IS NORMALISED OUT BEFORE ASKING WHETHER A FILE MOVED.
+  // This wall is about IDENTITY drift — whether a roster wave quietly changed an
+  // engine, a score or a copy block. A site collapsing onto one public origin is
+  // none of those: it moved say-vs-do.js's baked share host and nothing else, and
+  // the wall read that as a roster wave touching an engine. deOrigin, in
+  // scripts/v103-chrome-seams.mjs, is shared by every wave harness that asks this
+  // question, so all of them answer it the same way; a real behavioural edit to
+  // any of these files still differs after normalisation and still fails here.
+  const touched = FILES.filter((f) => {
+    const h = HEAD(f);
+    return h !== null && deOrigin(h) !== deOrigin(R(f));
+  });
   // THE WALL AND THE WAVE ARE TWO CLAIMS. "The booted files differing from HEAD are
   // exactly cmp-data.js" asserts both that nothing but the roster moved — the wall,
   // and permanent — and that the roster IS moving, which is only true while R2 is

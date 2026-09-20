@@ -466,9 +466,14 @@ section("6 · the sitemap lists the keys with something to read");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const XML = R("sitemap.xml");
-  has(XML, `<loc>https://www.politidex.fyi/i/${KEY}</loc>`, `${KEY} has an argued boundary and no sitemap entry`);
+  has(XML, `<loc>https://politidex.fyi/i/${KEY}</loc>`, `${KEY} has an argued boundary and no sitemap entry`);
   // Every listed /i/ address is a key the app can actually open.
-  const listed = [...XML.matchAll(/<loc>https:\/\/www\.politidex\.fyi\/i\/([^<]+)<\/loc>/g)].map((x) => x[1]);
+  // HOST-AGNOSTIC, like the /p/ matcher further down this section. This line used
+  // to hardcode the www host and silently matched nothing the day the site
+  // canonicalised onto the apex — reporting "0 issue files are listed" about a
+  // sitemap that listed all of them. The assertion is about which KEYS are
+  // published, so the host has no business in the pattern.
+  const listed = [...XML.matchAll(/<loc>[^<]*\/i\/([^<]+)<\/loc>/g)].map((x) => x[1]);
   ok(listed.length > 60, `only ${listed.length} issue files are listed`);
   const unshipped = listed.filter((k) => {
     const e = W.ISSUE_MAP[decodeURIComponent(k)];

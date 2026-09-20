@@ -197,7 +197,7 @@ if (ONE) {
   // enforced by scripts/test-canonical-and-origin.mjs. Reading the record from the
   // apex would be reading it through a redirect, and from a deploy-preview URL
   // would be reading a different build than the one the sitemap advertises.
-  const base = (argOf("origin") || "https://www.politidex.fyi").replace(/\/+$/, "");
+  const base = (argOf("origin") || "https://politidex.fyi").replace(/\/+$/, "");
   const live = [];
   for (let page = 1; page <= 10; page++) {
     const res = await fetch(`${base}/api/voting-record/member/${encodeURIComponent(ONE)}?page=${page}&pageSize=100`);
