@@ -139,7 +139,14 @@ section("1 · every District Voice nav row is an anchor to /voice");
   // NO ROW POINTS AT A SEAT. /d/<seat-key> is one seat's file and /district/…
   // is one seat's board; a nav destination that is a single district is the
   // singular framing this pass removed, in the chrome.
-  const navs = [...INDEX.matchAll(/<nav[\s\S]*?<\/nav>/g)].join(" ");
+  //
+  // Swept comment-free, and against an opening TAG rather than the four letters
+  // "<nav": index.html's own sheet explains the chrome in prose that contains
+  // "a single fixed <nav> carrying TWO stacked rows", and a sweep that reads
+  // that as an open tag runs to the next real </nav> a hundred kilobytes below
+  // and fails on whatever any unrelated comment in between happens to mention.
+  const navs = [...stripComments(INDEX).matchAll(/<nav\b[^>]*>[\s\S]*?<\/nav>/g)].join(" ");
+  must(navs.length > 500, "no <nav> element could be read out of index.html");
   no(navs, "/d/ut-", "nav: a nav row links to a seat file");
   no(navs, "/district/", "nav: a nav row links to one seat's board");
 }

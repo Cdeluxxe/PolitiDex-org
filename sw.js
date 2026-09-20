@@ -7211,7 +7211,51 @@
 //     voter-hub-location.js, index.html, me-desk.js, me-desk.css and
 //     person-file.js changed; a warm device would otherwise serve the one-seat
 //     page and the doors that drop the intent.
-const CACHE_VERSION = 'v228';
+// v229 - HOMEPAGE DISTRICT VOICE GATE -> /voice; NO EQUITY COPY; AND NO
+//     LOCATION KEY MIGRATED.
+//     THE BUG. /voice has been its own document for a while and the front page
+//     named it in exactly two places, both of them nav rows: the desktop nav
+//     menu and the mobile sheet. A stranger who never opens a nav menu had no
+//     way to learn that the rooms for their own seats exist, so the lane with
+//     the narrowest audience had the most hidden door on the site.
+//
+//     ONE CARD IN THE HERO, UNDER THE TWO RANKED DOORS. Eyebrow "District
+//     Voice", one line - the rooms for your seats, anyone can read, only
+//     verified residents of that seat get a voice that counts - one anchor, and
+//     one true sentence about the current allow-list: one seat has a board on
+//     file today, the others list the member and say the room is not open. No
+//     second nav row; the chrome's two District Voice entries are unchanged and
+//     still point at /voice.
+//     THE HREF IS /voice AT EVERY STANDING. Not /#who-represents-me - the
+//     finder with ?next=/voice is already /voice's own empty state, so pointing
+//     the card at the finder would place a reader and then leave them standing
+//     there. And not /district/ut-sd-3 - that is Weber County SD-3's board, and
+//     offering it to a stranger claims they live there. Johnson's District 3
+//     control on the person file is UNCHANGED at /district/ut-sd-3, and
+//     BOARD_ROUTES is still one row.
+//     JAVASCRIPT CHANGES THE VERB AND NOTHING ELSE. Served markup reads "Find
+//     your rooms"; a reader with a location on file reads "See your rooms". The
+//     card is a real anchor in the document, so it works with scripting off and
+//     survives a middle-click, and the href is never rewritten. The standing is
+//     read off window._hasUserLocation - voter-hub-location.js's own flag, the
+//     one district-voice.js already asks - so the card parses no location
+//     record of its own and pdxRepsForMe() is NOT called on the homepage:
+//     resolving five seats to preview them is how the fat resolver gets pulled
+//     onto index.html's critical path. The re-sync is one guarded wrap of
+//     _pdxRefreshMapIndicators, which loadVoterLocation() and
+//     _triggerLocationReaction() already call.
+//     NOTHING IS WRITTEN AND NOTHING IS ADDED. No store and no location key
+//     migrated: politidex_voter_location, the stance store and the team slate
+//     are all untouched by this card, which reads one boolean and writes
+//     nothing. No Carto/Leaflet, no finder map, no composer, no
+//     Veriff, no seeded counts, no /district/* splat, no "coming soon" and no
+//     "yet". No equity copy: no shares, stock, units, dues, 20%, 15%, freeze or
+//     Reg CF. Money pills, FD tables and SD-3's reader guts untouched; the
+//     record engines still twin-boot byte-identical.
+//     MIGRATION COST: none. index.html and scripts/test-home-voice-gate.mjs
+//     changed; a warm device would otherwise serve a front page with no door
+//     into the lane.
+const CACHE_VERSION = 'v229';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
