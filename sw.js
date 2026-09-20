@@ -7302,7 +7302,125 @@
 //     read, not renamed and not migrated by a drawer that renders a table.
 //     MIGRATION COST: none. consistency.js and one new suite changed; a warm
 //     device would otherwise serve the old drawer shell against the new table.
-const CACHE_VERSION = 'v230';
+// v231 - FINDER MAP: KEYLESS BASEMAP, AND NO 75-POLYGON PAINT ON OPEN.
+//     THE BASEMAP HAS NO KEY BECAUSE IT NEEDS NONE. basemaps.cartocdn.com's
+//     dark_all style is keyed now and answers an unkeyed request with a 200 PNG
+//     whose pixels say a key is required - not a 404 Leaflet could skip - so
+//     every pan re-requested a stamped tile forever. The district finder's
+//     one tile template is now OpenStreetMap's keyless standard raster, made
+//     dark in CSS, attributed to OSM contributors alongside UGRC. No key is
+//     committed, no key is read from env, and there is no keyed tile URL left
+//     in the tree. If tiles fail 14 times the layer is removed and the
+//     attribution says so, rather than retrying behind the districts.
+//     AND THE FINDER OPENS EMPTY. Opening the modal used to fetch and draw the
+//     75-polygon State House layer immediately, and a city search then ran the
+//     whole front-page rebuild twice (house, then senate) behind the modal -
+//     Key Races, the Relevant-to-Me slate, the team grid, the H.R.1 grid, the
+//     ballot, and who-represents-me's pdxRepsForMe() band. That was the 'Page
+//     Unresponsive'. Now: nothing is drawn until a RESULT or a TAP exists, the
+//     rebuild is deferred until the modal closes and then runs ONCE, and the
+//     ~2 MB lazy data warm waits out an open finder instead of parsing under
+//     it. Geocodes carry a 12 s deadline, an 8-20 s per-request ceiling and
+//     abort in flight when the reader closes or searches again.
+//     LOCATION KEYS UNTOUCHED. politidex_voter_location and _pdxLocWasChosen
+//     keep their owner and their meaning: no location key is renamed, copied or
+//     migrated, and no location key is read by a module that was not already
+//     reading it. This pass changes WHEN the page repaints, never what is
+//     stored, and the city-centroid warning copy is unchanged.
+//     No new boards, no /district/* splat, no equity copy. /voice and
+//     /district/ut-sd-3 stay map-free; BOARD_ROUTES is still one row; the
+//     engines still twin-boot byte-identical.
+//     MIGRATION COST: none. A warm device would otherwise keep serving the
+//     stamped-tile finder and the on-open paint from the old shell.
+// v232 - VOICE HALLWAY: THE STATE HOUSE SEAT KEEPS ITS SITTING MEMBER.
+//     ONE SEAT LIST, ONE ROSTER READ, TWO PAGES THAT NOW AGREE. /voice printed
+//     'No sitting member on hand for this seat' on the Utah State House card
+//     for readers whose Who Represents Me band named the member on the front
+//     page in the same session - HD-68 from Lapoint, HD-29 from Fillmore -
+//     while the State Senate and both U.S. seats on the same card list
+//     resolved. pdxRepsForMe() is still the only seat list and both surfaces
+//     still read it; what differed was the roster its own gate could KEY.
+//     THE JOIN, NOT A SECOND LOOKUP. voice.html carries no cmp-data.js, so the
+//     only people index there is the live Firestore one, and for a handful of
+//     officeholders the live document is filed under the slug of their display
+//     name while the roster record sits under the legislative id the seat
+//     resolves to: scott_chew holds the document, chew_h68 holds the record and
+//     the 90-act formal file. _pdxRosterKeeps() asked window.PROFILES for
+//     chew_h68, got nothing, and read that as the member having left the
+//     roster - so the resolver dropped a pid it had correctly resolved. The
+//     gate now joins the raw miss through PDX_PROFILE_ALIAS read in reverse,
+//     this repo's existing ruling that the two ids are one officeholder, and
+//     the same read is published as window.pdxRosterRec so the card that
+//     prints the name and the gate that keeps the seat are one answer rather
+//     than two. No second seat-holder table, no second sitting-member lookup,
+//     and no person is named in the resolver.
+//     NEW SHELL ASSET: /profile-alias.js, 7 KB. profile-evidence.js still owns
+//     PDX_PROFILE_ALIAS and is still where entries are added; that file is
+//     68 KB of Evidence Locker machinery /voice does not load, so the table
+//     alone is copied verbatim onto the lean document and pinned byte for byte
+//     to its source by scripts/test-voice-house-member.mjs - the discipline
+//     index.html's head prefetch already keeps for its own mirror. Both
+//     assignments are ||-guarded, so a document carrying both has one table.
+//     THE ROSTER HOLE WE FOUND, AND DID NOT FILL. Where the live index holds
+//     NEITHER spelling of a member, the seat still prints empty, because that
+//     is the roster genuinely not holding the person and not a bug to paper
+//     over. HD-15's defay_h15 is bridged only in ACCT_ALIAS, not in
+//     PDX_PROFILE_ALIAS, so nothing here reaches it and HD-15 stays as it was.
+//     No person was invented, no bridge was added, and no roster row was
+//     written: the fix is a read, and the missing rows remain missing.
+//     COPY UNCHANGED. 'No sitting member on hand for this seat' is still the
+//     sentence, still with no 'yet', and it is now printed only when the roster
+//     is actually empty of that member.
+//     No new boards, no /district/* splat, no map change, no equity copy, no
+//     score change. BOARD_ROUTES is still one row, /district/ut-sd-3 is
+//     untouched, and no location key is renamed, copied or migrated.
+//     MIGRATION COST: none. A warm device would otherwise serve a voice.html
+//     that never requests the bridge and keep un-naming the seat.
+// v233 - THE SITTING MEMBER'S NAME COMES FROM THE SAME ROW THE GATE KEPT.
+//     v232 gave the State House seat back its member and left the card able to
+//     keep a seat it still could not NAME. Two lanes did it, and both are
+//     order defects rather than missing data.
+//     THE WALK RETURNED THE FIRST ROW, NOT THE ROW WITH A NAME ON IT. A bulk
+//     Firestore load writes a __lite row for every document it lists, and the
+//     retired spelling is the one holding the full document: for Utah House
+//     District 68 the named record is filed under scott_chew while the
+//     canonical key can be holding a thin row with no 'name' at all.
+//     _pdxRosterRec() stopped on the first row it found, which answered the
+//     GATE correctly - there is a row, the member is here - and the CARD
+//     wrongly, because the row it handed back named nobody, so /voice printed
+//     'The member who holds this seat is on file' over a person whose name was
+//     one key away. The walk now prefers a row carrying a display name and
+//     remembers the thin ones, so it still returns non-null for exactly the
+//     pids it did before: the gate's existence answer is the same question it
+//     always asked, and only WHICH of two rows for one officeholder comes back
+//     has changed.
+//     AND personOf() ASKED THE WRONG READER FIRST. voice-room.js opened with
+//     'return window._pdxPersonById(pid) || null' - compare-table.js's reader,
+//     which keys the bundled roster only - and returned its NULL as the final
+//     answer. On any document carrying that reader, a pid whose row is filed
+//     under a retired spelling ended the walk before the join was ever
+//     consulted. window.pdxRosterRec is lane 1 now, no lane can end the walk
+//     by answering nobody, and a row that cannot name the person is handed on
+//     to the next lane instead of printed as an answer. The last lane returns
+//     whatever row was seen, which is the honest 'we hold a row and it names
+//     nobody' - and seatHtml already had a sentence for exactly that.
+//     STILL ONE OWNER AND ONE READ. No second alias table: voice-room.js reads
+//     no ids, no spellings and no rulings about who is whom, and the
+//     canonical-to-slug walk is the resolver's single one, asked once. No
+//     second seat-holder table, no new lookup, nobody named in the resolver,
+//     and PDX_PROFILE_ALIAS gained no entries - HD-15's defay_h15 is still
+//     bridged only in ACCT_ALIAS, so HD-15 is still the roster hole v232
+//     recorded and still prints empty. Nobody was invented here either.
+//     COPY UNCHANGED: 'No sitting member on hand for this seat', no 'yet',
+//     still printed only when the roster holds neither spelling of a member.
+//     /me is NOT in this pass. It has the same Firestore-only roster shape and
+//     does not carry the bridge; that is a known gap, not a fix hiding here.
+//     No new boards, no /district/* splat, no map change, no equity copy, no
+//     score change, no new shell asset. BOARD_ROUTES is still one row,
+//     /district/ut-sd-3 untouched, no location key renamed, copied or migrated.
+//     MIGRATION COST: none. A warm device would otherwise serve the v232 pair
+//     and keep describing a member both pages can name.
+const CACHE_VERSION = 'v233';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -7449,11 +7567,16 @@ const SHELL_ASSETS = [
   // it decorates the lane, it is not the lane.
   '/mandate-lane.js',
   '/mandate-lane.css',
-  // WHAT /voice COSTS OFFLINE: one 16 KB decider. Everything it reads is already
-  // an entry here — /district-voice.js, /district-voice.css, /issue-map.js,
-  // /issue-colors.js, /person-link.js — bar /voter-hub-location.js, which stays
-  // runtime-cached; with no resolver the standing says it cannot place the reader.
+  // WHAT /voice COSTS OFFLINE: one 16 KB decider and one 7 KB table. Everything
+  // else it reads is already an entry here — /district-voice.js,
+  // /district-voice.css, /issue-map.js, /issue-colors.js, /person-link.js — bar
+  // /voter-hub-location.js, which stays runtime-cached; with no resolver the
+  // standing says it cannot place the reader. /profile-alias.js is precached with
+  // the decider rather than left to the runtime bucket because it is the ruling
+  // that keeps the State House card's member: arrive without it and the hallway
+  // is not wrong, but it describes a named member as merely 'on file'.
   '/voice-room.js',
+  '/profile-alias.js',
   // WHAT /money COSTS OFFLINE: the re-homing module and the lane's rules;
   // /finance-lane.js and /finance-lane.css are already entries below.
   '/money-room.js',

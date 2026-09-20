@@ -307,8 +307,15 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // index.html for the 122-line run that evidence.html actually carries, not by
 // adding 117 to the old start; the arithmetic agreed afterwards. This pin was the
 // one thing the gate pass left behind, and it is exactly what the pin is for.
+//   AND DOWN BY 271, for the finder-basemap pass. index.html's district-map
+// controller swapped a keyed Carto tile template for OpenStreetMap's keyless
+// one, stopped painting 75 State House polygons to open the modal, and grew the
+// gate that defers the front page's rebuild while the finder is open — 271
+// lines, all of them above this block like every move before it. So PDXStance is
+// now 20516-20637, located verbatim rather than by adding the delta; the arithmetic
+// agreed afterwards.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 20377, b: 20498, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 20516, b: 20637, what: "the PDXStance vocabulary" },
   { from: "person.html", src: PERSON, a: 2012, b: 2066, what: "the Firebase boot" },
 ];
 // The three-room split moved the index.html range by −2021 — /mandate, /voice

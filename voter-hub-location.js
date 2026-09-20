@@ -975,10 +975,104 @@
     }
   });
 
+  // ── THE DISTRICT FINDER'S GATE, AND ITS NETWORK MANNERS ─────────────────────
+  // This file already owns the location record, the modal that changes it and the
+  // reaction below, so it owns the two rules the finder needs and index.html's
+  // map controller only calls:
+  //
+  //   DON'T REBUILD THE PAGE NOBODY IS LOOKING AT. Every district pick used to
+  //   run _triggerLocationReaction() immediately, and that rebuilds the entire
+  //   front page — Key Races, the Relevant-to-Me slate, the team grid and browse
+  //   lane, the H.R.1 receipts grid, Local Issues, the ballot, the politician
+  //   manager, and through _vhSyncBanner the Who Represents Me band and the six
+  //   seats pdxRepsForMe() resolves. A city search picks a House district and
+  //   then a Senate district, so the whole rebuild ran TWICE, behind a modal
+  //   covering the page it was rebuilding, in the same frames that were drawing
+  //   district polygons. That is the tab that stopped responding. So a rebuild
+  //   asked for while the finder is open is RECORDED and replayed ONCE on close.
+  //   Deferred, never dropped, and the location itself is still saved on every
+  //   pick by its own owner — no key moves and nothing gains a second writer.
+  //
+  //   AND DON'T LEAVE WORK ON THE WIRE. Every request the finder makes registers
+  //   a canceller here, so a second search, or closing the modal, takes the
+  //   previous attempt off the network instead of letting it land on a surface
+  //   that has moved on. fetch() gets a per-request ceiling and deadline() gets
+  //   one over a whole provider chain, because five geocoders head-to-tail with
+  //   no timeout is a spinner with nothing left to cancel.
+  (function () {
+    var pending = false;
+    var inflight = [];
+    var DEFAULT_MS = 20000;
+    window.PDXFinder = {
+      isOpen: function () {
+        var m = document.getElementById('district-map-modal');
+        return !!(m && m.style.display === 'flex');
+      },
+      markPending: function () { pending = true; },
+      flush: function () {
+        if (!pending) return;
+        pending = false;
+        if (typeof window._triggerLocationReaction === 'function') window._triggerLocationReaction();
+      },
+      track: function (cancel) { inflight.push(cancel); },
+      abort: function () {
+        var list = inflight; inflight = [];
+        for (var i = 0; i < list.length; i++) { try { list[i](); } catch (e) {} }
+      },
+      // fetch with a ceiling and a canceller.
+      fetch: function (url, opts, ms) {
+        var ctrl = (typeof AbortController === 'function') ? new AbortController() : null;
+        var o = {}, k, timer;
+        if (opts) { for (k in opts) o[k] = opts[k]; }
+        if (ctrl) o.signal = ctrl.signal;
+        function kill() { clearTimeout(timer); if (ctrl) { try { ctrl.abort(); } catch (e) {} } }
+        timer = setTimeout(kill, ms || DEFAULT_MS);
+        this.track(kill);
+        return fetch(url, o).then(function (r) { clearTimeout(timer); return r; },
+                                  function (e) { clearTimeout(timer); throw e; });
+      },
+      // One ceiling over a whole chain; on expiry the wire is cleared and the
+      // caller is told, rather than left holding a spinner.
+      deadline: function (p, ms) {
+        var self = this;
+        return new Promise(function (resolve) {
+          var done = false, t;
+          function fin(v) { if (done) return; done = true; clearTimeout(t); resolve(v); }
+          t = setTimeout(function () { self.abort(); fin({ timedOut: true, hit: null }); }, ms);
+          p.then(function (v) { fin({ timedOut: false, hit: v || null }); },
+                 function () { fin({ timedOut: false, hit: null }); });
+        });
+      }
+    };
+  })();
+
   window._triggerLocationReaction = function() {
     var loc = window._currentVoterLocation || { state: '', city: '', county: '', district: '' };
     var state = loc.state || '';
-    
+
+    // NOT WHILE THE FINDER IS OPEN. Everything below this line rebuilds the
+    // front page: Key Races, the Relevant-to-Me slate, the team grid and browse
+    // lane, the H.R.1 receipts grid, Local Issues, the ballot, the politician
+    // manager, and — through _vhSyncBanner — who-represents-me's six-seat band
+    // and its pdxRepsForMe() preview. None of it is visible behind the district
+    // modal, and a city search sets a house district and then a senate district,
+    // so it used to run the whole rebuild TWICE over a page nobody was looking
+    // at. That is the "Page Unresponsive" in the report.
+    //
+    // The work is deferred, not dropped: the finder records that a rebuild is
+    // owed and closeDistrictMapModal() flushes it once, over a page the reader
+    // can actually see. The location itself is already saved by the caller —
+    // this gate changes WHEN the page repaints, never what is stored, and no
+    // location key or chooser flag is touched here.
+    try {
+      if (window.PDXFinder && window.PDXFinder.isOpen()) {
+        window.PDXFinder.markPending();
+        // The finder's own chrome is the one surface that IS on screen.
+        if (typeof window._pdxRefreshMapIndicators === 'function') window._pdxRefreshMapIndicators();
+        return;
+      }
+    } catch (e) {}
+
     if (typeof window._updateTeamPositionsForLocation === 'function') window._updateTeamPositionsForLocation();
     if (typeof window.updateRelevantLocationText === 'function') window.updateRelevantLocationText();
     if (typeof window._vhSyncBanner === 'function') window._vhSyncBanner();
@@ -1509,7 +1603,7 @@
   // generous direction on purpose: every caller of it either NAMES somebody or
   // declines to un-name them, so a pid that either index still holds is a pid
   // this page still knows.
-  function _pdxRosterRec(pid) {
+  function _pdxRosterRaw(pid) {
     if (!pid) return null;
     try {
       var c = window.CMP_DATA;
@@ -1521,6 +1615,106 @@
     } catch (e2) {}
     return null;
   }
+
+  // ── AND UNDER WHICHEVER KEY THE ROW IS ACTUALLY FILED ─────────────────────
+  // The lookup above is a RAW key lookup, and on a document whose only roster is
+  // the live Firestore index that is not the same question as "do we hold this
+  // person". For a handful of officeholders the live document is filed under the
+  // slug of their display name and the roster record under the legislative id
+  // the seat resolves to: `scott_chew` holds the document, `chew_h68` holds the
+  // record and the 90-act formal file. Ask window.PROFILES for `chew_h68` on a
+  // document with no cmp-data.js and the answer is nothing — which
+  // _pdxRosterKeeps() below then reads as the member having left the roster.
+  //
+  // That is how /voice printed "No sitting member on hand for this seat" on the
+  // Utah State House card for a Lapoint reader whose front-page band named Scott
+  // Chew in the same session, off the same pdxRepsForMe() seat list, out of the
+  // same remembered district. The seat resolved; the gate un-named it.
+  //
+  // So the raw miss is JOINED, not trusted. window.PDX_PROFILE_ALIAS is this
+  // repo's standing assertion that the id on its left names the same officeholder
+  // as the id on its right — the table profile-evidence.js declares, person-file's
+  // canonId, PDXPersonLink's href and data-hygiene's _hyCanonId all already read,
+  // and that profile-alias.js puts on the lean documents in 2 KB. Read in reverse
+  // it answers exactly the question a key lookup cannot: which OTHER keys a row
+  // for this pid may be filed under. If one of them has a row, the row exists and
+  // this page holds the person.
+  //
+  // THIS IS NOT A SECOND SEAT-HOLDER TABLE AND IT NAMES NOBODY. The join maps id
+  // to id; every pid it can reach came from the seat list, every pair it walks is
+  // a ruling made somewhere else, and the direction is one-hop — a canonical id
+  // to the retired spellings of itself, never a chain. Where the table is absent
+  // the gate behaves exactly as it did before it: a raw lookup, failing open
+  // through _pdxRosterKeeps().
+  var _PDX_NO_ALIAS = [];
+  var _pdxAliasRev = null, _pdxAliasSrc = null;
+  function _pdxAliasKeys(pid) {
+    if (!pid) return _PDX_NO_ALIAS;
+    var t = null;
+    try { t = window.PDX_PROFILE_ALIAS; } catch (e) {}
+    if (!t || typeof t !== 'object') return _PDX_NO_ALIAS;
+    // Rebuilt only when the table itself is replaced, so a per-seat gate check
+    // stays a hash lookup however many times a repaint asks it.
+    if (t !== _pdxAliasSrc) {
+      _pdxAliasSrc = t;
+      _pdxAliasRev = {};
+      try {
+        for (var k in t) {
+          if (!Object.prototype.hasOwnProperty.call(t, k)) continue;
+          var v = t[k];
+          if (!v || v === k) continue;
+          v = String(v);
+          (_pdxAliasRev[v] = _pdxAliasRev[v] || []).push(k);
+        }
+      } catch (e2) { _pdxAliasRev = {}; }
+    }
+    return _pdxAliasRev[pid] || _PDX_NO_ALIAS;
+  }
+
+  // ── AND IT IS THE ROW THAT CAN NAME THEM, NOT MERELY THE FIRST ROW ────────
+  // The walk below stops on the row that carries a display name rather than on
+  // the first row it finds, because on the live index those are not always the
+  // same row. A bulk Firestore load writes a `__lite` record for every document
+  // it lists, and the retired spelling is the one that holds the full document:
+  // for Utah House District 68 the named record is filed under `scott_chew` and
+  // the canonical key can be holding a thin row with no `name` on it at all.
+  // First-row-wins then answered the gate correctly and the card wrongly — the
+  // seat kept its member and the hallway printed "The member who holds this
+  // seat is on file" over a person whose name was one key away.
+  //
+  // EXISTENCE SEMANTICS ARE UNCHANGED, WHICH IS WHY THIS STAYS ONE FUNCTION.
+  // `first` keeps whatever row was seen, so the return value is non-null for
+  // exactly the same pids as before: every key that had a row still has one and
+  // the gate's truthiness test reads the same answer it always did. What changed
+  // is only WHICH of two rows for one officeholder comes back, and that question
+  // only ever mattered to the caller that prints a name.
+  function _pdxRosterName(rec) {
+    if (!rec || typeof rec !== 'object') return '';
+    try { return String(rec.name == null ? '' : rec.name).trim(); } catch (e) { return ''; }
+  }
+
+  function _pdxRosterRec(pid) {
+    if (!pid) return null;
+    var first = _pdxRosterRaw(pid);
+    if (_pdxRosterName(first)) return first;
+    var keys = _pdxAliasKeys(pid);
+    for (var i = 0; i < keys.length; i++) {
+      var alt = _pdxRosterRaw(keys[i]);
+      if (_pdxRosterName(alt)) return alt;
+      if (alt && !first) first = alt;
+    }
+    return first || null;
+  }
+
+  // PUBLISHED, BECAUSE THE NAME AND THE GATE MUST BE ONE READ. voice-room.js
+  // prints the sitting member's name on a document that has no cmp-data.js and no
+  // _pdxPersonById, so its only source for a display record is the same live index
+  // this gate keys — and if it keyed it rawly while the gate joined, the resolver
+  // would keep a pid the hallway could not name and the card would fall back to
+  // "The member who holds this seat is on file". One function, asked twice: is
+  // this pid still a person here, and what record is that person. No caller
+  // composes a label, and nothing here decides which pid holds a seat.
+  window.pdxRosterRec = function (pid) { return _pdxRosterRec(pid) || null; };
 
   function _pdxRosterSize() {
     try {

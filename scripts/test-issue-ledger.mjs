@@ -554,10 +554,25 @@ section("9 · the pass stayed in its lane");
 
   // The other lanes are untouched, by the strongest test available: the file is
   // what HEAD says it is.
-  for (const f of [
-    "index.html", "voice.html", "voter-hub-location.js", "money.html", "money-room.js",
-    "pdx-finance.js", "finance-lane.js", "stance-helpers.js", "voting-record.js", "word-action.js",
-  ]) {
+  //
+  // AND IT ASKS THAT OF WHICHEVER FILES HEAD MAKES THE QUESTION MEANINGFUL FOR.
+  // "Byte-identical to HEAD" was the right claim on the day this pass was
+  // written and it stops being a claim about THIS pass the moment the pass is
+  // committed: from then on HEAD carries the drawer, and any later pass editing
+  // the shared shell fails a pin that was only ever about the drawer's own diff.
+  // A gate that can pass exactly once, in the tree of its author, reports its
+  // own obsolescence forever after — indistinguishable from the regression it
+  // was meant to catch. So the shell files come off the list once HEAD already
+  // carries this pass (detected by its own changelog line, below): the drawer's
+  // scoring surface is still pinned by sections 7 and 8, which compare DERIVED
+  // figures and stay meaningful for every pass after this one.
+  const LANDED = /issue drawer leads with bills\/acts table/i.test(HEAD("sw.js") || "");
+  const LANE_FILES = LANDED
+    ? ["money.html", "money-room.js", "pdx-finance.js", "finance-lane.js",
+       "stance-helpers.js", "voting-record.js", "word-action.js"]
+    : ["index.html", "voice.html", "voter-hub-location.js", "money.html", "money-room.js",
+       "pdx-finance.js", "finance-lane.js", "stance-helpers.js", "voting-record.js", "word-action.js"];
+  for (const f of LANE_FILES) {
     const head = HEAD(f);
     if (head === null) continue;
     ok(head === R(f), `${f} changed — this pass reshapes one drawer and must touch nothing else`);
@@ -570,12 +585,23 @@ section("9 · the pass stayed in its lane");
   must(m, "CACHE_VERSION is not in sw.js in the form this file reads");
   if (SWH) {
     const pm = /const CACHE_VERSION = 'v(\d+)';/.exec(SWH);
-    if (pm) eq(Number(m[1]), Number(pm[1]) + 1, `CACHE_VERSION moved from v${pm[1]} to v${m[1]} — this pass bumps exactly one version`);
+    // Exactly one bump while this pass is the working tree's own; once it has
+    // landed, a later pass owns the newest version and the claim that still has
+    // teeth is that the version only ever goes UP and this pass's entry is still
+    // in the log where a reader of sw.js can find it.
+    if (pm && !LANDED) eq(Number(m[1]), Number(pm[1]) + 1, `CACHE_VERSION moved from v${pm[1]} to v${m[1]} — this pass bumps exactly one version`);
+    if (pm && LANDED) ok(Number(m[1]) >= Number(pm[1]), `CACHE_VERSION went backwards, v${pm[1]} to v${m[1]}`);
   }
   has(SW, `// v${m[1]} - `, `sw.js has no prose log entry for v${m[1]}`);
   const entry = SW.slice(SW.indexOf(`// v${m[1]} - `), SW.indexOf("const CACHE_VERSION"));
-  ok(/issue drawer leads with bills\/acts table; scores unchanged\./i.test(entry.replace(/\/\/\s+/g, " ").replace(/\s+/g, " ")),
-    "the v" + m[1] + " log entry does not carry this pass's changelog line");
+  // Where to look for this pass's own line: its own entry while the pass is the
+  // newest one, anywhere in the log once a later pass has taken that slot. The
+  // line must still be THERE either way — an entry deleted from the log is a
+  // reader of sw.js who can no longer find out why the drawer has a table.
+  const lineIn = LANDED ? SW : entry;
+  ok(/issue drawer leads with bills\/acts table; scores unchanged\./i.test(lineIn.replace(/\/\/\s+/g, " ").replace(/\s+/g, " ")),
+    LANDED ? "the sw.js log no longer carries this pass's changelog line"
+           : "the v" + m[1] + " log entry does not carry this pass's changelog line");
   ok(entry.split("\n").length <= 48, `the v${m[1]} log entry runs ${entry.split("\n").length} lines, over the 48-line budget`);
   has(SW, "'/consistency.js'", "consistency.js is not precached, so the new drawer can arrive against an old shell");
 }

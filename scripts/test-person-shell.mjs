@@ -352,10 +352,10 @@ const COPIES = [
   [2018, 2038, "the Firebase compat bundles, the key injection, the stub and firebase-boot.js"],
   [2190, 2236, "the share furniture share-preview.ts rewrites"],
   [3727, 3791, "the crawl-header guard"],
-  [13517, 13551, "the profile modal down to #modal-content"],
-  [13612, 13659, "the stance popover, the record overlay and the share sheet"],
-  [20377, 20498, "PDXStance"],
-  [22987, 23185, "the PWA runtime and the service-worker registration"],
+  [13526, 13560, "the profile modal down to #modal-content"],
+  [13621, 13668, "the stance popover, the record overlay and the share sheet"],
+  [20516, 20637, "PDXStance"],
+  [23126, 23324, "the PWA runtime and the service-worker registration"],
 ];
 //   AND DOWN BY TWELVE, for the Voice-hub pass. window.pdxMapConfirm on
 // index.html grew the return-intent trigger — one guarded PDXReturn.consume()
@@ -372,6 +372,15 @@ const COPIES = [
 // each re-derived by locating in index.html the run person.html actually carries,
 // never by adding the delta, and the declared ranges in person.html's own headers
 // moved in the same edit.
+//   AND DOWN AGAIN, FOR THE FINDER BASEMAP AND THE FREEZE. index.html's
+// district-map controller swapped its keyed Carto tile template for
+// OpenStreetMap's keyless one, stopped drawing 75 State House polygons just to
+// open the modal, and grew the gate that defers the front page's rebuild while
+// the finder is open: 9 lines above the two modal blocks (the map canvas's own
+// styles) and 139 above PDXStance and the PWA runtime. None of it is anywhere
+// near any of the four. So the lower four are now 13526-13560, 13621-13668,
+// 20516-20637 and 23126-23324 — each re-derived by locating the run person.html
+// actually carries, and person.html's headers moved in the same edit.
 
 // THESE NUMBERS ARE ANCHORS INTO index.html AND THEY MOVE WHEN IT DOES. The
 // ones re-based here were re-based by the fourth split, which lifted the ballot
