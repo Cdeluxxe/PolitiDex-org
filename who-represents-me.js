@@ -243,11 +243,24 @@
         ? 'No record on file yet'
         : (located ? 'District ' + esc(lv.district) + ' \u2014 no member on file yet'
                    : 'Not resolved for your area yet');
+      // A FOURTH DISTINCTION, AND IT IS ABOUT OUR MAP RATHER THAN THEIR ADDRESS.
+      // lv.mapped says whether this seat's geography is one we draw for the
+      // reader's state at all: the U.S. House is mapped in every state now, the
+      // two legislative chambers in Utah only. So an unresolved seat splits in
+      // two. A MAPPED one is a seat the finder can fill in from district lines we
+      // already have, and telling the reader to leave it blank would be advice
+      // against our own coverage. An UNMAPPED one is our gap, and it keeps the
+      // admission it has always carried. The headline is deliberately the same
+      // sentence in both cases: neither of them has a district, and neither of
+      // them may read as though it does.
+      var mapped = !!lv.mapped;
       var sub = lv.statewide
         ? 'We&rsquo;d rather leave this blank than name the wrong person.'
         : (located
             ? 'Your district is set. We just don&rsquo;t hold a file for whoever sits in this seat yet &mdash; nothing to fix on your end.'
-            : 'We&rsquo;d rather leave this blank than guess at your seat.');
+            : (mapped
+                ? 'We have the district lines for this seat &mdash; set your address in the district finder and it fills in. Nothing is guessed in the meantime.'
+                : 'We&rsquo;d rather leave this blank than guess at your seat.'));
       var cls = 'wrm-row wrm-row--unresolved' + (located ? ' wrm-row--nomember' : '');
       return '<div class="' + cls + '" data-rk="' + esc(rkOf(lv)) + '" style="border-left-color:' + color + '66;">' +
         '<span class="wrm-avatar wrm-avatar--empty"' +
@@ -544,14 +557,29 @@
     if (!blanks) return '';
     var st = reps.state ? esc(reps.state) : 'your state';
     var swFilled = reps.levels.filter(function (l) { return l.statewide && l.resolved; }).length;
+    // The U.S. House row is the one district seat this note can now offer a way
+    // out of, so it is only addressed while it is actually blank.
+    var houseBlank = reps.levels.some(function (l) { return l.key === 'house' && !l.resolved; });
     return '<p class="wrm-scopenote">' +
       (swFilled
         ? 'Your <strong>statewide seats</strong> are resolved &mdash; those are elected by all of ' + st +
           ', so your state is all we need. '
         : '') +
-      'Your <strong>U.S. House, State Senate and State House</strong> seats need district lines, and ' +
-      'PolitiDex only maps districts in Utah so far. Those rows are left blank on purpose: we would ' +
-      'rather show you nothing than show you someone else&rsquo;s district.' +
+      // THE NOTE NARROWED WHEN THE MAP WIDENED. It used to group the U.S. House
+      // in with the two legislative chambers as seats that "need district lines,
+      // and PolitiDex only maps districts in Utah" — which was true when the
+      // only congressional layer on the site was Utah's. The congressional map is
+      // national now, so that sentence would understate our own coverage to a
+      // reader whose U.S. House seat this band can answer. What is still Utah-only
+      // is the STATE legislative geometry, so that is what the sentence says.
+      (houseBlank
+        ? 'Your <strong>U.S. House</strong> seat is resolved from district lines, and we have them '
+          + 'for ' + st + ' &mdash; set your address in the district finder and that row fills in. '
+        : '') +
+      'Your <strong>State Senate and State House</strong> seats need state legislative district ' +
+      'lines, and PolitiDex only maps state legislative districts in Utah so far. Those rows are ' +
+      'left blank on purpose: we would rather show you nothing than show you someone else&rsquo;s ' +
+      'district.' +
     '</p>';
   }
 

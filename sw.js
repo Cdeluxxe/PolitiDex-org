@@ -7687,7 +7687,54 @@
 //     _pdxLocWasChosen and pdxRepsForMe() are untouched, and a reader already
 //     holding a record sees the same record - with one roster under it instead
 //     of two. MIGRATION COST: none. Nothing stored changed shape or name.
-const CACHE_VERSION = 'v239';
+// v240 - THE U.S. HOUSE RESOLVES IN EVERY STATE, ONE STATE'S LINES AT A TIME.
+//     A reader in Columbus opened 'Who Represents You Now' and read three
+//     blanks. Two were honest - PolitiDex draws no state legislative lines
+//     outside Utah - but the third was not: the roster held a district-keyed
+//     file for the member of that reader's U.S. House seat, and the only thing
+//     in the way was that the only congressional geometry here was Utah's.
+//     /find NOW LOADS ONE STATE'S CONGRESSIONAL LINES, AFTER IT HAS A STATE.
+//     find.html carries a 51-row table (name, FIPS, USPS) and one query against
+//     Census TIGERweb layer 4 - the 119th Congress, the vintage the roster's
+//     district keys are; layer 0 is the 120th and would hand a reader whoever
+//     holds the same-numbered seat on a different map. The geocode stages its
+//     state first, so the request is built for the state actually searched, and
+//     outside Utah the fetch set narrows to congress alone - an Ohio address
+//     never pulls Utah's legislative FeatureServers, and no national layer is
+//     ever fetched or painted. Utah keeps UGRC, which is the NEWER map: the
+//     court-ordered 2026 lines the Census does not serve yet.
+//     A SEAM MISS IS ASKED ONCE AND THEN LEFT BLANK. A point the simplified
+//     lines miss goes to the unsimplified service as a point-intersect query;
+//     no answer there means an empty seat. There is deliberately no
+//     nearest-centroid fallback for congress, because the nearest centroid
+//     across a whole state is a coin toss between two sitting members.
+//     ONE PIN, AND A TAP MOVES IT. A tap drops the same marker a geocode drops,
+//     at that latlng, and resolveAllAt runs at the pin rather than somewhere
+//     inside the polygon. Re-tapping moves it instead of adding a second.
+//     ONE LOOKUP TURNS A DISTRICT INTO A PERSON. _pdxUsHouseSeat(state,
+//     district) matches the roster's district-qualified states. A row
+//     that does not say which district it holds is never placed in one, so a
+//     bare-state leadership record is not somebody's representative; a district
+//     claimed twice resolves to NOBODY rather than to whichever row indexed
+//     first; district 1 may answer an at-large seat but an at-large row never
+//     answers district 2.
+//     THREE BLANKS, THREE SENTENCES, STILL NO GUESSED NUMBER.
+//     districtsResolvable did NOT widen - it gates the state legislative
+//     geometry, which did not move. Two narrower flags sit beside it so the
+//     broad one stayed true: congressMapped, and a per-level 'mapped'. A
+//     located district with nobody on file still says so; a seat we can map but
+//     have not placed says so and points at the finder; a seat we do not map
+//     keeps the flatter admission. The homepage, the band's scope note and Door
+//     2's chrome stop grouping the U.S. House with the two seats we cannot
+//     resolve. BOARD_ROUTES is still one row, no /district/* splat, /find still
+//     one-shots boot, ghosts only among layers actually loaded.
+//     A CACHE_VERSION MOVE IS REQUIRED because '/' and '/find.html' are both
+//     precached shells and both changed; voter-hub-location.js,
+//     who-represents-me.js and scope-chrome.js are runtime-cached by design.
+//     NO LOCATION KEY WAS RENAMED, COPIED OR MIGRATED. A saved record now
+//     carries the state the reader resolved in rather than a stamped 'Utah'.
+//     MIGRATION COST: none. Nothing stored changed shape or name.
+const CACHE_VERSION = 'v240';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

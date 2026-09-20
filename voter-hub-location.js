@@ -868,11 +868,15 @@
     // ── Map-first routing ────────────────────────────────────────────────────
     // The address + map picker is the primary, most accurate way to set a location
     // — it resolves the exact districts even where a city is split across several
-    // seats (like Layton). For Utah (the map's coverage) or a visitor who hasn't
-    // chosen a state yet, open it directly with the address search focused. The
-    // caller can force the manual form instead (the "use city/county instead"
-    // escape hatch, or a Leaflet load failure) via opts.forceForm.
-    if (!opts.forceForm && (!loc.state || loc.state === 'Utah') &&
+    // seats (like Layton). It now has something to resolve in EVERY state: the
+    // finder loads the federal congressional lines for whatever state the geocode
+    // lands in, so an Ohio reader who types their address gets OH-15 pinned
+    // exactly rather than a free-text district box and a guess. Only "National" —
+    // a deliberate federal-only choice with no geography to place — still routes
+    // straight to the manual form. The caller can force that form anywhere (the
+    // "use city/county instead" escape hatch, or a Leaflet load failure) via
+    // opts.forceForm.
+    if (!opts.forceForm && loc.state !== 'National' &&
         typeof window.openDistrictMapModal === 'function') {
       window.openDistrictMapModal();
       return;
@@ -931,13 +935,18 @@
   };
 
   // Arrange the location form for the current state: show the primary map card and
-  // collapse the manual selector where the map is available (Utah / no state yet),
-  // or hide the map and expand the manual fields everywhere else. Centralizes the
-  // layout so openLocationModal and voterLocationStateChanged stay in sync.
+  // collapse the manual selector where the map is available, or hide the map and
+  // expand the manual fields where it isn't. Centralizes the layout so
+  // openLocationModal and voterLocationStateChanged stay in sync.
+  //
+  // "Available" now means every real state plus "no state chosen yet", because the
+  // map can draw a congressional district anywhere. It is deliberately the SAME
+  // test as the routing gate above: a state where the map opens but the form
+  // claims it is unavailable would be two answers to one question.
   window._syncLocationModalLayout = function() {
     var loc = window._currentVoterLocation || {};
     var state = loc.state || '';
-    var mapAvailable = (!state || state === 'Utah');
+    var mapAvailable = (state !== 'National');
 
     var mapPrimary = document.getElementById('voter-map-primary');
     var mapUnavailable = document.getElementById('voter-map-unavailable');
@@ -950,10 +959,10 @@
     if (mapPrimary) mapPrimary.style.display = mapAvailable ? 'flex' : 'none';
     if (manualToggle) manualToggle.style.display = mapAvailable ? 'inline-flex' : 'none';
     if (manualWarn) manualWarn.style.display = mapAvailable ? 'block' : 'none';
-    // Explain the missing map for a specific out-of-coverage state (a real state
-    // that isn't Utah). "National" is a deliberate federal-only choice, so it needs
-    // no map explanation.
-    if (mapUnavailable) mapUnavailable.style.display = (!mapAvailable && state && state !== 'National') ? 'flex' : 'none';
+    // Nothing left to explain away: the only state without a map is "National",
+    // which is a deliberate federal-only choice rather than a coverage gap. The
+    // notice stays in the markup because a Leaflet failure still routes here.
+    if (mapUnavailable) mapUnavailable.style.display = 'none';
 
     // Field visibility mirrors the original rules: nothing until a state is picked,
     // city only for National, city + congressional district for a real state.
@@ -1220,6 +1229,23 @@
     var distSel = document.getElementById('voter-district-sel');
     if (!stateSel) return;
     var state = stateSel.value;
+    // A DISTRICT NUMBER BELONGS TO THE STATE IT WAS DRAWN IN. Moving from Ohio to
+    // Texas with "15" still sitting in the box used to carry that 15 across the
+    // state line, and now that the U.S. House row resolves everywhere, a carried
+    // number is no longer an inert field — it names a member. TX-15 is a real
+    // seat held by a real person who does not represent this reader. The same
+    // applies to the two legislative numbers and to the map's `mapSelected` flag,
+    // which asserts "these districts came from a pin" about a pin in another
+    // state. So a genuine change of state drops every district datum and the
+    // reader re-pins, which for most of them is one tap on the map.
+    var prevState = window._currentVoterLocation.state || '';
+    if (prevState && prevState !== state) {
+      window._currentVoterLocation.district = '';
+      window._currentVoterLocation.stateHouseDistrict = '';
+      window._currentVoterLocation.stateSenateDistrict = '';
+      window._currentVoterLocation.mapSelected = false;
+      if (distSel) { try { distSel.value = ''; } catch(e) {} }
+    }
     window._currentVoterLocation.state = state;
 
     // The modal is now the source of truth for the voter's location, so drop any
@@ -2185,6 +2211,117 @@
     return out;
   };
 
+  // ── _pdxUsHouseSeat(state, district) — WHO HOLDS ONE U.S. HOUSE SEAT ────────
+  // The statewide walk above answers the two seats every state elects at large.
+  // This answers the one seat a reader's CONGRESSIONAL DISTRICT elects, for any
+  // state, which is what /find can now pin outside Utah: the federal map is a
+  // single national layer, so the moment a geocode or a map tap knows the state
+  // and the district number, the member is a lookup rather than a guess.
+  //
+  // It is a SEPARATE walk from _pdxStatewideSeats on purpose. A statewide seat is
+  // claimed by matching the state alone, and doing that for the House would hand
+  // a Louisiana reader the Speaker — whose record says "Louisiana" and nothing
+  // about which district he holds. A district seat is only ever claimed by a
+  // record that names its own district.
+
+  // Offices that hold a U.S. House district, and the ones that only look like it.
+  // The roster carries state chambers ("Utah State Representative"), chamber
+  // leadership by title ("State House Speaker"), executive-branch jobs with
+  // "House" or "Representative" in them ("White House Deputy Chief of Staff",
+  // "U.S. Trade Representative"), people who used to hold a seat ("Former U.S.
+  // Rep") and people running for one ("U.S. House Candidate (UT-3)"). A
+  // challenger is not an officeholder, and naming one as the reader's member
+  // would be the worst kind of wrong: confident, plausible, and about the
+  // election they are still deciding.
+  function _pdxIsUsRepOffice(office) {
+    var o = String(office == null ? '' : office).trim();
+    if (!o) return false;
+    if (/\bstate\b|\bassembly\b|\bwhite house\b|\btrade representative\b/i.test(o)) return false;
+    if (/\bformer\b|\bex-|\bcandidate\b|\bnominee\b/i.test(o)) return false;
+    if (/\bu\.?\s*s\.?\s*(representative|rep\b|house)/i.test(o)) return true;
+    if (/^(representative|congress(man|woman|person|member))\b/i.test(o)) return true;
+    return false;
+  }
+
+  // The district a roster record CLAIMS, read off its own `state` string, which
+  // is the only place the roster records it. Two dialects are in the data and
+  // both are answered here: "Ohio · OH-15" (the 49 states) and "Utah · District
+  // 4" (ours, which predates the other). At-large states write "Alaska · AK-AL".
+  // A record with no district tail — "Louisiana", "Delaware" — returns '' and is
+  // therefore never placed in a district by this index. That is the whole point:
+  // it is a record that does not say which district it holds.
+  function _pdxCdOfRosterState(v) {
+    var s = String(v == null ? '' : v);
+    var i = s.indexOf('·');
+    if (i === -1) return '';
+    var tail = s.slice(i + 1).trim();
+    var m = tail.match(/^[A-Za-z]{2}-(\d{1,2}|AL)$/) || tail.match(/^District\s+(\d{1,2})$/i);
+    if (!m) return '';
+    return /^al$/i.test(m[1]) ? 'AL' : String(parseInt(m[1], 10));
+  }
+
+  // ONE spelling for a district number, so "03", "3", "OH-3" and 3 are one key.
+  // At-large is its own key: the six single-district states and DC have no
+  // number, the Census writes them "00" (and DC "98"), and `loc.district` is
+  // digits-only everywhere in this app — so the map stores at-large as 1 and the
+  // read below is what reconciles the two. Zero means at-large, never district 0.
+  function _pdxCdKey(d) {
+    var raw = String(d == null ? '' : d).trim();
+    if (!raw) return '';
+    if (/^al$/i.test(raw)) return 'AL';
+    var n = parseInt(raw.replace(/[^0-9]/g, ''), 10);
+    if (isNaN(n)) return '';
+    return n === 0 ? 'AL' : String(n);
+  }
+
+  // district key → pid, for one state. Memoised on roster SIZE for the same
+  // reason the statewide memo is (see above): a walk taken before cmp-data.js
+  // executes must not be remembered as the answer.
+  var _pdxCdCache = {};
+  function _pdxCdIndex(st) {
+    var idx = {};
+    var T = _pdxRosterTable();
+    if (!T) return idx;
+    for (var pid in T) {
+      if (!Object.prototype.hasOwnProperty.call(T, pid)) continue;
+      var rec = T[pid];
+      if (!rec || _pdxStateName(rec.state) !== st) continue;
+      var key = _pdxCdOfRosterState(rec.state);
+      if (!key) continue;
+      if (!_pdxIsUsRepOffice(rec.office)) continue;
+      if (!_pdxArchiveInOffice(rec)) continue;
+      // TWO CLAIMANTS ON ONE DISTRICT IS NOT A TIE TO BREAK. A seat is held by
+      // one person; if the roster says otherwise for this district, the roster
+      // is mid-correction and the honest row is the one that names nobody. The
+      // slot is nulled rather than left on the first writer, so a stale record
+      // cannot win a race by sort order.
+      if (Object.prototype.hasOwnProperty.call(idx, key)) { idx[key] = null; continue; }
+      idx[key] = pid;
+    }
+    return idx;
+  }
+
+  window._pdxUsHouseSeat = function (stateName, district) {
+    var st = _pdxStateName(stateName);
+    var key = _pdxCdKey(district);
+    if (!st || st === 'national' || !key) return null;
+
+    var rn = _pdxRosterSize();
+    var hit = _pdxCdCache[st];
+    if (!hit || hit.n !== rn) {
+      hit = { n: rn, idx: _pdxCdIndex(st) };
+      if (rn) _pdxCdCache[st] = hit;
+    }
+
+    // District 1 may answer an at-large seat, because that is the number this app
+    // stores for a state with one district. The tolerance is ONE-WAY on purpose:
+    // an at-large record can fill district 1, and no other number can ever reach
+    // it. Montana has district 1 AND district 2; a two-way rule would hand its
+    // second district to a member who does not hold it.
+    var pid = hit.idx[key] || (key === '1' ? hit.idx.AL : null) || null;
+    return (pid && _pdxRosterKeeps(pid)) ? pid : null;
+  };
+
   // ── window.pdxRosterReady(cb) — "THE ROSTER IS HERE", ANNOUNCED ONCE ────────
   // The memo above already refuses to cache an empty roster, so a statewide read
   // taken before cmp-data.js executes is never remembered as the answer. But a
@@ -2683,10 +2820,28 @@
     // loc.stateHouseDistrict. No new key, no migration, and no precedence change:
     // the curated ballot still wins, then the memo, and this is only consulted
     // when both came back with nothing.
-    var hd = utah ? dist('house', 'house', _pdxResolvedDist(mem, 'house', loc.district)) : null;
+    // THE U.S. HOUSE ROW IS NO LONGER UTAH-ONLY, AND IT IS THE ONLY ROW THAT
+    // ISN'T. Congressional districts are one federal map; /find can load any
+    // state's lines on demand and pin the reader inside one, so the number this
+    // reader has is a number we can name a member for. State legislative lines
+    // are 50 separate maps and we still draw one of them, which is why the two
+    // rows below are still gated on Utah and why `districtsResolvable` — the
+    // flag that means "we map YOUR state's legislative districts" and also gates
+    // the curated local-offices handoff — is untouched.
+    //
+    // Inside Utah nothing about this line changed: the curated ballot wins, then
+    // the memo, then the map's own pin. Outside it there are no curated tables to
+    // consult, so the reader's own pinned district IS the answer, and the member
+    // comes from the roster's district-qualified records rather than from a
+    // statewide match that cannot tell districts apart.
+    var cdMapped = !national && !!_pdxStateName(state);
+    var ownCd = cdMapped ? _pdxCdKey(loc.district) : '';
+    var hd = utah ? dist('house', 'house', _pdxResolvedDist(mem, 'house', loc.district))
+                  : (ownCd ? (ownCd === 'AL' ? '1' : ownCd) : null);
     var sd = utah ? dist('statesenate', 'senate', _pdxResolvedDist(mem, 'statesenate', loc.stateSenateDistrict || null)) : null;
     var ld = utah ? dist('statehouse', 'lower', _pdxResolvedDist(mem, 'statehouse', loc.stateHouseDistrict || null)) : null;
-    var hp = utah ? (inc('house', 'representative') || _pdxResolvedPid(mem, 'house', hd)) : null;
+    var hp = utah ? (inc('house', 'representative') || _pdxResolvedPid(mem, 'house', hd))
+                  : (hd != null ? window._pdxUsHouseSeat(state, hd) : null);
     var sp = utah ? (inc('statesenate', 'state_senator') || _pdxResolvedPid(mem, 'statesenate', sd)) : null;
     var lp = utah ? (inc('statehouse', 'state_rep') || _pdxResolvedPid(mem, 'statehouse', ld)) : null;
     var redrawn = false;
@@ -2738,7 +2893,14 @@
     // asking "who holds the U.S. Senate seat for this voter" had to own a second
     // copy of it — and a second copy is a second answer. It is emitted here, by
     // the function that emits the levels, and read back by pdxSeatHolders() below.
-    var level = function (key, seat, label, tierLabel, color, d, pid) {
+    // `mapped` is "we can draw the lines this seat is elected from", and it is a
+    // different question from whether we resolved them for THIS reader. A blank
+    // U.S. House row in Ohio now means "you haven't pinned your district yet",
+    // which a reader can fix in one tap; a blank State Senate row in Ohio means
+    // "we don't draw Ohio's legislative lines", which they cannot. Surfaces used
+    // to tell those apart by reading districtsResolvable, which answered both at
+    // once; now each row carries its own answer.
+    var level = function (key, seat, label, tierLabel, color, d, pid, mapped) {
       var n = num(d);
       return {
         key: key,
@@ -2747,6 +2909,7 @@
         tierLabel: tierLabel,
         color: color,
         statewide: false,
+        mapped: !!mapped,
         district: n || null,
         distLabel: n ? (label + ' · District ' + n) : label,
         pid: pid || null,
@@ -2764,6 +2927,7 @@
         tierLabel: tierLabel,
         color: color,
         statewide: true,
+        mapped: true,
         district: null,
         distLabel: stateLabel ? (label + ' · ' + stateLabel) : label,
         pid: pid || null,
@@ -2784,10 +2948,10 @@
       // state we hold one senator for shows one name and one honest blank.
       swLevel('ussenate1', 'senate', 'U.S. Senate', 'U.S. Senate', '#f0abfc', sw.senators[0]),
       swLevel('ussenate2', 'senate', 'U.S. Senate', 'U.S. Senate', '#f0abfc', sw.senators[1]),
-      level('house', 'house', 'U.S. House', 'U.S. House of Representatives', '#60a5fa', hd, hp),
+      level('house', 'house', 'U.S. House', 'U.S. House of Representatives', '#60a5fa', hd, hp, cdMapped),
       swLevel('governor', 'governor', 'Governor', 'Governor', '#fbbf24', sw.governor),
-      level('statesenate', 'statesenate', 'State Senate', 'State Senate', '#a78bfa', sd, sp),
-      level('statehouse', 'statehouse', 'State House', 'State House', '#2dd4bf', ld, lp)
+      level('statesenate', 'statesenate', 'State Senate', 'State Senate', '#a78bfa', sd, sp, utah),
+      level('statehouse', 'statehouse', 'State House', 'State House', '#2dd4bf', ld, lp, utah)
     ];
     if (located && !national) levels = _pdxStickLevels(levels, loc, state);
     // AND THE WALK IS REMEMBERED IN MEMORY — NOT WRITTEN TO THE STORE.
@@ -2826,6 +2990,13 @@
       // not map your state's legislative districts", and it also gates the handoff
       // to local offices, which are curated for the same areas.
       districtsResolvable: utah,
+      // And whether this visitor's CONGRESSIONAL district can be drawn, which is
+      // now a wider answer than the one above: every state and DC have federal
+      // lines the finder can load, while `districtsResolvable` still means the
+      // narrower "we map your state's LEGISLATIVE districts". A surface that
+      // reads the old flag for the U.S. House row would blank a row this reader
+      // can fill, which is the opposite of the honesty the flag exists for.
+      congressMapped: cdMapped,
       statewideAmbiguous: !!sw.ambiguous,
       levels: levels
     };

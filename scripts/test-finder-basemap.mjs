@@ -256,8 +256,22 @@ section("5 · no full House layer until a result or a tap");
   has(MAPC, "window.pdxMapShowBoundaries", "tap: the idle prompt has no button to draw the layer");
   has(MAPC, 'onclick="window.pdxMapShowBoundaries()"', "tap: the prompt's button is not wired");
   // And a tap while a fetch is already on the wire does not stack a second one.
-  has(MAPC, "if (_loadingLayer || isPainted(_activeLayer)) return;",
-    "tap: a tap during a load or over a painted layer would queue a duplicate fetch");
+  // THE GUARD MOVED, AND THE REASON IT MOVED IS THE PIN. It used to be one line
+  // in the canvas handler, `if (_loadingLayer || isPainted(_activeLayer))
+  // return;`, which stood the whole gesture down — pin and all. A tap now
+  // drops a marker whatever else it does, so the two halves of that condition
+  // mean different things and are asked separately: an in-flight load still ends
+  // the tap (after the pin), and an already-painted layer skips the fetch and
+  // resolves from the point rather than firing a duplicate request.
+  const TAPAT = MAPC.slice(MAPC.indexOf("function tapAt("), MAPC.indexOf("function loadAndShow("));
+  must(TAPAT.length > 200, "tap: tapAt(), the one handler both tap paths arrive at, is gone");
+  has(TAPAT, "if (_loadingLayer) return;",
+    "tap: a tap during a load no longer stands down, so it would queue a duplicate fetch");
+  has(TAPAT, "if (!isPainted(_activeLayer) && !_geoCache[_activeLayer]) {",
+    "tap: a tap over an already-painted (or already-cached) layer would fetch it again");
+  ok(TAPAT.indexOf("dropPin(") > 0 && TAPAT.indexOf("dropPin(") < TAPAT.indexOf("if (_loadingLayer) return;"),
+    "tap: the pin is dropped after the in-flight early-out, so a tap during a load shows the reader\n" +
+    "    nothing at all, when the marker is their own gesture and owes nothing to the network");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -1370,8 +1384,15 @@ section("14 · a tap selects, and confirm is on screen to commit it");
   ok(/onEachFeature: function\(feature, path\)/.test(MAPC), "picker: the per-feature geoJSON binding is gone");
   eq((MAPC.match(/onEachFeature/g) || []).length, 1, "picker: a second onEachFeature binding appeared");
   eq((MAPC.match(/_map\.on\('click'/g) || []).length, 1, "picker: a second canvas-level click picker appeared");
-  has(MAPC, "if (_loadingLayer || isPainted(_activeLayer)) return;",
-    "picker: the canvas handler no longer stands down once polygons are drawn, so two pickers race one tap");
+  // ONE HANDLER, NOT ONE GUARD. Both pickers call tapAt() now, so "two pickers
+  // race one tap" is answered by there being a single body to race into, plus the
+  // flag it sets on the DOM event: it marks the GESTURE rather than the handler,
+  // so whichever binding Leaflet delivers to first is the one that counts.
+  eq((MAPC.match(/function tapAt\(/g) || []).length, 1,
+    "picker: tapAt() is gone or duplicated, so the canvas and the polygon are back to two different\n" +
+    "    ideas of what pressing this map means");
+  has(MAPC, "tapAt(e.latlng, e);", "picker: the canvas click no longer routes through the one tap handler");
+  has(MAPC, "oe.__pdxTapped", "picker: nothing marks the gesture, so a second binding would double-handle one press");
 
   // ── The pick is recorded and shown before anything that can fail ──────────
   {
@@ -1520,8 +1541,9 @@ section("15 · three seats, or a labelled partial save");
     no(bl, "if (layerType === 'congress') {",
       "picker: the polygon click is back to an early return on the congress layer, so a tap there\n" +
       "    highlights a district it never selects");
-    has(bl, "resolveAllAt(e.latlng)",
-      "picker: a polygon tap no longer resolves the other two chambers from its own point");
+    has(bl, "tapAt(e && e.latlng, e)",
+      "picker: a polygon tap no longer goes through the one tap handler, so it resolves the other\n" +
+      "    chambers without dropping the pin that says which point it resolved them from");
     has(bl, "click:     function(e)",
       "picker: the polygon click handler dropped its event argument, so it has no latlng to resolve from");
   }
@@ -1530,9 +1552,12 @@ section("15 · three seats, or a labelled partial save");
   eq((MAPC.match(/function resolveAllAt\(/g) || []).length, 1,
     "seats: resolveAllAt() is gone or duplicated — the tap path and the tap-to-load path are back to\n" +
     "    two different ideas of how many seats a point answers");
-  eq((MAPC.match(/resolveAllAt\(/g) || []).length, 3,
-    "seats: resolveAllAt is not called from exactly the two tap paths \u2014 its definition, the polygon\n" +
-    "    click and the tap-to-load pick are the only three mentions there should ever be");
+  eq((MAPC.match(/resolveAllAt\(/g) || []).length, 4,
+    "seats: resolveAllAt is not called from exactly the three paths that answer a point \u2014 its definition, the polygon\n" +
+    "    tap handler, the tap-to-load pick and the re-scope re-resolve are the only four");
+  // The fourth caller is the re-scope: a tap across a state line replaces the
+  // congressional lines and puts the SAME point to the new ones.
+  has(MAPC, "function scopeFromPoint(", "seats: nothing asks a tapped point which state it is in");
   {
     const ra = MAPC.slice(MAPC.indexOf("function resolveAllAt("), MAPC.indexOf("function selectDistrict("));
     must(ra.length > 120, "resolveAllAt is gone from the controller");
@@ -1541,7 +1566,7 @@ section("15 · three seats, or a labelled partial save");
     has(ra, "catch(function(){ return null; })",
       "seats: one failing boundary layer now rejects the whole point-resolve, so a congress outage\n" +
       "    takes House and Senate down with it — the same hazard onGeocoded already guards");
-    has(ra, "if (d == null ",
+    ok(/if \(d == null\)\s*\{[^}]*return;/.test(ra),
       "seats: a layer whose polygons do not contain the point now un-sets whatever was there");
   }
   {
@@ -1946,8 +1971,8 @@ section("16 · ghost layers: the other two chambers stay drawn and stay untappab
   // AND STILL EXACTLY ONE PICKER: the definition, the polygon click and the
   // tap-to-load pick are the only three mentions of the point resolver there
   // should ever be.
-  eq((MAPC.match(/resolveAllAt\(/g) || []).length, 3,
-    "ghost: the number of resolveAllAt call sites moved — a fourth is a second picker, a second is a lost seat");
+  eq((MAPC.match(/resolveAllAt\(/g) || []).length, 4,
+    "ghost: the number of resolveAllAt call sites moved — a fifth is a second picker, a third is a lost seat");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
