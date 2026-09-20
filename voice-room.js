@@ -146,22 +146,56 @@
   // sentence reading as "nobody", and it does not get a raw id printed as if it
   // were somebody's name.
   //
-  // AND THE LOOKUP IS THE RESOLVER'S, NOT A SECOND ONE. window.pdxRosterRec is
-  // the read voter-hub-location.js's own roster gate uses to decide whether a pid
-  // is still a person on this document — the two indexes, and the retired
-  // spellings PDX_PROFILE_ALIAS has ruled are the same officeholder. Asking it
-  // here is how the card that says "Sitting member" and the gate that lets the
-  // seat keep its member stay one answer: a Utah State House pid the resolver
-  // kept is a pid this file can name, rather than one it has to describe as
-  // merely "on file". The raw reads stay below it as the no-resolver lane, where
-  // this file is all there is.
+  // AND THE LOOKUP IS THE RESOLVER'S, NOT A SECOND ONE, AND IT IS ASKED FIRST.
+  // window.pdxRosterRec is the read voter-hub-location.js's own roster gate uses
+  // to decide whether a pid is still a person on this document — the two
+  // indexes, and the retired spellings PDX_PROFILE_ALIAS has ruled are the same
+  // officeholder. Asking it here is how the card that says "Sitting member" and
+  // the gate that lets the seat keep its member stay one answer: a Utah State
+  // House pid the resolver kept is a pid this file can name, rather than one it
+  // has to describe as merely "on file".
+  //
+  // ORDER IS THE WHOLE OF IT. This used to ask window._pdxPersonById first and
+  // `return` its answer — including its NULL. That reader is compare-table.js's,
+  // it keys the bundled roster only, and on any document carrying it a pid whose
+  // row is filed under a retired spelling came back null and ended the search
+  // before the join was ever consulted. So the join goes first, and no lane
+  // below it can end the walk by answering "nobody".
+  //
+  // A ROW WITHOUT A NAME IS NOT AN ANSWER EITHER. Each lane is kept only if it
+  // can actually name the person; a thin row is remembered as `first` and the
+  // walk carries on, so a lite record under the canonical key cannot shadow the
+  // full document filed under the slug. The last lane returns whatever row was
+  // seen, which is the honest answer "we hold a row for this seat and it names
+  // nobody" — and seatHtml already has a sentence for exactly that.
+  //
+  // NO ALIAS TABLE IS READ HERE. This file knows no ids, no spellings and no
+  // rulings about who is whom; the canonical-to-slug walk is the resolver's
+  // single one, asked once, in lane 1.
+  function named(p) {
+    try { return !!(p && p.name && String(p.name).trim()); } catch (e) { return false; }
+  }
   function personOf(pid) {
     if (!pid) return null;
-    try { if (fn(window._pdxPersonById)) return window._pdxPersonById(pid) || null; } catch (e) {}
-    try { if (fn(window.pdxRosterRec)) { var r = window.pdxRosterRec(pid); if (r) return r; } } catch (e2) {}
-    try { if (window.CMP_DATA && window.CMP_DATA[pid]) return window.CMP_DATA[pid]; } catch (e3) {}
-    try { if (window.PROFILES && window.PROFILES[pid]) return window.PROFILES[pid]; } catch (e4) {}
-    return null;
+    var first = null, r = null;
+    // 1 · THE GATE'S OWN JOIN: the canonical record, or the row filed under a
+    //     spelling of it that this repo has already ruled is the same person.
+    try { if (fn(window.pdxRosterRec)) r = window.pdxRosterRec(pid) || null; } catch (e) { r = null; }
+    if (named(r)) return r;
+    if (r && !first) first = r;
+    // 2 · The bundled roster's own reader, where a document carries one.
+    try { if (fn(window._pdxPersonById)) r = window._pdxPersonById(pid) || null; } catch (e2) { r = null; }
+    if (named(r)) return r;
+    if (r && !first) first = r;
+    // 3 · The raw reads, for a boot where the resolver never landed and this
+    //     file is all there is.
+    try { r = (window.CMP_DATA && window.CMP_DATA[pid]) || null; } catch (e3) { r = null; }
+    if (named(r)) return r;
+    if (r && !first) first = r;
+    try { r = (window.PROFILES && window.PROFILES[pid]) || null; } catch (e4) { r = null; }
+    if (named(r)) return r;
+    if (r && !first) first = r;
+    return first;
   }
   function personHref(pid) {
     try {

@@ -1671,16 +1671,39 @@
     return _pdxAliasRev[pid] || _PDX_NO_ALIAS;
   }
 
+  // ── AND IT IS THE ROW THAT CAN NAME THEM, NOT MERELY THE FIRST ROW ────────
+  // The walk below stops on the row that carries a display name rather than on
+  // the first row it finds, because on the live index those are not always the
+  // same row. A bulk Firestore load writes a `__lite` record for every document
+  // it lists, and the retired spelling is the one that holds the full document:
+  // for Utah House District 68 the named record is filed under `scott_chew` and
+  // the canonical key can be holding a thin row with no `name` on it at all.
+  // First-row-wins then answered the gate correctly and the card wrongly — the
+  // seat kept its member and the hallway printed "The member who holds this
+  // seat is on file" over a person whose name was one key away.
+  //
+  // EXISTENCE SEMANTICS ARE UNCHANGED, WHICH IS WHY THIS STAYS ONE FUNCTION.
+  // `first` keeps whatever row was seen, so the return value is non-null for
+  // exactly the same pids as before: every key that had a row still has one and
+  // the gate's truthiness test reads the same answer it always did. What changed
+  // is only WHICH of two rows for one officeholder comes back, and that question
+  // only ever mattered to the caller that prints a name.
+  function _pdxRosterName(rec) {
+    if (!rec || typeof rec !== 'object') return '';
+    try { return String(rec.name == null ? '' : rec.name).trim(); } catch (e) { return ''; }
+  }
+
   function _pdxRosterRec(pid) {
     if (!pid) return null;
-    var rec = _pdxRosterRaw(pid);
-    if (rec) return rec;
+    var first = _pdxRosterRaw(pid);
+    if (_pdxRosterName(first)) return first;
     var keys = _pdxAliasKeys(pid);
     for (var i = 0; i < keys.length; i++) {
-      rec = _pdxRosterRaw(keys[i]);
-      if (rec) return rec;
+      var alt = _pdxRosterRaw(keys[i]);
+      if (_pdxRosterName(alt)) return alt;
+      if (alt && !first) first = alt;
     }
-    return null;
+    return first || null;
   }
 
   // PUBLISHED, BECAUSE THE NAME AND THE GATE MUST BE ONE READ. voice-room.js

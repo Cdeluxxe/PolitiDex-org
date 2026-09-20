@@ -209,6 +209,23 @@ has(recBlk, "_pdxRosterRaw(keys[i])",
 has(joinBlk, "if (t !== _pdxAliasSrc)",
   "gate: the reverse index is rebuilt on every call — the gate is asked once per seat per repaint");
 
+// AND THE ONE READ RETURNS THE ROW THAT CAN NAME THEM. A bulk Firestore load
+// writes a `__lite` row for every document it lists, so the canonical key can be
+// holding a thin row while the full document sits under the retired spelling.
+// First-row-wins answered the gate correctly and the card wrongly: the seat kept
+// its member and the hallway described them instead of naming them. The walk now
+// prefers a row with a name — and still returns `first` when no row has one, so
+// the gate's truthiness test reads exactly the answer it read before.
+has(LOC, "function _pdxRosterName(rec)",
+  "gate: the joined read no longer tests whether a row can name the person, so a thin row under the\n" +
+  "    canonical key shadows the full document filed under the slug");
+has(recBlk, "if (_pdxRosterName(alt)) return alt;",
+  "gate: the walk does not prefer the row that names the person — it stops on the first row it finds,\n" +
+  "    which is the lite-row defect");
+has(recBlk, "if (alt && !first) first = alt;",
+  "gate: the walk forgets the rows it could not name, so it can now return null for a pid the roster\n" +
+  "    does hold — that is the gate's existence answer changing, and it must not");
+
 // THE SURFACE ASKS THE RESOLVER, IT DOES NOT LOOK ANYBODY UP TWICE.
 has(VR, "window.pdxRosterRec",
   "card: voice-room.js does not read the resolver's record read, so the name and the gate are two answers again");
@@ -217,6 +234,30 @@ no(VR_CODE, "PDX_PROFILE_ALIAS",
   "    that it borrows every fact");
 no(VR_CODE, "pdxSeatedMemberFor",
   "card: voice-room.js now asks the district-file seat lookup — pdxRepsForMe() is the seat list");
+
+// AND IT ASKS THE JOIN FIRST, AND NO LANE ENDS THE WALK BY ANSWERING "NOBODY".
+// personOf used to open with `return window._pdxPersonById(pid) || null` — a
+// reader that keys the bundled roster only, returning its own null as the final
+// answer, on a document where the row is filed under a retired spelling. The
+// order is the defect, so the order is pinned.
+{
+  const pAt = VR_CODE.indexOf("function personOf(pid)");
+  must(pAt > 0, "card: voice-room.js has no personOf() — this suite no longer knows where the name comes from");
+  const pBlk = VR_CODE.slice(pAt, VR_CODE.indexOf("function personHref(pid)", pAt));
+  const joinIdx = pBlk.indexOf("window.pdxRosterRec");
+  const cmpIdx = pBlk.indexOf("window._pdxPersonById");
+  ok(joinIdx !== -1, "card: personOf does not ask the resolver's published read at all");
+  ok(cmpIdx === -1 || joinIdx < cmpIdx,
+    "card: personOf asks compare-table.js's roster reader before the gate's own join, so a pid whose row is\n" +
+    "    filed under a retired spelling comes back null and the walk ends before the join is consulted");
+  no(pBlk, "return window._pdxPersonById(pid) || null;",
+    "card: the first lane still returns its own null as the final answer");
+  has(VR_CODE, "function named(p)",
+    "card: nothing tests whether a row can name the person, so a row with no name counts as an answer");
+  eq((pBlk.match(/if \(named\(r\)\) return r;/g) || []).length, 4,
+    "card: a lane in personOf keeps a row it cannot name — every lane must hand a nameless row on to the\n" +
+    "    next one, or the thinnest index on the page wins");
+}
 // AND THE COPY IS UNCHANGED. No "yet", and the empty sentence still exists for
 // the case where the roster really is empty of this member.
 has(VR, "No sitting member on hand for this seat.",
@@ -351,6 +392,10 @@ function voiceCtx(s, memo, opts) {
   win._currentVoterLocation = loc;
   win.PROFILES = o.live || liveIndex(s);
   if (o.bridge !== false) win.PDX_PROFILE_ALIAS = JSON.parse(JSON.stringify(ALIAS));
+  // Rule 7 hands this document compare-table.js's reader, which /voice does not
+  // load — the resolver slice never reads it (one comment, no call), so this
+  // reaches voice-room.js's personOf and nothing else.
+  if (o.personById) win._pdxPersonById = o.personById;
   const ctx = vm.createContext(win);
   vm.runInContext(RESOLVER, ctx, { filename: "voter-hub-location.js[pdxRepsForMe]" });
   vm.runInContext(RET_SRC, ctx, { filename: "voter-hub-location.js#PDXReturn" });
@@ -452,6 +497,41 @@ for (const s of SEATS) {
     `${s.who}: a genuine roster hole does not print the empty sentence`);
   no(houseCard(hole.list(), s), "yet",
     `${s.who}: the roster-hole card promises a member is coming`);
+
+  // 6. RULE 6 — TWO ROWS FOR ONE OFFICEHOLDER, AND ONLY ONE OF THEM HAS A NAME.
+  //    The live index holds a thin `__lite` row under the canonical key and the
+  //    full document under the slug, which is what a bulk load leaves behind.
+  //    The gate was never wrong here — the canonical key has a row — so the seat
+  //    kept its member and the card described them instead of naming them.
+  const lite = liveIndex(s);
+  lite[s.canon] = { __lite: true, office: "Utah State Representative", state: "UT District " + s.ld };
+  const two = voiceCtx(s, memo, { live: lite });
+  eq(lvl(two.win.pdxRepsForMe(), "statehouse").pid, s.canon,
+    `${s.who}: the State House pid is dropped when the canonical key holds a thin row — the gate's existence\n` +
+    "    answer changed, and a row it can see is a person it holds");
+  eq(two.win.pdxRosterRec(s.canon) && two.win.pdxRosterRec(s.canon).name, s.name,
+    `${s.who}: the published read returns the thin row rather than the one that names ${s.name}`);
+  two.paint();
+  const twoCard = houseCard(two.list(), s);
+  has(twoCard, `Sitting member: <a class="pdxvr-name" href="/p/${s.canon}">${s.name}</a>`,
+    `${s.who}: with a thin row under "${s.canon}" and the document under "${s.filed}", the card does not print\n` +
+    `    "${s.name}" — the thinnest row on the page won`);
+  no(twoCard, "The member who holds this seat is on file",
+    `${s.who}: the card describes the member it could have named one key away`);
+  no(twoCard, "No sitting member on hand for this seat",
+    `${s.who}: the card reports a vacancy on a seat holding two rows for the same person`);
+
+  // 7. RULE 7 — A DOCUMENT THAT CARRIES compare-table.js's READER. Its answer
+  //    for a pid whose row is filed under a retired spelling is null, and null
+  //    is not the end of the walk: the join above it already answered.
+  const withCmp = voiceCtx(s, memo, { personById: () => null });
+  withCmp.paint();
+  const cmpCard = houseCard(withCmp.list(), s);
+  has(cmpCard, `Sitting member: <a class="pdxvr-name" href="/p/${s.canon}">${s.name}</a>`,
+    `${s.who}: a document carrying _pdxPersonById loses the name again — that reader's null is ending the\n` +
+    "    walk before the join is asked");
+  no(cmpCard, "The member who holds this seat is on file",
+    `${s.who}: _pdxPersonById's null demoted a named member to a description`);
 }
 
 // AND THE TABLE ITSELF CANNOT NAME A LIVE ROSTER ID AS A RETIRED SPELLING, which

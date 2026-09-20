@@ -7376,7 +7376,51 @@
 //     untouched, and no location key is renamed, copied or migrated.
 //     MIGRATION COST: none. A warm device would otherwise serve a voice.html
 //     that never requests the bridge and keep un-naming the seat.
-const CACHE_VERSION = 'v232';
+// v233 - THE SITTING MEMBER'S NAME COMES FROM THE SAME ROW THE GATE KEPT.
+//     v232 gave the State House seat back its member and left the card able to
+//     keep a seat it still could not NAME. Two lanes did it, and both are
+//     order defects rather than missing data.
+//     THE WALK RETURNED THE FIRST ROW, NOT THE ROW WITH A NAME ON IT. A bulk
+//     Firestore load writes a __lite row for every document it lists, and the
+//     retired spelling is the one holding the full document: for Utah House
+//     District 68 the named record is filed under scott_chew while the
+//     canonical key can be holding a thin row with no 'name' at all.
+//     _pdxRosterRec() stopped on the first row it found, which answered the
+//     GATE correctly - there is a row, the member is here - and the CARD
+//     wrongly, because the row it handed back named nobody, so /voice printed
+//     'The member who holds this seat is on file' over a person whose name was
+//     one key away. The walk now prefers a row carrying a display name and
+//     remembers the thin ones, so it still returns non-null for exactly the
+//     pids it did before: the gate's existence answer is the same question it
+//     always asked, and only WHICH of two rows for one officeholder comes back
+//     has changed.
+//     AND personOf() ASKED THE WRONG READER FIRST. voice-room.js opened with
+//     'return window._pdxPersonById(pid) || null' - compare-table.js's reader,
+//     which keys the bundled roster only - and returned its NULL as the final
+//     answer. On any document carrying that reader, a pid whose row is filed
+//     under a retired spelling ended the walk before the join was ever
+//     consulted. window.pdxRosterRec is lane 1 now, no lane can end the walk
+//     by answering nobody, and a row that cannot name the person is handed on
+//     to the next lane instead of printed as an answer. The last lane returns
+//     whatever row was seen, which is the honest 'we hold a row and it names
+//     nobody' - and seatHtml already had a sentence for exactly that.
+//     STILL ONE OWNER AND ONE READ. No second alias table: voice-room.js reads
+//     no ids, no spellings and no rulings about who is whom, and the
+//     canonical-to-slug walk is the resolver's single one, asked once. No
+//     second seat-holder table, no new lookup, nobody named in the resolver,
+//     and PDX_PROFILE_ALIAS gained no entries - HD-15's defay_h15 is still
+//     bridged only in ACCT_ALIAS, so HD-15 is still the roster hole v232
+//     recorded and still prints empty. Nobody was invented here either.
+//     COPY UNCHANGED: 'No sitting member on hand for this seat', no 'yet',
+//     still printed only when the roster holds neither spelling of a member.
+//     /me is NOT in this pass. It has the same Firestore-only roster shape and
+//     does not carry the bridge; that is a known gap, not a fix hiding here.
+//     No new boards, no /district/* splat, no map change, no equity copy, no
+//     score change, no new shell asset. BOARD_ROUTES is still one row,
+//     /district/ut-sd-3 untouched, no location key renamed, copied or migrated.
+//     MIGRATION COST: none. A warm device would otherwise serve the v232 pair
+//     and keep describing a member both pages can name.
+const CACHE_VERSION = 'v233';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
