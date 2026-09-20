@@ -941,7 +941,7 @@
         .pdx-map-info-val{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;line-height:1.1;letter-spacing:0.02em;color:#fff;}
         .pdx-map-info-val .pdx-info-dist{color:#f5c842;}
         .pdx-map-selection{display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:0.8rem;}
-        .pdx-sel-card{flex:1;min-width:130px;display:flex;flex-direction:column;gap:0.15rem;border-radius:0.8rem;padding:0.6rem 0.85rem;
+        .pdx-sel-card{flex:1 1 30%;min-width:112px;display:flex;flex-direction:column;gap:0.15rem;border-radius:0.8rem;padding:0.6rem 0.85rem;
           background:rgba(8,13,28,0.6);border:1.5px solid rgba(255,255,255,0.1);transition:border-color 0.2s ease,background 0.2s ease;}
         .pdx-sel-card.is-set{border-color:rgba(52,211,153,0.5);background:rgba(16,185,129,0.08);}
         .pdx-sel-label{font-family:'Barlow Condensed',sans-serif;font-size:0.62rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#7596c0;}
@@ -962,6 +962,24 @@
           background:linear-gradient(135deg,#15803d,#0e7490);box-shadow:0 6px 20px rgba(20,128,61,0.3);transition:transform 0.15s ease,box-shadow 0.2s ease;}
         .pdx-map-done:hover{transform:translateY(-1px);box-shadow:0 8px 26px rgba(20,128,61,0.42);}
         .pdx-map-done:disabled{opacity:0.5;cursor:default;transform:none;box-shadow:none;background:#33415a;}
+/* ══ THE BAR SAYS WHAT IS STILL MISSING, BECAUSE THREE SEATS ARE THE ANSWER ══
+           A reader who pins one chamber and leaves has a record with one number
+           in it, and every surface downstream reports that honestly: "3 of 6
+           seats resolved", two blank legislative rows and no congressional
+           district. The finder is the only place that can fix it, so the finder
+           is where the gap is named — in the bar that is already pinned to the
+           foot of the scrollport, beside the button that would have committed
+           the partial answer. */
+        .pdx-map-missing{flex:1 1 100%;margin:0 0 0.15rem;font-family:'Barlow Condensed',sans-serif;
+          font-size:0.78rem;font-weight:600;letter-spacing:0.02em;line-height:1.35;color:#f5c842;}
+        .pdx-map-missing.is-done{color:#5ee7b0;}
+        .pdx-map-missing.is-busy{color:#9fb4d4;}
+        /* "Save these seats only" is the deliberate exit from an incomplete
+           answer, and it is styled as one: available, never the lead. */
+        .pdx-map-saveonly{cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;
+          text-transform:uppercase;font-size:0.78rem;color:#cfa93a;background:rgba(245,200,66,0.08);
+          border:1.5px solid rgba(245,200,66,0.32);border-radius:0.7rem;padding:0.7rem 0.9rem;min-height:46px;transition:all 0.2s ease;}
+        .pdx-map-saveonly:hover{color:#f5c842;border-color:rgba(245,200,66,0.6);background:rgba(245,200,66,0.14);}
         .pdx-map-secondary{cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;
           font-size:0.84rem;color:#9fb4d4;background:rgba(8,13,28,0.6);border:1.5px solid rgba(255,255,255,0.12);border-radius:0.7rem;padding:0.7rem 1rem;min-height:46px;transition:all 0.2s ease;}
         .pdx-map-secondary:hover{color:#fff;border-color:rgba(255,255,255,0.28);}
@@ -983,8 +1001,14 @@
           .pdx-map-search-btn{padding:0 0.85rem;}
           .pdx-map-search-btn-label{display:none;}
           .pdx-map-toggle-btn span{display:none;}
-          .pdx-map-actions{flex-direction:column-reverse;}
-          .pdx-map-done,.pdx-map-secondary{width:100%;}
+          /* Was column-reverse, which was right when the bar held exactly two
+             buttons and the commit one belonged nearest the thumb. The bar now
+             leads with a line of prose naming the missing seats, and reversing
+             the column would file that heading UNDER the buttons it explains. */
+          .pdx-map-actions{flex-direction:column;}
+          .pdx-map-done,.pdx-map-secondary,.pdx-map-saveonly{width:100%;}
+          .pdx-sel-card{min-width:96px;padding:0.55rem 0.6rem;}
+          .pdx-sel-val{font-size:1.15rem;}
           .pdx-map-result{flex-direction:column;align-items:stretch;gap:0.6rem;}
           .pdx-map-result-use{width:100%;}
         }
@@ -1074,7 +1098,7 @@
           <div id="pdx-congress-note" class="pdx-congress-note" style="display:none;">
             <span class="pdx-congress-note-ico" aria-hidden="true">⚖️</span>
             <div class="pdx-congress-note-body">
-              <strong>Utah's U.S. House map changed for 2026.</strong> After a 2025 court ruling on the state's congressional boundaries, the lines were redrawn. Davis County — including Layton and much of northern Utah — moved out of District&nbsp;1 and into District&nbsp;2. The boundaries shown here are the current, court-ordered 2026 map your ballot uses, so your U.S. House district is set automatically from your address.
+              <strong>Utah's U.S. House map changed for 2026.</strong> After a 2025 court ruling on the state's congressional boundaries, the lines were redrawn. Davis County — including Layton and much of northern Utah — moved out of District&nbsp;1 and into District&nbsp;2. The boundaries shown here are the current, court-ordered 2026 map your ballot uses, so your U.S. House district comes from your exact location on these lines &mdash; whether you search an address or tap your area.
             </div>
           </div>
           <div class="pdx-map-canvas-wrap">
@@ -1102,9 +1126,25 @@
                 <span class="pdx-sel-label">State Senate</span>
                 <span class="pdx-sel-val is-empty">Not set</span>
               </div>
+              <!-- THE THIRD SEAT IS A CHIP NOW, NOT A FOOTNOTE. It used to live
+                   only in the info panel, on a toggle the reader had to visit,
+                   under the heading "auto-detected from your address" — which
+                   was true of a search and silently untrue of a tap, because a
+                   tap CLEARED it. It is one of the three seats the record needs
+                   and one of the three this panel resolves, so it is stated
+                   beside the other two and it is empty when it is empty. -->
+              <div id="pdx-sel-congress" class="pdx-sel-card">
+                <span class="pdx-sel-label">U.S. House</span>
+                <span class="pdx-sel-val is-empty">Not set</span>
+              </div>
             </div>
             <div class="pdx-map-actions">
+              <p id="pdx-map-missing" class="pdx-map-missing" role="status">Search your address, or tap the map, to set all three of your districts.</p>
               <button type="button" id="pdx-map-done" class="pdx-map-done" onclick="window.pdxMapConfirm()" disabled>Use this location</button>
+              <!-- The labelled exit from an incomplete answer. Hidden until there
+                   is something partial to save, because offering "save only
+                   these" before anything is picked is offering to save nothing. -->
+              <button type="button" id="pdx-map-save-only" class="pdx-map-saveonly" style="display:none;" onclick="window.pdxMapSaveOnly()">Save these seats only</button>
               <button type="button" class="pdx-map-secondary" onclick="window.pdxMapClearSelection()">Clear</button>
             </div>
             <button type="button" class="pdx-map-manual-link" onclick="window.openManualLocationForm && window.openManualLocationForm()">Prefer to pick by city/county? Use the manual selector</button>
@@ -1143,15 +1183,28 @@
     var _geoCache   = { house: null, senate: null, congress: null };
     var _map        = null;
     var _layers     = { house: null, senate: null, congress: null };
+    // THE THREE SEATS THIS FINDER OWES THE RECORD, IN THE ORDER IT ASKS FOR THEM.
+    // The reader's location record has three district fields — stateHouseDistrict,
+    // stateSenateDistrict and district (U.S. House) — and until now this panel
+    // treated the third one as a different KIND of thing: `_searchCongress`, set
+    // only by an address search and dropped on the floor by every manual tap. A
+    // reader who tapped their House district and pressed confirm therefore left
+    // with one number out of three, and the front page reported exactly that:
+    // "3 of 6 seats resolved", both legislative rows blank but one, no CD.
+    //
+    // There is one selection object now and the congressional seat is a member of
+    // it, resolved from a point like the other two, shown in a chip like the other
+    // two, and required by confirm like the other two.
+    var SEATS = ['house', 'senate', 'congress'];
     var _activeLayer = 'house';
-    var _selected   = { house: null, senate: null };   // chosen DIST numbers
+    var _selected   = { house: null, senate: null, congress: null };   // chosen DIST numbers
     var _selPath    = { house: null, senate: null, congress: null };   // chosen Leaflet path refs
     var _lastPicked = null;                            // 'house' | 'senate'
     var _marker     = null;                            // searched-address marker
     var _searching  = false;
     var _searchHit  = null;                            // last geocoded {lat,lng,name}
     var _hasSearchView = false;                        // an address search is active
-    var _searchCongress = null;                        // U.S. House district for the searched point
+    var _resolvingAll = 0;                             // point-resolves still on the wire
     var _searchAreaId = null;                          // curated Key-Races area id for the searched point
     var _tiles = null, _tileErrors = 0;                // basemap layer (droppable)
     var _loadingLayer = false;                         // a boundary fetch is on the wire
@@ -1431,25 +1484,32 @@
           path.on({
             mouseover: function(){ if (_selected[layerType] !== dist && _selPath[layerType] !== path) path.setStyle({ fillOpacity: 0.26, weight: 2 }); },
             mouseout:  function(){ if (_selected[layerType] !== dist && _selPath[layerType] !== path) path.setStyle(baseStyle(layerType)); },
-            // A manual tap is the voter overriding the searched address, so drop the
-            // search-derived area/congress and let their tapped districts drive the
-            // resolved area (and thus the U.S. House district) for full consistency.
-            // The U.S. House layer is a reference view only — the congressional
-            // district is derived automatically from the voter's precise address —
-            // so a tap there just highlights the seat and shows its number.
-            click:     function(){
-              if (layerType === 'congress') {
-                if (_selPath.congress && _selPath.congress !== path) applyPathStyle(_selPath.congress, 'congress', false);
-                _selPath.congress = path; applyPathStyle(path, 'congress', true);
-                var lbl = document.getElementById('pdx-map-info-label');
-                var iv  = document.getElementById('pdx-map-info-val');
-                var ic  = document.getElementById('pdx-map-info-ico');
-                if (lbl) lbl.textContent = 'Viewing · U.S. House';
-                if (ic)  ic.textContent = '🦅';
-                if (iv)  iv.innerHTML = 'U.S. House <span class="pdx-info-dist">District ' + dist + '</span>';
-                return;
-              }
-              _searchAreaId = null; _searchCongress = null; selectDistrict(layerType, dist, path);
+            // A manual tap is the voter overriding the searched address, so the
+            // search-derived curated area is dropped and their tapped point
+            // drives all three seats.
+            //
+            // ══ THE TAPPED LAYER FIRST, THE OTHER TWO FROM THE SAME POINT ═════
+            // This used to select exactly the layer under the finger, and on the
+            // U.S. House layer it selected NOTHING — it highlighted the polygon,
+            // wrote the info panel and returned, because the congressional
+            // district was documented here as "derived automatically from the
+            // voter's precise address". That was true of the search path and
+            // false of this one: the line right below it set _searchCongress to
+            // null, so a tap on a House district DELETED the congressional seat
+            // a search had just resolved. One tap, and the record went from
+            // three districts to one.
+            //
+            // A tap is a point, and a point resolves all three Utah layers. The
+            // tapped one is set synchronously — that is the chip and the confirm
+            // bar the reader is owed for the gesture they just made — and the
+            // other two follow from the same lat/lng as their boundaries land.
+            // Leaflet puts the click's latlng on the event for a path exactly as
+            // it does for the canvas, so there is no second picker and no second
+            // source of truth: resolveAllAt() is what both callers use.
+            click:     function(e){
+              _searchAreaId = null;
+              selectDistrict(layerType, dist, path);
+              if (e && e.latlng) resolveAllAt(e.latlng);
             }
           });
           // Re-highlight a previously chosen district when the layer (re)builds.
@@ -1468,8 +1528,8 @@
       if (!skipFit) { try { _map.fitBounds(_layers[layerType].getBounds(), { padding: [12, 12] }); } catch(e) {} }
       // On the U.S. House reference layer, highlight the voter's own district (the
       // one detected from their address) so they can see it on the court-ordered map.
-      if (layerType === 'congress' && _searchCongress != null) {
-        var cp = pathForDist('congress', _searchCongress);
+      if (layerType === 'congress' && _selected.congress != null) {
+        var cp = pathForDist('congress', _selected.congress);
         if (cp) { _selPath.congress = cp; applyPathStyle(cp, 'congress', true); }
       }
       if (_marker && _marker.bringToFront) _marker.bringToFront();
@@ -1504,12 +1564,17 @@
         if (tok !== _layerSeq) return;   // the reader closed the finder, or moved on
         hideStatus();
         showLayer(layerType, skipFit);
-        if (pickAt && layerType !== 'congress') {
+        if (pickAt) {
           var d = districtAt(layerType, pickAt.lng, pickAt.lat);
           if (d != null) {
             // A tap overrides a searched address, as the polygon handler does.
-            _searchAreaId = null; _searchCongress = null;
+            _searchAreaId = null;
             selectDistrict(layerType, d, pathForDist(layerType, d));
+            // …and the same point answers the other two chambers. The layer
+            // that was just tapped is already in the cache, so this costs one
+            // fetch per layer the reader has not visited yet and nothing at all
+            // on a second tap.
+            resolveAllAt(pickAt);
           } else {
             setSearchNote('That spot is outside Utah’s ' + LABEL[layerType] +
               ' district map. Tap inside Utah, or search your address.', 'is-warn');
@@ -1543,11 +1608,82 @@
     // that had been rebuilt out from under us took the chip and the button with
     // it, and the tap looked like it had never happened. Now the state and the
     // UI go first and nothing downstream can take them back.
+    // ══ ONE POINT, ALL THREE SEATS ═══════════════════════════════════════════
+    // The brief's first line, and the defect it names: a geocode already
+    // resolved all three layers (onGeocoded loads house, senate AND congress and
+    // runs point-in-polygon against each), and a TAP resolved exactly one. So
+    // the two ways into this panel produced two different records from the same
+    // gesture, and the weaker one was the one a reader on a phone actually used.
+    //
+    // Both callers come here now. The contract is deliberately narrow:
+    //
+    //   · It never un-sets a seat. A layer whose boundary fetch fails, or whose
+    //     polygons do not contain the point, leaves whatever was already there —
+    //     the reader's own earlier pick is better than a blank, and a blank is
+    //     what the sticky bar is for.
+    //   · It skips a layer already sitting on the district this point resolves,
+    //     so a second tap inside the same seat writes nothing and reacts nothing.
+    //   · It is cache-warm after the first pass. fetchGeo() memoises into
+    //     _geoCache, so the common case — adjust the pick after a search — costs
+    //     one microtask and no network.
+    //   · A congress-layer failure cannot take House and Senate down with it, so
+    //     every fetch is individually caught. Same rule as onGeocoded.
+    //
+    // _resolvingAll is a COUNT rather than a flag because a reader can tap twice
+    // before the first pass lands; the bar stays in its "checking" wording until
+    // the last one settles, which is the only honest reading of that moment.
+    function resolveAllAt(pt){
+      if (!pt || pt.lng == null || pt.lat == null) return Promise.resolve(false);
+      var reqs;
+      try {
+        reqs = SEATS.map(function(t){
+          return fetchGeo(t).catch(function(){ return null; });
+        });
+      } catch (e) { return Promise.resolve(false); }
+      _resolvingAll++;
+      refreshMissingLine();
+      var settle = function(){
+        _resolvingAll = Math.max(0, _resolvingAll - 1);
+        refreshMissingLine();
+        if (_resolvingAll) return;
+        // ══ "AFTER A HOUSE-ONLY POLYGON PICK … SWITCH TO SENATE, THEN U.S.
+        // HOUSE." ══════════════════════════════════════════════════════════
+        // The tap resolved what it could. If a seat is STILL missing — a
+        // boundary fetch that failed, a point in a simplification seam — the
+        // toggle moves to it, because the reader's next action is a tap on that
+        // layer and they should not have to work out which tab to press.
+        //
+        // IT FIRES ONLY IN THE DEGRADED CASE, which is why it is safe to move
+        // the map out from under a tap: when all three resolve (the ordinary
+        // path) there is nothing missing and nothing switches. And it is on the
+        // TAP path only — a search does its own three-layer resolve and gets its
+        // answer from the search note and the result banner.
+        var cs = confirmState();
+        if (!cs.any || cs.complete || _activeLayer === cs.next) return;
+        try { window.pdxMapSetLayer(cs.next); } catch (e) {}
+      };
+      return Promise.all(reqs).then(function(){
+        var got = false;
+        SEATS.forEach(function(t){
+          var d = districtAt(t, pt.lng, pt.lat);
+          if (d == null || _selected[t] === d) return;
+          got = true;
+          selectDistrict(t, d, pathForDist(t, d));
+        });
+        settle();
+        return got;
+      }).catch(function(){ settle(); return false; });
+    }
+
     function selectDistrict(layerType, dist, path){
       var prev = _selPath[layerType];
       _selected[layerType] = dist;
       _selPath[layerType]  = path || null;
-      _lastPicked = layerType;
+      // Only a legislative pick is a tiebreak for resolveArea() — the curated
+      // Key-Races table is keyed on House and Senate, and a congressional pick
+      // claiming to be "the last one picked" would silently change which area a
+      // reader's two legislative seats resolve to.
+      if (layerType !== 'congress') _lastPicked = layerType;
       updateSelectionUI(layerType, dist);
       try {
         // Clear the previous pick's styling in this layer, then light this one.
@@ -1558,7 +1694,7 @@
     }
 
     function updateSelectionUI(justSet, dist){
-      ['house','senate'].forEach(function(t){
+      SEATS.forEach(function(t){
         var card = document.getElementById('pdx-sel-' + t);
         if (!card) return;
         var val = card.querySelector('.pdx-sel-val');
@@ -1579,10 +1715,19 @@
       refreshConfirmBtn();
       var hint = document.getElementById('pdx-map-hint');
       if (hint && justSet && dist != null) {
+        // WHAT TO DO NEXT IS WHAT IS MISSING, NOT WHICHEVER CHAMBER IS NOT THIS
+        // ONE. This line used to read "switch to State Senate to set that too"
+        // off nothing but `justSet === 'house'`, so it told a reader whose Senate
+        // seat was already resolved to go and resolve it, and it never mentioned
+        // the congressional seat at all.
+        var miss = missingSeats();
         hint.innerHTML = '✅ <strong style="color:#7ee7b8;">' + LABEL[justSet] + ' District ' + dist +
           '</strong> selected — it’s now part of your location.' +
-          (justSet === 'house' ? ' Switch to <strong style="color:#cfe0f7;">State Senate</strong> to set that too.'
-                                : ' Switch to <strong style="color:#cfe0f7;">State House</strong> to set that too.');
+          (miss.length
+            ? ' Still to set: <strong style="color:#cfe0f7;">' +
+              miss.map(function(t){ return LABEL[t]; }).join('</strong> and <strong style="color:#cfe0f7;">') +
+              '</strong>.'
+            : ' All three of your districts are set.');
       }
       refreshInfoPanel();
       refreshResultBanner();
@@ -1608,30 +1753,38 @@
       var altEl  = document.getElementById('pdx-map-result-alt');
       var useBtn = document.getElementById('pdx-map-result-use');
       if (addrEl) addrEl.textContent = _searchHit ? shortAddr(_searchHit.name) : 'Searched location';
-      // On the U.S. House reference layer the district isn't a manual pick — it's the
-      // boundary-resolved congressional district detected from the address.
-      var isCongress = (_activeLayer === 'congress');
-      var dist  = isCongress ? _searchCongress : _selected[_activeLayer];
-      var other = _activeLayer === 'house' ? 'senate' : 'house';
+      // All three layers read out of the one selection object. The U.S. House
+      // row used to come from a separate variable, which is how it came to be
+      // shown on this banner while being absent from the thing confirm committed.
+      var dist  = _selected[_activeLayer];
       if (label) label.textContent = LABEL[_activeLayer];
       if (val) {
         if (dist != null) { val.textContent = 'District ' + dist; val.classList.remove('is-none'); }
         else { val.textContent = 'No district here'; val.classList.add('is-none'); }
       }
+      // "Also matched" names the OTHER TWO seats, because there are three.
       if (altEl) {
-        if (_selected[other] != null) {
+        var others = SEATS.filter(function(t){ return t !== _activeLayer && _selected[t] != null; });
+        if (others.length) {
           altEl.style.display = 'block';
-          altEl.innerHTML = 'Also matched <strong>' + LABEL[other] + ' District ' + _selected[other] +
-            '</strong> — <button type="button" class="pdx-result-altbtn" onclick="window.pdxMapSetLayer(\'' + other + '\')">switch</button>';
+          altEl.innerHTML = 'Also matched ' + others.map(function(t){
+            return '<strong>' + LABEL[t] + ' District ' + _selected[t] +
+              '</strong> <button type="button" class="pdx-result-altbtn" onclick="window.pdxMapSetLayer(\'' + t + '\')">switch</button>';
+          }).join(' · ');
         } else {
           altEl.style.display = 'none';
         }
       }
+      // THE BANNER BUTTON AND THE STICKY BUTTON ARE THE SAME ACTION, so they
+      // carry the same label. This one used to promise "✓ Use State House
+      // District 15" while pdxMapConfirm() committed a record with two empty
+      // seats in it; now both read out of confirmState() and neither can promise
+      // a commit the other will not make.
       if (useBtn) {
-        useBtn.disabled = !(_selected.house || _selected.senate);
-        useBtn.textContent = dist != null
-          ? '✓ Use ' + LABEL[_activeLayer] + ' District ' + dist
-          : (isCongress ? 'Search your address for your district' : 'Tap your district on the map');
+        var cs = confirmState();
+        useBtn.disabled = !cs.any;
+        useBtn.textContent = cs.any ? ('✓ ' + cs.label)
+                                    : (dist != null ? 'Tap your district on the map' : 'Search your address, or tap the map');
       }
     }
 
@@ -1642,19 +1795,24 @@
       var val   = document.getElementById('pdx-map-info-val');
       var ico   = document.getElementById('pdx-map-info-ico');
       if (!panel || !label || !val) return;
-      // U.S. House is a read-only reference layer: the congressional district is
-      // resolved automatically from the voter's address against the 2026 court-
-      // ordered boundaries, so there's no manual pick — we just surface it.
+      // U.S. House is no longer a read-only reference layer. It is the third seat
+      // the record needs, resolved against the 2026 court-ordered boundaries from
+      // whichever point the reader gave us — a geocoded address or a tap — and
+      // pickable on this layer like the other two.
       if (_activeLayer === 'congress') {
-        label.textContent = 'Viewing · U.S. House (2026 court-ordered map)';
+        label.textContent = (_selected.congress ? 'Selected district · ' : 'Viewing · ') +
+          'U.S. House (2026 court-ordered map)';
         if (ico) ico.textContent = '🦅';
-        if (_searchCongress != null) {
+        if (_selected.congress != null) {
           panel.classList.add('is-set');
-          val.innerHTML = 'U.S. House <span class="pdx-info-dist">District ' + _searchCongress +
-            '</span> <span style="opacity:0.7;font-size:0.82em;">· auto-detected from your address</span>';
+          // "auto-detected from your address" was the only thing this ever said,
+          // and it stopped being true the moment a tap could resolve this seat.
+          // The point is the honest subject either way.
+          val.innerHTML = 'U.S. House <span class="pdx-info-dist">District ' + _selected.congress +
+            '</span> <span style="opacity:0.7;font-size:0.82em;">· from your location on the 2026 map</span>';
         } else {
           panel.classList.remove('is-set');
-          val.textContent = 'Search your address to see your U.S. House district';
+          val.textContent = 'Search your address, or tap your area, for your U.S. House district';
         }
         return;
       }
@@ -1671,27 +1829,109 @@
       }
     }
 
-    // The confirm button only commits once at least one district is chosen, and
-    // it SAYS WHAT IT WILL COMMIT: "Use State House District 15". This bar is
-    // pinned to the foot of the panel now and it is frequently the only
-    // confirmation of a tap a reader on a phone can see without scrolling, so
-    // naming the chamber and the number is the difference between a button and
-    // an acknowledgement. "Use this location" named neither.
+    // ── WHAT CONFIRM WILL DO, AS ONE ANSWER ──────────────────────────────────
+    // Three surfaces ask this question — the sticky button, the missing-seats
+    // line beside it, and the result banner's own commit button — and when they
+    // each worked it out for themselves they disagreed. The banner promised "✓
+    // Use State House District 15"; the sticky button said the same; and
+    // pdxMapConfirm() then wrote a record with one district in three and sent the
+    // reader to a front page that reported the other two as unresolved.
+    //
+    // `missing` is in ASK ORDER — House, then Senate, then U.S. House — because
+    // it is also the order confirm walks the reader through, and the order the
+    // toggle above the map is already in.
+    function missingSeats(){
+      return SEATS.filter(function(t){ return _selected[t] == null; });
+    }
+
+    function confirmState(){
+      var miss = missingSeats();
+      var set  = SEATS.filter(function(t){ return _selected[t] != null; });
+      var complete = miss.length === 0;
+      var label;
+      if (!set.length) {
+        label = 'Select a district first';
+      } else if (complete) {
+        // Names every seat it is about to commit. Three numbers is the whole
+        // answer, so the button that commits them says all three. It is longer
+        // than "Use State House District 15" was and that is the point: the old
+        // label named a third of what the press would write.
+        label = 'Use these districts: ' +
+          set.map(function(t){ return LABEL[t] + ' ' + _selected[t]; }).join(' · ');
+      } else {
+        // NOT A COMMIT. An incomplete answer turns this button into the next
+        // step, and it says so — "Next:" rather than "Use:" — because a button
+        // labelled "use" that does not leave is the kind of thing a reader
+        // presses twice and then distrusts.
+        label = 'Next: pick your ' + LABEL[miss[0]] + ' district';
+      }
+      return { missing: miss, set: set, next: miss[0] || null,
+               complete: complete, any: set.length > 0, label: label };
+    }
+
+    // The confirm button SAYS WHAT IT WILL DO. This bar is pinned to the foot of
+    // the panel and it is frequently the only confirmation of a tap a reader on a
+    // phone can see without scrolling, so naming the chambers and the numbers is
+    // the difference between a button and an acknowledgement. "Use this location"
+    // named neither, and "Use State House District 15" named a third of it.
     function refreshConfirmBtn(){
+      var cs  = confirmState();
       var btn = document.getElementById('pdx-map-done');
-      if (!btn) return;
-      var any = !!(_selected.house || _selected.senate);
-      btn.disabled = !any;
-      if (!any) { btn.textContent = 'Select a district first'; return; }
-      // Lead with the chamber the reader is actually looking at. U.S. House is a
-      // reference layer with nothing of its own to commit, so on that toggle the
-      // bar defers to whichever legislative seat is set.
-      var lead  = (_activeLayer !== 'congress' && _selected[_activeLayer] != null)
-                    ? _activeLayer : (_selected.house ? 'house' : 'senate');
-      var other = lead === 'house' ? 'senate' : 'house';
-      var txt   = 'Use ' + LABEL[lead] + ' District ' + _selected[lead];
-      if (_selected[other] != null) txt += ' · ' + LABEL[other] + ' ' + _selected[other];
-      btn.textContent = txt;
+      if (btn) {
+        // Enabled whenever there is a district in hand, because on an incomplete
+        // answer the press is the ADVANCE and refusing it would strand the reader
+        // on the very bar that is telling them what to do next.
+        btn.disabled = !cs.any;
+        btn.textContent = cs.label;
+      }
+      var only = document.getElementById('pdx-map-save-only');
+      if (only) {
+        var offer = cs.any && !cs.complete;
+        only.style.display = offer ? '' : 'none';
+        // The label carries the count, so "only" is a checkable claim rather than
+        // a shrug: a reader choosing it knows it is two seats and not three.
+        only.textContent = cs.set.length === 1
+          ? 'Save this one seat only'
+          : 'Save these ' + cs.set.length + ' seats only';
+      }
+      refreshMissingLine();
+    }
+
+    // ── THE BAR NAMES WHAT IS STILL MISSING ──────────────────────────────────
+    // Sitting inside .pdx-map-actions, which is the sticky element, so it is on
+    // screen with the button it explains rather than somewhere up the scrollport.
+    function refreshMissingLine(){
+      var line = document.getElementById('pdx-map-missing');
+      if (!line) return;
+      var cs = confirmState();
+      var names = function(list){
+        return list.map(function(t){ return LABEL[t]; }).join(' and ');
+      };
+      line.classList.remove('is-done', 'is-busy');
+      if (!cs.any && !_resolvingAll) {
+        line.textContent = 'Search your address, or tap the map, to set all three of your districts.';
+        return;
+      }
+      if (_resolvingAll) {
+        // A point-resolve is on the wire. Saying "missing" about a seat we are
+        // three hundred milliseconds from having would push the reader onto the
+        // partial-save button for no reason.
+        line.classList.add('is-busy');
+        line.textContent = cs.complete
+          ? 'All three districts set — checking your location…'
+          : 'Finding your ' + names(cs.missing) + ' district' +
+            (cs.missing.length === 1 ? '' : 's') + '…';
+        return;
+      }
+      if (cs.complete) {
+        line.classList.add('is-done');
+        line.textContent = 'All three districts set — State House, State Senate and U.S. House.';
+        return;
+      }
+      line.textContent = 'Still missing: ' + names(cs.missing) + '. ' +
+        (cs.missing.length === 1
+          ? 'One more and your ballot is complete.'
+          : 'Your representatives page needs all three.');
     }
 
     // Resolve the curated Key-Races area that best matches the chosen districts so
@@ -1760,10 +2000,11 @@
         try { localStorage.removeItem(window.KR_LOCATION_KEY || 'politidex_keyraces_location'); } catch(e) {}
       }
 
-      // U.S. House: _searchCongress is the boundary-resolved district (the 2026
+      // U.S. House: _selected.congress is the boundary-resolved district (the 2026
       // congressional map, by point-in-polygon), so a map/address search saves the
-      // voter's true congressional district regardless of county or Census staleness.
-      if (_searchCongress != null) loc.district = String(_searchCongress);
+      // voter's true congressional district regardless of county or Census
+      // staleness — and so does a tap, which is what resolveAllAt() added.
+      if (_selected.congress != null) loc.district = String(_selected.congress);
 
       window._currentVoterLocation = loc;
       window._hasUserLocation = true;
@@ -2103,7 +2344,7 @@
         _searchAreaId = areaId || null;
 
         if (h == null && s == null) {
-          _hasSearchView = false; _searchHit = null; _searchCongress = null; _searchAreaId = null;
+          _hasSearchView = false; _searchHit = null; _selected.congress = null; _searchAreaId = null;
           refreshResultBanner();
           placeMarker(hit);
           setSearchNote('Found “' + escapeHtml(shortAddr(hit.name)) +
@@ -2116,18 +2357,25 @@
         // U.S. House precedence is boundary-first: the actual 2026 district line
         // (point-in-polygon) wins, then the Census-reported district, then the
         // curated area — so the county never decides the congressional district.
-        _searchCongress = (c != null) ? c
+        var cd = (c != null) ? c
                           : (hit.congress != null ? hit.congress
                           : (curated && curated.congress != null ? curated.congress : null));
         if (h != null) selectDistrict('house', h, pathForDist('house', h));
         if (s != null) selectDistrict('senate', s, pathForDist('senate', s));
+        // AND THE THIRD SEAT GOES THROUGH THE SAME DOOR. It used to be assigned
+        // straight to a private variable, which meant it never reached the chip
+        // row, never armed the confirm bar and never appeared in the "what is
+        // still missing" reckoning — it was only ever painted on one toggle the
+        // reader had to go and find. selectDistrict() is the one writer.
+        if (cd != null) selectDistrict('congress', cd, pathForDist('congress', cd));
+        else refreshConfirmBtn();
         showLayer(_activeLayer, true);   // keep the searched-in zoom, don't refit
         placeMarker(hit);                // drawn last so it sits on top
         refreshResultBanner();
 
         // Clear, explicit feedback naming every district detected for the point.
         var seats = [];
-        if (_searchCongress != null) seats.push('U.S. House ' + _searchCongress);
+        if (_selected.congress != null) seats.push('U.S. House ' + _selected.congress);
         if (s != null) seats.push('State Senate ' + s + (approxS ? '*' : ''));
         if (h != null) seats.push('State House ' + h + (approxH ? '*' : ''));
         var approx = approxH || approxS;
@@ -2201,8 +2449,53 @@
       });
     };
 
+    // ══ CONFIRM IS A GATE NOW, AND THE GATE IS THREE SEATS ═══════════════════
+    // WHAT IT DID. `if (!_selected.house && !_selected.senate) return;` — one
+    // district of three was enough to leave. A reader who tapped their House
+    // polygon and pressed the green button wrote { stateHouseDistrict: 4 } into
+    // the record, PDXReturn dropped them on the front page, and Who Represents Me
+    // met them with "3 of 6 seats resolved": the Governor and both U.S. Senators,
+    // because those resolve from a state name, and blanks where their own House
+    // seat, their State Senate seat and their congressional seat should be. The
+    // finder reported success and the page reported failure, about the same tap.
+    //
+    // WHAT IT DOES. A press with the answer incomplete is not a commit — it is
+    // the NEXT STEP, and it takes the reader there: the toggle moves to the first
+    // missing chamber in ask order (House → Senate → U.S. House), that layer
+    // draws, and the sticky bar keeps naming what is left. Nothing is written and
+    // nobody navigates, so the button cannot report a finished answer over an
+    // unfinished record.
+    //
+    // AND THE READER IS NEVER TRAPPED BY IT. "Save these seats only" is beside it
+    // the whole time an answer is partial, labelled with its own count, and it
+    // commits and leaves exactly as the old button did. A gate that cannot be
+    // opened deliberately is a wall, and a reader whose address genuinely will
+    // not resolve three seats — a boundary fetch that keeps failing, a spot in a
+    // simplification seam — has to be able to keep the two they have.
     window.pdxMapConfirm = function(){
-      if (!_selected.house && !_selected.senate) return;
+      var cs = confirmState();
+      if (!cs.any) return;
+      if (!cs.complete) {
+        // Advance rather than commit. pdxMapSetLayer() is the reader's own toggle
+        // action — same entry point, same draw — so there is no second way to
+        // change layers and nothing here to drift from the tabs above the map.
+        window.pdxMapSetLayer(cs.next);
+        setSearchNote('Two seats to go? Not quite — your <strong>' + LABEL[cs.next] +
+          '</strong> district is still unset. Tap your area on this map, or search your full ' +
+          'street address to set every seat at once.', 'is-warn');
+        return;
+      }
+      commitAndLeave();
+    };
+
+    // The labelled exit. Same commit, same hand-off, stated as a partial answer
+    // rather than presented as the whole one.
+    window.pdxMapSaveOnly = function(){
+      if (!confirmState().any) return;
+      commitAndLeave();
+    };
+
+    function commitAndLeave(){
       applyToLocation();
       window.closeDistrictMapModal();
       // AND THEN THE READER LEAVES, WHICH IS THE WHOLE OF IT ON THIS DOCUMENT.
@@ -2241,7 +2534,7 @@
       // fallback, and the fallback only fires on a document that says it is the
       // finder — see __PDX_FIND_DOC in voter-hub-location.js.
       try { if (window.PDXReturn) window.PDXReturn.settled(); } catch (e) {}
-    };
+    }
 
     // Chrome only — so opening the finder can set the toggle without drawing.
     function setLayerChrome(layerType){
@@ -2254,7 +2547,7 @@
       if (cnote) cnote.style.display = (layerType === 'congress') ? 'flex' : 'none';
       var hint = document.getElementById('pdx-map-hint');
       if (hint) hint.innerHTML = (layerType === 'congress')
-        ? 'Showing the <strong style="color:#a5e9f5;">2026 U.S. House</strong> map — your congressional district is set automatically from your address.'
+        ? 'Showing the <strong style="color:#a5e9f5;">2026 U.S. House</strong> map — search your address or tap the area where you live to set your congressional district.'
         : 'Showing <strong style="color:#cfe0f7;">' + LABEL[layerType] +
           '</strong> districts — search your address or tap the area where you live.';
       refreshInfoPanel();
@@ -2276,14 +2569,12 @@
     };
 
     window.pdxMapClearSelection = function(){
-      ['house','senate'].forEach(function(t){
+      SEATS.forEach(function(t){
         if (_selPath[t]) applyPathStyle(_selPath[t], t, false);
         _selected[t] = null; _selPath[t] = null;
       });
-      // Drop any U.S. House reference highlight too (it carries no committed pick).
-      if (_selPath.congress) { applyPathStyle(_selPath.congress, 'congress', false); _selPath.congress = null; }
       _lastPicked = null;
-      _hasSearchView = false; _searchHit = null; _searchCongress = null;
+      _hasSearchView = false; _searchHit = null;
       if (_marker && _map) { _map.removeLayer(_marker); _marker = null; }
       updateSelectionUI();
       var hint = document.getElementById('pdx-map-hint');
@@ -2295,6 +2586,11 @@
       // Drop the map flag from the saved location (manual entry remains intact).
       var loc = window._currentVoterLocation || {};
       loc.mapSelected = false; loc.stateHouseDistrict = ''; loc.stateSenateDistrict = '';
+      // The congressional district is a map pick now, so Clear clears it too.
+      // Leaving it behind would have the record keep one seat out of three from a
+      // selection the reader just deleted — which is the same partial-record
+      // defect this pass exists to remove, arriving from the other direction.
+      loc.district = '';
       window._currentVoterLocation = loc;
       if (typeof window.saveVoterLocation === 'function') window.saveVoterLocation();
       reactToLocation();
@@ -2326,8 +2622,14 @@
       if (loc.mapSelected) {
         var h = parseInt(loc.stateHouseDistrict, 10);
         var s = parseInt(loc.stateSenateDistrict, 10);
+        var c = parseInt(loc.district, 10);
         _selected.house  = isNaN(h) ? null : h;
         _selected.senate = isNaN(s) ? null : s;
+        // Seeded from the record so a reader who comes back to fix one seat is
+        // not told the other two are missing. loc.district is only read inside
+        // this mapSelected branch, so a county-derived congressional number from
+        // the manual form is never claimed here as a map pick.
+        _selected.congress = isNaN(c) ? null : c;
       }
 
       modal.style.display = 'flex';
@@ -2342,9 +2644,9 @@
       var sInput = document.getElementById('pdx-map-search-input');
       if (sInput && !(sInput.value || '').trim() && _lastQuery) sInput.value = _lastQuery;
       if (!_lastQuery) {
-        setSearchNote(_selected.house || _selected.senate
+        setSearchNote(confirmState().any
           ? 'Search a new address, or tap the map to adjust your districts.'
-          : 'Type an address to jump straight to your House &amp; Senate districts.');
+          : 'Type an address to set your House, Senate and U.S. House districts at once.');
       }
 
       // Address search is the primary, most accurate path — focus it on open so the

@@ -418,10 +418,21 @@ section("3 · a mocked save on /find?next=/voice lands the reader on /voice");
   // that only fires on the finder's own document: a reader who saved a location
   // with no next= to spend would otherwise be left standing on a blank tool
   // page, so they go to the band that answers the question they asked.
+  // The confirm button is a GATE now - House, Senate and U.S. House, or the
+  // labelled partial save - so the hand-off moved one level down, into the one
+  // commit path both exits share. That is where the intent is spent, and
+  // pdxMapConfirm has to reach it rather than carry its own copy.
   const confirm = bodyOf(FIND, "window.pdxMapConfirm = function", "\n    };");
   ok(confirm.length > 200, `wiring: pdxMapConfirm could not be sliced out of find.html (${confirm.length} chars)`);
-  has(confirm, "PDXReturn.settled()",
+  has(confirm, "commitAndLeave()",
+    "wiring: confirming the district map does not reach the one commit path, so it either spends the\n" +
+    "    return intent itself or does not spend it at all");
+  const commit = bodyOf(FIND, "function commitAndLeave(", "\n    }");
+  ok(commit.length > 200, `wiring: commitAndLeave could not be sliced out of find.html (${commit.length} chars)`);
+  has(commit, "PDXReturn.settled()",
     "wiring: confirming the district map does not spend the return intent");
+  has(commit, "applyToLocation()",
+    "wiring: the commit path hands off the return intent without writing the districts first");
   // No early return needed here and none wanted: the forty lines of front-page
   // follow-through that used to run after the confirm did not move with it.
   const SETTLED = bodyOf(LOC, "function settled(", "\n    }");

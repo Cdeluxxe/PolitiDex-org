@@ -5856,6 +5856,9 @@ window.PDXLazy = (function () {
       .wrm-resultkicker{font-family:'Bebas Neue',sans-serif;font-size:1.02rem;letter-spacing:0.05em;color:#fff;}
       .wrm-resultcount{font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;font-weight:700;
         letter-spacing:0.08em;text-transform:uppercase;color:#8fa8c8;}
+      /* "N districts located, members not on file" — the qualifier that stops
+         "3 of 6 seats resolved" from reading as "we could not place you". */
+      .wrm-resultlocated{color:#c8b06a;font-weight:700;}
       /* Legend for the seat list: the same three steps every strip below repeats. */
       .wrm-spine{margin:-0.25rem 0 0.6rem;font-family:'Barlow Condensed',sans-serif;font-size:0.74rem;
         font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#7f93b4;}
@@ -5871,6 +5874,12 @@ window.PDXLazy = (function () {
       a.wrm-row{color:inherit;text-decoration:none;box-sizing:border-box;}
       .wrm-row--unresolved{cursor:default;opacity:0.8;}
       .wrm-row--unresolved:hover{background:rgba(10,15,30,0.45);transform:none;}
+      /* A DISTRICT WE HAVE, HELD BY SOMEBODY WE DO NOT. It is not the same row as
+         a seat we could not place, so it does not read as one: full opacity,
+         because nothing about the reader's own answer is faded, and the district
+         number stays in the headline where who-represents-me.js puts it. */
+      .wrm-row--nomember{opacity:1;background:rgba(10,15,30,0.55);}
+      .wrm-row--nomember .wrm-rowname--muted{color:#cfe0f7;}
       /* The landing mark for a shared race link whose sheet could not mount.
          Persistent rather than a flash: the reader arrived looking for one seat
          and needs to still be able to find it after the scroll settles. */

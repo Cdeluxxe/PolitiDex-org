@@ -7598,7 +7598,54 @@
 //     board, no PDXFinder rewrite: PDX_LOC_KEY, _pdxLocWasChosen and
 //     pdxRepsForMe() are untouched, BOARD_ROUTES is still one row, and the
 //     city/county door is still at the foot of the panel. MIGRATION COST: none.
-const CACHE_VERSION = 'v237';
+// v238 - /find NOW OWES THE RECORD ALL THREE SEATS BEFORE IT LETS YOU LEAVE.
+//     Confirm with one chamber picked wrote that one district and handed off to
+//     PDXReturn, which dumped the reader on '/' with a third of an answer. The
+//     front page then read 3 of 6: Governor and both Senators, a State House
+//     number sitting in the record with nobody on file for it, and the Senate
+//     and U.S. House rows blank. Two separate faults about the same partial.
+//     THE CONGRESSIONAL DISTRICT WAS A DIFFERENT KIND OF THING. It lived in a
+//     private _searchCongress that only an address search could set, and every
+//     legislative polygon tap set it back to null - so a reader who searched
+//     their address and then tapped their House district DELETED the U.S. House
+//     seat the search had just resolved. It is a slot in _selected now, next to
+//     the other two, written by the one writer (selectDistrict) and shown on a
+//     chip of its own in the chamber row.
+//     A POINT ANSWERS ALL THREE LAYERS, NOT ONE. A geocode already did; a tap
+//     resolved only the chamber whose toggle happened to be active. resolveAllAt
+//     runs point-in-polygon against House, Senate and U.S. House at the tapped
+//     latlng - the same point, three answers - and a Leaflet path click carries
+//     latlng exactly as a canvas click does, so the polygon handler and the
+//     tap-to-load path share it rather than having two ideas of how many seats a
+//     tap is worth. Each boundary fetch is caught on its own: a congress layer
+//     that 500s can no longer take House and Senate down with it, and a layer
+//     whose polygons do not contain the point never un-sets a seat.
+//     CONFIRM IS A GATE. On House + Senate + U.S. House it commits and leaves
+//     exactly as before. On anything less it does NOT navigate: it advances the
+//     toggle to the missing chamber and says which one. A House-only pick moves
+//     the reader to Senate, then to U.S. House, and the sticky action row names
+//     what is still missing the whole time - 'Still missing: State Senate and
+//     U.S. House' - inside the pinned element, above the button it explains.
+//     A GATE THAT CANNOT BE OPENED DELIBERATELY IS A WALL, so there is a second,
+//     plainly labelled way out: 'Save these 2 seats only' / 'Save this one seat
+//     only', which commits the partial answer and states its own count.
+//     AND ON THE HOMEPAGE, A LOCATED DISTRICT IS NOT AN UNRESOLVED AREA. The
+//     reps band printed 'State House . District 4' as a row label and 'Not
+//     resolved for your area yet' as that same row's headline - two statements
+//     about one seat, the louder one false, telling a reader whose district was
+//     located perfectly well to go and fix their location. There are three kinds
+//     of gap: a statewide seat with no record ('No record on file yet'), a
+//     district located with no member ('District 4 - no member on file yet',
+//     'nothing to fix on your end'), and a district that could not be placed at
+//     all, which keeps the old wording because there it is true. The seat count
+//     still reports 5 of 6 and now says '1 district located, member not on file'.
+//     WHY A CACHE_VERSION MOVE IS REQUIRED. '/find.html' and '/index.html' are
+//     both precached shells and both changed, as did who-represents-me.js.
+//     NO LOCATION KEY WAS RENAMED, COPIED OR MIGRATED. PDX_LOC_KEY,
+//     _pdxLocWasChosen and pdxRepsForMe() are untouched, there is still one
+//     resolver and one writer, no new state, no new board, no new route.
+//     MIGRATION COST: none. Nothing stored changed shape or name.
+const CACHE_VERSION = 'v238';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

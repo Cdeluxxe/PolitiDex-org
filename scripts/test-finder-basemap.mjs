@@ -809,6 +809,199 @@ section("12 · driven: the finder opens, builds a basemap and draws no districts
 
 // ═════════════════════════════════════════════════════════════════════════════
 // 13 · A SEARCH IS NOT A NAVIGATION
+// ── ONE DRIVEN FINDER, HANDED OUT TO EVERY SCENARIO BELOW ─────────────────
+// The scaffolding below was inline for a single scenario. The contract this
+// pass adds has three more, and they cannot share a context with the first or
+// with each other — a congress layer whose fetch FAILS is the only way House and
+// Senate can end up set with the third seat missing once a tap resolves all
+// three — so the harness is a function and the scenarios are its callers. Same
+// controller, same owner seam, same real onEachFeature binding; one switch.
+//
+//   opts.failLayers → PDXFinder.fetch rejects these boundary layers, exactly
+//                     as a blocked CDN or a 500 from UGRC would.
+//   opts.hitOmit    → drops these seats from the geocoder's OWN answer. UGRC's
+//                     address service does not always report a congressional
+//                     district, and the finder treats the one it does report as
+//                     a backstop BEHIND point-in-polygon — so omitting it is what
+//                     makes a failed congress boundary actually leave the third
+//                     seat unset, rather than quietly falling through to the
+//                     Census number. Both switches together are the report's
+//                     shape: some seats hold a number, the rest are empty.
+const driveFinder = async (opts = {}) => {
+  const SRC = MAP.slice(MAP.indexOf("(function(){"));
+  const sq = (w, e, dist, key) => ({
+    type: "Feature", properties: { [key]: dist },
+    geometry: { type: "Polygon", coordinates: [[[w, 40.6], [e, 40.6], [e, 40.8], [w, 40.8], [w, 40.6]]] },
+  });
+  const PAYLOAD = {
+    house:    { type: "FeatureCollection", features: [sq(-112.0, -111.8, 15, "DIST"), sq(-111.8, -111.6, 16, "DIST")] },
+    senate:   { type: "FeatureCollection", features: [sq(-112.0, -111.6, 7, "DIST")] },
+    congress: { type: "FeatureCollection", features: [sq(-112.0, -111.6, 2, "DISTRICT")] },
+  };
+
+  const mkEl = (id) => {
+    let kid = null;
+    const el = {
+      id, innerHTML: "", textContent: "", value: "", className: "", disabled: false,
+      style: {}, _cls: new Set(),
+      classList: {
+        add(c) { el._cls.add(c); }, remove(c) { el._cls.delete(c); }, contains(c) { return el._cls.has(c); },
+        toggle(c, on) { if (on === undefined) { el._cls.has(c) ? el._cls.delete(c) : el._cls.add(c); } else if (on) el._cls.add(c); else el._cls.delete(c); },
+      },
+      setAttribute() {}, getAttribute() { return null; }, removeAttribute() {},
+      addEventListener() {}, removeEventListener() {}, focus() {}, appendChild() {}, remove() {},
+      // Memoised, so a caller that reads back what it wrote sees it.
+      querySelector() { return (kid = kid || mkEl(id + "-child")); },
+      querySelectorAll() { return []; },
+    };
+    return el;
+  };
+  const els = {};
+  for (const id of ["district-map-modal", "pdx-district-map", "pdx-map-status", "pdx-map-status-text",
+                    "pdx-map-search-input", "pdx-map-search-note", "pdx-map-search-btn", "pdx-map-search-ico",
+                    "pdx-map-hint", "pdx-map-done", "pdx-sel-house", "pdx-sel-senate", "pdx-sel-congress",
+                    "pdx-map-missing", "pdx-map-save-only",
+                    "pdx-map-info", "pdx-map-info-label", "pdx-map-info-val", "pdx-map-info-ico",
+                    "pdx-map-result", "pdx-map-result-addr-text", "pdx-map-result-dist-label",
+                    "pdx-map-result-dist-val", "pdx-map-result-alt", "pdx-map-result-use",
+                    "pdx-congress-note",
+                    "pdx-layer-house", "pdx-layer-senate", "pdx-layer-congress"]) els[id] = mkEl(id);
+
+  const timers = [];
+  const mapObj = {
+    _h: {},
+    setView() { return mapObj; }, invalidateSize() { return mapObj; },
+    on(ev, fn) { mapObj._h[ev] = fn; return mapObj; },
+    hasLayer(l) { return added.indexOf(l) >= 0; },
+    addLayer(l) { added.push(l); return mapObj; },
+    removeLayer(l) { const i = added.indexOf(l); if (i >= 0) added.splice(i, 1); return mapObj; },
+    fitBounds() { return mapObj; }, setMaxBounds() { return mapObj; },
+    getZoom() { return 6; }, getCenter() { return { lat: 39.3, lng: -111.5 }; },
+    flyTo() { return mapObj; }, panTo() { return mapObj; },
+  };
+  const added = [];
+  // Paths record the handlers the controller binds, which is the whole point:
+  // the click that gets fired below is the one buildLayer() actually wired.
+  const paths = [];
+  const mkPath = (feature) => {
+    const p = {
+      _feature: feature, _handlers: {}, _styles: [],
+      on(a, b) { if (typeof a === "string") p._handlers[a] = b; else Object.keys(a).forEach((k) => { p._handlers[k] = a[k]; }); return p; },
+      off() { return p; }, bindTooltip() { return p; }, setStyle(s) { p._styles.push(s); return p; },
+      bringToFront() { return p; }, addTo(m) { m.addLayer(p); return p; }, remove() { return p; },
+    };
+    paths.push(p);
+    return p;
+  };
+  const layerish = (tag) => {
+    const o = {
+      _tag: tag, on() { return o; }, off() { return o; }, addTo(m) { m.addLayer(o); return o; },
+      setStyle() { return o; }, bindTooltip() { return o; }, bringToFront() { return o; },
+      getBounds() { return { isValid: () => true, pad: () => ({}) }; },
+      eachLayer() {}, clearLayers() { return o; }, remove() { return o; },
+    };
+    return o;
+  };
+  const L = {
+    map() { return mapObj; },
+    tileLayer() { return layerish("tiles"); },
+    // THE REAL BINDING RUNS. onEachFeature is invoked exactly as Leaflet does.
+    geoJSON(data, opts) {
+      const g = layerish("geojson");
+      (data && data.features || []).forEach((f) => {
+        const p = mkPath(f);
+        if (opts && opts.style) { try { opts.style(f); } catch (e) {} }
+        if (opts && opts.onEachFeature) opts.onEachFeature(f, p);
+      });
+      return g;
+    },
+    marker() { return layerish("marker"); }, circleMarker() { return layerish("marker"); },
+    divIcon() { return { _icon: true }; }, point(a, b) { return { x: a, y: b }; },
+    latLng(a, b) { return { lat: a, lng: b }; },
+    latLngBounds() { return { isValid: () => true, pad: () => ({}) }; },
+    control: { attribution: () => layerish("control") },
+    DomEvent: { stopPropagation() {}, preventDefault() {} },
+  };
+
+  const win = {
+    console, JSON, Math, Date, Promise, String, Number, Boolean, Array, Object, RegExp, Error,
+    parseInt, parseFloat, isNaN, encodeURIComponent, decodeURIComponent, setInterval() {}, clearInterval() {},
+    navigator: { userAgent: "node", onLine: true }, L,
+  };
+  win.window = win;
+  win.setTimeout = (fn, ms) => { timers.push({ fn, ms: ms || 0 }); return timers.length; };
+  win.clearTimeout = () => {};
+  win.requestAnimationFrame = (fn) => { timers.push({ fn, ms: 0 }); return timers.length; };
+  const listeners = {};
+  win.document = {
+    readyState: "loading",
+    head: { appendChild() {} },
+    body: { style: {}, classList: mkEl("body").classList, appendChild() {} },
+    documentElement: { style: {} },
+    getElementById: (id) => els[id] || null,
+    querySelector: () => null, querySelectorAll: () => [],
+    createElement: (t) => mkEl(t),
+    addEventListener(ev, fn) { (listeners[ev] = listeners[ev] || []).push(fn); },
+    removeEventListener() {},
+  };
+  win.fetch = () => new Promise(() => {});
+  win._currentVoterLocation = {};
+  win._hasUserLocation = false;
+  win.location = { pathname: "/find", search: "", hash: "", href: "https://politidex.fyi/find", origin: "https://politidex.fyi", assign() {}, replace() {} };
+
+  let bootErr = null;
+  try { vm.runInContext(SRC, vm.createContext(win), { filename: "find.html#tap" }); }
+  catch (e) { bootErr = e; }
+  must(!bootErr, `the controller threw on load (${bootErr ? bootErr.message : ""}), so nothing below measures a tap`);
+
+  // The deferred owner lands, stubbed at its published surface. Boundary
+  // payloads are served through PDXFinder.fetch because that is the one seam
+  // every request in the finder goes through, and the geocode is answered at
+  // PDXFinder.deadline for the same reason — no geocoder is reimplemented here.
+  const HIT = { lat: 40.7, lng: -111.9, name: "123 Main St, Layton, UT 84041", precise: true,
+                city: "Layton", county: "Davis", house: 15, senate: 7, congress: 2 };
+  for (const k of opts.hitOmit || []) delete HIT[k];
+  win.PDXFinder = {
+    isOpen: () => true, markPending() {}, flush() {}, abort() {}, track: (x) => x,
+    deadline: () => Promise.resolve({ timedOut: false, hit: HIT }),
+    fetch(url) {
+      const u = String(url);
+      const k = u.indexOf("UtahHouseDistricts") > 0 ? "house"
+              : u.indexOf("UtahSenateDistricts") > 0 ? "senate"
+              : u.indexOf("political_us_congress_districts") > 0 ? "congress" : null;
+      if (!k) return new Promise(() => {});
+      if ((opts.failLayers || []).indexOf(k) >= 0) return Promise.reject(new Error("UGRC: 500"));
+      return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(PAYLOAD[k]) });
+    },
+  };
+  // settled() is the navigation. Counting it is how the assertions below tell
+  // "confirm committed and left" from "confirm advanced and stayed" — the
+  // whole of the gate this pass adds.
+  const nav = { settled: 0 };
+  win.PDXReturn = { settled() { nav.settled++; }, consume() { return false; }, finderHref: () => "/find" };
+  // Both stores are stubbed so the confirm hand-off is observable rather than
+  // swallowed by the try/catch that guards a blocked-cookie browser.
+  const mkStore = () => {
+    const m = {};
+    return { getItem: (k) => (k in m ? m[k] : null), setItem(k, v) { m[k] = String(v); },
+             removeItem(k) { delete m[k]; }, _m: m };
+  };
+  win.sessionStorage = mkStore();
+  win.localStorage = mkStore();
+
+  const pump = async (rounds = 40) => {
+    for (let i = 0; i < rounds; i++) {
+      const q = timers.splice(0, timers.length);
+      for (const t of q) { try { t.fn(); } catch (e) {} }
+      await Promise.resolve(); await null;
+    }
+  };
+
+  for (const fn of listeners.DOMContentLoaded || []) fn({});
+  await pump();
+  return { els, paths, win, timers, pump, mapObj, added, HIT, nav };
+};
+
 // ═════════════════════════════════════════════════════════════════════════════
 // Tapping Search on /find made the modal vanish for a tick and reopen as a
 // blank picker, with the typed query gone and no geocode ever issued. Three
@@ -1167,169 +1360,35 @@ section("14 · a tap selects, and confirm is on screen to commit it");
       "confirm: the confirm bar is armed after the chrome, so a fault in the hint or the banner leaves it greyed out");
     eq((upd.match(/refreshConfirmBtn\(\)/g) || []).length, 1, "confirm: refreshConfirmBtn is called twice per update");
   }
-  // The bar says what it will commit.
-  has(MAPC, "'Use ' + LABEL[lead] + ' District ' + _selected[lead]",
-    "confirm: the pinned bar no longer names the chamber and district it would commit");
+  // The bar says what it will commit — ALL of what it will commit. The old pin
+  // was "'Use ' + LABEL[lead] + ' District ' + _selected[lead]", a single lead
+  // chamber plus an optional second, which is exactly the shape of the record
+  // this pass exists to stop writing.
+  has(MAPC, "'Use these districts: '",
+    "confirm: the pinned bar no longer names the districts it would commit");
+  has(MAPC, "return SEATS.filter(function(t){ return _selected[t] == null; });",
+    "confirm: missingSeats() is gone, so nothing computes which seats are still unset");
   no(MAPC, "'Use this location · '", "confirm: the bar is back to a label that names nothing");
+  // ONE ANSWER TO "WHAT WILL CONFIRM DO", READ BY EVERY SURFACE THAT ASKS. The
+  // banner button, the pinned button and the missing-seats line disagreed when
+  // each worked it out for itself.
+  eq((MAPC.match(/function confirmState\(\)/g) || []).length, 1,
+    "confirm: confirmState() is gone or duplicated — the bar, the banner and the missing line are\n" +
+    "    back to three independent readings of one question");
+  for (const site of ["function refreshConfirmBtn(){", "function refreshMissingLine(){", "function refreshResultBanner(){"]) {
+    const fn = MAPC.slice(MAPC.indexOf(site), MAPC.indexOf("\n    }", MAPC.indexOf(site)));
+    must(fn.length > 40, `${site} is gone from the controller`);
+    has(fn, "confirmState()", `confirm: ${site} no longer reads the shared confirm state`);
+  }
 
   // ══ DRIVEN: A SEARCH ARMS CONFIRM, AND A POLYGON TAP RE-AIMS IT ═══════════
   // This is the assertion the report is actually about, so it is driven rather
   // than pinned: the controller is parsed, a hit is handed to it at the owner's
   // published seam, the REAL onEachFeature binding is exercised, and the chip
   // and the button are read out of the DOM afterwards.
+
   {
-    const SRC = MAP.slice(MAP.indexOf("(function(){"));
-    const sq = (w, e, dist, key) => ({
-      type: "Feature", properties: { [key]: dist },
-      geometry: { type: "Polygon", coordinates: [[[w, 40.6], [e, 40.6], [e, 40.8], [w, 40.8], [w, 40.6]]] },
-    });
-    const PAYLOAD = {
-      house:    { type: "FeatureCollection", features: [sq(-112.0, -111.8, 15, "DIST"), sq(-111.8, -111.6, 16, "DIST")] },
-      senate:   { type: "FeatureCollection", features: [sq(-112.0, -111.6, 7, "DIST")] },
-      congress: { type: "FeatureCollection", features: [sq(-112.0, -111.6, 2, "DISTRICT")] },
-    };
-
-    const mkEl = (id) => {
-      let kid = null;
-      const el = {
-        id, innerHTML: "", textContent: "", value: "", className: "", disabled: false,
-        style: {}, _cls: new Set(),
-        classList: {
-          add(c) { el._cls.add(c); }, remove(c) { el._cls.delete(c); }, contains(c) { return el._cls.has(c); },
-          toggle(c, on) { if (on === undefined) { el._cls.has(c) ? el._cls.delete(c) : el._cls.add(c); } else if (on) el._cls.add(c); else el._cls.delete(c); },
-        },
-        setAttribute() {}, getAttribute() { return null; }, removeAttribute() {},
-        addEventListener() {}, removeEventListener() {}, focus() {}, appendChild() {}, remove() {},
-        // Memoised, so a caller that reads back what it wrote sees it.
-        querySelector() { return (kid = kid || mkEl(id + "-child")); },
-        querySelectorAll() { return []; },
-      };
-      return el;
-    };
-    const els = {};
-    for (const id of ["district-map-modal", "pdx-district-map", "pdx-map-status", "pdx-map-status-text",
-                      "pdx-map-search-input", "pdx-map-search-note", "pdx-map-search-btn", "pdx-map-search-ico",
-                      "pdx-map-hint", "pdx-map-done", "pdx-sel-house", "pdx-sel-senate",
-                      "pdx-map-info", "pdx-map-info-label", "pdx-map-info-val", "pdx-map-info-ico",
-                      "pdx-layer-house", "pdx-layer-senate", "pdx-layer-congress"]) els[id] = mkEl(id);
-
-    const timers = [];
-    const mapObj = {
-      _h: {},
-      setView() { return mapObj; }, invalidateSize() { return mapObj; },
-      on(ev, fn) { mapObj._h[ev] = fn; return mapObj; },
-      hasLayer(l) { return added.indexOf(l) >= 0; },
-      addLayer(l) { added.push(l); return mapObj; },
-      removeLayer(l) { const i = added.indexOf(l); if (i >= 0) added.splice(i, 1); return mapObj; },
-      fitBounds() { return mapObj; }, setMaxBounds() { return mapObj; },
-      getZoom() { return 6; }, getCenter() { return { lat: 39.3, lng: -111.5 }; },
-      flyTo() { return mapObj; }, panTo() { return mapObj; },
-    };
-    const added = [];
-    // Paths record the handlers the controller binds, which is the whole point:
-    // the click that gets fired below is the one buildLayer() actually wired.
-    const paths = [];
-    const mkPath = (feature) => {
-      const p = {
-        _feature: feature, _handlers: {}, _styles: [],
-        on(a, b) { if (typeof a === "string") p._handlers[a] = b; else Object.keys(a).forEach((k) => { p._handlers[k] = a[k]; }); return p; },
-        off() { return p; }, bindTooltip() { return p; }, setStyle(s) { p._styles.push(s); return p; },
-        bringToFront() { return p; }, addTo(m) { m.addLayer(p); return p; }, remove() { return p; },
-      };
-      paths.push(p);
-      return p;
-    };
-    const layerish = (tag) => {
-      const o = {
-        _tag: tag, on() { return o; }, off() { return o; }, addTo(m) { m.addLayer(o); return o; },
-        setStyle() { return o; }, bindTooltip() { return o; }, bringToFront() { return o; },
-        getBounds() { return { isValid: () => true, pad: () => ({}) }; },
-        eachLayer() {}, clearLayers() { return o; }, remove() { return o; },
-      };
-      return o;
-    };
-    const L = {
-      map() { return mapObj; },
-      tileLayer() { return layerish("tiles"); },
-      // THE REAL BINDING RUNS. onEachFeature is invoked exactly as Leaflet does.
-      geoJSON(data, opts) {
-        const g = layerish("geojson");
-        (data && data.features || []).forEach((f) => {
-          const p = mkPath(f);
-          if (opts && opts.style) { try { opts.style(f); } catch (e) {} }
-          if (opts && opts.onEachFeature) opts.onEachFeature(f, p);
-        });
-        return g;
-      },
-      marker() { return layerish("marker"); }, circleMarker() { return layerish("marker"); },
-      divIcon() { return { _icon: true }; }, point(a, b) { return { x: a, y: b }; },
-      latLng(a, b) { return { lat: a, lng: b }; },
-      latLngBounds() { return { isValid: () => true, pad: () => ({}) }; },
-      control: { attribution: () => layerish("control") },
-      DomEvent: { stopPropagation() {}, preventDefault() {} },
-    };
-
-    const win = {
-      console, JSON, Math, Date, Promise, String, Number, Boolean, Array, Object, RegExp, Error,
-      parseInt, parseFloat, isNaN, encodeURIComponent, decodeURIComponent, setInterval() {}, clearInterval() {},
-      navigator: { userAgent: "node", onLine: true }, L,
-    };
-    win.window = win;
-    win.setTimeout = (fn, ms) => { timers.push({ fn, ms: ms || 0 }); return timers.length; };
-    win.clearTimeout = () => {};
-    win.requestAnimationFrame = (fn) => { timers.push({ fn, ms: 0 }); return timers.length; };
-    const listeners = {};
-    win.document = {
-      readyState: "loading",
-      head: { appendChild() {} },
-      body: { style: {}, classList: mkEl("body").classList, appendChild() {} },
-      documentElement: { style: {} },
-      getElementById: (id) => els[id] || null,
-      querySelector: () => null, querySelectorAll: () => [],
-      createElement: (t) => mkEl(t),
-      addEventListener(ev, fn) { (listeners[ev] = listeners[ev] || []).push(fn); },
-      removeEventListener() {},
-    };
-    win.fetch = () => new Promise(() => {});
-    win._currentVoterLocation = {};
-    win._hasUserLocation = false;
-    win.location = { pathname: "/find", search: "", hash: "", href: "https://politidex.fyi/find", origin: "https://politidex.fyi", assign() {}, replace() {} };
-
-    let bootErr = null;
-    try { vm.runInContext(SRC, vm.createContext(win), { filename: "find.html#tap" }); }
-    catch (e) { bootErr = e; }
-    must(!bootErr, `the controller threw on load (${bootErr ? bootErr.message : ""}), so nothing below measures a tap`);
-
-    // The deferred owner lands, stubbed at its published surface. Boundary
-    // payloads are served through PDXFinder.fetch because that is the one seam
-    // every request in the finder goes through, and the geocode is answered at
-    // PDXFinder.deadline for the same reason — no geocoder is reimplemented here.
-    const HIT = { lat: 40.7, lng: -111.9, name: "123 Main St, Layton, UT 84041", precise: true,
-                  city: "Layton", county: "Davis", house: 15, senate: 7, congress: 2 };
-    win.PDXFinder = {
-      isOpen: () => true, markPending() {}, flush() {}, abort() {}, track: (x) => x,
-      deadline: () => Promise.resolve({ timedOut: false, hit: HIT }),
-      fetch(url) {
-        const u = String(url);
-        const k = u.indexOf("UtahHouseDistricts") > 0 ? "house"
-                : u.indexOf("UtahSenateDistricts") > 0 ? "senate"
-                : u.indexOf("political_us_congress_districts") > 0 ? "congress" : null;
-        if (!k) return new Promise(() => {});
-        return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(PAYLOAD[k]) });
-      },
-    };
-    win.PDXReturn = { settled() {}, consume() { return false; }, finderHref: () => "/find" };
-
-    const pump = async (rounds = 40) => {
-      for (let i = 0; i < rounds; i++) {
-        const q = timers.splice(0, timers.length);
-        for (const t of q) { try { t.fn(); } catch (e) {} }
-        await Promise.resolve(); await null;
-      }
-    };
-
-    for (const fn of listeners.DOMContentLoaded || []) fn({});
-    await pump();
+    const { els, paths, win, pump } = await driveFinder();
     eq(els["district-map-modal"].style.display, "flex", "driven: arriving at /find did not open the finder");
 
     // Nothing is picked yet and the bar says so.
@@ -1341,8 +1400,8 @@ section("14 · a tap selects, and confirm is on screen to commit it");
     await pump();
     eq(els["pdx-map-done"].disabled, false,
       "driven: a search that already resolved a district left confirm greyed out — the reader has to tap the map too");
-    eq(els["pdx-map-done"].textContent, "Use State House District 15 · State Senate 7",
-      "driven: the pinned bar does not name the district the search resolved");
+    eq(els["pdx-map-done"].textContent, "Use these districts: State House 15 · State Senate 7 · U.S. House 2",
+      "driven: the pinned bar does not name all three districts the search resolved");
     eq(els["pdx-sel-house"].querySelector().textContent, "District 15",
       "driven: the State House chip was not filled in by the search");
     eq(els["pdx-sel-senate"].querySelector().textContent, "District 7",
@@ -1363,7 +1422,7 @@ section("14 · a tap selects, and confirm is on screen to commit it");
     eq(els["pdx-sel-house"].querySelector().textContent, "District 16",
       "driven: tapping the District 16 polygon did not move the State House chip");
     eq(els["pdx-map-done"].disabled, false, "driven: a polygon tap left confirm greyed out");
-    eq(els["pdx-map-done"].textContent, "Use State House District 16 · State Senate 7",
+    eq(els["pdx-map-done"].textContent, "Use these districts: State House 16 · State Senate 7 · U.S. House 2",
       "driven: the pinned bar does not name the district that was just tapped");
     // The tap is the reader overriding the address, and it reaches the record.
     eq(win._currentVoterLocation.stateHouseDistrict, "16",
@@ -1382,9 +1441,286 @@ section("14 · a tap selects, and confirm is on screen to commit it");
     await pump();
     eq(els["pdx-sel-house"].querySelector().textContent, "District 15",
       `driven: a throw in the polygon restyle swallowed the tap (${hardErr ? hardErr.message : "no throw"})`);
-    eq(els["pdx-map-done"].textContent, "Use State House District 15 · State Senate 7",
+    eq(els["pdx-map-done"].textContent, "Use these districts: State House 15 · State Senate 7 · U.S. House 2",
       "driven: a throw in the polygon restyle left the confirm bar naming the previous district");
     eq(els["pdx-map-done"].disabled, false, "driven: a throw in the polygon restyle greyed out confirm");
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 15 · three seats or a labelled partial save — never a silent one
+// ═════════════════════════════════════════════════════════════════════════════
+// THE REPORT. "/find confirm with one chamber writes that district, then
+// PDXReturn dumps to /. Who-Reps-Me shows 3/6: Gov + two Senators. House 4
+// number is in the record; Senate and CD are empty; House 4 has no roster
+// person." Two independent faults, both of them about the same partial answer:
+//
+//   ① THE FINDER RESOLVED ONE SEAT PER TAP AND LET THE READER LEAVE WITH IT.
+//      A geocode already loaded all three Utah layers and ran point-in-polygon
+//      against each. A tap loaded one, picked in it, and — on the legislative
+//      layers — actively DELETED the congressional district a search had just
+//      resolved (`_searchAreaId = null; _searchCongress = null;`). Confirm's
+//      gate was `if (!_selected.house && !_selected.senate) return;`, so one
+//      district out of three opened the door and PDXReturn took them home.
+//
+//   ② THE HOMEPAGE CALLED A LOCATED DISTRICT AN UNRESOLVED AREA. That is
+//      section 16, in test-who-represents-me.mjs.
+//
+// What this section pins about ①: a point resolves all three layers; confirm
+// only navigates on a complete answer or through a button labelled as partial;
+// and the sticky bar names the gap the whole time one exists.
+section("15 · three seats, or a labelled partial save");
+{
+  // ── The third seat is a selection, not a private variable ────────────────
+  has(MAPC, "var _selected   = { house: null, senate: null, congress: null };",
+    "seats: the selection object has no congressional slot, so the third seat is back to being a\n" +
+    "    different kind of thing from the two beside it");
+  no(MAPC, "_searchCongress",
+    "seats: _searchCongress is back — the congressional district is being held outside the selection\n" +
+    "    object again, which is what let a tap delete it and confirm ignore it");
+  has(FIND, 'id="pdx-sel-congress"',
+    "seats: the U.S. House chip is gone from the chamber row, so the third seat is invisible until\n" +
+    "    the reader goes and finds its toggle");
+  // The congress layer is no longer a look-only view: a tap on it selects.
+  {
+    const bl = MAPC.slice(MAPC.indexOf("function buildLayer("), MAPC.indexOf("function showLayer("));
+    must(bl.length > 80, "buildLayer is gone from the controller");
+    no(bl, "if (layerType === 'congress') {",
+      "picker: the polygon click is back to an early return on the congress layer, so a tap there\n" +
+      "    highlights a district it never selects");
+    has(bl, "resolveAllAt(e.latlng)",
+      "picker: a polygon tap no longer resolves the other two chambers from its own point");
+    has(bl, "click:     function(e)",
+      "picker: the polygon click handler dropped its event argument, so it has no latlng to resolve from");
+  }
+
+  // ── One resolver, two callers, and it never un-sets a seat ───────────────
+  eq((MAPC.match(/function resolveAllAt\(/g) || []).length, 1,
+    "seats: resolveAllAt() is gone or duplicated — the tap path and the tap-to-load path are back to\n" +
+    "    two different ideas of how many seats a point answers");
+  eq((MAPC.match(/resolveAllAt\(/g) || []).length, 3,
+    "seats: resolveAllAt is not called from exactly the two tap paths \u2014 its definition, the polygon\n" +
+    "    click and the tap-to-load pick are the only three mentions there should ever be");
+  {
+    const ra = MAPC.slice(MAPC.indexOf("function resolveAllAt("), MAPC.indexOf("function selectDistrict("));
+    must(ra.length > 120, "resolveAllAt is gone from the controller");
+    has(ra, "_selected[t] === d) return;",
+      "seats: a re-resolve on the same district writes and reacts again instead of standing down");
+    has(ra, "catch(function(){ return null; })",
+      "seats: one failing boundary layer now rejects the whole point-resolve, so a congress outage\n" +
+      "    takes House and Senate down with it — the same hazard onGeocoded already guards");
+    has(ra, "if (d == null ",
+      "seats: a layer whose polygons do not contain the point now un-sets whatever was there");
+  }
+  {
+    const las = MAPC.slice(MAPC.indexOf("function loadAndShow("), MAPC.indexOf("function layerFailed("));
+    must(las.length > 120, "loadAndShow is gone from the controller");
+    no(las, "layerType !== 'congress'",
+      "seats: the tap-to-load path excludes the congress layer again, so a first tap on that toggle\n" +
+      "    draws boundaries and picks nothing");
+  }
+
+  // ── Confirm is a gate, and the exit from it is labelled ─────────────────
+  {
+    const cf = MAPC.slice(MAPC.indexOf("window.pdxMapConfirm = function(){"), MAPC.indexOf("window.pdxMapSaveOnly"));
+    must(cf.length > 80, "pdxMapConfirm is gone from the controller");
+    has(cf, "if (!cs.complete) {",
+      "confirm: the completeness gate is gone — one district out of three can commit and navigate again");
+    has(cf, "window.pdxMapSetLayer(cs.next)",
+      "confirm: an incomplete answer no longer advances the toggle to the missing chamber, so the\n" +
+      "    button that refuses to commit offers nothing instead");
+    no(cf, "PDXReturn",
+      "confirm: the navigation is back inside pdxMapConfirm ahead of the gate, so an incomplete\n" +
+      "    answer can still leave");
+    no(cf, "applyToLocation()",
+      "confirm: pdxMapConfirm writes the record itself again rather than through the one commit path");
+  }
+  has(MAPC, "window.pdxMapSaveOnly = function(){",
+    "confirm: the labelled partial save is gone, which makes the completeness gate a wall for any\n" +
+    "    reader whose address genuinely cannot resolve three seats");
+  eq((MAPC.match(/function commitAndLeave\(\)/g) || []).length, 1,
+    "confirm: commitAndLeave() is gone or duplicated — the complete path and the partial path are\n" +
+    "    back to two copies of the hand-off");
+  has(FIND, 'onclick="window.pdxMapSaveOnly()"',
+    "confirm: the Save-these-seats-only button is not wired to anything");
+  has(FIND, "Save these seats only",
+    "confirm: the partial-save control no longer says that it is partial");
+
+  // ── The sticky bar names the gap, inside the sticky element ─────────────
+  has(FIND, 'id="pdx-map-missing"', "bar: the missing-seats line is gone");
+  {
+    const act = FIND.indexOf('<div class="pdx-map-actions">');
+    must(act > 0, "the sticky action row markup is gone");
+    const end = FIND.indexOf("</div>", FIND.indexOf('onclick="window.pdxMapClearSelection()"'));
+    const bar = FIND.slice(act, end);
+    has(bar, 'id="pdx-map-missing"',
+      "bar: the missing-seats line sits outside .pdx-map-actions, which is the sticky element — it\n" +
+      "    scrolls away from the button it explains");
+    has(bar, 'id="pdx-map-save-only"',
+      "bar: the partial-save button is outside the pinned row, so the only labelled way out of an\n" +
+      "    incomplete answer is off screen");
+    ok(bar.indexOf('id="pdx-map-missing"') < bar.indexOf('id="pdx-map-done"'),
+      "bar: the line naming the missing seats is filed after the buttons it is a heading for");
+  }
+  {
+    const ms = FIND.slice(FIND.indexOf(".pdx-map-missing{"), FIND.indexOf("}", FIND.indexOf(".pdx-map-missing{")));
+    has(ms, "flex:1 1 100%",
+      "bar: the missing-seats line is not full width, so it competes with the buttons for a row");
+  }
+  // column-REVERSE would file that heading under the buttons on a phone.
+  no(FIND, ".pdx-map-actions{flex-direction:column-reverse;}",
+    "bar: the phone layout reverses the pinned column again, which puts the missing-seats heading\n" +
+    "    below the two buttons it explains");
+
+  // ══ DRIVEN ① — A POINT ANSWERS ALL THREE, AND CONFIRM LEAVES ═════════════
+  {
+    const { els, win, paths, pump, nav } = await driveFinder();
+    els["pdx-map-search-input"].value = "123 Main St, Layton";
+    win.pdxMapSearchAddress();
+    await pump();
+    eq(els["pdx-sel-congress"].querySelector().textContent, "District 2",
+      "driven: the U.S. House chip is empty after a search that resolved the congressional district");
+    eq(els["pdx-map-save-only"].style.display, "none",
+      "driven: a COMPLETE answer still offers 'save these seats only' — there is no partial to save");
+    has(els["pdx-map-missing"].textContent, "All three districts set",
+      "driven: the pinned bar does not confirm that the answer is complete");
+    eq(els["pdx-map-done"].disabled, false, "driven: a complete three-seat answer cannot be committed");
+    // The banner's button is the same action, so it carries the same promise.
+    eq(els["pdx-map-result-use"].textContent, "✓ Use these districts: State House 15 · State Senate 7 · U.S. House 2",
+      "driven: the result banner promises a different commit from the pinned bar");
+
+    // A tap re-aims all three from its own point rather than deleting two.
+    const p16 = paths.filter((p) => p._feature.properties.DIST === 16)[0];
+    must(p16, "the driven payload no longer contains a District 16 polygon");
+    p16._handlers.click({ latlng: { lat: 40.7, lng: -111.7 } });
+    await pump();
+    eq(els["pdx-sel-congress"].querySelector().textContent, "District 2",
+      "driven: a polygon tap wiped the congressional district again — this is the exact regression\n" +
+      "    the report describes: 'House 4 number is in the record; Senate and CD are empty'");
+    eq(win._currentVoterLocation.district, "2",
+      "driven: the congressional district never reached the location record, so the homepage has\n" +
+      "    nothing to resolve the U.S. House row from");
+    eq(win._currentVoterLocation.stateSenateDistrict, "7",
+      "driven: the State Senate district never reached the location record");
+
+    // Complete, so confirm COMMITS and leaves.
+    eq(nav.settled, 0, "driven: the finder navigated before confirm was ever pressed");
+    win.pdxMapConfirm();
+    await pump();
+    eq(nav.settled, 1,
+      "driven: confirm on a complete three-seat answer did not hand off to PDXReturn, so the reader\n" +
+      "    is stranded on the finder with nothing left to do");
+    eq(els["district-map-modal"].style.display, "none", "driven: a committed confirm left the modal standing");
+    eq(win.sessionStorage.getItem("pdx_finder_confirm"), "1",
+      "driven: the one fact /find hands the front page — that a map confirm happened — was dropped");
+  }
+
+  // ══ DRIVEN ② — CD MISSING: CONFIRM ADVANCES, IT DOES NOT NAVIGATE ════════
+  // A congress boundary that will not load is the only way an address search can
+  // land two seats and not three, and it is the report's shape exactly: numbers
+  // in the record for some seats, empty for others.
+  {
+    const { els, win, pump, nav } = await driveFinder({ failLayers: ["congress"], hitOmit: ["congress"] });
+    els["pdx-map-search-input"].value = "123 Main St, Layton";
+    win.pdxMapSearchAddress();
+    await pump();
+    eq(els["pdx-sel-house"].querySelector().textContent, "District 15",
+      "driven: a congress-layer outage took the State House seat down with it");
+    eq(els["pdx-sel-senate"].querySelector().textContent, "District 7",
+      "driven: a congress-layer outage took the State Senate seat down with it");
+    eq(els["pdx-sel-congress"].querySelector().textContent, "Not set",
+      "driven: the U.S. House chip claims a district the boundary fetch never returned");
+    // The bar names the gap and offers the labelled way out.
+    has(els["pdx-map-missing"].textContent, "Still missing: U.S. House",
+      "driven: the pinned bar does not name the seat that is still missing");
+    eq(els["pdx-map-done"].textContent, "Next: pick your U.S. House district",
+      "driven: the pinned button promises to USE an answer that is two seats out of three");
+    eq(els["pdx-map-save-only"].style.display, "",
+      "driven: a partial answer offers no labelled way to keep the seats it did resolve");
+    eq(els["pdx-map-save-only"].textContent, "Save these 2 seats only",
+      "driven: the partial-save control does not say how many seats it would save, so 'only' is not\n" +
+      "    a checkable claim");
+
+    // THE PRESS THAT USED TO NAVIGATE NOW ADVANCES.
+    win.pdxMapConfirm();
+    await pump();
+    eq(nav.settled, 0,
+      "driven: confirm navigated on a two-of-three answer — this is the report's first sentence,\n" +
+      "    'confirm with one chamber writes that district, then PDXReturn dumps to /'");
+    eq(els["district-map-modal"].style.display, "flex",
+      "driven: an incomplete confirm closed the finder, which strands the reader with the gap");
+    ok(els["pdx-layer-congress"].classList.contains("is-active"),
+      "driven: confirm refused to commit and did not move the reader to the missing chamber either");
+
+    // And the labelled exit still works, because a gate that cannot be opened
+    // deliberately is a wall.
+    win.pdxMapSaveOnly();
+    await pump();
+    eq(nav.settled, 1,
+      "driven: 'save these seats only' does not commit, so a reader whose third seat genuinely\n" +
+      "    cannot resolve has no way off this document");
+    eq(win._currentVoterLocation.stateHouseDistrict, "15",
+      "driven: the partial save did not write the seats it promised to keep");
+  }
+
+  // ══ DRIVEN ③ — HOUSE-ONLY TAP: SWITCH TO SENATE, THEN U.S. HOUSE ═════════
+  // The report's own sequence. Nothing is painted, the reader taps the canvas,
+  // and only the active (House) layer can load.
+  {
+    const { els, win, mapObj, pump, nav } = await driveFinder({ failLayers: ["senate", "congress"] });
+    must(typeof mapObj._h.click === "function", "the canvas-level tap-to-load handler is gone");
+    mapObj._h.click({ latlng: { lat: 40.7, lng: -111.9 } });
+    await pump();
+    eq(els["pdx-sel-house"].querySelector().textContent, "District 15",
+      "driven: a tap on a bare canvas no longer loads the active layer and picks in it");
+    eq(els["pdx-sel-senate"].querySelector().textContent, "Not set",
+      "driven: the State Senate chip claims a district its boundary fetch never returned");
+    // "Switch to Senate, then U.S. House."
+    ok(els["pdx-layer-senate"].classList.contains("is-active"),
+      "driven: a House-only pick left the reader on the House layer with two seats missing and no\n" +
+      "    indication of where to tap next");
+    has(els["pdx-map-missing"].textContent, "Still missing: State Senate and U.S. House",
+      "driven: the pinned bar does not name BOTH missing seats after a House-only pick");
+    eq(els["pdx-map-done"].textContent, "Next: pick your State Senate district",
+      "driven: the pinned button does not name the next seat to pick");
+    eq(els["pdx-map-save-only"].textContent, "Save this one seat only",
+      "driven: the one-seat partial save reads as a plural count");
+    eq(nav.settled, 0, "driven: a House-only tap navigated on its own");
+    // Pressing the button keeps the reader here and keeps naming the gap.
+    win.pdxMapConfirm();
+    await pump();
+    eq(nav.settled, 0,
+      "driven: confirm on a ONE-of-three answer navigated — the exact record the report found on\n" +
+      "    the front page, 'House 4 number is in the record; Senate and CD are empty'");
+    eq(els["district-map-modal"].style.display, "flex",
+      "driven: confirm on a one-seat answer closed the finder");
+  }
+
+  // ══ DRIVEN ④ — ONE LAYER DOWN MUST NOT TAKE THE OTHER TWO WITH IT ════════
+  // The congressional seat is the one the report found empty, and a tap is the
+  // path that used to delete it. Here the SENATE boundary is the casualty, so the
+  // assertion is about the seat nobody was watching: a tap point still has to
+  // resolve the U.S. House layer even though the fetch beside it rejected. Each
+  // request in resolveAllAt is caught on its own for exactly this reason.
+  {
+    const { els, win, mapObj, pump } = await driveFinder({ failLayers: ["senate"] });
+    mapObj._h.click({ latlng: { lat: 40.7, lng: -111.9 } });
+    await pump();
+    eq(els["pdx-sel-house"].querySelector().textContent, "District 15",
+      "driven: a senate-layer outage took the tapped State House seat down with it");
+    eq(els["pdx-sel-congress"].querySelector().textContent, "District 2",
+      "driven: the U.S. House seat did not resolve from the tapped point — one failing layer beside\n" +
+      "    it was enough to abandon the whole point-resolve");
+    eq(win._currentVoterLocation.district, "2",
+      "driven: a tap resolved the congressional district but never wrote it to the record");
+    eq(els["pdx-sel-senate"].querySelector().textContent, "Not set",
+      "driven: the State Senate chip claims a district its boundary fetch never returned");
+    has(els["pdx-map-missing"].textContent, "Still missing: State Senate",
+      "driven: the pinned bar does not name the single missing seat after a two-of-three tap");
+    ok(els["pdx-layer-senate"].classList.contains("is-active"),
+      "driven: a two-of-three tap did not move the reader to the one chamber still missing");
+    has(els["pdx-map-missing"].textContent, "One more",
+      "driven: the pinned bar does not tell a reader one seat from complete how close they are");
   }
 }
 

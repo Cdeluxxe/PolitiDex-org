@@ -652,7 +652,11 @@ has(OUT, 'Change my location',
 has(OUT, "my-politicians",
   'band: the Team Builder bridge does not target the builder section');
 
-// Honestly partial: one unresolved seat must be STATED.
+// Honestly partial: one unresolved seat must be STATED. Note what this fixture
+// actually is — LEVELS6's State Senate row carries District 23, so dropping its
+// pid leaves a seat that IS located and has no member on file. That is the
+// district-without-member case, and section 16 below is where its wording is
+// pinned; here the concern is only that the gap is stated at all and counted.
 const partialBand = runBand({
   pdxRepsForMe: () => ({
     located: true, national: false, state: 'Utah', area: 'Bountiful', redrawn: false, districtsResolvable: true,
@@ -660,7 +664,7 @@ const partialBand = runBand({
   }),
 });
 const POUT = partialBand.host.innerHTML;
-has(POUT, 'Not resolved for your area yet',
+has(POUT, 'no member on file yet',
   'band: an unresolved seat is rendered as nothing at all — the visitor then reads five rows as the\n' +
   '    complete answer, which is a completeness claim the data does not support');
 has(POUT, 'State Senate',
@@ -1087,9 +1091,151 @@ for (const [label, cov] of [
 }
 
 
+// ═════════════════════════════════════════════════════════════════════════════
+// 16 · A DISTRICT WITHOUT A MEMBER IS NOT AN UNRESOLVED AREA
+// ═════════════════════════════════════════════════════════════════════════════
+// THE REPORT'S SECOND HALF. "Who-Reps-Me shows 3/6: Gov + two Senators. House 4
+// number is in the record; Senate and CD are empty; House 4 has no roster
+// person." The 3/6 was honest. What was not honest was the House 4 row: the band
+// printed "State House · District 4" as its label and, two lines below it, "Not
+// resolved for your area yet" as its headline. Two statements about the same
+// seat, and the louder one was false — it told a reader whose district had been
+// located perfectly well to go and fix their location.
+//
+// There are THREE kinds of gap on this band, not two:
+//
+//   ① a STATEWIDE seat with no record        → "No record on file yet"
+//   ② a district LOCATED with no member      → "District N — no member on file yet"
+//   ③ a district seat that could not be placed → "Not resolved for your area yet"
+//
+// Only ③ is the visitor's to act on. ① and ② are ours, and saying so is the
+// difference between a gap a reader can trust and a gap that reads as their
+// mistake. Each of the three is driven below, against the real module.
+
+// ── ② THE REPORT'S OWN ROW: HOUSE 4, LOCATED, NOBODY ON FILE ────────────────
+const NOMEM = runBand({
+  pdxRepsForMe: () => ({
+    located: true, national: false, state: 'Utah', area: 'Bountiful', redrawn: false, districtsResolvable: true,
+    levels: LEVELS6.map((l) => (l.key === 'statehouse'
+      ? { ...l, district: '4', distLabel: 'State House · District 4', pid: null, resolved: false }
+      : l)),
+  }),
+}).host.innerHTML;
+must(NOMEM.length > 0, 'the band painted nothing for the located-no-member fixture — section 16 is vacuous');
+has(NOMEM, 'District 4 — no member on file yet',
+  'gap ②: a district the app LOCATED renders without saying so. This is the report: House 4 is in\n' +
+  '    the record, the label prints District 4, and the headline has to agree with it');
+lacks(NOMEM, 'Not resolved for your area yet',
+  'gap ②: a located district is still being called an unresolved area — the exact conflation the\n' +
+  '    report found. It blames the visitor for a hole in our roster and sends them back to the\n' +
+  '    location picker to fix something that is already correct');
+lacks(NOMEM, 'guess at your seat',
+  'gap ②: the sub-line still says we would rather not guess at the seat, when the seat is known.\n' +
+  '    The thing we do not hold is the person in it');
+has(NOMEM, 'nothing to fix on your end',
+  'gap ②: the row does not tell the visitor the gap is ours, so the only reading left is that their\n' +
+  '    location is wrong');
+has(NOMEM, 'wrm-row--nomember',
+  'gap ②: the located-no-member row carries no class of its own, so it cannot be styled apart from\n' +
+  '    a row that genuinely failed to resolve');
+has(NOMEM, '5 of 6 seats resolved',
+  'gap ②: the seat count stopped reporting the gap. A located district with no member is still an\n' +
+  '    unresolved seat — the fix is to name the gap accurately, not to claim it away');
+has(NOMEM, '1 district located, member not on file',
+  'gap ②: the headline count does not distinguish the located gap, so a reader who sees 5 of 6 has\n' +
+  '    no way to know the missing one is not theirs to fix');
+has(NOMEM, 'wrm-resultlocated',
+  'gap ②: the located-gap clause in the count is unstyled, so it reads as part of the resolved tally');
+
+// ── ③ GENUINELY UNPLACED: THE OLD WORDING IS STILL THE RIGHT WORDING ────────
+// Same seat, same missing member, district dropped. Nothing about the fix may
+// soften this case: here the visitor's location really is the thing to correct.
+const UNPLACED = runBand({
+  pdxRepsForMe: () => ({
+    located: true, national: false, state: 'Utah', area: 'Bountiful', redrawn: false, districtsResolvable: true,
+    levels: LEVELS6.map((l) => (l.key === 'statehouse'
+      ? { ...l, district: null, distLabel: 'State House', pid: null, resolved: false }
+      : l)),
+  }),
+}).host.innerHTML;
+has(UNPLACED, 'Not resolved for your area yet',
+  'gap ③: a seat that could not be placed at all no longer says so — the fix for gap ② swallowed\n' +
+  '    the one case where the visitor\'s own location IS the thing to correct');
+lacks(UNPLACED, 'no member on file yet',
+  'gap ③: an unplaced seat claims its district was located. There is no district number to show,\n' +
+  '    so this is a promise the row cannot keep');
+lacks(UNPLACED, 'wrm-row--nomember',
+  'gap ③: an unplaced seat is wearing the located-gap class, which is how the two collapse back\n' +
+  '    into one undifferentiated "unresolved"');
+lacks(UNPLACED, 'wrm-resultlocated',
+  'gap ③: the headline counts a located gap that does not exist');
+lacks(UNPLACED, 'district located, member not on file',
+  'gap ③: the headline claims a district was located when none was');
+
+{
+  // Scoped to the row's own avatar: the band's "Change my location" button also
+  // carries a pin, so an unscoped search for one would pass no matter what the
+  // row renders.
+  const av = (html) => {
+    const a = html.indexOf('wrm-avatar--empty');
+    return a < 0 ? '' : html.slice(a, html.indexOf('</span>', a));
+  };
+  has(av(NOMEM), '📍',
+    'gap ②: the located-no-member row wears the same empty-institution avatar as an unplaced seat');
+  has(av(UNPLACED), '🏛',
+    'gap ③: an unplaced seat wears the located pin, which claims a position on the map it does not have');
+}
+
+// ── ① A STATEWIDE SEAT WITH NO RECORD IS A THIRD THING AGAIN ────────────────
+// A Governor or a Senator needs no district, so neither wording above applies:
+// there is nothing to locate and nothing to place. It must not pick up a
+// district number, and it must not be counted as a located gap.
+const SWGAP = runBand({
+  pdxRepsForMe: () => ({
+    located: true, national: false, state: 'Utah', area: 'Bountiful', redrawn: false, districtsResolvable: true,
+    levels: LEVELS6.map((l) => (l.key === 'governor' ? { ...l, pid: null, resolved: false } : l)),
+  }),
+}).host.innerHTML;
+has(SWGAP, 'No record on file yet',
+  'gap ①: a statewide seat with no record borrowed one of the district wordings — it has no\n' +
+  '    district to be located or unplaced, so both of them are false for it');
+lacks(SWGAP, 'no member on file yet',
+  'gap ①: a statewide gap claims a district was located. A Governor does not have one');
+lacks(SWGAP, 'Not resolved for your area yet',
+  'gap ①: a statewide gap blames the visitor\'s area for a hole in the roster');
+lacks(SWGAP, 'wrm-resultlocated',
+  'gap ①: a statewide gap is counted as a located district');
+
+// ── The count is a count, so it has to agree with itself in the plural ──────
+const TWOGAP = runBand({
+  pdxRepsForMe: () => ({
+    located: true, national: false, state: 'Utah', area: 'Bountiful', redrawn: false, districtsResolvable: true,
+    levels: LEVELS6.map((l) => (l.key === 'statehouse' || l.key === 'statesenate'
+      ? { ...l, pid: null, resolved: false } : l)),
+  }),
+}).host.innerHTML;
+has(TWOGAP, '2 districts located, members not on file',
+  'gap ②: two located gaps do not pluralise, so the clause reads as a template rather than a count');
+has(TWOGAP, '4 of 6 seats resolved',
+  'gap ②: the resolved tally no longer agrees with the level set it was given');
+
+// ── The two new classes have to exist in the stylesheet that renders them ───
+has(HTML, '.wrm-row--nomember{',
+  'gap ②: index.html has no rule for the located-no-member row, so the class the band emits styles\n' +
+  '    nothing and a located gap still renders as dimmed-out failure');
+has(HTML, '.wrm-resultlocated{',
+  'gap ②: index.html has no rule for the located-gap clause in the headline count');
+{
+  const nm = HTML.slice(HTML.indexOf('.wrm-row--nomember{'), HTML.indexOf('}', HTML.indexOf('.wrm-row--nomember{')));
+  has(nm, 'opacity:1',
+    'gap ②: the located-no-member row inherits the unresolved row\'s dimming. A gap that is ours to\n' +
+    '    fill should not look like the visitor\'s answer failed');
+}
+
+
 if (failures.length) {
   console.error(`\n✗ who represents me: ${failures.length} failure(s)`);
   failures.forEach((f) => console.error('  · ' + f));
   process.exit(1);
 }
-console.log(`✓ who represents me: all ${passed} assertions passed — 3 entry points, 1 resolver, 6 seats in two classes, gaps stated not dropped, local coverage answered not inferred`);
+console.log(`✓ who represents me: all ${passed} assertions passed — 3 entry points, 1 resolver, 6 seats in two classes, gaps stated not dropped in three kinds, local coverage answered not inferred`);
