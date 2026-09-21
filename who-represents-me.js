@@ -18,7 +18,8 @@
 
    WHAT IT OWNS AND WHAT IT DOESN'T
    ─────────────────────────────────
-   It owns presentation and one global action (window.pdxFindMyReps). It owns no
+   It owns presentation and the lookup's global actions — window.pdxFindMyReps,
+   and the seats-card controls documented over cardData() below. It owns no
    data and resolves nothing itself: districts and officeholders come from
    window.pdxRepsForMe() in voter-hub-location.js, which is the same resolution
    the Voter Hub's "Who Represents You Now" strip reads. Two surfaces answering
@@ -551,6 +552,403 @@
     '</p>';
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // THE SEATS CARD  ·  one object a reader can actually send someone
+  // ──────────────────────────────────────────────────────────────────────────
+  // Everything else this band produces is a destination: a row that opens a
+  // profile, a button that scrolls to a compare, a link to /me. None of it
+  // survives leaving the page. A reader who has just learned the six people with
+  // power over them and wants to tell somebody has, until now, had exactly one
+  // move available — screenshot the band — and a screenshot carries no address
+  // back to the app and no way for the person receiving it to ask the same
+  // question about themselves.
+  //
+  // So the band mints ONE card. It is a text block, not a composer and not a
+  // board: the reader's state, the seats this record actually resolved, the
+  // sitting names we hold, and two addresses — the finder, so the recipient can
+  // ask the same question, and the district room, so the sender can go back to
+  // theirs. It is the object people text.
+  //
+  // WHY A TEXT BLOCK AND NOT AN IMAGE. The brief allowed either. An image is the
+  // richer artifact and it is also a canvas pipeline with its own failure modes
+  // (a zero-byte PNG that shares "successfully" — see PDXShareLinks.blobOk, which
+  // exists because that has happened here), a font-loading race, and a payload no
+  // screen reader and no SMS preview can read. A text block is selectable,
+  // quotable, pastes into any app, degrades to nothing worse than itself, and is
+  // the form the thing is actually sent in. The card can grow an image later
+  // without any of the below changing shape.
+  //
+  // WHAT IT MAY NOT DO
+  // ──────────────────
+  //   · It resolves nothing. Same window.pdxRepsForMe() read as the rows beside
+  //     it, so the card and the band cannot name different people — the exact
+  //     rule that made this band read one resolver in the first place.
+  //   · It stores nothing. No new location key, no new preference, no counter.
+  //   · It lists only seats that RESOLVED. A seat with no holder is not printed
+  //     as a blank line, because a blank line in a text block someone forwards
+  //     reads as a formatting bug rather than as an admission. The admission is
+  //     made in words, underneath, and it says which KIND of gap it is — the
+  //     same three-state grammar row() and scopeNote() already use.
+  //   · It claims no score, no verdict, no percentage and no party frame, for the
+  //     same reason nothing else in this file does.
+  //
+  // THE ADDRESSES ARE ABSOLUTE, APEX AND HTTPS, and they are literals here rather
+  // than location.origin. Every other share builder in the app anchors on
+  // origin() — correct, because those links open a record on whatever host the
+  // reader is standing on. This card is different: it leaves the app entirely and
+  // is pasted somewhere with no referrer and no session, so the host has to be
+  // the public one. A card minted on a preview deploy or on localhost that
+  // carried that host would send the recipient somewhere they cannot reach.
+  var CARD_ORIGIN = 'https://politidex.fyi';
+  var CARD_FIND = CARD_ORIGIN + '/find';
+  var CARD_VOICE = CARD_ORIGIN + '/voice';
+
+  // Is this seat one whose lines we can draw at all? The level says so itself
+  // now (`mapped`), and the two resolver-wide flags are the fallback for a caller
+  // — or a fixture — from before levels carried it. The distinction is the whole
+  // point of the words under the card: "we do not draw your state's legislative
+  // lines" and "you have not pinned your district" are different sentences, and
+  // only one of them is something the reader can fix.
+  function mappedOf(lv, reps) {
+    if (!lv || lv.statewide) return true;
+    if (typeof lv.mapped === 'boolean') return lv.mapped;
+    return (lv.key === 'house') ? !!(reps && reps.congressMapped) : !!(reps && reps.districtsResolvable);
+  }
+
+  // ── The card, as data ─────────────────────────────────────────────────────
+  // Returns null for every reader who must not get one: no resolver, no saved
+  // location, the National standing, or a record that resolved no seat at all.
+  // That last case is the one worth naming: a card reading "my seats" with no
+  // seats on it is not a modest card, it is a claim the app failed to make good
+  // on, and the honest answer is to offer no control rather than an empty object.
+  //
+  // Every seat line is built from lv.distLabel — the SAME string row() prints in
+  // .wrm-rowlevel — so "the card matches the band" is a property of the data
+  // rather than of two copies of a format agreeing by luck.
+  // `reps` is passed in by every caller inside a paint, because sync() has
+  // already done that walk and the resolver is not free — three unthreaded calls
+  // per repaint (the row list, the button's existence test, the panel) is three
+  // answers to a question with one answer. It is optional so the public
+  // PDXWhoRepresentsMe.card() and the three window.pdxSeatsCard* handlers, which
+  // run on a tap rather than inside a paint, can just ask.
+  function cardData(reps) {
+    if (!reps) {
+      try { reps = (typeof window.pdxRepsForMe === 'function') ? window.pdxRepsForMe() : null; }
+      catch (e) { reps = null; }
+    }
+    if (!reps || !reps.located || reps.national) return null;
+    var levels = (reps.levels || []);
+
+    var seats = [], unnamed = 0;
+    for (var i = 0; i < levels.length; i++) {
+      var lv = levels[i];
+      if (!lv || !lv.resolved || !lv.pid) continue;
+      var person = personOf(lv.pid);
+      var nm = (person && person.name) ? String(person.name) : '';
+      if (!nm) unnamed++;
+      seats.push({ key: lv.key, label: String(lv.distLabel || lv.label || ''), name: nm });
+    }
+    if (!seats.length) return null;
+
+    var area = String(reps.area || '');
+    var st = String(reps.state || '').trim();
+    // THE STATE IS NAMED, even when the area already reads like an address. The
+    // area is whatever the reader's record resolved to — "Bountiful, Davis
+    // County", or a bare city — and none of those forms is guaranteed to carry
+    // the state. On a card that is a real gap: "State Senate · District 23" is
+    // an ambiguous line in forty-nine other places, and the recipient has no
+    // page around it to disambiguate from. Appended rather than substituted, and
+    // only when the area does not already say it, so a reader whose area IS the
+    // state does not get it twice.
+    var where = (area && st && area.indexOf(st) === -1) ? (area + ', ' + st) : (area || st || '');
+
+    // ── The blanks, in words ─────────────────────────────────────────────────
+    // One sentence per KIND of gap, and only for gaps this reader actually has.
+    // None of them names a chamber that is not on the card: a card that omits a
+    // seat and then prints its name in the apology has put the seat back, and a
+    // reader forwarding it cannot tell which half to believe.
+    var notes = [];
+    var houseGap = null, legUnmapped = 0, legUnpinned = 0, swGap = 0;
+    for (var j = 0; j < levels.length; j++) {
+      var l = levels[j];
+      if (!l || l.resolved) continue;
+      if (l.statewide) { swGap++; continue; }
+      // The LEVEL is kept rather than a flag, because the sentence below has to
+      // ask it whether its lines are drawable and a stand-in object carrying only
+      // the key would be asking the resolver-wide fallback instead of the answer
+      // this seat came back with.
+      if (l.key === 'house') { houseGap = l; continue; }
+      if (mappedOf(l, reps)) legUnpinned++; else legUnmapped++;
+    }
+    if (unnamed) {
+      notes.push(unnamed === 1
+        ? 'One seat resolved to a member PolitiDex could not name when this card was made.'
+        : unnamed + ' seats resolved to members PolitiDex could not name when this card was made.');
+    }
+    if (houseGap) {
+      notes.push(mappedOf(houseGap, reps)
+        ? 'My U.S. House district is not pinned in this record, so that seat is not on this card.'
+        : 'My U.S. House district could not be drawn from this record, so that seat is not on this card.');
+    }
+    if (legUnmapped) {
+      notes.push('PolitiDex draws state legislative lines in Utah only, so ' +
+        (st ? st + '’s' : 'my state’s') + ' legislative seats are not on this card.');
+    }
+    if (legUnpinned) {
+      notes.push('My state legislative districts are not pinned in this record, so ' +
+        (legUnpinned === 1 ? 'that seat is' : 'those seats are') + ' not on this card.');
+    }
+    if (swGap) {
+      notes.push(swGap === 1
+        ? 'One of my statewide seats has no file on hand, so it is not on this card.'
+        : swGap + ' of my statewide seats have no file on hand, so they are not on this card.');
+    }
+
+    // ── The text, which IS the artifact ──────────────────────────────────────
+    // Built line by line rather than from a template so the blank-line rules are
+    // explicit: exactly one blank line between the four blocks, and no trailing
+    // whitespace, because this string is pasted into apps that render it raw.
+    var L = [];
+    L.push('My seats' + (where ? ' · ' + where : ''));
+    L.push('');
+    for (var k = 0; k < seats.length; k++) {
+      L.push(seats[k].name ? (seats[k].label + ' — ' + seats[k].name) : seats[k].label);
+    }
+    if (notes.length) { L.push(''); for (var n = 0; n < notes.length; n++) L.push(notes[n]); }
+    L.push('');
+    L.push('Look up your own: ' + CARD_FIND);
+    // /voice is the reader's own district room, and it is only an address for
+    // somebody we have placed — which, at this point in the function, is every
+    // reader who gets a card. It is stated as a condition anyway rather than
+    // assumed, because the day this card is offered to an unplaced reader the
+    // rule that /voice needs a location should still be written down here.
+    if (reps.located) L.push('My district’s room: ' + CARD_VOICE);
+
+    return {
+      state: st, area: area, where: where,
+      seats: seats, notes: notes, unnamed: unnamed,
+      url: CARD_FIND, voiceUrl: reps.located ? CARD_VOICE : '',
+      title: 'My seats · PolitiDex',
+      text: L.join('\n')
+    };
+  }
+
+  // ── Minting is the event ─────────────────────────────────────────────────
+  // The thing worth counting is that a reader produced a card, not that they
+  // pressed copy twice and share once afterwards. So one CustomEvent fires when
+  // a card is BUILT, and it is deduped on the card's own text: re-opening the
+  // same panel, or a repaint of the band with the panel open, is the same card
+  // and not a second one. Change the location and the text changes and it mints
+  // again, which is correct — that is a different card.
+  //
+  // The detail carries counts and the state, never a pid and never a name. A
+  // listener that wanted to know WHO is in somebody's card can read the card;
+  // an event bus does not need it.
+  var _minted = '';
+  function mint(card) {
+    if (!card || card.text === _minted) return card;
+    _minted = card.text;
+    try {
+      document.dispatchEvent(new CustomEvent('pdx:seats:card', {
+        detail: {
+          state: card.state, seats: card.seats.length,
+          named: card.seats.length - card.unnamed, notes: card.notes.length
+        }
+      }));
+    } catch (e) {}
+    return card;
+  }
+
+  // ── Copy, the way the rest of the app copies ──────────────────────────────
+  // Clipboard first, a hidden textarea second, and a boolean either way: the
+  // caller's job is to say "this browser would not take it", never to throw on
+  // the reader's tap.
+  function copyText(str) {
+    try {
+      if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+        return Promise.resolve(navigator.clipboard.writeText(str)).then(
+          function () { return true; }, function () { return legacyCopy(str); });
+      }
+    } catch (e) {}
+    return Promise.resolve(legacyCopy(str));
+  }
+  function legacyCopy(str) {
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = str;
+      ta.setAttribute('readonly', 'readonly');
+      ta.style.cssText = 'position:fixed;top:-1000px;opacity:0';
+      document.body.appendChild(ta);
+      ta.select();
+      var done = document.execCommand ? document.execCommand('copy') : false;
+      document.body.removeChild(ta);
+      return !!done;
+    } catch (e) { return false; }
+  }
+
+  function cardFlash(msg) {
+    try {
+      var el = document.getElementById('wrm-cardsaid');
+      if (!el) return;
+      el.textContent = msg;
+      setTimeout(function () {
+        var e2 = document.getElementById('wrm-cardsaid');
+        if (e2 && e2.textContent === msg) e2.textContent = '';
+      }, 2600);
+    } catch (e) {}
+  }
+
+  // ── The panel ─────────────────────────────────────────────────────────────
+  // Rendered INSIDE the band's own paint rather than as an overlay, because the
+  // card is a thing the reader reads and selects before sending it, and an
+  // overlay over a list of six seats hides the answer it is quoting. It is also
+  // why the open flag is module state that sync() consults: the band repaints on
+  // every location change and on the roster's arrival, and a panel that vanished
+  // on a repaint would look like the app had eaten the card.
+  //
+  // The share control is only printed where navigator.share exists. A button
+  // that opens nothing is worse than an absent button, and unlike
+  // PDXShareAnywhere this control has no fixed-size hydration problem to solve:
+  // it is painted once, on demand, after the reader asked for it.
+  var _open = false;
+
+  function nativeHere() {
+    try { return typeof navigator.share === 'function'; } catch (e) { return false; }
+  }
+
+  function cardPanel(reps) {
+    if (!_open) return '';
+    var card = cardData(reps);
+    if (!card) return '';
+    mint(card);
+    return '<div class="wrm-card" id="wrm-card" role="group" aria-label="My seats — a card you can send">' +
+      '<div class="wrm-cardhd">' +
+        '<span class="wrm-cardkicker">A card you can send</span>' +
+        '<button type="button" class="wrm-cardx" onclick="window.pdxSeatsCardClose()"' +
+          ' aria-label="Close the card">×</button>' +
+      '</div>' +
+      '<pre class="wrm-cardtext" id="wrm-cardtext">' + esc(card.text) + '</pre>' +
+      '<div class="wrm-cardacts">' +
+        (nativeHere()
+          ? '<button type="button" class="wrm-cardbtn wrm-cardbtn--lead"' +
+              ' onclick="window.pdxSeatsCardSend()">↱ Send it</button>'
+          : '') +
+        '<button type="button" class="wrm-cardbtn" onclick="window.pdxSeatsCardCopy()">' +
+          '\u{1F4CB} Copy the card</button>' +
+        '<button type="button" class="wrm-cardbtn" onclick="window.pdxSeatsCardCopyLink()">' +
+          '\u{1F517} Copy the link</button>' +
+      '</div>' +
+      '<p class="wrm-cardsaid" id="wrm-cardsaid" role="status"></p>' +
+      '<p class="wrm-cardnote">This is your own record, read back to you — the same six seats as above, ' +
+        'nothing about how you would vote, and no positions from your file. Anyone who opens the link ' +
+        'looks up their own seats, not yours.</p>' +
+    '</div>';
+  }
+
+  // The one control on the band.
+  function seatsCardButton(hasWs, reps) {
+    if (!cardData(reps)) return '';
+    return '<button type="button" class="wrm-next-btn' + (hasWs ? ' wrm-next-btn--sub' : '') + '"' +
+      ' onclick="window.pdxSeatsCardOpen()"' +
+      ' title="One card naming the seats this record resolved and the members in them. No positions, ' +
+      'and nothing about how you would vote.">' +
+      '\u{1F4E4} Share my seats</button>';
+  }
+
+  window.pdxSeatsCardOpen = function () {
+    if (!cardData()) return false;
+    _open = true;
+    sync();
+    try {
+      var el = document.getElementById('wrm-card');
+      if (el) bring(el);
+    } catch (e) {}
+    return true;
+  };
+  window.pdxSeatsCardClose = function () {
+    _open = false;
+    sync();
+    return true;
+  };
+  window.pdxSeatsCardCopy = function () {
+    var card = cardData();
+    if (!card) return Promise.resolve(false);
+    return copyText(card.text).then(function (done) {
+      cardFlash(done
+        ? 'Copied. Paste it anywhere.'
+        : 'This browser would not take it to the clipboard — select the card above and copy it.');
+      return done;
+    });
+  };
+  window.pdxSeatsCardCopyLink = function () {
+    var card = cardData();
+    if (!card) return Promise.resolve(false);
+    return copyText(card.url).then(function (done) {
+      cardFlash(done ? 'Link copied: ' + card.url : 'The link is ' + card.url);
+      return done;
+    });
+  };
+  // Native share, through the app's one owner of navigator.share. PDXShareLinks
+  // .native() resolves — never rejects — to one of five outcomes, so a refused
+  // or failed sheet falls back to the clipboard and a DISMISSED one does nothing
+  // at all: a reader who changed their mind did not ask for their card to be
+  // copied behind their back.
+  window.pdxSeatsCardSend = function () {
+    var card = cardData();
+    if (!card) return Promise.resolve({ ok: false, outcome: 'invalid' });
+    var SL = null;
+    try { SL = window.PDXShareLinks; } catch (e) { SL = null; }
+    if (!SL || typeof SL.native !== 'function') return window.pdxSeatsCardCopy();
+    return SL.native({ title: card.title, text: card.text, url: card.url }).then(function (res) {
+      if (res && res.ok) { cardFlash('Sent.'); return res; }
+      if (res && res.outcome === 'cancelled') return res;
+      return window.pdxSeatsCardCopy();
+    });
+  };
+
+  // ── Styles, injected here rather than added to index.html ─────────────────
+  // Five documents carry byte-range copies of index.html blocks, pinned by LINE
+  // NUMBER in four test files. Adding rules to the homepage's <style> — which
+  // sits at line ~5900, above every one of those ranges — moves all of them, so
+  // a three-rule stylesheet for a panel this file paints and nothing else reads
+  // would cost a renumber across nine files. It belongs with its markup anyway:
+  // the panel does not exist until this module runs.
+  (function () {
+    try {
+      if (!document.createElement || document.getElementById('pdx-wrm-card-css')) return;
+      var el = document.createElement('style');
+      el.id = 'pdx-wrm-card-css';
+      el.textContent =
+        '.wrm-card{margin-top:0.6rem;padding:0.7rem 0.75rem;border-radius:12px;' +
+          'border:1px solid rgba(96,165,250,0.32);background:rgba(15,23,42,0.62);}' +
+        '.wrm-cardhd{display:flex;align-items:center;justify-content:space-between;gap:0.5rem;}' +
+        '.wrm-cardkicker{font-family:\'Barlow\',sans-serif;font-size:0.63rem;letter-spacing:0.16em;' +
+          'text-transform:uppercase;color:#93b4de;font-weight:700;}' +
+        '.wrm-cardx{background:none;border:0;color:#8ea6c4;cursor:pointer;font-size:1.05rem;' +
+          'line-height:1;min-width:32px;min-height:32px;}' +
+        '.wrm-cardx:hover{color:#e6edf7;}' +
+        '.wrm-cardtext{margin:0.5rem 0 0;padding:0.6rem 0.65rem;border-radius:9px;' +
+          'background:rgba(2,6,23,0.6);border:1px solid rgba(148,163,184,0.18);' +
+          'font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:0.72rem;' +
+          'line-height:1.55;color:#dce7f5;white-space:pre-wrap;word-break:break-word;' +
+          'user-select:all;-webkit-user-select:all;}' +
+        '.wrm-cardacts{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.55rem;}' +
+        '.wrm-cardbtn{flex:1 1 8.5rem;display:inline-flex;align-items:center;justify-content:center;' +
+          'gap:0.3rem;min-height:44px;padding:0.45rem 0.6rem;border-radius:9px;cursor:pointer;' +
+          'font-family:\'Barlow\',sans-serif;font-size:0.72rem;font-weight:700;letter-spacing:0.05em;' +
+          'color:#b9cce4;background:rgba(148,163,184,0.09);border:1px solid rgba(148,163,184,0.26);}' +
+        '.wrm-cardbtn:hover{color:#fff;background:rgba(96,165,250,0.16);border-color:rgba(96,165,250,0.5);}' +
+        '.wrm-cardbtn--lead{color:#eaf3ff;background:rgba(59,130,246,0.18);' +
+          'border-color:rgba(96,165,250,0.52);}' +
+        '.wrm-cardsaid{margin:0.4rem 0 0;min-height:1em;font-family:\'Barlow\',sans-serif;' +
+          'font-size:0.7rem;color:#8fd6a8;}' +
+        '.wrm-cardnote{margin:0.45rem 0 0;font-family:\'Barlow\',sans-serif;font-size:0.68rem;' +
+          'line-height:1.5;color:#93a6be;}' +
+        '@media (max-width:480px){.wrm-cardbtn{flex:1 1 100%;}}';
+      (document.head || document.documentElement).appendChild(el);
+    } catch (e) {}
+  })();
+
   // ── After the lookup: ONE lead, and the rest demoted ───────────────────────
   // This used to be a "What now?" label over three equal-weight buttons —
   // compare on an issue, build a team (optional), my local officials — plus a
@@ -579,7 +977,7 @@
   //
   // The lead degrades to the team-builder jump when ballot-workspace.js has not
   // loaded, so the way forward never depends on a deferred file.
-  function nextActions(cov) {
+  function nextActions(cov, reps) {
     // With the workspace loaded there is a lead and the older three sit under it.
     // Without it there is no lead to invent — the row falls back to EXACTLY the
     // shape that shipped before, compare-first, rather than promoting one of the
@@ -606,7 +1004,9 @@
           '\u2b50 Work your ballot <em>(optional)</em></button>' +
         localButton(cov) +
         yourFileButton(hasWs) +
+        seatsCardButton(hasWs, reps) +
       '</div>' +
+      cardPanel(reps) +
       localGapNote(cov) +
       '<button type="button" class="wrm-changeloc"' +
         ' onclick="(window.openLocationModal||window.toggleChangeLocation||function(){})()">' +
@@ -715,7 +1115,7 @@
           ? '<p class="wrm-redrawn">Your U.S. House district was redrawn for 2026. The name above is who represents you <strong>right now</strong>; the Voter Hub shows the district you&rsquo;ll actually vote in.</p>'
           : '') +
         scopeNote(reps) +
-        nextActions(localCoverage()) +
+        nextActions(localCoverage(), reps) +
       '</div>';
     sec.setAttribute('data-located', '1');
   }
@@ -726,6 +1126,12 @@
   // race link whose sheet could not mount.
   window.PDXWhoRepresentsMe = {
     sync: sync,
+    // The seats card, as data. Published so a test — and only a test — can read
+    // the exact artifact the panel prints without driving a clipboard, and so a
+    // future surface that wants to quote the card reads this rather than
+    // re-deriving it from the levels and drifting.
+    card: function () { return cardData(null); },
+    _cardOpen: function () { return _open; },
     focus: function (seatKey) {
       window.pdxFindMyReps();
       var rk = String(seatKey || '').replace(/[^a-z0-9_]/gi, '');

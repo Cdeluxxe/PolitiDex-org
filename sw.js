@@ -7850,7 +7850,52 @@
 //     nothing on that page asks it where the reader lives: there is no 'you are
 //     in UT-2' line, no personal residency, no saved-location read of our own.
 //     MIGRATION COST: none - four precached shells revalidate on the bump.
-const CACHE_VERSION = 'v243';
+// v244 - THE SEATS CARD: ONE OBJECT A READER CAN ACTUALLY SEND SOMEBODY.
+//     Who-Represents-Me answered the most useful question on the site and
+//     produced nothing that survived leaving the page - every control in the
+//     band is a destination, and a reader who had just learned the six people
+//     with power over them had one move: screenshot it. A screenshot carries no
+//     address back and no way for the recipient to ask the same question.
+//     So the band mints ONE card. Its own place, the seats that record actually
+//     resolved, the sitting names on hand, and two addresses: the finder, so the
+//     recipient can ask the same question, and the district room, so the sender
+//     can go back to theirs. A text block, a copy control, a link copy, and a
+//     native share sheet where the browser has one.
+//     IT LISTS ONLY WHAT RESOLVED, AND SAYS THE REST IN WORDS. A Missouri card
+//     carries two Senate seats and a Governor - no State House line, no State
+//     Senate line, no district - and then one sentence per KIND of gap: we draw
+//     state legislative lines in Utah only; a congressional seat that is drawn
+//     but not pinned is one tap from filled; a statewide seat with no file on
+//     hand is our coverage rather than their geometry. A blank line in a text
+//     block somebody forwards reads as a formatting bug, never as an admission.
+//     THE SEAT LINES ARE THE BAND'S OWN. Every line is lv.distLabel - the same
+//     string the row above it printed - off the same window.pdxRepsForMe() walk,
+//     threaded in rather than re-read. The card and the rows cannot name
+//     different people, which is the rule this band was reorganised around once
+//     already.
+//     THE ADDRESSES ARE APEX, HTTPS AND LITERAL, unlike every other share
+//     builder in the app: those anchor on location.origin because they open a
+//     record on whatever host the reader is standing on. This one is pasted into
+//     a message with no referrer, so a card minted on a preview deploy that
+//     carried that host would send its recipient somewhere they cannot reach.
+//     NO PRECACHED FILE CHANGED. who-represents-me.js is a RUNTIME entry and the
+//     runtime bucket is unversioned, so this bump swaps nothing the card needs -
+//     it moves because the suite holds every pass to a version ahead of HEAD.
+//     The panel's stylesheet is injected by the module rather than added to
+//     index.html, whose <style> sits above every COPIED VERBATIM byte range in
+//     the repo; that document is untouched by this pass.
+//     NO NEW LOCATION KEY, NO WRITE, NO COUNTER. The saved location stays the
+//     one politidex_voter_location the resolver owns - not renamed, not copied,
+//     not migrated - and the card reads it only by asking pdxRepsForMe().
+//     Minting is the event: one pdx:seats:card CustomEvent per card, deduped on
+//     the card's own text, carrying counts and a state and never a pid or a
+//     name. Copying twice and sending once is still one card.
+//     NOT A COMPOSER, NOT A FIFTH BOARD. No per-network buttons, no mailto, no
+//     draft to an official; BOARD_ROUTES is still four named rows and there is
+//     still no /district/* splat. Detect, the locbar map badge and the four
+//     district boards are untouched.
+//     MIGRATION COST: none. Nothing stored changed shape or name.
+const CACHE_VERSION = 'v244';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
