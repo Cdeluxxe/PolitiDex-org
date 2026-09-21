@@ -181,9 +181,29 @@ for (const spelling of SPELLINGS) {
 ok(idxOf("/district/*") < 0, "toml: there is no /district/* wildcard");
 ok(!RULES.some((r) => r.from.startsWith("/district/") && r.from.indexOf("*") >= 0),
   "toml: no rule under /district/ carries a wildcard");
-// A second district is three more lines, not a pattern.
+// A SECOND DISTRICT IS THREE MORE LINES, NOT A PATTERN — which is the actual
+// invariant, and the reason this is now arithmetic rather than the literal 3 it
+// was while one board shipped. Three spellings per board, every rule an exact
+// path, every board's three landing on that board's own document. A table that
+// had grown by anything other than whole boards would fail here.
 const districtRules = RULES.filter((r) => r.from.startsWith("/district/"));
-eq(districtRules.length, 3, "toml: exactly three /district/ rules — one board, three spellings");
+{
+  const byDoc = new Map();
+  for (const r of districtRules) {
+    ok(/^\/district\/[a-z]{2}-(?:hd|sd|cd)-[1-9][0-9]*(?:\/|\.html)?$/.test(r.from),
+      `toml: ${r.from} is not one of the three spellings of a board address`);
+    eq(r.status, "200", `toml: ${r.from} hops instead of answering`);
+    byDoc.set(r.to, (byDoc.get(r.to) || 0) + 1);
+  }
+  eq(districtRules.length % 3, 0,
+    `toml: ${districtRules.length} /district/ rules is not a whole number of boards at three spellings each`);
+  for (const [to, n] of byDoc) {
+    eq(n, 3, `toml: ${to} is served by ${n} spellings, not three`);
+    ok(existsSync(join(ROOT, to.slice(1))), `toml: ${to} is rewritten to and is not on disk`);
+  }
+  eq(byDoc.size, districtRules.length / 3, "toml: one document per board, and no board shares another's file");
+  eq(byDoc.get("/" + DOC_FILE), 3, `toml: ${DOC_FILE} is no longer served by its own three spellings`);
+}
 
 // AND THE SEAT FILE DID NOT MOVE. /d/<seat-key> is a different document on
 // purpose: it is the seat, this is the board.
@@ -316,7 +336,10 @@ for (const v of ["stripe", "veriff", "persona", "plaid", "onfido", "jumio", "ide
 // THE GRAMMAR OF ABSENCE IS THE MONEY LANE'S: "on hand", and never "yet".
 has(MOD, "on hand", 'the absence lines say "on hand"');
 ok(!/\byet\b/i.test(DOC_TEXT), `the visible copy never says "yet" — it promises a record that may not come`);
-const COPY_BLOCK = (MOD.match(/var COPY = \{[\s\S]*?\n  \};/) || [""])[0];
+// The COMMENTS come out first. The ban is on what a reader can be shown, and
+// the notes inside this block quote the rule they are enforcing — '"on hand",
+// never "yet"' is the house statement of the rule, not a violation of it.
+const COPY_BLOCK = jsBare((MOD.match(/var COPY = \{[\s\S]*?\n  \};/) || [""])[0]);
 must(COPY_BLOCK.length > 500, "the COPY block could not be located in the module");
 ok(!/\byet\b/i.test(COPY_BLOCK), "…and neither does any sentence the module can print");
 // NO GRADE, NO SCORE, NO THIRD MONEY PILL.
@@ -566,12 +589,38 @@ eq(B._whole("lots"), 0, "a word is not a count");
 // behaviour, a figure cannot be smuggled in as a literal if the only literals
 // in the file are loop and formatting constants.
 {
-  const lits = [...new Set([...MOD_CODE.matchAll(/(?<![\w.#])(\d{2,})(?![\w.])/g)].map((m) => Number(m[1])))].sort((a, b) => a - b);
+  // THE BOARD TABLE COMES OUT FIRST, AND IS THEN CHECKED ON ITS OWN TERMS.
+  // Once four boards ship, the module necessarily contains district numbers —
+  // 'ut-statehouse-16', '/district/ut-cd-2', the year on a court-ordered map —
+  // and they are ADDRESSES AND COPY, not figures. Scanning them as though they
+  // were counts would have forced the allow-list either to lose its fence or to
+  // grow a per-district exception every time a board opened, so the table is
+  // lifted out, the render path is pinned as tightly as it always was, and the
+  // table is then asserted to hold no count-shaped field at all.
+  const boardsLit = (MOD_CODE.match(/var BOARDS = \{[\s\S]*?\n  \};/) || [""])[0];
+  must(boardsLit.length > 300, "the BOARDS table could not be located in the module");
+  const RENDER = MOD_CODE.replace(boardsLit, " ");
+  const lits = [...new Set([...RENDER.matchAll(/(?<![\w.#])(\d{2,})(?![\w.])/g)].map((m) => Number(m[1])))].sort((a, b) => a - b);
   const ALLOWED = new Set([100, 40]);   // PAGE_SIZE, TABLE_CAP — and nothing else
   const stray = lits.filter((n) => !ALLOWED.has(n));
-  eq(stray.length, 0, `the module holds no figure-shaped literal — stray: ${JSON.stringify(stray)}`);
+  eq(stray.length, 0, `the module's render path holds no figure-shaped literal — stray: ${JSON.stringify(stray)}`);
   eq(JSON.stringify(lits), JSON.stringify([40, 100]),
     "…and the two it does hold are the page size and the table cap");
+  // AND THE TABLE ITSELF CARRIES NO COUNT. Its fields are the seat key, the
+  // alias, the route, the roster pid, the congressional join, and the words the
+  // page prints. A `count`, `verified`, `residents` or `participants` field here
+  // would be a headcount shipped in source, which is failure mode 1 arriving
+  // through the one part of the file this scan now skips.
+  // Matched as FIELD NAMES, not as substrings — "Weber County" is a place.
+  for (const banned of ["count", "counts", "verified", "residents", "participants", "total", "members"]) {
+    ok(!new RegExp(`(?:^|[\\s{,])${banned}\\s*:`, "i").test(boardsLit),
+      `the BOARDS table carries a ${JSON.stringify(banned)} field — a figure cannot ride in on the allow-list`);
+  }
+  // Every bare number in the table is part of a district identifier or a
+  // congressional district, and nothing else assigns one.
+  const assigns = [...boardsLit.matchAll(/(\w+):\s*(\d+)/g)].map((m) => m[1]);
+  eq(JSON.stringify([...new Set(assigns)].sort()), JSON.stringify(["district"]),
+    `the BOARDS table assigns a number to something other than a district: ${JSON.stringify(assigns)}`);
 }
 // And the endpoint cannot invent one either: it has no literal count, only
 // aggregates.
@@ -580,11 +629,30 @@ ok(!/insert|update\(|delete\(/i.test(FN.replace(/\/\/.*$/gm, "").replace(/\/\*[\
   "the counts endpoint cannot write");
 has(FN, "503", "a database failure answers 503, not a zero");
 has(FN, '"ut-statesenate-3": 1', "the endpoint's allow-list holds this seat");
-// ONE ALLOW-LIST, TWO SIDES OF THE WIRE, AND THEY AGREE.
-eq(JSON.stringify(Object.keys(B.BOARD_SEATS)), JSON.stringify([SEAT]),
-  "the client's allow-list holds exactly this seat");
-const fnSeats = [...FN.matchAll(/BOARD_SEATS: Record<string, 1> = \{ ("[^}]*") \}/g)];
+// ONE ALLOW-LIST, TWO SIDES OF THE WIRE, AND THEY AGREE — SEAT FOR SEAT.
+// This used to pin the client list to [SEAT] because SD-3 was the only board.
+// The invariant was never "one row": it is that a board cannot open on one side
+// of the wire only, so the two lists are compared as SETS. A seat the client
+// paints that the Function would 404 is a page whose counts never arrive; a
+// seat the Function serves with no client is a room nobody can read.
 ok(FN.indexOf("BOARD_SEATS") > 0, "the endpoint declares a BOARD_SEATS allow-list");
+{
+  const lit = (/const BOARD_SEATS: Record<string, 1> = \{([\s\S]*?)\};/.exec(FN) || [, ""])[1];
+  must(lit.length > 0, "the endpoint's BOARD_SEATS literal could not be bounded");
+  const fnSeats = [...lit.matchAll(/"([a-z0-9-]+)":\s*1/g)].map((m) => m[1]).sort();
+  const clientSeats = Object.keys(B.BOARD_SEATS).sort();
+  ok(clientSeats.includes(SEAT), "the client's allow-list still holds this seat");
+  eq(JSON.stringify(clientSeats), JSON.stringify(fnSeats),
+    "the client's allow-list and the endpoint's are the same set of seats");
+  // EVERY ROW IS A LITERAL. A computed key on either side would make the
+  // comparison above pass while the real answer was a pattern.
+  eq(fnSeats.length, (lit.match(/:/g) || []).length,
+    "an endpoint allow-list row is computed rather than written down");
+  for (const k of clientSeats) {
+    ok(/^[a-z]{2}-(?:house|statesenate|statehouse)-[1-9][0-9]*$/.test(k),
+      `the client allow-list holds ${JSON.stringify(k)}, which is not a canonical seat key`);
+  }
+}
 ok(!/ut-statehouse-68/.test(MOD), "the board module does not also claim HD-68 — that seat has /voice");
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -1409,21 +1477,44 @@ ok(LOG.length > 200, `…and it has something in it (${LOG.length} chars)`);
   has(list, "'/cmp-data.js'", "…and the roster, which is why band 1 paints offline");
 }
 // THE OFFLINE BRANCH, and it must not answer for another district.
-const NAV_RE = (SW.match(/const DISTRICT_BOARD_NAV_RE = (\/.*\/);/) || [])[1] || "";
+const NAV_RE = (SW.match(/const DISTRICT_BOARD_NAV_RE =\s*(\/.*\/);/) || [])[1] || "";
 ok(NAV_RE.length > 0, `there is a nav regex for this address (${NAV_RE})`);
 {
   const re = vm.runInNewContext(NAV_RE);
   for (const p of [ROUTE, ROUTE + "/", ROUTE + ".html"]) {
     ok(re.test(p), `the nav regex matches ${p}`);
   }
-  // NOT A PREFIX. One district has a board, so one district has a fallback.
+  // NOT A PREFIX, AND NOT A PATTERN. The boarded districts have a fallback and
+  // nothing else does — SD-4 is next door to this seat and HD-3 shares its
+  // number, and neither may resolve an offline shell.
   for (const p of ["/district/ut-sd-4", "/district/ut-sd-30", "/district/ut-sd-3/rooms",
                    "/district/", "/district/ut-hd-3", "/d/ut-sd-3", "/"]) {
     ok(!re.test(p), `…and does not match ${p}`);
   }
 }
 has(SW, "if (isDistrictBoard) {", "the offline handler has a branch for it");
-has(SW, `shell.match('/${DOC_FILE}')`, "…which answers with this document");
+// AND IT ANSWERS WITH THIS PATH'S OWN DOCUMENT. It used to match one filename,
+// which was right while there was one board; with four, the branch reads a
+// path → document map, and handing /district/ut-cd-2 this file offline would
+// print Weber County's heading over UT-2's URL.
+has(SW, "const DISTRICT_BOARD_DOCS = {", "sw.js has no path → board document map");
+has(SW, `'${ALIAS}': '/${DOC_FILE}'`, "…and this board's path does not name this document in it");
+has(SW, "const boardFile = districtBoardDoc(url && url.pathname);",
+  "…and the offline branch does not look the path up in that map");
+{
+  // THE MAP AND THE NAV REGEX AGREE. A path the regex claims with no document
+  // behind it falls through to '/', which is honest but is not this page; the
+  // reverse — a document for a path the branch never reaches — is dead weight.
+  const mapLit = (/const DISTRICT_BOARD_DOCS = \{([\s\S]*?)\};/.exec(SW) || [, ""])[1];
+  const pairs = [...mapLit.matchAll(/'([a-z0-9-]+)':\s*'(\/[a-z0-9.-]+)'/g)];
+  ok(pairs.length >= 1, "the board document map is empty");
+  const re = vm.runInNewContext(NAV_RE);
+  for (const [, alias, file] of pairs) {
+    ok(re.test(`/district/${alias}`), `the nav regex does not claim /district/${alias}, which the map answers`);
+    ok(existsSync(join(ROOT, file.slice(1))), `the map answers /district/${alias} with ${file}, which is not on disk`);
+    has(SW, `'${file}',`, `…and ${file} is not in the precache list, so the map answers with nothing offline`);
+  }
+}
 // AND IT IS AFTER THE OTHER SHELLS, so none of them can be intercepted by it.
 {
   const mine = SW.indexOf("if (isDistrictBoard) {");

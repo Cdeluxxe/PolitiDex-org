@@ -32,7 +32,7 @@
 // Transpiles netlify/lib/share-target.ts with esbuild, same as
 // scripts/test-share-preview.mjs. No database, no network, no browser.
 
-import { readFileSync, readdirSync, statSync, mkdtempSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname, relative } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -566,26 +566,43 @@ section("6 · a hostname change moved a hostname and nothing else");
     eq(moved, [], "no twin-boot engine file was edited — the drift harnesses stay identical by construction");
   }
 
-  // ── BOARD_ROUTES IS STILL EXACTLY ONE ROW ────────────────────────
+  // ── BOARD_ROUTES IS A LIST OF NAMED ROWS, AND EVERY ROW HAS A DOCUMENT ────
   // Asserted on the literal rather than inferred from the file being unchanged, so
-  // it holds even where no git baseline exists. One shipped seat, one row: the
-  // allow-list is what stops /district/<anything> promising a room that does not
-  // exist, and a second row here would be a new board — which this pass may not add.
+  // it holds even where no git baseline exists. It was one row when one board had
+  // opened and it is four now; what this fence has always been about is not the
+  // NUMBER but the SHAPE. An allow-list is what stops /district/<anything>
+  // promising a room that does not exist, so the invariant is: every row is a
+  // literal seat key, every row points at /district/<alias>, and every alias
+  // named here has a real file behind it. A row with no document is a promise of
+  // a room that 404s, which is worse than no row at all.
   const DV = R("district-voice.js");
   const routesAt = DV.indexOf("var BOARD_ROUTES = {");
   must(routesAt > 0, "district-voice.js no longer declares BOARD_ROUTES as an object literal");
   const routesLit = DV.slice(routesAt, DV.indexOf("}", routesAt) + 1);
-  eq((routesLit.match(/:/g) || []).length, 1, "BOARD_ROUTES still holds exactly one row — one shipped seat, one board");
-  has(routesLit, "'ut-statesenate-3': '/district/ut-sd-3'", "…and it is still SD-3 pointing at its own address");
+  const boardRows = [...routesLit.matchAll(/'([a-z0-9-]+)':\s*'(\/district\/[a-z0-9-]+)'/g)]
+    .map((m) => ({ seat: m[1], route: m[2] }));
+  eq(boardRows.length, (routesLit.match(/:/g) || []).length,
+     "every BOARD_ROUTES row is a literal seat key mapped to a literal /district/ path — no computed row, no pattern");
+  ok(boardRows.length >= 1, "BOARD_ROUTES still holds at least the one board this pass shipped beside");
+  ok(boardRows.some((r) => r.seat === "ut-statesenate-3" && r.route === "/district/ut-sd-3"),
+     "…and SD-3 is still in it, pointing at its own address");
+  eq(boardRows.filter((r) => !existsSync(join(ROOT, `district-${r.route.split("/").pop()}.html`))), [],
+     "…and every routed board has its own document on disk — a row with no file is a door onto a 404");
 
   // ── NO SPLAT OVER /district/ ─────────────────────────────────
   // The three host rules added at the top of the table are the only wildcards this
   // pass introduced, and they are scoped by HOST. A /district/* wildcard would
-  // publish an address for every district in the country; only one has a file.
+  // publish an address for every district in the country; only the boarded ones
+  // have a file, which is why this list grows by exact paths and never by a
+  // pattern — three spellings per board, and each board's own document behind
+  // all three.
   const districtFroms = (readTablesFroms(R("netlify.toml")) || []).filter((f) => f.startsWith("/district"));
   eq(districtFroms.filter((f) => f.includes("*")), [],
      "no /district/* splat redirect exists — exact paths only, one per shipped seat");
   ok(districtFroms.includes("/district/ut-sd-3"), "…and SD-3's own exact rule is still there");
+  for (const r of boardRows) {
+    ok(districtFroms.includes(r.route), `…and ${r.route} has its own exact rewrite rather than riding a pattern`);
+  }
 
   // ── /voice AND THE HOMEPAGE DOOR INTO IT ───────────────────────
   const voiceFroms = (readTablesFroms(R("netlify.toml")) || []).filter((f) => f === "/voice" || f === "/voice/");
@@ -595,18 +612,27 @@ section("6 · a hostname change moved a hostname and nothing else");
   has(R("voice-room.js"), "function personOf(pid)", "voice-room.js still owns personOf, unrenamed");
   has(R("index.html"), "<!-- pdx:home-voice-gate:begin -->", "the homepage Voice card is still on the front page");
 
-  // ── THE SD-3 BOARD DOCUMENT ───────────────────────────────
-  // Its head moved to the apex like every other shell. Nothing else in it may have,
-  // and unlike the frozen list above this file WAS edited, so the assertion is the
-  // stronger one: identical to HEAD once the hostname is normalised away.
-  const SD3 = "district-ut-sd-3.html";
-  has(R(SD3), `<link rel="canonical" href="https://${"politidex" + ".fyi"}/district/ut-sd-3" />`,
-     "the SD-3 board canonicalises to its own address on the apex");
-  const sd3Base = gitShow(SD3);
-  if (sd3Base !== null) {
-    const normalised = sd3Base.split("www" + ".politidex" + ".fyi").join("politidex" + ".fyi");
-    eq(normalised === R(SD3), true, "…and the SD-3 board differs from its committed form by the hostname alone");
+  // ── EVERY BOARD DOCUMENT CANONICALISES TO ITS OWN ADDRESS ─────────────────
+  // The heads moved to the apex like every other shell. THE POINT OF THIS BLOCK
+  // IS THAT NO TWO BOARDS SHARE A CANONICAL: four documents at four addresses,
+  // and a copy-paste that left a sibling pointing at /district/ut-sd-3 would be
+  // three real pages telling search engines they are one page about Weber County.
+  // (It used to assert SD-3's file was byte-identical to HEAD but for the
+  // hostname. That fence outlived its pass: the document has since been given
+  // the seat declaration the four-board module reads, and freezing a file
+  // forever is not the same as checking the thing that matters about it.)
+  const canons = new Map();
+  for (const r of boardRows) {
+    const alias = r.route.split("/").pop();
+    const doc = `district-${alias}.html`;
+    has(R(doc), `<link rel="canonical" href="https://${"politidex" + ".fyi"}/district/${alias}" />`,
+       `the ${alias} board canonicalises to its own address on the apex`);
+    has(R(doc), `<meta property="og:url" content="https://${"politidex" + ".fyi"}/district/${alias}" />`,
+       `…and its og:url names the same address`);
+    ok(!canons.has(alias), `…and ${alias} is one document, not a second copy of another board`);
+    canons.set(alias, doc);
   }
+  eq(canons.size, boardRows.length, "one document per routed board, and no two boards share a canonical");
 }
 
 console.log("");

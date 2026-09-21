@@ -80,10 +80,12 @@
   var VOICE_SEATS = { 'ut-statehouse-68': 1 };
 
   // ── THE BOARD ALLOW-LIST, AND IT IS ONE TABLE ─────────────────────────────
-  // seatKey → the board's own address. ONE ROW TODAY, and adding a seat is
-  // adding a row: no pattern, no splat, no `/district/<anything>` rewrite that
-  // answers for districts this app has never drawn. netlify.toml rewrites the
-  // one address in it and nothing else, which is why a table and not a map.
+  // seatKey → the board's own address. FOUR ROWS TODAY, and adding a seat is
+  // still adding a row: no pattern, no splat, no `/district/<anything>` rewrite
+  // that answers for districts this app has never drawn. netlify.toml rewrites
+  // exactly these four addresses and nothing else, which is why a table and not
+  // a map — the regex form of this list would print a door for all 75 Utah
+  // House districts, 71 of which have no document behind them.
   //
   // IT IS NOT VOICE_SEATS. VOICE_SEATS is "does this seat have a Voice block in
   // its district file at /d/<seat-key>"; this is "does this seat have a BOARD at
@@ -92,12 +94,18 @@
   // and a surface that conflated them would offer a reader a room that is not
   // there. /voice asks THIS one, because a hallway prints doors that open.
   //
-  // WRONG-SEAT EXCLUSIVITY IS THE PRODUCT. A reader whose saved location resolves
-  // Davis County HD-15 gets an HD-15 card with no door, because SD-3's board is
-  // Weber County's room and not theirs. Layton is not North Ogden, and a board
-  // labelled "yours" for somebody who cannot vote in it is the one lie this
-  // whole lane exists to avoid.
-  var BOARD_ROUTES = { 'ut-statesenate-3': '/district/ut-sd-3' };
+  // WRONG-SEAT EXCLUSIVITY IS STILL THE PRODUCT, and four rows do not soften it.
+  // A reader whose saved location resolves Davis County HD-15 gets an HD-15 card
+  // with NO DOOR — HD-16 is next door and its board is not theirs, which is a
+  // sharper test of this table than HD-68 ever was. Layton is not North Ogden,
+  // HD-15 is not HD-16, and a board labelled "yours" for somebody who cannot
+  // vote in it is the one lie this whole lane exists to avoid.
+  var BOARD_ROUTES = {
+    'ut-statesenate-3': '/district/ut-sd-3',
+    'ut-statehouse-16': '/district/ut-hd-16',
+    'ut-statesenate-7': '/district/ut-sd-7',
+    'ut-house-2': '/district/ut-cd-2'
+  };
 
   // The state name the saved location stores → the postal code a seat key is
   // composed with. MIRRORED, spelling for spelling, from district-room.js's
@@ -229,7 +237,7 @@
   }
 
   // Does this seat have a BOARD at its own address, and what is it? '' for every
-  // seat that does not — which is every seat but one — and '' is what a hallway
+  // seat that does not — which is every seat but four — and '' is what a hallway
   // prints the empty grammar for rather than a door onto nothing. The ONE owner
   // of this question: a caller that built '/district/' + alias itself would be a
   // second answer, and the first thing a second answer does is outlive the row

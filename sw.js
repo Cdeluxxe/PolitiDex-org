@@ -7816,7 +7816,86 @@
 //     migrated - and no new key for the outlines, which are static data in the
 //     one document that has a badge.
 //     MIGRATION COST: none - the precached shell revalidates on the bump.
-const CACHE_VERSION = 'v242';
+// v243 - THREE MORE DISTRICT BOARDS, AND THE SHELL LEARNED WHICH ONE IT IS.
+//     /district/ut-hd-16, /district/ut-sd-7 and /district/ut-cd-2 opened beside
+//     /district/ut-sd-3: the same three bands, the same module, the same
+//     allow-list discipline. district-board.js is parameterised by seat and was
+//     NOT forked; each document declares its own seat twice and the module
+//     never infers one from the path.
+//     THE PRECACHE GREW BY THREE DOCUMENTS, NOT BY A PATTERN. SD-3's document
+//     was already a shell asset, so its three siblings are too - a board that
+//     is instant offline on one address and a network round trip on the next
+//     three is the same page behaving three ways.
+//     AND THE OFFLINE BRANCH STOPPED ANSWERING WITH SD-3. It matched one
+//     document for one address, which was correct while there was one. With
+//     four it had to become a MAP from path to that path's own document, or an
+//     offline reader at /district/ut-cd-2 would have been handed Utah Senate
+//     District 3's heading over UT-2's URL - a cached page confidently naming
+//     the wrong member of the wrong chamber, which is the exact failure the
+//     district lane exists to prevent. DISTRICT_BOARD_DOCS is that map, keyed
+//     by the twelve exact paths netlify.toml actually rewrites; a path with no
+//     entry falls through to '/' and names nobody.
+//     NO SPLAT ANYWHERE. Not in the nav regex, not in netlify.toml, not in
+//     BOARD_ROUTES, not in the Function's BOARD_SEATS. Four boards means four
+//     named rows in each of them, and a seat that is not on the list still
+//     prints 'Board not on hand for this seat' on /voice.
+//     NO NEW KEY, NO NEW STORE, AND NO COUNT THAT IS NOT READ. The counts on
+//     the three new boards are structurally zero until something is filed, and
+//     all three say so in words rather than dressing a 0 as data.
+//     AND NO LOCATION KEY MOVED. The congressional board loads
+//     voter-hub-location.js because that module owns the one answer to 'who
+//     holds this congressional district' and band 1 refuses to write a name
+//     down. It is the same record, the same owner, the same
+//     politidex_voter_location - not renamed, not copied, not migrated - and
+//     nothing on that page asks it where the reader lives: there is no 'you are
+//     in UT-2' line, no personal residency, no saved-location read of our own.
+//     MIGRATION COST: none - four precached shells revalidate on the bump.
+// v244 - THE SEATS CARD: ONE OBJECT A READER CAN ACTUALLY SEND SOMEBODY.
+//     Who-Represents-Me answered the most useful question on the site and
+//     produced nothing that survived leaving the page - every control in the
+//     band is a destination, and a reader who had just learned the six people
+//     with power over them had one move: screenshot it. A screenshot carries no
+//     address back and no way for the recipient to ask the same question.
+//     So the band mints ONE card. Its own place, the seats that record actually
+//     resolved, the sitting names on hand, and two addresses: the finder, so the
+//     recipient can ask the same question, and the district room, so the sender
+//     can go back to theirs. A text block, a copy control, a link copy, and a
+//     native share sheet where the browser has one.
+//     IT LISTS ONLY WHAT RESOLVED, AND SAYS THE REST IN WORDS. A Missouri card
+//     carries two Senate seats and a Governor - no State House line, no State
+//     Senate line, no district - and then one sentence per KIND of gap: we draw
+//     state legislative lines in Utah only; a congressional seat that is drawn
+//     but not pinned is one tap from filled; a statewide seat with no file on
+//     hand is our coverage rather than their geometry. A blank line in a text
+//     block somebody forwards reads as a formatting bug, never as an admission.
+//     THE SEAT LINES ARE THE BAND'S OWN. Every line is lv.distLabel - the same
+//     string the row above it printed - off the same window.pdxRepsForMe() walk,
+//     threaded in rather than re-read. The card and the rows cannot name
+//     different people, which is the rule this band was reorganised around once
+//     already.
+//     THE ADDRESSES ARE APEX, HTTPS AND LITERAL, unlike every other share
+//     builder in the app: those anchor on location.origin because they open a
+//     record on whatever host the reader is standing on. This one is pasted into
+//     a message with no referrer, so a card minted on a preview deploy that
+//     carried that host would send its recipient somewhere they cannot reach.
+//     NO PRECACHED FILE CHANGED. who-represents-me.js is a RUNTIME entry and the
+//     runtime bucket is unversioned, so this bump swaps nothing the card needs -
+//     it moves because the suite holds every pass to a version ahead of HEAD.
+//     The panel's stylesheet is injected by the module rather than added to
+//     index.html, whose <style> sits above every COPIED VERBATIM byte range in
+//     the repo; that document is untouched by this pass.
+//     NO NEW LOCATION KEY, NO WRITE, NO COUNTER. The saved location stays the
+//     one politidex_voter_location the resolver owns - not renamed, not copied,
+//     not migrated - and the card reads it only by asking pdxRepsForMe().
+//     Minting is the event: one pdx:seats:card CustomEvent per card, deduped on
+//     the card's own text, carrying counts and a state and never a pid or a
+//     name. Copying twice and sending once is still one card.
+//     NOT A COMPOSER, NOT A FIFTH BOARD. No per-network buttons, no mailto, no
+//     draft to an official; BOARD_ROUTES is still four named rows and there is
+//     still no /district/* splat. Detect, the locbar map badge and the four
+//     district boards are untouched.
+//     MIGRATION COST: none. Nothing stored changed shape or name.
+const CACHE_VERSION = 'v244';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -7949,13 +8028,24 @@ const SHELL_ASSETS = [
   '/money.html',
 
   // THE THIRTEENTH SHELL, and the first that is ONE PLACE rather than one lane.
-  // netlify.toml rewrites all three spellings of /district/ut-sd-3 here; like
-  // the three above it is a SINGLE address, so navDocKey gives it no key and one
-  // entry answers every arrival. Offline, band 1 still paints from the already
-  // precached roster, and bands 2 and 3 say they could not READ - never a zero,
-  // because a cached board showing 0 verified residents is the one failure this
-  // page must not have.
+  // FOUR DOCUMENTS NOW, one per board: netlify.toml rewrites three spellings of
+  // each of the four addresses, and each set of three lands on its own file.
+  // They are here as a group because they are the same page about four
+  // different places - a board that is instant offline on one address and a
+  // network round trip on the next three would be one product behaving four
+  // ways. navDocKey gives none of these paths a key, so nothing was ever held
+  // under one and these entries cannot collide with a runtime document; what
+  // picks between them offline is DISTRICT_BOARD_DOCS, which maps each path to
+  // ITS OWN file rather than answering all four with the first.
+  //
+  // WHAT A BOARD IS WORTH WITH NO NETWORK: band 1 still paints, because the
+  // roster is already precached, and bands 2 and 3 say they could not READ -
+  // never a zero, because a cached board showing 0 verified residents is the
+  // one failure this page must not have.
   '/district-ut-sd-3.html',
+  '/district-ut-hd-16.html',
+  '/district-ut-sd-7.html',
+  '/district-ut-cd-2.html',
   '/district-board.js',
   // The chrome all three share — the bar-and-chip sheet and the chip's own small
   // module — and the only two files /me and /courts did not already bring.
@@ -8847,12 +8937,41 @@ const VOICE_NAV_RE = /^\/voice\/?$/;
 const MONEY_NAV_RE = /^\/money\/?$/;
 
 // ─── THE SEVENTH BRANCH ─────────────────────────────────────────────────────
-// THREE exact spellings, because netlify.toml declares three exact rules for
-// this address. No capture group and nothing after the last segment, which is
-// the whole reason this is an alternation and not /^\/district\//: one district
-// has a board, so one district has a fallback, and the second one is a second
-// regex somebody has to decide to write.
-const DISTRICT_BOARD_NAV_RE = /^\/district\/ut-sd-3(?:\/|\.html)?$/;
+// TWELVE exact spellings - four aliases by three forms - because netlify.toml
+// declares twelve exact rules and not one wildcard. The alias alternation is
+// LITERAL on purpose: /^\/district\/[a-z]{2}-(?:hd|sd|cd)-\d+/ would be shorter
+// and would claim an offline fallback for all 75 Utah House districts, 71 of
+// which have no document behind them, so an offline reader would be handed a
+// board for a place that has none. Four boards, four names here; the fifth is a
+// name somebody has to decide to add.
+const DISTRICT_BOARD_NAV_RE =
+  /^\/district\/(?:ut-sd-3|ut-hd-16|ut-sd-7|ut-cd-2)(?:\/|\.html)?$/;
+
+// WHICH DOCUMENT EACH BOARD PATH IS, and the reason this is a map rather than a
+// single match(): every one of these four files carries its own seat in the
+// head and its own district in the <h1>. Answering /district/ut-cd-2 with
+// SD-3's document offline would print Utah Senate District 3's heading, and
+// then its member, under UT-2's URL - a cached page naming the wrong person in
+// the wrong chamber for a reader with no network to correct it. A path that is
+// not a key here gets no board document at all and falls through to '/', which
+// names nobody.
+const DISTRICT_BOARD_DOCS = {
+  'ut-sd-3': '/district-ut-sd-3.html',
+  'ut-hd-16': '/district-ut-hd-16.html',
+  'ut-sd-7': '/district-ut-sd-7.html',
+  'ut-cd-2': '/district-ut-cd-2.html'
+};
+
+// The path -> document lookup, and the ONE place a board path is turned into a
+// filename. '' for anything that is not one of the twelve.
+function districtBoardDoc(pathname) {
+  const m = /^\/district\/([a-z]{2}-(?:hd|sd|cd)-[1-9][0-9]*)(?:\/|\.html)?$/
+    .exec(String(pathname || ''));
+  if (!m) return '';
+  return Object.prototype.hasOwnProperty.call(DISTRICT_BOARD_DOCS, m[1])
+    ? DISTRICT_BOARD_DOCS[m[1]]
+    : '';
+}
 
 // How many person documents to keep. Each USED to be the whole ~2 MB app shell;
 // since the split it is person.html, ~234 KB, so four slots now cost less than
@@ -9217,8 +9336,12 @@ async function handleNavigate(req) {
   // network: the seat paints from the roster, and the two counted bands say they
   // could not read rather than showing a zero they did not read.
   if (isDistrictBoard) {
-    const boardDoc = await shell.match('/district-ut-sd-3.html');
-    if (boardDoc) return boardDoc;
+    // THIS PATH'S OWN DOCUMENT, not the first board's. See DISTRICT_BOARD_DOCS.
+    const boardFile = districtBoardDoc(url && url.pathname);
+    if (boardFile) {
+      const boardDoc = await shell.match(boardFile);
+      if (boardDoc) return boardDoc;
+    }
   }
 
   // Everything else: '/' is the app shell and it names nobody — the honest

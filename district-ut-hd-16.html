@@ -4,180 +4,113 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
-<!-- ══════════════════════════════════════════════════════════════════════════════
-     district-ut-sd-3.html — THE FIRST DISTRICT BOARD WITH AN ADDRESS.
-     ────────────────────────────────────────────────────────────────────────────
-     /district/ut-sd-3 IS UTAH SENATE DISTRICT 3 — North Ogden and the rest of
-     Weber County — read as a PLACE.
+<!-- ═════════════════════════════════════════════════════════════════════════════
+     district-ut-hd-16.html — UTAH HOUSE DISTRICT 16, READ AS A PLACE.
+     ───────────────────────────────────────────────────────────────────────────
+     /district/ut-hd-16 IS ONE UTAH HOUSE SEAT — Layton and the part of Davis
+     County the 2022 legislative plan drew into district 16.
 
-     IT IS NO LONGER THE ONLY ONE. Three siblings opened beside it —
-     district-ut-hd-16.html, district-ut-sd-7.html and district-ut-cd-2.html —
-     and they are THIS DOCUMENT with a different seat declared, not a second
-     implementation: district-board.js is parameterised by seat and was not
-     forked. Which is why this file now says which seat it is TWICE, in the two
-     places that module looks: window.__PDX_DISTRICT_BOARD_SEAT in the head and
-     data-pdxdb-seat on the board host. It used to say it nowhere, because with
-     one board a default could not be wrong; with four, a document that declared
-     no seat would paint SD-3's member under another district's heading, and
-     confident wrongness about who represents you is the exact failure this
-     whole surface exists to prevent. The suite asserts all four documents
-     declare their own seat in both places.
+     IT IS district-ut-sd-3.html WITH A DIFFERENT SEAT DECLARED. Same shell,
+     same three bands, same module: district-board.js is parameterised by seat
+     and was not forked, and /api/district-board grew one allow-list row rather
+     than a pattern. The long-form rationale for every rule below lives in that
+     file's head and is not restated here, because two copies of a rule is two
+     rules.
 
-     WHAT WAS MISSING. A district already had two addresses on this site and
-     neither of them was the district:
-       /p/john_johnson   the PERSON who sits in the seat. His record, his votes,
-                         his positions, his money. A dossier, correctly.
-       /voice            the READER. It asks where you saved your location and
-                         puts you at whatever seat that names — a router, not a
-                         place, and it can only answer for somebody who has
-                         already told it where they live.
-       /d/ut-sd-3        the seat file, which is a rewrite to index.html: two
-                         megabytes of homepage to read one seat.
-     None of those is a thing you can hand to a neighbour and say "this is our
-     district". This is. It is one flat document at one bookmarkable address,
-     and everything on it is about the place.
+     HD-16 IS NOT HD-15, AND THAT IS THE POINT OF AN ALLOW-LIST. The two seats
+     share a city. District 15 has a member on the roster, a person file and no
+     board — so /voice prints an HD-15 reader "Board not on hand for this seat"
+     and no door, while an HD-16 reader gets this address. That distinction
+     survives only because BOARD_ROUTES, BOARD_SEATS and netlify.toml each grew
+     by NAMED ROWS. A /district/* splat would have published a board for
+     district 15, and for the other 73, the night this one opened.
 
-     WHAT IS ON IT, AND IT IS THREE BANDS IN THIS ORDER:
-       1 · THE SEAT             who sits here now, the office as the roster
-                                spells it, and a link to the full record. No
+     BAND 1 IS THE ROSTER'S ANSWER AND NOTHING ELSE. The keyed HD-16 row is the
+     sitting member's; the page prints that row's name, its office string as
+     written, and its district line, then links /p/<pid>. There is no
+     written-down name in the markup below and no second source for the holder
+     of this seat — if the roster row goes away, band 1 says so.
+
+     WHAT IS ON IT, AND IT IS THE SAME THREE BANDS AS EVERY OTHER BOARD:
+       1 · THE SEAT             who sits here now, the office AS THE ROSTER
+                                SPELLS IT, and a link to the full record. No
                                 bio, no score, no party, no issue chips — a
                                 district page that printed a scorecard would be
                                 a person page wearing a place's title.
        2 · WHO IS IN THE ROOM   counts only, every one of them from a store in
-                                Postgres, read through /api/district-board. No
-                                name, no address, no email — this document is
-                                never handed one, because that endpoint
-                                aggregates and never selects.
+                                Postgres, read through /api/district-board?seat=
+                                with this document's own alias. No name, no
+                                address, no email — this document is never
+                                handed one, because that endpoint aggregates and
+                                never selects. THE COUNTS ARE STRUCTURALLY ZERO
+                                until somebody files something, and the page
+                                says that in words rather than dressing a 0 as
+                                data.
        3 · ON THE TABLE         the measures and acts already in this archive
                                 for this seat, each linked to its own record,
-                                with the count of people who answered a poll
-                                or wrote a comment on it. Never a proportion,
+                                with the count of people who answered a poll or
+                                wrote a comment on it. Never a proportion,
                                 never a winning side, and never "this district
                                 supports X".
 
-     THE RULES, WHICH ARE RULES AND NOT A DESCRIPTION OF TODAY'S DATA:
-       · NO INVENTED HEADCOUNT. There is no integer literal in the render path
-         of district-board.js. Every number comes off the wire or is 0.
-       · THREE ANSWERS, NEVER TWO. A real count; 0 plus "no … on hand" when
-         there is no store for that fact; and "we could not read the room" when
-         the request FAILED. The third is the one that matters most: a failed
-         read painted as 0 verified residents would be this page telling a
-         reader their district is empty because a Function timed out.
-         The absence grammar is the money lane's, borrowed exactly — "on hand",
-         never "yet", because "yet" promises a record that may never come.
-       · NO WORKING COMPOSER, AND NO FAKE ONE. Posting is not built. The field
-         near the bottom is really there and really disabled, with one sentence
-         saying posting ships next. What was deliberately NOT built is a box
-         that keeps a sentence in localStorage and paints it back into the
-         board: the reader would believe they had posted to their district when
-         nothing left the machine, and the sentence would render beside a
-         verified-resident count as though it were a verified resident's.
+     THE RULES ARE district-ut-sd-3.html's RULES, VERBATIM, AND THE LONG FORM OF
+     EACH IS IN THAT FILE'S HEAD RATHER THAN RESTATED FOUR TIMES:
+       · NO INVENTED HEADCOUNT — no integer literal in the render path.
+       · THREE ANSWERS, NEVER TWO — a real count; 0 plus "no … on hand" where
+         there is no store; and "we could not read the room" when the request
+         FAILED. "on hand", never "yet".
+       · NO WORKING COMPOSER, AND NO FAKE ONE. Posting is not built.
        · NO IDENTITY VENDOR IS WIRED, so there is no personal residency
-         standing on this surface at all — not resolved, not guessed, not asked
-         for. The page says what residency is FOR (it is how a voice is
-         counted) and what it is not for (it is not how a page is read).
-       · NO PERSONAL "YOU ARE IN SD-3" LINE. The app has exactly one owner of
-         "where does this reader vote" — voter-hub-location.js — and that
-         module is deliberately NOT on this document. Re-deriving a district
-         here from anything else would be a second answer to a question that
-         already has an owner, and two answers to that question is the defect,
-         not the feature. A reader who wants to be placed has /voice.
+         standing on this surface at all, and no charge anywhere near it.
        · NO SCORE, NO GRADE, NO DIRECTION MATCH, NO PARTY, NO FINANCE.
-         district-board.js publishes `scored: false` and a NEVER_FEEDS list;
-         this document borrows both rather than restating either. The Direction
-         Match engine has no district-scoped read and nothing here invents one —
-         alignment-tool.js is not on this document and would not be called if
-         it were.
+       · NO EQUITY COPY. Nothing here claims a district is owed anything.
 
-     THE CRITICAL PATH, AND WHY EACH FILE IS ON IT. Eight scripts and two sheets:
-       cmp-data.js         the roster. Band 1's ONLY source: the seat's sitting
-                           member is a row in that file, read for three fields
-                           and no others.
-       issue-map.js        the issue vocabulary, so band 3 prints the site's
-                           word for an issue instead of its internal key.
-       voting-record.js    the archive read. `?pageSize=100`, the baseline query
-                           every warming caller in the app already uses, so this
-                           page reuses their memo instead of issuing a second
-                           request against a cache key nobody reads. It is NOT
-                           followed by noteMember(): this is a district reader,
-                           and seeding a member's record from it would make this
-                           page an input to the record engines.
-       issue-colors.js     the per-issue colour token. Band 3's issue chip asks
-                           PDXIssueColors.skin(key, window.coreIssueForKey) for
-                           it, with the SAME second argument my-stances.js and
-                           stance-studio.js pass, so the same issue cannot
-                           carry two colours on two surfaces.
-       stance-sides.js     the ONE answer to "which sides does this reader
-                           hold". Asked for a count, to tell a reader with no
-                           positions from one who has some, and then for the
-                           list, to print the ones on this seat's issues.
-       my-stances.js       the owner of the DEVICE store (pdx_my_stances_v1),
-                           because stance-sides.js reads it rather than owning
-                           it. It writes nothing on a document with no studio
-                           host and no alignment engine, which is this one.
-       your-file.js        the owner of the ACCOUNT store (pdx_your_file_v1,
-                           namespaced per uid). BOTH ARE REQUIRED, and shipping
-                           one of the two is the bug this document had: the
-                           reader read the device key, found it empty, and this
-                           board printed "You have no positions on file" at a
-                           visitor whose /me was listing three sides from the
-                           account desk. Read-only here — see the tag.
-       district-board.js   the ONE owner of this board: the seat, the alias, the
-                           route, the copy, the three bands, the two reads and
-                           the person-file control. This document asks it
-                           everything and decides nothing.
-       css/tailwind.css    the utility sheet the shared chrome is built from.
-                           NOT app.css.
-       shell-chrome.css    the bar and the account chip, shared with /voice,
-                           /mandate and /money so one row cannot be four rows.
+     THE CRITICAL PATH IS district-ut-sd-3.html's, FILE FOR FILE — the eight
+     scripts and two sheets, no more and no less:
+     cmp-data.js, issue-map.js, issue-colors.js, voting-record.js,
+     stance-sides.js + my-stances.js + your-file.js (both stores, never one),
+     district-board.js, shell-account-chip.js, /css/tailwind.css and
+     /shell-chrome.css. NOT app.css, NOT compare-hub.js, NOT alignment-tool.js,
+     and nothing from the money lane.
 
-     WHAT IS DELIBERATELY NOT HERE. No app.css (986 KB). No compare-hub.js
-     (758 KB of homepage engine — the account chip is shell-account-chip.js
-     instead). No alignment-tool.js, no ballot-breakdown.js, no
-     voter-hub-location.js (see the rule above), and NOTHING from the money
-     lane: no finance-lane.js, no wealth data, no disclosure table.
-     AND NO THIRD STORE. The two store owners above are the two that already
-     exist; this pass added no key, no pdx_my_stances_v2, and no code anywhere
-     that copies one store's records into the other's. The bar
-     links to /money because the bar is the same row on every side-lane shell,
-     and a navigation link is not a read.
+     THE SEAT IS DECLARED TWICE AND INFERRED NEVER. window.__PDX_DISTRICT_BOARD_SEAT
+     in the head and data-pdxdb-seat on the board host, both reading
+     "ut-hd-16". district-board.js takes the seat from the document because a
+     path test would read differently across the three spellings that serve this
+     file, and because the default board is SD-3 — a document that declared no
+     seat would print another district's member under this heading.
 
-     THE RULE THIS DOCUMENT LIVES BY: EVERY SAME-ORIGIN PATH IS ROOT-ABSOLUTE.
-     /district/ut-sd-3/ is served with HTTP 200 at a trailing-slash path, so a
-     bare src of district-board.js would resolve to
-     /district/ut-sd-3/district-board.js, the rewrite would catch it, and the
-     browser would be handed this document and told to parse HTML as
-     JavaScript. A leading slash is correct at every depth.
-     scripts/test-district-voice-sd3.mjs fails the build on a relative
-     same-origin src or href here.
+     EVERY SAME-ORIGIN PATH IS ROOT-ABSOLUTE. /district/ut-hd-16/ is served
+     with HTTP 200 at a trailing-slash path, so a bare src of district-board.js
+     would resolve to /district/ut-hd-16/district-board.js, the rewrite would
+     catch it, and the browser would be handed this document and told to parse
+     HTML as JavaScript. A leading slash is correct at every depth, and the
+     suite fails the build on a relative same-origin src or href here.
 
-     INDEXABLE, AND THE CANONICAL IS THE BARE PATH. What a stranger sees here is
-     an honest description of one real district plus the public record for its
-     seat, so there is no reason to hide it — and nothing on the page is
-     reader-specific except a link to the stance studio. The trailing-slash and
-     .html spellings both serve this document and neither is canonical. NO NEW
-     URL SHAPE IS PUBLISHED FROM HERE: a measure is /b/<sitting>/<number>, an
-     issue is /i/<key>, a person is /p/<pid>, a seat file is /d/<seat-key>, and
-     all four already have owners.
-     ════════════════════════════════════════════════════════════════════════════════ -->
+     INDEXABLE, AND THE CANONICAL IS THE BARE PATH. The trailing-slash and .html
+     spellings both serve this document and neither is canonical. NO NEW URL
+     SHAPE IS PUBLISHED FROM HERE: a measure is /b/<sitting>/<number>, an issue
+     is /i/<key>, a person is /p/<pid>, a seat file is /d/<seat-key>, a board is
+     /district/<alias>, and all five already have owners.
+     ═════════════════════════════════════════════════════════════════════════════ -->
 
   <!-- The share tags, in share-preview.ts's attribute order (`property` then
        `content`, `rel` then `href`) for the same reason the other shells carry
        them that way — that edge function rewrites by an attribute-ordered
        regex, so a reshuffle here would be a silent no-op there rather than an
        error, on the day this path is added to its config.path. -->
-  <title>Utah Senate District 3 &middot; district board &middot; PolitiDex</title>
-  <link rel="canonical" href="https://politidex.fyi/district/ut-sd-3" />
-  <meta name="description" content="Utah Senate District 3 &mdash; North Ogden and Weber County. The seat, the count of who has shown up in the room, and the measures already on this district&rsquo;s table. Counts only: no names, no addresses. Reading this board is free." />
+  <title>Utah House District 16 &middot; district board &middot; PolitiDex</title>
+  <link rel="canonical" href="https://politidex.fyi/district/ut-hd-16" />
+  <meta name="description" content="Utah House District 16 &mdash; Layton and Davis County. The seat, the count of who has shown up in the room, and the measures already on this district&rsquo;s table. Counts only: no names, no addresses. Reading this board is free." />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="PolitiDex" />
-  <meta property="og:title" content="Utah Senate District 3 &middot; district board" />
+  <meta property="og:title" content="Utah House District 16 &middot; district board" />
   <meta property="og:description" content="The seat, who is in the room, and what is on the table. Counts only &mdash; no names, no addresses, and no majority claimed on anyone&rsquo;s behalf." />
-  <meta property="og:url" content="https://politidex.fyi/district/ut-sd-3" />
+  <meta property="og:url" content="https://politidex.fyi/district/ut-hd-16" />
   <meta property="og:image" content="https://politidex.fyi/og-image.png" />
-  <meta property="og:image:alt" content="PolitiDex &mdash; Utah Senate District 3" />
+  <meta property="og:image:alt" content="PolitiDex &mdash; Utah House District 16" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Utah Senate District 3 &middot; district board" />
+  <meta name="twitter:title" content="Utah House District 16 &middot; district board" />
   <meta name="twitter:description" content="The seat, who is in the room, and what is on the table. Counts only." />
   <meta name="theme-color" content="#0a0f1e" />
 
@@ -415,7 +348,7 @@
        template edit that drops one is not a silently wrong page. The value is
        the URL alias — district-board.js canonicalises it to ut-statesenate-3
        through the same two regexes the Function uses. -->
-  <script>window.__PDX_DISTRICT_BOARD_SEAT = 'ut-sd-3';</script>
+  <script>window.__PDX_DISTRICT_BOARD_SEAT = 'ut-hd-16';</script>
   <script>window.__PDX_DISTRICT_BOARD_DOC = true;</script>
 
 <!-- ═════════════════════════════════════════════════════════════════════════
@@ -566,8 +499,8 @@
   <main id="district-board">
     <div class="pdxdb-wrap">
       <p class="pdxdb-kick">District board</p>
-      <h1 class="pdxdb-h1">Utah Senate District 3</h1>
-      <p class="pdxdb-where">North Ogden and Weber County</p>
+      <h1 class="pdxdb-h1">Utah House District 16</h1>
+      <p class="pdxdb-where">Layton and Davis County</p>
       <p class="pdxdb-sub">The public record for this seat, and the count of who has
         shown up in it. Reading this board is free and open to everyone &mdash; no
         account, no location, no verification.</p>
@@ -580,7 +513,7 @@
            and note what it does NOT contain: not one integer. A zero in this
            markup would be a count nobody has read yet. mount() replaces this
            node's contents in place; it is never appended to. -->
-      <div id="pdx-district-board" data-pdxdb-seat="ut-sd-3" data-pdxdb-boot="waiting">
+      <div id="pdx-district-board" data-pdxdb-seat="ut-hd-16" data-pdxdb-boot="waiting">
         <p class="pdxdb-wait" role="status">
           <span class="pdxdb-dot" aria-hidden="true"></span>Reading this district&rsquo;s record&hellip;
         </p>
@@ -590,11 +523,11 @@
     <noscript>
       <div class="pdxdb-wrap">
         <p class="pdx-sh-note">
-          This is the district board for Utah Senate District 3 &mdash; North Ogden
-          and Weber County. It needs JavaScript to read the seat&rsquo;s roster row,
-          the count of who is in the room, and the measures on this
-          district&rsquo;s table. You can still
-          <a href="/p/john_johnson">read the sitting member&rsquo;s record</a>,
+          This is the district board for Utah House District 16 &mdash; Layton and
+          Davis County. It needs
+          JavaScript to read the seat&rsquo;s roster row, the count of who is in
+          the room, and the measures on this district&rsquo;s table. You can still
+          <a href="/p/tlee">read the sitting member&rsquo;s record</a>,
           <a href="/#who-represents-me">see who represents you</a>, or
           <a href="/my-stances">set your own positions</a>.
         </p>

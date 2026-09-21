@@ -1,21 +1,53 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   district-board.js — THE FIRST DISTRICT VOICE READER, AND IT IS A READER
+   district-board.js — THE DISTRICT VOICE READERS, AND THEY ARE READERS
    ───────────────────────────────────────────────────────────────────────────
-   ONE SEAT HAS A BOARD YOU CAN READ AT AN ADDRESS: Utah Senate District 3 —
-   North Ogden and the rest of Weber County — at /district/ut-sd-3. This module
-   is the whole of that page's behaviour, and the page is three bands:
+   FOUR SEATS HAVE A BOARD YOU CAN READ AT AN ADDRESS, and ONE module serves all
+   four. Each is a row in BOARDS below, and nothing about a board lives anywhere
+   but its row:
+
+     /district/ut-sd-3   Utah Senate District 3 — North Ogden and Weber County
+     /district/ut-hd-16  Utah House District 16 — Layton and Davis County
+     /district/ut-sd-7   Utah Senate District 7 — Layton and Davis County
+     /district/ut-cd-2   Utah's 2nd Congressional District
+
+   THE ALLOW-LIST IS THE PRODUCT, NOT AN OPTIMISATION. There is no /district/*
+   splat and no pattern that composes an address out of a seat number, because
+   the moment one exists this app has an address for every district in the
+   country and a document behind four of them. A seat that is not a row here has
+   no board, /voice says so in words, and the endpoint 404s it.
+
+   ADDING A BOARD IS FOUR ROWS AND A DOCUMENT — this table, district-voice.js's
+   BOARD_ROUTES, district-board.mts's BOARD_SEATS, three rewrites in
+   netlify.toml. It is deliberately NOT a fork of this file: the second
+   implementation of a district board is where the first one's honesty rules
+   stop being enforced.
+
+   This module is the whole of those pages' behaviour, and each page is three
+   bands:
 
      1 · THE SEAT        who sits in it, where it is, and a link to their file.
      2 · WHO IS IN THE ROOM   four integers, every one of them from a store.
      3 · ON THE TABLE    the measures already in this archive for this seat.
 
-   WHAT THIS PAGE IS FOR. A district had two addresses before tonight and
-   neither of them was the district. /p/john_johnson is a PERSON — the sitting
-   member's record, his votes, his positions, his money. /voice is a READER —
-   it asks where you saved your location and puts you at whatever seat that
-   names. Neither is a thing you can hand to a neighbour and say "this is ours".
-   This is: a place, named, with the count of who has actually shown up in it
-   and the list of what is actually on its table.
+   WHAT THESE PAGES ARE FOR. A district had two addresses before the first of
+   them and neither of them was the district. /p/<pid> is a PERSON — the sitting
+   member's record, their votes, their positions, their money. /voice is a
+   READER — it asks where you saved your location and puts you at whatever seat
+   that names. Neither is a thing you can hand to a neighbour and say "this is
+   ours". These are: a place, named, with the count of who has actually shown up
+   in it and the list of what is actually on its table.
+
+   ── WHO HOLDS THE SEAT, AND THE TWO OWNERS OF THAT ANSWER ──────────────────
+   Three of the four boards name their holder with a ROSTER KEY on their own row
+   and band 1 reads that row and nothing else. The congressional board has NO
+   pid: /district/ut-cd-2's member is resolved through
+   window._pdxUsHouseSeat('Utah', 2) — voter-hub-location.js's one owner of
+   "which person holds this congressional district", which matches on the
+   roster's own district-qualified state string, refuses a candidate, a former
+   member and a record that does not say which district it holds, and answers
+   NOBODY for a district two rows both claim. When it answers nobody, band 1
+   prints the seat and "no member on file". There is no branch in this file that
+   can turn an empty join into a name.
 
    ── THE FOUR RULES, AND THEY ARE WHY THE FILE IS THIS LONG ─────────────────
 
@@ -154,18 +186,199 @@
   'use strict';
   if (window.PDXDistrictBoard) return;   // idempotent — a double script tag is one board
 
-  // ── THE SEAT, SPELLED ONCE ────────────────────────────────────────────────
-  // SEAT is the canonical key Postgres knows. ALIAS is the spelling in the URL.
-  // netlify/lib/district-voice-core.mjs already owns that mapping for /d/<seat>
-  // and netlify/functions/district-board.mts repeats it server-side; the suite
-  // pins this allow-list equal to the Function's so a board cannot open on one
-  // side of the wire only.
-  var SEAT = 'ut-statesenate-3';
-  var ALIAS = 'ut-sd-3';
-  var ROUTE = '/district/ut-sd-3';
-  var PID = 'john_johnson';
+  // ── THE BOARDS, AND EACH ONE IS A ROW ─────────────────────────────────────
+  // FOUR SEATS HAVE A BOARD, AND THIS IS THE WHOLE LIST. It grew from one row
+  // to four without growing a second implementation: everything below is
+  // parameterised by the ACTIVE board, and a board is the row that names it.
+  // Adding a fifth is a row here, a row in district-voice.js's BOARD_ROUTES, a
+  // row in netlify/functions/district-board.mts's BOARD_SEATS, three rewrites in
+  // netlify.toml and a document — no pattern, no `/district/*` splat, no
+  // per-seat fork of this file.
+  //
+  // WHAT EACH FIELD IS FOR.
+  //   seat   the canonical key Postgres knows, and the only spelling that ever
+  //          reaches a query. netlify/lib/district-voice-core.mjs owns that
+  //          mapping for /d/<seat> and district-board.mts repeats it
+  //          server-side; the suite pins this allow-list equal to the
+  //          Function's, so a board cannot open on one side of the wire only.
+  //   alias  the spelling in the URL, and the value sent as ?seat=.
+  //   route  the board's own address. The ONE place it is written on the client.
+  //   pid    the roster row band 1 reads — for the three seats whose holder is
+  //          named by a key on the roster and nothing else.
+  //   usHouse
+  //          FOR A CONGRESSIONAL SEAT THERE IS NO PID HERE, ON PURPOSE. A U.S.
+  //          House district's holder is resolved through
+  //          window._pdxUsHouseSeat(state, district) — voter-hub-location.js's
+  //          one owner of "which person holds this congressional district" —
+  //          and never written down here. A pid copied into this table would be
+  //          a second answer to that question, and the first thing a second
+  //          answer does is outlive a redistricting. When that lookup is absent
+  //          or answers nobody, band 1 prints the seat and "no member on file":
+  //          see seatHtml(), which has no branch that can guess a name.
+  //   h1 / where
+  //          the page chrome each document prints, repeated here so the suite
+  //          can hold the document and the module to one spelling of one seat.
+  //   kick / kickTitle
+  //          the person-file control's words. See personLinkHtml().
+  var BOARDS = {
+    'ut-statesenate-3': {
+      seat: 'ut-statesenate-3',
+      alias: 'ut-sd-3',
+      route: '/district/ut-sd-3',
+      pid: 'john_johnson',
+      h1: 'Utah Senate District 3',
+      where: 'North Ogden and Weber County',
+      kick: 'District 3 board',
+      kickTitle: 'The district board for Utah Senate District 3: who is in the room ' +
+                 'and what is on the table. A place, not a scorecard.'
+    },
+    'ut-statehouse-16': {
+      seat: 'ut-statehouse-16',
+      alias: 'ut-hd-16',
+      route: '/district/ut-hd-16',
+      pid: 'tlee',
+      h1: 'Utah House District 16',
+      where: 'Layton and Davis County',
+      kick: 'House District 16 board',
+      kickTitle: 'The district board for Utah House District 16: who is in the room ' +
+                 'and what is on the table. A place, not a scorecard.'
+    },
+    'ut-statesenate-7': {
+      seat: 'ut-statesenate-7',
+      alias: 'ut-sd-7',
+      route: '/district/ut-sd-7',
+      pid: 'sadams',
+      h1: 'Utah Senate District 7',
+      where: 'Layton and Davis County',
+      kick: 'Senate District 7 board',
+      kickTitle: 'The district board for Utah Senate District 7: who is in the room ' +
+                 'and what is on the table. A place, not a scorecard.'
+    },
+    'ut-house-2': {
+      seat: 'ut-house-2',
+      alias: 'ut-cd-2',
+      route: '/district/ut-cd-2',
+      // NO PID. See usHouse above.
+      pid: '',
+      usHouse: { state: 'Utah', district: 2 },
+      h1: 'Utah’s 2nd Congressional District',
+      where: 'The district as the court-ordered 2026 map draws it',
+      kick: 'UT-2 district board',
+      kickTitle: 'The district board for Utah’s 2nd Congressional District: who is ' +
+                 'in the room and what is on the table. A place, not a scorecard.'
+    }
+  };
+
   var API = '/api/district-board';
-  var BOARD_SEATS = { 'ut-statesenate-3': 1 };
+
+  // The allow-list, DERIVED from the table above rather than written twice. Two
+  // hand-kept copies of "which seats have a board" is two chances to open a
+  // board on one of them only.
+  var BOARD_SEATS = {};
+  (function () {
+    for (var k in BOARDS) {
+      if (Object.prototype.hasOwnProperty.call(BOARDS, k)) BOARD_SEATS[k] = 1;
+    }
+  })();
+
+  // ── THE ADDRESS ───────────────────────────────────────────────────────────
+  // Every spelling in, ONE spelling out — the same two regexes and the same
+  // chamber table district-voice.js and district-board.mts carry, so `ut-hd-16`
+  // and `ut-statehouse-16` are one place on all three sides. Mirrored rather
+  // than imported because this file loads as a plain script; the suite holds the
+  // copies to one answer.
+  var SEAT_KEY_RE = /^[a-z]{2}-(?:house|statesenate|statehouse)-[1-9][0-9]*$/;
+  var ALIAS_RE = /^([a-z]{2})-(hd|sd|cd)-([1-9][0-9]*)$/;
+  var ALIAS_CHAMBERS = { hd: 'statehouse', sd: 'statesenate', cd: 'house' };
+
+  function normalizeSeatKey(raw) {
+    var s = String(raw == null ? '' : raw).trim().toLowerCase();
+    if (!s) return '';
+    if (SEAT_KEY_RE.test(s)) return s;
+    var m = ALIAS_RE.exec(s);
+    if (!m) return '';
+    var chamber = ALIAS_CHAMBERS[m[2]];
+    if (!chamber) return '';
+    var out = m[1] + '-' + chamber + '-' + m[3];
+    return SEAT_KEY_RE.test(out) ? out : '';
+  }
+
+  // The board for a seat, in any spelling, or null. THE ONE OWNER of "does this
+  // seat have a board": a caller that tested the allow-list itself would be a
+  // second answer to it.
+  function board(seatKey) {
+    var k = normalizeSeatKey(seatKey);
+    return (k && Object.prototype.hasOwnProperty.call(BOARDS, k)) ? BOARDS[k] : null;
+  }
+
+  // ── WHICH BOARD THIS DOCUMENT IS ──────────────────────────────────────────
+  // THE DOCUMENT SAYS, AND THIS FILE NEVER GUESSES FROM THE URL. A path test
+  // would be read differently depending on which of the three rewritten
+  // spellings the reader arrived on, and this module also ships on person.html
+  // where the path names a person. So each board document declares its own seat
+  // twice — a sync `window.__PDX_DISTRICT_BOARD_SEAT` in the head and a
+  // `data-pdxdb-seat` on the host element — and the suite asserts every one of
+  // the four documents does, because a document that declared neither would
+  // paint the DEFAULT board's seat under its own heading, which is the exact
+  // class of confident wrongness this whole surface exists to avoid.
+  function hostSeat(el) {
+    try {
+      if (el && fn(el.getAttribute)) {
+        var a = el.getAttribute('data-pdxdb-seat');
+        if (a) return String(a);
+      }
+    } catch (e) {}
+    return '';
+  }
+  function docSeat() {
+    try {
+      if (window.__PDX_DISTRICT_BOARD_SEAT) return String(window.__PDX_DISTRICT_BOARD_SEAT);
+    } catch (e) {}
+    return '';
+  }
+
+  // THE DEFAULT IS THE FIRST BOARD, AND IT PAINTS NOTHING. It exists so the
+  // scalar exports below (SEAT/ALIAS/ROUTE/PID, which every caller since the
+  // first board has read) still answer on a document that names no seat —
+  // person.html, which loads this module for personLinkHtml() alone and has no
+  // host to paint into. mount() does NOT rely on it: it resolves the host's own
+  // seat, then the document's, and the board it paints is whichever of those
+  // named one.
+  var DEFAULT_SEAT = 'ut-statesenate-3';
+  var ACTIVE = board(docSeat()) || BOARDS[DEFAULT_SEAT];
+
+  // The active board's fields, read through functions so every band reads the
+  // board that is actually mounted rather than a value captured at load.
+  function SEAT() { return ACTIVE.seat; }
+  function ALIAS() { return ACTIVE.alias; }
+  function ROUTE() { return ACTIVE.route; }
+
+  // ── WHO HOLDS THIS SEAT, AND THE TWO WAYS THAT IS ANSWERED ────────────────
+  // A row with a `pid` names its holder on the roster and that is the whole
+  // answer. A row with `usHouse` has NO pid and is resolved through
+  // voter-hub-location.js's window._pdxUsHouseSeat(state, district), which is
+  // the app's one owner of that join — it matches on the roster's own
+  // district-qualified state string, refuses a record that does not say which
+  // district it holds, refuses a candidate and a former member, and answers
+  // NOBODY for a district two rows both claim.
+  //
+  // '' IS AN ANSWER AND IT IS NOT A NAME. An absent lookup (the module is not on
+  // this document), a cold roster and an empty join all return '', and band 1
+  // prints the seat with "no member on file" for all three. There is no branch
+  // here that falls back to a written-down pid, because that fallback is how a
+  // page comes to name the member of a district that was redrawn around them.
+  function pidOf(b) {
+    var row = b || ACTIVE;
+    if (!row) return '';
+    if (row.pid) return String(row.pid);
+    var u = row.usHouse;
+    if (!u) return '';
+    try {
+      if (!fn(window._pdxUsHouseSeat)) return '';
+      return String(window._pdxUsHouseSeat(u.state, u.district) || '');
+    } catch (e) { return ''; }
+  }
+  function PID() { return pidOf(ACTIVE); }
 
   // How many archive rows band 3 will print. A cap, not a ranking: the rows are
   // printed in the order the archive returned them and nothing here re-sorts,
@@ -200,6 +413,11 @@
     seatBand: 'The seat',
     seatNote: 'Who sits here now. This is a link to the record, not a summary of it.',
     seatNone: 'No roster row on hand for this seat.',
+    // THE SEAT EXISTS AND ITS HOLDER DOES NOT RESOLVE. "On hand", never "yet",
+    // on the money lane's terms — and note what it does not say: it does not
+    // say the seat is vacant, because this page does not know that either. It
+    // says what it knows, which is that it holds no member for this district.
+    seatNoMember: 'No member on file for this seat.',
 
     roomBand: 'Who is in the room',
     roomNote: 'Counts only. No names, no addresses, no email — this page is never ' +
@@ -286,31 +504,58 @@
   // broken, pending, icon, issues — a district page that printed a member's
   // scorecard would be a person page with a place's title.
   //
-  // The office line is printed as the roster holds it, which for this seat is
-  // "UT State Senator". That matters enough to be tested: this is a STATE
-  // senate seat, and a page that called it a congressional one would be wrong
-  // about which body makes the laws on its own table.
+  // The office line is printed AS THE ROSTER HOLDS IT and is never composed
+  // here. That matters enough to be tested on every board: SD-3's row reads "UT
+  // State Senator" and SD-7's reads "Utah Senate President", because the member
+  // who holds Senate District 7 presides over that chamber and the roster says
+  // so — a page that flattened it to "State Senator" for tidiness would be
+  // editing the record to fit a template. A state seat whose page called itself
+  // congressional would be wrong about which body makes the laws on its own
+  // table, so the state boards assert the absence of every federal word.
+  //
+  // ── THREE STATES, AND THE THIRD IS A SEAT WITH NOBODY IN IT ───────────────
+  //   no seat on the list   nothing paints at all; mount() already refused.
+  //   no holder resolved    THE SEAT, AND "no member on file". This is the
+  //                         congressional case: pidOf() answers '' when
+  //                         _pdxUsHouseSeat is absent, the roster is cold, or
+  //                         the join is genuinely empty, and all three print the
+  //                         same honest sentence. There is NO branch here that
+  //                         can reach a name — not a written-down pid, not a
+  //                         scan of the roster for something district-shaped,
+  //                         not the previous holder.
+  //   no roster row         a pid that resolved to nothing on the roster, which
+  //                         is a broken deploy rather than a thin record — but
+  //                         it still gets a sentence instead of an empty band.
   function seatHtml() {
+    var pid = PID();
     var row = null;
-    try {
-      var R = window.CMP_DATA;
-      if (R && typeof R === 'object') row = R[PID] || null;
-    } catch (e) { row = null; }
+    if (pid) {
+      try {
+        var R = window.CMP_DATA;
+        if (R && typeof R === 'object') row = R[pid] || null;
+      } catch (e) { row = null; }
+    }
 
     var body;
-    if (!row) {
-      // The roster is a shipped file, so this is a broken deploy rather than a
-      // thin record — but it still gets a sentence instead of an empty band.
-      body = '<p class="pdxdb-none">' + esc(COPY.seatNone) + '</p>';
+    if (!pid) {
+      // THE JOIN IS EMPTY, AND THAT IS THE WHOLE SENTENCE. The seat is named by
+      // the page around this band; what is absent is the person, and saying so
+      // is the only honest thing a district board can do with a district whose
+      // holder it has not resolved.
+      body = '<p class="pdxdb-none" data-pdxdb-seat-state="nobody">' +
+        esc(COPY.seatNoMember) + '</p>';
+    } else if (!row) {
+      body = '<p class="pdxdb-none" data-pdxdb-seat-state="norow">' +
+        esc(COPY.seatNone) + '</p>';
     } else {
       var name = String(row.name || '').trim();
       var office = String(row.office || '').trim();
       var where = String(row.state || '').trim();
       body =
         '<p class="pdxdb-seat-name">' +
-          '<a class="pdxdb-seat-link" href="/p/' + esc(PID) + '"' +
+          '<a class="pdxdb-seat-link" href="/p/' + esc(pid) + '"' +
           ' title="The full record for the member who sits in this seat">' +
-          esc(name || PID) + '</a>' +
+          esc(name || pid) + '</a>' +
         '</p>' +
         (office ? '<p class="pdxdb-seat-office">' + esc(office) + '</p>' : '') +
         (where ? '<p class="pdxdb-seat-where">' + esc(where) + '</p>' : '');
@@ -770,7 +1015,7 @@
   var FAILED = { failed: true };
 
   function fetchCounts() {
-    var url = API + '?seat=' + encodeURIComponent(ALIAS);
+    var url = API + '?seat=' + encodeURIComponent(ALIAS());
     try {
       return fetch(url, { headers: { accept: 'application/json' } })
         .then(function (r) {
@@ -790,13 +1035,25 @@
 
   function fetchTable() {
     try {
+      // NO HOLDER, NO ARCHIVE READ — AND THAT IS NOT A FAILED READ. The archive
+      // is keyed by PERSON, so a seat whose holder has not resolved has no
+      // query to issue. It resolves EMPTY rather than FAILED: "no measures on
+      // hand for this seat" is true (we hold none) and "we could not read the
+      // archive" would not be (we never asked). Two different sentences, and
+      // this is the one that matches what happened. The skip is REMEMBERED, so
+      // a holder who resolves later (see mount()'s roster subscription) gets
+      // the read that was never issued rather than an empty table for the whole
+      // visit.
+      var pid = PID();
+      if (!pid) { _tableSkipped = true; return Promise.resolve([]); }
+      _tableSkipped = false;
       var V = window.PDXVotingRecord;
       if (!V || !fn(V.fetchMember)) return Promise.resolve(FAILED);
       // THE BASELINE QUERY, NOT A NEW ONE. Same pid, same page size every
       // warming caller in the app uses, so this reuses their memo instead of
       // issuing a second request against a cache key nobody else reads. And
       // noteMember() is NOT called: see the header.
-      return Promise.resolve(V.fetchMember(PID, { pageSize: PAGE_SIZE }))
+      return Promise.resolve(V.fetchMember(pid, { pageSize: PAGE_SIZE }))
         .then(function (data) {
           if (!data || !Array.isArray(data.items)) return FAILED;
           return data.items;
@@ -813,20 +1070,56 @@
   // the quiet one — it never shows a zero it has not been told, which is the
   // whole reason band 2 has a 'wait' state at all.
   //
-  // Returns false and paints NOTHING when the seat has no board, so this module
-  // is inert on any document that loads it without the board's host. That is
-  // how it can ship on person.html for personLinkHtml() alone.
+  // WHICH BOARD IT PAINTS IS THE HOST'S ANSWER, THEN THE DOCUMENT'S. A seat on
+  // neither is not painted at all: returns false and paints NOTHING, so this
+  // module is inert on any document that loads it without a board's host. That
+  // is how it can ship on person.html for personLinkHtml() alone. And the
+  // resolved board is latched into ACTIVE before the first paint, so every band
+  // below — the roster row, the ?seat= query, the archive pid — reads the seat
+  // this document is actually for and never the default.
   var _counts = null;   // null = in flight, FAILED = could not read
   var _items = null;
+  // The archive read was skipped for want of a resolved holder, rather than
+  // issued and answered empty. See fetchTable() and the roster subscription.
+  var _tableSkipped = false;
 
   function mount(host) {
     var el = host || document.getElementById('pdx-district-board');
     if (!el) return false;
-    if (!Object.prototype.hasOwnProperty.call(BOARD_SEATS, SEAT)) return false;
+    var b = board(hostSeat(el)) || board(docSeat()) || ACTIVE;
+    if (!b || !Object.prototype.hasOwnProperty.call(BOARD_SEATS, b.seat)) return false;
+    ACTIVE = b;
 
     paint(el);
     fetchCounts().then(function (d) { _counts = d; paint(el); });
     fetchTable().then(function (d) { _items = d; paint(el); });
+    // ── THE ROSTER MAY NOT BE HERE YET, AND BAND 1 IS THE BAND THAT CARES ────
+    // A congressional board's holder comes from _pdxUsHouseSeat(), which walks
+    // the roster — and cmp-data.js is DEFERRED, so the first paint can happen
+    // before there is a roster to walk. Without this, /district/ut-cd-2 would
+    // keep "no member on file" for the whole visit over a roster that arrived
+    // half a second later, which is the stale-blank failure
+    // window.pdxRosterReady() exists to close. It is asked through that one
+    // owner and never polled: a subscriber registered after the roster landed
+    // runs immediately, so there is no event to miss. Absent (person.html, a
+    // board document without the module) this is simply not wired, and the
+    // three roster-keyed boards never needed it.
+    try {
+      if (fn(window.pdxRosterReady)) {
+        window.pdxRosterReady(function () {
+          try {
+            // A HOLDER THAT RESOLVED LATE GETS THE READ THAT WAS SKIPPED, and
+            // only then: a board whose archive read really was issued is never
+            // re-issued here, because a second identical query is not new
+            // information.
+            if (_tableSkipped && PID()) {
+              fetchTable().then(function (d) { _items = d; paint(el); });
+            }
+            paint(el);
+          } catch (e) {}
+        });
+      }
+    } catch (e) {}
     return true;
   }
 
@@ -854,22 +1147,39 @@
   }
 
   // ── THE ONE CONTROL ON THE PERSON FILE ────────────────────────────────────
-  // "District 3 board → this page", and it is a real anchor to a real address
-  // that really renders. It answers '' for every pid that does not sit in a seat
-  // with a board — which is every pid but one today — so person-file.js holds no
+  // "Senate District 7 board → this page", and it is a real anchor to a real
+  // address that really renders. It walks the WHOLE board table and answers ''
+  // for every pid that does not sit in one of them — so person-file.js holds no
   // allow-list of its own and degrades to exactly today's kicker when this file
   // is missing. No count, no badge, no dot: a tally of a district's activity
   // sitting on a person's dossier would be a metric about the person.
   //
+  // ONLY FOR A ROUTE THAT EXISTS, and the table IS the set of routes that exist,
+  // so the two cannot drift. A congressional board matches through pidOf() and
+  // therefore through _pdxUsHouseSeat() — on a document without that module
+  // (person.html is one) the join answers nobody and that member simply gets
+  // today's kicker. A missing control is a degradation; a control onto a board
+  // whose holder this app could not confirm would be a claim.
+  //
   // It does not closeModal(). The dead button this replaces on other surfaces is
   // the exact defect worth naming here: a control that dismisses the thing you
   // were reading, in the name of taking you somewhere, took you nowhere.
+  function boardForPid(pid) {
+    var want = String(pid || '');
+    if (!want) return null;
+    for (var k in BOARDS) {
+      if (!Object.prototype.hasOwnProperty.call(BOARDS, k)) continue;
+      if (pidOf(BOARDS[k]) === want) return BOARDS[k];
+    }
+    return null;
+  }
+
   function personLinkHtml(pid) {
-    if (String(pid || '') !== PID) return '';
-    return '<a class="pf-kick-board" href="' + esc(ROUTE) + '"' +
-      ' data-pdxdb-open="' + esc(ALIAS) + '"' +
-      ' title="The district board for Utah Senate District 3: who is in the room and what is on ' +
-      'the table. A place, not a scorecard.">District 3 board</a>';
+    var b = boardForPid(pid);
+    if (!b) return '';
+    return '<a class="pf-kick-board" href="' + esc(b.route) + '"' +
+      ' data-pdxdb-open="' + esc(b.alias) + '"' +
+      ' title="' + esc(b.kickTitle) + '">' + esc(b.kick) + '</a>';
   }
 
   function wire() {
@@ -884,12 +1194,34 @@
   }
 
   window.PDXDistrictBoard = {
-    SEAT: SEAT,
-    ALIAS: ALIAS,
-    ROUTE: ROUTE,
-    PID: PID,
+    // THE ACTIVE BOARD'S FIELDS, and they are still scalars. Every caller since
+    // the first board reads these four, so they stay what they were — the seat
+    // this document is for — rather than becoming functions and breaking them.
+    // On a document that names no seat they are the default board's; nothing
+    // PAINTS from them (see mount(), which resolves the host's own seat).
+    SEAT: SEAT(),
+    ALIAS: ALIAS(),
+    ROUTE: ROUTE(),
+    PID: PID(),
     API: API,
+    // ── THE WHOLE ALLOW-LIST, BOTH SHAPES ───────────────────────────────────
+    // BOARD_SEATS answers "does this seat have a board" and is what the suite
+    // pins equal to district-board.mts's copy. BOARDS is the table itself, for
+    // a caller that needs a board's address or its page chrome. board() is the
+    // accessor and takes any spelling.
     BOARD_SEATS: BOARD_SEATS,
+    BOARDS: BOARDS,
+    board: board,
+    boardForPid: boardForPid,
+    // Who this module says holds a seat, through the one owner of each answer:
+    // the roster key on the row, or _pdxUsHouseSeat() for a congressional one.
+    // '' is an answer, and it is not a name.
+    pidOf: pidOf,
+    // WHICH BOARD IS MOUNTED, ASKED LIVE. The four scalars above are a snapshot
+    // taken at load; this follows mount()'s resolution, so a caller (and the
+    // suite) can tell which seat actually painted rather than which one the
+    // document was expected to name.
+    active: function () { return ACTIVE; },
     COPY: COPY,
     NEVER_FEEDS: NEVER_FEEDS,
     // No score is published from this surface, on finance-lane.js's terms.

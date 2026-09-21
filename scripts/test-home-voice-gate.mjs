@@ -42,7 +42,7 @@
 // browser. Exit code is non-zero on any failure.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
@@ -162,7 +162,9 @@ const EYEBROW = "District Voice";
 const LINE = "The rooms for your seats. Anyone can read. Only verified residents of that seat get a voice that counts.";
 const UNPLACED = "Find your rooms";
 const PLACED = "See your rooms";
-const NOTE = "One seat has a board on file today. The others list the member and say the room is not open.";
+// The count in this sentence is pinned to BOARD_ROUTES in section 6, not here:
+// this line is the SHAPE of the sentence, and that block is the arithmetic.
+const NOTE = "Four seats have a board on file today. The others list the member and say the room is not open.";
 
 // The visible copy, with the comments, the style block and the script stripped
 // the way a reader sees it.
@@ -177,8 +179,10 @@ has(CARD_TEXT, EYEBROW, "copy: the eyebrow is not on the card");
 has(CARD_TEXT, LINE, "copy: the locked line is not on the card, verbatim");
 has(CARD_TEXT, UNPLACED, "copy: the served label is not the no-location one");
 has(CARD_TEXT, NOTE, "copy: the one true sentence about the allow-list is not on the card");
-// AND THE OPTIONAL LINE IS STILL TRUE. It says one seat has a board; the table
-// that decides that is district-voice.js's, and it is read below in section 6.
+// AND THE OPTIONAL LINE IS STILL TRUE. It counts the seats that have a board;
+// the table that decides that is district-voice.js's, and section 6 below reads
+// it and re-derives this sentence's number from the rows rather than trusting
+// the string above.
 
 // THE SWEEP COVERS THE STRINGS THE SCRIPT COULD REACH FOR TOO, not just the
 // markup — a label composed in code is copy a reader sees.
@@ -437,14 +441,18 @@ const PROSE_FREE = stripComments(INDEX);
     eq(r.status, "200", `rewrite: ${r.from} hops instead of answering`);
   }
   ok(!rules.some((r) => /^\/district\/\*/.test(r.from)),
-    "rewrite: /district/* is splatted — an allow-list of one board must not answer for every slug typed");
+    "rewrite: /district/* is splatted — an allow-list of named boards must not answer for every slug typed");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("6 · one allow-listed board, and Johnson's own control is untouched");
+section("6 · the allow-listed boards, and the person-file control is untouched");
 // ═════════════════════════════════════════════════════════════════════════════
 
-// THE ALLOW-LIST IS A TABLE WITH ONE ROW, read out of its owner by booting it.
+// THE ALLOW-LIST IS A TABLE OF NAMED ROWS, read out of its owner by booting it.
+// It was one row when one board had opened; it is four now, and the fence is not
+// the number — it is that the card's sentence COUNTS THE TABLE. A card that says
+// "one seat" while four rows ship is a page understating the site to the reader
+// it is trying to place, and that is the failure this block exists to catch.
 {
   const win = makeSandbox();
   win.window = win;
@@ -452,28 +460,48 @@ section("6 · one allow-listed board, and Johnson's own control is untouched");
   vm.runInContext(DV, vm.createContext(win), { filename: "district-voice.js" });
   const V = win.PDXVoice;
   must(!!V && V.BOARD_ROUTES, "district-voice.js no longer publishes BOARD_ROUTES");
-  eq(Object.keys(V.BOARD_ROUTES).length, 1,
-    `allow-list: ${Object.keys(V.BOARD_ROUTES).length} rows — adding a board is one row and one rewrite`);
+  const rows = Object.keys(V.BOARD_ROUTES);
+  ok(rows.length >= 1, "allow-list: no board is routed at all");
   eq(V.BOARD_ROUTES["ut-statesenate-3"], "/district/ut-sd-3",
     "allow-list: SD-3's row does not name its board");
-  // AND THE CARD'S OPTIONAL SENTENCE IS TRUE BECAUSE OF THAT ROW COUNT: one seat
-  // has a board on file today, and the others say the room is not open.
-  has(CARD_TEXT, "One seat has a board on file today",
-    "copy: the card's allow-list sentence was reworded away from what the table says");
+  // EVERY ROW IS A DOOR THAT OPENS. A routed alias with no document behind it is
+  // a card promising a room that 404s, which is worse than the empty sentence.
+  for (const k of rows) {
+    const route = String(V.BOARD_ROUTES[k]);
+    ok(/^\/district\/[a-z]{2}-(?:hd|sd|cd)-[1-9][0-9]*$/.test(route),
+      `allow-list: ${k} routes to ${JSON.stringify(route)}, which is not a board address`);
+    const doc = `district-${route.split("/").pop()}.html`;
+    ok(existsSync(join(ROOT, doc)), `allow-list: ${k} routes at ${route} with no ${doc} behind it`);
+    ok(new RegExp(`\\[\\[redirects\\]\\]\\s*\\n\\s*from = "${route}"\\n\\s*to = "${doc.replace(/^/, "/")}"\\n\\s*status = 200`).test(R("netlify.toml")),
+      `allow-list: ${route} has no exact 200 rewrite onto /${doc} in netlify.toml`);
+  }
+  // AND THE CARD'S THIRD SENTENCE IS A COUNT OF THAT TABLE, not a description
+  // somebody remembered to update. The number is spelled as a word, so the
+  // assertion reads the word back.
+  const WORD = ["no", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"];
+  const seatWord = WORD[rows.length] || String(rows.length);
+  const verb = rows.length === 1 ? "seat has" : "seats have";
+  has(CARD_TEXT, `${seatWord} ${verb} a board on file today`,
+    `copy: the card's allow-list sentence does not count the ${rows.length} rows BOARD_ROUTES actually holds`);
   eq(typeof V.COPY, "object", "the owner no longer publishes its COPY block");
   has(String(V.COPY.boardWhy || ""), "this room is not open",
     "copy: the card promises a sentence the hub does not print");
 }
-// JOHNSON'S DISTRICT 3 CONTROL, UNCHANGED, AT ITS OWN ADDRESS. The homepage card
-// points at /voice; the person file's board control points at the board, and this
-// pass did not touch it.
+// THE PERSON-FILE CONTROL, AT EACH BOARD'S OWN ADDRESS. The homepage card points
+// at /voice; the person file's board control points at the board of whichever
+// seat that person holds — and the kicker and the route both come off the BOARDS
+// row rather than being written into the function, which is what lets one
+// control serve four boards without a branch per seat.
 {
-  has(DB, "var ROUTE = '/district/ut-sd-3';", "district-board.js's route moved");
-  has(DB, "var PID = 'john_johnson';", "district-board.js's pid moved");
+  has(DB, "'ut-statesenate-3': {", "district-board.js's BOARDS table lost SD-3's row");
+  has(DB, "route: '/district/ut-sd-3'", "district-board.js's SD-3 route moved");
+  has(DB, "pid: 'john_johnson'", "district-board.js's SD-3 pid moved");
+  has(DB, "kick: 'District 3 board'", "district-board.js's SD-3 control lost its label");
   const fnSrc = (/function personLinkHtml\(pid\) \{[\s\S]*?\n  \}/.exec(DB) || [""])[0];
   must(fnSrc.length > 80, "district-board.js's personLinkHtml could not be located");
   has(fnSrc, "href=", "the board control is not an anchor");
-  has(fnSrc, "District 3 board", "the board control lost its label");
+  has(fnSrc, "b.kick", "the board control no longer takes its label from the board row");
+  has(fnSrc, "b.route", "the board control no longer takes its address from the board row");
   ok(!/href="#"/.test(fnSrc), "the board control is a dead hash");
   no(fnSrc, "closeModal", "the board control dismisses the file instead of going somewhere");
   // AND THE PERSON FILE STILL HOLDS NO ALLOW-LIST OF ITS OWN.

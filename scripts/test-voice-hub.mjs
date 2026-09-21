@@ -67,7 +67,7 @@
 // No database, no network, no browser. Exit code is non-zero on any failure.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
@@ -514,18 +514,35 @@ section("4 · a location that resolves a House seat and a Senate seat paints two
   has(list, 'href="/p/rep_davis"', "two seats: a seat whose holder has no display record lost its person link");
   has(list, "John Johnson", "two seats: a roster name on hand was not printed");
 
-  // THE ALLOW-LIST IS THE OWNER'S, AND IT IS A TABLE WITH ONE ROW.
+  // THE ALLOW-LIST IS THE OWNER'S, AND IT IS A TABLE OF NAMED ROWS. Four of
+  // them today. What this block fences is not the count but the EXCLUSIVITY: a
+  // seat next door to a board still gets no board, because the table grew by
+  // names and never by a pattern.
   const V = h.win.PDXVoice;
-  eq(Object.keys(V.BOARD_ROUTES).length, 1,
-    `allow-list: ${Object.keys(V.BOARD_ROUTES).length} rows — adding a board is one row and one rewrite, and every row must have a document behind it`);
+  const rows = Object.keys(V.BOARD_ROUTES);
+  ok(rows.length >= 1, "allow-list: no board is routed at all");
   eq(V.boardPath("ut-statesenate-3"), "/district/ut-sd-3", "allow-list: SD-3's row does not name its board");
+  eq(V.boardPath("ut-statehouse-16"), "/district/ut-hd-16", "allow-list: HD-16's row does not name its board");
+  eq(V.boardPath("ut-statesenate-7"), "/district/ut-sd-7", "allow-list: SD-7's row does not name its board");
+  eq(V.boardPath("ut-house-2"), "/district/ut-cd-2", "allow-list: UT-2's row does not name its board");
+  // THE NEIGHBOURS, AND THEY STILL GET NOTHING. HD-15 shares Layton with HD-16
+  // and SD-4 sits beside SD-3; a pattern would have opened a room for both.
   eq(V.boardPath("ut-statehouse-15"), "", "allow-list: HD-15 was given a board");
   eq(V.boardPath("ut-statesenate-4"), "", "allow-list: a neighbouring seat resolves a board by pattern");
+  eq(V.boardPath("ut-statesenate-8"), "", "allow-list: SD-8 resolves a board because SD-7 has one");
+  eq(V.boardPath("ut-house-1"), "", "allow-list: UT-1 resolves a board because UT-2 has one");
   eq(V.boardPath(""), "", "allow-list: an empty seat key resolves a board");
-  // AND EVERY ROW IS A ROUTE THE SITE ACTUALLY SERVES.
+  // AND EVERY ROW IS A ROUTE THE SITE ACTUALLY SERVES, WITH A DOCUMENT BEHIND IT.
   for (const route of Object.values(V.BOARD_ROUTES)) {
     ok(TOML.indexOf(`from = "${route}"`) >= 0, `allow-list: ${route} is in the table with no rewrite behind it`);
+    const doc = `district-${String(route).split("/").pop()}.html`;
+    ok(existsSync(join(ROOT, doc)), `allow-list: ${route} is routed with no ${doc} behind it`);
   }
+  // NO SPLAT, ANYWHERE. Asserted on the table itself, because a single
+  // /district/* rule would make every check above pass and every seat in the
+  // state a door.
+  ok(!/from = "\/district\/[^"]*\*/.test(TOML),
+    "allow-list: netlify.toml splats /district/ — an allow-list behind a wildcard is not an allow-list");
 }
 // STATEWIDE OFFICES COMPOSE NO SEAT KEY, so they can never carry a board. A
 // governor is not a district and the hallway must not imply a room in one.

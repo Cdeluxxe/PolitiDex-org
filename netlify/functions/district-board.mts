@@ -70,17 +70,29 @@ import {
 } from "../../db/schema.js";
 
 // ── THE SEAT ALLOW-LIST, AND IT IS NOT A WILDCARD ───────────────────────────
-// One entry, because one board has opened. A seat key that is not on this list
-// gets 404 rather than a row of zeroes: "nobody is here" and "there is no here"
-// are different sentences, and answering the second with the first would let
-// this endpoint publish an empty room for every district in the country.
+// FOUR ENTRIES, because four boards have opened. A seat key that is not on this
+// list gets 404 rather than a row of zeroes: "nobody is here" and "there is no
+// here" are different sentences, and answering the second with the first would
+// let this endpoint publish an empty room for every district in the country.
+//
+// IT GREW BY ROWS AND NOT BY A PATTERN. There is no `^ut-statehouse-\d+$` here
+// and there never should be: the regex form of this list would answer for all
+// 75 Utah House districts, 71 of which have no document, no reader and no room.
+// Every query below is keyed by the seat string alone, so the same three
+// aggregates serve every row without a per-seat branch anywhere in this file —
+// adding the fifth board is one row here and nothing else.
 //
 // THE ALIAS IS NORMALIZED BEFORE THE QUERY, so Postgres only ever sees the
-// canonical key — ut-sd-3 and ut-statesenate-3 are one place, exactly as
+// canonical key — ut-cd-2 and ut-house-2 are one place, exactly as
 // district-voice-core.mjs already has it for /d/<seat-key>. The client copy of
-// this list lives in district-board.js and scripts/test-district-voice-sd3.mjs
-// pins the two equal.
-const BOARD_SEATS: Record<string, 1> = { "ut-statesenate-3": 1 };
+// this list lives in district-board.js (derived there from its BOARDS table)
+// and scripts/test-district-voice-sd3.mjs pins the two equal.
+const BOARD_SEATS: Record<string, 1> = {
+  "ut-statesenate-3": 1,
+  "ut-statehouse-16": 1,
+  "ut-statesenate-7": 1,
+  "ut-house-2": 1,
+};
 const SEAT_KEY_RE = /^[a-z]{2}-(?:house|statesenate|statehouse)-[1-9][0-9]*$/;
 const ALIAS_CHAMBERS: Record<string, string> = {
   hd: "statehouse",

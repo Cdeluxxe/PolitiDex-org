@@ -354,6 +354,14 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // District, painted from the state the reader saved instead of drawing Utah for
 // all of them, and that table plus a note over the Detect button is every line
 // this block moved by. The run itself is untouched and was located verbatim.
+//   AND NOT AT ALL for the three-new-boards pass, which is worth a line because
+// it very nearly did move it. The District Voice card's note had to stop saying
+// "One seat has a board on file today" the day a second board opened, and the
+// comment above the card had to say why that sentence counts the allow-list
+// rather than describing it. Rewriting the comment longer would have pushed this
+// run four lines down the document and with it every COPIED VERBATIM range in
+// five other files; it was reflowed to its original five lines instead. A pin
+// this load-bearing is worth wrapping a paragraph tighter for.
 const COPIES = [
   { from: "index.html", src: INDEX, a: 19324, b: 19444, what: "the PDXStance vocabulary" },
   { from: "person.html", src: PERSON, a: 2005, b: 2059, what: "the Firebase boot" },

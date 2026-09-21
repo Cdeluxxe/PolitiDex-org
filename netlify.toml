@@ -1048,49 +1048,71 @@
   status = 200
 
 # ═════════════════════════════════════════════════════════════════════════════
-# THE FIRST DISTRICT VOICE READER: /district/ut-sd-3 -> district-ut-sd-3.html
+# THE DISTRICT VOICE READERS: /district/<alias> -> district-<alias>.html
 # ─────────────────────────────────────────────────────────────────────────────
-# WHAT THIS ADDRESS IS. Utah Senate District 3 — North Ogden and the rest of
-# Weber County — read as a PLACE rather than as a person. /p/john_johnson is the
-# sitting member's file and /voice is where a reader is placed at whatever seat
-# their own saved location names. Neither of those is an address you can hand to
-# a neighbour and say "this is our district". This is.
+# FOUR ADDRESSES, TWELVE RULES, AND NOT ONE WILDCARD.
 #
-# WHY A FLAT FILE AND NOT A PATTERN. The obvious rule here was /district/* to
-# one template that reads the seat off the path, and it is deliberately NOT what
-# this is. A splat would publish an address for all 29 Utah senate seats, all
-# 75 house seats and anything else anybody typed, and every one of those pages
-# would load, render three bands and print zeroes — a board that exists at every
-# address in the state on the night one board opened. /api/district-board
-# answers a seat that is not on its allow-list with 404 for the same reason. One
-# district has a reader, so one district has an address; the second one is three
-# more lines in this file, and those three lines are the record that a decision
-# was made.
+#   /district/ut-sd-3   Utah Senate District 3    North Ogden, Weber County
+#   /district/ut-hd-16  Utah House District 16    Layton, Davis County
+#   /district/ut-sd-7   Utah Senate District 7    Layton, Davis County
+#   /district/ut-cd-2   Utah's 2nd Congressional  the court-ordered 2026 map
 #
-# THREE SPELLINGS, ONE DOCUMENT. The bare path is canonical and the only one
-# printed anywhere — in district-board.js's ROUTE, in the control on Johnson's
-# person file, and in the <link rel="canonical"> of the document itself. The
-# trailing slash is declared rather than left to Netlify's own 301 so a pasted
-# /district/ut-sd-3/ is the page instead of a hop; it is ALSO the reason every
-# same-origin path inside district-ut-sd-3.html is root-absolute with no
-# exceptions, because served at /district/ut-sd-3/ a bare src="district-board.js"
-# resolves to /district/ut-sd-3/district-board.js, this rule answers that with
-# the HTML document, and the browser is handed HTML and told to parse it as
-# JavaScript. The .html form is declared because /voice, /money and /my-stances
-# all serve an .html file from an extensionless path, so a reader who guesses the
-# underlying filename guesses THIS shape — and a guess that 404s teaches nothing.
-# scripts/test-district-voice-sd3.mjs asserts all three are present, all three
-# are 200, all three point at the same document, and nothing above them matches.
+# WHAT THESE ADDRESSES ARE. A district read as a PLACE rather than as a person.
+# /p/<pid> is a sitting member's file and /voice is where a reader is placed at
+# whatever seat their own saved location names. Neither of those is an address
+# you can hand to a neighbour and say "this is our district". These are.
 #
-# ORDER: THREE EXACT PATHS, NO PREFIX, NO SPLAT. Disjoint by inspection of the
-# literal strings from every rule above — /d/* is a different first segment from
-# /district/, which is the one collision worth saying out loud, since /d/ut-sd-3
-# and /district/ut-sd-3 name the same seat and are two different documents on
-# purpose: the former is the seat file inside index.html, this is the board. The
-# invariant for whoever adds a rule above: nothing matching /district/ut-sd-3 may
-# be declared earlier, and the day a /district/* or a catch-all appears these
-# three must stay in front of it.
+# WHY FLAT FILES AND NOT A PATTERN — THE SAME ANSWER AT FOUR ROWS AS AT ONE.
+# The obvious rule here was /district/* to one template that reads the seat off
+# the path, and it is deliberately NOT what this is. A splat would publish an
+# address for all 29 Utah senate seats, all 75 house seats, all four
+# congressional districts and anything else anybody typed, and every one of
+# those pages would load, render three bands and print zeroes — a board that
+# exists at every address in the state on the night four boards opened.
+# /api/district-board answers a seat that is not on its allow-list with 404 for
+# the same reason, and district-voice.js's BOARD_ROUTES grew from one row to
+# four rather than into a regex. FOUR DISTRICTS HAVE A READER, SO FOUR
+# DISTRICTS HAVE AN ADDRESS; the fifth is three more lines in this file, and
+# those three lines are the record that a decision was made. The moment this
+# block is shorter than the list of boards, one of them is a 404 and the other
+# is a lie.
+#
+# THREE SPELLINGS PER DOCUMENT. The bare path is canonical and the only one
+# printed anywhere — in district-board.js's BOARDS table, in the control on the
+# sitting member's person file, in /voice's Open-board link, and in the
+# <link rel="canonical"> of the document itself. The trailing slash is declared
+# rather than left to Netlify's own 301 so a pasted /district/ut-hd-16/ is the
+# page instead of a hop; it is ALSO the reason every same-origin path inside
+# each district-*.html is root-absolute with no exceptions, because served at
+# /district/ut-hd-16/ a bare src="district-board.js" resolves to
+# /district/ut-hd-16/district-board.js, these rules answer that with the HTML
+# document, and the browser is handed HTML and told to parse it as JavaScript.
+# The .html form is declared because /voice, /money and /my-stances all serve
+# an .html file from an extensionless path, so a reader who guesses the
+# underlying filename guesses THIS shape — and a guess that 404s teaches
+# nothing. The suite asserts, for every one of the four aliases, that all three
+# spellings are present, all three are 200, all three point at that alias's own
+# document, and nothing above them matches.
+#
+# ONE DOCUMENT PER SEAT, NOT ONE DOCUMENT FOR FOUR SEATS. The four files are
+# the same shell with a different seat declared in the head and on the host
+# element; district-board.js is parameterised by that seat and was not forked.
+# The reason the rewrites do not collapse to a single `to` is the service
+# worker: sw.js precaches each document and serves the offline shell PER PATH,
+# so /district/ut-cd-2 offline is the UT-2 document and not SD-3's heading over
+# UT-2's URL.
+#
+# ORDER: TWELVE EXACT PATHS, NO PREFIX, NO SPLAT. Disjoint by inspection of the
+# literal strings from every rule above — /d/* is a different first segment
+# from /district/, which is the one collision worth saying out loud, since
+# /d/ut-sd-3 and /district/ut-sd-3 name the same seat and are two different
+# documents on purpose: the former is the seat file inside index.html, this is
+# the board. The invariant for whoever adds a rule above: nothing matching
+# /district/<one of those four aliases> may be declared earlier, and the day a
+# /district/* or a catch-all appears these twelve must stay in front of it.
 # ═════════════════════════════════════════════════════════════════════════════
+
+# ── Utah Senate District 3 ───────────────────────────────────────────────────
 [[redirects]]
   from = "/district/ut-sd-3"
   to = "/district-ut-sd-3.html"
@@ -1105,10 +1127,69 @@
 
 # The filename a reader might guess from the extensionless path. Same document,
 # not a second canonical: district-ut-sd-3.html's <link rel="canonical"> names
-# the bare /district/ut-sd-3 and nothing on the site links this spelling.
+# the bare /district/ut-sd-3 and nothing on the site links this spelling. The
+# same is true of the .html row under each of the three aliases below.
 [[redirects]]
   from = "/district/ut-sd-3.html"
   to = "/district-ut-sd-3.html"
+  status = 200
+
+# ── Utah House District 16 ───────────────────────────────────────────────────
+# Layton and Davis County. NOT HD-15, which is the neighbouring seat and has no
+# board: /voice prints an HD-15 reader a card with no door on purpose, and the
+# only thing standing between those two answers is that one alias is in this
+# block and the other is not.
+[[redirects]]
+  from = "/district/ut-hd-16"
+  to = "/district-ut-hd-16.html"
+  status = 200
+
+[[redirects]]
+  from = "/district/ut-hd-16/"
+  to = "/district-ut-hd-16.html"
+  status = 200
+
+[[redirects]]
+  from = "/district/ut-hd-16.html"
+  to = "/district-ut-hd-16.html"
+  status = 200
+
+# ── Utah Senate District 7 ───────────────────────────────────────────────────
+[[redirects]]
+  from = "/district/ut-sd-7"
+  to = "/district-ut-sd-7.html"
+  status = 200
+
+[[redirects]]
+  from = "/district/ut-sd-7/"
+  to = "/district-ut-sd-7.html"
+  status = 200
+
+[[redirects]]
+  from = "/district/ut-sd-7.html"
+  to = "/district-ut-sd-7.html"
+  status = 200
+
+# ── Utah's 2nd Congressional District ────────────────────────────────────────
+# THE ONE FEDERAL BOARD, and the one whose band 1 is a join rather than a
+# written-down name: the document loads voter-hub-location.js so that
+# _pdxUsHouseSeat('Utah', 2) — the app's single owner of "who holds this
+# congressional district" — answers it, and prints the seat with "no member on
+# file" when that join is empty. The boundary is the court-ordered 2026 map the
+# finder already uses, not the 2021 plan.
+[[redirects]]
+  from = "/district/ut-cd-2"
+  to = "/district-ut-cd-2.html"
+  status = 200
+
+[[redirects]]
+  from = "/district/ut-cd-2/"
+  to = "/district-ut-cd-2.html"
+  status = 200
+
+[[redirects]]
+  from = "/district/ut-cd-2.html"
+  to = "/district-ut-cd-2.html"
   status = 200
 
 # FOLLOW THE MONEY. The lane's own address, and the only page on this site where
