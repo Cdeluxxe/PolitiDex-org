@@ -7942,7 +7942,44 @@
 //     Nothing stored changed shape or name, no store was added, and the saved
 //     location is still read only through the resolver - seated-member.js is
 //     keyed on a SEAT, never on a reader, and touches no localStorage at all.
-const CACHE_VERSION = 'v245';
+// v246 - A PID FROM ANOTHER DISTRICT CANNOT SIT ON THIS CARD.
+//     A district card is keyed by CHAMBER + NUMBER, and both /voice and the
+//     Voter Hub's represents-me rows took the resolver's pid on sight. Inside
+//     Utah that pid's first source is the CURATED COUNTY SLATE, which is a file
+//     about an election in a county rather than a map of a district. Layton is
+//     HD-16 / SD-7; the Davis slate carries Jerry Stevenson (SD-6) and Ariel
+//     Defay (HD-15). So the State Senate District 7 card read "Sitting member:
+//     Jerry Stevenson" above a board door into Stuart Adams's room, with
+//     Stevenson's own file one tap away saying District 6, and the District 16
+//     card read "The member who holds this seat is on file" over Defay's
+//     nameless row while the board beside it was Trevor Lee's.
+//     ONE NEW READ, PUBLISHED BY THE RESOLVER: window.pdxSeatClaim(pid, seatKey,
+//     district) answers 'match' | 'mismatch' | 'unknown' from the record's own
+//     `office` and `state` fields, beside the congressional join that already
+//     reads them. It resolves nobody and returns no pid, so it cannot become a
+//     second answer to who holds a seat. The chamber comes from `office` because
+//     it cannot come from the number: both state chambers write "UT District 7".
+//     ONE WALK, TWO CALLERS: district-voice.js seatPidFor() drops a mismatched
+//     pid and never restores it, prefers the chamber-and-number-keyed district
+//     table where the resolver's pid is unverified or too thin to print as a
+//     name, and keeps the resolver's own answer everywhere else. /voice's seat
+//     list and who-represents-me.js's rows both go through it, so the two pages
+//     cannot disagree about the reader's senator in one visit. A statewide row
+//     has no number to disagree with and is untouched.
+//     'unknown' IS NOT A VACANCY. A cold roster, a flattened payload and a thin
+//     row all land there, and a pid the page cannot name yet still prints the
+//     "on file" sentence with a working door to the person file. The empty
+//     sentence is reached only where nothing resolves at all.
+//     STILL NOT READING THE LEGISLATIVE TABLE FOR A NON-UTAH READER: that lane
+//     is gated on the composed seat key, which only Utah composes, so a Missouri
+//     card asks nothing and names nobody. ballot-breakdown.js is still not on
+//     /voice; seated-member.js still owns the tables there, byte-pinned.
+//     voice-room.js is still a printer. BOARD_ROUTES is still four named rows -
+//     no /district/* splat, no fifth board, no composer, no score, no equity.
+//     MIGRATION COST: none, and no location key is migrated, renamed or copied.
+//     Nothing stored changed shape or name and no store was added; this pass
+//     only decides which already-resolved pid a card is allowed to print.
+const CACHE_VERSION = 'v246';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

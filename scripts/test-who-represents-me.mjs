@@ -785,6 +785,74 @@ has(OUT, 'Change my location',
 has(OUT, "my-politicians",
   'band: the Team Builder bridge does not target the builder section');
 
+// ── AND A PID FROM ANOTHER DISTRICT CANNOT SIT ON A ROW EITHER ──────────────
+// A row is headed with a chamber and a number, and it used to name whoever
+// `lv.pid` was. Inside Utah the resolver's first source for a legislative pid is
+// the curated COUNTY slate, which is a file about an election in a county rather
+// than a map of a district: Layton is SD-7, the Davis slate carries Jerry
+// Stevenson of SD-6, and the row printed "Jerry Stevenson" under a District 7
+// heading while /voice's board door beside it was Stuart Adams's.
+//
+// The pid now comes from district-voice.js's seatPidFor() — the ONE walk from a
+// resolved level to the pid that may sit on its card, driven for real against the
+// resolver, the district table and both roster dialects in
+// test-voice-sitting-member.mjs section 8. What this asserts is the BAND's half
+// of that contract: it asks the walk and prints the walk's answer, and it does
+// not print the level's own pid behind the walk's back.
+{
+  const LV = LEVELS6.map((l) => (l.key === 'statesenate' ? { ...l, pid: 'p-rep' } : l));
+  const corrected = runBand({
+    pdxRepsForMe: () => ({ located: true, national: false, state: 'Utah', area: 'Bountiful, Davis County', redrawn: false, districtsResolvable: true, levels: LV }),
+    PDXVoice: { seatPidFor: (lv) => (lv && lv.key === 'statesenate' ? 'p-sen' : ((lv && lv.pid) || '')) },
+  });
+  const C = corrected.host.innerHTML;
+  must(C.length > 0, 'band: nothing painted for the corrected-pid visitor');
+  has(C, 'Todd Weiler',
+    'band: the State Senate row does not name the member the shared walk seated for District 23. The\n' +
+    '    band reads lv.pid on sight again, which is how a District 6 member came to be printed under a\n' +
+    '    District 7 heading');
+  // THE SAME PAGE A CORRECT SET OF LEVELS WOULD HAVE PAINTED. Every name appears
+  // exactly as often as it does on the warm answer above — the State House member
+  // is not also on the senate row, and nobody was printed twice or lost.
+  for (const nm of ['Todd Weiler', 'Ray Ward', 'Blake Moore']) {
+    eq((C.match(new RegExp(nm, 'g')) || []).length, (OUT.match(new RegExp(nm, 'g')) || []).length,
+      `band: ${nm} appears a different number of times than on an answer whose levels were right to\n` +
+      '    begin with — the senate row printed the level pid the walk replaced, so one person holds two\n' +
+      '    seats on one answer');
+  }
+  // AND THE WALK IS ASKED FOR EVERY ROW, not only the ones that look wrong.
+  const asked = [];
+  runBand({
+    pdxRepsForMe: () => ({ located: true, national: false, state: 'Utah', area: 'Bountiful, Davis County', redrawn: false, districtsResolvable: true, levels: LEVELS6 }),
+    PDXVoice: { seatPidFor: (lv) => { asked.push(lv && lv.key); return (lv && lv.pid) || ''; } },
+  });
+  // BOTH READERS OF A SEAT PID ASK IT: the six rows, and the six seats on the
+  // shareable card — which prints a district label beside a name and would
+  // otherwise carry the wrong member into somebody's messages.
+  eq(new Set(asked).size, 6,
+    'band: the shared walk was not asked for every seat — a seat that skips it is a seat that can still\n' +
+    '    name the holder of another district');
+  ok(asked.length >= 12,
+    'band: one of the two seat-pid readers in this file stopped asking the walk (asked ' + asked.length +
+    ' times for 6 seats) — the row and the shareable card must not answer differently');
+  // AND A DOCUMENT WITHOUT THE HALLWAY STILL ANSWERS. index.html carries
+  // district-voice.js, but a missing module is not a reason to blank a seat.
+  const bare = runBand({
+    pdxRepsForMe: () => ({ located: true, national: false, state: 'Utah', area: 'Bountiful, Davis County', redrawn: false, districtsResolvable: true, levels: LEVELS6 }),
+    PDXVoice: undefined,
+  });
+  has(bare.host.innerHTML, 'Todd Weiler',
+    'band: with no PDXVoice on the document the row blanked instead of falling back to the pid the\n' +
+    '    resolver published — a missing hallway is a loading fact, not a vacancy');
+  const broken = runBand({
+    pdxRepsForMe: () => ({ located: true, national: false, state: 'Utah', area: 'Bountiful, Davis County', redrawn: false, districtsResolvable: true, levels: LEVELS6 }),
+    PDXVoice: { seatPidFor: () => { throw new Error('boom'); } },
+  });
+  has(broken.host.innerHTML, 'Todd Weiler',
+    'band: a throwing walk took the whole answer down with it instead of falling back to the\n' +
+    '    resolver\'s own pid');
+}
+
 // ── ONE PERSON, TWO SPELLINGS, AND THE BAND JOINS THEM THE WAY /voice DOES ──
 // The row's display record used to come from window._pdxPersonById alone, which
 // reads CMP_DATA and is keyed by the CANONICAL pid. Nothing upstream promises

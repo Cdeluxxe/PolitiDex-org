@@ -260,6 +260,32 @@
     return first;
   }
 
+  // ── THE PID THAT MAY SIT ON THIS SEAT ──────────────────────────────────────
+  // district-voice.js's seatPidFor() is the ONE walk from a resolved level to the
+  // pid its card is allowed to name, and /voice's seat list goes through the same
+  // function — so the band and the hallway cannot disagree about who the reader's
+  // senator is in one visit. It drops a pid whose own record claims another
+  // district, prefers the chamber-and-number-keyed district table where the
+  // resolver's pid is unverifiable or too thin to name, and hands back the
+  // resolver's own answer everywhere else.
+  //
+  // WHERE THE HALLWAY IS NOT ON THE DOCUMENT, THE PID AS PUBLISHED STANDS.
+  // index.html carries district-voice.js, but a missing module is a loading fact
+  // and never a vacancy — the same reading this file already applies to a roster
+  // that has not arrived. Both readers of a seat pid in this file ask THIS: the
+  // row, and the shareable seats card, which prints a district label beside a
+  // name and would otherwise carry the same wrong member into somebody's
+  // messages.
+  function seatPid(lv, reps) {
+    if (!lv) return null;
+    try {
+      if (window.PDXVoice && typeof window.PDXVoice.seatPidFor === 'function') {
+        return window.PDXVoice.seatPidFor(lv, reps && reps.state) || null;
+      }
+    } catch (e) { return lv.pid || null; }
+    return lv.pid || null;
+  }
+
   // ── One representative row ─────────────────────────────────────────────────
   // Resolved: photo, name, party letter, office, district — and the whole row is
   // the control that opens their record, because "see their record" is the next
@@ -291,8 +317,16 @@
   // and with the id itself where it has not yet merged, because a name we have not
   // loaded is a loading problem and never a coverage claim. The blank copy is
   // reachable only where the resolver returned nothing at all.
+  //
+  // AND THE PID MUST BELONG TO THE NUMBER THIS ROW PRINTS. `lv.pid` on sight is
+  // how the senate row came to read "Jerry Stevenson" under a District 7
+  // heading: inside Utah the resolver's first source for a legislative pid is
+  // the curated county slate, the Davis slate carries SD-6 and HD-15, and
+  // Layton is SD-7 / HD-16. So the pid comes through seatPid() below, and the
+  // gate is still a pid — just a pid that is allowed to sit on the seat the row
+  // is headed with.
   function row(lv, reps) {
-    var pid = lv.pid || null;
+    var pid = seatPid(lv, reps);
     var person = personOf(pid);
     var color = lv.color || '#60a5fa';
 
@@ -643,7 +677,13 @@
     for (var i = 0; i < levels.length; i++) {
       var lv = levels[i];
       if (!lv || !lv.resolved || !lv.pid) continue;
-      var person = personOf(lv.pid);
+      // THE SAME WALK THE ROWS USE, for the same reason and with one extra one:
+      // this card is a thing a reader FORWARDS. A wrong name on it outlives the
+      // visit. Where the walk drops a pid and nothing can replace it the seat
+      // stays on the card with its true district label and no name, and the
+      // unnamed count below says so.
+      var cpid = seatPid(lv, reps);
+      var person = cpid ? personOf(cpid) : null;
       var nm = (person && person.name) ? String(person.name) : '';
       if (!nm) unnamed++;
       seats.push({ key: lv.key, label: String(lv.distLabel || lv.label || ''), name: nm });
