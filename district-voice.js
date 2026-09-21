@@ -418,6 +418,101 @@
     return normalizeSeatKey(code + '-' + seat + '-' + String(parseInt(num, 10)));
   }
 
+  // ── WHO SITS IN THIS SEAT, FROM THE JOINS WHO REPRESENTS ME ALREADY USES ───
+  // pdxRepsForMe() resolves the member for every level it publishes, and where
+  // it can it hands the pid down on the level itself. On a LEAN DOCUMENT it
+  // often cannot, and the reason is never that the seat is vacant:
+  //
+  //   · The two legislative lanes end at window.pdxSeatedMemberFor(), which is
+  //     declared inside ballot-breakdown.js — 407 KB voice.html does not load.
+  //     The call site was on the page, the function was not, and the resolver
+  //     failed soft to null exactly as it is written to. So the hallway printed
+  //     "No sitting member on hand for this seat" under an Open board door for
+  //     HD-16 and SD-7, seats whose own boards name Trevor Lee and Stuart
+  //     Adams. seated-member.js is that one lookup lifted out, ~4 KB of it, on
+  //     the same terms profile-alias.js is already on this document.
+  //   · The congressional lane ends at window._pdxUsHouseSeat(), which IS on
+  //     this page — but it needs the roster, and the roster arrives with
+  //     Firebase. A walk taken before it lands resolves nobody and nothing was
+  //     asking again per seat.
+  //
+  // SO THE LEVEL'S OWN PID STILL WINS AND THIS IS ONLY EVER CONSULTED WHEN IT
+  // IS BLANK. Nothing here can overrule the resolver, re-seat a level it
+  // resolved, or answer for a seat it did not publish; the only thing it can do
+  // is fill a blank the resolver itself would have filled on a fatter document.
+  //
+  // AND IT LIVES HERE RATHER THAN ONLY IN THE RESOLVER BECAUSE OF THE CACHE.
+  // pdxRepsForMe() asks both of these joins itself, and on a first load that is
+  // the end of it — the fill below finds nothing to do, which is correct. The
+  // two files do not arrive together, though: voice.html, district-voice.js,
+  // voice-room.js, seated-member.js and profile-alias.js are PRECACHED shell
+  // assets, swapped as a set when CACHE_VERSION moves, while
+  // voter-hub-location.js is RUNTIME-cached and unversioned (sw.js says so, in
+  // those words, and says why). A warm device can therefore run this pass's
+  // hallway against a resolver copy that predates the lane which asks
+  // pdxSeatedMemberFor() at all — and the reader would see the empty sentence
+  // under an open board door on a build that fixed it. The seat list's owner
+  // asking the joins itself is what makes the answer not depend on which copy
+  // of another module the cache handed over.
+  //
+  // TWO LANES, AND THEY ARE NOT INTERCHANGEABLE:
+  //
+  //   U.S. HOUSE → window._pdxUsHouseSeat(state, district), asked with the
+  //   ROSTER'S OWN STATE STRING — reps.state, which is 'Utah', never 'UT'. That
+  //   join matches on the district-qualified `state` field the roster records
+  //   ("Utah · District 2", "Missouri · MO-5"), and _pdxStateName() reduces
+  //   'UT' to "ut", which matches no record ever written. It is the only join
+  //   asked for this lane: the curated congressional table seated-member.js
+  //   carries is NOT consulted here, because a written-down congressional pid is
+  //   a second answer to a question a court-ordered map can change, and the
+  //   first thing a second answer does is outlive a redistricting. This lane is
+  //   therefore NOT gated on the seat key — a Missouri reader's CD is a seat the
+  //   federal roster can name, and it composes no seat key because this app does
+  //   not draw Missouri's legislative lines.
+  //
+  //   STATE HOUSE / STATE SENATE → window.pdxSeatedMemberFor(seatKey, n), and
+  //   this lane IS gated on the seat key, which is the whole of its state gate.
+  //   That table is keyed on a district NUMBER inside a chamber and carries no
+  //   state of its own, so asked bare it would answer 'tlee' for House District
+  //   16 in any state on earth. seatKeyForLevel() composes a key only through
+  //   STATE_CODE, which holds the one state whose legislative districts this app
+  //   resolves — so a Missouri State House card asks nothing, names nobody, and
+  //   keeps the honest empty sentence.
+  //
+  // AND '' IS AN ANSWER. An absent module, a cold roster and an empty join all
+  // return '', the card prints the empty sentence, and there is no branch below
+  // that can reach for a name from anywhere else.
+  // AND THE GATE ON A JOINED PID IS THE RESOLVER'S, NOT A SECOND, STRICTER ONE.
+  // pdxRepsForMe() decides which pids survive — _pdxRosterKeeps() is what
+  // un-names a seat, and an empty roster is explicitly a page mid-load rather
+  // than a resignation. Its own seated() lane hands down a district-table pid
+  // without re-asking that gate, and the fill below stands in for exactly that
+  // lane, so it does not re-ask it either. A stricter rule here would be the
+  // same defect this pass is fixing, pointed the other way: the card would name
+  // the member with one cached copy of the resolver and report a vacancy with
+  // the other, and the reader would have no way to tell which they got. Policy
+  // about who still holds a seat belongs to the resolver, in one file.
+  function joinedPid(level, seatKey, stateName) {
+    if (!level || level.statewide) return '';
+    var n = String(level.district == null ? '' : level.district).replace(/[^0-9]/g, '');
+    if (!n || n === '0') return '';
+    var seat = String((level.seat || level.key) || '').trim().toLowerCase();
+    var pid = '';
+    if (seat === 'house') {
+      try {
+        if (!fn(window._pdxUsHouseSeat)) return '';
+        pid = String(window._pdxUsHouseSeat(stateName, n) || '');
+      } catch (e) { return ''; }
+    } else {
+      if (!seatKey) return '';
+      try {
+        if (!fn(window.pdxSeatedMemberFor)) return '';
+        pid = String(window.pdxSeatedMemberFor(seatKey, n) || '');
+      } catch (e2) { return ''; }
+    }
+    return pid;
+  }
+
   // THE CARDS, IN THE RESOLVER'S OWN ORDER. One entry per seat this location
   // names, and each entry carries only fields the resolver already published:
   // the chamber's label, the district number it resolved, the county it resolved
@@ -449,6 +544,11 @@
       var n = lv.statewide ? '' : String(lv.district == null ? '' : lv.district).replace(/[^0-9]/g, '');
       if (!lv.statewide && !n) continue;
       var seatKey = seatKeyForLevel(lv, reps.state);
+      // THE RESOLVER'S PID FIRST, ALWAYS, AND THE JOIN ONLY WHERE IT IS BLANK.
+      // See joinedPid(): a lean document is why the blank happens, and a vacancy
+      // is not why.
+      var pid = String(lv.pid == null ? '' : lv.pid);
+      if (!pid) pid = joinedPid(lv, seatKey, reps.state);
       // THE NAME IS THE FIELDS THE RESOLVER ALREADY PUBLISHED OR IT IS NOT A
       // NAME. Chamber, district, county — nothing composed from a geometry table
       // this file does not carry. A statewide row keeps the resolver's own
@@ -463,7 +563,7 @@
           ? String(lv.distLabel || label)
           : (label + ' District ' + n + (county ? ' \u00b7 ' + county : '')),
         seatKey: seatKey,
-        pid: String(lv.pid == null ? '' : lv.pid),
+        pid: pid,
         board: boardPath(seatKey)
       });
     }

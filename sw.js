@@ -7895,7 +7895,54 @@
 //     still no /district/* splat. Detect, the locbar map badge and the four
 //     district boards are untouched.
 //     MIGRATION COST: none. Nothing stored changed shape or name.
-const CACHE_VERSION = 'v244';
+// v245 - THE HALLWAY NAMES WHO SITS IN THE SEAT.
+//     /voice listed a Layton reader's six seats and named nobody in three of
+//     them. The State House card read "No sitting member on hand for this seat"
+//     for HD-16 and the State Senate card read it for SD-7 - and BOTH of those
+//     seats have a board, so the hallway printed "Open board" directly under a
+//     sentence saying nobody holds the seat the door belongs to. One tap away,
+//     the board itself named Trevor Lee and Stuart Adams.
+//     IT WAS NOT THE SEAT LIST AND IT WAS NOT THE GATE. pdxRepsForMe() is the
+//     one seat list and it already asks the right joins: _pdxUsHouseSeat() for
+//     the congressional seat, pdxSeatedMemberFor() for the two legislative ones.
+//     The second is declared inside ballot-breakdown.js, 407 KB voice.html
+//     deliberately does not load, so the call site was on the page and the
+//     function was not - the resolver failed soft to null exactly as written,
+//     and the card printed the sentence that means "nobody holds this".
+//     NEW SHELL ASSET: /seated-member.js, 9 KB. The three district->pid tables
+//     and the one lookup over them, copied VERBATIM out of ballot-breakdown.js
+//     and byte-pinned to it by scripts/test-voice-sitting-member.mjs.
+//     ballot-breakdown.js stays the owner and stays untouched; this is the same
+//     lifting /profile-alias.js already is on the same document, against the
+//     same page, and it is precached beside it: together they are what let a
+//     cold, offline hallway name a member instead of reporting a vacancy.
+//     THE FILL IS IN THE SEAT LIST'S OWNER, ASKED ONLY WHERE THE RESOLVER CAME
+//     BACK BLANK. district-voice.js's seatsForMe() takes lv.pid first, always,
+//     and consults the joins only for a level with no pid on it; voice-room.js
+//     is unchanged and stays a printer with no seat key, chamber or state in it.
+//     TWO LANES AND THEY DO NOT SWAP. U.S. House goes to _pdxUsHouseSeat() with
+//     the roster's own state STRING ('Utah', never 'UT' - _pdxStateName reduces
+//     'UT' to "ut", which matches no roster record ever written), so a Missouri
+//     reader's CD is named too, and the curated congressional table is NOT read
+//     for it: a written-down pid is a second answer to a question a
+//     court-ordered map can change. State House and State Senate go to
+//     pdxSeatedMemberFor() gated on the composed seat key - that table is keyed
+//     on a district NUMBER with no state of its own, so asked bare it answers
+//     'tlee' for House District 16 anywhere on earth.
+//     THE EMPTY SENTENCE IS STILL REACHABLE AND STILL UNWORDED. An absent
+//     module, a join that answers nothing and a seat outside the one state that
+//     table covers all hand down '', and the card says "No sitting member on
+//     hand for this seat" - no "yet", no promise. A pid that resolves with no
+//     roster row to name it keeps the printer's OTHER sentence, "The member who
+//     holds this seat is on file", plus a working door - unchanged by this pass.
+//     NOT A FIFTH BOARD. BOARD_ROUTES is still four named rows, there is still
+//     no /district/* splat, no composer, no score and no equity copy; the four
+//     board documents and district-board.js are untouched by this pass.
+//     MIGRATION COST: none, and no location key is migrated, renamed or copied.
+//     Nothing stored changed shape or name, no store was added, and the saved
+//     location is still read only through the resolver - seated-member.js is
+//     keyed on a SEAT, never on a reader, and touches no localStorage at all.
+const CACHE_VERSION = 'v245';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -8066,6 +8113,11 @@ const SHELL_ASSETS = [
   // is not wrong, but it describes a named member as merely 'on file'.
   '/voice-room.js',
   '/profile-alias.js',
+  // ...AND /seated-member.js, for the same reason one line up. It is the table
+  // that answers "who sits in Utah House District 16" on a document with no
+  // ballot-breakdown.js; arrive without it and the two legislative cards report
+  // a vacancy under an open board door.
+  '/seated-member.js',
   // WHAT /money COSTS OFFLINE: the re-homing module and the lane's rules;
   // /finance-lane.js and /finance-lane.css are already entries below.
   '/money-room.js',

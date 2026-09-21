@@ -259,13 +259,28 @@ const gz = gzipSync(Buffer.from(VD, "utf8")).length;
 ok(gz < 16 * 1024, `budget: voice.html is ${(gz / 1024).toFixed(1)} KB gzipped (ceiling 16 KB)`);
 const localSrcs = TAGS.map((t) => (t.attrs.match(/\bsrc\s*=\s*["']([^"']+)["']/) || [])[1])
   .filter((s) => s && !/^(?:https?:)?\/\//.test(s));
-ok(localSrcs.length <= 10, `budget: voice.html loads ${localSrcs.length} local scripts (ceiling 10)`);
+// THE REQUEST COUNT, AND WHY IT MOVED TO ELEVEN. The ceiling is a tripwire whose
+// job is to make an addition justify itself, and the eleventh file did: naming
+// the member who sits in a State House or State Senate seat needs
+// window.pdxSeatedMemberFor, whose only other owner is the 407 KB wall two rules
+// down, and seated-member.js is that lookup and its three district tables lifted
+// out at 9 KB — the same trade profile-alias.js already made on this document.
+// So the ceiling rose by exactly one file and the eleventh is NAMED: a further
+// request has to move this number again, in a pass that says why.
+ok(localSrcs.length <= 11, `budget: voice.html loads ${localSrcs.length} local scripts (ceiling 11)`);
+if (localSrcs.length === 11) {
+  ok(localSrcs.indexOf("/seated-member.js") !== -1,
+    "budget: the eleventh request is not seated-member.js — the ceiling was raised for that one lifted\n" +
+    "    lookup, and it is not a spare slot for something else");
+}
 ok(localSrcs.every((s) => s.charAt(0) === "/"), "budget: every local script src is root-absolute");
 // THE FOUR FILES THIS ADDRESS EXISTS TO NOT LOAD. ballot-breakdown.js is both a
 // budget and a wall — see failure mode 4 in the header.
 [["/app.css", "986 KB of homepage cascade for one board"],
   ["compare-hub.js", "758 KB of homepage engine — the chip is shell-account-chip.js"],
-  ["ballot-breakdown.js", "407 KB of ballot machinery, and it is also what would resolve the seated member"],
+  ["ballot-breakdown.js", "407 KB of ballot machinery. It owns the seated-member lookup this hallway needs, " +
+    "which is why that one function and its three district tables are lifted into seated-member.js at 9 KB " +
+    "and pinned to it — loading the owner for them is the trade this address exists to refuse"],
   ["evidence-locker.js", "310 KB of locker, and the Evidence Locker is its own address"]]
   .forEach(([f, why]) => lacks(VD_MARKUP, f, `budget: ${f} is on this document — ${why}`));
 // AND THE FIFTH, WHICH THIS PASS ADDED TO THE LIST. district-voice.css dressed
