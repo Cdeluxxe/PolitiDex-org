@@ -35,10 +35,11 @@
          says so in district-voice.js's own shipped copy.
        · NO "HOW THE MEMBER VOTED." The board's week strip reads the seat's
          formal record, best-effort, and says which of its three states it is in;
-         it never renders a person's vote as a verdict. The seated member is not
-         even resolved on this document — district-voice.js asks
-         pdxSeatedMemberFor() and fails soft to '' when ballot-breakdown.js is
-         absent, which it is here, deliberately.
+         it never renders a person's vote as a verdict. The seated member IS
+         named here now — a name and a link to their own file, which is all it
+         is — and it is named through the joins Who Represents Me already uses,
+         never through a vote, a score or a record read. See seated-member.js
+         below on why that name used to be missing on exactly this document.
        · NO SCORE, NO DIRECTION MATCH, NO PARTY, NO FINANCE. A take is not a
          metric on anybody's file. The money lane is its own address, /money,
          for the same reason this one is.
@@ -61,7 +62,17 @@
                            _currentVoterLocation, which are the two things
                            district-voice.js's claim() reads. Without it every
                            reader is unplaced, which is why it is on the path
-                           rather than deferred behind an interaction.
+                           rather than deferred behind an interaction. It also
+                           owns _pdxUsHouseSeat(), the one join from a
+                           congressional district to its member, which is how a
+                           U.S. House card gets a name.
+       seated-member.js    the other half of that answer: the district→pid
+                           tables for the two state chambers, and
+                           pdxSeatedMemberFor() over them. 4 KB lifted verbatim
+                           out of ballot-breakdown.js's 407 KB and pinned to it
+                           by the suite, because a hallway that lists a seat and
+                           cannot name who sits in it is a hallway printing
+                           "No sitting member" under an open door.
        district-voice.js   the ONE owner of District Voice: the seat allow-list,
                            the seat-key shape, what counts as a claim, which
                            seat a claim names, whether a board is open in it, the
@@ -98,6 +109,17 @@
      everything there is to search and this bar links to it. ballot.html,
      me.html, stances.html, evidence.html and courts.html are the precedent for
      every one of those.
+
+     AND ballot-breakdown.js IS STILL NOT HERE, WHICH IS WHY seated-member.js
+     IS. The line above used to end "the one thing it would add is the seated
+     member's name, which the board already knows how to do without" — and then
+     the hallway started naming members, which is what a card listing a seat is
+     for. So the name arrived and the 407 KB did not: the one table and the one
+     lookup that answer "who sits in this district" were lifted into 4 KB, byte-
+     pinned to their owner, exactly as profile-alias.js lifted PDX_PROFILE_ALIAS
+     out of 68 KB of Evidence Locker for this same page. Two liftings, one rule:
+     a lean document may borrow a LITERAL from a module it cannot afford, and it
+     may never borrow a second opinion.
 
      THE RULE THIS DOCUMENT LIVES BY: EVERY SAME-ORIGIN PATH IS ROOT-ABSOLUTE.
      /voice/ is served with HTTP 200 at a trailing-slash path, so a bare src of
@@ -421,6 +443,16 @@
        hand for this seat" while the front page named the member. This is that
        one table and nothing else, copied verbatim and pinned to its source. -->
   <script defer src="/profile-alias.js"></script>
+  <!-- THE SEAT→OFFICEHOLDER TABLE, 4 KB OF IT, AND THE SAME MOVE AS THE BRIDGE
+       ABOVE. ballot-breakdown.js owns window.pdxSeatedMemberFor — the one lookup
+       from "Utah State House, district 16" to a pid — and ballot-breakdown.js is
+       407 KB of curated race machinery this document does not load. Without the
+       lookup on the page, pdxRepsForMe()'s two legislative lanes fail soft to
+       null and every State House and State Senate card read "No sitting member
+       on hand for this seat", including the two that carry an Open board door.
+       This is those three tables and that one function, copied verbatim and
+       pinned to their source. -->
+  <script defer src="/seated-member.js"></script>
   <script defer src="/issue-map.js"></script>
   <script defer src="/issue-colors.js"></script>
   <script defer src="/voter-hub-location.js"></script>

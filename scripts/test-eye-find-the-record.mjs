@@ -860,11 +860,90 @@ section("10 · nothing on the do-not list moved");
       "polItem() changed by more than the declared avatar box — the row builder is otherwise untouched");
     // AND THE SURFACES THIS PASS WAS TOLD TO LEAVE ALONE ARE THE SAME FILES.
     for (const f of ["hero-showcase.js",
-                     "judicial-retention.js", "judicial-data.js",
-                     "profile-evidence.js"]) {
+                     "judicial-retention.js", "judicial-data.js"]) {
       const h = HEAD(f);
       must(h != null, `${f} could not be read out of HEAD`);
       eq(R(f) === h, true, `${f} is not byte-identical with HEAD — it is on the do-not-touch list`);
+    }
+    // profile-evidence.js CAME OFF THAT LIST, on the same terms finance-lane.js
+    // and person-link.js did, and for the narrowest reason a file on it can: a
+    // ROW was added to one of its two alias tables. This file is the Eye's
+    // spine — it is what turns a retired id into the one person who holds that
+    // record — and the claim the whole-file pin was a proxy for is that the Eye
+    // gets that answer from one lookup over declared tables and never from a
+    // second opinion. Adding `ariel_defay: 'defay_h15'` to PDX_PROFILE_ALIAS is
+    // a row in a declared table, not a change to how the lookup works, and a
+    // whole-file pin cannot tell the two apart.
+    //   WHY THAT ROW EXISTS, since a pin that is retired without a reason is a
+    // pin that was deleted: PDX_PROFILE_ALIAS is the table the roster gate reads
+    // IN REVERSE, so that a lean document holding the full record under a name
+    // slug can still be asked for the canonical key. `ariel_defay → defay_h15`
+    // was in ACCT_ALIAS only, which that gate never reads, so /voice could
+    // resolve Utah House District 15 and then decline to name the member of it.
+    //   THE PIN NARROWS TO THE CLAIM, WHICH IS STRONGER THAN THE FILE-LEVEL
+    // VERSION WAS: there are still exactly two alias tables, each declared once;
+    // ACCT_ALIAS is byte-identical; PDX_PROFILE_ALIAS differs from HEAD by
+    // exactly one added row and that row is the declared one; and with the one
+    // table's literal set aside, every other byte of the file — every function,
+    // every read of either table, the whole resolver — is identical with HEAD. A
+    // pass that adds a roster row keeps passing; a pass that gives this file a
+    // third table, a second lookup, or one edited function fails here, which is
+    // the whole content of the original pin.
+    {
+      const f = "profile-evidence.js", h = HEAD(f);
+      must(h != null, `${f} could not be read out of HEAD`);
+      const now = R(f);
+
+      // (a) TWO TABLES, EACH DECLARED ONCE, AND NO THIRD ONE.
+      for (const t of ["ACCT_ALIAS", "PDX_PROFILE_ALIAS"]) {
+        eq((now.match(new RegExp(`window\\.${t} = window\\.${t} \\|\\|`, "g")) || []).length, 1,
+          `profile-evidence.js declares ${t} other than exactly once`);
+        eq((now.match(new RegExp(`window\\.${t}`, "g")) || []).length,
+          (h.match(new RegExp(`window\\.${t}`, "g")) || []).length,
+          `profile-evidence.js touches ${t} in a different number of places than HEAD`);
+      }
+
+      // The object literal each table is, sliced out of both revisions by its
+      // own declaration so neither side is located by line number.
+      const tableOf = (src, t) => {
+        const at = src.indexOf(`window.${t} = window.${t} || {`);
+        if (at < 0) return "";
+        const i = src.indexOf("{", src.indexOf("||", at));
+        let d = 0;
+        for (let j = i; j < src.length; j++) {
+          if (src[j] === "{") d++;
+          else if (src[j] === "}") { d--; if (!d) return src.slice(at, j + 1); }
+        }
+        return "";
+      };
+      const nowAcct = tableOf(now, "ACCT_ALIAS"), headAcct = tableOf(h, "ACCT_ALIAS");
+      const nowPpa = tableOf(now, "PDX_PROFILE_ALIAS"), headPpa = tableOf(h, "PDX_PROFILE_ALIAS");
+      must(!!nowAcct && !!headAcct && !!nowPpa && !!headPpa,
+        "profile-evidence.js's alias tables cannot be read out of both revisions — this claim has no subject");
+
+      // (b) THE CURATED-DATA TABLE DID NOT MOVE AT ALL. It already held this
+      // pair; the reason this pass exists is that it is not the table the roster
+      // gate reads.
+      eq(nowAcct, headAcct,
+        "profile-evidence.js: ACCT_ALIAS is not byte-identical with HEAD — this pass had no business in it");
+      has(nowAcct, "ariel_defay:", "profile-evidence.js: ACCT_ALIAS no longer carries the curated pair");
+
+      // (c) THE ROSTER-GATE TABLE GREW BY EXACTLY THE DECLARED ROW.
+      const rowsOf = (t) => [...t.matchAll(/^\s*([a-z0-9_]+):\s*'([a-z0-9_]+)'/gm)]
+        .map((m) => `${m[1]}=${m[2]}`);
+      const nowRows = rowsOf(nowPpa), headRows = rowsOf(headPpa);
+      const added = nowRows.filter((r) => headRows.indexOf(r) < 0);
+      const gone = headRows.filter((r) => nowRows.indexOf(r) < 0);
+      eq(gone.length, 0,
+        `profile-evidence.js: a row left PDX_PROFILE_ALIAS — ${JSON.stringify(gone)}`);
+      eq(added.join(","), "ariel_defay=defay_h15",
+        `profile-evidence.js: PDX_PROFILE_ALIAS gained rows other than the declared one — ${JSON.stringify(added)}`);
+
+      // (d) AND WITH THAT ONE TABLE SET ASIDE, THE FILE IS HEAD. Every function,
+      // every read, the whole resolver.
+      eq(now.split(nowPpa).join("<TABLE>"), h.split(headPpa).join("<TABLE>"),
+        "profile-evidence.js changed outside PDX_PROFILE_ALIAS — the spine may gain a roster row, but not a " +
+        "second opinion about who is one person");
     }
     // finance-lane.js CAME OFF THAT LIST, on the same terms person-link.js did
     // below, and for the narrowest reason a file can: its ONE address changed.
@@ -1174,7 +1253,8 @@ section("10 · nothing on the do-not list moved");
   for (const banned of ["party", "pct", "score(", "recordDepth", "finance", "state", "office"]) {
     no(shape, banned, `queryShape() reads ${JSON.stringify(banned)} — it may only read the string and name tokens`);
   }
-  console.log("      12 ranking functions byte-identical · 8 do-not-touch files byte-identical · " +
+  console.log("      12 ranking functions byte-identical · 7 do-not-touch files byte-identical · " +
+    "profile-evidence.js pinned outside its one grown table · " +
     "consistency.js frozen at its lane router and the panel's entry point · " +
     "word-action.js frozen at its 3 entry points · " +
     "the freeze reads only ids");

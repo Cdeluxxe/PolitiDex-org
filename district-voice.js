@@ -80,12 +80,12 @@
   var VOICE_SEATS = { 'ut-statehouse-68': 1 };
 
   // ── THE BOARD ALLOW-LIST, AND IT IS ONE TABLE ─────────────────────────────
-  // seatKey → the board's own address. FOUR ROWS TODAY, and adding a seat is
+  // seatKey → the board's own address. FIVE ROWS TODAY, and adding a seat is
   // still adding a row: no pattern, no splat, no `/district/<anything>` rewrite
   // that answers for districts this app has never drawn. netlify.toml rewrites
-  // exactly these four addresses and nothing else, which is why a table and not
+  // exactly these five addresses and nothing else, which is why a table and not
   // a map — the regex form of this list would print a door for all 75 Utah
-  // House districts, 71 of which have no document behind them.
+  // House districts, 72 of which have no document behind them.
   //
   // IT IS NOT VOICE_SEATS. VOICE_SEATS is "does this seat have a Voice block in
   // its district file at /d/<seat-key>"; this is "does this seat have a BOARD at
@@ -94,17 +94,25 @@
   // and a surface that conflated them would offer a reader a room that is not
   // there. /voice asks THIS one, because a hallway prints doors that open.
   //
-  // WRONG-SEAT EXCLUSIVITY IS STILL THE PRODUCT, and four rows do not soften it.
-  // A reader whose saved location resolves Davis County HD-15 gets an HD-15 card
-  // with NO DOOR — HD-16 is next door and its board is not theirs, which is a
-  // sharper test of this table than HD-68 ever was. Layton is not North Ogden,
-  // HD-15 is not HD-16, and a board labelled "yours" for somebody who cannot
-  // vote in it is the one lie this whole lane exists to avoid.
+  // WRONG-SEAT EXCLUSIVITY IS STILL THE PRODUCT, and five rows do not soften it.
+  // A reader whose saved location resolves Davis County HD-14 gets an HD-14 card
+  // with NO DOOR — HD-15 and HD-16 are both next door and neither board is
+  // theirs, which is a sharper test of this table than HD-68 ever was. Layton is
+  // not North Ogden, HD-14 is not HD-15, and a board labelled "yours" for
+  // somebody who cannot vote in it is the one lie this whole lane exists to
+  // avoid.
+  //
+  // HD-15 MOVED SIDES IN THIS PASS AND HD-14 TOOK ITS PLACE AS THE EXAMPLE.
+  // That substitution is the point: the counter-example has to be a seat that
+  // really has no document, or the paragraph stops being a test of anything.
+  // HD-14 has a member on the roster (lisonbee_h14), a person file, and no
+  // board — exactly the shape HD-15 had until this row existed.
   var BOARD_ROUTES = {
     'ut-statesenate-3': '/district/ut-sd-3',
     'ut-statehouse-16': '/district/ut-hd-16',
     'ut-statesenate-7': '/district/ut-sd-7',
-    'ut-house-2': '/district/ut-cd-2'
+    'ut-house-2': '/district/ut-cd-2',
+    'ut-statehouse-15': '/district/ut-hd-15'
   };
 
   // The state name the saved location stores → the postal code a seat key is
@@ -418,6 +426,196 @@
     return normalizeSeatKey(code + '-' + seat + '-' + String(parseInt(num, 10)));
   }
 
+  // ── WHO SITS IN THIS SEAT, FROM THE JOINS WHO REPRESENTS ME ALREADY USES ───
+  // pdxRepsForMe() resolves the member for every level it publishes, and where
+  // it can it hands the pid down on the level itself. On a LEAN DOCUMENT it
+  // often cannot, and the reason is never that the seat is vacant:
+  //
+  //   · The two legislative lanes end at window.pdxSeatedMemberFor(), which is
+  //     declared inside ballot-breakdown.js — 407 KB voice.html does not load.
+  //     The call site was on the page, the function was not, and the resolver
+  //     failed soft to null exactly as it is written to. So the hallway printed
+  //     "No sitting member on hand for this seat" under an Open board door for
+  //     HD-16 and SD-7, seats whose own boards name Trevor Lee and Stuart
+  //     Adams. seated-member.js is that one lookup lifted out, ~4 KB of it, on
+  //     the same terms profile-alias.js is already on this document.
+  //   · The congressional lane ends at window._pdxUsHouseSeat(), which IS on
+  //     this page — but it needs the roster, and the roster arrives with
+  //     Firebase. A walk taken before it lands resolves nobody and nothing was
+  //     asking again per seat.
+  //
+  // SO THE LEVEL'S OWN PID STILL WINS AND THIS IS ONLY EVER CONSULTED WHEN IT
+  // IS BLANK. Nothing here can overrule the resolver, re-seat a level it
+  // resolved, or answer for a seat it did not publish; the only thing it can do
+  // is fill a blank the resolver itself would have filled on a fatter document.
+  //
+  // AND IT LIVES HERE RATHER THAN ONLY IN THE RESOLVER BECAUSE OF THE CACHE.
+  // pdxRepsForMe() asks both of these joins itself, and on a first load that is
+  // the end of it — the fill below finds nothing to do, which is correct. The
+  // two files do not arrive together, though: voice.html, district-voice.js,
+  // voice-room.js, seated-member.js and profile-alias.js are PRECACHED shell
+  // assets, swapped as a set when CACHE_VERSION moves, while
+  // voter-hub-location.js is RUNTIME-cached and unversioned (sw.js says so, in
+  // those words, and says why). A warm device can therefore run this pass's
+  // hallway against a resolver copy that predates the lane which asks
+  // pdxSeatedMemberFor() at all — and the reader would see the empty sentence
+  // under an open board door on a build that fixed it. The seat list's owner
+  // asking the joins itself is what makes the answer not depend on which copy
+  // of another module the cache handed over.
+  //
+  // TWO LANES, AND THEY ARE NOT INTERCHANGEABLE:
+  //
+  //   U.S. HOUSE → window._pdxUsHouseSeat(state, district), asked with the
+  //   ROSTER'S OWN STATE STRING — reps.state, which is 'Utah', never 'UT'. That
+  //   join matches on the district-qualified `state` field the roster records
+  //   ("Utah · District 2", "Missouri · MO-5"), and _pdxStateName() reduces
+  //   'UT' to "ut", which matches no record ever written. It is the only join
+  //   asked for this lane: the curated congressional table seated-member.js
+  //   carries is NOT consulted here, because a written-down congressional pid is
+  //   a second answer to a question a court-ordered map can change, and the
+  //   first thing a second answer does is outlive a redistricting. This lane is
+  //   therefore NOT gated on the seat key — a Missouri reader's CD is a seat the
+  //   federal roster can name, and it composes no seat key because this app does
+  //   not draw Missouri's legislative lines.
+  //
+  //   STATE HOUSE / STATE SENATE → window.pdxSeatedMemberFor(seatKey, n), and
+  //   this lane IS gated on the seat key, which is the whole of its state gate.
+  //   That table is keyed on a district NUMBER inside a chamber and carries no
+  //   state of its own, so asked bare it would answer 'tlee' for House District
+  //   16 in any state on earth. seatKeyForLevel() composes a key only through
+  //   STATE_CODE, which holds the one state whose legislative districts this app
+  //   resolves — so a Missouri State House card asks nothing, names nobody, and
+  //   keeps the honest empty sentence.
+  //
+  // AND '' IS AN ANSWER. An absent module, a cold roster and an empty join all
+  // return '', the card prints the empty sentence, and there is no branch below
+  // that can reach for a name from anywhere else.
+  // AND THE GATE ON A JOINED PID IS THE RESOLVER'S, NOT A SECOND, STRICTER ONE.
+  // pdxRepsForMe() decides which pids survive — _pdxRosterKeeps() is what
+  // un-names a seat, and an empty roster is explicitly a page mid-load rather
+  // than a resignation. Its own seated() lane hands down a district-table pid
+  // without re-asking that gate, and the fill below stands in for exactly that
+  // lane, so it does not re-ask it either. A stricter rule here would be the
+  // same defect this pass is fixing, pointed the other way: the card would name
+  // the member with one cached copy of the resolver and report a vacancy with
+  // the other, and the reader would have no way to tell which they got. Policy
+  // about who still holds a seat belongs to the resolver, in one file.
+  function joinedPid(level, seatKey, stateName) {
+    if (!level || level.statewide) return '';
+    var n = String(level.district == null ? '' : level.district).replace(/[^0-9]/g, '');
+    if (!n || n === '0') return '';
+    var seat = String((level.seat || level.key) || '').trim().toLowerCase();
+    var pid = '';
+    if (seat === 'house') {
+      try {
+        if (!fn(window._pdxUsHouseSeat)) return '';
+        pid = String(window._pdxUsHouseSeat(stateName, n) || '');
+      } catch (e) { return ''; }
+    } else {
+      if (!seatKey) return '';
+      try {
+        if (!fn(window.pdxSeatedMemberFor)) return '';
+        pid = String(window.pdxSeatedMemberFor(seatKey, n) || '');
+      } catch (e2) { return ''; }
+    }
+    return pid;
+  }
+
+  // ── AND A PID FROM ANOTHER NUMBER CANNOT SIT ON THIS CARD ──────────────────
+  // A card here is keyed by CHAMBER + NUMBER. It prints "State Senate District
+  // 7", it opens a door into District 7's board, and the one thing it may not do
+  // is name somebody who holds District 6 — which is exactly what it did. Inside
+  // Utah the resolver's first source for a legislative pid is the CURATED COUNTY
+  // SLATE, and a slate is a file about an election in a county rather than a map
+  // of a district: Layton is HD-16 / SD-7, the Davis slate carries Jerry
+  // Stevenson (SD-6) and Ariel Defay (HD-15), and so the District 7 card read
+  // "Sitting member: Jerry Stevenson" above a board door into Stuart Adams's
+  // room while Stevenson's own file, one tap away, said District 6. The District
+  // 16 card printed "The member who holds this seat is on file" over Defay's
+  // nameless row while the board beside it was Trevor Lee's.
+  //
+  // SO THE RESOLVER'S PID IS STILL READ FIRST, AND IT IS NOW READ WITH THE CARD'S
+  // KEY IN HAND. window.pdxSeatClaim() — published by the resolver, beside the
+  // congressional join, and the same read for every surface — says whether the
+  // record that pid names claims this chamber and this number. Three answers,
+  // and each one has exactly one honest move:
+  //
+  //   'mismatch' → DROP IT, AND NEVER PUT IT BACK. The card's key is a fact
+  //     about the reader's address; the pid is a guess about an election. Nothing
+  //     below may restore a dropped pid, and the empty sentence is a better
+  //     answer than a confident wrong name.
+  //   'match', and the record can be NAMED → keep it. This is the ordinary case
+  //     and the resolver stays in charge of it.
+  //   'unknown', or a match on a row too thin to name → ask the district table,
+  //     and prefer its answer where it has one. A nameless row is the shape that
+  //     produced "member on file" with no name, and the table's pid is the one
+  //     keyed on this card's own chamber and number. Where the table has nothing
+  //     the original pid is KEPT, because 'unknown' is a cold roster or a
+  //     flattened payload, never a finding that somebody does not hold a seat —
+  //     and a pid we cannot name yet still prints the "on file" sentence with a
+  //     working door to the person file.
+  //
+  // WHY THE NAME IS WEIGHED HERE AND NOT IN joinedPid(). Two different questions
+  // wearing the same word. joinedPid() must not re-ask whether a pid still holds
+  // a seat — that ruling is the resolver's, made in one file (see above, and the
+  // suite fences it). This asks whether the row the hallway is about to hand the
+  // printer can be printed AS A NAME, which is the printer's own gate
+  // (voice-room.js keeps only a lane that can name, and falls back to "on file"),
+  // and the answer decides only whether a second, better-keyed lookup is worth
+  // taking. It can never un-name a seat: the worst it does is swap a pid the
+  // card could not name for one it can.
+  //
+  // AND A MISSING pdxSeatClaim IS 'unknown', NOT AN EXCUSE TO KEEP EVERYTHING.
+  // voter-hub-location.js is runtime-cached and unversioned while this file is a
+  // precached shell asset, so a warm device can run this pass's hallway against
+  // a resolver copy that has never heard of this read. That copy degrades to
+  // 'unknown' on every seat, the district table is asked for every card that has
+  // a seat key, and the table is keyed on chamber and number — so the Layton
+  // cards come out right anyway, by the longer road.
+  function claimOf(pid, key, n) {
+    try {
+      if (!fn(window.pdxSeatClaim)) return 'unknown';
+      return String(window.pdxSeatClaim(pid, key, n) || 'unknown');
+    } catch (e) { return 'unknown'; }
+  }
+
+  // Can this pid be printed as a name on this document? The same roster read
+  // voice-room.js prints from, asked once here so a nameless row can be improved
+  // on rather than printed as "on file" beside a board that knows the name.
+  function nameable(pid) {
+    try {
+      if (!fn(window.pdxRosterRec)) return false;
+      var rec = window.pdxRosterRec(pid);
+      return !!(rec && String(rec.name == null ? '' : rec.name).trim());
+    } catch (e) { return false; }
+  }
+
+  // THE ONE WALK FROM A RESOLVED LEVEL TO THE PID THAT MAY SIT ON ITS CARD.
+  // Exported, because who-represents-me.js prints the same seats from the same
+  // levels and took the same pid on sight; two copies of this would be two
+  // different answers about who the reader's senator is, on two pages, in the
+  // same visit.
+  function seatPidFor(level, stateName, seatKey) {
+    if (!level) return '';
+    var key = seatKey == null ? seatKeyForLevel(level, stateName) : seatKey;
+    var n = level.statewide ? '' : String(level.district == null ? '' : level.district).replace(/[^0-9]/g, '');
+    var pid = String(level.pid == null ? '' : level.pid);
+    // A STATEWIDE ROW HAS NO NUMBER TO DISAGREE WITH. Both U.S. Senate seats and
+    // the governor are held statewide; there is no card key to check a claim
+    // against and nothing here may touch those pids.
+    if (pid && !level.statewide && n) {
+      var claim = claimOf(pid, key || String((level.seat || level.key) || ''), n);
+      if (claim === 'mismatch') {
+        pid = '';
+      } else if (claim !== 'match' || !nameable(pid)) {
+        var better = joinedPid(level, key, stateName);
+        if (better) pid = better;
+      }
+    }
+    if (!pid) pid = joinedPid(level, key, stateName);
+    return pid;
+  }
+
   // THE CARDS, IN THE RESOLVER'S OWN ORDER. One entry per seat this location
   // names, and each entry carries only fields the resolver already published:
   // the chamber's label, the district number it resolved, the county it resolved
@@ -449,6 +647,11 @@
       var n = lv.statewide ? '' : String(lv.district == null ? '' : lv.district).replace(/[^0-9]/g, '');
       if (!lv.statewide && !n) continue;
       var seatKey = seatKeyForLevel(lv, reps.state);
+      // THE RESOLVER'S PID FIRST, ALWAYS, CHECKED AGAINST THE CARD'S OWN KEY,
+      // AND THE JOIN WHERE IT IS BLANK OR BELONGS TO ANOTHER NUMBER. See
+      // seatPidFor() and joinedPid(): a lean document is why a blank happens, a
+      // county slate is why a wrong number happens, and a vacancy is neither.
+      var pid = seatPidFor(lv, reps.state, seatKey);
       // THE NAME IS THE FIELDS THE RESOLVER ALREADY PUBLISHED OR IT IS NOT A
       // NAME. Chamber, district, county — nothing composed from a geometry table
       // this file does not carry. A statewide row keeps the resolver's own
@@ -463,7 +666,7 @@
           ? String(lv.distLabel || label)
           : (label + ' District ' + n + (county ? ' \u00b7 ' + county : '')),
         seatKey: seatKey,
-        pid: String(lv.pid == null ? '' : lv.pid),
+        pid: pid,
         board: boardPath(seatKey)
       });
     }
@@ -1105,6 +1308,7 @@
     TAKE_MAX: TAKE_MAX,
     TAKES_CAP: TAKES_CAP,
     normalizeSeatKey: normalizeSeatKey,
+    seatPidFor: seatPidFor,
     isAlias: isAlias,
     shipped: shipped,
     path: path,

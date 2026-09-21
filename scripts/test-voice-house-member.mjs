@@ -52,15 +52,26 @@
 //      document with the curated tables, the memo that walk actually wrote, and
 //      then resolved again on a lean document with only the live index — and the
 //      State House name the hallway prints equals the name the front-page band
-//      prints. Lapoint/HD-68 and Fillmore/HD-29.
+//      prints. Lapoint/HD-68, Fillmore/HD-29 and Layton/HD-15.
 //   4. AND THE JOIN IS WHAT DOES IT. The same lean reader, with the ruling taken
 //      off the page, goes back to the empty sentence — so rule 3 is not passing
 //      for some other reason.
 //   5. A ROSTER HOLE IS STILL A ROSTER HOLE. A pid the live index holds under
 //      NEITHER spelling stays empty, with the copy unchanged and no "yet".
-//   6. NOTHING ELSE MOVED. BOARD_ROUTES is still one row, /district/ut-sd-3 is
-//      byte-identical to HEAD, and no map, board, splat, equity string or score
-//      came with this.
+//   6. NOTHING ELSE MOVED. BOARD_ROUTES is a list of named rows and never a
+//      pattern, and no map, splat, equity string or score came with this.
+//
+// HD-15 WAS THE HOLE THIS HARNESS RECORDED, AND IT IS NOW A THIRD READER.
+// Rule 5's original note said Ariel Defay's `defay_h15` was bridged only in
+// ACCT_ALIAS, so nothing the gate reads could reach it and Layton's State House
+// card stayed as it was: no person invented, no bridge added, the missing row
+// left missing. The pass that opened /district/ut-hd-15 added the entry the
+// reverse read needs — one row, in the table's owner, the same pair ACCT_ALIAS
+// has held since July 2026 — so the Layton reader below walks all seven rules
+// exactly as Lapoint and Fillmore do, including rule 4's proof that the ruling
+// is what does it. Rule 5 is unchanged and still has a subject: the hole it
+// describes is a row the live index holds under NEITHER spelling, which is a
+// different fact from a row filed under the other one.
 //
 //   node scripts/test-voice-house-member.mjs
 //
@@ -295,9 +306,10 @@ const ALIAS = (() => {
   new Function("window", PA)(ctx.window);
   return ctx.window.PDX_PROFILE_ALIAS;
 })();
-must(ALIAS && ALIAS.scott_chew === "chew_h68" && ALIAS.bridger_bolinder === "bolinder_h68",
-  "bridge: profile-alias.js does not bridge scott_chew → chew_h68 and bridger_bolinder → bolinder_h68, which\n" +
-  "  are the two fixtures in the report");
+must(ALIAS && ALIAS.scott_chew === "chew_h68" && ALIAS.bridger_bolinder === "bolinder_h68" &&
+  ALIAS.ariel_defay === "defay_h15",
+  "bridge: profile-alias.js does not bridge scott_chew → chew_h68, bridger_bolinder → bolinder_h68 and\n" +
+  "  ariel_defay → defay_h15, which are the three fixtures in the report");
 
 // THE TWO READERS. Areas ballot-breakdown.js curates (uintah/HD-68 and
 // millard/HD-29, synthesised from KEY_RACES_LOCATIONS because they carry all
@@ -313,6 +325,18 @@ const SEATS = [
     area: "Fillmore, Millard County", hd: "4", sd: "27", ld: "29",
     canon: "bolinder_h68", filed: "bridger_bolinder", name: "Bridger Bolinder",
   },
+  // LAYTON / HD-15, WHICH USED TO BE THIS FILE'S RECORDED HOLE. Same shape as
+  // the two above — the live document under the display-name slug, the roster
+  // record and the district under the legislative id — and the seat now has a
+  // board of its own at /district/ut-hd-15, which is why its card must NAME the
+  // member rather than describe them. The board and the hallway read the same
+  // row; if the bridge went away, the door would open onto a page whose band 1
+  // is a person the hallway that sent the reader there could not name.
+  {
+    who: "Layton", loc: { state: "Utah", city: "Layton", county: "Davis County", district: "2" },
+    area: "Layton, Davis County", hd: "2", sd: "7", ld: "15",
+    canon: "defay_h15", filed: "ariel_defay", name: "Ariel Defay",
+  },
 ];
 
 // The curated roster the FRONT PAGE has: canonical keys, because cmp-data.js is
@@ -325,9 +349,12 @@ const CMP = {
   umoore: { name: "Burgess Moore", office: "U.S. Representative", state: "Utah · UT-4", party: "R" },
   chew_h68: { name: "Scott Chew", office: "Utah State Representative", state: "UT District 68", party: "R" },
   bolinder_h68: { name: "Bridger Bolinder", office: "Utah State Representative", state: "UT District 29", party: "R" },
+  sadams: { name: "Stuart Adams", office: "Utah Senate President", state: "UT District 7", party: "R" },
+  maloy: { name: "Celeste Maloy", office: "U.S. Representative", state: "Utah · UT-2", party: "R" },
+  defay_h15: { name: "Ariel Defay", office: "Utah State Representative", state: "UT District 15", party: "R" },
 };
-const SEN_BY_D = { 20: "rwinterton", 27: "swayne" };
-const USH_BY_D = { 3: "kennedy", 4: "umoore" };
+const SEN_BY_D = { 20: "rwinterton", 27: "swayne", 7: "sadams" };
+const USH_BY_D = { 3: "kennedy", 4: "umoore", 2: "maloy" };
 
 // And the LIVE index the lean document has: the same people, but each State House
 // member's document filed under the slug of their display name, which is the
@@ -485,8 +512,10 @@ for (const s of SEATS) {
     "    sentence is now unreachable and the copy is dead");
 
   // 5. RULE 5 — a row the live index holds under NEITHER spelling is a roster
-  //    hole, and a roster hole stays empty. HD-15's defay_h15 is bridged only in
-  //    ACCT_ALIAS, so this is the real shape of the remaining gap.
+  //    hole, and a roster hole stays empty. This used to be described with
+  //    HD-15's defay_h15, which had no entry in the table at all; that row now
+  //    has one, so the hole is synthesised here instead of borrowed — the join
+  //    must find a row under one of the two spellings, never invent one.
   const holed = liveIndex(s);
   delete holed[s.filed];
   const hole = voiceCtx(s, memo, { live: holed });
@@ -592,8 +621,21 @@ const HEAD = (f) => {
 // the end of this section — the FIELDS this harness actually cares about, which
 // are that the engine still gets its member from the roster and that nothing
 // here names one itself.
-[["ballot-breakdown.js", "the curated race tables"],
-  ["profile-evidence.js", "the table's owner"]].forEach(([f, why]) => {
+// AND THE TABLE'S OWNER LEFT IT AS WELL, LAST AND FOR THE NARROWEST REASON:
+// this harness exists because a row was MISSING from that table, so a pin that
+// forbade the table from ever gaining a row would forbid the fix it is here to
+// protect. The pass that opened /district/ut-hd-15 added `ariel_defay →
+// defay_h15` — the entry rule 5's own note said was absent — and the Layton
+// reader in section 3 walks every rule on it. What replaces the pin is the set
+// of things this harness actually cares about, and they are asserted rather
+// than assumed: §1 already holds profile-alias.js byte-identical to the literal
+// in profile-evidence.js, so the two documents still cannot hold two opinions;
+// the block below holds the reverse read to one hop; and the forward invariant
+// — every value is a live roster id, no key is one — is
+// scripts/test-identity-integrity.mjs §11's and is enforced there on every row
+// the table has. A pin on the bytes would have added nothing to that and would
+// have made the table unmaintainable.
+[["ballot-breakdown.js", "the curated race tables"]].forEach(([f, why]) => {
     const h = HEAD(f);
     if (h == null) { passed++; return; }  // no git object here; the byte pins above still hold
     // The public hostname is normalised out of both sides. "Untouched" here means this

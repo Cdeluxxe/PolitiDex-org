@@ -2353,6 +2353,135 @@
     return (pid && _pdxRosterKeeps(pid)) ? pid : null;
   };
 
+  // ── window.pdxSeatClaim(pid, seatKey, district) — DOES THIS RECORD CLAIM
+  //    THIS SEAT? ────────────────────────────────────────────────────────────
+  // A district card is keyed by CHAMBER + NUMBER, and a pid that belongs to a
+  // different number cannot sit on it. Every surface that projects these levels
+  // took `lv.pid` on sight, and the pid is not always the district table's
+  // answer: inside Utah the curated county slate answers first, and a slate is
+  // a file about an ELECTION rather than about a map. Layton is HD-16 / SD-7,
+  // and the Davis slate still carries Jerry Stevenson (SD-6) and Ariel Defay
+  // (HD-15) — so the District 7 card printed "Sitting member: Jerry Stevenson"
+  // above a board door into Stuart Adams's room, and Stevenson's own person
+  // file, one tap away, says District 6. The reader had no way to tell which of
+  // the two pages was wrong.
+  //
+  // THIS IS A READ ABOUT A RECORD, NOT A SECOND SEAT RESOLVER. It answers one
+  // question — does the record this pid names claim the seat this card is keyed
+  // to — out of the two fields the record itself carries, `office` and `state`,
+  // both already read for other purposes a few lines up. It resolves nobody,
+  // seats nobody and returns no pid, so it cannot become a second answer to
+  // "who holds this seat". The only thing a caller may do with a 'mismatch' is
+  // stop printing a pid it already had.
+  //
+  // THREE ANSWERS, BECAUSE SILENCE IS NOT DISAGREEMENT:
+  //   'match'    — the record names this chamber and this number.
+  //   'mismatch' — the record names a DIFFERENT number, or another chamber.
+  //                A card keyed to a seat is the thing that is right here.
+  //   'unknown'  — no record yet, or a record that does not say which seat it
+  //                holds. NOT a mismatch, and a caller must not treat it as
+  //                one: a cold roster, a payload that flattened `office`, and a
+  //                thin row carrying nothing but a name all land here, and each
+  //                is a fact about loading rather than a claim about a seat.
+  //
+  // AND THE CHAMBER MUST COME FROM `office`, BECAUSE THE NUMBER CANNOT CARRY
+  // IT. Both state chambers spell their district identically — "UT District 7"
+  // is Adams in the Senate, and "UT District 7" is somebody else entirely in
+  // the House — so a number-only rule would clear a senator to sit on the House
+  // card with the same number.
+
+  // Which state chamber an office string claims, and '' for every office that
+  // claims neither. Deliberately strict in both directions: the roster writes
+  // the same seat six ways ("Utah State Senator", "UT State Senator", "State
+  // Senate President", "Utah Senate President", "State Senate Majority Leader",
+  // "<State> State Senator") and writes near-misses that must classify as
+  // nothing at all — a former member, a candidate, a U.S. seat, a county
+  // council, a governorship. '' is never a mismatch; it is this function
+  // declining to answer, which is the honest reading of an office it does not
+  // recognise.
+  function _pdxStateChamberOfOffice(office) {
+    var o = String(office == null ? '' : office).trim();
+    if (!o) return '';
+    if (/\bformer\b|\bex-|\bcandidate\b|\bnominee\b|\b-elect\b/i.test(o)) return '';
+    if (/\bu\.?\s*s\.?\b|\bcongress|\bfederal\b|\bwhite house\b/i.test(o)) return '';
+    if (/\bcounty\b|\bcity\b|\bcouncil\b|\bmayor\b|\bschool\b|\bboard\b/i.test(o)) return '';
+    var sen = /\bsenat(e|or)\b/i.test(o);
+    var low = /\bhouse\b|\bassembly\b|\brepresentative\b|\brep\b/i.test(o);
+    if (sen === low) return '';
+    return sen ? 'statesenate' : 'statehouse';
+  }
+
+  // The legislative district a record claims, read off its own `state` string —
+  // "UT District 16", "UT District 7 (Layton, Davis County)". The
+  // interpunct dialect is the CONGRESSIONAL one ("Utah · District 2", read by
+  // _pdxCdOfRosterState above) and is refused here, so one string is never read
+  // as a claim on two different chambers' maps. A record with no district tail
+  // returns '' and is therefore placed in no district by this read.
+  function _pdxLegDistrictOfRosterState(v) {
+    var s = String(v == null ? '' : v);
+    if (s.indexOf('·') !== -1) return '';
+    var m = s.match(/\bdistrict\s+(\d{1,3})\b/i);
+    return m ? String(parseInt(m[1], 10)) : '';
+  }
+
+  // One chamber out of whatever a caller has in hand: a level key
+  // ('statesenate', 'statehouse', 'house') or a composed seat key
+  // ('ut-statehouse-16', 'ut-cd-2'). Anything else is ''.
+  function _pdxClaimChamber(seatKey) {
+    var s = String(seatKey == null ? '' : seatKey).trim().toLowerCase();
+    if (!s) return '';
+    if (/statesenate|state-senate|state_senator|(^|[^a-z])sd([^a-z]|$)/.test(s)) return 'statesenate';
+    if (/statehouse|state-house|state_rep|(^|[^a-z])hd([^a-z]|$)/.test(s)) return 'statehouse';
+    if (/(^|[^a-z])(house|cd)([^a-z]|$)/.test(s)) return 'house';
+    return '';
+  }
+
+  window.pdxSeatClaim = function (pid, seatKey, district) {
+    var chamber = _pdxClaimChamber(seatKey);
+    if (!pid || !chamber) return 'unknown';
+    var rec = null;
+    try { rec = _pdxRosterRec(pid) || null; } catch (e) { rec = null; }
+    if (!rec) return 'unknown';
+
+    if (chamber === 'house') {
+      var key = _pdxCdKey(district);
+      if (!key) return 'unknown';
+      // An office that is not a U.S. House seat cannot hold a U.S. House
+      // district, and that IS a mismatch rather than a silence: a state
+      // senator's record is perfectly legible, and what it legibly says is
+      // that this is not their seat. An empty office string still says nothing.
+      if (String(rec.office || '').trim() && !_pdxIsUsRepOffice(rec.office)) return 'mismatch';
+      var claim = _pdxCdOfRosterState(rec.state);
+      if (!claim) return 'unknown';
+      if (claim === key) return 'match';
+      // The same one-way at-large tolerance _pdxUsHouseSeat() applies, for the
+      // same reason: district 1 is the number this app stores for a state that
+      // has one district, and no other number may ever reach an at-large seat.
+      return (key === '1' && claim === 'AL') ? 'match' : 'mismatch';
+    }
+
+    var n = String(district == null ? '' : district).replace(/[^0-9]/g, '');
+    if (!n || n === '0') return 'unknown';
+    var ch = _pdxStateChamberOfOffice(rec.office);
+    if (ch && ch !== chamber) return 'mismatch';
+    // A MEMBER OF CONGRESS OR A GOVERNOR DOES NOT HOLD A LEGISLATIVE DISTRICT,
+    // and their record says so legibly — so this is a mismatch rather than a
+    // silence, by the same reading the congressional lane above applies in the
+    // other direction. Their `state` string carries a congressional district or
+    // no district at all, and either way it is not this card's.
+    if (!ch && (_pdxIsUsRepOffice(rec.office) || _pdxIsUsSenatorOffice(rec.office) ||
+                _pdxIsGovernorProper(rec.office))) return 'mismatch';
+    var d = _pdxLegDistrictOfRosterState(rec.state);
+    if (!d) return 'unknown';
+    if (d !== String(parseInt(n, 10))) return 'mismatch';
+    // THE NUMBER AGREES AND THE CHAMBER IS UNSTATED, WHICH IS NOT A MATCH.
+    // Both chambers write "UT District 7", so a record whose office this file
+    // cannot classify has agreed with half the key and said nothing about the
+    // other half. 'unknown' sends the caller to the district table, which is
+    // keyed on the chamber and cannot make that mistake.
+    return ch === chamber ? 'match' : 'unknown';
+  };
+
   // ── window.pdxRosterReady(cb) — "THE ROSTER IS HERE", ANNOUNCED ONCE ────────
   // The memo above already refuses to cache an empty roster, so a statewide read
   // taken before cmp-data.js executes is never remembered as the answer. But a

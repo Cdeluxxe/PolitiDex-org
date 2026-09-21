@@ -769,8 +769,11 @@ for (const w of ['vh-loc-mapbadge', 'pdxPaintStateShape', 'data-pdxhome']) {
   lacks(WRM, w, `who-represents-me.js now touches the map badge (${w})`);
 }
 
-// THE DISTRICT BOARDS are still four named rows and still have no splat. A seats
-// card is not a fifth board, and it must not have quietly become a route.
+// THE DISTRICT BOARDS are still named rows and still have no splat. A seats
+// card is not a board, and it must not have quietly become a route. The count
+// is five because HD-15 opened; what this block guards is that the table grew
+// by a DECIDED row and never by a pattern, and that this pass's card is not
+// one of them.
 {
   const DV = read('district-voice.js');
   const DB = read('district-board.js');
@@ -778,9 +781,9 @@ for (const w of ['vh-loc-mapbadge', 'pdxPaintStateShape', 'data-pdxhome']) {
   const tbl = DV.slice(DV.indexOf('var BOARD_ROUTES = {'), DV.indexOf('};', DV.indexOf('var BOARD_ROUTES = {')));
   const routes = [...tbl.matchAll(/'\/district\/([a-z0-9-]+)'/g)].map((m) => m[1]);
   must(routes.length > 0, 'BOARD_ROUTES no longer lists board paths the way this assertion reads them');
-  eq(routes.length, 4,
-    'the board table is no longer four rows. This pass adds a card, not a board: ' + JSON.stringify(routes));
-  for (const a of ['ut-sd-3', 'ut-hd-16', 'ut-sd-7', 'ut-cd-2']) {
+  eq(routes.length, 5,
+    'the board table is no longer five rows. This pass adds a card, not a board: ' + JSON.stringify(routes));
+  for (const a of ['ut-sd-3', 'ut-hd-16', 'ut-sd-7', 'ut-cd-2', 'ut-hd-15']) {
     ok(routes.indexOf(a) !== -1, `the board ${a} has left BOARD_ROUTES`);
   }
   ok(!/from\s*=\s*"\/district\/[^"]*\*/.test(TOML),

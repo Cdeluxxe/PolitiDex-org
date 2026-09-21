@@ -1,19 +1,20 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    district-board.js — THE DISTRICT VOICE READERS, AND THEY ARE READERS
    ───────────────────────────────────────────────────────────────────────────
-   FOUR SEATS HAVE A BOARD YOU CAN READ AT AN ADDRESS, and ONE module serves all
-   four. Each is a row in BOARDS below, and nothing about a board lives anywhere
+   FIVE SEATS HAVE A BOARD YOU CAN READ AT AN ADDRESS, and ONE module serves all
+   five. Each is a row in BOARDS below, and nothing about a board lives anywhere
    but its row:
 
      /district/ut-sd-3   Utah Senate District 3 — North Ogden and Weber County
      /district/ut-hd-16  Utah House District 16 — Layton and Davis County
      /district/ut-sd-7   Utah Senate District 7 — Layton and Davis County
      /district/ut-cd-2   Utah's 2nd Congressional District
+     /district/ut-hd-15  Utah House District 15 — Layton and Davis County
 
    THE ALLOW-LIST IS THE PRODUCT, NOT AN OPTIMISATION. There is no /district/*
    splat and no pattern that composes an address out of a seat number, because
    the moment one exists this app has an address for every district in the
-   country and a document behind four of them. A seat that is not a row here has
+   country and a document behind five of them. A seat that is not a row here has
    no board, /voice says so in words, and the endpoint 404s it.
 
    ADDING A BOARD IS FOUR ROWS AND A DOCUMENT — this table, district-voice.js's
@@ -38,7 +39,7 @@
    in it and the list of what is actually on its table.
 
    ── WHO HOLDS THE SEAT, AND THE TWO OWNERS OF THAT ANSWER ──────────────────
-   Three of the four boards name their holder with a ROSTER KEY on their own row
+   Four of the five boards name their holder with a ROSTER KEY on their own row
    and band 1 reads that row and nothing else. The congressional board has NO
    pid: /district/ut-cd-2's member is resolved through
    window._pdxUsHouseSeat('Utah', 2) — voter-hub-location.js's one owner of
@@ -187,13 +188,15 @@
   if (window.PDXDistrictBoard) return;   // idempotent — a double script tag is one board
 
   // ── THE BOARDS, AND EACH ONE IS A ROW ─────────────────────────────────────
-  // FOUR SEATS HAVE A BOARD, AND THIS IS THE WHOLE LIST. It grew from one row
-  // to four without growing a second implementation: everything below is
+  // FIVE SEATS HAVE A BOARD, AND THIS IS THE WHOLE LIST. It grew from one row
+  // to five without growing a second implementation: everything below is
   // parameterised by the ACTIVE board, and a board is the row that names it.
-  // Adding a fifth is a row here, a row in district-voice.js's BOARD_ROUTES, a
+  // Adding a sixth is a row here, a row in district-voice.js's BOARD_ROUTES, a
   // row in netlify/functions/district-board.mts's BOARD_SEATS, three rewrites in
   // netlify.toml and a document — no pattern, no `/district/*` splat, no
-  // per-seat fork of this file.
+  // per-seat fork of this file. HD-15 was the fifth and it cost exactly that:
+  // the row below, four allow-list rows elsewhere, one document, and not one
+  // line of new render code.
   //
   // WHAT EACH FIELD IS FOR.
   //   seat   the canonical key Postgres knows, and the only spelling that ever
@@ -266,6 +269,23 @@
       kick: 'UT-2 district board',
       kickTitle: 'The district board for Utah’s 2nd Congressional District: who is ' +
                  'in the room and what is on the table. A place, not a scorecard.'
+    },
+    // THE FIFTH, AND APPENDED RATHER THAN SORTED IN. This table's order is the
+    // order these boards opened, which is also the order /voice's hallway
+    // prints them in, so a row inserted next to its neighbour by district
+    // number would reshuffle a reader's page to say something this pass never
+    // decided. HD-15 covers part of Layton, as HD-16 and SD-7 do, and is a
+    // different seat from both.
+    'ut-statehouse-15': {
+      seat: 'ut-statehouse-15',
+      alias: 'ut-hd-15',
+      route: '/district/ut-hd-15',
+      pid: 'defay_h15',
+      h1: 'Utah House District 15',
+      where: 'Layton and Davis County',
+      kick: 'House District 15 board',
+      kickTitle: 'The district board for Utah House District 15: who is in the room ' +
+                 'and what is on the table. A place, not a scorecard.'
     }
   };
 
@@ -318,7 +338,7 @@
   // where the path names a person. So each board document declares its own seat
   // twice — a sync `window.__PDX_DISTRICT_BOARD_SEAT` in the head and a
   // `data-pdxdb-seat` on the host element — and the suite asserts every one of
-  // the four documents does, because a document that declared neither would
+  // the five documents does, because a document that declared neither would
   // paint the DEFAULT board's seat under its own heading, which is the exact
   // class of confident wrongness this whole surface exists to avoid.
   function hostSeat(el) {

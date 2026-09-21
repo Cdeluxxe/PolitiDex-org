@@ -54,7 +54,7 @@
 (function () {
   'use strict';
 
-  // COPIED VERBATIM FROM profile-evidence.js LINES 351–403.
+  // COPIED VERBATIM FROM profile-evidence.js LINES 351–415.
     window.PDX_PROFILE_ALIAS = window.PDX_PROFILE_ALIAS || {
       // curated keys with no roster record of their own
       kivory:    'ivory_h39',
@@ -77,6 +77,18 @@
       // _resolveStanceList(rosterId) already returns the block filed under the key
       // on its left. Without them a Stance Library row, a comparison-board dot and
       // an issue-view chip all opened nothing.
+      // CANONICAL: defay_h15 — Utah House District 15, Layton and Davis County,
+      // and the roster hole sw.js v232 and v233 both recorded rather than filled.
+      // `ariel_defay` is the slug of that record's own display name; ACCT_ALIAS
+      // has held the same pair since the July 2026 surface-split sweep, so this
+      // is not a new claim about who is one person — it is the same ruling made
+      // readable to the reverse read voter-hub-location.js's roster gate does,
+      // which is the read that decides whether /voice can NAME the member of a
+      // seat it has already resolved. Without it a lean document whose only
+      // people index files the full document under `ariel_defay` asked for
+      // `defay_h15`, got nothing, and either un-named HD-15 or described it —
+      // "The member who holds this seat is on file" over a person one key away.
+      ariel_defay:      'defay_h15',
       bridger_bolinder: 'bolinder_h68',
       casey_snider:     'snider_h5',
       cory_maloy:       'cory_maloy_h52',

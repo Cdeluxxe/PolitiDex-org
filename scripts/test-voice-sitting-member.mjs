@@ -1,0 +1,1100 @@
+#!/usr/bin/env node
+// ─────────────────────────────────────────────────────────────────────────────
+// test-voice-sitting-member.mjs — /voice names who sits in the seat
+// ─────────────────────────────────────────────────────────────────────────────
+// THE LIVE DEFECT THIS PINS
+//
+// A Layton reader opened /voice and got six seat cards. Three of them named
+// nobody:
+//
+//     State House District 16 · Davis County
+//     No sitting member on hand for this seat.
+//     Open board
+//
+// …and the same for Senate District 7. That sentence means "nobody holds this
+// seat", printed directly above a door into the board FOR that seat — and one
+// tap through the door, district-board.js named Trevor Lee and Stuart Adams,
+// because it writes those two pids down in its own table.
+//
+// IT WAS NOT THE SEAT LIST AND IT WAS NOT THE ROSTER GATE (that was the
+// previous pass — see test-voice-house-member.mjs). pdxRepsForMe() is the one
+// seat list and it already asks the right joins:
+//
+//   · window._pdxUsHouseSeat(state, district) for the congressional seat, off
+//     the roster's own district-qualified records. It is in
+//     voter-hub-location.js, which /voice loads.
+//   · window.pdxSeatedMemberFor(seatKey, n) for the two legislative seats. It
+//     is declared inside ballot-breakdown.js — 407 KB of curated race
+//     machinery voice.html deliberately does not load — so on the hallway the
+//     call site was present, the function was not, and the resolver failed soft
+//     to null exactly as it is written to.
+//
+// WHAT THE FIX IS, AND WHAT IT IS NOT. The lookup is LIFTED, not re-implemented:
+// seated-member.js is the three district→pid tables and the one function over
+// them, copied verbatim out of ballot-breakdown.js and pinned to it here. That
+// is the same move profile-alias.js already is on this same document. No second
+// seat-holder table, no second congressional answer, no new board.
+//
+// THE RULES THIS HARNESS HOLDS
+//
+//   1. THE TABLE IS ON THE LEAN DOCUMENT AND IT IS FOUR LITERALS. seated-member.js
+//      carries ballot-breakdown.js's blocks byte for byte, declares no resolver,
+//      reads no roster, names no seat and knows no board; voice.html loads it and
+//      still loads none of the four modules the address exists to not load; the
+//      worker precaches it.
+//   2. THE FILL IS IN THE SEAT LIST'S OWNER. district-voice.js's seatsForMe()
+//      takes the resolver's pid first, always, and consults the joins only for a
+//      level that came back blank. voice-room.js stays a printer.
+//   3. DRIVEN, LAYTON-SHAPED. The real resolver, the real hallway, a Davis
+//      County reader who pinned CD-2 / SD-7 / HD-16 in the finder: three district
+//      cards print "Sitting member: <a>Name</a>" AND an Open board door.
+//   4. AND THE JOIN IS WHAT DOES IT. The same reader with the join stubbed off
+//      goes back to the empty sentence, so rule 3 is not passing for some other
+//      reason and the empty copy is not dead.
+//   5. STATE GATING IS NOT OPTIONAL. A Missouri reader's CONGRESSIONAL card is
+//      named off the roster; their State House and State Senate cards name
+//      nobody and offer no room, because that table is keyed on a district
+//      number with no state of its own.
+//   6. A REAL EMPTY FILE STILL GETS THE EMPTY SENTENCE.
+//   7. NOTHING ELSE MOVED. BOARD_ROUTES is still four named rows, no splat, no
+//      composer, no equity, no score, and ballot-breakdown.js is byte-identical
+//      to HEAD.
+//   8. AND A PID FROM ANOTHER NUMBER CANNOT SIT ON THIS CARD. The second half of
+//      the same defect, pointed the other way: a card keyed to District 7 named
+//      the holder of District 6, because inside Utah the resolver's first source
+//      for a legislative pid is the curated COUNTY slate and the Davis slate
+//      carries SD-6 and HD-15 for a Layton reader. One published read —
+//      window.pdxSeatClaim(pid, seatKey, district) — says whether the record
+//      claims this chamber and this number; district-voice.js's seatPidFor()
+//      drops a mismatch and never restores it, prefers the district table where
+//      the pid is unverifiable or too thin to name, and keeps the resolver's own
+//      answer everywhere else. who-represents-me.js prints the same seats through
+//      the same walk, so the two pages cannot disagree in one visit.
+//
+//   node scripts/test-voice-sitting-member.mjs
+//
+// No database, no network: every source of truth here is a committed file.
+
+import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import vm from "node:vm";
+import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { deOrigin } from "./v103-chrome-seams.mjs";
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const R = (f) => readFileSync(join(ROOT, f), "utf8");
+
+const SM = R("seated-member.js");
+const BB = R("ballot-breakdown.js");
+const LOC = R("voter-hub-location.js");
+const DV = R("district-voice.js");
+const VR = R("voice-room.js");
+const PA = R("profile-alias.js");
+const VOICE_HTML = R("voice.html");
+const SW = R("sw.js");
+
+let passed = 0;
+const fails = [];
+const ok = (c, m) => { if (c) passed++; else fails.push(m); };
+const must = (c, m) => { ok(c, m); if (!c) { report(); process.exit(1); } };
+const eq = (a, b, m) => ok(a === b, `${m}\n    expected: ${JSON.stringify(b)}\n    actual:   ${JSON.stringify(a)}`);
+const has = (s, n, m) => ok(String(s).indexOf(n) !== -1, m);
+const no = (s, n, m) => ok(String(s).indexOf(n) === -1, m);
+const section = (t) => console.log(`\n   ── ${t}`);
+// Every rule here is about CODE, not prose. These files explain themselves at
+// length and name what they deliberately do NOT do, so a "this file must not
+// read the roster" rule asked of the raw text fails on the sentence saying it
+// does not. Comments out, then ask.
+const code = (src) => String(src)
+  .replace(/\/\*[\s\S]*?\*\//g, " ")
+  .split("\n").map((l) => l.replace(/(^|[^:"'`\\])\/\/.*$/, "$1")).join("\n");
+const SM_CODE = code(SM);
+const VR_CODE = code(VR);
+const DV_CODE = code(DV);
+
+function report() {
+  if (fails.length) {
+    console.log(`\n✗ voice sitting member: ${fails.length} failing of ${passed + fails.length}\n`);
+    fails.forEach((f, i) => console.log(`  ${i + 1}. ${f}`));
+    console.log("");
+  } else {
+    console.log(`\n✓ voice sitting member: ${passed} checks passed`);
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 1 · THE LIFTED TABLE: FOUR LITERALS, PINNED, AND NOTHING ELSE
+// ═════════════════════════════════════════════════════════════════════════════
+section("1 · seated-member.js is ballot-breakdown.js's tables and nothing else");
+
+// THE BYTE PIN, ONE BLOCK AT A TIME. ballot-breakdown.js stays the source of
+// truth — the file with the per-district reasoning, and the file an entry is
+// added to. If the two drift, this fails rather than letting two documents hold
+// two opinions about who sits in a district.
+const lineOf = (src, idx) => src.slice(0, idx).split("\n").length;
+const BLOCKS = [
+  ["    var KR_CONGRESSIONAL_INCUMBENTS = {", "the U.S. House table"],
+  ["    var KR_STATE_HOUSE_INCUMBENTS = {", "the Utah State House table"],
+  ["    var KR_STATE_SENATE_INCUMBENTS = {", "the Utah State Senate table"],
+  ["    function _pdxSeatKeyOf(raw) {", "the seat-key reader and the lookup itself"],
+];
+for (const [start, what] of BLOCKS) {
+  const a = BB.indexOf(start);
+  must(a > 0, `ballot-breakdown.js no longer declares ${what} at "${start.trim()}"`);
+  const END = "\n    };";
+  const b = BB.indexOf(END, a);
+  must(b > a, `${what} in ballot-breakdown.js has no closing line this suite can find`);
+  const SRC = BB.slice(a, b + END.length);
+  const from = lineOf(BB, a), to = lineOf(BB, b + END.length);
+  has(SM, `COPIED VERBATIM FROM ballot-breakdown.js LINES ${from}–${to}`,
+    `table: seated-member.js does not declare which lines of ballot-breakdown.js ${what} came from — a\n` +
+    "    mirror with no stated source is a second opinion waiting to happen");
+  ok(SM.indexOf(SRC) > 0,
+    `table: ballot-breakdown.js lines ${from}–${to} (${what}) are not present in seated-member.js byte for\n` +
+    "    byte — either the copy drifted or the declared range is stale. Re-derive it, do not hand-edit");
+}
+
+// THE ASSIGNMENT YIELDS ON THIS SIDE. ballot-breakdown.js writes the function
+// unguarded and is pinned to HEAD below, so the guard has to be here: a document
+// carrying both gets ONE function whatever the script order resolves to.
+has(SM_CODE, "if (typeof window.pdxSeatedMemberFor !== 'function') {",
+  "table: seated-member.js assigns pdxSeatedMemberFor unguarded — on a document that also carries the\n" +
+  "    owner, two copies would race and the page would depend on script order");
+
+// AND IT IS THE TABLES AND NOTHING ELSE. No roster read, no location, no seat
+// key, no board, no label: the reasons it is 9 KB instead of 407 KB.
+[["CMP_DATA", "a roster read — this file maps a district to a pid, it does not look anybody up"],
+  ["PROFILES", "a roster read — this file maps a district to a pid, it does not look anybody up"],
+  ["pdxRepsForMe", "the seat list, which is the resolver's"],
+  ["_currentVoterLocation", "the saved location — this file is keyed on a SEAT, never on a reader"],
+  ["_pdxUsHouseSeat", "the congressional join, which stays in voter-hub-location.js"],
+  ["BOARD_ROUTES", "the board allow-list"],
+  ["/district/", "a board address"],
+  ["innerHTML", "the DOM — it prints nothing"],
+  ["pdxRosterWarm", "the roster gate, which is the resolver's and is asked in the hallway"]]
+  .forEach(([s, why]) => no(SM_CODE, s, `table: seated-member.js reads or writes ${s} — ${why}`));
+
+// THE DOCUMENT LOADS IT, AND STILL LOADS NONE OF WHAT IT EXISTS TO NOT LOAD.
+has(VOICE_HTML, '<script defer src="/seated-member.js"></script>',
+  "doc: voice.html does not load seated-member.js, so pdxSeatedMemberFor is still absent and the two\n" +
+  "    legislative cards still report a vacancy");
+["cmp-data.js", "ballot-breakdown.js", "profile-evidence.js", "compare-hub.js", "app.css"].forEach((f) =>
+  ok(!new RegExp(`<(?:script|link)[^>]*(?:src|href)="/${f.replace(".", "\\.")}"`).test(VOICE_HTML),
+    `doc: voice.html now loads ${f} — the seat's member is not worth re-linking the homepage stack for;\n` +
+    "    that is the entire reason seated-member.js exists"));
+const srcs = [...VOICE_HTML.matchAll(/<script\b[^>]*\bsrc="(\/[^"]+)"/g)].map((m) => m[1]);
+ok(srcs.indexOf("/seated-member.js") > 0 && srcs.indexOf("/seated-member.js") < srcs.indexOf("/district-voice.js"),
+  "doc: seated-member.js is loaded after district-voice.js — both are deferred so this is not a bug today,\n" +
+  "    and the document should read as the table arriving before its reader");
+
+// THE WORKER SHIPS IT WITH THE ROOM.
+const VER = (/const CACHE_VERSION = '(v\d+)'/.exec(SW) || [, ""])[1];
+ok(/^v\d+$/.test(VER) && Number(VER.slice(1)) >= 245,
+  `sw: CACHE_VERSION is "${VER}" — a new shell asset shipped and a warm device would keep serving a\n` +
+  "    voice.html that never requests it");
+const SHELL = (() => {
+  const a = SW.indexOf("const SHELL_ASSETS = [");
+  must(a > 0, "sw.js no longer declares SHELL_ASSETS as one literal array");
+  const b = SW.indexOf("\n];", a);
+  must(b > a, "sw.js's SHELL_ASSETS array has no closing line this suite can find");
+  return SW.slice(a, b);
+})();
+has(SHELL, "'/seated-member.js'",
+  "sw: /seated-member.js is not precached — offline, /voice would report a vacancy on two seats whose\n" +
+  "    boards it is offering a door into");
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 2 · THE FILL IS IN THE SEAT LIST'S OWNER, AND IT ONLY EVER FILLS A BLANK
+// ═════════════════════════════════════════════════════════════════════════════
+section("2 · seatsForMe() fills a blank; voice-room.js stays a printer");
+
+has(DV_CODE, "function joinedPid(level, seatKey, stateName)",
+  "hallway: district-voice.js no longer owns the seated-member fill, so either it moved into the printer\n" +
+  "    or it is gone");
+has(DV_CODE, "if (!pid) pid = joinedPid(level, key, stateName);",
+  "hallway: the fill does not run after the resolver's own pid, which means either the resolver's answer\n" +
+  "    can be overruled or the fill never runs at all");
+has(DV_CODE, "function seatPidFor(level, stateName, seatKey)",
+  "hallway: district-voice.js no longer owns seatPidFor() — the one walk from a resolved level to the pid\n" +
+  "    that may sit on its card, which /voice and who-represents-me.js both go through");
+has(DV_CODE, "var pid = seatPidFor(lv, reps.state, seatKey);",
+  "hallway: seatsForMe() no longer takes its pid from that one walk, so the seat list and the front-page\n" +
+  "    band can answer differently for the same seat in the same visit");
+{
+  // THE RESOLVER'S PID IS READ FIRST AND THE FILL IS GUARDED ON IT BEING BLANK.
+  const at = DV_CODE.indexOf("var pid = String(level.pid == null ? '' : level.pid);");
+  ok(at > 0, "hallway: seatPidFor() no longer reads the level's own pid before anything else");
+  const fillAt = DV_CODE.indexOf("if (!pid) pid = joinedPid(level, key, stateName);");
+  ok(at > 0 && fillAt > at,
+    "hallway: the join is consulted before the level's own pid — a lean-document fallback that can\n" +
+    "    overrule the resolver is not a fallback");
+}
+// THE TWO LANES, AND THE STATE GATE ON THE ONE THAT NEEDS IT.
+{
+  const a = DV_CODE.indexOf("function joinedPid(level, seatKey, stateName)");
+  const b = DV_CODE.indexOf("\n  }", DV_CODE.indexOf("pdxSeatedMemberFor", a));
+  const blk = DV_CODE.slice(a, b);
+  must(a > 0 && b > a, "hallway: joinedPid's body cannot be read by this suite");
+  has(blk, "window._pdxUsHouseSeat(stateName, n)",
+    "hallway: the U.S. House lane does not go through the app's one congressional join");
+  has(blk, "window.pdxSeatedMemberFor(seatKey, n)",
+    "hallway: the legislative lane does not go through the seated-member lookup");
+  has(blk, "if (!seatKey) return '';",
+    "hallway: the legislative lane is not gated on the composed seat key — that table is keyed on a\n" +
+    "    district NUMBER with no state of its own, so ungated it answers 'tlee' for HD-16 in any state");
+  // AND THE CONGRESSIONAL LANE IS THE ROSTER'S, NOT THE CURATED TABLE'S. A
+  // written-down congressional pid is a second answer to a question a
+  // court-ordered map can change.
+  ok(blk.indexOf("_pdxUsHouseSeat") < blk.indexOf("pdxSeatedMemberFor"),
+    "hallway: the U.S. House lane is not asked before the seated-member table, so a congressional seat\n" +
+    "    can be answered from a written-down pid that outlives a redistricting");
+  const hLane = blk.slice(blk.indexOf("if (seat === 'house')"), blk.indexOf("if (!seatKey)"));
+  no(hLane, "pdxSeatedMemberFor",
+    "hallway: the U.S. House lane falls through to the curated congressional table — that is the second\n" +
+    "    answer district-board.js refuses for the same seat, for the same reason");
+  // NOTHING HERE NAMES ANYBODY OR OPENS ANYTHING.
+  no(blk, "name", "hallway: joinedPid reads a display name — it resolves a pid and the printer does the rest");
+  no(blk, "boardPath", "hallway: joinedPid decides whether a board opens");
+}
+{
+  // AND THE FILL IS NOT A SECOND, STRICTER GATE. pdxRepsForMe() is what decides
+  // which pids survive, and its own seated() lane hands down a district-table
+  // pid without re-asking the roster gate — so this one must not re-ask it
+  // either. A fill that did would name the member with one cached copy of the
+  // resolver and report a vacancy with the other, for the same reader and the
+  // same seat, which is this pass's defect pointed backwards.
+  const a = DV_CODE.indexOf("function joinedPid(level, seatKey, stateName)");
+  const blk = DV_CODE.slice(a, DV_CODE.indexOf("\n  }", DV_CODE.indexOf("pdxSeatedMemberFor", a)));
+  ["pdxRosterWarm", "pdxRosterRec", "PROFILES", "CMP_DATA"].forEach((t) => no(blk, t,
+    `hallway: the fill weighs ${t} before handing a joined pid down. Whether a resolved pid still holds\n` +
+    "    the seat is the resolver's ruling, made in one file, and a lean page second-guessing it is a\n" +
+    "    second answer"));
+}
+// THE PRINTER IS STILL A PRINTER: no seat keys, no chambers, no state names.
+[["statehouse", "a chamber name"], ["statesenate", "a chamber name"],
+  ["pdxSeatedMemberFor", "the seated-member lookup"], ["_pdxUsHouseSeat", "the congressional join"],
+  ["Utah", "a state name"], ["BOARD_ROUTES", "the board allow-list"]]
+  .forEach(([s, why]) => no(VR_CODE, s, `printer: voice-room.js reads ${s} — ${why}. The hallway borrows every fact from district-voice.js`));
+// AND THE COPY IS UNCHANGED. No "yet", and the empty sentence still exists.
+has(VR, "No sitting member on hand for this seat.",
+  "copy: the empty sentence was reworded or removed — it is still the right sentence when nobody resolves");
+no(VR, "on hand for this seat yet",
+  'copy: the empty sentence grew a "yet" — the hallway does not promise a member is coming');
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 3 · DRIVEN: THE LAYTON READER, THE REAL RESOLVER, THE REAL HALLWAY
+// ═════════════════════════════════════════════════════════════════════════════
+section("3 · three district cards name a member and open a board");
+
+// The resolver is sliced out of its owner and run for real — the same slice
+// test-voice-house-member.mjs and test-who-represents-me.mjs drive, so the three
+// suites cannot be testing three different resolvers.
+const swFrom = LOC.indexOf("var _pdxStatewideCache = {};");
+const resTo = LOC.indexOf("window._vhSyncDistrictStrip = function()", swFrom);
+must(swFrom !== -1 && resTo > swFrom,
+  "voter-hub-location.js no longer runs from _pdxStatewideCache down to _vhSyncDistrictStrip — the\n" +
+  "  resolver slice this suite drives is gone");
+const RESOLVER = LOC.slice(swFrom, resTo);
+const RET_SRC = (() => {
+  const at = LOC.indexOf("window.PDXReturn = (function () {");
+  must(at > 0, "voter-hub-location.js no longer declares window.PDXReturn");
+  const end = LOC.indexOf("\n  })();", at);
+  return LOC.slice(at, end + "\n  })();".length);
+})();
+
+// THE LIVE INDEX, AND IT IS THE ONLY PEOPLE INDEX ON THE PAGE. voice.html
+// carries no cmp-data.js, so window.PROFILES — the Firestore rows firebase-boot
+// lists, which carry name / office / state — is all there is. The `state`
+// strings are the roster's own two dialects: "Utah · District 2" for a member of
+// Congress and "UT District 16" for a state legislator.
+const PEOPLE = {
+  tlee: { name: "Trevor Lee", office: "Utah State Representative", state: "UT District 16", party: "R" },
+  sadams: { name: "Stuart Adams", office: "Utah State Senator", state: "UT District 7", party: "R" },
+  maloy: { name: "Celeste Maloy", office: "U.S. Representative", state: "Utah · District 2", party: "R" },
+  chew_h68: { name: "Scott Chew", office: "Utah State Representative", state: "UT District 68", party: "R" },
+  mo_rep5: { name: "Emanuel Cleaver", office: "U.S. Representative", state: "Missouri · MO-5", party: "D" },
+};
+
+// THE READERS. Both pinned in the finder — no curated area, no memo, no ballot,
+// which is the shape /find leaves behind and the shape the defect lives in.
+const LAYTON = {
+  who: "Layton",
+  loc: { state: "Utah", city: "Layton", county: "Davis County", district: "2", stateSenateDistrict: "7", stateHouseDistrict: "16" },
+  // seat key → [district number, pid, display name, board alias]
+  cards: {
+    house: ["2", "maloy", "Celeste Maloy", "ut-cd-2"],
+    statesenate: ["7", "sadams", "Stuart Adams", "ut-sd-7"],
+    statehouse: ["16", "tlee", "Trevor Lee", "ut-hd-16"],
+  },
+};
+const KC = {
+  who: "Kansas City",
+  loc: { state: "Missouri", city: "Kansas City", county: "Jackson County", district: "5", stateSenateDistrict: "9", stateHouseDistrict: "16" },
+};
+
+// ── THE LEAN DOCUMENT ─────────────────────────────────────────────────────────
+// Exactly what voice.html loads and nothing more: profile-alias.js,
+// seated-member.js, the resolver, district-voice.js, voice-room.js, and one live
+// people index. No CMP_DATA, no _pdxPersonById, no _pdxVoterBallot, no
+// keyRacesRelevantData. `seated:false` takes seated-member.js off the page,
+// which is rule 4.
+function voiceCtx(s, opts) {
+  const o = opts || {};
+  const win = makeSandbox();
+  let now = 1000000;
+  win.Date = { now: () => now };
+  const mk = (id) => ({
+    id, innerHTML: "", _attrs: {},
+    setAttribute(k, v) { this._attrs[k] = String(v); },
+    getAttribute(k) { return Object.prototype.hasOwnProperty.call(this._attrs, k) ? this._attrs[k] : null; },
+  });
+  const els = { "pdx-voice-standing": mk("pdx-voice-standing"), "pdx-voice-seats": mk("pdx-voice-seats") };
+  win.document.getElementById = (id) => els[id] || null;
+  win.__PDX_VOICE_DOC = true;
+  win.location = { href: "https://politidex.fyi/voice", pathname: "/voice", search: "", hash: "", origin: "https://politidex.fyi", assign() {}, replace() {} };
+  win._hasUserLocation = true;
+  win._currentVoterLocation = JSON.parse(JSON.stringify(s.loc));
+  win.PROFILES = JSON.parse(JSON.stringify(o.live || PEOPLE));
+  // AND THE CURATED COUNTY SLATE, WHERE A FIXTURE ASKS FOR ONE. This is the lane
+  // that put Jerry Stevenson on the District 7 card: inside Utah, for a MATCHED
+  // area, the resolver asks the slate before the district table, and a slate is a
+  // file about an election in a COUNTY rather than a map of a district. The two
+  // globals are ballot-breakdown.js's, so a real /voice has neither — but the
+  // memo the resolver writes from them travels, and section 8 drives both shapes.
+  if (o.slate) {
+    win.keyRacesRelevantData = () => JSON.parse(JSON.stringify(o.slate.krd));
+    win._pdxVoterBallot = () => JSON.parse(JSON.stringify(o.slate.vb));
+  }
+  const ctx = vm.createContext(win);
+  vm.runInContext(PA, ctx, { filename: "profile-alias.js" });
+  // AND THE SANDBOX LOADS WHAT THE DOCUMENT LOADS. seated-member.js goes on only
+  // because voice.html's own <script> list says so (`srcs`, read in section 1),
+  // so taking the tag off the document fails the cards below and not merely the
+  // rule that reads the markup. `seated:false` is the deliberate removal.
+  const onDoc = srcs.indexOf("/seated-member.js") !== -1;
+  if (o.seated !== false && onDoc) vm.runInContext(SM, ctx, { filename: "seated-member.js" });
+  vm.runInContext(RESOLVER, ctx, { filename: "voter-hub-location.js[pdxRepsForMe]" });
+  vm.runInContext(RET_SRC, ctx, { filename: "voter-hub-location.js#PDXReturn" });
+  // RULE 2's OTHER HALF, AND IT IS THE REASON THE FILL IS IN seatsForMe() RATHER
+  // THAN ONLY IN THE RESOLVER. district-voice.js is a PRECACHED shell asset and
+  // voter-hub-location.js is RUNTIME-cached and unversioned, so a warm device can
+  // pair this pass's hallway with a resolver copy that predates the lane asking
+  // pdxSeatedMemberFor(). `stale:true` is that pairing: the real walk, with every
+  // district-level pid stripped, which is exactly what the older copy returned.
+  if (o.stale) {
+    const real = win.pdxRepsForMe;
+    win.pdxRepsForMe = function () {
+      const r = real();
+      if (!r || !r.levels) return r;
+      r.levels = r.levels.map((l) => (l && !l.statewide ? Object.assign({}, l, { pid: null, resolved: false }) : l));
+      return r;
+    };
+  }
+  // AND `pid:{level: 'somebody'}` IS THE PINNED PID, WHICH IS THE OTHER HALF OF
+  // THE SAME DEFECT. A pid the resolver remembers from an earlier visit arrives
+  // on a document with no slate on it at all, so the hallway cannot be relying on
+  // the slate's absence to be right.
+  if (o.pid) {
+    const realPid = win.pdxRepsForMe;
+    win.pdxRepsForMe = function () {
+      const r = realPid();
+      if (!r || !r.levels) return r;
+      r.levels = r.levels.map((l) => (l && Object.prototype.hasOwnProperty.call(o.pid, l.key)
+        ? Object.assign({}, l, { pid: o.pid[l.key], resolved: true }) : l));
+      return r;
+    };
+  }
+  vm.runInContext(DV, ctx, { filename: "district-voice.js" });
+  vm.runInContext(VR, ctx, { filename: "voice-room.js" });
+  return { win, paint: () => win.PDXVoiceRoom.paint(), list: () => els["pdx-voice-seats"].innerHTML };
+}
+
+const lvl = (reps, k) => (reps.levels || []).filter((l) => l.key === k)[0] || null;
+const seatOf = (win, k) => (win.PDXVoice.seatsForMe() || []).filter((s) => s.key === k)[0] || null;
+// ONE CARD, NOT THE LIST. Both U.S. Senate rows and the Governor row resolve
+// nobody on a lean document with no statewide roster and they print the empty
+// sentence, because that is the truth about them — so each rule below reads one
+// <li> and only that one.
+const cardFor = (html, label, n) => {
+  for (const part of String(html).split('<li class="pdxvr-seat"')) {
+    if (part.indexOf("pdxvr-chamber") !== -1 &&
+        part.indexOf(label + " District " + n) !== -1) return part;
+  }
+  return "";
+};
+const LABEL = { house: "U.S. House", statesenate: "State Senate", statehouse: "State House" };
+
+// ── RULE 3: THE HALLWAY, WARM, FOR REAL ───────────────────────────────────────
+{
+  const v = voiceCtx(LAYTON);
+  const reps = v.win.pdxRepsForMe();
+  v.paint();
+  const html = v.list();
+  eq(v.win.PDXVoiceRoom.standing(), "placed",
+    "Layton: the hallway did not reach the 'placed' standing, so there are no seat cards to read");
+
+  for (const key of Object.keys(LAYTON.cards)) {
+    const [n, pid, name, alias] = LAYTON.cards[key];
+    const l = lvl(reps, key);
+    must(!!l, `Layton: the resolver published no ${key} level at all`);
+    eq(l.district, n,
+      `Layton: the resolver did not resolve ${key} to district ${n} — the fixture no longer describes the\n` +
+      "    reported reader");
+    const s = seatOf(v.win, key);
+    must(!!s, `Layton: seatsForMe() dropped the ${key} seat`);
+    eq(s.pid, pid, `Layton: seatsForMe() did not seat ${pid} in ${key} district ${n}`);
+    eq(s.board, `/district/${alias}`,
+      `Layton: the ${key} card's door is not /district/${alias} — the address is the allow-list's`);
+
+    const card = cardFor(html, LABEL[key], n);
+    must(!!card, `Layton: the hallway painted no ${LABEL[key]} District ${n} card at all`);
+    has(card, `Sitting member: <a class="pdxvr-name" href="/p/${pid}">${name}</a>`,
+      `Layton: the ${LABEL[key]} District ${n} card does not print "Sitting member: ${name}" linked to\n` +
+      `    /p/${pid} — which is the whole of this pass`);
+    has(card, ">Open board</a>",
+      `Layton: the ${LABEL[key]} District ${n} card lost its Open board door`);
+    has(card, `href="/district/${alias}"`,
+      `Layton: the ${LABEL[key]} District ${n} card's door does not point at /district/${alias}`);
+    no(card, "No sitting member on hand for this seat",
+      `Layton: the ${LABEL[key]} District ${n} card still reports a vacancy on a seat the joins answer for`);
+    no(card, "The member who holds this seat is on file",
+      `Layton: the ${LABEL[key]} District ${n} card describes a member it could name`);
+    no(card, "room not open",
+      `Layton: the ${LABEL[key]} District ${n} card says the room is not open on a seat in BOARD_ROUTES`);
+  }
+
+  // THREE CARDS, AND THEY ARE THE THREE DISTRICT SEATS. The statewide rows are
+  // still there, still name nobody on a lean page, and still carry no door.
+  eq((html.match(/Sitting member: <a class="pdxvr-name"/g) || []).length, 3,
+    "Layton: the hallway named a number of members other than three — the two U.S. Senate rows and the\n" +
+    "    Governor resolve nobody on a document with no statewide roster, and must not start being invented");
+  eq((html.match(/>Open board<\/a>/g) || []).length, 3,
+    "Layton: the hallway printed a number of Open board doors other than three — the allow-list holds\n" +
+    "    exactly these three of this reader's seats");
+  eq((html.match(/<li class="pdxvr-seat"/g) || []).length, 6,
+    "Layton: the hallway did not print six seat cards — a reader has every seat their location names");
+}
+
+// ── RULE 2's PAIRING: A STALE RESOLVER, A FRESH HALLWAY ───────────────────────
+{
+  const v = voiceCtx(LAYTON, { stale: true });
+  v.paint();
+  const html = v.list();
+  for (const key of Object.keys(LAYTON.cards)) {
+    const [n, pid, name] = LAYTON.cards[key];
+    eq(seatOf(v.win, key).pid, pid,
+      `stale resolver: seatsForMe() did not fill the ${key} pid itself. district-voice.js is precached and\n` +
+      "    voter-hub-location.js is runtime-cached, so a warm device can pair this hallway with a resolver\n" +
+      "    that never asks these joins — and the fill in seatsForMe() is what covers that");
+    has(cardFor(html, LABEL[key], n), `Sitting member: <a class="pdxvr-name" href="/p/${pid}">${name}</a>`,
+      `stale resolver: the ${LABEL[key]} District ${n} card does not name ${name}`);
+  }
+}
+
+// ── RULE 4: AND THE JOIN IS WHAT DOES IT ──────────────────────────────────────
+section("4 · with the join off the page, the empty sentence comes back");
+{
+  const bare = voiceCtx(LAYTON, { seated: false });
+  bare.paint();
+  const html = bare.list();
+  // The two legislative seats are the ones seated-member.js answers. Both lose
+  // their member and both keep their door, which is the reported defect exactly.
+  for (const key of ["statesenate", "statehouse"]) {
+    const [n, , name, alias] = LAYTON.cards[key];
+    eq(seatOf(bare.win, key).pid, "",
+      `join off: the ${key} pid survives with seated-member.js off the page, so section 3 is passing for\n` +
+      "    some reason other than the join and would keep passing if the join were removed");
+    const card = cardFor(html, LABEL[key], n);
+    must(!!card, `join off: no ${LABEL[key]} District ${n} card was painted`);
+    has(card, "No sitting member on hand for this seat",
+      `join off: the ${LABEL[key]} District ${n} card does not fall back to the empty sentence, which means\n` +
+      "    the sentence is now unreachable and the copy is dead");
+    no(card, name, `join off: the card names ${name} with nothing on the page that could know it`);
+    no(card, "yet", `join off: the ${LABEL[key]} card promises a member is coming`);
+    // THE DOOR IS UNCHANGED BY ANY OF THIS. The board is the allow-list's answer
+    // and it never depended on a member resolving.
+    has(card, `href="/district/${alias}"`,
+      `join off: the ${LABEL[key]} District ${n} card lost its door because the member did not resolve —\n` +
+      "    the board is a fact about the seat, not about its holder");
+  }
+  // AND THE CONGRESSIONAL CARD IS UNTOUCHED BY THAT REMOVAL, because it is
+  // answered by a different join that lives in a different file.
+  has(cardFor(html, "U.S. House", "2"), 'Sitting member: <a class="pdxvr-name" href="/p/maloy">Celeste Maloy</a>',
+    "join off: the U.S. House card lost its member when seated-member.js came off the page — that lane is\n" +
+    "    _pdxUsHouseSeat's and must not depend on the legislative table");
+}
+
+// ── THE STATE STRING IS THE ROSTER'S, NOT THE POSTAL CODE ─────────────────────
+{
+  // 'UT' reduces to "ut" through _pdxStateName and matches no roster record ever
+  // written, so a caller passing the postal code gets a blank and the card reads
+  // as a vacancy. This is the shape of that mistake, asserted directly against
+  // the join so the rule is pinned wherever the call site moves to.
+  const v = voiceCtx(LAYTON);
+  eq(v.win._pdxUsHouseSeat("Utah", "2"), "maloy",
+    "join: _pdxUsHouseSeat cannot name UT-2 from the roster's own state string");
+  eq(v.win._pdxUsHouseSeat("UT", "2"), null,
+    "join: _pdxUsHouseSeat answered for the postal code — if that ever starts working, the reason the\n" +
+    "    hallway must pass reps.state has quietly stopped being true and this suite should say so");
+  has(DV_CODE, "window._pdxUsHouseSeat(stateName, n)",
+    "hallway: the congressional lane does not pass a state through — see above on why the postal code is\n" +
+    "    not an argument this join accepts");
+  has(DV_CODE, "seatPidFor(lv, reps.state, seatKey)",
+    "hallway: the congressional lane is not handed reps.state, which is the roster's own state string");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 5 · STATE GATING: A MISSOURI READER GETS A NAMED CD AND NO LEGISLATURE
+// ═════════════════════════════════════════════════════════════════════════════
+section("5 · Missouri's congressional seat is named; its legislature is not");
+{
+  const v = voiceCtx(KC);
+  v.paint();
+  const html = v.list();
+
+  // THE CD IS NAMED, because congressional districts are ONE federal map and the
+  // roster records which district a member holds.
+  const cd = seatOf(v.win, "house");
+  must(!!cd, "Missouri: seatsForMe() dropped the U.S. House seat for a reader who pinned one");
+  eq(cd.district, "5", "Missouri: the resolver did not carry the reader's own pinned CD-5");
+  eq(cd.pid, "mo_rep5",
+    "Missouri: the U.S. House card names nobody though the roster holds a record that says it holds MO-5 —\n" +
+    "    the congressional join is not Utah-only and must not become so");
+  eq(cd.board, "",
+    "Missouri: a Missouri CD was given a board — BOARD_ROUTES holds four named Utah rows and nothing\n" +
+    "    computes a fifth");
+  const cdCard = cardFor(html, "U.S. House", "5");
+  must(!!cdCard, "Missouri: no U.S. House District 5 card was painted");
+  has(cdCard, 'Sitting member: <a class="pdxvr-name" href="/p/mo_rep5">Emanuel Cleaver</a>',
+    "Missouri: the U.S. House card does not name the member the roster holds for MO-5");
+  no(cdCard, ">Open board</a>",
+    "Missouri: the U.S. House card offers a board — there is no board for MO-5 and no room to walk into");
+
+  // AND THE LEGISLATURE IS NOT, which is the half that matters. That table is
+  // keyed on a district NUMBER inside a chamber with no state of its own: asked
+  // bare for "State House 16" it answers Trevor Lee, who represents Layton, Utah.
+  for (const key of ["statesenate", "statehouse"]) {
+    const s = seatOf(v.win, key);
+    if (s) {
+      eq(s.pid, "",
+        `Missouri: the ${key} card named somebody. seated-member.js is keyed on a district NUMBER with no\n` +
+        "    state in it, so an ungated lookup hands a Kansas City reader a Utah legislator");
+      eq(s.seatKey, "",
+        `Missouri: a ${key} seat key was composed for a state this app does not draw legislative lines for`);
+      eq(s.board, "", `Missouri: the ${key} card was given a board`);
+    } else { passed++; }
+  }
+  no(html, "Trevor Lee",
+    "Missouri: Trevor Lee — Utah House District 16 — appears on a Kansas City reader's hallway. That is\n" +
+    "    the ungated-table defect, and it is the worst kind of wrong: confident, plausible and somebody\n" +
+    "    else's member");
+  no(html, "Stuart Adams",
+    "Missouri: Stuart Adams — Utah Senate District 7 — appears on a Kansas City reader's hallway");
+  eq((html.match(/>Open board<\/a>/g) || []).length, 0,
+    "Missouri: a door opened on a hallway where no seat is in the allow-list");
+  has(html, "No sitting member on hand for this seat",
+    "Missouri: nothing on the hallway prints the empty sentence, so the legislative cards are claiming\n" +
+    "    something about seats this app cannot resolve");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 6 · A REAL EMPTY FILE STILL GETS THE EMPTY SENTENCE
+// ═════════════════════════════════════════════════════════════════════════════
+section("6 · a seat the roster holds nobody for stays empty, and says so plainly");
+{
+  // THE JOINS ANSWER WITH A PID; THE ROSTER IS WHAT NAMES ONE. So the hallway has
+  // three sentences, not two, and this section pins which case gets which — the
+  // whole point being that a name never appears without a record behind it and
+  // the empty sentence never appears when one is there.
+  //
+  //   · a pid, and a record that names them  → "Sitting member: <a>Name</a>"
+  //   · a pid, and no record to name them    → "The member who holds this seat is
+  //                                             on file." plus a working door to
+  //                                             that person's own file
+  //   · no pid at all                        → "No sitting member on hand for
+  //                                             this seat."
+  //
+  // The middle one is the printer's, deliberate and older than this pass (its own
+  // comment: a pid with no display record "does not get a sentence reading as
+  // nobody, and it does not get a raw id printed as if it were somebody's name").
+  // What this pass had to not do is turn the third sentence into a dead branch.
+  const cold = voiceCtx(LAYTON, { live: {} });
+  cold.paint();
+  const ch = cold.list();
+  no(ch, "Trevor Lee", "cold index: a name appeared from a people index that holds nobody");
+  no(ch, "Celeste Maloy", "cold index: a name appeared from a people index that holds nobody");
+  eq((ch.match(/Sitting member: <a class="pdxvr-name"/g) || []).length, 0,
+    "cold index: a card printed a sitting member's name with no record on the page to read it from");
+  // AND A COLD INDEX IS NOT A VACANCY. An empty roster is a page mid-load — the
+  // gate says so in those words — so the two legislative pids stand and the
+  // reader gets a working door to each person's file instead of a false vacancy.
+  has(cardFor(ch, "State House", "16"),
+    'The member who holds this seat is on file. <a class="pdxvr-name" href="/p/tlee">Open the person file</a>',
+    "cold index: HD-16's card reads as a vacancy while the people index is still empty. An index with no\n" +
+    "    rows is a page mid-load, not a seat whose member resigned, and the pid resolved fine");
+  // …AND THE CONGRESSIONAL CARD IS THE REAL EMPTY FILE. _pdxUsHouseSeat reads the
+  // ROSTER — it holds no congressional pid of its own, by design, because a
+  // written-down one outlives a court-ordered map — so with no rows there is
+  // genuinely nobody to seat, and the third sentence is the true one.
+  has(cardFor(ch, "U.S. House", "2"), "No sitting member on hand for this seat",
+    "cold index: the U.S. House card claims a member on a page whose only people index is empty. That\n" +
+    "    join is the roster's, so with no roster there is nobody to name and the empty sentence is the\n" +
+    "    honest answer");
+  eq((ch.match(/>Open board<\/a>/g) || []).length, 3,
+    "cold index: the three doors closed because nobody could be named — a board is a fact about the seat,\n" +
+    "    not about its holder");
+  no(ch, "yet", "cold index: a card promises a member is coming");
+
+  // ONE SEAT NAMED, ITS NEIGHBOURS NOT. The live index holds Trevor Lee's row and
+  // nobody else's: HD-16 prints the name, SD-7 falls to the middle sentence, and
+  // CD-2 falls to the empty one. A loaded name in one card fills no other card.
+  const partial = voiceCtx(LAYTON, { live: { tlee: PEOPLE.tlee } });
+  partial.paint();
+  const ph = partial.list();
+  has(cardFor(ph, "State House", "16"), 'Sitting member: <a class="pdxvr-name" href="/p/tlee">Trevor Lee</a>',
+    "partial index: the one seat the index can name lost its name because its neighbours could not be named");
+  has(cardFor(ph, "State Senate", "7"),
+    'The member who holds this seat is on file. <a class="pdxvr-name" href="/p/sadams">Open the person file</a>',
+    "partial index: SD-7's card does not fall to the on-file sentence. Its pid resolved and the index holds\n" +
+    "    no row to name them — that is neither a name nor a vacancy, and the printer has a third sentence\n" +
+    "    for exactly it");
+  has(cardFor(ph, "U.S. House", "2"), "No sitting member on hand for this seat",
+    "partial index: the U.S. House card claims a member the roster holds no record for");
+  eq((ph.match(/Sitting member: <a class="pdxvr-name"/g) || []).length, 1,
+    "partial index: a card other than HD-16 named somebody, on an index holding exactly one row");
+  no(ph, "yet", "partial index: an empty card promises a member is coming");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 7 · NOTHING ELSE MOVED
+// ═════════════════════════════════════════════════════════════════════════════
+section("7 · five named board rows, an untouched owner, and no new surface");
+
+// BOARD_ROUTES IS FIVE NAMED ROWS AND NOT A PATTERN. The way a naming pass would
+// quietly open a room is by widening the board table instead of adding to it.
+// Five, not four, because HD-15's board opened with a document, three rewrites
+// and rows in all four allow-lists — a decision, enumerated below by name. The
+// shape assertions underneath are the ones that matter and they did not move.
+const BR = (/var BOARD_ROUTES = \{([\s\S]*?)\n  \};/.exec(DV) || [, ""])[1];
+must(!!BR, "district-voice.js no longer declares BOARD_ROUTES as one literal");
+const brRows = [...BR.matchAll(/'([a-z0-9-]+)':\s*'(\/district\/[a-z0-9-]+)'/g)];
+eq(brRows.length, 5,
+  "boards: BOARD_ROUTES no longer holds exactly five rows. Naming a member does not open or close a\n" +
+  "    room, and a sixth board is a separate decision with a document behind it");
+eq(brRows.length, (BR.match(/:\s*'\//g) || []).length,
+  "boards: a BOARD_ROUTES row is not a literal seat key mapped to a literal address");
+[["ut-statesenate-3", "/district/ut-sd-3"], ["ut-statehouse-16", "/district/ut-hd-16"],
+  ["ut-statesenate-7", "/district/ut-sd-7"], ["ut-house-2", "/district/ut-cd-2"],
+  ["ut-statehouse-15", "/district/ut-hd-15"]]
+  .forEach(([k, route]) => ok(brRows.some(([, a, b]) => a === k && b === route),
+    `boards: ${k} → ${route} left the table`));
+ok(!/\[|RegExp|\+|`/.test(BR), "boards: a BOARD_ROUTES row is computed rather than written down");
+ok(!/\/district\/\*/.test(DV), "scope: district-voice.js splatted /district/*");
+ok(!/\/district\/\*/.test(SM), "scope: seated-member.js splatted /district/*");
+eq((DV_CODE.match(/BOARD_ROUTES = /g) || []).length, 1,
+  "hallway: district-voice.js declares BOARD_ROUTES more than once");
+
+// NO COMPOSER, NO SCORE, NO EQUITY, ANYWHERE THIS PASS TOUCHED.
+[["seated-member.js", SM_CODE], ["voice-room.js", VR_CODE]].forEach(([f, src]) => {
+  ["equity", "score", "composer", "textarea"].forEach((s) =>
+    no(src.toLowerCase(), s, `scope: ${f} grew ${s} copy or machinery in a pass about naming a member`));
+});
+no(code(VOICE_HTML).toLowerCase(), "equity", "scope: voice.html grew equity copy");
+
+// THE OWNER IS UNTOUCHED. seated-member.js is a copy; ballot-breakdown.js is
+// where an entry is added, and this pass had no business inside it.
+//
+// TWO OF THESE PINS WERE RETIRED, ON PURPOSE, AND REPLACED BELOW. A
+// `git show HEAD:` pin says "this file did not change since the last commit",
+// which is the right assertion for a file no future pass should reach into and
+// the WRONG one for a file some later pass legitimately owns. Two have since
+// become the second kind:
+//
+//   · district-board.js — the pass that opened /district/ut-hd-15 added a fifth
+//     row to its BOARDS table. That is the documented way a board opens (a row
+//     here, a row in BOARD_ROUTES, a row in the Function, three rewrites in
+//     netlify.toml), so a byte pin over the whole file would have forbidden the
+//     supported change while proving nothing about THIS suite's concern, which
+//     is that the board engine is not on /voice's critical path and still takes
+//     its seat from the document rather than the URL. Both of those are now
+//     asserted directly, underneath.
+//   · profile-alias.js — the pass that made /voice name Ariel Defay added
+//     `ariel_defay: 'defay_h15'` to PDX_PROFILE_ALIAS's owner and re-derived
+//     this mirror from it. The claim worth keeping was never "these bytes never
+//     move" but "this mirror equals its owner", which
+//     scripts/test-voice-house-member.mjs §1 asserts byte-for-byte against
+//     profile-evidence.js. What is added here is the narrower half this suite
+//     cares about: the mirror is still ONLY an alias table, with no seat, board
+//     or district logic of its own.
+const HEAD = (f) => {
+  try { return execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28 }); }
+  catch (e) { return null; }
+};
+[["ballot-breakdown.js", "the tables' owner — entries are added there and re-derived here"],
+  ["voice-room.js", "the printer — this pass moved the fill into the seat list's owner instead"]].forEach(([f, why]) => {
+    const h = HEAD(f);
+    if (h == null) { passed++; return; }
+    eq(deOrigin(R(f)), deOrigin(h), `untouched: ${f} changed in this pass and it should not have — ${why}`);
+  });
+
+// ── WHAT THE TWO RETIRED PINS WERE PROTECTING, ASSERTED AS FIELDS ───────────
+{
+  const DB = R("district-board.js");
+  const DB_CODE = code(DB);
+
+  // (a) THE BOARD ENGINE IS STILL NOT ON THIS PATH. /voice names members; it
+  // does not mount a board, and the day it loads district-board.js the seat
+  // list and the board would be two answers to "who sits here".
+  ok(!/<script[^>]*src="\/district-board\.js"/.test(VOICE_HTML),
+    "engine: voice.html loads district-board.js — the hallway prints doors, it does not mount a room");
+
+  // (b) AND IT STILL READS ITS SEAT FROM THE DOCUMENT, NEVER FROM THE URL.
+  // Three rewrites serve every board document, so a path test would answer
+  // differently on /district/ut-hd-15, /district/ut-hd-15/ and .html — and this
+  // module also ships on person.html, where the path names a person.
+  has(DB_CODE, "data-pdxdb-seat",
+    "engine: district-board.js stopped reading the host element's declared seat");
+  has(DB_CODE, "__PDX_DISTRICT_BOARD_SEAT",
+    "engine: district-board.js stopped reading the head's declared seat");
+  ok(!/location\.pathname[\s\S]{0,240}(?:hd|sd|cd)-/.test(DB_CODE),
+    "engine: district-board.js composes a seat out of the URL");
+
+  // (c) AND ITS OWN ALLOW-LIST IS THE SAME LIST THE HALLWAY HOLDS, row for row.
+  // This is the assertion the byte pin was standing in for: the engine may grow
+  // a board, but it may not grow one the hallway has never heard of, and
+  // neither list may become a pattern.
+  const dbTbl = DB.slice(DB.indexOf("var BOARDS = {"), DB.indexOf("\n  };", DB.indexOf("var BOARDS = {")));
+  must(!!dbTbl, "district-board.js no longer declares BOARDS as one literal");
+  const dbSeats = [...dbTbl.matchAll(/^    '([a-z0-9-]+)':\s*\{/gm)].map((m) => m[1]).sort();
+  eq(dbSeats.join(","), brRows.map(([, k]) => k).sort().join(","),
+    "engine: district-board.js's BOARDS and district-voice.js's BOARD_ROUTES no longer name the same seats");
+  ok(!/\\d\+|\[0-9\]\+|RegExp/.test(dbTbl),
+    "engine: district-board.js's allow-list became a pattern");
+
+  // (d) THE MIRROR IS STILL A MIRROR AND NOTHING ELSE. profile-alias.js exists
+  // so a lean document can do one reverse read without carrying
+  // profile-evidence.js. It states the owner and the line range it copied, and
+  // it holds no opinion about seats.
+  const PA = R("profile-alias.js");
+  has(PA, "COPIED VERBATIM FROM profile-evidence.js LINES",
+    "mirror: profile-alias.js no longer names the owner and line range it was copied from");
+  has(PA, "PDX_PROFILE_ALIAS",
+    "mirror: profile-alias.js no longer publishes the alias table");
+  for (const w of ["BOARD_ROUTES", "BOARDS", "/district/", "seatKey", "pdxSeatedMemberFor"]) {
+    no(PA, w, `mirror: profile-alias.js grew seat or board logic (${w}) — it is an alias table`);
+  }
+}
+
+// AND THE FOUR BOARD DOCUMENTS EACH STILL DECLARE THEIR OWN SEAT, so nothing
+// here can make a sibling document paint the first board's member.
+for (const [, , route] of brRows) {
+  const alias = String(route).split("/").pop();
+  const doc = R(`district-${alias}.html`);
+  has(doc, `window.__PDX_DISTRICT_BOARD_SEAT = '${alias}';`,
+    `doc: district-${alias}.html does not declare its own seat in the head`);
+  ok(!new RegExp(`<script[^>]*src="/seated-member\\.js"`).test(doc),
+    `doc: district-${alias}.html loads seated-member.js — a board names its holder from its own row or\n` +
+    "    through _pdxUsHouseSeat, and it already carries cmp-data.js");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 8 · A PID FROM ANOTHER NUMBER CANNOT SIT ON THIS CARD
+// ═════════════════════════════════════════════════════════════════════════════
+section("8 · the card's key rules the pid: mismatch dropped, thin row improved");
+
+// THE DEFECT THIS SECTION PINS, AND IT IS THE OPPOSITE OF SECTION 3's. There, a
+// card named nobody while the board beside it knew the name. Here, a card named
+// SOMEBODY ELSE. A district card is keyed by CHAMBER + NUMBER, and every surface
+// that projects these levels took `lv.pid` on sight — but inside Utah the
+// resolver's first source for a legislative pid is the CURATED COUNTY SLATE,
+// which is a file about an election in a county rather than a map of a district.
+// Layton is HD-16 / SD-7; the Davis slate carries Jerry Stevenson (SD-6) and
+// Ariel Defay (HD-15). So:
+//
+//     State Senate District 7 · Davis County
+//     Sitting member: Jerry Stevenson          ← holds District 6
+//     Open board                               ← District 7's board: Stuart Adams
+//
+// …and the District 16 card read "The member who holds this seat is on file"
+// over Defay's nameless row while the board beside it was Trevor Lee's. Two
+// pages in one visit disagreeing about who the reader's senator is, with the
+// louder one wrong.
+const SLATE_PEOPLE = Object.assign({}, PEOPLE, {
+  jstevenson: { name: "Jerry Stevenson", office: "Utah State Senator", state: "UT District 6", party: "R" },
+  // THE LITE ROW, AND IT IS A REAL SHAPE: the live index lists people it has not
+  // merged a display name onto yet. This one also belongs to another district.
+  defay: { office: "Utah State Representative", state: "UT District 15", party: "R" },
+});
+const DAVIS_SLATE = {
+  krd: { locId: "davis", label: "Layton / Davis County", city: "Layton", county: "Davis County", state: "Utah", matched: true, byRace: {}, statewide: {} },
+  vb: {
+    districts: { house: 2, senate: 7, lower: 16 },
+    byOffice: {
+      representative: { district: 2, incumbentPid: "maloy", pids: ["maloy"] },
+      state_senator: { district: 6, incumbentPid: "jstevenson", pids: ["jstevenson"] },
+      state_rep: { district: 15, incumbentPid: "defay", pids: ["defay"] },
+    },
+  },
+};
+
+// ── THE SLATE-FED READER, DRIVEN THROUGH THE REAL RESOLVER ───────────────────
+{
+  const v = voiceCtx(LAYTON, { live: SLATE_PEOPLE, slate: DAVIS_SLATE });
+  const reps = v.win.pdxRepsForMe();
+  // FIRST, THE FIXTURE MUST REPRODUCE THE DEFECT. If the resolver ever stops
+  // handing these two pids down, this section is passing for the wrong reason and
+  // has to say so rather than go quietly green.
+  must(lvl(reps, "statesenate") && lvl(reps, "statesenate").pid === "jstevenson",
+    "slate: the resolver no longer hands SD-7 the Davis slate's District 6 pid, so this section is no\n" +
+    "  longer driving the defect it exists to pin");
+  must(lvl(reps, "statehouse") && lvl(reps, "statehouse").pid === "defay",
+    "slate: the resolver no longer hands HD-16 the Davis slate's District 15 pid, so this section is no\n" +
+    "  longer driving the defect it exists to pin");
+  eq(lvl(reps, "statesenate").district, "7", "slate: the reader's own pinned SD-7 was overwritten by the county's slate");
+  eq(lvl(reps, "statehouse").district, "16", "slate: the reader's own pinned HD-16 was overwritten by the county's slate");
+
+  // AND THE HALLWAY CORRECTS BOTH, FROM THE TABLE KEYED ON THIS CARD'S NUMBER.
+  const seats = { house: ["2", "maloy", "Celeste Maloy", "ut-cd-2"], statesenate: ["7", "sadams", "Stuart Adams", "ut-sd-7"], statehouse: ["16", "tlee", "Trevor Lee", "ut-hd-16"] };
+  v.paint();
+  const html = v.list();
+  for (const key of Object.keys(seats)) {
+    const [n, pid, name, alias] = seats[key];
+    const s = seatOf(v.win, key);
+    must(!!s, `slate: seatsForMe() dropped the ${key} seat entirely`);
+    eq(s.district, n, `slate: the ${LABEL[key]} card is keyed to a district the reader did not pin`);
+    eq(s.pid, pid,
+      `slate: the ${LABEL[key]} District ${n} card seats ${JSON.stringify(s.pid)} rather than ${pid}. A pid whose own\n` +
+      `    record claims another district cannot sit on this card, and the district table is keyed on the\n` +
+      "    card's own chamber and number");
+    const card = cardFor(html, LABEL[key], n);
+    must(!!card, `slate: no ${LABEL[key]} District ${n} card was painted`);
+    has(card, `Sitting member: <a class="pdxvr-name" href="/p/${pid}">${name}</a>`,
+      `slate: the ${LABEL[key]} District ${n} card does not name ${name}`);
+    has(card, `href="/district/${alias}"`,
+      `slate: the ${LABEL[key]} District ${n} card lost its door — a board is a fact about the seat`);
+  }
+  // THE WRONG MEMBER IS NOWHERE ON THE PAGE, by name or by address.
+  ["Jerry Stevenson", "/p/jstevenson", "/p/defay"].forEach((t) => no(html, t,
+    `slate: ${t} still appears on a Layton hallway. Stevenson holds District 6 and Defay's row says\n` +
+    "    District 15; neither of them is the reader's member, and a door to their file under the reader's\n" +
+    "    own district number is the confident kind of wrong"));
+  eq((html.match(/>Open board<\/a>/g) || []).length, 3,
+    "slate: the three Layton doors did not all open, or a fourth one did");
+  no(html, "The member who holds this seat is on file",
+    "slate: a card fell back to the on-file sentence though the district table names a member it can\n" +
+    "    print — that sentence is for a pid with no record, not for a pid that belongs to another seat");
+}
+
+// ── THE PINNED PID, ON A DOCUMENT WITH NO SLATE ON IT AT ALL ─────────────────
+// The resolver also remembers a seat it resolved earlier, and /voice carries no
+// ballot-breakdown.js — so the hallway must not be relying on the slate's
+// absence to come out right. Same reader, same cards, the pid handed straight in.
+{
+  const v = voiceCtx(LAYTON, { live: SLATE_PEOPLE, pid: { statesenate: "jstevenson" } });
+  v.paint();
+  const html = v.list();
+  eq(seatOf(v.win, "statesenate").pid, "sadams",
+    "pinned pid: a remembered District 6 pid still sits on the District 7 card when no slate is on the\n" +
+    "    page — the correction is the card's key, not the absence of a county slate");
+  has(cardFor(html, "State Senate", "7"), 'Sitting member: <a class="pdxvr-name" href="/p/sadams">Stuart Adams</a>',
+    "pinned pid: the SD-7 card does not name Stuart Adams");
+  no(html, "Jerry Stevenson", "pinned pid: Jerry Stevenson is named on a card keyed to District 7");
+  has(cardFor(html, "State Senate", "7"), 'href="/district/ut-sd-7"',
+    "pinned pid: the SD-7 door closed because the resolver's pid was dropped — the board is the seat's");
+}
+
+// ── A CONGRESSIONAL PID FROM ANOTHER STATE'S MAP ─────────────────────────────
+{
+  const v = voiceCtx(LAYTON, { live: SLATE_PEOPLE, pid: { house: "mo_rep5" } });
+  v.paint();
+  eq(seatOf(v.win, "house").pid, "maloy",
+    "cd: a Missouri member sat on the reader's UT-2 card. The congressional lane has its own claim read —\n" +
+    "    a record that names MO-5 has said, legibly, that this is not its district");
+  no(v.list(), "Emanuel Cleaver", "cd: Missouri's MO-5 member is named on a Utah reader's CD-2 card");
+}
+
+// ── A THIN ROW THAT DOES CLAIM THIS SEAT IS IMPROVED ON, NOT PRINTED AS "ON FILE"
+{
+  // The pid claims HD-16 and the index has no display name for it, which is the
+  // shape that printed "member on file" beside a board that knew the name. The
+  // district table's pid for this very card can be named, so it is preferred.
+  const live = Object.assign({}, SLATE_PEOPLE, { hd16_lite: { office: "Utah State Representative", state: "UT District 16", party: "R" } });
+  const v = voiceCtx(LAYTON, { live, pid: { statehouse: "hd16_lite" } });
+  v.paint();
+  const card = cardFor(v.list(), "State House", "16");
+  eq(seatOf(v.win, "statehouse").pid, "tlee",
+    "thin row: HD-16 keeps a pid this page cannot print as a name while the table's pid for the same\n" +
+    "    chamber and number has one");
+  has(card, 'Sitting member: <a class="pdxvr-name" href="/p/tlee">Trevor Lee</a>',
+    "thin row: the HD-16 card reads as on-file rather than naming Trevor Lee");
+  no(card, "The member who holds this seat is on file",
+    "thin row: the HD-16 card still prints the on-file sentence with a named member available");
+}
+
+// ── AND 'unknown' IS NOT A VACANCY: AN UNVERIFIABLE PID IS KEPT ──────────────
+{
+  // A pid with no record at all, on a seat the district table holds nobody for.
+  // Nothing here disproves it — a cold index and an unmerged row both land on
+  // 'unknown' — so the pid stands and the reader gets the on-file sentence with a
+  // working door to that person's file. Dropping it would be inventing a vacancy
+  // out of a loading state, which is the defect section 3 exists for.
+  const HD99 = { who: "Layton", loc: Object.assign({}, LAYTON.loc, { stateHouseDistrict: "99" }) };
+  const v = voiceCtx(HD99, { live: SLATE_PEOPLE, pid: { statehouse: "ghost_pid" } });
+  v.paint();
+  const card = cardFor(v.list(), "State House", "99");
+  must(!!card, "unknown: no State House District 99 card was painted");
+  eq(seatOf(v.win, "statehouse").pid, "ghost_pid",
+    "unknown: a pid no record on the page can speak to was dropped. 'Unknown' is a cold index or an\n" +
+    "    unmerged row, never a finding that somebody does not hold a seat");
+  has(card, 'The member who holds this seat is on file. <a class="pdxvr-name" href="/p/ghost_pid">Open the person file</a>',
+    "unknown: HD-99's card does not keep the on-file sentence and its door to the person file");
+  no(card, "No sitting member on hand for this seat",
+    "unknown: HD-99's card reads as a vacancy though a pid resolved for it");
+  eq(seatOf(v.win, "statehouse").board, "",
+    "unknown: HD-99 was given a board — BOARD_ROUTES is five named rows and nothing computes a sixth");
+}
+
+// ── A STATEWIDE ROW HAS NO NUMBER TO DISAGREE WITH ───────────────────────────
+{
+  const v = voiceCtx(LAYTON, { live: SLATE_PEOPLE, pid: { ussenate1: "sadams" } });
+  const s = (v.win.PDXVoice.seatsForMe() || []).filter((x) => x.key === "ussenate1")[0] || null;
+  must(!!s, "statewide: seatsForMe() dropped the first U.S. Senate seat");
+  eq(s.pid, "sadams",
+    "statewide: a statewide row's pid was weighed against a district. Both U.S. Senate seats and the\n" +
+    "    governor are held statewide — there is no card key to check a claim against and nothing here\n" +
+    "    may touch those pids");
+  eq(s.seatKey, "", "statewide: a statewide row composed a seat key");
+}
+
+// ── MISSOURI, WITH BOTH UTAH LEGISLATORS HANDED STRAIGHT IN ──────────────────
+{
+  const v = voiceCtx(KC, { live: SLATE_PEOPLE, pid: { statehouse: "tlee", statesenate: "sadams" } });
+  v.paint();
+  const html = v.list();
+  for (const key of ["statesenate", "statehouse"]) {
+    const s = seatOf(v.win, key);
+    if (!s) { passed++; continue; }
+    eq(s.pid, "",
+      `Missouri: the ${key} card seats a Utah legislator handed in by the resolver. Their record claims a\n` +
+      "    UT district, this card is keyed to a Missouri one, and there is no Missouri table to ask");
+    eq(s.board, "", `Missouri: the ${key} card was given a board`);
+  }
+  ["Trevor Lee", "Stuart Adams", "/p/tlee", "/p/sadams"].forEach((t) => no(html, t,
+    `Missouri: ${t} appears on a Kansas City reader's hallway`));
+  eq((html.match(/>Open board<\/a>/g) || []).length, 0,
+    "Missouri: a door opened on a hallway where no seat is in the allow-list");
+  // AND THE LEGISLATIVE TABLE IS STILL NOT READ FOR THEM. The correction may not
+  // become a reason to ask a district-number-keyed table on behalf of a reader in
+  // a state this app draws no legislative lines for.
+  has(html, "No sitting member on hand for this seat",
+    "Missouri: nothing on the hallway prints the empty sentence");
+}
+
+// ── THE READ ITSELF: 'match' | 'mismatch' | 'unknown', AND THE MIDDLE ONE ONLY
+//    WHERE THE RECORD ACTUALLY DISAGREES ─────────────────────────────────────
+{
+  const v = voiceCtx(LAYTON, { live: Object.assign({}, SLATE_PEOPLE, { hd16_lite: { office: "UT State Representative", state: "UT District 16" } }) });
+  const claim = v.win.pdxSeatClaim;
+  must(typeof claim === "function",
+    "claim: voter-hub-location.js no longer publishes window.pdxSeatClaim — the one read that says whether\n" +
+    "  a record claims the seat a card is keyed to");
+  [
+    // the ordinary case, and both roster dialects for an office
+    ["sadams", "ut-statesenate-7", "7", "match", "Adams's record says District 7 and his office says Senate"],
+    ["tlee", "ut-statehouse-16", "16", "match", "Lee's record says District 16 and his office says the House"],
+    ["tlee", "ut-statehouse-016", "016", "match", "a leading zero is the same district number"],
+    ["chew_h68", "ut-statehouse-68", "68", "match", "HD-68 is Scott Chew, whose state string carries a city tail"],
+    ["maloy", "ut-house-2", "2", "match", "Maloy's record says Utah · District 2"],
+    // the number disagrees
+    ["jstevenson", "ut-statesenate-7", "7", "mismatch", "Stevenson holds District 6, and this card is District 7"],
+    ["defay", "ut-statehouse-16", "16", "mismatch", "Defay's row says District 15, and this card is District 16"],
+    ["maloy", "ut-house-3", "3", "mismatch", "Maloy holds UT-2, and this card is UT-3"],
+    // the chamber disagrees, and the number agreeing does not save it
+    ["sadams", "ut-statehouse-7", "7", "mismatch",
+      "a senator was cleared to sit on the House card with the same number — both chambers write 'UT\n" +
+      "    District 7', which is exactly why the chamber has to come from the office string"],
+    ["maloy", "ut-statesenate-2", "2", "mismatch", "a member of Congress does not hold a state senate district"],
+    ["sadams", "ut-house-7", "7", "mismatch", "a state senator does not hold a U.S. House district"],
+    // and silence is not disagreement
+    ["nobody_at_all", "ut-statesenate-7", "7", "unknown", "there is no record for this pid, which is a loading fact"],
+    ["hd16_lite", "ut-statehouse-16", "16", "match", "a row with no display name still claims a district legibly"],
+    ["sadams", "", "7", "unknown", "no chamber was named, so there is nothing to check a claim against"],
+    ["sadams", "ut-statesenate-7", "", "unknown", "no number was named, so there is nothing to check a claim against"],
+    ["", "ut-statesenate-7", "7", "unknown", "no pid was named"],
+  ].forEach(([pid, key, n, want, why]) => eq(claim(pid, key, n), want,
+    `claim: pdxSeatClaim(${JSON.stringify(pid)}, ${JSON.stringify(key)}, ${JSON.stringify(n)}) — ${why}`));
+}
+
+// ── ONE WALK, AND THE MISMATCH IS NEVER PUT BACK ─────────────────────────────
+{
+  const a = DV_CODE.indexOf("function seatPidFor(level, stateName, seatKey)");
+  const b = DV_CODE.indexOf("\n  }", DV_CODE.indexOf("if (!pid) pid = joinedPid(level, key, stateName);", a));
+  must(a > 0 && b > a, "walk: seatPidFor's body cannot be read by this suite");
+  const blk = DV_CODE.slice(a, b);
+  // claimOf() and nameable() are the two reads seatPidFor() is made of, and they
+  // sit directly above it, so the lane is read as one block here.
+  const lane = DV_CODE.slice(DV_CODE.indexOf("function claimOf(pid, key, n)"), b);
+  must(lane.indexOf("function seatPidFor") > 0, "walk: claimOf() no longer sits with the walk it serves");
+  has(lane, "window.pdxSeatClaim", "walk: the resolver's claim read is not asked at all");
+  has(blk, "if (claim === 'mismatch') {", "walk: there is no mismatch branch");
+  const after = blk.slice(blk.indexOf("if (claim === 'mismatch') {"));
+  no(after, "level.pid",
+    "walk: the level's own pid is read again after the mismatch branch — a dropped pid must never be\n" +
+    "    restored, or the card is back to naming the holder of another district");
+  // AND NOTHING HERE NAMES ANYBODY OR OPENS ANYTHING. The name is weighed as a
+  // yes/no ("can this row be printed as a name") and never composed.
+  no(blk, "boardPath", "walk: seatPidFor decides whether a board opens");
+  no(blk, "innerHTML", "walk: seatPidFor writes markup");
+  // THE CLAIM READ IS THE RESOLVER'S, NOT A COPY. A lean page must not grow its
+  // own parser for what a record claims: that is one read, in the file that
+  // already reads `office` and `state` for the congressional join.
+  ["_pdxCdOfRosterState", "_pdxIsUsRepOffice", "_pdxStateChamberOfOffice", "_pdxLegDistrictOfRosterState"]
+    .forEach((t) => no(DV_CODE, t,
+      `walk: district-voice.js carries its own ${t}. What a record claims is read in one file, beside the\n` +
+      "    join that already reads the same two fields"));
+  // A MISSING pdxSeatClaim IS 'unknown', WHICH IS THE RUNTIME-CACHE CASE: the
+  // resolver is unversioned and this file is precached, so a warm device can pair
+  // this hallway with a copy that has never heard of the read.
+  has(lane, "if (!fn(window.pdxSeatClaim)) return 'unknown';",
+    "walk: an absent claim read does not degrade to 'unknown' — voter-hub-location.js is runtime-cached\n" +
+    "    and unversioned, so a warm device can pair this hallway with a copy that has never heard of it");
+}
+
+// ── AND THE FRONT-PAGE BAND GOES THROUGH THE SAME WALK ───────────────────────
+{
+  const WRM = R("who-represents-me.js");
+  const WRM_CODE = code(WRM);
+  has(WRM_CODE, "window.PDXVoice.seatPidFor(lv, reps && reps.state)",
+    "band: who-represents-me.js still takes lv.pid on sight. Its senate row printed Jerry Stevenson under\n" +
+    "    a District 7 heading for the same reason /voice did, and the two pages must not answer\n" +
+    "    differently about the reader's own senator in one visit");
+  has(WRM_CODE, "return lv.pid || null;",
+    "band: the walk has no fallback for a document without district-voice.js on it — a missing hallway is\n" +
+    "    not a reason to blank a seat");
+  has(WRM_CODE, "var pid = seatPid(lv, reps);",
+    "band: the row no longer takes its pid from the one place in that file that asks the shared walk");
+  has(WRM_CODE, "var cpid = seatPid(lv, reps);",
+    "band: the shareable seats card reads a seat pid of its own again. It prints a district label beside\n" +
+    "    a name and a reader forwards it, so a wrong member on it outlives the visit");
+  ["pdxSeatClaim", "pdxSeatedMemberFor", "_pdxUsHouseSeat", "_pdxStateChamberOfOffice"].forEach((t) =>
+    no(WRM_CODE, t, `band: who-represents-me.js reads ${t} itself — that is a second copy of the walk, and two\n` +
+      "    copies are two answers"));
+  // AND ITS OWN SENTENCES ARE UNTOUCHED.
+  has(WRM, "no member on file yet",
+    "band: the three-gap blank copy was reworded — it is still the right sentence for a resolved district\n" +
+    "    with no holder");
+  // THE HALLWAY IS ON THE FRONT PAGE, or that call site never runs there.
+  has(R("index.html"), 'src="/district-voice.js"',
+    "band: index.html no longer loads district-voice.js, so the shared walk is absent exactly where the\n" +
+    "    senate row is painted");
+}
+
+// ── THE WORKER SHIPPED THE CORRECTED HALLWAY ─────────────────────────────────
+ok(Number(VER.slice(1)) >= 246,
+  `sw: CACHE_VERSION is "${VER}" — district-voice.js is a precached shell asset and this pass changed\n` +
+  "    which pid it hands the printer, so a warm device would keep naming the wrong member");
+
+report();
+process.exit(fails.length ? 1 : 0);

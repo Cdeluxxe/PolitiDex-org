@@ -51,10 +51,11 @@
 //   7. A SECOND ANSWER APPEARS. A copy of the seat allow-list, of the seat-key
 //      shape or of the frame sentence on this document is a second owner, and
 //      two owners of one fact drift.
-//   8. A BOARD IS OFFERED TO THE WRONG SEAT. One board is open today, in Weber
-//      SD-3. A hub that prints it for a reader in Davis HD-15 — because it is
-//      the only board there is, or because the allow-list got widened into a
-//      pattern — is the failure this address exists to make impossible.
+//   8. A BOARD IS OFFERED TO THE WRONG SEAT. Five boards are open today, and
+//      the one this file's fixtures use is Weber SD-3. A hub that prints it for
+//      a reader in Davis HD-14 — because it is the nearest board there is, or
+//      because the allow-list got widened into a pattern — is the failure this
+//      address exists to make impossible.
 //   9. THE SERVICE WORKER GETS IT WRONG — a shell with no resolver, or '/'
 //      answered with this body.
 //
@@ -259,13 +260,28 @@ const gz = gzipSync(Buffer.from(VD, "utf8")).length;
 ok(gz < 16 * 1024, `budget: voice.html is ${(gz / 1024).toFixed(1)} KB gzipped (ceiling 16 KB)`);
 const localSrcs = TAGS.map((t) => (t.attrs.match(/\bsrc\s*=\s*["']([^"']+)["']/) || [])[1])
   .filter((s) => s && !/^(?:https?:)?\/\//.test(s));
-ok(localSrcs.length <= 10, `budget: voice.html loads ${localSrcs.length} local scripts (ceiling 10)`);
+// THE REQUEST COUNT, AND WHY IT MOVED TO ELEVEN. The ceiling is a tripwire whose
+// job is to make an addition justify itself, and the eleventh file did: naming
+// the member who sits in a State House or State Senate seat needs
+// window.pdxSeatedMemberFor, whose only other owner is the 407 KB wall two rules
+// down, and seated-member.js is that lookup and its three district tables lifted
+// out at 9 KB — the same trade profile-alias.js already made on this document.
+// So the ceiling rose by exactly one file and the eleventh is NAMED: a further
+// request has to move this number again, in a pass that says why.
+ok(localSrcs.length <= 11, `budget: voice.html loads ${localSrcs.length} local scripts (ceiling 11)`);
+if (localSrcs.length === 11) {
+  ok(localSrcs.indexOf("/seated-member.js") !== -1,
+    "budget: the eleventh request is not seated-member.js — the ceiling was raised for that one lifted\n" +
+    "    lookup, and it is not a spare slot for something else");
+}
 ok(localSrcs.every((s) => s.charAt(0) === "/"), "budget: every local script src is root-absolute");
 // THE FOUR FILES THIS ADDRESS EXISTS TO NOT LOAD. ballot-breakdown.js is both a
 // budget and a wall — see failure mode 4 in the header.
 [["/app.css", "986 KB of homepage cascade for one board"],
   ["compare-hub.js", "758 KB of homepage engine — the chip is shell-account-chip.js"],
-  ["ballot-breakdown.js", "407 KB of ballot machinery, and it is also what would resolve the seated member"],
+  ["ballot-breakdown.js", "407 KB of ballot machinery. It owns the seated-member lookup this hallway needs, " +
+    "which is why that one function and its three district tables are lifted into seated-member.js at 9 KB " +
+    "and pinned to it — loading the owner for them is the trade this address exists to refuse"],
   ["evidence-locker.js", "310 KB of locker, and the Evidence Locker is its own address"]]
   .forEach(([f, why]) => lacks(VD_MARKUP, f, `budget: ${f} is on this document — ${why}`));
 // AND THE FIFTH, WHICH THIS PASS ADDED TO THE LIST. district-voice.css dressed
@@ -419,10 +435,16 @@ const WHY = "the one-line reason, owned by district-voice.js";
 // THE SEATS THE MODULE HANDS OVER, in the shape district-voice.js's seatsForMe()
 // actually composes: the name is already assembled, the board path is already
 // resolved from the allow-list, and this file is asked to invent neither.
-const HD15 = {
-  key: "statehouse", label: "State House", district: "15", county: "Davis County",
-  statewide: false, name: "State House District 15 · Davis County",
-  seatKey: "ut-statehouse-15", pid: "rep_davis", board: "",
+// THE UNBOARDED SEAT IS HD-14, AND IT USED TO BE HD-15. This printer is handed
+// a `board` field and never looks one up, so the fixture below would still pass
+// with any seat key at all — which is exactly why it has to name a seat that
+// really has no board. HD-15 got /district/ut-hd-15, so a fixture calling it
+// unboarded would be a lie this suite could not fail on. HD-14 is Clearfield
+// and Syracuse in Davis County and has no room.
+const HD14 = {
+  key: "statehouse", label: "State House", district: "14", county: "Davis County",
+  statewide: false, name: "State House District 14 · Davis County",
+  seatKey: "ut-statehouse-14", pid: "rep_davis", board: "",
 };
 const SD3 = {
   key: "statesenate", label: "State Senate", district: "3", county: "Weber County",
@@ -502,7 +524,7 @@ function room(opts) {
   // AND HALF A MODULE IS ALSO BOOT. seatsForMe() without boardPath() means the
   // allow-list cannot be asked, and a card with no answer about its door is
   // worse than no card.
-  const half = room({ seats: [HD15], api: { boardPath: undefined } });
+  const half = room({ seats: [HD14], api: { boardPath: undefined } });
   eq(half.decide().standing, "boot", "boot: a district-voice.js with no boardPath() is treated as loaded");
 }
 
@@ -518,7 +540,7 @@ function room(opts) {
   eq(r.attr(), "unplaced", "unplaced: the host's data-pdxvr-standing was not updated");
   has(r.card(), "/find", "unplaced: the card does not point at the finder that can place the reader");
   has(r.card(), FRAME, "unplaced: the borrowed frame sentence is not printed");
-  ["Utah", "District 68", "District 15", "ut-"].forEach((w) =>
+  ["Utah", "District 68", "District 14", "ut-"].forEach((w) =>
     lacks(r.card(), w, `unplaced: the card names "${w}" for a reader who has saved nothing`));
   eq(r.list(), "", "unplaced: seat cards were painted for a reader with no location");
   // A RESOLVER THAT THROWS IS THE SAME ANSWER, not a blank page.
@@ -529,7 +551,7 @@ function room(opts) {
 // 3 · PLACED — the location resolved seats. One card each, and the standing host
 // carries the frame sentence exactly once.
 {
-  const r = room({ seats: [HD15, SD3], people: { john_johnson: { name: "John Johnson" } } });
+  const r = room({ seats: [HD14, SD3], people: { john_johnson: { name: "John Johnson" } } });
   const d = r.decide();
   eq(d.standing, "placed", "placed: resolved seats do not decide 'placed'");
   eq(d.seats.length, 2, "placed: the decider dropped a seat the resolver handed it");
@@ -538,7 +560,7 @@ function room(opts) {
   // TWO CARDS, AND THE CHAMBER LINE IS THE MODULE'S OWN STRING.
   eq((r.list().match(/class="pdxvr-seat"/g) || []).length, 2,
     "placed: /voice did not paint one card per seat");
-  has(r.list(), "State House District 15 · Davis County", "placed: the House seat's own name is not on its card");
+  has(r.list(), "State House District 14 · Davis County", "placed: the House seat's own name is not on its card");
   has(r.list(), "State Senate District 3 · Weber County", "placed: the Senate seat's own name is not on its card");
 
   // THE DOOR IS ON THE ALLOW-LISTED SEAT AND ONLY THERE.
@@ -586,10 +608,10 @@ function room(opts) {
 }
 
 // 4 · WRONG SEAT, NO DOOR — and this is the product, not a detail. A reader in
-// Davis HD-15 is handed the Weber SD-3 board only if they actually resolve to
-// Weber SD-3. Layton is not North Ogden.
+// Davis HD-14 is handed the Weber SD-3 board only if they actually resolve to
+// Weber SD-3. Clearfield is not North Ogden.
 {
-  const r = room({ seats: [HD15] });
+  const r = room({ seats: [HD14] });
   eq(r.decide().standing, "placed", "exclusivity: a single resolved seat does not decide 'placed'");
   eq((r.list().match(/class="pdxvr-seat"/g) || []).length, 1, "exclusivity: one seat did not paint one card");
   lacks(r.list(), "/district/ut-sd-3",
@@ -603,7 +625,7 @@ function room(opts) {
 // cannot be absent — a card with a door and no chamber is a link to nowhere
 // identifiable.
 {
-  const r = room({ seats: [{ name: "", seatKey: "ut-statehouse-15", pid: "x", board: "/district/ut-sd-3" }, HD15] });
+  const r = room({ seats: [{ name: "", seatKey: "ut-statehouse-14", pid: "x", board: "/district/ut-sd-3" }, HD14] });
   eq((r.list().match(/class="pdxvr-seat"/g) || []).length, 1, "nameless: a seat with no chamber line was painted anyway");
 }
 
@@ -611,7 +633,7 @@ function room(opts) {
 // a weaker standing; none of them may take the page down.
 {
   let r = null;
-  try { r = room({ noMounts: true, seats: [HD15, SD3] }); r.paint(); r.advance(GRACE + 1); r.paint(); }
+  try { r = room({ noMounts: true, seats: [HD14, SD3] }); r.paint(); r.advance(GRACE + 1); r.paint(); }
   catch (e) { failures.push(`soft: voice-room.js throws when its mount points are absent — ${e.message}`); }
   if (r) {
     passed++;

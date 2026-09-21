@@ -291,7 +291,12 @@ const slots = {};
 // for one reader, which is the whole reason /voice stopped being one board: a
 // Davis County address sits in a State House district AND a State Senate
 // district, and before this pass the desk could only ever mention one of them.
-const LV_HD15 = { key: "statehouse", seat: "statehouse", label: "State House", statewide: false, district: "15", pid: "rep_davis", resolved: true };
+// THE HOUSE SEAT HERE IS HD-14, AND IT USED TO BE HD-15. It is the fixture
+// standing 3b uses to prove a seat with no board says so, so it has to be a
+// seat that really has none — HD-15 opened /district/ut-hd-15 and stopped being
+// one. HD-14 is Clearfield and Syracuse in Davis County: a member on the
+// roster, a person file, and no room.
+const LV_HD14 = { key: "statehouse", seat: "statehouse", label: "State House", statewide: false, district: "14", pid: "rep_davis", resolved: true };
 const LV_SD3 = { key: "statesenate", seat: "statesenate", label: "State Senate", statewide: false, district: "3", pid: "john_johnson", resolved: true };
 const LV_GOV = { key: "governor", seat: "governor", label: "Governor", statewide: true, district: "", distLabel: "Utah", pid: "gov_ut", resolved: true };
 
@@ -393,7 +398,7 @@ const LV_GOV = { key: "governor", seat: "governor", label: "Governor", statewide
   const w = bootDesk({
     uid: "u_4",
     loc: { state: "Utah", city: "Layton", county: "Davis County" },
-    levels: [LV_HD15, LV_SD3],
+    levels: [LV_HD14, LV_SD3],
   });
   ok(!w.__err, "verified: the desk boots");
   const v = w.PDXMeDesk.voice();
@@ -408,7 +413,7 @@ const LV_GOV = { key: "governor", seat: "governor", label: "Governor", statewide
   // own saved location resolved.
   eq((slot.match(/class="me-voiceseat"/g) || []).length, 2, "verified: the desk did not print one row per seat");
   has(slot, "Seats on file:", "verified: the block does not say what it is listing");
-  has(slot, "State House District 15", "verified: the House seat is not named");
+  has(slot, "State House District 14", "verified: the House seat is not named");
   has(slot, "State Senate District 3", "verified: the Senate seat is not named");
   has(slot, "Davis County", "verified: the county the reader saved is not on the rows");
   has(slot, "me-voicetag", "verified: the badge is off");
@@ -432,27 +437,34 @@ const LV_GOV = { key: "governor", seat: "governor", label: "Governor", statewide
 }
 
 // ── STANDING 3b · SEATS ON FILE, NONE OF THEM BOARDED ───────────────────────
-// A Davis County reader in HD-15 alone. There is one board in the product and it
-// is not theirs, so the row says so plainly and the hub is still worth opening —
-// it is where the seat and its member live even when the room does not exist.
+// A Davis County reader in HD-14 alone. Five boards exist in the product and
+// not one of them is theirs, so the row says so plainly and the hub is still
+// worth opening — it is where the seat and its member live even when the room
+// does not exist.
 {
   const w = bootDesk({
     uid: "u_5",
     loc: { state: "Utah", city: "Layton", county: "Davis County" },
-    levels: [LV_HD15],
+    levels: [LV_HD14],
   });
   const v = w.PDXMeDesk.voice();
   const slot = slotOf(w);
   slots.dark = slot;
   eq(v.standing, "verified", "no board: a reader with a seat and no board is not on file at all");
-  eq(w.PDXVoice.boardPath("ut-statehouse-15"), "", "no board: the allow-list answers for a seat it does not hold");
+  eq(w.PDXVoice.boardPath("ut-statehouse-14"), "", "no board: the allow-list answers for a seat it does not hold");
+  // AND THE SEAT ONE NUMBER AWAY REALLY DOES HAVE A BOARD, so the line above is
+  // an assertion about this key and not about an empty table.
+  eq(w.PDXVoice.boardPath("ut-statehouse-15"), "/district/ut-hd-15",
+    "no board: HD-15's board went missing, so the HD-14 refusal above proves nothing");
   has(slot, "board not on hand", "no board: the row does not say the board is not on hand");
   lacks(slot, "board on hand<", "no board: a board was claimed for a seat that has none");
-  // WRONG-SEAT EXCLUSIVITY, ON THE DESK TOO. Layton is not North Ogden, and the
-  // one open board must not appear on this reader's desk because it is the only
-  // one there is.
+  // WRONG-SEAT EXCLUSIVITY, ON THE DESK TOO. Clearfield is not North Ogden and
+  // HD-14 is not HD-15, so no open board may appear on this reader's desk —
+  // least of all the one next door that shares their county.
   lacks(slot, "/district/ut-sd-3",
     "no board: SD-3's board is on a Davis County reader's desk — a board belongs to its own seat's residents");
+  lacks(slot, "/district/ut-hd-15",
+    "no board: HD-15's board is on an HD-14 reader's desk — one number away is still another district");
   lacks(slot, "John Johnson", "no board: another seat's member is named on this reader's desk");
   // AND THE HUB IS STILL OFFERED. The old desk went dark here — no control at
   // all — which left the reader with a sentence and nowhere to go, on a page

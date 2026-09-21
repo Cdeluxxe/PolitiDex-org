@@ -164,7 +164,7 @@ const UNPLACED = "Find your rooms";
 const PLACED = "See your rooms";
 // The count in this sentence is pinned to BOARD_ROUTES in section 6, not here:
 // this line is the SHAPE of the sentence, and that block is the arithmetic.
-const NOTE = "Four seats have a board on file today. The others list the member and say the room is not open.";
+const NOTE = "Five seats have a board on file today. The others list the member and say the room is not open.";
 
 // The visible copy, with the comments, the style block and the script stripped
 // the way a reader sees it.
