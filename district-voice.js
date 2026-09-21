@@ -80,12 +80,12 @@
   var VOICE_SEATS = { 'ut-statehouse-68': 1 };
 
   // ── THE BOARD ALLOW-LIST, AND IT IS ONE TABLE ─────────────────────────────
-  // seatKey → the board's own address. FOUR ROWS TODAY, and adding a seat is
+  // seatKey → the board's own address. FIVE ROWS TODAY, and adding a seat is
   // still adding a row: no pattern, no splat, no `/district/<anything>` rewrite
   // that answers for districts this app has never drawn. netlify.toml rewrites
-  // exactly these four addresses and nothing else, which is why a table and not
+  // exactly these five addresses and nothing else, which is why a table and not
   // a map — the regex form of this list would print a door for all 75 Utah
-  // House districts, 71 of which have no document behind them.
+  // House districts, 72 of which have no document behind them.
   //
   // IT IS NOT VOICE_SEATS. VOICE_SEATS is "does this seat have a Voice block in
   // its district file at /d/<seat-key>"; this is "does this seat have a BOARD at
@@ -94,17 +94,25 @@
   // and a surface that conflated them would offer a reader a room that is not
   // there. /voice asks THIS one, because a hallway prints doors that open.
   //
-  // WRONG-SEAT EXCLUSIVITY IS STILL THE PRODUCT, and four rows do not soften it.
-  // A reader whose saved location resolves Davis County HD-15 gets an HD-15 card
-  // with NO DOOR — HD-16 is next door and its board is not theirs, which is a
-  // sharper test of this table than HD-68 ever was. Layton is not North Ogden,
-  // HD-15 is not HD-16, and a board labelled "yours" for somebody who cannot
-  // vote in it is the one lie this whole lane exists to avoid.
+  // WRONG-SEAT EXCLUSIVITY IS STILL THE PRODUCT, and five rows do not soften it.
+  // A reader whose saved location resolves Davis County HD-14 gets an HD-14 card
+  // with NO DOOR — HD-15 and HD-16 are both next door and neither board is
+  // theirs, which is a sharper test of this table than HD-68 ever was. Layton is
+  // not North Ogden, HD-14 is not HD-15, and a board labelled "yours" for
+  // somebody who cannot vote in it is the one lie this whole lane exists to
+  // avoid.
+  //
+  // HD-15 MOVED SIDES IN THIS PASS AND HD-14 TOOK ITS PLACE AS THE EXAMPLE.
+  // That substitution is the point: the counter-example has to be a seat that
+  // really has no document, or the paragraph stops being a test of anything.
+  // HD-14 has a member on the roster (lisonbee_h14), a person file, and no
+  // board — exactly the shape HD-15 had until this row existed.
   var BOARD_ROUTES = {
     'ut-statesenate-3': '/district/ut-sd-3',
     'ut-statehouse-16': '/district/ut-hd-16',
     'ut-statesenate-7': '/district/ut-sd-7',
-    'ut-house-2': '/district/ut-cd-2'
+    'ut-house-2': '/district/ut-cd-2',
+    'ut-statehouse-15': '/district/ut-hd-15'
   };
 
   // The state name the saved location stores → the postal code a seat key is

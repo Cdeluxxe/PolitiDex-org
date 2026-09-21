@@ -670,20 +670,24 @@ section("6 · a seat the roster holds nobody for stays empty, and says so plainl
 // ═════════════════════════════════════════════════════════════════════════════
 // 7 · NOTHING ELSE MOVED
 // ═════════════════════════════════════════════════════════════════════════════
-section("7 · four named board rows, an untouched owner, and no new surface");
+section("7 · five named board rows, an untouched owner, and no new surface");
 
-// BOARD_ROUTES IS FOUR NAMED ROWS AND NOT A PATTERN. The way a naming pass would
+// BOARD_ROUTES IS FIVE NAMED ROWS AND NOT A PATTERN. The way a naming pass would
 // quietly open a room is by widening the board table instead of adding to it.
+// Five, not four, because HD-15's board opened with a document, three rewrites
+// and rows in all four allow-lists — a decision, enumerated below by name. The
+// shape assertions underneath are the ones that matter and they did not move.
 const BR = (/var BOARD_ROUTES = \{([\s\S]*?)\n  \};/.exec(DV) || [, ""])[1];
 must(!!BR, "district-voice.js no longer declares BOARD_ROUTES as one literal");
 const brRows = [...BR.matchAll(/'([a-z0-9-]+)':\s*'(\/district\/[a-z0-9-]+)'/g)];
-eq(brRows.length, 4,
-  "boards: BOARD_ROUTES no longer holds exactly four rows. This pass names a member; it does not open or\n" +
-  "    close a room, and a fifth board is a separate decision with a document behind it");
+eq(brRows.length, 5,
+  "boards: BOARD_ROUTES no longer holds exactly five rows. Naming a member does not open or close a\n" +
+  "    room, and a sixth board is a separate decision with a document behind it");
 eq(brRows.length, (BR.match(/:\s*'\//g) || []).length,
   "boards: a BOARD_ROUTES row is not a literal seat key mapped to a literal address");
 [["ut-statesenate-3", "/district/ut-sd-3"], ["ut-statehouse-16", "/district/ut-hd-16"],
-  ["ut-statesenate-7", "/district/ut-sd-7"], ["ut-house-2", "/district/ut-cd-2"]]
+  ["ut-statesenate-7", "/district/ut-sd-7"], ["ut-house-2", "/district/ut-cd-2"],
+  ["ut-statehouse-15", "/district/ut-hd-15"]]
   .forEach(([k, route]) => ok(brRows.some(([, a, b]) => a === k && b === route),
     `boards: ${k} → ${route} left the table`));
 ok(!/\[|RegExp|\+|`/.test(BR), "boards: a BOARD_ROUTES row is computed rather than written down");
@@ -701,18 +705,87 @@ no(code(VOICE_HTML).toLowerCase(), "equity", "scope: voice.html grew equity copy
 
 // THE OWNER IS UNTOUCHED. seated-member.js is a copy; ballot-breakdown.js is
 // where an entry is added, and this pass had no business inside it.
+//
+// TWO OF THESE PINS WERE RETIRED, ON PURPOSE, AND REPLACED BELOW. A
+// `git show HEAD:` pin says "this file did not change since the last commit",
+// which is the right assertion for a file no future pass should reach into and
+// the WRONG one for a file some later pass legitimately owns. Two have since
+// become the second kind:
+//
+//   · district-board.js — the pass that opened /district/ut-hd-15 added a fifth
+//     row to its BOARDS table. That is the documented way a board opens (a row
+//     here, a row in BOARD_ROUTES, a row in the Function, three rewrites in
+//     netlify.toml), so a byte pin over the whole file would have forbidden the
+//     supported change while proving nothing about THIS suite's concern, which
+//     is that the board engine is not on /voice's critical path and still takes
+//     its seat from the document rather than the URL. Both of those are now
+//     asserted directly, underneath.
+//   · profile-alias.js — the pass that made /voice name Ariel Defay added
+//     `ariel_defay: 'defay_h15'` to PDX_PROFILE_ALIAS's owner and re-derived
+//     this mirror from it. The claim worth keeping was never "these bytes never
+//     move" but "this mirror equals its owner", which
+//     scripts/test-voice-house-member.mjs §1 asserts byte-for-byte against
+//     profile-evidence.js. What is added here is the narrower half this suite
+//     cares about: the mirror is still ONLY an alias table, with no seat, board
+//     or district logic of its own.
 const HEAD = (f) => {
   try { return execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28 }); }
   catch (e) { return null; }
 };
 [["ballot-breakdown.js", "the tables' owner — entries are added there and re-derived here"],
-  ["district-board.js", "the board engine, which resolves its own seat and is not on this path"],
-  ["profile-alias.js", "the previous pass's lifting, which this one only sits beside"],
   ["voice-room.js", "the printer — this pass moved the fill into the seat list's owner instead"]].forEach(([f, why]) => {
     const h = HEAD(f);
     if (h == null) { passed++; return; }
     eq(deOrigin(R(f)), deOrigin(h), `untouched: ${f} changed in this pass and it should not have — ${why}`);
   });
+
+// ── WHAT THE TWO RETIRED PINS WERE PROTECTING, ASSERTED AS FIELDS ───────────
+{
+  const DB = R("district-board.js");
+  const DB_CODE = code(DB);
+
+  // (a) THE BOARD ENGINE IS STILL NOT ON THIS PATH. /voice names members; it
+  // does not mount a board, and the day it loads district-board.js the seat
+  // list and the board would be two answers to "who sits here".
+  ok(!/<script[^>]*src="\/district-board\.js"/.test(VOICE_HTML),
+    "engine: voice.html loads district-board.js — the hallway prints doors, it does not mount a room");
+
+  // (b) AND IT STILL READS ITS SEAT FROM THE DOCUMENT, NEVER FROM THE URL.
+  // Three rewrites serve every board document, so a path test would answer
+  // differently on /district/ut-hd-15, /district/ut-hd-15/ and .html — and this
+  // module also ships on person.html, where the path names a person.
+  has(DB_CODE, "data-pdxdb-seat",
+    "engine: district-board.js stopped reading the host element's declared seat");
+  has(DB_CODE, "__PDX_DISTRICT_BOARD_SEAT",
+    "engine: district-board.js stopped reading the head's declared seat");
+  ok(!/location\.pathname[\s\S]{0,240}(?:hd|sd|cd)-/.test(DB_CODE),
+    "engine: district-board.js composes a seat out of the URL");
+
+  // (c) AND ITS OWN ALLOW-LIST IS THE SAME LIST THE HALLWAY HOLDS, row for row.
+  // This is the assertion the byte pin was standing in for: the engine may grow
+  // a board, but it may not grow one the hallway has never heard of, and
+  // neither list may become a pattern.
+  const dbTbl = DB.slice(DB.indexOf("var BOARDS = {"), DB.indexOf("\n  };", DB.indexOf("var BOARDS = {")));
+  must(!!dbTbl, "district-board.js no longer declares BOARDS as one literal");
+  const dbSeats = [...dbTbl.matchAll(/^    '([a-z0-9-]+)':\s*\{/gm)].map((m) => m[1]).sort();
+  eq(dbSeats.join(","), brRows.map(([, k]) => k).sort().join(","),
+    "engine: district-board.js's BOARDS and district-voice.js's BOARD_ROUTES no longer name the same seats");
+  ok(!/\\d\+|\[0-9\]\+|RegExp/.test(dbTbl),
+    "engine: district-board.js's allow-list became a pattern");
+
+  // (d) THE MIRROR IS STILL A MIRROR AND NOTHING ELSE. profile-alias.js exists
+  // so a lean document can do one reverse read without carrying
+  // profile-evidence.js. It states the owner and the line range it copied, and
+  // it holds no opinion about seats.
+  const PA = R("profile-alias.js");
+  has(PA, "COPIED VERBATIM FROM profile-evidence.js LINES",
+    "mirror: profile-alias.js no longer names the owner and line range it was copied from");
+  has(PA, "PDX_PROFILE_ALIAS",
+    "mirror: profile-alias.js no longer publishes the alias table");
+  for (const w of ["BOARD_ROUTES", "BOARDS", "/district/", "seatKey", "pdxSeatedMemberFor"]) {
+    no(PA, w, `mirror: profile-alias.js grew seat or board logic (${w}) — it is an alias table`);
+  }
+}
 
 // AND THE FOUR BOARD DOCUMENTS EACH STILL DECLARE THEIR OWN SEAT, so nothing
 // here can make a sibling document paint the first board's member.
@@ -880,7 +953,7 @@ const DAVIS_SLATE = {
   no(card, "No sitting member on hand for this seat",
     "unknown: HD-99's card reads as a vacancy though a pid resolved for it");
   eq(seatOf(v.win, "statehouse").board, "",
-    "unknown: HD-99 was given a board — BOARD_ROUTES is four named rows and nothing computes a fifth");
+    "unknown: HD-99 was given a board — BOARD_ROUTES is five named rows and nothing computes a sixth");
 }
 
 // ── A STATEWIDE ROW HAS NO NUMBER TO DISAGREE WITH ───────────────────────────

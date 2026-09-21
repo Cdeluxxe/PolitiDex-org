@@ -7979,7 +7979,49 @@
 //     MIGRATION COST: none, and no location key is migrated, renamed or copied.
 //     Nothing stored changed shape or name and no store was added; this pass
 //     only decides which already-resolved pid a card is allowed to print.
-const CACHE_VERSION = 'v246';
+// v247 - UTAH HOUSE DISTRICT 15 HAS AN ADDRESS, AND IT IS THE FIFTH.
+//     /district/ut-hd-15 is a document now, on the contract district-ut-sd-3.html
+//     wrote: the same shell, the same three bands, the same district-board.js
+//     parameterised by a seat the document declares twice, and one more row in
+//     each of the four allow-lists that decide whether a board exists -
+//     BOARD_ROUTES, BOARDS, the Function's BOARD_SEATS, and three exact
+//     rewrites in netlify.toml. STILL NO /district/* SPLAT. The list went from
+//     four named rows to five and the reason it is a list did not change: the
+//     pattern form would publish a board for all 75 Utah House seats, 72 of
+//     which have no document, no reader and no room.
+//     THE NEIGHBOUR EXAMPLE MOVED TO HD-14. HD-15 was this codebase's canonical
+//     "seat with a member, a person file and no board", cited in netlify.toml,
+//     in district-voice.js and in HD-16's own head. Opening it meant moving
+//     that role to a seat that really has no document rather than quietly
+//     deleting the counter-example, so HD-14 (lisonbee_h14) carries it. HD-16
+//     already had a document and keeps it; HD-14 does not and stays off.
+//     BAND 1 IS THE ROSTER AND NOTHING ELSE: defay_h15, "Utah State
+//     Representative", "UT District 15 (Layton, Davis County)" - the office
+//     string as cmp-data.js spells it, printed verbatim, no bio and no score.
+//     /voice AND THE HUB NOW NAME HER. The one thing missing was a reverse
+//     read: PDX_PROFILE_ALIAS had no ariel_defay -> defay_h15 row, so a lean
+//     document whose people index files the full record under the name slug
+//     asked for the canonical key, got nothing, and printed "The member who
+//     holds this seat is on file" over a person one key away. v232 and v233
+//     both recorded that hole rather than filling it. It is filled: same walk
+//     as Chew, the named row wins over a nameless __lite under the canonical
+//     key. ACCT_ALIAS has held the same pair since July 2026, so this is not a
+//     new claim about who is one person.
+//     THE COUNTS ARE STRUCTURALLY ZERO, as they are on every other board:
+//     bands 2 and 3 read /api/district-board and the archive, nothing in the
+//     markup is an integer, and offline they say they could not READ.
+//     OFFLINE, THIS PATH IS THIS DOCUMENT: '/district-ut-hd-15.html' joins the
+//     precache list, ut-hd-15 joins DISTRICT_BOARD_NAV_RE's literal alternation
+//     and DISTRICT_BOARD_DOCS, so a cold /district/ut-hd-15 is never answered
+//     with SD-3's heading or HD-16's member. Fifteen exact spellings now - five
+//     aliases by three forms.
+//     NOT IN THIS PASS: no composer, no Stripe, no equity copy, no new scrape
+//     (every fact above was already in cmp-data.js and the applied migration),
+//     and SD-6 was left closed.
+//     MIGRATION COST: none, and no location key is migrated, renamed or copied.
+//     No store changed shape or name; a warm device re-downloads the shell once
+//     because the version string moved, and one new document joins it.
+const CACHE_VERSION = 'v247';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -8112,15 +8154,15 @@ const SHELL_ASSETS = [
   '/money.html',
 
   // THE THIRTEENTH SHELL, and the first that is ONE PLACE rather than one lane.
-  // FOUR DOCUMENTS NOW, one per board: netlify.toml rewrites three spellings of
-  // each of the four addresses, and each set of three lands on its own file.
-  // They are here as a group because they are the same page about four
+  // FIVE DOCUMENTS NOW, one per board: netlify.toml rewrites three spellings of
+  // each of the five addresses, and each set of three lands on its own file.
+  // They are here as a group because they are the same page about five
   // different places - a board that is instant offline on one address and a
-  // network round trip on the next three would be one product behaving four
+  // network round trip on the next four would be one product behaving five
   // ways. navDocKey gives none of these paths a key, so nothing was ever held
   // under one and these entries cannot collide with a runtime document; what
   // picks between them offline is DISTRICT_BOARD_DOCS, which maps each path to
-  // ITS OWN file rather than answering all four with the first.
+  // ITS OWN file rather than answering all five with the first.
   //
   // WHAT A BOARD IS WORTH WITH NO NETWORK: band 1 still paints, because the
   // roster is already precached, and bands 2 and 3 say they could not READ -
@@ -8130,6 +8172,7 @@ const SHELL_ASSETS = [
   '/district-ut-hd-16.html',
   '/district-ut-sd-7.html',
   '/district-ut-cd-2.html',
+  '/district-ut-hd-15.html',
   '/district-board.js',
   // The chrome all three share — the bar-and-chip sheet and the chip's own small
   // module — and the only two files /me and /courts did not already bring.
@@ -9026,33 +9069,37 @@ const VOICE_NAV_RE = /^\/voice\/?$/;
 const MONEY_NAV_RE = /^\/money\/?$/;
 
 // ─── THE SEVENTH BRANCH ─────────────────────────────────────────────────────
-// TWELVE exact spellings - four aliases by three forms - because netlify.toml
-// declares twelve exact rules and not one wildcard. The alias alternation is
+// FIFTEEN exact spellings - five aliases by three forms - because netlify.toml
+// declares fifteen exact rules and not one wildcard. The alias alternation is
 // LITERAL on purpose: /^\/district\/[a-z]{2}-(?:hd|sd|cd)-\d+/ would be shorter
-// and would claim an offline fallback for all 75 Utah House districts, 71 of
+// and would claim an offline fallback for all 75 Utah House districts, 72 of
 // which have no document behind them, so an offline reader would be handed a
-// board for a place that has none. Four boards, four names here; the fifth is a
-// name somebody has to decide to add.
+// board for a place that has none. Five boards, five names here; the sixth is a
+// name somebody has to decide to add, exactly as ut-hd-15 was.
 const DISTRICT_BOARD_NAV_RE =
-  /^\/district\/(?:ut-sd-3|ut-hd-16|ut-sd-7|ut-cd-2)(?:\/|\.html)?$/;
+  /^\/district\/(?:ut-sd-3|ut-hd-16|ut-sd-7|ut-cd-2|ut-hd-15)(?:\/|\.html)?$/;
 
 // WHICH DOCUMENT EACH BOARD PATH IS, and the reason this is a map rather than a
-// single match(): every one of these four files carries its own seat in the
+// single match(): every one of these five files carries its own seat in the
 // head and its own district in the <h1>. Answering /district/ut-cd-2 with
 // SD-3's document offline would print Utah Senate District 3's heading, and
 // then its member, under UT-2's URL - a cached page naming the wrong person in
 // the wrong chamber for a reader with no network to correct it. A path that is
 // not a key here gets no board document at all and falls through to '/', which
-// names nobody.
+// names nobody. ut-hd-15 and ut-hd-16 are the sharpest case of that rule on
+// this list: two Layton House seats, two members, two documents, and an
+// offline /district/ut-hd-15 that answered with HD-16's file would print
+// Trevor Lee as the member of District 15.
 const DISTRICT_BOARD_DOCS = {
   'ut-sd-3': '/district-ut-sd-3.html',
   'ut-hd-16': '/district-ut-hd-16.html',
   'ut-sd-7': '/district-ut-sd-7.html',
-  'ut-cd-2': '/district-ut-cd-2.html'
+  'ut-cd-2': '/district-ut-cd-2.html',
+  'ut-hd-15': '/district-ut-hd-15.html'
 };
 
 // The path -> document lookup, and the ONE place a board path is turned into a
-// filename. '' for anything that is not one of the twelve.
+// filename. '' for anything that is not one of the fifteen.
 function districtBoardDoc(pathname) {
   const m = /^\/district\/([a-z]{2}-(?:hd|sd|cd)-[1-9][0-9]*)(?:\/|\.html)?$/
     .exec(String(pathname || ''));
