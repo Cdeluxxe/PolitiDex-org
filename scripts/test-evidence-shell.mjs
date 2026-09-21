@@ -349,8 +349,13 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // PDXStance. Re-derived by locating the run verbatim, and the +20 agreed with
 // every other index.html pin in this region afterwards, which is the order that
 // catches a bad pin rather than confirming one.
+//   AND DOWN BY A FURTHER 156 for the state-badge pass: the front page's
+// location card now carries an outline for each of the fifty states and the
+// District, painted from the state the reader saved instead of drawing Utah for
+// all of them, and that table plus a note over the Detect button is every line
+// this block moved by. The run itself is untouched and was located verbatim.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 19168, b: 19288, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 19324, b: 19444, what: "the PDXStance vocabulary" },
   { from: "person.html", src: PERSON, a: 2005, b: 2059, what: "the Firebase boot" },
 ];
 // The three-room split moved the index.html range by −2021 — /mandate, /voice

@@ -7779,7 +7779,44 @@
 //     always been written to - not renamed, not copied, not migrated.
 //     BOARD_ROUTES still one row, and no equity copy anywhere near it.
 //     MIGRATION COST: none - two precached shells revalidate on the bump.
-const CACHE_VERSION = 'v241';
+// v242 - THE BADGE DRAWS YOUR STATE, DETECT SURVIVES THE SAVE, AND THE HOUSE
+//     SEAT COMES FROM THE DISTRICT. Three corrections to the located face of
+//     Who-Represents-Me, all of them the same defect: a surface answering a
+//     question it had not actually been asked.
+//     THE SILHOUETTE. The location card's map badge was a hardcoded Utah
+//     rectangle with the Wyoming notch cut out of it, drawn under the words
+//     YOUR VOTING LOCATION for every reader in the country. Once the finder
+//     could place all fifty-one, that was a picture of the wrong state beside
+//     the right city. index.html now carries one generalized outline per state
+//     and the District, fitted into the badge's own viewBox with the aspect
+//     ratio kept, and _vhPositionLocPin paints the saved state's. A place we
+//     hold no outline for draws an EMPTY frame rather than a guess, and the
+//     Utah county pin is refitted to the same projection its outline was
+//     generated with, so the pin lands inside the shape.
+//     DETECT STAYS. It was empty-state only, so a reader whose saved record
+//     was a coarse state-and-nothing guess - or who had moved - could only
+//     correct it through the map picker on /find. It now stands in both faces
+//     of the card, same element, same id, same handler, one Detect in the
+//     document, and still nothing detects without a tap.
+//     THE HOUSE PID IS DISTRICT-QUALIFIED IN UTAH TOO. The resolver took it
+//     from the curated ballot of the reader's AREA first, which is a different
+//     question from who holds the district the record names; a congressional
+//     district the 2026 map places and the 119th roster does not key was
+//     answered with a real member of a district the reader is not in.
+//     _pdxUsHouseSeat answers it everywhere now, with the district-qualified
+//     memo behind it and the curated ballot only on a cold roster. An unkeyed
+//     seat reads 'District N - no member on file yet', which is true.
+//     AND THE BAND JOINS THE ROSTER THE WAY /voice DOES. Its rows asked
+//     _pdxPersonById alone - CMP_DATA, keyed by canonical pid - so a seat
+//     resolved under a retired spelling printed the id where the name goes.
+//     pdxRosterRec is the alias-aware join and it is asked first, so HD-68
+//     names Scott Chew on both surfaces or on neither.
+//     NO NEW BOARDS, AND NO LOCATION KEY MOVED. The same record, the same
+//     owner, the same politidex_voter_location - not renamed, not copied, not
+//     migrated - and no new key for the outlines, which are static data in the
+//     one document that has a badge.
+//     MIGRATION COST: none - the precached shell revalidates on the bump.
+const CACHE_VERSION = 'v242';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

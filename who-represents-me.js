@@ -214,6 +214,51 @@
     });
   };
 
+  // ── The display record behind a resolved pid ───────────────────────────────
+  // ONE PERSON, TWO SPELLINGS, AND ONLY ONE OF THEM IS IN CMP_DATA.
+  //
+  // This row used to ask window._pdxPersonById() and nothing else, which reads
+  // exactly one map: the bundled CMP_DATA. That map is keyed by the CANONICAL
+  // pid, and the resolver upstream of here does not promise one — a roster row
+  // that arrived from a live PROFILES payload carries whatever document id that
+  // payload was filed under. PDX_PROFILE_ALIAS exists because this repo has
+  // already ruled on those pairs: `scott_chew` is the retired Firestore key of
+  // the record filed under `chew_h68`, Utah House District 68.
+  //
+  // So a Vernal reader whose State House row resolved the retired spelling got a
+  // row painted as resolved, correctly linked to Chew's file, headed with the raw
+  // id as the name. Not a coverage lie — the pid gate above is right, and a name
+  // we have not loaded is a loading problem — but we HAVE that name, under the
+  // other spelling, and /voice prints it.
+  //
+  // THE FIX IS NOT A SECOND ALIAS TABLE HERE. window.pdxRosterRec() is the
+  // resolver's own alias-aware join, and /voice's personOf() asks it first for
+  // this exact reason. This asks it in the same order, so the two surfaces can
+  // only ever print the same name for the same seat: the join, then the bundled
+  // reader, then the raw maps for a boot where neither landed. A record without
+  // a name is kept as a fallback rather than returned, because a later lane may
+  // hold the named one and the last thing a row wants is the first thin hit.
+  function named(r) { return !!(r && r.name); }
+  function personOf(pid) {
+    if (!pid) return null;
+    var first = null, r = null;
+    try { r = (typeof window.pdxRosterRec === 'function') ? (window.pdxRosterRec(pid) || null) : null; }
+    catch (e) { r = null; }
+    if (named(r)) return r;
+    if (r && !first) first = r;
+    try { r = (typeof window._pdxPersonById === 'function') ? (window._pdxPersonById(pid) || null) : null; }
+    catch (e2) { r = null; }
+    if (named(r)) return r;
+    if (r && !first) first = r;
+    try { r = (window.CMP_DATA && window.CMP_DATA[pid]) || null; } catch (e3) { r = null; }
+    if (named(r)) return r;
+    if (r && !first) first = r;
+    try { r = (window.PROFILES && window.PROFILES[pid]) || null; } catch (e4) { r = null; }
+    if (named(r)) return r;
+    if (r && !first) first = r;
+    return first;
+  }
+
   // ── One representative row ─────────────────────────────────────────────────
   // Resolved: photo, name, party letter, office, district — and the whole row is
   // the control that opens their record, because "see their record" is the next
@@ -247,8 +292,7 @@
   // reachable only where the resolver returned nothing at all.
   function row(lv, reps) {
     var pid = lv.pid || null;
-    var person = (pid && typeof window._pdxPersonById === 'function')
-      ? window._pdxPersonById(pid) : null;
+    var person = personOf(pid);
     var color = lv.color || '#60a5fa';
 
     if (!pid) {

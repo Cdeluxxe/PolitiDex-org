@@ -1408,16 +1408,44 @@
         if (!key) { for (var k in UT) { if (county.indexOf(k) !== -1) { key = k; break; } } }
       }
     }
+    // ── AND THE OUTLINE UNDER THE PIN IS THE READER'S OWN STATE ─────────────
+    // The badge drew Utah for everybody, which was fine while the finder could
+    // only place a Utah reader and became a picture of the wrong state the
+    // moment it could place all fifty-one. The shape table and its painter live
+    // in index.html, beside the badge and on the one document that has one (see
+    // the comment over it there); this is the signal that drives them, because
+    // "where is this reader" is this file's question and the badge should not
+    // grow a second answer to it. Guarded both ways: no painter means the
+    // outline in the markup stays, and no state means the painter puts the home
+    // silhouette back rather than leaving the last reader's state on screen.
+    try {
+      if (typeof window.pdxPaintStateShape === 'function') {
+        window.pdxPaintStateShape(loc.state || '');
+      }
+    } catch (e) {}
+
     var x, y, precise = !!key;
     if (precise) {
       var ll = UT[key];
-      // Project lat/lng into the viewBox: lng −114..−109 → x 8..92; lat 42..37 → y 6..110.
-      x = 8 + ((ll[1] + 114) / 5) * 84;
-      y = 6 + ((42 - ll[0]) / 5) * 104;
+      // Project lat/lng into the viewBox with the SAME FIT the Utah row of that
+      // shape table was generated with, so the pin lands inside the outline it
+      // is dropped on rather than inside a rectangle the outline used to be:
+      // longitude from -114.05 at x 9.86, scaled by 16.041 px per degree (the
+      // shared scale times the cosine of Utah's mid-latitude); latitude from
+      // 42.0 at y 6, scaled by 20.789 px per degree.
+      x = 9.86 + (ll[1] + 114.05) * 16.041;
+      y = 6 + (42 - ll[0]) * 20.789;
       x = Math.max(12, Math.min(88, x));
       y = Math.max(14, Math.min(104, y));
     } else {
-      x = 50; y = 62; // Utah's rough center as a neutral resting spot.
+      // THE CENTRE OF THE BADGE, DIMMED, AND IT IS NOT A PLACE. County
+      // centroids exist for Utah and the saved record carries no coordinates
+      // for anywhere else, so outside Utah there is nothing to pin precisely
+      // and this is the resting spot the opacity below already marks as
+      // imprecise. A pin dropped at a guessed county would be a claim; a pin
+      // resting in the middle of the state's own outline is the badge saying it
+      // knows the state and not the county.
+      x = 50; y = 62;
     }
     pin.setAttribute('transform', 'translate(' + x.toFixed(1) + ',' + y.toFixed(1) + ')');
     pin.style.opacity = precise ? '1' : (window._hasUserLocation ? '0.8' : '0.5');
@@ -1462,11 +1490,14 @@
     var pmCountySel = document.getElementById('pm-county-sel');
 
     // WHICH FACE THE ONE SETTER WEARS. The card at the top of Who Represents Me
-    // offers three doors while there is nothing to change and one door once
-    // there is, and this attribute is what decides between them (the CSS is in
-    // index.html). It is set here rather than in the band's own module because
-    // the question it answers — is there a stamped location — is this file's to
-    // answer, and two owners would be two answers.
+    // offers both picker doors while there is nothing to change and one door
+    // once there is, and this attribute is what decides between them (the CSS
+    // is in index.html). It is set here rather than in the band's own module
+    // because the question it answers — is there a stamped location — is this
+    // file's to answer, and two owners would be two answers. DETECT IS IN
+    // NEITHER SET: it stands in both faces, because a saved location is exactly
+    // as re-detectable as a missing one and often a coarser answer than the
+    // reader could have.
     var locBar = document.getElementById('wrm-locbar');
     if (locBar) locBar.setAttribute('data-pdxloc', window._hasUserLocation ? 'set' : 'empty');
 
@@ -2840,10 +2871,72 @@
                   : (ownCd ? (ownCd === 'AL' ? '1' : ownCd) : null);
     var sd = utah ? dist('statesenate', 'senate', _pdxResolvedDist(mem, 'statesenate', loc.stateSenateDistrict || null)) : null;
     var ld = utah ? dist('statehouse', 'lower', _pdxResolvedDist(mem, 'statehouse', loc.stateHouseDistrict || null)) : null;
-    var hp = utah ? (inc('house', 'representative') || _pdxResolvedPid(mem, 'house', hd))
-                  : (hd != null ? window._pdxUsHouseSeat(state, hd) : null);
-    var sp = utah ? (inc('statesenate', 'state_senator') || _pdxResolvedPid(mem, 'statesenate', sd)) : null;
-    var lp = utah ? (inc('statehouse', 'state_rep') || _pdxResolvedPid(mem, 'statehouse', ld)) : null;
+    // AND THE MEMBER FOR THAT NUMBER COMES FROM THE NUMBER, IN UTAH TOO.
+    //
+    // Utah used to take this pid from the curated ballot FIRST — inc('house',
+    // 'representative'), the incumbent of the House race attached to the
+    // reader's curated AREA. That is not the same question as "who holds the
+    // district this record says the reader is in", and the 2026 map is where the
+    // two come apart: the finder can pin a reader into a congressional district
+    // whose number the 119th-Congress roster does not key, and the area's ballot
+    // answers anyway, with a real member of a district the reader is not in. The
+    // row would print that name under the reader's own district number, which is
+    // the one failure mode this whole section exists to refuse.
+    //
+    // So the U.S. House seat now resolves the same way in all fifty-one places:
+    // through _pdxUsHouseSeat(), the district-qualified roster index, which
+    // answers a CD or answers nothing. Behind it, and only behind it, the two
+    // lanes that are worth keeping:
+    //
+    //   · the MEMO, which _pdxResolvedPid already qualifies by district — it
+    //     refuses a remembered pid whose remembered number is not this one — so
+    //     it can fill a document that has no roster (/me, /voice) without ever
+    //     answering for the wrong seat.
+    //   · the CURATED BALLOT, on a COLD ROSTER only. A warm roster with no row
+    //     for this CD is an answer ("we hold no file for that seat"), and the
+    //     row above prints it as one. A roster that has not arrived is a wait,
+    //     and on that document the curated race — whose own district is where
+    //     `hd` came from a few lines up — is the only thing that knows the name.
+    //
+    // A Utah reader with the tables present and a keyed district sees exactly
+    // what they saw before; one whose district the roster does not key now gets
+    // "District N - no member on file yet" instead of somebody else's member.
+    var hp = (hd != null ? window._pdxUsHouseSeat(state, hd) : null)
+          || (utah ? _pdxResolvedPid(mem, 'house', hd) : null)
+          || ((utah && !_pdxRosterSize()) ? inc('house', 'representative') : null);
+    // AND THE TWO LEGISLATIVE SEATS GET THE SAME TREATMENT, from the table
+    // /voice already reads for them.
+    //
+    // THIS IS THE HD-68 CASE. Both of these used to end at the curated ballot
+    // and the memo, and the curated ballot is gated on a MATCHED AREA — a
+    // reader whose county is not one of the curated ones gets no ballot at all,
+    // deliberately, because the alternative was being handed Davis County's
+    // slate (see the note over `matched`). So a Vernal reader who pinned State
+    // House 68 in the finder had the number in their record, printed in their
+    // districts strip and printed at the top of the row, with "no member on
+    // file yet" underneath it — while /voice, one tap away, named Scott Chew
+    // for that very seat. It reaches him through window.pdxSeatedMemberFor,
+    // which is a DISTRICT-KEYED table (KR_STATE_HOUSE_INCUMBENTS) and needs no
+    // curated area to answer, because a seat number is not an area.
+    //
+    // So the resolver asks it too, in last place: the curated ballot still wins
+    // where there is one, then the district-qualified memo, then this. It is
+    // asked with the district THIS RECORD RESOLVED and nothing else, so it can
+    // only ever name the holder of the seat the row is already about — and a
+    // seat it holds nobody for stays blank, which is the same honest row as
+    // before for a district nobody has placed.
+    var seated = function (seatKey, d) {
+      var n = String(d == null ? '' : d).replace(/[^0-9]/g, '');
+      if (!utah || !n) return null;
+      try {
+        return (typeof window.pdxSeatedMemberFor === 'function')
+          ? (window.pdxSeatedMemberFor(seatKey, n) || null) : null;
+      } catch (e) { return null; }
+    };
+    var sp = utah ? (inc('statesenate', 'state_senator') || _pdxResolvedPid(mem, 'statesenate', sd)
+                     || seated('statesenate', sd)) : null;
+    var lp = utah ? (inc('statehouse', 'state_rep') || _pdxResolvedPid(mem, 'statehouse', ld)
+                     || seated('statehouse', ld)) : null;
     var redrawn = false;
 
     try {

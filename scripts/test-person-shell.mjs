@@ -352,11 +352,20 @@ const COPIES = [
   [2013, 2033, "the Firebase compat bundles, the key injection and the stub"],
   [2185, 2230, "the share furniture share-preview.ts rewrites"],
   [3728, 3791, "the crawl-header guard"],
-  [13171, 13205, "the profile modal down to #modal-content"],
-  [13266, 13312, "the stance popover, the record overlay and the share sheet"],
-  [19168, 19288, "PDXStance"],
-  [21778, 21976, "the PWA runtime and the service-worker registration"],
+  [13327, 13361, "the profile modal down to #modal-content"],
+  [13422, 13468, "the stance popover, the record overlay and the share sheet"],
+  [19324, 19444, "PDXStance"],
+  [21934, 22132, "the PWA runtime and the service-worker registration"],
 ];
+//   AND THE STATE-BADGE PASS MOVED THE SAME LOWER FOUR BY 156, ALL OF IT ONE
+// EDIT ABOVE THEM: the location card's silhouette stopped being a hardcoded
+// Utah rectangle for every reader and became the reader's own state, which put
+// fifty-one generalized outlines and their painter into index.html a few lines
+// under the badge, plus a note over the Detect button explaining why it now
+// stands in the located face too. Nothing inside these four runs changed. Each
+// was re-derived by locating its own run verbatim; this time all four agreed on
+// one shift, and +156 is also exactly the number of lines the document grew,
+// which is the cross-check -- not the derivation.
 //   AND THE FEDERAL-LOCATOR PASS MOVED THE LOWER FOUR AND NOTHING ELSE, by
 // two different amounts, which is why each one is located rather than shifted
 // by a single delta: the profile modal and the stance popover moved by NINE and

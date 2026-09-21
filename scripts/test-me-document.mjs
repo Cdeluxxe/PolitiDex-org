@@ -295,7 +295,10 @@ const COPIES = [//   AND DOWN THE DOCUMENT BY 20 for the federal-locator pass, w
   // an earlier edit to index.html shifts line numbers — when it does, the header
   // comment in me.html and this table move TOGETHER, which is the whole point of
   // pinning it in one place.
-  { from: "index.html", src: INDEX, a: 19781, b: 20203, what: "PDXSaved" },
+  // Moved by 156 for the state-badge pass — the fifty-one state outlines and
+  // their painter went into the front page's location card, well above PDXSaved
+  // — and the header comment in me.html moved with it, as the note above says.
+  { from: "index.html", src: INDEX, a: 19937, b: 20359, what: "PDXSaved" },
 ];
 // AND IT MOVED AGAIN FOR THE FINDER-BASEMAP PASS: the district-map controller
 // on index.html grew 271 lines above this block — a keyless OpenStreetMap tile
