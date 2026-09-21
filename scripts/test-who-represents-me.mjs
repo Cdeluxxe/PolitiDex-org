@@ -166,9 +166,24 @@ ok(/Work your ballot<\/strong><em>Optional/.test(SEC),
 has(SEC, 'U.S. Senate and Governor',
   'front door: the scope note no longer names the statewide seats, which are the ones the band can\n' +
   '    resolve for every state — a visitor outside Utah has no idea it will answer for them at all');
-has(SEC, 'U.S. House, State Senate and State House',
-  'front door: the scope note no longer names which district seats are resolved, so "see who\n' +
-  '    represents me" implies every level of government');
+// AND THE TWO DISTRICT STORIES ARE NOW DIFFERENT STORIES, which is the whole
+// point of splitting this sentence: the U.S. House is mapped in every state, and
+// the two legislative chambers are mapped in Utah alone. A single clause naming
+// all three together was true while none of them travelled; it now under-promises
+// the federal seat to 49 states and DC, and a visitor told their U.S. House row
+// needs lines we do not have will not bother typing an address.
+has(SEC, 'U.S. House',
+  'front door: the scope note no longer names the federal district seat, so "see who represents\n' +
+  '    me" implies every level of government');
+has(SEC, 'every state',
+  'front door: the scope note no longer says the U.S. House is mapped everywhere, so a visitor\n' +
+  '    outside Utah reads the band as a Utah tool and never sets an address');
+has(SEC, 'State Senate and State House',
+  'front door: the scope note no longer names the two legislative seats, so their blank rows\n' +
+  '    outside Utah arrive unannounced');
+has(SEC, 'Utah so far',
+  'front door: the scope note no longer confines the legislative maps to Utah, so it promises\n' +
+  '    two rows it cannot fill anywhere else');
 has(SEC, 'district lines',
   'front door: the scope note no longer says the district seats need district lines, so a blank row\n' +
   '    outside Utah reads as missing data rather than an unmapped boundary');
@@ -585,10 +600,19 @@ const runBand = (over) => {
     }),
     ...rest,
   };
+  // A location the band can READ and ASSIGN. With the picker on another
+  // document the CTA is a navigation now, not a modal open, so a context with
+  // no location at all would swallow the trip in the band's own try/catch and
+  // read as "the tap did nothing" rather than failing honestly.
+  const nav = [];
+  ctx.location = {
+    href: 'https://politidex.fyi/', pathname: '/', search: '', hash: '',
+    assign: (u) => { nav.push(String(u)); },
+  };
   ctx.window = ctx; ctx.globalThis = ctx;
   vm.createContext(ctx);
   vm.runInContext(WRM, ctx, { filename: 'who-represents-me.js' });
-  return { ctx, sec, host, form, timers };
+  return { ctx, sec, host, form, timers, nav };
 };
 
 // Cold: no resolver at all. The band must fall back to the static markup rather
@@ -799,11 +823,27 @@ eq(act.ctx._opened, true,
 // see, and the door they asked for opens a quarter-second late. This is the case
 // that applies to the real homepage: the location form is not on index.html any
 // more, so this is what a nav tap actually does now.
+//   THE TRIP IS THE BAND'S OWN NOW, not openLocationModal()'s. It used to call
+// the shared opener, which composes the trip as finderHref(here()) — and here()
+// on the homepage is '/', so a reader who pressed this button INSIDE the band
+// confirmed a district and came back to the top of the hero, thousands of pixels
+// from the rows they had just resolved. The band walks to PDXReturn.FINDER and
+// deliberately sends NO next, because PDXReturn's own fallback for a confirm
+// with no intent is '/#who-represents-me' — the band's own anchor. A next=/
+// here would be answered by the front page's arrival chrome instead.
 const actAway = runBand({ pdxRepsForMe: () => ({ located: false, levels: [] }), _hasUserLocation: false, openLocationModal: function () { actAway.ctx._opened = true; } });
 actAway.ctx.pdxFindMyReps();
-eq(actAway.ctx._opened, true,
-  'action: with the picker on another document the CTA defers the trip behind a timer, so the tap\n' +
+eq(actAway.nav.length, 1,
+  'action: with the picker on another document the CTA does not travel exactly once, so the tap\n' +
   '    appears to do nothing and the reader presses it again');
+ok(/^\/find(?:[?#]|$)/.test(actAway.nav[0] || ''),
+  'action: the CTA travels somewhere other than the district finder (' + (actAway.nav[0] || 'nowhere') + ')');
+ok((actAway.nav[0] || '').indexOf('next=') < 0,
+  'action: the CTA carries a return intent, which overrides the band anchor PDXReturn falls back\n' +
+  '    to and lands the reader at the top of the homepage instead of on the rows they resolved');
+ok(!actAway.ctx._opened,
+  'action: the CTA still calls the shared modal opener as well as travelling, so the reader gets a\n' +
+  '    picker flashed over a document they are leaving');
 ok(!actAway.timers.some((t) => t.ms === 260),
   'action: the band still queues the 260ms picker-open delay on a document that does not host the\n' +
   '    picker — the delay exists to let a scroll settle, and nothing is being scrolled');

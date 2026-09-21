@@ -339,8 +339,18 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // ~17700, so 19131-19251 became 19148-19268 at its full 121 lines. Located
 // verbatim in the new index.html; the arithmetic agreed afterwards, which is the
 // order that catches a bad pin rather than confirming one.
+//   AND DOWN THE DOCUMENT BY 20 for the federal-locator pass, which touched
+// nothing in this block and everything above it: the front page's "Who
+// Represents You Now" band learned to say WHY a row is blank -- a located
+// district with nobody on file reads differently from a seat PolitiDex does not
+// map in that state -- and its two picker buttons became doors to /find that
+// carry no return intent, so a confirm lands back on the band instead of the
+// top of the hero. All of it is markup and one inline handler, all of it above
+// PDXStance. Re-derived by locating the run verbatim, and the +20 agreed with
+// every other index.html pin in this region afterwards, which is the order that
+// catches a bad pin rather than confirming one.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 19148, b: 19268, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 19168, b: 19288, what: "the PDXStance vocabulary" },
   { from: "person.html", src: PERSON, a: 2005, b: 2059, what: "the Firebase boot" },
 ];
 // The three-room split moved the index.html range by −2021 — /mandate, /voice

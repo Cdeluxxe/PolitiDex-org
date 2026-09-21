@@ -124,6 +124,32 @@
     setTimeout(function () { try { fn(); } catch (e) {} }, 260);
   }
 
+  // ══ THE DOOR THE READER CAME THROUGH IS THE DOOR THEY COME BACK TO ════
+  // Both openers below end on /find, because that is where the picker lives.
+  // Left to voter-hub-location.js they get there via PDXReturn.finderHref(here()),
+  // and here() on this document is '/' — so a reader who pressed "Change on
+  // map" from inside Who-Represents-Me came back to the TOP of the front page
+  // with the arrival chrome running, several thousand pixels above the band they
+  // asked their question in. They set a district and were shown a homepage.
+  //
+  // SO THIS WALKS TO THE FINDER ITSELF, AND SENDS NO next. That is the whole
+  // mechanism: PDXReturn.settled() already falls back to '/' + FRAGMENT, which
+  // is this section's own anchor, and a missing intent is how you ask for it.
+  // Naming the destination here instead would duplicate a rule that module owns.
+  //
+  // AND IT IS FIXED AT THE KICKOFF RATHER THAN INSIDE PDXReturn, because next=/
+  // is not wrong for everybody who sends it: the welcome flow and Start Here
+  // both pass it and genuinely do want the front page's onboarding when they
+  // come back. Only this band wants the band.
+  function goFinder() {
+    var to = '/find';
+    try {
+      var R = window.PDXReturn;
+      if (R && R.FINDER) to = R.FINDER;
+    } catch (e) { to = '/find'; }
+    try { window.location.assign(to); } catch (e) {}
+  }
+
   // ── The one action every entry point calls ─────────────────────────────────
   // Nav pill, homepage CTA and the Team Builder's step ① all route here, so the
   // lookup behaves identically wherever it was started from: land on the front
@@ -142,7 +168,8 @@
       if (!bring(document.getElementById(BODY_ID))) bring(sec);
       return;
     }
-    if (pickerIsHere() && !bring(document.getElementById(LOCBAR_ID))) bring(sec);
+    if (!pickerIsHere()) { goFinder(); return; }
+    if (!bring(document.getElementById(LOCBAR_ID))) bring(sec);
     openPicker(function () {
       var open = window.openLocationModal || window.toggleChangeLocation;
       if (typeof open === 'function') open();
@@ -166,8 +193,13 @@
   // mode 'form' asks for the typed-address panel, 'map' for the district map,
   // and no argument takes whichever the app offers by default.
   window.pdxSetLocation = function (mode) {
+    // The picker is on another document, so the mode is moot: /find opens on its
+    // map with the address box above it, which is both doors at once. What
+    // matters is that the reader is returned HERE, and that is what goFinder
+    // buys over letting the openers compose next=/ for us.
+    if (!pickerIsHere()) { goFinder(); return; }
     var bar = document.getElementById(LOCBAR_ID);
-    if (pickerIsHere() && !bring(bar)) bring(document.getElementById(SECTION_ID));
+    if (!bring(bar)) bring(document.getElementById(SECTION_ID));
     openPicker(function () {
       if (mode === 'map' && typeof window.toggleChangeLocation === 'function') {
         window.toggleChangeLocation();

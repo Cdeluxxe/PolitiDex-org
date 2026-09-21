@@ -410,10 +410,23 @@ const runBand = (over) => {
     pdxRepsForMe: undefined,
     ...over,
   };
+  // THE AWAY SIDE TRAVELS, so the context needs a location it can assign to.
+  // The band no longer hands an off-document picker to openLocationModal() —
+  // that opener composes the trip as finderHref(here()), which sends next=/
+  // from the homepage and brings the reader back to the top of the hero rather
+  // than to the band they pressed the button in. It walks to the finder itself
+  // with no intent instead, and PDXReturn's no-intent fallback is the band's
+  // own anchor. Recorded here rather than stubbed away, because "did it travel
+  // exactly once, and where to" is the whole assertion on that side.
+  const nav = [];
+  ctx.location = {
+    href: 'https://politidex.fyi/', pathname: '/', search: '', hash: '',
+    assign: (u) => { nav.push(String(u)); },
+  };
   ctx.window = ctx; ctx.globalThis = ctx;
   vm.createContext(ctx);
   vm.runInContext(WRM, ctx, { filename: 'who-represents-me.js' });
-  return { ctx, els, timers, opened, flush: () => timers.forEach((t) => t.fn()) };
+  return { ctx, els, timers, opened, nav, flush: () => timers.forEach((t) => t.fn()) };
 };
 
 must(typeof runBand({}).ctx.pdxSetLocation === 'function',
@@ -440,10 +453,18 @@ const away = runBand({});
 away.ctx.pdxFindMyReps();
 ok(!away.els['wrm-locbar']._scrolled,
   'with the picker on another document the lookup still scrolls to a setter that is not there');
-ok(away.opened.length === 1,
-  `an unlocated lookup on a document with no picker opened ${away.opened.length} doors on the spot, not one`);
+eq(away.nav.length, 1,
+  `an unlocated lookup on a document with no picker took ${away.nav.length} trips on the spot, not one`);
+ok(/^\/find(?:[?#]|$)/.test(away.nav[0] || ''),
+  `the lookup travels to ${away.nav[0] || 'nowhere'} instead of the district finder`);
+ok((away.nav[0] || '').indexOf('next=') < 0,
+  'the lookup sends a return intent, which outranks the band anchor PDXReturn falls back to and ' +
+  'lands the confirm at the top of the homepage instead of on the seats it just filled');
+eq(away.opened.length, 0,
+  'the lookup also calls the shared modal opener, so a picker is flashed over a document the reader ' +
+  'is already leaving');
 away.flush();
-ok(away.opened.length === 1,
+eq(away.nav.length, 1,
   'the deferred opener fired as well, so the trip to the finder is queued twice');
 
 // Stamped: the reader already answered. Asking again is the bug.
@@ -471,8 +492,12 @@ const asMapAway = runBand({});
 asMapAway.ctx.pdxSetLocation('map');
 ok(!asMapAway.els['wrm-locbar']._scrolled,
   'pdxSetLocation scrolls to a setter this document does not have');
-eq(asMapAway.opened.length, 1,
+eq(asMapAway.nav.length, 1,
   'pdxSetLocation defers a trip to another document behind a timer, so the tap appears to do nothing');
+ok(/^\/find(?:[?#]|$)/.test(asMapAway.nav[0] || ''),
+  `pdxSetLocation("map") travels to ${asMapAway.nav[0] || 'nowhere'} instead of the district finder`);
+eq(asMapAway.opened.length, 0,
+  'pdxSetLocation("map") opens a picker on this document as well as travelling to the one that hosts it');
 
 const asForm = runBand({ picker: true });
 asForm.ctx.pdxSetLocation('form');
@@ -486,8 +511,10 @@ const bare = runBand({});
 bare.ctx.document.getElementById = () => null;
 bare.ctx.pdxSetLocation();
 bare.flush();
-ok(bare.opened.length === 1,
-  'on a document with no setter in it, the door does nothing at all rather than falling back to the picker');
+eq(bare.nav.length, 1,
+  'on a document with no setter in it, the door does nothing at all rather than falling back to the finder');
+ok(/^\/find(?:[?#]|$)/.test(bare.nav[0] || ''),
+  `the fallback door travels to ${bare.nav[0] || 'nowhere'} instead of the district finder`);
 
 // ═════════════════════════════════════════════════════════════════════════════
 section('5 · the empty state names nobody');

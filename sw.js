@@ -7734,7 +7734,52 @@
 //     NO LOCATION KEY WAS RENAMED, COPIED OR MIGRATED. A saved record now
 //     carries the state the reader resolved in rather than a stamped 'Utah'.
 //     MIGRATION COST: none. Nothing stored changed shape or name.
-const CACHE_VERSION = 'v240';
+// v241 - THE FINDER RETURNS YOU TO THE DOOR YOU CAME IN BY, AND UTAH'S STORY
+//     STAYS UTAH'S. Three loose ends from taking the U.S. House national.
+//     THE DOOR. Who-Represents-Me is a band on the front page; its picker
+//     lives on /find. The band's map and address buttons called the shared
+//     openers, which compose the trip as finderHref(here()) - and here() on
+//     the homepage is '/'. So a reader who pressed 'Change on map' inside the
+//     band set a district and came back to the top of the hero, thousands of
+//     pixels from the six rows they had just resolved, with the arrival chrome
+//     running over them. PDXReturn already answered this: settled() falls back
+//     to '/#who-represents-me' when a confirm carries no intent. So the band
+//     now walks to the finder itself and sends NO next, and finderArrival
+//     leaves an arrival that named the band alone rather than opening the team
+//     builder or scrolling down to the ballot. Fixed at the kickoff, not inside
+//     PDXReturn: the welcome flow and Start Here also send next=/ and do want
+//     the homepage's onboarding back.
+//     THE 2026 STORY IS ONE STATE'S. The court-map banner, the layer hint and
+//     the info panel all named a 2025 ruling and a 2026 remap because they
+//     were hung on 'the congressional layer is showing' - true while that
+//     layer was Utah's only. A reader in Flagstaff was shown a Utah court
+//     ruling as the reason their own lines look the way they do. All three are
+//     gated on utahScope() now; every other state is named with its own name
+//     over TIGERweb's 119th lines, with no ruling behind them and no sentence
+//     about one.
+//     AND THE STATUS LINE COUNTS THE SEATS THAT EXIST. 'all three of your
+//     districts' is a miscount in 49 states and DC, and it sent readers
+//     hunting for two toggles that are hidden because their state has no
+//     legislative map here. seatsPhrase() and allSetPhrase() read SEATS, the
+//     same list missingSeats() and confirmState() walk, so Utah's wording is
+//     unchanged and a one-seat state is told about one seat. The confirm
+//     button says 'Use this district:' over a single number.
+//     THE TAP ASKS BEFORE IT READS. It used to resolve against whatever lines
+//     were loaded and reverse-geocode the state in parallel, so a press across
+//     a state line ran point-in-polygon over the wrong state's polygons,
+//     painted them, printed the wrong banner, and only then re-scoped.
+//     Containment in geometry we hold is proof of state and still answers
+//     instantly; every other tap is geocode, then setScopeState (which drops
+//     all three chambers and the picks made on them), then that state's lines,
+//     then the district. A point in no state we can name says so and selects
+//     nothing - there is no nearest state. loadAndShow only draws now, which
+//     retired the 'outside X's State House map' sentence for good.
+//     NO NEW STATES, BOARDS OR KEYS, AND NO LOCATION KEY MOVED. The same
+//     record, the same owner, the same politidex_voter_location it has
+//     always been written to - not renamed, not copied, not migrated.
+//     BOARD_ROUTES still one row, and no equity copy anywhere near it.
+//     MIGRATION COST: none - two precached shells revalidate on the bump.
+const CACHE_VERSION = 'v241';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

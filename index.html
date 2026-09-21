@@ -6070,16 +6070,25 @@ window.PDXLazy = (function () {
               </div>
             </div>
             <div class="wrm-locacts pm-loc-actions">
-              <!-- Three doors to one answer, offered only while there is no answer. -->
+              <!-- Three doors to one answer, offered only while there is no answer.
+                   THE TWO PICKER DOORS GO THROUGH pdxSetLocation, which is this
+                   band's setter and the only thing that knows the reader is
+                   standing in Who-Represents-Me. Calling toggleChangeLocation or
+                   openLocationModal directly worked — both navigate to /find now
+                   — but they compose next=/ on the way, so a confirmed district
+                   returned the reader to the top of the front page instead of to
+                   the seats they had just asked about. The fallbacks are kept so
+                   these buttons still do something if the band's own script has
+                   not loaded yet. -->
               <button type="button" id="detect-loc-btn" class="wrm-locbtn wrm-locbtn--detect wrm-locwhen-empty btn-tap"
                       onclick="window.triggerManualLocationDetection&amp;&amp;window.triggerManualLocationDetection()">🌐 Detect</button>
               <button type="button" class="wrm-locbtn wrm-locbtn--map wrm-locwhen-empty btn-tap"
-                      onclick="window.toggleChangeLocation&amp;&amp;window.toggleChangeLocation()">🗺️ Change on map</button>
+                      onclick="window.pdxSetLocation?window.pdxSetLocation('map'):(window.toggleChangeLocation&amp;&amp;window.toggleChangeLocation())">🗺️ Change on map</button>
               <button type="button" class="wrm-locbtn wrm-locbtn--form wrm-locwhen-empty btn-tap"
-                      onclick="window.openLocationModal?window.openLocationModal({forceForm:true}):(window.toggleChangeLocation&amp;&amp;window.toggleChangeLocation())">📍 Set my location</button>
+                      onclick="window.pdxSetLocation?window.pdxSetLocation('form'):(window.openLocationModal&amp;&amp;window.openLocationModal({forceForm:true}))">📍 Set my location</button>
               <!-- And one, once there is. -->
               <button type="button" class="wrm-locbtn wrm-locbtn--map wrm-locwhen-set btn-tap"
-                      onclick="window.toggleChangeLocation&amp;&amp;window.toggleChangeLocation()">🗺️ Change location</button>
+                      onclick="window.pdxSetLocation?window.pdxSetLocation('map'):(window.toggleChangeLocation&amp;&amp;window.toggleChangeLocation())">🗺️ Change location</button>
             </div>
           </div>
         </div>
@@ -17857,6 +17866,17 @@ window.PDXLazy = (function () {
         if (confirmed) sessionStorage.removeItem('pdx_finder_confirm');
       } catch(e) { confirmed = false; }
       if (!confirmed) return;
+      // AND AN ARRIVAL THAT NAMES ITS OWN DESTINATION IS LEFT ALONE. A confirm
+      // that carried no `next` is sent back by PDXReturn.settled() to
+      // '/#who-represents-me' — the band that lists the reader's seats — and
+      // that fragment is the reader's stated errand. Opening the team-builder
+      // over it, or scrolling them down to the ballot, would answer a question
+      // they did not ask and move them off the answer they did. The flag is
+      // still spent above, so this is a decision about where to go and not a
+      // way to arrive twice.
+      var toBand = '';
+      try { toBand = String(window.location.hash || ''); } catch(e) { toBand = ''; }
+      if (toBand === '#who-represents-me') return;
       var noBase = (typeof window._homeHasBase !== 'function') || !window._homeHasBase();
       var onboarded = false;
       if (noBase && typeof window.pdxOpenHomeTeamOnboard === 'function') {

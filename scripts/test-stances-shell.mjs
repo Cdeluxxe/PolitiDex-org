@@ -291,9 +291,19 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // these blocks and none is inside either, so both ranges moved by the same 17 and
 // both came back at their full length — 25 lines for the pill rules, 121 for the
 // vocabulary. Re-derived by locating each run verbatim in the new index.html.
-const COPIES = [
-  { from: "index.html", src: INDEX, a: 19105, b: 19129, what: "the .pdxis-stance* pill rules" },
-  { from: "index.html", src: INDEX, a: 19148, b: 19268, what: "the PDXStance vocabulary" },
+const COPIES = [//   AND DOWN THE DOCUMENT BY 20 for the federal-locator pass, which touched
+// nothing in this block and everything above it: the front page's "Who
+// Represents You Now" band learned to say WHY a row is blank -- a located
+// district with nobody on file reads differently from a seat PolitiDex does not
+// map in that state -- and its two picker buttons became doors to /find that
+// carry no return intent, so a confirm lands back on the band instead of the
+// top of the hero. All of it is markup and one inline handler, all of it above
+// PDXStance. Re-derived by locating the run verbatim, and the +20 agreed with
+// every other index.html pin in this region afterwards, which is the order that
+// catches a bad pin rather than confirming one.
+
+  { from: "index.html", src: INDEX, a: 19125, b: 19149, what: "the .pdxis-stance* pill rules" },
+  { from: "index.html", src: INDEX, a: 19168, b: 19288, what: "the PDXStance vocabulary" },
 ];
 // Both index.html ranges have now moved THREE TIMES, and the third ran the other
 // way. The Digital Library split took #digital-library out of index.html but left

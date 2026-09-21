@@ -352,11 +352,20 @@ const COPIES = [
   [2013, 2033, "the Firebase compat bundles, the key injection and the stub"],
   [2185, 2230, "the share furniture share-preview.ts rewrites"],
   [3728, 3791, "the crawl-header guard"],
-  [13162, 13196, "the profile modal down to #modal-content"],
-  [13257, 13303, "the stance popover, the record overlay and the share sheet"],
-  [19148, 19268, "PDXStance"],
-  [21758, 21956, "the PWA runtime and the service-worker registration"],
+  [13171, 13205, "the profile modal down to #modal-content"],
+  [13266, 13312, "the stance popover, the record overlay and the share sheet"],
+  [19168, 19288, "PDXStance"],
+  [21778, 21976, "the PWA runtime and the service-worker registration"],
 ];
+//   AND THE FEDERAL-LOCATOR PASS MOVED THE LOWER FOUR AND NOTHING ELSE, by
+// two different amounts, which is why each one is located rather than shifted
+// by a single delta: the profile modal and the stance popover moved by NINE and
+// the two blocks below them by TWENTY. The pass added markup above each --
+// honest per-row blanks in the "Who Represents You Now" band, and picker
+// buttons that walk to /find without a return intent so a confirm lands back on
+// the band -- and changed nothing inside any of these four runs. 13171-13205,
+// 13266-13312, 19168-19288 and 21778-21976, each re-derived by locating its own
+// run verbatim.
 //   AND THE FINDER MOVE RE-DERIVED NINE OF THE TWELVE, IN BOTH DIRECTIONS AT
 // ONCE AND ONE OF THEM BY CHANGING THE BLOCK ITSELF — which is the one case
 // this table's method is really for. The district finder became its own
