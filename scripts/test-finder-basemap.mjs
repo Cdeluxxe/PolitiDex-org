@@ -511,7 +511,13 @@ section("10 · /voice, SD-3, the allow-list and the engines");
   // And no Leaflet arm in the homepage's lazy loader, which is what would pull
   // the library back onto the front page without any markup changing at all.
   no(HOMEC, "leaflet:", "index.html: PDXLazy still declares a leaflet arm");
-  // The allow-list is still one row, and it is still Johnson's board.
+  // The allow-list is still a list of named addresses, and SD-3's board is still
+  // in it. THE FINDER IS WHAT THIS HARNESS IS ABOUT, so what it fences here is
+  // that a pass spent inside the map did not turn the board table into a
+  // pattern — a finder that can resolve a district for every reader in the
+  // country is exactly the pressure that would make /district/* look reasonable.
+  // The row count is not pinned, because opening a board is a decision made
+  // elsewhere; a computed or splatted row is not.
   const ROUTES = (() => {
     const a = DV.indexOf("BOARD_ROUTES");
     must(a > 0, "district-voice.js no longer declares BOARD_ROUTES");
@@ -519,8 +525,11 @@ section("10 · /voice, SD-3, the allow-list and the engines");
     return DV.slice(open, DV.indexOf("};", open) + 2);
   })();
   const rows = (ROUTES.match(/['"]\/district\/[a-z0-9-]+['"]/g) || []);
-  eq(rows.length, 1, `routes: BOARD_ROUTES has ${rows.length} rows, not one`);
-  has(ROUTES, "/district/ut-sd-3", "routes: the one board row is no longer SD-3's");
+  eq(rows.length, (ROUTES.match(/:/g) || []).length,
+     `routes: ${(ROUTES.match(/:/g) || []).length} BOARD_ROUTES rows but ${rows.length} literal board addresses — a row is computed`);
+  ok(rows.length >= 1, "routes: BOARD_ROUTES routes no board at all");
+  has(ROUTES, "/district/ut-sd-3", "routes: SD-3's board row left the table");
+  no(ROUTES, "*", "routes: BOARD_ROUTES grew a wildcard");
   // The homepage's District Voice card still points at /voice, not at the finder
   // this pass spent its time inside.
   const GATE = (() => {

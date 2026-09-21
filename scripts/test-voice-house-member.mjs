@@ -553,13 +553,21 @@ for (const s of SEATS) {
 // ═════════════════════════════════════════════════════════════════════════════
 // 4 · NOTHING ELSE MOVED
 // ═════════════════════════════════════════════════════════════════════════════
-section("4 · one board row, one untouched board, and no new surface");
+section("4 · named board rows, an untouched engine contract, and no new surface");
 
+// BOARD_ROUTES IS A LIST OF NAMED ROWS AND NOT A PATTERN. It held one row when
+// this harness was written and holds four now; what it may never hold is a
+// computed key, a regex or a splat, because THIS harness is about a pass that
+// names a member — and the way a naming pass would quietly open a room is by
+// widening the board table instead of adding to it.
 const BR = (/var BOARD_ROUTES = \{([\s\S]*?)\n  \};/.exec(DV) || [, ""])[1];
 must(!!BR, "district-voice.js no longer declares BOARD_ROUTES as one literal");
-eq((BR.match(/:\s*'\//g) || []).length, 1,
-  "boards: BOARD_ROUTES is no longer exactly one row — this pass names a member, it does not open a room");
-has(BR, "'/district/ut-sd-3'", "boards: the one row is no longer SD-3's address");
+const brRows = [...BR.matchAll(/'([a-z0-9-]+)':\s*'(\/district\/[a-z0-9-]+)'/g)];
+eq(brRows.length, (BR.match(/:\s*'\//g) || []).length,
+  "boards: a BOARD_ROUTES row is not a literal seat key mapped to a literal address");
+ok(brRows.length >= 1, "boards: BOARD_ROUTES routes nothing at all");
+has(BR, "'/district/ut-sd-3'", "boards: SD-3's address left the table");
+ok(!/\[|RegExp|\+|`/.test(BR), "boards: a BOARD_ROUTES row is computed rather than written down");
 
 const HEAD = (f) => {
   try { return execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28 }); }
@@ -577,9 +585,14 @@ const HEAD = (f) => {
 // replace the byte pin for those two — the field each one reads, which is the
 // thing this harness actually cares about — and the four files that a naming
 // pass still has no business inside keep the byte pin.
-[["district-ut-sd-3.html", "the one board's document"],
-  ["district-board.js", "the one board's engine"],
-  ["ballot-breakdown.js", "the curated race tables"],
+// THE BOARD AND ITS ENGINE LEFT THE BYTE PIN TOO, for the same reason the two
+// below it did: a later pass legitimately opened three more boards, which
+// parameterised district-board.js by seat and gave every board document the
+// seat declaration that module reads. The pin is replaced by the assertions at
+// the end of this section — the FIELDS this harness actually cares about, which
+// are that the engine still gets its member from the roster and that nothing
+// here names one itself.
+[["ballot-breakdown.js", "the curated race tables"],
   ["profile-evidence.js", "the table's owner"]].forEach(([f, why]) => {
     const h = HEAD(f);
     if (h == null) { passed++; return; }  // no git object here; the byte pins above still hold
@@ -599,7 +612,18 @@ const HEAD = (f) => {
   has(WRM, "window.pdxRepsForMe", "band: who-represents-me.js stopped asking the one resolver for its seats");
   has(WRM, "_pdxPersonById", "band: the band stopped reading the display record for the member's name");
   ok(!/PDX_PROFILE_ALIAS/.test(WRM), "band: the band grew its own alias table");
-  ok(!/pdxRosterRec/.test(WRM), "band: the band grew its own roster walk");
+  // pdxRosterRec IS THE SHARED WALK, NOT A SECOND ONE, and this line used to
+  // forbid the wrong thing. It was written when the band read _pdxPersonById
+  // alone, so any mention of the roster join looked like the band growing its
+  // own; the pass that made the band join the roster THE WAY /voice DOES then
+  // added the shared call and left this fence contradicting the file's own
+  // comment beside it. What the harness is actually about is that the band does
+  // not IMPLEMENT a walk — so the ban is on an alias table (above) and on a
+  // hand-rolled scan of the roster, and asking the one published joiner is the
+  // behaviour being protected rather than the thing being banned.
+  has(WRM, "window.pdxRosterRec", "band: the band stopped asking the shared alias-aware roster join");
+  ok(!/for\s*\(\s*(?:var|let|const)\s+\w+\s+in\s+(?:window\.)?CMP_DATA/.test(WRM),
+    "band: the band walks the roster itself instead of asking the joiner");
   // The finder move's own edit, and it is a DOM feature test rather than a path
   // test: the picker is present or it is not, and a document that regains one
   // needs no change here.
@@ -608,6 +632,27 @@ const HEAD = (f) => {
   const DVC = code(DV);
   ok(!/PDX_PROFILE_ALIAS\s*=/.test(DVC), "hallway: district-voice.js declares its own alias table");
   eq((DVC.match(/BOARD_ROUTES = /g) || []).length, 1, "hallway: district-voice.js declares BOARD_ROUTES more than once");
+
+  // THE BOARD'S ENGINE, ON THE FIELD THIS HARNESS CARES ABOUT: band 1's member
+  // is the ROSTER'S, never a name composed here. A seat names its holder with a
+  // roster key or resolves one through the app's single congressional join, and
+  // '' is an answer — the page prints the seat and "no member on file" rather
+  // than reaching for a second source.
+  const DBC = code(R("district-board.js"));
+  has(DBC, "window.CMP_DATA", "engine: band 1 stopped reading the roster for the member");
+  has(DBC, "_pdxUsHouseSeat", "engine: the congressional seat no longer goes through the app's one join");
+  has(DBC, "seatNoMember", "engine: the empty-join sentence left the copy block");
+  ok(!/PDX_PROFILE_ALIAS\s*=/.test(DBC), "engine: the board declares its own alias table");
+  // AND THE BOARD DOCUMENTS EACH DECLARE THEIR OWN SEAT, which is what stops a
+  // sibling document painting the first board's member under its own heading.
+  for (const [, , route] of brRows) {
+    const alias = String(route).split("/").pop();
+    const doc = R(`district-${alias}.html`);
+    has(doc, `window.__PDX_DISTRICT_BOARD_SEAT = '${alias}';`,
+      `doc: district-${alias}.html does not declare its own seat in the head`);
+    has(doc, `data-pdxdb-seat="${alias}"`,
+      `doc: district-${alias}.html does not declare its own seat on the board host`);
+  }
 }
 
 // No map, no splat, no equity copy, no score.
