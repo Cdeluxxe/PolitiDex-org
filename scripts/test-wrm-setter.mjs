@@ -21,10 +21,19 @@
        inside #who-represents-me, above #wrm-reps, in static HTML — so location
        precedes seats at first paint and not only once a deferred module runs.
 
-     · IT WEARS TWO FACES, AND ONE OWNER DECIDES WHICH. Three doors while there
-       is nothing to change, one "Change location" once there is. The decision
-       is voter-hub-location.js's, because "is there a stamped location" is that
-       file's question; two owners would be two answers.
+     · IT WEARS TWO FACES, AND ONE OWNER DECIDES WHICH. Both picker doors while
+       there is nothing to change, one "Change location" once there is. The
+       decision is voter-hub-location.js's, because "is there a stamped
+       location" is that file's question; two owners would be two answers.
+       DETECT IS IN NEITHER FACE AND THEREFORE IN BOTH: a saved location is
+       exactly as re-detectable as a missing one, and it is often the coarser
+       answer — a state with no county, a district pinned before the reader
+       moved — so the one gesture that can correct it stays on the card.
+
+     · AND THE BADGE BESIDE THE CITY IS THAT READER'S OWN STATE. It was a
+       hardcoded Utah rectangle for every reader in the country, which is the
+       same wrong claim this band's seat rows spent two passes learning not to
+       make, made in a shape instead of a sentence.
 
      · EVERY OTHER LOCATION CONTROL IS A DOOR TO IT. The districts strip, the
        ballot band and the Relevant-to-Me empty state all route through
@@ -40,6 +49,7 @@
      3. Every other location control is a door, not a second setter
      4. Driven: where each entry point lands
      5. The empty state names nobody
+     6. Driven: the badge draws the reader's own state
    ═══════════════════════════════════════════════════════════════════════════ */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -118,9 +128,36 @@ for (const door of ['>🌐 Detect<', '>🗺️ Change on map<', '>📍 Set my lo
   has(SEC, door, `the setter is missing the ${door.slice(1, -1)} control`);
 }
 
+// ── AND DETECT IS OFFERED ON BOTH FACES ─────────────────────────────────────
+// The pickers are for a reader who has nothing saved; Detect is for a reader
+// whose saved answer is wrong or coarse, which is a state the card spends most
+// of its life in. Hidden behind the empty face, the only way to correct a
+// state-only record was a trip to /find and a search box. So this button
+// carries NEITHER face class — the CSS only ever hides the two named ones — and
+// the assertion is on the tag rather than on a rendered style because the faces
+// are CSS and this harness has no engine to apply them.
+const DETECT_TAG = (() => {
+  const i = SEC.indexOf('id="detect-loc-btn"');
+  must(i !== -1, 'the Detect button has lost its id, so nothing below is looking at it');
+  const a = SEC.lastIndexOf('<button', i);
+  return SEC.slice(a, SEC.indexOf('</button>', i));
+})();
+lacks(DETECT_TAG, 'wrm-locwhen-empty',
+  'Detect is back on the empty face only. A reader who has saved a location — the coarse state-only ' +
+  'answer they accepted to get going, or the district they pinned before they moved — can then only ' +
+  'correct it through the map picker on /find');
+lacks(DETECT_TAG, 'wrm-locwhen-set',
+  'Detect is pinned to the located face, so a reader with nothing saved is not offered the one control ' +
+  'that could fill the card in a single tap');
+has(DETECT_TAG, 'triggerManualLocationDetection',
+  'the Detect button in the card no longer calls the detection handler at all');
+
 // ONE Detect in the document, which is the count the brief named. Three cards
 // each offering to detect is how a reader ends up detecting twice and trusting
-// neither answer.
+// neither answer. IT IS ALSO WHY THE BUTTON ABOVE IS ONE ELEMENT IN BOTH FACES
+// RATHER THAN A COPY PER FACE: two Detects is two ids, and
+// triggerManualLocationDetection finds exactly one of them to put its spinner
+// in and restore afterwards.
 // Counted as CONTROLS, not as mentions of the function: the one Detect button
 // guards its own handler, so its onclick names it twice on purpose.
 const detects = (HTML.match(/onclick="window\.triggerManualLocationDetection/g) || []).length;
@@ -410,10 +447,23 @@ const runBand = (over) => {
     pdxRepsForMe: undefined,
     ...over,
   };
+  // THE AWAY SIDE TRAVELS, so the context needs a location it can assign to.
+  // The band no longer hands an off-document picker to openLocationModal() —
+  // that opener composes the trip as finderHref(here()), which sends next=/
+  // from the homepage and brings the reader back to the top of the hero rather
+  // than to the band they pressed the button in. It walks to the finder itself
+  // with no intent instead, and PDXReturn's no-intent fallback is the band's
+  // own anchor. Recorded here rather than stubbed away, because "did it travel
+  // exactly once, and where to" is the whole assertion on that side.
+  const nav = [];
+  ctx.location = {
+    href: 'https://politidex.fyi/', pathname: '/', search: '', hash: '',
+    assign: (u) => { nav.push(String(u)); },
+  };
   ctx.window = ctx; ctx.globalThis = ctx;
   vm.createContext(ctx);
   vm.runInContext(WRM, ctx, { filename: 'who-represents-me.js' });
-  return { ctx, els, timers, opened, flush: () => timers.forEach((t) => t.fn()) };
+  return { ctx, els, timers, opened, nav, flush: () => timers.forEach((t) => t.fn()) };
 };
 
 must(typeof runBand({}).ctx.pdxSetLocation === 'function',
@@ -440,10 +490,18 @@ const away = runBand({});
 away.ctx.pdxFindMyReps();
 ok(!away.els['wrm-locbar']._scrolled,
   'with the picker on another document the lookup still scrolls to a setter that is not there');
-ok(away.opened.length === 1,
-  `an unlocated lookup on a document with no picker opened ${away.opened.length} doors on the spot, not one`);
+eq(away.nav.length, 1,
+  `an unlocated lookup on a document with no picker took ${away.nav.length} trips on the spot, not one`);
+ok(/^\/find(?:[?#]|$)/.test(away.nav[0] || ''),
+  `the lookup travels to ${away.nav[0] || 'nowhere'} instead of the district finder`);
+ok((away.nav[0] || '').indexOf('next=') < 0,
+  'the lookup sends a return intent, which outranks the band anchor PDXReturn falls back to and ' +
+  'lands the confirm at the top of the homepage instead of on the seats it just filled');
+eq(away.opened.length, 0,
+  'the lookup also calls the shared modal opener, so a picker is flashed over a document the reader ' +
+  'is already leaving');
 away.flush();
-ok(away.opened.length === 1,
+eq(away.nav.length, 1,
   'the deferred opener fired as well, so the trip to the finder is queued twice');
 
 // Stamped: the reader already answered. Asking again is the bug.
@@ -471,8 +529,12 @@ const asMapAway = runBand({});
 asMapAway.ctx.pdxSetLocation('map');
 ok(!asMapAway.els['wrm-locbar']._scrolled,
   'pdxSetLocation scrolls to a setter this document does not have');
-eq(asMapAway.opened.length, 1,
+eq(asMapAway.nav.length, 1,
   'pdxSetLocation defers a trip to another document behind a timer, so the tap appears to do nothing');
+ok(/^\/find(?:[?#]|$)/.test(asMapAway.nav[0] || ''),
+  `pdxSetLocation("map") travels to ${asMapAway.nav[0] || 'nowhere'} instead of the district finder`);
+eq(asMapAway.opened.length, 0,
+  'pdxSetLocation("map") opens a picker on this document as well as travelling to the one that hosts it');
 
 const asForm = runBand({ picker: true });
 asForm.ctx.pdxSetLocation('form');
@@ -486,8 +548,10 @@ const bare = runBand({});
 bare.ctx.document.getElementById = () => null;
 bare.ctx.pdxSetLocation();
 bare.flush();
-ok(bare.opened.length === 1,
-  'on a document with no setter in it, the door does nothing at all rather than falling back to the picker');
+eq(bare.nav.length, 1,
+  'on a document with no setter in it, the door does nothing at all rather than falling back to the finder');
+ok(/^\/find(?:[?#]|$)/.test(bare.nav[0] || ''),
+  `the fallback door travels to ${bare.nav[0] || 'nowhere'} instead of the district finder`);
 
 // ═════════════════════════════════════════════════════════════════════════════
 section('5 · the empty state names nobody');
@@ -507,6 +571,200 @@ const emptyBand = runBand({}).els['wrm-reps'].innerHTML;
 eq(emptyBand, '',
   'the band painted seat rows with no location and no resolver. There is no honest partial state here: ' +
   'rows imply an address we were never given');
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("6 · driven: the badge draws the reader's own state");
+// ═════════════════════════════════════════════════════════════════════════════
+// The card's map badge is a silhouette with a pin dropped on it, under the words
+// YOUR VOTING LOCATION and over the reader's own city. It was Utah's silhouette
+// for everybody: a rectangle with the Wyoming notch cut out of it, hardcoded in
+// the markup, shown to the Colorado reader the finder can now place. A shape is
+// a claim, and that one was false for fifty places out of fifty-one.
+//
+// This section drives the fix rather than reading it. The outline table and its
+// painter are static data in index.html — the badge exists on one document and
+// voter-hub-location.js is a sync script on all of them — so the assertions
+// below lift that block out of the page, run it, and check the geometry it
+// actually paints. What they pin is not "a table exists" but four behaviours:
+// the reader's state is drawn, an unknown place draws NOTHING rather than a
+// guess, no location restores the home silhouette, and the Utah county pin
+// lands INSIDE the Utah outline — which is the one thing a separate fit for the
+// shape and for the pin would quietly break.
+const SHAPES = (() => {
+  const a = HTML.indexOf('(function () {\n        var T = [');
+  const b = HTML.indexOf('})();', a);
+  must(a > 0 && b > a,
+    'index.html no longer carries the state-outline table as its own block, so nothing below is\n' +
+    '  measuring the shape the badge draws');
+  return HTML.slice(a, b + 5);
+})();
+
+const HOME_D = (() => {
+  const m = HTML.match(/data-pdxhome="([^"]+)"/);
+  must(!!m, 'the badge path has lost data-pdxhome — the painter has no home silhouette to restore');
+  return m[1];
+})();
+
+const runShapes = (state) => {
+  const el = mkEl('vh-loc-mapshape');
+  el.setAttribute('data-pdxhome', HOME_D);
+  el.setAttribute('d', HOME_D);
+  const ctx = {
+    console, Math, JSON, String, Array, Object, Number,
+    document: { getElementById: (id) => (id === 'vh-loc-mapshape' ? el : null) },
+  };
+  ctx.window = ctx; ctx.globalThis = ctx;
+  vm.createContext(ctx);
+  vm.runInContext(SHAPES, ctx, { filename: 'index.html[state-outlines]' });
+  must(typeof ctx.pdxPaintStateShape === 'function',
+    'index.html no longer publishes pdxPaintStateShape, so the badge has no painter');
+  const painted = ctx.pdxPaintStateShape(state);
+  return { ctx, el, painted, d: el.getAttribute('d'), key: el.getAttribute('data-pdxshape') };
+};
+
+// FIFTY STATES AND THE DISTRICT, keyed by the lowercase state name the location
+// record already stores. Counted, because a table that lost a state would fail
+// silently for exactly the readers it lost: their badge would draw nothing and
+// every other assertion here would still pass.
+const KEYS = (() => {
+  const out = [];
+  for (const row of SHAPES.match(/'[a-z .]+:M[^']+'/g) || []) out.push(row.slice(1, row.indexOf(':')));
+  must(out.length > 0, 'the outline table has no rows in the shape this harness can read');
+  return out;
+})();
+eq(KEYS.length, 51,
+  `the outline table holds ${KEYS.length} places. Fifty states and the District of Columbia is 51, and a ` +
+  'missing row is a reader whose badge draws an empty frame');
+eq(new Set(KEYS).size, 51, 'a state is keyed twice in the outline table, so one of the two is unreachable');
+for (const k of ['utah', 'colorado', 'district of columbia', 'alaska', 'hawaii', 'texas', 'new york']) {
+  ok(KEYS.indexOf(k) !== -1, `the outline table has no row for ${k}`);
+}
+
+// THE READER'S OWN STATE, AND NOT THE HOME ONE. Colorado is the smoke case: it
+// borders Utah, it is the neighbour a Utah-shaped badge is least obviously
+// wrong for, and it is what the brief named.
+const co = runShapes('Colorado');
+eq(co.painted, true, 'painting Colorado reported failure, so the badge kept whatever was in the markup');
+eq(co.key, 'colorado', 'the badge does not record which state it drew, so nothing can tell it is stale');
+ok(co.d !== HOME_D,
+  'a Colorado reader still gets the home silhouette. This is the whole defect: their own city under ' +
+  'somebody else\'s state');
+ok(/^M[-0-9. LZM]+Z$/.test(co.d), 'the Colorado outline is not a closed path');
+
+// Case and stray whitespace are the record's, not the reader's — the state is
+// stored as "Colorado" and the table is keyed lowercase, so the painter folds.
+eq(runShapes(' colorado ').d, co.d,
+  'the painter is case- and whitespace-sensitive, so a record that says "Colorado" and a table keyed ' +
+  '"colorado" are two different states');
+
+const ut = runShapes('Utah');
+eq(ut.d, HOME_D,
+  'Utah\'s row in the table and the silhouette that ships in the markup are not the same path. One fit, ' +
+  'one source: two would put the county pin inside a shape it was not projected for');
+
+// NO LOCATION IS NOT AN UNKNOWN STATE, and neither of them is a guess.
+const none = runShapes('');
+eq(none.painted, false, 'the painter claims it drew a state for a reader who has none');
+eq(none.d, HOME_D,
+  'clearing a location leaves the last reader\'s state on the badge, so the card shows a place nobody ' +
+  'is standing in');
+const guam = runShapes('Guam');
+eq(guam.painted, false, 'the painter claims a shape for a place the table does not hold');
+eq(guam.d, '',
+  'a place we hold no outline for is drawn as SOME state anyway. An empty frame says "we know where you ' +
+  'are and cannot draw it"; a guessed shape says something false');
+eq(guam.key, '', 'the badge records a state it did not draw');
+
+// EVERY OUTLINE INSIDE THE BADGE'S OWN viewBox. The paths are generated from
+// Census geometry and fitted offline; a bad fit would not throw, it would draw a
+// state that runs off the edge of the frame it is in.
+const coords = (d) => d.replace(/[MLZ]/g, ' ').trim().split(/[\s]+/).map(Number);
+let outOfBox = 0, nonFinite = 0;
+for (const row of SHAPES.match(/'[a-z .]+:M[^']+'/g) || []) {
+  const d = row.slice(row.indexOf(':') + 1, -1);
+  const c = coords(d);
+  for (let i = 0; i < c.length; i += 2) {
+    if (!isFinite(c[i]) || !isFinite(c[i + 1])) { nonFinite++; continue; }
+    if (c[i] < 0 || c[i] > 100 || c[i + 1] < 0 || c[i + 1] > 116) outOfBox++;
+  }
+}
+eq(nonFinite, 0, 'an outline carries a coordinate that is not a number, so that state draws nothing');
+eq(outOfBox, 0,
+  `${outOfBox} outline points fall outside the badge's 100x116 viewBox, so at least one state is drawn ` +
+  'clipped by its own frame');
+
+// ── AND THE PIN LANDS INSIDE THE SHAPE ──────────────────────────────────────
+// The county pin has always been projected by hand in _vhPositionLocPin: lat and
+// lng into the same viewBox the outline is drawn in. While the outline was a
+// rectangle, "inside" was easy. Now that it is Utah's real boundary, generated
+// by a fitting rule, the pin's constants and that rule have to be the same fit —
+// and the honest way to pin that is not to compare two sets of numbers but to
+// drop the pin and ask the polygon.
+const PIN = assignSrc(VHL, '_vhPositionLocPin');
+must(PIN.length > 400, '_vhPositionLocPin is gone from voter-hub-location.js');
+has(PIN, 'pdxPaintStateShape',
+  'the pin positioner no longer paints the state outline, so the badge keeps the markup\'s silhouette ' +
+  'for every reader — which is the defect this section exists for');
+
+const runPin = (loc) => {
+  const pin = mkEl('vh-loc-mappin');
+  pin.style = {};
+  const shape = mkEl('vh-loc-mapshape');
+  shape.setAttribute('data-pdxhome', HOME_D);
+  shape.setAttribute('d', HOME_D);
+  const ctx = {
+    console, Math, JSON, String, Array, Object, Number,
+    _currentVoterLocation: loc, _hasUserLocation: true,
+    document: {
+      getElementById: (id) => (id === 'vh-loc-mappin' ? pin
+        : id === 'vh-loc-mapshape' ? shape : null),
+    },
+  };
+  ctx.window = ctx; ctx.globalThis = ctx;
+  vm.createContext(ctx);
+  vm.runInContext(SHAPES, ctx, { filename: 'index.html[state-outlines]' });
+  vm.runInContext(PIN, ctx, { filename: 'voter-hub-location.js[_vhPositionLocPin]' });
+  ctx._vhPositionLocPin(loc);
+  const m = /translate\(([-0-9.]+),([-0-9.]+)\)/.exec(pin.getAttribute('transform') || '');
+  must(!!m, 'the pin no longer carries a translate() transform, so nothing below can locate it');
+  return { x: Number(m[1]), y: Number(m[2]), d: shape.getAttribute('d'), opacity: pin.style.opacity };
+};
+
+// Even-odd fill, the same rule the browser uses on these paths, over every ring.
+const inside = (d, x, y) => {
+  let hit = false;
+  for (const ring of d.split('Z').filter(Boolean)) {
+    const pts = ring.replace(/^M/, '').split('L').map((p) => p.trim().split(/\s+/).map(Number));
+    for (let i = 0, n = pts.length; i < n; i++) {
+      const [x1, y1] = pts[i], [x2, y2] = pts[(i + 1) % n];
+      if (((y1 > y) !== (y2 > y)) && (x < (x2 - x1) * (y - y1) / (y2 - y1) + x1)) hit = !hit;
+    }
+  }
+  return hit;
+};
+
+for (const [county, label] of [['Davis', 'Davis County'], ['Salt Lake', 'Salt Lake County'],
+                               ['Washington', 'Washington County'], ['Uintah', 'Uintah County'],
+                               ['Cache', 'Cache County']]) {
+  const p = runPin({ state: 'Utah', county });
+  ok(inside(p.d, p.x, p.y),
+    `the pin for ${label} lands OUTSIDE the Utah outline it is dropped on (${p.x},${p.y}). The shape and ` +
+    'the pin are projected by two different fits');
+  eq(p.opacity, '1', `${label} resolves to a county centroid, so the pin is a precise claim and must not be dimmed`);
+}
+
+// And out of state: the shape is theirs, the pin is honestly imprecise. The saved
+// record carries no coordinates outside the curated county table, so there is
+// nothing to place precisely and the badge does not pretend otherwise.
+const cop = runPin({ state: 'Colorado', city: 'Denver' });
+ok(cop.d !== HOME_D, 'a Colorado reader\'s badge is still drawing Utah once the pin positioner has run');
+eq(cop.d, co.d, 'the pin positioner and the painter disagree about what Colorado looks like');
+ok(inside(cop.d, cop.x, cop.y),
+  'the resting pin falls outside the state it is resting on, which reads as a place rather than as ' +
+  '"we know the state and not the county"');
+ok(cop.opacity !== '1',
+  'the out-of-state pin is drawn at full strength, which presents the middle of the badge as this ' +
+  'reader\'s actual position');
 
 // ─────────────────────────────────────────────────────────────────────────────
 console.log('');

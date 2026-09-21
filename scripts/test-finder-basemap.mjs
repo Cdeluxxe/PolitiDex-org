@@ -256,8 +256,40 @@ section("5 · no full House layer until a result or a tap");
   has(MAPC, "window.pdxMapShowBoundaries", "tap: the idle prompt has no button to draw the layer");
   has(MAPC, 'onclick="window.pdxMapShowBoundaries()"', "tap: the prompt's button is not wired");
   // And a tap while a fetch is already on the wire does not stack a second one.
-  has(MAPC, "if (_loadingLayer || isPainted(_activeLayer)) return;",
-    "tap: a tap during a load or over a painted layer would queue a duplicate fetch");
+  // THE GUARD MOVED, AND THE REASON IT MOVED IS THE PIN. It used to be one line
+  // in the canvas handler, `if (_loadingLayer || isPainted(_activeLayer))
+  // return;`, which stood the whole gesture down — pin and all. A tap now
+  // drops a marker whatever else it does, so the two halves of that condition
+  // mean different things and are asked separately: an in-flight load still ends
+  // the tap (after the pin), and an already-painted layer skips the fetch and
+  // resolves from the point rather than firing a duplicate request.
+  const TAPAT = MAPC.slice(MAPC.indexOf("function tapAt("), MAPC.indexOf("function loadAndShow("));
+  must(TAPAT.length > 200, "tap: tapAt(), the one handler both tap paths arrive at, is gone");
+  has(TAPAT, "if (_loadingLayer) return;",
+    "tap: a tap during a load no longer stands down, so it would queue a duplicate fetch");
+  // THE STATE IS SETTLED BEFORE ANY GEOMETRY IS READ. Containment in a polygon
+  // we already hold is proof of state, so that tap resolves on the spot; every
+  // other tap is handed to scopeFromPoint, which geocodes, re-scopes and only
+  // then resolves. The old shape ran point-in-polygon first and asked about the
+  // state in parallel, which is how a press on Flagstaff got Utah's polygons.
+  has(TAPAT, "districtAt(_activeLayer, latlng.lng, latlng.lat)",
+    "tap: the tap no longer tests containment in the layer it holds, so the common in-state tap pays a\n" +
+    "    round trip it does not need");
+  has(TAPAT, "if (here != null) { resolveAllAt(latlng, true); return; }",
+    "tap: a tap inside a polygon we already hold does not resolve directly, or does not return \u2014 either way\n" +
+    "    the fast path is gone");
+  has(TAPAT, "_searchSeq++",
+    "tap: a second tap does not retire the first, so two quick presses race and the earlier point can win");
+  has(TAPAT, "scopeFromPoint(latlng);",
+    "tap: nothing asks an unplaced tap which state it is in");
+  no(TAPAT, "loadAndShow(",
+    "tap: the tap still pre-loads a layer of its own \u2014 that is the path that resolved against the\n" +
+    "    previous state's geometry");
+  ok(TAPAT.indexOf("districtAt(") > TAPAT.indexOf("if (_loadingLayer) return;"),
+    "tap: containment is tested before the in-flight early-out");
+  ok(TAPAT.indexOf("dropPin(") > 0 && TAPAT.indexOf("dropPin(") < TAPAT.indexOf("if (_loadingLayer) return;"),
+    "tap: the pin is dropped after the in-flight early-out, so a tap during a load shows the reader\n" +
+    "    nothing at all, when the marker is their own gesture and owes nothing to the network");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -965,6 +997,38 @@ const driveFinder = async (opts = {}) => {
   win.clearTimeout = () => {};
   win.requestAnimationFrame = (fn) => { timers.push({ fn, ms: 0 }); return timers.length; };
   const listeners = {};
+  // ══ THE REVERSE GEOCODE A TAP DEPENDS ON, ANSWERED AS A BROWSER WOULD ══
+  // A canvas tap outside geometry we already hold now asks the Census
+  // coordinates endpoint which STATE the pin is in, before any district is read
+  // off any polygon — so a harness that never answers that question is
+  // measuring a finder that can never resolve a tap. That call is JSONP: a
+  // <script src> carrying its callback name in the query string. This plays the
+  // browser's half of it, scheduling the callback on the timer queue so it lands
+  // inside pump() like every other async step. opts.atPointState names the state
+  // it reports; opts.atPointFails leaves the script hanging, which is the "we
+  // could not place this point" branch and ends in the 7s timeout.
+  const jsonp = [];
+  // MUTABLE, because crossing a state line is the gesture worth measuring and it
+  // takes two taps: one inside the scoped state, one outside it.
+  const atPoint = { state: opts.atPointState === undefined ? "Utah" : opts.atPointState };
+  const answerJsonp = (url) => {
+    jsonp.push(url);
+    if (opts.atPointFails) return;
+    const m = /[?&]callback=([^&]+)/.exec(url);
+    if (!m) return;
+    const f = win[m[1]];
+    if (typeof f !== "function") return;
+    // ANSWERED ON THE SPOT, not on the timer queue. pdxJsonp arms its 7s
+    // timeout BEFORE it sets src, and pump() fires queued timers in order
+    // rather than by delay \u2014 so a callback scheduled here would always find
+    // the timeout had already run cleanup() and rejected. The callback is
+    // installed before src is assigned, which is exactly what makes answering
+    // inside the setter legal; the promise still settles a microtask later.
+    f(atPoint.state
+      ? { result: { geographies: { States: [{ NAME: atPoint.state }],
+                                   Counties: [{ BASENAME: "Davis" }] } } }
+      : { result: { geographies: {} } });
+  };
   win.document = {
     readyState: "loading",
     head: { appendChild() {} },
@@ -972,7 +1036,14 @@ const driveFinder = async (opts = {}) => {
     documentElement: { style: {} },
     getElementById: (id) => els[id] || null,
     querySelector: () => null, querySelectorAll: () => [],
-    createElement: (t) => mkEl(t),
+    createElement: (t) => {
+      const e = mkEl(t);
+      if (t === "script") {
+        let v = "";
+        Object.defineProperty(e, "src", { set(x) { v = String(x); answerJsonp(v); }, get() { return v; } });
+      }
+      return e;
+    },
     addEventListener(ev, fn) { (listeners[ev] = listeners[ev] || []).push(fn); },
     removeEventListener() {},
   };
@@ -998,6 +1069,20 @@ const driveFinder = async (opts = {}) => {
     deadline: () => Promise.resolve({ timedOut: false, hit: HIT }),
     fetch(url) {
       const u = String(url);
+      // TIGERweb IS THE REST OF THE COUNTRY. Utah's congressional lines come from
+      // UGRC and everybody else's from TIGERweb layer 4, so a harness that only
+      // answers the UGRC host can only ever measure Utah. The square it serves is
+      // around Flagstaff and its district number is written the way TIGER writes
+      // one \u2014 a zero-padded string in CD119.
+      if (u.indexOf("tigerweb") > 0) {
+        if ((opts.failLayers || []).indexOf("tiger") >= 0) return Promise.reject(new Error("TIGER: 500"));
+        tiger.push(u);
+        return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve({
+          type: "FeatureCollection",
+          features: [{ type: "Feature", properties: { CD119: "03" }, geometry: { type: "Polygon",
+            coordinates: [[[-112.4, 34.2], [-111.4, 34.2], [-111.4, 35.2], [-112.4, 35.2], [-112.4, 34.2]]] } }],
+        }) });
+      }
       const k = u.indexOf("UtahHouseDistricts") > 0 ? "house"
               : u.indexOf("UtahSenateDistricts") > 0 ? "senate"
               : u.indexOf("political_us_congress_districts") > 0 ? "congress" : null;
@@ -1009,6 +1094,7 @@ const driveFinder = async (opts = {}) => {
   // settled() is the navigation. Counting it is how the assertions below tell
   // "confirm committed and left" from "confirm advanced and stayed" — the
   // whole of the gate this pass adds.
+  const tiger = [];
   const nav = { settled: 0 };
   win.PDXReturn = { settled() { nav.settled++; }, consume() { return false; }, finderHref: () => "/find" };
   // Both stores are stubbed so the confirm hand-off is observable rather than
@@ -1031,7 +1117,7 @@ const driveFinder = async (opts = {}) => {
 
   for (const fn of listeners.DOMContentLoaded || []) fn({});
   await pump();
-  return { els, paths, win, timers, pump, mapObj, added, HIT, nav };
+  return { els, paths, win, timers, pump, mapObj, added, HIT, nav, jsonp, tiger, atPoint };
 };
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -1370,8 +1456,15 @@ section("14 · a tap selects, and confirm is on screen to commit it");
   ok(/onEachFeature: function\(feature, path\)/.test(MAPC), "picker: the per-feature geoJSON binding is gone");
   eq((MAPC.match(/onEachFeature/g) || []).length, 1, "picker: a second onEachFeature binding appeared");
   eq((MAPC.match(/_map\.on\('click'/g) || []).length, 1, "picker: a second canvas-level click picker appeared");
-  has(MAPC, "if (_loadingLayer || isPainted(_activeLayer)) return;",
-    "picker: the canvas handler no longer stands down once polygons are drawn, so two pickers race one tap");
+  // ONE HANDLER, NOT ONE GUARD. Both pickers call tapAt() now, so "two pickers
+  // race one tap" is answered by there being a single body to race into, plus the
+  // flag it sets on the DOM event: it marks the GESTURE rather than the handler,
+  // so whichever binding Leaflet delivers to first is the one that counts.
+  eq((MAPC.match(/function tapAt\(/g) || []).length, 1,
+    "picker: tapAt() is gone or duplicated, so the canvas and the polygon are back to two different\n" +
+    "    ideas of what pressing this map means");
+  has(MAPC, "tapAt(e.latlng, e);", "picker: the canvas click no longer routes through the one tap handler");
+  has(MAPC, "oe.__pdxTapped", "picker: nothing marks the gesture, so a second binding would double-handle one press");
 
   // ── The pick is recorded and shown before anything that can fail ──────────
   {
@@ -1520,8 +1613,9 @@ section("15 · three seats, or a labelled partial save");
     no(bl, "if (layerType === 'congress') {",
       "picker: the polygon click is back to an early return on the congress layer, so a tap there\n" +
       "    highlights a district it never selects");
-    has(bl, "resolveAllAt(e.latlng)",
-      "picker: a polygon tap no longer resolves the other two chambers from its own point");
+    has(bl, "tapAt(e && e.latlng, e)",
+      "picker: a polygon tap no longer goes through the one tap handler, so it resolves the other\n" +
+      "    chambers without dropping the pin that says which point it resolved them from");
     has(bl, "click:     function(e)",
       "picker: the polygon click handler dropped its event argument, so it has no latlng to resolve from");
   }
@@ -1531,8 +1625,12 @@ section("15 · three seats, or a labelled partial save");
     "seats: resolveAllAt() is gone or duplicated — the tap path and the tap-to-load path are back to\n" +
     "    two different ideas of how many seats a point answers");
   eq((MAPC.match(/resolveAllAt\(/g) || []).length, 3,
-    "seats: resolveAllAt is not called from exactly the two tap paths \u2014 its definition, the polygon\n" +
-    "    click and the tap-to-load pick are the only three mentions there should ever be");
+    "seats: resolveAllAt is not called from exactly the two paths that answer a point \u2014 its definition, the\n" +
+    "    in-state tap fast path and the re-scope resolve are the only three");
+  // The second caller is the re-scope, and it is now the tap's ONLY route when
+  // the point is not already inside geometry we hold: state first, then that
+  // state's lines, then the district.
+  has(MAPC, "function scopeFromPoint(", "seats: nothing asks a tapped point which state it is in");
   {
     const ra = MAPC.slice(MAPC.indexOf("function resolveAllAt("), MAPC.indexOf("function selectDistrict("));
     must(ra.length > 120, "resolveAllAt is gone from the controller");
@@ -1541,7 +1639,7 @@ section("15 · three seats, or a labelled partial save");
     has(ra, "catch(function(){ return null; })",
       "seats: one failing boundary layer now rejects the whole point-resolve, so a congress outage\n" +
       "    takes House and Senate down with it — the same hazard onGeocoded already guards");
-    has(ra, "if (d == null ",
+    ok(/if \(d == null\)\s*\{[^}]*return;/.test(ra),
       "seats: a layer whose polygons do not contain the point now un-sets whatever was there");
   }
   {
@@ -1943,11 +2041,11 @@ section("16 · ghost layers: the other two chambers stay drawn and stay untappab
   ok(SF.indexOf("_activeLayer") >= 0 && SF.indexOf("_activeLayer") < SF.indexOf("selected ?"),
     "ghost: styleFor() checks the selection before the chamber, so a district the point-resolve picked on an\n" +
     "    inactive layer is painted as selected");
-  // AND STILL EXACTLY ONE PICKER: the definition, the polygon click and the
-  // tap-to-load pick are the only three mentions of the point resolver there
-  // should ever be.
+  // AND STILL EXACTLY ONE PICKER: the definition, the in-state fast path and
+  // the re-scope resolve are the only three mentions of the point resolver
+  // there should ever be.
   eq((MAPC.match(/resolveAllAt\(/g) || []).length, 3,
-    "ghost: the number of resolveAllAt call sites moved — a fourth is a second picker, a second is a lost seat");
+    "ghost: the number of resolveAllAt call sites moved — a fifth is a second picker, a third is a lost seat");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -2016,6 +2114,122 @@ section("worker · one bump, one entry");
   eq((LOG2.match(/\n\/\/\s+v\d+ - /g) || []).length, 0,
     `sw: another version heading sits inside the ${PIN2} entry`);
   ok(at2 > at, `sw: the ${PIN2} entry is filed above ${PIN} rather than after it`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 17 · A TAP CROSSES A STATE LINE: NEW LINES, AND NONE OF THE OLD PROSE
+// ═════════════════════════════════════════════════════════════════════════════
+// The congressional layer covers every state now, which makes "which state is
+// this pin in" the first question a tap asks rather than a footnote to it. Three
+// things used to be wrong on the far side of a state line, and all three were
+// the same mistake — resolving before asking:
+//
+//   · The district came off whatever polygons were loaded. A press on Flagstaff
+//     was tested against Utah's lines, and the seam fallback behind that miss
+//     was a second chance to answer an Arizona point with a Utah number.
+//   · The old state's polygons stayed on the canvas, so the reader saw Utah's
+//     boundaries under an Arizona pin.
+//   · And the copy stayed Utah's. The 2026 court-ordered banner is a fact about
+//     one state's map — a 2025 ruling, Davis County moved out of the 1st — and it
+//     was printed over every state's lines because it was hung on "the
+//     congressional layer is showing" rather than on "this reader is in Utah".
+//
+// So this drives the whole gesture twice: a tap inside Utah, then a tap in
+// Arizona, reading the chips, the canvas and the prose after each.
+section("17 · a tap across a state line: new lines, and no leftover Utah prose");
+{
+  const { els, win, pump, mapObj, added, atPoint, tiger } = await driveFinder();
+
+  // ── First, inside Utah: three seats and the Utah story ────────────────────
+  mapObj._h.click({ latlng: { lat: 40.7, lng: -111.9 } });
+  await pump();
+  eq(els["pdx-sel-congress"].querySelector().textContent, "District 2",
+    "cross: the in-Utah tap did not resolve the congressional seat, so there is no state to leave");
+  eq(els["pdx-sel-house"].querySelector().textContent, "District 15",
+    "cross: the in-Utah tap did not resolve the State House seat");
+  win.pdxMapSetLayer("congress");
+  await pump();
+  eq(els["pdx-congress-note"].style.display, "flex",
+    "cross: Utah's own reader is not shown the court-map banner on Utah's own lines");
+  has(els["pdx-map-hint"].innerHTML, "2026 U.S. House",
+    "cross: the Utah hint no longer names the 2026 map it is actually drawing");
+  has(els["pdx-map-info-val"].innerHTML, "the 2026 map",
+    "cross: the Utah info panel no longer says which map the district came from");
+  eq(els["pdx-layer-house"].style.display, "",
+    "cross: Utah's legislative toggle is hidden in Utah");
+
+  // ── Then Arizona ──────────────────────────────────────────────────
+  // A point in no Utah polygon, with the reverse geocode reporting the state it
+  // is really in. Nothing about this tap may be answered by Utah's geometry.
+  atPoint.state = "Arizona";
+  mapObj._h.click({ latlng: { lat: 34.7, lng: -111.9 } });
+  await pump();
+
+  // THE SEAT IS ARIZONA'S, and it came from TIGERweb's 119th lines.
+  ok(tiger.length >= 1, "cross: no TIGERweb request was made, so the Arizona lines were never fetched");
+  has(tiger[0], "MapServer/4/query", "cross: the out-of-Utah congressional layer is not TIGERweb layer 4 (119th)");
+  has(tiger[0], "STATE%3D%2704%27", "cross: the TIGERweb query is not narrowed to Arizona's FIPS");
+  eq(els["pdx-sel-congress"].querySelector().textContent, "District 3",
+    "cross: the Arizona pin did not resolve against Arizona's own lines");
+  eq(win._currentVoterLocation.state, "Arizona",
+    "cross: the saved record still names the state the reader left");
+  eq(win._currentVoterLocation.district, "3",
+    "cross: the saved congressional district is not the one Arizona's lines gave");
+
+  // AND UTAH IS GONE — the selections, the polygons and the prose.
+  eq(win._currentVoterLocation.stateHouseDistrict, "",
+    "cross: a Utah State House district survived a save made in Arizona");
+  eq(win._currentVoterLocation.stateSenateDistrict, "",
+    "cross: a Utah State Senate district survived a save made in Arizona");
+  eq(els["pdx-congress-note"].style.display, "none",
+    "cross: the 2026 court-ordered banner is printed over Arizona's lines — a Utah ruling offered as the\n" +
+    "    reason an Arizona reader's district looks the way it does");
+  // The hint after a pick is the acknowledgement, and it counts the seats this
+  // state has rather than the three Utah has.
+  const ack = els["pdx-map-hint"].innerHTML;
+  no(ack, "All three", "cross: the acknowledgement claims three districts are set in a one-seat state");
+  has(ack, "U.S. House District 3", "cross: the acknowledgement does not name the district just picked");
+  // And the "showing" hint, which is the one that used to date every state's
+  // lines to Utah's remap. Re-asserting the layer is what repaints it.
+  win.pdxMapSetLayer("congress");
+  await pump();
+  const hint = els["pdx-map-hint"].innerHTML;
+  no(hint, "2026", "cross: the Arizona hint still dates the map to Utah's 2026 remap");
+  has(hint, "Arizona U.S. House", "cross: the Arizona hint does not say whose lines are on the canvas");
+  no(els["pdx-map-info-val"].innerHTML, "2026",
+    "cross: the Arizona info panel still credits the district to the 2026 map");
+  no(els["pdx-map-info-label"].textContent, "2026 court-ordered",
+    "cross: the Arizona info label still names Utah's court-ordered map");
+  eq(els["pdx-layer-house"].style.display, "none",
+    "cross: Utah's State House toggle is still offered to an Arizona reader");
+  eq(els["pdx-layer-senate"].style.display, "none",
+    "cross: Utah's State Senate toggle is still offered to an Arizona reader");
+  const utahLeft = added.filter((l) => l._tag === "geojson" &&
+    (l._paths || []).some((pp) => pp.feature && pp.feature.properties && pp.feature.properties.DIST != null));
+  eq(utahLeft.length, 0,
+    `cross: ${utahLeft.length} of Utah's layers are still on the canvas under an Arizona pin`);
+
+  // THE STATUS LINE NAMES ONE SEAT, because one seat is what this state has.
+  const miss = els["pdx-map-missing"].textContent;
+  no(miss, "all three", "cross: the status line still counts three seats in a state with one mapped seat");
+  no(miss, "State House", "cross: the status line names a chamber this state has no map for");
+  has(miss, "U.S. House", "cross: the status line does not name the one seat this state does have");
+  eq(els["pdx-map-done"].textContent, "Use this district: U.S. House 3",
+    "cross: the confirm button does not name the single district it would commit");
+  eq(els["pdx-map-done"].disabled, false, "cross: confirm is greyed out over a resolved district");
+  eq(els["pdx-map-save-only"].style.display, "none",
+    "cross: the partial-save door is offered for a complete one-seat answer");
+
+  // ── AND A POINT IN NO STATE AT ALL IS SAID OUT LOUD ──────────────────────
+  // No nearest state, no last-known state: the alternative to an answer is a
+  // sentence, not a guess made out of whatever was loaded.
+  atPoint.state = "";
+  mapObj._h.click({ latlng: { lat: 31.0, lng: -117.0 } });
+  await pump();
+  has(els["pdx-map-search-note"].innerHTML, "which state",
+    "cross: a pin the geocoder cannot place says nothing to the reader");
+  eq(els["pdx-sel-congress"].querySelector().textContent, "District 3",
+    "cross: an unplaceable tap cleared a district the reader had already resolved");
 }
 
 report();

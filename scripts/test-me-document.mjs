@@ -275,7 +275,17 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // allowed to move: by locating in index.html the run that this document actually
 // carries, not by adding the delta to the old start. The arithmetic agreed
 // afterwards, and the declared ranges in the copies moved in the same edit.
-const COPIES = [
+const COPIES = [//   AND DOWN THE DOCUMENT BY 20 for the federal-locator pass, which touched
+// nothing in this block and everything above it: the front page's "Who
+// Represents You Now" band learned to say WHY a row is blank -- a located
+// district with nobody on file reads differently from a seat PolitiDex does not
+// map in that state -- and its two picker buttons became doors to /find that
+// carry no return intent, so a confirm lands back on the band instead of the
+// top of the hero. All of it is markup and one inline handler, all of it above
+// PDXStance. Re-derived by locating the run verbatim, and the +20 agreed with
+// every other index.html pin in this region afterwards, which is the order that
+// catches a bad pin rather than confirming one.
+
   { from: "person.html", src: PERSON, a: 288, b: 1271, what: "PDXStore" },
   { from: "person.html", src: PERSON, a: 1405, b: 1920, what: "the promise ledger" },
   { from: "person.html", src: PERSON, a: 2012, b: 2035, what: "firebase" },
@@ -285,7 +295,10 @@ const COPIES = [
   // an earlier edit to index.html shifts line numbers — when it does, the header
   // comment in me.html and this table move TOGETHER, which is the whole point of
   // pinning it in one place.
-  { from: "index.html", src: INDEX, a: 19761, b: 20183, what: "PDXSaved" },
+  // Moved by 156 for the state-badge pass — the fifty-one state outlines and
+  // their painter went into the front page's location card, well above PDXSaved
+  // — and the header comment in me.html moved with it, as the note above says.
+  { from: "index.html", src: INDEX, a: 19937, b: 20359, what: "PDXSaved" },
 ];
 // AND IT MOVED AGAIN FOR THE FINDER-BASEMAP PASS: the district-map controller
 // on index.html grew 271 lines above this block — a keyless OpenStreetMap tile

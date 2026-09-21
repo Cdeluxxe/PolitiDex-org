@@ -210,8 +210,14 @@ has(VHL, "districtsResolvable: utah", "pdxRepsForMe no longer reports Utah-only 
 // ─────────────────────────────────────────────────────────────────────────────
 section("5 · every blank still says which fact is missing");
 
-has(CODE("who-represents-me.js"), "PolitiDex only maps districts in Utah so far",
-    "who-represents-me.js no longer explains why the district rows are blank");
+// NARROWED WITH THE MAP, NOT DROPPED: the congressional layer is national now,
+// so the sentence that explains the blanks has to be about the STATE legislative
+// lines, which are still Utah's alone. A note that still called the U.S. House
+// unmappable would understate the band's own coverage to the reader who has it.
+has(CODE("who-represents-me.js"), "PolitiDex only maps state legislative districts in Utah so far",
+    "who-represents-me.js no longer explains why the state legislative rows are blank");
+has(CODE("who-represents-me.js"), "l.key === 'house' && !l.resolved",
+    "the scope note no longer treats a blank U.S. House row as a seat it can offer a way out of");
 has(CODE("ballot-workspace.js"), "PolitiDex draws district lines for Utah only",
     "the workspace's district gate no longer explains itself");
 has(HTML, "which we map in Utah so far",

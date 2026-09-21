@@ -6005,8 +6005,10 @@ window.PDXLazy = (function () {
             font-family:'Barlow Condensed',sans-serif;font-size:0.82rem;letter-spacing:0.2em;text-transform:uppercase;
             color:#ef4444;line-height:1;margin-bottom:0.4rem;font-weight:800;text-shadow:0 0 30px rgba(239,68,68,0.5);}
           #wrm-locbar .wrm-locdot{width:0.4rem;height:0.4rem;border-radius:50%;background:#ef4444;box-shadow:0 0 8px #ef4444;}
-          /* The controls the two states offer. One setter, two faces: the three
-             doors while there is nothing to change, and one door once there is. */
+          /* The controls the two states offer. One setter, two faces: the
+             picker doors while there is nothing to change, and one door once
+             there is. Detect carries NEITHER class and therefore stands in both
+             faces — see the note over the button for why it is the exception. */
           #wrm-locbar[data-pdxloc="set"] .wrm-locwhen-empty{display:none;}
           #wrm-locbar:not([data-pdxloc="set"]) .wrm-locwhen-set{display:none;}
           #wrm-locbar .wrm-locacts{display:flex;gap:0.55rem;flex-wrap:wrap;align-items:center;}
@@ -6027,16 +6029,18 @@ window.PDXLazy = (function () {
         <div class="wrm-locinner">
           <div class="wrm-locrow">
             <div class="wrm-locid">
-              <!-- Location map badge: a lightweight inline Utah silhouette with the
-                   brand-red pin dropped on the voter's county, giving instant visual
-                   confirmation that the detected location is right. The pin is
-                   repositioned by county in _vhSyncBanner (window._vhPositionLocPin);
-                   pure inline SVG so there's no asset to load. Keeps the .pm-loc-iconbox
+              <!-- Location map badge: a lightweight inline silhouette of the
+                   reader's own state with the brand-red pin dropped on their
+                   county, giving instant visual confirmation that the detected
+                   location is right. Both halves are set on the location-sync
+                   signal by window._vhPositionLocPin - the outline from the
+                   state, the pin from the county - and pure inline SVG either
+                   way, so there is no asset to load. Keeps the .pm-loc-iconbox
                    class so the existing responsive sizing rules still apply. -->
               <div class="pm-loc-iconbox" id="vh-loc-mapbadge" style="position:relative;width:5rem;height:5rem;border-radius:1.15rem;background:radial-gradient(120% 120% at 30% 20%,rgba(26,58,107,0.35),rgba(10,15,30,0.55));display:flex;align-items:center;justify-content:center;box-shadow:0 0 34px rgba(192,21,42,0.35),0 0 18px rgba(26,58,107,0.3),inset 0 0 0 1px rgba(255,255,255,0.07);border:2px solid rgba(255,255,255,0.16);flex-shrink:0;overflow:visible;">
                 <svg viewBox="0 0 100 116" width="100%" height="100%" style="display:block;padding:0.5rem;box-sizing:border-box;overflow:visible;" aria-hidden="true" focusable="false">
                   <defs>
-                    <linearGradient id="vh-utah-fill" x1="0" y1="0" x2="1" y2="1">
+                    <linearGradient id="vh-loc-fill" x1="0" y1="0" x2="1" y2="1">
                       <stop offset="0" stop-color="#60a5fa" stop-opacity="0.32"/>
                       <stop offset="1" stop-color="#1a3a6b" stop-opacity="0.16"/>
                     </linearGradient>
@@ -6045,9 +6049,20 @@ window.PDXLazy = (function () {
                       <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
                     </filter>
                   </defs>
-                  <!-- Utah outline: a rectangle with the Wyoming notch cut from the NE corner. -->
-                  <path d="M8 6 L66 6 L66 34 L92 34 L92 110 L8 110 Z"
-                        fill="url(#vh-utah-fill)" stroke="#cbd5e1" stroke-opacity="0.55"
+                  <!-- THE OUTLINE OF THE READER'S OWN STATE, repainted by
+                       pdxPaintStateShape() (the table is further down this
+                       document) from whatever state the location record holds.
+                       The `d` that ships in the markup is Utah's, and it is
+                       also kept in data-pdxhome: it is the home silhouette the
+                       cold card has always drawn, it is what a reader with no
+                       location or no scripts sees, and it is the value the
+                       painter restores when a location is cleared. Same fit as
+                       every other row in that table, so Utah's shape and the
+                       county pin below it are projected by one rule. -->
+                  <path id="vh-loc-mapshape"
+                        d="M50.6 6.0L58.0 6.0L58.0 26.9L90.1 26.8L90.1 110.0L9.9 110.0L10.0 6.2Z"
+                        data-pdxhome="M50.6 6.0L58.0 6.0L58.0 26.9L90.1 26.8L90.1 110.0L9.9 110.0L10.0 6.2Z"
+                        fill="url(#vh-loc-fill)" stroke="#cbd5e1" stroke-opacity="0.55"
                         stroke-width="2.5" stroke-linejoin="round"/>
                   <!-- Pin group; transform is set to the county location by _vhPositionLocPin. -->
                   <g id="vh-loc-mappin" transform="translate(42,26)" style="transition:transform .5s cubic-bezier(.34,1.56,.64,1);">
@@ -6070,20 +6085,170 @@ window.PDXLazy = (function () {
               </div>
             </div>
             <div class="wrm-locacts pm-loc-actions">
-              <!-- Three doors to one answer, offered only while there is no answer. -->
-              <button type="button" id="detect-loc-btn" class="wrm-locbtn wrm-locbtn--detect wrm-locwhen-empty btn-tap"
+              <!-- The picker doors to one answer, offered only while there is
+                   no answer.
+                   THE TWO PICKER DOORS GO THROUGH pdxSetLocation, which is this
+                   band's setter and the only thing that knows the reader is
+                   standing in Who-Represents-Me. Calling toggleChangeLocation or
+                   openLocationModal directly worked — both navigate to /find now
+                   — but they compose next=/ on the way, so a confirmed district
+                   returned the reader to the top of the front page instead of to
+                   the seats they had just asked about. The fallbacks are kept so
+                   these buttons still do something if the band's own script has
+                   not loaded yet. -->
+              <!-- DETECT IS IN BOTH FACES, AND IT IS THE ONLY CONTROL THAT IS.
+                   It used to be empty-state only, on the reasoning that a reader
+                   with a location has nothing left to find. That is true of the
+                   PICKERS and false of this one: the saved record is often a
+                   coarse answer the reader accepted to get going — a state with
+                   no county, a city typed from memory, a district pinned before
+                   they moved — and Detect is the one gesture that re-answers the
+                   question from where they are actually standing. Hidden here,
+                   the only way to correct it was the map picker, which is a trip
+                   to /find and a search box; offered here, it is one tap.
+                   SAME HANDLER AS THE COLD STATE, deliberately: the button is
+                   this element, not a second copy of it, so the document still
+                   carries exactly one Detect, one id for
+                   triggerManualLocationDetection's spinner to find and restore,
+                   and one answer for the reader to trust. A tap is still the
+                   consent — nothing detects without one, on either face. -->
+              <button type="button" id="detect-loc-btn" class="wrm-locbtn wrm-locbtn--detect btn-tap"
                       onclick="window.triggerManualLocationDetection&amp;&amp;window.triggerManualLocationDetection()">🌐 Detect</button>
               <button type="button" class="wrm-locbtn wrm-locbtn--map wrm-locwhen-empty btn-tap"
-                      onclick="window.toggleChangeLocation&amp;&amp;window.toggleChangeLocation()">🗺️ Change on map</button>
+                      onclick="window.pdxSetLocation?window.pdxSetLocation('map'):(window.toggleChangeLocation&amp;&amp;window.toggleChangeLocation())">🗺️ Change on map</button>
               <button type="button" class="wrm-locbtn wrm-locbtn--form wrm-locwhen-empty btn-tap"
-                      onclick="window.openLocationModal?window.openLocationModal({forceForm:true}):(window.toggleChangeLocation&amp;&amp;window.toggleChangeLocation())">📍 Set my location</button>
+                      onclick="window.pdxSetLocation?window.pdxSetLocation('form'):(window.openLocationModal&amp;&amp;window.openLocationModal({forceForm:true}))">📍 Set my location</button>
               <!-- And one, once there is. -->
               <button type="button" class="wrm-locbtn wrm-locbtn--map wrm-locwhen-set btn-tap"
-                      onclick="window.toggleChangeLocation&amp;&amp;window.toggleChangeLocation()">🗺️ Change location</button>
+                      onclick="window.pdxSetLocation?window.pdxSetLocation('map'):(window.toggleChangeLocation&amp;&amp;window.toggleChangeLocation())">🗺️ Change location</button>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- ═══ THE BADGE'S OWN GEOMETRY: FIFTY STATES AND THE DISTRICT ═══════
+           The silhouette beside the reader's city used to be Utah's, drawn as a
+           hardcoded rectangle with the Wyoming notch cut out of it, on every
+           document for every reader. For a Utah reader that is a map. For the
+           Colorado reader the finder can now place, it was a picture of
+           somebody else's state under the words YOUR VOTING LOCATION and their
+           own city - the same class of claim this band spent two passes
+           removing from its seat rows, made in a shape instead of a sentence.
+
+           So the outlines live here, one row per place, keyed by the lowercase
+           state name the location record already stores - no abbreviation
+           table, no second spelling of a state to keep in step with find.html.
+           Each path is that state's real boundary, generalized from the Census
+           TIGERweb state layer and fitted into this badge's 100x116 viewBox
+           with the aspect ratio preserved (longitude scaled by the cosine of
+           the state's mid-latitude, so the shape is not stretched to fill the
+           box). Alaska's far Aleutians and Hawaii's uninhabited northwestern
+           chain are left out on purpose: kept, their longitudes squeeze the
+           inhabited land into a corner of its own badge.
+
+           WHY IT IS DATA IN THIS DOCUMENT rather than in the module that paints
+           it. voter-hub-location.js is a synchronous script on every page in
+           the app; this badge exists on exactly one of them. Putting eighteen
+           kilobytes of geometry there would charge every other document for a
+           silhouette it never draws. The module keeps owning the SIGNAL - it
+           calls the painter below from _vhPositionLocPin, guarded, and a
+           document without this table simply keeps the outline in its markup.
+
+           AND AN UNKNOWN PLACE DRAWS NOTHING. A state we hold gets its own
+           shape; no state at all keeps the home silhouette that ships in the
+           markup, which is the cold face this card has always had; and a place
+           that is neither - a territory, a typo, a value from some future
+           picker - draws an empty frame with the pin resting dim in the middle
+           of it. Guessing a shape is the failure this block exists to fix, so
+           it does not guess one for itself either. -->
+      <script>
+      (function () {
+        var T = [
+      'alabama:M78.0 75.4L79.5 80.1L78.3 87.7L80.2 91.7L33.5 91.8L32.8 94.6L36.9 98.7L36.1 102.1L37.6 103.7L34.9 108.2L19.3 109.7L17.7 72.6L24.5 8.5L22.6 6.0L69.4 6.5L77.0 51.9L81.0 61.3L80.2 63.3L82.3 64.8L79.2 67.5L77.9 72.6Z',
+      'alaska:M77.8 82.4L73.8 76.8L69.1 73.6L63.9 71.7L59.7 73.2L59.9 71.6L56.9 70.4L53.1 73.2L50.3 72.4L45.8 75.9L41.4 76.7L39.0 81.1L34.5 84.7L34.1 87.6L30.5 92.9L26.0 93.9L27.8 96.9L26.7 95.9L25.5 97.0L25.6 94.4L24.9 95.9L24.1 94.0L20.9 98.4L20.3 96.3L19.4 97.9L15.1 98.6L16.1 96.2L24.7 90.9L28.5 86.6L30.3 79.2L28.1 79.9L25.3 77.3L24.0 79.2L21.2 78.7L21.3 72.8L17.3 73.7L14.0 69.4L14.6 66.9L12.4 63.3L15.4 57.2L17.2 55.9L19.2 57.0L20.1 54.3L23.2 55.0L24.1 53.6L23.7 51.7L21.0 50.0L19.9 51.3L17.7 50.1L12.3 50.5L10.8 46.4L8.2 45.2L13.4 41.1L19.9 38.6L10.8 31.7L12.1 29.0L18.1 27.7L21.8 21.9L30.6 19.4L33.6 16.9L43.3 19.5L45.1 21.5L52.6 21.1L59.7 23.7L62.9 22.8L67.8 25.2L67.8 70.5L72.0 70.2L75.4 77.2L79.9 72.9L84.5 79.5L87.9 88.3L91.9 91.2L90.5 97.7L83.9 97.8L83.5 92.2L81.8 92.0L79.1 86.4ZM37.2 85.0L42.4 78.0L44.2 79.7L42.6 81.3L43.2 84.7L39.4 89.0L37.3 89.4L38.8 87.7L37.4 85.3Z',
+      'arizona:M67.2 8.1L92.0 8.2L91.9 107.9L62.4 107.9L8.0 87.5L9.6 83.0L12.0 83.0L13.0 81.3L12.4 78.1L9.6 77.0L9.2 73.2L9.3 71.4L12.2 68.8L12.1 62.1L13.8 59.1L17.9 56.3L14.2 52.9L10.6 45.6L11.6 40.1L8.9 24.2L13.9 23.2L16.3 25.5L17.9 25.1L19.2 22.3L19.1 8.1Z',
+      'arkansas:M69.8 71.0L70.9 72.9L69.3 73.1L69.5 74.3L67.6 73.6L69.2 78.0L66.6 78.2L68.5 80.2L65.2 80.0L66.9 81.5L65.2 82.4L65.1 85.0L66.8 84.1L65.6 85.7L66.6 86.2L68.1 84.8L66.7 86.8L67.3 89.0L68.4 88.3L67.6 91.2L65.7 91.5L67.1 92.8L66.3 93.9L17.7 93.6L17.7 82.7L15.3 81.8L12.0 82.8L10.2 80.9L11.2 44.8L8.0 22.1L83.4 22.1L84.9 26.1L79.6 32.4L90.5 32.3L92.0 34.6L90.3 34.2L91.1 36.1L86.7 38.0L88.5 39.4L86.7 40.8L87.6 42.2L85.5 41.5L85.9 44.1L85.1 44.9L84.2 43.1L83.0 45.0L84.6 45.0L83.1 47.2L84.9 50.1L83.1 50.4L82.5 52.4L81.0 52.1L81.9 54.6L80.8 56.1L78.6 56.5L77.9 55.3L78.4 58.2L76.8 57.2L76.3 58.8L78.2 59.4L77.0 60.6L76.4 59.2L76.1 65.0L74.7 67.0L74.6 65.8L73.1 66.0L73.5 67.5L71.7 69.2L70.3 68.4L72.3 70.1L70.6 70.1Z',
+      'california:M44.4 18.0L44.4 40.3L87.9 81.1L92.0 88.6L89.5 90.4L88.8 95.8L87.2 97.4L87.3 100.6L89.3 101.8L88.8 104.0L67.1 106.3L64.9 99.3L59.6 94.4L56.8 94.1L56.1 91.4L51.2 90.9L47.7 87.6L40.7 87.3L38.8 85.9L38.8 80.1L28.5 68.0L27.5 61.6L24.4 58.9L23.4 52.6L19.5 50.9L18.7 46.5L13.6 41.4L12.7 32.3L8.0 25.7L10.8 15.5L8.3 11.5L9.6 11.1L9.2 9.7L44.4 9.8Z',
+      'colorado:M54.7 88.9L8.1 88.8L8.0 27.1L91.9 27.1L92.0 88.9Z',
+      'connecticut:M60.0 76.6L13.0 89.8L11.1 87.8L8.0 81.1L18.6 74.6L15.7 69.8L18.4 26.2L47.6 27.0L47.4 29.2L49.6 28.9L50.1 27.0L91.5 27.7L91.6 62.8L89.6 63.5L90.2 67.1L79.3 71.8Z',
+      'delaware:M42.9 17.2L40.0 21.4L42.7 26.1L39.9 34.5L53.9 49.9L71.7 84.5L73.4 110.0L32.1 109.4L26.6 14.5L36.5 6.1L43.1 6.0L49.0 8.9Z',
+      'district of columbia:M8.3 37.3L39.6 6.0L91.7 58.4L40.3 110.0L40.1 70.2Z',
+      'florida:M89.7 87.1L86.7 92.0L80.1 95.9L70.7 98.9L66.2 96.6L67.6 94.7L78.9 91.8L76.1 84.6L71.2 81.1L69.7 75.5L66.3 74.1L59.9 60.7L58.6 55.8L58.6 51.2L60.6 47.1L59.4 42.3L56.7 41.9L50.3 32.1L47.2 30.2L36.2 36.5L32.0 35.3L29.1 30.3L22.6 26.9L9.3 27.9L10.9 24.0L10.5 21.1L8.0 18.8L8.4 17.1L36.9 17.1L38.4 20.7L67.4 22.4L68.0 25.1L69.4 24.9L70.3 19.2L77.0 20.7L78.7 32.5L86.0 46.7L86.2 53.3L92.0 69.1L90.7 85.5Z',
+      'georgia:M86.6 81.9L82.1 91.9L82.9 93.3L81.2 97.5L82.2 98.7L77.6 98.6L71.7 96.3L70.0 98.3L69.6 106.0L67.4 105.5L67.1 101.6L20.9 98.7L16.7 88.8L17.8 81.5L16.1 76.5L17.5 69.3L20.5 66.6L18.4 65.2L19.2 63.2L15.3 54.2L8.0 10.2L51.6 10.0L48.0 13.7L47.4 16.5L52.8 20.6L55.8 21.2L61.1 31.7L72.1 41.7L71.9 44.2L75.1 48.2L79.6 51.1L80.9 59.0L85.0 62.4L86.2 69.6L92.0 72.1L87.2 77.9Z',
+      'hawaii:M88.1 70.1L92.0 74.0L91.3 75.9L82.9 80.1L79.2 84.3L75.2 82.1L75.0 77.0L72.4 71.1L75.8 66.6L75.3 62.3L84.9 65.9L87.9 68.5ZM67.6 51.9L70.3 51.5L74.7 53.5L74.9 56.5L63.4 59.9L63.6 58.0L67.0 56.3L63.7 53.8L63.6 51.4L65.7 50.1L67.1 51.0ZM40.4 42.6L46.2 40.0L50.4 44.1L51.1 47.2L50.1 48.3L43.5 47.8ZM27.1 35.6L24.6 39.0L18.8 35.8L22.4 31.9L25.2 31.7L27.4 33.5ZM61.6 48.0L64.3 48.3L64.7 49.8L61.5 51.7L55.2 50.8L55.9 47.3L60.2 47.3ZM58.1 53.0L59.1 51.9L62.3 52.6L63.4 54.5L62.4 55.9L60.2 56.4L59.1 54.3ZM12.3 38.4L14.8 34.9L16.7 36.3L16.2 38.2L12.8 40.1ZM8.0 41.4L9.0 40.6L8.8 42.3Z',
+      'idaho:M27.0 6.0L30.2 6.0L30.2 21.2L33.6 25.4L33.2 27.6L34.5 28.6L33.2 29.4L37.8 31.9L43.5 40.2L48.2 40.9L46.0 48.4L47.5 52.3L45.6 53.9L45.6 57.2L48.1 58.6L52.2 55.1L57.2 64.6L57.2 67.4L60.6 68.8L63.4 74.9L64.2 73.1L68.3 73.6L69.3 71.8L77.9 72.3L78.7 69.1L82.2 73.2L82.3 110.0L20.0 110.0L19.9 82.8L21.4 77.9L18.2 76.2L17.7 74.4L25.9 56.4L21.7 52.0L19.6 45.3L19.9 6.0Z',
+      'illinois:M69.8 85.4L68.4 85.9L69.5 87.7L68.0 88.8L68.1 92.7L66.8 92.6L67.8 94.5L65.9 97.1L67.3 100.3L61.5 102.0L61.6 108.1L54.1 105.2L51.3 108.3L51.9 109.8L50.1 108.1L49.6 109.6L46.3 104.2L47.7 102.2L46.3 96.5L41.6 92.5L40.1 93.0L40.4 91.5L34.2 86.5L37.7 74.8L33.0 72.5L30.3 74.0L28.8 67.1L19.6 58.2L17.6 48.7L19.5 45.6L19.1 42.6L23.1 40.6L25.4 35.7L25.7 32.5L23.3 29.8L24.2 26.6L34.4 23.3L37.1 17.3L37.0 13.3L33.7 11.3L30.1 6.0L82.4 6.3L79.7 20.0L75.1 20.1L75.0 65.4L73.2 69.4L75.3 72.8L75.5 76.8L70.1 84.8Z',
+      'indiana:M52.2 99.3L51.3 99.4L52.2 100.7L49.5 101.0L48.7 105.9L46.1 108.2L45.9 106.5L44.2 106.8L42.4 104.1L38.1 106.5L36.6 109.8L31.1 105.7L28.6 106.5L27.0 104.7L26.4 108.5L25.2 108.4L25.3 106.7L22.2 107.3L20.9 106.0L19.8 110.0L16.9 108.8L18.2 108.5L16.8 106.7L18.5 106.9L17.4 106.0L18.5 105.0L17.9 102.9L19.6 101.8L18.4 101.4L20.5 99.8L19.0 97.4L21.3 95.9L21.9 96.8L23.8 91.8L25.8 90.8L26.4 87.4L28.9 84.8L27.7 81.6L28.5 79.2L25.6 74.5L27.3 72.3L26.4 70.0L28.1 68.9L28.3 6.0L82.8 6.0L82.5 75.3L81.0 76.5L82.3 78.7L81.4 80.4L83.2 81.1L82.7 83.6L79.1 83.8L75.4 86.1L73.4 84.8L70.2 85.1L70.5 90.1L66.7 92.6L65.3 96.3L62.3 96.9L60.3 103.5L58.1 105.2L53.5 102.6L53.4 100.5Z',
+      'iowa:M18.1 30.9L78.1 30.9L78.2 33.5L80.1 35.2L78.6 38.4L80.0 43.9L84.7 46.0L85.4 48.7L91.6 54.9L92.0 56.9L89.4 64.1L80.3 67.2L79.4 70.2L81.6 72.7L81.5 75.2L79.3 80.1L76.5 81.1L75.8 85.1L74.6 85.1L71.5 81.1L19.3 81.6L17.7 79.0L18.3 71.3L17.2 70.9L17.3 66.5L15.0 65.0L14.6 57.5L12.7 56.2L11.3 48.7L8.0 44.2L10.6 37.5L8.7 34.9L9.5 32.9L8.5 30.9Z',
+      'kansas:M91.7 68.6L91.7 79.6L8.1 79.6L8.0 36.4L83.9 36.4L88.8 39.0L86.1 43.0L89.3 47.7L92.0 48.6Z',
+      'kentucky:M85.2 66.9L78.8 73.4L72.5 75.7L23.2 74.3L23.4 76.9L8.0 76.9L8.6 75.1L10.0 75.9L10.9 74.5L11.7 67.4L13.5 66.5L18.8 68.7L18.6 64.2L23.2 62.8L22.2 60.3L25.0 58.2L25.1 56.5L28.0 57.9L28.5 55.8L30.6 56.3L34.0 58.6L37.3 55.5L39.3 57.7L42.5 52.6L46.1 56.1L48.4 51.5L53.1 47.8L52.9 45.1L55.8 45.6L59.9 44.3L58.9 40.4L60.6 39.1L64.0 39.5L66.7 44.0L70.5 44.6L72.8 46.5L74.5 45.4L77.0 47.0L81.7 44.7L82.1 47.1L84.8 48.9L84.3 53.1L85.9 56.4L88.2 60.1L92.0 62.0L87.7 65.9Z',
+      'louisiana:M29.0 19.5L53.8 19.7L53.7 21.6L55.0 20.1L53.8 24.3L55.6 25.0L54.0 26.8L56.2 26.4L55.2 28.0L56.7 29.1L55.0 28.1L54.6 29.4L56.9 30.2L56.6 31.8L58.4 31.4L56.5 34.7L53.8 34.7L53.9 35.9L56.4 35.6L55.2 37.4L53.9 37.0L55.2 38.0L52.4 41.8L51.0 41.2L50.6 42.8L52.3 42.9L50.6 43.0L50.1 45.4L48.2 45.2L50.0 46.2L48.1 47.2L48.9 50.0L47.3 49.3L48.2 51.7L46.0 52.1L47.5 55.9L46.3 56.9L76.7 56.8L74.7 63.2L78.5 71.3L80.2 72.5L85.4 71.5L90.6 72.9L92.0 75.8L91.1 80.7L86.0 86.0L89.7 90.1L89.5 91.7L86.6 95.3L84.6 94.2L81.9 96.6L80.4 95.7L80.8 92.0L78.6 90.3L66.9 94.0L57.5 94.1L56.1 93.2L56.9 91.8L46.2 87.0L42.5 87.3L39.3 84.1L35.9 85.1L30.6 84.2L21.1 80.5L13.3 81.2L11.6 82.9L9.8 79.0L13.5 74.4L12.8 65.4L16.5 56.3L16.1 53.5L13.7 51.2L13.3 47.4L11.3 46.0L11.5 42.5L8.0 38.4L8.0 19.4Z',
+      'maine:M69.0 46.8L75.1 49.0L74.1 55.9L76.5 59.4L77.5 57.9L79.5 58.6L83.6 67.5L72.9 76.1L69.5 75.8L68.7 77.8L63.8 79.2L62.6 83.0L56.7 86.2L54.2 86.1L55.1 88.2L52.5 91.3L48.8 88.5L47.3 89.9L45.5 89.5L45.9 91.0L44.3 92.0L43.1 89.6L40.9 92.0L31.1 96.1L25.2 102.4L25.2 104.6L27.1 105.5L24.2 106.0L24.4 110.0L20.3 105.2L20.5 103.0L17.7 99.2L16.1 55.3L18.2 54.6L19.8 57.1L20.7 52.6L23.4 53.6L21.9 50.6L29.4 41.9L28.9 35.0L32.7 29.9L33.7 23.5L46.1 6.0L49.1 6.8L48.9 10.7L51.4 12.5L62.1 8.4L69.3 15.0L69.9 41.3L69.0 45.6Z',
+      'maryland:M77.6 47.4L78.8 66.3L92.0 66.5L91.4 69.9L88.6 76.6L80.1 77.4L76.8 79.4L72.1 78.4L68.6 80.0L63.4 76.7L61.7 73.7L55.3 72.3L53.6 67.7L49.0 69.1L48.4 65.9L49.7 63.1L51.9 62.1L56.0 55.9L53.6 53.4L52.1 54.9L45.7 51.5L44.5 49.8L45.7 47.8L40.1 45.2L40.0 41.4L37.7 40.0L38.7 38.8L36.6 39.3L32.3 36.6L30.6 38.4L27.6 38.3L26.9 40.9L25.0 40.8L21.4 39.3L21.3 37.7L17.7 42.7L15.0 41.9L8.1 48.5L8.0 36.0L77.0 36.0Z',
+      'massachusetts:M59.9 36.4L61.6 36.3L61.9 34.1L64.3 34.2L65.0 32.6L68.0 31.7L71.8 32.1L72.3 36.5L76.6 37.3L77.2 39.8L74.8 42.7L72.9 50.5L74.0 53.7L74.8 54.9L84.8 55.0L87.8 56.3L90.7 60.5L92.0 67.4L90.4 73.7L88.2 75.6L85.8 74.6L87.0 71.2L77.0 74.7L79.7 76.4L79.9 78.7L82.6 78.0L85.6 79.4L86.6 76.8L88.6 76.7L91.2 81.2L90.7 83.3L86.2 84.3L75.6 80.9L72.6 81.2L70.7 83.9L68.8 83.5L68.1 78.7L66.0 79.3L63.7 76.8L62.7 69.7L57.9 65.5L57.0 58.6L25.3 58.1L23.9 59.3L24.0 58.0L8.3 57.6L13.6 36.1L59.0 37.6Z',
+      'michigan:M41.5 17.7L64.3 31.0L67.4 37.1L71.7 36.1L73.4 42.9L76.5 41.9L78.7 43.7L76.7 46.9L88.0 53.2L92.0 78.2L88.0 92.2L82.3 96.6L82.0 101.6L78.9 104.8L40.5 104.4L42.4 93.9L41.1 81.2L42.5 70.4L45.8 59.7L50.2 54.6L45.1 51.7L41.6 51.7L38.1 56.9L35.9 56.5L36.0 52.7L33.6 52.9L34.7 48.2L31.2 46.4L31.5 44.8L11.0 38.9L8.0 35.6L17.5 14.9L18.9 15.4L28.7 10.7Z',
+      'minnesota:M28.8 17.8L30.6 17.8L30.6 11.8L32.7 12.0L34.2 12.7L36.1 21.8L44.8 23.6L45.3 25.4L54.4 23.6L57.9 25.0L57.0 26.2L59.8 27.0L60.7 30.1L61.9 27.9L64.1 27.9L69.4 32.8L76.8 29.6L78.3 32.1L84.9 31.7L87.5 33.7L92.0 33.3L86.9 44.7L79.3 44.4L64.5 53.9L61.6 54.5L61.6 63.8L57.1 66.6L55.3 69.4L55.2 71.6L57.7 73.8L56.0 84.6L65.1 90.7L66.1 93.2L70.9 96.4L72.9 99.9L73.2 104.2L16.5 104.2L16.5 75.9L12.1 71.2L15.1 67.7L15.4 63.6L12.8 55.1L12.2 39.8L9.0 31.3L9.6 22.8L8.0 18.1Z',
+      'mississippi:M76.1 65.3L76.9 109.6L69.0 108.3L67.8 110.0L62.5 108.4L55.4 109.1L50.4 98.8L52.6 91.5L18.2 91.6L19.6 90.4L17.9 86.1L20.4 85.6L19.9 82.3L21.1 83.7L20.3 80.4L22.4 79.2L20.4 78.1L22.5 78.3L23.0 75.6L25.0 75.4L23.1 75.3L23.5 73.5L25.1 74.1L26.4 70.9L28.3 69.8L26.9 68.6L28.3 69.1L29.6 67.0L26.8 67.3L26.8 65.9L29.0 65.0L29.8 66.0L32.0 62.2L29.8 62.6L30.3 60.7L27.6 59.8L28.0 58.4L29.9 59.5L28.3 58.2L29.4 56.4L27.0 56.9L28.7 54.8L26.7 54.0L28.1 49.2L27.0 50.8L25.9 50.3L27.5 47.6L26.1 46.0L28.2 45.8L28.9 43.0L27.9 43.6L27.2 42.3L28.7 39.2L27.0 40.6L25.9 40.0L27.3 38.4L25.5 39.3L26.4 38.0L25.5 36.7L27.4 35.7L25.6 34.1L29.1 34.3L27.0 33.1L27.3 32.0L29.9 32.0L28.5 30.7L29.5 28.8L28.2 27.2L30.3 28.1L29.9 26.9L32.0 25.6L30.5 24.4L33.2 23.8L30.9 22.2L32.5 22.9L32.8 21.4L34.4 21.1L34.0 19.5L35.6 19.4L35.7 20.6L37.2 18.6L37.5 12.5L38.1 13.9L39.4 12.7L37.4 12.1L37.9 10.4L38.3 11.7L39.7 11.4L39.2 8.4L39.8 9.7L42.2 9.2L43.4 7.5L42.2 6.0L80.3 6.0L82.1 8.2Z',
+      'missouri:M38.2 21.5L58.9 21.0L62.8 24.7L61.6 28.8L63.4 35.1L71.5 42.7L72.3 48.0L73.6 48.9L75.1 47.4L79.2 49.3L76.2 59.3L81.6 63.5L81.3 64.8L82.6 64.4L86.7 67.8L88.0 72.7L86.7 74.3L88.4 78.2L89.7 79.1L90.0 77.8L92.0 79.5L91.8 82.7L90.5 85.7L88.6 84.9L87.4 87.6L87.2 85.8L86.1 85.9L86.8 89.0L85.4 89.8L86.5 90.9L84.4 91.0L85.8 92.7L84.4 94.9L75.9 95.0L79.9 90.1L78.7 87.0L22.5 87.0L22.9 44.4L19.9 43.4L19.2 40.6L16.3 38.1L19.5 34.9L18.6 32.6L16.2 32.8L12.6 30.2L11.7 26.9L9.5 25.8L9.5 22.0L8.0 21.5Z',
+      'montana:M84.9 34.4L91.9 34.4L92.0 75.1L42.9 75.1L42.9 80.5L40.6 77.6L40.0 79.8L34.3 79.5L30.3 81.7L28.4 77.4L26.1 76.5L22.8 68.1L20.0 70.4L18.4 69.4L20.1 58.3L17.0 57.8L13.1 52.1L10.0 50.4L10.3 47.7L8.0 44.8L8.0 34.3Z',
+      'nebraska:M86.0 59.4L86.5 68.0L92.0 77.2L27.2 77.2L27.2 64.4L8.0 64.4L8.0 38.8L61.4 38.8L66.0 41.8L67.6 40.5L72.8 40.5L81.6 45.5L82.0 49.4L84.7 54.2L84.4 57.5L86.1 58.6Z',
+      'nevada:M23.2 6.0L84.7 6.0L84.7 92.3L83.4 94.8L80.8 93.0L76.4 93.9L78.5 107.3L77.8 110.0L15.3 50.5L15.3 6.0Z',
+      'new hampshire:M70.9 88.2L71.2 92.8L74.7 94.9L78.4 101.2L75.0 99.6L73.8 102.9L65.3 103.5L64.4 105.6L61.5 105.5L61.0 108.4L59.2 108.2L57.8 110.0L24.4 108.8L22.8 107.3L21.6 103.8L22.2 99.8L24.8 97.6L26.7 75.1L31.7 67.2L34.9 59.4L34.2 58.3L36.6 54.9L35.6 47.1L36.7 45.2L42.9 43.9L43.4 42.1L46.1 41.6L49.7 38.0L49.1 35.7L50.9 34.6L48.1 28.1L52.0 22.0L50.7 18.8L52.9 17.7L51.7 16.2L54.8 10.1L53.5 8.7L55.2 8.9L58.1 6.1L59.6 8.2L62.0 8.6L63.8 6.0L67.7 75.9L66.6 82.4Z',
+      'new jersey:M58.0 89.4L49.7 102.8L41.0 110.0L31.5 91.3L24.1 83.0L25.6 78.5L24.2 75.9L27.5 70.1L30.9 67.2L37.1 65.6L37.5 62.6L50.1 54.9L42.5 44.8L39.6 44.0L39.4 39.0L35.5 37.6L35.1 33.0L35.4 30.5L39.9 25.9L37.4 20.9L42.4 17.0L47.8 7.5L50.9 6.0L75.7 20.6L70.7 34.6L66.5 35.0L64.4 40.4L65.5 41.7L73.1 39.9L75.9 41.4L75.8 48.4L71.3 71.1L61.0 88.5Z',
+      'new mexico:M91.1 88.7L91.1 94.4L41.8 94.4L41.5 96.6L43.0 98.0L19.7 98.0L19.7 105.6L8.0 105.6L8.1 10.4L92.0 10.4L91.5 18.8Z',
+      'new york:M61.1 25.7L75.6 25.5L74.7 45.9L76.0 45.3L76.7 46.7L76.5 58.0L73.9 67.5L74.2 80.0L71.6 81.6L72.3 83.2L90.5 78.6L92.0 80.4L92.0 82.5L76.4 89.5L66.3 90.6L69.8 83.1L58.4 76.2L57.4 71.4L54.4 68.7L8.0 68.7L8.0 61.3L17.0 55.8L13.9 47.9L19.3 45.3L39.5 45.3L44.4 37.2L48.6 34.7L55.1 27.9L60.0 25.4Z',
+      'north carolina:M68.5 42.2L88.3 42.1L92.0 53.7L91.4 57.6L86.1 60.0L81.5 65.3L77.9 64.2L72.1 67.1L68.0 74.3L66.2 73.1L62.8 73.6L51.7 62.2L41.2 62.0L39.0 58.2L26.2 57.5L19.4 60.0L8.0 60.1L8.3 57.4L10.5 56.9L12.2 54.0L20.5 51.0L23.9 47.7L24.6 49.0L26.5 47.1L29.5 47.1L32.6 44.6L32.9 41.7L45.9 42.2Z',
+      'north dakota:M64.6 32.6L84.4 32.6L86.0 37.8L85.4 46.8L88.7 55.8L89.3 71.9L91.5 76.9L91.9 83.4L8.0 83.2L8.0 32.6Z',
+      'ohio:M92.0 44.4L92.0 51.1L89.1 52.5L90.4 59.3L84.9 77.2L78.4 83.1L75.3 84.3L73.7 82.6L71.5 86.2L69.3 86.1L68.0 90.6L66.7 91.0L67.7 95.0L66.4 94.5L65.0 96.3L64.4 93.4L62.3 92.5L58.7 98.5L59.7 103.2L57.4 103.9L56.6 107.3L51.7 108.2L49.4 104.8L46.6 103.6L45.7 99.3L43.0 100.1L40.5 102.9L37.7 103.4L33.4 100.7L30.5 102.7L26.6 99.2L19.9 98.1L18.0 92.9L15.2 90.0L12.2 91.2L9.5 89.3L8.0 90.4L8.3 24.0L35.4 23.0L41.4 17.2L42.2 19.7L49.8 24.5L55.3 24.5L77.7 10.6L92.0 7.8Z',
+      'oklahoma:M78.7 37.7L90.2 37.7L92.0 57.0L91.4 78.3L84.3 74.2L83.6 75.3L76.6 75.3L73.2 77.5L70.9 75.0L69.2 75.9L67.0 74.3L65.5 77.1L64.8 74.8L62.6 75.9L60.2 73.9L57.3 75.2L56.0 71.9L52.3 73.0L45.4 71.2L43.6 68.3L40.4 69.2L37.4 67.0L37.4 43.7L8.0 43.7L8.0 37.7Z',
+      'oregon:M41.3 36.0L44.3 37.2L66.4 31.7L87.4 31.7L91.1 35.2L92.0 37.3L84.1 54.5L84.5 56.2L87.6 57.8L86.2 62.5L86.3 88.5L11.8 88.5L9.4 82.0L10.3 79.8L8.0 77.6L13.0 60.7L15.1 31.3L13.5 28.0L24.2 29.0L27.3 32.2L27.8 36.5L31.1 37.9L40.3 35.6Z',
+      'pennsylvania:M79.0 82.5L76.4 84.7L8.0 84.7L8.0 34.9L18.9 31.3L18.9 41.2L82.6 41.3L83.8 43.8L86.5 44.7L87.8 51.1L92.0 53.3L85.6 60.5L86.8 62.8L84.6 66.2L86.7 71.4L91.5 76.5L81.6 83.2Z',
+      'rhode island:M74.5 43.1L80.9 46.5L81.9 65.5L84.6 72.4L82.0 74.5L50.3 86.4L43.5 84.9L25.2 90.4L25.2 100.4L15.4 86.8L22.0 82.5L20.9 74.8L24.6 74.1L24.5 7.2L59.9 6.0L59.9 20.2L63.5 19.6L63.3 31.1ZM34.7 103.2L38.4 91.4L42.1 88.5L46.8 88.8L50.7 94.6L51.8 103.6L48.3 109.1L39.8 110.0Z',
+      'south carolina:M42.4 25.6L48.1 25.9L48.0 28.1L49.9 26.8L52.5 30.4L52.2 32.8L71.6 33.1L92.0 53.7L84.9 58.3L81.8 62.9L81.9 67.0L77.8 71.5L74.8 72.0L66.6 79.6L61.8 81.5L52.5 91.4L46.7 89.0L45.5 81.7L41.5 78.3L40.2 70.4L35.7 67.5L32.5 63.4L32.7 61.0L21.8 50.9L16.6 40.3L13.5 39.8L8.0 35.3L12.2 29.0L26.4 24.9Z',
+      'south dakota:M66.8 31.5L90.6 31.5L87.4 36.6L91.8 41.3L91.8 69.0L90.2 69.7L92.0 74.8L89.8 80.7L91.3 84.6L89.2 82.0L83.2 78.9L76.5 78.7L74.4 80.3L69.3 76.7L8.0 76.7L8.1 31.4Z',
+      'tennessee:M69.3 49.0L92.0 48.7L91.4 52.0L90.0 52.0L88.2 54.6L85.2 54.6L83.2 56.6L82.4 55.2L79.0 58.7L70.3 61.8L68.7 64.7L66.4 65.3L66.1 68.1L8.0 68.0L10.4 66.3L9.4 64.6L10.2 63.4L9.3 63.4L11.0 62.8L10.7 61.3L11.9 61.8L11.4 59.3L14.5 57.4L13.6 56.0L15.0 54.2L13.9 53.1L15.5 53.0L15.5 50.1L29.9 50.1L29.7 47.9L45.0 48.2Z',
+      'texas:M60.6 36.2L62.6 35.7L64.1 38.0L65.4 36.9L66.9 38.2L68.3 37.5L68.9 39.0L69.8 37.2L71.8 37.5L73.8 39.2L81.1 37.1L86.4 40.3L88.4 40.0L88.6 51.8L92.0 59.0L89.3 68.2L90.0 69.8L84.9 71.2L69.9 82.6L67.6 88.3L69.1 96.9L67.3 97.8L56.3 93.7L53.6 84.9L41.5 68.5L35.7 67.6L33.4 68.7L32.2 72.5L29.5 74.4L21.7 69.5L19.0 62.2L8.0 52.6L30.9 51.8L31.0 18.2L50.5 18.2L50.5 32.7L60.2 36.4Z',
+      'utah:M50.6 6.0L58.0 6.0L58.0 26.9L90.1 26.8L90.1 110.0L9.9 110.0L10.0 6.2Z',
+      'vermont:M63.4 45.0L63.8 48.5L61.0 52.4L61.8 53.7L51.8 73.8L51.8 83.4L49.5 95.2L50.3 97.2L47.3 99.7L46.5 104.3L49.8 110.0L23.0 109.1L24.1 73.2L22.0 69.0L19.8 69.2L19.0 71.7L17.9 70.8L20.5 62.5L17.7 50.0L19.2 43.4L21.8 40.0L21.0 35.5L22.4 32.1L19.2 24.0L21.1 16.2L19.5 13.5L20.8 6.1L82.3 6.0L80.0 6.9L81.4 11.0L76.9 17.9L80.1 25.4L78.0 26.7L78.7 29.3L74.6 33.3L71.5 34.0L70.8 36.0L63.7 37.5L62.6 39.8Z',
+      'virginia:M74.7 76.2L8.0 75.6L13.3 73.8L17.4 69.1L24.9 63.8L25.2 66.1L27.7 68.1L41.2 64.3L41.4 61.9L47.7 50.6L51.4 52.8L54.2 47.5L55.4 48.5L60.0 43.4L60.6 39.7L65.7 43.9L66.7 41.6L68.3 41.7L68.8 44.0L73.5 47.1L73.5 49.1L70.8 51.9L71.2 53.8L73.5 53.0L74.4 55.4L77.8 56.2L81.4 59.5L92.0 57.7L84.9 69.9L85.8 76.2Z',
+      'washington:M76.2 77.9L63.9 79.0L57.1 82.1L52.6 81.8L47.2 84.0L43.1 82.1L35.3 85.0L31.0 83.8L28.8 76.9L26.3 75.0L15.3 73.8L14.3 60.8L12.1 52.5L8.5 47.1L8.4 40.3L9.0 38.9L20.4 42.9L24.9 42.2L26.4 40.1L24.7 35.8L27.5 33.7L24.2 31.0L90.8 31.1L90.4 72.3L92.0 77.9Z',
+      'west virginia:M91.4 48.9L90.1 53.3L81.3 46.0L80.3 52.6L72.4 61.4L70.2 59.6L65.3 69.0L62.0 68.1L59.1 65.2L56.7 72.3L48.1 84.9L49.3 86.3L47.5 87.7L48.0 89.0L40.0 91.9L38.4 90.7L38.6 92.5L32.2 94.9L29.8 92.7L26.6 95.5L24.5 95.7L20.2 92.2L19.1 89.8L20.2 88.8L16.7 88.0L16.0 85.9L13.8 85.3L8.0 74.6L8.9 68.9L13.4 68.4L14.0 65.5L16.0 64.9L15.2 60.9L18.3 55.7L20.1 56.5L20.6 59.0L23.0 57.9L22.2 54.5L24.4 50.3L26.3 50.4L28.3 47.3L29.6 48.8L32.3 47.8L38.1 42.6L42.9 27.4L42.4 20.7L44.3 20.3L44.2 40.4L62.0 40.4L61.9 51.7L68.4 45.8L70.9 46.6L74.0 42.1L75.5 44.3L79.2 44.9L79.9 42.6L82.7 42.7L84.2 41.0L88.1 43.4L90.1 43.0L89.1 44.1L91.7 47.5Z',
+      'wisconsin:M50.1 34.3L61.3 38.6L68.5 39.8L68.2 41.8L72.6 44.0L71.3 49.9L74.2 49.6L73.1 52.7L74.1 54.3L76.9 54.9L81.2 48.3L85.6 48.3L92.0 52.0L86.5 58.4L82.3 71.8L80.6 85.2L82.2 101.0L36.4 100.8L35.5 98.5L31.2 96.7L30.0 93.7L29.6 89.7L31.1 87.4L29.1 85.5L28.8 78.1L27.2 75.2L20.8 70.5L19.6 67.6L14.9 64.2L12.2 64.0L9.0 60.7L9.5 51.1L11.0 48.4L8.0 46.0L8.2 43.4L10.2 40.2L15.5 37.0L15.5 26.5L18.1 25.0L18.9 25.8L36.2 15.0L45.1 15.3L39.2 28.2L41.8 29.4L43.0 32.3Z',
+      'wyoming:M64.8 90.8L8.1 90.8L8.0 25.2L91.9 25.2L92.0 90.8Z'
+        ];
+        var MAP = null;
+        function table() {
+          if (MAP) return MAP;
+          MAP = {};
+          for (var i = 0; i < T.length; i++) {
+            var r = T[i], c = r.indexOf(':');
+            if (c > 0) MAP[r.slice(0, c)] = r.slice(c + 1);
+          }
+          return MAP;
+        }
+        // Published for the same reason the resolver publishes its levels: one
+        // owner of "what shape is this place", and a caller that needs it reads
+        // it rather than carrying a second copy.
+        window.pdxStateShape = function (name) {
+          var k = String(name == null ? '' : name).trim().toLowerCase();
+          return (k && table()[k]) || '';
+        };
+        window.pdxPaintStateShape = function (name) {
+          var el = document.getElementById('vh-loc-mapshape');
+          if (!el) return false;
+          var k = String(name == null ? '' : name).trim().toLowerCase();
+          if (!k) {
+            el.setAttribute('d', el.getAttribute('data-pdxhome') || '');
+            el.setAttribute('data-pdxshape', '');
+            return false;
+          }
+          var d = window.pdxStateShape(k);
+          el.setAttribute('d', d);
+          el.setAttribute('data-pdxshape', d ? k : '');
+          return !!d;
+        };
+      })();
+      </script>
 
 
       <div class="wrm-cold">
@@ -6130,7 +6295,7 @@ window.PDXLazy = (function () {
 
       <div id="wrm-reps"></div>
 
-      <p class="wrm-scope">PolitiDex resolves your <strong>U.S. Senate and Governor</strong> seats from your state, anywhere in the country. Your <strong>U.S. House, State Senate and State House</strong> seats need district lines, which we map in Utah so far &mdash; elsewhere we leave those rows blank rather than name someone else&rsquo;s district. Local offices &mdash; mayor, council, school board, county &mdash; are listed where we have them, and we say so where we don&rsquo;t. A blank row is not a dead end: anyone, anywhere, can read the record of everyone we track from the chamber-and-state listings below &mdash; those are archive listings, not seats.</p>
+      <p class="wrm-scope">PolitiDex resolves your <strong>U.S. Senate and Governor</strong> seats from your state, anywhere in the country. Your <strong>U.S. House</strong> seat needs district lines, which we now map in every state. Your <strong>State Senate and State House</strong> seats need state legislative district lines, which we map in Utah so far &mdash; elsewhere we leave those two rows blank rather than name someone else&rsquo;s district. Local offices &mdash; mayor, council, school board, county &mdash; are listed where we have them, and we say so where we don&rsquo;t. A blank row is not a dead end: anyone, anywhere, can read the record of everyone we track from the chamber-and-state listings below &mdash; those are archive listings, not seats.</p>
     </div>
   </section>
   <script src="/who-represents-me.js" defer></script>
@@ -17857,6 +18022,17 @@ window.PDXLazy = (function () {
         if (confirmed) sessionStorage.removeItem('pdx_finder_confirm');
       } catch(e) { confirmed = false; }
       if (!confirmed) return;
+      // AND AN ARRIVAL THAT NAMES ITS OWN DESTINATION IS LEFT ALONE. A confirm
+      // that carried no `next` is sent back by PDXReturn.settled() to
+      // '/#who-represents-me' — the band that lists the reader's seats — and
+      // that fragment is the reader's stated errand. Opening the team-builder
+      // over it, or scrolling them down to the ballot, would answer a question
+      // they did not ask and move them off the answer they did. The flag is
+      // still spent above, so this is a decision about where to go and not a
+      // way to arrive twice.
+      var toBand = '';
+      try { toBand = String(window.location.hash || ''); } catch(e) { toBand = ''; }
+      if (toBand === '#who-represents-me') return;
       var noBase = (typeof window._homeHasBase !== 'function') || !window._homeHasBase();
       var onboarded = false;
       if (noBase && typeof window.pdxOpenHomeTeamOnboard === 'function') {

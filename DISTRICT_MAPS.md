@@ -14,20 +14,72 @@ is in. Two seat classes fall out of that:
 | Class | Seats | Needs geometry? | Coverage today |
 |---|---|---|---|
 | Statewide | U.S. Senate ×2, Governor | No — a state is enough | All 50 states |
-| District | U.S. House, State Senate, State House | Yes | **Utah only** |
+| District · federal | U.S. House | Yes | **All 50 states + DC** |
+| District · state | State Senate, State House | Yes | **Utah only** |
 
-Utah is the reference implementation. Everything below is what it would take to
-make a second state true — written down so nobody has to reverse-engineer it,
-and so nobody ships half of it.
+The federal row moved. The U.S. House is resolved from real congressional
+geometry in every state now, one state's lines at a time; the two state
+legislative chambers are still Utah's alone. That split is the whole of what
+follows: everything below is what it took to widen one district seat, and what
+it would still take to widen the other two — written down so nobody has to
+reverse-engineer it, and so nobody ships half of it.
 
-## The single honesty flag
+## The U.S. House layer, and why it is loaded one state at a time
+
+`find.html` holds a 51-row state table (name, FIPS, USPS abbreviation) and one
+query template against the Census TIGERweb legislative service:
+
+    TIGERweb/Legislative/MapServer/4/query?where=STATE='<fips>'&outFields=CD119
+
+**Layer 4 is the 119th Congress, and the layer number is the vintage.** Layer 0
+of the same service serves the 120th, which is a different map: a reader placed
+in a 120th-vintage district would be handed the member who holds the
+same-numbered seat on the map we actually have a roster for, which is a wrong
+answer that looks like a right one. The roster's own keys — `Ohio · OH-15` —
+are 119th, so layer 4 is the pairing and the code says so at the URL.
+
+**Utah is the one exception, and it is a newer map rather than an older one.**
+Utah keeps its UGRC layer, which carries the court-ordered 2026 boundaries that
+the Census service does not serve yet. So Utah's congressional answer comes from
+UGRC and every other state's comes from TIGERweb: two sources, each the most
+current one for its state, never blended over the same point.
+
+**Nothing national is ever painted.** A congressional layer is fetched only
+after a geocode or a tap has produced a *state*, and only for that state. The
+finder opens with no boundary drawn at all; the ghost layers behind the active
+one are drawn from whatever is actually loaded, which outside Utah is one layer.
+A point the loaded lines do not contain is put to the unsimplified service once,
+as a point-intersect query, and if that has no answer either the seat stays
+blank — there is deliberately no nearest-centroid fallback for congress, because
+the nearest centroid across a whole state is a coin toss between two sitting
+members.
+
+Utah is still the reference implementation for the two state legislative seats.
+
+## The honesty flags
 
 `window.pdxRepsForMe()` (in `voter-hub-location.js`) returns
-`districtsResolvable`. It is the app's only answer to *"may this reader be told
-a district number is theirs?"*, and today it is computed as "is this reader in
-Utah".
+`districtsResolvable`. It is the app's answer to *"may this reader be told a
+**state legislative** district number is theirs?"*, and it is computed as "is
+this reader in Utah". It did not widen when the congressional map did, because
+the geometry it gates — Utah's state house and state senate lines — did not.
 
-Every surface that could print a district as the reader's own goes through it:
+Two narrower answers sit beside it, and they exist precisely so the broad one
+did not have to be loosened into a half-truth:
+
+- `congressMapped` — whether the reader's state is one we can resolve a U.S.
+  House district in at all. True for any recognised state.
+- `mapped`, per level — whether THIS seat's geography is one we draw for THIS
+  reader's state. True on every statewide level, true on the U.S. House level
+  anywhere, true on the two legislative levels in Utah only.
+
+`mapped` is what lets one blank row read differently from another: a seat we can
+map but have not placed yet says so and points at the district finder, while a
+seat we do not map in that state keeps the older, flatter admission. Neither
+prints a district number, which is the part that never changes.
+
+Every surface that could print a **state legislative** district as the reader's
+own goes through `districtsResolvable`:
 
 - `voter-hub-location.js` — the seat rows themselves; district levels are
   omitted rather than filled when the flag is false.
@@ -39,20 +91,29 @@ Every surface that could print a district as the reader's own goes through it:
   `_myteamDistrictNum()` (Door 2's slate seat scopes and focus line) and
   `_myteamOwnDistricts()` (the "your seat" marks in Door 1's browse tree).
 
-**The extension point is `districtsResolvable` and nothing else.** A second
-state is added by making that flag true for that state once the data below
-exists. It is not added by special-casing a surface — a surface that decides
-for itself which districts are the reader's is a bug, and the tests treat it as
-one.
+**The extension point for the state legislative seats is
+`districtsResolvable` and nothing else.** A second state is added by making that
+flag true for that state once the data below exists. It is not added by
+special-casing a surface — a surface that decides for itself which districts are
+the reader's is a bug, and the tests treat it as one.
 
 ## What has to be true before that flag can widen
 
-Utah's district resolution is not one table. Adding a state means all of it:
+The U.S. House widened because items 1 and 2 below were answerable for it
+nationally from public data: TIGERweb is real geometry for every state, and the
+roster already keys each sitting member to a district (`Ohio · OH-15`), with an
+unclaimed or double-claimed district resolving to *nothing*. Items 3 to 5 were
+satisfied by scope rather than by coverage — the congressional answer never
+reads `_krInferLocation`, and a seat with no map says so.
+
+For the two state legislative chambers, none of this is done, and adding a state
+still means all of it:
 
 1. **District geometry.** Something that turns an address or a map pin into a
-   U.S. House district, a state senate district and a state house district for
-   that state. Utah's lives behind the district map modal and
-   `_pdxHouseRedistrict`, and it is real geometry, not a city-name lookup.
+   state senate district and a state house district for that state. Utah's lives
+   behind the district map modal and `_pdxHouseRedistrict`, and it is real
+   geometry, not a city-name lookup. (The congressional half of this item is
+   done: see the TIGERweb section above.)
 2. **A per-district officeholder roster,** keyed the way
    `KEY_RACES_BY_LOCATION` is, with every pid resolving to a real record. A
    district whose incumbent is unknown must resolve to *nothing*, never to a
@@ -75,8 +136,9 @@ Utah's district resolution is not one table. Adding a state means all of it:
 
 ## The rule
 
-**No half-mapped state.** A state with geometry but no roster, or a roster but
-no state-qualified inference, is worse than no state at all: it produces a
+**No half-mapped state, and no half-mapped seat.** A state with geometry but no
+roster, or a roster but no state-qualified inference, is worse than no state at
+all: it produces a
 confident wrong district instead of an honest blank. Until all five items above
 are done for a state, `districtsResolvable` stays false there and the district
 rows stay empty — which is a true statement, and the one the product is built

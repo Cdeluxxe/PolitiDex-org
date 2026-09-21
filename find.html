@@ -1148,7 +1148,7 @@
               </div>
             </div>
             <div class="pdx-map-actions">
-              <p id="pdx-map-missing" class="pdx-map-missing" role="status">Search your address, or tap the map, to set all three of your districts.</p>
+              <p id="pdx-map-missing" class="pdx-map-missing" role="status">Search your address, or tap the map, to set your districts.</p>
               <button type="button" id="pdx-map-done" class="pdx-map-done" onclick="window.pdxMapConfirm()" disabled>Use this location</button>
               <!-- The labelled exit from an incomplete answer. Hidden until there
                    is something partial to save, because offering "save only
@@ -1189,6 +1189,58 @@
     var STROKE = { house: '#60a5fa', senate: '#f59e0b', congress: '#22d3ee' };
     var LABEL  = { house: 'State House', senate: 'State Senate', congress: 'U.S. House' };
 
+    // ══ AND THE U.S. HOUSE LAYER IS NOT A UTAH LAYER ANY MORE ═════════════════
+    // Congressional districts are ONE federal map. The three URLs above are Utah
+    // FeatureServers because this finder was built for Utah, but the seat they
+    // resolve third is elected in all fifty states and DC, and until this pass a
+    // reader outside Utah got "U.S. House: not resolved" from a map that simply
+    // had not been asked. TIGERweb publishes every state's lines from one
+    // service, so the fix is a URL per state rather than a data pipeline.
+    //
+    // THE LAYER NUMBER IS THE WHOLE DECISION HERE, so it is written down. Layer 0
+    // of this service is the 120th Congress; layer 4 is the 119th. The roster
+    // this app ships names sitting members by their 119th district — "Ohio ·
+    // OH-15" is Mike Carey's seat in the Congress now sitting — so drawing the
+    // 120th lines against it would resolve a reader into a district whose number
+    // belongs to a different map and then name whoever holds that number today.
+    // That is the confident-and-wrong failure this whole surface is built to
+    // avoid, so the map is pinned to the vintage the roster speaks.
+    //
+    // Utah is the exception and keeps its own layer: the 2026 court-ordered remap
+    // is already in force there, the roster already carries it (see the redrawn
+    // bridge in voter-hub-location.js), and UGRC is the authority for it.
+    var TIGER_CD = 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Legislative/MapServer/4/query';
+
+    // name : state FIPS : USPS. Packed because fifty-one object literals is a
+    // screen of noise, and every consumer wants a lookup rather than a list.
+    var US_STATES = {}, US_BY_ABBR = {};
+    ('Alabama:01:AL|Alaska:02:AK|Arizona:04:AZ|Arkansas:05:AR|California:06:CA|' +
+     'Colorado:08:CO|Connecticut:09:CT|Delaware:10:DE|District of Columbia:11:DC|' +
+     'Florida:12:FL|Georgia:13:GA|Hawaii:15:HI|Idaho:16:ID|Illinois:17:IL|Indiana:18:IN|' +
+     'Iowa:19:IA|Kansas:20:KS|Kentucky:21:KY|Louisiana:22:LA|Maine:23:ME|Maryland:24:MD|' +
+     'Massachusetts:25:MA|Michigan:26:MI|Minnesota:27:MN|Mississippi:28:MS|Missouri:29:MO|' +
+     'Montana:30:MT|Nebraska:31:NE|Nevada:32:NV|New Hampshire:33:NH|New Jersey:34:NJ|' +
+     'New Mexico:35:NM|New York:36:NY|North Carolina:37:NC|North Dakota:38:ND|Ohio:39:OH|' +
+     'Oklahoma:40:OK|Oregon:41:OR|Pennsylvania:42:PA|Rhode Island:44:RI|' +
+     'South Carolina:45:SC|South Dakota:46:SD|Tennessee:47:TN|Texas:48:TX|Utah:49:UT|' +
+     'Vermont:50:VT|Virginia:51:VA|Washington:53:WA|West Virginia:54:WV|Wisconsin:55:WI|' +
+     'Wyoming:56:WY').split('|').forEach(function(row){
+      var f = row.split(':');
+      var rec = { name: f[0], fips: f[1], abbr: f[2] };
+      US_STATES[f[0].toLowerCase()] = rec;
+      US_BY_ABBR[f[2]] = rec;
+    });
+    // Accepts what the several sources actually say: a full name from the state
+    // picker or the Census "States" bucket, a USPS abbreviation from a geocoder's
+    // address components, any casing. An unknown string is NOT coerced to a
+    // nearest match — it returns null, and a null state is why fetchGeo below
+    // refuses rather than guesses.
+    function stateInfo(v){
+      var q = String(v == null ? '' : v).trim();
+      if (!q) return null;
+      return US_STATES[q.toLowerCase()] || US_BY_ABBR[q.toUpperCase()] || null;
+    }
+
     var _geoCache   = { house: null, senate: null, congress: null };
     var _map        = null;
     var _layers     = { house: null, senate: null, congress: null };
@@ -1205,6 +1257,16 @@
     // it, resolved from a point like the other two, shown in a chip like the other
     // two, and required by confirm like the other two.
     var SEATS = ['house', 'senate', 'congress'];
+    // ══ AND OUTSIDE UTAH THERE IS ONE SEAT ON THIS CANVAS, NOT THREE ══════════
+    // The list above is what this finder owes a UTAH reader, and it is still
+    // exactly that. Everywhere else it owes ONE seat — the U.S. House — because
+    // state legislative lines are fifty separate maps and this app draws one of
+    // them. Narrowing the list rather than adding scope tests at each call site
+    // is what keeps the honesty automatic: missingSeats(), resolveAllAt(),
+    // showLayer() and Clear all read SEATS, so an Ohio reader is never told a
+    // State Senate seat is "still missing" from a map that does not exist, and
+    // no Utah FeatureServer is fetched for an address in Ohio.
+    var ALL_SEATS = ['house', 'senate', 'congress'];
     var _activeLayer = 'house';
     var _selected   = { house: null, senate: null, congress: null };   // chosen DIST numbers
     var _selPath    = { house: null, senate: null, congress: null };   // chosen Leaflet path refs
@@ -1220,6 +1282,16 @@
     var _layerSeq = 0, _searchSeq = 0;                 // retire work the reader moved past
     var _lastQuery = '';                               // survives a legitimate remount
     var SEARCH_DEADLINE_MS = 12000;                    // one ceiling over a whole search
+    // WHOSE LINES ARE LOADED. Utah by default, and deliberately so: this document
+    // opens with a location record that may be empty, the Utah legislative layers
+    // are the only ones it can draw, and the state picker behind it defaults
+    // nowhere. Every route that learns a real state — the saved record on open, a
+    // geocoded address, the Census answer at a tapped point — calls
+    // setScopeState() and the map follows. A point outside the scoped state's
+    // polygons resolves to null rather than to a neighbour, so being scoped to
+    // the wrong state costs a round trip and never costs a wrong answer.
+    var _scopeState = 'Utah';
+    function utahScope(){ return _scopeState === 'Utah'; }
 
     // THE FINDER'S GATE AND ITS NETWORK MANNERS LIVE IN voter-hub-location.js,
     // which owns the location record: PDXF.isOpen() is why a pick behind the
@@ -1296,8 +1368,90 @@
     }
     function stale(tok){ return tok !== _searchSeq; }
 
+    // Forget one chamber completely: its geometry, its drawn layer and the pick
+    // that was made on it. Used only by setScopeState, and that is the point —
+    // geometry and the selection made ON that geometry have to go together. A
+    // cached Ohio polygon set with a Utah district number still selected against
+    // it is the one state this finder must never be in.
+    function dropSeat(t){
+      _geoCache[t] = null;
+      if (_layers[t]) { try { if (_map) _map.removeLayer(_layers[t]); } catch (e) {} }
+      _layers[t] = null;
+      _selected[t] = null;
+      _selPath[t] = null;
+    }
+    // ══ THE MAP FOLLOWS THE STATE, AND CHANGING STATE THROWS EVERYTHING AWAY ══
+    // Returns true when the scope actually moved, so callers can re-resolve at
+    // the same point against the new lines. An unrecognised state moves nothing:
+    // there is no "closest state", and a reader we cannot place is a reader we
+    // tell so rather than one we place badly.
+    function setScopeState(name){
+      var st = stateInfo(name);
+      if (!st || st.name === _scopeState) return false;
+      _scopeState = st.name;
+      // The congressional geometry is per-state by definition. The two
+      // legislative layers are Utah's, so they are meaningless anywhere else and
+      // are dropped on the way out AND on the way back in — a reader who searches
+      // Ohio and then Utah again refetches Utah's lines rather than keeping
+      // whatever was left over from a state they have left.
+      dropSeat('congress');
+      dropSeat('house');
+      dropSeat('senate');
+      SEATS = utahScope() ? ALL_SEATS.slice() : ['congress'];
+      if (!utahScope()) _activeLayer = 'congress';
+      syncScopeChrome();
+      return true;
+    }
+    // The two legislative toggles and their chips are Utah furniture. Outside
+    // Utah they are hidden rather than disabled: a greyed-out control is a
+    // promise that it will light up, and these never will.
+    function syncScopeChrome(){
+      var u = utahScope();
+      ['house', 'senate'].forEach(function(t){
+        var btn = document.getElementById('pdx-layer-' + t);
+        if (btn) btn.style.display = u ? '' : 'none';
+        var chip = document.getElementById('pdx-sel-' + t);
+        if (chip) chip.style.display = u ? '' : 'none';
+      });
+      // The count beside "U.S. House" is a fact about one state's delegation, so
+      // it is only shown once we hold that state's lines and can count them.
+      var cbtn = document.getElementById('pdx-layer-congress');
+      var cnt = cbtn && cbtn.querySelector ? cbtn.querySelector('span') : null;
+      if (cnt) {
+        var geo = _geoCache.congress;
+        cnt.textContent = (geo && geo.features) ? ('\u00b7 ' + geo.features.length) : '';
+      }
+      // ══ AND THE COPY THE SCOPE OWNS IS REPAINTED IN THE SAME BREATH ═══════
+      // Hiding two toggles is the smaller half of a state change. The court-map
+      // banner, the layer hint, the info panel and the sticky bar all name a
+      // map or a set of seats that this scope may not have, and every one of
+      // them was written before the scope could move. They are refreshed here
+      // rather than at each call site, because the call sites are "a tap
+      // crossed a state line" and "the finder opened on a saved record" and
+      // neither of them should have to know what copy mentions Utah.
+      setLayerChrome(_activeLayer);
+      refreshConfirmBtn();
+    }
+
     function distOf(feature){
       var p = feature && feature.properties || {};
+      // ══ AT LARGE IS A DISTRICT, AND ITS NUMBER IS 1 HERE ════════════════════
+      // TIGERweb names the field for its Congress (CD119) and writes "00" for a
+      // state that elects one member statewide, "98" for DC's delegate. Neither
+      // is a district number a reader could recognise, and neither can be stored:
+      // loc.district is digits-only everywhere in this app and every surface
+      // downstream prints it as "District N".
+      //
+      // So a single-district state resolves to 1 — the number that state's one
+      // seat is universally called — and the roster's own at-large spelling
+      // ("Wyoming · WY-AL") is reconciled against it by _pdxUsHouseSeat, which
+      // lets 1 match at large and nothing else match it. One place converts, one
+      // place reconciles, and nothing in between has to know.
+      if (p.CD119 != null) {
+        var cn = parseInt(p.CD119, 10);
+        if (isNaN(cn)) return null;
+        return (cn === 0 || cn === 98) ? 1 : cn;
+      }
       // House/Senate layers expose DIST; the congressional layer exposes DISTRICT.
       var d = p.DIST != null ? p.DIST
             : (p.dist != null ? p.dist
@@ -1337,6 +1491,41 @@
       }
       return false;
     }
+    // ══ A SIMPLIFICATION SEAM IS NOT AN ANSWER, AND IT IS NOT A GUESS EITHER ══
+    // The polygons drawn here are server-simplified (maxAllowableOffset) so the
+    // payloads fit a phone, which means a point within a few hundred metres of a
+    // boundary can land in the hairline gap between two of them. The two
+    // legislative layers answer that with nearestDistrict() and it is defensible:
+    // Utah's 75 House districts are small, the nearest centroid to a seam point
+    // is almost always one of the two districts that seam separates, and the copy
+    // marks the answer with an asterisk.
+    //
+    // A CONGRESSIONAL DISTRICT CANNOT BE ANSWERED THAT WAY. Ohio has fifteen of
+    // them across the whole state; the nearest centroid to a point on the
+    // Columbus line is a coin toss between two seats held by two different
+    // people, and printing either one with a footnote is still printing a
+    // stranger. So the seam is answered by ASKING THE AUTHORITY: an intersects
+    // query against TIGERweb's unsimplified geometry, returning no geometry at
+    // all, which costs a few hundred bytes and comes back exact or comes back
+    // empty. Empty is a fine outcome — it is what "U.S. House not resolved" is
+    // for. Utah is excluded because TIGER's 119th lines are not Utah's authority;
+    // its own 2026 map is, and that map is already fully loaded by then.
+    function cdAtPointRemote(lat, lng){
+      var st = stateInfo(_scopeState);
+      if (!st || utahScope()) return Promise.resolve(null);
+      var pt = encodeURIComponent(JSON.stringify({ x: lng, y: lat, spatialReference: { wkid: 4326 } }));
+      var url = TIGER_CD + '?geometry=' + pt + '&geometryType=esriGeometryPoint&inSR=4326' +
+                '&spatialRel=esriSpatialRelIntersects&outFields=CD119&returnGeometry=false&f=json';
+      return PDXF.fetch(url, { cache: 'force-cache' })
+        .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function(j){
+          var f = j && j.features && j.features[0];
+          var a = f && f.attributes;
+          if (!a || a.CD119 == null) return null;
+          return distOf({ properties: { CD119: a.CD119 } });
+        })
+        .catch(function(){ return null; });
+    }
     function districtAt(layerType, lng, lat){
       var geo = _geoCache[layerType];
       if (!geo || !geo.features) return null;
@@ -1351,12 +1540,19 @@
     // the point, or null. Lets the auto-detect / reverse-geocode path resolve the
     // congressional district from the real district lines instead of the Census
     // "Current" vintage (which still serves the prior, pre-2026 map).
-    window._pdxCongressAt = function(lat, lng){
+    // stateName (optional): scope the lookup to that state's lines first. A caller
+    // that knows the state and does not pass it gets whichever state is loaded,
+    // so the parameter is the difference between an answer and a coincidence.
+    window._pdxCongressAt = function(lat, lng, stateName){
       var x = parseFloat(lng), y = parseFloat(lat);
       if (isNaN(x) || isNaN(y)) return Promise.resolve(null);
+      if (stateName) { try { setScopeState(stateName); } catch (e) {} }
       return fetchGeo('congress')
-        .then(function(){ return districtAt('congress', x, y); })
-        .catch(function(){ return null; });
+        .then(function(){
+          var d = districtAt('congress', x, y);
+          return d != null ? d : cdAtPointRemote(y, x);
+        })
+        .catch(function(){ return cdAtPointRemote(y, x); });
     };
     // Find the drawn Leaflet path for a district number (building the layer if
     // needed) so a searched district can be highlighted just like a tapped one.
@@ -1493,14 +1689,35 @@
     }
 
     // ── Data ─────────────────────────────────────────────────────────────────
+    // Which URL answers this chamber for the state currently in scope. The two
+    // legislative layers have exactly one answer each, forever; the U.S. House
+    // has one per state, and Utah's is UGRC's rather than TIGER's for the vintage
+    // reason written over TIGER_CD.
+    function geoUrl(layerType){
+      if (layerType !== 'congress' || utahScope()) return GEO_URLS[layerType];
+      var st = stateInfo(_scopeState);
+      if (!st) return null;
+      return TIGER_CD + '?where=STATE%3D%27' + st.fips + '%27&outFields=CD119' +
+             '&returnGeometry=true&outSR=4326&maxAllowableOffset=0.003' +
+             '&geometryPrecision=5&f=geojson';
+    }
     function fetchGeo(layerType){
       if (_geoCache[layerType]) return Promise.resolve(_geoCache[layerType]);
+      var url = geoUrl(layerType);
+      // NO MAP IS AN ANSWER. A state this finder cannot name has no district
+      // lines to load, and the honest end of that is a rejection that reaches
+      // the fail line — never a fetch against a URL with a hole in it, and never
+      // a fall-through to whichever state's polygons happen to be cached.
+      if (!url) return Promise.reject(new Error('No district map for ' + (_scopeState || 'that location')));
       // Ceiling and canceller, like every other request the finder makes.
-      return PDXF.fetch(GEO_URLS[layerType], { cache: 'force-cache' })
+      return PDXF.fetch(url, { cache: 'force-cache' })
         .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function(json){
           if (!json || !json.features || !json.features.length) throw new Error('No districts returned');
           _geoCache[layerType] = json;
+          // The delegation size on the U.S. House toggle is read off the lines we
+          // just loaded, so it is never a number for a different state.
+          if (layerType === 'congress') { try { syncScopeChrome(); } catch (e) {} }
           return json;
         });
     }
@@ -1537,18 +1754,17 @@
       });
       _tiles.addTo(_map);
 
-      // TAP-TO-LOAD, AND ONLY THAT. With nothing drawn, the map takes the tap,
-      // loads the active layer and picks the district there. Once polygons ARE
-      // drawn this handler stands down completely and the per-feature click
-      // bound in buildLayer() owns the pick — the isPainted guard is what draws
-      // that line, so there is one picker, not two. (It also covers the
-      // reverse: a tap that reaches the map while a load is in flight must not
-      // stack a second request, which is what _loadingLayer is for, and that
-      // matters more now that the status panel passes taps through.)
+      // TAP-TO-PIN. With nothing drawn, the map takes the tap, loads the active
+      // layer and picks the district there; with polygons drawn, the per-feature
+      // click bound in buildLayer() fires instead and BOTH end up in tapAt(), so
+      // there is one picker and one pin, not two of either. (The in-flight guard
+      // lives inside tapAt: the canvas covers the whole modal and a pan that does
+      // not move reads as a click, so it is the surface a reader can hit
+      // repeatedly by accident, and a tap during a load must not stack a second
+      // request.)
       _map.on('click', function(e){
         if (!e || !e.latlng) return;
-        if (_loadingLayer || isPainted(_activeLayer)) return;
-        loadAndShow(_activeLayer, true, e.latlng);
+        tapAt(e.latlng, e);
       });
 
       return _map;
@@ -1593,9 +1809,8 @@
             // it does for the canvas, so there is no second picker and no second
             // source of truth: resolveAllAt() is what both callers use.
             click:     function(e){
-              _searchAreaId = null;
               selectDistrict(layerType, dist, path);
-              if (e && e.latlng) resolveAllAt(e.latlng);
+              tapAt(e && e.latlng, e);
             }
           });
           // Re-highlight a previously chosen district when the layer (re)builds.
@@ -1627,9 +1842,66 @@
       repaintRoles();
     }
 
-    // pickAt (optional {lat,lng}): the tap that asked, so one tap both draws the
-    // boundaries and picks the district under that point.
-    function loadAndShow(layerType, skipFit, pickAt){
+    // ══ A TAP IS A POINT, AND THE POINT IS WHERE THE ANSWER COMES FROM ════════
+    // Both ways of pressing this canvas arrive here: the map's own click handler
+    // when nothing is drawn under the finger, and a polygon's click handler when
+    // something is. They used to be two half-pickers — the canvas one loaded a
+    // layer and picked, the polygon one picked and resolved, and neither dropped
+    // a pin — which is why a reader could not see WHERE the finder thought they
+    // were, only which polygon it had lit up. A district is a big place; "inside
+    // this shape" is not an answer to "is this my house".
+    //
+    // ONE GESTURE, ONE PIN, ONE RESOLVE, AT THE PIN. Leaflet only treats the map
+    // as the event target when no layer claimed the click (Map._findEventTargets
+    // falls back to [this] on an empty target list), so a press on a drawn
+    // polygon does not also reach the canvas handler and these do not double up.
+    // The flag on the DOM event is belt and braces for the case where something
+    // else on this canvas grows a second binding later: it marks the gesture,
+    // not the handler, so whichever of the two runs first is the one that counts.
+    function tapAt(latlng, ev){
+      if (!latlng || latlng.lat == null || latlng.lng == null) return;
+      var oe = ev && ev.originalEvent;
+      if (oe) { if (oe.__pdxTapped) return; oe.__pdxTapped = true; }
+
+      // The pin goes down FIRST and unconditionally. It is the reader's own
+      // gesture rendered back to them, it owes nothing to the network, and every
+      // branch below can fail without it having been a lie.
+      dropPin(latlng.lat, latlng.lng);
+      // A tap overrules a searched address: the curated-area tiebreak and the
+      // result banner both describe that address, not this point.
+      _searchAreaId = null;
+
+      // A load is already on the wire. The pin has moved, which is the whole of
+      // what this tap can honestly change until that load lands.
+      if (_loadingLayer) return;
+
+      // ══ THE STATE IS SETTLED BEFORE ANY GEOMETRY IS ASKED ══════════
+      // A point inside a polygon we already hold is its own proof of state: the
+      // only way to be inside Utah's District 2 is to be in Utah. That tap is
+      // answered here and now, with no round trip, which is what keeps the
+      // common gesture — nudge the pick after a search — instant.
+      //
+      // EVERY OTHER TAP HAS TO ASK FIRST. This used to resolve against whatever
+      // lines happened to be loaded and ask about the state afterwards, in
+      // parallel. Pressing Flagstaff while Utah was scoped therefore ran
+      // point-in-polygon over Utah's polygons, painted them, printed Utah's
+      // court-map banner, and only then discovered it was the wrong state — and
+      // a seam-shaped miss could even hand back a Utah district number for an
+      // Arizona pin. So no geometry is consulted until the geocode has named
+      // the state and setScopeState has thrown out everything belonging to
+      // another one. The cost is one round trip on the tap that crosses a
+      // border; what it buys is that no reader is ever shown another state's
+      // districts as their own.
+      var here = _geoCache[_activeLayer] ? districtAt(_activeLayer, latlng.lng, latlng.lat) : null;
+      if (here != null) { resolveAllAt(latlng, true); return; }
+      // A SECOND TAP RETIRES THE FIRST. Two presses in quick succession are one
+      // reader correcting themselves, and the answer they want is the second
+      // point — so the sequence is bumped and the earlier lookup lands stale.
+      _searchSeq++;
+      scopeFromPoint(latlng);
+    }
+
+    function loadAndShow(layerType, skipFit){
       var tok = ++_layerSeq;
       _loadingLayer = true;
       showStatus('Loading ' + LABEL[layerType] + ' boundaries…', true);
@@ -1656,22 +1928,15 @@
         if (tok !== _layerSeq) return;   // the reader closed the finder, or moved on
         hideStatus();
         showLayer(layerType, skipFit);
-        if (pickAt) {
-          var d = districtAt(layerType, pickAt.lng, pickAt.lat);
-          if (d != null) {
-            // A tap overrides a searched address, as the polygon handler does.
-            _searchAreaId = null;
-            selectDistrict(layerType, d, pathForDist(layerType, d));
-            // …and the same point answers the other two chambers. The layer
-            // that was just tapped is already in the cache, so this costs one
-            // fetch per layer the reader has not visited yet and nothing at all
-            // on a second tap.
-            resolveAllAt(pickAt);
-          } else {
-            setSearchNote('That spot is outside Utah’s ' + LABEL[layerType] +
-              ' district map. Tap inside Utah, or search your address.', 'is-warn');
-          }
-        }
+        // THIS FUNCTION DRAWS, AND THAT IS ALL IT DOES. It used to take a
+        // pickAt point and run its own point-in-polygon on arrival, which made
+        // it a second, weaker picker: it resolved one chamber against one
+        // state's lines with no idea whether the point was even in that state,
+        // and its miss branch printed "outside Utah’s State House map" — a
+        // sentence about a legislative layer that most states simply do not
+        // have here. The tap path owns resolution now (tapAt → scopeFromPoint
+        // → resolveAllAt), so that branch is gone rather than guarded, and a
+        // state with no legislative map has no way to be told it is outside one.
         setTimeout(function(){ if (_map) _map.invalidateSize(); }, 60);
       }).catch(function(err){ layerFailed(err, tok); });
     }
@@ -1724,7 +1989,11 @@
     // _resolvingAll is a COUNT rather than a flag because a reader can tap twice
     // before the first pass lands; the bar stays in its "checking" wording until
     // the last one settles, which is the only honest reading of that moment.
-    function resolveAllAt(pt){
+    // paint (optional): draw the active layer when this resolve finishes even if
+    // the canvas was bare. Passed by the tap path only — a press on the map IS
+    // the request to see the lines, and since the tap no longer pre-loads a layer
+    // of its own this is the thing that makes an empty canvas fill in.
+    function resolveAllAt(pt, paint){
       if (!pt || pt.lng == null || pt.lat == null) return Promise.resolve(false);
       var reqs;
       try {
@@ -1744,8 +2013,9 @@
         // Putting them on the canvas as ghosts is what makes the two chips they
         // did not tap mean something: the numbers came from polygons, and these
         // are the polygons. Gated on the active layer already being painted so a
-        // resolve can never turn a deliberately empty finder into a drawn one.
-        try { if (isPainted(_activeLayer)) showLayer(_activeLayer, true); } catch (e) {}
+        // resolve can never turn a deliberately empty finder into a drawn one —
+        // unless the caller was a tap, which asked for it.
+        try { if (paint || isPainted(_activeLayer)) showLayer(_activeLayer, true); } catch (e) {}
         // ══ "AFTER A HOUSE-ONLY POLYGON PICK … SWITCH TO SENATE, THEN U.S.
         // HOUSE." ══════════════════════════════════════════════════════════
         // The tap resolved what it could. If a seat is STILL missing — a
@@ -1763,15 +2033,27 @@
         try { window.pdxMapSetLayer(cs.next); } catch (e) {}
       };
       return Promise.all(reqs).then(function(){
-        var got = false;
+        var got = false, seam = false;
         SEATS.forEach(function(t){
           var d = districtAt(t, pt.lng, pt.lat);
-          if (d == null || _selected[t] === d) return;
+          if (d == null) { if (t === 'congress') seam = true; return; }
+          if (_selected[t] === d) return;
           got = true;
           selectDistrict(t, d, pathForDist(t, d));
         });
-        settle();
-        return got;
+        // The drawn lines had no congressional district for this point. That is
+        // either a seam or a point in another state; cdAtPointRemote answers the
+        // first exactly and the second with nothing, and nothing is correct —
+        // scopeFromPoint is what handles the second.
+        if (!seam) { settle(); return got; }
+        return cdAtPointRemote(pt.lat, pt.lng).then(function(d){
+          if (d != null && _selected.congress !== d) {
+            got = true;
+            selectDistrict('congress', d, pathForDist('congress', d));
+          }
+          settle();
+          return got;
+        });
       }).catch(function(){ settle(); return false; });
     }
 
@@ -1827,7 +2109,8 @@
             ? ' Still to set: <strong style="color:#cfe0f7;">' +
               miss.map(function(t){ return LABEL[t]; }).join('</strong> and <strong style="color:#cfe0f7;">') +
               '</strong>.'
-            : ' All three of your districts are set.');
+            : ' ' + (SEATS.length === 3 ? 'All three of your districts are set.'
+                                          : allSetPhrase() + '.'));
       }
       refreshInfoPanel();
       refreshResultBanner();
@@ -1900,8 +2183,13 @@
       // whichever point the reader gave us — a geocoded address or a tap — and
       // pickable on this layer like the other two.
       if (_activeLayer === 'congress') {
+        // AND THE VINTAGE NAMED HERE IS THE ONE ACTUALLY ON THE MAP. Utah's
+        // lines are UGRC's court-ordered 2026 map; every other state's are
+        // TIGERweb's 119th-Congress map. Printing "2026 court-ordered" over
+        // Arizona's lines would be citing a Utah ruling as the authority for
+        // somebody else's district.
         label.textContent = (_selected.congress ? 'Selected district · ' : 'Viewing · ') +
-          'U.S. House (2026 court-ordered map)';
+          (utahScope() ? 'U.S. House (2026 court-ordered map)' : 'U.S. House · ' + _scopeState);
         if (ico) ico.textContent = '🦅';
         if (_selected.congress != null) {
           panel.classList.add('is-set');
@@ -1909,7 +2197,8 @@
           // and it stopped being true the moment a tap could resolve this seat.
           // The point is the honest subject either way.
           val.innerHTML = 'U.S. House <span class="pdx-info-dist">District ' + _selected.congress +
-            '</span> <span style="opacity:0.7;font-size:0.82em;">· from your location on the 2026 map</span>';
+            '</span> <span style="opacity:0.7;font-size:0.82em;">· from your location on ' +
+            (utahScope() ? 'the 2026 map' : escapeHtml(_scopeState) + '’s district lines') + '</span>';
         } else {
           panel.classList.remove('is-set');
           val.textContent = 'Search your address, or tap your area, for your U.S. House district';
@@ -1944,6 +2233,29 @@
       return SEATS.filter(function(t){ return _selected[t] == null; });
     }
 
+    // ══ THE STATUS LINE NAMES ONLY THE SEATS THIS STATE ACTUALLY HAS ═════
+    // "all three of your districts" was exactly right for as long as this finder
+    // was Utah's, and it became a miscount the day the congressional layer went
+    // national. A reader in Chicago has one seat mapped here — their U.S. House
+    // district — and telling them three are outstanding invites them to hunt for
+    // two toggles that are hidden because Illinois has no legislative map on this
+    // canvas. So the count comes from SEATS, which is the same list missingSeats()
+    // and confirmState() walk, and the Utah wording is preserved word for word
+    // rather than generalised: three seats is the case the whole panel was
+    // written around and it reads better in its own words.
+    function seatsPhrase(){
+      if (SEATS.length === 3) return 'all three of your districts';
+      if (SEATS.length === 1) return 'your ' + LABEL[SEATS[0]] + ' district';
+      return 'your ' + SEATS.map(function(t){ return LABEL[t]; }).join(' and ') + ' districts';
+    }
+    // The done sentence, without its trailing stop, so the "checking…" variant can
+    // hang off the same words.
+    function allSetPhrase(){
+      if (SEATS.length === 3) return 'All three districts set';
+      if (SEATS.length === 1) return 'Your ' + LABEL[SEATS[0]] + ' district is set';
+      return 'Your ' + SEATS.length + ' districts are set';
+    }
+
     function confirmState(){
       var miss = missingSeats();
       var set  = SEATS.filter(function(t){ return _selected[t] != null; });
@@ -1956,7 +2268,9 @@
         // answer, so the button that commits them says all three. It is longer
         // than "Use State House District 15" was and that is the point: the old
         // label named a third of what the press would write.
-        label = 'Use these districts: ' +
+        // Singular in a one-seat state: "these districts" over a single number
+        // reads like something is missing from the button.
+        label = (set.length === 1 ? 'Use this district: ' : 'Use these districts: ') +
           set.map(function(t){ return LABEL[t] + ' ' + _selected[t]; }).join(' · ');
       } else {
         // NOT A COMMIT. An incomplete answer turns this button into the next
@@ -2009,7 +2323,7 @@
       };
       line.classList.remove('is-done', 'is-busy');
       if (!cs.any && !_resolvingAll) {
-        line.textContent = 'Search your address, or tap the map, to set all three of your districts.';
+        line.textContent = 'Search your address, or tap the map, to set ' + seatsPhrase() + '.';
         return;
       }
       if (_resolvingAll) {
@@ -2018,19 +2332,27 @@
         // partial-save button for no reason.
         line.classList.add('is-busy');
         line.textContent = cs.complete
-          ? 'All three districts set — checking your location…'
+          ? allSetPhrase() + ' — checking your location…'
           : 'Finding your ' + names(cs.missing) + ' district' +
             (cs.missing.length === 1 ? '' : 's') + '…';
         return;
       }
       if (cs.complete) {
         line.classList.add('is-done');
-        line.textContent = 'All three districts set — State House, State Senate and U.S. House.';
+        // The seats are named as well as counted, because "set" without a list
+        // is a claim the reader cannot check.
+        line.textContent = allSetPhrase() +
+          (SEATS.length > 1
+            ? ' — ' + SEATS.map(function(t){ return LABEL[t]; }).join(', ')
+                .replace(/, ([^,]*)$/, ' and $1') + '.'
+            : '.');
         return;
       }
       line.textContent = 'Still missing: ' + names(cs.missing) + '. ' +
         (cs.missing.length === 1
           ? 'One more and your ballot is complete.'
+          // Only reachable with two or more seats outstanding, which only a
+          // three-seat scope can be, so "all three" is safe here.
           : 'Your representatives page needs all three.');
     }
 
@@ -2060,9 +2382,23 @@
 
     function applyToLocation(){
       var loc = window._currentVoterLocation || { state: '', city: '', county: '', district: '' };
-      loc.state = 'Utah';
-      if (_selected.house)  loc.stateHouseDistrict  = String(_selected.house);
-      if (_selected.senate) loc.stateSenateDistrict = String(_selected.senate);
+      // THE STATE IS WHATEVER THE READER LANDED IN. It used to be the constant
+      // 'Utah', which was true of every address this finder could resolve and is
+      // no longer true of any of them: the state is now what selects the
+      // congressional layer, and it is what every statewide seat (both U.S.
+      // Senators, the Governor) is answered from on the way back.
+      loc.state = _scopeState || 'Utah';
+      if (utahScope()) {
+        if (_selected.house)  loc.stateHouseDistrict  = String(_selected.house);
+        if (_selected.senate) loc.stateSenateDistrict = String(_selected.senate);
+      } else {
+        // AND THE LEGISLATIVE FIELDS ARE BLANKED, NOT LEFT. They are Utah numbers
+        // from Utah's maps; carried into an Ohio save they would print Utah
+        // legislators' seat numbers under an Ohio address, which is worse than a
+        // blank because it looks answered.
+        loc.stateHouseDistrict  = '';
+        loc.stateSenateDistrict = '';
+      }
       loc.mapSelected = true;
 
       var area = resolveArea();
@@ -2105,6 +2441,11 @@
       // voter's true congressional district regardless of county or Census
       // staleness — and so does a tap, which is what resolveAllAt() added.
       if (_selected.congress != null) loc.district = String(_selected.congress);
+      // AND AN UNRESOLVED SEAT IS SAVED AS UNRESOLVED. A district left over from
+      // a previous save would be read as this address's district and printed
+      // beside a member who does not represent it. The curated area is the one
+      // thing allowed to fill the gap, because it just did, above.
+      else if (!(area && area.congressDistrict)) loc.district = '';
 
       window._currentVoterLocation = loc;
       window._hasUserLocation = true;
@@ -2187,6 +2528,19 @@
       }
       return '';
     }
+    // The state a point or address is in, read off the Census "States" bucket.
+    // Matched EXACTLY rather than by substring, because "State Legislative
+    // Districts - Upper" is also a bucket and a loose match would read a district
+    // name as a state name.
+    function censusStateName(geos){
+      for (var k in geos){
+        if (String(k).toLowerCase() === 'states' && geos[k] && geos[k].length){
+          var o = geos[k][0];
+          return ((o.NAME != null ? o.NAME : (o.BASENAME || '')) + '').trim();
+        }
+      }
+      return '';
+    }
     // City BASENAMEs vary across Census buckets ("Incorporated Places",
     // "Census Designated Places"); take whichever resolves first.
     function censusPlaceName(geos){
@@ -2194,18 +2548,29 @@
              censusName(geos, 'census designated places') ||
              censusName(geos, 'places');
     }
-    // Utah bounding box (W,E,S,N in lng/lat). Used to bias geocoding to Utah and
-    // to reject out-of-state matches that would otherwise drop the pin on an
-    // identically-named street in another city/valley/state.
-    var UTAH_BBOX = { west: -114.10, east: -108.95, south: 36.95, north: 42.05 };
-    function inUtah(lat, lng){
-      return lng >= UTAH_BBOX.west && lng <= UTAH_BBOX.east &&
-             lat >= UTAH_BBOX.south && lat <= UTAH_BBOX.north;
+    // ══ THE HINT IS THE STATE IN SCOPE, AND IT IS ONLY EVER A HINT ════════════
+    // "1572 West Camelot Dr" exists in more than one state, so a stateless query
+    // needs a tiebreak or the pin lands on a namesake. That tiebreak used to be
+    // the literal string ", UT" — correct for the only state this finder could
+    // draw, and wrong the moment it could draw the rest, because it would answer
+    // an Ohio reader's bare street address with a Utah address.
+    //
+    // It is a PREFERENCE, never a filter: the unbiased query is tried straight
+    // after (see resolveGeocode), and whatever state the winning candidate turns
+    // out to be in is the state the map re-scopes to. So a reader whose record
+    // says Ohio can still search a Utah address and get Utah's lines.
+    function biasState(q){
+      var st = stateInfo(_scopeState);
+      if (!st) return q;
+      var re = new RegExp('\\b(' + st.abbr + '|' + st.name.replace(/\s+/g, '\\s+') + ')\\b', 'i');
+      return re.test(q) ? q : (q + ', ' + st.abbr);
     }
-    // Append a Utah hint when the query names no state, so the geocoders resolve
-    // the Utah address rather than a same-named street elsewhere in the country.
-    function biasUtah(q){
-      return /\b(ut|utah)\b/i.test(q) ? q : (q + ', UT');
+    // The USPS code for the scope, used to prefer a candidate the geocoder has
+    // already told us is in that state — an exact string test, where the old
+    // bounding box was a rectangle that also covered corners of four neighbours.
+    function scopeAbbr(){
+      var st = stateInfo(_scopeState);
+      return st ? st.abbr : '';
     }
     function geocodeCensus(q){
       var url = 'https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?benchmark=Public_AR_Current&vintage=Current_Current&format=jsonp&address=' +
@@ -2213,13 +2578,15 @@
       return pdxJsonp(url, 7000).then(function(data){
         var matches = data && data.result && data.result.addressMatches;
         if (!matches || !matches.length) return null;
-        // Prefer the first candidate whose coordinates fall inside Utah so an
-        // ambiguous match doesn't pin to another state; fall back to the top hit.
+        // Prefer the first candidate the geocoder itself places in the state
+        // currently in scope, so an ambiguous match doesn't pin to a namesake in
+        // another state; fall back to the top hit, which is what makes this a
+        // tiebreak rather than a fence.
+        var want = scopeAbbr();
         var m = null;
         for (var mi = 0; mi < matches.length; mi++){
-          var mc = matches[mi].coordinates || {};
-          var mla = parseFloat(mc.y), mln = parseFloat(mc.x);
-          if (!isNaN(mla) && !isNaN(mln) && inUtah(mla, mln)) { m = matches[mi]; break; }
+          var ac = matches[mi].addressComponents || {};
+          if (want && String(ac.state || '').toUpperCase() === want) { m = matches[mi]; break; }
         }
         if (!m) m = matches[0];
         var c = m.coordinates || {};
@@ -2233,22 +2600,32 @@
           precise: true, source: 'census',
           city:   (comp.city || censusPlaceName(geos) || '').trim(),
           county: censusName(geos, 'counties'),
+          // THE STATE IS PART OF THE ANSWER NOW, because it is what decides which
+          // congressional map to load. It comes off the match's own address
+          // components where the geocoder gave them, and off the "States" bucket
+          // otherwise; both are the geocoder's word for where this address is.
+          state:  (comp.state || censusStateName(geos) || '').trim(),
           congress: censusDist(geos, 'congressional'),
           senate:   censusDist(geos, 'legislative districts - upper'),
           house:    censusDist(geos, 'legislative districts - lower')
         };
       }).catch(function(){ return null; });
     }
-    function geocodeNominatim(q, utahBias){
+    // biased: prefer results inside the state in scope. The bounded viewbox is
+    // Utah's because Utah's box is the only one this file holds — everywhere else
+    // the preference is applied by state NAME when scoring below, which is both
+    // cheaper than fifty bounding boxes and exact at the borders where a
+    // rectangle is not.
+    function geocodeNominatim(q, biased){
       var url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=us&addressdetails=1&q=' +
-        encodeURIComponent(q) + (utahBias ? '&viewbox=-114.10,42.10,-108.90,36.95&bounded=1' : '');
+        encodeURIComponent(q) + ((biased && utahScope()) ? '&viewbox=-114.10,42.10,-108.90,36.95&bounded=1' : '');
       return PDXF.fetch(url, { headers: { 'Accept': 'application/json' } }, 8000)
         .then(function(r){ if (!r.ok) throw new Error('geo'); return r.json(); })
         .then(function(arr){
           if (!arr || !arr.length) return null;
-          // Score candidates: a Utah hit beats an out-of-state one, and an exact
-          // street/building hit beats a town/region centroid, so the pin lands on
-          // the address rather than a far-off namesake.
+          // Score candidates: a hit in the state in scope beats one outside it,
+          // and an exact street/building hit beats a town/region centroid, so the
+          // pin lands on the address rather than a far-off namesake.
           function rankOf(o){ return o.place_rank != null ? parseInt(o.place_rank, 10) : 0; }
           function isExact(o){
             return o.addresstype === 'building' || o.addresstype === 'house' ||
@@ -2258,7 +2635,9 @@
           for (var i = 0; i < arr.length; i++){
             var la = parseFloat(arr[i].lat), ln = parseFloat(arr[i].lon);
             if (isNaN(la) || isNaN(ln)) continue;
-            var score = (inUtah(la, ln) ? 2 : 0) + (isExact(arr[i]) ? 1 : 0);
+            var inScope = !!(_scopeState &&
+              String((arr[i].address || {}).state || '').toLowerCase() === _scopeState.toLowerCase());
+            var score = (inScope ? 2 : 0) + (isExact(arr[i]) ? 1 : 0);
             if (score > bestScore){ bestScore = score; best = arr[i]; }
           }
           if (!best) best = arr[0];
@@ -2270,18 +2649,20 @@
           var city = ad.city || ad.town || ad.village || ad.hamlet || ad.municipality || ad.suburb || '';
           var county = ad.county || '';
           return { lat: lat, lng: lng, name: best.display_name || q, precise: !!precise,
-                   source: 'nominatim', city: ('' + city).trim(), county: ('' + county).trim() };
+                   source: 'nominatim', city: ('' + city).trim(), county: ('' + county).trim(),
+                   state: ('' + (ad.state || '')).trim() };
         }).catch(function(){ return null; });
     }
     // Best-precision-first chain. Census handles real street addresses (incl. rural);
     // Nominatim covers city/ZIP-only queries and anything Census can't parse.
     function resolveGeocode(q, tok){
-      // Try a Utah-biased query first so a stateless address (e.g. "1572 West
-      // Camelot Dr, Layton") resolves in Utah; fall back to the raw query so a
-      // fully-qualified address is still honoured verbatim.
+      // Try a state-biased query first so a stateless address (e.g. "1572 West
+      // Camelot Dr, Layton") resolves in the state this reader is already in;
+      // fall back to the raw query so a fully-qualified address is still
+      // honoured verbatim.
       // AND IT CHECKS THE TOKEN BETWEEN STEPS, or a cancelled provider's
       // rejection politely starts the next one for a dead query.
-      var bq = biasUtah(q);
+      var bq = biasState(q);
       function next(hit){ return !hit && !stale(tok); }
       return geocodeCensus(bq)
         .then(function(hit){ return (next(hit) && bq !== q) ? geocodeCensus(q) : hit; })
@@ -2300,6 +2681,7 @@
         return {
           city:     censusPlaceName(geos),
           county:   censusName(geos, 'counties'),
+          state:    censusStateName(geos),
           congress: censusDist(geos, 'congressional'),
           senate:   censusDist(geos, 'legislative districts - upper'),
           house:    censusDist(geos, 'legislative districts - lower')
@@ -2307,8 +2689,75 @@
       }).catch(function(){ return null; });
     }
 
+    // Fold a Census point lookup into a geocoder hit. It only ever fills blanks:
+    // whatever the geocoder was sure about wins, because the Census answer is a
+    // second opinion about the same coordinates, not a correction of them.
+    function mergeCensus(hit, extra){
+      if (!hit || !extra) return;
+      if (hit.congress == null) hit.congress = extra.congress;
+      if (hit.house    == null) hit.house    = extra.house;
+      if (hit.senate   == null) hit.senate   = extra.senate;
+      if (!hit.city)   hit.city   = extra.city   || '';
+      if (!hit.county) hit.county = extra.county || '';
+      if (!hit.state)  hit.state  = extra.state  || '';
+    }
+
+    // ══ A TAP KNOWS ITS COORDINATES, NOT ITS STATE ════════════════════════════
+    // Which is the one thing it has to know, because the state decides which
+    // congressional map answers the point. So the point is put to the Census, and
+    // if the answer is not the state whose lines are loaded, the lines are
+    // replaced and the SAME point is resolved again — never a neighbouring
+    // state's polygons stretched over it, and never a district number carried
+    // across a state line.
+    //
+    // It runs IN FRONT OF the resolve, not beside it. Beside was cheaper for the
+    // reader who taps inside the state they are already in — and that reader
+    // never gets here now, because containment in a polygon we hold is proof of
+    // state and tapAt answers them directly. What is left arriving here is
+    // exactly the tap we cannot place yet, and for that tap the order is the
+    // whole point: state, then that state's lines, then the district. Never a
+    // district read off the state the reader has just left.
+    //
+    // A STATE WE CANNOT NAME IS SAID OUT LOUD. There is no nearest state and no
+    // last-known state to fall back on: the pin stays where the reader put it,
+    // the note says we could not place it, and nothing is selected.
+    function scopeFromPoint(pt){
+      var tok = _searchSeq;
+      showStatus('Finding which state that is…', true);
+      return censusAtPoint(pt.lat, pt.lng).then(function(extra){
+        if (tok !== _searchSeq) return false;
+        if (!extra || !extra.state || !stateInfo(extra.state)) {
+          hideStatus();
+          setSearchNote('We couldn’t tell which state that point is in — it may be ' +
+            'outside the United States. Search your address instead.', 'is-warn');
+          return false;
+        }
+        // Returns false when the scope did not move, which is not a reason to
+        // stop: the lines for this state may simply not be fetched yet. It IS
+        // the moment every layer from another state is dropped, so nothing
+        // below this line can read a polygon the reader has left behind.
+        setScopeState(extra.state);
+        setLayerChrome(_activeLayer);
+        showStatus('Loading ' + _scopeState + ' district boundaries…', true);
+        return resolveAllAt(pt, true).then(function(got){
+          if (tok !== _searchSeq) return got;
+          hideStatus();
+          if (!got && _selected.congress == null) {
+            setSearchNote('We don’t have a U.S. House district for that point yet. ' +
+              'Try searching your address.', 'is-warn');
+          }
+          return got;
+        });
+      }).catch(function(){ hideStatus(); return false; });
+    }
+
     // ── Marker (clearly visible, pulsing red pin on the exact point) ────────────
     function ensurePinStyles(){
+      // A document with no <head> is not a browser — it is the harness that
+      // drives this controller with the minimum DOM the open path touches. The
+      // pin is decoration; refusing to style it is a better outcome than
+      // throwing out of the gesture that asked for it.
+      if (!document.head) return;
       if (document.getElementById('pdx-pin-styles')) return;
       var st = document.createElement('style');
       st.id = 'pdx-pin-styles';
@@ -2319,18 +2768,40 @@
         '@keyframes pdxPinPulse{0%{transform:scale(1);opacity:0.85;}70%{transform:scale(3.6);opacity:0;}100%{transform:scale(3.6);opacity:0;}}';
       document.head.appendChild(st);
     }
-    function placeMarker(hit){
+    // ══ ONE PIN ON THIS CANVAS, AND A TAP MOVES IT ════════════════════════════
+    // The pin used to belong to the address search alone: a geocode dropped it,
+    // and a tap on a polygon dropped nothing, so a reader who searched and then
+    // adjusted by hand was left looking at a marker over the address they had
+    // just overruled. It is one marker either way now — dropPin replaces it
+    // rather than adding to it — and it always sits on the point the answer was
+    // resolved from, which is the only thing it can honestly claim to mark.
+    //
+    // A LABEL IS OPTIONAL BECAUSE A TAP HAS NO NAME. An address has one and it is
+    // worth showing; a point on the map is just where the reader pressed, and a
+    // tooltip reading "40.7, -111.9" tells them nothing they did not just do.
+    //
+    // AND THE WHOLE THING IS GUARDED, because it is decoration attached to the
+    // one gesture that must always work. Leaflet builds a DivIcon, a marker and
+    // a tooltip here; the answer the reader asked for does not depend on any of
+    // the three, so none of them is allowed to take it down.
+    function dropPin(lat, lng, label){
       if (!_map) return;
-      if (_marker) { _map.removeLayer(_marker); _marker = null; }
-      ensurePinStyles();
-      var icon = L.divIcon({
-        className: 'pdx-pin-wrap',
-        html: '<div class="pdx-pin"><div class="pdx-pin-pulse"></div><div class="pdx-pin-dot"></div></div>',
-        iconSize: [30, 30], iconAnchor: [15, 15]
-      });
-      _marker = L.marker([hit.lat, hit.lng], { icon: icon, zIndexOffset: 1000, keyboard: false }).addTo(_map);
-      var label = hit.name ? hit.name.split(',').slice(0, 2).join(',').trim() : 'Your address';
-      _marker.bindTooltip(label, { direction: 'top', className: 'pdx-dist-tip', opacity: 1, offset: [0, -12] }).openTooltip();
+      try {
+        if (_marker) { _map.removeLayer(_marker); _marker = null; }
+        ensurePinStyles();
+        var icon = L.divIcon({
+          className: 'pdx-pin-wrap',
+          html: '<div class="pdx-pin"><div class="pdx-pin-pulse"></div><div class="pdx-pin-dot"></div></div>',
+          iconSize: [30, 30], iconAnchor: [15, 15]
+        });
+        _marker = L.marker([lat, lng], { icon: icon, zIndexOffset: 1000, keyboard: false }).addTo(_map);
+        if (label) {
+          _marker.bindTooltip(label, { direction: 'top', className: 'pdx-dist-tip', opacity: 1, offset: [0, -12] }).openTooltip();
+        }
+      } catch (e) { /* a pin that cannot be drawn is not an answer that failed */ }
+    }
+    function placeMarker(hit){
+      dropPin(hit.lat, hit.lng, hit.name ? hit.name.split(',').slice(0, 2).join(',').trim() : 'Your address');
     }
 
     // ── Nearest-district fallback ───────────────────────────────────────────────
@@ -2361,155 +2832,210 @@
     function onGeocoded(hit, tok){
       // THE RESULT IS WHAT EARNS THE PAINT: the one draw with no tap behind it.
       // The token is checked first, so a late response paints nothing.
-      showStatus('Loading Utah district boundaries…', true);
-      // Load BOTH boundary sets so House and Senate can be resolved in one pass, and
-      // backfill the address's districts from Census if the geocoder didn't carry
-      // them (so U.S. House always resolves, even for a Nominatim town centroid).
-      var enrich = (hit.congress == null || hit.house == null || hit.senate == null || !hit.city || !hit.county)
-        ? censusAtPoint(hit.lat, hit.lng) : Promise.resolve(null);
-      // Also load the 2026 U.S. House boundary so the congressional district comes
-      // from the actual district lines (point-in-polygon), not a county assumption
-      // or the Census "Current" vintage (which still serves the prior 2022–2026 map
-      // — e.g. it reports Layton as District 1, when the 2026 map places it in 2).
-      // A congress-layer failure must not block House/Senate, so swallow its error.
-      // Same hazard as loadAndShow, and easier to miss here: building this array
-      // CALLS fetchGeo three times, so a synchronous throw fired while the
-      // argument was still being evaluated — before Promise.all existed, let
-      // alone its .catch — stranding the reader on "Loading Utah district
-      // boundaries…". Converting it to a rejection hands it to the .catch at
-      // the foot of this chain, which already writes a fail line.
-      var all;
-      try {
-        all = Promise.all([fetchGeo('house'), fetchGeo('senate'), fetchGeo('congress').catch(function(){ return null; }), enrich]);
-      } catch (e) { all = Promise.reject(e); }
-      all.then(function(res){
-        if (stale(tok)) return;
-        hideStatus();
-        var extra = res[3];
-        if (extra) {
-          if (hit.congress == null) hit.congress = extra.congress;
-          if (hit.house    == null) hit.house    = extra.house;
-          if (hit.senate   == null) hit.senate   = extra.senate;
-          if (!hit.city)   hit.city   = extra.city || '';
-          if (!hit.county) hit.county = extra.county || '';
-        }
-        setSearchBusy(false);
-        ensureMap();
-        // Precise (rooftop) hits earn a tight street-level view so the voter can
-        // see their exact spot; coarse city/ZIP hits stay at a neighborhood level
-        // so the whole place stays in frame. Neither zooms back out to the state.
-        _map.setView([hit.lat, hit.lng], hit.precise ? 16 : 13);
-
-        // District detection from the exact point. Point-in-polygon against the drawn
-        // UGRC boundaries is authoritative for the geometry (it's what gets
-        // highlighted); the Census-reported district is the backstop; a nearest-
-        // centroid match is the last resort so a locatable address never silently
-        // fails. These give the raw, point-precise districts.
-        var h = districtAt('house', hit.lng, hit.lat);
-        var s = districtAt('senate', hit.lng, hit.lat);
-        // True when the seat came straight from a point-in-polygon boundary hit (the
-        // real district line), as opposed to a Census/nearest fallback. A genuine
-        // boundary hit is trusted as-is and never re-aligned to a county area below.
-        var hExact = h != null, sExact = s != null;
-        var approxH = false, approxS = false;
-        if (h == null && hit.house  != null && pathForDist('house',  hit.house))  h = hit.house;
-        if (s == null && hit.senate != null && pathForDist('senate', hit.senate)) s = hit.senate;
-        if (h == null) { h = nearestDistrict('house',  hit.lng, hit.lat); approxH = h != null; }
-        if (s == null) { s = nearestDistrict('senate', hit.lng, hit.lat); approxS = s != null; }
-
-        // U.S. House — resolved from the ACTUAL 2026 congressional boundary by
-        // point-in-polygon. This is the trusted, map-based answer: it ignores county
-        // lines and the stale Census "Current" map, so a Davis County address such as
-        // Layton correctly resolves to District 2 (Celeste Maloy), not District 1.
-        var c = districtAt('congress', hit.lng, hit.lat);
-
-        // ── Resolve the curated Key-Races AREA (for the candidate roster only) ─────
-        // The area a voter's city/county maps to selects which curated slate (Key
-        // Races cards, Relevant to Me) is shown. It is NOT used to decide the
-        // districts — those come from the boundary above. The area only fills a gap
-        // where an exact point-in-polygon lookup was unavailable (e.g. a coarse
-        // centroid landing in a simplification seam), never overriding a real hit.
-        var areaId = (typeof window._krInferLocation === 'function')
-          ? window._krInferLocation(hit.city, hit.county) : '';
-        var curated = (areaId && typeof window._krDistrictsForLocation === 'function')
-          ? window._krDistrictsForLocation(areaId) : null;
-        if (curated) {
-          if (!hExact && curated.house != null && pathForDist('house', curated.house)) {
-            h = curated.house; approxH = false;
-          }
-          if (!sExact && curated.senate != null && pathForDist('senate', curated.senate)) {
-            s = curated.senate; approxS = false;
-          }
-        }
-        _searchAreaId = areaId || null;
-
-        if (h == null && s == null) {
-          _hasSearchView = false; _searchHit = null; _selected.congress = null; _searchAreaId = null;
-          refreshResultBanner();
-          placeMarker(hit);
-          setSearchNote('Found “' + escapeHtml(shortAddr(hit.name)) +
-            '”, but it’s outside Utah’s legislative district maps. Try a Utah address.', 'is-error');
-          return;
-        }
-
-        _searchHit = hit;
-        _hasSearchView = true;
-        // U.S. House precedence is boundary-first: the actual 2026 district line
-        // (point-in-polygon) wins, then the Census-reported district, then the
-        // curated area — so the county never decides the congressional district.
-        var cd = (c != null) ? c
-                          : (hit.congress != null ? hit.congress
-                          : (curated && curated.congress != null ? curated.congress : null));
-        if (h != null) selectDistrict('house', h, pathForDist('house', h));
-        if (s != null) selectDistrict('senate', s, pathForDist('senate', s));
-        // AND THE THIRD SEAT GOES THROUGH THE SAME DOOR. It used to be assigned
-        // straight to a private variable, which meant it never reached the chip
-        // row, never armed the confirm bar and never appeared in the "what is
-        // still missing" reckoning — it was only ever painted on one toggle the
-        // reader had to go and find. selectDistrict() is the one writer.
-        if (cd != null) selectDistrict('congress', cd, pathForDist('congress', cd));
-        else refreshConfirmBtn();
-        showLayer(_activeLayer, true);   // keep the searched-in zoom, don't refit
-        placeMarker(hit);                // drawn last so it sits on top
-        refreshResultBanner();
-
-        // Clear, explicit feedback naming every district detected for the point.
-        var seats = [];
-        if (_selected.congress != null) seats.push('U.S. House ' + _selected.congress);
-        if (s != null) seats.push('State Senate ' + s + (approxS ? '*' : ''));
-        if (h != null) seats.push('State House ' + h + (approxH ? '*' : ''));
-        var approx = approxH || approxS;
-        // Two independent kinds of imprecision are surfaced separately:
-        //  · approx  → the DISTRICT was a nearest-match (exact lookup unavailable)
-        //  · !precise → the PIN is a city/ZIP centroid, not a rooftop point
-        var lead;
-        if (approx) {
-          lead = '📍 Pinned “' + escapeHtml(shortAddr(hit.name)) + '”. Exact lookup was unavailable, so we matched the closest:';
-        } else if (!hit.precise) {
-          lead = '📍 Found “' + escapeHtml(shortAddr(hit.name)) + '” — pin shows the area center. You’re in:';
-        } else {
-          lead = '✅ Found “' + escapeHtml(shortAddr(hit.name)) + '”. You’re in:';
-        }
-        // Note that the districts come from the real boundary lines, not the county —
-        // reinforcing the map as the trusted, location-specific source of truth.
-        var corr = (!approx)
-          ? '<br><span style="opacity:0.85;">📐 Districts come from your exact location on the official boundary maps — not your county.</span>'
-          : '';
-        // For a coarse (city/ZIP) hit, tell the voter how to sharpen the pin.
-        var precNote = (!hit.precise && !approx)
-          ? '<br><span style="opacity:0.85;">Approximate location — add a street number for an exact pin, or tap your spot on the map.</span>'
-          : '';
-        setSearchNote(lead + ' <strong>' + seats.join('</strong> · <strong>') + '</strong>' +
-          (approx ? '<br><span style="opacity:0.85;">* closest district — confirm by tapping your area on the map.</span>' : (corr + precNote)),
-          (approx || !hit.precise) ? 'is-warn' : 'is-ok');
-      }).catch(function(){
+      // WHICH STATE COMES FIRST, BECAUSE THE STATE PICKS THE URL. The
+      // congressional layer is per-state now: there is no national map to fall
+      // back on, so asking for boundaries before the state is known is asking
+      // the wrong state. The geocoders carry a state whenever their payload had
+      // one; when they don't (a bare town centroid), the Census point lookup is
+      // asked FIRST and the boundary request waits on it. That costs one round
+      // trip on the coarsest kind of hit, and it is the difference between
+      // loading Ohio's district lines for an Ohio address and loading Utah's.
+      // One fail line for both stages of the chain below — the state lookup in
+      // front and the boundary load behind it. A reader who gets neither is told
+      // the same thing either way, and the spinner comes down once.
+      function geoFail(){
         if (stale(tok)) return;
         hideStatus();
         setSearchBusy(false);
         setSearchNote('Couldn’t load district boundaries. Please try again.', 'is-error');
-      });
-    }
+      }
+      var haveState = !!hit.state;
+      var pre = haveState ? Promise.resolve(null) : censusAtPoint(hit.lat, hit.lng);
+      pre.then(function(pre0){
+        if (stale(tok)) return;
+        mergeCensus(hit, pre0);
+        // An unknown state leaves the scope where it was rather than clearing it.
+        // A miss inside the wrong state resolves nothing, which is recoverable;
+        // a district number read off the wrong state's lines is not.
+        setScopeState(hit.state);
+        showStatus('Loading ' + _scopeState + ' district boundaries…', true);
+        // Load every boundary set this scope HAS so each seat resolves in one
+        // pass — three in Utah, one everywhere else. Outside Utah, SEATS is the
+        // congressional layer alone: the state-legislative maps are Utah's own
+        // FeatureServers and there is no point fetching them for an Ohio pin.
+        // Then backfill anything the geocoder didn't carry from the Census point
+        // lookup, unless it was already asked above.
+        var need = (!hit.city || !hit.county || hit.congress == null ||
+                    (utahScope() && (hit.house == null || hit.senate == null)));
+        var enrich = (need && haveState) ? censusAtPoint(hit.lat, hit.lng) : Promise.resolve(null);
+        // A congress-layer failure must not block House/Senate — and outside Utah
+        // it is the only layer, where its failure has to become an honest empty
+        // instead of a dead end, so its error is swallowed in both scopes.
+        // Same hazard as loadAndShow, and easier to miss here: building this array
+        // CALLS fetchGeo once per seat, so a synchronous throw fired while the
+        // argument was still being evaluated — before Promise.all existed, let
+        // alone its .catch — stranding the reader on "Loading … district
+        // boundaries…". Converting it to a rejection hands it to the .catch at
+        // the foot of this chain, which already writes a fail line.
+        var all;
+        try {
+          all = Promise.all(SEATS.map(function(t){
+            var q = fetchGeo(t);
+            return (t === 'congress') ? q.catch(function(){ return null; }) : q;
+          }).concat([enrich]));
+        } catch (e) { all = Promise.reject(e); }
+        all.then(function(res){
+          if (stale(tok)) return;
+          hideStatus();
+          mergeCensus(hit, res[res.length - 1]);
+          setSearchBusy(false);
+          ensureMap();
+          // Precise (rooftop) hits earn a tight street-level view so the voter can
+          // see their exact spot; coarse city/ZIP hits stay at a neighborhood level
+          // so the whole place stays in frame. Neither zooms back out to the state.
+          _map.setView([hit.lat, hit.lng], hit.precise ? 16 : 13);
 
+          // District detection from the exact point. Point-in-polygon against the drawn
+          // UGRC boundaries is authoritative for the geometry (it's what gets
+          // highlighted); the Census-reported district is the backstop; a nearest-
+          // centroid match is the last resort so a locatable address never silently
+          // fails. These give the raw, point-precise districts.
+          // The two state-legislative seats are asked only where their maps exist.
+          // Outside Utah they are not "unresolved pending a fetch" — there is no
+          // file to fetch, so they stay out of the seat set entirely (SEATS above)
+          // and out of the note below.
+          var h = null, s = null, hExact = false, sExact = false;
+          var approxH = false, approxS = false;
+          if (utahScope()) {
+            h = districtAt('house', hit.lng, hit.lat);
+            s = districtAt('senate', hit.lng, hit.lat);
+            // True when the seat came straight from a point-in-polygon boundary hit (the
+            // real district line), as opposed to a Census/nearest fallback. A genuine
+            // boundary hit is trusted as-is and never re-aligned to a county area below.
+            hExact = h != null; sExact = s != null;
+            if (h == null && hit.house  != null && pathForDist('house',  hit.house))  h = hit.house;
+            if (s == null && hit.senate != null && pathForDist('senate', hit.senate)) s = hit.senate;
+            if (h == null) { h = nearestDistrict('house',  hit.lng, hit.lat); approxH = h != null; }
+            if (s == null) { s = nearestDistrict('senate', hit.lng, hit.lat); approxS = s != null; }
+          }
+
+          // U.S. House — resolved from the ACTUAL 2026 congressional boundary by
+          // point-in-polygon. This is the trusted, map-based answer: it ignores county
+          // lines and the stale Census "Current" map, so a Davis County address such as
+          // Layton correctly resolves to District 2 (Celeste Maloy), not District 1.
+          var c = districtAt('congress', hit.lng, hit.lat);
+
+          // ── Resolve the curated Key-Races AREA (for the candidate roster only) ─────
+          // The area a voter's city/county maps to selects which curated slate (Key
+          // Races cards, Relevant to Me) is shown. It is NOT used to decide the
+          // districts — those come from the boundary above. The area only fills a gap
+          // where an exact point-in-polygon lookup was unavailable (e.g. a coarse
+          // centroid landing in a simplification seam), never overriding a real hit.
+          var areaId = (typeof window._krInferLocation === 'function')
+            ? window._krInferLocation(hit.city, hit.county) : '';
+          var curated = (areaId && typeof window._krDistrictsForLocation === 'function')
+            ? window._krDistrictsForLocation(areaId) : null;
+          if (curated && utahScope()) {
+            if (!hExact && curated.house != null && pathForDist('house', curated.house)) {
+              h = curated.house; approxH = false;
+            }
+            if (!sExact && curated.senate != null && pathForDist('senate', curated.senate)) {
+              s = curated.senate; approxS = false;
+            }
+          }
+          _searchAreaId = areaId || null;
+
+          // U.S. House precedence is boundary-first: the actual district line
+          // (point-in-polygon) wins, then the Census-reported district, then the
+          // curated area — so the county never decides the congressional district.
+          var cd = (c != null) ? c
+                            : (hit.congress != null ? hit.congress
+                            : (curated && curated.congress != null ? curated.congress : null));
+
+          // A SEAM MISS IS A QUESTION, NOT A GUESS. The out-of-state lines are
+          // simplified for weight, so a point can land in the sliver between two
+          // districts — and a state whose layer failed (or that we cannot build a
+          // URL for) draws nothing to land in at all. Either way the unsimplified
+          // authority is asked about this one point, once. If it has no answer
+          // either, the seat stays empty: there is deliberately no nearest-
+          // centroid fallback for congress, because the nearest centroid across a
+          // whole state is a coin toss between two sitting members.
+          if (cd == null && !utahScope()) {
+            showStatus('Locating your U.S. House district…', true);
+            cdAtPointRemote(hit.lat, hit.lng).then(function(d){
+              if (stale(tok)) return;
+              hideStatus();
+              paint(d);
+            }).catch(function(){ paint(null); });
+          } else {
+            paint(cd);
+          }
+
+          function paint(cdFinal){
+          // NOTHING RESOLVED IS ITS OWN ANSWER, and it reads differently in each
+          // scope: inside Utah the address fell outside the legislative maps;
+          // outside Utah we have no congressional line to put it on. Neither
+          // invents a district, and neither keeps a half-written search view.
+          if (h == null && s == null && cdFinal == null) {
+            _hasSearchView = false; _searchHit = null; _selected.congress = null; _searchAreaId = null;
+            refreshResultBanner();
+            placeMarker(hit);
+            setSearchNote('Found “' + escapeHtml(shortAddr(hit.name)) + '”, but ' +
+              (utahScope()
+                ? 'it’s outside Utah’s legislative district maps. Try a Utah address.'
+                : 'we couldn’t resolve a U.S. House district for that point — so nothing was set.'),
+              'is-error');
+            return;
+          }
+
+          _searchHit = hit;
+          _hasSearchView = true;
+          if (h != null) selectDistrict('house', h, pathForDist('house', h));
+          if (s != null) selectDistrict('senate', s, pathForDist('senate', s));
+          // AND THE THIRD SEAT GOES THROUGH THE SAME DOOR. It used to be assigned
+          // straight to a private variable, which meant it never reached the chip
+          // row, never armed the confirm bar and never appeared in the "what is
+          // still missing" reckoning — it was only ever painted on one toggle the
+          // reader had to go and find. selectDistrict() is the one writer.
+          if (cdFinal != null) selectDistrict('congress', cdFinal, pathForDist('congress', cdFinal));
+          else refreshConfirmBtn();
+          showLayer(_activeLayer, true);   // keep the searched-in zoom, don't refit
+          placeMarker(hit);                // drawn last so it sits on top
+          refreshResultBanner();
+
+          // Clear, explicit feedback naming every district detected for the point.
+          var seats = [];
+          if (_selected.congress != null) seats.push('U.S. House ' + _selected.congress);
+          if (s != null) seats.push('State Senate ' + s + (approxS ? '*' : ''));
+          if (h != null) seats.push('State House ' + h + (approxH ? '*' : ''));
+          var approx = approxH || approxS;
+          // Two independent kinds of imprecision are surfaced separately:
+          //  · approx  → the DISTRICT was a nearest-match (exact lookup unavailable)
+          //  · !precise → the PIN is a city/ZIP centroid, not a rooftop point
+          var lead;
+          if (approx) {
+            lead = '📍 Pinned “' + escapeHtml(shortAddr(hit.name)) + '”. Exact lookup was unavailable, so we matched the closest:';
+          } else if (!hit.precise) {
+            lead = '📍 Found “' + escapeHtml(shortAddr(hit.name)) + '” — pin shows the area center. You’re in:';
+          } else {
+            lead = '✅ Found “' + escapeHtml(shortAddr(hit.name)) + '”. You’re in:';
+          }
+          // Note that the districts come from the real boundary lines, not the county —
+          // reinforcing the map as the trusted, location-specific source of truth.
+          var corr = (!approx)
+            ? '<br><span style="opacity:0.85;">📐 Districts come from your exact location on the official boundary maps — not your county.</span>'
+            : '';
+          // For a coarse (city/ZIP) hit, tell the voter how to sharpen the pin.
+          var precNote = (!hit.precise && !approx)
+            ? '<br><span style="opacity:0.85;">Approximate location — add a street number for an exact pin, or tap your spot on the map.</span>'
+            : '';
+          setSearchNote(lead + ' <strong>' + seats.join('</strong> · <strong>') + '</strong>' +
+            (approx ? '<br><span style="opacity:0.85;">* closest district — confirm by tapping your area on the map.</span>' : (corr + precNote)),
+            (approx || !hit.precise) ? 'is-warn' : 'is-ok');
+          }
+        }).catch(geoFail);
+      }).catch(geoFail);
+    }
     // ── Public entry points ────────────────────────────────────────────────────
     window.pdxMapSearchAddress = function(){
       var input = document.getElementById('pdx-map-search-input');
@@ -2642,12 +3168,23 @@
         var btn = document.getElementById(p[1]);
         if (btn) { btn.classList.toggle('is-active', layerType === p[0]); btn.setAttribute('aria-selected', layerType === p[0]); }
       });
-      // The 2026 court-ordered remap explainer rides with the U.S. House layer.
+      // ══ THE COURT-MAP EXPLAINER IS A UTAH FACT, SO IT IS UTAH-ONLY ════════
+      // The banner tells one state's story: a 2025 ruling, a 2026 remap, Davis
+      // County out of District 1 and into District 2. Hanging it on "the
+      // congressional layer is active" was correct while that layer was Utah's
+      // only, and became a lie the day the layer went national — a reader in
+      // Flagstaff was shown a Utah court ruling as the reason their own lines
+      // look the way they do. Every state but Utah is drawn from TIGERweb's
+      // 119th-Congress map, which has no ruling behind it and needs no sentence
+      // about one.
       var cnote = document.getElementById('pdx-congress-note');
-      if (cnote) cnote.style.display = (layerType === 'congress') ? 'flex' : 'none';
+      if (cnote) cnote.style.display = (layerType === 'congress' && utahScope()) ? 'flex' : 'none';
       var hint = document.getElementById('pdx-map-hint');
       if (hint) hint.innerHTML = (layerType === 'congress')
-        ? 'Showing the <strong style="color:#a5e9f5;">2026 U.S. House</strong> map — search your address or tap the area where you live to set your congressional district.'
+        ? (utahScope()
+            ? 'Showing the <strong style="color:#a5e9f5;">2026 U.S. House</strong> map — search your address or tap the area where you live to set your congressional district.'
+            : 'Showing <strong style="color:#a5e9f5;">' + escapeHtml(_scopeState) +
+              ' U.S. House</strong> districts — search your address or tap the area where you live to set your congressional district.')
         : 'Showing <strong style="color:#cfe0f7;">' + LABEL[layerType] +
           '</strong> districts — search your address or tap the area where you live.';
       refreshInfoPanel();
@@ -2656,6 +3193,12 @@
 
     window.pdxMapSetLayer = function(layerType){
       if (layerType !== 'house' && layerType !== 'senate' && layerType !== 'congress') return;
+      // AND IT REFUSES THE LAYERS THIS SCOPE DOES NOT HAVE. The two toggles are
+      // hidden outside Utah, but hidden is not the same as unreachable: this is a
+      // published window function, and the keyboard can still reach a hidden
+      // button in some browsers. Refusing here means there is exactly one answer
+      // to "can a Utah legislative map be requested for an Ohio pin" — no.
+      if (!utahScope() && layerType !== 'congress') return;
       _activeLayer = layerType;
       setLayerChrome(layerType);
       // PRESSING A TOGGLE IS A TAP: every caller here is a reader choosing a
@@ -2679,7 +3222,9 @@
       updateSelectionUI();
       var hint = document.getElementById('pdx-map-hint');
       if (hint) hint.innerHTML = 'Selection cleared — search your address or tap a district to set it again.';
-      setSearchNote('Type an address to jump straight to your House &amp; Senate districts.');
+      setSearchNote(utahScope()
+        ? 'Type an address to jump straight to your House &amp; Senate districts.'
+        : 'Type an address to set your U.S. House district.');
       var input = document.getElementById('pdx-map-search-input');
       if (input) input.value = '';
       _lastQuery = '';   // Clear means clear: this is the one door that forgets it.
@@ -2719,12 +3264,21 @@
       }
       // Seed the selection from any districts already chosen on the map.
       var loc = window._currentVoterLocation || {};
+      // THE SCOPE COMES OFF THE RECORD FIRST, before a seat is seeded or a layer
+      // is named. A reader who saved a Columbus address and came back finds the
+      // finder scoped to Ohio: one toggle, Ohio's congressional lines behind it,
+      // and no Utah legislative toggles offered for maps that do not cover them.
+      setScopeState(loc.state);
+      syncScopeChrome();
       if (loc.mapSelected) {
         var h = parseInt(loc.stateHouseDistrict, 10);
         var s = parseInt(loc.stateSenateDistrict, 10);
         var c = parseInt(loc.district, 10);
-        _selected.house  = isNaN(h) ? null : h;
-        _selected.senate = isNaN(s) ? null : s;
+        // Out of Utah scope these two are not seats with missing numbers — they
+        // are not seats this finder has, so they are not seeded from a record
+        // that may still carry a previous Utah save.
+        _selected.house  = (utahScope() && !isNaN(h)) ? h : null;
+        _selected.senate = (utahScope() && !isNaN(s)) ? s : null;
         // Seeded from the record so a reader who comes back to fix one seat is
         // not told the other two are missing. loc.district is only read inside
         // this mapSelected branch, so a county-derived congressional number from
@@ -2746,7 +3300,9 @@
       if (!_lastQuery) {
         setSearchNote(confirmState().any
           ? 'Search a new address, or tap the map to adjust your districts.'
-          : 'Type an address to set your House, Senate and U.S. House districts at once.');
+          : (utahScope()
+              ? 'Type an address to set your House, Senate and U.S. House districts at once.'
+              : 'Type an address to set your U.S. House district.'));
       }
 
       // Address search is the primary, most accurate path — focus it on open so the

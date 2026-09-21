@@ -166,9 +166,24 @@ ok(/Work your ballot<\/strong><em>Optional/.test(SEC),
 has(SEC, 'U.S. Senate and Governor',
   'front door: the scope note no longer names the statewide seats, which are the ones the band can\n' +
   '    resolve for every state — a visitor outside Utah has no idea it will answer for them at all');
-has(SEC, 'U.S. House, State Senate and State House',
-  'front door: the scope note no longer names which district seats are resolved, so "see who\n' +
-  '    represents me" implies every level of government');
+// AND THE TWO DISTRICT STORIES ARE NOW DIFFERENT STORIES, which is the whole
+// point of splitting this sentence: the U.S. House is mapped in every state, and
+// the two legislative chambers are mapped in Utah alone. A single clause naming
+// all three together was true while none of them travelled; it now under-promises
+// the federal seat to 49 states and DC, and a visitor told their U.S. House row
+// needs lines we do not have will not bother typing an address.
+has(SEC, 'U.S. House',
+  'front door: the scope note no longer names the federal district seat, so "see who represents\n' +
+  '    me" implies every level of government');
+has(SEC, 'every state',
+  'front door: the scope note no longer says the U.S. House is mapped everywhere, so a visitor\n' +
+  '    outside Utah reads the band as a Utah tool and never sets an address');
+has(SEC, 'State Senate and State House',
+  'front door: the scope note no longer names the two legislative seats, so their blank rows\n' +
+  '    outside Utah arrive unannounced');
+has(SEC, 'Utah so far',
+  'front door: the scope note no longer confines the legislative maps to Utah, so it promises\n' +
+  '    two rows it cannot fill anywhere else');
 has(SEC, 'district lines',
   'front door: the scope note no longer says the district seats need district lines, so a blank row\n' +
   '    outside Utah reads as missing data rather than an unmapped boundary');
@@ -507,21 +522,100 @@ eq(byKey(redrawn, 'house').distLabel, 'U.S. House · District 1',
 // And the blank-honest half of the same rule: a redrawn area whose ballot-district
 // member we hold no record for leaves the NAME empty and the DISTRICT alone. The
 // seat is still the seat this voter votes in; we simply have nobody for it yet.
+//
+// THE FIXTURE NAMES DISTRICT 4 NOW, AND THE CHANGE IS THE POINT. It used to say
+// district 1 with an empty curated ballot, and read as a blank because the only
+// lane that could name a Utah member was that ballot. The U.S. House pid is
+// district-qualified in Utah too now — _pdxUsHouseSeat, the same lookup the
+// other fifty places use — so district 1 is no longer thin at all: this
+// roster's p-house holds UT-1 and the seat resolves to him whatever the curated
+// tables do or do not carry, which is the correction and not a gap. District 4
+// is the case the sentence above is actually about, and the case the 2026 map
+// made real: a congressional district this reader has been placed in that the
+// 119th-Congress roster holds no member for. The seat keeps the number and
+// stays blank, and the row prints "District 4 — no member on file yet" over it.
 const redrawnThin = mkResolverCtx({
-  _pdxVoterBallot: () => ({ districts: { house: '1' }, byOffice: {} }),
+  _pdxVoterBallot: () => ({ districts: { house: '4' }, byOffice: {} }),
   keyRacesRelevantData: () => ({ matched: true, label: 'Bountiful, Davis County', byRace: {} }),
   _pdxHouseRedistrict: () => ({
     changed: true,
     currentPid: 'p-old', currentDistrict: '2',
-    ballotDistrict: '1', ballotIncumbentPid: null,
+    ballotDistrict: '4', ballotIncumbentPid: null,
   }),
 }).pdxRepsForMe();
 eq(byKey(redrawnThin, 'house').pid, null,
-  'resolver: with no record for the ballot district\'s member the row borrowed the current-map\n' +
-  '    member instead of staying blank');
-eq(byKey(redrawnThin, 'house').distLabel, 'U.S. House · District 1',
+  'resolver: with no record for the ballot district\'s member the row borrowed a member from\n' +
+  '    somewhere instead of staying blank');
+eq(byKey(redrawnThin, 'house').distLabel, 'U.S. House · District 4',
   'resolver: a blank House seat also lost its district — the reader can no longer see WHICH seat\n' +
   '    we have nobody for');
+
+// AND THE OTHER HALF OF THAT CORRECTION, PINNED ON ITS OWN: a Utah reader whose
+// curated ballot names NOBODY for the House still gets the member the roster
+// keys to their district. This is the lane that did not exist before — Utah read
+// the curated area's incumbent first and had no way to ask "who holds UT-1" —
+// and it is the lane that makes the blank above honest rather than incidental.
+const utahFromRoster = mkResolverCtx({
+  _pdxVoterBallot: () => ({ districts: { house: '1' }, byOffice: {} }),
+  keyRacesRelevantData: () => ({ matched: true, label: 'Bountiful, Davis County', byRace: {} }),
+}).pdxRepsForMe();
+eq(byKey(utahFromRoster, 'house').pid, 'p-house',
+  'resolver: a Utah House seat whose curated ballot holds no incumbent stayed blank over a roster\n' +
+  '    that keys that exact district — the district-qualified lookup is not being asked');
+eq(byKey(utahFromRoster, 'house').distLabel, 'U.S. House · District 1',
+  'resolver: the district-qualified Utah lookup changed which district the row is about');
+
+// ── THE UNCURATED UTAH READER, WHOSE SEAT NUMBER IS STILL A SEAT NUMBER ─────
+// The curated ballot is gated on a matched AREA, and that gate is right: an
+// unmatched reader used to be handed Davis County's slate as their own. But it
+// left a reader who had pinned their exact legislative districts in the finder
+// with the numbers in their record and "no member on file yet" under them,
+// while /voice named the sitting member for the same seat — it asks
+// window.pdxSeatedMemberFor, a DISTRICT-keyed table that needs no area. The
+// resolver asks it last now, with the district this record resolved, so the two
+// surfaces answer HD-68 the same way. Vernal is the real case: Uintah County is
+// not a curated area.
+const uncurated = mkResolverCtx({
+  _currentVoterLocation: {
+    state: 'Utah', city: 'Vernal', county: 'Uintah',
+    district: '1', stateSenateDistrict: '26', stateHouseDistrict: '68',
+  },
+  // No area, so no ballot — which is what an uncurated Utah county gets.
+  _pdxVoterBallot: () => null,
+  keyRacesRelevantData: () => ({ matched: false }),
+  pdxSeatedMemberFor: (seat, n) => (seat === 'statehouse' && String(n) === '68' ? 'chew_h68'
+    : (seat === 'statesenate' && String(n) === '26' ? 'p-sen' : null)),
+}).pdxRepsForMe();
+eq(byKey(uncurated, 'statehouse').district, '68',
+  'resolver: the finder-pinned State House district did not survive into the level, so the lookup\n' +
+  '    below has no seat number to ask about');
+eq(byKey(uncurated, 'statehouse').pid, 'chew_h68',
+  'resolver: an uncurated Utah reader with a pinned State House district got no member, over a\n' +
+  '    district-keyed table that holds one. /voice names that member for the same seat, and two\n' +
+  '    answers to "who holds HD-68" is the defect this lane closes');
+eq(byKey(uncurated, 'statesenate').pid, 'p-sen',
+  'resolver: the State Senate seat does not read the same district-keyed table as the State House,\n' +
+  '    so one chamber resolves for this reader and the other does not');
+eq(byKey(uncurated, 'statehouse').mapped, true,
+  'resolver: Utah\'s legislative seats stopped being reported as mapped, which is a claim about our\n' +
+  '    coverage and not about this reader');
+
+// And the table is asked with THE DISTRICT THIS RECORD RESOLVED, never with the
+// reader's area or the state: a seat it holds nobody for keeps the honest blank.
+const uncuratedGap = mkResolverCtx({
+  _currentVoterLocation: {
+    state: 'Utah', city: 'Vernal', county: 'Uintah', district: '1', stateHouseDistrict: '68',
+  },
+  _pdxVoterBallot: () => null,
+  keyRacesRelevantData: () => ({ matched: false }),
+  pdxSeatedMemberFor: (seat, n) => (String(n) === '17' ? 'p-rep' : null),
+}).pdxRepsForMe();
+eq(byKey(uncuratedGap, 'statehouse').pid, null,
+  'resolver: the district-keyed lookup answered for a district other than the one the reader is in,\n' +
+  '    which is how a row names a real member of somebody else\'s seat');
+eq(byKey(uncuratedGap, 'statehouse').district, '68',
+  'resolver: a blank legislative seat lost its number, so the row can no longer say WHICH seat it\n' +
+  '    holds nobody for');
 
 // ═════════════════════════════════════════════════════════════════════════════
 // 5 · Driven: the band paints cold, warm, and honestly partial
@@ -585,10 +679,19 @@ const runBand = (over) => {
     }),
     ...rest,
   };
+  // A location the band can READ and ASSIGN. With the picker on another
+  // document the CTA is a navigation now, not a modal open, so a context with
+  // no location at all would swallow the trip in the band's own try/catch and
+  // read as "the tap did nothing" rather than failing honestly.
+  const nav = [];
+  ctx.location = {
+    href: 'https://politidex.fyi/', pathname: '/', search: '', hash: '',
+    assign: (u) => { nav.push(String(u)); },
+  };
   ctx.window = ctx; ctx.globalThis = ctx;
   vm.createContext(ctx);
   vm.runInContext(WRM, ctx, { filename: 'who-represents-me.js' });
-  return { ctx, sec, host, form, timers };
+  return { ctx, sec, host, form, timers, nav };
 };
 
 // Cold: no resolver at all. The band must fall back to the static markup rather
@@ -681,6 +784,69 @@ has(OUT, 'Change my location',
   'band: there is no way to correct a wrong address from the answer');
 has(OUT, "my-politicians",
   'band: the Team Builder bridge does not target the builder section');
+
+// ── ONE PERSON, TWO SPELLINGS, AND THE BAND JOINS THEM THE WAY /voice DOES ──
+// The row's display record used to come from window._pdxPersonById alone, which
+// reads CMP_DATA and is keyed by the CANONICAL pid. Nothing upstream promises
+// one: a seat resolved out of a live PROFILES payload carries whatever document
+// id that payload was filed under, and this repo has already ruled on those
+// pairs — PDX_PROFILE_ALIAS says `scott_chew` is the retired key of the record
+// filed under `chew_h68`, Utah House District 68. So a Vernal reader's State
+// House row was painted as resolved, linked correctly, and headed with the raw
+// id where the name goes, while /voice printed "Scott Chew" for the same seat
+// from the same resolver.
+//
+// window.pdxRosterRec is the alias-aware join and /voice's personOf() asks it
+// first. The band asks it first now too, so the two surfaces name the same
+// person for one seat or neither of them does.
+const HD68 = [{
+  key: 'statehouse', label: 'State House', tierLabel: 'State House', color: '#2dd4bf',
+  statewide: false, district: '68', distLabel: 'State House · District 68',
+  pid: 'scott_chew', resolved: true,
+}];
+const aliasReps = () => ({
+  located: true, national: false, state: 'Utah', area: 'Vernal, Uintah County',
+  redrawn: false, districtsResolvable: true, levels: HD68,
+});
+const aliased = runBand({
+  pdxRepsForMe: aliasReps,
+  // The join, as the resolver publishes it: the retired spelling resolves to the
+  // record the seat is actually filed under.
+  pdxRosterRec: (pid) => (pid === 'scott_chew' || pid === 'chew_h68'
+    ? { name: 'Scott Chew', party: 'R', office: 'Utah State Representative' } : null),
+  // And the bundled reader that does not know it, which is the real shape of the
+  // failure — CMP_DATA holds chew_h68 and has never held scott_chew.
+  _pdxPersonById: (pid) => (pid === 'chew_h68'
+    ? { name: 'Scott Chew', party: 'R', office: 'Utah State Representative' } : null),
+});
+has(aliased.host.innerHTML, 'Scott Chew',
+  'band: a seat resolved under a retired spelling of a pid does not name the person it resolved.\n' +
+  '    /voice names Chew for HD-68 from this same resolver; two surfaces, one seat, two answers');
+lacks(aliased.host.innerHTML, '>scott_chew<',
+  'band: the row prints the raw pid where the name goes. It is a real id and a real record address,\n' +
+  '    which is exactly why printing it reads as a name rather than as a gap');
+
+// AND THE LANE ORDER IS THE ORDER, not a fallback for an empty reply. A record
+// that exists but carries no name must not win over the join that has one: that
+// is the /voice rule (`named()` before `first`) and a thin row is what a partial
+// payload looks like mid-merge.
+const thinFirst = runBand({
+  pdxRepsForMe: aliasReps,
+  pdxRosterRec: (pid) => (pid === 'scott_chew'
+    ? { name: 'Scott Chew', party: 'R', office: 'Utah State Representative' } : null),
+  _pdxPersonById: () => ({ party: 'R', office: 'Utah State Representative' }),
+});
+has(thinFirst.host.innerHTML, 'Scott Chew',
+  'band: a nameless display record from the bundled reader beat the named one from the roster join,\n' +
+  '    so a mid-merge payload can blank a name the page already has');
+
+// And with no join on the document at all, the documented behaviour stands: the
+// id is printed rather than the coverage admission, because a name we have not
+// loaded is a loading problem and never a claim about what PolitiDex holds.
+const noJoin = runBand({ pdxRepsForMe: aliasReps, _pdxPersonById: () => null });
+has(noJoin.host.innerHTML, 'scott_chew',
+  'band: without the roster join the row fell back to the blank copy over a pid it HAD. The blank\n' +
+  '    says we hold no record for this seat, and the pid is proof we hold one');
 
 // Honestly partial: one unresolved seat must be STATED. Note what this fixture
 // actually is — LEVELS6's State Senate row carries District 23, so dropping its
@@ -799,11 +965,27 @@ eq(act.ctx._opened, true,
 // see, and the door they asked for opens a quarter-second late. This is the case
 // that applies to the real homepage: the location form is not on index.html any
 // more, so this is what a nav tap actually does now.
+//   THE TRIP IS THE BAND'S OWN NOW, not openLocationModal()'s. It used to call
+// the shared opener, which composes the trip as finderHref(here()) — and here()
+// on the homepage is '/', so a reader who pressed this button INSIDE the band
+// confirmed a district and came back to the top of the hero, thousands of pixels
+// from the rows they had just resolved. The band walks to PDXReturn.FINDER and
+// deliberately sends NO next, because PDXReturn's own fallback for a confirm
+// with no intent is '/#who-represents-me' — the band's own anchor. A next=/
+// here would be answered by the front page's arrival chrome instead.
 const actAway = runBand({ pdxRepsForMe: () => ({ located: false, levels: [] }), _hasUserLocation: false, openLocationModal: function () { actAway.ctx._opened = true; } });
 actAway.ctx.pdxFindMyReps();
-eq(actAway.ctx._opened, true,
-  'action: with the picker on another document the CTA defers the trip behind a timer, so the tap\n' +
+eq(actAway.nav.length, 1,
+  'action: with the picker on another document the CTA does not travel exactly once, so the tap\n' +
   '    appears to do nothing and the reader presses it again');
+ok(/^\/find(?:[?#]|$)/.test(actAway.nav[0] || ''),
+  'action: the CTA travels somewhere other than the district finder (' + (actAway.nav[0] || 'nowhere') + ')');
+ok((actAway.nav[0] || '').indexOf('next=') < 0,
+  'action: the CTA carries a return intent, which overrides the band anchor PDXReturn falls back\n' +
+  '    to and lands the reader at the top of the homepage instead of on the rows they resolved');
+ok(!actAway.ctx._opened,
+  'action: the CTA still calls the shared modal opener as well as travelling, so the reader gets a\n' +
+  '    picker flashed over a document they are leaving');
 ok(!actAway.timers.some((t) => t.ms === 260),
   'action: the band still queues the 260ms picker-open delay on a document that does not host the\n' +
   '    picker — the delay exists to let a scroll settle, and nothing is being scrolled');

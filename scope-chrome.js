@@ -128,8 +128,14 @@
       return 'You are set to <strong>' + where + '</strong>. Both scopes apply to you: ' +
         'your district seats resolve because ' + BALLOT_STATE + '’s lines are mapped.';
     }
+    // The U.S. House came off this list when its map went national: it is a
+    // district seat that now resolves from its own state's district lines, so
+    // grouping it with the blanks would tell the reader we cannot answer a seat
+    // we can. What stays blank out here is the state legislature, and that is
+    // what the sentence names.
     return 'You are set to <strong>' + where + '</strong>. Your statewide seats — ' +
-      'U.S. Senate and Governor — resolve from your state. Your district seats stay blank: ' +
+      'U.S. Senate and Governor — resolve from your state, and your U.S. House seat resolves ' +
+      'from its district lines. Your state legislative seats stay blank: ' +
       'needs a district map, and PolitiDex maps ' + BALLOT_STATE + ' today.';
   }
 

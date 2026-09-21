@@ -291,9 +291,28 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // these blocks and none is inside either, so both ranges moved by the same 17 and
 // both came back at their full length — 25 lines for the pill rules, 121 for the
 // vocabulary. Re-derived by locating each run verbatim in the new index.html.
+//   AND DOWN THE DOCUMENT BY 20 for the federal-locator pass, which touched
+// nothing in this block and everything above it: the front page's "Who
+// Represents You Now" band learned to say WHY a row is blank -- a located
+// district with nobody on file reads differently from a seat PolitiDex does not
+// map in that state -- and its two picker buttons became doors to /find that
+// carry no return intent, so a confirm lands back on the band instead of the
+// top of the hero. All of it is markup and one inline handler, all of it above
+// PDXStance. Re-derived by locating the run verbatim, and the +20 agreed with
+// every other index.html pin in this region afterwards, which is the order that
+// catches a bad pin rather than confirming one.
+
+//   AND DOWN BY A FURTHER 156 for the state-badge pass, whose whole edit is in
+// the location card at the top of the front page: fifty-one state outlines and
+// the function that paints one of them into the badge, in place of the Utah
+// rectangle everybody used to get, plus a note over Detect explaining why it
+// now stands in the located face as well. Both blocks came back at their full
+// length again and neither changed a character. Re-derived by locating each run
+// verbatim; the two agreed with each other and with every other index.html pin
+// in this region, which is the order that catches a bad pin.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 19105, b: 19129, what: "the .pdxis-stance* pill rules" },
-  { from: "index.html", src: INDEX, a: 19148, b: 19268, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 19281, b: 19305, what: "the .pdxis-stance* pill rules" },
+  { from: "index.html", src: INDEX, a: 19324, b: 19444, what: "the PDXStance vocabulary" },
 ];
 // Both index.html ranges have now moved THREE TIMES, and the third ran the other
 // way. The Digital Library split took #digital-library out of index.html but left
