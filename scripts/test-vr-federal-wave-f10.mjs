@@ -325,7 +325,7 @@ const C = decide._counts || {};
     const m = sh.match(new RegExp(`${name}\\s*=\\s*([0-9.]+)`));
     if (ok(!!m, `${name} is not in stance-helpers.js`)) eq(m[1], want, `${name} moved`);
   };
-  lit("_RD_MIN_PRIMARY", "1");
+  lit("_RD_MIN_ON_AXIS", "1");  // renamed from _RD_MIN_PRIMARY when the leaf flag retired
   lit("_RD_MIN_JUDGED", "4");
   lit("_RD_THIN_MIN", "2");
   lit("_RD_THIN_MIN_STRENGTH", "0.6");
@@ -346,16 +346,21 @@ const C = decide._counts || {};
   ok(/_rdSuppressedKey/.test(sh) && /balance_key/.test(sh),
     "_rdSuppressedKey and the balance_key verdict are the mechanism 1215 unread rows rest on");
 
-  // THE MUTATION CLAUSE, INVERTED. _RD_MIN_PRIMARY may appear in stance-helpers.js only
-  // in the disclosure sentence. If a comparison against it reappears in a tier, band,
-  // read or floor decision, the lock is back and this wave's finding is false.
-  const primLines = sh.split("\n").map((l, i) => [i + 1, l]).filter(([, l]) => l.includes("_RD_MIN_PRIMARY") && !/^\s*(\/\/|\*)/.test(l));
-  ok(primLines.length > 0, "_RD_MIN_PRIMARY vanished entirely — the seed's finding is about a decommissioned constant, not a deleted one");
+  // THE MUTATION CLAUSE, INVERTED. _RD_MIN_ON_AXIS (formerly _RD_MIN_PRIMARY; the leaf
+  // isPrimary flag was retired for the dominant-category axis) may appear in
+  // stance-helpers.js only in the disclosure sentence. If a comparison against it
+  // reappears in a tier, band, read or floor decision, the lock is back and this wave's
+  // finding is false. The retired name may survive only in comments.
+  const codeLines = sh.split("\n").map((l, i) => [i + 1, l]).filter(([, l]) => !/^\s*(\/\/|\*)/.test(l));
+  eq(codeLines.filter(([, l]) => l.includes("_RD_MIN_PRIMARY")).length, 0,
+    "the retired _RD_MIN_PRIMARY name is back in executable code — the leaf flag it keyed on is gone");
+  const primLines = codeLines.filter(([, l]) => l.includes("_RD_MIN_ON_AXIS"));
+  ok(primLines.length > 0, "_RD_MIN_ON_AXIS vanished entirely — the seed's finding is about a decommissioned constant, not a deleted one");
   for (const [n, l] of primLines) {
-    const isDecl = /_RD_MIN_PRIMARY\s*=/.test(l);
+    const isDecl = /_RD_MIN_ON_AXIS\s*=/.test(l);
     const isDisclosure = /pkg|Note|disclos/i.test(l);
     ok(isDecl || isDisclosure,
-      `stance-helpers.js:${n} reads _RD_MIN_PRIMARY outside the disclosure sentence — the primary lock is back, and F10's whole census `
+      `stance-helpers.js:${n} reads _RD_MIN_ON_AXIS outside the disclosure sentence — the primary lock is back, and F10's whole census `
       + `(3874 unread rows, all 33 refusals, reachable-unread zero) was measured on the premise that it is gone. `
       + `See the brief in scripts/test-characterise-every-act.mjs before changing this.`);
   }

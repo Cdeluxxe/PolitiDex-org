@@ -547,6 +547,14 @@
   // departure is a blocking class, where the mapping describes the document and the
   // act runs the other way — issueDirection() above is where that is resolved, and
   // res.actions carries both readings so a caller can show its work.
+  // On-axis: this issue sits in the document's dominant category (see
+  // _pdxMeasureAxis in stance-helpers.js). A label carried through for the
+  // package sentence; the retired leaf flag is not read.
+  function axisOn(maps, key) {
+    try {
+      return typeof window._pdxMeasureAxis === 'function' ? window._pdxMeasureAxis(maps).onAxis(key) : false;
+    } catch (e) { return false; }
+  }
   function executiveIssue(pid, issueKey, opts) {
     var res = {
       scope: 'executive', issueKey: issueKey,
@@ -576,7 +584,7 @@
           actionClass: a.actionClass, verb: EXEC_CLASSES[a.actionClass].verb,
           documentId: a.documentId || '', title: a.title || '', actedAt: a.actedAt || '',
           term: a.term || '', direction: eff, mappedDirection: m.direction,
-          inverted: eff !== m.direction, isPrimary: !!m.isPrimary,
+          inverted: eff !== m.direction, onAxis: axisOn(maps, m.issueKey),
           sourceUrl: a.sourceUrl, sourceLabel: a.sourceLabel,
           standing: standingOf(a)
         });

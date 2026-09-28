@@ -145,14 +145,35 @@ const POLELESS = Object.keys(NO_POLE).filter((k) => (probe.ISSUE_MAP || {})[k])[
 must(!!POLELESS, "the taxonomy no longer publishes a poleless issue to test the wall with");
 
 // `o.incidental` — the measure brushed the issue rather than being about it.
+//                 Counted, not flagged: the measure also carries two mappings in
+//                 one OTHER core category, which makes that its main category
+//                 and leaves `key` off-axis BY CATEGORY (_pdxMeasureAxis). The
+//                 weight stays 100, so it is no narrow provision either.
 // `o.present`   — on the record, no side resolvable from it.
+const CAT = (k) => {
+  const c = probe.coreIssueForKey && probe.coreIssueForKey(k);
+  return (c && c.key) || "issue:" + k;
+};
+const offAxisCompanions = (key) => {
+  const by = new Map();
+  for (const k of Object.keys(probe.ISSUE_MAP || {})) {
+    if (k === key || /^issue:/.test(CAT(k)) || CAT(k) === CAT(key) || !sideable(k)) continue;
+    if (!by.has(CAT(k))) by.set(CAT(k), []);
+    by.get(CAT(k)).push(k);
+  }
+  const pair = [...by.values()].find((ks) => ks.length >= 2);
+  must(!!pair, `no other core category offers two keys to carry ${key} off-axis`);
+  return pair.slice(0, 2);
+};
 const vote = (n, key, position, o) => ({
   kind: "vote", rollcallId: 7000 + n, measureId: 7500 + n, number: "S. " + (300 + n),
   date: "2025-0" + ((n % 9) + 1) + "-09", action: "On Passage",
   position: (o && o.present) ? "Present" : position,
   isProcedural: false, title: "Measure " + n,
-  issues: [{ issueKey: key, weight: 100,
-             isPrimary: !(o && o.incidental), supportMeaning: "yea_supports" }],
+  issues: [{ issueKey: key, weight: 100, supportMeaning: "yea_supports" }].concat(
+    (o && o.incidental)
+      ? offAxisCompanions(key).map((k) => ({ issueKey: k, weight: 100, supportMeaning: "yea_supports" }))
+      : []),
   source: { url: "https://www.congress.gov/roll-call-vote/" + (7000 + n), label: "Congress.gov" },
 });
 const runOf = (n, key, position, from) => {
@@ -286,7 +307,9 @@ section("3 · the walls — depth was lowered, and meaning moved once, on purpos
   //     at thin, which is all one vote can ever be — and the disclosure of how the
   //     vote arrived travels beside the finding instead of standing in for it.
   {
-    const w = stage({ a: [vote(3, K, "yea", { incidental: true })].concat(runOf(11, K2, "yea", 20)) });
+    const inc = vote(3, K, "yea", { incidental: true });
+    eq(probe._pdxMeasureAxis(inc.issues).axisOf(K), "off", "fixture: the incidental measure files K off-axis");
+    const w = stage({ a: [inc].concat(runOf(11, K2, "yea", 20)) });
     const row = (w.PDXConsistency.issueRows(A_PID) || []).filter((r) => r && r.key === K)[0];
     must(!!row, "the incidental single item has no row on the profile at all");
     const x = fpiRow(w, A_PID, K);
@@ -300,7 +323,7 @@ section("3 · the walls — depth was lowered, and meaning moved once, on purpos
     // touched K as a secondary subject, so _recordVehicleStats correctly declines to
     // call it a package — `only` is false and the 🚂 line is empty. The row is still
     // owed an explanation of how the vote reached the issue, and the note is what
-    // owes it. That is the whole reason the note is composed from the primary count
+    // owes it. That is the whole reason the note is composed from the on-axis count
     // rather than from the vehicle detector.
     ok(x.vehicle && x.vehicle.only === false,
       "the vehicle detector called a standalone bill a package");

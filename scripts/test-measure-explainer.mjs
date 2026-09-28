@@ -31,7 +31,7 @@
 //     which it could not before: a position's side lives in the `supports`
 //     boolean, not in a Yea/Nay.
 //   · NO SCORE, NO PARTY, NO INTENT. No slot prints a weight, a percentage or a
-//     per-measure grade; "primary link" and "narrow link" stay words. The copy
+//     per-measure grade; "on-axis" and "narrow link" stay words. The copy
 //     bans are the menu vocabulary's own list plus the intent words.
 //   · SPLIT STAYS SPLIT. Tapping the against measure and the for measure both
 //     explain themselves and neither reconciles the other.
@@ -109,7 +109,17 @@ ctx.ISSUE_MAP = {
   tough_on_crime: { label: "Tough on Crime" },
   property_rights: { label: "Property Rights" },
   water_rights: { label: "Water Rights" },
+  back_police: { label: "Back the Police" },
+  water_storage: { label: "Water Storage" },
 };
+// The category table the on-/off-axis read counts from. The full alignment tool
+// is not booted here, so its coreIssueForKey is stood in for by the shipped
+// key→category file itself (db/issue-core-categories.json) — the same filing,
+// not a hand-picked one. A key the file does not file stays its own bucket.
+{
+  const CAT = JSON.parse(readFileSync(join(ROOT, "db/issue-core-categories.json"), "utf8")).categoryOf || {};
+  ctx.coreIssueForKey = (k) => (k && CAT[k] ? { key: CAT[k], label: CAT[k] } : null);
+}
 ctx.ISSUE_STANCE_DATA = {
   [SCHULTZ]: [{ issueKey: CRIME, issueStance: "support" }],
   [CHEW]: [{ issueKey: WATER, issueStance: "support" }],
@@ -154,10 +164,12 @@ const between = (s, a, b) => {
 const UT2023 = { session: "2023GS", readFrom: "enrolled", readFromUrl: "https://le.utah.gov/~2023/bills/static/HB0208.html" };
 const UT2025 = { session: "2025GS", readFrom: "substitute", readFromUrl: "https://le.utah.gov/~2025/bills/static/HB0451.html" };
 
-// ① PRIMARY STANDALONE. H.B. 208, the acceptance case. Primary link on Tough on
-//    Crime, a full curator rationale, a floor ballot, and a second key it is only
-//    a supporting link on — so the explainer has to name that second key without
-//    giving it a headline.
+// ① ON-AXIS STANDALONE. H.B. 208, the acceptance case. Two crime & safety keys
+//    (Tough on Crime and Back the Police) make that category the bill's main one,
+//    so Tough on Crime is on-axis; a full curator rationale, a floor ballot, and a
+//    Property Rights key in a different category (so off-axis) it is only a
+//    supporting link on — the explainer has to name that key without giving it a
+//    headline.
 const HB208_RATIONALE =
   "The bill rewrites the criminal trespass statute so that entry onto posted " +
   "agricultural land is a class B misdemeanour on a first offence rather than an " +
@@ -174,8 +186,9 @@ const HB208 = {
   measureIdent: UT2023,
   source: { url: "https://le.utah.gov/~2023/votes/hv0975.html", label: "Utah Legislature" },
   issues: [
-    { issueKey: CRIME, weight: 60, isPrimary: true, supportMeaning: "yea_supports", rationale: HB208_RATIONALE },
-    { issueKey: PROP, weight: 50, isPrimary: false, supportMeaning: "yea_supports", rationale: "The posting requirements in sections 3 and 4 are the property-rights link." },
+    { issueKey: CRIME, weight: 60, supportMeaning: "yea_supports", rationale: HB208_RATIONALE },
+    { issueKey: "back_police", weight: 55, supportMeaning: "yea_supports", rationale: "Section 5 adds a peace-officer notice duty for posted land." },
+    { issueKey: PROP, weight: 50, supportMeaning: "yea_supports", rationale: "The posting requirements in sections 3 and 4 are the property-rights link." },
   ],
 };
 
@@ -191,14 +204,17 @@ const HB451 = {
   measureIdent: UT2025,
   source: { url: "https://le.utah.gov/~2025/votes/hv0611.html", label: "Utah Legislature" },
   issues: [
-    { issueKey: PROP, weight: 90, isPrimary: true, supportMeaning: "yea_supports" },
-    { issueKey: CRIME, weight: 30, isPrimary: false, supportMeaning: "yea_supports", rationale: null },
+    { issueKey: PROP, weight: 90, supportMeaning: "yea_supports" },
+    { issueKey: CRIME, weight: 30, supportMeaning: "yea_supports", rationale: null },
   ],
 };
 
-// ③ STOWAWAY. A base-budget bill carrying a corrections provision. Not primary,
-//    thin, and multi-issue — which is exactly _rdIsProvision's predicate, so slot
-//    5 has to disclose the vehicle without assigning anyone intent for it.
+// ③ STOWAWAY. A base-budget bill carrying a corrections provision. Two of its
+//    keys (Property Rights, Water Storage) share the climate / energy / land
+//    category, so that is its main category and Tough on Crime is OFF-AXIS by
+//    category; thin, and multi-issue — which is exactly _rdIsProvision's
+//    predicate, so slot 5 has to disclose the vehicle without assigning anyone
+//    intent for it.
 const SB1 = {
   kind: "vote", rollcallId: 220, measureId: 1, number: "S.B. 1",
   date: "2025-01-30", chamber: "utah house",
@@ -208,8 +224,9 @@ const SB1 = {
   measureIdent: { session: "2025GS", readFrom: null, readFromUrl: null },
   source: { url: "https://le.utah.gov/~2025/votes/hv0220.html", label: "Utah Legislature" },
   issues: [
-    { issueKey: PROP, weight: 95, isPrimary: true, supportMeaning: "yea_supports" },
-    { issueKey: CRIME, weight: 20, isPrimary: false, supportMeaning: "yea_supports", rationale: "One line item funds county jail contracting." },
+    { issueKey: PROP, weight: 95, supportMeaning: "yea_supports" },
+    { issueKey: "water_storage", weight: 70, supportMeaning: "yea_supports" },
+    { issueKey: CRIME, weight: 20, supportMeaning: "yea_supports", rationale: "One line item funds county jail contracting." },
   ],
 };
 
@@ -226,7 +243,7 @@ const HB88 = {
   measureIdent: { session: "2025GS", readFrom: "introduced", readFromUrl: "https://le.utah.gov/~2025/bills/static/HB0088.html" },
   source: { url: "https://le.utah.gov/asp/interim/Commit.asp?Year=2025&Com=HSTJUC", label: "Committee minutes" },
   issues: [
-    { issueKey: CRIME, weight: 80, isPrimary: true, supportMeaning: "yea_supports", rationale: "The bill raises the aggregation threshold for retail theft charging." },
+    { issueKey: CRIME, weight: 80, supportMeaning: "yea_supports", rationale: "The bill raises the aggregation threshold for retail theft charging." },
   ],
 };
 
@@ -247,7 +264,7 @@ const WATER_FOR = {
   congress: null, session: null, rollNumber: 300,
   measureIdent: { session: "2025GS", readFrom: "enrolled", readFromUrl: "https://le.utah.gov/~2025/bills/static/HB0300.html" },
   source: { url: "https://le.utah.gov/~2025/votes/hv0300.html", label: "Utah Legislature" },
-  issues: [{ issueKey: WATER, weight: 85, isPrimary: true, supportMeaning: "yea_supports", rationale: "The bill funds secondary metering, which is the operative provision." }],
+  issues: [{ issueKey: WATER, weight: 85, supportMeaning: "yea_supports", rationale: "The bill funds secondary metering, which is the operative provision." }],
 };
 const WATER_AGAINST = {
   kind: "vote", rollcallId: 301, measureId: 701, number: "H.B. 301",
@@ -257,7 +274,7 @@ const WATER_AGAINST = {
   congress: null, session: null, rollNumber: 301,
   measureIdent: { session: "2025GS", readFrom: "enrolled", readFromUrl: "https://le.utah.gov/~2025/bills/static/HB0301.html" },
   source: { url: "https://le.utah.gov/~2025/votes/hv0301.html", label: "Utah Legislature" },
-  issues: [{ issueKey: WATER, weight: 85, isPrimary: true, supportMeaning: "yea_opposes", rationale: "The bill relaxes the forfeiture rule for unused rights, which cuts the other way." }],
+  issues: [{ issueKey: WATER, weight: 85, supportMeaning: "yea_opposes", rationale: "The bill relaxes the forfeiture rule for unused rights, which cuts the other way." }],
 };
 ctx.PDXVotingRecord._records[CHEW] = [WATER_FOR, WATER_AGAINST];
 
@@ -275,6 +292,7 @@ for (const [n, i] of [["H.B. 208", iHB208], ["H.B. 451", iHB451], ["S.B. 1", iSB
 
 console.log("── 2 · slot 1: a Utah measure knows which session it belongs to");
 const x208 = X(iHB208);
+const xSBx = () => X(iSB1);
 has(x208, "H.B. 208", "identity: the chamber-correct bill number leads");
 has(x208, "2023GS", "identity: …with the session code beside it, printed as stored");
 hasnt(x208, "2023 General Session", "identity: never prettified into a string nobody can search");
@@ -315,13 +333,21 @@ hasnt(x451, 'class="pdxdos-fine"', "gap: with no fold, because there is no ratio
 
 console.log("── 4 · slot 3: how squarely, in words, and the other key by name");
 has(x208, "Why it is on this issue", "why: the slot is labelled");
-has(x208, "primary link", "why: H.B. 208 is what the bill was about");
-has(x208, "Property Rights", "why: the second key is named…");
-has(x208, "a supporting link there", "why: …as a supporting link on that issue, not a second headline");
+has(x208, 'data-pdx-axis="on"', "why: H.B. 208 is what the bill was about — Tough on Crime is on-axis");
+has(x208, ">on-axis</span>", "why: …and the tag says so in words");
+has(x208, "Counted on Tough on Crime because that is in this measure’s main category.", "why: …and the counts line says why");
+has(x208, 'title="On-axis — same topic as the bill’s main category"', "why: …with the shipped tooltip");
+hasnt(x208, "primary link", "why: the retired primary wording is gone");
+has(x208, "Property Rights", "why: the off-axis key is named…");
+has(x208, "Property Rights (a supporting link, off-axis there)", "why: …as a supporting, off-axis link on that issue, not a second headline");
+has(x208, "a supporting link there", "why: …and the on-axis sibling as a plain supporting link");
+has(xSBx(), ">off-axis</span>", "why: the stowaway's own key is tagged off-axis");
+has(xSBx(), 'title="Off-axis — different topic than the bill’s main category (rider-shaped)"', "why: …with the shipped tooltip");
+has(xSBx(), "outside its main category", "why: …and the counts line says it sits outside the main category");
 has(x208, "this screen answers for Tough on Crime only", "why: one instrument, one issue, one screen");
 has(x451, "narrow link", "why: a thin mapping is called a narrow link");
-has(x451, "supporting link", "why: and a non-primary one supporting");
-eq(pcts(x208), 0, "why: no percentage anywhere on the primary explainer");
+has(x451, "supporting link", "why: and its other key supporting");
+eq(pcts(x208), 0, "why: no percentage anywhere on the on-axis explainer");
 eq(pcts(x451), 0, "why: nor on the narrow one");
 eq(pcts(X(iSB1)), 0, "why: nor on the stowaway");
 eq(pcts(X(iHB88)), 0, "why: nor on the committee vote");
@@ -503,7 +529,7 @@ const HJRES = {
     billUrl: "https://www.congress.gov/bill/119th-congress/house-joint-resolution/131",
   },
   source: { url: "https://clerk.house.gov/Votes/2025131", label: "Clerk of the House" },
-  issues: [{ issueKey: CRIME, weight: 55, isPrimary: true, supportMeaning: "yea_opposes", rationale: "The resolution is read on this issue only for its enforcement provisions." }],
+  issues: [{ issueKey: CRIME, weight: 55, supportMeaning: "yea_opposes", rationale: "The resolution is read on this issue only for its enforcement provisions." }],
 };
 ctx.PDXVotingRecord._records[PATTERN] = [HJRES];
 const fedItems = C.dossierItems(PATTERN, CRIME);
@@ -535,7 +561,7 @@ if (failures.length) {
 }
 console.log(
   `\n✓ measure explainer: all ${passed} assertions passed — six slots, one order, ` +
-  `five fixtures (primary · narrow · stowaway · committee vote · pattern-only)`
+  `five fixtures (on-axis · narrow · stowaway · committee vote · pattern-only)`
 );
 console.log(
   `  🏛️ ${items.length} Utah instrument(s) on ${ctx.ISSUE_MAP[CRIME].label} · ` +

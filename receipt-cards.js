@@ -2100,17 +2100,24 @@
   //        of a direction than a vote on one of its amendments.
   //     3. curated weight, descending — the explicit statement of how much this
   //        mapping bears on the issue.
-  //     4. `isPrimary`, as a tiebreak between items that are otherwise equally good
-  //        evidence, because an issue the measure was actually about does illustrate
-  //        a direction better than an incidental mapping.
+  //     4. on-axis first, as a tiebreak between items that are otherwise equally
+  //        good evidence: an issue inside the measure's dominant category does
+  //        illustrate a direction better than a rider. (This was the leaf
+  //        `isPrimary` flag, which is retired and no longer read.)
   //     5. recency.
-  //   THIS REMAINS THE INTERNAL ANTI-NOISE USE OF `isPrimary`, AND IT IS THE WHOLE OF
-  // IT HERE. It picks WHICH ONE of several already-eligible items gets quoted as an
+  //   THIS IS THE WHOLE OF THE AXIS'S USE HERE. It picks WHICH ONE of several already-eligible items gets quoted as an
   // example; it hides no row, demotes no topic and reaches no Big Picture surface.
   // The citizen-facing instrument faces — bill-detail.js, exec-record-ui.js, the
   // record cards in voting-record.js, the library shelf and the search index —
   // ignore the flag as a visibility rule entirely. Any future use of it beyond
   // example selection is an engine decision, not a rendering one.
+  // On-axis: this issue sits in the measure's dominant category (_pdxMeasureAxis).
+  function onAxis(item, issueKey) {
+    try {
+      return typeof window._pdxMeasureAxis === 'function' &&
+        window._pdxMeasureAxis((item && item.issues) || []).onAxis(issueKey);
+    } catch (e) { return false; }
+  }
   var RD_SIDE_WORD = { advances: 'advanced-it', opposes: 'cut-against-it' };
   function rdStrongest(pid, issueKey, items, records, want) {
     var pool = items.filter(function (it) { return rdSide(it, issueKey) === want; });
@@ -2121,7 +2128,8 @@
       var wa = (typeof ma.weight === 'number') ? ma.weight : 100;
       var wb = (typeof mb.weight === 'number') ? mb.weight : 100;
       if (wa !== wb) return wb - wa;
-      if (!!ma.isPrimary !== !!mb.isPrimary) return ma.isPrimary ? -1 : 1;
+      var oa = onAxis(a, issueKey), ob = onAxis(b, issueKey);
+      if (oa !== ob) return oa ? -1 : 1;
       return String(b.date || '') < String(a.date || '') ? -1
            : String(b.date || '') > String(a.date || '') ? 1 : 0;
     });
@@ -2338,7 +2346,7 @@
     // the tests check the finished copy against, so neither has to re-derive it.
     card.recordDirection = {
       token: idx.token, lead: idx.lead, judged: n, advances: adv, opposes: opp,
-      primary: idx.primary, total: idx.total, uniform: uniform,
+      onAxis: idx.onAxis, total: idx.total, uniform: uniform,
       characterised: !!idx.characterised, counted: !!idx.counted, split: isSplit,
       acts: acts, soft: !!cand.soft, steppedDown: !!cand.steppedDown
     };

@@ -334,7 +334,7 @@ section("3 · the scoring floors are untouched");
   // rewrites.
   const SH = R("stance-helpers.js");
   [["_RD_MEMBER_FLOOR", "12"], ["_RD_MIN_JUDGED", "4"], ["_RD_THIN_MIN", "2"],
-   ["_RD_MIN_PRIMARY", "1"], ["_RD_DOMINANCE", "0.75"], ["_RD_SPLIT_MIN_JUDGED", "6"],
+   ["_RD_MIN_ON_AXIS", "1"], ["_RD_DOMINANCE", "0.75"], ["_RD_SPLIT_MIN_JUDGED", "6"],
    ["_RD_SPLIT_MIN_SIDE", "2"], ["_RECORD_PROCEDURAL_FACTOR", "0.25"]].forEach(([k, v]) => {
     ok(new RegExp("var " + k + " = " + v.replace(".", "\\.") + ";").test(SH),
       `the pattern engine's ${k} is still ${v} — the display bar lowered no scoring floor`);

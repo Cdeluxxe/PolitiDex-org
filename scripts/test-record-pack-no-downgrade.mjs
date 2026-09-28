@@ -61,7 +61,7 @@
 //      published a tier never also reaches a refusal, and vice versa; the refusal
 //      and the read are two answers to one question and no row may hold both.
 //      Plus the doctrine that replaced the package-borne ceiling: a read standing
-//      on primary=0 lands at the tier its own acts earn — thin, split, mostly or
+//      on onAxis=0 lands at the tier its own acts earn — thin, split, mostly or
 //      strong, on the same floors any other formal act is held to — always
 //      discloses that those acts reached the issue inside measures mainly about
 //      something else, and takes a side over a two-sided ledger only where the
@@ -84,6 +84,9 @@ import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+// alignment-tool.js is also what publishes window.coreIssueForKey, which the
+// on-axis read counts categories with — without it every key is its own bucket,
+// every measure is "split", and nothing could ever be off-axis.
 const FILES = [
   "cmp-data.js", "politician-stances-core.js", "politician-stances-ext.js",
   "state-senate-stances.js", "stance-helpers.js", "alignment-tool.js",
@@ -146,23 +149,35 @@ const PAIR = [["curtis", "Thin supports", "support"], ["lee", "Thin opposes", "o
 const { byMember } = buildCorpus(ROOT);
 must(byMember.size > 100, `too few members in the corpus to sweep (${byMember.size})`);
 
-// ── the two payloads, differing by exactly one field ─────────────────────────
-// The live pack really is this: a full diff of /member/curtis against
-// /member/curtis/pack on the reported deploy returned 70 identical items and one
-// mismatch, `H.R. 6644|housing fresh true pack false`. So the stale snapshot is
-// modelled by flipping that flag and nothing else — anything wider would be
-// testing a fixture instead of the bug.
-const fresh = (pid) => JSON.parse(JSON.stringify(byMember.get(pid) || []));
+// ── the two payloads, differing on exactly one measure ───────────────────────
+// The reported deploy's live pack differed from /member/curtis on one measure
+// only — H.R. 6644 — and that one difference decided whether the housing act was
+// ON the bill's axis or rode in off it. The leaf `isPrimary` flag that used to
+// carry that is retired; the axis is now COUNTED from the measure's mapped
+// categories (_pdxMeasureAxis). So the stale snapshot is modelled as the older
+// mapping of that one measure: its companion housing_build row filed instead as
+// two regulation/spending subjects, which makes Government Spending the bill's
+// main category and leaves `housing` off-axis BY CATEGORY. Every other item is
+// byte-identical — anything wider would be testing a fixture instead of the bug.
+// The retired flag is stripped from both payloads so nothing can lean on it.
+const strip = (items) => {
+  for (const it of items) for (const m of (it.issues || [])) if (m) delete m.isPrimary;
+  return items;
+};
+const fresh = (pid) => strip(JSON.parse(JSON.stringify(byMember.get(pid) || [])));
+const OFF_AXIS_COMPANIONS = ["gov_regulation", "gov_waste"];
 const stale = (pid) => {
   const items = fresh(pid);
-  let flipped = 0;
+  let refiled = 0;
   for (const it of items) {
     if (String(it.number || "").trim() !== MEASURE) continue;
-    for (const m of (it.issues || [])) {
-      if (m && m.issueKey === KEY && m.isPrimary) { m.isPrimary = false; flipped++; }
-    }
+    const at = (it.issues || []).findIndex((m) => m && m.issueKey === "housing_build");
+    if (at < 0) continue;
+    const src = it.issues[at];
+    it.issues.splice(at, 1, ...OFF_AXIS_COMPANIONS.map((k) => Object.assign({}, src, { issueKey: k })));
+    refiled++;
   }
-  must(flipped === 1, `${pid}: the fixture flipped ${flipped} mappings, expected exactly 1`);
+  must(refiled === 1, `${pid}: the fixture re-filed ${refiled} measures, expected exactly 1`);
   return items;
 };
 // `extra` is where a fixture names its provenance: the live read carries
@@ -181,11 +196,14 @@ const GEN_NEW = "m894-e21bb4b7021e";
 const livePayload = (pid) => payload(fresh(pid), { mappingVersion: GEN_NEW });
 const packPayload = (pid, gen) =>
   payload(stale(pid), { pack: true, mappingVersion: gen });
-const primaryFlag = (win, pid) => {
+// Is `housing` on H.R. 6644's axis in the rows this device has filed? Asked of the
+// shipped helper, so the fixture and the surfaces count categories the same way.
+const onAxisFlag = (win, pid) => {
   const recs = win.PDXVotingRecord.memberRecords(pid) || [];
   for (const it of recs) {
     if (String(it.number || "").trim() !== MEASURE) continue;
-    for (const m of (it.issues || [])) if (m && m.issueKey === KEY) return !!m.isPrimary;
+    const ax = win._pdxMeasureAxis(it.issues || []);
+    if (ax.axisOf(KEY)) return ax.onAxis(KEY);
   }
   return null;
 };
@@ -213,7 +231,7 @@ for (const [snapshot, items] of [["live (F4)", fresh], ["stale pack", stale]]) {
     seen.push(`${d.state}/${why}`);
 
     if (snapshot === "live (F4)") {
-      eq(idx && idx.primary, 1, `${snapshot}/${pid}: one primary-mapped act on file`);
+      eq(idx && idx.onAxis, 1, `${snapshot}/${pid}: one on-axis act on file`);
       eq(tree && tree.label, want, `${snapshot}/${pid}: the tree's Record slot`);
       eq(tree && tree.tone, side, `${snapshot}/${pid}: the tree's side`);
       eq(d.state, "reads", `${snapshot}/${pid}: the dossier reads the record`);
@@ -246,7 +264,7 @@ for (const [snapshot, items] of [["live (F4)", fresh], ["stale pack", stale]]) {
       // this section exists to settle. The pack is still not allowed to do this —
       // section 2 is what stops it — and a reader who met this row would be told
       // one true thing that a fresher snapshot would have worded differently.
-      eq(idx && idx.primary, 0, `${snapshot}/${pid}: the promotion is gone from the snapshot`);
+      eq(idx && idx.onAxis, 0, `${snapshot}/${pid}: the snapshot files the act off-axis`);
       eq(tree && tree.tier, "thin", `${snapshot}/${pid}: the tree still states the side, thinly`);
       eq(tree && tree.label, want, `${snapshot}/${pid}: with the live read's own label`);
       eq(tree && tree.tone, side, `${snapshot}/${pid}: and the live read's own side`);
@@ -327,11 +345,11 @@ for (const order of ["pack first", "live first"]) {
     } else {
       net.deliver(pid, "live", payload(fresh(pid)));
       await liveP.then((d) => VR.noteMember(pid, d.items));
-      eq(primaryFlag(win, pid), true, `${order}/${pid}: the live read seeded the promotion`);
+      eq(onAxisFlag(win, pid), true, `${order}/${pid}: the live read seeded the promotion`);
       net.deliver(pid, "pack", payload(stale(pid)));
       await packP;
     }
-    eq(primaryFlag(win, pid), true, `${order}/${pid}: the promotion survived the pack`);
+    eq(onAxisFlag(win, pid), true, `${order}/${pid}: the promotion survived the pack`);
   }
 
   // …and the acceptance, read off the surfaces the reader actually meets.
@@ -392,7 +410,7 @@ section("3 · the pack is still the fallback");
   eq(resolved.summary.totalRecords, fresh("lee").length, "offline: with the member's whole record in it");
   V2.noteMember("lee", resolved.items.slice());
   ok(!!V2.memberRecords("lee"), "offline: the caller's own seed is not gated");
-  eq(primaryFlag(w2, "lee"), false, "offline: and it is honestly the snapshot, not a forgery");
+  eq(onAxisFlag(w2, "lee"), false, "offline: and it is honestly the snapshot, not a forgery");
 
   // (c) clearCache drops the claims with the answers, or a pack could never seed
   //     an offline open again for the rest of the session.
@@ -422,7 +440,7 @@ section("4 · read and refusal stay exclusive · packaging is disclosed, not dis
 // that published anything never reaches it at all.
 //
 // What is asserted in the ceiling's place, on real rows, is the doctrine itself:
-// a read standing on primary=0 lands at the tier its own acts earn, discloses how
+// a read standing on onAxis=0 lands at the tier its own acts earn, discloses how
 // those acts arrived while it does so, and is held to the same dominance rule as
 // any other record. Both halves matter. A future edit that re-caps riders fails
 // the tier census below; one that lets a package-borne row take a side over a
@@ -452,7 +470,7 @@ section("4 · read and refusal stay exclusive · packaging is disclosed, not dis
       const why = (d.why && d.why.id) || "";
       const published = !!(tree && tree.tier && tree.tier !== "none");
       // The executive lane reads a different index (_stExecDisplayIndex), which has
-      // no roll-call primary flag to count, so the floor cross-check below is asked
+      // no roll-call on-axis count, so the floor cross-check below is asked
       // only of the vote lane the report is about. The contradiction checks are
       // lane-agnostic and stay that way.
       const voteLane = r.lane !== "exec";
@@ -467,11 +485,11 @@ section("4 · read and refusal stay exclusive · packaging is disclosed, not dis
         //   display: false — _recordDisplayTier handed back _recordPatternTier's own
         //     read, untouched, on its first line. The pattern engine's thin tier is
         //     gated on _RD_THIN_MIN judged acts, not on a primary flag, so
-        //     idx.primary may well be 0 here. It cannot reach the refusal anyway:
+        //     idx.onAxis may well be 0 here. It cannot reach the refusal anyway:
         //     _dosFormalRead asks _stPatternTier FIRST, and a row the pattern engine
         //     characterises is answered before the ladder gets to _fpiUnreadWhy.
         //   display: true — the browse-only lane, past the pattern engine's decline.
-        //     That path runs the primary floor at _RD_MIN_PRIMARY, and _fpiUnreadWhy's
+        //     That path runs the on-axis count against _RD_MIN_ON_AXIS, and _fpiUnreadWhy's
         //     incidental branch is only entered below 1. No one index can be on both
         //     sides of that line, which is the guarantee the report asked for.
         if (tree.display === true) viaDisplay++;
@@ -493,7 +511,7 @@ section("4 · read and refusal stay exclusive · packaging is disclosed, not dis
       // rather than handed down to the browse lane, so restricting this check to
       // `display === true` would have stopped watching exactly the rows the
       // doctrine moved.
-      if (published && voteLane && idx && (idx.primary || 0) < 1) {
+      if (published && voteLane && idx && (idx.onAxis || 0) < 1) {
         pkgBorne++;
         pkgTier[tree.tier] = (pkgTier[tree.tier] || 0) + 1;
         const adv = idx.advances || 0, opp = idx.opposes || 0;
@@ -522,8 +540,8 @@ section("4 · read and refusal stay exclusive · packaging is disclosed, not dis
       // …and the far side of the same line.
       if (why === "incidental") {
         incid++;
-        if (voteLane && idx && (idx.primary || 0) >= 1) {
-          floorBreak.push(`${pid}/${r.key}: incidental on primary=${idx.primary}`);
+        if (voteLane && idx && (idx.onAxis || 0) >= 1) {
+          floorBreak.push(`${pid}/${r.key}: incidental on onAxis=${idx.onAxis}`);
         }
         if (published) floorBreak.push(`${pid}/${r.key}: incidental under a published ${tree.label}`);
       }
@@ -533,7 +551,7 @@ section("4 · read and refusal stay exclusive · packaging is disclosed, not dis
   must(thinSupport > 20 && thinOppose > 20,
     `both sides must be represented in the sweep (support ${thinSupport}, oppose ${thinOppose})`);
   // Every published thin read in this corpus arrives through the pattern engine —
-  // including curtis/housing, whose one primary-mapped vote the one-act lean
+  // including curtis/housing, whose one on-axis vote the one-act lean
   // characterises directly. The display lane's contribution here is the `split`
   // rows, which is the population the deferral was built for. Both must be
   // present, or the sweep is only testing one of the two paths.
@@ -552,18 +570,53 @@ section("4 · read and refusal stay exclusive · packaging is disclosed, not dis
   // THE CEILING IS GONE, AND THAT IS ASSERTED POSITIVELY. A package-borne read
   // must be able to reach the characterising tiers, or this file is once again
   // pinning a discount — the exact failure the previous version of this section
-  // shipped.
+  // shipped. Counted by category, the shipped corpus's deep off-axis rows all sit
+  // on poleless keys (war_powers, guard_authority, state_standing), which refuse
+  // for that reason on either axis — so the corpus alone cannot show a loud
+  // package-borne read. It is therefore proven on a constructed record as well:
+  // curtis's stale snapshot, where housing is off-axis BY CATEGORY on H.R. 6644,
+  // plus four more one-sided votes on clones of that same off-axis measure. Deep
+  // enough to clear every depth floor; if anything caps an off-axis record, the
+  // tier here drops and this fails.
   const pkgLoud = (pkgTier.mostly || 0) + (pkgTier.strong || 0);
-  must(pkgLoud > 20,
-    `no package-borne record reached a characterising tier (${JSON.stringify(pkgTier)}) — the ceiling is back`);
+  for (const [label, positions, wantTier] of [
+    ["one-sided", ["yea", "yea", "yea", "yea"], "strong"],
+    ["one dissent", ["yea", "yea", "yea", "nay"], "mostly"],
+  ]) {
+    const w = boot();
+    const items = stale("curtis");
+    const base = items.find((it) => String(it.number || "").trim() === MEASURE);
+    must(!!base, "synthetic: curtis has no H.R. 6644 to clone");
+    positions.forEach((pos, i) => {
+      const c = JSON.parse(JSON.stringify(base));
+      c.number = `H.R. ${9901 + i}`;
+      c.measureId = `H.R. ${9901 + i}|119`;
+      c.rollcallId = c.rollNumber = 9901 + i;
+      c.date = `2026-0${4 + i}-01T15:00:00.000Z`;
+      c.position = pos;
+      items.push(c);
+    });
+    w.PDXVotingRecord.noteMember("curtis", items);
+    const C2 = w.PDXConsistency;
+    const row = (C2.issueRows("curtis") || []).find((r) => r && r.key === KEY);
+    must(!!row, `synthetic ${label}: no ${KEY} row`);
+    const idx = w._pdxRecordDirection("curtis", KEY) || {};
+    const tree = C2.recordPattern.display(row) || {};
+    eq(idx.onAxis, 0, `synthetic ${label}: every act on the row is off-axis by category`);
+    eq(idx.judged, 5, `synthetic ${label}: five judged acts`);
+    eq(tree.tier, wantTier, `synthetic ${label}: an off-axis record reaches the tier its acts earn`);
+    eq(tree.packageOnly, true, `synthetic ${label}: and is flagged package-borne`);
+    has(tree.note, PACKAGE, `synthetic ${label}: and says how its acts arrived`);
+    ok(/counted in full/.test(String(tree.note || "")), `synthetic ${label}: and that they count in full — ${tree.note}`);
+  }
   eq(bad.length, 0, `no published thin row reaches a refusal — ${bad.slice(0, 3).join(" | ")}`);
   eq(floorBreak.length, 0,
     `each path to a published thin read excludes the refusal — ${floorBreak.slice(0, 3).join(" | ")}`);
   console.log(`      ${rows} rows · ${thinSupport} thin-support + ${thinOppose} thin-oppose published, 0 refused`);
   console.log(`      thin: ${viaPattern} via the pattern tier (answered at step 1), ${viaDisplay} via the display lane`);
   console.log(`      ${viaDisplayAny} display-lane reads at any tier, every one read by the dossier`);
-  console.log(`      ${pkgBorne} published reads stand on primary=0 — ${JSON.stringify(pkgTier)} — every one disclosed and counted in full`);
-  console.log(`      ${pkgLoud} of them reached a characterising tier, and ${incid} rows carry the retired incidental refusal`);
+  console.log(`      ${pkgBorne} published reads stand on onAxis=0 — ${JSON.stringify(pkgTier)} — every one disclosed and counted in full`);
+  console.log(`      ${pkgLoud} of them reached a characterising tier in the corpus (a constructed off-axis record reaches strong and mostly), and ${incid} rows carry the retired incidental refusal`);
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -602,14 +655,14 @@ section("5 · a pack of another generation may not apply over a noted live read"
   eq(VR._payloadGen(live), "", "a live payload declares no pack generation");
   eq(VR.recordGeneration("curtis"), "live", "so the rows are filed as live rows");
   eq(VR._liveGen.curtis, GEN_NEW, "and the generation the live read reported is on file");
-  eq(primaryFlag(win, "curtis"), true, "the live read seeded the promotion");
+  eq(onAxisFlag(win, "curtis"), true, "the live read seeded the promotion");
 
   // THE OFFLINE FALLBACK'S OWN SEED, with a pack built before the promote.
   const old = packPayload("curtis", GEN_OLD);
   eq(VR._payloadGen(old), GEN_OLD, "the pack declares the generation it was built from");
   eq(VR.noteMember("curtis", old.items, VR._payloadGen(old)), false,
     "THE ACCEPTANCE: noteMember refuses a pack of another generation over a live read");
-  eq(primaryFlag(win, "curtis"), true, "the live row wins — the promotion is still on file");
+  eq(onAxisFlag(win, "curtis"), true, "the live row wins — the promotion is still on file");
   eq(VR.recordGeneration("curtis"), "live", "and the rows are still the live ones");
   eq(VR._packMaySeed("curtis", GEN_OLD), false, "fetchPack would refuse it too");
 
@@ -619,7 +672,7 @@ section("5 · a pack of another generation may not apply over a noted live read"
   eq(VR._payloadGen(ancient), "m0-unknown", "a pack with no generation reads as the sentinel");
   eq(VR.noteMember("curtis", ancient.items, VR._payloadGen(ancient)), false,
     "and is refused over the live read as well");
-  eq(primaryFlag(win, "curtis"), true, "the live row still wins");
+  eq(onAxisFlag(win, "curtis"), true, "the live row still wins");
 
   section("   · nothing live on file → the pack still seeds, generation and all");
   // The regression this guard must not become. Same fixture, no live read: the
@@ -636,7 +689,7 @@ section("5 · a pack of another generation may not apply over a noted live read"
   eq(V2.noteMember("lee", resolved.items.slice(), V2._payloadGen(resolved)), true,
     "offline: and the caller's seed still goes through — a failed live read vetoes nothing");
   eq(V2.recordGeneration("lee"), GEN_OLD, "offline: filed under the pack's own generation");
-  eq(primaryFlag(w2, "lee"), false, "offline: honestly the snapshot, not a forgery");
+  eq(onAxisFlag(w2, "lee"), false, "offline: honestly the snapshot, not a forgery");
 
   section("   · a live read that arrives later still wins");
   // The other arrival order on the same device: the pack is in hand, then the
@@ -645,7 +698,7 @@ section("5 · a pack of another generation may not apply over a noted live read"
   eq(V2.noteMember("lee", liveLater.items, V2._payloadGen(liveLater)), true,
     "a live payload may always be filed, whatever the pack left behind");
   eq(V2.recordGeneration("lee"), "live", "and takes over the row");
-  eq(primaryFlag(w2, "lee"), true, "with the promotion the pack did not have");
+  eq(onAxisFlag(w2, "lee"), true, "with the promotion the pack did not have");
   // …and now the same pack cannot come back.
   eq(V2.noteMember("lee", packPayload("lee", GEN_OLD).items, GEN_OLD), false,
     "after which the older pack is refused, in this order too");
@@ -720,13 +773,16 @@ section("6 · the server half: the pack's own key names the mapping it was built
     "…which is the pack store, and the only one");
 
   section("   · the version: what moves it, and what a mapping change is");
-  // The fingerprint is over the mapping table's contents. is_primary is in it by
-  // name — the one field the whole reported bug was one field wide of — so an
-  // incidental→PRIMARY promote cannot leave the version where it was.
+  // The fingerprint is over the mapping table's contents — the four fields the
+  // pack serves. The axis is counted from issue_key, so re-filing a measure's
+  // mappings (the stale fixture above) cannot leave the version where it was.
+  // is_primary is retired and unserved, so it is deliberately OUT of it: a flag
+  // nothing reads must not evict every member's pack.
   const fp = (PACK_TS.match(/select count\(\*\)::int as n,[\s\S]*?from vr_measure_issues/) || [])[0];
   must(fp, "could not read the mapping fingerprint query out of netlify/lib/vr-pack.ts");
-  for (const col of ["measure_id", "issue_key", "weight", "is_primary", "support_meaning", "rationale"])
+  for (const col of ["measure_id", "issue_key", "weight", "support_meaning", "rationale"])
     has(fp, col, `the fingerprint covers ${col}`);
+  no(fp, "is_primary", "and not the retired is_primary flag");
   has(fp, "count(*)", "…and the row count, so an added or deleted row moves it too");
   has(fp, "order by id", "…in a fixed order, so the same table always fingerprints the same");
   no(fp, "source_url", "and not source_url — a citation edit is not a mapping change");

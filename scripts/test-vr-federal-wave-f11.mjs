@@ -118,7 +118,7 @@ const NO_POLE = (() => {
   ok(!!sup && /no_issue/.test(sup[0]) && /balance_key/.test(sup[0]) && /no_pole/.test(sup[0]),
     "_rdSuppressedKey() still returns no_issue / balance_key / no_pole");
   // The floors this wave does not touch.
-  for (const [name, want] of [["_RD_MIN_JUDGED", "4"], ["_RD_THIN_MIN", "2"], ["_RD_THIN_MIN_STRENGTH", "0.6"], ["_RD_MIN_PRIMARY", "1"]]) {
+  for (const [name, want] of [["_RD_MIN_JUDGED", "4"], ["_RD_THIN_MIN", "2"], ["_RD_THIN_MIN_STRENGTH", "0.6"], ["_RD_MIN_ON_AXIS", "1"]]) {
     const m = SH.match(new RegExp(`${name}\\s*=\\s*([0-9.]+)`));
     eq(m && m[1], want, `${name} moved — F11 is a coverage wave and moves no floor`);
   }

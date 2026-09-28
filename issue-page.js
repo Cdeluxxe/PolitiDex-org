@@ -17,9 +17,9 @@
      • Counts, and only counts: measures on file, how many carry a floor roll,
        how many member rows can be read. No percentage, no score, no ranking.
      • THE LIST — every measure mapped to this key. Number, short title, whether
-       this issue is the bill's subject or rode inside it, chamber · last roll
-       date · Yea–Nay when a roll exists. Subject-of-the-bill rows first, then
-       newest roll. Each row opens that bill's profile.
+       this issue is on-axis for the bill (inside its main category) or
+       off-axis (a rider), chamber · last roll date · Yea–Nay when a roll
+       exists. On-axis rows first, then newest roll. Each row opens that bill's profile.
      • WHO THE RECORD READS — members with a published direction on this key,
        folded below the list: supports / opposes / split / thin, with the same
        short pattern line the stance tree prints, and a tap into that person's
@@ -34,7 +34,7 @@
         cue to backfill from the inline paint index. The index is merged in only
         when the live read FAILED, because then the alternative is a blank page
         that claims nothing is mapped.
-     3. DO NOT DISCOUNT PACKAGE VOTES. A rider row and a subject row are the
+     3. DO NOT DISCOUNT PACKAGE VOTES. An off-axis row and an on-axis row are the
         same size, in the same list, with the same door. `isOmnibus` is not read
         here at all.
      4. NO DIRECTION MATCH. The leaf's `record.pct` is the one percentage on a
@@ -62,8 +62,12 @@
   // The copy this page owns. Everything else it prints is read from the module
   // that owns it, so a sentence can only be changed in one place.
   var EMPTY = 'No mapped measure on file yet';
-  var SUBJECT = 'this bill’s subject';
-  var RODE = 'rode inside';
+  var SUBJECT = 'on-axis';
+  var RODE = 'off-axis';
+  var AXIS_TIP = {
+    on: 'On-axis — same topic as the bill’s main category',
+    off: 'Off-axis — different topic than the bill’s main category (rider-shaped)'
+  };
   var PKG_NOTE = 'Every mapping is listed. A package that carried this issue ' +
     'inside it counts in full — no rider is hidden and no package vote is discounted.';
   var PEOPLE_TITLE = 'Who the record reads';
@@ -154,7 +158,7 @@
   function plural(n, one, many) { return n + ' ' + (n === 1 ? one : (many || (one + 's'))); }
   // The lane labels and the roll line are written for a row, where they are
   // fragments beside a title. An announced row is a SENTENCE, so it gets a capital
-  // — "this bill's subject" read aloud mid-sentence is the row's one label sounding
+  // — "on-axis" read aloud mid-sentence is the row's one label sounding
   // like a clause that lost its verb.
   function cap(s) {
     s = String(s == null ? '' : s);
@@ -223,16 +227,34 @@
   }
 
   // ── ONE MEASURE, ONE ROW ────────────────────────────────────────────────────
-  // `primaryIssueKeys` is the browse route's per-key primary flags: an act can be
-  // the subject of two axes at once (H.R. 6644 is a housing act AND a supply act),
-  // so the lane label has to be read against THIS key rather than off the single
-  // `primaryIssue` slot, which names only whichever mapping sorted first.
-  //   The inline paint index carries no per-key flags, so there the single slot is
-  // all there is — and it is correct, because that index records one primary.
+  // ON-AXIS OR OFF-AXIS, read against THIS key. The measure's dominant category
+  // is the topic category holding the most of its mapped keys; a key inside it
+  // (or inside any category a split bill is tied across) is on-axis. The browse
+  // route counts it server-side as `onAxisIssueKeys`; the inline paint index does
+  // not, so there it is counted here from `issueKeys`. The retired leaf
+  // `isPrimary` flag, and the `primaryIssue` slot, decide nothing: every mapped
+  // row is listed either way — this is a badge, never a filter.
+  function axisOnFor(keys, key) {
+    var catOf = {}, count = {};
+    (keys || []).forEach(function (k) {
+      k = String(k || '');
+      if (!k || catOf[k]) return;
+      var core = null;
+      try { core = (typeof window.coreIssueForKey === 'function') ? window.coreIssueForKey(k) : null; } catch (e) { core = null; }
+      var c = core && core.key ? String(core.key) : 'issue:' + k;
+      catOf[k] = c; count[c] = (count[c] || 0) + 1;
+    });
+    var top = 0;
+    for (var c in count) if (count[c] > top) top = count[c];
+    var mine = catOf[String(key)];
+    return !!mine && count[mine] === top;
+  }
   function rowOf(it, key) {
     if (!it || !key) return null;
-    var pk = Array.isArray(it.primaryIssueKeys) ? it.primaryIssueKeys : null;
-    var subject = pk ? pk.indexOf(key) > -1 : (String(it.primaryIssue || '') === String(key));
+    var ok = Array.isArray(it.onAxisIssueKeys) ? it.onAxisIssueKeys : null;
+    var keys = (Array.isArray(it.issueKeys) ? it.issueKeys : []).slice();
+    if (keys.indexOf(key) < 0) keys.push(key);
+    var subject = ok ? ok.indexOf(key) > -1 : axisOnFor(keys, key);
     var lr = it.lastRoll && (it.lastRoll.voteDate || it.lastRoll.chamber) ? it.lastRoll : null;
     return {
       id: (it.id != null) ? it.id : null,
@@ -283,7 +305,7 @@
     return out;
   }
 
-  // SUBJECT FIRST, THEN NEWEST ROLL. The lane is the sort's first key because it
+  // ON-AXIS FIRST, THEN NEWEST ROLL. The lane is the sort's first key because it
   // is the only thing on the row that says how much of the act this issue WAS;
   // the roll date is second because among acts of the same standing, the reader
   // wants the last thing that happened. A row with no roll sorts last inside its
@@ -320,7 +342,7 @@
   }
 
   function rowHtml(r) {
-    return '<li class="pdxip-row" data-pdxip-lane="' + (r.subject ? 'subject' : 'rode') + '">' +
+    return '<li class="pdxip-row" data-pdxip-lane="' + (r.subject ? 'on' : 'off') + '">' +
       '<button type="button" class="pdxip-open"' +
         ' data-pdxip-bill="' + escAttr(r.number) + '"' +
         ' data-pdxip-sitting="' + escAttr(r.sitting) + '"' +
@@ -334,7 +356,8 @@
         // used to sit in their own grid cell at fine-print size, which is what made
         // the whole list read as one block.
         '<span class="pdxip-sub">' +
-          '<span class="pdxip-lane-t">' + esc(r.subject ? SUBJECT : RODE) + '</span>' +
+          '<span class="pdxip-lane-t" data-pdx-axis="' + (r.subject ? 'on' : 'off') + '" title="' +
+            escAttr(AXIS_TIP[r.subject ? 'on' : 'off']) + '">' + esc(r.subject ? SUBJECT : RODE) + '</span>' +
           '<span class="pdxip-meta">' + esc(rollLine(r)) + '</span>' +
         '</span>' +
         '<span class="pdxip-go" aria-hidden="true">›</span>' +
@@ -998,8 +1021,8 @@
       // Under it, on one wrapping strip: the lane, then the roll line.
       '.pdxip-sub{grid-column:1/span 2;display:flex;flex-wrap:wrap;align-items:center;gap:0.3rem 0.5rem;',
         'margin-top:0.15rem;}',
-      // A REAL BADGE, NOT FINE PRINT. Whether an act is the subject of this issue or
-      // rode inside something larger is the single most load-bearing fact in the
+      // A REAL BADGE, NOT FINE PRINT. Whether this issue is on-axis for an act or
+      // off-axis inside something larger is the single most load-bearing fact in the
       // row, and it was set in 0.58rem muted uppercase - smaller than the roll line
       // it sat above. It is a pill now, and it is the one thing in the row that
       // changes shape between the two lanes.
@@ -1012,24 +1035,24 @@
       // reader scans a list of measures for.
       '.pdxip-meta{font-family:\'Barlow Condensed\',sans-serif;font-weight:600;font-size:0.84rem;',
         'letter-spacing:0.015em;line-height:1.3;color:#cfe0f7;}',
-      // ── SUBJECT VS RIDER, AS A SHAPE ──────────────────────────────────────────
+      // ── ON-AXIS VS OFF-AXIS, AS A SHAPE ───────────────────────────────────────
       // The issue's own colour at low alpha on the left edge of a row this issue is
-      // the subject of. Riders keep the flat card - dimmer, thinner edge, no wash -
+      // on-axis for. Off-axis rows keep the flat card - dimmer, thinner edge, no wash -
       // and are neither hidden nor folded away: a rider is still a mapping on file
       // and the list still prints every one of them.
       //   `--pdx-ic` arrives by inheritance from the section, so a boot without the
       // colour table falls back to the neutral rule underneath rather than to no
       // border at all, and a browser without color-mix drops only the wash.
-      '.pdxip-row[data-pdxip-lane="subject"]>.pdxip-open{',
+      '.pdxip-row[data-pdxip-lane="on"]>.pdxip-open{',
         'border-left:3px solid color-mix(in srgb,var(--pdx-ic,#9fb4d4) 55%,transparent);',
         'background:linear-gradient(90deg,color-mix(in srgb,var(--pdx-ic,#9fb4d4) 11%,transparent),',
         'rgba(127,180,255,0.05) 40%);}',
-      '.pdxip-row[data-pdxip-lane="subject"] .pdxip-lane-t{color:#eef4ff;',
+      '.pdxip-row[data-pdxip-lane="on"] .pdxip-lane-t{color:#eef4ff;',
         'border-color:color-mix(in srgb,var(--pdx-ic,#9fb4d4) 55%,transparent);',
         'background:color-mix(in srgb,var(--pdx-ic,#9fb4d4) 20%,transparent);}',
-      '.pdxip-row[data-pdxip-lane="rode"]>.pdxip-open{background:rgba(127,180,255,0.025);',
+      '.pdxip-row[data-pdxip-lane="off"]>.pdxip-open{background:rgba(127,180,255,0.025);',
         'border-color:rgba(159,180,212,0.13);}',
-      '.pdxip-row[data-pdxip-lane="rode"] .pdxip-lane-t{color:#9fb4d4;background:none;',
+      '.pdxip-row[data-pdxip-lane="off"] .pdxip-lane-t{color:#9fb4d4;background:none;',
         'border-color:rgba(159,180,212,0.24);}',
       '.pdxip-note{margin:0.6rem 0 0;font-size:0.72rem;line-height:1.5;color:#7596c0;}',
       // The held-back tally sits under a rule so it reads as a note ABOUT the

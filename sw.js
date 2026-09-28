@@ -8086,7 +8086,26 @@
 //     untouched; any row without a short line still prints nothing extra.
 //     MIGRATION COST: none, and no location key is migrated, renamed or copied;
 //     consistency.js is precached, so the shell moves one version.
-const CACHE_VERSION = 'v251';
+// v252 - LEAF PRIMARY RETIRED; DOMINANT CATEGORY + OFF-AXIS.
+//     The leaf isPrimary flag is read by nothing on the client. What a bill is
+//     mostly about is now the topic category holding the most of its mapped
+//     issues (window._pdxMeasureAxis in stance-helpers.js). Chips in that
+//     category carry an on-axis badge and chips outside it an off-axis badge
+//     (the rider read), on also-on and drawer chips, the bill page's topic
+//     panel and letterhead, the issue page list and the desk ledger. A tie has
+//     no winner and the copy says the bill is split across those categories.
+//     Off-axis is a badge, not a delete: every measure-issue pair still lists
+//     on its own drawer, in All topics and in also-on. H.J.Res. 131 keeps
+//     Lands, Energy and Red Tape (Red Tape off-axis) and both effect lines.
+//     Scores, Direction Match, NEVER_FEEDS and the publication floor are
+//     untouched.
+//     MIGRATION COST: none, and no location key is migrated, renamed or copied;
+//     stance-helpers.js, consistency.js, issue-file.js, district-board.js and
+//     door1-workspace.js/.css are precached and changed, so the shell moves one
+//     version. bill-detail.js, issue-page.js, exec-record.js and
+//     receipt-cards.js also changed; they are runtime assets and refresh by
+//     stale-while-revalidate.
+const CACHE_VERSION = 'v252';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -64,22 +64,36 @@ node scripts/test-vr-mapping-migration-pack-step.mjs   # the migration declared 
 ## Every mapping/promote migration ends with: **pack key must change.**
 
 Say it out loud at the end of every wave that writes, updates, retracts or promotes
-a row in `vr_measure_issues` — including a bare `is_primary` flip, which is the
-change that looks like nothing and is not.
+a row in `vr_measure_issues` — including a bare weight or support-meaning edit, which
+is the change that looks like nothing and is not.
+
+> **`is_primary` is retired (sw v252).** Nothing reads the column: no list builder,
+> drawer, All topics view, pack, API payload or score. What a measure is mostly about
+> is its **dominant category** — the topic category holding the most of its mapped
+> keys (`window._pdxMeasureAxis` on the client, `netlify/lib/vr-axis.ts` on the
+> server over `db/issue-core-categories.json`, which
+> `node scripts/gen-issue-core-categories.mjs` regenerates from issue-map.js). Keys in
+> that category are **on-axis**; keys outside it are **off-axis** (the rider read), a
+> badge and never a delete. A tie has no winner and the copy says the bill is split.
+> New mappings do not write the flag, and a wave that sets or flips it changes
+> nothing a reader sees — so do not spend a migration on it. The historical notes
+> below that talk about "primary" rows, the primary wall and `_RD_MIN_PRIMARY` describe
+> the engine as it was when they were written.
 
 The reason it is a checklist line and not a task: **it is automatic, and the check is
 that you did not defeat it.** The offline pack's blob key and its URL both carry a
 fingerprint of the mapping table —
 `member:<pid>@m<rowCount>-<md5(contents)[0..12]>`, computed by `mappingVersion()`
-in `netlify/lib/vr-pack.ts` over `measure_id`, `issue_key`, `weight`, `is_primary`,
-`support_meaning` and `rationale`. Any mapping write changes it, so the new key
+in `netlify/lib/vr-pack.ts` over `measure_id`, `issue_key`, `weight`,
+`support_meaning` and `rationale` (`is_primary` left the fingerprint when the flag
+was retired, so every pack rebuilt once). Any mapping write changes it, so the new key
 misses, so the pack rebuilds on the next read, so the service worker's copy is
 bypassed because the URL is different too. Nothing to bump, no counter to remember.
 
 What "you did not defeat it" means, concretely:
 
 - **Do not add a mapping column to the pack without adding it to the fingerprint.**
-  If a wave teaches `PackIssue` a sixth field, that field belongs in the
+  If a wave teaches `PackIssue` a fifth field, that field belongs in the
   `string_agg` in `mappingVersion()` the same day. A field the pack serves and the
   fingerprint ignores is a stale pack with no window on it at all — permanent, not
   six hours.
@@ -89,7 +103,7 @@ What "you did not defeat it" means, concretely:
   is fine. A path that hands the pack builder a mapping the table does not hold is
   not: the fingerprint is of the table, so the key would not move.
 - **Declare it in the migration.** Every migration that writes `vr_measure_issues`
-  — insert, update, delete, promote, retraction, a bare `is_primary` flip — carries
+  — insert, update, delete, promote, retraction, a bare weight edit — carries
   one comment line saying what happens to the packs:
 
   ```sql
@@ -130,8 +144,10 @@ What "you did not defeat it" means, concretely:
   mutation shapes. Run it after the migration lands; the printed version must
   differ from the one recorded in the wave's own notes.
 - **And confirm the read path acts on it.** `node
-  scripts/test-vr-pack-rebuild-on-flip.mjs` flips one `is_primary` in a fixture and
-  runs the shipping `getMemberPack` over it: the next read must carry the new flag
+  scripts/test-vr-pack-rebuild-on-flip.mjs` rewrites one mapping row in place in a
+  fixture (moving H.R. 6644's housing key across its dominant category, so the row
+  count does not change) and runs the shipping `getMemberPack` over it: the next
+  read must carry the new mapping
   with the six-hour TTL nowhere near expiry, and the stance tree and the dossier
   must then agree about that member and that issue. It needs no database, so it
   runs in CI on every commit and not only at the end of a wave.

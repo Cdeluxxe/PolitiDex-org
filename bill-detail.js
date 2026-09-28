@@ -265,9 +265,10 @@
   // August 2026 `isPrimary` is read by nothing that decides a read anywhere in the
   // stack: _RD_MIN_PRIMARY words the "mainly about something else" sentence beside a
   // finding and gates no tier, so a provision-borne act is characterised in full and
-  // discloses how it arrived. THE ONLY THING EITHER FLAG BUYS ON THIS FACE IS A
-  // PRINTED LABEL (see laneLabel below). Nothing in this file may reintroduce either
-  // as a rank, and nothing anywhere may reintroduce `isPrimary` as a gate.
+  // discloses how it arrived. The leaf flag is now RETIRED and read by nothing: the
+  // on-axis / off-axis badge (see laneLabel below) is counted from the measure's
+  // dominant category instead. Nothing in this file may reintroduce weight or axis
+  // as a rank, and nothing anywhere may reintroduce `isPrimary`.
   //   WHAT ORDERS THE LIST INSTEAD, in order of preference:
   //     1. the reader's own picked issues (window._alignIssues). The one legitimate
   //        reason to move a row up the page is that this reader asked for it.
@@ -390,7 +391,25 @@
   // sentence, which is the one place it can be read rather than ranked.
   // How a topic got into the act, in words, on the row. Both values are drawn the
   // same size and in the same place: one line of provenance, not a rank.
-  function laneLabel(isPrimary) { return isPrimary ? 'This bill’s subject' : 'Rode inside this bill'; }
+  // The badge is counted from the measure's dominant category by the shared
+  // _pdxMeasureAxis (stance-helpers.js): a topic in that category — or in any
+  // category a split bill is tied across — is on-axis; anything else is
+  // off-axis, the rider read. A badge, never a filter on which rows exist. The
+  // retired leaf `isPrimary` flag is not read.
+  function axisOf(issues) {
+    try {
+      return (typeof window._pdxMeasureAxis === 'function') ? window._pdxMeasureAxis(issues || []) : null;
+    } catch (e) { return null; }
+  }
+  function axisTip(a) { var t = window._PDX_AXIS_TIP || {}; return t[a] || ''; }
+  function laneLabel(a) { return a === 'on' ? 'On-axis' : a === 'off' ? 'Off-axis' : ''; }
+  function axisLine(ax, m) {
+    var fn = window._pdxAxisSummary;
+    if (!ax || typeof fn !== 'function') return '';
+    var s = '';
+    try { s = fn(ax, isExecutiveAct(m) ? 'act' : 'bill') || ''; } catch (e) { s = ''; }
+    return s ? '<p class="bd-omni-axis" data-bd-axis="' + (ax.split ? 'split' : 'one') + '">' + esc(s) + '</p>' : '';
+  }
 
   // ── READER COPY ONLY ────────────────────────────────────────────────────────
   // `vr_measure_issues.rationale` is a working field. It carries the sentence this
@@ -438,6 +457,7 @@
   function omnibusSection(m, issues) {
     if (!issues || !issues.length) return '';
     var ordered = bigPictureOrder(issues);
+    var ax = axisOf(issues);
     // ONE SHORT ROW PER KEY, AND NOTHING ABOVE THEM. This section used to open with
     // a paragraph restating that a single vote decides every row, plus a lane
     // disclaimer, plus a direction tally — all three of which the letterhead
@@ -452,22 +472,24 @@
       // summarised, and never composed — a row with nothing publishable left says
       // nothing, and the letterhead's tally counts it as unexplained.
       var why = scopeSentence(it);
-      // `data-bd-lane` is a FILTER KEY AND NOTHING ELSE. It carries the curated
-      // primary flag so the optional view control below has something to slice on;
-      // it sets no default, hides nothing on its own, and no styling reads it
-      // except the two display rules the filter itself installs.
+      // `data-bd-lane` is a FILTER KEY AND NOTHING ELSE. It carries the row's
+      // axis so the optional view control below has something to slice on; it
+      // sets no default, hides nothing on its own, and no styling reads it except
+      // the two display rules the filter itself installs.
+      var a = ax ? ax.axisOf(it.issueKey) : '';
       return '<div class="bd-omni-row' + (opposes ? ' bd-omni-opp' : '') + '"' +
-          ' data-bd-lane="' + (it.isPrimary ? 'main' : 'other') + '">' +
+          ' data-bd-lane="' + (a || 'on') + '">' +
         '<div class="bd-omni-head">' +
           '<button type="button" class="bd-omni-issue bd-omni-link" data-issue="' + escAttr(it.issueKey) + '" title="See the ' + escAttr(issueLabel(it.issueKey)) + ' spotlight">' + esc(issueLabel(it.issueKey)) + '</button>' +
-          '<span class="bd-omni-lane-l">' + esc(laneLabel(it.isPrimary)) + '</span>' +
+          (a ? '<span class="bd-omni-lane-l" data-pdx-axis="' + a + '" title="' + escAttr(axisTip(a)) + '">' + esc(laneLabel(a)) + '</span>' : '') +
           effectChip(m, opposes) +
         '</div>' +
         (why ? '<div class="bd-omni-why">' + esc(why) + '</div>' : '') +
       '</div>';
     }).join('');
     return '<section class="bd-sec"><h3 class="bd-h">📦 Every topic this act touches</h3>' +
-      '<div class="bd-omni-view">' + viewFilter(ordered) +
+      axisLine(ax, m) +
+      '<div class="bd-omni-view">' + viewFilter(ordered, ax) +
         '<div class="bd-omni-list" data-bd-view="all">' + rows + '</div>' +
       '</div></section>';
   }
@@ -477,17 +499,18 @@
   // has in front of them; they never decide which rows exist. Three properties
   // hold that line and the tests pin all three:
   //   · "All topics" is the default and the only state the panel ever opens in.
-  //   · The slice labels describe what a slice CONTAINS ("titles often described
-  //     as the vehicle's main jobs") rather than promoting one over the other. No
-  //     button says primary, secondary or supporting.
+  //   · The slice labels describe what a slice CONTAINS (on-axis: the bill's
+  //     main category; off-axis: a different topic) rather than promoting one
+  //     over the other. No button says primary, secondary or supporting.
   //   · The control is only drawn when both slices are non-empty, so it can never
   //     appear as a filter that filters to everything or to nothing.
   // It fails open: with scripting unavailable the buttons are inert and every row
   // stays on screen, because the visible state lives in one attribute whose
   // shipped value is "all".
-  function viewFilter(ordered) {
+  function viewFilter(ordered, ax) {
     var main = 0, other = 0;
-    ordered.forEach(function (it) { if (it.isPrimary) main++; else other++; });
+    if (!ax) return '';
+    ordered.forEach(function (it) { if (ax.axisOf(it.issueKey) === 'off') other++; else main++; });
     if (!main || !other) return '';
     var btn = function (key, label, on) {
       return '<button type="button" class="bd-vf-btn" data-bd-view-set="' + key + '"' +
@@ -496,8 +519,8 @@
     return '<div class="bd-viewfilter" role="group" aria-label="Filter the topic list">' +
       '<span class="bd-vf-lab">View</span>' +
       btn('all', 'All topics (' + ordered.length + ')', true) +
-      btn('main', 'Titles often described as the vehicle’s main jobs (' + main + ')', false) +
-      btn('other', 'Other provisions in this act (' + other + ')', false) +
+      btn('on', 'On-axis — the bill’s main category (' + main + ')', false) +
+      btn('off', 'Off-axis — a different topic (' + other + ')', false) +
     '</div>';
   }
 
@@ -1247,21 +1270,22 @@
     if (!ordered.length) {
       return '<p class="bd-lh-gap">No topics are mapped to this measure yet, so a vote on it is not counted on any issue.</p>';
     }
-    var subj = 0;
-    ordered.forEach(function (it) { if (it.isPrimary) subj++; });
-    var rode = ordered.length - subj;
+    var ax = axisOf(issues || []);
+    var on = 0;
+    ordered.forEach(function (it) { if (ax && ax.axisOf(it.issueKey) === 'on') on++; });
+    var off = ax ? ordered.length - on : 0;
     var tally = ordered.length + ' topic' + (ordered.length !== 1 ? 's' : '') + ' mapped' +
-      ' · ' + subj + ' this bill’s subject' +
-      ' · ' + rode + ' rode inside';
+      (ax ? ' · ' + on + ' on-axis · ' + off + ' off-axis' : '');
     var chips = ordered.map(function (it) {
-      var lane = it.isPrimary ? 'this bill’s subject' : 'rode inside';
+      var a = ax ? ax.axisOf(it.issueKey) : '';
+      var lane = a === 'on' ? 'on-axis' : a === 'off' ? 'off-axis' : '';
       // The chip is the door; the ⓘ is its sibling, never its child.
       return '<span class="bd-lh-chipw">' +
         '<button type="button" class="bd-lh-chip" data-issue="' + escAttr(it.issueKey) + '"' +
           issueTint(it.issueKey) +
           ' title="' + escAttr('Open the ' + issueLabel(it.issueKey) + ' face') + '">' +
           '<span class="bd-lh-chip-l">' + esc(issueLabel(it.issueKey)) + '</span>' +
-          '<span class="bd-lh-chip-lane">' + esc(lane) + '</span>' +
+          (lane ? '<span class="bd-lh-chip-lane" data-pdx-axis="' + a + '" title="' + escAttr(axisTip(a)) + '">' + esc(lane) + '</span>' : '') +
         '</button>' + scopeControlHtml(it.issueKey) +
       '</span>';
     }).join('');
@@ -1916,8 +1940,10 @@
       '.bd-vf-btn:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;}' +
       // The whole filter, in two rules. "all" matches neither, which is why the
       // default state shows every row and why a missing/unknown value does too.
-      '.bd-omni-list[data-bd-view="main"] .bd-omni-row[data-bd-lane="other"]{display:none;}' +
-      '.bd-omni-list[data-bd-view="other"] .bd-omni-row[data-bd-lane="main"]{display:none;}' +
+      '.bd-omni-list[data-bd-view="on"] .bd-omni-row[data-bd-lane="off"]{display:none;}' +
+      '.bd-omni-list[data-bd-view="off"] .bd-omni-row[data-bd-lane="on"]{display:none;}' +
+      '.bd-omni-axis{margin:-.2rem 0 .6rem;font-size:.78rem;opacity:.85;}' +
+      '.bd-omni-lane-l[data-pdx-axis="off"],.bd-lh-chip-lane[data-pdx-axis="off"]{font-style:italic;}' +
       '.bd-svd-cap{font:700 .6rem/1.3 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#8aa0c4;margin:.1rem 0 .3rem;}' +
       '.bd-svd-count{font:700 .6rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#bcd0f0;background:rgba(159,180,212,.1);border:1px solid rgba(159,180,212,.22);border-radius:999px;padding:.16rem .45rem;}' +
       '.bd-eff{font:700 .6rem/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;border-radius:999px;padding:.16rem .45rem;white-space:nowrap;}' +

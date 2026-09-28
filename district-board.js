@@ -767,10 +767,28 @@
     return 'n:' + sit + '|' + number;
   }
 
+  // THE ROW'S ONE ISSUE CHIP, from the measure's dominant category — the topic
+  // category (coreIssueForKey) holding the most of its mapped keys; the retired
+  // leaf `isPrimary` flag is not read. The chip names the first mapped key inside
+  // that category. A split bill has no single winner, and nothing (not weight,
+  // not order) breaks the tie, so its row prints no issue chip rather than a
+  // fake one. Membership is untouched: this picks a label, it hides no row.
   function primaryIssue(item) {
     var arr = (item && Array.isArray(item.issues)) ? item.issues : [];
-    for (var i = 0; i < arr.length; i++) if (arr[i] && arr[i].isPrimary && arr[i].issueKey) return String(arr[i].issueKey);
-    for (var j = 0; j < arr.length; j++) if (arr[j] && arr[j].issueKey) return String(arr[j].issueKey);
+    var keys = [], catOf = {}, count = {};
+    for (var i = 0; i < arr.length; i++) {
+      var k = arr[i] && arr[i].issueKey ? String(arr[i].issueKey) : '';
+      if (!k || catOf[k]) continue;
+      var core = null;
+      try { core = (typeof window.coreIssueForKey === 'function') ? window.coreIssueForKey(k) : null; } catch (e) { core = null; }
+      var c = core && core.key ? String(core.key) : 'issue:' + k;
+      keys.push(k); catOf[k] = c; count[c] = (count[c] || 0) + 1;
+    }
+    var top = 0, winners = [];
+    for (var c2 in count) if (count[c2] > top) top = count[c2];
+    for (var c3 in count) if (count[c3] === top) winners.push(c3);
+    if (winners.length !== 1) return '';
+    for (var j = 0; j < keys.length; j++) if (catOf[keys[j]] === winners[0]) return keys[j];
     return '';
   }
 

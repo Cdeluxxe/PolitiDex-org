@@ -77,7 +77,6 @@ if (!SEEDED || !SEEDED.issues || SEEDED.issues.length < 2) die("H.R. 6644 is no 
 const REAL = SEEDED.issues.map((i) => ({
   issueKey: i.issueKey,
   supportMeaning: i.supportMeaning || "yea_supports",
-  isPrimary: !!i.isPrimary,
   weight: i.weight,
   rationale: i.rationale || "",
 }));
@@ -92,14 +91,14 @@ if (!/Weighted 80/.test(RAW) || !/ranked below/.test(RAW) || !/Primary:/.test(RA
 // exact phrasings the brief named — so the sweep is tested against them too.
 const SYNTH = [
   {
-    issueKey: "permitting_reform", supportMeaning: "yea_supports", isPrimary: false, weight: 60,
+    issueKey: "permitting_reform", supportMeaning: "yea_supports", weight: 60,
     rationale: "Secondary: Title II shortens the environmental review window for qualifying " +
       "residential projects and sets deadlines for agency action on permit applications; a yea " +
       "shortens federal review. Weighted 60 because housing_build 100 holds the primary and this " +
       "row is ranked below it, and the weight is what ranks the two axes, not the flag.",
   },
   {
-    issueKey: "crypto_cbdc", supportMeaning: "yea_opposes", isPrimary: false, weight: 40,
+    issueKey: "crypto_cbdc", supportMeaning: "yea_opposes", weight: 40,
     rationale: "Title V bars a Federal Reserve central bank digital currency issued directly to " +
       "individuals, so a yea cuts against a retail CBDC. Re-keyed from gov_regulation in the " +
       "August 2026 taxonomy split; recorded neutrally at w40 and mapped below the housing rows.",
@@ -310,12 +309,22 @@ section("2 · one topic surface — one chip strip, one ledger, one row per key"
   hasNot(LEDGER, 'class="bd-omni-summary"', "the ledger has a direction tally above its rows");
   // What each row DOES keep: the label, the lane word, the direction, and a
   // sentence about what the act did there.
-  eq(count(LEDGER, /class="bd-omni-lane-l"/g), N, "some ledger row lost its subject/rode-inside label");
+  eq(count(LEDGER, /class="bd-omni-lane-l"/g), N, "some ledger row lost its on-axis/off-axis label");
   eq(count(LEDGER, /A Yea (?:advances|cuts against) this/g), N,
     "some ledger row lost its Yea-advances / Yea-cuts direction");
-  const subj = ISSUES.filter((i) => i.isPrimary).length;
-  eq(count(LEDGER, /This bill’s subject/g), subj, "the subject rows are not all labelled");
-  eq(count(LEDGER, /Rode inside this bill/g), N - subj, "the rode-inside rows are not all labelled");
+  // On-axis is counted here from the category table (coreIssueForKey): the
+  // category holding the most keys is the main one; a tie puts all tied on-axis.
+  const cat = {}, cnt = {};
+  for (const i of ISSUES) {
+    const core = B.win.coreIssueForKey(i.issueKey);
+    cat[i.issueKey] = core && core.key ? core.key : "issue:" + i.issueKey;
+    cnt[cat[i.issueKey]] = (cnt[cat[i.issueKey]] || 0) + 1;
+  }
+  const top = Math.max(...Object.values(cnt));
+  const subj = ISSUES.filter((i) => cnt[cat[i.issueKey]] === top).length;
+  ok(subj > 0 && subj < N, `fixture drift: H.R. 6644 no longer has both on- and off-axis rows (${subj}/${N})`);
+  eq(count(LEDGER, /data-pdx-axis="on"[^>]*>On-axis</g), subj, "the on-axis rows are not all labelled");
+  eq(count(LEDGER, /data-pdx-axis="off"[^>]*>Off-axis</g), N - subj, "the off-axis rows are not all labelled");
   ok(count(LEDGER, /class="bd-omni-why"/g) >= 3,
     "the scrubber has eaten the scope sentences instead of the notes inside them");
 }
@@ -342,14 +351,22 @@ section("3 · reader copy only — no weight, no flag, no raw key, no label");
     const m = TEXT.match(re);
     ok(!m, `${label} is on the bill face: ${JSON.stringify(m && TEXT.slice(Math.max(0, m.index - 60), m.index + 80))}`);
   }
-  // THE ATTRIBUTION LINE IS THE ONE PLACE "mapped" BELONGS. "4 topics mapped ·
-  // 2 this bill's subject · 2 rode inside" is not homework, it is the disclosure
+  // THE ATTRIBUTION LINES ARE THE ONLY PLACES "mapped" BELONGS. "4 topics mapped ·
+  // 3 on-axis · 1 off-axis" is not homework, it is the disclosure
   // that PolitiDex assigned these topics and Congress did not — a reader who
   // cannot tell those apart cannot argue with either. So the filing vocabulary is
   // banned everywhere a row explains itself, and permitted only in the tally that
-  // says who did the filing.
+  // says who did the filing — and in its one sibling, the ledger's axis line
+  // ("Main category: … — 3 of 4 mapped topics."), which is the same count by
+  // category and sits above the rows, never inside one.
   {
-    const LEDGER_TEXT = TEXT.slice(TEXT.indexOf("Every topic this act touches"));
+    const AXIS = [...HTML.matchAll(/<p class="bd-omni-axis" data-bd-axis="(?:one|split)">([^<]*)<\/p>/g)];
+    eq(AXIS.length, 1, "the ledger does not carry exactly one axis line");
+    const axisText = AXIS.length ? AXIS[0][1].replace(/&#39;/g, "'").replace(/&amp;/g, "&") : "";
+    ok(/^Main category: .+ — \d+ of \d+ mapped topics\.$/.test(axisText), `the axis line is not the shipped sentence: ${JSON.stringify(axisText)}`);
+    ok(!/class="bd-omni-row[^"]*"[^>]*>(?:(?!<div class="bd-omni-row)[\s\S])*bd-omni-axis/.test(HTML),
+      "the axis line has moved inside a ledger row");
+    const LEDGER_TEXT = TEXT.slice(TEXT.indexOf("Every topic this act touches")).replace(axisText, " ");
     for (const [label, re] of [
       ["the filing system", /\bmapp(?:ed|ing|ings)\b|\bunmapped\b|\bre-keyed\b|\btaxonomy\b/i],
       ["the archive talking about itself", /\b(?:this|the) (?:row|key|axis|facet|corpus)\b/i],

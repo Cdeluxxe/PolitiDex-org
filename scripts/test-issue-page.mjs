@@ -16,8 +16,8 @@
  *   2. ABOVE THE FOLD IS BORROWED COPY AND COUNTS. The chip, the locked scope
  *      sentence and the ⓘ are issue-scope.js's, byte for byte. The counts are
  *      counts of rows on the page — and there is NO percentage.
- *   3. THE LIST IS EVERY MAPPING. Number, short title, subject-of-the-bill or
- *      rode-inside, chamber · last roll date · Yea–Nay, and a door to the bill.
+ *   3. THE LIST IS EVERY MAPPING. Number, short title, on-axis or
+ *      off-axis, chamber · last roll date · Yea–Nay, and a door to the bill.
  *      Nothing is truncated, no rider is hidden, no package is discounted.
  *   4. THE SORT. Subject first, then newest roll, and an unvoted mapped act
  *      still on the list rather than sorted out of existence.
@@ -35,7 +35,7 @@
  *   8. MUTATION. Every fence above is driven against a deliberately broken
  *      copy of the module, and has to fail.
  *
- * ACCEPTANCE: /issue/housing lists H.R. 6644 as this bill's subject, plus every
+ * ACCEPTANCE: /issue/housing lists H.R. 6644 as on-axis, plus every
  * other housing mapping. The measure's two housing-side facts are read out of
  * db/vr-issue-seed.json here, so this file fails if the seed stops saying them.
  *
@@ -73,14 +73,22 @@ const SEED_6644 = (SEED.measures || []).find((m) => m && m.number === "H.R. 6644
 if (!SEED_6644) die("db/vr-issue-seed.json no longer carries H.R. 6644");
 const SEED_HOUSING = (SEED_6644.issues || []).find((i) => i && i.issueKey === KEY);
 if (!SEED_HOUSING) die("H.R. 6644 no longer carries a `housing` mapping in the seed");
-if (!SEED_HOUSING.isPrimary) {
-  die("H.R. 6644's `housing` mapping is no longer isPrimary — the acceptance sentence " +
-      "('lists H.R. 6644 as this bill's subject') is a claim about that flag");
+// ON-AXIS IS A CATEGORY COUNT, NOT A FLAG. The measure's dominant category is
+// the topic category holding the most of its mapped keys; `housing` is on-axis
+// for H.R. 6644 because it sits in that category. Read from the shipped table.
+const CAT_OF = JSON.parse(readFileSync(join(ROOT, "db/issue-core-categories.json"), "utf8")).categoryOf || {};
+const SEED_KEYS = (SEED_6644.issues || []).map((i) => i.issueKey);
+const catCount = {};
+for (const k of SEED_KEYS) { const c = CAT_OF[k] || `issue:${k}`; catCount[c] = (catCount[c] || 0) + 1; }
+const catTop = Math.max(...Object.values(catCount));
+const SEED_ON_AXIS = SEED_KEYS.filter((k) => catCount[CAT_OF[k] || `issue:${k}`] === catTop);
+if (SEED_ON_AXIS.indexOf(KEY) < 0) {
+  die("H.R. 6644's `housing` mapping is no longer inside the bill's main category — the acceptance " +
+      "sentence ('lists H.R. 6644 as on-axis') is a claim about that count");
 }
-const SEED_PRIMARIES = (SEED_6644.issues || []).filter((i) => i.isPrimary).map((i) => i.issueKey);
-if (SEED_PRIMARIES.length < 2) {
-  die("H.R. 6644 no longer carries two primary mappings — the per-key lane read " +
-      "(primaryIssueKeys, not primaryIssue) is what that case exists to fix");
+if (SEED_ON_AXIS.length < 2) {
+  die("H.R. 6644 no longer carries two on-axis mappings — the per-key lane read " +
+      "(onAxisIssueKeys, not the single primaryIssue slot) is what that case exists to fix");
 }
 
 // The browse-route payload as the Function now returns it. Facts are the shipped
@@ -90,18 +98,20 @@ const M_6644 = {
   id: 88, number: "H.R. 6644", shortTitle: "21st Century ROAD to Housing Act",
   title: "21st Century Revitalizing Opportunity and Access to Development of Housing Act",
   chamber: "house", congress: 119, status: "enacted",
-  primaryIssue: SEED_PRIMARIES[0],
-  primaryIssueKeys: SEED_PRIMARIES,
-  issueKeys: (SEED_6644.issues || []).map((i) => i.issueKey),
+  primaryIssue: SEED_KEYS[0],
+  onAxisIssueKeys: SEED_ON_AXIS,
+  issueKeys: SEED_KEYS,
   isOmnibus: true, rollcallCount: 2, voteCount: 534,
   lastRoll: { chamber: "senate", voteDate: "2026-03-12T00:00:00.000Z", question: "On Passage of the Bill", result: "passed", yea: 89, nay: 10 },
   source: { url: SEED_6644.sourceUrl, label: "Congress.gov" },
 };
-// A PACKAGE that carried housing inside it. Newer roll than the acceptance
+// A PACKAGE that carried housing inside it: two of its three mapped keys sit in
+// spending_debt_waste, so that is its main category and housing (economy /
+// cost of living) is off-axis BY CATEGORY. Newer roll than the acceptance
 // measure on purpose: it is the row that proves the lane outranks the date.
 const M_PKG = {
   id: 12, number: "H.R. 1", shortTitle: "One Big Beautiful Bill Act", chamber: "house", congress: 119,
-  primaryIssue: "lower_taxes", primaryIssueKeys: ["lower_taxes"], issueKeys: ["lower_taxes", KEY],
+  primaryIssue: "lower_taxes", onAxisIssueKeys: ["lower_taxes", "cut_spending"], issueKeys: ["lower_taxes", "cut_spending", KEY],
   isOmnibus: true, rollcallCount: 1,
   lastRoll: { chamber: "house", voteDate: "2026-07-03T00:00:00.000Z", result: "passed", yea: 218, nay: 214 },
 };
@@ -109,13 +119,13 @@ const M_PKG = {
 // floor roll on file at all.
 const M_UTAH = {
   id: 40, number: "H.B. 360", shortTitle: "Housing Attainability Amendments", chamber: "utah house",
-  externalIds: { utahSession: "2025GS" }, primaryIssueKeys: [KEY], issueKeys: [KEY],
+  externalIds: { utahSession: "2025GS" }, onAxisIssueKeys: [KEY], issueKeys: [KEY],
   isOmnibus: false, rollcallCount: 0, lastRoll: null,
 };
 // An older subject-lane roll, to pin "then by last roll (newest)" inside a lane.
 const M_OLD = {
   id: 41, number: "S.B. 262", shortTitle: "Housing Affordability Modifications", chamber: "utah senate",
-  externalIds: { utahSession: "2025GS" }, primaryIssueKeys: [KEY], issueKeys: [KEY],
+  externalIds: { utahSession: "2025GS" }, onAxisIssueKeys: [KEY], issueKeys: [KEY],
   rollcallCount: 1,
   lastRoll: { chamber: "utah senate", voteDate: "2025-02-20T00:00:00.000Z", result: "passed", yea: 22, nay: 6 },
 };
@@ -198,13 +208,21 @@ has(HTML, "21st Century ROAD to Housing Act", "the row carries no short title");
 // The acceptance sentence, as one assertion: 6644 is here AND it is the subject.
 const R6644 = ROWS.find((r) => r.number === "H.R. 6644");
 ok(!!R6644, "H.R. 6644 is not on /issue/housing");
-eq(R6644.subject, true, "H.R. 6644 is not labelled this bill's subject on /issue/housing");
-eq(IP.SUBJECT, "this bill’s subject", "the subject lane is not worded as the bill face words it");
-eq(IP.RODE, "rode inside", "the rider lane is not worded as the bill face words it");
+eq(R6644.subject, true, "H.R. 6644 is not labelled on-axis on /issue/housing");
+eq(IP.SUBJECT, "on-axis", "the on-axis lane is not worded as the bill face words it");
+eq(IP.RODE, "off-axis", "the off-axis lane is not worded as the bill face words it");
+has(IP.rowHtml(R6644), 'data-pdx-axis="on"', "the on-axis badge carries no data-pdx-axis");
+has(IP.rowHtml(R6644), 'title="On-axis — same topic as the bill’s main category"',
+  "the on-axis badge does not carry its tooltip verbatim");
+has(IP.rowHtml(R6644), 'data-pdxip-lane="on"', "the on-axis row is not in the on lane");
 has(IP.rowHtml(R6644), IP.SUBJECT, "the subject row does not print the subject label");
 const RPKG = ROWS.find((r) => r.number === "H.R. 1");
 eq(RPKG.subject, false, "a package that carried this issue inside it was labelled the subject");
 has(IP.rowHtml(RPKG), IP.RODE, "the rode-inside row does not print the rode-inside label");
+has(IP.rowHtml(RPKG), 'data-pdx-axis="off"', "the off-axis badge carries no data-pdx-axis");
+has(IP.rowHtml(RPKG), 'title="Off-axis — different topic than the bill’s main category (rider-shaped)"',
+  "the off-axis badge does not carry its tooltip verbatim");
+has(IP.rowHtml(RPKG), 'data-pdxip-lane="off"', "the off-axis row is not in the off lane");
 // chamber · last roll date · Yea–Nay
 eq(IP.rollLine(R6644), "Senate · Mar 12, 2026 · 89–10",
   "the row line is not chamber · last roll date · Yea–Nay");
@@ -213,11 +231,17 @@ eq(IP.rollLine(ROWS.find((r) => r.number === "H.B. 360")), "Utah House · no flo
 has(HTML, "Senate · Mar 12, 2026 · 89–10", "the acceptance measure's roll line is not on the page");
 // The lane read is per key, not off the single primaryIssue slot.
 eq(IP.rowsFrom([M_6644], "housing_build")[0].subject, true,
-  "the other axis H.R. 6644 is primary on does not read as its subject either");
-eq(IP.rowsFrom([{ number: "X. 1", primaryIssue: "housing", issueKeys: ["housing"] }], KEY)[0].subject, true,
-  "the inline index's single primary slot is not read when no per-key flags exist");
-eq(IP.rowsFrom([{ number: "X. 2", primaryIssue: "lower_taxes", issueKeys: ["housing"] }], KEY)[0].subject, false,
-  "a row whose primary is another key was called this bill's subject");
+  "the other key H.R. 6644 is on-axis for does not read as on-axis either");
+// The inline paint index carries no onAxisIssueKeys: the page counts categories
+// over issueKeys itself, and the primaryIssue slot decides nothing.
+eq(IP.rowsFrom([{ number: "X. 1", primaryIssue: "lower_taxes", issueKeys: ["housing"] }], KEY)[0].subject, true,
+  "a single-key inline row was not read as on-axis when no per-key list exists");
+eq(IP.rowsFrom([{ number: "X. 2", primaryIssue: "housing", issueKeys: ["lower_taxes", "cut_spending", "housing"] }], KEY)[0].subject, false,
+  "an inline row whose main category is another topic was called on-axis for this key");
+eq(IP.rowsFrom([{ number: "X. 3", issueKeys: ["lower_taxes", "housing"] }], KEY)[0].subject, true,
+  "a split inline row (one key per category) did not put every tied category on-axis");
+eq(IP.rowsFrom([{ number: "X. 4", issueKeys: ["lower_taxes", "cut_spending", "housing"], onAxisIssueKeys: [KEY] }], KEY)[0].subject, true,
+  "the route's onAxisIssueKeys were not trusted over the local count");
 // The door.
 has(HTML, 'data-pdxip-sitting="2025GS"', "a state row carries no session, so its door opens the wrong bill");
 has(HTML, 'data-pdxip-sitting="119"', "a federal row carries no congress");
@@ -233,7 +257,7 @@ eq(HTML.split("discount").length - 1, IP.PKG_NOTE.split("discount").length - 1,
   "the page discusses discounting outside the note that forbids it");
 
 // ── 4 · THE SORT ────────────────────────────────────────────────────────────
-section("the sort: subject first, then newest roll");
+section("the sort: on-axis first, then newest roll");
 const ORDER = ROWS.map((r) => r.number);
 eq(ORDER[0], "H.R. 6644", "the newest subject-lane roll is not first");
 eq(ORDER[ORDER.length - 1], "H.R. 1",
@@ -581,7 +605,8 @@ ok(/from = "\/issue\/\*"\s*\n\s*to = "\/spotlight\.html"/.test(NT),
 ok(/from = "\/i\/\*"\s*\n\s*to = "\/issue\.html"/.test(NT),
   "netlify.toml no longer serves issue.html for /i/<key> — that is where an unknown /issue/ slug is sent");
 const VR = readFileSync(join(ROOT, "netlify/functions/voting-record.mts"), "utf8");
-has(VR, "primaryIssueKeys", "the browse route does not publish every primary flag");
+has(VR, "onAxisIssueKeys", "the browse route does not publish its per-key on-axis list");
+hasNot(VR, "primaryIssueKeys", "the browse route still publishes the retired per-key primary flags");
 has(VR, "lastRoll", "the browse route does not publish the last floor roll");
 has(VR, "vrRollcalls.voteDate", "the last roll is not read from the roll-call table");
 ok(/lastRc\[rc\.measureId\] = rc/.test(VR), "the browse route does not pick the LAST roll");
@@ -612,15 +637,23 @@ async function probe(src) {
   const e = P.bodyHtml({ key: KEY, rows: [], people: [] });
   out.push(e.includes("No mapped measure on file yet") && e.includes(SCOPE.inn) &&
            !ALL_NUMBERS.some((n) => e.includes(n)) && P.has(KEY) && !P.has("not_a_real_issue_key"));
+  // (f) the inline index's local category count: a split is on-axis, a minority key is not
+  out.push(P.rowsFrom([{ number: "X. 3", issueKeys: ["lower_taxes", KEY] }], KEY)[0].subject === true &&
+           P.rowsFrom([{ number: "X. 2", issueKeys: ["lower_taxes", "cut_spending", KEY] }], KEY)[0].subject === false);
   return out;
 }
 const BASE = await probe(SRC);
-BASE.forEach((v, i) => ok(v, `the shipped module fails its own probe ${"abcde"[i]}`));
+BASE.forEach((v, i) => ok(v, `the shipped module fails its own probe ${"abcdef"[i]}`));
 
 const MUTANTS = [
   ["the lane is read off the single primaryIssue slot again",
-    (s) => s.replace("var subject = pk ? pk.indexOf(key) > -1 : (String(it.primaryIssue || '') === String(key));",
+    (s) => s.replace("var subject = ok ? ok.indexOf(key) > -1 : axisOnFor(keys, key);",
                      "var subject = (String(it.primaryIssue || '') === String(key));")],
+  ["a split bill's tied categories stop being on-axis",
+    (s) => s.replace("return !!mine && count[mine] === top;",
+                     "return !!mine && count[mine] === top && Object.keys(count).filter(function (c) { return count[c] === top; }).length === 1;")],
+  ["the local count ignores the category and calls every mapped key on-axis",
+    (s) => s.replace("return !!mine && count[mine] === top;", "return !!mine;")],
   ["the list is truncated",
     (s) => s.replace("'<ol class=\"pdxip-rows\">' + rows.map(rowHtml).join('')",
                      "'<ol class=\"pdxip-rows\">' + rows.slice(0, 2).map(rowHtml).join('')")],
@@ -644,7 +677,7 @@ for (const [name, mutate] of MUTANTS) {
   const src = mutate(SRC);
   if (src === SRC) { failures.push(`mutation "${name}" did not change the source`); continue; }
   let res;
-  try { res = await probe(src); } catch (e) { res = [false, false, false, false, false]; }
+  try { res = await probe(src); } catch (e) { res = [false, false, false, false, false, false]; }
   const caught = res.some((v, i) => v !== BASE[i] && BASE[i]);
   ok(caught, `mutation survived: ${name}`);
 }

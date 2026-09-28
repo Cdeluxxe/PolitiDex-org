@@ -25,13 +25,16 @@
 // WHAT IT HOLDS:
 //
 //   1. THE FINGERPRINT IS SENSITIVE TO EVERY MUTATION SHAPE A WAVE CAN MAKE.
-//      is_primary flip, weight edit, support_meaning flip, rationale edit,
-//      insert, delete — each must move the version. A hand-bumped counter would
+//      weight edit, support_meaning flip, rationale edit, insert, delete —
+//      each must move the version. A hand-bumped counter would
 //      have missed F4 exactly: an UPDATE on an existing row moves no row count
 //      and nobody remembers that flipping a flag is a mapping change.
 //   2. AND IS INDIFFERENT TO WHAT THE PACK DOES NOT SERVE. source_url is
 //      mapping evidence, not pack content; a citation fix must not invalidate
-//      825 members' packs.
+//      825 members' packs. The leaf is_primary column is RETIRED — the pack no
+//      longer serves it and nothing on the client reads it (on-axis / off-axis
+//      is counted from the measure's mapped issues) — so flipping it must not
+//      move the version either.
 //   3. THE MAPPING TABLE HAS NO COLUMN THE FINGERPRINT DOES NOT KNOW ABOUT.
 //      This is the trap that reopens the bug: add a mapping column, serve it in
 //      the pack, forget the fingerprint, and the key stops moving for it.
@@ -101,10 +104,14 @@ has(recipe, "slice(0, 12)", "the hash is truncated to 12 hex chars");
 has(FP_SQL, "md5(string_agg(", "the fingerprint is an md5 over the aggregated rows");
 has(FP_SQL, "order by id", "the aggregation is ordered, so the hash is stable across plans");
 has(FP_SQL, "'empty'", "an empty mapping table still yields a version");
-// The six fields the pack actually serves per issue, and the row count. Nothing
+// The fields the pack actually serves per issue, and the row count. Nothing
 // else. Every one of these is asserted individually against the DB in section 1.
-for (const col of ["measure_id", "issue_key", "weight", "is_primary", "support_meaning", "rationale"])
+for (const col of ["measure_id", "issue_key", "weight", "support_meaning", "rationale"])
   has(FP_SQL, col, `the fingerprint covers ${col}`);
+ok(FP_SQL.indexOf("is_primary") < 0,
+  "the fingerprint must NOT cover the retired is_primary flag — the pack no longer serves it");
+ok(!/isPrimary/.test(PACK_TS.slice(PACK_TS.indexOf("type PackIssue"), PACK_TS.indexOf("type PackIssue") + 400)),
+  "PackIssue no longer carries isPrimary");
 ok(FP_SQL.indexOf("source_url") < 0,
   "the fingerprint must NOT cover source_url — mapping evidence is not pack content");
 
@@ -138,9 +145,10 @@ if (!DB) {
     )).rows.map((r) => r.column_name);
     must(cols.length > 0, "vr_measure_issues does not exist in this database");
     const list = cols.join(", ");
-    const covered = ["measure_id", "issue_key", "weight", "is_primary", "support_meaning", "rationale"];
-    // id identifies the row and orders the aggregate; source_url is deliberately out.
-    const exempt = ["id", "source_url"];
+    const covered = ["measure_id", "issue_key", "weight", "support_meaning", "rationale"];
+    // id identifies the row and orders the aggregate; source_url is deliberately out;
+    // is_primary is a retired leaf flag the pack no longer serves.
+    const exempt = ["id", "source_url", "is_primary"];
     const unknown = cols.filter((c) => !covered.includes(c) && !exempt.includes(c));
 
     section("3. every mapping column is either fingerprinted or deliberately exempt");
@@ -156,7 +164,6 @@ if (!DB) {
 
     section("1. every mutation shape a mapping wave can make moves the version");
     const shapes = [
-      ["is_primary flip (F4's own shape)", touch("is_primary", "not is_primary")],
       ["weight edit", touch("weight", "case when weight = 100 then 80 else 100 end")],
       ["support_meaning flip", touch("support_meaning",
         "case when support_meaning = 'yea_supports' then 'yea_opposes' else 'yea_supports' end")],
@@ -174,14 +181,18 @@ if (!DB) {
     }
     // Both halves of the version must be live, not just the hash: a wave that
     // only inserts is caught by the count too, and one that only edits is not.
-    const inserted = await fingerprint(shapes[4][1]);
+    const inserted = await fingerprint(shapes[3][1]);
     eq(inserted.n, base.n + 1, "an inserted row moves the count half of the version");
-    const flipped = await fingerprint(shapes[0][1]);
-    eq(flipped.n, base.n, "a flag flip moves only the hash half — which is why a counter would miss it");
+    const flipped = await fingerprint(shapes[1][1]);
+    eq(flipped.n, base.n, "an in-place UPDATE (support_meaning flip) moves only the hash half — which is why a counter would miss it");
 
     section("2. and is indifferent to what the pack does not serve");
     const citation = await fingerprint(touch("source_url", "'https://example.invalid/fix'"));
     eq(citation.v, base.v, "a source_url fix must NOT invalidate every member's pack");
+    if (cols.includes("is_primary")) {
+      const retired = await fingerprint(touch("is_primary", "not is_primary"));
+      eq(retired.v, base.v, "a flip of the retired is_primary flag must NOT invalidate every member's pack — nothing reads it");
+    }
 
     console.log(`\n      current mapping version: ${base.v}  (${base.n} rows in vr_measure_issues)`);
     console.log(`      pack key:  member:<pid>@${base.v}`);

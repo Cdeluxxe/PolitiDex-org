@@ -807,12 +807,24 @@
   // no side for gets no sentence about how the side travelled, so it joins no
   // vehicle slice either. `package` is the same population the census already
   // prints as `pkg`, by construction rather than by a second count.
+  // ON-AXIS: `key` is in the measure's dominant category, counted over the
+  // measure's own mapped keys by the shared _pdxMeasureAxis. Accepts mapping
+  // objects or bare keys. False (off-axis) when stance-helpers.js is absent.
+  function axisOn(list, key) {
+    if (!fn(window._pdxMeasureAxis)) return false;
+    var issues = (list || []).map(function (g) { return typeof g === 'string' ? { issueKey: g } : g; });
+    try { return !!window._pdxMeasureAxis(issues).onAxis(key); } catch (e) { return false; }
+  }
+  function axisTip(a) {
+    var t = window._PDX_AXIS_TIP || {};
+    return t[a] || '';
+  }
   function vehClassOf(v) {
     if (!v) return '';
     var st = v.standalone || 0, pr = v.provision || 0;
     if (st > 0 && pr > 0) return 'mixed';
     if (pr > 0) return 'package';
-    if (st > 0) return 'primary';
+    if (st > 0) return 'standalone';
     return '';
   }
   // ── WHICH CHAMBER, THROUGH THE ROSTER'S OWN CLASSIFIER ────────────────────
@@ -1031,7 +1043,7 @@
   }
   function ledgerMeasures(rows, key) {
     var byKey = {}, order = [];
-    function slot(id, number, title, primary, sit, rat) {
+    function slot(id, number, title, onAxis, sit, rat) {
       if (!id) return null;
       var fid = faceKey(id, number);
       if (!byKey[fid]) {
@@ -1042,11 +1054,12 @@
         // session. First non-empty wins: the index card and the record row spell
         // it in different fields and only one of them may be present.
         byKey[fid] = { id: fid, number: number || '', title: '', titles: [], sit: sit || '',
-          // THE LABEL, AND HOW MANY TIMES EACH WAS CLAIMED. `primary` is still the
-          // strongest of the appearances — a measure curated as being ABOUT this
-          // issue anywhere is about it — and `lab` keeps both tallies so a folded
-          // card can DISCLOSE a disagreement instead of swallowing one.
-          primary: !!primary, lab: { P: 0, p: 0 }, apps: 0, alt: '',
+          // THE AXIS BADGE, AND HOW MANY TIMES EACH WAS READ. `onAxis` is the
+          // strongest of the appearances — a measure whose dominant category
+          // holds this issue anywhere is on-axis — and `lab` keeps both tallies so
+          // a folded card can DISCLOSE a disagreement instead of swallowing one.
+          // Read from _pdxMeasureAxis; the retired leaf flag is not read.
+          onAxis: !!onAxis, lab: { on: 0, off: 0 }, apps: 0, alt: '',
           // PROCEDURAL IS THE ITEM'S OWN FLAG, not a reading of the title. It is
           // set from `isProcedural` on the acts on file — the same flag that puts
           // the "Procedural" pill on a dossier row — and `subst` is its opposite,
@@ -1068,12 +1081,12 @@
       }
       var s = byKey[fid];
       s.apps++;
-      s.lab[primary ? 'P' : 'p']++;
+      s.lab[onAxis ? 'on' : 'off']++;
       if (!s.number && number) s.number = number;
       if (!s.sit && sit) s.sit = sit;
       if (!s.rat && rat) s.rat = String(rat);
       if (title && s.titles.indexOf(title) < 0) s.titles.push(title);
-      if (primary) s.primary = true;
+      if (onAxis) s.onAxis = true;
       return s;
     }
     // ONE NAME PER SIDE PER INSTRUMENT. Two rolls on one bill are two acts and one
@@ -1091,7 +1104,7 @@
       if (keys.indexOf(key) < 0) return;
       slot(b.measureId != null && b.measureId !== '' ? 'm:' + b.measureId
         : (b.number ? 'n:' + String(b.number).toLowerCase() : ''),
-        b.number, b.title || b.shortTitle || '', b.primaryIssue === key, billSitOf(b));
+        b.number, b.title || b.shortTitle || '', axisOn(keys, key), billSitOf(b));
     });
     (rows || []).forEach(function (r) {
       itemsOn(r.pid, key).forEach(function (it) {
@@ -1099,7 +1112,7 @@
         if (typeof side === 'undefined') return;
         var m = null;
         (it.issues || []).forEach(function (g) { if (!m && g && g.issueKey === key) m = g; });
-        var s = slot(measureKey(it), it.number || '', it.title || '', !!(m && m.isPrimary),
+        var s = slot(measureKey(it), it.number || '', it.title || '', !!m && axisOn(it.issues, key),
           billSitOf(it), m && m.rationale);
         if (!s) return;
         s.seen = true;
@@ -1111,8 +1124,8 @@
       var s = byKey[id];
       s.title = faceTitle(s);
       // The disclosure, and only where the two appearances really disagree: the
-      // face says PRIMARY and one of the folded appearances said provision.
-      s.alt = (s.lab.P > 0 && s.lab.p > 0) ? 'provision' : '';
+      // face says on-axis and one of the folded appearances read off-axis.
+      s.alt = (s.lab.on > 0 && s.lab.off > 0) ? 'off-axis' : '';
       // FLOOR MACHINERY ONLY, AND THE TEST IS "EVERY ACT", NOT "ANY ACT". A bill
       // with a substantive floor vote AND a motion to table is not a procedural
       // measure — it is a measure that also had machinery on it, and filing it
@@ -1148,21 +1161,21 @@
   // Every vote in every band counts.
   var MEAS_CAP = 4;      // cards shown per band before the remainder folds
   var MEAS_BANDS = [
-    { id: 'primary', lb: 'PRIMARY',
-      note: 'The measure was about this issue. That is all the PRIMARY label means, ' +
-        'and it is curation’s answer rather than a reading of anybody’s vote.' },
-    { id: 'provision', lb: 'provision',
-      note: 'The measure carried this issue inside something larger. The vote still ' +
-        'counts, and the label is here so you can see which it was.' },
+    { id: 'on', lb: 'on-axis',
+      note: 'This issue is in the measure’s main category — the topic most of its ' +
+        'mapped issues fall under. It is a count of the mapping, not a reading of anybody’s vote.' },
+    { id: 'off', lb: 'off-axis',
+      note: 'This issue is outside the measure’s main category, the way a rider is. The vote ' +
+        'still counts, and the badge is here so you can see which it was.' },
     { id: 'procedural', lb: 'procedural',
       note: 'Everything on file for these was floor machinery — a motion, a cloture ' +
         'vote, an amendment call. The vote still counts, and each card keeps the ' +
-        'PRIMARY or provision label it came with.' }
+        'on-axis or off-axis badge it came with.' }
   ];
   function measBandOf(m) {
     if (!m) return '';
     if (m.procOnly) return 'procedural';
-    return m.primary ? 'primary' : 'provision';
+    return m.onAxis ? 'on' : 'off';
   }
   function measBandAnchor(key, id) {
     var a = measAnchor(key);
@@ -1259,7 +1272,7 @@
     // filed them in is a question about the acts. A PRIMARY measure whose only
     // acts were machinery bands under `procedural` and must still stop this
     // sentence, because "only tested as a provision" would then be untrue.
-    if (t.mTotal > 0 && !t.mLabPrimary) want = 'provision_only';
+    if (t.mTotal > 0 && !t.mLabOn) want = 'provision_only';
     else if (t.mSeen > 0 && t.mProc >= t.mSeen) want = 'procedural_gate';
     if (!want) return null;
     var order = M.ORDER || [];
@@ -1276,20 +1289,20 @@
     // `mPrimary`/`mProvision`/`mProc` are the BANDS the list below files those
     // measures into, and those three partition — every measure is in exactly one,
     // so they add up to `mTotal` and a reader can check them by counting cards.
-    var t = { mTotal: 0, mPrimary: 0, mProvision: 0, mProc: 0, mSeen: 0,
-              mLabPrimary: 0, mLabProvision: 0 };
+    var t = { mTotal: 0, mOn: 0, mOff: 0, mProc: 0, mSeen: 0,
+              mLabOn: 0, mLabOff: 0 };
     (ms || []).forEach(function (m) {
       if (!m) return;
       t.mTotal++;
-      if (m.primary) t.mLabPrimary++; else t.mLabProvision++;
+      if (m.onAxis) t.mLabOn++; else t.mLabOff++;
       var bid = measBandOf(m);
       if (bid === 'procedural') t.mProc++;
-      else if (bid === 'primary') t.mPrimary++;
-      else t.mProvision++;
+      else if (bid === 'on') t.mOn++;
+      else t.mOff++;
       if (m.seen) t.mSeen++;
     });
     var mb = measureBands(ms);
-    var veh = { primary: 0, 'package': 0, mixed: 0 };
+    var veh = { standalone: 0, 'package': 0, mixed: 0 };
     var mix = { floor: 0, committee_vote: 0, sponsor: 0 };
     var said = 0, crossed = 0;
     (rows || []).forEach(function (r) {
@@ -1306,7 +1319,7 @@
       if (lb) acts.push({ k: k, n: mix[k], lb: lb });
     });
     return {
-      measures: { total: t.mTotal, primary: t.mPrimary, provision: t.mProvision,
+      measures: { total: t.mTotal, onAxis: t.mOn, offAxis: t.mOff,
                   procedural: t.mProc, id: measAnchor(key),
                   // THE BANDS, AS THE HEADINGS PRINT THEM, each with the anchor it
                   // wears. Published rather than spelled out by the reader for the
@@ -1317,7 +1330,7 @@
                     return { id: b.id, lb: b.lb, n: b.rows.length,
                              at: measBandAnchor(key, b.id) };
                   }) },
-      people: { primary: veh.primary, 'package': veh['package'], mixed: veh.mixed },
+      people: { standalone: veh.standalone, 'package': veh['package'], mixed: veh.mixed },
       acts: acts,
       menu: ledgerMenu(t),
       stances: { said: said, crossed: crossed }
@@ -1359,7 +1372,7 @@
   //     were.
   var SLICE_DIR = { advanced: 'Advanced', against: 'Cut against', both: 'Ran both ways',
                     thin: 'Too thin', none: 'No side' };
-  var SLICE_VEH = [{ v: 'primary', lb: 'Primary-only' },
+  var SLICE_VEH = [{ v: 'standalone', lb: 'On-axis only' },
                    { v: 'package', lb: 'Package-only' },
                    { v: 'mixed',   lb: 'Mixed' }];
   var SLICE_CH  = [{ v: 'senate', lb: 'U.S. Senate' },
@@ -2102,8 +2115,10 @@
         // nothing; never substituted with a guess at what the measure was about.
         (m.title && m.title !== m.number
           ? bdoor('d1-led-btitle', 'is-ttl', esc(m.title)) : '') +
-        '<span class="d1-led-btag' + (m.primary ? ' is-primary' : '') + '">' +
-          (m.primary ? 'PRIMARY' : 'provision') + '</span>' +
+        '<span class="d1-led-btag' + (m.onAxis ? ' is-on' : ' is-off') + '"' +
+          ' data-pdx-axis="' + (m.onAxis ? 'on' : 'off') + '"' +
+          ' title="' + esc(axisTip(m.onAxis ? 'on' : 'off')) + '">' +
+          (m.onAxis ? 'on-axis' : 'off-axis') + '</span>' +
         // FLOOR MACHINERY, MARKED ON THE CARD RATHER THAN ONLY IN A BAND. A bill
         // that had a substantive vote AND a motion on it bands with its label and
         // wears this pill, so the fact does not disappear when the band does not
@@ -2119,7 +2134,7 @@
         // reader is told the other appearance exists instead of being shown it as
         // a second card that opens the same thing.
         (m.alt
-          ? '<span class="d1-led-balt">Also on file as a ' + esc(m.alt) +
+          ? '<span class="d1-led-balt">Also on file as an ' + esc(m.alt) +
             ' mapping of this key — the same instrument, folded into this row.</span>'
           : '') +
         (sides ? '<span class="d1-led-bwho">' + sides + '</span>' : '') +
@@ -2148,13 +2163,13 @@
     return '<section class="d1-led-meas" id="' + esc(measAnchor(led.key)) + '">' +
       '<div class="d1-led-bh"><span class="d1-led-bt">Measures on file</span>' +
         '<span class="d1-led-bn">' + led.measures.length + '</span></div>' +
-      '<p class="d1-led-bnote">PRIMARY means the measure was about this issue; a provision means it ' +
-        'carried it inside something larger. Either way the vote counts — the label is here so you ' +
+      '<p class="d1-led-bnote">On-axis means this issue is in the measure’s main category; off-axis ' +
+        'means it rode in from a different topic. Either way the vote counts — the badge is here so you ' +
         'can see which it was.</p>' +
-      '<p class="d1-led-bnote">Banded by that label, and the bands add up: every measure below is in ' +
+      '<p class="d1-led-bnote">Banded by that badge, and the bands add up: every measure below is in ' +
         'exactly one of them, and each band opens its own remainder without opening the others. ' +
         'One row per instrument, because one row opens one measure — a bill that reached this key ' +
-        'more than once is a single card, and a card whose appearances disagreed about the label ' +
+        'more than once is a single card, and a card whose appearances disagreed about the badge ' +
         'says so on itself.</p>' +
       measureBands(led.measures).map(function (b) { return bandOf(b, led.key); }).join('') +
     '</section>';

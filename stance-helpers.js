@@ -806,12 +806,12 @@
     var _RD_DOMINANCE = 0.75;    // …of the weight, before one side is "the record"
     var _RD_THIN_MIN = 2;        // …items before even a uniform run is worth stating
 
-    // A MAPPING THAT IS ABOUT THIS ISSUE, not one that merely touched it. An
-    // omnibus maps to every issue it brushes, and at the loose thresholds above
-    // 38% of clear directions came entirely from non-primary mappings — an
-    // appropriations package asserting a climate direction. At least one judged
-    // item must carry `isPrimary` before the record here is characterised.
-    var _RD_MIN_PRIMARY = 1;
+    // HOW MANY ON-AXIS ACTS BEFORE THE PACKAGE SENTENCE STAYS SILENT. An act is
+    // on-axis when this issue sits in its measure's dominant category
+    // (_pdxMeasureAxis). Below this, every act on the row rode in off-axis and the
+    // disclosure says so beside the finding. Words a sentence; gates nothing —
+    // the retired leaf `isPrimary` flag is read by nothing here.
+    var _RD_MIN_ON_AXIS = 1;
 
     // THE PUBLISH BAR FOR A RECORD THAT RAN BOTH WAYS. A split is not a
     // direction and never becomes one — but "they ran both ways" over twenty
@@ -966,7 +966,7 @@
         issueKey: issueKey || null,
         token: 'record_none', lead: null, characterised: false, counted: false,
         judged: 0, advances: 0, opposes: 0,
-        advanceScore: 0, opposeScore: 0, primary: 0, total: 0, procedural: 0,
+        advanceScore: 0, opposeScore: 0, onAxis: 0, total: 0, procedural: 0,
         // ── THE ACTS THAT TOOK NO SIDE ────────────────────────────────────────
         // A Present, a Did Not Vote, an absence, a vehicle whose `supports` was
         // never recorded: on file, mapped to this issue, and not a direction. They
@@ -1085,7 +1085,9 @@
         // that refuses can say "and all of them were procedural", which is a
         // materially different fact about a record than "we hold too few".
         if (item && item.isProcedural) out.procedural++;
-        if (mapping.isPrimary) out.primary++;
+        // On-axis: this issue sits in the measure's dominant category. A count
+        // for the package sentence, read after every tier decision; never a gate.
+        if (_pdxMeasureAxis(item && item.issues).onAxis(mapping.issueKey)) out.onAxis++;
         if (eff) { out.advances++; out.advanceScore += w; }
         else { out.opposes++; out.opposeScore += w; }
       });
@@ -1603,10 +1605,9 @@
         // its own sentence — `pkgNote` below, printed beside the finding on every
         // surface — which is where a fact about packaging belongs. It is not a
         // gate on whether the act may be characterised at all.
-        //   This is the last of the primary locks. `isPrimary` is now what it was
-        // always documented to be: a label on the bill, printable everywhere and
-        // consultable by nothing. Do not put it back — see the brief in
-        // test-characterise-every-act.mjs.
+        //   This was the last of the primary locks, and the leaf flag itself is
+        // now retired and unread (see _pdxMeasureAxis). Do not put a gate back —
+        // see test-primary-label-not-gate.mjs.
         dir = _RD_TIER_DIR[idx.advances ? 'advances' : 'opposes'];
         t = _RD_TIERS.thin;
       }
@@ -1616,10 +1617,10 @@
         (idx.counted === true || t.key === 'thin');
       // HOW THE ACTS ARRIVED, FOR THE DISCLOSURE AND FOR NOTHING ELSE. Computed
       // after every tier decision above is already made, which is the shape the
-      // doctrine requires: `isPrimary` is a label on the bill, so it may be
-      // printed and may not be consulted. On a `none` read there is no finding to
-      // disclose beside, so the sentence stays empty.
-      var pkgOnly = (idx.primary || 0) < _RD_MIN_PRIMARY;
+      // doctrine requires: the dominant-category axis is a badge on the act, so
+      // it may be printed and may not be consulted. On a `none` read there is no
+      // finding to disclose beside, so the sentence stays empty.
+      var pkgOnly = (idx.onAxis || 0) < _RD_MIN_ON_AXIS;
       var pkgNote = (pkgOnly && t.key !== 'none') ? _rdPackageNote(idx, noun) : '';
       return {
         tier: t.key,
@@ -1797,7 +1798,7 @@
       // pattern engine's one-vote lean; that term is gone, so beyond its declaration
       // the constant is read on exactly two lines in this file — this one and its
       // twin in _recordPatternTier — and both of them word a sentence.
-      var pkgOnly = (idx.primary || 0) < _RD_MIN_PRIMARY;
+      var pkgOnly = (idx.onAxis || 0) < _RD_MIN_ON_AXIS;
       var partial = (sup === 'coverage_floor');
       // THE SAME TWO SIZE FLOORS THE PATTERN ENGINE ASKS, AND NO THIRD ONE. This
       // lane exists to stop a browse surface printing a blank over one real act,
@@ -1910,16 +1911,18 @@
     //             'no_stance'), reusing the exact same engine the aggregate uses.
     // Pure; never mutates its inputs. Any surface (the Voting Record cards, the H.R.1
     // Showcase, a profile) can render the same breakdown from this one function.
-    //   item        — API record item: { issues:[{issueKey,weight,isPrimary,
+    //   item        — API record item: { issues:[{issueKey,weight,
     //                 supportMeaning,rationale,sourceUrl}], position|supports, isProcedural }
     //   positionMap — _polPositionMap(id,p): { issueKey -> { stance } }   (optional)
     //   opts.labelFn(issueKey) -> display label                            (optional)
-    // Returns { isOmnibus, count, components:[…] } sorted primary-first, then weight.
+    // Returns { isOmnibus, count, components:[…] } sorted by weight; each carries
+    // `axis` ('on' | 'off') from the measure's dominant category — a badge only.
     function _measureComponentBreakdown(item, positionMap, opts) {
       opts = opts || {};
       positionMap = positionMap || {};
       var labelFn = (typeof opts.labelFn === 'function') ? opts.labelFn : function (k) { return k; };
       var issues = (item && Array.isArray(item.issues)) ? item.issues : [];
+      var ax = _pdxMeasureAxis(issues);
       var comps = issues.map(function (m) {
         var eff = _voteEffectiveSupport(item, m.supportMeaning); // true | false | null
         var pm = positionMap[m.issueKey];
@@ -1928,7 +1931,7 @@
           issueKey: m.issueKey,
           label: labelFn(m.issueKey),
           weight: (typeof m.weight === 'number') ? m.weight : 100,
-          isPrimary: !!m.isPrimary,
+          axis: ax.axisOf(m.issueKey),
           supportMeaning: m.supportMeaning || 'yea_supports',
           rationale: m.rationale || '',
           sourceUrl: m.sourceUrl || null,
@@ -1938,10 +1941,7 @@
           verdict: _stanceVoteVerdict(stance, eff) // 'no_stance' when stance is falsy
         };
       });
-      comps.sort(function (a, b) {
-        if (b.isPrimary !== a.isPrimary) return a.isPrimary ? -1 : 1;
-        return b.weight - a.weight;
-      });
+      comps.sort(function (a, b) { return b.weight - a.weight; });
       return { isOmnibus: comps.length >= 2, count: comps.length, components: comps };
     }
     window._measureComponentBreakdown = _measureComponentBreakdown;
@@ -2045,7 +2045,7 @@
       });
       // The sibling issues are a CITIZEN-FACING LIST — every consumer of this
       // function renders them as prose, chips or a trail — and they were inheriting
-      // _measureComponentBreakdown's is_primary-first, weight-descending order,
+      // _measureComponentBreakdown's weight-descending order,
       // which is the scoring path's order. Nothing here can move a verdict, a count
       // or a percentage (see the note above), so the sequence is pure presentation
       // and is forked to the shared Big Picture order. `self` keeps its place at the
@@ -2120,9 +2120,9 @@
     // any two of them are ordinary:
     //   1. the instrument is MULTI-ISSUE. A standalone bill has no vehicle to be
     //      a stowaway on.
-    //   2. the mapping is NOT PRIMARY. Almost every measure in the corpus carries
-    //      exactly one primary issue, so this alone marks every secondary mapping
-    //      on every two-issue bill — far too many to mean anything.
+    //   2. the mapping is OFF-AXIS — outside the measure's dominant category
+    //      (_pdxMeasureAxis). On its own this marks every off-category mapping on
+    //      every two-issue bill — far too many to mean anything.
     //   3. the curator weight is NARROW (<= _RD_NARROW_AT). This is the curation
     //      saying, in the field it already has for it, that the link rests on a
     //      small part of the document. It is the condition that separates "the
@@ -2145,11 +2145,96 @@
     var _RD_NARROW_AT = 45;      // …the ✒️ section's own narrow-link threshold
     var _RD_STOWAWAY_AT = 0.6;   // …the share of instruments that must be provisions
 
+    // ── WHAT A BILL IS MOSTLY ABOUT: THE DOMINANT CATEGORY ─────────────────────
+    // The leaf `isPrimary` flag is RETIRED. It was curation chrome, and every
+    // agent that met it read it as a membership gate. What a bill is mostly about
+    // is now counted, not flagged: each mapped leaf issue is filed under its core
+    // category (Climate, Energy & Land; Government Spending, Debt & Waste; …) and
+    // the category holding the most of this measure's mappings is DOMINANT.
+    //   · A TIE HAS NO WINNER. Two or more categories level at the top means the
+    //     bill is split across them, and it says so. Nothing breaks the tie — not
+    //     party, not score, not weight, not the order the chips arrived in.
+    //   · ON-AXIS is a mapping in the winning category (or in any tied one).
+    //     OFF-AXIS is a mapping outside it: the rider / hitchhiker read.
+    //   · OFF-AXIS IS A BADGE, NEVER A DELETE. Every surface that asks this still
+    //     prints every measure×issue pair; the answer changes a word beside a
+    //     chip and nothing else. No gate, tier, count, floor, percentage or
+    //     Direction Match input reads it.
+    // A key with no core category is its own bucket, so it can never merge with
+    // a neighbour it only resembles. Pure, and unread fields stay unread.
+    function _pdxAxisLabel(s) {
+      return String(s || '').replace(/^[^A-Za-z0-9]+/, '').trim();
+    }
+    function _pdxMeasureAxis(issues) {
+      var list = Array.isArray(issues) ? issues : [];
+      var catOf = Object.create(null), count = Object.create(null), label = Object.create(null);
+      var cats = [];
+      for (var i = 0; i < list.length; i++) {
+        var k = list[i] && list[i].issueKey;
+        if (!k || catOf[k]) continue;
+        var core = null;
+        try { core = (typeof window.coreIssueForKey === 'function') ? window.coreIssueForKey(k) : null; } catch (e) { core = null; }
+        var c = core && core.key ? String(core.key) : 'issue:' + k;
+        catOf[k] = c;
+        if (!count[c]) {
+          count[c] = 0; cats.push(c);
+          var il = null;
+          try { il = !core && window.ISSUE_MAP && window.ISSUE_MAP[k]; } catch (e2) { il = null; }
+          label[c] = _pdxAxisLabel(core ? core.label : (il && il.label) || k);
+        }
+        count[c]++;
+      }
+      var top = 0;
+      cats.forEach(function (c) { if (count[c] > top) top = count[c]; });
+      // Listed in a fixed, meaning-free order so no tied bucket reads as first.
+      var winners = cats.filter(function (c) { return top > 0 && count[c] === top; }).sort();
+      var win = Object.create(null);
+      winners.forEach(function (c) { win[c] = true; });
+      var split = winners.length > 1;
+      return {
+        winner: split ? null : (winners[0] || null),
+        split: split,
+        winners: winners,
+        top: top,
+        total: Object.keys(catOf).length,
+        count: count,
+        labelOf: function (c) { return label[c] || ''; },
+        catOf: function (k) { return catOf[k] || null; },
+        // 'on' | 'off' for a mapped key, '' for a key this measure does not carry.
+        axisOf: function (k) { var c = catOf[k]; return c ? (win[c] ? 'on' : 'off') : ''; },
+        onAxis: function (k) { var c = catOf[k]; return !!(c && win[c]); }
+      };
+    }
+    window._pdxMeasureAxis = _pdxMeasureAxis;
+    // The two tooltips, word for word, and the one sentence a split bill owes.
+    var _PDX_AXIS_TIP = {
+      on: 'On-axis — same topic as the bill’s main category',
+      off: 'Off-axis — different topic than the bill’s main category (rider-shaped)'
+    };
+    window._PDX_AXIS_TIP = _PDX_AXIS_TIP;
+    function _pdxAxisSummary(ax, noun) {
+      if (!ax || !ax.top) return '';
+      var n = noun || 'bill';
+      var names = ax.winners.map(ax.labelOf).filter(Boolean);
+      if (!names.length) return '';
+      if (ax.split) {
+        var list = names.length === 2 ? names.join(' and ')
+          : names.slice(0, -1).join(', ') + ', and ' + names[names.length - 1];
+        return 'This ' + n + ' is split across ' + list + ' — ' + ax.top + ' mapped topic' +
+          (ax.top === 1 ? '' : 's') + ' in each, so it has no single main category.';
+      }
+      return 'Main category: ' + names[0] + ' — ' + ax.top + ' of ' + ax.total + ' mapped topic' +
+        (ax.total === 1 ? '' : 's') + '.';
+    }
+    window._pdxAxisSummary = _pdxAxisSummary;
+
     // One mapping, one question: did this issue ride inside this instrument?
+    // "Not on the bill's axis" replaced "not the primary" here: a mapping inside
+    // the dominant category was what the bill was about, so it is no stowaway.
     function _rdIsProvision(item, mapping) {
       if (!item || !mapping) return false;
       if (!item.issues || item.issues.length < 2) return false;   // no vehicle
-      if (mapping.isPrimary) return false;                        // it WAS the bill
+      if (_pdxMeasureAxis(item.issues).onAxis(mapping.issueKey)) return false; // it WAS the bill
       var w = (typeof mapping.weight === 'number') ? mapping.weight : 100;
       return w <= _RD_NARROW_AT;                                  // …and it is a slice
     }
@@ -2565,8 +2650,8 @@
         kind: 'vote', position: 'yea', isProcedural: false, isAmendment: false,
         number: 'H.R. 1', title: 'One Big Beautiful Bill Act',
         issues: [
-          { issueKey: 'lower_taxes', weight: 100, isPrimary: true,  supportMeaning: 'yea_supports' },
-          { issueKey: 'healthcare',  weight: 60,  isPrimary: false, supportMeaning: 'yea_opposes'  }
+          { issueKey: 'lower_taxes', weight: 100, supportMeaning: 'yea_supports' },
+          { issueKey: 'healthcare',  weight: 60,  supportMeaning: 'yea_opposes'  }
         ]
       };
       // Member SAYS they support both lowering taxes and healthcare access.

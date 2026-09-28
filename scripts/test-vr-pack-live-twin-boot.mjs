@@ -7,7 +7,7 @@
 // any version but the current one, and a rebuild on the next read. netlify/lib/
 // vr-pack.ts owns it, scripts/test-vr-pack-key-version.mjs proves the fingerprint
 // is sensitive to every mutation shape, and scripts/test-vr-pack-rebuild-on-flip.mjs
-// runs the shipping read path over a flipped is_primary.
+// runs the shipping read path over a re-keyed mapping row.
 //
 // What none of those can prove is the thing a reader actually experiences, which
 // is not a key but a screen. Two paths reach a device with no request the server
@@ -20,10 +20,12 @@
 //
 // THIS FILE HOLDS THE CONSEQUENCE, AS A TWIN BOOT. Two engines boot from the same
 // shipped files over the same record corpus. One of them never sees a pack. The
-// other has a maximally stale pack — every `isPrimary` flipped off, which is the
-// exact shape of the F4 regression and the one field that used to decide between
-// "Thin supports" and "Not about this issue" — pushed at it in every arrival order
-// the two offline paths can produce. Then every formal tier, every Direction Match
+// other has a maximally stale pack — a retired mapping in which every measure that
+// could be tipped carries enough rider-shaped rows in another topic category that
+// its live ON-axis issues all read OFF-axis (the leaf isPrimary flag is retired;
+// the axis is counted from the measure's mapped issues, and on-axis vs off-axis is
+// what now decides between a direction and a package-only read, F4's shape) —
+// pushed at it in every arrival order the two offline paths can produce. Then every formal tier, every Direction Match
 // read, every Word-vs-Action ledger and every formal-pattern shape is compared
 // member for member. They must be identical. A pack that changed one of them is a
 // six-hour-old photograph filed as this morning's record.
@@ -83,16 +85,49 @@ const GEN_PACK = "m940-da41abc2f46d";
 const { byMember } = buildCorpus(ROOT);
 must(byMember.size > 100, `too few members in the corpus to sweep (${byMember.size})`);
 
-// A pack of the retired mapping: the same acts, with every PRIMARY flag dropped.
-// Deep-copied, because a pack the client refuses must not be able to reach the
-// live rows through a shared object either — a guard that returns false while the
-// caller already handed over the same array is not a guard.
+// A pack of the retired mapping: the same acts, with every measure tipped so that
+// each issue that is ON-axis live reads OFF-axis in the pack. For each measure, a
+// topic category it does not win is given one more mapped key than the winning
+// category has, so that category becomes the bill's main one and every live
+// on-axis mapping rides in off-axis. The axis is read by the SHIPPED helper
+// (stance-helpers.js _pdxMeasureAxis) on both sides, and `flipped` counts only
+// memberships that really moved from on to off. Deep-copied, because a pack the
+// client refuses must not be able to reach the live rows through a shared object
+// either — a guard that returns false while the caller already handed over the
+// same array is not a guard.
+const AX = boot();
+must(typeof AX._pdxMeasureAxis === "function", "stance-helpers.js no longer exports _pdxMeasureAxis");
+const CATEGORY_OF = JSON.parse(readFileSync(join(ROOT, "db/issue-core-categories.json"), "utf8")).categoryOf;
+const KEYS_BY_CAT = new Map();
+for (const [k, c] of Object.entries(CATEGORY_OF)) {
+  if (!KEYS_BY_CAT.has(c)) KEYS_BY_CAT.set(c, []);
+  KEYS_BY_CAT.get(c).push(k);
+}
 let flipped = 0;
 const stalePack = (recs) => {
   const out = JSON.parse(JSON.stringify(recs || []));
   for (const it of out) {
-    for (const m of (it.issues || [])) {
-      if (m && m.isPrimary) { m.isPrimary = false; flipped++; }
+    const issues = (it.issues || []).filter((m) => m && m.issueKey);
+    if (!issues.length) continue;
+    const live = AX._pdxMeasureAxis(issues);
+    const have = new Set(issues.map((m) => m.issueKey));
+    // The non-winning category with the most keys this measure does not carry.
+    let pick = null;
+    for (const [c, keys] of KEYS_BY_CAT) {
+      if (live.winners.includes(c)) continue;
+      const free = keys.filter((k) => !have.has(k));
+      if ((live.count[c] || 0) + free.length <= live.top) continue;
+      if (!pick || free.length > pick.free.length) pick = { c, free };
+    }
+    if (!pick) continue;
+    const need = live.top + 1 - (live.count[pick.c] || 0);
+    for (const k of pick.free.slice(0, need)) {
+      it.issues.push({ issueKey: k, weight: 50, supportMeaning: "yea_supports",
+                       rationale: "stale fixture: a rider-shaped row of the retired mapping" });
+    }
+    const stale = AX._pdxMeasureAxis(it.issues);
+    for (const m of issues) {
+      if (live.axisOf(m.issueKey) === "on" && stale.axisOf(m.issueKey) === "off") flipped++;
     }
   }
   return out;
@@ -109,7 +144,7 @@ const STALE = new Map();
 for (const [pid, recs] of byMember) {
   STALE.set(pid, { pack: true, mappingVersion: GEN_PACK, items: stalePack(recs) });
 }
-must(flipped > 100, `the stale pack differs from the live rows in only ${flipped} flags`);
+must(flipped > 100, `the stale pack moves only ${flipped} on-axis memberships off-axis`);
 const LIVE_PAYLOAD = { mappingVersion: GEN_LIVE, items: [] };
 
 // ── the harvest ─────────────────────────────────────────────────────────────
@@ -146,7 +181,7 @@ for (const pid of byMember.keys()) CONTROL.set(pid, readOf(A, pid, SCOPES));
   let nonEmpty = 0;
   for (const v of CONTROL.values()) if (v && v.indexOf("null|") !== 0) nonEmpty++;
   ok(nonEmpty > 100, `the control twin published almost nothing to compare (${nonEmpty} members)`);
-  console.log(`      ${CONTROL.size} members · ${SCOPES.length} scopes · ${flipped} PRIMARY flags dropped in the pack`);
+  console.log(`      ${CONTROL.size} members · ${SCOPES.length} scopes · ${flipped} on-axis memberships tipped off-axis in the pack`);
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

@@ -424,7 +424,7 @@
   function peopleLine(o) {
     if (!o) return '';
     var parts = [];
-    if (o.primary) parts.push(o.primary + ' primary-only');
+    if (o.standalone) parts.push(o.standalone + ' on-axis only');
     if (o['package']) parts.push(o['package'] + ' package-only');
     if (o.mixed) parts.push(o.mixed + ' mixed');
     return parts.join(SEP);

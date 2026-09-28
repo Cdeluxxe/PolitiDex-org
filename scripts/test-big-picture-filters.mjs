@@ -2,10 +2,11 @@
 /**
  * test-big-picture-filters.mjs — the act's view control is a filter, not a rank
  * ─────────────────────────────────────────────────────────────────────────────
- * H.R. 1 is mapped to fourteen topics and carries one curated primary flag. That
- * flag is a useful thing to slice on — a reader who wants the tax titles should
- * be able to see the tax titles — and it is a dangerous thing to display, because
- * one row marked "the main one" turns the other thirteen into footnotes to it.
+ * H.R. 1 is mapped to fourteen topics. Counted by topic category, it is split
+ * across two main categories (on-axis) and reaches into several others
+ * (off-axis). That axis is a useful thing to slice on — a reader who wants the
+ * bill's main categories should be able to see them — and a dangerous thing to
+ * display, because rows marked "the main ones" can turn the rest into footnotes.
  * The panel's answer is a view control whose entire implementation is one
  * attribute and two CSS rules. This file is the QA on that answer: it does not
  * take the implementation's word for any of it.
@@ -23,19 +24,20 @@
  *      the reader just pressed.
  *   3. IT FAILS OPEN. The buttons are the only thing that writes the attribute, so
  *      with scripting unavailable every row stays on screen permanently.
- *   4. THE SLICES ARE SUBSETS. Fourteen in All; main and other are disjoint, both
+ *   4. THE SLICES ARE SUBSETS. Fourteen in All; on and off are disjoint, both
  *      non-empty, and together exactly the fourteen. Pressing back to All restores
  *      all fourteen — verified by driving the shipped click handler, not by
  *      reasoning about it.
  *   5. THE FILTER TOUCHES NOTHING ELSE. Clicking rebuilds no row, writes no
  *      innerHTML, calls no scoring engine, reorders nothing, and mutates not one
- *      field of the data it was handed — the curated isPrimary flags included.
+ *      field of the data it was handed.
  *   6. THE LABELS DESCRIBE, THEY DO NOT RANK. No slice is called secondary,
  *      supporting, lesser or minor, on the buttons or anywhere on the default
  *      face, and each slice states its own size.
  *   7. THE CONTROL EARNS ITS PLACE. It is drawn only when both slices would have
  *      something in them: never over a one-row list, never over an act whose
- *      mappings are all flagged, never over one where none are.
+ *      mappings all sit in one category, never over one tied across every
+ *      category it touches (a split with nothing off-axis).
  *
  *   node scripts/test-big-picture-filters.mjs
  */
@@ -65,13 +67,24 @@ if (!HR1 || !HR1.issues || HR1.issues.length < 9) die("the H.R. 1 seed is missin
 const ISSUES = HR1.issues.map((m) => ({
   issueKey: m.issueKey,
   supportMeaning: m.direction === "opposes" ? "yea_opposes" : "yea_supports",
-  isPrimary: !!m.isPrimary,
   weight: m.weight,
   rationale: m.rationale || "",
 }));
 const N = ISSUES.length;
-const MAIN_N = ISSUES.filter((i) => i.isPrimary).length;
-const OTHER_N = N - MAIN_N;
+// The expected axis, counted here from the category table rather than taken from
+// the panel: each key's core category (coreIssueForKey), the category with the
+// most keys wins, and a tie puts every tied category on-axis.
+function expectAxis(win, issues) {
+  const cat = {}, count = {};
+  for (const i of issues) {
+    if (cat[i.issueKey]) continue;
+    const core = win.coreIssueForKey(i.issueKey);
+    cat[i.issueKey] = core && core.key ? core.key : "issue:" + i.issueKey;
+    count[cat[i.issueKey]] = (count[cat[i.issueKey]] || 0) + 1;
+  }
+  const top = Math.max(0, ...Object.values(count));
+  return (k) => (cat[k] ? (count[cat[k]] === top ? "on" : "off") : "");
+}
 const MEASURE = {
   id: 1, number: "H.R. 1", congress: 119, chamber: "house", status: "enacted",
   title: "One Big Beautiful Bill Act",
@@ -121,18 +134,22 @@ async function render(b, data) {
 const DATA = { measure: MEASURE, issues: ISSUES, rollcalls: [], positions: [], provisions: [], actions: [] };
 const BEFORE = JSON.stringify(DATA);
 const B = boot();
+if (typeof B.win.coreIssueForKey !== "function") die("coreIssueForKey is unavailable — the axis cannot be counted");
+const AXIS = expectAxis(B.win, ISSUES);
+const MAIN_N = ISSUES.filter((i) => AXIS(i.issueKey) === "on").length;
+const OTHER_N = N - MAIN_N;
 const HTML = await render(B, DATA);
 const CSS = B.css();
 if (!HTML || HTML.length < 1500) die(`the act face rendered ${HTML.length} characters — nothing below can be trusted`);
 if (!CSS || CSS.length < 1500) die("the panel's stylesheet was never captured — the hiding rules cannot be audited");
 
-console.log(`\n🔎 big-picture filters — H.R. 1: ${N} topics, ${MAIN_N} flagged, ${OTHER_N} not`);
+console.log(`\n🔎 big-picture filters — H.R. 1: ${N} topics, ${MAIN_N} on-axis, ${OTHER_N} off-axis`);
 ok(MAIN_N > 0 && OTHER_N > 0, `fixture drift: H.R. 1 no longer splits into two non-empty lanes (${MAIN_N}/${OTHER_N})`);
 
 // ── read the ledger back off the markup ───────────────────────────────────────
 const LIST_OPEN = HTML.match(/<div class="bd-omni-list"([^>]*)>/);
 if (!LIST_OPEN) die("the topic list element is not in the markup");
-const ROWS = [...HTML.matchAll(/<div class="bd-omni-row[^"]*" data-bd-lane="(main|other)">[\s\S]*?data-issue="([^"]+)"/g)]
+const ROWS = [...HTML.matchAll(/<div class="bd-omni-row[^"]*" data-bd-lane="(on|off)">[\s\S]*?data-issue="([^"]+)"/g)]
   .map((m) => ({ lane: m[1], key: m[2] }));
 if (ROWS.length !== N) die(`read ${ROWS.length} ledger rows off the markup, expected ${N}`);
 
@@ -149,7 +166,7 @@ const RULES = [...CSS.matchAll(/([^{}]+)\{([^}]*)\}/g)]
 const HIDES = /display\s*:\s*none|visibility\s*:\s*hidden|opacity\s*:\s*0(?!\.)|max-height\s*:|line-clamp\s*:|content-visibility\s*:\s*hidden/;
 const rowRules = RULES.filter((r) => /\.bd-omni-row|\.bd-omni-list|\.bd-omni-head|\.bd-omni-why|\.bd-issuejump/.test(r.sel));
 const hidingRowRules = rowRules.filter((r) => HIDES.test(r.decl));
-const FILTER_RULE = /^\.bd-omni-list\[data-bd-view="([a-z]+)"\]\s+\.bd-omni-row\[data-bd-lane="(main|other)"\]$/;
+const FILTER_RULE = /^\.bd-omni-list\[data-bd-view="([a-z]+)"\]\s+\.bd-omni-row\[data-bd-lane="(on|off)"\]$/;
 const parsedFilter = hidingRowRules.map((r) => r.sel.match(FILTER_RULE)).filter(Boolean)
   .map((m) => ({ view: m[1], lane: m[2] }));
 const hidden = (view, lane) => parsedFilter.some((p) => p.view === view && p.lane === lane);
@@ -162,7 +179,7 @@ section("1 · the default is every topic, and it is the shipped attribute");
   has(LIST_OPEN[1], 'data-bd-view="all"', "the topic list does not ship in the all-topics state");
   eq((HTML.match(/data-bd-view="[a-z]*"/g) || []).length, 1,
     "more than one element carries the view attribute — the visible state must live in exactly one place");
-  ok(!/data-bd-view="(main|other)"/.test(HTML),
+  ok(!/data-bd-view="(on|off)"/.test(HTML),
     "the act face opens with a slice already applied");
   eq(visible("all").length, N, `All topics shows ${N} of ${N} rows`);
   const pressed = [...HTML.matchAll(/data-bd-view-set="([a-z]+)" aria-pressed="true"/g)].map((m) => m[1]);
@@ -187,8 +204,10 @@ section("2 · no CSS hides a topic row except the active filter");
   // Neither of them fires in the default state, which is what makes "all" all.
   ok(!parsedFilter.some((p) => p.view === "all"),
     "a hiding rule is keyed to the all-topics view, so the default face is not the whole act");
-  ok(parsedFilter.some((p) => p.view === "main" && p.lane === "other"), "the main slice does not hide the other lane");
-  ok(parsedFilter.some((p) => p.view === "other" && p.lane === "main"), "the other slice does not hide the main lane");
+  ok(parsedFilter.some((p) => p.view === "on" && p.lane === "off"), "the on-axis slice does not hide the off-axis lane");
+  ok(parsedFilter.some((p) => p.view === "off" && p.lane === "on"), "the off-axis slice does not hide the on-axis lane");
+  // Every row's lane is the axis counted from the category table, not a flag.
+  for (const r of ROWS) eq(r.lane, AXIS(r.key), `${r.key} carries the wrong lane`);
   // Nothing truncates the list by position or by height, which is the other way
   // a topic disappears without anyone deciding to remove it.
   ok(!rowRules.some((r) => /nth-child|nth-of-type|:not\(/.test(r.sel)),
@@ -228,10 +247,12 @@ section("4 · the slices are subsets, and All comes back");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const all = visible("all").map((r) => r.key);
-  const main = visible("main").map((r) => r.key);
-  const other = visible("other").map((r) => r.key);
-  eq(main.length, MAIN_N, "the main slice does not show exactly the flagged mappings");
-  eq(other.length, OTHER_N, "the other slice does not show exactly the unflagged mappings");
+  const main = visible("on").map((r) => r.key);
+  const other = visible("off").map((r) => r.key);
+  eq(main.length, MAIN_N, "the on-axis slice does not show exactly the on-axis mappings");
+  eq(other.length, OTHER_N, "the off-axis slice does not show exactly the off-axis mappings");
+  ok(main.every((k) => AXIS(k) === "on"), "the on-axis slice shows an off-axis topic");
+  ok(other.every((k) => AXIS(k) === "off"), "the off-axis slice shows an on-axis topic");
   eq(main.length + other.length, N, "the two slices do not add up to the act");
   ok(main.every((k) => all.includes(k)), "the main slice contains a topic the full list does not");
   ok(other.every((k) => all.includes(k)), "the other slice contains a topic the full list does not");
@@ -261,8 +282,8 @@ section("4 · the slices are subsets, and All comes back");
   };
   const btnAttrs = [
     { "data-bd-view-set": "all", "aria-pressed": "true" },
-    { "data-bd-view-set": "main", "aria-pressed": "false" },
-    { "data-bd-view-set": "other", "aria-pressed": "false" },
+    { "data-bd-view-set": "on", "aria-pressed": "false" },
+    { "data-bd-view-set": "off", "aria-pressed": "false" },
   ];
   const wrap = {
     querySelector: (sel) => (sel === ".bd-omni-list" ? list : null),
@@ -288,13 +309,13 @@ section("4 · the slices are subsets, and All comes back");
   const snapRows = JSON.stringify(rowNodes.map((r) => r.attrs));
 
   press(1);
-  eq(list.getAttribute("data-bd-view"), "main", "pressing the main slice did not set the view");
-  eq(visible(list.getAttribute("data-bd-view")).length, MAIN_N, `the main slice shows ${MAIN_N} rows`);
+  eq(list.getAttribute("data-bd-view"), "on", "pressing the on-axis slice did not set the view");
+  eq(visible(list.getAttribute("data-bd-view")).length, MAIN_N, `the on-axis slice shows ${MAIN_N} rows`);
   eq(btnAttrs.map((a) => a["aria-pressed"]).join(","), "false,true,false", "the pressed state did not follow the click");
 
   press(2);
-  eq(list.getAttribute("data-bd-view"), "other", "pressing the other slice did not set the view");
-  eq(visible(list.getAttribute("data-bd-view")).length, OTHER_N, `the other slice shows ${OTHER_N} rows`);
+  eq(list.getAttribute("data-bd-view"), "off", "pressing the off-axis slice did not set the view");
+  eq(visible(list.getAttribute("data-bd-view")).length, OTHER_N, `the off-axis slice shows ${OTHER_N} rows`);
 
   press(0);
   eq(list.getAttribute("data-bd-view"), "all", "pressing All topics did not restore the full view");
@@ -312,8 +333,8 @@ section("5 · slicing changes nothing but what is on screen");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   eq(JSON.stringify(DATA), BEFORE,
-    "rendering the act mutated the data it was handed — the curated flags must come back out untouched");
-  eq(ISSUES.filter((i) => i.isPrimary).length, MAIN_N, "an isPrimary flag was flipped somewhere in the render");
+    "rendering the act mutated the data it was handed — the mappings must come back out untouched");
+  ok(ISSUES.every((i) => !("isPrimary" in i)), "the render wrote a retired isPrimary flag onto the mappings");
   // The filter's whole implementation, read as source: attribute writes only.
   const fn = SRC.slice(SRC.indexOf("function setOmniView"), SRC.indexOf("function openIssue"));
   ok(!/innerHTML|appendChild|removeChild|\.remove\(\)|insertAdjacentHTML/.test(fn),
@@ -352,9 +373,9 @@ section("6 · the labels describe the slices, they do not rank them");
   }
   const count = (k) => Number((labels.find((l) => l.key === k).text.match(/\((\d+)\)$/) || [])[1]);
   eq(count("all"), N, "the All button's count is not the act's topic count");
-  eq(count("main"), MAIN_N, "the main button's count is not the size of the slice it shows");
-  eq(count("other"), OTHER_N, "the other button's count is not the size of the slice it shows");
-  eq(count("main") + count("other"), count("all"), "the two slice counts do not add up to the whole");
+  eq(count("on"), MAIN_N, "the on-axis button's count is not the size of the slice it shows");
+  eq(count("off"), OTHER_N, "the off-axis button's count is not the size of the slice it shows");
+  eq(count("on") + count("off"), count("all"), "the two slice counts do not add up to the whole");
   // The default face — what a reader sees before pressing anything — carries no
   // vocabulary that would tell them part of the act does not count.
   for (const w of ["Primary issue", "Secondary", "secondary", "Supporting only", "supporting only",
@@ -381,12 +402,21 @@ function inSection(html) {
 section("7 · the control is drawn only when both slices would hold something");
 // ═════════════════════════════════════════════════════════════════════════════
 {
+  // Fixtures built by category, not by flag: one category only (all on-axis);
+  // one key from each of several categories (a tie, so every key is on-axis and
+  // nothing is off); two keys in one category plus one elsewhere (2 on, 1 off).
+  const byCat = {};
+  for (const i of ISSUES) { const c = B.win.coreIssueForKey(i.issueKey).key; (byCat[c] = byCat[c] || []).push(i); }
+  const bigCat = Object.values(byCat).find((l) => l.length >= 2);
+  const oneEach = Object.values(byCat).map((l) => l[0]);
+  const lone = Object.values(byCat).find((l) => l !== bigCat)[0];
+  ok(bigCat && oneEach.length >= 3 && lone, "fixture drift: H.R. 1 no longer spans enough categories to build the cases");
   const cases = [
     { name: "a mixed act", issues: ISSUES, filter: true, rows: N },
-    { name: "an act where every mapping is flagged", issues: ISSUES.map((i) => ({ ...i, isPrimary: true })), filter: false, rows: N },
-    { name: "an act where no mapping is flagged", issues: ISSUES.map((i) => ({ ...i, isPrimary: false })), filter: false, rows: N },
+    { name: "an act whose every mapping sits in one category", issues: bigCat, filter: false, rows: bigCat.length },
+    { name: "an act tied across every category it touches", issues: oneEach, filter: false, rows: oneEach.length },
     { name: "a single-topic act", issues: [ISSUES[0]], filter: false, rows: 1 },
-    { name: "a two-topic act split one and one", issues: [{ ...ISSUES[0], isPrimary: true }, { ...ISSUES[1], isPrimary: false }], filter: true, rows: 2 },
+    { name: "a three-topic act, two in one category and one elsewhere", issues: [bigCat[0], bigCat[1], lone], filter: true, rows: 3 },
   ];
   for (const c of cases) {
     const b = boot();
@@ -395,7 +425,7 @@ section("7 · the control is drawn only when both slices would hold something");
       c.filter ? `${c.name} should offer the view control` : `${c.name} should not offer a view control`);
     eq((html.match(/class="bd-omni-row/g) || []).length, c.rows, `${c.name} did not render every one of its topics`);
     has(html, 'data-bd-view="all"', `${c.name} does not ship in the all-topics state`);
-    ok(!/data-bd-view="(main|other)"/.test(html), `${c.name} ships with a slice applied`);
+    ok(!/data-bd-view="(on|off)"/.test(html), `${c.name} ships with a slice applied`);
     if (!c.filter) hasNot(html, "data-bd-view-set", `${c.name} drew slice buttons with nothing to slice`);
   }
 }
@@ -412,7 +442,7 @@ section("8 · no other act surface ships a pre-applied slice");
   const decomment = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
   for (const f of ["digital-library.js", "all-seeing-eye.js", "spotlight-hub.js", "profiles-full.js", "exec-record-ui.js"]) {
     const src = decomment(readFileSync(join(ROOT, f), "utf8"));
-    ok(!/data-bd-view="(?:main|other)"|data-bd-lane="(?:main|other)"/.test(src),
+    ok(!/data-bd-view="(?:on|off)"|data-bd-lane="(?:on|off)"/.test(src),
       `${f} carries the ledger's lane markup without the ledger's guarantees`);
     // The flag may be read — membership fixes and internal floors legitimately do —
     // but it may not become a word the reader sees, and it may not order a list.

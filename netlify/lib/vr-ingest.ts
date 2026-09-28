@@ -523,7 +523,8 @@ type CuratedIssueSeed = {
     issues: Array<{
       issueKey: string;
       weight?: number;
-      isPrimary?: boolean;
+      // A legacy `isPrimary` on a seed entry is ignored: the leaf flag is retired
+      // and new mappings do not write it (the column keeps its default).
       supportMeaning?: string;
       rationale?: string;
       sourceUrl?: string;
@@ -575,7 +576,6 @@ export async function applyCuratedIssueSeed(
           measureId,
           issueKey: iss.issueKey,
           weight: typeof iss.weight === "number" ? iss.weight : 100,
-          isPrimary: !!iss.isPrimary,
           supportMeaning,
           rationale: iss.rationale || "",
           sourceUrl: iss.sourceUrl || entry.sourceUrl || null,
@@ -587,7 +587,6 @@ export async function applyCuratedIssueSeed(
             target: [vrMeasureIssues.measureId, vrMeasureIssues.issueKey],
             set: {
               weight: values.weight,
-              isPrimary: values.isPrimary,
               supportMeaning: values.supportMeaning,
               rationale: values.rationale,
               sourceUrl: values.sourceUrl,
@@ -641,7 +640,7 @@ export async function ingestVotes(
           await db
             .insert(vrMeasureIssues)
             .values({
-              measureId, issueKey: suggested, weight: 40, isPrimary: false,
+              measureId, issueKey: suggested, weight: 40,
               supportMeaning: "yea_supports",
               rationale: "auto-suggested from bill title — review before trusting the verdict",
               sourceUrl: v.measure.sourceUrl,

@@ -737,7 +737,8 @@ eq(B._measureHref({ number: "", measureIdent: null, issues: [] }, ""), "",
   "a measure with nothing to link to gets no href");
 eq(B._measureHref({ number: "", measureIdent: null }, "healthcare_access"), "/i/healthcare_access",
   "…and falls back to the issue's own address when it has one");
-eq(B._primaryIssue(FIXTURE_ITEMS[0]), "civics_education", "the primary issue is the one marked primary");
+eq(B._primaryIssue(FIXTURE_ITEMS[0]), "civics_education", "the row chip is the key in the dominant category");
+eq(B._primaryIssue(FIXTURE_ITEMS[1]), "civics_education", "the retired isPrimary flag is unread: an unflagged mapping still names the chip");
 eq(B._primaryIssue(FIXTURE_ITEMS[2]), "", "an item with no issues has no issue");
 
 // A FAILED ARCHIVE READ IS NOT AN EMPTY SEAT EITHER.

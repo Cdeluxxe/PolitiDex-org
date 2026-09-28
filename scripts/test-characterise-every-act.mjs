@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
 // test-characterise-every-act.mjs — every judged act is characterised, and
-// PRIMARY is a label on the bill rather than a key to the finding
+// ON-AXIS (the measure's dominant category) is a badge on the act rather than
+// a key to the finding. The leaf `isPrimary` flag is retired and read by nothing.
 // ─────────────────────────────────────────────────────────────────────────────
 // THE OWNER RULE, in the words it was handed down in. A (member, issue) row with
 // judged formal acts ALWAYS gets a side read:
@@ -11,13 +12,13 @@
 //     deeper one way          → Mostly / Strongly, on the EXISTING count floors
 //     zero judged acts        → the existing no-side / procedural / empty reasons
 //
-// PRIMARY, secondary and stowaway never suppress that read. "Not about this
+// On-axis, off-axis and stowaway never suppress that read. "Not about this
 // issue" and every other incidental unread is banned outright where judged acts
 // exist, because it was never a statement about the member: it was a statement
 // about the vehicle the vote arrived on, printed in the slot where the reader
 // looks for what the member did.
 //
-// WHAT PRIMARY STILL IS. A stored flag and a sentence about the vehicle — "this
+// WHAT ON-AXIS STILL IS. A counted badge and a sentence about the vehicle — "this
 // measure's subject is the issue" as against "this was tested inside a larger
 // package". It is printed BESIDE the finding, on the row, in the dossier and on
 // the 🚂 line. It is not, anywhere, a term in a condition that decides whether an
@@ -124,7 +125,7 @@ section("1 · the floors are exactly where they were");
     ["_RD_MIN_JUDGED = 4", "the depth floor for a characterisation"],
     ["_RD_DOMINANCE = 0.75", "the share of weight one side needs to be the record"],
     ["_RD_THIN_MIN = 2", "the items a uniform run states itself over"],
-    ["_RD_MIN_PRIMARY = 1", "the primary count the package sentence is worded from"],
+    ["_RD_MIN_ON_AXIS = 1", "the on-axis count the package sentence is worded from"],
     ["_RD_SPLIT_MIN_JUDGED = 6", "the depth a split needs before it prints counts"],
     ["_RD_SPLIT_MIN_SIDE = 2", "the smaller side's floor before it is a side"],
     ["_RD_MEMBER_FLOOR = 12", "the member-level coverage floor"],
@@ -138,9 +139,9 @@ section("1 · the floors are exactly where they were");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("2 · PRIMARY appears in no condition that decides a read");
+section("2 · the ON-AXIS count appears in no condition that decides a read");
 // ═════════════════════════════════════════════════════════════════════════════
-// The source-level statement of "a label, not a key". _RD_MIN_PRIMARY may be
+// The source-level statement of "a badge, not a key". _RD_MIN_ON_AXIS may be
 // declared, and may be read to word the package sentence — `pkgOnly`, once on
 // each of the two tier lanes. Anywhere else it is a gate, and this is the check
 // that fails when one is put back.
@@ -149,16 +150,16 @@ section("2 · PRIMARY appears in no condition that decides a read");
   const live = [];
   lines.forEach((ln, i) => {
     const code = ln.replace(/^\s*\/\/.*$/, "");            // whole-line comments out
-    if (code.indexOf("_RD_MIN_PRIMARY") < 0) return;
+    if (code.indexOf("_RD_MIN_ON_AXIS") < 0) return;
     if (/^\s*\/\//.test(ln)) return;
     live.push({ n: i + 1, ln: ln.trim() });
   });
-  must(live.length > 0, "_RD_MIN_PRIMARY has left stance-helpers.js entirely — this file is untestable");
-  eq(live.length, 3, `_RD_MIN_PRIMARY is live on ${live.length} lines (${live.map((l) => l.n).join(", ")})`);
-  eq(live[0].ln, "var _RD_MIN_PRIMARY = 1;", "the first live line is the declaration");
+  must(live.length > 0, "_RD_MIN_ON_AXIS has left stance-helpers.js entirely — this file is untestable");
+  eq(live.length, 3, `_RD_MIN_ON_AXIS is live on ${live.length} lines (${live.map((l) => l.n).join(", ")})`);
+  eq(live[0].ln, "var _RD_MIN_ON_AXIS = 1;", "the first live line is the declaration");
   for (const l of live.slice(1)) {
-    eq(l.ln, "var pkgOnly = (idx.primary || 0) < _RD_MIN_PRIMARY;",
-      `line ${l.n} reads the primary count for something other than the package sentence`);
+    eq(l.ln, "var pkgOnly = (idx.onAxis || 0) < _RD_MIN_ON_AXIS;",
+      `line ${l.n} reads the on-axis count for something other than the package sentence`);
   }
   // And the two disclosure lines are one per lane, not two on the same one.
   const src = SRC.get("stance-helpers.js");
@@ -168,7 +169,7 @@ section("2 · PRIMARY appears in no condition that decides a read");
   ok(src.indexOf("var pkgOnly", pat) < dis, "the pattern lane words its own package sentence");
   ok(src.indexOf("var pkgOnly", dis) > dis, "…and so does the display lane");
   // Nothing in this file may argue the retired position any more, either.
-  no(src, "must stay unread", "a comment still argues that a 0-primary row must stay unread");
+  no(src, "must stay unread", "a comment still argues that a 0-on-axis row must stay unread");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -392,19 +393,19 @@ section("6 · the copy widened and the score did not");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("7 · the mutation — PRIMARY set to 99 changes not one finding");
+section("7 · the mutation — the ON-AXIS floor set to 99 changes not one finding");
 // ═════════════════════════════════════════════════════════════════════════════
-// "A label only", stated as an experiment. _RD_MIN_PRIMARY becomes a floor no
+// "A badge only", stated as an experiment. _RD_MIN_ON_AXIS becomes a floor no
 // member in the corpus can clear, so every row in the app is package-borne as far
 // as the constant is concerned. If the flag were a key to any finding, tiers would
 // collapse and Direction Match would move. Nothing may move except the disclosure
 // sentence the constant exists to word — which is asserted to change, so that a
 // mutation that failed to apply cannot pass this section by accident.
 {
-  const MUT = "var _RD_MIN_PRIMARY = 1;";
+  const MUT = "var _RD_MIN_ON_AXIS = 1;";
   must(SRC.get("stance-helpers.js").indexOf(MUT) > 0,
     "the declaration has moved — the mutation can no longer be applied");
-  const M = seed(boot({ "stance-helpers.js": (s) => s.replace(MUT, "var _RD_MIN_PRIMARY = 99;") }));
+  const M = seed(boot({ "stance-helpers.js": (s) => s.replace(MUT, "var _RD_MIN_ON_AXIS = 99;") }));
   eq(M._PDX_RD_MIN_JUDGED, 4, "the mutant booted with its other floors intact");
   const MS = M.PDXConsistency;
   const fields = ["tier", "patLabel", "counts", "tone", "read", "deferred", "directional", "weight"];
@@ -420,7 +421,7 @@ section("7 · the mutation — PRIMARY set to 99 changes not one finding");
       cmpRows++;
       for (const f of fields) {
         if (x[f] !== y[f]) moved++;
-        eq(y[f], x[f], `${pid}/${k}: "${f}" moved when PRIMARY became unreachable`);
+        eq(y[f], x[f], `${pid}/${k}: "${f}" moved when ON-AXIS became unreachable`);
       }
     }
     // The tree's Record slot, on the same rows.
@@ -460,7 +461,7 @@ section("7 · the mutation — PRIMARY set to 99 changes not one finding");
     const sa = shot(WA), sb = shot(WB);
     if (sa !== "null") live++;
     if (sa !== sb) dmMoved++;
-    eq(sb, sa, `${pid}: Direction Match moved when PRIMARY became unreachable`);
+    eq(sb, sa, `${pid}: Direction Match moved when ON-AXIS became unreachable`);
   }
   must(live > 100, `only ${live} profiles produced a Direction Match read`);
   console.log(`      ${pids.length} profiles compared · ${live} with a live read · ${dmMoved} moved`);
@@ -473,4 +474,4 @@ if (failed) {
   if (failed > failures.length) console.error(`  … and ${failed - failures.length} more`);
   process.exit(1);
 }
-console.log(`\n✓ every judged act is characterised, and PRIMARY is a label only — ${passed} checks passed`);
+console.log(`\n✓ every judged act is characterised, and the on-axis count is a badge only — ${passed} checks passed`);

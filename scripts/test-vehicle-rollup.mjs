@@ -93,14 +93,29 @@ must(typeof NARROW === "number" && MIN_READ >= 2 && MIN_ISSUES >= 2,
 
 const stated = new Set((probe._resolveStanceList(PID, probe.CMP_DATA[PID]) || [])
   .map((s) => s && s.issueKey).filter(Boolean));
-const KEYS = Object.keys(probe.ISSUE_MAP).filter((k) =>
+const POLED = Object.keys(probe.ISSUE_MAP).filter((k) =>
   !stated.has(k) && !/_balance$/.test(k) && !(probe._PDX_RD_NO_POLE || {})[k]);
+// THE CARRIER IS A CATEGORY, NOT A FLAG. What a package is mainly about is
+// counted from its mapped keys' core categories (_pdxMeasureAxis), so a rider
+// is off-axis only when the package holds MORE mappings in some other category.
+// Two carrier keys from one category give every rider package that category as
+// its main one; the rider keys are then drawn from every other category.
+const CAT = (k) => {
+  const c = probe.coreIssueForKey && probe.coreIssueForKey(k);
+  return (c && c.key) || "issue:" + k;
+};
+const byCat = new Map();
+for (const k of POLED) { const c = CAT(k); if (!byCat.has(c)) byCat.set(c, []); byCat.get(c).push(k); }
+const carrierCat = [...byCat.keys()].find((c) => !/^issue:/.test(c) && byCat.get(c).length >= 2);
+must(!!carrierCat, "no core category offers two poled keys to carry a package");
+const [CARRIER, CARRIER2] = byCat.get(carrierCat);
+const KEYS = [CARRIER, ...POLED.filter((k) => CAT(k) !== carrierCat)];
 must(KEYS.length > 30, "the fixture profile no longer offers enough poled issues");
-const CARRIER = KEYS[0];
 
-// A standalone vote, or — with {rider} — a PROVISION: two issues, secondary
-// mapping, narrow weight, which is what _recordVehicleStats requires before it
-// will call an instrument a package. Nothing here teaches the detector anything.
+// A standalone vote, or — with {rider} — a PROVISION: a multi-issue package whose
+// main category is the carrier's, this key off-axis by category, at a narrow
+// weight, which is what _recordVehicleStats requires before it will call an
+// instrument a package. Nothing here teaches the detector anything.
 const act = (n, key, position, o) => {
   o = o || {};
   return {
@@ -110,9 +125,10 @@ const act = (n, key, position, o) => {
     isProcedural: false, title: o.bill ? "Consolidated Appropriations Act — " + o.bill : "Measure " + n,
     source: { url: "https://www.congress.gov/roll-call-vote/" + (700 + n), label: "Congress.gov" },
     issues: o.rider
-      ? [{ issueKey: CARRIER, weight: 90, isPrimary: true, supportMeaning: "yea_supports" },
-         { issueKey: key, weight: Math.min(10, NARROW), isPrimary: false, supportMeaning: "yea_supports" }]
-      : [{ issueKey: key, weight: 100, isPrimary: true, supportMeaning: "yea_supports" }],
+      ? [{ issueKey: CARRIER, weight: 90, supportMeaning: "yea_supports" },
+         { issueKey: CARRIER2, weight: 80, supportMeaning: "yea_supports" },
+         { issueKey: key, weight: Math.min(10, NARROW), supportMeaning: "yea_supports" }]
+      : [{ issueKey: key, weight: 100, supportMeaning: "yea_supports" }],
   };
 };
 // Build one sandbox around a seed and hand back everything the sections need.

@@ -19,7 +19,7 @@
 // WHAT THIS FILE PINS
 //
 //   1 · THE CONDITION IS THREE CONDITIONS, ALL REQUIRED. A multi-issue
-//       instrument, a non-primary mapping, and a narrow curator weight. Any two
+//       instrument, an off-axis mapping, and a narrow curator weight. Any two
 //       of the three describe ordinary legislating and would flag half the
 //       corpus; the test measures that directly rather than asserting it.
 //   2 · IT DOES NOT OVER-CLAIM. The row wears the framing only when most of its
@@ -109,21 +109,29 @@ section("1 · a vehicle, a passenger, and a slice — all three, or nothing");
   // The unit itself. Three properties, each independently fatal.
   const P = win._rdIsProvision;
   eq(typeof P, "function", "the per-instrument test is published for anything that needs it");
-  const rider = { issues: ["a", "b"] };
-  eq(P(rider, { isPrimary: false, weight: 20 }), true, "a narrow secondary mapping on a multi-issue bill is a provision");
-  eq(P({ issues: ["a"] }, { isPrimary: false, weight: 20 }), false,
+  // Real keys, so the axis is COUNTED the way the shipped read counts it: two
+  // mappings in Government Spending (lower_taxes, cut_spending) make that the
+  // bill's main category, and healthcare rides in off-axis by category.
+  const OFF = { issueKey: "healthcare" };
+  const rider = { issues: [{ issueKey: "lower_taxes" }, { issueKey: "cut_spending" }, OFF] };
+  const at = (w, k) => ({ issueKey: k || "healthcare", weight: w });
+  eq(win._pdxMeasureAxis(rider.issues).axisOf("healthcare"), "off", "fixture: healthcare is off-axis on the rider");
+  eq(P(rider, at(20)), true, "a narrow off-axis mapping on a multi-issue bill is a provision");
+  eq(P({ issues: [OFF] }, at(20)), false,
     "…but a single-issue instrument is not a vehicle, whatever its weight");
-  eq(P(rider, { isPrimary: true, weight: 20 }), false,
-    "…and a primary mapping means the bill WAS the policy, however small its weight field");
-  eq(P(rider, { isPrimary: false, weight: NARROW_AT + 1 }), false,
+  eq(P(rider, at(20, "lower_taxes")), false,
+    "…and an on-axis mapping means the bill WAS the policy, however small its weight field");
+  eq(P({ issues: [{ issueKey: "lower_taxes" }, OFF] }, at(20)), false,
+    "…and on a split bill every tied category is on-axis, so nothing there is a stowaway");
+  eq(P(rider, at(NARROW_AT + 1)), false,
     "…and a mapping wide enough to be a main subject is a subject, not a stowaway");
-  eq(P(rider, { isPrimary: false, weight: NARROW_AT }), true, "…with the boundary itself inclusive");
+  eq(P(rider, at(NARROW_AT)), true, "…with the boundary itself inclusive");
   eq(P(rider, {}), false, "an unweighted mapping defaults to the full bill and is never a provision");
-  eq(P(null, { isPrimary: false, weight: 1 }), false, "no item, no read");
+  eq(P(null, at(1)), false, "no item, no read");
   eq(P(rider, null), false, "no mapping, no read");
 
-  // And the measurement the third condition exists for: without it, "not the
-  // primary issue" alone is the ordinary state of nearly every secondary mapping,
+  // And the measurement the third condition exists for: without it, "off the
+  // bill's axis" alone is the ordinary state of nearly every off-category mapping,
   // and the label would land on a third of the corpus rather than on a finding.
   let anyMulti = 0;
   for (const x of ROWS) if (x.vehicle && x.vehicle.total > 0 && x.vehicle.provision < x.vehicle.total) anyMulti++;

@@ -567,7 +567,7 @@ const roster = J("db/vr-roster-admitted.json");
 // ── 8. the floors, unmoved ──────────────────────────────────────────────
 {
   const sh = R("stance-helpers.js");
-  const FLOORS = { _RD_MIN_JUDGED: "4", _RD_MIN_PRIMARY: "1", _RD_THIN_MIN: "2", _RD_MIN_STRENGTH: "4",
+  const FLOORS = { _RD_MIN_JUDGED: "4", _RD_MIN_ON_AXIS: "1", _RD_THIN_MIN: "2", _RD_MIN_STRENGTH: "4",
     _RD_SPLIT_MIN_JUDGED: "6", _RD_SPLIT_MIN_SIDE: "2" };
   for (const [name, want] of Object.entries(FLOORS)) {
     const m = sh.match(new RegExp(`${name}\\s*=\\s*(\\d+)`));

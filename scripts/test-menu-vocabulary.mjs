@@ -296,10 +296,24 @@ section("8 · nothing moved");
 const NARROW = W._PDX_RD_NARROW_AT;
 const stated = new Set((W._resolveStanceList(PID, W.CMP_DATA[PID]) || [])
   .map((s) => s && s.issueKey).filter(Boolean));
-const KEYS = Object.keys(W.ISSUE_MAP).filter((k) =>
+const POLED = Object.keys(W.ISSUE_MAP).filter((k) =>
   !stated.has(k) && !/_balance$/.test(k) && !(W._PDX_RD_NO_POLE || {})[k]);
+// THE CARRIER IS A CATEGORY, NOT A FLAG. A package's main subject is counted from
+// its mapped keys' core categories (_pdxMeasureAxis), so a rider is off-axis only
+// when the package holds more mappings in another category. Two carrier keys from
+// one category make that the package's main one; every other key in the fixture
+// is drawn from a different category, so each rider is off-axis BY CATEGORY.
+const CAT = (k) => {
+  const c = W.coreIssueForKey && W.coreIssueForKey(k);
+  return (c && c.key) || "issue:" + k;
+};
+const byCat = new Map();
+for (const k of POLED) { const c = CAT(k); if (!byCat.has(c)) byCat.set(c, []); byCat.get(c).push(k); }
+const carrierCat = [...byCat.keys()].find((c) => !/^issue:/.test(c) && byCat.get(c).length >= 2);
+must(!!carrierCat, "no core category offers two poled keys to carry a package");
+const [CARRIER, CARRIER2] = byCat.get(carrierCat);
+const KEYS = [CARRIER, ...POLED.filter((k) => CAT(k) !== carrierCat)];
 must(KEYS.length > 20, "the fixture profile no longer offers enough poled issues");
-const CARRIER = KEYS[0];
 const act = (n, key, position, o) => {
   o = o || {};
   return {
@@ -310,9 +324,10 @@ const act = (n, key, position, o) => {
     title: o.title || (o.bill ? "Consolidated Appropriations Act, 2026" : "Measure " + n),
     source: { url: "https://www.congress.gov/roll-call-vote/" + (700 + n), label: "Congress.gov" },
     issues: o.rider
-      ? [{ issueKey: CARRIER, weight: 90, isPrimary: true, supportMeaning: "yea_supports" },
-         { issueKey: key, weight: Math.min(10, NARROW), isPrimary: false, supportMeaning: "yea_supports" }]
-      : [{ issueKey: key, weight: 100, isPrimary: true, supportMeaning: "yea_supports" }],
+      ? [{ issueKey: CARRIER, weight: 90, supportMeaning: "yea_supports" },
+         { issueKey: CARRIER2, weight: 80, supportMeaning: "yea_supports" },
+         { issueKey: key, weight: Math.min(10, NARROW), supportMeaning: "yea_supports" }]
+      : [{ issueKey: key, weight: 100, supportMeaning: "yea_supports" }],
   };
 };
 // Nine clean issues so the file is deep enough to read at all, then TWO issues

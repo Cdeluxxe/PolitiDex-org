@@ -207,7 +207,7 @@ for (const [number, congress, chamber, key, why] of REFUSED) {
 section("4 · the floors did not move");
 // ═════════════════════════════════════════════════════════════════════════════
 const SH = R("stance-helpers.js");
-[["_RD_MIN_JUDGED", "4"], ["_RD_MIN_PRIMARY", "1"], ["_RD_DOMINANCE", "0.75"],
+[["_RD_MIN_JUDGED", "4"], ["_RD_MIN_ON_AXIS", "1"], ["_RD_DOMINANCE", "0.75"],
  ["_RD_THIN_MIN", "2"], ["_RD_SPLIT_MIN_JUDGED", "6"], ["_RD_SPLIT_MIN_SIDE", "2"],
  ["_RD_MEMBER_FLOOR", "12"]].forEach(([name, val]) => {
   const m = SH.match(new RegExp("var " + name + "\\s*=\\s*([0-9.]+)"));
@@ -222,27 +222,44 @@ section("5 · the mechanism drifts the way the pack claims");
 // which is the whole population the pack unblocks.
 const win = loadEngine(ROOT);
 const rdIndex = win._recordDirectionIndex;
+// The leaf `isPrimary` flag is RETIRED; what a measure is "about" is counted from
+// its mapped categories (_pdxMeasureAxis). The promoted item carries its REAL seed
+// mappings (flag stripped), and in each of the three the promoted key sits in the
+// measure's dominant category — ON-AXIS. CARGO is two Government Spending keys:
+// laid beside the same mapping it makes that category dominate 2–1 and pushes the
+// key OFF-AXIS, which is what an incidental omnibus brush looks like.
+const CARGO = [
+  { issueKey: "national_debt", weight: 100, supportMeaning: "yea_supports" },
+  { issueKey: "lower_taxes", weight: 90, supportMeaning: "yea_supports" },
+];
 const item = (number, congress, chamber, key, n) => {
-  const row = rowOf(measureOf(number, congress, chamber), key);
+  const m = measureOf(number, congress, chamber);
   return {
     kind: "vote", measureId: 9000 + n, number, position: "yea", isProcedural: false,
     advanceInverted: false, date: `2026-0${n + 1}-01T00:00:00.000Z`,
-    issues: [{ issueKey: key, weight: row.weight, isPrimary: row.isPrimary, supportMeaning: row.supportMeaning }],
+    issues: m.issues.map((i) => ({ issueKey: i.issueKey, weight: i.weight, supportMeaning: i.supportMeaning })),
   };
 };
-// A filler item on the same issue that is deliberately NOT primary: an incidental
+// A filler item on the same issue that is deliberately OFF-AXIS: an incidental
 // omnibus brush, which is what the corpus is full of and what the floor exists to catch.
 const filler = (key, n) => ({
   kind: "vote", measureId: 8000 + n, number: `Filler ${n}`, position: "yea", isProcedural: false,
   advanceInverted: false, date: `2025-0${n + 1}-01T00:00:00.000Z`,
-  issues: [{ issueKey: key, weight: 45, isPrimary: false, supportMeaning: "yea_supports" }],
+  issues: [{ issueKey: key, weight: 45, supportMeaning: "yea_supports" }].concat(CARGO),
 });
 
 for (const [number, congress, chamber, key] of PROMOTES) {
   const withIt = [item(number, congress, chamber, key, 0), filler(key, 1), filler(key, 2), filler(key, 3)];
+  // The same promoted mapping, carried as cargo: off-axis by category.
   const without = withIt.map((it, i) => (i ? it : {
-    ...it, issues: it.issues.map((m) => ({ ...m, isPrimary: false })),
+    ...it, issues: it.issues.filter((m) => m.issueKey === key).concat(CARGO),
   }));
+  eq(win._pdxMeasureAxis(withIt[0].issues).axisOf(key), "on",
+    `${key}: ${number}'s real mappings do not put ${key} in the dominant category`);
+  eq(win._pdxMeasureAxis(without[0].issues).axisOf(key), "off",
+    `${key}: the cargo fixture does not push ${key} off-axis`);
+  eq(win._pdxMeasureAxis(withIt[1].issues).axisOf(key), "off",
+    `${key}: the filler fixture is not off-axis`);
   const a = rdIndex(key, withIt, { memberRecordCount: 999 });
   const b = rdIndex(key, without, { memberRecordCount: 999 });
   eq(a.token, "record_direction",
@@ -259,11 +276,11 @@ for (const [number, congress, chamber, key] of PROMOTES) {
   eq(b.token, a.token, `${key}: …and the same four items read differently with and without it`);
   eq(b.characterised, a.characterised, `${key}: …or are characterised differently`);
   eq(b.lead, a.lead, `${key}: …or lean differently`);
-  eq(b.primary, 0, `${key}: …with the flag genuinely absent, so this is not a fixture accident`);
+  eq(b.onAxis, 0, `${key}: …with no act on-axis, so this is not a fixture accident`);
   eq(a.characterised, true, `${key}: the read with ${number} is not characterised`);
   eq(a.judged, 4, `${key}: the item count changed`);
   // Direction is decided on act counts, not on the promoted row's weight: LEDGER-FIRST.
-  eq(a.primary, 1, `${key}: exactly one of the four items should be the primary one`);
+  eq(a.onAxis, 1, `${key}: exactly one of the four items should be the on-axis one`);
 }
 
 // Below _RD_MIN_JUDGED the primary rule does not apply at all — so a promote cannot be
@@ -272,7 +289,7 @@ for (const [number, congress, chamber, key] of PROMOTES) {
   const [number, congress, chamber, key] = PROMOTES[0];
   const shallow = [filler(key, 1), filler(key, 2), filler(key, 3)];
   const s = rdIndex(key, shallow, { memberRecordCount: 999 });
-  eq(s.token, "record_uniform_thin", "three unmapped-primary items should still read as a uniform thin run");
+  eq(s.token, "record_uniform_thin", "three off-axis items should still read as a uniform thin run");
   eq(s.suppressed, null, "a shallow record must not be refused for want of a primary");
   ok(number && congress && chamber, "fixture guard");
 }
@@ -280,16 +297,24 @@ for (const [number, congress, chamber, key] of PROMOTES) {
 // ═════════════════════════════════════════════════════════════════════════════
 section("6 · nothing that reads issues[0] moves");
 // ═════════════════════════════════════════════════════════════════════════════
-// vr-pack.ts: list.sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary) || b.weight - a.weight)
+// vr-pack.ts: list.sort((a, b) => b.weight - a.weight || a.issueKey.localeCompare(b.issueKey))
+// The leaf isPrimary flag is retired from the pack, so a promote can no longer
+// reorder the issue list the API ships: weight leads, key breaks ties.
+{
+  const PACK = R("netlify/lib/vr-pack.ts");
+  has(PACK, "list.sort((a, b) => b.weight - a.weight || a.issueKey.localeCompare(b.issueKey))",
+    "the pack's issue sort changed — the ordering proof below no longer describes it");
+  lacks(PACK, "Number(b.isPrimary)", "the pack's issue sort consults the retired isPrimary flag again");
+}
 const packSort = (issues) => issues.slice()
-  .sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary) || b.weight - a.weight)
+  .sort((a, b) => b.weight - a.weight || a.issueKey.localeCompare(b.issueKey))
   .map((i) => i.issueKey);
 for (const [number, congress, chamber, key, , , joins] of PROMOTES) {
   const m = measureOf(number, congress, chamber);
   const after = packSort(m.issues);
   const before = packSort(m.issues.map((i) => (i.issueKey === key ? { ...i, isPrimary: false } : i)));
   eq(after.join(" > "), before.join(" > "),
-    `${number}: promoting ${key} reordered the issue list the API ships`);
+    `${number}: the seed's legacy flag on ${key} reordered the issue list the API ships`);
   eq(after[0], joins, `${number}: the measure's leading issue is no longer ${joins}`);
 }
 

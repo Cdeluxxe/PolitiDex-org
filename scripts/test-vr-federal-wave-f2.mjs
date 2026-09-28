@@ -217,7 +217,7 @@ const floor = (name) => {
   const m = helpers.match(new RegExp(`var\\s+${name}\\s*=\\s*(\\d+)\\s*;`));
   return m ? Number(m[1]) : null;
 };
-eq(floor("_RD_MIN_PRIMARY"), 1, "_RD_MIN_PRIMARY is unmoved — this wave supplies primaries, it does not stop requiring one");
+eq(floor("_RD_MIN_ON_AXIS"), 1, "_RD_MIN_ON_AXIS (was _RD_MIN_PRIMARY) is unmoved — this wave supplies on-axis rows, it does not stop requiring one");
 eq(floor("_RD_MIN_JUDGED"), 4, "_RD_MIN_JUDGED is unmoved");
 eq(decide._counts.floorsMoved, 0, "the decision seed claims no floor moved");
 eq(decide._counts.keysAdded, 0, "the decision seed claims no key added");
