@@ -8040,7 +8040,24 @@
 //     untouched. MIGRATION COST: none, and no location key is migrated,
 //     renamed or copied; consistency.js is precached, so the shell moves one
 //     version.
-const CACHE_VERSION = 'v248';
+// v249 - A MEASURE WITH NO BILL PAGE HERE LINKS TO CONGRESS.GOV.
+//     Lee's Protect Public Lands drawer names H.J.Res. 131 and H.J.Res. 140, and
+//     on the person file - where the bill panel is not loaded - tapping either
+//     said "No bill page on file". The vote is in the archive; the bill is on
+//     Congress.gov. So the one door helper in consistency.js (the drawer's
+//     ledger table and the dossier card's number and title) now asks first
+//     whether the panel is on the page. If it is, nothing changed: a button onto
+//     the in-site bill file. If it is not and the identity is federal - a
+//     numeric congress and one of the ten clerk prefixes - the number is an
+//     outbound link to congress.gov/bill/<n>th-congress/<type>/<num> (or
+//     /amendment/...), new tab, rel noopener noreferrer, a drawn arrow and
+//     "leaves PolitiDex" in its label. A Utah bill or an unparseable number
+//     keeps the door it had. No /bill/ address, no stub page, no scrape.
+//     Scores, Direction Match, NEVER_FEEDS, the method-note fold, money and the
+//     district boards are untouched.
+//     MIGRATION COST: none, and no location key is migrated, renamed or copied;
+//     consistency.js is precached, so the shell moves one version.
+const CACHE_VERSION = 'v249';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

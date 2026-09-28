@@ -37,6 +37,8 @@
 //      /voice, the SD-3 board, the money pills and the FD tables are untouched.
 //  10. THE VOTE, NOT HOW WE CODED IT. No curator rationale under a row or on
 //      the first screen; it lives behind the disclosure, labelled as method.
+//  11. NO LOCAL BILL PAGE, A REAL LINK. Without the bill panel a federal measure
+//      links out to Congress.gov, marked as leaving; with it, it stays in-site.
 //
 //   node scripts/test-issue-ledger.mjs
 //
@@ -214,10 +216,11 @@ section("2 · Massie × voter_id — the named fixture, pinned to the archive");
   const tb = table(h);
   has(tb, "H.R. 22", "massie × voter_id: the row does not name the bill");
   has(text(tb), "2025-04-10 H.R. 22 Passage Yea", "massie × voter_id: the row is not date · number · kind · vote");
-  // The number is the same door the rest of the site uses.
-  has(tb, 'class="pdxlg-num pdxbill-door"', "massie × voter_id: the bill number is not a bill-file door");
-  has(tb, 'data-pdxbill-num="H.R. 22"', "massie × voter_id: the door carries no bill identity");
-  has(tb, 'data-pdxbill-sit="119"', "massie × voter_id: the door carries no congress");
+  // The number is the same door the rest of the site uses. This harness boots
+  // without the bill panel, so the door is the outbound form — Congress.gov's own
+  // page for the 119th's H.R. 22 (section 11 pins the in-site form).
+  has(tb, 'class="pdxlg-num pdxbill-door pdxbill-ext"', "massie × voter_id: the bill number is not a bill door");
+  has(tb, 'href="https://www.congress.gov/bill/119th-congress/house-bill/22"', "massie × voter_id: the door does not reach the bill");
   // One finding, and it is not a percentage.
   eq((h.match(/class="pdxlg-find"/g) || []).length, 1, "massie × voter_id: not exactly one finding line");
   has(l, "Backed up", "massie × voter_id: the finding word");
@@ -663,8 +666,9 @@ section("10 · the vote, not how we coded it — Lee × Protect Public Lands");
   no(tb, "Nay", "lee × lands_preserve: a Yea was rewritten as Nay");
   eq((table(h).match(/class="pdxlg-v pdxlg-v-y">Yea</g) || []).length, 2, "lee × lands_preserve: not two Yea cells");
   eq((table(h).match(/class="pdxlg-k">Passage</g) || []).length, 2, "lee × lands_preserve: not two Passage kinds");
-  for (const n of ["H.J.Res. 131", "H.J.Res. 140"]) {
-    has(table(h), `data-pdxbill-num="${n}"`, `lee × lands_preserve: ${n} no longer opens its bill file`);
+  for (const n of ["131", "140"]) {
+    has(table(h), `href="https://www.congress.gov/bill/119th-congress/house-joint-resolution/${n}"`,
+      `lee × lands_preserve: H.J.Res. ${n} no longer links to the bill`);
   }
   // No method vocabulary anywhere in the drawer's first screen.
   for (const v of VOCAB) no(l.toLowerCase(), v, `lee × lands_preserve: method vocabulary on the first screen`);
@@ -703,6 +707,79 @@ section("10 · the vote, not how we coded it — Lee × Protect Public Lands");
   const mt = MCS.dossierTally("lee", "lands_preserve", MCS.issueRow("lee", "lands_preserve").ov);
   ok(leaks(mh, mt).length > 0, "a renderer that prints method text under a row passed the leak check");
   ok(VOCAB.some((v) => text(lede(mh)).toLowerCase().includes(v)), "the mutation did not surface the method vocabulary it should have");
+}
+
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("11 · no bill page here, so the measure links to Congress.gov");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  const anchor = (h, n) => {
+    const re = new RegExp('<a class="pdxlg-num[^"]*"[^>]*>' + n.replace(/\./g, "\\.") + '</a>');
+    return (re.exec(String(h)) || [""])[0];
+  };
+  // Lee × Protect Public Lands, on a page without the bill panel: both measures
+  // are real outbound links, marked as leaving the site, and neither is the dead
+  // "No bill page on file" door.
+  const h = drawer("lee", "lands_preserve");
+  for (const [n, num] of [["H.J.Res. 131", 131], ["H.J.Res. 140", 140]]) {
+    const a = anchor(table(h), n);
+    ok(a, `lee × lands_preserve: ${n} is not an anchor`);
+    has(a, `href="https://www.congress.gov/bill/119th-congress/house-joint-resolution/${num}"`, `lee: ${n} does not point at Congress.gov`);
+    has(a, 'target="_blank"', `lee: ${n} does not open in a new tab`);
+    has(a, 'rel="noopener noreferrer"', `lee: ${n} carries no rel`);
+    has(a, "leaves PolitiDex", `lee: ${n} does not say it leaves the site`);
+    no(a, "data-pdxbill-open", `lee: ${n} is still wired to the missing bill panel`);
+  }
+  no(h, "No bill page on file", "lee × lands_preserve: the dead door is still printed");
+  // Method vocabulary is still off the first screen after the doors changed.
+  for (const v of ["precedent", "mirror", "discriminator", "vocabulary carries no", "primary row"]) {
+    no(text(lede(h)).toLowerCase(), v, `lee × lands_preserve: method vocabulary "${v}" returned to the first screen`);
+  }
+
+  // Every outbound door in the archive is a Congress.gov bill or amendment page
+  // for a numeric congress — never a local address and never a state bill.
+  let ext = 0;
+  const CG = /^https:\/\/www\.congress\.gov\/(bill|amendment)\/\d+(st|nd|rd|th)-congress\/[a-z-]+\/\d+$/;
+  for (const x of WITH) {
+    for (const m of String(drawer(x.pid, x.key)).matchAll(/<a class="[^"]*pdxbill-ext"[^>]*href="([^"]*)"/g)) {
+      ext++;
+      ok(CG.test(m[1]), `${key(x)}: an outbound bill door points at ${m[1]}`);
+    }
+    no(drawer(x.pid, x.key), 'href="/bill/', `${key(x)}: a local /bill/ address was minted`);
+  }
+  ok(ext > 1000, `only ${ext} outbound bill doors across the archive`);
+  console.log(`      ${ext} outbound Congress.gov door(s) · all of them congress.gov/bill|amendment`);
+
+  // The URL builder, pinned on the shapes it must and must not read.
+  const U = CS.congressGovUrl;
+  must(typeof U === "function", "the Congress.gov address builder is not exported");
+  eq(U("H.J.Res. 131", "119"), "https://www.congress.gov/bill/119th-congress/house-joint-resolution/131", "H.J.Res. 131");
+  eq(U("S. 5", "118"), "https://www.congress.gov/bill/118th-congress/senate-bill/5", "S. 5");
+  eq(U("H.R. 8595", "118"), "https://www.congress.gov/bill/118th-congress/house-bill/8595", "H.R. 8595");
+  eq(U("S.J.Res. 11", "101"), "https://www.congress.gov/bill/101st-congress/senate-joint-resolution/11", "101st ordinal");
+  eq(U("H.Amdt. 243", "119"), "https://www.congress.gov/amendment/119th-congress/house-amendment/243", "H.Amdt.");
+  eq(U("H.B. 257", "2024GS"), "", "a Utah bill got a Congress.gov address");
+  eq(U("S.B. 1", "119"), "", "a state-shaped number got a Congress.gov address");
+  eq(U("H.R. 1", ""), "", "a measure with no congress got a Congress.gov address");
+  eq(U("Recorded vote", "119"), "", "an unnumbered identity got a Congress.gov address");
+
+  // WITH THE PANEL ON THE PAGE the same measure keeps its in-site door: a button
+  // onto the bill file, no href, nothing leaving the site.
+  const P = boot(R);
+  P.PDXBillDetail = { open: () => true };
+  const ph = P.PDXConsistency.gapViewHtml("lee", "lands_preserve") || "";
+  has(table(ph), 'class="pdxlg-num pdxbill-door" data-pdxbill-open data-pdxbill-num="H.J.Res. 131"',
+    "with the panel on the page, H.J.Res. 131 no longer opens the local bill file");
+  has(table(ph), 'data-pdxbill-num="H.J.Res. 140"', "with the panel on the page, H.J.Res. 140 no longer opens the local bill file");
+  no(table(ph), "congress.gov", "with the panel on the page, a measure left the site anyway");
+  no(table(ph), "pdxbill-ext", "with the panel on the page, a door was marked outbound");
+
+  // And no route was added for a bill document that does not exist.
+  const TOML = R("netlify.toml");
+  ok(!/from\s*=\s*"\/bill/.test(TOML), "netlify.toml gained a /bill/ rewrite");
+  eq((TOML.match(/from\s*=\s*"\/b\//g) || []).length, ((HEAD("netlify.toml") || TOML).match(/from\s*=\s*"\/b\//g) || []).length,
+    "the /b/ bill rewrites changed");
 }
 
 // ── verdict ──────────────────────────────────────────────────────────────────

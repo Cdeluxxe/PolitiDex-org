@@ -2159,6 +2159,10 @@
       '.pdxbill-door:hover{color:#bcd8ff;text-decoration-color:#7fb4ff;}' +
       '.pdxbill-door:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;border-radius:0.25rem;}' +
       '.pdxbill-door[data-pdxbill-none]{cursor:default;text-decoration:none;}' +
+      // The outbound form keeps the door's dress and adds the ↗ every source link
+      // here wears — drawn, not written, so the row's text is still date · number
+      // · kind · vote, and the aria-label already says the link leaves the site.
+      '.pdxbill-ext::after{content:" \\2197";font-size:0.85em;color:#7fb4ff;}' +
       // The honest refusal, written onto the control the reader tapped rather than
       // anywhere else. Amber because it is a coverage gap and not a verdict, and
       // inline because the number it explains has to stay beside it.
@@ -3356,6 +3360,10 @@
       // Checked here rather than left to bill-detail.js because the panel's own
       // delegate only listens inside its overlay, and these controls are on the
       // person file.
+      // The outbound form of the same door (no panel on this page, a Congress.gov
+      // page for the measure) is a plain link: the browser follows it and nothing
+      // around it — the card face, the row — may take the tap as well.
+      if (e.target.closest && e.target.closest('[data-pdxbill-ext]')) return;
       var bopen = e.target.closest && e.target.closest('[data-pdxbill-open]');
       if (bopen) {
         e.preventDefault();
@@ -15476,12 +15484,63 @@
   // so a <span> becoming a <button> changes what the element DOES and nothing
   // about where it sits. Falls back to the span it replaced when there is no
   // number to address, which is the honest shape for a row that names no measure.
+  //   NO LOCAL FILE, BUT A FEDERAL CITATION: THE CLERK'S OWN SITE. Where the bill
+  // panel is not on the page there is no PolitiDex bill file to open, and a control
+  // that can only answer "No bill page on file" is a dead tap over a measure
+  // Congress.gov publishes in full. So a federal identity — a numeric congress and
+  // a number this parser recognises — becomes an outbound link to that page, marked
+  // as leaving the site the way every other source link here is (new tab, ↗, the
+  // destination named). Nothing is minted on our side: no /bill/ address, no stub.
+  // Anything else — a Utah bill, an unparseable number — keeps the door it had.
   function _billDoor(cls, num, sit, ident, inner) {
     var at = _billDoorAttrs(num, sit, ident);
     if (!at) return '<span class="' + cls + '">' + inner + '</span>';
+    var cg = _billPanelOn() ? '' : _congressGovUrl(num, sit);
+    if (cg) {
+      var who = ident || String(num).trim();
+      return '<a class="' + cls + ' pdxbill-door pdxbill-ext" href="' + escAttr(cg) + '"' +
+        ' target="_blank" rel="noopener noreferrer" data-pdxbill-ext="1"' +
+        ' title="' + escAttr(who + ' on Congress.gov \u2014 leaves PolitiDex') + '"' +
+        ' aria-label="' + escAttr(who + ' on Congress.gov (leaves PolitiDex, opens in a new tab)') + '">' +
+        inner + '</a>';
+    }
     return '<button type="button" class="' + cls + ' pdxbill-door"' + at +
       ' aria-label="' + escAttr('Open the bill file for ' + (ident || num)) + '">' +
       inner + '</button>';
+  }
+  function _billPanelOn() {
+    try { return !!(window.PDXBillDetail && typeof window.PDXBillDetail.open === 'function'); }
+    catch (e) { return false; }
+  }
+  // Congress.gov's own address for a federal measure: /bill/<n>th-congress/<type>/<num>,
+  // or /amendment/… for a floor amendment. The sitting must be a bare congress
+  // number — a Utah session code ("2025GS") never parses — and the prefix must be
+  // one of the ten the clerks print. No match, no URL.
+  var _CG_TYPES = [
+    [/^H\.\s*R\.$/i, 'bill', 'house-bill'],
+    [/^S\.$/i, 'bill', 'senate-bill'],
+    [/^H\.\s*J\.\s*Res\.$/i, 'bill', 'house-joint-resolution'],
+    [/^S\.\s*J\.\s*Res\.$/i, 'bill', 'senate-joint-resolution'],
+    [/^H\.\s*Con\.\s*Res\.$/i, 'bill', 'house-concurrent-resolution'],
+    [/^S\.\s*Con\.\s*Res\.$/i, 'bill', 'senate-concurrent-resolution'],
+    [/^H\.\s*Res\.$/i, 'bill', 'house-resolution'],
+    [/^S\.\s*Res\.$/i, 'bill', 'senate-resolution'],
+    [/^H\.\s*Amdt\.$/i, 'amendment', 'house-amendment'],
+    [/^S\.\s*Amdt\.$/i, 'amendment', 'senate-amendment']
+  ];
+  function _congressGovUrl(num, sit) {
+    var c = String(sit == null ? '' : sit).trim();
+    if (!/^\d{2,3}$/.test(c)) return '';
+    var m = /^(.*?)\s*(\d+)$/.exec(String(num == null ? '' : num).trim());
+    if (!m) return '';
+    for (var i = 0; i < _CG_TYPES.length; i++) {
+      if (!_CG_TYPES[i][0].test(m[1])) continue;
+      var ord = _dosCongressLabel(parseInt(c, 10)).replace(/ Congress$/, '').toLowerCase();
+      if (!ord) return '';
+      return 'https://www.congress.gov/' + _CG_TYPES[i][1] + '/' + ord + '-congress/' +
+        _CG_TYPES[i][2] + '/' + parseInt(m[2], 10);
+    }
+    return '';
   }
   function _billDoorAttrs(num, sit, ident) {
     var n = String(num == null ? '' : num).trim();
@@ -18308,6 +18367,7 @@
     dossierActKind: _dosActKind,
     dossierActVote: _dosActVote,
     dossierLedgerHtml: _dosLedgerHtml,
+    congressGovUrl: _congressGovUrl,
     dossierSaidHtml: _dosSaidHtml,
     dossierRecordsHtml: function (pid, issueKey) {
       return _dosRecordsHtml(pid, issueKey, issueRow(pid, issueKey), officialIssue(pid, issueKey));
