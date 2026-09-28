@@ -8105,7 +8105,19 @@
 //     version. bill-detail.js, issue-page.js, exec-record.js and
 //     receipt-cards.js also changed; they are runtime assets and refresh by
 //     stale-while-revalidate.
-const CACHE_VERSION = 'v252';
+// v253 - CRA EFFECT LINES ON THEIR OTHER ISSUES.
+//     Eleven Congressional Review Act disapprovals, on issues whose own `did`
+//     was too long to stand under a row or absent, gained one short line each
+//     in the effect table: "Struck the [agency] [rule] and barred a substantially
+//     similar rule." for one that became law, "Would have struck …; it failed
+//     [chamber] [vote]." for one that did not. The rule is named from the pair's
+//     own `did`, or with none the measure's stored title. The eight shipped
+//     lines are byte-identical; Lee × Water stays mute; S.J.Res. 7 and H.J.Res.
+//     78, whose outcome the archive does not settle, get no line. No mapping,
+//     score, Direction Match or the append-only map moved.
+//     MIGRATION COST: none, and no location key is migrated, renamed or copied;
+//     consistency.js is precached, so the shell moves one version.
+const CACHE_VERSION = 'v253';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

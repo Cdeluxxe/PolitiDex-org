@@ -1111,7 +1111,9 @@ section("14 · the harvest — every stored did, read against the effect rule");
   // sentences or too long, which this archive does not clip or rewrite. So the
   // effect table stays at its eight hand-written lines, and this section pins
   // both halves of that finding so a later pass cannot quietly copy a `did` into
-  // the table, clip one, or drop one the fallback should print.
+  // the table, clip one, or drop one the fallback should print. The one family
+  // that did grow it since is the Congressional Review Act batch below: short
+  // lines in a fixed shape for disapprovals whose own `did` is too long or absent.
   const lift = (name) => {
     const src = R("consistency.js"), a = src.indexOf(`var ${name} = {`);
     must(a !== -1, `${name} is not in consistency.js in the form this file reads`);
@@ -1142,8 +1144,80 @@ section("14 · the harvest — every stored did, read against the effect rule");
     "S.J.Res. 18|119|gov_regulation": "Nullified the CFPB’s December 2024 overdraft rule for the largest banks and barred a substantially similar rule.",
     "H.J.Res. 131|119|gov_regulation": "Voided the BLM’s 2024 Arctic refuge leasing decision under the Congressional Review Act and barred a substantially similar one.",
   };
-  eq(Object.keys(EFFECT).sort().join(" · "), Object.keys(SHIPPED).sort().join(" · "), "the effect table is not the eight shipped lines");
   for (const [k, v] of Object.entries(SHIPPED)) eq(EFFECT[k], v, `${k}: the shipped effect line changed`);
+
+  // THE CRA BATCH. Every line past the eight is a Congressional Review Act
+  // disapproval on another issue it is mapped to, in one of two fixed shapes, with
+  // the rule named from a field the archive already stores for THAT pair — its own
+  // `did`, or with none the measure's stored title — and an outcome the archive
+  // settles. A line whose rule cannot be traced to its pair's own field, or whose
+  // measure the archive does not show as enacted or failed, is refused.
+  const STRUCK = /^Struck the .+ and barred a substantially similar rule\.$/;
+  const FAILED = /^Would have struck the [^;]+; it failed (?:the House|the Senate) \d+-\d+\.$/;
+  const TITLE = {
+    "H.J.Res. 88|119": R("netlify/database/migrations/20260725040000_vr_seed_waiver_cra_rollcalls.sql").match(/'H\.J\.Res\. 88', '([^']+)'/)[1],
+    "H.J.Res. 89|119": R("netlify/database/migrations/20260725040000_vr_seed_waiver_cra_rollcalls.sql").match(/'H\.J\.Res\. 89', '([^']+)'/)[1],
+  };
+  // Outcome as filed: status 'enacted' (or its public law) on the struck ones, the
+  // 49-50 Senate defeat written into migration 20260917000000 for the failed one.
+  const OUTCOME = {
+    "H.J.Res. 131|119": "enacted", "H.J.Res. 140|119": "enacted", "H.J.Res. 88|119": "enacted",
+    "H.J.Res. 89|119": "enacted", "H.J.Res. 25|119": "enacted", "S.J.Res. 18|119": "enacted",
+    "H.J.Res. 44|118": "failed the Senate 49-50",
+  };
+  // The words in each line that name the rule, and where the archive stores them.
+  const RULE = {
+    "H.J.Res. 131|119|energy_production": ["Record of Decision", "did"],
+    "H.J.Res. 131|119|lands_energy": ["1.2 million", "did"],
+    "H.J.Res. 140|119|lands_energy": ["mineral and geothermal leasing", "did"],
+    "H.J.Res. 88|119|energy_production": ["Advanced Clean Cars II", "title"],
+    "H.J.Res. 88|119|climate_action": ["Advanced Clean Cars II", "title"],
+    "H.J.Res. 89|119|energy_production": ["Advanced Clean Trucks", "title"],
+    "H.J.Res. 89|119|climate_action": ["Advanced Clean Trucks", "title"],
+    "H.J.Res. 44|118|gun_rights": ["short-barrelled rifles", "did"],
+    "H.J.Res. 44|118|gun_safety": ["National Firearms Act", "did"],
+    "H.J.Res. 25|119|tech_innovation": ["front ends", "did"],
+    "S.J.Res. 18|119|econ_corp_account": ["very large financial institutions", "did"],
+  };
+  const craFault = (k, v, rule = RULE) => {
+    const f = harvestFault(v);
+    if (f) return f;
+    const m = k.split("|").slice(0, 2).join("|"), r = rule[k];
+    if (!r) return "names no rule the archive stores for this pair";
+    const src = r[1] === "did" ? norm(MECH[k] && MECH[k].did) : norm(TITLE[m]);
+    if (!src || !src.includes(r[0]) || !v.includes(r[0])) return `the rule name "${r[0]}" is not in this pair's stored ${r[1]}`;
+    if (!OUTCOME[m]) return "the archive does not settle whether it became law";
+    if (OUTCOME[m] === "enacted" ? !STRUCK.test(v) : !(FAILED.test(v) && v.endsWith(`it ${OUTCOME[m]}.`))) return "is not the fixed CRA shape for its outcome";
+    return "";
+  };
+  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED));
+  ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length, "the effect table lost a shipped line");
+  for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
+  // Same resolution, different issue: the line is that pair's own, never a
+  // sibling's, except where neither pair has a `did` and the title is the only source.
+  for (const k of BATCH) {
+    const m = k.split("|").slice(0, 2).join("|");
+    for (const j of Object.keys(EFFECT)) {
+      if (j === k || !j.startsWith(m + "|") || EFFECT[j] !== EFFECT[k]) continue;
+      ok(RULE[k] && RULE[k][1] === "title" && RULE[j] && RULE[j][1] === "title", `${k}: copies ${j}'s line`);
+    }
+  }
+  // Never in the table: a CRA whose outcome is unsettled, one that is not a rule
+  // at all (arms-sale disapprovals), and a line that names no stored rule.
+  for (const k of ["S.J.Res. 7|119|broadband", "H.J.Res. 78|119|gov_regulation", "H.J.Res. 78|119|lands_preserve",
+    "S.J.Res. 111|118|israel_support", "S.J.Res. 33|119|israel_support", "H.R. 3684|117|water"]) {
+    ok(!(k in EFFECT), `${k}: in the effect table without a settled, stored rule effect`);
+  }
+  ok(craFault("H.J.Res. 78|119|gov_regulation", "Struck the agency rule and barred a substantially similar rule.") !== "",
+    "a CRA line naming no stored rule passed the CRA check");
+  ok(craFault("H.J.Res. 44|118|gun_rights", "Struck the ATF rule reclassifying braced pistols as short-barrelled rifles and barred a substantially similar rule.") !== "",
+    "a failed CRA written as if it struck the rule passed the CRA check");
+  ok(craFault("H.J.Res. 131|119|energy_production", SHIPPED["H.J.Res. 131|119|lands_preserve"]) !== "",
+    "the lands ANWR line borrowed onto the energy row passed the CRA check");
+  ok(craFault("H.J.Res. 25|119|tech_innovation", EFFECT["H.J.Res. 25|119|tech_innovation"], { ...RULE, "H.J.Res. 25|119|tech_innovation": ["overdraft", "did"] }) !== "",
+    "a rule name absent from the pair's own did passed the CRA check");
+  console.log(`      ${BATCH.length} CRA effect line(s) past the eight shipped · each traced to its pair's own did or title`);
 
   // THE WALK. Every stored `did`, sorted into the ones the rule admits and the
   // ones it does not, and why.
@@ -1190,7 +1264,7 @@ section("14 · the harvest — every stored did, read against the effect rule");
   }
   eq(extraRows.length, 0, "a row with no qualifying did grew an extra paragraph");
   ok(seenAdmit > 0 && seenRefuse > 0, `the sweep saw ${seenAdmit} admitted and ${seenRefuse} refused row(s) — both kinds must exist`);
-  console.log(`      ${lit.size} drawer(s) print at least one effect line · 0 of them gained one in this pass`);
+  console.log(`      ${lit.size} drawer(s) print at least one effect line`);
 
   // LEE × WATER stays mute. The infrastructure act's water `did` runs past 140
   // characters, so the row under it prints nothing — and nothing was written to
