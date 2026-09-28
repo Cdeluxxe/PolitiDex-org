@@ -16866,7 +16866,37 @@
     'S.J.Res. 18|119|gov_regulation':
       'Nullified the CFPB’s December 2024 overdraft rule for the largest banks and barred a substantially similar rule.',
     'H.J.Res. 131|119|gov_regulation':
-      'Voided the BLM’s 2024 Arctic refuge leasing decision under the Congressional Review Act and barred a substantially similar one.'
+      'Voided the BLM’s 2024 Arctic refuge leasing decision under the Congressional Review Act and barred a substantially similar one.',
+    // Congressional Review Act resolutions on the other issues they sit on, in one
+    // fixed shape: "Struck the [agency] [rule] and barred a substantially similar
+    // rule." for one that became law, "Would have struck …; it failed [chamber]
+    // [vote]." for one that did not. The rule is named from the pair's own `did`,
+    // or with none from the measure's title, so the lands, energy and gun rows of
+    // one resolution keep the different effects their `did`s already name. A
+    // resolution whose outcome the archive does not settle — S.J.Res. 7 passed
+    // the Senate only, H.J.Res. 78 the House only — has no line here.
+    'H.J.Res. 131|119|energy_production':
+      'Struck the BLM’s December 2024 Record of Decision for the Arctic refuge coastal plain and barred a substantially similar rule.',
+    'H.J.Res. 131|119|lands_energy':
+      'Struck the BLM decision withdrawing 1.2 million Arctic refuge acres from oil and gas leasing and barred a substantially similar rule.',
+    'H.J.Res. 140|119|lands_energy':
+      'Struck the BLM order withdrawing 225,504 Minnesota forest acres from mineral and geothermal leasing and barred a substantially similar rule.',
+    'H.J.Res. 88|119|energy_production':
+      'Struck the EPA waiver for California’s Advanced Clean Cars II regulations and barred a substantially similar rule.',
+    'H.J.Res. 88|119|climate_action':
+      'Struck the EPA waiver for California’s Advanced Clean Cars II regulations and barred a substantially similar rule.',
+    'H.J.Res. 89|119|energy_production':
+      'Struck the EPA waiver for California’s Advanced Clean Trucks regulations and barred a substantially similar rule.',
+    'H.J.Res. 89|119|climate_action':
+      'Struck the EPA waiver for California’s Advanced Clean Trucks regulations and barred a substantially similar rule.',
+    'H.J.Res. 44|118|gun_rights':
+      'Would have struck the ATF rule reclassifying braced pistols as short-barrelled rifles; it failed the Senate 49-50.',
+    'H.J.Res. 44|118|gun_safety':
+      'Would have struck the ATF rule bringing braced pistols under the National Firearms Act; it failed the Senate 49-50.',
+    'H.J.Res. 25|119|tech_innovation':
+      'Struck the IRS rule extending broker reporting to decentralized-finance front ends and barred a substantially similar rule.',
+    'S.J.Res. 18|119|econ_corp_account':
+      'Struck the CFPB overdraft rule for very large financial institutions and barred a substantially similar rule.'
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // The item is already a row on this issue, so the pair is mapped whether or
