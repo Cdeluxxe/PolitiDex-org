@@ -407,6 +407,15 @@ export const CJ_SEAMS_BELOW = [
   ["    return (typeof c === 'number' && isFinite(c) && c > 0) ? String(c) : '';\n  }\n",
    "  function _dosCongressLabel(n) {\n",
    "one owner of which sitting a number is in"],
+  // L1b. THE ROW'S EFFECT LINE, carried on the dossier item (v250). One field
+  // added to the record row the dossier already builds, off the SAME _DOS_MECH
+  // lookup that fills "What it did" — so the table has not grown a second consumer
+  // of the prose map, and _dosMechFor is still called once. The field is prose for
+  // the issue drawer's table and nothing reads it that scores: no floor, weight,
+  // direction or verdict is touched, and a row with nothing short stored carries ''.
+  ["          plain: (mech && mech.did) || '',\n",
+   "          counts: (mech && mech.why) || '',\n",
+   "the row's effect line, off the one mechanism lookup"],
   // L2/L3. THE CARD'S NUMBER AND ITS TITLE, as real <button>s. Legal here where
   // it is not legal in the roll-up row: this is a <summary>, whose other control
   // — "See all N readings" — has been a real button since it shipped. Both slots
@@ -1728,6 +1737,12 @@ export function assertConsistencyExportSeams(bodies, api) {
   // already returned, the side of each act is the scorer's own primitive rather
   // than a second opinion, and the kind column prints the clerk's words or the
   // bare act — never a guess.
+  // C1b. THE EFFECT LINE IS CARRIED, NOT LOOKED UP AGAIN. One field on the row,
+  // off the mechanism entry the row already holds, and nothing else in the span.
+  const eff = cut("the row's effect line, off the one mechanism lookup");
+  has(eff, "effLine: _dosEffectLine(p.item, issueKey, mech),", "the row no longer carries its effect line off the one mechanism lookup");
+  ok(!/_dosMechFor|_DOS_MECH|support|verdict|weight/.test(strip(eff)),
+    "the effect-line span reads the mechanism map a second time, or reaches for something that scores");
   const lgFns = cut("the ledger's readers and renderers");
   has(lgFns, "function _dosActKind(d) {", "the act-kind classifier is not where the seam says it is");
   has(lgFns, "if (/recommit/i.test(act)) return { word: 'Recommit', group: 'result', known: true };",
@@ -1754,6 +1769,12 @@ export function assertConsistencyExportSeams(bodies, api) {
     "the amendments group lost its heading");
   has(lgFns, "{ id: 'result', h: 'Voted on the result', rows: [] }",
     "the passage/recommit group lost its heading");
+  has(lgFns, "function _dosEffectLine(item, issueKey, mech) {", "the effect line is not decided in one place");
+  has(lgFns, "if (!s || s.length > 140 || !/[.!?]$/.test(s)) return '';",
+    "an effect line may now run past one short sentence — the rule is 140 characters, finished, or nothing");
+  has(lgFns, "var eff = d.effLine || '';", "the table decides its own effect line instead of printing the row's");
+  ok(!/_dosMechFor|d\.title|rationale\s*\|\|/.test(strip(lgFns).slice(strip(lgFns).indexOf("function _dosEffectLine"), strip(lgFns).indexOf("function _dosMethodNotesHtml"))),
+    "the effect line falls back to a title or a rationale, or looks the mechanism up again");
   has(lgFns, "var num = _billDoor('pdxlg-num', d.billNum, d.billSit, d.ident,",
     "the row's bill number is not the same door every other number on this sheet is");
   has(lgFns, "if ((said || r.stance.label) && !(opts && opts.noSaid)) {",

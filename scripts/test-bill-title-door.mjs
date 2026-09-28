@@ -742,13 +742,34 @@ section("6 · no bill page on file says so, and goes nowhere");
   // cannot fetch — so the only route to a refusal is the panel being absent from
   // the build. Which is a fact about the build, not about the measure, and the
   // copy says exactly that.
+  //   A FEDERAL MEASURE IS NOT A MISSING FILE, THOUGH. Congress.gov publishes it,
+  // so with no panel on the page the federal card's number is an outbound link
+  // there, marked as leaving the site — a dead door over a public page is worse
+  // than a way out. The refusal below is what a measure with NO public address
+  // this file can build (a Utah bill) still gets.
   const N = boot(R, PERSON_FILES.filter((f) => f !== "bill-detail.js"));
   must(!N.PDXBillDetail, "the no-panel fixture still has PDXBillDetail — nothing was actually removed");
   N.__opens = [];
   const dos = N.PDXConsistency.gapViewHtml(FED_PID, FED_KEY) || "";
-  must(dos.indexOf("pdxbill-door") >= 0, "the control disappeared with the panel — a reader loses the number too");
-  has(dos, `data-pdxbill-num="${FED_NUM}"`, "the control stopped naming its measure without the panel");
-  const node = nodeFor(N, dos, 'class="pdxdos-rec-id pdxbill-door"');
+  const fedA = control(dos, 'class="pdxdos-rec-id pdxbill-door pdxbill-ext"');
+  must(fedA.indexOf("<a ") === 0, "without the panel, the federal number is not an outbound link");
+  has(fedA, 'href="https://www.congress.gov/bill/119th-congress/house-bill/6644"', "the federal link does not point at Congress.gov's page for the measure");
+  has(fedA, 'target="_blank" rel="noopener noreferrer"', "the federal link is not marked as leaving the site");
+  has(fedA, "leaves PolitiDex", "the federal link does not say it leaves PolitiDex");
+  no(fedA, "data-pdxbill-open", "the outbound link is still wired to a panel that is not there");
+  no(dos, 'class="pdxdos-rec-id pdxbill-door" data-pdxbill-open', "the dead federal door is still printed");
+  const fnode = nodeFor(N, dos, 'class="pdxdos-rec-id pdxbill-door pdxbill-ext"');
+  const fev = fire(N, "click", fnode);
+  ok(!fev.defaultPrevented, "a delegated handler swallowed the outbound link's tap");
+  eq(N.__nav.length, 0, "the outbound link was opened by script instead of by the browser");
+
+  // THE REFUSAL, on a measure with no address to build: Utah's H.B. 400.
+  const udos = N.PDXConsistency.gapViewHtml(UT_PID, UT_KEY) || "";
+  must(udos.indexOf("pdxbill-door") >= 0, "the control disappeared with the panel — a reader loses the number too");
+  has(udos, `data-pdxbill-num="${UT_NUM}"`, "the control stopped naming its measure without the panel");
+  no(udos, "congress.gov", "a Utah bill was given a Congress.gov address");
+  no(udos, 'href="/bill/', "a local /bill/ address was minted");
+  const node = nodeFor(N, udos, 'class="pdxdos-rec-id pdxbill-door"');
   const ev = fire(N, "click", node);
   ok(ev.defaultPrevented, "the refusing control let the click fall through to the row");
   eq(N.__nav.length, 0, "a door onto a missing bill file navigated — that is the homepage dump this pass removed");
@@ -756,7 +777,7 @@ section("6 · no bill page on file says so, and goes nowhere");
   eq(node.getAttribute("aria-disabled"), "true", "the refusing control is not announced as unavailable");
   has(String(node.getAttribute("title") || ""), "No bill page on file",
     "the refusing control does not say why nothing opened");
-  has(String(node.getAttribute("title") || ""), FED_NUM,
+  has(String(node.getAttribute("title") || ""), UT_NUM,
     "the refusal does not name the measure it is refusing");
   eq(node.kids.length, 1, "the refusal did not print exactly one honest note on the control");
   eq(String((node.kids[0] || {}).className || ""), "pdxbill-nofile", "the appended note is not the honest-blank span");
@@ -765,7 +786,7 @@ section("6 · no bill page on file says so, and goes nowhere");
   fire(N, "click", node);
   eq(node.kids.length, 1, "a second tap stacked a second copy of the refusal");
   eq(N.__nav.length, 0, "a second tap on the refusing control navigated");
-  no(visible(dos), "Could not load", "the card printed the panel's own error copy before anyone tapped anything");
+  no(visible(udos), "Could not load", "the card printed the panel's own error copy before anyone tapped anything");
 
   // The same claim on the desk, where the old fallback used to dump the bills
   // index on a reader who asked for one measure.

@@ -8021,7 +8021,59 @@
 //     MIGRATION COST: none, and no location key is migrated, renamed or copied.
 //     No store changed shape or name; a warm device re-downloads the shell once
 //     because the version string moved, and one new document joins it.
-const CACHE_VERSION = 'v247';
+// v248 - THE ISSUE DRAWER PRINTS THE VOTE, NOT HOW WE CODED IT.
+//     Under each roll-call row the ledger printed the mapping rationale -
+//     "follows the H.J.Res. 78 precedent", "filed as the primary row rather
+//     than as the mirror", "the discriminator is one the record already wrote
+//     down". That is curation, not record. It is gone from under the votes and
+//     from the one-sentence line above the table; the same notes now sit at
+//     the foot of the existing How this is scored disclosure, once per
+//     measure, under "Method notes - how these rows were coded, not what the
+//     vote was". The first screen is the inventory and nothing else: finding,
+//     bills/acts, for/against, the same-measure line, the table.
+//     VOTE AND DIRECTION STAY TWO COLUMNS. Yea/Nay is the clerk's word; for/
+//     against is the issue. Lee on Protect Public Lands still reads 2 measures
+//     - 2 acts - 0 for - 2 against with both rows Yea on passage.
+//     NO NON-ROLL-CALL EVENTS. The archive has no sourced place to hang a
+//     withdrawn rider, so none is drawn and no fake act row is added.
+//     Scores, Direction Match, NEVER_FEEDS and the publication floor are
+//     untouched. MIGRATION COST: none, and no location key is migrated,
+//     renamed or copied; consistency.js is precached, so the shell moves one
+//     version.
+// v249 - A MEASURE WITH NO BILL PAGE HERE LINKS TO CONGRESS.GOV.
+//     Lee's Protect Public Lands drawer names H.J.Res. 131 and H.J.Res. 140, and
+//     on the person file - where the bill panel is not loaded - tapping either
+//     said "No bill page on file". The vote is in the archive; the bill is on
+//     Congress.gov. So the one door helper in consistency.js (the drawer's
+//     ledger table and the dossier card's number and title) now asks first
+//     whether the panel is on the page. If it is, nothing changed: a button onto
+//     the in-site bill file. If it is not and the identity is federal - a
+//     numeric congress and one of the ten clerk prefixes - the number is an
+//     outbound link to congress.gov/bill/<n>th-congress/<type>/<num> (or
+//     /amendment/...), new tab, rel noopener noreferrer, a drawn arrow and
+//     "leaves PolitiDex" in its label. A Utah bill or an unparseable number
+//     keeps the door it had. No /bill/ address, no stub page, no scrape.
+//     Scores, Direction Match, NEVER_FEEDS, the method-note fold, money and the
+//     district boards are untouched.
+//     MIGRATION COST: none, and no location key is migrated, renamed or copied;
+//     consistency.js is precached, so the shell moves one version.
+// v250 - ONE EFFECT LINE UNDER EACH VOTE ROW, SCOPED TO THE ISSUE.
+//     A Yea on H.J.Res. 131 counts against Protect Public Lands and the row
+//     could not say why without leaving the site: the chips beside it name
+//     neighbouring issues, not the acreage. Each roll-call row in the issue
+//     drawer can now carry one sentence under it - what the act did to THIS
+//     issue - off the curated what-it-did entry for that measure on that issue:
+//     a short line where one is stored, else its `did` when that is already one
+//     sentence of 140 characters or fewer. Anything else prints nothing: no bill
+//     title, no clipped `did`, no mapping rationale, never a sibling issue's
+//     line. Two short lines were written, each from its own `did`, for Lee's
+//     two Protect Public Lands rows; the append-only map is untouched, and the
+//     new field rides the one existing lookup. Method vocabulary stays in
+//     How this is scored. Yea/Nay, the for/against tally, scores, Direction
+//     Match, the Congress.gov doors, money and the district boards are untouched.
+//     MIGRATION COST: none, and no location key is migrated, renamed or copied;
+//     consistency.js is precached, so the shell moves one version.
+const CACHE_VERSION = 'v250';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

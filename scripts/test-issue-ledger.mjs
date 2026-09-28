@@ -35,6 +35,13 @@
 //      percentage in the drawer are what HEAD says they are.
 //   9. THE PASS STAYED IN ITS LANE. No equity copy, and the homepage gate,
 //      /voice, the SD-3 board, the money pills and the FD tables are untouched.
+//  10. THE VOTE, NOT HOW WE CODED IT. No curator rationale under a row or on
+//      the first screen; it lives behind the disclosure, labelled as method.
+//  11. NO LOCAL BILL PAGE, A REAL LINK. Without the bill panel a federal measure
+//      links out to Congress.gov, marked as leaving; with it, it stays in-site.
+//  12. ONE EFFECT LINE PER ROW. What the act did to THIS issue, from the store,
+//      one sentence of at most 140 characters, or nothing — never a title, never
+//      method, never a sibling issue's line.
 //
 //   node scripts/test-issue-ledger.mjs
 //
@@ -212,10 +219,11 @@ section("2 · Massie × voter_id — the named fixture, pinned to the archive");
   const tb = table(h);
   has(tb, "H.R. 22", "massie × voter_id: the row does not name the bill");
   has(text(tb), "2025-04-10 H.R. 22 Passage Yea", "massie × voter_id: the row is not date · number · kind · vote");
-  // The number is the same door the rest of the site uses.
-  has(tb, 'class="pdxlg-num pdxbill-door"', "massie × voter_id: the bill number is not a bill-file door");
-  has(tb, 'data-pdxbill-num="H.R. 22"', "massie × voter_id: the door carries no bill identity");
-  has(tb, 'data-pdxbill-sit="119"', "massie × voter_id: the door carries no congress");
+  // The number is the same door the rest of the site uses. This harness boots
+  // without the bill panel, so the door is the outbound form — Congress.gov's own
+  // page for the 119th's H.R. 22 (section 11 pins the in-site form).
+  has(tb, 'class="pdxlg-num pdxbill-door pdxbill-ext"', "massie × voter_id: the bill number is not a bill door");
+  has(tb, 'href="https://www.congress.gov/bill/119th-congress/house-bill/22"', "massie × voter_id: the door does not reach the bill");
   // One finding, and it is not a percentage.
   eq((h.match(/class="pdxlg-find"/g) || []).length, 1, "massie × voter_id: not exactly one finding line");
   has(l, "Backed up", "massie × voter_id: the finding word");
@@ -533,9 +541,9 @@ section("9 · the pass stayed in its lane");
   // Every class the new markup uses has a rule, or the table ships unstyled.
   for (const c of [
     "pdxlg", "pdxlg-find", "pdxlg-find-q", "pdxlg-tally", "pdxlg-side", "pdxlg-same",
-    "pdxlg-why-one", "pdxlg-g", "pdxlg-gh", "pdxlg-t", "pdxlg-d", "pdxlg-num", "pdxlg-k",
+    "pdxlg-g", "pdxlg-gh", "pdxlg-t", "pdxlg-d", "pdxlg-num", "pdxlg-k",
     "pdxlg-v", "pdxlg-v-y", "pdxlg-v-n", "pdxlg-v-o", "pdxlg-chips", "pdxlg-chip",
-    "pdxlg-chip-p", "pdxlg-whyr", "pdxlg-why", "pdxlg-said", "pdxlg-said-k",
+    "pdxlg-chip-p", "pdxlg-meth", "pdxlg-meth-k", "pdxlg-meth-l", "pdxlg-said", "pdxlg-said-k",
     "pdxlg-said-v", "pdxlg-said-src", "pdxgap-how", "pdxgap-how-b",
   ]) {
     ok(new RegExp("'\\." + c.replace(/-/g, "\\-") + "[{ >,:]").test(CSJ) ||
@@ -611,6 +619,372 @@ section("9 · the pass stayed in its lane");
            : "the v" + m[1] + " log entry does not carry this pass's changelog line");
   ok(entry.split("\n").length <= 48, `the v${m[1]} log entry runs ${entry.split("\n").length} lines, over the 48-line budget`);
   has(SW, "'/consistency.js'", "consistency.js is not precached, so the new drawer can arrive against an old shell");
+}
+
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("10 · the vote, not how we coded it — Lee × Protect Public Lands");
+// ═════════════════════════════════════════════════════════════════════════════
+// The effect lines under a drawer's rows, as plain text, and what is wrong with
+// one if anything. Shared by sections 10 and 12 so a mutation in either is caught
+// by the same rule.
+const effectLines = (h) =>
+  [...String(h).matchAll(/<td colspan="5" class="pdxlg-eff" data-pdxlg-eff="1">([\s\S]*?)<\/td>/g)].map((m) => text(m[1]));
+const EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
+const effectFault = (e) => {
+  if (!e) return "is empty";
+  if (e.length > 140) return `runs ${e.length} characters`;
+  if (!/[.!?]$/.test(e)) return "is not a finished sentence";
+  if (/[.!?]\s+["\u201c(]?[A-Z0-9]/.test(e.replace(/\bU\.S\./g, "US"))) return "is more than one sentence";
+  if (EFFECT_METHOD.test(e)) return "carries method vocabulary";
+  return "";
+};
+{
+  // The curator's words for how a row was coded. None of them is a fact about
+  // the vote, and none may sit on the first screen of a drawer that has one.
+  const VOCAB = ["precedent", "mirror", "discriminator", "vocabulary carries no", "primary row"];
+  // Everything wrong with a drawer's first screen, as a list, so the same check
+  // can be run against a mutated renderer and be seen to fail there.
+  const leaks = (h, t) => {
+    const out = [];
+    const l = lede(h), tb = table(h);
+    for (const cls of ["pdxlg-why", "pdxlg-whyr", "pdxlg-why-one"]) {
+      if (new RegExp('class="' + cls + '"').test(l)) out.push(`.${cls} is on the first screen`);
+    }
+    // Every table body row is an act row or that act's effect line. Anything
+    // else under a vote is prose.
+    const trs = (tb.match(/<tbody>[\s\S]*?<\/tbody>/g) || []).join("").match(/<tr[\s>]/g) || [];
+    const acts = (tb.match(/data-pdxlg-row="/g) || []).length;
+    const effs = (tb.match(/<tr class="pdxlg-effr" data-pdxlg-effr="/g) || []).length;
+    if (trs.length !== acts + effs) out.push(`${trs.length - acts - effs} non-act row(s) in the vote table`);
+    // And an effect line is an effect, not method: one sentence, 140 characters
+    // at most, none of the coding vocabulary.
+    for (const e of effectLines(tb)) {
+      const why = effectFault(e);
+      if (why) out.push(`effect line ${why}: ${JSON.stringify(e.slice(0, 60))}`);
+    }
+    // And no curated rationale is in the first screen at all.
+    for (const p of (t && t.rows) || []) {
+      const d = p.d || {};
+      if (!String(d.rationale || "").trim() || !p.why) continue;
+      const esc = p.why.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+      if (l.includes(esc) || text(l).includes(p.why)) out.push(`method note for ${d.ident} is on the first screen`);
+    }
+    return out;
+  };
+
+  const r = CS.issueRow("lee", "lands_preserve");
+  const t = CS.dossierTally("lee", "lands_preserve", r.ov);
+  const h = drawer("lee", "lands_preserve");
+  must(h.length > 2000, "lee × lands_preserve rendered nothing");
+  const l = text(lede(h)), tb = text(table(h));
+  eq(t.bills, 2, "lee × lands_preserve: not 2 measures");
+  eq(t.acts, 2, "lee × lands_preserve: not 2 acts");
+  eq(`${t.advances} for · ${t.opposes} against`, "0 for · 2 against", "lee × lands_preserve: the sides moved");
+  has(l, "On this issue: 2 measures · 2 formal acts", "lee × lands_preserve: the tally line");
+  has(l, "Acts: 0 for · 2 against", "lee × lands_preserve: the for/against line");
+  has(l, "Too thin to call a pattern", "lee × lands_preserve: no longer read as thin");
+  // THE CLERK'S WORD STAYS THE CLERK'S. Yea on a CRA that undoes a withdrawal is
+  // against this chip, and the table says Yea — the direction lives in the tally.
+  has(tb, "2025-12-04 H.J.Res. 131 Passage Yea", "lee × lands_preserve: the H.J.Res. 131 row");
+  has(tb, "2026-04-16 H.J.Res. 140 Passage Yea", "lee × lands_preserve: the H.J.Res. 140 row");
+  no(tb, "Nay", "lee × lands_preserve: a Yea was rewritten as Nay");
+  eq((table(h).match(/class="pdxlg-v pdxlg-v-y">Yea</g) || []).length, 2, "lee × lands_preserve: not two Yea cells");
+  eq((table(h).match(/class="pdxlg-k">Passage</g) || []).length, 2, "lee × lands_preserve: not two Passage kinds");
+  for (const n of ["131", "140"]) {
+    has(table(h), `href="https://www.congress.gov/bill/119th-congress/house-joint-resolution/${n}"`,
+      `lee × lands_preserve: H.J.Res. ${n} no longer links to the bill`);
+  }
+  // No method vocabulary anywhere in the drawer's first screen.
+  for (const v of VOCAB) no(l.toLowerCase(), v, `lee × lands_preserve: method vocabulary on the first screen`);
+  eq(leaks(h, t).join(" | "), "", "lee × lands_preserve: method prose under a vote");
+  // The notes still exist, behind the disclosure, labelled as method.
+  const f = folded(h);
+  has(f, 'data-pdxlg-meth="1"', "lee × lands_preserve: the method notes left the disclosure");
+  has(text(f), "Method notes · how these rows were coded, not what the vote was", "lee × lands_preserve: the method notes are unlabelled");
+  has(text(f), "H.J.Res. 78 precedent", "lee × lands_preserve: the H.J.Res. 131 note was deleted rather than folded");
+  // C DID NOT SHIP: there is no sourced non-roll-call event record to hang the
+  // withdrawn land-sale rider on, so no event block is drawn anywhere.
+  no(h, "Not a roll call", "lee × lands_preserve: an event block appeared with no event record behind it");
+  no(h.toLowerCase(), "does not change the 0-for", "lee × lands_preserve: event copy appeared");
+
+  // Every drawer in the archive, same rule.
+  let clean = 0;
+  for (const x of WITH) {
+    const e = leaks(drawer(x.pid, x.key), x.t);
+    if (e.length) fails.push(`${key(x)}: ${e[0]}`); else clean++;
+  }
+  eq(clean, WITH.length, `${WITH.length - clean} drawer(s) print method prose under a vote`);
+  console.log(`      ${clean} drawers carry no method prose on their first screen`);
+
+  // THE CHECK HAS TEETH. Put the old rationale row back under each vote and the
+  // same check must catch it on the fixture.
+  const src = R("consistency.js");
+  const seam = "'<td>' + _dosActChips(d, issueKey) + '</td>' +\n          '</tr>';";
+  must(src.includes(seam), "the ledger row seam this mutation needs has moved");
+  const mutated = src.replace(seam,
+    "'<td>' + _dosActChips(d, issueKey) + '</td>' +\n          '</tr>' +" +
+    " (p.why ? '<tr class=\"pdxlg-whyr\"><td></td><td colspan=\"4\" class=\"pdxlg-why\">' + esc(p.why) + '</td></tr>' : '');");
+  const M = boot((fl) => (fl === "consistency.js" ? mutated : R(fl)));
+  const MCS = M.PDXConsistency;
+  must(MCS && typeof MCS.gapViewHtml === "function", "the mutated renderer did not boot");
+  const mh = MCS.gapViewHtml("lee", "lands_preserve");
+  const mt = MCS.dossierTally("lee", "lands_preserve", MCS.issueRow("lee", "lands_preserve").ov);
+  ok(leaks(mh, mt).length > 0, "a renderer that prints method text under a row passed the leak check");
+  ok(VOCAB.some((v) => text(lede(mh)).toLowerCase().includes(v)), "the mutation did not surface the method vocabulary it should have");
+}
+
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("11 · no bill page here, so the measure links to Congress.gov");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  const anchor = (h, n) => {
+    const re = new RegExp('<a class="pdxlg-num[^"]*"[^>]*>' + n.replace(/\./g, "\\.") + '</a>');
+    return (re.exec(String(h)) || [""])[0];
+  };
+  // Lee × Protect Public Lands, on a page without the bill panel: both measures
+  // are real outbound links, marked as leaving the site, and neither is the dead
+  // "No bill page on file" door.
+  const h = drawer("lee", "lands_preserve");
+  for (const [n, num] of [["H.J.Res. 131", 131], ["H.J.Res. 140", 140]]) {
+    const a = anchor(table(h), n);
+    ok(a, `lee × lands_preserve: ${n} is not an anchor`);
+    has(a, `href="https://www.congress.gov/bill/119th-congress/house-joint-resolution/${num}"`, `lee: ${n} does not point at Congress.gov`);
+    has(a, 'target="_blank"', `lee: ${n} does not open in a new tab`);
+    has(a, 'rel="noopener noreferrer"', `lee: ${n} carries no rel`);
+    has(a, "leaves PolitiDex", `lee: ${n} does not say it leaves the site`);
+    no(a, "data-pdxbill-open", `lee: ${n} is still wired to the missing bill panel`);
+  }
+  no(h, "No bill page on file", "lee × lands_preserve: the dead door is still printed");
+  // Method vocabulary is still off the first screen after the doors changed.
+  for (const v of ["precedent", "mirror", "discriminator", "vocabulary carries no", "primary row"]) {
+    no(text(lede(h)).toLowerCase(), v, `lee × lands_preserve: method vocabulary "${v}" returned to the first screen`);
+  }
+
+  // Every outbound door in the archive is a Congress.gov bill or amendment page
+  // for a numeric congress — never a local address and never a state bill.
+  let ext = 0;
+  const CG = /^https:\/\/www\.congress\.gov\/(bill|amendment)\/\d+(st|nd|rd|th)-congress\/[a-z-]+\/\d+$/;
+  for (const x of WITH) {
+    for (const m of String(drawer(x.pid, x.key)).matchAll(/<a class="[^"]*pdxbill-ext"[^>]*href="([^"]*)"/g)) {
+      ext++;
+      ok(CG.test(m[1]), `${key(x)}: an outbound bill door points at ${m[1]}`);
+    }
+    no(drawer(x.pid, x.key), 'href="/bill/', `${key(x)}: a local /bill/ address was minted`);
+  }
+  ok(ext > 1000, `only ${ext} outbound bill doors across the archive`);
+  console.log(`      ${ext} outbound Congress.gov door(s) · all of them congress.gov/bill|amendment`);
+
+  // The URL builder, pinned on the shapes it must and must not read.
+  const U = CS.congressGovUrl;
+  must(typeof U === "function", "the Congress.gov address builder is not exported");
+  eq(U("H.J.Res. 131", "119"), "https://www.congress.gov/bill/119th-congress/house-joint-resolution/131", "H.J.Res. 131");
+  eq(U("S. 5", "118"), "https://www.congress.gov/bill/118th-congress/senate-bill/5", "S. 5");
+  eq(U("H.R. 8595", "118"), "https://www.congress.gov/bill/118th-congress/house-bill/8595", "H.R. 8595");
+  eq(U("S.J.Res. 11", "101"), "https://www.congress.gov/bill/101st-congress/senate-joint-resolution/11", "101st ordinal");
+  eq(U("H.Amdt. 243", "119"), "https://www.congress.gov/amendment/119th-congress/house-amendment/243", "H.Amdt.");
+  eq(U("H.B. 257", "2024GS"), "", "a Utah bill got a Congress.gov address");
+  eq(U("S.B. 1", "119"), "", "a state-shaped number got a Congress.gov address");
+  eq(U("H.R. 1", ""), "", "a measure with no congress got a Congress.gov address");
+  eq(U("Recorded vote", "119"), "", "an unnumbered identity got a Congress.gov address");
+
+  // WITH THE PANEL ON THE PAGE the same measure keeps its in-site door: a button
+  // onto the bill file, no href, nothing leaving the site.
+  const P = boot(R);
+  P.PDXBillDetail = { open: () => true };
+  const ph = P.PDXConsistency.gapViewHtml("lee", "lands_preserve") || "";
+  has(table(ph), 'class="pdxlg-num pdxbill-door" data-pdxbill-open data-pdxbill-num="H.J.Res. 131"',
+    "with the panel on the page, H.J.Res. 131 no longer opens the local bill file");
+  has(table(ph), 'data-pdxbill-num="H.J.Res. 140"', "with the panel on the page, H.J.Res. 140 no longer opens the local bill file");
+  no(table(ph), "congress.gov", "with the panel on the page, a measure left the site anyway");
+  no(table(ph), "pdxbill-ext", "with the panel on the page, a door was marked outbound");
+
+  // And no route was added for a bill document that does not exist.
+  const TOML = R("netlify.toml");
+  ok(!/from\s*=\s*"\/bill/.test(TOML), "netlify.toml gained a /bill/ rewrite");
+  eq((TOML.match(/from\s*=\s*"\/b\//g) || []).length, ((HEAD("netlify.toml") || TOML).match(/from\s*=\s*"\/b\//g) || []).length,
+    "the /b/ bill rewrites changed");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("12 · one effect line per vote row, scoped to this issue");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  // The curated table the line is read from, lifted out of the shipped source so
+  // this file checks the renderer against the store rather than against itself.
+  const mechOf = (src) => {
+    const a = src.indexOf("var _DOS_MECH = {");
+    must(a !== -1, "_DOS_MECH is not in consistency.js in the form this file reads");
+    const b = src.indexOf("\n  };", a);
+    return vm.runInNewContext("(" + src.slice(a + "var _DOS_MECH = ".length, b + 4) + ")");
+  };
+  const MECH = mechOf(R("consistency.js"));
+  const EFFECT = (() => {
+    const src = R("consistency.js"), a = src.indexOf("var _DOS_EFFECT = {");
+    must(a !== -1, "_DOS_EFFECT is not in consistency.js in the form this file reads");
+    return vm.runInNewContext("(" + src.slice(a + "var _DOS_EFFECT = ".length, src.indexOf("\n  };", a) + 4) + ")");
+  })();
+  // What the store holds for one (measure, congress, issue), by the rule the
+  // drawer states: its short effect line, else a `did` that is already one short
+  // sentence, else nothing — and nothing at all where the pair has no entry.
+  const stored = (mk) => {
+    if (!MECH[mk]) return "";
+    const s = String(EFFECT[mk] || MECH[mk].did || "").replace(/\s+/g, " ").trim();
+    return effectFault(s) ? "" : s;
+  };
+  const expected = (p, k) => {
+    const it = (p.d && p.d.item) || {};
+    return stored(`${String(it.number || "").trim()}|${it.congress}|${k}`);
+  };
+  // Every short line is written for a pair that exists, and says what the act did.
+  for (const [mk, v] of Object.entries(EFFECT)) {
+    ok(!!MECH[mk], `${mk}: an effect line is stored for a pair with no curated entry`);
+    eq(effectFault(v), "", `${mk}: the stored effect line breaks the rule`);
+  }
+  const rowsOf = (h) => {
+    const out = new Map();
+    for (const m of String(h).matchAll(/<tr class="pdxlg-effr" data-pdxlg-effr="(\d+)"><td colspan="5" class="pdxlg-eff" data-pdxlg-eff="1">([\s\S]*?)<\/td><\/tr>/g)) {
+      out.set(Number(m[1]), text(m[2]));
+    }
+    return out;
+  };
+  // Everything wrong with one drawer's effect lines, as a list.
+  const drift = (h, t, k) => {
+    const out = [], got = rowsOf(table(h));
+    for (const p of (t && t.rows) || []) {
+      const want = expected(p, k), have = got.has(p.i) ? got.get(p.i) : "";
+      const id = (p.d && p.d.ident) || "row " + p.i;
+      if (want !== have) out.push(`${id}: printed ${JSON.stringify(have.slice(0, 50))}, the store holds ${JSON.stringify(want.slice(0, 50))}`);
+      // Under its own row, never floating elsewhere in the table.
+      if (have && !new RegExp(`data-pdxlg-row="${p.i}"[^]*?</tr><tr class="pdxlg-effr" data-pdxlg-effr="${p.i}"`).test(table(h))) {
+        out.push(`${id}: the effect line is not directly under its row`);
+      }
+      const title = String((p.d && p.d.title) || "").trim();
+      if (have && title && (have === title || have === title + ".")) out.push(`${id}: the bill title was printed as an effect`);
+    }
+    if (got.size > ((t && t.rows) || []).length) out.push(`${got.size} effect lines for ${t.rows.length} rows`);
+    return out;
+  };
+
+  // LEE × PROTECT PUBLIC LANDS. Two rows, both Yea, both against the issue,
+  // both with a line a hunter can read, both still leaving for Congress.gov.
+  const r = CS.issueRow("lee", "lands_preserve");
+  const t = CS.dossierTally("lee", "lands_preserve", r.ov);
+  const h = drawer("lee", "lands_preserve");
+  eq(`${t.acts} acts · ${t.advances} for · ${t.opposes} against`, "2 acts · 0 for · 2 against", "lee × lands_preserve: the tally moved");
+  eq((table(h).match(/class="pdxlg-v pdxlg-v-y">Yea</g) || []).length, 2, "lee × lands_preserve: not two Yea cells");
+  const lines = rowsOf(table(h));
+  eq(lines.size, 2, "lee × lands_preserve: not one effect line per row");
+  for (const p of t.rows) ok((lines.get(p.i) || "").length > 0, `lee × lands_preserve: ${p.d.ident} has no effect line`);
+  const byId = Object.fromEntries(t.rows.map((p) => [p.d.ident, lines.get(p.i) || ""]));
+  eq(byId["H.J.Res. 131"], "Removed the conservation withdrawal from roughly 1.2 million acres inside the Arctic National Wildlife Refuge.",
+    "lee × lands_preserve: the H.J.Res. 131 effect line");
+  eq(byId["H.J.Res. 140"], "Struck the order closing about 225,504 acres of Minnesota national forest above the Boundary Waters to mineral and geothermal leasing.",
+    "lee × lands_preserve: the H.J.Res. 140 effect line");
+  eq(drift(h, t, "lands_preserve").join(" | "), "", "lee × lands_preserve: effect lines disagree with the store");
+  // The row still reads date · measure · kind · vote, and the line is below it.
+  has(text(table(h)), "2025-12-04 H.J.Res. 131 Passage Yea", "lee × lands_preserve: the H.J.Res. 131 row");
+  has(text(table(h)), "2026-04-16 H.J.Res. 140 Passage Yea", "lee × lands_preserve: the H.J.Res. 140 row");
+  for (const n of ["131", "140"]) {
+    has(table(h), `href="https://www.congress.gov/bill/119th-congress/house-joint-resolution/${n}"`, `lee: H.J.Res. ${n} stopped leaving for Congress.gov`);
+  }
+  const VOCAB = ["precedent", "mirror", "discriminator", "vocabulary carries no", "primary row"];
+  for (const v of VOCAB) no(text(lede(h)).toLowerCase(), v, `lee × lands_preserve: method vocabulary "${v}" on the first screen`);
+  // The effect is the act's, not ours.
+  for (const e of lines.values()) {
+    ok(!/\b(?:we|PolitiDex|this chip|coded|counts? against)\b/i.test(e), `lee × lands_preserve: the effect line is about the archive, not the act — ${e}`);
+  }
+
+  // EVERY DRAWER: the printed line is exactly what the store holds for that
+  // measure on THAT issue, or nothing. A row with no stored line gets no extra
+  // row at all, and no title stands in for one.
+  let withLine = 0, without = 0;
+  const lineKeys = new Map();
+  for (const x of WITH) {
+    const hx = drawer(x.pid, x.key), e = drift(hx, x.t, x.key);
+    if (e.length) fails.push(`${key(x)}: ${e[0]}`);
+    const got = rowsOf(table(hx));
+    withLine += got.size; without += x.t.rows.length - got.size;
+    for (const v of got.values()) {
+      if (!lineKeys.has(v)) lineKeys.set(v, new Set());
+      lineKeys.get(v).add(x.key);
+    }
+  }
+  ok(withLine > 0 && without > 0, `the sweep saw ${withLine} row(s) with a line and ${without} without — both kinds must exist`);
+  console.log(`      ${withLine} vote row(s) carry an effect line · ${without} carry none and print no extra row`);
+  // The same sentence on two issues only where the store wrote it for both.
+  for (const [v, ks] of lineKeys) {
+    for (const k of ks) {
+      ok(Object.keys(MECH).some((mk) => mk.endsWith("|" + k) && stored(mk) === v),
+        `the effect line ${JSON.stringify(v.slice(0, 50))} is printed on ${k}, where nothing stores it`);
+    }
+  }
+  // 131's lands line never reaches its red-tape or energy rows.
+  eq([...(lineKeys.get(byId["H.J.Res. 131"]) || [])].join(","), "lands_preserve", "H.J.Res. 131's lands line appeared on another issue");
+  const lg = CS.dossierTally("lee", "gov_regulation", CS.issueRow("lee", "gov_regulation").ov);
+  if (lg && lg.rows.some((p) => p.d.ident === "H.J.Res. 131")) {
+    no(drawer("lee", "gov_regulation"), "conservation withdrawal", "lee × gov_regulation: the lands line was reused on Cut Red Tape");
+  }
+
+  // THE CHECKS HAVE TEETH. Three renderers that each break one rule.
+  const src = R("consistency.js");
+  const seam = "var eff = d.effLine || '';";
+  must(src.includes(seam), "the effect-line seam these mutations need has moved");
+  const run = (mut, ks = ["lands_preserve"]) => {
+    const M = boot((fl) => (fl === "consistency.js" ? src.replace(seam, mut) : R(fl)));
+    const MCS = M.PDXConsistency;
+    must(MCS && typeof MCS.gapViewHtml === "function", "a mutated renderer did not boot");
+    const at = (k) => ({ mh: MCS.gapViewHtml("lee", k) || "", mt: MCS.dossierTally("lee", k, MCS.issueRow("lee", k).ov) });
+    const out = at(ks[0]);
+    out.more = ks.slice(1).map(at);
+    return out;
+  };
+  // (a) method text back under the row.
+  {
+    const { mh, mt } = run("var eff = p.why;");
+    ok(drift(mh, mt, "lands_preserve").length > 0, "a renderer printing method text under the row passed the store check");
+    ok(effectLines(table(mh)).some((e) => effectFault(e)), "a renderer printing method text under the row passed the effect rule");
+    ok(VOCAB.some((v) => text(lede(mh)).toLowerCase().includes(v)), "the method mutation did not surface method vocabulary");
+  }
+  // (b) the bill title as a fallback.
+  {
+    const r2 = CS.issueRows("lee").map((y) => y.key).find((k) => {
+      const tt = CS.dossierTally("lee", k, CS.issueRow("lee", k).ov);
+      return tt && tt.rows.some((p) => !expected(p, k) && String(p.d.title || "").trim());
+    });
+    must(r2, "lee has no row without a stored line to test the title fallback on");
+    const { mh, mt, more } = run("var eff = d.effLine || d.title;", ["lands_preserve", r2]);
+    ok(drift(more[0].mh, more[0].mt, r2).length > 0, `a renderer dumping the bill title under a row on lee × ${r2} passed the store check`);
+    eq(drift(mh, mt, "lands_preserve").join(" | "), "", "the title mutation touched rows that do have a stored line");
+  }
+  // (c) a sibling issue's line borrowed onto this one.
+  {
+    const { mh, mt } = run("var eff = _dosEffectLine(_dosMechFor(d.item, 'lands_energy'));");
+    ok(drift(mh, mt, "lands_preserve").length > 0, "a renderer borrowing another issue's line passed the store check");
+  }
+
+  // BYTE-SAME AS HEAD, EXCEPT THE NEW LINE. Take the effect rows out of every
+  // drawer and what is left — tally, same-measure line, bills-vs-acts noun,
+  // for/against, the rows themselves, the fold — is HEAD's drawer exactly. Only
+  // meaningful while HEAD predates this pass; after it lands, section 7 and 8
+  // keep pinning the scored surface.
+  const HSRC = HEAD("consistency.js");
+  if (HSRC && !HSRC.includes("pdxlg-effr")) {
+    const A = boot(HEAD);
+    const strip = (x) => String(x).replace(/<tr class="pdxlg-effr" data-pdxlg-effr="\d+"><td colspan="5" class="pdxlg-eff" data-pdxlg-eff="1">[\s\S]*?<\/td><\/tr>/g, "");
+    const moved = [];
+    let same = 0;
+    for (const x of WITH) {
+      let before = "";
+      try { before = A.PDXConsistency.gapViewHtml(x.pid, x.key) || ""; } catch { continue; }
+      if (before === strip(drawer(x.pid, x.key))) same++; else moved.push(key(x));
+    }
+    eq(moved.slice(0, 6).join(" | "), "", `${moved.length} drawer(s) changed beyond the effect line`);
+    console.log(`      ${same} drawer(s) are byte-identical to HEAD once the effect lines are taken out`);
+  } else {
+    console.log("      HEAD already carries the effect line; byte comparison left to sections 7 and 8");
+  }
 }
 
 // ── verdict ──────────────────────────────────────────────────────────────────

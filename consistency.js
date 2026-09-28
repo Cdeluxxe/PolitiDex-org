@@ -2159,6 +2159,10 @@
       '.pdxbill-door:hover{color:#bcd8ff;text-decoration-color:#7fb4ff;}' +
       '.pdxbill-door:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;border-radius:0.25rem;}' +
       '.pdxbill-door[data-pdxbill-none]{cursor:default;text-decoration:none;}' +
+      // The outbound form keeps the door's dress and adds the ↗ every source link
+      // here wears — drawn, not written, so the row's text is still date · number
+      // · kind · vote, and the aria-label already says the link leaves the site.
+      '.pdxbill-ext::after{content:" \\2197";font-size:0.85em;color:#7fb4ff;}' +
       // The honest refusal, written onto the control the reader tapped rather than
       // anywhere else. Amber because it is a coverage gap and not a verdict, and
       // inline because the number it explains has to stay beside it.
@@ -2363,7 +2367,6 @@
       '.pdxlg-tally b{color:#e8eefc;font-weight:700;}' +
       '.pdxlg-side{font-size:0.72rem;color:#8fa2c0;line-height:1.5;}' +
       '.pdxlg-same{margin-top:0.2rem;font-size:0.72rem;color:#f0cd8c;line-height:1.5;}' +
-      '.pdxlg-why-one{margin-top:0.3rem;font-size:0.7rem;color:#93a6c4;line-height:1.5;}' +
       '.pdxlg-g{margin-top:0.5rem;}' +
       '.pdxlg-gh{font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;' +
         'letter-spacing:0.08em;font-size:0.64rem;color:#8fa2c0;margin-bottom:0.15rem;}' +
@@ -2375,6 +2378,9 @@
       '.pdxlg-t td{vertical-align:baseline;padding:0.3rem 0.4rem 0.3rem 0;' +
         'border-top:1px solid rgba(255,255,255,0.06);color:#c6d4ec;line-height:1.4;}' +
       '.pdxlg-t tbody tr:first-child td{border-top:none;}' +
+      // The effect line sits under its own row and belongs to it: no rule between them.
+      '.pdxlg-t tr.pdxlg-effr td{border-top:none;padding:0 0.4rem 0.4rem 0;' +
+        'color:#b8c7de;font-size:0.72rem;line-height:1.4;}' +
       '.pdxlg-d{white-space:nowrap;font-variant-numeric:tabular-nums;color:#8fa2c0;font-size:0.68rem;}' +
       '.pdxlg-num{font-weight:700;color:#e8eefc;white-space:nowrap;}' +
       '.pdxlg-k{color:#cfe0f8;}' +
@@ -2386,8 +2392,12 @@
       '.pdxlg-chip{font-size:0.58rem;padding:0.08rem 0.3rem;border-radius:999px;' +
         'border:1px solid rgba(255,255,255,0.14);color:#9fb4d4;white-space:nowrap;}' +
       '.pdxlg-chip-p{color:#cfe0f8;border-color:rgba(159,219,255,0.4);}' +
-      '.pdxlg-whyr td{border-top:none;padding-top:0;}' +
-      '.pdxlg-why{font-size:0.68rem;color:#93a6c4;line-height:1.5;}' +
+      // The curator's coding notes, inside the scoring disclosure and labelled
+      // as method — never under a vote.
+      '.pdxlg-meth{margin-top:0.6rem;padding-top:0.45rem;border-top:1px dashed rgba(255,255,255,0.1);}' +
+      '.pdxlg-meth-k{font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;' +
+        'letter-spacing:0.06em;font-size:0.6rem;color:#7e93b3;}' +
+      '.pdxlg-meth-l{margin:0.2rem 0 0;padding-left:1rem;font-size:0.68rem;color:#93a6c4;line-height:1.5;}' +
       // What they said, beside the acts and never inside them.
       '.pdxlg-said{margin-top:0.6rem;padding:0.35rem 0.55rem;border-radius:0.2rem;' +
         'border-left:2px solid rgba(245,217,160,0.45);background:#ffffff06;}' +
@@ -3353,6 +3363,10 @@
       // Checked here rather than left to bill-detail.js because the panel's own
       // delegate only listens inside its overlay, and these controls are on the
       // person file.
+      // The outbound form of the same door (no panel on this page, a Congress.gov
+      // page for the measure) is a plain link: the browser follows it and nothing
+      // around it — the card face, the row — may take the tap as well.
+      if (e.target.closest && e.target.closest('[data-pdxbill-ext]')) return;
       var bopen = e.target.closest && e.target.closest('[data-pdxbill-open]');
       if (bopen) {
         e.preventDefault();
@@ -13903,6 +13917,9 @@
           // and why that lands on this chip, which is the thing the record itself
           // cannot say. `more` rides down to L4 rather than onto the row face.
           plain: (mech && mech.did) || '',
+          // The drawer's one-line effect for this row, off the same entry and the
+          // same lookup — see _dosEffectLine. '' where nothing short is stored.
+          effLine: _dosEffectLine(p.item, issueKey, mech),
           counts: (mech && mech.why) || '',
           rationale: (mech && mech.more) || mrat || '',
           fineFromMapping: !!(mrat && !(mech && mech.more)),
@@ -15473,12 +15490,63 @@
   // so a <span> becoming a <button> changes what the element DOES and nothing
   // about where it sits. Falls back to the span it replaced when there is no
   // number to address, which is the honest shape for a row that names no measure.
+  //   NO LOCAL FILE, BUT A FEDERAL CITATION: THE CLERK'S OWN SITE. Where the bill
+  // panel is not on the page there is no PolitiDex bill file to open, and a control
+  // that can only answer "No bill page on file" is a dead tap over a measure
+  // Congress.gov publishes in full. So a federal identity — a numeric congress and
+  // a number this parser recognises — becomes an outbound link to that page, marked
+  // as leaving the site the way every other source link here is (new tab, ↗, the
+  // destination named). Nothing is minted on our side: no /bill/ address, no stub.
+  // Anything else — a Utah bill, an unparseable number — keeps the door it had.
   function _billDoor(cls, num, sit, ident, inner) {
     var at = _billDoorAttrs(num, sit, ident);
     if (!at) return '<span class="' + cls + '">' + inner + '</span>';
+    var cg = _billPanelOn() ? '' : _congressGovUrl(num, sit);
+    if (cg) {
+      var who = ident || String(num).trim();
+      return '<a class="' + cls + ' pdxbill-door pdxbill-ext" href="' + escAttr(cg) + '"' +
+        ' target="_blank" rel="noopener noreferrer" data-pdxbill-ext="1"' +
+        ' title="' + escAttr(who + ' on Congress.gov \u2014 leaves PolitiDex') + '"' +
+        ' aria-label="' + escAttr(who + ' on Congress.gov (leaves PolitiDex, opens in a new tab)') + '">' +
+        inner + '</a>';
+    }
     return '<button type="button" class="' + cls + ' pdxbill-door"' + at +
       ' aria-label="' + escAttr('Open the bill file for ' + (ident || num)) + '">' +
       inner + '</button>';
+  }
+  function _billPanelOn() {
+    try { return !!(window.PDXBillDetail && typeof window.PDXBillDetail.open === 'function'); }
+    catch (e) { return false; }
+  }
+  // Congress.gov's own address for a federal measure: /bill/<n>th-congress/<type>/<num>,
+  // or /amendment/… for a floor amendment. The sitting must be a bare congress
+  // number — a Utah session code ("2025GS") never parses — and the prefix must be
+  // one of the ten the clerks print. No match, no URL.
+  var _CG_TYPES = [
+    [/^H\.\s*R\.$/i, 'bill', 'house-bill'],
+    [/^S\.$/i, 'bill', 'senate-bill'],
+    [/^H\.\s*J\.\s*Res\.$/i, 'bill', 'house-joint-resolution'],
+    [/^S\.\s*J\.\s*Res\.$/i, 'bill', 'senate-joint-resolution'],
+    [/^H\.\s*Con\.\s*Res\.$/i, 'bill', 'house-concurrent-resolution'],
+    [/^S\.\s*Con\.\s*Res\.$/i, 'bill', 'senate-concurrent-resolution'],
+    [/^H\.\s*Res\.$/i, 'bill', 'house-resolution'],
+    [/^S\.\s*Res\.$/i, 'bill', 'senate-resolution'],
+    [/^H\.\s*Amdt\.$/i, 'amendment', 'house-amendment'],
+    [/^S\.\s*Amdt\.$/i, 'amendment', 'senate-amendment']
+  ];
+  function _congressGovUrl(num, sit) {
+    var c = String(sit == null ? '' : sit).trim();
+    if (!/^\d{2,3}$/.test(c)) return '';
+    var m = /^(.*?)\s*(\d+)$/.exec(String(num == null ? '' : num).trim());
+    if (!m) return '';
+    for (var i = 0; i < _CG_TYPES.length; i++) {
+      if (!_CG_TYPES[i][0].test(m[1])) continue;
+      var ord = _dosCongressLabel(parseInt(c, 10)).replace(/ Congress$/, '').toLowerCase();
+      if (!ord) return '';
+      return 'https://www.congress.gov/' + _CG_TYPES[i][1] + '/' + ord + '-congress/' +
+        _CG_TYPES[i][2] + '/' + parseInt(m[2], 10);
+    }
+    return '';
   }
   function _billDoorAttrs(num, sit, ident) {
     var n = String(num == null ? '' : num).trim();
@@ -16677,12 +16745,14 @@
       out += '<div class="pdxlg-same">All ' + t.acts + ' acts are the same measure — ' +
         esc(t.ident) + '.</div>';
     }
-    // ONE SENTENCE FOR THE MEASURE when every row would print the same one. A
-    // rationale repeated under each of three rows is not three explanations.
-    var whys = t.rows.map(function (p) { return p.why; });
-    var oneWhy = (t.rows.length > 1 && whys[0] &&
-      whys.every(function (w) { return w === whys[0]; })) ? whys[0] : '';
-    if (oneWhy) out += '<div class="pdxlg-why-one">' + esc(oneWhy) + '</div>';
+    // NO METHOD UNDER THE VOTES. The table used to print the mapping rationale
+    // under each row, and that prose is how the archive CODED the act — "follows
+    // the H.J.Res. 78 precedent", "filed as the primary row rather than as the
+    // mirror" — not what the vote was. A stranger reading it under a Yea learns
+    // our bookkeeping instead of the record. It now lives behind the scoring
+    // disclosure, labelled as method — see _dosMethodNotesHtml. What a row MAY
+    // carry is the effect line: what the act did to this issue, and nothing about
+    // how it was coded — see _dosEffectLine.
     var GROUPS = [
       { id: 'change', h: 'Tried to change it', rows: [] },
       { id: 'result', h: 'Voted on the result', rows: [] }
@@ -16707,12 +16777,6 @@
         '<table class="pdxlg-t"><thead><tr>' +
           '<th>Date</th><th>Measure</th><th>Kind</th><th>Vote</th><th>Also on</th>' +
         '</tr></thead><tbody>';
-      // ONE SENTENCE PER MEASURE, NOT PER ROW. Two passage votes on H.R. 1 nine
-      // weeks apart carry the same curated rationale — it is a fact about the
-      // bill, not about the day — so it is printed under the first act of that
-      // measure and not again. Keyed on measure AND sentence, so a measure whose
-      // rows genuinely carry different notes still prints both.
-      var saidWhy = Object.create(null);
       for (j = 0; j < g.rows.length; j++) {
         var p = g.rows[j], d = p.d;
         // The bill number is the door it already is everywhere else on this sheet:
@@ -16720,23 +16784,91 @@
         // resolvable file prints the identity as text rather than as a dead control.
         var num = _billDoor('pdxlg-num', d.billNum, d.billSit, d.ident,
           esc(d.ident || d.billNum || 'Measure'));
-        var why = oneWhy ? '' : p.why;
-        var wkey = String(d.ident || '') + ' :: ' + why;
-        if (why && saidWhy[wkey]) why = '';
-        saidWhy[wkey] = 1;
         out += '<tr data-pdxlg-row="' + p.i + '">' +
             '<td class="pdxlg-d">' + esc(_dosDay(d.date) || '') + '</td>' +
             '<td>' + num + '</td>' +
             '<td class="pdxlg-k">' + esc(p.kind.word) + '</td>' +
             '<td class="pdxlg-v pdxlg-v-' + p.vote.cls + '">' + esc(p.vote.word) + '</td>' +
             '<td>' + _dosActChips(d, issueKey) + '</td>' +
-          '</tr>' +
-          (why ? '<tr class="pdxlg-whyr"><td></td>' +
-            '<td colspan="4" class="pdxlg-why">' + esc(why) + '</td></tr>' : '');
+          '</tr>';
+        var eff = d.effLine || '';
+        if (eff) {
+          out += '<tr class="pdxlg-effr" data-pdxlg-effr="' + p.i + '">' +
+            '<td colspan="5" class="pdxlg-eff" data-pdxlg-eff="1">' + esc(eff) + '</td></tr>';
+        }
       }
       out += '</tbody></table></div>';
     }
     return out + '</div>';
+  }
+
+  // WHAT THE ACT DID TO THIS ISSUE, in one sentence under its row.
+  //
+  // A Yea on H.J.Res. 131 counts against Protect Public Lands, and the row alone
+  // cannot say why: the chips beside it name neighbouring issues, not the acreage.
+  // This line is the act's effect on THIS issue, read from curated prose keyed to
+  // this measure on this issue and never from a sibling issue's entry, so a line
+  // written for the lands row cannot surface on the red-tape row of the same vote.
+  //
+  // Read once, where the dossier item is built from the same _DOS_MECH lookup
+  // that fills "What it did", and carried on the item as `effLine`; the table only
+  // prints it. Source, in order:
+  //   · _DOS_EFFECT below — a short line for a (measure, congress, issue) whose
+  //     `did` is too long to stand under a row. Each is written from that pair's
+  //     own `did` and from nothing else. Kept here rather than as a new slot on
+  //     the _DOS_MECH entry because that map is append-only: a sentence a reader
+  //     has already seen on a live row is not a later pass's to edit.
+  //   · the pair's `did`, when it is already one sentence short enough.
+  // Nothing else — no bill title, no mapping rationale, no clip of a longer `did`
+  // with an ellipsis, because a clipped sentence is a claim the curator did not
+  // make. Anything longer than 140 characters, longer than one sentence, or
+  // carrying method vocabulary prints nothing, and the row keeps the empty space
+  // it has always had.
+  var _DOS_EFFECT = {
+    'H.J.Res. 131|119|lands_preserve':
+      'Removed the conservation withdrawal from roughly 1.2 million acres inside the Arctic National Wildlife Refuge.',
+    'H.J.Res. 140|119|lands_preserve':
+      'Struck the order closing about 225,504 acres of Minnesota national forest above the Boundary Waters to mineral and geothermal leasing.'
+  };
+  var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
+  function _dosEffectLine(item, issueKey, mech) {
+    if (!mech || !item) return '';
+    var k = String(item.number == null ? '' : item.number).trim() + '|' + item.congress + '|' + issueKey;
+    var s = String(_DOS_EFFECT[k] || mech.did || '').replace(/\s+/g, ' ').trim();
+    if (!s || s.length > 140 || !/[.!?]$/.test(s)) return '';
+    if (/[.!?]\s+["\u201c(]?[A-Z0-9]/.test(s.replace(/\bU\.S\./g, 'US'))) return '';
+    if (_DOS_EFFECT_METHOD.test(s)) return '';
+    return s;
+  }
+
+  // HOW THE ROWS WERE CODED, where a reader who asks for method can find it.
+  //
+  // The curator's note on each mapped act — which precedent set its weight, why
+  // it is the primary row and not the mirror — is method, not record. It is
+  // printed once per measure inside the scoring disclosure, under a label that
+  // says so, and never under a vote. Only a note actually written for the row is
+  // listed: the bill title the ledger used to fall back to is not a method note,
+  // and the table already names the bill.
+  function _dosMethodNotesHtml(t) {
+    if (!t || !t.rows || !t.rows.length) return '';
+    var seen = Object.create(null), li = [];
+    var rows = t.rows.slice().sort(function (a, b) {
+      return String(a.d.date || '').localeCompare(String(b.d.date || ''));
+    });
+    for (var i = 0; i < rows.length; i++) {
+      var d = rows[i].d;
+      if (!d || !String(d.rationale || '').trim()) continue;
+      var why = rows[i].why || '', id = String(d.ident || d.billNum || 'Measure');
+      var k = id + ' :: ' + why;
+      if (!why || seen[k]) continue;
+      seen[k] = 1;
+      li.push('<li><b>' + esc(id) + '</b> — ' + esc(why) + '</li>');
+    }
+    if (!li.length) return '';
+    return '<div class="pdxlg-meth" data-pdxlg-meth="1">' +
+      '<div class="pdxlg-meth-k">Method notes · how these rows were coded, not what the vote was</div>' +
+      '<ul class="pdxlg-meth-l">' + li.join('') + '</ul>' +
+    '</div>';
   }
 
   function _dosSummaryHtml(pid, issueKey, r, opts) {
@@ -17313,7 +17445,7 @@
       (_lgOn
         ? '<details class="pdxgap-how" data-pdxgap-how="1">' +
             '<summary><span aria-hidden="true">⚖️</span> How this is scored</summary>' +
-            '<div class="pdxgap-how-b">' + _scoredBody + '</div>' +
+            '<div class="pdxgap-how-b">' + _scoredBody + _dosMethodNotesHtml(_lgT) + '</div>' +
           '</details>'
         : _scoredBody) +
       // ── L2 ── every instrument on this issue, closed. It sits below the two
@@ -18287,6 +18419,7 @@
     dossierActKind: _dosActKind,
     dossierActVote: _dosActVote,
     dossierLedgerHtml: _dosLedgerHtml,
+    congressGovUrl: _congressGovUrl,
     dossierSaidHtml: _dosSaidHtml,
     dossierRecordsHtml: function (pid, issueKey) {
       return _dosRecordsHtml(pid, issueKey, issueRow(pid, issueKey), officialIssue(pid, issueKey));
