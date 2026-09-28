@@ -8057,7 +8057,23 @@
 //     district boards are untouched.
 //     MIGRATION COST: none, and no location key is migrated, renamed or copied;
 //     consistency.js is precached, so the shell moves one version.
-const CACHE_VERSION = 'v249';
+// v250 - ONE EFFECT LINE UNDER EACH VOTE ROW, SCOPED TO THE ISSUE.
+//     A Yea on H.J.Res. 131 counts against Protect Public Lands and the row
+//     could not say why without leaving the site: the chips beside it name
+//     neighbouring issues, not the acreage. Each roll-call row in the issue
+//     drawer can now carry one sentence under it - what the act did to THIS
+//     issue - off the curated what-it-did entry for that measure on that issue:
+//     a short line where one is stored, else its `did` when that is already one
+//     sentence of 140 characters or fewer. Anything else prints nothing: no bill
+//     title, no clipped `did`, no mapping rationale, never a sibling issue's
+//     line. Two short lines were written, each from its own `did`, for Lee's
+//     two Protect Public Lands rows; the append-only map is untouched, and the
+//     new field rides the one existing lookup. Method vocabulary stays in
+//     How this is scored. Yea/Nay, the for/against tally, scores, Direction
+//     Match, the Congress.gov doors, money and the district boards are untouched.
+//     MIGRATION COST: none, and no location key is migrated, renamed or copied;
+//     consistency.js is precached, so the shell moves one version.
+const CACHE_VERSION = 'v250';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

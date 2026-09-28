@@ -39,6 +39,9 @@
 //      the first screen; it lives behind the disclosure, labelled as method.
 //  11. NO LOCAL BILL PAGE, A REAL LINK. Without the bill panel a federal measure
 //      links out to Congress.gov, marked as leaving; with it, it stays in-site.
+//  12. ONE EFFECT LINE PER ROW. What the act did to THIS issue, from the store,
+//      one sentence of at most 140 characters, or nothing — never a title, never
+//      method, never a sibling issue's line.
 //
 //   node scripts/test-issue-ledger.mjs
 //
@@ -622,6 +625,20 @@ section("9 · the pass stayed in its lane");
 // ═════════════════════════════════════════════════════════════════════════════
 section("10 · the vote, not how we coded it — Lee × Protect Public Lands");
 // ═════════════════════════════════════════════════════════════════════════════
+// The effect lines under a drawer's rows, as plain text, and what is wrong with
+// one if anything. Shared by sections 10 and 12 so a mutation in either is caught
+// by the same rule.
+const effectLines = (h) =>
+  [...String(h).matchAll(/<td colspan="5" class="pdxlg-eff" data-pdxlg-eff="1">([\s\S]*?)<\/td>/g)].map((m) => text(m[1]));
+const EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
+const effectFault = (e) => {
+  if (!e) return "is empty";
+  if (e.length > 140) return `runs ${e.length} characters`;
+  if (!/[.!?]$/.test(e)) return "is not a finished sentence";
+  if (/[.!?]\s+["\u201c(]?[A-Z0-9]/.test(e.replace(/\bU\.S\./g, "US"))) return "is more than one sentence";
+  if (EFFECT_METHOD.test(e)) return "carries method vocabulary";
+  return "";
+};
 {
   // The curator's words for how a row was coded. None of them is a fact about
   // the vote, and none may sit on the first screen of a drawer that has one.
@@ -634,10 +651,18 @@ section("10 · the vote, not how we coded it — Lee × Protect Public Lands");
     for (const cls of ["pdxlg-why", "pdxlg-whyr", "pdxlg-why-one"]) {
       if (new RegExp('class="' + cls + '"').test(l)) out.push(`.${cls} is on the first screen`);
     }
-    // Every table body row is an act row. A second row under a vote is prose.
+    // Every table body row is an act row or that act's effect line. Anything
+    // else under a vote is prose.
     const trs = (tb.match(/<tbody>[\s\S]*?<\/tbody>/g) || []).join("").match(/<tr[\s>]/g) || [];
     const acts = (tb.match(/data-pdxlg-row="/g) || []).length;
-    if (trs.length !== acts) out.push(`${trs.length - acts} non-act row(s) in the vote table`);
+    const effs = (tb.match(/<tr class="pdxlg-effr" data-pdxlg-effr="/g) || []).length;
+    if (trs.length !== acts + effs) out.push(`${trs.length - acts - effs} non-act row(s) in the vote table`);
+    // And an effect line is an effect, not method: one sentence, 140 characters
+    // at most, none of the coding vocabulary.
+    for (const e of effectLines(tb)) {
+      const why = effectFault(e);
+      if (why) out.push(`effect line ${why}: ${JSON.stringify(e.slice(0, 60))}`);
+    }
     // And no curated rationale is in the first screen at all.
     for (const p of (t && t.rows) || []) {
       const d = p.d || {};
@@ -780,6 +805,186 @@ section("11 · no bill page here, so the measure links to Congress.gov");
   ok(!/from\s*=\s*"\/bill/.test(TOML), "netlify.toml gained a /bill/ rewrite");
   eq((TOML.match(/from\s*=\s*"\/b\//g) || []).length, ((HEAD("netlify.toml") || TOML).match(/from\s*=\s*"\/b\//g) || []).length,
     "the /b/ bill rewrites changed");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("12 · one effect line per vote row, scoped to this issue");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  // The curated table the line is read from, lifted out of the shipped source so
+  // this file checks the renderer against the store rather than against itself.
+  const mechOf = (src) => {
+    const a = src.indexOf("var _DOS_MECH = {");
+    must(a !== -1, "_DOS_MECH is not in consistency.js in the form this file reads");
+    const b = src.indexOf("\n  };", a);
+    return vm.runInNewContext("(" + src.slice(a + "var _DOS_MECH = ".length, b + 4) + ")");
+  };
+  const MECH = mechOf(R("consistency.js"));
+  const EFFECT = (() => {
+    const src = R("consistency.js"), a = src.indexOf("var _DOS_EFFECT = {");
+    must(a !== -1, "_DOS_EFFECT is not in consistency.js in the form this file reads");
+    return vm.runInNewContext("(" + src.slice(a + "var _DOS_EFFECT = ".length, src.indexOf("\n  };", a) + 4) + ")");
+  })();
+  // What the store holds for one (measure, congress, issue), by the rule the
+  // drawer states: its short effect line, else a `did` that is already one short
+  // sentence, else nothing — and nothing at all where the pair has no entry.
+  const stored = (mk) => {
+    if (!MECH[mk]) return "";
+    const s = String(EFFECT[mk] || MECH[mk].did || "").replace(/\s+/g, " ").trim();
+    return effectFault(s) ? "" : s;
+  };
+  const expected = (p, k) => {
+    const it = (p.d && p.d.item) || {};
+    return stored(`${String(it.number || "").trim()}|${it.congress}|${k}`);
+  };
+  // Every short line is written for a pair that exists, and says what the act did.
+  for (const [mk, v] of Object.entries(EFFECT)) {
+    ok(!!MECH[mk], `${mk}: an effect line is stored for a pair with no curated entry`);
+    eq(effectFault(v), "", `${mk}: the stored effect line breaks the rule`);
+  }
+  const rowsOf = (h) => {
+    const out = new Map();
+    for (const m of String(h).matchAll(/<tr class="pdxlg-effr" data-pdxlg-effr="(\d+)"><td colspan="5" class="pdxlg-eff" data-pdxlg-eff="1">([\s\S]*?)<\/td><\/tr>/g)) {
+      out.set(Number(m[1]), text(m[2]));
+    }
+    return out;
+  };
+  // Everything wrong with one drawer's effect lines, as a list.
+  const drift = (h, t, k) => {
+    const out = [], got = rowsOf(table(h));
+    for (const p of (t && t.rows) || []) {
+      const want = expected(p, k), have = got.has(p.i) ? got.get(p.i) : "";
+      const id = (p.d && p.d.ident) || "row " + p.i;
+      if (want !== have) out.push(`${id}: printed ${JSON.stringify(have.slice(0, 50))}, the store holds ${JSON.stringify(want.slice(0, 50))}`);
+      // Under its own row, never floating elsewhere in the table.
+      if (have && !new RegExp(`data-pdxlg-row="${p.i}"[^]*?</tr><tr class="pdxlg-effr" data-pdxlg-effr="${p.i}"`).test(table(h))) {
+        out.push(`${id}: the effect line is not directly under its row`);
+      }
+      const title = String((p.d && p.d.title) || "").trim();
+      if (have && title && (have === title || have === title + ".")) out.push(`${id}: the bill title was printed as an effect`);
+    }
+    if (got.size > ((t && t.rows) || []).length) out.push(`${got.size} effect lines for ${t.rows.length} rows`);
+    return out;
+  };
+
+  // LEE × PROTECT PUBLIC LANDS. Two rows, both Yea, both against the issue,
+  // both with a line a hunter can read, both still leaving for Congress.gov.
+  const r = CS.issueRow("lee", "lands_preserve");
+  const t = CS.dossierTally("lee", "lands_preserve", r.ov);
+  const h = drawer("lee", "lands_preserve");
+  eq(`${t.acts} acts · ${t.advances} for · ${t.opposes} against`, "2 acts · 0 for · 2 against", "lee × lands_preserve: the tally moved");
+  eq((table(h).match(/class="pdxlg-v pdxlg-v-y">Yea</g) || []).length, 2, "lee × lands_preserve: not two Yea cells");
+  const lines = rowsOf(table(h));
+  eq(lines.size, 2, "lee × lands_preserve: not one effect line per row");
+  for (const p of t.rows) ok((lines.get(p.i) || "").length > 0, `lee × lands_preserve: ${p.d.ident} has no effect line`);
+  const byId = Object.fromEntries(t.rows.map((p) => [p.d.ident, lines.get(p.i) || ""]));
+  eq(byId["H.J.Res. 131"], "Removed the conservation withdrawal from roughly 1.2 million acres inside the Arctic National Wildlife Refuge.",
+    "lee × lands_preserve: the H.J.Res. 131 effect line");
+  eq(byId["H.J.Res. 140"], "Struck the order closing about 225,504 acres of Minnesota national forest above the Boundary Waters to mineral and geothermal leasing.",
+    "lee × lands_preserve: the H.J.Res. 140 effect line");
+  eq(drift(h, t, "lands_preserve").join(" | "), "", "lee × lands_preserve: effect lines disagree with the store");
+  // The row still reads date · measure · kind · vote, and the line is below it.
+  has(text(table(h)), "2025-12-04 H.J.Res. 131 Passage Yea", "lee × lands_preserve: the H.J.Res. 131 row");
+  has(text(table(h)), "2026-04-16 H.J.Res. 140 Passage Yea", "lee × lands_preserve: the H.J.Res. 140 row");
+  for (const n of ["131", "140"]) {
+    has(table(h), `href="https://www.congress.gov/bill/119th-congress/house-joint-resolution/${n}"`, `lee: H.J.Res. ${n} stopped leaving for Congress.gov`);
+  }
+  const VOCAB = ["precedent", "mirror", "discriminator", "vocabulary carries no", "primary row"];
+  for (const v of VOCAB) no(text(lede(h)).toLowerCase(), v, `lee × lands_preserve: method vocabulary "${v}" on the first screen`);
+  // The effect is the act's, not ours.
+  for (const e of lines.values()) {
+    ok(!/\b(?:we|PolitiDex|this chip|coded|counts? against)\b/i.test(e), `lee × lands_preserve: the effect line is about the archive, not the act — ${e}`);
+  }
+
+  // EVERY DRAWER: the printed line is exactly what the store holds for that
+  // measure on THAT issue, or nothing. A row with no stored line gets no extra
+  // row at all, and no title stands in for one.
+  let withLine = 0, without = 0;
+  const lineKeys = new Map();
+  for (const x of WITH) {
+    const hx = drawer(x.pid, x.key), e = drift(hx, x.t, x.key);
+    if (e.length) fails.push(`${key(x)}: ${e[0]}`);
+    const got = rowsOf(table(hx));
+    withLine += got.size; without += x.t.rows.length - got.size;
+    for (const v of got.values()) {
+      if (!lineKeys.has(v)) lineKeys.set(v, new Set());
+      lineKeys.get(v).add(x.key);
+    }
+  }
+  ok(withLine > 0 && without > 0, `the sweep saw ${withLine} row(s) with a line and ${without} without — both kinds must exist`);
+  console.log(`      ${withLine} vote row(s) carry an effect line · ${without} carry none and print no extra row`);
+  // The same sentence on two issues only where the store wrote it for both.
+  for (const [v, ks] of lineKeys) {
+    for (const k of ks) {
+      ok(Object.keys(MECH).some((mk) => mk.endsWith("|" + k) && stored(mk) === v),
+        `the effect line ${JSON.stringify(v.slice(0, 50))} is printed on ${k}, where nothing stores it`);
+    }
+  }
+  // 131's lands line never reaches its red-tape or energy rows.
+  eq([...(lineKeys.get(byId["H.J.Res. 131"]) || [])].join(","), "lands_preserve", "H.J.Res. 131's lands line appeared on another issue");
+  const lg = CS.dossierTally("lee", "gov_regulation", CS.issueRow("lee", "gov_regulation").ov);
+  if (lg && lg.rows.some((p) => p.d.ident === "H.J.Res. 131")) {
+    no(drawer("lee", "gov_regulation"), "conservation withdrawal", "lee × gov_regulation: the lands line was reused on Cut Red Tape");
+  }
+
+  // THE CHECKS HAVE TEETH. Three renderers that each break one rule.
+  const src = R("consistency.js");
+  const seam = "var eff = d.effLine || '';";
+  must(src.includes(seam), "the effect-line seam these mutations need has moved");
+  const run = (mut, ks = ["lands_preserve"]) => {
+    const M = boot((fl) => (fl === "consistency.js" ? src.replace(seam, mut) : R(fl)));
+    const MCS = M.PDXConsistency;
+    must(MCS && typeof MCS.gapViewHtml === "function", "a mutated renderer did not boot");
+    const at = (k) => ({ mh: MCS.gapViewHtml("lee", k) || "", mt: MCS.dossierTally("lee", k, MCS.issueRow("lee", k).ov) });
+    const out = at(ks[0]);
+    out.more = ks.slice(1).map(at);
+    return out;
+  };
+  // (a) method text back under the row.
+  {
+    const { mh, mt } = run("var eff = p.why;");
+    ok(drift(mh, mt, "lands_preserve").length > 0, "a renderer printing method text under the row passed the store check");
+    ok(effectLines(table(mh)).some((e) => effectFault(e)), "a renderer printing method text under the row passed the effect rule");
+    ok(VOCAB.some((v) => text(lede(mh)).toLowerCase().includes(v)), "the method mutation did not surface method vocabulary");
+  }
+  // (b) the bill title as a fallback.
+  {
+    const r2 = CS.issueRows("lee").map((y) => y.key).find((k) => {
+      const tt = CS.dossierTally("lee", k, CS.issueRow("lee", k).ov);
+      return tt && tt.rows.some((p) => !expected(p, k) && String(p.d.title || "").trim());
+    });
+    must(r2, "lee has no row without a stored line to test the title fallback on");
+    const { mh, mt, more } = run("var eff = d.effLine || d.title;", ["lands_preserve", r2]);
+    ok(drift(more[0].mh, more[0].mt, r2).length > 0, `a renderer dumping the bill title under a row on lee × ${r2} passed the store check`);
+    eq(drift(mh, mt, "lands_preserve").join(" | "), "", "the title mutation touched rows that do have a stored line");
+  }
+  // (c) a sibling issue's line borrowed onto this one.
+  {
+    const { mh, mt } = run("var eff = _dosEffectLine(_dosMechFor(d.item, 'lands_energy'));");
+    ok(drift(mh, mt, "lands_preserve").length > 0, "a renderer borrowing another issue's line passed the store check");
+  }
+
+  // BYTE-SAME AS HEAD, EXCEPT THE NEW LINE. Take the effect rows out of every
+  // drawer and what is left — tally, same-measure line, bills-vs-acts noun,
+  // for/against, the rows themselves, the fold — is HEAD's drawer exactly. Only
+  // meaningful while HEAD predates this pass; after it lands, section 7 and 8
+  // keep pinning the scored surface.
+  const HSRC = HEAD("consistency.js");
+  if (HSRC && !HSRC.includes("pdxlg-effr")) {
+    const A = boot(HEAD);
+    const strip = (x) => String(x).replace(/<tr class="pdxlg-effr" data-pdxlg-effr="\d+"><td colspan="5" class="pdxlg-eff" data-pdxlg-eff="1">[\s\S]*?<\/td><\/tr>/g, "");
+    const moved = [];
+    let same = 0;
+    for (const x of WITH) {
+      let before = "";
+      try { before = A.PDXConsistency.gapViewHtml(x.pid, x.key) || ""; } catch { continue; }
+      if (before === strip(drawer(x.pid, x.key))) same++; else moved.push(key(x));
+    }
+    eq(moved.slice(0, 6).join(" | "), "", `${moved.length} drawer(s) changed beyond the effect line`);
+    console.log(`      ${same} drawer(s) are byte-identical to HEAD once the effect lines are taken out`);
+  } else {
+    console.log("      HEAD already carries the effect line; byte comparison left to sections 7 and 8");
+  }
 }
 
 // ── verdict ──────────────────────────────────────────────────────────────────

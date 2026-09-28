@@ -2378,6 +2378,9 @@
       '.pdxlg-t td{vertical-align:baseline;padding:0.3rem 0.4rem 0.3rem 0;' +
         'border-top:1px solid rgba(255,255,255,0.06);color:#c6d4ec;line-height:1.4;}' +
       '.pdxlg-t tbody tr:first-child td{border-top:none;}' +
+      // The effect line sits under its own row and belongs to it: no rule between them.
+      '.pdxlg-t tr.pdxlg-effr td{border-top:none;padding:0 0.4rem 0.4rem 0;' +
+        'color:#b8c7de;font-size:0.72rem;line-height:1.4;}' +
       '.pdxlg-d{white-space:nowrap;font-variant-numeric:tabular-nums;color:#8fa2c0;font-size:0.68rem;}' +
       '.pdxlg-num{font-weight:700;color:#e8eefc;white-space:nowrap;}' +
       '.pdxlg-k{color:#cfe0f8;}' +
@@ -13914,6 +13917,9 @@
           // and why that lands on this chip, which is the thing the record itself
           // cannot say. `more` rides down to L4 rather than onto the row face.
           plain: (mech && mech.did) || '',
+          // The drawer's one-line effect for this row, off the same entry and the
+          // same lookup — see _dosEffectLine. '' where nothing short is stored.
+          effLine: _dosEffectLine(p.item, issueKey, mech),
           counts: (mech && mech.why) || '',
           rationale: (mech && mech.more) || mrat || '',
           fineFromMapping: !!(mrat && !(mech && mech.more)),
@@ -16739,12 +16745,14 @@
       out += '<div class="pdxlg-same">All ' + t.acts + ' acts are the same measure — ' +
         esc(t.ident) + '.</div>';
     }
-    // NO SENTENCE UNDER THE VOTES. The table used to print the mapping rationale
+    // NO METHOD UNDER THE VOTES. The table used to print the mapping rationale
     // under each row, and that prose is how the archive CODED the act — "follows
     // the H.J.Res. 78 precedent", "filed as the primary row rather than as the
     // mirror" — not what the vote was. A stranger reading it under a Yea learns
     // our bookkeeping instead of the record. It now lives behind the scoring
-    // disclosure, labelled as method — see _dosMethodNotesHtml.
+    // disclosure, labelled as method — see _dosMethodNotesHtml. What a row MAY
+    // carry is the effect line: what the act did to this issue, and nothing about
+    // how it was coded — see _dosEffectLine.
     var GROUPS = [
       { id: 'change', h: 'Tried to change it', rows: [] },
       { id: 'result', h: 'Voted on the result', rows: [] }
@@ -16783,10 +16791,54 @@
             '<td class="pdxlg-v pdxlg-v-' + p.vote.cls + '">' + esc(p.vote.word) + '</td>' +
             '<td>' + _dosActChips(d, issueKey) + '</td>' +
           '</tr>';
+        var eff = d.effLine || '';
+        if (eff) {
+          out += '<tr class="pdxlg-effr" data-pdxlg-effr="' + p.i + '">' +
+            '<td colspan="5" class="pdxlg-eff" data-pdxlg-eff="1">' + esc(eff) + '</td></tr>';
+        }
       }
       out += '</tbody></table></div>';
     }
     return out + '</div>';
+  }
+
+  // WHAT THE ACT DID TO THIS ISSUE, in one sentence under its row.
+  //
+  // A Yea on H.J.Res. 131 counts against Protect Public Lands, and the row alone
+  // cannot say why: the chips beside it name neighbouring issues, not the acreage.
+  // This line is the act's effect on THIS issue, read from curated prose keyed to
+  // this measure on this issue and never from a sibling issue's entry, so a line
+  // written for the lands row cannot surface on the red-tape row of the same vote.
+  //
+  // Read once, where the dossier item is built from the same _DOS_MECH lookup
+  // that fills "What it did", and carried on the item as `effLine`; the table only
+  // prints it. Source, in order:
+  //   · _DOS_EFFECT below — a short line for a (measure, congress, issue) whose
+  //     `did` is too long to stand under a row. Each is written from that pair's
+  //     own `did` and from nothing else. Kept here rather than as a new slot on
+  //     the _DOS_MECH entry because that map is append-only: a sentence a reader
+  //     has already seen on a live row is not a later pass's to edit.
+  //   · the pair's `did`, when it is already one sentence short enough.
+  // Nothing else — no bill title, no mapping rationale, no clip of a longer `did`
+  // with an ellipsis, because a clipped sentence is a claim the curator did not
+  // make. Anything longer than 140 characters, longer than one sentence, or
+  // carrying method vocabulary prints nothing, and the row keeps the empty space
+  // it has always had.
+  var _DOS_EFFECT = {
+    'H.J.Res. 131|119|lands_preserve':
+      'Removed the conservation withdrawal from roughly 1.2 million acres inside the Arctic National Wildlife Refuge.',
+    'H.J.Res. 140|119|lands_preserve':
+      'Struck the order closing about 225,504 acres of Minnesota national forest above the Boundary Waters to mineral and geothermal leasing.'
+  };
+  var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
+  function _dosEffectLine(item, issueKey, mech) {
+    if (!mech || !item) return '';
+    var k = String(item.number == null ? '' : item.number).trim() + '|' + item.congress + '|' + issueKey;
+    var s = String(_DOS_EFFECT[k] || mech.did || '').replace(/\s+/g, ' ').trim();
+    if (!s || s.length > 140 || !/[.!?]$/.test(s)) return '';
+    if (/[.!?]\s+["\u201c(]?[A-Z0-9]/.test(s.replace(/\bU\.S\./g, 'US'))) return '';
+    if (_DOS_EFFECT_METHOD.test(s)) return '';
+    return s;
   }
 
   // HOW THE ROWS WERE CODED, where a reader who asks for method can find it.
