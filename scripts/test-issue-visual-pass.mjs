@@ -253,12 +253,14 @@ const rem = (v) => { const m = /^([\d.]+)rem$/.exec(String(v || "")); return m ?
 
 const ROWS = [
   { id: 1, number: "H.R. 6644", shortTitle: "Housing Affordability Act", chamber: "house",
-    congress: "119", primaryIssueKeys: ["housing"], issueKeys: ["housing"], primaryIssue: "housing",
+    congress: "119", onAxisIssueKeys: ["housing"], issueKeys: ["housing"], primaryIssue: "housing",
     lastRoll: { chamber: "house", voteDate: "2026-04-14", yea: 219, nay: 205, result: "Passed" },
     rollcallCount: 1 },
+  // Off-axis BY CATEGORY: two of its three keys sit in spending_debt_waste, so
+  // housing (economy / cost of living) is outside the bill's main category.
   { id: 2, number: "H.B. 462", shortTitle: "Omnibus Appropriations", chamber: "utah house",
-    externalIds: { utahSession: "2026GS" }, primaryIssueKeys: ["taxes"], issueKeys: ["housing"],
-    primaryIssue: "taxes", rollcallCount: 0 },
+    externalIds: { utahSession: "2026GS" }, onAxisIssueKeys: ["lower_taxes", "cut_spending"],
+    issueKeys: ["lower_taxes", "cut_spending", "housing"], primaryIssue: "lower_taxes", rollcallCount: 0 },
 ];
 
 // ═══════════════ 1 · the header, already right ══════════════════════════════
@@ -323,13 +325,13 @@ section("2 · the measure row: one loud line, a badge, then the facts");
   has(subj, "219–205", "the subject row does not print the Yea–Nay");
 
   // SUBJECT VS RIDER, AS A SHAPE.
-  has(subj, 'data-pdxip-lane="subject"', "the subject row does not declare its lane");
+  has(subj, 'data-pdxip-lane="on"', "the on-axis row does not declare its lane");
   const rider = IP.rowHtml(rows[1]);
-  has(rider, 'data-pdxip-lane="rode"', "the rider row does not declare its lane");
-  const sRule = ruleOf(css, '.pdxip-row[data-pdxip-lane="subject"]>.pdxip-open') || "";
+  has(rider, 'data-pdxip-lane="off"', "the off-axis row does not declare its lane");
+  const sRule = ruleOf(css, '.pdxip-row[data-pdxip-lane="on"]>.pdxip-open') || "";
   has(sRule, "border-left:", "a subject row has no left edge of its own");
   has(sRule, "var(--pdx-ic", "the subject row's left edge is not the issue's colour");
-  const rRule = ruleOf(css, '.pdxip-row[data-pdxip-lane="rode"]>.pdxip-open') || "";
+  const rRule = ruleOf(css, '.pdxip-row[data-pdxip-lane="off"]>.pdxip-open') || "";
   ok(rRule.length > 0, "the rider lane has no rule of its own, so it cannot stay flat");
   hasNot(rRule, "var(--pdx-ic", "the rider row borrowed the issue's colour");
   hasNot(rRule, "border-left:", "the rider row grew a left edge of its own");
@@ -475,10 +477,10 @@ section("5 · each fix is load-bearing");
 {
   const MUTANTS = [
     ["the subject row loses its issue-coloured left edge",
-      (x) => x.replace("'.pdxip-row[data-pdxip-lane=\"subject\"]>.pdxip-open{',", "'.pdxip-x-dead{',"),
+      (x) => x.replace("'.pdxip-row[data-pdxip-lane=\"on\"]>.pdxip-open{',", "'.pdxip-x-dead{',"),
       (win) => {
         const css = sheetOf(win);
-        return (ruleOf(css, '.pdxip-row[data-pdxip-lane="subject"]>.pdxip-open') || "").indexOf("var(--pdx-ic") === -1;
+        return (ruleOf(css, '.pdxip-row[data-pdxip-lane="on"]>.pdxip-open') || "").indexOf("var(--pdx-ic") === -1;
       }],
     ["the lane label goes back to fine print",
       (x) => x.replace("'font-weight:700;font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;line-height:1.3;',",

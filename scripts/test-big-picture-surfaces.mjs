@@ -59,7 +59,6 @@ if (!HR1 || !HR1.issues || HR1.issues.length < 9) {
 const MAPPINGS = HR1.issues.map((m) => ({
   issueKey: m.issueKey,
   supportMeaning: m.direction === "opposes" ? "yea_opposes" : "yea_supports",
-  isPrimary: !!m.isPrimary,
   weight: typeof m.weight === "number" ? m.weight : 100,
 }));
 const N = MAPPINGS.length;
@@ -97,24 +96,25 @@ ok(N > 8, `fixture drift: H.R. 1 now carries ${N} mappings, which no longer exce
 section("1 · one shared order, and it cannot read the flag");
 // ═════════════════════════════════════════════════════════════════════════════
 // Every surface below sorts through this one function. If it ever learns to look
-// at is_primary or weight, all of them regress at once — so it is pinned here by
+// at the axis or weight, all of them regress at once — so it is pinned here by
 // the only test that actually proves indifference: feed it the same list twice
-// with the flags and weights inverted and demand the identical answer.
+// with the weights inverted (and a stray retired flag scattered on) and demand
+// the identical answer.
 {
   const a = W._pdxBigPictureOrder(MAPPINGS, { labelFn: label }).map((m) => m.issueKey);
-  const flipped = MAPPINGS.map((m) => ({ ...m, isPrimary: !m.isPrimary, weight: 200 - m.weight }));
+  const flipped = MAPPINGS.map((m, i) => ({ ...m, isPrimary: i % 2 === 0, weight: 200 - m.weight }));
   const b = W._pdxBigPictureOrder(flipped, { labelFn: label }).map((m) => m.issueKey);
   eq(a.length, N, "the shared order dropped or duplicated a mapping");
   eq(JSON.stringify(a), JSON.stringify(b),
-    "the shared Big Picture order changes when is_primary and weight change — it is reading the flag");
+    "the shared Big Picture order changes when weight (or a stray flag) changes — it is reading curation");
   eq(JSON.stringify([...a].sort()), JSON.stringify([...KEYS].sort()),
     "the shared order returned a different set of topics than it was given");
   // And it is not the scoring path's order, which is the thing it exists to replace.
   const byScore = [...MAPPINGS]
-    .sort((x, y) => Number(y.isPrimary) - Number(x.isPrimary) || y.weight - x.weight)
+    .sort((x, y) => y.weight - x.weight)
     .map((m) => m.issueKey);
   ok(JSON.stringify(a) !== JSON.stringify(byScore),
-    "the shared order is identical to the primary-then-weight score sort");
+    "the shared order is identical to the weight-descending score sort");
   // Stable: same input, same answer, so two surfaces never disagree about the act.
   eq(JSON.stringify(W._pdxBigPictureKeys(KEYS, { labelFn: label })), JSON.stringify(a),
     "the keys flavour and the mappings flavour of the shared order disagree");
@@ -219,19 +219,20 @@ section("4 · the surfaces that are pinned in their source");
   ok(!/\(primary \? \[primary\] : \[\]\)\.concat\(keys\)/.test(bd),
     "bill-detail's offline fallback is building a primary-first chip row again");
 
-  // The example pick — allowed to prefer a primary, required to prefer evidence.
+  // The example pick — allowed to prefer an on-axis mapping, required to prefer evidence.
   const rc = readFileSync(join(ROOT, "receipt-cards.js"), "utf8");
   const sort = (rc.match(/function rdStrongest[\s\S]*?\n    \}\);/) || [""])[0];
   ok(sort.length > 100, "rdStrongest's ranking could not be read out of receipt-cards.js");
   const iProc = sort.indexOf("isProcedural");
   const iWeight = sort.indexOf("wa !== wb");
-  const iPrimary = sort.indexOf("isPrimary");
-  ok(iProc > -1 && iWeight > -1 && iPrimary > -1,
-    "rdStrongest no longer ranks on all three of procedural, weight and the flag");
-  ok(iProc < iPrimary,
-    "rdStrongest ranks on is_primary before it rules out procedural votes — the flag is beating the evidence");
-  ok(iWeight < iPrimary,
-    "rdStrongest ranks on is_primary before curated weight — the flag is beating the evidence");
+  const iAxis = sort.indexOf("onAxis(a, issueKey)");
+  ok(iProc > -1 && iWeight > -1 && iAxis > -1,
+    "rdStrongest no longer ranks on all three of procedural, weight and the axis");
+  ok(iProc < iAxis,
+    "rdStrongest ranks on the axis before it rules out procedural votes — the badge is beating the evidence");
+  ok(iWeight < iAxis,
+    "rdStrongest ranks on the axis before curated weight — the badge is beating the evidence");
+  ok(!/isPrimary/.test(sort), "rdStrongest reads the retired isPrimary flag again");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

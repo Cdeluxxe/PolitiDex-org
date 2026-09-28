@@ -166,8 +166,13 @@ const vote = (key, position, o) => {
     kind: "vote", rollcallId: 9000 + seq, measureId: 9500 + seq, number: "S. " + (300 + seq),
     date: "2025-0" + ((seq % 9) + 1) + "-11", action: "On Passage", position,
     isProcedural: !!o.proc, title: "Measure " + seq,
-    issues: [{ issueKey: key, weight: 100,
-               isPrimary: !o.incidental, supportMeaning: "yea_supports" }],
+    // `incidental` is OFF-AXIS BY CATEGORY: the measure also carries two keys
+    // filed under one other core category, so that category dominates (2 vs 1)
+    // and the target sits outside the bill's main category. No flag is set; the
+    // retired leaf `isPrimary` is read by nothing.
+    issues: [{ issueKey: key, weight: 100, supportMeaning: "yea_supports" }]
+      .concat(o.incidental ? offAxisFillers(key).map((k) => (
+        { issueKey: k, weight: 100, supportMeaning: "yea_supports" })) : []),
     source: { url: "https://www.congress.gov/roll-call-vote/" + (9000 + seq), label: "Congress.gov" },
   };
 };
@@ -202,6 +207,22 @@ const SILENT = Object.keys(probe.ISSUE_MAP || {}).filter((k) => sideable(k) && !
 must(SILENT.length >= 14, `the fixture needs 14+ issues neither member has stated, has ${SILENT.length}`);
 const POLELESS = Object.keys(NO_POLE).filter((k) => probe.ISSUE_MAP[k])[0];
 must(POLELESS, "no poleless issue survives in the shared taxonomy");
+// OFF-AXIS FILLERS. For a target key, two keys sharing one core category that
+// is not the target's, drawn from issues no fixture row lands on and neither
+// member has stated — so the measure's dominant category is theirs and the
+// target rides in off-axis. Checked through the shipped _pdxMeasureAxis below.
+const catOf = (k) => { const c = probe.coreIssueForKey(k); return c && c.key ? c.key : "issue:" + k; };
+const FILLER_POOL = SILENT.slice(14).filter((k) => k !== POLELESS);
+const offAxisFillers = (key) => {
+  const byCat = {};
+  for (const k of FILLER_POOL) {
+    const c = catOf(k);
+    if (c === catOf(key) || c.indexOf("issue:") === 0) continue;
+    (byCat[c] = byCat[c] || []).push(k);
+    if (byCat[c].length === 2) return byCat[c];
+  }
+  must(false, `no two filler keys share a core category other than ${key}'s`);
+};
 
 // key → the pack that lands on it, for the member named
 const DEEP_FIX = {
@@ -214,7 +235,7 @@ const DEEP_FIX = {
   coin33:     { key: SILENT[6],  desc: "true coin flip 3–3",          recs: run(3, SILENT[6], "yea").concat(run(3, SILENT[6], "nay")) },
   incidental: { key: SILENT[7],  desc: "incidental n=1",              recs: run(1, SILENT[7], "yea", { incidental: true }) },
   // THE TWO PACKAGE-BORNE WALLS, added with the August 2026 relaxation. Both
-  // packs are made only of non-primary mappings, which is what `incidental: true`
+  // packs are made only of off-axis mappings (by category), which is what `incidental: true`
   // means on `vote()` — the issue was reached inside a measure our own mapping
   // says is about something else.
   inc_deep:   { key: SILENT[12], desc: "package-borne 5–0, deep enough to be tempting",
@@ -235,6 +256,14 @@ const SHALLOW_FIX = {
   below1: { key: SILENT[0], desc: "n=1 support, below the floor",  recs: run(1, SILENT[0], "yea") },
   below2: { key: SILENT[1], desc: "2–0 support, below the floor",  recs: run(2, SILENT[1], "yea") },
 };
+// The fixture's packaging is real by the shipped rule, not by assertion: every
+// `incidental` act is off-axis for its target and every plain act is on-axis.
+["incidental", "inc_deep", "inc_mixed"].forEach((f) => DEEP_FIX[f].recs.forEach((r) => {
+  must(probe._pdxMeasureAxis(r.issues).axisOf(DEEP_FIX[f].key) === "off",
+    `${DEEP_FIX[f].desc}: the fixture's target is not off-axis by category`);
+}));
+must(probe._pdxMeasureAxis(DEEP_FIX.clear5.recs[0].issues).axisOf(DEEP_FIX.clear5.key) === "on",
+  "a single-issue fixture act is not on-axis");
 
 function stage(opts) {
   const win = boot(opts);
@@ -351,7 +380,7 @@ section("2 · the fixtures — tier, side, verdict and confidence, end to end");
   // The primary floor on the display lane became a ceiling, and in August 2026 the
   // ceiling went too. What is asserted here is that the flag decides NOTHING about
   // strength: each package-borne run reads at the tier its own depth earns, and the
-  // proof is the primary run of the same shape sitting beside it reading the same
+  // proof is the on-axis run of the same shape sitting beside it reading the same
   // word. See the header block.
   [["incidental", 1, "one_for"], ["inc_deep", 5, "clear5"]].forEach(function (trio) {
     const f = DEEP_FIX[trio[0]], n = trio[1], k = f.key;
@@ -397,12 +426,12 @@ section("2 · the fixtures — tier, side, verdict and confidence, end to end");
   eq((F_DEEP[DEEP_FIX.inc_deep.key] || {}).weight, "full",
     "…and carries the full weight, because there is nothing partial about the votes");
   // THE ONE-ACT ROW IS THIN FOR ITS DEPTH, NOT FOR ITS VEHICLE. Same assertion,
-  // read from the other end: the n=1 package-borne row and the n=1 primary row are
+  // read from the other end: the n=1 package-borne row and the n=1 on-axis row are
   // both thin, and the deep package-borne row is not.
   eq((F_DEEP[DEEP_FIX.incidental.key] || {}).tier, "thin",
     "a single package-borne act still reads thin — because it is one act");
   eq((F_DEEP[DEEP_FIX.one_for.key] || {}).tier, "thin",
-    "…which is exactly what one primary act reads, at the same depth");
+    "…which is exactly what one on-axis act reads, at the same depth");
 
   // ── MIXED PILES STAY MIXED, AND NO-SIDE STAYS NO-SIDE ─────────────────────
   // Nothing without a judged side gains one, and a package-borne ledger that ran
@@ -640,7 +669,7 @@ section("5b · the ROW CHIP — the surface the last pass missed");
 
   // ── AND THE ROWS THAT USED TO BE ON THAT LIST ARE NOT REFUSALS ANY MORE ────
   // Three of the four entries above were rows holding judged acts — a package-borne
-  // pile that ran both ways, a primary pile that ran both ways, and a pile of
+  // pile that ran both ways, an on-axis pile that ran both ways, and a pile of
   // procedural votes. Each one had a well-written refusal, and each one printed it
   // directly above the list of acts it was declining to read. A reader who can see
   // the arrow is not served by a paragraph explaining why we will not name it.
@@ -842,7 +871,7 @@ section("7 · the mutations — each one must fail this file");
   // M3 — put the package-borne ceiling back, on both lanes at once. This is the
   // discount the August 2026 pass removed: the pattern engine returned
   // stop('record_thin', 'no_primary') on a deep one-sided run with no PRIMARY
-  // mapping, and the display lane under it refused to call such a run deep. Between
+  // (now: on-axis) mapping, and the display lane under it refused to call such a run deep. Between
   // them, no stack of riders could ever be read as anything louder than thin. The
   // mutation is the proof that the live file's `strong` on `inc_deep` comes from the
   // depth floors and not from an accident — and that the n=1 row beside it is thin
@@ -858,8 +887,8 @@ section("7 · the mutations — each one must fail this file");
     // the pattern engine refused a deep package-borne run outright and the display
     // lane below it would not call one deep. Either alone leaves the other reading.
     "stance-helpers.js": (s) => s
-      .replace(G3P, "        } else if (out.primary < _RD_MIN_PRIMARY) {\n" +
-                    "          return stop('record_thin', 'no_primary');\n" + G3P)
+      .replace(G3P, "        } else if (out.onAxis < _RD_MIN_ON_AXIS) {\n" +
+                    "          return stop('record_thin', 'no_on_axis');\n" + G3P)
       .replace(G3, G3 + " !pkgOnly &&"),
   }, (w) => {
     const rows = w.PDXConsistency.formalPatternIndex.rows(DEEP) || [];
@@ -874,7 +903,7 @@ section("7 · the mutations — each one must fail this file");
   eq(m3.deep, "thin",
     `M3: the ceiling really does hold a package-borne 5–0 down to thin — got ${JSON.stringify(m3.deep)}`);
   eq(m3.twin, "strong",
-    "M3: …while the identical primary 5–0 keeps its strength, which is what makes the clause a discount and not a floor");
+    "M3: …while the identical on-axis 5–0 keeps its strength, which is what makes the clause a discount and not a floor");
   eq(m3.one, "thin",
     "M3: …and the one-act row is thin either way, because depth was always what held it");
   eq((F_DEEP[DEEP_FIX.inc_deep.key] || {}).tier, "strong",

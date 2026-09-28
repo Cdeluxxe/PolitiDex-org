@@ -102,21 +102,24 @@ const vote = (n, issueKey, position, opts) => {
     date: "2025-0" + ((n % 9) + 1) + "-11", action: "On Passage", position: position,
     isProcedural: !!opts.proc, title: "Measure " + n,
     source: { url: "https://www.congress.gov/roll-call-vote/" + (700 + n), label: "Congress.gov" },
-    issues: [{ issueKey: issueKey, weight: 100, isPrimary: opts.primary !== false,
-      supportMeaning: "yea_supports" }],
+    issues: [{ issueKey: issueKey, weight: 100, supportMeaning: "yea_supports" }],
   };
 };
-// A PROVISION: two issues, secondary mapping, narrow weight — the three conditions
-// _recordVehicleStats requires before it will call an instrument a package.
+// A PROVISION: multi-issue, OFF-AXIS mapping, narrow weight — the three conditions
+// _recordVehicleStats requires before it will call an instrument a package. The
+// target is off-axis BY CATEGORY: the measure carries two carrier keys filed
+// under one other core category, so that category dominates 2–1 and the target
+// sits outside the bill's main category. No flag is set; the retired leaf
+// `isPrimary` is read by nothing.
 const rider = (n, issueKey, carrier, bill, position) => ({
   kind: "vote", rollcallId: 900 + n, measureId: 1000 + n, number: bill,
   date: "2025-03-" + (10 + (n % 9)), action: "On Passage", position: position || "yea",
   isProcedural: false, title: "Consolidated Appropriations Act — " + bill,
   source: { url: "https://www.congress.gov/roll-call-vote/" + (900 + n), label: "Congress.gov" },
   issues: [
-    { issueKey: carrier, weight: 90, isPrimary: true, supportMeaning: "yea_supports" },
-    { issueKey: issueKey, weight: Math.min(10, NARROW), isPrimary: false,
-      supportMeaning: "yea_supports" },
+    { issueKey: carrier[0], weight: 90, supportMeaning: "yea_supports" },
+    { issueKey: carrier[1], weight: 90, supportMeaning: "yea_supports" },
+    { issueKey: issueKey, weight: Math.min(10, NARROW), supportMeaning: "yea_supports" },
   ],
 });
 
@@ -127,11 +130,30 @@ const SPLITS = SILENT.slice(6, 9);         // 8 votes, 4 each  → split
 const THINS = SILENT.slice(9, 25);         // one vote each    → thin
 const NOSIDE = SILENT.slice(25, 29);       // all Present      → no_side_taken
 const PKG = SILENT[29];                    // provisions only, all one way → strong + 🚂
-const CARRIER = SILENT[30];
 const PKGMIX = SILENT[31];                 // provisions only, ran both ways → vehicle_only
+// THE CARRIER PAIR: two keys sharing one core category that is neither PKG's
+// nor PKGMIX's, so every rider's dominant category is the carriers'.
+const catOf = (k) => { const c = probe.coreIssueForKey(k); return c && c.key ? c.key : "issue:" + k; };
+const CARRIER = (() => {
+  const byCat = {};
+  for (const k of [SILENT[30]].concat(SILENT.slice(32))) {
+    const c = catOf(k);
+    if (c === catOf(PKG) || c === catOf(PKGMIX) || c.indexOf("issue:") === 0) continue;
+    (byCat[c] = byCat[c] || []).push(k);
+    if (byCat[c].length === 2) return byCat[c];
+  }
+  return null;
+})();
 must(CLEAR.length === 6 && SPLITS.length === 3 && THINS.length === 16 &&
      NOSIDE.length === 4 && PKG && CARRIER && PKGMIX,
      "the fixture no longer offers every band");
+{
+  const ax = probe._pdxMeasureAxis(rider(0, PKG, CARRIER, "H.R. 1", "yea").issues);
+  must(ax.axisOf(PKG) === "off" && ax.axisOf(CARRIER[0]) === "on",
+    "the rider fixture does not put its target off-axis by category");
+  must(probe._pdxMeasureAxis(vote(0, PKG, "yea").issues).axisOf(PKG) === "on",
+    "a one-issue vote is not on-axis");
+}
 
 const SEED = [];
 let nn = 0;
@@ -141,11 +163,11 @@ THINS.forEach((k, i) => SEED.push(vote(nn++, k, i % 2 ? "yea" : "nay")));
 NOSIDE.forEach((k) => { for (let i = 0; i < 3; i++) SEED.push(vote(nn++, k, "present")); });
 for (let i = 0; i < 4; i++) SEED.push(vote(nn++, BALANCE, "yea"));
 // Eight provisions on PKG, all riding CARRIER, all one way: deep enough and
-// one-sided enough that only the primary wall stopped it — which is exactly the
+// one-sided enough that only the old primary wall stopped it — which is exactly the
 // population the package sentence is for. Since the August 2026 relaxation the
 // display lane reads this row and hangs the 🚂 disclosure on it, and since the
 // package-borne ceiling came off it reads at the tier eight one-way judged acts
-// earn — the same tier a primary run of the same shape reads. Section 5 asserts
+// earn — the same tier an on-axis run of the same shape reads. Section 5 asserts
 // that equality row for row.
 for (let i = 1; i <= 8; i++) SEED.push(rider(i, PKG, CARRIER, "H.R. " + (7000 + i), "yea"));
 // …AND THE SAME SHAPE THAT RAN BOTH WAYS, which is where the vehicle_only refusal
@@ -348,10 +370,10 @@ section("5 · every judged row reads; the refusals left are about the issue");
   // that were ABOUT their issue are the same kind of thing at different depths: the
   // reading follows the acts, and how the acts arrived is a label on the bill. So
   // the rider row lands in the same band, with the same tier word and the same
-  // weight, as a primary row of the same shape — never in a band of its own.
+  // weight, as an on-axis row of the same shape — never in a band of its own.
   const clr = ROWS.filter((x) => x.key === CLEAR[0])[0];
-  must(clr, "the primary comparison row is missing from the fixture");
-  eq(pkg.tier, clr.tier, "eight riders read the same tier as a primary run of the same shape");
+  must(clr, "the on-axis comparison row is missing from the fixture");
+  eq(pkg.tier, clr.tier, "eight riders read the same tier as an on-axis run of the same shape");
   eq(pkg.weight, clr.weight, "…and carry the same weight");
   eq(pkg.band, clr.band, "…and are filed in the same band");
   // AND THE CHARACTERISATION READ NO LONGER REFUSES IT EITHER. This is the half of
@@ -404,7 +426,7 @@ section("5 · every judged row reads; the refusals left are about the issue");
   //      rung is gone: it was a well-worded refusal printed over three dated,
   //      sourced votes while the stance tree on the same profile printed Split with
   //      the two counts. A row holding judged acts always characterises itself now,
-  //      whatever the primary flag on its bills says.
+  //      whatever category its bills are mainly about.
   //      THE MENU FACT IT CARRIED IS NOT LOST — it moved from the position of an
   //      answer to the position of a caveat. _menuContext still returns
   //      `provision_only` with the locked phrase and the wall sentence for exactly

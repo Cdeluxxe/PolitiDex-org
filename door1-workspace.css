@@ -775,7 +775,8 @@
   padding: 0.16rem 0.38rem; border-radius: 0.4rem;
   background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12);
 }
-.d1-led-btag.is-primary { color: #bfdbfe; background: rgba(96, 165, 250, 0.12); border-color: rgba(96, 165, 250, 0.32); }
+.d1-led-btag.is-on { color: #bfdbfe; background: rgba(96, 165, 250, 0.12); border-color: rgba(96, 165, 250, 0.32); }
+.d1-led-btag.is-off { border-style: dashed; }
 /* Floor machinery, marked. Amber is the vehicle lane's ink on this desk (see
    .d1-led-veh) and this is the same kind of fact: what the act was ON, never a
    judgement of the act. It sits beside the PRIMARY-or-provision tag rather than

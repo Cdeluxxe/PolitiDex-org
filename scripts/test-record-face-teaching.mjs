@@ -13,7 +13,7 @@
 //   H.R. 4758  ·  119th Congress  ·  Voted Yea
 //     What it did:        Voted Yea on the question “On Passage”.
 //     How it was linked:  Counted on 🌱 Climate Action & Clean Energy because
-//                         that is the primary subject of this measure.
+//                         that is in this measure’s main category.
 //
 // Both true. Neither teaches. The pass that this file covers wrote the curated
 // pair for every mapped (measure, issue) the repo holds measure text for — 122 of
@@ -35,7 +35,7 @@
 //       "what it did", no legal wall on the face, "why it counts here" that names
 //       a mechanism instead of repeating the sentence above it, and a different
 //       sentence for every chip the same bill sits on.
-//   5 · LEDGER-FIRST STILL HOLDS. Narrow, secondary and procedural acts are
+//   5 · LEDGER-FIRST STILL HOLDS. Narrow, off-axis and procedural acts are
 //       LABELLED, never dropped: each of those populations must still appear.
 //   6 · THE FOLD KEEPS ITS PROMISE. The mapping's own rationale now rides down to
 //       L4 where no curated `more` exists — under its own label, because a
@@ -265,23 +265,25 @@ section("4 · two plain sentences, no legal wall, a different sentence per chip"
 }
 
 /* ═══ 5 · ledger-first: labels, never omissions ═══════════════════════════ */
-section("5 · narrow, secondary and procedural acts are labelled and still listed");
+section("5 · narrow, off-axis and procedural acts are labelled and still listed");
 {
   const narrow = acts.filter((a) => a.d.narrow);
-  const secondary = acts.filter((a) => a.d.primary === false);
+  // OFF-AXIS: the issue sits outside the measure's dominant category — a badge,
+  // never a delete. (The retired leaf `isPrimary` flag is read by nothing.)
+  const offAxis = acts.filter((a) => a.d.axis === "off");
   const proc = acts.filter((a) => a.d.procedural);
   ok(narrow.length > 0, "no narrow-weight act is on any face — weight is filtering the ledger again");
-  ok(secondary.length > 0, "no secondary act is on any face — is_primary is filtering the ledger again");
+  ok(offAxis.length > 0, "no off-axis act is on any face — the axis is filtering the ledger");
   ok(proc.length > 0, "no procedural act is on any face — procedural is filtering the ledger again");
-  console.log(`   narrow ${narrow.length} · secondary ${secondary.length} · procedural ${proc.length}, all listed`);
+  console.log(`   narrow ${narrow.length} · off-axis ${offAxis.length} · procedural ${proc.length}, all listed`);
   // And each of those populations teaches at the same rate as the rest. Curating
-  // only the primary rows would be hide-by-weight with extra steps.
-  for (const [name, pop] of [["narrow", narrow], ["secondary", secondary], ["procedural", proc]]) {
+  // only the on-axis rows would be hide-by-weight with extra steps.
+  for (const [name, pop] of [["narrow", narrow], ["off-axis", offAxis], ["procedural", proc]]) {
     const cur = pop.filter((a) => a.m.countsBy === "curated").length;
     ok(cur / pop.length >= 0.5,
       `${name} acts are curated at ${Math.round((cur / pop.length) * 100)}% while the face overall is far higher — the pass skipped them for their weight`);
   }
-  // A narrow or secondary link says so in the sentence a reader actually reads.
+  // A narrow or off-axis link says so in the sentence a reader actually reads.
   const narrowCur = narrow.filter((a) => a.m.countsBy === "curated");
   const said = narrowCur.filter((a) => /narrow link/i.test(a.m.counts)).length;
   ok(narrowCur.length === 0 || said / narrowCur.length >= 0.78,

@@ -33,9 +33,10 @@
  *   2. IT COUNTS WHAT THE LEDGER COUNTS. Every number in the line is a number the
  *      face can back: the roll-call count it was handed, and nothing else. The
  *      size of the act is stated once, by the letterhead's tally.
- *   3. IT READS NO CURATION. It never touches isPrimary or weight, and the proof
- *      is behavioural: flip every flag on, off, or onto a different mapping and
- *      the rendered line does not move by one byte.
+ *   3. IT READS NO CURATION. It never touches the on-/off-axis read, weight, or
+ *      the retired isPrimary flag, and the proof is behavioural: reorder the
+ *      mappings, invert the weights, or scatter a stray flag on them and the
+ *      rendered line does not move by one byte.
  *   4. IT RANKS NOTHING AND SAYS NOTHING THAT RANKS.
  *   5. THE WORDING FOLLOWS THE INSTRUMENT — one roll call, several, signed with
  *      no roll call on file, or still moving.
@@ -70,7 +71,6 @@ if (!HR1 || !HR1.issues || HR1.issues.length < 9) die("the H.R. 1 seed is missin
 const ISSUES = HR1.issues.map((m) => ({
   issueKey: m.issueKey,
   supportMeaning: m.direction === "opposes" ? "yea_opposes" : "yea_supports",
-  isPrimary: !!m.isPrimary,
   weight: m.weight,
   rationale: m.rationale || "",
 }));
@@ -152,7 +152,7 @@ section("1 · one line, above the full topic list, and only one topic list");
   // It is an addition, not a replacement: the ledger is untouched underneath it.
   eq((HTML.match(/class="bd-omni-row/g) || []).length, N, "the ledger no longer renders one row per mapping");
   eq((HTML.match(/data-bd-view="all"/g) || []).length, 1, "the ledger no longer opens in the all-topics state");
-  eq((HTML.match(/data-bd-lane="(?:main|other)"/g) || []).length, N, "the ledger's lane keys changed");
+  eq((HTML.match(/data-bd-lane="(?:on|off)"/g) || []).length, N, "the ledger's lane keys changed");
 
   // ONE LINE. Structurally: one paragraph, no heading, no list, no controls.
   eq((NOTE.match(/<p /g) || []).length, 1, "the note is more than one paragraph");
@@ -202,16 +202,17 @@ section("3 · it reads no curation — flags move, the line does not");
   const fn = SRC.slice(SRC.indexOf("function letterheadTeach"), SRC.indexOf("function letterheadHtml"));
   ok(fn.length > 400, "the note's source could not be located");
   const code = fn.replace(/\/\/.*$/gm, "");
-  for (const w of ["isPrimary", "weight", "score", "_measureComponentBreakdown", "supportMeaning"]) {
+  for (const w of ["isPrimary", "weight", "score", "_measureComponentBreakdown", "supportMeaning",
+                   "axisOf", "_pdxMeasureAxis", "onAxis"]) {
     ok(!code.includes(w), `the note reads ${w} — it is supposed to know only that the topics travelled together`);
   }
   ok(!/\.sort\(/.test(code), "the note sorts the mappings itself");
-  // The behavioural proof: the same mappings with the flags rearranged render the
-  // same line, byte for byte.
+  // The behavioural proof: the same mappings rearranged, reweighted, or carrying
+  // a stray retired flag render the same line, byte for byte.
   const variants = [
-    ["every mapping flagged", ISSUES.map((i) => ({ ...i, isPrimary: true }))],
-    ["no mapping flagged", ISSUES.map((i) => ({ ...i, isPrimary: false }))],
-    ["the flag moved to the last mapping", ISSUES.map((i, idx) => ({ ...i, isPrimary: idx === N - 1 }))],
+    ["the mappings reversed", [...ISSUES].reverse()],
+    ["a stray retired flag on every mapping", ISSUES.map((i) => ({ ...i, isPrimary: true }))],
+    ["a stray retired flag on the last mapping only", ISSUES.map((i, idx) => ({ ...i, isPrimary: idx === N - 1 }))],
     ["the weights inverted", ISSUES.map((i, idx) => ({ ...i, weight: idx }))],
   ];
   for (const [name, issues] of variants) {

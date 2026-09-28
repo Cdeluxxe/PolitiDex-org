@@ -528,7 +528,7 @@ for (const [what, code] of [["the filter row", SLICE_CODE], ["the process line",
 // The four axes it does offer, named, so the sweep above cannot pass by deleting
 // the row: direction from the index's own bands, vehicle from the standalone and
 // provision counts already on each row, chamber from the office, name typed.
-for (const axis of ["Advanced", "Primary-only", "U.S. Senate", 'type="search"']) {
+for (const axis of ["Advanced", "On-axis only", "U.S. Senate", 'type="search"']) {
   has(SLICE_CODE, axis, `the filter row no longer offers its ${axis} axis`);
 }
 // And the process line still asks the consistency module for its locked sentence

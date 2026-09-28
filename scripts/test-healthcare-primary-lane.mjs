@@ -182,7 +182,7 @@ section("4 · the floors did not move");
 // The split floors matter as much as the primary floor here: the counts were published by
 // fixing the flag, not by lowering the bar at which a split is allowed to state itself.
 const SH = R("stance-helpers.js");
-[["_RD_MIN_JUDGED", "4"], ["_RD_MIN_PRIMARY", "1"], ["_RD_DOMINANCE", "0.75"],
+[["_RD_MIN_JUDGED", "4"], ["_RD_MIN_ON_AXIS", "1"], ["_RD_DOMINANCE", "0.75"],
  ["_RD_THIN_MIN", "2"], ["_RD_SPLIT_MIN_JUDGED", "6"], ["_RD_SPLIT_MIN_SIDE", "2"],
  ["_RD_MEMBER_FLOOR", "12"]].forEach(([name, val]) => {
   const m = SH.match(new RegExp("var " + name + "\\s*=\\s*([0-9.]+)"));
@@ -200,6 +200,15 @@ lacks(SH, "return stop('record_thin', 'no_primary')",
   "the direction gate refuses for want of a primary again — that is a discount on a recorded vote");
 lacks(SH, "out.primary >= _RD_MIN_PRIMARY",
   "the split-counts gate consults the primary flag again — a package-borne split withholds nothing a primary one publishes");
+lacks(SH, "out.onAxis >= _RD_MIN_ON_AXIS",
+  "the split-counts gate consults the on-axis count — a package-borne split withholds nothing an on-axis one publishes");
+lacks(SH, "return stop('record_thin', 'no_on_axis')",
+  "the direction gate refuses for want of an on-axis act — that is a discount on a recorded vote");
+// The retired leaf flag is read by nothing in the engine.
+lacks(SH, "mapping.isPrimary",
+  "stance-helpers.js reads the retired leaf isPrimary flag again");
+lacks(SH, "out.primary",
+  "the split-counts gate consults the primary flag again — a package-borne split withholds nothing a primary one publishes");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("5 · both mechanisms drift the way the pack claims");
@@ -207,16 +216,38 @@ section("5 · both mechanisms drift the way the pack claims");
 const win = loadEngine(ROOT);
 const rdIndex = win._recordDirectionIndex;
 // The promoted item, and the incidental brushes that surround it in the real corpus.
-const promoted = (isPrimary) => ({
+// The leaf `isPrimary` flag is RETIRED; what the item is "about" is now counted from
+// its mapped categories (_pdxMeasureAxis). ON-AXIS is H.R. 6703 as it really is —
+// four mappings, every one a health key, so healthcare sits in the dominant
+// category. OFF-AXIS is the same healthcare mapping carried by a measure whose
+// other two mappings are both Government Spending keys, so that category wins 2–1
+// and healthcare rides in as cargo. The brushes are off-axis the same way.
+const CARGO = [
+  { issueKey: "national_debt", weight: 100, supportMeaning: MEANING },
+  { issueKey: "lower_taxes", weight: 90, supportMeaning: MEANING },
+];
+const promoted = (onAxis) => ({
   kind: "vote", measureId: 10, number: NUM, position: "yea", isProcedural: false,
   advanceInverted: false, date: "2025-12-17T00:00:00.000Z",
-  issues: [{ issueKey: KEY, weight: WEIGHT, isPrimary, supportMeaning: MEANING }],
+  issues: onAxis
+    ? [{ issueKey: LEADS, weight: 100, supportMeaning: MEANING },
+       { issueKey: KEY, weight: WEIGHT, supportMeaning: MEANING },
+       { issueKey: "healthcare_market", weight: 60, supportMeaning: MEANING },
+       { issueKey: "health_drug_prices", weight: 45, supportMeaning: MEANING }]
+    : [{ issueKey: KEY, weight: WEIGHT, supportMeaning: MEANING }].concat(CARGO),
 });
 const brush = (n, position) => ({
   kind: "vote", measureId: 8000 + n, number: `Filler ${n}`, position, isProcedural: false,
   advanceInverted: false, date: `2025-0${n}-01T00:00:00.000Z`,
-  issues: [{ issueKey: KEY, weight: 45, isPrimary: false, supportMeaning: MEANING }],
+  issues: [{ issueKey: KEY, weight: 45, supportMeaning: MEANING }].concat(CARGO),
 });
+// The fixture's axis is the shipped rule's, not an assumption.
+eq(win._pdxMeasureAxis(promoted(true).issues).axisOf(KEY), "on",
+  "the on-axis H.R. 6703 fixture does not put healthcare in the dominant category");
+eq(win._pdxMeasureAxis(promoted(false).issues).axisOf(KEY), "off",
+  "the off-axis fixture does not put healthcare outside the dominant category");
+eq(win._pdxMeasureAxis(brush(1, "yea").issues).axisOf(KEY), "off",
+  "the brush fixture does not put healthcare outside the dominant category");
 
 // 5a · the direction gate — the 1 member who was refused outright
 {
@@ -225,7 +256,7 @@ const brush = (n, position) => ({
   const without = rdIndex(KEY, [promoted(false), ...items.slice(1)], { memberRecordCount: 999 });
   eq(withIt.token, "record_direction", "four judged items including H.R. 6703 still do not read as a direction");
   eq(withIt.characterised, true, "the read with H.R. 6703 is not characterised");
-  eq(withIt.primary, 1, "exactly one of the four items should be the primary one");
+  eq(withIt.onAxis, 1, "exactly one of the four items should be the on-axis one");
   // THE PROMOTE IS A NO-OP FOR THE READING, AND THAT IS THE DOCTRINE. This read used
   // to be refused outright without the flag (suppressed = 'no_primary') and to
   // characterise with it — so our own curation decided whether four recorded votes
@@ -236,7 +267,7 @@ const brush = (n, position) => ({
   eq(without.token, "record_direction", "…and the same four items read as a direction without it");
   eq(without.characterised, true, "…and are characterised, at full strength");
   eq(without.lead, withIt.lead, "…leaning exactly where the promoted read leans");
-  eq(without.primary, 0, "…with the flag genuinely absent, so this is not a fixture accident");
+  eq(without.onAxis, 0, "…with no act on-axis, so this is not a fixture accident");
 }
 
 // 5b · the split-counts gate — the 107 whose counts open. This is the bulk of the pack,
@@ -285,22 +316,27 @@ const brush = (n, position) => ({
 // ═════════════════════════════════════════════════════════════════════════════
 section("6 · nothing that reads issues[0] moves");
 // ═════════════════════════════════════════════════════════════════════════════
-// vr-pack.ts: list.sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary) || b.weight - a.weight)
+// vr-pack.ts: list.sort((a, b) => b.weight - a.weight || a.issueKey.localeCompare(b.issueKey))
+// The leaf isPrimary flag is retired from the pack, so no flag — promoted or not —
+// can reorder a measure's issue list any more: weight leads, key breaks ties.
 {
-  has(R("netlify/lib/vr-pack.ts"), "Number(b.isPrimary) - Number(a.isPrimary) || b.weight - a.weight",
+  const PACK = R("netlify/lib/vr-pack.ts");
+  has(PACK, "list.sort((a, b) => b.weight - a.weight || a.issueKey.localeCompare(b.issueKey))",
     "the pack's issue sort changed — the ordering proof below no longer describes it");
+  lacks(PACK, "Number(b.isPrimary)", "the pack's issue sort consults the retired isPrimary flag again");
   const issues = [
-    { issueKey: "healthcare_costs",  weight: 100, isPrimary: true },
-    { issueKey: "healthcare",        weight: WEIGHT, isPrimary: true },
-    { issueKey: "healthcare_market", weight: 60,  isPrimary: false },
-    { issueKey: "health_drug_prices", weight: 45, isPrimary: false },
+    { issueKey: "healthcare_costs",  weight: 100 },
+    { issueKey: "healthcare",        weight: WEIGHT },
+    { issueKey: "healthcare_market", weight: 60 },
+    { issueKey: "health_drug_prices", weight: 45 },
   ];
   const sortKeys = (list) => list.slice()
-    .sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary) || b.weight - a.weight)
+    .sort((a, b) => b.weight - a.weight || a.issueKey.localeCompare(b.issueKey))
     .map((i) => i.issueKey).join(" > ");
   const after = sortKeys(issues);
-  const before = sortKeys(issues.map((i) => (i.issueKey === KEY ? { ...i, isPrimary: false } : i)));
-  eq(after, before, "promoting healthcare reordered H.R. 6703's issue list");
+  // A stray legacy flag on the row is inert: the sort does not read it.
+  const flagged = sortKeys(issues.map((i) => (i.issueKey === KEY ? { ...i, isPrimary: true } : i)));
+  eq(flagged, after, "a legacy flag on healthcare reordered H.R. 6703's issue list");
   eq(after.split(" > ")[0], LEADS, "H.R. 6703's headline issue is no longer healthcare_costs");
 }
 

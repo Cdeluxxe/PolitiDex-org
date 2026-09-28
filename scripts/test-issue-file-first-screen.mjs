@@ -417,9 +417,10 @@ console.log(`      /i/${KEY} · ${NUM} · ${sents.length} sentence(s), ${why.len
 console.log(`      "${why.slice(0, 92)}${why.length > 92 ? "…" : ""}"`);
 
 // THE LANE BADGE IS STILL THE LANE BADGE, and the why does not restate it.
-has(ROW, '<span class="d1-led-btag is-primary">PRIMARY</span>',
-  `${NUM}'s row lost the lane badge that says the issue is the bill's own subject`);
-for (const slang of ["PRIMARY", "isPrimary", "weight", "seed"]) {
+// On-axis by category count: the key sits in the bill's main category.
+has(ROW, '<span class="d1-led-btag is-on" data-pdx-axis="on" title="On-axis — same topic as the bill’s main category">on-axis</span>',
+  `${NUM}'s row lost the axis badge that says the issue is in the bill's main category`);
+for (const slang of ["PRIMARY", "isPrimary", "weight", "seed", "on-axis", "off-axis"]) {
   no(why, slang, `the why-line prints curator slang ("${slang}")`);
 }
 
@@ -714,7 +715,7 @@ section("5 · the row is the door, and the why-line is not a second button");
   const build = () => {
     const num = mkNode("button", "d1-bdoor is-num", true);
     const ttl = mkNode("button", "d1-bdoor is-ttl", true);
-    const tag = mkNode("span", "d1-led-btag is-primary", false);
+    const tag = mkNode("span", "d1-led-btag is-on", false);
     const whyEl = mkNode("span", "d1-led-bwhy", false);
     const cite = mkNode("button", "d1-cite", true);
     const row = adopt(mkNode("li", "d1-led-b", false), [num, ttl, tag, whyEl, cite]);

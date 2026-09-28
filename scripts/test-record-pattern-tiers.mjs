@@ -115,7 +115,7 @@ const SPOKEN = ISSUE_KEYS.filter((k) => stanceKeys.has(k))[0];
 // SPLIT:    six votes, three each         → Split, counts stated
 // SHALLOW:  four votes, two each          → Split, counts withheld
 // LOPSIDED: five procedural one way, one full-weight the other → Split, never Mostly
-// INCID:    five one-way votes, none primary → Strongly (a mapped act is an act)
+// INCID:    five one-way votes, all off-axis → Strongly (a mapped act is an act)
 const [STRONG, MOSTLY, UNIFORM, MIXED3, SOLO, SPLIT, SHALLOW, LOPSIDED, INCID] = SILENT;
 if (!STRONG || !MOSTLY || !UNIFORM || !MIXED3 || !SOLO || !SPLIT || !SHALLOW ||
     !LOPSIDED || !INCID || !BALANCE || !SPOKEN) {
@@ -123,6 +123,25 @@ if (!STRONG || !MOSTLY || !UNIFORM || !MIXED3 || !SOLO || !SPLIT || !SHALLOW ||
   process.exit(1);
 }
 
+// OFF-AXIS BY CATEGORY. The leaf `isPrimary` flag is retired and read by nothing;
+// an act is off-axis when its measure's dominant core category is not the
+// issue's. `offAxis: true` lays two filler keys from one other category beside
+// the target, so that category wins 2–1 and the target rides in as cargo.
+const catOf = (k) => { const c = probe.coreIssueForKey(k); return c && c.key ? c.key : "issue:" + k; };
+const FILLERS = (() => {
+  const byCat = {};
+  for (const k of SILENT.slice(9)) {
+    const c = catOf(k);
+    if (c === catOf(INCID) || c.indexOf("issue:") === 0) continue;
+    (byCat[c] = byCat[c] || []).push(k);
+    if (byCat[c].length === 2) return byCat[c];
+  }
+  return null;
+})();
+if (!FILLERS) {
+  console.error("✗ pattern tiers: no two filler keys share a core category other than INCID's");
+  process.exit(1);
+}
 const vote = (n, issueKey, position, opts) => {
   opts = opts || {};
   return {
@@ -130,10 +149,9 @@ const vote = (n, issueKey, position, opts) => {
     date: "2025-0" + ((n % 9) + 1) + "-14", action: "On Passage", position: position,
     isProcedural: !!opts.proc, title: "Measure " + n,
     source: { url: "https://www.congress.gov/roll-call-vote/" + (500 + n), label: "Congress.gov" },
-    issues: [{
-      issueKey: issueKey, weight: 100,
-      isPrimary: opts.primary !== false, supportMeaning: "yea_supports",
-    }],
+    issues: [{ issueKey: issueKey, weight: 100, supportMeaning: "yea_supports" }]
+      .concat(opts.offAxis ? FILLERS.map((k) => (
+        { issueKey: k, weight: 100, supportMeaning: "yea_supports" })) : []),
   };
 };
 const SEED = [];
@@ -150,7 +168,12 @@ SEED.push(vote(75, LOPSIDED, "nay"));
 // every one of them reached through a larger measure. It reads Strongly, with the
 // package sentence beside it — a mapped act is an act, and how it arrived is a
 // disclosure rather than a veto.
-for (let i = 0; i < 5; i++) SEED.push(vote(80 + i, INCID, "yea", { primary: false }));
+for (let i = 0; i < 5; i++) SEED.push(vote(80 + i, INCID, "yea", { offAxis: true }));
+if (probe._pdxMeasureAxis(vote(80, INCID, "yea", { offAxis: true }).issues).axisOf(INCID) !== "off" ||
+    probe._pdxMeasureAxis(vote(0, STRONG, "yea").issues).axisOf(STRONG) !== "on") {
+  console.error("✗ pattern tiers: the fixture's axis is not what the shipped rule computes");
+  process.exit(1);
+}
 SEED.push(vote(90, BALANCE, "nay"), vote(91, BALANCE, "nay"),
           vote(92, BALANCE, "nay"), vote(93, BALANCE, "nay"));
 // A stated position WITH a deep one-way record: both facts, side by side.
@@ -306,7 +329,7 @@ section("4 · fail closed — and the two failures are different");
 
   // ── AND THE PACKAGE-BORNE RECORD IS NOT A SUPPRESSION AT ALL ──────────────
   // This row read "No clear pattern yet" until August 2026, refused by a gate that
-  // consulted our own isPrimary flag: five recorded votes, every one of them one
+  // consulted our own (now retired) isPrimary flag: five recorded votes, every one of them one
   // way, and the profile said there was no pattern because the measures were mainly
   // about something else. One instrument means one official Yea or Nay, and every
   // issue mapped to that instrument gets that vote at full strength — so the row
@@ -321,9 +344,9 @@ section("4 · fail closed — and the two failures are different");
   has(inc.note, "mainly about something else", "…and names the vehicles beside the finding");
   has(inc.note, "counted in full", "…and says the acts are counted in full");
   // THE COMPARISON THAT MAKES IT DOCTRINE RATHER THAN A NUMBER. The identical ledger
-  // with the mappings marked primary reads the identical word.
+  // with the mappings on-axis reads the identical word.
   eq(inc.tier, tierOf(STRONG).tier,
-    "…the same word a primary run all one way reads");
+    "…the same word an on-axis run all one way reads");
   eq(inc.weight, tierOf(STRONG).weight, "…and the same weight, with nothing discounted");
 
   // A member we barely hold a record for: below the coverage floor, no pattern.
@@ -338,11 +361,11 @@ section("4 · fail closed — and the two failures are different");
 
   // Unrecognised index states fail closed too, not open.
   eq(A._recordPatternTier({ token: "record_something_new", total: 3, judged: 3,
-    advances: 3, opposes: 0, primary: 3, counted: true }).tier, "none",
+    advances: 3, opposes: 0, onAxis: 3, counted: true }).tier, "none",
     "a token the engine does not recognise lands on no clear pattern");
   eq(A._recordPatternTier(null), null, "no index means no chip");
   eq(A._recordPatternTier({ token: "record_none", total: 0, judged: 0, advances: 0,
-    opposes: 0, primary: 0 }), null, "an empty record means no chip");
+    opposes: 0, onAxis: 0 }), null, "an empty record means no chip");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

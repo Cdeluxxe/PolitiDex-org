@@ -187,7 +187,7 @@ for (const [name, want] of [
   ['_RD_MIN_JUDGED', '4'],
   ['_RD_DOMINANCE', '0.75'],
   ['_RD_THIN_MIN', '2'],
-  ['_RD_MIN_PRIMARY', '1'],
+  ['_RD_MIN_ON_AXIS', '1'],
   ['_RD_MEMBER_FLOOR', '12'],
 ]) {
   const m = helpers.match(new RegExp(`${name}\\s*=\\s*([0-9.]+)`));

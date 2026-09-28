@@ -372,7 +372,7 @@ section("6 · the act face hides nothing to fit");
   const hiders = BD.filter((r) => /display\s*:\s*none/.test(r.decl) && r.sels.some((s) => s.includes("bd-omni-row")));
   eq(hiders.length, 2, "the ledger's filter is no longer exactly two rules");
   ok(hiders.every((r) => !r.media), "the ledger's filter behaves differently on a phone");
-  ok(hiders.every((r) => /data-bd-view="(main|other)"/.test(r.sels.join(","))),
+  ok(hiders.every((r) => /data-bd-view="(on|off)"/.test(r.sels.join(","))),
     "a ledger row is hidden by something other than the view the reader chose");
   // WHAT IS ALLOWED TO BE FOLDED, AND WHAT IS NOT. Two things on this face ship
   // closed: the section-by-section prose, and a roll call's list of names. Both

@@ -10,14 +10,19 @@
 // getMemberPack. This file runs it.
 //
 // THE ACCEPTANCE IT ANSWERS, in the words of the report: after a fixture that
-// flips one isPrimary, getMemberPack returns the new flag on the NEXT read,
-// without waiting out PACK_TTL_MS — and a twin boot of the stance tree and the
-// dossier on that member/issue agree about what they read.
+// changes one mapping row in place, getMemberPack returns the new mapping on the
+// NEXT read, without waiting out PACK_TTL_MS — and a twin boot of the stance tree
+// and the dossier on that member/issue agree about what they read.
 //
-// F4's promotion of H.R. 6644 | housing to PRIMARY is the flip, because it is the
-// one that actually shipped wrong: live SQL said true, the six-hour blob said
-// false, and one boolean was the whole distance between "Thin supports" and "Not
-// about this issue" on the deploy where a reader met it.
+// The leaf isPrimary flag F4 flipped is RETIRED; on-axis / off-axis is now
+// counted from the measure's mapped issues (_pdxMeasureAxis: the topic category
+// with the most mapped keys is the bill's main category). So the flip here is
+// the in-place UPDATE that moves H.R. 6644 | housing across the axis: the bill
+// carries one extra fixture row in another category (RIDER_E, spending), and its
+// housing_build row is re-keyed between RIDER_K (spending wins, housing rides in
+// OFF-axis) and housing_build (economy wins, housing is ON-axis). One UPDATE, no
+// row count change — F4's shape — and it is still the whole distance between
+// "Thin supports" and a package-only read.
 //
 // HOW REAL THIS IS. netlify/lib/vr-pack.ts is transpiled and EXECUTED here — the
 // shipping mappingVersion(), packKey(), getCachedPack(), writeMemberPack() and
@@ -71,6 +76,10 @@ const MEASURE = "H.R. 6644";
 const KEY = "housing";
 const PAIR = [["curtis", "Thin supports", "support"], ["lee", "Thin opposes", "oppose"]];
 const NOT_ABOUT = "Not about this issue";
+// The other category H.R. 6644 is given a foothold in (spending_debt_waste), and
+// the key its housing_build row is mis-keyed to in the pre-flip world.
+const RIDER_E = "audit_spending";
+const RIDER_K = "cut_spending";
 
 // ═════════════════════════════════════════════════════════════════════════════
 // The fixture database
@@ -120,7 +129,6 @@ const fixture = { voteRows: [], mapping: [], failFingerprint: false };
           measureId: it.measureId,
           issueKey: m.issueKey,
           weight: m.weight,
-          isPrimary: !!m.isPrimary,
           supportMeaning: m.supportMeaning,
           rationale: m.rationale ?? null,
           sourceUrl: "https://example.invalid/mapping",
@@ -135,8 +143,27 @@ const housingRow = fixture.mapping.find(
   (r) => r.measureId.indexOf(MEASURE) === 0 && r.issueKey === KEY
 );
 must(!!housingRow, `the corpus has no ${MEASURE} | ${KEY} mapping to flip`);
-must(housingRow.isPrimary === true,
-  `${MEASURE} | ${KEY} is not PRIMARY in the corpus — the fixture has nothing to flip back to`);
+// The row the flip re-keys: the bill's other economy-category mapping.
+const flipRow = fixture.mapping.find(
+  (r) => r.measureId === housingRow.measureId && r.issueKey === "housing_build"
+);
+must(!!flipRow,
+  `${MEASURE} is no longer mapped to housing_build in the corpus — the fixture has nothing to re-key`);
+must(fixture.mapping.filter((r) => r.measureId === housingRow.measureId).length === 2,
+  `${MEASURE} no longer carries exactly housing + housing_build in the corpus — re-derive the axis fixture`);
+// One extra mapping in another category, present in BOTH worlds, so the re-key
+// alone decides which category is the bill's main one.
+fixture.mapping.push({
+  id: fixture.mapping.reduce((m, r) => Math.max(m, r.id), 0) + 1,
+  measureId: housingRow.measureId,
+  issueKey: RIDER_E,
+  weight: 60,
+  supportMeaning: "yea_supports",
+  rationale: "fixture: a second-category foothold so the axis can move",
+  sourceUrl: "https://example.invalid/mapping",
+});
+const toOffAxis = () => { flipRow.issueKey = RIDER_K; };        // spending 2 · economy 1
+const toOnAxis = () => { flipRow.issueKey = "housing_build"; }; // economy 2 · spending 1
 
 // ── the fingerprint, over the fixture, using the shipping column list ────────
 const PACK_TS = read("netlify/lib/vr-pack.ts");
@@ -151,12 +178,12 @@ must(aggAt > 0, "the fingerprint is no longer a string_agg — this file's hash 
 // Column names in the order the shipping expression concatenates them. Anything
 // that is not a bare snake_case identifier (md5, string_agg, coalesce, order, by,
 // id) is dropped by the filter below.
-const NOISE = new Set(["string_agg", "coalesce", "order", "by", "id", "md5", "as", "h"]);
+const NOISE = new Set(["string_agg", "coalesce", "order", "by", "id", "md5", "as", "h", "empty"]);
 const FP_COLS = [...new Set(
   (FP_SQL.slice(aggAt, FP_SQL.indexOf("from", aggAt)).match(/[a-z_]{3,}/g) || [])
     .filter((w) => !NOISE.has(w))
 )];
-must(FP_COLS.length >= 6,
+must(FP_COLS.length >= 5 && FP_COLS.includes("issue_key"),
   `parsed only ${FP_COLS.length} fingerprint columns out of the shipping SQL (${FP_COLS})`);
 const camel = (s) => s.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
 const fingerprint = () => {
@@ -316,27 +343,53 @@ const request = async (pid, version) => {
   const body = res.status === 200 ? await res.json() : null;
   return { res, body, status: res.status, location: res.headers.get("location") };
 };
+const FILES = [
+  "cmp-data.js", "politician-stances-core.js", "politician-stances-ext.js",
+  "state-senate-stances.js", "stance-helpers.js", "alignment-tool.js",
+  "acct-spotlight-data.js", "say-vs-do.js", "exec-action-data.js", "exec-record.js",
+  "exec-record-ui.js", "consistency.js", "voting-record.js", "word-action.js",
+  "profile-spine.js", "profiles-full.js",
+];
+const boot = () => {
+  const win = makeSandbox();
+  win.console = { log() {}, warn() {}, error() {} };
+  const ctx = vm.createContext(win);
+  win.URLSearchParams = URLSearchParams;
+  win.PROFILES = win.CMP_DATA;
+  for (const f of FILES) vm.runInContext(read(f), ctx, { filename: f });
+  win.PROFILES = win.CMP_DATA;
+  return win;
+};
+
+// Which side of the axis the pack puts H.R. 6644 | housing on, by the SHIPPED
+// helper (stance-helpers.js _pdxMeasureAxis) over the issues the pack serves:
+// true on-axis, false off-axis, null when the pack does not carry the pair.
+let AXIS_WIN = null;
 const flagIn = (pack) => {
+  if (!AXIS_WIN) AXIS_WIN = boot();
+  must(typeof AXIS_WIN._pdxMeasureAxis === "function", "stance-helpers.js no longer exports _pdxMeasureAxis");
   for (const it of (pack && pack.items) || []) {
     if (String(it.number || "").trim() !== MEASURE) continue;
-    for (const m of it.issues || []) if (m && m.issueKey === KEY) return !!m.isPrimary;
+    const issues = it.issues || [];
+    if (!issues.some((m) => m && m.issueKey === KEY)) continue;
+    return AXIS_WIN._pdxMeasureAxis(issues).axisOf(KEY) === "on";
   }
   return null;
 };
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("1 · the flipped flag arrives on the next read, TTL untouched");
+section("1 · the re-keyed mapping arrives on the next read, TTL untouched");
 // ═════════════════════════════════════════════════════════════════════════════
-// The pre-F4 world: housing is mapped but not PRIMARY, and a pack is built and
-// cached under that mapping's version.
-housingRow.isPrimary = false;
+// The pre-flip world: housing is mapped but rides in OFF-axis (the bill's main
+// category is spending), and a pack is built and cached under that version.
+toOffAxis();
 PACK.resetMappingVersionMemo();
 const V_BEFORE = await PACK.mappingVersion();
 ok(/^m[0-9]+-[0-9a-f]{12}$/.test(V_BEFORE), `the pre-flip version is well formed (${V_BEFORE})`);
 
 queryFor = "curtis";
 const stalePack = await PACK.writeMemberPack("curtis", undefined, V_BEFORE);
-eq(flagIn(stalePack), false, "the pre-flip pack carries isPrimary false — the shipped defect");
+eq(flagIn(stalePack), false, "the pre-flip pack puts housing off-axis — the stale mapping");
 eq(writes[writes.length - 1], PACK.packKey("curtis", V_BEFORE),
   "and was persisted under the pre-flip version's key");
 const staleAge = Date.now() - new Date(stalePack.generatedAt).getTime();
@@ -344,14 +397,14 @@ ok(staleAge < PACK_TTL_MS / 100,
   `the cached pack is minutes-fresh by TTL (${staleAge}ms of ${PACK_TTL_MS}ms) — ` +
   "everything below therefore happens with the TTL nowhere near expiry");
 
-// THE PROMOTE. One UPDATE, one boolean, nothing else — F4's own shape.
-housingRow.isPrimary = true;
+// THE RE-KEY. One UPDATE, one row, nothing else — F4's own shape.
+toOnAxis();
 PACK.resetMappingVersionMemo();
 const V_AFTER = await PACK.mappingVersion();
 ok(V_AFTER !== V_BEFORE, `the flip moved the mapping version (${V_BEFORE} → ${V_AFTER})`);
 eq(V_AFTER.split("-")[0], V_BEFORE.split("-")[0],
   "the row count did not move — which is why a hand-bumped counter would have missed this");
-console.log(`      one is_primary flip: ${V_BEFORE} → ${V_AFTER}`);
+console.log(`      one issue_key re-key: ${V_BEFORE} → ${V_AFTER}`);
 
 // The unversioned URL the client asks for, and the hop it is sent on.
 const redirect = await request("curtis", null);
@@ -365,7 +418,7 @@ const readsBefore = reads.length;
 const after = await request("curtis", V_AFTER);
 eq(after.status, 200, "the versioned URL serves a pack");
 eq(flagIn(after.body), true,
-  "THE ACCEPTANCE: the next read carries the flipped isPrimary — no TTL wait");
+  "THE ACCEPTANCE: the next read carries the re-keyed mapping (housing on-axis) — no TTL wait");
 eq(after.body.mappingVersion, V_AFTER, "and says which mapping it was built from");
 ok(reads.slice(readsBefore).includes(PACK.packKey("curtis", V_AFTER)),
   "the read asked for the new version's key");
@@ -399,30 +452,12 @@ section("2 · twin boot: the tree and the dossier read the rebuilt pack alike");
 // the reported deploy. They are asked about the same member and the same issue,
 // from one set of items, and the answers must match each other and the label the
 // live read publishes.
-const FILES = [
-  "cmp-data.js", "politician-stances-core.js", "politician-stances-ext.js",
-  "state-senate-stances.js", "stance-helpers.js", "alignment-tool.js",
-  "acct-spotlight-data.js", "say-vs-do.js", "exec-action-data.js", "exec-record.js",
-  "exec-record-ui.js", "consistency.js", "voting-record.js", "word-action.js",
-  "profile-spine.js", "profiles-full.js",
-];
-const boot = () => {
-  const win = makeSandbox();
-  win.console = { log() {}, warn() {}, error() {} };
-  const ctx = vm.createContext(win);
-  win.URLSearchParams = URLSearchParams;
-  win.PROFILES = win.CMP_DATA;
-  for (const f of FILES) vm.runInContext(read(f), ctx, { filename: f });
-  win.PROFILES = win.CMP_DATA;
-  return win;
-};
-
 const packs = {};
 for (const [pid] of PAIR) {
   queryFor = pid;
   const r = await request(pid, V_AFTER);
   packs[pid] = r.body;
-  eq(flagIn(packs[pid]), true, `${pid}: the rebuilt pack carries the promotion`);
+  eq(flagIn(packs[pid]), true, `${pid}: the rebuilt pack puts housing on-axis`);
 }
 
 const win = boot();
@@ -535,12 +570,12 @@ const sameBytes = (a, b, msg) => {
   }
 
   // NON-VACUITY. The same comparison, across a generation CHANGE, must fail —
-  // otherwise the snapshot above is measuring nothing. Flip housing back to the
-  // pre-F4 state, rebuild, and the housing row must move.
-  housingRow.isPrimary = false;
+  // otherwise the snapshot above is measuring nothing. Re-key back to the
+  // pre-flip state (housing off-axis), rebuild, and the housing row must move.
+  toOffAxis();
   PACK.resetMappingVersionMemo();
   const V_BACK = await PACK.mappingVersion();
-  ok(V_BACK === V_BEFORE, "flipping the flag back returns the generation it came from");
+  ok(V_BACK === V_BEFORE, "re-keying the row back returns the generation it came from");
   const winC = boot();
   for (const [pid] of PAIR) {
     queryFor = pid;
@@ -557,10 +592,10 @@ const sameBytes = (a, b, msg) => {
   }
   eq(moved, PAIR.length, "the comparison has teeth: a generation change moves both members");
 
-  // Back to the promoted world section 3 expects.
-  housingRow.isPrimary = true;
+  // Back to the on-axis world section 3 expects.
+  toOnAxis();
   PACK.resetMappingVersionMemo();
-  eq(await PACK.mappingVersion(), V_AFTER, "and the fixture is restored to the post-F4 mapping");
+  eq(await PACK.mappingVersion(), V_AFTER, "and the fixture is restored to the post-flip mapping");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -616,7 +651,7 @@ eq(await PACK.mappingVersion(), V_AFTER,
   "and the version comes straight back when the table does — the sentinel is not sticky");
 queryFor = "curtis";
 const recovered = await request("curtis", V_AFTER);
-eq(flagIn(recovered.body), true, "the recovered read serves the promoted mapping again");
+eq(flagIn(recovered.body), true, "the recovered read serves the on-axis mapping again");
 eq(recovered.res.headers.get("cache-control"), "public, max-age=300",
   "and a named version is shared-cacheable again");
 
@@ -647,4 +682,4 @@ if (failures.length) {
   process.exit(1);
 }
 console.log(`\n   ${passed} checks passed`);
-console.log("✓ vr-pack-rebuild-on-flip: a promote lands on the next read, and an unnameable mapping is never cached\n");
+console.log("✓ vr-pack-rebuild-on-flip: a mapping change lands on the next read, and an unnameable mapping is never cached\n");

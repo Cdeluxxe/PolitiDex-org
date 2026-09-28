@@ -93,6 +93,7 @@ import execSummaryKeys from "../../db/exec-summary-keys.json" with { type: "json
 // incoming politician id so a request for an id a merge migration has already folded
 // away returns the real record instead of an empty one.
 import { canonicalPid } from "../lib/vr-normalize.js";
+import { measureAxis } from "../lib/vr-axis.js";
 // Offline-pack build/cache lives in the shared lib (shared with the ingest path).
 import {
   getCachedPack,
@@ -378,7 +379,6 @@ type RecordItem = {
   issues: Array<{
     issueKey: string;
     weight: number;
-    isPrimary: boolean;
     supportMeaning: string;
     rationale: string | null;
   }>;
@@ -447,15 +447,15 @@ async function loadIssuesByMeasure(
     list.push({
       issueKey: r.issueKey,
       weight: r.weight,
-      isPrimary: r.isPrimary,
       supportMeaning: r.supportMeaning,
       rationale: r.rationale,
     });
     map.set(r.measureId, list);
   }
-  // Primary issue first, then by descending weight, for stable client rendering.
+  // Descending weight, then key, for stable client rendering. The retired leaf
+  // `isPrimary` flag is not read: order is display only, never membership.
   for (const list of map.values()) {
-    list.sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary) || b.weight - a.weight);
+    list.sort((a, b) => b.weight - a.weight || a.issueKey.localeCompare(b.issueKey));
   }
   return map;
 }
@@ -944,9 +944,11 @@ async function getMemberPack(
 // Read-only. Net distributional summary for an ISSUE as a whole: aggregates the
 // Distributional Impact Ledger rows that concern this issue, by cohort. An impact
 // concerns the issue when its provision is tagged to the issue key, or (for a
-// whole-measure impact with no provision) when the measure's PRIMARY issue is this
-// key — so a bundled megabill contributes each impact only to the issue it actually
-// touches, never to every issue it spans. Additive; same source + cohort guards as
+// whole-measure impact with no provision) when this key is ON-AXIS for the measure —
+// inside its dominant category, counted from its mapped leaf issues (vr-axis.ts;
+// on a split, every tied category) — so a bundled megabill contributes a
+// whole-measure impact to what it is mostly about, never to every rider it spans.
+// The retired leaf `isPrimary` flag is not read. Additive; same source + cohort guards as
 // /measure/:id.
 async function getIssueImpacts(issueKey: string): Promise<Response> {
   if (!assertIssueKey(issueKey)) return json({ error: `Unknown issue key: ${issueKey}` }, 400);
@@ -966,18 +968,24 @@ async function getIssueImpacts(issueKey: string): Promise<Response> {
     .from(vrDistributionalImpacts)
     .leftJoin(vrMeasureProvisions, eq(vrDistributionalImpacts.provisionId, vrMeasureProvisions.id));
 
-  const primaries = await db
+  const mapped = await db
     .select({ measureId: vrMeasureIssues.measureId, issueKey: vrMeasureIssues.issueKey })
-    .from(vrMeasureIssues)
-    .where(eq(vrMeasureIssues.isPrimary, true));
-  const primaryByMeasure = new Map<number, string>();
-  for (const p of primaries) primaryByMeasure.set(p.measureId, p.issueKey);
+    .from(vrMeasureIssues);
+  const keysByMeasure = new Map<number, string[]>();
+  for (const p of mapped) {
+    if (!assertIssueKey(p.issueKey)) continue;
+    const list = keysByMeasure.get(p.measureId) ?? [];
+    list.push(p.issueKey);
+    keysByMeasure.set(p.measureId, list);
+  }
+  const onAxisByMeasure = new Map<number, Set<string>>();
+  for (const [mid, keys] of keysByMeasure) onAxisByMeasure.set(mid, new Set(measureAxis(keys).onAxisKeys));
 
   // Only impacts that concern THIS issue, source-guarded + cohort-validated.
   const relevant = rows.filter((r) => {
     if (!r.sourceUrl || !r.sourceLabel || !IMPACT_COHORTS.has(r.cohort)) return false;
     if (r.provisionId != null) return r.provIssue === issueKey;
-    return primaryByMeasure.get(r.measureId) === issueKey;
+    return onAxisByMeasure.get(r.measureId)?.has(issueKey) ?? false;
   });
   if (!relevant.length) {
     return json({ issueKey, cohortSummary: {}, cohorts: [], measures: [], sources: 0 });
@@ -1455,11 +1463,10 @@ async function getMeasure(measureId: number): Promise<Response> {
     .map((r) => ({
       issueKey: r.issueKey,
       weight: r.weight,
-      isPrimary: r.isPrimary,
       supportMeaning: r.supportMeaning,
       rationale: r.rationale,
     }))
-    .sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary) || b.weight - a.weight);
+    .sort((a, b) => b.weight - a.weight || a.issueKey.localeCompare(b.issueKey));
 
   const rollcalls = await db
     .select()
@@ -2057,7 +2064,7 @@ async function getMeasures(url: URL): Promise<Response> {
 
   const items = pageRows.map((m) => {
     const issues = issuesByMeasure.get(m.id) ?? [];
-    const primary = issues.find((i) => i.isPrimary) ?? issues[0] ?? null;
+    const axis = measureAxis(issues.map((i) => i.issueKey));
     return {
       id: m.id,
       measureType: m.measureType,
@@ -2069,13 +2076,14 @@ async function getMeasures(url: URL): Promise<Response> {
       chamber: m.chamber,
       congress: m.congress,
       introducedAt: m.introducedAt ? m.introducedAt.toISOString() : null,
-      primaryIssue: primary ? primary.issueKey : null,
-      // EVERY primary flag, not just the one that sorted first. An act can be the
-      // subject of two axes at once (H.R. 6644 is a housing act AND a housing-supply
-      // act), and `primaryIssue` can only name one of them - so a caller filtered to
-      // one issue key had no way to tell "this bill's subject" from "rode inside"
-      // for the key it actually asked about.
-      primaryIssueKeys: issues.filter((i) => i.isPrimary).map((i) => i.issueKey),
+      // A MEMBERSHIP HINT ONLY: the first mapped key in weight order, kept so older
+      // cached clients that add it to issueKeys still work. It names no axis.
+      primaryIssue: issues[0] ? issues[0].issueKey : null,
+      // EVERY key inside the measure's dominant category (vr-axis.ts; on a split,
+      // every tied category), counted from the mapped leaf issues — the retired
+      // leaf `isPrimary` flag is not read. A caller filtered to one issue key reads
+      // on-axis / off-axis against the key it actually asked about.
+      onAxisIssueKeys: axis.onAxisKeys,
       issueKeys: issues.map((i) => i.issueKey),
       isOmnibus: issues.length >= 2,
       rollcallCount: rollcallCount[m.id] ?? 0,

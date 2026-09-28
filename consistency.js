@@ -920,7 +920,6 @@
           issueKey: m2.issueKey,
           supportMeaning: _EXEC_MEANING[m2.direction] || 'yea_supports',
           weight: (typeof m2.weight === 'number') ? m2.weight : 100,
-          isPrimary: !!m2.isPrimary,
           plain: m2.plain || '',
           // The curated "why this document counts on THIS issue" sentence, when the
           // seed carries one. It travels per mapping for the same reason `plain`
@@ -2392,6 +2391,7 @@
       '.pdxlg-chip{font-size:0.58rem;padding:0.08rem 0.3rem;border-radius:999px;' +
         'border:1px solid rgba(255,255,255,0.14);color:#9fb4d4;white-space:nowrap;}' +
       '.pdxlg-chip-p{color:#cfe0f8;border-color:rgba(159,219,255,0.4);}' +
+      '.pdxlg-chip-off{border-style:dashed;}.pdxlg-ax{opacity:0.8;font-style:italic;}' +
       // The curator's coding notes, inside the scoring disclosure and labelled
       // as method — never under a vote.
       '.pdxlg-meth{margin-top:0.6rem;padding-top:0.45rem;border-top:1px dashed rgba(255,255,255,0.1);}' +
@@ -6609,12 +6609,12 @@
       var idx = { issueKey: r.key, token: 'record_exec', lead: null,
                   characterised: false, counted: false,
                   judged: 0, advances: 0, opposes: 0, advanceScore: 0, opposeScore: 0,
-                  primary: 0, total: 0, suppressed: null, clause: '', summary: '', label: '' };
+                  onAxis: 0, total: 0, suppressed: null, clause: '', summary: '', label: '' };
       for (var i = 0; i < acts.length; i++) {
         var a = acts[i];
         if (!a || (a.direction !== 'advances' && a.direction !== 'opposes')) continue;
         idx.total++; idx.judged++;
-        if (a.isPrimary) idx.primary++;
+        if (a.onAxis) idx.onAxis++;
         // Unweighted on purpose: an executive action has no mapping weight and no
         // procedural discount to apply, so every act counts once and the two
         // scores are the two counts. Nothing reads them as a magnitude.
@@ -10991,29 +10991,26 @@
   //     mapping cannot say what "advancing" this issue would even mean, so no
   //     direction is claimed from a record that may well be perfectly clear. This
   //     is the shortfall this surface owns, and it says so.
-  // ── IS THE MAPPING ON THE NAMED MEASURE ACTUALLY ABOUT THIS ISSUE? ──────────
-  // WHY THIS EXISTS. `idx.primary` counts primary-mapped acts that were ADMITTED,
-  // JUDGED and NOT SUPERSEDED — three filters that are right for the direction
-  // index and wrong for the sentence below it. A member whose one act on the
-  // measure that WAS about this issue was Present, or was superseded by a later
-  // vote, reads `primary: 0` while the dossier beside it names that measure and
-  // our own mapping calls it primary. "Not about this issue" is then a false
-  // statement about a curated decision we made ourselves, printed over the bill
-  // that decision was about.
+  // ── IS THE NAMED MEASURE ACTUALLY ABOUT THIS ISSUE? ────────────────────────
+  // WHY THIS EXISTS. `idx.onAxis` counts on-axis acts that were ADMITTED, JUDGED
+  // and NOT SUPERSEDED — three filters that are right for the direction index
+  // and wrong for the sentence below it. A member whose one act on the measure
+  // that WAS about this issue was Present, or was superseded by a later vote,
+  // reads `onAxis: 0` while the dossier beside it names that measure.
   //
-  // So the wall over that sentence is asked of the MAPPING ON FILE, not of the
-  // judged subset: does any instrument on file for this (member, issue) carry a
-  // mapping for THIS issue that our seed marks primary? It is the same field the
-  // index reads (`isPrimary`, through the same _dosMapping accessor the dossier
-  // rows use) and the same item list the vehicle read walks — no new source, no
-  // new threshold, and nothing here can grant a direction to anything. It can
-  // only stop one sentence from being printed.
+  // So the wall over that sentence is asked of the MEASURES ON FILE, not of the
+  // judged subset: does any instrument on file for this (member, issue) carry
+  // this issue inside its own dominant category (_pdxMeasureAxis)? Every mapped
+  // instrument is walked and counted in `total`; the axis decides only which of
+  // them the sentence may name. The retired leaf `isPrimary` flag is not read,
+  // no row is skipped for lacking it, and nothing here can grant a direction to
+  // anything. It can only stop one sentence from being printed.
   //
   // Memoised on the epoch idiom _insSpread uses, and asked only from inside the
   // branch it guards, so a dense index pays for it once per refused row that
   // would otherwise have printed the wrong sentence.
   var _pmCache = {}, _pmEpoch = -1;
-  function _primaryOnFile(pid, issueKey) {
+  function _onAxisOnFile(pid, issueKey) {
     var out = { any: false, count: 0, total: 0, idents: [] };
     if (!pid || !issueKey) return out;
     var ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0;
@@ -11023,16 +11020,18 @@
     try {
       var VR = window.PDXVotingRecord;
       var recs = (VR && typeof VR.memberRecords === 'function') ? VR.memberRecords(pid) : null;
-      if (Array.isArray(recs)) {
+      var AX = window._pdxMeasureAxis;
+      if (Array.isArray(recs) && typeof AX === 'function') {
         var seen = Object.create(null);
         for (var i = 0; i < recs.length; i++) {
           var it = recs[i], m = _dosMapping(it, issueKey);
           if (!m) continue;
           out.total++;
-          if (!m.isPrimary) continue;
-          out.count++;
-          var id = String((it && (it.number || it.title)) || '').trim();
-          if (id && !seen[id]) { seen[id] = 1; out.idents.push(id); }
+          if (AX(it.issues).onAxis(issueKey)) {
+            out.count++;
+            var id = String((it && (it.number || it.title)) || '').trim();
+            if (id && !seen[id]) { seen[id] = 1; out.idents.push(id); }
+          }
         }
       }
     } catch (e) {}
@@ -11188,15 +11187,15 @@
       // never a reason to withhold the reading, and never a discount on it.
       //   Two walls had already been built over that rung before it was removed,
       // and both are worth keeping in view because they are why it was unreachable
-      // rather than merely wrong: our own curated mapping may be primary on the
-      // named measure whatever the judged subset came to (_primaryOnFile), and the
+      // rather than merely wrong: our own curated mapping may be on-axis on the
+      // named measure whatever the judged subset came to (_onAxisOnFile), and the
       // display read may already be showing this row a tier, in which case a
       // refusal here would be a second answer to one question on one profile.
       //   `_pmOK` survives because the block at the foot of this function words the
-      // narrow shortfall differently where a primary mapping IS on file.
+      // narrow shortfall differently where an on-axis measure IS on file.
       var _pmOK = false;
-      if ((idx.primary || 0) < 1) {
-        var _pm = _primaryOnFile(r && r.pid, r && r.key);
+      if ((idx.onAxis || 0) < 1) {
+        var _pm = _onAxisOnFile(r && r.pid, r && r.key);
         _pmOK = !!(_pm && _pm.any);
       }
       if (idx.suppressed === 'coverage_floor') {
@@ -11268,8 +11267,8 @@
       // moved. What changed is that the row names its own shape instead of refusing
       // to, and the index and the stance tree now say the same thing about it.
       // ── THE ONE THE WALL ABOVE LEAVES BEHIND ───────────────────────────────
-      // Reached only where the mapping on file IS primary for this issue and the
-      // index still counted no primary act: the instrument that was about this
+      // Reached only where a measure on file carries this issue on its own axis
+      // and the index still counted no on-axis act: the instrument that was about this
       // issue holds nothing judged for this member — Present, Not Voting,
       // superseded by a later act, or otherwise resolved to neither side — while
       // the acts that WERE judged reached the issue through other measures. That
@@ -11277,12 +11276,12 @@
       // It names the measure, claims no direction, and leaves the arithmetic
       // exactly where the ledger has it.
       if (_pmOK) {
-        var _pmn = _primaryOnFile(r && r.pid, r && r.key);
+        var _pmn = _onAxisOnFile(r && r.pid, r && r.key);
         var _pmWhich = (_pmn.idents.length === 1)
           ? ' — ' + _pmn.idents[0] + ' — '
           : (_pmn.idents.length > 1 ? ' — ' + _pmn.idents.slice(0, 3).join(', ') + ' — ' : ' ');
-        return { id: 'primary_unjudged', lb: 'Nothing judged on the measure about it',
-          note: 'The measure on file that our mapping calls primary for this issue' + _pmWhich +
+        return { id: 'axis_unjudged', lb: 'Nothing judged on the measure about it',
+          note: 'The measure on file whose main category holds this issue' + _pmWhich +
             'carries no judged ' + n.one + ' for this member: it was Present, Not Voting, ' +
             'superseded by a later ' + n.one + ', or otherwise resolved to neither side. What was ' +
             'judged here reached this issue through other measures, so no direction is claimed. ' +
@@ -12190,6 +12189,14 @@
   }
   // The narrow-link threshold is the ✒️ section's, read from it rather than copied,
   // so the two surfaces cannot disagree about how much of a document a claim rests on.
+  // The measure's dominant category, from the one shared counter in
+  // stance-helpers.js. Null when that file is not loaded: every chip then prints
+  // with no badge, never with a guessed one.
+  function _dosAxis(issues) {
+    try {
+      return (typeof window._pdxMeasureAxis === 'function') ? window._pdxMeasureAxis(issues || []) : null;
+    } catch (e) { return null; }
+  }
   function _dosNarrowAt() {
     try {
       var U = window.PDXExecRecordUI;
@@ -13818,7 +13825,11 @@
     var pool = ov.execPool || ov.execHeld || null;
     var withMapping = function (item, base) {
       var m = _dosMapping(item, issueKey);
-      base.primary = m ? !!m.isPrimary : null;
+      // ON-AXIS OR OFF-AXIS, from the measure's dominant category — a badge on
+      // the row, never a filter on it. The retired leaf `isPrimary` is not read.
+      var ax = (m && typeof window._pdxMeasureAxis === 'function') ? window._pdxMeasureAxis(item && item.issues) : null;
+      base.axis = ax ? (ax.axisOf(issueKey) || null) : null;
+      base.axisSplit = !!(ax && ax.split);
       base.narrow = !!(m && typeof m.weight === 'number' && m.weight <= narrowAt);
       // PROCEDURAL, IN WORDS, ON THE ROW. The formal pattern used to discount a
       // procedural act to a quarter of its curator weight before deciding what to
@@ -13987,7 +13998,7 @@
           standing: null, power: _dosPower(h.actionClass), effect: '', stance: '',
           plain: h.plain || '', counts: '', rationale: '',
           url: h.sourceUrl || '', srcLabel: h.sourceLabel || 'Primary source',
-          primary: null, narrow: false, multi: false, support: '', item: h.action || null
+          axis: null, axisSplit: false, narrow: false, multi: false, support: '', item: h.action || null
         });
       });
     }
@@ -14175,8 +14186,10 @@
     if (d.counts) return d.counts;
     var lbl = _issueLabel(issueKey) || 'this issue';
     var noun = _dosNoun(d);
-    var link = (d.primary === true) ? 'the primary subject of this ' + noun
-             : (d.primary === false) ? 'one of the subjects this ' + noun + ' was mapped to'
+    var link = (d.axis === 'on') ? (d.axisSplit
+                 ? 'one of the categories this ' + noun + ' is split across'
+                 : 'in this ' + noun + '’s main category')
+             : (d.axis === 'off') ? 'one of the subjects this ' + noun + ' was mapped to, outside its main category'
              : 'mapped to this ' + noun;
     return 'Counted on ' + lbl + ' because that is ' + link +
       (d.narrow ? ', on a link the curation records as a narrow one' : '') + '.';
@@ -15083,14 +15096,15 @@
     var list = (d && d.item && d.item.issues) || [];
     if (!list.length) return '';
     var narrowAt = _dosNarrowAt(), out = [];
+    var ax = _dosAxis(list);
     for (var i = 0; i < list.length; i++) {
       var it = list[i];
       if (!it || it.issueKey === issueKey) continue;
       var lb = _issueLabel(it.issueKey);
       if (!lb) continue;
-      var how = it.isPrimary ? 'the primary link'
-        : (typeof it.weight === 'number' && it.weight <= narrowAt) ? 'a narrow link'
+      var how = (typeof it.weight === 'number' && it.weight <= narrowAt) ? 'a narrow link'
         : 'a supporting link';
+      if (ax && ax.axisOf(it.issueKey) === 'off') how += ', off-axis';
       out.push(lb + ' (' + how + ' there)');
     }
     if (!out.length) return '';
@@ -15243,8 +15257,10 @@
     // weight — see _dosRowHtml. The face carries the "why it counts here" sentence;
     // this carries how squarely, and which other keys the same measure sits on.
     var tags = [];
-    if (d.primary === true) tags.push('<span class="pdxdos-tag pdxdos-tag-p">primary link</span>');
-    else if (d.primary === false) tags.push('<span class="pdxdos-tag">supporting link</span>');
+    if (d.axis === 'on') tags.push('<span class="pdxdos-tag pdxdos-tag-p" data-pdx-axis="on" title="' +
+      escAttr(window._PDX_AXIS_TIP ? window._PDX_AXIS_TIP.on : '') + '">on-axis</span>');
+    else if (d.axis === 'off') tags.push('<span class="pdxdos-tag" data-pdx-axis="off" title="' +
+      escAttr(window._PDX_AXIS_TIP ? window._PDX_AXIS_TIP.off : '') + '">off-axis</span>');
     if (d.narrow) tags.push('<span class="pdxdos-tag pdxdos-tag-n">narrow link</span>');
     if (d.procedural) tags.push('<span class="pdxdos-tag">procedural vote</span>');
     if (tags.length) {
@@ -16564,23 +16580,27 @@
   }
 
   // The other issues this same act is mapped to, as chips. Names only: which way
-  // each of them cut is a question answered on that issue's own sheet, and the
-  // title says how strong the link there is in the vocabulary _dosOtherKeys
-  // already locked.
+  // each of them cut is a question answered on that issue's own sheet.
+  //   ON-AXIS / OFF-AXIS. Each chip wears one badge from the measure's dominant
+  // category (_pdxMeasureAxis): on-axis is the category the bill is mostly about
+  // (or any category a split bill is tied across); off-axis is everything else —
+  // the rider read. The off-axis chip carries one short word; both carry the
+  // tooltip. It is a badge, not a filter: every mapped issue other than this one
+  // is a chip here, whatever its axis, and the retired leaf flag is not read.
   function _dosActChips(d, issueKey) {
     var list = (d && d.item && d.item.issues) || [];
     if (!list.length) return '';
-    var narrowAt = _dosNarrowAt(), out = [];
+    var ax = _dosAxis(list), tip = window._PDX_AXIS_TIP || {}, out = [];
     for (var i = 0; i < list.length; i++) {
       var it = list[i];
       if (!it || !it.issueKey || it.issueKey === issueKey) continue;
       var lb = _issueLabel(it.issueKey);
       if (!lb) continue;
-      var how = it.isPrimary ? 'the primary link there'
-        : (typeof it.weight === 'number' && it.weight <= narrowAt) ? 'a narrow link there'
-        : 'a supporting link there';
-      out.push('<span class="pdxlg-chip' + (it.isPrimary ? ' pdxlg-chip-p' : '') + '"' +
-        ' title="' + escAttr(lb + ' — ' + how) + '">' + esc(lb) + '</span>');
+      var a = ax ? ax.axisOf(it.issueKey) : '';
+      out.push('<span class="pdxlg-chip' + (a === 'on' ? ' pdxlg-chip-p' : a === 'off' ? ' pdxlg-chip-off' : '') + '"' +
+        (a ? ' data-pdx-axis="' + a + '"' : '') +
+        (a && tip[a] ? ' title="' + escAttr(tip[a]) + '"' : '') + '>' + esc(lb) +
+        (a === 'off' ? '<span class="pdxlg-ax"> · off-axis</span>' : '') + '</span>');
     }
     return out.length ? '<span class="pdxlg-chips">' + out.join('') + '</span>' : '';
   }

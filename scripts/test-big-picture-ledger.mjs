@@ -19,9 +19,9 @@
  *      that jumps into them — and since the list arrived primary-first from the
  *      API, the six deleted were the six the curation had already ranked last.
  *   2. RANK. A `primary` badge on one row makes the other thirteen read as
- *      footnotes to it. The curated flag still exists in the data and still
- *      rides the markup, but only as a filter key: it may not set the default
- *      view, and no row may be labelled second-class on arrival.
+ *      footnotes to it. The on-/off-axis read (counted from the act's dominant
+ *      category) rides the markup only as a filter key: it may not set the
+ *      default view, and no row may be labelled second-class on arrival.
  *   3. STANCE-GATED MEMBER ROWS. A member's expansion listed only the topics we
  *      happened to hold a documented stance on, so a fourteen-topic act could
  *      collapse to two. The vote is a fact about all fourteen; the stance
@@ -66,12 +66,10 @@ if (!HR1 || !HR1.issues || HR1.issues.length < 9) {
 const ISSUES = HR1.issues.map((m) => ({
   issueKey: m.issueKey,
   supportMeaning: m.direction === "opposes" ? "yea_opposes" : "yea_supports",
-  isPrimary: !!m.isPrimary,
   weight: m.weight,
   rationale: m.rationale || "",
 }));
 const N = ISSUES.length;
-const PRIMARIES = ISSUES.filter((i) => i.isPrimary).length;
 
 const MEASURE = {
   id: 1, number: "H.R. 1", congress: 119, chamber: "house", status: "enacted",
@@ -140,6 +138,20 @@ async function render(win, capture, data) {
 }
 
 const { win, capture } = boot();
+// The on-axis set, counted here from the category table: each key's core
+// category (coreIssueForKey); the category holding the most keys wins, and a tie
+// puts every tied category on-axis. No flag is read.
+const ON_AXIS = (() => {
+  const cat = {}, count = {};
+  for (const i of ISSUES) {
+    const core = win.coreIssueForKey(i.issueKey);
+    cat[i.issueKey] = core && core.key ? core.key : "issue:" + i.issueKey;
+    count[cat[i.issueKey]] = (count[cat[i.issueKey]] || 0) + 1;
+  }
+  const top = Math.max(...Object.values(count));
+  return ISSUES.filter((i) => count[cat[i.issueKey]] === top).map((i) => i.issueKey);
+})();
+const ON_N = ON_AXIS.length;
 RC.votes = pickVoters(win);
 ROSTER_PIDS.push(...RC.votes.map((v) => v.politicianId));
 const DATA = { measure: MEASURE, issues: ISSUES, rollcalls: [RC], positions: [], provisions: [], actions: [] };
@@ -199,7 +211,7 @@ section("2 · the default view is all topics, and the filter is only a filter");
 {
   eq((HTML.match(/data-bd-view="all"/g) || []).length, 1,
     "the topic list does not open in exactly one state, and that state is all-topics");
-  ok(!/data-bd-view="(main|other)"/.test(HTML),
+  ok(!/data-bd-view="(on|off)"/.test(HTML),
     "the topic list ships with a slice already applied — the default has to be every topic");
   has(HTML, 'data-bd-view-set="all"', "there is no way back to the full list");
   has(HTML, 'aria-pressed="true"', "no view button is marked as the current one");
@@ -210,12 +222,15 @@ section("2 · the default view is all topics, and the filter is only a filter");
   // The lane attribute is a filter key. It has to be present on every row (or the
   // filter would drop rows it cannot classify) and it may not be the thing that
   // decides the order the rows arrive in.
-  eq((HTML.match(/data-bd-lane="(?:main|other)"/g) || []).length, N,
+  eq((HTML.match(/data-bd-lane="(?:on|off)"/g) || []).length, N,
     "some rows carry no lane, so a slice of the list would silently lose them");
-  eq((HTML.match(/data-bd-lane="main"/g) || []).length, PRIMARIES,
-    "the main lane does not match the curated primary mappings");
+  eq((HTML.match(/data-bd-lane="on"/g) || []).length, ON_N,
+    "the on-axis lane does not match the mappings in the act's dominant category");
+  const onKeys = [...HTML.matchAll(/data-bd-lane="on">[\s\S]*?data-issue="([^"]+)"/g)].map((m) => m[1]).sort();
+  eq(JSON.stringify(onKeys), JSON.stringify([...ON_AXIS].sort()),
+    "the rows marked on-axis are not the ones in the act's dominant category");
   // The control only exists when it would actually divide something.
-  const wantFilter = PRIMARIES > 0 && PRIMARIES < N;
+  const wantFilter = ON_N > 0 && ON_N < N;
   eq(HTML.includes("bd-viewfilter"), wantFilter,
     wantFilter ? "the view filter is missing on an act whose mappings split into two lanes"
                : "a view filter is drawn on an act where one of its slices would be empty");
@@ -290,17 +305,17 @@ section("5 · the order is not the curation's ranking, and it can be the reader'
 {
   const order = [...HTML.matchAll(/class="bd-omni-issue bd-omni-link" data-issue="([^"]+)"/g)].map((m) => m[1]);
   eq(order.length, N, "the ledger order could not be read back off the markup");
-  const byWeight = [...ISSUES].sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary) || b.weight - a.weight)
+  const byWeight = [...ISSUES].sort((a, b) => b.weight - a.weight)
     .map((i) => i.issueKey);
   ok(JSON.stringify(order) !== JSON.stringify(byWeight),
-    "the ledger is still in primary-then-weight order — that is the API's sort, not a reader's index");
+    "the ledger is still in weight order — that is the API's sort, not a reader's index");
   // The chips walk the same order as the ledger. Two controls over one list that
   // disagree about its order are two lists, and the reader has to hold both.
   const chips = [...HTML.matchAll(/class="bd-person bd-issuejump" data-issue="([^"]+)"/g)].map((m) => m[1]);
   eq(JSON.stringify(chips), JSON.stringify(order),
     "the jump chips and the topic ledger disagree about the order of the same list");
   // And the library button follows the head of THAT order rather than reaching
-  // past it for whichever row carries the primary flag.
+  // past it for whichever row sits in the dominant category.
   const legis = (HTML.match(/data-legis="([^"]+)"/) || [])[1];
   eq(legis, order[0], "the Legislation-library button jumps to a topic that is not the one heading the list");
 

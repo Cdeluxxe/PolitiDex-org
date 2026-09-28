@@ -21,11 +21,12 @@
 // WHY THE KEY CARRIES A MAPPING VERSION. The live /member/:id read is a query, so
 // it reflects vr_measure_issues the instant a mapping migration lands. The pack is
 // a blob on a six-hour TTL, so for up to six hours it served the OLD mapping —
-// and it disagreed about `isPrimary`, which is not cosmetic: _recordDisplayTier
-// refuses a direction outright below _RD_MIN_PRIMARY, so one stale flag turns a
-// published "Thin supports" into "Not about this issue". Federal wave F4's housing
-// PRIMARY flip was live in Postgres while the pack was still serving
-// isPrimary: false. Versioning the key makes that window zero: a mapping change
+// and it disagreed about which issues a measure carried, which is not cosmetic:
+// the on-axis / off-axis read is counted from the measure's mapped issues, so one
+// stale row changes a published read. (Federal wave F4's regression was a flag
+// flip live in Postgres while the pack still served the old row; the leaf
+// `isPrimary` flag is now retired and unread.) Versioning the key makes that
+// window zero: a mapping change
 // changes the version, the new key misses, and the pack is rebuilt on the next
 // read. The TTL is left alone and now governs only what it was for — roll-call
 // freshness within one mapping version. See mappingVersion() below.
@@ -83,7 +84,7 @@ export function yeaBlocksMeasure(question: string | null | undefined): boolean {
 // matters, because the row count does not move and nobody remembers that a flag
 // flip is a mapping change. md5 over the table's contents notices it for free.
 //
-// WHAT IS IN THE FINGERPRINT: exactly the five fields the pack SERVES (see
+// WHAT IS IN THE FINGERPRINT: exactly the four fields the pack SERVES (see
 // PackIssue) plus the row count. `source_url` and `rationale`'s provenance are
 // deliberately out of it — a corrected citation URL that the pack never sends
 // should not invalidate every member's pack. `rationale` IS in, because the pack
@@ -109,7 +110,7 @@ export async function mappingVersion(): Promise<string> {
       select count(*)::int as n,
              coalesce(md5(string_agg(
                measure_id || ':' || issue_key || ':' || weight || ':' ||
-               is_primary || ':' || support_meaning || ':' || coalesce(rationale, ''),
+               support_meaning || ':' || coalesce(rationale, ''),
                ',' order by id)), 'empty') as h
         from vr_measure_issues
     `)) as any;
@@ -149,7 +150,6 @@ export function packKey(politicianId: string, mv: string): string {
 type PackIssue = {
   issueKey: string;
   weight: number;
-  isPrimary: boolean;
   supportMeaning: string;
   rationale: string | null;
 };
@@ -167,14 +167,13 @@ async function loadIssuesByMeasure(measureIds: number[]): Promise<Map<number, Pa
     list.push({
       issueKey: r.issueKey,
       weight: r.weight,
-      isPrimary: r.isPrimary,
       supportMeaning: r.supportMeaning,
       rationale: r.rationale,
     });
     map.set(r.measureId, list);
   }
   for (const list of map.values()) {
-    list.sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary) || b.weight - a.weight);
+    list.sort((a, b) => b.weight - a.weight || a.issueKey.localeCompare(b.issueKey));
   }
   return map;
 }

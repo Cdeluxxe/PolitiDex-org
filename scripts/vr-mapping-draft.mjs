@@ -20,7 +20,8 @@
 // migration SKELETON.
 //
 // IT DECIDES NOTHING. Every emitted candidate carries decision:"UNDECIDED",
-// supportMeaning:null, weight:null and isPrimary:null. There is no default
+// supportMeaning:null and weight:null — and no isPrimary at all: the leaf flag is
+// retired, and a new mapping does not write it. There is no default
 // direction — netlify/lib/vr-ingest.ts's optional title classifier writes
 // "yea_supports" as a placeholder and is off by default for exactly this reason,
 // and a placeholder direction is the one field a hurried curator would leave
@@ -227,8 +228,8 @@ function checksFor(m, cand) {
       question:
         `Which SECTIONS of ${num} carry ${label}, and what share of the bill are they? ` +
         `A provision does not stop counting because it travelled inside a larger bill — ` +
-        `but a subtitle inside an authorisation is a secondary key at low weight, not a ` +
-        `primary one. Name the sections in the rationale.`,
+        `but a subtitle inside an authorisation is a key at low weight, and off-axis when ` +
+        `it sits outside the bill's main category. Name the sections in the rationale.`,
       answer: null,
     },
     {
@@ -353,9 +354,8 @@ function weightBands() {
     for (const i of m.issues || []) {
       const w = i.weight;
       if (typeof w !== "number") continue;
-      const b = buckets.get(w) || { weight: w, n: 0, primary: 0 };
+      const b = buckets.get(w) || { weight: w, n: 0 };
       b.n++;
-      if (i.isPrimary) b.primary++;
       buckets.set(w, b);
     }
   }
@@ -383,7 +383,7 @@ function draftFor(m, cands) {
     _generatedBy: "scripts/vr-mapping-draft.mjs",
     _notice:
       "DRAFT — NOT APPLIABLE. Every issue below is UNDECIDED: no supportMeaning, no " +
-      "weight, no isPrimary, no rationale. A curator answers every check, fills every " +
+      "weight, no rationale. A curator answers every check, fills every " +
       "null, deletes every candidate they reject, and only then moves the surviving " +
       "rows into db/vr-issue-seed.json by hand. Nothing in this file is a mapping.",
     measure: {
@@ -402,12 +402,11 @@ function draftFor(m, cands) {
       // already shipped. Neither is an acceptance, and neither can be applied.
       decision: c.stored ? "LIVE_UNREVIEWED" : "UNDECIDED",
       stored: c.stored || null,
-      // The three judgements. Null on purpose, and the reason is in _notice: a
+      // The judgements. Null on purpose, and the reason is in _notice: a
       // placeholder direction is the one field a hurried curator would leave standing,
       // and a placeholder direction is a backwards verdict waiting to happen.
       supportMeaning: null,
       weight: null,
-      isPrimary: null,
       rationale: null,
       evidence: {
         from: c.evidence,
@@ -438,9 +437,9 @@ function skeletonSql(m, cands, stampArg) {
   L.push("-- refusal list into this header with reasons, rename to `.sql`, and move it");
   L.push("-- into netlify/database/migrations/ yourself.");
   L.push("--");
-  L.push("-- WHY THE EXPLICIT NULLs ARE THE SAFETY. vr_measure_issues.weight, .is_primary");
-  L.push("-- and .support_meaning are all NOT NULL in db/schema.ts, each with a default.");
-  L.push("-- This skeleton writes an explicit NULL into all three rather than omitting the");
+  L.push("-- WHY THE EXPLICIT NULLs ARE THE SAFETY. vr_measure_issues.weight and");
+  L.push("-- .support_meaning are both NOT NULL in db/schema.ts. This skeleton writes an");
+  L.push("-- explicit NULL into both rather than omitting the");
   L.push("-- columns, so an unedited skeleton that someone renamed and moved into the");
   L.push("-- migrations directory regardless raises a not-null violation instead of quietly");
   L.push("-- inserting the schema defaults — which for support_meaning is 'yea_supports',");
@@ -462,7 +461,7 @@ function skeletonSql(m, cands, stampArg) {
   L.push("-- pack-generation: derived — every row below is a vr_measure_issues write, so");
   L.push("--   mappingVersion() in netlify/lib/vr-pack.ts moves the moment this lands: the");
   L.push("--   row count and the md5 over the ordered (measure_id, issue_key, weight,");
-  L.push("--   is_primary, support_meaning, rationale) tuples both change, the pack key");
+  L.push("--   support_meaning, rationale) tuples both change, the pack key");
   L.push("--   member:<pid>@m<count>-<hash> bumps for every member, and no blob built before");
   L.push("--   the deploy can be served after it — the six-hour PACK_TTL_MS is not what does");
   L.push("--   the retiring. KEEP THIS LINE: it is the declaration CI requires of every");
@@ -492,10 +491,10 @@ function skeletonSql(m, cands, stampArg) {
       (c.matchedInText.length ? ` — text: ${c.matchedInText.join(", ")}` : ""));
     L.push("--   -- REVIEW: backwards read (rule 22) — UNANSWERED");
     L.push("--   -- REVIEW: support_meaning — UNDECIDED (yea_supports | yea_opposes)");
-    L.push("--   -- REVIEW: weight — UNDECIDED · is_primary — UNDECIDED");
+    L.push("--   -- REVIEW: weight — UNDECIDED");
     L.push("--   -- REVIEW: rationale — must name the sections that carry this key");
-    L.push("--   INSERT INTO vr_measure_issues (measure_id, issue_key, weight, is_primary, support_meaning, rationale)");
-    L.push(`--   VALUES (mid, '${c.issueKey}', NULL /* TODO */, NULL /* TODO */, NULL /* TODO */, NULL /* TODO */)`);
+    L.push("--   INSERT INTO vr_measure_issues (measure_id, issue_key, weight, support_meaning, rationale)");
+    L.push(`--   VALUES (mid, '${c.issueKey}', NULL /* TODO */, NULL /* TODO */, NULL /* TODO */)`);
     L.push("--   ON CONFLICT DO NOTHING;");
     L.push("");
   }
@@ -527,7 +526,7 @@ function report(m, cands, drafted) {
   if (m.existing && m.existing.length) {
     W(`  ── Already in db/vr-issue-seed.json (${m.existing.length}) ` + "─".repeat(24));
     for (const i of m.existing) {
-      W(`     ${i.isPrimary ? "★" : " "} ${i.issueKey.padEnd(26)} w${String(i.weight).padStart(3)}  ${i.supportMeaning}`);
+      W(`       ${i.issueKey.padEnd(26)} w${String(i.weight).padStart(3)}  ${i.supportMeaning}`);
     }
     W("     runbook rule 21: the LIVE rationale is the first writer's. Re-asserting");
     W("     does not overwrite it — read what is stored before rewriting a sentence.");
@@ -558,12 +557,11 @@ function report(m, cands, drafted) {
     if (c.stored) {
       W(`       decision     LIVE_UNREVIEWED (this mapping is already shipped)`);
       W(`       direction    ${c.stored.supportMeaning}`);
-      W(`       weight       ${c.stored.weight}` +
-        `${c.stored.isPrimary ? "                 is_primary  yes" : "                  is_primary  no"}`);
+      W(`       weight       ${c.stored.weight}`);
     } else {
       W(`       decision     UNDECIDED`);
       W(`       direction    (undecided — yea_supports | yea_opposes)`);
-      W(`       weight       (undecided)          is_primary  (undecided)`);
+      W(`       weight       (undecided)`);
     }
     for (const ck of c.checks) {
       W("");
@@ -575,7 +573,7 @@ function report(m, cands, drafted) {
   W("  ── Weight bands, as the corpus actually uses them " + "─".repeat(26));
   W("     (guidance only — the emitted rows carry weight:null)");
   for (const b of weightBands()) {
-    W(`       ${String(b.weight).padStart(3)}   ${String(b.n).padStart(3)} row(s), ${b.primary} of them primary`);
+    W(`       ${String(b.weight).padStart(3)}   ${String(b.n).padStart(3)} row(s)`);
   }
   W("");
   if (drafted.length) {
@@ -725,7 +723,6 @@ function main(argv) {
       stored: {
         supportMeaning: i.supportMeaning,
         weight: i.weight,
-        isPrimary: !!i.isPrimary,
       },
     }));
   } else {

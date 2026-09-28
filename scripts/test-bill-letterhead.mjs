@@ -19,11 +19,12 @@
  *   2. THE TEACHING LINE. One recorded vote counts on every mapped topic. That
  *      is the whole doctrine of this archive in one sentence, and it sits above
  *      the topic list rather than in a footnote under it.
- *   3. THE TOPIC TALLY AND ITS CHIPS. N mapped, X the bill's own subject, Y rode
- *      inside — and every one of the N is a chip you can tap, paired with the
+ *   3. THE TOPIC TALLY AND ITS CHIPS. N mapped, X on-axis, Y off-axis (counted
+ *      from the bill's dominant topic category) — and every one of the N is a
+ *      chip you can tap, paired with the
  *      shipped ⓘ scope control. A chip that cannot be tapped is a dead label,
- *      and a dead label is how a rider quietly stops counting. Subject and
- *      rode-inside are drawn the same way because the label is provenance, not
+ *      and a dead label is how a rider quietly stops counting. On-axis and
+ *      off-axis are drawn the same way because the label is provenance, not
  *      weight.
  *   4. THE VOTE STRIP. Yea / Nay / Present / Did not vote, tapping through to
  *      the roll list. No party column, no party breakdown, and no percentage
@@ -56,7 +57,9 @@ const count = (hay, re) => (String(hay).match(re) || []).length;
 
 // ── the fixtures ─────────────────────────────────────────────────────────────
 // H.R. 6644 is the acceptance case for the federal side: a housing bill whose
-// mappings include both housing keys as its own subject plus two riders. The
+// mappings include both housing keys plus the CBDC title — three in the
+// Economy & Cost of Living category, so that is the bill's main category — and
+// one permitting key in a different category, which is therefore off-axis. The
 // pair matters — housing and housing_build are different issue faces, and a
 // reader who taps either has to land on the right one.
 const HR6644 = {
@@ -100,10 +103,10 @@ const HR6644 = {
     source: { url: "https://www.congress.gov/bill/119th-congress/house-bill/6644", label: "Congress.gov" },
   },
   issues: [
-    { issueKey: "housing_build", supportMeaning: "yea_supports", isPrimary: true, rationale: "Preempts local density caps near transit." },
-    { issueKey: "housing", supportMeaning: "yea_supports", isPrimary: true, rationale: "Expands the low-income housing tax credit." },
-    { issueKey: "permitting_reform", supportMeaning: "yea_supports", isPrimary: false, rationale: "Shortens NEPA review windows for housing." },
-    { issueKey: "crypto_cbdc", supportMeaning: "yea_opposes", isPrimary: false, rationale: "" },
+    { issueKey: "housing_build", supportMeaning: "yea_supports", rationale: "Preempts local density caps near transit." },
+    { issueKey: "housing", supportMeaning: "yea_supports", rationale: "Expands the low-income housing tax credit." },
+    { issueKey: "permitting_reform", supportMeaning: "yea_supports", rationale: "Shortens NEPA review windows for housing." },
+    { issueKey: "crypto_cbdc", supportMeaning: "yea_opposes", rationale: "" },
   ],
   rollcalls: [{
     id: 7701, chamber: "house", question: "On Passage", result: "passed", voteDate: "2026-02-11",
@@ -117,6 +120,8 @@ const HR6644 = {
 // Utah H.B. 257: congress is NULL and the sitting lives in externalIds. Anything
 // that reads m.congress to name the session prints nothing here, which is how
 // the state half of the archive used to lose its own identity line.
+// Its two keys sit in two different categories, one each, so the bill is SPLIT:
+// no single main category, both keys on-axis, nothing off-axis.
 const HB257 = {
   measure: {
     id: 4257, number: "H.B. 257", congress: null, chamber: "utah house", status: "enacted",
@@ -131,8 +136,8 @@ const HB257 = {
     source: { url: "https://le.utah.gov/~2024/bills/static/HB0257.html", label: "Utah Legislature" },
   },
   issues: [
-    { issueKey: "lgbtq_rights", supportMeaning: "yea_opposes", isPrimary: true, rationale: "Restricts facility access by birth sex." },
-    { issueKey: "education", supportMeaning: "yea_opposes", isPrimary: false, rationale: "Adds compliance duties for school districts." },
+    { issueKey: "lgbtq_rights", supportMeaning: "yea_opposes", rationale: "Restricts facility access by birth sex." },
+    { issueKey: "education", supportMeaning: "yea_opposes", rationale: "Adds compliance duties for school districts." },
   ],
   rollcalls: [{
     id: 8802, chamber: "utah house", question: "3rd Reading", result: "passed", voteDate: "2024-01-19",
@@ -208,6 +213,19 @@ function head(html) {
 }
 
 const { win, capture } = boot();
+// The on-axis keys, counted here from the category table rather than read off
+// the panel: each key's core category (coreIssueForKey), the category with the
+// most keys wins, and a tie puts every tied category on-axis.
+function expectOnAxis(issues) {
+  const cat = {}, cnt = {};
+  for (const i of issues) {
+    const core = win.coreIssueForKey(i.issueKey);
+    cat[i.issueKey] = core && core.key ? core.key : "issue:" + i.issueKey;
+    cnt[cat[i.issueKey]] = (cnt[cat[i.issueKey]] || 0) + 1;
+  }
+  const top = Math.max(...Object.values(cnt));
+  return issues.filter((i) => cnt[cat[i.issueKey]] === top).map((i) => i.issueKey);
+}
 const FED = await render(win, capture, HR6644);
 const UT = await render(win, capture, HB257);
 const EMPTY = await render(win, capture, BARE);
@@ -324,10 +342,21 @@ section("2 · the teaching line, and the honest empty where there is no vote");
 section("3 · the tally is arithmetic, and every mapped key is a live chip");
 // ═════════════════════════════════════════════════════════════════════════════
 {
+  // The split is pinned by hand as well as counted, so a category-table drift
+  // that quietly turns the fixtures into something else is caught here.
+  has(FED_LH, "4 topics mapped · 3 on-axis · 1 off-axis", "H.R. 6644: the pinned 3-on / 1-off tally moved");
+  has(UT_LH, "2 topics mapped · 2 on-axis · 0 off-axis", "H.B. 257: the pinned split tally moved");
+  has(FED, 'data-bd-axis="one"', "H.R. 6644: the axis line does not name one main category");
+  has(FED, "Main category: ", "H.R. 6644: the axis line does not say what the main category is");
+  has(FED, "— 3 of 4 mapped topics.", "H.R. 6644: the axis line does not count the main category");
+  has(UT, 'data-bd-axis="split"', "H.B. 257: a tied bill is not marked as split");
+  has(UT, "This bill is split across ", "H.B. 257: a tied bill does not say it is split");
+  has(UT, "1 mapped topic in each, so it has no single main category.", "H.B. 257: the split sentence is not the shipped one");
   for (const [name, lh, data] of [["H.R. 6644", FED_LH, HR6644], ["H.B. 257", UT_LH, HB257]]) {
     const n = data.issues.length;
-    const subj = data.issues.filter((i) => i.isPrimary).length;
-    has(lh, `${n} topics mapped · ${subj} this bill’s subject · ${n - subj} rode inside`,
+    const onKeys = expectOnAxis(data.issues);
+    const subj = onKeys.length;
+    has(lh, `${n} topics mapped · ${subj} on-axis · ${n - subj} off-axis`,
       `${name}: the tally does not add up to the mappings the API handed over`);
     eq(count(lh, /class="bd-lh-chip"/g), n, `${name}: one chip per mapped key`);
     // Every chip is a door, and every door is paired with a scope control that
@@ -352,9 +381,17 @@ section("3 · the tally is arithmetic, and every mapped key is a live chip");
     }
     // The lane words appear, and appear the same number of times as the lane
     // they describe — neither is drawn as the bigger number.
-    eq(count(lh, /this bill’s subject<\/span>/g), subj, `${name}: subject chips are not all labelled`);
-    eq(count(lh, /rode inside<\/span>/g), n - subj, `${name}: rode-inside chips are not all labelled`);
+    eq(count(lh, />on-axis<\/span>/g), subj, `${name}: on-axis chips are not all labelled`);
+    eq(count(lh, />off-axis<\/span>/g), n - subj, `${name}: off-axis chips are not all labelled`);
     eq(count(lh, /class="bd-lh-chip-lane"/g), n, `${name}: some chip omits its lane label entirely`);
+    for (const m of data.issues) {
+      const a = onKeys.includes(m.issueKey) ? "on" : "off";
+      ok(new RegExp(`data-issue="${m.issueKey}"[\\s\\S]*?<span class="bd-lh-chip-lane" data-pdx-axis="${a}" title="([^"]*)">${a}-axis</span>`).test(lh),
+        `${name}: ${m.issueKey}'s chip is not badged ${a}-axis`);
+    }
+    // The tooltips, verbatim.
+    if (subj) has(lh, 'title="On-axis — same topic as the bill’s main category"', `${name}: the on-axis tooltip is not the shipped words`);
+    if (n - subj) has(lh, 'title="Off-axis — different topic than the bill’s main category (rider-shaped)"', `${name}: the off-axis tooltip is not the shipped words`);
   }
   // The acceptance pair, named because it is the case that used to fail: two
   // adjacent housing keys, both present, both tappable, resolved to different
@@ -555,8 +592,9 @@ section("6 · the census is first, and the prose is folded under it");
     ok(want && FED_LH.includes(want),
       `${m.issueKey}'s chip is not tinted with the shipped token for that key`);
   }
-  const subjKey = HR6644.issues.find((i) => i.isPrimary).issueKey;
-  const rodeKey = HR6644.issues.find((i) => !i.isPrimary).issueKey;
+  const fedOn = expectOnAxis(HR6644.issues);
+  const subjKey = HR6644.issues.find((i) => fedOn.includes(i.issueKey)).issueKey;
+  const rodeKey = HR6644.issues.find((i) => !fedOn.includes(i.issueKey)).issueKey;
   ok(win.PDXIssueColors.styleFor(subjKey) !== undefined && win.PDXIssueColors.styleFor(rodeKey) !== undefined,
     "the colour module cannot resolve one of the fixture's keys");
   // No second palette for provenance: the lane is a word on the chip, and the
@@ -603,8 +641,8 @@ section("7 · the guards are load-bearing (mutations must break the claims)");
 
   // (a) cut the chip list the way the old jump chips were cut.
   const cut = await renderMutant(
-    mutate("var chips = ordered.map(function (it) {\n      var lane = it.isPrimary",
-           "var chips = ordered.slice(0, 2).map(function (it) {\n      var lane = it.isPrimary", "chip truncation"),
+    mutate("var chips = ordered.map(function (it) {\n      var a = ax ? ax.axisOf(it.issueKey)",
+           "var chips = ordered.slice(0, 2).map(function (it) {\n      var a = ax ? ax.axisOf(it.issueKey)", "chip truncation"),
     HR6644);
   ok(count(letterhead(cut), /class="bd-lh-chip"/g) < HR6644.issues.length,
     "a truncated chip list still renders every chip — the per-key count is not actually measuring the chips");
@@ -623,11 +661,11 @@ section("7 · the guards are load-bearing (mutations must break the claims)");
   ok(!letterhead(nosit).includes("2024 General Session"),
     "the Utah session line survives the removal of the only read that produces it");
 
-  // (d) let the tally count only the bill's own subject, the way a primary gate would.
+  // (d) let the tally count only the on-axis mappings, the way a membership gate would.
   const gated = await renderMutant(
-    mutate("var rode = ordered.length - subj;", "var rode = 0;", "rode-inside tally"),
+    mutate("var off = ax ? ordered.length - on : 0;", "var off = 0;", "off-axis tally"),
     HR6644);
-  ok(!letterhead(gated).includes("2 rode inside"),
+  ok(!letterhead(gated).includes("1 off-axis"),
     "the tally arithmetic reports the right number even when the source stops computing it");
 
   // (e) cut the colour tokens off the chips.

@@ -552,7 +552,7 @@ section("7 · The curated seed and the migration agree");
   // The floors themselves are untouched by this pack.
   const sh = R("stance-helpers.js");
   [["_RD_MIN_JUDGED", "4"], ["_RD_DOMINANCE", "0.75"], ["_RD_THIN_MIN", "2"],
-   ["_RD_MIN_PRIMARY", "1"], ["_RD_MEMBER_FLOOR", "12"]].forEach(([name, val]) => {
+   ["_RD_MIN_ON_AXIS", "1"], ["_RD_MEMBER_FLOOR", "12"]].forEach(([name, val]) => {
     const m = sh.match(new RegExp("var " + name + "\\s*=\\s*([0-9.]+)"));
     eq(m && m[1], val, `${name} moved — a data pass may not buy coverage by lowering a floor`);
   });

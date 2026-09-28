@@ -58,8 +58,8 @@
 //      somebody else already published — by HIDING rows the builder printed. The
 //      builder's string does not change when a chip is pressed, which is the
 //      only way claim 2 survives a filter at all. No party chip, no sort.
-//  13. HOW THE ISSUE MOVED, IN COUNTS. PRIMARY vs provision vs procedural,
-//      primary-only vs package-only vs mixed, the acts by class, the locked menu
+//  13. HOW THE ISSUE MOVED, IN COUNTS. on-axis vs off-axis vs procedural,
+//      on-axis only vs package-only vs mixed, the acts by class, the locked menu
 //      sentence where it applies — all of it one more field on the census the
 //      desk already computed, behind the same busy gate as the inventory, and a
 //      sponsorship is never called a vote.
@@ -1684,9 +1684,10 @@ section("13 · Opening a slice of the list");
     `${LKEY} now files ${P.package} package-only people — the omit-at-0 branch needs a key with none`);
   eq(veh.filter((x) => x.val === "package").length, 0,
     "the package-only chip was painted on a key with no package-only people");
-  eq(veh.map((x) => `${x.val}:${x.n}`).join(","), `primary:${P.primary},mixed:${P.mixed}`,
-    "the vehicle chips are not the census's own primary/mixed figures, in the row's order");
-  eq(veh.map((x) => x.label).join(" · "), "Primary-only · Mixed",
+  eq(veh.map((x) => `${x.val}:${x.n}`).join(","), [["standalone", P.standalone], ["mixed", P.mixed]].filter(([, n]) => n > 0).map(([v, n]) => `${v}:${n}`).join(","),
+    "the vehicle chips are not the census's own standalone/mixed figures, in the row's order");
+  eq(veh.map((x) => x.label).join(" · "),
+    [["standalone", "On-axis only"], ["mixed", "Mixed"]].filter(([v]) => P[v] > 0).map(([, lb]) => lb).join(" · "),
     "the vehicle chips are not the words the work order names");
 
   // ── CHAMBER: THE ROSTER'S OWN CLASSIFIER, FOLDED TO THREE ────────────────
@@ -1855,7 +1856,7 @@ section("13 · Opening a slice of the list");
     must(P, `${k} publishes no proc.people`);
     eq(P.package, c.pkg, `${k}: the vehicle read and the census's pkg figure disagree`);
     const html = w.PDXDoor1.issueProfile(k);
-    const want = [["primary", "Primary-only"], ["package", "Package-only"], ["mixed", "Mixed"]]
+    const want = [["standalone", "On-axis only"], ["package", "Package-only"], ["mixed", "Mixed"]]
       .filter(([v]) => P[v] > 0);
     const got = [...html.matchAll(/data-pdx-sl="veh" data-pdx-sv="([a-z]+)"[^>]*>([^<]*)<span class="d1-led-cn">(\d+)</g)]
       .map((m) => [m[1], m[2].trim(), Number(m[3])]);
@@ -1914,13 +1915,19 @@ section("13 · Opening a slice of the list");
     return n;
   };
 
-  const w = warmAll(boot({ path: `/i/${LKEY}` }));
+  // THE COMPOSED SLICE NEEDS A MIXED POPULATION. climate_action's ten measures
+  // are all on-axis now (its mapped keys sit in its own category), so nobody on
+  // it is "mixed" and the vehicle axis would have nothing to narrow. The pass is
+  // driven over national_debt, which files a cut-against band deep enough to
+  // fold and people in both the on-axis-only and mixed vehicles.
+  const SKEY = "national_debt";
+  const w = warmAll(boot({ path: `/i/${SKEY}` }));
   await arriveAt(w);
   await tick(); await tick(); await tick();
   w.PDXIssueFile.repaint();
   const body = ledgerOf(w);
-  const c = w.PDXDoor1.issueCensus(LKEY);
-  must(c && !c.cold, `${LKEY} did not settle`);
+  const c = w.PDXDoor1.issueCensus(SKEY);
+  must(c && !c.cold, `${SKEY} did not settle`);
 
   // The rows, and the fold they were painted inside, read back out of the markup.
   const rows = [...body.matchAll(/<li class="d1-led-p"[^>]*>/g)].map((m) => {
@@ -1943,10 +1950,10 @@ section("13 · Opening a slice of the list");
   // The tree: the filter row, then one section per band in the census's order,
   // each with its heading count, its preview and its own fold over the rest.
   const root = nd("host");
-  const box = nd("d1-led-slice", { "data-pdx-slice": LKEY });
+  const box = nd("d1-led-slice", { "data-pdx-slice": SKEY });
   const chipNodes = [];
   for (const [kind, vals] of [["dir", (c.bands || []).filter((b) => b.n).map((b) => b.id)],
-                              ["veh", ["primary", "mixed"]], ["ch", ["senate", "house", "state"]]]) {
+                              ["veh", ["standalone", "mixed"]], ["ch", ["senate", "house", "state"]]]) {
     for (const v of vals) {
       const chip = nd("d1-led-chip", { "data-pdx-sl": kind, "data-pdx-sv": v, "aria-pressed": "false" });
       chipNodes.push(chip);
@@ -2212,15 +2219,20 @@ section("14 · How this issue was tested");
 //     rather than duplicating one card of it;
 //   · no percentage, no Direction Match, no inferred stance, and nothing the
 //     menu's own wall scanner objects to.
+// ON-AXIS BY COUNT: every one of climate_action's measures now sits in its own
+// category, so it files measures in one band only. national_debt files both
+// on-axis and off-axis measures and no package-only people, which is what the
+// partition and the omit-at-0 claims below need.
+const PKEY = "national_debt";
 {
-  const w = warmAll(boot({ path: `/i/${LKEY}` }));
+  const w = warmAll(boot({ path: `/i/${PKEY}` }));
   await arriveAt(w);
   await tick(); await tick(); await tick();
   w.PDXIssueFile.repaint();
   const head = headOf(w);
   const body = ledgerOf(w);
-  const c = w.PDXDoor1.issueCensus(LKEY);
-  must(c && !c.cold && !c.pending, `${LKEY} never settled — the process block cannot be reached`);
+  const c = w.PDXDoor1.issueCensus(PKEY);
+  must(c && !c.cold && !c.pending, `${PKEY} never settled — the process block cannot be reached`);
   const pr = c.proc || null;
   must(pr, "the census publishes no `proc` — the letterhead has nothing to print and would have to count");
   must(typeof w.PDXIssueFile._proc === "function", "issue-file.js does not publish _proc()");
@@ -2247,14 +2259,14 @@ section("14 · How this issue was tested");
   must(mRaw, "there is no measures row in the process block");
   const mLine = flat(mRaw);
   const BANDS = M.bands || [];
-  must(BANDS.length > 1, `${LKEY} files measures in one band only — this section needs a key with more`);
+  must(BANDS.length > 1, `${PKEY} files measures in one band only — this section needs a key with more`);
   const wantM = BANDS.filter((b) => b.n).map((b) => `${b.n} ${b.lb}`).join(" · ");
   eq(mLine, wantM, "the measures line is not the census's own per-band figures");
   // THE THREE FIGURES PARTITION THE TOTAL. This is stronger than the split it
   // replaced: every measure the inventory counted is in exactly one band, which
   // is what lets each figure be a door — a figure that jumped to a band holding
   // a different number of cards would be a count of nothing a reader can check.
-  eq(M.primary + M.provision + M.procedural, c.measures,
+  eq(M.onAxis + M.offAxis + M.procedural, c.measures,
     "the three band figures do not account for every measure the census mapped to this key");
   eq(M.total, c.measures, "the process block counted a different number of measures than the inventory");
   eq(BANDS.reduce((n, b) => n + b.n, 0), M.total,
@@ -2272,10 +2284,10 @@ section("14 · How this issue was tested");
   // ── THE PEOPLE LINE, AND THE ZEROES DROPPED ───────────────────────────────
   const P = pr.people || {};
   const pLine = rowOf("People");
-  const wantP = [["primary", "primary-only"], ["package", "package-only"], ["mixed", "mixed"]]
+  const wantP = [["standalone", "on-axis only"], ["package", "package-only"], ["mixed", "mixed"]]
     .filter(([k]) => P[k] > 0).map(([k, lb]) => `${P[k]} ${lb}`).join(" · ");
   eq(pLine, wantP, "the people line is not the census's own vehicle figures with the zeroes dropped");
-  must(P.package === 0, `${LKEY} now files package-only people — the omit-at-0 branch needs a key with none`);
+  must(P.package === 0, `${PKEY} now files package-only people — the omit-at-0 branch needs a key with none`);
   no(pLine, "package-only", "the people line printed a 0 bucket instead of dropping it");
   no(pLine, " 0 ", "the people line printed a zero");
   // AND THE TWO LINES ARE ALLOWED TO DISAGREE, because they answer different
@@ -2290,7 +2302,7 @@ section("14 · How this issue was tested");
   const CLS = w._PDX_ACT_CLASSES || null;
   must(CLS && CLS.floor && CLS.sponsor, "_PDX_ACT_CLASSES is not published — the acts line would have to invent nouns");
   eq(aLine, A.map((a) => a.lb).join(" · "), "the acts line is not the census's own pre-worded act counts");
-  ok(A.length > 0, `${LKEY} has no acts on file — this claim has nothing to check`);
+  ok(A.length > 0, `${PKEY} has no acts on file — this claim has nothing to check`);
   ok(A.every((a) => ["floor", "committee_vote", "sponsor"].indexOf(a.k) >= 0),
     "the acts line counted an act class the work order does not name");
   for (const a of A) {
@@ -2309,7 +2321,7 @@ section("14 · How this issue was tested");
   // ── THE OPTIONAL LAST LINE: COUNTS, NEVER A SHARE ─────────────────────────
   const S = pr.stances || {};
   const sLine = rowOf("Stances");
-  ok(S.said > 0, `${LKEY} holds no sourced stances — this claim has nothing to check`);
+  ok(S.said > 0, `${PKEY} holds no sourced stances — this claim has nothing to check`);
   has(sLine, `${S.said} sourced stance`, "the stances line is not the census's own sourced-stance count");
   if (S.crossed) {
     has(sLine, `${S.crossed} whose formal row runs the other way`,
@@ -2359,7 +2371,7 @@ section("14 · How this issue was tested");
     eq(Number(sec), b.n, `the ${b.id} band's own heading counts a different number than the letterhead sent a reader to find`);
   }
   // …and the block does not reprint one measure card: no number, no title, no
-  // PRIMARY pill. Naming a measure here would be a second measure list.
+  // on-axis badge. Naming a measure here would be a second measure list.
   for (const t of ["H.R. ", "H.J.Res", "S. ", "d1-led-b", "Who voted on it"]) {
     no(blk, t, `the process block reprints the measure list ("${t}") instead of jumping to it`);
   }
@@ -2376,7 +2388,7 @@ section("14 · How this issue was tested");
   eq(w.PDXIssueFile.seeMeasures("d1-led-meas-not_a_key"), false,
     "the jump throws rather than answering false on an anchor that is not on the page");
   w.document.getElementById = real;
-  console.log(`      /i/${LKEY} · ${mLine} · ${pLine} · ${aLine} · ${sLine}`);
+  console.log(`      /i/${PKEY} · ${mLine} · ${pLine} · ${aLine} · ${sLine}`);
 }
 
 // ── THE BUSY GATE, ON THE PROCESS BLOCK TOO ─────────────────────────────────
@@ -2386,14 +2398,15 @@ section("14 · How this issue was tested");
 // and publishing it early is exactly how a reader learns to trust a number that
 // was not ready.
 {
-  const w = boot({ path: `/i/${LKEY}` });   // NOT settled: the field stays out
+  const w = boot({ path: `/i/${PKEY}` });   // NOT settled: the field stays out
   await arriveAt(w);
   const head = headOf(w);
   has(ledgerOf(w), "Reading the full record for", "the ledger dropped its own honesty line");
   has(head, "Reading the record on this key", "the letterhead published while the read was out");
   no(head, "pdxif-proc", "the process block printed under a live read");
   no(head, "How this issue was tested", "the process heading printed under a live read");
-  no(head, "PRIMARY", "the letterhead published a measure label while the read was out");
+  no(head, "on-axis", "the letterhead published a measure label while the read was out");
+  no(head, "off-axis", "the letterhead published a measure label while the read was out");
   const figures = (head.replace(/<[^>]*>/g, " ").match(/\d+/g) || []);
   eq(figures.join(","), "", `the letterhead published figures (${figures.join(", ")}) while the read was out`);
   // …and it appears on the same paint the inventory does, off one repaint.
@@ -2432,8 +2445,10 @@ section("14 · How this issue was tested");
   const w = warmAll(boot({ path: "/" }));
   const MENU = w.PDXConsistency.menu;
   const seen = {};
-  // A key whose every mapped measure was a provision.
-  for (const [k, want] of [["health_drug_prices", "provision_only"]]) {
+  // A key whose every mapped measure is off-axis. health_drug_prices used to be
+  // this key; by category count one of its measures is now on-axis, so the
+  // sentence would be untrue there. health_rural's one measure is off-axis.
+  for (const [k, want] of [["health_rural", "provision_only"]]) {
     await tapKey(w, k);
     await tick(); await tick(); await tick();
     const c = w.PDXDoor1.issueCensus(k);
@@ -2519,7 +2534,7 @@ section("14 · How this issue was tested");
       `the procedural-gate sentence printed on a key holding substantive measures: ${wrong.join(", ")}`);
     console.log(`      procedural_gate wired, ordered, quotable · fires on ${gated} keys today`);
   }
-  // climate_action triggers none of the three — it holds PRIMARY measures and
+  // climate_action triggers none of the three — it holds on-axis measures and
   // substantive acts — and a block that printed one anyway would be saying
   // something untrue about a record that had its own vote.
   await tapKey(w, LKEY);
@@ -2565,7 +2580,7 @@ section("14 · How this issue was tested");
     if (!p) { ok(false, `${k}: the census publishes people but no proc`); continue; }
     eq(p.people.package, c.pkg, `${k}: the package-only figure is not the census's own pkg`);
     eq(p.measures.total, c.measures, `${k}: the process block counts a different measure total`);
-    eq(p.measures.primary + p.measures.provision + p.measures.procedural, c.measures,
+    eq(p.measures.onAxis + p.measures.offAxis + p.measures.procedural, c.measures,
       `${k}: the three band figures do not account for every mapped measure`);
     ok(p.measures.procedural <= p.measures.total, `${k}: more measures are procedural than exist`);
     // …and the bands the desk PUBLISHED are the same partition, with no empty
@@ -2574,7 +2589,7 @@ section("14 · How this issue was tested");
       `${k}: the published bands hold a different number of measures than the total`);
     ok((p.measures.bands || []).every((b) => b.n > 0 && b.id && b.lb && b.at),
       `${k}: a published measure band is empty or unaddressable`);
-    ok(p.people.primary + p.people.package + p.people.mixed <= c.people,
+    ok(p.people.standalone + p.people.package + p.people.mixed <= c.people,
       `${k}: the vehicle figures claim more people than the census filed`);
     ok(p.stances.said <= c.people, `${k}: more sourced stances than people on file`);
     ok(p.stances.crossed <= p.stances.said,
@@ -2928,18 +2943,20 @@ section("15 · The measures, in bands, one row per instrument");
     must(typeof real === "function", "PDXBills.listSync is gone — the index-side union has no source to perturb");
     const base = real.call(dw.PDXBills);
     const items = (base.items || []).slice();
-    // A number this key already files as PRIMARY, offered a second time as a
-    // provision of the same key. Same instrument, one door, two labels — which is
-    // the only disagreement a fold could swallow that a reader would want back.
+    // A number this key already files as on-axis, offered a second time as an
+    // off-axis mapping of the same key: the index copy maps it to two
+    // spending_debt_waste keys plus this one, so its main category is another
+    // topic BY COUNT. Same instrument, one door, two badges — which is the only
+    // disagreement a fold could swallow that a reader would want back.
     const provNum = "H.J.Res. 88";
     ok(items.some((b) => String(b && b.number) === provNum),
       `${provNum} is no longer in the bills index — this probe needs a number both sources know`);
-    ok(cardOf(body, provNum).indexOf(">PRIMARY<") >= 0,
-      `${provNum} is not PRIMARY on this key, so a provision copy of it disagrees with nothing`);
+    ok(cardOf(body, provNum).indexOf(">on-axis<") >= 0,
+      `${provNum} is not on-axis on this key, so an off-axis copy of it disagrees with nothing`);
     dw.PDXBills.listSync = () => ({
       items: items.concat([{ measureId: "probe-mixed-label", number: provNum,
         title: "Congressional disapproval — index copy",
-        primaryIssue: "energy_production", issueKeys: [LKEY] }]),
+        primaryIssue: "cut_spending", issueKeys: ["cut_spending", "lower_taxes", LKEY] }]),
     });
     await arriveAt(dw);
     await tick(); await tick(); await tick();
@@ -2950,13 +2967,13 @@ section("15 · The measures, in bands, one row per instrument");
       `${provNum} became two rows once its two appearances disagreed about the label`);
     eq((dh.match(/class="d1-led-balt"/g) || []).length, 1,
       "the card that folded a label disagreement does not disclose it, or discloses it more than once");
-    has(dh, "Also on file as a provision mapping of this key",
+    has(dh, "Also on file as an off-axis mapping of this key",
       "the folded card does not name the other label its instrument arrived under");
     has(dh, "the same instrument, folded into this row",
       "the folded card does not say that the second appearance is the same instrument");
     // AND THE STRONGEST LABEL WINS THE FACE, so the disclosure is never the only
-    // place a PRIMARY mapping is mentioned.
-    has(cardOf(dh, provNum), ">PRIMARY<", "the folded card dropped the PRIMARY label one of its appearances carried");
+    // place an on-axis mapping is mentioned.
+    has(cardOf(dh, provNum), ">on-axis<", "the folded card dropped the on-axis badge one of its appearances carried");
     dw.PDXBills.listSync = real;
     console.log(`      a label disagreement on ${provNum} → 1 row, disclosed inside the card`);
   }
@@ -3031,7 +3048,7 @@ section("15 · The measures, in bands, one row per instrument");
     const pband = mk("d1-led-band");
     const phead = mk("d1-led-bn");
     phead.textContent = "1";
-    const person = mk("d1-led-p", { "data-pdx-led-band": "advanced", "data-pdx-led-veh": "primary",
+    const person = mk("d1-led-p", { "data-pdx-led-band": "advanced", "data-pdx-led-veh": "standalone",
       "data-pdx-led-ch": "representative", "data-pdx-led-nm": "someone" });
     pband.kids.push(phead, person);
     const mband = mk("d1-led-mband");
@@ -3071,9 +3088,9 @@ section("15 · The measures, in bands, one row per instrument");
 
   // ── THE WALLS, OVER THE MEASURE SECTION ───────────────────────────────────
   // THE VOTE STILL COUNTS, and the sentence that says so is the one that shipped.
-  has(sect, "PRIMARY means the measure was about this issue; a provision means it carried it inside " +
-    "something larger. Either way the vote counts — the label is here so you can see which it was.",
-    "the PRIMARY-vs-provision sentence was reworded by the banding");
+  has(sect, "On-axis means this issue is in the measure’s main category; off-axis means it rode in " +
+    "from a different topic. Either way the vote counts — the badge is here so you can see which it was.",
+    "the on-axis-vs-off-axis sentence was reworded by the banding");
   // …and each band says it again in its own terms, because a reader who folded
   // straight to the provision band never read the sentence above it.
   const notes = [...sect.matchAll(/<p class="d1-led-bnote">([\s\S]*?)<\/p>/g)].map((m) => m[1]);
@@ -3082,7 +3099,7 @@ section("15 · The measures, in bands, one row per instrument");
     const at = sect.indexOf(`is-${id}" id=`);
     const note = (sect.slice(at).match(/<p class="d1-led-bnote">([\s\S]*?)<\/p>/) || [])[1] || "";
     must(note, `the ${id} band has no note`);
-    if (id !== "primary") {
+    if (id !== "on") {
       has(note, "vote still counts",
         `the ${id} band's note does not say the vote counts, which is the wall this label exists under`);
     }
@@ -3424,7 +3441,7 @@ section("16 · A partial census does not wear a finished heading");
       sec.add(nd("d1-led-bh").add(nd("d1-led-bt", null, "Cut against it"), nd("d1-led-bn", null, "3")));
       const list = nd("d1-led-people");
       for (let i = 0; i < 3; i++) {
-        list.add(nd("d1-led-p", { "data-pdx-led-band": "against", "data-pdx-led-veh": "primary",
+        list.add(nd("d1-led-p", { "data-pdx-led-band": "against", "data-pdx-led-veh": "standalone",
                                   "data-pdx-led-ch": "house", "data-pdx-led-nm": "x" }));
       }
       sec.add(list);
@@ -3495,8 +3512,8 @@ section("16 · A partial census does not wear a finished heading");
   has(head2, "pdxif-inv", "the letterhead's inventory never returned after the settle");
   has(head2, "How this issue was tested", "the process block never returned after the settle");
   has(head2, "pdxif-pjump", "the process figures stopped being doors into the measure bands");
-  has(head2, "PRIMARY", "the process line lost its PRIMARY figure");
-  has(head2, "provision", "the process line lost its provision figure");
+  has(head2, "on-axis", "the process line lost its on-axis figure");
+  has(head2, "off-axis", "the process line lost its off-axis figure");
   console.log(`      settled · ${ledeOf(body2).replace(/\s+/g, " ").slice(0, 60)} · ` +
     `bands ${bandsIn(body2).join(" ")} · chips ${chips2.length} · process jumps present`);
 
@@ -3678,7 +3695,7 @@ section("16 · A partial census does not wear a finished heading");
         host.add(box);
         const sec = mk("d1-led-band is-against");
         for (let i = 0; i < 3; i++) {
-          sec.add(mk("d1-led-p", { "data-pdx-led-band": "against", "data-pdx-led-veh": "primary",
+          sec.add(mk("d1-led-p", { "data-pdx-led-band": "against", "data-pdx-led-veh": "standalone",
                                    "data-pdx-led-ch": "house", "data-pdx-led-nm": "x" }));
         }
         host.add(sec);

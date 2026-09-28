@@ -14,12 +14,12 @@
 // suite is the wall around that:
 //
 //   1. NOTHING IS DECIDED. Every emitted candidate carries decision UNDECIDED,
-//      supportMeaning null, weight null, isPrimary null and rationale null, and
+//      supportMeaning null, weight null and rationale null (and no retired isPrimary), and
 //      every check's answer is null. No code path in the file assigns a direction.
 //   2. THE DRAFT SAYS IT IS A DRAFT. _status, _requiresHumanConfirmation and a
 //      notice that names what a human still has to do.
 //   3. THE SKELETON CANNOT BE APPLIED. Every SQL line is commented out, the file
-//      extension is not .sql, the INSERT writes explicit NULLs into three NOT NULL
+//      extension is not .sql, the INSERT writes explicit NULLs into two NOT NULL
 //      columns, and it refuses to create a measure it cannot find.
 //   4. IT REFUSES TO WRITE WHERE OUTPUT BECOMES INPUT. Not into
 //      netlify/database/migrations/, not into db/, not via a `..` walk into either.
@@ -80,7 +80,7 @@ section("1 · nothing is decided");
     eq(c.decision, "UNDECIDED", `${c.issueKey}: decision is not UNDECIDED`);
     eq(c.supportMeaning, null, `${c.issueKey}: a direction was supplied by the tool`);
     eq(c.weight, null, `${c.issueKey}: a weight was supplied by the tool`);
-    eq(c.isPrimary, null, `${c.issueKey}: isPrimary was supplied by the tool`);
+    ok(!("isPrimary" in c), `${c.issueKey}: the draft still carries the retired isPrimary flag — new mappings do not write it`);
     eq(c.rationale, null, `${c.issueKey}: a rationale was written by the tool`);
     ok(c.checks.length >= 5, `${c.issueKey}: fewer than five checks`);
     ok(c.checks.every((k) => k.answer === null),
@@ -141,9 +141,10 @@ section("3 · the skeleton cannot be applied");
   // an unedited skeleton someone renamed anyway throws instead of inserting the
   // schema default direction.
   const schema = R("db/schema.ts");
-  for (const col of ["weight", "is_primary", "support_meaning"]) {
+  for (const col of ["weight", "support_meaning"]) {
     has(sql, col, `the skeleton does not name ${col}`);
   }
+  ok(!/is_primary/.test(sql), "the skeleton still writes is_primary — the leaf flag is retired and new mappings do not write it");
   ok(/supportMeaning: text\("support_meaning"\)\.notNull\(\)/.test(schema),
     "support_meaning is no longer NOT NULL in db/schema.ts — the skeleton's explicit-NULL safety net depends on it");
   ok(/weight: integer\(\)\.notNull\(\)/.test(schema),
@@ -339,7 +340,7 @@ section("7 · the vocabulary is the shipped one");
   ok(!!hr1 && (hr1.issues || []).length >= 3, "H.R. 1 is no longer in the corpus with its mappings");
   const auditCands = hr1.issues.map((i) => ({
     issueKey: i.issueKey, label: M.labelOf(i.issueKey), matchedInTitle: [], matchedInText: [],
-    evidence: "existing", stored: { supportMeaning: i.supportMeaning, weight: i.weight, isPrimary: !!i.isPrimary },
+    evidence: "existing", stored: { supportMeaning: i.supportMeaning, weight: i.weight },
   }));
   const audit = M.draftFor({ ...MEASURE, number: "H.R. 1", existing: hr1.issues }, auditCands);
   ok(audit.candidates.every((c) => c.decision === "LIVE_UNREVIEWED"),
