@@ -16814,8 +16814,9 @@
   // that fills "What it did", and carried on the item as `effLine`; the table only
   // prints it. Source, in order:
   //   · _DOS_EFFECT below — a short line for a (measure, congress, issue) whose
-  //     `did` is too long to stand under a row. Each is written from that pair's
-  //     own `did` and from nothing else. Kept here rather than as a new slot on
+  //     `did` is too long to stand under a row, or that has no `did` at all.
+  //     Each is written from that pair's own `did` — or, with none, from the
+  //     measure's title and its mapping on this issue — and from nothing else. Kept here rather than as a new slot on
   //     the _DOS_MECH entry because that map is append-only: a sentence a reader
   //     has already seen on a live row is not a later pass's to edit.
   //   · the pair's `did`, when it is already one sentence short enough.
@@ -16828,13 +16829,32 @@
     'H.J.Res. 131|119|lands_preserve':
       'Removed the conservation withdrawal from roughly 1.2 million acres inside the Arctic National Wildlife Refuge.',
     'H.J.Res. 140|119|lands_preserve':
-      'Struck the order closing about 225,504 acres of Minnesota national forest above the Boundary Waters to mineral and geothermal leasing.'
+      'Struck the order closing about 225,504 acres of Minnesota national forest above the Boundary Waters to mineral and geothermal leasing.',
+    // Cut Federal Red Tape. Each line names the rule the act took off the books
+    // and that it barred a like one — which is the red-tape effect, and is the
+    // same act's lands or energy effect read from a different side. H.J.Res. 88
+    // and 89 carry no curated `did` on this issue; their lines are written from
+    // the measure's own title and its mapping here, and nothing is clipped.
+    'H.J.Res. 44|118|gov_regulation':
+      'Would have nullified the ATF rule on pistols fitted with stabilizing braces and barred its reissue; it failed in the Senate 49-50.',
+    'H.J.Res. 25|119|gov_regulation':
+      'Nullified the IRS rule making decentralized-finance software report users’ crypto trades as a broker, and barred a similar rule.',
+    'H.J.Res. 88|119|gov_regulation':
+      'Struck the EPA waiver letting California enforce Advanced Clean Cars II, and barred a substantially similar waiver.',
+    'H.J.Res. 89|119|gov_regulation':
+      'Struck the EPA waiver letting California enforce its own heavy-duty truck emission rules, and barred a substantially similar waiver.',
+    'S.J.Res. 18|119|gov_regulation':
+      'Nullified the CFPB’s December 2024 overdraft rule for the largest banks and barred a substantially similar rule.',
+    'H.J.Res. 131|119|gov_regulation':
+      'Voided the BLM’s 2024 Arctic refuge leasing decision under the Congressional Review Act and barred a substantially similar one.'
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
+  // The item is already a row on this issue, so the pair is mapped whether or
+  // not a curated `did` exists; a short line stands on that alone.
   function _dosEffectLine(item, issueKey, mech) {
-    if (!mech || !item) return '';
+    if (!item || !issueKey) return '';
     var k = String(item.number == null ? '' : item.number).trim() + '|' + item.congress + '|' + issueKey;
-    var s = String(_DOS_EFFECT[k] || mech.did || '').replace(/\s+/g, ' ').trim();
+    var s = String(_DOS_EFFECT[k] || (mech && mech.did) || '').replace(/\s+/g, ' ').trim();
     if (!s || s.length > 140 || !/[.!?]$/.test(s)) return '';
     if (/[.!?]\s+["\u201c(]?[A-Z0-9]/.test(s.replace(/\bU\.S\./g, 'US'))) return '';
     if (_DOS_EFFECT_METHOD.test(s)) return '';
