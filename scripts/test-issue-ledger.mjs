@@ -1100,6 +1100,117 @@ section("13 · Cut Federal Red Tape scans — Lee, six acts, six lines");
   }
 }
 
+// ═════════════════════════════════════════════════════════════════════════════
+section("14 · the harvest — every stored did, read against the effect rule");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  // The pass that asked "which stored `did` sentences can stand under a row"
+  // walked every (measure, congress, issue) pair in _DOS_MECH and found nothing
+  // to promote: every `did` that is one sentence of at most 140 characters is
+  // already printed by the short-did fallback, and every other one is two
+  // sentences or too long, which this archive does not clip or rewrite. So the
+  // effect table stays at its eight hand-written lines, and this section pins
+  // both halves of that finding so a later pass cannot quietly copy a `did` into
+  // the table, clip one, or drop one the fallback should print.
+  const lift = (name) => {
+    const src = R("consistency.js"), a = src.indexOf(`var ${name} = {`);
+    must(a !== -1, `${name} is not in consistency.js in the form this file reads`);
+    return vm.runInNewContext("(" + src.slice(a + `var ${name} = `.length, src.indexOf("\n  };", a) + 4) + ")");
+  };
+  const MECH = lift("_DOS_MECH"), EFFECT = lift("_DOS_EFFECT");
+  const norm = (s) => String(s || "").replace(/\s+/g, " ").trim();
+  // The request's rule, which is the renderer's rule plus the coding words it
+  // names that the renderer's list does not, and a subject check: the act does
+  // the verb, never the archive.
+  const harvestFault = (s) => {
+    const f = effectFault(s);
+    if (f) return f;
+    if (/…|\.\.\./.test(s)) return "is a clip";
+    if (/\b(?:isPrimary|on-axis)\b/i.test(s)) return "carries method vocabulary";
+    if (/\b(?:PolitiDex|we|our|this chip|this issue)\b/i.test(s)) return "is about the archive, not the act";
+    return "";
+  };
+
+  // THE EIGHT SHIPPED LINES, byte for byte.
+  const SHIPPED = {
+    "H.J.Res. 131|119|lands_preserve": "Removed the conservation withdrawal from roughly 1.2 million acres inside the Arctic National Wildlife Refuge.",
+    "H.J.Res. 140|119|lands_preserve": "Struck the order closing about 225,504 acres of Minnesota national forest above the Boundary Waters to mineral and geothermal leasing.",
+    "H.J.Res. 44|118|gov_regulation": "Would have nullified the ATF rule on pistols fitted with stabilizing braces and barred its reissue; it failed in the Senate 49-50.",
+    "H.J.Res. 25|119|gov_regulation": "Nullified the IRS rule making decentralized-finance software report users’ crypto trades as a broker, and barred a similar rule.",
+    "H.J.Res. 88|119|gov_regulation": "Struck the EPA waiver letting California enforce Advanced Clean Cars II, and barred a substantially similar waiver.",
+    "H.J.Res. 89|119|gov_regulation": "Struck the EPA waiver letting California enforce its own heavy-duty truck emission rules, and barred a substantially similar waiver.",
+    "S.J.Res. 18|119|gov_regulation": "Nullified the CFPB’s December 2024 overdraft rule for the largest banks and barred a substantially similar rule.",
+    "H.J.Res. 131|119|gov_regulation": "Voided the BLM’s 2024 Arctic refuge leasing decision under the Congressional Review Act and barred a substantially similar one.",
+  };
+  eq(Object.keys(EFFECT).sort().join(" · "), Object.keys(SHIPPED).sort().join(" · "), "the effect table is not the eight shipped lines");
+  for (const [k, v] of Object.entries(SHIPPED)) eq(EFFECT[k], v, `${k}: the shipped effect line changed`);
+
+  // THE WALK. Every stored `did`, sorted into the ones the rule admits and the
+  // ones it does not, and why.
+  const pairs = Object.entries(MECH).filter(([, v]) => norm(v && v.did));
+  const admit = new Map(), refuse = new Map();
+  for (const [k, v] of pairs) {
+    const f = harvestFault(norm(v.did));
+    if (f) refuse.set(k, f); else admit.set(k, norm(v.did));
+  }
+  ok(pairs.length > 200, `only ${pairs.length} stored did(s) — the walk did not find the store`);
+  // Nothing to promote: an admitted `did` already prints through the fallback,
+  // so a copy in the effect table would be a second home for one sentence.
+  const promoted = Object.keys(EFFECT).filter((k) => !(k in SHIPPED));
+  for (const k of Object.keys(EFFECT)) {
+    ok(!admit.has(k), `${k}: the effect table carries a line the short-did fallback already prints`);
+    ok(!MECH[k] || norm(EFFECT[k]) !== norm(MECH[k].did), `${k}: the effect table copies the stored did`);
+  }
+  console.log(`      ${pairs.length} stored measure×issue did(s) · ${admit.size} already one short sentence and printed by the fallback · ` +
+    `${refuse.size} refused · ${promoted.length} promoted`);
+
+  // THE FALLBACK PRINTS EXACTLY THE ADMITTED ONES. Wherever an admitted pair is
+  // a row, its `did` is the line under it; wherever a refused pair is a row and
+  // the table has no line for it, the row has no extra paragraph at all.
+  let seenAdmit = 0, seenRefuse = 0, lit = new Set();
+  const extraRows = [];
+  for (const x of WITH) {
+    const h = drawer(x.pid, x.key), tb = table(h);
+    const lines = new Map([...tb.matchAll(/<tr class="pdxlg-effr" data-pdxlg-effr="(\d+)"><td colspan="5" class="pdxlg-eff" data-pdxlg-eff="1">([\s\S]*?)<\/td><\/tr>/g)].map((m) => [Number(m[1]), text(m[2])]));
+    if (lines.size) lit.add(key(x));
+    for (const p of x.t.rows) {
+      const it = (p.d && p.d.item) || {};
+      const mk = `${String(it.number || "").trim()}|${it.congress}|${x.key}`;
+      const have = lines.get(p.i) || "";
+      if (have) eq(harvestFault(have), "", `${key(x)} ${p.d.ident}: a printed line breaks the harvest rule`);
+      if (have && have === norm(p.d.title)) fails.push(`${key(x)} ${p.d.ident}: the bill title is its effect line`);
+      if (EFFECT[mk]) continue;
+      if (admit.has(mk)) { seenAdmit++; eq(have, admit.get(mk), `${key(x)} ${p.d.ident}: an admitted did is not the line under its row`); }
+      else if (refuse.has(mk)) {
+        seenRefuse++;
+        if (have) fails.push(`${key(x)} ${p.d.ident}: a refused did (${refuse.get(mk)}) printed an effect line`);
+        if (new RegExp(`data-pdxlg-effr="${p.i}"`).test(tb)) extraRows.push(key(x));
+      }
+    }
+  }
+  eq(extraRows.length, 0, "a row with no qualifying did grew an extra paragraph");
+  ok(seenAdmit > 0 && seenRefuse > 0, `the sweep saw ${seenAdmit} admitted and ${seenRefuse} refused row(s) — both kinds must exist`);
+  console.log(`      ${lit.size} drawer(s) print at least one effect line · 0 of them gained one in this pass`);
+
+  // LEE × WATER stays mute. The infrastructure act's water `did` runs past 140
+  // characters, so the row under it prints nothing — and nothing was written to
+  // make it speak.
+  const W = "H.R. 3684|117|water";
+  must(MECH[W], `${W} is no longer stored — this check needs a new mute pair`);
+  ok(refuse.has(W), `${W}: the stored did now passes the rule — re-read the smoke`);
+  ok(!(W in EFFECT), `${W}: a water line was written into the effect table`);
+  const lw = WITH.find((x) => x.pid === "lee" && x.key === "water");
+  if (lw) {
+    const tb = table(drawer("lee", "water"));
+    for (const p of lw.t.rows) {
+      const it = (p.d && p.d.item) || {};
+      if (`${String(it.number || "").trim()}|${it.congress}|water` === W) {
+        no(tb, `data-pdxlg-effr="${p.i}"`, "lee × water: the infrastructure act grew an effect line");
+      }
+    }
+  }
+}
+
 // ── verdict ──────────────────────────────────────────────────────────────────
 console.log("");
 if (fails.length) {
