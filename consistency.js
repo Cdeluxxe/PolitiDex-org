@@ -2363,7 +2363,6 @@
       '.pdxlg-tally b{color:#e8eefc;font-weight:700;}' +
       '.pdxlg-side{font-size:0.72rem;color:#8fa2c0;line-height:1.5;}' +
       '.pdxlg-same{margin-top:0.2rem;font-size:0.72rem;color:#f0cd8c;line-height:1.5;}' +
-      '.pdxlg-why-one{margin-top:0.3rem;font-size:0.7rem;color:#93a6c4;line-height:1.5;}' +
       '.pdxlg-g{margin-top:0.5rem;}' +
       '.pdxlg-gh{font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;' +
         'letter-spacing:0.08em;font-size:0.64rem;color:#8fa2c0;margin-bottom:0.15rem;}' +
@@ -2386,8 +2385,12 @@
       '.pdxlg-chip{font-size:0.58rem;padding:0.08rem 0.3rem;border-radius:999px;' +
         'border:1px solid rgba(255,255,255,0.14);color:#9fb4d4;white-space:nowrap;}' +
       '.pdxlg-chip-p{color:#cfe0f8;border-color:rgba(159,219,255,0.4);}' +
-      '.pdxlg-whyr td{border-top:none;padding-top:0;}' +
-      '.pdxlg-why{font-size:0.68rem;color:#93a6c4;line-height:1.5;}' +
+      // The curator's coding notes, inside the scoring disclosure and labelled
+      // as method — never under a vote.
+      '.pdxlg-meth{margin-top:0.6rem;padding-top:0.45rem;border-top:1px dashed rgba(255,255,255,0.1);}' +
+      '.pdxlg-meth-k{font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;' +
+        'letter-spacing:0.06em;font-size:0.6rem;color:#7e93b3;}' +
+      '.pdxlg-meth-l{margin:0.2rem 0 0;padding-left:1rem;font-size:0.68rem;color:#93a6c4;line-height:1.5;}' +
       // What they said, beside the acts and never inside them.
       '.pdxlg-said{margin-top:0.6rem;padding:0.35rem 0.55rem;border-radius:0.2rem;' +
         'border-left:2px solid rgba(245,217,160,0.45);background:#ffffff06;}' +
@@ -16677,12 +16680,12 @@
       out += '<div class="pdxlg-same">All ' + t.acts + ' acts are the same measure — ' +
         esc(t.ident) + '.</div>';
     }
-    // ONE SENTENCE FOR THE MEASURE when every row would print the same one. A
-    // rationale repeated under each of three rows is not three explanations.
-    var whys = t.rows.map(function (p) { return p.why; });
-    var oneWhy = (t.rows.length > 1 && whys[0] &&
-      whys.every(function (w) { return w === whys[0]; })) ? whys[0] : '';
-    if (oneWhy) out += '<div class="pdxlg-why-one">' + esc(oneWhy) + '</div>';
+    // NO SENTENCE UNDER THE VOTES. The table used to print the mapping rationale
+    // under each row, and that prose is how the archive CODED the act — "follows
+    // the H.J.Res. 78 precedent", "filed as the primary row rather than as the
+    // mirror" — not what the vote was. A stranger reading it under a Yea learns
+    // our bookkeeping instead of the record. It now lives behind the scoring
+    // disclosure, labelled as method — see _dosMethodNotesHtml.
     var GROUPS = [
       { id: 'change', h: 'Tried to change it', rows: [] },
       { id: 'result', h: 'Voted on the result', rows: [] }
@@ -16707,12 +16710,6 @@
         '<table class="pdxlg-t"><thead><tr>' +
           '<th>Date</th><th>Measure</th><th>Kind</th><th>Vote</th><th>Also on</th>' +
         '</tr></thead><tbody>';
-      // ONE SENTENCE PER MEASURE, NOT PER ROW. Two passage votes on H.R. 1 nine
-      // weeks apart carry the same curated rationale — it is a fact about the
-      // bill, not about the day — so it is printed under the first act of that
-      // measure and not again. Keyed on measure AND sentence, so a measure whose
-      // rows genuinely carry different notes still prints both.
-      var saidWhy = Object.create(null);
       for (j = 0; j < g.rows.length; j++) {
         var p = g.rows[j], d = p.d;
         // The bill number is the door it already is everywhere else on this sheet:
@@ -16720,23 +16717,47 @@
         // resolvable file prints the identity as text rather than as a dead control.
         var num = _billDoor('pdxlg-num', d.billNum, d.billSit, d.ident,
           esc(d.ident || d.billNum || 'Measure'));
-        var why = oneWhy ? '' : p.why;
-        var wkey = String(d.ident || '') + ' :: ' + why;
-        if (why && saidWhy[wkey]) why = '';
-        saidWhy[wkey] = 1;
         out += '<tr data-pdxlg-row="' + p.i + '">' +
             '<td class="pdxlg-d">' + esc(_dosDay(d.date) || '') + '</td>' +
             '<td>' + num + '</td>' +
             '<td class="pdxlg-k">' + esc(p.kind.word) + '</td>' +
             '<td class="pdxlg-v pdxlg-v-' + p.vote.cls + '">' + esc(p.vote.word) + '</td>' +
             '<td>' + _dosActChips(d, issueKey) + '</td>' +
-          '</tr>' +
-          (why ? '<tr class="pdxlg-whyr"><td></td>' +
-            '<td colspan="4" class="pdxlg-why">' + esc(why) + '</td></tr>' : '');
+          '</tr>';
       }
       out += '</tbody></table></div>';
     }
     return out + '</div>';
+  }
+
+  // HOW THE ROWS WERE CODED, where a reader who asks for method can find it.
+  //
+  // The curator's note on each mapped act — which precedent set its weight, why
+  // it is the primary row and not the mirror — is method, not record. It is
+  // printed once per measure inside the scoring disclosure, under a label that
+  // says so, and never under a vote. Only a note actually written for the row is
+  // listed: the bill title the ledger used to fall back to is not a method note,
+  // and the table already names the bill.
+  function _dosMethodNotesHtml(t) {
+    if (!t || !t.rows || !t.rows.length) return '';
+    var seen = Object.create(null), li = [];
+    var rows = t.rows.slice().sort(function (a, b) {
+      return String(a.d.date || '').localeCompare(String(b.d.date || ''));
+    });
+    for (var i = 0; i < rows.length; i++) {
+      var d = rows[i].d;
+      if (!d || !String(d.rationale || '').trim()) continue;
+      var why = rows[i].why || '', id = String(d.ident || d.billNum || 'Measure');
+      var k = id + ' :: ' + why;
+      if (!why || seen[k]) continue;
+      seen[k] = 1;
+      li.push('<li><b>' + esc(id) + '</b> — ' + esc(why) + '</li>');
+    }
+    if (!li.length) return '';
+    return '<div class="pdxlg-meth" data-pdxlg-meth="1">' +
+      '<div class="pdxlg-meth-k">Method notes · how these rows were coded, not what the vote was</div>' +
+      '<ul class="pdxlg-meth-l">' + li.join('') + '</ul>' +
+    '</div>';
   }
 
   function _dosSummaryHtml(pid, issueKey, r, opts) {
@@ -17313,7 +17334,7 @@
       (_lgOn
         ? '<details class="pdxgap-how" data-pdxgap-how="1">' +
             '<summary><span aria-hidden="true">⚖️</span> How this is scored</summary>' +
-            '<div class="pdxgap-how-b">' + _scoredBody + '</div>' +
+            '<div class="pdxgap-how-b">' + _scoredBody + _dosMethodNotesHtml(_lgT) + '</div>' +
           '</details>'
         : _scoredBody) +
       // ── L2 ── every instrument on this issue, closed. It sits below the two

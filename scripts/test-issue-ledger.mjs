@@ -35,6 +35,8 @@
 //      percentage in the drawer are what HEAD says they are.
 //   9. THE PASS STAYED IN ITS LANE. No equity copy, and the homepage gate,
 //      /voice, the SD-3 board, the money pills and the FD tables are untouched.
+//  10. THE VOTE, NOT HOW WE CODED IT. No curator rationale under a row or on
+//      the first screen; it lives behind the disclosure, labelled as method.
 //
 //   node scripts/test-issue-ledger.mjs
 //
@@ -533,9 +535,9 @@ section("9 · the pass stayed in its lane");
   // Every class the new markup uses has a rule, or the table ships unstyled.
   for (const c of [
     "pdxlg", "pdxlg-find", "pdxlg-find-q", "pdxlg-tally", "pdxlg-side", "pdxlg-same",
-    "pdxlg-why-one", "pdxlg-g", "pdxlg-gh", "pdxlg-t", "pdxlg-d", "pdxlg-num", "pdxlg-k",
+    "pdxlg-g", "pdxlg-gh", "pdxlg-t", "pdxlg-d", "pdxlg-num", "pdxlg-k",
     "pdxlg-v", "pdxlg-v-y", "pdxlg-v-n", "pdxlg-v-o", "pdxlg-chips", "pdxlg-chip",
-    "pdxlg-chip-p", "pdxlg-whyr", "pdxlg-why", "pdxlg-said", "pdxlg-said-k",
+    "pdxlg-chip-p", "pdxlg-meth", "pdxlg-meth-k", "pdxlg-meth-l", "pdxlg-said", "pdxlg-said-k",
     "pdxlg-said-v", "pdxlg-said-src", "pdxgap-how", "pdxgap-how-b",
   ]) {
     ok(new RegExp("'\\." + c.replace(/-/g, "\\-") + "[{ >,:]").test(CSJ) ||
@@ -611,6 +613,96 @@ section("9 · the pass stayed in its lane");
            : "the v" + m[1] + " log entry does not carry this pass's changelog line");
   ok(entry.split("\n").length <= 48, `the v${m[1]} log entry runs ${entry.split("\n").length} lines, over the 48-line budget`);
   has(SW, "'/consistency.js'", "consistency.js is not precached, so the new drawer can arrive against an old shell");
+}
+
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("10 · the vote, not how we coded it — Lee × Protect Public Lands");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  // The curator's words for how a row was coded. None of them is a fact about
+  // the vote, and none may sit on the first screen of a drawer that has one.
+  const VOCAB = ["precedent", "mirror", "discriminator", "vocabulary carries no", "primary row"];
+  // Everything wrong with a drawer's first screen, as a list, so the same check
+  // can be run against a mutated renderer and be seen to fail there.
+  const leaks = (h, t) => {
+    const out = [];
+    const l = lede(h), tb = table(h);
+    for (const cls of ["pdxlg-why", "pdxlg-whyr", "pdxlg-why-one"]) {
+      if (new RegExp('class="' + cls + '"').test(l)) out.push(`.${cls} is on the first screen`);
+    }
+    // Every table body row is an act row. A second row under a vote is prose.
+    const trs = (tb.match(/<tbody>[\s\S]*?<\/tbody>/g) || []).join("").match(/<tr[\s>]/g) || [];
+    const acts = (tb.match(/data-pdxlg-row="/g) || []).length;
+    if (trs.length !== acts) out.push(`${trs.length - acts} non-act row(s) in the vote table`);
+    // And no curated rationale is in the first screen at all.
+    for (const p of (t && t.rows) || []) {
+      const d = p.d || {};
+      if (!String(d.rationale || "").trim() || !p.why) continue;
+      const esc = p.why.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+      if (l.includes(esc) || text(l).includes(p.why)) out.push(`method note for ${d.ident} is on the first screen`);
+    }
+    return out;
+  };
+
+  const r = CS.issueRow("lee", "lands_preserve");
+  const t = CS.dossierTally("lee", "lands_preserve", r.ov);
+  const h = drawer("lee", "lands_preserve");
+  must(h.length > 2000, "lee × lands_preserve rendered nothing");
+  const l = text(lede(h)), tb = text(table(h));
+  eq(t.bills, 2, "lee × lands_preserve: not 2 measures");
+  eq(t.acts, 2, "lee × lands_preserve: not 2 acts");
+  eq(`${t.advances} for · ${t.opposes} against`, "0 for · 2 against", "lee × lands_preserve: the sides moved");
+  has(l, "On this issue: 2 measures · 2 formal acts", "lee × lands_preserve: the tally line");
+  has(l, "Acts: 0 for · 2 against", "lee × lands_preserve: the for/against line");
+  has(l, "Too thin to call a pattern", "lee × lands_preserve: no longer read as thin");
+  // THE CLERK'S WORD STAYS THE CLERK'S. Yea on a CRA that undoes a withdrawal is
+  // against this chip, and the table says Yea — the direction lives in the tally.
+  has(tb, "2025-12-04 H.J.Res. 131 Passage Yea", "lee × lands_preserve: the H.J.Res. 131 row");
+  has(tb, "2026-04-16 H.J.Res. 140 Passage Yea", "lee × lands_preserve: the H.J.Res. 140 row");
+  no(tb, "Nay", "lee × lands_preserve: a Yea was rewritten as Nay");
+  eq((table(h).match(/class="pdxlg-v pdxlg-v-y">Yea</g) || []).length, 2, "lee × lands_preserve: not two Yea cells");
+  eq((table(h).match(/class="pdxlg-k">Passage</g) || []).length, 2, "lee × lands_preserve: not two Passage kinds");
+  for (const n of ["H.J.Res. 131", "H.J.Res. 140"]) {
+    has(table(h), `data-pdxbill-num="${n}"`, `lee × lands_preserve: ${n} no longer opens its bill file`);
+  }
+  // No method vocabulary anywhere in the drawer's first screen.
+  for (const v of VOCAB) no(l.toLowerCase(), v, `lee × lands_preserve: method vocabulary on the first screen`);
+  eq(leaks(h, t).join(" | "), "", "lee × lands_preserve: method prose under a vote");
+  // The notes still exist, behind the disclosure, labelled as method.
+  const f = folded(h);
+  has(f, 'data-pdxlg-meth="1"', "lee × lands_preserve: the method notes left the disclosure");
+  has(text(f), "Method notes · how these rows were coded, not what the vote was", "lee × lands_preserve: the method notes are unlabelled");
+  has(text(f), "H.J.Res. 78 precedent", "lee × lands_preserve: the H.J.Res. 131 note was deleted rather than folded");
+  // C DID NOT SHIP: there is no sourced non-roll-call event record to hang the
+  // withdrawn land-sale rider on, so no event block is drawn anywhere.
+  no(h, "Not a roll call", "lee × lands_preserve: an event block appeared with no event record behind it");
+  no(h.toLowerCase(), "does not change the 0-for", "lee × lands_preserve: event copy appeared");
+
+  // Every drawer in the archive, same rule.
+  let clean = 0;
+  for (const x of WITH) {
+    const e = leaks(drawer(x.pid, x.key), x.t);
+    if (e.length) fails.push(`${key(x)}: ${e[0]}`); else clean++;
+  }
+  eq(clean, WITH.length, `${WITH.length - clean} drawer(s) print method prose under a vote`);
+  console.log(`      ${clean} drawers carry no method prose on their first screen`);
+
+  // THE CHECK HAS TEETH. Put the old rationale row back under each vote and the
+  // same check must catch it on the fixture.
+  const src = R("consistency.js");
+  const seam = "'<td>' + _dosActChips(d, issueKey) + '</td>' +\n          '</tr>';";
+  must(src.includes(seam), "the ledger row seam this mutation needs has moved");
+  const mutated = src.replace(seam,
+    "'<td>' + _dosActChips(d, issueKey) + '</td>' +\n          '</tr>' +" +
+    " (p.why ? '<tr class=\"pdxlg-whyr\"><td></td><td colspan=\"4\" class=\"pdxlg-why\">' + esc(p.why) + '</td></tr>' : '');");
+  const M = boot((fl) => (fl === "consistency.js" ? mutated : R(fl)));
+  const MCS = M.PDXConsistency;
+  must(MCS && typeof MCS.gapViewHtml === "function", "the mutated renderer did not boot");
+  const mh = MCS.gapViewHtml("lee", "lands_preserve");
+  const mt = MCS.dossierTally("lee", "lands_preserve", MCS.issueRow("lee", "lands_preserve").ov);
+  ok(leaks(mh, mt).length > 0, "a renderer that prints method text under a row passed the leak check");
+  ok(VOCAB.some((v) => text(lede(mh)).toLowerCase().includes(v)), "the mutation did not surface the method vocabulary it should have");
 }
 
 // ── verdict ──────────────────────────────────────────────────────────────────

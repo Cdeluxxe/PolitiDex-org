@@ -8021,7 +8021,26 @@
 //     MIGRATION COST: none, and no location key is migrated, renamed or copied.
 //     No store changed shape or name; a warm device re-downloads the shell once
 //     because the version string moved, and one new document joins it.
-const CACHE_VERSION = 'v247';
+// v248 - THE ISSUE DRAWER PRINTS THE VOTE, NOT HOW WE CODED IT.
+//     Under each roll-call row the ledger printed the mapping rationale -
+//     "follows the H.J.Res. 78 precedent", "filed as the primary row rather
+//     than as the mirror", "the discriminator is one the record already wrote
+//     down". That is curation, not record. It is gone from under the votes and
+//     from the one-sentence line above the table; the same notes now sit at
+//     the foot of the existing How this is scored disclosure, once per
+//     measure, under "Method notes - how these rows were coded, not what the
+//     vote was". The first screen is the inventory and nothing else: finding,
+//     bills/acts, for/against, the same-measure line, the table.
+//     VOTE AND DIRECTION STAY TWO COLUMNS. Yea/Nay is the clerk's word; for/
+//     against is the issue. Lee on Protect Public Lands still reads 2 measures
+//     - 2 acts - 0 for - 2 against with both rows Yea on passage.
+//     NO NON-ROLL-CALL EVENTS. The archive has no sourced place to hang a
+//     withdrawn rider, so none is drawn and no fake act row is added.
+//     Scores, Direction Match, NEVER_FEEDS and the publication floor are
+//     untouched. MIGRATION COST: none, and no location key is migrated,
+//     renamed or copied; consistency.js is precached, so the shell moves one
+//     version.
+const CACHE_VERSION = 'v248';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

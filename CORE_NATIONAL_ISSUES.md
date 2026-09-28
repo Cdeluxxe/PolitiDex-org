@@ -132,3 +132,5 @@ All additions follow [`CONTENT_STYLE.md`](./CONTENT_STYLE.md): write about the
 (counts and roll-call numbers), never as "party-line" votes, and keep every piece
 of evidence personal to that one politician. Only add a stance or evidence item
 that can be clearly sourced; never invent or overstate a position.
+
+Fights that never reached a roll call (for example, Mike Lee's BLM land-sale rider, withdrawn from reconciliation on 2025-06-28) have no sourced event record in the archive yet. The issue drawer shows no "Not a roll call" block and adds no act row for them. A blank is not a Nay, and the 0-for / 2-against count on Protect Public Lands does not change until such a record exists.
