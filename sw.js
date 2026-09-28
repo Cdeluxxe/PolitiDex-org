@@ -8073,7 +8073,20 @@
 //     Match, the Congress.gov doors, money and the district boards are untouched.
 //     MIGRATION COST: none, and no location key is migrated, renamed or copied;
 //     consistency.js is precached, so the shell moves one version.
-const CACHE_VERSION = 'v250';
+// v251 - CUT FEDERAL RED TAPE GETS ITS EFFECT LINES.
+//     Lee's six Cut Federal Red Tape acts (H.J.Res. 44, 25, 88, 89, 131 and
+//     S.J.Res. 18) printed no line under their rows, so what each one struck
+//     was only in How this is scored. Six short lines were added to the effect
+//     table, one per measure on this issue: which rule or waiver the act struck
+//     and that it barred a like one. H.J.Res. 44 failed in the Senate and says
+//     "would have". H.J.Res. 131's red-tape line is its own, not the ANWR lands
+//     line. A short line now stands on a mapped pair with no curated `did`
+//     (H.J.Res. 88 and 89 have none); the `did` fallback is unchanged. The
+//     append-only map, scores, Direction Match, NEVER_FEEDS and the fold are
+//     untouched; any row without a short line still prints nothing extra.
+//     MIGRATION COST: none, and no location key is migrated, renamed or copied;
+//     consistency.js is precached, so the shell moves one version.
+const CACHE_VERSION = 'v251';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

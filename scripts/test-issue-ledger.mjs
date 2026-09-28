@@ -42,6 +42,9 @@
 //  12. ONE EFFECT LINE PER ROW. What the act did to THIS issue, from the store,
 //      one sentence of at most 140 characters, or nothing — never a title, never
 //      method, never a sibling issue's line.
+//  13. RED TAPE SCANS. Lee's six Cut Federal Red Tape acts each carry their
+//      own line — which rule it struck, and that it barred a like one — and
+//      H.J.Res. 131's is not its lands line.
 //
 //   node scripts/test-issue-ledger.mjs
 //
@@ -827,19 +830,25 @@ section("12 · one effect line per vote row, scoped to this issue");
   })();
   // What the store holds for one (measure, congress, issue), by the rule the
   // drawer states: its short effect line, else a `did` that is already one short
-  // sentence, else nothing — and nothing at all where the pair has no entry.
+  // sentence, else nothing — and nothing at all where the pair has neither.
   const stored = (mk) => {
-    if (!MECH[mk]) return "";
-    const s = String(EFFECT[mk] || MECH[mk].did || "").replace(/\s+/g, " ").trim();
+    const s = String(EFFECT[mk] || (MECH[mk] && MECH[mk].did) || "").replace(/\s+/g, " ").trim();
     return effectFault(s) ? "" : s;
   };
+  // Every (measure, congress, issue) the archive maps, from the seed the corpus
+  // joins on, plus every pair with a curated entry (which exists only for a
+  // mapped pair). A short line may only be written for one of these.
+  const MAPPED = new Set(Object.keys(MECH));
+  for (const m of JSON.parse(R("db/vr-issue-seed.json")).measures) {
+    for (const i of m.issues || []) MAPPED.add(`${String(m.number).replace(/\s+/g, " ").trim()}|${m.congress}|${i.issueKey}`);
+  }
   const expected = (p, k) => {
     const it = (p.d && p.d.item) || {};
     return stored(`${String(it.number || "").trim()}|${it.congress}|${k}`);
   };
   // Every short line is written for a pair that exists, and says what the act did.
   for (const [mk, v] of Object.entries(EFFECT)) {
-    ok(!!MECH[mk], `${mk}: an effect line is stored for a pair with no curated entry`);
+    ok(MAPPED.has(mk), `${mk}: an effect line is stored for a pair the archive does not map`);
     eq(effectFault(v), "", `${mk}: the stored effect line breaks the rule`);
   }
   const rowsOf = (h) => {
@@ -916,7 +925,7 @@ section("12 · one effect line per vote row, scoped to this issue");
   // The same sentence on two issues only where the store wrote it for both.
   for (const [v, ks] of lineKeys) {
     for (const k of ks) {
-      ok(Object.keys(MECH).some((mk) => mk.endsWith("|" + k) && stored(mk) === v),
+      ok([...MAPPED].some((mk) => mk.endsWith("|" + k) && stored(mk) === v),
         `the effect line ${JSON.stringify(v.slice(0, 50))} is printed on ${k}, where nothing stores it`);
     }
   }
@@ -984,6 +993,110 @@ section("12 · one effect line per vote row, scoped to this issue");
     console.log(`      ${same} drawer(s) are byte-identical to HEAD once the effect lines are taken out`);
   } else {
     console.log("      HEAD already carries the effect line; byte comparison left to sections 7 and 8");
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("13 · Cut Federal Red Tape scans — Lee, six acts, six lines");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  // The offline corpus is a projection and is short three of Lee's red-tape
+  // ballots that the live tables hold: the two California waiver resolutions
+  // (attached by migration 20260725040000, whose cells never went into a seed)
+  // and the stabilizing-brace resolution in the 118th Senate (its red-tape
+  // mapping arrived by migration 20260917000000). They are restated here in the
+  // API's own item shape, from those migrations, so this drawer is the one a
+  // browser opens — and nothing else in this file sees them.
+  const SEED = new Map(JSON.parse(R("db/vr-issue-seed.json")).measures.map((m) => [`${m.number}|${m.congress}`, m]));
+  const issuesOf = (n, c, extra = []) => [...((SEED.get(`${n}|${c}`) || {}).issues || []), ...extra].map((i) => ({
+    issueKey: i.issueKey, weight: i.weight == null ? 100 : i.weight, isPrimary: !!i.isPrimary,
+    supportMeaning: i.supportMeaning, rationale: i.rationale || null,
+  }));
+  const vote = (number, congress, session, roll, date, result, title, issues) => ({
+    kind: "vote", measureId: `${number}|${congress}`, measureType: "resolution", number, title,
+    chamber: "senate", status: "", date, action: `On the Joint Resolution ${number}`, actionType: "passage",
+    position: "yea", result, isParty: "with_party", supports: null, isProcedural: false, advanceInverted: false,
+    isAmendment: false, parentMeasureId: null, rollcallId: roll, congress, session, rollNumber: roll, issues,
+    source: { url: `https://www.senate.gov/legislative/LIS/roll_call_votes/vote${congress}${session}/vote_${congress}_${session}_${String(roll).padStart(5, "0")}.htm`, label: "U.S. Senate" },
+  });
+  const LIVE = [
+    vote("H.J.Res. 44", 118, 1, 171, "2023-06-22T16:00:00.000Z", "failed",
+      "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Bureau of Alcohol, Tobacco, Firearms, and Explosives relating to “Factoring Criteria for Firearms with Attached ‘Stabilizing Braces’”.",
+      issuesOf("H.J.Res. 44", 118, [{ issueKey: "gov_regulation", weight: 60, isPrimary: false, supportMeaning: "yea_supports" }])),
+    vote("H.J.Res. 88", 119, 1, 277, "2025-05-22T14:30:00.000Z", "passed",
+      "Providing for congressional disapproval of the Environmental Protection Agency waiver for the California Advanced Clean Cars II regulations",
+      issuesOf("H.J.Res. 88", 119)),
+    vote("H.J.Res. 89", 119, 1, 281, "2025-05-22T18:09:00.000Z", "passed",
+      "Providing for congressional disapproval of the Environmental Protection Agency waiver for the California Advanced Clean Trucks regulations",
+      issuesOf("H.J.Res. 89", 119)),
+  ];
+  const leeRecs = corpus.byMember.get("lee") || [];
+  must(leeRecs.length > 0, "lee has no record in the corpus");
+  for (const x of LIVE) must(!leeRecs.some((y) => y.number === x.number && y.congress === x.congress && y.chamber === "senate"),
+    `${x.number}: the corpus now carries Lee's Senate ballot — drop the fixture`);
+  const bootLive = (get) => {
+    const W = boot(get);
+    W.PDXVotingRecord.noteMember("lee", leeRecs.concat(LIVE));
+    return W.PDXConsistency;
+  };
+  const L = bootLive(R);
+  const K = "gov_regulation";
+  const t = L.dossierTally("lee", K, L.issueRow("lee", K).ov);
+  const h = L.gapViewHtml("lee", K) || "";
+  must(h.length > 2000, "lee × gov_regulation rendered nothing");
+  eq(`${t.acts} acts · ${t.advances} for · ${t.opposes} against`, "6 acts · 6 for · 0 against", "lee × gov_regulation: the tally");
+
+  const rowsOf = (x) => new Map([...String(x).matchAll(/<tr class="pdxlg-effr" data-pdxlg-effr="(\d+)"><td colspan="5" class="pdxlg-eff" data-pdxlg-eff="1">([\s\S]*?)<\/td><\/tr>/g)].map((m) => [Number(m[1]), text(m[2])]));
+  const lines = rowsOf(table(h));
+  const byId = Object.fromEntries(t.rows.map((p) => [p.d.ident, lines.get(p.i) || ""]));
+  eq(Object.keys(byId).sort().join(", "), "H.J.Res. 131, H.J.Res. 25, H.J.Res. 44, H.J.Res. 88, H.J.Res. 89, S.J.Res. 18", "lee × gov_regulation: the six measures");
+  eq(lines.size, 6, "lee × gov_regulation: not one effect line per act");
+  for (const [id, e] of Object.entries(byId)) {
+    ok(e.length > 0, `lee × gov_regulation: ${id} has no effect line`);
+    eq(effectFault(e), "", `lee × gov_regulation: ${id}'s line breaks the rule`);
+    // What it did to the rule, not a title and not a clip.
+    ok(/\b(?:rule|waiver|decision)\b/.test(e) && /\bbarred\b/.test(e), `lee × gov_regulation: ${id}'s line does not say which rule it struck — ${e}`);
+    ok(!/…|\.\.\./.test(e), `lee × gov_regulation: ${id}'s line is clipped`);
+    const title = String((t.rows.find((p) => p.d.ident === id) || { d: {} }).d.title || "");
+    ok(e !== title && e !== title + ".", `lee × gov_regulation: ${id}'s title was printed as its effect`);
+    ok(!/\b(?:we|PolitiDex|this chip|coded|counts? (?:for|against)|advancing)\b/i.test(e), `lee × gov_regulation: ${id}'s line is about the archive — ${e}`);
+  }
+  // 131's red-tape line is its own, not the ANWR acreage line from the lands row.
+  const LANDS131 = "Removed the conservation withdrawal from roughly 1.2 million acres inside the Arctic National Wildlife Refuge.";
+  ok(byId["H.J.Res. 131"] && byId["H.J.Res. 131"] !== LANDS131, "lee × gov_regulation: H.J.Res. 131 printed the lands line");
+  no(h, "conservation withdrawal", "lee × gov_regulation: the lands sentence reached Cut Red Tape");
+  // A failed measure is not described as having struck anything.
+  ok(/^Would have\b/.test(byId["H.J.Res. 44"]), "lee × gov_regulation: H.J.Res. 44 failed and its line reads as if it struck the rule");
+
+  // The first screen is a scan: the row, the chips, the line — no method.
+  const l = lede(h);
+  for (const v of ["precedent", "mirror", "discriminator", "vocabulary carries no", "primary row", "Why it counts", "What it did", "Which way it cut", "Direction Match"]) {
+    no(text(l), v, `lee × gov_regulation: "${v}" on the first screen`);
+  }
+  for (const cls of ["pdxlg-why", "pdxlg-whyr", "pdxlg-why-one"]) no(l, `class="${cls}"`, `lee × gov_regulation: .${cls} on the first screen`);
+  const tb = table(h);
+  const trs = ((tb.match(/<tbody>[\s\S]*?<\/tbody>/g) || []).join("").match(/<tr[\s>]/g) || []).length;
+  eq(trs, 12, "lee × gov_regulation: the vote table is not six act rows and six effect rows");
+  // The long form is still behind the fold.
+  has(folded(h), "pdxgap-how", "lee × gov_regulation: the scoring fold is gone");
+
+  // THE MUTATIONS STILL BITE on this drawer. A title in place of a missing line
+  // and a sibling issue's line borrowed onto this one both show.
+  const src = R("consistency.js"), seam = "var eff = d.effLine || '';";
+  const mut = (m) => {
+    const M = bootLive((fl) => (fl === "consistency.js" ? src.replace(seam, m) : R(fl)));
+    return rowsOf(table(M.gapViewHtml("lee", K) || ""));
+  };
+  {
+    // Every row here now has a line, so the title fallback is caught by printing
+    // a title where the line would be.
+    const got = mut("var eff = d.title || d.effLine;");
+    ok([...got.values()].some((e, i) => e !== [...lines.values()][i]), "lee × gov_regulation: a title-first renderer printed the same lines");
+  }
+  {
+    const got = mut("var eff = _dosEffectLine(d.item, 'lands_preserve', _dosMechFor(d.item, 'lands_preserve'));");
+    ok([...got.values()].includes(LANDS131), "lee × gov_regulation: the borrow mutation did not surface the lands line");
+    ok([...got.values()].length < 6, "lee × gov_regulation: a lands-scoped renderer still printed six red-tape lines");
   }
 }
 
