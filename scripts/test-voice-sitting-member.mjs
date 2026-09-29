@@ -471,14 +471,17 @@ const LABEL = { house: "U.S. House", statesenate: "State Senate", statehouse: "S
       `Layton: the ${LABEL[key]} District ${n} card says the room is not open on a seat in BOARD_ROUTES`);
   }
 
-  // THREE CARDS, AND THEY ARE THE THREE DISTRICT SEATS. The statewide rows are
-  // still there, still name nobody on a lean page, and still carry no door.
+  // THREE NAMED CARDS, AND THEY ARE THE THREE DISTRICT SEATS. The statewide rows
+  // are still there and still name nobody on a lean page. The Governor's card
+  // carries its door anyway — ut-gov is a row in BOARD_ROUTES and a board is a
+  // fact about the seat — while the two U.S. Senate cards, with no holder
+  // resolved, cannot say WHICH of the two Senate rooms is theirs and stay shut.
   eq((html.match(/Sitting member: <a class="pdxvr-name"/g) || []).length, 3,
     "Layton: the hallway named a number of members other than three — the two U.S. Senate rows and the\n" +
     "    Governor resolve nobody on a document with no statewide roster, and must not start being invented");
-  eq((html.match(/>Open board<\/a>/g) || []).length, 3,
-    "Layton: the hallway printed a number of Open board doors other than three — the allow-list holds\n" +
-    "    exactly these three of this reader's seats");
+  eq((html.match(/>Open board<\/a>/g) || []).length, 4,
+    "Layton: the hallway printed a number of Open board doors other than four — the allow-list holds\n" +
+    "    these three district seats and the governor's, and a Senate card with no holder opens nothing");
   eq((html.match(/<li class="pdxvr-seat"/g) || []).length, 6,
     "Layton: the hallway did not print six seat cards — a reader has every seat their location names");
 }
@@ -648,8 +651,8 @@ section("6 · a seat the roster holds nobody for stays empty, and says so plainl
     "cold index: the U.S. House card claims a member on a page whose only people index is empty. That\n" +
     "    join is the roster's, so with no roster there is nobody to name and the empty sentence is the\n" +
     "    honest answer");
-  eq((ch.match(/>Open board<\/a>/g) || []).length, 3,
-    "cold index: the three doors closed because nobody could be named — a board is a fact about the seat,\n" +
+  eq((ch.match(/>Open board<\/a>/g) || []).length, 4,
+    "cold index: the four doors (three district seats and the governor's) closed because nobody could be named — a board is a fact about the seat,\n" +
     "    not about its holder");
   no(ch, "yet", "cold index: a card promises a member is coming");
 
@@ -892,7 +895,9 @@ const DAVIS_SLATE = {
     `slate: ${t} still appears on a Layton hallway. Stevenson holds District 6 and Defay's row says\n` +
     "    District 15; neither of them is the reader's member, and a door to their file under the reader's\n" +
     "    own district number is the confident kind of wrong"));
-  eq((html.match(/>Open board<\/a>/g) || []).length, 3,
+  // The three district doors, and no other district door. The statewide rooms
+  // (ut-gov, ut-us-senate-<pid>) are counted by scripts/test-statewide-boards.mjs.
+  eq((html.match(/href="\/district\/ut-(?:hd|sd|cd)-[0-9]+"/g) || []).length, 3,
     "slate: the three Layton doors did not all open, or a fourth one did");
   no(html, "The member who holds this seat is on file",
     "slate: a card fell back to the on-file sentence though the district table names a member it can\n" +

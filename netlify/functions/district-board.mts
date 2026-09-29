@@ -178,6 +178,9 @@ const BOARD_SEATS: Record<string, 1> = {
   "ut-house-1": 1,
   "ut-house-3": 1,
   "ut-house-4": 1,
+  "ut-gov": 1,
+  "ut-us-senate-curtis": 1,
+  "ut-us-senate-lee": 1,
   // @generated district-boards end
 };
 const SEAT_KEY_RE = /^[a-z]{2}-(?:house|statesenate|statehouse)-[1-9][0-9]*$/;
@@ -187,10 +190,14 @@ const ALIAS_CHAMBERS: Record<string, string> = {
   cd: "house",
 };
 
+// The governor (`ut-gov`) and each U.S. Senate seat (`ut-us-senate-<pid>`): one
+// spelling each, and a shape rather than a list — BOARD_SEATS is the list.
+const STATEWIDE_KEY_RE = /^[a-z]{2}-(?:gov|us-senate-[a-z][a-z0-9_]*)$/;
+
 function normalizeSeatKey(raw: unknown): string {
   const s = String(raw == null ? "" : raw).trim().toLowerCase();
   if (!s) return "";
-  if (SEAT_KEY_RE.test(s)) return s;
+  if (SEAT_KEY_RE.test(s) || STATEWIDE_KEY_RE.test(s)) return s;
   const m = /^([a-z]{2})-(hd|sd|cd)-([1-9][0-9]*)$/.exec(s);
   if (!m) return "";
   const out = `${m[1]}-${ALIAS_CHAMBERS[m[2]]}-${m[3]}`;

@@ -190,7 +190,7 @@ const districtRules = RULES.filter((r) => r.from.startsWith("/district/"));
 {
   const byDoc = new Map();
   for (const r of districtRules) {
-    ok(/^\/district\/[a-z]{2}-(?:hd|sd|cd)-[1-9][0-9]*(?:\/|\.html)?$/.test(r.from),
+    ok(/^\/district\/[a-z]{2}-(?:(?:hd|sd|cd)-[1-9][0-9]*|gov|us-senate-[a-z][a-z0-9_]*)(?:\/|\.html)?$/.test(r.from),
       `toml: ${r.from} is not one of the three spellings of a board address`);
     eq(r.status, "200", `toml: ${r.from} hops instead of answering`);
     byDoc.set(r.to, (byDoc.get(r.to) || 0) + 1);
@@ -649,7 +649,7 @@ ok(FN.indexOf("BOARD_SEATS") > 0, "the endpoint declares a BOARD_SEATS allow-lis
   eq(fnSeats.length, (lit.match(/:/g) || []).length,
     "an endpoint allow-list row is computed rather than written down");
   for (const k of clientSeats) {
-    ok(/^[a-z]{2}-(?:house|statesenate|statehouse)-[1-9][0-9]*$/.test(k),
+    ok(/^[a-z]{2}-(?:(?:house|statesenate|statehouse)-[1-9][0-9]*|gov|us-senate-[a-z][a-z0-9_]*)$/.test(k),
       `the client allow-list holds ${JSON.stringify(k)}, which is not a canonical seat key`);
   }
 }

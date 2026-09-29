@@ -558,17 +558,18 @@ section("4 · a location that resolves a House seat and a Senate seat paints two
   ok(!/from = "\/district\/[^"]*\*/.test(TOML),
     "allow-list: netlify.toml splats /district/ — an allow-list behind a wildcard is not an allow-list");
 }
-// STATEWIDE OFFICES COMPOSE NO SEAT KEY, so they can never carry a board. A
-// governor is not a district and the hallway must not imply a room in one.
+// STATEWIDE OFFICES COMPOSE NO SEAT KEY. A governor is not a district; Utah's
+// governor has a statewide board of its own (ut-gov), reached through
+// statewideKeyForLevel() and never through a seat key.
 {
   const h = hub({ loc: DAVIS, levels: [LV.gov, LV.hd17, LV.ush4] });
   eq(h.paint(), "placed", "statewide: a mixed level set does not settle on 'placed'");
   eq((h.list().match(/class="pdxvr-seat"/g) || []).length, 3, "statewide: the hallway dropped a resolved level");
-  // ONE BOARD IN THIS SET, AND IT IS THE U.S. HOUSE SEAT'S (UT-1 has a board);
-  // the governor's card and HD-17's never carry one.
-  eq((h.list().match(/data-pdxvr-board="on"/g) || []).length, 1, "statewide: a board was offered in this set beyond UT-1's");
-  eq((h.list().match(/href="\/district\/[^"]+"/g) || []).join("|"), 'href="/district/ut-cd-1"',
-    "statewide: the one door in this set is not UT-1's");
+  // TWO BOARDS IN THIS SET: the governor's statewide room and the U.S. House
+  // seat's (UT-1). HD-17's card never carries one.
+  eq((h.list().match(/data-pdxvr-board="on"/g) || []).length, 2, "statewide: a board was offered in this set beyond the governor's and UT-1's");
+  eq((h.list().match(/href="\/district\/[^"]+"/g) || []).join("|"), 'href="/district/ut-gov"|href="/district/ut-cd-1"',
+    "statewide: the two doors in this set are not the governor's and UT-1's");
   const V = h.win.PDXVoice;
   eq(V.seatKeyForLevel(LV.gov, "Utah"), "", "statewide: a governor composed a seat key");
   eq(V.seatKeyForLevel(LV.hd17, "Utah"), "ut-statehouse-17", "statewide: a House level composed the wrong seat key");
@@ -638,7 +639,11 @@ section("6 · Johnson's person file still opens /district/ut-sd-3");
   has(link, 'href="/district/ut-sd-3"', "board: Johnson's person-file link no longer opens his seat's board");
   eq((String(link).match(/<a /g) || []).length, 1, "board: the person-file link is more than one anchor");
   // AND NOBODY ELSE GETS IT.
-  for (const pid of ["cox", "lee", "chew", "", null]) {
+  // The three statewide holders get THEIR OWN seat's board and nobody else's.
+  has(B.personLinkHtml("cox"), 'href="/district/ut-gov"', "board: Cox's control is not the governor's board");
+  has(B.personLinkHtml("lee"), 'href="/district/ut-us-senate-lee"', "board: Lee's control is not his Senate board");
+  has(B.personLinkHtml("curtis"), 'href="/district/ut-us-senate-curtis"', "board: Curtis's control is not his Senate board");
+  for (const pid of ["chew", "", null]) {
     eq(B.personLinkHtml(pid), "", `board: ${JSON.stringify(pid)} carries a link to somebody else's seat`);
   }
   // THE ADDRESS IS SERVED, in all three spellings, with no splat.
