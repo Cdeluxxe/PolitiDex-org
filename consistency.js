@@ -946,6 +946,10 @@
         actionClass: a.actionClass,
         documentId: a.documentId || a.measureNumber || '',
         measureNumber: a.measureNumber || '',
+        // The congress a vetoed or signed bill number belongs to, so its door can
+        // address it (see _dosSittingKey). Only where the seed stores one: an order
+        // or a proclamation has no congress and gets none.
+        congress: (typeof a.congress === 'number' && a.measureNumber) ? a.congress : undefined,
         title: a.title || '',
         sourceUrl: a.sourceUrl || '',
         sourceLabel: a.sourceLabel || '',
@@ -2162,6 +2166,7 @@
       // here wears — drawn, not written, so the row's text is still date · number
       // · kind · vote, and the aria-label already says the link leaves the site.
       '.pdxbill-ext::after{content:" \\2197";font-size:0.85em;color:#7fb4ff;}' +
+      '.pdxdoc-ext::after{content:" \\2197";font-size:0.85em;color:#7fb4ff;}' +
       // The honest refusal, written onto the control the reader tapped rather than
       // anywhere else. Amber because it is a coverage gap and not a verdict, and
       // inline because the number it explains has to stay beside it.
@@ -4592,7 +4597,9 @@
       //   Suppressed on a stated position for the same reason the dossier row
       // suppresses it: `isPosition` here means "not a ballot", and a position is
       // not cast on an instrument this door could open.
-      var billAt = b.isPosition ? '' : _billDoorAttrs(b.bill, _dosSittingKey(p.item), b.bill);
+      // No panel on the page, no door: a pointer target here could only answer
+      // "No bill page on file", so the number is bold text and nothing more.
+      var billAt = (b.isPosition || !_billPanelOn()) ? '' : _billDoorAttrs(b.bill, _dosSittingKey(p.item), b.bill);
       var bill = b.bill
         ? '<b class="pdxor-proof-bill"' + billAt + '>' + esc(b.bill) + '</b>' : '';
       var restBits = [];
@@ -13888,7 +13895,15 @@
           plain: it.plain || '',
           counts: (m && m.counts) || '',
           rationale: (m && m.rationale) || '',
-          url: it.sourceUrl || '', srcLabel: it.sourceLabel || 'Primary source'
+          url: it.sourceUrl || '', srcLabel: it.sourceLabel || 'Primary source',
+          // THE SAME DOOR AS A ROLL-CALL ROW. A veto names a bill, so its number and
+          // congress are the pair the bill door already reads; an order or a
+          // proclamation names no bill, and its door is the official address the
+          // file already stores for it, or none — see _dosOfficialUrl.
+          billNum: it.measureNumber || '',
+          billSit: _dosSittingKey(it),
+          docUrl: it.measureNumber ? '' : _dosOfficialUrl(it),
+          effLine: _dosExecEffectLine(it, issueKey)
         }));
       });
     } else if (ov.record) {
@@ -14708,7 +14723,7 @@
       // explainer it always toggled. A <button> is legal here where it is not
       // legal in the roll-up row: this is a <summary>, whose other control —
       // "See all N readings" — has been a real button since it shipped.
-      _billDoor('pdxdos-rec-id', d.billNum, d.billSit, d.ident, esc(d.ident)) +
+      _dosDoor('pdxdos-rec-id', d, esc(d.ident)) +
       // The sitting sits with the number because it is part of the number's meaning:
       // "H.R. 22" names one bill in the 119th and a different one in every other,
       // and "H.B. 208" names a different bill in every Utah general session. Reads
@@ -14731,7 +14746,7 @@
       //   Skipped when it would only repeat the identity: on the migrated formal
       // lane the ident IS the headline sentence, and on a record row filed without a
       // bill number the ident falls back to the title.
-      (_faceTtl ? _billDoor('pdxdos-rec-ttl', d.billNum, d.billSit, d.ident, esc(_faceTtl)) : '') +
+      (_faceTtl ? _dosDoor('pdxdos-rec-ttl', d, esc(_faceTtl)) : '') +
       (d.question ? '<span class="pdxdos-rec-act">' + esc(d.question) + '</span>' : '') +
       (d.act && !nosBallot ? '<span class="pdxdos-rec-act">' + esc(d.act) + '</span>' : '') +
       (dir && !d.held ? '<span class="pdxdos-rec-dir">' + esc(_ledDirShort(dir)) + '</span>' : '') +
@@ -15513,11 +15528,16 @@
   // a number this parser recognises — becomes an outbound link to that page, marked
   // as leaving the site the way every other source link here is (new tab, ↗, the
   // destination named). Nothing is minted on our side: no /bill/ address, no stub.
-  // Anything else — a Utah bill, an unparseable number — keeps the door it had.
+  //   NO PANEL AND NO FEDERAL ADDRESS: TEXT. A Utah bill or an unparseable number
+  // on a page without the bill panel has nowhere to go, and a control over it can
+  // only ever answer "No bill page on file" — a tap that goes nowhere. So it
+  // prints as the number it is, readable and copyable, and nothing more.
   function _billDoor(cls, num, sit, ident, inner) {
     var at = _billDoorAttrs(num, sit, ident);
     if (!at) return '<span class="' + cls + '">' + inner + '</span>';
-    var cg = _billPanelOn() ? '' : _congressGovUrl(num, sit);
+    var on = _billPanelOn();
+    var cg = on ? '' : _congressGovUrl(num, sit);
+    if (!on && !cg) return '<span class="' + cls + '">' + inner + '</span>';
     if (cg) {
       var who = ident || String(num).trim();
       return '<a class="' + cls + ' pdxbill-door pdxbill-ext" href="' + escAttr(cg) + '"' +
@@ -15529,6 +15549,39 @@
     return '<button type="button" class="' + cls + ' pdxbill-door"' + at +
       ' aria-label="' + escAttr('Open the bill file for ' + (ident || num)) + '">' +
       inner + '</button>';
+  }
+  // THE SAME DOOR FOR A ROW THAT NAMES NO BILL. An executive order or a
+  // proclamation has no bill file and no Congress.gov page; what it has, where the
+  // archive stored one, is its official address — the Federal Register document or
+  // the White House posting. That address is the door, marked as leaving the site
+  // exactly as the Congress.gov form is. No stored address, no door: the number
+  // stays text. A row that does name a bill goes through _billDoor unchanged.
+  function _dosDoor(cls, d, inner) {
+    var u = (d && d.docUrl) || '';
+    if (!u) return _billDoor(cls, d && d.billNum, d && d.billSit, d && d.ident, inner);
+    var who = (d && d.ident) || 'This document', where = _dosOfficialHost(u);
+    return '<a class="' + cls + ' pdxbill-door pdxdoc-ext" href="' + escAttr(u) + '"' +
+      ' target="_blank" rel="noopener noreferrer" data-pdxbill-ext="1"' +
+      ' title="' + escAttr(who + ' on ' + where + ' — leaves PolitiDex') + '"' +
+      ' aria-label="' + escAttr(who + ' on ' + where + ' (leaves PolitiDex, opens in a new tab)') + '">' +
+      inner + '</a>';
+  }
+  // Which official publisher an address belongs to, or '' when it is none of them.
+  // Read, never built: the address is the one the archive stored for the document.
+  var _DOS_OFFICIAL = [
+    [/^https:\/\/(?:www\.)?federalregister\.gov\/documents\//i, 'the Federal Register'],
+    [/^https:\/\/(?:www\.)?whitehouse\.gov\//i, 'WhiteHouse.gov'],
+    [/^https:\/\/[a-z0-9-]+whitehouse\.archives\.gov\//i, 'the White House archive'],
+    [/^https:\/\/(?:www\.)?govinfo\.gov\//i, 'GovInfo']
+  ];
+  function _dosOfficialHost(u) {
+    var s = String(u == null ? '' : u).trim();
+    for (var i = 0; i < _DOS_OFFICIAL.length; i++) if (_DOS_OFFICIAL[i][0].test(s)) return _DOS_OFFICIAL[i][1];
+    return '';
+  }
+  function _dosOfficialUrl(it) {
+    var u = String((it && it.sourceUrl) || '').trim();
+    return _dosOfficialHost(u) ? u : '';
   }
   function _billPanelOn() {
     try { return !!(window.PDXBillDetail && typeof window.PDXBillDetail.open === 'function'); }
@@ -16426,7 +16479,9 @@
       // The identity, as a span rather than a button, for the parser reason above.
       // Where the group carries no number there is no bill file to promise, so the
       // span stays the plain text it has always been.
-      var idAt = _billDoorAttrs(g.num, g.sit, g.ident);
+      // And with no bill panel on the page there is nothing for it to open — this
+      // span cannot become the outbound link a card face can — so it stays text.
+      var idAt = _billPanelOn() ? _billDoorAttrs(g.num, g.sit, g.ident) : '';
       return '<li class="pdxgap-drv-r is-door' + (g.pkg ? ' is-pkg' : '') + '"' + door + '>' +
         (idAt
           ? '<span class="pdxgap-drv-id pdxbill-door" role="button" tabindex="0"' + idAt +
@@ -16511,8 +16566,24 @@
   // AND AN UNKNOWN KIND PRINTS THE ACT. Not "Vote", not "Other", not a guess: the
   // clerk's own words, which is what we hold. `known` says which of those two
   // things happened, so a caller can tell a named kind from a quoted one.
+  //
+  // AN EXECUTIVE ROW IS ITS INSTRUMENT. A veto, an order, a proclamation, a
+  // signature: named from the action class the file stores, and for a directive
+  // from the document's own name ("Proclamation 11015"), so the kind column says
+  // what the paper was and never borrows a roll-call word.
+  var _DOS_EXEC_KIND = { vetoed_law: 'Veto', signed_law: 'Signed law', executive_order: 'Executive order' };
+  var _DOS_EXEC_ACT = { vetoed_law: 'Vetoed', signed_law: 'Signed', executive_order: 'Signed', directive: 'Issued' };
   function _dosActKind(d) {
     var it = (d && d.item) || {};
+    if (d && d.lane === 'exec') {
+      var ac = String(it.actionClass || ''), w = _DOS_EXEC_KIND[ac] || '';
+      if (!w) {
+        var dm = /^(Proclamation|Memorandum|Presidential Memorandum|National Security Presidential Memorandum|Directive)\b/i.exec(String(it.documentId || ''));
+        w = dm ? dm[1].charAt(0).toUpperCase() + dm[1].slice(1) : ((d.power && d.power.label) || 'Executive action');
+        w = w.charAt(0).toUpperCase() + w.slice(1);
+      }
+      return { word: w, group: 'exec', known: !!(_DOS_EXEC_KIND[ac] || ac === 'directive') };
+    }
     var act = String(it.action || (d && d.question) || (d && d.act) || '').trim();
     var at = String(it.actionType || '').toLowerCase();
     if (at === 'amendment' || it.isAmendment === true) return { word: 'Amendment', group: 'change', known: true };
@@ -16528,6 +16599,10 @@
   // is neither gets the no-side vocabulary the rest of the dossier already uses —
   // "Did not vote" is not a third direction and must never be printed as one.
   function _dosActVote(d) {
+    if (d && d.lane === 'exec') {
+      var ac = String((d.item && d.item.actionClass) || '');
+      return { word: _DOS_EXEC_ACT[ac] || String(d.act || '').trim() || 'Acted', cls: 'o' };
+    }
     var pos = String((d && d.item && d.item.position) || '').toLowerCase();
     if (pos === 'yea' || pos === 'aye' || pos === 'yes') return { word: 'Yea', cls: 'y' };
     if (pos === 'nay' || pos === 'no') return { word: 'Nay', cls: 'n' };
@@ -16626,6 +16701,10 @@
   // a sheet rendered without stance-helpers.js still prints the counts it can.
   function _dosActDir(d) {
     if (!d || d.held) return '';
+    // An executive row has no ballot to invert: its direction is the document's,
+    // already read through _ledExecDir (veto inversion included) when the row was
+    // built, and carried as `effect`.
+    if (d.lane === 'exec') return d.effect === 'advances' || d.effect === 'opposes' ? d.effect : '';
     try {
       if (typeof window._voteEffectiveSupport === 'function') {
         var eff = window._voteEffectiveSupport(d.item, d.support);
@@ -16645,17 +16724,18 @@
   // place it can be got wrong.
   function _dosTally(pid, issueKey, ov) {
     var t = { acts: 0, bills: 0, ident: '', same: false, bill: true, amend: 0,
-      advances: 0, opposes: 0, noSide: 0, rows: [] };
+      advances: 0, opposes: 0, noSide: 0, exec: 0, rows: [] };
     var items = [];
     try { items = _dosItems(pid, issueKey, ov) || []; } catch (e) { items = []; }
     var seen = Object.create(null);
     for (var i = 0; i < items.length; i++) {
       var d = items[i];
-      // Roll-call lane only. An executive document and a migrated formal action are
-      // both formal record and both belong on this sheet, but neither has a bill
-      // number, a question or a side — a table with a Yea/Nay column has nothing
-      // honest to print in their rows, and the panels below already carry them.
-      if (!d || d.held || d.lane !== 'record') continue;
+      // Roll calls and executive documents. A veto, an order or a proclamation is a
+      // formal act with a number, a day and a direction, and it takes the same row,
+      // the same door and the same effect line as a vote — its act column says what
+      // was done (Vetoed, Signed, Issued) instead of a ballot. The migrated formal
+      // lane stays out: it has no number to door and no act word to print.
+      if (!d || d.held || (d.lane !== 'record' && d.lane !== 'exec')) continue;
       var k = _dosActKind(d), dir = _dosActDir(d);
       t.rows.push({ d: d, i: i, kind: k, dir: dir, vote: _dosActVote(d), why: _dosWhySentence(d) });
       t.acts++;
@@ -16670,6 +16750,7 @@
       // is wrong on the rows where the distinction is the whole point.
       var mt = String((d.item && d.item.measureType) || '').toLowerCase();
       if (mt && mt !== 'bill') t.bill = false;
+      if (d.lane === 'exec') { t.bill = false; t.exec++; }
     }
     t.same = t.bills === 1 && t.acts > 1;
     return t;
@@ -16775,11 +16856,13 @@
     // how it was coded — see _dosEffectLine.
     var GROUPS = [
       { id: 'change', h: 'Tried to change it', rows: [] },
-      { id: 'result', h: 'Voted on the result', rows: [] }
+      { id: 'result', h: 'Voted on the result', rows: [] },
+      { id: 'exec', h: 'Signed, vetoed or issued', rows: [] }
     ];
     var filled = 0, i, j;
     for (i = 0; i < t.rows.length; i++) {
-      var grp = (t.rows[i].kind.group === 'change') ? GROUPS[0] : GROUPS[1];
+      var gid = t.rows[i].kind.group;
+      var grp = gid === 'change' ? GROUPS[0] : gid === 'exec' ? GROUPS[2] : GROUPS[1];
       grp.rows.push(t.rows[i]);
     }
     for (i = 0; i < GROUPS.length; i++) {
@@ -16795,15 +16878,14 @@
       out += '<div class="pdxlg-g" data-pdxlg-g="' + g.id + '">' +
         (heads ? '<div class="pdxlg-gh">' + esc(g.h) + '</div>' : '') +
         '<table class="pdxlg-t"><thead><tr>' +
-          '<th>Date</th><th>Measure</th><th>Kind</th><th>Vote</th><th>Also on</th>' +
+          '<th>Date</th><th>Measure</th><th>Kind</th><th>' + (g.id === 'exec' ? 'Act' : 'Vote') + '</th><th>Also on</th>' +
         '</tr></thead><tbody>';
       for (j = 0; j < g.rows.length; j++) {
         var p = g.rows[j], d = p.d;
         // The bill number is the door it already is everywhere else on this sheet:
         // same attributes, same handler, same bill file. A row whose measure has no
         // resolvable file prints the identity as text rather than as a dead control.
-        var num = _billDoor('pdxlg-num', d.billNum, d.billSit, d.ident,
-          esc(d.ident || d.billNum || 'Measure'));
+        var num = _dosDoor('pdxlg-num', d, esc(d.ident || d.billNum || 'Measure'));
         out += '<tr data-pdxlg-row="' + p.i + '">' +
             '<td class="pdxlg-d">' + esc(_dosDay(d.date) || '') + '</td>' +
             '<td>' + num + '</td>' +
@@ -16918,11 +17000,51 @@
   function _dosEffectLine(item, issueKey, mech) {
     if (!item || !issueKey) return '';
     var k = String(item.number == null ? '' : item.number).trim() + '|' + item.congress + '|' + issueKey;
-    var s = String(_DOS_EFFECT[k] || (mech && mech.did) || '').replace(/\s+/g, ' ').trim();
+    return _dosEffectOk(_DOS_EFFECT[k] || (mech && mech.did) || '');
+  }
+  // The row rule, in one place for both tables: one sentence, 140 characters or
+  // fewer, ending on its stop, and no word about how the archive coded the act.
+  // Anything else prints nothing — never a clip.
+  function _dosEffectOk(raw) {
+    var s = String(raw == null ? '' : raw).replace(/\s+/g, ' ').trim();
     if (!s || s.length > 140 || !/[.!?]$/.test(s)) return '';
     if (/[.!?]\s+["\u201c(]?[A-Z0-9]/.test(s.replace(/\bU\.S\./g, 'US'))) return '';
     if (_DOS_EFFECT_METHOD.test(s)) return '';
     return s;
+  }
+
+  // THE SAME LINE FOR AN EXECUTIVE ROW. Keyed by the document the file stores
+  // (documentId) and the issue, so a line written for the President's veto of a
+  // resolution can never surface under a senator's vote on the same resolution —
+  // those rows read _DOS_EFFECT by number and congress, and the act they did is a
+  // different one. Each line is written from that pair's own `plain` and the
+  // document's stored title and status note (the override tally), with the act as
+  // the subject. A pair not listed prints nothing; no `plain` is clipped to fill it.
+  var _DOS_EXEC_EFFECT = {
+    'S.J. Res. 7 (116th Congress)|restraint':
+      'Vetoed the resolution directing U.S. forces out of the Yemen conflict, keeping them committed; the Senate failed to override it 53-45.',
+    'S.J. Res. 7 (116th Congress)|war_powers':
+      'Vetoed the resolution removing U.S. forces from Yemen hostilities Congress had not authorized; the Senate override failed 53-45.',
+    'S.J. Res. 68 (116th Congress)|restraint':
+      'Vetoed the resolution directing U.S. forces out of hostilities with Iran; the Senate failed to override it 49-44.',
+    'S.J. Res. 68 (116th Congress)|war_powers':
+      'Vetoed the resolution removing U.S. forces from hostilities against Iran Congress had not authorized; the override failed 49-44.',
+    'S.J. Res. 68 (116th Congress)|iran_policy':
+      'Vetoed the resolution directing U.S. forces out of hostilities against Iran; the Senate failed to override it 49-44.',
+    'Executive Order 14353|war_powers':
+      'Committed the United States by order to defend Qatar, including by military means, naming no congressional authorization.',
+    'Executive Order 14353|restraint':
+      'Made defending Qatar against any armed attack standing U.S. policy, adding an open-ended military commitment abroad.',
+    'Executive Order 14353|america_first_fp':
+      'Had the United States take on Qatar’s defense against armed attack, with no cost-sharing condition attached.',
+    'Proclamation 11015|war_powers':
+      'Committed the United States to an armed campaign against cartels across the Western Hemisphere, naming no congressional authorization.',
+    'Proclamation 11015|restraint':
+      'Committed the United States to destroying cartel organizations across the Western Hemisphere with any necessary resources.'
+  };
+  function _dosExecEffectLine(it, issueKey) {
+    if (!it || !issueKey || !it.documentId) return '';
+    return _dosEffectOk(_DOS_EXEC_EFFECT[String(it.documentId).trim() + '|' + issueKey]);
   }
 
   // HOW THE ROWS WERE CODED, where a reader who asks for method can find it.

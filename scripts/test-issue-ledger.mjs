@@ -194,11 +194,12 @@ section("1 · the tally is always the same shape, and the grammar agrees with it
     // One row per act, not per essay.
     const rows = (table(h).match(/data-pdxlg-row="/g) || []).length;
     eq(rows, t.acts, `${where}: ${rows} table row(s) for ${t.acts} act(s)`);
-    // And the count is the record lane only — a stance or an executive action is
-    // not a formal act and must not be in here.
+    // And the count is the formal acts only — roll calls and executive documents
+    // (a veto, an order, a proclamation; see test-exec-ledger-doors.mjs). A stated
+    // position or a migrated formal account is not a row and must not be in here.
     const items = CS.dossierItems(x.pid, x.key, x.r && x.r.ov) || [];
-    const recs = items.filter((d) => d && !d.held && d.lane === "record").length;
-    eq(t.acts, recs, `${where}: the tally counts ${t.acts} acts against ${recs} record-lane items`);
+    const recs = items.filter((d) => d && !d.held && (d.lane === "record" || d.lane === "exec")).length;
+    eq(t.acts, recs, `${where}: the tally counts ${t.acts} acts against ${recs} record- and exec-lane items`);
   }
   console.log(`      ${sampled} drawers hold the fixed tally shape`);
 }
@@ -341,7 +342,8 @@ section("5 · a side in words on every row, and no kind is ever guessed");
   // Every row prints a side in words. "Did not vote" and "Present" are sides the
   // clerk recorded and are printed as such — what is forbidden is an abbreviation
   // a reader has to decode, and a blank cell where a position was expected.
-  const SIDES = ["Yea", "Nay", "No side", "Did not vote", "Present"];
+  // An executive row's cell is the act, not a ballot: Vetoed, Signed or Issued.
+  const SIDES = ["Yea", "Nay", "No side", "Did not vote", "Present", "Vetoed", "Signed", "Issued"];
   let rows = 0;
   for (const x of WITH) {
     const cells = String(drawer(x.pid, x.key)).match(/class="pdxlg-v pdxlg-v-[yno]">[^<]*</g) || [];
@@ -842,8 +844,29 @@ section("12 · one effect line per vote row, scoped to this issue");
   for (const m of JSON.parse(R("db/vr-issue-seed.json")).measures) {
     for (const i of m.issues || []) MAPPED.add(`${String(m.number).replace(/\s+/g, " ").trim()}|${m.congress}|${i.issueKey}`);
   }
+  // The executive rows' own table, keyed by the stored documentId and the issue
+  // (see _DOS_EXEC_EFFECT), and the pairs the exec seed maps — a line may only be
+  // written for one of those, and only ever prints on its own row.
+  const EXEC_EFFECT = (() => {
+    const src = R("consistency.js"), a = src.indexOf("var _DOS_EXEC_EFFECT = {");
+    must(a !== -1, "_DOS_EXEC_EFFECT is not in consistency.js in the form this file reads");
+    return vm.runInNewContext("(" + src.slice(a + "var _DOS_EXEC_EFFECT = ".length, src.indexOf("\n  };", a) + 4) + ")");
+  })();
+  const EXEC_MAPPED = new Set();
+  for (const list of Object.values(JSON.parse(R("db/exec-action-seed.json")).actions || {})) {
+    for (const a of list) for (const i of a.issues || []) EXEC_MAPPED.add(`${a.documentId}|${i.issueKey}`);
+  }
+  for (const [xk, v] of Object.entries(EXEC_EFFECT)) {
+    ok(EXEC_MAPPED.has(xk), `${xk}: an exec effect line is stored for a pair the exec seed does not map`);
+    eq(effectFault(v), "", `${xk}: the stored exec effect line breaks the rule`);
+  }
+  const execStored = (xk) => {
+    const s = String(EXEC_EFFECT[xk] || "").replace(/\s+/g, " ").trim();
+    return effectFault(s) ? "" : s;
+  };
   const expected = (p, k) => {
     const it = (p.d && p.d.item) || {};
+    if (p.d && p.d.lane === "exec") return execStored(`${String(it.documentId || "").trim()}|${k}`);
     return stored(`${String(it.number || "").trim()}|${it.congress}|${k}`);
   };
   // Every short line is written for a pair that exists, and says what the act did.
@@ -925,7 +948,8 @@ section("12 · one effect line per vote row, scoped to this issue");
   // The same sentence on two issues only where the store wrote it for both.
   for (const [v, ks] of lineKeys) {
     for (const k of ks) {
-      ok([...MAPPED].some((mk) => mk.endsWith("|" + k) && stored(mk) === v),
+      ok([...MAPPED].some((mk) => mk.endsWith("|" + k) && stored(mk) === v) ||
+        Object.keys(EXEC_EFFECT).some((xk) => xk.endsWith("|" + k) && execStored(xk) === v),
         `the effect line ${JSON.stringify(v.slice(0, 50))} is printed on ${k}, where nothing stores it`);
     }
   }

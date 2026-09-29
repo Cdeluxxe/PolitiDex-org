@@ -8285,7 +8285,21 @@
 //     alignment-tool.js, issue-map.js, stance-helpers.js, issue-scope.js,
 //     consistency.js, exec-action-data.js and stance-tree.js are precached and
 //     changed, so it moves one version.
-const CACHE_VERSION = 'v263';
+// v264 - DOORS AND EFFECT LINES ON EXECUTIVE ROWS IN THE ISSUE DRAWER.
+//     The drawer's ledger table now takes vetoes, orders and proclamations
+//     beside roll calls: same row, same bill door, same effect line. A vetoed
+//     resolution's number opens Congress.gov when the bill panel is not on the
+//     page; an order or a proclamation opens the Federal Register address the
+//     archive already stores for it, and nothing is built or scraped. A number
+//     with no door is plain text — no control that can only say "No bill page
+//     on file". Ten short effect lines, stored per document × issue, for
+//     S.J. Res. 7, S.J. Res. 68, EO 14353 and Proclamation 11015 on the issues
+//     they already sat on. No new mapping, no score moved.
+//     MIGRATION COST: none, and no location key is migrated, renamed or
+//     copied. No database migration: the effect lines and URLs live in
+//     consistency.js and the exec seed, not in SQL.
+//     consistency.js is precached and changed, so it moves one version.
+const CACHE_VERSION = 'v264';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

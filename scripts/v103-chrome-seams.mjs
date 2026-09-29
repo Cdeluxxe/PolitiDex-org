@@ -267,6 +267,14 @@ export const CJ_SEAMS = [
   ["  var OFFICIAL_ACTION_ISSUE_BACKFILL = {\n",
    "    'rand_paul||blocked fast track passage of the 9 11 victim compensation fund': 'national_debt',\n",
    "the withdrawn public-lands backfill"],
+  // ── and one for the exec row's congress (v264) ────────────────────────────
+  // A vetoed or signed bill number names a different bill in every congress, so
+  // the exec pool item now keeps the congress the seed already stores beside it —
+  // only where it stores a bill number. One field, read by the issue drawer's door
+  // and nothing that scores.
+  ["        measureNumber: a.measureNumber || '',\n",
+   "        title: a.title || '',\n        sourceUrl: a.sourceUrl || '',\n",
+   "the exec row's congress, for its door"],
   ["    else if (counts.limited > 0) token = 'limited';\n",
    "\n    // Phase 7: Say-vs-Do carries its OWN pooled public-record integrity %",
    "the roll-up's empty-key token"],
@@ -407,6 +415,14 @@ export const CJ_SEAMS_BELOW = [
   ["    return (typeof c === 'number' && isFinite(c) && c > 0) ? String(c) : '';\n  }\n",
    "  function _dosCongressLabel(n) {\n",
    "one owner of which sitting a number is in"],
+  // L1a. THE EXEC ROW'S DOOR AND EFFECT LINE (v264). Four fields on the exec row
+  // the dossier already builds: the bill number and sitting a veto names, the
+  // official address an order or proclamation already stores, and the stored
+  // effect line for this document on this issue. Prose and addresses only — the
+  // row's effect, support and verdict are set above the span and untouched.
+  ["          url: it.sourceUrl || '', srcLabel: it.sourceLabel || 'Primary source'",
+   "    } else if (ov.record) {\n      var _recStance",
+   "the exec row's door and effect line"],
   // L1b. THE ROW'S EFFECT LINE, carried on the dossier item (v250). One field
   // added to the record row the dossier already builds, off the SAME _DOS_MECH
   // lookup that fills "What it did" — so the table has not grown a second consumer
@@ -1336,6 +1352,12 @@ export function assertConsistencySeams(bodies, api, below) {
   // it is. Comments out, nothing quoted may remain: one more key here would be a
   // formal action asserted for a person in a file whose own rule excludes it, and
   // it would arrive with no measure a reader could open.
+  // v264: the exec row keeps the congress beside a bill number, and only there.
+  const execCong = cut("the exec row's congress, for its door");
+  has(execCong, "congress: (typeof a.congress === 'number' && a.measureNumber) ? a.congress : undefined,",
+    "the exec row's congress is invented, or kept where the seed stores no bill number");
+  ok([...strip(execCong).matchAll(/^\s*([a-z][A-Za-z]*):/gm)].map((m) => m[1]).join(",") === "measureNumber,congress",
+    "the exec row's congress span gained a field other than the congress");
   const backfill = cut("the withdrawn public-lands backfill");
   has(backfill, "var OFFICIAL_ACTION_ISSUE_BACKFILL = {",
     "the withdrawn-entry seam no longer opens on the map it belongs to");
@@ -1535,8 +1557,9 @@ export function assertConsistencySeams(bodies, api, below) {
   const proofDoor = cut("the proof line's number, as the door");
   has(proofDoor, "_billDoorAttrs(b.bill, _dosSittingKey(p.item), b.bill)",
     "the proof line assembles a bill address by hand instead of asking the one emitter for it");
-  has(proofDoor, "b.isPosition ? ''",
-    "a stated position now offers a bill door — a position is not cast on an instrument this door could open");
+  has(proofDoor, "(b.isPosition || !_billPanelOn()) ? ''",
+    "a stated position now offers a bill door — a position is not cast on an instrument this door could open " +
+    "— or the proof line promises the bill panel on a page that does not carry it (v264)");
   ok(!/role=|tabindex/.test(proofDoor),
     "the proof line's number took a focus stop, which competes with the expand control of the <summary> it " +
     "sits inside — the dossier card's real buttons are how the keyboard reaches the same file");
@@ -1657,11 +1680,14 @@ export function assertConsistencyExportSeams(bodies, api) {
   // and the title keeps the condition that suppressed it when it only repeated the
   // identity — the door did not become a reason to print a title twice.
   const cardNum = cut("the card's number, as the door");
-  has(cardNum, "_billDoor('pdxdos-rec-id', d.billNum, d.billSit, d.ident, esc(d.ident))",
+  // v264: both slots go through _dosDoor, which hands a row with a bill number to
+  // _billDoor with the same (billNum, billSit, ident) pair and a row with only an
+  // official document address to that address — one door helper for every kind.
+  has(cardNum, "_dosDoor('pdxdos-rec-id', d, esc(d.ident))",
     "the card's number is not the one emitter's door, or it no longer carries the pair the panel needs");
   ok(!/'<span class="pdxdos-rec-id">'/.test(cardNum), "the card's number is an inert span again");
   const cardTtl = cut("the card's title, as the same door");
-  has(cardTtl, "_billDoor('pdxdos-rec-ttl', d.billNum, d.billSit, d.ident, esc(_faceTtl))",
+  has(cardTtl, "_dosDoor('pdxdos-rec-ttl', d, esc(_faceTtl))",
     "the card's title is not the same door as its number");
   has(cardTtl, "(_faceTtl ?",
     "the title lost the condition that skips it when it would only repeat the identity");
@@ -1699,8 +1725,9 @@ export function assertConsistencyExportSeams(bodies, api) {
   // two controls; the row keeps its door attribute and gives up its own role, and
   // no <a> or <button> appears anywhere in the line.
   const rollId = cut("the roll-up identity, and where the row's name went");
-  has(rollId, "var idAt = _billDoorAttrs(g.num, g.sit, g.ident);",
-    "the roll-up identity does not ask the one emitter for its door");
+  has(rollId, "var idAt = _billPanelOn() ? _billDoorAttrs(g.num, g.sit, g.ident) : '';",
+    "the roll-up identity does not ask the one emitter for its door, or promises the bill panel on a page " +
+    "that does not carry it (v264)");
   has(rollId, 'class="pdxgap-drv-id pdxbill-door" role="button" tabindex="0"',
     "the roll-up identity is not reachable as a control of its own");
   has(rollId, ': \'<span class="pdxgap-drv-id">\' + esc(g.ident) + \'</span>\')',
@@ -1739,6 +1766,12 @@ export function assertConsistencyExportSeams(bodies, api) {
   // bare act — never a guess.
   // C1b. THE EFFECT LINE IS CARRIED, NOT LOOKED UP AGAIN. One field on the row,
   // off the mechanism entry the row already holds, and nothing else in the span.
+  const execRow = cut("the exec row's door and effect line");
+  has(execRow, "docUrl: it.measureNumber ? '' : _dosOfficialUrl(it),",
+    "an exec row with a bill number also links a document address, or an order's address is not the stored one");
+  has(execRow, "effLine: _dosExecEffectLine(it, issueKey)", "the exec row's effect line is not the stored measure×issue line");
+  ok(!/support|verdict|weight|effect:/.test(strip(execRow)),
+    "the exec row's door span sets something that scores");
   const eff = cut("the row's effect line, off the one mechanism lookup");
   has(eff, "effLine: _dosEffectLine(p.item, issueKey, mech),", "the row no longer carries its effect line off the one mechanism lookup");
   ok(!/_dosMechFor|_DOS_MECH|support|verdict|weight/.test(strip(eff)),
@@ -1755,8 +1788,12 @@ export function assertConsistencyExportSeams(bodies, api) {
   has(lgFns, "return { word: 'Nay', cls: 'n' };", "Nay is no longer stated in the clerk's word");
   has(lgFns, "var eff = window._voteEffectiveSupport(d.item, d.support);",
     "the ledger decides which way an act cut for itself instead of asking the scorer's own primitive");
-  has(lgFns, "if (!d || d.held || d.lane !== 'record') continue;",
+  // v264: the exec lane joins the table in a group of its own ("Signed, vetoed or
+  // issued", column headed Act), so a veto is never counted into a Yea/Nay column.
+  has(lgFns, "if (!d || d.held || (d.lane !== 'record' && d.lane !== 'exec')) continue;",
     "the tally counts a row with no bill number, no question and no side into a table that has a Yea/Nay column");
+  has(lgFns, "{ id: 'exec', h: 'Signed, vetoed or issued', rows: [] }",
+    "executive acts are counted into the ledger without a group of their own");
   has(lgFns, "t.same = t.bills === 1 && t.acts > 1;",
     "the one-measure-several-acts case is decided on something other than the two counts");
   has(lgFns, "'<div class=\"pdxlg-tally\" data-pdxlg-tally=\"1\">On this issue: <b>' + t.bills + ' ' + noun +",
@@ -1775,7 +1812,7 @@ export function assertConsistencyExportSeams(bodies, api) {
   has(lgFns, "var eff = d.effLine || '';", "the table decides its own effect line instead of printing the row's");
   ok(!/_dosMechFor|d\.title|rationale\s*\|\|/.test(strip(lgFns).slice(strip(lgFns).indexOf("function _dosEffectLine"), strip(lgFns).indexOf("function _dosMethodNotesHtml"))),
     "the effect line falls back to a title or a rationale, or looks the mechanism up again");
-  has(lgFns, "var num = _billDoor('pdxlg-num', d.billNum, d.billSit, d.ident,",
+  has(lgFns, "var num = _dosDoor('pdxlg-num', d, esc(d.ident || d.billNum || 'Measure'));",
     "the row's bill number is not the same door every other number on this sheet is");
   has(lgFns, "if ((said || r.stance.label) && !(opts && opts.noSaid)) {",
     "the summary's They-said line is no longer suppressible — the ledger prints that quote beside the acts, " +
