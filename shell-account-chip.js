@@ -46,7 +46,9 @@
    ── WHAT THIS FILE IS NOT ALLOWED TO DO ───────────────────────────────────
 
      · NO SIGN-IN UI. The front page owns the auth modal. Join is a plain
-       <a href="/">: a trip to the room that has it. That is the same answer
+       <a href="/">: a trip to the room that has it — on a district board,
+       <a href="/?join=1&next=/district/…"> from PDXReturn.joinHref(), so the
+       front page opens the sheet and sends the reader back when it closes. That is the same answer
        your-file.js gives when no opener is on the document, and it works with
        JavaScript off, middle-clicks and cmd-clicks like every other link.
      · NO FIRESTORE READ, NO GRID, NO FAN-OUT. This paints a pill. The whole of
@@ -125,8 +127,24 @@
 
   // Join is a trip to the front page, which owns the sign-in modal. The label
   // is the front page's own label, so a reader who has seen one has seen both.
+  //
+  // ON A DISTRICT BOARD THE TRIP CARRIES A WAY BACK. A board is a place a
+  // reader was standing when it asked them for an account, and a bare '/'
+  // threw that away: they signed in on the homepage and never saw the board
+  // again. PDXReturn owns the intent (the same `next` /find uses), so this
+  // asks it for the address and spells nothing itself. /voice, /mandate and
+  // /money are not boards and keep today's plain '/'; so does a board whose
+  // PDXReturn failed to load.
+  function joinHref() {
+    try {
+      var R = window.PDXReturn;
+      if (window.__PDX_DISTRICT_BOARD_DOC && R && typeof R.joinHref === 'function') return R.joinHref() || '/';
+    } catch (e) {}
+    return '/';
+  }
+
   function joinHtml() {
-    return '<a class="pdx-acct pdx-acct--join" href="/" ' +
+    return '<a class="pdx-acct pdx-acct--join" href="' + esc(joinHref()) + '" ' +
       'title="Join the People — free. Sign-in opens on the front page.">' +
       '<span class="pdx-acct-lb">Join the People</span></a>';
   }

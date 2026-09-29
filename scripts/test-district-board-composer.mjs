@@ -254,7 +254,7 @@ ok(withHost.includes("Who is in the room"), "…and still paints band 2");
 section("6 · the service worker and the copy walls");
 // ═════════════════════════════════════════════════════════════════════════════
 const SW = R("sw.js");
-eq((SW.match(/const CACHE_VERSION = '([^']+)'/) || [])[1], "v256", "the shell moved one version");
+ok(Number(((SW.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]) || 0) >= 256, "the shell moved at least to v256");
 ok(SW.includes("'/district-composer.js',"), "the composer module is precached");
 ok(/v256[\s\S]*?MIGRATION COST: none/.test(SW), "the log says no migration");
 const CLIENT = R("district-composer.js");

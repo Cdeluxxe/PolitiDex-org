@@ -335,6 +335,12 @@
     function closeAuthModal() {
       const overlay = document.getElementById('auth-overlay');
       overlay.style.opacity = '0';
+      // THE SHEET CLOSING IS THE SETTLE. A reader who came from a district
+      // board's Join (/?join=1&next=/district/…) is sent back to that board
+      // whether they signed in or dismissed — PDXReturn owns the intent and
+      // the gate, and without one this is a no-op, which is the front page's
+      // own Join exactly as it always was.
+      try { if (window.PDXReturn && window.PDXReturn.authSettled()) return; } catch (e) {}
       setTimeout(() => {
         overlay.style.display = 'none';
         if (document.getElementById('modal-overlay').style.display === 'none' &&
@@ -1294,6 +1300,42 @@
     window.submitAuthForm = submitAuthForm;
     window.loginWithGoogle = loginWithGoogle;
     window.updateNavAuth = updateNavAuth;
+
+    // ── AN ARRIVAL THAT ASKED FOR AN ACCOUNT GETS THE SHEET ─────────────────
+    // A district board has no sign-in UI. Its chrome's Join and SD-3's "Sign in
+    // to start" send the reader here with PDXReturn's join marker and the board
+    // as `next` (/?join=1&next=/district/ut-sd-3); landing on the homepage with
+    // no sheet open was the bug. So once Firebase has answered, a signed-out
+    // reader gets the sheet, and one who is already signed in is settled on the
+    // spot. Closing the sheet — sign-in or dismiss — goes through
+    // closeAuthModal(), which calls PDXReturn.authSettled() and sends them back.
+    //
+    // NO MARKER, NOTHING HAPPENS: the front page's own Join opens the sheet in
+    // place and carries no intent, exactly as before.
+    function _joinArrival() {
+      var R = window.PDXReturn;
+      if (!R || typeof R.wantsJoin !== 'function' || !R.wantsJoin()) return;
+      var done = false;
+      function answer(force) {
+        if (done) return;
+        var A = window.PDXAuth;
+        if (!force && A && !A.known) return;
+        done = true;
+        if (A && A.state === 'in') { try { R.authSettled(); } catch (e) {} return; }
+        try { openAuthModal(); } catch (e) {}
+      }
+      try {
+        if (typeof auth !== 'undefined' && auth && typeof auth.onAuthStateChanged === 'function') {
+          auth.onAuthStateChanged(function () { answer(false); });
+        }
+      } catch (e) {}
+      answer(false);
+      // The SDK may never land (blocked, offline). Same six-second bound the
+      // chrome uses: the reader gets the sheet rather than nothing.
+      setTimeout(function () { answer(true); }, 6000);
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _joinArrival);
+    else _joinArrival();
     window.syncUserDataFromFirestore = syncUserDataFromFirestore;
     window._findRaceKeyForPolitician = _findRaceKeyForPolitician;
 

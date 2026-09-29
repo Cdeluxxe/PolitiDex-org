@@ -745,10 +745,65 @@
       return FINDER + '?' + PARAM + '=' + encodeURIComponent(sanitize(next) || HOME);
     }
 
+    // ── THE ACCOUNT DOOR — THE SAME INTENT, CARRIED TO THE SIGN-IN SHEET ─────
+    // THE BUG THIS CLOSES. A district board has no sign-in UI of its own: the
+    // front page owns the auth modal, so "Join the People" in a board's chrome
+    // and the composer's "Sign in to start" were both a plain trip to '/'. The
+    // reader arrived on the homepage with no sheet open and no way back to the
+    // board that asked them for an account — the exact shape of the finder bug
+    // above, one door over.
+    //
+    // SO IT IS THE SAME PARAMETER AND THE SAME ALLOW-LIST, not a second stash.
+    // joinHref() puts `next` on the front page's address plus one marker, JOIN,
+    // which says "open the account sheet on arrival". The front page opens it;
+    // closing it — a real sign-in or a dismiss, both end in closeAuthModal() —
+    // calls authSettled(), which is consume() with the second gate it needs.
+    //
+    // NO INTENT, NO MARKER. A door whose own address is not on OK_RE (or is the
+    // front page itself) gets plain '/', which is today's Join exactly: nobody
+    // expressed anywhere to come back to, so nothing is invented.
+    var JOIN = 'join';
+
+    function joinHref(next) {
+      var n = '';
+      if (next == null) {
+        try { n = sanitize(strip(window.location.pathname)); } catch (e) { n = ''; }
+      } else {
+        n = sanitize(next);
+      }
+      if (!n || strip(n) === '/') return '/';
+      return '/?' + JOIN + '=1&' + PARAM + '=' + encodeURIComponent(n);
+    }
+
+    // The marker on THIS page's URL. Only a door that went through joinHref()
+    // sets it, so a `next` that came for the location picker never rides a
+    // sign-in out of the page.
+    function wantsJoin() {
+      try { return /[?&]join=1(?:[&#]|$)/.test(String(window.location.search || '')); } catch (e) { return false; }
+    }
+
+    // The account intent, or '' — STRICT where read() is forgiving. read() lands
+    // a mangled `next` on /voice because the finder is this lane's own tool; a
+    // sign-in that came with a mangled intent has no lane to fall back to, and
+    // the rule is that a settled sheet never lands anywhere it was not asked to.
+    function joinIntent() {
+      if (!wantsJoin()) return '';
+      var m = null;
+      try { m = /[?&]next=([^&#]*)/.exec(String(window.location.search || '')); } catch (e) { m = null; }
+      return m ? sanitize(m[1]) : '';
+    }
+
     function consume() {
       var next = read();
       if (!next) return false;
-      if (!window._pdxLocSaved || !window._hasUserLocation) return false;
+      if (!window._pdxLocSaved || !window._hasUserLocation) {
+        // No location was saved on this page view, so the only thing that can
+        // still spend the intent is a settled account sheet that was opened FOR
+        // it. Anything else stays exactly where it is.
+        if (!window._pdxAuthSettled) return false;
+        next = joinIntent();
+        if (!next) return false;
+      }
       var at = '';
       try { at = strip(window.location.pathname); } catch (e) { at = ''; }
       if (at === strip(next)) return false;
@@ -784,10 +839,21 @@
       try { window.location.assign('/' + FRAGMENT); return true; } catch (e) { return false; }
     }
 
+    // ── authSettled() — THE SHEET CLOSED; SPEND THE ACCOUNT INTENT ──────────
+    // Called by the front page's closeAuthModal() on every close: a sign-in, a
+    // sign-up, a Google popup that came back, or the reader pressing ✕. Success
+    // and dismiss are one answer on purpose — the board asked, the reader
+    // answered, and either way the board is where they were standing.
+    function authSettled() {
+      window._pdxAuthSettled = true;
+      return consume();
+    }
+
     return {
-      HOME: HOME, PARAM: PARAM, FINDER: FINDER, OK_RE: OK_RE, FRAGMENT: FRAGMENT,
+      HOME: HOME, PARAM: PARAM, FINDER: FINDER, OK_RE: OK_RE, FRAGMENT: FRAGMENT, JOIN: JOIN,
       sanitize: sanitize, read: read, here: here,
-      finderHref: finderHref, consume: consume, settled: settled
+      finderHref: finderHref, consume: consume, settled: settled,
+      joinHref: joinHref, wantsJoin: wantsJoin, joinIntent: joinIntent, authSettled: authSettled
     };
   })();
 
