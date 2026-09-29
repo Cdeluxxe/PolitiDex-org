@@ -70,7 +70,7 @@ import {
 } from "../../db/schema.js";
 
 // ── THE SEAT ALLOW-LIST, AND IT IS NOT A WILDCARD ───────────────────────────
-// FIVE ENTRIES, because five boards have opened. A seat key that is not on this
+// SIX ENTRIES, because six boards have opened. A seat key that is not on this
 // list gets 404 rather than a row of zeroes: "nobody is here" and "there is no
 // here" are different sentences, and answering the second with the first would
 // let this endpoint publish an empty room for every district in the country.
@@ -80,8 +80,8 @@ import {
 // 75 Utah House districts, 72 of which have no document, no reader and no room.
 // Every query below is keyed by the seat string alone, so the same three
 // aggregates serve every row without a per-seat branch anywhere in this file —
-// adding the fifth board was one row here and nothing else, and the sixth will
-// be the same.
+// adding the fifth board was one row here and nothing else, and so was the
+// sixth (SD-6).
 //
 // THE ALIAS IS NORMALIZED BEFORE THE QUERY, so Postgres only ever sees the
 // canonical key — ut-cd-2 and ut-house-2 are one place, exactly as
@@ -94,6 +94,7 @@ const BOARD_SEATS: Record<string, 1> = {
   "ut-statesenate-7": 1,
   "ut-house-2": 1,
   "ut-statehouse-15": 1,
+  "ut-statesenate-6": 1,
 };
 const SEAT_KEY_RE = /^[a-z]{2}-(?:house|statesenate|statehouse)-[1-9][0-9]*$/;
 const ALIAS_CHAMBERS: Record<string, string> = {

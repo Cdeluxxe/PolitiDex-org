@@ -1,8 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    district-board.js — THE DISTRICT VOICE READERS, AND THEY ARE READERS
    ───────────────────────────────────────────────────────────────────────────
-   FIVE SEATS HAVE A BOARD YOU CAN READ AT AN ADDRESS, and ONE module serves all
-   five. Each is a row in BOARDS below, and nothing about a board lives anywhere
+   SIX SEATS HAVE A BOARD YOU CAN READ AT AN ADDRESS, and ONE module serves all
+   six. Each is a row in BOARDS below, and nothing about a board lives anywhere
    but its row:
 
      /district/ut-sd-3   Utah Senate District 3 — North Ogden and Weber County
@@ -10,11 +10,12 @@
      /district/ut-sd-7   Utah Senate District 7 — Layton and Davis County
      /district/ut-cd-2   Utah's 2nd Congressional District
      /district/ut-hd-15  Utah House District 15 — Layton and Davis County
+     /district/ut-sd-6   Utah Senate District 6 — Davis County
 
    THE ALLOW-LIST IS THE PRODUCT, NOT AN OPTIMISATION. There is no /district/*
    splat and no pattern that composes an address out of a seat number, because
    the moment one exists this app has an address for every district in the
-   country and a document behind five of them. A seat that is not a row here has
+   country and a document behind six of them. A seat that is not a row here has
    no board, /voice says so in words, and the endpoint 404s it.
 
    ADDING A BOARD IS FOUR ROWS AND A DOCUMENT — this table, district-voice.js's
@@ -39,7 +40,7 @@
    in it and the list of what is actually on its table.
 
    ── WHO HOLDS THE SEAT, AND THE TWO OWNERS OF THAT ANSWER ──────────────────
-   Four of the five boards name their holder with a ROSTER KEY on their own row
+   Five of the six boards name their holder with a ROSTER KEY on their own row
    and band 1 reads that row and nothing else. The congressional board has NO
    pid: /district/ut-cd-2's member is resolved through
    window._pdxUsHouseSeat('Utah', 2) — voter-hub-location.js's one owner of
@@ -188,15 +189,15 @@
   if (window.PDXDistrictBoard) return;   // idempotent — a double script tag is one board
 
   // ── THE BOARDS, AND EACH ONE IS A ROW ─────────────────────────────────────
-  // FIVE SEATS HAVE A BOARD, AND THIS IS THE WHOLE LIST. It grew from one row
-  // to five without growing a second implementation: everything below is
+  // SIX SEATS HAVE A BOARD, AND THIS IS THE WHOLE LIST. It grew from one row
+  // to six without growing a second implementation: everything below is
   // parameterised by the ACTIVE board, and a board is the row that names it.
-  // Adding a sixth is a row here, a row in district-voice.js's BOARD_ROUTES, a
+  // Adding a seventh is a row here, a row in district-voice.js's BOARD_ROUTES, a
   // row in netlify/functions/district-board.mts's BOARD_SEATS, three rewrites in
   // netlify.toml and a document — no pattern, no `/district/*` splat, no
   // per-seat fork of this file. HD-15 was the fifth and it cost exactly that:
   // the row below, four allow-list rows elsewhere, one document, and not one
-  // line of new render code.
+  // line of new render code. SD-6 was the sixth and cost the same.
   //
   // WHAT EACH FIELD IS FOR.
   //   seat   the canonical key Postgres knows, and the only spelling that ever
@@ -206,7 +207,7 @@
   //          Function's, so a board cannot open on one side of the wire only.
   //   alias  the spelling in the URL, and the value sent as ?seat=.
   //   route  the board's own address. The ONE place it is written on the client.
-  //   pid    the roster row band 1 reads — for the three seats whose holder is
+  //   pid    the roster row band 1 reads — for the five seats whose holder is
   //          named by a key on the roster and nothing else.
   //   usHouse
   //          FOR A CONGRESSIONAL SEAT THERE IS NO PID HERE, ON PURPOSE. A U.S.
@@ -286,6 +287,22 @@
       kick: 'House District 15 board',
       kickTitle: 'The district board for Utah House District 15: who is in the room ' +
                  'and what is on the table. A place, not a scorecard.'
+    },
+    // THE SIXTH, APPENDED FOR THE SAME REASON. jstevenson is the roster row
+    // cmp-data.js already keys to "UT District 6" and the pid seated-member.js's
+    // senate table already names for district 6 — nothing new is claimed about
+    // who holds the seat. SD-6 sits in Davis County beside SD-7 and is a different
+    // seat with a different member.
+    'ut-statesenate-6': {
+      seat: 'ut-statesenate-6',
+      alias: 'ut-sd-6',
+      route: '/district/ut-sd-6',
+      pid: 'jstevenson',
+      h1: 'Utah Senate District 6',
+      where: 'Davis County',
+      kick: 'Senate District 6 board',
+      kickTitle: 'The district board for Utah Senate District 6: who is in the room ' +
+                 'and what is on the table. A place, not a scorecard.'
     }
   };
 
@@ -338,7 +355,7 @@
   // where the path names a person. So each board document declares its own seat
   // twice — a sync `window.__PDX_DISTRICT_BOARD_SEAT` in the head and a
   // `data-pdxdb-seat` on the host element — and the suite asserts every one of
-  // the five documents does, because a document that declared neither would
+  // the six documents does, because a document that declared neither would
   // paint the DEFAULT board's seat under its own heading, which is the exact
   // class of confident wrongness this whole surface exists to avoid.
   function hostSeat(el) {

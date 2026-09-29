@@ -771,7 +771,7 @@ for (const w of ['vh-loc-mapbadge', 'pdxPaintStateShape', 'data-pdxhome']) {
 
 // THE DISTRICT BOARDS are still named rows and still have no splat. A seats
 // card is not a board, and it must not have quietly become a route. The count
-// is five because HD-15 opened; what this block guards is that the table grew
+// is six because HD-15 and then SD-6 opened; what this block guards is that the table grew
 // by a DECIDED row and never by a pattern, and that this pass's card is not
 // one of them.
 {
@@ -781,9 +781,9 @@ for (const w of ['vh-loc-mapbadge', 'pdxPaintStateShape', 'data-pdxhome']) {
   const tbl = DV.slice(DV.indexOf('var BOARD_ROUTES = {'), DV.indexOf('};', DV.indexOf('var BOARD_ROUTES = {')));
   const routes = [...tbl.matchAll(/'\/district\/([a-z0-9-]+)'/g)].map((m) => m[1]);
   must(routes.length > 0, 'BOARD_ROUTES no longer lists board paths the way this assertion reads them');
-  eq(routes.length, 5,
-    'the board table is no longer five rows. This pass adds a card, not a board: ' + JSON.stringify(routes));
-  for (const a of ['ut-sd-3', 'ut-hd-16', 'ut-sd-7', 'ut-cd-2', 'ut-hd-15']) {
+  eq(routes.length, 6,
+    'the board table is no longer six rows. This pass adds a card, not a board: ' + JSON.stringify(routes));
+  for (const a of ['ut-sd-3', 'ut-hd-16', 'ut-sd-7', 'ut-cd-2', 'ut-hd-15', 'ut-sd-6']) {
     ok(routes.indexOf(a) !== -1, `the board ${a} has left BOARD_ROUTES`);
   }
   ok(!/from\s*=\s*"\/district\/[^"]*\*/.test(TOML),

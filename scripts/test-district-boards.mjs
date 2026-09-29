@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
-// Tests for THE FOUR BOARDS THAT OPENED BESIDE SD-3 — /district/ut-hd-16,
-// /district/ut-sd-7, /district/ut-cd-2 and /district/ut-hd-15
+// Tests for THE FIVE BOARDS THAT OPENED BESIDE SD-3 — /district/ut-hd-16,
+// /district/ut-sd-7, /district/ut-cd-2, /district/ut-hd-15 and /district/ut-sd-6
 // ─────────────────────────────────────────────────────────────────────────────
 // scripts/test-district-voice-sd3.mjs is the DEEP suite. It reads one board end
 // to end — every band, every absence state, every wall — and it stays the file
 // that does that, because reading a surface once carefully is worth more than
-// reading it five times quickly.
+// reading it six times quickly.
 //
-// THIS IS THE SIBLING, AND IT ASKS ONE QUESTION FIVE TIMES: is each address the
-// same contract as SD-3, for its own seat? The four new boards are copies of a
+// THIS IS THE SIBLING, AND IT ASKS ONE QUESTION SIX TIMES: is each address the
+// same contract as SD-3, for its own seat? The five new boards are copies of a
 // contract and not a new product, so what needs proving is not that a board
 // works — SD-3's suite proves that — but that adding rows to a table did not
-// quietly make five pages into one page with five URLs.
+// quietly make six pages into one page with six URLs.
 //
 // HD-15 IS THE FOURTH COPY AND THE SHARPEST ONE. It shares Layton and Davis
 // County with HD-16 and SD-7, so every assertion here that a document prints
@@ -21,12 +21,18 @@
 // It is also the seat this suite USED to name as the neighbour with no board;
 // that role moved to HD-14, which really has none.
 //
+// SD-6 IS THE FIFTH COPY, AND THE SENATE TWIN OF THAT PROBLEM. It sits in
+// Davis County beside SD-7, and the Davis slate is exactly what once put Jerry
+// Stevenson on the SD-7 card. §9 pins it by itself: band 1 is jstevenson on
+// District 6, SD-7's band 1 is still Stuart Adams, and a BOARDS row mutated to
+// carry SD-7's pid on SD-6 fails the same check the real row passes.
+//
 // THE FAILURE MODES, EVERY ONE OF WHICH SHIPS LOOKING FINE:
 //
 //   1. EVERY BOARD PAINTS SD-3. district-board.js resolves ACTIVE from the
 //      document, so a document that forgot to declare its seat prints North
 //      Ogden's heading, John Johnson's name and Weber County's room under a
-//      Layton URL. §3 asserts all five documents declare their seat TWICE, and
+//      Layton URL. §3 asserts all six documents declare their seat TWICE, and
 //      §4 boots each one and reads the name that came out.
 //   2. THE OFFICE LINE IS TIDIED. SD-7's roster row reads "Utah Senate
 //      President" because the member who holds Senate District 7 presides over
@@ -41,23 +47,23 @@
 //      ut-cd-2 with the real owner present and asserts the join's answer, then
 //      boots it WITHOUT the owner and asserts "no member on file" — not a
 //      guess, not the previous holder, not a roster scan.
-//   4. THE ALLOW-LIST BECOMES A PATTERN. Five rows in four places. A
+//   4. THE ALLOW-LIST BECOMES A PATTERN. Six rows in four places. A
 //      `/district/*` splat, or a `^ut-statehouse-\d+$` in the Function, would
 //      open 75 Utah House districts with no document and no room. §1 and §2
 //      assert named rows and the absence of any wildcard.
 //   5. A COUNT IS INVENTED, OR A ZERO IS DRESSED AS DATA. §5 boots each board
 //      against a store holding nothing and asserts three zeroes WITH their
 //      provenance, and that the request carried this board's own alias.
-//   6. EQUITY LANGUAGE REACHES A PUBLIC BOARD. §7 sweeps all four new
+//   6. EQUITY LANGUAGE REACHES A PUBLIC BOARD. §7 sweeps all five new
 //      documents the way SD-3's suite sweeps the first.
 //   7. THE FUNCTION LEARNS TO SELECT A ROW. §8 asserts every statement is an
 //      aggregate and that no field a person could be reconstructed from is on
 //      the wire.
 //   8. THE HUB OFFERS THE EMPTY SENTENCE FOR A SEAT THAT NOW HAS A BOARD. §6
-//      paints /voice for a reader in each of the four districts and asserts the
+//      paints /voice for a reader in each of the five districts and asserts the
 //      card is a door, and that a neighbouring seat's card still is not.
 //
-// Eight sections:
+// Nine sections:
 //
 //   1. THE ADDRESSES — three exact 200s each, its own document, no splat.
 //   2. THE FOUR ALLOW-LISTS AGREE, and a neighbour is on none of them.
@@ -67,6 +73,8 @@
 //   6. THE HUB — Open board, not the empty sentence.
 //   7. NO EQUITY LANGUAGE.
 //   8. THE FUNCTION — aggregates only, and never a person row.
+//   9. SD-6 BY ITSELF — Stevenson on District 6, Adams still on 7, and a
+//      mutated row that swaps them fails.
 //
 //   node scripts/test-district-boards.mjs
 //
@@ -74,6 +82,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { existsSync, readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
@@ -115,9 +124,9 @@ const scriptBare = (s) => String(s).replace(/<script\b[^>]*>[\s\S]*?<\/script>/g
 const tagBare = (s) => String(s).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 const textOf = (f) => tagBare(scriptBare(styleBare(htmlBare(R(f)))));
 
-// ── THE FIVE BOARDS, AS THIS SUITE EXPECTS TO FIND THEM ─────────────────────
+// ── THE SIX BOARDS, AS THIS SUITE EXPECTS TO FIND THEM ──────────────────────
 // SD-3 is the CONTROL and is carried through every section deliberately: the
-// four new boards are its contract, so a change that broke the copies and the
+// five new boards are its contract, so a change that broke the copies and the
 // original in the same way would otherwise pass. Its own deep suite is
 // scripts/test-district-voice-sd3.mjs.
 //
@@ -170,14 +179,25 @@ const BOARDS = [
     heading: "Utah House District 15", office: "Utah State Representative", member: "Ariel Defay",
     county: "Davis County", city: "Layton",
   },
+  {
+    // THE FIFTH COPY, APPENDED FOR THE SAME REASON. jstevenson is the roster
+    // row cmp-data.js keys to "UT District 6"; the office is "Utah State
+    // Senator" as that row spells it — not SD-3's "UT State Senator" and not
+    // SD-7's "Utah Senate President". Three senators, three spellings.
+    alias: "ut-sd-6", seat: "ut-statesenate-6", doc: "district-ut-sd-6.html",
+    chamber: "statesenate", label: "State Senate", district: "6",
+    pid: "jstevenson", join: false,
+    heading: "Utah Senate District 6", office: "Utah State Senator", member: "Jerry Stevenson",
+    county: "Davis County", city: "Layton",
+  },
 ];
 const NEW_BOARDS = BOARDS.filter((b) => !b.control);
-must(NEW_BOARDS.length === 4, `this suite expects four new boards, found ${NEW_BOARDS.length}`);
+must(NEW_BOARDS.length === 5, `this suite expects five new boards, found ${NEW_BOARDS.length}`);
 
 // ═════════════════════════════════════════════════════════════════════════════
 // 1 · THE ADDRESSES
 // ═════════════════════════════════════════════════════════════════════════════
-section("1 · five addresses, three spellings each, and not one wildcard");
+section("1 · six addresses, three spellings each, and not one wildcard");
 
 // EVERY REDIRECT THE FILE DECLARES, parsed off the source rather than through a
 // TOML library, because what is asserted is the shape a human reads in the file.
@@ -201,15 +221,15 @@ for (const b of BOARDS) {
   }
 }
 // AND NOTHING ELSE UNDER /district/ IS SERVED. The set of from-values is exactly
-// the twelve above: a thirteenth rule would be an address with no document, and
+// the eighteen above: a nineteenth rule would be an address with no document, and
 // a splat would be all of them.
 eq(districtRules.length, BOARDS.length * 3,
-  `/district/ has exactly ${BOARDS.length * 3} rules — one document, three spellings, five boards`);
+  `/district/ has exactly ${BOARDS.length * 3} rules — one document, three spellings, six boards`);
 for (const r of districtRules) {
   ok(r.from.indexOf("*") < 0 && r.from.indexOf(":") < 0,
     `no pattern in a /district/ rule (${r.from})`);
 }
-// THE ORDER INVARIANT SD-3's SUITE ALREADY KEEPS, restated across five boards:
+// THE ORDER INVARIANT SD-3's SUITE ALREADY KEEPS, restated across six boards:
 // first match wins in netlify.toml, so no earlier rule may shadow these.
 for (const b of BOARDS) {
   const mine = RULES.findIndex((r) => r.from === `/district/${b.alias}`);
@@ -221,7 +241,7 @@ for (const b of BOARDS) {
 // ═════════════════════════════════════════════════════════════════════════════
 // 2 · THE FOUR ALLOW-LISTS
 // ═════════════════════════════════════════════════════════════════════════════
-section("2 · four lists, five rows each, and a neighbouring seat is on none of them");
+section("2 · four lists, six rows each, and a neighbouring seat is on none of them");
 
 // (a) THE CLIENT BOARD TABLE, run rather than read.
 const bootBare = (seat) => {
@@ -236,7 +256,7 @@ const B = W.PDXDistrictBoard;
 must(B && B.BOARDS, "PDXDistrictBoard did not publish a BOARDS table");
 
 eq(Object.keys(B.BOARD_SEATS).sort().join(","), BOARDS.map((b) => b.seat).sort().join(","),
-  "district-board.js: the allow-list is exactly these five seats");
+  "district-board.js: the allow-list is exactly these six seats");
 for (const b of BOARDS) {
   const row = B.board(b.alias);
   must(!!row, `district-board.js: board("${b.alias}") answered nothing`);
@@ -257,7 +277,7 @@ vm.runInContext(DV, vm.createContext(dvWin), { filename: "district-voice.js" });
 const V = dvWin.PDXVoice;
 must(V && V.BOARD_ROUTES, "district-voice.js did not publish BOARD_ROUTES");
 eq(Object.keys(V.BOARD_ROUTES).sort().join(","), BOARDS.map((b) => b.seat).sort().join(","),
-  "district-voice.js: BOARD_ROUTES holds exactly these five rows");
+  "district-voice.js: BOARD_ROUTES holds exactly these six rows");
 for (const b of BOARDS) {
   eq(V.BOARD_ROUTES[b.seat], `/district/${b.alias}`, `BOARD_ROUTES[${b.seat}]`);
   eq(V.boardPath(b.alias), `/district/${b.alias}`, `boardPath("${b.alias}") — the alias spelling`);
@@ -271,25 +291,25 @@ const fnSeats = (() => {
   return [...m[1].matchAll(/"([a-z0-9-]+)":\s*1/g)].map((x) => x[1]).sort();
 })();
 eq(fnSeats.join(","), BOARDS.map((b) => b.seat).sort().join(","),
-  "district-board.mts: BOARD_SEATS is the same five seats the client holds");
+  "district-board.mts: BOARD_SEATS is the same six seats the client holds");
 ok(!/\\d\+|\[0-9\]\+|\.\*/.test((/const BOARD_SEATS[\s\S]*?\};/.exec(FN) || [""])[0]),
   "district-board.mts: the allow-list is rows and not a pattern");
 
 // (d) AND A NEIGHBOUR IS ON NONE OF THEM. HD-14 is next door to HD-15, HD-17 is
-// next door to HD-16, SD-8 is next door to SD-7, UT-1 is next door to UT-2, and
+// next door to HD-16, SD-5 is next door to SD-6, SD-8 is next door to SD-7, UT-1 is next door to UT-2, and
 // not one of them has a document, a room or a reader. This is the whole reason
 // the list is a list — and HD-14 is on this line because HD-15 came off it the
 // day HD-15 got a document. A pass that opens a board has to move the
 // counter-example to a seat that still has none, or this sweep stops testing
 // anything.
-for (const near of ["ut-hd-14", "ut-hd-17", "ut-sd-4", "ut-sd-8", "ut-cd-1", "ut-cd-3"]) {
+for (const near of ["ut-hd-14", "ut-hd-17", "ut-sd-4", "ut-sd-5", "ut-sd-8", "ut-cd-1", "ut-cd-3"]) {
   eq(B.board(near), null, `district-board.js: ${near} has no board`);
   eq(V.boardPath(near), "", `district-voice.js: ${near} gets no route`);
   ok(fnSeats.indexOf(near) < 0, `district-board.mts: ${near} is not on the server's list`);
   ok(!there(`district-${near}.html`), `…and ${near} has no document on disk either`);
 }
 // THE SPLAT IS ASSERTED ABSENT FROM THE RULES AND NOT FROM THE FILE. The
-// comment block above those fifteen rules explains at length why /district/* is
+// comment block above those eighteen rules explains at length why /district/* is
 // the wrong shape here, so a substring sweep of the bytes would fail on the
 // paragraph that keeps the wall.
 ok(!RULES.some((r) => r.from.indexOf("/district") === 0 && r.from.indexOf("*") >= 0),
@@ -348,7 +368,7 @@ for (const b of BOARDS) {
 }
 // AND THE OFFLINE BRANCH ASKS THE MAP RATHER THAN THE FIRST BOARD. The single
 // shell.match('/district-ut-sd-3.html') this replaced would have served Weber
-// County's heading under every one of the five addresses.
+// County's heading under every one of the six addresses.
 has(SW, "const boardFile = districtBoardDoc(url && url.pathname);",
   "sw.js: the offline board response is resolved per path");
 ok(!/shell\.match\(["']\/district-ut-sd-3\.html["']\)/.test(SW),
@@ -369,7 +389,7 @@ ok(!/shell\.match\(["']\/district-ut-sd-3\.html["']\)/.test(SW),
     slice + "\n;({ re: DISTRICT_BOARD_NAV_RE, docs: DISTRICT_BOARD_DOCS, doc: districtBoardDoc })");
 
   eq(Object.keys(off.docs).sort().join(","), BOARDS.map((b) => b.alias).sort().join(","),
-    "sw.js: DISTRICT_BOARD_DOCS is not exactly the five aliases");
+    "sw.js: DISTRICT_BOARD_DOCS is not exactly the six aliases");
   eq(new Set(Object.values(off.docs)).size, BOARDS.length,
     "sw.js: two board addresses point at one document offline — one of them would print the other's seat");
 
@@ -388,7 +408,7 @@ ok(!/shell\.match\(["']\/district-ut-sd-3\.html["']\)/.test(SW),
     }
   }
   // A NEIGHBOUR GETS NO DOCUMENT AND NO MATCH, so it cannot fall through to one.
-  for (const near of ["ut-hd-14", "ut-hd-17", "ut-sd-4", "ut-sd-8", "ut-cd-1"]) {
+  for (const near of ["ut-hd-14", "ut-hd-17", "ut-sd-4", "ut-sd-5", "ut-sd-8", "ut-cd-1"]) {
     ok(!off.re.test(`/district/${near}`), `sw.js: /district/${near} matches the board nav regex`);
     eq(off.doc(`/district/${near}`), "", `sw.js: /district/${near} resolves a board document`);
   }
@@ -397,9 +417,9 @@ ok(!/shell\.match\(["']\/district-ut-sd-3\.html["']\)/.test(SW),
     "sw.js: the nav regex became a pattern over every district in the state");
 }
 
-// THE MODULE IS ONE MODULE. Five boards, no second implementation.
+// THE MODULE IS ONE MODULE. Six boards, no second implementation.
 for (const f of ["district-board-hd16.js", "district-board-sd7.js", "district-board-cd2.js",
-                 "district-board-hd15.js", "district-board-2.js"]) {
+                 "district-board-hd15.js", "district-board-sd6.js", "district-board-2.js"]) {
   ok(!there(f), `there is no forked board implementation (${f})`);
 }
 
@@ -549,7 +569,7 @@ const flush = (n = 12) => {
   return p;
 };
 
-// THE EMPTY ROOM, WHICH IS THE TRUE STATE OF ALL FIVE BOARDS TODAY. Nothing has
+// THE EMPTY ROOM, WHICH IS THE TRUE STATE OF ALL SIX BOARDS TODAY. Nothing has
 // been filed in any of them, and the page's job is to say that in words rather
 // than to print 0 and let a reader decide what it meant.
 const EMPTY = (seat) => ({
@@ -582,7 +602,7 @@ for (const b of BOARDS) {
   ok(M.mount(el) === true, `${b.alias}: the board mounts on its own host`);
 
   // THE REQUEST CARRIES THIS BOARD'S ALIAS AND NO OTHER. This is the assertion
-  // that catches five pages sharing one seat.
+  // that catches six pages sharing one seat.
   const counted = urls.filter((u) => u.indexOf("/api/district-board") === 0);
   eq(counted.length, 1, `${b.alias}: exactly one count request`);
   eq(counted[0], `/api/district-board?seat=${b.alias}`, `${b.alias}: …for this seat`);
@@ -613,7 +633,7 @@ for (const b of BOARDS) {
 // ═════════════════════════════════════════════════════════════════════════════
 // 6 · THE HUB
 // ═════════════════════════════════════════════════════════════════════════════
-section("6 · /voice offers a door for these four seats and still refuses the neighbours");
+section("6 · /voice offers a door for these five seats and still refuses the neighbours");
 
 // THE RETURN HELPER, SLICED OUT OF ITS OWNER, exactly as test-voice-hub.mjs
 // does: voice-room.js asks it for the finder's return intent, and the module
@@ -716,8 +736,8 @@ for (const b of NEW_BOARDS) {
   ok(!/\byet\b/i.test(tagBare(h.list)), "hd-14: a seat with no board is not a seat waiting for one");
 }
 
-// ALL FIVE SEATS IN ONE READER'S HALLWAY, which is not a real location but is
-// the arithmetic: five doors, five addresses, no address printed twice. The two
+// ALL SIX SEATS IN ONE READER'S HALLWAY, which is not a real location but is
+// the arithmetic: six doors, six addresses, no address printed twice. The two
 // Layton House seats are both in here on purpose — HD-15 and HD-16 are one
 // number apart and each must print its own address exactly once.
 {
@@ -726,11 +746,11 @@ for (const b of NEW_BOARDS) {
       const pid = b.join ? b.joinPid : b.pid;
       return [pid, { name: b.member, pid }];
     })));
-  ok(!h.err, `all five: the hub boots (${h.err ? h.err.message : "ok"})`);
-  eq((h.list.match(/class="pdxvr-door"/g) || []).length, 5, "all five: five doors");
+  ok(!h.err, `all six: the hub boots (${h.err ? h.err.message : "ok"})`);
+  eq((h.list.match(/class="pdxvr-door"/g) || []).length, BOARDS.length, "all six: six doors");
   for (const b of BOARDS) {
     eq((h.list.match(new RegExp(`href="/district/${b.alias}"`, "g")) || []).length, 1,
-      `all five: ${b.alias} is offered exactly once`);
+      `all six: ${b.alias} is offered exactly once`);
   }
 }
 
@@ -813,7 +833,7 @@ for (const w of [".insert(", ".update(", ".delete(", "db.execute("]) {
 // "there is no here" are different sentences.
 has(FN, 'code: "no_seat" }, 404', "district-board.mts: an off-list seat is 404");
 has(FN, 'code: "unread" }, 503', "district-board.mts: a failed read is 503 and not a zero");
-// THE FIVE ALIASES ALL NORMALIZE TO THEIR CANONICAL KEY BEFORE THE QUERY, so
+// THE SIX ALIASES ALL NORMALIZE TO THEIR CANONICAL KEY BEFORE THE QUERY, so
 // Postgres only ever sees one spelling of a seat.
 {
   const src = (/const SEAT_KEY_RE[\s\S]*?\n}\n/.exec(FN) || [""])[0]
@@ -827,6 +847,109 @@ has(FN, 'code: "unread" }, 503', "district-board.mts: a failed read is 503 and n
   }
   eq(fnNorm("ut-xx-2"), "", "district-board.mts: an unknown chamber is not a seat");
   eq(fnNorm("ut-hd-0"), "", "district-board.mts: district 0 is not a seat");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 9 · SD-6 BY ITSELF
+// ═════════════════════════════════════════════════════════════════════════════
+section("9 · SD-6 is Jerry Stevenson on District 6, and SD-7 is still Stuart Adams");
+
+const SD6 = BOARDS.filter((b) => b.alias === "ut-sd-6")[0];
+const SD7 = BOARDS.filter((b) => b.alias === "ut-sd-7")[0];
+must(SD6 && SD7, "the SD-6 and SD-7 rows are both in this suite's table");
+
+// THE ONE CHECK, WRITTEN ONCE, AND RUN AGAINST THE REAL ROW AND A MUTATED ONE.
+// It answers a list of reasons band 1 is wrong for SD-6; an empty list is a
+// pass. Nothing in it is specific to the source it is handed, so the mutation
+// below proves the check can fail rather than proving a string is present.
+function sd6Band1Faults(modSrc) {
+  const win = makeSandbox();
+  win.__PDX_DISTRICT_BOARD_SEAT = "ut-sd-6";
+  const ctx = vm.createContext(win);
+  for (const f of ["cmp-data.js", "issue-map.js"]) vm.runInContext(R(f), ctx, { filename: f });
+  vm.runInContext(modSrc, ctx, { filename: "district-board.js" });
+  const M = win.PDXDistrictBoard;
+  const html = M.seatHtml();
+  const row = ROSTER[M.PID] || {};
+  const faults = [];
+  if (M.SEAT !== "ut-statesenate-6") faults.push(`seat ${M.SEAT}`);
+  if (M.PID !== "jstevenson") faults.push(`pid ${M.PID}`);
+  if (!/\bDistrict 6\b/.test(String(row.state || ""))) faults.push(`roster row says ${JSON.stringify(row.state)}`);
+  if (html.indexOf('href="/p/jstevenson"') < 0) faults.push("no link to /p/jstevenson");
+  if (html.indexOf("Jerry Stevenson") < 0) faults.push("Jerry Stevenson is not named");
+  if (html.indexOf(`<p class="pdxdb-seat-office">${ROSTER.jstevenson.office}</p>`) < 0) faults.push("office is not the roster's");
+  for (const t of ["Stuart Adams", "/p/sadams", "Senate President"]) if (html.indexOf(t) >= 0) faults.push(`SD-7's ${t} is on it`);
+  return faults;
+}
+
+// (a) THE REAL ROW PASSES.
+{
+  const faults = sd6Band1Faults(MOD);
+  eq(faults.join("; "), "", "sd-6: band 1 is jstevenson on District 6, as the roster spells it");
+  // AND THE PID IS THE ROSTER'S OWN, NOT ONE THIS PASS MADE UP. seated-member.js
+  // is the lifted district table /voice reads, and it already names this pid
+  // for senate district 6.
+  has(R("seated-member.js"), "6:'jstevenson'", "sd-6: the district table names the same pid for SD-6");
+  eq(ROSTER.jstevenson.state, "UT District 6", "sd-6: the roster row's own district line");
+}
+
+// (b) THE MUTATION: SD-7's PID ON THE SD-6 ROW FAILS. If this ever passes, the
+// check above is not reading the row it claims to.
+{
+  const rowAt = MOD.indexOf("'ut-statesenate-6': {");
+  must(rowAt > 0, "sd-6: district-board.js has no SD-6 row to mutate");
+  const pidAt = MOD.indexOf("pid: 'jstevenson'", rowAt);
+  must(pidAt > rowAt && pidAt - rowAt < 200, "sd-6: the SD-6 row's pid could not be located");
+  const mutated = MOD.slice(0, pidAt) + "pid: 'sadams'" + MOD.slice(pidAt + "pid: 'jstevenson'".length);
+  const faults = sd6Band1Faults(mutated);
+  ok(faults.length > 0, "sd-6 mutation: SD-7's pid on the SD-6 row was not caught");
+  ok(faults.some((f) => f.indexOf("pid sadams") === 0), "sd-6 mutation: …and the pid is what was caught");
+  ok(faults.some((f) => f.indexOf("Stuart Adams") >= 0), "sd-6 mutation: …and Adams's name on SD-6 was caught");
+}
+
+// (c) SD-7 IS UNTOUCHED BY THIS ROW. Adams on 7, and Stevenson nowhere on it.
+{
+  const { M, html } = band1(SD7, false);
+  eq(M.PID, "sadams", "sd-7: band 1 still reads sadams");
+  has(html, "Stuart Adams", "sd-7: band 1 still names Stuart Adams");
+  no(html, "Jerry Stevenson", "sd-7: Stevenson is not on SD-7's band 1");
+  no(html, "/p/jstevenson", "sd-7: …or linked from it");
+  no(R(SD7.doc), "jstevenson", "sd-7: the SD-7 document does not name Stevenson's pid");
+  no(R(SD6.doc), "sadams", "sd-6: the SD-6 document does not name Adams's pid");
+}
+
+// (d) THE DOCUMENT: the seat twice, canonical on the bare path, no location
+// module (this board needs no congressional join), and the counts structurally
+// zero — not one integer in the reader-visible copy.
+{
+  const doc = R(SD6.doc);
+  eq((doc.match(/ut-sd-6/g) || []).length >= 2, true, "sd-6: the alias appears at least twice");
+  has(doc, "window.__PDX_DISTRICT_BOARD_SEAT = 'ut-sd-6'", "sd-6: the head declares the seat");
+  has(doc, 'data-pdxdb-seat="ut-sd-6"', "sd-6: the host declares the seat");
+  has(doc, '<link rel="canonical" href="https://politidex.fyi/district/ut-sd-6" />', "sd-6: canonical is the bare path");
+  ok(!/\bsrc="[^"]*voter-hub-location\.js/.test(doc), "sd-6: voter-hub-location.js stays off this document");
+  ok(!/\d/.test(textOf(SD6.doc).replace(/District 6/g, "")),
+    "sd-6: the only digit a reader sees is the district number — no count in the markup");
+  for (const t of ["<textarea", "<form", 'type="submit"', "contenteditable"]) {
+    no(doc, t, `sd-6: no composer (${t})`);
+  }
+}
+
+// (e) THE NEIGHBOURS SHIPPED AS THEY WERE. Their documents are byte-identical
+// to the last commit; a pass that opened SD-6 had no business inside any of
+// them. Skipped (not failed) where there is no git object to compare against.
+{
+  const headOf = (f) => {
+    try {
+      return execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 26 });
+    } catch (e) { return null; }
+  };
+  for (const b of BOARDS) {
+    if (b.alias === "ut-sd-6") continue;
+    const h = headOf(b.doc);
+    if (h == null) { passed++; continue; }
+    ok(h === R(b.doc), `neighbours: ${b.doc} changed in this pass and should not have`);
+  }
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

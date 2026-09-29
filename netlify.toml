@@ -1050,34 +1050,35 @@
 # ═════════════════════════════════════════════════════════════════════════════
 # THE DISTRICT VOICE READERS: /district/<alias> -> district-<alias>.html
 # ─────────────────────────────────────────────────────────────────────────────
-# FIVE ADDRESSES, FIFTEEN RULES, AND NOT ONE WILDCARD.
+# SIX ADDRESSES, EIGHTEEN RULES, AND NOT ONE WILDCARD.
 #
 #   /district/ut-sd-3   Utah Senate District 3    North Ogden, Weber County
 #   /district/ut-hd-16  Utah House District 16    Layton, Davis County
 #   /district/ut-sd-7   Utah Senate District 7    Layton, Davis County
 #   /district/ut-cd-2   Utah's 2nd Congressional  the court-ordered 2026 map
 #   /district/ut-hd-15  Utah House District 15    Layton, Davis County
+#   /district/ut-sd-6   Utah Senate District 6    Davis County
 #
 # WHAT THESE ADDRESSES ARE. A district read as a PLACE rather than as a person.
 # /p/<pid> is a sitting member's file and /voice is where a reader is placed at
 # whatever seat their own saved location names. Neither of those is an address
 # you can hand to a neighbour and say "this is our district". These are.
 #
-# WHY FLAT FILES AND NOT A PATTERN — THE SAME ANSWER AT FIVE ROWS AS AT ONE.
+# WHY FLAT FILES AND NOT A PATTERN — THE SAME ANSWER AT SIX ROWS AS AT ONE.
 # The obvious rule here was /district/* to one template that reads the seat off
 # the path, and it is deliberately NOT what this is. A splat would publish an
 # address for all 29 Utah senate seats, all 75 house seats, all four
 # congressional districts and anything else anybody typed, and every one of
 # those pages would load, render three bands and print zeroes — a board that
-# exists at every address in the state on the night five boards opened.
+# exists at every address in the state on the night six boards opened.
 # /api/district-board answers a seat that is not on its allow-list with 404 for
 # the same reason, and district-voice.js's BOARD_ROUTES grew from one row to
-# five rather than into a regex. FIVE DISTRICTS HAVE A READER, SO FIVE
-# DISTRICTS HAVE AN ADDRESS; the sixth is three more lines in this file, and
+# six rather than into a regex. SIX DISTRICTS HAVE A READER, SO SIX
+# DISTRICTS HAVE AN ADDRESS; the seventh is three more lines in this file, and
 # those three lines are the record that a decision was made. The moment this
 # block is shorter than the list of boards, one of them is a 404 and the other
 # is a lie. HD-15 was the fifth and it cost exactly three lines, which is the
-# whole argument for writing them by hand.
+# whole argument for writing them by hand. SD-6 was the sixth and cost the same.
 #
 # THREE SPELLINGS PER DOCUMENT. The bare path is canonical and the only one
 # printed anywhere — in district-board.js's BOARDS table, in the control on the
@@ -1092,11 +1093,11 @@
 # The .html form is declared because /voice, /money and /my-stances all serve
 # an .html file from an extensionless path, so a reader who guesses the
 # underlying filename guesses THIS shape — and a guess that 404s teaches
-# nothing. The suite asserts, for every one of the five aliases, that all three
+# nothing. The suite asserts, for every one of the six aliases, that all three
 # spellings are present, all three are 200, all three point at that alias's own
 # document, and nothing above them matches.
 #
-# ONE DOCUMENT PER SEAT, NOT ONE DOCUMENT FOR FIVE SEATS. The five files are
+# ONE DOCUMENT PER SEAT, NOT ONE DOCUMENT FOR SIX SEATS. The six files are
 # the same shell with a different seat declared in the head and on the host
 # element; district-board.js is parameterised by that seat and was not forked.
 # The reason the rewrites do not collapse to a single `to` is the service
@@ -1104,14 +1105,14 @@
 # so /district/ut-cd-2 offline is the UT-2 document and not SD-3's heading over
 # UT-2's URL.
 #
-# ORDER: FIFTEEN EXACT PATHS, NO PREFIX, NO SPLAT. Disjoint by inspection of the
+# ORDER: EIGHTEEN EXACT PATHS, NO PREFIX, NO SPLAT. Disjoint by inspection of the
 # literal strings from every rule above — /d/* is a different first segment
 # from /district/, which is the one collision worth saying out loud, since
 # /d/ut-sd-3 and /district/ut-sd-3 name the same seat and are two different
 # documents on purpose: the former is the seat file inside index.html, this is
 # the board. The invariant for whoever adds a rule above: nothing matching
-# /district/<one of those five aliases> may be declared earlier, and the day a
-# /district/* or a catch-all appears these fifteen must stay in front of it.
+# /district/<one of those six aliases> may be declared earlier, and the day a
+# /district/* or a catch-all appears these eighteen must stay in front of it.
 # ═════════════════════════════════════════════════════════════════════════════
 
 # ── Utah Senate District 3 ───────────────────────────────────────────────────
@@ -1130,7 +1131,7 @@
 # The filename a reader might guess from the extensionless path. Same document,
 # not a second canonical: district-ut-sd-3.html's <link rel="canonical"> names
 # the bare /district/ut-sd-3 and nothing on the site links this spelling. The
-# same is true of the .html row under each of the four aliases below.
+# same is true of the .html row under each of the five aliases below.
 [[redirects]]
   from = "/district/ut-sd-3.html"
   to = "/district-ut-sd-3.html"
@@ -1216,6 +1217,28 @@
 [[redirects]]
   from = "/district/ut-hd-15.html"
   to = "/district-ut-hd-15.html"
+  status = 200
+
+# ── Utah Senate District 6 ───────────────────────────────────────────────────
+# Davis County, and the second Davis senate seat to get an address. SD-7 is the
+# other, and the two blocks are why a Davis reader resolving SD-6 and one
+# resolving SD-7 each get their own document and never each other's. The roster
+# row (jstevenson), the person file and the discussion seat key all existed
+# before this pass; these three rules are the whole difference. SD-8 still has
+# none.
+[[redirects]]
+  from = "/district/ut-sd-6"
+  to = "/district-ut-sd-6.html"
+  status = 200
+
+[[redirects]]
+  from = "/district/ut-sd-6/"
+  to = "/district-ut-sd-6.html"
+  status = 200
+
+[[redirects]]
+  from = "/district/ut-sd-6.html"
+  to = "/district-ut-sd-6.html"
   status = 200
 
 # FOLLOW THE MONEY. The lane's own address, and the only page on this site where

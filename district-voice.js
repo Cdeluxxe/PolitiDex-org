@@ -80,10 +80,10 @@
   var VOICE_SEATS = { 'ut-statehouse-68': 1 };
 
   // ── THE BOARD ALLOW-LIST, AND IT IS ONE TABLE ─────────────────────────────
-  // seatKey → the board's own address. FIVE ROWS TODAY, and adding a seat is
+  // seatKey → the board's own address. SIX ROWS TODAY, and adding a seat is
   // still adding a row: no pattern, no splat, no `/district/<anything>` rewrite
   // that answers for districts this app has never drawn. netlify.toml rewrites
-  // exactly these five addresses and nothing else, which is why a table and not
+  // exactly these six addresses and nothing else, which is why a table and not
   // a map — the regex form of this list would print a door for all 75 Utah
   // House districts, 72 of which have no document behind them.
   //
@@ -94,7 +94,7 @@
   // and a surface that conflated them would offer a reader a room that is not
   // there. /voice asks THIS one, because a hallway prints doors that open.
   //
-  // WRONG-SEAT EXCLUSIVITY IS STILL THE PRODUCT, and five rows do not soften it.
+  // WRONG-SEAT EXCLUSIVITY IS STILL THE PRODUCT, and six rows do not soften it.
   // A reader whose saved location resolves Davis County HD-14 gets an HD-14 card
   // with NO DOOR — HD-15 and HD-16 are both next door and neither board is
   // theirs, which is a sharper test of this table than HD-68 ever was. Layton is
@@ -107,12 +107,21 @@
   // really has no document, or the paragraph stops being a test of anything.
   // HD-14 has a member on the roster (lisonbee_h14), a person file, and no
   // board — exactly the shape HD-15 had until this row existed.
+  //
+  // SD-6 IS THE SIXTH, AND IT IS THE SENATE HALF OF THE SAME RULE. Davis
+  // County's curated slate already named Jerry Stevenson on State Senate
+  // District 6, so a Davis reader resolving SD-6 got "Sitting member: Jerry
+  // Stevenson" over "this room is not open". The row below opens that door and
+  // no other: seatPidFor() still weighs every pid against the card's own
+  // chamber and number, so Stevenson never sits on the SD-7 card, and SD-8 is
+  // still a seat with no document.
   var BOARD_ROUTES = {
     'ut-statesenate-3': '/district/ut-sd-3',
     'ut-statehouse-16': '/district/ut-hd-16',
     'ut-statesenate-7': '/district/ut-sd-7',
     'ut-house-2': '/district/ut-cd-2',
-    'ut-statehouse-15': '/district/ut-hd-15'
+    'ut-statehouse-15': '/district/ut-hd-15',
+    'ut-statesenate-6': '/district/ut-sd-6'
   };
 
   // The state name the saved location stores → the postal code a seat key is
