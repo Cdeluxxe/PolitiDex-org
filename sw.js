@@ -8139,7 +8139,29 @@
 //     MIGRATION COST: none, and no location key is migrated, renamed or copied;
 //     district-board.js and district-voice.js are precached and changed, and
 //     one new document joins the shell, so it moves one version.
-const CACHE_VERSION = 'v254';
+// v255 - EVERY OTHER UTAH SEAT THE ROSTER CAN NAME HAS A BOARD.
+//     scripts/gen-district-boards.mjs reads the roster and, from one template
+//     (scripts/district-board.template.html, the HD-15 contract), writes one
+//     document per Utah State House, State Senate and U.S. House seat that has
+//     a sitting pid: 79 of them (50 House, 26 Senate, 3 U.S. House). Each one
+//     declares its seat twice, is canonical on its bare /district/<alias>
+//     address, and has band 1 = that seat's pid with the roster's own office
+//     string. Each seat gets one row in BOARDS, BOARD_ROUTES and the Function's
+//     BOARD_SEATS and three exact 200 rewrites. STILL NO /district/* SPLAT.
+//     SKIPPED, NOT INVENTED: 23 House seats the roster names no sitting member
+//     for get no row, no document and no rewrite, and /voice keeps saying their
+//     room is not open. pdxSeatClaim still gates every row, so a pid never
+//     lands on a seat when the roster puts that pid on a different one.
+//     OFFLINE: the 79 documents join the precache list, the literal alternation
+//     in DISTRICT_BOARD_NAV_RE and DISTRICT_BOARD_DOCS, each between generated
+//     markers. The six hand boards (SD-3, SD-6, SD-7, HD-15, HD-16, UT-2) are
+//     byte-identical.
+//     NOT IN THIS PASS: no composer, no verification, no equity copy, no other
+//     state, no governor or U.S. Senate room, no money, no scores.
+//     MIGRATION COST: none, and no location key is migrated, renamed or copied;
+//     district-board.js and district-voice.js are precached and changed, and
+//     79 new documents join the shell, so it moves one version.
+const CACHE_VERSION = 'v255';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -8292,6 +8314,88 @@ const SHELL_ASSETS = [
   '/district-ut-cd-2.html',
   '/district-ut-hd-15.html',
   '/district-ut-sd-6.html',
+  // Every other board the roster can name, one document each. GENERATED.
+  // @generated district-boards begin precache — scripts/gen-district-boards.mjs writes every line up to the end marker, do not edit by hand
+  '/district-ut-hd-4.html',
+  '/district-ut-hd-5.html',
+  '/district-ut-hd-6.html',
+  '/district-ut-hd-9.html',
+  '/district-ut-hd-10.html',
+  '/district-ut-hd-11.html',
+  '/district-ut-hd-12.html',
+  '/district-ut-hd-14.html',
+  '/district-ut-hd-19.html',
+  '/district-ut-hd-21.html',
+  '/district-ut-hd-22.html',
+  '/district-ut-hd-23.html',
+  '/district-ut-hd-24.html',
+  '/district-ut-hd-25.html',
+  '/district-ut-hd-28.html',
+  '/district-ut-hd-29.html',
+  '/district-ut-hd-30.html',
+  '/district-ut-hd-31.html',
+  '/district-ut-hd-33.html',
+  '/district-ut-hd-34.html',
+  '/district-ut-hd-36.html',
+  '/district-ut-hd-37.html',
+  '/district-ut-hd-39.html',
+  '/district-ut-hd-41.html',
+  '/district-ut-hd-42.html',
+  '/district-ut-hd-43.html',
+  '/district-ut-hd-44.html',
+  '/district-ut-hd-45.html',
+  '/district-ut-hd-46.html',
+  '/district-ut-hd-49.html',
+  '/district-ut-hd-50.html',
+  '/district-ut-hd-51.html',
+  '/district-ut-hd-52.html',
+  '/district-ut-hd-53.html',
+  '/district-ut-hd-55.html',
+  '/district-ut-hd-56.html',
+  '/district-ut-hd-59.html',
+  '/district-ut-hd-60.html',
+  '/district-ut-hd-61.html',
+  '/district-ut-hd-63.html',
+  '/district-ut-hd-64.html',
+  '/district-ut-hd-65.html',
+  '/district-ut-hd-66.html',
+  '/district-ut-hd-67.html',
+  '/district-ut-hd-68.html',
+  '/district-ut-hd-69.html',
+  '/district-ut-hd-70.html',
+  '/district-ut-hd-71.html',
+  '/district-ut-hd-73.html',
+  '/district-ut-hd-75.html',
+  '/district-ut-sd-1.html',
+  '/district-ut-sd-2.html',
+  '/district-ut-sd-4.html',
+  '/district-ut-sd-5.html',
+  '/district-ut-sd-8.html',
+  '/district-ut-sd-9.html',
+  '/district-ut-sd-10.html',
+  '/district-ut-sd-11.html',
+  '/district-ut-sd-12.html',
+  '/district-ut-sd-13.html',
+  '/district-ut-sd-14.html',
+  '/district-ut-sd-15.html',
+  '/district-ut-sd-16.html',
+  '/district-ut-sd-17.html',
+  '/district-ut-sd-18.html',
+  '/district-ut-sd-19.html',
+  '/district-ut-sd-20.html',
+  '/district-ut-sd-21.html',
+  '/district-ut-sd-22.html',
+  '/district-ut-sd-23.html',
+  '/district-ut-sd-24.html',
+  '/district-ut-sd-25.html',
+  '/district-ut-sd-26.html',
+  '/district-ut-sd-27.html',
+  '/district-ut-sd-28.html',
+  '/district-ut-sd-29.html',
+  '/district-ut-cd-1.html',
+  '/district-ut-cd-3.html',
+  '/district-ut-cd-4.html',
+  // @generated district-boards end precache
   '/district-board.js',
   // The chrome all three share — the bar-and-chip sheet and the chip's own small
   // module — and the only two files /me and /courts did not already bring.
@@ -9195,8 +9299,10 @@ const MONEY_NAV_RE = /^\/money\/?$/;
 // which have no document behind them, so an offline reader would be handed a
 // board for a place that has none. Six boards, six names here; the seventh is a
 // name somebody has to decide to add, exactly as ut-hd-15 was.
+// @generated district-boards begin nav-re — scripts/gen-district-boards.mjs writes every line up to the end marker, do not edit by hand
 const DISTRICT_BOARD_NAV_RE =
-  /^\/district\/(?:ut-sd-3|ut-hd-16|ut-sd-7|ut-cd-2|ut-hd-15|ut-sd-6)(?:\/|\.html)?$/;
+  /^\/district\/(?:ut-sd-3|ut-hd-16|ut-sd-7|ut-cd-2|ut-hd-15|ut-sd-6|ut-hd-4|ut-hd-5|ut-hd-6|ut-hd-9|ut-hd-10|ut-hd-11|ut-hd-12|ut-hd-14|ut-hd-19|ut-hd-21|ut-hd-22|ut-hd-23|ut-hd-24|ut-hd-25|ut-hd-28|ut-hd-29|ut-hd-30|ut-hd-31|ut-hd-33|ut-hd-34|ut-hd-36|ut-hd-37|ut-hd-39|ut-hd-41|ut-hd-42|ut-hd-43|ut-hd-44|ut-hd-45|ut-hd-46|ut-hd-49|ut-hd-50|ut-hd-51|ut-hd-52|ut-hd-53|ut-hd-55|ut-hd-56|ut-hd-59|ut-hd-60|ut-hd-61|ut-hd-63|ut-hd-64|ut-hd-65|ut-hd-66|ut-hd-67|ut-hd-68|ut-hd-69|ut-hd-70|ut-hd-71|ut-hd-73|ut-hd-75|ut-sd-1|ut-sd-2|ut-sd-4|ut-sd-5|ut-sd-8|ut-sd-9|ut-sd-10|ut-sd-11|ut-sd-12|ut-sd-13|ut-sd-14|ut-sd-15|ut-sd-16|ut-sd-17|ut-sd-18|ut-sd-19|ut-sd-20|ut-sd-21|ut-sd-22|ut-sd-23|ut-sd-24|ut-sd-25|ut-sd-26|ut-sd-27|ut-sd-28|ut-sd-29|ut-cd-1|ut-cd-3|ut-cd-4)(?:\/|\.html)?$/;
+// @generated district-boards end nav-re
 
 // WHICH DOCUMENT EACH BOARD PATH IS, and the reason this is a map rather than a
 // single match(): every one of these six files carries its own seat in the
@@ -9215,7 +9321,88 @@ const DISTRICT_BOARD_DOCS = {
   'ut-sd-7': '/district-ut-sd-7.html',
   'ut-cd-2': '/district-ut-cd-2.html',
   'ut-hd-15': '/district-ut-hd-15.html',
-  'ut-sd-6': '/district-ut-sd-6.html'
+  'ut-sd-6': '/district-ut-sd-6.html',
+  // @generated district-boards begin docs — scripts/gen-district-boards.mjs writes every line up to the end marker, do not edit by hand
+  'ut-hd-4': '/district-ut-hd-4.html',
+  'ut-hd-5': '/district-ut-hd-5.html',
+  'ut-hd-6': '/district-ut-hd-6.html',
+  'ut-hd-9': '/district-ut-hd-9.html',
+  'ut-hd-10': '/district-ut-hd-10.html',
+  'ut-hd-11': '/district-ut-hd-11.html',
+  'ut-hd-12': '/district-ut-hd-12.html',
+  'ut-hd-14': '/district-ut-hd-14.html',
+  'ut-hd-19': '/district-ut-hd-19.html',
+  'ut-hd-21': '/district-ut-hd-21.html',
+  'ut-hd-22': '/district-ut-hd-22.html',
+  'ut-hd-23': '/district-ut-hd-23.html',
+  'ut-hd-24': '/district-ut-hd-24.html',
+  'ut-hd-25': '/district-ut-hd-25.html',
+  'ut-hd-28': '/district-ut-hd-28.html',
+  'ut-hd-29': '/district-ut-hd-29.html',
+  'ut-hd-30': '/district-ut-hd-30.html',
+  'ut-hd-31': '/district-ut-hd-31.html',
+  'ut-hd-33': '/district-ut-hd-33.html',
+  'ut-hd-34': '/district-ut-hd-34.html',
+  'ut-hd-36': '/district-ut-hd-36.html',
+  'ut-hd-37': '/district-ut-hd-37.html',
+  'ut-hd-39': '/district-ut-hd-39.html',
+  'ut-hd-41': '/district-ut-hd-41.html',
+  'ut-hd-42': '/district-ut-hd-42.html',
+  'ut-hd-43': '/district-ut-hd-43.html',
+  'ut-hd-44': '/district-ut-hd-44.html',
+  'ut-hd-45': '/district-ut-hd-45.html',
+  'ut-hd-46': '/district-ut-hd-46.html',
+  'ut-hd-49': '/district-ut-hd-49.html',
+  'ut-hd-50': '/district-ut-hd-50.html',
+  'ut-hd-51': '/district-ut-hd-51.html',
+  'ut-hd-52': '/district-ut-hd-52.html',
+  'ut-hd-53': '/district-ut-hd-53.html',
+  'ut-hd-55': '/district-ut-hd-55.html',
+  'ut-hd-56': '/district-ut-hd-56.html',
+  'ut-hd-59': '/district-ut-hd-59.html',
+  'ut-hd-60': '/district-ut-hd-60.html',
+  'ut-hd-61': '/district-ut-hd-61.html',
+  'ut-hd-63': '/district-ut-hd-63.html',
+  'ut-hd-64': '/district-ut-hd-64.html',
+  'ut-hd-65': '/district-ut-hd-65.html',
+  'ut-hd-66': '/district-ut-hd-66.html',
+  'ut-hd-67': '/district-ut-hd-67.html',
+  'ut-hd-68': '/district-ut-hd-68.html',
+  'ut-hd-69': '/district-ut-hd-69.html',
+  'ut-hd-70': '/district-ut-hd-70.html',
+  'ut-hd-71': '/district-ut-hd-71.html',
+  'ut-hd-73': '/district-ut-hd-73.html',
+  'ut-hd-75': '/district-ut-hd-75.html',
+  'ut-sd-1': '/district-ut-sd-1.html',
+  'ut-sd-2': '/district-ut-sd-2.html',
+  'ut-sd-4': '/district-ut-sd-4.html',
+  'ut-sd-5': '/district-ut-sd-5.html',
+  'ut-sd-8': '/district-ut-sd-8.html',
+  'ut-sd-9': '/district-ut-sd-9.html',
+  'ut-sd-10': '/district-ut-sd-10.html',
+  'ut-sd-11': '/district-ut-sd-11.html',
+  'ut-sd-12': '/district-ut-sd-12.html',
+  'ut-sd-13': '/district-ut-sd-13.html',
+  'ut-sd-14': '/district-ut-sd-14.html',
+  'ut-sd-15': '/district-ut-sd-15.html',
+  'ut-sd-16': '/district-ut-sd-16.html',
+  'ut-sd-17': '/district-ut-sd-17.html',
+  'ut-sd-18': '/district-ut-sd-18.html',
+  'ut-sd-19': '/district-ut-sd-19.html',
+  'ut-sd-20': '/district-ut-sd-20.html',
+  'ut-sd-21': '/district-ut-sd-21.html',
+  'ut-sd-22': '/district-ut-sd-22.html',
+  'ut-sd-23': '/district-ut-sd-23.html',
+  'ut-sd-24': '/district-ut-sd-24.html',
+  'ut-sd-25': '/district-ut-sd-25.html',
+  'ut-sd-26': '/district-ut-sd-26.html',
+  'ut-sd-27': '/district-ut-sd-27.html',
+  'ut-sd-28': '/district-ut-sd-28.html',
+  'ut-sd-29': '/district-ut-sd-29.html',
+  'ut-cd-1': '/district-ut-cd-1.html',
+  'ut-cd-3': '/district-ut-cd-3.html',
+  'ut-cd-4': '/district-ut-cd-4.html',
+  // @generated district-boards end docs
 };
 
 // The path -> document lookup, and the ONE place a board path is turned into a

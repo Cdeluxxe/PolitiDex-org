@@ -1059,6 +1059,11 @@
 #   /district/ut-hd-15  Utah House District 15    Layton, Davis County
 #   /district/ut-sd-6   Utah Senate District 6    Davis County
 #
+# AND BELOW THEM, EVERY OTHER UTAH SEAT THE ROSTER NAMES A SITTING MEMBER FOR:
+# three exact rules each, written between generated markers by
+# scripts/gen-district-boards.mjs from the same roster that writes the
+# documents. Still no splat: a seat with no sitting pid gets no rule at all.
+#
 # WHAT THESE ADDRESSES ARE. A district read as a PLACE rather than as a person.
 # /p/<pid> is a sitting member's file and /voice is where a reader is placed at
 # whatever seat their own saved location names. Neither of those is an address
@@ -1240,6 +1245,1121 @@
   from = "/district/ut-sd-6.html"
   to = "/district-ut-sd-6.html"
   status = 200
+
+# ── EVERY OTHER UTAH SEAT THE ROSTER CAN NAME ────────────────────────────────
+# Three exact rules per seat, the same three spellings as above, one document
+# each — GENERATED from the roster by scripts/gen-district-boards.mjs, and
+# still no /district/* splat. A seat with no sitting pid on the roster has no
+# rules here and therefore no address: HD-17 and every other unnamed seat stays
+# a 404, and /voice keeps saying its room is not open.
+# @generated district-boards begin — scripts/gen-district-boards.mjs writes every line up to the end marker, do not edit by hand
+# Utah House District 4 — auxier_h4
+[[redirects]]
+  from = "/district/ut-hd-4"
+  to = "/district-ut-hd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-4/"
+  to = "/district-ut-hd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-4.html"
+  to = "/district-ut-hd-4.html"
+  status = 200
+
+# Utah House District 5 — snider_h5
+[[redirects]]
+  from = "/district/ut-hd-5"
+  to = "/district-ut-hd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-5/"
+  to = "/district-ut-hd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-5.html"
+  to = "/district-ut-hd-5.html"
+  status = 200
+
+# Utah House District 6 — rob_bishop
+[[redirects]]
+  from = "/district/ut-hd-6"
+  to = "/district-ut-hd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-6/"
+  to = "/district-ut-hd-6.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-6.html"
+  to = "/district-ut-hd-6.html"
+  status = 200
+
+# Utah House District 9 — jake_sawyer
+[[redirects]]
+  from = "/district/ut-hd-9"
+  to = "/district-ut-hd-9.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-9/"
+  to = "/district-ut-hd-9.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-9.html"
+  to = "/district-ut-hd-9.html"
+  status = 200
+
+# Utah House District 10 — koford_h10
+[[redirects]]
+  from = "/district/ut-hd-10"
+  to = "/district-ut-hd-10.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-10/"
+  to = "/district-ut-hd-10.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-10.html"
+  to = "/district-ut-hd-10.html"
+  status = 200
+
+# Utah House District 11 — hall_h11
+[[redirects]]
+  from = "/district/ut-hd-11"
+  to = "/district-ut-hd-11.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-11/"
+  to = "/district-ut-hd-11.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-11.html"
+  to = "/district-ut-hd-11.html"
+  status = 200
+
+# Utah House District 12 — mschultz
+[[redirects]]
+  from = "/district/ut-hd-12"
+  to = "/district-ut-hd-12.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-12/"
+  to = "/district-ut-hd-12.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-12.html"
+  to = "/district-ut-hd-12.html"
+  status = 200
+
+# Utah House District 14 — lisonbee_h14
+[[redirects]]
+  from = "/district/ut-hd-14"
+  to = "/district-ut-hd-14.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-14/"
+  to = "/district-ut-hd-14.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-14.html"
+  to = "/district-ut-hd-14.html"
+  status = 200
+
+# Utah House District 19 — rward
+[[redirects]]
+  from = "/district/ut-hd-19"
+  to = "/district-ut-hd-19.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-19/"
+  to = "/district-ut-hd-19.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-19.html"
+  to = "/district-ut-hd-19.html"
+  status = 200
+
+# Utah House District 21 — hollins_h24
+[[redirects]]
+  from = "/district/ut-hd-21"
+  to = "/district-ut-hd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-21/"
+  to = "/district-ut-hd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-21.html"
+  to = "/district-ut-hd-21.html"
+  status = 200
+
+# Utah House District 22 — jennifer_dailey_provost
+[[redirects]]
+  from = "/district/ut-hd-22"
+  to = "/district-ut-hd-22.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-22/"
+  to = "/district-ut-hd-22.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-22.html"
+  to = "/district-ut-hd-22.html"
+  status = 200
+
+# Utah House District 23 — hoang_nguyen
+[[redirects]]
+  from = "/district/ut-hd-23"
+  to = "/district-ut-hd-23.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-23/"
+  to = "/district-ut-hd-23.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-23.html"
+  to = "/district-ut-hd-23.html"
+  status = 200
+
+# Utah House District 24 — grant_miller
+[[redirects]]
+  from = "/district/ut-hd-24"
+  to = "/district-ut-hd-24.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-24/"
+  to = "/district-ut-hd-24.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-24.html"
+  to = "/district-ut-hd-24.html"
+  status = 200
+
+# Utah House District 25 — aromero
+[[redirects]]
+  from = "/district/ut-hd-25"
+  to = "/district-ut-hd-25.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-25/"
+  to = "/district-ut-hd-25.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-25.html"
+  to = "/district-ut-hd-25.html"
+  status = 200
+
+# Utah House District 28 — nicholeen_p_peck
+[[redirects]]
+  from = "/district/ut-hd-28"
+  to = "/district-ut-hd-28.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-28/"
+  to = "/district-ut-hd-28.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-28.html"
+  to = "/district-ut-hd-28.html"
+  status = 200
+
+# Utah House District 29 — bolinder_h68
+[[redirects]]
+  from = "/district/ut-hd-29"
+  to = "/district-ut-hd-29.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-29/"
+  to = "/district-ut-hd-29.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-29.html"
+  to = "/district-ut-hd-29.html"
+  status = 200
+
+# Utah House District 30 — fitisemanu_h30
+[[redirects]]
+  from = "/district/ut-hd-30"
+  to = "/district-ut-hd-30.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-30/"
+  to = "/district-ut-hd-30.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-30.html"
+  to = "/district-ut-hd-30.html"
+  status = 200
+
+# Utah House District 31 — verona_mauga
+[[redirects]]
+  from = "/district/ut-hd-31"
+  to = "/district-ut-hd-31.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-31/"
+  to = "/district-ut-hd-31.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-31.html"
+  to = "/district-ut-hd-31.html"
+  status = 200
+
+# Utah House District 33 — doug_owens
+[[redirects]]
+  from = "/district/ut-hd-33"
+  to = "/district-ut-hd-33.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-33/"
+  to = "/district-ut-hd-33.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-33.html"
+  to = "/district-ut-hd-33.html"
+  status = 200
+
+# Utah House District 34 — carol_spackman_moss
+[[redirects]]
+  from = "/district/ut-hd-34"
+  to = "/district-ut-hd-34.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-34/"
+  to = "/district-ut-hd-34.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-34.html"
+  to = "/district-ut-hd-34.html"
+  status = 200
+
+# Utah House District 36 — james_dunnigan
+[[redirects]]
+  from = "/district/ut-hd-36"
+  to = "/district-ut-hd-36.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-36/"
+  to = "/district-ut-hd-36.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-36.html"
+  to = "/district-ut-hd-36.html"
+  status = 200
+
+# Utah House District 37 — ashlee_matthews
+[[redirects]]
+  from = "/district/ut-hd-37"
+  to = "/district-ut-hd-37.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-37/"
+  to = "/district-ut-hd-37.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-37.html"
+  to = "/district-ut-hd-37.html"
+  status = 200
+
+# Utah House District 39 — ivory_h39
+[[redirects]]
+  from = "/district/ut-hd-39"
+  to = "/district-ut-hd-39.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-39/"
+  to = "/district-ut-hd-39.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-39.html"
+  to = "/district-ut-hd-39.html"
+  status = 200
+
+# Utah House District 41 — john_arthur
+[[redirects]]
+  from = "/district/ut-hd-41"
+  to = "/district-ut-hd-41.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-41/"
+  to = "/district-ut-hd-41.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-41.html"
+  to = "/district-ut-hd-41.html"
+  status = 200
+
+# Utah House District 42 — clinton_okerlund
+[[redirects]]
+  from = "/district/ut-hd-42"
+  to = "/district-ut-hd-42.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-42/"
+  to = "/district-ut-hd-42.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-42.html"
+  to = "/district-ut-hd-42.html"
+  status = 200
+
+# Utah House District 43 — eliason_h45
+[[redirects]]
+  from = "/district/ut-hd-43"
+  to = "/district-ut-hd-43.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-43/"
+  to = "/district-ut-hd-43.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-43.html"
+  to = "/district-ut-hd-43.html"
+  status = 200
+
+# Utah House District 44 — teuscher_h44
+[[redirects]]
+  from = "/district/ut-hd-44"
+  to = "/district-ut-hd-44.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-44/"
+  to = "/district-ut-hd-44.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-44.html"
+  to = "/district-ut-hd-44.html"
+  status = 200
+
+# Utah House District 45 — tracy_miller
+[[redirects]]
+  from = "/district/ut-hd-45"
+  to = "/district-ut-hd-45.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-45/"
+  to = "/district-ut-hd-45.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-45.html"
+  to = "/district-ut-hd-45.html"
+  status = 200
+
+# Utah House District 46 — calvin_roberts
+[[redirects]]
+  from = "/district/ut-hd-46"
+  to = "/district-ut-hd-46.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-46/"
+  to = "/district-ut-hd-46.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-46.html"
+  to = "/district-ut-hd-46.html"
+  status = 200
+
+# Utah House District 49 — candice_pierucci
+[[redirects]]
+  from = "/district/ut-hd-49"
+  to = "/district-ut-hd-49.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-49/"
+  to = "/district-ut-hd-49.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-49.html"
+  to = "/district-ut-hd-49.html"
+  status = 200
+
+# Utah House District 50 — gricius_h50
+[[redirects]]
+  from = "/district/ut-hd-50"
+  to = "/district-ut-hd-50.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-50/"
+  to = "/district-ut-hd-50.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-50.html"
+  to = "/district-ut-hd-50.html"
+  status = 200
+
+# Utah House District 51 — leah_hansen
+[[redirects]]
+  from = "/district/ut-hd-51"
+  to = "/district-ut-hd-51.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-51/"
+  to = "/district-ut-hd-51.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-51.html"
+  to = "/district-ut-hd-51.html"
+  status = 200
+
+# Utah House District 52 — cory_maloy_h52
+[[redirects]]
+  from = "/district/ut-hd-52"
+  to = "/district-ut-hd-52.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-52/"
+  to = "/district-ut-hd-52.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-52.html"
+  to = "/district-ut-hd-52.html"
+  status = 200
+
+# Utah House District 53 — kay_christofferson
+[[redirects]]
+  from = "/district/ut-hd-53"
+  to = "/district-ut-hd-53.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-53/"
+  to = "/district-ut-hd-53.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-53.html"
+  to = "/district-ut-hd-53.html"
+  status = 200
+
+# Utah House District 55 — jon_hawkins
+[[redirects]]
+  from = "/district/ut-hd-55"
+  to = "/district-ut-hd-55.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-55/"
+  to = "/district-ut-hd-55.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-55.html"
+  to = "/district-ut-hd-55.html"
+  status = 200
+
+# Utah House District 56 — valpeterson_h56
+[[redirects]]
+  from = "/district/ut-hd-56"
+  to = "/district-ut-hd-56.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-56/"
+  to = "/district-ut-hd-56.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-56.html"
+  to = "/district-ut-hd-56.html"
+  status = 200
+
+# Utah House District 59 — kohler_h59
+[[redirects]]
+  from = "/district/ut-hd-59"
+  to = "/district-ut-hd-59.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-59/"
+  to = "/district-ut-hd-59.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-59.html"
+  to = "/district-ut-hd-59.html"
+  status = 200
+
+# Utah House District 60 — grant_pace
+[[redirects]]
+  from = "/district/ut-hd-60"
+  to = "/district-ut-hd-60.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-60/"
+  to = "/district-ut-hd-60.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-60.html"
+  to = "/district-ut-hd-60.html"
+  status = 200
+
+# Utah House District 61 — lisa_shepherd
+[[redirects]]
+  from = "/district/ut-hd-61"
+  to = "/district-ut-hd-61.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-61/"
+  to = "/district-ut-hd-61.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-61.html"
+  to = "/district-ut-hd-61.html"
+  status = 200
+
+# Utah House District 63 — whyte_h63
+[[redirects]]
+  from = "/district/ut-hd-63"
+  to = "/district-ut-hd-63.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-63/"
+  to = "/district-ut-hd-63.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-63.html"
+  to = "/district-ut-hd-63.html"
+  status = 200
+
+# Utah House District 64 — jackie_larson
+[[redirects]]
+  from = "/district/ut-hd-64"
+  to = "/district-ut-hd-64.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-64/"
+  to = "/district-ut-hd-64.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-64.html"
+  to = "/district-ut-hd-64.html"
+  status = 200
+
+# Utah House District 65 — doug_welton
+[[redirects]]
+  from = "/district/ut-hd-65"
+  to = "/district-ut-hd-65.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-65/"
+  to = "/district-ut-hd-65.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-65.html"
+  to = "/district-ut-hd-65.html"
+  status = 200
+
+# Utah House District 66 — shelley_h66
+[[redirects]]
+  from = "/district/ut-hd-66"
+  to = "/district-ut-hd-66.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-66/"
+  to = "/district-ut-hd-66.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-66.html"
+  to = "/district-ut-hd-66.html"
+  status = 200
+
+# Utah House District 67 — christine_watkins
+[[redirects]]
+  from = "/district/ut-hd-67"
+  to = "/district-ut-hd-67.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-67/"
+  to = "/district-ut-hd-67.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-67.html"
+  to = "/district-ut-hd-67.html"
+  status = 200
+
+# Utah House District 68 — chew_h68
+[[redirects]]
+  from = "/district/ut-hd-68"
+  to = "/district-ut-hd-68.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-68/"
+  to = "/district-ut-hd-68.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-68.html"
+  to = "/district-ut-hd-68.html"
+  status = 200
+
+# Utah House District 69 — logan_monson
+[[redirects]]
+  from = "/district/ut-hd-69"
+  to = "/district-ut-hd-69.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-69/"
+  to = "/district-ut-hd-69.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-69.html"
+  to = "/district-ut-hd-69.html"
+  status = 200
+
+# Utah House District 70 — carl_albrecht
+[[redirects]]
+  from = "/district/ut-hd-70"
+  to = "/district-ut-hd-70.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-70/"
+  to = "/district-ut-hd-70.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-70.html"
+  to = "/district-ut-hd-70.html"
+  status = 200
+
+# Utah House District 71 — rshipp
+[[redirects]]
+  from = "/district/ut-hd-71"
+  to = "/district-ut-hd-71.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-71/"
+  to = "/district-ut-hd-71.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-71.html"
+  to = "/district-ut-hd-71.html"
+  status = 200
+
+# Utah House District 73 — colin_w_jack
+[[redirects]]
+  from = "/district/ut-hd-73"
+  to = "/district-ut-hd-73.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-73/"
+  to = "/district-ut-hd-73.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-73.html"
+  to = "/district-ut-hd-73.html"
+  status = 200
+
+# Utah House District 75 — walt_brooks
+[[redirects]]
+  from = "/district/ut-hd-75"
+  to = "/district-ut-hd-75.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-75/"
+  to = "/district-ut-hd-75.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-hd-75.html"
+  to = "/district-ut-hd-75.html"
+  status = 200
+
+# Utah Senate District 1 — ssandall
+[[redirects]]
+  from = "/district/ut-sd-1"
+  to = "/district-ut-sd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-1/"
+  to = "/district-ut-sd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-1.html"
+  to = "/district-ut-sd-1.html"
+  status = 200
+
+# Utah Senate District 2 — cwilson
+[[redirects]]
+  from = "/district/ut-sd-2"
+  to = "/district-ut-sd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-2/"
+  to = "/district-ut-sd-2.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-2.html"
+  to = "/district-ut-sd-2.html"
+  status = 200
+
+# Utah Senate District 4 — cmusselman
+[[redirects]]
+  from = "/district/ut-sd-4"
+  to = "/district-ut-sd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-4/"
+  to = "/district-ut-sd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-4.html"
+  to = "/district-ut-sd-4.html"
+  status = 200
+
+# Utah Senate District 5 — amillner
+[[redirects]]
+  from = "/district/ut-sd-5"
+  to = "/district-ut-sd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-5/"
+  to = "/district-ut-sd-5.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-5.html"
+  to = "/district-ut-sd-5.html"
+  status = 200
+
+# Utah Senate District 8 — tweiler
+[[redirects]]
+  from = "/district/ut-sd-8"
+  to = "/district-ut-sd-8.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-8/"
+  to = "/district-ut-sd-8.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-8.html"
+  to = "/district-ut-sd-8.html"
+  status = 200
+
+# Utah Senate District 9 — jennifer_plumb
+[[redirects]]
+  from = "/district/ut-sd-9"
+  to = "/district-ut-sd-9.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-9/"
+  to = "/district-ut-sd-9.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-9.html"
+  to = "/district-ut-sd-9.html"
+  status = 200
+
+# Utah Senate District 10 — lescamilla
+[[redirects]]
+  from = "/district/ut-sd-10"
+  to = "/district-ut-sd-10.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-10/"
+  to = "/district-ut-sd-10.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-10.html"
+  to = "/district-ut-sd-10.html"
+  status = 200
+
+# Utah Senate District 11 — emily_buss
+[[redirects]]
+  from = "/district/ut-sd-11"
+  to = "/district-ut-sd-11.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-11/"
+  to = "/district-ut-sd-11.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-11.html"
+  to = "/district-ut-sd-11.html"
+  status = 200
+
+# Utah Senate District 12 — kwan_s12
+[[redirects]]
+  from = "/district/ut-sd-12"
+  to = "/district-ut-sd-12.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-12/"
+  to = "/district-ut-sd-12.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-12.html"
+  to = "/district-ut-sd-12.html"
+  status = 200
+
+# Utah Senate District 13 — blouin_s13
+[[redirects]]
+  from = "/district/ut-sd-13"
+  to = "/district-ut-sd-13.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-13/"
+  to = "/district-ut-sd-13.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-13.html"
+  to = "/district-ut-sd-13.html"
+  status = 200
+
+# Utah Senate District 14 — stephanie_pitcher
+[[redirects]]
+  from = "/district/ut-sd-14"
+  to = "/district-ut-sd-14.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-14/"
+  to = "/district-ut-sd-14.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-14.html"
+  to = "/district-ut-sd-14.html"
+  status = 200
+
+# Utah Senate District 15 — kathleen_riebe
+[[redirects]]
+  from = "/district/ut-sd-15"
+  to = "/district-ut-sd-15.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-15/"
+  to = "/district-ut-sd-15.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-15.html"
+  to = "/district-ut-sd-15.html"
+  status = 200
+
+# Utah Senate District 16 — harper_s16
+[[redirects]]
+  from = "/district/ut-sd-16"
+  to = "/district-ut-sd-16.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-16/"
+  to = "/district-ut-sd-16.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-16.html"
+  to = "/district-ut-sd-16.html"
+  status = 200
+
+# Utah Senate District 17 — lincoln_fillmore
+[[redirects]]
+  from = "/district/ut-sd-17"
+  to = "/district-ut-sd-17.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-17/"
+  to = "/district-ut-sd-17.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-17.html"
+  to = "/district-ut-sd-17.html"
+  status = 200
+
+# Utah Senate District 18 — mccay_s11
+[[redirects]]
+  from = "/district/ut-sd-18"
+  to = "/district-ut-sd-18.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-18/"
+  to = "/district-ut-sd-18.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-18.html"
+  to = "/district-ut-sd-18.html"
+  status = 200
+
+# Utah Senate District 19 — kcullimore
+[[redirects]]
+  from = "/district/ut-sd-19"
+  to = "/district-ut-sd-19.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-19/"
+  to = "/district-ut-sd-19.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-19.html"
+  to = "/district-ut-sd-19.html"
+  status = 200
+
+# Utah Senate District 20 — rwinterton
+[[redirects]]
+  from = "/district/ut-sd-20"
+  to = "/district-ut-sd-20.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-20/"
+  to = "/district-ut-sd-20.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-20.html"
+  to = "/district-ut-sd-20.html"
+  status = 200
+
+# Utah Senate District 21 — brammer_s21
+[[redirects]]
+  from = "/district/ut-sd-21"
+  to = "/district-ut-sd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-21/"
+  to = "/district-ut-sd-21.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-21.html"
+  to = "/district-ut-sd-21.html"
+  status = 200
+
+# Utah Senate District 22 — heidi_balderree
+[[redirects]]
+  from = "/district/ut-sd-22"
+  to = "/district-ut-sd-22.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-22/"
+  to = "/district-ut-sd-22.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-22.html"
+  to = "/district-ut-sd-22.html"
+  status = 200
+
+# Utah Senate District 23 — kgrover
+[[redirects]]
+  from = "/district/ut-sd-23"
+  to = "/district-ut-sd-23.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-23/"
+  to = "/district-ut-sd-23.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-23.html"
+  to = "/district-ut-sd-23.html"
+  status = 200
+
+# Utah Senate District 24 — kstratton
+[[redirects]]
+  from = "/district/ut-sd-24"
+  to = "/district-ut-sd-24.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-24/"
+  to = "/district-ut-sd-24.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-24.html"
+  to = "/district-ut-sd-24.html"
+  status = 200
+
+# Utah Senate District 25 — mckell_s25
+[[redirects]]
+  from = "/district/ut-sd-25"
+  to = "/district-ut-sd-25.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-25/"
+  to = "/district-ut-sd-25.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-25.html"
+  to = "/district-ut-sd-25.html"
+  status = 200
+
+# Utah Senate District 26 — dhinkins
+[[redirects]]
+  from = "/district/ut-sd-26"
+  to = "/district-ut-sd-26.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-26/"
+  to = "/district-ut-sd-26.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-26.html"
+  to = "/district-ut-sd-26.html"
+  status = 200
+
+# Utah Senate District 27 — dowens_st
+[[redirects]]
+  from = "/district/ut-sd-27"
+  to = "/district-ut-sd-27.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-27/"
+  to = "/district-ut-sd-27.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-27.html"
+  to = "/district-ut-sd-27.html"
+  status = 200
+
+# Utah Senate District 28 — evickers
+[[redirects]]
+  from = "/district/ut-sd-28"
+  to = "/district-ut-sd-28.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-28/"
+  to = "/district-ut-sd-28.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-28.html"
+  to = "/district-ut-sd-28.html"
+  status = 200
+
+# Utah Senate District 29 — dipson
+[[redirects]]
+  from = "/district/ut-sd-29"
+  to = "/district-ut-sd-29.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-29/"
+  to = "/district-ut-sd-29.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-sd-29.html"
+  to = "/district-ut-sd-29.html"
+  status = 200
+
+# Utah's 1st Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ut-cd-1"
+  to = "/district-ut-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-cd-1/"
+  to = "/district-ut-cd-1.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-cd-1.html"
+  to = "/district-ut-cd-1.html"
+  status = 200
+
+# Utah's 3rd Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ut-cd-3"
+  to = "/district-ut-cd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-cd-3/"
+  to = "/district-ut-cd-3.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-cd-3.html"
+  to = "/district-ut-cd-3.html"
+  status = 200
+
+# Utah's 4th Congressional District — U.S. House join
+[[redirects]]
+  from = "/district/ut-cd-4"
+  to = "/district-ut-cd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-cd-4/"
+  to = "/district-ut-cd-4.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-cd-4.html"
+  to = "/district-ut-cd-4.html"
+  status = 200
+
+# @generated district-boards end
 
 # FOLLOW THE MONEY. The lane's own address, and the only page on this site where
 # the green-gold money pair is the house style. No 0-100, no grass/mixed/big

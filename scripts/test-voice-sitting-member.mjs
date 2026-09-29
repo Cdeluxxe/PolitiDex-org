@@ -87,6 +87,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { deOrigin } from "./v103-chrome-seams.mjs";
+import { planBoards } from "./gen-district-boards.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -686,9 +687,14 @@ section("7 · six named board rows, an untouched owner, and no new surface");
 const BR = (/var BOARD_ROUTES = \{([\s\S]*?)\n  \};/.exec(DV) || [, ""])[1];
 must(!!BR, "district-voice.js no longer declares BOARD_ROUTES as one literal");
 const brRows = [...BR.matchAll(/'([a-z0-9-]+)':\s*'(\/district\/[a-z0-9-]+)'/g)];
-eq(brRows.length, 6,
-  "boards: BOARD_ROUTES no longer holds exactly six rows. Naming a member does not open or close a\n" +
-  "    room, and a seventh board is a separate decision with a document behind it");
+// AND THE GENERATED ROWS: every other seat the roster names a sitting member
+// for, written by scripts/gen-district-boards.mjs. The count is six hand rows
+// plus that plan, exactly — naming a member in seated-member.js without the
+// generator re-run is not how a room opens.
+const PLANNED_BOARDS = planBoards().boards;
+eq(brRows.length, 6 + PLANNED_BOARDS.length,
+  "boards: BOARD_ROUTES no longer holds exactly the six hand rows plus the generated plan. Naming a member\n" +
+  "    does not open or close a room; the generator, re-run from the roster, does");
 eq(brRows.length, (BR.match(/:\s*'\//g) || []).length,
   "boards: a BOARD_ROUTES row is not a literal seat key mapped to a literal address");
 [["ut-statesenate-3", "/district/ut-sd-3"], ["ut-statehouse-16", "/district/ut-hd-16"],
