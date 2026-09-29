@@ -310,6 +310,74 @@ section("6 · mutation: the checks have teeth");
   ok(!!cr && cr.eff !== EXEC_EFFECT[`${SJ68}|iran_policy`], "a War Powers line printed on the Iran row passed as the Iran line");
 }
 
+// ── THE PERSON FILE'S OWN LOAD, WITH THE LIVE READ IN HAND ──────────────────
+// The sections above read the exec pool. /p/trump does not stop there: it also
+// fetches /api/voting-record/member/trump, which files the same 80 acts as
+// record-lane POSITIONS (kind 'position', actionType = position = 'vetoed' |
+// 'signed' | 'issued', congress null, the stored address under source.url). Once
+// that read lands the drawer is built from it — and a pass that only fixed the
+// exec pool shipped "Voted on the result", a Vote column, a dead S.J. Res. 68 and
+// no lines to that page. So this boots person.html's own script list in its own
+// order and hands it rows in the API's shape, built from the seed the API is
+// loaded from (no network in a test).
+section("the person file, after the live voting-record read");
+{
+  const PH = R("person.html");
+  const PFILES = [...PH.matchAll(/<script[^>]*src="\/([^"]+\.js)"/g)].map((m) => m[1]).filter((f) => !/firebase/.test(f));
+  must(PFILES.includes("consistency.js") && PFILES.includes("exec-action-data.js"), "person.html no longer loads the drawer and the exec seed");
+  const live = TRUMP.map((a) => {
+    const at = a.actionClass === "vetoed_law" ? "vetoed" : a.actionClass === "signed_law" ? "signed" : "issued";
+    const num = a.measureNumber || a.documentId;
+    const mt = a.measureNumber ? (/Res\./.test(num) ? "resolution" : "bill")
+      : a.actionClass === "executive_order" ? "executive_order" : /^Proclamation/.test(num) ? "proclamation" : "memorandum";
+    return { kind: "position", measureType: mt, number: num, title: a.title, chamber: a.chamber || "executive",
+      date: a.actedAt + "T00:00:00.000Z", action: at, actionType: at, position: at, result: null,
+      supports: at !== "vetoed", isProcedural: false, advanceInverted: false, isAmendment: false,
+      rollcallId: null, congress: null, session: null, rollNumber: null, measureIdent: null,
+      issues: (a.issues || []).map((i) => ({ issueKey: i.issueKey, weight: i.weight, supportMeaning: "yea_supports", rationale: i.counts || "" })),
+      source: { url: a.sourceUrl, label: a.sourceLabel } };
+  });
+  const P = makeSandbox();
+  const pctx = vm.createContext(P);
+  P.PROFILES = P.CMP_DATA;
+  for (const f of PFILES) { try { vm.runInContext(R(f), pctx, { filename: f }); } catch { /* a browser-only module */ } }
+  must(!!(P.PDXConsistency && P.PDXVotingRecord), "the person file's drawer or voting record did not boot");
+  const cold = P.PDXConsistency.gapViewHtml("trump", "war_powers") || "";
+  P.PDXVotingRecord.noteMember("trump", live);
+  const warm = P.PDXConsistency.gapViewHtml("trump", "war_powers") || "";
+  for (const [lbl, h] of [["before the read", cold], ["after the read", warm]]) {
+    has(h, "Signed, vetoed or issued", `person file ${lbl}: the acts are not in their own group`);
+    no(h, "Voted on the result", `person file ${lbl}: a veto is filed as a vote on the result`);
+    no(h, "No bill page on file", `person file ${lbl}: a refusal is printed`);
+    ok(!/<th[^>]*>Vote<\/th>/.test(h), `person file ${lbl}: the table still has a Vote column`);
+    for (const [n, want] of [["S.J. Res. 68", "https://www.congress.gov/bill/116th-congress/senate-joint-resolution/68"],
+      ["S.J. Res. 7", "https://www.congress.gov/bill/116th-congress/senate-joint-resolution/7"],
+      ["Executive Order 14353", doc(EO).sourceUrl], ["Proclamation 11015", doc(PROC).sourceUrl]]) {
+      const r = rowOf(h, n);
+      ok(!!r, `person file ${lbl}: ${n} has no ledger row`);
+      if (!r) continue;
+      eq((/href="([^"]+)"/.exec(anchorOf(r.cell)) || [])[1], want, `person file ${lbl}: ${n}'s door`);
+      const key = { "S.J. Res. 68": SJ68, "S.J. Res. 7": SJ7 }[n] || n;
+      eq(r.eff, EXEC_EFFECT[`${key}|war_powers`], `person file ${lbl}: ${n}'s War Powers line`);
+    }
+  }
+  // Iran, as the preview's database holds it after the iran_policy migration.
+  const liveIran = live.map((x) => x.number === "S.J. Res. 68"
+    ? { ...x, issues: x.issues.concat([{ issueKey: "iran_policy", weight: 90, supportMeaning: "yea_supports", rationale: "" }]) } : x);
+  P.PDXVotingRecord.noteMember("trump", liveIran);
+  const ih = P.PDXConsistency.gapViewHtml("trump", "iran_policy") || "";
+  const ir = rowOf(ih, "S.J. Res. 68");
+  ok(!!ir, "person file: the Iran drawer has no S.J. Res. 68 row after the read");
+  if (ir) {
+    eq((/href="([^"]+)"/.exec(anchorOf(ir.cell)) || [])[1], "https://www.congress.gov/bill/116th-congress/senate-joint-resolution/68", "person file: S.J. Res. 68's door on Iran");
+    eq(ir.eff, EXEC_EFFECT[`${SJ68}|iran_policy`], "person file: S.J. Res. 68's Iran line");
+  }
+  ok(!rowOf(ih, "S.J. Res. 7"), "person file: S.J. Res. 7 is on the Iran drawer");
+  // A legislator's record takes none of this: Lee's lands rows are still votes.
+  const lh = P.PDXConsistency.gapViewHtml("lee", "public_lands") || "";
+  ok(!lh || !/Signed, vetoed or issued/.test(lh), "person file: a senator's drawer grew an executive group");
+}
+
 if (failures.length) {
   for (const f of failures.slice(0, 40)) console.error(`  ✗ ${f}`);
   console.error(`\n✗ exec ledger doors: ${failures.length} failed, ${passed} passed`);

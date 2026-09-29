@@ -415,6 +415,15 @@ export const CJ_SEAMS_BELOW = [
   ["    return (typeof c === 'number' && isFinite(c) && c > 0) ? String(c) : '';\n  }\n",
    "  function _dosCongressLabel(n) {\n",
    "one owner of which sitting a number is in"],
+  // L1-. THE ROW BUILDER TAKES AN EXTRA FIELD SET (v265). The live voting-record
+  // read files a president's vetoes, signatures, orders and proclamations as
+  // record-lane positions, and once it lands the drawer is built from it rather
+  // than from the exec pool — so those rows need the exec row's door and effect
+  // line too. withMapping copies the extra fields onto the row before it reads
+  // the mapping; with none it does exactly what it did.
+  ["    var out = [], narrowAt = _dosNarrowAt();\n    var pool = ov.execPool || ov.execHeld || null;\n",
+   "      var m = _dosMapping(item, issueKey);\n      // ON-AXIS OR OFF-AXIS",
+   "the row builder's extra field set"],
   // L1a. THE EXEC ROW'S DOOR AND EFFECT LINE (v264). Four fields on the exec row
   // the dossier already builds: the bill number and sitting a veto names, the
   // official address an order or proclamation already stores, and the stored
@@ -432,6 +441,12 @@ export const CJ_SEAMS_BELOW = [
   ["          plain: (mech && mech.did) || '',\n",
    "          counts: (mech && mech.why) || '',\n",
    "the row's effect line, off the one mechanism lookup"],
+  // L1c. THE LIVE READ'S EXECUTIVE ROW (v265): the fields _dosExecRecFields
+  // returns for a position row that is a president's act, and null for every
+  // other record row — which is every legislator's.
+  ["          voteKey: _orVoteKey(p.item)\n",
+   "    } else if (ov.officialActions && ov.officialActions.items) {\n",
+   "the live read's executive row"],
   // L2/L3. THE CARD'S NUMBER AND ITS TITLE, as real <button>s. Legal here where
   // it is not legal in the roll-up row: this is a <summary>, whose other control
   // — "See all N readings" — has been a real button since it shipped. Both slots
@@ -1772,6 +1787,12 @@ export function assertConsistencyExportSeams(bodies, api) {
   has(execRow, "effLine: _dosExecEffectLine(it, issueKey)", "the exec row's effect line is not the stored measure×issue line");
   ok(!/support|verdict|weight|effect:/.test(strip(execRow)),
     "the exec row's door span sets something that scores");
+  const xtra = cut("the row builder's extra field set");
+  has(xtra, "if (extra) for (var xk in extra)", "the row builder no longer merges the extra field set");
+  ok(!/support|verdict|weight|effect/.test(strip(xtra)), "the row builder's extra field span reads something that scores");
+  const liveX = cut("the live read's executive row");
+  has(liveX, "}, _dosExecRecFields(pid, p.item, issueKey)));",
+    "a live-read executive row is built without the exec row's door and effect line");
   const eff = cut("the row's effect line, off the one mechanism lookup");
   has(eff, "effLine: _dosEffectLine(p.item, issueKey, mech),", "the row no longer carries its effect line off the one mechanism lookup");
   ok(!/_dosMechFor|_DOS_MECH|support|verdict|weight/.test(strip(eff)),

@@ -8299,7 +8299,18 @@
 //     copied. No database migration: the effect lines and URLs live in
 //     consistency.js and the exec seed, not in SQL.
 //     consistency.js is precached and changed, so it moves one version.
-const CACHE_VERSION = 'v264';
+// v265 - THE SAME EXECUTIVE ROWS, AFTER THE LIVE VOTING-RECORD READ.
+//     /p/<pid> also reads /api/voting-record, which files a president's
+//     vetoes, signatures, orders and proclamations as record-lane positions,
+//     and once that read lands the drawer is built from it — so v264's rows
+//     reverted to "Voted on the result", a Vote column, plain numbers and no
+//     lines on the person file. Those rows now take the executive treatment
+//     too, matched to their exec-seed twin by number and date for the congress
+//     and the stored line. No new mapping, no score moved.
+//     MIGRATION COST: none, and no location key is migrated, renamed or
+//     copied. No database migration.
+//     consistency.js is precached and changed, so it moves one version.
+const CACHE_VERSION = 'v265';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

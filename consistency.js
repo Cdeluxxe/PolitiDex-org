@@ -13830,7 +13830,8 @@
     ov = ov || officialIssue(pid, issueKey);
     var out = [], narrowAt = _dosNarrowAt();
     var pool = ov.execPool || ov.execHeld || null;
-    var withMapping = function (item, base) {
+    var withMapping = function (item, base, extra) {
+      if (extra) for (var xk in extra) if (Object.prototype.hasOwnProperty.call(extra, xk)) base[xk] = extra[xk];
       var m = _dosMapping(item, issueKey);
       // ON-AXIS OR OFF-AXIS, from the measure's dominant category — a badge on
       // the row, never a filter on it. The retired leaf `isPrimary` is not read.
@@ -13974,7 +13975,7 @@
           billUrl: _dosBillUrl(p.item),
           url: b.url || '', srcLabel: b.label || 'Congress.gov',
           voteKey: _orVoteKey(p.item)
-        }));
+        }, _dosExecRecFields(pid, p.item, issueKey)));
       });
     } else if (ov.officialActions && ov.officialActions.items) {
       var _faStance = positionStance(pid, issueKey) || '';
@@ -15572,7 +15573,8 @@
     [/^https:\/\/(?:www\.)?federalregister\.gov\/documents\//i, 'the Federal Register'],
     [/^https:\/\/(?:www\.)?whitehouse\.gov\//i, 'WhiteHouse.gov'],
     [/^https:\/\/[a-z0-9-]+whitehouse\.archives\.gov\//i, 'the White House archive'],
-    [/^https:\/\/(?:www\.)?govinfo\.gov\//i, 'GovInfo']
+    [/^https:\/\/(?:www\.)?govinfo\.gov\//i, 'GovInfo'],
+    [/^https:\/\/(?:www\.)?congress\.gov\/bill\//i, 'Congress.gov']
   ];
   function _dosOfficialHost(u) {
     var s = String(u == null ? '' : u).trim();
@@ -15582,6 +15584,56 @@
   function _dosOfficialUrl(it) {
     var u = String((it && it.sourceUrl) || '').trim();
     return _dosOfficialHost(u) ? u : '';
+  }
+  // A PRESIDENT'S ACTS, AS THE LIVE READ FILES THEM. /api/voting-record returns a
+  // president's vetoes, signatures, orders and proclamations as record-lane
+  // POSITIONS (kind 'position', actionType and position both 'vetoed', 'signed'
+  // or 'issued'), and once that read lands the drawer is built from it, not from
+  // the exec pool. Those rows are the same acts as the exec seed's, so they take
+  // the executive row's treatment: their own group, an act word instead of a
+  // ballot, the same door and the same stored effect line. No legislator's record
+  // carries these three words as a position.
+  var _DOS_EXEC_POS = { vetoed: 'vetoed_law', signed: 'signed_law', issued: '' };
+  function _dosExecPos(item) {
+    if (!item || item.kind !== 'position') return false;
+    var at = String(item.actionType || '').toLowerCase();
+    return Object.prototype.hasOwnProperty.call(_DOS_EXEC_POS, at) &&
+      String(item.position || '').toLowerCase() === at;
+  }
+  // The exec seed's entry for the same act: same number, same day. The live row
+  // stores no congress, and the seed does, so the twin is what lets "S.J. Res. 68"
+  // be addressed as the 116th Congress's resolution and find its line. No twin,
+  // no guess: the row keeps the official address it stores, or stays text.
+  function _dosExecNum(s) { return String(s == null ? '' : s).replace(/[\s.]+/g, '').toLowerCase(); }
+  function _dosExecTwin(pid, item) {
+    var list = (window.EXEC_ACTIONS && window.EXEC_ACTIONS[pid]) || [];
+    var num = _dosExecNum(item && item.number), day = String((item && item.date) || '').slice(0, 10);
+    if (!num || !day || !list.length) return null;
+    for (var i = 0; i < list.length; i++) {
+      var a = list[i];
+      if (a && _dosExecNum(a.measureNumber || a.documentId) === num && String(a.actedAt || '').slice(0, 10) === day) return a;
+    }
+    return null;
+  }
+  function _dosExecRecFields(pid, item, issueKey) {
+    if (!_dosExecPos(item)) return null;
+    var tw = _dosExecTwin(pid, item);
+    var at = String(item.actionType || '').toLowerCase(), mt = String(item.measureType || '').toLowerCase();
+    var cls = tw ? String(tw.actionClass || '') : (_DOS_EXEC_POS[at] || (mt === 'executive_order' ? 'executive_order' : 'directive'));
+    var num = (tw && tw.measureNumber) || '';
+    var src = (item.source && item.source.url) || item.sourceUrl || '';
+    var x = {
+      execRow: true, execClass: cls,
+      docName: (tw && tw.documentId) || String(item.number || ''),
+      billNum: num,
+      billSit: (num && tw && typeof tw.congress === 'number') ? String(tw.congress) : '',
+      docUrl: num ? '' : _dosOfficialUrl({ sourceUrl: src })
+    };
+    // The stored measure×issue line, where one is written; otherwise the row keeps
+    // whatever line the record lane already carried for it.
+    var ln = tw ? _dosExecEffectLine(tw, issueKey) : '';
+    if (ln) x.effLine = ln;
+    return x;
   }
   function _billPanelOn() {
     try { return !!(window.PDXBillDetail && typeof window.PDXBillDetail.open === 'function'); }
@@ -16573,12 +16625,15 @@
   // what the paper was and never borrows a roll-call word.
   var _DOS_EXEC_KIND = { vetoed_law: 'Veto', signed_law: 'Signed law', executive_order: 'Executive order' };
   var _DOS_EXEC_ACT = { vetoed_law: 'Vetoed', signed_law: 'Signed', executive_order: 'Signed', directive: 'Issued' };
+  // An executive act from either lane: the exec pool's row, or the live read's
+  // position row for the same act (see _dosExecPos).
+  function _dosIsExecRow(d) { return !!(d && (d.lane === 'exec' || d.execRow)); }
   function _dosActKind(d) {
     var it = (d && d.item) || {};
-    if (d && d.lane === 'exec') {
-      var ac = String(it.actionClass || ''), w = _DOS_EXEC_KIND[ac] || '';
+    if (_dosIsExecRow(d)) {
+      var ac = String((d.lane === 'exec' ? it.actionClass : d.execClass) || ''), w = _DOS_EXEC_KIND[ac] || '';
       if (!w) {
-        var dm = /^(Proclamation|Memorandum|Presidential Memorandum|National Security Presidential Memorandum|Directive)\b/i.exec(String(it.documentId || ''));
+        var dm = /^(Proclamation|Memorandum|Presidential Memorandum|National Security Presidential Memorandum|Directive)\b/i.exec(String((d.lane === 'exec' ? it.documentId : d.docName) || ''));
         w = dm ? dm[1].charAt(0).toUpperCase() + dm[1].slice(1) : ((d.power && d.power.label) || 'Executive action');
         w = w.charAt(0).toUpperCase() + w.slice(1);
       }
@@ -16599,8 +16654,8 @@
   // is neither gets the no-side vocabulary the rest of the dossier already uses —
   // "Did not vote" is not a third direction and must never be printed as one.
   function _dosActVote(d) {
-    if (d && d.lane === 'exec') {
-      var ac = String((d.item && d.item.actionClass) || '');
+    if (_dosIsExecRow(d)) {
+      var ac = String((d.lane === 'exec' ? (d.item && d.item.actionClass) : d.execClass) || '');
       return { word: _DOS_EXEC_ACT[ac] || String(d.act || '').trim() || 'Acted', cls: 'o' };
     }
     var pos = String((d && d.item && d.item.position) || '').toLowerCase();
@@ -16750,7 +16805,7 @@
       // is wrong on the rows where the distinction is the whole point.
       var mt = String((d.item && d.item.measureType) || '').toLowerCase();
       if (mt && mt !== 'bill') t.bill = false;
-      if (d.lane === 'exec') { t.bill = false; t.exec++; }
+      if (_dosIsExecRow(d)) { t.bill = false; t.exec++; }
     }
     t.same = t.bills === 1 && t.acts > 1;
     return t;
