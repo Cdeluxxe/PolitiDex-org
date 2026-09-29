@@ -125,6 +125,16 @@
       out: 'A war-powers resolution about another theatre, or naming none, even though it sits on the same chips (Congress and War Powers, Diplomacy & Restraint, Peace Through Strength). Also out: an Israel measure that names Iran only as an adversary, which stays on Support for Israel.',
       note: 'Added September 2026 alongside those four keys, not in place of them: every act filed here keeps its restraint, war-powers and defense readings. The label names a country, so no side is ever read on it.'
     },
+    ukraine_policy: {
+      inn: 'Measures whose own text names Ukraine as the subject: security assistance and supplemental appropriations for Ukraine, bars on that assistance, and war-powers or executive acts directed at Ukraine.',
+      out: 'A defense bill or appropriation that carries a Ukraine line among many others, and the Israel supplemental offered as the alternative to the Ukraine package. Those keep their Peace Through Strength, Strategic Engagement and Diplomacy & Restraint readings and get no Ukraine row.',
+      note: 'Added September 2026 beside Congress and War Powers, Diplomacy & Restraint, Peace Through Strength and Iran, not in place of any of them. The label names a country, so no side is ever read on it.'
+    },
+    yemen_policy: {
+      inn: 'Measures whose own text names Yemen as the subject: hostilities in Yemen and war-powers resolutions directed at them.',
+      out: 'A war-powers resolution about another theatre, or naming none, even though it sits on the same chips. The Iran war-powers resolution (S.J. Res. 68) stays on Iran.',
+      note: 'Added September 2026 beside Congress and War Powers, Diplomacy & Restraint, Peace Through Strength and Iran, not in place of any of them. The label names a country, so no side is ever read on it.'
+    },
     election_security: {
       inn: 'Safeguards on who votes and how ballots are handled: eligibility verification (documentary proof of citizenship, ID), voter-roll maintenance, ballot chain-of-custody and handling rules, post-election audits and audit conditions on election funding, and enforcement against fraud or non-citizen voting.',
       out: 'Campaign finance, redistricting, certification of results and Electoral Count Act questions — those are not administration of the ballot.',

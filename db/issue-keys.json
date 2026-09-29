@@ -1,6 +1,6 @@
 {
   "_generatedBy": "scripts/gen-issue-keys.mjs (from ISSUE_MAP in alignment-tool.js)",
-  "count": 122,
+  "count": 124,
   "keys": [
     "america_first",
     "america_first_fp",
@@ -118,12 +118,14 @@
     "tobacco_nicotine",
     "tough_on_crime",
     "transit",
+    "ukraine_policy",
     "veterans",
     "voter_id",
     "voting_access",
     "war_powers",
     "water",
-    "water_storage"
+    "water_storage",
+    "yemen_policy"
   ],
   "keywords": {
     "america_first": [
@@ -1794,6 +1796,18 @@
       "mobility",
       "high-speed rail"
     ],
+    "ukraine_policy": [
+      "ukraine",
+      "ukrainian",
+      "kyiv",
+      "kiev",
+      "zelensky",
+      "zelenskyy",
+      "ukraine aid",
+      "aid to ukraine",
+      "ukraine security assistance",
+      "usai"
+    ],
     "veterans": [
       "veteran",
       "veterans",
@@ -1870,6 +1884,13 @@
       "lake powell pipeline",
       "drought",
       "colorado river"
+    ],
+    "yemen_policy": [
+      "yemen",
+      "yemeni",
+      "sanaa",
+      "yemen war",
+      "war in yemen"
     ]
   }
 }

@@ -879,7 +879,9 @@
       datacenter_power: 1,     // ⚡ Data Centers, Power & Ratepayers
       tariffs_prices: 1,       // 💵 Tariffs & Household Prices
       tariffs_growth: 1,       // 🏭 Tariffs & American Industry
-      iran_policy: 1           // 🇮🇷 Iran — a country, not a proposition
+      iran_policy: 1,          // 🇮🇷 Iran — a country, not a proposition
+      ukraine_policy: 1,       // 🇺🇦 Ukraine — a country, not a proposition
+      yemen_policy: 1          // 🇾🇪 Yemen — a country, not a proposition
     };
 
     // Why this issue may not be characterised, or null when it may.

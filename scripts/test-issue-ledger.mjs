@@ -148,6 +148,7 @@ console.log(`${ALL.length} issue drawers · ${WITH.length} carry at least one fo
 // One render per drawer, reused by every section below.
 const HTML = new Map();
 const key = (x) => `${x.pid}/${x.key}`;
+const NO_SIDE_KEYS = new Set(["ukraine_policy", "yemen_policy"]);
 for (const x of ALL) {
   let h = "";
   try { h = CS.gapViewHtml(x.pid, x.key) || ""; } catch (e) { fails.push(`${key(x)}: gapViewHtml threw ${e.message}`); }
@@ -187,8 +188,10 @@ section("1 · the tally is always the same shape, and the grammar agrees with it
     const bills = `${t.bills} ${t.bill ? (t.bills === 1 ? "bill" : "bills") : (t.bills === 1 ? "measure" : "measures")}`;
     const acts = `${t.acts} formal ${t.acts === 1 ? "act" : "acts"}`;
     has(l, `On this issue: ${bills} · ${acts}`, `${where}: the tally line is not in the fixed shape`);
-    has(l, `Acts: ${t.advances} for · ${t.opposes} against`, `${where}: the for/against line does not match the engine`);
-    if (t.noSide > 0) has(l, `· ${t.noSide} took no side`, `${where}: ${t.noSide} act(s) with no side are counted nowhere`);
+    // A country subject (Ukraine, Yemen) prints no for/against line at all.
+    if (NO_SIDE_KEYS.has(x.key)) ok(!/pdxlg-side|Acts: \d+ for/.test(l), `${where}: a subject drawer prints a for/against line`);
+    else has(l, `Acts: ${t.advances} for · ${t.opposes} against`, `${where}: the for/against line does not match the engine`);
+    if (t.noSide > 0 && !NO_SIDE_KEYS.has(x.key)) has(l, `· ${t.noSide} took no side`, `${where}: ${t.noSide} act(s) with no side are counted nowhere`);
     // The three buckets have to add up to the act count, or a row is missing.
     eq(t.advances + t.opposes + t.noSide, t.acts, `${where}: the sides do not add up to the acts`);
     // One row per act, not per essay.
@@ -502,6 +505,9 @@ section("7 · a drawer with no roll call renders exactly as it did before");
 
   const rdrift = [];
   for (const x of ALL) {
+    // A key HEAD's vocabulary does not carry (a country leaf added since) has no
+    // HEAD read to compare against; its no-pole contract is pinned by its own test.
+    if (!(A.ISSUE_MAP || {})[x.key]) continue;
     if (JSON.stringify(A.PDXConsistency.dossierRead(x.pid, x.key)) !==
         JSON.stringify(B.PDXConsistency.dossierRead(x.pid, x.key))) rdrift.push(key(x));
     if (JSON.stringify(A.PDXConsistency.issueRow(x.pid, x.key).verdict) !==
@@ -595,7 +601,10 @@ section("9 · the pass stayed in its lane");
   for (const f of LANE_FILES) {
     const head = HEAD(f);
     if (head === null) continue;
-    ok(deOrigin(head) === deOrigin(R(f)), `${f} changed — this pass reshapes one drawer and must touch nothing else`);
+    // A subject key joining _RD_NO_POLE is a vocabulary change, not a drawer edit:
+    // that one table is read out of both sides before stance-helpers.js is compared.
+    const np = (t) => f === "stance-helpers.js" ? t.replace(/var _RD_NO_POLE = \{[\s\S]*?\n    \};/, "") : t;
+    ok(np(deOrigin(head)) === np(deOrigin(R(f))), `${f} changed — this pass reshapes one drawer and must touch nothing else`);
   }
 
   // The shell the new markup ships inside is versioned, exactly one step, with a
@@ -1253,9 +1262,40 @@ section("14 · the harvest — every stored did, read against the effect rule");
     "an Iran line with the tally flipped passed the Iran check");
   ok(iranFault("S.J.Res. 104|119|iran_policy", "Would have ordered U.S. forces home; the Senate refused to discharge it 47-53.") !== "",
     "an Iran line that never names Iran passed the Iran check");
-  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k));
+  // THE UKRAINE BATCH. The Ukraine supplemental and the package that carried it,
+  // one line each on the measure × ukraine_policy pair: same harvest rules, the
+  // line names Ukraine, and it ends on the tally the archive's own vote seed holds.
+  const UKRAINE = Object.keys(EFFECT).filter((k) => /\|ukraine_policy$/.test(k));
+  const UK_TALLY = (() => {
+    const t = {};
+    for (const v of JSON.parse(R("db/vr-phase-a-vote-seed.json")).votes || []) {
+      const num = v.measure && v.measure.number;
+      if (v.congress === 118 && (num === "H.R. 8035" || num === "H.R. 815") && v.totals) {
+        t[`${num}|118`] = [v.chamber, v.totals.yea, v.totals.nay];
+      }
+    }
+    return t;
+  })();
+  const ukraineFault = (k, v) => {
+    const f = harvestFault(v);
+    if (f) return f;
+    if (!/\bUkraine\b/.test(v)) return "does not name Ukraine, the subject it is filed under";
+    const tl = UK_TALLY[k.split("|").slice(0, 2).join("|")];
+    if (!tl) return "the archive holds no tally for this roll";
+    const [ch, y, n] = tl;
+    const tail = ch === "house" ? `; the House passed it ${y}-${n}.` : `; the Senate concurred ${y}-${n}.`;
+    return v.endsWith(tail) ? "" : `does not end on the archive's tally ${y}-${n}`;
+  };
+  must(UKRAINE.length > 0, "no Ukraine effect line is stored");
+  for (const k of UKRAINE) eq(ukraineFault(k, EFFECT[k]), "", `${k}: the Ukraine effect line`);
+  ok(ukraineFault("H.R. 8035|118|ukraine_policy", EFFECT["H.R. 8035|118|ukraine_policy"].replace("311-112", "112-311")) !== "",
+    "a Ukraine line with the tally flipped passed the Ukraine check");
+  ok(ukraineFault("H.R. 8035|118|ukraine_policy", "Appropriated supplemental security aid abroad; the House passed it 311-112.") !== "",
+    "a Ukraine line that never names Ukraine passed the Ukraine check");
+  ok(!Object.keys(EFFECT).some((k) => /\|yemen_policy$/.test(k)), "no roll-call Yemen line: the only Yemen act is a veto");
+  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.

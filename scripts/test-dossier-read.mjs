@@ -279,6 +279,7 @@ eq(coldHtml, 0, "a member whose record has not arrived renders no read at all");
 // the explainer door did not exist. So the gate is gone and the promises move
 // here, stated positively: a lane of one renders the roll-up, and everything that
 // makes it honest is checked rather than assumed.
+const SUBJECT_NO_SIDE = new Set(["ukraine_policy", "yemen_policy"]);
 const solos = READS.filter((x) => x.drv && x.drv.items === 1 && x.drv.docs === 1);
 must(solos.length > 0, "no single-item lanes swept to check the one-measure roll-up");
 const soloBad = [];
@@ -291,7 +292,11 @@ for (const x of solos) {
   if (h.includes("Which measures this came from")) say("counts one measure as measures");
   // The side is a word from the locked set, and never a count of one.
   const bits = /<span class="pdxgap-drv-c">([\s\S]*?)<\/span>/.exec(h);
-  if (!bits) say("no side stated on the only row");
+  // A country subject (Ukraine, Yemen) has no side for the row to be on, so the
+  // only word it may carry is "not scorable".
+  if (SUBJECT_NO_SIDE.has(x.key)) {
+    if (bits && visible(bits[1]).trim() !== "not scorable") say(`a subject row states a side: "${visible(bits[1]).trim()}"`);
+  } else if (!bits) say("no side stated on the only row");
   else {
     const w = visible(bits[1]).trim();
     if (!["not scorable", "advanced", "against", "took no side"].includes(w)) {

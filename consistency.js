@@ -16470,7 +16470,11 @@
     var solo = d.items === 1 && d.docs === 1;
     var rows = d.rows.map(function (g) {
       var bits = [];
-      if (solo) {
+      // A subject key has no side for an item to be on (see _DOS_LEDGER_NO_SIDE);
+      // the item count still prints, and the only bit kept is "not scorable".
+      if (_DOS_LEDGER_NO_SIDE[issueKey]) {
+        if (g.held) bits.push(solo ? 'not scorable' : g.held + ' not scorable');
+      } else if (solo) {
         // The member's side, said rather than counted. Same four states and the
         // same words as the tallies below; only the leading "1 " goes.
         bits.push(g.held ? 'not scorable'
@@ -16877,6 +16881,9 @@
   //
   // Chronological inside each group, because the story of a bill is the order it
   // happened in: the motion to send it back, then the vote that sent it out.
+  // Subject keys whose ledger prints no for/against line — see the note in the
+  // body. Iran's drawer predates this and keeps its line; it is not remapped here.
+  var _DOS_LEDGER_NO_SIDE = { ukraine_policy: 1, yemen_policy: 1 };
   function _dosLedgerHtml(pid, issueKey, r, t) {
     r = r || issueRow(pid, issueKey);
     t = t || _dosTally(pid, issueKey, r && r.ov);
@@ -16890,11 +16897,16 @@
       // inside the scoring disclosure under its own label ("1 aligned · 2
       // against"). Said in the title so the distinction is available on the line
       // that makes the claim without turning the tally into a paragraph.
+      // A COUNTRY HAS NO FOR. Ukraine and Yemen name a subject, not a proposition
+      // (both sit in _RD_NO_POLE), so "1 for · 0 against" would assert the pole the
+      // read two folds down refuses to print. The tally line above still counts the
+      // acts; only the side line goes.
+      (_DOS_LEDGER_NO_SIDE[issueKey] ? '' :
       '<div class="pdxlg-side" title="' + escAttr('Whether each act pushed this issue ' +
         'forward or held it back. Not whether it matched their stated position — ' +
         'that comparison is in How this is scored.') + '">' +
         'Acts: ' + t.advances + ' for · ' + t.opposes + ' against' +
-        (t.noSide ? ' · ' + t.noSide + ' took no side' : '') + '</div>';
+        (t.noSide ? ' · ' + t.noSide + ' took no side' : '') + '</div>');
     // The lesson, stated rather than left to be noticed: one statute, several
     // recorded acts. Said where the repeated bill number is about to appear twice.
     if (t.same) {
@@ -17048,6 +17060,14 @@
       'Would order U.S. forces out of hostilities against Iran that Congress has not authorized; the Senate voted 50-47 to discharge it.',
     'H.Con.Res. 89|119|iran_policy':
       'Directs the President to remove U.S. forces from hostilities with Iran, keeping self-defense; the House agreed to it 214-208.',
+    // Ukraine. One line per act whose own subject is Ukraine and whose mapping the
+    // shipped seed carries, written from the tally on file; the same act's
+    // alliance, restraint and defense lines are separate. H.Amdt. 252 is mapped in
+    // the database only, so it gets no line here rather than an unchecked one.
+    'H.R. 8035|118|ukraine_policy':
+      'Appropriated supplemental security aid for Ukraine, including the Ukraine Security Assistance Initiative; the House passed it 311-112.',
+    'H.R. 815|118|ukraine_policy':
+      'Carried the Ukraine security supplemental as Division B of the 2024 national-security package; the Senate concurred 79-18.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // The item is already a row on this issue, so the pair is mapped whether or
@@ -17086,6 +17106,8 @@
       'Vetoed the resolution removing U.S. forces from hostilities against Iran Congress had not authorized; the override failed 49-44.',
     'S.J. Res. 68 (116th Congress)|iran_policy':
       'Vetoed the resolution directing U.S. forces out of hostilities against Iran; the Senate failed to override it 49-44.',
+    'S.J. Res. 7 (116th Congress)|yemen_policy':
+      'Vetoed the resolution directing U.S. forces out of hostilities in Yemen; the Senate failed to override it 53-45.',
     'Executive Order 14353|war_powers':
       'Committed the United States by order to defend Qatar, including by military means, naming no congressional authorization.',
     'Executive Order 14353|restraint':

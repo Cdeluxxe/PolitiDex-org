@@ -214,8 +214,11 @@ section("4c · aliases: iran on Trump opens real leaves, never an invented one")
   for (const k of ["war_powers", "restraint", "israel_support"]) {
     ok(!(A[k] || []).includes("iran"), `iran is no longer a bare alias on ${k}`);
   }
-  ok((A.restraint || []).includes("ukraine"), "ukraine is an alias on Diplomacy & Restraint");
-  ok((A.strong_defense || []).includes("ukraine"), "ukraine is an alias on Peace Through Strength");
+  // Ukraine went the Iran way: its own leaf, and no bare alias on the old ones.
+  ok((A.ukraine_policy || []).includes("ukraine"), "ukraine is an alias on the Ukraine leaf first");
+  for (const k of ["restraint", "strong_defense"]) {
+    ok(!(A[k] || []).includes("ukraine"), `ukraine is no longer a bare alias on ${k}`);
+  }
   ok(!(A.war_powers || []).includes("war"), "war is not duplicated as an alias of a label that says war");
 
   const TP = "trump";
@@ -241,8 +244,14 @@ section("4c · aliases: iran on Trump opens real leaves, never an invented one")
   ok(rendered.every((k) => onFile.has(k)), "no rendered row carries a key off Trump's file");
   if (!onFile.has("israel_support")) ok(!rendered.includes("israel_support"), "Support for Israel is not invented for Trump");
 
+  // Ukraine now works the Iran way: an old leaf answers "ukraine" only through
+  // an act on that leaf that is itself mapped to Ukraine.
   const uk = T.find(TL, "ukraine").map((l) => l.key);
-  for (const k of ["strong_defense", "restraint"]) if (onFile.has(k)) ok(uk.includes(k), `ukraine surfaces ${k}`);
+  const ukActOn = (k) => (win.PDXConsistency.dossierItems(TP, k) || [])
+    .some((d) => ((d.item && d.item.issues) || []).some((x) => x.issueKey === "ukraine_policy"));
+  for (const k of ["strong_defense", "restraint"]) {
+    if (onFile.has(k)) eq(uk.includes(k), ukActOn(k), `ukraine surfaces ${k} on Trump's file only through a Ukraine act`);
+  }
   ok(uk.every((k) => onFile.has(k)), "every ukraine hit is on Trump's file");
 
   // A measure title on Trump's own file: EO 14353 sits under War Powers.

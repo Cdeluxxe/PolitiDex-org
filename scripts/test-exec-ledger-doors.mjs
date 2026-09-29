@@ -120,9 +120,10 @@ section("1 · the effect table: stored per document × issue, on mapped pairs on
     ok(MAPPED.has(k), `${k}: a line is stored for a pair the exec seed does not map`);
     eq(lineFault(v), "", `${k}: the stored line`);
   }
-  // Exactly the pairs these four documents already sit on — no mapping added.
+  // Exactly the pairs these four documents sit on — the Ukraine and Yemen pass
+  // added one, S.J. Res. 7 × yemen_policy, and nothing else.
   const WANT = {
-    [SJ7]: ["restraint", "war_powers"],
+    [SJ7]: ["restraint", "war_powers", "yemen_policy"],
     [SJ68]: ["iran_policy", "restraint", "war_powers"],
     [EO]: ["america_first_fp", "restraint", "war_powers"],
     [PROC]: ["restraint", "war_powers"],
@@ -133,7 +134,9 @@ section("1 · the effect table: stored per document × issue, on mapped pairs on
   }
   // S.J. Res. 7 is Yemen, not Iran: no Iran line, and no Iran mapping to hang one on.
   ok(!EXEC_EFFECT[`${SJ7}|iran_policy`], "S.J. Res. 7 carries an Iran line");
-  ok(/Yemen/.test(EXEC_EFFECT[`${SJ7}|war_powers`]) && /Yemen/.test(EXEC_EFFECT[`${SJ7}|restraint`]), "S.J. Res. 7's lines do not name Yemen");
+  for (const k of ["yemen_policy", "war_powers", "restraint"]) ok(/Yemen/.test(EXEC_EFFECT[`${SJ7}|${k}`]), `S.J. Res. 7 × ${k}: the line does not name Yemen`);
+  // And S.J. Res. 68 is Iran, not Yemen.
+  ok(!EXEC_EFFECT[`${SJ68}|yemen_policy`], "S.J. Res. 68 carries a Yemen line");
   for (const k of ["iran_policy", "war_powers", "restraint"]) ok(/Iran/.test(EXEC_EFFECT[`${SJ68}|${k}`]), `S.J. Res. 68 × ${k}: the line does not name Iran`);
   // The override tallies are the ones the seed's own status note records.
   for (const [id, tally] of [[SJ7, "53-45"], [SJ68, "49-44"]]) {
@@ -207,7 +210,10 @@ section("3 · Iran drawer: S.J. Res. 68 with its Iran line, S.J. Res. 7 absent")
     has(anchorOf(r.cell), 'href="https://www.congress.gov/bill/116th-congress/senate-joint-resolution/68"', "trump × iran_policy: S.J. Res. 68 is not a Congress.gov anchor");
   }
   no(h, "S.J. Res. 7 ", "trump × iran_policy: S.J. Res. 7 appears in the Iran drawer");
-  no(h, "Yemen", "trump × iran_policy: the Yemen resolution's text reached the Iran drawer");
+  // The previous/next-issue stepper names its neighbour, and Yemen now sits next
+  // to Iran in the vocabulary — that button is navigation, not drawer content.
+  no(h.replace(/<button type="button" class="pdxdos-stepb"[\s\S]*?<\/button>/g, ""), "Yemen",
+    "trump × iran_policy: the Yemen resolution's text reached the Iran drawer");
   eq((tables(h).match(/data-pdxlg-row="/g) || []).length, 1, "trump × iran_policy: not exactly one act");
 }
 

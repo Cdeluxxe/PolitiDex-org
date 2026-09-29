@@ -1734,6 +1734,14 @@
           "isPrimary": false,
           "supportMeaning": "yea_supports",
           "rationale": "Division E is the Fentanyl Eradication and Narcotics Deterrence Off Fentanyl Act: sanctions in response to the national emergency relating to fentanyl trafficking, plus anti-money-laundering measures against the transnational organizations involved."
+        },
+        {
+          "issueKey": "ukraine_policy",
+          "weight": 60,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Ukraine is the subject of the package's Division B, the Ukraine Security Supplemental Appropriations Act, 2024, which became law through this vehicle. Filed here alongside its existing rows, not in place of them; weighted below H.R. 8035 because four other divisions ride with it. No side is read on this key.",
+          "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-bill/815"
         }
       ],
       "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr815.xml"
@@ -1765,6 +1773,14 @@
           "isPrimary": false,
           "supportMeaning": "yea_opposes",
           "rationale": "The appropriation sustains U.S. military support to an active war and funds current U.S. operations in the region; a yea is a vote against military restraint."
+        },
+        {
+          "issueKey": "ukraine_policy",
+          "weight": 100,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Ukraine is the bill's own subject: supplemental appropriations to respond to the situation in Ukraine, including the Ukraine Security Assistance Initiative and replacement of defense articles already provided to Ukraine. Filed here alongside its alliance, America First and restraint rows, not in place of them; no side is read on this key.",
+          "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-bill/8035"
         }
       ],
       "sourceUrl": "https://www.govinfo.gov/bulkdata/BILLSTATUS/118/hr/BILLSTATUS-118hr8035.xml"

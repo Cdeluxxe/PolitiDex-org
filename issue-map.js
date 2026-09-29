@@ -858,6 +858,24 @@
       // commands (yea = forces out), matching the restraint row on the same act, and
       // is never printed. Carries no `lean`, for the israel_support reason.
       iran_policy:        { label: '🇮🇷 Iran', chip: 'What the United States does about Iran — hostilities and strikes, sanctions, and the nuclear deal', cat: 'foreign', stanceKeys: [], keywords: ['iran','iranian','islamic republic of iran','tehran','iran war','iran deal','iran nuclear','nuclear deal','jcpoa','iran sanctions','maximum pressure','irgc','fordow','natanz'] },
+      // Ukraine and Yemen, the same shape as Iran: a SUBJECT key per theatre, so a
+      // reader who asks about the country is handed the acts about it. ON-AXIS with
+      // Congress and War Powers, Diplomacy & Restraint, Peace Through Strength and
+      // Iran, and replacing none of them — every act filed here keeps its existing
+      // rows, and the country row sits beside them as a secondary.
+      // SCOPE, Ukraine: measures whose own text names Ukraine as the subject — aid
+      // and supplemental appropriations for Ukraine, a funding bar on Ukraine
+      // security assistance, a war-powers or executive act directed at Ukraine. On
+      // file: H.R. 8035 (the standalone Ukraine supplemental), H.R. 815 (whose
+      // Division B it became) and H.Amdt. 252 (the USAI funding bar). A defense bill
+      // or appropriation that merely carries a Ukraine line among hundreds is OUT, and
+      // so is the Israel supplemental that was offered as its alternative.
+      // SCOPE, Yemen: measures whose own text names Yemen as the subject. On file:
+      // the vetoed S.J. Res. 7 (116th). S.J. Res. 68 is Iran and stays on Iran.
+      // NO POLE, for the iran_policy reason: both sit in _RD_NO_POLE and no side is
+      // ever read on them. No `lean`.
+      ukraine_policy:     { label: '🇺🇦 Ukraine', chip: 'What the United States does about Ukraine — security assistance, supplemental aid, and war powers', cat: 'foreign', stanceKeys: [], keywords: ['ukraine','ukrainian','kyiv','kiev','zelensky','zelenskyy','ukraine aid','aid to ukraine','ukraine security assistance','usai'] },
+      yemen_policy:       { label: '🇾🇪 Yemen', chip: 'What the United States does about Yemen — hostilities there and whether Congress authorized them', cat: 'foreign', stanceKeys: [], keywords: ['yemen','yemeni','sanaa','yemen war','war in yemen'] },
       veterans:           { label: '🎖 Take Care of Veterans', chip: 'Deliver better healthcare, benefits and support for the men and women who served', cat: 'foreign', stanceKeys: [], keywords: ['veteran','veterans','va','veterans affairs','gi bill','servicemember','service member','military families','va health','troops','wounded warrior','military service'] },
 
       // ── Technology & Privacy ──
@@ -1219,8 +1237,8 @@
         blurb: 'Equal treatment and civil rights, religious liberty, free speech, personal privacy and surveillance, and the debate over DEI.',
         keys: ['religious_liberty','rights_balance','lgbtq_rights','free_speech','end_dei','privacy_rights'] },
       { key: 'foreign_policy_defense', label: '🦅 Foreign Policy & National Security',
-        blurb: 'National defense, alliances and diplomacy, America First priorities, support for Israel, U.S. policy toward Iran, and support for veterans.',
-        keys: ['strong_defense','foreign_balance','restraint','america_first','america_first_fp','israel_support','iran_policy','veterans'] },
+        blurb: 'National defense, alliances and diplomacy, America First priorities, support for Israel, U.S. policy toward Iran, Ukraine and Yemen, and support for veterans.',
+        keys: ['strong_defense','foreign_balance','restraint','america_first','america_first_fp','israel_support','iran_policy','ukraine_policy','yemen_policy','veterans'] },
     ];
     try { window.CORE_NATIONAL_ISSUES = CORE_NATIONAL_ISSUES; } catch (e) {}
 

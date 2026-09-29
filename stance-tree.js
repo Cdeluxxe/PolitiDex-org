@@ -438,7 +438,7 @@
   //   1. its LABEL — the name the leaf already prints;
   //   2. an ALIAS on its issue key — FIND_ALIASES below, one shared table, never
   //      per person, for the words people type about an issue that its label does
-  //      not carry ("ukraine" for Peace Through Strength, "jcpoa" for Iran). A
+  //      not carry ("kyiv" for Ukraine, "jcpoa" for Iran). A
   //      SUBJECT key (FIND_SUBJECTS — a country, not a proposition) lends its
   //      words to a neighbouring leaf only through an act: "iran" opens Congress
   //      and War Powers on a file only when an act on that person × War Powers is
@@ -467,14 +467,20 @@
   // file that had them, Iran act or not. It now points at iran_policy (listed
   // explicitly although the label says it, because that key is where the word
   // lands first), and the old leaves answer it only through the subject route.
+  //
+  // UKRAINE AND YEMEN THE SAME WAY. "ukraine" sat bare on Diplomacy & Restraint
+  // and Peace Through Strength and opened them on any file that had them. It now
+  // points at ukraine_policy, with "kyiv" and "zelensky"; "yemen" points at
+  // yemen_policy. "houthis" is not an alias: no act on file names the Houthis as
+  // its subject, so the word has nothing honest to open.
   var FIND_ALIASES = {
     iran_policy: ['iran', 'iran war', 'iran deal', 'iran nuclear', 'jcpoa', 'tehran'],
-    restraint: ['ukraine'],
-    strong_defense: ['ukraine']
+    ukraine_policy: ['ukraine', 'kyiv', 'zelensky'],
+    yemen_policy: ['yemen']
   };
   // Subject keys: their label and aliases reach another leaf on the same file
   // only when one of that leaf's own acts carries the subject key as well.
-  var FIND_SUBJECTS = { iran_policy: 1 };
+  var FIND_SUBJECTS = { iran_policy: 1, ukraine_policy: 1, yemen_policy: 1 };
   function subjectWords(key) {
     var lab = '';
     try { lab = ((window.ISSUE_MAP || {})[key] || {}).label || ''; } catch (e) { lab = ''; }

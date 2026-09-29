@@ -191,7 +191,7 @@ const paintsIran = (w, e) => w.PDXStanceTree.find(e.ls, "iran").length > 0 ||
 
   // MUTATION: the old alias table, "iran" bare on War Powers and Restraint.
   const bad = boot({
-    "stance-tree.js": (s) => s.replace("restraint: ['ukraine'],", "restraint: ['ukraine', 'iran'],\n    war_powers: ['iran'],"),
+    "stance-tree.js": (s) => s.replace("yemen_policy: ['yemen']", "yemen_policy: ['yemen'],\n    restraint: ['iran'],\n    war_powers: ['iran']"),
   });
   must(JSON.stringify(bad.PDXStanceTree.FIND_ALIASES.war_powers || []) === '["iran"]', "the mutation did not apply");
   const BE = { pid: E.pid, ls: bad.PDXStanceTree.leaves(E.pid) };
