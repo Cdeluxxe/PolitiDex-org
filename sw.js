@@ -8233,7 +8233,19 @@
 //     MIGRATION COST: none, and no location key is migrated, renamed or
 //     copied. district-board.js, district-voice.js, index.html and three new
 //     board documents changed or joined the shell, so it moves one version.
-const CACHE_VERSION = 'v259';
+// v260 - THE HOMEPAGE DISTRICT VOICE CARD READS AS A DOOR.
+//     The hero card that links /voice was a caption under the search box. It
+//     is now a featured rail in the palette's own gold on a forest ground,
+//     with a larger eyebrow, a title-scale line ("The voice of your
+//     district.") and a short body saying what the rooms are for: neighbors
+//     reading the same record and speaking to the seat, anyone reading, only
+//     verified residents counting. Same markers, same single anchor to /voice
+//     with the Find/See verb split, never /#who-represents-me. The count still
+//     reads BOARD_ROUTES (88) and the hub's not-open copy. No composer
+//     promised, no animation, no equity copy, no board added.
+//     MIGRATION COST: none, and no location key is migrated, renamed or
+//     copied. index.html changed, so it moves one version.
+const CACHE_VERSION = 'v260';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
