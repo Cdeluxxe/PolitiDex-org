@@ -8245,7 +8245,18 @@
 //     promised, no animation, no equity copy, no board added.
 //     MIGRATION COST: none, and no location key is migrated, renamed or
 //     copied. index.html changed, so it moves one version.
-const CACHE_VERSION = 'v260';
+// v261 - FIND A TOPIC ON THE PERSON FILE.
+//     🌳 All Issues by Topic carries one "Find a topic" field above the tree,
+//     live as the reader types. It matches the issue label the leaf already
+//     prints, case-insensitive, with & and + read as "and" and every other mark
+//     as a space. Branches and mids with no match are not built; an empty query
+//     restores the tree and the branches the reader had open. No match prints
+//     one line and adds no issue. Leaves still open the same dossier. Scores,
+//     Direction Match and the drawer are untouched.
+//     MIGRATION COST: none, and no location key is migrated, renamed or
+//     copied. stance-tree.js and stance-tree.css are precached shell assets
+//     and changed, so it moves one version.
+const CACHE_VERSION = 'v261';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
