@@ -664,6 +664,15 @@
             "plain": "A second resolution asserting that this engagement lacked congressional authorization was blocked thirteen months after the first, leaving that question unanswered.",
             "counts": "The same constitutional question, asked about the hostilities with Iran. It is filed here because the resolution's assertion that the engagement lacked congressional authorization, rather than the deployment itself, is what the instrument was for.",
             "rationale": "Re-keyed from america_first_fp in the August 2026 taxonomy split, on the same reasoning as S.J. Res. 7: the claim under test is who authorizes hostilities, which the narrowed america_first_fp key no longer covers. The direction is the resolution’s and the veto is read against it. Filed separately from S.J. Res. 7 because it concerns a different country and has its own returned-resolution history."
+          },
+          {
+            "issueKey": "iran_policy",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 85,
+            "plain": "Vetoed the resolution directing withdrawal of U.S. forces from hostilities against Iran that Congress had not authorized.",
+            "counts": "The resolution names Iran as its subject, so the action taken on it is an act about Iran as well as about restraint and war powers.",
+            "rationale": "Iran is the resolution’s own subject: S.J. Res. 68 directed removal of United States Armed Forces from hostilities against the Islamic Republic of Iran. Filed alongside the restraint and war-powers rows, not in place of them. The key names a country, so no side is read on it; the direction field records the resolution, as on the rows above."
           }
         ],
         "_issuesNote": "Filed alongside S.J. Res. 7 rather than folded into it because they are a year apart, they concern different countries and each has its own returned-resolution history. The three arms-sale resolutions of July 2019 were treated the opposite way and left out — those were three near-identical documents on one day, and filing three rows for one decision would have inflated the count without adding a fact.",

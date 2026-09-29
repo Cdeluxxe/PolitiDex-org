@@ -120,6 +120,11 @@
       pole: 'Advanced = the vote favoured continued U.S. backing for Israel. A share under this key means “this share of their judged votes favoured that backing” — not “this share agreed with a process”.',
       note: 'Carries no party lean on purpose: both the pro-Israel coalition and its critics are cross-party, so coding it D or R would be false signal.'
     },
+    iran_policy: {
+      inn: 'Measures whose own text names Iran as the subject: hostilities and strikes against Iran, sanctions on Iran, the nuclear agreement, and war-powers resolutions directed at hostilities with Iran.',
+      out: 'A war-powers resolution about another theatre, or naming none, even though it sits on the same chips (Congress and War Powers, Diplomacy & Restraint, Peace Through Strength). Also out: an Israel measure that names Iran only as an adversary, which stays on Support for Israel.',
+      note: 'Added September 2026 alongside those four keys, not in place of them: every act filed here keeps its restraint, war-powers and defense readings. The label names a country, so no side is ever read on it.'
+    },
     election_security: {
       inn: 'Safeguards on who votes and how ballots are handled: eligibility verification (documentary proof of citizenship, ID), voter-roll maintenance, ballot chain-of-custody and handling rules, post-election audits and audit conditions on election funding, and enforcement against fraud or non-citizen voting.',
       out: 'Campaign finance, redistricting, certification of results and Electoral Count Act questions — those are not administration of the ballot.',

@@ -8268,7 +8268,24 @@
 //     MIGRATION COST: none — the aliases are a static table and no location key
 //     is migrated, renamed or copied. stance-tree.js is a precached shell asset
 //     and changed, so it moves one version.
-const CACHE_VERSION = 'v262';
+// v263 - 🇮🇷 IRAN IS A LEAF UNDER FOREIGN POLICY, NOT AN ALIAS.
+//     "iran" in Find a topic opened Diplomacy & Restraint, War Powers and
+//     Support for Israel on any file that had them. One new issue key,
+//     iran_policy (label Iran, core Foreign Policy & National Security, no
+//     pole), now carries only acts whose own subject is Iran: the five mapped
+//     Senate discharge rolls on the Iran withdrawal resolution, H.Con.Res. 89
+//     and the vetoed S.J. Res. 68. The alias table points "iran", "iran war",
+//     "iran deal" and "jcpoa" at it; an old leaf answers "iran" only when one
+//     of its own acts is also an Iran act. A file with no Iran act gets the
+//     miss line. No roll call invented, Direction Match untouched.
+//     MIGRATION COST: none, and no location key is migrated, renamed or
+//     copied. One DATABASE migration ships, because the issue list is a stored
+//     table (dd_issue_keys) and the mappings live in vr_measure_issues:
+//     20261105000000_vr_iran_policy_issue_key.
+//     alignment-tool.js, issue-map.js, stance-helpers.js, issue-scope.js,
+//     consistency.js, exec-action-data.js and stance-tree.js are precached and
+//     changed, so it moves one version.
+const CACHE_VERSION = 'v263';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

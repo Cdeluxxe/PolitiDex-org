@@ -16896,7 +16896,21 @@
     'H.J.Res. 25|119|tech_innovation':
       'Struck the IRS rule extending broker reporting to decentralized-finance front ends and barred a substantially similar rule.',
     'S.J.Res. 18|119|econ_corp_account':
-      'Struck the CFPB overdraft rule for very large financial institutions and barred a substantially similar rule.'
+      'Struck the CFPB overdraft rule for very large financial institutions and barred a substantially similar rule.',
+    // Iran. One line per act whose own subject is Iran, written from the tally
+    // on file; the same act's restraint and war-powers lines are separate.
+    'S.J.Res. 59|119|iran_policy':
+      'Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 47-53.',
+    'S.J.Res. 104|119|iran_policy':
+      'Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 47-53.',
+    'S.J.Res. 184|119|iran_policy':
+      'Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 47-50.',
+    'S.J.Res. 163|119|iran_policy':
+      'Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 49-50.',
+    'S.J.Res. 185|119|iran_policy':
+      'Would order U.S. forces out of hostilities against Iran that Congress has not authorized; the Senate voted 50-47 to discharge it.',
+    'H.Con.Res. 89|119|iran_policy':
+      'Directs the President to remove U.S. forces from hostilities with Iran, keeping self-defense; the House agreed to it 214-208.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // The item is already a row on this issue, so the pair is mapped whether or

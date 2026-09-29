@@ -1190,9 +1190,48 @@ section("14 · the harvest — every stored did, read against the effect rule");
     if (OUTCOME[m] === "enacted" ? !STRUCK.test(v) : !(FAILED.test(v) && v.endsWith(`it ${OUTCOME[m]}.`))) return "is not the fixed CRA shape for its outcome";
     return "";
   };
-  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED));
+  // THE IRAN BATCH (September 2026). Not CRA disapprovals: war-powers resolutions
+  // whose own subject is Iran, one line each on the measure × iran_policy pair.
+  // Each must pass the same harvest rules, name Iran, and end on the tally the
+  // archive's own vote seed holds for that roll, in the shape its outcome allows.
+  const IRAN = Object.keys(EFFECT).filter((k) => /\|iran_policy$/.test(k));
+  const TALLY = (() => {
+    const t = {};
+    const seed = JSON.parse(R("db/vr-issue-seed.json"));
+    for (const m of seed.measures) {
+      const x = /· (\d+)-(\d+) ·/.exec(m._comment || "");
+      if (x) t[`${m.number}|${m.congress}`] = [+x[1], +x[2]];
+    }
+    for (const v of JSON.parse(R("db/vr-senate-lis-backfill-seed.json")).votes || []) {
+      if (v.measure !== "S.J.Res. 59" || v.congress !== 119) continue;
+      const P = Object.values(v.partyTotals || {});
+      t["S.J.Res. 59|119"] = [P.reduce((n, p) => n + p.yea, 0), P.reduce((n, p) => n + p.nay, 0)];
+    }
+    for (const v of JSON.parse(R("db/vr-house-seed-119-s2.json")).votes || []) {
+      if (v.measure && v.measure.number === "H.Con.Res. 89") t["H.Con.Res. 89|119"] = [v.totals.yea, v.totals.nay];
+    }
+    return t;
+  })();
+  const iranFault = (k, v) => {
+    const f = harvestFault(v);
+    if (f) return f;
+    if (!/\bIran\b/.test(v)) return "does not name Iran, the subject it is filed under";
+    const tl = TALLY[k.split("|").slice(0, 2).join("|")];
+    if (!tl) return "the archive holds no tally for this roll";
+    const [y, n] = tl;
+    const shape = y < n ? new RegExp(`^Would have ordered .+; the Senate refused to discharge it ${y}-${n}\\.$`)
+      : k.startsWith("H.") ? new RegExp(`; the House agreed to it ${y}-${n}\\.$`)
+      : new RegExp(`; the Senate voted ${y}-${n} to discharge it\\.$`);
+    return shape.test(v) ? "" : `does not end on the archive's tally ${y}-${n} in the shape its outcome allows`;
+  };
+  for (const k of IRAN) eq(iranFault(k, EFFECT[k]), "", `${k}: the Iran effect line`);
+  ok(iranFault("S.J.Res. 104|119|iran_policy", EFFECT["S.J.Res. 104|119|iran_policy"].replace("47-53", "53-47")) !== "",
+    "an Iran line with the tally flipped passed the Iran check");
+  ok(iranFault("S.J.Res. 104|119|iran_policy", "Would have ordered U.S. forces home; the Senate refused to discharge it 47-53.") !== "",
+    "an Iran line that never names Iran passed the Iran check");
+  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.

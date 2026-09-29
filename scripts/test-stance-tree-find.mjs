@@ -210,9 +210,11 @@ section("4c · aliases: iran on Trump opens real leaves, never an invented one")
 {
   const A = T.FIND_ALIASES;
   for (const k of Object.keys(A)) ok(!!win.ISSUE_MAP[k], `alias key ${k} is in the vocabulary`);
-  ok((A.war_powers || []).includes("iran"), "iran is an alias on War Powers");
-  ok((A.restraint || []).includes("iran") && (A.restraint || []).includes("ukraine"),
-    "iran and ukraine are aliases on Diplomacy & Restraint");
+  ok((A.iran_policy || []).includes("iran"), "iran is an alias on the Iran leaf first");
+  for (const k of ["war_powers", "restraint", "israel_support"]) {
+    ok(!(A[k] || []).includes("iran"), `iran is no longer a bare alias on ${k}`);
+  }
+  ok((A.restraint || []).includes("ukraine"), "ukraine is an alias on Diplomacy & Restraint");
   ok((A.strong_defense || []).includes("ukraine"), "ukraine is an alias on Peace Through Strength");
   ok(!(A.war_powers || []).includes("war"), "war is not duplicated as an alias of a label that says war");
 
@@ -224,8 +226,12 @@ section("4c · aliases: iran on Trump opens real leaves, never an invented one")
   const iranKeys = iran.map((l) => l.key);
   ok(iran.length > 0, "iran is no longer empty on Trump's file");
   ok(!/pdxtree-findnone/.test(T.html(TP, { uid: "t", query: "iran" })), "iran does not print the miss line");
+  if (onFile.has("iran_policy")) ok(iranKeys.includes("iran_policy"), "iran surfaces the Iran leaf on Trump's file");
+  // The old leaves answer iran only when an act on that leaf is itself an Iran act.
+  const iranActOn = (k) => (win.PDXConsistency.dossierItems(TP, k) || [])
+    .some((d) => ((d.item && d.item.issues) || []).some((x) => x.issueKey === "iran_policy"));
   for (const k of ["war_powers", "restraint", "israel_support"]) {
-    if (onFile.has(k)) ok(iranKeys.includes(k), `iran surfaces ${k} on Trump's file`);
+    if (onFile.has(k)) eq(iranKeys.includes(k), iranActOn(k), `iran surfaces ${k} on Trump's file only through an Iran act`);
   }
   // MUTATION: an alias that inserted a row for a key not on the file.
   ok(iranKeys.every((k) => onFile.has(k)), "every iran hit is a key already on Trump's file");

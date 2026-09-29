@@ -1,6 +1,6 @@
 {
   "_generatedBy": "scripts/gen-issue-keys.mjs (from ISSUE_MAP in alignment-tool.js)",
-  "count": 121,
+  "count": 122,
   "keys": [
     "america_first",
     "america_first_fp",
@@ -69,6 +69,7 @@
     "immig_legal",
     "immigration_reform",
     "infrastructure",
+    "iran_policy",
     "israel_support",
     "judicial_check",
     "justice_balance",
@@ -1111,6 +1112,22 @@
       "airport",
       "rebuild",
       "construction"
+    ],
+    "iran_policy": [
+      "iran",
+      "iranian",
+      "islamic republic of iran",
+      "tehran",
+      "iran war",
+      "iran deal",
+      "iran nuclear",
+      "nuclear deal",
+      "jcpoa",
+      "iran sanctions",
+      "maximum pressure",
+      "irgc",
+      "fordow",
+      "natanz"
     ],
     "israel_support": [
       "israel",

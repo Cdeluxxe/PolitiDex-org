@@ -263,8 +263,9 @@ section("2 · no key was invented for this pass");
   // tobacco_nicotine and dev_district_finance, and they were reviewed and shipped
   // by vocabulary wave V1 (20261010000000) — not by this lane, which is exactly
   // what this section exists to establish. The pin moves when a reviewed wave adds
-  // a key and never because a mapping pass wanted one.
-  eq(shipped.count, 121, "the shipped issue vocabulary is 121 keys, the three V1 added included");
+  // a key and never because a mapping pass wanted one. 122 since September 2026,
+  // when the Iran pass added iran_policy (20261105000000).
+  eq(shipped.count, 122, "the shipped issue vocabulary is 122 keys, the three V1 added and iran_policy included");
   for (const k of ["sound_money", "tobacco_nicotine", "dev_district_finance"]) {
     ok(shipped.keys.includes(k), `${k} is a shipped key, reviewed by V1 rather than invented here`);
   }
