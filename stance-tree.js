@@ -427,6 +427,50 @@
     return list.filter(function (lf) { try { return !!f.test(lf); } catch (e) { return false; } });
   }
 
+  // ── FIND A TOPIC ──────────────────────────────────────────────────────────
+  // One field above the tree narrows it to the issues whose LABEL — the name the
+  // leaf already prints — holds what a reader typed. It reads the label and
+  // nothing else: not a bill title, not a keyword list, not the chip prose, so a
+  // hit is always a row the reader can see the matching words on. It is a VIEW,
+  // applied after the filter chip, and like the chips it is a re-render of the
+  // same builder: branches and mids with no matching leaf are simply not built,
+  // and no issue is ever added to make a query come back non-empty.
+  //
+  // THE WORDS PEOPLE TYPE, NOT THE GLYPHS WE PRINT. "&" and "+" read as "and",
+  // "/" and every other mark (emoji included) as a space, and each typed word has
+  // to appear somewhere in the label — so "tariffs trade", "tariffs and trade"
+  // and "tariffs & trade" all find Tariffs & Trade Authority.
+  var FIND_PLACEHOLDER = 'Find a topic';
+  var FIND_NONE = 'No topic on this file matches.';
+  var FIND_MAX = 80;
+  function findNorm(s) {
+    return String(s == null ? '' : s).toLowerCase()
+      .replace(/[&+]/g, ' and ')
+      .replace(/[^a-z0-9\u00c0-\u024f]+/g, ' ')
+      .trim();
+  }
+  function findClean(q) { return String(q == null ? '' : q).slice(0, FIND_MAX); }
+  function topicMatches(label, q) {
+    var want = findNorm(q);
+    if (!want) return true;
+    var hay = ' ' + findNorm(label) + ' ';
+    var words = want.split(' ');
+    for (var i = 0; i < words.length; i++) {
+      if (hay.indexOf(words[i]) === -1) return false;
+    }
+    return true;
+  }
+  function findLeaves(list, q) {
+    list = list || [];
+    if (!findNorm(q)) return list.slice();
+    return list.filter(function (lf) { return !!lf && topicMatches(lf.label, q); });
+  }
+  function branchKey(g) { return g.key; }
+  function findEmptyHtml() {
+    return '<p class="pdxtree-empty pdxtree-findnone" data-pdxtree-findnone="1">' +
+      esc(FIND_NONE) + '</p>';
+  }
+
   // ── THE FLAT-MODE THRESHOLD, IN ONE PLACE ─────────────────────────────────
   // Under a handful of leaves the accordions cost more than they organise: five
   // one-row branches is five taps to read five rows, which on a phone is the "pure
@@ -1043,14 +1087,17 @@
   // object's figure for this tree — so a filtered view narrows what a reader sees
   // without inventing a second total for anything.
   var TALLY_WARM = 'Checking the formal record…';
-  function tallyHtml(pid, shownNow, filterKey) {
+  function tallyHtml(pid, shownNow, filterKey, query) {
     var c = countsOf(pid);
     if (!c) return '';
     var of = c.of || {};
     var bits = [];
     var filtered = !!(filterKey && filterKey !== FILTER_ALL);
     function bit(v, t) { bits.push({ v: v, t: t || '' }); }
-    if (filtered) {
+    if (findNorm(query)) {
+      bit(shownNow + ' of ' + c.shown + ' issue' + (c.shown === 1 ? '' : 's') + ' shown \u00b7 matching \u201c' +
+        String(query).trim() + '\u201d' + (filtered ? ' \u00b7 ' + filterOf(filterKey).label : ''), of.shown);
+    } else if (filtered) {
       bit(shownNow + ' of ' + c.shown + ' issue' + (c.shown === 1 ? '' : 's') + ' shown \u00b7 ' +
         filterOf(filterKey).label, of.shown);
     } else {
@@ -1141,7 +1188,11 @@
     var uid = opts.uid || uidFor(pid);
     var active = filterOf(opts.filter || FILTER_ALL).key;
     var order = sortOf(opts.sort || SORT_TOPIC).key;
-    var shown = filterLeaves(all, active);
+    var query = findClean(opts.query);
+    var searching = !!findNorm(query);
+    if (!searching) query = '';
+    var viewed = filterLeaves(all, active);
+    var shown = findLeaves(viewed, query);
     // Two inputs to one shape: how many leaves are visible, and which order the
     // reader asked for. Tension order is always the flat list — a global ranking
     // inside topic accordions would be a ranking a reader cannot see.
@@ -1151,13 +1202,17 @@
       ' data-pdxtree-uid="' + escAttr(uid) + '"' +
       ' data-pdxtree-filter="' + escAttr(active) + '"' +
       ' data-pdxtree-sort="' + escAttr(order) + '"' +
+      ' data-pdxtree-q="' + escAttr(query) + '"' +
       ' data-pdxtree-mode="' + escAttr(shown.length ? mode : 'empty') + '">' +
-      tallyHtml(pid, shown.length, active) +
+      tallyHtml(pid, shown.length, active, query) +
       filtersHtml(all, active) +
       sortHtml(shown.length, order, byCount);
     var body;
     if (!shown.length) {
-      body = emptyHtml(active);
+      // A query that matches nothing on the WHOLE file says so in one line. A
+      // query that matches something the active chip is hiding is the chip's
+      // empty view, which already names the chip and the way back out.
+      body = (searching && !findLeaves(all, query).length) ? findEmptyHtml() : emptyHtml(active);
     } else if (mode === 'flat') {
       // FLAT MODE: one list, tension order, no accordions. Same leaf markup, so the
       // dossier door, the slots, the disclosures and the ids are the tree's.
@@ -1171,7 +1226,10 @@
       // that leaves nothing open, nothing is open: see wall 4. A filter that empties
       // the reader's branch hands them the map of what the filter left, not a
       // different branch we chose for them.
-      var openKeys = (opts.open || []).filter(function (k) {
+      // Under a query every surviving branch is open: the reader typed to SEE the
+      // matching rows, and a closed accordion around them is a second search. The
+      // query is the reader's own state as much as the branches they tapped are.
+      var openKeys = (opts.open || []).concat(searching ? gs.map(branchKey) : []).filter(function (k) {
         return gs.some(function (g) { return g.key === k; });
       });
       body = gs.map(function (g) {
@@ -1237,6 +1295,20 @@
   var TREE_WAIT = 'Their roll-call record is on file and the topic tree is being built from it — ' +
     'the issues appear here as the read lands.';
 
+  // The field sits OUTSIDE .pdxtree-body on purpose: every re-render (a chip, the
+  // order bar, a warm repaint, a query) replaces the tree inside the body, and a
+  // field that lived in there would lose the reader's caret on every keystroke.
+  function findHtml(host) {
+    var id = host + '-find';
+    return '<div class="pdxtree-find" role="search">' +
+      '<label class="pdxtree-findlbl" for="' + escAttr(id) + '">' + esc(FIND_PLACEHOLDER) + '</label>' +
+      '<input type="search" class="pdxtree-findin" id="' + escAttr(id) + '"' +
+        ' data-pdxtree-find="' + escAttr(host) + '"' +
+        ' placeholder="' + escAttr(FIND_PLACEHOLDER) + '"' +
+        ' maxlength="' + FIND_MAX + '" autocomplete="off" spellcheck="false" enterkeyhint="search">' +
+    '</div>';
+  }
+
   function sectionHtml(pid) {
     // ONE id for the section and for the leaves inside it. The warm repaint re-renders
     // the body with this same uid, so a leaf's id — which is the `origin` the dossier's
@@ -1257,6 +1329,7 @@
         '<p class="pdxtree-sub">Every issue we track for them, filed under the core national ' +
           'issues. Open a topic to see the issues under it — what they <b>said</b> beside what ' +
           'their formal <b>record</b> did — then tap an issue for the full dossier.</p>' +
+        findHtml(host) +
         '<div class="pdxtree-body">' + body + '</div>' +
       '</section>';
   }
@@ -1470,6 +1543,43 @@
   function bindOnce() {
     if (_bound || !document.addEventListener) return;
     _bound = true;
+
+    // ── FIND A TOPIC ──────────────────────────────────────────────────────
+    // Live as they type. The tree is rebuilt from the builder with the query
+    // riding along — the chip, the order and the uid ride too — so the tally,
+    // the branches and the ids describe what is on screen. The branches the
+    // reader had open before they started typing are remembered on the section
+    // and handed back when the field is cleared, so an empty query is the tree
+    // they left, not a freshly collapsed one. Nothing here navigates.
+    document.addEventListener('input', function (e) {
+      var inp = e.target;
+      if (!inp || !inp.matches || !inp.matches('input[data-pdxtree-find]')) return;
+      var sec = inp.closest('[data-pdxtree-host]');
+      var root = sec && sec.querySelector('.pdxtree-body .pdxtree');
+      if (!root) return;
+      var q = findClean(inp.value);
+      var was = !!findNorm(root.getAttribute('data-pdxtree-q') || '');
+      var now = !!findNorm(q);
+      if (!was && !now) return;
+      var open;
+      if (!was && now) {
+        sec.setAttribute('data-pdxtree-preopen', openBranches(root).join(' '));
+      } else if (was && !now) {
+        open = (sec.getAttribute('data-pdxtree-preopen') || '').split(' ').filter(Boolean);
+        sec.removeAttribute('data-pdxtree-preopen');
+      }
+      var next;
+      try {
+        next = treeHtml(root.getAttribute('data-pdxtree-pid') || '', {
+          uid: root.getAttribute('data-pdxtree-uid') || '',
+          filter: root.getAttribute('data-pdxtree-filter') || FILTER_ALL,
+          sort: root.getAttribute('data-pdxtree-sort') || SORT_TOPIC,
+          query: q, open: open || []
+        });
+      } catch (e1) { next = ''; }
+      if (next) root.outerHTML = next;
+    });
+
     document.addEventListener('click', function (e) {
       if (!e.target || !e.target.closest) return;
 
@@ -1507,7 +1617,8 @@
           // narrowed to "cuts against" did not ask to be put back into topic order.
           next = treeHtml(froot.getAttribute('data-pdxtree-pid') || '', {
             uid: fuid, filter: fkey,
-            sort: froot.getAttribute('data-pdxtree-sort') || SORT_TOPIC
+            sort: froot.getAttribute('data-pdxtree-sort') || SORT_TOPIC,
+            query: froot.getAttribute('data-pdxtree-q') || ''
           });
         } catch (e1) { next = ''; }
         if (next) {
@@ -1545,6 +1656,7 @@
           snext = treeHtml(sroot.getAttribute('data-pdxtree-pid') || '', {
             uid: suid, sort: skey,
             filter: sroot.getAttribute('data-pdxtree-filter') || FILTER_ALL,
+            query: sroot.getAttribute('data-pdxtree-q') || '',
             open: openBranches(sroot)
           });
         } catch (e4) { snext = ''; }
@@ -1661,8 +1773,10 @@
         // a repaint that silently reset an active filter would look like the
         // filter had failed.
         var root = el.querySelector('.pdxtree');
+        var fin = document.querySelector('input[data-pdxtree-find="' + host + '"]');
         var next = treeHtml(pid, {
           open: openBranches(el), uid: host,
+          query: fin ? fin.value : ((root && root.getAttribute('data-pdxtree-q')) || ''),
           filter: (root && root.getAttribute('data-pdxtree-filter')) || FILTER_ALL,
           sort: (root && root.getAttribute('data-pdxtree-sort')) || SORT_TOPIC
         });
@@ -1740,7 +1854,8 @@
         var next = treeHtml(r.getAttribute('data-pdxtree-pid') || '', {
           uid: r.getAttribute('data-pdxtree-uid') || '',
           filter: want,
-          sort: r.getAttribute('data-pdxtree-sort') || SORT_TOPIC
+          sort: r.getAttribute('data-pdxtree-sort') || SORT_TOPIC,
+          query: r.getAttribute('data-pdxtree-q') || ''
         });
         if (next) { r.outerHTML = next; hit = true; }
       } catch (e2) {}
@@ -1780,6 +1895,11 @@
     // …and the one way a view may be set from off this surface. See showFilter:
     // it is the chip's own re-render, reached without a chip.
     showFilter: showFilter,
+    // Find a topic: the one rule a query is read by, and the two lines it prints.
+    FIND_PLACEHOLDER: FIND_PLACEHOLDER,
+    FIND_NONE: FIND_NONE,
+    findMatches: topicMatches,
+    find: findLeaves,
     // The flat-mode threshold and the rule that reads it, in one place each.
     FLAT: FLAT,
     modeFor: modeFor,

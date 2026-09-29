@@ -286,6 +286,26 @@
 .pdxtree-leaf.is-quiet { opacity: 1; }
 .pdxtree-leaf.is-quiet .pdxtree-name { font-weight: 600; }
 
+/* ── FIND A TOPIC ──────────────────────────────────────────────────────────
+   One field above the tree. It sits outside the re-rendered block, so it keeps
+   the caret while the tree under it is rebuilt on every keystroke. The label is
+   for assistive tech; the placeholder carries the same words on screen. */
+.pdxtree-find { margin: 0 .1rem .55rem; }
+.pdxtree-findlbl {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+.pdxtree-findin {
+  box-sizing: border-box; width: 100%; max-width: 26rem; min-height: 40px;
+  padding: .5rem .7rem; border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.32); background: rgba(10, 15, 30, 0.45);
+  color: #eaf2ff; font: inherit; font-size: .85rem; line-height: 1.3;
+}
+.pdxtree-findin::placeholder { color: #8ea3c4; }
+.pdxtree-findin:focus-visible {
+  outline: 2px solid #a78bfa; outline-offset: 1px; border-color: transparent;
+}
+
 /* ── THE HEADER TALLY ──────────────────────────────────────────────────────
    Four figures, each one a field of the shared counts object, each carrying the
    denominator it means in its own title. Middot-separated rather than boxed: it
