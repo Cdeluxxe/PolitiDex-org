@@ -1,6 +1,6 @@
 {
   "_generatedBy": "scripts/gen-issue-core-categories.mjs (from CORE_NATIONAL_ISSUES in issue-map.js)",
-  "count": 122,
+  "count": 124,
   "categoryOf": {
     "america_first": "foreign_policy_defense",
     "america_first_fp": "foreign_policy_defense",
@@ -118,11 +118,13 @@
     "tobacco_nicotine": "healthcare",
     "tough_on_crime": "crime_safety",
     "transit": "economy_cost_of_living",
+    "ukraine_policy": "foreign_policy_defense",
     "veterans": "foreign_policy_defense",
     "voter_id": "election_integrity",
     "voting_access": "election_integrity",
     "war_powers": "checks_and_balances",
     "water": "climate_energy",
-    "water_storage": "climate_energy"
+    "water_storage": "climate_energy",
+    "yemen_policy": "foreign_policy_defense"
   }
 }

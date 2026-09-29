@@ -67,12 +67,13 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox, ENGINE_FILES } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
+import { withDeclaredNoPole } from "./head-no-pole.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
 const HEAD = (f) => {
   try {
-    return execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+    return withDeclaredNoPole(f, execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }));
   } catch { return null; }
 };
 
@@ -595,7 +596,10 @@ section("6 · one measure still teaches the measure");
     if (h.indexOf(`data-pdxdrv-pid="${pid}"`) < 0) bad.push(`${pid}/${k}: door does not carry whose record it opens`);
     if (h.indexOf("<a ") >= 0 || h.indexOf("<button") >= 0) bad.push(`${pid}/${k}: nested interactive element in the row`);
     if (h.indexOf("1 advanced") >= 0) bad.push(`${pid}/${k}: the side is printed as a count of one`);
-    if (!WORDS.some((wd) => h.indexOf(wd) >= 0)) bad.push(`${pid}/${k}: the side is not said in words`);
+    // A country subject (Ukraine, Yemen) has no side to say; it must say none.
+    if (k === "ukraine_policy" || k === "yemen_policy") {
+      if (/<span class="pdxgap-drv-c">(?!not scorable<)/.test(h)) bad.push(`${pid}/${k}: a subject row states a side`);
+    } else if (!WORDS.some((wd) => h.indexOf(wd) >= 0)) bad.push(`${pid}/${k}: the side is not said in words`);
     const wsp = /<span class="pdxgap-drv-w">([\s\S]*?)<\/span>/.exec(h);
     // Measured on the DECODED sentence: the clip budget is 220 characters of the
     // curator's own text plus an ellipsis, and an escaped ampersand is one of

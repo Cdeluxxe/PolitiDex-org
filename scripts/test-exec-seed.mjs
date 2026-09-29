@@ -85,9 +85,12 @@ const SQL = MIGRATION_RELS.map(R).join("\n");
 // nothing here can excuse an UPDATE or a DELETE inside a seed wave.
 // The September 2026 Iran pass is the same shape of forward migration: it ADDS a
 // secondary iran_policy row to S.J. Res. 68, a document already on file, by name.
+// The Ukraine and Yemen pass that followed adds a secondary yemen_policy row to
+// S.J. Res. 7 the same way.
 const REKEY_RELS = [
   "netlify/database/migrations/20260904000000_vr_split_umbrella_issue_keys.sql",
-  "netlify/database/migrations/20261105000000_vr_iran_policy_issue_key.sql"
+  "netlify/database/migrations/20261105000000_vr_iran_policy_issue_key.sql",
+  "netlify/database/migrations/20261106000000_vr_ukraine_yemen_policy_issue_keys.sql"
 ];
 const REKEY_SQL = REKEY_RELS.map(R).join("\n").replace(/^\s*--.*$/gm, "");
 const SEED_TEXT = R("db/exec-action-seed.json");

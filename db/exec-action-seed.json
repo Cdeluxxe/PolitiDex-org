@@ -547,6 +547,15 @@
             "plain": "The blocked resolution would have required congressional authorization for the forces committed to that conflict; the veto left them there without it.",
             "counts": "War powers is the constitutional question underneath the Yemen resolution: whether forces already committed need authorization from Congress to stay committed. The resolution put that question directly, which is why it is filed here as well as under restraint.",
             "rationale": "Re-keyed from america_first_fp in the August 2026 taxonomy split: this row was always about who authorizes the use of force, not about what the United States funds abroad, and the narrowed america_first_fp key covers aid and commitments only. Same inversion as the restraint row above — the direction is the resolution’s. A resolution directing removal of forces from hostilities Congress had not authorized advances the claim that Congress must authorize them, so the veto is read against it."
+          },
+          {
+            "issueKey": "yemen_policy",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 85,
+            "plain": "Vetoed the resolution directing withdrawal of U.S. forces from hostilities in Yemen that Congress had not authorized.",
+            "counts": "The resolution names Yemen as its subject, so the action taken on it is an act about Yemen as well as about restraint and war powers.",
+            "rationale": "Yemen is the resolution’s own subject: S.J. Res. 7 directed removal of United States Armed Forces from hostilities in the Republic of Yemen. Filed alongside the restraint and war-powers rows, not in place of them. The key names a country, so no side is read on it; the direction field records the resolution, as on the rows above."
           }
         ],
         "_issuesNote": "The restraint mapping is primary because a war-powers direction is that issue and nothing else. It is worth knowing what it does and does not do to the reading: the stated position on restraint is not directional, so this row lands in the 'action on file, no stated position' bucket and cannot be scored — but it takes that issue off 'no record at all', which is where it sat with the file holding no first-term action. The america_first_fp mapping is the one that can be checked, and it checks against a stated position written from second-term material that names none of these documents.",

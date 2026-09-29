@@ -8283,7 +8283,7 @@
 //     table (dd_issue_keys) and the mappings live in vr_measure_issues:
 //     20261105000000_vr_iran_policy_issue_key.
 //     alignment-tool.js, issue-map.js, stance-helpers.js, issue-scope.js,
-//     consistency.js, exec-action-data.js and stance-tree.js are precached and
+//     consistency.js, exec-action-data.js, word-action.js and stance-tree.js are precached and
 //     changed, so it moves one version.
 // v264 - DOORS AND EFFECT LINES ON EXECUTIVE ROWS IN THE ISSUE DRAWER.
 //     The drawer's ledger table now takes vetoes, orders and proclamations
@@ -8310,7 +8310,28 @@
 //     MIGRATION COST: none, and no location key is migrated, renamed or
 //     copied. No database migration.
 //     consistency.js is precached and changed, so it moves one version.
-const CACHE_VERSION = 'v265';
+// v266 - 🇺🇦 UKRAINE AND 🇾🇪 YEMEN ARE LEAVES UNDER FOREIGN POLICY, LIKE IRAN.
+//     Two new issue keys, ukraine_policy (label Ukraine) and yemen_policy
+//     (label Yemen), core Foreign Policy & National Security, no pole. Ukraine
+//     carries H.R. 8035, H.R. 815 and H.Amdt. 252; Yemen carries the vetoed
+//     S.J. Res. 7. Each is a secondary row beside the act's existing ones.
+//     "ukraine", "kyiv" and "zelensky" point at the Ukraine leaf and "yemen" at
+//     the Yemen leaf; "ukraine" is no longer a bare alias on Diplomacy &
+//     Restraint or Peace Through Strength — an old leaf answers a country word
+//     only through an act of that country. No roll call invented, Direction
+//     Match untouched. The issue ledger on the two new drawers prints no
+//     "Acts: n for · n against" line and the measure roll-up states no side —
+//     a country is a subject, not a proposition. Iran's ledger is unchanged.
+//     word-action.js keeps both keys out of the branding index, so a campaign
+//     tag such as "Israel & Ukraine" resolves as it did and no Direction Match
+//     "of N" moves.
+//     MIGRATION COST: none, and no location key is migrated, renamed or
+//     copied. One DATABASE migration ships (dd_issue_keys + guarded
+//     vr_measure_issues rows): 20261106000000_vr_ukraine_yemen_policy_issue_keys.
+//     alignment-tool.js, issue-map.js, stance-helpers.js, issue-scope.js,
+//     consistency.js, exec-action-data.js and stance-tree.js are precached and
+//     changed, so it moves one version.
+const CACHE_VERSION = 'v266';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

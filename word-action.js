@@ -222,10 +222,18 @@
   var _bimRows = null;   // [{key, kw, re}] sorted longest keyword first
   var _bimMemo = null;   // normalized label → resolved key (or null)
 
+  // COUNTRY LEAVES TAKE NO BRANDING. ukraine_policy and yemen_policy name a
+  // subject, not a proposition, and hold only acts about that country. A campaign
+  // tag like "Israel & Ukraine" would otherwise resolve to Ukraine on keyword
+  // length alone and add an untested item to the Direction Match set — moving its
+  // "of N" on files whose record did not change. They answer the find box, not
+  // the word ledger.
+  var BRANDING_SKIP = { ukraine_policy: 1, yemen_policy: 1 };
   function brandingIndex(im) {
     if (_bimSrc === im && _bimRows) return _bimRows;
     var rows = [];
     Object.keys(im).forEach(function (k) {
+      if (BRANDING_SKIP[k]) return;
       var kws = (im[k] && im[k].keywords) || [];
       for (var i = 0; i < kws.length; i++) {
         var kw = String(kws[i] == null ? '' : kws[i]).toLowerCase();
