@@ -159,7 +159,9 @@ section("2 · the locked copy, and nothing the lane does not say");
 // ═════════════════════════════════════════════════════════════════════════════
 
 const EYEBROW = "District Voice";
-const LINE = "The rooms for your seats. Anyone can read. Only verified residents of that seat get a voice that counts.";
+const TITLE = "The voice of your district.";
+const LINE = "This is where neighbors read the same record and speak to the seat — not the internet. " +
+  "Anyone can read a board. Only verified residents of that seat get a voice that counts.";
 const UNPLACED = "Find your rooms";
 const PLACED = "See your rooms";
 // The count in this sentence is pinned to BOARD_ROUTES in section 6, not here:
@@ -177,6 +179,21 @@ must(CARD_TEXT.length > 120, `the card's reader-visible copy is too thin to swee
 
 has(CARD_TEXT, EYEBROW, "copy: the eyebrow is not on the card");
 has(CARD_TEXT, LINE, "copy: the locked line is not on the card, verbatim");
+has(CARD_TEXT, TITLE, "copy: the title-scale line is not on the card, verbatim");
+// THE ORDER IS THE CARD: eyebrow, title, body, door, count.
+{
+  const at = [EYEBROW, TITLE, LINE, UNPLACED, NOTE].map((t) => CARD_TEXT.indexOf(t));
+  ok(at.every((n, i) => n >= 0 && (i === 0 || n > at[i - 1])),
+    `copy: the card does not read eyebrow → title → body → door → count (${JSON.stringify(at)})`);
+}
+// FEATURED, NOT FOOTNOTED. The title has its own class, and the card carries the
+// palette's gold on its border rather than the old hairline.
+has(GATE, 'class="pdxhv-title"', "visual: the title-scale line has no title class of its own");
+ok(/\.pdxhv-card\{[^}]*border:[^;}]*rgba\(245,200,66/.test(GATE),
+  "visual: the card's border is not the palette gold");
+ok(!/@keyframes|animation\s*:/.test(GATE), "visual: the card animates, which fights the record carousel");
+// NOT A SECOND HERO, AND NO VIDEO.
+for (const wall of ["<h1", "<video", "<iframe"]) no(GATE, wall, `visual: the card carries ${wall}`);
 has(CARD_TEXT, UNPLACED, "copy: the served label is not the no-location one");
 has(CARD_TEXT, NOTE, "copy: the one true sentence about the allow-list is not on the card");
 // AND THE OPTIONAL LINE IS STILL TRUE. It counts the seats that have a board;
@@ -205,6 +222,16 @@ for (const re of [/\bshares?\b/i, /\bstocks?\b/i, /\bunits?\b/i, /\bdues\b/i, /r
   /\bowners?\b/i, /\bcap\s*table\b/i, /\bdividend/i, /\bvaluation\b/i]) {
   ok(!re.test(SWEEP),
     `copy: ${re} matches the card — "${(new RegExp("[^·]*" + re.source + "[^·]*", "i").exec(SWEEP) || [""])[0].trim()}"`);
+}
+
+// THE BRIEF'S OWN BANS, read case-insensitively against everything a reader or
+// the card's code could reach: no stock, no share, no "earn a", no Form C, no
+// premium, no "post now", and "demand" is not a word for a post that lands.
+{
+  const LOW = SWEEP.toLowerCase();
+  for (const bad of ["stock", "share", "earn a", "form c", "premium", "post now", "demand"]) {
+    ok(LOW.indexOf(bad) < 0, `copy: banned string "${bad}" reaches the card`);
+  }
 }
 
 // NO MAP, NO COMPOSER, NO COUNTS. The card is three sentences and one anchor; it
@@ -657,6 +684,50 @@ section("9 · one version bump, and the entry says what it cost");
   const list = SW.slice(a, SW.indexOf("\n];", a)).replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^[ \t]*\/\/.*$/gm, " ");
   for (const f of ["/", "/voice.html", "/voice-room.js", "/district-voice.js"]) {
     has(list, `'${f}'`, `precache: ${f} is not in SHELL_ASSETS`);
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("10 · mutations: the fences above actually bite");
+// ═════════════════════════════════════════════════════════════════════════════
+
+// THE TWO FAILURES THE BRIEF NAMES, re-run against a mutated copy of the gate.
+// A fence that passes a door pointed at "/" or an eighty-ninth seat invented in
+// the count is decoration, so each mutant must trip the same check the real
+// card passes above.
+{
+  const win = makeSandbox();
+  win.window = win;
+  win.document = Object.assign({}, win.document, { getElementById: () => null });
+  vm.runInContext(DV, vm.createContext(win), { filename: "district-voice.js" });
+  const N = Object.keys(win.PDXVoice.BOARD_ROUTES).length;
+  const TENS = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+  const ONES = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+  const spellCap = (n) => TENS[Math.floor(n / 10)] + (n % 10 ? "-" + ONES[n % 10] : "");
+  must(N >= 20 && N < 99, `BOARD_ROUTES holds ${N} rows; the mutation speller covers 20–98`);
+  const countOk = (gate) => {
+    const text = textOf(stripComments(gate).replace(/<script\b[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style\b[\s\S]*?<\/style>/gi, " "));
+    return text.indexOf(`${spellCap(N)} seats have a board on file today`) >= 0;
+  };
+  const hrefOk = (gate) => {
+    const as = [...gate.matchAll(/<a\b[^>]*>(?:(?!<\/a>)[\s\S])*?<\/a>/g)].map((m) => m[0]);
+    return as.length === 1 && (/href="([^"]*)"/.exec(as[0]) || [, ""])[1] === "/voice" &&
+      gate.indexOf("#who-represents-me") < 0;
+  };
+  ok(countOk(GATE), "mutation: the real card fails its own count check");
+  ok(hrefOk(GATE), "mutation: the real card fails its own href check");
+  const toRoot = GATE.replace('href="/voice"', 'href="/"');
+  ok(toRoot !== GATE && !hrefOk(toRoot), "mutation: a door pointed at / passes the href check");
+  const toFinder = GATE.replace('href="/voice"', 'href="/#who-represents-me"');
+  ok(toFinder !== GATE && !hrefOk(toFinder), "mutation: a door pointed at the finder passes the href check");
+  const plusOne = GATE.replace(`${spellCap(N)} seats`, `${spellCap(N + 1)} seats`);
+  ok(plusOne !== GATE && !countOk(plusOne), `mutation: an invented seat (${spellCap(N + 1)}) passes the count check`);
+  // AT EVERY STANDING the booted door still reads /voice (section 3 boots both);
+  // here the served markup is re-checked for each label the script can paint.
+  for (const label of [UNPLACED, PLACED]) {
+    const painted = GATE.replace(`>${UNPLACED}</a>`, `>${label}</a>`);
+    ok(hrefOk(painted), `mutation: the "${label}" standing does not open /voice`);
   }
 }
 

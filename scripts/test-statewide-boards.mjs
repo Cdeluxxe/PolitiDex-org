@@ -329,7 +329,7 @@ section("8 · the homepage counts BOARD_ROUTES");
   eq(n, 88, "BOARD_ROUTES holds 85 district rows and the three statewide ones");
   has(HOME, '<p class="pdxhv-note">Eighty-eight seats have a board on file today. Every other seat says the room is not open.</p>',
     "the homepage count is BOARD_ROUTES.length, spelled");
-  has(SW, "const CACHE_VERSION = 'v259';", "the SW moved one version");
+  has(SW, "// v259 - ", "the SW moved one version (v259 entry filed)");
 }
 
 report();

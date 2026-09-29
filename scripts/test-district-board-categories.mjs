@@ -311,7 +311,7 @@ section("8 · one stylesheet, linked by the module, precached; SW moved");
   ok(existsSync(join(ROOT, "district-board.css")), "district-board.css exists");
   has(MOD, "'/district-board.css'", "the module links the sheet");
   has(SW, "'/district-board.css',", "the sheet is precached");
-  has(SW, "const CACHE_VERSION = 'v259';", "the SW moved one version");
+  has(SW, "// v259 - ", "the SW moved one version (v259 entry filed)");
   const CSS = R("district-board.css");
   const keys = Object.keys(W.ISSUE_MAP || {});
   eq(keys.filter((k) => CSS.indexOf("--pdx-ic-" + k) >= 0).length, 0, "the sheet carries no per-issue colour rule");
