@@ -8256,7 +8256,19 @@
 //     MIGRATION COST: none, and no location key is migrated, renamed or
 //     copied. stance-tree.js and stance-tree.css are precached shell assets
 //     and changed, so it moves one version.
-const CACHE_VERSION = 'v261';
+// v262 - FIND A TOPIC READS ALIASES AND THE MEASURES ON FILE.
+//     The field on 🌳 All Issues by Topic still filters only the leaves already
+//     on that person file, but a leaf now answers on three things: its label
+//     (unchanged), a shared static alias table on its issue key ("iran" → War
+//     Powers, Diplomacy & Restraint, Support for Israel; "ukraine" → Peace
+//     Through Strength, Diplomacy & Restraint), and the names and titles of the
+//     formal measures the dossier drawer already lists for that person × issue.
+//     No new issue, no invented row, no archive search; the miss line, the
+//     restore-on-empty and the dossier door are unchanged. Scores untouched.
+//     MIGRATION COST: none — the aliases are a static table and no location key
+//     is migrated, renamed or copied. stance-tree.js is a precached shell asset
+//     and changed, so it moves one version.
+const CACHE_VERSION = 'v262';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

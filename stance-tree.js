@@ -428,25 +428,45 @@
   }
 
   // ── FIND A TOPIC ──────────────────────────────────────────────────────────
-  // One field above the tree narrows it to the issues whose LABEL — the name the
-  // leaf already prints — holds what a reader typed. It reads the label and
-  // nothing else: not a bill title, not a keyword list, not the chip prose, so a
-  // hit is always a row the reader can see the matching words on. It is a VIEW,
-  // applied after the filter chip, and like the chips it is a re-render of the
-  // same builder: branches and mids with no matching leaf are simply not built,
-  // and no issue is ever added to make a query come back non-empty.
+  // One field above the tree narrows it to the issues ALREADY ON THIS FILE that
+  // answer what a reader typed. It is a VIEW, applied after the filter chip, and
+  // like the chips it is a re-render of the same builder: branches and mids with
+  // no matching leaf are simply not built, and no issue is ever added to make a
+  // query come back non-empty.
+  //
+  // A LEAF ANSWERS A QUERY IN ONE OF THREE WAYS, and only these three:
+  //   1. its LABEL — the name the leaf already prints;
+  //   2. an ALIAS on its issue key — FIND_ALIASES below, one shared table, never
+  //      per person, for the words people type about an issue that its label does
+  //      not carry ("iran" for War Powers);
+  //   3. the NAME OR TITLE of a formal measure already on THIS person × THIS
+  //      issue — the same rows the dossier drawer lists (dossierItems), so
+  //      "14353" finds the leaf that EO sits under, on the file it sits on.
+  // Nothing is scraped, nothing is searched across the archive, and a measure on
+  // someone else's file cannot surface a leaf here. Every route still filters the
+  // leaves this file already has: an alias pointing at a key the person has no
+  // row for points at nothing.
   //
   // THE WORDS PEOPLE TYPE, NOT THE GLYPHS WE PRINT. "&" and "+" read as "and",
   // "/" and every other mark (emoji included) as a space, and each typed word has
-  // to appear somewhere in the label — so "tariffs trade", "tariffs and trade"
-  // and "tariffs & trade" all find Tariffs & Trade Authority.
+  // to appear somewhere in ONE of those texts — so "tariffs trade", "tariffs and
+  // trade" and "tariffs & trade" all find Tariffs & Trade Authority.
   var FIND_PLACEHOLDER = 'Find a topic';
   var FIND_NONE = 'No topic on this file matches.';
   var FIND_MAX = 80;
+  // issueKey → the extra words that find it. Static, shared, and only for keys in
+  // the vocabulary; a word already in the label ("war" → War Powers) is not
+  // repeated here.
+  var FIND_ALIASES = {
+    restraint: ['iran', 'ukraine'],
+    war_powers: ['iran'],
+    israel_support: ['iran'],
+    strong_defense: ['ukraine']
+  };
   function findNorm(s) {
     return String(s == null ? '' : s).toLowerCase()
       .replace(/[&+]/g, ' and ')
-      .replace(/[^a-z0-9\u00c0-\u024f]+/g, ' ')
+      .replace(/[^a-z0-9À-ɏ]+/g, ' ')
       .trim();
   }
   function findClean(q) { return String(q == null ? '' : q).slice(0, FIND_MAX); }
@@ -460,10 +480,47 @@
     }
     return true;
   }
+  function aliasesOf(key) {
+    return Object.prototype.hasOwnProperty.call(FIND_ALIASES, key) ? FIND_ALIASES[key] : [];
+  }
+  // The measure names and titles behind one leaf, off the drawer's own list.
+  // Memoised on the house epoch idiom; any throw answers with no titles, so the
+  // failure mode is a row the label alone must find, never an invented hit.
+  var _findTitleCache = {}, _findTitleEpoch = -1;
+  function measureTextsOf(pid, key) {
+    var ep = 0;
+    try { ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0; } catch (e) { ep = 0; }
+    if (_findTitleEpoch !== ep) { _findTitleCache = {}; _findTitleEpoch = ep; }
+    var ck = String(pid || '') + '||' + String(key || '');
+    if (Object.prototype.hasOwnProperty.call(_findTitleCache, ck)) return _findTitleCache[ck];
+    var out = [];
+    try {
+      var CS = window.PDXConsistency;
+      var items = (CS && typeof CS.dossierItems === 'function') ? (CS.dossierItems(pid, key) || []) : [];
+      items.forEach(function (d) {
+        if (!d) return;
+        var raw = d.item || {};
+        [d.ident, d.title, raw.shortTitle, raw.number].forEach(function (t) {
+          if (t && out.indexOf(String(t)) === -1) out.push(String(t));
+        });
+      });
+    } catch (e2) { out = []; }
+    _findTitleCache[ck] = out;
+    return out;
+  }
+  function leafMatches(lf, q) {
+    if (!lf) return false;
+    if (topicMatches(lf.label, q)) return true;
+    var al = aliasesOf(lf.key);
+    for (var i = 0; i < al.length; i++) if (topicMatches(al[i], q)) return true;
+    var ts = measureTextsOf(lf.pid, lf.key);
+    for (var j = 0; j < ts.length; j++) if (topicMatches(ts[j], q)) return true;
+    return false;
+  }
   function findLeaves(list, q) {
     list = list || [];
     if (!findNorm(q)) return list.slice();
-    return list.filter(function (lf) { return !!lf && topicMatches(lf.label, q); });
+    return list.filter(function (lf) { return leafMatches(lf, q); });
   }
   function branchKey(g) { return g.key; }
   function findEmptyHtml() {
@@ -1899,6 +1956,8 @@
     FIND_PLACEHOLDER: FIND_PLACEHOLDER,
     FIND_NONE: FIND_NONE,
     findMatches: topicMatches,
+    findLeafMatches: leafMatches,
+    FIND_ALIASES: FIND_ALIASES,
     find: findLeaves,
     // The flat-mode threshold and the rule that reads it, in one place each.
     FLAT: FLAT,
