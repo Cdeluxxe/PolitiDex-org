@@ -1157,10 +1157,13 @@
   // empty payload, which would paint as zero. See RULE 2.
   var FAILED = { failed: true };
 
-  function fetchCounts() {
-    var url = API + '?seat=' + encodeURIComponent(ALIAS());
+  // `fresh` is refresh()'s: after a post on SD-3 the count must come from the
+  // store again, not from the minute-long public cache the first read may sit in.
+  function fetchCounts(fresh) {
+    var url = API + '?seat=' + encodeURIComponent(ALIAS()) + (fresh ? '&fresh=' + Date.now() : '');
     try {
-      return fetch(url, { headers: { accept: 'application/json' } })
+      return fetch(url, fresh ? { headers: { accept: 'application/json' }, cache: 'no-store' }
+                              : { headers: { accept: 'application/json' } })
         .then(function (r) {
           if (!r.ok) throw new Error('district-board ' + r.status);
           return r.json();
@@ -1225,6 +1228,29 @@
   // The archive read was skipped for want of a resolved holder, rather than
   // issued and answered empty. See fetchTable() and the roster subscription.
   var _tableSkipped = false;
+  var _el = null;       // the mounted host, for refresh()
+  var _issues = [];     // the issue keys the table last printed, for the composer
+
+  // ── THE ONE BOARD THAT TAKES A VOICE ──────────────────────────────────────
+  // district-composer.js owns SD-3's composer, and its host is in THAT document
+  // only. Where the host exists this module leaves the posting slot to it rather
+  // than painting the "Posting ships next" field beside a real one; everywhere
+  // else (every other board) the disabled seam below is unchanged.
+  function composerOwned() {
+    try { return !!(typeof document !== 'undefined' && document.getElementById('pdx-district-composer')); }
+    catch (e) { return false; }
+  }
+
+  // Band 2 read again, from the store. Called by the composer after a post
+  // lands so the count a reader just moved is the count they see.
+  function refresh() {
+    if (!_el) return Promise.resolve(false);
+    return fetchCounts(true).then(function (d) {
+      if (d !== FAILED) _counts = d;
+      paint(_el);
+      return d !== FAILED;
+    });
+  }
 
   function mount(host) {
     var el = host || document.getElementById('pdx-district-board');
@@ -1232,6 +1258,7 @@
     var b = board(hostSeat(el)) || board(docSeat()) || ACTIVE;
     if (!b || !Object.prototype.hasOwnProperty.call(BOARD_SEATS, b.seat)) return false;
     ACTIVE = b;
+    _el = el;
 
     paint(el);
     fetchCounts().then(function (d) { _counts = d; paint(el); });
@@ -1281,12 +1308,18 @@
       if (k && issues.indexOf(k) === -1) issues.push(k);
     }
 
+    _issues = issues;
     el.innerHTML =
       seatHtml() +
       roomHtml(cState, _counts === FAILED ? null : _counts) +
       tableHtml(tState, items, rooms) +
       stanceHtml(issues) +
-      composeHtml();
+      (composerOwned() ? '' : composeHtml());
+    try {
+      if (typeof document !== 'undefined' && fn(document.dispatchEvent) && typeof CustomEvent === 'function') {
+        document.dispatchEvent(new CustomEvent('pdxdb:paint'));
+      }
+    } catch (e) {}
   }
 
   // ── THE ONE CONTROL ON THE PERSON FILE ────────────────────────────────────
@@ -1378,6 +1411,11 @@
     tableHtml: tableHtml,
     stanceHtml: stanceHtml,
     composeHtml: composeHtml,
+    // For district-composer.js on SD-3: the seat's own issue list (what band 3
+    // printed), the vocabulary's word for a key, and a fresh band-2 read.
+    issues: function () { return _issues.slice(); },
+    issueLabel: issueLabel,
+    refresh: refresh,
     _whole: whole,
     _people: people,
     _measureHref: measureHref,

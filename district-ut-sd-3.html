@@ -65,17 +65,19 @@
          reader their district is empty because a Function timed out.
          The absence grammar is the money lane's, borrowed exactly — "on hand",
          never "yet", because "yet" promises a record that may never come.
-       · NO WORKING COMPOSER, AND NO FAKE ONE. Posting is not built. The field
-         near the bottom is really there and really disabled, with one sentence
-         saying posting ships next. What was deliberately NOT built is a box
-         that keeps a sentence in localStorage and paints it back into the
-         board: the reader would believe they had posted to their district when
-         nothing left the machine, and the sentence would render beside a
-         verified-resident count as though it were a verified resident's.
-       · NO IDENTITY VENDOR IS WIRED, so there is no personal residency
-         standing on this surface at all — not resolved, not guessed, not asked
-         for. The page says what residency is FOR (it is how a voice is
-         counted) and what it is not for (it is not how a page is read).
+       · ONE COMPOSER, AND IT IS OFF UNTIL THE SERVER OPENS IT. This is the
+         only board with a #pdx-district-composer host, and district-composer.js
+         is loaded here and on no other board. The served markup is a disabled
+         box with the locked line. It turns on only when
+         /api/district-board-voice says the signed-in account holds an ID-checked
+         residency flag for THIS seat. No ID check is connected in this
+         environment, so the box stays off for everyone: a typed zip or a saved
+         location is never accepted as proof, and nothing on this page can mark
+         a reader verified. What was deliberately NOT built is a box that keeps
+         a sentence in localStorage and paints it back as though it had posted.
+       · RESIDENCY IS NOT RESOLVED ON THIS PAGE. The page never guesses or asks
+         where a reader lives; the server alone answers whether this account may
+         post here. Residency is how a voice is counted, not how a page is read.
        · NO PERSONAL "YOU ARE IN SD-3" LINE. The app has exactly one owner of
          "where does this reader vote" — voter-hub-location.js — and that
          module is deliberately NOT on this document. Re-deriving a district
@@ -126,6 +128,8 @@
                            route, the copy, the three bands, the two reads and
                            the person-file control. This document asks it
                            everything and decides nothing.
+       district-composer.js this board's composer and its posts, and nothing
+                           else. Off until /api/district-board-voice opens it.
        css/tailwind.css    the utility sheet the shared chrome is built from.
                            NOT app.css.
        shell-chrome.css    the bar and the account chip, shared with /voice,
@@ -267,6 +271,39 @@
       margin: 0.9rem 0 0; padding-top: 0.7rem; border-top: 1px solid #16223a;
       font-size: 0.8rem; line-height: 1.5; color: #7d8fa9;
     }
+
+    /* THE COMPOSER — this board only (district-composer.js). `pdxdc-` was
+       checked against every shipped file: nothing else defines it. */
+    .pdxdb-wrap--compose { padding-top: 0; }
+    .pdxdc-locked {
+      margin: 0 0 0.8rem; padding: 0.55rem 0.7rem; border-left: 3px solid #c4b58a;
+      background: #121a2c; font-size: 0.9rem; line-height: 1.45; color: #e2d6ae;
+    }
+    .pdxdc-form { display: grid; gap: 0.45rem; }
+    .pdxdc-l { font-size: 0.8rem; color: #93a8c6; }
+    .pdxdc-sel, .pdxdc-ta {
+      width: 100%; box-sizing: border-box; padding: 0.55rem 0.65rem;
+      background: #0a1020; color: #e7eefb; border: 1px solid #22324f; border-radius: 0.45rem;
+      font: 400 0.95rem/1.45 'Barlow', system-ui, sans-serif;
+    }
+    .pdxdc-ta { resize: vertical; min-height: 5rem; }
+    .pdxdc-sel:disabled, .pdxdc-ta:disabled, .pdxdc-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .pdxdc-sel:focus-visible, .pdxdc-ta:focus-visible, .pdxdc-btn:focus-visible { outline: 2px solid #7fb2ff; outline-offset: 2px; }
+    .pdxdc-row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+    .pdxdc-len { font-size: 0.76rem; color: #74849c; font-variant-numeric: tabular-nums; }
+    .pdxdc-btn {
+      padding: 0.5rem 1.1rem; border: 0; border-radius: 0.45rem; background: #2f6fd6; color: #fff;
+      font: 700 0.85rem/1 'Barlow Condensed', 'Barlow', sans-serif; letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: pointer;
+    }
+    .pdxdc-status { margin: 0; font-size: 0.84rem; color: #a9c7f0; }
+    .pdxdc-feed { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.7rem; }
+    .pdxdc-post { padding: 0.6rem 0 0; border-top: 1px solid #16223a; }
+    .pdxdc-post:first-child { border-top: 0; padding-top: 0; }
+    .pdxdc-post-meta { margin: 0 0 0.25rem; display: flex; flex-wrap: wrap; gap: 0.3rem 0.7rem; font-size: 0.74rem; color: #7d8fa9; }
+    .pdxdc-post-issue { color: #a9c7f0; }
+    .pdxdc-post-mine { color: #c4b58a; }
+    .pdxdc-post-body { margin: 0; font-size: 0.93rem; line-height: 1.5; color: #dbe6f7; white-space: pre-wrap; overflow-wrap: anywhere; }
 
     /* Band 1 */
     .pdxdb-seat-name { margin: 0 0 0.15rem; font-size: 1.15rem; font-weight: 600; }
@@ -526,6 +563,9 @@
   <script defer src="/your-file.js"></script>
   <!-- The board itself. Everything above is a source it reads. -->
   <script defer src="/district-board.js"></script>
+  <!-- THIS BOARD'S COMPOSER, and no other board loads it. Mounts only on the
+       #pdx-district-composer host below; off until the server opens it. -->
+  <script defer src="/district-composer.js"></script>
   <!-- The account chip, answering the same three-state contract compare-hub.js
        does on the front page in 9 KB instead of 758 KB. -->
   <script defer src="/shell-account-chip.js"></script>
@@ -584,6 +624,22 @@
         <p class="pdxdb-wait" role="status">
           <span class="pdxdb-dot" aria-hidden="true"></span>Reading this district&rsquo;s record&hellip;
         </p>
+      </div>
+    </div>
+
+    <!-- THE COMPOSER'S HOST, on this board only. The served state is the locked
+         one: a disabled box and the locked line, so a reader with scripting off,
+         signed out or unverified sees exactly what district-composer.js would
+         paint for them. It never opens without the server's word. -->
+    <div class="pdxdb-wrap pdxdb-wrap--compose">
+      <div id="pdx-district-composer" data-pdxdc-seat="ut-sd-3" data-pdxdc-state="locked">
+        <section class="pdxdb-band pdxdb-band--compose" data-pdxdb-band="compose">
+          <h2 class="pdxdb-h2">Say something to this district</h2>
+          <p class="pdxdc-locked" data-pdxdc-locked="1">Only verified residents of this seat get a voice that counts.</p>
+          <label class="pdxdc-l" for="pdxdc-body">Say something to this district</label>
+          <textarea class="pdxdc-ta" id="pdxdc-body" rows="3" disabled aria-disabled="true"
+            placeholder="Only verified residents of this seat can post here."></textarea>
+        </section>
       </div>
     </div>
 

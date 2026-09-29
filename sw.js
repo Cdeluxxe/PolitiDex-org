@@ -8161,7 +8161,31 @@
 //     MIGRATION COST: none, and no location key is migrated, renamed or copied;
 //     district-board.js and district-voice.js are precached and changed, and
 //     79 new documents join the shell, so it moves one version.
-const CACHE_VERSION = 'v255';
+// v256 - SD-3 TAKES A VOICE, AND ONLY FROM A VERIFIED RESIDENT OF SD-3.
+//     /district/ut-sd-3 is the one board with a composer. Its host
+//     (#pdx-district-composer) is in that document only, and district-composer.js
+//     is loaded there and nowhere else; every other board - HD-15, SD-6, the 79
+//     generated ones - stays a reader with district-board.js's disabled seam.
+//     BOARD_ROUTES, BOARDS, BOARD_SEATS and the rewrites are unchanged. STILL NO
+//     /district/* SPLAT and no new board.
+//     THE GATE FAILS CLOSED. POST /api/district-board-voice writes only when the
+//     caller is signed in AND their account holds a voice_residency row for
+//     ut-statesenate-3 with status 'verified' and method 'vendor' - the ID
+//     check. A 'location_match' row does not count: a typed location or zip is
+//     not proof. No identity vendor is connected in this environment and nothing
+//     writes method 'vendor', so today every POST is 403 and writes nothing, and
+//     the box is served disabled with the hub's own locked line: "Only verified
+//     residents of this seat get a voice that counts." Nothing fakes verified.
+//     THE STORE IS voice_takes, per seat, the table /api/district-board already
+//     counts - so a post moves band 2 from the same rows, and district-board.mts
+//     did not change. The composer re-reads band 2 (no-store) after a post.
+//     Posts go out as { id, issueKey, body, createdAt, mine }: no name, email,
+//     address, uid or author hash. No poll, no replies, no score, no money, no
+//     equity copy.
+//     MIGRATION COST: none. No table was added and no location key is migrated,
+//     renamed or copied. district-board.js and district-ut-sd-3.html changed and
+//     district-composer.js joins the shell, so it moves one version.
+const CACHE_VERSION = 'v256';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -8397,6 +8421,9 @@ const SHELL_ASSETS = [
   '/district-ut-cd-4.html',
   // @generated district-boards end precache
   '/district-board.js',
+  // SD-3's composer. Only district-ut-sd-3.html loads it; offline it paints the
+  // locked box and says the posts could not be read.
+  '/district-composer.js',
   // The chrome all three share — the bar-and-chip sheet and the chip's own small
   // module — and the only two files /me and /courts did not already bring.
   '/shell-chrome.css',
