@@ -149,7 +149,8 @@ console.log("── Vocab wave V1 (sound_money, tobacco_nicotine, dev_district_f
 // exists in one and not the other is a key that the client will render and the API
 // will reject, or the reverse.
 section("One source of truth");
-eq(KEYS_JSON.count, 121, "the generated allow-list holds 121 keys");
+// 121 after this wave; 122 since the September 2026 Iran pass added iran_policy.
+eq(KEYS_JSON.count, 122, "the generated allow-list holds 122 keys");
 eq(KEYS_JSON.count, KEYS_JSON.keys.length, "the count is the length of the list it counts");
 has(KEYS_JSON._generatedBy, "gen-issue-keys.mjs",
   "the allow-list says it is generated, not hand-written");

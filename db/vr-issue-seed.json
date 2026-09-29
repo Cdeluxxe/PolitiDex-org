@@ -270,6 +270,14 @@
           "isPrimary": false,
           "supportMeaning": "yea_opposes",
           "rationale": "Requires congressional authorization before continued U.S. hostilities against Iran and directs the removal of forces from hostilities Congress has not authorized. A yea withdraws U.S. forces from an ongoing engagement absent a vote of Congress."
+        },
+        {
+          "issueKey": "iran_policy",
+          "weight": 100,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Iran is the resolution's own subject: it directs removal of U.S. forces from hostilities against Iran that Congress has not authorized. Filed here alongside its restraint, war-powers and defense rows, not in place of them; no side is read on this key.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/59"
         }
       ]
     },
@@ -644,6 +652,14 @@
           "isPrimary": true,
           "supportMeaning": "yea_supports",
           "rationale": "Jayapal War Powers concurrent resolution directing the President under section 5(c) of the War Powers Resolution to remove United States Armed Forces from hostilities with Iran; a yea ends US participation in an undeclared conflict.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/89"
+        },
+        {
+          "issueKey": "iran_policy",
+          "weight": 100,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Iran is the resolution's own subject: it directs the President under section 5(c) of the War Powers Resolution to remove U.S. forces from hostilities with Iran. Filed here alongside its restraint row, not in place of it; no side is read on this key.",
           "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-concurrent-resolution/89"
         }
       ]
@@ -3317,6 +3333,14 @@
           "supportMeaning": "yea_opposes",
           "rationale": "A yea withdraws United States forces from an ongoing engagement absent a vote of Congress, and that is what strong_defense reads as its opposed direction. The weight is held at 55, the weight S.J.Res. 59 carries, because the resolution takes no position on force levels, procurement, budgets or posture; it reaches one engagement and stops. Recording it lower would erase a real vote and recording it higher would turn a single-engagement question into a defence-posture score.",
           "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/104"
+        },
+        {
+          "issueKey": "iran_policy",
+          "weight": 100,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Iran is the resolution's own subject: its operative section directs removal of U.S. forces from hostilities within or against Iran that Congress has not authorized. Filed here alongside its existing rows, not in place of them; no side is read on this key.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/104"
         }
       ]
     },
@@ -3350,6 +3374,14 @@
           "isPrimary": false,
           "supportMeaning": "yea_opposes",
           "rationale": "A yea withdraws United States forces from an ongoing engagement absent a vote of Congress, and that is what strong_defense reads as its opposed direction. The weight is held at 55, the weight S.J.Res. 59 carries, because the resolution takes no position on force levels, procurement, budgets or posture; it reaches one engagement and stops. Recording it lower would erase a real vote and recording it higher would turn a single-engagement question into a defence-posture score.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/184"
+        },
+        {
+          "issueKey": "iran_policy",
+          "weight": 100,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Iran is the resolution's own subject: its operative section directs removal of U.S. forces from hostilities within or against Iran that Congress has not authorized. Filed here alongside its existing rows, not in place of them; no side is read on this key.",
           "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/184"
         }
       ]
@@ -3385,6 +3417,14 @@
           "supportMeaning": "yea_opposes",
           "rationale": "A yea withdraws United States forces from an ongoing engagement absent a vote of Congress, and that is what strong_defense reads as its opposed direction. The weight is held at 55, the weight S.J.Res. 59 carries, because the resolution takes no position on force levels, procurement, budgets or posture; it reaches one engagement and stops. Recording it lower would erase a real vote and recording it higher would turn a single-engagement question into a defence-posture score.",
           "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/163"
+        },
+        {
+          "issueKey": "iran_policy",
+          "weight": 100,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Iran is the resolution's own subject: its operative section directs removal of U.S. forces from hostilities within or against Iran that Congress has not authorized. Filed here alongside its existing rows, not in place of them; no side is read on this key.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/163"
         }
       ]
     },
@@ -3418,6 +3458,14 @@
           "isPrimary": false,
           "supportMeaning": "yea_opposes",
           "rationale": "A yea withdraws United States forces from an ongoing engagement absent a vote of Congress, and that is what strong_defense reads as its opposed direction. The weight is held at 55, the weight S.J.Res. 59 carries, because the resolution takes no position on force levels, procurement, budgets or posture; it reaches one engagement and stops. Recording it lower would erase a real vote and recording it higher would turn a single-engagement question into a defence-posture score.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/185"
+        },
+        {
+          "issueKey": "iran_policy",
+          "weight": 100,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Iran is the resolution's own subject: its operative section directs removal of U.S. forces from hostilities within or against Iran that Congress has not authorized. Filed here alongside its existing rows, not in place of them; no side is read on this key.",
           "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/185"
         }
       ]

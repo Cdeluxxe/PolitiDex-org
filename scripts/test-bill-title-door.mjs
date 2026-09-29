@@ -763,13 +763,24 @@ section("6 · no bill page on file says so, and goes nowhere");
   ok(!fev.defaultPrevented, "a delegated handler swallowed the outbound link's tap");
   eq(N.__nav.length, 0, "the outbound link was opened by script instead of by the browser");
 
-  // THE REFUSAL, on a measure with no address to build: Utah's H.B. 400.
+  // NO PANEL AND NO ADDRESS: TEXT. A measure with no address to build — Utah's
+  // H.B. 400 — on a page without the panel has nowhere to go, so its number is
+  // printed as the number, not as a control whose only answer is "No bill page
+  // on file". The reader keeps the number; nothing offers a tap that goes nowhere.
   const udos = N.PDXConsistency.gapViewHtml(UT_PID, UT_KEY) || "";
-  must(udos.indexOf("pdxbill-door") >= 0, "the control disappeared with the panel — a reader loses the number too");
-  has(udos, `data-pdxbill-num="${UT_NUM}"`, "the control stopped naming its measure without the panel");
+  has(udos, `<span class="pdxdos-rec-id">${UT_NUM}`, "without the panel, the Utah number is not plain text");
+  no(udos, `data-pdxbill-num="${UT_NUM}"`, "without the panel, the Utah number is still a control");
+  no(udos, "No bill page on file", "without the panel, a refusal was printed before anyone tapped");
   no(udos, "congress.gov", "a Utah bill was given a Congress.gov address");
   no(udos, 'href="/bill/', "a local /bill/ address was minted");
-  const node = nodeFor(N, udos, 'class="pdxdos-rec-id pdxbill-door"');
+
+  // THE REFUSAL, where a control can still be printed: the panel is on the page
+  // but cannot open this measure. The control says so on itself and goes nowhere.
+  N.PDXBillDetail = { open: () => false };
+  const udosP = N.PDXConsistency.gapViewHtml(UT_PID, UT_KEY) || "";
+  must(udosP.indexOf("pdxbill-door") >= 0, "with the panel on the page, the Utah control disappeared");
+  has(udosP, `data-pdxbill-num="${UT_NUM}"`, "the control stopped naming its measure");
+  const node = nodeFor(N, udosP, 'class="pdxdos-rec-id pdxbill-door"');
   const ev = fire(N, "click", node);
   ok(ev.defaultPrevented, "the refusing control let the click fall through to the row");
   eq(N.__nav.length, 0, "a door onto a missing bill file navigated — that is the homepage dump this pass removed");
@@ -786,7 +797,8 @@ section("6 · no bill page on file says so, and goes nowhere");
   fire(N, "click", node);
   eq(node.kids.length, 1, "a second tap stacked a second copy of the refusal");
   eq(N.__nav.length, 0, "a second tap on the refusing control navigated");
-  no(visible(udos), "Could not load", "the card printed the panel's own error copy before anyone tapped anything");
+  no(visible(udosP), "Could not load", "the card printed the panel's own error copy before anyone tapped anything");
+  delete N.PDXBillDetail;
 
   // The same claim on the desk, where the old fallback used to dump the bills
   // index on a reader who asked for one measure.

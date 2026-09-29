@@ -438,7 +438,11 @@
   //   1. its LABEL — the name the leaf already prints;
   //   2. an ALIAS on its issue key — FIND_ALIASES below, one shared table, never
   //      per person, for the words people type about an issue that its label does
-  //      not carry ("iran" for War Powers);
+  //      not carry ("ukraine" for Peace Through Strength, "jcpoa" for Iran). A
+  //      SUBJECT key (FIND_SUBJECTS — a country, not a proposition) lends its
+  //      words to a neighbouring leaf only through an act: "iran" opens Congress
+  //      and War Powers on a file only when an act on that person × War Powers is
+  //      itself mapped to Iran, never because war powers is "about" Iran;
   //   3. the NAME OR TITLE of a formal measure already on THIS person × THIS
   //      issue — the same rows the dossier drawer lists (dossierItems), so
   //      "14353" finds the leaf that EO sits under, on the file it sits on.
@@ -457,12 +461,25 @@
   // issueKey → the extra words that find it. Static, shared, and only for keys in
   // the vocabulary; a word already in the label ("war" → War Powers) is not
   // repeated here.
+  //
+  // IRAN IS A LEAF, NOT AN ALIAS. "iran" used to sit here on Diplomacy &
+  // Restraint, War Powers and Support for Israel, so it opened those rows on any
+  // file that had them, Iran act or not. It now points at iran_policy (listed
+  // explicitly although the label says it, because that key is where the word
+  // lands first), and the old leaves answer it only through the subject route.
   var FIND_ALIASES = {
-    restraint: ['iran', 'ukraine'],
-    war_powers: ['iran'],
-    israel_support: ['iran'],
+    iran_policy: ['iran', 'iran war', 'iran deal', 'iran nuclear', 'jcpoa', 'tehran'],
+    restraint: ['ukraine'],
     strong_defense: ['ukraine']
   };
+  // Subject keys: their label and aliases reach another leaf on the same file
+  // only when one of that leaf's own acts carries the subject key as well.
+  var FIND_SUBJECTS = { iran_policy: 1 };
+  function subjectWords(key) {
+    var lab = '';
+    try { lab = ((window.ISSUE_MAP || {})[key] || {}).label || ''; } catch (e) { lab = ''; }
+    return [lab].concat(aliasesOf(key));
+  }
   function findNorm(s) {
     return String(s == null ? '' : s).toLowerCase()
       .replace(/[&+]/g, ' and ')
@@ -515,7 +532,34 @@
     for (var i = 0; i < al.length; i++) if (topicMatches(al[i], q)) return true;
     var ts = measureTextsOf(lf.pid, lf.key);
     for (var j = 0; j < ts.length; j++) if (topicMatches(ts[j], q)) return true;
+    for (var sk in FIND_SUBJECTS) {
+      if (!Object.prototype.hasOwnProperty.call(FIND_SUBJECTS, sk) || sk === lf.key) continue;
+      var sw = subjectWords(sk), hit = false;
+      for (var k = 0; k < sw.length && !hit; k++) if (sw[k] && topicMatches(sw[k], q)) hit = true;
+      if (hit && subjectActsOn(lf.pid, lf.key, sk)) return true;
+    }
     return false;
+  }
+  // Does any act on this person × this leaf also carry the subject key? Read off
+  // the drawer's own rows, so the answer is the rows a reader would open.
+  var _findSubjCache = {}, _findSubjEpoch = -1;
+  function subjectActsOn(pid, key, subj) {
+    var ep = 0;
+    try { ep = (typeof window.PDXDataEpoch === 'function') ? window.PDXDataEpoch() : 0; } catch (e) { ep = 0; }
+    if (_findSubjEpoch !== ep) { _findSubjCache = {}; _findSubjEpoch = ep; }
+    var ck = String(pid || '') + '||' + String(key || '') + '||' + subj;
+    if (Object.prototype.hasOwnProperty.call(_findSubjCache, ck)) return _findSubjCache[ck];
+    var yes = false;
+    try {
+      var CS = window.PDXConsistency;
+      var items = (CS && typeof CS.dossierItems === 'function') ? (CS.dossierItems(pid, key) || []) : [];
+      yes = items.some(function (d) {
+        var iss = (d && d.item && d.item.issues) || [];
+        return iss.some(function (x) { return x && x.issueKey === subj; });
+      });
+    } catch (e2) { yes = false; }
+    _findSubjCache[ck] = yes;
+    return yes;
   }
   function findLeaves(list, q) {
     list = list || [];
@@ -1958,6 +2002,7 @@
     findMatches: topicMatches,
     findLeafMatches: leafMatches,
     FIND_ALIASES: FIND_ALIASES,
+    FIND_SUBJECTS: FIND_SUBJECTS,
     find: findLeaves,
     // The flat-mode threshold and the rule that reads it, in one place each.
     FLAT: FLAT,

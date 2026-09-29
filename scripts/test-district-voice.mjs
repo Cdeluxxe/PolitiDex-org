@@ -1523,8 +1523,11 @@ section("11 · The migrations land after the tail, and touch nothing applied");
   // Nothing between the applied tail and the new ones — the new stamps are the end
   // of the tree, not the middle of it.
   const after = stamps.filter((s) => s > APPLIED_TAIL);
-  eq(JSON.stringify(after), JSON.stringify(["20261103000000", "20261104000000"]),
-    "the two new migrations are the whole tail");
+  // Later passes append their own forward migrations (20261105000000 adds the
+  // iran_policy issue key); what stays pinned is that nothing slid in BETWEEN the
+  // applied tail and these two.
+  eq(JSON.stringify(after.slice(0, 2)), JSON.stringify(["20261103000000", "20261104000000"]),
+    "the two new migrations open the tail, with nothing between them and the applied one");
 
   // ── AND THE VOICE DDL EXISTS IN EXACTLY ONE PLACE IN THE TREE ─────────────
   // `drizzle-kit generate` stamps the WALL CLOCK, and this repo's hand-versioned

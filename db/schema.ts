@@ -1280,7 +1280,7 @@ export const ddDistricts = pgTable(
 );
 
 // The issue vocabulary. Seeded from db/issue-keys.json — the generated mirror of
-// ISSUE_MAP in alignment-tool.js, which is the shipped key set (121 keys today).
+// ISSUE_MAP in alignment-tool.js, which is the shipped key set (122 keys today).
 // A room is about one of those keys or it does not exist. There is no free-text
 // topic column and no "other" key: a topic nobody has shipped an issue file for
 // is a room with nothing to stand next to, and inventing a key here would put a

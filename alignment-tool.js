@@ -903,6 +903,28 @@
       // free_speech / religious_liberty, and pulling them in here would be the same
       // force-fit in the opposite direction.
       israel_support:     { label: '🇮🇱 Support for Israel', chip: 'Keep backing Israel with U.S. security aid, weapons and sanctions on its adversaries', cat: 'foreign', stanceKeys: [], keywords: ['israel','israeli','pro-israel','u.s.-israel','israel aid','aid to israel','iron dome','david\'s sling','arrow-3','idf','iran','hamas','hezbollah','houthi','gaza','west bank','abraham accords','netanyahu'] },
+      // Iran gets its own key because the record already holds acts whose SUBJECT is
+      // Iran, and until now they could only be found through their neighbours. Six
+      // federal instruments on file are Iran withdrawal resolutions (S.J.Res. 59, 104,
+      // 184, 163 and 185 and H.Con.Res. 89), and the executive lane holds the veto of a
+      // seventh (S.J. Res. 68, 116th). Every one of them is filed on restraint, and the
+      // Senate ones on war_powers and strong_defense too, and every one of those
+      // readings stays: this key is ON-AXIS with those four chips, not a replacement
+      // for any of them. What it adds is the country, so a reader who asks about Iran
+      // is handed the acts that are about Iran and not every row that shares a chip.
+      // SCOPE: measures whose own text names Iran as its subject — strikes and
+      // hostilities against Iran, sanctions on Iran, the nuclear agreement, and
+      // war-powers resolutions directed at hostilities with Iran. A resolution about
+      // another theatre (Yemen, Venezuela, Lebanon) or naming no theatre is OUT even
+      // when it sits on the same chips, and so is an Israel measure that mentions Iran
+      // only as an adversary.
+      // NO POLE. The label names a subject, not a proposition, so it sits in
+      // _RD_NO_POLE (stance-helpers.js) and the record engine never reads a side on
+      // it: "supports Iran" and "opposes Iran" are both claims nobody curated. Each
+      // mapping's support_meaning is recorded against the withdrawal the resolution
+      // commands (yea = forces out), matching the restraint row on the same act, and
+      // is never printed. Carries no `lean`, for the israel_support reason.
+      iran_policy:        { label: '🇮🇷 Iran', chip: 'What the United States does about Iran — hostilities and strikes, sanctions, and the nuclear deal', cat: 'foreign', stanceKeys: [], keywords: ['iran','iranian','islamic republic of iran','tehran','iran war','iran deal','iran nuclear','nuclear deal','jcpoa','iran sanctions','maximum pressure','irgc','fordow','natanz'] },
       veterans:           { label: '🎖 Take Care of Veterans', chip: 'Deliver better healthcare, benefits and support for the men and women who served', cat: 'foreign', stanceKeys: [], keywords: ['veteran','veterans','va','veterans affairs','gi bill','servicemember','service member','military families','va health','troops','wounded warrior','military service'] },
 
       // ── Technology & Privacy ──
@@ -1264,8 +1286,8 @@
         blurb: 'Equal treatment and civil rights, religious liberty, free speech, personal privacy and surveillance, and the debate over DEI.',
         keys: ['religious_liberty','rights_balance','lgbtq_rights','free_speech','end_dei','privacy_rights'] },
       { key: 'foreign_policy_defense', label: '🦅 Foreign Policy & National Security',
-        blurb: 'National defense, alliances and diplomacy, America First priorities, support for Israel, and support for veterans.',
-        keys: ['strong_defense','foreign_balance','restraint','america_first','america_first_fp','israel_support','veterans'] },
+        blurb: 'National defense, alliances and diplomacy, America First priorities, support for Israel, U.S. policy toward Iran, and support for veterans.',
+        keys: ['strong_defense','foreign_balance','restraint','america_first','america_first_fp','israel_support','iran_policy','veterans'] },
     ];
     try { window.CORE_NATIONAL_ISSUES = CORE_NATIONAL_ISSUES; } catch (e) {}
 
