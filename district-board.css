@@ -1,0 +1,73 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   district-board.css — band 3, "On the table", grouped by the chips the rows
+   already wear. Linked once by district-board.js, so every board that paints
+   the band (SD-3 and every generated board) takes the same shape from this one
+   file rather than a copy in each document.
+
+   The issue colours arrive INLINE from PDXIssueColors.skin() as the same four
+   custom properties the row chip carries (--pdx-ic, --pdx-ic-wash,
+   --pdx-ic-ink). There is no per-issue rule here and there must not be one. An
+   unresolved key carries no [data-ic], and falls back to the neutral rule.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* The category chips: All, then one per group on this seat. */
+.pdxdb-cats { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 0.75rem; }
+.pdxdb-cat {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.3rem 0.6rem; border: 1px solid #253855; border-radius: 999px;
+  background: #0f1a2e; color: #b6c6de;
+  font: 600 0.78rem/1.3 'Barlow', sans-serif; cursor: pointer;
+}
+.pdxdb-cat[data-ic="on"] {
+  border-color: color-mix(in srgb, var(--pdx-ic) 52%, transparent);
+  color: var(--pdx-ic-ink);
+}
+.pdxdb-cat[aria-pressed="true"] { background: #1b2d4d; border-color: #7fb2ff; color: #fff; }
+.pdxdb-cat[data-ic="on"][aria-pressed="true"] {
+  background: var(--pdx-ic-wash); border-color: var(--pdx-ic); color: var(--pdx-ic-ink);
+}
+.pdxdb-cat:focus-visible { outline: 2px solid #7fb2ff; outline-offset: 2px; }
+.pdxdb-cat-n { font-variant-numeric: tabular-nums; opacity: 0.75; font-weight: 500; }
+
+/* The one search field: measure title or bill number, inside the visible groups. */
+.pdxdb-find { display: block; margin: 0 0 0.8rem; }
+.pdxdb-find-l {
+  display: block; margin: 0 0 0.25rem;
+  font: 700 0.68rem/1 'Barlow Condensed', 'Barlow', sans-serif;
+  letter-spacing: 0.12em; text-transform: uppercase; color: #7d8fa9;
+}
+.pdxdb-find-i {
+  width: 100%; max-width: 26rem; box-sizing: border-box;
+  padding: 0.45rem 0.6rem; border: 1px solid #253855; border-radius: 0.4rem;
+  background: #0a1120; color: #eaf2ff; font: 400 0.88rem/1.3 'Barlow', sans-serif;
+}
+.pdxdb-find-i:focus { outline: 2px solid #7fb2ff; outline-offset: 1px; }
+
+/* The groups. A <details> each, so a header opens and closes without script. */
+.pdxdb-groups { display: grid; gap: 0.45rem; }
+.pdxdb-group { border: 1px solid #16223a; border-radius: 0.5rem; padding: 0 0.7rem; }
+.pdxdb-group[hidden], .pdxdb-row[hidden], .pdxdb-find-none[hidden] { display: none; }
+.pdxdb-group-h {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.6rem 0; cursor: pointer; list-style: none;
+}
+.pdxdb-group-h::-webkit-details-marker { display: none; }
+.pdxdb-group-h::before { content: "\25B8"; color: #7d8fa9; font-size: 0.75rem; }
+.pdxdb-group[open] > .pdxdb-group-h::before { content: "\25BE"; }
+.pdxdb-group-h:focus-visible { outline: 2px solid #7fb2ff; outline-offset: 2px; }
+.pdxdb-group-l {
+  display: inline-block; padding: 0.12rem 0.5rem;
+  border: 1px solid #253855; border-radius: 0.3rem;
+  font: 600 0.84rem/1.4 'Barlow', sans-serif; color: #cfe0fa;
+}
+.pdxdb-group-l[data-ic="on"] {
+  background: var(--pdx-ic-wash);
+  border-color: color-mix(in srgb, var(--pdx-ic) 52%, transparent);
+  color: var(--pdx-ic-ink);
+}
+.pdxdb-group-l--none { border-style: dashed; color: #93a5bf; }
+.pdxdb-group-n { margin-left: auto; font-size: 0.78rem; color: #8496b0; font-variant-numeric: tabular-nums; }
+.pdxdb-group > .pdxdb-table { margin: 0 0 0.5rem; }
+
+/* A measure under two issues wears both chips. */
+.pdxdb-m-issue + .pdxdb-m-issue { margin-left: 0.3rem; }
