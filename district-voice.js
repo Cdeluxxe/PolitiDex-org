@@ -205,6 +205,9 @@
     'ut-house-1': '/district/ut-cd-1',
     'ut-house-3': '/district/ut-cd-3',
     'ut-house-4': '/district/ut-cd-4',
+    'ut-gov': '/district/ut-gov',
+    'ut-us-senate-curtis': '/district/ut-us-senate-curtis',
+    'ut-us-senate-lee': '/district/ut-us-senate-lee',
     // @generated district-boards end
   };
 
@@ -344,8 +347,41 @@
   // second answer, and the first thing a second answer does is outlive the row
   // that netlify.toml actually rewrites.
   function boardPath(seatKey) {
-    var k = normalizeSeatKey(seatKey);
+    var k = normalizeSeatKey(seatKey) || statewideBoardKey(seatKey);
     return (k && Object.prototype.hasOwnProperty.call(BOARD_ROUTES, k)) ? BOARD_ROUTES[k] : '';
+  }
+
+  // ── THE STATEWIDE BOARD KEYS, AND THEY ARE NOT SEAT KEYS ──────────────────
+  // The governor and both U.S. Senate seats have boards now, and they are still
+  // not districts: SEAT_KEY_RE, VOICE_SEATS and every /d/ address are untouched
+  // by them, and seatKeyForLevel() still composes '' for a statewide level. This
+  // is the second, separate shape BOARD_ROUTES accepts — `ut-gov`, and
+  // `ut-us-senate-<pid>` for a Senate seat, keyed by the member who holds it
+  // because the two seats are the same office twice and the resolver lists them
+  // in no stable order. A shape, not a list: a statewide key with no row in
+  // BOARD_ROUTES is a card that says the room is not open.
+  var STATEWIDE_KEY_RE = /^[a-z]{2}-(?:gov|us-senate-[a-z][a-z0-9_]*)$/;
+  function statewideBoardKey(raw) {
+    var s = String(raw == null ? '' : raw).trim().toLowerCase();
+    return STATEWIDE_KEY_RE.test(s) ? s : '';
+  }
+  // A statewide level's board key, or ''. Composed only through STATE_CODE, so
+  // it is Utah's or nobody's. The governor's key is the seat's; a Senate seat's
+  // needs the pid seatPidFor() already seated on the card, and a Senate card
+  // with no holder resolved composes nothing — there is no way to say WHICH of
+  // the two rooms it would open.
+  function statewideKeyForLevel(level, stateName, pid) {
+    if (!level || !level.statewide) return '';
+    var st = String(stateName == null ? '' : stateName).trim().toLowerCase();
+    var code = STATE_CODE[st] || '';
+    if (!code) return '';
+    var seat = String((level.seat || level.key) || '').trim().toLowerCase();
+    if (seat === 'governor') return statewideBoardKey(code + '-gov');
+    if (seat === 'senate') {
+      var p = String(pid == null ? '' : pid).trim().toLowerCase();
+      return p ? statewideBoardKey(code + '-us-senate-' + p) : '';
+    }
+    return '';
   }
   function boarded(seatKey) { return !!boardPath(seatKey); }
   function seatNumber(seatKey) {
@@ -722,9 +758,10 @@
   //   · a district row with no district → dropped. "State Senate" with no number
   //     is not a seat we can name, and a card naming a chamber and no district
   //     would read as a seat this reader does not have.
-  //   · a statewide row is KEPT with no seat key and therefore no board. Both
-  //     U.S. Senate seats and the governor are real seats this location resolves;
-  //     they simply have no district board and never will.
+  //   · a statewide row is KEPT with no seat key. Both U.S. Senate seats and
+  //     the governor are real seats this location resolves; they are not
+  //     districts, and their door — where BOARD_ROUTES has a row for one — comes
+  //     from statewideKeyForLevel(), never from a seat key.
   function seatsForMe() {
     var reps = null;
     try { reps = fn(window.pdxRepsForMe) ? window.pdxRepsForMe() : null; } catch (e) { reps = null; }
@@ -760,7 +797,9 @@
           : (label + ' District ' + n + (county ? ' \u00b7 ' + county : '')),
         seatKey: seatKey,
         pid: pid,
-        board: boardPath(seatKey)
+        // A statewide card's door is its own key's row, or nothing. See
+        // statewideKeyForLevel(): seatKey stays '' for it either way.
+        board: lv.statewide ? boardPath(statewideKeyForLevel(lv, reps.state, pid)) : boardPath(seatKey)
       });
     }
     return out;
@@ -1401,6 +1440,7 @@
     TAKE_MAX: TAKE_MAX,
     TAKES_CAP: TAKES_CAP,
     normalizeSeatKey: normalizeSeatKey,
+    statewideKeyForLevel: statewideKeyForLevel,
     seatPidFor: seatPidFor,
     isAlias: isAlias,
     shipped: shipped,

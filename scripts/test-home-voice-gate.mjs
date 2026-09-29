@@ -164,7 +164,7 @@ const UNPLACED = "Find your rooms";
 const PLACED = "See your rooms";
 // The count in this sentence is pinned to BOARD_ROUTES in section 6, not here:
 // this line is the SHAPE of the sentence, and that block is the arithmetic.
-const NOTE = "Eighty-five seats have a board on file today. Every other seat says the room is not open.";
+const NOTE = "Eighty-eight seats have a board on file today. Every other seat says the room is not open.";
 
 // The visible copy, with the comments, the style block and the script stripped
 // the way a reader sees it.
@@ -468,7 +468,7 @@ section("6 · the allow-listed boards, and the person-file control is untouched"
   // a card promising a room that 404s, which is worse than the empty sentence.
   for (const k of rows) {
     const route = String(V.BOARD_ROUTES[k]);
-    ok(/^\/district\/[a-z]{2}-(?:hd|sd|cd)-[1-9][0-9]*$/.test(route),
+    ok(/^\/district\/[a-z]{2}-(?:(?:hd|sd|cd)-[1-9][0-9]*|gov|us-senate-[a-z][a-z0-9_]*)$/.test(route),
       `allow-list: ${k} routes to ${JSON.stringify(route)}, which is not a board address`);
     const doc = `district-${route.split("/").pop()}.html`;
     ok(existsSync(join(ROOT, doc)), `allow-list: ${k} routes at ${route} with no ${doc} behind it`);
@@ -478,7 +478,7 @@ section("6 · the allow-listed boards, and the person-file control is untouched"
   // AND THE CARD'S THIRD SENTENCE IS A COUNT OF THAT TABLE, not a description
   // somebody remembered to update. The number is spelled as a word, so the
   // assertion reads the word back. Section 2 bans a digit on the card face, so
-  // a count past nine is spelled too ("Eighty-five"), never printed as a figure.
+  // a count past nine is spelled too ("Eighty-eight"), never printed as a figure.
   const ONES = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
     "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen",
     "eighteen", "nineteen"];

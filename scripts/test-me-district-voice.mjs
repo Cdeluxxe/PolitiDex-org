@@ -382,13 +382,14 @@ const LV_GOV = { key: "governor", seat: "governor", label: "Governor", statewide
 
 // ── STANDING 2c · STATEWIDE ONLY, WHICH IS NOT A SEAT ────────────────────────
 // A governor is a real level and it is not a district: there is no seat key to
-// compose, so there is no board to have or lack. The desk lists what the
-// resolver placed and nothing statewide can carry a board line.
+// compose. Utah's governor has a board of its own now (ut-gov, a row in
+// BOARD_ROUTES), so the desk's line says one is on hand — and still never
+// prints the seat as a district.
 {
   const w = bootDesk({ uid: "u_3", loc: { state: "Utah", county: "Davis County" }, levels: [LV_GOV] });
   const v = w.PDXMeDesk.voice();
   eq(v.seats.length, 1, "statewide: the governor's row was dropped from the snapshot");
-  eq(v.seats[0].board, false, "statewide: a statewide office was given a board");
+  eq(v.seats[0].board, true, "statewide: Utah's governor seat lost the board BOARD_ROUTES holds for it");
   // Scoped to the row, because the region's own title is "District Voice" and
   // the ban is on a statewide office WEARING a district number.
   const row = (/<li class="me-voiceseat">[\s\S]*?<\/li>/.exec(slotOf(w)) || [""])[0];

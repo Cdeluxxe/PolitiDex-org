@@ -223,7 +223,9 @@ section("4 · the allow-lists did not grow");
 // ═════════════════════════════════════════════════════════════════════════════
 const dvWin = makeSandbox();
 vm.runInContext(R("district-voice.js"), vm.createContext(dvWin), { filename: "district-voice.js" });
-eq(Object.keys(dvWin.PDXVoice.BOARD_ROUTES).length, 85, "BOARD_ROUTES length is unchanged");
+// 85 district rows + the three statewide Utah seats (governor, both U.S. Senate
+// seats), which open as readers with no composer of their own.
+eq(Object.keys(dvWin.PDXVoice.BOARD_ROUTES).length, 88, "BOARD_ROUTES length is unchanged");
 eq(Object.keys(dvWin.PDXVoice.BOARD_ROUTES).length, boards.length, "…one row per board document");
 ok(!/from\s*=\s*"\/district\/\*"/.test(R("netlify.toml")), "no /district/* splat");
 

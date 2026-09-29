@@ -391,6 +391,9 @@
     'ut-house-1': { seat: 'ut-house-1', alias: 'ut-cd-1', route: '/district/ut-cd-1', pid: '', usHouse: { state: 'Utah', district: 1 }, h1: 'Utah’s 1st Congressional District', where: 'The district as the court-ordered 2026 map draws it', kick: 'UT-1 district board', kickTitle: 'The district board for Utah’s 1st Congressional District: who is in the room and what is on the table. A place, not a scorecard.' },
     'ut-house-3': { seat: 'ut-house-3', alias: 'ut-cd-3', route: '/district/ut-cd-3', pid: '', usHouse: { state: 'Utah', district: 3 }, h1: 'Utah’s 3rd Congressional District', where: 'The district as the court-ordered 2026 map draws it', kick: 'UT-3 district board', kickTitle: 'The district board for Utah’s 3rd Congressional District: who is in the room and what is on the table. A place, not a scorecard.' },
     'ut-house-4': { seat: 'ut-house-4', alias: 'ut-cd-4', route: '/district/ut-cd-4', pid: '', usHouse: { state: 'Utah', district: 4 }, h1: 'Utah’s 4th Congressional District', where: 'The district as the court-ordered 2026 map draws it', kick: 'UT-4 district board', kickTitle: 'The district board for Utah’s 4th Congressional District: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-gov': { seat: 'ut-gov', alias: 'ut-gov', route: '/district/ut-gov', pid: 'cox', statewide: true, h1: 'Governor · Spencer Cox', where: 'Statewide · the whole State of Utah', kick: 'Governor board', kickTitle: 'The board for Governor · Spencer Cox: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-us-senate-curtis': { seat: 'ut-us-senate-curtis', alias: 'ut-us-senate-curtis', route: '/district/ut-us-senate-curtis', pid: 'curtis', statewide: true, h1: 'U.S. Senate · John Curtis', where: 'Statewide · the whole State of Utah', kick: 'U.S. Senate board', kickTitle: 'The board for U.S. Senate · John Curtis: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-us-senate-lee': { seat: 'ut-us-senate-lee', alias: 'ut-us-senate-lee', route: '/district/ut-us-senate-lee', pid: 'lee', statewide: true, h1: 'U.S. Senate · Mike Lee', where: 'Statewide · the whole State of Utah', kick: 'U.S. Senate board', kickTitle: 'The board for U.S. Senate · Mike Lee: who is in the room and what is on the table. A place, not a scorecard.' },
     // @generated district-boards end
   };
 
@@ -415,11 +418,16 @@
   var SEAT_KEY_RE = /^[a-z]{2}-(?:house|statesenate|statehouse)-[1-9][0-9]*$/;
   var ALIAS_RE = /^([a-z]{2})-(hd|sd|cd)-([1-9][0-9]*)$/;
   var ALIAS_CHAMBERS = { hd: 'statehouse', sd: 'statesenate', cd: 'house' };
+  // THE STATEWIDE SEATS. The governor is `ut-gov`; each U.S. Senate seat is
+  // keyed by the roster pid of the member who holds it, `ut-us-senate-<pid>`,
+  // because the two seats are the same office twice. One spelling each — the key
+  // is the alias — and a shape, not a list: the list is BOARDS.
+  var STATEWIDE_KEY_RE = /^[a-z]{2}-(?:gov|us-senate-[a-z][a-z0-9_]*)$/;
 
   function normalizeSeatKey(raw) {
     var s = String(raw == null ? '' : raw).trim().toLowerCase();
     if (!s) return '';
-    if (SEAT_KEY_RE.test(s)) return s;
+    if (SEAT_KEY_RE.test(s) || STATEWIDE_KEY_RE.test(s)) return s;
     var m = ALIAS_RE.exec(s);
     if (!m) return '';
     var chamber = ALIAS_CHAMBERS[m[2]];

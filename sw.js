@@ -8217,7 +8217,23 @@
 //     MIGRATION COST: none, and no location key is migrated, renamed or
 //     copied. district-board.js changed and /district-board.css joins the
 //     shell, so it moves one version.
-const CACHE_VERSION = 'v258';
+// v259 - STATEWIDE UTAH ROOMS: THE GOVERNOR AND BOTH U.S. SENATE SEATS.
+//     /voice named Spencer Cox, Mike Lee and John Curtis on three cards that
+//     said the room is not open. Three board addresses now exist on the same
+//     three-band contract as every district board: /district/ut-gov,
+//     /district/ut-us-senate-lee and /district/ut-us-senate-curtis. They are
+//     three generated rows in each allow-list (BOARDS, BOARD_ROUTES, the
+//     Function's BOARD_SEATS, three exact rewrites each) gated on the
+//     resolver's own _pdxStatewideSeats('Utah') and the roster row - no
+//     /district/* splat, no fork of district-board.js. A Senate seat is keyed
+//     by its holder's roster pid because the two seats are the same office
+//     twice. Band 1 is the roster row, band 2 counts only, band 3 is whatever
+//     the archive already maps to the pid. Posting ships next on all three;
+//     only SD-3 has a composer. The homepage count reads BOARD_ROUTES (88).
+//     MIGRATION COST: none, and no location key is migrated, renamed or
+//     copied. district-board.js, district-voice.js, index.html and three new
+//     board documents changed or joined the shell, so it moves one version.
+const CACHE_VERSION = 'v259';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -8451,6 +8467,9 @@ const SHELL_ASSETS = [
   '/district-ut-cd-1.html',
   '/district-ut-cd-3.html',
   '/district-ut-cd-4.html',
+  '/district-ut-gov.html',
+  '/district-ut-us-senate-curtis.html',
+  '/district-ut-us-senate-lee.html',
   // @generated district-boards end precache
   '/district-board.js',
   '/district-board.css',
@@ -9364,7 +9383,7 @@ const MONEY_NAV_RE = /^\/money\/?$/;
 // name somebody has to decide to add, exactly as ut-hd-15 was.
 // @generated district-boards begin nav-re — scripts/gen-district-boards.mjs writes every line up to the end marker, do not edit by hand
 const DISTRICT_BOARD_NAV_RE =
-  /^\/district\/(?:ut-sd-3|ut-hd-16|ut-sd-7|ut-cd-2|ut-hd-15|ut-sd-6|ut-hd-4|ut-hd-5|ut-hd-6|ut-hd-9|ut-hd-10|ut-hd-11|ut-hd-12|ut-hd-14|ut-hd-19|ut-hd-21|ut-hd-22|ut-hd-23|ut-hd-24|ut-hd-25|ut-hd-28|ut-hd-29|ut-hd-30|ut-hd-31|ut-hd-33|ut-hd-34|ut-hd-36|ut-hd-37|ut-hd-39|ut-hd-41|ut-hd-42|ut-hd-43|ut-hd-44|ut-hd-45|ut-hd-46|ut-hd-49|ut-hd-50|ut-hd-51|ut-hd-52|ut-hd-53|ut-hd-55|ut-hd-56|ut-hd-59|ut-hd-60|ut-hd-61|ut-hd-63|ut-hd-64|ut-hd-65|ut-hd-66|ut-hd-67|ut-hd-68|ut-hd-69|ut-hd-70|ut-hd-71|ut-hd-73|ut-hd-75|ut-sd-1|ut-sd-2|ut-sd-4|ut-sd-5|ut-sd-8|ut-sd-9|ut-sd-10|ut-sd-11|ut-sd-12|ut-sd-13|ut-sd-14|ut-sd-15|ut-sd-16|ut-sd-17|ut-sd-18|ut-sd-19|ut-sd-20|ut-sd-21|ut-sd-22|ut-sd-23|ut-sd-24|ut-sd-25|ut-sd-26|ut-sd-27|ut-sd-28|ut-sd-29|ut-cd-1|ut-cd-3|ut-cd-4)(?:\/|\.html)?$/;
+  /^\/district\/(?:ut-sd-3|ut-hd-16|ut-sd-7|ut-cd-2|ut-hd-15|ut-sd-6|ut-hd-4|ut-hd-5|ut-hd-6|ut-hd-9|ut-hd-10|ut-hd-11|ut-hd-12|ut-hd-14|ut-hd-19|ut-hd-21|ut-hd-22|ut-hd-23|ut-hd-24|ut-hd-25|ut-hd-28|ut-hd-29|ut-hd-30|ut-hd-31|ut-hd-33|ut-hd-34|ut-hd-36|ut-hd-37|ut-hd-39|ut-hd-41|ut-hd-42|ut-hd-43|ut-hd-44|ut-hd-45|ut-hd-46|ut-hd-49|ut-hd-50|ut-hd-51|ut-hd-52|ut-hd-53|ut-hd-55|ut-hd-56|ut-hd-59|ut-hd-60|ut-hd-61|ut-hd-63|ut-hd-64|ut-hd-65|ut-hd-66|ut-hd-67|ut-hd-68|ut-hd-69|ut-hd-70|ut-hd-71|ut-hd-73|ut-hd-75|ut-sd-1|ut-sd-2|ut-sd-4|ut-sd-5|ut-sd-8|ut-sd-9|ut-sd-10|ut-sd-11|ut-sd-12|ut-sd-13|ut-sd-14|ut-sd-15|ut-sd-16|ut-sd-17|ut-sd-18|ut-sd-19|ut-sd-20|ut-sd-21|ut-sd-22|ut-sd-23|ut-sd-24|ut-sd-25|ut-sd-26|ut-sd-27|ut-sd-28|ut-sd-29|ut-cd-1|ut-cd-3|ut-cd-4|ut-gov|ut-us-senate-curtis|ut-us-senate-lee)(?:\/|\.html)?$/;
 // @generated district-boards end nav-re
 
 // WHICH DOCUMENT EACH BOARD PATH IS, and the reason this is a map rather than a
@@ -9465,13 +9484,18 @@ const DISTRICT_BOARD_DOCS = {
   'ut-cd-1': '/district-ut-cd-1.html',
   'ut-cd-3': '/district-ut-cd-3.html',
   'ut-cd-4': '/district-ut-cd-4.html',
+  'ut-gov': '/district-ut-gov.html',
+  'ut-us-senate-curtis': '/district-ut-us-senate-curtis.html',
+  'ut-us-senate-lee': '/district-ut-us-senate-lee.html',
   // @generated district-boards end docs
 };
 
 // The path -> document lookup, and the ONE place a board path is turned into a
 // filename. '' for anything that is not one of the eighteen.
 function districtBoardDoc(pathname) {
-  const m = /^\/district\/([a-z]{2}-(?:hd|sd|cd)-[1-9][0-9]*)(?:\/|\.html)?$/
+  // A district alias, or a statewide key (ut-gov, ut-us-senate-<pid>). The
+  // shape only picks the key out; DISTRICT_BOARD_DOCS is still the list.
+  const m = /^\/district\/([a-z]{2}-(?:(?:hd|sd|cd)-[1-9][0-9]*|gov|us-senate-[a-z][a-z0-9_]*))(?:\/|\.html)?$/
     .exec(String(pathname || ''));
   if (!m) return '';
   return Object.prototype.hasOwnProperty.call(DISTRICT_BOARD_DOCS, m[1])

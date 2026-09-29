@@ -86,8 +86,13 @@ for (const b of PLAN) {
   ok(!HAND_SEATS.includes(b.seat), `${b.seat}: a hand seat was generated over`);
 }
 // THE PLAN COVERS EVERY SEAT ONCE: opened, hand-authored or skipped with a reason.
-eq(PLAN.length + SKIPPED.length + HAND_SEATS.length, 75 + 29 + 4,
+// The three statewide seats (governor, two U.S. Senate) are planned beside the
+// district seats and counted on their own.
+const SW_PLAN = PLAN.filter((b) => b.statewide);
+const SW_SKIPPED = SKIPPED.filter((b) => /^ut-(?:gov|us-senate-)/.test(b.seat));
+eq(PLAN.length - SW_PLAN.length + SKIPPED.length - SW_SKIPPED.length + HAND_SEATS.length, 75 + 29 + 4,
   "every Utah House, Senate and U.S. House seat is exactly one of opened / hand / skipped");
+eq(SW_PLAN.length + SW_SKIPPED.length, 3, "the governor and both U.S. Senate seats are each opened or skipped");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("2 · one list, five copies, every rewrite backed by a file");
@@ -151,7 +156,7 @@ section("3 · every generated document is the seat its path names");
 // ═════════════════════════════════════════════════════════════════════════════
 const onDisk = (() => {
   const out = execFileSync("ls", [ROOT], { encoding: "utf8" }).split("\n");
-  return out.filter((f) => /^district-ut-(hd|sd|cd)-\d+\.html$/.test(f));
+  return out.filter((f) => /^district-ut-(?:(?:hd|sd|cd)-\d+|gov|us-senate-[a-z][a-z0-9_]*)\.html$/.test(f));
 })();
 eq(onDisk.length, ALL.length, "one district-ut-*.html per board and no orphan document");
 for (const f of onDisk) {
@@ -252,7 +257,7 @@ for (const b of PLAN) {
   eq(w.pdxSeatClaim("jstevenson", "ut-statesenate-7", 7), "mismatch", "pdxSeatClaim: Stevenson does not claim SD-7");
   eq(w.pdxSeatClaim("sadams", "ut-statesenate-6", 6), "mismatch", "pdxSeatClaim: Adams does not claim SD-6");
   eq(w.pdxSeatClaim("chew_h68", "ut-statehouse-29", 29), "mismatch", "pdxSeatClaim: Chew does not claim HD-29");
-  for (const b of PLAN.filter((x) => !x.usHouse)) {
+  for (const b of PLAN.filter((x) => !x.usHouse && !x.statewide)) {
     eq(w.pdxSeatClaim(b.pid, b.seat, b.district), "match", `pdxSeatClaim: ${b.pid} claims ${b.seat}`);
   }
 }

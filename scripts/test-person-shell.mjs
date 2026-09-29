@@ -354,7 +354,7 @@ const COPIES = [
   [3728, 3791, "the crawl-header guard"],
   [13327, 13361, "the profile modal down to #modal-content"],
   [13422, 13468, "the stance popover, the record overlay and the share sheet"],
-  [19324, 19444, "PDXStance"],
+  [19325, 19445, "PDXStance"],
   [21934, 22132, "the PWA runtime and the service-worker registration"],
 ];
 //   AND THE STATE-BADGE PASS MOVED THE SAME LOWER FOUR BY 156, ALL OF IT ONE

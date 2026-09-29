@@ -298,7 +298,9 @@ const COPIES = [//   AND DOWN THE DOCUMENT BY 20 for the federal-locator pass, w
   // Moved by 156 for the state-badge pass — the fifty-one state outlines and
   // their painter went into the front page's location card, well above PDXSaved
   // — and the header comment in me.html moved with it, as the note above says.
-  { from: "index.html", src: INDEX, a: 19937, b: 20359, what: "PDXSaved" },
+  // Moved by 1 for the statewide-boards pass: the front page's /voice card
+  // comment above PDXSaved gained a line naming the three statewide boards.
+  { from: "index.html", src: INDEX, a: 19938, b: 20360, what: "PDXSaved" },
 ];
 // AND IT MOVED AGAIN FOR THE FINDER-BASEMAP PASS: the district-map controller
 // on index.html grew 271 lines above this block — a keyless OpenStreetMap tile

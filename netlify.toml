@@ -2359,6 +2359,48 @@
   to = "/district-ut-cd-4.html"
   status = 200
 
+# Governor - Spencer Cox — cox
+[[redirects]]
+  from = "/district/ut-gov"
+  to = "/district-ut-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-gov/"
+  to = "/district-ut-gov.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-gov.html"
+  to = "/district-ut-gov.html"
+  status = 200
+
+# U.S. Senate - John Curtis — curtis
+[[redirects]]
+  from = "/district/ut-us-senate-curtis"
+  to = "/district-ut-us-senate-curtis.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-us-senate-curtis/"
+  to = "/district-ut-us-senate-curtis.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-us-senate-curtis.html"
+  to = "/district-ut-us-senate-curtis.html"
+  status = 200
+
+# U.S. Senate - Mike Lee — lee
+[[redirects]]
+  from = "/district/ut-us-senate-lee"
+  to = "/district-ut-us-senate-lee.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-us-senate-lee/"
+  to = "/district-ut-us-senate-lee.html"
+  status = 200
+[[redirects]]
+  from = "/district/ut-us-senate-lee.html"
+  to = "/district-ut-us-senate-lee.html"
+  status = 200
+
 # @generated district-boards end
 
 # FOLLOW THE MONEY. The lane's own address, and the only page on this site where

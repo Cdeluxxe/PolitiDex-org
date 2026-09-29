@@ -363,7 +363,7 @@ const slice = (src, a, b) => lines(src).slice(a - 1, b).join("\n");
 // five other files; it was reflowed to its original five lines instead. A pin
 // this load-bearing is worth wrapping a paragraph tighter for.
 const COPIES = [
-  { from: "index.html", src: INDEX, a: 19324, b: 19444, what: "the PDXStance vocabulary" },
+  { from: "index.html", src: INDEX, a: 19325, b: 19445, what: "the PDXStance vocabulary" },
   { from: "person.html", src: PERSON, a: 2005, b: 2059, what: "the Firebase boot" },
 ];
 // The three-room split moved the index.html range by −2021 — /mandate, /voice
