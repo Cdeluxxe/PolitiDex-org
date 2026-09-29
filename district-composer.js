@@ -168,6 +168,27 @@
     return h + '</ol>';
   }
 
+  // ── THE SIGN-IN LINE, AND WHERE IT RETURNS TO ────────────────────────────
+  // A signed-out reader is told "Sign in to start." — and this board has no
+  // sign-in of its own: the front page owns the account sheet. So the line is a
+  // real link there, carrying this board as the return intent through
+  // PDXReturn (the same owner /find uses; nothing here spells `next`). Without
+  // PDXReturn on the document it is today's plain trip to '/'.
+  function signInHref() {
+    try {
+      var R = window.PDXReturn;
+      if (R && fn(R.joinHref)) return R.joinHref() || '/';
+    } catch (e) {}
+    return '/';
+  }
+
+  function noteHtml(note, reason) {
+    if (!note) return '';
+    if (reason !== 'signed_out') return '<p class="pdxdb-foot">' + esc(note) + '</p>';
+    return '<p class="pdxdb-foot"><a class="pdxdc-signin" data-pdxdc-signin="1" href="' +
+      esc(signInHref()) + '">' + esc(note) + '</a></p>';
+  }
+
   function render() {
     if (!_host) return;
     var open = canPost() && !_busy;
@@ -194,7 +215,7 @@
           '</div>' +
           (_status ? '<p class="pdxdc-status" role="status">' + esc(_status) + '</p>' : '') +
         '</form>' +
-        (note ? '<p class="pdxdb-foot">' + esc(note) + '</p>' : '') +
+        noteHtml(note, _read === false ? '' : v.reason) +
       '</section>' +
       '<section class="pdxdb-band pdxdb-band--posts" data-pdxdb-band="posts">' +
         '<h2 class="pdxdb-h2">' + esc(COPY.feedHd) + '</h2>' +
@@ -255,7 +276,7 @@
       if (res.status === 403) {
         // The server closed the gate: say so and turn the box off.
         _read = _read || {};
-        _read.voice = { canPost: false, line: res.data.error || LOCKED_LINE, note: res.data.note || '' };
+        _read.voice = { canPost: false, reason: res.data.code || '', line: res.data.error || LOCKED_LINE, note: res.data.note || '' };
         _status = '';
       } else {
         _status = (res.data && res.data.error) || COPY.failed;

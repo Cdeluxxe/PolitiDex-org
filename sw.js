@@ -8185,7 +8185,26 @@
 //     MIGRATION COST: none. No table was added and no location key is migrated,
 //     renamed or copied. district-board.js and district-ut-sd-3.html changed and
 //     district-composer.js joins the shell, so it moves one version.
-const CACHE_VERSION = 'v256';
+// v257 - SIGN-IN FROM A DISTRICT BOARD RETURNS TO THAT BOARD.
+//     A board has no sign-in UI of its own, so its chrome's "Join the People"
+//     and SD-3's composer line "Sign in to start" were a bare trip to '/': no
+//     account sheet, and no way back to the board that asked. Both now carry
+//     the board as PDXReturn's `next` - the same owner and allow-list /find
+//     uses - plus a join marker (/?join=1&next=/district/ut-sd-3). The front
+//     page opens the account sheet on that arrival, and closing it (sign-in or
+//     dismiss) calls PDXReturn.authSettled(), which spends the intent and lands
+//     the reader back on the board. No marker, no jump: the front page's own
+//     Join and /voice, /mandate and /money keep today's '/'.
+//     PDXReturn is still written once, in voter-hub-location.js. Boards do not
+//     load that file, so scripts/gen-pdx-return.mjs copies the one IIFE byte
+//     for byte into /pdx-return.js, which joins the shell; congressional boards
+//     already load the owner and do not take the copy.
+//     MIGRATION COST: none, and no location key is migrated, renamed or
+//     copied. shell-account-chip.js, district-composer.js,
+//     compare-hub.js, voter-hub-location.js, index.html and every board
+//     document changed and /pdx-return.js joins the shell, so it moves one
+//     version.
+const CACHE_VERSION = 'v257';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -8421,6 +8440,9 @@ const SHELL_ASSETS = [
   '/district-ut-cd-4.html',
   // @generated district-boards end precache
   '/district-board.js',
+  // PDXReturn for boards that do not load voter-hub-location.js - generated
+  // from it by scripts/gen-pdx-return.mjs. The chrome's Join reads it.
+  '/pdx-return.js',
   // SD-3's composer. Only district-ut-sd-3.html loads it; offline it paints the
   // locked box and says the posts could not be read.
   '/district-composer.js',

@@ -974,7 +974,12 @@ function sd6Band1Faults(modSrc) {
     if (b.alias === "ut-sd-3") { passed++; continue; }
     const h = headOf(b.doc);
     if (h == null) { passed++; continue; }
-    ok(h === R(b.doc), `neighbours: ${b.doc} changed in this pass and should not have`);
+    // Every board later took the one PDXReturn tag its sign-in doors need
+    // (scripts/test-board-signin-return.mjs pins it). That block is the only
+    // change a neighbour is allowed; anything else still fails here.
+    const RET_TAG = /  <!-- THE RETURN INTENT\. PDXReturn[\s\S]*?<script defer src="\/pdx-return\.js"><\/script>\n/;
+    const strip = (t) => t.replace(RET_TAG, "");
+    ok(strip(h) === strip(R(b.doc)), `neighbours: ${b.doc} changed in this pass and should not have`);
   }
 }
 
