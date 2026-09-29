@@ -164,7 +164,7 @@ const UNPLACED = "Find your rooms";
 const PLACED = "See your rooms";
 // The count in this sentence is pinned to BOARD_ROUTES in section 6, not here:
 // this line is the SHAPE of the sentence, and that block is the arithmetic.
-const NOTE = "Six seats have a board on file today. The others list the member and say the room is not open.";
+const NOTE = "Eighty-five seats have a board on file today. Every other seat says the room is not open.";
 
 // The visible copy, with the comments, the style block and the script stripped
 // the way a reader sees it.
@@ -477,9 +477,17 @@ section("6 · the allow-listed boards, and the person-file control is untouched"
   }
   // AND THE CARD'S THIRD SENTENCE IS A COUNT OF THAT TABLE, not a description
   // somebody remembered to update. The number is spelled as a word, so the
-  // assertion reads the word back.
-  const WORD = ["no", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"];
-  const seatWord = WORD[rows.length] || String(rows.length);
+  // assertion reads the word back. Section 2 bans a digit on the card face, so
+  // a count past nine is spelled too ("Eighty-five"), never printed as a figure.
+  const ONES = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+    "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen",
+    "eighteen", "nineteen"];
+  const TENS = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+  const spell = (n) => n < 20 ? ONES[n]
+    : n < 100 ? TENS[Math.floor(n / 10)] + (n % 10 ? "-" + ONES[n % 10] : "")
+    : String(n);
+  const spelled = spell(rows.length);
+  const seatWord = rows.length === 0 ? spelled : spelled[0].toUpperCase() + spelled.slice(1);
   const verb = rows.length === 1 ? "seat has" : "seats have";
   has(CARD_TEXT, `${seatWord} ${verb} a board on file today`,
     `copy: the card's allow-list sentence does not count the ${rows.length} rows BOARD_ROUTES actually holds`);

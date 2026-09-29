@@ -653,7 +653,13 @@ ok(FN.indexOf("BOARD_SEATS") > 0, "the endpoint declares a BOARD_SEATS allow-lis
       `the client allow-list holds ${JSON.stringify(k)}, which is not a canonical seat key`);
   }
 }
-ok(!/ut-statehouse-68/.test(MOD), "the board module does not also claim HD-68 — that seat has /voice");
+// HD-68 HAS A BOARD NOW, AND IT IS A GENERATED ROW, NOT A HAND ONE. The
+// roster names Scott Chew in that seat, so scripts/gen-district-boards.mjs
+// opened /district/ut-hd-68 on this board's contract. What this line still
+// guards is that the seat was not written into the SIX HAND ROWS, which end at
+// the generated block's opening marker.
+ok(!/ut-statehouse-68/.test(MOD.slice(0, MOD.indexOf("@generated district-boards begin"))),
+  "the board module's hand rows do not also claim HD-68 — its row is generated");
 
 // ═════════════════════════════════════════════════════════════════════════════
 // 6 · BAND 3 — ON THE TABLE
@@ -1486,9 +1492,11 @@ ok(NAV_RE.length > 0, `there is a nav regex for this address (${NAV_RE})`);
     ok(re.test(p), `the nav regex matches ${p}`);
   }
   // NOT A PREFIX, AND NOT A PATTERN. The boarded districts have a fallback and
-  // nothing else does — SD-4 is next door to this seat and HD-3 shares its
-  // number, and neither may resolve an offline shell.
-  for (const p of ["/district/ut-sd-4", "/district/ut-sd-30", "/district/ut-sd-3/rooms",
+  // nothing else does — HD-3 shares this seat's number and the roster names
+  // nobody in it, SD-30 does not exist, and neither may resolve an offline
+  // shell. (SD-4 used to be the neighbour on this line; the roster names its
+  // senator, so it has a generated board of its own now.)
+  for (const p of ["/district/ut-hd-17", "/district/ut-sd-30", "/district/ut-sd-3/rooms",
                    "/district/", "/district/ut-hd-3", "/d/ut-sd-3", "/"]) {
     ok(!re.test(p), `…and does not match ${p}`);
   }

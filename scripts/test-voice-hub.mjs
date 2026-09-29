@@ -301,13 +301,15 @@ function hub(opts) {
 }
 
 const LV = {
-  // THE NEIGHBOUR WITH NO BOARD, AND IT IS HD-14 NOW. This fixture was HD-15
-  // until /district/ut-hd-15 opened. Every section below uses it to prove the
-  // hallway refuses a door for a seat that has none, so it has to BE a seat
-  // that has none — an assertion aimed at a seat with a document proves the
-  // opposite of what it says. HD-14 is Clearfield and Syracuse in Davis County
-  // and has a member on the roster, a person file, and no room.
-  hd14: { key: "statehouse", seat: "statehouse", label: "State House", statewide: false, district: "14", pid: "rep_davis", resolved: true },
+  // THE NEIGHBOUR WITH NO BOARD, AND IT IS HD-17 NOW. This fixture was HD-15
+  // until /district/ut-hd-15 opened, then HD-14 until
+  // scripts/gen-district-boards.mjs opened every seat with a sitting pid. Every
+  // section below uses it to prove the hallway refuses a door for a seat that
+  // has none, so it has to BE a seat that has none — an assertion aimed at a
+  // seat with a document proves the opposite of what it says. HD-17 is in Davis
+  // County beside HD-16 and the roster names no sitting member for it, so the
+  // generator skipped it: no row, no document, no room.
+  hd17: { key: "statehouse", seat: "statehouse", label: "State House", statewide: false, district: "17", pid: "rep_davis", resolved: true },
   sd3: { key: "statesenate", seat: "statesenate", label: "State Senate", statewide: false, district: "3", pid: "john_johnson", resolved: true },
   ush4: { key: "house", seat: "house", label: "U.S. House", statewide: false, district: "1", pid: "moore", resolved: true },
   gov: { key: "governor", seat: "governor", label: "Governor", statewide: true, district: "", distLabel: "Utah", pid: "cox", resolved: true },
@@ -333,7 +335,7 @@ const WEBER = { state: "Utah", city: "North Ogden", county: "Weber County" };
   no(h.card(), 'href="#"', "no location: the door is a dead hash");
   // AND IT NAMES NO STATE. A default location on this page is a claim about a
   // stranger.
-  for (const n of ["Utah", "Davis", "District 14", "ut-"]) {
+  for (const n of ["Utah", "Davis", "District 17", "ut-"]) {
     no(h.card(), n, `no location: the hub prints "${n}" for a reader who has saved nothing`);
   }
 }
@@ -466,13 +468,13 @@ section("3 · a mocked save on /find?next=/voice lands the reader on /voice");
   eq(trip.PDXReturn.consume(), true, "round trip: the save on /find did not navigate");
   eq(trip.__assigned[0], "/voice", "round trip: the save on /find did not land on /voice");
 
-  const landed = hub({ loc: WEBER, levels: [LV.hd14, LV.sd3], people: { john_johnson: { name: "John Johnson" } } });
+  const landed = hub({ loc: WEBER, levels: [LV.hd17, LV.sd3], people: { john_johnson: { name: "John Johnson" } } });
   eq(landed.paint(), "placed", "round trip: the reader landed on /voice and the hub did not settle on 'placed'");
   const seats = landed.win.PDXVoice.seatsForMe();
   eq(seats.length, 2, `round trip: the record that was saved on /find resolves ${seats.length} seats on /voice`);
-  eq(seats.map((x) => x.seatKey).join("|"), "ut-statehouse-14|ut-statesenate-3",
+  eq(seats.map((x) => x.seatKey).join("|"), "ut-statehouse-17|ut-statesenate-3",
     "round trip: the seats after the hop are not the seats the saved record resolves");
-  has(landed.list(), "State House District 14", "round trip: the House seat did not survive the hop");
+  has(landed.list(), "State House District 17", "round trip: the House seat did not survive the hop");
   has(landed.list(), "State Senate District 3", "round trip: the Senate seat did not survive the hop");
   has(landed.list(), "Weber County", "round trip: the county the reader saved on /find is not on the cards");
   // ONE RESOLVER, NAMED ONCE. The finder consumes the owner's export; it does
@@ -493,12 +495,12 @@ section("3 · a mocked save on /find?next=/voice lands the reader on /voice");
 section("4 · a location that resolves a House seat and a Senate seat paints two cards");
 
 {
-  const h = hub({ loc: WEBER, levels: [LV.hd14, LV.sd3], people: { john_johnson: { name: "John Johnson" } } });
+  const h = hub({ loc: WEBER, levels: [LV.hd17, LV.sd3], people: { john_johnson: { name: "John Johnson" } } });
   ok(!h.err, `two seats: the hub boots (${h.err ? h.err.message : "ok"})`);
   eq(h.paint(), "placed", "two seats: the hub does not settle on 'placed'");
   const list = h.list();
   eq((list.match(/class="pdxvr-seat"/g) || []).length, 2, "two seats: the hallway did not paint one card per seat");
-  has(list, "State House District 14", "two seats: the House seat is not named");
+  has(list, "State House District 17", "two seats: the House seat is not named");
   has(list, "State Senate District 3", "two seats: the Senate seat is not named");
   has(list, "Weber County", "two seats: the county the reader saved is not on the cards");
 
@@ -532,14 +534,17 @@ section("4 · a location that resolves a House seat and a Senate seat paints two
   eq(V.boardPath("ut-statesenate-7"), "/district/ut-sd-7", "allow-list: SD-7's row does not name its board");
   eq(V.boardPath("ut-house-2"), "/district/ut-cd-2", "allow-list: UT-2's row does not name its board");
   eq(V.boardPath("ut-statehouse-15"), "/district/ut-hd-15", "allow-list: HD-15's row does not name its board");
-  // THE NEIGHBOURS, AND THEY STILL GET NOTHING. HD-14 sits beside HD-15 and
-  // SD-4 sits beside SD-3; a pattern would have opened a room for both. HD-14
-  // is on this line because HD-15 came off it: opening a board means moving the
-  // counter-example to a seat that still has no document, not deleting it.
-  eq(V.boardPath("ut-statehouse-14"), "", "allow-list: HD-14 was given a board");
-  eq(V.boardPath("ut-statesenate-4"), "", "allow-list: a neighbouring seat resolves a board by pattern");
-  eq(V.boardPath("ut-statesenate-8"), "", "allow-list: SD-8 resolves a board because SD-7 has one");
-  eq(V.boardPath("ut-house-1"), "", "allow-list: UT-1 resolves a board because UT-2 has one");
+  // THE NEIGHBOURS, AND THEY STILL GET NOTHING. HD-17 sits beside HD-16 and
+  // HD-13 beside HD-14; a pattern would have opened a room for both. Every
+  // Senate and congressional seat now has a sitting member and so a board, so
+  // the counter-examples there are seats that do not exist (SD-30, UT-5). HD-14,
+  // SD-4, SD-8 and UT-1 came off this line when the generator opened them:
+  // opening a board means moving the counter-example to a seat that still has
+  // no document, not deleting it.
+  eq(V.boardPath("ut-statehouse-17"), "", "allow-list: HD-17 was given a board");
+  eq(V.boardPath("ut-statehouse-13"), "", "allow-list: a neighbouring seat resolves a board by pattern");
+  eq(V.boardPath("ut-statesenate-30"), "", "allow-list: SD-30 resolves a board and there is no SD-30");
+  eq(V.boardPath("ut-house-5"), "", "allow-list: UT-5 resolves a board and there is no UT-5");
   eq(V.boardPath(""), "", "allow-list: an empty seat key resolves a board");
   // AND EVERY ROW IS A ROUTE THE SITE ACTUALLY SERVES, WITH A DOCUMENT BEHIND IT.
   for (const route of Object.values(V.BOARD_ROUTES)) {
@@ -556,14 +561,18 @@ section("4 · a location that resolves a House seat and a Senate seat paints two
 // STATEWIDE OFFICES COMPOSE NO SEAT KEY, so they can never carry a board. A
 // governor is not a district and the hallway must not imply a room in one.
 {
-  const h = hub({ loc: DAVIS, levels: [LV.gov, LV.hd14, LV.ush4] });
+  const h = hub({ loc: DAVIS, levels: [LV.gov, LV.hd17, LV.ush4] });
   eq(h.paint(), "placed", "statewide: a mixed level set does not settle on 'placed'");
   eq((h.list().match(/class="pdxvr-seat"/g) || []).length, 3, "statewide: the hallway dropped a resolved level");
-  eq((h.list().match(/data-pdxvr-board="on"/g) || []).length, 0, "statewide: a board was offered in this set");
+  // ONE BOARD IN THIS SET, AND IT IS THE U.S. HOUSE SEAT'S (UT-1 has a board);
+  // the governor's card and HD-17's never carry one.
+  eq((h.list().match(/data-pdxvr-board="on"/g) || []).length, 1, "statewide: a board was offered in this set beyond UT-1's");
+  eq((h.list().match(/href="\/district\/[^"]+"/g) || []).join("|"), 'href="/district/ut-cd-1"',
+    "statewide: the one door in this set is not UT-1's");
   const V = h.win.PDXVoice;
   eq(V.seatKeyForLevel(LV.gov, "Utah"), "", "statewide: a governor composed a seat key");
-  eq(V.seatKeyForLevel(LV.hd14, "Utah"), "ut-statehouse-14", "statewide: a House level composed the wrong seat key");
-  eq(V.seatKeyForLevel(LV.hd14, "Ohio"), "",
+  eq(V.seatKeyForLevel(LV.hd17, "Utah"), "ut-statehouse-17", "statewide: a House level composed the wrong seat key");
+  eq(V.seatKeyForLevel(LV.hd17, "Ohio"), "",
     "statewide: a state with no code in the table composed a seat key anyway");
 }
 
@@ -573,11 +582,11 @@ section("4 · a location that resolves a House seat and a Senate seat paints two
 section("5 · a reader who does not vote in SD-3 is never shown SD-3's board");
 
 {
-  // Davis County, HD-14 — a seat with a member and no room. Five boards exist
+  // Davis County, HD-17 — a seat with no sitting member and no room. Boards exist
   // and not one of them is this reader's, so they must not see any of them —
   // not as a card, not as a door, not as "the board nearest you". This is the
   // product, not a detail.
-  const h = hub({ loc: DAVIS, levels: [LV.hd14] });
+  const h = hub({ loc: DAVIS, levels: [LV.hd17] });
   eq(h.paint(), "placed", "exclusivity: one resolved seat does not settle on 'placed'");
   const list = h.list();
   eq((list.match(/class="pdxvr-seat"/g) || []).length, 1, "exclusivity: one seat did not paint one card");
@@ -587,14 +596,14 @@ section("5 · a reader who does not vote in SD-3 is never shown SD-3's board");
   no(list, "State Senate District 3", "exclusivity: another seat is listed as this reader's");
   has(list, "Board not on hand for this seat.", "exclusivity: the unboarded seat does not say so");
   // AND THE SEAT KEYS DIFFER, which is the mechanism: the hallway asks the
-  // allow-list by key and Davis HD-14 is not a key it holds.
+  // allow-list by key and Davis HD-17 is not a key it holds.
   const V = h.win.PDXVoice;
-  eq(V.seatsForMe()[0].seatKey, "ut-statehouse-14", "exclusivity: the resolved seat key is not this reader's");
+  eq(V.seatsForMe()[0].seatKey, "ut-statehouse-17", "exclusivity: the resolved seat key is not this reader's");
   eq(V.seatsForMe()[0].board, "", "exclusivity: this reader's seat resolved a board");
   // AND THE SEAT ONE NUMBER AWAY REALLY DOES HAVE ONE, which is what makes the
   // line above an assertion about the KEY rather than about an empty table.
-  eq(V.boardPath("ut-statehouse-15"), "/district/ut-hd-15",
-    "exclusivity: HD-15's board went missing, so the HD-14 refusal above proves nothing");
+  eq(V.boardPath("ut-statehouse-16"), "/district/ut-hd-16",
+    "exclusivity: HD-16's board went missing, so the HD-17 refusal above proves nothing");
   // A WEBER SD-3 READER DOES GET IT, because the exclusivity has to cut both
   // ways or it is just an outage.
   const w = hub({ loc: WEBER, levels: [LV.sd3] });
@@ -661,7 +670,7 @@ const READER_TEXT = (() => {
   const doc = stripComments(VOICE_HTML)
     .replace(/<script\b[\s\S]*?<\/script>/gi, " ")
     .replace(/<style\b[\s\S]*?<\/style>/gi, " ");
-  const placed = hub({ loc: WEBER, levels: [LV.hd14, LV.sd3] });
+  const placed = hub({ loc: WEBER, levels: [LV.hd17, LV.sd3] });
   placed.paint();
   const empty = hub({ levels: [] });
   empty.advance(20000);
@@ -726,7 +735,7 @@ for (const re of [/\bshares?\b/i, /\bstock\b/i, /\bunits?\b/i, /\bdues\b/i, /reg
 // with href="#" is a control that looks pressable and is not, and a JS-only
 // button cannot be opened in a tab.
 {
-  const paintable = hub({ loc: WEBER, levels: [LV.hd14, LV.sd3] });
+  const paintable = hub({ loc: WEBER, levels: [LV.hd17, LV.sd3] });
   paintable.paint();
   const painted = paintable.card() + paintable.list();
   no(painted, 'href="#"', "controls: the hub paints a dead hash");
@@ -768,7 +777,7 @@ section("8 · the record engines are byte-identical with the hallway rendered, a
       win.document.getElementById = (id) => els[id] || null;
       win.__PDX_VOICE_DOC = true;
       win._hasUserLocation = true;
-      win.pdxRepsForMe = () => ({ located: true, state: "Utah", county: "Weber County", levels: [LV.hd14, LV.sd3] });
+      win.pdxRepsForMe = () => ({ located: true, state: "Utah", county: "Weber County", levels: [LV.hd17, LV.sd3] });
       vm.runInContext(RET_SRC, ctx, { filename: "voter-hub-location.js#PDXReturn" });
       vm.runInContext(DV, ctx, { filename: "district-voice.js" });
       vm.runInContext(VR, ctx, { filename: "voice-room.js" });
@@ -823,7 +832,7 @@ section("8 · the record engines are byte-identical with the hallway rendered, a
   win.document.getElementById = () => null;
   win.__PDX_VOICE_DOC = true;
   win._hasUserLocation = true;
-  win.pdxRepsForMe = () => ({ located: true, state: "Utah", county: "Weber County", levels: [LV.hd14, LV.sd3] });
+  win.pdxRepsForMe = () => ({ located: true, state: "Utah", county: "Weber County", levels: [LV.hd17, LV.sd3] });
   const ctx = vm.createContext(win);
   vm.runInContext(RET_SRC, ctx, { filename: "voter-hub-location.js#PDXReturn" });
   vm.runInContext(DV, ctx, { filename: "district-voice.js" });

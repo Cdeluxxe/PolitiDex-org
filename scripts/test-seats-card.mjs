@@ -63,6 +63,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
+import { planBoards } from './gen-district-boards.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
@@ -781,8 +782,12 @@ for (const w of ['vh-loc-mapbadge', 'pdxPaintStateShape', 'data-pdxhome']) {
   const tbl = DV.slice(DV.indexOf('var BOARD_ROUTES = {'), DV.indexOf('};', DV.indexOf('var BOARD_ROUTES = {')));
   const routes = [...tbl.matchAll(/'\/district\/([a-z0-9-]+)'/g)].map((m) => m[1]);
   must(routes.length > 0, 'BOARD_ROUTES no longer lists board paths the way this assertion reads them');
-  eq(routes.length, 6,
-    'the board table is no longer six rows. This pass adds a card, not a board: ' + JSON.stringify(routes));
+  // Six hand rows plus exactly the rows the roster generator plans — every
+  // seat the roster names a sitting member for, and not one more.
+  const planned = planBoards().boards.map((b) => b.alias);
+  eq(routes.length, 6 + planned.length,
+    'the board table is no longer the six hand rows plus the generated plan. This pass adds a card, not a board: ' + JSON.stringify(routes));
+  for (const a of planned) ok(routes.indexOf(a) !== -1, `the generated board ${a} has left BOARD_ROUTES`);
   for (const a of ['ut-sd-3', 'ut-hd-16', 'ut-sd-7', 'ut-cd-2', 'ut-hd-15', 'ut-sd-6']) {
     ok(routes.indexOf(a) !== -1, `the board ${a} has left BOARD_ROUTES`);
   }

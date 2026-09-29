@@ -87,6 +87,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { planBoards } from "./gen-district-boards.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -192,6 +193,24 @@ const BOARDS = [
   },
 ];
 const NEW_BOARDS = BOARDS.filter((b) => !b.control);
+
+// ── AND EVERY SEAT THE GENERATOR OPENED BESIDE THEM ──────────────────────────
+// scripts/gen-district-boards.mjs writes one row per roster seat with a sitting
+// pid. This suite still reads the SIX hand boards closely; the generated rows
+// are read closely by scripts/test-district-boards-generated.mjs. What this
+// suite asks of them is only that the allow-lists stay ONE list: the six plus
+// exactly the planned rows, in every copy.
+const PLANNED = planBoards().boards;
+const ALL_SEATS = BOARDS.map((b) => b.seat).concat(PLANNED.map((b) => b.seat)).sort().join(",");
+const ALL_ALIASES = BOARDS.map((b) => b.alias).concat(PLANNED.map((b) => b.alias)).sort().join(",");
+const ALL_COUNT = BOARDS.length + PLANNED.length;
+// THE NEIGHBOURS ARE SEATS THE ROSTER NAMES NOBODY FOR. Every Senate seat and
+// every congressional seat now has a sitting member and so a board; the House
+// seats below have no pid, so they have no board, and the out-of-range seats
+// (SD-30, UT-5) do not exist at all. HD-17 is still next door to HD-16.
+const NEIGHBOURS = ["ut-hd-17", "ut-hd-13", "ut-hd-18", "ut-hd-3", "ut-sd-30", "ut-cd-5"];
+must(NEIGHBOURS.every((n) => !PLANNED.some((b) => b.alias === n)),
+  "a neighbour this suite relies on has a generated board — move it to a seat with no pid");
 must(NEW_BOARDS.length === 5, `this suite expects five new boards, found ${NEW_BOARDS.length}`);
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -223,8 +242,8 @@ for (const b of BOARDS) {
 // AND NOTHING ELSE UNDER /district/ IS SERVED. The set of from-values is exactly
 // the eighteen above: a nineteenth rule would be an address with no document, and
 // a splat would be all of them.
-eq(districtRules.length, BOARDS.length * 3,
-  `/district/ has exactly ${BOARDS.length * 3} rules — one document, three spellings, six boards`);
+eq(districtRules.length, ALL_COUNT * 3,
+  `/district/ has exactly ${ALL_COUNT * 3} rules — one document, three spellings, ${ALL_COUNT} boards`);
 for (const r of districtRules) {
   ok(r.from.indexOf("*") < 0 && r.from.indexOf(":") < 0,
     `no pattern in a /district/ rule (${r.from})`);
@@ -255,8 +274,8 @@ const W = bootBare("");
 const B = W.PDXDistrictBoard;
 must(B && B.BOARDS, "PDXDistrictBoard did not publish a BOARDS table");
 
-eq(Object.keys(B.BOARD_SEATS).sort().join(","), BOARDS.map((b) => b.seat).sort().join(","),
-  "district-board.js: the allow-list is exactly these six seats");
+eq(Object.keys(B.BOARD_SEATS).sort().join(","), ALL_SEATS,
+  "district-board.js: the allow-list is exactly the six plus the generated seats");
 for (const b of BOARDS) {
   const row = B.board(b.alias);
   must(!!row, `district-board.js: board("${b.alias}") answered nothing`);
@@ -276,8 +295,8 @@ const dvWin = makeSandbox();
 vm.runInContext(DV, vm.createContext(dvWin), { filename: "district-voice.js" });
 const V = dvWin.PDXVoice;
 must(V && V.BOARD_ROUTES, "district-voice.js did not publish BOARD_ROUTES");
-eq(Object.keys(V.BOARD_ROUTES).sort().join(","), BOARDS.map((b) => b.seat).sort().join(","),
-  "district-voice.js: BOARD_ROUTES holds exactly these six rows");
+eq(Object.keys(V.BOARD_ROUTES).sort().join(","), ALL_SEATS,
+  "district-voice.js: BOARD_ROUTES holds exactly the six plus the generated rows");
 for (const b of BOARDS) {
   eq(V.BOARD_ROUTES[b.seat], `/district/${b.alias}`, `BOARD_ROUTES[${b.seat}]`);
   eq(V.boardPath(b.alias), `/district/${b.alias}`, `boardPath("${b.alias}") — the alias spelling`);
@@ -290,19 +309,20 @@ const fnSeats = (() => {
   must(!!m, "district-board.mts no longer declares BOARD_SEATS in a shape this suite can read");
   return [...m[1].matchAll(/"([a-z0-9-]+)":\s*1/g)].map((x) => x[1]).sort();
 })();
-eq(fnSeats.join(","), BOARDS.map((b) => b.seat).sort().join(","),
-  "district-board.mts: BOARD_SEATS is the same six seats the client holds");
+eq(fnSeats.join(","), ALL_SEATS,
+  "district-board.mts: BOARD_SEATS is the same seats the client holds");
 ok(!/\\d\+|\[0-9\]\+|\.\*/.test((/const BOARD_SEATS[\s\S]*?\};/.exec(FN) || [""])[0]),
   "district-board.mts: the allow-list is rows and not a pattern");
 
-// (d) AND A NEIGHBOUR IS ON NONE OF THEM. HD-14 is next door to HD-15, HD-17 is
-// next door to HD-16, SD-5 is next door to SD-6, SD-8 is next door to SD-7, UT-1 is next door to UT-2, and
-// not one of them has a document, a room or a reader. This is the whole reason
-// the list is a list — and HD-14 is on this line because HD-15 came off it the
-// day HD-15 got a document. A pass that opens a board has to move the
+// (d) AND A NEIGHBOUR IS ON NONE OF THEM. HD-17 is next door to HD-16, HD-13
+// and HD-18 sit in Davis County beside the Layton boards, and not one of them
+// has a document, a room or a reader, because the roster names nobody sitting
+// in them. This is the whole reason the list is a list. HD-14, SD-4, SD-5,
+// SD-8, UT-1 and UT-3 used to be on this line and came off it the day the
+// generator opened them; a pass that opens a board has to move the
 // counter-example to a seat that still has none, or this sweep stops testing
 // anything.
-for (const near of ["ut-hd-14", "ut-hd-17", "ut-sd-4", "ut-sd-5", "ut-sd-8", "ut-cd-1", "ut-cd-3"]) {
+for (const near of NEIGHBOURS) {
   eq(B.board(near), null, `district-board.js: ${near} has no board`);
   eq(V.boardPath(near), "", `district-voice.js: ${near} gets no route`);
   ok(fnSeats.indexOf(near) < 0, `district-board.mts: ${near} is not on the server's list`);
@@ -388,9 +408,9 @@ ok(!/shell\.match\(["']\/district-ut-sd-3\.html["']\)/.test(SW),
   const off = vm.runInNewContext(
     slice + "\n;({ re: DISTRICT_BOARD_NAV_RE, docs: DISTRICT_BOARD_DOCS, doc: districtBoardDoc })");
 
-  eq(Object.keys(off.docs).sort().join(","), BOARDS.map((b) => b.alias).sort().join(","),
-    "sw.js: DISTRICT_BOARD_DOCS is not exactly the six aliases");
-  eq(new Set(Object.values(off.docs)).size, BOARDS.length,
+  eq(Object.keys(off.docs).sort().join(","), ALL_ALIASES,
+    "sw.js: DISTRICT_BOARD_DOCS is not exactly the six plus the generated aliases");
+  eq(new Set(Object.values(off.docs)).size, ALL_COUNT,
     "sw.js: two board addresses point at one document offline — one of them would print the other's seat");
 
   for (const b of BOARDS) {
@@ -408,7 +428,7 @@ ok(!/shell\.match\(["']\/district-ut-sd-3\.html["']\)/.test(SW),
     }
   }
   // A NEIGHBOUR GETS NO DOCUMENT AND NO MATCH, so it cannot fall through to one.
-  for (const near of ["ut-hd-14", "ut-hd-17", "ut-sd-4", "ut-sd-5", "ut-sd-8", "ut-cd-1"]) {
+  for (const near of NEIGHBOURS) {
     ok(!off.re.test(`/district/${near}`), `sw.js: /district/${near} matches the board nav regex`);
     eq(off.doc(`/district/${near}`), "", `sw.js: /district/${near} resolves a board document`);
   }
@@ -512,7 +532,10 @@ for (const b of BOARDS) {
   eq(win._pdxUsHouseSeat("Utah", 2), "maloy", "_pdxUsHouseSeat('Utah', 2) is the holder band 1 printed");
   // THE MODULE NEVER WRITES THAT NAME DOWN. This is the assertion that keeps the
   // congressional board honest across a redistricting.
-  no(MOD, "maloy", "district-board.js does not carry a congressional pid");
+  // (Quoted: HD-52's generated row carries 'cory_maloy_h52', a different
+  // person's pid that merely contains the substring.)
+  no(MOD, "'maloy'", "district-board.js does not carry a congressional pid");
+  ok(!/\bmaloy\b/.test(MOD.replace(/cory_maloy_h52/g, "")), "…by any spelling");
   for (const b of BOARDS) no(R(b.doc), "maloy", `${b.doc} does not carry a congressional pid either`);
 }
 {
@@ -713,27 +736,26 @@ for (const b of NEW_BOARDS) {
     `${b.alias}: the hub card prints no headcount`);
 }
 
-// AND THE NEIGHBOUR STILL GETS WORDS. HD-14 is not HD-15, and that exclusivity
+// AND THE NEIGHBOUR STILL GETS WORDS. HD-17 is not HD-16, and that exclusivity
 // IS the product: a reader handed the next district's board is handed a room
-// they cannot speak in. This subject used to be HD-15 itself; it is HD-14 now,
-// because HD-15 has a document and a seat that has one cannot prove anything
-// about a seat that does not. Karianne Lisonbee is on the roster and has a
-// person file, which is the point — a named member is not a room.
+// they cannot speak in. This subject used to be HD-15, then HD-14; both have
+// documents now, and a seat that has one cannot prove anything about a seat
+// that does not. HD-17 has no sitting pid on the roster, so the generator
+// skipped it and it has no row anywhere.
 {
   const near = {
     key: "statehouse", seat: "statehouse", label: "State House", statewide: false,
-    district: "14", pid: "lisonbee_h14", resolved: true,
+    district: "17", pid: "", resolved: true,
   };
-  const h = hub([near], { state: "Utah", city: "Clearfield", county: "Davis County" },
-    { lisonbee_h14: { name: "Karianne Lisonbee", pid: "lisonbee_h14" } });
-  ok(!h.err, `hd-14: the hub boots (${h.err ? h.err.message : "ok"})`);
-  has(h.list, NONE, "hd-14: a seat with no board gets the empty sentence");
-  has(h.list, 'data-pdxvr-board="off"', "hd-14: …and the card says it has no door");
-  no(h.list, "Open board", "hd-14: …and no door labelled as one");
+  const h = hub([near], { state: "Utah", city: "Farmington", county: "Davis County" }, {});
+  ok(!h.err, `hd-17: the hub boots (${h.err ? h.err.message : "ok"})`);
+  has(h.list, NONE, "hd-17: a seat with no board gets the empty sentence");
+  has(h.list, 'data-pdxvr-board="off"', "hd-17: …and the card says it has no door");
+  no(h.list, "Open board", "hd-17: …and no door labelled as one");
   for (const b of BOARDS) {
-    no(h.list, `/district/${b.alias}`, `hd-14: no board address is offered (${b.alias})`);
+    no(h.list, `/district/${b.alias}`, `hd-17: no board address is offered (${b.alias})`);
   }
-  ok(!/\byet\b/i.test(tagBare(h.list)), "hd-14: a seat with no board is not a seat waiting for one");
+  ok(!/\byet\b/i.test(tagBare(h.list)), "hd-17: a seat with no board is not a seat waiting for one");
 }
 
 // ALL SIX SEATS IN ONE READER'S HALLWAY, which is not a real location but is
