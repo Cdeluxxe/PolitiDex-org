@@ -2,12 +2,13 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // test-stance-tree-find.mjs — 🌳 "Find a topic" on the person file
 // ─────────────────────────────────────────────────────────────────────────────
-// One field above All Issues by Topic narrows the tree to the issues whose LABEL
-// holds what a reader typed. The fence:
+// One field above All Issues by Topic narrows the tree to the issues already on
+// this file that answer what a reader typed. The fence:
 //
-//   1. IT MATCHES THE LABEL THE LEAF PRINTS. Case-insensitive, "&" and "+" read
-//      as "and", "/" and emoji as a space. A word that only appears in a bill
-//      title behind the row does not find the row.
+//   1. IT MATCHES THE LABEL, A SHARED ALIAS, OR A MEASURE ON THIS FILE. Case-
+//      insensitive, "&" and "+" read as "and", "/" and emoji as a space. A bill
+//      title finds a row only when that bill sits on THIS person × THAT issue;
+//      a title on someone else's file finds nothing here.
 //   2. NON-MATCHES HIDE, AND SO DO THEIR CONTAINERS. No branch and no mid is
 //      built without a visible leaf in it. An empty query is the full tree.
 //   3. NO MATCH IS ONE LINE AND NO ISSUE. The miss prints FIND_NONE and zero
@@ -177,10 +178,83 @@ section("4 · no match is one line and no invented issue");
   eq(T.find(ALL, "zzqx").length, 0, "the leaf filter returns nothing for a miss");
   eq(T.leaves(PID).length, ALL.length, "a query never changes the leaf set it filters");
 
-  // MUTATION: a field that filtered bill titles would find Lee's seeded rows
-  // through the "Xylophone" titles behind them. The label field finds nothing.
-  eq(leafCount(T.html(PID, { uid: "f", query: "xylophone" })), 0, "a word only in a bill title finds no row");
-  eq(T.find(ALL, "watershed conveyance").length, 0, "a bill-title phrase finds no row");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("4b · a measure title on THIS file finds its row; another file's does not");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  // Lee's seeded "Xylophone" roll calls sit on lands_preserve and gov_regulation,
+  // so their titles now find exactly those two rows — and nothing else.
+  const xy = T.find(ALL, "xylophone").map((l) => l.key).sort();
+  eq(xy.join("|"), "gov_regulation|lands_preserve", "a bill title on this file finds the rows it sits on");
+  eq(T.find(ALL, "watershed conveyance").map((l) => l.key).join("|"), "lands_preserve",
+    "a title phrase finds only the issue that measure is on");
+  eq(leafCount(T.html(PID, { uid: "f", query: "xylophone" })), 2, "the title hits render as the existing leaves");
+
+  // MUTATION: a matcher that read titles from another person's file (or the
+  // archive) would surface a Lee row for a title that only sits on Curtis's.
+  const CUR = "curtis";
+  win.PDXVotingRecord.noteMember(CUR, [
+    { ...vote(7, "lands_preserve", "Quokka Meadow Protection Act"), rollcallId: 977, measureId: 1977 },
+  ]);
+  ok(T.find(T.leaves(CUR), "quokka").some((l) => l.key === "lands_preserve"),
+    "the Curtis-only title finds Curtis's own row");
+  eq(T.find(T.leaves(PID), "quokka").length, 0, "a title on another person's file finds no row on this one");
+  eq(leafCount(T.html(PID, { uid: "f", query: "quokka" })), 0, "and renders zero rows here");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("4c · aliases: iran on Trump opens real leaves, never an invented one");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  const A = T.FIND_ALIASES;
+  for (const k of Object.keys(A)) ok(!!win.ISSUE_MAP[k], `alias key ${k} is in the vocabulary`);
+  ok((A.war_powers || []).includes("iran"), "iran is an alias on War Powers");
+  ok((A.restraint || []).includes("iran") && (A.restraint || []).includes("ukraine"),
+    "iran and ukraine are aliases on Diplomacy & Restraint");
+  ok((A.strong_defense || []).includes("ukraine"), "ukraine is an alias on Peace Through Strength");
+  ok(!(A.war_powers || []).includes("war"), "war is not duplicated as an alias of a label that says war");
+
+  const TP = "trump";
+  const TL = T.leaves(TP);
+  must(TL.length > 0, "Trump's tree renders no leaves");
+  const onFile = new Set(TL.map((l) => l.key));
+  const iran = T.find(TL, "iran");
+  const iranKeys = iran.map((l) => l.key);
+  ok(iran.length > 0, "iran is no longer empty on Trump's file");
+  ok(!/pdxtree-findnone/.test(T.html(TP, { uid: "t", query: "iran" })), "iran does not print the miss line");
+  for (const k of ["war_powers", "restraint", "israel_support"]) {
+    if (onFile.has(k)) ok(iranKeys.includes(k), `iran surfaces ${k} on Trump's file`);
+  }
+  // MUTATION: an alias that inserted a row for a key not on the file.
+  ok(iranKeys.every((k) => onFile.has(k)), "every iran hit is a key already on Trump's file");
+  eq(leafCount(T.html(TP, { uid: "t", query: "iran" })), iran.length, "iran renders exactly the matching leaves");
+  const tHtml = T.html(TP, { uid: "t", query: "iran" });
+  const rendered = [...tHtml.matchAll(/data-pdxtree-issue="([^"]*)"/g)].map((m) => m[1]);
+  ok(rendered.every((k) => onFile.has(k)), "no rendered row carries a key off Trump's file");
+  if (!onFile.has("israel_support")) ok(!rendered.includes("israel_support"), "Support for Israel is not invented for Trump");
+
+  const uk = T.find(TL, "ukraine").map((l) => l.key);
+  for (const k of ["strong_defense", "restraint"]) if (onFile.has(k)) ok(uk.includes(k), `ukraine surfaces ${k}`);
+  ok(uk.every((k) => onFile.has(k)), "every ukraine hit is on Trump's file");
+
+  // A measure title on Trump's own file: EO 14353 sits under War Powers.
+  const eoRows = (win.PDXConsistency.dossierItems(TP, "war_powers") || []).filter((d) => /14353/.test(d.ident || ""));
+  if (eoRows.length) ok(T.find(TL, "14353").some((l) => l.key === "war_powers"), "14353 finds War Powers on Trump's file");
+
+  const zz = T.html(TP, { uid: "t", query: "xyzzy" });
+  eq(leafCount(zz), 0, "xyzzy renders zero rows on Trump's file");
+  eq((zz.match(/No topic on this file matches\./g) || []).length, 1, "xyzzy prints the miss line once");
+  eq(T.html(TP, { uid: "t", query: "" }), T.html(TP, { uid: "t" }), "an empty query restores Trump's tree");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("4d · aliases do not hide a label hit");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  ok(T.find(ALL, "lands").some((l) => l.key === "lands_preserve"), "lands still finds Protect Public Lands on Lee");
+  ok(visible(T.html(PID, { uid: "f", query: "lands" })).includes(LANDS), "and it is visible");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
