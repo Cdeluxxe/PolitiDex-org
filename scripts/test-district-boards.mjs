@@ -968,6 +968,10 @@ function sd6Band1Faults(modSrc) {
   };
   for (const b of BOARDS) {
     if (b.alias === "ut-sd-6") continue;
+    // SD-3 took its composer host in a later pass (scripts/test-district-board-
+    // composer.mjs pins it, and pins that no OTHER board has one), so it is no
+    // longer a document this SD-6 check owns.
+    if (b.alias === "ut-sd-3") { passed++; continue; }
     const h = headOf(b.doc);
     if (h == null) { passed++; continue; }
     ok(h === R(b.doc), `neighbours: ${b.doc} changed in this pass and should not have`);
