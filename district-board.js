@@ -573,6 +573,12 @@
     colMeasure: 'Measure',
     colPolls: 'Answered',
     colComments: 'Commented',
+    catsLabel: 'Show measures by issue',
+    catAll: 'All',
+    findLabel: 'Find a measure',
+    findPlaceholder: 'Title or bill number',
+    findNone: 'No measure in view matches that search.',
+    tableUnfiled: 'Not filed under an issue',
 
     tier: 'The public record and this read-only board are free to everyone. Posting in this ' +
           'district is limited on the free tier and unlimited for members.',
@@ -773,6 +779,148 @@
     return out;
   }
 
+  // ── THE TABLE, BY CATEGORY: THE CHIPS THE ROWS ALREADY WEAR ───────────────
+  // A flat scroll of every measure mapped to the seat gives a reader no way to
+  // start broad and go narrow. So the rows are GROUPED — and the groups are not
+  // a second taxonomy. A group IS a chip: its key is a key the archive mapped
+  // the measure to, its label is issueLabel(key) and its colour is
+  // issueSkin(key), the exact pair the row's own chip prints. There is no
+  // category here that is not a chip on at least one row of this seat, and so
+  // no "Other", no "Misc", no invented umbrella.
+  //
+  // A MEASURE UNDER TWO ISSUES SITS IN BOTH GROUPS. It carries both chips, so
+  // it is on the table under both; picking one of them to be its "primary"
+  // would be this file deciding what a bill is about. Each copy of the row
+  // prints the poll and comment counts for THE GROUP IT SITS IN, because those
+  // tallies are per issue and that is the issue the reader is looking at.
+  //
+  // A ROW WITH NO LABELLED ISSUE IS STILL ON THE TABLE. It is printed last,
+  // under All only, beneath a line that says it is not filed under an issue —
+  // a statement about the row, not a category, so it gets no filter chip.
+  //
+  // WHAT IS OPEN ON FIRST PAINT. Every header shows; the groups are closed,
+  // except one the visitor already holds a side on (PDXStanceSides, the same
+  // one read the stance band makes). A chip opens only its own group. A search
+  // opens the groups it matched in and hides the ones it did not. A header the
+  // visitor opened or closed by hand stays that way across a repaint.
+  //
+  // THE VIEW IS MODULE STATE, so a repaint (band 2 answering after band 3) does
+  // not reset a filter the reader just picked. Changing it re-applies to the
+  // DOM in place — the search field is never re-rendered under the cursor.
+  var _view = { cat: '', q: '', open: {} };
+
+  function rowIssues(item) {
+    var arr = (item && Array.isArray(item.issues)) ? item.issues : [];
+    var out = [];
+    for (var i = 0; i < arr.length; i++) {
+      var k = arr[i] && arr[i].issueKey ? String(arr[i].issueKey) : '';
+      if (!k || out.indexOf(k) !== -1 || !issueLabel(k)) continue;
+      out.push(k);
+    }
+    return out;
+  }
+
+  // The groups this seat's table prints, from the rows tableRows() kept. Header
+  // order is the label's alphabetical order — a neutral order, not a ranking;
+  // rows inside a group keep the archive's own order.
+  function tableGroups(rows) {
+    var byKey = {}, keys = [], unfiled = [];
+    for (var i = 0; i < rows.length; i++) {
+      var ks = rowIssues(rows[i]);
+      if (!ks.length) { unfiled.push(rows[i]); continue; }
+      for (var j = 0; j < ks.length; j++) {
+        if (!byKey[ks[j]]) { byKey[ks[j]] = []; keys.push(ks[j]); }
+        byKey[ks[j]].push(rows[i]);
+      }
+    }
+    keys.sort(function (a, b) {
+      var la = issueLabel(a).toLowerCase(), lb = issueLabel(b).toLowerCase();
+      return la < lb ? -1 : (la > lb ? 1 : 0);
+    });
+    var groups = [];
+    for (var g = 0; g < keys.length; g++) {
+      groups.push({ key: keys[g], label: issueLabel(keys[g]), rows: byKey[keys[g]] });
+    }
+    return { groups: groups, unfiled: unfiled };
+  }
+
+  // The issue keys the visitor holds a side on, read through the one owner.
+  // Nothing here reads a position's value: only which issues have one.
+  function stanceKeys() {
+    var out = {};
+    try {
+      var S = window.PDXStanceSides;
+      var list = (S && fn(S.list) && S.list()) || [];
+      for (var i = 0; i < list.length; i++) if (list[i] && list[i].key) out[String(list[i].key)] = 1;
+    } catch (e) {}
+    return out;
+  }
+
+  function findText(item) {
+    return (String(item.title || '') + ' ' + String(item.number || '')).toLowerCase();
+  }
+  function normQuery(q) { return String(q == null ? '' : q).trim().toLowerCase(); }
+  // A bill number is matched with or without its dots and spaces, so "sb 57"
+  // finds "S.B. 57" — the search is over the two printed fields and nothing else.
+  function matches(text, q) {
+    if (!q) return true;
+    if (text.indexOf(q) !== -1) return true;
+    var squash = function (s) { return s.replace(/[\s.]+/g, ''); };
+    var sq = squash(q);
+    return !!sq && squash(text).indexOf(sq) !== -1;
+  }
+
+  // WHETHER A GROUP IS SHOWN AND WHETHER IT IS OPEN, decided in one place for
+  // both the first render and every later filter change.
+  function groupState(key, hits, stance) {
+    var q = normQuery(_view.q);
+    var shown = !_view.cat || _view.cat === key;
+    if (key === '') shown = !_view.cat;          // the unfiled rows: All only
+    if (shown && q && !hits) shown = false;
+    var open;
+    if (q) open = hits > 0;
+    else if (_view.cat) open = true;
+    else if (Object.prototype.hasOwnProperty.call(_view.open, key)) open = !!_view.open[key];
+    else open = !!(key && stance[key]);
+    return { shown: shown, open: open };
+  }
+
+  function measuresWord(n) { return n === 1 ? '1 measure' : n + ' measures'; }
+
+  function groupHtml(key, label, rows, tally, stance) {
+    var q = normQuery(_view.q);
+    var hits = 0, body = '';
+    for (var i = 0; i < rows.length; i++) {
+      var hit = matches(findText(rows[i]), q);
+      if (hit) hits++;
+      body += measureRow(rows[i], tally, key, !hit);
+    }
+    var st = groupState(key, hits, stance);
+    var head = key
+      ? '<span class="pdxdb-group-l"' + issueSkin(key) + '>' + esc(label) + '</span>'
+      : '<span class="pdxdb-group-l pdxdb-group-l--none">' + esc(COPY.tableUnfiled) + '</span>';
+    return '<details class="pdxdb-group' + (key ? '' : ' pdxdb-group--none') + '"' +
+        ' data-pdxdb-group="' + esc(key) + '"' +
+        (st.open ? ' open' : '') + (st.shown ? '' : ' hidden') + '>' +
+        '<summary class="pdxdb-group-h">' + head +
+          '<span class="pdxdb-group-n" data-pdxdb-group-count="' + rows.length + '">' +
+            esc(measuresWord(rows.length)) + '</span>' +
+        '</summary>' +
+        '<table class="pdxdb-table"><thead><tr>' +
+          '<th scope="col">' + esc(COPY.colMeasure) + '</th>' +
+          '<th scope="col" class="pdxdb-num">' + esc(COPY.colPolls) + '</th>' +
+          '<th scope="col" class="pdxdb-num">' + esc(COPY.colComments) + '</th>' +
+        '</tr></thead><tbody>' + body + '</tbody></table>' +
+      '</details>';
+  }
+
+  function catChip(key, label, n, skin) {
+    var on = (_view.cat || '') === key;
+    return '<button type="button" class="pdxdb-cat" data-pdxdb-cat="' + esc(key) + '"' +
+        ' aria-pressed="' + (on ? 'true' : 'false') + '"' + (skin || '') + '>' +
+        esc(label) + '<span class="pdxdb-cat-n">' + n + '</span></button>';
+  }
+
   function tableHtml(state, items, rooms) {
     if (state === 'unread') {
       return band('table', COPY.tableBand, COPY.tableNote,
@@ -798,16 +946,132 @@
     }
 
     var tally = roomIndex(rooms);
-    var body = '';
-    for (var i = 0; i < rows.length; i++) body += measureRow(rows[i], tally);
+    var stance = stanceKeys();
+    var G = tableGroups(rows);
+    // A chip that no longer has a group on this seat (a repaint dropped it)
+    // falls back to All rather than showing an empty table under a live chip.
+    var live = false;
+    for (var c = 0; c < G.groups.length; c++) if (G.groups[c].key === _view.cat) live = true;
+    if (!live) _view.cat = '';
+
+    var chips = catChip('', COPY.catAll, rows.length, '');
+    for (var i = 0; i < G.groups.length; i++) {
+      var g = G.groups[i];
+      chips += catChip(g.key, g.label, g.rows.length, issueSkin(g.key));
+    }
+    var groups = '';
+    for (var j = 0; j < G.groups.length; j++) {
+      groups += groupHtml(G.groups[j].key, G.groups[j].label, G.groups[j].rows, tally, stance);
+    }
+    if (G.unfiled.length) groups += groupHtml('', '', G.unfiled, tally, stance);
 
     return band('table', COPY.tableBand, COPY.tableNote,
-      '<table class="pdxdb-table"><thead><tr>' +
-        '<th scope="col">' + esc(COPY.colMeasure) + '</th>' +
-        '<th scope="col" class="pdxdb-num">' + esc(COPY.colPolls) + '</th>' +
-        '<th scope="col" class="pdxdb-num">' + esc(COPY.colComments) + '</th>' +
-      '</tr></thead><tbody>' + body + '</tbody></table>', COPY.tier);
+      '<div class="pdxdb-cats" role="group" aria-label="' + esc(COPY.catsLabel) + '">' + chips + '</div>' +
+      '<label class="pdxdb-find"><span class="pdxdb-find-l">' + esc(COPY.findLabel) + '</span>' +
+        '<input class="pdxdb-find-i" type="search" data-pdxdb-search autocomplete="off"' +
+          ' placeholder="' + esc(COPY.findPlaceholder) + '" value="' + esc(_view.q) + '" /></label>' +
+      '<div class="pdxdb-groups">' + groups + '</div>' +
+      '<p class="pdxdb-none pdxdb-find-none" data-pdxdb-find-none' +
+        (anyShown(G) ? ' hidden' : '') + '>' + esc(COPY.findNone) + '</p>',
+      COPY.tier);
   }
+
+  function anyShown(G) {
+    var q = normQuery(_view.q);
+    var all = G.groups.slice();
+    if (G.unfiled.length) all.push({ key: '', rows: G.unfiled });
+    for (var i = 0; i < all.length; i++) {
+      var hits = 0;
+      for (var j = 0; j < all[i].rows.length; j++) if (matches(findText(all[i].rows[j]), q)) hits++;
+      if (groupState(all[i].key, hits, {}).shown) return true;
+    }
+    return false;
+  }
+
+  // ── THE VIEW, APPLIED IN PLACE ────────────────────────────────────────────
+  // The same groupState() the render used, read over the DOM the render wrote,
+  // so a chip tap or a keystroke never rebuilds the band (and never takes the
+  // search field out from under the reader's cursor).
+  function applyView(el) {
+    if (!el || !fn(el.querySelectorAll)) return;
+    var q = normQuery(_view.q);
+    var stance = stanceKeys();
+    var chips = el.querySelectorAll('[data-pdxdb-cat]');
+    for (var c = 0; c < chips.length; c++) {
+      chips[c].setAttribute('aria-pressed', chips[c].getAttribute('data-pdxdb-cat') === _view.cat ? 'true' : 'false');
+    }
+    var groups = el.querySelectorAll('[data-pdxdb-group]');
+    var any = false;
+    for (var g = 0; g < groups.length; g++) {
+      var key = groups[g].getAttribute('data-pdxdb-group') || '';
+      var rows = groups[g].querySelectorAll('[data-pdxdb-find]');
+      var hits = 0;
+      for (var r = 0; r < rows.length; r++) {
+        var hit = matches(rows[r].getAttribute('data-pdxdb-find') || '', q);
+        if (hit) hits++;
+        rows[r].hidden = !hit;
+      }
+      var st = groupState(key, hits, stance);
+      groups[g].hidden = !st.shown;
+      groups[g].open = st.open;
+      if (st.shown) any = true;
+    }
+    var none = el.querySelector('[data-pdxdb-find-none]');
+    if (none) none.hidden = any;
+  }
+
+  // Public setters, for the controls and for the suite. Each re-applies to the
+  // mounted board if there is one.
+  function setCategory(key) {
+    _view.cat = String(key == null ? '' : key);
+    applyView(_el);
+  }
+  function setQuery(q) {
+    _view.q = String(q == null ? '' : q);
+    applyView(_el);
+  }
+
+  var _wired = null;
+  function wireTable(el) {
+    if (!el || _wired === el || !fn(el.addEventListener)) return;
+    _wired = el;
+    el.addEventListener('click', function (ev) {
+      var t = ev && ev.target;
+      var chip = t && fn(t.closest) ? t.closest('[data-pdxdb-cat]') : null;
+      if (chip) { setCategory(chip.getAttribute('data-pdxdb-cat') || ''); return; }
+      // A header opened or closed by hand is remembered for the next repaint —
+      // only while no search is forcing groups open.
+      var sum = t && fn(t.closest) ? t.closest('.pdxdb-group-h') : null;
+      if (sum && !normQuery(_view.q)) {
+        var d = sum.parentNode;
+        if (d && d.getAttribute) _view.open[d.getAttribute('data-pdxdb-group') || ''] = !d.open;
+      }
+    });
+    el.addEventListener('input', function (ev) {
+      var t = ev && ev.target;
+      if (t && t.hasAttribute && t.hasAttribute('data-pdxdb-search')) setQuery(t.value);
+    });
+  }
+
+  // THE STYLES FOR THE GROUPED TABLE live in /district-board.css, one sheet
+  // linked once by this module rather than copied into 100-odd board documents,
+  // so every board that paints band 3 gets the same shape from the same file.
+  // The chip and header colours are the SAME inline token PDXIssueColors hands
+  // the row chip; the sheet holds no per-issue rule.
+  var TABLE_CSS_HREF = '/district-board.css';
+
+  function injectCss() {
+    try {
+      if (typeof document === 'undefined' || !fn(document.createElement)) return;
+      if (fn(document.getElementById) && document.getElementById('pdxdb-table-css')) return;
+      var l = document.createElement('link');
+      l.id = 'pdxdb-table-css';
+      l.rel = 'stylesheet';
+      l.href = TABLE_CSS_HREF;
+      (document.head || document.documentElement).appendChild(l);
+    } catch (e) {}
+  }
+
 
   // The tally, keyed by issue. Built from the payload and defaulting to nothing
   // — an issue absent from this map has no activity, which the row prints as 0.
@@ -822,10 +1086,6 @@
     return out;
   }
 
-  // WHICH ISSUE A MEASURE IS ON THE TABLE UNDER. The archive marks one issue
-  // primary; that is the one used, and when none is marked the first is. No
-  // measure is counted under two issues, because then one poll answer would be
-  // printed twice on one page.
   // ── ONE ROW PER MEASURE, AND "MEASURE" IS AN ID ───────────────────────────
   // THE BUG THIS FIXES. The archive returns one row per ACT, not one per bill:
   // a measure that took a committee vote, a floor vote and a concurrence vote
@@ -870,31 +1130,6 @@
       sit = (typeof c === 'number' && isFinite(c) && c > 0) ? String(c) : '';
     }
     return 'n:' + sit + '|' + number;
-  }
-
-  // THE ROW'S ONE ISSUE CHIP, from the measure's dominant category — the topic
-  // category (coreIssueForKey) holding the most of its mapped keys; the retired
-  // leaf `isPrimary` flag is not read. The chip names the first mapped key inside
-  // that category. A split bill has no single winner, and nothing (not weight,
-  // not order) breaks the tie, so its row prints no issue chip rather than a
-  // fake one. Membership is untouched: this picks a label, it hides no row.
-  function primaryIssue(item) {
-    var arr = (item && Array.isArray(item.issues)) ? item.issues : [];
-    var keys = [], catOf = {}, count = {};
-    for (var i = 0; i < arr.length; i++) {
-      var k = arr[i] && arr[i].issueKey ? String(arr[i].issueKey) : '';
-      if (!k || catOf[k]) continue;
-      var core = null;
-      try { core = (typeof window.coreIssueForKey === 'function') ? window.coreIssueForKey(k) : null; } catch (e) { core = null; }
-      var c = core && core.key ? String(core.key) : 'issue:' + k;
-      keys.push(k); catOf[k] = c; count[c] = (count[c] || 0) + 1;
-    }
-    var top = 0, winners = [];
-    for (var c2 in count) if (count[c2] > top) top = count[c2];
-    for (var c3 in count) if (count[c3] === top) winners.push(c3);
-    if (winners.length !== 1) return '';
-    for (var j = 0; j < keys.length; j++) if (catOf[keys[j]] === winners[0]) return keys[j];
-    return '';
   }
 
   // THE ISSUE'S OWN WORD, never the raw key. ISSUE_MAP is the vocabulary; a key
@@ -972,28 +1207,35 @@
     return '';
   }
 
-  function measureRow(item, tally) {
+  // ONE ROW, AS IT SITS IN ONE GROUP. It wears every chip it carries (so a
+  // measure in two groups says so in both), and its counts are the tally for
+  // `groupKey`, the issue whose group it is printed under — '' for the unfiled
+  // rows, which have no issue tally and print 0 and 0.
+  function measureRow(item, tally, groupKey, hidden) {
     if (!item) return '';
     var title = String(item.title || '').trim();
     var number = String(item.number || '').trim();
     if (!title && !number) return '';
 
-    var key = primaryIssue(item);
-    var chip = issueChip(key);
-    var t = tally[key] || null;
+    var keys = rowIssues(item);
+    var key = groupKey || '';
+    var chips = '';
+    for (var i = 0; i < keys.length; i++) chips += issueChip(keys[i]);
+    var t = (key && tally[key]) || null;
     var polls = t ? t.polls : 0;
     var comments = t ? t.comments : 0;
-    var href = measureHref(item, key);
+    var href = measureHref(item, key || keys[0] || '');
     var shown = title || number;
 
     var cell = href
       ? '<a class="pdxdb-m-link" href="' + esc(href) + '">' + esc(shown) + '</a>'
       : '<span class="pdxdb-m-plain">' + esc(shown) + '</span>';
 
-    return '<tr class="pdxdb-row"' + (key ? ' data-pdxdb-issue="' + esc(key) + '"' : '') + '>' +
+    return '<tr class="pdxdb-row"' + (key ? ' data-pdxdb-issue="' + esc(key) + '"' : '') +
+        ' data-pdxdb-find="' + esc(findText(item)) + '"' + (hidden ? ' hidden' : '') + '>' +
         '<td class="pdxdb-m">' + cell +
           (number && title ? '<span class="pdxdb-m-num">' + esc(number) + '</span>' : '') +
-          chip +
+          chips +
         '</td>' +
         '<td class="pdxdb-num" data-pdxdb-polls="' + esc(String(polls)) + '">' + esc(String(polls)) + '</td>' +
         '<td class="pdxdb-num" data-pdxdb-comments="' + esc(String(comments)) + '">' + esc(String(comments)) + '</td>' +
@@ -1301,20 +1543,30 @@
 
     // The issue list the stance band filters against is the issue list the
     // TABLE ACTUALLY PRINTED, from the same function that printed it.
-    var shown = tableRows(items);
+    var groups = tableGroups(tableRows(items)).groups;
     var issues = [];
-    for (var i = 0; i < shown.length; i++) {
-      var k = primaryIssue(shown[i]);
-      if (k && issues.indexOf(k) === -1) issues.push(k);
-    }
+    for (var i = 0; i < groups.length; i++) issues.push(groups[i].key);
 
     _issues = issues;
+    injectCss();
+    wireTable(el);
+    // A repaint rebuilds the search field; if the reader was typing in it,
+    // hand the caret back rather than dropping their focus mid-word.
+    var typing = false;
+    try { typing = !!(document.activeElement && document.activeElement.hasAttribute &&
+      document.activeElement.hasAttribute('data-pdxdb-search') && el.contains && el.contains(document.activeElement)); } catch (e) {}
     el.innerHTML =
       seatHtml() +
       roomHtml(cState, _counts === FAILED ? null : _counts) +
       tableHtml(tState, items, rooms) +
       stanceHtml(issues) +
       (composerOwned() ? '' : composeHtml());
+    if (typing) {
+      try {
+        var f = el.querySelector('[data-pdxdb-search]');
+        if (f) { f.focus(); var n = String(f.value || '').length; if (fn(f.setSelectionRange)) f.setSelectionRange(n, n); }
+      } catch (e) {}
+    }
     try {
       if (typeof document !== 'undefined' && fn(document.dispatchEvent) && typeof CustomEvent === 'function') {
         document.dispatchEvent(new CustomEvent('pdxdb:paint'));
@@ -1419,7 +1671,12 @@
     _whole: whole,
     _people: people,
     _measureHref: measureHref,
-    _primaryIssue: primaryIssue,
+    _rowIssues: rowIssues,
+    _tableGroups: tableGroups,
+    // THE READER'S VIEW OF BAND 3: a category chip ('' is All) and a search.
+    setCategory: setCategory,
+    setQuery: setQuery,
+    view: function () { return { cat: _view.cat, q: _view.q }; },
     // Exposed for the suite: which of the three answers each band is showing, so
     // "counting", "nobody on file" and "we could not look" are asserted as three
     // different states rather than guessed at from one sentence.

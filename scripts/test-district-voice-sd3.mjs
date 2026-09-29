@@ -685,12 +685,12 @@ const FIXTURE_ITEMS = [
   {
     kind: "vote", measureId: 1, number: "S.B. 57", title: "Higher Education Amendments",
     measureIdent: { session: "2025GS", billUrl: null, officialTitle: null, readFrom: null, readFromUrl: null },
-    issues: [{ issueKey: "civics_education", weight: 1, isPrimary: true, supportMeaning: "yea", rationale: null }],
+    issues: [{ issueKey: "public_schools", weight: 1, isPrimary: true, supportMeaning: "yea", rationale: null }],
   },
   {
     kind: "position", measureId: 2, number: "", title: "Intellectual diversity reporting",
     measureIdent: { session: "2024GS", billUrl: "https://le.utah.gov/x", officialTitle: null, readFrom: null, readFromUrl: null },
-    issues: [{ issueKey: "civics_education", weight: 1, isPrimary: false, supportMeaning: "support", rationale: null }],
+    issues: [{ issueKey: "public_schools", weight: 1, isPrimary: false, supportMeaning: "support", rationale: null }],
   },
   {
     kind: "vote", measureId: 3, number: "H.B. 208", title: "Health Care Access Revisions",
@@ -704,7 +704,7 @@ const FIXTURE_ITEMS = [
       seat: SEAT,
       counts: { verified: 0, stance: 0, participants: 2 },
       stores: { verified: true, stance: false, participants: true },
-      rooms: [{ issueKey: "civics_education", polls: 2, comments: 1 }],
+      rooms: [{ issueKey: "public_schools", polls: 2, comments: 1 }],
     },
     items: FIXTURE_ITEMS,
   });
@@ -733,19 +733,19 @@ const FIXTURE_ITEMS = [
   ok(maj.every((m) => /never a majority$/i.test(m)),
     `"majority" only ever appears as a refusal — found ${JSON.stringify(maj)}`);
   // THE ISSUE'S OWN WORD, not its key.
-  const label = W0.ISSUE_MAP && W0.ISSUE_MAP.civics_education &&
-    (W0.ISSUE_MAP.civics_education.label || W0.ISSUE_MAP.civics_education.name);
+  const label = W0.ISSUE_MAP && W0.ISSUE_MAP.public_schools &&
+    (W0.ISSUE_MAP.public_schools.label || W0.ISSUE_MAP.public_schools.name);
   if (label) has(html, label, "the issue prints the site's label for it");
-  ok(!/>civics_education</.test(html), "…and never the raw key as a visible string");
+  ok(!/>public_schools</.test(html), "…and never the raw key as a visible string");
 }
 // A measure with no address is still on the table, as text.
 eq(B._measureHref({ number: "", measureIdent: null, issues: [] }, ""), "",
   "a measure with nothing to link to gets no href");
 eq(B._measureHref({ number: "", measureIdent: null }, "healthcare_access"), "/i/healthcare_access",
   "…and falls back to the issue's own address when it has one");
-eq(B._primaryIssue(FIXTURE_ITEMS[0]), "civics_education", "the row chip is the key in the dominant category");
-eq(B._primaryIssue(FIXTURE_ITEMS[1]), "civics_education", "the retired isPrimary flag is unread: an unflagged mapping still names the chip");
-eq(B._primaryIssue(FIXTURE_ITEMS[2]), "", "an item with no issues has no issue");
+eq(JSON.stringify(B._rowIssues(FIXTURE_ITEMS[0])), '["public_schools"]', "the row's chips are the keys it is mapped to");
+eq(JSON.stringify(B._rowIssues(FIXTURE_ITEMS[1])), '["public_schools"]', "the retired isPrimary flag is unread: an unflagged mapping still names the chip");
+eq(JSON.stringify(B._rowIssues(FIXTURE_ITEMS[2])), "[]", "an item with no issues has no issue");
 
 // A FAILED ARCHIVE READ IS NOT AN EMPTY SEAT EITHER.
 {
@@ -1323,8 +1323,8 @@ section("10 · the record engines are byte-identical with this board rendered");
       for (const round of [0, 1]) {
         rendered += String(Bd.seatHtml() || "").length ? 1 : 0;
         rendered += String(Bd.roomHtml("ok", EMPTY_PAYLOAD) || "").length ? 1 : 0;
-        rendered += String(Bd.tableHtml("ok", FIXTURE_ITEMS, [{ issueKey: "civics_education", polls: 2, comments: 1 }]) || "").length ? 1 : 0;
-        rendered += String(Bd.stanceHtml(["civics_education"]) || "").length ? 1 : 0;
+        rendered += String(Bd.tableHtml("ok", FIXTURE_ITEMS, [{ issueKey: "public_schools", polls: 2, comments: 1 }]) || "").length ? 1 : 0;
+        rendered += String(Bd.stanceHtml(["public_schools"]) || "").length ? 1 : 0;
         rendered += String(Bd.composeHtml() || "").length ? 1 : 0;
         rendered += String(Bd.personLinkHtml(PID) || "").length ? 1 : 0;
       }

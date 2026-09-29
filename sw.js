@@ -8204,7 +8204,20 @@
 //     compare-hub.js, voter-hub-location.js, index.html and every board
 //     document changed and /pdx-return.js joins the shell, so it moves one
 //     version.
-const CACHE_VERSION = 'v257';
+// v258 - ON THE TABLE: CATEGORIES FIRST, THEN MEASURES.
+//     Band 3 of every district board (SD-3 and every generated board) was one
+//     flat scroll. district-board.js now groups the rows under the issue chips
+//     they already wear - header label and colour are the chip's own, with a
+//     count of that category's measures on the seat - and a measure with two
+//     chips sits in both groups. A chip row (All, then one per non-empty
+//     category) filters to one group, and one search field matches a measure's
+//     title or bill number inside the visible groups. Groups start closed
+//     except one the visitor already holds a side on. No new issue key, no
+//     second taxonomy, no board added, no composer enabled, no equity copy.
+//     MIGRATION COST: none, and no location key is migrated, renamed or
+//     copied. district-board.js changed and /district-board.css joins the
+//     shell, so it moves one version.
+const CACHE_VERSION = 'v258';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -8440,6 +8453,7 @@ const SHELL_ASSETS = [
   '/district-ut-cd-4.html',
   // @generated district-boards end precache
   '/district-board.js',
+  '/district-board.css',
   // PDXReturn for boards that do not load voter-hub-location.js - generated
   // from it by scripts/gen-pdx-return.mjs. The chrome's Join reads it.
   '/pdx-return.js',
