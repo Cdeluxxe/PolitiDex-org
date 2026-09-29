@@ -8117,7 +8117,29 @@
 //     score, Direction Match or the append-only map moved.
 //     MIGRATION COST: none, and no location key is migrated, renamed or copied;
 //     consistency.js is precached, so the shell moves one version.
-const CACHE_VERSION = 'v253';
+// v254 - UTAH SENATE DISTRICT 6 HAS AN ADDRESS, AND IT IS THE SIXTH.
+//     /district/ut-sd-6 is a document now, on the contract HD-15 and SD-3
+//     shipped: the same shell, the same three bands, the same district-board.js
+//     parameterised by a seat the document declares twice, and one more row in
+//     each allow-list - BOARDS, BOARD_ROUTES, the Function's BOARD_SEATS and
+//     three exact rewrites. STILL NO /district/* SPLAT.
+//     BAND 1 IS THE ROSTER: jstevenson, "Utah State Senator", "UT District 6",
+//     printed as cmp-data.js spells it. No new pid, no alias row: the
+//     jerry_stevenson -> jstevenson bridge was already in PDX_PROFILE_ALIAS.
+//     /voice AND THE FRONT-PAGE BAND: a Davis reader whose seat resolves SD-6
+//     reads "Sitting member: Jerry Stevenson" beside an Open board door rather
+//     than "this room is not open". pdxSeatClaim still keeps Stevenson off the
+//     SD-7 card, which still names Stuart Adams.
+//     OFFLINE, THIS PATH IS THIS DOCUMENT: '/district-ut-sd-6.html' joins the
+//     precache list, ut-sd-6 joins DISTRICT_BOARD_NAV_RE's literal alternation
+//     and DISTRICT_BOARD_DOCS. Eighteen exact spellings - six aliases by three
+//     forms. HD-15, HD-16, SD-3, SD-7 and UT-2 are untouched.
+//     NOT IN THIS PASS: no composer, no Stripe, no identity vendor, no seeded
+//     comments, no money, no scores, no effect lines, no equity copy.
+//     MIGRATION COST: none, and no location key is migrated, renamed or copied;
+//     district-board.js and district-voice.js are precached and changed, and
+//     one new document joins the shell, so it moves one version.
+const CACHE_VERSION = 'v254';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -8250,15 +8272,15 @@ const SHELL_ASSETS = [
   '/money.html',
 
   // THE THIRTEENTH SHELL, and the first that is ONE PLACE rather than one lane.
-  // FIVE DOCUMENTS NOW, one per board: netlify.toml rewrites three spellings of
-  // each of the five addresses, and each set of three lands on its own file.
-  // They are here as a group because they are the same page about five
+  // SIX DOCUMENTS NOW, one per board: netlify.toml rewrites three spellings of
+  // each of the six addresses, and each set of three lands on its own file.
+  // They are here as a group because they are the same page about six
   // different places - a board that is instant offline on one address and a
-  // network round trip on the next four would be one product behaving five
+  // network round trip on the next five would be one product behaving six
   // ways. navDocKey gives none of these paths a key, so nothing was ever held
   // under one and these entries cannot collide with a runtime document; what
   // picks between them offline is DISTRICT_BOARD_DOCS, which maps each path to
-  // ITS OWN file rather than answering all five with the first.
+  // ITS OWN file rather than answering all six with the first.
   //
   // WHAT A BOARD IS WORTH WITH NO NETWORK: band 1 still paints, because the
   // roster is already precached, and bands 2 and 3 say they could not READ -
@@ -8269,6 +8291,7 @@ const SHELL_ASSETS = [
   '/district-ut-sd-7.html',
   '/district-ut-cd-2.html',
   '/district-ut-hd-15.html',
+  '/district-ut-sd-6.html',
   '/district-board.js',
   // The chrome all three share — the bar-and-chip sheet and the chip's own small
   // module — and the only two files /me and /courts did not already bring.
@@ -9165,18 +9188,18 @@ const VOICE_NAV_RE = /^\/voice\/?$/;
 const MONEY_NAV_RE = /^\/money\/?$/;
 
 // ─── THE SEVENTH BRANCH ─────────────────────────────────────────────────────
-// FIFTEEN exact spellings - five aliases by three forms - because netlify.toml
-// declares fifteen exact rules and not one wildcard. The alias alternation is
+// EIGHTEEN exact spellings - six aliases by three forms - because netlify.toml
+// declares eighteen exact rules and not one wildcard. The alias alternation is
 // LITERAL on purpose: /^\/district\/[a-z]{2}-(?:hd|sd|cd)-\d+/ would be shorter
 // and would claim an offline fallback for all 75 Utah House districts, 72 of
 // which have no document behind them, so an offline reader would be handed a
-// board for a place that has none. Five boards, five names here; the sixth is a
+// board for a place that has none. Six boards, six names here; the seventh is a
 // name somebody has to decide to add, exactly as ut-hd-15 was.
 const DISTRICT_BOARD_NAV_RE =
-  /^\/district\/(?:ut-sd-3|ut-hd-16|ut-sd-7|ut-cd-2|ut-hd-15)(?:\/|\.html)?$/;
+  /^\/district\/(?:ut-sd-3|ut-hd-16|ut-sd-7|ut-cd-2|ut-hd-15|ut-sd-6)(?:\/|\.html)?$/;
 
 // WHICH DOCUMENT EACH BOARD PATH IS, and the reason this is a map rather than a
-// single match(): every one of these five files carries its own seat in the
+// single match(): every one of these six files carries its own seat in the
 // head and its own district in the <h1>. Answering /district/ut-cd-2 with
 // SD-3's document offline would print Utah Senate District 3's heading, and
 // then its member, under UT-2's URL - a cached page naming the wrong person in
@@ -9191,11 +9214,12 @@ const DISTRICT_BOARD_DOCS = {
   'ut-hd-16': '/district-ut-hd-16.html',
   'ut-sd-7': '/district-ut-sd-7.html',
   'ut-cd-2': '/district-ut-cd-2.html',
-  'ut-hd-15': '/district-ut-hd-15.html'
+  'ut-hd-15': '/district-ut-hd-15.html',
+  'ut-sd-6': '/district-ut-sd-6.html'
 };
 
 // The path -> document lookup, and the ONE place a board path is turned into a
-// filename. '' for anything that is not one of the fifteen.
+// filename. '' for anything that is not one of the eighteen.
 function districtBoardDoc(pathname) {
   const m = /^\/district\/([a-z]{2}-(?:hd|sd|cd)-[1-9][0-9]*)(?:\/|\.html)?$/
     .exec(String(pathname || ''));

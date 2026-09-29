@@ -56,7 +56,7 @@
 //      nobody and offer no room, because that table is keyed on a district
 //      number with no state of its own.
 //   6. A REAL EMPTY FILE STILL GETS THE EMPTY SENTENCE.
-//   7. NOTHING ELSE MOVED. BOARD_ROUTES is still four named rows, no splat, no
+//   7. NOTHING ELSE MOVED. BOARD_ROUTES is six named rows, no splat, no
 //      composer, no equity, no score, and ballot-breakdown.js is byte-identical
 //      to HEAD.
 //   8. AND A PID FROM ANOTHER NUMBER CANNOT SIT ON THIS CARD. The second half of
@@ -70,6 +70,11 @@
 //      the pid is unverifiable or too thin to name, and keeps the resolver's own
 //      answer everywhere else. who-represents-me.js prints the same seats through
 //      the same walk, so the two pages cannot disagree in one visit.
+//   9. AND THE PID THAT BELONGS ON SD-6 NOW HAS A DOOR. A Davis reader whose
+//      Detect resolves State Senate District 6 reads "Sitting member: Jerry
+//      Stevenson" beside an Open board door into /district/ut-sd-6 — not "this
+//      room is not open" — while the Layton SD-7 card still names Stuart Adams.
+//      SD-7's pid handed to the SD-6 card is dropped by the same claim read.
 //
 //   node scripts/test-voice-sitting-member.mjs
 //
@@ -670,24 +675,25 @@ section("6 · a seat the roster holds nobody for stays empty, and says so plainl
 // ═════════════════════════════════════════════════════════════════════════════
 // 7 · NOTHING ELSE MOVED
 // ═════════════════════════════════════════════════════════════════════════════
-section("7 · five named board rows, an untouched owner, and no new surface");
+section("7 · six named board rows, an untouched owner, and no new surface");
 
-// BOARD_ROUTES IS FIVE NAMED ROWS AND NOT A PATTERN. The way a naming pass would
+// BOARD_ROUTES IS SIX NAMED ROWS AND NOT A PATTERN. The way a naming pass would
 // quietly open a room is by widening the board table instead of adding to it.
 // Five, not four, because HD-15's board opened with a document, three rewrites
 // and rows in all four allow-lists — a decision, enumerated below by name. The
 // shape assertions underneath are the ones that matter and they did not move.
+// Six, not five, because SD-6 opened the same way — section 9 drives it.
 const BR = (/var BOARD_ROUTES = \{([\s\S]*?)\n  \};/.exec(DV) || [, ""])[1];
 must(!!BR, "district-voice.js no longer declares BOARD_ROUTES as one literal");
 const brRows = [...BR.matchAll(/'([a-z0-9-]+)':\s*'(\/district\/[a-z0-9-]+)'/g)];
-eq(brRows.length, 5,
-  "boards: BOARD_ROUTES no longer holds exactly five rows. Naming a member does not open or close a\n" +
-  "    room, and a sixth board is a separate decision with a document behind it");
+eq(brRows.length, 6,
+  "boards: BOARD_ROUTES no longer holds exactly six rows. Naming a member does not open or close a\n" +
+  "    room, and a seventh board is a separate decision with a document behind it");
 eq(brRows.length, (BR.match(/:\s*'\//g) || []).length,
   "boards: a BOARD_ROUTES row is not a literal seat key mapped to a literal address");
 [["ut-statesenate-3", "/district/ut-sd-3"], ["ut-statehouse-16", "/district/ut-hd-16"],
   ["ut-statesenate-7", "/district/ut-sd-7"], ["ut-house-2", "/district/ut-cd-2"],
-  ["ut-statehouse-15", "/district/ut-hd-15"]]
+  ["ut-statehouse-15", "/district/ut-hd-15"], ["ut-statesenate-6", "/district/ut-sd-6"]]
   .forEach(([k, route]) => ok(brRows.some(([, a, b]) => a === k && b === route),
     `boards: ${k} → ${route} left the table`));
 ok(!/\[|RegExp|\+|`/.test(BR), "boards: a BOARD_ROUTES row is computed rather than written down");
@@ -953,7 +959,7 @@ const DAVIS_SLATE = {
   no(card, "No sitting member on hand for this seat",
     "unknown: HD-99's card reads as a vacancy though a pid resolved for it");
   eq(seatOf(v.win, "statehouse").board, "",
-    "unknown: HD-99 was given a board — BOARD_ROUTES is five named rows and nothing computes a sixth");
+    "unknown: HD-99 was given a board — BOARD_ROUTES is six named rows and nothing computes a seventh");
 }
 
 // ── A STATEWIDE ROW HAS NO NUMBER TO DISAGREE WITH ───────────────────────────
@@ -1089,6 +1095,99 @@ const DAVIS_SLATE = {
   has(R("index.html"), 'src="/district-voice.js"',
     "band: index.html no longer loads district-voice.js, so the shared walk is absent exactly where the\n" +
     "    senate row is painted");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 9 · SD-6 HAS A BOARD, AND ITS CARD SAYS SO
+// ═════════════════════════════════════════════════════════════════════════════
+section("9 · Davis Detect: SD-6 names Jerry Stevenson and opens its board; SD-7 is still Adams");
+
+// THE DAVIS READER DETECT LEAVES BEHIND: no pinned legislative districts, the
+// county's curated slate on the page, and that slate naming Stevenson on State
+// Senate District 6. Before /district/ut-sd-6 existed this card printed his
+// name over "Board not on hand for this seat" — "this room is not open".
+const DAVIS_DETECT = { who: "Davis", loc: { state: "Utah", city: "Layton", county: "Davis County", district: "2" } };
+const DETECT_SLATE = JSON.parse(JSON.stringify(DAVIS_SLATE));
+DETECT_SLATE.vb.districts = { house: 2, senate: 6, lower: 15 };
+const SD6_CARD = 'Sitting member: <a class="pdxvr-name" href="/p/jstevenson">Jerry Stevenson</a>';
+
+function sd6Faults(v) {
+  v.paint();
+  const html = v.list();
+  const card = cardFor(html, "State Senate", "6");
+  const s = seatOf(v.win, "statesenate");
+  const f = [];
+  if (!card) return ["no State Senate District 6 card"];
+  if (!s || s.seatKey !== "ut-statesenate-6") f.push(`seat key ${s && s.seatKey}`);
+  if (!s || s.pid !== "jstevenson") f.push(`pid ${s && s.pid}`);
+  if (card.indexOf(SD6_CARD) < 0) f.push("card does not name Jerry Stevenson");
+  if (card.indexOf('href="/district/ut-sd-6"') < 0) f.push("no door to /district/ut-sd-6");
+  if (card.indexOf(">Open board</a>") < 0) f.push("door is not labelled Open board");
+  if (card.indexOf('data-pdxvr-board="on"') < 0) f.push("card does not say it has a board");
+  for (const t of ["this room is not open", "Board not on hand for this seat", "is on file"]) {
+    if (card.indexOf(t) >= 0) f.push(`card still says "${t}"`);
+  }
+  for (const t of ["Stuart Adams", "/p/sadams", "/district/ut-sd-7"]) {
+    if (card.indexOf(t) >= 0) f.push(`SD-7's ${t} is on the SD-6 card`);
+  }
+  return f;
+}
+
+// (a) THE REAL RESOLVER, THE REAL HALLWAY.
+{
+  const v = voiceCtx(DAVIS_DETECT, { live: SLATE_PEOPLE, slate: DETECT_SLATE });
+  const reps = v.win.pdxRepsForMe();
+  must(lvl(reps, "statesenate") && lvl(reps, "statesenate").district === "6",
+    "sd-6: the Davis Detect fixture no longer resolves State Senate District 6, so this section is not\n" +
+    "  driving the reader it exists for");
+  eq(sd6Faults(v).join("; "), "", "sd-6: the Davis reader's SD-6 card is Sitting member + Open board");
+  eq(v.win.PDXVoice.boardPath("ut-statesenate-6"), "/district/ut-sd-6", "sd-6: BOARD_ROUTES names the board");
+  // THE FRONT-PAGE BAND ASKS THE SAME WALK. who-represents-me.js's seatPid() is
+  // window.PDXVoice.seatPidFor(lv, reps.state) — pinned in section 8 — so the
+  // exact call it makes must answer Stevenson for this level too.
+  eq(v.win.PDXVoice.seatPidFor(lvl(reps, "statesenate"), reps.state), "jstevenson",
+    "sd-6: the walk who-represents-me.js asks does not name Stevenson on SD-6");
+}
+
+// (b) THE SAME CARD WITH THE RESOLVER'S PID PINNED, ON A DOCUMENT WITH NO SLATE.
+{
+  const SD6_READER = { who: "Davis", loc: Object.assign({}, DAVIS_DETECT.loc, { stateSenateDistrict: "6" }) };
+  const v = voiceCtx(SD6_READER, { live: SLATE_PEOPLE, pid: { statesenate: "jstevenson" } });
+  eq(sd6Faults(v).join("; "), "", "sd-6 pinned: the SD-6 card is Sitting member + Open board with no slate");
+}
+
+// (c) THE MUTATION: SD-7's PID HANDED TO THE SD-6 CARD. The claim read must drop
+// it — Adams's record says District 7 — and the district table puts Stevenson
+// back. If sd6Faults() ever passes with sadams in the seat, it is not checking.
+{
+  const SD6_READER = { who: "Davis", loc: Object.assign({}, DAVIS_DETECT.loc, { stateSenateDistrict: "6" }) };
+  const v = voiceCtx(SD6_READER, { live: SLATE_PEOPLE, pid: { statesenate: "sadams" } });
+  eq(sd6Faults(v).join("; "), "", "sd-6 mutation: SD-7's pid sat on the SD-6 card");
+  eq(v.win.pdxSeatClaim("sadams", "ut-statesenate-6", "6"), "mismatch",
+    "sd-6 mutation: pdxSeatClaim no longer says Adams's record disagrees with District 6");
+  // AND THE CHECK ITSELF CAN FAIL: a card forced to carry sadams is caught.
+  const forced = { paint: v.paint, list: () => v.list().replace(/\/p\/jstevenson">Jerry Stevenson/g, '/p/sadams">Stuart Adams'), win: v.win };
+  ok(sd6Faults(forced).some((f) => f.indexOf("Stuart Adams") >= 0),
+    "sd-6 mutation: a card naming Stuart Adams on District 6 passed the SD-6 check");
+  // AND WITH A CLAIM READ THAT RUBBER-STAMPS EVERY PID, SD-7's PID STAYS — so
+  // (c) passes because pdxSeatClaim says 'mismatch', not for some other reason.
+  const stamped = voiceCtx(SD6_READER, { live: SLATE_PEOPLE, pid: { statesenate: "sadams" } });
+  stamped.win.pdxSeatClaim = () => "match";
+  ok(sd6Faults(stamped).some((f) => f === "pid sadams"),
+    "sd-6 mutation: with pdxSeatClaim rubber-stamping, the SD-7 pid was still corrected — the claim\n" +
+    "    read is not what keeps it off the SD-6 card");
+}
+
+// (d) SD-7 IS STILL ADAMS, AND STEVENSON IS STILL NOT ON IT.
+{
+  const v = voiceCtx(LAYTON, { live: SLATE_PEOPLE, slate: DAVIS_SLATE });
+  v.paint();
+  const card = cardFor(v.list(), "State Senate", "7");
+  has(card, 'Sitting member: <a class="pdxvr-name" href="/p/sadams">Stuart Adams</a>',
+    "sd-7: the Layton SD-7 card no longer names Stuart Adams");
+  has(card, 'href="/district/ut-sd-7"', "sd-7: the SD-7 door moved");
+  no(card, "Jerry Stevenson", "sd-7: Stevenson is on the SD-7 card");
+  no(card, "/district/ut-sd-6", "sd-7: the SD-7 card offers SD-6's board");
 }
 
 // ── THE WORKER SHIPPED THE CORRECTED HALLWAY ─────────────────────────────────
