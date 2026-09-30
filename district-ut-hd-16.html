@@ -506,6 +506,10 @@
        other. Mounts only on the #pdx-district-composer host below; off until
        the server opens it. -->
   <script defer src="/district-composer.js"></script>
+  <!-- THIS BOARD'S ISSUE POLLS (district-poll.js), on the same five boards as
+       the composer and no others. Mounts only on the #pdx-district-poll host
+       below and paints into band 3's issue groups; off until the server opens it. -->
+  <script defer src="/district-poll.js"></script>
   <!-- The account chip, answering the same three-state contract compare-hub.js
        does on the front page in 9 KB instead of 758 KB. -->
   <script defer src="/shell-account-chip.js"></script>
@@ -572,6 +576,11 @@
          unverified sees exactly what district-composer.js would paint for them.
          It opens only when the server says this account is ID-verified for
          THIS seat, and no ID check is connected, so today it stays off. -->
+    <!-- THE POLL HOST. A marker: district-poll.js reads the seat from it and
+         paints one Support / Oppose / Not sure poll inside each OPEN issue group
+         of "On the table", and "n votes" on every group's header. Same gate as
+         the composer; the buttons stay disabled without the server's word. -->
+    <div id="pdx-district-poll" data-pdxdp-seat="ut-hd-16" hidden></div>
     <div class="pdxdb-wrap pdxdb-wrap--compose">
       <div id="pdx-district-composer" data-pdxdc-seat="ut-hd-16" data-pdxdc-state="locked">
         <section class="pdxdb-band pdxdb-band--compose" data-pdxdb-band="compose">

@@ -262,7 +262,17 @@ ok(/insert\(voiceTakes\)/.test(FNV), "posts land in voice_takes");
 // ═════════════════════════════════════════════════════════════════════════════
 section("3 · the counts endpoint never returns a person row");
 // ═════════════════════════════════════════════════════════════════════════════
-const FN = R("netlify/functions/district-board.mts");
+const FN_RAW = R("netlify/functions/district-board.mts");
+// Band 2 counts the voice_* stores as ONE set (they share the seat-scoped hash),
+// through a union subquery whose only consumer is countDistinct. It is checked
+// on its own terms and then cut out, so every OTHER select is held to the rule.
+const UNION = (FN_RAW.match(/const voicePeople = db[\s\S]*?\.as\("voice_people"\);/) || [""])[0];
+ok(!!UNION, "band 2's voice union is found");
+ok([...UNION.matchAll(/\.select\(\{([^}]*)\}\)/g)].every((m) => /^\s*h:\s*\w+\.authorHash\s*$/.test(m[1])),
+   "…it selects one hash column per branch and nothing else");
+ok(/select\(\{ v: countDistinct\(voicePeople\.h\) \}\)/.test(FN_RAW), "…and it is only ever aggregated");
+eq((FN_RAW.match(/voicePeople/g) || []).length, 3, "…with no other reader of it");
+const FN = FN_RAW.replace(UNION, "");
 const selects = [...FN.matchAll(/\.select\(\{([\s\S]*?)\}\)/g)].map((m) => m[1]);
 ok(selects.length >= 8, `the endpoint's selects are all found (${selects.length})`);
 for (const sel of selects) {

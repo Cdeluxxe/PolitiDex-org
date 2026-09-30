@@ -1639,6 +1639,34 @@ export const voiceTakes = pgTable(
   ]
 );
 
+// The Layton composer boards' per-issue poll: one row per (seat, issue, person),
+// Support / Oppose / Not sure. No poll row — the (seat, issue) pair IS the poll,
+// so a second poll for the same pair cannot be expressed. Same seat-scoped author
+// hash as voiceTakes, never a uid. The upsert in district-board-poll.mts targets
+// the unique index, so changing a vote overwrites it. Counts are grouped at read
+// time; nothing here is a percentage, a weight or a score.
+export const voicePollVotes = pgTable(
+  "voice_poll_votes",
+  {
+    id: serial().primaryKey(),
+    seatKey: text("seat_key")
+      .notNull()
+      .references(() => ddDistricts.districtId, { onDelete: "restrict" }),
+    issueKey: text("issue_key")
+      .notNull()
+      .references(() => ddIssueKeys.issueKey, { onDelete: "restrict" }),
+    authorHash: text("author_hash").notNull(),
+    choice: text().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("voice_poll_votes_seat_issue_author_unique").on(t.seatKey, t.issueKey, t.authorHash),
+    index("voice_poll_votes_seat_issue_choice_idx").on(t.seatKey, t.issueKey, t.choice),
+    check("voice_poll_votes_choice_check", sql`${t.choice} in ('support', 'oppose', 'not_sure')`),
+  ]
+);
+
 // The verified-residency flag the write gate reads, one row per (person, seat).
 //
 //   method 'location_match' is slice 1: a signed-in reader whose saved ballot
