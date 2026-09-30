@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
-// Tests for the SD-3 composer — ONE BOARD TAKES A VOICE, AND IT FAILS CLOSED
+// Tests for the board composer — THE LAYTON CLUSTER TAKES A VOICE, FAIL CLOSED
 // ─────────────────────────────────────────────────────────────────────────────
-//   1. THE DOCUMENTS — SD-3 carries the composer host and its module; HD-15, the
-//      other hand boards and every generated board carry neither.
-//   2. THE GATE — the real handler, driven against an in-memory store. Every
-//      unverified POST is 403 and writes nothing; a location_match row is not
-//      proof; only a vendor-verified ut-sd-3 flag writes, and what goes out on
-//      the wire has no person in it.
+//   1. THE DOCUMENTS — SD-3, HD-16, SD-7, HD-15 and UT-2 carry the composer host
+//      and its module; SD-6, every generated board (HD-29) and every statewide
+//      board (ut-gov, both U.S. Senate seats) carry neither.
+//   2. THE GATE — the real handler, driven against an in-memory store, for
+//      EVERY composer seat. Every unverified POST is 403 and writes nothing; a
+//      location_match row is not proof; a flag for one seat opens no other; only
+//      a vendor-verified flag for THAT seat writes, and what goes out on the
+//      wire has no person in it.
 //   3. THE COUNTS ENDPOINT still aggregates and never selects a person row, and
 //      reads the same store the composer writes.
 //   4. THE ALLOW-LISTS — BOARD_ROUTES length unchanged, no splat.
@@ -44,27 +46,46 @@ function eq(a, b, msg) { ok(a === b, `${msg} (got ${JSON.stringify(a)}, want ${J
 function section(t) { console.log("── " + t); }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("1 · the composer host is on SD-3 and on no other board");
+section("1 · the composer host is on the Layton cluster's boards and no other");
 // ═════════════════════════════════════════════════════════════════════════════
 const HOST = 'id="pdx-district-composer"';
 const SCRIPT = 'src="/district-composer.js"';
-const SD3 = R("district-ut-sd-3.html");
-ok(SD3.includes(HOST), "SD-3's document has the composer host");
-ok(SD3.includes('data-pdxdc-seat="ut-sd-3"'), "…declared for ut-sd-3");
-ok(SD3.includes(SCRIPT), "…and loads district-composer.js");
-ok(SD3.indexOf(SCRIPT) > SD3.indexOf('src="/district-board.js"'), "…after district-board.js");
-const hostBlock = (SD3.match(/<div id="pdx-district-composer"[\s\S]*?<\/section>/) || [""])[0];
-ok(/<textarea[^>]*\bdisabled\b/.test(hostBlock), "the served box is disabled");
-ok(hostBlock.includes(LOCKED_LINE), "…with the locked line, verbatim");
-ok(!/<form/i.test(hostBlock), "…and no form is served that could submit without the module");
+// Board alias → canonical seat key. Named rows, the same five the core lists.
+const CLUSTER = {
+  "ut-sd-3": "ut-statesenate-3",
+  "ut-hd-16": "ut-statehouse-16",
+  "ut-sd-7": "ut-statesenate-7",
+  "ut-hd-15": "ut-statehouse-15",
+  "ut-cd-2": "ut-house-2",
+};
+const hostBlocks = {};
+for (const alias of Object.keys(CLUSTER)) {
+  const doc = R(`district-ut-${alias.slice(3)}.html`);
+  eq(doc.split(HOST).length - 1, 1, `${alias}: the document has exactly one composer host`);
+  ok(doc.includes(`data-pdxdc-seat="${alias}"`), `${alias}: …declared for its own seat`);
+  eq(doc.split(SCRIPT).length - 1, 1, `${alias}: …and loads district-composer.js once`);
+  ok(doc.indexOf(SCRIPT) > doc.indexOf('src="/district-board.js"'), `${alias}: …after district-board.js`);
+  ok(doc.includes(".pdxdc-locked {"), `${alias}: …and styles the locked line`);
+  const block = (doc.match(/<div id="pdx-district-composer"[\s\S]*?<\/section>/) || [""])[0];
+  ok(/<textarea[^>]*\bdisabled\b/.test(block), `${alias}: the served box is disabled`);
+  ok(block.includes(LOCKED_LINE), `${alias}: …with the locked line, verbatim`);
+  ok(!/<form/i.test(block), `${alias}: …and no form is served that could submit without the module`);
+  hostBlocks[alias] = block;
+}
+const hostBlock = Object.values(hostBlocks).join("\n");
 
 const boards = readdirSync(ROOT).filter((f) => /^district-ut-.*\.html$/.test(f));
 ok(boards.length > 80, `every board document is swept (${boards.length})`);
-const others = boards.filter((f) => f !== "district-ut-sd-3.html");
+const clusterDocs = Object.keys(CLUSTER).map((a) => `district-ut-${a.slice(3)}.html`);
+const others = boards.filter((f) => !clusterDocs.includes(f));
+eq(others.length, boards.length - 5, "five documents are the cluster, every other is swept");
 const leaking = others.filter((f) => { const s = R(f); return s.includes(HOST) || s.includes(SCRIPT); });
 eq(leaking.length, 0, `no other board has the host or the module — ${JSON.stringify(leaking)}`);
-const HD15 = R("district-ut-hd-15.html");
-ok(!HD15.includes(HOST) && !HD15.includes(SCRIPT), "HD-15 stays a reader");
+for (const f of ["district-ut-hd-29.html", "district-ut-sd-6.html", "district-ut-gov.html",
+                 "district-ut-us-senate-lee.html", "district-ut-us-senate-curtis.html"]) {
+  const s = R(f);
+  ok(!s.includes(HOST) && !s.includes(SCRIPT), `${f} stays a reader`);
+}
 const TPL = R("scripts/district-board.template.html");
 ok(!TPL.includes(HOST) && !TPL.includes(SCRIPT), "the generator's template carries no composer");
 
@@ -72,8 +93,15 @@ ok(!TPL.includes(HOST) && !TPL.includes(SCRIPT), "the generator's template carri
 section("2 · the gate: unverified is 403 and writes nothing");
 // ═════════════════════════════════════════════════════════════════════════════
 const SEAT = "ut-statesenate-3";
-eq(Object.keys(COMPOSER_SEATS).length, 1, "exactly one seat has a composer");
-eq(COMPOSER_SEATS[SEAT], "ut-sd-3", "…and it is SD-3");
+eq(Object.keys(COMPOSER_SEATS).length, 5, "exactly five seats have a composer");
+for (const [alias, seat] of Object.entries(CLUSTER)) eq(COMPOSER_SEATS[seat], alias, `…${alias} is one`);
+const CLIENT_SEATS = (() => {
+  const m = /var COMPOSER_SEATS = \{([^}]*)\}/.exec(R("district-composer.js"));
+  return m ? [...m[1].matchAll(/'([a-z0-9-]+)'\s*:/g)].map((x) => x[1]).sort() : [];
+})();
+eq(CLIENT_SEATS.join(","), Object.keys(CLUSTER).sort().join(","), "the client paints on the same five named rows");
+ok(!/\/district\/\*|RegExp|\bmatch\(/.test(R("netlify/lib/district-board-voice-core.mjs").split("export const COMPOSER_SEATS")[1].split("};")[0]),
+   "the server list is rows, not a pattern");
 
 function fakeStore(residencyRows) {
   const store = { inserts: [], posts: [] };
@@ -138,13 +166,45 @@ for (const [name, rows, token] of cases) {
   eq(s2.inserts.length, 0, `${name}: …and writes nothing`);
 }
 
-// Another board takes no post at all, verified or not.
-{
-  const s = fakeStore([{ seatKey: "ut-statehouse-15", authorHash: authorHash(UID, "ut-statehouse-15"), status: "verified", method: "vendor" }]);
-  const res = await handle(post({ ...GOOD, seat: "ut-hd-15" }, UID), s.deps);
-  eq(res.status, 404, "HD-15 has no composer endpoint");
-  eq(s.inserts.length, 0, "…and nothing is written");
-  eq((await handle(get("ut-hd-15"), s.deps)).status, 404, "…nor a posts read");
+// Every cluster seat: unverified is 403 and writes nothing; its own flag writes.
+for (const [alias, seat] of Object.entries(CLUSTER)) {
+  const h = authorHash(UID, seat);
+  const refusals = [
+    ["signed out", [], null],
+    ["signed in, no residency row", [], UID],
+    ["location_match verified", [{ seatKey: seat, authorHash: h, status: "verified", method: "location_match" }], UID],
+    ["vendor pending", [{ seatKey: seat, authorHash: h, status: "pending", method: "vendor" }], UID],
+  ];
+  // A flag for a NEIGHBOUR in the cluster opens nothing here.
+  const other = seat === SEAT ? "ut-statehouse-16" : SEAT;
+  refusals.push(["vendor verified for a neighbouring cluster seat",
+    [{ seatKey: other, authorHash: authorHash(UID, other), status: "verified", method: "vendor" }], UID]);
+  for (const [name, rows, token] of refusals) {
+    const s = fakeStore(rows);
+    const res = await handle(post({ ...GOOD, seat: alias }, token), s.deps);
+    eq(res.status, 403, `${alias}, ${name}: POST is 403`);
+    eq(s.inserts.length, 0, `${alias}, ${name}: nothing written`);
+    eq((await res.json()).error, LOCKED_LINE, `${alias}, ${name}: the refusal is the locked line`);
+  }
+  const s = fakeStore([{ seatKey: seat, authorHash: h, status: "verified", method: "vendor" }]);
+  eq(verifiedSeat({ seatKey: seat, status: "verified", method: "vendor" }, seat), alias, `${alias}: verified_seat === ${alias}`);
+  const res = await handle(post({ ...GOOD, seat: alias }, UID), s.deps);
+  eq(res.status, 201, `${alias}: a verified resident of this seat posts`);
+  eq(s.inserts.length, 1, `${alias}: …one row`);
+  eq(s.inserts[0].seatKey, seat, `${alias}: …stored per seat, under ${seat}`);
+  const g = await handle(get(alias), s.deps);
+  eq(g.status, 200, `${alias}: anyone can read the posts`);
+  eq((await g.json()).voice.canPost, false, `${alias}: …and a signed-out reader cannot post`);
+}
+
+// Every other board takes no post at all, verified or not.
+for (const [alias, seat] of [["ut-hd-29", "ut-statehouse-29"], ["ut-sd-6", "ut-statesenate-6"],
+                             ["ut-gov", "ut-gov"], ["ut-us-senate-mlee", "ut-us-senate-mlee"]]) {
+  const s = fakeStore([{ seatKey: seat, authorHash: authorHash(UID, seat), status: "verified", method: "vendor" }]);
+  const res = await handle(post({ ...GOOD, seat: alias }, UID), s.deps);
+  eq(res.status, 404, `${alias} has no composer endpoint`);
+  eq(s.inserts.length, 0, `${alias}: …and nothing is written`);
+  eq((await handle(get(alias), s.deps)).status, 404, `${alias}: …nor a posts read`);
 }
 
 // THE ONE PATH THAT WRITES: vendor-verified for ut-sd-3.
@@ -217,6 +277,12 @@ ok(!/authorHash\s*[,}]|userId\s*[,}]|\.body\b/.test(FN.replace(/countDistinct\([
    "no person column is read outside an aggregate");
 ok(/countDistinct\(voiceTakes\.authorHash\)[\s\S]*?\.from\(voiceTakes\)[\s\S]*?eq\(voiceTakes\.seatKey, seat\)/.test(FN),
    "band 2 counts voice_takes per seat — the store the composer writes");
+{
+  const seats = (FN.match(/const BOARD_SEATS[^=]*=\s*\{([\s\S]*?)\};/) || ["", ""])[1];
+  for (const seat of Object.values(CLUSTER)) {
+    ok(seats.includes(`"${seat}": 1`), `band 2 counts ${seat} — its posts move its own board's count`);
+  }
+}
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("4 · the allow-lists did not grow");
@@ -249,19 +315,20 @@ function paintBoard(withComposer) {
 const withHost = paintBoard(true);
 const without = paintBoard(false);
 ok(without.includes('data-pdxdb-compose="off"'), "a board without the host keeps the disabled seam");
-ok(!withHost.includes('data-pdxdb-compose="off"'), "SD-3's board leaves the slot to its composer");
+ok(!withHost.includes('data-pdxdb-compose="off"'), "a composer board leaves the slot to its composer");
 ok(withHost.includes("Who is in the room"), "…and still paints band 2");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("6 · the service worker and the copy walls");
 // ═════════════════════════════════════════════════════════════════════════════
 const SW = R("sw.js");
-ok(Number(((SW.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]) || 0) >= 256, "the shell moved at least to v256");
+ok(Number(((SW.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]) || 0) >= 270, "the shell moved at least to v270");
 ok(SW.includes("'/district-composer.js',"), "the composer module is precached");
 ok(/v256[\s\S]*?MIGRATION COST: none/.test(SW), "the log says no migration");
+ok(/v270 - THE LAYTON CLUSTER[\s\S]*?MIGRATION COST: none/.test(SW), "…and v270's log says no migration either");
 const CLIENT = R("district-composer.js");
 const BANNED = /\b(shares?|stocks?|units?|dues|equity|earn a share|dividend|invest(?:or|ment)?)\b|Reg CF|\d\s*%/i;
-for (const [name, src] of [["district-composer.js", CLIENT], ["core", CORE], ["SD-3's composer host", hostBlock]]) {
+for (const [name, src] of [["district-composer.js", CLIENT], ["core", CORE], ["the cluster's composer hosts", hostBlock]]) {
   const m = String(src).match(BANNED);
   ok(!m, `${name}: no equity or percentage copy — found ${m && m[0]}`);
 }

@@ -54,7 +54,11 @@
        · THREE ANSWERS, NEVER TWO — a real count; 0 plus "no … on hand" where
          there is no store; and "we could not read the room" when the request
          FAILED. "on hand", never "yet".
-       · NO WORKING COMPOSER, AND NO FAKE ONE. Posting is not built.
+       · ONE COMPOSER, AND IT IS OFF UNTIL THE SERVER OPENS IT — the same box
+         and the same gate as SD-3 (district-composer.js). It turns on only when
+         /api/district-board-voice says the signed-in account holds an ID-checked
+         residency flag for THIS seat. A typed zip or a saved location is never
+         proof, so today it is off for everyone. No fake composer either.
        · NO IDENTITY VENDOR IS WIRED, so there is no personal residency
          standing on this surface at all, and no charge anywhere near it.
        · NO SCORE, NO GRADE, NO DIRECTION MATCH, NO PARTY, NO FINANCE.
@@ -195,6 +199,41 @@
       margin: 0.9rem 0 0; padding-top: 0.7rem; border-top: 1px solid #16223a;
       font-size: 0.8rem; line-height: 1.5; color: #7d8fa9;
     }
+
+    /* THE COMPOSER — the Layton cluster's boards only (district-composer.js). `pdxdc-` was
+       checked against every shipped file: nothing else defines it. */
+    .pdxdb-wrap--compose { padding-top: 0; }
+    .pdxdc-locked {
+      margin: 0 0 0.8rem; padding: 0.55rem 0.7rem; border-left: 3px solid #c4b58a;
+      background: #121a2c; font-size: 0.9rem; line-height: 1.45; color: #e2d6ae;
+    }
+    .pdxdc-form { display: grid; gap: 0.45rem; }
+    .pdxdc-l { font-size: 0.8rem; color: #93a8c6; }
+    .pdxdc-sel, .pdxdc-ta {
+      width: 100%; box-sizing: border-box; padding: 0.55rem 0.65rem;
+      background: #0a1020; color: #e7eefb; border: 1px solid #22324f; border-radius: 0.45rem;
+      font: 400 0.95rem/1.45 'Barlow', system-ui, sans-serif;
+    }
+    .pdxdc-ta { resize: vertical; min-height: 5rem; }
+    .pdxdc-sel:disabled, .pdxdc-ta:disabled, .pdxdc-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .pdxdc-sel:focus-visible, .pdxdc-ta:focus-visible, .pdxdc-btn:focus-visible { outline: 2px solid #7fb2ff; outline-offset: 2px; }
+    .pdxdc-row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+    .pdxdc-len { font-size: 0.76rem; color: #74849c; font-variant-numeric: tabular-nums; }
+    .pdxdc-btn {
+      padding: 0.5rem 1.1rem; border: 0; border-radius: 0.45rem; background: #2f6fd6; color: #fff;
+      font: 700 0.85rem/1 'Barlow Condensed', 'Barlow', sans-serif; letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: pointer;
+    }
+    .pdxdc-status { margin: 0; font-size: 0.84rem; color: #a9c7f0; }
+    .pdxdc-signin { color: #a9c7f0; text-decoration: underline; text-underline-offset: 2px; }
+    .pdxdc-signin:hover, .pdxdc-signin:focus-visible { color: #fff; }
+    .pdxdc-feed { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.7rem; }
+    .pdxdc-post { padding: 0.6rem 0 0; border-top: 1px solid #16223a; }
+    .pdxdc-post:first-child { border-top: 0; padding-top: 0; }
+    .pdxdc-post-meta { margin: 0 0 0.25rem; display: flex; flex-wrap: wrap; gap: 0.3rem 0.7rem; font-size: 0.74rem; color: #7d8fa9; }
+    .pdxdc-post-issue { color: #a9c7f0; }
+    .pdxdc-post-mine { color: #c4b58a; }
+    .pdxdc-post-body { margin: 0; font-size: 0.93rem; line-height: 1.5; color: #dbe6f7; white-space: pre-wrap; overflow-wrap: anywhere; }
 
     /* Band 1 */
     .pdxdb-seat-name { margin: 0 0 0.15rem; font-size: 1.15rem; font-weight: 600; }
@@ -458,6 +497,10 @@
        (voter-hub-location.js) by scripts/gen-pdx-return.mjs, so Join and every
        sign-in door on this board carry it back here. Before the chip. -->
   <script defer src="/pdx-return.js"></script>
+  <!-- THIS BOARD'S COMPOSER. Loaded by the Layton cluster's five boards and no
+       other. Mounts only on the #pdx-district-composer host below; off until
+       the server opens it. -->
+  <script defer src="/district-composer.js"></script>
   <!-- The account chip, answering the same three-state contract compare-hub.js
        does on the front page in 9 KB instead of 758 KB. -->
   <script defer src="/shell-account-chip.js"></script>
@@ -516,6 +559,23 @@
         <p class="pdxdb-wait" role="status">
           <span class="pdxdb-dot" aria-hidden="true"></span>Reading this district&rsquo;s record&hellip;
         </p>
+      </div>
+    </div>
+
+    <!-- THE COMPOSER'S HOST. The served state is the locked one: a disabled box
+         and the locked line, so a reader with scripting off, signed out or
+         unverified sees exactly what district-composer.js would paint for them.
+         It opens only when the server says this account is ID-verified for
+         THIS seat, and no ID check is connected, so today it stays off. -->
+    <div class="pdxdb-wrap pdxdb-wrap--compose">
+      <div id="pdx-district-composer" data-pdxdc-seat="ut-sd-7" data-pdxdc-state="locked">
+        <section class="pdxdb-band pdxdb-band--compose" data-pdxdb-band="compose">
+          <h2 class="pdxdb-h2">Say something to this district</h2>
+          <p class="pdxdc-locked" data-pdxdc-locked="1">Only verified residents of this seat get a voice that counts.</p>
+          <label class="pdxdc-l" for="pdxdc-body">Say something to this district</label>
+          <textarea class="pdxdc-ta" id="pdxdc-body" rows="3" disabled aria-disabled="true"
+            placeholder="Only verified residents of this seat can post here."></textarea>
+        </section>
       </div>
     </div>
 

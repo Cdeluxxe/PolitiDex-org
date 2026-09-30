@@ -1,17 +1,20 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// District board composer — THE GATE (one board: /district/ut-sd-3)
+// District board composer — THE GATE (the Layton cluster's hand-built boards)
 // ─────────────────────────────────────────────────────────────────────────────
 // The boards are readers. This is the one place a board takes a voice, and it is
-// ONE seat: Utah Senate District 3. Every other board stays a reader, and the
-// allow-list below is rows, never a pattern, for the same reason BOARD_SEATS in
-// district-board.mts is: a regex here would open a composer on 85 boards.
+// FIVE named seats: SD-3, where the composer shipped first, and the Layton
+// cluster's other hand-built boards — HD-16, SD-7, HD-15 and UT-2. Every
+// generated board and every statewide board (ut-gov, both U.S. Senate seats)
+// stays a reader, and the allow-list below is rows, never a pattern, for the
+// same reason BOARD_SEATS in district-board.mts is: a regex here would open a
+// composer on 85 boards.
 //
 // ── THE GATE, AND IT FAILS CLOSED ───────────────────────────────────────────
 // A post is accepted only when BOTH are true on the server:
 //
 //   1. signed in       a verified, non-anonymous Firebase identity.
 //   2. verified_seat   the account carries a residency row for THIS seat whose
-//      === ut-sd-3     status is 'verified' AND whose method is 'vendor' — the
+//      === this seat   status is 'verified' AND whose method is 'vendor' — the
 //                      ID check (Stripe Identity / Veriff). A 'location_match'
 //                      row does NOT open this composer: that method is a
 //                      consistency check on a location the reader typed, and a
@@ -42,8 +45,15 @@
 
 import { authorHash, normalizeSeatKey } from "./district-voice-core.mjs";
 
-// ONE ROW. Canonical seat key → the board alias the flag is spelled in.
-export const COMPOSER_SEATS = { "ut-statesenate-3": "ut-sd-3" };
+// NAMED ROWS. Canonical seat key → the board alias the flag is spelled in. A
+// verified flag for one of these seats opens that seat's box and no other.
+export const COMPOSER_SEATS = {
+  "ut-statesenate-3": "ut-sd-3",
+  "ut-statehouse-16": "ut-hd-16",
+  "ut-statesenate-7": "ut-sd-7",
+  "ut-statehouse-15": "ut-hd-15",
+  "ut-house-2": "ut-cd-2",
+};
 
 export const POST_MAX = 280;
 export const POSTS_CAP = 20;

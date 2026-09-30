@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// District board composer — API (ONE board: /district/ut-sd-3)
+// District board composer — API (SD-3, HD-16, SD-7, HD-15 and UT-2)
 // ─────────────────────────────────────────────────────────────────────────────
 // The wiring for netlify/lib/district-board-voice-core.mjs. Every decision — the
 // seat allow-list, the verified_seat gate, the post checks and the public shape
@@ -13,7 +13,7 @@
 //   POST /api/district-board-voice                { seat, issueKey, body }.
 //                                                 403 and NO WRITE unless the
 //                                                 account is vendor-verified for
-//                                                 ut-sd-3 — see the core.
+//                                                 THAT seat — see the core.
 //
 // THE STORE IS voice_takes, and no table was added. It is already seat-scoped,
 // already carries a seat-scoped author hash instead of a uid, already caps a
