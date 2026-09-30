@@ -309,7 +309,18 @@
       short: 'A challenge to this action is on file and live; no primary ruling resolving it has been read.'
     },
     superseded:     { key: 'superseded',     ico: '⇢', label: 'Superseded by later action', contested: false, cls: 'exec-superseded' },
-    expired:        { key: 'expired',        ico: '⌛', label: 'Lapsed or expired',       contested: false, cls: 'exec-expired' }
+    expired:        { key: 'expired',        ico: '⌛', label: 'Lapsed or expired',       contested: false, cls: 'exec-expired' },
+    // PUBLISHED, AND NOTHING MORE. A memorandum or a letter to Congress whose only
+    // official publication is GPO's Daily Compilation of Presidential Documents has
+    // no register disposition record, so `in_force` would claim something no source
+    // says. What the source does say is that the document was published, on a date,
+    // at an address — and that is enough for it to count as an act on file. It is
+    // never an executive-order disposition. See dcpdStandingOk() for the gate.
+    published_dcpd: {
+      key: 'published_dcpd', ico: '▤', label: 'Published in the Daily Compilation',
+      contested: false, cls: 'exec-dcpd',
+      short: 'Officially published in the Daily Compilation of Presidential Documents. This records that the document was published; it is not a Federal Register disposition and says nothing about whether it is still in force.'
+    }
   };
 
   // ── Action classes ─────────────────────────────────────────────────────────
@@ -521,6 +532,21 @@
     return v;
   }
 
+  // THE DAILY COMPILATION GATE. `published_dcpd` is honoured only where all three
+  // hold: the action's OWN stored source is a govinfo.gov DCPD package, the status
+  // entry cites a DCPD package too, and the action carries no Federal Register
+  // standing of any kind (citation, document number or order number). A speech, a
+  // remarks page or a pool report has no DCPD package stored as its source, so it
+  // cannot reach this token; an order with a register record has a better standing
+  // to file and may not trade down to this one.
+  var DCPD_URL = /^https:\/\/(www\.)?govinfo\.gov\/(content\/pkg|app\/details)\/DCPD-\d{9}\b/i;
+  function dcpdStandingOk(action, s) {
+    if (!action || !s) return false;
+    if (!DCPD_URL.test(String(action.sourceUrl || '').trim())) return false;
+    if (!DCPD_URL.test(String(s.sourceUrl || '').trim())) return false;
+    if (action.frCitation || action.frDocumentNumber || action.executiveOrderNumber) return false;
+    return true;
+  }
   // Current standing of one action: the LATEST status entry by effectiveAt, matching
   // the vr_exec_action_status read exactly. Every entry must carry its own citation —
   // "struck down" without a ruling is as unpublishable as an unsourced signing.
@@ -531,6 +557,7 @@
       var s = list[i];
       if (!s || !EXEC_STANDING[s.status]) continue;
       if (!sourceOk(s.sourceUrl) || !(s.sourceLabel && String(s.sourceLabel).trim())) continue;
+      if (s.status === 'published_dcpd' && !dcpdStandingOk(action, s)) continue;
       if (!best) { best = s; continue; }
       var a = Date.parse(s.effectiveAt || '') || 0, b = Date.parse(best.effectiveAt || '') || 0;
       if (a >= b) best = s;
@@ -615,8 +642,10 @@
     // `overridden` sits with the total defeats at the top. Its position relative to
     // struck_down is not a severity ranking — no action can hold both, since one names
     // a court reaching an order and the other names Congress reaching a veto.
+    // `published_dcpd` sits last: it is the weakest positive claim on the list —
+    // published, not "nothing has disturbed it" — so any other standing outranks it.
     var order = ['struck_down', 'overridden', 'blocked', 'partly_blocked', 'rescinded',
-                 'challenged_unverified', 'superseded', 'expired', 'in_force'];
+                 'challenged_unverified', 'superseded', 'expired', 'in_force', 'published_dcpd'];
     for (var k = 0; k < order.length && !res.standing; k++) {
       for (var n = 0; n < res.actions.length; n++) {
         if (res.actions[n].standing === order[k]) { res.standing = EXEC_STANDING[order[k]]; break; }
@@ -717,13 +746,13 @@
 
     var actions = {
       inForce: 0, partlyBlocked: 0, blocked: 0, struckDown: 0, overridden: 0,
-      rescinded: 0, challengedUnverified: 0, superseded: 0, expired: 0, total: 0
+      rescinded: 0, challengedUnverified: 0, superseded: 0, expired: 0, publishedDcpd: 0, total: 0
     };
     var STATUS_BUCKET = {
       in_force: 'inForce', partly_blocked: 'partlyBlocked', blocked: 'blocked',
       struck_down: 'struckDown', overridden: 'overridden', rescinded: 'rescinded',
       challenged_unverified: 'challengedUnverified',
-      superseded: 'superseded', expired: 'expired'
+      superseded: 'superseded', expired: 'expired', published_dcpd: 'publishedDcpd'
     };
     var byClass = { signed_law: 0, vetoed_law: 0, executive_order: 0, directive: 0 };
     var unstated = 0;
@@ -763,7 +792,7 @@
     var aSum = issues.aligned + issues.against + issues.bothWays + issues.noActionFound + issues.noStance;
     var bSum = actions.inForce + actions.partlyBlocked + actions.blocked + actions.struckDown +
                actions.overridden + actions.rescinded + actions.challengedUnverified +
-               actions.superseded + actions.expired;
+               actions.superseded + actions.expired + actions.publishedDcpd;
     var cSum = byClass.signed_law + byClass.vetoed_law + byClass.executive_order + byClass.directive;
     if (aSum !== issues.total) return null;
     if (bSum !== actions.total) return null;
@@ -836,6 +865,7 @@
     }
     if (sum.actions.superseded)    st.push(sum.actions.superseded + ' superseded by later action');
     if (sum.actions.expired)       st.push(sum.actions.expired + ' lapsed or expired');
+    if (sum.actions.publishedDcpd) st.push(sum.actions.publishedDcpd + ' published in the Daily Compilation');
     if (st.length) out += ' Standing: ' + st.join(', ') + '.';
     if (sum.unstatedStanding) {
       out += ' ' + sum.unstatedStanding + ' with no confirmed standing on file.';

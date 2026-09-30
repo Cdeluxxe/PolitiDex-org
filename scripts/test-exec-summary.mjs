@@ -158,14 +158,14 @@ eq(A.issues.aligned + A.issues.against + A.issues.bothWays + A.issues.noActionFo
 // rather than as a total that quietly stops counting some of the record.
 eq(A.actions.inForce + A.actions.partlyBlocked + A.actions.blocked + A.actions.struckDown +
    A.actions.overridden + A.actions.rescinded + A.actions.challengedUnverified +
-   A.actions.superseded + A.actions.expired,
+   A.actions.superseded + A.actions.expired + A.actions.publishedDcpd,
   A.actions.total, "invariant 2: standing buckets do not sum to the action total");
 // …and the list above is the WHOLE vocabulary, checked against the data file rather
 // than against itself, so a token added to exec-summary-keys.json cannot be missed.
 for (const k of Object.keys(SUMKEYS.buckets.actions.keys)) {
   ok(typeof A.actions[k] === "number", `Axis B bucket ${k} is declared in the keys file but absent from the summary`);
 }
-eq(Object.keys(SUMKEYS.buckets.actions.keys).length, 9,
+eq(Object.keys(SUMKEYS.buckets.actions.keys).length, 10,
   "the Axis B vocabulary changed size — invariant 2's explicit sum must be updated with it");
 eq(A.byClass.signed_law + A.byClass.vetoed_law + A.byClass.executive_order + A.byClass.directive,
   A.actions.total + A.unstatedStanding, "invariant 3: class counts do not sum to the actions on file");

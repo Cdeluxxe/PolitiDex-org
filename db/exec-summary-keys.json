@@ -57,7 +57,14 @@
           "_useRule": "Only where we have (a) a primary court document establishing the challenge is on file and live, and (b) no primary ruling resolving it. If a primary ruling exists, read it and use the token it supports — this is never a shortcut for 'we did not check'."
         },
         "superseded": { "label": "superseded by later action", "token": "superseded", "contested": false },
-        "expired": { "label": "lapsed or expired", "token": "expired", "contested": false }
+        "expired": { "label": "lapsed or expired", "token": "expired", "contested": false },
+        "publishedDcpd": {
+          "label": "published in the Daily Compilation",
+          "token": "published_dcpd",
+          "contested": false,
+          "_why": "The standing a presidential document gets when its only official publication is GPO's Daily Compilation of Presidential Documents — a memorandum or a letter to Congress that never went to the Federal Register. It says one thing: this document was officially published, on this date, at this address. It is NOT `in_force` (no register disposition record exists to say nothing has disturbed it) and it is NOT an executive-order disposition. Before this token such a document could only sit with no standing at all, which listed it and then left it out of the act count the sentences beside it already describe.",
+          "_useRule": "Only for an executive action whose own stored sourceUrl is a govinfo.gov Daily Compilation package (DCPD-*) AND which carries no Federal Register citation, document number or executive-order number. The status entry cites that same DCPD package. Never for a speech, a remarks transcript, a pool report or any unsigned text, and never alongside or instead of a register disposition. exec-record.js's standingOf() enforces all three conditions and ignores the entry otherwise."
+        }
       }
     }
   },

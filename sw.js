@@ -8361,7 +8361,22 @@
 //     only — no score, bucket, weight or Direction Match input moves.
 //     MIGRATION COST: none. consistency.js is precached and changed, so it
 //     moves one version.
-const CACHE_VERSION = 'v268';
+// v269 - DCPD STANDING SO LETTERS AND MEMORANDA COUNT AS ACTS. NSPM-2
+//     (DCPD-202500223) and the June 23, 2025 War Powers letter (DCPD-202500715)
+//     were listed on Trump's Iran drawer and then held as "not scorable",
+//     because no standing basis reached a document published only in the Daily
+//     Compilation. A new standing token, published_dcpd, records that the
+//     document was published. It is not in_force and not an executive-order
+//     disposition, and standingOf accepts it only on a row whose own source and
+//     cited status are GovInfo DCPD packages and that carries no Federal Register
+//     citation. Both rows join the ledger as acts; the Iran key still has no pole.
+//     MIGRATION COST: none, and no location key is migrated, renamed or
+//     copied. One DATABASE migration ships (two guarded, append-only
+//     vr_exec_action_status rows):
+//     20261108000000_vr_exec_dcpd_publication_standing.
+//     exec-record.js, exec-record-ui.js and exec-action-data.js are precached
+//     and changed, so it moves one version.
+const CACHE_VERSION = 'v269';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

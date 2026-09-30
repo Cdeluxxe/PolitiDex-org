@@ -139,6 +139,8 @@
         '.pdxer-partly{color:#f5c842;border-color:rgba(245,200,66,.42);background:rgba(245,200,66,.14);}' +
         '.pdxer-blocked,.pdxer-struck{color:#f89b9b;border-color:rgba(248,113,113,.42);background:rgba(248,113,113,.12);}' +
         '.pdxer-rescinded,.pdxer-superseded,.pdxer-expired{color:#93c5fd;border-color:rgba(147,197,253,.4);background:rgba(147,197,253,.1);}' +
+        // Published, not a disposition: the neutral slate, never the in-force green.
+        '.pdxer-dcpd{color:#9fb4d4;border-color:rgba(159,180,212,.34);background:rgba(159,180,212,.1);}' +
         // Its own colour for the same reason challenged has one. Sharing the blocked red
         // would say a court reached this action; sharing the rescinded blue would say
         // the President reversed himself. Congress overriding a veto is neither, and a
@@ -494,6 +496,7 @@
     add(sum.actions.superseded, 'superseded');
     add(sum.actions.expired, 'expired');
     add(sum.actions.inForce, 'in_force');
+    add(sum.actions.publishedDcpd, 'published_dcpd');
     if (sum.unstatedStanding) {
       chips.push('<span class="pdxer-chip pdxer-none"><b>' + sum.unstatedStanding +
         '</b> no confirmed standing</span>');

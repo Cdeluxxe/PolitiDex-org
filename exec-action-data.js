@@ -3709,7 +3709,17 @@
             "rationale": "Section 2 is headed Enacting Maximum Pressure on the Islamic Republic of Iran. It directs the Secretary of the Treasury to “immediately impose sanctions or appropriate enforcement remedies” on persons violating Iran-related sanctions and to review for modification or rescission any guidance giving Iran economic relief; the Secretary of State to “modify or rescind sanctions waivers” and to “drive Iran’s export of oil to zero”; and the Permanent Representative to the United Nations to “complete the snapback of international sanctions and restrictions on Iran.” Iran is the memorandum’s own subject. The key names a country, so no side is read on it; the direction field records the memorandum’s own act."
           }
         ],
-        "status": []
+        "status": [
+          {
+            "status": "published_dcpd",
+            "effectiveAt": "2025-02-04",
+            "authority": "Published by the Office of the Federal Register (GPO) in the Daily Compilation of Presidential Documents",
+            "basis": "published_dcpd",
+            "sourceLabel": "GovInfo — Daily Compilation of Presidential Documents, DCPD-202500223 (National Security Presidential Memorandum/NSPM-2)",
+            "sourceUrl": "https://www.govinfo.gov/content/pkg/DCPD-202500223/html/DCPD-202500223.htm",
+            "note": "Published in the Daily Compilation of Presidential Documents as DCPD-202500223, under the date February 4, 2025. The memorandum was not published in the Federal Register, so there is no register disposition record for it; this records that it was published and does not say it remains in force. This is not a statement about any challenge to it."
+          }
+        ]
       },
       {
         "actionClass": "executive_order",
@@ -3775,7 +3785,17 @@
             "rationale": "Iran is the letter’s own subject: it reports a strike “against three nuclear facilities in Iran used by the Government of the Islamic Republic of Iran for its nuclear weapons development program.” Filed alongside the war-powers row, not in place of it. The key names a country, so no side is read on it; the direction field records the letter’s own act."
           }
         ],
-        "status": []
+        "status": [
+          {
+            "status": "published_dcpd",
+            "effectiveAt": "2025-06-23",
+            "authority": "Published by the Office of the Federal Register (GPO) in the Daily Compilation of Presidential Documents",
+            "basis": "published_dcpd",
+            "sourceLabel": "GovInfo — Daily Compilation of Presidential Documents, DCPD-202500715 (letter of June 23, 2025)",
+            "sourceUrl": "https://www.govinfo.gov/content/pkg/DCPD-202500715/html/DCPD-202500715.htm",
+            "note": "Published in the Daily Compilation of Presidential Documents as DCPD-202500715, under the date June 23, 2025. A letter to congressional leaders is not published in the Federal Register, so there is no register disposition record for it; this records that it was published and does not say anything it reported remains in effect. This is not a statement about any challenge to it."
+          }
+        ]
       }
     ]
   };
