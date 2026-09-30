@@ -3688,6 +3688,94 @@
             "note": "The register's disposition record for this order carries no revocation, amendment or supersession, so it stands as published. Published August 11, 2026, five days after signature; it is the newest presidential document this pass placed on file. This is not a statement about any challenge to it."
           }
         ]
+      },
+      {
+        "actionClass": "directive",
+        "documentId": "NSPM-2",
+        "title": "Imposing Maximum Pressure on the Government of the Islamic Republic of Iran, Denying Iran All Paths to a Nuclear Weapon, and Countering Iran’s Malign Influence",
+        "actedAt": "2025-02-04",
+        "term": "47",
+        "sourceUrl": "https://www.govinfo.gov/content/pkg/DCPD-202500223/html/DCPD-202500223.htm",
+        "sourceLabel": "GovInfo — Daily Compilation of Presidential Documents, DCPD-202500223 (National Security Presidential Memorandum/NSPM-2)",
+        "dcpdNumber": "DCPD-202500223",
+        "issues": [
+          {
+            "issueKey": "iran_policy",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 90,
+            "plain": "Ordered a maximum-pressure campaign on Iran: new sanctions and enforcement, rescinded waivers, a drive to cut Iran’s oil exports to zero, and a push for UN snapback.",
+            "counts": "Iran is the memorandum’s whole subject. It is the second term’s opening instrument on Iran policy, and every section of it is addressed to the government of Iran.",
+            "rationale": "Section 2 is headed Enacting Maximum Pressure on the Islamic Republic of Iran. It directs the Secretary of the Treasury to “immediately impose sanctions or appropriate enforcement remedies” on persons violating Iran-related sanctions and to review for modification or rescission any guidance giving Iran economic relief; the Secretary of State to “modify or rescind sanctions waivers” and to “drive Iran’s export of oil to zero”; and the Permanent Representative to the United Nations to “complete the snapback of international sanctions and restrictions on Iran.” Iran is the memorandum’s own subject. The key names a country, so no side is read on it; the direction field records the memorandum’s own act."
+          }
+        ],
+        "status": []
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14382",
+        "executiveOrderNumber": 14382,
+        "title": "Addressing Threats to the United States by the Government of Iran",
+        "actedAt": "2026-02-06",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2026/02/11/2026-02813/addressing-threats-to-the-united-states-by-the-government-of-iran",
+        "sourceLabel": "Federal Register — Executive Order 14382, 91 FR 6493",
+        "frCitation": "91 FR 6493",
+        "frDocumentNumber": "2026-02813",
+        "publishedAt": "2026-02-11",
+        "issues": [
+          {
+            "issueKey": "iran_policy",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 85,
+            "plain": "Found the Iran national emergency still in effect and authorized an added duty on imports from any country that buys goods or services from Iran.",
+            "counts": "Iran is the order’s own subject: it rests on the Iran national emergency and aims its one new tool at countries that do business with Iran.",
+            "rationale": "Section 1 finds that the national emergency declared in Executive Order 12957 “continues and that the actions and policies of the Government of Iran continue to pose an unusual and extraordinary threat,” and determines that it is necessary “to impose an additional ad valorem duty on imports of articles that are products of foreign countries that directly or indirectly purchase, import, or otherwise acquire any goods or services from Iran.” Section 2 sets out the procedure by which the Secretary of Commerce finds such a country and the Secretary of State decides the duty. Iran is the order’s own subject. The key names a country, so no side is read on it; the direction field records the order’s own act."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2026-02-11",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14382 document record, 91 FR 6493",
+            "sourceUrl": "https://www.federalregister.gov/documents/2026/02/11/2026-02813/addressing-threats-to-the-united-states-by-the-government-of-iran",
+            "note": "Signed February 6, 2026 and published February 11, 2026 at 91 FR 6493. The register cross-references EO 14389 of February 20, 2026, which ended the added duties imposed under this order and left the Iran emergency and the order’s other actions in effect; no later document revokes the order itself. This describes the register’s record of presidential action and is not a statement about any challenge to the order."
+          }
+        ]
+      },
+      {
+        "actionClass": "directive",
+        "documentId": "Presidential Letter, DCPD-202500715",
+        "title": "Letter to Congressional Leaders on United States Military Operations in Iran",
+        "actedAt": "2025-06-23",
+        "term": "47",
+        "sourceUrl": "https://www.govinfo.gov/content/pkg/DCPD-202500715/html/DCPD-202500715.htm",
+        "sourceLabel": "GovInfo — Daily Compilation of Presidential Documents, DCPD-202500715 (letter of June 23, 2025)",
+        "dcpdNumber": "DCPD-202500715",
+        "issues": [
+          {
+            "issueKey": "war_powers",
+            "direction": "opposes",
+            "isPrimary": true,
+            "weight": 85,
+            "plain": "Reported to Congress a strike on three Iranian nuclear facilities that he had directed on his own constitutional authority, citing no congressional authorization.",
+            "counts": "War powers asks who may commit the country to armed action. This letter reports the answer after the fact: the strike was ordered by the President and Congress was told two days later.",
+            "rationale": "The letter states that “on the night of June 21, 2025, at my direction, United States forces conducted a precision strike against three nuclear facilities in Iran,” that “I acted pursuant to my constitutional authority as Commander in Chief and Chief Executive,” and that the report is provided “as part of my efforts to keep the Congress fully informed” under the War Powers Resolution (Public Law 93–148). It names no statute or authorization for the use of military force. Mapped opposes on the congressional war-power key because the letter reports hostilities begun on executive authority alone."
+          },
+          {
+            "issueKey": "iran_policy",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 80,
+            "plain": "Reported the June 21, 2025 U.S. strike on three Iranian nuclear facilities, which he had ordered.",
+            "counts": "The strike the letter reports was on Iran, against Iran’s nuclear program, so the report is an act about Iran as well as about war powers.",
+            "rationale": "Iran is the letter’s own subject: it reports a strike “against three nuclear facilities in Iran used by the Government of the Islamic Republic of Iran for its nuclear weapons development program.” Filed alongside the war-powers row, not in place of it. The key names a country, so no side is read on it; the direction field records the letter’s own act."
+          }
+        ],
+        "status": []
       }
     ]
   };

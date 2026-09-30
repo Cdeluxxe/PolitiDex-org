@@ -15,7 +15,7 @@
   ],
   "_shape": "Exactly the shape actionsFor() / standingOf() in exec-record.js already read: actionClass, documentId, title, actedAt, term, sourceUrl, sourceLabel, issues[{issueKey, direction, isPrimary, weight, plain, rationale}], status[{status, effectiveAt, authority, sourceLabel, sourceUrl, basis, note}]. `plain` and `rationale` are two different jobs on the same mapping and neither substitutes for the other. `rationale` is the CURATION record: it quotes the sections relied on and can run to a paragraph, because its reader is whoever audits the mapping. `plain` is the DISPLAY line: one tight sentence, two at most, in normal English, saying what the instrument did and how that touches THIS issue and no other. Two rules make `plain` different in kind from a shortened rationale. First, it is written from the FIGURE'S ACT, not from the document — for a blocking class the act and the document point opposite ways, so a veto's `plain` describes the veto and matches the direction issueDirection() reports, while `rationale` and `direction` still describe the measure. Second, where the link is secondary or narrow it says so in the sentence rather than borrowing the primary mapping's force. A mapping with no honest `plain` renders with no explanation line at all; the renderer never falls back to printing the rationale in its place. Nothing here is a new vocabulary — every actionClass is a key of db/exec-action-types.json#actionClasses, every direction is a key of #issueDirections, every status is a token of db/exec-summary-keys.json#buckets.actions, and every issueKey is in db/issue-keys.json.",
   "_sourcingRules": {
-    "sourceOfRecord": "Per db/exec-action-types.json: congress.gov for signed legislation, federalregister.gov for orders. whitehouse.gov appears nowhere in this file, not even as a secondary link — every action here had a primary citation available, so no secondary was needed.",
+    "sourceOfRecord": "Per db/exec-action-types.json: congress.gov for signed legislation, federalregister.gov for orders, and govinfo.gov's Daily Compilation of Presidential Documents for a memorandum or letter the Federal Register does not publish (wave 13). whitehouse.gov appears nowhere in this file, not even as a secondary link — every action here had a primary citation available, so no secondary was needed.",
     "standingCitation": "Every status entry carries its own source_url and source_label, and a `basis` naming what kind of document establishes it. An action with no citable standing gets NO status entry rather than an assumed one; exec-record.js routes it to unstatedStanding and discloses it as 'with no confirmed standing on file'.",
     "basisValues": {
       "enacted_law_published": "The standing is established by the enrolled text as published by GPO — the law exists and nothing in the file repeals it. Claims enactment and publication; claims nothing about litigation.",
@@ -3904,6 +3904,103 @@
             "note": "The register's disposition record for this order carries no revocation, amendment or supersession, so it stands as published. Published August 11, 2026, five days after signature; it is the newest presidential document this pass placed on file. This is not a statement about any challenge to it."
           }
         ]
+      },
+      {
+        "actionClass": "directive",
+        "documentId": "NSPM-2",
+        "title": "Imposing Maximum Pressure on the Government of the Islamic Republic of Iran, Denying Iran All Paths to a Nuclear Weapon, and Countering Iran’s Malign Influence",
+        "actedAt": "2025-02-04",
+        "term": "47",
+        "sourceUrl": "https://www.govinfo.gov/content/pkg/DCPD-202500223/html/DCPD-202500223.htm",
+        "sourceLabel": "GovInfo — Daily Compilation of Presidential Documents, DCPD-202500223 (National Security Presidential Memorandum/NSPM-2)",
+        "dcpdNumber": "DCPD-202500223",
+        "_whyThisRow": "IRAN PASS, SEPTEMBER 2026. Before this pass the Iran drawer on this file held one document, the 2020 veto of S.J. Res. 68, and nothing from the second term. This memorandum is the second term's founding Iran instrument: it orders the maximum-pressure campaign by name. Read from its own published text in the Daily Compilation of Presidential Documents in this pass.",
+        "_whyGovInfo": "A national security presidential memorandum is not published in the Federal Register — a search of the register for this subject returns no presidential document — so the Federal Register cannot be its citation of record. GPO's Daily Compilation of Presidential Documents is the official publication of presidential documents and carries the full text under a permanent package number, which is used as the identity alongside the memorandum's own number. The White House posted the same text; it is not cited, per the sourcing rule.",
+        "_issuesNote": "Filed on iran_policy alone. Iran is the memorandum's whole subject, and none of its operative sections commits or withdraws forces, so it is not a war_powers or restraint instrument. No sanctions or trade key is added in this pass; the brief was to file the Iran instruments on keys that already exist, not to open new readings on other rows.",
+        "issues": [
+          {
+            "issueKey": "iran_policy",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 90,
+            "plain": "Ordered a maximum-pressure campaign on Iran: new sanctions and enforcement, rescinded waivers, a drive to cut Iran’s oil exports to zero, and a push for UN snapback.",
+            "counts": "Iran is the memorandum’s whole subject. It is the second term’s opening instrument on Iran policy, and every section of it is addressed to the government of Iran.",
+            "rationale": "Section 2 is headed Enacting Maximum Pressure on the Islamic Republic of Iran. It directs the Secretary of the Treasury to “immediately impose sanctions or appropriate enforcement remedies” on persons violating Iran-related sanctions and to review for modification or rescission any guidance giving Iran economic relief; the Secretary of State to “modify or rescind sanctions waivers” and to “drive Iran’s export of oil to zero”; and the Permanent Representative to the United Nations to “complete the snapback of international sanctions and restrictions on Iran.” Iran is the memorandum’s own subject. The key names a country, so no side is read on it; the direction field records the memorandum’s own act."
+          }
+        ],
+        "_statusNote": "No standing is filed. Every basis in this file reads the Federal Register, a court, the enrolled text or the chambers' own record, and none of them carries a standing for a document published only in the Daily Compilation. The summary counts it as no confirmed standing on file rather than assuming it in force.",
+        "status": []
+      },
+      {
+        "actionClass": "executive_order",
+        "documentId": "Executive Order 14382",
+        "executiveOrderNumber": 14382,
+        "title": "Addressing Threats to the United States by the Government of Iran",
+        "actedAt": "2026-02-06",
+        "term": "47",
+        "sourceUrl": "https://www.federalregister.gov/documents/2026/02/11/2026-02813/addressing-threats-to-the-united-states-by-the-government-of-iran",
+        "sourceLabel": "Federal Register — Executive Order 14382, 91 FR 6493",
+        "frCitation": "91 FR 6493",
+        "frDocumentNumber": "2026-02813",
+        "publishedAt": "2026-02-11",
+        "_whyThisRow": "IRAN PASS, SEPTEMBER 2026. The second-term order that finds the Iran national emergency continuing and adds a new instrument to it. Read from the Federal Register's own published text and document record in this pass.",
+        "_issuesNote": "Filed on iran_policy alone. The order's operative tool is a duty on third countries that trade with Iran, so it has a tariff reading as well; that reading is not added in this pass, which files Iran instruments on existing keys and opens no new mapping elsewhere. Its standing records EO 14389 of February 20, 2026, which ended the duties imposed under this order and expressly left the emergency and every other action in it in effect.",
+        "issues": [
+          {
+            "issueKey": "iran_policy",
+            "direction": "advances",
+            "isPrimary": true,
+            "weight": 85,
+            "plain": "Found the Iran national emergency still in effect and authorized an added duty on imports from any country that buys goods or services from Iran.",
+            "counts": "Iran is the order’s own subject: it rests on the Iran national emergency and aims its one new tool at countries that do business with Iran.",
+            "rationale": "Section 1 finds that the national emergency declared in Executive Order 12957 “continues and that the actions and policies of the Government of Iran continue to pose an unusual and extraordinary threat,” and determines that it is necessary “to impose an additional ad valorem duty on imports of articles that are products of foreign countries that directly or indirectly purchase, import, or otherwise acquire any goods or services from Iran.” Section 2 sets out the procedure by which the Secretary of Commerce finds such a country and the Secretary of State decides the duty. Iran is the order’s own subject. The key names a country, so no side is read on it; the direction field records the order’s own act."
+          }
+        ],
+        "status": [
+          {
+            "status": "in_force",
+            "effectiveAt": "2026-02-11",
+            "authority": "Issued by the President and published in the Federal Register",
+            "basis": "register_disposition",
+            "sourceLabel": "Federal Register — Executive Order 14382 document record, 91 FR 6493",
+            "sourceUrl": "https://www.federalregister.gov/documents/2026/02/11/2026-02813/addressing-threats-to-the-united-states-by-the-government-of-iran",
+            "note": "Signed February 6, 2026 and published February 11, 2026 at 91 FR 6493. The register cross-references EO 14389 of February 20, 2026, which ended the added duties imposed under this order and left the Iran emergency and the order’s other actions in effect; no later document revokes the order itself. This describes the register’s record of presidential action and is not a statement about any challenge to the order."
+          }
+        ]
+      },
+      {
+        "actionClass": "directive",
+        "documentId": "Presidential Letter, DCPD-202500715",
+        "title": "Letter to Congressional Leaders on United States Military Operations in Iran",
+        "actedAt": "2025-06-23",
+        "term": "47",
+        "sourceUrl": "https://www.govinfo.gov/content/pkg/DCPD-202500715/html/DCPD-202500715.htm",
+        "sourceLabel": "GovInfo — Daily Compilation of Presidential Documents, DCPD-202500715 (letter of June 23, 2025)",
+        "dcpdNumber": "DCPD-202500715",
+        "_whyThisRow": "IRAN PASS, SEPTEMBER 2026. The President's own report to Congress of the June 21, 2025 strike on three Iranian nuclear facilities, made under the War Powers Resolution. It is the only presidential letter or register notice on Iran hostilities found in this pass. Searched and NOT found in the Federal Register, GovInfo's Daily Compilation, WhiteHouse.gov or the American Presidency Project's War Powers Resolution index: any War Powers letter for the hostilities that began February 28, 2026, any for strikes of June 26–28, 2026, and any presidential letter reporting a ceasefire, a termination of hostilities or an order not to strike. None of those is filed, and nothing is filed on restraint from this pass.",
+        "_whyDirective": "The directive class is the nearest existing one: the act on file is the President's own direction of a military action, set down in his signed report of it. No new action class is opened. A letter is not published in the Federal Register, so GPO's Daily Compilation of Presidential Documents is its citation of record and its package number is its identity, as the register citation is for a memorandum.",
+        "issues": [
+          {
+            "issueKey": "war_powers",
+            "direction": "opposes",
+            "isPrimary": true,
+            "weight": 85,
+            "plain": "Reported to Congress a strike on three Iranian nuclear facilities that he had directed on his own constitutional authority, citing no congressional authorization.",
+            "counts": "War powers asks who may commit the country to armed action. This letter reports the answer after the fact: the strike was ordered by the President and Congress was told two days later.",
+            "rationale": "The letter states that “on the night of June 21, 2025, at my direction, United States forces conducted a precision strike against three nuclear facilities in Iran,” that “I acted pursuant to my constitutional authority as Commander in Chief and Chief Executive,” and that the report is provided “as part of my efforts to keep the Congress fully informed” under the War Powers Resolution (Public Law 93–148). It names no statute or authorization for the use of military force. Mapped opposes on the congressional war-power key because the letter reports hostilities begun on executive authority alone."
+          },
+          {
+            "issueKey": "iran_policy",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 80,
+            "plain": "Reported the June 21, 2025 U.S. strike on three Iranian nuclear facilities, which he had ordered.",
+            "counts": "The strike the letter reports was on Iran, against Iran’s nuclear program, so the report is an act about Iran as well as about war powers.",
+            "rationale": "Iran is the letter’s own subject: it reports a strike “against three nuclear facilities in Iran used by the Government of the Islamic Republic of Iran for its nuclear weapons development program.” Filed alongside the war-powers row, not in place of it. The key names a country, so no side is read on it; the direction field records the letter’s own act."
+          }
+        ],
+        "_statusNote": "No standing is filed. Every basis in this file reads the Federal Register, a court, the enrolled text or the chambers' own record, and none of them carries a standing for a document published only in the Daily Compilation. The summary counts it as no confirmed standing on file rather than assuming it in force.",
+        "status": []
       }
     ]
   }

@@ -214,7 +214,16 @@ section("3 · Iran drawer: S.J. Res. 68 with its Iran line, S.J. Res. 7 absent")
   // to Iran in the vocabulary — that button is navigation, not drawer content.
   no(h.replace(/<button type="button" class="pdxdos-stepb"[\s\S]*?<\/button>/g, ""), "Yemen",
     "trump × iran_policy: the Yemen resolution's text reached the Iran drawer");
-  eq((tables(h).match(/data-pdxlg-row="/g) || []).length, 1, "trump × iran_policy: not exactly one act");
+  // Two acts since the Iran instruments pass: the veto, and Executive Order 14382 on
+  // its Federal Register door. NSPM-2 and the June 23, 2025 letter are in the drawer
+  // but not the table — no standing is on file for either, so both are held.
+  eq((tables(h).match(/data-pdxlg-row="/g) || []).length, 2, "trump × iran_policy: not exactly two acts");
+  const eo = rowOf(h, "Executive Order 14382");
+  ok(!!eo, "trump × iran_policy: Executive Order 14382 is not a ledger row");
+  if (eo) {
+    eq(eo.eff, EXEC_EFFECT["Executive Order 14382|iran_policy"], "trump × iran_policy: Executive Order 14382's Iran line");
+    has(anchorOf(eo.cell), 'href="https://www.federalregister.gov/documents/2026/02/11/2026-02813/', "trump × iran_policy: Executive Order 14382 is not a Federal Register anchor");
+  }
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

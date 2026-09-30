@@ -14014,6 +14014,9 @@
           standing: null, power: _dosPower(h.actionClass), effect: '', stance: '',
           plain: h.plain || '', counts: '', rationale: '',
           url: h.sourceUrl || '', srcLabel: h.sourceLabel || 'Primary source',
+          // A held act is still a real document with a real address: the same door
+          // a scored row gets, read from what the file stores, or none.
+          docUrl: _dosOfficialUrl(h),
           axis: null, axisSplit: false, narrow: false, multi: false, support: '', item: h.action || null
         });
       });
@@ -16882,8 +16885,9 @@
   // Chronological inside each group, because the story of a bill is the order it
   // happened in: the motion to send it back, then the vote that sent it out.
   // Subject keys whose ledger prints no for/against line — see the note in the
-  // body. Iran's drawer predates this and keeps its line; it is not remapped here.
-  var _DOS_LEDGER_NO_SIDE = { ukraine_policy: 1, yemen_policy: 1 };
+  // body. Iran joined when its drawer took the second-term instruments: a country
+  // it is, like the other two, and it sits in _RD_NO_POLE with them.
+  var _DOS_LEDGER_NO_SIDE = { iran_policy: 1, ukraine_policy: 1, yemen_policy: 1 };
   function _dosLedgerHtml(pid, issueKey, r, t) {
     r = r || issueRow(pid, issueKey);
     t = t || _dosTally(pid, issueKey, r && r.ov);
@@ -17117,7 +17121,15 @@
     'Proclamation 11015|war_powers':
       'Committed the United States to an armed campaign against cartels across the Western Hemisphere, naming no congressional authorization.',
     'Proclamation 11015|restraint':
-      'Committed the United States to destroying cartel organizations across the Western Hemisphere with any necessary resources.'
+      'Committed the United States to destroying cartel organizations across the Western Hemisphere with any necessary resources.',
+    'NSPM-2|iran_policy':
+      'Ordered maximum pressure on Iran: new sanctions, rescinded waivers and a drive to cut Iran’s oil exports to zero.',
+    'Executive Order 14382|iran_policy':
+      'Directed that goods from any country buying from Iran may face added duties, finding the Iran emergency still in effect.',
+    'Presidential Letter, DCPD-202500715|war_powers':
+      'Directed a strike on three Iranian nuclear facilities on his own constitutional authority, citing no congressional authorization.',
+    'Presidential Letter, DCPD-202500715|iran_policy':
+      'Directed the June 21, 2025 U.S. strike on three Iranian nuclear facilities, reporting it to Congress two days later.'
   };
   function _dosExecEffectLine(it, issueKey) {
     if (!it || !issueKey || !it.documentId) return '';

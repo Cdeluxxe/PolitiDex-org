@@ -63,8 +63,11 @@
       "sourceOfRecord": "federalregister.gov document page",
       "sourceHosts": [
         "www.federalregister.gov",
-        "federalregister.gov"
-      ]
+        "federalregister.gov",
+        "www.govinfo.gov",
+        "govinfo.gov"
+      ],
+      "_sourceHostsNote": "A national security presidential memorandum or a letter to Congress is not published in the Federal Register. For those alone the citation of record is GPO's Daily Compilation of Presidential Documents on govinfo.gov, the official publication of presidential documents, cited by its permanent DCPD package number. A directive that is in the Federal Register is still cited there. WhiteHouse.gov is still never cited."
     }
   },
   "measureTypes": [

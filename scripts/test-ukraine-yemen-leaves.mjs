@@ -238,8 +238,14 @@ section("7 · ledger: no pole and no for/against on the new drawers");
     ok(!r || (!r.tier && !r.says && !r.label && !r.summary), `${pid} × ${k}: the record read claims a side (${r && r.tier})`);
     ok(!r || /no_pole|no_side|no_pole_read/.test((r.why && r.why.id) || ""), `${pid} × ${k}: the read's reason is ${r && r.why && r.why.id}, not the no-pole refusal`);
   }
-  // Iran's drawer is untouched by this pass.
-  ok(/Acts: \d+ for · \d+ against/.test(text(CS.gapViewHtml("trump", IR) || "")), "Iran's ledger line is unchanged");
+  // Iran kept its line through this pass and dropped it in the next, when its
+  // drawer took the second-term instruments and joined _DOS_LEDGER_NO_SIDE (see
+  // test-trump-iran-instruments.mjs). The tally line still counts its acts.
+  {
+    const t = text(CS.gapViewHtml("trump", IR) || "");
+    ok(!/Acts: \d+ for · \d+ against/.test(t), "Iran's ledger prints no for/against line either");
+    ok(/On this issue: \d+ /.test(t), "Iran's tally line still counts the acts");
+  }
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

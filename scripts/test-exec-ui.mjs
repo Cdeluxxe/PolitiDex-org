@@ -357,6 +357,14 @@ for (const card of CARDS) {
   if (!seeded) continue;
 
   const shown = STANDING_LABELS.filter((l) => card.includes(l));
+  // An action with no citable standing says so on its own card rather than showing
+  // nothing — and never shows a standing label it has no citation for.
+  if (!(seeded.status || []).length) {
+    ok(shown.length === 0, `${doc}: a standing is shown with no standing entry on file`);
+    has(card, "No confirmed standing on file", `${doc}: the missing standing is not disclosed on the card`);
+    has(card, seeded.sourceUrl, `${doc}: the action's own primary source is not linked`);
+    continue;
+  }
   ok(shown.length > 0, `${doc}: no standing is shown at all`);
   // Requirement: in_force / partly_blocked / blocked / struck_down surface WITH a
   // citation. The chip and the link that warrants it live in the same card, so this
