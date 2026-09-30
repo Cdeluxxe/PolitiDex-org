@@ -8376,7 +8376,20 @@
 //     20261108000000_vr_exec_dcpd_publication_standing.
 //     exec-record.js, exec-record-ui.js and exec-action-data.js are precached
 //     and changed, so it moves one version.
-const CACHE_VERSION = 'v269';
+// v270 - THE LAYTON CLUSTER TAKES A VOICE THE WAY SD-3 DOES. /district/ut-hd-16,
+//     ut-sd-7, ut-hd-15 and ut-cd-2 now carry the same #pdx-district-composer
+//     host and load district-composer.js, behind the same gate: signed in AND a
+//     vendor-verified residency flag whose verified_seat is THAT board's seat.
+//     COMPOSER_SEATS is five named rows on the server and the client, no
+//     pattern and no /district/* splat. No vendor is wired, so every box stays
+//     disabled with the locked line; an unverified POST is 403 and writes
+//     nothing. Posts land in voice_takes under the canonical seat key, the rows
+//     band 2 already counts. Generated boards and ut-gov / both U.S. Senate
+//     boards stay readers. BOARD_ROUTES is still 88 rows.
+//     MIGRATION COST: none, and no location key is migrated, renamed or
+//     copied. No table is added — voice_takes is already seat-scoped.
+//     district-composer.js is precached and changed, so it moves one version.
+const CACHE_VERSION = 'v270';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

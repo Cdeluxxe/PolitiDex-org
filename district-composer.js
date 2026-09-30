@@ -1,10 +1,13 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   district-composer.js — THE ONE BOARD THAT TAKES A VOICE (/district/ut-sd-3)
+   district-composer.js — THE BOARDS THAT TAKE A VOICE (the Layton cluster)
    ───────────────────────────────────────────────────────────────────────────
-   Loaded by district-ut-sd-3.html and by no other document. It mounts only on
-   a #pdx-district-composer host whose data-pdxdc-seat is on COMPOSER_SEATS, and
-   that host is in SD-3's markup only — every other board stays a reader and
-   keeps district-board.js's disabled "Posting ships next" seam.
+   Loaded by five documents and no others: /district/ut-sd-3, ut-hd-16,
+   ut-sd-7, ut-hd-15 and ut-cd-2. It mounts only on a #pdx-district-composer
+   host whose data-pdxdc-seat is on COMPOSER_SEATS (named rows, no pattern), and
+   that host is in those five documents only — every generated board and every
+   statewide board stays a reader and keeps district-board.js's disabled
+   "Posting ships next" seam. The server's own list is the one that counts;
+   this one only decides where to paint.
 
    THE BOX IS OFF UNTIL THE SERVER SAYS OTHERWISE. The served markup is a
    disabled field with the locked line. This module turns it on only when
@@ -25,7 +28,7 @@
   'use strict';
 
   var API = '/api/district-board-voice';
-  var COMPOSER_SEATS = { 'ut-sd-3': 1 };
+  var COMPOSER_SEATS = { 'ut-sd-3': 1, 'ut-hd-16': 1, 'ut-sd-7': 1, 'ut-hd-15': 1, 'ut-cd-2': 1 };
   var POST_MAX = 280;
   var LOCKED_LINE = 'Only verified residents of this seat get a voice that counts.';
   var COPY = {

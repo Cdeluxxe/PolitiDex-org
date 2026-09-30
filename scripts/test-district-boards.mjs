@@ -978,7 +978,16 @@ function sd6Band1Faults(modSrc) {
     // (scripts/test-board-signin-return.mjs pins it). That block is the only
     // change a neighbour is allowed; anything else still fails here.
     const RET_TAG = /  <!-- THE RETURN INTENT\. PDXReturn[\s\S]*?<script defer src="\/pdx-return\.js"><\/script>\n/;
-    const strip = (t) => t.replace(RET_TAG, "");
+    // The Layton cluster later took SD-3's composer (host, module tag, styles
+    // and one head note — scripts/test-district-board-composer.mjs pins them).
+    // Those blocks are stripped here too; anything else still fails.
+    const COMPOSER_BLOCKS = [
+      /    \/\* THE COMPOSER — [\s\S]*?(?=    \/\* Band 1 \*\/)/,
+      /  <!-- THIS BOARD'S COMPOSER\.[\s\S]*?<script defer src="\/district-composer\.js"><\/script>\n/,
+      /\n    <!-- THE COMPOSER'S HOST\.[\s\S]*?data-pdxdc-seat=[\s\S]*?<\/section>\n      <\/div>\n    <\/div>\n/,
+      /       · (?:NO WORKING COMPOSER, AND NO FAKE ONE\. Posting is not built\.\n|ONE COMPOSER, AND IT IS OFF UNTIL THE SERVER OPENS IT — [\s\S]*?No fake composer either\.\n)/,
+    ];
+    const strip = (t) => COMPOSER_BLOCKS.reduce((x, re) => x.replace(re, ""), t.replace(RET_TAG, ""));
     ok(strip(h) === strip(R(b.doc)), `neighbours: ${b.doc} changed in this pass and should not have`);
   }
 }
