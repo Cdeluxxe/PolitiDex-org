@@ -8406,7 +8406,28 @@
 //     20261109000000_create_voice_poll_votes.
 //     district-poll.js is new and precached and five board documents changed,
 //     so it moves one version.
-const CACHE_VERSION = 'v271';
+// v272 - PROVE YOU LIVE HERE, ON THE FIVE COMPOSER BOARDS ONLY. On
+//     /district/ut-sd-3, ut-hd-16, ut-sd-7, ut-hd-15 and ut-cd-2 a signed-in
+//     reader who is not verified for THAT seat gets one button. It asks
+//     POST /api/residency-verify for a Veriff session whose vendorData is
+//     { uid, seat } and sends them to the vendor. Only the signed decision
+//     webhook (/api/residency-webhook: HMAC-SHA256 over the raw body, final
+//     approved 9001, ID document AND proof of address both present) writes a
+//     voice_residency row - seat, author hash, 'verified', 'vendor' - for the
+//     seat the session named and no other. Unsigned, pending, declined,
+//     expired or wrong-seat decisions write nothing, a revoked row is never
+//     overturned, and no ID image, name or address is kept. The hub's
+//     location recorder can no longer downgrade a vendor row. Secrets live in
+//     Netlify env only (VERIFF_API_KEY, VERIFF_SHARED_SECRET); without them
+//     the start is 503, every webhook is 401 and every box stays locked. No
+//     env flag stamps verified. Other boards, the counts endpoint and BOARD_
+//     ROUTES are unchanged; no splat.
+//     MIGRATION COST: none, and no location key is migrated, renamed or
+//     copied. No database migration: voice_residency already has seat_key,
+//     author_hash, status, method and reviewed_at.
+//     district-composer.js and district-poll.js are precached and changed, so
+//     it moves one version.
+const CACHE_VERSION = 'v272';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

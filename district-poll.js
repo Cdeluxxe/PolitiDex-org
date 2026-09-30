@@ -298,7 +298,8 @@
     COPY: COPY,
     mount: mount,
     canVote: canVote,
-    pollHtml: pollHtml
+    pollHtml: pollHtml,
+    refresh: function () { if (_seat) load(); }
   };
 
   function go() { mount(); }

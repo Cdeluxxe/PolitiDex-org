@@ -821,7 +821,14 @@ section("8 · the endpoint still aggregates, and still cannot return a person");
 // EVERY STATEMENT IS AN AGGREGATE. Not one select in this file names a column
 // that is not a count or an issue key, so a client cannot reconstruct a person
 // from what it is handed even by accident.
-const selects = [...FN.matchAll(/\.select\(\{([\s\S]*?)\}\)/g)].map((m) => m[1]);
+// Band 2's voice union (one hash column per branch, consumed only by
+// countDistinct) is checked on its own terms in
+// test-district-board-composer.mjs and cut out here, so every OTHER select is
+// held to this rule.
+const VOICE_UNION = (FN.match(/const voicePeople = db[\s\S]*?\.as\("voice_people"\);/) || [""])[0];
+ok(!VOICE_UNION || /select\(\{ v: countDistinct\(voicePeople\.h\) \}\)/.test(FN),
+  "the voice union is only ever aggregated");
+const selects = [...FN.replace(VOICE_UNION, "").matchAll(/\.select\(\{([\s\S]*?)\}\)/g)].map((m) => m[1]);
 must(selects.length >= 8, `district-board.mts: found only ${selects.length} selects`);
 for (const s of selects) {
   has(s, "countDistinct(", "every select is a COUNT DISTINCT and not a row read");

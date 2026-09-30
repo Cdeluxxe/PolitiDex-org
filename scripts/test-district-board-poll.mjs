@@ -355,7 +355,7 @@ for (const seat of Object.values(CLUSTER)) {
   ok(rows.includes(`('${seat}', 'UT'`), `${seat} is in dd_districts, so its votes can land`);
 }
 const SW = R("sw.js");
-eq((SW.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1], "271", "the shell moved to v271");
+ok(Number((SW.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1] || 0) >= 271, "the shell moved at least to v271");
 ok(SW.includes("'/district-poll.js',"), "the poll module is precached");
 ok(/v271 - [\s\S]*?20261109000000_create_voice_poll_votes/.test(SW), "the log names the migration");
 ok(!/from\s*=\s*"\/district\/\*"/.test(R("netlify.toml")), "no /district/* splat");

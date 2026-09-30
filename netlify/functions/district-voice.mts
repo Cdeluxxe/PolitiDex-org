@@ -182,7 +182,9 @@ async function resolveResidency(viewer: AuthUser | null, seatKey: string, claim:
 // A successful location match is RECORDED so the seat can print how many verified
 // neighbours it has. Recording is not what grants the next write — the check above
 // is — and a revoked row is never resurrected by it (`ne(status,'revoked')` on the
-// update, plus the gate refuses revoked long before this runs).
+// update, plus the gate refuses revoked long before this runs). A vendor row is
+// never downgraded by it either (`ne(method,'vendor')`): a typed location is not
+// proof, so it cannot overwrite the ID check the board composers read.
 async function noteResidency(seatKey: string, hash: string) {
   if (!seatKey || !hash) return;
   await db
@@ -196,7 +198,8 @@ async function noteResidency(seatKey: string, hash: string) {
       and(
         eq(voiceResidency.seatKey, seatKey),
         eq(voiceResidency.authorHash, hash),
-        ne(voiceResidency.status, "revoked")
+        ne(voiceResidency.status, "revoked"),
+        ne(voiceResidency.method, "vendor")
       )
     );
 }
