@@ -148,7 +148,9 @@ console.log(`${ALL.length} issue drawers · ${WITH.length} carry at least one fo
 // One render per drawer, reused by every section below.
 const HTML = new Map();
 const key = (x) => `${x.pid}/${x.key}`;
-const NO_SIDE_KEYS = new Set(["ukraine_policy", "yemen_policy"]);
+// Iran joined the other two country keys when its drawer took the second-term
+// instruments; all three are in _RD_NO_POLE and _DOS_LEDGER_NO_SIDE.
+const NO_SIDE_KEYS = new Set(["iran_policy", "ukraine_policy", "yemen_policy"]);
 for (const x of ALL) {
   let h = "";
   try { h = CS.gapViewHtml(x.pid, x.key) || ""; } catch (e) { fails.push(`${key(x)}: gapViewHtml threw ${e.message}`); }

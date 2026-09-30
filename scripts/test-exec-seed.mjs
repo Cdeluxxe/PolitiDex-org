@@ -74,7 +74,8 @@ const MIGRATION_RELS = [
   "netlify/database/migrations/20260901000000_seed_exec_actions_wave9.sql",
   "netlify/database/migrations/20260902000000_seed_exec_actions_wave10.sql",
   "netlify/database/migrations/20260903000000_seed_exec_actions_wave11.sql",
-  "netlify/database/migrations/20260905000000_seed_exec_actions_wave12.sql"
+  "netlify/database/migrations/20260905000000_seed_exec_actions_wave12.sql",
+  "netlify/database/migrations/20261107000000_seed_exec_actions_wave13.sql"
 ];
 const SQL = MIGRATION_RELS.map(R).join("\n");
 // Forward migrations that RE-KEY seed rows rather than insert them. The waves
@@ -152,7 +153,7 @@ section("1 · shape and vocabulary");
 // cost_living mappings onto documents already on file. The brief it answers asked for
 // fewer strong items over many weak ones, so if this count grows without a wave note
 // explaining which row went thin, something was padded rather than found.
-ok(ACTIONS.length === 80, `the seed carries eighty actions — 5 from wave 1, 1 from wave 2, 11 from wave 3, 10 from wave 4, 9 from wave 5, 4 from wave 6, 8 from wave 7, 8 from wave 8, 1 from wave 9, 5 from wave 10, 15 from wave 11, 3 from wave 12 (got ${ACTIONS.length})`);
+ok(ACTIONS.length === 83, `the seed carries eighty-three actions — 5 from wave 1, 1 from wave 2, 11 from wave 3, 10 from wave 4, 9 from wave 5, 4 from wave 6, 8 from wave 7, 8 from wave 8, 1 from wave 9, 5 from wave 10, 15 from wave 11, 3 from wave 12, 3 from wave 13 (got ${ACTIONS.length})`);
 
 /* TERM SCOPE IS REAL, and this is the assertion that keeps it real.
    This line used to read `a.term === EX.currentTerm("trump")`, which was true of
@@ -633,8 +634,8 @@ if (sum && sumAll) {
     `Axis A counts ${SUMKEYS.buckets.issues.unit}s and Axis B counts ${SUMKEYS.buckets.actions.unit}s`);
 
   ok(sum.score === null, "summary score is null");
-  ok(C.signed_law === 8 && C.executive_order === 56 && C.directive === 12 && C.vetoed_law === 4,
-    `class split is 8 laws + 56 orders + 12 directives + 4 vetoes (got ${C.signed_law}+${C.executive_order}+${C.directive}+${C.vetoed_law})`);
+  ok(C.signed_law === 8 && C.executive_order === 57 && C.directive === 14 && C.vetoed_law === 4,
+    `class split is 8 laws + 57 orders + 14 directives + 4 vetoes (got ${C.signed_law}+${C.executive_order}+${C.directive}+${C.vetoed_law})`);
   // The veto class existed in the vocabulary for six waves with no row using it.
   // Pinned so a later edit cannot quietly empty it again: an unexercised class is a
   // pipeline nobody has proven works.
@@ -643,9 +644,21 @@ if (sum && sumAll) {
   // "Upgrade or hold" — verified as an outcome, not a promise. Every item in every
   // wave cleared the source gate, and every one carries a citable standing.
   ok(sum.dropped === 0, `no action was held back for a weak source (dropped ${sum.dropped})`);
-  ok(sum.unstatedStanding === 0, `every action has a cited standing (uncited ${sum.unstatedStanding})`);
+  // Two exceptions since wave 13, and both are disclosures rather than gaps: NSPM-2
+  // and the June 23, 2025 War Powers letter are published only in GPO's Daily
+  // Compilation, and every basis in the vocabulary reads a register, a court, the
+  // enrolled text or the chambers' record — none of which carries a standing for a
+  // memorandum or a letter outside the Federal Register. They are counted as "no
+  // confirmed standing on file" rather than assumed in force. Pinned BY NAME, so a
+  // third uncited action cannot ride in under the same count.
+  const UNCITED = ["NSPM-2", "Presidential Letter, DCPD-202500715"];
+  const uncited = ACTIONS.filter((a) => !(a.status || []).length).map((a) => a.documentId).sort();
+  ok(JSON.stringify(uncited) === JSON.stringify([...UNCITED].sort()),
+    `the only actions with no cited standing are the two DCPD-only documents (got ${uncited.join(", ") || "none"})`);
+  ok(sum.unstatedStanding === UNCITED.length, `every other action has a cited standing (uncited ${sum.unstatedStanding})`);
   ok(sumAll.dropped === 0, `no prior-term action was held back for a weak source either (dropped ${sumAll.dropped})`);
-  ok(sumAll.unstatedStanding === 0, `every prior-term action has a cited standing (uncited ${sumAll.unstatedStanding})`);
+  ok(sumAll.unstatedStanding === UNCITED.length, `every other prior-term action has a cited standing (uncited ${sumAll.unstatedStanding})`);
+  ok(/no confirmed standing on file/.test(sum.label), "the label discloses the two uncited documents");
 
   // Axis B is doing real work: EO 14248 is partly blocked, so the standing clause is
   // sticky and `contested` must be true.
@@ -876,7 +889,7 @@ if (vsAgainst && strippedBase) {
   ok(new RegExp("acted against it on " + vsAgainst.issues.against).test(vsAgainst.label),
     "the label reports the opposing action in words");
   // No citable standing on this fixture, so it must be DISCLOSED rather than assumed.
-  ok(vsAgainst.unstatedStanding === 1, "an action with no citable standing is disclosed, not assumed in force");
+  ok(vsAgainst.unstatedStanding === strippedBase.unstatedStanding + 1, "an action with no citable standing is disclosed, not assumed in force");
   ok(/no confirmed standing on file/.test(vsAgainst.label), "the label discloses the uncited standing");
 }
 

@@ -8331,7 +8331,26 @@
 //     alignment-tool.js, issue-map.js, stance-helpers.js, issue-scope.js,
 //     consistency.js, exec-action-data.js and stance-tree.js are precached and
 //     changed, so it moves one version.
-const CACHE_VERSION = 'v266';
+// v267 - 🇮🇷 THE SECOND TERM'S IRAN INSTRUMENTS, ON KEYS THAT ALREADY EXIST.
+//     Trump's Iran drawer was S.J. Res. 68 alone. It now also holds NSPM-2
+//     (2025-02-04, GovInfo DCPD-202500223), Executive Order 14382 (2026-02-06,
+//     91 FR 6493) and the June 23, 2025 War Powers letter on the strike on
+//     three Iranian nuclear facilities (GovInfo DCPD-202500715), which is also
+//     filed on Congress and War Powers. No War Powers letter for February 28,
+//     2026 or June 26-28, 2026 and no ceasefire or termination letter was
+//     found in an official source, so none is filed and Diplomacy & Restraint
+//     is unchanged. The Qatar order and the cartel proclamation stay off Iran.
+//     NSPM-2 and the letter have no confirmed standing on file, so they are
+//     listed and not scored; held executive rows now get the same official
+//     door a scored row gets. Iran joins Ukraine and Yemen in printing no
+//     "Acts: n for · n against" line. No key, pole or score added.
+//     MIGRATION COST: none, and no location key is migrated, renamed or
+//     copied. One DATABASE migration ships (guarded vr_measures,
+//     vr_measure_issues, vr_positions and vr_exec_action_status rows):
+//     20261107000000_seed_exec_actions_wave13.
+//     consistency.js and exec-action-data.js are precached and changed, so it
+//     moves one version.
+const CACHE_VERSION = 'v267';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
