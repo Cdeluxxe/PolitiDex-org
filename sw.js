@@ -8350,7 +8350,18 @@
 //     20261107000000_seed_exec_actions_wave13.
 //     consistency.js and exec-action-data.js are precached and changed, so it
 //     moves one version.
-const CACHE_VERSION = 'v267';
+// v268 - THE DRAWER EYEBROW FOLLOWS THE TALLY. The line under the issue title
+//     printed "Too thin to call a pattern — the record went both ways" over
+//     Trump's Iran file (a subject key with no side) and over Schiff's
+//     Diplomacy & Restraint file (7 for, 1 against). _dosFinding now owns that
+//     line and reads three rules in order: a key in _RD_NO_POLE or
+//     _DOS_LEDGER_NO_SIDE says "No side published on this subject"; a lopsided
+//     tally (three or more one way, at most one the other) runs one way; only a
+//     real split or a below-floor file keeps the thin and both-ways copy. Words
+//     only — no score, bucket, weight or Direction Match input moves.
+//     MIGRATION COST: none. consistency.js is precached and changed, so it
+//     moves one version.
+const CACHE_VERSION = 'v268';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
