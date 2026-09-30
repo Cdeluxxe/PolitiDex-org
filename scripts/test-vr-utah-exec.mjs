@@ -625,9 +625,29 @@ for (const pid of ["lee", "chew_h68", "defay_h15"]) {
 eq(JSON.stringify(after.PDXConsistency.recordLanes("trump")),
   JSON.stringify(before.PDXConsistency.recordLanes("trump")),
   "trump's lane routing is byte-identical across the two engines");
-eq(JSON.stringify(after.PDXWordAction.read("trump")),
+// The DCPD standing pass (published_dcpd) later gave NSPM-2 and the June 23, 2025
+// letter a standing, so the letter's shipped war_powers row now counts where it was
+// held. That is not this wave's doing, so the comparison boots today's engine with
+// those two standings stripped, and the read must still be byte-identical. What the
+// DCPD pass itself moved is pinned separately: war_powers gains one judged act and
+// nothing else in the read changes.
+const STRIP_DCPD = ["strip-dcpd.js",
+  "(function(){var A=window.EXEC_ACTIONS||{};Object.keys(A).forEach(function(p){(A[p]||[]).forEach(function(a){" +
+  "a.status=(a.status||[]).filter(function(s){return s.status!=='published_dcpd';});});});})();"];
+const noDcpd = boot(NOW.flatMap((e) => (e[0] === "exec-action-data.js" ? [e, STRIP_DCPD] : [e])));
+eq(JSON.stringify(noDcpd.PDXWordAction.read("trump")),
   JSON.stringify(before.PDXWordAction.read("trump")),
   "trump's Word-vs-Action read is byte-identical across the two engines");
+{
+  const was = noDcpd.PDXWordAction.read("trump"), now = after.PDXWordAction.read("trump");
+  const wp = (r) => (r.items || []).find((i) => i.key === "war_powers");
+  const a = wp(was), b = wp(now);
+  eq(b && b.test && b.test.judged, a && a.test && a.test.judged + 1,
+    "trump × war_powers: the DCPD letter adds exactly one judged act");
+  eq(b && b.test && b.test.score, a && a.test && a.test.score, "trump × war_powers: the DCPD letter moved the score");
+  const blank = (r) => JSON.stringify(r).replace(/"judged":\d+/g, "");
+  eq(blank(now), blank(was), "the DCPD standing moved trump's read beyond a judged count");
+}
 
 section("9 · the two gates: an empty lane, and a lane that tests nothing");
 const WA = after.PDXWordAction;

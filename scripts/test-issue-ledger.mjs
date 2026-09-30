@@ -289,11 +289,13 @@ section("3 · one statute, two acts — amendment and passage, same number twice
   eq(`${at.advances} for · ${at.opposes} against`, "0 for · 2 against",
     "aguilar × voter_id: the recommit yea is not read as blocking the bill");
 
-  // And one live case where the two acts genuinely went opposite ways.
+  // And one live case where the two acts genuinely went opposite ways. The key is
+  // a subject (_RD_NO_POLE), so the eyebrow publishes no side for either of them.
   const pt = CS.dossierTally("chellie_pingree", "guard_authority", CS.issueRow("chellie_pingree", "guard_authority").ov);
   if (pt.acts === 2 && pt.advances > 0 && pt.opposes > 0) {
     const f = CS.dossierFinding(CS.issueRow("chellie_pingree", "guard_authority"), pt);
-    eq(f.q, "same bill, two ways", "pingree × guard_authority: one bill both ways is not called that");
+    eq(f.word, "No side published on this subject", "pingree × guard_authority: a subject key read for a side");
+    eq(f.q, "", "pingree × guard_authority: a subject key carries a both-ways qualifier");
   }
   // Every one-bill-many-act drawer in the archive carries the same-measure line.
   let same = 0;

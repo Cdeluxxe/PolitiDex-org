@@ -1054,7 +1054,7 @@ export const vrExecActionStatus = pgTable(
       .notNull()
       .references(() => vrPositions.id, { onDelete: "cascade" }),
     // in_force | partly_blocked | blocked | struck_down | rescinded | superseded |
-    // expired. Validated in the Function against db/exec-summary-keys.json, the way
+    // expired | published_dcpd (and the other tokens in that file). Validated in the Function against db/exec-summary-keys.json, the way
     // issue keys are validated against db/issue-keys.json — plain text with no CHECK
     // constraint, so widening the vocabulary is a data change, not a migration.
     status: text().notNull(),

@@ -16828,9 +16828,42 @@
   // The qualifier is a fact about the inventory, never a second verdict: it is
   // printed only from counts — one measure with acts on both sides, or a single
   // act — and it says nothing at all when the shape is ordinary.
+  //
+  // THE LINE FOLLOWS THE TALLY. This is the one owner of the drawer eyebrow, and
+  // it reads three rules in order:
+  //   1. A SUBJECT KEY HAS NO SIDE. A key in _RD_NO_POLE or _DOS_LEDGER_NO_SIDE
+  //      names a subject, not a proposition, so it says exactly that — never "both
+  //      ways", never a verdict word. Trump's Iran file printed "the record went
+  //      both ways" over a table the drawer itself refuses to read for a side.
+  //   2. A LOPSIDED TALLY RUNS ONE WAY. Three or more acts on one side and at most
+  //      one on the other is not a split and not "too thin": Schiff on Diplomacy,
+  //      7 for and 1 against, carried the same sentence as a real 2–2.
+  //   3. Only what is left — a genuine split, or a file below the floor — keeps
+  //      the thin and both-ways copy.
+  // Words only. The tally is the ledger's own count; no score, bucket or
+  // Direction Match input is read differently.
+  function _dosNoSideKey(k) {
+    var np = window._PDX_RD_NO_POLE || {};
+    return !!(k && (_DOS_LEDGER_NO_SIDE[k] || np[k]));
+  }
+  function _dosLopsided(t) {
+    if (!t) return false;
+    var hi = Math.max(t.advances || 0, t.opposes || 0);
+    var lo = Math.min(t.advances || 0, t.opposes || 0);
+    return hi >= 3 && lo <= 1;
+  }
   function _dosFinding(r, t) {
+    if (_dosNoSideKey(r && r.key)) {
+      return { word: _RD_NOPOLE_DEEP, q: (t && t.acts === 1) ? 'one act on file' : '',
+               ico: '—', color: '#9fb4d4', rule: 'no_side' };
+    }
     var res = _stResult(r), b = null;
     try { b = _dosBucket(r); } catch (e) { b = null; }
+    if (_dosLopsided(t)) {
+      return { word: (res.state === 'thin') ? 'Record runs one way'
+                 : ((b && b.short) ? b.short : res.label),
+               q: '', ico: res.ico, color: res.color, rule: 'one_way' };
+    }
     var word = (res.state === 'thin') ? 'Too thin to call a pattern'
       : ((b && b.short) ? b.short : res.label);
     var noun = (t && t.bill) ? 'bill' : 'measure', q = '';
@@ -16842,7 +16875,7 @@
     } else if (t && t.acts === 1) {
       q = 'one act on file';
     }
-    return { word: word, q: q, ico: res.ico, color: res.color };
+    return { word: word, q: q, ico: res.ico, color: res.color, rule: 'split_or_thin' };
   }
   function _dosFindHtml(r, t) {
     var f = _dosFinding(r, t);

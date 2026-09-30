@@ -75,7 +75,10 @@ const MIGRATION_RELS = [
   "netlify/database/migrations/20260902000000_seed_exec_actions_wave10.sql",
   "netlify/database/migrations/20260903000000_seed_exec_actions_wave11.sql",
   "netlify/database/migrations/20260905000000_seed_exec_actions_wave12.sql",
-  "netlify/database/migrations/20261107000000_seed_exec_actions_wave13.sql"
+  "netlify/database/migrations/20261107000000_seed_exec_actions_wave13.sql",
+  // Not a wave: the forward migration that gives wave 13's two DCPD-only
+  // documents their published_dcpd standing. Standing rows only.
+  "netlify/database/migrations/20261108000000_vr_exec_dcpd_publication_standing.sql"
 ];
 const SQL = MIGRATION_RELS.map(R).join("\n");
 // Forward migrations that RE-KEY seed rows rather than insert them. The waves
@@ -644,21 +647,33 @@ if (sum && sumAll) {
   // "Upgrade or hold" — verified as an outcome, not a promise. Every item in every
   // wave cleared the source gate, and every one carries a citable standing.
   ok(sum.dropped === 0, `no action was held back for a weak source (dropped ${sum.dropped})`);
-  // Two exceptions since wave 13, and both are disclosures rather than gaps: NSPM-2
-  // and the June 23, 2025 War Powers letter are published only in GPO's Daily
-  // Compilation, and every basis in the vocabulary reads a register, a court, the
-  // enrolled text or the chambers' record — none of which carries a standing for a
-  // memorandum or a letter outside the Federal Register. They are counted as "no
-  // confirmed standing on file" rather than assumed in force. Pinned BY NAME, so a
-  // third uncited action cannot ride in under the same count.
-  const UNCITED = ["NSPM-2", "Presidential Letter, DCPD-202500715"];
+  // Every action carries a cited standing. Wave 13's two DCPD-only documents —
+  // NSPM-2 and the June 23, 2025 War Powers letter — were the exception until the
+  // published_dcpd basis gave them one, and they are pinned BY NAME to that token so
+  // neither can drift to in_force and no other action can ride in on it.
+  const DCPD_ONLY = ["NSPM-2", "Presidential Letter, DCPD-202500715"];
   const uncited = ACTIONS.filter((a) => !(a.status || []).length).map((a) => a.documentId).sort();
-  ok(JSON.stringify(uncited) === JSON.stringify([...UNCITED].sort()),
-    `the only actions with no cited standing are the two DCPD-only documents (got ${uncited.join(", ") || "none"})`);
-  ok(sum.unstatedStanding === UNCITED.length, `every other action has a cited standing (uncited ${sum.unstatedStanding})`);
+  ok(uncited.length === 0, `every action has a cited standing (uncited: ${uncited.join(", ") || "none"})`);
+  ok(sum.unstatedStanding === 0, `no current-term action lacks a cited standing (uncited ${sum.unstatedStanding})`);
   ok(sumAll.dropped === 0, `no prior-term action was held back for a weak source either (dropped ${sumAll.dropped})`);
-  ok(sumAll.unstatedStanding === UNCITED.length, `every other prior-term action has a cited standing (uncited ${sumAll.unstatedStanding})`);
-  ok(/no confirmed standing on file/.test(sum.label), "the label discloses the two uncited documents");
+  ok(sumAll.unstatedStanding === 0, `no prior-term action lacks a cited standing (uncited ${sumAll.unstatedStanding})`);
+  const dcpdRows = ACTIONS.filter((a) => (a.status || []).some((s) => s.status === "published_dcpd"))
+    .map((a) => a.documentId).sort();
+  ok(JSON.stringify(dcpdRows) === JSON.stringify([...DCPD_ONLY].sort()),
+    `only the two DCPD-only documents carry published_dcpd (got ${dcpdRows.join(", ") || "none"})`);
+  for (const a of ACTIONS) {
+    for (const s of a.status || []) {
+      if (s.status !== "published_dcpd") continue;
+      ok(s.basis === "published_dcpd", `${a.documentId}: published_dcpd rests on the published_dcpd basis`);
+      ok(/govinfo\.gov\/content\/pkg\/DCPD-\d{9}\//.test(a.sourceUrl) && s.sourceUrl === a.sourceUrl,
+        `${a.documentId}: published_dcpd cites the DCPD package the row already cites`);
+      ok(!a.frCitation && !a.frDocumentNumber && !a.executiveOrderNumber,
+        `${a.documentId}: published_dcpd is never filed on a document with Federal Register standing`);
+      ok(EX.standingOf(a) === "published_dcpd", `${a.documentId}: the shipped gate honours its published_dcpd standing`);
+    }
+  }
+  ok(/published in the Daily Compilation/.test(sum.label), "the label names the Daily Compilation standing");
+  ok(!/no confirmed standing on file/.test(sum.label), "the label no longer reports uncited documents");
 
   // Axis B is doing real work: EO 14248 is partly blocked, so the standing clause is
   // sticky and `contested` must be true.

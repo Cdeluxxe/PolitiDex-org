@@ -214,10 +214,16 @@ section("3 · Iran drawer: S.J. Res. 68 with its Iran line, S.J. Res. 7 absent")
   // to Iran in the vocabulary — that button is navigation, not drawer content.
   no(h.replace(/<button type="button" class="pdxdos-stepb"[\s\S]*?<\/button>/g, ""), "Yemen",
     "trump × iran_policy: the Yemen resolution's text reached the Iran drawer");
-  // Two acts since the Iran instruments pass: the veto, and Executive Order 14382 on
-  // its Federal Register door. NSPM-2 and the June 23, 2025 letter are in the drawer
-  // but not the table — no standing is on file for either, so both are held.
-  eq((tables(h).match(/data-pdxlg-row="/g) || []).length, 2, "trump × iran_policy: not exactly two acts");
+  // Four acts: the veto, Executive Order 14382 on its Federal Register door, and
+  // NSPM-2 and the June 23, 2025 letter, each on file as published in the Daily
+  // Compilation (published_dcpd) and linked to its GovInfo package.
+  eq((tables(h).match(/data-pdxlg-row="/g) || []).length, 4, "trump × iran_policy: not exactly four acts");
+  for (const [n, u] of [["NSPM-2", "https://www.govinfo.gov/content/pkg/DCPD-202500223/"],
+                        ["Presidential Letter, DCPD-202500715", "https://www.govinfo.gov/content/pkg/DCPD-202500715/"]]) {
+    const d = rowOf(h, n);
+    ok(!!d, `trump × iran_policy: ${n} is not a ledger row`);
+    if (d) has(anchorOf(d.cell), `href="${u}`, `trump × iran_policy: ${n} is not a GovInfo anchor`);
+  }
   const eo = rowOf(h, "Executive Order 14382");
   ok(!!eo, "trump × iran_policy: Executive Order 14382 is not a ledger row");
   if (eo) {
