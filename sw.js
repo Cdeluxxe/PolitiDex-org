@@ -8389,7 +8389,24 @@
 //     MIGRATION COST: none, and no location key is migrated, renamed or
 //     copied. No table is added — voice_takes is already seat-scoped.
 //     district-composer.js is precached and changed, so it moves one version.
-const CACHE_VERSION = 'v270';
+// v271 - ONE POLL PER ISSUE GROUP ON THE LAYTON COMPOSER BOARDS. On
+//     /district/ut-sd-3, ut-hd-16, ut-sd-7, ut-hd-15 and ut-cd-2 only, each
+//     OPEN issue group in "On the table" carries one Support / Oppose / Not
+//     sure poll for that issue on this seat; every group header shows "n
+//     votes", and a closed group shows that count and no widget. The gate is
+//     the composer's: signed in AND a vendor-verified residency flag for THAT
+//     seat, so today every button is disabled with the locked line and an
+//     unverified POST to /api/district-board-poll is 403 and writes nothing.
+//     Tallies are counts only and open to everyone. Band 2's "answered a poll
+//     or wrote a comment" now counts the new store, de-duplicated against
+//     comments. Generated and statewide boards are unchanged; no splat.
+//     MIGRATION COST: none, and no location key is migrated, renamed or
+//     copied. One DATABASE migration ships (a new voice_poll_votes table and
+//     two missing dd_districts rows, ut-statehouse-16 and ut-statesenate-7):
+//     20261109000000_create_voice_poll_votes.
+//     district-poll.js is new and precached and five board documents changed,
+//     so it moves one version.
+const CACHE_VERSION = 'v271';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -8635,6 +8652,9 @@ const SHELL_ASSETS = [
   // SD-3's composer. Only district-ut-sd-3.html loads it; offline it paints the
   // locked box and says the posts could not be read.
   '/district-composer.js',
+  // The same five boards' per-issue polls. Offline it paints the locked
+  // buttons and no count.
+  '/district-poll.js',
   // The chrome all three share — the bar-and-chip sheet and the chip's own small
   // module — and the only two files /me and /courts did not already bring.
   '/shell-chrome.css',

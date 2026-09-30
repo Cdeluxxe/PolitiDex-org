@@ -42,8 +42,8 @@
 // reconstruct a person from what it is handed even by accident.
 //
 // ── WHAT THIS FILE CANNOT REACH ─────────────────────────────────────────────
-// It imports EIGHT tables and every one of them is a district-participation
-// table: voice_residency, voice_polls, voice_poll_answers, voice_takes,
+// It imports NINE tables and every one of them is a district-participation
+// table: voice_residency, voice_polls, voice_poll_answers, voice_poll_votes, voice_takes,
 // dd_residency, dd_threads, dd_posts, dd_poll_votes. It imports no vr_* table,
 // no finance table, no stance table and no pol_* table, so the record engines,
 // the money lane and the disclosure tables are unreachable from here rather
@@ -65,6 +65,7 @@ import {
   ddThreads,
   voicePollAnswers,
   voicePolls,
+  voicePollVotes,
   voiceResidency,
   voiceTakes,
 } from "../../db/schema.js";
@@ -242,21 +243,35 @@ async function countVerified(seat: string): Promise<number> {
 }
 
 // ── PEOPLE WHO TOUCHED A POLL OR A COMMENT ──────────────────────────────────
-// Four stores, all of them district- or seat-scoped, all of them asked for
+// Five stores, all of them district- or seat-scoped, all of them asked for
 // distinct authors rather than rows: a person who answered a poll twice is one
 // person. Takes and posts are both "a comment" for the purposes of this count,
 // because the reader-facing question is "has anyone said anything here", and
 // the two stores are two slices of the same product.
 async function countParticipants(seat: string): Promise<number> {
-  const [answers] = await db
-    .select({ v: countDistinct(voicePollAnswers.authorHash) })
-    .from(voicePollAnswers)
-    .innerJoin(voicePolls, eq(voicePollAnswers.pollId, voicePolls.id))
-    .where(eq(voicePolls.seatKey, seat));
-  const [takes] = await db
-    .select({ v: countDistinct(voiceTakes.authorHash) })
+  // THE voice_* STORES SHARE ONE IDENTITY SPACE — the seat-scoped author hash —
+  // so they are counted as ONE set: a resident who voted on the board's issue
+  // poll and also wrote a comment is one person, not two. The union is a
+  // subquery consumed only by countDistinct; no hash leaves Postgres.
+  const voicePeople = db
+    .select({ h: voiceTakes.authorHash })
     .from(voiceTakes)
-    .where(eq(voiceTakes.seatKey, seat));
+    .where(eq(voiceTakes.seatKey, seat))
+    .union(
+      db.select({ h: voicePollVotes.authorHash })
+        .from(voicePollVotes)
+        .where(eq(voicePollVotes.seatKey, seat))
+    )
+    .union(
+      db.select({ h: voicePollAnswers.authorHash })
+        .from(voicePollAnswers)
+        .innerJoin(voicePolls, eq(voicePollAnswers.pollId, voicePolls.id))
+        .where(eq(voicePolls.seatKey, seat))
+    )
+    .as("voice_people");
+  const [voice] = await db
+    .select({ v: countDistinct(voicePeople.h) })
+    .from(voicePeople);
   const [votes] = await db
     .select({ v: countDistinct(ddPollVotes.userId) })
     .from(ddPollVotes)
@@ -266,7 +281,7 @@ async function countParticipants(seat: string): Promise<number> {
     .from(ddPosts)
     .innerJoin(ddThreads, eq(ddPosts.threadId, ddThreads.id))
     .where(eq(ddThreads.districtId, seat));
-  return n(answers) + n(takes) + n(votes) + n(posts);
+  return n(voice) + n(votes) + n(posts);
 }
 
 // ── THE PER-ISSUE TALLY BAND 3 PRINTS ───────────────────────────────────────
@@ -290,6 +305,14 @@ async function issueTally(seat: string) {
     .where(eq(voicePolls.seatKey, seat))
     .groupBy(voicePolls.issueKey);
   for (const r of pollAnswers) row(String(r.issueKey)).polls += n(r);
+
+  // The Layton composer boards' per-issue poll (district-board-poll.mts).
+  const boardVotes = await db
+    .select({ issueKey: voicePollVotes.issueKey, v: countDistinct(voicePollVotes.authorHash) })
+    .from(voicePollVotes)
+    .where(eq(voicePollVotes.seatKey, seat))
+    .groupBy(voicePollVotes.issueKey);
+  for (const r of boardVotes) row(String(r.issueKey)).polls += n(r);
 
   const ddVotes = await db
     .select({ issueKey: ddPollVotes.issueKey, v: countDistinct(ddPollVotes.userId) })
