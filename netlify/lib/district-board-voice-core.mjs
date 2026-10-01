@@ -20,9 +20,10 @@
 //                      consistency check on a location the reader typed, and a
 //                      typed location or zip is not proof of residency.
 //
-// NO IDENTITY VENDOR IS WIRED in this environment and nothing in this repo
-// writes method = 'vendor'. So today the gate refuses everybody, and that is the
-// honest state: the composer is on the page, disabled, with the locked line. It
+// THE ONLY WRITER OF method = 'vendor' is the signed Veriff decision webhook
+// (netlify/lib/residency-vendor-core.mjs), and it writes the seat the session
+// was started from and no other. Until that lands for THIS seat the gate
+// refuses, and the composer is on the page, disabled, with the locked line. It
 // is NOT faked verified — there is no flag, env var or test hook that turns it on.
 //
 // ── A REFUSAL WRITES NOTHING ────────────────────────────────────────────────
@@ -66,8 +67,8 @@ export const LOCKED_LINE = "Only verified residents of this seat get a voice tha
 export const COPY = {
   noSeat: "This board does not take posts.",
   signedOut: "Sign in to start. Reading stays open to everyone.",
-  unverified: "Residency is checked by ID verification, and that check is not connected " +
-    "here, so posting is closed on this board. A typed address or zip is not accepted as proof.",
+  unverified: "Posting opens after an ID and address check for this seat. " +
+    "A typed address, zip or saved location is not accepted as proof.",
   open: "You are a verified resident of this seat. Posts are public and carry no name.",
   noIssue: "Choose an issue from this seat's table.",
   empty: "Write something first.",

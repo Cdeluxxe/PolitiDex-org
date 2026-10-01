@@ -193,7 +193,9 @@ for (const [alias] of SEATS) {
     no(R(f), 'id="pdx-district-composer"', `${f}: still has no composer`);
   }
   const DC = R("district-composer.js");
-  for (const bad of ["ut-gov", "us-senate", "zip", "Veriff", "Stripe"]) {
+  // Veriff is the one residency vendor now wired (the composer links to its
+  // hosted page); Stripe stays out — one vendor, not both.
+  for (const bad of ["ut-gov", "us-senate", "zip", "Stripe"]) {
     no(DC.replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, ""), bad, `district-composer.js code names ${bad}`);
   }
 }

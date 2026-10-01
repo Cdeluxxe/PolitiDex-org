@@ -12,10 +12,16 @@
    THE BOX IS OFF UNTIL THE SERVER SAYS OTHERWISE. The served markup is a
    disabled field with the locked line. This module turns it on only when
    GET /api/district-board-voice answers `voice.canPost: true` for the signed-in
-   caller — which needs a vendor-verified residency row for this seat (Stripe
-   Identity / Veriff). That vendor is not connected, so today nobody gets it,
-   and nothing here can fake it: there is no local flag, no typed zip, no
-   location claim. A failed read keeps the box off.
+   caller — which needs a vendor-verified residency row for this seat. Nothing
+   here can fake it: there is no local flag, no typed zip, no location claim.
+   A failed read keeps the box off.
+
+   PROVE YOU LIVE HERE. A signed-in reader the server calls `unverified` gets
+   one button. It asks POST /api/residency-verify for a Veriff session bound to
+   { uid, seat } for THIS board and sends the reader to the vendor's page. The
+   box opens only after the vendor's signed decision (ID document + proof of
+   address) reaches the server and the next GET says so — coming back from the
+   vendor opens nothing on its own. Neighbouring boards need their own check.
 
    Posts are read from the same endpoint, newest first, with no name, email or
    address on the wire. After a post lands, band 2 is re-read from the store
@@ -45,8 +51,15 @@
     feedUnread: 'We could not read this board’s posts just now. This is not an empty board — it is a read that failed.',
     unreadNote: 'Posting stays off until this board can confirm who you are.',
     failed: 'That post did not go through.',
-    mine: 'You'
+    mine: 'You',
+    prove: 'Prove you live here',
+    proving: 'Opening the ID check…',
+    proveNote: 'An ID and proof-of-address check run by Veriff for this seat only. ' +
+      'PolitiDex keeps that you passed, not your ID or your address.',
+    proveFailed: 'The ID check did not open. Posting stays closed on this board.',
+    returned: 'Your check is with the vendor. This board opens once it confirms; that can take a few minutes.'
   };
+  var VERIFY_API = '/api/residency-verify';
 
   function fn(v) { return typeof v === 'function'; }
   function esc(s) {
@@ -128,6 +141,9 @@
   var _draft = '';
   var _issue = '';
   var _busy = false;
+  var _proving = false;
+  var _proveStatus = '';
+  var _returned = false;
 
   function canPost() {
     return !!(_read && _read.voice && _read.voice.canPost === true);
@@ -192,6 +208,52 @@
       esc(signInHref()) + '">' + esc(note) + '</a></p>';
   }
 
+  // The vendor's page, and only the vendor's page. Anything else is refused.
+  function vendorUrl(u) {
+    try {
+      var p = new URL(String(u || ''));
+      if (p.protocol !== 'https:') return '';
+      var h = p.hostname.toLowerCase();
+      return (/(^|\.)veriff\.(com|me)$/.test(h)) ? p.href : '';
+    } catch (e) { return ''; }
+  }
+
+  function proveHtml(reason) {
+    if (reason !== 'unverified' || canPost()) return '';
+    var dis = _proving ? ' disabled aria-disabled="true"' : '';
+    return '<div class="pdxdc-prove" data-pdxdc-prove="1">' +
+      '<button class="pdxdc-btn" type="button" data-pdxdc-prove-btn="1"' + dis + '>' +
+        esc(_proving ? COPY.proving : COPY.prove) + '</button>' +
+      '<p class="pdxdb-foot">' + esc(_returned ? COPY.returned : COPY.proveNote) + '</p>' +
+      (_proveStatus ? '<p class="pdxdc-status" role="status">' + esc(_proveStatus) + '</p>' : '') +
+    '</div>';
+  }
+
+  function prove() {
+    if (_proving) return;
+    _proving = true;
+    _proveStatus = '';
+    render();
+    bearer().then(function (t) {
+      if (!t) return { ok: false, status: 403, data: {} };
+      return fetch(VERIFY_API, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + t },
+        cache: 'no-store',
+        body: JSON.stringify({ seat: _seat })
+      }).then(function (res) {
+        return res.json().catch(function () { return {}; }).then(function (d) { return { ok: res.ok, status: res.status, data: d || {} }; });
+      });
+    }).catch(function () { return { ok: false, status: 0, data: {} }; }).then(function (res) {
+      _proving = false;
+      var go = res.ok && res.data ? vendorUrl(res.data.url) : '';
+      if (go) { window.location.assign(go); return; }
+      if (res.ok && res.data && res.data.verified === true) { load(); return; }
+      _proveStatus = (res.data && res.data.error) || COPY.proveFailed;
+      render();
+    });
+  }
+
   function render() {
     if (!_host) return;
     var open = canPost() && !_busy;
@@ -219,6 +281,7 @@
           (_status ? '<p class="pdxdc-status" role="status">' + esc(_status) + '</p>' : '') +
         '</form>' +
         noteHtml(note, _read === false ? '' : v.reason) +
+        proveHtml(_read === false ? '' : v.reason) +
       '</section>' +
       '<section class="pdxdb-band pdxdb-band--posts" data-pdxdb-band="posts">' +
         '<h2 class="pdxdb-h2">' + esc(COPY.feedHd) + '</h2>' +
@@ -229,6 +292,8 @@
   }
 
   function wireForm() {
+    var pb = _host.querySelector('[data-pdxdc-prove-btn]');
+    if (pb) pb.addEventListener('click', function () { prove(); });
     var form = _host.querySelector('form');
     if (!form) return;
     var ta = form.querySelector('textarea');
@@ -246,6 +311,7 @@
   }
 
   function load() {
+    var was = canPost();
     return call('GET', '?seat=' + encodeURIComponent(_seat)).then(function (res) {
       if (!res.ok || !res.data || !Array.isArray(res.data.posts)) {
         _read = false;
@@ -255,6 +321,13 @@
         _posts = res.data.posts;
       }
       render();
+      // The server just opened this seat: let the poll re-ask too.
+      if (!was && canPost()) {
+        try {
+          var P = window.PDXDistrictPoll;
+          if (P && fn(P.refresh)) P.refresh();
+        } catch (e) {}
+      }
     });
   }
 
@@ -295,8 +368,17 @@
     if (!Object.prototype.hasOwnProperty.call(COMPOSER_SEATS, seat)) return false;
     _host = el;
     _seat = seat;
+    // Back from the vendor. This is a hint for the copy only — it opens
+    // nothing; the server's next answer does. Re-ask a few times while the
+    // vendor's decision is in flight.
+    try { _returned = /[?&]residency=returned(&|$)/.test(String(window.location.search || '')); } catch (e) {}
     render();
     load();
+    if (_returned) {
+      [8000, 20000, 45000].forEach(function (ms) {
+        setTimeout(function () { if (!canPost()) load(); }, ms);
+      });
+    }
     // Re-ask whenever the account changes — signing in can only ever turn the
     // box on if the SERVER then says this account is verified for this seat.
     try {

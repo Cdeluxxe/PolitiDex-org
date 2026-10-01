@@ -11,8 +11,9 @@
 // ── THE GATE IS THE COMPOSER'S, AND IT FAILS CLOSED ─────────────────────────
 // signed in + a voice_residency row for THIS seat with status 'verified' AND
 // method 'vendor'. A location_match row, a typed zip or a flag for a neighbour
-// seat opens nothing. No vendor is wired, so today every vote is refused; there
-// is no flag, env var or test hook that turns it on. The gate is asked BEFORE
+// seat opens nothing. Only the signed Veriff webhook writes a vendor row, so a
+// seat stays refused until its own check passes; there is no flag, env var or
+// test hook that turns it on. The gate is asked BEFORE
 // the issue or the choice is looked at, and every refusal returns before the
 // upsert is reachable — an unverified POST is 403 and writes nothing.
 //
