@@ -793,15 +793,54 @@
       return m ? sanitize(m[1]) : '';
     }
 
+    // ── THE STANCE STUDIO DOOR — THE SAME INTENT, CARRIED TO /my-stances ─────
+    // THE BUG THIS CLOSES. "Set your positions" on a district board was a plain
+    // trip to /my-stances, and the studio has no idea where a reader came from:
+    // after a save they were left on the studio, and the way out of it is
+    // "Your file" (/me) or "← Home". The board that asked them for a position
+    // never saw them again — the finder bug and the Join bug, one door over.
+    //
+    // SO IT IS THE SAME PARAMETER AND THE SAME ALLOW-LIST, not a third stash.
+    // studioHref() puts `next` on the studio's address; the studio, on a save
+    // or a dismiss, calls studioSettled(), which is consume() with the gate
+    // it needs. `add` keeps the board's two doors two doors: ?add=1 for a
+    // reader who holds nothing, the plain address for one who holds sides.
+    //
+    // NO INTENT, NO PARAMETER. A `next` that is not on OK_RE (or is the front
+    // page) is dropped, and the href is today's door exactly — so a reader who
+    // opens the studio from /me or the nav carries nothing and finishes where
+    // they always did.
+    var STUDIO = '/my-stances';
+
+    function studioHref(next, add) {
+      var n = sanitize(next);
+      var q = add ? 'add=1' : '';
+      if (n && strip(n) !== '/') q += (q ? '&' : '') + PARAM + '=' + encodeURIComponent(n);
+      return STUDIO + (q ? '?' + q : '');
+    }
+
+    // The studio intent, or '' — STRICT, like joinIntent(), and only on the
+    // studio's own document (window.__PDX_STANCES_DOC, declared once, in
+    // my-stances.html's head). A save that came with a mangled or off-origin
+    // intent has no lane to fall back to, so it stays exactly where it is.
+    function studioIntent() {
+      if (!window.__PDX_STANCES_DOC) return '';
+      var m = null;
+      try { m = /[?&]next=([^&#]*)/.exec(String(window.location.search || '')); } catch (e) { m = null; }
+      return m ? sanitize(m[1]) : '';
+    }
+
     function consume() {
       var next = read();
       if (!next) return false;
       if (!window._pdxLocSaved || !window._hasUserLocation) {
-        // No location was saved on this page view, so the only thing that can
-        // still spend the intent is a settled account sheet that was opened FOR
-        // it. Anything else stays exactly where it is.
-        if (!window._pdxAuthSettled) return false;
-        next = joinIntent();
+        // No location was saved on this page view, so the only things that can
+        // still spend the intent are a settled account sheet that was opened
+        // FOR it, or a studio visit that saved or was dismissed. Anything else
+        // stays exactly where it is.
+        if (window._pdxAuthSettled) next = joinIntent();
+        else if (window._pdxStudioSettled) next = studioIntent();
+        else return false;
         if (!next) return false;
       }
       var at = '';
@@ -849,11 +888,23 @@
       return consume();
     }
 
+    // ── studioSettled() — THE STUDIO SAVED OR WAS DISMISSED; SPEND IT ────────
+    // Called by stance-studio.js after a position is written or cleared, and
+    // when the reader skips or leaves. Same rule as authSettled(): the board
+    // asked, the reader answered, and either way the board is where they were
+    // standing. With no `next` on the address this is a no-op, which is the
+    // /me and nav case — nothing was asked, so nothing moves.
+    function studioSettled() {
+      window._pdxStudioSettled = true;
+      return consume();
+    }
+
     return {
       HOME: HOME, PARAM: PARAM, FINDER: FINDER, OK_RE: OK_RE, FRAGMENT: FRAGMENT, JOIN: JOIN,
       sanitize: sanitize, read: read, here: here,
       finderHref: finderHref, consume: consume, settled: settled,
-      joinHref: joinHref, wantsJoin: wantsJoin, joinIntent: joinIntent, authSettled: authSettled
+      joinHref: joinHref, wantsJoin: wantsJoin, joinIntent: joinIntent, authSettled: authSettled,
+      STUDIO: STUDIO, studioHref: studioHref, studioIntent: studioIntent, studioSettled: studioSettled
     };
   })();
 
