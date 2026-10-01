@@ -543,6 +543,42 @@
     } catch (e) {}
   }
 
+  // ── THE WAY BACK ──────────────────────────────────────────────────────────
+  // A reader who came from a district board carries that board as PDXReturn's
+  // `next` (the board's "Set your positions" is PDXReturn.studioHref()). A save,
+  // a clear, a "Not sure" or a skip all settle the visit, and studioSettled()
+  // is consume() with the studio's gate: it walks them back to the board when
+  // the intent survived the allow-list, and does nothing at all when there is
+  // none — which is every visit from /me or the nav. This module reads no
+  // `next` of its own; PDXReturn owns the parameter.
+  function settle() {
+    try {
+      var R = window.PDXReturn;
+      if (R && fn(R.studioSettled)) return !!R.studioSettled();
+    } catch (e) {}
+    return false;
+  }
+  function intent() {
+    try {
+      var R = window.PDXReturn;
+      if (R && fn(R.studioIntent)) return String(R.studioIntent() || '');
+    } catch (e) {}
+    return '';
+  }
+  // The shell bar's "← Home" is the studio's dismiss. With a board intent it is
+  // a real link to that board, the same address consume() would assign.
+  function backDoor() {
+    var to = intent();
+    if (!to) return;
+    try {
+      var a = document.getElementById('pdx-ms-home');
+      if (!a) return;
+      a.setAttribute('href', to);
+      a.setAttribute('data-pdx-return', 'board');
+      a.textContent = '\u2190 Back to the district board';
+    } catch (e) {}
+  }
+
   // ── The controls ──────────────────────────────────────────────────────────
   var API = {
     HOST: HOST, GOAL: GOAL, HITS: HITS, STARTERS: STARTERS,
@@ -569,18 +605,22 @@
       _beat.pending = '';
       _beat.focus = k;
       render();
+      settle();
     },
     clear: function (k) {
       if (!known(k)) return;
       clear(k);
       _beat.pending = ''; _beat.focus = ''; _beat.unsure = false;
       render();
+      settle();
     },
     back: function () { _beat.pending = ''; render(); },
     // SKIP THE TUTORIAL. Not a dismissal of the page — the reader still gets
     // the library and the search, which is everything the page does minus the
     // lesson. Writes nothing, and cannot: there is no flag to write to.
-    skip: function () { _beat.mode = 'B'; _beat.pending = ''; _beat.focus = ''; render(); },
+    skip: function () { _beat.mode = 'B'; _beat.pending = ''; _beat.focus = ''; render(); settle(); },
+    // LEAVING, from a board: the same settle a save makes. No intent, no move.
+    dismiss: function () { return settle(); },
     // MODE A's PRIMARY, and it means "ask me the first question again". It
     // stays in the tutorial deliberately: a reader on their second issue is
     // still learning the move, and dropping them into the library mid-lesson
@@ -610,6 +650,7 @@
     _scope: scopeOf,
     _label: labelOf,
     _seat: openSeat,
+    _intent: intent,
     _state: function () { var o = {}; Object.keys(_beat).forEach(function (k) { o[k] = _beat[k]; }); return o; }
   };
   window.PDXStanceStudio = API;
@@ -622,6 +663,7 @@
     if (!host()) return;
     readUrl();
     render();
+    backDoor();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();

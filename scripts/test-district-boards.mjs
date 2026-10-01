@@ -994,7 +994,12 @@ function sd6Band1Faults(modSrc) {
       /\n    <!-- THE COMPOSER'S HOST\.[\s\S]*?data-pdxdc-seat=[\s\S]*?<\/section>\n      <\/div>\n    <\/div>\n/,
       /       · (?:NO WORKING COMPOSER, AND NO FAKE ONE\. Posting is not built\.\n|ONE COMPOSER, AND IT IS OFF UNTIL THE SERVER OPENS IT — [\s\S]*?No fake composer either\.\n)/,
     ];
-    const strip = (t) => COMPOSER_BLOCKS.reduce((x, re) => x.replace(re, ""), t.replace(RET_TAG, ""));
+    // Every board's noscript studio link later took its own `next`
+    // (scripts/test-board-stance-return.mjs pins it). Normalised here; the
+    // address must still name this board and no other.
+    const STUDIO_DOOR = new RegExp(`<a href="/my-stances\\?next=%2Fdistrict%2F${b.alias}">`, "g");
+    const strip = (t) => COMPOSER_BLOCKS.reduce((x, re) => x.replace(re, ""),
+      t.replace(RET_TAG, "").replace(STUDIO_DOOR, '<a href="/my-stances">'));
     ok(strip(h) === strip(R(b.doc)), `neighbours: ${b.doc} changed in this pass and should not have`);
   }
 }

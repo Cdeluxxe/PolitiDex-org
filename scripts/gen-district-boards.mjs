@@ -202,6 +202,13 @@ const RETURN_TAG =
   "       sign-in door on this board carry it back here. Before the chip. -->\n" +
   "  <script defer src=\"/pdx-return.js\"></script>\n";
 
+// THE STUDIO DOOR IN THE FALLBACK, spelled the way PDXReturn.studioHref()
+// spells it for the live band: this board's own address as `next`, encoded.
+// A reader without JavaScript cannot be walked back by consume(), but the
+// address still says where they came from, and the suite pins every board to
+// its own path.
+export const studioDoor = (alias) => `/my-stances?next=${encodeURIComponent(`/district/${alias}`)}`;
+
 export function renderDoc(b, template = R("scripts/district-board.template.html")) {
   const h1 = html(b.h1);
   const where = html(b.where);
@@ -216,7 +223,7 @@ export function renderDoc(b, template = R("scripts/district-board.template.html"
         `          (<span data-pdxdb-roster-name>${html(b.member)}</span>,`,
         `          <span data-pdxdb-roster-office>${html(b.office)}</span>),`,
         `          <a href="/#who-represents-me">see who represents you</a>, or`,
-        `          <a href="/my-stances">set your own positions</a>.`,
+        `          <a href="${studioDoor(b.alias)}">set your own positions</a>.`,
         `        </p>`,
       ]
     : b.usHouse
@@ -229,7 +236,7 @@ export function renderDoc(b, template = R("scripts/district-board.template.html"
         `          member holds a congressional district is a lookup, so there is no`,
         `          name for this fallback to print. You can still`,
         `          <a href="/#who-represents-me">see who represents you</a> or`,
-        `          <a href="/my-stances">set your own positions</a>.`,
+        `          <a href="${studioDoor(b.alias)}">set your own positions</a>.`,
         `        </p>`,
       ]
     : [
@@ -242,7 +249,7 @@ export function renderDoc(b, template = R("scripts/district-board.template.html"
         `          (<span data-pdxdb-roster-name>${html(b.member)}</span>,`,
         `          <span data-pdxdb-roster-office>${html(b.office)}</span>),`,
         `          <a href="/#who-represents-me">see who represents you</a>, or`,
-        `          <a href="/my-stances">set your own positions</a>.`,
+        `          <a href="${studioDoor(b.alias)}">set your own positions</a>.`,
         `        </p>`,
       ];
   const vars = {

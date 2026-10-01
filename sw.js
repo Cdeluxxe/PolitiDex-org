@@ -8427,7 +8427,20 @@
 //     author_hash, status, method and reviewed_at.
 //     district-composer.js and district-poll.js are precached and changed, so
 //     it moves one version.
-const CACHE_VERSION = 'v272';
+// v273 - SET YOUR POSITIONS RETURNS TO THE BOARD. Every district board's
+//     "Set your positions" (and its noscript fallback) now carries the board
+//     as PDXReturn's `next`, through the new PDXReturn.studioHref() - same
+//     parameter and allow-list as the finder and Join. On /my-stances a save,
+//     a clear, "Not sure" or "Skip for now" calls PDXReturn.studioSettled(),
+//     which is consume() with the studio's gate, and "← Home" points at the
+//     board. A mangled or off-origin `next` is dropped; a visit from /me or
+//     the nav carries none and stays where it always did. No new store, no
+//     posting, no residency write, no new board, no splat; BOARD_ROUTES is
+//     unchanged. MIGRATION COST: none, and no location key is migrated,
+//     renamed or copied. my-stances.html (precached),
+//     voter-hub-location.js and pdx-return.js changed, so it moves one
+//     version.
+const CACHE_VERSION = 'v273';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

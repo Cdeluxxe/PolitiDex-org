@@ -1300,6 +1300,22 @@
     return true;
   }
 
+  // ── THE DOOR BACK, THROUGH THE ONE OWNER ─────────────────────────────────
+  // Every studio link on this band carries this board as PDXReturn's `next`,
+  // so a save or a dismiss in the studio lands the reader here and not on /me.
+  // The address is the MOUNTED board's own route (the document says which
+  // board it is; this never reads the URL), and it goes through
+  // PDXReturn.studioHref(), which owns the parameter and the allow-list the
+  // finder and Join already use. No PDXReturn on the document, no intent: the
+  // plain address, exactly as before.
+  function stanceDoor(add) {
+    try {
+      var R = window.PDXReturn;
+      if (R && fn(R.studioHref)) return R.studioHref(ROUTE(), !!add);
+    } catch (e) {}
+    return add ? COPY.stanceHref : COPY.stanceMoreHref;
+  }
+
   function stanceHtml(tableIssues) {
     var S = null;
     var n = -1;
@@ -1322,14 +1338,14 @@
     if (n === 0 && !readerComplete()) n = -1;
     if (n < 0) {
       return '<div class="pdxdb-stance" data-pdxdb-stance="unread">' +
-          '<a class="pdxdb-stance-cta" href="' + esc(COPY.stanceMoreHref) + '"' +
+          '<a class="pdxdb-stance-cta" href="' + esc(stanceDoor(false)) + '"' +
           ' data-pdxdb-stance-cta="open">' + esc(COPY.stanceCta) + '</a>' +
         '</div>';
     }
 
     if (n === 0) {
       return '<div class="pdxdb-stance" data-pdxdb-stance="none">' +
-          '<a class="pdxdb-stance-cta" href="' + esc(COPY.stanceHref) + '"' +
+          '<a class="pdxdb-stance-cta" href="' + esc(stanceDoor(true)) + '"' +
           ' data-pdxdb-stance-cta="set">' + esc(COPY.stanceCta) + '</a>' +
           '<p class="pdxdb-stance-note">' + esc(COPY.stanceCtaNote) + '</p>' +
         '</div>';
@@ -1362,7 +1378,7 @@
       // them — the door stays available and says nothing about their file. It
       // is the PLAIN address, not the add flow: they are not a first run.
       return '<div class="pdxdb-stance" data-pdxdb-stance="off-table">' +
-          '<a class="pdxdb-stance-cta" href="' + esc(COPY.stanceMoreHref) + '"' +
+          '<a class="pdxdb-stance-cta" href="' + esc(stanceDoor(false)) + '"' +
           ' data-pdxdb-stance-cta="open">' + esc(COPY.stanceCta) + '</a>' +
         '</div>';
     }
@@ -1371,7 +1387,7 @@
         '<p class="pdxdb-stance-note">' + esc(COPY.stanceMineNote) + '</p>' +
         '<ul class="pdxdb-sides">' + mine.join('') + '</ul>' +
         '<p class="pdxdb-stance-act">' +
-          '<a class="pdxdb-stance-more" href="' + esc(COPY.stanceMoreHref) + '"' +
+          '<a class="pdxdb-stance-more" href="' + esc(stanceDoor(false)) + '"' +
           ' data-pdxdb-stance-cta="more">' + esc(COPY.stanceMore) + '</a>' +
         '</p>' +
       '</div>';
@@ -1670,6 +1686,7 @@
     roomHtml: roomHtml,
     tableHtml: tableHtml,
     stanceHtml: stanceHtml,
+    stanceDoor: stanceDoor,
     composeHtml: composeHtml,
     // For district-composer.js on SD-3: the seat's own issue list (what band 3
     // printed), the vocabulary's word for a key, and a fresh band-2 read.
