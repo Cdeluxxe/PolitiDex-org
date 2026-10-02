@@ -8449,7 +8449,20 @@
 //     No new board, no composer change, no residency write, no splat;
 //     BOARD_ROUTES stays 88. MIGRATION COST: none. district-board.js is
 //     precached and changed, so it moves one version.
-const CACHE_VERSION = 'v274';
+// v275 - /ME'S DISTRICT VOICE BLOCK IS THE HOMEPAGE'S DOOR. Region g on /me
+//     was a plain navy card; it now wears index.html's own District Voice
+//     card classes (pdxhv-card, pdxhv-kick, pdxhv-door) - forest fill, gold
+//     edge, gold eyebrow, one gold control, still /voice - with the homepage
+//     rules copied verbatim into me.html. The seat lines stay and the block
+//     did not move. The "Verified resident" chip is gone: it was painted from
+//     a saved location, and a saved location is not a vendor residency row.
+//     Money pills, the Follow the Money chip and every money glyph are
+//     untouched; Voice and money share no component. No board copy change,
+//     no new board, no composer, no residency write, no splat; BOARD_ROUTES
+//     stays 88. MIGRATION COST: none, and no location key is migrated,
+//     renamed or copied. me.html, me-desk.js and me-desk.css are precached
+//     and changed, so it moves one version.
+const CACHE_VERSION = 'v275';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
