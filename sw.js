@@ -8440,7 +8440,16 @@
 //     renamed or copied. my-stances.html (precached),
 //     voter-hub-location.js and pdx-return.js changed, so it moves one
 //     version.
-const CACHE_VERSION = 'v273';
+// v274 - THE BOARD FOOTER NAMES THE REAL GATE. The line under every district
+//     board's issue list said posting was "limited on the free tier and
+//     unlimited for members". That was never the gate: posting and polls open
+//     only after a vendor residency check for that seat. The footer now keeps
+//     "free to everyone" for reading and prints the composer's own locked
+//     line, "Only verified residents of this seat get a voice that counts."
+//     No new board, no composer change, no residency write, no splat;
+//     BOARD_ROUTES stays 88. MIGRATION COST: none. district-board.js is
+//     precached and changed, so it moves one version.
+const CACHE_VERSION = 'v274';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
