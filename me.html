@@ -2371,6 +2371,30 @@
   <script defer src="/district-voice.js"></script>
   <script defer src="/me-desk.js"></script>
 
+  <!-- pdx:me-voice-door:begin -->
+  <style>
+    /* THE HOMEPAGE'S DISTRICT VOICE DOOR, VERBATIM. The rules between the two
+       marks below are index.html's pdx:home-voice-gate rules, copied byte for
+       byte so region g reads as the same door — forest fill, gold edge, gold
+       eyebrow, gold control. scripts/test-me-voice-door.mjs fails if they
+       drift. This is Voice's look only: no money glyph, no money token and no
+       finance-lane class, because a gold edge is Voice and the money pill is
+       money, and the two share no component. */
+    /* home:begin */
+    .pdxhv-card{max-width:40rem;margin:0.5rem auto 2rem;padding:1.5rem 1.6rem 1.4rem;text-align:left;border:1.5px solid rgba(245,200,66,0.55);border-left-width:4px;border-radius:0.9rem;background:linear-gradient(135deg,rgba(18,58,42,0.82),rgba(14,30,40,0.9));box-shadow:0 0 0 1px rgba(245,200,66,0.08),0 0 28px rgba(245,200,66,0.14),0 8px 24px rgba(0,0,0,0.28);}
+    .pdxhv-kick{margin:0 0 0.55rem;font:800 0.9rem/1 'Barlow Condensed','Barlow',sans-serif;letter-spacing:0.18em;text-transform:uppercase;color:#f5c842;}.pdxhv-title{margin:0 0 0.6rem;font:800 clamp(1.45rem,4.2vw,1.95rem)/1.15 'Barlow Condensed','Barlow',sans-serif;letter-spacing:0.01em;color:#fff7dc;}
+    .pdxhv-line{margin:0 0 1.1rem;font:400 1rem/1.6 'Barlow',system-ui,sans-serif;color:#d8e8dc;}
+    .pdxhv-door{display:inline-flex;align-items:center;min-height:44px;padding:0.6rem 1.15rem;border:1.5px solid rgba(245,200,66,0.9);border-radius:999px;font:700 0.95rem/1 'Barlow',system-ui,sans-serif;color:#0a0f1e;text-decoration:none;background:linear-gradient(135deg,#fad96a,#e6b800);transition:filter 0.2s ease;}
+    .pdxhv-door:hover,.pdxhv-door:focus-visible{filter:brightness(1.06);}.pdxhv-door:focus-visible{outline:2px solid #fff7dc;outline-offset:3px;}
+    .pdxhv-note{margin:0.95rem 0 0;font:400 0.85rem/1.55 'Barlow',system-ui,sans-serif;color:#9fb5a8;}
+    @media (prefers-reduced-motion:reduce){.pdxhv-door{transition:none;}}
+    /* home:end */
+    /* /me's fit, and nothing else: the desk's column instead of the hero's
+       centred rail, and a button that answers the pointer like the link. */
+    .me-region.pdxhv-card{max-width:none;margin:0 0 1.1rem;}
+    button.pdxhv-door{cursor:pointer;}
+  </style>
+  <!-- pdx:me-voice-door:end -->
 </head>
 <body>
 

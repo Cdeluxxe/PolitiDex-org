@@ -588,8 +588,11 @@
     findNone: 'No measure in view matches that search.',
     tableUnfiled: 'Not filed under an issue',
 
-    tier: 'The public record and this read-only board are free to everyone. Posting in this ' +
-          'district is limited on the free tier and unlimited for members.',
+    // THE GATE IS A RESIDENCY CHECK FOR THIS SEAT, nothing else. The second
+    // sentence is district-composer.js's LOCKED_LINE, word for word, so the
+    // board and the composer cannot describe two different gates.
+    voiceFoot: 'The public record and this read-only board are free to everyone. ' +
+               'Only verified residents of this seat get a voice that counts.',
     composeLabel: 'Say something to this district',
     composePlaceholder: 'Posting ships next',
     composeNote: 'Posting ships next. This field is off on purpose: a box that kept your ' +
@@ -933,24 +936,24 @@
     if (state === 'unread') {
       return band('table', COPY.tableBand, COPY.tableNote,
         '<p class="pdxdb-unread" role="status">' + esc(COPY.tableUnread) + '</p>',
-        COPY.tier);
+        COPY.voiceFoot);
     }
     if (state !== 'ok') {
       return band('table', COPY.tableBand, COPY.tableNote,
         '<p class="pdxdb-wait" role="status"><span class="pdxdb-dot" aria-hidden="true"></span>' +
-        esc(COPY.tableWait) + '</p>', COPY.tier);
+        esc(COPY.tableWait) + '</p>', COPY.voiceFoot);
     }
 
     var list = Array.isArray(items) ? items : [];
     if (!list.length) {
       return band('table', COPY.tableBand, COPY.tableNote,
-        '<p class="pdxdb-none">' + esc(COPY.tableEmpty) + '</p>', COPY.tier);
+        '<p class="pdxdb-none">' + esc(COPY.tableEmpty) + '</p>', COPY.voiceFoot);
     }
 
     var rows = tableRows(list);
     if (!rows.length) {
       return band('table', COPY.tableBand, COPY.tableNote,
-        '<p class="pdxdb-none">' + esc(COPY.tableEmpty) + '</p>', COPY.tier);
+        '<p class="pdxdb-none">' + esc(COPY.tableEmpty) + '</p>', COPY.voiceFoot);
     }
 
     var tally = roomIndex(rooms);
@@ -981,7 +984,7 @@
       '<div class="pdxdb-groups">' + groups + '</div>' +
       '<p class="pdxdb-none pdxdb-find-none" data-pdxdb-find-none' +
         (anyShown(G) ? ' hidden' : '') + '>' + esc(COPY.findNone) + '</p>',
-      COPY.tier);
+      COPY.voiceFoot);
   }
 
   function anyShown(G) {

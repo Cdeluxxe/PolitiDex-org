@@ -1344,10 +1344,19 @@
   //      /api/voting-record — this document reaches no network at all.
   //   6. IT MERGES NO STORE. pdx_your_file and pdx_my_stances are region b's and
   //      region c's, they stay two stores, and this region touches neither.
-  //   7. IT DOES NOT IMPLY A BOARD SOMEBODY DOES NOT HAVE. The badge is printed
-  //      for the verified standing and for nothing else, and the unverified
-  //      sentence says what is missing rather than inviting a reader into a
-  //      place they cannot enter yet.
+  //   7. IT DOES NOT IMPLY A BOARD SOMEBODY DOES NOT HAVE, OR A CHECK SOMEBODY
+  //      DID NOT PASS. There is no "Verified resident" chip. The "verified"
+  //      standing below means a saved location resolved seats, and a saved
+  //      location is not a verification: only a vendor residency row is, and
+  //      this document reads none. The chip comes back when /me reads that
+  //      row, and not before.
+  //
+  // THE HOMEPAGE'S DOOR, NOT A NEW ONE. The block wears index.html's own
+  // District Voice card classes (pdxhv-card, pdxhv-kick, pdxhv-door), whose
+  // rules me.html copies verbatim, so the forest panel with a gold edge reads
+  // as one door on both documents. It is Voice's look and nobody else's: no
+  // 💰, no money token, no finance-lane class. A gold edge is Voice; a 💰 pill
+  // is money; they share no component.
   //
   // THE CONTROL PER STANDING, and there is exactly one each:
   //
@@ -1370,9 +1379,6 @@
   // made — the same refusal the record makes with "no formal record on file".
   function regionVoice() {
     var v = voice();
-    var badge = v.standing === 'verified'
-      ? '<span class="me-voicetag">Verified resident</span>'
-      : '';
     var V = voiceApi();
     var onHand = 'board on hand';
     var notOnHand = 'board not on hand';
@@ -1390,11 +1396,11 @@
     if (v.standing === 'out') {
       body = '<p class="me-rline">District Voice is for verified residents.</p>' +
         '<p class="me-rline" style="margin:0.7rem 0 0;">' +
-          '<button type="button" class="me-link" data-me-signin="1">Sign in</button></p>';
+          '<button type="button" class="pdxhv-door" data-me-signin="1">Sign in</button></p>';
     } else if (v.standing === 'unverified') {
       body = '<p class="me-rline">No seats on file for this account.</p>' +
         '<p class="me-rline" style="margin:0.7rem 0 0;">' +
-          '<a class="me-voicecta" href="' + esc(v.finder) + '">Set my location</a></p>';
+          '<a class="pdxhv-door" href="' + esc(v.finder) + '">Set my location</a></p>';
     } else {
       // ONE BLOCK, ONE LINE PER SEAT. A list, marked up as one, so the count is
       // read before the first item. No card, no person link, no door per row —
@@ -1407,14 +1413,11 @@
       body = '<p class="me-rline">Seats on file:</p>' +
         '<ul class="me-voiceseats">' + rows + '</ul>' +
         '<p class="me-rline" style="margin:0.7rem 0 0;">' +
-          '<a class="me-voicecta" href="' + esc(v.href) + '">Open District Voice</a></p>';
+          '<a class="pdxhv-door" href="' + esc(v.href) + '">Open District Voice</a></p>';
     }
 
-    return '<section class="me-region" id="me-voice" aria-labelledby="me-voice-t">' +
-      '<div class="me-rhead">' +
-        '<h2 class="me-rtitle" id="me-voice-t">District Voice</h2>' +
-        badge +
-      '</div>' +
+    return '<section class="me-region pdxhv-card" id="me-voice" aria-labelledby="me-voice-t">' +
+      '<h2 class="pdxhv-kick" id="me-voice-t">District Voice</h2>' +
       // The frame sentence is district-voice.js's own, borrowed at runtime. A
       // boot without that module prints no frame rather than a paraphrase.
       (v.frame ? '<p class="me-rline">' + esc(v.frame) + '</p>' : '') +

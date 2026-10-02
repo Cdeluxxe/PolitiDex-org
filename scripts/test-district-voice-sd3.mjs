@@ -767,9 +767,9 @@ for (const u of ["le.utah.gov", "congress.gov", "openstates", "legiscan"]) {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-// 7 · FREE VS PAID, AND THE POSTING SEAM
+// 7 · READING IS FREE, AND THE POSTING SEAM
 // ═════════════════════════════════════════════════════════════════════════════
-section("7 · one sentence about tiers, and a field that is honestly off");
+section("7 · reading is free, voice is residency, and a field that is honestly off");
 
 {
   const { win } = boot({ counts: EMPTY_PAYLOAD, items: [] });
@@ -779,10 +779,11 @@ section("7 · one sentence about tiers, and a field that is honestly off");
   const html = host.innerHTML;
 
   // ONE SENTENCE, in a band footer, and it is copy and nothing else.
-  has(html, "free to everyone", "the tier sentence says the record and the board are free");
-  has(html, "limited on the free tier and unlimited for members",
-    "…and what the tiers actually differ on");
-  eq((html.match(/free tier/g) || []).length, 1, "the tier sentence appears once");
+  has(html, "free to everyone", "the footer says the record and the board are free");
+  has(html, "Only verified residents of this seat get a voice that counts.",
+    "…and that the gate is residency for this seat");
+  eq((html.match(/free tier/gi) || []).length, 0, "no free-tier sentence");
+  ok(!/unlimited for members/i.test(html), "no member tier");
   // NO PRICE, NO CHECKOUT, NO PAYWALL CODE.
   ok(!/\$\s*\d/.test(tagBare(html)), "no price is printed");
   for (const t of ["checkout", "subscribe now", "upgrade now", "billing", "payment"]) {

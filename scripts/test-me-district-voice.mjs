@@ -209,7 +209,8 @@ function makeDoc() {
 // region g renders is the owner's real answer over the owner's real allow-list.
 // A stubbed PDXVoice would let the desk pass this suite while disagreeing with
 // the module it ships beside.
-function bootDesk(opts) {
+function bootDesk(opts) { return bootDeskWith(DESK_JS, opts); }
+function bootDeskWith(deskSrc, opts) {
   const o = opts || {};
   const win = {
     console, JSON, Math, Date, String, Number, Boolean, Array, Object, RegExp,
@@ -271,13 +272,13 @@ function bootDesk(opts) {
   win.__err = null;
   try {
     vm.runInContext(VOICE_JS, ctx, { filename: "district-voice.js" });
-    vm.runInContext(DESK_JS, ctx, { filename: "me-desk.js" });
+    vm.runInContext(deskSrc, ctx, { filename: "me-desk.js" });
   } catch (e) { win.__err = e; }
   win.__mount = mount;
   return win;
 }
 
-const SLOT_RE = /<section class="me-region" id="me-voice"[\s\S]*?<\/section>/;
+const SLOT_RE = /<section class="me-region pdxhv-card" id="me-voice"[\s\S]*?<\/section>/;
 function slotOf(win) {
   const m = SLOT_RE.exec(String(win.__mount.innerHTML));
   return m ? m[0] : "";
@@ -346,7 +347,7 @@ const LV_GOV = { key: "governor", seat: "governor", label: "Governor", statewide
   // pass exists to fix: a reader who taps it from the desk sets a location and
   // is returned to /voice, instead of being left standing on the finder holding
   // an answer nobody asked them for.
-  const cta = /<a class="me-voicecta" href="([^"]+)">([^<]+)<\/a>/.exec(slot);
+  const cta = /<a class="pdxhv-door" href="([^"]+)">([^<]+)<\/a>/.exec(slot);
   ok(!!cta, "unverified: the location control is an anchor with an href");
   if (cta) {
     ok(cta[1].startsWith("/"), `unverified: the jump is a real root-absolute address (${cta[1]})`);
@@ -359,7 +360,7 @@ const LV_GOV = { key: "governor", seat: "governor", label: "Governor", statewide
   // without the intent — a missing 255 KB file may cost the bounce-back, never
   // the ability to set a location at all.
   const bare = bootDesk({ uid: "u_1b", noReturn: true });
-  const bareCta = /<a class="me-voicecta" href="([^"]+)"/.exec(slotOf(bare));
+  const bareCta = /<a class="pdxhv-door" href="([^"]+)"/.exec(slotOf(bare));
   ok(!!bareCta && bareCta[1] === "/find",
     "unverified: with no PDXReturn on the document the control loses its href instead of falling back to the finder");
 }
@@ -419,8 +420,10 @@ const LV_GOV = { key: "governor", seat: "governor", label: "Governor", statewide
   has(slot, "State House District 17", "verified: the House seat is not named");
   has(slot, "State Senate District 3", "verified: the Senate seat is not named");
   has(slot, "Davis County", "verified: the county the reader saved is not on the rows");
-  has(slot, "me-voicetag", "verified: the badge is off");
-  has(slot, "Verified resident", "verified: and it does not say what it certifies");
+  // A SAVED LOCATION IS NOT A VERIFICATION. Seats resolved from a location are
+  // not a vendor residency row, and /me reads no such row, so no chip.
+  lacks(slot, "me-voicetag", "verified-by-location: a residency chip was painted from a saved location");
+  lacks(slot, "Verified resident", "verified-by-location: the slot claims a residency check nobody passed");
   // BOARD ON HAND, SEAT BY SEAT. SD-3 is the one allow-listed board today, so
   // exactly one of these two rows carries it — and the wording is the hallway's
   // own sentence, lower-cased, so the two documents cannot describe one absence
@@ -431,7 +434,7 @@ const LV_GOV = { key: "governor", seat: "governor", label: "Governor", statewide
   // ONE DOOR OUT OF THE WHOLE BLOCK, AND IT IS THE HUB.
   has(slot, 'href="/voice"', "verified: the CTA is not the District Voice hub");
   has(slot, "Open District Voice", "verified: and it does not say so");
-  eq((slot.match(/me-voicecta/g) || []).length, 1, "verified: the block has more than one control");
+  eq((slot.match(/pdxhv-door/g) || []).length, 1, "verified: the block has more than one control");
   // AND THE HALLWAY IS NOT DUPLICATED HERE. The desk is a snapshot: no per-seat
   // door, no person link, no empty-board explanation. /voice owns all of that,
   // and a second copy is where one reader starts being told two things.
@@ -628,6 +631,85 @@ ok(!!V && Number(V[1].slice(1)) >= 195,
   `sw.js: CACHE_VERSION moved for the changed shell assets (at ${V ? V[1] : "?"})`);
 for (const asset of ["/me.html", "/me-desk.js", "/me-desk.css", "/district-voice.js"])
   has(SW, `'${asset}'`, `sw.js precaches ${asset} — a warm device must not pair halves`);
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 7 · THE HOMEPAGE'S DOOR, AND NOT THE MONEY PILL
+// ═════════════════════════════════════════════════════════════════════════════
+// Region g wears index.html's District Voice card — forest fill, gold edge,
+// gold eyebrow, gold control — so the two documents show one door. A gold edge
+// is Voice; a 💰 pill is money; they share no component.
+section("7 · /me's Voice block is the homepage's gold-edge door, and no money pill");
+
+// The checks a Voice slot must pass, as a function so the mutation below runs
+// the very same ones.
+function voiceDoorFaults(slot) {
+  const f = [];
+  if (!/^<section class="me-region pdxhv-card" id="me-voice"/.test(slot)) f.push("the block does not carry the homepage's pdxhv-card class");
+  if (!/<h2 class="pdxhv-kick" id="me-voice-t">District Voice<\/h2>/.test(slot)) f.push("the eyebrow is not the homepage's gold pdxhv-kick");
+  const doors = [...slot.matchAll(/<a class="pdxhv-door" href="([^"]+)">([^<]+)<\/a>/g)];
+  if (doors.length !== 1) f.push(`expected one gold control, got ${doors.length}`);
+  else if (doors[0][1] !== "/voice") f.push(`the gold control goes to ${doors[0][1]}, not /voice`);
+  if ((slot.match(/<a\b/g) || []).length !== 1) f.push("the block carries more than one link");
+  if (/💰/.test(slot)) f.push("a 💰 was painted on the Voice card");
+  if (/money|pdx-money|finance|pdxfl-|pdx-navmenu|pulse-chip|clr-money/i.test(slot)) f.push("the Voice card borrows a money class or token");
+  if (/Verified resident|me-voicetag/.test(slot)) f.push("a residency chip was painted from a saved location");
+  return f;
+}
+const VERIFIED_OPTS = { uid: "u_7", loc: { state: "Utah", city: "Layton", county: "Davis County" }, levels: [LV_HD17, LV_SD3] };
+{
+  const slot = slotOf(bootDesk(VERIFIED_OPTS));
+  const f = voiceDoorFaults(slot);
+  eq(f.length, 0, `the /me Voice block is the homepage door — ${JSON.stringify(f)}`);
+  // THE SEAT LINES STAY, under the gold panel.
+  eq((slot.match(/class="me-voiceseat"/g) || []).length, 2, "the seat lines left the block");
+}
+// THE GOLD RULES ARE THE HOMEPAGE'S, BYTE FOR BYTE.
+{
+  const INDEX = R("index.html");
+  const gate = INDEX.slice(INDEX.indexOf("<!-- pdx:home-voice-gate:begin -->"),
+    INDEX.indexOf("<!-- pdx:home-voice-gate:end -->"));
+  const homeRules = [...gate.matchAll(/^\s*((?:\.pdxhv-|@media \(prefers-reduced-motion:reduce\)\{\.pdxhv-)[^\n]*)$/gm)].map((m) => m[1].trim());
+  const meBlock = (/\/\* home:begin \*\/([\s\S]*?)\/\* home:end \*\//.exec(ME) || [, ""])[1];
+  const meRules = meBlock.split("\n").map((l) => l.trim()).filter(Boolean);
+  ok(homeRules.length >= 5, `the homepage card's rules could not be read (${homeRules.length})`);
+  eq(meRules.join("\n"), homeRules.join("\n"), "me.html's gold rules drifted from the homepage card's");
+  for (const cls of [".pdxhv-card{", ".pdxhv-kick{", ".pdxhv-door{"]) has(meBlock, cls, `me.html carries ${cls}`);
+  ok(/\.pdxhv-card\{[^}]*border:[^;}]*rgba\(245,200,66/.test(meBlock), "the /me card lost the gold edge");
+  ok(/\.pdxhv-card\{[^}]*background:linear-gradient\(135deg,rgba\(18,58,42/.test(meBlock), "the /me card lost the forest fill");
+  ok(!/💰|--pdx-money|pdxfl-/.test(meBlock), "the gold door block borrows money's glyph or token");
+  ok(ME.indexOf("<!-- pdx:me-voice-door:begin -->") > ME.indexOf('<link rel="stylesheet" href="/me-desk.css"'),
+    "the gold door block loads after me-desk.css, so it wins the cascade");
+}
+// MONEY PILL MARKUP IS UNCHANGED. The money surfaces are byte-identical to the
+// last commit, and none of them picked up the Voice door's classes.
+{
+  const MONEY = ["ftm-data.js", "finance-lane.js", "finance-lane.css", "money.html", "index.html"];
+  let head = null;
+  try {
+    const { execFileSync } = await import("node:child_process");
+    head = (f) => execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] });
+    head("me.html");
+  } catch (e) { head = null; }
+  for (const f of MONEY) {
+    const src = R(f);
+    if (head) eq(src === head(f), true, `${f}: money markup changed in this pass`);
+    if (f !== "index.html") lacks(src, "pdxhv-", `${f}: a money surface wears the Voice door's classes`);
+  }
+  const INDEX = R("index.html");
+  has(INDEX, '<a href="/money" role="menuitem" class="pdx-navmenu__item"><span class="pdx-navmenu__ico" aria-hidden="true">💰</span><span class="pdx-navmenu__lb">Follow the Money</span></a>',
+    "the Follow the Money nav chip");
+  has(INDEX, '<a href="/money" class="pulse-chip" style="--c:#34d399;"><span class="pc-ico">💰</span>',
+    "the Follow the Money pulse chip");
+  lacks(CSS_CODE, "pdxhv-", "me-desk.css carries a Voice door rule of its own");
+}
+// MUTATION: a 💰 on the Voice card must fail the same checks.
+{
+  const mutated = DESK_JS.replace(`'<h2 class="pdxhv-kick" id="me-voice-t">District Voice</h2>'`,
+    `'<h2 class="pdxhv-kick" id="me-voice-t">District Voice</h2><span class="pdx-money-pill">💰</span>'`);
+  ok(mutated !== DESK_JS, "the 💰 mutation found nothing to replace");
+  const win = bootDeskWith(mutated, VERIFIED_OPTS);
+  ok(voiceDoorFaults(slotOf(win)).length > 0, "a 💰 painted on the Voice card passed the door checks");
+}
 
 // ═════════════════════════════════════════════════════════════════════════════
 console.log(`\n   ${passed} passed, ${failures.length} failed`);
