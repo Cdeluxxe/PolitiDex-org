@@ -8558,7 +8558,25 @@
 //     not printed until the reader has made a pick. MIGRATION COST: none.
 //     No location key is migrated, renamed or copied; no pick is rewritten.
 //     me.html and me-desk.js are precached and changed, so it moves one version.
-const CACHE_VERSION = 'v283';
+// v284 - DETECT DOES NOT COMMIT A SEAT WHEN THE POINT IS TOO COARSE. On
+//     Camelot the address and a tap on the house read State House 14; Detect
+//     read 15 and named Ariel Defay, because Detect saved only state, county
+//     and congressional number and the county's curated slate filled in the
+//     legislative seats. Detect is now the phone's point plus its accuracy
+//     radius, handed to the /find map (in the URL hash, never the query). If
+//     one district of each chamber holds the whole circle - the radius widened
+//     by each layer's own simplification offset - it commits those seats
+//     through selectDistrict(), the same writer a tap uses. If the circle
+//     crosses a line nothing is committed: the map drops the pin, draws the
+//     circle and says the phone's location covers more than one district -
+//     tap the house or search the address. A later tap or address replaces a
+//     detect point; Detect never replaces a point the reader placed. Flagged,
+//     not fixed here: the Layton pin's U.S. House label can read District 4
+//     while the chip says District 2. MIGRATION COST: none. No location key is
+//     migrated, renamed or copied; the record gains one optional field,
+//     pointSource 'detect', absent on every older record and read as placed.
+//     find.html is precached and changed, so it moves one version.
+const CACHE_VERSION = 'v284';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

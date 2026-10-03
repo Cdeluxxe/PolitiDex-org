@@ -1077,6 +1077,12 @@
                 <span id="pdx-map-search-ico" aria-hidden="true">🔍</span><span class="pdx-map-search-btn-label">Search</span>
               </button>
             </div>
+            <!-- DETECT ON THE MAP. The same handler as the homepage's one Detect
+                 (voter-hub-location.js owns the prompt); here it hands the phone's
+                 point and accuracy circle to pdxMapDetectAt(), which commits seats
+                 only when one district of each chamber holds the whole circle. -->
+            <button type="button" id="pdx-map-detect" class="pdx-map-secondary" style="margin-top:0.45rem;"
+                    onclick="window.triggerManualLocationDetection&amp;&amp;window.triggerManualLocationDetection()">🌐 Use my phone’s location</button>
             <p id="pdx-map-search-note" class="pdx-map-search-note">Type an address to jump straight to your House &amp; Senate districts.</p>
             <!-- Post-search result banner: the searched address + the district for the
                  active toggle + a one-tap commit button. Hidden until a search lands. -->
@@ -1281,6 +1287,9 @@
     var _loadingLayer = false;                         // a boundary fetch is on the wire
     var _layerSeq = 0, _searchSeq = 0;                 // retire work the reader moved past
     var _lastQuery = '';                               // survives a legitimate remount
+    var _detectCircle = null;                          // the phone's accuracy circle, when drawn
+    var _detectCommit = false;                         // a detect point is being committed
+    var _placedThisVisit = false;                      // a tap or an address placed a point here
     var SEARCH_DEADLINE_MS = 12000;                    // one ceiling over a whole search
     // WHOSE LINES ARE LOADED. Utah by default, and deliberately so: this document
     // opens with a location record that may be empty, the Utah legislative layers
@@ -1870,6 +1879,10 @@
       // A tap overrules a searched address: the curated-area tiebreak and the
       // result banner both describe that address, not this point.
       _searchAreaId = null;
+      // AND IT REPLACES A DETECT POINT. The circle was the phone's guess; the
+      // tap is the reader's answer, and from here on Detect will not move it.
+      _placedThisVisit = true;
+      clearDetectCircle();
 
       // A load is already on the wire. The pin has moved, which is the whole of
       // what this tap can honestly change until that load lands.
@@ -2400,6 +2413,13 @@
         loc.stateSenateDistrict = '';
       }
       loc.mapSelected = true;
+      // WHERE THE POINT CAME FROM. 'detect' only while pdxMapDetectAt() is
+      // committing a phone point whose accuracy circle sat inside one district
+      // of each chamber; every tap and every address clears it. That is what
+      // lets a later tap or address replace a detect point while Detect never
+      // replaces a point the reader placed. Same record, one optional field.
+      if (_detectCommit) loc.pointSource = 'detect';
+      else delete loc.pointSource;
 
       var area = resolveArea();
       if (area) {
@@ -2990,6 +3010,9 @@
 
           _searchHit = hit;
           _hasSearchView = true;
+          // An address replaces a detect point, exactly as a tap does.
+          _placedThisVisit = true;
+          clearDetectCircle();
           if (h != null) selectDistrict('house', h, pathForDist('house', h));
           if (s != null) selectDistrict('senate', s, pathForDist('senate', s));
           // AND THE THIRD SEAT GOES THROUGH THE SAME DOOR. It used to be assigned
@@ -3036,6 +3059,173 @@
         }).catch(geoFail);
       }).catch(geoFail);
     }
+    // ══ DETECT: A POINT, A RADIUS, AND A SEAT ONLY WHEN THE CIRCLE ALLOWS ONE ══
+    // The phone does not report where the reader is; it reports a point and a
+    // radius it is fairly sure the reader is inside. On Camelot that circle
+    // straddled the State House 14/15 line and the old Detect answered 15,
+    // naming a member who does not represent the house. So the question this
+    // asks is not "which district holds the point" but "does ONE district hold
+    // the whole circle", for every chamber this finder draws.
+    //
+    // THE RADIUS IS THE PHONE'S PLUS THE MAP'S OWN SLACK. The polygons here are
+    // server-simplified (maxAllowableOffset in each layer's URL), so a drawn
+    // line can sit a few hundred metres off the real one. A circle that clears
+    // the drawn line by less than that has not cleared the real one, so the
+    // offset is read off the URL that loaded the layer — one number, one source
+    // — and added to the radius. Near a line that means Detect declines and the
+    // reader taps; that is the answer the brief asks for.
+    //
+    // NO NEW RESOLVER. The test is the same featureContains() a tap uses, and a
+    // committed answer goes through selectDistrict() — the one writer — exactly
+    // as a tap's does. Nothing here names a member.
+    var M_PER_DEG = 111320;
+    function slackMeters(layerType){
+      var m = /maxAllowableOffset=([0-9.]+)/.exec(String(geoUrl(layerType) || ''));
+      var deg = m ? parseFloat(m[1]) : 0;
+      return isFinite(deg) && deg > 0 ? deg * M_PER_DEG : 0;
+    }
+    // Distance from the origin to segment a→b, in a local metric frame.
+    function segDist(ax, ay, bx, by){
+      var dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
+      var t = l2 ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / l2)) : 0;
+      var x = ax + t * dx, y = ay + t * dy;
+      return Math.sqrt(x * x + y * y);
+    }
+    // 'inside' + the district when the circle touches no edge of the polygon
+    // that holds its centre; 'crosses' when it does; 'none' when no polygon
+    // holds the centre (a seam or another state) and 'nogeo' with no lines.
+    function circleFit(layerType, pt, radius){
+      var geo = _geoCache[layerType];
+      if (!geo || !geo.features) return { fit: 'nogeo', dist: null };
+      var feat = null;
+      for (var i = 0; i < geo.features.length; i++) {
+        if (featureContains(geo.features[i], pt.lng, pt.lat)) { feat = geo.features[i]; break; }
+      }
+      if (!feat) return { fit: 'none', dist: null };
+      var r = radius + slackMeters(layerType);
+      var kx = M_PER_DEG * Math.cos(pt.lat * Math.PI / 180), ky = M_PER_DEG;
+      var g = feat.geometry;
+      var polys = g.type === 'Polygon' ? [g.coordinates] : (g.type === 'MultiPolygon' ? g.coordinates : []);
+      for (var p = 0; p < polys.length; p++) {
+        for (var q = 0; q < polys[p].length; q++) {
+          var ring = polys[p][q];
+          for (var j = 0; j + 1 < ring.length; j++) {
+            var d = segDist((ring[j][0] - pt.lng) * kx, (ring[j][1] - pt.lat) * ky,
+                            (ring[j + 1][0] - pt.lng) * kx, (ring[j + 1][1] - pt.lat) * ky);
+            if (d < r) return { fit: 'crosses', dist: distOf(feat) };
+          }
+        }
+      }
+      return { fit: 'inside', dist: distOf(feat) };
+    }
+    function clearDetectCircle(){
+      if (_detectCircle && _map) { try { _map.removeLayer(_detectCircle); } catch (e) {} }
+      _detectCircle = null;
+    }
+    // The pin on the phone's point and the circle around it. Decoration, so it
+    // is guarded like dropPin: the answer never depends on it being drawn.
+    function showDetect(pt, acc, fit){
+      if (!_map) return;
+      dropPin(pt.lat, pt.lng, 'Your phone’s location');
+      clearDetectCircle();
+      if (!acc) return;
+      try {
+        _detectCircle = L.circle([pt.lat, pt.lng], {
+          radius: acc, interactive: false,
+          color: '#7aa7e8', weight: 1.5, dashArray: '4 4', fillColor: '#7aa7e8', fillOpacity: 0.12
+        }).addTo(_map);
+        if (fit) _map.fitBounds(_detectCircle.getBounds(), { maxZoom: 16, padding: [24, 24] });
+      } catch (e) {}
+    }
+    function placedAlready(){
+      if (_placedThisVisit) return true;
+      try { return typeof window._pdxPlacedPoint === 'function' && !!window._pdxPlacedPoint(); }
+      catch (e) { return false; }
+    }
+    var DETECT_PLACED = 'You already placed your location on the map, so Detect won’t move it. ' +
+      'To change it, tap your house, search your address, or press Clear first.';
+    var DETECT_COARSE = 'Your phone’s location covers more than one district, so nothing was set. ' +
+      'Tap your house on the map or search your address.';
+
+    // pt: { lat, lng, acc } from the Detect handler, or null with a sentence to
+    // print (declined, unavailable, or a placed point it will not move).
+    window.pdxMapDetectAt = function(pt, msg){
+      if (!pt) { if (msg) setSearchNote(escapeHtml(msg), 'is-warn'); return Promise.resolve(false); }
+      if (placedAlready()) { setSearchNote(escapeHtml(DETECT_PLACED), 'is-warn'); return Promise.resolve(false); }
+      var acc = (isFinite(pt.acc) && pt.acc > 0) ? pt.acc : 0;
+      // A detect retires an earlier search or tap still on the wire, like a
+      // second search does — but it never undoes one that already landed.
+      var tok = ++_searchSeq;
+      var framed = !!_map;
+      showDetect(pt, acc, true);
+      setSearchNote('Checking your phone’s location' + (acc ? ' (within about ' + Math.round(acc) + ' m)' : '') +
+        ' against the district lines…');
+      return censusAtPoint(pt.lat, pt.lng).then(function(extra){
+        if (stale(tok)) return false;
+        if (!extra || !extra.state || !stateInfo(extra.state)) {
+          setSearchNote('We couldn’t tell which state your phone’s location is in. ' +
+            'Tap your house on the map or search your address.', 'is-warn');
+          return false;
+        }
+        setScopeState(extra.state);
+        setLayerChrome(_activeLayer);
+        showStatus('Loading ' + _scopeState + ' district boundaries…', true);
+        var reqs = SEATS.map(function(t){ return fetchGeo(t).catch(function(){ return null; }); });
+        return Promise.all(reqs).then(function(){
+          hideStatus();
+          if (stale(tok)) return false;
+          // Checked again: a tap or an address may have landed while the lines
+          // were loading, and it wins.
+          if (placedAlready()) { setSearchNote(escapeHtml(DETECT_PLACED), 'is-warn'); return false; }
+          try { showLayer(_activeLayer, true); } catch (e) {}
+          showDetect(pt, acc, !framed);   // back on top of the freshly drawn lines
+          var fits = {}, crossed = [], lost = [];
+          SEATS.forEach(function(t){
+            var f = acc ? circleFit(t, pt, acc) : { fit: 'noacc', dist: null };
+            fits[t] = f;
+            if (f.fit === 'crosses') crossed.push(t);
+            else if (f.fit !== 'inside') lost.push(t);
+          });
+          if (!acc) {
+            setSearchNote('Your phone didn’t say how precise its location is, so nothing was set. ' +
+              'Tap your house on the map or search your address.', 'is-warn');
+            return false;
+          }
+          if (crossed.length) {
+            setSearchNote(escapeHtml(DETECT_COARSE) + '<br><span style="opacity:0.85;">The circle crosses a ' +
+              crossed.map(function(t){ return LABEL[t]; }).join(' and a ') + ' line.</span>', 'is-warn');
+            return false;
+          }
+          if (lost.length) {
+            setSearchNote('We couldn’t place your phone’s location inside a ' +
+              lost.map(function(t){ return LABEL[t]; }).join(' or ') + ' district, so nothing was set. ' +
+              'Tap your house on the map or search your address.', 'is-warn');
+            return false;
+          }
+          // ONE DISTRICT OF EACH CHAMBER HOLDS THE WHOLE CIRCLE: commit, same as
+          // a tap. The address-derived banner does not describe this point.
+          _searchAreaId = null; _hasSearchView = false; _searchHit = null;
+          if (extra.city || extra.county) _searchHit = { lat: pt.lat, lng: pt.lng, name: '', city: extra.city || '', county: extra.county || '' };
+          _detectCommit = true;
+          try {
+            SEATS.forEach(function(t){
+              var d = fits[t].dist;
+              if (_selected[t] !== d) selectDistrict(t, d, pathForDist(t, d));
+            });
+          } finally { _detectCommit = false; }
+          refreshResultBanner();
+          setSearchNote('✅ Your phone’s location (within about ' + Math.round(acc) + ' m) sits inside one district of each: <strong>' +
+            SEATS.map(function(t){ return LABEL[t] + ' ' + fits[t].dist; }).join('</strong> · <strong>') +
+            '</strong>.<br><span style="opacity:0.85;">A tap on your house or your address will replace it.</span>', 'is-ok');
+          return true;
+        });
+      }).catch(function(){
+        hideStatus();
+        if (!stale(tok)) setSearchNote(escapeHtml(DETECT_COARSE), 'is-warn');
+        return false;
+      });
+    };
+
     // ── Public entry points ────────────────────────────────────────────────────
     window.pdxMapSearchAddress = function(){
       var input = document.getElementById('pdx-map-search-input');
@@ -3231,6 +3421,10 @@
       // Drop the map flag from the saved location (manual entry remains intact).
       var loc = window._currentVoterLocation || {};
       loc.mapSelected = false; loc.stateHouseDistrict = ''; loc.stateSenateDistrict = '';
+      delete loc.pointSource;
+      // Clear forgets the placed point too, so Detect may answer again.
+      _placedThisVisit = false;
+      clearDetectCircle();
       // The congressional district is a map pick now, so Clear clears it too.
       // Leaving it behind would have the record keep one seat out of three from a
       // selection the reader just deleted — which is the same partial-record
@@ -3375,10 +3569,29 @@
     // gates the ARRIVAL OPEN and nothing else — it starts no fetch and draws
     // no polygon.
     var _arrived = false;
+    // A DETECT FROM ANOTHER PAGE ARRIVES IN THE HASH, read once and removed.
+    // The hash is never sent to a server, and replaceState takes the point out
+    // of the address bar so a reload or a shared link does not detect again.
+    function detectFromHash(){
+      var m = /#detect=(-?[0-9.]+),(-?[0-9.]+),([0-9.]*)/.exec(String(location.hash || ''));
+      if (!m) return null;
+      try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {}
+      var pt = { lat: parseFloat(m[1]), lng: parseFloat(m[2]), acc: parseFloat(m[3]) };
+      return (isFinite(pt.lat) && isFinite(pt.lng)) ? pt : null;
+    }
     function bootFinder(){
       if (_arrived) return;
       _arrived = true;
+      var pt = detectFromHash();
       try { window.openDistrictMapModal(); } catch(e) {}
+      if (!pt) return;
+      // The map is code-split; the geometry test does not need it, but the
+      // circle does, so wait briefly for Leaflet rather than drawing nothing.
+      var tries = 0;
+      (function go(){
+        if (!_map && typeof L === 'undefined' && tries++ < 40) { setTimeout(go, 150); return; }
+        try { window.pdxMapDetectAt(pt); } catch (e) {}
+      })();
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootFinder);
     else bootFinder();

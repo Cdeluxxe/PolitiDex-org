@@ -584,6 +584,11 @@
             // True when the active districts were chosen on the map — drives the
             // small "set via map" indicator across the location surfaces.
             mapSelected: !!parsed.mapSelected,
+            // 'detect' when those map seats came from the phone's point and its
+            // accuracy circle rather than a tap or an address. Absent on every
+            // older record, which reads as placed by the reader — the only way a
+            // record could have mapSelected before this field existed.
+            pointSource: parsed.pointSource === 'detect' ? 'detect' : '',
             // THE SEATS THIS PLACE ALREADY RESOLVED, on whichever document had the
             // curated tables to resolve them. Restored here so a document without
             // those tables reads the same answer instead of a thinner one — see
@@ -3760,8 +3765,10 @@
   // applied it as the reader's own location — the one line that let an inference
   // become a choice with no gesture behind it, and the IP path was its only
   // caller. Both are gone; the block over window.detectVoterLocation() below is
-  // the whole reasoning. _applyDetectedLocation above is kept because the Detect
-  // BUTTON calls it, with force, on a tap.
+  // the whole reasoning. _applyDetectedLocation above is kept as a published
+  // name for any caller that still asks for it; the Detect BUTTON no longer
+  // calls it, because a state and a county are not seats — see the block over
+  // triggerManualLocationDetection().
 
   // Helper for JSONP calls
   function getJSONP(url, callbackName, timeoutMs) {
@@ -4071,20 +4078,67 @@
     } catch (e) {}
   };
 
+  // ── DETECT IS A POINT AND A RADIUS, AND THE MAP DECIDES WHAT IT COMMITS ──
+  // WHAT WAS WRONG. On Camelot the address and a tap on the house both read
+  // State House 14. Detect read House 15 and named Ariel Defay. Detect wrote a
+  // reverse-geocoded state, county and congressional number through
+  // _applyDetectedLocation() and nothing finer, so the two legislative seats
+  // were filled in afterwards from the county's curated slate — a file about an
+  // election in Davis County, not a map of where this phone is. A reader who
+  // only hit Detect walked away with somebody else's member.
+  //
+  // WHAT IT IS NOW. The phone's answer is a POINT and an ACCURACY RADIUS, and
+  // the only thing that can turn that into seats is the finder's own district
+  // geometry on /find — the same polygons a tap is resolved against. So this
+  // handler reads the point (the one prompt, behind the tap that is the
+  // consent) and hands it to the map:
+  //
+  //   · on /find, straight to pdxMapDetectAt(), which commits the seats only
+  //     when the whole circle sits inside one district of each chamber, and
+  //     otherwise draws the circle and asks for a tap or an address;
+  //   · anywhere else, to /find with the point in the URL HASH — never the
+  //     query, so it is not sent to any server — and the finder reads it once
+  //     and replaces it out of the address bar. No storage key is written.
+  //
+  // AND IT NEVER OVERWRITES A POINT THE READER PLACED. A record whose seats
+  // came from a tap or a searched address (mapSelected, and not stamped
+  // pointSource 'detect') is the reader's own answer; a phone fix is a coarser
+  // one and does not get to replace it. A later tap or address always replaces
+  // a detect point — that is the finder's applyToLocation(), which clears the
+  // stamp on every commit that is not a detect.
+  function _pdxPlacedPoint() {
+    try {
+      var loc = window._currentVoterLocation || {};
+      return !!(window._hasUserLocation && loc.mapSelected && loc.pointSource !== 'detect');
+    } catch (e) { return false; }
+  }
+  window._pdxPlacedPoint = _pdxPlacedPoint;
+
   window.triggerManualLocationDetection = function() {
     var btn = document.getElementById('detect-loc-btn');
     var oldText = btn ? btn.innerHTML : '🌐 Detect my location';
+    function restore() {
+      if (btn) { btn.disabled = false; btn.innerHTML = oldText; }
+    }
+    var onMap = typeof window.pdxMapDetectAt === 'function';
+
+    if (_pdxPlacedPoint()) {
+      var placedMsg = 'You already placed your location on the map, so Detect won’t move it. ' +
+        'To change it, tap your house or search your address.';
+      if (onMap) window.pdxMapDetectAt(null, placedMsg);
+      else window._showToast(placedMsg);
+      return;
+    }
+
     if (btn) {
       btn.disabled = true;
       btn.innerHTML = '⏳ Detecting...';
     }
-    
+
     if (!('geolocation' in navigator)) {
+      restore();
+      if (onMap) { window.pdxMapDetectAt(null, 'Your browser can’t share a location. Tap your house on the map or search your address.'); return; }
       window._showToast('Geolocation isn’t available — search your address on the map instead.');
-      if (btn) {
-        btn.disabled = false;
-        btn.innerHTML = oldText;
-      }
       // No browser geolocation: send the voter straight to the precise address + map picker.
       window._pdxFallbackToMap();
       return;
@@ -4092,32 +4146,31 @@
 
     navigator.geolocation.getCurrentPosition(
       function(pos) {
-        window._reverseGeocode(pos.coords.latitude, pos.coords.longitude)
-          .then(function(locObj) {
-            window._applyDetectedLocation(locObj, true);
-            if (btn) {
-              btn.disabled = false;
-              btn.innerHTML = oldText;
-            }
-            window._showToast('Detected: ' + (locObj.county ? locObj.county + ', ' : '') + locObj.state + (locObj.district ? ' (District ' + locObj.district + ')' : ''));
-          })
-          .catch(function(err) {
-            console.error(err);
-            if (btn) {
-              btn.disabled = false;
-              btn.innerHTML = oldText;
-            }
-            window._showToast('Couldn’t pinpoint that automatically — search your address on the map for exact districts.');
-            // Detection couldn't resolve districts: open the address + map picker next.
-            window._pdxFallbackToMap();
-          });
+        restore();
+        var c = (pos && pos.coords) || {};
+        var pt = { lat: Number(c.latitude), lng: Number(c.longitude), acc: Number(c.accuracy) };
+        if (!isFinite(pt.lat) || !isFinite(pt.lng)) {
+          if (onMap) { window.pdxMapDetectAt(null, 'Your phone didn’t return a usable point. Tap your house on the map or search your address.'); return; }
+          window._showToast('Couldn’t pinpoint that automatically — search your address on the map for exact districts.');
+          window._pdxFallbackToMap();
+          return;
+        }
+        if (onMap) { window.pdxMapDetectAt(pt); return; }
+        // To the map, with the point riding in the hash. Rounded to about a
+        // metre: finer digits are noise, and a shorter URL is a shorter thing
+        // sitting in this reader's history for the moment before it is removed.
+        var to = '/find';
+        try {
+          if (window.PDXReturn) to = window.PDXReturn.finderHref(window.PDXReturn.here());
+        } catch (e) { to = '/find'; }
+        to += '#detect=' + pt.lat.toFixed(5) + ',' + pt.lng.toFixed(5) + ',' +
+          (isFinite(pt.acc) && pt.acc > 0 ? Math.ceil(pt.acc) : '');
+        try { window.location.assign(to); } catch (e) {}
       },
       function(err) {
         console.warn('Geolocation error:', err);
-        if (btn) {
-          btn.disabled = false;
-          btn.innerHTML = oldText;
-        }
+        restore();
+        if (onMap) { window.pdxMapDetectAt(null, 'Location access was declined. Tap your house on the map or search your address.'); return; }
         window._showToast('Location access was declined — search your address on the map for exact districts.');
         // Declined / unavailable: fall back to the address + map picker rather than
         // the less-precise county selector.
