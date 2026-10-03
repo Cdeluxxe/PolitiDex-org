@@ -371,6 +371,21 @@ section("2 · The rail is the ballot, and its count is the team's count");
     `the resolved list carries ${s.key}, which the gate does not call resolvable`));
   has(html, `/${workable.length}<`, "the progress figure does not count this voter's resolved seats");
   eq(w.PDXBallotWorkspace._decided(), 0, "a fresh visitor is not at zero decided");
+  // THE NUMERATOR IS SEATS THE PAGE NAMES SOMEBODY FOR. A fresh visitor has no
+  // picks, but every workable seat whose head says "Holds this seat now" is a
+  // resolved seat, so the figure is not zero while the page names a holder.
+  {
+    const r = w.pdxRepsForMe();
+    const resolved = w.PDXBallotWorkspace._resolved();
+    const named = workable.filter((s) => w.PDXBallotWorkspace._holders(s, r).length > 0);
+    ok(named.length > 0, "the fixture names no holder, so the named-holder rule is not measured");
+    eq(resolved.length, named.length, "a fresh visitor's resolved count is not the seats with a named holder");
+    has(html, `>${resolved.length}<small>/${workable.length}<`, "the progress figure does not count named holders as resolved");
+    workable.forEach((s) => {
+      if (w.PDXBallotWorkspace._holders(s, r).length) return;
+      ok(!resolved.some((x) => x.key === s.key), `${s.key} names nobody and has no pick, yet counts as resolved`);
+    });
+  }
   has(html, "we can resolve", "the progress figure does not say which figure it is");
   lacks(html, "seats decided", "the meter still claims to count decisions out of the whole ballot");
   lacks(html, "NaN", "the progress figure did not resolve");
@@ -593,6 +608,7 @@ section("6 · A pick stays on the surface and reaches every host");
   eq(sel[sm.key], pick.pid, "the pick did not reach the team store");
   eq(w.PDXBallotWorkspace._picked(sm.key), pick.pid, "the workspace cannot read back its own pick");
   eq(w.PDXBallotWorkspace._decided(), 1, "the running count did not move");
+  ok(w.PDXBallotWorkspace._resolved().some((s) => s.key === sm.key), "a picked seat does not count as resolved");
 
   // Rail, count and panel all move — that is the persistence the old surface
   // lost every time the reader changed seats.
@@ -600,7 +616,7 @@ section("6 · A pick stays on the surface and reaches every host");
   has(html, pick.name, "the surface does not name the pick");
   has(html, "is-picked", "the rail chip does not show the seat as decided");
   has(html, "\u2713 Your pick", "the pick button did not become the picked state");
-  has(html, "1<small>", "the progress figure did not count the pick");
+  has(html, `>${w.PDXBallotWorkspace._resolved().length}<small>`, "the progress figure did not count the pick");
 
   // And it reaches the OTHER hosts, because ballotPickCard is still the writer.
   w.PDXWhoRepresentsMe.sync();

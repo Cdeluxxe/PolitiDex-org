@@ -8592,7 +8592,16 @@
 //     untouched. MIGRATION COST: none. No location key is migrated, renamed or
 //     copied. me.html, me-desk.js, who-represents-me.js and district-voice.js
 //     are precached and changed, so it moves one version.
-const CACHE_VERSION = 'v285';
+// v286 - THE BALLOT COUNT MATCHES THE NAMES ON THE PAGE. The workspace named
+//     Celeste Maloy as holding U.S. House District 2 and still printed "0/5
+//     seats we can resolve", because the meter counted picks only. A seat now
+//     counts when the page names who holds it or who the reader picked; an
+//     empty race file is not a zero, and the "no field to compare" line stays
+//     on the desk without feeding the count. A seat with no name and no pick
+//     stays unresolved. The pick count other surfaces read (_decided) is
+//     unchanged. MIGRATION COST: none. ballot-workspace.js is precached and
+//     changed, so it moves one version.
+const CACHE_VERSION = 'v286';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
