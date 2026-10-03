@@ -406,8 +406,9 @@
   //
   // IT DOES NOT DUPLICATE THE HALLWAY. /voice prints the full card per seat: the
   // sitting member, the person link, the door or the two-sentence absence. This
-  // is a SNAPSHOT — one line per seat, chamber and whether a board is on hand —
-  // and one control, to the address that owns the rest. Two full copies of one
+  // is a SNAPSHOT — one line per seat, chamber and whether a board is on hand,
+  // the line linking the board where boardPath() names one — and one control,
+  // to the address that owns the rest. Two full copies of one
   // reader's seat list on two documents is how they start disagreeing.
   function voiceApi() { try { return window.PDXVoice || null; } catch (e) { return null; } }
 
@@ -444,9 +445,15 @@
 
     out.standing = 'verified';
     out.seats = seats.map(function (s) {
+      // THE BOARD'S OWN PATH, AS THE OWNER ANSWERED IT. seatsForMe() fills
+      // `board` from boardPath() — the hallway's one allow-list — so this
+      // desk carries that answer through and composes no address of its own.
+      // A seat with no row has '' here, and its line stays text.
+      var path = (s && typeof s.board === 'string') ? s.board : '';
       return {
         name: String((s && s.name) || ''),
-        board: !!(s && s.board)
+        board: !!(s && s.board),
+        path: path
       };
     }).filter(function (s) { return !!s.name; });
     if (!out.seats.length) { out.standing = 'unverified'; out.seats = []; return out; }
@@ -1371,7 +1378,10 @@
   //               that owns them. Every line says whether a board is on hand for
   //               that seat, because a list where some rooms open and some do not
   //               has to say which is which on the line itself — a reader who
-  //               taps through expecting a door is owed that here.
+  //               taps through expecting a door is owed that here. A line
+  //               whose seat has a board is itself a plain link to that board's
+  //               path, as boardPath() answered it; the gold control is still
+  //               the one door, and it still goes to the hallway.
   //
   // "ON HAND", NEVER "YET". Both strings are district-voice.js's, so the desk
   // and the hallway describe one reader's seat the same way. A board we have not
@@ -1403,11 +1413,17 @@
           '<a class="pdxhv-door" href="' + esc(v.finder) + '">Set my location</a></p>';
     } else {
       // ONE BLOCK, ONE LINE PER SEAT. A list, marked up as one, so the count is
-      // read before the first item. No card, no person link, no door per row —
-      // that is the hallway's job and duplicating it here is how the two
-      // documents start telling one reader two things.
+      // read before the first item. No card and no person link — that is the
+      // hallway's job. A seat whose board is on hand names itself as a plain
+      // text link to that board's own path, because a reader who already knows
+      // the seat is owed the room without the trip through the hallway. The
+      // path is boardPath()'s, never composed here; a seat with no board stays
+      // text and gets no address at all.
       var rows = v.seats.map(function (s) {
-        return '<li class="me-voiceseat">' + esc(s.name) +
+        var label = s.path
+          ? '<a class="me-link" href="' + esc(s.path) + '">' + esc(s.name) + '</a>'
+          : esc(s.name);
+        return '<li class="me-voiceseat">' + label +
           ' <span class="me-voicestate">' + esc(s.board ? onHand : notOnHand) + '</span></li>';
       }).join('');
       body = '<p class="me-rline">Seats on file:</p>' +

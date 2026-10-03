@@ -435,10 +435,17 @@ const LV_GOV = { key: "governor", seat: "governor", label: "Governor", statewide
   has(slot, 'href="/voice"', "verified: the CTA is not the District Voice hub");
   has(slot, "Open District Voice", "verified: and it does not say so");
   eq((slot.match(/pdxhv-door/g) || []).length, 1, "verified: the block has more than one control");
-  // AND THE HALLWAY IS NOT DUPLICATED HERE. The desk is a snapshot: no per-seat
-  // door, no person link, no empty-board explanation. /voice owns all of that,
-  // and a second copy is where one reader starts being told two things.
-  ["Open board", "/district/ut-sd-3", "/p/", "pdxvr-", "this room is not open"].forEach((n) =>
+  // THE BOARDED SEAT'S LINE IS ITS BOARD'S LINK; THE OTHER LINE IS TEXT. The
+  // path is boardPath()'s, so SD-3's line opens /district/ut-sd-3 and HD-17's
+  // carries no address at all.
+  const sdRow = (/<li class="me-voiceseat">(?:(?!<\/li>)[\s\S])*State Senate District 3[\s\S]*?<\/li>/.exec(slot) || [""])[0];
+  has(sdRow, '<a class="me-link" href="/district/ut-sd-3">', "verified: the SD-3 line does not open SD-3's board");
+  const hdRow = (/<li class="me-voiceseat">(?:(?!<\/li>)[\s\S])*State House District 17[\s\S]*?<\/li>/.exec(slot) || [""])[0];
+  ok(!!hdRow && !/<a\b/.test(hdRow), `verified: the HD-17 line, which has no board, is a link — "${hdRow}"`);
+  // AND THE HALLWAY IS NOT DUPLICATED HERE. The desk is a snapshot: no gold
+  // door per seat, no person link, no empty-board explanation. /voice owns all
+  // of that, and a second copy is where one reader starts being told two things.
+  ["Open board", "/p/", "pdxvr-", "this room is not open"].forEach((n) =>
     lacks(slot, n, `verified: the desk reproduces the hallway's "${n}" — the snapshot is a list, not a second hub`));
 }
 
@@ -649,7 +656,14 @@ function voiceDoorFaults(slot) {
   const doors = [...slot.matchAll(/<a class="pdxhv-door" href="([^"]+)">([^<]+)<\/a>/g)];
   if (doors.length !== 1) f.push(`expected one gold control, got ${doors.length}`);
   else if (doors[0][1] !== "/voice") f.push(`the gold control goes to ${doors[0][1]}, not /voice`);
-  if ((slot.match(/<a\b/g) || []).length !== 1) f.push("the block carries more than one link");
+  // Every other link is a seat line's, and it goes to a board path.
+  const anchors = [...slot.matchAll(/<a\b[^>]*>/g)].map((m) => m[0]);
+  const extra = anchors.filter((a) => !/^<a class="pdxhv-door" /.test(a));
+  for (const a of extra) {
+    if (!/^<a class="me-link" href="\/district\/[a-z0-9-]+">$/.test(a)) f.push(`a link that is not a seat's board: ${a}`);
+  }
+  const seatLinks = [...slot.matchAll(/<li class="me-voiceseat"><a class="me-link" href="/g)].length;
+  if (seatLinks !== extra.length) f.push("a board link sits outside a seat line");
   if (/💰/.test(slot)) f.push("a 💰 was painted on the Voice card");
   if (/money|pdx-money|finance|pdxfl-|pdx-navmenu|pulse-chip|clr-money/i.test(slot)) f.push("the Voice card borrows a money class or token");
   if (/Verified resident|me-voicetag/.test(slot)) f.push("a residency chip was painted from a saved location");
@@ -709,6 +723,109 @@ const VERIFIED_OPTS = { uid: "u_7", loc: { state: "Utah", city: "Layton", county
   ok(mutated !== DESK_JS, "the 💰 mutation found nothing to replace");
   const win = bootDeskWith(mutated, VERIFIED_OPTS);
   ok(voiceDoorFaults(slotOf(win)).length > 0, "a 💰 painted on the Voice card passed the door checks");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 8 · THE SEAT LINES OPEN THEIR OWN BOARDS
+// ═════════════════════════════════════════════════════════════════════════════
+// A reader who already knows the seat should not have to go through the
+// hallway. Each line whose seat is in BOARD_ROUTES links to that board's own
+// path, as boardPath() answers it; a seat with no board stays text and is
+// given no address. The gold control is still the one door, and it is /voice.
+section("8 · each boarded seat line links its own board; the gold door is still /voice");
+
+const LV_SD7 = { key: "statesenate", seat: "statesenate", label: "State Senate", statewide: false, district: "7", pid: "", resolved: true };
+const LV_HD16 = { key: "statehouse", seat: "statehouse", label: "State House", statewide: false, district: "16", pid: "", resolved: true };
+const LV_CD2 = { key: "house", seat: "house", label: "U.S. House", statewide: false, district: "2", pid: "", resolved: true };
+const LAYTON_OPTS = {
+  uid: "u_layton",
+  loc: { state: "Utah", city: "Layton", county: "Davis County" },
+  levels: [LV_SD7, LV_HD16, LV_CD2, LV_HD17],
+};
+const LAYTON_LINKS = [
+  ["State Senate District 7", "/district/ut-sd-7"],
+  ["State House District 16", "/district/ut-hd-16"],
+  ["U.S. House District 2", "/district/ut-cd-2"],
+];
+function rowFor(slot, name) {
+  return [...slot.matchAll(/<li class="me-voiceseat">[\s\S]*?<\/li>/g)].map((m) => m[0])
+    .find((r) => r.indexOf(name + " \u00b7") >= 0 || r.indexOf(name + "<") >= 0) || "";
+}
+function seatLinkFaults(win) {
+  const f = [];
+  const slot = slotOf(win);
+  const V = win.PDXVoice;
+  for (const [name, path] of LAYTON_LINKS) {
+    const row = rowFor(slot, name);
+    if (!row) { f.push(`${name}: no line`); continue; }
+    const a = /<a class="me-link" href="([^"]+)">/.exec(row);
+    if (!a) f.push(`${name}: the line is not a link`);
+    else if (a[1] !== path) f.push(`${name}: the line links ${a[1]}, not ${path}`);
+  }
+  // The missing seat: text, no href of any kind, and no /district/ address.
+  const dark = rowFor(slot, "State House District 17");
+  if (!dark) f.push("HD-17: no line");
+  if (/<a\b|href=/.test(dark)) f.push(`HD-17: a seat with no board is a link — ${dark}`);
+  if (/\/district\//.test(dark)) f.push("HD-17: a seat with no board carries a /district/ address");
+  if (V && V.boardPath("ut-statehouse-17") !== "") f.push("HD-17 gained a board, so the no-board line proves nothing");
+  // Every /district/ href on the block is a value the allow-list holds.
+  const allowed = new Set(Object.values((V && V.BOARD_ROUTES) || {}));
+  for (const m of slot.matchAll(/href="(\/district\/[^"]*)"/g)) {
+    if (!allowed.has(m[1])) f.push(`${m[1]} is not in BOARD_ROUTES`);
+  }
+  // The gold control: one, still /voice, still saying so.
+  const doors = [...slot.matchAll(/<a class="pdxhv-door" href="([^"]+)">([^<]+)<\/a>/g)];
+  if (doors.length !== 1) f.push(`expected one gold control, got ${doors.length}`);
+  else {
+    if (doors[0][1] !== "/voice") f.push(`Open District Voice goes to ${doors[0][1]}, not /voice`);
+    if (doors[0][2] !== "Open District Voice") f.push(`the gold control says "${doors[0][2]}"`);
+  }
+  if (/Verified resident|me-voicetag/.test(slot)) f.push("a residency chip came back");
+  if (/\([RDI]\)|\b[RDI]-[A-Z]{2}\b|\b(?:Republican|Democrat)|%|\bscore\b/i.test(slot.replace(/<[^>]+>/g, " "))) f.push("a party letter or a score was painted");
+  f.push(...voiceDoorFaults(slot));
+  return f;
+}
+{
+  const win = bootDesk(LAYTON_OPTS);
+  ok(!win.__err, `layton: the desk boots — ${win.__err}`);
+  eq(Object.keys(win.PDXVoice.BOARD_ROUTES).length, 88, "BOARD_ROUTES is not 88");
+  const f = seatLinkFaults(win);
+  eq(f.length, 0, `layton: Senate 7, House 16 and U.S. House 2 link their boards — ${JSON.stringify(f)}`);
+  const slot = slotOf(win);
+  eq((slot.match(/class="me-voiceseat"/g) || []).length, 4, "layton: the desk did not print one line per seat");
+  eq((slot.match(/board on hand/g) || []).length, 3, "layton: 'board on hand' is not on the three boarded lines");
+  eq((slot.match(/board not on hand/g) || []).length, 1, "layton: 'board not on hand' is not on HD-17's line");
+}
+// A SEAT WITH NO BOARD, ALONE: the whole block holds no /district/ href.
+{
+  const slot = slotOf(bootDesk({ uid: "u_dark", loc: LAYTON_OPTS.loc, levels: [LV_HD17] }));
+  has(slot, "State House District 17", "dark: the seat is not named");
+  ok(!/href="\/district\//.test(slot), "dark: a seat with no board produced a /district/ href");
+  ok(!/<li class="me-voiceseat"><a\b/.test(slot), "dark: the seat line is a link");
+}
+// MUTATION: a desk that invents an address for a seat with no board fails.
+{
+  const mutated = DESK_JS.replace(
+    "var path = (s && typeof s.board === 'string') ? s.board : '';",
+    "var path = (s && typeof s.board === 'string' && s.board) || ('/district/ut-hd-' + String((s && s.name) || '').replace(/^\\D*(\\d+).*$/, '$1'));");
+  ok(mutated !== DESK_JS, "the missing-seat mutation found nothing to replace");
+  ok(seatLinkFaults(bootDeskWith(mutated, LAYTON_OPTS)).length > 0,
+    "a desk that links a seat with no board passed the seat-line checks");
+}
+// MUTATION: a desk that drops the links fails too, so the checks are not vacuous.
+{
+  const mutated = DESK_JS.replace(
+    "var path = (s && typeof s.board === 'string') ? s.board : '';", "var path = '';");
+  ok(mutated !== DESK_JS, "the no-link mutation found nothing to replace");
+  ok(seatLinkFaults(bootDeskWith(mutated, LAYTON_OPTS)).length > 0,
+    "a desk whose seat lines link nothing passed the seat-line checks");
+}
+// MUTATION: Open District Voice pointed at /find fails.
+{
+  const mutated = DESK_JS.replace("out.href = '/voice';", "out.href = '/find';");
+  ok(mutated !== DESK_JS, "the /find mutation found nothing to replace");
+  ok(seatLinkFaults(bootDeskWith(mutated, LAYTON_OPTS)).length > 0,
+    "Open District Voice pointed at /find passed the seat-line checks");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

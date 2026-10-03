@@ -8462,7 +8462,18 @@
 //     stays 88. MIGRATION COST: none, and no location key is migrated,
 //     renamed or copied. me.html, me-desk.js and me-desk.css are precached
 //     and changed, so it moves one version.
-const CACHE_VERSION = 'v275';
+// v276 - /ME'S DISTRICT VOICE SEAT LINES OPEN THE BOARD. Each seat line in
+//     region g whose seat is in BOARD_ROUTES is now a plain link to that
+//     board's own path, as boardPath() answers it - the hallway's one
+//     allow-list, no second resolver, no /district/* splat, no new route. A
+//     seat with no board stays text and carries no address. The gold "Open
+//     District Voice" control stays and still goes to /voice. No member
+//     renamed, no party letter, no score, no "Verified resident" chip, no
+//     composer change, no residency write; BOARD_ROUTES stays 88.
+//     MIGRATION COST: none, and no location key is migrated, renamed or
+//     copied. me-desk.js and me-desk.css are precached and changed, so it
+//     moves one version.
+const CACHE_VERSION = 'v276';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
