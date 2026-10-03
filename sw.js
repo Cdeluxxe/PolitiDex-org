@@ -8537,7 +8537,16 @@
 //     No location key is migrated, renamed or copied. me.html and
 //     district-composer.js are precached and changed, so it moves
 //     one version.
-const CACHE_VERSION = 'v281';
+// v282 - THE SHELL BAR CLEARS THE BROWSER BAR. Every inner shell's fixed top
+//     bar was `height: 3.25rem` with the safe-area inset as its top padding,
+//     and under a border-box reset that height was the whole bar - so on a
+//     phone with a status-bar inset the row was squeezed into the inset and
+//     the POLITIDEX mark rendered clipped at scroll 0. The bar is content-box
+//     now: the 3.25rem row sits below env(safe-area-inset-top) and the bar is
+//     exactly --pdx-chrome tall; a zero inset is the old bar, so desktop is
+//     unchanged. MIGRATION COST: none. shell-chrome.css and the inline-bar
+//     shells are precached and changed, so it moves one version.
+const CACHE_VERSION = 'v282';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
