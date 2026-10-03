@@ -90,25 +90,26 @@ const deps = {
     return Number(row?.n) || 0;
   },
 
-  async upsertVote(v: { seatKey: string; issueKey: string; authorHash: string; choice: string; capSince?: Date }) {
+  async upsertVote(v: { seatKey: string; issueKey: string; authorHash: string; choice: string; capSince?: Date; capLimit?: number }) {
     // THE CAPPED WRITE IS ONE STATEMENT: both the insert and the update arm only
-    // fire if this author has no vote on this seat since the day began. False
-    // when the cap refused it.
+    // fire if this author has fewer than capLimit votes on this seat cast or
+    // changed since the month began. False when the cap refused it.
     if (v.capSince) {
       const since = v.capSince.toISOString();
+      const limit = Math.max(0, Math.floor(Number(v.capLimit) || 1));
       const res = (await db.execute(sql`
         insert into voice_poll_votes (seat_key, issue_key, author_hash, choice)
         select ${v.seatKey}, ${v.issueKey}, ${v.authorHash}, ${v.choice}
-         where not exists (
-           select 1 from voice_poll_votes
+         where (
+           select count(*) from voice_poll_votes
             where seat_key = ${v.seatKey} and author_hash = ${v.authorHash}
-              and updated_at >= ${since}::timestamptz)
+              and updated_at >= ${since}::timestamptz) < ${limit}::int
         on conflict (seat_key, issue_key, author_hash) do update
            set choice = excluded.choice, updated_at = now()
-         where not exists (
-           select 1 from voice_poll_votes p
+         where (
+           select count(*) from voice_poll_votes p
             where p.seat_key = ${v.seatKey} and p.author_hash = ${v.authorHash}
-              and p.updated_at >= ${since}::timestamptz)
+              and p.updated_at >= ${since}::timestamptz) < ${limit}::int
         returning id
       `)) as any;
       const rows = Array.isArray(res) ? res : res?.rows || [];

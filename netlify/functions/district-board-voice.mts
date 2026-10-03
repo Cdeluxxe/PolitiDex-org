@@ -91,7 +91,7 @@ const deps = {
 
   async insertPost(v: { seatKey: string; issueKey: string; body: string; authorHash: string; capSince?: Date }) {
     // THE CAPPED WRITE IS ONE STATEMENT: it inserts only if this author has no
-    // post on this seat since the day began, so two racing requests cannot both
+    // post on this seat since the month began, so two racing requests cannot both
     // land. Null when the cap refused it.
     if (v.capSince) {
       const since = v.capSince.toISOString();
