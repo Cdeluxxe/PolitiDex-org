@@ -1,9 +1,10 @@
 /* ─────────────────────────────────────────────────────────────────────────────
    /me — MEMBERSHIP, ONE CONTROL
    ─────────────────────────────────────────────────────────────────────────────
-   The block's three lines are static in me.html (#pdx-me-membership): reading is
+   The block's four lines are static in me.html (#pdx-me-membership): reading is
    free, a verified resident gets one comment and one poll vote a day on that
-   seat, and $20 a year removes the cap. This file paints the one control under
+   seat, $20 a year removes the cap, and only a verified resident of that seat
+   has a voice that counts. This file paints the one control under
    them, and nothing else:
 
      signed out      the sign-in line, no button
