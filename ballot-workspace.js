@@ -536,6 +536,33 @@
   //
   // There is no third branch, which is the point: the sentence about our coverage
   // is unreachable over anybody the owner named.
+  // WHO THE PAGE NAMES AS HOLDING A SEAT, as a list of pids. The one reader of
+  // that fact: holderFact() prints from it and the meter counts from it, so the
+  // header cannot name Celeste Maloy over a seat the count calls unresolved.
+  // Resolver levels first; for a specific local seat, the curated roster's
+  // incumbent ("on file as holding"). The generic local slot names nobody — a
+  // tally of seats on file is not a holder.
+  function namedHolders(seat, r) {
+    var hold = holdersFor(seat.key, r);
+    var withPid = hold.filter(function (lv) { return !!lv.pid; });
+    if (withPid.length) return withPid.map(function (lv) { return lv.pid; });
+    if (String(seat.key).indexOf('local_') === 0) {
+      var lh = null;
+      fieldFor(seat.key).forEach(function (c) { if (!lh && c && c.incumbent) lh = c.pid; });
+      if (lh) return [lh];
+    }
+    return [];
+  }
+
+  // A SEAT IS RESOLVED when the page can name somebody for it: who holds it, or
+  // who the reader picked. Whether the race file holds a field to compare is a
+  // separate question — the "no field to compare" line answers it on the desk,
+  // and it never feeds this count. A seat with no name and no pick stays
+  // unresolved.
+  function isResolved(seat, r) {
+    return !!pickedFor(seat.key) || namedHolders(seat, r).length > 0;
+  }
+
   function holderFact(seat, r, gate) {
     var hold = holdersFor(seat.key, r);
     var withPid = hold.filter(function (lv) { return !!lv.pid; });
@@ -559,9 +586,7 @@
     // not the resolver's claim about the reader's representation, and the two
     // are not allowed to sound alike.
     if (String(seat.key).indexOf('local_') === 0) {
-      var lf = fieldFor(seat.key);
-      var lh = null;
-      lf.forEach(function (c) { if (!lh && c && c.incumbent) lh = c.pid; });
+      var lh = namedHolders(seat, r)[0] || null;
       if (lh) {
         return '<span class="bw-fact"><span aria-hidden="true">\u{1F3D9}</span>' +
           '<span>On file as holding this seat: <b>' +
@@ -1172,14 +1197,20 @@
     // NO LITERAL. M is the length of this voter's own resolved list, and where
     // that list is empty the meter is not printed at all — "0 of 0" is not a
     // progress bar, and the gap sentences beside each seat already say why.
+    //
+    // THE NUMERATOR IS SEATS THE PAGE CAN NAME SOMEBODY FOR — the holder the
+    // seat head prints, or the reader's pick (isResolved). It used to be picks
+    // alone, so a fresh reader saw "Holds this seat now: Celeste Maloy" directly
+    // under "0/5 seats we can resolve": two answers to one question. An empty
+    // race file is not a zero; a named holder is a resolved seat.
     var workable = list.filter(function (s) { return fieldGate(s, r) === 'ok'; });
-    var decided = 0;
-    workable.forEach(function (s) { if (pickedFor(s.key)) decided++; });
-    var pct = workable.length ? Math.round((decided / workable.length) * 100) : 0;
+    var resolvedN = 0;
+    workable.forEach(function (s) { if (isResolved(s, r)) resolvedN++; });
+    var pct = workable.length ? Math.round((resolvedN / workable.length) * 100) : 0;
     var area = r.area ? esc(r.area) : '';
     var progHtml = workable.length
       ? '<div class="bw-prog">' +
-          '<span class="bw-prog-n">' + decided + '<small>/' + workable.length + '</small></span>' +
+          '<span class="bw-prog-n">' + resolvedN + '<small>/' + workable.length + '</small></span>' +
           '<span class="bw-prog-bar"><i style="width:' + pct + '%;"></i></span>' +
           '<span class="bw-prog-lbl">seat' + (workable.length === 1 ? '' : 's') +
             ' we can resolve</span>' +
@@ -1270,6 +1301,13 @@
       var r = reps();
       return seats().filter(function (s) { return fieldGate(s, r) === 'ok'; });
     },
+    // The meter's numerator: the workable seats the page names a holder or a
+    // pick for. _decided() below stays the count of picks alone.
+    _resolved: function () {
+      var r = reps();
+      return seats().filter(function (s) { return fieldGate(s, r) === 'ok' && isResolved(s, r); });
+    },
+    _holders: namedHolders,
     // The rail's two rules, exposed so a harness can assert them without a
     // browser: where a chip has to put the scroller, and -1 wherever the answer
     // is "do not move".
