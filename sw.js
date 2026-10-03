@@ -8507,7 +8507,16 @@
 //     button, the locked composer line and the cap refusal are unchanged.
 //     MIGRATION COST: none. me.html is precached and changed, so it moves
 //     one version.
-const CACHE_VERSION = 'v279';
+// v280 - VERIFIED NON-MEMBERS ARE CAPPED BY THE MONTH, NOT THE DAY. A
+//     vendor-verified resident who is not a member gets one comment and five
+//     poll votes per Mountain-time calendar month on that seat; a second
+//     comment, a sixth vote or a vote on a sixth issue is refused with a line
+//     that names the monthly cap. Re-sending the vote on file writes nothing.
+//     Members stay uncapped; no vendor row is still 403. /me says month.
+//     MIGRATION COST: none — the cap reads voice_takes.created_at and
+//     voice_poll_votes.updated_at, already stored. me.html is precached and
+//     changed, so it moves one version.
+const CACHE_VERSION = 'v280';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

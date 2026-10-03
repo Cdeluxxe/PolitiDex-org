@@ -2,8 +2,8 @@
    /me — MEMBERSHIP, ONE CONTROL
    ─────────────────────────────────────────────────────────────────────────────
    The block's four lines are static in me.html (#pdx-me-membership): reading is
-   free, a verified resident gets one comment and one poll vote a day on that
-   seat, $20 a year removes the cap, and only a verified resident of that seat
+   free, a verified resident gets one comment and five poll votes a month on
+   that seat, $20 a year removes the cap, and only a verified resident of that seat
    has a voice that counts. This file paints the one control under
    them, and nothing else:
 
@@ -26,7 +26,7 @@
     signedOut: 'Sign in to become a member.',
     join: 'Become a member — $20 a year',
     joining: 'Opening checkout…',
-    active: 'You are a member. The daily cap is off on every seat you are verified for.',
+    active: 'You are a member. The monthly cap is off on every seat you are verified for.',
     returned: 'Thanks. Your membership turns on as soon as Stripe confirms the payment.',
     cancelled: 'Checkout was cancelled. Nothing was charged.',
     unavailable: 'Membership checkout is not available right now.'

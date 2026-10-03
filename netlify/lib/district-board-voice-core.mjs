@@ -40,12 +40,13 @@
 // so a post moves "People who answered a poll or wrote a comment" from the same
 // rows the counts endpoint reads.
 //
-// ── THE DAILY CAP, AFTER THE GATE ───────────────────────────────────────────
-// A verified resident who is not a member gets ONE comment a day on this seat
+// ── THE MONTHLY CAP, AFTER THE GATE ─────────────────────────────────────────
+// A verified resident who is not a member gets ONE comment a Mountain-time
+// calendar month on this seat
 // (netlify/lib/membership-core.mjs). The cap is asked only AFTER the residency
 // gate and the post checks have passed, so membership can never stand in for a
 // vendor row: a member with no row for this seat is 403 like anybody else. A
-// second comment the same Mountain-time day is 429 with CAP_COPY.comment and
+// second comment the same month is 429 with CAP_COPY.comment and
 // writes nothing. The GET never says whether the caller is a member.
 //
 // Pure over injected dependencies, so scripts/test-district-board-composer.mjs
@@ -53,7 +54,7 @@
 // written — no database, no network.
 
 import { authorHash, normalizeSeatKey } from "./district-voice-core.mjs";
-import { CAP_COPY, DAILY_COMMENTS, dayStart, memberFor } from "./membership-core.mjs";
+import { CAP_COPY, MONTHLY_COMMENTS, memberFor, monthStart } from "./membership-core.mjs";
 
 // NAMED ROWS. Canonical seat key → the board alias the flag is spelled in. A
 // verified flag for one of these seats opens that seat's box and no other.
@@ -154,7 +155,7 @@ function json(data, status = 200) {
 }
 
 function capRefusal() {
-  return json({ error: CAP_COPY.comment, code: "daily_cap" }, 429);
+  return json({ error: CAP_COPY.comment, code: "monthly_cap" }, 429);
 }
 
 // deps:
@@ -232,11 +233,11 @@ export async function handle(req, deps) {
     saved = await deps.insertPost(values);
   } else {
     // FAILS CLOSED: no counter means no comment, not an uncapped one.
-    const since = dayStart(deps.now ? deps.now() : new Date());
+    const since = monthStart(deps.now ? deps.now() : new Date());
     const used = typeof deps.countPostsSince === "function"
       ? Number(await deps.countPostsSince(verdict.seatKey, hash, since))
       : Infinity;
-    if (!(used < DAILY_COMMENTS)) return capRefusal();
+    if (!(used < MONTHLY_COMMENTS)) return capRefusal();
     saved = await deps.insertPost({ ...values, capSince: since });
     if (!saved) return capRefusal();
   }

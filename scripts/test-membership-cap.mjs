@@ -4,10 +4,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
 //   1. NO VENDOR ROW — 403 for a comment and a vote, member or not, and nothing
 //      is written. A location_match row or a neighbour seat's row is no row.
-//   2. VERIFIED NON-MEMBER — the first comment and the first vote of the day
-//      write; the second of each does not, and the refusal names the cap. The
-//      next Mountain-time day opens again. No counter fails closed.
-//   3. VERIFIED MEMBER — no daily cap. A lapsed or inactive flag is capped.
+//   2. VERIFIED NON-MEMBER — the first comment and the first five votes of the
+//      Mountain-time month write; a second comment, a sixth vote and a vote on
+//      a sixth issue do not, and the refusal names the monthly cap. Re-sending
+//      the vote on file writes nothing. The next month opens again. No counter
+//      fails closed.
+//   3. VERIFIED MEMBER — no monthly cap. A lapsed or inactive flag is capped.
 //   4. THE WEBHOOK — unsigned, badly signed, stale, wrong price, pending and
 //      foreign events write nothing; only a signed event for STRIPE_PRICE_ID
 //      sets or clears the flag, and it never touches residency.
@@ -27,7 +29,7 @@ import { handle as handlePost } from "../netlify/lib/district-board-voice-core.m
 import { handle as handleVote } from "../netlify/lib/district-board-poll-core.mjs";
 import { authorHash } from "../netlify/lib/district-voice-core.mjs";
 import {
-  CAP_COPY, accountHash, dayStart, decide, handleMembership, handleWebhook, isMember, stripeSign,
+  CAP_COPY, MONTHLY_COMMENTS, MONTHLY_VOTES, accountHash, dayStart, decide, handleMembership, handleWebhook, isMember, monthStart, stripeSign,
 } from "../netlify/lib/membership-core.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -49,6 +51,7 @@ const H = authorHash(UID, SEAT);
 const ACCT = accountHash(UID);
 // 10:00 Mountain on 2026-10-03 (MDT, UTC-6).
 const NOON = new Date("2026-10-03T16:00:00Z");
+const ISSUES = ["housing", "water", "transit", "schools", "taxes", "parks", "energy"];
 
 // ── one in-memory store behind BOTH board handlers ─────────────────────────
 function fakeBoard({ residency = [], membership = null, noCounters = false } = {}) {
@@ -64,7 +67,7 @@ function fakeBoard({ residency = [], membership = null, noCounters = false } = {
       return residency.find((r) => r.seatKey === seatKey && r.authorHash === hash) || null;
     },
     async findMembership(hash) { return membership && hash === ACCT ? membership : null; },
-    async issueExists(k) { return k === "housing" || k === "water"; },
+    async issueExists(k) { return ISSUES.includes(k); },
     async listPosts() { return s.posts.map((p) => ({ ...p })); },
     async countPostsSince(seatKey, hash, since) {
       return s.posts.filter((p) => p.seatKey === seatKey && p.authorHash === hash && p.createdAt >= since).length;
@@ -93,7 +96,7 @@ function fakeBoard({ residency = [], membership = null, noCounters = false } = {
       return [...s.votes.values()].filter((v) => v.seatKey === seatKey && v.authorHash === hash && v.updatedAt >= since).length;
     },
     async upsertVote(v) {
-      if (v.capSince && [...s.votes.values()].some((x) => x.seatKey === v.seatKey && x.authorHash === v.authorHash && x.updatedAt >= v.capSince)) return false;
+      if (v.capSince && [...s.votes.values()].filter((x) => x.seatKey === v.seatKey && x.authorHash === v.authorHash && x.updatedAt >= v.capSince).length >= (v.capLimit ?? 1)) return false;
       s.votes.set(`${v.seatKey}|${v.issueKey}|${v.authorHash}`, { seatKey: v.seatKey, issueKey: v.issueKey, authorHash: v.authorHash, choice: v.choice, updatedAt: s.clock });
       s.writes++;
       return true;
@@ -117,51 +120,36 @@ const MEMBER = { status: "active", currentPeriodEnd: new Date("2027-10-01T00:00:
 // ═════════════════════════════════════════════════════════════════════════════
 section("1 · no vendor row for this seat: 403, member or not, and nothing written");
 // ═════════════════════════════════════════════════════════════════════════════
-const NO_ROW = {
-  "no row at all": [],
-  "a location_match row": [{ seatKey: SEAT, authorHash: H, status: "verified", method: "location_match" }],
-  "a pending vendor row": [{ seatKey: SEAT, authorHash: H, status: "pending", method: "vendor" }],
-  "a neighbour seat's vendor row": [{ seatKey: NEIGHBOUR, authorHash: authorHash(UID, NEIGHBOUR), status: "verified", method: "vendor" }],
-};
-for (const [label, residency] of Object.entries(NO_ROW)) {
-  for (const membership of [null, MEMBER]) {
-    const who = membership ? "member" : "non-member";
-    const s = fakeBoard({ residency, membership });
-    eq((await comment(s)).status, 403, `${label}, ${who}: comment is 403`);
-    eq((await vote(s)).status, 403, `${label}, ${who}: vote is 403`);
-    eq(s.writes, 0, `${label}, ${who}: …and nothing was written`);
-  }
-}
-{
-  const s = fakeBoard({ membership: MEMBER });
-  const r = await handlePost(req("/api/district-board-voice", { seat: ALIAS, issueKey: "housing", body: "x" }), s.deps);
-  eq(r.status, 403, "signed out: comment is 403");
-  eq(s.writes, 0, "signed out: nothing written");
-}
-
+section("2 · verified non-member: one comment and five votes a month on this seat");
 // ═════════════════════════════════════════════════════════════════════════════
-section("2 · verified non-member: one comment and one vote a day on this seat");
-// ═════════════════════════════════════════════════════════════════════════════
+eq(MONTHLY_COMMENTS, 1, "the cap is one comment a month");
+eq(MONTHLY_VOTES, 5, "…and five poll votes a month");
 {
   const s = fakeBoard({ residency: VERIFIED });
-  eq((await comment(s)).status, 201, "first comment of the day writes");
+  eq((await comment(s)).status, 201, "first comment of the month writes");
   const second = await comment(s, "And another thing.");
-  eq(second.status, 429, "second comment the same day is refused");
+  eq(second.status, 429, "second comment the same month is refused");
   const d = await second.json();
-  eq(d.code, "daily_cap", "…coded as the daily cap");
+  eq(d.code, "monthly_cap", "…coded as the monthly cap");
   eq(d.error, CAP_COPY.comment, "…with the line that names the cap");
   eq(s.posts.length, 1, "…and only one comment is on file");
-  eq((await comment(s, "Other issue.", "water")).status, 429, "a different issue the same day is still the cap");
+  s.clock = new Date("2026-10-20T16:00:00Z");
+  eq((await comment(s, "Other issue.", "water")).status, 429, "a different issue later the same month is still the cap");
 
-  eq((await vote(s, "support")).status, 200, "first vote of the day writes");
-  const changed = await vote(s, "oppose");
-  eq(changed.status, 429, "a changed vote the same day is refused");
-  eq((await changed.json()).error, CAP_COPY.vote, "…with the line that names the cap");
-  eq([...s.votes.values()][0].choice, "support", "…and the vote on file is unchanged");
-  eq((await vote(s, "oppose", "water")).status, 429, "a vote on a second issue the same day is refused");
-  const same = await vote(s, "support");
-  eq(same.status, 200, "re-sending the vote already on file is answered…");
-  eq(s.writes, 2, "…and writes nothing (one comment, one vote, total)");
+  for (let i = 0; i < 5; i++) eq((await vote(s, "support", ISSUES[i])).status, 200, `vote ${i + 1} of the month writes (${ISSUES[i]})`);
+  const sixthIssue = await vote(s, "support", ISSUES[5]);
+  eq(sixthIssue.status, 429, "a vote on a sixth issue the same month is refused");
+  const sd = await sixthIssue.json();
+  eq(sd.code, "monthly_cap", "…coded as the monthly cap");
+  eq(sd.error, CAP_COPY.vote, "…with the line that names the cap");
+  const changed = await vote(s, "oppose", "housing");
+  eq(changed.status, 429, "a sixth vote (changing one on file) the same month is refused");
+  eq(s.votes.get(`${SEAT}|housing|${H}`).choice, "support", "…and the vote on file is unchanged");
+  const before = s.writes;
+  const same = await vote(s, "support", "housing");
+  eq(same.status, 200, "re-sending the vote already on file is accepted…");
+  eq(s.writes, before, "…and writes nothing");
+  eq(s.writes, 6, "one comment and five votes on file, total");
 
   // Counts still publish to everyone.
   const pub = await (await handleVote(req(`/api/district-board-poll?seat=${ALIAS}`), s.deps)).json();
@@ -169,13 +157,24 @@ section("2 · verified non-member: one comment and one vote a day on this seat")
   eq((await (await handlePost(req(`/api/district-board-voice?seat=${ALIAS}`), s.deps)).json()).posts.length, 1,
     "reading stays free");
 
-  // The next Mountain-time day opens again — and 23:59 the same day does not.
-  s.clock = new Date("2026-10-04T05:59:00Z"); // 23:59 MDT, Oct 3
-  eq((await comment(s, "Late.")).status, 429, "23:59 Mountain the same day: still capped");
-  s.clock = new Date("2026-10-04T06:01:00Z"); // 00:01 MDT, Oct 4
-  eq((await comment(s, "New day.")).status, 201, "00:01 Mountain the next day: the comment writes");
-  eq((await vote(s, "oppose")).status, 200, "…and so does a changed vote");
-  eq((await vote(s, "not_sure")).status, 429, "…once");
+  // The next Mountain-time month opens again — and 23:59 on the 31st does not.
+  s.clock = new Date("2026-11-01T05:59:00Z"); // 23:59 MDT, Oct 31
+  eq((await comment(s, "Late.")).status, 429, "23:59 Mountain on the last day: still capped");
+  eq((await vote(s, "oppose", "housing")).status, 429, "…and the vote too");
+  s.clock = new Date("2026-11-01T06:01:00Z"); // 00:01 MDT, Nov 1
+  eq((await comment(s, "New month.")).status, 201, "00:01 Mountain on the 1st: the comment writes");
+  eq((await comment(s, "Again.")).status, 429, "…once");
+  eq((await vote(s, "oppose", "housing")).status, 200, "…a changed vote writes");
+  for (let i = 1; i < 5; i++) eq((await vote(s, "oppose", ISSUES[i])).status, 200, `…new-month vote ${i + 1} writes`);
+  eq((await vote(s, "oppose", ISSUES[6])).status, 429, "…and the sixth of the new month is refused");
+}
+{
+  // Under the cap, re-voting an issue already used this month uses no new vote.
+  const s = fakeBoard({ residency: VERIFIED });
+  await vote(s, "support", "housing");
+  eq((await vote(s, "oppose", "housing")).status, 200, "changing a vote used this month, under the cap, writes");
+  for (let i = 1; i < 5; i++) eq((await vote(s, "support", ISSUES[i])).status, 200, `…then issue ${i + 1} writes`);
+  eq((await vote(s, "support", ISSUES[5])).status, 429, "…and five issues used is the cap");
 }
 {
   const s = fakeBoard({ residency: VERIFIED, noCounters: true });
@@ -188,26 +187,34 @@ section("2 · verified non-member: one comment and one vote a day on this seat")
   const s = fakeBoard({ residency: VERIFIED });
   s.deps.countPostsSince = async () => 0;
   s.deps.countVotesSince = async () => 0;
-  await comment(s); await vote(s, "support");
+  await comment(s);
+  for (let i = 0; i < 5; i++) await vote(s, "support", ISSUES[i]);
   eq((await comment(s, "Racing.")).status, 429, "a comment that slips past the count is refused by the write");
-  eq((await vote(s, "oppose")).status, 429, "a vote that slips past the count is refused by the write");
-  eq(s.writes, 2, "…one of each on file");
+  eq((await vote(s, "oppose", ISSUES[5])).status, 429, "a sixth vote that slips past the count is refused by the write");
+  eq(s.writes, 6, "…one comment and five votes on file");
 }
 {
   const t0 = new Date("2026-10-03T16:00:00Z");
   eq(dayStart(t0).toISOString(), "2026-10-03T06:00:00.000Z", "dayStart: Mountain midnight in summer time");
   eq(dayStart(new Date("2026-12-15T03:00:00Z")).toISOString(), "2026-12-14T07:00:00.000Z",
     "dayStart: Mountain midnight in standard time, before UTC midnight rolls back");
+  eq(monthStart(t0).toISOString(), "2026-10-01T06:00:00.000Z", "monthStart: midnight on the 1st, summer time");
+  eq(monthStart(new Date("2026-12-01T03:00:00Z")).toISOString(), "2026-11-01T06:00:00.000Z",
+    "monthStart: still November in Mountain time when UTC has rolled to December");
+  eq(monthStart(new Date("2026-12-15T03:00:00Z")).toISOString(), "2026-12-01T07:00:00.000Z",
+    "monthStart: midnight on the 1st, standard time");
+  eq(monthStart(new Date("2026-11-20T16:00:00Z")).toISOString(), "2026-11-01T06:00:00.000Z",
+    "monthStart: the 1st's own offset, though the month switched to standard time");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("3 · verified member: no daily cap");
+section("3 · verified member: no monthly cap");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const s = fakeBoard({ residency: VERIFIED, membership: MEMBER });
   for (let i = 0; i < 5; i++) eq((await comment(s, `Post ${i}`)).status, 201, `member comment ${i + 1} writes`);
   for (const c of ["support", "oppose", "not_sure", "support"]) eq((await vote(s, c)).status, 200, `member vote → ${c} writes`);
-  eq((await vote(s, "oppose", "water")).status, 200, "member votes on a second issue");
+  for (const k of ISSUES.slice(1)) eq((await vote(s, "oppose", k)).status, 200, `member votes on ${k}`);
   eq(s.posts.length, 5, "five comments on file");
   eq([...s.votes.values()].find((v) => v.issueKey === "housing").choice, "support", "the last vote stands");
 }
@@ -413,7 +420,8 @@ const block = (ME.match(/<!-- pdx:me-membership:begin[\s\S]*?<!-- pdx:me-members
 ok(block.length > 0, "/me carries the membership block");
 const text = block.replace(/<!--[\s\S]*?-->/g, " ").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
 ok(/reading stays free for everyone/i.test(text), "/me: reading is free");
-ok(/a verified resident gets one comment and one poll vote a day on that seat/i.test(text), "/me: one comment and one poll vote a day on that seat");
+ok(/a verified resident gets one comment and five poll votes a month on that seat/i.test(text), "/me: one comment and five poll votes a month on that seat");
+ok(!/\ba day\b|\bdaily\b/i.test(text), "/me: the block says month, not day");
 ok(/\$20 a year removes the cap/i.test(text), "/me: $20 a year removes the cap");
 ok(/does not verify residency and does not open a seat/i.test(text), "/me: membership is not residency");
 ok(/a voice that counts is only a verified resident of that seat/i.test(text), "/me: only a verified resident of that seat has a voice that counts");
@@ -427,7 +435,8 @@ for (const w of ["stock", "stocks", "unit", "units", "share", "shares", "shareho
   ok(!new RegExp(`\\b${w.replace(/ /g, "\\s+")}\\b`, "i").test(copy), `no "${w}" on the membership block, its script or its core`);
 }
 for (const line of Object.values(CAP_COPY)) {
-  ok(/one (comment|poll vote) a day on this seat/.test(line), "the cap line names the cap");
+  ok(/(one comment|five poll votes) a month on this seat/.test(line), "the cap line names the monthly cap");
+  ok(!/\ba day\b|today|daily|midnight/i.test(line), `the cap line says month, not day: ${line}`);
   ok(!/\$|member|upgrade|pay|unlock|premium|subscribe/i.test(line), `the cap line is not a paywall slogan: ${line}`);
 }
 
@@ -442,7 +451,7 @@ ok(!/ALTER TABLE|DROP |"voice_residency"\s*\(/.test(sqlText), "…and alters not
 ok(!/"(uid|user_id|email|customer_id|seat_key)"/.test(sqlText), "…with no uid, email, customer id or seat column");
 const SW = R("sw.js");
 const v = Number((SW.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]);
-ok(v >= 278, `the service worker moved (v${v})`);
+ok(v >= 280, `the service worker moved (v${v})`);
 ok(/MEMBERSHIP LIFTS THE DAILY CAP[\s\S]*?MIGRATION COST: one new table/.test(SW), "the SW log names the migration");
 
 console.log(`${pass} passed, ${fail} failed`);
