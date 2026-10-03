@@ -240,6 +240,21 @@
   // a name is kept as a fallback rather than returned, because a later lane may
   // hold the named one and the last thing a row wants is the first thin hit.
   function named(r) { return !!(r && r.name); }
+  // THE LABEL ON A SEAT IS A NAME OR IT IS NOTHING — NEVER THE PID. A Camelot
+  // reader's State House 14 row printed "lisonbee_h14": the record this file
+  // found carried no display name, and `(person && person.name) || pid` put the
+  // key on the row. The resolver's pdxRosterName() is the one read of "what may
+  // be printed for this pid": the named row under any of its alias keys, the
+  // record this file found weighed by the same rule, and '' otherwise. '' is
+  // printed as the honest empty seat, never as the id.
+  function displayName(pid, person) {
+    if (!pid) return '';
+    try {
+      if (typeof window.pdxRosterName === 'function') return String(window.pdxRosterName(pid, person) || '');
+    } catch (e) {}
+    var n = (person && person.name) ? String(person.name).trim() : '';
+    return n === pid ? '' : n;
+  }
   function personOf(pid) {
     if (!pid) return null;
     var first = null, r = null;
@@ -328,7 +343,17 @@
   function row(lv, reps) {
     var pid = seatPid(lv, reps);
     var person = personOf(pid);
+    var name = displayName(pid, person);
     var color = lv.color || '#60a5fa';
+    // A pid with no printable name is the same row as no pid once the roster is
+    // here: the district is still printed above it and the seat says no member
+    // is on file. While the roster has not arrived the name is a WAIT, not an
+    // absence — the row keeps its door and reads "Loading name…" until the
+    // repaint, exactly as /me's ballot does. In neither case does the pid reach
+    // the label.
+    var cold = false;
+    try { cold = typeof window.pdxRosterWarm === 'function' && !window.pdxRosterWarm(); } catch (e) { cold = false; }
+    if (pid && !name && !cold) pid = '';
 
     if (!pid) {
       // ── THREE DIFFERENT GAPS, AND THEY ARE NOT THE SAME ADMISSION ──────────
@@ -385,7 +410,8 @@
       '</div>' + seatCompare(lv) + districtRoom(lv, reps);
     }
 
-    var name = (person && person.name) || pid;
+    var tip = name ? 'See ' + esc(name) + '&rsquo;s full record' : 'See the full record';
+    if (!name) name = 'Loading name\u2026';
     var photo = (typeof window._getPhotoUrl === 'function') ? (window._getPhotoUrl(pid) || '') : '';
     var party = partyMark(person && person.party);
     var pidJs = jsq(pid);
@@ -414,11 +440,11 @@
     var plAttrs = (PL && typeof PL.attrs === 'function') ? PL.attrs(pid) : '';
     var rowOpen = plAttrs
       ? '<a class="wrm-row" ' + plAttrs + ' data-rk="' + esc(rkOf(lv)) + '" style="border-left-color:' + color + ';"' +
-          ' title="See ' + esc(name) + '&rsquo;s full record">'
+          ' title="' + tip + '">'
       : '<div class="wrm-row" role="button" tabindex="0" data-rk="' + esc(rkOf(lv)) + '" style="border-left-color:' + color + ';"' +
           ' onclick="' + go + '"' +
           ' onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();' + go + '}"' +
-          ' title="See ' + esc(name) + '&rsquo;s full record">';
+          ' title="' + tip + '">';
 
     return rowOpen +
       avatar +
@@ -684,7 +710,7 @@
       // unnamed count below says so.
       var cpid = seatPid(lv, reps);
       var person = cpid ? personOf(cpid) : null;
-      var nm = (person && person.name) ? String(person.name) : '';
+      var nm = displayName(cpid, person);
       if (!nm) unnamed++;
       seats.push({ key: lv.key, label: String(lv.distLabel || lv.label || ''), name: nm });
     }

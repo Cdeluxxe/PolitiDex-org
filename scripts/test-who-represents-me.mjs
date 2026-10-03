@@ -908,13 +908,32 @@ has(thinFirst.host.innerHTML, 'Scott Chew',
   'band: a nameless display record from the bundled reader beat the named one from the roster join,\n' +
   '    so a mid-merge payload can blank a name the page already has');
 
-// And with no join on the document at all, the documented behaviour stands: the
-// id is printed rather than the coverage admission, because a name we have not
-// loaded is a loading problem and never a claim about what PolitiDex holds.
+// And with no named row on the document at all, THE PID IS NOT A LABEL. This
+// used to print the id ("a name we have not loaded is a loading problem"), and
+// that is how a Camelot reader's State House 14 row came to read "lisonbee_h14".
+// The pid is the key: with a warm roster and no named row the seat says no
+// member is on file, and while the roster is cold it says the name is loading.
+// Neither prints the id where the name goes.
 const noJoin = runBand({ pdxRepsForMe: aliasReps, _pdxPersonById: () => null });
-has(noJoin.host.innerHTML, 'scott_chew',
-  'band: without the roster join the row fell back to the blank copy over a pid it HAD. The blank\n' +
-  '    says we hold no record for this seat, and the pid is proof we hold one');
+lacks(noJoin.host.innerHTML, '>scott_chew<',
+  'band: with no named row the seat printed its pid as the member\'s name — the pid is the key, not the label');
+has(noJoin.host.innerHTML, 'no member on file',
+  'band: with no named row and a warm roster the seat did not say no member is on file');
+const noJoinCold = runBand({ pdxRepsForMe: aliasReps, _pdxPersonById: () => null, pdxRosterWarm: () => false });
+lacks(noJoinCold.host.innerHTML, '>scott_chew<',
+  'band: on a cold roster the seat printed its pid as the member\'s name');
+has(noJoinCold.host.innerHTML, 'Loading name',
+  'band: on a cold roster the nameless seat claimed an absence instead of a wait');
+// AN ID IN THE NAME FIELD IS NOT A NAME EITHER. The resolver's pdxRosterName()
+// is the one read of what may be printed for a pid; driven here as it publishes.
+const idName = runBand({ pdxRepsForMe: aliasReps,
+  _pdxPersonById: () => ({ name: 'scott_chew', party: 'R' }),
+  pdxRosterName: (pid, held) => {
+    const n = held && held.name ? String(held.name).trim() : '';
+    return (n === pid || (/^[a-z0-9_]+$/.test(n) && /[_0-9]/.test(n))) ? '' : n;
+  } });
+lacks(idName.host.innerHTML, '>scott_chew<',
+  'band: a record whose name field holds the pid was printed as a name');
 
 // Honestly partial: one unresolved seat must be STATED. Note what this fixture
 // actually is — LEVELS6's State Senate row carries District 23, so dropping its

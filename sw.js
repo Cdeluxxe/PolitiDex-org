@@ -8546,7 +8546,53 @@
 //     exactly --pdx-chrome tall; a zero inset is the old bar, so desktop is
 //     unchanged. MIGRATION COST: none. shell-chrome.css and the inline-bar
 //     shells are precached and changed, so it moves one version.
-const CACHE_VERSION = 'v282';
+// v283 - YOUR BALLOT ON /me OPENS WITH THE SITTING MEMBERS. The account card
+//     named a Layton reader's districts and Your Ballot, directly under it,
+//     printed "No officeholder on file" for U.S. House, State Senate and State
+//     House over "0 of 6 seats picked". me.html now loads seated-member.js (the
+//     district table /voice reads), and each row is seated through
+//     district-voice.js's seatPidFor(), the same walk /voice and Who Represents
+//     Me take - no new resolver and no pid composed on /me. A district that
+//     resolved and named nobody still reads "No officeholder on file"; a seat
+//     with no district reads "District not resolved yet"; the pick count is
+//     not printed until the reader has made a pick. MIGRATION COST: none.
+//     No location key is migrated, renamed or copied; no pick is rewritten.
+//     me.html and me-desk.js are precached and changed, so it moves one version.
+// v284 - DETECT DOES NOT COMMIT A SEAT WHEN THE POINT IS TOO COARSE. On
+//     Camelot the address and a tap on the house read State House 14; Detect
+//     read 15 and named Ariel Defay, because Detect saved only state, county
+//     and congressional number and the county's curated slate filled in the
+//     legislative seats. Detect is now the phone's point plus its accuracy
+//     radius, handed to the /find map (in the URL hash, never the query). If
+//     one district of each chamber holds the whole circle - the radius widened
+//     by each layer's own simplification offset - it commits those seats
+//     through selectDistrict(), the same writer a tap uses. If the circle
+//     crosses a line nothing is committed: the map drops the pin, draws the
+//     circle and says the phone's location covers more than one district -
+//     tap the house or search the address. A later tap or address replaces a
+//     detect point; Detect never replaces a point the reader placed. Flagged,
+//     not fixed here: the Layton pin's U.S. House label can read District 4
+//     while the chip says District 2. MIGRATION COST: none. No location key is
+//     migrated, renamed or copied; the record gains one optional field,
+//     pointSource 'detect', absent on every older record and read as placed.
+//     find.html is precached and changed, so it moves one version.
+// v285 - HOUSE 14 PRINTS KARIANNE LISONBEE, NOT THE PID. A Camelot record
+//     resolves State House 14 to lisonbee_h14, and Your Ballot on /me and the
+//     homepage card both printed that key as the member's name: each printer
+//     read `name || pid`. voter-hub-location.js now treats an id in a row's
+//     name field as no name, keeps walking to the row that can name the pid
+//     under its alias keys, and publishes pdxRosterName(pid) - the one read of
+//     what may be printed for a pid, '' when nothing can be. Your Ballot, the
+//     homepage card and its shareable seats card print that read, and the
+//     /voice hallway's seat walk asks it; where it is '' the row says no
+//     officeholder is on file (or "Loading name..." while the roster has not
+//     arrived) and the pid never reaches a label. me.html now loads profile-alias.js, the alias table
+//     /voice already carries, so /me can reach the named row. Stevenson,
+//     Maloy, Curtis, Lee and Cox are unchanged. No new resolver; Detect
+//     untouched. MIGRATION COST: none. No location key is migrated, renamed or
+//     copied. me.html, me-desk.js, who-represents-me.js and district-voice.js
+//     are precached and changed, so it moves one version.
+const CACHE_VERSION = 'v285';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

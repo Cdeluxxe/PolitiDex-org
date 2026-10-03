@@ -554,9 +554,22 @@
     try { if (window.PROFILES && window.PROFILES[pid]) return window.PROFILES[pid]; } catch (e3) {}
     return null;
   }
+  // THE NAME, NEVER THE PID. This returned `p.name || pid`, and a Camelot
+  // reader's State House 14 row read "lisonbee_h14": /me holds no bundled
+  // roster, the live row that names her is filed under an alias key, and the
+  // key fell through as the label. voter-hub-location.js's pdxRosterName() is
+  // the one read of what may be printed for a pid — the named row under any of
+  // its alias keys (profile-alias.js puts that table on this document), with
+  // the record found here weighed by the same rule — and '' means no name.
+  // Callers print '' as an absence, never as the id.
   function nameOf(pid) {
+    if (!pid) return '';
     var p = personOf(pid);
-    return (p && p.name) || pid || '';
+    try {
+      if (fn(window.pdxRosterName)) return String(window.pdxRosterName(pid, p) || '');
+    } catch (e) {}
+    var n = (p && p.name) ? String(p.name).trim() : '';
+    return n === pid ? '' : n;
   }
   // The same three tiers ballot-breakdown.js's _getPhotoUrl reads, in the same
   // order, without its alias hop chain — that chain resolves a person filed
@@ -1022,10 +1035,13 @@
   // this block subscribes to its arrival and repaints (see seamRoster) and says
   // "Still loading seats…" until then rather than printing a coverage admission
   // it has no grounds for yet. The district seats (U.S. House, State Senate,
-  // State House) resolve from the curated ballot in ballot-breakdown.js
-  // (407 KB), which this document deliberately does not carry, so they come back
-  // with no pid and the row says so. The local slot has no level at all. That is
-  // an honest gap in one direction only: /me can under-name a seat and never
+  // State House) used to resolve only from the curated ballot in
+  // ballot-breakdown.js (407 KB), which this document deliberately does not
+  // carry. They now resolve the way /voice resolves them: the U.S. House through
+  // _pdxUsHouseSeat() off the same roster, the two legislative seats through
+  // seated-member.js's district table, which me.html now loads — both asked
+  // through seatPidFor() below. The local slot has no level at all. A seat
+  // neither join can name stays blank: /me can under-name a seat and never
   // mis-name one.
   //
   // AND THE PICK IS STILL THE READER'S. It prints UNDER the incumbent, prefixed
@@ -1038,15 +1054,61 @@
   // can make a pick, and the one control on the row is the same
   // /ballot?seat=<key> link it always was. The count is unchanged: picks over
   // the seats on this reader's own slate.
+  //
+  // AND EACH LEVEL IS SEATED THE WAY /voice SEATS IT. pdxSeatHolders() hands
+  // back the resolver's levels; the pid that may sit on each one is
+  // district-voice.js's seatPidFor() — the one walk /voice's hallway and Who
+  // Represents Me both take. It keeps the resolver's pid where the record
+  // claims this chamber and number, drops one that claims another, and fills a
+  // blank from the joins a lean document is missing the long way round
+  // (_pdxUsHouseSeat for the U.S. House, seated-member.js's district table for
+  // the two legislative seats). Before this, /me read the levels' own pids
+  // only, so a Layton record printed "No officeholder on file" under U.S.
+  // House, State Senate and State House directly below an account card that
+  // named all three districts. No pid is composed here: seatPidFor() answers
+  // '' and the row stays empty, or it names who the resolver's own joins name.
+  //
+  // WHICH EMPTY IT IS. `unresolved` is a seat with no district to ask about —
+  // a district level with no number, or no level for the seat at all — and it
+  // reads as unresolved. A district that resolved and named nobody is "No
+  // officeholder on file", the same honest empty as before. The local slot has
+  // no level and is not a district seat, so it keeps that sentence too.
   function holdersFor(seatKey) {
-    try {
-      if (!fn(window.pdxSeatHolders)) return { ok: false, pids: [], rosterCold: false };
-      var h = window.pdxSeatHolders(seatKey);
-      return (h && h.pids) ? h : { ok: false, pids: [], rosterCold: false };
-    } catch (e) { return { ok: false, pids: [], rosterCold: false }; }
+    var none = { ok: false, pids: [], rosterCold: false, unresolved: false };
+    var h = null;
+    try { h = fn(window.pdxSeatHolders) ? window.pdxSeatHolders(seatKey) : null; } catch (e) { h = null; }
+    if (!h || !h.pids) return none;
+    var levels = h.levels || [];
+    var V = voiceApi();
+    var r = reps();
+    var state = r && r.state;
+    var pids = [];
+    var placed = 0;
+    levels.forEach(function (lv) {
+      if (!lv) return;
+      var n = lv.statewide ? '' : String(lv.district == null ? '' : lv.district).replace(/[^0-9]/g, '');
+      if (!lv.statewide && !n) return;
+      placed++;
+      var pid = '';
+      try {
+        pid = (V && fn(V.seatPidFor)) ? String(V.seatPidFor(lv, state) || '') : String(lv.pid || '');
+      } catch (e2) { pid = String(lv.pid || ''); }
+      if (pid && pids.indexOf(pid) === -1) pids.push(pid);
+    });
+    // Where the resolver gave no levels at all, its own pids are all there is.
+    if (!levels.length) pids = h.pids.slice();
+    var seat = String(h.seat || '');
+    return {
+      ok: pids.length > 0,
+      pids: pids,
+      rosterCold: !!h.rosterCold,
+      unresolved: !pids.length && !!h.located && !placed &&
+        (seat === 'house' || seat === 'statesenate' || seat === 'statehouse')
+    };
   }
   var HOLD_NONE = 'No officeholder on file';
   var HOLD_WAIT = 'Still loading seats\u2026';
+  var HOLD_UNRES = 'District not resolved yet';
   // THREE STATES, THREE SENTENCES, AND THE ROW NEVER GUESSES WHICH IT IS IN.
   //
   //   · the roster this document resolves seats from has not arrived → "Still
@@ -1066,8 +1128,12 @@
   // "who holds this seat" instead of second-guessing it from a roster global it
   // would then be the second reader of.
   function holdsLine(h) {
-    var pids = (h && h.pids) || [];
+    // Only a holder this document can NAME is printed. A pid with no named row
+    // is not a label: the row says the wait or the absence instead, and a Senate
+    // row with one nameable senator prints that one.
+    var pids = ((h && h.pids) || []).filter(function (pid) { return !!nameOf(pid); });
     if (!pids.length) {
+      if (h && h.unresolved) return '<span class="me-holds me-holds--none">' + esc(HOLD_UNRES) + '</span>';
       return (h && h.rosterCold)
         ? '<span class="me-holds me-holds--wait">' + esc(HOLD_WAIT) + '</span>'
         : '<span class="me-holds me-holds--none">' + esc(HOLD_NONE) + '</span>';
@@ -1113,7 +1179,9 @@
       var line = holdsLine(hold) +
         (pid
           ? '<span class="me-pick"><span class="me-picklb">Your pick:</span> ' +
-              personAnchor(pid, nameOf(pid)) + '</span>'
+              // The pick's own label obeys the same rule: a name, or words
+              // that say what the link is — never the pid.
+              personAnchor(pid, nameOf(pid) || (hold.rosterCold ? HOLD_WAIT : 'Open their file')) + '</span>'
           : '');
 
       // WORK THIS SEAT IS A REAL ADDRESS. /ballot?seat=<key> — the desk reads
@@ -1136,7 +1204,12 @@
     // kept beside them — and the numerator is how many of those hold a pick.
     // Neither is a literal, neither is a percentage, and on a reader we cannot
     // place both are zero and the sentence is not printed at all.
-    var count = workable
+    //
+    // NOR IS IT PRINTED AT ZERO PICKS. "0 of 6 seats picked" over six rows that
+    // each name who sits there read as a slate with nobody on it. The pick is
+    // the reader's own choice and the holder is a fact about the seat; the
+    // count is about the first, so until there is a pick it says nothing.
+    var count = (workable && picked)
       ? esc(picked + ' of ' + workable + (workable === 1 ? ' seat picked' : ' seats picked'))
       : '';
 
