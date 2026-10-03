@@ -713,6 +713,7 @@
   // on rather than printed as "on file" beside a board that knows the name.
   function nameable(pid) {
     try {
+      if (fn(window.pdxRosterName)) return !!window.pdxRosterName(pid);
       if (!fn(window.pdxRosterRec)) return false;
       var rec = window.pdxRosterRec(pid);
       return !!(rec && String(rec.name == null ? '' : rec.name).trim());

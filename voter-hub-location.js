@@ -2007,19 +2007,41 @@
   // the gate's truthiness test reads the same answer it always did. What changed
   // is only WHICH of two rows for one officeholder comes back, and that question
   // only ever mattered to the caller that prints a name.
-  function _pdxRosterName(rec) {
+  // ── AND A PID IN THE NAME FIELD IS NOT A NAME ─────────────────────────────
+  // A Camelot record resolves State House 14 to lisonbee_h14, and Your Ballot
+  // and the homepage card both printed "lisonbee_h14" as the member's name.
+  // Every printer read `name || pid`, and a row whose name field holds an id —
+  // a stub written with its key as its label, or no named row reachable on that
+  // document at all — passed straight through. The pid is the KEY. It opens the
+  // person file; it is never the label on the row.
+  //
+  // So an id-shaped value is read as no name: the pid itself, or a lowercase
+  // token built from letters, digits and underscores that carries an underscore
+  // or a digit (lisonbee_h14, klisonbee_2, defay_h15). A real display name has
+  // a capital or a space ("Karianne Lisonbee", "Cox"), so no officeholder's name
+  // can fail this. The walk below then keeps looking for the row that CAN name
+  // them, under its alias keys — and where there is none, the printer says no
+  // officeholder is on file rather than printing the key.
+  function _pdxIdShaped(v, pid) {
+    if (!v) return false;
+    if (pid && v === String(pid)) return true;
+    return /^[a-z0-9_]+$/.test(v) && /[_0-9]/.test(v);
+  }
+  function _pdxRosterName(rec, pid) {
     if (!rec || typeof rec !== 'object') return '';
-    try { return String(rec.name == null ? '' : rec.name).trim(); } catch (e) { return ''; }
+    var n = '';
+    try { n = String(rec.name == null ? '' : rec.name).trim(); } catch (e) { return ''; }
+    return _pdxIdShaped(n, pid) ? '' : n;
   }
 
   function _pdxRosterRec(pid) {
     if (!pid) return null;
     var first = _pdxRosterRaw(pid);
-    if (_pdxRosterName(first)) return first;
+    if (_pdxRosterName(first, pid)) return first;
     var keys = _pdxAliasKeys(pid);
     for (var i = 0; i < keys.length; i++) {
       var alt = _pdxRosterRaw(keys[i]);
-      if (_pdxRosterName(alt)) return alt;
+      if (_pdxRosterName(alt, keys[i])) return alt;
       if (alt && !first) first = alt;
     }
     return first || null;
@@ -2034,6 +2056,22 @@
   // this pid still a person here, and what record is that person. No caller
   // composes a label, and nothing here decides which pid holds a seat.
   window.pdxRosterRec = function (pid) { return _pdxRosterRec(pid) || null; };
+
+  // THE NAME, OR NOTHING. The same walk, answered as the one string a printer
+  // may put on a row: the display name of the row that can name this pid, or
+  // '' when no such row is on this document. Never the pid. Every surface that
+  // prints a seat holder asks this, so a key cannot reach a label by way of a
+  // `|| pid` fallback in any one of them.
+  //
+  // `held` (optional) is a record the caller already found through a reader of
+  // its own (the homepage's _pdxPersonById, a bundled map). It is weighed by the
+  // same rule after the walk, so the id test exists in exactly this one place.
+  window.pdxRosterName = function (pid, held) {
+    var rec = _pdxRosterRec(pid);
+    var n = rec ? _pdxRosterName(rec, pid) : '';
+    if (!n && held) n = _pdxRosterName(held, pid);
+    return n;
+  };
 
   function _pdxRosterSize() {
     try {

@@ -8576,7 +8576,23 @@
 //     migrated, renamed or copied; the record gains one optional field,
 //     pointSource 'detect', absent on every older record and read as placed.
 //     find.html is precached and changed, so it moves one version.
-const CACHE_VERSION = 'v284';
+// v285 - HOUSE 14 PRINTS KARIANNE LISONBEE, NOT THE PID. A Camelot record
+//     resolves State House 14 to lisonbee_h14, and Your Ballot on /me and the
+//     homepage card both printed that key as the member's name: each printer
+//     read `name || pid`. voter-hub-location.js now treats an id in a row's
+//     name field as no name, keeps walking to the row that can name the pid
+//     under its alias keys, and publishes pdxRosterName(pid) - the one read of
+//     what may be printed for a pid, '' when nothing can be. Your Ballot, the
+//     homepage card and its shareable seats card print that read, and the
+//     /voice hallway's seat walk asks it; where it is '' the row says no
+//     officeholder is on file (or "Loading name..." while the roster has not
+//     arrived) and the pid never reaches a label. me.html now loads profile-alias.js, the alias table
+//     /voice already carries, so /me can reach the named row. Stevenson,
+//     Maloy, Curtis, Lee and Cox are unchanged. No new resolver; Detect
+//     untouched. MIGRATION COST: none. No location key is migrated, renamed or
+//     copied. me.html, me-desk.js, who-represents-me.js and district-voice.js
+//     are precached and changed, so it moves one version.
+const CACHE_VERSION = 'v285';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

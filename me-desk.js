@@ -554,9 +554,22 @@
     try { if (window.PROFILES && window.PROFILES[pid]) return window.PROFILES[pid]; } catch (e3) {}
     return null;
   }
+  // THE NAME, NEVER THE PID. This returned `p.name || pid`, and a Camelot
+  // reader's State House 14 row read "lisonbee_h14": /me holds no bundled
+  // roster, the live row that names her is filed under an alias key, and the
+  // key fell through as the label. voter-hub-location.js's pdxRosterName() is
+  // the one read of what may be printed for a pid — the named row under any of
+  // its alias keys (profile-alias.js puts that table on this document), with
+  // the record found here weighed by the same rule — and '' means no name.
+  // Callers print '' as an absence, never as the id.
   function nameOf(pid) {
+    if (!pid) return '';
     var p = personOf(pid);
-    return (p && p.name) || pid || '';
+    try {
+      if (fn(window.pdxRosterName)) return String(window.pdxRosterName(pid, p) || '');
+    } catch (e) {}
+    var n = (p && p.name) ? String(p.name).trim() : '';
+    return n === pid ? '' : n;
   }
   // The same three tiers ballot-breakdown.js's _getPhotoUrl reads, in the same
   // order, without its alias hop chain — that chain resolves a person filed
@@ -1115,7 +1128,10 @@
   // "who holds this seat" instead of second-guessing it from a roster global it
   // would then be the second reader of.
   function holdsLine(h) {
-    var pids = (h && h.pids) || [];
+    // Only a holder this document can NAME is printed. A pid with no named row
+    // is not a label: the row says the wait or the absence instead, and a Senate
+    // row with one nameable senator prints that one.
+    var pids = ((h && h.pids) || []).filter(function (pid) { return !!nameOf(pid); });
     if (!pids.length) {
       if (h && h.unresolved) return '<span class="me-holds me-holds--none">' + esc(HOLD_UNRES) + '</span>';
       return (h && h.rosterCold)
@@ -1163,7 +1179,9 @@
       var line = holdsLine(hold) +
         (pid
           ? '<span class="me-pick"><span class="me-picklb">Your pick:</span> ' +
-              personAnchor(pid, nameOf(pid)) + '</span>'
+              // The pick's own label obeys the same rule: a name, or words
+              // that say what the link is — never the pid.
+              personAnchor(pid, nameOf(pid) || (hold.rosterCold ? HOLD_WAIT : 'Open their file')) + '</span>'
           : '');
 
       // WORK THIS SEAT IS A REAL ADDRESS. /ballot?seat=<key> — the desk reads
