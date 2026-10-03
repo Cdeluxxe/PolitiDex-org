@@ -10,8 +10,11 @@
 //                  paid or not. The board gates ask this FIRST, and nothing in
 //                  this file can answer it.
 //   3. membership  a voice_membership row for the ACCOUNT, active. It names no
-//                  seat, writes no residency row and opens no seat. All it does
-//                  is lift the monthly cap on seats door 2 already opened.
+//                  seat, writes no residency row and opens no seat. It does two
+//                  things: it lifts the monthly cap on seats door 2 already
+//                  opened, and it lets the account START the vendor check for
+//                  one seat (residency-vendor-core.mjs). Only the signed vendor
+//                  decision then writes door 2; a second seat is not included.
 //
 // THE CAP. A verified non-member gets ONE comment and FIVE poll votes a month on
 // a seat — the month is Utah's calendar month (America/Denver), because every

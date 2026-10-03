@@ -47,7 +47,16 @@
 // gate and the post checks have passed, so membership can never stand in for a
 // vendor row: a member with no row for this seat is 403 like anybody else. A
 // second comment the same month is 429 with CAP_COPY.comment and
-// writes nothing. The GET never says whether the caller is a member.
+// writes nothing. The GET never carries the flag or an account id.
+//
+// ── WHO MAY START THE CHECK ─────────────────────────────────────────────────
+// The year includes the vendor check for ONE seat. The GET answers
+// `voice.canVerify` — true only for a signed-in member, unverified on THIS
+// seat, holding no vendor row on another composer seat — and the composer
+// paints the proof button on that alone. It is the caller's own permission,
+// not the flag: a verified resident reads false member or not, so a member and
+// a non-member who can both post still read byte-identical JSON.
+// POST /api/residency-verify asks the same canVerifyHere() and is 403 without it.
 //
 // Pure over injected dependencies, so scripts/test-district-board-composer.mjs
 // drives the real handler against an in-memory fake and asserts what was
@@ -80,6 +89,9 @@ export const COPY = {
   unverified: "Posting opens after an ID and address check for this seat. " +
     "A typed address, zip or saved location is not accepted as proof.",
   open: "You are a verified resident of this seat. Posts are public and carry no name.",
+  // A member whose one seat check is already spent on a neighbour seat. Names
+  // no price and no plan; boards carry no money copy.
+  secondSeat: "Your ID and address check is already used on another seat. A second seat is not included.",
   noIssue: "Choose an issue from this seat's table.",
   empty: "Write something first.",
   tooLong: "Keep it to " + POST_MAX + " characters.",
@@ -113,6 +125,39 @@ export function gate(user, row, seatKey) {
     return { ok: false, status: 403, code: "unverified", message: LOCKED_LINE, note: COPY.unverified };
   }
   return { ok: true, seatKey: k };
+}
+
+// THE ONE SEAT CHECK. The year includes the vendor check for ONE seat. The
+// alias of another composer seat this account already holds a vendor row on
+// (verified or revoked — a check that ran is a check that was used), or ''.
+// Read from voice_residency itself, so no counter is kept: the seat-scoped
+// hash is recomputed for each of the other four named seats.
+export async function otherVendorSeat(deps, uid, seatKey) {
+  if (!deps || typeof deps.findResidency !== "function" || !uid) return "";
+  for (const k of Object.keys(COMPOSER_SEATS)) {
+    if (k === seatKey) continue;
+    const row = await deps.findResidency(k, authorHash(uid, k));
+    if (row && row.method === "vendor" && (row.status === "verified" || row.status === "revoked")) {
+      return COMPOSER_SEATS[k];
+    }
+  }
+  return "";
+}
+
+// May THIS caller start the vendor check on THIS seat? Only a signed-in member
+// who is not yet verified here and has not spent the check on another seat.
+// Fails closed: any missing dep or lookup error is a no. It is the caller's
+// own permission, never the flag or an account id.
+export async function canVerifyHere(deps, user, row, seatKey) {
+  if (!user || user.isAnonymous || !user.uid) return { ok: false };
+  if (row && (row.status === "revoked" || (row.status === "verified" && row.method === "vendor"))) return { ok: false };
+  try {
+    if (!(await memberFor(deps, user))) return { ok: false };
+    if (await otherVendorSeat(deps, user.uid, seatKey)) return { ok: false, secondSeat: true };
+  } catch {
+    return { ok: false };
+  }
+  return { ok: true };
 }
 
 export function normalizeBody(v) {
@@ -181,6 +226,7 @@ export async function handle(req, deps) {
     const hash = user && !user.isAnonymous ? authorHash(user.uid, seatKey) : "";
     const row = hash ? await deps.findResidency(seatKey, hash) : null;
     const verdict = gate(user, row, seatKey);
+    const check = verdict.code === "unverified" ? await canVerifyHere(deps, user, row, seatKey) : { ok: false };
     const rows = await deps.listPosts(seatKey, POSTS_CAP);
     const posts = (rows || []).map((r) => publicPost(r, hash));
     return json({
@@ -191,7 +237,10 @@ export async function handle(req, deps) {
         canPost: verdict.ok,
         reason: verdict.ok ? "verified" : verdict.code,
         line: verdict.ok ? "" : LOCKED_LINE,
-        note: verdict.ok ? COPY.open : verdict.note || "",
+        note: verdict.ok ? COPY.open : (check.secondSeat ? COPY.secondSeat : verdict.note || ""),
+        // The proof button paints only on this. A signed-out reader, a
+        // non-member and a verified resident all read false.
+        canVerify: check.ok === true,
       },
       limits: { postMax: POST_MAX, postsCap: POSTS_CAP },
     });
