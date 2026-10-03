@@ -8546,7 +8546,19 @@
 //     exactly --pdx-chrome tall; a zero inset is the old bar, so desktop is
 //     unchanged. MIGRATION COST: none. shell-chrome.css and the inline-bar
 //     shells are precached and changed, so it moves one version.
-const CACHE_VERSION = 'v282';
+// v283 - YOUR BALLOT ON /me OPENS WITH THE SITTING MEMBERS. The account card
+//     named a Layton reader's districts and Your Ballot, directly under it,
+//     printed "No officeholder on file" for U.S. House, State Senate and State
+//     House over "0 of 6 seats picked". me.html now loads seated-member.js (the
+//     district table /voice reads), and each row is seated through
+//     district-voice.js's seatPidFor(), the same walk /voice and Who Represents
+//     Me take - no new resolver and no pid composed on /me. A district that
+//     resolved and named nobody still reads "No officeholder on file"; a seat
+//     with no district reads "District not resolved yet"; the pick count is
+//     not printed until the reader has made a pick. MIGRATION COST: none.
+//     No location key is migrated, renamed or copied; no pick is rewritten.
+//     me.html and me-desk.js are precached and changed, so it moves one version.
+const CACHE_VERSION = 'v283';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

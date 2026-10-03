@@ -2333,6 +2333,13 @@
                              borrowing a hue that means something else. Loaded
                              AFTER issue-map.js because it reads that file's
                              leaf-to-core lookup.
+         seated-member.js    the district→member table /voice already reads for
+                             State Senate and State House, ~4 KB lifted out of
+                             ballot-breakdown.js. Without it the resolver's
+                             seated() lane fails soft to null on this document
+                             and region d printed "No officeholder on file"
+                             under districts the account card had just named.
+                             Before the resolver, so its first walk can ask it.
          voter-hub-location  location + TEAM_POSITIONS. Its own boot tail calls
                              window._vhBallotRerender(), which on the homepage
                              and on /ballot belongs to ballot-breakdown.js and
@@ -2364,6 +2371,7 @@
   <script defer src="/browse-photos.js"></script>
   <script defer src="/issue-map.js"></script>
   <script defer src="/issue-colors.js"></script>
+  <script defer src="/seated-member.js"></script>
   <script defer src="/voter-hub-location.js"></script>
   <script defer src="/stance-sides.js"></script>
   <script defer src="/my-stances.js"></script>

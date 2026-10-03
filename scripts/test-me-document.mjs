@@ -250,8 +250,12 @@ const localSrcs = TAGS.map((t) => (t.attrs.match(/\bsrc\s*=\s*["']([^"']+)["']/)
 // that talks to the network for a control (Stripe Checkout), and me-desk.js is
 // pinned off the network below, so it cannot fold into the desk. Inlining it
 // instead would have spent most of the 48 KB gzip ceiling above.
-ok(localSrcs.length <= 13,
-  `budget: me.html loads ${localSrcs.length} local scripts (ceiling 13 — this is a desk, not a product)`);
+// 14, not 13, since Your Ballot named its district seats: seated-member.js is
+// the ~4 KB district→member table /voice already loads for the same reason, and
+// it is byte-pinned to ballot-breakdown.js by test-voice-sitting-member.mjs, so
+// inlining it here would be a second, unpinned copy.
+ok(localSrcs.length <= 14,
+  `budget: me.html loads ${localSrcs.length} local scripts (ceiling 14 — this is a desk, not a product)`);
 
 // ═════════════════════════════════════════════════════════════════════════════
 // 4 · THE COPY CHAIN
