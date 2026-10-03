@@ -23,13 +23,14 @@
 //
 // WHAT THIS FILE CAN REACH: voice_takes (read + insert), voice_residency (read
 // only — nothing here writes a residency row, so nothing here can verify
-// anybody), dd_issue_keys (read only). No vr_*, pol_*, finance or stance table.
+// anybody), voice_membership (read only — the daily cap; nothing here writes
+// it), dd_issue_keys (read only). No vr_*, pol_*, finance or stance table.
 // No update and no delete.
 
 import type { Config } from "@netlify/functions";
-import { and, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, gte, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
-import { ddIssueKeys, voiceResidency, voiceTakes } from "../../db/schema.js";
+import { ddIssueKeys, voiceMembership, voiceResidency, voiceTakes } from "../../db/schema.js";
 import { verifyUser } from "../../db/firebase-auth.js";
 import { checkLimits, clientIp, tooManyRequests } from "../lib/rate-limit.js";
 import { handle } from "../lib/district-board-voice-core.mjs";
@@ -72,10 +73,43 @@ const deps = {
       .limit(cap);
   },
 
-  async insertPost(v: { seatKey: string; issueKey: string; body: string; authorHash: string }) {
+  async findMembership(accountHash: string) {
+    const [row] = await db
+      .select({ status: voiceMembership.status, currentPeriodEnd: voiceMembership.currentPeriodEnd })
+      .from(voiceMembership)
+      .where(eq(voiceMembership.accountHash, accountHash));
+    return row || null;
+  },
+
+  async countPostsSince(seatKey: string, hash: string, since: Date) {
+    const [row] = await db
+      .select({ n: count() })
+      .from(voiceTakes)
+      .where(and(eq(voiceTakes.seatKey, seatKey), eq(voiceTakes.authorHash, hash), gte(voiceTakes.createdAt, since)));
+    return Number(row?.n) || 0;
+  },
+
+  async insertPost(v: { seatKey: string; issueKey: string; body: string; authorHash: string; capSince?: Date }) {
+    // THE CAPPED WRITE IS ONE STATEMENT: it inserts only if this author has no
+    // post on this seat since the day began, so two racing requests cannot both
+    // land. Null when the cap refused it.
+    if (v.capSince) {
+      const since = v.capSince.toISOString();
+      const res = (await db.execute(sql`
+        insert into voice_takes (seat_key, issue_key, body, author_hash)
+        select ${v.seatKey}, ${v.issueKey}, ${v.body}, ${v.authorHash}
+         where not exists (
+           select 1 from voice_takes
+            where seat_key = ${v.seatKey} and author_hash = ${v.authorHash}
+              and created_at >= ${since}::timestamptz)
+        returning id, issue_key as "issueKey", body, created_at as "createdAt"
+      `)) as any;
+      return (Array.isArray(res) ? res[0] : res?.rows?.[0]) || null;
+    }
+    const { capSince: _unused, ...values } = v;
     const [row] = await db
       .insert(voiceTakes)
-      .values(v)
+      .values(values)
       .returning({
         id: voiceTakes.id,
         issueKey: voiceTakes.issueKey,

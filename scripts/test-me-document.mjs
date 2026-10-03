@@ -246,8 +246,12 @@ const gz = gzipSync(Buffer.from(ME, "utf8")).length;
 ok(gz < 48 * 1024, `budget: me.html is ${(gz / 1024).toFixed(1)} KB gzipped (ceiling 48 KB)`);
 const localSrcs = TAGS.map((t) => (t.attrs.match(/\bsrc\s*=\s*["']([^"']+)["']/) || [])[1])
   .filter((s) => s && !/^(?:https?:)?\/\//.test(s));
-ok(localSrcs.length <= 12,
-  `budget: me.html loads ${localSrcs.length} local scripts (ceiling 12 — this is a desk, not a product)`);
+// 13, not 12, since the membership pass: me-membership.js is the one /me file
+// that talks to the network for a control (Stripe Checkout), and me-desk.js is
+// pinned off the network below, so it cannot fold into the desk. Inlining it
+// instead would have spent most of the 48 KB gzip ceiling above.
+ok(localSrcs.length <= 13,
+  `budget: me.html loads ${localSrcs.length} local scripts (ceiling 13 — this is a desk, not a product)`);
 
 // ═════════════════════════════════════════════════════════════════════════════
 // 4 · THE COPY CHAIN

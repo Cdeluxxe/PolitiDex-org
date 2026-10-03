@@ -671,3 +671,43 @@
   .me-work { margin-left: auto; }
   .me-rhead { flex-wrap: wrap; }
 }
+
+/* ── MEMBERSHIP (me-membership.js) ────────────────────────────────────────── */
+/* Below the desk, in the desk's own region look. Not Voice's gold door and not
+   a money pill: it is a plain note with one control. */
+.pdx-me-membership {
+  max-width: 46rem;
+  margin: 0 auto 2rem;
+  padding: 1rem 1.05rem 1.15rem;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 14px;
+  background: rgba(11, 18, 32, 0.72);
+  color: #cbd5e1;
+}
+.pdxmm-kick {
+  margin: 0 0 0.4rem;
+  font: 700 0.82rem/1 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: #cbd5e1;
+}
+.pdxmm-title { margin: 0 0 0.5rem; font-size: 1.15rem; color: #f1f5f9; }
+.pdxmm-line { margin: 0 0 0.5rem; line-height: 1.55; }
+.pdxmm-note, .pdxmm-status, .pdxmm-active { margin: 0.5rem 0 0; font-size: 0.88rem; line-height: 1.5; color: #9fb4d4; }
+.pdxmm-active { color: #bbf7d0; }
+.pdxmm-join {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 0.6rem;
+  padding: 0.55rem 1.1rem;
+  border: 1px solid rgba(125, 211, 252, 0.6);
+  border-radius: 999px;
+  background: rgba(30, 58, 95, 0.9);
+  color: #f1f5f9;
+  font: 700 0.95rem/1 'Barlow', system-ui, sans-serif;
+  cursor: pointer;
+}
+.pdxmm-join:hover, .pdxmm-join:focus-visible { border-color: #7dd3fc; }
+.pdxmm-join:focus-visible { outline: 2px solid #f1f5f9; outline-offset: 3px; }
+.pdxmm-join[disabled] { opacity: 0.6; cursor: default; }

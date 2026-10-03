@@ -19,13 +19,14 @@
 // 2 and in the per-issue `polls` column.
 //
 // WHAT THIS FILE CAN REACH: voice_poll_votes (grouped read + upsert),
-// voice_residency (read only — nothing here can verify anybody), dd_issue_keys
-// (read only). No delete.
+// voice_residency (read only — nothing here can verify anybody),
+// voice_membership (read only — the daily cap), dd_issue_keys (read only).
+// No delete.
 
 import type { Config } from "@netlify/functions";
-import { and, count, eq, sql } from "drizzle-orm";
+import { and, count, eq, gte, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
-import { ddIssueKeys, voicePollVotes, voiceResidency } from "../../db/schema.js";
+import { ddIssueKeys, voiceMembership, voicePollVotes, voiceResidency } from "../../db/schema.js";
 import { verifyUser } from "../../db/firebase-auth.js";
 import { checkLimits, clientIp, tooManyRequests } from "../lib/rate-limit.js";
 import { handle } from "../lib/district-board-poll-core.mjs";
@@ -71,14 +72,57 @@ const deps = {
       .where(and(eq(voicePollVotes.seatKey, seatKey), eq(voicePollVotes.authorHash, hash)));
   },
 
-  async upsertVote(v: { seatKey: string; issueKey: string; authorHash: string; choice: string }) {
+  async findMembership(accountHash: string) {
+    const [row] = await db
+      .select({ status: voiceMembership.status, currentPeriodEnd: voiceMembership.currentPeriodEnd })
+      .from(voiceMembership)
+      .where(eq(voiceMembership.accountHash, accountHash));
+    return row || null;
+  },
+
+  // Votes this author cast or changed on this seat since `since`. An upsert
+  // stamps updated_at, so a changed vote counts.
+  async countVotesSince(seatKey: string, hash: string, since: Date) {
+    const [row] = await db
+      .select({ n: count() })
+      .from(voicePollVotes)
+      .where(and(eq(voicePollVotes.seatKey, seatKey), eq(voicePollVotes.authorHash, hash), gte(voicePollVotes.updatedAt, since)));
+    return Number(row?.n) || 0;
+  },
+
+  async upsertVote(v: { seatKey: string; issueKey: string; authorHash: string; choice: string; capSince?: Date }) {
+    // THE CAPPED WRITE IS ONE STATEMENT: both the insert and the update arm only
+    // fire if this author has no vote on this seat since the day began. False
+    // when the cap refused it.
+    if (v.capSince) {
+      const since = v.capSince.toISOString();
+      const res = (await db.execute(sql`
+        insert into voice_poll_votes (seat_key, issue_key, author_hash, choice)
+        select ${v.seatKey}, ${v.issueKey}, ${v.authorHash}, ${v.choice}
+         where not exists (
+           select 1 from voice_poll_votes
+            where seat_key = ${v.seatKey} and author_hash = ${v.authorHash}
+              and updated_at >= ${since}::timestamptz)
+        on conflict (seat_key, issue_key, author_hash) do update
+           set choice = excluded.choice, updated_at = now()
+         where not exists (
+           select 1 from voice_poll_votes p
+            where p.seat_key = ${v.seatKey} and p.author_hash = ${v.authorHash}
+              and p.updated_at >= ${since}::timestamptz)
+        returning id
+      `)) as any;
+      const rows = Array.isArray(res) ? res : res?.rows || [];
+      return rows.length > 0;
+    }
+    const { capSince: _unused, ...values } = v;
     await db
       .insert(voicePollVotes)
-      .values(v)
+      .values(values)
       .onConflictDoUpdate({
         target: [voicePollVotes.seatKey, voicePollVotes.issueKey, voicePollVotes.authorHash],
         set: { choice: v.choice, updatedAt: sql`now()` },
       });
+    return true;
   },
 
   // Writes are rate-limited per person and per address; reads are not.

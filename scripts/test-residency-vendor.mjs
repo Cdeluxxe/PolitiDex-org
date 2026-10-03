@@ -321,6 +321,10 @@ function boardDeps(rows) {
     countVotes: async () => s.votes.map((v) => ({ issueKey: v.issueKey, choice: v.choice, v: 1 })),
     myVotes: async (seatKey, hash) => s.votes.filter((v) => v.seatKey === seatKey && v.authorHash === hash),
     upsertVote: async (v) => { s.votes.push(v); },
+    // These suites test the RESIDENCY gate, which is asked before membership;
+    // the account is a member so the daily cap (scripts/test-membership-cap.mjs)
+    // stays out of their way. Every 403 here is still a 403 for a member.
+    findMembership: async () => ({ status: "active", currentPeriodEnd: null }),
   };
   return s;
 }

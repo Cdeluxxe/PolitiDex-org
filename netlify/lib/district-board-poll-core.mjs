@@ -23,11 +23,20 @@
 // issue, computed here and only for a caller the gate let through — never
 // anybody else's. Anyone can read the tallies.
 //
+// ── THE DAILY CAP, AFTER THE GATE ───────────────────────────────────────────
+// A verified resident who is not a member gets ONE poll vote a day on this seat,
+// across its issues (netlify/lib/membership-core.mjs). A changed vote is a vote.
+// Re-sending the vote already on file is answered 200 and writes nothing. The
+// cap is asked only after the residency gate, so a member with no vendor row
+// for this seat is still 403. A second vote the same Mountain-time day is 429
+// with CAP_COPY.vote and writes nothing. Tallies still publish to everyone.
+//
 // Pure over injected dependencies, so scripts/test-district-board-poll.mjs
 // drives the real handler against an in-memory fake — no database, no network.
 
 import { authorHash } from "./district-voice-core.mjs";
 import { COMPOSER_SEATS, LOCKED_LINE, composerSeat, gate } from "./district-board-voice-core.mjs";
+import { CAP_COPY, DAILY_VOTES, dayStart, memberFor } from "./membership-core.mjs";
 
 export { COMPOSER_SEATS, LOCKED_LINE };
 
@@ -74,8 +83,13 @@ function json(data, status = 200) {
 //   issueExists(issueKey)                  → boolean
 //   countVotes(seatKey)                    → [{ issueKey, choice, v }]  (grouped)
 //   myVotes(seatKey, hash)                 → [{ issueKey, choice }]
-//   upsertVote({ seatKey, issueKey, authorHash, choice })
+//   upsertVote({ seatKey, issueKey, authorHash, choice, capSince? }) → boolean | void
+//                                          (with capSince: writes only if this author
+//                                          has no vote on this seat since then; false if not)
+//   findMembership(accountHash)            → voice_membership row | null
+//   countVotesSince(seatKey, hash, since)  → integer
 //   limit(req, user)                       → Response | null   (optional)
+//   now()                                  → Date              (optional)
 export async function handle(req, deps) {
   const method = String(req.method || "GET").toUpperCase();
   const url = new URL(req.url);
@@ -140,7 +154,23 @@ export async function handle(req, deps) {
   const choice = String(payload.choice == null ? "" : payload.choice);
   if (!CHOICES.includes(choice)) return json({ error: COPY.badChoice, code: "bad_choice" }, 400);
 
-  await deps.upsertVote({ seatKey: verdict.seatKey, issueKey, authorHash: hash, choice });
+  const values = { seatKey: verdict.seatKey, issueKey, authorHash: hash, choice };
+  if (await memberFor(deps, user)) {
+    await deps.upsertVote(values);
+  } else {
+    const current = ((await deps.myVotes(verdict.seatKey, hash)) || [])
+      .find((r) => r && issueShape(r.issueKey) === issueKey);
+    if (!current || current.choice !== choice) {
+      // FAILS CLOSED: no counter means no vote, not an uncapped one.
+      const since = dayStart(deps.now ? deps.now() : new Date());
+      const used = typeof deps.countVotesSince === "function"
+        ? Number(await deps.countVotesSince(verdict.seatKey, hash, since))
+        : Infinity;
+      if (!(used < DAILY_VOTES)) return json({ error: CAP_COPY.vote, code: "daily_cap" }, 429);
+      const wrote = await deps.upsertVote({ ...values, capSince: since });
+      if (wrote === false) return json({ error: CAP_COPY.vote, code: "daily_cap" }, 429);
+    }
+  }
 
   const poll = tallies(await deps.countVotes(verdict.seatKey)).find((t) => t.issueKey === issueKey) ||
     { issueKey, support: 0, oppose: 0, not_sure: 0, total: 0 };

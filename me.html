@@ -2370,6 +2370,7 @@
   <script defer src="/your-file.js"></script>
   <script defer src="/district-voice.js"></script>
   <script defer src="/me-desk.js"></script>
+  <script defer src="/me-membership.js"></script>
 
   <!-- pdx:me-voice-door:begin -->
   <style>
@@ -2435,6 +2436,18 @@
       <a href="/">go to PolitiDex</a>.
     </p>
   </main>
+
+  <!-- pdx:me-membership:begin — the three lines are fixed copy; me-membership.js
+       paints the one control. Membership lifts the daily cap and nothing else:
+       it is not residency and it opens no seat. -->
+  <section class="pdx-me-membership" id="pdx-me-membership" aria-labelledby="pdx-me-membership-h">
+    <p class="pdxmm-kick">Membership</p>
+    <h2 class="pdxmm-title" id="pdx-me-membership-h">Reading is free. Membership lifts the daily cap.</h2>
+    <p class="pdxmm-line">Reading stays free for everyone. A verified resident gets one comment and one poll vote a day on that seat. $20 a year removes the cap.</p>
+    <p class="pdxmm-note">Membership does not verify residency and does not open a seat: posting and voting still need the ID and address check for that seat.</p>
+    <div id="pdx-me-membership-act"></div>
+  </section>
+  <!-- pdx:me-membership:end -->
 
 </body>
 </html>
