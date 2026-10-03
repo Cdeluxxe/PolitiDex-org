@@ -16,8 +16,11 @@
    here can fake it: there is no local flag, no typed zip, no location claim.
    A failed read keeps the box off.
 
-   PROVE YOU LIVE HERE. A signed-in reader the server calls `unverified` gets
-   one button. It asks POST /api/residency-verify for a Veriff session bound to
+   PROVE YOU LIVE HERE. A signed-in reader the server calls `unverified` AND
+   `canVerify` gets one button. canVerify is true only for an active member who
+   has not spent the year's one seat check on another seat; a signed-out reader
+   and a non-member see the locked line and no button. This file holds no flag
+   of its own and never reads the membership endpoint. It asks POST /api/residency-verify for a Veriff session bound to
    { uid, seat } for THIS board and sends the reader to the vendor's page. The
    box opens only after the vendor's signed decision (ID document + proof of
    address) reaches the server and the next GET says so — coming back from the
@@ -220,6 +223,7 @@
 
   function proveHtml(reason) {
     if (reason !== 'unverified' || canPost()) return '';
+    if (!(_read && _read.voice && _read.voice.canVerify === true)) return '';
     var dis = _proving ? ' disabled aria-disabled="true"' : '';
     return '<div class="pdxdc-prove" data-pdxdc-prove="1">' +
       '<button class="pdxdc-btn" type="button" data-pdxdc-prove-btn="1"' + dis + '>' +
@@ -230,7 +234,7 @@
   }
 
   function prove() {
-    if (_proving) return;
+    if (_proving || !(_read && _read.voice && _read.voice.canVerify === true)) return;
     _proving = true;
     _proveStatus = '';
     render();

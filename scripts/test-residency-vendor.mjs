@@ -225,13 +225,17 @@ function verifyUser(req) {
   if (t === "anon") return { uid: "anon-uid", isAnonymous: true };
   return { uid: t, isAnonymous: false };
 }
-function startDeps({ rows = [], cfg = { apiKey: KEY, sharedSecret: SECRET, apiUrl: "" }, vendor } = {}) {
+// The start needs an active membership; these suites default to a member so the
+// seat, secret and vendor checks are what they test. Section 7 tests the flag.
+const MEMBER = { status: "active", currentPeriodEnd: null };
+function startDeps({ rows = [], cfg = { apiKey: KEY, sharedSecret: SECRET, apiUrl: "" }, vendor, membership = MEMBER } = {}) {
   const calls = [];
   const store = residencyStore(rows);
   const deps = {
     verifyUser: async (req) => verifyUser(req),
     config: () => cfg,
     findResidency: store.find,
+    findMembership: async () => membership,
     callbackUrl: (_req, alias) => `https://politidex.fyi/district/${alias}?residency=returned`,
     async createSession(url, headers, body) {
       calls.push({ url, headers, body });
@@ -425,7 +429,179 @@ ok(/v272 - PROVE YOU LIVE HERE[\s\S]*?MIGRATION COST: none[\s\S]*?No database mi
 const CLIENT = R("district-composer.js");
 ok(CLIENT.includes("Prove you live here"), "the composer carries the Prove you live here control");
 ok(/reason !== 'unverified'/.test(CLIENT), "…shown only to a signed-in, unverified reader");
+ok(/voice\.canVerify === true/.test(CLIENT), "…and only when the server answers canVerify");
+ok(!/\/api\/membership/.test(CLIENT), "…which the composer never asks /api/membership for");
 ok(!/localStorage|sessionStorage/.test(CLIENT), "…and keeps nothing on the device");
+
+ok(/v281 - A MEMBER CAN START THE SEAT CHECK[\s\S]*?MIGRATION COST: none - no one-check counter is[\s\S]*?needed/.test(SW),
+   "v281's log says no migration and why no counter is needed");
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("7 · a member can start the seat check; a non-member cannot; the year includes one");
+// ═════════════════════════════════════════════════════════════════════════════
+const NON_MEMBERS = [
+  ["no membership row", null],
+  ["an inactive membership", { status: "inactive", currentPeriodEnd: null }],
+  ["a lapsed membership", { status: "active", currentPeriodEnd: "2020-01-01T00:00:00Z" }],
+];
+{
+  // A NON-MEMBER CANNOT START A SESSION — with the secrets set and the vendor up.
+  for (const [who, membership] of NON_MEMBERS) {
+    for (const alias of Object.keys(CLUSTER)) {
+      const t = startDeps({ membership });
+      const res = await handleStart(start(alias, UID), t.deps);
+      eq(res.status, 403, `${who} on ${alias}: start is 403`);
+      eq((await res.json()).code, "not_member", `${who} on ${alias}: …not_member`);
+      eq(t.calls.length, 0, `${who} on ${alias}: no vendor session`);
+      eq(t.store.writes.length, 0, `${who} on ${alias}: nothing written`);
+    }
+  }
+  // A missing membership dep fails closed.
+  const t = startDeps();
+  delete t.deps.findMembership;
+  eq((await handleStart(start("ut-sd-3", UID), t.deps)).status, 403, "no membership lookup: 403");
+  eq(t.calls.length, 0, "…no session");
+  const thrown = startDeps();
+  thrown.deps.findMembership = async () => { throw new Error("db down"); };
+  eq((await handleStart(start("ut-sd-3", UID), thrown.deps)).status, 403, "membership lookup throws: 403");
+  eq(thrown.calls.length, 0, "…no session");
+  // Non-member with no secrets is still 403, not 503: the flag is asked first.
+  const off = startDeps({ membership: null, cfg: { apiKey: "", sharedSecret: "", apiUrl: "" } });
+  eq((await handleStart(start("ut-sd-3", UID), off.deps)).status, 403, "non-member, no secrets: 403");
+}
+{
+  // A MEMBER CAN START A SESSION FOR THE BOARD THEY ARE ON — and only that seat.
+  for (const [alias, seat] of Object.entries(CLUSTER)) {
+    const t = startDeps();
+    const res = await handleStart(start(alias, UID), t.deps);
+    eq(res.status, 200, `member on ${alias}: start is 200`);
+    eq((await res.json()).seat, alias, `member on ${alias}: …for this board`);
+    eq(JSON.parse(t.calls[0].body).verification.vendorData, JSON.stringify({ uid: UID, seat }),
+       `member on ${alias}: the session is bound to ${seat}`);
+    eq(t.store.writes.length, 0, `member on ${alias}: starting writes nothing`);
+  }
+}
+{
+  // THE YEAR INCLUDES ONE CHECK. A vendor row on one seat refuses a second seat.
+  for (const status of ["verified", "revoked"]) {
+    const rows = [{ seatKey: "ut-house-2", authorHash: authorHash(UID, "ut-house-2"), status, method: "vendor" }];
+    for (const alias of ["ut-sd-3", "ut-hd-16", "ut-sd-7", "ut-hd-15"]) {
+      const t = startDeps({ rows });
+      const res = await handleStart(start(alias, UID), t.deps);
+      eq(res.status, 403, `${status} on UT-2 → ${alias} start is 403`);
+      const d = await res.json();
+      eq(d.code, "second_seat", `…second_seat`);
+      ok(/a second seat is not included/i.test(d.error), "…and says a second seat is not included");
+      eq(t.calls.length, 0, "…no session");
+    }
+  }
+  // A location_match row elsewhere is not a vendor check; it spends nothing.
+  const loc = [{ seatKey: "ut-house-2", authorHash: authorHash(UID, "ut-house-2"), status: "verified", method: "location_match" }];
+  eq((await handleStart(start("ut-sd-3", UID), startDeps({ rows: loc }).deps)).status, 200,
+     "a location_match row on another seat does not spend the check");
+  // Another account's vendor row spends nothing for this one.
+  const bob = [{ seatKey: "ut-house-2", authorHash: authorHash("uid-bob", "ut-house-2"), status: "verified", method: "vendor" }];
+  eq((await handleStart(start("ut-sd-3", UID), startDeps({ rows: bob }).deps)).status, 200,
+     "someone else's vendor row does not spend this account's check");
+}
+{
+  // THE PROOF BUTTON: the board GET answers canVerify, and only for a member.
+  const get = (alias, token) => new Request(`https://politidex.fyi/api/district-board-voice?seat=${alias}`, {
+    headers: token ? { authorization: "Bearer " + token } : {},
+  });
+  const readVoice = async (rows, membership, alias, token) => {
+    const s = boardDeps(rows);
+    s.deps.findMembership = async () => membership;
+    const d = await (await handleVoice(get(alias, token), s.deps)).json();
+    return d.voice;
+  };
+  for (const alias of Object.keys(CLUSTER)) {
+    for (const [who, token] of [["signed out", null], ["anonymous", "anon"]]) {
+      const v = await readVoice([], MEMBER, alias, token);
+      eq(v.canVerify, false, `${who} on ${alias}: no proof button`);
+      eq(v.line, "Only verified residents of this seat get a voice that counts.", `${who} on ${alias}: the locked line`);
+    }
+    for (const [who, membership] of NON_MEMBERS) {
+      const v = await readVoice([], membership, alias, UID);
+      eq(v.reason, "unverified", `${who} on ${alias}: unverified`);
+      eq(v.canVerify, false, `${who} on ${alias}: no proof button`);
+      eq(v.canPost, false, `${who} on ${alias}: box stays off`);
+      eq(v.line, "Only verified residents of this seat get a voice that counts.", `${who} on ${alias}: the locked line`);
+    }
+    const m = await readVoice([], MEMBER, alias, UID);
+    eq(m.canVerify, true, `member on ${alias}: the proof button shows`);
+    eq(m.canPost, false, `member on ${alias}: …and the box is still off`);
+    const text = JSON.stringify(m);
+    ok(!/"member"|membership|subscription|\$/i.test(text), `member on ${alias}: no flag or price on the board wire`);
+  }
+  // Spent on UT-2: no button on SD-3, and the note says why without a price.
+  const spent = [{ seatKey: "ut-house-2", authorHash: authorHash(UID, "ut-house-2"), status: "verified", method: "vendor" }];
+  const sv = await readVoice(spent, MEMBER, "ut-sd-3", UID);
+  eq(sv.canVerify, false, "member verified on UT-2 → no proof button on SD-3");
+  ok(/a second seat is not included/i.test(sv.note), "…the note says a second seat is not included");
+  ok(!/\$|member/i.test(sv.note), "…with no price and no plan name");
+  const home = await readVoice(spent, MEMBER, "ut-cd-2", UID);
+  eq(home.canPost, true, "member verified on UT-2 → UT-2 open");
+  eq(home.canVerify, false, "…and no proof button there either");
+}
+{
+  // UNSIGNED AND WRONG-SEAT DECISIONS WRITE NOTHING — whatever the flag says.
+  for (const [name, req] of [
+    ["unsigned", hook(decision(), { sig: null })],
+    ["badly signed", hook(decision(), { sig: sign("nope", JSON.stringify(decision())) })],
+    ["wrong seat (neighbour)", hook(decision({}, "ut-statesenate-6"))],
+    ["wrong seat (alias)", hook(decision({}, "ut-sd-3"))],
+  ]) {
+    const s = residencyStore();
+    await handleWebhook(req, hookDeps(s));
+    eq(s.writes.length, 0, `${name} decision: nothing written`);
+    eq(s.rows.length, 0, `${name} decision: no residency row`);
+  }
+  ok(!/findMembership|voiceMembership|memberFor/.test(R("netlify/functions/residency-webhook.mts")),
+     "the residency webhook does not read membership");
+  ok(!/voiceResidency/.test(R("netlify/functions/membership-webhook.mts")), "the payment webhook cannot reach residency");
+}
+{
+  // A MEMBER WITH NO VENDOR ROW IS STILL 403 ON COMMENT AND POLL — and a member
+  // verified on a neighbour seat cannot post here.
+  for (const [alias, seat] of Object.entries(CLUSTER)) {
+    for (const [label, rows] of [
+      ["no row", []],
+      ["a location_match row", [{ seatKey: seat, authorHash: authorHash(UID, seat), status: "verified", method: "location_match" }]],
+      ["a pending row", [{ seatKey: seat, authorHash: authorHash(UID, seat), status: "pending", method: "vendor" }]],
+      ["a neighbour seat's vendor row", Object.values(CLUSTER).filter((k) => k !== seat).slice(0, 1)
+        .map((k) => ({ seatKey: k, authorHash: authorHash(UID, k), status: "verified", method: "vendor" }))],
+    ]) {
+      const s = boardDeps(rows); // boardDeps answers an ACTIVE membership
+      const c = await handleVoice(boardPost("/api/district-board-voice", { seat: alias, issueKey: "housing", body: "Hi" }, UID), s.deps);
+      eq(c.status, 403, `member with ${label} → ${alias} comment 403`);
+      const v = await handlePoll(boardPost("/api/district-board-poll", { seat: alias, issueKey: "housing", choice: "support" }, UID), s.deps);
+      eq(v.status, 403, `member with ${label} → ${alias} vote 403`);
+      eq(s.posts.length + s.votes.length, 0, `member with ${label} → ${alias}: nothing written`);
+    }
+  }
+}
+{
+  // /ME SAYS IT IN ONE LINE.
+  const ME = R("me.html");
+  const block = (ME.match(/<!-- pdx:me-membership:begin[\s\S]*?<!-- pdx:me-membership:end -->/) || [""])[0];
+  const text = block.replace(/<!--[\s\S]*?-->/g, " ").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+  const lines = [...block.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)].map((m) => m[1]);
+  const one = lines.filter((l) => /the ID and address check for one seat is included with the year/i.test(l));
+  eq(one.length, 1, "/me: one line says the one-seat check is included with the year");
+  ok(/a second seat is not included/i.test(one[0] || ""), "…and that a second seat is not included");
+  ok(/membership does not verify residency and does not open a seat/i.test(text), "/me: membership does not open a seat");
+  ok(!/membership (opens|unlocks|verifies) (the|a|your) seat/i.test(text), "/me: never says membership opens the seat");
+  ok(!/\$3\b|a month\s*—|\/month|per month/i.test(text), "/me: no monthly price is added");
+  const copy = [text, R("district-composer.js"), JSON.stringify((await import("../netlify/lib/residency-vendor-core.mjs")).COPY)].join("\n");
+  for (const w of ["stock", "stocks", "unit", "units", "share", "shares", "earn", "earns", "profit", "profits",
+                   "Form C", "investor", "investors", "equity"]) {
+    ok(!new RegExp(`\\b${w.replace(/ /g, "\\s+")}\\b`, "i").test(copy), `no "${w}" on /me's block, the composer or the vendor copy`);
+  }
+  const boards = Object.keys(CLUSTER).map((a) => `district-${a}.html`).concat(["district-composer.js"]);
+  const pay = boards.filter((f) => /\/api\/membership|checkout\.stripe|\$20|become a member/i.test(R(f)));
+  eq(pay.length, 0, `the five boards still have no pay button — ${JSON.stringify(pay)}`);
+}
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

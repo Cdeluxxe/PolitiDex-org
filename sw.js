@@ -8516,7 +8516,28 @@
 //     MIGRATION COST: none — the cap reads voice_takes.created_at and
 //     voice_poll_votes.updated_at, already stored. me.html is precached and
 //     changed, so it moves one version.
-const CACHE_VERSION = 'v280';
+// v281 - A MEMBER CAN START THE SEAT CHECK; A NON-MEMBER CANNOT. The
+//     "Prove you live here" button on the five composer boards paints only
+//     when the board's own GET answers voice.canVerify: true - a signed-in,
+//     active member, unverified on that seat. A signed-out reader and a
+//     non-member see the locked residency line and no button, and POST
+//     /api/residency-verify without an active membership is 403 with no
+//     session created and nothing written. The year includes the ID and
+//     address check for ONE seat: an account already holding a vendor row on
+//     another of the five is refused with "A second seat is not included."
+//     /me says the one-seat check is included with the year and still says
+//     membership does not open a seat. The webhook is unchanged: payment only
+//     sets the flag, only the signed Veriff decision writes a residency row,
+//     and a member with no row for that seat is still 403 on comment and
+//     poll. No pay button on a board, no new board, no splat, no price change;
+//     BOARD_ROUTES stays 88. MIGRATION COST: none - no one-check counter is
+//     needed, because the one seat is read from voice_residency itself (the
+//     seat-scoped hash recomputed for each of the five named seats); repeat
+//     starts on the same seat stay under the existing per-account rate limit.
+//     No location key is migrated, renamed or copied. me.html and
+//     district-composer.js are precached and changed, so it moves
+//     one version.
+const CACHE_VERSION = 'v281';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

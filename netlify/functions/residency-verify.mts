@@ -3,6 +3,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 //   POST /api/residency-verify { seat }   → { url } to the Veriff session, or
 //                                           404 no_seat / 403 signed_out /
+//                                           403 not_member / 403 second_seat /
 //                                           503 vendor_unavailable.
 //
 // The wiring for handleStart() in netlify/lib/residency-vendor-core.mjs. The
@@ -14,13 +15,14 @@
 // the browser; the browser only ever receives the session URL. Without both,
 // every start is 503 and nothing is created.
 //
-// WHAT THIS FILE CAN REACH: voice_residency (read only). It never writes a
-// residency row — only the signed webhook does.
+// WHAT THIS FILE CAN REACH: voice_residency (read only) and voice_membership
+// (read only — a start needs the active flag). It never writes a residency row
+// or a membership row — only the signed webhooks do.
 
 import type { Config } from "@netlify/functions";
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db/index.js";
-import { voiceResidency } from "../../db/schema.js";
+import { voiceMembership, voiceResidency } from "../../db/schema.js";
 import { verifyUser } from "../../db/firebase-auth.js";
 import { checkLimits, clientIp, tooManyRequests } from "../lib/rate-limit.js";
 import { handleStart } from "../lib/residency-vendor-core.mjs";
@@ -41,6 +43,14 @@ const deps = {
       .select({ status: voiceResidency.status, method: voiceResidency.method })
       .from(voiceResidency)
       .where(and(eq(voiceResidency.seatKey, seatKey), eq(voiceResidency.authorHash, hash)));
+    return row || null;
+  },
+
+  async findMembership(accountHash: string) {
+    const [row] = await db
+      .select({ status: voiceMembership.status, currentPeriodEnd: voiceMembership.currentPeriodEnd })
+      .from(voiceMembership)
+      .where(eq(voiceMembership.accountHash, accountHash));
     return row || null;
   },
 

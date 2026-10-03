@@ -4,8 +4,11 @@
 // The one writer of voice_residency.method = 'vendor'. Two handlers:
 //
 //   handleStart(req, deps)    POST /api/residency-verify { seat }
-//     A signed-in reader on SD-3, HD-16, SD-7, HD-15 or UT-2 asks to prove they
-//     live in THAT seat. The seat comes from the board they pressed the button
+//     A signed-in MEMBER on SD-3, HD-16, SD-7, HD-15 or UT-2 asks to prove they
+//     live in THAT seat. Without an active membership flag it is 403 and no
+//     session is created. The year includes the check for ONE seat: an account
+//     that already holds a vendor row on another of the five is 403 too, read
+//     from voice_residency itself — there is no counter. The seat comes from the board they pressed the button
 //     on (COMPOSER_SEATS, named rows, no pattern) and the uid from the verified
 //     Firebase token — never from anything else in the body. A Veriff session
 //     is created with vendorData = {"uid","seat"} and its URL returned. Writes
@@ -41,7 +44,8 @@
 
 import crypto from "node:crypto";
 import { authorHash } from "./district-voice-core.mjs";
-import { COMPOSER_SEATS, composerSeat } from "./district-board-voice-core.mjs";
+import { COMPOSER_SEATS, composerSeat, otherVendorSeat } from "./district-board-voice-core.mjs";
+import { memberFor } from "./membership-core.mjs";
 
 export const VENDOR = "veriff";
 export const DEFAULT_API_URL = "https://stationapi.veriff.com";
@@ -53,6 +57,8 @@ export const COPY = {
   unavailable: "The ID check is not available right now. Posting stays closed on this board.",
   revoked: "Residency for this seat was revoked by a reviewer.",
   already: "You are already verified for this seat.",
+  notMember: "The ID and address check is open to members. Posting stays closed on this board.",
+  secondSeat: "Your ID and address check is already used on another seat. A second seat is not included.",
 };
 
 function json(data, status = 200) {
@@ -116,6 +122,7 @@ export function decisionPassed(payload) {
 //   verifyUser(req)                → { uid, isAnonymous } | null
 //   config()                       → { apiKey, sharedSecret, apiUrl } (strings; '' when unset)
 //   findResidency(seatKey, hash)   → { status, method } | null
+//   findMembership(accountHash)    → voice_membership row | null  (missing = not a member)
 //   createSession(url, headers, body) → { ok, data }    (fetch, injected)
 //   callbackUrl(req, alias)        → string
 //   limit(req, user)               → Response | null    (optional)
@@ -142,6 +149,14 @@ export async function handleStart(req, deps) {
   if (row && row.status === "revoked") return json({ error: COPY.revoked, code: "revoked" }, 403);
   if (row && row.status === "verified" && row.method === "vendor") {
     return json({ verified: true, message: COPY.already }, 200);
+  }
+
+  // Membership opens the CHECK, never the seat. Fails closed on a missing dep.
+  if (!(await memberFor(deps, user))) {
+    return json({ error: COPY.notMember, code: "not_member" }, 403);
+  }
+  if (await otherVendorSeat(deps, user.uid, seatKey)) {
+    return json({ error: COPY.secondSeat, code: "second_seat" }, 403);
   }
 
   const cfg = (await deps.config()) || {};
