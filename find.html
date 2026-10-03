@@ -3349,6 +3349,8 @@
       // on the front page that shows the answer. settled() is consume() plus that
       // fallback, and the fallback only fires on a document that says it is the
       // finder — see __PDX_FIND_DOC in voter-hub-location.js.
+      // A homepage intent (next=/) counts as no intent here: both return to the
+      // band, not to the top of the front page and its scroll to Your ballot.
       try { if (window.PDXReturn) window.PDXReturn.settled(); } catch (e) {}
     }
 

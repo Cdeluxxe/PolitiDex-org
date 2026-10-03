@@ -873,8 +873,18 @@
     // AND IT STILL CANNOT FIRE WITHOUT A SAVE. Same two flags consume() checks,
     // for the same reason: a reader who opened the finder and pressed Escape has
     // expressed no intent and is owed no navigation.
+    //
+    // AND ON THE FINDER, next=/ IS THE BAND TOO. Every homepage door that
+    // composes finderHref(here()) — "Change my location" under the seats,
+    // Detect, Start Here, the welcome card — carries '/', and '/' with no
+    // fragment put the reader above the fold while the arrival handoff scrolled
+    // them down to Your ballot. A pin answers "who represents me", so the front
+    // page's intent is the band that prints the seats just saved; index.html's
+    // finderArrival() sees the fragment and opens nothing over it. /voice, /me,
+    // /ballot and the boards are still spent by consume(), untouched.
     function settled() {
-      if (consume()) return true;
+      var toBand = !!window.__PDX_FIND_DOC && strip(read() || '/') === '/';
+      if (!toBand && consume()) return true;
       if (!window.__PDX_FIND_DOC) return false;
       if (!window._pdxLocSaved || !window._hasUserLocation) return false;
       // The band that SHOWS the seats, which is where the answer is read. It is
