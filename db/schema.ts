@@ -1704,3 +1704,38 @@ export const voiceResidency = pgTable(
     check("voice_residency_method_check", sql`${t.method} in ('location_match', 'vendor')`),
   ]
 );
+
+// The membership flag: one row per ACCOUNT, never per seat. Membership is a $20
+// yearly Stripe subscription, and it does exactly one thing — it lifts the daily
+// cap (one comment, one poll vote a day per seat) on seats the account is ALREADY
+// vendor-verified for. It is not residency: nothing here names a seat, nothing
+// here is read by the residency gate, and no code path turns a row here into a
+// voice_residency row.
+//
+//   account_hash  sha256('member:' + uid), truncated — not the uid, and not the
+//                 seat-scoped author hash, so this row cannot be joined to a post.
+//   status        active | inactive. Only the signature-checked Stripe webhook
+//                 writes it, and only for STRIPE_PRICE_ID.
+//   subscription_id  the Stripe subscription that set it, so a stale event for an
+//                 older subscription cannot clear a newer one.
+//   last_event_at the Stripe event time that last moved the row; an older event
+//                 arriving late is ignored.
+//
+// No name, email, customer id, card, amount or seat. Never on a board's JSON.
+export const voiceMembership = pgTable(
+  "voice_membership",
+  {
+    id: serial().primaryKey(),
+    accountHash: text("account_hash").notNull(),
+    status: text().notNull(),
+    subscriptionId: text("subscription_id").notNull(),
+    currentPeriodEnd: timestamp("current_period_end", { withTimezone: true }),
+    lastEventAt: timestamp("last_event_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("voice_membership_account_unique").on(t.accountHash),
+    check("voice_membership_status_check", sql`${t.status} in ('active', 'inactive')`),
+  ]
+);

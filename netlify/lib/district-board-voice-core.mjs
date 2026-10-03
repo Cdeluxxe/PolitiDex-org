@@ -40,11 +40,20 @@
 // so a post moves "People who answered a poll or wrote a comment" from the same
 // rows the counts endpoint reads.
 //
+// ── THE DAILY CAP, AFTER THE GATE ───────────────────────────────────────────
+// A verified resident who is not a member gets ONE comment a day on this seat
+// (netlify/lib/membership-core.mjs). The cap is asked only AFTER the residency
+// gate and the post checks have passed, so membership can never stand in for a
+// vendor row: a member with no row for this seat is 403 like anybody else. A
+// second comment the same Mountain-time day is 429 with CAP_COPY.comment and
+// writes nothing. The GET never says whether the caller is a member.
+//
 // Pure over injected dependencies, so scripts/test-district-board-composer.mjs
 // drives the real handler against an in-memory fake and asserts what was
 // written — no database, no network.
 
 import { authorHash, normalizeSeatKey } from "./district-voice-core.mjs";
+import { CAP_COPY, DAILY_COMMENTS, dayStart, memberFor } from "./membership-core.mjs";
 
 // NAMED ROWS. Canonical seat key → the board alias the flag is spelled in. A
 // verified flag for one of these seats opens that seat's box and no other.
@@ -144,13 +153,22 @@ function json(data, status = 200) {
   });
 }
 
+function capRefusal() {
+  return json({ error: CAP_COPY.comment, code: "daily_cap" }, 429);
+}
+
 // deps:
 //   verifyUser(req)                 → { uid, isAnonymous } | null
 //   findResidency(seatKey, hash)    → { seatKey, status, method } | null
 //   issueExists(issueKey)           → boolean
 //   listPosts(seatKey, cap)         → rows (with authorHash), newest first
-//   insertPost({ seatKey, issueKey, body, authorHash }) → row
+//   insertPost({ seatKey, issueKey, body, authorHash, capSince? }) → row | null
+//                                   (with capSince: inserts only if this author
+//                                   has no post on this seat since then; null if not)
+//   findMembership(accountHash)     → voice_membership row | null
+//   countPostsSince(seatKey, hash, since) → integer
 //   limit(req, user)                → Response | null   (optional)
+//   now()                           → Date              (optional)
 export async function handle(req, deps) {
   const method = String(req.method || "GET").toUpperCase();
   const url = new URL(req.url);
@@ -208,11 +226,19 @@ export async function handle(req, deps) {
   const post = checkPost({ issueKey: issueRaw, issueOk, body: payload.body });
   if (!post.ok) return json({ error: post.message, code: post.code }, post.status);
 
-  const saved = await deps.insertPost({
-    seatKey: verdict.seatKey,
-    issueKey: post.issueKey,
-    body: post.body,
-    authorHash: hash,
-  });
+  const values = { seatKey: verdict.seatKey, issueKey: post.issueKey, body: post.body, authorHash: hash };
+  let saved;
+  if (await memberFor(deps, user)) {
+    saved = await deps.insertPost(values);
+  } else {
+    // FAILS CLOSED: no counter means no comment, not an uncapped one.
+    const since = dayStart(deps.now ? deps.now() : new Date());
+    const used = typeof deps.countPostsSince === "function"
+      ? Number(await deps.countPostsSince(verdict.seatKey, hash, since))
+      : Infinity;
+    if (!(used < DAILY_COMMENTS)) return capRefusal();
+    saved = await deps.insertPost({ ...values, capSince: since });
+    if (!saved) return capRefusal();
+  }
   return json({ post: publicPost({ ...saved, authorHash: hash }, hash) }, 201);
 }

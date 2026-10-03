@@ -103,6 +103,10 @@ function fakeStore(residencyRows) {
       return [...store.votes.values()].filter((v) => v.seatKey === seatKey && v.authorHash === hash)
         .map((v) => ({ issueKey: v.issueKey, choice: v.choice }));
     },
+    // These suites test the RESIDENCY gate, which is asked before membership;
+    // the account is a member so the daily cap (scripts/test-membership-cap.mjs)
+    // stays out of their way. Every 403 here is still a 403 for a member.
+    async findMembership() { return { status: "active", currentPeriodEnd: null }; },
     async upsertVote(v) {
       store.upserts.push(v);
       store.votes.set(`${v.seatKey}|${v.issueKey}|${v.authorHash}`, { ...v });
