@@ -704,9 +704,13 @@ const VERIFIED_OPTS = { uid: "u_7", loc: { state: "Utah", city: "Layton", county
     head = (f) => execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] });
     head("me.html");
   } catch (e) { head = null; }
+  // index.html's head carries the PROFILE_ALIASES mirror of PDX_PROFILE_ALIAS,
+  // which a naming pass legitimately grows by a row; it is no money markup, so
+  // it is set aside on both sides and every other byte stays pinned.
+  const sansAlias = (src) => src.replace(/var PROFILE_ALIASES = \{[\s\S]*?\};/, "<ALIASES>");
   for (const f of MONEY) {
     const src = R(f);
-    if (head) eq(src === head(f), true, `${f}: money markup changed in this pass`);
+    if (head) eq(sansAlias(src) === sansAlias(head(f)), true, `${f}: money markup changed in this pass`);
     if (f !== "index.html") lacks(src, "pdxhv-", `${f}: a money surface wears the Voice door's classes`);
   }
   const INDEX = R("index.html");

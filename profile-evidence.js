@@ -411,6 +411,13 @@
       stuart_adams:     'sadams',
       tiara_auxier:     'auxier_h4',
       todd_weiler:      'tweiler',
+      // CANONICAL: tlee — Utah House District 16, Layton, the roster record
+      // that seat's own board names. `trevor_lee` is the slug of that
+      // record's own display name; ACCT_ALIAS has held the same pair since the
+      // June 2026 video-evidence pass, so this is the same ruling made readable
+      // to the reverse read that lets /voice NAME the member rather than print
+      // "The member who holds this seat is on file" over a person one key away.
+      trevor_lee:       'tlee',
       troy_shelley:     'shelley_h66',
     };
 

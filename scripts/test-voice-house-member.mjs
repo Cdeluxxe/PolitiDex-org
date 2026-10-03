@@ -307,9 +307,9 @@ const ALIAS = (() => {
   return ctx.window.PDX_PROFILE_ALIAS;
 })();
 must(ALIAS && ALIAS.scott_chew === "chew_h68" && ALIAS.bridger_bolinder === "bolinder_h68" &&
-  ALIAS.ariel_defay === "defay_h15",
+  ALIAS.ariel_defay === "defay_h15" && ALIAS.trevor_lee === "tlee",
   "bridge: profile-alias.js does not bridge scott_chew → chew_h68, bridger_bolinder → bolinder_h68 and\n" +
-  "  ariel_defay → defay_h15, which are the three fixtures in the report");
+  "  ariel_defay → defay_h15 and trevor_lee → tlee, which are the fixtures in the reports");
 
 // THE TWO READERS. Areas ballot-breakdown.js curates (uintah/HD-68 and
 // millard/HD-29, synthesised from KEY_RACES_LOCATIONS because they carry all
@@ -337,6 +337,16 @@ const SEATS = [
     area: "Layton, Davis County", hd: "2", sd: "7", ld: "15",
     canon: "defay_h15", filed: "ariel_defay", name: "Ariel Defay",
   },
+  // LAYTON / HD-16, THE SAME SHAPE ONE NUMBER UP. /voice printed "The member
+  // who holds this seat is on file" on this card while /district/ut-hd-16, one
+  // tap away, named Trevor Lee: the live document is filed under `trevor_lee`,
+  // the roster record under `tlee`, and PDX_PROFILE_ALIAS had no row joining
+  // them. Every rule below now walks this seat too.
+  {
+    who: "Layton HD-16", loc: { state: "Utah", city: "Layton", county: "Davis County", district: "2" },
+    area: "Layton, Davis County", hd: "2", sd: "7", ld: "16",
+    canon: "tlee", filed: "trevor_lee", name: "Trevor Lee",
+  },
 ];
 
 // The curated roster the FRONT PAGE has: canonical keys, because cmp-data.js is
@@ -352,6 +362,7 @@ const CMP = {
   sadams: { name: "Stuart Adams", office: "Utah Senate President", state: "UT District 7", party: "R" },
   maloy: { name: "Celeste Maloy", office: "U.S. Representative", state: "Utah · UT-2", party: "R" },
   defay_h15: { name: "Ariel Defay", office: "Utah State Representative", state: "UT District 15", party: "R" },
+  tlee: { name: "Trevor Lee", office: "UT State Representative", state: "UT District 16", party: "R" },
 };
 const SEN_BY_D = { 20: "rwinterton", 27: "swayne", 7: "sadams" };
 const USH_BY_D = { 3: "kennedy", 4: "umoore", 2: "maloy" };
@@ -428,7 +439,7 @@ function voiceCtx(s, memo, opts) {
   vm.runInContext(RESOLVER, ctx, { filename: "voter-hub-location.js[pdxRepsForMe]" });
   vm.runInContext(RET_SRC, ctx, { filename: "voter-hub-location.js#PDXReturn" });
   vm.runInContext(DV, ctx, { filename: "district-voice.js" });
-  vm.runInContext(VR, ctx, { filename: "voice-room.js" });
+  vm.runInContext(o.vr || VR, ctx, { filename: "voice-room.js" });
   return { win, paint: () => win.PDXVoiceRoom.paint(), list: () => els["pdx-voice-seats"].innerHTML };
 }
 
@@ -577,6 +588,97 @@ for (const s of SEATS) {
       "    land on a third id");
   });
   ok(Object.keys(rev).length > 0, "bridge: the reverse of the table is empty, so the join can never fire");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 3b · LAYTON'S HOUSE 16 CARD NAMES THE MEMBER THE BOARD NAMES
+// ═════════════════════════════════════════════════════════════════════════════
+// The board at /district/ut-hd-16 names Trevor Lee. The hallway card for the
+// same seat must name him too, at the canonical /p/ address, under the same
+// Open board door — and Layton's other cards must keep naming whom they named.
+section("3b · Layton HD-16 names Trevor Lee, SD-7 names Stuart Adams, HD-15 names Ariel Defay");
+{
+  const S16 = SEATS.filter((x) => x.canon === "tlee")[0];
+  const S15 = SEATS.filter((x) => x.canon === "defay_h15")[0];
+  must(!!S16 && !!S15, "the Layton fixtures left SEATS");
+  const memoFor = (s) => {
+    const h = homeCtx(s);
+    h.pdxRepsForMe();
+    h.pdxRememberResolved();
+    return h._currentVoterLocation.resolved;
+  };
+  const cardFor = (html, label) => String(html).split('<li class="pdxvr-seat"')
+    .filter((p) => p.indexOf(label) !== -1)[0] || "";
+  const ON_FILE = "The member who holds this seat is on file";
+  const DB = R("district-board.js");
+
+  // The checks the HD-16 card must pass, as a function so the mutation below
+  // runs the very same ones.
+  const hd16Faults = (html) => {
+    const f = [];
+    const card = cardFor(html, "State House District 16");
+    if (!card) return ["no State House District 16 card"];
+    if (card.indexOf('Sitting member: <a class="pdxvr-name" href="/p/tlee">Trevor Lee</a>') < 0)
+      f.push("the card does not print Sitting member: Trevor Lee at /p/tlee");
+    if (card.indexOf(ON_FILE) >= 0) f.push("the card prints the on-file sentence while the named row exists");
+    if (card.indexOf("/p/trevor_lee") >= 0) f.push("the card advertises the display-name slug as an address");
+    if (!/<a class="pdxvr-door" href="\/district\/ut-hd-16">/.test(card)) f.push("Open board does not go to /district/ut-hd-16");
+    return f;
+  };
+
+  const memo16 = memoFor(S16);
+  const v16 = voiceCtx(S16, memo16);
+  v16.paint();
+  const html16 = v16.list();
+  eq(JSON.stringify(hd16Faults(html16)), "[]", "layton HD-16: the card names Trevor Lee under the board's door");
+  // THE BOARD NAMES THE SAME PERSON, by the same canonical pid.
+  ok(/'ut-statehouse-16':\s*\{[\s\S]{0,400}?pid:\s*'tlee'/.test(DB),
+    "layton HD-16: the board's own row no longer seats tlee, so the two answers are not being compared");
+  eq(v16.win.PDXVoice.boardPath("ut-statehouse-16"), "/district/ut-hd-16", "layton HD-16: the board left the allow-list");
+  // SD-7, ON THE SAME CARD LIST, STILL NAMES STUART ADAMS.
+  const sd7 = cardFor(html16, "State Senate District 7");
+  has(sd7, 'Sitting member: <a class="pdxvr-name" href="/p/sadams">Stuart Adams</a>',
+    "layton SD-7: the Senate card stopped naming Stuart Adams");
+  // HD-15 STILL NAMES ARIEL DEFAY.
+  const v15 = voiceCtx(S15, memoFor(S15));
+  v15.paint();
+  has(cardFor(v15.list(), "State House District 15"),
+    'Sitting member: <a class="pdxvr-name" href="/p/defay_h15">Ariel Defay</a>',
+    "layton HD-15: the card stopped naming Ariel Defay");
+
+  // WITH THE NAMED ROW REMOVED, the seat still holds a (thin) roster row under
+  // the canonical key, so the member is on file and cannot be named: the card
+  // returns to the on-file sentence, with a working person-file link, and it
+  // never promises a name with "yet".
+  const thin = liveIndex(S16);
+  delete thin[S16.filed];
+  thin[S16.canon] = { __lite: true, office: "UT State Representative", state: "UT District 16" };
+  const vt = voiceCtx(S16, memo16, { live: thin });
+  vt.paint();
+  const thinCard = cardFor(vt.list(), "State House District 16");
+  has(thinCard, ON_FILE, "layton HD-16, named row removed: the card does not return to the on-file sentence");
+  has(thinCard, '<a class="pdxvr-name" href="/p/tlee">Open the person file</a>',
+    "layton HD-16, named row removed: the on-file sentence lost its person-file link");
+  no(thinCard, "Trevor Lee", "layton HD-16, named row removed: a name was printed from a row that carries none");
+  no(thinCard.toLowerCase(), "yet", "layton HD-16, named row removed: the card says \"yet\"");
+  has(thinCard, 'href="/district/ut-hd-16"', "layton HD-16, named row removed: Open board left the card");
+
+  // MUTATION: a printer that falls back to the on-file sentence while the named
+  // row exists must fail the same checks.
+  const mutVR = VR.replace("var label = (p && p.name) ? String(p.name) : '';", "var label = '';");
+  ok(mutVR !== VR, "the on-file mutation found nothing to replace");
+  const vm16 = voiceCtx(S16, memo16, { vr: mutVR });
+  vm16.paint();
+  ok(hd16Faults(vm16.list()).length > 0,
+    "a card printing the on-file sentence while the named row exists passed the HD-16 checks");
+  // MUTATION: the alias row taken off the page must fail them too.
+  const noLee = JSON.parse(JSON.stringify(ALIAS));
+  delete noLee.trevor_lee;
+  const vn = voiceCtx(S16, memo16, { bridge: false });
+  vn.win.PDX_PROFILE_ALIAS = noLee;
+  vn.paint();
+  ok(hd16Faults(vn.list()).length > 0,
+    "the HD-16 card still names Trevor Lee without the trevor_lee row, so the row is not what names him");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
