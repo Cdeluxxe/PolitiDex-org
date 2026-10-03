@@ -33,6 +33,14 @@
   position: fixed; top: 0; left: 0; right: 0; z-index: 1200;
   display: flex; align-items: center; gap: 0.75rem;
   height: 3.25rem; padding: env(safe-area-inset-top, 0px) 0.85rem 0;
+  /* THE ROW SITS BELOW THE NOTCH, NOT INSIDE IT. Under a border-box reset
+     (tailwind.css on /mandate, /voice, /money, /library) `height: 3.25rem`
+     was the WHOLE bar, inset included, so a 47-59px status-bar inset left a
+     5px row and the POLITIDEX mark rendered clipped under the browser bar.
+     content-box makes the bar 3.25rem + env(safe-area-inset-top) tall — the
+     exact sum --pdx-chrome declares — and a zero inset is byte-for-byte the
+     old 3.25rem bar. scripts/test-mobile-shell-safe-area.mjs pins both. */
+  box-sizing: content-box;
   background: rgba(10, 15, 30, 0.86); backdrop-filter: blur(8px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
