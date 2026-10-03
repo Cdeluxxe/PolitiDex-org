@@ -883,7 +883,7 @@ section("10 · nothing on the do-not list moved");
     //   THE PIN NARROWS TO THE CLAIM, WHICH IS STRONGER THAN THE FILE-LEVEL
     // VERSION WAS: there are still exactly two alias tables, each declared once;
     // ACCT_ALIAS is byte-identical; PDX_PROFILE_ALIAS differs from HEAD by
-    // exactly one added row and that row is the declared one; and with the one
+    // added rows only, each a pair ACCT_ALIAS already holds; and with the one
     // table's literal set aside, every other byte of the file — every function,
     // every read of either table, the whole resolver — is identical with HEAD. A
     // pass that adds a roster row keeps passing; a pass that gives this file a
@@ -936,8 +936,15 @@ section("10 · nothing on the do-not list moved");
       const gone = headRows.filter((r) => nowRows.indexOf(r) < 0);
       eq(gone.length, 0,
         `profile-evidence.js: a row left PDX_PROFILE_ALIAS — ${JSON.stringify(gone)}`);
-      eq(added.join(","), "ariel_defay=defay_h15",
-        `profile-evidence.js: PDX_PROFILE_ALIAS gained rows other than the declared one — ${JSON.stringify(added)}`);
+      // A ROW MAY BE ADDED ONLY WHERE ACCT_ALIAS ALREADY HOLDS THE SAME PAIR.
+      // That is what makes an addition the same ruling made readable to the
+      // reverse read, rather than a new claim about who is one person — it is
+      // true of `ariel_defay → defay_h15` and of `trevor_lee → tlee`, and it is
+      // the rule a pinned row list was standing in for.
+      const acctRows = rowsOf(nowAcct);
+      const unruled = added.filter((r) => acctRows.indexOf(r) < 0);
+      eq(unruled.length, 0,
+        `profile-evidence.js: PDX_PROFILE_ALIAS gained rows ACCT_ALIAS has never ruled on — ${JSON.stringify(unruled)}`);
 
       // (d) AND WITH THAT ONE TABLE SET ASIDE, THE FILE IS HEAD. Every function,
       // every read, the whole resolver.

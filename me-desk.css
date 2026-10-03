@@ -618,8 +618,9 @@
    A LIST, MARKED UP AS ONE, because six seats is a list of six things and a
    screen reader is owed the count before the first item. This is the SNAPSHOT
    of what /voice lists in full: chamber and district on the left, whether a
-   board is on hand on the right, and nothing else per row. No person link, no
-   door, no card — duplicating the hallway here is how two documents start
+   board is on hand on the right, and nothing else per row. A seat with a board
+   names itself as a plain .me-link to that board's own path; a seat without one
+   is text. No person link, no gold door, no card — duplicating the hallway here is how two documents start
    telling one reader two things about the same seat.
 
    AND THERE IS NOTHING HERE A COUNT COULD LAND IN. No width, no fill, no track,

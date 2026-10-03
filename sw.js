@@ -8462,7 +8462,32 @@
 //     stays 88. MIGRATION COST: none, and no location key is migrated,
 //     renamed or copied. me.html, me-desk.js and me-desk.css are precached
 //     and changed, so it moves one version.
-const CACHE_VERSION = 'v275';
+// v276 - /ME'S DISTRICT VOICE SEAT LINES OPEN THE BOARD. Each seat line in
+//     region g whose seat is in BOARD_ROUTES is now a plain link to that
+//     board's own path, as boardPath() answers it - the hallway's one
+//     allow-list, no second resolver, no /district/* splat, no new route. A
+//     seat with no board stays text and carries no address. The gold "Open
+//     District Voice" control stays and still goes to /voice. No member
+//     renamed, no party letter, no score, no "Verified resident" chip, no
+//     composer change, no residency write; BOARD_ROUTES stays 88.
+//     MIGRATION COST: none, and no location key is migrated, renamed or
+//     copied. me-desk.js and me-desk.css are precached and changed, so it
+//     moves one version.
+// v277 - /VOICE NAMES HOUSE 16 THE SAME WAY THE BOARD DOES. The State House
+//     District 16 card printed "The member who holds this seat is on file"
+//     while /district/ut-hd-16, one tap away, named Trevor Lee. The live
+//     document is filed under `trevor_lee` and the roster record under
+//     `tlee`, and PDX_PROFILE_ALIAS - the table the roster's named-row read
+//     walks in reverse, the same read that names Ariel Defay on HD-15 - had
+//     no row joining them. It now has `trevor_lee: 'tlee'`, the pair
+//     ACCT_ALIAS already held, so the card prints "Sitting member: Trevor
+//     Lee" at /p/tlee. No pid is invented and none is renamed; the on-file
+//     sentence still prints when no named row exists. No new board, no
+//     composer, no residency write, no money, no equity copy; BOARD_ROUTES
+//     stays 88. MIGRATION COST: none, and no location key is migrated,
+//     renamed or copied. profile-evidence.js, profile-alias.js, index.html
+//     and person.html are precached and changed, so it moves one version.
+const CACHE_VERSION = 'v277';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
