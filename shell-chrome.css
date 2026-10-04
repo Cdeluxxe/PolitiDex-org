@@ -24,6 +24,21 @@
    by, for the same reason.
    ═════════════════════════════════════════════════════════════════════════════ */
 
+/* ── THE DOCUMENT IS NEVER WIDER THAN THE PHONE ─────────────────────────────
+   A fixed bar with left: 0 and right: 0 is exactly as wide as the layout
+   viewport, and on a phone the layout viewport is not always the glass: when
+   anything in the page is wider than the screen — a board's table, a long
+   unbroken line on /voice — the browser grows the page sideways and the bar
+   grows with it. The links ran off the right edge ("Find the Record" read as
+   FIN) and the account chip sat past the edge where nobody could reach it.
+   So the shells that wear this bar clip sideways overflow at the root. `clip`
+   on body, not `hidden`: hidden would make body its own scroll container
+   once html clips too, and break every sticky row and anchored jump. html
+   carries `hidden` first for an engine that does not know `clip`. Vertical
+   scrolling is untouched. */
+html { overflow-x: hidden; overflow-x: clip; }
+body { overflow-x: clip; }
+
 /* ── THE BAR ────────────────────────────────────────────────────────────────
    Real anchors with real hrefs, so cmd-click opens a tab and middle-click
    works. "Home" is a plain <a href="/">, never a history.back(): a reader may
@@ -45,6 +60,10 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 .pdx-sh-bar a { text-decoration: none; }
+/* AND THE ROW HOLDS ITS OWN CONTENTS. The bar is one line of fixed height, so
+   nothing in it may paint past its edge or ask the page for width. */
+.pdx-sh-bar { overflow: hidden; }
+.pdx-sh-bar > * { min-width: 0; }
 
 .pdx-sh-wordmark {
   flex: none;
@@ -141,4 +160,12 @@
   .pdx-sh-bar { gap: 0.5rem; padding-left: 0.65rem; padding-right: 0.65rem; }
   .pdx-sh-link { font-size: 0.64rem; padding: 0.28rem 0.5rem; letter-spacing: 0.1em; }
   .pdx-acct-lb { max-width: 5.5rem; }
+}
+/* The narrowest phones: the brand keeps its full word and the chip its place,
+   and the links give up the room — they scroll inside their own strip. */
+@media (max-width: 380px) {
+  .pdx-sh-bar { gap: 0.4rem; padding-left: 0.55rem; padding-right: 0.55rem; }
+  .pdx-sh-wordmark { font-size: 1.05rem; letter-spacing: 0.08em; }
+  .pdx-acct { padding: 0.28rem 0.45rem; }
+  .pdx-acct-lb { max-width: 4.5rem; }
 }

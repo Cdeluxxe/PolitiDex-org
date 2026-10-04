@@ -8601,7 +8601,37 @@
 //     stays unresolved. The pick count other surfaces read (_decided) is
 //     unchanged. MIGRATION COST: none. ballot-workspace.js is precached and
 //     changed, so it moves one version.
-const CACHE_VERSION = 'v286';
+// v287 - A HOUSE PIN RETURNS TO WHO REPRESENTS ME, NOT THE BALLOT. Confirm on
+//     /find with next=/ (every homepage door: "Change my location", Detect,
+//     Start Here, the welcome card) went to '/' and the arrival handoff scrolled
+//     the reader to Your ballot. PDXReturn.settled() on the finder now sends a
+//     homepage intent, like no intent, to /#who-represents-me, where the seats
+//     just saved are printed and nothing opens over them. /voice, /me, /ballot
+//     and the boards still return where they came from. The band's "Change my
+//     location" goes through pdxSetLocation. No new resolver; Detect unchanged.
+//     MIGRATION COST: none. No location key is migrated, renamed or copied.
+//     find.html, pdx-return.js and who-represents-me.js are precached and
+//     changed, so it moves one version.
+// v288 - THE MOBILE TOP BAR STAYS INSIDE THE PHONE. On /voice and a district
+//     board the page was wider than the screen, the fixed bar grew with it,
+//     "Find the Record" read as FIN and the account chip sat past the edge.
+//     shell-chrome.css now clips sideways overflow at the root of every shell
+//     that wears the bar (clip on body, so sticky rows and anchored jumps keep
+//     working), the bar holds its own contents, and the narrowest phones get a
+//     tighter row so the brand stays readable. /me keeps its own header; the
+//     /find sheet is fixed above the bar and still covers the page. No new
+//     route. MIGRATION COST: none. No location key is migrated, renamed or
+//     copied. shell-chrome.css is precached and changed, so it moves one
+//     version.
+// v289 - THE FINDER MAP OPENS WITHOUT THE KEYBOARD. Opening /find focused the
+//     address field, so on a phone the keyboard rose over the pin and the
+//     district the reader came to tap. The field is no longer focused on
+//     open, on any door: Detect, Change location, a return from Who Represents
+//     Me, a cold /find. Tapping it still raises the keyboard and still
+//     searches. Detect's refusal is unchanged; no new resolver.
+//     MIGRATION COST: none. No location key is migrated, renamed or copied.
+//     find.html is precached and changed, so it moves one version.
+const CACHE_VERSION = 'v289';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

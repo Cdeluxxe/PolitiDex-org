@@ -138,10 +138,10 @@
   // is this section's own anchor, and a missing intent is how you ask for it.
   // Naming the destination here instead would duplicate a rule that module owns.
   //
-  // AND IT IS FIXED AT THE KICKOFF RATHER THAN INSIDE PDXReturn, because next=/
-  // is not wrong for everybody who sends it: the welcome flow and Start Here
-  // both pass it and genuinely do want the front page's onboarding when they
-  // come back. Only this band wants the band.
+  // AND THE FINDER NOW AGREES: PDXReturn.settled() there reads next=/ as this band too,
+  // so a homepage door that still composes next=/ (Detect, Start Here, the
+  // welcome card) lands here rather than on Your ballot. Sending no next stays
+  // the plain way to ask for it.
   function goFinder() {
     var to = '/find';
     try {
@@ -1074,8 +1074,9 @@
       '</div>' +
       cardPanel(reps) +
       localGapNote(cov) +
+      // Through this band's own setter, so /find returns the reader here.
       '<button type="button" class="wrm-changeloc"' +
-        ' onclick="(window.openLocationModal||window.toggleChangeLocation||function(){})()">' +
+        ' onclick="window.pdxSetLocation?window.pdxSetLocation(\'map\'):(window.openLocationModal||window.toggleChangeLocation||function(){})()">' +
         '📍 Change my location</button>' +
     '</div>';
   }
