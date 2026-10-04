@@ -234,7 +234,7 @@ section("2 · after the sheet settles, the reader is back on the board");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("3 · HD-29 (a generated board, “Posting ships next”) returns to itself");
+section("3 · HD-29 (a generated board, read-only) returns to itself");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const doc = R("district-ut-hd-29.html");

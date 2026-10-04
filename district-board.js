@@ -134,12 +134,16 @@
        floor boot byte-identical with and without this module, and the suite
        asserts exactly that by twin-booting them.
 
-     · NOT A COMPOSER. See THE POSTING SEAM.
+     · NOT A COMPOSER. See THE READ-ONLY LINE.
 
-   ── THE POSTING SEAM, AND WHY IT IS A DISABLED FIELD ───────────────────────
+   ── THE READ-ONLY LINE, AND WHY THERE IS NO FIELD ──────────────────────────
    Reading this board is free and open to anybody, signed in or not. POSTING to
-   it is not built tonight, and the honest way to say so is a field that is
-   visibly there and visibly off, with one sentence saying posting ships next.
+   it exists on five named boards only (SD-3, HD-16, SD-7, HD-15, UT-2), whose
+   documents carry district-composer.js's host. Every other board — generated
+   district boards and the three statewide seats — is a reader, and says so in
+   one line: the room is read-only. No disabled box, and no sentence promising
+   that posting is coming, because a promise the board does not honour is a
+   claim it cannot back.
 
    WHAT WAS NOT DONE, ON PURPOSE. No composer that writes to localStorage. That
    was the tempting version — a box that accepts a sentence, keeps it on the
@@ -606,11 +610,10 @@
     // board and the composer cannot describe two different gates.
     voiceFoot: 'The public record and this read-only board are free to everyone. ' +
                'Only verified residents of this seat get a voice that counts.',
-    composeLabel: 'Say something to this district',
-    composePlaceholder: 'Posting ships next',
-    composeNote: 'Posting ships next. This field is off on purpose: a box that kept your ' +
-                 'sentence on this device would look like a post to your district and would ' +
-                 'not be one.',
+    // A board with no composer host says it is a reader, and nothing about
+    // what might come. One string for every such board, generated or statewide.
+    readOnlyLine: 'This room is read-only. Only verified residents of a seat with a ' +
+                  'composer get a voice that counts.',
 
     stanceCta: 'Set your positions',
     stanceCtaNote: 'You have no positions on file. Setting them is how this district’s ' +
@@ -1481,17 +1484,11 @@
       '</div>';
   }
 
-  // ── THE POSTING SEAM, PAINTED OFF ─────────────────────────────────────────
-  // A real field, really disabled, with the reason beside it. `disabled` and
-  // `aria-disabled` both, and no form, no action, no handler: there is nothing
-  // for a click to reach. See the header for what was deliberately not built.
-  function composeHtml() {
-    return '<div class="pdxdb-compose" data-pdxdb-compose="off">' +
-        '<label class="pdxdb-compose-l" for="pdxdb-say">' + esc(COPY.composeLabel) + '</label>' +
-        '<input class="pdxdb-compose-i" id="pdxdb-say" type="text" disabled aria-disabled="true"' +
-          ' placeholder="' + esc(COPY.composePlaceholder) + '" />' +
-        '<p class="pdxdb-compose-n">' + esc(COPY.composeNote) + '</p>' +
-      '</div>';
+  // ── THE READ-ONLY LINE ────────────────────────────────────────────────────
+  // What a board with no composer host prints where a composer would sit: one
+  // sentence, no field, no form, no handler. See the header.
+  function readOnlyHtml() {
+    return '<p class="pdxdb-readonly" data-pdxdb-readonly="1">' + esc(COPY.readOnlyLine) + '</p>';
   }
 
   // One band's frame, so three bands cannot be three shapes. `footer` is the
@@ -1586,10 +1583,9 @@
   var _issues = [];     // the issue keys the table last printed, for the composer
 
   // ── THE ONE BOARD THAT TAKES A VOICE ──────────────────────────────────────
-  // district-composer.js owns SD-3's composer, and its host is in THAT document
-  // only. Where the host exists this module leaves the posting slot to it rather
-  // than painting the "Posting ships next" field beside a real one; everywhere
-  // else (every other board) the disabled seam below is unchanged.
+  // district-composer.js owns the composer on the five boards whose documents
+  // carry its host. Where the host exists this module leaves the posting slot to
+  // it; everywhere else the board prints the read-only line and no field.
   function composerOwned() {
     try { return !!(typeof document !== 'undefined' && document.getElementById('pdx-district-composer')); }
     catch (e) { return false; }
@@ -1673,7 +1669,7 @@
       roomHtml(cState, _counts === FAILED ? null : _counts) +
       tableHtml(tState, items, rooms) +
       stanceHtml(issues) +
-      (composerOwned() ? '' : composeHtml());
+      (composerOwned() ? '' : readOnlyHtml());
     if (typing) {
       try {
         var f = el.querySelector('[data-pdxdb-search]');
@@ -1796,7 +1792,7 @@
     tableHtml: tableHtml,
     stanceHtml: stanceHtml,
     stanceDoor: stanceDoor,
-    composeHtml: composeHtml,
+    readOnlyHtml: readOnlyHtml,
     // For district-composer.js on SD-3: the seat's own issue list (what band 3
     // printed), the vocabulary's word for a key, and a fresh band-2 read.
     issues: function () { return _issues.slice(); },

@@ -8794,7 +8794,18 @@
 //     footer did not move. district-board.js and district-board.css are
 //     precached and changed, so it moves one version.
 //     MIGRATION COST: none. No board, route, table or residency record moved.
-const CACHE_VERSION = 'v300';
+// v301 - A BOARD WITH NO COMPOSER SAYS IT IS READ-ONLY. The governor board,
+//     both U.S. Senate boards and every generated district board painted a
+//     disabled "Say something" field with a sentence promising posting was
+//     coming. Those boards are readers; the composer lives on five named boards
+//     only (SD-3, HD-16, SD-7, HD-15, UT-2). The field is gone from the rest and
+//     one line stands in its place, from one string in district-board.js
+//     (COPY.readOnlyLine). The five composer boards and their locked line did
+//     not move. district-board.js is precached and changed, and the board
+//     documents gained one style rule, so it moves one version.
+//     MIGRATION COST: none. No board, route, table or residency record moved,
+//     and no location key was touched.
+const CACHE_VERSION = 'v301';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

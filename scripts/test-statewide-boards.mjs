@@ -17,7 +17,9 @@
 //   2. Band 1 paints from the live roster pid: name, the roster's office
 //      string, a link to /p/<pid>. No party letter, no score.
 //   3. Band 2 is counts only and structurally zero against an empty store.
-//   4. No composer: "Posting ships next" on all three; SD-3 keeps its host.
+//   4. No composer: the read-only line on all three, no "Say something" box,
+//      no "Posting ships next", no composer host; HD-16 keeps its locked box.
+//      MUTATION: the shipping sentence put back on ut-gov is caught.
 //   5. /voice for Layton, driven for real: the three statewide cards are Open
 //      board onto the new paths, not the empty sentence.
 //   6. HD-29 and SD-6 are unchanged.
@@ -173,17 +175,72 @@ for (const [alias] of SEATS) {
   // A failed read is not a zero.
   has(M.roomHtml("unread", null), "This is not a count of zero", `${alias}: a failed read is not a zero`);
 }
-
 // ═════════════════════════════════════════════════════════════════════════════
-section("4 · no composer: posting ships next on all three, SD-3 keeps its box");
+section("4 · no composer: the read-only line on all three, HD-16 keeps its box");
 // ═════════════════════════════════════════════════════════════════════════════
+const READ_ONLY = "This room is read-only. Only verified residents of a seat with a composer get a voice that counts.";
+// The whole board as a reader sees it: mounted on the document's own host, the
+// same way the page paints it. `src` lets the mutation below swap the module.
+function paintWhole(alias, src) {
+  const win = makeSandbox();
+  win.__PDX_DISTRICT_BOARD_SEAT = alias;
+  const mk = (id, attrs) => ({
+    id, innerHTML: "", _a: attrs || {},
+    getAttribute(k) { return Object.prototype.hasOwnProperty.call(this._a, k) ? this._a[k] : null; },
+    setAttribute(k, v) { this._a[k] = String(v); },
+  });
+  const els = { "pdx-district-board": mk("pdx-district-board", { "data-pdxdb-seat": alias }) };
+  win.document.getElementById = (id) => els[id] || null;
+  const ctx = vm.createContext(win);
+  for (const f of ["cmp-data.js", "issue-map.js"]) vm.runInContext(R(f), ctx, { filename: f });
+  vm.runInContext(src || MOD, ctx, { filename: "district-board.js" });
+  win.PDXDistrictBoard.mount(els["pdx-district-board"]);
+  return els["pdx-district-board"].innerHTML;
+}
+// Every way a reader board could still promise a box. Returns what it found.
+function promises(html, doc) {
+  const bad = [];
+  for (const n of ["Posting ships next", "Say something", "pdxdb-compose", "pdxdb-say", "<input", "<textarea", "<form"]) {
+    if (String(html).indexOf(n) >= 0) bad.push(n);
+  }
+  const words = tagsOf(html);
+  for (const w of [/\bnext\b/i, /\bships\b/i, /\byet\b/i]) if (w.test(words)) bad.push(String(w));
+  if (doc && doc.indexOf('id="pdx-district-composer"') >= 0) bad.push("composer host");
+  if (doc && doc.indexOf("/district-composer.js") >= 0) bad.push("composer script");
+  return bad;
+}
 for (const [alias] of SEATS) {
-  const { M } = board(alias);
-  const c = M.composeHtml();
-  has(c, 'data-pdxdb-compose="off"', `${alias}: the posting seam is off`);
-  has(c, "disabled", `${alias}: the field is disabled`);
-  has(c, "Posting ships next", `${alias}: says posting ships next`);
-  no(c, "<form", `${alias}: no form`);
+  const doc = R(`district-${alias}.html`);
+  const html = paintWhole(alias);
+  eq(promises(html, doc).join(", "), "", `${alias}: the board promises no composer`);
+  eq((html.match(/data-pdxdb-readonly="1"/g) || []).length, 1, `${alias}: one read-only line`);
+  has(html, READ_ONLY, `${alias}: the read-only line, word for word`);
+  // The rest of the board did not go with the box.
+  has(html, 'class="pdxdb-purpose"', `${alias}: the purpose line stays`);
+  has(html, "Who is in the room", `${alias}: the counts band stays`);
+  has(html, 'data-pdxdb-band="table"', `${alias}: the issue list stays`);
+  has(tagsOf(M_SEAT(alias)), SEATS.find((r) => r[0] === alias)[2], `${alias}: the seat stays`);
+}
+function M_SEAT(alias) { return board(alias).M.seatHtml(); }
+{
+  // MUTATION: the old shipping sentence put back on ut-gov must be caught.
+  const mutated = MOD.replace(
+    /readOnlyLine: '[^']*' \+\s*'[^']*',/,
+    "readOnlyLine: 'Posting ships next. A box that kept your sentence on this device would look like a post.',");
+  must(mutated !== MOD, "mutation: could not find COPY.readOnlyLine to mutate");
+  const bad = promises(paintWhole("ut-gov", mutated), R("district-ut-gov.html"));
+  ok(bad.indexOf("Posting ships next") >= 0, "mutation: the shipping sentence on ut-gov is caught");
+  ok(bad.length > 0, "mutation: the check fails on a mutated ut-gov");
+}
+{
+  // HD-16 KEEPS ITS LOCKED BOX AND ITS LOCKED LINE, and the board leaves it the slot.
+  const hd16 = R("district-ut-hd-16.html");
+  has(hd16, 'id="pdx-district-composer"', "HD-16: the composer host is still there");
+  has(hd16, 'data-pdxdc-seat="ut-hd-16"', "HD-16: the host names its seat");
+  has(hd16, "/district-composer.js", "HD-16: still loads the composer");
+  has(hd16, "Only verified residents of this seat get a voice that counts.", "HD-16: the locked line stays");
+  has(hd16, "disabled", "HD-16: the served box is locked");
+  no(hd16, READ_ONLY, "HD-16: the served document does not carry the read-only line");
 }
 {
   const sd3 = R("district-ut-sd-3.html");
@@ -285,7 +342,8 @@ for (const [alias, seat, pid, name] of [
   eq(M.SEAT, seat, `${alias}: seat unchanged`);
   eq(M.PID, pid, `${alias}: holder unchanged`);
   has(M.seatHtml(), `>${name}</a>`, `${alias}: band 1 still names ${name}`);
-  has(M.composeHtml(), "Posting ships next", `${alias}: still posting-ships-next`);
+  has(M.readOnlyHtml(), READ_ONLY, `${alias}: a generated board prints the same read-only line`);
+  no(M.readOnlyHtml(), "Posting ships next", `${alias}: …and no longer promises a box`);
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
