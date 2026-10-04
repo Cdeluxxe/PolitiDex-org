@@ -32,6 +32,9 @@
 // database. Sections 4, 6 and 7 diff against HEAD, so they are meaningful only while the
 // wave's diff is uncommitted — the same twin-boot contract R1's harness runs on.
 //
+// The bundled portraits now live on roster rows (v294); portraitSource() renders
+// them, and what the map still holds, in the literal shape read below.
+import { portraitSource } from "./portrait-table.mjs";
 import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -118,7 +121,9 @@ if (ok(!!CMP, "CMP_DATA did not boot")) {
       ok(!(k in rec), `${a.slug}: carries '${k}' — identity only means identity only`);
     }
     // The row's whole field set, so a field nobody argued for cannot arrive unnoticed.
-    eq(Object.keys(rec).sort().join(","),
+    // `photo` is identity: the one-portrait pass (v294) moved each member's bundled
+    // portrait onto their roster row, so it is argued for, and nothing else is.
+    eq(Object.keys(rec).filter((k) => k !== "photo").sort().join(","),
       "broken,icon,issues,kept,name,office,party,pending,score,state",
       `${a.slug}: the row's shape is not the identity-only shape`);
 
@@ -155,7 +160,7 @@ if (ok(!!CMP, "CMP_DATA did not boot")) {
   // Portraits only. The curated map was lifted out of compare-hub.js into
   // browse-photos.js when /ballot's desk grew headshots; both are joined so this
   // roster census keeps checking the URLs wherever they are filed.
-  const hub = ["browse-photos.js", "compare-hub.js"].map((f) => { try { return R(f); } catch { return ""; } }).join("\n");
+  const hub = [portraitSource()].concat(["browse-photos.js", "compare-hub.js"].map((f) => { try { return R(f); } catch { return ""; } })).join("\n");
   const photoBlock = hub.slice(hub.indexOf("var BROWSE_PHOTOS = {"), hub.indexOf("\n    };", hub.indexOf("var BROWSE_PHOTOS = {")));
   const PORTRAIT = Object.fromEntries([...photoBlock.matchAll(/([a-z0-9_]+):\s*'(https:\/\/[^']+)'/g)].map((m) => [m[1], m[2]]));
   const portraitBio = (url) =>
@@ -410,8 +415,10 @@ section("4 · the mullin correction moved the label and nothing that is judged")
       }
       eq(JSON.stringify(now.issues), JSON.stringify(before.issues), "mullin's issue chips moved");
       // Exactly which keys changed, so a field arriving under cover of this fix is named.
+      // `photo` is set aside: the one-portrait pass (v294) put his bundled portrait
+      // on the row, which is not this correction and not a field it argues about.
       const moved = [...new Set([...Object.keys(before), ...Object.keys(now)])]
-        .filter((k) => JSON.stringify(before[k]) !== JSON.stringify(now[k])).sort();
+        .filter((k) => k !== "photo" && JSON.stringify(before[k]) !== JSON.stringify(now[k])).sort();
       // ONE CORRECTION, TWO TRUE DESCRIPTIONS OF IT. While R2 is the pass in flight,
       // HEAD still calls Mullin a sitting senator and the delta is exactly three
       // fields — the strongest statement of the fix, and it is made here. Once the

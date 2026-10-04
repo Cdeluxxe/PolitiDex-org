@@ -57,6 +57,7 @@
 // After regenerating, an operator may push the map into the vr-config Blobs store
 // with scripts/vr-load-member-map.mjs to override the committed fallback at runtime.
 
+import { portraitSource } from "./portrait-table.mjs";
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -534,16 +535,15 @@ const SEED_NAMES = {
 // TOGETHER WITH the local scripts it loads so the map is found either way — this
 // must stay in step with scripts/audit-photo-coverage.mjs, which reads the same
 // map the same way.
+//
+// AND THEN ONTO THE ROSTER. The one-portrait pass (v294) moved every face a
+// roster row can hold onto that row's `photo` field in cmp-data.js; the map keeps
+// only people with no row. portraitSource() renders both, roster first, in the
+// literal shape parsed below, so the Bioguide reading is unchanged and the map
+// this writes is byte-identical to the one before the move.
 function fromBrowsePhotos() {
-  const index = readFileSync(join(ROOT, "index.html"), "utf8");
-  const html = [index, ...[...index.matchAll(/<script[^>]*\bsrc="\/?([^"/][^"]*\.js)"/g)]
-    .map((m) => m[1])
-    .filter((f, i, a) => a.indexOf(f) === i)
-    .map((f) => { try { return readFileSync(join(ROOT, f), "utf8"); } catch { return ""; } })].join("\n");
-  const open = html.indexOf("var BROWSE_PHOTOS = {");
-  if (open === -1) throw new Error("BROWSE_PHOTOS map not found in index.html or the scripts it loads");
-  const close = html.indexOf("\n    };", open);
-  const body = html.slice(open, close === -1 ? undefined : close);
+  const body = portraitSource();
+  if (body.indexOf("var BROWSE_PHOTOS = {") === -1) throw new Error("the bundled portraits could not be rendered");
   // TWO curated portrait forms carry a readable Bioguide, and both are read here.
   //   1. unitedstates/images — .../450x550/<BIOGUIDE>.jpg
   //   2. the official Bioguide portrait — bioguide.congress.gov/bioguide/photo/<L>/<BIOGUIDE>.jpg

@@ -580,7 +580,19 @@ section("6 · a hostname change moved a hostname and nothing else");
   if (baseline === null) {
     console.log("      (no git baseline available — the engine audit did not run here)");
   } else {
-    const moved = ENGINES.filter((f) => { const b = gitShow(f); return b !== null && b !== R(f); });
+    // ONE DECLARED EDIT, AND IT IS NOT A READ. The one-portrait pass (v294) made
+    // the person file's letterhead photo read the roster field through
+    // window.pdxPortrait. That expression and its note are folded back to HEAD's
+    // before the comparison; any other byte of profiles-full.js still fails here.
+    // No harness boots the letterhead's markup — it is not a figure.
+    const LETTERHEAD = [
+      [/      <!-- Hero header — clean letterhead: photo, identity, status, score\.\n[\s\S]*?as before\. -->/,
+       "      <!-- Hero header — clean letterhead: photo, identity, status, score -->"],
+      ["var _hp = ((typeof window.pdxPortrait === 'function') ? window.pdxPortrait(id) : '') || ((typeof window._getPhotoUrl === 'function') ? window._getPhotoUrl(id) : '') || (p.photo || '');",
+       "var _hp = (typeof window._getPhotoUrl === 'function') ? window._getPhotoUrl(id) : (p.photo || '');"],
+    ];
+    const fold = (f, src) => f !== "profiles-full.js" ? src : LETTERHEAD.reduce((x, [a, b]) => x.replace(a, b), src);
+    const moved = ENGINES.filter((f) => { const b = gitShow(f); return b !== null && b !== fold(f, R(f)); });
     eq(moved, [], "no twin-boot engine file was edited — the drift harnesses stay identical by construction");
   }
 

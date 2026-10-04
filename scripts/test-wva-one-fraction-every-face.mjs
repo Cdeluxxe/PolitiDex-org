@@ -64,6 +64,16 @@ import vm from "node:vm";
 import { makeSandbox, ENGINE_FILES } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 
+// THE PORTRAIT IS NOT A FIGURE (v294). scopedOverall() echoes the person's roster
+// row inside its scope block, and the one-portrait pass put `photo` on that row.
+// It is dropped from the echo before the twin comparison; every figure, verdict
+// and count is still compared byte for byte.
+const sansPortrait = (o) => {
+  const c = JSON.parse(JSON.stringify(o === undefined ? null : o));
+  if (c && c.scope) delete c.scope.photo;
+  return JSON.stringify(c);
+};
+
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
 const HEAD = (f) => {
@@ -489,8 +499,8 @@ section("7 · twin boot — the pair list and the DM ledger never saw this");
       const hb = B.PDXWordAction.heroRead(pid, B.CMP_DATA[pid]);
       if (JSON.stringify(ha) !== JSON.stringify(hb)) drift.push(`${pid}/hero`);
       if (A.PDXConsistency && B.PDXConsistency) {
-        if (JSON.stringify(A.PDXConsistency.scopedOverall(A.CMP_DATA[pid], pid)) !==
-            JSON.stringify(B.PDXConsistency.scopedOverall(B.CMP_DATA[pid], pid))) drift.push(`${pid}/dm`);
+        if (sansPortrait(A.PDXConsistency.scopedOverall(A.CMP_DATA[pid], pid)) !==
+            sansPortrait(B.PDXConsistency.scopedOverall(B.CMP_DATA[pid], pid))) drift.push(`${pid}/dm`);
         if (JSON.stringify(A.PDXConsistency.formalPatternIndex.shape(pid)) !==
             JSON.stringify(B.PDXConsistency.formalPatternIndex.shape(pid))) drift.push(`${pid}/formal`);
       }

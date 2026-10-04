@@ -3049,7 +3049,18 @@ const isSubsequence = (small, big) => {
 export function assertRosterOfficeIsTheOnlyMove(api, headSrc, treeSrc, allowed, wave) {
   const { ok, eq } = api;
   const tag = wave ? `${wave}: ` : "";
-  const a = String(headSrc).split("\n"), b = String(treeSrc).split("\n");
+  // THE PORTRAIT FIELD IS NOT IDENTITY. The one-portrait pass (v294) put each
+  // person's `photo` on their roster row, one line per row, and later passes may
+  // add one where a face is found. A `"photo": "https://…"` line admits nobody
+  // and drops nobody, so it is set aside on both sides before the walk; the field
+  // has its own guard (scripts/test-roster-portrait.mjs: plain https addresses
+  // only, the sweep would move nothing more).
+  const PHOTO = /^  "photo": "https:\/\/[^"\s]+",$/;
+  const a = String(headSrc).split("\n").filter((l) => !PHOTO.test(l));
+  const b = String(treeSrc).split("\n").filter((l) => !PHOTO.test(l));
+  // A tree whose only move is portraits takes the unmoved file's short path: no
+  // office was corrected, and no waiver is being spent.
+  if (a.join("\n") === b.join("\n")) { ok(true, `${tag}cmp-data.js moved in its portrait field only`); return; }
   if (!eq(b.length, a.length,
     `${tag}cmp-data.js gained or lost lines — an office correction rewrites one value in place, and a ` +
     "roster that changed length has admitted or dropped somebody")) return;

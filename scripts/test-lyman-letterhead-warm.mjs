@@ -696,14 +696,21 @@ section("6 · the photo crosses the same gap");
       catch (e) { /* data only: it cannot want a DOM, and a throw here is the failure below */ }
       return ctx.BROWSE_PHOTOS || null;
     })();
-    must(BP && Object.keys(BP).length > 50,
+    // AND THEN IT MOVED ONTO THE ROSTER. The one-portrait pass (v294) put every
+    // face a roster row can hold on that row's `photo` field; the map keeps only
+    // people with no row. The shipped headshots are both, and each must still
+    // resolve to itself.
+    must(BP && Object.keys(BP).length > 0,
       "browse-photos.js no longer publishes BROWSE_PHOTOS on window — the regression sweep has no table");
+    const SHIPPED = Object.assign({}, BP);
+    for (const id of Object.keys(CMP)) if (CMP[id] && CMP[id].photo) SHIPPED[id] = String(CMP[id].photo);
+    must(Object.keys(SHIPPED).length > 50, "the roster carries no portraits — the regression sweep has no table");
     const c = mk({ CMP_DATA: CMP, BROWSE_PHOTOS: BP, PDX_PROFILE_ALIAS: W.PDX_PROFILE_ALIAS || {} });
     let swept = 0, moved = [];
-    for (const id of Object.keys(BP)) {
+    for (const id of Object.keys(SHIPPED)) {
       const url = c._getPhotoUrl(id);
       swept++;
-      if (url !== BP[id]) moved.push(id);
+      if (url !== SHIPPED[id]) moved.push(id);
     }
     eq(moved.length, 0, `the hop chain changed which photo ${moved.slice(0, 5).join(", ")} resolves to`);
     ok(swept > 50, "the photo regression sweep covered nothing");

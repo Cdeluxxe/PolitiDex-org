@@ -39,8 +39,16 @@ const arrivals = arrivalSlugs(); // slug → bioguide
 // emoji or a bare word there is a broken frame, not a photo.
 const URLISH = /^(https?:\/\/|\/|data:image\/)/i;
 
-// ── The map itself parsed at all ─────────────────────────────────────────────
-ok(Object.keys(bp).length > 300, `BROWSE_PHOTOS parsed only ${Object.keys(bp).length} entries — did the map's shape change?`);
+// ── The bundled portraits parsed at all ──────────────────────────────────────
+// ONE PORTRAIT PER PERSON (v294): a face lives on the roster row's `photo` field,
+// and BROWSE_PHOTOS keeps only the people with no roster row. The pool these
+// checks walk is both: every roster portrait, then whatever the map still holds.
+const rosterPhotos = Object.fromEntries(Object.entries(cmp)
+  .filter(([, d]) => d && d.photo && String(d.photo).trim()).map(([k, d]) => [k, String(d.photo)]));
+const faces = Object.assign({}, bp, rosterPhotos);
+ok(Object.keys(rosterPhotos).length > 300, `cmp-data.js carries only ${Object.keys(rosterPhotos).length} roster portraits — did the field's shape change?`);
+ok(Object.keys(bp).length > 0, "BROWSE_PHOTOS parsed no entries — did the map's shape change?");
+for (const k of Object.keys(bp)) ok(!cmp[k], `BROWSE_PHOTOS.${k} has a roster row — its face belongs on the row's photo field`);
 ok(arrivals.size > 0, "db/vr-member-map.json yielded no slugs");
 
 // ── Every arrival-pool member resolves a bundled photo ──────────────────────
@@ -55,9 +63,9 @@ ok(noFace.length === 0,
   `#record= link opens on initials after showing a face:\n      ` + noFace.join("\n      "));
 
 // ── Every curated value is a usable image URL, pool or not ──────────────────
-const malformed = Object.entries(bp).filter(([, v]) => !URLISH.test(String(v)));
+const malformed = Object.entries(faces).filter(([, v]) => !URLISH.test(String(v)));
 ok(malformed.length === 0,
-  `BROWSE_PHOTOS holds ${malformed.length} value(s) that are not an image URL: ` +
+  `the bundled portraits hold ${malformed.length} value(s) that are not an image URL: ` +
   malformed.map(([k]) => k).join(", "));
 
 // ── No duplicate keys ───────────────────────────────────────────────────────
@@ -90,13 +98,13 @@ const ALLOWED = new Set([
   "insurance.utah.gov",          // official Utah agency portrait
 ]);
 const strayHosts = new Map();
-for (const [k, v] of Object.entries(bp)) {
+for (const [k, v] of Object.entries(faces)) {
   if (!/^https?:\/\//i.test(String(v))) continue; // root-relative/data: handled above
   const h = (String(v).split("/")[2] || "").toLowerCase();
   if (!ALLOWED.has(h)) strayHosts.set(h, [...(strayHosts.get(h) || []), k]);
 }
 ok(strayHosts.size === 0,
-  `BROWSE_PHOTOS points at ${strayHosts.size} host(s) outside the trusted set: ` +
+  `the bundled portraits point at ${strayHosts.size} host(s) outside the trusted set: ` +
   [...strayHosts].map(([h, ks]) => `${h} (${ks.slice(0, 4).join(", ")})`).join("; "));
 
 // ── The roster-correction tier agrees with the bundled one ──────────────────
@@ -126,9 +134,10 @@ if (fixOpen !== -1) {
     ok(ALLOWED.has(host),
       `PDX_PHOTO_FIX.${pid} points at ${host}, which is outside the trusted portrait set — ` +
       `a correction may not introduce a host the share card's proxy will refuse`);
-    ok(bp[pid] === url,
-      `PDX_PHOTO_FIX.${pid} and BROWSE_PHOTOS.${pid} disagree about which face belongs to this person, ` +
-      `and both urls load, so nothing at runtime would report it:\n      fix   ${url}\n      bundle ${bp[pid] || "(no entry)"}`);
+    // Pinned to the roster field now (v294): the bundled copy of the same face.
+    ok(bundledPhoto(pid, bp, cmp) === url,
+      `PDX_PHOTO_FIX.${pid} and the roster field ${pid}.photo disagree about which face belongs to this person, ` +
+      `and both urls load, so nothing at runtime would report it:\n      fix   ${url}\n      bundle ${bundledPhoto(pid, bp, cmp) || "(no entry)"}`);
   }
   // Every ingest path publishes through the corrector. The light index, the
   // full-collection fallback and the lazy full fetch each assign PROFILES[id];

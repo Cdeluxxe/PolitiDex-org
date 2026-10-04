@@ -103,8 +103,10 @@ has(HUB, "return window.BROWSE_PHOTOS || {}",
   ctx.window = ctx; ctx.globalThis = ctx; ctx.self = ctx;
   vm.runInContext(PHOTOS, vm.createContext(ctx), { filename: "browse-photos.js" });
   const bp = ctx.BROWSE_PHOTOS || {};
-  ok(Object.keys(bp).length > 300,
-    `browse-photos.js publishes only ${Object.keys(bp).length} portraits — the map did not travel whole`);
+  // ONE PORTRAIT PER PERSON (v294): the map keeps only people with no roster
+  // row; everyone else's face is the roster field. It still publishes.
+  ok(Object.keys(bp).length > 0,
+    `browse-photos.js publishes no portraits — the map did not load`);
   const bad = Object.entries(bp).filter(([, v]) => !/^(https:\/\/|\/[^/]|data:image\/)/i.test(String(v)));
   eq(bad.length, 0, `${bad.length} entries in the lifted map are not usable image URLs (${bad.slice(0, 3).map(([k]) => k).join(", ")})`);
 }
@@ -213,8 +215,8 @@ must(W.__errors.length === 0,
 must(typeof W.pdxBallotWorkspaceOpen === "function", "the ballot workspace does not open");
 must(typeof W._getPhotoUrl === "function",
   "window._getPhotoUrl is not on the /ballot document — the one resolver the row is supposed to agree with is missing");
-must(W.BROWSE_PHOTOS && Object.keys(W.BROWSE_PHOTOS).length > 300,
-  "the curated map did not reach the boot, so 'this candidate has no photo' would be true of everybody");
+must(W.CMP_DATA && Object.values(W.CMP_DATA).filter((d) => d && d.photo).length > 300,
+  "the roster's portraits did not reach the boot, so 'this candidate has no photo' would be true of everybody");
 must(W.PDXPersonLink && typeof W.PDXPersonLink.pid === "function", "person-link.js is not loaded");
 
 // Every seat the desk can open for this reader, from the desk's own list.

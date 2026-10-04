@@ -5680,10 +5680,14 @@
     // and collected behind one labelled, closed-by-default drawer per name.
     const _profileBody = `
 
-      <!-- Hero header — clean letterhead: photo, identity, status, score -->
+      <!-- Hero header — clean letterhead: photo, identity, status, score.
+           THE PHOTO IS THE ROSTER FIELD, read through window.pdxPortrait
+           (roster-portrait.js) — the same field band 1 and the record card read.
+           _getPhotoUrl answers only for an id with no roster row; no portrait at
+           all paints the record's own icon, as before. -->
       <div class="profile-hero">
         <div class="profile-hero-photo">
-          ${(function(){ var _hp = (typeof window._getPhotoUrl === 'function') ? window._getPhotoUrl(id) : (p.photo || ''); return _hp ? `<img loading="lazy" decoding="async" src="${_hp}" alt="${p.name}" onerror="this.parentElement.innerHTML='<div class=&quot;ph-fallback&quot;>${p.icon}</div>'">` : `<div class="ph-fallback">${p.icon}</div>`; })()}
+          ${(function(){ var _hp = ((typeof window.pdxPortrait === 'function') ? window.pdxPortrait(id) : '') || ((typeof window._getPhotoUrl === 'function') ? window._getPhotoUrl(id) : '') || (p.photo || ''); return _hp ? `<img loading="lazy" decoding="async" src="${_hp}" alt="${p.name}" onerror="this.parentElement.innerHTML='<div class=&quot;ph-fallback&quot;>${p.icon}</div>'">` : `<div class="ph-fallback">${p.icon}</div>`; })()}
         </div>
         <div class="profile-hero-id">
           <div class="profile-eyebrow">${p.office || 'Public Official'}</div>

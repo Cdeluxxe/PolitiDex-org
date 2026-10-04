@@ -468,13 +468,16 @@ const personLines = person.split("\n");
 // seated-member.js and bill-pages.js, each with its note, above the PWA block.
 // The block's bytes were found unchanged at 2811–3006 and the number was taken
 // from where they were found. The five pins above it did not move.
+//
+// IT MOVED BY FIVE in the one-portrait pass: person.html gained roster-portrait.js
+// and its note beside district-board.js. Same bytes, found at 2816–3011.
 const COPIES = [
   [1405, 1920, "the promise ledger and the deferred-event capture (firebase-boot.js reads _firestoreLoaded and _checkAndTrigger as bare identifiers)"],
   [2005, 2059, "the Firebase compat bundles, the key injection, the synchronous stub and firebase-boot.js"],
   [2062, 2096, "the split-seam stubs (_pdxMandateForIssue is called unguarded from inside stance-helpers.js)"],
   [2114, 2158, "the share furniture share-preview.ts rewrites"],
   [2221, 2224, "the Bebas Neue / Barlow preload swap"],
-  [2811, 3006, "the PWA runtime and the service-worker registration"],
+  [2816, 3011, "the PWA runtime and the service-worker registration"],
 ];
 for (const [a, b, what] of COPIES) {
   // AN EMPTY OR OUT-OF-RANGE WINDOW IS A DEAD PIN, NOT A PASSING ONE. Checked

@@ -161,10 +161,10 @@
      band 1  window.CMP_DATA[PID]        the roster row. Name, office, district
                                          line. Nothing else — no bio, no score,
                                          no party, no issue chips.
-             window._getPhotoUrl(PID)    the person file's portrait for that pid,
-                                         or a verbatim copy of that resolver over
-                                         browse-photos.js + profile-alias.js on
-                                         a board; the row's `icon` when none.
+             window.pdxPortrait(PID)     the roster field `photo` — the one
+                                         portrait the person file and the record
+                                         card read too; the row's `icon` when
+                                         there is none.
      band 2  /api/district-board         four counts and a per-issue tally.
      band 3  PDXVotingRecord.fetchMember the archive read every other surface
                                          already uses, `?pageSize=100`, the
@@ -645,19 +645,13 @@
     return String(v) + (v === 1 ? ' person' : ' people');
   }
 
-  // ── THE FACE, AND IT IS THE PERSON FILE'S FACE ────────────────────────────
-  // Band 1 paints the portrait /p/<pid> already paints for the same pid, and it
-  // asks the same question the same way: window._getPhotoUrl is the one owner of
-  // "which headshot belongs to this person" (ballot-breakdown.js — PROFILES →
-  // CMP_DATA → BROWSE_PHOTOS, with the alias hops), and where a document carries
-  // it this module asks it and nothing else. A board document does not carry
-  // ballot-breakdown.js — it is the ballot desk, not a table — so on a board the
-  // four functions below answer instead. THEY ARE THAT RESOLVER, COPIED VERBATIM,
-  // not a re-reading of it: scripts/test-district-board-face.mjs lifts both
-  // copies and fails on one changed byte, because a board whose face came from a
-  // second rule would be one alias hop away from printing somebody else. Its
-  // tiers are the tables the boards load for it (cmp-data.js, browse-photos.js,
-  // profile-alias.js) — no new map, no new host, no address composed here.
+  // ── THE FACE IS THE ROSTER FIELD ──────────────────────────────────────────
+  // A person has one portrait: `photo` on their roster record, read through
+  // window.pdxPortrait (roster-portrait.js) — the live PROFILES record first,
+  // then the bundled cmp-data.js row — which is also what the person file's
+  // letterhead and the homepage record card read. This module holds no photo
+  // table, no resolver of its own and no address; a board document without
+  // roster-portrait.js paints the mark, never a guess.
   //
   // NO PORTRAIT IS NOT AN EMPTY FRAME. A pid with no face gets the roster row's
   // own mark, the `icon` profiles-full.js paints in .ph-fallback for the same
@@ -669,61 +663,10 @@
   // The face's box in CSS pixels, on the <img> itself so the band is laid out
   // before district-board.css arrives. A size, not a figure.
   var FACE_PX = 56;
-  function _photoUnder(key) {
-    if (!key) return '';
-    var pr = (typeof window.PROFILES !== 'undefined' && window.PROFILES) ? window.PROFILES[key] : null;
-    if (pr && pr.photo && String(pr.photo).trim()) return pr.photo;
-    var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[key] : null;
-    if (d && d.photo && String(d.photo).trim()) return d.photo;
-    if (typeof BROWSE_PHOTOS !== 'undefined' && BROWSE_PHOTOS[key]) return BROWSE_PHOTOS[key];
-    if (typeof window !== 'undefined' && window.BROWSE_PHOTOS && window.BROWSE_PHOTOS[key]) return window.BROWSE_PHOTOS[key];
-    return '';
-  }
-  function _photoSlug(s) {
-    return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
-  }
-  function _photoKeys(pid) {
-    var out = [], seen = {};
-    var push = function (k) {
-      if (!k || typeof k !== 'string' || seen[k]) return;
-      seen[k] = 1; out.push(k);
-    };
-    push(pid);
-    var pr = (typeof window.PROFILES !== 'undefined' && window.PROFILES) ? window.PROFILES[pid] : null;
-    var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
-    push(_photoSlug(pr && pr.name));
-    push(_photoSlug(d && d.name));
-    var tables = [window.PDX_PROFILE_ALIAS, window.STANCE_ALIASES, window.PDX_PID_ALIASES];
-    for (var t = 0; t < tables.length; t++) {
-      var tbl = tables[t];
-      if (!tbl || typeof tbl !== 'object') continue;
-      if (tbl[pid]) push(tbl[pid]);
-      for (var k in tbl) {
-        if (!Object.prototype.hasOwnProperty.call(tbl, k)) continue;
-        if (tbl[k] === pid) push(k);
-      }
-    }
-    return out;
-  }
-  function _getPhotoUrl(pid) {
-    // Single source of truth for a politician's headshot, shared by the full
-    // profile hero, the medium quick-view modal and every card so all three
-    // always show the SAME photo (no view ends up on a bare icon while another
-    // shows a real face).
-    if (!pid) return '';
-    var keys = _photoKeys(pid);
-    for (var i = 0; i < keys.length; i++) {
-      var url = _photoUnder(keys[i]);
-      if (url) return url;
-    }
-    return '';
-  }
   function faceUrl(pid) {
     if (!pid) return '';
     var u = '';
-    try {
-      u = fn(window._getPhotoUrl) ? window._getPhotoUrl(pid) : _getPhotoUrl(pid);
-    } catch (e) { u = ''; }
+    try { u = fn(window.pdxPortrait) ? window.pdxPortrait(pid) : ''; } catch (e) { u = ''; }
     u = u ? String(u).trim() : '';
     return (u && !_deadFaces[u]) ? u : '';
   }
