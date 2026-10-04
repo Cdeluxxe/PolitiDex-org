@@ -8683,7 +8683,21 @@
 //     person.html, district-board.js, consistency.js and issue.html (one source
 //     note) are precached and changed and bill-pages.js joins the shell, so it
 //     moves one version.
-const CACHE_VERSION = 'v292';
+// v293 - A DISTRICT BOARD'S BAND 1 SHOWS THE SITTING MEMBER'S FACE. The seat
+//     band named the member and linked /p/<pid> but painted no photo, though the
+//     person file paints one off the same pid. Band 1 now paints that same
+//     portrait beside the name: window._getPhotoUrl where a document carries it,
+//     and on a board a verbatim copy of that resolver (pinned byte for byte by
+//     test-district-board-face.mjs) over browse-photos.js and profile-alias.js,
+//     which every board now loads. No portrait paints the roster row's own mark,
+//     as the person file does; a seat with no member paints no frame. One
+//     renderer for every board: the six hand boards, the generated ones, ut-gov
+//     and both U.S. Senate seats. No party, no score, no bio; band 2 unchanged.
+//     No new board, no splat, no new host, no second photo table, no equity copy.
+//     MIGRATION COST: none. No location key is migrated, renamed or copied.
+//     district-board.js, district-board.css and every district board are
+//     precached and changed, so it moves one version.
+const CACHE_VERSION = 'v293';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

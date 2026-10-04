@@ -453,10 +453,16 @@ has(DOC_TEXT, "Utah Senate District 3", "the heading names the seat");
 // issue labels; band 1 reads neither.
 lacks(band1, "data-party", "band 1 prints no party");
 ok(!/\bparty\b/i.test(band1), "…not even the word");
-for (const k of ["score", "kept", "broken", "pending", "icon"]) {
+for (const k of ["score", "kept", "broken", "pending"]) {
   ok(band1.indexOf(String(ROW[k])) < 0 || ROW[k] == null || String(ROW[k]) === "",
     `band 1 does not print the roster's ${k}`);
 }
+// THE ICON IS THE FACE'S FALLBACK AND NOTHING ELSE. Band 1 later took the
+// person file's portrait (scripts/test-district-board-face.mjs pins it); a pid
+// with no portrait paints the row's own mark in the face slot, as profiles-full.js
+// does in .ph-fallback. Anywhere else in the band, the icon is still refused.
+ok(band1.replace(`<span class="pdxdb-seat-mark">${ROW.icon}</span>`, "").indexOf(String(ROW.icon)) < 0,
+  "band 1 prints the roster's icon only as the face's mark");
 ok(band1.length < 1200, `band 1 is a seat, not a dossier (${band1.length} chars)`);
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -601,11 +607,12 @@ eq(B._whole("lots"), 0, "a word is not a count");
   must(boardsLit.length > 300, "the BOARDS table could not be located in the module");
   const RENDER = MOD_CODE.replace(boardsLit, " ");
   const lits = [...new Set([...RENDER.matchAll(/(?<![\w.#])(\d{2,})(?![\w.])/g)].map((m) => Number(m[1])))].sort((a, b) => a - b);
-  const ALLOWED = new Set([100, 40]);   // PAGE_SIZE, TABLE_CAP — and nothing else
+  const ALLOWED = new Set([100, 40, 56]);   // PAGE_SIZE, TABLE_CAP, FACE_PX — and nothing else
   const stray = lits.filter((n) => !ALLOWED.has(n));
   eq(stray.length, 0, `the module's render path holds no figure-shaped literal — stray: ${JSON.stringify(stray)}`);
-  eq(JSON.stringify(lits), JSON.stringify([40, 100]),
-    "…and the two it does hold are the page size and the table cap");
+  eq(JSON.stringify(lits), JSON.stringify([40, 56, 100]),
+    "…and the three it does hold are the page size, the face's box and the table cap");
+  ok(/\n  var FACE_PX = 56;\n/.test(MOD_CODE), "…and 56 is FACE_PX, the face's box, declared once");
   // AND THE TABLE ITSELF CARRIES NO COUNT. Its fields are the seat key, the
   // alias, the route, the roster pid, the congressional join, and the words the
   // page prints. A `count`, `verified`, `residents` or `participants` field here

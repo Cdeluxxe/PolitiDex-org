@@ -161,6 +161,10 @@
      band 1  window.CMP_DATA[PID]        the roster row. Name, office, district
                                          line. Nothing else — no bio, no score,
                                          no party, no issue chips.
+             window._getPhotoUrl(PID)    the person file's portrait for that pid,
+                                         or a verbatim copy of that resolver over
+                                         browse-photos.js + profile-alias.js on
+                                         a board; the row's `icon` when none.
      band 2  /api/district-board         four counts and a per-issue tally.
      band 3  PDXVotingRecord.fetchMember the archive read every other surface
                                          already uses, `?pageSize=100`, the
@@ -641,8 +645,98 @@
     return String(v) + (v === 1 ? ' person' : ' people');
   }
 
+  // ── THE FACE, AND IT IS THE PERSON FILE'S FACE ────────────────────────────
+  // Band 1 paints the portrait /p/<pid> already paints for the same pid, and it
+  // asks the same question the same way: window._getPhotoUrl is the one owner of
+  // "which headshot belongs to this person" (ballot-breakdown.js — PROFILES →
+  // CMP_DATA → BROWSE_PHOTOS, with the alias hops), and where a document carries
+  // it this module asks it and nothing else. A board document does not carry
+  // ballot-breakdown.js — it is the ballot desk, not a table — so on a board the
+  // four functions below answer instead. THEY ARE THAT RESOLVER, COPIED VERBATIM,
+  // not a re-reading of it: scripts/test-district-board-face.mjs lifts both
+  // copies and fails on one changed byte, because a board whose face came from a
+  // second rule would be one alias hop away from printing somebody else. Its
+  // tiers are the tables the boards load for it (cmp-data.js, browse-photos.js,
+  // profile-alias.js) — no new map, no new host, no address composed here.
+  //
+  // NO PORTRAIT IS NOT AN EMPTY FRAME. A pid with no face gets the roster row's
+  // own mark, the `icon` profiles-full.js paints in .ph-fallback for the same
+  // miss — 🏛 on every legislative row. A seat with no member gets neither: see
+  // seatHtml(), whose nobody branch has no face slot to leave empty. A portrait
+  // that fails to load is swapped for that same mark and remembered, so a
+  // repaint does not ask a dead address again.
+  var _deadFaces = {};
+  // The face's box in CSS pixels, on the <img> itself so the band is laid out
+  // before district-board.css arrives. A size, not a figure.
+  var FACE_PX = 56;
+  function _photoUnder(key) {
+    if (!key) return '';
+    var pr = (typeof window.PROFILES !== 'undefined' && window.PROFILES) ? window.PROFILES[key] : null;
+    if (pr && pr.photo && String(pr.photo).trim()) return pr.photo;
+    var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[key] : null;
+    if (d && d.photo && String(d.photo).trim()) return d.photo;
+    if (typeof BROWSE_PHOTOS !== 'undefined' && BROWSE_PHOTOS[key]) return BROWSE_PHOTOS[key];
+    if (typeof window !== 'undefined' && window.BROWSE_PHOTOS && window.BROWSE_PHOTOS[key]) return window.BROWSE_PHOTOS[key];
+    return '';
+  }
+  function _photoSlug(s) {
+    return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  }
+  function _photoKeys(pid) {
+    var out = [], seen = {};
+    var push = function (k) {
+      if (!k || typeof k !== 'string' || seen[k]) return;
+      seen[k] = 1; out.push(k);
+    };
+    push(pid);
+    var pr = (typeof window.PROFILES !== 'undefined' && window.PROFILES) ? window.PROFILES[pid] : null;
+    var d = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[pid] : null;
+    push(_photoSlug(pr && pr.name));
+    push(_photoSlug(d && d.name));
+    var tables = [window.PDX_PROFILE_ALIAS, window.STANCE_ALIASES, window.PDX_PID_ALIASES];
+    for (var t = 0; t < tables.length; t++) {
+      var tbl = tables[t];
+      if (!tbl || typeof tbl !== 'object') continue;
+      if (tbl[pid]) push(tbl[pid]);
+      for (var k in tbl) {
+        if (!Object.prototype.hasOwnProperty.call(tbl, k)) continue;
+        if (tbl[k] === pid) push(k);
+      }
+    }
+    return out;
+  }
+  function _getPhotoUrl(pid) {
+    // Single source of truth for a politician's headshot, shared by the full
+    // profile hero, the medium quick-view modal and every card so all three
+    // always show the SAME photo (no view ends up on a bare icon while another
+    // shows a real face).
+    if (!pid) return '';
+    var keys = _photoKeys(pid);
+    for (var i = 0; i < keys.length; i++) {
+      var url = _photoUnder(keys[i]);
+      if (url) return url;
+    }
+    return '';
+  }
+  function faceUrl(pid) {
+    if (!pid) return '';
+    var u = '';
+    try {
+      u = fn(window._getPhotoUrl) ? window._getPhotoUrl(pid) : _getPhotoUrl(pid);
+    } catch (e) { u = ''; }
+    u = u ? String(u).trim() : '';
+    return (u && !_deadFaces[u]) ? u : '';
+  }
+  function faceMark(row) {
+    var m = row && row.icon ? String(row.icon).trim() : '';
+    return m || '\uD83C\uDFDB';
+  }
+
   // ── BAND 1 · THE SEAT ─────────────────────────────────────────────────────
-  // Three facts off the roster row and a link. NOT read: party, score, kept,
+  // Three facts off the roster row, the person file's own face, and a link. The
+  // face is beside the name, never in front of it: the name is in the same
+  // markup as the <img>, and the image's bytes arrive whenever they arrive. NOT
+  // read: party, score, kept,
   // broken, pending, icon, issues — a district page that printed a member's
   // scorecard would be a person page with a place's title.
   //
@@ -693,14 +787,29 @@
       var name = String(row.name || '').trim();
       var office = String(row.office || '').trim();
       var where = String(row.state || '').trim();
+      var face = faceUrl(pid);
+      var mark = faceMark(row);
+      // The face is the same link as the name, taken out of the tab order and
+      // hidden from a screen reader: one record, one stop, and the name is it.
       body =
-        '<p class="pdxdb-seat-name">' +
-          '<a class="pdxdb-seat-link" href="/p/' + esc(pid) + '"' +
-          ' title="The full record for the member who sits in this seat">' +
-          esc(name || pid) + '</a>' +
-        '</p>' +
-        (office ? '<p class="pdxdb-seat-office">' + esc(office) + '</p>' : '') +
-        (where ? '<p class="pdxdb-seat-where">' + esc(where) + '</p>' : '');
+        '<div class="pdxdb-seat-id">' +
+          '<a class="pdxdb-seat-face" href="/p/' + esc(pid) + '" tabindex="-1" aria-hidden="true"' +
+          ' data-pdxdb-face="' + (face ? 'photo' : 'mark') + '">' +
+            (face
+              ? '<img class="pdxdb-seat-photo" src="' + esc(face) + '" alt="" width="' + FACE_PX + '" height="' + FACE_PX + '"' +
+                ' decoding="async" data-pdxdb-mark="' + esc(mark) + '">'
+              : '<span class="pdxdb-seat-mark">' + esc(mark) + '</span>') +
+          '</a>' +
+          '<div class="pdxdb-seat-text">' +
+            '<p class="pdxdb-seat-name">' +
+              '<a class="pdxdb-seat-link" href="/p/' + esc(pid) + '"' +
+              ' title="The full record for the member who sits in this seat">' +
+              esc(name || pid) + '</a>' +
+            '</p>' +
+            (office ? '<p class="pdxdb-seat-office">' + esc(office) + '</p>' : '') +
+            (where ? '<p class="pdxdb-seat-where">' + esc(where) + '</p>' : '') +
+          '</div>' +
+        '</div>';
     }
     return band('seat', COPY.seatBand, COPY.seatNote, body, '');
   }
@@ -1046,6 +1155,23 @@
   function wireTable(el) {
     if (!el || _wired === el || !fn(el.addEventListener)) return;
     _wired = el;
+    // A PORTRAIT THAT WILL NOT LOAD BECOMES THE MARK, the way the person file's
+    // onerror does it. `error` does not bubble, so this listens in the capture
+    // phase; the address is remembered so the next repaint paints the mark
+    // straight away instead of asking a dead host again.
+    el.addEventListener('error', function (ev) {
+      var t = ev && ev.target;
+      if (!t || !t.classList || !t.classList.contains('pdxdb-seat-photo')) return;
+      try {
+        _deadFaces[String(t.getAttribute('src') || '')] = 1;
+        var s = document.createElement('span');
+        s.className = 'pdxdb-seat-mark';
+        s.textContent = t.getAttribute('data-pdxdb-mark') || '\uD83C\uDFDB';
+        var a = t.parentNode;
+        if (a && a.setAttribute) a.setAttribute('data-pdxdb-face', 'mark');
+        if (a && fn(a.replaceChild)) a.replaceChild(s, t);
+      } catch (e) {}
+    }, true);
     el.addEventListener('click', function (ev) {
       var t = ev && ev.target;
       var chip = t && fn(t.closest) ? t.closest('[data-pdxdb-cat]') : null;
@@ -1717,6 +1843,7 @@
     refresh: refresh,
     _whole: whole,
     _people: people,
+    _faceUrl: faceUrl,
     _measureHref: measureHref,
     _rowIssues: rowIssues,
     _tableGroups: tableGroups,

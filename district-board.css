@@ -1,8 +1,8 @@
 /* ─────────────────────────────────────────────────────────────────────────────
    district-board.css — band 3, "On the table", grouped by the chips the rows
-   already wear. Linked once by district-board.js, so every board that paints
-   the band (SD-3 and every generated board) takes the same shape from this one
-   file rather than a copy in each document.
+   already wear, and band 1's face. Linked once by district-board.js, so every
+   board that paints the bands (SD-3 and every generated board) takes the same
+   shape from this one file rather than a copy in each document.
 
    The issue colours arrive INLINE from PDXIssueColors.skin() as the same four
    custom properties the row chip carries (--pdx-ic, --pdx-ic-wash,
@@ -71,3 +71,16 @@
 
 /* A measure under two issues wears both chips. */
 .pdxdb-m-issue + .pdxdb-m-issue { margin-left: 0.3rem; }
+
+/* Band 1's face: the person file's portrait for the sitting member, or the
+   roster row's own mark when there is none. A fixed 56px square either way, so
+   the name beside it never moves when the image lands or fails. */
+.pdxdb-seat-id { display: flex; align-items: center; gap: 0.75rem; }
+.pdxdb-seat-text { min-width: 0; }
+.pdxdb-seat-face {
+  flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+  width: 56px; height: 56px; border-radius: 50%; overflow: hidden;
+  background: #0f1a2e; border: 1px solid #253855; text-decoration: none;
+}
+.pdxdb-seat-photo { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
+.pdxdb-seat-mark { font-size: 1.6rem; line-height: 1; }
