@@ -8683,7 +8683,40 @@
 //     person.html, district-board.js, consistency.js and issue.html (one source
 //     note) are precached and changed and bill-pages.js joins the shell, so it
 //     moves one version.
-const CACHE_VERSION = 'v292';
+// v293 - A DISTRICT BOARD'S BAND 1 SHOWS THE SITTING MEMBER'S FACE. The seat
+//     band named the member and linked /p/<pid> but painted no photo, though the
+//     person file paints one off the same pid. Band 1 now paints that same
+//     portrait beside the name: window._getPhotoUrl where a document carries it,
+//     and on a board a verbatim copy of that resolver (pinned byte for byte by
+//     test-district-board-face.mjs) over browse-photos.js and profile-alias.js,
+//     which every board now loads. No portrait paints the roster row's own mark,
+//     as the person file does; a seat with no member paints no frame. One
+//     renderer for every board: the six hand boards, the generated ones, ut-gov
+//     and both U.S. Senate seats. No party, no score, no bio; band 2 unchanged.
+//     No new board, no splat, no new host, no second photo table, no equity copy.
+//     MIGRATION COST: none. No location key is migrated, renamed or copied.
+//     district-board.js, district-board.css and every district board are
+//     precached and changed, so it moves one version.
+// v294 - ONE PORTRAIT PER PERSON, ON THE ROSTER ROW. The homepage record card
+//     painted Ro Khanna's face from BROWSE_PHOTOS (browse-photos.js) through
+//     _getPhotoUrl's last tier; /p/khanna read the roster field `photo`, which
+//     was empty on every bundled row, and printed 🏭. scripts/
+//     sweep-roster-portraits.mjs copied each card portrait onto its empty roster
+//     field (703 rows; no URL invented, nothing downloaded), found no row whose
+//     two portraits disagree (PORTRAIT_SWEEP.md), and left 417 rows with no
+//     portrait anywhere on their mark. browse-photos.js now keeps only the 12
+//     people with no roster row. roster-portrait.js (window.pdxPortrait) is the
+//     one reader: live PROFILES photo, then cmp-data.js's. The person file's
+//     letterhead and share card and district-board band 1 read it; the card
+//     reads the same field as _getPhotoUrl's first two tiers. Board documents
+//     drop browse-photos.js and profile-alias.js for it. No party, no score, no
+//     bio on the board. MIGRATION COST: none. No location key is migrated, renamed
+//     or copied. `photo` is an existing field on the roster record (Firestore
+//     already carries it); no table, no stored key.
+//     cmp-data.js, person.html, issue.html (one source-line note), district-board.js
+//     and every district board are precached and changed and roster-portrait.js
+//     joins the shell, so it moves one version.
+const CACHE_VERSION = 'v294';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -8955,6 +8988,10 @@ const SHELL_ASSETS = [
   // is not wrong, but it describes a named member as merely 'on file'.
   '/voice-room.js',
   '/profile-alias.js',
+  // THE ONE PORTRAIT READER, 2 KB. person.html's letterhead and every district
+  // board's band 1 read the roster field through it; arrive without it and both
+  // paint the row's mark over a face the roster holds.
+  '/roster-portrait.js',
   // ...AND /seated-member.js, for the same reason one line up. It is the table
   // that answers "who sits in Utah House District 16" on a document with no
   // ballot-breakdown.js; arrive without it and the two legislative cards report

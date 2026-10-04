@@ -1761,7 +1761,7 @@ section("L · twin boot — the arithmetic never saw any of this");
       A.CMP_DATA[pid] && JSON.stringify(A.CMP_DATA[pid]) !== JSON.stringify(B.CMP_DATA[pid]));
     const figureOnly = (o) => {
       const c = JSON.parse(JSON.stringify(o || null));
-      if (c && c.scope) { delete c.scope.office; delete c.scope.name; }
+      if (c && c.scope) { delete c.scope.office; delete c.scope.name; delete c.scope.photo; }
       return JSON.stringify(c);
     };
     // AND ONE FORMAL SHAPE IS DECLARED, DOWNWARD ONLY. The word-first gate pass
@@ -1804,7 +1804,9 @@ section("L · twin boot — the arithmetic never saw any of this");
     // moved in its office copy alone, and its published figure did not move.
     const notCopy = rosterMoved.filter((pid) => {
       const a = A.CMP_DATA[pid], b = B.CMP_DATA[pid];
-      const ka = Object.keys(a), kb = Object.keys(b);
+      // The portrait field (v294) is not copy either, and not a figure: a row may
+      // gain `photo` and nothing else under this exemption.
+      const ka = Object.keys(a).filter((k) => k !== "photo"), kb = Object.keys(b).filter((k) => k !== "photo");
       if (ka.length !== kb.length) return true;
       return ka.some((k) => k !== "office" && JSON.stringify(a[k]) !== JSON.stringify(b[k]));
     });

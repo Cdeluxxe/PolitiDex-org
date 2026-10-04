@@ -471,6 +471,7 @@ section("6 · one finding, and every percentage behind one disclosure");
 section("7 · a drawer with no roll call renders exactly as it did before");
 // ═════════════════════════════════════════════════════════════════════════════
 {
+  const sansFace = (h) => String(h).replace(/<span class="pdxgap-face(?: pdxgap-face-ph)?"([^>]*) aria-hidden="true">(?:<img [^>]*><\/span>|<\/span>)/g, '<span class="pdxgap-face"$1 aria-hidden="true">FACE</span>');
   const A = boot(HEAD);
   must(A.PDXConsistency && typeof A.PDXConsistency.gapViewHtml === "function", "HEAD's consistency.js did not boot");
   let same = 0;
@@ -478,7 +479,11 @@ section("7 · a drawer with no roll call renders exactly as it did before");
   for (const x of WITHOUT) {
     let before = "";
     try { before = A.PDXConsistency.gapViewHtml(x.pid, x.key) || ""; } catch { continue; }
-    if (before === drawer(x.pid, x.key)) same++; else drift.push(key(x));
+    // THE FACE IS THE ROSTER FIELD NOW (v294): a drawer that drew the
+    // placeholder because this harness has no _getPhotoUrl draws the person's
+    // portrait off their roster row instead. That one element is folded to a
+    // token on both sides; every other byte of the drawer is still compared.
+    if (sansFace(before) === sansFace(drawer(x.pid, x.key))) same++; else drift.push(key(x));
   }
   eq(drift.slice(0, 6).join(" | "), "", `${drift.length} roll-call-free drawer(s) changed shape`);
   console.log(`      ${same} drawer(s) with no formal act are byte-identical to HEAD`);

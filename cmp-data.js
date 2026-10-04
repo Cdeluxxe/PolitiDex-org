@@ -11,6 +11,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 // National — complete Chellie Pingree (July 2026)
  "chellie_pingree": {
   "name": "Chellie Pingree",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/P000597.jpg",
   "office": "U.S. Representative",
   "state": "Maine",
   "party": "D",
@@ -166,6 +167,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 // National — state Secretaries of State (SoS wave 2, July 2026)
  "shirley_weber": {
   "name": "Shirley Weber",
+  "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/Shirley_Weber.jpg?width=500",
   "office": "Secretary of State",
   "state": "California",
   "party": "D",
@@ -183,6 +185,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jena_griswold": {
   "name": "Jena Griswold",
+  "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/Jena_Griswold.JPG?width=500",
   "office": "Secretary of State",
   "state": "Colorado",
   "party": "D",
@@ -200,6 +203,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "steve_hobbs": {
   "name": "Steve Hobbs",
+  "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/Steve_Hobbs.jpg?width=500",
   "office": "Secretary of State",
   "state": "Washington",
   "party": "D",
@@ -217,6 +221,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "maggie_toulouse_oliver": {
   "name": "Maggie Toulouse Oliver",
+  "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/Maggie_Toulouse_Oliver.jpg?width=500",
   "office": "Secretary of State",
   "state": "New Mexico",
   "party": "D",
@@ -234,6 +239,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jane_nelson_tx": {
   "name": "Jane Nelson",
+  "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/Sec-Jane-Nelson-TX.jpg?width=500",
   "office": "Secretary of State",
   "state": "Texas",
   "party": "R",
@@ -251,6 +257,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "diego_morales": {
   "name": "Diego Morales",
+  "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/Diego_Morales_DC.png?width=500",
   "office": "Secretary of State",
   "state": "Indiana",
   "party": "R",
@@ -268,6 +275,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "michael_watson_ms": {
   "name": "Michael Watson",
+  "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/Michael_Watson.png?width=500",
   "office": "Secretary of State",
   "state": "Mississippi",
   "party": "R",
@@ -285,6 +293,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "michael_adams_ky": {
   "name": "Michael Adams",
+  "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/Michael_Adams.jpg?width=500",
   "office": "Secretary of State",
   "state": "Kentucky",
   "party": "R",
@@ -338,6 +347,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 // National — state Secretaries of State (SoS wave 1, July 2026)
  "jocelyn_benson": {
   "name": "Jocelyn Benson",
+  "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/SOS_Jocelyn_Benson_web.jpg?width=500",
   "office": "Secretary of State",
   "state": "Michigan",
   "party": "D",
@@ -355,6 +365,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "adrian_fontes": {
   "name": "Adrian Fontes",
+  "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/Adrian_Fontes_2025.jpg?width=500",
   "office": "Secretary of State",
   "state": "Arizona",
   "party": "D",
@@ -372,6 +383,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "cisco_aguilar": {
   "name": "Cisco Aguilar",
+  "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/Francisco_Aguilar%2C_Secretary_of_State_of_Nevada%2C_2024.jpg?width=500",
   "office": "Secretary of State",
   "state": "Nevada",
   "party": "D",
@@ -389,6 +401,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "steve_simon": {
   "name": "Steve Simon",
+  "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/2026SteveSimon.jpg?width=500",
   "office": "Secretary of State",
   "state": "Minnesota",
   "party": "D",
@@ -406,6 +419,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "brad_raffensperger": {
   "name": "Brad Raffensperger",
+  "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/SoS_HeadshotRaffensperger.jpg?width=500",
   "office": "Secretary of State",
   "state": "Georgia",
   "party": "R",
@@ -423,6 +437,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "frank_larose": {
   "name": "Frank LaRose",
+  "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/Frank_LaRose_by_Gage_Skidmore.jpg?width=500",
   "office": "Secretary of State",
   "state": "Ohio",
   "party": "R",
@@ -440,6 +455,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "al_schmidt": {
   "name": "Al Schmidt",
+  "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/Al_Schmidt.jpg?width=500",
   "office": "Secretary of State",
   "state": "Pennsylvania",
   "party": "R",
@@ -475,6 +491,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 // National — state Attorneys General (AG wave 4, July 2026)
  "ken_paxton": {
   "name": "Ken Paxton",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/K_Paxton.jpg/500px-K_Paxton.jpg",
   "office": "State Attorney General",
   "state": "Texas",
   "party": "R",
@@ -2603,6 +2620,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "thune": {
   "name": "John Thune",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000250.jpg",
   "office": "U.S. Senate Majority Leader",
   "state": "South Dakota",
   "party": "R",
@@ -2619,6 +2637,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mcconnell": {
   "name": "Mitch McConnell",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M000355.jpg",
   "office": "U.S. Senator",
   "state": "Kentucky",
   "party": "R",
@@ -2636,6 +2655,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jeffries": {
   "name": "Hakeem Jeffries",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/J000294.jpg",
   "office": "U.S. House Minority Leader",
   "state": "New York",
   "party": "D",
@@ -2652,6 +2672,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "schumer": {
   "name": "Chuck Schumer",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S000148.jpg",
   "office": "U.S. Senate Minority Leader",
   "state": "New York",
   "party": "D",
@@ -2668,6 +2689,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mike_johnson": {
   "name": "Mike Johnson",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/J000299.jpg",
   "office": "Speaker of the U.S. House",
   "state": "Louisiana",
   "party": "R",
@@ -2685,6 +2707,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "rubio": {
   "name": "Marco Rubio",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000595.jpg",
   "office": "U.S. Secretary of State",
   "state": "Florida",
   "party": "R",
@@ -2702,6 +2725,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "bessent": {
   "name": "Scott Bessent",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Official_portrait_of_Treasury_Secretary_Scott_Bessent_%28borderless%29_%28cropped%29.jpg/500px-Official_portrait_of_Treasury_Secretary_Scott_Bessent_%28borderless%29_%28cropped%29.jpg",
   "office": "U.S. Secretary of the Treasury",
   "state": "South Carolina",
   "party": "R",
@@ -2719,6 +2743,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "cruz": {
   "name": "Ted Cruz",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001098.jpg",
   "office": "U.S. Senator",
   "state": "Texas",
   "party": "R",
@@ -2736,6 +2761,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "aoc": {
   "name": "Alexandria Ocasio-Cortez",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/O000172.jpg",
   "office": "U.S. Representative",
   "state": "New York",
   "party": "D",
@@ -2753,6 +2779,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "bondi": {
   "name": "Pam Bondi",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Pam_Bondi_official_portrait_%28cropped%29%282%29.jpg/500px-Pam_Bondi_official_portrait_%28cropped%29%282%29.jpg",
   "office": "U.S. Attorney General",
   "state": "Florida",
   "party": "R",
@@ -2770,6 +2797,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "noem": {
   "name": "Kristi Noem",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Official_Portrait_of_Secretary_Kristi_Noem.jpg/500px-Official_Portrait_of_Secretary_Kristi_Noem.jpg",
   "office": "Secretary of Homeland Security",
   "state": "South Dakota",
   "party": "R",
@@ -2787,6 +2815,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "lutnick": {
   "name": "Howard Lutnick",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Howard_Lutnick_2025.jpg/500px-Howard_Lutnick_2025.jpg",
   "office": "Secretary of Commerce",
   "state": "New York",
   "party": "R",
@@ -2804,6 +2833,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "scalise": {
   "name": "Steve Scalise",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001176.jpg",
   "office": "House Majority Leader",
   "state": "Louisiana",
   "party": "R",
@@ -2821,6 +2851,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "barrasso": {
   "name": "John Barrasso",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001261.jpg",
   "office": "U.S. Senate Majority Whip",
   "state": "Wyoming",
   "party": "R",
@@ -2838,6 +2869,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "emmer": {
   "name": "Tom Emmer",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/E000294.jpg",
   "office": "House Majority Whip",
   "state": "Minnesota",
   "party": "R",
@@ -2855,6 +2887,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "durbin": {
   "name": "Dick Durbin",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000563.jpg",
   "office": "U.S. Senate Minority Whip",
   "state": "Illinois",
   "party": "D",
@@ -2872,6 +2905,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kclark": {
   "name": "Katherine Clark",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001101.jpg",
   "office": "House Minority Whip",
   "state": "Massachusetts",
   "party": "D",
@@ -2889,6 +2923,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jim_jordan": {
   "name": "Jim Jordan",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/J000289.jpg",
   "office": "House Judiciary Committee Chair",
   "state": "Ohio",
   "party": "R",
@@ -2906,6 +2941,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jason_smith": {
   "name": "Jason Smith",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001195.jpg",
   "office": "House Ways & Means Chair",
   "state": "Missouri",
   "party": "R",
@@ -2923,6 +2959,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "burgum": {
   "name": "Doug Burgum",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Doug_Burgum_2025_DOI_portrait_%28cropped%29%28b%29.jpg/500px-Doug_Burgum_2025_DOI_portrait_%28cropped%29%28b%29.jpg",
   "office": "U.S. Secretary of the Interior",
   "state": "North Dakota",
   "party": "R",
@@ -2940,6 +2977,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "chris_wright": {
   "name": "Chris Wright",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Secretary_Chris_Wright_Official_Portrait.png/500px-Secretary_Chris_Wright_Official_Portrait.png",
   "office": "U.S. Secretary of Energy",
   "state": "Colorado",
   "party": "R",
@@ -2957,6 +2995,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "zeldin": {
   "name": "Lee Zeldin",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/Z000017.jpg",
   "office": "EPA Administrator",
   "state": "New York",
   "party": "R",
@@ -2974,6 +3013,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "vought": {
   "name": "Russ Vought",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Russell_Vought%2C_official_portrait_%282025%29_%28cropped1%29.jpg/500px-Russell_Vought%2C_official_portrait_%282025%29_%28cropped1%29.jpg",
   "office": "Director, OMB",
   "state": "Virginia",
   "party": "R",
@@ -2991,6 +3031,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "rollins": {
   "name": "Brooke Rollins",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Second_Portrait_of_Secretary_Rollins.jpg/500px-Second_Portrait_of_Secretary_Rollins.jpg",
   "office": "U.S. Secretary of Agriculture",
   "state": "Texas",
   "party": "R",
@@ -3008,6 +3049,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "grassley": {
   "name": "Chuck Grassley",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000386.jpg",
   "office": "Senate Judiciary Chair & President pro tempore",
   "state": "Iowa",
   "party": "R",
@@ -3025,6 +3067,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "rand_paul": {
   "name": "Rand Paul",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/P000603.jpg",
   "office": "Senate Homeland Security Chair",
   "state": "Kentucky",
   "party": "R",
@@ -3042,6 +3085,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "graham": {
   "name": "Lindsey Graham",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000359.jpg",
   "office": "Senate Budget Committee Chair",
   "state": "South Carolina",
   "party": "R",
@@ -3059,6 +3103,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "hawley": {
   "name": "Josh Hawley",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001089.jpg",
   "office": "U.S. Senator",
   "state": "Missouri",
   "party": "R",
@@ -3076,6 +3121,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "murkowski": {
   "name": "Lisa Murkowski",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001153.jpg",
   "office": "U.S. Senator",
   "state": "Alaska",
   "party": "R",
@@ -3093,6 +3139,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "warren": {
   "name": "Elizabeth Warren",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000817.jpg",
   "office": "U.S. Senator",
   "state": "Massachusetts",
   "party": "D",
@@ -3110,6 +3157,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "fetterman": {
   "name": "John Fetterman",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000479.jpg",
   "office": "U.S. Senator",
   "state": "Pennsylvania",
   "party": "D",
@@ -3127,6 +3175,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "booker": {
   "name": "Cory Booker",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001288.jpg",
   "office": "U.S. Senator",
   "state": "New Jersey",
   "party": "D",
@@ -3144,6 +3193,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "crockett": {
   "name": "Jasmine Crockett",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001130.jpg",
   "office": "U.S. Representative",
   "state": "Texas",
   "party": "D",
@@ -3161,6 +3211,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "khanna": {
   "name": "Ro Khanna",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000389.jpg",
   "office": "U.S. Representative",
   "state": "California",
   "party": "D",
@@ -3178,6 +3229,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "risch": {
   "name": "Jim Risch",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000584.jpg",
   "office": "Senate Foreign Relations Committee Chair",
   "state": "Idaho",
   "party": "R",
@@ -3195,6 +3247,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "crapo": {
   "name": "Mike Crapo",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C000880.jpg",
   "office": "Senate Finance Committee Chair",
   "state": "Idaho",
   "party": "R",
@@ -3212,6 +3265,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "cotton": {
   "name": "Tom Cotton",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001095.jpg",
   "office": "Senate Intelligence Committee Chair",
   "state": "Arkansas",
   "party": "R",
@@ -3229,6 +3283,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "collins": {
   "name": "Susan Collins",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001035.jpg",
   "office": "Senate Appropriations Committee Chair",
   "state": "Maine",
   "party": "R",
@@ -3246,6 +3301,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "comer": {
   "name": "James Comer",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001108.jpg",
   "office": "House Oversight Committee Chair",
   "state": "Kentucky",
   "party": "R",
@@ -3267,6 +3323,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 // folded into `rfkjr` (below) and `kennedy_rfk` retired in db/vr-pid-aliases.json.
  "mccormick": {
   "name": "Dave McCormick",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001243.jpg",
   "office": "U.S. Senator",
   "state": "Pennsylvania",
   "party": "R",
@@ -3284,6 +3341,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "klobuchar": {
   "name": "Amy Klobuchar",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000367.jpg",
   "office": "U.S. Senator",
   "state": "Minnesota",
   "party": "D",
@@ -3301,6 +3359,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "slotkin": {
   "name": "Elissa Slotkin",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001208.jpg",
   "office": "U.S. Senator",
   "state": "Michigan",
   "party": "D",
@@ -3335,6 +3394,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "wicker": {
   "name": "Roger Wicker",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000437.jpg",
   "office": "Senate Armed Services Committee Chair",
   "state": "Mississippi",
   "party": "R",
@@ -3352,6 +3412,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "tim_scott": {
   "name": "Tim Scott",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001184.jpg",
   "office": "Senate Banking Committee Chair",
   "state": "South Carolina",
   "party": "R",
@@ -3369,6 +3430,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "brian_mast": {
   "name": "Brian Mast",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001199.jpg",
   "office": "House Foreign Affairs Committee Chair",
   "state": "Florida",
   "party": "R",
@@ -3386,6 +3448,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "chris_murphy": {
   "name": "Chris Murphy",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001169.jpg",
   "office": "U.S. Senator",
   "state": "Connecticut",
   "party": "D",
@@ -3403,6 +3466,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mark_kelly": {
   "name": "Mark Kelly",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000377.jpg",
   "office": "U.S. Senator",
   "state": "Arizona",
   "party": "D",
@@ -3420,6 +3484,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "wyden": {
   "name": "Ron Wyden",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000779.jpg",
   "office": "Senate Finance Committee Ranking Member",
   "state": "Oregon",
   "party": "D",
@@ -3437,6 +3502,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kennedy_john": {
   "name": "John Kennedy",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000393.jpg",
   "office": "U.S. Senator",
   "state": "Louisiana",
   "party": "R",
@@ -3454,6 +3520,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "french_hill": {
   "name": "French Hill",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001072.jpg",
   "office": "House Financial Services Committee Chair",
   "state": "Arkansas",
   "party": "R",
@@ -3471,6 +3538,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "tom_cole": {
   "name": "Tom Cole",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001053.jpg",
   "office": "House Appropriations Committee Chair",
   "state": "Oklahoma",
   "party": "R",
@@ -3488,6 +3556,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "arrington": {
   "name": "Jodey Arrington",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/A000375.jpg",
   "office": "House Budget Committee Chair",
   "state": "Texas",
   "party": "R",
@@ -3505,6 +3574,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "guthrie": {
   "name": "Brett Guthrie",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000558.jpg",
   "office": "House Energy & Commerce Committee Chair",
   "state": "Kentucky",
   "party": "R",
@@ -3522,6 +3592,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "capito": {
   "name": "Shelley Moore Capito",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001047.jpg",
   "office": "Senate Environment & Public Works Chair",
   "state": "West Virginia",
   "party": "R",
@@ -3539,6 +3610,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "lankford": {
   "name": "James Lankford",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000575.jpg",
   "office": "U.S. Senator",
   "state": "Oklahoma",
   "party": "R",
@@ -3556,6 +3628,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "ernst": {
   "name": "Joni Ernst",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/E000295.jpg",
   "office": "U.S. Senator",
   "state": "Iowa",
   "party": "R",
@@ -3573,6 +3646,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "lummis": {
   "name": "Cynthia Lummis",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000571.jpg",
   "office": "U.S. Senator",
   "state": "Wyoming",
   "party": "R",
@@ -3590,6 +3664,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "gallego": {
   "name": "Ruben Gallego",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000574.jpg",
   "office": "U.S. Senator",
   "state": "Arizona",
   "party": "D",
@@ -3607,6 +3682,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kaine": {
   "name": "Tim Kaine",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000384.jpg",
   "office": "U.S. Senator",
   "state": "Virginia",
   "party": "D",
@@ -3624,6 +3700,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "schiff": {
   "name": "Adam Schiff",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001150.jpg",
   "office": "U.S. Senator",
   "state": "California",
   "party": "D",
@@ -3641,6 +3718,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "warner": {
   "name": "Mark Warner",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000805.jpg",
   "office": "Senate Intelligence Committee Vice Chair",
   "state": "Virginia",
   "party": "D",
@@ -3658,6 +3736,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "delauro": {
   "name": "Rosa DeLauro",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000216.jpg",
   "office": "House Appropriations Ranking Member",
   "state": "Connecticut",
   "party": "D",
@@ -3675,6 +3754,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "meeks": {
   "name": "Gregory Meeks",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001137.jpg",
   "office": "House Foreign Affairs Ranking Member",
   "state": "New York",
   "party": "D",
@@ -3692,6 +3772,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "raskin": {
   "name": "Jamie Raskin",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000606.jpg",
   "office": "House Judiciary Ranking Member",
   "state": "Maryland",
   "party": "D",
@@ -3709,6 +3790,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "neal": {
   "name": "Richard Neal",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/N000015.jpg",
   "office": "House Ways & Means Ranking Member",
   "state": "Massachusetts",
   "party": "D",
@@ -3726,6 +3808,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "pallone": {
   "name": "Frank Pallone",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/P000034.jpg",
   "office": "House Energy & Commerce Ranking Member",
   "state": "New Jersey",
   "party": "D",
@@ -3743,6 +3826,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "adam_smith": {
   "name": "Adam Smith",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S000510.jpg",
   "office": "House Armed Services Ranking Member",
   "state": "Washington",
   "party": "D",
@@ -3760,6 +3844,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "hagerty": {
   "name": "Bill Hagerty",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H000601.jpg",
   "office": "U.S. Senator",
   "state": "Tennessee",
   "party": "R",
@@ -3777,6 +3862,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "britt": {
   "name": "Katie Britt",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001319.jpg",
   "office": "U.S. Senator",
   "state": "Alabama",
   "party": "R",
@@ -3794,6 +3880,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "banks": {
   "name": "Jim Banks",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001299.jpg",
   "office": "U.S. Senator",
   "state": "Indiana",
   "party": "R",
@@ -3811,6 +3898,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "coons": {
   "name": "Chris Coons",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001088.jpg",
   "office": "U.S. Senator",
   "state": "Delaware",
   "party": "D",
@@ -3828,6 +3916,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "reed": {
   "name": "Jack Reed",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000122.jpg",
   "office": "Senate Armed Services Ranking Member",
   "state": "Rhode Island",
   "party": "D",
@@ -3845,6 +3934,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "shaheen": {
   "name": "Jeanne Shaheen",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001181.jpg",
   "office": "Senate Foreign Relations Ranking Member",
   "state": "New Hampshire",
   "party": "D",
@@ -3862,6 +3952,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "murray": {
   "name": "Patty Murray",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001111.jpg",
   "office": "Senate Appropriations Vice Chair",
   "state": "Washington",
   "party": "D",
@@ -3879,6 +3970,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "whitehouse": {
   "name": "Sheldon Whitehouse",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000802.jpg",
   "office": "Senate Environment & Public Works Ranking Member",
   "state": "Rhode Island",
   "party": "D",
@@ -3896,6 +3988,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "cantwell": {
   "name": "Maria Cantwell",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C000127.jpg",
   "office": "Senate Commerce Committee Ranking Member",
   "state": "Washington",
   "party": "D",
@@ -3913,6 +4006,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "peters": {
   "name": "Gary Peters",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/P000595.jpg",
   "office": "Senate Homeland Security Ranking Member",
   "state": "Michigan",
   "party": "D",
@@ -3930,6 +4024,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "heinrich": {
   "name": "Martin Heinrich",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001046.jpg",
   "office": "Senate Energy & Natural Resources Ranking Member",
   "state": "New Mexico",
   "party": "D",
@@ -3947,6 +4042,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "moreno": {
   "name": "Bernie Moreno",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001242.jpg",
   "office": "U.S. Senator",
   "state": "Ohio",
   "party": "R",
@@ -3964,6 +4060,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "sheehy": {
   "name": "Tim Sheehy",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001232.jpg",
   "office": "U.S. Senator",
   "state": "Montana",
   "party": "R",
@@ -3981,6 +4078,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "chip_roy": {
   "name": "Chip Roy",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000614.jpg",
   "office": "U.S. Representative",
   "state": "Texas",
   "party": "R",
@@ -3998,6 +4096,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "julie_fahey": {
   "name": "Julie Fahey",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Julie_Fahey_Official_Head_Shot.jpg/500px-Julie_Fahey_Official_Head_Shot.jpg",
   "office": "State House Speaker",
   "state": "Oregon",
   "party": "D",
@@ -4015,6 +4114,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "matt_ritter": {
   "name": "Matt Ritter",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/MattRitterCT.png/500px-MattRitterCT.png",
   "office": "State House Speaker",
   "state": "Connecticut",
   "party": "D",
@@ -4032,6 +4132,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "ryan_fecteau": {
   "name": "Ryan Fecteau",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/SpeakerRyanFecteau.jpg/500px-SpeakerRyanFecteau.jpg",
   "office": "State House Speaker",
   "state": "Maine",
   "party": "D",
@@ -4049,6 +4150,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "james_coleman": {
   "name": "James Coleman",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/James_Coleman_and_Paul_Lundeen_%28cropped%29.jpg/500px-James_Coleman_and_Paul_Lundeen_%28cropped%29.jpg",
   "office": "State Senate President",
   "state": "Colorado",
   "party": "D",
@@ -4083,6 +4185,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "murrell_smith": {
   "name": "Murrell Smith",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/1/13/Murrell_Smith_%28cropped%29.png",
   "office": "State House Speaker",
   "state": "South Carolina",
   "party": "R",
@@ -4117,6 +4220,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "phillip_devillier": {
   "name": "Phillip DeVillier",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Phillip_DeVillier.jpg/500px-Phillip_DeVillier.jpg",
   "office": "State House Speaker",
   "state": "Louisiana",
   "party": "R",
@@ -4151,6 +4255,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "ron_mariano": {
   "name": "Ron Mariano",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Speaker_Ronald_Mariano.jpg",
   "office": "State House Speaker",
   "state": "Massachusetts",
   "party": "D",
@@ -4168,6 +4273,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "karen_spilka": {
   "name": "Karen Spilka",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Karen_E._Spilka.jpg/500px-Karen_E._Spilka.jpg",
   "office": "State Senate President",
   "state": "Massachusetts",
   "party": "D",
@@ -4185,6 +4291,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "bill_ferguson": {
   "name": "Bill Ferguson",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Bill_Ferguson_%2852885272108%29.jpg/500px-Bill_Ferguson_%2852885272108%29.jpg",
   "office": "State Senate President",
   "state": "Maryland",
   "party": "D",
@@ -4202,6 +4309,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "cameron_sexton": {
   "name": "Cameron Sexton",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/f/f5/TN_Speaker_Cameron_Sexton.jpg",
   "office": "State House Speaker",
   "state": "Tennessee",
   "party": "R",
@@ -4219,6 +4327,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "robert_stivers": {
   "name": "Robert Stivers",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Senator_Robert_Stivers.jpg/500px-Senator_Robert_Stivers.jpg",
   "office": "State Senate President",
   "state": "Kentucky",
   "party": "R",
@@ -4236,6 +4345,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "pat_grassley": {
   "name": "Pat Grassley",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Pat_Grassley_88th_General_Assembly_Portrait.jpg/500px-Pat_Grassley_88th_General_Assembly_Portrait.jpg",
   "office": "State House Speaker",
   "state": "Iowa",
   "party": "R",
@@ -4253,6 +4363,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "todd_huston": {
   "name": "Todd Huston",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/SOTS_%282_of_52%29_%2851815593427%29_%28cropped%29.jpg/500px-SOTS_%282_of_52%29_%2851815593427%29_%28cropped%29.jpg",
   "office": "State House Speaker",
   "state": "Indiana",
   "party": "R",
@@ -4270,6 +4381,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "don_scott": {
   "name": "Don Scott",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/3/39/Virginia_Delegate_Don_Scott_%28cropped%29.jpg",
   "office": "State House Speaker",
   "state": "Virginia",
   "party": "D",
@@ -4287,6 +4399,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "erin_murphy": {
   "name": "Erin Murphy",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Erin_Murphy.jpg/500px-Erin_Murphy.jpg",
   "office": "State Senate Majority Leader",
   "state": "Minnesota",
   "party": "D",
@@ -4321,6 +4434,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "laurie_jinkins": {
   "name": "Laurie Jinkins",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Laurie_Jinkins.jpg/500px-Laurie_Jinkins.jpg",
   "office": "State House Speaker",
   "state": "Washington",
   "party": "D",
@@ -4338,6 +4452,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "matt_huffman": {
   "name": "Matt Huffman",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/0/06/Matt_Huffman.jpg",
   "office": "State House Speaker",
   "state": "Ohio",
   "party": "R",
@@ -4372,6 +4487,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "lisa_demuth": {
   "name": "Lisa Demuth",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/May_10%2C_2025_Lisa_Demuth_Fishing_Opener.jpg/500px-May_10%2C_2025_Lisa_Demuth_Fishing_Opener.jpg",
   "office": "State House Speaker",
   "state": "Minnesota",
   "party": "R",
@@ -4389,6 +4505,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "sharon_carson": {
   "name": "Sharon Carson",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Sharon_Carson_The_Benefits_of_Family_%281%29_%28cropped%29.jpg/500px-Sharon_Carson_The_Benefits_of_Family_%281%29_%28cropped%29.jpg",
   "office": "State Senate President",
   "state": "New Hampshire",
   "party": "R",
@@ -4406,6 +4523,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "gene_wu": {
   "name": "Gene Wu",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Gene_Wu_2.jpg/500px-Gene_Wu_2.jpg",
   "office": "State House Democratic Caucus Chair",
   "state": "Texas",
   "party": "D",
@@ -4423,6 +4541,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jay_costa": {
   "name": "Jay Costa",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Gov._Wolf_Cuts_Ribbon_on_Fern_Hollow_Bridge%2C_Celebrates_Government_That_Works_for_Pennsylvania_%2852578635480%29_%28cropped%29.jpg/500px-Gov._Wolf_Cuts_Ribbon_on_Fern_Hollow_Bridge%2C_Celebrates_Government_That_Works_for_Pennsylvania_%2852578635480%29_%28cropped%29.jpg",
   "office": "State Senate Democratic Leader",
   "state": "Pennsylvania",
   "party": "D",
@@ -4457,6 +4576,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "greta_neubauer": {
   "name": "Greta Neubauer",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/5/50/Greta_Neubauer_Bans_off_our_Bodies_%28cropped%29.jpg",
   "office": "State Assembly Minority Leader",
   "state": "Wisconsin",
   "party": "D",
@@ -4474,6 +4594,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "heath_flora": {
   "name": "Heath Flora",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Heath_Flora%2C_2020_%28cropped%29.jpg",
   "office": "State Assembly Republican Leader",
   "state": "California",
   "party": "R",
@@ -4491,6 +4612,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "destin_hall": {
   "name": "Destin Hall",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Rep._Destin_Hall.jpg/500px-Rep._Destin_Hall.jpg",
   "office": "State House Speaker",
   "state": "North Carolina",
   "party": "R",
@@ -4508,6 +4630,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jon_burns": {
   "name": "Jon Burns",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Official_headshot_of_Jon_Burns.jpg/500px-Official_headshot_of_Jon_Burns.jpg",
   "office": "State House Speaker",
   "state": "Georgia",
   "party": "R",
@@ -4542,6 +4665,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "joanna_mcclinton": {
   "name": "Joanna McClinton",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Joanna_McClinton_-_Gov._Wolf_Joins_Educators_in_Celebrating_Historic_Education_Funding_for_Public_Schools_%2852311414245%29_%28cropped%29.jpg/500px-Joanna_McClinton_-_Gov._Wolf_Joins_Educators_in_Celebrating_Historic_Education_Funding_for_Public_Schools_%2852311414245%29_%28cropped%29.jpg",
   "office": "State House Speaker",
   "state": "Pennsylvania",
   "party": "D",
@@ -4576,6 +4700,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "don_harmon": {
   "name": "Don Harmon",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Don_Harmon_%28cropped_more%29.jpeg/500px-Don_Harmon_%28cropped_more%29.jpeg",
   "office": "State Senate President",
   "state": "Illinois",
   "party": "D",
@@ -4593,6 +4718,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "chris_welch": {
   "name": "Emanuel \"Chris\" Welch",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/b/b2/Chris_Welch_May_2023.jpg",
   "office": "State House Speaker",
   "state": "Illinois",
   "party": "D",
@@ -4627,6 +4753,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kim_ward": {
   "name": "Kim Ward",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/f/f6/Kim_Ward.jpg",
   "office": "State Senate President pro Tempore",
   "state": "Pennsylvania",
   "party": "R",
@@ -4644,6 +4771,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "matt_hall": {
   "name": "Matt Hall",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Matt_Hall_in_2024_%28cropped%29.jpg/500px-Matt_Hall_in_2024_%28cropped%29.jpg",
   "office": "State House Speaker",
   "state": "Michigan",
   "party": "R",
@@ -4661,6 +4789,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "phil_berger": {
   "name": "Phil Berger",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Senator_Phil_Berger_2023-25_Legislative_Portrait.jpg/500px-Senator_Phil_Berger_2023-25_Legislative_Portrait.jpg",
   "office": "State Senate President pro Tempore",
   "state": "North Carolina",
   "party": "R",
@@ -4678,6 +4807,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "robin_vos": {
   "name": "Robin Vos",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/1/1f/Robin_Vos_speaks_at_Racine_Tea_Party_event_%288378614585%29.jpg",
   "office": "State Assembly Speaker",
   "state": "Wisconsin",
   "party": "R",
@@ -4695,6 +4825,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "warren_petersen": {
   "name": "Warren Petersen",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Warren_Petersen_by_Gage_Skidmore_2.jpg/500px-Warren_Petersen_by_Gage_Skidmore_2.jpg",
   "office": "State Senate President",
   "state": "Arizona",
   "party": "R",
@@ -4712,6 +4843,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "dana_nessel": {
   "name": "Dana Nessel",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/5/52/Dana_Nessel_Michigan_Is_Preparing_for_%27Every_Scenario%27_on_Election_Day_THE_CIRCUS_SHOWTIME_0-25_screenshot_%28cropped%29.jpg",
   "office": "Attorney General",
   "state": "Michigan",
   "party": "D",
@@ -4729,6 +4861,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "josh_kaul": {
   "name": "Josh Kaul",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Josh_Kaul-13_-_44610449305_%283x4b%29.jpg/500px-Josh_Kaul-13_-_44610449305_%283x4b%29.jpg",
   "office": "Attorney General",
   "state": "Wisconsin",
   "party": "D",
@@ -4746,6 +4879,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jeff_jackson": {
   "name": "Jeff Jackson",
+  "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/Rep._Jeff_Jackson_-_118th_Congress.jpg?width=500",
   "office": "Attorney General",
   "state": "North Carolina",
   "party": "D",
@@ -4763,6 +4897,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "aaron_ford": {
   "name": "Aaron Ford",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Nevada_Attorney_General_Aaron_Ford_addresses_the_United_Nations_Human_Rights_Committee%2C_October_17-18%2C_2023_1_%28cropped%29.jpg/500px-Nevada_Attorney_General_Aaron_Ford_addresses_the_United_Nations_Human_Rights_Committee%2C_October_17-18%2C_2023_1_%28cropped%29.jpg",
   "office": "Attorney General",
   "state": "Nevada",
   "party": "D",
@@ -4780,6 +4915,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "dave_sunday": {
   "name": "Dave Sunday",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Dave_Sunday_by_Gage_Skidmore.jpg/500px-Dave_Sunday_by_Gage_Skidmore.jpg",
   "office": "Attorney General",
   "state": "Pennsylvania",
   "party": "R",
@@ -4797,6 +4933,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "james_uthmeier": {
   "name": "James Uthmeier",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Official_portrait_of_Attorney_General_James_Uthmeier%2C_2025_%28cropped%29.jpg/500px-Official_portrait_of_Attorney_General_James_Uthmeier%2C_2025_%28cropped%29.jpg",
   "office": "Attorney General",
   "state": "Florida",
   "party": "R",
@@ -4814,6 +4951,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jonathan_skrmetti": {
   "name": "Jonathan Skrmetti",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/6/6c/Jonathan_Skrmetti_Tennessee_AG.png",
   "office": "Attorney General",
   "state": "Tennessee",
   "party": "R",
@@ -4831,6 +4969,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kris_kobach": {
   "name": "Kris Kobach",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Kris_Kobach_official_portrait%2C_2024.jpg/500px-Kris_Kobach_official_portrait%2C_2024.jpg",
   "office": "Attorney General",
   "state": "Kansas",
   "party": "R",
@@ -5018,6 +5157,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "dan_patrick": {
   "name": "Dan Patrick",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/4/41/Dan_Patrick_Texas_%28cropped%29.jpg",
   "office": "Lieutenant Governor",
   "state": "Texas",
   "party": "R",
@@ -5035,6 +5175,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "dustin_burrows": {
   "name": "Dustin Burrows",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Dustin_Burrows_%282%29.png/500px-Dustin_Burrows_%282%29.png",
   "office": "State House Speaker",
   "state": "Texas",
   "party": "R",
@@ -5052,6 +5193,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mike_mcguire": {
   "name": "Mike McGuire",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/State_Senator_Mike_McGuire.jpg/500px-State_Senator_Mike_McGuire.jpg",
   "office": "State Senate President pro Tem",
   "state": "California",
   "party": "D",
@@ -5069,6 +5211,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "robert_rivas": {
   "name": "Robert Rivas",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Robert_Rivas_official_speaker_portrait.jpg/500px-Robert_Rivas_official_speaker_portrait.jpg",
   "office": "State Assembly Speaker",
   "state": "California",
   "party": "D",
@@ -5086,6 +5229,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "ben_albritton": {
   "name": "Ben Albritton",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/8/83/Ben_Albritton_Portrait.jpg",
   "office": "State Senate President",
   "state": "Florida",
   "party": "R",
@@ -5103,6 +5247,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "daniel_perez_fl": {
   "name": "Daniel Perez",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Official_Portrait_of_Daniel_Perez.jpg",
   "office": "State House Speaker",
   "state": "Florida",
   "party": "R",
@@ -5120,6 +5265,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "stewart_cousins": {
   "name": "Andrea Stewart-Cousins",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/f/fe/%2801-28-20%29NYS_Senate_Majority_Leader_Andrea_Stewart_-Cousins_%28cropped%29.jpg",
   "office": "State Senate Majority Leader",
   "state": "New York",
   "party": "D",
@@ -5137,6 +5283,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "carl_heastie": {
   "name": "Carl Heastie",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/MTA_Officially_Renames_Two_Brooklyn_Subway_Stations_%2850405873761%29_%28cropped%29.jpg/500px-MTA_Officially_Renames_Two_Brooklyn_Subway_Stations_%2850405873761%29_%28cropped%29.jpg",
   "office": "State Assembly Speaker",
   "state": "New York",
   "party": "D",
@@ -5154,6 +5301,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "don_bacon": {
   "name": "Don Bacon",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001298.jpg",
   "office": "U.S. Representative",
   "state": "Nebraska",
   "party": "R",
@@ -5171,6 +5319,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "tom_suozzi": {
   "name": "Tom Suozzi",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001201.jpg",
   "office": "U.S. Representative",
   "state": "New York",
   "party": "D",
@@ -5188,6 +5337,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "rob_bonta": {
   "name": "Rob Bonta",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Rob_Bonta_official_portrait_%28cropped%29.jpg/500px-Rob_Bonta_official_portrait_%28cropped%29.jpg",
   "office": "Attorney General",
   "state": "California",
   "party": "D",
@@ -5205,6 +5355,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "letitia_james": {
   "name": "Letitia James",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/7/75/Letitia_James_Interview_Feb_2020.png",
   "office": "Attorney General",
   "state": "New York",
   "party": "D",
@@ -5222,6 +5373,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "keith_ellison": {
   "name": "Keith Ellison",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Keith_Ellison_portrait.jpg/500px-Keith_Ellison_portrait.jpg",
   "office": "Attorney General",
   "state": "Minnesota",
   "party": "D",
@@ -5239,6 +5391,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kwame_raoul": {
   "name": "Kwame Raoul",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Kwame_Raoul_RFCG.jpg/500px-Kwame_Raoul_RFCG.jpg",
   "office": "Attorney General",
   "state": "Illinois",
   "party": "D",
@@ -5256,6 +5409,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kris_mayes": {
   "name": "Kris Mayes",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Kris_Mayes_%2852365525231%29_%28cropped%29.jpg/500px-Kris_Mayes_%2852365525231%29_%28cropped%29.jpg",
   "office": "Attorney General",
   "state": "Arizona",
   "party": "D",
@@ -5273,6 +5427,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "raul_labrador": {
   "name": "Raúl Labrador",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Raul_Labrador_115th.jpg/500px-Raul_Labrador_115th.jpg",
   "office": "Attorney General",
   "state": "Idaho",
   "party": "R",
@@ -5290,6 +5445,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "liz_murrill": {
   "name": "Liz Murrill",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/2/2f/Liz_Murrill_2024_%28cropped%29.jpg",
   "office": "Attorney General",
   "state": "Louisiana",
   "party": "R",
@@ -5307,6 +5463,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "chris_carr": {
   "name": "Chris Carr",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Christopher_M._Carr_by_Gage_Skidmore_%28cropped%29.jpg/500px-Christopher_M._Carr_by_Gage_Skidmore_%28cropped%29.jpg",
   "office": "Attorney General",
   "state": "Georgia",
   "party": "R",
@@ -5324,6 +5481,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "brenna_bird": {
   "name": "Brenna Bird",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Brenna_Bird_by_Gage_Skidmore_2.jpg/500px-Brenna_Bird_by_Gage_Skidmore_2.jpg",
   "office": "Attorney General",
   "state": "Iowa",
   "party": "R",
@@ -5341,6 +5499,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "dave_yost": {
   "name": "Dave Yost",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Dave_Yost_at_Federalist_Society_2.jpg/500px-Dave_Yost_at_Federalist_Society_2.jpg",
   "office": "Attorney General",
   "state": "Ohio",
   "party": "R",
@@ -5358,6 +5517,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "dunleavy": {
   "name": "Mike Dunleavy",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Governor_Mike_J._Dunleavy_-_Official_Portrait.jpg/500px-Governor_Mike_J._Dunleavy_-_Official_Portrait.jpg",
   "office": "Governor",
   "state": "Alaska",
   "party": "R",
@@ -5375,6 +5535,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "ned_lamont": {
   "name": "Ned Lamont",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Governor_Ned_Lamont_of_Connecticut%2C_official_portrait.jpg/500px-Governor_Ned_Lamont_of_Connecticut%2C_official_portrait.jpg",
   "office": "Governor",
   "state": "Connecticut",
   "party": "D",
@@ -5392,6 +5553,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "matt_meyer": {
   "name": "Matt Meyer",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/%2802-19-2025%29_Matt_Meyer.jpg/500px-%2802-19-2025%29_Matt_Meyer.jpg",
   "office": "Governor",
   "state": "Delaware",
   "party": "D",
@@ -5409,6 +5571,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "brad_little": {
   "name": "Brad Little",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Brad_Little_official_photo.jpg/500px-Brad_Little_official_photo.jpg",
   "office": "Governor",
   "state": "Idaho",
   "party": "R",
@@ -5426,6 +5589,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "laura_kelly": {
   "name": "Laura Kelly",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Laura_Kelly_official_photo.jpg/500px-Laura_Kelly_official_photo.jpg",
   "office": "Governor",
   "state": "Kansas",
   "party": "D",
@@ -5443,6 +5607,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "tate_reeves": {
   "name": "Tate Reeves",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Gov._Tate_Reeves_Signs_House_Bill_1486_%28cropped%29_%282%29.jpg/500px-Gov._Tate_Reeves_Signs_House_Bill_1486_%28cropped%29_%282%29.jpg",
   "office": "Governor",
   "state": "Mississippi",
   "party": "R",
@@ -5460,6 +5625,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jim_pillen": {
   "name": "Jim Pillen",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Jim_Pillen_SelectUSA_%2855251574792%29.jpg/500px-Jim_Pillen_SelectUSA_%2855251574792%29.jpg",
   "office": "Governor",
   "state": "Nebraska",
   "party": "R",
@@ -5477,6 +5643,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kelly_ayotte": {
   "name": "Kelly Ayotte",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Governor_Kelly_Ayotte_receives_a_briefing_from_National_Guard_cyber_operators_%28cropped%29_%28cropped%29.jpg/500px-Governor_Kelly_Ayotte_receives_a_briefing_from_National_Guard_cyber_operators_%28cropped%29_%28cropped%29.jpg",
   "office": "Governor",
   "state": "New Hampshire",
   "party": "R",
@@ -5494,6 +5661,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kelly_armstrong": {
   "name": "Kelly Armstrong",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Kelly_Armstrong_%283x4_cropped%29_%282%29.jpg/500px-Kelly_Armstrong_%283x4_cropped%29_%282%29.jpg",
   "office": "Governor",
   "state": "North Dakota",
   "party": "R",
@@ -5511,6 +5679,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "dan_mckee": {
   "name": "Dan McKee",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/RI_Governor_Daniel_McKee.jpg/500px-RI_Governor_Daniel_McKee.jpg",
   "office": "Governor",
   "state": "Rhode Island",
   "party": "D",
@@ -5528,6 +5697,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "larry_rhoden": {
   "name": "Larry Rhoden",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Larry_Rhoden_2025_%28cropped%29.jpg/500px-Larry_Rhoden_2025_%28cropped%29.jpg",
   "office": "Governor",
   "state": "South Dakota",
   "party": "R",
@@ -5545,6 +5715,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "phil_scott": {
   "name": "Phil Scott",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Phil_Scott_2019.png/500px-Phil_Scott_2019.png",
   "office": "Governor",
   "state": "Vermont",
   "party": "R",
@@ -5562,6 +5733,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mark_gordon": {
   "name": "Mark Gordon",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Wyoming_Governor_Mark_Gordon_expands_partnership_with_Tunisia_to_enhance_agriculture_and_civil_protection_%284%29_%28cropped%29.jpg/500px-Wyoming_Governor_Mark_Gordon_expands_partnership_with_Tunisia_to_enhance_agriculture_and_civil_protection_%284%29_%28cropped%29.jpg",
   "office": "Governor",
   "state": "Wyoming",
   "party": "R",
@@ -5579,6 +5751,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "evers": {
   "name": "Tony Evers",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Tony_Evers_-_2022_%28a%29.jpg/500px-Tony_Evers_-_2022_%28a%29.jpg",
   "office": "Governor",
   "state": "Wisconsin",
   "party": "D",
@@ -5596,6 +5769,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "josh_stein": {
   "name": "Josh Stein",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Josh_Stein_SelectUSA_%2855252715239%29.jpg/500px-Josh_Stein_SelectUSA_%2855252715239%29.jpg",
   "office": "Governor",
   "state": "North Carolina",
   "party": "D",
@@ -5613,6 +5787,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "maura_healey": {
   "name": "Maura Healey",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Maura_Healey%2C_official_portrait%2C_governor.jpg/500px-Maura_Healey%2C_official_portrait%2C_governor.jpg",
   "office": "Governor",
   "state": "Massachusetts",
   "party": "D",
@@ -5630,6 +5805,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "tina_kotek": {
   "name": "Tina Kotek",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Tina_Kotek_official_portrait_2021%283x4_cropped%29.jpg/500px-Tina_Kotek_official_portrait_2021%283x4_cropped%29.jpg",
   "office": "Governor",
   "state": "Oregon",
   "party": "D",
@@ -5647,6 +5823,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mikie_sherrill": {
   "name": "Mikie Sherrill",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Governor_of_New_Jersey_Rebecca_Michelle_%22Mikie%22_Sherrill.jpg/500px-Governor_of_New_Jersey_Rebecca_Michelle_%22Mikie%22_Sherrill.jpg",
   "office": "Governor",
   "state": "New Jersey",
   "party": "D",
@@ -5664,6 +5841,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "joe_lombardo": {
   "name": "Joe Lombardo",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Joe_Lombardo_by_Gage_Skidmore_%283x4_cropped%29.jpg/500px-Joe_Lombardo_by_Gage_Skidmore_%283x4_cropped%29.jpg",
   "office": "Governor",
   "state": "Nevada",
   "party": "R",
@@ -5681,6 +5859,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "bill_lee": {
   "name": "Bill Lee",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Hob_Nob_on_the_State_Line_with_Tennessee_Governor_Bill_Lee%2C_Bristol_%28cropped%29.2.jpg/500px-Hob_Nob_on_the_State_Line_with_Tennessee_Governor_Bill_Lee%2C_Bristol_%28cropped%29.2.jpg",
   "office": "Governor",
   "state": "Tennessee",
   "party": "R",
@@ -5698,6 +5877,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "henry_mcmaster": {
   "name": "Henry McMaster",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Henry_McMaster_in_2026_%28cropped%29.jpg/500px-Henry_McMaster_in_2026_%28cropped%29.jpg",
   "office": "Governor",
   "state": "South Carolina",
   "party": "R",
@@ -5715,6 +5895,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mike_kehoe": {
   "name": "Mike Kehoe",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Mike_Kehoe_2025_%28cropped%29.jpg/500px-Mike_Kehoe_2025_%28cropped%29.jpg",
   "office": "Governor",
   "state": "Missouri",
   "party": "R",
@@ -5732,6 +5913,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kay_ivey": {
   "name": "Kay Ivey",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Governor_Kay_Ivey_2017_%28cropped%29.jpg/500px-Governor_Kay_Ivey_2017_%28cropped%29.jpg",
   "office": "Governor",
   "state": "Alabama",
   "party": "R",
@@ -5749,6 +5931,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kevin_stitt": {
   "name": "Kevin Stitt",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Kevin_Stitt_%2855103789989%29_%28cropped%29.jpg/500px-Kevin_Stitt_%2855103789989%29_%28cropped%29.jpg",
   "office": "Governor",
   "state": "Oklahoma",
   "party": "R",
@@ -5766,6 +5949,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kim_reynolds": {
   "name": "Kim Reynolds",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Kim_Reynolds_by_Gage_Skidmore_2.jpg/500px-Kim_Reynolds_by_Gage_Skidmore_2.jpg",
   "office": "Governor",
   "state": "Iowa",
   "party": "R",
@@ -5783,6 +5967,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "patrick_morrisey": {
   "name": "Patrick Morrisey",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Patrick_Morrisey_2026.jpg/500px-Patrick_Morrisey_2026.jpg",
   "office": "Governor",
   "state": "West Virginia",
   "party": "R",
@@ -5800,6 +5985,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "greg_gianforte": {
   "name": "Greg Gianforte",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Greg_Gianforte_in_2025_%28cropped%29.jpg/500px-Greg_Gianforte_in_2025_%28cropped%29.jpg",
   "office": "Governor",
   "state": "Montana",
   "party": "R",
@@ -5817,6 +6003,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mike_braun": {
   "name": "Mike Braun",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Governor_Mike_Braun_DHS.jpg/500px-Governor_Mike_Braun_DHS.jpg",
   "office": "Governor",
   "state": "Indiana",
   "party": "R",
@@ -5834,6 +6021,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "katie_hobbs": {
   "name": "Katie Hobbs",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Katie_Hobbs_2026.jpg/500px-Katie_Hobbs_2026.jpg",
   "office": "Governor",
   "state": "Arizona",
   "party": "D",
@@ -5851,6 +6039,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "bob_ferguson": {
   "name": "Bob Ferguson",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Bob_Ferguson_at_his_2023_Shrimp_Feed_02_%28cropped%29.jpg/500px-Bob_Ferguson_at_his_2023_Shrimp_Feed_02_%28cropped%29.jpg",
   "office": "Governor",
   "state": "Washington",
   "party": "D",
@@ -5868,6 +6057,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "michelle_lujan_grisham": {
   "name": "Michelle Lujan Grisham",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/b/b9/Michelle_Lujan_Grisham_2026.jpg",
   "office": "Governor",
   "state": "New Mexico",
   "party": "D",
@@ -5885,6 +6075,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "janet_mills": {
   "name": "Janet Mills",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Maine_congressional_delegation_meets_with_Gov_Janet_Mills_%28cropped%29.jpg/500px-Maine_congressional_delegation_meets_with_Gov_Janet_Mills_%28cropped%29.jpg",
   "office": "Governor",
   "state": "Maine",
   "party": "D",
@@ -5902,6 +6093,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "josh_green": {
   "name": "Josh Green",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Josh_Green_Official_Photo_2022_%28cropped%29_1cropped%29.jpg/500px-Josh_Green_Official_Photo_2022_%28cropped%29_1cropped%29.jpg",
   "office": "Governor",
   "state": "Hawaii",
   "party": "D",
@@ -5919,6 +6111,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "glenn_youngkin": {
   "name": "Glenn Youngkin",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Youngkin_Governor_Portrait.jpg/500px-Youngkin_Governor_Portrait.jpg",
   "office": "Governor",
   "state": "Virginia",
   "party": "R",
@@ -5936,6 +6129,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "brian_kemp": {
   "name": "Brian Kemp",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Brian_Kemp_portrait%2C_2024_%28cropped%29.jpg/500px-Brian_Kemp_portrait%2C_2024_%28cropped%29.jpg",
   "office": "Governor",
   "state": "Georgia",
   "party": "R",
@@ -5953,6 +6147,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "sarah_huckabee_sanders": {
   "name": "Sarah Huckabee Sanders",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Governor_Sarah_Huckabee_Sanders_2026.jpg/500px-Governor_Sarah_Huckabee_Sanders_2026.jpg",
   "office": "Governor",
   "state": "Arkansas",
   "party": "R",
@@ -5970,6 +6165,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jeff_landry": {
   "name": "Jeff Landry",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Jeff_Landry_2025.jpg/500px-Jeff_Landry_2025.jpg",
   "office": "Governor",
   "state": "Louisiana",
   "party": "R",
@@ -5987,6 +6183,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mike_dewine": {
   "name": "Mike DeWine",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Gov-Mike-DeWine.jpg/500px-Gov-Mike-DeWine.jpg",
   "office": "Governor",
   "state": "Ohio",
   "party": "R",
@@ -6004,6 +6201,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "tim_walz": {
   "name": "Tim Walz",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Governor_Tim_Walz_2026.jpg/500px-Governor_Tim_Walz_2026.jpg",
   "office": "Governor",
   "state": "Minnesota",
   "party": "D",
@@ -6021,6 +6219,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "wes_moore": {
   "name": "Wes Moore",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Wes_Moore_Official_Governor_Portrait.jpg/500px-Wes_Moore_Official_Governor_Portrait.jpg",
   "office": "Governor",
   "state": "Maryland",
   "party": "D",
@@ -6038,6 +6237,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kathy_hochul": {
   "name": "Kathy Hochul",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Kathy_Hochul_March_2024.jpg/500px-Kathy_Hochul_March_2024.jpg",
   "office": "Governor",
   "state": "New York",
   "party": "D",
@@ -6055,6 +6255,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jared_polis": {
   "name": "Jared Polis",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Jared_Polis_in_2026.jpg/500px-Jared_Polis_in_2026.jpg",
   "office": "Governor",
   "state": "Colorado",
   "party": "D",
@@ -6072,6 +6273,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "andy_beshear": {
   "name": "Andy Beshear",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Andy_Beshear_in_April_2026_%28cropped%29.jpg/500px-Andy_Beshear_in_April_2026_%28cropped%29.jpg",
   "office": "Governor",
   "state": "Kentucky",
   "party": "D",
@@ -6157,6 +6359,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "ron_desantis": {
   "name": "Ron DeSantis",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Ron_DeSantis_official_photo.jpg/500px-Ron_DeSantis_official_photo.jpg",
   "office": "Governor",
   "state": "Florida",
   "party": "R",
@@ -6174,6 +6377,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "greg_abbott": {
   "name": "Greg Abbott",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Greg_Abbott_at_NASA_2024_%28cropped%29.jpg/500px-Greg_Abbott_at_NASA_2024_%28cropped%29.jpg",
   "office": "Governor",
   "state": "Texas",
   "party": "R",
@@ -6191,6 +6395,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "gavin_newsom": {
   "name": "Gavin Newsom",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Governor_of_California_Gavin_Newsom_%28cropped_3x4%29.jpg/500px-Governor_of_California_Gavin_Newsom_%28cropped_3x4%29.jpg",
   "office": "Governor",
   "state": "California",
   "party": "D",
@@ -6208,6 +6413,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "gretchen_whitmer": {
   "name": "Gretchen Whitmer",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/2025_Gretchen_Whitmer_%28cropped%29.jpg/500px-2025_Gretchen_Whitmer_%28cropped%29.jpg",
   "office": "Governor",
   "state": "Michigan",
   "party": "D",
@@ -6225,6 +6431,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "josh_shapiro": {
   "name": "Josh Shapiro",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Josh_Shapiro_December_2025.jpg/500px-Josh_Shapiro_December_2025.jpg",
   "office": "Governor",
   "state": "Pennsylvania",
   "party": "D",
@@ -6242,6 +6449,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jb_pritzker": {
   "name": "JB Pritzker",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Governor_JB_Pritzker_official_portrait_2019_%28crop%29.jpg/500px-Governor_JB_Pritzker_official_portrait_2019_%28crop%29.jpg",
   "office": "Governor",
   "state": "Illinois",
   "party": "D",
@@ -6259,6 +6467,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "ted_budd": {
   "name": "Ted Budd",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001305.jpg",
   "office": "U.S. Senator",
   "state": "North Carolina",
   "party": "R",
@@ -6276,6 +6485,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kevin_hern": {
   "name": "Kevin Hern",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001082.jpg",
   "office": "U.S. Representative",
   "state": "Oklahoma",
   "party": "R",
@@ -6293,6 +6503,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "nancy_mace": {
   "name": "Nancy Mace",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M000194.jpg",
   "office": "U.S. Representative",
   "state": "South Carolina",
   "party": "R",
@@ -6310,6 +6521,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "tommy_tuberville": {
   "name": "Tommy Tuberville",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000278.jpg",
   "office": "U.S. Senator",
   "state": "Alabama",
   "party": "R",
@@ -6327,6 +6539,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "ayanna_pressley": {
   "name": "Ayanna Pressley",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/P000617.jpg",
   "office": "U.S. Representative",
   "state": "Massachusetts",
   "party": "D",
@@ -6344,6 +6557,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "delia_ramirez": {
   "name": "Delia Ramirez",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000617.jpg",
   "office": "U.S. Representative",
   "state": "Illinois",
   "party": "D",
@@ -6361,6 +6575,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "sarah_mcbride": {
   "name": "Sarah McBride",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001238.jpg",
   "office": "U.S. Representative",
   "state": "Delaware",
   "party": "D",
@@ -6378,6 +6593,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jake_auchincloss": {
   "name": "Jake Auchincloss",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/A000148.jpg",
   "office": "U.S. Representative",
   "state": "Massachusetts",
   "party": "D",
@@ -6395,6 +6611,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "greg_landsman": {
   "name": "Greg Landsman",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000601.jpg",
   "office": "U.S. Representative",
   "state": "Ohio",
   "party": "D",
@@ -6412,6 +6629,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "john_cornyn": {
   "name": "John Cornyn",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001056.jpg",
   "office": "U.S. Senator",
   "state": "Texas",
   "party": "R",
@@ -6463,6 +6681,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "stephen_miran": {
   "name": "Stephen Miran",
+  "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/Official_portrait_of_Governor_Stephen_I._Miran_HIGH_RES_miran_stephen_(54810191208)_(cropped).jpg?width=500",
   "office": "Chair, Council of Economic Advisers",
   "state": "Federal",
   "party": "R",
@@ -6497,6 +6716,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "dan_crenshaw": {
   "name": "Dan Crenshaw",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001120.jpg",
   "office": "U.S. Representative",
   "state": "Texas",
   "party": "R",
@@ -6514,6 +6734,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "raja_krishnamoorthi": {
   "name": "Raja Krishnamoorthi",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000391.jpg",
   "office": "U.S. Representative",
   "state": "Illinois",
   "party": "D",
@@ -6531,6 +6752,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "josh_gottheimer": {
   "name": "Josh Gottheimer",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000583.jpg",
   "office": "U.S. Representative",
   "state": "New Jersey",
   "party": "D",
@@ -6548,6 +6770,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "seth_moulton": {
   "name": "Seth Moulton",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001196.jpg",
   "office": "U.S. Representative",
   "state": "Massachusetts",
   "party": "D",
@@ -6565,6 +6788,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "marie_gluesenkamp_perez": {
   "name": "Marie Gluesenkamp Perez",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000600.jpg",
   "office": "U.S. Representative",
   "state": "Washington",
   "party": "D",
@@ -6582,6 +6806,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jon_ossoff": {
   "name": "Jon Ossoff",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/O000174.jpg",
   "office": "U.S. Senator",
   "state": "Georgia",
   "party": "D",
@@ -6650,6 +6875,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mike_rounds": {
   "name": "Mike Rounds",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000605.jpg",
   "office": "U.S. Senator",
   "state": "South Dakota",
   "party": "R",
@@ -6667,6 +6893,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kevin_cramer": {
   "name": "Kevin Cramer",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001096.jpg",
   "office": "U.S. Senator",
   "state": "North Dakota",
   "party": "R",
@@ -6684,6 +6911,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jim_mcgovern": {
   "name": "Jim McGovern",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M000312.jpg",
   "office": "U.S. Representative",
   "state": "Massachusetts",
   "party": "D",
@@ -6701,6 +6929,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "brendan_boyle": {
   "name": "Brendan Boyle",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001296.jpg",
   "office": "U.S. Representative",
   "state": "Pennsylvania",
   "party": "D",
@@ -6718,6 +6947,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "rick_larsen": {
   "name": "Rick Larsen",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000560.jpg",
   "office": "U.S. Representative",
   "state": "Washington",
   "party": "D",
@@ -6735,6 +6965,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jan_schakowsky": {
   "name": "Jan Schakowsky",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001145.jpg",
   "office": "U.S. Representative",
   "state": "Illinois",
   "party": "D",
@@ -6752,6 +6983,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "diana_degette": {
   "name": "Diana DeGette",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000197.jpg",
   "office": "U.S. Representative",
   "state": "Colorado",
   "party": "D",
@@ -6769,6 +7001,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "gillibrand": {
   "name": "Kirsten Gillibrand",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000555.jpg",
   "office": "U.S. Senator",
   "state": "New York",
   "party": "D",
@@ -6786,6 +7019,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "debbie_dingell": {
   "name": "Debbie Dingell",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000624.jpg",
   "office": "U.S. Representative",
   "state": "Michigan",
   "party": "D",
@@ -6803,6 +7037,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "maggie_hassan": {
   "name": "Maggie Hassan",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001076.jpg",
   "office": "U.S. Senator",
   "state": "New Hampshire",
   "party": "D",
@@ -6820,6 +7055,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "bennet": {
   "name": "Michael Bennet",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001267.jpg",
   "office": "U.S. Senator",
   "state": "Colorado",
   "party": "D",
@@ -6837,6 +7073,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "steny_hoyer": {
   "name": "Steny Hoyer",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H000874.jpg",
   "office": "U.S. Representative",
   "state": "Maryland",
   "party": "D",
@@ -6854,6 +7091,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "deb_fischer": {
   "name": "Deb Fischer",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000463.jpg",
   "office": "U.S. Senator",
   "state": "Nebraska",
   "party": "R",
@@ -6871,6 +7109,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jim_justice": {
   "name": "Jim Justice",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/J000312.jpg",
   "office": "U.S. Senator",
   "state": "West Virginia",
   "party": "R",
@@ -6888,6 +7127,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "ashley_moody": {
   "name": "Ashley Moody",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001244.jpg",
   "office": "U.S. Senator",
   "state": "Florida",
   "party": "R",
@@ -6905,6 +7145,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "ricketts": {
   "name": "Pete Ricketts",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000618.jpg",
   "office": "U.S. Senator",
   "state": "Nebraska",
   "party": "R",
@@ -6922,6 +7163,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "hoeven": {
   "name": "John Hoeven",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001061.jpg",
   "office": "U.S. Senator",
   "state": "North Dakota",
   "party": "R",
@@ -6939,6 +7181,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "andy_harris": {
   "name": "Andy Harris",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001052.jpg",
   "office": "House Freedom Caucus Chair",
   "state": "Maryland",
   "party": "R",
@@ -6956,6 +7199,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mike_bost": {
   "name": "Mike Bost",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001295.jpg",
   "office": "House Veterans' Affairs Chair",
   "state": "Illinois",
   "party": "R",
@@ -6973,6 +7217,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "brian_babin": {
   "name": "Brian Babin",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001291.jpg",
   "office": "House Science, Space & Technology Chair",
   "state": "Texas",
   "party": "R",
@@ -6990,6 +7235,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "roger_williams": {
   "name": "Roger Williams",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000816.jpg",
   "office": "House Small Business Chair",
   "state": "Texas",
   "party": "R",
@@ -7007,6 +7253,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "bryan_steil": {
   "name": "Bryan Steil",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001213.jpg",
   "office": "House Administration Chair",
   "state": "Wisconsin",
   "party": "R",
@@ -7024,6 +7271,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "maxine_waters": {
   "name": "Maxine Waters",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000187.jpg",
   "office": "House Financial Services Ranking Member",
   "state": "California",
   "party": "D",
@@ -7041,6 +7289,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jim_himes": {
   "name": "Jim Himes",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001047.jpg",
   "office": "House Intelligence Ranking Member",
   "state": "Connecticut",
   "party": "D",
@@ -7058,6 +7307,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "zoe_lofgren": {
   "name": "Zoe Lofgren",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000397.jpg",
   "office": "House Science Committee Ranking Member",
   "state": "California",
   "party": "D",
@@ -7075,6 +7325,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jared_huffman": {
   "name": "Jared Huffman",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001068.jpg",
   "office": "House Natural Resources Ranking Member",
   "state": "California",
   "party": "D",
@@ -7092,6 +7343,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "yvette_clarke": {
   "name": "Yvette Clarke",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001067.jpg",
   "office": "Congressional Black Caucus Chair",
   "state": "New York",
   "party": "D",
@@ -7109,6 +7361,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mcclain": {
   "name": "Lisa McClain",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001136.jpg",
   "office": "House Republican Conference Chair",
   "state": "Michigan",
   "party": "R",
@@ -7126,6 +7379,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "hudson": {
   "name": "Richard Hudson",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001067.jpg",
   "office": "NRCC Chair",
   "state": "North Carolina",
   "party": "R",
@@ -7170,6 +7424,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // precise dates live in termStart/termEnd and in db/vr-federal-roster-r2-census.json.
  "mullin": {
   "name": "Markwayne Mullin",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001190.jpg",
   "office": "Former U.S. Senator",
   "state": "Oklahoma",
   "party": "R",
@@ -7189,6 +7444,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "schmitt": {
   "name": "Eric Schmitt",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001227.jpg",
   "office": "U.S. Senator",
   "state": "Missouri",
   "party": "R",
@@ -7206,6 +7462,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "luna": {
   "name": "Anna Paulina Luna",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000596.jpg",
   "office": "U.S. Representative",
   "state": "Florida",
   "party": "R",
@@ -7223,6 +7480,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "neguse": {
   "name": "Joe Neguse",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Joe_Neguse%2C_official_portrait%2C_116th_Congress.jpg/500px-Joe_Neguse%2C_official_portrait%2C_116th_Congress.jpg",
   "office": "Assistant House Democratic Leader",
   "state": "Colorado",
   "party": "D",
@@ -7240,6 +7498,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "takano": {
   "name": "Mark Takano",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000472.jpg",
   "office": "House Veterans' Affairs Ranking Member",
   "state": "California",
   "party": "D",
@@ -7257,6 +7516,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "bobby_scott": {
   "name": "Bobby Scott",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S000185.jpg",
   "office": "House Education & Workforce Ranking Member",
   "state": "Virginia",
   "party": "D",
@@ -7274,6 +7534,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "blunt_rochester": {
   "name": "Lisa Blunt Rochester",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001303.jpg",
   "office": "U.S. Senator",
   "state": "Delaware",
   "party": "D",
@@ -7291,6 +7552,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "alsobrooks": {
   "name": "Angela Alsobrooks",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/A000382.jpg",
   "office": "U.S. Senator",
   "state": "Maryland",
   "party": "D",
@@ -7325,6 +7587,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "pfluger": {
   "name": "August Pfluger",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/P000048.jpg",
   "office": "Republican Study Committee Chair",
   "state": "Texas",
   "party": "R",
@@ -7342,6 +7605,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "dan_sullivan": {
   "name": "Dan Sullivan",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001198.jpg",
   "office": "U.S. Senator",
   "state": "Alaska",
   "party": "R",
@@ -7359,6 +7623,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "roger_marshall": {
   "name": "Roger Marshall",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001198.jpg",
   "office": "U.S. Senator",
   "state": "Kansas",
   "party": "R",
@@ -7376,6 +7641,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mike_lawler": {
   "name": "Mike Lawler",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000599.jpg",
   "office": "U.S. Representative",
   "state": "New York",
   "party": "R",
@@ -7393,6 +7659,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "summer_lee": {
   "name": "Summer Lee",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000602.jpg",
   "office": "U.S. Representative",
   "state": "Pennsylvania",
   "party": "D",
@@ -7410,6 +7677,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "hickenlooper": {
   "name": "John Hickenlooper",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H000273.jpg",
   "office": "U.S. Senator",
   "state": "Colorado",
   "party": "D",
@@ -7427,6 +7695,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "welch": {
   "name": "Peter Welch",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000800.jpg",
   "office": "U.S. Senator",
   "state": "Vermont",
   "party": "D",
@@ -7444,6 +7713,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "tina_smith": {
   "name": "Tina Smith",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001203.jpg",
   "office": "U.S. Senator",
   "state": "Minnesota",
   "party": "D",
@@ -7461,6 +7731,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "maxwell_frost": {
   "name": "Maxwell Frost",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000476.jpg",
   "office": "U.S. Representative",
   "state": "Florida",
   "party": "D",
@@ -7478,6 +7749,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "daines": {
   "name": "Steve Daines",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000618.jpg",
   "office": "U.S. Senator",
   "state": "Montana",
   "party": "R",
@@ -7495,6 +7767,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "walberg": {
   "name": "Tim Walberg",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000798.jpg",
   "office": "House Education & Workforce Chair",
   "state": "Michigan",
   "party": "R",
@@ -7512,6 +7785,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "garbarino": {
   "name": "Andrew Garbarino",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000597.jpg",
   "office": "House Homeland Security Chair",
   "state": "New York",
   "party": "R",
@@ -7563,6 +7837,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "delbene": {
   "name": "Suzan DelBene",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000617.jpg",
   "office": "DCCC Chair",
   "state": "Washington",
   "party": "D",
@@ -7580,6 +7855,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "andy_kim": {
   "name": "Andy Kim",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000394.jpg",
   "office": "U.S. Senator",
   "state": "New Jersey",
   "party": "D",
@@ -7597,6 +7873,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "hirono": {
   "name": "Mazie Hirono",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001042.jpg",
   "office": "U.S. Senator",
   "state": "Hawaii",
   "party": "D",
@@ -7614,6 +7891,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "rosen": {
   "name": "Jacky Rosen",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000608.jpg",
   "office": "U.S. Senator",
   "state": "Nevada",
   "party": "D",
@@ -7631,6 +7909,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "dan_goldman": {
   "name": "Dan Goldman",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000599.jpg",
   "office": "U.S. Representative",
   "state": "New York",
   "party": "D",
@@ -7682,6 +7961,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mike_waltz": {
   "name": "Mike Waltz",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000823.jpg",
   "office": "U.S. Ambassador to the United Nations",
   "state": "Florida",
   "party": "R",
@@ -7699,6 +7979,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "ron_johnson": {
   "name": "Ron Johnson",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/J000293.jpg",
   "office": "U.S. Senator",
   "state": "Wisconsin",
   "party": "R",
@@ -7716,6 +7997,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "todd_young": {
   "name": "Todd Young",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/Y000064.jpg",
   "office": "U.S. Senator",
   "state": "Indiana",
   "party": "R",
@@ -7733,6 +8015,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "blumenthal": {
   "name": "Richard Blumenthal",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001277.jpg",
   "office": "U.S. Senator",
   "state": "Connecticut",
   "party": "D",
@@ -7750,6 +8033,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "merkley": {
   "name": "Jeff Merkley",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001176.jpg",
   "office": "U.S. Senator",
   "state": "Oregon",
   "party": "D",
@@ -7767,6 +8051,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "tlaib": {
   "name": "Rashida Tlaib",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000481.jpg",
   "office": "U.S. Representative",
   "state": "Michigan",
   "party": "D",
@@ -7784,6 +8069,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "nadler": {
   "name": "Jerry Nadler",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/N000002.jpg",
   "office": "U.S. Representative",
   "state": "New York",
   "party": "D",
@@ -7801,6 +8087,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jared_golden": {
   "name": "Jared Golden",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000592.jpg",
   "office": "U.S. Representative",
   "state": "Maine",
   "party": "D",
@@ -7835,6 +8122,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "hassett": {
   "name": "Kevin Hassett",
+  "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/Kevin_Hassett_official_photo_(cropped)(2).jpg?width=500",
   "office": "Director, National Economic Council",
   "state": "Massachusetts",
   "party": "R",
@@ -7869,6 +8157,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "tillis": {
   "name": "Thom Tillis",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000476.jpg",
   "office": "U.S. Senator",
   "state": "North Carolina",
   "party": "R",
@@ -7886,6 +8175,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "fitzpatrick": {
   "name": "Brian Fitzpatrick",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000466.jpg",
   "office": "U.S. Representative",
   "state": "Pennsylvania",
   "party": "R",
@@ -7903,6 +8193,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "lujan": {
   "name": "Ben Ray Luján",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Ben_Ray_Luj%C3%A1n%2C_official_portrait_%28119th_Congress%29.jpg/500px-Ben_Ray_Luj%C3%A1n%2C_official_portrait_%28119th_Congress%29.jpg",
   "office": "Assistant Senate Democratic Leader",
   "state": "New Mexico",
   "party": "D",
@@ -7920,6 +8211,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "torres": {
   "name": "Ritchie Torres",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000486.jpg",
   "office": "U.S. Representative",
   "state": "New York",
   "party": "D",
@@ -7937,6 +8229,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "omar": {
   "name": "Ilhan Omar",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/O000173.jpg",
   "office": "U.S. Representative",
   "state": "Minnesota",
   "party": "D",
@@ -7954,6 +8247,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "markey": {
   "name": "Ed Markey",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M000133.jpg",
   "office": "U.S. Senator",
   "state": "Massachusetts",
   "party": "D",
@@ -7971,6 +8265,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "clyburn": {
   "name": "Jim Clyburn",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C000537.jpg",
   "office": "U.S. Representative",
   "state": "South Carolina",
   "party": "D",
@@ -8022,6 +8317,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "blackburn": {
   "name": "Marsha Blackburn",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001243.jpg",
   "office": "U.S. Senator",
   "state": "Tennessee",
   "party": "R",
@@ -8039,6 +8335,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "rick_scott": {
   "name": "Rick Scott",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001217.jpg",
   "office": "U.S. Senator",
   "state": "Florida",
   "party": "R",
@@ -8056,6 +8353,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "foxx": {
   "name": "Virginia Foxx",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000450.jpg",
   "office": "House Rules Committee Chair",
   "state": "North Carolina",
   "party": "R",
@@ -8073,6 +8371,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "casar": {
   "name": "Greg Casar",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001131.jpg",
   "office": "Congressional Progressive Caucus Chair",
   "state": "Texas",
   "party": "D",
@@ -8090,6 +8389,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "ted_lieu": {
   "name": "Ted Lieu",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000582.jpg",
   "office": "House Democratic Caucus Vice Chair",
   "state": "California",
   "party": "D",
@@ -8107,6 +8407,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "angus_king": {
   "name": "Angus King",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000383.jpg",
   "office": "U.S. Senator (Independent)",
   "state": "Maine",
   "party": "I",
@@ -8124,6 +8425,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "schatz": {
   "name": "Brian Schatz",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001194.jpg",
   "office": "U.S. Senator",
   "state": "Hawaii",
   "party": "D",
@@ -8141,6 +8443,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "robert_garcia": {
   "name": "Robert Garcia",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000598.jpg",
   "office": "House Oversight Ranking Member",
   "state": "California",
   "party": "D",
@@ -8158,6 +8461,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "aguilar": {
   "name": "Pete Aguilar",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/A000371.jpg",
   "office": "House Democratic Caucus Chair",
   "state": "California",
   "party": "D",
@@ -8175,6 +8479,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jayapal": {
   "name": "Pramila Jayapal",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/J000298.jpg",
   "office": "U.S. Representative",
   "state": "Washington",
   "party": "D",
@@ -8192,6 +8497,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "van_hollen": {
   "name": "Chris Van Hollen",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/V000128.jpg",
   "office": "U.S. Senator",
   "state": "Maryland",
   "party": "D",
@@ -8209,6 +8515,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "padilla": {
   "name": "Alex Padilla",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/P000145.jpg",
   "office": "U.S. Senator",
   "state": "California",
   "party": "D",
@@ -8226,6 +8533,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "warnock": {
   "name": "Raphael Warnock",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000790.jpg",
   "office": "U.S. Senator",
   "state": "Georgia",
   "party": "D",
@@ -8243,6 +8551,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "duckworth": {
   "name": "Tammy Duckworth",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000622.jpg",
   "office": "U.S. Senator",
   "state": "Illinois",
   "party": "D",
@@ -8294,6 +8603,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "donalds": {
   "name": "Byron Donalds",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000032.jpg",
   "office": "U.S. Representative",
   "state": "Florida",
   "party": "R",
@@ -8311,6 +8621,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "stefanik": {
   "name": "Elise Stefanik",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001196.jpg",
   "office": "U.S. Representative",
   "state": "New York",
   "party": "R",
@@ -8328,6 +8639,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "boozman": {
   "name": "John Boozman",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001236.jpg",
   "office": "Senate Agriculture Chair",
   "state": "Arkansas",
   "party": "R",
@@ -8345,6 +8657,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "cassidy": {
   "name": "Bill Cassidy",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001075.jpg",
   "office": "Senate HELP Committee Chair",
   "state": "Louisiana",
   "party": "R",
@@ -8362,6 +8675,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "sam_graves": {
   "name": "Sam Graves",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000546.jpg",
   "office": "House Transportation & Infrastructure Chair",
   "state": "Missouri",
   "party": "R",
@@ -8379,6 +8693,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "glenn_thompson": {
   "name": "Glenn Thompson",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000467.jpg",
   "office": "House Agriculture Committee Chair",
   "state": "Pennsylvania",
   "party": "R",
@@ -8396,6 +8711,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jerry_moran": {
   "name": "Jerry Moran",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M000934.jpg",
   "office": "Senate Veterans' Affairs Chair",
   "state": "Kansas",
   "party": "R",
@@ -8413,6 +8729,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "angie_craig": {
   "name": "Angie Craig",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001119.jpg",
   "office": "House Agriculture Ranking Member",
   "state": "Minnesota",
   "party": "D",
@@ -8430,6 +8747,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "tammy_baldwin": {
   "name": "Tammy Baldwin",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001230.jpg",
   "office": "U.S. Senator",
   "state": "Wisconsin",
   "party": "D",
@@ -8447,6 +8765,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "cortez_masto": {
   "name": "Catherine Cortez Masto",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001113.jpg",
   "office": "U.S. Senator",
   "state": "Nevada",
   "party": "D",
@@ -8464,6 +8783,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "curtis": {
   "name": "John Curtis",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001114.jpg",
   "office": "U.S. Senator",
   "state": "Utah",
   "party": "R",
@@ -8482,6 +8802,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "massie": {
   "name": "Thomas Massie",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001184.jpg",
   "office": "U.S. Representative",
   "state": "KY-04",
   "party": "R",
@@ -8500,6 +8821,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "lee": {
   "name": "Mike Lee",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000577.jpg",
   "office": "U.S. Senator",
   "state": "Utah",
   "party": "R",
@@ -8518,6 +8840,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "cox": {
   "name": "Spencer Cox",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Spencer_Cox_official_photo.jpg/440px-Spencer_Cox_official_photo.jpg",
   "office": "Governor",
   "state": "Utah",
   "party": "R",
@@ -8536,6 +8859,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "trump": {
   "name": "Donald Trump",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Donald_Trump_official_portrait.jpg/500px-Donald_Trump_official_portrait.jpg",
   "office": "45th & 47th President",
   "state": "U.S.",
   "party": "R",
@@ -8725,6 +9049,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "owens": {
   "name": "Burgess Owens",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/O000086.jpg",
   "office": "U.S. Representative",
   "state": "Utah · District 4",
   "party": "R",
@@ -8743,6 +9068,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "maloy": {
   "name": "Celeste Maloy",
+  "photo": "https://bioguide.congress.gov/bioguide/photo/M/M001228.jpg",
   "office": "U.S. Representative",
   "state": "Utah · District 2",
   "party": "R",
@@ -8762,6 +9088,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  "kennedy": {
   "unopposed": true,
   "name": "Mike Kennedy",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000403.jpg",
   "office": "U.S. Representative",
   "state": "Utah · District 3",
   "party": "R",
@@ -8780,6 +9107,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "tgabbard": {
   "name": "Tulsi Gabbard",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000571.jpg",
   "office": "Director of Nat. Intel.",
   "state": "National",
   "party": "R",
@@ -8798,6 +9126,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "hegseth": {
   "name": "Pete Hegseth",
+  "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/Pete_Hegseth_Official_Portrait_(cropped)(b).jpg?width=500",
   "office": "Secretary of Defense",
   "state": "National",
   "party": "R",
@@ -8816,6 +9145,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "bmoore": {
   "name": "Blake Moore",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001213.jpg",
   "office": "U.S. Representative",
   "state": "Utah · UT-1",
   "party": "R",
@@ -8852,6 +9182,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jstevenson": {
   "name": "Jerry Stevenson",
+  "photo": "https://le.utah.gov/images/legislator/STEVEJ.jpg",
   "office": "Utah State Senator",
   "state": "UT District 6",
   "party": "R",
@@ -8870,6 +9201,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "tlee": {
   "name": "Trevor Lee",
+  "photo": "https://le.utah.gov/images/legislator/LEETR.jpg",
   "office": "UT State Representative",
   "state": "UT District 16",
   "party": "R",
@@ -9549,6 +9881,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "sadams": {
   "name": "Stuart Adams",
+  "photo": "https://le.utah.gov/images/legislator/ADAMSJS.jpg",
   "office": "Utah Senate President",
   "state": "UT District 7 (Layton, Davis County)",
   "party": "R",
@@ -9567,6 +9900,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "boebert": {
   "name": "Lauren Boebert",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B000825.jpg",
   "office": "U.S. Representative",
   "state": "Colorado",
   "party": "R",
@@ -9585,6 +9919,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mtg": {
   "name": "Marjorie Taylor Greene",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000596.jpg",
   "office": "U.S. Representative",
   "state": "Georgia",
   "party": "R",
@@ -9605,6 +9940,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "gaetz": {
   "name": "Matt Gaetz",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000578.jpg",
   "office": "Former U.S. Rep",
   "state": "Florida",
   "party": "R",
@@ -9624,6 +9960,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "rfine": {
   "name": "Randy Fine",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000484.jpg",
   // Federal roster wave R1: seated, not a candidate. Won the FL-06 special election on
   // 2025-04-01 and has been the sitting member since; this file is about to start
   // receiving House roll calls, so the office line is corrected to what he holds and
@@ -9663,6 +10000,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "cstewart": {
   "name": "Chris Stewart",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001192.jpg",
   "office": "Former U.S. Rep",
   "state": "Utah",
   "party": "R",
@@ -9718,6 +10056,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "bwilson": {
   "name": "Brad Wilson",
+  "photo": "https://le.utah.gov/images/legislator/WILSOB.jpg",
   "office": "Former Utah House Speaker",
   "state": "Utah · Davis County",
   "party": "R",
@@ -9737,6 +10076,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mschultz": {
   "name": "Mike Schultz",
+  "photo": "https://le.utah.gov/images/legislator/SCHULTZM.jpg",
   "office": "UT House Speaker",
   "state": "UT District 12 (Hooper, Weber County)",
   "party": "R",
@@ -9755,6 +10095,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "tweiler": {
   "name": "Todd Weiler",
+  "photo": "https://le.utah.gov/images/legislator/WEILERT.jpg",
   "office": "UT State Senator",
   "state": "UT District 8 (Woods Cross)",
   "party": "R",
@@ -9773,6 +10114,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "rward": {
   "name": "Ray Ward",
+  "photo": "https://le.utah.gov/images/legislator/WARDR.jpg",
   "office": "Utah State Representative",
   "state": "UT District 19 (Bountiful, Davis County)",
   "party": "R",
@@ -9791,6 +10133,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kcullimore": {
   "name": "Kirk Cullimore",
+  "photo": "https://le.utah.gov/images/legislator/CULLIMK.jpg",
   "office": "UT State Senator",
   "state": "UT District 19 (Sandy / Draper / Cottonwood Heights)",
   "party": "R",
@@ -9809,6 +10152,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "aromero": {
   "name": "Angela Romero",
+  "photo": "https://le.utah.gov/images/legislator/ROMEROA.jpg",
   "office": "UT State Representative",
   "state": "UT District 25 (West Salt Lake City, Salt Lake County)",
   "party": "D",
@@ -9827,6 +10171,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "cbramble": {
   "name": "Curt Bramble",
+  "photo": "https://le.utah.gov/images/legislator/BRAMBLC.jpg",
   "office": "Former UT State Senator",
   "state": "UT District 24 (Provo / Orem)",
   "party": "R",
@@ -9846,6 +10191,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "dipson": {
   "name": "Don Ipson",
+  "photo": "https://le.utah.gov/images/legislator/IPSOND.jpg",
   "office": "UT State Senator",
   "state": "UT District 29 (St. George)",
   "party": "R",
@@ -9864,6 +10210,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "rshipp": {
   "name": "Rex Shipp",
+  "photo": "https://le.utah.gov/images/legislator/SHIPPR.jpg",
   "office": "UT State Representative",
   "state": "UT District 71 (Cedar City, Iron County)",
   "party": "R",
@@ -9881,6 +10228,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "ssandall": {
   "name": "Scott Sandall",
+  "photo": "https://le.utah.gov/images/legislator/SANDAS.jpg",
   "office": "UT State Senator",
   "state": "UT District 1 (Box Elder/Cache)",
   "party": "R",
@@ -9899,6 +10247,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jdraxler": {
   "name": "Jack Draxler",
+  "photo": "https://le.utah.gov/images/legislator/DRAXLJ.jpg",
   "office": "UT State Representative",
   "state": "UT District 3 (Logan)",
   "party": "R",
@@ -9916,6 +10265,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "evickers": {
   "name": "Evan Vickers",
+  "photo": "https://le.utah.gov/images/legislator/VICKERE.jpg",
   "office": "UT State Senator",
   "state": "UT District 28 (Cedar City)",
   "party": "R",
@@ -9934,6 +10284,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jwestwood": {
   "name": "John Westwood",
+  "photo": "https://le.utah.gov/images/legislator/WESTWJ.jpg",
   "office": "Former UT State Representative",
   "state": "UT District 72 (Cedar City) · 2013–2019",
   "party": "R",
@@ -9952,6 +10303,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kwan_s12": {
   "name": "Karen Kwan",
+  "photo": "https://le.utah.gov/images/legislator/KWANK.jpg",
   "office": "Utah State Senator",
   "state": "UT District 12 (West Valley / Murray)",
   "party": "D",
@@ -9988,6 +10340,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mccay_s11": {
   "name": "Daniel McCay",
+  "photo": "https://le.utah.gov/images/legislator/MCCAYD.jpg",
   "office": "Utah State Senator",
   "state": "UT District 18 (Riverton / Herriman)",
   "party": "R",
@@ -10139,6 +10492,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "teuscher_h44": {
   "name": "Jordan Teuscher",
+  "photo": "https://le.utah.gov/images/legislator/TEUSCHJ.jpg",
   "office": "Utah State Representative",
   "state": "UT District 44 (South Jordan)",
   "party": "R",
@@ -10498,6 +10852,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "chew_h68": {
   "name": "Scott Chew",
+  "photo": "https://le.utah.gov/images/legislator/CHEWSH.jpg",
   "office": "Utah State Representative",
   "state": "UT District 68 (Vernal, Uintah / Duchesne County)",
   "party": "R",
@@ -10591,6 +10946,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "sanders": {
   "name": "Bernie Sanders",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S000033.jpg",
   "office": "U.S. Senator",
   "state": "Vermont",
   "party": "I (D caucus)",
@@ -10662,6 +11018,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jknotts": {
   "name": "John Knotts",
+  "photo": "https://le.utah.gov/images/legislator/KNOTTJ.jpg",
   "office": "UT State Representative",
   "state": "UT District 65 (Park City)",
   "party": "D",
@@ -10679,6 +11036,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "fgibson": {
   "name": "Francis Gibson",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Francis_Gibson_%282021%29_%28cropped%29.jpeg",
   "office": "UT State Representative",
   "state": "UT District 60 (Utah County)",
   "party": "R",
@@ -11171,6 +11529,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "rwinterton": {
   "name": "Ronald Winterton", "office": "UT State Senator", "state": "UT District 20 (Roosevelt, Duchesne County)",
+  "photo": "https://le.utah.gov/images/legislator/WINTERR.jpg",
   "district": "SD 20", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Energy & Resource Development", "Public Lands & Federalism", "Rural Roads & Infrastructure", "Colorado River Water"]
  },
@@ -11181,6 +11540,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "dowens_st": {
   "name": "Derrin Owens", "office": "UT State Senator", "state": "UT District 27 (Fountain Green, Sanpete County)",
+  "photo": "https://le.utah.gov/images/legislator/OWENSD.jpg",
   "district": "SD 27", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Water Rights", "Agriculture & Ranching", "Wildfire Resilience", "Rural Broadband & Infrastructure"]
  },
@@ -11225,6 +11585,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "james_dunnigan": {
   "name": "James Dunnigan", "office": "Utah State Representative",
+  "photo": "https://le.utah.gov/images/legislator/DUNNIGJ.jpg",
   "state": "UT District 36 (Taylorsville, Salt Lake County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Child Online Safety", "Housing Affordability", "Courts & Civil Law", "Prescription Drug Pricing"]
@@ -11305,6 +11666,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // 2003 starts, and there is deliberately no `termEnd` — he is sitting.
  "rob_bishop": {
   "name": "Rob Bishop", "office": "Utah State Representative",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Rob_Bishop_official_portrait.jpg",
   "state": "UT District 6 (Box Elder / Weber County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2026-05",
@@ -11500,6 +11862,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // unverified import figure and is deliberately NOT copied.
  "lescamilla": {
   "name": "Luz Escamilla", "office": "Utah State Senator",
+  "photo": "https://le.utah.gov/images/legislator/ESCAML.jpg",
   "state": "UT District 10 (Northwest Salt Lake City / West Valley City / Magna, Salt Lake County)",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2009-01",
@@ -11964,6 +12327,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // Sitting MS-02, in the House since Apr 13 1993; dean of the Mississippi delegation.
  "bennie_thompson": {
   "name": "Bennie Thompson", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000193.jpg",
   "state": "Mississippi · MS-02",
   "party": "D", "score": 100, "kept": 3, "broken": 0, "pending": 1, "icon": "🏛",
   "termStart": "1993-04",
@@ -12002,6 +12366,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // Sitting AR-04 since Jan 2015; chairs House Natural Resources, which is the office string his one spotlight card uses.
  "bruce_westerman": {
   "name": "Bruce Westerman", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000821.jpg",
   "state": "Arkansas · AR-04",
   "party": "R", "score": 100, "kept": 1, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2015-01",
@@ -12019,6 +12384,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // Sitting NC-01 since Jan 3 2023; on the Nov 3 2026 ballot. NC redrew its map in the 2025–26 mid-decade cycle; NC-01 is the seat he holds now.
  "don_davis": {
   "name": "Don Davis", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000230.jpg",
   "state": "North Carolina · NC-01",
   "party": "D", "score": 100, "kept": 1, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2023-01",
@@ -12036,6 +12402,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // Sitting OK-03 since a May 1994 special election; dean of the Oklahoma delegation.
  "frank_lucas": {
   "name": "Frank Lucas", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000491.jpg",
   "state": "Oklahoma · OK-03",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "1994-05",
@@ -12044,6 +12411,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // Sitting OK-02 since Jan 2023, succeeding Markwayne Mullin. No spotlight card names him.
  "josh_brecheen": {
   "name": "Josh Brecheen", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001317.jpg",
   "state": "Oklahoma · OK-02",
   "party": "R", "score": 100, "kept": 1, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2023-01",
@@ -12068,6 +12436,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // Sitting ND at-large, sworn in Jan 6 2025. Most card-covered of the 20 (9 nested spotlight cards).
  "julie_fedorchak": {
   "name": "Julie Fedorchak", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000482.jpg",
   "state": "North Dakota · ND-AL",
   "party": "R", "score": 100, "kept": 2, "broken": 0, "pending": 2, "icon": "🏛",
   "termStart": "2025-01",
@@ -12106,6 +12475,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // Sitting IA-01 since Jan 2021 (first won by six votes after a recount).
  "mariannette_miller_meeks": {
   "name": "Mariannette Miller-Meeks", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001215.jpg",
   "state": "Iowa · IA-01",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2021-01",
@@ -12114,6 +12484,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // Sitting MS-03 since Jan 3 2019; House Ethics chair.
  "michael_guest": {
   "name": "Michael Guest", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000591.jpg",
   "state": "Mississippi · MS-03",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2019-01",
@@ -12122,6 +12493,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // Sitting GA-10 since Jan 3 2023. He won the 2026 Georgia GOP Senate runoff and is vacating the House seat at the end of this term, but he has NOT resigned — still the sitting member, so no "Former" and no termEnd.
  "mike_collins": {
   "name": "Mike Collins", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001129.jpg",
   "state": "Georgia · GA-10",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2023-01",
@@ -12130,6 +12502,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // Sitting MS-04 since Jan 3 2023; former Jackson County sheriff.
  "mike_ezell": {
   "name": "Mike Ezell", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/E000235.jpg",
   "state": "Mississippi · MS-04",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2023-01",
@@ -12138,6 +12511,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // Sitting NE-01 since a Jun 28 2022 special election, succeeding Jeff Fortenberry.
  "mike_flood": {
   "name": "Mike Flood", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000474.jpg",
   "state": "Nebraska · NE-01",
   "party": "R", "score": 100, "kept": 1, "broken": 0, "pending": 2, "icon": "🏛",
   "termStart": "2022-06",
@@ -12176,6 +12550,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // Sitting ID-02 since Jan 1999; won the May 19 2026 primary with 63.3%.
  "mike_simpson": {
   "name": "Mike Simpson", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001148.jpg",
   "state": "Idaho · ID-02",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 3, "icon": "🏛",
   "termStart": "1999-01",
@@ -12207,6 +12582,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // Sitting AR-01 since Jan 2011; chairs House Intelligence. vr-member-map records him formally as Eric A. "Rick" Crawford; the card and common usage are "Rick Crawford".
  "rick_crawford": {
   "name": "Rick Crawford", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001087.jpg",
   "state": "Arkansas · AR-01",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2011-01",
@@ -12215,6 +12591,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // Sitting PA-08, sworn in Jan 6 2025. Formally Robert P. Bresnahan, Jr. — the formal form would break the harness surname check, see header.
  "rob_bresnahan": {
   "name": "Rob Bresnahan", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001327.jpg",
   "state": "Pennsylvania · PA-08",
   "party": "R", "score": 100, "kept": 1, "broken": 0, "pending": 1, "icon": "🏛",
   "termStart": "2025-01",
@@ -12239,6 +12616,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // Sitting PA-07, sworn in Jan 6 2025. No spotlight card names him.
  "ryan_mackenzie": {
   "name": "Ryan Mackenzie", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001230.jpg",
   "state": "Pennsylvania · PA-07",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2025-01",
@@ -12247,6 +12625,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // Sitting PA-10 since Jan 2013; won the May 19 2026 primary. No spotlight card names him.
  "scott_perry": {
   "name": "Scott Perry", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/P000605.jpg",
   "state": "Pennsylvania · PA-10",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2013-01",
@@ -12255,6 +12634,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // Sitting OK-05 since Jan 2021. vr-member-map records her formally as Stephanie I. Bice.
  "stephanie_bice": {
   "name": "Stephanie Bice", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B000740.jpg",
   "state": "Oklahoma · OK-05",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2021-01",
@@ -12263,6 +12643,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // Sitting AR-03 since Jan 2011. No spotlight card names him.
  "steve_womack": {
   "name": "Steve Womack", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000809.jpg",
   "state": "Arkansas · AR-03",
   "party": "R", "score": 100, "kept": 2, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2011-01",
@@ -12294,6 +12675,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // Sitting MS-01 since a Jun 2 2015 special election.
  "trent_kelly": {
   "name": "Trent Kelly", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000388.jpg",
   "state": "Mississippi · MS-01",
   "party": "R", "score": 100, "kept": 1, "broken": 0, "pending": 1, "icon": "🏛",
   "termStart": "2015-06",
@@ -12318,6 +12700,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // Sitting MT-02, sworn in Jan 6 2025, succeeding Matt Rosendale.
  "troy_downing": {
   "name": "Troy Downing", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000634.jpg",
   "state": "Montana · MT-02",
   "party": "R", "score": 100, "kept": 2, "broken": 0, "pending": 1, "icon": "🏛",
   "termStart": "2025-01",
@@ -12398,6 +12781,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // AK-AL · Bioguide B001323
  "nicholas_begich": {
   "name": "Nicholas J. Begich III", "office": "U.S. Representative",
+  "photo": "https://bioguide.congress.gov/bioguide/photo/B/B001323.jpg",
   "state": "Alaska · AK-AL",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12405,6 +12789,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // AL-01 · Bioguide M001212
  "barry_moore": {
   "name": "Barry Moore", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001212.jpg",
   "state": "Alabama · AL-01",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12412,6 +12797,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // AL-02 · Bioguide F000481
  "shomari_figures": {
   "name": "Shomari Figures", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000481.jpg",
   "state": "Alabama · AL-02",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12419,6 +12805,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // AL-03 · Bioguide R000575
  "mike_rogers_al": {
   "name": "Mike Rogers", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000575.jpg",
   "state": "Alabama · AL-03",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12426,6 +12813,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // AL-04 · Bioguide A000055
  "robert_aderholt": {
   "name": "Robert B. Aderholt", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/A000055.jpg",
   "state": "Alabama · AL-04",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12433,6 +12821,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // AL-05 · Bioguide S001220
  "dale_strong": {
   "name": "Dale W. Strong", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001220.jpg",
   "state": "Alabama · AL-05",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12440,6 +12829,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // AL-06 · Bioguide P000609
  "gary_palmer": {
   "name": "Gary J. Palmer", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/P000609.jpg",
   "state": "Alabama · AL-06",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12447,6 +12837,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // AL-07 · Bioguide S001185
  "terri_sewell": {
   "name": "Terri A. Sewell", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001185.jpg",
   "state": "Alabama · AL-07",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12454,6 +12845,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // AZ-01 · Bioguide S001183
  "david_schweikert": {
   "name": "David Schweikert", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001183.jpg",
   "state": "Arizona · AZ-01",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12461,6 +12853,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // AZ-02 · Bioguide C001132
  "eli_crane": {
   "name": "Elijah Crane", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001132.jpg",
   "state": "Arizona · AZ-02",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12468,6 +12861,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // AZ-03 · Bioguide A000381
  "yassamin_ansari": {
   "name": "Yassamin Ansari", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/A000381.jpg",
   "state": "Arizona · AZ-03",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12475,6 +12869,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // AZ-04 · Bioguide S001211
  "greg_stanton": {
   "name": "Greg Stanton", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001211.jpg",
   "state": "Arizona · AZ-04",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12482,6 +12877,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // AZ-05 · Bioguide B001302
  "andy_biggs": {
   "name": "Andy Biggs", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001302.jpg",
   "state": "Arizona · AZ-05",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12489,6 +12885,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // AZ-06 · Bioguide C001133
  "juan_ciscomani": {
   "name": "Juan Ciscomani", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001133.jpg",
   "state": "Arizona · AZ-06",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12496,6 +12893,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // AZ-07 · Bioguide G000606
  "adelita_grijalva": {
   "name": "Adelita S. Grijalva", "office": "U.S. Representative",
+  "photo": "https://bioguide.congress.gov/bioguide/photo/G/G000606.jpg",
   "state": "Arizona · AZ-07",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12503,6 +12901,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // AZ-08 · Bioguide H001098
  "abraham_hamadeh": {
   "name": "Abraham J. Hamadeh", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001098.jpg",
   "state": "Arizona · AZ-08",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12510,6 +12909,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // AZ-09 · Bioguide G000565
  "paul_gosar": {
   "name": "Paul A. Gosar", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000565.jpg",
   "state": "Arizona · AZ-09",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12517,6 +12917,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-01 · Bioguide G000607
  "james_gallagher": {
   "name": "James Gallagher", "office": "U.S. Representative",
+  "photo": "https://bioguide.congress.gov/bioguide/photo/G/G000607.jpg",
   "state": "California · CA-01",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12524,6 +12925,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-03 · Bioguide K000401
  "kevin_kiley": {
   "name": "Kevin Kiley", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000401.jpg",
   "state": "California · CA-03",
   "party": "I (R caucus)", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12531,6 +12933,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-04 · Bioguide T000460
  "mike_thompson": {
   "name": "Mike Thompson", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000460.jpg",
   "state": "California · CA-04",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12538,6 +12941,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-05 · Bioguide M001177
  "tom_mcclintock": {
   "name": "Tom McClintock", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001177.jpg",
   "state": "California · CA-05",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12545,6 +12949,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-06 · Bioguide B001287
  "ami_bera": {
   "name": "Ami Bera", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001287.jpg",
   "state": "California · CA-06",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12552,6 +12957,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-07 · Bioguide M001163
  "doris_matsui": {
   "name": "Doris O. Matsui", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001163.jpg",
   "state": "California · CA-07",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12559,6 +12965,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-08 · Bioguide G000559
  "john_garamendi": {
   "name": "John Garamendi", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000559.jpg",
   "state": "California · CA-08",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12566,6 +12973,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-09 · Bioguide H001090
  "josh_harder": {
   "name": "Josh Harder", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001090.jpg",
   "state": "California · CA-09",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12573,6 +12981,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-10 · Bioguide D000623
  "mark_desaulnier": {
   "name": "Mark DeSaulnier", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000623.jpg",
   "state": "California · CA-10",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12580,6 +12989,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-11 · Bioguide P000197
  "nancy_pelosi": {
   "name": "Nancy Pelosi", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/P000197.jpg",
   "state": "California · CA-11",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12587,6 +12997,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-12 · Bioguide S001231
  "lateefah_simon": {
   "name": "Lateefah Simon", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001231.jpg",
   "state": "California · CA-12",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12594,6 +13005,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-13 · Bioguide G000605
  "adam_gray": {
   "name": "Adam Gray", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000605.jpg",
   "state": "California · CA-13",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12601,6 +13013,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-15 · Bioguide M001225
  "kevin_mullin": {
   "name": "Kevin Mullin", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001225.jpg",
   "state": "California · CA-15",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12608,6 +13021,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-16 · Bioguide L000607
  "sam_liccardo": {
   "name": "Sam T. Liccardo", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000607.jpg",
   "state": "California · CA-16",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12615,6 +13029,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-19 · Bioguide P000613
  "jimmy_panetta": {
   "name": "Jimmy Panetta", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/P000613.jpg",
   "state": "California · CA-19",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12622,6 +13037,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-20 · Bioguide F000480
  "vince_fong": {
   "name": "Vince Fong", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000480.jpg",
   "state": "California · CA-20",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12629,6 +13045,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-21 · Bioguide C001059
  "jim_costa": {
   "name": "Jim Costa", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001059.jpg",
   "state": "California · CA-21",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12636,6 +13053,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-22 · Bioguide V000129
  "david_valadao": {
   "name": "David G. Valadao", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/V000129.jpg",
   "state": "California · CA-22",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12643,6 +13061,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-23 · Bioguide O000019
  "jay_obernolte": {
   "name": "Jay Obernolte", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/O000019.jpg",
   "state": "California · CA-23",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12650,6 +13069,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-24 · Bioguide C001112
  "salud_carbajal": {
   "name": "Salud O. Carbajal", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001112.jpg",
   "state": "California · CA-24",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12657,6 +13077,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-25 · Bioguide R000599
  "raul_ruiz": {
   "name": "Raul Ruiz", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000599.jpg",
   "state": "California · CA-25",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12664,6 +13085,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-26 · Bioguide B001285
  "julia_brownley": {
   "name": "Julia Brownley", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001285.jpg",
   "state": "California · CA-26",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12671,6 +13093,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-27 · Bioguide W000830
  "george_whitesides": {
   "name": "George Whitesides", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000830.jpg",
   "state": "California · CA-27",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12678,6 +13101,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-28 · Bioguide C001080
  "judy_chu": {
   "name": "Judy Chu", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001080.jpg",
   "state": "California · CA-28",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12685,6 +13109,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-29 · Bioguide R000620
  "luz_rivas": {
   "name": "Luz M. Rivas", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000620.jpg",
   "state": "California · CA-29",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12692,6 +13117,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-30 · Bioguide F000483
  "laura_friedman": {
   "name": "Laura Friedman", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000483.jpg",
   "state": "California · CA-30",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12699,6 +13125,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-31 · Bioguide C001123
  "gilbert_cisneros": {
   "name": "Gilbert Ray Cisneros, Jr.", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001123.jpg",
   "state": "California · CA-31",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12706,6 +13133,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-32 · Bioguide S000344
  "brad_sherman": {
   "name": "Brad Sherman", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S000344.jpg",
   "state": "California · CA-32",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12713,6 +13141,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-34 · Bioguide G000585
  "jimmy_gomez": {
   "name": "Jimmy Gomez", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000585.jpg",
   "state": "California · CA-34",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12720,6 +13149,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-35 · Bioguide T000474
  "norma_torres": {
   "name": "Norma J. Torres", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000474.jpg",
   "state": "California · CA-35",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12727,6 +13157,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-37 · Bioguide K000400
  "sydney_kamlager_dove": {
   "name": "Sydney Kamlager-Dove", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000400.jpg",
   "state": "California · CA-37",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12734,6 +13165,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-38 · Bioguide S001156
  "linda_sanchez": {
   "name": "Linda T. Sánchez", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001156.jpg",
   "state": "California · CA-38",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12741,6 +13173,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-40 · Bioguide K000397
  "young_kim": {
   "name": "Young Kim", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000397.jpg",
   "state": "California · CA-40",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12748,6 +13181,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-41 · Bioguide C000059
  "ken_calvert": {
   "name": "Ken Calvert", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C000059.jpg",
   "state": "California · CA-41",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12755,6 +13189,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-44 · Bioguide B001300
  "nanette_barragan": {
   "name": "Nanette Diaz Barragán", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001300.jpg",
   "state": "California · CA-44",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12762,6 +13197,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-45 · Bioguide T000491
  "derek_tran": {
   "name": "Derek Tran", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000491.jpg",
   "state": "California · CA-45",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12769,6 +13205,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-46 · Bioguide C001110
  "j_correa": {
   "name": "J. Luis Correa", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001110.jpg",
   "state": "California · CA-46",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12776,6 +13213,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-47 · Bioguide M001241
  "dave_min": {
   "name": "Dave Min", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001241.jpg",
   "state": "California · CA-47",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12783,6 +13221,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-48 · Bioguide I000056
  "darrell_issa": {
   "name": "Darrell Issa", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/I000056.jpg",
   "state": "California · CA-48",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12790,6 +13229,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-49 · Bioguide L000593
  "mike_levin": {
   "name": "Mike Levin", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000593.jpg",
   "state": "California · CA-49",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12797,6 +13237,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-50 · Bioguide P000608
  "scott_peters": {
   "name": "Scott H. Peters", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/P000608.jpg",
   "state": "California · CA-50",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12804,6 +13245,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-51 · Bioguide J000305
  "sara_jacobs": {
   "name": "Sara Jacobs", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/J000305.jpg",
   "state": "California · CA-51",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12811,6 +13253,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CA-52 · Bioguide V000130
  "juan_vargas": {
   "name": "Juan Vargas", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/V000130.jpg",
   "state": "California · CA-52",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12818,6 +13261,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CO-03 · Bioguide H001100
  "jeff_hurd": {
   "name": "Jeff Hurd", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001100.jpg",
   "state": "Colorado · CO-03",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12825,6 +13269,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CO-05 · Bioguide C001137
  "jeff_crank": {
   "name": "Jeff Crank", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001137.jpg",
   "state": "Colorado · CO-05",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12832,6 +13277,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CO-06 · Bioguide C001121
  "jason_crow": {
   "name": "Jason Crow", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001121.jpg",
   "state": "Colorado · CO-06",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12839,6 +13285,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CO-07 · Bioguide P000620
  "brittany_pettersen": {
   "name": "Brittany Pettersen", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/P000620.jpg",
   "state": "Colorado · CO-07",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12846,6 +13293,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CO-08 · Bioguide E000300
  "gabe_evans": {
   "name": "Gabe Evans", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/E000300.jpg",
   "state": "Colorado · CO-08",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12853,6 +13301,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CT-01 · Bioguide L000557
  "john_larson": {
   "name": "John B. Larson", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000557.jpg",
   "state": "Connecticut · CT-01",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12860,6 +13309,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CT-02 · Bioguide C001069
  "joe_courtney": {
   "name": "Joe Courtney", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001069.jpg",
   "state": "Connecticut · CT-02",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12867,6 +13317,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // CT-05 · Bioguide H001081
  "jahana_hayes": {
   "name": "Jahana Hayes", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001081.jpg",
   "state": "Connecticut · CT-05",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12874,6 +13325,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // FL-01 · Bioguide P000622
  "jimmy_patronis": {
   "name": "Jimmy Patronis", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/P000622.jpg",
   "state": "Florida · FL-01",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12881,6 +13333,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // FL-02 · Bioguide D000628
  "neal_dunn": {
   "name": "Neal P. Dunn", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000628.jpg",
   "state": "Florida · FL-02",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12888,6 +13341,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // FL-03 · Bioguide C001039
  "kat_cammack": {
   "name": "Kat Cammack", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001039.jpg",
   "state": "Florida · FL-03",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12895,6 +13349,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // FL-04 · Bioguide B001314
  "aaron_bean": {
   "name": "Aaron Bean", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001314.jpg",
   "state": "Florida · FL-04",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12902,6 +13357,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // FL-05 · Bioguide R000609
  "john_rutherford": {
   "name": "John H. Rutherford", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000609.jpg",
   "state": "Florida · FL-05",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12909,6 +13365,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // FL-07 · Bioguide M001216
  "cory_mills": {
   "name": "Cory Mills", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001216.jpg",
   "state": "Florida · FL-07",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12916,6 +13373,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // FL-08 · Bioguide H001099
  "mike_haridopolos": {
   "name": "Mike Haridopolos", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001099.jpg",
   "state": "Florida · FL-08",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12923,6 +13381,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // FL-09 · Bioguide S001200
  "darren_soto": {
   "name": "Darren Soto", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001200.jpg",
   "state": "Florida · FL-09",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12930,6 +13389,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // FL-11 · Bioguide W000806
  "daniel_webster": {
   "name": "Daniel Webster", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000806.jpg",
   "state": "Florida · FL-11",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12937,6 +13397,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // FL-12 · Bioguide B001257
  "gus_bilirakis": {
   "name": "Gus M. Bilirakis", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001257.jpg",
   "state": "Florida · FL-12",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12944,6 +13405,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // FL-14 · Bioguide C001066
  "kathy_castor": {
   "name": "Kathy Castor", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001066.jpg",
   "state": "Florida · FL-14",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12951,6 +13413,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // FL-15 · Bioguide L000597
  "laurel_lee": {
   "name": "Laurel M. Lee", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000597.jpg",
   "state": "Florida · FL-15",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12958,6 +13421,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // FL-16 · Bioguide B001260
  "vern_buchanan": {
   "name": "Vern Buchanan", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001260.jpg",
   "state": "Florida · FL-16",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12965,6 +13429,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // FL-17 · Bioguide S001214
  "w_steube": {
   "name": "W. Gregory Steube", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001214.jpg",
   "state": "Florida · FL-17",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12972,6 +13437,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // FL-18 · Bioguide F000472
  "c_franklin": {
   "name": "Scott Franklin", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000472.jpg",
   "state": "Florida · FL-18",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12979,6 +13445,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // FL-22 · Bioguide F000462
  "lois_frankel": {
   "name": "Lois Frankel", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000462.jpg",
   "state": "Florida · FL-22",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12986,6 +13453,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // FL-23 · Bioguide M001217
  "jared_moskowitz": {
   "name": "Jared Moskowitz", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001217.jpg",
   "state": "Florida · FL-23",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -12993,6 +13461,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // FL-24 · Bioguide W000808
  "frederica_wilson": {
   "name": "Frederica S. Wilson", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000808.jpg",
   "state": "Florida · FL-24",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13000,6 +13469,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // FL-25 · Bioguide W000797
  "debbie_wasserman_schultz": {
   "name": "Debbie Wasserman Schultz", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000797.jpg",
   "state": "Florida · FL-25",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13007,6 +13477,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // FL-26 · Bioguide D000600
  "mario_diaz_balart": {
   "name": "Mario Diaz-Balart", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000600.jpg",
   "state": "Florida · FL-26",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13014,6 +13485,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // FL-27 · Bioguide S000168
  "maria_salazar": {
   "name": "Maria Elvira Salazar", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S000168.jpg",
   "state": "Florida · FL-27",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13021,6 +13493,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // FL-28 · Bioguide G000593
  "carlos_gimenez": {
   "name": "Carlos A. Gimenez", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000593.jpg",
   "state": "Florida · FL-28",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13028,6 +13501,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // GA-01 · Bioguide C001103
  "buddy_carter": {
   "name": "Earl L. \"Buddy\" Carter", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001103.jpg",
   "state": "Georgia · GA-01",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13035,6 +13509,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // GA-02 · Bioguide B000490
  "sanford_bishop": {
   "name": "Sanford D. Bishop, Jr.", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B000490.jpg",
   "state": "Georgia · GA-02",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13042,6 +13517,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // GA-03 · Bioguide J000311
  "brian_jack": {
   "name": "Brian Jack", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/J000311.jpg",
   "state": "Georgia · GA-03",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13049,6 +13525,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // GA-04 · Bioguide J000288
  "hank_johnson": {
   "name": "Henry C. \"Hank\" Johnson, Jr.", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/J000288.jpg",
   "state": "Georgia · GA-04",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13056,6 +13533,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // GA-05 · Bioguide W000788
  "nikema_williams": {
   "name": "Nikema Williams", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000788.jpg",
   "state": "Georgia · GA-05",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13063,6 +13541,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // GA-06 · Bioguide M001208
  "lucy_mcbath": {
   "name": "Lucy McBath", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001208.jpg",
   "state": "Georgia · GA-06",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13070,6 +13549,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // GA-07 · Bioguide M001218
  "rich_mccormick": {
   "name": "Richard McCormick", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001218.jpg",
   "state": "Georgia · GA-07",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13077,6 +13557,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // GA-08 · Bioguide S001189
  "austin_scott": {
   "name": "Austin Scott", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001189.jpg",
   "state": "Georgia · GA-08",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13084,6 +13565,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // GA-09 · Bioguide C001116
  "andrew_clyde": {
   "name": "Andrew S. Clyde", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001116.jpg",
   "state": "Georgia · GA-09",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13091,6 +13573,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // GA-11 · Bioguide L000583
  "barry_loudermilk": {
   "name": "Barry Loudermilk", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000583.jpg",
   "state": "Georgia · GA-11",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13098,6 +13581,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // GA-12 · Bioguide A000372
  "rick_allen": {
   "name": "Rick W. Allen", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/A000372.jpg",
   "state": "Georgia · GA-12",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13105,6 +13589,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // GA-14 · Bioguide F000485
  "clay_fuller": {
   "name": "Clay Fuller", "office": "U.S. Representative",
+  "photo": "https://bioguide.congress.gov/bioguide/photo/F/F000485.jpg",
   "state": "Georgia · GA-14",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13112,6 +13597,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // HI-01 · Bioguide C001055
  "ed_case": {
   "name": "Ed Case", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001055.jpg",
   "state": "Hawaii · HI-01",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13119,6 +13605,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // HI-02 · Bioguide T000487
  "jill_tokuda": {
   "name": "Jill N. Tokuda", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000487.jpg",
   "state": "Hawaii · HI-02",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13126,6 +13613,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IA-02 · Bioguide H001091
  "ashley_hinson": {
   "name": "Ashley Hinson", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001091.jpg",
   "state": "Iowa · IA-02",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13133,6 +13621,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IA-04 · Bioguide F000446
  "randy_feenstra": {
   "name": "Randy Feenstra", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000446.jpg",
   "state": "Iowa · IA-04",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13140,6 +13629,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IL-01 · Bioguide J000309
  "jonathan_jackson": {
   "name": "Jonathan L. Jackson", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/J000309.jpg",
   "state": "Illinois · IL-01",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13147,6 +13637,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IL-02 · Bioguide K000385
  "robin_kelly": {
   "name": "Robin L. Kelly", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000385.jpg",
   "state": "Illinois · IL-02",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13154,6 +13645,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IL-04 · Bioguide G000586
  "chuy_garcia": {
   "name": "Jesús G. \"Chuy\" García", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000586.jpg",
   "state": "Illinois · IL-04",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13161,6 +13653,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IL-05 · Bioguide Q000023
  "mike_quigley": {
   "name": "Mike Quigley", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/Q000023.jpg",
   "state": "Illinois · IL-05",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13168,6 +13661,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IL-06 · Bioguide C001117
  "sean_casten": {
   "name": "Sean Casten", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001117.jpg",
   "state": "Illinois · IL-06",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13175,6 +13669,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IL-07 · Bioguide D000096
  "danny_davis": {
   "name": "Danny K. Davis", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000096.jpg",
   "state": "Illinois · IL-07",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13182,6 +13677,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IL-10 · Bioguide S001190
  "brad_schneider": {
   "name": "Bradley Scott Schneider", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001190.jpg",
   "state": "Illinois · IL-10",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13189,6 +13685,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IL-11 · Bioguide F000454
  "bill_foster": {
   "name": "Bill Foster", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000454.jpg",
   "state": "Illinois · IL-11",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13196,6 +13693,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IL-13 · Bioguide B001315
  "nicole_nikki_budzinski": {
   "name": "Nikki Budzinski", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001315.jpg",
   "state": "Illinois · IL-13",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13203,6 +13701,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IL-14 · Bioguide U000040
  "lauren_underwood": {
   "name": "Lauren Underwood", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/U000040.jpg",
   "state": "Illinois · IL-14",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13210,6 +13709,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IL-15 · Bioguide M001211
  "mary_miller": {
   "name": "Mary E. Miller", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001211.jpg",
   "state": "Illinois · IL-15",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13217,6 +13717,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IL-16 · Bioguide L000585
  "darin_lahood": {
   "name": "Darin LaHood", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000585.jpg",
   "state": "Illinois · IL-16",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13224,6 +13725,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IL-17 · Bioguide S001225
  "eric_sorensen": {
   "name": "Eric Sorensen", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001225.jpg",
   "state": "Illinois · IL-17",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13231,6 +13733,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IN-01 · Bioguide M001214
  "frank_mrvan": {
   "name": "Frank J. Mrvan", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001214.jpg",
   "state": "Indiana · IN-01",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13238,6 +13741,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IN-02 · Bioguide Y000067
  "rudy_yakym": {
   "name": "Rudy Yakym III", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/Y000067.jpg",
   "state": "Indiana · IN-02",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13245,6 +13749,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IN-03 · Bioguide S001188
  "marlin_stutzman": {
   "name": "Marlin A. Stutzman", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001188.jpg",
   "state": "Indiana · IN-03",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13252,6 +13757,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IN-04 · Bioguide B001307
  "james_baird": {
   "name": "James R. Baird", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001307.jpg",
   "state": "Indiana · IN-04",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13259,6 +13765,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IN-05 · Bioguide S000929
  "victoria_spartz": {
   "name": "Victoria Spartz", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S000929.jpg",
   "state": "Indiana · IN-05",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13266,6 +13773,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IN-06 · Bioguide S001229
  "jefferson_shreve": {
   "name": "Jefferson Shreve", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001229.jpg",
   "state": "Indiana · IN-06",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13273,6 +13781,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IN-07 · Bioguide C001072
  "andre_carson": {
   "name": "André Carson", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001072.jpg",
   "state": "Indiana · IN-07",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13280,6 +13789,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IN-08 · Bioguide M001233
  "mark_messmer": {
   "name": "Mark B. Messmer", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001233.jpg",
   "state": "Indiana · IN-08",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13287,6 +13797,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IN-09 · Bioguide H001093
  "erin_houchin": {
   "name": "Erin Houchin", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001093.jpg",
   "state": "Indiana · IN-09",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13294,6 +13805,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // KS-01 · Bioguide M000871
  "tracey_mann": {
   "name": "Tracey Mann", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M000871.jpg",
   "state": "Kansas · KS-01",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13301,6 +13813,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // KS-02 · Bioguide S001228
  "derek_schmidt": {
   "name": "Derek Schmidt", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001228.jpg",
   "state": "Kansas · KS-02",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13308,6 +13821,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // KS-03 · Bioguide D000629
  "sharice_davids": {
   "name": "Sharice Davids", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000629.jpg",
   "state": "Kansas · KS-03",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13315,6 +13829,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // KS-04 · Bioguide E000298
  "ron_estes": {
   "name": "Ron Estes", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/E000298.jpg",
   "state": "Kansas · KS-04",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13322,6 +13837,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // KY-03 · Bioguide M001220
  "morgan_mcgarvey": {
   "name": "Morgan McGarvey", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001220.jpg",
   "state": "Kentucky · KY-03",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13329,6 +13845,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // KY-05 · Bioguide R000395
  "hal_rogers": {
   "name": "Harold Rogers", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000395.jpg",
   "state": "Kentucky · KY-05",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13336,6 +13853,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // KY-06 · Bioguide B001282
  "andy_barr": {
   "name": "Andy Barr", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001282.jpg",
   "state": "Kentucky · KY-06",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13343,6 +13861,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // LA-02 · Bioguide C001125
  "troy_carter": {
   "name": "Troy A. Carter", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001125.jpg",
   "state": "Louisiana · LA-02",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13350,6 +13869,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // LA-03 · Bioguide H001077
  "clay_higgins": {
   "name": "Clay Higgins", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001077.jpg",
   "state": "Louisiana · LA-03",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13357,6 +13877,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // LA-05 · Bioguide L000595
  "julia_letlow": {
   "name": "Julia Letlow", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000595.jpg",
   "state": "Louisiana · LA-05",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13364,6 +13885,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // LA-06 · Bioguide F000110
  "cleo_fields": {
   "name": "Cleo Fields", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000110.jpg",
   "state": "Louisiana · LA-06",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13371,6 +13893,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MA-03 · Bioguide T000482
  "lori_trahan": {
   "name": "Lori Trahan", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000482.jpg",
   "state": "Massachusetts · MA-03",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13378,6 +13901,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MA-08 · Bioguide L000562
  "stephen_lynch": {
   "name": "Stephen F. Lynch", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000562.jpg",
   "state": "Massachusetts · MA-08",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13385,6 +13909,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MA-09 · Bioguide K000375
  "william_keating": {
   "name": "William R. Keating", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000375.jpg",
   "state": "Massachusetts · MA-09",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13392,6 +13917,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MD-02 · Bioguide O000176
  "johnny_olszewski": {
   "name": "Johnny Olszewski, Jr.", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/O000176.jpg",
   "state": "Maryland · MD-02",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13399,6 +13925,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MD-03 · Bioguide E000301
  "sarah_elfreth": {
   "name": "Sarah Elfreth", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/E000301.jpg",
   "state": "Maryland · MD-03",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13406,6 +13933,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MD-04 · Bioguide I000058
  "glenn_ivey": {
   "name": "Glenn Ivey", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/I000058.jpg",
   "state": "Maryland · MD-04",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13413,6 +13941,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MD-06 · Bioguide M001232
  "april_mcclain_delaney": {
   "name": "April McClain Delaney", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001232.jpg",
   "state": "Maryland · MD-06",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13420,6 +13949,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MD-07 · Bioguide M000687
  "kweisi_mfume": {
   "name": "Kweisi Mfume", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M000687.jpg",
   "state": "Maryland · MD-07",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13427,6 +13957,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MI-01 · Bioguide B001301
  "jack_bergman": {
   "name": "Jack Bergman", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001301.jpg",
   "state": "Michigan · MI-01",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13434,6 +13965,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MI-02 · Bioguide M001194
  "john_moolenaar": {
   "name": "John R. Moolenaar", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001194.jpg",
   "state": "Michigan · MI-02",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13441,6 +13973,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MI-03 · Bioguide S001221
  "hillary_scholten": {
   "name": "Hillary J. Scholten", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001221.jpg",
   "state": "Michigan · MI-03",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13448,6 +13981,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MI-04 · Bioguide H001058
  "bill_huizenga": {
   "name": "Bill Huizenga", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001058.jpg",
   "state": "Michigan · MI-04",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13455,6 +13989,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MI-07 · Bioguide B001321
  "tom_barrett": {
   "name": "Tom Barrett", "office": "U.S. Representative",
+  "photo": "https://bioguide.congress.gov/bioguide/photo/B/B001321.jpg",
   "state": "Michigan · MI-07",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13462,6 +13997,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MI-08 · Bioguide M001237
  "kristen_mcdonald_rivet": {
   "name": "Kristen McDonald Rivet", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001237.jpg",
   "state": "Michigan · MI-08",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13469,6 +14005,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MI-10 · Bioguide J000307
  "john_james": {
   "name": "John James", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/J000307.jpg",
   "state": "Michigan · MI-10",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13476,6 +14013,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MI-13 · Bioguide T000488
  "shri_thanedar": {
   "name": "Shri Thanedar", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000488.jpg",
   "state": "Michigan · MI-13",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13483,6 +14021,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MN-01 · Bioguide F000475
  "brad_finstad": {
   "name": "Brad Finstad", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000475.jpg",
   "state": "Minnesota · MN-01",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13490,6 +14029,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MN-03 · Bioguide M001234
  "kelly_morrison": {
   "name": "Kelly Morrison", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001234.jpg",
   "state": "Minnesota · MN-03",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13497,6 +14037,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MN-04 · Bioguide M001143
  "betty_mccollum": {
   "name": "Betty McCollum", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001143.jpg",
   "state": "Minnesota · MN-04",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13504,6 +14045,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MN-07 · Bioguide F000470
  "michelle_fischbach": {
   "name": "Michelle Fischbach", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000470.jpg",
   "state": "Minnesota · MN-07",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13511,6 +14053,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MN-08 · Bioguide S001212
  "pete_stauber": {
   "name": "Pete Stauber", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001212.jpg",
   "state": "Minnesota · MN-08",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13518,6 +14061,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MO-01 · Bioguide B001324
  "wesley_bell": {
   "name": "Wesley Bell", "office": "U.S. Representative",
+  "photo": "https://bioguide.congress.gov/bioguide/photo/B/B001324.jpg",
   "state": "Missouri · MO-01",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13525,6 +14069,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MO-02 · Bioguide W000812
  "ann_wagner": {
   "name": "Ann Wagner", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000812.jpg",
   "state": "Missouri · MO-02",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13532,6 +14077,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MO-03 · Bioguide O000177
  "robert_onder": {
   "name": "Robert F. Onder, Jr.", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/O000177.jpg",
   "state": "Missouri · MO-03",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13539,6 +14085,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MO-04 · Bioguide A000379
  "mark_alford": {
   "name": "Mark Alford", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/A000379.jpg",
   "state": "Missouri · MO-04",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13546,6 +14093,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MO-05 · Bioguide C001061
  "emanuel_cleaver": {
   "name": "Emanuel Cleaver", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001061.jpg",
   "state": "Missouri · MO-05",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13553,6 +14101,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MO-07 · Bioguide B001316
  "eric_burlison": {
   "name": "Eric Burlison", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001316.jpg",
   "state": "Missouri · MO-07",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13560,6 +14109,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MT-01 · Bioguide Z000018
  "ryan_zinke": {
   "name": "Ryan K. Zinke", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/Z000018.jpg",
   "state": "Montana · MT-01",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13567,6 +14117,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NC-02 · Bioguide R000305
  "deborah_ross": {
   "name": "Deborah K. Ross", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000305.jpg",
   "state": "North Carolina · NC-02",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13574,6 +14125,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NC-03 · Bioguide M001210
  "gregory_murphy": {
   "name": "Gregory F. Murphy", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001210.jpg",
   "state": "North Carolina · NC-03",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13581,6 +14133,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NC-04 · Bioguide F000477
  "valerie_foushee": {
   "name": "Valerie P. Foushee", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000477.jpg",
   "state": "North Carolina · NC-04",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13588,6 +14141,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NC-06 · Bioguide M001240
  "addison_mcdowell": {
   "name": "Addison P. McDowell", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001240.jpg",
   "state": "North Carolina · NC-06",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13595,6 +14149,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NC-07 · Bioguide R000603
  "david_rouzer": {
   "name": "David Rouzer", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000603.jpg",
   "state": "North Carolina · NC-07",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13602,6 +14157,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NC-08 · Bioguide H001102
  "mark_harris": {
   "name": "Mark Harris", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001102.jpg",
   "state": "North Carolina · NC-08",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13609,6 +14165,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NC-10 · Bioguide H001101
  "pat_harrigan": {
   "name": "Pat Harrigan", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001101.jpg",
   "state": "North Carolina · NC-10",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13616,6 +14173,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NC-11 · Bioguide E000246
  "charles_chuck_edwards": {
   "name": "Chuck Edwards", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/E000246.jpg",
   "state": "North Carolina · NC-11",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13623,6 +14181,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NC-12 · Bioguide A000370
  "alma_adams": {
   "name": "Alma S. Adams", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/A000370.jpg",
   "state": "North Carolina · NC-12",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13630,6 +14189,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NC-13 · Bioguide K000405
  "brad_knott": {
   "name": "Brad Knott", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000405.jpg",
   "state": "North Carolina · NC-13",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13637,6 +14197,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NC-14 · Bioguide M001236
  "tim_moore": {
   "name": "Tim Moore", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001236.jpg",
   "state": "North Carolina · NC-14",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13644,6 +14205,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NH-01 · Bioguide P000614
  "chris_pappas": {
   "name": "Chris Pappas", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/P000614.jpg",
   "state": "New Hampshire · NH-01",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13651,6 +14213,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NH-02 · Bioguide G000604
  "maggie_goodlander": {
   "name": "Maggie Goodlander", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000604.jpg",
   "state": "New Hampshire · NH-02",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13658,6 +14221,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NJ-01 · Bioguide N000188
  "donald_norcross": {
   "name": "Donald Norcross", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/N000188.jpg",
   "state": "New Jersey · NJ-01",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13665,6 +14229,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NJ-02 · Bioguide V000133
  "jefferson_van_drew": {
   "name": "Jefferson Van Drew", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/V000133.jpg",
   "state": "New Jersey · NJ-02",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13672,6 +14237,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NJ-03 · Bioguide C001136
  "herbert_conaway": {
   "name": "Herbert C. Conaway, Jr.", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001136.jpg",
   "state": "New Jersey · NJ-03",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13679,6 +14245,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NJ-04 · Bioguide S000522
  "chris_smith": {
   "name": "Christopher H. Smith", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S000522.jpg",
   "state": "New Jersey · NJ-04",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13686,6 +14253,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NJ-07 · Bioguide K000398
  "thomas_kean": {
   "name": "Thomas H. Kean, Jr.", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000398.jpg",
   "state": "New Jersey · NJ-07",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13693,6 +14261,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NJ-08 · Bioguide M001226
  "robert_menendez": {
   "name": "Robert Menendez", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001226.jpg",
   "state": "New Jersey · NJ-08",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13700,6 +14269,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NJ-09 · Bioguide P000621
  "nellie_pou": {
   "name": "Nellie Pou", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/P000621.jpg",
   "state": "New Jersey · NJ-09",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13707,6 +14277,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NJ-10 · Bioguide M001229
  "lamonica_mciver": {
   "name": "LaMonica McIver", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001229.jpg",
   "state": "New Jersey · NJ-10",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13714,6 +14285,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NJ-11 · Bioguide M001246
  "analilia_mejia": {
   "name": "Analilia Mejia", "office": "U.S. Representative",
+  "photo": "https://bioguide.congress.gov/bioguide/photo/M/M001246.jpg",
   "state": "New Jersey · NJ-11",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13721,6 +14293,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NJ-12 · Bioguide W000822
  "bonnie_watson_coleman": {
   "name": "Bonnie Watson Coleman", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000822.jpg",
   "state": "New Jersey · NJ-12",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13728,6 +14301,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NV-02 · Bioguide A000369
  "mark_amodei": {
   "name": "Mark E. Amodei", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/A000369.jpg",
   "state": "Nevada · NV-02",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13735,6 +14309,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NV-04 · Bioguide H001066
  "steven_horsford": {
   "name": "Steven Horsford", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001066.jpg",
   "state": "Nevada · NV-04",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13742,6 +14317,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NY-01 · Bioguide L000598
  "nicolas_lalota": {
   "name": "Nick LaLota", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000598.jpg",
   "state": "New York · NY-01",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13749,6 +14325,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NY-04 · Bioguide G000602
  "laura_gillen": {
   "name": "Laura Gillen", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000602.jpg",
   "state": "New York · NY-04",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13756,6 +14333,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NY-06 · Bioguide M001188
  "grace_meng": {
   "name": "Grace Meng", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001188.jpg",
   "state": "New York · NY-06",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13763,6 +14341,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NY-07 · Bioguide V000081
  "nydia_velazquez": {
   "name": "Nydia M. Velázquez", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/V000081.jpg",
   "state": "New York · NY-07",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13770,6 +14349,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NY-11 · Bioguide M000317
  "nicole_malliotakis": {
   "name": "Nicole Malliotakis", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M000317.jpg",
   "state": "New York · NY-11",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13777,6 +14357,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NY-13 · Bioguide E000297
  "adriano_espaillat": {
   "name": "Adriano Espaillat", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/E000297.jpg",
   "state": "New York · NY-13",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13784,6 +14365,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NY-16 · Bioguide L000606
  "george_latimer": {
   "name": "George Latimer", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000606.jpg",
   "state": "New York · NY-16",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13791,6 +14373,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NY-18 · Bioguide R000579
  "patrick_ryan": {
   "name": "Patrick Ryan", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000579.jpg",
   "state": "New York · NY-18",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13798,6 +14381,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NY-19 · Bioguide R000622
  "josh_riley": {
   "name": "Josh Riley", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000622.jpg",
   "state": "New York · NY-19",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13805,6 +14389,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NY-20 · Bioguide T000469
  "paul_tonko": {
   "name": "Paul Tonko", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000469.jpg",
   "state": "New York · NY-20",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13812,6 +14397,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NY-22 · Bioguide M001231
  "john_mannion": {
   "name": "John W. Mannion", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001231.jpg",
   "state": "New York · NY-22",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13819,6 +14405,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NY-23 · Bioguide L000600
  "nicholas_langworthy": {
   "name": "Nicholas A. Langworthy", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000600.jpg",
   "state": "New York · NY-23",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13826,6 +14413,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NY-24 · Bioguide T000478
  "claudia_tenney": {
   "name": "Claudia Tenney", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000478.jpg",
   "state": "New York · NY-24",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13833,6 +14421,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NY-25 · Bioguide M001206
  "joseph_morelle": {
   "name": "Joseph D. Morelle", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001206.jpg",
   "state": "New York · NY-25",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13840,6 +14429,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NY-26 · Bioguide K000402
  "timothy_kennedy": {
   "name": "Timothy M. Kennedy", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000402.jpg",
   "state": "New York · NY-26",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13847,6 +14437,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // OH-02 · Bioguide T000490
  "david_taylor": {
   "name": "David J. Taylor", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000490.jpg",
   "state": "Ohio · OH-02",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13854,6 +14445,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // OH-03 · Bioguide B001281
  "joyce_beatty": {
   "name": "Joyce Beatty", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001281.jpg",
   "state": "Ohio · OH-03",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13861,6 +14453,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // OH-05 · Bioguide L000566
  "robert_latta": {
   "name": "Robert E. Latta", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000566.jpg",
   "state": "Ohio · OH-05",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13868,6 +14461,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // OH-06 · Bioguide R000619
  "michael_rulli": {
   "name": "Michael A. Rulli", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000619.jpg",
   "state": "Ohio · OH-06",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13875,6 +14469,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // OH-07 · Bioguide M001222
  "max_miller": {
   "name": "Max L. Miller", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001222.jpg",
   "state": "Ohio · OH-07",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13882,6 +14477,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // OH-08 · Bioguide D000626
  "warren_davidson": {
   "name": "Warren Davidson", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000626.jpg",
   "state": "Ohio · OH-08",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13889,6 +14485,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // OH-09 · Bioguide K000009
  "marcy_kaptur": {
   "name": "Marcy Kaptur", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000009.jpg",
   "state": "Ohio · OH-09",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13896,6 +14493,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // OH-10 · Bioguide T000463
  "michael_turner": {
   "name": "Michael R. Turner", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000463.jpg",
   "state": "Ohio · OH-10",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13903,6 +14501,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // OH-11 · Bioguide B001313
  "shontel_brown": {
   "name": "Shontel M. Brown", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001313.jpg",
   "state": "Ohio · OH-11",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13910,6 +14509,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // OH-12 · Bioguide B001306
  "troy_balderson": {
   "name": "Troy Balderson", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001306.jpg",
   "state": "Ohio · OH-12",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13917,6 +14517,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // OH-13 · Bioguide S001223
  "emilia_sykes": {
   "name": "Emilia Strong Sykes", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001223.jpg",
   "state": "Ohio · OH-13",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13924,6 +14525,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // OH-14 · Bioguide J000295
  "david_joyce": {
   "name": "David P. Joyce", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/J000295.jpg",
   "state": "Ohio · OH-14",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13931,6 +14533,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // OH-15 · Bioguide C001126
  "mike_carey": {
   "name": "Mike Carey", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001126.jpg",
   "state": "Ohio · OH-15",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13938,6 +14541,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // OR-01 · Bioguide B001278
  "suzanne_bonamici": {
   "name": "Suzanne Bonamici", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001278.jpg",
   "state": "Oregon · OR-01",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13945,6 +14549,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // OR-02 · Bioguide B000668
  "cliff_bentz": {
   "name": "Cliff Bentz", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B000668.jpg",
   "state": "Oregon · OR-02",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13952,6 +14557,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // OR-03 · Bioguide D000635
  "maxine_dexter": {
   "name": "Maxine Dexter", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000635.jpg",
   "state": "Oregon · OR-03",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13959,6 +14565,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // OR-04 · Bioguide H001094
  "valerie_hoyle": {
   "name": "Val T. Hoyle", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001094.jpg",
   "state": "Oregon · OR-04",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13966,6 +14573,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // OR-05 · Bioguide B001326
  "janelle_bynum": {
   "name": "Janelle S. Bynum", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001326.jpg",
   "state": "Oregon · OR-05",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13973,6 +14581,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // OR-06 · Bioguide S001226
  "andrea_salinas": {
   "name": "Andrea Salinas", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001226.jpg",
   "state": "Oregon · OR-06",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13980,6 +14589,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // PA-03 · Bioguide E000296
  "dwight_evans": {
   "name": "Dwight Evans", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/E000296.jpg",
   "state": "Pennsylvania · PA-03",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13987,6 +14597,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // PA-04 · Bioguide D000631
  "madeleine_dean": {
   "name": "Madeleine Dean", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000631.jpg",
   "state": "Pennsylvania · PA-04",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -13994,6 +14605,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // PA-05 · Bioguide S001205
  "mary_scanlon": {
   "name": "Mary Gay Scanlon", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001205.jpg",
   "state": "Pennsylvania · PA-05",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14001,6 +14613,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // PA-06 · Bioguide H001085
  "chrissy_houlahan": {
   "name": "Chrissy Houlahan", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001085.jpg",
   "state": "Pennsylvania · PA-06",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14008,6 +14621,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // PA-09 · Bioguide M001204
  "daniel_meuser": {
   "name": "Daniel Meuser", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001204.jpg",
   "state": "Pennsylvania · PA-09",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14015,6 +14629,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // PA-11 · Bioguide S001199
  "lloyd_smucker": {
   "name": "Lloyd Smucker", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001199.jpg",
   "state": "Pennsylvania · PA-11",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14022,6 +14637,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // PA-13 · Bioguide J000302
  "john_joyce": {
   "name": "John Joyce", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/J000302.jpg",
   "state": "Pennsylvania · PA-13",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14029,6 +14645,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // PA-14 · Bioguide R000610
  "guy_reschenthaler": {
   "name": "Guy Reschenthaler", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000610.jpg",
   "state": "Pennsylvania · PA-14",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14036,6 +14653,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // PA-16 · Bioguide K000376
  "mike_kelly": {
   "name": "Mike Kelly", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000376.jpg",
   "state": "Pennsylvania · PA-16",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14043,6 +14661,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // PA-17 · Bioguide D000530
  "chris_deluzio": {
   "name": "Christopher R. Deluzio", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000530.jpg",
   "state": "Pennsylvania · PA-17",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14050,6 +14669,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // RI-01 · Bioguide A000380
  "gabe_amo": {
   "name": "Gabe Amo", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/A000380.jpg",
   "state": "Rhode Island · RI-01",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14057,6 +14677,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // RI-02 · Bioguide M001223
  "seth_magaziner": {
   "name": "Seth Magaziner", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001223.jpg",
   "state": "Rhode Island · RI-02",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14064,6 +14685,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // SC-02 · Bioguide W000795
  "joe_wilson": {
   "name": "Joe Wilson", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000795.jpg",
   "state": "South Carolina · SC-02",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14071,6 +14693,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // SC-03 · Bioguide B001325
  "sheri_biggs": {
   "name": "Sheri Biggs", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001325.jpg",
   "state": "South Carolina · SC-03",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14078,6 +14701,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // SC-04 · Bioguide T000480
  "william_timmons": {
   "name": "William R. Timmons IV", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000480.jpg",
   "state": "South Carolina · SC-04",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14085,6 +14709,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // SC-05 · Bioguide N000190
  "ralph_norman": {
   "name": "Ralph Norman", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/N000190.jpg",
   "state": "South Carolina · SC-05",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14092,6 +14717,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // SC-07 · Bioguide F000478
  "russell_fry": {
   "name": "Russell Fry", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000478.jpg",
   "state": "South Carolina · SC-07",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14099,6 +14725,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // SD-AL · Bioguide J000301
  "dusty_johnson": {
   "name": "Dusty Johnson", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/J000301.jpg",
   "state": "South Dakota · SD-AL",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14106,6 +14733,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TN-01 · Bioguide H001086
  "diana_harshbarger": {
   "name": "Diana Harshbarger", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001086.jpg",
   "state": "Tennessee · TN-01",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14113,6 +14741,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TN-02 · Bioguide B001309
  "tim_burchett": {
   "name": "Tim Burchett", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001309.jpg",
   "state": "Tennessee · TN-02",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14120,6 +14749,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TN-03 · Bioguide F000459
  "chuck_fleischmann": {
   "name": "Charles J. \"Chuck\" Fleischmann", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000459.jpg",
   "state": "Tennessee · TN-03",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14127,6 +14757,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TN-04 · Bioguide D000616
  "scott_desjarlais": {
   "name": "Scott DesJarlais", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000616.jpg",
   "state": "Tennessee · TN-04",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14134,6 +14765,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TN-05 · Bioguide O000175
  "andrew_ogles": {
   "name": "Andrew Ogles", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/O000175.jpg",
   "state": "Tennessee · TN-05",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14141,6 +14773,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TN-06 · Bioguide R000612
  "john_rose": {
   "name": "John W. Rose", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000612.jpg",
   "state": "Tennessee · TN-06",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14148,6 +14781,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TN-07 · Bioguide V000139
  "matt_van_epps": {
   "name": "Matt Van Epps", "office": "U.S. Representative",
+  "photo": "https://bioguide.congress.gov/bioguide/photo/V/V000139.jpg",
   "state": "Tennessee · TN-07",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14155,6 +14789,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TN-08 · Bioguide K000392
  "david_kustoff": {
   "name": "David Kustoff", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000392.jpg",
   "state": "Tennessee · TN-08",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14162,6 +14797,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TN-09 · Bioguide C001068
  "steve_cohen": {
   "name": "Steve Cohen", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001068.jpg",
   "state": "Tennessee · TN-09",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14169,6 +14805,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-01 · Bioguide M001224
  "nathaniel_moran": {
   "name": "Nathaniel Moran", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001224.jpg",
   "state": "Texas · TX-01",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14176,6 +14813,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-03 · Bioguide S001224
  "keith_self": {
   "name": "Keith Self", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001224.jpg",
   "state": "Texas · TX-03",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14183,6 +14821,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-04 · Bioguide F000246
  "pat_fallon": {
   "name": "Pat Fallon", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000246.jpg",
   "state": "Texas · TX-04",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14190,6 +14829,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-05 · Bioguide G000589
  "lance_gooden": {
   "name": "Lance Gooden", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000589.jpg",
   "state": "Texas · TX-05",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14197,6 +14837,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-06 · Bioguide E000071
  "jake_ellzey": {
   "name": "Jake Ellzey", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/E000071.jpg",
   "state": "Texas · TX-06",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14204,6 +14845,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-07 · Bioguide F000468
  "lizzie_fletcher": {
   "name": "Lizzie Fletcher", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000468.jpg",
   "state": "Texas · TX-07",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14211,6 +14853,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-08 · Bioguide L000603
  "morgan_luttrell": {
   "name": "Morgan Luttrell", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000603.jpg",
   "state": "Texas · TX-08",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14218,6 +14861,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-09 · Bioguide G000553
  "al_green": {
   "name": "Al Green", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000553.jpg",
   "state": "Texas · TX-09",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14225,6 +14869,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-10 · Bioguide M001157
  "michael_mccaul": {
   "name": "Michael T. McCaul", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001157.jpg",
   "state": "Texas · TX-10",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14232,6 +14877,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-12 · Bioguide G000601
  "craig_goldman": {
   "name": "Craig A. Goldman", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000601.jpg",
   "state": "Texas · TX-12",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14239,6 +14885,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-13 · Bioguide J000304
  "ronny_jackson": {
   "name": "Ronny Jackson", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/J000304.jpg",
   "state": "Texas · TX-13",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14246,6 +14893,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-14 · Bioguide W000814
  "randy_weber": {
   "name": "Randy K. Weber, Sr.", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000814.jpg",
   "state": "Texas · TX-14",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14253,6 +14901,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-15 · Bioguide D000594
  "monica_de_la_cruz": {
   "name": "Monica De La Cruz", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000594.jpg",
   "state": "Texas · TX-15",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14260,6 +14909,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-16 · Bioguide E000299
  "veronica_escobar": {
   "name": "Veronica Escobar", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/E000299.jpg",
   "state": "Texas · TX-16",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14267,6 +14917,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-17 · Bioguide S000250
  "pete_sessions": {
   "name": "Pete Sessions", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S000250.jpg",
   "state": "Texas · TX-17",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14274,6 +14925,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-18 · Bioguide M001245
  "christian_menefee": {
   "name": "Christian D. Menefee", "office": "U.S. Representative",
+  "photo": "https://bioguide.congress.gov/bioguide/photo/M/M001245.jpg",
   "state": "Texas · TX-18",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14281,6 +14933,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-20 · Bioguide C001091
  "joaquin_castro": {
   "name": "Joaquin Castro", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001091.jpg",
   "state": "Texas · TX-20",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14288,6 +14941,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-22 · Bioguide N000026
  "troy_nehls": {
   "name": "Troy E. Nehls", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/N000026.jpg",
   "state": "Texas · TX-22",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14295,6 +14949,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-24 · Bioguide V000134
  "beth_van_duyne": {
   "name": "Beth Van Duyne", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/V000134.jpg",
   "state": "Texas · TX-24",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14302,6 +14957,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-26 · Bioguide G000603
  "brandon_gill": {
   "name": "Brandon Gill", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000603.jpg",
   "state": "Texas · TX-26",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14309,6 +14965,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-27 · Bioguide C001115
  "michael_cloud": {
   "name": "Michael Cloud", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001115.jpg",
   "state": "Texas · TX-27",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14316,6 +14973,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-28 · Bioguide C001063
  "henry_cuellar": {
   "name": "Henry Cuellar", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001063.jpg",
   "state": "Texas · TX-28",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14323,6 +14981,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-29 · Bioguide G000587
  "sylvia_garcia": {
   "name": "Sylvia R. Garcia", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000587.jpg",
   "state": "Texas · TX-29",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14330,6 +14989,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-31 · Bioguide C001051
  "john_carter": {
   "name": "John R. Carter", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001051.jpg",
   "state": "Texas · TX-31",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14337,6 +14997,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-32 · Bioguide J000310
  "julie_johnson": {
   "name": "Julie Johnson", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/J000310.jpg",
   "state": "Texas · TX-32",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14344,6 +15005,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-33 · Bioguide V000131
  "marc_veasey": {
   "name": "Marc A. Veasey", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/V000131.jpg",
   "state": "Texas · TX-33",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14351,6 +15013,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-34 · Bioguide G000581
  "vicente_gonzalez": {
   "name": "Vicente Gonzalez", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000581.jpg",
   "state": "Texas · TX-34",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14358,6 +15021,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-37 · Bioguide D000399
  "lloyd_doggett": {
   "name": "Lloyd Doggett", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/D000399.jpg",
   "state": "Texas · TX-37",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14365,6 +15029,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // TX-38 · Bioguide H001095
  "wesley_hunt": {
   "name": "Wesley Hunt", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001095.jpg",
   "state": "Texas · TX-38",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14372,6 +15037,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // VA-01 · Bioguide W000804
  "robert_wittman": {
   "name": "Robert J. Wittman", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000804.jpg",
   "state": "Virginia · VA-01",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14379,6 +15045,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // VA-02 · Bioguide K000399
  "jennifer_kiggans": {
   "name": "Jennifer A. Kiggans", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/K000399.jpg",
   "state": "Virginia · VA-02",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14386,6 +15053,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // VA-04 · Bioguide M001227
  "jennifer_mcclellan": {
   "name": "Jennifer L. McClellan", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001227.jpg",
   "state": "Virginia · VA-04",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14393,6 +15061,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // VA-05 · Bioguide M001239
  "john_mcguire": {
   "name": "John J. McGuire III", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001239.jpg",
   "state": "Virginia · VA-05",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14400,6 +15069,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // VA-06 · Bioguide C001118
  "ben_cline": {
   "name": "Ben Cline", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/C001118.jpg",
   "state": "Virginia · VA-06",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14407,6 +15077,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // VA-07 · Bioguide V000138
  "eugene_vindman": {
   "name": "Eugene Simon Vindman", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/V000138.jpg",
   "state": "Virginia · VA-07",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14414,6 +15085,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // VA-08 · Bioguide B001292
  "donald_beyer": {
   "name": "Donald S. Beyer, Jr.", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001292.jpg",
   "state": "Virginia · VA-08",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14421,6 +15093,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // VA-09 · Bioguide G000568
  "h_griffith": {
   "name": "H. Morgan Griffith", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000568.jpg",
   "state": "Virginia · VA-09",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14428,6 +15101,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // VA-10 · Bioguide S001230
  "suhas_subramanyam": {
   "name": "Suhas Subramanyam", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001230.jpg",
   "state": "Virginia · VA-10",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14435,6 +15109,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // VA-11 · Bioguide W000831
  "james_walkinshaw": {
   "name": "James R. Walkinshaw", "office": "U.S. Representative",
+  "photo": "https://bioguide.congress.gov/bioguide/photo/W/W000831.jpg",
   "state": "Virginia · VA-11",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14442,6 +15117,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // VT-AL · Bioguide B001318
  "becca_balint": {
   "name": "Becca Balint", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001318.jpg",
   "state": "Vermont · VT-AL",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14449,6 +15125,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // WA-04 · Bioguide N000189
  "dan_newhouse": {
   "name": "Dan Newhouse", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/N000189.jpg",
   "state": "Washington · WA-04",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14456,6 +15133,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // WA-05 · Bioguide B001322
  "michael_baumgartner": {
   "name": "Michael Baumgartner", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/B001322.jpg",
   "state": "Washington · WA-05",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14463,6 +15141,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // WA-06 · Bioguide R000621
  "emily_randall": {
   "name": "Emily Randall", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/R000621.jpg",
   "state": "Washington · WA-06",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14470,6 +15149,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // WA-08 · Bioguide S001216
  "kim_schrier": {
   "name": "Kim Schrier", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001216.jpg",
   "state": "Washington · WA-08",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14477,6 +15157,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // WA-10 · Bioguide S001159
  "marilyn_strickland": {
   "name": "Marilyn Strickland", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001159.jpg",
   "state": "Washington · WA-10",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14484,6 +15165,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // WI-02 · Bioguide P000607
  "mark_pocan": {
   "name": "Mark Pocan", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/P000607.jpg",
   "state": "Wisconsin · WI-02",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14491,6 +15173,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // WI-03 · Bioguide V000135
  "derrick_van_orden": {
   "name": "Derrick Van Orden", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/V000135.jpg",
   "state": "Wisconsin · WI-03",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14498,6 +15181,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // WI-04 · Bioguide M001160
  "gwen_moore": {
   "name": "Gwen Moore", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001160.jpg",
   "state": "Wisconsin · WI-04",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14505,6 +15189,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // WI-05 · Bioguide F000471
  "scott_fitzgerald": {
   "name": "Scott Fitzgerald", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000471.jpg",
   "state": "Wisconsin · WI-05",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14512,6 +15197,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // WI-06 · Bioguide G000576
  "glenn_grothman": {
   "name": "Glenn Grothman", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/G000576.jpg",
   "state": "Wisconsin · WI-06",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14519,6 +15205,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // WI-07 · Bioguide T000165
  "thomas_tiffany": {
   "name": "Thomas P. Tiffany", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000165.jpg",
   "state": "Wisconsin · WI-07",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14526,6 +15213,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // WI-08 · Bioguide W000829
  "tony_wied": {
   "name": "Tony Wied", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/W000829.jpg",
   "state": "Wisconsin · WI-08",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14533,6 +15221,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // WV-01 · Bioguide M001205
  "carol_miller": {
   "name": "Carol D. Miller", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001205.jpg",
   "state": "West Virginia · WV-01",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14540,6 +15229,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // WV-02 · Bioguide M001235
  "riley_moore": {
   "name": "Riley M. Moore", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/M001235.jpg",
   "state": "West Virginia · WV-02",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14547,6 +15237,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // WY-AL · Bioguide H001096
  "harriet_hageman": {
   "name": "Harriet M. Hageman", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001096.jpg",
   "state": "Wyoming · WY-AL",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14611,6 +15302,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // IA-03 · Bioguide N000193
  "zach_nunn": {
   "name": "Zach Nunn", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/N000193.jpg",
   "state": "Iowa · IA-03",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14618,6 +15310,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // ID-01 · Bioguide F000469
  "russ_fulcher": {
   "name": "Russ Fulcher", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/F000469.jpg",
   "state": "Idaho · ID-01",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14625,6 +15318,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MI-11 · Bioguide S001215
  "haley_stevens": {
   "name": "Haley Stevens", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001215.jpg",
   "state": "Michigan · MI-11",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14632,6 +15326,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NE-03 · Bioguide S001172
  "adrian_smith": {
   "name": "Adrian Smith", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001172.jpg",
   "state": "Nebraska · NE-03",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14639,6 +15334,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NM-01 · Bioguide S001218
  "melanie_stansbury": {
   "name": "Melanie Stansbury", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/S001218.jpg",
   "state": "New Mexico · NM-01",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14646,6 +15342,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NM-02 · Bioguide V000136
  "gabe_vasquez": {
   "name": "Gabe Vasquez", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/V000136.jpg",
   "state": "New Mexico · NM-02",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14653,6 +15350,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NM-03 · Bioguide L000273
  "teresa_leger_fernandez": {
   "name": "Teresa Leger Fernández", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000273.jpg",
   "state": "New Mexico · NM-03",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14660,6 +15358,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NV-01 · Bioguide T000468
  "dina_titus": {
   "name": "Dina Titus", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/T000468.jpg",
   "state": "Nevada · NV-01",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14667,6 +15366,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NV-03 · Bioguide L000590
  "susie_lee": {
   "name": "Susie Lee", "office": "U.S. Representative",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/L000590.jpg",
   "state": "Nevada · NV-03",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14675,6 +15375,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // MS · U.S. Senate Class II · Bioguide H001079
  "hyde_smith": {
   "name": "Cindy Hyde-Smith", "office": "U.S. Senator",
+  "photo": "https://raw.githubusercontent.com/unitedstates/images/gh-pages/congress/450x550/H001079.jpg",
   "state": "Mississippi",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14682,6 +15383,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // OH · U.S. Senate Class III · Bioguide H001104
  "jon_husted": {
   "name": "Jon Husted", "office": "U.S. Senator",
+  "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Sen._Jon_Husted_official_portrait%2C_119th_Congress.jpg/500px-Sen._Jon_Husted_official_portrait%2C_119th_Congress.jpg",
   "state": "Ohio",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []
@@ -14689,6 +15391,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // OK · U.S. Senate Class II · Bioguide A000383
  "alan_armstrong": {
   "name": "Alan Armstrong", "office": "U.S. Senator",
+  "photo": "https://commons.wikimedia.org/wiki/Special:FilePath/Alan_S_Armstrong_official_portrait.jpg?width=500",
   "state": "Oklahoma",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": []

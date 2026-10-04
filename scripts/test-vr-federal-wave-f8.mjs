@@ -50,6 +50,9 @@
 // db/vr-member-map.json is written by that generator; its bytes are snapshotted and restored,
 // and the clean run is required to reproduce them exactly.
 // ─────────────────────────────────────────────────────────────────────────────
+// The bundled portraits now live on roster rows (v294); portraitSource() renders
+// them, and what the map still holds, in the literal shape read below.
+import { portraitSource } from "./portrait-table.mjs";
 import { readFileSync, existsSync, readdirSync, writeFileSync, unlinkSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
@@ -117,7 +120,7 @@ const gen = R(GEN);
 // load. `hub` is read here ONLY for that map, so both files are joined and whichever
 // one declares it answers — this wave's claim is that its three admitted members have
 // a portrait on an allowlisted host, not which file the URL is filed in.
-const hub = ["browse-photos.js", "compare-hub.js"].map((f) => { try { return R(f); } catch { return ""; } }).join("\n");
+const hub = [portraitSource()].concat(["browse-photos.js", "compare-hub.js"].map((f) => { try { return R(f); } catch { return ""; } })).join("\n");
 const toml = R("netlify.toml");
 // netlify.toml stores each allowed image host as an escaped regex, so the literal host
 // string is never in the file. Unescape once, here, rather than at every comparison.
@@ -281,7 +284,8 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
   for (const s of SLUGS) {
     const rec = cmpRoster[s];
     if (!ok(!!rec, `${s} has no CMP_DATA row — federal roster wave R2 admitted one and gen-crawl-record needs it`)) continue;
-    eq(Object.keys(rec).sort().join(","), IDENTITY_KEYS,
+    // `photo` is the portrait this wave admitted, on the row since v294.
+    eq(Object.keys(rec).filter((k) => k !== "photo").sort().join(","), IDENTITY_KEYS,
       `${s}'s CMP_DATA row is not identity only — this wave admits a roster slug and a portrait, not a score, an issue list or a biography`);
     eq(rec.score, null, `${s} carries a score — F8 attributed votes to this senator, it did not judge them`);
     for (const k of ["kept", "broken", "pending"]) eq(rec[k], 0, `${s}'s ${k} counter is not 0`);

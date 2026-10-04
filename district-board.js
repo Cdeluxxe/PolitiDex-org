@@ -161,6 +161,10 @@
      band 1  window.CMP_DATA[PID]        the roster row. Name, office, district
                                          line. Nothing else — no bio, no score,
                                          no party, no issue chips.
+             window.pdxPortrait(PID)     the roster field `photo` — the one
+                                         portrait the person file and the record
+                                         card read too; the row's `icon` when
+                                         there is none.
      band 2  /api/district-board         four counts and a per-issue tally.
      band 3  PDXVotingRecord.fetchMember the archive read every other surface
                                          already uses, `?pageSize=100`, the
@@ -641,8 +645,41 @@
     return String(v) + (v === 1 ? ' person' : ' people');
   }
 
+  // ── THE FACE IS THE ROSTER FIELD ──────────────────────────────────────────
+  // A person has one portrait: `photo` on their roster record, read through
+  // window.pdxPortrait (roster-portrait.js) — the live PROFILES record first,
+  // then the bundled cmp-data.js row — which is also what the person file's
+  // letterhead and the homepage record card read. This module holds no photo
+  // table, no resolver of its own and no address; a board document without
+  // roster-portrait.js paints the mark, never a guess.
+  //
+  // NO PORTRAIT IS NOT AN EMPTY FRAME. A pid with no face gets the roster row's
+  // own mark, the `icon` profiles-full.js paints in .ph-fallback for the same
+  // miss — 🏛 on every legislative row. A seat with no member gets neither: see
+  // seatHtml(), whose nobody branch has no face slot to leave empty. A portrait
+  // that fails to load is swapped for that same mark and remembered, so a
+  // repaint does not ask a dead address again.
+  var _deadFaces = {};
+  // The face's box in CSS pixels, on the <img> itself so the band is laid out
+  // before district-board.css arrives. A size, not a figure.
+  var FACE_PX = 56;
+  function faceUrl(pid) {
+    if (!pid) return '';
+    var u = '';
+    try { u = fn(window.pdxPortrait) ? window.pdxPortrait(pid) : ''; } catch (e) { u = ''; }
+    u = u ? String(u).trim() : '';
+    return (u && !_deadFaces[u]) ? u : '';
+  }
+  function faceMark(row) {
+    var m = row && row.icon ? String(row.icon).trim() : '';
+    return m || '\uD83C\uDFDB';
+  }
+
   // ── BAND 1 · THE SEAT ─────────────────────────────────────────────────────
-  // Three facts off the roster row and a link. NOT read: party, score, kept,
+  // Three facts off the roster row, the person file's own face, and a link. The
+  // face is beside the name, never in front of it: the name is in the same
+  // markup as the <img>, and the image's bytes arrive whenever they arrive. NOT
+  // read: party, score, kept,
   // broken, pending, icon, issues — a district page that printed a member's
   // scorecard would be a person page with a place's title.
   //
@@ -693,14 +730,29 @@
       var name = String(row.name || '').trim();
       var office = String(row.office || '').trim();
       var where = String(row.state || '').trim();
+      var face = faceUrl(pid);
+      var mark = faceMark(row);
+      // The face is the same link as the name, taken out of the tab order and
+      // hidden from a screen reader: one record, one stop, and the name is it.
       body =
-        '<p class="pdxdb-seat-name">' +
-          '<a class="pdxdb-seat-link" href="/p/' + esc(pid) + '"' +
-          ' title="The full record for the member who sits in this seat">' +
-          esc(name || pid) + '</a>' +
-        '</p>' +
-        (office ? '<p class="pdxdb-seat-office">' + esc(office) + '</p>' : '') +
-        (where ? '<p class="pdxdb-seat-where">' + esc(where) + '</p>' : '');
+        '<div class="pdxdb-seat-id">' +
+          '<a class="pdxdb-seat-face" href="/p/' + esc(pid) + '" tabindex="-1" aria-hidden="true"' +
+          ' data-pdxdb-face="' + (face ? 'photo' : 'mark') + '">' +
+            (face
+              ? '<img class="pdxdb-seat-photo" src="' + esc(face) + '" alt="" width="' + FACE_PX + '" height="' + FACE_PX + '"' +
+                ' decoding="async" data-pdxdb-mark="' + esc(mark) + '">'
+              : '<span class="pdxdb-seat-mark">' + esc(mark) + '</span>') +
+          '</a>' +
+          '<div class="pdxdb-seat-text">' +
+            '<p class="pdxdb-seat-name">' +
+              '<a class="pdxdb-seat-link" href="/p/' + esc(pid) + '"' +
+              ' title="The full record for the member who sits in this seat">' +
+              esc(name || pid) + '</a>' +
+            '</p>' +
+            (office ? '<p class="pdxdb-seat-office">' + esc(office) + '</p>' : '') +
+            (where ? '<p class="pdxdb-seat-where">' + esc(where) + '</p>' : '') +
+          '</div>' +
+        '</div>';
     }
     return band('seat', COPY.seatBand, COPY.seatNote, body, '');
   }
@@ -1046,6 +1098,23 @@
   function wireTable(el) {
     if (!el || _wired === el || !fn(el.addEventListener)) return;
     _wired = el;
+    // A PORTRAIT THAT WILL NOT LOAD BECOMES THE MARK, the way the person file's
+    // onerror does it. `error` does not bubble, so this listens in the capture
+    // phase; the address is remembered so the next repaint paints the mark
+    // straight away instead of asking a dead host again.
+    el.addEventListener('error', function (ev) {
+      var t = ev && ev.target;
+      if (!t || !t.classList || !t.classList.contains('pdxdb-seat-photo')) return;
+      try {
+        _deadFaces[String(t.getAttribute('src') || '')] = 1;
+        var s = document.createElement('span');
+        s.className = 'pdxdb-seat-mark';
+        s.textContent = t.getAttribute('data-pdxdb-mark') || '\uD83C\uDFDB';
+        var a = t.parentNode;
+        if (a && a.setAttribute) a.setAttribute('data-pdxdb-face', 'mark');
+        if (a && fn(a.replaceChild)) a.replaceChild(s, t);
+      } catch (e) {}
+    }, true);
     el.addEventListener('click', function (ev) {
       var t = ev && ev.target;
       var chip = t && fn(t.closest) ? t.closest('[data-pdxdb-cat]') : null;
@@ -1717,6 +1786,7 @@
     refresh: refresh,
     _whole: whole,
     _people: people,
+    _faceUrl: faceUrl,
     _measureHref: measureHref,
     _rowIssues: rowIssues,
     _tableGroups: tableGroups,

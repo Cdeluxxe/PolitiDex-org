@@ -69,6 +69,9 @@
 //
 // Read-only. No database, no network.
 // ─────────────────────────────────────────────────────────────────────────────
+// The bundled portraits now live on roster rows (v294); portraitSource() renders
+// them, and what the map still holds, in the literal shape read below.
+import { portraitSource } from "./portrait-table.mjs";
 import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
@@ -638,7 +641,7 @@ const roster = J("db/vr-roster-admitted.json");
   // paint the same faces without loading the hub. Read whichever file declares it —
   // the claim under test is that each of the eight has a bundled portrait, not which
   // file the literal sits in.
-  const src = ["browse-photos.js", "compare-hub.js"].map((f) => { try { return R(f); } catch { return ""; } })
+  const src = [portraitSource()].concat(["browse-photos.js", "compare-hub.js"].map((f) => { try { return R(f); } catch { return ""; } }))
     .find((t) => t.indexOf("var BROWSE_PHOTOS = {") !== -1) || "";
   const open = src.indexOf("var BROWSE_PHOTOS = {");
   const map = open === -1 ? "" : src.slice(open, src.indexOf("\n    };", open));

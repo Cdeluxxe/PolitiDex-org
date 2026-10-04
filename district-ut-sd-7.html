@@ -455,8 +455,12 @@
   }, 5000);
 </script>
 <script src="/firebase-boot.js" defer></script>
-  <!-- Band 1's only source. Read for three fields on one row and nothing else. -->
+  <!-- Band 1's roster row. Read for three fields and its mark, nothing else. -->
   <script defer src="/cmp-data.js"></script>
+  <!-- Band 1's face: the roster field `photo`, read through the one reader the
+       person file and the record card share. No photo table on this page; the
+       name never waits on an image, and no portrait paints the row's mark. -->
+  <script defer src="/roster-portrait.js"></script>
   <!-- The issue vocabulary, for band 3's labels and the reader's own sides. -->
   <script defer src="/issue-map.js"></script>
   <!-- The per-issue colour token, so band 3's issue chips carry the same

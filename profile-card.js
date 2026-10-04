@@ -684,7 +684,15 @@
   // a full-resolution portrait through a phone connection to draw it at 116px.
   var AVATAR_PX = 232;
 
+  // The roster field first (roster-portrait.js, the one portrait the person file
+  // paints), then _getPhotoUrl for an id with no roster row.
   function photoUrl(pid) {
+    try {
+      if (typeof window.pdxPortrait === 'function') {
+        var own = String(window.pdxPortrait(pid) || '');
+        if (own) return own;
+      }
+    } catch (e) {}
     try {
       if (typeof window._getPhotoUrl === 'function') return String(window._getPhotoUrl(pid) || '');
     } catch (e) {}

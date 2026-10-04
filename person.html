@@ -2606,6 +2606,11 @@ window.PDXLazy = (function () {
        join that names a UT-N member lives in voter-hub-location.js, which this
        document cannot carry, so the control asks the curated table instead (see
        memberOf() in district-board.js). It prints nothing and opens no room. -->
+  <!-- THE ONE PORTRAIT: window.pdxPortrait reads the roster field `photo`
+       (live PROFILES, then the bundled cmp-data.js row). The letterhead and
+       the share card read it, as district-board band 1 and the homepage record
+       card do. No photo table on this document. -->
+  <script defer src="/roster-portrait.js"></script>
   <script defer src="/seated-member.js"></script>
   <script defer src="/district-board.js"></script>
   <script defer src="/person-file.js"></script>

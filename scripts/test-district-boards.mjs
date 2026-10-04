@@ -1001,8 +1001,18 @@ function sd6Band1Faults(modSrc) {
     // The top bar's pills later carried a full and a one-word label (shell
     // pass v291). Folded back to the full label; every other byte stays pinned.
     const BAR_LABEL = /<span class="pdx-sh-full">([^<]*)<\/span><span class="pdx-sh-short">[^<]*<\/span>/g;
+    // Every board later took band 1's face: the person file's portrait map and
+    // alias table, one note above them, and the roster tag's note reworded
+    // (scripts/test-district-board-face.mjs pins them). Stripped here too.
+    // (Re-pointed in the one-portrait pass: the block is now one tag, the roster
+    // field's reader roster-portrait.js, in place of the map and the alias table.)
+    // Both forms are stripped, so a tree on either side of that pass compares.
+    const FACE_TAGS = /  <!-- Band 1's face: [\s\S]*?(?:<script defer src="\/roster-portrait\.js"><\/script>\n|<script defer src="\/browse-photos\.js"><\/script>\n  <script defer src="\/profile-alias\.js"><\/script>\n)/;
+    const ROSTER_NOTE = /  <!-- Band 1's roster row\. Read for three fields and its mark, nothing else\. -->\n/;
+    const ROSTER_WAS = "  <!-- Band 1's only source. Read for three fields on one row and nothing else. -->\n";
     const strip = (t) => COMPOSER_BLOCKS.reduce((x, re) => x.replace(re, ""),
-      t.replace(RET_TAG, "").replace(STUDIO_DOOR, '<a href="/my-stances">').replace(BAR_LABEL, "$1"));
+      t.replace(RET_TAG, "").replace(FACE_TAGS, "").replace(ROSTER_NOTE, ROSTER_WAS)
+        .replace(STUDIO_DOOR, '<a href="/my-stances">').replace(BAR_LABEL, "$1"));
     ok(strip(h) === strip(R(b.doc)), `neighbours: ${b.doc} changed in this pass and should not have`);
   }
 }
