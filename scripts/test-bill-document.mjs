@@ -200,7 +200,7 @@ for (const p of [UNKNOWN_NUM, UNKNOWN_SIT]) {
   has(s, "No measure on file at this address", `${p}: the empty says so plainly`);
   no(s, "data-pdx-bill-held", `${p}: the empty claims no held bill`);
   ok(!/H\.R\. 999999|H\.J\.Res\. 131|119th Congress/.test(s), `${p}: the empty prints a bill anyway`);
-  no(s, "pdx-bill-effects", `${p}: the empty carries effect lines`);
+  no(s, "pdx-bill-issues", `${p}: the empty carries effect lines`);
   has(r.html, `<meta name="robots" content="noindex" />`, `${p}: the empty is not indexable`);
   has(r.html, `<link rel="canonical" href="${ORIGIN}/"`, `${p}: the empty canonicalises to nothing of its own`);
   ok(fetched.length === 1 && /measure-ref/.test(fetched[0]), `${p}: the archive was asked before the empty was written`);
@@ -220,7 +220,7 @@ for (const p of [UNKNOWN_NUM, UNKNOWN_SIT]) {
   eq(r.status, 200, "a live-held measure answers 200");
   has(s, `<h1 class="pdx-bill-num">H.R. 999999</h1>`, "a live-held measure is named from the archive's answer");
   has(s, `data-pdx-bill-held="live"`, "…and marked as live-held");
-  no(s, "pdx-bill-effects", "…with no effect line the snapshot does not store");
+  no(s, "pdx-bill-issues", "…with no effect line the snapshot does not store");
 }
 globalThis.fetch = realFetch;
 // An unknown ?bill= on the front page is not a dead end: the front page passes through.
@@ -259,7 +259,7 @@ for (const g of ["gen-bill-docs.mjs", "gen-sitemap.mjs"]) {
   must(methodSrc, "consistency.js still carries _DOS_EFFECT_METHOD");
   const drawer = vm.runInNewContext(`var _DOS_EFFECT_METHOD = ${methodSrc}; ${fnSrc}; _dosEffectOk`);
   const { effectOk } = await import(join(ROOT, "scripts/gen-bill-docs.mjs"));
-  for (const d of Object.values(DOCS)) for (const e of d.e || []) eq(drawer(e.l), e.l, `${d.n}: a stored line the drawer would not print`);
+  for (const d of Object.values(DOCS)) for (const e of d.m || []) if (e.l) eq(drawer(e.l), e.l, `${d.n}: a stored line the drawer would not print`);
   for (const s of ["", "Too long. " + "x".repeat(150) + ".", "Two sentences. Here.", "The chip was coded against it.", "No stop"])
     eq(effectOk(s), drawer(s), `the generator and the drawer disagree on ${JSON.stringify(s.slice(0, 30))}`);
 }

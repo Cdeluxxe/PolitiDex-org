@@ -14,8 +14,9 @@
 //                         n   the printed number ("H.J.Res. 131")
 //                         c   the chamber the row records ("house", "utah senate")
 //                         t   the title the archive stores for the measure
-//                         e   the effect lines already stored for it, one per
-//                             issue: { i: issue label, l: the line }
+//                         m   the issues it is mapped to, one entry per issue:
+//                             { i: the issue's label, l: the effect line stored
+//                             for that pair — absent where none is stored }
 //
 // WHY IT EXISTS
 //
@@ -37,16 +38,27 @@
 //     is read from db/vr-measure-identity.json — the curated identity table the
 //     ingest applies to exactly those rows — and printed only when that table
 //     names the same (congress, number). Otherwise no title is printed at all.
+//   · Which issues: the `issues` set measureAddresses() keeps for the row — the
+//     keys its mapping inserts named, with every later re-key and delete in
+//     the migrations replayed over them, so a filing a correction withdrew is
+//     not printed. The label is the issue's own, from ISSUE_MAP in
+//     issue-map.js. A key with no label there is not printed under a made-up
+//     name. A measure mapped to nothing has no `m`, and its document says
+//     nothing about issues at all — not "touches none".
 //   · The effect lines are consistency.js's _DOS_EFFECT, else the pair's curated
 //     `did` in _DOS_MECH, held to the drawer's own row rule (_dosEffectOk): one
 //     sentence, 140 characters or fewer, no word about how the archive coded the
 //     act. This is the line the issue drawer already prints under the row; it is
-//     lifted out of the shipped source, not rewritten.
+//     lifted out of the shipped source, not rewritten. A line sits only under
+//     the issue it is stored on: an issue with no line that passes is listed
+//     bare, and a line stored for an issue the measure is NOT mapped to is
+//     not printed — there is no row in any drawer for it to sit under.
 //
 // WHAT IT DELIBERATELY DOES NOT CARRY. No scraped Congress.gov text, no summary,
 // no score, no percentage, no support/oppose direction, no tally of members, no
-// mapping weight. A line is an effect of the act on one issue, labelled by that
-// issue's name; which way a vote on it "counts" is not on the document.
+// mapping weight, no primary flag. An entry is an issue's name and, where one is
+// stored, what the act did to it; which way a vote on it "counts" is not on the
+// document.
 //
 // THE SITEMAP READS THIS FILE. gen-sitemap.mjs lists a bill only if it has an
 // entry here, so every advertised /b/ address is a document the edge can write.
@@ -90,6 +102,17 @@ export function effectOk(raw) {
 }
 
 const stripEmoji = (s) => String(s || "").replace(/^[^\p{L}\p{N}]+/u, "").trim();
+
+// ISSUE_MAP's labels, read out of issue-map.js by key: the first `key: { label:
+// '…'` at the start of a line. db/share-index.json carries the same labels for
+// the keys it indexes, and a test holds the two to agreement.
+export function issueLabels(src) {
+  const out = {};
+  for (const m of String(src).matchAll(/^\s*([a-z][a-z0-9_]*):\s*\{\s*label:\s*'((?:[^'\\]|\\.)*)'/gm)) {
+    if (!(m[1] in out)) out[m[1]] = m[2].replace(/\\(.)/g, "$1");
+  }
+  return out;
+}
 const PLACEHOLDER = /^(?:roll\s*call|vote)\s*(?:no\.?|#)?\s*\d+/i;
 
 export function billDocs(root) {
@@ -97,40 +120,45 @@ export function billDocs(root) {
   const src = R("consistency.js");
   const EFFECT = liftTable(src, "_DOS_EFFECT");
   const MECH = liftTable(src, "_DOS_MECH");
-  const labels = (JSON.parse(R("db/share-index.json")).issues) || {};
+  const labels = issueLabels(R("issue-map.js"));
   const identity = new Map();
   for (const m of JSON.parse(R("db/vr-measure-identity.json")).measures || []) {
     if (m && m.number && m.title) identity.set(`${m.congress}|${String(m.number).trim()}`, String(m.title).trim());
   }
 
-  // Every (number|congress|issue) key either table holds, grouped by measure.
-  const lines = new Map();
-  for (const k of new Set([...Object.keys(EFFECT), ...Object.keys(MECH)])) {
-    const [num, cong, issue] = k.split("|");
-    const line = effectOk(EFFECT[k] || (MECH[k] && MECH[k].did) || "");
-    if (!line || !issue) continue;
-    const mk = `${cong}|${num}`;
-    if (!lines.has(mk)) lines.set(mk, []);
-    lines.get(mk).push({ issue, line });
+  // The stored line for one (measure, issue) pair, held to the drawer's rule.
+  const lineFor = (num, cong, issue) => {
+    const k = `${num}|${cong}|${issue}`;
+    return effectOk(EFFECT[k] || (MECH[k] && MECH[k].did) || "");
+  };
+
+  const index = measureAddresses(root || ROOT);
+  // A correction this reader could not place might have withdrawn an issue a
+  // document would then still name. Refuse to write rather than print it.
+  if (index.stats.unresolvedCorrections.length) {
+    const u = index.stats.unresolvedCorrections[0];
+    throw new Error(`${index.stats.unresolvedCorrections.length} mapping correction(s) in the migrations could not be replayed (first: ${u.file} — ${u.why})`);
   }
 
   const docs = {};
-  for (const a of measureAddresses(root || ROOT).published) {
+  for (const a of index.published) {
     const key = `${a.sitting}|${a.number}`;
     let title = String(a.title || "").trim();
     if (!title || PLACEHOLDER.test(title) || title.toLowerCase() === a.number.toLowerCase()) {
       title = identity.get(`${a.sitting}|${a.number}`) || "";
     }
-    // One line per issue, in issue-label order, and a line two issues share is
-    // printed once under the first.
-    const seen = new Set();
-    const e = (lines.get(`${a.sitting}|${a.number}`) || [])
-      .map((x) => ({ i: stripEmoji(labels[x.issue] || ""), l: x.line }))
+    // One entry per mapped issue, in label order: the label, and the line
+    // stored for THAT pair if one passes. Never another issue's line.
+    const m = [...a.issues]
+      .map((k) => {
+        const i = stripEmoji(labels[k] || "");
+        const l = i ? lineFor(a.number, a.sitting, k) : "";
+        return l ? { i, l } : { i };
+      })
       .filter((x) => x.i)
-      .sort((p, q) => p.i.localeCompare(q.i) || p.l.localeCompare(q.l))
-      .filter((x) => (seen.has(x.l) ? false : (seen.add(x.l), true)));
+      .sort((p, q) => p.i.localeCompare(q.i));
     const doc = { s: a.sitting, n: a.number, c: a.chamber || "", t: title };
-    if (e.length) doc.e = e;
+    if (m.length) doc.m = m;
     docs[key] = doc;
   }
   return docs;
@@ -139,7 +167,7 @@ export function billDocs(root) {
 function render(docs) {
   return JSON.stringify({
     _comment:
-      "GENERATED by scripts/gen-bill-docs.mjs — do not edit by hand. One entry per /b/<sitting>/<number> document: sitting, number, chamber, stored title, and the stored per-issue effect lines. Read by netlify/lib/share-target.ts (the body the edge writes) and scripts/gen-sitemap.mjs (the bill rows it lists). No score, no direction, no scraped text.",
+      "GENERATED by scripts/gen-bill-docs.mjs — do not edit by hand. One entry per /b/<sitting>/<number> document: sitting, number, chamber, stored title, and the issues it is mapped to, each with the effect line stored for that pair where one is. Read by netlify/lib/share-target.ts (the body the edge writes) and scripts/gen-sitemap.mjs (the bill rows it lists). No score, no direction, no scraped text.",
     docs,
   }, null, 1) + "\n";
 }

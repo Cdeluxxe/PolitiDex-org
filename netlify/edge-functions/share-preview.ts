@@ -382,13 +382,18 @@ function genericCrawlBlock(forPath: string): string {
 //   · the NUMBER, as the record prints it, as the <h1>;
 //   · the SITTING in words — "119th Congress", "2024 General Session";
 //   · the TITLE the archive stores for the measure;
-//   · the EFFECT LINES already stored for it, one per issue, each labelled with
-//     the issue it is the effect on — the line the issue drawer prints under the
-//     row, out of db/bill-docs.json, where a measure has one;
+//   · the ISSUES it is mapped to, one line each: the issue's own label, and
+//     under it the effect line stored for that pair — the line the issue drawer
+//     prints under the row — where one is. An issue with no stored line is
+//     listed bare; a line never sits under an issue it was not stored on. A
+//     measure mapped to nothing gets no list and no sentence saying so. Out of
+//     db/bill-docs.json, which reads the mapping with later corrections replayed;
+//     the panel's chips are untouched;
 //   · a link to the canonical address.
 //
 // WHAT IT DELIBERATELY DOES NOT SAY. No Congress.gov summary or scraped text, no
-// score, no percentage, no support/oppose direction, no member tally. The effect
+// score, no percentage, no support/oppose direction, no "primary", no weight,
+// no member tally. The effect
 // line is what the act did to one issue; how a vote on it reads is the panel's
 // business, with its sources beside it.
 //
@@ -404,10 +409,14 @@ function billSeam(html: string, block: string): string {
 
 function billDocBlock(d: BillDoc, canonical: string, forPath: string): string {
   const kicker = ["Bill file", d.sittingText].filter(Boolean).map(text).join(" · ");
-  const effects = d.effects.length
-    ? `<section class="pdx-bill-effects" data-pdx-bill-effects>` +
-      `<h2>What it did, by issue</h2><ul>` +
-      d.effects.map((x) => `<li><span class="pdx-bill-eff-i">${text(x.issue)}</span> ${text(x.line)}</li>`).join("") +
+  const issues = d.issues.length
+    ? `<section class="pdx-bill-issues" data-pdx-bill-issues>` +
+      `<h2>Every topic this act touches</h2><ul>` +
+      d.issues.map((x) =>
+        `<li data-pdx-bill-issue><span class="pdx-bill-iss-i">${text(x.issue)}</span>` +
+        (x.line ? ` <span class="pdx-bill-iss-l">${text(x.line)}</span>` : "") +
+        `</li>`
+      ).join("") +
       `</ul></section>`
     : "";
   return (
@@ -417,7 +426,7 @@ function billDocBlock(d: BillDoc, canonical: string, forPath: string): string {
     `<p class="pdx-bill-kicker">${kicker}</p>` +
     `<h1 class="pdx-bill-num">${text(d.number)}</h1>` +
     (d.title ? `<p class="pdx-bill-title">${text(d.title)}</p>` : "") +
-    effects +
+    issues +
     `<p class="pdx-bill-open"><a href="${attr(canonical)}">${text(d.number)} on PolitiDex</a></p>` +
     `</main>`
   );
