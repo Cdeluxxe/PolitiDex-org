@@ -1632,8 +1632,8 @@
   //   · Opened by a tap on any page: the bar is pushed to /b/… and the address it
   //     held is kept, so closing puts it back — the reader is still on the page
   //     they were reading, and Back closes the panel instead of leaving the site.
-  //   · Opened on arrival (a legacy #bill/ link, a ?bill= query, the /b/ document
-  //     itself): the bar is REPLACED, not pushed — there is no earlier page of
+  //   · Opened on arrival (a legacy #bill/ link, a ?bill= query, the /b/ document's
+  //     own control): the bar is REPLACED, not pushed — there is no earlier page of
   //     ours to go back to, and a legacy #bill/ hash is dropped on the way.
   //   · On a /vote/ address the bar keeps the roll call — its own card, its own
   //     citation — and only a #bill/ hash, if one arrived, is stripped.
@@ -2190,14 +2190,23 @@
   window.PDXBillDetail = { open: open, close: close, sittingOf: sittingKeyOfCard };
 
   // ── Deep-link routing ───────────────────────────────────────────────────────
-  // The bill's address is /b/<sitting>/<number>, and on that document this opens
-  // the panel from the PATH. Anywhere else the path is read too — a device whose
-  // service worker still answers /b/ with an older homepage shell lands here —
-  // and a legacy #bill/<sitting>/<number> link still opens, with the hash dropped
+  // The bill's address is /b/<sitting>/<number>. On that document the path does
+  // NOT open the panel (see onOwnDocument below). Anywhere else the path is read
+  // too — a device whose service worker still answers /b/ with an older homepage
+  // shell lands here — and a legacy #bill/<sitting>/<number> link still opens, with the hash dropped
   // from the bar as it does. Nothing here writes #bill/.
   //
   // The /b/ document's empty — an address the archive does not hold — opens
   // nothing: the body already says so, and a panel would only say "could not load".
+  //
+  // THE DOCUMENT LEADS. On bill.html (window.__PDX_BILL_DOC) the bill's own
+  // address does not open the panel by itself: the seam — number, sitting, title,
+  // the issue list — IS the page, and the panel opens only from the document's one
+  // control. A homepage shell that answers /b/ (an old service worker) carries no
+  // seam, so it still opens from the path, as it always has.
+  var DOC_PATH = '';
+  try { if (window.__PDX_BILL_DOC) DOC_PATH = String(location.pathname || ''); } catch (e) { DOC_PATH = ''; }
+  function onOwnDocument() { return !!DOC_PATH && String(location.pathname || '') === DOC_PATH; }
   function sameBill(b) {
     var ov = document.getElementById('pdx-bd-overlay');
     return !!(ov && !ov.hidden && _current && b && _current.number === b.number &&
@@ -2222,6 +2231,7 @@
   function routePath(opts) {
     var b = pathBill();
     if (!b) return false;
+    if (onOwnDocument()) return false;
     try { if (document.querySelector('[data-pdx-bill-empty]')) return false; } catch (e) {}
     if (sameBill(b)) return true;
     var bills = G('PDXBills');
@@ -2236,7 +2246,7 @@
   window.addEventListener('popstate', function () {
     if (routePath({ fromPop: true })) return;
     var ov = document.getElementById('pdx-bd-overlay');
-    if (ov && !ov.hidden && !pathBill()) close({ fromPop: true });
+    if (ov && !ov.hidden && (!pathBill() || onOwnDocument())) close({ fromPop: true });
   });
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', route);
   else route();

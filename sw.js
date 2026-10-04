@@ -8772,7 +8772,19 @@
 //     empty document stays empty. bill.html is precached and its seam styles
 //     changed, so it moves one version.
 //     MIGRATION: none. No table, mapping, weight or issue key moved.
-const CACHE_VERSION = 'v298';
+// v299 - THE BILL DOCUMENT LEADS; THE PANEL WAITS FOR ITS CONTROL.
+//     /b/<sitting>/<number> was a document, and on load the bill panel opened
+//     over it and covered it — the seam a reader came for was only in
+//     view-source. On bill.html the panel no longer opens from its own path: the
+//     seam (number, sitting, title, the issue list and its effect lines) is the
+//     page, and one control on it opens the panel; closing returns to the
+//     document, and the address stays /b/<sitting>/<number> either way. From a
+//     drawer, an issue row or a person file the panel opens as before. The empty
+//     grows no control. bill.html and bill-detail.js changed, so it moves one
+//     version.
+//     MIGRATION COST: none. No location key is migrated; no table, mapping,
+//     score or issue key moved.
+const CACHE_VERSION = 'v299';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

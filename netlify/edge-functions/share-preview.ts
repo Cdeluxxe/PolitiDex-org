@@ -407,7 +407,7 @@ function billSeam(html: string, block: string): string {
   return injectAfterBody(html, block);
 }
 
-function billDocBlock(d: BillDoc, canonical: string, forPath: string): string {
+function billDocBlock(d: BillDoc, forPath: string): string {
   const kicker = ["Bill file", d.sittingText].filter(Boolean).map(text).join(" · ");
   const issues = d.issues.length
     ? `<section class="pdx-bill-issues" data-pdx-bill-issues>` +
@@ -427,7 +427,10 @@ function billDocBlock(d: BillDoc, canonical: string, forPath: string): string {
     `<h1 class="pdx-bill-num">${text(d.number)}</h1>` +
     (d.title ? `<p class="pdx-bill-title">${text(d.title)}</p>` : "") +
     issues +
-    `<p class="pdx-bill-open"><a href="${attr(canonical)}">${text(d.number)} on PolitiDex</a></p>` +
+    // The document's ONE control. The seam is the page; this opens the panel over
+    // it — roll calls, members, the bundle — and closing the panel returns here.
+    // The empty below has none: there is no measure to open.
+    `<p class="pdx-bill-panel"><button type="button" data-pdx-bill-panel>Roll calls, members and the bundle</button></p>` +
     `</main>`
   );
 }
@@ -564,7 +567,7 @@ export default async (req: Request, context: Context): Promise<Response | undefi
       if (resolved && !("notFound" in resolved) && resolved.bill) {
         const canonical = ORIGIN + billDocPath(resolved.bill);
         html = applyMeta(html, resolved, url.origin, canonical);
-        html = billSeam(html, billDocBlock(resolved.bill, canonical, billForPath));
+        html = billSeam(html, billDocBlock(resolved.bill, billForPath));
       } else {
         // Unknown sitting, unknown number, or an archive we could not ask. The
         // head is left as bill.html ships it (its canonical names no bill), the
