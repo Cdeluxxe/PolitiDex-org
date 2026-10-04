@@ -764,14 +764,16 @@ section('7 · wiring: every document that reads a side loads the reader');
     // HTML back as the script, which is silent and total.
     ok(!/src="stance-sides\.js"/.test(doc), `${name} loads the reader by a relative path`);
   });
-// LOAD ORDER. The reader must parse before anything that calls it, and all of
-// these are `defer`, so source order is execution order.
-[['my-stances.html', MS_DOC, ['/my-stances.js', '/stance-studio.js']],
- ['me.html', ME_DOC, ['/my-stances.js', '/me-desk.js']]].forEach(([name, doc, afters]) => {
-  const mine = doc.indexOf('<script defer src="/stance-sides.js">');
-  must(mine > 0, `${name} does not load the reader with a defer script tag — this check is stale`);
+// LOAD ORDER. The reader must parse before anything that calls it, and within
+// each document the tags share one kind — all `defer` on my-stances.html, all
+// plain end-of-body scripts on me.html (so the desk paints before the deferred
+// Firebase SDK) — so source order is execution order either way.
+[['my-stances.html', MS_DOC, ['/my-stances.js', '/stance-studio.js'], '<script defer src="'],
+ ['me.html', ME_DOC, ['/my-stances.js', '/me-desk.js'], '<script src="']].forEach(([name, doc, afters, tag]) => {
+  const mine = doc.indexOf(tag + '/stance-sides.js">');
+  must(mine > 0, `${name} does not load the reader with a ${tag}…> tag — this check is stale`);
   afters.forEach((a) => {
-    const other = doc.indexOf('<script defer src="' + a + '">');
+    const other = doc.indexOf(tag + a + '">');
     must(other > 0, `${name} no longer loads ${a} the way this check expects`);
     ok(mine < other, `${name} loads ${a} before the reader it calls`);
   });

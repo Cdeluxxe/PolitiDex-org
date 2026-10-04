@@ -24,6 +24,7 @@
   'use strict';
   var API = '/api/membership';
   var COPY = {
+    checking: 'Checking membership…',
     signedOut: 'Sign in to become a member.',
     join: 'Become a member — $20 a year',
     joining: 'Opening checkout…',
@@ -52,6 +53,15 @@
       return (u && u.isAnonymous !== true && fn(u.getIdToken)) ? u : null;
     } catch (e) { return null; }
   }
+  // The SDK loads after the desk now, so on a cold load nobody has answered
+  // who is signed in. Until someone has, the control says it is checking —
+  // never "Sign in", which would be a claim about a session not yet read.
+  function authKnown() {
+    try {
+      var A = window.PDXAuth;
+      return !A || !!A.known || !!tokenUser();
+    } catch (e) { return true; }
+  }
   function bearer() {
     var u = tokenUser();
     if (!u) return Promise.resolve(null);
@@ -76,6 +86,7 @@
 
   var _host = null;
   var _state = { signedIn: false, member: false };
+  var _known = false;
   var _busy = false;
   var _status = '';
   var _returned = '';
@@ -85,7 +96,9 @@
     var html = '';
     if (_returned === 'returned' && !_state.member) html += '<p class="pdxmm-status" role="status">' + esc(COPY.returned) + '</p>';
     if (_returned === 'cancelled') html += '<p class="pdxmm-status" role="status">' + esc(COPY.cancelled) + '</p>';
-    if (_state.member) {
+    if (!_known) {
+      html += '<p class="pdxmm-note" role="status">' + esc(COPY.checking) + '</p>';
+    } else if (_state.member) {
       html += '<p class="pdxmm-active">' + esc(COPY.active) + '</p>';
     } else if (!_state.signedIn) {
       html += '<p class="pdxmm-note">' + esc(COPY.signedOut) + '</p>';
@@ -98,8 +111,10 @@
   }
 
   function load() {
+    if (!authKnown()) { paint(); return Promise.resolve(_state); }
     return call('GET').then(function (res) {
       var d = res.data || {};
+      _known = true;
       _state = { signedIn: !!(res.ok && d.signedIn), member: !!(res.ok && d.member) };
       paint();
       return _state;

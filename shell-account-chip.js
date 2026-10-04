@@ -185,6 +185,22 @@
   }
   window.PDXShellChip = { paint: paint, state: stateOf };
 
+  // ── THE DOOR THE CHIP OPENS ───────────────────────────────────────────────
+  // The signed-in chip is an <a href="/me">, and a tap on it has to answer
+  // before the desk has painted: pressed, then "Opening your desk…". That is
+  // me-door.js's job on every document, not this file's — so this file only
+  // makes sure it is on the page, which is what puts it on every shell and
+  // every district board that wears this chip without a tag in each of them.
+  // Async and once; a document that already loads it is left alone.
+  try {
+    if (!window.PDXMeDoor && !document.querySelector('script[src="/me-door.js"]')) {
+      var door = document.createElement('script');
+      door.src = '/me-door.js';
+      door.async = true;
+      (document.head || document.documentElement).appendChild(door);
+    }
+  } catch (e) {}
+
   function first() {
     var A = window.PDXAuth;
     paint((A && A.user) || null, (A && A.state) || 'unknown');

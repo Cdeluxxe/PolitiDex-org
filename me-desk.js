@@ -146,6 +146,29 @@
     return u.displayName || (u.email ? String(u.email).split('@')[0] : 'Member');
   }
 
+  // ── HAS THE ACCOUNT ANSWERED YET? ─────────────────────────────────────────
+  // me.html loads the Firebase SDK AFTER this file, so the desk can paint
+  // before ~800 KB of it has arrived. Until firebase-boot.js has answered once,
+  // window.PDXAuth.known is false and the account is UNKNOWN — not signed out.
+  // Same three states the account chip paints (shell-account-chip.js).
+  // A document with no PDXAuth at all has nothing to wait for.
+  function accountKnown() {
+    try {
+      var A = window.PDXAuth;
+      return !A || !!A.known || !!member();
+    } catch (e) { return true; }
+  }
+  // The label this browser last painted for its account, read exactly as the
+  // shell chip reads it. A LABEL, not a credential: it names the card while
+  // the session is being checked and authorises nothing.
+  function lastLabel() {
+    try {
+      var raw = window.localStorage && window.localStorage.getItem('pdx_last_account');
+      var o = raw ? JSON.parse(raw) : null;
+      return (o && o.uid) ? String(o.label || 'Member') : '';
+    } catch (e) { return ''; }
+  }
+
   // ── WHERE THIS ACCOUNT VOTES ──────────────────────────────────────────────
   // voter-hub-location.js owns this and nothing here re-derives it. It is a FACT
   // on region a because it is the INPUT to region d: the seats that exist for a
@@ -713,6 +736,20 @@
         // THE ONE WAY OUT, ON THE ONE PAGE ABOUT THIS ACCOUNT. See signOut().
         '<button type="button" class="me-signout" data-me-signout="1">Log out</button>' +
       '</div>';
+    } else if (!accountKnown()) {
+      // CHECKING IS NOT SIGNED OUT. The SDK has not answered, so the card says
+      // it is checking — under this browser's remembered label when it has one —
+      // and offers neither Sign in nor Log out, because either would be a claim
+      // about a session nobody has read yet. The place and the seat lines below
+      // are on this device already and paint now.
+      var lb = lastLabel();
+      body = '<div class="me-id">' +
+        '<span class="me-avatar" aria-hidden="true">' +
+          (lb ? esc(lb.charAt(0).toUpperCase()) : '\u{1F464}') + '</span>' +
+        '<span class="me-idtext">' +
+          '<span class="me-name">' + esc(lb || 'Your account') + '</span>' +
+          '<span class="me-mail" role="status">' + esc(ACCT_WAIT) + '</span>' +
+        '</span></div>';
     } else {
       // SIGNED OUT SAYS SO. It does not print a name, it does not print a
       // placeholder account, and the regions below it do not invent answers for
@@ -1476,7 +1513,11 @@
     } catch (e) {}
 
     var body;
-    if (v.standing === 'out') {
+    if (v.standing === 'out' && !accountKnown()) {
+      // Not answered yet is not signed out: no Sign in until it is.
+      body = '<p class="me-rline">District Voice is for verified residents.</p>' +
+        '<p class="me-rline me-loading" role="status">' + esc(ACCT_WAIT) + '</p>';
+    } else if (v.standing === 'out') {
       body = '<p class="me-rline">District Voice is for verified residents.</p>' +
         '<p class="me-rline" style="margin:0.7rem 0 0;">' +
           '<button type="button" class="pdxhv-door" data-me-signin="1">Sign in</button></p>';
@@ -1533,7 +1574,30 @@
   // ═══════════════════════════════════════════════════════════════════════════
   var _painted = false;
 
+  // ── WHAT PAINTS FIRST, AND WHAT FILLS IN ──────────────────────────────────
+  // The first paint is the account card (region a, with its seat lines) and
+  // the ballot's seat lines (region d): both come from this device's location
+  // record and paint the moment this file runs. Positions, stars and saved
+  // work are read under the ACCOUNT's keys, so until the account has answered
+  // they are not known yet — and a list read under the wrong key is worse than
+  // no list. Each of those regions keeps its place and its heading and says it
+  // is loading; it is never left blank, and it fills in on the repaint the
+  // account's answer causes (see wire()).
+  var ACCT_WAIT = 'Checking account\u2026';
+  var LOADING = {
+    positions: 'Loading your positions\u2026',
+    stars:     'Loading the issues you rank harder\u2026',
+    saved:     'Loading your saved work\u2026'
+  };
+  function loadingRegion(id, title, line) {
+    return '<section class="me-region is-loading" id="' + id + '" aria-labelledby="' + id + '-t" aria-busy="true">' +
+      '<div class="me-rhead"><h2 class="me-rtitle" id="' + id + '-t">' + esc(title) + '</h2></div>' +
+      '<p class="me-empty me-loading" role="status">' + esc(line) + '</p>' +
+    '</section>';
+  }
+
   function html() {
+    var ready = accountKnown();
     return '<div class="me-head">' +
         '<p class="me-kick">Your file</p>' +
         '<h1 class="me-title">YOUR DESK</h1>' +
@@ -1542,11 +1606,11 @@
           'part of it is a verdict on you.</p>' +
       '</div>' +
       regionIdentity() +
-      regionPositions() +
-      regionStars() +
+      (ready ? regionPositions() : loadingRegion('me-positions', 'Your positions', LOADING.positions)) +
+      (ready ? regionStars() : loadingRegion('me-stars', 'Issues you rank harder', LOADING.stars)) +
       regionBallot() +
       regionVoice() +
-      regionSaved() +
+      (ready ? regionSaved() : loadingRegion('me-saved', 'Saved work', LOADING.saved)) +
       regionJumps() +
       '<p class="me-foot">Your positions are yours. They are used to line a formal record up ' +
         'against what you said you wanted, and for nothing else: they are not a vote, not a ' +
@@ -1821,6 +1885,9 @@
     goTab: goTab,
     tabOf: tabOf,
     isPainted: function () { return !!_painted; },
+    accountKnown: accountKnown,
+    ACCT_WAIT: ACCT_WAIT,
+    LOADING: LOADING,
     // reads
     member: member,
     displayNameOf: displayNameOf,

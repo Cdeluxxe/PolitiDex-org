@@ -1301,6 +1301,21 @@
     window.loginWithGoogle = loginWithGoogle;
     window.updateNavAuth = updateNavAuth;
 
+    // ── THE DOOR THE CHIP OPENS ─────────────────────────────────────────────
+    // The chip above is an <a href="/me">, and so are the mobile sheet's row,
+    // Who Represents Me's "Your file" and the workspace card. A tap on any of
+    // them has to answer before the desk has painted — pressed, then "Opening
+    // your desk…" — and that is me-door.js's job on every document, the same
+    // file shell-account-chip.js brings to the inner shells. Async and once.
+    try {
+      if (!window.PDXMeDoor && !document.querySelector('script[src="/me-door.js"]')) {
+        var meDoor = document.createElement('script');
+        meDoor.src = '/me-door.js';
+        meDoor.async = true;
+        (document.head || document.documentElement).appendChild(meDoor);
+      }
+    } catch (e) {}
+
     // ── AN ARRIVAL THAT ASKED FOR AN ACCOUNT GETS THE SHEET ─────────────────
     // A district board has no sign-in UI. Its chrome's Join and SD-3's "Sign in
     // to start" send the reader here with PDXReturn's join marker and the board

@@ -149,6 +149,12 @@
   color: #8fa3bf;
   background: rgba(15, 23, 42, 0.35);
 }
+/* A read that has not answered yet. Same box as the empty, solid edge rather
+   than dashed, so "still loading" and "nothing here" never look alike. */
+.me-empty.me-loading {
+  border-style: solid;
+  color: #b9c7da;
+}
 
 /* ── REGION a · WHO THIS IS ───────────────────────────────────────────────── */
 .me-id {
