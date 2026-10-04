@@ -25,10 +25,13 @@
          or, for a sitting or a number the archive does not hold, the honest
          empty (with a real 404 and noindex). The words come from
          db/bill-docs.json; see scripts/gen-bill-docs.mjs.
-       • the bill panel (bills.js + bill-detail.js), which opens over this
-         document from its own path — roll calls, members, the bundle, sources —
-         exactly the panel the homepage opens. The address in the bar stays
-         /b/<sitting>/<number>; nothing is appended after it.
+       • the bill panel (bills.js + bill-detail.js) — roll calls, members, the
+         bundle, sources — exactly the panel the homepage opens. THE DOCUMENT
+         LEADS: on this address the panel does not open by itself. The seam is
+         the page, and its one control ([data-pdx-bill-panel]) opens the panel
+         over it; closing returns to the document. The address in the bar stays
+         /b/<sitting>/<number> either way; nothing is appended after it. The
+         empty has no control: there is no measure to open.
        • share-links.js, the one builder of a bill's address, and issue-scope.js,
          so the panel's issue chips carry their names.
 
@@ -128,6 +131,11 @@
       display: block; margin-bottom: 0.15rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
       font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: #9fb4d4;
     }
+    .pdx-bill-panel button {
+      display: inline-block; margin-top: 0.6rem; padding: 0.6rem 1.1rem; border: 0; border-radius: 10px;
+      background: #f5c842; color: #0a0f1e; font: inherit; font-weight: 700; cursor: pointer;
+    }
+    .pdx-bill-panel button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
     .pdx-bill-open a {
       display: inline-block; margin-top: 0.6rem; padding: 0.6rem 1.1rem; border-radius: 10px;
       background: #f5c842; color: #0a0f1e; font-weight: 700; text-decoration: none;
@@ -221,9 +229,6 @@
               '<h1 class="pdx-bill-num">No measure on file at this address</h1>' +
               '<p>PolitiDex holds no measure under this address. Rather than show you the front page and let you think the link worked, here is the plain answer: it does not resolve to a record we hold.</p>' +
               '<p class="pdx-bill-open"><a href="/">Go to PolitiDex</a></p>', { 'data-pdx-bill-empty': '1' });
-            // bill-detail.js may already have tried this path from the pending
-            // document; its "could not load" panel has nothing to add to this.
-            try { if (window.PDXBillDetail && window.PDXBillDetail.close) window.PDXBillDetail.close(); } catch (e) {}
             return;
           }
           var me = d && d.measure;
@@ -232,20 +237,24 @@
           var sitWords = /^\d+$/.test(sit) ? sit + 'th Congress' : sit;
           paint('<p class="pdx-bill-kicker">Bill file' + (sitWords ? ' · ' + esc(sitWords) : '') + '</p>' +
             '<h1 class="pdx-bill-num">' + esc(me.number) + '</h1>' +
-            (me.title ? '<p class="pdx-bill-title">' + esc(me.title) + '</p>' : ''),
+            (me.title ? '<p class="pdx-bill-title">' + esc(me.title) + '</p>' : '') +
+            '<p class="pdx-bill-panel"><button type="button" data-pdx-bill-panel>Roll calls, members and the bundle</button></p>',
             { 'data-pdx-bill-held': 'live', 'data-sitting': sit, 'data-number': String(me.number) });
         })
         .catch(function () { /* the pending text is still the honest answer */ });
     }
 
-    // The document's own "open" link is this page; on a page with the panel it
-    // opens the panel instead of reloading the document under it.
+    // THE DOCUMENT'S ONE CONTROL. The panel does not open on load here (see
+    // onOwnDocument in bill-detail.js); this is the only way it opens over the
+    // seam. The address already IS this bill's, so the open writes nothing to the
+    // bar, and closing returns to the document under it.
     document.addEventListener('click', function (e) {
-      var a = e.target && e.target.closest ? e.target.closest('.pdx-bill-open a') : null;
-      if (!a || e.button > 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var b = e.target && e.target.closest ? e.target.closest('[data-pdx-bill-panel]') : null;
+      if (!b) return;
       var seam = document.getElementById('pdx-bill-doc');
       var n = seam && seam.getAttribute('data-number');
-      if (!n || !window.PDXBillDetail || typeof window.PDXBillDetail.open !== 'function') return;
+      if (!n || seam.hasAttribute('data-pdx-bill-empty')) return;
+      if (!window.PDXBillDetail || typeof window.PDXBillDetail.open !== 'function') return;
       e.preventDefault();
       window.PDXBillDetail.open(n, seam.getAttribute('data-sitting') || '', { arrival: true });
     });

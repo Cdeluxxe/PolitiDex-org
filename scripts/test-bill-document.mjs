@@ -28,6 +28,11 @@
 //   6. NO #bill/ IN THE BAR. The panel opened on the homepage leaves /b/… in the
 //      bar and nothing appended; closing gives the old address back. Mutations
 //      that put #bill/ back, or the button back, are caught.
+//   7. THE DOCUMENT LEADS. On bill.html the seam is the page on load and the
+//      panel is not mounted open; the seam's one control opens it, and closing it
+//      leaves the address as it was. A drawer on a person file still opens the
+//      panel over that file. The empty has no control. A mutation that opens the
+//      panel on load on the document is caught.
 //
 //   node scripts/test-bill-document.mjs
 // ─────────────────────────────────────────────────────────────────────────────
@@ -420,15 +425,16 @@ const barClean = (w) => !/#bill\//.test(w.location.href) && w.__hist.every(([, u
   eq(w.location.pathname, ACCEPT, "…and lands the bar on the bill's document address");
 }
 {
-  // On the bill document itself the panel opens from the path and writes nothing.
+  // A homepage shell answering /b/ (an old service worker; no seam, no
+  // __PDX_BILL_DOC) still opens the panel from the path and writes nothing.
   const w = makeWin(ORIGIN + ACCEPT);
   w.PDXBills = { listSync: () => ({ items: [{ number: "H.J.Res. 131", congress: 119, title: "x" }] }), list: () => Promise.resolve({ items: [] }), get: () => Promise.resolve(null) };
   load(w, ["share-links.js", "bill-detail.js"]);
   for (let i = 0; i < 10; i++) await new Promise((r) => setImmediate(r));
-  ok(DOM.ids["pdx-bd-overlay"] && !DOM.ids["pdx-bd-overlay"].hidden, "the /b/ document opens the panel from its own path");
+  ok(DOM.ids["pdx-bd-overlay"] && !DOM.ids["pdx-bd-overlay"].hidden, "a homepage shell on /b/ opens the panel from the path");
   eq(w.location.href, ORIGIN + ACCEPT, "…and leaves the address exactly as it arrived");
   w.PDXBillDetail.close();
-  eq(w.location.href, ORIGIN + ACCEPT, "closing the panel on the document keeps the document's address");
+  eq(w.location.href, ORIGIN + ACCEPT, "closing that panel keeps the address");
 }
 {
   // share-links no longer converts a /b/ path into a hash.
@@ -451,7 +457,102 @@ const barClean = (w) => !/#bill\//.test(w.location.href) && w.__hist.every(([, u
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("7 · the service worker knows the shell");
+section("7 · the document leads; the panel opens from its one control");
+// ═════════════════════════════════════════════════════════════════════════════
+const DOC_INLINE = (() => {
+  const a = BILL_HTML.indexOf("<script>\n  (function () {\n    'use strict';");
+  must(a !== -1, "bill.html still carries its inline document script");
+  return BILL_HTML.slice(a + "<script>".length, BILL_HTML.indexOf("</script>", a));
+})();
+const OPEN = () => DOM.ids["pdx-bd-overlay"] && !DOM.ids["pdx-bd-overlay"].hidden;
+const tick = async () => { for (let i = 0; i < 10; i++) await new Promise((r) => setImmediate(r)); };
+// bill.html as the browser runs it: the flag in the head, the seam the edge
+// wrote, the inline script, then the deferred panel.
+async function onDocument(bdSrc = BD_SRC, seamAttrs = { "data-number": "H.J.Res. 131", "data-sitting": "119", "data-pdx-bill-held": "doc" }) {
+  const w = makeWin(ORIGIN + ACCEPT);
+  w.__PDX_BILL_DOC = true;
+  const docClicks = [];
+  w.document.addEventListener = (t, fn) => { if (t === "click") docClicks.push(fn); };
+  const seam = fakeEl("main");
+  seam.id = "pdx-bill-doc";
+  Object.assign(seam.attrs, { "data-pdx-bill-doc": "", "data-pdx-bill-for": ACCEPT }, seamAttrs);
+  DOM.ids["pdx-bill-doc"] = seam;
+  w.PDXBills = { listSync: () => ({ items: [{ number: "H.J.Res. 131", congress: 119, title: "x" }] }), list: () => Promise.resolve({ items: [] }), get: () => Promise.resolve(null) };
+  const ctx = vm.createContext(w);
+  vm.runInContext(R("share-links.js"), ctx, { filename: "share-links.js" });
+  vm.runInContext(DOC_INLINE, ctx, { filename: "bill.html" });
+  vm.runInContext(bdSrc, ctx, { filename: "bill-detail.js" });
+  await tick();
+  const control = { tagName: "BUTTON" };
+  w.__press = async () => {
+    let prevented = false;
+    const e = { button: 0, target: { closest: (sel) => (sel === "[data-pdx-bill-panel]" ? control : null) }, preventDefault() { prevented = true; } };
+    docClicks.forEach((fn) => fn(e));
+    await tick();
+    return prevented;
+  };
+  w.__seam = seam;
+  return w;
+}
+{
+  // The seam the edge writes: one control on a held bill, none on the empty.
+  stubFetch("throw");
+  const held = seamOf((await serve(ACCEPT)).html);
+  eq((held.match(/data-pdx-bill-panel/g) || []).length, 1, "the held document carries exactly one panel control");
+  has(held, `<button type="button" data-pdx-bill-panel>`, "…and it is a button, not a link back to this page");
+  no(held, `href="${ORIGIN}${ACCEPT}"`, "…the seam no longer links to itself");
+  stubFetch(404);
+  const empty = seamOf((await serve(UNKNOWN_NUM)).html);
+  has(empty, "No measure on file at this address", "an unknown number still says no measure is on file");
+  no(empty, "data-pdx-bill-panel", "an unknown number offers no panel control");
+  globalThis.fetch = realFetch;
+  // The client fallback's two paints: the live identity grows the control, the empty does not.
+  const a = DOC_INLINE.indexOf("if (d && d.none) {");
+  const emptyPaint = DOC_INLINE.slice(a, DOC_INLINE.indexOf("return;", a));
+  no(emptyPaint, "data-pdx-bill-panel", "the fallback's empty paint grows no control");
+  has(DOC_INLINE.slice(DOC_INLINE.indexOf("var me = d && d.measure;")), "data-pdx-bill-panel", "the fallback's live paint carries the control");
+}
+{
+  const w = await onDocument();
+  ok(!OPEN(), "on the bill document the panel is not mounted open on load");
+  ok(!w.document.documentElement.classList.contains("bd-lock"), "…and the document is not scroll-locked under a panel");
+  eq(w.__seam.hidden, false, "the seam is the page on load");
+  eq(w.__hist.length, 0, "loading the document writes nothing to the bar");
+  const prevented = await w.__press();
+  ok(prevented, "the control is handled on the document");
+  ok(OPEN(), "the control opens the panel over the document");
+  eq(w.location.href, ORIGIN + ACCEPT, "opening from the control leaves the address unchanged");
+  w.PDXBillDetail.close();
+  ok(!OPEN(), "closing returns to the document");
+  eq(w.location.href, ORIGIN + ACCEPT, "closing leaves the address unchanged");
+  ok(w.__hist.every(([, u]) => String(new URL(u, ORIGIN).href) === ORIGIN + ACCEPT), "nothing but the document's own address was ever written");
+}
+{
+  // The empty document: no data-number, so even a forged control opens nothing.
+  const w = await onDocument(BD_SRC, { "data-pdx-bill-empty": "1" });
+  ok(!OPEN(), "the empty document mounts no panel on load");
+  await w.__press();
+  ok(!OPEN(), "the empty document opens no panel");
+}
+{
+  // From anywhere else the panel behaves as it does today.
+  const PERSON = "/p/mike-lee";
+  const w = await openOnHome(BD_SRC, ORIGIN + PERSON);
+  ok(OPEN(), "a drawer on a person file still opens the panel over that file");
+  w.PDXBillDetail.close();
+  ok(!OPEN(), "…closing it closes the panel");
+  eq(w.location.pathname, PERSON, "…and the person file's address is its own again");
+}
+{
+  // MUTATION: the bill's own document auto-opens the panel again.
+  const mut = BD_SRC.replace("    if (onOwnDocument()) return false;\n", "");
+  ok(mut !== BD_SRC, "mutation (auto-open on the document) applied to bill-detail.js");
+  await onDocument(mut);
+  ok(OPEN(), "mutation (auto-open on the document) was not caught — the panel covers the seam on load");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("8 · the service worker knows the shell");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const SW = R("sw.js");
@@ -461,7 +562,7 @@ section("7 · the service worker knows the shell");
   ok(banner.test(BILL_HTML.slice(0, 4096)), "the banner guard recognises bill.html");
   ok(!banner.test(INDEX_HTML.slice(0, 4096)), "…and still does not recognise index.html");
   const v = (SW.match(/const CACHE_VERSION = 'v(\d+)';/) || [])[1];
-  ok(Number(v) >= 296, `CACHE_VERSION moved for the new shell (v${v})`);
+  ok(Number(v) >= 299, `CACHE_VERSION moved for the document that leads (v${v})`);
 }
 
 if (failures.length) {
