@@ -707,7 +707,10 @@ const VERIFIED_OPTS = { uid: "u_7", loc: { state: "Utah", city: "Layton", county
   // index.html's head carries the PROFILE_ALIASES mirror of PDX_PROFILE_ALIAS,
   // which a naming pass legitimately grows by a row; it is no money markup, so
   // it is set aside on both sides and every other byte stays pinned.
-  const sansAlias = (src) => src.replace(/var PROFILE_ALIASES = \{[\s\S]*?\};/, "<ALIASES>");
+  // The shared top bar's pills later carried a full and a one-word label
+  // (shell pass v291); that is bar chrome, not money markup, so it folds back.
+  const sansAlias = (src) => src.replace(/var PROFILE_ALIASES = \{[\s\S]*?\};/, "<ALIASES>")
+    .replace(/<span class="pdx-sh-full">([^<]*)<\/span><span class="pdx-sh-short">[^<]*<\/span>/g, "$1");
   for (const f of MONEY) {
     const src = R(f);
     if (head) eq(sansAlias(src) === sansAlias(head(f)), true, `${f}: money markup changed in this pass`);

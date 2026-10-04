@@ -998,8 +998,11 @@ function sd6Band1Faults(modSrc) {
     // (scripts/test-board-stance-return.mjs pins it). Normalised here; the
     // address must still name this board and no other.
     const STUDIO_DOOR = new RegExp(`<a href="/my-stances\\?next=%2Fdistrict%2F${b.alias}">`, "g");
+    // The top bar's pills later carried a full and a one-word label (shell
+    // pass v291). Folded back to the full label; every other byte stays pinned.
+    const BAR_LABEL = /<span class="pdx-sh-full">([^<]*)<\/span><span class="pdx-sh-short">[^<]*<\/span>/g;
     const strip = (t) => COMPOSER_BLOCKS.reduce((x, re) => x.replace(re, ""),
-      t.replace(RET_TAG, "").replace(STUDIO_DOOR, '<a href="/my-stances">'));
+      t.replace(RET_TAG, "").replace(STUDIO_DOOR, '<a href="/my-stances">').replace(BAR_LABEL, "$1"));
     ok(strip(h) === strip(R(b.doc)), `neighbours: ${b.doc} changed in this pass and should not have`);
   }
 }
