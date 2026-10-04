@@ -8805,7 +8805,23 @@
 //     documents gained one style rule, so it moves one version.
 //     MIGRATION COST: none. No board, route, table or residency record moved,
 //     and no location key was touched.
-const CACHE_VERSION = 'v301';
+// v302 - THE ROOM IS THE SEAT'S, SAID WHERE A STRANGER READS. The locked line
+//     says only a verified resident of a seat gets a voice that counts; four
+//     surfaces now say the other half in one sentence each. The homepage
+//     District Voice card says the room is the district and not the open
+//     internet. The /voice header (and district-voice.js's hubHd, its owner)
+//     says a comment or vote from outside the seat is not a voice in that
+//     room. Every board's footer (COPY.voiceFoot in district-board.js, one
+//     string for generated, statewide and hand-written boards) says the board
+//     is that seat's room and another seat's flag does not open it. /me's
+//     membership block says paying does not put you in a district you do not
+//     live in. The locked line, the cap lines, the composer allow-list and
+//     BOARD_ROUTES (88) did not move. index.html, voice.html, me.html,
+//     district-voice.js and district-board.js are precached and changed, so it
+//     moves one version.
+//     MIGRATION COST: none. No board, route, table or residency record moved,
+//     and no location key was touched.
+const CACHE_VERSION = 'v302';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

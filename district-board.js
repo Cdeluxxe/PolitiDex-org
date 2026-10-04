@@ -607,9 +607,13 @@
 
     // THE GATE IS A RESIDENCY CHECK FOR THIS SEAT, nothing else. The second
     // sentence is district-composer.js's LOCKED_LINE, word for word, so the
-    // board and the composer cannot describe two different gates.
+    // board and the composer cannot describe two different gates. The third
+    // says the room is the seat's: a verification for another seat opens
+    // nothing here. One string, so every board — generated, statewide and the
+    // five hand-written composer boards — carries the same footer.
     voiceFoot: 'The public record and this read-only board are free to everyone. ' +
-               'Only verified residents of this seat get a voice that counts.',
+               'Only verified residents of this seat get a voice that counts. ' +
+               'This board is this seat’s room, and a flag for another seat does not open it.',
     // A board with no composer host says it is a reader, and nothing about
     // what might come. One string for every such board, generated or statewide.
     readOnlyLine: 'This room is read-only. Only verified residents of a seat with a ' +

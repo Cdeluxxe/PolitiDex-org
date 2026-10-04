@@ -277,7 +277,8 @@
     // a seat with no board prints two sentences and a person link, never an
     // empty poll with three zeroes in it pretending to be a room.
     hubHd: 'District Voice is the rooms for your seats. Anyone can read a board. ' +
-      'Only verified residents of that seat get a voice that counts. This page ' +
+      'Only verified residents of that seat get a voice that counts. ' +
+      'A comment or a vote from outside the seat is not a voice in that room. This page ' +
       'lists the seats for the location on file.',
     boardOpen: 'Open board',
     boardNone: 'Board not on hand for this seat.',

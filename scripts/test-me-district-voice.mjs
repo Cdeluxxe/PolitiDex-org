@@ -710,7 +710,10 @@ const VERIFIED_OPTS = { uid: "u_7", loc: { state: "Utah", city: "Layton", county
   // The shared top bar's pills later carried a full and a one-word label
   // (shell pass v291); that is bar chrome, not money markup, so it folds back.
   const sansAlias = (src) => src.replace(/var PROFILE_ALIASES = \{[\s\S]*?\};/, "<ALIASES>")
-    .replace(/<span class="pdx-sh-full">([^<]*)<\/span><span class="pdx-sh-short">[^<]*<\/span>/g, "$1");
+    .replace(/<span class="pdx-sh-full">([^<]*)<\/span><span class="pdx-sh-short">[^<]*<\/span>/g, "$1")
+    // The homepage District Voice card later carried one exclusivity sentence
+    // (v302); that is the Voice card's body copy, not money markup.
+    .replace(/<p class="pdxhv-line" data-pdxhv-room="1">[^<]*<\/p>/, "");
   for (const f of MONEY) {
     const src = R(f);
     if (head) eq(sansAlias(src) === sansAlias(head(f)), true, `${f}: money markup changed in this pass`);
