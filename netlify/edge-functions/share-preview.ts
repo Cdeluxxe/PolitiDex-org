@@ -1,8 +1,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // share-preview — give every shared PolitiDex link its own unfurl
 // ─────────────────────────────────────────────────────────────────────────────
-// (SINCE WRITING: the app is four documents, not one — index.html, person.html,
-// issue.html and spotlight.html. The mechanism below is unchanged and unaffected;
+// (SINCE WRITING: the app is several documents, not one — index.html, person.html,
+// issue.html, spotlight.html, bill.html and the rooms. The mechanism below is unchanged and unaffected;
 // it rewrites the head of whatever context.next() returns. See config at the
 // bottom of this file.)
 //
@@ -35,13 +35,20 @@ import {
   resolveTarget,
   pageTitle,
   canonicalPath,
+  billDocPath,
   type Resolved,
   type RecordLine,
+  type BillDoc,
 } from "../lib/share-target.ts";
 
 // A person file's own address. Only this shape gets a crawl block: /p/<pid> is the
 // canonical person address, and the ?p= form is a query on some other surface.
 const PERSON_PATH = /^\/p\/([A-Za-z0-9_]+)\/?$/;
+// A bill document's own address: /b/<sitting>/<number>, or /b/<number> cited
+// alone. Served by bill.html (netlify.toml), and the only shape whose BODY this
+// function writes a bill into. ?bill= on the front page is a query on another
+// document and gets a head, never a body.
+const BILL_DOC_PATH = /^\/b\/.+/;
 
 // ── The one public origin ───────────────────────────────────────────────────
 // The www host: the one Google has indexed, the one the apex 301s to, and the one
@@ -361,6 +368,85 @@ function genericCrawlBlock(forPath: string): string {
   );
 }
 
+// ── The bill document's body ────────────────────────────────────────────────
+// WHY THE HEAD WAS NOT ENOUGH, AGAIN. /b/119/H.J.Res.%20131 was in the sitemap and
+// every drawer pointed at it, and the server answered it with index.html: the
+// bill appeared only after the homepage's JavaScript opened a panel over itself.
+// This function rewrote the <head> and left the <body> the homepage's, so a
+// crawler comparing that address with "/" read the same 2 MB document under a
+// different title — the exact defect the person crawl block fixed for /p/.
+//
+// The address is its own document now (bill.html), and this is what goes in its
+// body, at the one seam bill.html marks for it:
+//
+//   · the NUMBER, as the record prints it, as the <h1>;
+//   · the SITTING in words — "119th Congress", "2024 General Session";
+//   · the TITLE the archive stores for the measure;
+//   · the EFFECT LINES already stored for it, one per issue, each labelled with
+//     the issue it is the effect on — the line the issue drawer prints under the
+//     row, out of db/bill-docs.json, where a measure has one;
+//   · a link to the canonical address.
+//
+// WHAT IT DELIBERATELY DOES NOT SAY. No Congress.gov summary or scraped text, no
+// score, no percentage, no support/oppose direction, no member tally. The effect
+// line is what the act did to one issue; how a vote on it reads is the panel's
+// business, with its sources beside it.
+//
+// A MEASURE WE DO NOT HOLD IS NEVER PRINTED. An address the archive cannot match
+// gets billEmptyBlock instead — the same seam, the same id, no number in the
+// <h1>, no title, no lines. Not a plausible bill; the plain answer.
+function billSeam(html: string, block: string): string {
+  if (!block) return html;
+  const seam = /<!--pdx:bill-doc-->[\s\S]*?<!--\/pdx:bill-doc-->/;
+  if (seam.test(html)) return html.replace(seam, () => `<!--pdx:bill-doc-->${block}<!--/pdx:bill-doc-->`);
+  return injectAfterBody(html, block);
+}
+
+function billDocBlock(d: BillDoc, canonical: string, forPath: string): string {
+  const kicker = ["Bill file", d.sittingText].filter(Boolean).map(text).join(" · ");
+  const effects = d.effects.length
+    ? `<section class="pdx-bill-effects" data-pdx-bill-effects>` +
+      `<h2>What it did, by issue</h2><ul>` +
+      d.effects.map((x) => `<li><span class="pdx-bill-eff-i">${text(x.issue)}</span> ${text(x.line)}</li>`).join("") +
+      `</ul></section>`
+    : "";
+  return (
+    `<main id="pdx-bill-doc" class="pdx-bill-doc" data-pdx-bill-doc data-pdx-bill-held="${attr(d.held)}"` +
+    ` data-sitting="${attr(d.sitting)}" data-number="${attr(d.number)}"` +
+    ` data-pdx-bill-for="${attr(forPath)}">` +
+    `<p class="pdx-bill-kicker">${kicker}</p>` +
+    `<h1 class="pdx-bill-num">${text(d.number)}</h1>` +
+    (d.title ? `<p class="pdx-bill-title">${text(d.title)}</p>` : "") +
+    effects +
+    `<p class="pdx-bill-open"><a href="${attr(canonical)}">${text(d.number)} on PolitiDex</a></p>` +
+    `</main>`
+  );
+}
+
+// The honest empty. `definite` is true when the archive answered "no such
+// measure"; false when it could not be asked (a timeout, a cold database), in
+// which case the page says it could not confirm rather than that nothing exists.
+function billEmptyBlock(forPath: string, definite: boolean): string {
+  return (
+    `<main id="pdx-bill-doc" class="pdx-bill-doc" data-pdx-bill-doc data-pdx-bill-empty="${definite ? "1" : "unconfirmed"}"` +
+    ` data-pdx-bill-for="${attr(forPath)}">` +
+    `<p class="pdx-bill-kicker">Bill file</p>` +
+    `<h1 class="pdx-bill-num">No measure on file at this address</h1>` +
+    (definite
+      ? `<p>PolitiDex holds no measure under this address. Rather than show you the front page and let you think the link worked, here is the plain answer: it does not resolve to a record we hold.</p>`
+      : `<p>PolitiDex could not confirm a measure at this address right now. Nothing is shown in its place.</p>`) +
+    `<p class="pdx-bill-open"><a href="/">Go to PolitiDex</a></p>` +
+    `</main>`
+  );
+}
+
+// An address a crawler should not keep: the empty bill document. Inserted ahead
+// of </head> rather than replacing a tag, because bill.html ships no robots tag
+// of its own — every held bill is meant to be indexed.
+function noindex(html: string): string {
+  return html.replace(/<\/head>/i, `<meta name="robots" content="noindex" /></head>`);
+}
+
 // Put the block as early in the body as it can go: immediately after the opening
 // <body> tag, ahead of every script the shell loads. A crawler that reads the
 // first few KB of the document and stops has still read who this page is about.
@@ -455,10 +541,45 @@ export default async (req: Request, context: Context): Promise<Response | undefi
   try {
     const resolved = await resolveTarget(target, url.origin);
 
-    // A link we can prove is wrong. Only /vote/ addresses reach this branch, and
-    // only on an explicit "no such roll call" from the API — a timeout or an error
-    // falls through to the normal page instead.
+    // THE BILL DOCUMENT. /b/<sitting>/<number> is served bill.html, and its body
+    // is written here — the measure the archive holds, or the honest empty. Scoped
+    // by the PATH and by the target: a ?p= riding on a /b/ path resolves to a
+    // profile and is left to the code below.
+    const billForPath = BILL_DOC_PATH.test(url.pathname) && target.kind === "bill" ? url.pathname : "";
+    if (billForPath) {
+      const doc = await context.next();
+      const docCt = doc.headers.get("content-type") || "";
+      if (!docCt.includes("text/html")) return doc;
+      let html = await doc.text();
+      let status = doc.status;
+      if (resolved && !("notFound" in resolved) && resolved.bill) {
+        const canonical = ORIGIN + billDocPath(resolved.bill);
+        html = applyMeta(html, resolved, url.origin, canonical);
+        html = billSeam(html, billDocBlock(resolved.bill, canonical, billForPath));
+      } else {
+        // Unknown sitting, unknown number, or an archive we could not ask. The
+        // head is left as bill.html ships it (its canonical names no bill), the
+        // body says so, and no crawler is invited to keep the address. A
+        // definitive miss is a real 404 — not a 200 dressed as a page.
+        const definite = !!(resolved && "notFound" in resolved);
+        html = noindex(billSeam(html, billEmptyBlock(billForPath, definite)));
+        if (definite) status = 404;
+      }
+      const docHeaders = new Headers(doc.headers);
+      docHeaders.set("content-type", "text/html; charset=utf-8");
+      docHeaders.set("cache-control", "public, max-age=300");
+      docHeaders.delete("content-length");
+      docHeaders.delete("content-encoding");
+      return new Response(html, { status, headers: docHeaders });
+    }
+
+    // A link we can prove is wrong. Only /vote/ addresses get the dead-end page,
+    // and only on an explicit "no such roll call" from the API — a timeout or an
+    // error falls through to the normal page instead. An unknown ?bill= on the
+    // front page is not a dead end: the front page is still the front page, so it
+    // passes through with its own head, as it always has.
     if (resolved && "notFound" in resolved) {
+      if (resolved.kind !== "vote") return;
       return notFoundPage(url.origin, resolved.message);
     }
     // A PERSON ADDRESS ALWAYS GETS A PERSON DOCUMENT — its own, or a generic one.
@@ -498,7 +619,7 @@ export default async (req: Request, context: Context): Promise<Response | undefi
     // an /issue/ path, the ?issue= form of a Spotlight that also has a clean
     // path — normalizes to the one address that opens this record. og:url gets
     // the same value so three shares of one record unfurl as one entity.
-    const canonical = ORIGIN + canonicalPath(target);
+    const canonical = resolved.bill ? ORIGIN + billDocPath(resolved.bill) : ORIGIN + canonicalPath(target);
     let html = applyMeta(await res.text(), resolved, url.origin, canonical);
 
     // The body block, on a person file's own address only. Scoped by the PATH and
@@ -546,5 +667,9 @@ export const config: Config = {
   // and a card — so adding it would buy a rewritten head full of nothing. When
   // there is a key resolver, that is the change; until then /i/<key> unfurls as
   // issue.html's own static tags, which name the product and claim no record.
+  //
+  // /b/* SERVES /bill.html, and it is the one path here whose BODY is written as
+  // well as its head (see billSeam): the bill document is a template with a
+  // marked seam, and this function fills it with the measure or the empty.
   path: ["/", "/index.html", "/issue/*", "/vote/*", "/p/*", "/b/*"],
 };

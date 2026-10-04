@@ -258,10 +258,15 @@
     var lr = it.lastRoll && (it.lastRoll.voteDate || it.lastRoll.chamber) ? it.lastRoll : null;
     return {
       id: (it.id != null) ? it.id : null,
+      // The key this row is listed under — the last door a numberless row has.
+      key: String(key),
       number: it.number || '',
       title: it.shortTitle || it.title || it.number || '',
       chamber: it.chamber || '',
       sitting: sittingOf(it),
+      // The measure's official address OFF this site, for the one row whose door
+      // cannot be /b/ — a row with no printed number. http(s) only.
+      url: sourceUrlOf(it),
       subject: !!subject,
       rolls: (typeof it.rollcallCount === 'number') ? it.rollcallCount : 0,
       roll: lr ? {
@@ -283,11 +288,18 @@
     if (us) return us;
     return (it.congress != null && it.congress !== '') ? String(it.congress) : '';
   }
+  function sourceUrlOf(it) {
+    var u = (it && it.source && it.source.url) || (it && it.sourceUrl) || '';
+    return /^https?:\/\//i.test(String(u)) ? String(u) : '';
+  }
   function rowsFrom(items, key) {
     var out = [];
     (items || []).forEach(function (it) {
       var r = rowOf(it, key);
-      if (r && r.number) out.push(r);
+      // A mapped act with no printed number is still a mapped act: it is listed,
+      // and its door falls back (see rowHref). One with neither a number nor a
+      // title names nothing a reader could check, and is not.
+      if (r && (r.number || (r.title && r.title !== r.number))) out.push(r);
     });
     return dedupe(out);
   }
@@ -297,7 +309,9 @@
   function dedupe(rows) {
     var seen = {}, out = [];
     rows.forEach(function (r) {
-      var k = String(r.sitting || '') + '|' + String(r.number || '');
+      var k = r.number
+        ? String(r.sitting || '') + '|' + String(r.number)
+        : '#' + (r.id != null ? String(r.id) : String(r.url || '') + '|' + String(r.title || ''));
       if (seen[k]) return;
       seen[k] = 1;
       out.push(r);
@@ -341,14 +355,44 @@
     return (c ? c + ' · ' : '') + 'no floor roll on file yet';
   }
 
+  // ── WHERE A ROW GOES ────────────────────────────────────────────────────────
+  // The bill's own document, /b/<sitting>/<number> — the same href the person
+  // drawer's "Bill page" door and the district board's measure rows already write,
+  // built by the same rule (share-links.js's builder, scheme and host dropped).
+  // This row used to be a <button> that wrote no href at all and, where the bill
+  // panel was absent, dropped #bill/… on top of /issue/<key>: nothing to open in a
+  // new tab, nothing to copy, and an address no server could see.
+  //
+  // A row with no printed number has no /b/ address, so it falls back to the
+  // measure's official page off this site, and with no such page to this issue's
+  // own file at /i/<key>. Never '' — every row is a door to something real.
+  function rowHref(r, key) {
+    var n = String((r && r.number) || '').trim();
+    if (n) {
+      var sit = String((r && r.sitting) || '').trim();
+      var L = G('PDXShareLinks');
+      var u = '';
+      try { u = (L && typeof L.bill === 'function') ? String(L.bill(sit, n) || '') : ''; } catch (e) { u = ''; }
+      u = u.replace(/^[a-z][a-z0-9+.-]*:\/\/[^\/]+/i, '');
+      if (/^\/b\//.test(u)) return u;
+      return '/b/' + (sit ? encodeURIComponent(sit) + '/' : '') + encodeURIComponent(n);
+    }
+    if (r && r.url) return r.url;
+    return '/i/' + encodeURIComponent(String(key || ''));
+  }
+
   function rowHtml(r) {
+    var href = rowHref(r, r && r.key);
+    var away = /^https?:/i.test(href);
     return '<li class="pdxip-row" data-pdxip-lane="' + (r.subject ? 'on' : 'off') + '">' +
-      '<button type="button" class="pdxip-open"' +
-        ' data-pdxip-bill="' + escAttr(r.number) + '"' +
-        ' data-pdxip-sitting="' + escAttr(r.sitting) + '"' +
+      '<a class="pdxip-open" href="' + escAttr(href) + '"' +
+        (r.number ? ' data-pdxip-bill="' + escAttr(r.number) + '"' +
+          ' data-pdxip-sitting="' + escAttr(r.sitting) + '"' : '') +
+        (away ? ' target="_blank" rel="noopener"' : '') +
         (r.id != null ? ' data-pdxip-id="' + escAttr(r.id) + '"' : '') +
-        ' aria-label="' + escAttr(r.number + ' — ' + r.title + '. ' +
-          cap(r.subject ? SUBJECT : RODE) + '. ' + cap(rollLine(r)) + '. Open this bill.') + '">' +
+        ' aria-label="' + escAttr((r.number ? r.number + ' — ' : '') + r.title + '. ' +
+          cap(r.subject ? SUBJECT : RODE) + '. ' + cap(rollLine(r)) + '. ' +
+          (r.number ? 'Open this bill.' : away ? 'Open the official record.' : 'Open the issue file.')) + '">' +
         '<span class="pdxip-num">' + esc(r.number) + '</span>' +
         '<span class="pdxip-ttl">' + esc(r.title) + '</span>' +
         // The lane and the roll line share one strip under the loud line, in that
@@ -361,7 +405,7 @@
           '<span class="pdxip-meta">' + esc(rollLine(r)) + '</span>' +
         '</span>' +
         '<span class="pdxip-go" aria-hidden="true">›</span>' +
-      '</button>' +
+      '</a>' +
     '</li>';
   }
 
@@ -762,8 +806,16 @@
       // on its own outermost box is a control that stops working the first time
       // anything is nested inside it.
       if (e.target.closest('[data-pdxip-close]')) { close(); return; }
+      // THE ROW IS AN ANCHOR, and where the bill panel is on this page a plain tap
+      // opens it in place — the panel then puts the same /b/ address in the bar
+      // the href names. A modified tap (new tab, new window) and a page with no
+      // panel both fall through to the link itself: the bill's own document.
       var b = e.target.closest('[data-pdxip-bill]');
-      if (b) { openBill(b.getAttribute('data-pdxip-bill'), b.getAttribute('data-pdxip-sitting')); return; }
+      if (b) {
+        if (e.defaultPrevented || e.button > 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        if (openBill(b.getAttribute('data-pdxip-bill'), b.getAttribute('data-pdxip-sitting'))) e.preventDefault();
+        return;
+      }
       var p = e.target.closest('[data-pdxip-pid]');
       if (p) {
         // The dossier door belongs to the site's delegated [data-pdxst-dos]
@@ -946,13 +998,16 @@
     var ov = document.getElementById('pdx-ip-overlay');
     return !!(ov && !ov.hidden);
   }
+  // True when the panel took the tap. False means there is no panel on this page,
+  // and the row's own href — the bill's document — is where the tap goes.
   function openBill(number, sitting) {
-    if (!number) return;
-    var bills = G('PDXBills');
-    if (bills && typeof bills.open === 'function') { bills.open(number, sitting || ''); return; }
+    if (!number) return false;
     var BD = G('PDXBillDetail');
-    if (BD && typeof BD.open === 'function') { BD.open(number, sitting || ''); return; }
-    try { location.hash = '#bill/' + encodeURIComponent(sitting || '') + '/' + encodeURIComponent(number); } catch (e) {}
+    if (!BD || typeof BD.open !== 'function') return false;
+    var bills = G('PDXBills');
+    if (bills && typeof bills.open === 'function') { bills.open(number, sitting || ''); return true; }
+    BD.open(number, sitting || '');
+    return true;
   }
 
   function injectCss() {
@@ -1006,6 +1061,9 @@
         'font-family:\'Barlow\',sans-serif;',
         'text-align:left;background:rgba(127,180,255,0.05);border:1px solid rgba(159,180,212,0.16);',
         'border-radius:12px;padding:0.6rem 0.7rem;color:#eef4ff;cursor:pointer;}',
+      // The row is an <a> now; an anchor does not inherit a button's box or lose
+      // its underline on its own.
+      'a.pdxip-open{box-sizing:border-box;text-decoration:none;}',
       '.pdxip-open:hover,.pdxip-open:focus-visible,.pdxip-p-open:hover,.pdxip-p-open:focus-visible{',
         'background:rgba(127,180,255,0.12);border-color:rgba(159,180,212,0.32);}',
       // THE LOUD LINE. The number and the short title are the row, and they are

@@ -121,7 +121,15 @@ for (const addr of ["/p/lee", "/p/mike_lee", "/p/celeste_maloy", "/p/null"]) {
     `rewrite: ${addr} is served /person.html at 200 (got ${hit ? hit.to + " " + hit.status : "no matching rule"})`);
 }
 // The whole point of "do one thing": no other address moved off index.html.
-for (const addr of ["/vote/hr1", "/d/ut-statehouse-68", "/b/hr1"]) {
+// /b/hr1 LEFT THIS LIST when the bill address got its own document: /b/* now
+// serves /bill.html (see scripts/test-bill-document.mjs), on the same terms the
+// person, issue and Spotlight addresses left it before.
+{
+  const hit = resolveAddr("/b/hr1");
+  ok(hit && hit.to === "/bill.html" && String(hit.status) === "200",
+    `rewrite: /b/hr1 is served /bill.html at 200 (got ${hit ? hit.to + " " + hit.status : "no matching rule"})`);
+}
+for (const addr of ["/vote/hr1", "/d/ut-statehouse-68"]) {
   const hit = resolveAddr(addr);
   ok(hit && hit.to === "/index.html",
     `rewrite: ${addr} still resolves to /index.html (got ${hit ? hit.to : "no matching rule"})`);

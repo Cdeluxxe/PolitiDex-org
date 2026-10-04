@@ -191,22 +191,29 @@
       if (applyHash(edge.hash)) return true;
     }
 
-    // 2. The canonical bill path, read straight off the address bar.
-    var bp = billFromPath();
-    if (bp && applyHash(bp)) return true;
+    // 2. (A /b/<sitting>/<number> path is NOT turned into a hash any more. It is
+    //    the bill's own document — bill.html, with the measure written into its
+    //    body at the edge — and bill-detail.js opens the panel from the path
+    //    itself. Writing #bill/ over it would put back the panel-over-the-
+    //    homepage address that document replaced.)
 
     // 3. What the URL says on its own — the query forms that still work when the
     //    edge function did not run, and that older shared links still carry.
     for (var i = 0; i < PARAMS.length; i++) {
       var name = PARAMS[i];
       if (docOwns(name)) continue;   // the person file reads its own query
+      // ?bill=<sitting>/<number> is a bill address in its older spelling, and a
+      // bill has a document now. Go there — replace(), so Back skips the hop —
+      // rather than opening a panel over this page under a #bill/ hash.
+      if (name === 'bill' && billDoc(param(name))) return true;
       var h = hashFor(name, param(name));
       if (h && applyHash(h)) return true;
     }
 
-    // 4. Nothing opened. If this was a roll-call or a bill address, say so out loud.
+    // 4. Nothing opened. If this was a roll-call address, say so out loud. (A /b/
+    //    address needs no notice here: its document's body already says whether
+    //    the archive holds the measure.)
     voteFallback();
-    billFallback();
     return false;
   }
 
@@ -222,25 +229,20 @@
   // not exist.
   var VOTE_PATH = /^\/vote\/([^/]+)\/([^/]+)\/([^/]+)\/?$/;
 
-  // ── /b/<sitting>/<number> ───────────────────────────────────────────────────
-  // The bill profile's clean address, and the reason it needs a parser here rather
-  // than only at the edge: a path is server-visible, so it unfurls — but the edge
-  // is not always in the picture (netlify dev, a fail-open), and the panel opens
-  // from a hash. So the path is read here too and handed to the same #bill/ handler
-  // the panel has always used. The sitting segment is optional: a congress ("119"),
-  // a state session code ("2024GS"), or nothing at all for a number cited alone —
-  // and it is deliberately alphanumeric-only, which is what keeps "/b/H.R. 1" from
-  // reading its own number as a sitting.
-  var BILL_PATH = /^\/b\/(?:([A-Za-z0-9]{1,12})\/)?(.+?)\/?$/;
-
-  function billFromPath() {
+  // ── ?bill= → the bill's document ────────────────────────────────────────────
+  // The query form of a bill address, still in the wild, sent to the document
+  // that address names: /b/<sitting>/<number>. Returns false — and leaves the hash
+  // transport below to try — for a value that is not a sitting/number pair, or on
+  // a page with no location.replace to call.
+  function billDoc(value) {
     try {
-      var m = BILL_PATH.exec(location.pathname || '');
-      if (!m) return '';
-      var number = decodeURIComponent(m[2] || '');
-      if (!number) return '';
-      return '#bill/' + encodeURIComponent(decodeURIComponent(m[1] || '')) + '/' + encodeURIComponent(number);
-    } catch (e) { return ''; }
+      var m = String(value || '').match(/^([^/]*)\/(.+)$/);
+      if (!m || typeof location.replace !== 'function') return false;
+      var to = API.bill(m[1], m[2]);
+      if (!/\/b\//.test(to)) return false;
+      location.replace(to);
+      return true;
+    } catch (e) { return false; }
   }
 
   // The one "that link didn't resolve" notice. Extracted from voteFallback because
@@ -292,22 +294,6 @@
         'We couldn’t open ' + chamber + ' roll call ' + m[3] +
         ' of the ' + m[1] + 'th Congress. Rather than quietly show you the front page, ' +
         'here’s the plain answer: that link didn’t resolve to a record we could load.');
-    } catch (e) { /* nothing to say, and nothing worth breaking over */ }
-  }
-
-  // The same courtesy /vote/ gets. A /b/ address that opened nothing has landed the
-  // reader on the front page after they followed what looked like a citation, and
-  // the notice claims only what it knows: we could not open it.
-  function billFallback() {
-    try {
-      var m = BILL_PATH.exec(location.pathname || '');
-      if (!m) return;
-      var sit = decodeURIComponent(m[1] || '');
-      var number = decodeURIComponent(m[2] || '');
-      notice('pdx-bill-unresolved', 'Bill profile',
-        'We couldn’t open ' + number + (sit ? ' (' + sit + ')' : '') +
-        '. Rather than quietly show you the front page, here’s the plain answer: ' +
-        'that link didn’t resolve to a measure we could load.');
     } catch (e) { /* nothing to say, and nothing worth breaking over */ }
   }
 

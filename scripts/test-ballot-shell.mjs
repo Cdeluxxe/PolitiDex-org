@@ -178,7 +178,9 @@ for (const [addr, expect] of [
   ["/issue/guns", "/spotlight.html"],
   ["/vote/hr1", "/index.html"],
   ["/d/ut-statehouse-68", "/index.html"],
-  ["/b/hr1", "/index.html"],
+  // The bill address has its own document now (bill.html), and /ballot must not
+  // steal it any more than it stole the others.
+  ["/b/hr1", "/bill.html"],
   // /locker WAS /index.html here, and is now a 301 to /evidence: since the
   // evidence locker became its own document the old spelling is an alias, not a
   // second live address. Still in this list, and still for the reason the list

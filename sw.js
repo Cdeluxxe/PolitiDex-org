@@ -8728,7 +8728,23 @@
 //     every roster pid, and index.html loads roster-portrait.js for it.
 //     MIGRATION COST: none. cmp-data.js and '/' are precached and changed, so it
 //     moves one version.
-const CACHE_VERSION = 'v295';
+// v296 - A BILL ADDRESS IS A DOCUMENT, NOT A PANEL OVER THE HOMEPAGE.
+//     /b/<sitting>/<number> was in the sitemap and every drawer link pointed at
+//     it, and the server answered it with index.html: the bill appeared only
+//     after the homepage's JavaScript opened a panel, and the edge rewrote the
+//     head over a homepage body. netlify.toml now serves /b/* from /bill.html,
+//     one template whose body the edge fills with the measure (number, sitting,
+//     stored title, stored effect lines) or the honest empty. The panel still
+//     opens on the homepage; the bar says /b/… and nothing is appended to it.
+//     The issue page's measure row is an <a href="/b/…"> instead of a button.
+//     SHELL: '/bill.html' is precached as the fifteenth shell and is what an
+//     offline /b/ navigation falls back to (BILL_NAV_RE) — before this a /b/
+//     address offline got '/', the very homepage the document replaces. The
+//     banner regex learns 'bill' so a poisoned '/' holding it is refused.
+//     Bumped because the shell that serves /b/ changed, and bill-detail.js,
+//     share-links.js and issue-page.js — all precached — moved with it.
+//     MIGRATION: none. No table, mapping, weight, verdict or pack TTL moved.
+const CACHE_VERSION = 'v296';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -8859,6 +8875,15 @@ const SHELL_ASSETS = [
   '/mandate.html',
   '/voice.html',
   '/money.html',
+
+  // THE FIFTEENTH SHELL. netlify.toml rewrites /b/* here, so this is the
+  // document every bill address receives. Like /issue.html it is NOT keyed per
+  // address — navDocKey gives a /b/ path no key — because the bill in its body
+  // is written at the edge, per request, and one cached copy of one bill must
+  // never answer for another. This entry is the template only: offline, a /b/
+  // address gets it with its seam saying "record still loading", which names no
+  // measure, rather than the homepage.
+  '/bill.html',
 
   // THE THIRTEENTH SHELL, and the first that is ONE PLACE rather than one lane.
   // SIX DOCUMENTS NOW, one per board: netlify.toml rewrites three spellings of
@@ -9882,6 +9907,9 @@ const COURTS_NAV_RE = /^\/courts\/?$/;
 const MANDATE_NAV_RE = /^\/mandate\/?$/;
 const VOICE_NAV_RE = /^\/voice\/?$/;
 const MONEY_NAV_RE = /^\/money\/?$/;
+// The bill document's addresses: /b/<sitting>/<number> and /b/<number>. A
+// FALLBACK selector only, like the nine above — never a cache slot.
+const BILL_NAV_RE = /^\/b\/.+/;
 
 // ─── THE SEVENTH BRANCH ─────────────────────────────────────────────────────
 // EIGHTEEN exact spellings - six aliases by three forms - because netlify.toml
@@ -10057,7 +10085,7 @@ const PERSON_DOC_LIMIT = 4;
 // sent, and none of them separates two documents served from one origin with one
 // content type — a Netlify rewrite is transparent, so /p/lee and '/' answer with
 // identical header sets. The identity only exists in the body.
-const SUB_SHELL_BANNER_RE = /\b(person|issue|spotlight|ballot|stances|evidence|courts|mandate|voice|money)\.html\s*—\s*THE\s+(?:SECOND|THIRD|FOURTH|FIFTH|SEVENTH|EIGHTH|NINTH|TENTH|ELEVENTH|TWELFTH)\s+SHELL\b/;
+const SUB_SHELL_BANNER_RE = /\b(person|issue|spotlight|ballot|stances|evidence|courts|mandate|voice|money|bill)\.html\s*—\s*THE\s+(?:SECOND|THIRD|FOURTH|FIFTH|SEVENTH|EIGHTH|NINTH|TENTH|ELEVENTH|TWELFTH|FIFTEENTH)\s+SHELL\b/;
 
 // The prefix ceiling, in decoded characters. The furthest banner of the ten
 // sits ~283 characters in — the three newest land at 252 — so this is an order
@@ -10189,6 +10217,9 @@ async function handleNavigate(req) {
   // of the shapes it knows, so nothing has ever been cached under a key for this
   // address and adding a fallback here cannot collide with a held entry.
   const isDistrictBoard = !isHome && !!(url && url.origin === self.location.origin && DISTRICT_BOARD_NAV_RE.test(url.pathname));
+  // Fourteenth of the same kind: a bill address. navDocKey gives it no key, so
+  // this chooses a FALLBACK only, and the one precached template answers.
+  const isBill = !isHome && !!(url && url.origin === self.location.origin && BILL_NAV_RE.test(url.pathname));
 
   // A PERSON DOCUMENT IS A RUNTIME ENTRY, NOT A SHELL ONE. It is keyed to a single
   // address, it is not on SHELL_ASSETS, and nothing on the precache list depends on
@@ -10382,6 +10413,15 @@ async function handleNavigate(req) {
       const boardDoc = await shell.match(boardFile);
       if (boardDoc) return boardDoc;
     }
+  }
+
+  // Offline on a bill address. /bill.html is precached and is what the network
+  // would have returned for this path; its seam names no measure on its own.
+  // Before '/', which since this split does not serve /b/ at all and would hand
+  // a reader who followed a bill citation the front page.
+  if (isBill) {
+    const billDoc = await shell.match('/bill.html');
+    if (billDoc) return billDoc;
   }
 
   // Everything else: '/' is the app shell and it names nobody — the honest

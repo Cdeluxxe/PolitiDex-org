@@ -35,6 +35,7 @@
 //     We never invent a plausible title, quote, date or measure.
 import shareIndex from "../../db/share-index.json" with { type: "json" };
 import shareStances from "../../db/share-stances.json" with { type: "json" };
+import billDocsFile from "../../db/bill-docs.json" with { type: "json" };
 
 // ── The generated index (see scripts/gen-share-index.mjs) ────────────────────
 type PersonRec = { n: string; o?: string; s?: string; p?: string };
@@ -87,6 +88,64 @@ export function canonicalPersonId(id: string): string {
   const hop = PERSON_ALIASES[id];
   if (hop && hop !== id && INDEX.people[hop]) return hop;
   return id;
+}
+
+// ── The bill documents (see scripts/gen-bill-docs.mjs) ───────────────────────
+// "<sitting>|<number>" → what the /b/ document's BODY says: sitting, number,
+// chamber, the stored title and the stored per-issue effect lines. The same set
+// the sitemap lists bills from, so an advertised address is always one of these.
+type BillDocRec = { s: string; n: string; c?: string; t?: string; e?: { i: string; l: string }[] };
+const BILL_DOCS: Record<string, BillDocRec> =
+  (billDocsFile as unknown as { docs: Record<string, BillDocRec> }).docs || {};
+
+// What a bill document prints. `held` says where the identity came from: "doc"
+// is the build-time snapshot (and the only source of effect lines); "live" is a
+// measure the archive holds that arrived after the snapshot — the live ingest
+// adds rows no migration carries — and it prints identity only.
+export type BillDoc = {
+  sitting: string;
+  number: string;
+  chamber: string;
+  title: string;
+  sittingText: string;
+  effects: { issue: string; line: string }[];
+  held: "doc" | "live";
+};
+
+function billDocOf(r: BillDocRec): BillDoc {
+  const congress = /^\d+$/.test(r.s) ? r.s : "";
+  return {
+    sitting: r.s,
+    number: r.n,
+    chamber: r.c || "",
+    title: r.t || "",
+    sittingText: sittingText(congress ? { congress } : { session: r.s }),
+    effects: (r.e || []).filter((x) => x && x.i && x.l).map((x) => ({ issue: x.i, line: x.l })),
+    held: "doc",
+  };
+}
+
+// The snapshot lookup. A sitting is matched as itself (congress digits, or a
+// session code in any case); an address with NO sitting resolves only when the
+// number names exactly one document across the whole archive — the same rule
+// getMeasureRef() applies — because picking one of several would be a guess.
+export function billDocFor(sitting: string, number: string): BillDoc | null {
+  const n = String(number || "").replace(/\s+/g, " ").trim();
+  if (!n) return null;
+  const s = String(sitting || "").trim();
+  if (s) {
+    const hit = BILL_DOCS[`${s}|${n}`] || BILL_DOCS[`${s.toUpperCase()}|${n}`];
+    return hit ? billDocOf(hit) : null;
+  }
+  const hits = Object.values(BILL_DOCS).filter((r) => r.n === n);
+  return hits.length === 1 ? billDocOf(hits[0]) : null;
+}
+
+// The address a bill document lives at — /b/<sitting>/<number>, both segments
+// percent-encoded, the same form canonicalPath() and share-links.js write.
+export function billDocPath(d: { sitting: string; number: string }): string {
+  const e = encodeURIComponent;
+  return d.sitting ? `/b/${e(d.sitting)}/${e(d.number)}` : `/b/${e(d.number)}`;
 }
 
 // The SAID half, keyed "<rosterId>|<issueKey>" (see scripts/gen-share-index.mjs).
@@ -192,6 +251,9 @@ export type Resolved = {
     state: string;
     record?: RecordLine[];
   };
+  // WHICH BILL this page is, for the /b/ document's body. Present on a bill only.
+  // Identity and the stored effect lines — never a score, a direction or a tally.
+  bill?: BillDoc;
 };
 
 // A link we positively know is wrong — as opposed to one we merely could not
@@ -739,13 +801,42 @@ export async function resolveTarget(
   }
 
   if (t.kind === "bill") {
-    const res = await apiGet(
-      origin,
-      `/api/voting-record/measure-ref/${encodeURIComponent(t.congress)}/${encodeURIComponent(t.number)}`
-    );
-    if (!res.ok || !res.data?.measure) return null; // fail open to the site card
-    const m = res.data.measure;
-    const head = measureHeadline(m);
+    // THE DOCUMENT FIRST, AND WITH NO NETWORK. A bill the snapshot holds is
+    // answered from db/bill-docs.json — the same words the /b/ document's body
+    // prints, so the head and the body cannot describe two different measures.
+    // Only a miss asks the database, for a row the live ingest added after the
+    // snapshot was cut.
+    let doc = billDocFor(t.congress, t.number);
+    if (!doc) {
+      const res = await apiGet(
+        origin,
+        `/api/voting-record/measure-ref/${encodeURIComponent(t.congress)}/${encodeURIComponent(t.number)}`
+      );
+      // A definitive "no such measure" is the one answer repeated as a fact. A
+      // timeout or a 500 is our problem, not the address's — fail open.
+      if (!res.ok && (res.status === 404 || res.status === 400)) {
+        return {
+          notFound: true,
+          kind: t.kind,
+          message: `PolitiDex holds no measure numbered ${squeeze(t.number, 60)}${
+            t.congress ? ` in ${sittingText(/^\d+$/.test(t.congress) ? { congress: t.congress } : { session: t.congress }) || t.congress}` : ""
+          }.`,
+        };
+      }
+      if (!res.ok || !res.data?.measure) return null;
+      const m = res.data.measure;
+      const sitting = String(m.congress || m.session || t.congress || "");
+      doc = {
+        sitting,
+        number: String(m.number || t.number),
+        chamber: String(m.chamber || ""),
+        title: String(m.title || m.shortTitle || ""),
+        sittingText: sittingText(m),
+        effects: [],
+        held: "live",
+      };
+    }
+    const head = measureHeadline({ number: doc.number, title: doc.title });
     return {
       kind: t.kind,
       ...chrome,
@@ -758,13 +849,14 @@ export async function resolveTarget(
       // Whose legislature, and whose record. A state measure has no congress and is
       // not sourced from Congress.gov, and saying so anyway would be a false
       // citation on the one line of the card that is nothing but citation.
-      footnote: `${sittingText(m) ? `${sittingText(m)} · ` : ""}Sourced from ${
-        isStateChamber(m?.chamber) ? "le.utah.gov" : "Congress.gov"
+      footnote: `${doc.sittingText ? `${doc.sittingText} · ` : ""}Sourced from ${
+        isStateChamber(doc.chamber) ? "le.utah.gov" : "Congress.gov"
       }.`,
-      hash: `#bill/${encodeURIComponent(
-        String(m.congress || m.session || t.congress || "")
-      )}/${encodeURIComponent(String(m.number || t.number))}`,
+      // NO HASH. A bill has a document of its own now, so there is nothing for the
+      // homepage to be told to open — and #bill/ in the bar is the panel-over-the-
+      // homepage address this whole document replaced.
       ogQuery: `kind=bill&congress=${encodeURIComponent(t.congress)}&number=${encodeURIComponent(t.number)}`,
+      bill: doc,
     };
   }
 

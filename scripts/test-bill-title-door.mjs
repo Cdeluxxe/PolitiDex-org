@@ -541,24 +541,23 @@ section("3 · one address shape, and the app's own addresses agree with it");
   no(UT_DOS, 'data-pdxbill-sit="119"', "the Utah card borrowed a congress for its sitting");
   no(FED_DOS, `data-pdxbill-sit="${UT_SIT}"`, "the federal card borrowed a Utah session for its sitting");
 
-  // THE ADDRESS A READER CAN ALREADY HOLD. #bill/<sitting>/<number> is the in-app
-  // address and /b/<sitting>/<number> is its shareable form; share-links.js owns
-  // the conversion. The pair the door carries has to be the same pair those
-  // addresses carry, or the title would open a different screen than the link to
-  // the same measure.
-  const hashOf = (sit, num) => W.PDXShareLinks._hashFor("bill", sit + "/" + num);
+  // THE ADDRESS A READER CAN ALREADY HOLD. /b/<sitting>/<number> is the bill's
+  // own document (bill.html), and share-links.js is the one builder of it. The
+  // pair the door carries has to be the pair that address carries, or the title
+  // would open a different measure than the link to it. Arriving on that path
+  // must NOT be converted into a #bill/ hash any more: the path is the address,
+  // and bill-detail.js opens the panel from it.
   for (const [num, sit] of [[UT_NUM, UT_SIT], [FED_NUM, FED_SIT]]) {
-    const want = hashOf(sit, num);
-    ok(want === "#bill/" + encodeURIComponent(sit) + "/" + encodeURIComponent(num),
-      `the in-app address for ${num} is not the shape share-links owns`);
-    // The shareable path, resolved by the shipped module rather than by this file.
+    const want = "/b/" + encodeURIComponent(sit) + "/" + encodeURIComponent(num);
+    const built = String(W.PDXShareLinks.bill(sit, num) || "").replace(/^[a-z]+:\/\/[^/]+/i, "");
+    ok(built === want, `the address for ${num} is not the shape share-links owns — got ${built}`);
     const w2 = boot(R, ["share-links.js"]);
-    w2.location.pathname = "/b/" + encodeURIComponent(sit) + "/" + encodeURIComponent(num);
+    w2.location.pathname = want;
     w2.location.href = w2.location.origin + w2.location.pathname;
     w2.location.hash = "";
     w2.PDXShareLinks.resolve();
     const nav = w2.__nav.join(" ");
-    has(nav, want, `/b/${sit}/${num} does not resolve to the same in-app address the door carries`);
+    no(nav, "#bill/", `/b/${sit}/${num} was turned into a #bill/ hash — the path is the bill's document`);
   }
 
   // …and the bills index, which spells the sitting on a different field, agrees
@@ -590,7 +589,7 @@ section("3 · one address shape, and the app's own addresses agree with it");
     if (!cardSit) continue;
     if (doorPairs.get(num).has(cardSit)) {
       agreed++;
-      eq(hashOf(cardSit, num), hashOf(cardSit, num),
+      eq(W.PDXShareLinks.bill(cardSit, num), W.PDXShareLinks.bill(cardSit, num),
         `${num}: the two address builders disagree`);
     } else {
       disagreed.push(`${num}: index says ${cardSit}, the door says ${[...doorPairs.get(num)].join("/")}`);

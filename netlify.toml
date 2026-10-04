@@ -815,9 +815,24 @@
 # for /b/<anything>. share-preview.ts runs in front of it (its config lists /b/*)
 # to give the path a real card, and share-links.js posts an honest notice on
 # arrival when the address opened nothing.
+#
+# ── WHAT CHANGED: /b/* NOW SERVES ITS OWN DOCUMENT ────────────────────────────
+# The block above describes a rewrite to index.html, and that was the defect:
+# /b/119/H.J.Res.%20131 was in the sitemap and every drawer link pointed at it,
+# and the server answered it with the homepage. The bill appeared only after the
+# homepage's JavaScript opened a panel over itself, and the edge rewrote the head
+# and left the body the homepage's — so a crawler read 2 MB of front page under a
+# bill's title. /b/* now serves /bill.html, one template, the way /p/* serves
+# /person.html. share-preview.ts writes the measure into that template's BODY
+# (number, sitting, stored title, stored effect lines) or, for a sitting or
+# number the archive does not hold, the honest empty with a real 404.
+#
+# THIS IS STILL THE ONE /b/ RULE. No second splat, no per-bill rule, nothing that
+# answers an unknown number with a plausible page: the template names no bill on
+# its own, and only the edge — reading the archive — puts one in it.
 [[redirects]]
   from = "/b/*"
-  to = "/index.html"
+  to = "/bill.html"
   status = 200
 
 # ═════════════════════════════════════════════════════════════════════════════

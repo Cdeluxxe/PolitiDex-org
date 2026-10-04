@@ -216,7 +216,15 @@ for (const addr of ["/i/housing", "/i/gun_safety", "/i/lands_preserve", "/i/anyt
     `rewrite: ${addr} still serves /issue.html at 200 (got ${hit ? hit.to + " " + hit.status : "no matching rule"})`);
 }
 // AND NOTHING ELSE WAS STOLEN. The request named these five by name.
-for (const addr of ["/vote/hr1", "/d/ut-statehouse-68", "/b/hr1"]) {
+// /b/hr1 LEFT THIS LIST when the bill address got its own document: /b/* now
+// serves /bill.html (see scripts/test-bill-document.mjs), on the same terms the
+// person, issue and Spotlight addresses left it before.
+{
+  const hit = resolveAddr("/b/hr1");
+  ok(hit && hit.to === "/bill.html" && String(hit.status) === "200",
+    `rewrite: /b/hr1 is served /bill.html at 200 (got ${hit ? hit.to + " " + hit.status : "no matching rule"})`);
+}
+for (const addr of ["/vote/hr1", "/d/ut-statehouse-68"]) {
   const hit = resolveAddr(addr);
   ok(hit && hit.to === "/index.html",
     `rewrite: ${addr} still resolves to /index.html — this pass took only /issue/* (got ${hit ? hit.to : "no matching rule"})`);
