@@ -8612,7 +8612,18 @@
 //     MIGRATION COST: none. No location key is migrated, renamed or copied.
 //     find.html, pdx-return.js and who-represents-me.js are precached and
 //     changed, so it moves one version.
-const CACHE_VERSION = 'v287';
+// v288 - THE MOBILE TOP BAR STAYS INSIDE THE PHONE. On /voice and a district
+//     board the page was wider than the screen, the fixed bar grew with it,
+//     "Find the Record" read as FIN and the account chip sat past the edge.
+//     shell-chrome.css now clips sideways overflow at the root of every shell
+//     that wears the bar (clip on body, so sticky rows and anchored jumps keep
+//     working), the bar holds its own contents, and the narrowest phones get a
+//     tighter row so the brand stays readable. /me keeps its own header; the
+//     /find sheet is fixed above the bar and still covers the page. No new
+//     route. MIGRATION COST: none. No location key is migrated, renamed or
+//     copied. shell-chrome.css is precached and changed, so it moves one
+//     version.
+const CACHE_VERSION = 'v288';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
