@@ -350,6 +350,14 @@ export const CJ_SEAMS = [
   ["    return { style: IC.styleFor(key), cls: on ? ' pdxc-ic' : '', on: on };\n  }\n",
    "  // The dot repeats the row's colour next to the issue name, where the eye",
    "the title door and the ⓘ beside it"],
+  // ── one tally for the recommit Yea (v297) ─────────────────────────────────
+  // The measure list's split. A roll call with no stored support meaning is
+  // counted as unmapped instead of falling through to "no side", and the
+  // chip-length and sentence forms name it. The split still counts whatever _dosItemDir
+  // returns; no weight, floor or ratio enters it.
+  ["  function _ledSplit(pid, issueKey, ov) {\n",
+   "  // Pure: an officialIssue() read → what the row's record chip should say, plus the\n",
+   "the list's split, and the unmapped row"],
   // K7. The proof line's number, as the door. Pointer only — the line sits in a
   // <summary> that takes no focus on purpose, because a second tab stop per row
   // would compete with the row's own expand control — and suppressed on a stated
@@ -447,6 +455,13 @@ export const CJ_SEAMS_BELOW = [
   ["          voteKey: _orVoteKey(p.item)\n",
    "    } else if (ov.officialActions && ov.officialActions.items) {\n",
    "the live read's executive row"],
+  // ── one tally for the recommit Yea (v297), the row's direction ────────────
+  // _dosItemDir applies the stored `advanceInverted` before the mapping, as
+  // _voteEffectiveSupport and _ledExecDir already did. On a motion to recommit or
+  // commit a Yea blocks the bill; this read was the one that dropped the flag.
+  ["  function _dosItemDir(d) {\n",
+   "  // ── AN ACT WITH NO SIDE IS NOT A QUIET YEA ──",
+   "the row's direction, with the stored inversion"],
   // L2/L3. THE CARD'S NUMBER AND ITS TITLE, as real <button>s. Legal here where
   // it is not legal in the roll-up row: this is a <summary>, whose other control
   // — "See all N readings" — has been a real button since it shipped. Both slots
@@ -488,6 +503,11 @@ export const CJ_SEAMS_BELOW = [
   ["      var num = el && el.getAttribute ? (el.getAttribute('data-pdxbill-num') || '') : '';\n      if (!num) return;\n",
    "  function _drvOpen(el) {\n",
    "the door emitter, and the honest refusal"],
+  // ── one tally for the recommit Yea (v297), the list's closed face ─────────
+  // The split on the closed face says what it counts: the mapped direction.
+  ["      ((spread.single && spread.judged > 1) ? ' · all one measure' : '') +\n",
+   "    // AND THE COUNT IS ENUMERATED, not merely asserted.",
+   "the closed face says it counts mapped direction"],
   ["  var _DOS_DRV_H = 'Which measures this came from';\n",
    "  function _dosDrivers(pid, issueKey, ov) {\n",
    "the singular heading, as a constant"],
@@ -1362,6 +1382,16 @@ export function assertConsistencySeams(bodies, api, below) {
   ok(!/MIN_|FLOOR|floor|publishable|score|Math\.round/.test(rollup),
     "the empty-roll-up seam reads a floor, a score or a weight — it chooses one word for one empty case");
 
+  // ── one tally for the recommit Yea (v297) ──────────────────────────────────
+  // The split counts the row read's answer and names the unmapped row; it reads
+  // no weight, floor or score, and divides nothing.
+  const lsplit = cut("the list's split, and the unmapped row");
+  has(lsplit, "var dir = _dosItemDir(d);", "the list's split no longer counts the row's own direction read");
+  has(lsplit, "else if (d.lane === 'record' && !d.support &&", "a roll call with no stored meaning is no longer kept apart");
+  has(lsplit, "if (sp.unmapped) parts.push(sp.unmapped + ' unmapped');", "the unmapped row is no longer named on the list");
+  ok(!/MIN_|FLOOR|floor|weight|score|Math\.|\s\/\s/.test(strip(lsplit)),
+    "the list's split reads a floor, a weight or a score, or divides — it counts rows and nothing else");
+
   // ── the withdrawn public-lands backfill (v169) ──────────────────────────────
   // The span replaced a mapping with a note, so the argument is that a note is all
   // it is. Comments out, nothing quoted may remain: one more key here would be a
@@ -1627,6 +1657,17 @@ export function assertConsistencyExportSeams(bodies, api) {
   for (const t of [badge, expA, expB])
     ok(!/function|=>|Math\.|MIN_|FLOOR/.test(strip(t)),
       "an export line carries logic — these are references to what the file already holds");
+
+  // ── one tally for the recommit Yea (v297) ──────────────────────────────────
+  // The row read applies the stored inversion and keeps its honest empties; the
+  // closed face labels the split it prints. Neither reads a weight or a floor.
+  const rdir = cut("the row's direction, with the stored inversion");
+  has(rdir, "if (!d.support) return '';", "a roll call with no stored meaning is given a direction again");
+  has(rdir, "if (d.item && d.item.advanceInverted) adv = !adv;", "the row's direction dropped the stored recommit/commit inversion");
+  ok(!/MIN_|FLOOR|floor|weight|score|Math\./.test(strip(rdir)),
+    "the row's direction reads a floor, a weight or a score");
+  const face = cut("the closed face says it counts mapped direction");
+  has(face, "(_dosHasBallot(items) ? 'mapped direction: ' : '')", "the closed face no longer says what its split counts");
 
   // ── the one-measure roll-up (v133), nine spans in the same lower half ──────
   // J1. THE BOUNDARY. Boundaries only: no token is rewritten anywhere in the span,

@@ -4076,13 +4076,23 @@
   function _ledSplit(pid, issueKey, ov) {
     var items = [];
     try { items = _dosItems(pid, issueKey, ov) || []; } catch (e) { items = []; }
-    var s = { listed: items.length, advances: 0, opposes: 0, noSide: 0, unclear: 0, held: 0 };
+    var s = { listed: items.length, advances: 0, opposes: 0, noSide: 0, unclear: 0, unmapped: 0, held: 0 };
     for (var i = 0; i < items.length; i++) {
       var d = items[i];
       if (d.held) { s.held++; continue; }
       var dir = _dosItemDir(d);
       if (dir === 'advances') s.advances++;
       else if (dir === 'opposes') s.opposes++;
+      // A ROLL CALL WITH NO STORED DIRECTION IS UNMAPPED, NOT A SIDE AND NOT "NO
+      // SIDE". With no support meaning on file there is nothing to turn the clerk's
+      // Yea into a direction, and reading it as one is the guess this list must not
+      // make. It used to fall through to _dosNoSide's catch-all and print as "took
+      // no side", which describes the member; this describes our file, which is the
+      // fact. A recorded absence keeps its own bucket whatever the mapping says.
+      // Its own counter rather than `unclear`, which also holds curated formal
+      // rows that were never ballots and keep their existing face.
+      else if (d.lane === 'record' && !d.support &&
+        !_DOS_NOSIDE[String((d.item && d.item.position) || '').toLowerCase()]) s.unmapped++;
       else if (_dosNoSide(d)) s.noSide++;
       else s.unclear++;
     }
@@ -4099,11 +4109,14 @@
   // issue is absences has a shape, and "1 no side" is it. Gating on the sides meant
   // the one case where the leftover IS the record printed nothing at all.
   function _ledSplitSay(sp) {
-    if (!sp || (!sp.directional && !sp.noSide)) return '';
+    if (!sp || (!sp.directional && !sp.noSide && !sp.unmapped)) return '';
     var parts = [];
     if (sp.advances) parts.push(sp.advances + ' advancing');
     if (sp.opposes) parts.push(sp.opposes + ' opposing');
     if (sp.noSide) parts.push(sp.noSide + ' no side');
+    // Named, and never folded into a side: a row with no mapped direction is a
+    // gap in our file, said in those words.
+    if (sp.unmapped) parts.push(sp.unmapped + ' unmapped');
     return parts.join(' · ');
   }
   // …and the sentence form, which names the issue, accounts for every row it did not
@@ -4120,6 +4133,7 @@
     // clauses are kept apart for the same reason the counters are.
     if (sp.noSide) rest.push(sp.noSide + ' took no side');
     if (sp.unclear) rest.push(sp.unclear + ' with no direction mapped');
+    if (sp.unmapped) rest.push(sp.unmapped + ' unmapped');
     if (sp.held) rest.push(sp.held + ' not scorable');
     return 'Mapped directions on ' + (_issueLabel(issueKey) || 'this issue') + ': ' +
       parts.join(', ') + (rest.length ? ', ' + rest.join(', ') : '') + '. ' + _LED.notScore;
@@ -14464,11 +14478,28 @@
         return ((d.support !== 'yea_opposes') === d.item.supports) ? 'advances' : 'opposes';
       }
       if (!yea && !nay) return '';
-      // A Yea on a `yea_supports` mapping advances the issue's direction; every other
-      // combination of the two flips it once.
-      return ((d.support !== 'yea_opposes') === yea) ? 'advances' : 'opposes';
+      // THE STORED DIRECTION WINS OVER THE CLERK'S WORD. On a motion to recommit or
+      // to commit, a Yea BLOCKS the bill: the clerk records "Yea" and the act held
+      // the measure back. The ingest stores that as `advanceInverted`
+      // (yeaBlocksMeasure in vr-pack.ts) and _voteEffectiveSupport — the card's and
+      // the drawer's read — has always applied it. This function did not, so the
+      // measure list under the drawer counted three recommit Yeas as advancing the
+      // issue while the card and the drawer above it, over the same eight rows,
+      // counted them against: "3 advancing · 5 opposing" under "0 for · 8 against".
+      // Same flip, same place in the order as the engine (vote→measure here, then
+      // measure→issue below), and the same correction _ledExecDir applies to a veto.
+      var adv = yea;
+      if (d.item && d.item.advanceInverted) adv = !adv;
+      // Advancing the measure on a `yea_supports` mapping advances the issue's
+      // direction; a `yea_opposes` mapping flips it once.
+      return ((d.support !== 'yea_opposes') === adv) ? 'advances' : 'opposes';
     }
     return (d.effect === 'advances') ? 'advances' : (d.effect === 'opposes') ? 'opposes' : '';
+  }
+  // Does this list hold a roll call — a row whose Yea or Nay the clerk recorded?
+  function _dosHasBallot(items) {
+    for (var i = 0; i < (items || []).length; i++) if (items[i] && items[i].lane === 'record') return true;
+    return false;
   }
   // ── AN ACT WITH NO SIDE IS NOT A QUIET YEA ──────────────────────────────────
   // The enumeration lists everything on file, which is right — an abstention on a
@@ -15878,7 +15909,15 @@
     var sum = cov.listed + ' ' + (cov.listed === 1 ? n.one : n.many) + ' listed here' +
       (cov.held ? ' — ' + cov.held + ' of them not scorable' : '') +
       ((spread.single && spread.judged > 1) ? ' · all one measure' : '') +
-      (_ledSplitSay(split) ? ' · ' + _ledSplitSay(split) : '');
+      // SAYS WHAT IT COUNTED. The split is the mapped direction of each act on the
+      // issue — the clerk's Yea or Nay after the recommit/commit inversion and the
+      // mapping — not a tally of the clerk's words, and a recommit Yea is the row
+      // where those two differ. Said on the face so "8 opposing" over a column of
+      // Yeas is a stated reading rather than an arithmetic error. Only where there
+      // is a ballot to misread: a list of documents has no clerk's word, and its
+      // face is left exactly as it was.
+      (_ledSplitSay(split) ? ' · ' + (_dosHasBallot(items) ? 'mapped direction: ' : '') +
+        _ledSplitSay(split) : '');
     // AND THE COUNT IS ENUMERATED, not merely asserted. A collapsed "9 actions listed
     // here" is a number a reader has to take on trust and then open a drawer to
     // audit; naming every instrument on the closed face turns it into something they
@@ -16801,12 +16840,19 @@
   //
   // Fails closed to the dossier's own word if the shared helper is not loaded, so
   // a sheet rendered without stance-helpers.js still prints the counts it can.
+  //   v297: _dosItemDir now applies advanceInverted too, so _ledSplit and this
+  // ledger give the same answer on a recommit; the paragraph above is why the two
+  // disagreed until then.
   function _dosActDir(d) {
     if (!d || d.held) return '';
     // An executive row has no ballot to invert: its direction is the document's,
     // already read through _ledExecDir (veto inversion included) when the row was
     // built, and carried as `effect`.
     if (d.lane === 'exec') return d.effect === 'advances' || d.effect === 'opposes' ? d.effect : '';
+    // No stored support meaning, no direction. _voteEffectiveSupport defaults a
+    // missing meaning to yea_supports, which on this ledger would put an unmapped
+    // Yea on the "for" side; the row stays out of the for/against line instead.
+    if (d.lane === 'record' && !d.support) return '';
     try {
       if (typeof window._voteEffectiveSupport === 'function') {
         var eff = window._voteEffectiveSupport(d.item, d.support);
