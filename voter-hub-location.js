@@ -2461,6 +2461,38 @@
     return /^al$/i.test(m[1]) ? 'AL' : String(parseInt(m[1], 10));
   }
 
+  // ── AND THE LIVE INDEX FILES THE DISTRICT IN ITS OWN FIELD ─────────────────
+  // The two dialects above are the BUNDLE's: cmp-data.js writes the district
+  // into `state` ("Utah · District 2"). The live Firestore roster does not. Its
+  // documents carry `state: "Utah"` and the district separately, in `district`,
+  // in the seed scripts' own spellings: "2", "ID-02", "Idaho — 2nd District",
+  // "South Dakota — At-Large". So on a document whose only roster is the live
+  // index — /me — the walk below found no U.S. Representative in any district,
+  // and the ballot printed "No officeholder on file" for U.S. House District 2
+  // under an account card that named the district, while /district/ut-cd-2
+  // (which carries the bundle) named Celeste Maloy.
+  //
+  // The rule is unchanged: a record is only placed in a district it NAMES. This
+  // reads the second place a record names one, and only when the first place is
+  // silent — a `state` tail always wins. A `district` that names a Senate seat,
+  // a legislative district ("UT District 68" is refused by the office gate in
+  // the walk anyway) or nothing parseable returns '' and places nobody.
+  function _pdxCdOfRosterDistrict(v) {
+    var s = String(v == null ? '' : v).trim();
+    if (!s || /\bsenate\b/i.test(s)) return '';
+    if (/\bat[-\s]?large\b/i.test(s)) return 'AL';
+    var m = s.match(/^(\d{1,2})$/) ||
+            s.match(/^[A-Za-z]{2}-(\d{1,2}|AL)$/) ||
+            s.match(/(?:^|\u2014|-|\s)\s*(\d{1,2})(?:st|nd|rd|th)\s+(?:congressional\s+)?district\b/i) ||
+            s.match(/^(?:[A-Za-z]{2}\s+)?district\s+(\d{1,2})$/i);
+    if (!m) return '';
+    return /^al$/i.test(m[1]) ? 'AL' : String(parseInt(m[1], 10));
+  }
+  function _pdxCdOfRosterRec(rec) {
+    if (!rec) return '';
+    return _pdxCdOfRosterState(rec.state) || _pdxCdOfRosterDistrict(rec.district);
+  }
+
   // ONE spelling for a district number, so "03", "3", "OH-3" and 3 are one key.
   // At-large is its own key: the six single-district states and DC have no
   // number, the Census writes them "00" (and DC "98"), and `loc.district` is
@@ -2479,6 +2511,12 @@
   // reason the statewide memo is (see above): a walk taken before cmp-data.js
   // executes must not be remembered as the answer.
   var _pdxCdCache = {};
+  function _pdxCanonPid(pid) {
+    var t = null;
+    try { t = window.PDX_PROFILE_ALIAS; } catch (e) {}
+    var v = (t && typeof t === 'object' && Object.prototype.hasOwnProperty.call(t, pid)) ? t[pid] : '';
+    return v ? String(v) : String(pid);
+  }
   function _pdxCdIndex(st) {
     var idx = {};
     var T = _pdxRosterTable();
@@ -2487,7 +2525,7 @@
       if (!Object.prototype.hasOwnProperty.call(T, pid)) continue;
       var rec = T[pid];
       if (!rec || _pdxStateName(rec.state) !== st) continue;
-      var key = _pdxCdOfRosterState(rec.state);
+      var key = _pdxCdOfRosterRec(rec);
       if (!key) continue;
       if (!_pdxIsUsRepOffice(rec.office)) continue;
       if (!_pdxArchiveInOffice(rec)) continue;
@@ -2496,7 +2534,20 @@
       // is mid-correction and the honest row is the one that names nobody. The
       // slot is nulled rather than left on the first writer, so a stale record
       // cannot win a race by sort order.
-      if (Object.prototype.hasOwnProperty.call(idx, key)) { idx[key] = null; continue; }
+      //
+      // ONE OFFICEHOLDER UNDER TWO KEYS IS NOT TWO CLAIMANTS. The live index can
+      // hold a member under the slug of their name and under the roster id, and
+      // PDX_PROFILE_ALIAS is this repo's ruling that those are one person. The
+      // canonical spelling keeps the slot; anybody else still nulls it.
+      if (Object.prototype.hasOwnProperty.call(idx, key)) {
+        var held = idx[key];
+        if (held && _pdxCanonPid(held) === _pdxCanonPid(pid)) {
+          if (_pdxCanonPid(pid) === pid) idx[key] = pid;
+          continue;
+        }
+        idx[key] = null;
+        continue;
+      }
       idx[key] = pid;
     }
     return idx;
@@ -2621,7 +2672,7 @@
       // senator's record is perfectly legible, and what it legibly says is
       // that this is not their seat. An empty office string still says nothing.
       if (String(rec.office || '').trim() && !_pdxIsUsRepOffice(rec.office)) return 'mismatch';
-      var claim = _pdxCdOfRosterState(rec.state);
+      var claim = _pdxCdOfRosterRec(rec);
       if (!claim) return 'unknown';
       if (claim === key) return 'match';
       // The same one-way at-large tolerance _pdxUsHouseSeat() applies, for the
@@ -3191,18 +3242,38 @@
     //     refuses a remembered pid whose remembered number is not this one — so
     //     it can fill a document that has no roster (/me, /voice) without ever
     //     answering for the wrong seat.
-    //   · the CURATED BALLOT, on a COLD ROSTER only. A warm roster with no row
-    //     for this CD is an answer ("we hold no file for that seat"), and the
-    //     row above prints it as one. A roster that has not arrived is a wait,
-    //     and on that document the curated race — whose own district is where
-    //     `hd` came from a few lines up — is the only thing that knows the name.
+    //   · the CURATED BALLOT, on a COLD ROSTER, or on a warm one that does not
+    //     place its incumbent in another seat (see curatedHouse below). A
+    //     roster that has not arrived is a wait, and on that document the
+    //     curated race — whose own district is where `hd` came from a few lines
+    //     up — is the only thing that knows the name.
     //
     // A Utah reader with the tables present and a keyed district sees exactly
     // what they saw before; one whose district the roster does not key now gets
     // "District N - no member on file yet" instead of somebody else's member.
+    //
+    // AND A WARM ROSTER THAT SAYS NOTHING IS NOT A ROSTER THAT SAYS NO. The live
+    // index does not always carry a district on a member's record, and a record
+    // that names no district is 'unknown' to pdxSeatClaim, not 'mismatch'. The
+    // curated incumbent is refused on a warm roster only when the roster places
+    // that person in ANOTHER seat (the 2026-map case above), or when the curated
+    // race is for another number than the one this row prints. Otherwise the
+    // curated race is about this very district and its incumbent is its answer.
+    var curatedHouse = function () {
+      if (!utah || hd == null) return null;
+      var p = inc('house', 'representative');
+      if (!p) return null;
+      if (!_pdxRosterSize()) return p;
+      var rep = vb && vb.byOffice && vb.byOffice.representative;
+      if (rep && rep.district != null && _pdxDigits(rep.district) !== _pdxDigits(hd)) return null;
+      if (!_pdxRosterKeeps(p)) return null;
+      var claim = 'unknown';
+      try { claim = String(window.pdxSeatClaim(p, 'house', hd) || 'unknown'); } catch (e) { claim = 'unknown'; }
+      return claim === 'mismatch' ? null : p;
+    };
     var hp = (hd != null ? window._pdxUsHouseSeat(state, hd) : null)
           || (utah ? _pdxResolvedPid(mem, 'house', hd) : null)
-          || ((utah && !_pdxRosterSize()) ? inc('house', 'representative') : null);
+          || curatedHouse();
     // AND THE TWO LEGISLATIVE SEATS GET THE SAME TREATMENT, from the table
     // /voice already reads for them.
     //

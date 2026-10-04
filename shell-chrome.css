@@ -93,6 +93,17 @@ body { overflow-x: clip; }
 }
 .pdx-sh-link:hover { color: #e7eefb; border-color: rgba(255, 255, 255, 0.26); }
 
+/* ── EVERY PILL PRINTS A WHOLE WORD, OR IT PRINTS ITS SHORT WORD ──────────
+   On a phone the strip had room for one full label after POLITIDEX and the
+   chip, so the second pill — "Find the Record" on a district board, "Find My
+   Districts" on /find — was cut at the strip's edge and read as FIN. A
+   fragment of a label is not a label. Each pill carries its full label and a
+   one-word short label in the markup; below 640px the short one prints, which
+   lets the first two pills sit whole inside the screen down to 320px. Both
+   spans are the link's own text, so the short word is still the link and is
+   its accessible name. */
+.pdx-sh-short { display: none; }
+
 /* THE CURRENT ROOM IS MARKED, NOT REMOVED. A reader who lands on /money from a
    pasted link needs to see where they are in the same list that shows them
    where else they can go — and the link still works, because a self-link that
@@ -159,6 +170,14 @@ body { overflow-x: clip; }
 @media (max-width: 640px) {
   .pdx-sh-bar { gap: 0.5rem; padding-left: 0.65rem; padding-right: 0.65rem; }
   .pdx-sh-link { font-size: 0.64rem; padding: 0.28rem 0.5rem; letter-spacing: 0.1em; }
+  .pdx-sh-full { display: none; }
+  .pdx-sh-short { display: inline; }
+  /* The pill past the edge fades rather than ending on a cut letter: it reads
+     as "the strip scrolls", which is true, and not as a word. */
+  .pdx-sh-links {
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 0.9rem), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 0.9rem), transparent);
+  }
   .pdx-acct-lb { max-width: 5.5rem; }
 }
 /* The narrowest phones: the brand keeps its full word and the chip its place,

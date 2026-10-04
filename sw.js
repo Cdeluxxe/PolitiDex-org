@@ -8651,7 +8651,21 @@
 //     are precached and changed (compare-hub.js, which also gained the
 //     loader, is a runtime entry), and me-door.js joins the shell, so it
 //     moves one version.
-const CACHE_VERSION = 'v290';
+// v291 - THE BAR'S SECOND PILL PRINTS A WORD, AND /me NAMES THE HOUSE MEMBER.
+//     v288 kept the bar inside the phone, but its link strip still scrolled
+//     and the second pill ended at the strip's edge: "Find the Record" on a
+//     district board and "Find My Districts" on /find both read as FIN.
+//     Every bar now carries a full and a one-word label ("Reps", "Record",
+//     "Find", "Ballot", ...) and prints the short one below 640px, so the
+//     first two pills sit whole beside POLITIDEX and the chip; the pill past
+//     the edge fades. Separately, the U.S. House walk in voter-hub-location.js
+//     (a runtime entry) reads a live-index record's own `district` field, so
+//     /me's ballot names the member the account card's district holds. No
+//     new route, no equity copy. MIGRATION COST: none. No location key is
+//     migrated, renamed or copied. shell-chrome.css,
+//     find.html and every district board are precached and changed, so it
+//     moves one version.
+const CACHE_VERSION = 'v291';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
