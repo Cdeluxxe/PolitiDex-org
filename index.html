@@ -21930,6 +21930,10 @@ window.PDXLazy = (function () {
   <!-- All-Seeing Eye search — extracted to /all-seeing-eye.js (first-paint pass). Plain sync script at
        the original inline position: same execution order, same global scope.
        The preload scanner fetches it in parallel long before the parser gets here. -->
+  <!-- The roster-field reader the search row paints its face from (photoFor in
+       all-seeing-eye.js) — the same pdxPortrait /p/<pid> and the district board
+       read, so the three surfaces cannot paint two different faces. -->
+  <script src="/roster-portrait.js"></script>
   <script src="/all-seeing-eye.js"></script>
 
   <!-- ═══════════════════════════════════════════════════════════════════

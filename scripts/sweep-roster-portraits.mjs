@@ -258,7 +258,161 @@ export function reportText(p) {
   return lines.join("\n");
 }
 
+// ═════════════════════════════════════════════════════════════════════════════
+// THE SECOND SWEEP — THE STORE THE FIRST ONE DID NOT OPEN
+// ─────────────────────────────────────────────────────────────────────────────
+// The search row (all-seeing-eye.js photoFor) asked window._getPhotoUrl, and
+// _getPhotoUrl's key hop (_photoKeys) walks every alias of a pid through the
+// LIVE roster too: the Firestore `politicians` collection, published as
+// window.PROFILES. A face filed on an alias document — `politicians/klisonbee`
+// carries Karianne Lisonbee's `photo`, and her roster row is `lisonbee_h14` —
+// painted in search while pdxPortrait, which reads PROFILES[pid] and
+// CMP_DATA[pid] and does not hop, painted 🏛 on /p/lisonbee_h14 and on her board.
+// The first sweep built its world from the bundled tables only, so it never saw
+// that document.
+//
+// THE SAME RULE, per roster pid:
+//   the roster field  = pdxPortrait(pid), the owner, live tier first;
+//   the search's face = _getPhotoUrl(pid) with that pid's OWN two tiers held
+//                       out, so it is what the search row reached beyond the
+//                       field (an alias document, a slug, the map).
+//   field empty, search has one  → COPY the search URL onto CMP_DATA[pid].photo.
+//   both, and they differ        → DO NOT PICK. Reported; the field stays.
+//   neither                      → nothing; the row's own mark stays.
+// Firestore is READ (name + photo field mask, the same public REST read
+// firebase-boot.js makes on every page load) and never written. No image is
+// downloaded: the URL string is all that moves.
+//   node scripts/sweep-roster-portraits.mjs --live   read the live roster, apply, write the report
+export const LIVE_FIELDS = ["name", "photo"];
+export async function fetchLive() {
+  const fb = R("firebase-boot.js");
+  const project = (/projectId:\s*"([^"]+)"/.exec(fb) || [])[1];
+  const key = (/apiKey:[^"\n]*"([^"]+)"/.exec(fb) || [])[1];
+  if (!project || !key) throw new Error("firebase-boot.js: the roster's project config moved");
+  const base = `https://firestore.googleapis.com/v1/projects/${project}/databases/(default)/documents/politicians`;
+  const live = {};
+  let token = null;
+  do {
+    const q = ["pageSize=300", "key=" + encodeURIComponent(key)]
+      .concat(LIVE_FIELDS.map((f) => "mask.fieldPaths=" + f));
+    if (token) q.push("pageToken=" + encodeURIComponent(token));
+    const r = await fetch(base + "?" + q.join("&"));
+    if (!r.ok) throw new Error(`the live roster answered HTTP ${r.status}`);
+    const d = await r.json();
+    for (const doc of d.documents || []) {
+      const f = doc.fields || {};
+      const o = {};
+      for (const k of LIVE_FIELDS) if (f[k] && typeof f[k].stringValue === "string") o[k] = f[k].stringValue;
+      live[doc.name.split("/").pop()] = o;
+    }
+    token = d.nextPageToken;
+  } while (token);
+  return live;
+}
+// firebase-boot.js applies PDX_PHOTO_FIX to every document before it lands in
+// PROFILES; the sweep sees PROFILES as the page does.
+function photoFixSource() {
+  const m = /var PDX_PHOTO_FIX = \{[\s\S]*?\};/.exec(R("firebase-boot.js"));
+  if (!m) throw new Error("firebase-boot.js no longer declares PDX_PHOTO_FIX");
+  return m[0] + "\nwindow.PDX_PHOTO_FIX = PDX_PHOTO_FIX;";
+}
+// live: { docId: { name, photo } } — a fetchLive() answer, or a fixture.
+export function planLive(live, cmpSrc = R("cmp-data.js"), bpSrc = R("browse-photos.js")) {
+  const w = world(cmpSrc, bpSrc);
+  vm.runInContext(photoFixSource(), vm.createContext(w), { filename: "firebase-boot.js[PDX_PHOTO_FIX]" });
+  const fix = w.PDX_PHOTO_FIX || {};
+  w.PROFILES = {};
+  for (const id of Object.keys(live)) {
+    const o = Object.assign({}, live[id]);
+    if (fix[id]) o.photo = fix[id];
+    w.PROFILES[id] = o;
+  }
+  vm.runInContext(R("roster-portrait.js"), vm.createContext(w), { filename: "roster-portrait.js" });
+  const D = w.CMP_DATA;
+  const pids = Object.keys(D);
+  const roster = {}, search = {};
+  for (const pid of pids) {
+    roster[pid] = String(w.pdxPortrait(pid) || "").trim();
+    const pr = w.PROFILES[pid];
+    const lp = pr ? pr.photo : undefined, cp = D[pid].photo;
+    if (pr) delete pr.photo;
+    delete D[pid].photo;
+    search[pid] = String(w.__photo(pid) || "").trim();
+    if (lp !== undefined) pr.photo = lp;
+    if (cp !== undefined) D[pid].photo = cp;
+  }
+  const verdict = classify(roster, search);
+  // Which tier the field answered from, for the disagreement report.
+  for (const d of verdict.differ) {
+    const lp = String((w.PROFILES[d.pid] && w.PROFILES[d.pid].photo) || "").trim();
+    d.tier = lp && lp === d.roster ? `live politicians/${d.pid}` : "cmp-data.js";
+  }
+  const CMP2 = verdict.copy.length ? writeRosterPhotos(cmpSrc, verdict.copy) : cmpSrc;
+  return { verdict, roster, search, pids, docs: Object.keys(live).length, CMP: cmpSrc, CMP2 };
+}
+
+export const LIVE_OPEN = "<!-- live-sweep -->";
+export const LIVE_CLOSE = "<!-- /live-sweep -->";
+export function liveReportText(l, when) {
+  const v = l.verdict;
+  const lines = [LIVE_OPEN, "## Second sweep — the live roster the first sweep did not open", ""];
+  lines.push("The search dropdown's face came from `window._getPhotoUrl`, whose key hop (`_photoKeys`) walks");
+  lines.push("every alias of a pid through the live Firestore roster — the `politicians` collection,");
+  lines.push("published as `window.PROFILES`. A `photo` filed on an alias document reached search and no");
+  lines.push("other surface: `politicians/klisonbee` carries Karianne Lisonbee's portrait while her roster");
+  lines.push("row is `lisonbee_h14`, so search painted her face and `/p/lisonbee_h14` and `/district/ut-hd-14`,");
+  lines.push("which read `pdxPortrait` (no hop), painted 🏛.");
+  lines.push("");
+  lines.push(`Read ${when}: ${l.docs} live documents (\`name\` and \`photo\` only, read-only; no image downloaded).`);
+  lines.push("");
+  lines.push("### Counts");
+  lines.push("");
+  lines.push(`- Roster rows swept: ${l.pids.length}`);
+  lines.push(`- Search had a portrait, roster field empty — copied onto the field: ${v.copy.length}`);
+  lines.push(`- Both had one and they differ — not picked, field left as it was: ${v.differ.length}`);
+  lines.push(`- Roster field had one, search reached nothing else: ${v.rosterOnly.length}`);
+  lines.push(`- Neither had one — the row's own mark stays: ${v.neither.length}`);
+  lines.push("");
+  lines.push("### Copied onto `CMP_DATA[pid].photo`");
+  lines.push("");
+  if (!v.copy.length) lines.push("None.");
+  for (const c of v.copy) lines.push(`- \`${c.pid}\` — ${c.url}`);
+  lines.push("");
+  lines.push("### Disagreements");
+  lines.push("");
+  if (!v.differ.length) lines.push("None.");
+  else {
+    lines.push("| pid | roster field (kept) | where the field answered from | search portrait (not applied) |");
+    lines.push("| --- | --- | --- | --- |");
+    for (const d of v.differ) lines.push(`| ${d.pid} | ${d.roster} | ${d.tier || ""} | ${d.card} |`);
+  }
+  lines.push("");
+  lines.push("After the copy, the search row reads the roster field through `pdxPortrait` for every pid");
+  lines.push("with a roster row, the same reader the person file and the district board use, and keeps");
+  lines.push("`_getPhotoUrl` only for ids with no roster row (candidates the map still holds).");
+  lines.push(LIVE_CLOSE);
+  return lines.join("\n");
+}
+export function withLiveReport(rep, section) {
+  const a = rep.indexOf(LIVE_OPEN), b = rep.indexOf(LIVE_CLOSE);
+  if (a >= 0 && b > a) return rep.slice(0, a) + section + rep.slice(b + LIVE_CLOSE.length);
+  return rep.replace(/\s*$/, "\n\n") + section + "\n";
+}
+
 const isMain = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
+if (isMain && process.argv.includes("--live")) {
+  const l = planLive(await fetchLive());
+  if (l.CMP2 === l.CMP) {
+    console.log(`sweep-roster-portraits --live: nothing to move (${l.verdict.differ.length} disagreement(s) still listed); report left as written`);
+    process.exit(0);
+  }
+  writeFileSync(join(ROOT, "cmp-data.js"), l.CMP2);
+  const when = new Date().toISOString().slice(0, 10);
+  writeFileSync(join(ROOT, REPORT), withLiveReport(R(REPORT), liveReportText(l, when)));
+  console.log(`sweep-roster-portraits --live: ${l.verdict.copy.length} copied, ${l.verdict.differ.length} disagree, ` +
+    `${l.verdict.neither.length} with none, over ${l.docs} live documents`);
+  process.exit(0);
+}
 if (isMain) {
   const check = process.argv.includes("--check");
   const p = plan();

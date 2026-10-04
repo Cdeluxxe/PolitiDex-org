@@ -8716,7 +8716,19 @@
 //     cmp-data.js, person.html, issue.html (one source-line note), district-board.js
 //     and every district board are precached and changed and roster-portrait.js
 //     joins the shell, so it moves one version.
-const CACHE_VERSION = 'v294';
+// v295 - SEARCH PAINTS THE ROSTER FIELD'S FACE, NOT AN ALIAS DOCUMENT'S. The
+//     homepage search dropdown (all-seeing-eye.js photoFor) asked _getPhotoUrl,
+//     whose alias hop reached a `photo` filed on a live Firestore alias document
+//     — politicians/klisonbee — that pdxPortrait does not hop to, so search
+//     painted Karianne Lisonbee while /p/lisonbee_h14 and /district/ut-hd-14
+//     painted 🏛. sweep-roster-portraits.mjs --live read that store (name + photo
+//     only, read-only) and copied 22 such URLs onto empty cmp-data.js `photo`
+//     fields; one pid whose two URLs differ (teuscher_h44) is listed in
+//     PORTRAIT_SWEEP.md and was not overwritten. Search now reads pdxPortrait for
+//     every roster pid, and index.html loads roster-portrait.js for it.
+//     MIGRATION COST: none. cmp-data.js and '/' are precached and changed, so it
+//     moves one version.
+const CACHE_VERSION = 'v295';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
