@@ -76,7 +76,11 @@ section("1 · there is exactly one public origin in the repo");
   // Assembled from parts on purpose: written out as one literal, this file would
   // be its own first hit and the gate would have to exempt itself. Built this way
   // the sweep covers the entire repo, including the sweep.
-  const OLD = new RegExp("politidex" + "\\." + "org", "i");
+  // \b IN FRONT, because getpolitidex.org is a different, live name: a domain
+  // alias on this site whose host rules sit at the top of netlify.toml and 301 it
+  // here. The retired domain is the bare name with nothing in front, and only
+  // that is swept.
+  const OLD = new RegExp("\\b" + "politidex" + "\\." + "org", "i");
   const hits = files.filter((f) => OLD.test(R(f)));
   eq(hits, [], "no file names the retired .org domain — including comments, docs and runbooks");
 
@@ -435,7 +439,20 @@ section("5 · every other spelling 301s to the apex in one hop");
     { from: `https://${W}/*`, why: "www over TLS" },
   ];
 
-  for (const { from, why } of SPELLINGS) {
+  // THE .org ALIASES. getpolitidex.org and www.getpolitidex.org are domain
+  // aliases on this site with no redirect switch in the domain panel, so they
+  // were served the site at 200 on .org. Four host rules, both names and both
+  // schemes, on the same 301 + force + one-hop terms as the three above.
+  const O = "getpolitidex" + ".org";
+  const WO = "www." + O;
+  const ALIASES = [
+    { from: `http://${O}/*`,   why: "the .org alias over cleartext" },
+    { from: `https://${O}/*`,  why: "the .org alias over TLS" },
+    { from: `http://${WO}/*`,  why: "www on the .org alias over cleartext" },
+    { from: `https://${WO}/*`, why: "www on the .org alias over TLS" },
+  ];
+
+  for (const { from, why } of [...ALIASES, ...SPELLINGS]) {
     const r = rules.find((x) => x.from === from);
     ok(r, `a redirect rule exists for ${why}`);
     if (!r) continue;
@@ -457,9 +474,10 @@ section("5 · every other spelling 301s to the apex in one hop");
   // 200 over plain http on the non-canonical host. That is precisely the hop this
   // whole pass exists to delete, so "the rules exist" is not enough — they have to
   // be first.
-  const firstThree = rules.slice(0, 3).map((r) => r.from);
-  eq(firstThree, SPELLINGS.map((s2) => s2.from),
-     "the three host redirects are the FIRST three rules — a path-only rewrite above them would serve HTML on port 80");
+  const hostFirst = rules.slice(0, ALIASES.length + SPELLINGS.length).map((r) => r.from);
+  eq(hostFirst, [...ALIASES, ...SPELLINGS].map((s2) => s2.from),
+     "the four .org alias redirects, then the three .fyi host redirects, are the FIRST seven rules — " +
+     "a path-only rewrite above any of them would serve HTML on that host");
 
   // ── AND NOTHING ELSE IN THE TABLE REDIRECTS ONTO A NON-CANONICAL HOST ─────
   // A `to` on another absolute host would be a second origin arriving through the

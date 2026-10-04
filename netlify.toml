@@ -351,6 +351,40 @@
 # to keep resolving and keep its cert — a host that stops answering cannot
 # serve the redirect that retires it, and the flagged link would start failing
 # to connect instead of arriving.
+#
+# THE .org ALIASES, FIRST OF ALL. getpolitidex.org and www.getpolitidex.org are
+# domain aliases on this site, and with no host rule for them every request on
+# either name fell through to the path rules below and was served the site at
+# 200 with the address bar still on .org. The domain panel has no redirect
+# switch for an alias, so the redirect lives here: four spellings (both names,
+# both schemes), each 301 + force to the canonical origin in one hop, on the
+# same terms as the three .fyi rules under them. They sit above every rule
+# because the path-only rules match any host. The aliases stay assigned and keep
+# their certificate — an alias that stops resolving cannot serve its redirect.
+[[redirects]]
+  from = "http://getpolitidex.org/*"
+  to = "https://politidex.fyi/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://getpolitidex.org/*"
+  to = "https://politidex.fyi/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://www.getpolitidex.org/*"
+  to = "https://politidex.fyi/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://www.getpolitidex.org/*"
+  to = "https://politidex.fyi/:splat"
+  status = 301
+  force = true
+
 [[redirects]]
   from = "http://politidex.fyi/*"
   to = "https://politidex.fyi/:splat"
