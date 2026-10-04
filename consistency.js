@@ -2166,6 +2166,11 @@
       // here wears — drawn, not written, so the row's text is still date · number
       // · kind · vote, and the aria-label already says the link leaves the site.
       '.pdxbill-ext::after{content:" \\2197";font-size:0.85em;color:#7fb4ff;}' +
+      // The in-site door beside it: small, inline, the source-link gold, so the
+      // number still reads first and the two destinations look like two.
+      '.pdxbill-page{margin-left:0.35rem;font-size:0.68rem;font-weight:600;color:#f5c842;' +
+        'text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px;white-space:nowrap;}' +
+      '.pdxbill-page:focus-visible{outline:2px solid #7fb4ff;outline-offset:2px;border-radius:0.25rem;}' +
       '.pdxdoc-ext::after{content:" \\2197";font-size:0.85em;color:#7fb4ff;}' +
       // The honest refusal, written onto the control the reader tapped rather than
       // anywhere else. Amber because it is a coverage gap and not a verdict, and
@@ -3372,6 +3377,7 @@
       // page for the measure) is a plain link: the browser follows it and nothing
       // around it — the card face, the row — may take the tap as well.
       if (e.target.closest && e.target.closest('[data-pdxbill-ext]')) return;
+      if (e.target.closest && e.target.closest('[data-pdxbill-page]')) return;
       var bopen = e.target.closest && e.target.closest('[data-pdxbill-open]');
       if (bopen) {
         e.preventDefault();
@@ -14728,6 +14734,7 @@
       // legal in the roll-up row: this is a <summary>, whose other control —
       // "See all N readings" — has been a real button since it shipped.
       _dosDoor('pdxdos-rec-id', d, esc(d.ident)) +
+      (d.docUrl ? '' : _billPageDoor(d.billNum, d.billSit, d.ident)) +
       // The sitting sits with the number because it is part of the number's meaning:
       // "H.R. 22" names one bill in the 119th and a different one in every other,
       // and "H.B. 208" names a different bill in every Utah general session. Reads
@@ -15553,6 +15560,39 @@
     return '<button type="button" class="' + cls + ' pdxbill-door"' + at +
       ' aria-label="' + escAttr('Open the bill file for ' + (ident || num)) + '">' +
       inner + '</button>';
+  }
+  // ── AND THE BILL'S OWN PAGE, WHERE IT HAS ONE ─────────────────────────────
+  // The Congress.gov link above leaves the site, and for 200 federal measures
+  // PolitiDex has its own page at /b/<congress>/<number>, the address the sitemap
+  // lists. Without the bill panel there was no way from the drawer to that page.
+  // So beside the Congress.gov door, and only beside it, a measure keyed in
+  // window.PDX_BILL_PAGES (bill-pages.js, generated from the sitemap's own bill
+  // set) gets one plain in-site anchor. A measure with no page gets nothing: the
+  // list is the gate, and no address is built for a number that is not on it.
+  // Where the panel IS on the page the number is already the in-site door, so
+  // this answers '' there.
+  function _billPageDoor(num, sit, ident) {
+    try {
+      if (_billPanelOn()) return '';
+      var n = String(num == null ? '' : num).trim();
+      var c = String(sit == null ? '' : sit).trim();
+      if (!n || !_congressGovUrl(n, c)) return '';
+      var P = window.PDX_BILL_PAGES;
+      if (!P || !Object.prototype.hasOwnProperty.call(P, c + '/' + n)) return '';
+      // The address is share-links.js's, the one builder of /b/<sitting>/<number>;
+      // its scheme and host are dropped so the href is root-relative like every other
+      // in-site door. No builder on the page, no door.
+      var L = window.PDXShareLinks;
+      if (!L || typeof L.bill !== 'function') return '';
+      var u = String(L.bill(c, n) || '');
+      u = u.replace(/^[a-z][a-z0-9+.-]*:\/\/[^\/]+/i, '');
+      if (!/^\/b\/[^/]+\/[^/]+$/.test(u)) return '';
+      var who = ident || n;
+      return '<a class="pdxbill-page" href="' + escAttr(u) + '"' +
+        ' data-pdxbill-page="1"' +
+        ' title="' + escAttr(who + ' on PolitiDex \u2014 every member, every mapping, the roll calls') + '"' +
+        ' aria-label="' + escAttr('The bill page for ' + who) + '">Bill page</a>';
+    } catch (e) { return ''; }
   }
   // THE SAME DOOR FOR A ROW THAT NAMES NO BILL. An executive order or a
   // proclamation has no bill file and no Congress.gov page; what it has, where the
@@ -16990,6 +17030,7 @@
         // same attributes, same handler, same bill file. A row whose measure has no
         // resolvable file prints the identity as text rather than as a dead control.
         var num = _dosDoor('pdxlg-num', d, esc(d.ident || d.billNum || 'Measure'));
+        if (!d.docUrl) num += _billPageDoor(d.billNum, d.billSit, d.ident);
         out += '<tr data-pdxlg-row="' + p.i + '">' +
             '<td class="pdxlg-d">' + esc(_dosDay(d.date) || '') + '</td>' +
             '<td>' + num + '</td>' +

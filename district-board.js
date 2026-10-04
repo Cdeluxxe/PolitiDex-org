@@ -1611,20 +1611,39 @@
   //
   // ONLY FOR A ROUTE THAT EXISTS, and the table IS the set of routes that exist,
   // so the two cannot drift. A congressional board matches through pidOf() and
-  // therefore through _pdxUsHouseSeat() — on a document without that module
-  // (person.html is one) the join answers nobody and that member simply gets
-  // today's kicker. A missing control is a degradation; a control onto a board
-  // whose holder this app could not confirm would be a claim.
+  // therefore through _pdxUsHouseSeat(); on a document without that module
+  // (person.html is one) see memberOf() below. A missing control is a
+  // degradation; a control onto a board whose holder this app could not confirm
+  // would be a claim.
   //
   // It does not closeModal(). The dead button this replaces on other surfaces is
   // the exact defect worth naming here: a control that dismisses the thing you
   // were reading, in the name of taking you somewhere, took you nowhere.
+  //
+  // THE CONGRESSIONAL ROWS ON A DOCUMENT WITHOUT THE JOIN. person.html cannot
+  // carry voter-hub-location.js — it redefines profiles-full.js's status
+  // helpers — so on a person file pidOf() answers '' for all four UT-N rows and
+  // the four sitting members got no door back to the board that names them.
+  // memberOf() asks the join first, exactly as band 1 does, and only where the
+  // join is absent asks seated-member.js's pdxSeatedMemberFor(seat): the curated
+  // congressional table /voice already loads. Band 1 never takes this path —
+  // it still prints "no member on file" without the join — and
+  // scripts/test-internal-hops.mjs pins the table's answer equal to the join's
+  // for every usHouse row, so the door and the board cannot name two people.
+  function memberOf(b) {
+    var p = pidOf(b);
+    if (p || !b || !b.usHouse || fn(window._pdxUsHouseSeat)) return p;
+    try {
+      if (!fn(window.pdxSeatedMemberFor)) return '';
+      return String(window.pdxSeatedMemberFor(b.seat) || '');
+    } catch (e) { return ''; }
+  }
   function boardForPid(pid) {
     var want = String(pid || '');
     if (!want) return null;
     for (var k in BOARDS) {
       if (!Object.prototype.hasOwnProperty.call(BOARDS, k)) continue;
-      if (pidOf(BOARDS[k]) === want) return BOARDS[k];
+      if (memberOf(BOARDS[k]) === want) return BOARDS[k];
     }
     return null;
   }
