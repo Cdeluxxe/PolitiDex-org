@@ -32,8 +32,17 @@
          over it; closing returns to the document. The address in the bar stays
          /b/<sitting>/<number> either way; nothing is appended after it. The
          empty has no control: there is no measure to open.
-       • share-links.js, the one builder of a bill's address, and issue-scope.js,
-         so the panel's issue chips carry their names.
+       • share-links.js, the one builder of a bill's address, and issue-map.js
+         with issue-scope.js, so the panel's issue chips carry their names.
+         issue-map.js IS THE NAME. issue-scope.js only reads window.ISSUE_MAP,
+         and without the register on this document every chip, every "every
+         topic this act touches" row and every explore link fell through to the
+         key prettified into words: the seam printed "Protect Public Lands" and
+         the panel over it printed "Lands Preserve", so one mapping read as two
+         topics. The panel now names an issue with ISSUE_MAP's own label — the
+         label the seam prints (the seam drops its leading icon). A key with no
+         ISSUE_MAP row keeps the words it had. stance-helpers.js is still not
+         loaded, so no axis or direction word arrives with the register.
 
      WHAT THE SEAM NEVER SAYS. No scraped Congress.gov text, no score, no
      percentage, no direction, no member tally. And a measure the archive does not
@@ -265,6 +274,7 @@
   </script>
 
   <script defer src="/share-links.js"></script>
+  <script defer src="/issue-map.js"></script>
   <script defer src="/issue-scope.js"></script>
   <script defer src="/bills.js"></script>
   <script defer src="/bill-detail.js"></script>
