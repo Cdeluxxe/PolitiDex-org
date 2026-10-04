@@ -20,7 +20,8 @@
 
        • ONE SEAM, between the two pdx:bill-doc comment markers below, which the
          edge fills with the measure the archive holds — number, sitting, the
-         stored title, and the effect line already stored for it on each issue —
+         stored title, and each issue it is mapped to, with the effect line
+         stored for that pair where there is one —
          or, for a sitting or a number the archive does not hold, the honest
          empty (with a real 404 and noindex). The words come from
          db/bill-docs.json; see scripts/gen-bill-docs.mjs.
@@ -114,16 +115,16 @@
     .pdx-bill-num { margin: 0 0 0.6rem; font-size: clamp(1.6rem, 4vw, 2.3rem); line-height: 1.15; color: #eef4ff; }
     .pdx-bill-title { margin: 0 0 1rem; font-size: 1.02rem; line-height: 1.6; color: #c9d8f2; }
     .pdx-bill-doc p { color: #9fb4d4; line-height: 1.6; }
-    .pdx-bill-effects h2 {
+    .pdx-bill-issues h2 {
       margin: 1.4rem 0 0.5rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
       font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: #7596c0;
     }
-    .pdx-bill-effects ul { margin: 0; padding: 0; list-style: none; }
-    .pdx-bill-effects li {
+    .pdx-bill-issues ul { margin: 0; padding: 0; list-style: none; }
+    .pdx-bill-issues li {
       margin: 0 0 0.55rem; padding: 0.6rem 0.75rem; border: 1px solid rgba(159, 180, 212, 0.16);
       border-radius: 10px; background: rgba(127, 180, 255, 0.04); color: #dbe6f7; line-height: 1.5;
     }
-    .pdx-bill-eff-i {
+    .pdx-bill-iss-i {
       display: block; margin-bottom: 0.15rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
       font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: #9fb4d4;
     }

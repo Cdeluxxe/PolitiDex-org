@@ -226,6 +226,235 @@ const EVENT = new RegExp(
   "gi"
 );
 
+// ── the corrections a later migration made to the mapping table ─────────────
+// `issueKeys` above is every key ever INSERTED for a measure, and that is all the
+// address floor and the issue files have ever needed: "was this measure mapped",
+// "does this key have a record". The bill document asks a narrower question —
+// WHICH issues is this measure mapped to now — and the answer is not the inserts.
+// Later migrations re-key mappings (20260904000000 moved every gov_regulation row
+// that was really about review time onto permitting_reform) and delete them
+// (20260725010000 dropped eight confirmations from "Balance the Budget"). A
+// document listing the inserted keys would print the very filings those
+// migrations exist to withdraw.
+//
+// So every UPDATE … SET issue_key and every DELETE FROM vr_measure_issues is
+// replayed against `issues`, in applied order, at its position in its file. A
+// statement that changes neither (a rationale rewrite, a primary flag) is not a
+// mapping change and is skipped. One that does, and whose measure or key this
+// reader cannot resolve, is never guessed at: it is counted in
+// stats.unresolvedCorrections, and gen-bill-docs.mjs refuses to write while that
+// count is not zero.
+
+// Quote contents blanked to spaces, same length, so structure (WHERE, parens,
+// semicolons) is searched without prose inside a rationale matching it.
+function masked(s) {
+  let out = "", quoted = false;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (quoted) {
+      if (c === "'") {
+        if (s[i + 1] === "'") { out += "  "; i++; continue; }
+        quoted = false; out += c; continue;
+      }
+      out += c === "\n" ? "\n" : " ";
+      continue;
+    }
+    if (c === "'") quoted = true;
+    out += c;
+  }
+  return out;
+}
+
+// `--` line comments blanked to spaces, same length. The prose in them carries
+// apostrophes ("the bill's") that would otherwise open a quote the SQL never did.
+function uncomment(s) {
+  let out = "", quoted = false;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (quoted) {
+      if (c === "'") { if (s[i + 1] === "'") { out += "''"; i++; continue; } quoted = false; }
+      out += c;
+      continue;
+    }
+    if (c === "'") { quoted = true; out += c; continue; }
+    if (c === "-" && s[i + 1] === "-") {
+      while (i < s.length && s[i] !== "\n") { out += " "; i++; }
+      if (i < s.length) out += "\n";
+      continue;
+    }
+    out += c;
+  }
+  return out;
+}
+
+// Paren depth at each index of a masked string.
+function depths(mk) {
+  const d = new Array(mk.length);
+  let n = 0;
+  for (let i = 0; i < mk.length; i++) {
+    if (mk[i] === "(") { d[i] = n; n++; continue; }
+    if (mk[i] === ")") { n--; d[i] = n; continue; }
+    d[i] = n;
+  }
+  return d;
+}
+
+// The first `<re>` in src[from, to) at paren depth `depth`, as a match on the
+// ORIGINAL text (so literals survive) — or null.
+function topLevel(src, mk, dep, re, from, to, depth) {
+  const g = new RegExp(re.source, "gi");
+  g.lastIndex = from;
+  let m;
+  while ((m = g.exec(mk)) && m.index < to) {
+    if (dep[m.index] === depth) {
+      const o = new RegExp(re.source, "iy");
+      o.lastIndex = m.index;
+      return o.exec(src);
+    }
+  }
+  return null;
+}
+
+// Which measures a `SELECT id FROM vr_measures [alias] WHERE …` names. Returns a
+// predicate over projected rows, or null when the clause says something this
+// reader does not model (so the caller can refuse rather than guess).
+function measureFilter(clause) {
+  const s = String(clause || "");
+  const conds = [];
+  const pairs = /\(\s*(?:\w+\.)?number\s*,\s*(?:\w+\.)?congress\s*\)\s*IN\s*\(([\s\S]*)\)/i.exec(s);
+  if (pairs) {
+    const want = new Set();
+    for (const t of pairs[1].matchAll(/\(\s*'((?:[^']|'')*)'\s*,\s*(\d+)\s*\)/g)) want.add(key(t[2], t[1].replace(/''/g, "'")));
+    if (!want.size) return null;
+    conds.push((r) => want.has(key(r.sitting, r.number)));
+  } else {
+    const inList = /\b(?:\w+\.)?number\s+IN\s*\(([^)]*)\)/i.exec(s);
+    const one = /\b(?:\w+\.)?number\s*=\s*'((?:[^']|'')*)'/i.exec(s);
+    if (inList) {
+      const want = new Set([...inList[1].matchAll(/'((?:[^']|'')*)'/g)].map((x) => x[1].replace(/''/g, "'")));
+      conds.push((r) => want.has(r.number));
+    } else if (one) {
+      const n = one[1].replace(/''/g, "'");
+      conds.push((r) => r.number === n);
+    } else return null;
+    const cong = /\b(?:\w+\.)?congress\s*=\s*(\d+)/i.exec(s);
+    if (cong) conds.push((r) => r.sitting === cong[1]);
+  }
+  const type = /\b(?:\w+\.)?measure_type\s*=\s*'([^']*)'/i.exec(s);
+  if (type) conds.push((r) => r.measureType === type[1]);
+  return (r) => conds.every((c) => c(r));
+}
+
+// One UPDATE/DELETE on vr_measure_issues, read into
+//   { kind: "skip" }                                   — changes no key
+//   { kind: "delete"|"rekey", from, to, scope }        — scope: "all" | { var } | { filter }
+//   { kind: "unresolved", why }
+// `local` maps a plpgsql variable bound inside a VALUES loop to its filter.
+function readCorrection(stmt, local) {
+  const mk = masked(stmt);
+  const dep = depths(mk);
+  const isDelete = /^\s*DELETE\b/i.test(mk);
+  const whereAt = topLevel(stmt, mk, dep, /\bWHERE\b/, 0, mk.length, 0);
+  const wFrom = whereAt ? whereAt.index : mk.length;
+  let to = null;
+  if (!isDelete) {
+    const set = topLevel(stmt, mk, dep, /\b(?:\w+\.)?issue_key\s*=\s*('(?:[^']|'')*'|[A-Za-z_][\w.]*)/, 0, wFrom, 0);
+    if (!set) return { kind: "skip" };
+    to = literal(set[1]);
+    if (to == null) return { kind: "unresolved", why: "SET issue_key to a value this reader cannot resolve" };
+  }
+  if (!whereAt) return isDelete ? { kind: "unresolved", why: "DELETE with no WHERE" } : { kind: "unresolved", why: "re-key with no WHERE" };
+  const from0 = topLevel(stmt, mk, dep, /\b(?:\w+\.)?issue_key\s*=\s*('(?:[^']|'')*'|[A-Za-z_][\w.]*)/, wFrom, mk.length, 0);
+  const from = from0 ? literal(from0[1]) : null;
+  if (from0 && from == null) return { kind: "unresolved", why: "WHERE issue_key names a value this reader cannot resolve" };
+
+  let scope = "all";
+  const byVar = topLevel(stmt, mk, dep, /\b(?:\w+\.)?measure_id\s*=\s*([A-Za-z_]\w*)\b(?!\s*\.)/, wFrom, mk.length, 0);
+  const bySub = topLevel(stmt, mk, dep, /\b(?:\w+\.)?measure_id\s+IN\s*\(/, wFrom, mk.length, 0);
+  if (bySub) {
+    const [inner] = readGroup(stmt, bySub.index + bySub[0].length - 1);
+    if (inner == null || !/^\s*SELECT\s+id\s+FROM\s+vr_measures\b/i.test(inner)) return { kind: "unresolved", why: "measure_id IN (…) is not a vr_measures lookup" };
+    const f = measureFilter(inner.replace(/^\s*SELECT\s+id\s+FROM\s+vr_measures\b(?:\s+\w+)?\s+WHERE\b/i, ""));
+    if (!f) return { kind: "unresolved", why: "the vr_measures lookup names no number this reader models" };
+    scope = { filter: f };
+  } else if (byVar) {
+    scope = local && local.has(byVar[1]) ? { filter: local.get(byVar[1]) } : { var: byVar[1] };
+  } else if (/\b(?:measure_id|id)\b/i.test(mk.slice(wFrom).replace(/\(\s*SELECT[\s\S]*$/i, ""))) {
+    return { kind: "unresolved", why: "a measure scope this reader does not model" };
+  }
+  if (isDelete) {
+    if (!from && scope === "all") return { kind: "unresolved", why: "DELETE of every mapping" };
+    return { kind: "delete", from, scope };
+  }
+  if (!from) return { kind: "unresolved", why: "re-key that names no key it moves from" };
+  return { kind: "rekey", from, to, scope };
+}
+
+// Every mapping correction in one file, with its position. A `FOR r IN SELECT *
+// FROM (VALUES …) AS t(cols) LOOP … END LOOP` is expanded once per tuple, with
+// r.<col> replaced by the tuple's token and a `SELECT id INTO <v> FROM
+// vr_measures WHERE …` in the body bound to the measure it names.
+const CORRECTION = /\b(?:UPDATE\s+vr_measure_issues|DELETE\s+FROM\s+vr_measure_issues)\b/gi;
+function statementAt(src, mk, at) {
+  const end = mk.indexOf(";", at);
+  return src.slice(at, end === -1 ? src.length : end);
+}
+function corrections(raw) {
+  const src = uncomment(raw);
+  const mk = masked(src);
+  const out = [];
+  const spans = [];
+  const LOOP = /\bFOR\s+([A-Za-z_]\w*)\s+IN\s+SELECT\s+\*\s+FROM\s*\(\s*VALUES\b/gi;
+  let m;
+  while ((m = LOOP.exec(mk))) {
+    const open = mk.lastIndexOf("(", m.index + m[0].length);
+    const [inner, after] = readGroup(src, open);
+    if (inner == null) continue;
+    const alias = /^\s*AS\s+\w+\s*\(([^)]*)\)\s*LOOP\b/i.exec(mk.slice(after));
+    if (!alias) continue;
+    const cols = alias[1].split(",").map((c) => c.trim().toLowerCase());
+    const bodyAt = after + alias[0].length;
+    const endAt = mk.slice(bodyAt).search(/\bEND\s+LOOP\b/i);
+    if (endAt === -1) continue;
+    const body = src.slice(bodyAt, bodyAt + endAt);
+    spans.push([m.index, bodyAt + endAt]);
+    if (!masked(body).match(CORRECTION)) continue;
+    const tuplesSrc = inner.replace(/^\s*VALUES\s*/i, "");
+    let at = 0;
+    const tuples = [];
+    while (at < tuplesSrc.length) {
+      const open2 = masked(tuplesSrc).indexOf("(", at);
+      if (open2 === -1) break;
+      const [t, a2] = readGroup(tuplesSrc, open2);
+      if (t == null) break;
+      tuples.push(splitList(t));
+      at = a2;
+    }
+    const rv = new RegExp(`\\b${m[1]}\\.(\\w+)\\b`, "g");
+    for (const t of tuples) {
+      const bound = body.replace(rv, (all, c) => {
+        const i = cols.indexOf(c.toLowerCase());
+        return i === -1 ? all : t[i];
+      });
+      const bmk = masked(bound);
+      const local = new Map();
+      for (const s of bound.matchAll(/\bSELECT\s+id\s+INTO\s+([A-Za-z_]\w*)\s+FROM\s+vr_measures\b(?:\s+\w+)?\s+WHERE\b([^;]*);/gi)) {
+        const f = measureFilter(s[2]);
+        if (f) local.set(s[1], f);
+      }
+      CORRECTION.lastIndex = 0;
+      let c;
+      while ((c = CORRECTION.exec(bmk))) out.push({ pos: m.index, op: readCorrection(statementAt(bound, bmk, c.index), local) });
+    }
+  }
+  CORRECTION.lastIndex = 0;
+  while ((m = CORRECTION.exec(mk))) {
+    if (spans.some(([a, b]) => m.index >= a && m.index < b)) continue;
+    out.push({ pos: m.index, op: readCorrection(statementAt(src, mk, m.index), null) });
+  }
+  return out.sort((a, b) => a.pos - b.pos);
+}
+
 // The (number, sitting) a WHERE clause names, when it names one literally.
 function whereKey(clause) {
   const s = String(clause || "");
@@ -245,7 +474,7 @@ export function measureAddresses(ROOT) {
   // sitting|number → row. Insertion order is applied order, which is the order
   // the archive itself was built in.
   const rows = new Map();
-  const stats = { files: 0, inserts: 0, unparsed: 0, renames: 0, mappings: 0, acts: 0 };
+  const stats = { files: 0, inserts: 0, unparsed: 0, renames: 0, mappings: 0, acts: 0, corrections: 0, unresolvedCorrections: [] };
   // Every issue key the migrations map at least one measure to, in no particular
   // order and with no weight, side or count attached. It is a membership set and
   // nothing more — "this key has a formal record somewhere on file".
@@ -260,16 +489,47 @@ export function measureAddresses(ROOT) {
 
   for (const file of files) {
     const src = readFileSync(join(dir, file), "utf8");
-    if (!src.includes("vr_measures")) continue;
+    // A file that only corrects mappings (the orphan-key repair names no
+    // vr_measures at all) is still read, for its corrections and nothing else.
+    if (!src.includes("vr_measures") && !src.includes("vr_measure_issues")) continue;
     stats.files++;
 
     const decls = declarations(src);
     const bound = new Map(); // plpgsql variable → row key
     let lastKey = null;      // the measure this file inserted most recently
 
+    // The mapping corrections in this file, replayed against `issues` as the walk
+    // passes their position — so a correction sees exactly the rows and the
+    // variable bindings the database saw when it ran.
+    const pending = src.includes("vr_measure_issues") ? corrections(src) : [];
+    const flush = (upTo) => {
+      while (pending.length && pending[0].pos < upTo) {
+        const { op } = pending.shift();
+        if (op.kind === "skip") continue;
+        if (op.kind === "unresolved") { stats.unresolvedCorrections.push({ file, why: op.why }); continue; }
+        let targets;
+        if (op.scope === "all") targets = [...rows.values()];
+        else if (op.scope.var) {
+          const k = bound.get(op.scope.var);
+          if (!k) { stats.unresolvedCorrections.push({ file, why: `measure_id = ${op.scope.var}, a variable this file never bound` }); continue; }
+          targets = rows.has(k) ? [rows.get(k)] : [];
+        } else targets = [...rows.values()].filter(op.scope.filter);
+        for (const r of targets) {
+          if (op.kind === "delete") {
+            if (op.from ? r.issues.delete(op.from) : (r.issues.size && (r.issues.clear(), true))) stats.corrections++;
+          } else if (r.issues.has(op.from) && !r.issues.has(op.to)) {
+            // A move onto a key the measure already holds is what the NOT EXISTS
+            // guards in these files refuse; the old row stays where it was.
+            r.issues.delete(op.from); r.issues.add(op.to); stats.corrections++;
+          }
+        }
+      }
+    };
+
     EVENT.lastIndex = 0;
     let m;
     while ((m = EVENT.exec(src))) {
+      flush(m.index);
       // ── INSERT INTO <table> (cols) VALUES (…), (…) ───────────────────────
       if (m[1]) {
         const table = m[1].toLowerCase();
@@ -318,6 +578,7 @@ export function measureAddresses(ROOT) {
                 mappings: 0,
                 acts: 0,
                 issueKeys: [],
+                issues: new Set(),
                 files: [file],
               });
             } else {
@@ -359,7 +620,7 @@ export function measureAddresses(ROOT) {
             // issue_key is a bound variable is not resolved, and an unresolved
             // key must never become a published address.
             const ik = literal(col(t, "issue_key"));
-            if (ik) { issueKeys.add(ik); r.issueKeys.push(ik); }
+            if (ik) { issueKeys.add(ik); r.issueKeys.push(ik); r.issues.add(ik); }
           }
           else { r.acts++; stats.acts++; }
         }
@@ -416,6 +677,7 @@ export function measureAddresses(ROOT) {
         stats.renames++;
       }
     }
+    flush(Infinity);
   }
 
   // ── the floor ───────────────────────────────────────────────────────────

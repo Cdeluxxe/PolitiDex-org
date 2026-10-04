@@ -8759,7 +8759,20 @@
 //     consistency.js is precached and changed, so it moves one version.
 //     MIGRATION COST: none. No location key is migrated, no table or stored
 //     key moves; the rows already carry advanceInverted from the pack.
-const CACHE_VERSION = 'v297';
+// v298 - THE BILL DOCUMENT NAMES THE ISSUES ITS MEASURE IS MAPPED TO.
+//     /b/<sitting>/<number> printed the number, sitting, stored title and any
+//     stored effect line, while the issues the act touches were listed only on
+//     the panel's chips — a crawler, or a reader with the panel closed, could
+//     not see that H.J.Res. 131 is mapped to lands and to energy. The seam now
+//     lists each mapped issue by its own label, with the effect line stored for
+//     that pair under it where one is, and nothing under it where none is. The
+//     mapping is the migrations' projection with every later re-key and delete
+//     replayed, so a withdrawn filing is not printed. No score, no for/against,
+//     no direction, no "primary". The panel and its chips did not move; the
+//     empty document stays empty. bill.html is precached and its seam styles
+//     changed, so it moves one version.
+//     MIGRATION: none. No table, mapping, weight or issue key moved.
+const CACHE_VERSION = 'v298';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

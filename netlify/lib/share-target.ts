@@ -92,23 +92,26 @@ export function canonicalPersonId(id: string): string {
 
 // ── The bill documents (see scripts/gen-bill-docs.mjs) ───────────────────────
 // "<sitting>|<number>" → what the /b/ document's BODY says: sitting, number,
-// chamber, the stored title and the stored per-issue effect lines. The same set
+// chamber, the stored title, and the issues the measure is mapped to — each with
+// the effect line stored for that pair, where one is. The same set
 // the sitemap lists bills from, so an advertised address is always one of these.
-type BillDocRec = { s: string; n: string; c?: string; t?: string; e?: { i: string; l: string }[] };
+type BillDocRec = { s: string; n: string; c?: string; t?: string; m?: { i: string; l?: string }[] };
 const BILL_DOCS: Record<string, BillDocRec> =
   (billDocsFile as unknown as { docs: Record<string, BillDocRec> }).docs || {};
 
 // What a bill document prints. `held` says where the identity came from: "doc"
-// is the build-time snapshot (and the only source of effect lines); "live" is a
-// measure the archive holds that arrived after the snapshot — the live ingest
-// adds rows no migration carries — and it prints identity only.
+// is the build-time snapshot (and the only source of issues and effect lines);
+// "live" is a measure the archive holds that arrived after the snapshot — the
+// live ingest adds rows no migration carries — and it prints identity only.
+// `line` is "" for an issue with no stored line: the issue is still listed, and
+// nothing is written under it.
 export type BillDoc = {
   sitting: string;
   number: string;
   chamber: string;
   title: string;
   sittingText: string;
-  effects: { issue: string; line: string }[];
+  issues: { issue: string; line: string }[];
   held: "doc" | "live";
 };
 
@@ -120,7 +123,7 @@ function billDocOf(r: BillDocRec): BillDoc {
     chamber: r.c || "",
     title: r.t || "",
     sittingText: sittingText(congress ? { congress } : { session: r.s }),
-    effects: (r.e || []).filter((x) => x && x.i && x.l).map((x) => ({ issue: x.i, line: x.l })),
+    issues: (r.m || []).filter((x) => x && x.i).map((x) => ({ issue: x.i, line: x.l || "" })),
     held: "doc",
   };
 }
@@ -832,7 +835,7 @@ export async function resolveTarget(
         chamber: String(m.chamber || ""),
         title: String(m.title || m.shortTitle || ""),
         sittingText: sittingText(m),
-        effects: [],
+        issues: [],
         held: "live",
       };
     }
