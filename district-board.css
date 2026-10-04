@@ -10,6 +10,13 @@
    unresolved key carries no [data-ic], and falls back to the neutral rule.
    ───────────────────────────────────────────────────────────────────────────── */
 
+/* The introduction: one line above band 1, on every board. */
+.pdxdb-purpose {
+  margin: 0 0 1.2rem; padding: 0.7rem 0.9rem; max-width: 40rem;
+  border-left: 3px solid #3a5a8a; background: #0f1a2e; color: #dbe5f3;
+  font: 500 0.95rem/1.55 'Barlow', sans-serif;
+}
+
 /* The category chips: All, then one per group on this seat. */
 .pdxdb-cats { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 0.75rem; }
 .pdxdb-cat {

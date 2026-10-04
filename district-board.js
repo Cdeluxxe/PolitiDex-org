@@ -547,6 +547,15 @@
     sub: 'The public record for this seat, and the count of who has shown up in it. ' +
          'Reading this board is free and open to everyone.',
 
+    // WHAT THE ROOM IS FOR, and it is the homepage card's sentence word for
+    // word (index.html, .pdxhv-line). Painted once at the top of the board's
+    // host, under the page title and above band 1, on every board — the hand
+    // documents and the generated ones read it from here and nowhere else. It
+    // is the introduction; voiceFoot below is the rule. They may repeat the
+    // verified-resident sentence and may not disagree.
+    purpose: 'This is where neighbors read the same record and speak to the seat — not the internet. ' +
+             'Anyone can read a board. Only verified residents of that seat get a voice that counts.',
+
     seatBand: 'The seat',
     seatNote: 'Who sits here now. This is a link to the record, not a summary of it.',
     seatNone: 'No roster row on hand for this seat.',
@@ -673,6 +682,13 @@
   function faceMark(row) {
     var m = row && row.icon ? String(row.icon).trim() : '';
     return m || '\uD83C\uDFDB';
+  }
+
+  // ── THE INTRODUCTION ──────────────────────────────────────────────────────
+  // One line, the same on every board. Not a band: no heading, no count, no
+  // control.
+  function purposeHtml() {
+    return '<p class="pdxdb-purpose" data-pdxdb-purpose="1">' + esc(COPY.purpose) + '</p>';
   }
 
   // ── BAND 1 · THE SEAT ─────────────────────────────────────────────────────
@@ -1652,6 +1668,7 @@
     try { typing = !!(document.activeElement && document.activeElement.hasAttribute &&
       document.activeElement.hasAttribute('data-pdxdb-search') && el.contains && el.contains(document.activeElement)); } catch (e) {}
     el.innerHTML =
+      purposeHtml() +
       seatHtml() +
       roomHtml(cState, _counts === FAILED ? null : _counts) +
       tableHtml(tState, items, rooms) +
@@ -1773,6 +1790,7 @@
     personLinkHtml: personLinkHtml,
     // Exposed for the suite: each band's markup asserted directly against a
     // payload, rather than inferred from a live fetch.
+    purposeHtml: purposeHtml,
     seatHtml: seatHtml,
     roomHtml: roomHtml,
     tableHtml: tableHtml,
