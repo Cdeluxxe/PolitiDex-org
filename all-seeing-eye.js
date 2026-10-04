@@ -169,7 +169,20 @@
       if (!p) { try { if (typeof CMP_DATA !== 'undefined' && CMP_DATA[id]) p = CMP_DATA[id]; } catch (e) {} }
       return p;
     }
+    // ONE FACE PER PERSON, AND IT IS THE ROSTER FIELD. A pid with a roster row
+    // reads pdxPortrait (roster-portrait.js) — the reader /p/<pid> and the
+    // district board use — and nothing else. This row used to ask _getPhotoUrl,
+    // whose alias hop reached a `photo` on a live alias document
+    // (politicians/klisonbee) that no other surface reads: search painted
+    // Karianne Lisonbee while /p/lisonbee_h14 and /district/ut-hd-14 painted 🏛.
+    // scripts/sweep-roster-portraits.mjs --live moved those faces onto the field.
+    // Only an id with no roster row (a candidate the map still holds) keeps
+    // _getPhotoUrl, because it has no field to read.
     function photoFor(id) {
+      try {
+        var onRoster = typeof CMP_DATA !== 'undefined' && CMP_DATA && CMP_DATA[id];
+        if (onRoster && typeof window.pdxPortrait === 'function') return window.pdxPortrait(id) || '';
+      } catch (e) {}
       try { if (typeof window._getPhotoUrl === 'function') return window._getPhotoUrl(id) || ''; } catch (e) {}
       return '';
     }
