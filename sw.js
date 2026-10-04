@@ -8784,7 +8784,17 @@
 //     version.
 //     MIGRATION COST: none. No location key is migrated; no table, mapping,
 //     score or issue key moved.
-const CACHE_VERSION = 'v299';
+// v300 - THE BOARD SAYS WHAT THE ROOM IS FOR. A district board opened as a
+//     table: a seat, a count, an issue list, and nothing saying the room is the
+//     district's, that anyone can read it, and that only a verified resident of
+//     that seat gets a voice that counts. Every board now prints the homepage
+//     card's own sentence once, under the page title and above the seat, from
+//     one string in district-board.js (COPY.purpose), so the hand boards and
+//     the generated ones cannot drift. The composer's locked line and the
+//     footer did not move. district-board.js and district-board.css are
+//     precached and changed, so it moves one version.
+//     MIGRATION COST: none. No board, route, table or residency record moved.
+const CACHE_VERSION = 'v300';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
