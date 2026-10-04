@@ -8744,7 +8744,22 @@
 //     Bumped because the shell that serves /b/ changed, and bill-detail.js,
 //     share-links.js and issue-page.js — all precached — moved with it.
 //     MIGRATION: none. No table, mapping, weight, verdict or pack TTL moved.
-const CACHE_VERSION = 'v296';
+// v297 - ONE TALLY FOR THE RECOMMIT YEA. A Support for Israel file printed "0
+//     for · 8 against" on the card (_recordDirectionIndex) and the drawer
+//     (_dosTally → _dosActDir), both read through _voteEffectiveSupport, and "3
+//     advancing · 5 opposing" on the measure list under the drawer (_ledSplit →
+//     _dosItemDir), over the same eight rows. _dosItemDir multiplied the clerk's
+//     Yea by the mapping and dropped the stored advanceInverted — on a motion to
+//     recommit or commit a Yea blocks the bill. It now applies that flip, so the
+//     list, its row pills and the proof line agree with the card; the list's
+//     closed face says "mapped direction:", and a roll call with no stored
+//     support meaning is named "unmapped" and kept off every for/against line.
+//     Scores, Direction Match and the publication floor read
+//     _voteEffectiveSupport and did not move. No mapping flipped, no issue key.
+//     consistency.js is precached and changed, so it moves one version.
+//     MIGRATION COST: none. No location key is migrated, no table or stored
+//     key moves; the rows already carry advanceInverted from the pack.
+const CACHE_VERSION = 'v297';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
