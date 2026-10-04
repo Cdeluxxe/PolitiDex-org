@@ -355,7 +355,11 @@ ok(/215–214/.test(vote.description), "vote: the recorded tally is a fact, and 
 stubFetch({ measure: { congress: 119, number: "H.R. 1", shortTitle: "One Big Beautiful Bill Act" } });
 const bill = await resolve("/?bill=119/H.R.%201");
 ok(bill && bill.title === "H.R. 1", "bill: titled by its number");
-ok(bill.hash === "#bill/119/H.R.%201", "bill: ?bill= restores the app's existing #bill/ hash");
+// A bill has a document of its own (bill.html), so nothing tells the homepage to
+// open a panel under a #bill/ hash any more; the resolved bill rides as data for
+// the body the edge writes on /b/.
+ok(!bill.hash, "bill: no #bill/ hint is handed to the homepage — the bill has its own document");
+ok(bill.bill && bill.bill.number === "H.R. 1" && bill.bill.sitting === "119", "bill: the resolved measure is carried for the document's body");
 
 stubFetch({});
 ok((await resolve("/?bill=119/H.R.%20404")) === null, "bill: an unknown measure falls back to the site card");
@@ -510,13 +514,15 @@ ok(!/bill=/.test(w.location.search), "arrival: the consumed param is cleaned out
 
 // The canonical path, on arrival. The path is left in place — copying the URL back
 // out of the bar has to keep the address that unfurls.
+// It is the bill's own document now (bill.html): share-links.js must not write a
+// #bill/ hash over it — bill-detail.js opens the panel from the path itself.
 w = loadLinks("https://politidex.fyi/b/119/H.R.%201");
-eq(w.location.hash, "#bill/119/H.R.%201", "arrival: /b/ becomes the #bill/ hash the panel handles");
+eq(w.location.hash, "", "arrival: a /b/ path is left as the address, with no #bill/ written over it");
 eq(w.location.pathname, "/b/119/H.R.%201", "arrival: the /b/ path is preserved");
 w = loadLinks("https://politidex.fyi/b/2024GS/H.B.%20257");
-eq(w.location.hash, "#bill/2024GS/H.B.%20257", "arrival: a state sitting survives the round trip intact");
+eq(w.location.hash, "", "arrival: a state /b/ path is left alone too");
 w = loadLinks("https://politidex.fyi/b/H.R.%201");
-eq(w.location.hash, "#bill//H.R.%201", "arrival: a sitting-less /b/ address still opens the number");
+eq(w.location.hash, "", "arrival: a sitting-less /b/ path is left alone too");
 
 w = loadLinks("https://politidex.fyi/?receipt=aaron_ford~healthcare");
 eq(w.location.hash, "#receipt=aaron_ford~healthcare", "arrival: ?receipt= becomes #receipt=");
@@ -613,7 +619,9 @@ ok(!loadLinks("https://politidex.fyi/?receipt=aaron_ford~healthcare").notice,
     const t = parse(url);
     ok(t && t.kind === kind, `round trip: the emitted ${kind} link parses back to a ${kind} target`);
     const back = loadLinks(url);
-    ok(back.location.hash.length > 1, `round trip: the emitted ${kind} link opens a hash on arrival`);
+    // A bill link is a document address: arriving on it writes no hash at all.
+    if (kind === "bill") eq(back.location.hash, "", "round trip: the emitted bill link is its document, with no hash written");
+    else ok(back.location.hash.length > 1, `round trip: the emitted ${kind} link opens a hash on arrival`);
   }
 }
 

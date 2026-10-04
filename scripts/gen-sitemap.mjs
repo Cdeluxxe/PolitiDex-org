@@ -408,6 +408,17 @@ const excluded = ids.filter((id) => !floor.clears(id));
 const bills = measureAddresses(ROOT);
 const issues = issueAddresses(bills.issueKeys);
 
+// THE BILL ROWS ARE THE BILL DOCUMENTS. /b/<sitting>/<number> is served by
+// bill.html, and the edge writes a measure into its body only when
+// db/bill-docs.json holds it (see scripts/gen-bill-docs.mjs) — every other
+// address under /b/ is the empty document. So the sitemap lists exactly the
+// documents that exist, read from that file, rather than re-deriving a list of
+// addresses that used to open a panel over the homepage. A number the file does
+// not hold is never advertised.
+const billDocRows = Object.values(
+  (JSON.parse(fs.readFileSync(path.join(ROOT, "db", "bill-docs.json"), "utf8")).docs) || {}
+).map((d) => ({ sitting: d.s, number: d.n }));
+
 // PERSON URLS ARE UNTOUCHED BY THIS. The issue entries are appended after the
 // bills rather than interleaved anywhere, so adding them cannot move, rename or
 // drop a single /p/<pid> line — the person half of this file is the same list in
@@ -421,7 +432,7 @@ const urls = [
   // on: one bad key must not cost the other several hundred real addresses.
   ...publishable.filter((pid) => pid && !/^(?:null|undefined|nan)$/i.test(String(pid).trim()))
     .map((pid) => `/p/${pid}`),
-  ...bills.published.map(billPath),
+  ...billDocRows.map(billPath),
   ...issues.listed.map((i) => i.url),
   // Appended last, for the same reason the issue entries are appended after the
   // bills: adding a district address cannot move, rename or drop a single

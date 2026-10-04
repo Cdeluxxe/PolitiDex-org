@@ -1611,32 +1611,82 @@
     btn.innerHTML = on ? '★ Following' : '☆ Follow this bill';
   }
 
-  // A stable, shareable deep link to this bill (congress + number).
-  //
-  // The panel still RUNS on `#bill/<congress>/<number>` — every link already out
-  // there keeps working — but a hash never reaches a server, so a pasted hash link
-  // could only ever unfurl as the generic site card. What leaves the device is the
-  // query form (`/?bill=119/H.R. 1`), which the edge can read and preview and
-  // share-links.js converts straight back into the same hash on arrival.
+  // A stable, shareable deep link to this bill: /b/<sitting>/<number>, the bill's
+  // own document. share-links.js is the one builder of that address; the fallback
+  // below spells the same form for a page that does not load it.
   function shareUrl() {
     if (!_current) return location.href;
     var links = G('PDXShareLinks');
     if (links && links.bill) return links.bill(_current.sitting || _current.congress, _current.number);
-    return location.origin + location.pathname +
-      '#bill/' + encodeURIComponent(_current.sitting || _current.congress || '') + '/' + encodeURIComponent(_current.number || '');
+    return location.origin + billPathOf(String(_current.sitting || _current.congress || ''), _current.number || '');
   }
-  // Reflect the open bill in the URL without triggering the hashchange handler
-  // (history.replaceState does not fire hashchange), so a shared/refreshed link
-  // reopens the panel while ordinary opens stay loop-free.
-  function syncHash() {
-    if (!_current) return;
+
+  // ── THE ADDRESS IN THE BAR IS THE BILL'S DOCUMENT ────────────────────────────
+  // This panel used to write #bill/<sitting>/<number> on top of whatever the bar
+  // already said — "/#bill/119/H.J.Res.%20131", or worse "/issue/<key>#bill/…" — an
+  // address no server can see, so a reader who copied it out handed on the
+  // homepage. /b/<sitting>/<number> is a document of its own now (bill.html, with
+  // the measure written into its body at the edge), so the bar says THAT, and
+  // nothing is ever appended after it.
+  //
+  //   · Opened by a tap on any page: the bar is pushed to /b/… and the address it
+  //     held is kept, so closing puts it back — the reader is still on the page
+  //     they were reading, and Back closes the panel instead of leaving the site.
+  //   · Opened on arrival (a legacy #bill/ link, a ?bill= query, the /b/ document
+  //     itself): the bar is REPLACED, not pushed — there is no earlier page of
+  //     ours to go back to, and a legacy #bill/ hash is dropped on the way.
+  //   · On a /vote/ address the bar keeps the roll call — its own card, its own
+  //     citation — and only a #bill/ hash, if one arrived, is stripped.
+  //
+  // No hashchange is fired by any of this (replaceState and pushState do not fire
+  // it), so the router below never re-enters itself.
+  var BILL_PATH_RE = /^\/b\/(?:([A-Za-z0-9]{1,12})\/)?(.+?)\/?$/;
+  function billPathOf(sit, num) {
+    return '/b/' + (sit ? encodeURIComponent(sit) + '/' : '') + encodeURIComponent(num);
+  }
+  function pathBill() {
     try {
-      var h = '#bill/' + encodeURIComponent(_current.sitting || _current.congress || '') + '/' + encodeURIComponent(_current.number || '');
-      if (location.hash !== h) history.replaceState(null, '', location.pathname + location.search + h);
+      var m = BILL_PATH_RE.exec(location.pathname || '');
+      if (!m) return null;
+      var n = decodeURIComponent(m[2] || '');
+      return n ? { sitting: decodeURIComponent(m[1] || ''), number: n } : null;
+    } catch (e) { return null; }
+  }
+  var _prevUrl = '';   // the address this panel took the bar from; '' = not ours to give back
+  var _nav = null;     // how the open in flight was asked for: { arrival } / { fromPop }
+  function stripBillHash() {
+    try {
+      if (/^#bill\//.test(location.hash || '')) history.replaceState(history.state, '', location.pathname + location.search);
     } catch (e) {}
   }
-  function clearHash() {
-    try { if (/^#bill\//.test(location.hash || '')) history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+  function syncPath() {
+    if (!_current || !_current.number) return;
+    try {
+      if (!history || !history.replaceState) return;
+      var nav = _nav || {};
+      var sit = String(_current.sitting || _current.congress || '');
+      var want = billPathOf(sit, _current.number);
+      var here = location.pathname || '';
+      if (nav.fromPop || /^\/vote\//.test(here)) { stripBillHash(); return; }
+      var cur = pathBill();
+      if (cur && cur.number === _current.number && cur.sitting === sit) { stripBillHash(); return; }
+      var keep = /^#bill\//.test(location.hash || '') ? '' : (location.hash || '');
+      if (nav.arrival) {
+        if (!cur && !_prevUrl) _prevUrl = here + location.search + keep;
+        history.replaceState(history.state, '', want);
+        return;
+      }
+      if (!_prevUrl) _prevUrl = here + location.search + keep;
+      if (history.pushState) history.pushState({ pdxBill: want }, '', want);
+      else history.replaceState(history.state, '', want);
+    } catch (e) {}
+  }
+  // Give the bar back. On the /b/ document itself there is nothing to give back —
+  // the address IS the page — so _prevUrl is '' and the bar stays where it is.
+  function restorePath() {
+    stripBillHash();
+    try { if (_prevUrl && pathBill()) history.replaceState({}, '', _prevUrl); } catch (e) {}
+    _prevUrl = '';
   }
 
   // Share the bill: use the native share sheet on touch devices, and fall back to
@@ -1680,11 +1730,13 @@
     ov.hidden = false;
     document.documentElement.classList.add('bd-lock');
   }
-  function close() {
+  function close(opts) {
     var ov = document.getElementById('pdx-bd-overlay');
     if (ov) ov.hidden = true;
     document.documentElement.classList.remove('bd-lock');
-    clearHash();
+    // On a popstate the browser has already moved the bar; it is not ours to write.
+    if (opts && opts.fromPop) { _prevUrl = ''; return; }
+    restorePath();
   }
 
   function renderLoading() { show('<div class="bd-loading"><span class="bd-spin"></span> Loading bill…</div>'); }
@@ -1699,7 +1751,7 @@
   function liteCurrent(card) {
     return {
       id: (card && card.id != null) ? card.id : null, number: (card && card.number) || '',
-      congress: (card && card.congress) || '', title: (card && (card.shortTitle || card.title || card.number)) || 'Bill',
+      congress: (card && card.congress) || '', sitting: card ? (sittingKeyOfCard(card) || '') : '', title: (card && (card.shortTitle || card.title || card.number)) || 'Bill',
       status: (card && card.status) || '', chamber: (card && card.chamber) || '', source: (card && card.source) || null
     };
   }
@@ -1766,14 +1818,15 @@
     if (!card) return false;
     _current = liteCurrent(card);
     show(liteBodyHtml(card));
-    syncHash();
+    syncPath();
     return true;
   }
 
   // Resolve a card ref (numeric id, or a bill number like "H.R. 1") to a measure id,
   // then fetch + render. Falls back to a card-only lite panel whenever the live detail
   // can't be loaded, so a click never dead-ends.
-  function open(ref, sitting) {
+  function open(ref, sitting, opts) {
+    _nav = opts || null;
     var bills = G('PDXBills');
     var inlineCard = (bills && bills.listSync) ? findByNumber(bills.listSync().items, ref) : null;
     if (!bills || typeof bills.get !== 'function') { // no client module → best-effort
@@ -1786,7 +1839,7 @@
       var card = inlineCard || findByNumber((bills.listSync ? bills.listSync().items : []), ref);
       if (id == null) { if (!showLite(card)) renderError(card); return; }
       bills.get(id).then(function (data) {
-        if (data && data.measure) { show(bodyHtml(data)); syncHash(); }
+        if (data && data.measure) { show(bodyHtml(data)); syncPath(); }
         else if (!showLite(card)) renderError(null);
       }).catch(function () { if (!showLite(card)) renderError(card); });
     }).catch(function () { if (!showLite(inlineCard)) renderError(inlineCard); });
@@ -2137,28 +2190,54 @@
   window.PDXBillDetail = { open: open, close: close, sittingOf: sittingKeyOfCard };
 
   // ── Deep-link routing ───────────────────────────────────────────────────────
-  // In-app state is #bill/<sitting>/<number>; the shareable, server-visible form of
-  // the same address is /b/<sitting>/<number>, which share-links.js converts back
-  // into this hash on arrival. Open the panel when such a hash is present on load or
-  // changes, resolving the natural key to a measure id.
-  function openFromHash() {
+  // The bill's address is /b/<sitting>/<number>, and on that document this opens
+  // the panel from the PATH. Anywhere else the path is read too — a device whose
+  // service worker still answers /b/ with an older homepage shell lands here —
+  // and a legacy #bill/<sitting>/<number> link still opens, with the hash dropped
+  // from the bar as it does. Nothing here writes #bill/.
+  //
+  // The /b/ document's empty — an address the archive does not hold — opens
+  // nothing: the body already says so, and a panel would only say "could not load".
+  function sameBill(b) {
+    var ov = document.getElementById('pdx-bd-overlay');
+    return !!(ov && !ov.hidden && _current && b && _current.number === b.number &&
+      String(_current.sitting || _current.congress || '') === String(b.sitting || ''));
+  }
+  function routeHash() {
     var h = String(location.hash || '');
     var m = h.match(/^#bill\/([^/]*)\/(.+)$/);
-    if (!m) return;
-    var sitting = decodeURIComponent(m[1] || '');
-    var number = decodeURIComponent(m[2] || '');
-    // Already showing this bill (e.g. we just set the hash on open) — do nothing.
-    var ov = document.getElementById('pdx-bd-overlay');
-    if (ov && !ov.hidden && _current && _current.number === number &&
-        String(_current.sitting || _current.congress || '') === String(sitting || '')) return;
+    if (!m) return false;
+    var b = null;
+    try { b = { sitting: decodeURIComponent(m[1] || ''), number: decodeURIComponent(m[2] || '') }; } catch (e) { return false; }
+    // Already showing this bill — just take the hash back out of the bar.
+    if (sameBill(b)) { stripBillHash(); return true; }
     var bills = G('PDXBills');
-    if (!bills || !bills.list) { return; }
+    if (!bills || !bills.list) return false;
     // The first segment is a SITTING: "119" for a congress, "2024GS" for a state
     // session. It is not sent as ?congress= any more, because a state row has no
     // congress and that filter would exclude the very bill being asked for.
-    open(number, sitting);
+    open(b.number, b.sitting, { arrival: true });
+    return true;
   }
-  window.addEventListener('hashchange', openFromHash);
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', openFromHash);
-  else openFromHash();
+  function routePath(opts) {
+    var b = pathBill();
+    if (!b) return false;
+    try { if (document.querySelector('[data-pdx-bill-empty]')) return false; } catch (e) {}
+    if (sameBill(b)) return true;
+    var bills = G('PDXBills');
+    if (!bills || !bills.list) return false;
+    open(b.number, b.sitting, opts || { arrival: true });
+    return true;
+  }
+  function route() { if (!routeHash()) routePath(); }
+  window.addEventListener('hashchange', routeHash);
+  // Back and Forward. A /b/ entry this panel pushed reopens its bill; stepping
+  // off one closes the panel without writing to the bar the browser just moved.
+  window.addEventListener('popstate', function () {
+    if (routePath({ fromPop: true })) return;
+    var ov = document.getElementById('pdx-bd-overlay');
+    if (ov && !ov.hidden && !pathBill()) close({ fromPop: true });
+  });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', route);
+  else route();
 })();

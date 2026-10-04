@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+<!-- ═════════════════════════════════════════════════════════════════════════════
+     bill.html — THE FIFTEENTH SHELL. /b/<sitting>/<number> IS ITS OWN DOCUMENT.
+     ────────────────────────────────────────────────────────────────────────────
+     WHAT WAS WRONG. /b/119/H.J.Res.%20131 was in the sitemap and every drawer
+     link already pointed at it, and the server answered it with index.html. The
+     bill only appeared after the homepage's JavaScript opened a panel over the
+     front page, and share-preview.ts rewrote the <head> and put nothing in the
+     <body> — so a crawler fetched the homepage, 2 MB of it, under a bill's title.
+     The issue page's measure row was worse: a <button> with no href, which on a
+     page without the panel dropped a bill hash on top of /issue/<key>.
+
+     WHAT THIS IS. One template, served for /b/* by the one existing netlify.toml
+     rule, the way /p/<pid> is served by person.html. It carries:
+
+       • ONE SEAM, between the two pdx:bill-doc comment markers below, which the
+         edge fills with the measure the archive holds — number, sitting, the
+         stored title, and the effect line already stored for it on each issue —
+         or, for a sitting or a number the archive does not hold, the honest
+         empty (with a real 404 and noindex). The words come from
+         db/bill-docs.json; see scripts/gen-bill-docs.mjs.
+       • the bill panel (bills.js + bill-detail.js), which opens over this
+         document from its own path — roll calls, members, the bundle, sources —
+         exactly the panel the homepage opens. The address in the bar stays
+         /b/<sitting>/<number>; nothing is appended after it.
+       • share-links.js, the one builder of a bill's address, and issue-scope.js,
+         so the panel's issue chips carry their names.
+
+     WHAT THE SEAM NEVER SAYS. No scraped Congress.gov text, no score, no
+     percentage, no direction, no member tally. And a measure the archive does not
+     hold is never printed: the template names no bill on its own, and only the
+     edge — reading the archive — puts one in it.
+
+     THE RULE THIS DOCUMENT LIVES BY: EVERY SAME-ORIGIN PATH IS ROOT-ABSOLUTE.
+     /b/<sitting>/<number> is two segments deep and the rewrite answers 200 for
+     anything under /b/, so a bare relative script path would resolve to
+     /b/119/bill-detail.js, match the rule, and hand the browser this document to
+     parse as JavaScript. scripts/test-bill-document.mjs fails on a relative path.
+     ═══════════════════════════════════════════════════════════════════════════════ -->
+
+  <!-- THE HEAD THE EDGE FUNCTION WRITES INTO. share-preview.ts replaces the FIRST
+       match of each tag below by an attribute-ordered regex, so `property` then
+       `content` (and `rel` then `href` on the canonical) is load-bearing. The
+       static values name no bill: an address the edge could not resolve keeps
+       them, and its canonical points at the front page rather than at itself. -->
+  <title>Bill file · PolitiDex</title>
+  <link rel="canonical" href="https://politidex.fyi/" />
+  <meta name="description" content="A bill file on PolitiDex: the measure, the sitting it belongs to, and what it did, with the record behind it." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PolitiDex" />
+  <meta property="og:title" content="Bill file · PolitiDex" />
+  <meta property="og:description" content="A bill file on PolitiDex: the measure, the sitting it belongs to, and what it did, with the record behind it." />
+  <meta property="og:url" content="https://politidex.fyi/" />
+  <meta property="og:image" content="https://politidex.fyi/.netlify/images?url=%2Fassets%2Fog-default.svg&fm=png&w=1200&h=630&fit=cover" />
+  <meta property="og:image:alt" content="PolitiDex bill file" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Bill file · PolitiDex" />
+  <meta name="twitter:description" content="A bill file on PolitiDex: the measure, the sitting it belongs to, and what it did, with the record behind it." />
+  <meta name="twitter:image" content="https://politidex.fyi/.netlify/images?url=%2Fassets%2Fog-default.svg&fm=png&w=1200&h=630&fit=cover" />
+  <meta name="theme-color" content="#0a0f1e" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" onload="this.rel='stylesheet'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" /></noscript>
+
+  <!-- The earliest honest answer to "which document is this", for the modules
+       that need to know before anything else has booted. -->
+  <script>window.__PDX_BILL_DOC = true;</script>
+
+  <style>
+    :root { --pdx-chrome: 3.25rem; color-scheme: dark; }
+    @supports (padding-top: env(safe-area-inset-top)) {
+      :root { --pdx-chrome: calc(3.25rem + env(safe-area-inset-top, 0px)); }
+    }
+    html, body { background: #070b16; color: #e7eefb; }
+    body {
+      margin: 0;
+      font-family: 'Barlow', system-ui, -apple-system, sans-serif;
+      padding-top: calc(var(--pdx-chrome) + 0.75rem);
+    }
+    .pdx-bill-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1200;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.75rem; height: 3.25rem; padding: env(safe-area-inset-top, 0px) 1rem 0; box-sizing: content-box;
+      background: rgba(10, 15, 30, 0.86); backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .pdx-bill-bar a { text-decoration: none; }
+    .pdx-bill-wordmark {
+      font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+      font-size: 1.15rem; letter-spacing: 0.12em; color: #fff;
+    }
+    .pdx-bill-wordmark span { color: #e0273f; }
+    .pdx-bill-home {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem;
+      letter-spacing: 0.14em; text-transform: uppercase; color: #9fb4d4;
+      border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 0.5rem;
+      padding: 0.3rem 0.65rem; white-space: nowrap;
+    }
+
+    /* THE DOCUMENT. What the edge writes, and what a reader with JavaScript off
+       reads. Sized for prose, not for a panel. */
+    .pdx-bill-doc { max-width: 44rem; margin: 1.5rem auto 3rem; padding: 0 1.1rem; }
+    .pdx-bill-kicker {
+      margin: 0 0 0.5rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.78rem; letter-spacing: 0.16em; text-transform: uppercase; color: #a78bfa;
+    }
+    .pdx-bill-num { margin: 0 0 0.6rem; font-size: clamp(1.6rem, 4vw, 2.3rem); line-height: 1.15; color: #eef4ff; }
+    .pdx-bill-title { margin: 0 0 1rem; font-size: 1.02rem; line-height: 1.6; color: #c9d8f2; }
+    .pdx-bill-doc p { color: #9fb4d4; line-height: 1.6; }
+    .pdx-bill-effects h2 {
+      margin: 1.4rem 0 0.5rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: #7596c0;
+    }
+    .pdx-bill-effects ul { margin: 0; padding: 0; list-style: none; }
+    .pdx-bill-effects li {
+      margin: 0 0 0.55rem; padding: 0.6rem 0.75rem; border: 1px solid rgba(159, 180, 212, 0.16);
+      border-radius: 10px; background: rgba(127, 180, 255, 0.04); color: #dbe6f7; line-height: 1.5;
+    }
+    .pdx-bill-eff-i {
+      display: block; margin-bottom: 0.15rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: #9fb4d4;
+    }
+    .pdx-bill-open a {
+      display: inline-block; margin-top: 0.6rem; padding: 0.6rem 1.1rem; border-radius: 10px;
+      background: #f5c842; color: #0a0f1e; font-weight: 700; text-decoration: none;
+    }
+
+    /* The panel opens below this document's one-row bar rather than over it. */
+    .bd-overlay { top: var(--pdx-chrome); }
+  </style>
+</head>
+<body>
+
+  <header class="pdx-bill-bar">
+    <a href="/" class="pdx-bill-wordmark" aria-label="PolitiDex home">POLITI<span>DEX</span></a>
+    <a href="/" class="pdx-bill-home">← All politicians</a>
+  </header>
+
+  <!-- THE SEAM. The edge replaces everything between the two markers. What ships
+       here is only what is true of every /b/ address before the archive has been
+       asked: that it is a bill file, and that it is not on screen yet. -->
+  <!--pdx:bill-doc--><main id="pdx-bill-doc" class="pdx-bill-doc" data-pdx-bill-doc data-pdx-bill-pending>
+    <p class="pdx-bill-kicker">Bill file</p>
+    <h1 class="pdx-bill-num">Bill file · record still loading</h1>
+    <p>This address names a bill file on PolitiDex. If the measure does not appear, the archive holds none at this address.</p>
+    <p class="pdx-bill-open"><a href="/">Go to PolitiDex</a></p>
+  </main><!--/pdx:bill-doc-->
+
+  <script>
+  (function () {
+    'use strict';
+    // ── CROSS-DOCUMENT DOORS ─────────────────────────────────────────────────
+    // The panel opens a person, a Spotlight or an issue by calling into the
+    // homepage's modules, none of which are on this document. Each one is a real
+    // navigation here, to the document that owns the address.
+    if (typeof window.showProfile !== 'function') {
+      window.showProfile = function (pid) {
+        if (pid) location.href = '/p/' + encodeURIComponent(String(pid));
+      };
+    }
+    if (!window.PDXSpotlight) {
+      window.PDXSpotlight = { open: function (slug) { if (slug) location.href = '/issue/' + encodeURIComponent(String(slug)); } };
+    }
+    if (!window.PDXIssueView) {
+      window.PDXIssueView = { open: function (key) { if (key) location.href = '/i/' + encodeURIComponent(String(key)); } };
+    }
+
+    var esc = function (s) {
+      return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+      });
+    };
+    var PATH = /^\/b\/(?:([A-Za-z0-9]{1,12})\/)?(.+?)\/?$/;
+
+    // ── THE SEAM'S GUARD AND ITS FALLBACK ────────────────────────────────────
+    // The edge stamps the address it wrote the seam FOR. A cache layer that hands
+    // over another bill's document cannot paint that bill on this address: a
+    // stamp that disagrees with the bar is put back to the pending state, and the
+    // archive is asked directly. The same ask covers a document the edge did not
+    // touch at all (local dev, a fail-open) — and its answer is identity only:
+    // the number, the sitting and the stored title, or the honest empty.
+    function boot() {
+      var seam = document.getElementById('pdx-bill-doc');
+      var m = PATH.exec(location.pathname || '');
+      if (!seam || !m) return;
+      var stamp = seam.getAttribute('data-pdx-bill-for');
+      var mine = false;
+      try { mine = !!stamp && decodeURIComponent(stamp) === decodeURIComponent(location.pathname); } catch (e) { mine = false; }
+      if (!seam.hasAttribute('data-pdx-bill-pending') && mine) return;
+
+      var sitting = '', number = '';
+      try { sitting = decodeURIComponent(m[1] || ''); number = decodeURIComponent(m[2] || ''); } catch (e) { return; }
+      var paint = function (html, attrs) {
+        var next = document.createElement('main');
+        next.id = 'pdx-bill-doc';
+        next.className = 'pdx-bill-doc';
+        next.setAttribute('data-pdx-bill-doc', '');
+        next.setAttribute('data-pdx-bill-for', location.pathname);
+        for (var k in attrs) next.setAttribute(k, attrs[k]);
+        next.innerHTML = html;
+        seam.parentNode.replaceChild(next, seam);
+        seam = next;
+      };
+      fetch('/api/voting-record/measure-ref/' + encodeURIComponent(sitting) + '/' + encodeURIComponent(number),
+        { headers: { accept: 'application/json' } })
+        .then(function (r) {
+          if (r.status === 404 || r.status === 400) return { none: true };
+          return r.ok ? r.json() : null;
+        })
+        .then(function (d) {
+          if (d && d.none) {
+            paint('<p class="pdx-bill-kicker">Bill file</p>' +
+              '<h1 class="pdx-bill-num">No measure on file at this address</h1>' +
+              '<p>PolitiDex holds no measure under this address. Rather than show you the front page and let you think the link worked, here is the plain answer: it does not resolve to a record we hold.</p>' +
+              '<p class="pdx-bill-open"><a href="/">Go to PolitiDex</a></p>', { 'data-pdx-bill-empty': '1' });
+            // bill-detail.js may already have tried this path from the pending
+            // document; its "could not load" panel has nothing to add to this.
+            try { if (window.PDXBillDetail && window.PDXBillDetail.close) window.PDXBillDetail.close(); } catch (e) {}
+            return;
+          }
+          var me = d && d.measure;
+          if (!me || !me.number) return; // could not ask: the pending text stays true
+          var sit = String(me.congress || me.session || sitting || '');
+          var sitWords = /^\d+$/.test(sit) ? sit + 'th Congress' : sit;
+          paint('<p class="pdx-bill-kicker">Bill file' + (sitWords ? ' · ' + esc(sitWords) : '') + '</p>' +
+            '<h1 class="pdx-bill-num">' + esc(me.number) + '</h1>' +
+            (me.title ? '<p class="pdx-bill-title">' + esc(me.title) + '</p>' : ''),
+            { 'data-pdx-bill-held': 'live', 'data-sitting': sit, 'data-number': String(me.number) });
+        })
+        .catch(function () { /* the pending text is still the honest answer */ });
+    }
+
+    // The document's own "open" link is this page; on a page with the panel it
+    // opens the panel instead of reloading the document under it.
+    document.addEventListener('click', function (e) {
+      var a = e.target && e.target.closest ? e.target.closest('.pdx-bill-open a') : null;
+      if (!a || e.button > 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var seam = document.getElementById('pdx-bill-doc');
+      var n = seam && seam.getAttribute('data-number');
+      if (!n || !window.PDXBillDetail || typeof window.PDXBillDetail.open !== 'function') return;
+      e.preventDefault();
+      window.PDXBillDetail.open(n, seam.getAttribute('data-sitting') || '', { arrival: true });
+    });
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+    else boot();
+  })();
+  </script>
+
+  <script defer src="/share-links.js"></script>
+  <script defer src="/issue-scope.js"></script>
+  <script defer src="/bills.js"></script>
+  <script defer src="/bill-detail.js"></script>
+</body>
+</html>
