@@ -2375,17 +2375,8 @@
                              the immediate one.
        ══════════════════════════════════════════════════════════════════════ -->
   <script src="/person-link.js"></script>
-  <script defer src="/browse-photos.js"></script>
-  <script defer src="/issue-map.js"></script>
-  <script defer src="/issue-colors.js"></script>
-  <script defer src="/profile-alias.js"></script>
-  <script defer src="/seated-member.js"></script>
-  <script defer src="/voter-hub-location.js"></script>
-  <script defer src="/stance-sides.js"></script>
-  <script defer src="/my-stances.js"></script>
-  <script defer src="/your-file.js"></script>
-  <script defer src="/district-voice.js"></script>
-  <script defer src="/me-desk.js"></script>
+  <!-- The desk's modules are at the end of <body>, NOT here. See the note over
+       them there: deferred, they queued behind the Firebase SDK above. -->
   <script defer src="/me-membership.js"></script>
 
   <!-- pdx:me-voice-door:begin -->
@@ -2464,9 +2455,45 @@
     <p class="pdxmm-line">The ID and address check for one seat is included with the year. A second seat is not included.</p>
     <p class="pdxmm-note">The room is the district. A voice that counts is only a verified resident of that seat; someone outside the district can read and cannot post.</p>
     <p class="pdxmm-note">Membership does not verify residency and does not open a seat: posting and voting still need the ID and address check for that seat.</p>
-    <div id="pdx-me-membership-act"></div>
+    <div id="pdx-me-membership-act"><p class="pdxmm-note" role="status">Checking membership…</p></div>
   </section>
   <!-- pdx:me-membership:end -->
+
+  <!-- ══ THE DESK'S MODULES — AT THE END OF THE BODY, AND NOT DEFERRED ═════════
+       WHAT WAS WRONG. These were `defer` tags in <head>, below the three Firebase
+       SDK bundles. Deferred scripts run in document order, so me-desk.js — which
+       is meant to render the moment it runs — could not run until ~800 KB of
+       Firebase had come down from gstatic. On a phone that was long enough for
+       a tap on /me to read as frozen.
+
+       WHAT THIS IS. The same modules, in the same order, as plain scripts after
+       the mount and the membership block. Everything above them is parsed, so
+       they paint into a document that exists; they run during the parse, so
+       they run BEFORE the deferred SDK and firebase-boot.js, which still run
+       before DOMContentLoaded exactly as they did. Nothing here needs the SDK at
+       load: every module registers through the stub's queued
+       auth.onAuthStateChanged, which firebase-boot.js replays, and
+       window.PDXAuth stays 'unknown' until it does.
+
+       So the first paint is the account card and the seat lines, from this
+       device's location record. Positions, starred issues and saved work are
+       read under the account's keys, so they say they are loading until the
+       account answers; the card says "Checking account…", never "Not signed
+       in"; and me-membership.js (still deferred, above) fills its control in
+       after. The Firebase block above is untouched — /voice, /money and
+       /mandate copy it byte for byte.
+       ══════════════════════════════════════════════════════════════════════ -->
+  <script src="/browse-photos.js"></script>
+  <script src="/issue-map.js"></script>
+  <script src="/issue-colors.js"></script>
+  <script src="/profile-alias.js"></script>
+  <script src="/seated-member.js"></script>
+  <script src="/voter-hub-location.js"></script>
+  <script src="/stance-sides.js"></script>
+  <script src="/my-stances.js"></script>
+  <script src="/your-file.js"></script>
+  <script src="/district-voice.js"></script>
+  <script src="/me-desk.js"></script>
 
 </body>
 </html>

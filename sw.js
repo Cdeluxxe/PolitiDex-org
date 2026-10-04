@@ -8631,7 +8631,27 @@
 //     searches. Detect's refusal is unchanged; no new resolver.
 //     MIGRATION COST: none. No location key is migrated, renamed or copied.
 //     find.html is precached and changed, so it moves one version.
-const CACHE_VERSION = 'v289';
+// v290 - A TAP ON /me SHOWS THAT IT IS OPENING. On a phone the desk painted
+//     only after the ~800 KB Firebase SDK had come down, because me.html's
+//     deferred SDK tags sat above me-desk.js; a tap on the account chip did
+//     nothing visible until then. Two halves. The control: me-door.js, one
+//     delegated listener, gives every <a href="/me"> a pressed state on
+//     pointerdown and, on the click, the line "Opening your desk…"; a second
+//     tap while it opens is swallowed, and on /me itself the tap opens no load.
+//     The desk: its modules are plain scripts at the end of me.html's body,
+//     so they run before the deferred SDK and firebase-boot.js (whose block
+//     is untouched) and the account card and the seat lines paint first;
+//     positions, starred issues and saved work say they are loading until the account answers,
+//     the card says "Checking account…" rather than "Not signed in", and the
+//     membership control says "Checking membership…". No new route, no
+//     equity copy; the finder and the return to Who Represents Me are
+//     untouched. MIGRATION COST: none. No location key is migrated, renamed or
+//     copied, and no stored record moves. me.html,
+//     my-stances.html, me-desk.js, me-desk.css and shell-account-chip.js
+//     are precached and changed (compare-hub.js, which also gained the
+//     loader, is a runtime entry), and me-door.js joins the shell, so it
+//     moves one version.
+const CACHE_VERSION = 'v290';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -8884,6 +8904,10 @@ const SHELL_ASSETS = [
   // module — and the only two files /me and /courts did not already bring.
   '/shell-chrome.css',
   '/shell-account-chip.js',
+  // The door to /me: pressed, then "Opening your desk…", on every control that
+  // opens the desk. Loaded by my-stances.html and pulled in by the chip above
+  // and by compare-hub.js, so it is part of every shell that has one.
+  '/me-door.js',
   // WHAT /mandate COSTS OFFLINE: these two, because together they ARE the room.
   // support-lane.js stays runtime-cached for the reason spotlight-hub.js does:
   // it decorates the lane, it is not the lane.
