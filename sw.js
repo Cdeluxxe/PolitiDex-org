@@ -8623,7 +8623,15 @@
 //     route. MIGRATION COST: none. No location key is migrated, renamed or
 //     copied. shell-chrome.css is precached and changed, so it moves one
 //     version.
-const CACHE_VERSION = 'v288';
+// v289 - THE FINDER MAP OPENS WITHOUT THE KEYBOARD. Opening /find focused the
+//     address field, so on a phone the keyboard rose over the pin and the
+//     district the reader came to tap. The field is no longer focused on
+//     open, on any door: Detect, Change location, a return from Who Represents
+//     Me, a cold /find. Tapping it still raises the keyboard and still
+//     searches. Detect's refusal is unchanged; no new resolver.
+//     MIGRATION COST: none. No location key is migrated, renamed or copied.
+//     find.html is precached and changed, so it moves one version.
+const CACHE_VERSION = 'v289';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

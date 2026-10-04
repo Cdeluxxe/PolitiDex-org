@@ -3501,12 +3501,11 @@
               : 'Type an address to set your U.S. House district.'));
       }
 
-      // Address search is the primary, most accurate path — focus it on open so the
-      // voter can start typing immediately.
-      setTimeout(function(){
-        var input = document.getElementById('pdx-map-search-input');
-        if (input) { try { input.focus(); } catch(e) {} }
-      }, 120);
+      // THE SEARCH FIELD IS NOT FOCUSED ON OPEN. It used to be, and on a phone a
+      // focused field is a raised keyboard: it covered the pin and the district
+      // the reader came to tap, on every door in — Detect, Change location, a
+      // return from Who Represents Me, a cold /find. The field is still the top
+      // of the panel and one tap away; that tap is what raises the keyboard.
 
       // Build the map after the container is visible so Leaflet measures it right.
       // IT BUILDS THE MAP AND DRAWS NO DISTRICTS. This used to call
