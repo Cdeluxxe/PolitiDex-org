@@ -463,13 +463,18 @@ const personLines = person.split("\n");
 // the two documents still share, then trimming the blank edges. THE BOUNDS GUARD
 // BELOW IS THE ACTUAL FIX: a window that does not fit the file is now a failure
 // with a number in it, so the next pin to slide off the end says so.
+//
+// THE LAST PIN MOVED BY ELEVEN in the internal-hops pass: person.html gained
+// seated-member.js and bill-pages.js, each with its note, above the PWA block.
+// The block's bytes were found unchanged at 2811–3006 and the number was taken
+// from where they were found. The five pins above it did not move.
 const COPIES = [
   [1405, 1920, "the promise ledger and the deferred-event capture (firebase-boot.js reads _firestoreLoaded and _checkAndTrigger as bare identifiers)"],
   [2005, 2059, "the Firebase compat bundles, the key injection, the synchronous stub and firebase-boot.js"],
   [2062, 2096, "the split-seam stubs (_pdxMandateForIssue is called unguarded from inside stance-helpers.js)"],
   [2114, 2158, "the share furniture share-preview.ts rewrites"],
   [2221, 2224, "the Bebas Neue / Barlow preload swap"],
-  [2800, 2995, "the PWA runtime and the service-worker registration"],
+  [2811, 3006, "the PWA runtime and the service-worker registration"],
 ];
 for (const [a, b, what] of COPIES) {
   // AN EMPTY OR OUT-OF-RANGE WINDOW IS A DEAD PIN, NOT A PASSING ONE. Checked

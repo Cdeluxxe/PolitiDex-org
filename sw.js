@@ -8665,7 +8665,25 @@
 //     migrated, renamed or copied. shell-chrome.css,
 //     find.html and every district board are precached and changed, so it
 //     moves one version.
-const CACHE_VERSION = 'v291';
+// v292 - THE PARKED ARCHIVE GETS ITS MISSING HOPS FROM PAGES ALREADY INDEXED.
+//     Looked first, counted every hop, added only the missing ones. (1) A
+//     district board links its sitting member; 84 of 88 members' person files
+//     linked back. The four that did not were UT-1..UT-4, whose holder is the
+//     _pdxUsHouseSeat() join that person.html cannot load. district-board.js's
+//     person-file control now falls back to seated-member.js's curated table
+//     only when the join is absent (band 1 never does), and the suite pins the
+//     two equal: 88 of 88, one link each, the board's own path. (2) The issue
+//     drawer printed 137 federal measures that have a /b/ page as Congress.gov
+//     links only. bill-pages.js (generated from the sitemap's bill set) lets the
+//     drawer put one "Bill page" anchor beside the Congress.gov one, only for a
+//     measure on that list. (3) Issue pages already anchor every person they
+//     name, and person files already anchor every issue page on file: no change.
+//     No new board, no new bill page, no splat, no sitemap rewrite, no score.
+//     MIGRATION COST: none. No location key is migrated, renamed or copied.
+//     person.html, district-board.js, consistency.js and issue.html (one source
+//     note) are precached and changed and bill-pages.js joins the shell, so it
+//     moves one version.
+const CACHE_VERSION = 'v292';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -9208,6 +9226,10 @@ const SHELL_ASSETS = [
   // into one verdict). Precached with the shell so every surface can render the
   // shared verdict offline after first load.
   '/consistency.js',
+  // Which federal measures have a /b/ page, read by consistency.js on the person
+  // file's issue drawer. Precached beside it so an offline drawer and an online
+  // one print the same doors.
+  '/bill-pages.js',
   '/issue-view.js',
   '/journey.js',
   // One destination for every money control. Precached because a repeat visitor

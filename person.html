@@ -2600,7 +2600,13 @@ window.PDXLazy = (function () {
        INERT OTHERWISE. mount() returns false without its #pdx-district-board
        host, which this document does not have, so nothing is fetched, nothing is
        painted and no band exists here. The board is at /district/ut-sd-3; this
-       is only the door to it. -->
+       is only the door to it.
+
+       seated-member.js rides ahead of it for the four congressional boards: the
+       join that names a UT-N member lives in voter-hub-location.js, which this
+       document cannot carry, so the control asks the curated table instead (see
+       memberOf() in district-board.js). It prints nothing and opens no room. -->
+  <script defer src="/seated-member.js"></script>
   <script defer src="/district-board.js"></script>
   <script defer src="/person-file.js"></script>
   <script defer src="/voting-record.js"></script>
@@ -2612,7 +2618,12 @@ window.PDXLazy = (function () {
        no stance list and no portrait. -->
   <script defer src="/say-vs-do.js"></script>
 
-  <!-- Word vs Act: the comparison, the branches and the axes. -->
+  <!-- Word vs Act: the comparison, the branches and the axes.
+       bill-pages.js is the list of federal measures with a page at
+       /b/<congress>/<number> (generated from the sitemap's bill set by
+       scripts/gen-bill-pages.mjs). The issue drawer reads it to put a "Bill page"
+       door beside a Congress.gov one, and only for a measure on the list. -->
+  <script defer src="/bill-pages.js"></script>
   <script defer src="/consistency.js"></script>
   <script defer src="/stance-tree.js"></script>
   <script defer src="/ballot-axes.js"></script>
