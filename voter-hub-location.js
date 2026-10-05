@@ -2548,7 +2548,13 @@
         idx[key] = null;
         continue;
       }
-      idx[key] = pid;
+      // THE SLOT HOLDS THE CANONICAL SPELLING, whichever key the row was filed
+      // under. On the bundle the key already is the roster id; on the live index
+      // a member can sit under the slug of their display name, and a seat card
+      // that linked that slug would advertise an address the board never uses.
+      // The gate below still finds the row, because _pdxRosterRec walks the same
+      // ruling in reverse.
+      idx[key] = _pdxCanonPid(pid);
     }
     return idx;
   }

@@ -8835,7 +8835,23 @@
 //     changed, so it moves one version.
 //     MIGRATION COST: none. No board, route, table or residency record moved,
 //     and no location key was touched.
-const CACHE_VERSION = 'v303';
+// v304 - /voice REPAINTS WHEN THE ROSTER LANDS. In a private window the CD-2
+//     card still printed "No sitting member on hand for this seat" after v303's
+//     alias row, because the alias was not the read that failed. The
+//     congressional card's pid comes from window._pdxUsHouseSeat(), a walk over
+//     the roster, and /voice's only roster is the live Firestore index: paged,
+//     and on a cold private window slower than the hallway's whole bounded
+//     paint schedule. Every paint ran against an empty or partial roster and
+//     nothing asked again. voice-room.js now takes the resolver's own
+//     pdxRosterReady() subscription, the one /me's desk takes, and paints on a
+//     short bounded tail after it until the loader reports done. The
+//     congressional walk in voter-hub-location.js (runtime-cached) publishes the
+//     canonical pid, so the card links /p/maloy whichever key the live document
+//     is filed under. voice-room.js is precached and changed, so it moves one
+//     version.
+//     MIGRATION COST: none. No board, route, table or residency record moved,
+//     and no location key was touched.
+const CACHE_VERSION = 'v304';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
