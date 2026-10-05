@@ -8821,7 +8821,21 @@
 //     moves one version.
 //     MIGRATION COST: none. No board, route, table or residency record moved,
 //     and no location key was touched.
-const CACHE_VERSION = 'v302';
+// v303 - /voice NAMES THE MEMBER ON U.S. HOUSE DISTRICT 2. A Clearfield or
+//     Layton reader's CD-2 card printed "No sitting member on hand for this
+//     seat" above an Open board onto /district/ut-cd-2, whose band 1 names
+//     Celeste Maloy. The live document is filed under `celeste_maloy` and the
+//     roster record under `maloy`, and PDX_PROFILE_ALIAS had no row joining
+//     them, so the lean document's gate dropped a pid it had resolved - the
+//     trevor_lee / tlee shape, on the congressional card. profile-evidence.js
+//     now holds celeste_maloy -> maloy (the pair stance-helpers.js already
+//     held); profile-alias.js is re-derived from it, and the index.html and
+//     person.html arrival mirrors carry the same pair. The card reads "Sitting
+//     member: Celeste Maloy" at /p/maloy. All four files are precached and
+//     changed, so it moves one version.
+//     MIGRATION COST: none. No board, route, table or residency record moved,
+//     and no location key was touched.
+const CACHE_VERSION = 'v303';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
