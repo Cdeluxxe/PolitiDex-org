@@ -2000,6 +2000,106 @@
     return _pdxAliasRev[pid] || _PDX_NO_ALIAS;
   }
 
+  // ── AND THE ROSTER ROW'S OWN NAME, SLUGGED, WHEN NOBODY HAS RULED ─────────
+  // ONE ADDRESS PER PERSON: /p/<roster id> is the person file, and a document
+  // the live index happens to file under the slug of a display name is not a
+  // second person. The join above needs a hand-added PDX_PROFILE_ALIAS row for
+  // every officeholder filed that way — `celeste_maloy` for `maloy`,
+  // `trevor_lee` for `tlee`, `ariel_defay` for `defay_h15` — and the next one
+  // filed under a name slug would un-name their seat on /voice until somebody
+  // noticed and added a fourth.
+  //
+  // So when the live index has no named document under a roster id, the gate
+  // asks window.PDX_ROSTER_NAMES (roster-names.js, generated from cmp-data.js
+  // and byte-pinned to it) for that roster row's own display name, slugs it, and
+  // accepts the live document filed under that slug ONLY when exactly one roster
+  // row carries the slug and exactly one live document does. The pid stays the
+  // roster id, so every card links /p/<roster id>. A slug two people share
+  // answers nothing and the seat keeps its empty sentence. Nothing here matches
+  // on a last name: `maloy` is never compared with `cory_maloy`, and the
+  // Johnsons stay separate.
+  function _pdxSlug(v) {
+    return String(v == null ? '' : v).toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  }
+  var _pdxNameSlugSrc = null, _pdxNameSlugRows = null;
+  function _pdxRosterNames() {
+    var t = null;
+    try { t = window.PDX_ROSTER_NAMES; } catch (e) {}
+    if (!t || typeof t !== 'object') return null;
+    if (t !== _pdxNameSlugSrc) {
+      _pdxNameSlugSrc = t;
+      _pdxNameSlugRows = {};
+      try {
+        for (var k in t) {
+          if (!Object.prototype.hasOwnProperty.call(t, k)) continue;
+          var s = _pdxSlug(t[k]);
+          if (s) (_pdxNameSlugRows[s] = _pdxNameSlugRows[s] || []).push(k);
+        }
+      } catch (e2) { _pdxNameSlugRows = {}; }
+    }
+    return t;
+  }
+  // The live index, read as slug → the keys whose document carries it (filed
+  // under it, or named so that it slugs to it). Rebuilt when the index object
+  // or its size changes, so a per-seat check stays a hash lookup.
+  var _pdxLiveSlugSrc = null, _pdxLiveSlugN = -1, _pdxLiveSlugIdx = null;
+  function _pdxLiveSlugKeys(s) {
+    var P = null;
+    try { P = window.PROFILES; } catch (e) {}
+    if (!P || typeof P !== 'object') return _PDX_NO_ALIAS;
+    var n = 0;
+    try { n = Object.keys(P).length; } catch (e2) { return _PDX_NO_ALIAS; }
+    if (P !== _pdxLiveSlugSrc || n !== _pdxLiveSlugN) {
+      _pdxLiveSlugSrc = P; _pdxLiveSlugN = n; _pdxLiveSlugIdx = {};
+      for (var k in P) {
+        if (!Object.prototype.hasOwnProperty.call(P, k)) continue;
+        var nm = _pdxRosterName(P[k], k);
+        if (!nm) continue;
+        var add = [k, _pdxSlug(nm)];
+        for (var i = 0; i < add.length; i++) {
+          var a = add[i];
+          if (!a || (i === 1 && a === add[0])) continue;
+          (_pdxLiveSlugIdx[a] = _pdxLiveSlugIdx[a] || []).push(k);
+        }
+      }
+    }
+    return _pdxLiveSlugIdx[s] || _PDX_NO_ALIAS;
+  }
+  // The one live row for this roster id's name slug, or null.
+  function _pdxSlugTwin(pid) {
+    var t = _pdxRosterNames();
+    if (!t || !pid || !Object.prototype.hasOwnProperty.call(t, pid)) return null;
+    var s = _pdxSlug(t[pid]);
+    if (!s || s === pid) return null;
+    var rows = _pdxNameSlugRows[s] || _PDX_NO_ALIAS;
+    if (rows.length !== 1 || rows[0] !== pid) return null;
+    var keys = _pdxLiveSlugKeys(s);
+    if (keys.length !== 1) return null;
+    // A key that is itself another roster row's id is that person's file.
+    if (keys[0] !== pid && Object.prototype.hasOwnProperty.call(t, keys[0])) return null;
+    var P = null;
+    try { P = window.PROFILES; } catch (e) {}
+    var rec = P ? P[keys[0]] : null;
+    return _pdxRosterName(rec, keys[0]) ? rec : null;
+  }
+  // And the same rule read the other way: the roster id a live key that is a
+  // display-name slug stands for, or ''. Only a key no roster row is filed
+  // under, and only a slug exactly one roster row carries.
+  function _pdxSlugOwner(key) {
+    var t = _pdxRosterNames();
+    if (!t || !key || Object.prototype.hasOwnProperty.call(t, key)) return '';
+    var rows = _pdxNameSlugRows[String(key)] || _PDX_NO_ALIAS;
+    return rows.length === 1 ? rows[0] : '';
+  }
+  // A live key that is a display-name slug two roster rows share is nobody's
+  // address: it may not seat anyone.
+  function _pdxSlugShared(key) {
+    var t = _pdxRosterNames();
+    if (!t || !key || Object.prototype.hasOwnProperty.call(t, key)) return false;
+    return (_pdxNameSlugRows[String(key)] || _PDX_NO_ALIAS).length > 1;
+  }
+
   // ── AND IT IS THE ROW THAT CAN NAME THEM, NOT MERELY THE FIRST ROW ────────
   // The walk below stops on the row that carries a display name rather than on
   // the first row it finds, because on the live index those are not always the
@@ -2054,6 +2154,9 @@
       if (_pdxRosterName(alt, keys[i])) return alt;
       if (alt && !first) first = alt;
     }
+    // THE UNIQUE-SLUG RULE, last: no ruling and no named row under the id.
+    var twin = _pdxSlugTwin(pid);
+    if (twin) return twin;
     return first || null;
   }
 
@@ -2528,6 +2631,9 @@
     var t = null;
     try { t = window.PDX_PROFILE_ALIAS; } catch (e) {}
     var v = (t && typeof t === 'object' && Object.prototype.hasOwnProperty.call(t, pid)) ? t[pid] : '';
+    // A display-name slug is not a second person: the roster id it stands for
+    // keeps the slot, by the same unique-slug rule the gate reads.
+    if (!v) v = _pdxSlugOwner(pid);
     return v ? String(v) : String(pid);
   }
   function _pdxCdIndex(st) {
@@ -2542,6 +2648,7 @@
       if (!key) continue;
       if (!_pdxIsUsRepOffice(rec.office)) continue;
       if (!_pdxArchiveInOffice(rec)) continue;
+      if (_pdxSlugShared(pid)) continue;
       // TWO CLAIMANTS ON ONE DISTRICT IS NOT A TIE TO BREAK. A seat is held by
       // one person; if the roster says otherwise for this district, the roster
       // is mid-correction and the honest row is the one that names nobody. The

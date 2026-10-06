@@ -54,7 +54,7 @@
 (function () {
   'use strict';
 
-  // COPIED VERBATIM FROM profile-evidence.js LINES 351–430.
+  // COPIED VERBATIM FROM profile-evidence.js LINES 355–434.
     window.PDX_PROFILE_ALIAS = window.PDX_PROFILE_ALIAS || {
       // curated keys with no roster record of their own
       kivory:    'ivory_h39',
@@ -93,8 +93,8 @@
       casey_snider:     'snider_h5',
       // CANONICAL: maloy — Utah's 2nd Congressional District, the roster
       // record that seat's own board names. `celeste_maloy` is the slug of
-      // that record's own display name; stance-helpers.js's STANCE_ALIASES has
-      // held the same pair, so this is the same ruling made readable to the
+      // that record's own display name; ACCT_ALIAS holds the same pair, so
+      // this is the same ruling made readable to the
       // reverse read that lets /voice NAME the member of a seat it has already
       // resolved, rather than print "No sitting member on hand for this seat"
       // over a person one key away.

@@ -16381,8 +16381,12 @@
 
     /* ── Premium Mobile Flow & Zero Cramp Padding/Spacing ────────────────── */
     @media (max-width: 768px) {
-      /* Fluid section spacing with elegant breathing room */
-      section, .section-py {
+      /* Fluid section spacing with elegant breathing room.
+         NOT #hero: its padding-top is var(--pdx-hero-top), the measured depth of
+         the fixed nav and Eye row plus the hero's own clearance (index.html).
+         A flat 3.5rem !important here put the PX / POLITIDEX lockup under the
+         fixed chrome on every phone. */
+      section:not(#hero), .section-py {
         padding-top: 3.5rem !important;
         padding-bottom: 3.5rem !important;
       }
