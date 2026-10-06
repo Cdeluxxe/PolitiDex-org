@@ -424,8 +424,9 @@ ok(/a verified resident gets one comment and five poll votes a month on that sea
 ok(!/\ba day\b|\bdaily\b/i.test(text), "/me: the block says month, not day");
 ok(/\$20 a year removes the cap/i.test(text), "/me: $20 a year removes the cap");
 ok(/does not verify residency and does not open a seat/i.test(text), "/me: membership is not residency");
-ok(/a voice that counts is only a verified resident of that seat/i.test(text), "/me: only a verified resident of that seat has a voice that counts");
-ok(/someone outside the district can read and cannot post/i.test(text), "/me: outside the district reads and cannot post");
+ok(/only a verified resident of that seat gets a voice that counts/i.test(text), "/me: only a verified resident of that seat has a voice that counts");
+ok(/this room is only the people who live in the seat/i.test(text), "/me: the room is only the people who live in the seat");
+ok(/a location on file is not proof of residency/i.test(text), "/me: a location is not proof");
 eq((block.match(/<button\b/gi) || []).length, 0, "/me: the static block carries no second button");
 ok(ME.includes('<script defer src="/me-membership.js"></script>'), "/me loads its one control");
 const CLIENT = R("me-membership.js");

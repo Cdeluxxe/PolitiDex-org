@@ -37,14 +37,13 @@ const must = (c, m) => {
 const MOD = R("district-board.js");
 const SW = R("sw.js");
 const DV = R("district-voice.js");
-const HOME = R("index.html");
 
 // The sentence, fixed here so "word for word" is a string and not whatever the
-// tree says today — and then pinned equal to the homepage card's own line.
+// tree says today. It began as the homepage card's line; since v308 the card
+// carries the three-sentence residency copy instead (scripts/
+// test-voice-exclusivity-copy.mjs), and the board's purpose line stays as it was.
 const LINE = "This is where neighbors read the same record and speak to the seat — not the internet. " +
   "Anyone can read a board. Only verified residents of that seat get a voice that counts.";
-const HOME_LINE = (HOME.match(/<p class="pdxhv-line">([^<]+)<\/p>/) || [])[1];
-must(HOME_LINE, "index.html no longer carries .pdxhv-line in a readable shape");
 
 const LOCKED = (R("district-composer.js").match(/var LOCKED_LINE = '([^']+)';/) || [])[1];
 must(LOCKED, "district-composer.js no longer declares LOCKED_LINE in a readable shape");
@@ -97,9 +96,8 @@ function failuresFor(src) {
   return out;
 }
 
-section("1 · the string is the homepage's sentence, held once");
+section("1 · the string is held once");
 {
-  eq(HOME_LINE, LINE, "index.html's card line");
   const { M } = mounted("ut-hd-16", MOD);
   eq(M.COPY.purpose, LINE, "COPY.purpose");
   eq(count(MOD, "This is where neighbors"), 1, "district-board.js holds the sentence once");
