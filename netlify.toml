@@ -485,6 +485,32 @@
 # them is a no-op — which is worth writing down precisely because it LOOKS
 # load-bearing next to a note insisting something else is. The thing that is
 # genuinely load-bearing on this path is the root-absolute asset rule above.
+# ONE ADDRESS PER PERSON. /p/<roster id> is the only person file. The live
+# index files three Utah officeholders under the slug of their display name,
+# and those slugs had been reachable as addresses of their own. A display-name
+# slug is not a second person, so each one is a permanent redirect to the
+# roster address and never a second document. These sit ABOVE the /p/* rewrite
+# because Netlify is first-match-wins and that rule would serve the slug a 200.
+# Every pair here is one ACCT_ALIAS already holds (profile-evidence.js), and
+# scripts/test-voice-name-slug.mjs fails on a row that is not.
+[[redirects]]
+  from = "/p/celeste_maloy"
+  to = "/p/maloy"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/p/trevor_lee"
+  to = "/p/tlee"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/p/ariel_defay"
+  to = "/p/defay_h15"
+  status = 301
+  force = true
+
 [[redirects]]
   from = "/p/*"
   to = "/person.html"

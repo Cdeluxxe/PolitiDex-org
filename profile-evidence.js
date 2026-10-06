@@ -314,6 +314,10 @@
       karen_kwan:        'kwan_s12',
       daniel_mccay:      'mccay_s11',
       ariel_defay:       'defay_h15',
+      // The same split on Utah's 2nd Congressional District: the live document
+      // is filed under the slug of Rep. Maloy's display name and the roster
+      // record under `maloy`. One person, one file, at /p/maloy.
+      celeste_maloy:     'maloy',
       wayne_harper:      'harper_s16',
       keith_grover:      'kgrover',
       kirk_cullimore:    'kcullimore',
@@ -386,8 +390,8 @@
       casey_snider:     'snider_h5',
       // CANONICAL: maloy — Utah's 2nd Congressional District, the roster
       // record that seat's own board names. `celeste_maloy` is the slug of
-      // that record's own display name; stance-helpers.js's STANCE_ALIASES has
-      // held the same pair, so this is the same ruling made readable to the
+      // that record's own display name; ACCT_ALIAS holds the same pair, so
+      // this is the same ruling made readable to the
       // reverse read that lets /voice NAME the member of a seat it has already
       // resolved, rather than print "No sitting member on hand for this seat"
       // over a person one key away.

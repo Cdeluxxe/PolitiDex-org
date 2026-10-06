@@ -443,6 +443,13 @@
        hand for this seat" while the front page named the member. This is that
        one table and nothing else, copied verbatim and pinned to its source. -->
   <script defer src="/profile-alias.js"></script>
+  <!-- THE SEAT HOLDERS' OWN NAMES, 5 KB OF THEM. roster id → that roster row's
+       display name, generated from cmp-data.js (which this document does not
+       load) and pinned to it. The resolver's gate slugs the name when the live
+       index holds nothing named under the roster id, and takes the one live
+       document filed under that slug — so a member filed as `celeste_maloy` is
+       still named on the card at /p/maloy. A slug two people share names nobody. -->
+  <script defer src="/roster-names.js"></script>
   <!-- THE SEAT→OFFICEHOLDER TABLE, 4 KB OF IT, AND THE SAME MOVE AS THE BRIDGE
        ABOVE. ballot-breakdown.js owns window.pdxSeatedMemberFor — the one lookup
        from "Utah State House, district 16" to a pid — and ballot-breakdown.js is

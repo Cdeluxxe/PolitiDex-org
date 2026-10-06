@@ -8864,7 +8864,23 @@
 //     precached; the version moves so the shell and this note travel together.
 //     MIGRATION COST: none. No board, route, table or residency record moved,
 //     and no location key was touched.
-const CACHE_VERSION = 'v305';
+// v306 - ONE ADDRESS PER PERSON. /voice named Celeste Maloy, Trevor Lee and
+//     Ariel Defay only because hand-added PDX_PROFILE_ALIAS rows joined the
+//     live documents filed under their display-name slugs (`celeste_maloy`,
+//     `trevor_lee`, `ariel_defay`) to their roster ids. The gate in
+//     voter-hub-location.js now has a rule instead of a row: when the live
+//     index holds nothing named under a roster id, it slugs that roster row's
+//     own display name - read from the new /roster-names.js, generated from
+//     cmp-data.js and pinned to it - and takes the live document filed under
+//     that slug only when exactly one roster row and exactly one live document
+//     carry it. The card keeps the roster id and links /p/maloy. A slug two
+//     people share names nobody; nothing matches on a last name. /p/celeste_maloy,
+//     /p/trevor_lee and /p/ariel_defay now 301 to the roster address.
+//     voice.html and the new /roster-names.js are precached, so it moves one
+//     version.
+//     MIGRATION COST: none. No board, route, table or residency record moved,
+//     and no location key was touched.
+const CACHE_VERSION = 'v306';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -9145,6 +9161,7 @@ const SHELL_ASSETS = [
   // is not wrong, but it describes a named member as merely 'on file'.
   '/voice-room.js',
   '/profile-alias.js',
+  '/roster-names.js',
   // THE ONE PORTRAIT READER, 2 KB. person.html's letterhead and every district
   // board's band 1 read the roster field through it; arrive without it and both
   // paint the row's mark over a face the roster holds.

@@ -921,11 +921,15 @@ section("10 · nothing on the do-not list moved");
       must(!!nowAcct && !!headAcct && !!nowPpa && !!headPpa,
         "profile-evidence.js's alias tables cannot be read out of both revisions — this claim has no subject");
 
-      // (b) THE CURATED-DATA TABLE DID NOT MOVE AT ALL. It already held this
-      // pair; the reason this pass exists is that it is not the table the roster
-      // gate reads.
-      eq(nowAcct, headAcct,
-        "profile-evidence.js: ACCT_ALIAS is not byte-identical with HEAD — this pass had no business in it");
+      // (b) THE CURATED-DATA TABLE MAY GROW, AND MAY NOT LOSE A ROW. It is the
+      // owner of the "one person, two spellings" ruling the roster-gate table may
+      // make readable (see (c)), so a pass that rules a new pair adds it HERE
+      // first — `celeste_maloy → maloy` was added that way, beside the Lee and
+      // Defay pairs it already held. What it may not do is drop or rewrite one.
+      const acctRowsOf = (t) => [...t.matchAll(/^\s*([a-z0-9_]+):\s*'([a-z0-9_]+)'/gm)].map((m) => `${m[1]}=${m[2]}`);
+      const acctGone = acctRowsOf(headAcct).filter((r) => acctRowsOf(nowAcct).indexOf(r) < 0);
+      eq(acctGone.length, 0,
+        `profile-evidence.js: a row left or changed in ACCT_ALIAS — ${JSON.stringify(acctGone)}`);
       has(nowAcct, "ariel_defay:", "profile-evidence.js: ACCT_ALIAS no longer carries the curated pair");
 
       // (c) THE ROSTER-GATE TABLE GREW BY EXACTLY THE DECLARED ROW.
@@ -942,26 +946,26 @@ section("10 · nothing on the do-not list moved");
       // true of `ariel_defay → defay_h15` and of `trevor_lee → tlee`, and it is
       // the rule a pinned row list was standing in for.
       //
-      // STANCE_ALIASES IS THE OTHER STANDING RULING. stance-helpers.js maps a
-      // record's display-name slug to the key its curated block is filed under,
-      // and for a member whose curated key IS the roster id (`celeste_maloy →
-      // maloy`, Utah's 2nd District) that is the same "one person, two
-      // spellings" ruling ACCT_ALIAS makes for the others. ACCT_ALIAS still may
-      // not move; a pair already held in either table may be made readable.
-      const acctRows = rowsOf(nowAcct);
-      const stanceTbl = (/var STANCE_ALIASES = \{([\s\S]*?)\};/.exec(R("stance-helpers.js")) || [, ""])[1];
-      must(stanceTbl.length > 0, "stance-helpers.js no longer declares STANCE_ALIASES in a readable shape");
-      const stanceRows = [...stanceTbl.matchAll(/([a-z0-9_]+):\s*'([a-z0-9_]+)'/g)].map((m) => `${m[1]}=${m[2]}`);
-      const unruled = added.filter((r) => acctRows.indexOf(r) < 0 && stanceRows.indexOf(r) < 0);
+      // ACCT_ALIAS IS THE ONLY OWNER OF THAT RULING. This check was once widened
+      // to accept a pair stance-helpers.js's STANCE_ALIASES held, which is how
+      // `celeste_maloy → maloy` entered the roster-gate table with no ACCT_ALIAS
+      // row behind it. STANCE_ALIASES maps a name slug to the key a curated
+      // stance block is filed under; it is not a ruling about who is one person,
+      // and it is not read here. Do not widen this again.
+      const acctRows = acctRowsOf(nowAcct);
+      const unruled = added.filter((r) => acctRows.indexOf(r) < 0);
       eq(unruled.length, 0,
-        `profile-evidence.js: PDX_PROFILE_ALIAS gained rows neither ACCT_ALIAS nor STANCE_ALIASES has ruled on — ${JSON.stringify(unruled)}`);
-      // And the widening is not a hole: an invented pair is still refused.
-      const invented = ["celeste_maloy=kennedy"].filter((r) => acctRows.indexOf(r) < 0 && stanceRows.indexOf(r) < 0);
-      eq(invented.length, 1, "profile-evidence.js: the ruling check would accept a pair neither table holds");
+        `profile-evidence.js: PDX_PROFILE_ALIAS gained rows ACCT_ALIAS has not ruled on — ${JSON.stringify(unruled)}`);
+      // And the guard is not a hole: an invented pair is still refused.
+      const invented = ["celeste_maloy=kennedy"].filter((r) => acctRows.indexOf(r) < 0);
+      eq(invented.length, 1, "profile-evidence.js: the ruling check would accept a pair ACCT_ALIAS does not hold");
+      ok(!/STANCE_ALIASES/.test(R("scripts/test-voice-name-slug.mjs").replace(/^\s*\/\/.*$/gm, "")),
+        "the identity guard reads STANCE_ALIASES as an owner again");
 
-      // (d) AND WITH THAT ONE TABLE SET ASIDE, THE FILE IS HEAD. Every function,
+      // (d) AND WITH THE TWO TABLES SET ASIDE, THE FILE IS HEAD. Every function,
       // every read, the whole resolver.
-      eq(now.split(nowPpa).join("<TABLE>"), h.split(headPpa).join("<TABLE>"),
+      eq(now.split(nowPpa).join("<TABLE>").split(nowAcct).join("<ACCT>"),
+        h.split(headPpa).join("<TABLE>").split(headAcct).join("<ACCT>"),
         "profile-evidence.js changed outside PDX_PROFILE_ALIAS — the spine may gain a roster row, but not a " +
         "second opinion about who is one person");
     }
