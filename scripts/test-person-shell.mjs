@@ -115,10 +115,19 @@ const resolveAddr = (path) => {
 };
 
 ok(RULES.length > 0, "rewrite: netlify.toml declares at least one [[redirects]] rule");
-for (const addr of ["/p/lee", "/p/mike_lee", "/p/celeste_maloy", "/p/null"]) {
+for (const addr of ["/p/lee", "/p/mike_lee", "/p/maloy", "/p/null"]) {
   const hit = resolveAddr(addr);
   ok(hit && hit.to === "/person.html" && String(hit.status) === "200",
     `rewrite: ${addr} is served /person.html at 200 (got ${hit ? hit.to + " " + hit.status : "no matching rule"})`);
+}
+// ONE ADDRESS PER PERSON. /p/celeste_maloy used to sit in the list above as a
+// citable path. It is the slug of the display name of the record filed under
+// `maloy`, and a display-name slug is not a second person, so it now 301s to the
+// roster address rather than serving a second file (scripts/test-voice-name-slug.mjs).
+{
+  const hit = resolveAddr("/p/celeste_maloy");
+  ok(hit && hit.to === "/p/maloy" && String(hit.status) === "301",
+    `rewrite: /p/celeste_maloy does not 301 to /p/maloy (got ${hit ? hit.to + " " + hit.status : "no matching rule"})`);
 }
 // The whole point of "do one thing": no other address moved off index.html.
 // /b/hr1 LEFT THIS LIST when the bill address got its own document: /b/* now

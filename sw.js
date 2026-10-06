@@ -8880,7 +8880,15 @@
 //     version.
 //     MIGRATION COST: none. No board, route, table or residency record moved,
 //     and no location key was touched.
-const CACHE_VERSION = 'v306';
+// v307 - THE TOP OF THE HOME PAGE IS VISIBLE ON PHONES AGAIN. A mobile polish
+//     block in app.css set `section, .section-py { padding-top: 3.5rem
+//     !important }` under 768px. #hero is a <section>, and the !important beat
+//     its measured `padding-top: var(--pdx-hero-top)`, so the PX / POLITIDEX
+//     lockup painted under the fixed nav and Eye row. The rule now reads
+//     `section:not(#hero)`. app.css is precached and changed, so it moves one
+//     version.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v307';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

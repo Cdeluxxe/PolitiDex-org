@@ -658,6 +658,31 @@ for (const bp of BREAKPOINTS) {
      "clearance never appears. Bump CACHE_VERSION whenever the hero's chrome clearance changes.");
 }
 
+// ── NO BLANKET RULE MAY OVERRIDE THE HERO'S MEASURED PADDING ────────────────
+// Reported again on phones after every check above was green: a "mobile polish"
+// block in app.css set `section, .section-py { padding-top: 3.5rem !important }`
+// under (max-width: 768px). #hero is a <section>, and !important beats
+// `#hero { padding-top: var(--pdx-hero-top) }` whatever its specificity, so the
+// PX / POLITIDEX lockup painted at 48px under a 158px fixed nav and Eye row. The
+// chain this file resolves was correct; it was simply not the declaration that
+// won. So: no rule in app.css whose selector can match #hero as a bare
+// `section` (or by its id) may set its top padding with !important.
+{
+  const rules = [...APP.matchAll(/([^{}]+)\{([^{}]*)\}/g)];
+  const offenders = [];
+  for (const [, sel, body] of rules) {
+    const sels = sel.split(",").map((x) => x.trim());
+    const hitsHero = sels.some((x) => /(^|[\s>+~])section(?![\w-]|:not\(#hero\))(?=$|[\s>+~:.\[])/.test(" " + x) && !/section:not\(#hero\)/.test(x)
+      || /(^|[^\w-])#hero(?![\w-])$/.test(x));
+    if (!hitsHero) continue;
+    if (/(^|;)\s*padding(-top|-block(-start)?)?\s*:[^;]*!important/.test(body)) offenders.push(sel.trim().replace(/\s+/g, " "));
+  }
+  ok(offenders.length === 0,
+     "blanket override: app.css sets the hero's top padding with !important through " +
+     JSON.stringify(offenders) + " — that beats #hero { padding-top: var(--pdx-hero-top) } and puts the " +
+     "lockup under the fixed nav on phones. Exclude the hero (section:not(#hero)).");
+}
+
 if (failures.length) {
   console.error("\n✖ mobile hero clearance: " + failures.length + " failure(s)\n");
   failures.forEach((f) => console.error("  · " + f));
