@@ -8888,7 +8888,21 @@
 //     `section:not(#hero)`. app.css is precached and changed, so it moves one
 //     version.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v307';
+// v308 - THE ROOM IS THE DISTRICT, NOT THE INTERNET. The homepage District
+//     Voice card, the /voice header (and district-voice.js's hubHd) and /me's
+//     membership block said a verified resident gets a voice that counts but
+//     never why the room is closed to everyone else, which a stranger could
+//     read as a paywall. All three now carry the same three sentences: the
+//     room is only the people who live in the seat; neighbors read the same
+//     record and speak to that seat, not the internet; anyone can read, and
+//     only a verified resident of that seat gets a voice that counts. /me also
+//     says a location on file is not proof of residency. The board footer,
+//     the locked line, the cap and its price did not move. index.html,
+//     voice.html, me.html and district-voice.js are precached and changed, so
+//     it moves one version.
+//     MIGRATION COST: none. No board, route, table or residency record moved,
+//     and no location key was touched.
+const CACHE_VERSION = 'v308';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

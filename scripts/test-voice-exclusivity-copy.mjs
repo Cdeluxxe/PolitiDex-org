@@ -3,18 +3,21 @@
 // test-voice-exclusivity-copy.mjs — the room is the seat's, said where a stranger reads
 // ─────────────────────────────────────────────────────────────────────────────
 // The locked line says only a verified resident of a seat gets a voice that
-// counts. Four surfaces now say the other half too, in one sentence each, and
-// no new door, composer or board came with them:
+// counts. The homepage card, the /voice header and the /me membership block
+// now say why the room is closed to everyone else — a residency wall, not a
+// paywall — in the SAME three sentences (ROOM, below). The board footer says
+// the other half in its own sentence and keeps the locked line. No new door,
+// composer or board came with any of it:
 //
-//   homepage card   the room is the district, not the open internet
-//   /voice header   a comment or vote from outside the seat is not a voice there
+//   homepage card   ROOM
+//   /voice header   ROOM
 //   board footer    the board is that seat's room; another seat's flag opens nothing
-//   /me membership  paying does not put you in a district you do not live in
+//   /me membership  ROOM; a location is not proof; paying opens no district
 //
 // WHAT THIS SUITE PROVES:
-//   1. Each surface, sliced the way a reader sees it, carries its sentence.
-//   2. No "demand" on any of the four surfaces, and no stock, share, earn,
-//      Form C or premium in the new sentences. No "yet" on /voice.
+//   1. Each surface, sliced the way a reader sees it, carries its copy.
+//   2. No "demand", stock, share, earn, profit, premium, Form C or "post now"
+//      on the three ROOM surfaces. No "yet" on /voice.
 //   3. The locked line is still verbatim; the footer is the same on every board
 //      (generated, statewide, hand-written composer boards).
 //   4. The /me cap sentence stays, and the 429 cap lines carry no pitch.
@@ -38,16 +41,20 @@ const eq = (a, b, m) => ok(a === b, `${m} — expected ${JSON.stringify(b)}, got
 const section = (t) => console.log(`\n   ── ${t}`);
 const must = (c, m) => { if (!c) { console.error(`✗ voice exclusivity copy: STALE HARNESS — ${m}`); process.exit(1); } };
 
+// The three sentences, word for word, on the homepage card, /voice and /me.
+const ROOM = "This room is only the people who live in the seat. " +
+  "Neighbors read the same record and speak to that seat, not the internet. " +
+  "Anyone can read. Only a verified resident of that seat gets a voice that counts.";
 const SENT = {
-  home: "The room is the district, not the open internet: it is for the neighbors of that seat, not anyone with an account.",
-  voice: "A comment or a vote from outside the seat is not a voice in that room.",
+  home: ROOM,
+  voice: ROOM,
   board: "This board is this seat’s room, and a flag for another seat does not open it.",
   me: "Paying does not put you in a district you do not live in.",
 };
 const LOCKED = (R("district-composer.js").match(/var LOCKED_LINE = '([^']+)';/) || [])[1];
 must(LOCKED, "district-composer.js no longer declares LOCKED_LINE in a readable shape");
 
-const BANNED_NEW = /\bstocks?\b|\bshares?\b|\bshareholders?\b|\bearn(?:s|ed|ing|ings)?\b|\bform\s*c\b|\bpremium\b|\bequity\b|\bdemand/i;
+const BANNED_NEW = /\bstocks?\b|\bshares?\b|\bshareholders?\b|\bearn(?:s|ed|ing|ings)?\b|\bprofits?\b|\bform\s*c\b|\bpremium\b|\bequity\b|\bpost\s+now\b|\bdemand/i;
 const DEMAND = /\bdemand/i;
 
 const textOf = (h) => String(h)
@@ -107,24 +114,23 @@ function check(S) {
   const gate = homeSlice(S.index);
   const card = textOf(gate);
   need(card.length > 120, "home: the card slice is too thin");
-  need(card.indexOf(SENT.home) >= 0, "home: the exclusivity sentence is missing");
-  need(!DEMAND.test(card), "home: the card says demand");
+  need(card.indexOf(SENT.home) >= 0, "home: the three room sentences are missing");
+  need(!BANNED_NEW.test(card), "home: the card carries a banned word");
   need((gate.match(/<a\b/g) || []).length === 1, "home: the card is not one anchor");
   need(/<a class="pdxhv-door"[^>]*href="\/voice"/.test(gate), "home: the one anchor is not /voice");
   need(/\.pdxhv-card\{[^}]*rgba\(245,200,66/.test(gate), "home: the gold edge is gone");
-  // In the body: after the line, before the door.
-  const lineAt = card.indexOf("Only verified residents of that seat get a voice that counts.");
+  // In the body: after the title, before the door.
+  const titleAt = card.indexOf("The voice of your district.");
   const doorAt = card.indexOf("Find your rooms");
   const sAt = card.indexOf(SENT.home);
-  need(lineAt >= 0 && sAt > lineAt && doorAt > sAt, "home: the sentence is not in the body, between the line and the door");
+  need(titleAt >= 0 && sAt > titleAt && doorAt > sAt, "home: the sentences are not in the body, between the title and the door");
+  need(card.split("not the internet").length === 2, "home: the card says \"not the internet\" more than once (a second pitch)");
 
   // /voice header, in the document and in the owner's copy.
   const sub = voiceSlice(S.voice);
-  need(sub.indexOf(SENT.voice) >= 0, "/voice: the header lacks the exclusivity sentence");
-  need(sub.indexOf("Anyone can read a board. Only verified residents of that seat get a voice that counts.") >= 0,
-    "/voice: the existing read/voice line is gone");
+  need(sub.indexOf(SENT.voice) >= 0, "/voice: the header lacks the three room sentences");
   need(!/\byet\b/i.test(sub), "/voice: the header says yet");
-  need(!DEMAND.test(sub), "/voice: the header says demand");
+  need(!BANNED_NEW.test(sub), "/voice: the header carries a banned word");
   const hd = hubHd(S.dv);
   need(hd === sub, `/voice: district-voice.js's hubHd and the document's header differ (${JSON.stringify(hd)})`);
 
@@ -142,10 +148,13 @@ function check(S) {
 
   // /me membership block.
   const me = meSlice(S.me);
+  need(me.indexOf(ROOM) >= 0, "/me: the membership block lacks the three room sentences");
   need(me.indexOf(SENT.me) >= 0, "/me: the membership block lacks the district sentence");
+  need(/reading stays free for everyone/i.test(me), "/me: reading is free is gone");
+  need(/a location on file is not proof of residency/i.test(me), "/me: a location is not proof is gone");
   need(/membership does not verify residency and does not open a seat/i.test(me), "/me: the residency half is gone");
   need(/\$20 a year removes the cap/i.test(me), "/me: the cap sentence is gone");
-  need(!DEMAND.test(me), "/me: the block says demand");
+  need(!BANNED_NEW.test(me), "/me: the block carries a banned word");
   return out;
 }
 
@@ -170,9 +179,9 @@ for (const [k, s] of Object.entries(SENT)) {
   ok(!/\byet\b/i.test(s), `${k}: the new sentence says yet`);
   ok(s.indexOf(LOCKED) < 0, `${k}: the new sentence is not a second copy of the locked line`);
 }
-ok(!/\d/.test(SENT.home), "home: the new sentence prints no figure (the card face carries none)");
+ok(!/\d/.test(ROOM), "the room sentences print no figure (the card face carries none)");
 // The banned sweep itself catches what it should.
-for (const w of ["stock", "shares", "earn", "Form C", "premium", "demand"]) {
+for (const w of ["stock", "shares", "earn", "profit", "Form C", "premium", "post now", "demand"]) {
   ok(BANNED_NEW.test(`A sentence with ${w} in it.`), `the banned sweep misses "${w}"`);
 }
 
@@ -192,13 +201,14 @@ section("4 · mutation: deleting any one sentence fails");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const strip = (src, s) => src.split(s).join("");
-  const voiceTwoLines = (src) => src.replace(/ A comment or a vote from outside the seat is not a voice in that room\./g, "")
-    .replace(/A comment or a vote from outside\s+the seat is not a voice in that room\./g, "");
+  const voiceTwoLines = (src) => src.replace(/This room is\s+only the people who live in the seat\.\s*/g, "");
   const MUT = [
     ["home", { ...TREE, index: strip(TREE.index, SENT.home) }],
     ["/voice document", { ...TREE, voice: voiceTwoLines(TREE.voice) }],
     ["board", { ...TREE, board: TREE.board.replace(/\s*\+\s*'This board is this seat’s room, and a flag for another seat does not open it\.'/, "") }],
     ["/me", { ...TREE, me: strip(TREE.me, " " + SENT.me) }],
+    ["/me room", { ...TREE, me: strip(TREE.me, ROOM) }],
+    ["/me location", { ...TREE, me: strip(TREE.me, " A location on file is not proof of residency.") }],
   ];
   for (const [name, S] of MUT) {
     const changed = Object.keys(S).some((k) => S[k] !== TREE[k]);
@@ -208,6 +218,15 @@ section("4 · mutation: deleting any one sentence fails");
   // A "demand" slipped onto a surface is caught too.
   ok(check({ ...TREE, me: TREE.me.replace(SENT.me, SENT.me + " Demand a seat.") }).length > 0,
     "mutation: a demand on /me passed the checks");
+  // "premium" written onto the homepage card fails.
+  const premium = TREE.index.replace('<p class="pdxhv-title">The voice of your district.</p>',
+    '<p class="pdxhv-title">The voice of your district. Go premium.</p>');
+  must(premium !== TREE.index, "mutation premium: the card title could not be found");
+  ok(check({ ...TREE, index: premium }).length > 0, "mutation: \"premium\" on the homepage card passed the checks");
+  // The card's one anchor moved off /voice fails.
+  const moved = TREE.index.replace('data-pdxhv-standing="unplaced" href="/voice"', 'data-pdxhv-standing="unplaced" href="/me"');
+  must(moved !== TREE.index, "mutation anchor: the card door could not be found");
+  ok(check({ ...TREE, index: moved }).length > 0, "mutation: the card anchor off /voice passed the checks");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

@@ -725,9 +725,9 @@ for (const re of [/\bshares?\b/i, /\bstock\b/i, /\bunits?\b/i, /\bdues\b/i, /reg
   }
   // THE HEADER SENTENCE IS THE BRIEF'S, VERBATIM, and it is in the document as
   // markup so it arrives with the first paint rather than after a module lands.
-  const HD = "District Voice is the rooms for your seats. Anyone can read a board. " +
-    "Only verified residents of that seat get a voice that counts. " +
-    "A comment or a vote from outside the seat is not a voice in that room. This page lists " +
+  const HD = "District Voice is the rooms for your seats. This room is only the people who " +
+    "live in the seat. Neighbors read the same record and speak to that seat, not the internet. " +
+    "Anyone can read. Only a verified resident of that seat gets a voice that counts. This page lists " +
     "the seats for the location on file.";
   has(COPY, "hubHd:", "copy: the owner does not hold the hub's header sentence");
   eq(textOf(stripComments(VOICE_HTML).replace(/<style\b[\s\S]*?<\/style>/gi, " "))

@@ -160,8 +160,11 @@ section("2 · the locked copy, and nothing the lane does not say");
 
 const EYEBROW = "District Voice";
 const TITLE = "The voice of your district.";
-const LINE = "This is where neighbors read the same record and speak to the seat — not the internet. " +
-  "Anyone can read a board. Only verified residents of that seat get a voice that counts.";
+// Since v308 the body is the three room sentences shared with /voice and /me
+// (scripts/test-voice-exclusivity-copy.mjs pins all three surfaces).
+const LINE = "This room is only the people who live in the seat. " +
+  "Neighbors read the same record and speak to that seat, not the internet. " +
+  "Anyone can read. Only a verified resident of that seat gets a voice that counts.";
 const UNPLACED = "Find your rooms";
 const PLACED = "See your rooms";
 // The count in this sentence is pinned to BOARD_ROUTES in section 6, not here:

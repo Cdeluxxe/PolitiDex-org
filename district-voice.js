@@ -276,10 +276,10 @@
     // citable address on hand") is the same refusal. AND THERE IS NO 0/0 TABLE:
     // a seat with no board prints two sentences and a person link, never an
     // empty poll with three zeroes in it pretending to be a room.
-    hubHd: 'District Voice is the rooms for your seats. Anyone can read a board. ' +
-      'Only verified residents of that seat get a voice that counts. ' +
-      'A comment or a vote from outside the seat is not a voice in that room. This page ' +
-      'lists the seats for the location on file.',
+    hubHd: 'District Voice is the rooms for your seats. This room is only the people who ' +
+      'live in the seat. Neighbors read the same record and speak to that seat, not the ' +
+      'internet. Anyone can read. Only a verified resident of that seat gets a voice that ' +
+      'counts. This page lists the seats for the location on file.',
     boardOpen: 'Open board',
     boardNone: 'Board not on hand for this seat.',
     boardWhy: 'we have the seat; this room is not open.'
