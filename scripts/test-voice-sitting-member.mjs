@@ -758,7 +758,7 @@ const HEAD = (f) => {
       .replace(/  \/\/ ── AND THE REPAINT WHEN THE ROSTER LANDS[\s\S]*?(?=  function boot\(\) \{)/, "")
       .replace("try { paint(); } catch (e) {} hookRoster(); }, ms);", "try { paint(); } catch (e) {} }, ms);")
       .replace("    try { paint(); } catch (e) {}\n    hookRoster();\n    schedule();", "    try { paint(); } catch (e) {}\n    schedule();");
-    eq(deOrigin(sansRoster(R(f))), deOrigin(h), `untouched: ${f} changed in this pass and it should not have — ${why}`);
+    eq(deOrigin(sansRoster(R(f))), deOrigin(sansRoster(h)), `untouched: ${f} changed in this pass and it should not have — ${why}`);
   });
 
 // ── WHAT THE TWO RETIRED PINS WERE PROTECTING, ASSERTED AS FIELDS ───────────

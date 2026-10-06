@@ -8851,7 +8851,20 @@
 //     version.
 //     MIGRATION COST: none. No board, route, table or residency record moved,
 //     and no location key was touched.
-const CACHE_VERSION = 'v304';
+// v305 - THE CONGRESSIONAL WALK READS THE LIVE INDEX'S DISTRICT. With the
+//     roster on the page, /voice still printed "No sitting member on hand for
+//     this seat" on U.S. House District 2. The live document is `maloy` with
+//     district "District 2 (Southwestern Utah & part of Salt Lake County)", and
+//     _pdxCdOfRosterDistrict() anchored "District N" to the end of the string,
+//     so the trailing description placed her nowhere; UT-4 (`owens`) was
+//     written the same way. One trailing parenthetical is now set aside before
+//     the match; the office and in-office gates are unchanged. Checked against
+//     all 362 live documents: only UT-2 (maloy) and UT-4 (owens) moved. The
+//     changed file, voter-hub-location.js, is runtime-cached rather than
+//     precached; the version moves so the shell and this note travel together.
+//     MIGRATION COST: none. No board, route, table or residency record moved,
+//     and no location key was touched.
+const CACHE_VERSION = 'v305';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
