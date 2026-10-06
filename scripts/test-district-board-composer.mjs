@@ -328,8 +328,9 @@ function paintBoard(withComposer) {
 }
 const withHost = paintBoard(true);
 const without = paintBoard(false);
-ok(without.includes('data-pdxdb-compose="off"'), "a board without the host keeps the disabled seam");
-ok(!withHost.includes('data-pdxdb-compose="off"'), "a composer board leaves the slot to its composer");
+ok(without.includes('data-pdxdb-readonly="1"'), "a board without the host prints the read-only line");
+ok(!without.includes("pdxdb-compose") && !without.includes("Posting ships next"), "…and no box promising posting");
+ok(!withHost.includes('data-pdxdb-readonly="1"'), "a composer board leaves the slot to its composer");
 ok(withHost.includes("Who is in the room"), "…and still paints band 2");
 
 // ═════════════════════════════════════════════════════════════════════════════

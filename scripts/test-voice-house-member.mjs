@@ -228,10 +228,10 @@ has(joinBlk, "if (t !== _pdxAliasSrc)",
 // its member and the hallway described them instead of naming them. The walk now
 // prefers a row with a name — and still returns `first` when no row has one, so
 // the gate's truthiness test reads exactly the answer it read before.
-has(LOC, "function _pdxRosterName(rec)",
+has(LOC, "function _pdxRosterName(rec, pid)",
   "gate: the joined read no longer tests whether a row can name the person, so a thin row under the\n" +
   "    canonical key shadows the full document filed under the slug");
-has(recBlk, "if (_pdxRosterName(alt)) return alt;",
+has(recBlk, "if (_pdxRosterName(alt, keys[i])) return alt;",
   "gate: the walk does not prefer the row that names the person — it stops on the first row it finds,\n" +
   "    which is the lite-row defect");
 has(recBlk, "if (alt && !first) first = alt;",
@@ -679,6 +679,114 @@ section("3b · Layton HD-16 names Trevor Lee, SD-7 names Stuart Adams, HD-15 nam
   vn.paint();
   ok(hd16Faults(vn.list()).length > 0,
     "the HD-16 card still names Trevor Lee without the trevor_lee row, so the row is not what names him");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 3c · THE CONGRESSIONAL CARD NAMES THE MEMBER THE BOARD NAMES
+// ═════════════════════════════════════════════════════════════════════════════
+// On a Clearfield or Layton reader, /voice printed "No sitting member on hand for
+// this seat" on the U.S. House District 2 card, above an Open board door onto
+// /district/ut-cd-2 — whose band 1 names Celeste Maloy. Same alias gap as HD-16:
+// the live document is filed under `celeste_maloy` (and carries only "Utah",
+// no district, so the congressional walk cannot seat it), the roster record and
+// the memo under `maloy`. The gate asked the live index for `maloy`, got nothing,
+// and dropped a pid it had resolved. PDX_PROFILE_ALIAS now holds the pair.
+section("3c · Layton/Clearfield CD-2 names Celeste Maloy, HD-16 and HD-15 unchanged");
+{
+  const S16 = SEATS.filter((x) => x.canon === "tlee")[0];
+  const S15 = SEATS.filter((x) => x.canon === "defay_h15")[0];
+  must(!!S16 && !!S15, "the Layton fixtures left SEATS");
+  const CLEARFIELD = { ...S16, who: "Clearfield",
+    loc: { state: "Utah", city: "Clearfield", county: "Davis County", district: "2" } };
+  const memoFor = (s) => {
+    const h = homeCtx(s);
+    h.pdxRepsForMe();
+    h.pdxRememberResolved();
+    return h._currentVoterLocation.resolved;
+  };
+  const cardFor = (html, label) => String(html).split('<li class="pdxvr-seat"')
+    .filter((p) => p.indexOf(label) !== -1)[0] || "";
+  const EMPTY = "No sitting member on hand for this seat.";
+  const ON_FILE = "The member who holds this seat is on file";
+  // The live index the lean document has: Maloy's document under the slug of
+  // her display name, with the plain state string the live documents carry.
+  const MALOY_LIVE = { name: "Celeste Maloy", office: "U.S. Representative", state: "Utah", party: "R" };
+  const liveFor = (s) => {
+    const live = liveIndex(s);
+    delete live.maloy;
+    live.celeste_maloy = MALOY_LIVE;
+    return live;
+  };
+  must(ALIAS.celeste_maloy === "maloy", "bridge: profile-alias.js does not bridge celeste_maloy → maloy");
+
+  // The checks the CD-2 card must pass, as a function so the mutations run them.
+  const cd2Faults = (html) => {
+    const f = [];
+    const card = cardFor(html, "U.S. House District 2");
+    if (!card) return ["no U.S. House District 2 card"];
+    if (card.indexOf('Sitting member: <a class="pdxvr-name" href="/p/maloy">Celeste Maloy</a>') < 0)
+      f.push("the card does not print Sitting member: Celeste Maloy at /p/maloy");
+    if (card.indexOf(EMPTY) >= 0) f.push("the card prints the empty sentence while the named row exists");
+    if (card.indexOf(ON_FILE) >= 0) f.push("the card prints the on-file sentence while the named row exists");
+    if (card.indexOf("/p/celeste_maloy") >= 0) f.push("the card advertises the display-name slug as an address");
+    if (!/<a class="pdxvr-door" href="\/district\/ut-cd-2">Open board<\/a>/.test(card)) f.push("Open board does not go to /district/ut-cd-2");
+    const who = card.indexOf('class="pdxvr-who"'), door = card.indexOf('class="pdxvr-door"');
+    if (!(who >= 0 && door > who)) f.push("the member line is not above the Open board door");
+    return f;
+  };
+
+  for (const s of [S16, CLEARFIELD]) {
+    const memo = memoFor(s);
+    eq(memo.house && memo.house.pid, "maloy", `${s.who} CD-2: the front page did not remember maloy for UT-2`);
+    const v = voiceCtx(s, memo, { live: liveFor(s) });
+    v.paint();
+    eq(JSON.stringify(cd2Faults(v.list())), "[]", `${s.who} CD-2: the card names Celeste Maloy under the board's door`);
+    eq(v.win.PDXVoice.boardPath("ut-house-2"), "/district/ut-cd-2", `${s.who} CD-2: the board left the allow-list`);
+    // HD-16 ON THE SAME CARD LIST STILL NAMES TREVOR LEE.
+    has(cardFor(v.list(), "State House District 16"),
+      'Sitting member: <a class="pdxvr-name" href="/p/tlee">Trevor Lee</a>', `${s.who}: HD-16 stopped naming Trevor Lee`);
+  }
+  // THE BOARD NAMES THE SAME PERSON, by the same canonical pid: no pid on its
+  // row, the congressional join, and the seated-member table seats maloy.
+  ok(/'ut-house-2':\s*\{[\s\S]{0,200}?pid:\s*'',[\s\S]{0,80}?usHouse:\s*\{\s*state:\s*'Utah',\s*district:\s*2\s*\}/.test(R("district-board.js")),
+    "CD-2: the board's own row no longer resolves through the UT-2 congressional join");
+  eq((R("seated-member.js").match(/2:\s*\{\s*pid:\s*'(\w+)'/) || [])[1], "maloy", "CD-2: the seated-member table no longer seats maloy for UT-2");
+  // HD-15 STILL NAMES ARIEL DEFAY.
+  {
+    const v15 = voiceCtx(S15, memoFor(S15));
+    v15.paint();
+    has(cardFor(v15.list(), "State House District 15"),
+      'Sitting member: <a class="pdxvr-name" href="/p/defay_h15">Ariel Defay</a>', "layton HD-15: the card stopped naming Ariel Defay");
+  }
+
+  // WITH THE NAMED ROW REMOVED, the card falls back to the sentence the hallway
+  // prints for a seat whose holder this page cannot keep, and never says "yet".
+  {
+    const s = S16;
+    const noRow = JSON.parse(JSON.stringify(ALIAS));
+    delete noRow.celeste_maloy;
+    const v = voiceCtx(s, memoFor(s), { live: liveFor(s), bridge: false });
+    v.win.PDX_PROFILE_ALIAS = noRow;
+    v.paint();
+    const card = cardFor(v.list(), "U.S. House District 2");
+    ok(cd2Faults(v.list()).length > 0, "CD-2, row removed: the card still names Celeste Maloy, so the row is not what names her");
+    ok(card.indexOf(EMPTY) >= 0 || card.indexOf(ON_FILE) >= 0, "CD-2, row removed: the card does not fall back to the on-file sentence");
+    no(card, "Celeste Maloy", "CD-2, row removed: a name was printed with no row joining it");
+    no(card.toLowerCase(), "yet", "CD-2, row removed: the card says \"yet\"");
+    has(card, 'href="/district/ut-cd-2"', "CD-2, row removed: Open board left the card");
+  }
+
+  // MUTATION: a printer that drops to the empty sentence while the named row
+  // exists must fail the same checks.
+  {
+    const mutVR = VR.replace("var href = pid ? personHref(pid) : '';", "var href = '';");
+    ok(mutVR !== VR, "the empty-sentence mutation found nothing to replace");
+    const v = voiceCtx(S16, memoFor(S16), { live: liveFor(S16), vr: mutVR });
+    v.paint();
+    ok(cardFor(v.list(), "U.S. House District 2").indexOf(EMPTY) >= 0, "the mutation did not print the empty sentence");
+    ok(cd2Faults(v.list()).length > 0,
+      "a card printing the empty sentence while the named row exists passed the CD-2 checks");
+  }
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

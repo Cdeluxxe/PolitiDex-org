@@ -797,11 +797,11 @@ section("7 · reading is free, voice is residency, and a field that is honestly 
     ok(!new RegExp(t, "i").test(html), `no ${t} control`);
   }
 
-  // THE COMPOSER IS REALLY THERE AND REALLY OFF.
-  has(html, 'data-pdxdb-compose="off"', "the posting seam declares itself off");
-  has(html, "disabled", "the field is disabled");
-  has(html, 'aria-disabled="true"', "…and says so to assistive tech");
-  has(html, "Posting ships next", "…with the one sentence explaining why");
+  // A BOARD WITH NO COMPOSER HOST SAYS IT IS READ-ONLY, and promises no box.
+  has(html, 'data-pdxdb-readonly="1"', "the board says it is read-only");
+  has(html, "This room is read-only. Only verified residents of a seat with a composer get a voice that counts.", "…in the hallway's own words");
+  ok(html.indexOf("Posting ships next") < 0, "…and never says posting ships next");
+  ok(!/<input/i.test(html), "there is no disabled field promising a box");
   // AND IT IS NOT A WORKING BOX PRETENDING TO BE ONE. Failure mode: a composer
   // that writes to localStorage and paints the sentence back beside a
   // verified-resident count.
@@ -1333,7 +1333,7 @@ section("10 · the record engines are byte-identical with this board rendered");
         rendered += String(Bd.roomHtml("ok", EMPTY_PAYLOAD) || "").length ? 1 : 0;
         rendered += String(Bd.tableHtml("ok", FIXTURE_ITEMS, [{ issueKey: "public_schools", polls: 2, comments: 1 }]) || "").length ? 1 : 0;
         rendered += String(Bd.stanceHtml(["public_schools"]) || "").length ? 1 : 0;
-        rendered += String(Bd.composeHtml() || "").length ? 1 : 0;
+        rendered += String(Bd.readOnlyHtml() || "").length ? 1 : 0;
         rendered += String(Bd.personLinkHtml(PID) || "").length ? 1 : 0;
       }
     }

@@ -2477,8 +2477,21 @@
   // silent — a `state` tail always wins. A `district` that names a Senate seat,
   // a legislative district ("UT District 68" is refused by the office gate in
   // the walk anyway) or nothing parseable returns '' and places nobody.
+  //
+  // AND A TRAILING DESCRIPTION IS NOT PART OF THE NUMBER. The live index writes
+  // two of Utah's four members as a district plus the area it covers —
+  // `maloy`: "District 2 (Southwestern Utah & part of Salt Lake County)",
+  // `owens`: "District 4 (Salt Lake, Utah, Juab & Sanpete Counties)" — and the
+  // "District N" spelling below is anchored to the end of the string, so both
+  // read as no district at all. On a document whose roster is the live index
+  // (/voice, /me) that left UT-2 and UT-4 with nobody, while the board at
+  // /district/ut-cd-2, which walks the bundle, named Celeste Maloy. One trailing
+  // parenthetical is set aside before the match and nothing else is: the
+  // office gate and the in-office test in the walk still decide who may sit,
+  // which is what keeps "Utah's 2nd Congressional District (2013–2023)" (a
+  // former member) out of the seat.
   function _pdxCdOfRosterDistrict(v) {
-    var s = String(v == null ? '' : v).trim();
+    var s = String(v == null ? '' : v).trim().replace(/\s*\([^()]*\)\s*$/, '');
     if (!s || /\bsenate\b/i.test(s)) return '';
     if (/\bat[-\s]?large\b/i.test(s)) return 'AL';
     var m = s.match(/^(\d{1,2})$/) ||
@@ -2548,7 +2561,13 @@
         idx[key] = null;
         continue;
       }
-      idx[key] = pid;
+      // THE SLOT HOLDS THE CANONICAL SPELLING, whichever key the row was filed
+      // under. On the bundle the key already is the roster id; on the live index
+      // a member can sit under the slug of their display name, and a seat card
+      // that linked that slug would advertise an address the board never uses.
+      // The gate below still finds the row, because _pdxRosterRec walks the same
+      // ruling in reverse.
+      idx[key] = _pdxCanonPid(pid);
     }
     return idx;
   }

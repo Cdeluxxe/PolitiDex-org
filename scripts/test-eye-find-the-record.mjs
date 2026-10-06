@@ -941,10 +941,23 @@ section("10 · nothing on the do-not list moved");
       // reverse read, rather than a new claim about who is one person — it is
       // true of `ariel_defay → defay_h15` and of `trevor_lee → tlee`, and it is
       // the rule a pinned row list was standing in for.
+      //
+      // STANCE_ALIASES IS THE OTHER STANDING RULING. stance-helpers.js maps a
+      // record's display-name slug to the key its curated block is filed under,
+      // and for a member whose curated key IS the roster id (`celeste_maloy →
+      // maloy`, Utah's 2nd District) that is the same "one person, two
+      // spellings" ruling ACCT_ALIAS makes for the others. ACCT_ALIAS still may
+      // not move; a pair already held in either table may be made readable.
       const acctRows = rowsOf(nowAcct);
-      const unruled = added.filter((r) => acctRows.indexOf(r) < 0);
+      const stanceTbl = (/var STANCE_ALIASES = \{([\s\S]*?)\};/.exec(R("stance-helpers.js")) || [, ""])[1];
+      must(stanceTbl.length > 0, "stance-helpers.js no longer declares STANCE_ALIASES in a readable shape");
+      const stanceRows = [...stanceTbl.matchAll(/([a-z0-9_]+):\s*'([a-z0-9_]+)'/g)].map((m) => `${m[1]}=${m[2]}`);
+      const unruled = added.filter((r) => acctRows.indexOf(r) < 0 && stanceRows.indexOf(r) < 0);
       eq(unruled.length, 0,
-        `profile-evidence.js: PDX_PROFILE_ALIAS gained rows ACCT_ALIAS has never ruled on — ${JSON.stringify(unruled)}`);
+        `profile-evidence.js: PDX_PROFILE_ALIAS gained rows neither ACCT_ALIAS nor STANCE_ALIASES has ruled on — ${JSON.stringify(unruled)}`);
+      // And the widening is not a hole: an invented pair is still refused.
+      const invented = ["celeste_maloy=kennedy"].filter((r) => acctRows.indexOf(r) < 0 && stanceRows.indexOf(r) < 0);
+      eq(invented.length, 1, "profile-evidence.js: the ruling check would accept a pair neither table holds");
 
       // (d) AND WITH THAT ONE TABLE SET ASIDE, THE FILE IS HEAD. Every function,
       // every read, the whole resolver.

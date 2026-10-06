@@ -751,7 +751,14 @@ const HEAD = (f) => {
   ["voice-room.js", "the printer — this pass moved the fill into the seat list's owner instead"]].forEach(([f, why]) => {
     const h = HEAD(f);
     if (h == null) { passed++; return; }
-    eq(deOrigin(R(f)), deOrigin(h), `untouched: ${f} changed in this pass and it should not have — ${why}`);
+    // voice-room.js later took the resolver's roster subscription (v304): a
+    // repaint when the live roster lands, which is schedule, not seat fill. It
+    // folds back here so every other byte of the printer stays pinned.
+    const sansRoster = (src) => f !== "voice-room.js" ? src : String(src)
+      .replace(/  \/\/ ── AND THE REPAINT WHEN THE ROSTER LANDS[\s\S]*?(?=  function boot\(\) \{)/, "")
+      .replace("try { paint(); } catch (e) {} hookRoster(); }, ms);", "try { paint(); } catch (e) {} }, ms);")
+      .replace("    try { paint(); } catch (e) {}\n    hookRoster();\n    schedule();", "    try { paint(); } catch (e) {}\n    schedule();");
+    eq(deOrigin(sansRoster(R(f))), deOrigin(sansRoster(h)), `untouched: ${f} changed in this pass and it should not have — ${why}`);
   });
 
 // ── WHAT THE TWO RETIRED PINS WERE PROTECTING, ASSERTED AS FIELDS ───────────

@@ -8794,7 +8794,77 @@
 //     footer did not move. district-board.js and district-board.css are
 //     precached and changed, so it moves one version.
 //     MIGRATION COST: none. No board, route, table or residency record moved.
-const CACHE_VERSION = 'v300';
+// v301 - A BOARD WITH NO COMPOSER SAYS IT IS READ-ONLY. The governor board,
+//     both U.S. Senate boards and every generated district board painted a
+//     disabled "Say something" field with a sentence promising posting was
+//     coming. Those boards are readers; the composer lives on five named boards
+//     only (SD-3, HD-16, SD-7, HD-15, UT-2). The field is gone from the rest and
+//     one line stands in its place, from one string in district-board.js
+//     (COPY.readOnlyLine). The five composer boards and their locked line did
+//     not move. district-board.js is precached and changed, and the board
+//     documents gained one style rule, so it moves one version.
+//     MIGRATION COST: none. No board, route, table or residency record moved,
+//     and no location key was touched.
+// v302 - THE ROOM IS THE SEAT'S, SAID WHERE A STRANGER READS. The locked line
+//     says only a verified resident of a seat gets a voice that counts; four
+//     surfaces now say the other half in one sentence each. The homepage
+//     District Voice card says the room is the district and not the open
+//     internet. The /voice header (and district-voice.js's hubHd, its owner)
+//     says a comment or vote from outside the seat is not a voice in that
+//     room. Every board's footer (COPY.voiceFoot in district-board.js, one
+//     string for generated, statewide and hand-written boards) says the board
+//     is that seat's room and another seat's flag does not open it. /me's
+//     membership block says paying does not put you in a district you do not
+//     live in. The locked line, the cap lines, the composer allow-list and
+//     BOARD_ROUTES (88) did not move. index.html, voice.html, me.html,
+//     district-voice.js and district-board.js are precached and changed, so it
+//     moves one version.
+//     MIGRATION COST: none. No board, route, table or residency record moved,
+//     and no location key was touched.
+// v303 - /voice NAMES THE MEMBER ON U.S. HOUSE DISTRICT 2. A Clearfield or
+//     Layton reader's CD-2 card printed "No sitting member on hand for this
+//     seat" above an Open board onto /district/ut-cd-2, whose band 1 names
+//     Celeste Maloy. The live document is filed under `celeste_maloy` and the
+//     roster record under `maloy`, and PDX_PROFILE_ALIAS had no row joining
+//     them, so the lean document's gate dropped a pid it had resolved - the
+//     trevor_lee / tlee shape, on the congressional card. profile-evidence.js
+//     now holds celeste_maloy -> maloy (the pair stance-helpers.js already
+//     held); profile-alias.js is re-derived from it, and the index.html and
+//     person.html arrival mirrors carry the same pair. The card reads "Sitting
+//     member: Celeste Maloy" at /p/maloy. All four files are precached and
+//     changed, so it moves one version.
+//     MIGRATION COST: none. No board, route, table or residency record moved,
+//     and no location key was touched.
+// v304 - /voice REPAINTS WHEN THE ROSTER LANDS. In a private window the CD-2
+//     card still printed "No sitting member on hand for this seat" after v303's
+//     alias row, because the alias was not the read that failed. The
+//     congressional card's pid comes from window._pdxUsHouseSeat(), a walk over
+//     the roster, and /voice's only roster is the live Firestore index: paged,
+//     and on a cold private window slower than the hallway's whole bounded
+//     paint schedule. Every paint ran against an empty or partial roster and
+//     nothing asked again. voice-room.js now takes the resolver's own
+//     pdxRosterReady() subscription, the one /me's desk takes, and paints on a
+//     short bounded tail after it until the loader reports done. The
+//     congressional walk in voter-hub-location.js (runtime-cached) publishes the
+//     canonical pid, so the card links /p/maloy whichever key the live document
+//     is filed under. voice-room.js is precached and changed, so it moves one
+//     version.
+//     MIGRATION COST: none. No board, route, table or residency record moved,
+//     and no location key was touched.
+// v305 - THE CONGRESSIONAL WALK READS THE LIVE INDEX'S DISTRICT. With the
+//     roster on the page, /voice still printed "No sitting member on hand for
+//     this seat" on U.S. House District 2. The live document is `maloy` with
+//     district "District 2 (Southwestern Utah & part of Salt Lake County)", and
+//     _pdxCdOfRosterDistrict() anchored "District N" to the end of the string,
+//     so the trailing description placed her nowhere; UT-4 (`owens`) was
+//     written the same way. One trailing parenthetical is now set aside before
+//     the match; the office and in-office gates are unchanged. Checked against
+//     all 362 live documents: only UT-2 (maloy) and UT-4 (owens) moved. The
+//     changed file, voter-hub-location.js, is runtime-cached rather than
+//     precached; the version moves so the shell and this note travel together.
+//     MIGRATION COST: none. No board, route, table or residency record moved,
+//     and no location key was touched.
+const CACHE_VERSION = 'v305';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -395,13 +395,57 @@
   function schedule() {
     for (var i = 0; i < TICKS.length; i++) {
       (function (ms) {
-        setTimeout(function () { try { paint(); } catch (e) {} }, ms);
+        setTimeout(function () { try { paint(); } catch (e) {} hookRoster(); }, ms);
       })(TICKS[i]);
     }
   }
 
+  // ── AND THE REPAINT WHEN THE ROSTER LANDS ─────────────────────────────────
+  // The schedule above ends a few seconds in, and on this document the roster
+  // every seat name comes from is the LIVE Firestore index — paged, behind an
+  // auth handshake, and on a cold private window slower than the whole
+  // schedule. The U.S. House card is the one that shows it: its pid comes from
+  // window._pdxUsHouseSeat(), a walk OVER that roster, so a card painted before
+  // the roster arrived has no pid at all and printed "No sitting member on hand
+  // for this seat" above a board door whose board names the member. The legislative
+  // cards read a district table that is on the page from the start, which is
+  // why only the congressional card stayed empty.
+  //
+  // So the hallway takes the subscription /me's desk already takes: the
+  // resolver's own pdxRosterReady(), which announces once, as soon as the
+  // roster has rows. One announcement is the FIRST page of a paged index, not
+  // the last, so it starts a short bounded tail that ends on the first paint
+  // after the loader reports it is done (or at the tail's end, whichever comes
+  // first). The seat list is the resolver's and the name is the gate's; this
+  // only asks them again once there is something to answer from.
+  var ROSTER_TAIL = [0, 600, 1500, 3000, 6000, 12000, 20000, 30000];
+  var _rosterHooked = false, _rosterSettled = false;
+  function rosterDone() {
+    var s = '';
+    try { s = String(window._pdxRosterState || ''); } catch (e) {}
+    return s === 'done' || s === 'error';
+  }
+  function afterRoster() {
+    for (var i = 0; i < ROSTER_TAIL.length; i++) {
+      (function (ms) {
+        setTimeout(function () {
+          if (_rosterSettled) return;
+          var done = rosterDone();
+          try { paint(); } catch (e) {}
+          if (done) _rosterSettled = true;
+        }, ms);
+      })(ROSTER_TAIL[i]);
+    }
+  }
+  function hookRoster() {
+    if (_rosterHooked || !fn(window.pdxRosterReady)) return;
+    _rosterHooked = true;
+    try { window.pdxRosterReady(afterRoster); } catch (e) { _rosterHooked = false; }
+  }
+
   function boot() {
     try { paint(); } catch (e) {}
+    hookRoster();
     schedule();
   }
 
