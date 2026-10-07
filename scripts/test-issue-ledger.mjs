@@ -59,6 +59,7 @@ import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { deOrigin } from "./v103-chrome-seams.mjs";
+import { measureAddresses } from "./vr-measure-addresses.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -862,6 +863,12 @@ section("12 · one effect line per vote row, scoped to this issue");
   for (const m of JSON.parse(R("db/vr-issue-seed.json")).measures) {
     for (const i of m.issues || []) MAPPED.add(`${String(m.number).replace(/\s+/g, " ").trim()}|${m.congress}|${i.issueKey}`);
   }
+  // And the pairs only the applied migrations map — H.Amdt. 252 × Ukraine reaches
+  // a drawer through the live record and not the shipped seed. Read through the
+  // same projection of the migrations the bill documents are built from.
+  for (const a of measureAddresses(ROOT).published) {
+    for (const k of a.issues || []) MAPPED.add(`${a.number}|${a.sitting}|${k}`);
+  }
   // The executive rows' own table, keyed by the stored documentId and the issue
   // (see _DOS_EXEC_EFFECT), and the pairs the exec seed maps — a line may only be
   // written for one of those, and only ever prints on its own row.
@@ -1283,6 +1290,12 @@ section("14 · the harvest — every stored did, read against the effect rule");
         t[`${num}|118`] = [v.chamber, v.totals.yea, v.totals.nay];
       }
     }
+    // H.Amdt. 252, the failed House amendment barring the funds: roll 119/2/264.
+    for (const v of JSON.parse(R("db/vr-house-seed-119-s2.json")).votes || []) {
+      if (v.measure && v.measure.number === "H.Amdt. 252" && v.rollNumber === 264 && v.totals) {
+        t["H.Amdt. 252|119"] = [v.chamber || v.measure.chamber, v.totals.yea, v.totals.nay, v.result];
+      }
+    }
     return t;
   })();
   const ukraineFault = (k, v) => {
@@ -1291,14 +1304,18 @@ section("14 · the harvest — every stored did, read against the effect rule");
     if (!/\bUkraine\b/.test(v)) return "does not name Ukraine, the subject it is filed under";
     const tl = UK_TALLY[k.split("|").slice(0, 2).join("|")];
     if (!tl) return "the archive holds no tally for this roll";
-    const [ch, y, n] = tl;
-    const tail = ch === "house" ? `; the House passed it ${y}-${n}.` : `; the Senate concurred ${y}-${n}.`;
+    const [ch, y, n, res] = tl;
+    const tail = res === "failed" ? `; the House rejected it ${y}-${n}.`
+      : ch === "house" ? `; the House passed it ${y}-${n}.` : `; the Senate concurred ${y}-${n}.`;
+    if (res === "failed" && !/^Proposed\b/.test(v)) return "a failed amendment is written as though it took effect";
     return v.endsWith(tail) ? "" : `does not end on the archive's tally ${y}-${n}`;
   };
   must(UKRAINE.length > 0, "no Ukraine effect line is stored");
   for (const k of UKRAINE) eq(ukraineFault(k, EFFECT[k]), "", `${k}: the Ukraine effect line`);
   ok(ukraineFault("H.R. 8035|118|ukraine_policy", EFFECT["H.R. 8035|118|ukraine_policy"].replace("311-112", "112-311")) !== "",
     "a Ukraine line with the tally flipped passed the Ukraine check");
+  ok(ukraineFault("H.Amdt. 252|119|ukraine_policy", "Prohibited funds for Ukraine Security Assistance; the House rejected it 76-350.") !== "",
+    "a failed Ukraine amendment written as though it took effect passed the Ukraine check");
   ok(ukraineFault("H.R. 8035|118|ukraine_policy", "Appropriated supplemental security aid abroad; the House passed it 311-112.") !== "",
     "a Ukraine line that never names Ukraine passed the Ukraine check");
   ok(!Object.keys(EFFECT).some((k) => /\|yemen_policy$/.test(k)), "no roll-call Yemen line: the only Yemen act is a veto");

@@ -17186,12 +17186,17 @@
       'Directs the President to remove U.S. forces from hostilities with Iran, keeping self-defense; the House agreed to it 214-208.',
     // Ukraine. One line per act whose own subject is Ukraine and whose mapping the
     // shipped seed carries, written from the tally on file; the same act's
-    // alliance, restraint and defense lines are separate. H.Amdt. 252 is mapped in
-    // the database only, so it gets no line here rather than an unchecked one.
+    // alliance, restraint and defense lines are separate.
     'H.R. 8035|118|ukraine_policy':
       'Appropriated supplemental security aid for Ukraine, including the Ukraine Security Assistance Initiative; the House passed it 311-112.',
     'H.R. 815|118|ukraine_policy':
       'Carried the Ukraine security supplemental as Division B of the 2024 national-security package; the Senate concurred 79-18.',
+    // H.Amdt. 252 is mapped to Ukraine in the database only, so its row reaches a
+    // drawer through the live record and not the shipped seed. The line is written
+    // from the measure's stored title and its House roll, 119/2/264, which failed
+    // 76-350 — the amendment proposed the bar and never carried it.
+    'H.Amdt. 252|119|ukraine_policy':
+      'Proposed prohibiting funds for Ukraine Security Assistance except U.S. embassy security in Ukraine; the House rejected it 76-350.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // The item is already a row on this issue, so the pair is mapped whether or
