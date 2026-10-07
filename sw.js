@@ -8902,7 +8902,16 @@
 //     it moves one version.
 //     MIGRATION COST: none. No board, route, table or residency record moved,
 //     and no location key was touched.
-const CACHE_VERSION = 'v308';
+// v309 - THE UKRAINE ROW FOR H.AMDT. 252 SAYS WHAT IT DID. The amendment is
+//     mapped to Ukraine in the database, so it reaches a member's Ukraine
+//     drawer through the live record, but it had no effect line. It now has
+//     one, stored once on the measure-and-issue pair and written from the
+//     measure's own title and its House roll: it proposed the funding bar and
+//     failed 76-350. Every other pair on the Iran, Ukraine and Yemen keys
+//     already had its line, and the Lands and Red Tape lines did not move.
+//     consistency.js is precached and changed, so it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved.
+const CACHE_VERSION = 'v309';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
