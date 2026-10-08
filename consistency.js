@@ -17248,6 +17248,26 @@
     // 76-350 — the amendment proposed the bar and never carried it.
     'H.Amdt. 252|119|ukraine_policy':
       'Proposed prohibiting funds for Ukraine Security Assistance except U.S. embassy security in Ukraine; the House rejected it 76-350.',
+    // Congress and War Powers. One line per member-voted act on this leaf whose
+    // pair stores a `did`, written from that `did` and the tally it records; the
+    // same act's Iran and restraint lines are separate. S.J.Res. 59 is mapped
+    // here by a re-key and stores no `did` on this leaf, so it has no line.
+    'S.J.Res. 83|119|war_powers':
+      'Would have used the War Powers Resolution to end any U.S. hostilities Congress had not authorized; the Senate refused to discharge it 48-51.',
+    'S.J.Res. 90|119|war_powers':
+      'Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Venezuela; the Senate refused to discharge it 49-51.',
+    'S.J.Res. 98|119|war_powers':
+      'Would use the War Powers Resolution to end unauthorized U.S. hostilities against Venezuela; the Senate voted 52-47 to discharge it.',
+    'S.J.Res. 104|119|war_powers':
+      'Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 47-53.',
+    'S.J.Res. 184|119|war_powers':
+      'Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 47-50.',
+    'S.J.Res. 163|119|war_powers':
+      'Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 49-50.',
+    'S.J.Res. 185|119|war_powers':
+      'Would use the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate voted 50-47 to discharge it.',
+    'H.Amdt. 99|119|war_powers':
+      'Added repeal of the 2002 and 1991 Iraq war authorizations to the House defense bill; the House agreed to it 261-167.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // The item is already a row on this issue, so the pair is mapped whether or

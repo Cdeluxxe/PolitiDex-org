@@ -1319,9 +1319,35 @@ section("14 · the harvest — every stored did, read against the effect rule");
   ok(ukraineFault("H.R. 8035|118|ukraine_policy", "Appropriated supplemental security aid abroad; the House passed it 311-112.") !== "",
     "a Ukraine line that never names Ukraine passed the Ukraine check");
   ok(!Object.keys(EFFECT).some((k) => /\|yemen_policy$/.test(k)), "no roll-call Yemen line: the only Yemen act is a veto");
-  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k));
+  // THE WAR POWERS BATCH (v311). Member-voted acts on Congress and War Powers, one
+  // line each on the measure × war_powers pair, written from that pair's own `did`:
+  // same harvest rules, the line says it is about authorization, and it ends on the
+  // tally the issue seed records for that roll, in the shape its outcome allows —
+  // a discharge refused ("Would have used …"), a discharge carried, or a House
+  // amendment agreed to.
+  const WAR = Object.keys(EFFECT).filter((k) => /\|war_powers$/.test(k));
+  const warFault = (k, v) => {
+    const f = harvestFault(v);
+    if (f) return f;
+    if (!/War Powers|authoriz/.test(v)) return "does not say it is about authorization, the subject it is filed under";
+    const tl = TALLY[k.split("|").slice(0, 2).join("|")];
+    if (!tl) return "the archive holds no tally for this roll";
+    const [y, n] = tl;
+    const shape = k.startsWith("H.") ? new RegExp(`; the House agreed to it ${y}-${n}\\.$`)
+      : y < n ? new RegExp(`^Would have used .+; the Senate refused to discharge it ${y}-${n}\\.$`)
+      : new RegExp(`^Would use .+; the Senate voted ${y}-${n} to discharge it\\.$`);
+    return shape.test(v) ? "" : `does not end on the archive's tally ${y}-${n} in the shape its outcome allows`;
+  };
+  must(WAR.length > 0, "no War Powers effect line is stored");
+  for (const k of WAR) eq(warFault(k, EFFECT[k]), "", `${k}: the War Powers effect line`);
+  ok(warFault("S.J.Res. 104|119|war_powers", EFFECT["S.J.Res. 104|119|war_powers"].replace("47-53", "53-47")) !== "",
+    "a War Powers line with the tally flipped passed the War Powers check");
+  ok(warFault("S.J.Res. 98|119|war_powers", "Would have used it to end U.S. hostilities in Venezuela; the Senate refused to discharge it 52-47.") !== "",
+    "a War Powers line written as refused over a discharge that carried passed the War Powers check");
+  ok(!("S.J.Res. 59|119|war_powers" in EFFECT), "S.J.Res. 59 stores no `did` on War Powers, so it has no line to write from");
+  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.
