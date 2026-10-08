@@ -8936,7 +8936,19 @@
 //     one version.
 //     MIGRATION COST: none. No seed row, mapping, key or score moved, and
 //     no location key was touched.
-const CACHE_VERSION = 'v311';
+// v312 - ONE SENTENCE UNDER EACH VOTE ON AMERICA FIRST. A member's America
+//     First drawer printed a date, a number and a vote with nothing saying what
+//     the act did, except H.R. 8035, whose own short description already stood
+//     under its row. Each other member-voted act on that leaf now has one line,
+//     stored once on the measure-and-issue pair and written from the pair's own
+//     stored description and the tally the archive records: the 2025
+//     rescissions, the 2024 Israel and combined supplementals, and the three
+//     failed House amendments on Israel, Jordan and the military academies. The
+//     pairs only the database maps there store no description and stay blank.
+//     No shipped line moved, Trump's included. consistency.js is precached and
+//     changed, so it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved.
+const CACHE_VERSION = 'v312';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

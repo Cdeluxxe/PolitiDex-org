@@ -1345,9 +1345,63 @@ section("14 · the harvest — every stored did, read against the effect rule");
   ok(warFault("S.J.Res. 98|119|war_powers", "Would have used it to end U.S. hostilities in Venezuela; the Senate refused to discharge it 52-47.") !== "",
     "a War Powers line written as refused over a discharge that carried passed the War Powers check");
   ok(!("S.J.Res. 59|119|war_powers" in EFFECT), "S.J.Res. 59 stores no `did` on War Powers, so it has no line to write from");
-  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k));
+  // THE AMERICA FIRST BATCH (v312). Member-voted acts on America First Foreign Aid
+  // & Commitments, one line each on the measure × america_first_fp pair, written
+  // from that pair's own `did`: same harvest rules, the line names the foreign
+  // commitment it moved, carries a term its own `did` stores, and ends on the
+  // tally the archive's vote seeds hold — a failed amendment as "Proposed …".
+  const AF = Object.keys(EFFECT).filter((k) => /\|america_first_fp$/.test(k));
+  const AF_TALLY = (() => {
+    const t = {};
+    const put = (k, v) => { (t[k] = t[k] || []).push([v.chamber || (v.measure && v.measure.chamber), v.totals.yea, v.totals.nay, v.result]); };
+    for (const v of JSON.parse(R("db/vr-fiscal-enforcement-vote-seed.json")).votes || []) {
+      if (v.measure && v.measure.number === "H.R. 4" && v.congress === 119 && v.totals) put("H.R. 4|119", v);
+    }
+    for (const v of JSON.parse(R("db/vr-israel-vote-seed.json")).votes || []) {
+      if (v.measure && v.measure.number === "H.R. 8034" && v.congress === 118 && v.totals) put("H.R. 8034|118", v);
+    }
+    for (const v of JSON.parse(R("db/vr-phase-a-vote-seed.json")).votes || []) {
+      if (v.measure && v.measure.number === "H.R. 815" && v.congress === 118 && v.totals) put("H.R. 815|118", v);
+    }
+    for (const v of JSON.parse(R("db/vr-house-seed-119-s2.json")).votes || []) {
+      const num = v.measure && v.measure.number;
+      if (/^H\.Amdt\. 23[56]$|^H\.Amdt\. 243$/.test(num || "") && v.totals) put(`${num}|119`, v);
+    }
+    return t;
+  })();
+  const AF_TERM = {
+    "H.R. 4|119|america_first_fp": "$7.9 billion", "H.R. 8034|118|america_first_fp": "$9.2 billion",
+    "H.R. 815|118|america_first_fp": "Indo-Pacific", "H.Amdt. 235|119|america_first_fp": "Israel",
+    "H.Amdt. 236|119|america_first_fp": "Jordan", "H.Amdt. 243|119|america_first_fp": "foreign nationals",
+  };
+  const afFault = (k, v) => {
+    const f = harvestFault(v);
+    if (f) return f;
+    if (!/\bforeign\b|\baid\b/.test(v)) return "does not name the foreign commitment it is filed under";
+    const term = AF_TERM[k];
+    if (!term || !norm(MECH[k] && MECH[k].did).includes(term) || !v.includes(term)) return "names nothing this pair's own did stores";
+    const rolls = AF_TALLY[k.split("|").slice(0, 2).join("|")];
+    if (!rolls || !rolls.length) return "the archive holds no tally for this roll";
+    const word = (ch, res) => res === "failed" ? "rejected" : ch === "senate" && res === "agreed_to" ? "concurred" : "passed";
+    if (rolls.some((r) => r[3] === "failed") && !/^Proposed\b/.test(v)) return "a failed amendment is written as though it took effect";
+    const house = rolls.find((r) => r[0] === "house"), senate = rolls.find((r) => r[0] === "senate");
+    const tail = house && senate
+      ? `; the House ${word("house", house[3])} it ${house[1]}-${house[2]}, the Senate ${senate[1]}-${senate[2]}.`
+      : `; the ${rolls[0][0] === "senate" ? "Senate" : "House"} ${word(rolls[0][0], rolls[0][3])}${rolls[0][3] === "agreed_to" ? "" : " it"} ${rolls[0][1]}-${rolls[0][2]}.`;
+    return v.endsWith(tail) ? "" : `does not end on the archive's tally (${tail.slice(2)})`;
+  };
+  must(AF.length > 0, "no America First effect line is stored");
+  for (const k of AF) eq(afFault(k, EFFECT[k]), "", `${k}: the America First effect line`);
+  ok(afFault("H.Amdt. 236|119|america_first_fp", EFFECT["H.Amdt. 236|119|america_first_fp"].replace("6-421", "421-6")) !== "",
+    "an America First line with the tally flipped passed the America First check");
+  ok(afFault("H.Amdt. 235|119|america_first_fp", "Barred the national security and State funds from use for Israel; the House rejected it 104-314.") !== "",
+    "a failed America First amendment written as though it took effect passed the America First check");
+  ok(afFault("H.R. 815|118|america_first_fp", EFFECT["H.R. 815|118|ukraine_policy"]) !== "",
+    "the Ukraine line borrowed onto the America First row passed the America First check");
+  ok(!("H.R. 8035|118|america_first_fp" in EFFECT), "H.R. 8035's short `did` already stands under its America First row and is not rewritten");
+  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.

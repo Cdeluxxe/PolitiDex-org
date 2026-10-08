@@ -17268,6 +17268,24 @@
       'Would use the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate voted 50-47 to discharge it.',
     'H.Amdt. 99|119|war_powers':
       'Added repeal of the 2002 and 1991 Iraq war authorizations to the House defense bill; the House agreed to it 261-167.',
+    // America First. One line per member-voted act on this leaf whose pair stores
+    // a `did`, written from that `did` and the tally on file; the same act's
+    // Ukraine, Israel and spending lines are separate. H.R. 8035's `did` already
+    // stands under its row and is not rewritten. The three amendments failed, so
+    // each proposed what its `did` names and never carried it. The pairs only the
+    // database maps here store no `did` on this leaf and have no line.
+    'H.R. 4|119|america_first_fp':
+      'Rescinded about $7.9 billion in foreign-assistance balances, development aid among them; the House passed it 214-212, the Senate 51-48.',
+    'H.R. 8034|118|america_first_fp':
+      'Appropriated about $9.2 billion in foreign aid beyond Israel, for disaster, refugee and Sinai needs, unoffset; the House passed it 366-58.',
+    'H.R. 815|118|america_first_fp':
+      'Enacted the 118th Congress’s largest foreign-aid appropriation, for Israel, Ukraine and the Indo-Pacific; the Senate concurred 79-18.',
+    'H.Amdt. 235|119|america_first_fp':
+      'Proposed barring the national security and State funds from use for Israel, a standing aid commitment; the House rejected it 104-314.',
+    'H.Amdt. 236|119|america_first_fp':
+      'Proposed barring the national security and State funds from use for Jordan, a standing aid commitment; the House rejected it 6-421.',
+    'H.Amdt. 243|119|america_first_fp':
+      'Proposed barring foreign nationals from U.S. military academies, striking the defense bill’s cadet section; the House rejected it 61-360.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // The item is already a row on this issue, so the pair is mapped whether or
