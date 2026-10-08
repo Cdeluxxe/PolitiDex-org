@@ -8911,7 +8911,19 @@
 //     already had its line, and the Lands and Red Tape lines did not move.
 //     consistency.js is precached and changed, so it moves one version.
 //     MIGRATION COST: none. No seed row, mapping, key or score moved.
-const CACHE_VERSION = 'v309';
+// v310 - ALL TERMS IS THE PROFILE; A TERM IS A FILTER. Executive rows whose
+//     current term read a different shape from the whole file printed a "this
+//     term alone" clause on load (Trump × America First: 1 of 2 actions) on the
+//     stance row, its accessible name and its tooltip, and in the drawer. That
+//     was a second count. It no longer prints: the badge, the leaf and the
+//     drawer count every term. The drawer gains a term control where its rows
+//     span more than one term; it narrows the list only after the reader picks
+//     a term, says which term, and "All terms" returns the whole file. No score,
+//     weight or Direction Match result moved. consistency.js is precached and
+//     changed, so it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved, and
+//     no location key was touched.
+const CACHE_VERSION = 'v310';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
