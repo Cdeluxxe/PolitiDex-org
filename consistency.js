@@ -2376,6 +2376,9 @@
       '.pdxlg-tally b{color:#e8eefc;font-weight:700;}' +
       '.pdxlg-side{font-size:0.72rem;color:#8fa2c0;line-height:1.5;}' +
       '.pdxlg-same{margin-top:0.2rem;font-size:0.72rem;color:#f0cd8c;line-height:1.5;}' +
+      '.pdxlg-termf{display:flex;flex-wrap:wrap;align-items:center;gap:0.3rem 0.4rem;margin-top:0.3rem;font-size:0.72rem;color:#8fa2c0;}' +
+      '.pdxlg-termf button{font:inherit;color:#c6d4ec;background:transparent;border:1px solid rgba(143,162,192,0.35);border-radius:999px;padding:0.15rem 0.6rem;min-height:28px;cursor:pointer;}' +
+      '.pdxlg-termf button[aria-pressed="true"]{background:rgba(143,162,192,0.18);border-color:#c6d4ec;}' +
       '.pdxlg-g{margin-top:0.5rem;}' +
       '.pdxlg-gh{font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;' +
         'letter-spacing:0.08em;font-size:0.64rem;color:#8fa2c0;margin-bottom:0.15rem;}' +
@@ -7779,40 +7782,12 @@
       ? 'a split, not yet a pattern' : 'a direction, not yet a pattern' };
   }
 
-  // TWO SCOPES, ONE ISSUE — and never only the flattering slice. The executive lane
-  // leads with all_time (EXEC_SCOPE_DEFAULT) and that is the right headline: it is
-  // the whole record. But where the CURRENT TERM reads a different shape from the
-  // whole — one direction this term against a split across every term — a reader
-  // shown only the headline has been shown one slice of a record that has two, and
-  // which slice they got is an accident of the default. This returns the other
-  // slice's word so the row can name it. It decides nothing: the percentage, the
-  // verdict token and the bucket are all still the all-time read's.
-  //
-  // Reuses EXEC_TERM_SCOPES and PDXExecRecord.issue rather than inventing a scope,
-  // so this cannot disagree with the Executive Enactment Record about what a term is.
-  // Silent for a former officeholder — execServing() — because "this term" is last
-  // term under a label that says otherwise, which is the same reason scopedRead()
-  // declines for them.
-  function _stExecScopeSplit(r) {
-    try {
-      if (!r || r.lane !== 'exec' || !r.pid || !r.key) return null;
-      if (!execServing(r.pid)) return null;
-      var E = window.PDXExecRecord;
-      if (!E || typeof E.issue !== 'function') return null;
-      var all = E.issue(r.pid, r.key, { allTerms: true });
-      var cur = E.issue(r.pid, r.key, { allTerms: false });
-      if (!all || !cur) return null;
-      var curN = (cur.actions || []).length, allN = (all.actions || []).length;
-      // A slice identical to the whole is not a second read of anything, and an
-      // empty slice is a coverage fact the row already states elsewhere.
-      if (!curN || !allN || curN >= allN) return null;
-      if (all.token === cur.token) return null;
-      var word = cur.verdict && cur.verdict.label;
-      if (!word) return null;
-      return { label: word, curN: curN, allN: allN,
-               scope: (EXEC_TERM_SCOPES.current_term || {}).label || 'Current term' };
-    } catch (e) { return null; }
-  }
+  // NO TERM CLAUSE ON THE ROW. The file is every term, and the badge, the leaf
+  // and the drawer count every term on every issue. A row used to add "this term
+  // alone: <word> (n of m actions)" wherever the current-term slice read a
+  // different shape; that was a second count on the record, printed before the
+  // reader asked for a term. A term is a filter now, and only the drawer's term
+  // control applies it, after the reader selects one (see _dosTermFilter).
 
   // The depth clause an accessible name carries, or ''. Built from the two helpers
   // above so the door and the visible line cannot drift apart.
@@ -7823,9 +7798,6 @@
       var n = _stNoun(r || {});
       out.push(t.judged + ' judged ' + (t.judged === 1 ? n.one : n.many) + ' — ' + t.note);
     }
-    var f = _stExecScopeSplit(r);
-    if (f) out.push('this term alone: ' + String(f.label).toLowerCase() +
-      ' (' + f.curN + ' of ' + f.allN + ')');
     return out.join(' · ');
   }
 
@@ -7834,9 +7806,8 @@
     var split = _stSplit(r);
     if (!split) return '';
     var st = _stStanding(r);
-    var scopeSplit = _stExecScopeSplit(r);
     var aside = r.setAside;
-    var tense = (r.verdict.token === 'mixed') || !!aside || !!st || !!scopeSplit;
+    var tense = (r.verdict.token === 'mixed') || !!aside || !!st;
     // A scored row always states its denominator; an unscored one only where it
     // carries tension worth naming. This is the widened condition, and the whole
     // of the change: everything below already worked, on 15% of the rows.
@@ -7884,13 +7855,6 @@
     var thin = !!thinR;
     var thinNote = thinR ? thinR.note : '';
     if (thin) parts.push('<span class="pdxst-comp-thin">' + esc(thinNote) + '</span>');
-    // THE OTHER SCOPE, WHERE IT READS DIFFERENTLY. Sits with the set-aside and
-    // standing clauses because it is the same kind of fact: something true about
-    // this record that the headline number does not carry. Never replaces the
-    // headline — the all-time read still owns the percentage and the verdict.
-    if (scopeSplit) parts.push('<span class="pdxst-comp-x">' + esc('this term alone: ' +
-      String(scopeSplit.label).toLowerCase() + ' (' + scopeSplit.curN + ' of ' +
-      scopeSplit.allN + ' actions)') + '</span>');
     // "0 ran against it" is arithmetic read aloud; "none ran against it" is the
     // same fact in the sentence a person would write. The clean rows this line
     // now reaches are overwhelmingly the zero case, so it is worth the branch.
@@ -7901,10 +7865,7 @@
       (aside && aside.count ? ' The lane that did not decide this row points the other way on ' +
         aside.count + ' item' + (aside.count === 1 ? '' : 's') + ' — disclosed, never blended into the verdict.' : '') +
       (st ? ' Standing is a separate question from direction: the verdict says which way they went, not whether it held.' : '') +
-      (scopeSplit ? ' Across every term this reads ' + String(r.verdict.label || '').toLowerCase() +
-        '; the ' + scopeSplit.curN + ' action' + (scopeSplit.curN === 1 ? '' : 's') +
-        ' taken in the current term alone read ' + String(scopeSplit.label).toLowerCase() +
-        '. The figure above is the all-time record.' : '');
+      '';
     var key = '';
     if (opts && opts.formalKey) {
       // WHICH LANE THESE COUNTS BELONG TO, said before the counts. On a face with no
@@ -17007,14 +16968,103 @@
   // body. Iran joined when its drawer took the second-term instruments: a country
   // it is, like the other two, and it sits in _RD_NO_POLE with them.
   var _DOS_LEDGER_NO_SIDE = { iran_policy: 1, ukraine_policy: 1, yemen_policy: 1 };
-  function _dosLedgerHtml(pid, issueKey, r, t) {
+  // A TERM IS A FILTER, AND ONLY WHEN THE READER TURNS IT ON. The drawer opens on
+  // the whole file — every term — and carries no term word. Where the rows span
+  // more than one term, a control under the tally lets the reader narrow the list
+  // to one; the ledger is then re-rendered with `opts.term` and says which term it
+  // is showing, and "All terms" puts the whole file back. Each row's term is read
+  // off the all-terms executive record by document, so this cannot disagree with
+  // the Executive Enactment Record about which term an act belongs to. A row with
+  // no term on file (a roll call, a curated act) means no control: a filter that
+  // silently drops rows it cannot place is a second count, not a filter. Display
+  // only — no score, weight or Direction Match result reads it.
+  function _dosTermMap(pid, issueKey) {
+    var out = Object.create(null);
+    try {
+      var E = window.PDXExecRecord;
+      if (!E || typeof E.issue !== 'function') return out;
+      var acts = (E.issue(pid, issueKey, { allTerms: true }) || {}).actions || [];
+      for (var i = 0; i < acts.length; i++) {
+        var a = acts[i];
+        if (a && a.documentId && a.term != null && a.term !== '') out[String(a.documentId).trim()] = String(a.term);
+      }
+    } catch (e) {}
+    return out;
+  }
+  function _dosTermFilter(pid, issueKey, t, want) {
+    var map = _dosTermMap(pid, issueKey), terms = [], seen = Object.create(null), i;
+    var termOf = function (row) {
+      var it = row && row.d && row.d.item;
+      return (row && row.d && row.d.lane === 'exec' && it && it.documentId)
+        ? (map[String(it.documentId).trim()] || '') : '';
+    };
+    for (i = 0; i < t.rows.length; i++) {
+      var tm = termOf(t.rows[i]);
+      if (!tm) return { terms: [], term: '', t: t };
+      if (!seen[tm]) { seen[tm] = 1; terms.push(tm); }
+    }
+    terms.sort(function (a, b) { return (Number(a) || 0) - (Number(b) || 0); });
+    if (terms.length < 2) return { terms: [], term: '', t: t };
+    want = (want == null) ? '' : String(want);
+    if (!want || !seen[want]) return { terms: terms, term: '', t: t };
+    var v = { acts: 0, bills: 0, ident: '', same: false, bill: t.bill, advances: 0, opposes: 0,
+      noSide: 0, rows: [], all: t.acts };
+    var ids = Object.create(null);
+    for (i = 0; i < t.rows.length; i++) {
+      var row = t.rows[i];
+      if (termOf(row) !== want) continue;
+      v.rows.push(row); v.acts++;
+      if (row.dir === 'advances') v.advances++;
+      else if (row.dir === 'opposes') v.opposes++;
+      else v.noSide++;
+      var id = String(row.d.ident || '').trim(), lk = id.toLowerCase();
+      if (id && !ids[lk]) { ids[lk] = 1; v.bills++; if (!v.ident) v.ident = id; }
+    }
+    v.same = v.bills === 1 && v.acts > 1;
+    return { terms: terms, term: want, t: v };
+  }
+  function _dosTermControlHtml(tf) {
+    if (!tf || !tf.terms.length) return '';
+    var b = function (val, label) {
+      var on = (tf.term === val);
+      return '<button type="button" data-pdxlg-term="' + escAttr(val) + '" aria-pressed="' + (on ? 'true' : 'false') + '">' +
+        esc(label) + '</button>';
+    };
+    return '<div class="pdxlg-termf" data-pdxlg-termf="1" role="group" aria-label="Filter these acts by term">' +
+      '<span>Filter:</span>' + b('', 'All terms') +
+      tf.terms.map(function (x) { return b(x, 'Term ' + x); }).join('') +
+    '</div>';
+  }
+  // Re-render one ledger in place with the term the reader picked ('' clears it).
+  function _dosTermApply(btn, term) {
+    try {
+      var node = btn && btn.closest && btn.closest('[data-pdxlg]');
+      if (!node || !_gapOpen) return;
+      var html = _dosLedgerHtml(_gapOpen.pid, _gapOpen.key, null, null, { term: term || '' });
+      if (!html) return;
+      var box = document.createElement('div');
+      box.innerHTML = html;
+      var fresh = box.firstChild;
+      if (!fresh) return;
+      node.parentNode.replaceChild(fresh, node);
+      var again = fresh.querySelector('[data-pdxlg-term="' + String(term || '').replace(/"/g, '') + '"]');
+      if (again && again.focus) again.focus();
+    } catch (e) {}
+  }
+
+  function _dosLedgerHtml(pid, issueKey, r, t, opts) {
     r = r || issueRow(pid, issueKey);
     t = t || _dosTally(pid, issueKey, r && r.ov);
     if (!t || !t.acts) return '';
+    var tf = _dosTermFilter(pid, issueKey, t, opts && opts.term);
+    t = tf.t;
     var noun = t.bill ? (t.bills === 1 ? 'bill' : 'bills') : (t.bills === 1 ? 'measure' : 'measures');
-    var out = '<div class="pdxlg" data-pdxlg="1">' +
-      '<div class="pdxlg-tally" data-pdxlg-tally="1">On this issue: <b>' + t.bills + ' ' + noun +
-        '</b> · <b>' + t.acts + ' formal ' + (t.acts === 1 ? 'act' : 'acts') + '</b></div>' +
+    var out = '<div class="pdxlg" data-pdxlg="1"' + (tf.term ? ' data-pdxlg-term-on="' + escAttr(tf.term) + '"' : '') + '>' +
+      (tf.term
+        ? '<div class="pdxlg-tally" data-pdxlg-tally="1">Term ' + esc(tf.term) + ' only: <b>' + t.bills + ' ' + noun +
+          '</b> · <b>' + t.acts + ' formal ' + (t.acts === 1 ? 'act' : 'acts') + '</b> of ' + t.all + ' on this issue</div>'
+        : '<div class="pdxlg-tally" data-pdxlg-tally="1">On this issue: <b>' + t.bills + ' ' + noun +
+        '</b> · <b>' + t.acts + ' formal ' + (t.acts === 1 ? 'act' : 'acts') + '</b></div>') +
       // FOR AND AGAINST WHAT. The issue, not the stated position — those are two
       // different questions with two different answers, and the second one lives
       // inside the scoring disclosure under its own label ("1 aligned · 2
@@ -17030,6 +17080,7 @@
         'that comparison is in How this is scored.') + '">' +
         'Acts: ' + t.advances + ' for · ' + t.opposes + ' against' +
         (t.noSide ? ' · ' + t.noSide + ' took no side' : '') + '</div>');
+    out += _dosTermControlHtml(tf);
     // The lesson, stated rather than left to be noticed: one statute, several
     // recorded acts. Said where the repeated bill number is about to appear twice.
     if (t.same) {
@@ -17197,6 +17248,26 @@
     // 76-350 — the amendment proposed the bar and never carried it.
     'H.Amdt. 252|119|ukraine_policy':
       'Proposed prohibiting funds for Ukraine Security Assistance except U.S. embassy security in Ukraine; the House rejected it 76-350.',
+    // Congress and War Powers. One line per member-voted act on this leaf whose
+    // pair stores a `did`, written from that `did` and the tally it records; the
+    // same act's Iran and restraint lines are separate. S.J.Res. 59 is mapped
+    // here by a re-key and stores no `did` on this leaf, so it has no line.
+    'S.J.Res. 83|119|war_powers':
+      'Would have used the War Powers Resolution to end any U.S. hostilities Congress had not authorized; the Senate refused to discharge it 48-51.',
+    'S.J.Res. 90|119|war_powers':
+      'Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Venezuela; the Senate refused to discharge it 49-51.',
+    'S.J.Res. 98|119|war_powers':
+      'Would use the War Powers Resolution to end unauthorized U.S. hostilities against Venezuela; the Senate voted 52-47 to discharge it.',
+    'S.J.Res. 104|119|war_powers':
+      'Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 47-53.',
+    'S.J.Res. 184|119|war_powers':
+      'Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 47-50.',
+    'S.J.Res. 163|119|war_powers':
+      'Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 49-50.',
+    'S.J.Res. 185|119|war_powers':
+      'Would use the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate voted 50-47 to discharge it.',
+    'H.Amdt. 99|119|war_powers':
+      'Added repeal of the 2002 and 1991 Iraq war authorizations to the House defense bill; the House agreed to it 261-167.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // The item is already a row on this issue, so the pair is mapped whether or
@@ -18080,6 +18151,8 @@
       '</div>';
     (document.body || document.documentElement).appendChild(back);
     back.addEventListener('click', function (e) {
+      var tb = e.target && e.target.closest && e.target.closest('[data-pdxlg-term]');
+      if (tb) { _dosTermApply(tb, tb.getAttribute('data-pdxlg-term')); return; }
       if (e.target === back || (e.target.closest && e.target.closest('.pdxgap-x'))) closeGap();
     });
     document.addEventListener('keydown', function (e) {

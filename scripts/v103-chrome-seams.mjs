@@ -379,6 +379,17 @@ export const CJ_SEAMS = [
   ["        return why ? _fpiUnreadHtml({ why: why }) : '';\n      }\n    }\n    if (!t) return '';\n",
    "\n    // The lane marker is not decoration either:",
    "the chip reading that fill instead of spelling it"],
+  // ── and one for the stance row's retired term clause (v310) ──────────────
+  // All terms is the profile; a term is a filter the reader turns on in the
+  // drawer. The row used to name the current-term slice wherever it read a
+  // different shape ("this term alone: …") on its face, its accessible name and
+  // its tooltip — a second count printed before anyone asked for a term. The span
+  // runs from the end of _stThinNote to the tooltip's close and holds the
+  // removal: the helper, its three call sites, and the one term out of the
+  // tension test. The counts, the thin note and the verdict are unchanged.
+  ["      ? 'a split, not yet a pattern' : 'a direction, not yet a pattern' };\n  }\n",
+   "    var key = '';\n    if (opts && opts.formalKey) {\n",
+   "the stance row's term clause, retired"],
   // ── and three for the issue desk's record ledger (v108) ────────────────────
   // The other two spans of that pass are its export lines, which sit BELOW the
   // _DOS_MECH literal — see CJ_SEAMS_BELOW.
@@ -637,6 +648,14 @@ export const CJ_SEAMS_BELOW = [
   ["          _sdGapHtml(pid, issueKey) +\n",
    "      // ── L2 ── every instrument on this issue, closed. It sits below the two\n",
    "the method, behind one disclosure"],
+  // L12b. THE TERM CONTROL, ON TAP (v310). Two lines at the head of the sheet's
+  // own click listener: a tap on a [data-pdxlg-term] button re-renders that one
+  // ledger with the term the reader picked, and "All terms" ('') puts the whole
+  // file back. It reads no data itself — the ledger renderer does, from the same
+  // tally it always had.
+  ["    back.addEventListener('click', function (e) {\n",
+   "      if (e.target === back || (e.target.closest && e.target.closest('.pdxgap-x'))) closeGap();\n",
+   "the drawer's term control, on tap"],
   // L13. A SCROLL TO SOMETHING FOLDED SHUT IS A SCROLL TO NOWHERE. Both callers of
   // this focus helper — the 🧾 tally control and the deep link — now name nodes
   // that live inside the scoring disclosure, and a closed <details> has no height
@@ -1433,6 +1452,18 @@ export function assertConsistencySeams(bodies, api, below) {
   has(execNote, "_pdxActLabel",
     "…nor why reusing the federal names would have relabeled a president's rows");
 
+  // ── the stance row's term clause, retired (v310) ───────────────────────────
+  // A removal. The tension test keeps its three real terms and loses the fourth;
+  // no term-scoped read is left in the span; and nothing in it scores.
+  const termGone = cut("the stance row's term clause, retired");
+  const termCode = termGone.replace(/^\s*\/\/.*$/gm, "");
+  has(termCode, "var tense = (r.verdict.token === 'mixed') || !!aside || !!st;",
+    "the stance row's tension test no longer reads the mixed verdict, the set-aside and the standing");
+  ok(!/_stExecScopeSplit|scopeSplit|allTerms|this term alone|current term/.test(termCode),
+    "the stance row reads or prints a term slice again — a term is the drawer's filter, not a clause on load");
+  ok(!/MIN_|FLOOR|publishable|Math\.|\.toFixed/.test(strip(termGone)),
+    "the term-clause span reads a floor or computes a number");
+
   // ── seams C-G: the ledger reads the index; it does not read the record ──────
   // Everything below is decidable from the WORKING COPY alone, which is all a
   // wave suite hands over. The stronger check on seam D — that the extracted
@@ -1701,7 +1732,9 @@ export function assertConsistencyExportSeams(bodies, api) {
   // fifth — a word here is the tally's word with the leading "1 " taken off.
   const side = cut("the side said in words, not counted");
   const sideCode = side.replace(/^\s*\/\/.*$/gm, "");
-  ok([...sideCode.matchAll(/'([^']+)'/g)].map((m) => m[1]).join("|") === "not scorable|advanced|against|took no side",
+  // Distinct words, in order of first use: the subject-key branch (no side on a
+  // country) says "not scorable" again (once with its count), the same word, not a fifth.
+  ok([...new Set([...sideCode.matchAll(/'([^']+)'/g)].map((m) => m[1].trim()))].join("|") === "not scorable|advanced|against|took no side",
     "the one-measure row states a side outside the four words the tallies already use");
   ok(!/\d/.test(strip(side)), "the side is stated as a number again");
   // J6/J7. THE SENTENCE. One sentence, clipped on a word boundary at a fixed
@@ -1860,6 +1893,12 @@ export function assertConsistencyExportSeams(bodies, api) {
     "the one-measure-several-acts case is decided on something other than the two counts");
   has(lgFns, "'<div class=\"pdxlg-tally\" data-pdxlg-tally=\"1\">On this issue: <b>' + t.bills + ' ' + noun +",
     "the tally no longer opens with how many measures this issue holds");
+  // v310: a term is a filter, applied only when the reader selects one. No term,
+  // an unknown term, or a row with no term on file → the whole file.
+  has(lgFns, "if (!want || !seen[want]) return { terms: terms, term: '', t: t };",
+    "the ledger narrows to a term the reader did not select");
+  has(lgFns, "if (!tm) return { terms: [], term: '', t: t };",
+    "the term filter drops a row it cannot place instead of offering no filter");
   has(lgFns, "'Acts: ' + t.advances + ' for · ' + t.opposes + ' against'",
     "the for/against line is not the engine's own two counts");
   has(lgFns, "'<div class=\"pdxlg-same\">All ' + t.acts + ' acts are the same measure — '",
@@ -1932,6 +1971,14 @@ export function assertConsistencyExportSeams(bodies, api) {
   has(lgFocus, "hops0 < 40", "the walk up to the sheet has no hop guard");
   ok(!/querySelector|innerHTML|location|score/.test(strip(lgFocus)),
     "the focus fix reaches for a node, a score or an address of its own");
+  // C7b. THE TERM CONTROL ONLY HANDS THE TAP TO THE RENDERER (v310).
+  const lgTerm = cut("the drawer's term control, on tap");
+  has(lgTerm, "var tb = e.target && e.target.closest && e.target.closest('[data-pdxlg-term]');",
+    "the term control's tap is no longer read off its own attribute");
+  has(lgTerm, "if (tb) { _dosTermApply(tb, tb.getAttribute('data-pdxlg-term')); return; }",
+    "the term control no longer re-renders the ledger with the reader's term");
+  ok(!/score|weight|Math\.|location|allTerms/.test(strip(lgTerm)),
+    "the term control's tap reads a score, a weight or a scope of its own");
   // C8. THE EXPORTS. Six reads beside dossierSummaryHtml, so each claim the
   // inventory makes is tested where it is made.
   const lgEx = cut("the ledger's exports");

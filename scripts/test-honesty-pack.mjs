@@ -24,10 +24,9 @@
 //      because they now read one helper.
 //
 //   C. SCOPE. The exec lane leads with all_time and that is correct — it is the
-//      whole record. But where the current term reads a DIFFERENT shape from the
-//      whole, showing only the headline hands the reader one slice of a two-slice
-//      record, and which slice is an accident of EXEC_SCOPE_DEFAULT. Section 4
-//      asserts the other slice is named wherever the shapes disagree.
+//      whole record. A term is a filter the reader turns on in the drawer, so
+//      where the current term reads a DIFFERENT shape from the whole, the row
+//      still prints the all-time read and no term clause. Section 4 asserts it.
 //
 // EVERY THRESHOLD IS OBSERVED, NOT ASSUMED. The thin set and the flip set are
 // derived by sweeping PDXExecRecord.issue() under both scopes, so this harness
@@ -247,13 +246,17 @@ ok(oneKept.length === 0,
   oneKept.join("\n      "));
 console.log(`   ${bothLost}/${thinRows.length} thin rows lost the clause on both surfaces when the shared helper was blanked`);
 
-// ── 4 · A scope disagreement is never silent ─────────────────────────────────
-console.log("\n§4 where current-term and all-time disagree, both reads are named");
+// ── 4 · All terms is the row; a term is a filter ─────────────────────────────
+// The row used to name the current-term slice wherever it read differently
+// ("this term alone: …"). That was a second count printed before the reader asked
+// for a term. The row now carries the all-time read and no term word; a term is
+// applied only through the drawer's term control (test-restraint-all-terms-count).
+console.log("\n§4 where current-term and all-time disagree, the row still prints only the all-time read");
 ok(flipRows.length > 0, "the sweep found at least one scope flip to check");
 for (const f of flipRows) {
   const seg = rowSlice(f.pid, f.k);
-  ok(/this term alone:/.test(seg),
-    `${f.pid}/${f.k}: all-time reads ${f.all} (${f.aN}) but the current term reads ${f.cur} (${f.cN}) — the row names the other slice`);
+  ok(!/this term alone:|current term/i.test(seg),
+    `${f.pid}/${f.k}: all-time reads ${f.all} (${f.aN}), the current term ${f.cur} (${f.cN}) — the row printed a term clause on load`);
   // AND THE HEADLINE STILL BELONGS TO THE ALL-TIME READ. Asserted in the row's own
   // vocabulary, not the exec lane's: the face speaks the consistency lane's words
   // ("Mixed"), which laneVerdict() derives from the all-time token, while
@@ -271,12 +274,12 @@ for (const f of flipRows) {
   const cOpp = (curR.actions || []).filter((a) => a.direction === "opposes").length;
   ok(new RegExp("<b>" + nAdv + "</b>[\\s\\S]{0,40}aligned").test(seg) &&
      new RegExp("<b>" + nOpp + "</b>[\\s\\S]{0,40}against").test(seg),
-    `${f.pid}/${f.k}: the headline counts are the all-time ones (${nAdv}/${nOpp}), not the current term's (${cAdv}/${cOpp}) — the slice is disclosed, not promoted`);
+    `${f.pid}/${f.k}: the headline counts are the all-time ones (${nAdv}/${nOpp}), not the current term's (${cAdv}/${cOpp})`);
   ok(nAdv !== cAdv || nOpp !== cOpp,
     `${f.pid}/${f.k}: the two scopes really do carry different counts (${nAdv}/${nOpp} vs ${cAdv}/${cOpp})`);
-  console.log(`   ${f.pid}/${f.k}: headline ${f.all}(${f.aN}) · disclosed slice ${f.cur}(${f.cN})`);
+  console.log(`   ${f.pid}/${f.k}: headline ${f.all}(${f.aN}) · slice ${f.cur}(${f.cN}) not printed`);
 }
-// Rows whose scopes AGREE must stay quiet — a clause on every row teaches nothing.
+// Rows whose scopes AGREE stay quiet too.
 let noiseHits = [];
 for (const pid of EXEC_PIDS) {
   let sum = null; try { sum = EX.summary(pid, { allTerms: true }); } catch (e) {}
