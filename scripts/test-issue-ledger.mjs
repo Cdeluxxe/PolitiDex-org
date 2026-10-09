@@ -1399,9 +1399,100 @@ section("14 · the harvest — every stored did, read against the effect rule");
   ok(afFault("H.R. 815|118|america_first_fp", EFFECT["H.R. 815|118|ukraine_policy"]) !== "",
     "the Ukraine line borrowed onto the America First row passed the America First check");
   ok(!("H.R. 8035|118|america_first_fp" in EFFECT), "H.R. 8035's short `did` already stands under its America First row and is not rewritten");
-  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k));
+  // THE PEACE THROUGH STRENGTH BATCH (v313). Member-voted acts on the
+  // strong_defense leaf, one line each, written from that pair's own `did`: same
+  // harvest rules, the line names the military or security effect, carries a term
+  // its own `did` stores, and ends on the rolls the vote seeds hold. Tense follows
+  // the outcome the archive records: an act with a public law on file in
+  // db/vr-measure-identity.json may read as done; anything else — failed, or
+  // passed one chamber and never enacted — must open "Would" or "Proposed".
+  const PTS = Object.keys(EFFECT).filter((k) => /\|strong_defense$/.test(k));
+  const PTS_ROLL = (() => {
+    const t = {};
+    const files = ["vr-phase-a-vote-seed", "vr-israel-vote-seed", "vr-house-seed-119-s2", "vr-landmark-vote-seed",
+      "vr-senate-seed", "vr-consolidated-approps-vote-seed", "vr-federal-wave-f7-vote-seed", "vr-senate-lis-backfill-seed"];
+    for (const f of files) {
+      for (const v of JSON.parse(R(`db/${f}.json`)).votes || []) {
+        const num = typeof v.measure === "string" ? v.measure : v.measure && v.measure.number;
+        if (!num || v.rollNumber == null || !v.chamber) continue;
+        const P = v.totals ? null : Object.values(v.partyTotals || {});
+        const tl = v.totals ? [v.totals.yea, v.totals.nay] : P && P.length ? [P.reduce((n, p) => n + p.yea, 0), P.reduce((n, p) => n + p.nay, 0)] : null;
+        const k = `${num}|${v.congress}|${v.chamber}|${v.rollNumber}`;
+        if (tl && !t[k]) t[k] = tl;
+      }
+    }
+    return t;
+  })();
+  const ENACTED = new Set();
+  for (const m of JSON.parse(R("db/vr-measure-identity.json")).measures || []) {
+    if (m && (m.laws || []).length) ENACTED.add(`${String(m.number).trim()}|${m.congress}`);
+  }
+  // [the term its own did stores, the rolls the line ends on, the closing shape]
+  const PTS_SPEC = {
+    "H.R. 4346|117": ["CHIPS for America Defense Fund", [["house", 404], ["senate", 271]], "cleared"],
+    "S. 1605|117": ["end strengths", [["house", 405], ["senate", 499]], "cleared"],
+    "H.R. 7776|117": ["end strengths", [["senate", 396]], "concurred"],
+    "H.R. 2670|118": ["procurement", [["house", 723], ["senate", 343]], "cleared"],
+    "H.R. 5009|118": ["military construction", [["house", 500], ["senate", 325]], "cleared"],
+    "H.R. 7888|118": ["section 702", [["house", 119], ["senate", 150]], "cleared"],
+    "H.R. 7217|118": ["Pentagon stocks", [["house", 38]], "suspension failed"],
+    "H.R. 8034|118": ["$7.8 billion", [["house", 152]], "passed"],
+    "S. 1071|119": ["military construction", [["house", 320], ["senate", 648]], "cleared"],
+    "S. 2296|119": ["Pacific Deterrence Initiative", [["senate", 570]], "passed"],
+    "H.R. 7148|119": ["Taiwan Security Cooperation Initiative", [["house", 53]], "concurred"],
+    "H.R. 8800|119": ["military pay", [["house", 278]], "passed"],
+    "H.Amdt. 248|119": ["Santa Ynez", [["house", 260]], "agreed"],
+    "S.J.Res. 59|119": ["Iran", [["senate", 328]], "discharge"],
+    "S.J.Res. 83|119": ["Congress had not authorized", [["senate", 555]], "discharge"],
+    "S.J.Res. 90|119": ["Venezuela", [["senate", 608]], "discharge"],
+    "S.J.Res. 98|119": ["Venezuela", [["senate", 5]], "discharge"],
+    "S.J.Res. 104|119": ["Iran", [["senate", 46]], "discharge"],
+    "S.J.Res. 184|119": ["Iran", [["senate", 113]], "discharge"],
+    "S.J.Res. 163|119": ["Iran", [["senate", 118]], "discharge"],
+    "S.J.Res. 185|119": ["Iran", [["senate", 129]], "discharge"],
+  };
+  const ptsFault = (k, v) => {
+    const f = harvestFault(v);
+    if (f) return f;
+    if (!/\b(?:defen[cs]e|military|forces|Pentagon|intelligence|weapons|Deterrence)\b/i.test(v)) return "does not name the military effect it is filed under";
+    const m = k.split("|").slice(0, 2).join("|"), sp = PTS_SPEC[m];
+    if (!sp) return "names no rolls the archive stores for this pair";
+    const twin = Object.keys(EFFECT).find((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v);
+    if (twin) return `is ${twin}'s line, borrowed`;
+    const [term, rolls, shape] = sp;
+    const did = norm(MECH[k] && MECH[k].did);
+    const words = term === "Congress had not authorized" ? ["unauthorized", term] : [term];
+    if (!did.includes(term) || !words.some((w) => v.includes(w))) return `the term "${term}" is not in both this pair's stored did and its line`;
+    const [num, cong] = m.split("|");
+    const tl = rolls.map(([ch, r]) => PTS_ROLL[`${num}|${cong}|${ch}|${r}`]);
+    if (tl.some((x) => !x)) return "the archive holds no tally for one of its rolls";
+    const done = ENACTED.has(m), would = /^(?:Would|Proposed)\b/.test(v);
+    if (!done && !would) return "an act that never became law is written as though it took effect";
+    if (done && would) return "an enacted act is written as though it did not take effect";
+    const [a, b] = tl, C = (r) => (r[0] === "house" ? "House" : "Senate");
+    const tail = shape === "cleared" ? `; the House cleared it ${a[0]}-${a[1]}, the Senate ${b[0]}-${b[1]}.`
+      : shape === "concurred" ? `; the ${C(rolls[0])} concurred ${a[0]}-${a[1]}.`
+      : shape === "passed" ? `; the ${C(rolls[0])} passed it ${a[0]}-${a[1]}.`
+      : shape === "agreed" ? `; the House agreed to it ${a[0]}-${a[1]}.`
+      : shape === "suspension failed" ? `; it fell short of two-thirds in the House, ${a[0]}-${a[1]}.`
+      : a[0] < a[1] ? `; the Senate refused to discharge it ${a[0]}-${a[1]}.` : `; the Senate voted ${a[0]}-${a[1]} to discharge it.`;
+    if (shape === "discharge" && (a[0] < a[1]) !== /^Would have\b/.test(v)) return "a discharge vote's tense does not match its outcome";
+    return v.endsWith(tail) ? "" : `does not end on the archive's tally (${tail.slice(2)})`;
+  };
+  must(PTS.length > 0, "no Peace Through Strength effect line is stored");
+  for (const k of PTS) eq(ptsFault(k, EFFECT[k]), "", `${k}: the Peace Through Strength effect line`);
+  ok(ptsFault("S. 1605|117|strong_defense", EFFECT["S. 1605|117|strong_defense"].replace("363-70", "70-363")) !== "",
+    "a Peace Through Strength line with the tally flipped passed the check");
+  ok(ptsFault("H.R. 8800|119|strong_defense", EFFECT["H.R. 8800|119|strong_defense"].replace(/^Would authorize/, "Authorized")) !== "",
+    "a House-passed, never-enacted NDAA written as though it took effect passed the check");
+  ok(ptsFault("H.R. 7217|118|strong_defense", EFFECT["H.R. 7217|118|strong_defense"].replace(/^Would have funded/, "Funded")) !== "",
+    "a failed supplemental written as though it took effect passed the check");
+  ok(ptsFault("S.J.Res. 104|119|strong_defense", EFFECT["S.J.Res. 104|119|iran_policy"]) !== "",
+    "the Iran line borrowed onto the Peace Through Strength row passed the check");
+  ok(!("H.R. 8595|119|strong_defense" in EFFECT), "H.R. 8595's short `did` already stands under its Peace Through Strength row and is not rewritten");
+  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.

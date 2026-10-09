@@ -8948,7 +8948,21 @@
 //     No shipped line moved, Trump's included. consistency.js is precached and
 //     changed, so it moves one version.
 //     MIGRATION COST: none. No seed row, mapping, key or score moved.
-const CACHE_VERSION = 'v312';
+// v313 - ONE SENTENCE UNDER EACH VOTE ON PEACE THROUGH STRENGTH. A member's
+//     Peace Through Strength drawer printed a date, a number and a vote with
+//     nothing saying what the act did, except H.R. 8595, whose own short
+//     description already stood under its row. Each other member-voted act on
+//     that leaf now has one line, stored once on the measure-and-issue pair and
+//     written from the pair's own stored description and the tally the archive
+//     records: the defense authorizations and appropriations, the 2024 Israel
+//     supplementals, CHIPS, the FISA reauthorization, the Santa Ynez amendment
+//     and the eight war-powers discharge votes. An act with no public law on
+//     file reads "Would" or "Would have". The pairs only the database maps there
+//     store no description and stay blank. No shipped line moved, Trump's
+//     included. consistency.js is precached and changed, so it moves one
+//     version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved.
+const CACHE_VERSION = 'v313';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

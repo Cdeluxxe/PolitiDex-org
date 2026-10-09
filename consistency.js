@@ -17286,6 +17286,56 @@
       'Proposed barring the national security and State funds from use for Jordan, a standing aid commitment; the House rejected it 6-421.',
     'H.Amdt. 243|119|america_first_fp':
       'Proposed barring foreign nationals from U.S. military academies, striking the defense bill’s cadet section; the House rejected it 61-360.',
+    // Peace Through Strength. One line per member-voted act on this leaf whose
+    // pair stores a `did`, written from that `did` and the tally on file; the same
+    // act's war-powers, Iran, America First and restraint lines are separate.
+    // H.R. 8595's `did` already stands under its row and is not rewritten. An act
+    // the archive shows as law reads in the past tense and ends on its final rolls
+    // ("cleared" where both chambers' are on file); one that failed, or passed one
+    // chamber and was never enacted, reads "Would" or "Would have". The pairs only
+    // the database maps here store no `did` on this leaf and have no line.
+    'H.R. 4346|117|strong_defense':
+      'Set up the CHIPS for America Defense Fund for microelectronics research; the House cleared it 243-187, the Senate 64-33.',
+    'S. 1605|117|strong_defense':
+      'Authorized FY2022 military end strengths, procurement and construction; the House cleared it 363-70, the Senate 88-11.',
+    'H.R. 7776|117|strong_defense':
+      'Authorized FY2023 Armed Forces end strengths, procurement, operation and maintenance and military pay; the Senate concurred 83-11.',
+    'H.R. 2670|118|strong_defense':
+      'Authorized FY2024 defense procurement, research, military pay and construction; the House cleared it 310-118, the Senate 87-13.',
+    'H.R. 5009|118|strong_defense':
+      'Authorized FY2025 Pentagon programs, military construction and servicemember pay; the House cleared it 281-140, the Senate 85-14.',
+    'H.R. 7888|118|strong_defense':
+      'Reauthorized section 702 foreign-intelligence collection for two years; the House cleared it 273-147, the Senate 60-34.',
+    'H.R. 7217|118|strong_defense':
+      'Would have funded U.S. military accounts to replace Pentagon stocks; it fell short of two-thirds in the House, 250-180.',
+    'H.R. 8034|118|strong_defense':
+      'Would have sent about $7.8 billion to U.S. military accounts, refilling American stocks and Army ammunition; the House passed it 366-58.',
+    'S. 1071|119|strong_defense':
+      'Authorized FY2026 Defense Department activities, military construction and troop strengths; the House cleared it 312-112, the Senate 77-20.',
+    'S. 2296|119|strong_defense':
+      'Would have authorized FY2026 weapons procurement and extended the Pacific Deterrence Initiative; the Senate passed it 77-20.',
+    'H.R. 7148|119|strong_defense':
+      'Carried the full FY2026 defense appropriation, with $1 billion for the Taiwan Security Cooperation Initiative; the House concurred 217-214.',
+    'H.R. 8800|119|strong_defense':
+      'Would authorize FY2027 aircraft and ship procurement, troop strength levels and military pay; the House passed it 216-212.',
+    'H.Amdt. 248|119|strong_defense':
+      'Would keep the Santa Ynez unit producing as a component of the military’s fuel supply chain; the House agreed to it 215-214.',
+    'S.J.Res. 59|119|strong_defense':
+      'Would have pulled U.S. forces from Iran hostilities until Congress authorized them; the Senate refused to discharge it 47-53.',
+    'S.J.Res. 83|119|strong_defense':
+      'Would have pulled U.S. forces from any unauthorized hostilities, save self-defense; the Senate refused to discharge it 48-51.',
+    'S.J.Res. 90|119|strong_defense':
+      'Would have pulled U.S. forces from unauthorized Venezuela hostilities, save self-defense; the Senate refused to discharge it 49-51.',
+    'S.J.Res. 98|119|strong_defense':
+      'Would pull U.S. forces from unauthorized Venezuela hostilities, save self-defense; the Senate voted 52-47 to discharge it.',
+    'S.J.Res. 104|119|strong_defense':
+      'Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 47-53.',
+    'S.J.Res. 184|119|strong_defense':
+      'Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 47-50.',
+    'S.J.Res. 163|119|strong_defense':
+      'Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 49-50.',
+    'S.J.Res. 185|119|strong_defense':
+      'Would pull U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate voted 50-47 to discharge it.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // The item is already a row on this issue, so the pair is mapped whether or
