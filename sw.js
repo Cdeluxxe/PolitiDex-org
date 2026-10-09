@@ -8962,7 +8962,19 @@
 //     included. consistency.js is precached and changed, so it moves one
 //     version.
 //     MIGRATION COST: none. No seed row, mapping, key or score moved.
-const CACHE_VERSION = 'v313';
+// v314 - ONE SENTENCE UNDER EACH VOTE ON SUPPORT FOR ISRAEL. A member's
+//     Support for Israel drawer printed a date, a number and a vote with nothing
+//     saying what the act did. Each member-voted act on that leaf now has one
+//     line, stored once on the measure-and-issue pair and written from the
+//     pair's own stored description and the tally the archive records: the
+//     defense authorizations and appropriations, the Iron Dome and Israel
+//     supplementals, the Jerusalem embassy and Massie amendments, H.R. 8369, and
+//     the ten arms-sale disapprovals the Senate kept in committee. An act with
+//     no public law on file reads "Would", "Would have" or "Proposed". No shipped
+//     line moved, Trump's included. consistency.js is precached and changed, so
+//     it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved.
+const CACHE_VERSION = 'v314';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

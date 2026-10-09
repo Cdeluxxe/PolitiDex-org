@@ -17336,6 +17336,59 @@
       'Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 49-50.',
     'S.J.Res. 185|119|strong_defense':
       'Would pull U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate voted 50-47 to discharge it.',
+    // Support for Israel. One line per member-voted act on this leaf whose pair
+    // stores a `did`, written from that `did` and the tally on file; the same act's
+    // America First, Peace Through Strength and spending lines are separate. An act
+    // with a public law on file reads in the past tense; one that failed, or passed
+    // one chamber and was never enacted, reads "Would", "Would have" or "Proposed".
+    // The Arms Export Control Act disapprovals never left committee, so each reads
+    // "Would have blocked" and ends on the discharge vote that kept it there.
+    'H.R. 5323|117|israel_support':
+      'Would have appropriated $1 billion to replace the Iron Dome interceptors Israel expended in May 2021; the House passed it 420-9.',
+    'S. 1605|117|israel_support':
+      'Set aside up to $200 million to co-produce Israel’s Iron Dome, David’s Sling and Arrow 3; the House cleared it 363-70, the Senate 88-11.',
+    'H.R. 2670|118|israel_support':
+      'Set anti-tunnel, counter-drone and refuelling aid for Israel and Iron Dome co-production; the House cleared it 310-118, the Senate 87-13.',
+    'H.Amdt. 478|118|israel_support':
+      'Would bar the State and foreign operations funds from moving the U.S. Embassy in Israel out of Jerusalem; the House agreed to it 360-67.',
+    'H.R. 6126|118|israel_support':
+      'Would have provided $14.3 billion for Israel’s missile defense, military financing and U.S. stock replacement; the House passed it 226-196.',
+    'H.R. 7217|118|israel_support':
+      'Would have provided a $17.6 billion unoffset emergency supplemental for Israel; it fell short of two-thirds in the House, 250-180.',
+    'H.R. 8034|118|israel_support':
+      'Would have funded Iron Dome, David’s Sling, Iron Beam and military financing for Israel; the House passed it 366-58.',
+    'H.R. 8369|118|israel_support':
+      'Would have required the President to deliver to Israel the defense articles Congress had already funded; the House passed it 224-187.',
+    'S.J.Res. 111|118|israel_support':
+      'Would have blocked the sale to Israel of tank rounds and 120mm mortar cartridges; the Senate refused to discharge it 18-79.',
+    'S.J.Res. 113|118|israel_support':
+      'Would have blocked the sale to Israel of JDAM guidance kits and small-diameter bombs; the Senate refused to discharge it 19-78.',
+    'S.J.Res. 115|118|israel_support':
+      'Would have blocked an export-licence amendment for defense articles and data for Israel; the Senate refused to discharge it 17-80.',
+    'S. 1071|119|israel_support':
+      'Funded U.S. co-production of Iron Dome, David’s Sling and Arrow 3 parts for Israel; the House cleared it 312-112, the Senate 77-20.',
+    'S. 2296|119|israel_support':
+      'Would have raised U.S.-Israel anti-tunnel and counter-drone ceilings and funded Iron Dome co-production; the Senate passed it 77-20.',
+    'H.R. 7148|119|israel_support':
+      'Appropriated $500 million for Israeli missile defense and $3.3 billion in military financing for Israel; the House concurred 217-214.',
+    'H.Amdt. 235|119|israel_support':
+      'Proposed barring the bill’s funds from use for Israel and cutting Foreign Military Financing by $3.3 billion; the House rejected it 104-314.',
+    'H.R. 8595|119|israel_support':
+      'Would direct at least $3.3 billion in military financing to Israel and keep the U.S. embassy in Jerusalem; the House passed it 217-209.',
+    'H.R. 8800|119|israel_support':
+      'Would extend the U.S. war reserve stockpile in Israel and set up a U.S.–Israel defense technology initiative; the House passed it 216-212.',
+    'S.J.Res. 26|119|israel_support':
+      'Would have blocked the sale to Israel of bulldozers and related equipment; the Senate refused to discharge it 15-83.',
+    'S.J.Res. 33|119|israel_support':
+      'Would have blocked the sale to Israel of bomb bodies and guidance kits; the Senate refused to discharge it 15-82.',
+    'S.J.Res. 34|119|israel_support':
+      'Would have blocked a certified transfer of defense articles and services to Israel; the Senate refused to discharge it 24-73.',
+    'S.J.Res. 41|119|israel_support':
+      'Would have blocked the export of assault rifles to Israel; the Senate refused to discharge it 27-70.',
+    'S.J.Res. 32|119|israel_support':
+      'Would have blocked a certified transfer of defense articles and services to Israel; the Senate refused to discharge it 40-59.',
+    'S.J.Res. 138|119|israel_support':
+      'Would have blocked a certified transfer of defense articles and services to Israel; the Senate refused to discharge it 36-63.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // The item is already a row on this issue, so the pair is mapped whether or

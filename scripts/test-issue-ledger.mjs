@@ -1490,9 +1490,78 @@ section("14 · the harvest — every stored did, read against the effect rule");
   ok(ptsFault("S.J.Res. 104|119|strong_defense", EFFECT["S.J.Res. 104|119|iran_policy"]) !== "",
     "the Iran line borrowed onto the Peace Through Strength row passed the check");
   ok(!("H.R. 8595|119|strong_defense" in EFFECT), "H.R. 8595's short `did` already stands under its Peace Through Strength row and is not rewritten");
-  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k));
+  // THE SUPPORT FOR ISRAEL BATCH (v314). Member-voted acts on israel_support, one
+  // line each, read by the Peace Through Strength rule above: harvest rules, the
+  // line names Israel, carries a term its own `did` stores, is no other leaf's
+  // line for the act, ends on the rolls the vote seeds hold, and takes the tense
+  // its recorded outcome allows. The arms-sale disapprovals never left committee.
+  const ISR = Object.keys(EFFECT).filter((k) => /\|israel_support$/.test(k));
+  const ISR_SPEC = {
+    "H.R. 5323|117": ["Iron Dome interceptors", [["house", 275]], "passed"],
+    "S. 1605|117": ["$200 million", [["house", 405], ["senate", 499]], "cleared"],
+    "H.R. 2670|118": ["anti-tunnel", [["house", 723], ["senate", 343]], "cleared"],
+    "H.Amdt. 478|118": ["out of Jerusalem", [["house", 491]], "agreed"],
+    "H.R. 6126|118": ["$14.3 billion", [["house", 577]], "passed"],
+    "H.R. 7217|118": ["$17.6 billion", [["house", 38]], "suspension failed"],
+    "H.R. 8034|118": ["Iron Beam", [["house", 152]], "passed"],
+    "H.R. 8369|118": ["deliver to Israel the defense articles", [["house", 217]], "passed"],
+    "S.J.Res. 111|118": ["tank rounds and 120mm mortar cartridges", [["senate", 292]], "discharge"],
+    "S.J.Res. 113|118": ["JDAM guidance kits and small-diameter bombs", [["senate", 293]], "discharge"],
+    "S.J.Res. 115|118": ["export-licence amendment", [["senate", 294]], "discharge"],
+    "S. 1071|119": ["David’s Sling", [["house", 320], ["senate", 648]], "cleared"],
+    "S. 2296|119": ["counter-drone", [["senate", 570]], "passed"],
+    "H.R. 7148|119": ["$500 million", [["house", 53]], "concurred"],
+    "H.Amdt. 235|119": ["$3.3 billion", [["house", 243]], "rejected"],
+    "H.R. 8595|119": ["$3.3 billion", [["house", 247]], "passed"],
+    "H.R. 8800|119": ["war reserve stockpile", [["house", 278]], "passed"],
+    "S.J.Res. 26|119": ["bulldozers and related equipment", [["senate", 166]], "discharge"],
+    "S.J.Res. 33|119": ["bomb bodies and guidance kits", [["senate", 165]], "discharge"],
+    "S.J.Res. 34|119": ["certified transfer", [["senate", 455]], "discharge"],
+    "S.J.Res. 41|119": ["assault rifles", [["senate", 454]], "discharge"],
+    "S.J.Res. 32|119": ["certified transfer", [["senate", 80]], "discharge"],
+    "S.J.Res. 138|119": ["certified transfer", [["senate", 81]], "discharge"],
+  };
+  const isrFault = (k, v) => {
+    const f = harvestFault(v);
+    if (f) return f;
+    if (!/\bIsrael/.test(v)) return "does not name Israel, the subject it is filed under";
+    const m = k.split("|").slice(0, 2).join("|"), sp = ISR_SPEC[m];
+    if (!sp) return "names no rolls the archive stores for this pair";
+    const twin = Object.keys(EFFECT).find((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v);
+    if (twin) return `is ${twin}'s line, borrowed`;
+    const [term, rolls, shape] = sp;
+    if (!norm(MECH[k] && MECH[k].did).includes(term) || !v.includes(term)) return `the term "${term}" is not in both this pair's stored did and its line`;
+    const [num, cong] = m.split("|");
+    const tl = rolls.map(([ch, r]) => PTS_ROLL[`${num}|${cong}|${ch}|${r}`]);
+    if (tl.some((x) => !x)) return "the archive holds no tally for one of its rolls";
+    const done = ENACTED.has(m), would = /^(?:Would|Proposed)\b/.test(v);
+    if (!done && !would) return "an act that never became law is written as though it took effect";
+    if (done && would) return "an enacted act is written as though it did not take effect";
+    if (shape === "rejected" && !/^(?:Proposed|Would have)\b/.test(v)) return "a failed amendment is written as though it could still take effect";
+    if (shape === "discharge" && !(tl[0][0] < tl[0][1] && /^Would have\b/.test(v))) return "a discharge vote's tense does not match its outcome";
+    const [a, b] = tl, C = (r) => (r[0] === "house" ? "House" : "Senate");
+    const tail = shape === "cleared" ? `; the House cleared it ${a[0]}-${a[1]}, the Senate ${b[0]}-${b[1]}.`
+      : shape === "concurred" ? `; the ${C(rolls[0])} concurred ${a[0]}-${a[1]}.`
+      : shape === "passed" ? `; the ${C(rolls[0])} passed it ${a[0]}-${a[1]}.`
+      : shape === "agreed" ? `; the House agreed to it ${a[0]}-${a[1]}.`
+      : shape === "rejected" ? `; the House rejected it ${a[0]}-${a[1]}.`
+      : shape === "suspension failed" ? `; it fell short of two-thirds in the House, ${a[0]}-${a[1]}.`
+      : `; the Senate refused to discharge it ${a[0]}-${a[1]}.`;
+    return v.endsWith(tail) ? "" : `does not end on the archive's tally (${tail.slice(2)})`;
+  };
+  must(ISR.length > 0, "no Support for Israel effect line is stored");
+  for (const k of ISR) eq(isrFault(k, EFFECT[k]), "", `${k}: the Support for Israel effect line`);
+  ok(isrFault("S.J.Res. 26|119|israel_support", EFFECT["S.J.Res. 26|119|israel_support"].replace("15-83", "83-15")) !== "",
+    "a Support for Israel line with the tally flipped passed the check");
+  ok(isrFault("H.R. 8369|118|israel_support", EFFECT["H.R. 8369|118|israel_support"].replace(/^Would have required/, "Required")) !== "",
+    "a House-passed, never-enacted bill written as though it took effect passed the check");
+  ok(isrFault("S.J.Res. 41|119|israel_support", "Blocked the export of assault rifles to Israel; the Senate refused to discharge it 27-70.") !== "",
+    "a disapproval kept in committee written as though it blocked the sale passed the check");
+  ok(isrFault("H.Amdt. 235|119|israel_support", EFFECT["H.Amdt. 235|119|america_first_fp"]) !== "",
+    "the America First line borrowed onto the Support for Israel row passed the check");
+  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.
@@ -1504,10 +1573,12 @@ section("14 · the harvest — every stored did, read against the effect rule");
     }
   }
   // Never in the table: a CRA whose outcome is unsettled, one that is not a rule
-  // at all (arms-sale disapprovals), and a line that names no stored rule.
+  // at all (arms-sale disapprovals), and a line that names no stored rule. The
+  // arms-sale disapprovals may carry a Support for Israel line (v314), checked by
+  // that batch's own rule — never a CRA-shaped one from this batch.
   for (const k of ["S.J.Res. 7|119|broadband", "H.J.Res. 78|119|gov_regulation", "H.J.Res. 78|119|lands_preserve",
     "S.J.Res. 111|118|israel_support", "S.J.Res. 33|119|israel_support", "H.R. 3684|117|water"]) {
-    ok(!(k in EFFECT), `${k}: in the effect table without a settled, stored rule effect`);
+    ok(!BATCH.includes(k) && (!(k in EFFECT) || ISR.includes(k)), `${k}: in the effect table without a settled, stored rule effect`);
   }
   ok(craFault("H.J.Res. 78|119|gov_regulation", "Struck the agency rule and barred a substantially similar rule.") !== "",
     "a CRA line naming no stored rule passed the CRA check");
