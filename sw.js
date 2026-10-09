@@ -8974,7 +8974,20 @@
 //     line moved, Trump's included. consistency.js is precached and changed, so
 //     it moves one version.
 //     MIGRATION COST: none. No seed row, mapping, key or score moved.
-const CACHE_VERSION = 'v314';
+// v315 - ONE SENTENCE UNDER EACH VOTE ON DIPLOMACY & RESTRAINT. A member's
+//     Diplomacy & Restraint drawer printed a date, a number and a vote with
+//     nothing saying what the act did, except H.R. 8035, whose own short
+//     description already stood under its row; Trump's four executive rows
+//     already had theirs. Each other member-voted act on that leaf now has one
+//     line, stored once on the measure-and-issue pair and written from the
+//     pair's own stored description and the tally the archive records: the 2024
+//     security package, the Iraq authorization repeal amendment, the Iran and
+//     Lebanon House resolutions, and the seven Senate discharge votes. S.J.Res.
+//     59 stores no description there and stays blank. No shipped line moved,
+//     Trump's included. consistency.js is precached and changed, so it moves
+//     one version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved.
+const CACHE_VERSION = 'v315';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

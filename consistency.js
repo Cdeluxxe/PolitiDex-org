@@ -17389,6 +17389,34 @@
       'Would have blocked a certified transfer of defense articles and services to Israel; the Senate refused to discharge it 40-59.',
     'S.J.Res. 138|119|israel_support':
       'Would have blocked a certified transfer of defense articles and services to Israel; the Senate refused to discharge it 36-63.',
+    // Diplomacy & Restraint. One line per member-voted act on this leaf whose pair
+    // stores a `did`, written from that `did` and the tally on file; the same act's
+    // war-powers, Iran, Peace Through Strength and Ukraine lines are separate.
+    // H.R. 8035's `did` already stands under its row and is not rewritten, and
+    // S.J.Res. 59 stores no `did` here, so it has no line. Only H.R. 815 is law;
+    // every other act here reads "Would" or "Would have".
+    'H.R. 815|118|restraint':
+      'Sustained U.S. military support to two active wars and Pacific deterrence through three security divisions; the Senate concurred 79-18.',
+    'H.Amdt. 99|119|restraint':
+      'Would end the standing 2002 and 1991 Iraq force authorizations through the House defense bill; the House agreed to it 261-167.',
+    'H.Con.Res. 89|119|restraint':
+      'Would direct U.S. forces out of Iran hostilities, keeping self-defense and intelligence sharing; the House agreed to it 214-208.',
+    'H.Con.Res. 108|119|restraint':
+      'Would have directed U.S. forces out of any hostilities in Lebanon within seven days; the House rejected it 189-235.',
+    'S.J.Res. 83|119|restraint':
+      'Would have directed the President to end any U.S. hostilities absent Congress’s approval; the Senate refused to discharge it 48-51.',
+    'S.J.Res. 90|119|restraint':
+      'Would have directed an end to U.S. hostilities against Venezuela absent Congress’s approval; the Senate refused to discharge it 49-51.',
+    'S.J.Res. 98|119|restraint':
+      'Would direct the President to end U.S. hostilities against Venezuela absent Congress’s approval; the Senate voted 52-47 to discharge it.',
+    'S.J.Res. 104|119|restraint':
+      'Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 47-53.',
+    'S.J.Res. 184|119|restraint':
+      'Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 47-50.',
+    'S.J.Res. 163|119|restraint':
+      'Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 49-50.',
+    'S.J.Res. 185|119|restraint':
+      'Would direct the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate voted 50-47 to discharge it.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // The item is already a row on this issue, so the pair is mapped whether or

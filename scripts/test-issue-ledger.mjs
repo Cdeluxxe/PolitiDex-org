@@ -1559,9 +1559,63 @@ section("14 · the harvest — every stored did, read against the effect rule");
     "a disapproval kept in committee written as though it blocked the sale passed the check");
   ok(isrFault("H.Amdt. 235|119|israel_support", EFFECT["H.Amdt. 235|119|america_first_fp"]) !== "",
     "the America First line borrowed onto the Support for Israel row passed the check");
-  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k));
+  // THE DIPLOMACY & RESTRAINT BATCH (v315). Member-voted acts on restraint, one
+  // line each, by the same rule: harvest rules, the line names the U.S. military
+  // engagement it would end or sustain, carries a term its own `did` stores, is no
+  // other leaf's line for the act, ends on the rolls the vote seeds hold, and
+  // takes the tense its outcome allows. S.J.Res. 59 stores no `did` here and H.R.
+  // 8035's short `did` already prints, so neither is in the table.
+  const DR = Object.keys(EFFECT).filter((k) => /\|restraint$/.test(k));
+  const DR_SPEC = {
+    "H.R. 815|118": ["three security", [["senate", 154]], "concurred"],
+    "H.Amdt. 99|119": ["1991", [["house", 244]], "agreed"],
+    "H.Con.Res. 89|119": ["intelligence", [["house", 282]], "agreed"],
+    "H.Con.Res. 108|119": ["seven days", [["house", 232]], "rejected"],
+    "S.J.Res. 83|119": ["the President", [["senate", 555]], "discharge"],
+    "S.J.Res. 90|119": ["Venezuela", [["senate", 608]], "discharge"],
+    "S.J.Res. 98|119": ["Venezuela", [["senate", 5]], "discharge"],
+    "S.J.Res. 104|119": ["Iran", [["senate", 46]], "discharge"],
+    "S.J.Res. 184|119": ["Iran", [["senate", 113]], "discharge"],
+    "S.J.Res. 163|119": ["Iran", [["senate", 118]], "discharge"],
+    "S.J.Res. 185|119": ["Iran", [["senate", 129]], "discharge"],
+  };
+  const drFault = (k, v) => {
+    const f = harvestFault(v);
+    if (f) return f;
+    if (!/\b(?:forces|hostilities|military|force authorizations)\b/.test(v)) return "does not name the military engagement it is filed under";
+    const m = k.split("|").slice(0, 2).join("|"), sp = DR_SPEC[m];
+    if (!sp) return "names no rolls the archive stores for this pair";
+    const twin = Object.keys(EFFECT).find((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v);
+    if (twin) return `is ${twin}'s line, borrowed`;
+    const [term, rolls, shape] = sp;
+    if (!norm(MECH[k] && MECH[k].did).includes(term) || !v.includes(term)) return `the term "${term}" is not in both this pair's stored did and its line`;
+    const [num, cong] = m.split("|");
+    const tl = rolls.map(([ch, r]) => PTS_ROLL[`${num}|${cong}|${ch}|${r}`]);
+    if (tl.some((x) => !x)) return "the archive holds no tally for one of its rolls";
+    const done = ENACTED.has(m), would = /^(?:Would|Proposed)\b/.test(v);
+    if (!done && !would) return "an act that never became law is written as though it took effect";
+    if (done && would) return "an enacted act is written as though it did not take effect";
+    const a = tl[0], lost = a[0] < a[1];
+    if ((shape === "rejected" || shape === "discharge") && lost !== /^(?:Proposed|Would have)\b/.test(v)) return "the tense does not match the vote's outcome";
+    const tail = shape === "concurred" ? `; the Senate concurred ${a[0]}-${a[1]}.`
+      : shape === "agreed" ? `; the House agreed to it ${a[0]}-${a[1]}.`
+      : shape === "rejected" ? `; the House rejected it ${a[0]}-${a[1]}.`
+      : lost ? `; the Senate refused to discharge it ${a[0]}-${a[1]}.` : `; the Senate voted ${a[0]}-${a[1]} to discharge it.`;
+    return v.endsWith(tail) ? "" : `does not end on the archive's tally (${tail.slice(2)})`;
+  };
+  must(DR.length > 0, "no Diplomacy & Restraint effect line is stored");
+  for (const k of DR) eq(drFault(k, EFFECT[k]), "", `${k}: the Diplomacy & Restraint effect line`);
+  ok(drFault("H.Con.Res. 108|119|restraint", EFFECT["H.Con.Res. 108|119|restraint"].replace("189-235", "235-189")) !== "",
+    "a Diplomacy & Restraint line with the tally flipped passed the check");
+  ok(drFault("H.Con.Res. 108|119|restraint", "Directed U.S. forces out of any hostilities in Lebanon within seven days; the House rejected it 189-235.") !== "",
+    "a failed resolution written as though it took effect passed the check");
+  ok(drFault("S.J.Res. 104|119|restraint", EFFECT["S.J.Res. 104|119|strong_defense"]) !== "",
+    "the Peace Through Strength line borrowed onto the Diplomacy & Restraint row passed the check");
+  ok(!("S.J.Res. 59|119|restraint" in EFFECT), "S.J.Res. 59 stores no `did` on Diplomacy & Restraint, so it has no line to write from");
+  ok(!("H.R. 8035|118|restraint" in EFFECT), "H.R. 8035's short `did` already stands under its Diplomacy & Restraint row and is not rewritten");
+  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.
