@@ -2393,6 +2393,10 @@
       // The effect line sits under its own row and belongs to it: no rule between them.
       '.pdxlg-t tr.pdxlg-effr td{border-top:none;padding:0 0.4rem 0.4rem 0;' +
         'color:#b8c7de;font-size:0.72rem;line-height:1.4;}' +
+      // A pointer to another leaf's line: same placement, quieter, so it reads as a
+      // cross-reference rather than as this leaf's own sentence.
+      '.pdxlg-t tr.pdxlg-ptrr td{border-top:none;padding:0 0.4rem 0.4rem 0;' +
+        'color:#93a6c4;font-size:0.7rem;line-height:1.4;font-style:italic;}' +
       '.pdxlg-d{white-space:nowrap;font-variant-numeric:tabular-nums;color:#8fa2c0;font-size:0.68rem;}' +
       '.pdxlg-num{font-weight:700;color:#e8eefc;white-space:nowrap;}' +
       '.pdxlg-k{color:#cfe0f8;}' +
@@ -13928,6 +13932,9 @@
           // The drawer's one-line effect for this row, off the same entry and the
           // same lookup — see _dosEffectLine. '' where nothing short is stored.
           effLine: _dosEffectLine(p.item, issueKey, mech),
+          // Where this leaf stores nothing and the same act's line sits on another
+          // leaf, a pointer to that line — see _dosPointerLine. '' otherwise.
+          ptrLine: _dosPointerLine(p.item, issueKey, _dosEffectLine(p.item, issueKey, mech)),
           counts: (mech && mech.why) || '',
           rationale: (mech && mech.more) || mrat || '',
           fineFromMapping: !!(mrat && !(mech && mech.more)),
@@ -17139,6 +17146,11 @@
         if (eff) {
           out += '<tr class="pdxlg-effr" data-pdxlg-effr="' + p.i + '">' +
             '<td colspan="5" class="pdxlg-eff" data-pdxlg-eff="1">' + esc(eff) + '</td></tr>';
+        } else if (d.ptrLine) {
+          // Not this leaf's line: a pointer to the same act's line on another leaf,
+          // in its own row class so nothing reads it as an effect on this one.
+          out += '<tr class="pdxlg-ptrr" data-pdxlg-ptrr="' + p.i + '">' +
+            '<td colspan="5" class="pdxlg-ptr" data-pdxlg-ptr="1">' + esc(d.ptrLine) + '</td></tr>';
         }
       }
       out += '</tbody></table></div>';
@@ -17662,6 +17674,49 @@
     'Presidential Letter, DCPD-202500715|iran_policy':
       'Directed the June 21, 2025 U.S. strike on three Iranian nuclear facilities, reporting it to Congress two days later.'
   };
+  // A ROW WHOSE FACTS LIVE ON ANOTHER LEAF POINTS AT THAT LEAF.
+  //
+  // These six pairs store nothing on their own leaf, and their titles are bare
+  // numbers, but the same act already has a line on a sibling leaf. Rather than
+  // leave the row a date, a number and a vote, the drawer prints one pointer in a
+  // fixed shape: "Same act, filed on [leaf]: [that leaf's line]". The quoted line
+  // is read live from that pair — its _DOS_EFFECT entry or its short `did`, by the
+  // same _dosEffectLine rule — and is never copied into this leaf's store, so it
+  // makes no claim that this leaf was affected. A listed leaf counts only when the
+  // act is mapped to it and it has a line; where two do, the shorter is quoted and
+  // the other named. Nothing here moves a score.
+  var _DOS_POINTER = {
+    'S.J.Res. 37|119|tariffs_authority': ['tariffs_prices'],
+    'S.J.Res. 37|119|econ_trade': ['tariffs_prices'],
+    'S.J.Res. 59|119|restraint': ['strong_defense', 'iran_policy'],
+    'S.J.Res. 59|119|war_powers': ['strong_defense', 'iran_policy'],
+    'H.R. 29|119|deportations': ['border_security', 'tough_on_crime'],
+    'H.R. 29|119|state_standing': ['border_security', 'tough_on_crime']
+  };
+  // The leaf's name as the site labels it, less the icon that leads the chip.
+  function _dosLeafName(k) {
+    var lb = String(_issueLabel(k) || '');
+    return lb.replace(/^[^A-Za-z0-9\s]+\s+/, '') || lb;
+  }
+  function _dosPointerLine(item, issueKey, ownLine) {
+    if (ownLine || !item || !issueKey) return '';
+    var to = _DOS_POINTER[String(item.number == null ? '' : item.number).trim() + '|' + item.congress + '|' + issueKey];
+    if (!to) return '';
+    var mapped = {}, list = item.issues || [], hits = [], i;
+    for (i = 0; i < list.length; i++) if (list[i] && list[i].issueKey) mapped[list[i].issueKey] = true;
+    for (i = 0; i < to.length; i++) {
+      if (to[i] === issueKey || !mapped[to[i]]) continue;
+      var line = _dosEffectLine(item, to[i], _dosMechFor(item, to[i]));
+      if (line) hits.push({ leaf: to[i], line: line });
+    }
+    if (!hits.length) return '';
+    hits.sort(function (a, b) { return a.line.length - b.line.length; });
+    var also = [];
+    for (i = 1; i < hits.length; i++) also.push(_dosLeafName(hits[i].leaf));
+    return 'Same act, filed on ' + _dosLeafName(hits[0].leaf) +
+      (also.length ? ' (also filed on ' + also.join(' and ') + ')' : '') + ': ' + hits[0].line;
+  }
+
   function _dosExecEffectLine(it, issueKey) {
     if (!it || !issueKey || !it.documentId) return '';
     return _dosEffectOk(_DOS_EXEC_EFFECT[String(it.documentId).trim() + '|' + issueKey]);

@@ -9009,7 +9009,18 @@
 //     Authority among them. No shipped line moved. consistency.js is precached
 //     and changed, so it moves one version.
 //     MIGRATION COST: none. No seed row, mapping, key or score moved.
-const CACHE_VERSION = 'v317';
+// v318 - A ROW WHOSE FACTS LIVE ON ANOTHER LEAF POINTS THERE. Six member-voted
+//     rows stored nothing on their own leaf, though the same act already had a
+//     line on a sibling leaf: S.J.Res. 37 on Tariffs & Trade Authority and
+//     Protect American Jobs, S.J.Res. 59 on Diplomacy & Restraint and Congress
+//     and War Powers, and H.R. 29 on Mass Deportations and States Suing
+//     Washington. Each now prints one pointer, "Same act, filed on [leaf]:
+//     [that leaf's line]", read live from that leaf and never copied into this
+//     one's store, in its own quieter row style. The six rows with nothing on
+//     file anywhere stay blank. No stored line moved. consistency.js is
+//     precached and changed, so it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved.
+const CACHE_VERSION = 'v318';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -675,12 +675,15 @@ const effectFault = (e) => {
     for (const cls of ["pdxlg-why", "pdxlg-whyr", "pdxlg-why-one"]) {
       if (new RegExp('class="' + cls + '"').test(l)) out.push(`.${cls} is on the first screen`);
     }
-    // Every table body row is an act row or that act's effect line. Anything
-    // else under a vote is prose.
+    // Every table body row is an act row, that act's effect line, or — where the
+    // act's line lives on another leaf — one pointer in the fixed shape "Same act,
+    // filed on [leaf]: [line]" (v318). Anything else under a vote is prose.
     const trs = (tb.match(/<tbody>[\s\S]*?<\/tbody>/g) || []).join("").match(/<tr[\s>]/g) || [];
     const acts = (tb.match(/data-pdxlg-row="/g) || []).length;
     const effs = (tb.match(/<tr class="pdxlg-effr" data-pdxlg-effr="/g) || []).length;
-    if (trs.length !== acts + effs) out.push(`${trs.length - acts - effs} non-act row(s) in the vote table`);
+    const ptrs = [...tb.matchAll(/<tr class="pdxlg-ptrr" data-pdxlg-ptrr="\d+"><td colspan="5" class="pdxlg-ptr" data-pdxlg-ptr="1">([^<]*)<\/td><\/tr>/g)]
+      .filter((m) => /^Same act, filed on [^:]+: \S/.test(m[1].replace(/&amp;/g, "&"))).length;
+    if (trs.length !== acts + effs + ptrs) out.push(`${trs.length - acts - effs - ptrs} non-act row(s) in the vote table`);
     // And an effect line is an effect, not method: one sentence, 140 characters
     // at most, none of the coding vocabulary.
     for (const e of effectLines(tb)) {
