@@ -17417,6 +17417,106 @@
       'Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 49-50.',
     'S.J.Res. 185|119|restraint':
       'Would direct the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate voted 50-47 to discharge it.',
+    // THE SEARCH LEAVES (v316). One line per member-voted pair that had none, where
+    // the pair holds its own `did`, or its own stored title and a recorded outcome;
+    // each ends on the tally on file and takes the tense that outcome allows — an
+    // act with no public law on file reads "Would", "Would have" or "Proposed", and
+    // an adopted amendment says what it wrote into its bill. A pair whose only facts
+    // sit on another leaf is left blank. Capped at forty for this pass.
+    // Tariffs. S.J.Res. 37's Household Prices line is written from that pair's own
+    // `did`; its Tariffs & Trade Authority row stores nothing and stays blank.
+    'S.J.Res. 37|119|tariffs_prices':
+      'Would have ended the emergency behind the tariffs on Canadian imports, lifting those duties; the Senate passed it 51-48.',
+    // Immigration: the border, legal-pathway, fentanyl and deportation leaves. S.Amdt.
+    // 8 and 14 store no `did` on the deportation leaf; their lines are written from
+    // each amendment's own stored title and the Senate roll that adopted it. H.R. 29
+    // has neither a `did` nor a descriptive title on that leaf — its only facts sit
+    // on the border leaf — so its deportation row stays blank.
+    'S. 2|119|border_security':
+      'Funded $9.55 billion for Border Patrol agents and $3.45 billion for ports and surveillance; the House cleared it 214-212, the Senate 52-47.',
+    'H.R. 3486|119|border_security':
+      'Would raise the maximum penalty for unlawful entry to five years and for reentry after removal to ten; the House passed it 226-197.',
+    'H.R. 2056|119|border_security':
+      'Would bar the District from blocking its agencies from sharing immigration status data with federal officials; the House passed it 224-194.',
+    'H.R. 29|119|border_security':
+      'Would require detention of inadmissible immigrants charged with theft or burglary, and their removal; the House passed it 264-159.',
+    'S.Amdt. 5813|119|immigration_reform':
+      'Proposed funding timely adjudication of DACA renewal applications in the border bill; the Senate rejected it 47-52.',
+    'S. 2|119|immig_fentanyl':
+      'Funded port equipment to catch illicit drugs and money to fight fentanyl trafficking; the House cleared it 214-212, the Senate 52-47.',
+    'S. 1071|119|immig_fentanyl':
+      'Extended the Fentanyl Sanctions Act and ordered a study of fentanyl trafficking from China; the House cleared it 312-112, the Senate 77-20.',
+    'S. 331|119|immig_fentanyl':
+      'Permanently placed fentanyl-related substances in Schedule I as a class; the House cleared it 321-104, the Senate 84-16.',
+    'S. 1605|117|immig_fentanyl':
+      'Made the narcotics report name the top fentanyl source countries and their cooperation; the House cleared it 363-70, the Senate 88-11.',
+    'H.R. 815|118|immig_fentanyl':
+      'Carried the FEND Off Fentanyl Act, with sanctions and anti-money-laundering steps against fentanyl traffickers; the Senate concurred 79-18.',
+    'S. 2296|119|immig_fentanyl':
+      'Would have widened the Fentanyl Sanctions Act to anyone materially aiding opioid trafficking; the Senate passed it 77-20.',
+    'S. 2|119|deportations':
+      'Appropriated $44 billion for ICE and CBP interior enforcement, detention and removals; the House cleared it 214-212, the Senate 52-47.',
+    'H.R. 2056|119|deportations':
+      'Would bar the District from refusing lawful federal requests to hold someone in custody; the House passed it 224-194.',
+    'S. 5|119|deportations':
+      'Required detaining and seeking removal of non-citizens here unlawfully facing theft charges; the House cleared it 263-156, the Senate 64-35.',
+    'S.Amdt. 8|119|deportations':
+      'Added crimes causing death or serious bodily injury to the bill’s mandatory-detention list; the Senate agreed to it 75-24.',
+    'S.Amdt. 14|119|deportations':
+      'Expanded the offences that trigger mandatory detention under the bill; the Senate agreed to it 70-25.',
+    // Energy: production, resource development and Climate Action & Clean Energy.
+    // H.Amdt. 234 stores no `did`; its line is written from its own stored title and
+    // the House roll that rejected it.
+    'H.Amdt. 248|119|energy_production':
+      'Wrote into the defense bill that the Santa Ynez offshore production unit keeps operating; the House agreed to it 215-214.',
+    'H.R. 3616|119|energy_production':
+      'Would require public notice of power generation shortfalls and grid-reliability review of agency rules; the House passed it 225-203.',
+    'H.R. 3632|119|energy_production':
+      'Would require power plant owners to give notice before retiring a generating unit; the House passed it 222-202.',
+    'H.R. 3628|119|energy_production':
+      'Would make state utility regulators consider reliable power generation as a ratemaking standard; the House passed it 218-207.',
+    'H.R. 1047|119|energy_production':
+      'Would let new dispatchable power projects move to the front of the grid interconnection queue; the House passed it 216-206.',
+    'H.R. 3746|118|energy_production':
+      'Ratified all federal approvals for the Mountain Valley Pipeline and barred court review; the House cleared it 314-117, the Senate 63-36.',
+    'H.R. 5376|117|energy_production':
+      'Required new Gulf of Mexico oil and gas lease sales before wind and solar rights-of-way; the House cleared it 220-207, the Senate 50-50.',
+    'S.J.Res. 71|119|energy_production':
+      'Would have ended the Executive Order 14156 energy emergency on its second try; the Senate rejected it 47-51.',
+    'S.J.Res. 10|119|energy_production':
+      'Would have ended the January 2025 national energy emergency that expedites energy projects; the Senate rejected it 47-52.',
+    'H.R. 4090|119|lands_energy':
+      'Would order Interior to list pending federal-land mining permits and approve those ready at once; the House passed it 224-195.',
+    'H.R. 1366|119|lands_energy':
+      'Would lift acreage limits on hardrock mining mill sites and set up an Abandoned Hardrock Mine Fund; the House passed it 219-198.',
+    'H.R. 4690|119|climate_action':
+      'Would repeal the fossil-fuel reduction targets for new and renovated federal buildings; the House passed it 215-202.',
+    'H.Amdt. 234|119|climate_action':
+      'Proposed striking the $139,575,000 for the Global Environment Facility from the bill; the House rejected it 178-247.',
+    'H.Amdt. 207|119|climate_action':
+      'Wrote a farm-equipment exemption from Clean Air Act engine emission standards into the farm bill; the House agreed to it 215-213.',
+    'H.R. 4758|119|climate_action':
+      'Would repeal the 2022 climate law’s home electrification rebates and building energy code aid; the House passed it 210-199.',
+    'H.Amdt. 79|119|climate_action':
+      'Wrote repeal of the Pentagon’s electric and hybrid fleet-vehicle preference into the defense bill; the House agreed to it 224-208.',
+    'H.R. 5376|117|climate_action':
+      'Extended and expanded wind, solar, geothermal and hydropower tax credits; the House cleared it 220-207, the Senate 50-50.',
+    // Water.
+    'H.R. 3684|117|water':
+      'Funded drinking-water and wastewater systems, lead pipe removal and Western water storage; the House cleared it 228-206, the Senate 69-30.',
+    // Housing.
+    'H.R. 6644|119|housing':
+      'Reauthorized the HOME program and Rural Housing Service and widened HUD-VASH eligibility; the House cleared it 358-32, the Senate 89-10.',
+    'H.R. 6644|119|housing_build':
+      'Funded permitting of single-staircase apartments and raised FHA multifamily loan limits; the House cleared it 358-32, the Senate 89-10.',
+    'S. 2296|119|housing_build':
+      'Would have carried model zoning reforms for duplexes, fourplexes and townhouses; the Senate passed it 77-20.',
+    'S. 2296|119|homeless':
+      'Would have rewritten the Continuum of Care homelessness program and capped waivers for displacing recipients; the Senate passed it 77-20.',
+    // Schools. The forty-line cap for this pass reached the schools leaves after one
+    // line; the other school rows with their own facts wait for the next pass.
+    'S. 2938|117|public_schools':
+      'Funded school safety programs and school-based mental-health services; the House cleared it 234-193, the Senate 65-33.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // The item is already a row on this issue, so the pair is mapped whether or

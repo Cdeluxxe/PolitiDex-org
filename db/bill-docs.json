@@ -146,7 +146,8 @@
      "i": "Universal Broadband"
     },
     {
-     "i": "Water Conservation"
+     "i": "Water Conservation",
+     "l": "Funded drinking-water and wastewater systems, lead pipe removal and Western water storage; the House cleared it 228-206, the Senate 69-30."
     },
     {
      "i": "Wildfire & Disaster Resilience",
@@ -195,7 +196,8 @@
    "t": "Inflation Reduction Act of 2022",
    "m": [
     {
-     "i": "Climate Action & Clean Energy"
+     "i": "Climate Action & Clean Energy",
+     "l": "Extended and expanded wind, solar, geothermal and hydropower tax credits; the House cleared it 220-207, the Senate 50-50."
     },
     {
      "i": "Corporate Accountability"
@@ -205,7 +207,8 @@
      "l": "Imposed a 15% minimum tax on the reported income of corporations earning over $1 billion and a 1% excise tax on stock buybacks."
     },
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "l": "Required new Gulf of Mexico oil and gas lease sales before wind and solar rights-of-way; the House cleared it 220-207, the Senate 50-50."
     },
     {
      "i": "Lower Healthcare Costs"
@@ -285,7 +288,8 @@
    "t": "Bipartisan Safer Communities Act",
    "m": [
     {
-     "i": "Invest in Public Schools"
+     "i": "Invest in Public Schools",
+     "l": "Funded school safety programs and school-based mental-health services; the House cleared it 234-193, the Senate 65-33."
     },
     {
      "i": "Mental Health & Addiction"
@@ -390,7 +394,8 @@
      "i": "Smart Tech Guardrails"
     },
     {
-     "i": "Stop Fentanyl & Cartels"
+     "i": "Stop Fentanyl & Cartels",
+     "l": "Carried the FEND Off Fentanyl Act, with sanctions and anti-money-laundering steps against fentanyl traffickers; the Senate concurred 79-18."
     },
     {
      "i": "Strategic Engagement"
@@ -420,7 +425,8 @@
    "t": "Fiscal Responsibility Act of 2023",
    "m": [
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "l": "Ratified all federal approvals for the Mountain Valley Pipeline and barred court review; the House cleared it 314-117, the Senate 63-36."
     },
     {
      "i": "Faster Permits & Reviews"
@@ -643,7 +649,8 @@
    "t": "An amendment numbered 9 printed in House Report 119-255 to eliminate the preference for Motor Vehicles using Electric or Hybrid propulsion systems and related requirements of the Department of Defense.",
    "m": [
     {
-     "i": "Climate Action & Clean Energy"
+     "i": "Climate Action & Clean Energy",
+     "l": "Wrote repeal of the Pentagon’s electric and hybrid fleet-vehicle preference into the defense bill; the House agreed to it 224-208."
     }
    ]
   },
@@ -743,7 +750,8 @@
    "t": "An amendment numbered 49 printed in Part B of House Report 119-628 to remove costly, overreaching emissions mandates on farm equipment that drives up expenses for farmers and consumers.",
    "m": [
     {
-     "i": "Climate Action & Clean Energy"
+     "i": "Climate Action & Clean Energy",
+     "l": "Wrote a farm-equipment exemption from Clean Air Act engine emission standards into the farm bill; the House agreed to it 215-213."
     }
    ]
   },
@@ -771,7 +779,8 @@
      "i": "America First Foreign Aid & Commitments"
     },
     {
-     "i": "Climate Action & Clean Energy"
+     "i": "Climate Action & Clean Energy",
+     "l": "Proposed striking the $139,575,000 for the Global Environment Facility from the bill; the House rejected it 178-247."
     },
     {
      "i": "Cut Federal Spending & Reduce Debt"
@@ -872,7 +881,8 @@
    "t": "H.Amdt. 248 (Hunt) to H.R. 8800 — modify the bill to protect a critical component of California's defense fuel supply chain by ensuring the continued operation of the Santa Ynez…",
    "m": [
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "l": "Wrote into the defense bill that the Santa Ynez offshore production unit keeps operating; the House agreed to it 215-214."
     },
     {
      "i": "Peace Through Strength",
@@ -1447,7 +1457,8 @@
    "t": "To require the Federal Energy Regulatory Commission to reform the interconnection queue process for the prioritization and approval of certain projects.",
    "m": [
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "l": "Would let new dispatchable power projects move to the front of the grid interconnection queue; the House passed it 216-206."
     }
    ]
   },
@@ -1492,7 +1503,8 @@
    "t": "To provide for the location of multiple hardrock mining mill sites, to establish the Abandoned Hardrock Mine Fund, and for other purposes.",
    "m": [
     {
-     "i": "Energy & Resource Development"
+     "i": "Energy & Resource Development",
+     "l": "Would lift acreage limits on hardrock mining mill sites and set up an Abandoned Hardrock Mine Fund; the House passed it 219-198."
     }
    ]
   },
@@ -1574,10 +1586,12 @@
    "t": "To require the District of Columbia to comply with federal immigration laws.",
    "m": [
     {
-     "i": "Mass Deportations & Border Security"
+     "i": "Mass Deportations & Border Security",
+     "l": "Would bar the District from refusing lawful federal requests to hold someone in custody; the House passed it 224-194."
     },
     {
-     "i": "Strong Border & Enforcement"
+     "i": "Strong Border & Enforcement",
+     "l": "Would bar the District from blocking its agencies from sharing immigration status data with federal officials; the House passed it 224-194."
     }
    ]
   },
@@ -1631,7 +1645,8 @@
    "t": "To amend the Immigration and Nationality Act to increase penalties for individuals who illegally enter and reenter the United States after being removed, and for other purposes.",
    "m": [
     {
-     "i": "Strong Border & Enforcement"
+     "i": "Strong Border & Enforcement",
+     "l": "Would raise the maximum penalty for unlawful entry to five years and for reentry after removal to ten; the House passed it 226-197."
     },
     {
      "i": "Tough on Crime"
@@ -1645,7 +1660,8 @@
    "t": "To require the Federal Energy Regulatory Commission to review regulations that may affect the reliable operation of the bulk-power system, and for other purposes.",
    "m": [
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "l": "Would require public notice of power generation shortfalls and grid-reliability review of agency rules; the House passed it 225-203."
     }
    ]
   },
@@ -1656,7 +1672,8 @@
    "t": "To amend the Public Utility Regulatory Policies Act of 1978 to establish a standard related to State consideration of reliable generation, and for other purposes.",
    "m": [
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "l": "Would make state utility regulators consider reliable power generation as a ratemaking standard; the House passed it 218-207."
     }
    ]
   },
@@ -1667,7 +1684,8 @@
    "t": "To amend the Federal Power Act to adjust the requirements for orders under section 207 of such Act, and to require owners or operators of generating facilities to provide notice of planned retirements of certain electric generating units, and for other purposes.",
    "m": [
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "l": "Would require power plant owners to give notice before retiring a generating unit; the House passed it 222-202."
     }
    ]
   },
@@ -1737,7 +1755,8 @@
    "t": "To codify certain provisions of certain Executive Orders relating to domestic mining and hardrock mineral resources, and for other purposes.",
    "m": [
     {
-     "i": "Energy & Resource Development"
+     "i": "Energy & Resource Development",
+     "l": "Would order Interior to list pending federal-land mining permits and approve those ready at once; the House passed it 224-195."
     }
    ]
   },
@@ -1765,7 +1784,8 @@
    "t": "To amend the Energy Conservation and Production Act to repeal certain Federal building energy efficiency performance standards, and for other purposes.",
    "m": [
     {
-     "i": "Climate Action & Clean Energy"
+     "i": "Climate Action & Clean Energy",
+     "l": "Would repeal the fossil-fuel reduction targets for new and renovated federal buildings; the House passed it 215-202."
     }
    ]
   },
@@ -1776,7 +1796,8 @@
    "t": "Homeowner Energy Freedom Act",
    "m": [
     {
-     "i": "Climate Action & Clean Energy"
+     "i": "Climate Action & Clean Energy",
+     "l": "Would repeal the 2022 climate law’s home electrification rebates and building energy code aid; the House passed it 210-199."
     },
     {
      "i": "Cut Federal Spending & Reduce Debt",
@@ -1866,10 +1887,12 @@
      "i": "Affordable Housing & Renters"
     },
     {
-     "i": "Build More Housing"
+     "i": "Build More Housing",
+     "l": "Funded permitting of single-staircase apartments and raised FHA multifamily loan limits; the House cleared it 358-32, the Senate 89-10."
     },
     {
-     "i": "Housing Affordability"
+     "i": "Housing Affordability",
+     "l": "Reauthorized the HOME program and Rural Housing Service and widened HUD-VASH eligibility; the House cleared it 358-32, the Senate 89-10."
     }
    ]
   },
@@ -2157,13 +2180,16 @@
    "t": "Secure America Act",
    "m": [
     {
-     "i": "Mass Deportations & Border Security"
+     "i": "Mass Deportations & Border Security",
+     "l": "Appropriated $44 billion for ICE and CBP interior enforcement, detention and removals; the House cleared it 214-212, the Senate 52-47."
     },
     {
-     "i": "Stop Fentanyl & Cartels"
+     "i": "Stop Fentanyl & Cartels",
+     "l": "Funded port equipment to catch illicit drugs and money to fight fentanyl trafficking; the House cleared it 214-212, the Senate 52-47."
     },
     {
-     "i": "Strong Border & Enforcement"
+     "i": "Strong Border & Enforcement",
+     "l": "Funded $9.55 billion for Border Patrol agents and $3.45 billion for ports and surveillance; the House cleared it 214-212, the Senate 52-47."
     },
     {
      "i": "Tough on Crime"
@@ -2177,7 +2203,8 @@
    "t": "Laken Riley Act",
    "m": [
     {
-     "i": "Mass Deportations & Border Security"
+     "i": "Mass Deportations & Border Security",
+     "l": "Required detaining and seeking removal of non-citizens here unlawfully facing theft charges; the House cleared it 263-156, the Senate 64-35."
     },
     {
      "i": "States Suing Washington"
@@ -2238,7 +2265,8 @@
      "i": "Mental Health & Addiction"
     },
     {
-     "i": "Stop Fentanyl & Cartels"
+     "i": "Stop Fentanyl & Cartels",
+     "l": "Permanently placed fentanyl-related substances in Schedule I as a class; the House cleared it 321-104, the Senate 84-16."
     },
     {
      "i": "Tough on Crime"
@@ -2295,7 +2323,8 @@
    "t": "Ernst amendment adding crimes causing death or serious bodily injury to the mandatory-detention list (S.Amdt. 8)",
    "m": [
     {
-     "i": "Mass Deportations & Border Security"
+     "i": "Mass Deportations & Border Security",
+     "l": "Added crimes causing death or serious bodily injury to the bill’s mandatory-detention list; the Senate agreed to it 75-24."
     },
     {
      "i": "Tough on Crime"
@@ -2309,7 +2338,8 @@
    "t": "Cornyn amendment expanding the offences that trigger mandatory detention (S.Amdt. 14)",
    "m": [
     {
-     "i": "Mass Deportations & Border Security"
+     "i": "Mass Deportations & Border Security",
+     "l": "Expanded the offences that trigger mandatory detention under the bill; the Senate agreed to it 70-25."
     },
     {
      "i": "Tough on Crime"
@@ -2370,7 +2400,8 @@
    "t": "Gallego amendment funding timely adjudication of DACA renewal applications (S.Amdt. 5813)",
    "m": [
     {
-     "i": "Pathways to Citizenship"
+     "i": "Pathways to Citizenship",
+     "l": "Proposed funding timely adjudication of DACA renewal applications in the border bill; the Senate rejected it 47-52."
     }
    ]
   },
@@ -2392,7 +2423,8 @@
    "t": "A joint resolution terminating the national emergency declared with respect to energy",
    "m": [
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "l": "Would have ended the January 2025 national energy emergency that expedites energy projects; the Senate rejected it 47-52."
     }
    ]
   },
@@ -2457,7 +2489,8 @@
      "i": "Tackle the Cost of Living"
     },
     {
-     "i": "Tariffs & Household Prices"
+     "i": "Tariffs & Household Prices",
+     "l": "Would have ended the emergency behind the tariffs on Canadian imports, lifting those duties; the Senate passed it 51-48."
     },
     {
      "i": "Tariffs & Trade Authority"
@@ -2508,7 +2541,8 @@
    "t": "A joint resolution terminating the national emergency declared with respect to energy",
    "m": [
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "l": "Would have ended the Executive Order 14156 energy emergency on its second try; the Senate rejected it 47-51."
     }
    ]
   },

@@ -1613,9 +1613,32 @@ section("14 · the harvest — every stored did, read against the effect rule");
     "the Peace Through Strength line borrowed onto the Diplomacy & Restraint row passed the check");
   ok(!("S.J.Res. 59|119|restraint" in EFFECT), "S.J.Res. 59 stores no `did` on Diplomacy & Restraint, so it has no line to write from");
   ok(!("H.R. 8035|118|restraint" in EFFECT), "H.R. 8035's short `did` already stands under its Diplomacy & Restraint row and is not rewritten");
-  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k));
+  // THE SEARCH LEAVES BATCH (v316). Lines on the tariff, immigration, energy,
+  // water, housing and schools leaves, each written from its own pair's `did` or —
+  // with none — the measure's own title and recorded outcome, under the closing
+  // marker the table gives them. scripts/test-search-leaf-effect-lines.mjs holds
+  // each one to its source term, its rolls and its tense; here each must pass the
+  // harvest rules, end on a recorded tally, be no other leaf's line for the act,
+  // and the batch stays within its forty-line cap.
+  const SEARCH = (() => {
+    const src = R("consistency.js"), a = src.indexOf("// THE SEARCH LEAVES (v316)");
+    must(a !== -1, "the search-leaves block is not in _DOS_EFFECT");
+    const end = src.indexOf("\n  };", a);
+    return [...src.slice(a, end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+  })();
+  ok(SEARCH.length > 0 && SEARCH.length <= 40, `${SEARCH.length} search-leaf line(s) — the pass is capped at 40`);
+  for (const k of SEARCH) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the search-leaf effect line`);
+    ok(/; (?:the (?:House|Senate) (?:cleared|passed|agreed to|rejected) it \d+-\d+(?:, the Senate \d+-\d+)?|the (?:House|Senate) concurred \d+-\d+)\.$/.test(v), `${k}: does not end on a recorded tally`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  ok(!("S.J.Res. 37|119|tariffs_authority" in EFFECT), "S.J.Res. 37 stores nothing on Tariffs & Trade Authority, so it has no line there");
+  ok("S.J.Res. 37|119|tariffs_prices" in EFFECT, "S.J.Res. 37's Household Prices line is missing");
+  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.
@@ -1628,11 +1651,12 @@ section("14 · the harvest — every stored did, read against the effect rule");
   }
   // Never in the table: a CRA whose outcome is unsettled, one that is not a rule
   // at all (arms-sale disapprovals), and a line that names no stored rule. The
-  // arms-sale disapprovals may carry a Support for Israel line (v314), checked by
-  // that batch's own rule — never a CRA-shaped one from this batch.
+  // arms-sale disapprovals may carry a Support for Israel line (v314), and the
+  // infrastructure act a water line (v316), each checked by its own batch's rule —
+  // never a CRA-shaped one from this batch.
   for (const k of ["S.J.Res. 7|119|broadband", "H.J.Res. 78|119|gov_regulation", "H.J.Res. 78|119|lands_preserve",
     "S.J.Res. 111|118|israel_support", "S.J.Res. 33|119|israel_support", "H.R. 3684|117|water"]) {
-    ok(!BATCH.includes(k) && (!(k in EFFECT) || ISR.includes(k)), `${k}: in the effect table without a settled, stored rule effect`);
+    ok(!BATCH.includes(k) && (!(k in EFFECT) || ISR.includes(k) || SEARCH.includes(k)), `${k}: in the effect table without a settled, stored rule effect`);
   }
   ok(craFault("H.J.Res. 78|119|gov_regulation", "Struck the agency rule and barred a substantially similar rule.") !== "",
     "a CRA line naming no stored rule passed the CRA check");
@@ -1691,20 +1715,25 @@ section("14 · the harvest — every stored did, read against the effect rule");
   ok(seenAdmit > 0 && seenRefuse > 0, `the sweep saw ${seenAdmit} admitted and ${seenRefuse} refused row(s) — both kinds must exist`);
   console.log(`      ${lit.size} drawer(s) print at least one effect line`);
 
-  // LEE × WATER stays mute. The infrastructure act's water `did` runs past 140
-  // characters, so the row under it prints nothing — and nothing was written to
-  // make it speak.
+  // LEE × WATER now speaks, and only from its own facts. The infrastructure act's
+  // water `did` runs past 140 characters, so the fallback still refuses it; the
+  // search-leaves pass (v316) wrote a separate line from that same `did` and the
+  // two rolls on file, and that line — not a clip of the `did` — is the one row
+  // paragraph under the act.
   const W = "H.R. 3684|117|water";
-  must(MECH[W], `${W} is no longer stored — this check needs a new mute pair`);
+  must(MECH[W], `${W} is no longer stored — this check needs a new pair`);
   ok(refuse.has(W), `${W}: the stored did now passes the rule — re-read the smoke`);
-  ok(!(W in EFFECT), `${W}: a water line was written into the effect table`);
+  ok(SEARCH.includes(W), `${W}: the water line is not one the search-leaves pass wrote`);
+  ok(!norm(MECH[W].did).includes(String(EFFECT[W] || "").replace(/[.!?]$/, "")), `${W}: the water line is a clip of the stored did`);
   const lw = WITH.find((x) => x.pid === "lee" && x.key === "water");
   if (lw) {
     const tb = table(drawer("lee", "water"));
     for (const p of lw.t.rows) {
       const it = (p.d && p.d.item) || {};
       if (`${String(it.number || "").trim()}|${it.congress}|water` === W) {
-        no(tb, `data-pdxlg-effr="${p.i}"`, "lee × water: the infrastructure act grew an effect line");
+        const got = [...tb.matchAll(new RegExp(`<tr class="pdxlg-effr" data-pdxlg-effr="${p.i}"><td colspan="5" class="pdxlg-eff" data-pdxlg-eff="1">([\\s\\S]*?)<\\/td><\\/tr>`, "g"))].map((m) => text(m[1]));
+        eq(got.length, 1, "lee × water: the infrastructure act prints one effect paragraph");
+        eq(got[0], EFFECT[W], "lee × water: the paragraph is the pair's stored line");
       }
     }
   }

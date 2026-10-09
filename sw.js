@@ -8987,7 +8987,18 @@
 //     Trump's included. consistency.js is precached and changed, so it moves
 //     one version.
 //     MIGRATION COST: none. No seed row, mapping, key or score moved.
-const CACHE_VERSION = 'v315';
+// v316 - THE MISSING SENTENCE ON THE SEARCH LEAVES. Forty member-voted rows on
+//     the tariff, immigration, energy, water, housing and schools leaves now
+//     say what the act did, each stored once on the measure-and-issue pair and
+//     written from that pair's own description — or, where it has none, the
+//     measure's own title and recorded outcome — ending on the tally on file.
+//     S.J.Res. 37 now has its Household Prices line; its Tariffs & Trade
+//     Authority row stays blank, as does H.R. 29 on Mass Deportations, because
+//     their only facts sit on another leaf. Four school rows wait past the
+//     forty-line cap. No shipped line moved. consistency.js is precached and
+//     changed, so it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved.
+const CACHE_VERSION = 'v316';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
