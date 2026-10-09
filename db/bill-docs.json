@@ -48,23 +48,28 @@
      "l": "Provided child-care stabilisation funding, supplemental Child Care and Development Block Grant money, and Head Start funding."
     },
     {
-     "i": "Help Families with Kids"
+     "i": "Help Families with Kids",
+     "l": "Raised the child tax credit to $3,000 per child, $3,600 under six, fully refundable; the House cleared it 220-211, the Senate 50-49."
     },
     {
-     "i": "Help Small Businesses"
+     "i": "Help Small Businesses",
+     "l": "Funded the Restaurant Revitalization Fund and Shuttered Venue Operators Grants; the House cleared it 220-211, the Senate 50-49."
     },
     {
      "i": "Invest in Public Schools",
      "l": "Created the Elementary and Secondary School Emergency Relief Fund for reopening schools; the House cleared it 220-211, the Senate 50-49."
     },
     {
-     "i": "Lower Healthcare Costs"
+     "i": "Lower Healthcare Costs",
+     "l": "Expanded ACA premium tax credits for 2021 and 2022 and subsidized COBRA coverage; the House cleared it 220-211, the Senate 50-49."
     },
     {
-     "i": "Raise Wages & Protect Workers"
+     "i": "Raise Wages & Protect Workers",
+     "l": "Extended pandemic unemployment compensation through September 2021; the House cleared it 220-211, the Senate 50-49."
     },
     {
-     "i": "Tackle the Cost of Living"
+     "i": "Tackle the Cost of Living",
+     "l": "Sent recovery rebates to households and funded emergency rental and utility aid; the House cleared it 220-211, the Senate 50-49."
     },
     {
      "i": "Tackle the National Debt",
@@ -115,7 +120,8 @@
    "t": "Postal Service Reform Act of 2022",
    "m": [
     {
-     "i": "Invest in Public Services"
+     "i": "Invest in Public Services",
+     "l": "Ended the Postal Service’s retiree health prepayment and wrote six-day delivery into law; the House cleared it 342-92, the Senate 79-19."
     },
     {
      "i": "Transparency & Anti-Corruption",
@@ -134,17 +140,20 @@
      "l": "Funded clean school buses, a national electric-vehicle charging network, home weatherisation and legacy pollution remediation."
     },
     {
-     "i": "Public Transit & Transportation"
+     "i": "Public Transit & Transportation",
+     "l": "Reauthorized federal public transportation and funded passenger and freight rail; the House cleared it 228-206, the Senate 69-30."
     },
     {
-     "i": "Rebuild Roads & Bridges"
+     "i": "Rebuild Roads & Bridges",
+     "l": "Funded roads and bridges, rail, transit, ports, airports and the electric grid; the House cleared it 228-206, the Senate 69-30."
     },
     {
      "i": "Tackle the National Debt",
      "l": "The act’s new spending was only partially offset, so it was scored as adding to the deficit."
     },
     {
-     "i": "Universal Broadband"
+     "i": "Universal Broadband",
+     "l": "Created the Broadband Equity, Access, and Deployment program for unserved areas; the House cleared it 228-206, the Senate 69-30."
     },
     {
      "i": "Water Conservation",
@@ -163,14 +172,16 @@
    "t": "Chips and Science Act",
    "m": [
     {
-     "i": "Innovation & Light Rules"
+     "i": "Innovation & Light Rules",
+     "l": "Created the CHIPS for America Fund and authorized NSF, NIST, DOE and NASA research; the House cleared it 243-187, the Senate 64-33."
     },
     {
      "i": "Peace Through Strength",
      "l": "Set up the CHIPS for America Defense Fund for microelectronics research; the House cleared it 243-187, the Senate 64-33."
     },
     {
-     "i": "Pro-Growth Deregulation"
+     "i": "Pro-Growth Deregulation",
+     "l": "Expanded federal aid for building and equipping semiconductor plants in the U.S.; the House cleared it 243-187, the Senate 64-33."
     },
     {
      "i": "Tackle the National Debt",
@@ -201,7 +212,8 @@
      "l": "Extended and expanded wind, solar, geothermal and hydropower tax credits; the House cleared it 220-207, the Senate 50-50."
     },
     {
-     "i": "Corporate Accountability"
+     "i": "Corporate Accountability",
+     "l": "Imposed a 15% minimum tax on corporations above $1 billion and a 1% buyback tax; the House cleared it 220-207, the Senate 50-50."
     },
     {
      "i": "Cut Income & Business Taxes",
@@ -212,13 +224,16 @@
      "l": "Required new Gulf of Mexico oil and gas lease sales before wind and solar rights-of-way; the House cleared it 220-207, the Senate 50-50."
     },
     {
-     "i": "Lower Healthcare Costs"
+     "i": "Lower Healthcare Costs",
+     "l": "Extended the enlarged Affordable Care Act premium tax credits through 2025; the House cleared it 220-207, the Senate 50-50."
     },
     {
-     "i": "Lower Prescription Drug Prices"
+     "i": "Lower Prescription Drug Prices",
+     "l": "Required Medicare to negotiate high-spend drug prices and capped insulin cost sharing; the House cleared it 220-207, the Senate 50-50."
     },
     {
-     "i": "Tackle the National Debt"
+     "i": "Tackle the National Debt",
+     "l": "Carried a Deficit Reduction subtitle with a corporate minimum tax and IRS enforcement; the House cleared it 220-207, the Senate 50-50."
     }
    ]
   },
@@ -266,7 +281,8 @@
    "t": "Respect for Marriage Act",
    "m": [
     {
-     "i": "Protect LGBTQ+ Rights"
+     "i": "Protect LGBTQ+ Rights",
+     "l": "Repealed the Defense of Marriage Act’s definitions of marriage and spouse; the House cleared it 258-169, the Senate 61-36."
     }
    ]
   },
@@ -293,14 +309,16 @@
      "l": "Funded school safety programs and school-based mental-health services; the House cleared it 234-193, the Senate 65-33."
     },
     {
-     "i": "Mental Health & Addiction"
+     "i": "Mental Health & Addiction",
+     "l": "Funded children’s and family mental-health services and paediatric access grants; the House cleared it 234-193, the Senate 65-33."
     },
     {
      "i": "Protect Gun Rights",
      "l": "Held under-21 gun sales for review and barred dating partners with abuse convictions; the House cleared it 234-193, the Senate 65-33."
     },
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "l": "Required enhanced checks for buyers aged 18 to 20 and created straw purchasing offences; the House cleared it 234-193, the Senate 65-33."
     }
    ]
   },
@@ -372,7 +390,8 @@
    "t": "To prohibit individuals who are not citizens of the United States from voting in elections in the District of Columbia",
    "m": [
     {
-     "i": "Election Security & Ballot Safeguards"
+     "i": "Election Security & Ballot Safeguards",
+     "l": "Would have barred non-citizens from voting in District of Columbia elections; the House passed it 262-143."
     },
     {
      "i": "Expand Voting Access",
@@ -481,7 +500,8 @@
    "t": "Israel Security Supplemental Appropriations Act, 2024",
    "m": [
     {
-     "i": "Cut Federal Spending & Reduce Debt"
+     "i": "Cut Federal Spending & Reduce Debt",
+     "l": "Would have offset the Israel supplemental by rescinding $14.3 billion of IRS enforcement funding; the House passed it 226-196."
     },
     {
      "i": "Support for Israel",
@@ -544,7 +564,8 @@
      "l": "Funded current U.S. military operations in the region and sustained American military support to an active war."
     },
     {
-     "i": "Strategic Engagement"
+     "i": "Strategic Engagement",
+     "l": "Would have funded Ukraine security assistance and replacement of defense articles already transferred; the House passed it 311-112."
     },
     {
      "i": "Ukraine",
@@ -559,10 +580,12 @@
    "t": "Safeguard American Voter Eligibility Act",
    "m": [
     {
-     "i": "Election Security & Ballot Safeguards"
+     "i": "Election Security & Ballot Safeguards",
+     "l": "Would have required documentary proof of U.S. citizenship before a state registers a federal voter; the House passed it 221-198."
     },
     {
-     "i": "Expand Voting Access"
+     "i": "Expand Voting Access",
+     "l": "Would have required proof of citizenship in person at an election office, closing mail registration; the House passed it 221-198."
     }
    ]
   },
@@ -811,7 +834,8 @@
      "l": "Proposed barring the national security and State funds from use for Israel, a standing aid commitment; the House rejected it 104-314."
     },
     {
-     "i": "Cut Federal Spending & Reduce Debt"
+     "i": "Cut Federal Spending & Reduce Debt",
+     "l": "Proposed cutting the Foreign Military Financing Program account by $3.3 billion; the House rejected it 104-314."
     },
     {
      "i": "Support for Israel",
@@ -1287,10 +1311,12 @@
      "i": "Audit Spending & the Fed"
     },
     {
-     "i": "Cut Federal Spending & Reduce Debt"
+     "i": "Cut Federal Spending & Reduce Debt",
+     "l": "Cancelled unobligated balances for the State Department, USAID and public broadcasting; the House cleared it 214-212, the Senate 51-48."
     },
     {
-     "i": "Cut Waste, Not Services"
+     "i": "Cut Waste, Not Services",
+     "l": "Returned roughly $9 billion of enacted budget authority to the Treasury unspent; the House cleared it 214-212, the Senate 51-48."
     },
     {
      "i": "Free Speech Protections"
@@ -1299,7 +1325,8 @@
      "i": "Invest in Public Services"
     },
     {
-     "i": "Tackle the National Debt"
+     "i": "Tackle the National Debt",
+     "l": "Reduced federal outlays by the rescinded balances, below the House’s $9.4 billion; the House cleared it 214-212, the Senate 51-48."
     }
    ]
   },
@@ -1324,16 +1351,20 @@
    "t": "Safeguard American Voter Eligibility (SAVE) Act",
    "m": [
     {
-     "i": "Election Integrity"
+     "i": "Election Integrity",
+     "l": "Would require documentary proof of citizenship to register and removal of non-citizens from rolls; the House passed it 220-208."
     },
     {
-     "i": "Election Security & Ballot Safeguards"
+     "i": "Election Security & Ballot Safeguards",
+     "l": "Would require proof of citizenship to register and state checks of existing rolls against federal databases; the House passed it 220-208."
     },
     {
-     "i": "Expand Voting Access"
+     "i": "Expand Voting Access",
+     "l": "Would make documentary proof of citizenship a precondition of registering by mail, online or in person; the House passed it 220-208."
     },
     {
-     "i": "Voter ID & Election Integrity"
+     "i": "Voter ID & Election Integrity",
+     "l": "Would require a passport, a citizenship-showing REAL ID, or a birth certificate with photo ID to register; the House passed it 220-208."
     }
    ]
   },
@@ -1438,7 +1469,8 @@
    "t": "To prohibit individuals who are not citizens of the United States from voting in elections in the District of Columbia",
    "m": [
     {
-     "i": "Election Security & Ballot Safeguards"
+     "i": "Election Security & Ballot Safeguards",
+     "l": "Would bar anyone who is not a U.S. citizen from voting in a District of Columbia election; the House passed it 266-148."
     },
     {
      "i": "Expand Voting Access",
@@ -1668,7 +1700,8 @@
      "l": "Would raise the maximum penalty for unlawful entry to five years and for reentry after removal to ten; the House passed it 226-197."
     },
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "l": "Would set a five-year mandatory minimum for someone who entered unlawfully and is later convicted of a felony; the House passed it 226-197."
     }
    ]
   },
@@ -1788,7 +1821,8 @@
    "t": "To require the Attorney General to release all documents and records in possession of the Department of Justice relating to Jeffrey Epstein, and for other purposes.",
    "m": [
     {
-     "i": "Transparency & Anti-Corruption"
+     "i": "Transparency & Anti-Corruption",
+     "l": "Required the Justice Department to publish all unclassified Epstein investigation records, searchable; the House passed it 427-1."
     }
    ]
   },
@@ -2238,14 +2272,16 @@
      "l": "Required detaining and seeking removal of non-citizens here unlawfully facing theft charges; the House cleared it 263-156, the Senate 64-35."
     },
     {
-     "i": "States Suing Washington"
+     "i": "States Suing Washington",
+     "l": "Let a state sue Washington over immigration decisions that harm it by more than $100; the House cleared it 263-156, the Senate 64-35."
     },
     {
      "i": "Strong Border & Enforcement",
      "l": "Tightened immigration enforcement by removing the discretion to release a covered non-citizen from custody once they have been charged."
     },
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "l": "Made an arrest or charge for theft or burglary the trigger for federal custody; the House cleared it 263-156, the Senate 64-35."
     }
    ]
   },
@@ -2313,10 +2349,12 @@
    "t": "SAVE America Act",
    "m": [
     {
-     "i": "Election Security & Ballot Safeguards"
+     "i": "Election Security & Ballot Safeguards",
+     "l": "Would require proof of citizenship to register and a physical photo ID to vote in person; the House passed it 218-213."
     },
     {
-     "i": "Expand Voting Access"
+     "i": "Expand Voting Access",
+     "l": "Would make mail applicants prove citizenship in person and give voters without ID only a provisional ballot; the House passed it 218-213."
     }
    ]
   },

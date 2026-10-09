@@ -1647,7 +1647,8 @@ section("14 · the harvest — every stored did, read against the effect rule");
   const WAVE1 = (() => {
     const src = R("consistency.js"), a = src.indexOf("// WAVE 1 OF FULL COVERAGE (v317)");
     must(a !== -1, "the wave-1 block is not in _DOS_EFFECT");
-    return [...src.slice(a, src.indexOf("\n  };", a)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+    const next = src.indexOf("// WAVE 2 OF FULL COVERAGE (v319)", a);
+    return [...src.slice(a, next !== -1 ? next : src.indexOf("\n  };", a)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
   })();
   ok(WAVE1.length > 0 && WAVE1.length <= 40, `${WAVE1.length} wave-1 line(s) — the wave is capped at 40`);
   for (const k of WAVE1) {
@@ -1657,9 +1658,24 @@ section("14 · the harvest — every stored did, read against the effect rule");
     const m = k.split("|").slice(0, 2).join("|");
     ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
   }
-  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k));
+  // WAVE 2 (v319). Forty more rows, each from its own pair's `did` alone, held in
+  // detail by scripts/test-wave2-effect-lines.mjs; here the same batch rules.
+  const WAVE2 = (() => {
+    const src = R("consistency.js"), a = src.indexOf("// WAVE 2 OF FULL COVERAGE (v319)");
+    must(a !== -1, "the wave-2 block is not in _DOS_EFFECT");
+    return [...src.slice(a, src.indexOf("\n  };", a)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+  })();
+  ok(WAVE2.length > 0 && WAVE2.length <= 40, `${WAVE2.length} wave-2 line(s) — the wave is capped at 40`);
+  for (const k of WAVE2) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the wave-2 effect line`);
+    ok(/; the (?:House|Senate) (?:cleared|passed|agreed to|rejected) it \d+-\d+(?:, the Senate \d+-\d+)?\.$/.test(v), `${k}: does not end on a recorded tally`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.

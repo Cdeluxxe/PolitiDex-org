@@ -17615,6 +17615,91 @@
       'Expanded VA benefits and service-connection presumptions for toxic-exposed veterans; the House cleared it 342-88, the Senate 86-11.',
     'S. 2938|117|gun_rights':
       'Held under-21 gun sales for review and barred dating partners with abuse convictions; the House cleared it 234-193, the Senate 65-33.',
+    // WAVE 2 OF FULL COVERAGE (v319). The next forty member-voted rows by reach
+    // that store their own `did` and still printed no line. Each is written from
+    // that `did` alone — no title is a source in this wave — and ends on the tally
+    // on file. An act with no public law on file reads "Would", "Would have" or
+    // "Proposed". The six pointer rows are untouched.
+    'S. 2938|117|gun_safety':
+      'Required enhanced checks for buyers aged 18 to 20 and created straw purchasing offences; the House cleared it 234-193, the Senate 65-33.',
+    'S. 2938|117|health_mental':
+      'Funded children’s and family mental-health services and paediatric access grants; the House cleared it 234-193, the Senate 65-33.',
+    'H.R. 4346|117|econ_growth':
+      'Expanded federal aid for building and equipping semiconductor plants in the U.S.; the House cleared it 243-187, the Senate 64-33.',
+    'H.R. 4346|117|tech_innovation':
+      'Created the CHIPS for America Fund and authorized NSF, NIST, DOE and NASA research; the House cleared it 243-187, the Senate 64-33.',
+    'H.R. 5376|117|econ_corp_account':
+      'Imposed a 15% minimum tax on corporations above $1 billion and a 1% buyback tax; the House cleared it 220-207, the Senate 50-50.',
+    'H.R. 5376|117|health_drug_prices':
+      'Required Medicare to negotiate high-spend drug prices and capped insulin cost sharing; the House cleared it 220-207, the Senate 50-50.',
+    'H.R. 5376|117|healthcare_costs':
+      'Extended the enlarged Affordable Care Act premium tax credits through 2025; the House cleared it 220-207, the Senate 50-50.',
+    'H.R. 5376|117|national_debt':
+      'Carried a Deficit Reduction subtitle with a corporate minimum tax and IRS enforcement; the House cleared it 220-207, the Senate 50-50.',
+    'H.R. 8404|117|lgbtq_rights':
+      'Repealed the Defense of Marriage Act’s definitions of marriage and spouse; the House cleared it 258-169, the Senate 61-36.',
+    'H.R. 8404|117|states_federal_power':
+      'Barred anyone acting under state law from refusing to honor another state’s marriage record; the House cleared it 258-169, the Senate 61-36.',
+    'H.R. 1319|117|cost_living':
+      'Sent recovery rebates to households and funded emergency rental and utility aid; the House cleared it 220-211, the Senate 50-49.',
+    'H.R. 1319|117|econ_smallbiz':
+      'Funded the Restaurant Revitalization Fund and Shuttered Venue Operators Grants; the House cleared it 220-211, the Senate 50-49.',
+    'H.R. 1319|117|econ_workers':
+      'Extended pandemic unemployment compensation through September 2021; the House cleared it 220-211, the Senate 50-49.',
+    'H.R. 1319|117|family_support':
+      'Raised the child tax credit to $3,000 per child, $3,600 under six, fully refundable; the House cleared it 220-211, the Senate 50-49.',
+    'H.R. 1319|117|healthcare_costs':
+      'Expanded ACA premium tax credits for 2021 and 2022 and subsidized COBRA coverage; the House cleared it 220-211, the Senate 50-49.',
+    'H.R. 3076|117|gov_services':
+      'Ended the Postal Service’s retiree health prepayment and wrote six-day delivery into law; the House cleared it 342-92, the Senate 79-19.',
+    'H.R. 3684|117|broadband':
+      'Created the Broadband Equity, Access, and Deployment program for unserved areas; the House cleared it 228-206, the Senate 69-30.',
+    'H.R. 3684|117|infrastructure':
+      'Funded roads and bridges, rail, transit, ports, airports and the electric grid; the House cleared it 228-206, the Senate 69-30.',
+    'H.R. 3684|117|transit':
+      'Reauthorized federal public transportation and funded passenger and freight rail; the House cleared it 228-206, the Senate 69-30.',
+    'S. 5|119|state_standing':
+      'Let a state sue Washington over immigration decisions that harm it by more than $100; the House cleared it 263-156, the Senate 64-35.',
+    'S. 5|119|tough_on_crime':
+      'Made an arrest or charge for theft or burglary the trigger for federal custody; the House cleared it 263-156, the Senate 64-35.',
+    'H.R. 4|119|cut_spending':
+      'Cancelled unobligated balances for the State Department, USAID and public broadcasting; the House cleared it 214-212, the Senate 51-48.',
+    'H.R. 4|119|gov_waste':
+      'Returned roughly $9 billion of enacted budget authority to the Treasury unspent; the House cleared it 214-212, the Senate 51-48.',
+    'H.R. 4|119|national_debt':
+      'Reduced federal outlays by the rescinded balances, below the House’s $9.4 billion; the House cleared it 214-212, the Senate 51-48.',
+    'H.R. 22|119|election_integrity':
+      'Would require documentary proof of citizenship to register and removal of non-citizens from rolls; the House passed it 220-208.',
+    'H.R. 22|119|election_security':
+      'Would require proof of citizenship to register and state checks of existing rolls against federal databases; the House passed it 220-208.',
+    'H.R. 22|119|voter_id':
+      'Would require a passport, a citizenship-showing REAL ID, or a birth certificate with photo ID to register; the House passed it 220-208.',
+    'H.R. 22|119|voting_access':
+      'Would make documentary proof of citizenship a precondition of registering by mail, online or in person; the House passed it 220-208.',
+    'H.R. 192|118|election_security':
+      'Would have barred non-citizens from voting in District of Columbia elections; the House passed it 262-143.',
+    'H.R. 8035|118|foreign_balance':
+      'Would have funded Ukraine security assistance and replacement of defense articles already transferred; the House passed it 311-112.',
+    'H.R. 8281|118|election_security':
+      'Would have required documentary proof of U.S. citizenship before a state registers a federal voter; the House passed it 221-198.',
+    'H.R. 8281|118|states_federal_power':
+      'Would have written the proof-of-citizenship rule into federal law for every registration channel a state runs; the House passed it 221-198.',
+    'H.R. 8281|118|voting_access':
+      'Would have required proof of citizenship in person at an election office, closing mail registration; the House passed it 221-198.',
+    'S. 1383|119|election_security':
+      'Would require proof of citizenship to register and a physical photo ID to vote in person; the House passed it 218-213.',
+    'S. 1383|119|voting_access':
+      'Would make mail applicants prove citizenship in person and give voters without ID only a provisional ballot; the House passed it 218-213.',
+    'H.R. 6126|118|cut_spending':
+      'Would have offset the Israel supplemental by rescinding $14.3 billion of IRS enforcement funding; the House passed it 226-196.',
+    'H.R. 3486|119|tough_on_crime':
+      'Would set a five-year mandatory minimum for someone who entered unlawfully and is later convicted of a felony; the House passed it 226-197.',
+    'H.R. 4405|119|gov_transparency':
+      'Required the Justice Department to publish all unclassified Epstein investigation records, searchable; the House passed it 427-1.',
+    'H.R. 884|119|election_security':
+      'Would bar anyone who is not a U.S. citizen from voting in a District of Columbia election; the House passed it 266-148.',
+    'H.Amdt. 235|119|cut_spending':
+      'Proposed cutting the Foreign Military Financing Program account by $3.3 billion; the House rejected it 104-314.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // The item is already a row on this issue, so the pair is mapped whether or

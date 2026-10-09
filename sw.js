@@ -9020,7 +9020,18 @@
 //     file anywhere stay blank. No stored line moved. consistency.js is
 //     precached and changed, so it moves one version.
 //     MIGRATION COST: none. No seed row, mapping, key or score moved.
-const CACHE_VERSION = 'v318';
+// v319 - WAVE 2 OF FULL COVERAGE. Forty more member-voted rows now say, in one
+//     sentence, what the act did to that topic and whether it took effect: the
+//     widest-reaching rows that store their own description and still printed
+//     no line, from S. 2938 and the Inflation Reduction Act down through the
+//     SAVE Act bills. Each is stored once on the measure-and-issue pair,
+//     written from that pair's own description, and ends on the tally on file;
+//     an act with no public law on file reads "Would", "Would have" or
+//     "Proposed". The six pointers and the six no-facts blanks did not move,
+//     and no shipped line changed. consistency.js is precached and changed, so
+//     it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved.
+const CACHE_VERSION = 'v319';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

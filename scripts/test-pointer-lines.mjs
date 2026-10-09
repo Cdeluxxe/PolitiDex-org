@@ -201,11 +201,12 @@ function check(src, base) {
   if (headSrc) {
     const HE = mapOf(headSrc, "_DOS_EFFECT"), HX = mapOf(headSrc, "_DOS_EXEC_EFFECT");
     for (const [p, v] of Object.entries(HE.map)) ok(E.map[p] === v, `${p}: a shipped line was rewritten or removed`);
-    ok(Object.keys(E.map).length === Object.keys(HE.map).length, "the effect table gained or lost an entry");
+    // A later wave may add lines; none may land on a pointer row (checked above).
+    ok(Object.keys(E.map).length >= Object.keys(HE.map).length, "the effect table lost an entry");
     ok(X.text === HX.text, "_DOS_EXEC_EFFECT (Trump's lines) is not byte-identical to HEAD");
     if (base) {
       for (const [k, v] of base) ok(printed.get(k) === v, `${k}: printed ${JSON.stringify(v)} at HEAD and now prints ${JSON.stringify(printed.get(k) || "")}`);
-      ok(printed.size === base.size, `${printed.size} effect paragraphs now, ${base.size} at HEAD`);
+      ok(printed.size >= base.size, `${printed.size} effect paragraphs now, ${base.size} at HEAD`);
     }
   } else {
     console.log("   (no git baseline — the unchanged-lines check did not run)");
@@ -235,7 +236,7 @@ const MUTANTS = [
     edit: (s) => s.replace("hits.sort(function (a, b) { return a.line.length - b.line.length; });", "hits.sort(function (a, b) { return b.line.length - a.line.length; });"),
     expect: /longer line|points at/ },
   { name: "a pointer added to a seventh row",
-    edit: (s) => s.replace("    'H.R. 29|119|state_standing': ['border_security', 'tough_on_crime']\n", "    'H.R. 29|119|state_standing': ['border_security', 'tough_on_crime'],\n    'S. 2938|117|gun_safety': ['public_schools']\n"),
+    edit: (s) => s.replace("    'H.R. 29|119|state_standing': ['border_security', 'tough_on_crime']\n", "    'H.R. 29|119|state_standing': ['border_security', 'tough_on_crime'],\n    'H.Amdt. 236|119|cut_spending': ['america_first_fp']\n"),
     expect: /not one of the six/ },
 ];
 const mutFaults = [];
