@@ -8936,7 +8936,102 @@
 //     one version.
 //     MIGRATION COST: none. No seed row, mapping, key or score moved, and
 //     no location key was touched.
-const CACHE_VERSION = 'v311';
+// v312 - ONE SENTENCE UNDER EACH VOTE ON AMERICA FIRST. A member's America
+//     First drawer printed a date, a number and a vote with nothing saying what
+//     the act did, except H.R. 8035, whose own short description already stood
+//     under its row. Each other member-voted act on that leaf now has one line,
+//     stored once on the measure-and-issue pair and written from the pair's own
+//     stored description and the tally the archive records: the 2025
+//     rescissions, the 2024 Israel and combined supplementals, and the three
+//     failed House amendments on Israel, Jordan and the military academies. The
+//     pairs only the database maps there store no description and stay blank.
+//     No shipped line moved, Trump's included. consistency.js is precached and
+//     changed, so it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved.
+// v313 - ONE SENTENCE UNDER EACH VOTE ON PEACE THROUGH STRENGTH. A member's
+//     Peace Through Strength drawer printed a date, a number and a vote with
+//     nothing saying what the act did, except H.R. 8595, whose own short
+//     description already stood under its row. Each other member-voted act on
+//     that leaf now has one line, stored once on the measure-and-issue pair and
+//     written from the pair's own stored description and the tally the archive
+//     records: the defense authorizations and appropriations, the 2024 Israel
+//     supplementals, CHIPS, the FISA reauthorization, the Santa Ynez amendment
+//     and the eight war-powers discharge votes. An act with no public law on
+//     file reads "Would" or "Would have". The pairs only the database maps there
+//     store no description and stay blank. No shipped line moved, Trump's
+//     included. consistency.js is precached and changed, so it moves one
+//     version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved.
+// v314 - ONE SENTENCE UNDER EACH VOTE ON SUPPORT FOR ISRAEL. A member's
+//     Support for Israel drawer printed a date, a number and a vote with nothing
+//     saying what the act did. Each member-voted act on that leaf now has one
+//     line, stored once on the measure-and-issue pair and written from the
+//     pair's own stored description and the tally the archive records: the
+//     defense authorizations and appropriations, the Iron Dome and Israel
+//     supplementals, the Jerusalem embassy and Massie amendments, H.R. 8369, and
+//     the ten arms-sale disapprovals the Senate kept in committee. An act with
+//     no public law on file reads "Would", "Would have" or "Proposed". No shipped
+//     line moved, Trump's included. consistency.js is precached and changed, so
+//     it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved.
+// v315 - ONE SENTENCE UNDER EACH VOTE ON DIPLOMACY & RESTRAINT. A member's
+//     Diplomacy & Restraint drawer printed a date, a number and a vote with
+//     nothing saying what the act did, except H.R. 8035, whose own short
+//     description already stood under its row; Trump's four executive rows
+//     already had theirs. Each other member-voted act on that leaf now has one
+//     line, stored once on the measure-and-issue pair and written from the
+//     pair's own stored description and the tally the archive records: the 2024
+//     security package, the Iraq authorization repeal amendment, the Iran and
+//     Lebanon House resolutions, and the seven Senate discharge votes. S.J.Res.
+//     59 stores no description there and stays blank. No shipped line moved,
+//     Trump's included. consistency.js is precached and changed, so it moves
+//     one version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved.
+// v316 - THE MISSING SENTENCE ON THE SEARCH LEAVES. Forty member-voted rows on
+//     the tariff, immigration, energy, water, housing and schools leaves now
+//     say what the act did, each stored once on the measure-and-issue pair and
+//     written from that pair's own description — or, where it has none, the
+//     measure's own title and recorded outcome — ending on the tally on file.
+//     S.J.Res. 37 now has its Household Prices line; its Tariffs & Trade
+//     Authority row stays blank, as does H.R. 29 on Mass Deportations, because
+//     their only facts sit on another leaf. Four school rows wait past the
+//     forty-line cap. No shipped line moved. consistency.js is precached and
+//     changed, so it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved.
+// v317 - WAVE 1 OF FULL COVERAGE. Forty more member-voted rows now say, in one
+//     sentence, what the act did to that topic and whether it took effect: the
+//     four school rows the last cap held back, then the widest-reaching rows on
+//     any leaf that still printed no line. Each is stored once on the
+//     measure-and-issue pair, written from that pair's own description (one
+//     from its own title and recorded outcome), and ends on the tally on file;
+//     an act with no public law on file reads "Would" or "Proposed". Rows whose
+//     only facts sit on another leaf stay blank, S.J.Res. 37 on Tariffs & Trade
+//     Authority among them. No shipped line moved. consistency.js is precached
+//     and changed, so it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved.
+// v318 - A ROW WHOSE FACTS LIVE ON ANOTHER LEAF POINTS THERE. Six member-voted
+//     rows stored nothing on their own leaf, though the same act already had a
+//     line on a sibling leaf: S.J.Res. 37 on Tariffs & Trade Authority and
+//     Protect American Jobs, S.J.Res. 59 on Diplomacy & Restraint and Congress
+//     and War Powers, and H.R. 29 on Mass Deportations and States Suing
+//     Washington. Each now prints one pointer, "Same act, filed on [leaf]:
+//     [that leaf's line]", read live from that leaf and never copied into this
+//     one's store, in its own quieter row style. The six rows with nothing on
+//     file anywhere stay blank. No stored line moved. consistency.js is
+//     precached and changed, so it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved.
+// v319 - WAVE 2 OF FULL COVERAGE. Forty more member-voted rows now say, in one
+//     sentence, what the act did to that topic and whether it took effect: the
+//     widest-reaching rows that store their own description and still printed
+//     no line, from S. 2938 and the Inflation Reduction Act down through the
+//     SAVE Act bills. Each is stored once on the measure-and-issue pair,
+//     written from that pair's own description, and ends on the tally on file;
+//     an act with no public law on file reads "Would", "Would have" or
+//     "Proposed". The six pointers and the six no-facts blanks did not move,
+//     and no shipped line changed. consistency.js is precached and changed, so
+//     it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved.
+const CACHE_VERSION = 'v319';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

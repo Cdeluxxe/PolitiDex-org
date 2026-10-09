@@ -2393,6 +2393,10 @@
       // The effect line sits under its own row and belongs to it: no rule between them.
       '.pdxlg-t tr.pdxlg-effr td{border-top:none;padding:0 0.4rem 0.4rem 0;' +
         'color:#b8c7de;font-size:0.72rem;line-height:1.4;}' +
+      // A pointer to another leaf's line: same placement, quieter, so it reads as a
+      // cross-reference rather than as this leaf's own sentence.
+      '.pdxlg-t tr.pdxlg-ptrr td{border-top:none;padding:0 0.4rem 0.4rem 0;' +
+        'color:#93a6c4;font-size:0.7rem;line-height:1.4;font-style:italic;}' +
       '.pdxlg-d{white-space:nowrap;font-variant-numeric:tabular-nums;color:#8fa2c0;font-size:0.68rem;}' +
       '.pdxlg-num{font-weight:700;color:#e8eefc;white-space:nowrap;}' +
       '.pdxlg-k{color:#cfe0f8;}' +
@@ -13928,6 +13932,9 @@
           // The drawer's one-line effect for this row, off the same entry and the
           // same lookup — see _dosEffectLine. '' where nothing short is stored.
           effLine: _dosEffectLine(p.item, issueKey, mech),
+          // Where this leaf stores nothing and the same act's line sits on another
+          // leaf, a pointer to that line — see _dosPointerLine. '' otherwise.
+          ptrLine: _dosPointerLine(p.item, issueKey, _dosEffectLine(p.item, issueKey, mech)),
           counts: (mech && mech.why) || '',
           rationale: (mech && mech.more) || mrat || '',
           fineFromMapping: !!(mrat && !(mech && mech.more)),
@@ -17139,6 +17146,11 @@
         if (eff) {
           out += '<tr class="pdxlg-effr" data-pdxlg-effr="' + p.i + '">' +
             '<td colspan="5" class="pdxlg-eff" data-pdxlg-eff="1">' + esc(eff) + '</td></tr>';
+        } else if (d.ptrLine) {
+          // Not this leaf's line: a pointer to the same act's line on another leaf,
+          // in its own row class so nothing reads it as an effect on this one.
+          out += '<tr class="pdxlg-ptrr" data-pdxlg-ptrr="' + p.i + '">' +
+            '<td colspan="5" class="pdxlg-ptr" data-pdxlg-ptr="1">' + esc(d.ptrLine) + '</td></tr>';
         }
       }
       out += '</tbody></table></div>';
@@ -17268,6 +17280,426 @@
       'Would use the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate voted 50-47 to discharge it.',
     'H.Amdt. 99|119|war_powers':
       'Added repeal of the 2002 and 1991 Iraq war authorizations to the House defense bill; the House agreed to it 261-167.',
+    // America First. One line per member-voted act on this leaf whose pair stores
+    // a `did`, written from that `did` and the tally on file; the same act's
+    // Ukraine, Israel and spending lines are separate. H.R. 8035's `did` already
+    // stands under its row and is not rewritten. The three amendments failed, so
+    // each proposed what its `did` names and never carried it. The pairs only the
+    // database maps here store no `did` on this leaf and have no line.
+    'H.R. 4|119|america_first_fp':
+      'Rescinded about $7.9 billion in foreign-assistance balances, development aid among them; the House passed it 214-212, the Senate 51-48.',
+    'H.R. 8034|118|america_first_fp':
+      'Appropriated about $9.2 billion in foreign aid beyond Israel, for disaster, refugee and Sinai needs, unoffset; the House passed it 366-58.',
+    'H.R. 815|118|america_first_fp':
+      'Enacted the 118th Congress’s largest foreign-aid appropriation, for Israel, Ukraine and the Indo-Pacific; the Senate concurred 79-18.',
+    'H.Amdt. 235|119|america_first_fp':
+      'Proposed barring the national security and State funds from use for Israel, a standing aid commitment; the House rejected it 104-314.',
+    'H.Amdt. 236|119|america_first_fp':
+      'Proposed barring the national security and State funds from use for Jordan, a standing aid commitment; the House rejected it 6-421.',
+    'H.Amdt. 243|119|america_first_fp':
+      'Proposed barring foreign nationals from U.S. military academies, striking the defense bill’s cadet section; the House rejected it 61-360.',
+    // Peace Through Strength. One line per member-voted act on this leaf whose
+    // pair stores a `did`, written from that `did` and the tally on file; the same
+    // act's war-powers, Iran, America First and restraint lines are separate.
+    // H.R. 8595's `did` already stands under its row and is not rewritten. An act
+    // the archive shows as law reads in the past tense and ends on its final rolls
+    // ("cleared" where both chambers' are on file); one that failed, or passed one
+    // chamber and was never enacted, reads "Would" or "Would have". The pairs only
+    // the database maps here store no `did` on this leaf and have no line.
+    'H.R. 4346|117|strong_defense':
+      'Set up the CHIPS for America Defense Fund for microelectronics research; the House cleared it 243-187, the Senate 64-33.',
+    'S. 1605|117|strong_defense':
+      'Authorized FY2022 military end strengths, procurement and construction; the House cleared it 363-70, the Senate 88-11.',
+    'H.R. 7776|117|strong_defense':
+      'Authorized FY2023 Armed Forces end strengths, procurement, operation and maintenance and military pay; the Senate concurred 83-11.',
+    'H.R. 2670|118|strong_defense':
+      'Authorized FY2024 defense procurement, research, military pay and construction; the House cleared it 310-118, the Senate 87-13.',
+    'H.R. 5009|118|strong_defense':
+      'Authorized FY2025 Pentagon programs, military construction and servicemember pay; the House cleared it 281-140, the Senate 85-14.',
+    'H.R. 7888|118|strong_defense':
+      'Reauthorized section 702 foreign-intelligence collection for two years; the House cleared it 273-147, the Senate 60-34.',
+    'H.R. 7217|118|strong_defense':
+      'Would have funded U.S. military accounts to replace Pentagon stocks; it fell short of two-thirds in the House, 250-180.',
+    'H.R. 8034|118|strong_defense':
+      'Would have sent about $7.8 billion to U.S. military accounts, refilling American stocks and Army ammunition; the House passed it 366-58.',
+    'S. 1071|119|strong_defense':
+      'Authorized FY2026 Defense Department activities, military construction and troop strengths; the House cleared it 312-112, the Senate 77-20.',
+    'S. 2296|119|strong_defense':
+      'Would have authorized FY2026 weapons procurement and extended the Pacific Deterrence Initiative; the Senate passed it 77-20.',
+    'H.R. 7148|119|strong_defense':
+      'Carried the full FY2026 defense appropriation, with $1 billion for the Taiwan Security Cooperation Initiative; the House concurred 217-214.',
+    'H.R. 8800|119|strong_defense':
+      'Would authorize FY2027 aircraft and ship procurement, troop strength levels and military pay; the House passed it 216-212.',
+    'H.Amdt. 248|119|strong_defense':
+      'Would keep the Santa Ynez unit producing as a component of the military’s fuel supply chain; the House agreed to it 215-214.',
+    'S.J.Res. 59|119|strong_defense':
+      'Would have pulled U.S. forces from Iran hostilities until Congress authorized them; the Senate refused to discharge it 47-53.',
+    'S.J.Res. 83|119|strong_defense':
+      'Would have pulled U.S. forces from any unauthorized hostilities, save self-defense; the Senate refused to discharge it 48-51.',
+    'S.J.Res. 90|119|strong_defense':
+      'Would have pulled U.S. forces from unauthorized Venezuela hostilities, save self-defense; the Senate refused to discharge it 49-51.',
+    'S.J.Res. 98|119|strong_defense':
+      'Would pull U.S. forces from unauthorized Venezuela hostilities, save self-defense; the Senate voted 52-47 to discharge it.',
+    'S.J.Res. 104|119|strong_defense':
+      'Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 47-53.',
+    'S.J.Res. 184|119|strong_defense':
+      'Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 47-50.',
+    'S.J.Res. 163|119|strong_defense':
+      'Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 49-50.',
+    'S.J.Res. 185|119|strong_defense':
+      'Would pull U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate voted 50-47 to discharge it.',
+    // Support for Israel. One line per member-voted act on this leaf whose pair
+    // stores a `did`, written from that `did` and the tally on file; the same act's
+    // America First, Peace Through Strength and spending lines are separate. An act
+    // with a public law on file reads in the past tense; one that failed, or passed
+    // one chamber and was never enacted, reads "Would", "Would have" or "Proposed".
+    // The Arms Export Control Act disapprovals never left committee, so each reads
+    // "Would have blocked" and ends on the discharge vote that kept it there.
+    'H.R. 5323|117|israel_support':
+      'Would have appropriated $1 billion to replace the Iron Dome interceptors Israel expended in May 2021; the House passed it 420-9.',
+    'S. 1605|117|israel_support':
+      'Set aside up to $200 million to co-produce Israel’s Iron Dome, David’s Sling and Arrow 3; the House cleared it 363-70, the Senate 88-11.',
+    'H.R. 2670|118|israel_support':
+      'Set anti-tunnel, counter-drone and refuelling aid for Israel and Iron Dome co-production; the House cleared it 310-118, the Senate 87-13.',
+    'H.Amdt. 478|118|israel_support':
+      'Would bar the State and foreign operations funds from moving the U.S. Embassy in Israel out of Jerusalem; the House agreed to it 360-67.',
+    'H.R. 6126|118|israel_support':
+      'Would have provided $14.3 billion for Israel’s missile defense, military financing and U.S. stock replacement; the House passed it 226-196.',
+    'H.R. 7217|118|israel_support':
+      'Would have provided a $17.6 billion unoffset emergency supplemental for Israel; it fell short of two-thirds in the House, 250-180.',
+    'H.R. 8034|118|israel_support':
+      'Would have funded Iron Dome, David’s Sling, Iron Beam and military financing for Israel; the House passed it 366-58.',
+    'H.R. 8369|118|israel_support':
+      'Would have required the President to deliver to Israel the defense articles Congress had already funded; the House passed it 224-187.',
+    'S.J.Res. 111|118|israel_support':
+      'Would have blocked the sale to Israel of tank rounds and 120mm mortar cartridges; the Senate refused to discharge it 18-79.',
+    'S.J.Res. 113|118|israel_support':
+      'Would have blocked the sale to Israel of JDAM guidance kits and small-diameter bombs; the Senate refused to discharge it 19-78.',
+    'S.J.Res. 115|118|israel_support':
+      'Would have blocked an export-licence amendment for defense articles and data for Israel; the Senate refused to discharge it 17-80.',
+    'S. 1071|119|israel_support':
+      'Funded U.S. co-production of Iron Dome, David’s Sling and Arrow 3 parts for Israel; the House cleared it 312-112, the Senate 77-20.',
+    'S. 2296|119|israel_support':
+      'Would have raised U.S.-Israel anti-tunnel and counter-drone ceilings and funded Iron Dome co-production; the Senate passed it 77-20.',
+    'H.R. 7148|119|israel_support':
+      'Appropriated $500 million for Israeli missile defense and $3.3 billion in military financing for Israel; the House concurred 217-214.',
+    'H.Amdt. 235|119|israel_support':
+      'Proposed barring the bill’s funds from use for Israel and cutting Foreign Military Financing by $3.3 billion; the House rejected it 104-314.',
+    'H.R. 8595|119|israel_support':
+      'Would direct at least $3.3 billion in military financing to Israel and keep the U.S. embassy in Jerusalem; the House passed it 217-209.',
+    'H.R. 8800|119|israel_support':
+      'Would extend the U.S. war reserve stockpile in Israel and set up a U.S.–Israel defense technology initiative; the House passed it 216-212.',
+    'S.J.Res. 26|119|israel_support':
+      'Would have blocked the sale to Israel of bulldozers and related equipment; the Senate refused to discharge it 15-83.',
+    'S.J.Res. 33|119|israel_support':
+      'Would have blocked the sale to Israel of bomb bodies and guidance kits; the Senate refused to discharge it 15-82.',
+    'S.J.Res. 34|119|israel_support':
+      'Would have blocked a certified transfer of defense articles and services to Israel; the Senate refused to discharge it 24-73.',
+    'S.J.Res. 41|119|israel_support':
+      'Would have blocked the export of assault rifles to Israel; the Senate refused to discharge it 27-70.',
+    'S.J.Res. 32|119|israel_support':
+      'Would have blocked a certified transfer of defense articles and services to Israel; the Senate refused to discharge it 40-59.',
+    'S.J.Res. 138|119|israel_support':
+      'Would have blocked a certified transfer of defense articles and services to Israel; the Senate refused to discharge it 36-63.',
+    // Diplomacy & Restraint. One line per member-voted act on this leaf whose pair
+    // stores a `did`, written from that `did` and the tally on file; the same act's
+    // war-powers, Iran, Peace Through Strength and Ukraine lines are separate.
+    // H.R. 8035's `did` already stands under its row and is not rewritten, and
+    // S.J.Res. 59 stores no `did` here, so it has no line. Only H.R. 815 is law;
+    // every other act here reads "Would" or "Would have".
+    'H.R. 815|118|restraint':
+      'Sustained U.S. military support to two active wars and Pacific deterrence through three security divisions; the Senate concurred 79-18.',
+    'H.Amdt. 99|119|restraint':
+      'Would end the standing 2002 and 1991 Iraq force authorizations through the House defense bill; the House agreed to it 261-167.',
+    'H.Con.Res. 89|119|restraint':
+      'Would direct U.S. forces out of Iran hostilities, keeping self-defense and intelligence sharing; the House agreed to it 214-208.',
+    'H.Con.Res. 108|119|restraint':
+      'Would have directed U.S. forces out of any hostilities in Lebanon within seven days; the House rejected it 189-235.',
+    'S.J.Res. 83|119|restraint':
+      'Would have directed the President to end any U.S. hostilities absent Congress’s approval; the Senate refused to discharge it 48-51.',
+    'S.J.Res. 90|119|restraint':
+      'Would have directed an end to U.S. hostilities against Venezuela absent Congress’s approval; the Senate refused to discharge it 49-51.',
+    'S.J.Res. 98|119|restraint':
+      'Would direct the President to end U.S. hostilities against Venezuela absent Congress’s approval; the Senate voted 52-47 to discharge it.',
+    'S.J.Res. 104|119|restraint':
+      'Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 47-53.',
+    'S.J.Res. 184|119|restraint':
+      'Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 47-50.',
+    'S.J.Res. 163|119|restraint':
+      'Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 49-50.',
+    'S.J.Res. 185|119|restraint':
+      'Would direct the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate voted 50-47 to discharge it.',
+    // THE SEARCH LEAVES (v316). One line per member-voted pair that had none, where
+    // the pair holds its own `did`, or its own stored title and a recorded outcome;
+    // each ends on the tally on file and takes the tense that outcome allows — an
+    // act with no public law on file reads "Would", "Would have" or "Proposed", and
+    // an adopted amendment says what it wrote into its bill. A pair whose only facts
+    // sit on another leaf is left blank. Capped at forty for this pass.
+    // Tariffs. S.J.Res. 37's Household Prices line is written from that pair's own
+    // `did`; its Tariffs & Trade Authority row stores nothing and stays blank.
+    'S.J.Res. 37|119|tariffs_prices':
+      'Would have ended the emergency behind the tariffs on Canadian imports, lifting those duties; the Senate passed it 51-48.',
+    // Immigration: the border, legal-pathway, fentanyl and deportation leaves. S.Amdt.
+    // 8 and 14 store no `did` on the deportation leaf; their lines are written from
+    // each amendment's own stored title and the Senate roll that adopted it. H.R. 29
+    // has neither a `did` nor a descriptive title on that leaf — its only facts sit
+    // on the border leaf — so its deportation row stays blank.
+    'S. 2|119|border_security':
+      'Funded $9.55 billion for Border Patrol agents and $3.45 billion for ports and surveillance; the House cleared it 214-212, the Senate 52-47.',
+    'H.R. 3486|119|border_security':
+      'Would raise the maximum penalty for unlawful entry to five years and for reentry after removal to ten; the House passed it 226-197.',
+    'H.R. 2056|119|border_security':
+      'Would bar the District from blocking its agencies from sharing immigration status data with federal officials; the House passed it 224-194.',
+    'H.R. 29|119|border_security':
+      'Would require detention of inadmissible immigrants charged with theft or burglary, and their removal; the House passed it 264-159.',
+    'S.Amdt. 5813|119|immigration_reform':
+      'Proposed funding timely adjudication of DACA renewal applications in the border bill; the Senate rejected it 47-52.',
+    'S. 2|119|immig_fentanyl':
+      'Funded port equipment to catch illicit drugs and money to fight fentanyl trafficking; the House cleared it 214-212, the Senate 52-47.',
+    'S. 1071|119|immig_fentanyl':
+      'Extended the Fentanyl Sanctions Act and ordered a study of fentanyl trafficking from China; the House cleared it 312-112, the Senate 77-20.',
+    'S. 331|119|immig_fentanyl':
+      'Permanently placed fentanyl-related substances in Schedule I as a class; the House cleared it 321-104, the Senate 84-16.',
+    'S. 1605|117|immig_fentanyl':
+      'Made the narcotics report name the top fentanyl source countries and their cooperation; the House cleared it 363-70, the Senate 88-11.',
+    'H.R. 815|118|immig_fentanyl':
+      'Carried the FEND Off Fentanyl Act, with sanctions and anti-money-laundering steps against fentanyl traffickers; the Senate concurred 79-18.',
+    'S. 2296|119|immig_fentanyl':
+      'Would have widened the Fentanyl Sanctions Act to anyone materially aiding opioid trafficking; the Senate passed it 77-20.',
+    'S. 2|119|deportations':
+      'Appropriated $44 billion for ICE and CBP interior enforcement, detention and removals; the House cleared it 214-212, the Senate 52-47.',
+    'H.R. 2056|119|deportations':
+      'Would bar the District from refusing lawful federal requests to hold someone in custody; the House passed it 224-194.',
+    'S. 5|119|deportations':
+      'Required detaining and seeking removal of non-citizens here unlawfully facing theft charges; the House cleared it 263-156, the Senate 64-35.',
+    'S.Amdt. 8|119|deportations':
+      'Added crimes causing death or serious bodily injury to the bill’s mandatory-detention list; the Senate agreed to it 75-24.',
+    'S.Amdt. 14|119|deportations':
+      'Expanded the offences that trigger mandatory detention under the bill; the Senate agreed to it 70-25.',
+    // Energy: production, resource development and Climate Action & Clean Energy.
+    // H.Amdt. 234 stores no `did`; its line is written from its own stored title and
+    // the House roll that rejected it.
+    'H.Amdt. 248|119|energy_production':
+      'Wrote into the defense bill that the Santa Ynez offshore production unit keeps operating; the House agreed to it 215-214.',
+    'H.R. 3616|119|energy_production':
+      'Would require public notice of power generation shortfalls and grid-reliability review of agency rules; the House passed it 225-203.',
+    'H.R. 3632|119|energy_production':
+      'Would require power plant owners to give notice before retiring a generating unit; the House passed it 222-202.',
+    'H.R. 3628|119|energy_production':
+      'Would make state utility regulators consider reliable power generation as a ratemaking standard; the House passed it 218-207.',
+    'H.R. 1047|119|energy_production':
+      'Would let new dispatchable power projects move to the front of the grid interconnection queue; the House passed it 216-206.',
+    'H.R. 3746|118|energy_production':
+      'Ratified all federal approvals for the Mountain Valley Pipeline and barred court review; the House cleared it 314-117, the Senate 63-36.',
+    'H.R. 5376|117|energy_production':
+      'Required new Gulf of Mexico oil and gas lease sales before wind and solar rights-of-way; the House cleared it 220-207, the Senate 50-50.',
+    'S.J.Res. 71|119|energy_production':
+      'Would have ended the Executive Order 14156 energy emergency on its second try; the Senate rejected it 47-51.',
+    'S.J.Res. 10|119|energy_production':
+      'Would have ended the January 2025 national energy emergency that expedites energy projects; the Senate rejected it 47-52.',
+    'H.R. 4090|119|lands_energy':
+      'Would order Interior to list pending federal-land mining permits and approve those ready at once; the House passed it 224-195.',
+    'H.R. 1366|119|lands_energy':
+      'Would lift acreage limits on hardrock mining mill sites and set up an Abandoned Hardrock Mine Fund; the House passed it 219-198.',
+    'H.R. 4690|119|climate_action':
+      'Would repeal the fossil-fuel reduction targets for new and renovated federal buildings; the House passed it 215-202.',
+    'H.Amdt. 234|119|climate_action':
+      'Proposed striking the $139,575,000 for the Global Environment Facility from the bill; the House rejected it 178-247.',
+    'H.Amdt. 207|119|climate_action':
+      'Wrote a farm-equipment exemption from Clean Air Act engine emission standards into the farm bill; the House agreed to it 215-213.',
+    'H.R. 4758|119|climate_action':
+      'Would repeal the 2022 climate law’s home electrification rebates and building energy code aid; the House passed it 210-199.',
+    'H.Amdt. 79|119|climate_action':
+      'Wrote repeal of the Pentagon’s electric and hybrid fleet-vehicle preference into the defense bill; the House agreed to it 224-208.',
+    'H.R. 5376|117|climate_action':
+      'Extended and expanded wind, solar, geothermal and hydropower tax credits; the House cleared it 220-207, the Senate 50-50.',
+    // Water.
+    'H.R. 3684|117|water':
+      'Funded drinking-water and wastewater systems, lead pipe removal and Western water storage; the House cleared it 228-206, the Senate 69-30.',
+    // Housing.
+    'H.R. 6644|119|housing':
+      'Reauthorized the HOME program and Rural Housing Service and widened HUD-VASH eligibility; the House cleared it 358-32, the Senate 89-10.',
+    'H.R. 6644|119|housing_build':
+      'Funded permitting of single-staircase apartments and raised FHA multifamily loan limits; the House cleared it 358-32, the Senate 89-10.',
+    'S. 2296|119|housing_build':
+      'Would have carried model zoning reforms for duplexes, fourplexes and townhouses; the Senate passed it 77-20.',
+    'S. 2296|119|homeless':
+      'Would have rewritten the Continuum of Care homelessness program and capped waivers for displacing recipients; the Senate passed it 77-20.',
+    // Schools. The forty-line cap for this pass reached the schools leaves after one
+    // line; the other school rows with their own facts wait for the next pass.
+    'S. 2938|117|public_schools':
+      'Funded school safety programs and school-based mental-health services; the House cleared it 234-193, the Senate 65-33.',
+    // WAVE 1 OF FULL COVERAGE (v317). The four school rows the search-leaves cap
+    // held back, then the widest-reaching member-voted rows still printing no line,
+    // forty in all. Each is written from its own pair's `did` — H.Amdt. 257 alone
+    // from its own stored title and the House roll that rejected it — and ends on
+    // the tally on file. An act with no public law on file reads "Would" or
+    // "Proposed", amendments to bills that never became law included.
+    'H.R. 1319|117|public_schools':
+      'Created the Elementary and Secondary School Emergency Relief Fund for reopening schools; the House cleared it 220-211, the Senate 50-49.',
+    'H.R. 1049|119|edu_parental':
+      'Would require federally funded schools to tell parents they may ask about foreign influence in the school; the House passed it 247-166.',
+    'H.R. 3746|118|edu_college_cost':
+      'Ended the federal student-loan payment pause and barred another extension without Congress; the House cleared it 314-117, the Senate 63-36.',
+    'H.Amdt. 257|119|school_choice':
+      'Proposed a Defense Department school choice pilot program for members of the Armed Forces; the House rejected it 214-216.',
+    'H.Amdt. 196|119|states_federal_power':
+      'Would strike the farm bill sections preempting state pesticide labeling rules, leaving state law in place; the House agreed to it 280-142.',
+    'H.R. 4776|119|permitting_reform':
+      'Would set a window to challenge a finished environmental review in court and limit who has standing; the House passed it 221-196.',
+    'H.R. 3668|119|permitting_reform':
+      'Would make FERC the lead agency for natural-gas import and export permits, on its schedule; the House passed it 213-184.',
+    'H.R. 3898|119|permitting_reform':
+      'Would narrow state water-quality certification for projects and widen general permits; the House passed it 221-205.',
+    'H.R. 5214|119|tough_on_crime':
+      'Would require pretrial detention in the District for those charged with violent crimes and restore money bail; the House passed it 237-179.',
+    'H.R. 3062|119|permitting_reform':
+      'Would replace presidential permits for cross-border oil, gas and power lines with a certificate of crossing; the House passed it 224-203.',
+    'H.R. 5140|119|tough_on_crime':
+      'Would send District minors 14 and older charged with listed violent offences to adult court; the House passed it 225-203.',
+    'H.R. 4922|119|tough_on_crime':
+      'Would cut the District’s youth offender ceiling from 24 to 18 and end sentences below mandatory minimums; the House passed it 240-179.',
+    'H.Amdt. 81|119|tough_on_crime':
+      'Would raise the penalty for unlawfully entering a military installation from six months to two years; the House agreed to it 228-205.',
+    'H.Amdt. 89|119|lgbtq_rights':
+      'Would bar anyone from using a military single-sex facility that does not match their sex; the House agreed to it 219-209.',
+    'H.Amdt. 88|119|lgbtq_rights':
+      'Would bar Pentagon forms from asking about gender identity or taking answers beyond male or female; the House agreed to it 221-210.',
+    'H.Amdt. 86|119|lgbtq_rights':
+      'Would bar TRICARE from covering gender-related medical treatment, with narrow exceptions; the House agreed to it 221-207.',
+    'S. 1071|119|guard_authority':
+      'Let a governor in a declared disaster put full-time National Guard members on state duty; the House cleared it 312-112, the Senate 77-20.',
+    'H.R. 1|119|lower_taxes':
+      'Made the 2017 tax cuts permanent and raised the child tax credit to $2,200, indexed; the House cleared it 218-214, the Senate 50-50.',
+    'H.R. 1|119|cut_spending':
+      'Reduced federal Medicaid spending and raised the SNAP work-requirement age from 55 to 65; the House cleared it 218-214, the Senate 50-50.',
+    'H.R. 6955|119|gov_regulation':
+      'Would have financial regulators tailor their actions to a bank’s size and risk profile; the House passed it 270-155.',
+    'H.R. 8595|119|gov_services':
+      'Would fund the State Department, international organizations and independent agencies through FY2027; the House passed it 217-209.',
+    'H.R. 1181|119|gun_rights':
+      'Would bar card networks from assigning a merchant category code that singles out a firearms retailer; the House passed it 221-201.',
+    'H.R. 6955|119|econ_smallbiz':
+      'Would widen small-bank and Main Street lending, with a three-year capital phase-in for new banks; the House passed it 270-155.',
+    'H.R. 6955|119|econ_corp_account':
+      'Would let regulators approve some bank mergers without weighing whether they are monopolistic; the House passed it 270-155.',
+    'H.R. 8595|119|pro_life':
+      'Would keep the bar on U.S. development funds paying for abortion as a method of family planning; the House passed it 217-209.',
+    'H.R. 1181|119|privacy_rights':
+      'Would stop card networks from building records that flag a customer as having shopped at a gun store; the House passed it 221-201.',
+    'H.R. 7008|119|gov_transparency':
+      'Would require a member to post public notice seven to fourteen days before selling a covered investment; the House passed it 232-198.',
+    'H.R. 7008|119|stock_trading_ban':
+      'Would bar members of Congress, spouses and dependent children from buying individual stocks; the House passed it 232-198.',
+    'H.R. 1181|119|states_federal_power':
+      'Would pre-empt state and local laws on merchant category codes for firearms retailers; the House passed it 221-201.',
+    'S. 331|119|health_mental':
+      'Kept fentanyl-related substances in Schedule I while adding a research registration pathway; the House cleared it 321-104, the Senate 84-16.',
+    'S. 331|119|tough_on_crime':
+      'Applied mandatory minimums to all fentanyl-related substances, ten years at 100 grams; the House cleared it 321-104, the Senate 84-16.',
+    'S. 2|119|tough_on_crime':
+      'Appropriated $7.45 billion for Homeland Security Investigations agents beyond immigration; the House cleared it 214-212, the Senate 52-47.',
+    'H.R. 7888|118|privacy_rights':
+      'Repealed abouts collection and required FBI approval for U.S.-person section 702 queries; the House cleared it 273-147, the Senate 60-34.',
+    'H.R. 7888|118|congress_oversight':
+      'Revoked the FBI’s reporting exemption and required regular section 702 reports to Congress; the House cleared it 273-147, the Senate 60-34.',
+    'H.R. 3746|118|gov_services':
+      'Tightened TANF work rules and raised the SNAP work-requirement age to 54; the House cleared it 314-117, the Senate 63-36.',
+    'H.R. 3746|118|permitting_reform':
+      'Set page and time limits on environmental impact statements and one lead agency per project; the House cleared it 314-117, the Senate 63-36.',
+    'H.R. 2670|118|privacy_rights':
+      'Extended section 702 surveillance of targets abroad through April 19, 2024; the House cleared it 310-118, the Senate 87-13.',
+    'S. 3373|117|healthcare':
+      'Opened VA health care to veterans exposed to burn pits and Agent Orange; the House cleared it 342-88, the Senate 86-11.',
+    'S. 3373|117|veterans':
+      'Expanded VA benefits and service-connection presumptions for toxic-exposed veterans; the House cleared it 342-88, the Senate 86-11.',
+    'S. 2938|117|gun_rights':
+      'Held under-21 gun sales for review and barred dating partners with abuse convictions; the House cleared it 234-193, the Senate 65-33.',
+    // WAVE 2 OF FULL COVERAGE (v319). The next forty member-voted rows by reach
+    // that store their own `did` and still printed no line. Each is written from
+    // that `did` alone — no title is a source in this wave — and ends on the tally
+    // on file. An act with no public law on file reads "Would", "Would have" or
+    // "Proposed". The six pointer rows are untouched.
+    'S. 2938|117|gun_safety':
+      'Required enhanced checks for buyers aged 18 to 20 and created straw purchasing offences; the House cleared it 234-193, the Senate 65-33.',
+    'S. 2938|117|health_mental':
+      'Funded children’s and family mental-health services and paediatric access grants; the House cleared it 234-193, the Senate 65-33.',
+    'H.R. 4346|117|econ_growth':
+      'Expanded federal aid for building and equipping semiconductor plants in the U.S.; the House cleared it 243-187, the Senate 64-33.',
+    'H.R. 4346|117|tech_innovation':
+      'Created the CHIPS for America Fund and authorized NSF, NIST, DOE and NASA research; the House cleared it 243-187, the Senate 64-33.',
+    'H.R. 5376|117|econ_corp_account':
+      'Imposed a 15% minimum tax on corporations above $1 billion and a 1% buyback tax; the House cleared it 220-207, the Senate 50-50.',
+    'H.R. 5376|117|health_drug_prices':
+      'Required Medicare to negotiate high-spend drug prices and capped insulin cost sharing; the House cleared it 220-207, the Senate 50-50.',
+    'H.R. 5376|117|healthcare_costs':
+      'Extended the enlarged Affordable Care Act premium tax credits through 2025; the House cleared it 220-207, the Senate 50-50.',
+    'H.R. 5376|117|national_debt':
+      'Carried a Deficit Reduction subtitle with a corporate minimum tax and IRS enforcement; the House cleared it 220-207, the Senate 50-50.',
+    'H.R. 8404|117|lgbtq_rights':
+      'Repealed the Defense of Marriage Act’s definitions of marriage and spouse; the House cleared it 258-169, the Senate 61-36.',
+    'H.R. 8404|117|states_federal_power':
+      'Barred anyone acting under state law from refusing to honor another state’s marriage record; the House cleared it 258-169, the Senate 61-36.',
+    'H.R. 1319|117|cost_living':
+      'Sent recovery rebates to households and funded emergency rental and utility aid; the House cleared it 220-211, the Senate 50-49.',
+    'H.R. 1319|117|econ_smallbiz':
+      'Funded the Restaurant Revitalization Fund and Shuttered Venue Operators Grants; the House cleared it 220-211, the Senate 50-49.',
+    'H.R. 1319|117|econ_workers':
+      'Extended pandemic unemployment compensation through September 2021; the House cleared it 220-211, the Senate 50-49.',
+    'H.R. 1319|117|family_support':
+      'Raised the child tax credit to $3,000 per child, $3,600 under six, fully refundable; the House cleared it 220-211, the Senate 50-49.',
+    'H.R. 1319|117|healthcare_costs':
+      'Expanded ACA premium tax credits for 2021 and 2022 and subsidized COBRA coverage; the House cleared it 220-211, the Senate 50-49.',
+    'H.R. 3076|117|gov_services':
+      'Ended the Postal Service’s retiree health prepayment and wrote six-day delivery into law; the House cleared it 342-92, the Senate 79-19.',
+    'H.R. 3684|117|broadband':
+      'Created the Broadband Equity, Access, and Deployment program for unserved areas; the House cleared it 228-206, the Senate 69-30.',
+    'H.R. 3684|117|infrastructure':
+      'Funded roads and bridges, rail, transit, ports, airports and the electric grid; the House cleared it 228-206, the Senate 69-30.',
+    'H.R. 3684|117|transit':
+      'Reauthorized federal public transportation and funded passenger and freight rail; the House cleared it 228-206, the Senate 69-30.',
+    'S. 5|119|state_standing':
+      'Let a state sue Washington over immigration decisions that harm it by more than $100; the House cleared it 263-156, the Senate 64-35.',
+    'S. 5|119|tough_on_crime':
+      'Made an arrest or charge for theft or burglary the trigger for federal custody; the House cleared it 263-156, the Senate 64-35.',
+    'H.R. 4|119|cut_spending':
+      'Cancelled unobligated balances for the State Department, USAID and public broadcasting; the House cleared it 214-212, the Senate 51-48.',
+    'H.R. 4|119|gov_waste':
+      'Returned roughly $9 billion of enacted budget authority to the Treasury unspent; the House cleared it 214-212, the Senate 51-48.',
+    'H.R. 4|119|national_debt':
+      'Reduced federal outlays by the rescinded balances, below the House’s $9.4 billion; the House cleared it 214-212, the Senate 51-48.',
+    'H.R. 22|119|election_integrity':
+      'Would require documentary proof of citizenship to register and removal of non-citizens from rolls; the House passed it 220-208.',
+    'H.R. 22|119|election_security':
+      'Would require proof of citizenship to register and state checks of existing rolls against federal databases; the House passed it 220-208.',
+    'H.R. 22|119|voter_id':
+      'Would require a passport, a citizenship-showing REAL ID, or a birth certificate with photo ID to register; the House passed it 220-208.',
+    'H.R. 22|119|voting_access':
+      'Would make documentary proof of citizenship a precondition of registering by mail, online or in person; the House passed it 220-208.',
+    'H.R. 192|118|election_security':
+      'Would have barred non-citizens from voting in District of Columbia elections; the House passed it 262-143.',
+    'H.R. 8035|118|foreign_balance':
+      'Would have funded Ukraine security assistance and replacement of defense articles already transferred; the House passed it 311-112.',
+    'H.R. 8281|118|election_security':
+      'Would have required documentary proof of U.S. citizenship before a state registers a federal voter; the House passed it 221-198.',
+    'H.R. 8281|118|states_federal_power':
+      'Would have written the proof-of-citizenship rule into federal law for every registration channel a state runs; the House passed it 221-198.',
+    'H.R. 8281|118|voting_access':
+      'Would have required proof of citizenship in person at an election office, closing mail registration; the House passed it 221-198.',
+    'S. 1383|119|election_security':
+      'Would require proof of citizenship to register and a physical photo ID to vote in person; the House passed it 218-213.',
+    'S. 1383|119|voting_access':
+      'Would make mail applicants prove citizenship in person and give voters without ID only a provisional ballot; the House passed it 218-213.',
+    'H.R. 6126|118|cut_spending':
+      'Would have offset the Israel supplemental by rescinding $14.3 billion of IRS enforcement funding; the House passed it 226-196.',
+    'H.R. 3486|119|tough_on_crime':
+      'Would set a five-year mandatory minimum for someone who entered unlawfully and is later convicted of a felony; the House passed it 226-197.',
+    'H.R. 4405|119|gov_transparency':
+      'Required the Justice Department to publish all unclassified Epstein investigation records, searchable; the House passed it 427-1.',
+    'H.R. 884|119|election_security':
+      'Would bar anyone who is not a U.S. citizen from voting in a District of Columbia election; the House passed it 266-148.',
+    'H.Amdt. 235|119|cut_spending':
+      'Proposed cutting the Foreign Military Financing Program account by $3.3 billion; the House rejected it 104-314.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // The item is already a row on this issue, so the pair is mapped whether or
@@ -17327,6 +17759,49 @@
     'Presidential Letter, DCPD-202500715|iran_policy':
       'Directed the June 21, 2025 U.S. strike on three Iranian nuclear facilities, reporting it to Congress two days later.'
   };
+  // A ROW WHOSE FACTS LIVE ON ANOTHER LEAF POINTS AT THAT LEAF.
+  //
+  // These six pairs store nothing on their own leaf, and their titles are bare
+  // numbers, but the same act already has a line on a sibling leaf. Rather than
+  // leave the row a date, a number and a vote, the drawer prints one pointer in a
+  // fixed shape: "Same act, filed on [leaf]: [that leaf's line]". The quoted line
+  // is read live from that pair — its _DOS_EFFECT entry or its short `did`, by the
+  // same _dosEffectLine rule — and is never copied into this leaf's store, so it
+  // makes no claim that this leaf was affected. A listed leaf counts only when the
+  // act is mapped to it and it has a line; where two do, the shorter is quoted and
+  // the other named. Nothing here moves a score.
+  var _DOS_POINTER = {
+    'S.J.Res. 37|119|tariffs_authority': ['tariffs_prices'],
+    'S.J.Res. 37|119|econ_trade': ['tariffs_prices'],
+    'S.J.Res. 59|119|restraint': ['strong_defense', 'iran_policy'],
+    'S.J.Res. 59|119|war_powers': ['strong_defense', 'iran_policy'],
+    'H.R. 29|119|deportations': ['border_security', 'tough_on_crime'],
+    'H.R. 29|119|state_standing': ['border_security', 'tough_on_crime']
+  };
+  // The leaf's name as the site labels it, less the icon that leads the chip.
+  function _dosLeafName(k) {
+    var lb = String(_issueLabel(k) || '');
+    return lb.replace(/^[^A-Za-z0-9\s]+\s+/, '') || lb;
+  }
+  function _dosPointerLine(item, issueKey, ownLine) {
+    if (ownLine || !item || !issueKey) return '';
+    var to = _DOS_POINTER[String(item.number == null ? '' : item.number).trim() + '|' + item.congress + '|' + issueKey];
+    if (!to) return '';
+    var mapped = {}, list = item.issues || [], hits = [], i;
+    for (i = 0; i < list.length; i++) if (list[i] && list[i].issueKey) mapped[list[i].issueKey] = true;
+    for (i = 0; i < to.length; i++) {
+      if (to[i] === issueKey || !mapped[to[i]]) continue;
+      var line = _dosEffectLine(item, to[i], _dosMechFor(item, to[i]));
+      if (line) hits.push({ leaf: to[i], line: line });
+    }
+    if (!hits.length) return '';
+    hits.sort(function (a, b) { return a.line.length - b.line.length; });
+    var also = [];
+    for (i = 1; i < hits.length; i++) also.push(_dosLeafName(hits[i].leaf));
+    return 'Same act, filed on ' + _dosLeafName(hits[0].leaf) +
+      (also.length ? ' (also filed on ' + also.join(' and ') + ')' : '') + ': ' + hits[0].line;
+  }
+
   function _dosExecEffectLine(it, issueKey) {
     if (!it || !issueKey || !it.documentId) return '';
     return _dosEffectOk(_DOS_EXEC_EFFECT[String(it.documentId).trim() + '|' + issueKey]);

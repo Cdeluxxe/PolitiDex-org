@@ -228,7 +228,12 @@ section("1 · the table: one short sentence per pair, Lands and Red Tape untouch
   if (y && typeof y.yea === "number") ok(ha.includes(`${y.yea}-${y.nay}`), `${HA252}: tally ${y.yea}-${y.nay} on file`);
   ok(!/^(Prohibited|Barred|Cut)\b/.test(ha), `${HA252}: a failed amendment is written as though it took effect`);
 
-  const lrt = Object.keys(EFFECT).filter((k) => /\|(lands_preserve|lands_energy|gov_regulation)$/.test(k));
+  // The ten as they stood before this pass; the search-leaves pass (v316) added
+  // two later lands_energy lines of its own, held by its own test, and they are
+  // not part of the shipped set this hash pins.
+  // Wave 1 (v317) added a Red Tape line for H.R. 6955, likewise held by its own test.
+  const LATER = new Set(["H.R. 4090|119|lands_energy", "H.R. 1366|119|lands_energy", "H.R. 6955|119|gov_regulation"]);
+  const lrt = Object.keys(EFFECT).filter((k) => /\|(lands_preserve|lands_energy|gov_regulation)$/.test(k) && !LATER.has(k));
   eq(lrt.length, LANDS_RED_TAPE_COUNT, "Lands and Red Tape line count");
   const sha = createHash("sha256").update(lrt.map((k) => k + "\t" + EFFECT[k]).join("\n")).digest("hex");
   eq(sha, LANDS_RED_TAPE_SHA, "Lands and Red Tape lines are byte-identical");

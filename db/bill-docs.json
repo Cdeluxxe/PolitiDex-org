@@ -48,22 +48,28 @@
      "l": "Provided child-care stabilisation funding, supplemental Child Care and Development Block Grant money, and Head Start funding."
     },
     {
-     "i": "Help Families with Kids"
+     "i": "Help Families with Kids",
+     "l": "Raised the child tax credit to $3,000 per child, $3,600 under six, fully refundable; the House cleared it 220-211, the Senate 50-49."
     },
     {
-     "i": "Help Small Businesses"
+     "i": "Help Small Businesses",
+     "l": "Funded the Restaurant Revitalization Fund and Shuttered Venue Operators Grants; the House cleared it 220-211, the Senate 50-49."
     },
     {
-     "i": "Invest in Public Schools"
+     "i": "Invest in Public Schools",
+     "l": "Created the Elementary and Secondary School Emergency Relief Fund for reopening schools; the House cleared it 220-211, the Senate 50-49."
     },
     {
-     "i": "Lower Healthcare Costs"
+     "i": "Lower Healthcare Costs",
+     "l": "Expanded ACA premium tax credits for 2021 and 2022 and subsidized COBRA coverage; the House cleared it 220-211, the Senate 50-49."
     },
     {
-     "i": "Raise Wages & Protect Workers"
+     "i": "Raise Wages & Protect Workers",
+     "l": "Extended pandemic unemployment compensation through September 2021; the House cleared it 220-211, the Senate 50-49."
     },
     {
-     "i": "Tackle the Cost of Living"
+     "i": "Tackle the Cost of Living",
+     "l": "Sent recovery rebates to households and funded emergency rental and utility aid; the House cleared it 220-211, the Senate 50-49."
     },
     {
      "i": "Tackle the National Debt",
@@ -114,7 +120,8 @@
    "t": "Postal Service Reform Act of 2022",
    "m": [
     {
-     "i": "Invest in Public Services"
+     "i": "Invest in Public Services",
+     "l": "Ended the Postal Service’s retiree health prepayment and wrote six-day delivery into law; the House cleared it 342-92, the Senate 79-19."
     },
     {
      "i": "Transparency & Anti-Corruption",
@@ -133,20 +140,24 @@
      "l": "Funded clean school buses, a national electric-vehicle charging network, home weatherisation and legacy pollution remediation."
     },
     {
-     "i": "Public Transit & Transportation"
+     "i": "Public Transit & Transportation",
+     "l": "Reauthorized federal public transportation and funded passenger and freight rail; the House cleared it 228-206, the Senate 69-30."
     },
     {
-     "i": "Rebuild Roads & Bridges"
+     "i": "Rebuild Roads & Bridges",
+     "l": "Funded roads and bridges, rail, transit, ports, airports and the electric grid; the House cleared it 228-206, the Senate 69-30."
     },
     {
      "i": "Tackle the National Debt",
      "l": "The act’s new spending was only partially offset, so it was scored as adding to the deficit."
     },
     {
-     "i": "Universal Broadband"
+     "i": "Universal Broadband",
+     "l": "Created the Broadband Equity, Access, and Deployment program for unserved areas; the House cleared it 228-206, the Senate 69-30."
     },
     {
-     "i": "Water Conservation"
+     "i": "Water Conservation",
+     "l": "Funded drinking-water and wastewater systems, lead pipe removal and Western water storage; the House cleared it 228-206, the Senate 69-30."
     },
     {
      "i": "Wildfire & Disaster Resilience",
@@ -161,13 +172,16 @@
    "t": "Chips and Science Act",
    "m": [
     {
-     "i": "Innovation & Light Rules"
+     "i": "Innovation & Light Rules",
+     "l": "Created the CHIPS for America Fund and authorized NSF, NIST, DOE and NASA research; the House cleared it 243-187, the Senate 64-33."
     },
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "l": "Set up the CHIPS for America Defense Fund for microelectronics research; the House cleared it 243-187, the Senate 64-33."
     },
     {
-     "i": "Pro-Growth Deregulation"
+     "i": "Pro-Growth Deregulation",
+     "l": "Expanded federal aid for building and equipping semiconductor plants in the U.S.; the House cleared it 243-187, the Senate 64-33."
     },
     {
      "i": "Tackle the National Debt",
@@ -182,7 +196,8 @@
    "t": "Iron Dome Supplemental Appropriations Act, 2022",
    "m": [
     {
-     "i": "Support for Israel"
+     "i": "Support for Israel",
+     "l": "Would have appropriated $1 billion to replace the Iron Dome interceptors Israel expended in May 2021; the House passed it 420-9."
     }
    ]
   },
@@ -193,26 +208,32 @@
    "t": "Inflation Reduction Act of 2022",
    "m": [
     {
-     "i": "Climate Action & Clean Energy"
+     "i": "Climate Action & Clean Energy",
+     "l": "Extended and expanded wind, solar, geothermal and hydropower tax credits; the House cleared it 220-207, the Senate 50-50."
     },
     {
-     "i": "Corporate Accountability"
+     "i": "Corporate Accountability",
+     "l": "Imposed a 15% minimum tax on corporations above $1 billion and a 1% buyback tax; the House cleared it 220-207, the Senate 50-50."
     },
     {
      "i": "Cut Income & Business Taxes",
      "l": "Imposed a 15% minimum tax on the reported income of corporations earning over $1 billion and a 1% excise tax on stock buybacks."
     },
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "l": "Required new Gulf of Mexico oil and gas lease sales before wind and solar rights-of-way; the House cleared it 220-207, the Senate 50-50."
     },
     {
-     "i": "Lower Healthcare Costs"
+     "i": "Lower Healthcare Costs",
+     "l": "Extended the enlarged Affordable Care Act premium tax credits through 2025; the House cleared it 220-207, the Senate 50-50."
     },
     {
-     "i": "Lower Prescription Drug Prices"
+     "i": "Lower Prescription Drug Prices",
+     "l": "Required Medicare to negotiate high-spend drug prices and capped insulin cost sharing; the House cleared it 220-207, the Senate 50-50."
     },
     {
-     "i": "Tackle the National Debt"
+     "i": "Tackle the National Debt",
+     "l": "Carried a Deficit Reduction subtitle with a corporate minimum tax and IRS enforcement; the House cleared it 220-207, the Senate 50-50."
     }
    ]
   },
@@ -234,7 +255,8 @@
    "t": "James M. Inhofe National Defense Authorization Act for Fiscal Year 2023",
    "m": [
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "l": "Authorized FY2023 Armed Forces end strengths, procurement, operation and maintenance and military pay; the Senate concurred 83-11."
     }
    ]
   },
@@ -259,7 +281,8 @@
    "t": "Respect for Marriage Act",
    "m": [
     {
-     "i": "Protect LGBTQ+ Rights"
+     "i": "Protect LGBTQ+ Rights",
+     "l": "Repealed the Defense of Marriage Act’s definitions of marriage and spouse; the House cleared it 258-169, the Senate 61-36."
     }
    ]
   },
@@ -270,7 +293,8 @@
    "t": "National Defense Authorization Act for Fiscal Year 2022",
    "m": [
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "l": "Authorized FY2022 military end strengths, procurement and construction; the House cleared it 363-70, the Senate 88-11."
     }
    ]
   },
@@ -281,16 +305,20 @@
    "t": "Bipartisan Safer Communities Act",
    "m": [
     {
-     "i": "Invest in Public Schools"
+     "i": "Invest in Public Schools",
+     "l": "Funded school safety programs and school-based mental-health services; the House cleared it 234-193, the Senate 65-33."
     },
     {
-     "i": "Mental Health & Addiction"
+     "i": "Mental Health & Addiction",
+     "l": "Funded children’s and family mental-health services and paediatric access grants; the House cleared it 234-193, the Senate 65-33."
     },
     {
-     "i": "Protect Gun Rights"
+     "i": "Protect Gun Rights",
+     "l": "Held under-21 gun sales for review and barred dating partners with abuse convictions; the House cleared it 234-193, the Senate 65-33."
     },
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "l": "Required enhanced checks for buyers aged 18 to 20 and created straw purchasing offences; the House cleared it 234-193, the Senate 65-33."
     }
    ]
   },
@@ -301,10 +329,12 @@
    "t": "Sergeant First Class Heath Robinson Honoring our Promise to Address Comprehensive Toxics Act of 2022",
    "m": [
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "l": "Opened VA health care to veterans exposed to burn pits and Agent Orange; the House cleared it 342-88, the Senate 86-11."
     },
     {
-     "i": "Take Care of Veterans"
+     "i": "Take Care of Veterans",
+     "l": "Expanded VA benefits and service-connection presumptions for toxic-exposed veterans; the House cleared it 342-88, the Senate 86-11."
     }
    ]
   },
@@ -315,7 +345,8 @@
    "t": "H.Amdt. 478 (Tenney) to H.R. 4665 — prohibit funds to move the U.S. Embassy in Israel out of Jerusalem",
    "m": [
     {
-     "i": "Support for Israel"
+     "i": "Support for Israel",
+     "l": "Would bar the State and foreign operations funds from moving the U.S. Embassy in Israel out of Jerusalem; the House agreed to it 360-67."
     }
    ]
   },
@@ -359,7 +390,8 @@
    "t": "To prohibit individuals who are not citizens of the United States from voting in elections in the District of Columbia",
    "m": [
     {
-     "i": "Election Security & Ballot Safeguards"
+     "i": "Election Security & Ballot Safeguards",
+     "l": "Would have barred non-citizens from voting in District of Columbia elections; the House passed it 262-143."
     },
     {
      "i": "Expand Voting Access",
@@ -374,16 +406,19 @@
    "t": "Making emergency supplemental appropriations for the fiscal year ending September 30, 2024, and for other purposes.",
    "m": [
     {
-     "i": "America First Foreign Aid & Commitments"
+     "i": "America First Foreign Aid & Commitments",
+     "l": "Enacted the 118th Congress’s largest foreign-aid appropriation, for Israel, Ukraine and the Indo-Pacific; the Senate concurred 79-18."
     },
     {
-     "i": "Diplomacy & Restraint"
+     "i": "Diplomacy & Restraint",
+     "l": "Sustained U.S. military support to two active wars and Pacific deterrence through three security divisions; the Senate concurred 79-18."
     },
     {
      "i": "Smart Tech Guardrails"
     },
     {
-     "i": "Stop Fentanyl & Cartels"
+     "i": "Stop Fentanyl & Cartels",
+     "l": "Carried the FEND Off Fentanyl Act, with sanctions and anti-money-laundering steps against fentanyl traffickers; the Senate concurred 79-18."
     },
     {
      "i": "Strategic Engagement"
@@ -401,7 +436,8 @@
    "t": "National Defense Authorization Act for Fiscal Year 2024",
    "m": [
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "l": "Authorized FY2024 defense procurement, research, military pay and construction; the House cleared it 310-118, the Senate 87-13."
     }
    ]
   },
@@ -412,16 +448,20 @@
    "t": "Fiscal Responsibility Act of 2023",
    "m": [
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "l": "Ratified all federal approvals for the Mountain Valley Pipeline and barred court review; the House cleared it 314-117, the Senate 63-36."
     },
     {
-     "i": "Faster Permits & Reviews"
+     "i": "Faster Permits & Reviews",
+     "l": "Set page and time limits on environmental impact statements and one lead agency per project; the House cleared it 314-117, the Senate 63-36."
     },
     {
-     "i": "Invest in Public Services"
+     "i": "Invest in Public Services",
+     "l": "Tightened TANF work rules and raised the SNAP work-requirement age to 54; the House cleared it 314-117, the Senate 63-36."
     },
     {
-     "i": "Lower College & Trade Costs"
+     "i": "Lower College & Trade Costs",
+     "l": "Ended the federal student-loan payment pause and barred another extension without Congress; the House cleared it 314-117, the Senate 63-36."
     }
    ]
   },
@@ -444,7 +484,8 @@
    "t": "Servicemember Quality of Life Improvement and National Defense Authorization Act for Fiscal Year 2025",
    "m": [
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "l": "Authorized FY2025 Pentagon programs, military construction and servicemember pay; the House cleared it 281-140, the Senate 85-14."
     },
     {
      "i": "Protect LGBTQ+ Rights",
@@ -459,10 +500,12 @@
    "t": "Israel Security Supplemental Appropriations Act, 2024",
    "m": [
     {
-     "i": "Cut Federal Spending & Reduce Debt"
+     "i": "Cut Federal Spending & Reduce Debt",
+     "l": "Would have offset the Israel supplemental by rescinding $14.3 billion of IRS enforcement funding; the House passed it 226-196."
     },
     {
-     "i": "Support for Israel"
+     "i": "Support for Israel",
+     "l": "Would have provided $14.3 billion for Israel’s missile defense, military financing and U.S. stock replacement; the House passed it 226-196."
     }
    ]
   },
@@ -473,7 +516,8 @@
    "t": "Israel Security Supplemental Appropriations Act, 2024",
    "m": [
     {
-     "i": "Support for Israel"
+     "i": "Support for Israel",
+     "l": "Would have provided a $17.6 billion unoffset emergency supplemental for Israel; it fell short of two-thirds in the House, 250-180."
     }
    ]
   },
@@ -484,10 +528,12 @@
    "t": "Reforming Intelligence and Securing America Act",
    "m": [
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "l": "Reauthorized section 702 foreign-intelligence collection for two years; the House cleared it 273-147, the Senate 60-34."
     },
     {
-     "i": "Privacy & Big-Tech Accountability"
+     "i": "Privacy & Big-Tech Accountability",
+     "l": "Repealed abouts collection and required FBI approval for U.S.-person section 702 queries; the House cleared it 273-147, the Senate 60-34."
     }
    ]
   },
@@ -498,7 +544,8 @@
    "t": "Israel Security Supplemental Appropriations Act, 2024",
    "m": [
     {
-     "i": "Support for Israel"
+     "i": "Support for Israel",
+     "l": "Would have funded Iron Dome, David’s Sling, Iron Beam and military financing for Israel; the House passed it 366-58."
     }
    ]
   },
@@ -517,7 +564,8 @@
      "l": "Funded current U.S. military operations in the region and sustained American military support to an active war."
     },
     {
-     "i": "Strategic Engagement"
+     "i": "Strategic Engagement",
+     "l": "Would have funded Ukraine security assistance and replacement of defense articles already transferred; the House passed it 311-112."
     },
     {
      "i": "Ukraine",
@@ -532,10 +580,12 @@
    "t": "Safeguard American Voter Eligibility Act",
    "m": [
     {
-     "i": "Election Security & Ballot Safeguards"
+     "i": "Election Security & Ballot Safeguards",
+     "l": "Would have required documentary proof of U.S. citizenship before a state registers a federal voter; the House passed it 221-198."
     },
     {
-     "i": "Expand Voting Access"
+     "i": "Expand Voting Access",
+     "l": "Would have required proof of citizenship in person at an election office, closing mail registration; the House passed it 221-198."
     }
    ]
   },
@@ -546,7 +596,8 @@
    "t": "Israel Security Assistance Support Act",
    "m": [
     {
-     "i": "Support for Israel"
+     "i": "Support for Israel",
+     "l": "Would have required the President to deliver to Israel the defense articles Congress had already funded; the House passed it 224-187."
     }
    ]
   },
@@ -571,7 +622,8 @@
    "t": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services, including tank rounds and mortar cartridges to Israel.",
    "m": [
     {
-     "i": "Support for Israel"
+     "i": "Support for Israel",
+     "l": "Would have blocked the sale to Israel of tank rounds and 120mm mortar cartridges; the Senate refused to discharge it 18-79."
     }
    ]
   },
@@ -582,7 +634,8 @@
    "t": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services, including JDAM guidance kits and small-diameter bombs to Israel.",
    "m": [
     {
-     "i": "Support for Israel"
+     "i": "Support for Israel",
+     "l": "Would have blocked the sale to Israel of JDAM guidance kits and small-diameter bombs; the Senate refused to discharge it 19-78."
     }
    ]
   },
@@ -593,7 +646,8 @@
    "t": "A joint resolution providing for congressional disapproval of the proposed license amendment for the export of certain defense articles, defense services and technical data to Israel.",
    "m": [
     {
-     "i": "Support for Israel"
+     "i": "Support for Israel",
+     "l": "Would have blocked an export-licence amendment for defense articles and data for Israel; the Senate refused to discharge it 17-80."
     }
    ]
   },
@@ -626,7 +680,8 @@
    "t": "An amendment numbered 9 printed in House Report 119-255 to eliminate the preference for Motor Vehicles using Electric or Hybrid propulsion systems and related requirements of the Department of Defense.",
    "m": [
     {
-     "i": "Climate Action & Clean Energy"
+     "i": "Climate Action & Clean Energy",
+     "l": "Wrote repeal of the Pentagon’s electric and hybrid fleet-vehicle preference into the defense bill; the House agreed to it 224-208."
     }
    ]
   },
@@ -637,7 +692,8 @@
    "t": "An amendment numbered 11 printed in House Report 119-255 to increase penalties for entering a military installation or violating national defense area security regulations.",
    "m": [
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "l": "Would raise the penalty for unlawfully entering a military installation from six months to two years; the House agreed to it 228-205."
     }
    ]
   },
@@ -654,7 +710,8 @@
    "t": "An amendment numbered 14 printed in Part A of House Report 119-255 to prohibit DoD from covering or furnishing gender-related medical treatment under TRICARE.",
    "m": [
     {
-     "i": "Protect LGBTQ+ Rights"
+     "i": "Protect LGBTQ+ Rights",
+     "l": "Would bar TRICARE from covering gender-related medical treatment, with narrow exceptions; the House agreed to it 221-207."
     }
    ]
   },
@@ -671,7 +728,8 @@
    "t": "An amendment numbered 16 printed in Part A of House Report 119-255 to prohibit the Secretary of Defense from soliciting information through a form or survey regarding the gender identity of an individual, providing an option to indicate the sex or gender of an individual is something other than male or female, and requiring the Secretary reject a response other than male or female to a required question on a form or survey regarding sex or gender.",
    "m": [
     {
-     "i": "Protect LGBTQ+ Rights"
+     "i": "Protect LGBTQ+ Rights",
+     "l": "Would bar Pentagon forms from asking about gender identity or taking answers beyond male or female; the House agreed to it 221-210."
     }
    ]
   },
@@ -682,7 +740,8 @@
    "t": "An amendment numbered 17 printed in Part A of House Report 119-255 to prohibit individuals from accessing or using single-sex spaces on military installations which do not correspond to the biological sex of the individual.",
    "m": [
     {
-     "i": "Protect LGBTQ+ Rights"
+     "i": "Protect LGBTQ+ Rights",
+     "l": "Would bar anyone from using a military single-sex facility that does not match their sex; the House agreed to it 219-209."
     }
    ]
   },
@@ -703,7 +762,8 @@
      "l": "Added repeal of the 2002 and 1991 Iraq war authorizations to the House defense bill; the House agreed to it 261-167."
     },
     {
-     "i": "Diplomacy & Restraint"
+     "i": "Diplomacy & Restraint",
+     "l": "Would end the standing 2002 and 1991 Iraq force authorizations through the House defense bill; the House agreed to it 261-167."
     }
    ]
   },
@@ -714,7 +774,8 @@
    "t": "An amendment numbered 28 printed in Part B of House Report 119-628 to strike section 10205 (relating to uniformity of pesticide labeling), section 10206 (relating to authority of States), and section 10207 (relating to lawful use of authorized pesticides).",
    "m": [
     {
-     "i": "Whose Rule Governs: State or Federal"
+     "i": "Whose Rule Governs: State or Federal",
+     "l": "Would strike the farm bill sections preempting state pesticide labeling rules, leaving state law in place; the House agreed to it 280-142."
     }
    ]
   },
@@ -725,7 +786,8 @@
    "t": "An amendment numbered 49 printed in Part B of House Report 119-628 to remove costly, overreaching emissions mandates on farm equipment that drives up expenses for farmers and consumers.",
    "m": [
     {
-     "i": "Climate Action & Clean Energy"
+     "i": "Climate Action & Clean Energy",
+     "l": "Wrote a farm-equipment exemption from Clean Air Act engine emission standards into the farm bill; the House agreed to it 215-213."
     }
    ]
   },
@@ -753,7 +815,8 @@
      "i": "America First Foreign Aid & Commitments"
     },
     {
-     "i": "Climate Action & Clean Energy"
+     "i": "Climate Action & Clean Energy",
+     "l": "Proposed striking the $139,575,000 for the Global Environment Facility from the bill; the House rejected it 178-247."
     },
     {
      "i": "Cut Federal Spending & Reduce Debt"
@@ -767,13 +830,16 @@
    "t": "H.Amdt. 235 (Massie) to H.R. 8595 — prohibit funds appropriated by the Act from being used for Israel, and accordingly reduces the Foreign Military Financing Program account by…",
    "m": [
     {
-     "i": "America First Foreign Aid & Commitments"
+     "i": "America First Foreign Aid & Commitments",
+     "l": "Proposed barring the national security and State funds from use for Israel, a standing aid commitment; the House rejected it 104-314."
     },
     {
-     "i": "Cut Federal Spending & Reduce Debt"
+     "i": "Cut Federal Spending & Reduce Debt",
+     "l": "Proposed cutting the Foreign Military Financing Program account by $3.3 billion; the House rejected it 104-314."
     },
     {
-     "i": "Support for Israel"
+     "i": "Support for Israel",
+     "l": "Proposed barring the bill’s funds from use for Israel and cutting Foreign Military Financing by $3.3 billion; the House rejected it 104-314."
     }
    ]
   },
@@ -784,7 +850,8 @@
    "t": "H.Amdt. 236 (Massie) to H.R. 8595 — prohibit funds appropriated by the Act from being used for Jordan, and accordingly reduces the National Security Investment Programs, the Foreign…",
    "m": [
     {
-     "i": "America First Foreign Aid & Commitments"
+     "i": "America First Foreign Aid & Commitments",
+     "l": "Proposed barring the national security and State funds from use for Jordan, a standing aid commitment; the House rejected it 6-421."
     },
     {
      "i": "Cut Federal Spending & Reduce Debt"
@@ -818,7 +885,8 @@
    "t": "H.Amdt. 243 (Boebert) to H.R. 8800 — strike section 521 and replace it with a prohibition on foreign nationals attending the United States Military Academies",
    "m": [
     {
-     "i": "America First Foreign Aid & Commitments"
+     "i": "America First Foreign Aid & Commitments",
+     "l": "Proposed barring foreign nationals from U.S. military academies, striking the defense bill’s cadet section; the House rejected it 61-360."
     },
     {
      "i": "Strategic Engagement"
@@ -850,10 +918,12 @@
    "t": "H.Amdt. 248 (Hunt) to H.R. 8800 — modify the bill to protect a critical component of California's defense fuel supply chain by ensuring the continued operation of the Santa Ynez…",
    "m": [
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "l": "Wrote into the defense bill that the Santa Ynez offshore production unit keeps operating; the House agreed to it 215-214."
     },
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "l": "Would keep the Santa Ynez unit producing as a component of the military’s fuel supply chain; the House agreed to it 215-214."
     }
    ]
   },
@@ -964,7 +1034,8 @@
    "t": "H.Amdt. 257 (McDowell) to H.R. 8800 — authorize the Secretary of Defense to establish a school choice pilot program for members of the Armed Forces",
    "m": [
     {
-     "i": "School Choice & Education Freedom"
+     "i": "School Choice & Education Freedom",
+     "l": "Proposed a Defense Department school choice pilot program for members of the Armed Forces; the House rejected it 214-216."
     }
    ]
   },
@@ -1027,7 +1098,8 @@
    "t": "Directing the President, pursuant to section 5(c) of the War Powers Resolution, to remove United States Armed Forces from hostilities with Iran.",
    "m": [
     {
-     "i": "Diplomacy & Restraint"
+     "i": "Diplomacy & Restraint",
+     "l": "Would direct U.S. forces out of Iran hostilities, keeping self-defense and intelligence sharing; the House agreed to it 214-208."
     },
     {
      "i": "Iran",
@@ -1045,7 +1117,8 @@
    "t": "Directing the President pursuant to section 5(c) of the War Powers Resolution to remove United States Armed Forces from hostilities in Lebanon.",
    "m": [
     {
-     "i": "Diplomacy & Restraint"
+     "i": "Diplomacy & Restraint",
+     "l": "Would have directed U.S. forces out of any hostilities in Lebanon within seven days; the House rejected it 189-235."
     },
     {
      "i": "Peace Through Strength"
@@ -1176,10 +1249,12 @@
      "i": "Climate Action & Clean Energy"
     },
     {
-     "i": "Cut Federal Spending & Reduce Debt"
+     "i": "Cut Federal Spending & Reduce Debt",
+     "l": "Reduced federal Medicaid spending and raised the SNAP work-requirement age from 55 to 65; the House cleared it 218-214, the Senate 50-50."
     },
     {
-     "i": "Cut Income & Business Taxes"
+     "i": "Cut Income & Business Taxes",
+     "l": "Made the 2017 tax cuts permanent and raised the child tax credit to $2,200, indexed; the House cleared it 218-214, the Senate 50-50."
     },
     {
      "i": "Energy & Resource Development",
@@ -1229,16 +1304,19 @@
      "i": "America First"
     },
     {
-     "i": "America First Foreign Aid & Commitments"
+     "i": "America First Foreign Aid & Commitments",
+     "l": "Rescinded about $7.9 billion in foreign-assistance balances, development aid among them; the House passed it 214-212, the Senate 51-48."
     },
     {
      "i": "Audit Spending & the Fed"
     },
     {
-     "i": "Cut Federal Spending & Reduce Debt"
+     "i": "Cut Federal Spending & Reduce Debt",
+     "l": "Cancelled unobligated balances for the State Department, USAID and public broadcasting; the House cleared it 214-212, the Senate 51-48."
     },
     {
-     "i": "Cut Waste, Not Services"
+     "i": "Cut Waste, Not Services",
+     "l": "Returned roughly $9 billion of enacted budget authority to the Treasury unspent; the House cleared it 214-212, the Senate 51-48."
     },
     {
      "i": "Free Speech Protections"
@@ -1247,7 +1325,8 @@
      "i": "Invest in Public Services"
     },
     {
-     "i": "Tackle the National Debt"
+     "i": "Tackle the National Debt",
+     "l": "Reduced federal outlays by the rescinded balances, below the House’s $9.4 billion; the House cleared it 214-212, the Senate 51-48."
     }
    ]
   },
@@ -1272,16 +1351,20 @@
    "t": "Safeguard American Voter Eligibility (SAVE) Act",
    "m": [
     {
-     "i": "Election Integrity"
+     "i": "Election Integrity",
+     "l": "Would require documentary proof of citizenship to register and removal of non-citizens from rolls; the House passed it 220-208."
     },
     {
-     "i": "Election Security & Ballot Safeguards"
+     "i": "Election Security & Ballot Safeguards",
+     "l": "Would require proof of citizenship to register and state checks of existing rolls against federal databases; the House passed it 220-208."
     },
     {
-     "i": "Expand Voting Access"
+     "i": "Expand Voting Access",
+     "l": "Would make documentary proof of citizenship a precondition of registering by mail, online or in person; the House passed it 220-208."
     },
     {
-     "i": "Voter ID & Election Integrity"
+     "i": "Voter ID & Election Integrity",
+     "l": "Would require a passport, a citizenship-showing REAL ID, or a birth certificate with photo ID to register; the House passed it 220-208."
     }
    ]
   },
@@ -1386,7 +1469,8 @@
    "t": "To prohibit individuals who are not citizens of the United States from voting in elections in the District of Columbia",
    "m": [
     {
-     "i": "Election Security & Ballot Safeguards"
+     "i": "Election Security & Ballot Safeguards",
+     "l": "Would bar anyone who is not a U.S. citizen from voting in a District of Columbia election; the House passed it 266-148."
     },
     {
      "i": "Expand Voting Access",
@@ -1421,7 +1505,8 @@
    "t": "To require the Federal Energy Regulatory Commission to reform the interconnection queue process for the prioritization and approval of certain projects.",
    "m": [
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "l": "Would let new dispatchable power projects move to the front of the grid interconnection queue; the House passed it 216-206."
     }
    ]
   },
@@ -1452,10 +1537,12 @@
    "t": "Protecting Privacy in Purchases Act",
    "m": [
     {
-     "i": "Privacy & Big-Tech Accountability"
+     "i": "Privacy & Big-Tech Accountability",
+     "l": "Would stop card networks from building records that flag a customer as having shopped at a gun store; the House passed it 221-201."
     },
     {
-     "i": "Protect Gun Rights"
+     "i": "Protect Gun Rights",
+     "l": "Would bar card networks from assigning a merchant category code that singles out a firearms retailer; the House passed it 221-201."
     }
    ]
   },
@@ -1466,7 +1553,8 @@
    "t": "To provide for the location of multiple hardrock mining mill sites, to establish the Abandoned Hardrock Mine Fund, and for other purposes.",
    "m": [
     {
-     "i": "Energy & Resource Development"
+     "i": "Energy & Resource Development",
+     "l": "Would lift acreage limits on hardrock mining mill sites and set up an Abandoned Hardrock Mine Fund; the House passed it 219-198."
     }
    ]
   },
@@ -1548,10 +1636,12 @@
    "t": "To require the District of Columbia to comply with federal immigration laws.",
    "m": [
     {
-     "i": "Mass Deportations & Border Security"
+     "i": "Mass Deportations & Border Security",
+     "l": "Would bar the District from refusing lawful federal requests to hold someone in custody; the House passed it 224-194."
     },
     {
-     "i": "Strong Border & Enforcement"
+     "i": "Strong Border & Enforcement",
+     "l": "Would bar the District from blocking its agencies from sharing immigration status data with federal officials; the House passed it 224-194."
     }
    ]
   },
@@ -1588,7 +1678,8 @@
    "t": "To establish a more uniform, transparent, and modern process to authorize the construction, connection, operation, and maintenance of international border-crossing facilities for the import and export of oil and natural gas and the transmission of electricity.",
    "m": [
     {
-     "i": "Faster Permits & Reviews"
+     "i": "Faster Permits & Reviews",
+     "l": "Would replace presidential permits for cross-border oil, gas and power lines with a certificate of crossing; the House passed it 224-203."
     }
    ]
   },
@@ -1605,10 +1696,12 @@
    "t": "To amend the Immigration and Nationality Act to increase penalties for individuals who illegally enter and reenter the United States after being removed, and for other purposes.",
    "m": [
     {
-     "i": "Strong Border & Enforcement"
+     "i": "Strong Border & Enforcement",
+     "l": "Would raise the maximum penalty for unlawful entry to five years and for reentry after removal to ten; the House passed it 226-197."
     },
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "l": "Would set a five-year mandatory minimum for someone who entered unlawfully and is later convicted of a felony; the House passed it 226-197."
     }
    ]
   },
@@ -1619,7 +1712,8 @@
    "t": "To require the Federal Energy Regulatory Commission to review regulations that may affect the reliable operation of the bulk-power system, and for other purposes.",
    "m": [
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "l": "Would require public notice of power generation shortfalls and grid-reliability review of agency rules; the House passed it 225-203."
     }
    ]
   },
@@ -1630,7 +1724,8 @@
    "t": "To amend the Public Utility Regulatory Policies Act of 1978 to establish a standard related to State consideration of reliable generation, and for other purposes.",
    "m": [
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "l": "Would make state utility regulators consider reliable power generation as a ratemaking standard; the House passed it 218-207."
     }
    ]
   },
@@ -1641,7 +1736,8 @@
    "t": "To amend the Federal Power Act to adjust the requirements for orders under section 207 of such Act, and to require owners or operators of generating facilities to provide notice of planned retirements of certain electric generating units, and for other purposes.",
    "m": [
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "l": "Would require power plant owners to give notice before retiring a generating unit; the House passed it 222-202."
     }
    ]
   },
@@ -1666,7 +1762,8 @@
    "t": "To promote interagency coordination for reviewing certain authorizations under section 3 of the Natural Gas Act, and for other purposes.",
    "m": [
     {
-     "i": "Faster Permits & Reviews"
+     "i": "Faster Permits & Reviews",
+     "l": "Would make FERC the lead agency for natural-gas import and export permits, on its schedule; the House passed it 213-184."
     }
    ]
   },
@@ -1694,7 +1791,8 @@
    "t": "To amend the Federal Water Pollution Control Act with respect to water quality standards, certifications, general permits, and the terms of permits, and for other purposes.",
    "m": [
     {
-     "i": "Faster Permits & Reviews"
+     "i": "Faster Permits & Reviews",
+     "l": "Would narrow state water-quality certification for projects and widen general permits; the House passed it 221-205."
     }
    ]
   },
@@ -1711,7 +1809,8 @@
    "t": "To codify certain provisions of certain Executive Orders relating to domestic mining and hardrock mineral resources, and for other purposes.",
    "m": [
     {
-     "i": "Energy & Resource Development"
+     "i": "Energy & Resource Development",
+     "l": "Would order Interior to list pending federal-land mining permits and approve those ready at once; the House passed it 224-195."
     }
    ]
   },
@@ -1722,7 +1821,8 @@
    "t": "To require the Attorney General to release all documents and records in possession of the Department of Justice relating to Jeffrey Epstein, and for other purposes.",
    "m": [
     {
-     "i": "Transparency & Anti-Corruption"
+     "i": "Transparency & Anti-Corruption",
+     "l": "Required the Justice Department to publish all unclassified Epstein investigation records, searchable; the House passed it 427-1."
     }
    ]
   },
@@ -1739,7 +1839,8 @@
    "t": "To amend the Energy Conservation and Production Act to repeal certain Federal building energy efficiency performance standards, and for other purposes.",
    "m": [
     {
-     "i": "Climate Action & Clean Energy"
+     "i": "Climate Action & Clean Energy",
+     "l": "Would repeal the fossil-fuel reduction targets for new and renovated federal buildings; the House passed it 215-202."
     }
    ]
   },
@@ -1750,7 +1851,8 @@
    "t": "Homeowner Energy Freedom Act",
    "m": [
     {
-     "i": "Climate Action & Clean Energy"
+     "i": "Climate Action & Clean Energy",
+     "l": "Would repeal the 2022 climate law’s home electrification rebates and building energy code aid; the House passed it 210-199."
     },
     {
      "i": "Cut Federal Spending & Reduce Debt",
@@ -1765,7 +1867,8 @@
    "t": "To amend the National Environmental Policy Act of 1969 to clarify ambiguous provisions, and for other purposes.",
    "m": [
     {
-     "i": "Faster Permits & Reviews"
+     "i": "Faster Permits & Reviews",
+     "l": "Would set a window to challenge a finished environmental review in court and limit who has standing; the House passed it 221-196."
     }
    ]
   },
@@ -1776,7 +1879,8 @@
    "t": "To limit youth offender status in the District of Columbia to individuals 18 years of age or younger, to direct the Attorney General of the District of Columbia to establish and operate a publicly accessible website containing updated statistics on juvenile crime in the District of Columbia, to amend the District of Columbia Home Rule Act to prohibit the Council of the District of Columbia from enacting changes to existing criminal liability sentences, and for other purposes.",
    "m": [
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "l": "Would cut the District’s youth offender ceiling from 24 to 18 and end sentences below mandatory minimums; the House passed it 240-179."
     }
    ]
   },
@@ -1787,7 +1891,8 @@
    "t": "To lower the age at which a minor may be tried as an adult for certain criminal offenses in the District of Columbia to 14 years of age.",
    "m": [
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "l": "Would send District minors 14 and older charged with listed violent offences to adult court; the House passed it 225-203."
     }
    ]
   },
@@ -1798,7 +1903,8 @@
    "t": "To require mandatory pretrial and post conviction detention for crimes of violence and dangerous crimes and require mandatory cash bail for certain offenses that pose a threat to public safety or order in the District of Columbia, and for other purposes.",
    "m": [
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "l": "Would require pretrial detention in the District for those charged with violent crimes and restore money bail; the House passed it 237-179."
     }
    ]
   },
@@ -1840,10 +1946,12 @@
      "i": "Affordable Housing & Renters"
     },
     {
-     "i": "Build More Housing"
+     "i": "Build More Housing",
+     "l": "Funded permitting of single-staircase apartments and raised FHA multifamily loan limits; the House cleared it 358-32, the Senate 89-10."
     },
     {
-     "i": "Housing Affordability"
+     "i": "Housing Affordability",
+     "l": "Reauthorized the HOME program and Rural Housing Service and widened HUD-VASH eligibility; the House cleared it 358-32, the Senate 89-10."
     }
    ]
   },
@@ -1874,7 +1982,8 @@
    "t": "Main Street Capital Access Act",
    "m": [
     {
-     "i": "Help Small Businesses"
+     "i": "Help Small Businesses",
+     "l": "Would widen small-bank and Main Street lending, with a three-year capital phase-in for new banks; the House passed it 270-155."
     }
    ]
   },
@@ -1885,10 +1994,12 @@
    "t": "Stop Insider Trading Act",
    "m": [
     {
-     "i": "Ban Congressional Stock Trading"
+     "i": "Ban Congressional Stock Trading",
+     "l": "Would bar members of Congress, spouses and dependent children from buying individual stocks; the House passed it 232-198."
     },
     {
-     "i": "Transparency & Anti-Corruption"
+     "i": "Transparency & Anti-Corruption",
+     "l": "Would require a member to post public notice seven to fourteen days before selling a covered investment; the House passed it 232-198."
     }
    ]
   },
@@ -1908,7 +2019,8 @@
      "i": "Lower Prescription Drug Prices"
     },
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "l": "Carried the full FY2026 defense appropriation, with $1 billion for the Taiwan Security Cooperation Initiative; the House concurred 217-214."
     },
     {
      "i": "Pro-Life Protections"
@@ -1920,7 +2032,8 @@
      "i": "Strategic Engagement"
     },
     {
-     "i": "Support for Israel"
+     "i": "Support for Israel",
+     "l": "Appropriated $500 million for Israeli missile defense and $3.3 billion in military financing for Israel; the House concurred 217-214."
     }
    ]
   },
@@ -1960,17 +2073,20 @@
    "t": "National Security, Department of State, and Related Programs Appropriations Act, 2027",
    "m": [
     {
-     "i": "Invest in Public Services"
+     "i": "Invest in Public Services",
+     "l": "Would fund the State Department, international organizations and independent agencies through FY2027; the House passed it 217-209."
     },
     {
      "i": "Peace Through Strength",
      "l": "Made the FY2027 appropriations for national security and State Department programs — the money behind those accounts for the year."
     },
     {
-     "i": "Pro-Life Protections"
+     "i": "Pro-Life Protections",
+     "l": "Would keep the bar on U.S. development funds paying for abortion as a method of family planning; the House passed it 217-209."
     },
     {
-     "i": "Support for Israel"
+     "i": "Support for Israel",
+     "l": "Would direct at least $3.3 billion in military financing to Israel and keep the U.S. embassy in Jerusalem; the House passed it 217-209."
     }
    ]
   },
@@ -1981,7 +2097,8 @@
    "t": "National Defense Authorization Act for Fiscal Year 2027",
    "m": [
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "l": "Would authorize FY2027 aircraft and ship procurement, troop strength levels and military pay; the House passed it 216-212."
     }
    ]
   },
@@ -2127,16 +2244,20 @@
    "t": "Secure America Act",
    "m": [
     {
-     "i": "Mass Deportations & Border Security"
+     "i": "Mass Deportations & Border Security",
+     "l": "Appropriated $44 billion for ICE and CBP interior enforcement, detention and removals; the House cleared it 214-212, the Senate 52-47."
     },
     {
-     "i": "Stop Fentanyl & Cartels"
+     "i": "Stop Fentanyl & Cartels",
+     "l": "Funded port equipment to catch illicit drugs and money to fight fentanyl trafficking; the House cleared it 214-212, the Senate 52-47."
     },
     {
-     "i": "Strong Border & Enforcement"
+     "i": "Strong Border & Enforcement",
+     "l": "Funded $9.55 billion for Border Patrol agents and $3.45 billion for ports and surveillance; the House cleared it 214-212, the Senate 52-47."
     },
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "l": "Appropriated $7.45 billion for Homeland Security Investigations agents beyond immigration; the House cleared it 214-212, the Senate 52-47."
     }
    ]
   },
@@ -2147,17 +2268,20 @@
    "t": "Laken Riley Act",
    "m": [
     {
-     "i": "Mass Deportations & Border Security"
+     "i": "Mass Deportations & Border Security",
+     "l": "Required detaining and seeking removal of non-citizens here unlawfully facing theft charges; the House cleared it 263-156, the Senate 64-35."
     },
     {
-     "i": "States Suing Washington"
+     "i": "States Suing Washington",
+     "l": "Let a state sue Washington over immigration decisions that harm it by more than $100; the House cleared it 263-156, the Senate 64-35."
     },
     {
      "i": "Strong Border & Enforcement",
      "l": "Tightened immigration enforcement by removing the discretion to release a covered non-citizen from custody once they have been charged."
     },
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "l": "Made an arrest or charge for theft or burglary the trigger for federal custody; the House cleared it 263-156, the Senate 64-35."
     }
    ]
   },
@@ -2205,13 +2329,16 @@
    "t": "Halt All Lethal Trafficking of Fentanyl Act",
    "m": [
     {
-     "i": "Mental Health & Addiction"
+     "i": "Mental Health & Addiction",
+     "l": "Kept fentanyl-related substances in Schedule I while adding a research registration pathway; the House cleared it 321-104, the Senate 84-16."
     },
     {
-     "i": "Stop Fentanyl & Cartels"
+     "i": "Stop Fentanyl & Cartels",
+     "l": "Permanently placed fentanyl-related substances in Schedule I as a class; the House cleared it 321-104, the Senate 84-16."
     },
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "l": "Applied mandatory minimums to all fentanyl-related substances, ten years at 100 grams; the House cleared it 321-104, the Senate 84-16."
     }
    ]
   },
@@ -2222,10 +2349,12 @@
    "t": "SAVE America Act",
    "m": [
     {
-     "i": "Election Security & Ballot Safeguards"
+     "i": "Election Security & Ballot Safeguards",
+     "l": "Would require proof of citizenship to register and a physical photo ID to vote in person; the House passed it 218-213."
     },
     {
-     "i": "Expand Voting Access"
+     "i": "Expand Voting Access",
+     "l": "Would make mail applicants prove citizenship in person and give voters without ID only a provisional ballot; the House passed it 218-213."
     }
    ]
   },
@@ -2253,7 +2382,8 @@
    "t": "S. 2296 — National Defense Authorization Act for Fiscal Year 2026",
    "m": [
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "l": "Would have authorized FY2026 weapons procurement and extended the Pacific Deterrence Initiative; the Senate passed it 77-20."
     }
    ]
   },
@@ -2264,7 +2394,8 @@
    "t": "Ernst amendment adding crimes causing death or serious bodily injury to the mandatory-detention list (S.Amdt. 8)",
    "m": [
     {
-     "i": "Mass Deportations & Border Security"
+     "i": "Mass Deportations & Border Security",
+     "l": "Added crimes causing death or serious bodily injury to the bill’s mandatory-detention list; the Senate agreed to it 75-24."
     },
     {
      "i": "Tough on Crime"
@@ -2278,7 +2409,8 @@
    "t": "Cornyn amendment expanding the offences that trigger mandatory detention (S.Amdt. 14)",
    "m": [
     {
-     "i": "Mass Deportations & Border Security"
+     "i": "Mass Deportations & Border Security",
+     "l": "Expanded the offences that trigger mandatory detention under the bill; the Senate agreed to it 70-25."
     },
     {
      "i": "Tough on Crime"
@@ -2339,7 +2471,8 @@
    "t": "Gallego amendment funding timely adjudication of DACA renewal applications (S.Amdt. 5813)",
    "m": [
     {
-     "i": "Pathways to Citizenship"
+     "i": "Pathways to Citizenship",
+     "l": "Proposed funding timely adjudication of DACA renewal applications in the border bill; the Senate rejected it 47-52."
     }
    ]
   },
@@ -2361,7 +2494,8 @@
    "t": "A joint resolution terminating the national emergency declared with respect to energy",
    "m": [
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "l": "Would have ended the January 2025 national energy emergency that expedites energy projects; the Senate rejected it 47-52."
     }
    ]
   },
@@ -2372,7 +2506,8 @@
    "t": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services, including bulldozers and related equipment to Israel.",
    "m": [
     {
-     "i": "Support for Israel"
+     "i": "Support for Israel",
+     "l": "Would have blocked the sale to Israel of bulldozers and related equipment; the Senate refused to discharge it 15-83."
     }
    ]
   },
@@ -2383,7 +2518,8 @@
    "t": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services to Israel.",
    "m": [
     {
-     "i": "Support for Israel"
+     "i": "Support for Israel",
+     "l": "Would have blocked a certified transfer of defense articles and services to Israel; the Senate refused to discharge it 40-59."
     }
    ]
   },
@@ -2394,7 +2530,8 @@
    "t": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services, including bomb bodies and guidance kits to Israel.",
    "m": [
     {
-     "i": "Support for Israel"
+     "i": "Support for Israel",
+     "l": "Would have blocked the sale to Israel of bomb bodies and guidance kits; the Senate refused to discharge it 15-82."
     }
    ]
   },
@@ -2405,7 +2542,8 @@
    "t": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services to Israel.",
    "m": [
     {
-     "i": "Support for Israel"
+     "i": "Support for Israel",
+     "l": "Would have blocked a certified transfer of defense articles and services to Israel; the Senate refused to discharge it 24-73."
     }
    ]
   },
@@ -2422,7 +2560,8 @@
      "i": "Tackle the Cost of Living"
     },
     {
-     "i": "Tariffs & Household Prices"
+     "i": "Tariffs & Household Prices",
+     "l": "Would have ended the emergency behind the tariffs on Canadian imports, lifting those duties; the Senate passed it 51-48."
     },
     {
      "i": "Tariffs & Trade Authority"
@@ -2436,7 +2575,8 @@
    "t": "A joint resolution providing for congressional disapproval of the proposed the export of certain defense articles, including assault rifles to Israel.",
    "m": [
     {
-     "i": "Support for Israel"
+     "i": "Support for Israel",
+     "l": "Would have blocked the export of assault rifles to Israel; the Senate refused to discharge it 27-70."
     }
    ]
   },
@@ -2457,7 +2597,8 @@
      "l": "Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 47-53."
     },
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "l": "Would have pulled U.S. forces from Iran hostilities until Congress authorized them; the Senate refused to discharge it 47-53."
     },
     {
      "i": "Strategic Engagement"
@@ -2471,7 +2612,8 @@
    "t": "A joint resolution terminating the national emergency declared with respect to energy",
    "m": [
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "l": "Would have ended the Executive Order 14156 energy emergency on its second try; the Senate rejected it 47-51."
     }
    ]
   },
@@ -2486,10 +2628,12 @@
      "l": "Would have used the War Powers Resolution to end any U.S. hostilities Congress had not authorized; the Senate refused to discharge it 48-51."
     },
     {
-     "i": "Diplomacy & Restraint"
+     "i": "Diplomacy & Restraint",
+     "l": "Would have directed the President to end any U.S. hostilities absent Congress’s approval; the Senate refused to discharge it 48-51."
     },
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "l": "Would have pulled U.S. forces from any unauthorized hostilities, save self-defense; the Senate refused to discharge it 48-51."
     }
    ]
   },
@@ -2504,10 +2648,12 @@
      "l": "Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Venezuela; the Senate refused to discharge it 49-51."
     },
     {
-     "i": "Diplomacy & Restraint"
+     "i": "Diplomacy & Restraint",
+     "l": "Would have directed an end to U.S. hostilities against Venezuela absent Congress’s approval; the Senate refused to discharge it 49-51."
     },
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "l": "Would have pulled U.S. forces from unauthorized Venezuela hostilities, save self-defense; the Senate refused to discharge it 49-51."
     }
    ]
   },
@@ -2522,10 +2668,12 @@
      "l": "Would use the War Powers Resolution to end unauthorized U.S. hostilities against Venezuela; the Senate voted 52-47 to discharge it."
     },
     {
-     "i": "Diplomacy & Restraint"
+     "i": "Diplomacy & Restraint",
+     "l": "Would direct the President to end U.S. hostilities against Venezuela absent Congress’s approval; the Senate voted 52-47 to discharge it."
     },
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "l": "Would pull U.S. forces from unauthorized Venezuela hostilities, save self-defense; the Senate voted 52-47 to discharge it."
     }
    ]
   },
@@ -2540,14 +2688,16 @@
      "l": "Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 47-53."
     },
     {
-     "i": "Diplomacy & Restraint"
+     "i": "Diplomacy & Restraint",
+     "l": "Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 47-53."
     },
     {
      "i": "Iran",
      "l": "Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 47-53."
     },
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "l": "Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 47-53."
     }
    ]
   },
@@ -2582,7 +2732,8 @@
    "t": "A joint resolution providing for congressional disapproval of the proposed foreign military sale of certain defense articles and services to Israel.",
    "m": [
     {
-     "i": "Support for Israel"
+     "i": "Support for Israel",
+     "l": "Would have blocked a certified transfer of defense articles and services to Israel; the Senate refused to discharge it 36-63."
     }
    ]
   },
@@ -2597,14 +2748,16 @@
      "l": "Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 49-50."
     },
     {
-     "i": "Diplomacy & Restraint"
+     "i": "Diplomacy & Restraint",
+     "l": "Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 49-50."
     },
     {
      "i": "Iran",
      "l": "Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 49-50."
     },
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "l": "Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 49-50."
     }
    ]
   },
@@ -2637,14 +2790,16 @@
      "l": "Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 47-50."
     },
     {
-     "i": "Diplomacy & Restraint"
+     "i": "Diplomacy & Restraint",
+     "l": "Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 47-50."
     },
     {
      "i": "Iran",
      "l": "Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 47-50."
     },
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "l": "Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 47-50."
     }
    ]
   },
@@ -2659,14 +2814,16 @@
      "l": "Would use the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate voted 50-47 to discharge it."
     },
     {
-     "i": "Diplomacy & Restraint"
+     "i": "Diplomacy & Restraint",
+     "l": "Would direct the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate voted 50-47 to discharge it."
     },
     {
      "i": "Iran",
      "l": "Would order U.S. forces out of hostilities against Iran that Congress has not authorized; the Senate voted 50-47 to discharge it."
     },
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "l": "Would pull U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate voted 50-47 to discharge it."
     }
    ]
   },
