@@ -17517,6 +17517,92 @@
     // line; the other school rows with their own facts wait for the next pass.
     'S. 2938|117|public_schools':
       'Funded school safety programs and school-based mental-health services; the House cleared it 234-193, the Senate 65-33.',
+    // WAVE 1 OF FULL COVERAGE (v317). The four school rows the search-leaves cap
+    // held back, then the widest-reaching member-voted rows still printing no line,
+    // forty in all. Each is written from its own pair's `did` — H.Amdt. 257 alone
+    // from its own stored title and the House roll that rejected it — and ends on
+    // the tally on file. An act with no public law on file reads "Would" or
+    // "Proposed", amendments to bills that never became law included.
+    'H.R. 1319|117|public_schools':
+      'Created the Elementary and Secondary School Emergency Relief Fund for reopening schools; the House cleared it 220-211, the Senate 50-49.',
+    'H.R. 1049|119|edu_parental':
+      'Would require federally funded schools to tell parents they may ask about foreign influence in the school; the House passed it 247-166.',
+    'H.R. 3746|118|edu_college_cost':
+      'Ended the federal student-loan payment pause and barred another extension without Congress; the House cleared it 314-117, the Senate 63-36.',
+    'H.Amdt. 257|119|school_choice':
+      'Proposed a Defense Department school choice pilot program for members of the Armed Forces; the House rejected it 214-216.',
+    'H.Amdt. 196|119|states_federal_power':
+      'Would strike the farm bill sections preempting state pesticide labeling rules, leaving state law in place; the House agreed to it 280-142.',
+    'H.R. 4776|119|permitting_reform':
+      'Would set a window to challenge a finished environmental review in court and limit who has standing; the House passed it 221-196.',
+    'H.R. 3668|119|permitting_reform':
+      'Would make FERC the lead agency for natural-gas import and export permits, on its schedule; the House passed it 213-184.',
+    'H.R. 3898|119|permitting_reform':
+      'Would narrow state water-quality certification for projects and widen general permits; the House passed it 221-205.',
+    'H.R. 5214|119|tough_on_crime':
+      'Would require pretrial detention in the District for those charged with violent crimes and restore money bail; the House passed it 237-179.',
+    'H.R. 3062|119|permitting_reform':
+      'Would replace presidential permits for cross-border oil, gas and power lines with a certificate of crossing; the House passed it 224-203.',
+    'H.R. 5140|119|tough_on_crime':
+      'Would send District minors 14 and older charged with listed violent offences to adult court; the House passed it 225-203.',
+    'H.R. 4922|119|tough_on_crime':
+      'Would cut the District’s youth offender ceiling from 24 to 18 and end sentences below mandatory minimums; the House passed it 240-179.',
+    'H.Amdt. 81|119|tough_on_crime':
+      'Would raise the penalty for unlawfully entering a military installation from six months to two years; the House agreed to it 228-205.',
+    'H.Amdt. 89|119|lgbtq_rights':
+      'Would bar anyone from using a military single-sex facility that does not match their sex; the House agreed to it 219-209.',
+    'H.Amdt. 88|119|lgbtq_rights':
+      'Would bar Pentagon forms from asking about gender identity or taking answers beyond male or female; the House agreed to it 221-210.',
+    'H.Amdt. 86|119|lgbtq_rights':
+      'Would bar TRICARE from covering gender-related medical treatment, with narrow exceptions; the House agreed to it 221-207.',
+    'S. 1071|119|guard_authority':
+      'Let a governor in a declared disaster put full-time National Guard members on state duty; the House cleared it 312-112, the Senate 77-20.',
+    'H.R. 1|119|lower_taxes':
+      'Made the 2017 tax cuts permanent and raised the child tax credit to $2,200, indexed; the House cleared it 218-214, the Senate 50-50.',
+    'H.R. 1|119|cut_spending':
+      'Reduced federal Medicaid spending and raised the SNAP work-requirement age from 55 to 65; the House cleared it 218-214, the Senate 50-50.',
+    'H.R. 6955|119|gov_regulation':
+      'Would have financial regulators tailor their actions to a bank’s size and risk profile; the House passed it 270-155.',
+    'H.R. 8595|119|gov_services':
+      'Would fund the State Department, international organizations and independent agencies through FY2027; the House passed it 217-209.',
+    'H.R. 1181|119|gun_rights':
+      'Would bar card networks from assigning a merchant category code that singles out a firearms retailer; the House passed it 221-201.',
+    'H.R. 6955|119|econ_smallbiz':
+      'Would widen small-bank and Main Street lending, with a three-year capital phase-in for new banks; the House passed it 270-155.',
+    'H.R. 6955|119|econ_corp_account':
+      'Would let regulators approve some bank mergers without weighing whether they are monopolistic; the House passed it 270-155.',
+    'H.R. 8595|119|pro_life':
+      'Would keep the bar on U.S. development funds paying for abortion as a method of family planning; the House passed it 217-209.',
+    'H.R. 1181|119|privacy_rights':
+      'Would stop card networks from building records that flag a customer as having shopped at a gun store; the House passed it 221-201.',
+    'H.R. 7008|119|gov_transparency':
+      'Would require a member to post public notice seven to fourteen days before selling a covered investment; the House passed it 232-198.',
+    'H.R. 7008|119|stock_trading_ban':
+      'Would bar members of Congress, spouses and dependent children from buying individual stocks; the House passed it 232-198.',
+    'H.R. 1181|119|states_federal_power':
+      'Would pre-empt state and local laws on merchant category codes for firearms retailers; the House passed it 221-201.',
+    'S. 331|119|health_mental':
+      'Kept fentanyl-related substances in Schedule I while adding a research registration pathway; the House cleared it 321-104, the Senate 84-16.',
+    'S. 331|119|tough_on_crime':
+      'Applied mandatory minimums to all fentanyl-related substances, ten years at 100 grams; the House cleared it 321-104, the Senate 84-16.',
+    'S. 2|119|tough_on_crime':
+      'Appropriated $7.45 billion for Homeland Security Investigations agents beyond immigration; the House cleared it 214-212, the Senate 52-47.',
+    'H.R. 7888|118|privacy_rights':
+      'Repealed abouts collection and required FBI approval for U.S.-person section 702 queries; the House cleared it 273-147, the Senate 60-34.',
+    'H.R. 7888|118|congress_oversight':
+      'Revoked the FBI’s reporting exemption and required regular section 702 reports to Congress; the House cleared it 273-147, the Senate 60-34.',
+    'H.R. 3746|118|gov_services':
+      'Tightened TANF work rules and raised the SNAP work-requirement age to 54; the House cleared it 314-117, the Senate 63-36.',
+    'H.R. 3746|118|permitting_reform':
+      'Set page and time limits on environmental impact statements and one lead agency per project; the House cleared it 314-117, the Senate 63-36.',
+    'H.R. 2670|118|privacy_rights':
+      'Extended section 702 surveillance of targets abroad through April 19, 2024; the House cleared it 310-118, the Senate 87-13.',
+    'S. 3373|117|healthcare':
+      'Opened VA health care to veterans exposed to burn pits and Agent Orange; the House cleared it 342-88, the Senate 86-11.',
+    'S. 3373|117|veterans':
+      'Expanded VA benefits and service-connection presumptions for toxic-exposed veterans; the House cleared it 342-88, the Senate 86-11.',
+    'S. 2938|117|gun_rights':
+      'Held under-21 gun sales for review and barred dating partners with abuse convictions; the House cleared it 234-193, the Senate 65-33.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // The item is already a row on this issue, so the pair is mapped whether or

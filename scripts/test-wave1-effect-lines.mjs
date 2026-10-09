@@ -1,44 +1,45 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
-// test-search-leaf-effect-lines.mjs — the missing sentence on the search leaves
+// test-wave1-effect-lines.mjs — wave 1 of full coverage: plain sentences on the
+// member-voted rows that already hold facts
 // ─────────────────────────────────────────────────────────────────────────────
-// Tariffs, immigration, energy, water, housing and schools. A member-voted row
-// with no line got one where its own pair already held the facts: a `did` stored
-// on that pair, or — with none — the measure's own stored title and a recorded
-// outcome. Each line is stored once on the measure-and-issue pair in _DOS_EFFECT
-// and ends on the tally the vote seeds hold. Forty lines, the cap for the pass.
+// Forty lines: the four school rows the search-leaves cap held back, then the
+// widest-reaching member-voted rows still printing no line, on any leaf. Each is
+// written from its own pair's stored `did` — H.Amdt. 257 alone, which has none,
+// from its own stored title and the House roll that rejected it — and ends on
+// the tally the vote seeds hold. Each is stored once on the measure-and-issue
+// pair in _DOS_EFFECT.
 //
 // Rows left blank, and why — each is pinned below:
-//   · S.J.Res. 37 × Tariffs & Trade Authority — no `did` on the pair and a bare
-//     number for a title; the act's description sits on Household Prices.
-//   · H.R. 29 × Mass Deportations — the same: its only description is on the
-//     border leaf, and its title is its number.
-//   · H.R. 1319 × public schools, H.R. 1049 × parental rights, H.R. 3746 ×
-//     college cost and H.Amdt. 257 × school choice held their own facts but fell
-//     past the forty-line cap; wave 1 (v317) wrote them, and its own test,
-//     test-wave1-effect-lines.mjs, holds them.
+//   · facts only on another leaf: S.J.Res. 37 × Tariffs & Trade Authority and ×
+//     Protect American Jobs (its description is on Household Prices); S.J.Res.
+//     59 × Diplomacy & Restraint and × War Powers (on Peace Through Strength);
+//     H.R. 29 × Mass Deportations and × State Standing (on the border and crime
+//     leaves). Each has a bare number for a title.
+//   · no facts on file at all: H.Amdt. 85, 87 and 97 and H.Con.Res. 14 (three
+//     leaves) store no description anywhere and are titled by number alone.
 //
 //   1. SOURCE: every new line carries a term its own pair stores — its `did`, or,
-//      where it has none, the measure's own title — and never another leaf's.
+//      for H.Amdt. 257, the measure's own title — and never another leaf's.
 //   2. TALLY: it ends on the rolls the vote seeds hold, in the shape its outcome
 //      allows.
-//   3. TENSE: a failed act opens "Proposed" or "Would have"; an act with no public
-//      law on file opens "Would" unless it is an adopted amendment saying what it
-//      wrote into its bill; an enacted act does not open "Would".
+//   3. TENSE: a failed act opens "Proposed" or "Would have"; any act with no
+//      public law on file opens "Would" or "Proposed" — an amendment to a bill
+//      that never became law included; an enacted act does not open "Would".
 //   4. THE LINE RULE: one sentence, 140 characters or fewer, no method words, no
 //      "PolitiDex", no ellipsis, never the title itself.
-//   5. RENDERED, ROW BY ROW: on every leaf this pass touched, a row prints its
+//   5. RENDERED, ROW BY ROW: on every leaf this wave touched, a row prints its
 //      stored line and no other, a row with nothing stored prints no paragraph,
-//      Authority prints nothing for S.J.Res. 37 and Household Prices prints its
-//      own line on every S.J.Res. 37 row.
-//   6. NOTHING SHIPPED WAS REWRITTEN: HEAD's _DOS_EFFECT lines are unchanged,
-//      _DOS_EXEC_EFFECT is byte-identical, and every row that printed at HEAD
-//      prints the same now.
-//   7. MUTATIONS: a borrowed line, a failed act written as done, an over-long
-//      line, a method word, a title fallback, an Authority line lifted from
-//      Household Prices and a rewritten shipped line must each fail.
+//      and Authority still prints nothing for S.J.Res. 37.
+//   6. NOTHING SHIPPED WAS REWRITTEN: HEAD's _DOS_EFFECT lines — the forty from
+//      the search-leaves pass among them — are unchanged, _DOS_EXEC_EFFECT is
+//      byte-identical, and every row that printed at HEAD prints the same now.
+//   7. MUTATIONS: a borrowed line, a failed act written as done, an amendment to
+//      an unenacted bill written as done, a changed tally, an over-long line, a
+//      method word, a title fallback, an Authority line and a rewritten line
+//      from the last pass must each fail.
 //
-//   node scripts/test-search-leaf-effect-lines.mjs
+//   node scripts/test-wave1-effect-lines.mjs
 
 import { readFileSync, readdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
@@ -58,22 +59,22 @@ const FILES = [
   "word-action.js", "profile-spine.js", "profiles-full.js",
 ];
 const KEYS = [
-  "tariffs_prices", "tariffs_authority", "tariffs_china", "tariffs_growth",
-  "border_security", "immigration_reform", "immig_legal", "immig_balance", "immig_fentanyl", "deportations",
-  "energy_production", "enviro_energy", "lands_energy", "climate_action",
-  "water", "water_storage", "housing", "housing_build", "housing_support", "homeless",
-  "school_choice", "public_schools", "edu_parental", "edu_college_cost",
+  "public_schools", "edu_parental", "edu_college_cost", "school_choice",
+  "states_federal_power", "permitting_reform", "tough_on_crime", "lgbtq_rights",
+  "guard_authority", "lower_taxes", "cut_spending", "gov_regulation", "gov_services",
+  "gun_rights", "econ_smallbiz", "econ_corp_account", "pro_life", "privacy_rights",
+  "gov_transparency", "stock_trading_ban", "health_mental", "congress_oversight",
+  "healthcare", "veterans",
+  "tariffs_authority", "tariffs_prices", "econ_trade", "restraint", "war_powers",
+  "deportations", "state_standing", "lands_preserve", "national_debt",
 ];
 const BLANK = new Set([
-  "S.J.Res. 37|119|tariffs_authority", "H.R. 29|119|deportations",
+  "S.J.Res. 37|119|tariffs_authority", "S.J.Res. 37|119|econ_trade",
+  "S.J.Res. 59|119|restraint", "S.J.Res. 59|119|war_powers",
+  "H.R. 29|119|deportations", "H.R. 29|119|state_standing",
+  "H.Amdt. 97|119|lands_preserve", "H.Amdt. 85|119|lgbtq_rights", "H.Amdt. 87|119|lgbtq_rights",
+  "H.Con.Res. 14|119|lower_taxes", "H.Con.Res. 14|119|national_debt", "H.Con.Res. 14|119|cut_spending",
 ]);
-// Lines a later pass wrote on these leaves, read from that pass's own block in
-// _DOS_EFFECT and held by that pass's own test.
-const laterLines = (src) => {
-  const a = src.indexOf("// WAVE 1 OF FULL COVERAGE (v317)");
-  if (a < 0) return new Set();
-  return new Set([...src.slice(a, src.indexOf("\n  };", a)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
-};
 const CAP = 40;
 const METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary|coded|coding|chip|mapped|mapping|filed as|weight(?:ed)?|scor(?:e|ed|ing)|rationale|archive|ledger)\b|PolitiDex|…|\.\.\./i;
 
@@ -81,58 +82,50 @@ const METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vo
 //  the closing shape]. "title" is used only where the pair stores no `did`.
 const H = "house", S = "senate";
 const SPEC = {
-  "S.J.Res. 37|119|tariffs_prices": ["Canadian imports", "did", [[S, 160]], "passed"],
-  "S. 2|119|border_security": ["$9.55 billion", "did", [[H, 214], [S, 163]], "cleared"],
-  "H.R. 3486|119|border_security": ["five", "did", [[H, 264]], "passed"],
-  "H.R. 2056|119|border_security": ["immigration status", "did", [[H, 171]], "passed"],
-  "H.R. 29|119|border_security": ["burglary", "did", [[H, 6]], "passed"],
-  "S.Amdt. 5813|119|immigration_reform": ["DACA renewal applications", "did", [[S, 156]], "rejected"],
-  "S. 2|119|immig_fentanyl": ["fentanyl", "did", [[H, 214], [S, 163]], "cleared"],
-  "S. 1071|119|immig_fentanyl": ["Fentanyl Sanctions Act", "did", [[H, 320], [S, 648]], "cleared"],
-  "S. 331|119|immig_fentanyl": ["Schedule I", "did", [[H, 166], [S, 127]], "cleared"],
-  "S. 1605|117|immig_fentanyl": ["fentanyl source countries", "did", [[H, 405], [S, 499]], "cleared"],
-  "H.R. 815|118|immig_fentanyl": ["FEND Off Fentanyl Act", "did", [[S, 154]], "concurred"],
-  "S. 2296|119|immig_fentanyl": ["Fentanyl Sanctions Act", "did", [[S, 570]], "passed"],
-  "S. 2|119|deportations": ["$44 billion", "did", [[H, 214], [S, 163]], "cleared"],
-  "H.R. 2056|119|deportations": ["lawful federal request", "did", [[H, 171]], "passed"],
-  "S. 5|119|deportations": ["theft", "did", [[H, 23], [S, 7]], "cleared"],
-  "S.Amdt. 8|119|deportations": ["mandatory-detention list", "title", [[S, 6]], "agreed"],
-  "S.Amdt. 14|119|deportations": ["trigger mandatory detention", "title", [[S, 3]], "agreed"],
-  "H.Amdt. 248|119|energy_production": ["Santa Ynez", "did", [[H, 260]], "agreed"],
-  "H.R. 3616|119|energy_production": ["reliability", "did", [[H, 347]], "passed"],
-  "H.R. 3632|119|energy_production": ["retirement", "did", [[H, 342]], "passed"],
-  "H.R. 3628|119|energy_production": ["ratemaking standard", "did", [[H, 323]], "passed"],
-  "H.R. 1047|119|energy_production": ["dispatchable power projects", "did", [[H, 279]], "passed"],
-  "H.R. 3746|118|energy_production": ["Mountain Valley Pipeline", "did", [[H, 243], [S, 146]], "cleared"],
-  "H.R. 5376|117|energy_production": ["wind and solar rights-of-way", "did", [[H, 420], [S, 325]], "cleared"],
-  "S.J.Res. 71|119|energy_production": ["Executive Order 14156", "did", [[S, 554]], "rejected"],
-  "S.J.Res. 10|119|energy_production": ["January 2025", "did", [[S, 95]], "rejected"],
-  "H.R. 4090|119|lands_energy": ["mining", "did", [[H, 55]], "passed"],
-  "H.R. 1366|119|lands_energy": ["Abandoned Hardrock Mine Fund", "did", [[H, 358]], "passed"],
-  "H.R. 4690|119|climate_action": ["new and renovated federal buildings", "did", [[H, 134]], "passed"],
-  "H.Amdt. 234|119|climate_action": ["$139,575,000 for the Global Environment Facility", "title", [[H, 242]], "rejected"],
-  "H.Amdt. 207|119|climate_action": ["farm equipment", "did", [[H, 152]], "agreed"],
-  "H.R. 4758|119|climate_action": ["building energy codes", "did", [[H, 78]], "passed"],
-  "H.Amdt. 79|119|climate_action": ["electric and hybrid", "did", [[H, 251]], "agreed"],
-  "H.R. 5376|117|climate_action": ["geothermal", "did", [[H, 420], [S, 325]], "cleared"],
-  "H.R. 3684|117|water": ["wastewater systems", "did", [[H, 369], [S, 314]], "cleared"],
-  "H.R. 6644|119|housing": ["HUD-VASH", "did", [[H, 224], [S, 53]], "cleared"],
-  "H.R. 6644|119|housing_build": ["single-staircase", "did", [[H, 224], [S, 53]], "cleared"],
-  "S. 2296|119|housing_build": ["fourplexes", "did", [[S, 570]], "passed"],
-  "S. 2296|119|homeless": ["Continuum of Care", "did", [[S, 570]], "passed"],
-  "S. 2938|117|public_schools": ["school safety programs", "did", [[H, 299], [S, 242]], "cleared"],
+  "H.R. 1319|117|public_schools": ["Elementary and Secondary School Emergency Relief Fund", "did", [[H, 72], [S, 110]], "cleared"],
+  "H.R. 1049|119|edu_parental": ["foreign influence", "did", [[H, 314]], "passed"],
+  "H.R. 3746|118|edu_college_cost": ["student-loan payment", "did", [[H, 243], [S, 146]], "cleared"],
+  "H.Amdt. 257|119|school_choice": ["school choice pilot program", "title", [[H, 269]], "rejected"],
+  "H.Amdt. 196|119|states_federal_power": ["pesticide labeling", "did", [[H, 148]], "agreed"],
+  "H.R. 4776|119|permitting_reform": ["standing", "did", [[H, 356]], "passed"],
+  "H.R. 3668|119|permitting_reform": ["natural-gas import and export", "did", [[H, 334]], "passed"],
+  "H.R. 3898|119|permitting_reform": ["water-quality certification", "did", [[H, 330]], "passed"],
+  "H.R. 5214|119|tough_on_crime": ["pretrial detention", "did", [[H, 298]], "passed"],
+  "H.R. 3062|119|permitting_reform": ["certificate of crossing", "did", [[H, 277]], "passed"],
+  "H.R. 5140|119|tough_on_crime": ["adult court", "did", [[H, 271]], "passed"],
+  "H.R. 4922|119|tough_on_crime": ["from 24 to 18", "did", [[H, 270]], "passed"],
+  "H.Amdt. 81|119|tough_on_crime": ["six months to two years", "did", [[H, 252]], "agreed"],
+  "H.Amdt. 89|119|lgbtq_rights": ["single-sex facility", "did", [[H, 249]], "agreed"],
+  "H.Amdt. 88|119|lgbtq_rights": ["gender identity", "did", [[H, 248]], "agreed"],
+  "H.Amdt. 86|119|lgbtq_rights": ["TRICARE", "did", [[H, 246]], "agreed"],
+  "S. 1071|119|guard_authority": ["full-time National Guard members", "did", [[H, 320], [S, 648]], "cleared"],
+  "H.R. 1|119|lower_taxes": ["$2,200", "did", [[H, 190], [S, 372]], "cleared"],
+  "H.R. 1|119|cut_spending": ["from 55 to 65", "did", [[H, 190], [S, 372]], "cleared"],
+  "H.R. 6955|119|gov_regulation": ["risk profile", "did", [[H, 271]], "passed"],
+  "H.R. 8595|119|gov_services": ["State Department", "did", [[H, 247]], "passed"],
+  "H.R. 1181|119|gun_rights": ["merchant category code", "did", [[H, 240]], "passed"],
+  "H.R. 6955|119|econ_smallbiz": ["three-year capital phase-in", "did", [[H, 271]], "passed"],
+  "H.R. 6955|119|econ_corp_account": ["monopolistic", "did", [[H, 271]], "passed"],
+  "H.R. 8595|119|pro_life": ["method of family planning", "did", [[H, 247]], "passed"],
+  "H.R. 1181|119|privacy_rights": ["shopped at a gun store", "did", [[H, 240]], "passed"],
+  "H.R. 7008|119|gov_transparency": ["seven to fourteen days", "did", [[H, 280]], "passed"],
+  "H.R. 7008|119|stock_trading_ban": ["individual stocks", "did", [[H, 280]], "passed"],
+  "H.R. 1181|119|states_federal_power": ["merchant category codes", "did", [[H, 240]], "passed"],
+  "S. 331|119|health_mental": ["registration pathway", "did", [[H, 166], [S, 127]], "cleared"],
+  "S. 331|119|tough_on_crime": ["100 grams", "did", [[H, 166], [S, 127]], "cleared"],
+  "S. 2|119|tough_on_crime": ["$7.45 billion", "did", [[H, 214], [S, 163]], "cleared"],
+  "H.R. 7888|118|privacy_rights": ["abouts", "did", [[H, 119], [S, 150]], "cleared"],
+  "H.R. 7888|118|congress_oversight": ["reporting exemption", "did", [[H, 119], [S, 150]], "cleared"],
+  "H.R. 3746|118|gov_services": ["SNAP work-requirement age", "did", [[H, 243], [S, 146]], "cleared"],
+  "H.R. 3746|118|permitting_reform": ["lead agency", "did", [[H, 243], [S, 146]], "cleared"],
+  "H.R. 2670|118|privacy_rights": ["April 19, 2024", "did", [[H, 723], [S, 343]], "cleared"],
+  "S. 3373|117|healthcare": ["burn pits", "did", [[H, 309], [S, 280]], "cleared"],
+  "S. 3373|117|veterans": ["service connection", "did", [[H, 309], [S, 280]], "cleared"],
+  "S. 2938|117|gun_rights": ["under-21", "did", [[H, 299], [S, 242]], "cleared"],
 };
 // Where a line restates its term in other words, the words it may use instead.
 const ALSO = {
-  "H.R. 3486|119|border_security": ["five years"],
-  "H.R. 2056|119|deportations": ["lawful federal requests"],
-  "S.Amdt. 8|119|deportations": ["mandatory-detention list"],
-  "S.Amdt. 14|119|deportations": ["trigger mandatory detention"],
-  "H.R. 3632|119|energy_production": ["retiring"],
-  "H.R. 4090|119|lands_energy": ["mining permits"],
-  "H.Amdt. 207|119|climate_action": ["farm-equipment"],
-  "H.R. 4758|119|climate_action": ["building energy code"],
-  "S.J.Res. 37|119|tariffs_prices": ["Canadian imports"],
+  "S. 3373|117|veterans": ["service-connection"],
 };
 
 // Every recorded roll, by (number, congress, chamber, roll): its tally.
@@ -228,10 +221,7 @@ function lineFault(k, v, E, M, titles) {
   const failedStart = /^(?:Proposed|Would have)\b/.test(s), would = /^(?:Would|Proposed)\b/.test(s);
   if (lost && !failedStart) return "a failed act is written as though it took effect";
   if (!lost && ENACTED.has(act) && would) return "an enacted act is written as though it did not take effect";
-  if (!lost && !ENACTED.has(act)) {
-    const amendmentInBill = shape === "agreed" && /\bbill\b|\bbill’s\b/.test(s);
-    if (!would && !amendmentInBill) return "an act that never became law is written as though it took effect";
-  }
+  if (!lost && !ENACTED.has(act) && !would) return "an act that never became law is written as though it took effect";
   const C = (ch) => (ch === H ? "House" : "Senate");
   const tail = shape === "cleared" ? `; the House cleared it ${a[0]}-${a[1]}, the Senate ${b[0]}-${b[1]}.`
     : shape === "concurred" ? `; the ${C(rolls[0][0])} concurred ${a[0]}-${a[1]}.`
@@ -298,10 +288,9 @@ function check(src, base) {
   }
   // Any other line on these leaves that is not one this pass wrote shipped before.
   const headE = headSrc ? mapOf(headSrc, "_DOS_EFFECT").map : {};
-  const later = laterLines(src);
   for (const k of Object.keys(E.map)) {
-    if (!KEYS.includes(k.split("|")[2]) || k in SPEC || later.has(k)) continue;
-    ok(k in headE, `${k}: a line on a search leaf with no source in this pass`);
+    if (!KEYS.includes(k.split("|")[2]) || k in SPEC) continue;
+    ok(k in headE, `${k}: a line on a wave-1 leaf with no source in this pass`);
   }
 
   // ── blanks, and the two tariff leaves ──────────────────────────────────────
@@ -309,7 +298,6 @@ function check(src, base) {
     ok(!E.map[p] && !rowRule(M.map[p] && M.map[p].did), `${p}: the documented blank now carries a line — move it out of BLANK with its source`);
   }
   ok(!effOn.get("S.J.Res. 37|119|tariffs_authority"), "Tariffs & Trade Authority prints a line for S.J.Res. 37");
-  ok((effOn.get("S.J.Res. 37|119|tariffs_prices") || 0) >= 16, "Household Prices does not print its line on every S.J.Res. 37 row");
   ok(!M.map["S.J.Res. 37|119|tariffs_authority"], "S.J.Res. 37 now stores a did on Authority — its line can be written from that");
 
   // ── 6 · nothing shipped was rewritten ─────────────────────────────────────
@@ -330,26 +318,26 @@ const live = check(CONS, headPrinted);
 
 // ── 7 · mutations ───────────────────────────────────────────────────────────
 const swap = (pair, line) => (s) => s.replace(new RegExp(`('${pair.replace(/[.|$]/g, "\\$&")}':\\n\\s+)'[^']+'`), (_, h) => h + "'" + line.replace(/'/g, "\\'") + "'");
-const ADD_AT = "    'S.J.Res. 37|119|tariffs_prices':\n";
+const ADD_AT = "    'H.R. 1319|117|public_schools':\n";
 const add = (pair, line) => (s) => s.replace(ADD_AT, `    '${pair}':\n      '${line.replace(/'/g, "\\'")}',\n` + ADD_AT);
 const MUTANTS = [
   { name: "a line borrowed from another leaf for the same act",
-    edit: swap("S. 2|119|deportations", "Funded $9.55 billion for Border Patrol agents and $3.45 billion for ports and surveillance; the House cleared it 214-212, the Senate 52-47."),
+    edit: swap("H.R. 7888|118|privacy_rights", "Reauthorized section 702 foreign-intelligence collection for two years; the House cleared it 273-147, the Senate 60-34."),
     expect: /borrowed from/ },
   { name: "a failed act written as if it took effect",
-    edit: swap("S.J.Res. 10|119|energy_production", "Ended the January 2025 national energy emergency that expedites energy projects; the Senate rejected it 47-52."),
+    edit: swap("H.Amdt. 257|119|school_choice", "Created a Defense Department school choice pilot program for members of the Armed Forces; the House rejected it 214-216."),
     expect: /failed act is written as though it took effect/ },
-  { name: "a one-chamber bill written as law",
-    edit: swap("H.R. 3632|119|energy_production", "Required power plant owners to give notice before retiring a generating unit; the House passed it 222-202."),
+  { name: "an amendment to a bill that never became law written as done",
+    edit: swap("H.Amdt. 86|119|lgbtq_rights", "Barred TRICARE from covering gender-related medical treatment, with narrow exceptions; the House agreed to it 221-207."),
     expect: /never became law is written as though it took effect/ },
   { name: "the tally changed",
-    edit: swap("H.R. 4090|119|lands_energy", "Would order Interior to list pending federal-land mining permits and approve those ready at once; the House passed it 224-159."),
+    edit: swap("H.R. 5140|119|tough_on_crime", "Would send District minors 14 and older charged with listed violent offences to adult court; the House passed it 225-230."),
     expect: /recorded tally/ },
   { name: "a line over 140 characters",
-    edit: swap("S. 2938|117|public_schools", "Funded school safety programs and school-based mental-health services, with Medicaid guidance for services in schools; the House cleared it 234-193, the Senate 65-33."),
+    edit: swap("H.R. 7008|119|stock_trading_ban", "Would bar members of Congress, their spouses and their dependent children from buying any individual stocks at all; the House passed it 232-198."),
     expect: /characters/ },
   { name: "a method word in a line",
-    edit: swap("H.R. 3684|117|water", "Funded drinking-water and wastewater systems, coded as Western water storage; the House cleared it 228-206, the Senate 69-30."),
+    edit: swap("S. 3373|117|healthcare", "Opened VA health care to veterans exposed to burn pits, scored as Agent Orange relief; the House cleared it 342-88, the Senate 86-11."),
     expect: /method word/ },
   { name: "title used as a fallback when nothing is stored",
     edit: (s) => s.replace("return _dosEffectOk(_DOS_EFFECT[k] || (mech && mech.did) || '');",
@@ -358,8 +346,8 @@ const MUTANTS = [
   { name: "an Authority line lifted from the Household Prices facts",
     edit: add("S.J.Res. 37|119|tariffs_authority", "Terminated the national emergency declaration that is the legal basis for the tariffs on Canadian imports, ending those duties."),
     expect: /Authority prints a line|documented blank now carries a line/ },
-  { name: "a shipped line rewritten",
-    edit: (s) => s.replace("barred a substantially similar waiver.',\n    'S.J.Res. 18|119|gov_regulation'", "barred a similar waiver.',\n    'S.J.Res. 18|119|gov_regulation'"),
+  { name: "one of the last pass's forty lines rewritten",
+    edit: swap("S. 2|119|border_security", "Funded Border Patrol agents and port surveillance; the House cleared it 214-212, the Senate 52-47."),
     expect: /a shipped line was rewritten/ },
 ];
 const mutFaults = [];
@@ -376,7 +364,7 @@ const all = live.faults.concat(mutFaults);
 if (all.length) {
   for (const f of all.slice(0, 40)) console.error("  ✗ " + f);
   if (all.length > 40) console.error(`  … and ${all.length - 40} more`);
-  console.error(`\n✗ search leaf effect lines: ${all.length} failure(s), ${live.pass} passed`);
+  console.error(`\n✗ wave 1 effect lines: ${all.length} failure(s), ${live.pass} passed`);
   process.exit(1);
 }
-console.log(`\n✓ search leaf effect lines: all ${live.pass} assertions passed, ${MUTANTS.length} mutations caught`);
+console.log(`\n✓ wave 1 effect lines: all ${live.pass} assertions passed, ${MUTANTS.length} mutations caught`);

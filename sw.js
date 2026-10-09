@@ -8998,7 +8998,18 @@
 //     forty-line cap. No shipped line moved. consistency.js is precached and
 //     changed, so it moves one version.
 //     MIGRATION COST: none. No seed row, mapping, key or score moved.
-const CACHE_VERSION = 'v316';
+// v317 - WAVE 1 OF FULL COVERAGE. Forty more member-voted rows now say, in one
+//     sentence, what the act did to that topic and whether it took effect: the
+//     four school rows the last cap held back, then the widest-reaching rows on
+//     any leaf that still printed no line. Each is stored once on the
+//     measure-and-issue pair, written from that pair's own description (one
+//     from its own title and recorded outcome), and ends on the tally on file;
+//     an act with no public law on file reads "Would" or "Proposed". Rows whose
+//     only facts sit on another leaf stay blank, S.J.Res. 37 on Tariffs & Trade
+//     Authority among them. No shipped line moved. consistency.js is precached
+//     and changed, so it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved.
+const CACHE_VERSION = 'v317';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

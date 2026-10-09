@@ -1623,7 +1623,9 @@ section("14 · the harvest — every stored did, read against the effect rule");
   const SEARCH = (() => {
     const src = R("consistency.js"), a = src.indexOf("// THE SEARCH LEAVES (v316)");
     must(a !== -1, "the search-leaves block is not in _DOS_EFFECT");
-    const end = src.indexOf("\n  };", a);
+    // The block runs to the next pass's marker, or to the end of the table.
+    const next = src.indexOf("// WAVE 1 OF FULL COVERAGE (v317)", a);
+    const end = next !== -1 ? next : src.indexOf("\n  };", a);
     return [...src.slice(a, end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
   })();
   ok(SEARCH.length > 0 && SEARCH.length <= 40, `${SEARCH.length} search-leaf line(s) — the pass is capped at 40`);
@@ -1636,9 +1638,25 @@ section("14 · the harvest — every stored did, read against the effect rule");
   }
   ok(!("S.J.Res. 37|119|tariffs_authority" in EFFECT), "S.J.Res. 37 stores nothing on Tariffs & Trade Authority, so it has no line there");
   ok("S.J.Res. 37|119|tariffs_prices" in EFFECT, "S.J.Res. 37's Household Prices line is missing");
-  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k));
+  // WAVE 1 OF FULL COVERAGE (v317). Forty more member-voted rows, each written
+  // from its own pair's `did` or, with none, its own title and outcome, held in
+  // detail by scripts/test-wave1-effect-lines.mjs; here the same batch rules.
+  const WAVE1 = (() => {
+    const src = R("consistency.js"), a = src.indexOf("// WAVE 1 OF FULL COVERAGE (v317)");
+    must(a !== -1, "the wave-1 block is not in _DOS_EFFECT");
+    return [...src.slice(a, src.indexOf("\n  };", a)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+  })();
+  ok(WAVE1.length > 0 && WAVE1.length <= 40, `${WAVE1.length} wave-1 line(s) — the wave is capped at 40`);
+  for (const k of WAVE1) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the wave-1 effect line`);
+    ok(/; the (?:House|Senate) (?:cleared|passed|agreed to|rejected) it \d+-\d+(?:, the Senate \d+-\d+)?\.$/.test(v), `${k}: does not end on a recorded tally`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.
