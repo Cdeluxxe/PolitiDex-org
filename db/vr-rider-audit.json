@@ -1,0 +1,1036 @@
+{
+  "_comment": "Rider audit, October 2026. Member-voted measures that already hold at least one mapping, read for leaves their OWN stored title, short title and summary name but that they hold no row on. Text only: the measure's stored vr_measures fields at audit time, no Congress.gov scrape. Filed rows are off-axis (the leaf's category is outside the act's dominant category before and after the row lands), is_primary false, weighted at the lowest weight the act's existing secondary rows already use. No issue key is created, no existing row is touched, no effect line is written.",
+  "_migration": "netlify/database/migrations/20261111000000_vr_rider_audit_offaxis_rows.sql",
+  "_test": "scripts/test-vr-rider-audit.mjs",
+  "cap": 25,
+  "rules": {
+    "textOnly": "title + shortTitle + summary as stored on vr_measures",
+    "offAxis": "category of the new key is not among the dominant categories, before or after every row filed on that act",
+    "weight": "lowest weight among the act's existing is_primary=false rows",
+    "isPrimary": false,
+    "rank": "members reached (distinct politicians with a cell on the act's roll calls), descending; first 25 filed, the rest held"
+  },
+  "scan": {
+    "measuresWalked": 296,
+    "keywordHits": 218,
+    "namedCandidates": 40,
+    "filed": 6,
+    "held": 0,
+    "declined": 4,
+    "notFiledOnAxis": 30
+  },
+  "filed": [
+    {
+      "number": "H.R. 1968",
+      "congress": 119,
+      "chamber": "house",
+      "measureType": "bill",
+      "utahSession": null,
+      "members": 209,
+      "sitsOn": "cut_spending",
+      "existingKeys": [
+        "cut_spending",
+        "gov_services",
+        "strong_defense",
+        "national_debt",
+        "health_rural",
+        "immig_fentanyl"
+      ],
+      "wouldJoin": "border_security",
+      "wouldJoinCategory": "immigration_border",
+      "phrase": "boosting defense and immigration enforcement",
+      "decision": "filed",
+      "weight": 30,
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/1968",
+      "winnersBefore": [
+        "spending_debt_waste"
+      ],
+      "readAs": "the summary says the act boosted immigration enforcement, so a yea funds more of it"
+    },
+    {
+      "number": "H.R. 3746",
+      "congress": 118,
+      "chamber": "house",
+      "measureType": "bill",
+      "utahSession": null,
+      "members": 198,
+      "sitsOn": "permitting_reform",
+      "existingKeys": [
+        "permitting_reform",
+        "energy_production",
+        "gov_services",
+        "edu_college_cost"
+      ],
+      "wouldJoin": "homeless",
+      "wouldJoinCategory": "economy_cost_of_living",
+      "phrase": "exempting homeless individuals, veterans and former foster youth",
+      "decision": "filed",
+      "weight": 50,
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-bill/3746",
+      "winnersBefore": [
+        "climate_energy"
+      ],
+      "readAs": "the summary says the act exempts homeless individuals from the raised SNAP work-requirement age limit; this key carries no pole, so no side is read on it"
+    },
+    {
+      "number": "H.R. 3746",
+      "congress": 118,
+      "chamber": "house",
+      "measureType": "bill",
+      "utahSession": null,
+      "members": 198,
+      "sitsOn": "permitting_reform",
+      "existingKeys": [
+        "permitting_reform",
+        "energy_production",
+        "gov_services",
+        "edu_college_cost"
+      ],
+      "wouldJoin": "veterans",
+      "wouldJoinCategory": "foreign_policy_defense",
+      "phrase": "exempting homeless individuals, veterans and former foster youth",
+      "decision": "filed",
+      "weight": 50,
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-bill/3746",
+      "winnersBefore": [
+        "climate_energy"
+      ],
+      "readAs": "the summary says the act exempts veterans from the raised SNAP work-requirement age limit, so a yea enacts that exemption"
+    },
+    {
+      "number": "H.R. 1319",
+      "congress": 117,
+      "chamber": "house",
+      "measureType": "bill",
+      "utahSession": null,
+      "members": 181,
+      "sitsOn": "family_support",
+      "existingKeys": [
+        "family_support",
+        "cost_living",
+        "healthcare_costs",
+        "national_debt",
+        "child_care",
+        "public_schools",
+        "econ_workers",
+        "econ_smallbiz"
+      ],
+      "wouldJoin": "healthcare",
+      "wouldJoinCategory": "healthcare",
+      "phrase": "expanded Affordable Care Act premium tax credits",
+      "decision": "filed",
+      "weight": 40,
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/1319",
+      "winnersBefore": [
+        "economy_cost_of_living"
+      ],
+      "readAs": "the summary says the act expanded ACA premium tax credits, so a yea widens subsidised coverage"
+    },
+    {
+      "number": "S. 2296",
+      "congress": 119,
+      "chamber": "senate",
+      "measureType": "bill",
+      "utahSession": null,
+      "members": 100,
+      "sitsOn": "strong_defense",
+      "existingKeys": [
+        "strong_defense",
+        "israel_support",
+        "housing_build",
+        "immig_fentanyl",
+        "back_police",
+        "homeless"
+      ],
+      "wouldJoin": "end_dei",
+      "wouldJoinCategory": "civil_rights_culture",
+      "phrase": "repeals statutory provisions on diversity, equity and inclusion within the Department",
+      "decision": "filed",
+      "weight": 20,
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/2296",
+      "winnersBefore": [
+        "economy_cost_of_living",
+        "foreign_policy_defense"
+      ],
+      "readAs": "the summary says the bill repeals DEI provisions in the Department of Defense, so a yea ends them"
+    },
+    {
+      "number": "S.Amdt. 1354",
+      "congress": 118,
+      "chamber": "senate",
+      "measureType": "amendment",
+      "utahSession": null,
+      "members": 87,
+      "sitsOn": "gun_rights",
+      "existingKeys": [
+        "gun_rights",
+        "gun_safety"
+      ],
+      "wouldJoin": "veterans",
+      "wouldJoinCategory": "foreign_policy_defense",
+      "phrase": "the Secretary of Veterans Affairs to report certain information to the Department of Justice",
+      "decision": "filed",
+      "weight": 75,
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-118publ42/html/PLAW-118publ42.htm",
+      "winnersBefore": [
+        "guns"
+      ],
+      "readAs": "the amendment bars VA from reporting a beneficiary's fiduciary determination to NICS, read the same way H.R. 1041 (119th) already reads on this key"
+    }
+  ],
+  "held": [],
+  "declined": [
+    {
+      "number": "H.R. 9770",
+      "congress": 119,
+      "chamber": "house",
+      "measureType": "bill",
+      "utahSession": null,
+      "members": 108,
+      "sitsOn": "gov_services",
+      "existingKeys": [
+        "gov_services",
+        "national_debt"
+      ],
+      "wouldJoin": "disaster_resilience",
+      "wouldJoinCategory": "climate_energy",
+      "phrase": "the Federal Emergency Management Agency's Disaster Relief Fund",
+      "decision": "declined",
+      "reason": "declined by precedent: identity-densification wave 2 already refused H.R. 9770 | disaster_resilience in writing — a continuing resolution at FY2026 levels enacts no policy on the axis (rule 25) — and the stored text says these anomalies get 'funding flexibility or additional amounts' without saying which program gets which, so it does not say what a yea did to this leaf"
+    },
+    {
+      "number": "H.R. 9770",
+      "congress": 119,
+      "chamber": "house",
+      "measureType": "bill",
+      "utahSession": null,
+      "members": 108,
+      "sitsOn": "gov_services",
+      "existingKeys": [
+        "gov_services",
+        "national_debt"
+      ],
+      "wouldJoin": "econ_smallbiz",
+      "wouldJoinCategory": "economy_cost_of_living",
+      "phrase": "Small Business Administration loan programs",
+      "decision": "declined",
+      "reason": "declined by precedent: identity-densification wave 2 already refused H.R. 9770 | disaster_resilience in writing — a continuing resolution at FY2026 levels enacts no policy on the axis (rule 25) — and the stored text says these anomalies get 'funding flexibility or additional amounts' without saying which program gets which, so it does not say what a yea did to this leaf"
+    },
+    {
+      "number": "H.R. 9770",
+      "congress": 119,
+      "chamber": "house",
+      "measureType": "bill",
+      "utahSession": null,
+      "members": 108,
+      "sitsOn": "gov_services",
+      "existingKeys": [
+        "gov_services",
+        "national_debt"
+      ],
+      "wouldJoin": "healthcare",
+      "wouldJoinCategory": "healthcare",
+      "phrase": "the Indian Health Service",
+      "decision": "declined",
+      "reason": "declined by precedent: identity-densification wave 2 already refused H.R. 9770 | disaster_resilience in writing — a continuing resolution at FY2026 levels enacts no policy on the axis (rule 25) — and the stored text says these anomalies get 'funding flexibility or additional amounts' without saying which program gets which, so it does not say what a yea did to this leaf"
+    },
+    {
+      "number": "H.R. 9770",
+      "congress": 119,
+      "chamber": "house",
+      "measureType": "bill",
+      "utahSession": null,
+      "members": 108,
+      "sitsOn": "gov_services",
+      "existingKeys": [
+        "gov_services",
+        "national_debt"
+      ],
+      "wouldJoin": "rural_ag",
+      "wouldJoinCategory": "economy_cost_of_living",
+      "phrase": "the Department of Agriculture's livestock mandatory price reporting program",
+      "decision": "declined",
+      "reason": "declined: the stored text only says the act extends this expiring program, at FY2026 levels; and a second economy_cost_of_living row beside Small Business would tie that category with spending_debt_waste, so it could not be off-axis either"
+    }
+  ],
+  "notFiled": [
+    {
+      "number": "H.Amdt. 207",
+      "congress": 119,
+      "chamber": "house",
+      "measureType": "amendment",
+      "utahSession": null,
+      "members": 430,
+      "sitsOn": "climate_action",
+      "existingKeys": [
+        "climate_action"
+      ],
+      "wouldJoin": "rural_ag",
+      "wouldJoinCategory": "economy_cost_of_living",
+      "phrase": "emissions mandates on farm equipment that drives up expenses for farmers",
+      "decision": "not_filed",
+      "reason": "on-axis: a row here would make economy_cost_of_living a co-winner (climate_energy + economy_cost_of_living), so it could not be filed off-axis"
+    },
+    {
+      "number": "H.Amdt. 97",
+      "congress": 119,
+      "chamber": "house",
+      "measureType": "amendment",
+      "utahSession": null,
+      "members": 425,
+      "sitsOn": "lands_preserve",
+      "existingKeys": [
+        "lands_preserve"
+      ],
+      "wouldJoin": "strong_defense",
+      "wouldJoinCategory": "foreign_policy_defense",
+      "phrase": "during national defense-related operations",
+      "decision": "not_filed",
+      "reason": "on-axis: a row here would make foreign_policy_defense a co-winner (climate_energy + foreign_policy_defense), so it could not be filed off-axis"
+    },
+    {
+      "number": "H.R. 6329",
+      "congress": 119,
+      "chamber": "house",
+      "measureType": "bill",
+      "utahSession": null,
+      "members": 428,
+      "sitsOn": "gov_transparency",
+      "existingKeys": [
+        "gov_transparency"
+      ],
+      "wouldJoin": "gov_regulation",
+      "wouldJoinCategory": "spending_debt_waste",
+      "phrase": "the critical factual material they rely on in rulemaking",
+      "decision": "not_filed",
+      "reason": "on-axis: a row here would make spending_debt_waste a co-winner (checks_and_balances + spending_debt_waste), so it could not be filed off-axis"
+    },
+    {
+      "number": "H.R. 5214",
+      "congress": 119,
+      "chamber": "house",
+      "measureType": "bill",
+      "utahSession": null,
+      "members": 427,
+      "sitsOn": "tough_on_crime",
+      "existingKeys": [
+        "tough_on_crime"
+      ],
+      "wouldJoin": "justice_reform",
+      "wouldJoinCategory": "crime_safety",
+      "phrase": "Cash Bail Reform Act",
+      "decision": "not_filed",
+      "reason": "on-axis: crime_safety is already this act's dominant category"
+    },
+    {
+      "number": "H.J.Res. 25",
+      "congress": 119,
+      "chamber": "house",
+      "measureType": "resolution",
+      "utahSession": null,
+      "members": 207,
+      "sitsOn": "gov_regulation",
+      "existingKeys": [
+        "gov_regulation",
+        "tech_innovation"
+      ],
+      "wouldJoin": "crypto_cbdc",
+      "wouldJoinCategory": "economy_cost_of_living",
+      "phrase": "digital asset sales",
+      "decision": "not_filed",
+      "reason": "on-axis: economy_cost_of_living is already this act's dominant category"
+    },
+    {
+      "number": "H.R. 3633",
+      "congress": 119,
+      "chamber": "house",
+      "measureType": "bill",
+      "utahSession": null,
+      "members": 109,
+      "sitsOn": "tech_innovation",
+      "existingKeys": [
+        "tech_innovation",
+        "econ_growth"
+      ],
+      "wouldJoin": "crypto_cbdc",
+      "wouldJoinCategory": "economy_cost_of_living",
+      "phrase": "Crypto Week",
+      "decision": "not_filed",
+      "reason": "on-axis: economy_cost_of_living is already this act's dominant category"
+    },
+    {
+      "number": "H.R. 3746",
+      "congress": 118,
+      "chamber": "house",
+      "measureType": "bill",
+      "utahSession": null,
+      "members": 198,
+      "sitsOn": "permitting_reform",
+      "existingKeys": [
+        "permitting_reform",
+        "energy_production",
+        "gov_services",
+        "edu_college_cost"
+      ],
+      "wouldJoin": "cut_spending",
+      "wouldJoinCategory": "spending_debt_waste",
+      "phrase": "sets discretionary spending caps for FY2024 and FY2025",
+      "decision": "not_filed",
+      "reason": "on-axis: a row here would make spending_debt_waste a co-winner (climate_energy + spending_debt_waste), so it could not be filed off-axis"
+    },
+    {
+      "number": "H.R. 3746",
+      "congress": 118,
+      "chamber": "house",
+      "measureType": "bill",
+      "utahSession": null,
+      "members": 198,
+      "sitsOn": "permitting_reform",
+      "existingKeys": [
+        "permitting_reform",
+        "energy_production",
+        "gov_services",
+        "edu_college_cost"
+      ],
+      "wouldJoin": "national_debt",
+      "wouldJoinCategory": "spending_debt_waste",
+      "phrase": "suspends the debt limit through January 1, 2025",
+      "decision": "not_filed",
+      "reason": "on-axis: a row here would make spending_debt_waste a co-winner (climate_energy + spending_debt_waste), so it could not be filed off-axis"
+    },
+    {
+      "number": "H.R. 1319",
+      "congress": 117,
+      "chamber": "house",
+      "measureType": "bill",
+      "utahSession": null,
+      "members": 181,
+      "sitsOn": "family_support",
+      "existingKeys": [
+        "family_support",
+        "cost_living",
+        "healthcare_costs",
+        "national_debt",
+        "child_care",
+        "public_schools",
+        "econ_workers",
+        "econ_smallbiz"
+      ],
+      "wouldJoin": "housing_support",
+      "wouldJoinCategory": "economy_cost_of_living",
+      "phrase": "emergency rental and homeowner assistance",
+      "decision": "not_filed",
+      "reason": "on-axis: economy_cost_of_living is already this act's dominant category"
+    },
+    {
+      "number": "H.R. 1319",
+      "congress": 117,
+      "chamber": "house",
+      "measureType": "bill",
+      "utahSession": null,
+      "members": 181,
+      "sitsOn": "family_support",
+      "existingKeys": [
+        "family_support",
+        "cost_living",
+        "healthcare_costs",
+        "national_debt",
+        "child_care",
+        "public_schools",
+        "econ_workers",
+        "econ_smallbiz"
+      ],
+      "wouldJoin": "tax_middle_class",
+      "wouldJoinCategory": "economy_cost_of_living",
+      "phrase": "an expanded child tax credit",
+      "decision": "not_filed",
+      "reason": "on-axis: economy_cost_of_living is already this act's dominant category"
+    },
+    {
+      "number": "H.R. 815",
+      "congress": 118,
+      "chamber": "house",
+      "measureType": "bill",
+      "utahSession": null,
+      "members": 87,
+      "sitsOn": "foreign_balance",
+      "existingKeys": [
+        "foreign_balance",
+        "america_first_fp",
+        "restraint",
+        "ukraine_policy",
+        "tech_balance",
+        "immig_fentanyl"
+      ],
+      "wouldJoin": "israel_support",
+      "wouldJoinCategory": "foreign_policy_defense",
+      "phrase": "Israel Security Supplemental Appropriations Act, 2024",
+      "decision": "not_filed",
+      "reason": "on-axis: foreign_policy_defense is already this act's dominant category"
+    },
+    {
+      "number": "H.R. 815",
+      "congress": 118,
+      "chamber": "house",
+      "measureType": "bill",
+      "utahSession": null,
+      "members": 87,
+      "sitsOn": "foreign_balance",
+      "existingKeys": [
+        "foreign_balance",
+        "america_first_fp",
+        "restraint",
+        "ukraine_policy",
+        "tech_balance",
+        "immig_fentanyl"
+      ],
+      "wouldJoin": "iran_policy",
+      "wouldJoinCategory": "foreign_policy_defense",
+      "phrase": "Iran-related sanctions",
+      "decision": "not_filed",
+      "reason": "on-axis: foreign_policy_defense is already this act's dominant category"
+    },
+    {
+      "number": "S. 2938",
+      "congress": 117,
+      "chamber": "senate",
+      "measureType": "bill",
+      "utahSession": null,
+      "members": 181,
+      "sitsOn": "gun_safety",
+      "existingKeys": [
+        "gun_safety",
+        "health_mental",
+        "gun_rights",
+        "public_schools"
+      ],
+      "wouldJoin": "healthcare",
+      "wouldJoinCategory": "healthcare",
+      "phrase": "guidance on Medicaid telehealth and school-based Medicaid services",
+      "decision": "not_filed",
+      "reason": "on-axis: a row here would make healthcare a co-winner (guns + healthcare), so it could not be filed off-axis"
+    },
+    {
+      "number": "S.Amdt. 5813",
+      "congress": 119,
+      "chamber": "senate",
+      "measureType": "amendment",
+      "utahSession": null,
+      "members": 100,
+      "sitsOn": "immigration_reform",
+      "existingKeys": [
+        "immigration_reform"
+      ],
+      "wouldJoin": "border_security",
+      "wouldJoinCategory": "immigration_border",
+      "phrase": "border and immigration enforcement",
+      "decision": "not_filed",
+      "reason": "on-axis: immigration_border is already this act's dominant category"
+    },
+    {
+      "number": "H.Con.Res. 113",
+      "congress": 119,
+      "chamber": "house",
+      "measureType": "resolution",
+      "utahSession": null,
+      "members": 108,
+      "sitsOn": "national_debt",
+      "existingKeys": [
+        "national_debt",
+        "strong_defense"
+      ],
+      "wouldJoin": "disaster_resilience",
+      "wouldJoinCategory": "climate_energy",
+      "phrase": "adjustments for disaster relief, wildfire suppression",
+      "decision": "not_filed",
+      "reason": "on-axis: a row here would make climate_energy a co-winner (climate_energy + foreign_policy_defense + spending_debt_waste), so it could not be filed off-axis"
+    },
+    {
+      "number": "H.R. 3076",
+      "congress": 117,
+      "chamber": "house",
+      "measureType": "bill",
+      "utahSession": null,
+      "members": 181,
+      "sitsOn": "gov_services",
+      "existingKeys": [
+        "gov_services",
+        "gov_transparency"
+      ],
+      "wouldJoin": "social_security",
+      "wouldJoinCategory": "healthcare",
+      "phrase": "Medicare coordination",
+      "decision": "not_filed",
+      "reason": "on-axis: a row here would make healthcare a co-winner (checks_and_balances + healthcare + spending_debt_waste), so it could not be filed off-axis"
+    },
+    {
+      "number": "H.R. 7148",
+      "congress": 119,
+      "chamber": "house",
+      "measureType": "bill",
+      "utahSession": null,
+      "members": 108,
+      "sitsOn": "strong_defense",
+      "existingKeys": [
+        "strong_defense",
+        "israel_support",
+        "health_rural",
+        "foreign_balance",
+        "health_drug_prices",
+        "pro_life"
+      ],
+      "wouldJoin": "healthcare",
+      "wouldJoinCategory": "healthcare",
+      "phrase": "Health Care Extenders",
+      "decision": "not_filed",
+      "reason": "on-axis: a row here would make healthcare a co-winner (foreign_policy_defense + healthcare), so it could not be filed off-axis"
+    },
+    {
+      "number": "H.B. 243",
+      "congress": null,
+      "chamber": "utah house",
+      "measureType": "bill",
+      "utahSession": "2023GS",
+      "members": 99,
+      "sitsOn": "econ_workers",
+      "existingKeys": [
+        "econ_workers"
+      ],
+      "wouldJoin": "transit",
+      "wouldJoinCategory": "economy_cost_of_living",
+      "phrase": "Public Transit Employee Collective Bargaining",
+      "decision": "not_filed",
+      "reason": "on-axis: economy_cost_of_living is already this act's dominant category"
+    },
+    {
+      "number": "S.B. 26",
+      "congress": null,
+      "chamber": "utah senate",
+      "measureType": "bill",
+      "utahSession": "2025GS",
+      "members": 29,
+      "sitsOn": "dev_district_finance",
+      "existingKeys": [
+        "dev_district_finance"
+      ],
+      "wouldJoin": "housing",
+      "wouldJoinCategory": "economy_cost_of_living",
+      "phrase": "Housing and Transit Reinvestment Zone",
+      "decision": "not_filed",
+      "reason": "on-axis: economy_cost_of_living is already this act's dominant category"
+    },
+    {
+      "number": "S.B. 26",
+      "congress": null,
+      "chamber": "utah senate",
+      "measureType": "bill",
+      "utahSession": "2025GS",
+      "members": 29,
+      "sitsOn": "dev_district_finance",
+      "existingKeys": [
+        "dev_district_finance"
+      ],
+      "wouldJoin": "transit",
+      "wouldJoinCategory": "economy_cost_of_living",
+      "phrase": "Housing and Transit Reinvestment Zone",
+      "decision": "not_filed",
+      "reason": "on-axis: economy_cost_of_living is already this act's dominant category"
+    },
+    {
+      "number": "S.B. 208",
+      "congress": null,
+      "chamber": "utah senate",
+      "measureType": "bill",
+      "utahSession": "2024GS",
+      "members": 28,
+      "sitsOn": "housing",
+      "existingKeys": [
+        "housing",
+        "transit"
+      ],
+      "wouldJoin": "dev_district_finance",
+      "wouldJoinCategory": "economy_cost_of_living",
+      "phrase": "Housing and Transit Reinvestment Zone",
+      "decision": "not_filed",
+      "reason": "on-axis: economy_cost_of_living is already this act's dominant category"
+    },
+    {
+      "number": "S.B. 262",
+      "congress": null,
+      "chamber": "utah senate",
+      "measureType": "bill",
+      "utahSession": "2025GS",
+      "members": 75,
+      "sitsOn": "housing",
+      "existingKeys": [
+        "housing",
+        "housing_first_time"
+      ],
+      "wouldJoin": "housing_support",
+      "wouldJoinCategory": "economy_cost_of_living",
+      "phrase": "amends provisions related to affordable housing",
+      "decision": "not_filed",
+      "reason": "on-axis: economy_cost_of_living is already this act's dominant category"
+    },
+    {
+      "number": "H.B. 364",
+      "congress": null,
+      "chamber": "utah house",
+      "measureType": "bill",
+      "utahSession": "2023GS",
+      "members": 71,
+      "sitsOn": "housing_support",
+      "existingKeys": [
+        "housing_support"
+      ],
+      "wouldJoin": "housing",
+      "wouldJoinCategory": "economy_cost_of_living",
+      "phrase": "Housing Affordability Amendments",
+      "decision": "not_filed",
+      "reason": "on-axis: economy_cost_of_living is already this act's dominant category"
+    },
+    {
+      "number": "H.B. 405",
+      "congress": null,
+      "chamber": "utah house",
+      "measureType": "bill",
+      "utahSession": "2024GS",
+      "members": 72,
+      "sitsOn": "medical_freedom",
+      "existingKeys": [
+        "medical_freedom"
+      ],
+      "wouldJoin": "healthcare",
+      "wouldJoinCategory": "healthcare",
+      "phrase": "Public Health Amendments",
+      "decision": "not_filed",
+      "reason": "on-axis: healthcare is already this act's dominant category"
+    },
+    {
+      "number": "H.B. 68",
+      "congress": null,
+      "chamber": "utah house",
+      "measureType": "bill",
+      "utahSession": "2024GS",
+      "members": 72,
+      "sitsOn": "tough_on_crime",
+      "existingKeys": [
+        "tough_on_crime"
+      ],
+      "wouldJoin": "justice_reform",
+      "wouldJoinCategory": "crime_safety",
+      "phrase": "Drug Sentencing Modifications",
+      "decision": "not_filed",
+      "reason": "on-axis: crime_safety is already this act's dominant category"
+    },
+    {
+      "number": "H.B. 273",
+      "congress": null,
+      "chamber": "utah house",
+      "measureType": "bill",
+      "utahSession": "2024GS",
+      "members": 72,
+      "sitsOn": "tough_on_crime",
+      "existingKeys": [
+        "tough_on_crime"
+      ],
+      "wouldJoin": "justice_reform",
+      "wouldJoinCategory": "crime_safety",
+      "phrase": "Sentencing Modifications for Certain DUI Offenses",
+      "decision": "not_filed",
+      "reason": "on-axis: crime_safety is already this act's dominant category"
+    },
+    {
+      "number": "H.B. 562",
+      "congress": null,
+      "chamber": "utah house",
+      "measureType": "bill",
+      "utahSession": "2025GS",
+      "members": 75,
+      "sitsOn": "tough_on_crime",
+      "existingKeys": [
+        "tough_on_crime"
+      ],
+      "wouldJoin": "back_police",
+      "wouldJoinCategory": "crime_safety",
+      "phrase": "Law Enforcement and Criminal Justice Amendments",
+      "decision": "not_filed",
+      "reason": "on-axis: crime_safety is already this act's dominant category"
+    },
+    {
+      "number": "H.B. 165",
+      "congress": null,
+      "chamber": "utah house",
+      "measureType": "bill",
+      "utahSession": "2024GS",
+      "members": 72,
+      "sitsOn": "border_security",
+      "existingKeys": [
+        "border_security"
+      ],
+      "wouldJoin": "back_police",
+      "wouldJoinCategory": "crime_safety",
+      "phrase": "Federal Law Enforcement Amendments",
+      "decision": "not_filed",
+      "reason": "on-axis: a row here would make crime_safety a co-winner (crime_safety + immigration_border), so it could not be filed off-axis"
+    },
+    {
+      "number": "S.B. 194",
+      "congress": null,
+      "chamber": "utah senate",
+      "measureType": "bill",
+      "utahSession": "2024GS",
+      "members": 72,
+      "sitsOn": "privacy_rights",
+      "existingKeys": [
+        "privacy_rights"
+      ],
+      "wouldJoin": "tech_balance",
+      "wouldJoinCategory": "economy_cost_of_living",
+      "phrase": "Social Media Regulation",
+      "decision": "not_filed",
+      "reason": "on-axis: a row here would make economy_cost_of_living a co-winner (civil_rights_culture + economy_cost_of_living), so it could not be filed off-axis"
+    },
+    {
+      "number": "S.B. 224",
+      "congress": null,
+      "chamber": "utah senate",
+      "measureType": "bill",
+      "utahSession": "2024GS",
+      "members": 100,
+      "sitsOn": "energy_production",
+      "existingKeys": [
+        "energy_production"
+      ],
+      "wouldJoin": "enviro_energy",
+      "wouldJoinCategory": "climate_energy",
+      "phrase": "Energy Independence Amendments",
+      "decision": "not_filed",
+      "reason": "on-axis: climate_energy is already this act's dominant category"
+    }
+  ],
+  "measures": {
+    "H.R. 1968|119": {
+      "title": "Full-Year Continuing Appropriations and Extensions Act, 2025",
+      "shortTitle": "FY2025 Full-Year CR",
+      "summary": "Funded the federal government through the end of FY2025, trimming some domestic spending while boosting defense and immigration enforcement; averted a shutdown. Signed into law March 15, 2025.",
+      "rows": [
+        {
+          "issueKey": "cut_spending",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "gov_services",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "strong_defense",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "national_debt",
+          "weight": 50,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes"
+        },
+        {
+          "issueKey": "health_rural",
+          "weight": 45,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "immig_fentanyl",
+          "weight": 30,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "H.R. 3746|118": {
+      "title": "Fiscal Responsibility Act of 2023",
+      "shortTitle": "Fiscal Responsibility Act of 2023",
+      "summary": "Division A sets discretionary spending caps for FY2024 and FY2025 enforced by sequestration. Division B rescinds unobligated balances including Internal Revenue Service funding and terminates the suspension of student loan payments and interest accrual. Division C modifies Temporary Assistance for Needy Families work requirements, raises the Supplemental Nutrition Assistance Program able-bodied-adults-without-dependents age limit to 54 while exempting homeless individuals, veterans and former foster youth, and enacts permitting reform limiting the scope of National Environmental Policy Act administrative review, with Sec. 324 ratifying all Mountain Valley Pipeline authorizations and exempting them from judicial review. Division D suspends the debt limit through January 1, 2025.",
+      "rows": [
+        {
+          "issueKey": "permitting_reform",
+          "weight": 70,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "energy_production",
+          "weight": 60,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "gov_services",
+          "weight": 50,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes"
+        },
+        {
+          "issueKey": "edu_college_cost",
+          "weight": 50,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes"
+        }
+      ]
+    },
+    "H.R. 1319|117": {
+      "title": "American Rescue Plan Act of 2021",
+      "shortTitle": "American Rescue Plan Act of 2021",
+      "summary": "Provides additional relief to address the continued impact of COVID-19 on the economy, public health, state and local governments, individuals, and businesses. Includes direct payments, an expanded child tax credit, extended unemployment compensation, emergency rental and homeowner assistance, child care and Head Start funding, elementary and secondary school emergency relief, expanded Affordable Care Act premium tax credits, and the Restaurant Revitalization Fund.",
+      "rows": [
+        {
+          "issueKey": "family_support",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "cost_living",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "healthcare_costs",
+          "weight": 60,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "national_debt",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes"
+        },
+        {
+          "issueKey": "child_care",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "public_schools",
+          "weight": 50,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "econ_workers",
+          "weight": 45,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "econ_smallbiz",
+          "weight": 40,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "H.R. 9770|119": {
+      "title": "Making continuing appropriations for fiscal year 2027, and for other purposes.",
+      "shortTitle": null,
+      "summary": "Continuing Appropriations Act, 2027. The bill provides continuing FY2027 appropriations to federal agencies through the earlier of December 4, 2026 or enactment of the applicable full-year appropriations act, preventing the shutdown that would otherwise begin when FY2027 starts on October 1, 2026. It funds most programs and activities at FY2026 levels, with anomalies providing funding flexibility or additional amounts for the Special Supplemental Nutrition Program for Women, Infants, and Children, Small Business Administration loan programs, the Federal Emergency Management Agency's Disaster Relief Fund, the Indian Health Service and wildfire suppression. It extends expiring programs, authorities and restrictions, including the Department of Agriculture's livestock mandatory price reporting program, the National Flood Insurance Program, limits on pay increases for the Vice President and certain senior political appointees, the Temporary Assistance for Needy Families program, authority to waive pay limitations for wildland firefighters and other wildland fire personnel, District of Columbia authority to spend local funds, and the freeze on cost-of-living adjustments for Members of Congress. It provides the customary payments to the beneficiaries of the late Representative David Scott and the late Senator Lindsey Graham. Passed the House 220-205 on July 22, 2026 (119/2 roll 272) and received in the Senate. Disambiguation: the corpus previously held only this measure's official title, \"Making continuing appropriations for fiscal year 2027, and for other purposes\" — the short title as passed is \"Continuing Appropriations Act, 2027\". It is a continuing resolution and not a full-year appropriations act; H.R. 8595 in the same Congress is the FY2027 national security and State Department appropriations bill and a separate vehicle.",
+      "rows": [
+        {
+          "issueKey": "gov_services",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "national_debt",
+          "weight": 35,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes"
+        }
+      ]
+    },
+    "S. 2296|119": {
+      "title": "S. 2296 — National Defense Authorization Act for Fiscal Year 2026",
+      "shortTitle": null,
+      "summary": "National Defense Authorization Act for Fiscal Year 2026 as reported by the Senate Armed Services Committee and passed by the Senate on October 10, 2025 (119/1 roll 570). It sets FY2026 policies and authorities for Department of Defense programs and activities, military construction and the national security programs of the Department of Energy, and authorizes the Defense Nuclear Facilities Safety Board for FY2026; it authorizes appropriations but does not provide budget authority. Among other elements it authorizes procurement of aircraft, ships and missiles, authorizes active-duty and reserve personnel strength levels, authorizes military construction projects, requires a strategy on the national security implications of emerging biotechnologies, requires the Navy to improve the material condition and combat readiness of surface ships maintained at private shipyards, extends the Pacific Deterrence Initiative through FY2026, and repeals statutory provisions on diversity, equity and inclusion within the Department including the position of Chief Diversity Officer. Disambiguation: S. 2296 and S. 1071 carry the same title. S. 1071 is the vehicle that became Public Law 119-60; S. 2296 was held at the desk on November 12, 2025 and was never enacted, and it carries roughly thirty short titles for portions of the bill.",
+      "rows": [
+        {
+          "issueKey": "strong_defense",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "israel_support",
+          "weight": 40,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "housing_build",
+          "weight": 35,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "immig_fentanyl",
+          "weight": 30,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "back_police",
+          "weight": 20,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "homeless",
+          "weight": 20,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "S.Amdt. 1354|118": {
+      "title": "Kennedy amendment prohibiting VA reporting of fiduciary determinations to NICS",
+      "shortTitle": "Kennedy VA/NICS Amendment (S.Amdt. 1354)",
+      "summary": "Second-degree amendment to the Military Construction, Veterans Affairs, and Related Agencies appropriations division of H.R. 4366, offered by Senator John Kennedy: \"To prohibit the availability of funds for the Secretary of Veterans Affairs to report certain information to the Department of Justice for use by the National Instant Criminal Background Check System.\" Agreed to 53-45 on 2023-10-25 with eleven Democrats voting yea. Enacted as Section 413 of Division A of the Consolidated Appropriations Act, 2024 (P.L. 118-42, 138 Stat. 65), which bars the use of Division A funds to report to the Attorney General, for NICS purposes, that a person deemed mentally incapacitated, mentally incompetent or experiencing an extended loss of consciousness has been adjudicated a mental defective under 18 U.S.C. 922(d)(4) and (g)(4), unless a judicial authority has found that the person is a danger to themselves or others.",
+      "rows": [
+        {
+          "issueKey": "gun_rights",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "gun_safety",
+          "weight": 75,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes"
+        }
+      ]
+    }
+  }
+}

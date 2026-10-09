@@ -48,6 +48,9 @@
      "l": "Provided child-care stabilisation funding, supplemental Child Care and Development Block Grant money, and Head Start funding."
     },
     {
+     "i": "Expand Healthcare Access"
+    },
+    {
      "i": "Help Families with Kids",
      "l": "Raised the child tax credit to $3,000 per child, $3,600 under six, fully refundable; the House cleared it 220-211, the Senate 50-49."
     },
@@ -456,12 +459,18 @@
      "l": "Set page and time limits on environmental impact statements and one lead agency per project; the House cleared it 314-117, the Senate 63-36."
     },
     {
+     "i": "Homelessness Policy"
+    },
+    {
      "i": "Invest in Public Services",
      "l": "Tightened TANF work rules and raised the SNAP work-requirement age to 54; the House cleared it 314-117, the Senate 63-36."
     },
     {
      "i": "Lower College & Trade Costs",
      "l": "Ended the federal student-loan payment pause and barred another extension without Congress; the House cleared it 314-117, the Senate 63-36."
+    },
+    {
+     "i": "Take Care of Veterans"
     }
    ]
   },
@@ -612,6 +621,9 @@
     },
     {
      "i": "Stronger Gun Safety Laws"
+    },
+    {
+     "i": "Take Care of Veterans"
     }
    ]
   },
@@ -1625,6 +1637,9 @@
      "i": "Peace Through Strength"
     },
     {
+     "i": "Strong Border & Enforcement"
+    },
+    {
      "i": "Tackle the National Debt"
     }
    ]
@@ -2381,6 +2396,9 @@
    "c": "senate",
    "t": "S. 2296 — National Defense Authorization Act for Fiscal Year 2026",
    "m": [
+    {
+     "i": "End DEI Programs"
+    },
     {
      "i": "Peace Through Strength",
      "l": "Would have authorized FY2026 weapons procurement and extended the Pacific Deterrence Initiative; the Senate passed it 77-20."
