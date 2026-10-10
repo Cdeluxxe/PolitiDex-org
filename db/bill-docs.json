@@ -8,7 +8,8 @@
    "t": "For the People Act of 2021",
    "m": [
     {
-     "i": "Expand Voting Access"
+     "i": "Expand Voting Access",
+     "l": "Would have required automatic and same-day registration and fifteen days of early voting in every state; the House passed it 220-210."
     }
    ]
   },
@@ -19,7 +20,8 @@
    "t": "John R. Lewis Voting Rights Advancement Act of 2021",
    "m": [
     {
-     "i": "Expand Voting Access"
+     "i": "Expand Voting Access",
+     "l": "Would have held new photo-ID rules, polling-place closures and voter-roll purges behind federal review; the House passed it 219-212."
     }
    ]
   },
@@ -96,7 +98,8 @@
    "t": "Enhanced Background Checks Act of 2021",
    "m": [
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "l": "Would have enhanced background checks; the House passed it 219-210."
     }
    ]
   },
@@ -107,10 +110,12 @@
    "t": "Assault Weapons Ban of 2022",
    "m": [
     {
-     "i": "Protect Gun Rights"
+     "i": "Protect Gun Rights",
+     "l": "Would have imposed the Assault Weapons Ban of 2022; the House passed it 217-213."
     },
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "l": "Would have enacted an Assault Weapons Ban; the House passed it 217-213."
     }
    ]
   },
@@ -121,7 +126,8 @@
    "t": "Federal Extreme Risk Protection Order Act of 2021",
    "m": [
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "l": "Would have created a Federal Extreme Risk Protection Order; the House passed it 224-202."
     }
    ]
   },
@@ -256,7 +262,8 @@
    "t": "Freedom to Vote: John R. Lewis Act",
    "m": [
     {
-     "i": "Expand Voting Access"
+     "i": "Expand Voting Access",
+     "l": "Would have required same-day registration, two weeks of early voting, no-excuse mail voting and drop boxes; the House passed it 220-203."
     }
    ]
   },
@@ -434,14 +441,16 @@
      "l": "Carried Iran-related sanctions in Division D, the 21st Century Peace through Strength Act; the Senate concurred 79-18."
     },
     {
-     "i": "Smart Tech Guardrails"
+     "i": "Smart Tech Guardrails",
+     "l": "Carried the Protecting Americans from Foreign Adversary Controlled Applications Act, a divest-or-ban rule; the Senate concurred 79-18."
     },
     {
      "i": "Stop Fentanyl & Cartels",
      "l": "Carried the FEND Off Fentanyl Act, with sanctions and anti-money-laundering steps against fentanyl traffickers; the Senate concurred 79-18."
     },
     {
-     "i": "Strategic Engagement"
+     "i": "Strategic Engagement",
+     "l": "Appropriated security assistance across three theatres at once, Israel, Ukraine and the Indo-Pacific; the Senate concurred 79-18."
     },
     {
      "i": "Support for Israel"
@@ -647,10 +656,12 @@
    "t": "Kennedy amendment prohibiting VA reporting of fiduciary determinations to NICS",
    "m": [
     {
-     "i": "Protect Gun Rights"
+     "i": "Protect Gun Rights",
+     "l": "Prohibited VA reporting of fiduciary determinations to NICS; the Senate agreed to it 53-45."
     },
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "l": "Ended VA reports of fiduciary determinations to NICS; the Senate agreed to it 53-45."
     },
     {
      "i": "Take Care of Veterans",
@@ -907,7 +918,8 @@
      "l": "Proposed barring the national security and State funds from use for Jordan, a standing aid commitment; the House rejected it 6-421."
     },
     {
-     "i": "Cut Federal Spending & Reduce Debt"
+     "i": "Cut Federal Spending & Reduce Debt",
+     "l": "Proposed cutting the National Security Investment Programs and Foreign Military Financing by the Jordan sums; the House rejected it 6-421."
     }
    ]
   },
@@ -942,7 +954,8 @@
      "l": "Proposed barring foreign nationals from U.S. military academies, striking the defense bill’s cadet section; the House rejected it 61-360."
     },
     {
-     "i": "Strategic Engagement"
+     "i": "Strategic Engagement",
+     "l": "Proposed a bar on foreign nationals attending the United States Military Academies in place of section 521; the House rejected it 61-360."
     }
    ]
   },
@@ -1051,7 +1064,8 @@
    "t": "H.Amdt. 254 (Boebert) to H.R. 8800 — codify Executive Order 14183, which implements a ban on transgender service members by requiring all personnel to serve in accordance with their…",
    "m": [
     {
-     "i": "Protect LGBTQ+ Rights"
+     "i": "Protect LGBTQ+ Rights",
+     "l": "Proposed codifying Executive Order 14183, which implements a ban on transgender service members; the House rejected it 212-217."
     }
    ]
   },
@@ -1065,7 +1079,8 @@
      "i": "Expand Healthcare Access"
     },
     {
-     "i": "Protect LGBTQ+ Rights"
+     "i": "Protect LGBTQ+ Rights",
+     "l": "Would prevent TRICARE from covering certain gender-related medical procedures and treatments; the House agreed to it 219-208."
     }
    ]
   },
@@ -1076,7 +1091,8 @@
    "t": "H.Amdt. 256 (Mace) to H.R. 8800 — prohibit male participation in female sports at Department of Defense Education Activity schools",
    "m": [
     {
-     "i": "Protect LGBTQ+ Rights"
+     "i": "Protect LGBTQ+ Rights",
+     "l": "Would prohibit male participation in female sports at Department of Defense Education Activity schools; the House agreed to it 221-203."
     }
    ]
   },
@@ -1099,7 +1115,8 @@
    "t": "H.Amdt. 258 (Self) to H.R. 8800 — codify protections and responsibilities for chaplains and subject such protections to prosecution under the Uniform Code of Military Justice",
    "m": [
     {
-     "i": "Religious Liberty Focus"
+     "i": "Religious Liberty Focus",
+     "l": "Would codify protections and responsibilities for chaplains; the House agreed to it 221-210."
     }
    ]
   },
@@ -1548,10 +1565,12 @@
    "t": "Veterans 2nd Amendment Protection Act",
    "m": [
     {
-     "i": "Protect Gun Rights"
+     "i": "Protect Gun Rights",
+     "l": "Would end VA gun-check referrals over benefit payments unless a judge finds a danger to themselves or others; the House passed it 216-201."
     },
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "l": "Would bar the VA from reporting a veteran to the background-check system only for being given a fiduciary; the House passed it 216-201."
     }
    ]
   },
@@ -1990,7 +2009,8 @@
    "t": "To amend the National Labor Relations Act to establish an efficient process for reaching a first collective bargaining agreement, and for other purposes.",
    "m": [
     {
-     "i": "Raise Wages & Protect Workers"
+     "i": "Raise Wages & Protect Workers",
+     "l": "Would put a clock on a first union contract, ending in mediation and then an arbitration panel’s award; the House passed it 230-193."
     }
    ]
   },
@@ -2005,7 +2025,8 @@
      "l": "Would require agencies to publish the critical factual material they rely on in rulemaking; the House passed it 362-1."
     },
     {
-     "i": "Transparency & Anti-Corruption"
+     "i": "Transparency & Anti-Corruption",
+     "l": "Would require agencies to use the best reasonably available evidence and publish what a rule rests on; the House passed it 362-1."
     }
    ]
   },
@@ -2092,20 +2113,24 @@
      "i": "Expand Healthcare Access"
     },
     {
-     "i": "Lower Prescription Drug Prices"
+     "i": "Lower Prescription Drug Prices",
+     "l": "Required pharmacy benefit managers to pass 100 percent of drug rebates through to the health plan; the House concurred 217-214."
     },
     {
      "i": "Peace Through Strength",
      "l": "Carried the full FY2026 defense appropriation, with $1 billion for the Taiwan Security Cooperation Initiative; the House concurred 217-214."
     },
     {
-     "i": "Pro-Life Protections"
+     "i": "Pro-Life Protections",
+     "l": "Carried the standing abortion-funding restrictions, including the Labor-HHS and federal employee plan bars; the House concurred 217-214."
     },
     {
-     "i": "Protect Rural Hospitals"
+     "i": "Protect Rural Hospitals",
+     "l": "Eliminated the scheduled Medicaid hospital cuts and continued the Medicare-Dependent Hospital program; the House concurred 217-214."
     },
     {
-     "i": "Strategic Engagement"
+     "i": "Strategic Engagement",
+     "l": "Funded $9.4 billion for diplomatic programs, $6.2 billion in Foreign Military Financing and peacekeeping; the House concurred 217-214."
     },
     {
      "i": "Support for Israel",
@@ -2191,7 +2216,8 @@
    "t": "Removing Barriers to Work for Disabled Americans Act",
    "m": [
     {
-     "i": "Protect Social Security & Medicare"
+     "i": "Protect Social Security & Medicare",
+     "l": "Would revive Social Security’s disability-insurance demonstration projects through 2030; the House passed it 232-188."
     }
    ]
   },
@@ -2208,7 +2234,8 @@
    "t": "Take Care of America’s Veterans Act",
    "m": [
     {
-     "i": "Take Care of Veterans"
+     "i": "Take Care of Veterans",
+     "l": "Would grant concurrent receipt of disability and retired pay to some combat retirees; a motion to recommit it failed in the House 210-211."
     }
    ]
   },
@@ -2239,7 +2266,8 @@
    "t": "Directing the Committee on Ethics to preserve and publicly release records relating to .monetary settlements involving acts of sexual harassment.",
    "m": [
     {
-     "i": "Transparency & Anti-Corruption"
+     "i": "Transparency & Anti-Corruption",
+     "l": "Directed the House Committee on Ethics to release its records of settlements involving sexual harassment; the House agreed to it 420-0."
     }
    ]
   },
@@ -2478,7 +2506,8 @@
      "l": "Added crimes causing death or serious bodily injury to the bill’s mandatory-detention list; the Senate agreed to it 75-24."
     },
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "l": "Made crimes causing death or serious bodily injury grounds for mandatory detention; the Senate agreed to it 75-24."
     }
    ]
   },
@@ -2493,7 +2522,8 @@
      "l": "Expanded the offences that trigger mandatory detention under the bill; the Senate agreed to it 70-25."
     },
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "l": "Widened the offences that trigger mandatory detention; the Senate agreed to it 70-25."
     }
    ]
   },
@@ -2504,7 +2534,8 @@
    "t": "Coons amendment striking the State attorney general cause of action (S.Amdt. 23)",
    "m": [
     {
-     "i": "States Suing Washington"
+     "i": "States Suing Washington",
+     "l": "Proposed striking the State attorney general cause of action; the Senate rejected it 46-49."
     }
    ]
   },
@@ -2515,7 +2546,8 @@
    "t": "S.Amdt. 3428 (Johnson) to H.R. 3944 — to limit disclosures regarding earmarks",
    "m": [
     {
-     "i": "Transparency & Anti-Corruption"
+     "i": "Transparency & Anti-Corruption",
+     "l": "Proposed limiting disclosures regarding earmarks; the Senate rejected it 21-75."
     }
    ]
   },
@@ -2526,10 +2558,12 @@
    "t": "S.Amdt. 3535 (Scott, FL) to S. 2296 — require Presidential appointment and Senate confirmation of the Inspector General of the Board of Governors of the Federal Reserve System and the Bureau of Consumer Financial Protection",
    "m": [
     {
-     "i": "Audit Spending & the Fed"
+     "i": "Audit Spending & the Fed",
+     "l": "Proposed Senate confirmation for the Fed and CFPB internal auditor, its remit unchanged; it failed 53-43 under a three-fifths threshold."
     },
     {
-     "i": "Congressional Oversight"
+     "i": "Congressional Oversight",
+     "l": "Proposed Senate confirmation of the Federal Reserve and CFPB inspector general; it failed 53-43 under a three-fifths threshold."
     }
    ]
   },
@@ -2540,7 +2574,8 @@
    "t": "Cortez Masto amendment appropriating funds for local law enforcement hiring (S.Amdt. 5463)",
    "m": [
     {
-     "i": "Back Law Enforcement"
+     "i": "Back Law Enforcement",
+     "l": "Proposed appropriating funds for local law enforcement hiring; the Senate rejected it 45-53."
     }
    ]
   },
@@ -2567,7 +2602,8 @@
    "t": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Federal Communications Commission relating to \"Addressing the Homework Gap Through the E-Rate Program\"",
    "m": [
     {
-     "i": "Universal Broadband"
+     "i": "Universal Broadband",
+     "l": "Would strike the FCC rule letting E-Rate pay for Wi-Fi hotspots that schools and libraries lend for home use; the Senate passed it 50-38."
     }
    ]
   },

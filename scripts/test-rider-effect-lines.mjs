@@ -99,7 +99,9 @@ function mapOf(src, name) {
 function blockKeys(src) {
   const a = src.indexOf(MARK);
   if (a < 0) return [];
-  return [...src.slice(a, src.indexOf("\n  };", a)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+  // The block ends at the next wave's own marker, or at the end of the table.
+  const end = src.indexOf("\n  };", a), next = src.indexOf("\n    // WAVE ", a);
+  return [...src.slice(a, next > 0 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
 }
 const headSrc = (() => {
   try { return execFileSync("git", ["show", "HEAD:consistency.js"], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] }); }
@@ -225,7 +227,13 @@ function check(src) {
     const HE = mapOf(headSrc, "_DOS_EFFECT"), HM = mapOf(headSrc, "_DOS_MECH"), HX = mapOf(headSrc, "_DOS_EXEC_EFFECT");
     const headBlock = new Set(blockKeys(headSrc));
     for (const [p, v] of Object.entries(HE.map)) ok(E.map[p] === v, `${p}: a shipped line was rewritten or removed`);
-    for (const k of Object.keys(E.map)) ok(k in HE.map || block.includes(k) || headBlock.has(k), `${k}: a new line outside the rider block`);
+    // A later wave's own block, after this one, is held by that wave's own test.
+    const later = (() => {
+      const a = src.indexOf(MARK), w = a < 0 ? -1 : src.indexOf("\n    // WAVE ", a);
+      if (w < 0) return new Set();
+      return new Set([...src.slice(w, src.indexOf("\n  };", w)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+    })();
+    for (const k of Object.keys(E.map)) ok(k in HE.map || block.includes(k) || headBlock.has(k) || later.has(k), `${k}: a new line outside the rider block`);
     ok(M.text === HM.text, "_DOS_MECH is not byte-identical to HEAD");
     ok(X.text === HX.text, "_DOS_EXEC_EFFECT is not byte-identical to HEAD");
     const ptr = (x) => (String(x || "").match(/var _DOS_POINTER = \{[\s\S]*?\n  \};/) || [""])[0];

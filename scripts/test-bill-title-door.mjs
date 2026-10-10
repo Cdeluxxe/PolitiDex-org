@@ -381,8 +381,11 @@ must(W.CMP_DATA[UT_PID] && W.CMP_DATA[FED_PID], `${UT_PID} or ${FED_PID} left th
 must(W.ISSUE_MAP[UT_KEY] && W.ISSUE_MAP[FED_KEY], "the two smoke keys are no longer in ISSUE_MAP");
 watchPanel(W);
 
-const UT_DOS = CS.gapViewHtml(UT_PID, UT_KEY) || "";
-const FED_DOS = CS.gapViewHtml(FED_PID, FED_KEY) || "";
+// The record-list cards. A sheet with a vote table has one list — the table —
+// so the cards are read from the list renderer itself, which is what a sheet
+// without a table prints (v325).
+const UT_DOS = CS.dossierRecordsHtml(UT_PID, UT_KEY) || "";
+const FED_DOS = CS.dossierRecordsHtml(FED_PID, FED_KEY) || "";
 const UT_DRV = CS.dossierDriversHtml(UT_PID, UT_KEY) || "";
 const FED_DRV = CS.dossierDriversHtml(FED_PID, FED_KEY) || "";
 must(UT_DOS.indexOf(UT_NUM) >= 0, `${UT_NUM} is not in ${UT_PID}'s ${UT_KEY} dossier`);
@@ -750,7 +753,7 @@ section("6 · no bill page on file says so, and goes nowhere");
   const N = boot(R, PERSON_FILES.filter((f) => f !== "bill-detail.js"));
   must(!N.PDXBillDetail, "the no-panel fixture still has PDXBillDetail — nothing was actually removed");
   N.__opens = [];
-  const dos = N.PDXConsistency.gapViewHtml(FED_PID, FED_KEY) || "";
+  const dos = N.PDXConsistency.dossierRecordsHtml(FED_PID, FED_KEY) || "";
   const fedA = control(dos, 'class="pdxdos-rec-id pdxbill-door pdxbill-ext"');
   must(fedA.indexOf("<a ") === 0, "without the panel, the federal number is not an outbound link");
   has(fedA, 'href="https://www.congress.gov/bill/119th-congress/house-bill/6644"', "the federal link does not point at Congress.gov's page for the measure");
@@ -767,7 +770,7 @@ section("6 · no bill page on file says so, and goes nowhere");
   // H.B. 400 — on a page without the panel has nowhere to go, so its number is
   // printed as the number, not as a control whose only answer is "No bill page
   // on file". The reader keeps the number; nothing offers a tap that goes nowhere.
-  const udos = N.PDXConsistency.gapViewHtml(UT_PID, UT_KEY) || "";
+  const udos = N.PDXConsistency.dossierRecordsHtml(UT_PID, UT_KEY) || "";
   has(udos, `<span class="pdxdos-rec-id">${UT_NUM}`, "without the panel, the Utah number is not plain text");
   no(udos, `data-pdxbill-num="${UT_NUM}"`, "without the panel, the Utah number is still a control");
   no(udos, "No bill page on file", "without the panel, a refusal was printed before anyone tapped");
@@ -777,7 +780,7 @@ section("6 · no bill page on file says so, and goes nowhere");
   // THE REFUSAL, where a control can still be printed: the panel is on the page
   // but cannot open this measure. The control says so on itself and goes nowhere.
   N.PDXBillDetail = { open: () => false };
-  const udosP = N.PDXConsistency.gapViewHtml(UT_PID, UT_KEY) || "";
+  const udosP = N.PDXConsistency.dossierRecordsHtml(UT_PID, UT_KEY) || "";
   must(udosP.indexOf("pdxbill-door") >= 0, "with the panel on the page, the Utah control disappeared");
   has(udosP, `data-pdxbill-num="${UT_NUM}"`, "the control stopped naming its measure");
   const node = nodeFor(N, udosP, 'class="pdxdos-rec-id pdxbill-door"');
