@@ -232,7 +232,10 @@ section("1 · the table: one short sentence per pair, Lands and Red Tape untouch
   // two later lands_energy lines of its own, held by its own test, and they are
   // not part of the shipped set this hash pins.
   // Wave 1 (v317) added a Red Tape line for H.R. 6955, likewise held by its own test.
-  const LATER = new Set(["H.R. 4090|119|lands_energy", "H.R. 1366|119|lands_energy", "H.R. 6955|119|gov_regulation"]);
+  // The rider rows (v320) added a Red Tape line for H.R. 6329, held by
+  // scripts/test-rider-effect-lines.mjs.
+  const LATER = new Set(["H.R. 4090|119|lands_energy", "H.R. 1366|119|lands_energy", "H.R. 6955|119|gov_regulation",
+    "H.R. 6329|119|gov_regulation"]);
   const lrt = Object.keys(EFFECT).filter((k) => /\|(lands_preserve|lands_energy|gov_regulation)$/.test(k) && !LATER.has(k));
   eq(lrt.length, LANDS_RED_TAPE_COUNT, "Lands and Red Tape line count");
   const sha = createHash("sha256").update(lrt.map((k) => k + "\t" + EFFECT[k]).join("\n")).digest("hex");

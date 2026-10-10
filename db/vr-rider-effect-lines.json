@@ -1,0 +1,599 @@
+{
+  "_comment": "Effect lines for the 31 rider-audit rows (6 from db/vr-rider-audit.json, 25 from db/vr-rider-audit-onaxis.json). A line is written only from the act's own stored title, short title and summary, the text those audits quoted and saved in their `measures` snapshots, and is stored once in consistency.js _DOS_EFFECT under the block marked RIDER ROWS (v320). A row whose text states no effect on its leaf is left blank, with the reason. No score, weight, mapping, primary flag or shipped line is touched.",
+  "_test": "scripts/test-rider-effect-lines.mjs",
+  "lines": 19,
+  "blank": 12,
+  "rows": [
+    {
+      "key": "H.R. 1968|119|border_security",
+      "wave": 1,
+      "number": "H.R. 1968",
+      "congress": 119,
+      "utahSession": null,
+      "leaf": "border_security",
+      "sitsOn": "cut_spending",
+      "auditPhrase": "boosting defense and immigration enforcement",
+      "status": "enacted",
+      "decision": "line",
+      "term": "immigration enforcement",
+      "line": "Boosted immigration enforcement in full-year FY2025 funding that trimmed some domestic spending; the House passed it 217-213.",
+      "rolls": [
+        [
+          "house",
+          70
+        ]
+      ],
+      "shape": "passed"
+    },
+    {
+      "key": "H.R. 3746|118|homeless",
+      "wave": 1,
+      "number": "H.R. 3746",
+      "congress": 118,
+      "utahSession": null,
+      "leaf": "homeless",
+      "sitsOn": "permitting_reform",
+      "auditPhrase": "exempting homeless individuals, veterans and former foster youth",
+      "status": "enacted",
+      "decision": "line",
+      "term": "homeless individuals",
+      "line": "Exempted homeless individuals from the SNAP work rule as it raised the age limit to 54; the House cleared it 314-117, the Senate 63-36.",
+      "rolls": [
+        [
+          "house",
+          243
+        ],
+        [
+          "senate",
+          146
+        ]
+      ],
+      "shape": "cleared"
+    },
+    {
+      "key": "H.R. 3746|118|veterans",
+      "wave": 1,
+      "number": "H.R. 3746",
+      "congress": 118,
+      "utahSession": null,
+      "leaf": "veterans",
+      "sitsOn": "permitting_reform",
+      "auditPhrase": "exempting homeless individuals, veterans and former foster youth",
+      "status": "enacted",
+      "decision": "line",
+      "term": "veterans",
+      "line": "Exempted veterans from the SNAP work requirement as it raised the age limit to 54; the House cleared it 314-117, the Senate 63-36.",
+      "rolls": [
+        [
+          "house",
+          243
+        ],
+        [
+          "senate",
+          146
+        ]
+      ],
+      "shape": "cleared"
+    },
+    {
+      "key": "H.R. 1319|117|healthcare",
+      "wave": 1,
+      "number": "H.R. 1319",
+      "congress": 117,
+      "utahSession": null,
+      "leaf": "healthcare",
+      "sitsOn": "family_support",
+      "auditPhrase": "expanded Affordable Care Act premium tax credits",
+      "status": "enacted",
+      "decision": "line",
+      "term": "Affordable Care Act premium tax credits",
+      "line": "Expanded Affordable Care Act premium tax credits; the House cleared it 220-211, the Senate 50-49.",
+      "rolls": [
+        [
+          "house",
+          72
+        ],
+        [
+          "senate",
+          110
+        ]
+      ],
+      "shape": "cleared"
+    },
+    {
+      "key": "S. 2296|119|end_dei",
+      "wave": 1,
+      "number": "S. 2296",
+      "congress": 119,
+      "utahSession": null,
+      "leaf": "end_dei",
+      "sitsOn": "strong_defense",
+      "auditPhrase": "repeals statutory provisions on diversity, equity and inclusion within the Department",
+      "status": "passed_senate",
+      "decision": "line",
+      "term": "diversity, equity and inclusion",
+      "line": "Would have repealed DoD provisions on diversity, equity and inclusion, including the Chief Diversity Officer; the Senate passed it 77-20.",
+      "rolls": [
+        [
+          "senate",
+          570
+        ]
+      ],
+      "shape": "passed"
+    },
+    {
+      "key": "S.Amdt. 1354|118|veterans",
+      "wave": 1,
+      "number": "S.Amdt. 1354",
+      "congress": 118,
+      "utahSession": null,
+      "leaf": "veterans",
+      "sitsOn": "gun_rights",
+      "auditPhrase": "the Secretary of Veterans Affairs to report certain information to the Department of Justice",
+      "status": "enacted",
+      "decision": "line",
+      "term": "Veterans Affairs",
+      "line": "Barred funds for Veterans Affairs to report certain information to NICS for background checks; the Senate agreed to it 53-45.",
+      "rolls": [
+        [
+          "senate",
+          268
+        ]
+      ],
+      "shape": "agreed"
+    },
+    {
+      "key": "H.Amdt. 207|119|rural_ag",
+      "wave": 2,
+      "number": "H.Amdt. 207",
+      "congress": 119,
+      "utahSession": null,
+      "leaf": "rural_ag",
+      "sitsOn": "climate_action",
+      "auditPhrase": "emissions mandates on farm equipment that drives up expenses for farmers",
+      "status": "passed_house",
+      "decision": "line",
+      "term": "farmers",
+      "line": "Would remove farm-equipment emissions mandates to ease expenses for farmers and consumers; the House agreed to it 215-213.",
+      "rolls": [
+        [
+          "house",
+          152
+        ]
+      ],
+      "shape": "agreed"
+    },
+    {
+      "key": "H.R. 6329|119|gov_regulation",
+      "wave": 2,
+      "number": "H.R. 6329",
+      "congress": 119,
+      "utahSession": null,
+      "leaf": "gov_regulation",
+      "sitsOn": "gov_transparency",
+      "auditPhrase": "the critical factual material they rely on in rulemaking",
+      "status": "pending",
+      "decision": "line",
+      "term": "rulemaking",
+      "line": "Would require agencies to publish the critical factual material they rely on in rulemaking; the House passed it 362-1.",
+      "rolls": [
+        [
+          "house",
+          71
+        ]
+      ],
+      "shape": "passed"
+    },
+    {
+      "key": "H.R. 5214|119|justice_reform",
+      "wave": 2,
+      "number": "H.R. 5214",
+      "congress": 119,
+      "utahSession": null,
+      "leaf": "justice_reform",
+      "sitsOn": "tough_on_crime",
+      "auditPhrase": "require mandatory cash bail for certain offenses",
+      "status": "passed_house",
+      "decision": "line",
+      "term": "mandatory cash bail",
+      "line": "Would require mandatory cash bail in the District for certain offenses that threaten public safety; the House passed it 237-179.",
+      "rolls": [
+        [
+          "house",
+          298
+        ]
+      ],
+      "shape": "passed"
+    },
+    {
+      "key": "H.Amdt. 97|119|strong_defense",
+      "wave": 2,
+      "number": "H.Amdt. 97",
+      "congress": 119,
+      "utahSession": null,
+      "leaf": "strong_defense",
+      "sitsOn": "lands_preserve",
+      "auditPhrase": "during national defense-related operations",
+      "status": "failed",
+      "decision": "line",
+      "term": "military personnel",
+      "line": "Proposed exempting military personnel from Endangered Species Act bans in national defense operations; the House rejected it 200-228.",
+      "rolls": [
+        [
+          "house",
+          259
+        ]
+      ],
+      "shape": "rejected"
+    },
+    {
+      "key": "H.J.Res. 25|119|crypto_cbdc",
+      "wave": 2,
+      "number": "H.J.Res. 25",
+      "congress": 119,
+      "utahSession": null,
+      "leaf": "crypto_cbdc",
+      "sitsOn": "gov_regulation",
+      "auditPhrase": "digital asset sales",
+      "status": "enacted",
+      "decision": "line",
+      "term": "digital asset",
+      "line": "Nullified IRS broker tax reporting on decentralized-finance digital asset sales; the House cleared it 292-132, the Senate 70-28.",
+      "rolls": [
+        [
+          "house",
+          71
+        ],
+        [
+          "senate",
+          151
+        ]
+      ],
+      "shape": "cleared"
+    },
+    {
+      "key": "H.R. 3746|118|cut_spending",
+      "wave": 2,
+      "number": "H.R. 3746",
+      "congress": 118,
+      "utahSession": null,
+      "leaf": "cut_spending",
+      "sitsOn": "permitting_reform",
+      "auditPhrase": "sets discretionary spending caps for FY2024 and FY2025",
+      "status": "enacted",
+      "decision": "line",
+      "term": "discretionary spending caps",
+      "line": "Set discretionary spending caps for FY2024 and FY2025, enforced by sequestration; the House cleared it 314-117, the Senate 63-36.",
+      "rolls": [
+        [
+          "house",
+          243
+        ],
+        [
+          "senate",
+          146
+        ]
+      ],
+      "shape": "cleared"
+    },
+    {
+      "key": "H.R. 3746|118|national_debt",
+      "wave": 2,
+      "number": "H.R. 3746",
+      "congress": 118,
+      "utahSession": null,
+      "leaf": "national_debt",
+      "sitsOn": "permitting_reform",
+      "auditPhrase": "suspends the debt limit through January 1, 2025",
+      "status": "enacted",
+      "decision": "line",
+      "term": "debt limit",
+      "line": "Suspended the debt limit through January 1, 2025; the House cleared it 314-117, the Senate 63-36.",
+      "rolls": [
+        [
+          "house",
+          243
+        ],
+        [
+          "senate",
+          146
+        ]
+      ],
+      "shape": "cleared"
+    },
+    {
+      "key": "H.R. 1319|117|housing_support",
+      "wave": 2,
+      "number": "H.R. 1319",
+      "congress": 117,
+      "utahSession": null,
+      "leaf": "housing_support",
+      "sitsOn": "family_support",
+      "auditPhrase": "emergency rental and homeowner assistance",
+      "status": "enacted",
+      "decision": "line",
+      "term": "emergency rental and homeowner assistance",
+      "line": "Funded emergency rental and homeowner assistance; the House cleared it 220-211, the Senate 50-49.",
+      "rolls": [
+        [
+          "house",
+          72
+        ],
+        [
+          "senate",
+          110
+        ]
+      ],
+      "shape": "cleared"
+    },
+    {
+      "key": "H.R. 1319|117|tax_middle_class",
+      "wave": 2,
+      "number": "H.R. 1319",
+      "congress": 117,
+      "utahSession": null,
+      "leaf": "tax_middle_class",
+      "sitsOn": "family_support",
+      "auditPhrase": "an expanded child tax credit",
+      "status": "enacted",
+      "decision": "line",
+      "term": "child tax credit",
+      "line": "Expanded the child tax credit; the House cleared it 220-211, the Senate 50-49.",
+      "rolls": [
+        [
+          "house",
+          72
+        ],
+        [
+          "senate",
+          110
+        ]
+      ],
+      "shape": "cleared"
+    },
+    {
+      "key": "S. 2938|117|healthcare",
+      "wave": 2,
+      "number": "S. 2938",
+      "congress": 117,
+      "utahSession": null,
+      "leaf": "healthcare",
+      "sitsOn": "gun_safety",
+      "auditPhrase": "guidance on Medicaid telehealth and school-based Medicaid services",
+      "status": "enacted",
+      "decision": "line",
+      "term": "Medicaid telehealth",
+      "line": "Directed guidance on Medicaid telehealth and school-based Medicaid services; the House cleared it 234-193, the Senate 65-33.",
+      "rolls": [
+        [
+          "house",
+          299
+        ],
+        [
+          "senate",
+          242
+        ]
+      ],
+      "shape": "cleared"
+    },
+    {
+      "key": "H.R. 3633|119|crypto_cbdc",
+      "wave": 2,
+      "number": "H.R. 3633",
+      "congress": 119,
+      "utahSession": null,
+      "leaf": "crypto_cbdc",
+      "sitsOn": "tech_innovation",
+      "auditPhrase": "a market-structure framework for digital assets",
+      "status": "passed_house",
+      "decision": "line",
+      "term": "digital assets",
+      "line": "Would set a market-structure framework for digital assets, splitting oversight between the CFTC and the SEC; the House passed it 294-134.",
+      "rolls": [
+        [
+          "house",
+          199
+        ]
+      ],
+      "shape": "passed"
+    },
+    {
+      "key": "H.R. 7148|119|healthcare",
+      "wave": 2,
+      "number": "H.R. 7148",
+      "congress": 119,
+      "utahSession": null,
+      "leaf": "healthcare",
+      "sitsOn": "strong_defense",
+      "auditPhrase": "Health Care Extenders",
+      "status": "enacted",
+      "decision": "blank",
+      "reason": "label only: the stored text names Division J only by its title, \"Health Care Extenders (Secs. 6001-6703 across seven titles)\", and says nothing about what those sections extend"
+    },
+    {
+      "key": "S.Amdt. 5813|119|border_security",
+      "wave": 2,
+      "number": "S.Amdt. 5813",
+      "congress": 119,
+      "utahSession": null,
+      "leaf": "border_security",
+      "sitsOn": "immigration_reform",
+      "auditPhrase": "a nay left the bill's $69.545 billion entirely with border and immigration enforcement",
+      "status": "failed",
+      "decision": "line",
+      "term": "border and immigration enforcement",
+      "line": "Proposed taking DACA renewal funds from the bill’s $69.545 billion for border and immigration enforcement; the Senate rejected it 47-52.",
+      "rolls": [
+        [
+          "senate",
+          156
+        ]
+      ],
+      "shape": "rejected"
+    },
+    {
+      "key": "S.B. 224|null|enviro_energy",
+      "wave": 2,
+      "number": "S.B. 224",
+      "congress": null,
+      "utahSession": "2024GS",
+      "leaf": "enviro_energy",
+      "sitsOn": "energy_production",
+      "auditPhrase": "Energy Independence Amendments",
+      "status": "enacted",
+      "decision": "blank",
+      "reason": "the stored text only says the bill \"modifies provisions related to planning and cost recovery for certain energy resource decisions\", which states no effect on this leaf; the fire-fund clause is a different subject"
+    },
+    {
+      "key": "H.R. 815|118|iran_policy",
+      "wave": 2,
+      "number": "H.R. 815",
+      "congress": 118,
+      "utahSession": null,
+      "leaf": "iran_policy",
+      "sitsOn": "foreign_balance",
+      "auditPhrase": "Iran-related sanctions",
+      "status": "enacted",
+      "decision": "line",
+      "term": "Iran-related sanctions",
+      "line": "Carried Iran-related sanctions in Division D, the 21st Century Peace through Strength Act; the Senate concurred 79-18.",
+      "rolls": [
+        [
+          "senate",
+          154
+        ]
+      ],
+      "shape": "concurred"
+    },
+    {
+      "key": "H.R. 815|118|israel_support",
+      "wave": 2,
+      "number": "H.R. 815",
+      "congress": 118,
+      "utahSession": null,
+      "leaf": "israel_support",
+      "sitsOn": "foreign_balance",
+      "auditPhrase": "Israel Security Supplemental Appropriations Act, 2024",
+      "status": "enacted",
+      "decision": "blank",
+      "reason": "label only: the stored text names Division A only by its title, \"Israel Security Supplemental Appropriations Act, 2024\", and says nothing about what it appropriates"
+    },
+    {
+      "key": "H.B. 562|null|back_police",
+      "wave": 2,
+      "number": "H.B. 562",
+      "congress": null,
+      "utahSession": "2025GS",
+      "leaf": "back_police",
+      "sitsOn": "tough_on_crime",
+      "auditPhrase": "Law Enforcement and Criminal Justice Amendments",
+      "status": "enacted",
+      "decision": "blank",
+      "reason": "the stored text only says the bill \"modifies provisions related to law enforcement and criminal justice\"; it names the subject and states no effect on this leaf"
+    },
+    {
+      "key": "S.B. 262|null|housing_support",
+      "wave": 2,
+      "number": "S.B. 262",
+      "congress": null,
+      "utahSession": "2025GS",
+      "leaf": "housing_support",
+      "sitsOn": "housing",
+      "auditPhrase": "amends provisions related to affordable housing",
+      "status": "enacted",
+      "decision": "blank",
+      "reason": "the stored text only says the bill \"amends provisions related to affordable housing\"; it names the subject and states no effect on this leaf"
+    },
+    {
+      "key": "H.B. 273|null|justice_reform",
+      "wave": 2,
+      "number": "H.B. 273",
+      "congress": null,
+      "utahSession": "2024GS",
+      "leaf": "justice_reform",
+      "sitsOn": "tough_on_crime",
+      "auditPhrase": "Sentencing Modifications for Certain DUI Offenses",
+      "status": "enacted",
+      "decision": "blank",
+      "reason": "the stored text only says the bill \"modifies provisions related to\" negligent driving resulting in death and ignition-interlock eligibility; it states no sentencing effect"
+    },
+    {
+      "key": "H.B. 68|null|justice_reform",
+      "wave": 2,
+      "number": "H.B. 68",
+      "congress": null,
+      "utahSession": "2024GS",
+      "leaf": "justice_reform",
+      "sitsOn": "tough_on_crime",
+      "auditPhrase": "Drug Sentencing Modifications",
+      "status": "enacted",
+      "decision": "blank",
+      "reason": "the stored text only says the bill \"addresses the sentencing\" for certain drug distribution; it does not say whether sentences rise or fall"
+    },
+    {
+      "key": "S.B. 194|null|tech_balance",
+      "wave": 2,
+      "number": "S.B. 194",
+      "congress": null,
+      "utahSession": "2024GS",
+      "leaf": "tech_balance",
+      "sitsOn": "privacy_rights",
+      "auditPhrase": "Social Media Regulation",
+      "status": "enacted",
+      "decision": "blank",
+      "reason": "the stored text only says the bill \"enacts provisions related to age assurance and protecting minors\", which does not say what the provisions require; separately, the line store keys a row by number and congress, and a Utah row has no congress, so no line could be stored once on this pair"
+    },
+    {
+      "key": "H.B. 364|null|housing",
+      "wave": 2,
+      "number": "H.B. 364",
+      "congress": null,
+      "utahSession": "2023GS",
+      "leaf": "housing",
+      "sitsOn": "housing_support",
+      "auditPhrase": "Housing Affordability Amendments",
+      "status": "passed_senate",
+      "decision": "blank",
+      "reason": "the stored text only says the bill \"modifies provisions relating to affordable housing and the provision of services related to affordable housing\"; it names the subject and states no effect on this leaf"
+    },
+    {
+      "key": "S.B. 26|null|housing",
+      "wave": 2,
+      "number": "S.B. 26",
+      "congress": null,
+      "utahSession": "2025GS",
+      "leaf": "housing",
+      "sitsOn": "dev_district_finance",
+      "auditPhrase": "Housing and Transit Reinvestment Zone",
+      "status": "enacted",
+      "decision": "blank",
+      "reason": "the stored text only says the bill \"amends provisions relating to the Housing and Transit Reinvestment Zone Act\"; it names the subject and states no effect on this leaf"
+    },
+    {
+      "key": "S.B. 26|null|transit",
+      "wave": 2,
+      "number": "S.B. 26",
+      "congress": null,
+      "utahSession": "2025GS",
+      "leaf": "transit",
+      "sitsOn": "dev_district_finance",
+      "auditPhrase": "Housing and Transit Reinvestment Zone",
+      "status": "enacted",
+      "decision": "blank",
+      "reason": "the stored text only says the bill \"amends provisions relating to the Housing and Transit Reinvestment Zone Act\"; it names the subject and states no effect on this leaf"
+    },
+    {
+      "key": "S.B. 208|null|dev_district_finance",
+      "wave": 2,
+      "number": "S.B. 208",
+      "congress": null,
+      "utahSession": "2024GS",
+      "leaf": "dev_district_finance",
+      "sitsOn": "housing",
+      "auditPhrase": "housing and transit reinvestment zones",
+      "status": "enacted",
+      "decision": "blank",
+      "reason": "the stored text only says the bill \"amends provisions related to housing and transit reinvestment zones\"; it names the subject and states no effect on this leaf"
+    }
+  ]
+}

@@ -297,8 +297,15 @@ function check(src, base) {
   }
   // Any other line on these leaves that is not one this pass wrote shipped before.
   const headE = headSrc ? mapOf(headSrc, "_DOS_EFFECT").map : {};
+  // Lines a later pass wrote on these leaves, read from that pass's own block in
+  // _DOS_EFFECT and held by that pass's own test.
+  const later = (() => {
+    const a = src.indexOf("// RIDER ROWS (v320)");
+    if (a < 0) return new Set();
+    return new Set([...src.slice(a, src.indexOf("\n  };", a)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+  })();
   for (const k of Object.keys(E.map)) {
-    if (!KEYS.includes(k.split("|")[2]) || k in SPEC) continue;
+    if (!KEYS.includes(k.split("|")[2]) || k in SPEC || later.has(k)) continue;
     ok(k in headE, `${k}: a line on a wave-2 leaf with no source in this pass`);
   }
 

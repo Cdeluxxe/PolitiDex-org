@@ -1,0 +1,1300 @@
+{
+  "_comment": "Rider audit, wave 2 (October 2026). The first pass (db/vr-rider-audit.json) listed 30 measure × leaf pairs that the act's own stored text names but did not file them, because the row would be on-axis. Off-axis was the wrong gate for a pair the text names. This pass files those pairs as secondary rows (is_primary false), except where the phrase is a passing mention or a bare label with no readable direction. Weight is the lowest weight the act's existing secondary rows use, or 40 if it has none. No issue key is created, no existing row is touched, no primary flag moves, no effect line is written. A row that moves the act's dominant category is filed anyway and marked dominantMoved.",
+  "_source": "db/vr-rider-audit.json → notFiled (the 30). Stored text below is each act's vr_measures title, short title and summary, the same fields the first pass read.",
+  "_migration": "netlify/database/migrations/20261112000000_vr_rider_audit_onaxis_rows.sql",
+  "_test": "scripts/test-vr-rider-audit-onaxis.mjs",
+  "scan": {
+    "pairs": 30,
+    "filed": 25,
+    "declined": 5,
+    "dominantMoved": 9
+  },
+  "filed": [
+    {
+      "number": "H.Amdt. 207",
+      "congress": 119,
+      "utahSession": null,
+      "chamber": "house",
+      "measureType": "amendment",
+      "members": 430,
+      "sitsOn": "climate_action",
+      "wouldJoin": "rural_ag",
+      "auditPhrase": "emissions mandates on farm equipment that drives up expenses for farmers",
+      "decision": "filed",
+      "phrase": "emissions mandates on farm equipment that drives up expenses for farmers",
+      "phraseChanged": false,
+      "weight": 40,
+      "weightRule": "no secondary rows: 40",
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/207",
+      "dominantBefore": [
+        "climate_energy"
+      ],
+      "dominantAfter": [
+        "climate_energy",
+        "economy_cost_of_living"
+      ],
+      "dominantMoved": true,
+      "readAs": "the amendment removes emissions mandates on farm equipment that the text says drive up farmers' expenses, so a yea lowers them"
+    },
+    {
+      "number": "H.R. 6329",
+      "congress": 119,
+      "utahSession": null,
+      "chamber": "house",
+      "measureType": "bill",
+      "members": 428,
+      "sitsOn": "gov_transparency",
+      "wouldJoin": "gov_regulation",
+      "auditPhrase": "the critical factual material they rely on in rulemaking",
+      "decision": "filed",
+      "phrase": "the critical factual material they rely on in rulemaking",
+      "phraseChanged": false,
+      "weight": 40,
+      "weightRule": "no secondary rows: 40",
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/6329",
+      "dominantBefore": [
+        "checks_and_balances"
+      ],
+      "dominantAfter": [
+        "checks_and_balances",
+        "spending_debt_waste"
+      ],
+      "dominantMoved": true,
+      "readAs": "the act puts a disclosure requirement on agency rulemaking, so a yea adds a check on how rules are made"
+    },
+    {
+      "number": "H.R. 5214",
+      "congress": 119,
+      "utahSession": null,
+      "chamber": "house",
+      "measureType": "bill",
+      "members": 427,
+      "sitsOn": "tough_on_crime",
+      "wouldJoin": "justice_reform",
+      "auditPhrase": "Cash Bail Reform Act",
+      "decision": "filed",
+      "phrase": "require mandatory cash bail for certain offenses",
+      "phraseChanged": true,
+      "weight": 40,
+      "weightRule": "no secondary rows: 40",
+      "supportMeaning": "yea_opposes",
+      "isPrimary": false,
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/5214",
+      "dominantBefore": [
+        "crime_safety"
+      ],
+      "dominantAfter": [
+        "crime_safety"
+      ],
+      "dominantMoved": false,
+      "readAs": "the act mandates pretrial detention and cash bail, the opposite of the leaf's reduce-incarceration side, so a yea opposes it"
+    },
+    {
+      "number": "H.Amdt. 97",
+      "congress": 119,
+      "utahSession": null,
+      "chamber": "house",
+      "measureType": "amendment",
+      "members": 425,
+      "sitsOn": "lands_preserve",
+      "wouldJoin": "strong_defense",
+      "auditPhrase": "during national defense-related operations",
+      "decision": "filed",
+      "phrase": "during national defense-related operations",
+      "phraseChanged": false,
+      "weight": 40,
+      "weightRule": "no secondary rows: 40",
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://www.congress.gov/amendment/119th-congress/house-amendment/97",
+      "dominantBefore": [
+        "climate_energy"
+      ],
+      "dominantAfter": [
+        "climate_energy",
+        "foreign_policy_defense"
+      ],
+      "dominantMoved": true,
+      "readAs": "the amendment exempts military personnel from ESA prohibitions during national defense-related operations, so a yea widens military operating latitude"
+    },
+    {
+      "number": "H.J.Res. 25",
+      "congress": 119,
+      "utahSession": null,
+      "chamber": "house",
+      "measureType": "resolution",
+      "members": 207,
+      "sitsOn": "gov_regulation",
+      "wouldJoin": "crypto_cbdc",
+      "auditPhrase": "digital asset sales",
+      "decision": "filed",
+      "phrase": "digital asset sales",
+      "phraseChanged": false,
+      "weight": 60,
+      "weightRule": "lowest secondary",
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-joint-resolution/25",
+      "dominantBefore": [
+        "economy_cost_of_living",
+        "spending_debt_waste"
+      ],
+      "dominantAfter": [
+        "economy_cost_of_living"
+      ],
+      "dominantMoved": true,
+      "readAs": "the resolution nullifies the IRS broker-reporting rule for digital asset sales; this key carries no pole, so no side is read on it"
+    },
+    {
+      "number": "H.R. 3746",
+      "congress": 118,
+      "utahSession": null,
+      "chamber": "house",
+      "measureType": "bill",
+      "members": 198,
+      "sitsOn": "permitting_reform",
+      "wouldJoin": "cut_spending",
+      "auditPhrase": "sets discretionary spending caps for FY2024 and FY2025",
+      "decision": "filed",
+      "phrase": "sets discretionary spending caps for FY2024 and FY2025",
+      "phraseChanged": false,
+      "weight": 50,
+      "weightRule": "lowest secondary",
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-bill/3746",
+      "dominantBefore": [
+        "climate_energy"
+      ],
+      "dominantAfter": [
+        "spending_debt_waste"
+      ],
+      "dominantMoved": true,
+      "readAs": "Division A caps discretionary spending for two years, enforced by sequestration, so a yea caps it"
+    },
+    {
+      "number": "H.R. 3746",
+      "congress": 118,
+      "utahSession": null,
+      "chamber": "house",
+      "measureType": "bill",
+      "members": 198,
+      "sitsOn": "permitting_reform",
+      "wouldJoin": "national_debt",
+      "auditPhrase": "suspends the debt limit through January 1, 2025",
+      "decision": "filed",
+      "phrase": "suspends the debt limit through January 1, 2025",
+      "phraseChanged": false,
+      "weight": 50,
+      "weightRule": "lowest secondary",
+      "supportMeaning": "yea_opposes",
+      "isPrimary": false,
+      "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-bill/3746",
+      "dominantBefore": [
+        "climate_energy"
+      ],
+      "dominantAfter": [
+        "spending_debt_waste"
+      ],
+      "dominantMoved": true,
+      "readAs": "Division D suspends the debt limit, so a yea lifts the borrowing ceiling; the spending caps are read on the cut_spending row"
+    },
+    {
+      "number": "H.R. 1319",
+      "congress": 117,
+      "utahSession": null,
+      "chamber": "house",
+      "measureType": "bill",
+      "members": 181,
+      "sitsOn": "family_support",
+      "wouldJoin": "housing_support",
+      "auditPhrase": "emergency rental and homeowner assistance",
+      "decision": "filed",
+      "phrase": "emergency rental and homeowner assistance",
+      "phraseChanged": false,
+      "weight": 40,
+      "weightRule": "lowest secondary",
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/1319",
+      "dominantBefore": [
+        "economy_cost_of_living"
+      ],
+      "dominantAfter": [
+        "economy_cost_of_living"
+      ],
+      "dominantMoved": false,
+      "readAs": "the act funds emergency rental and homeowner assistance, so a yea funds it"
+    },
+    {
+      "number": "H.R. 1319",
+      "congress": 117,
+      "utahSession": null,
+      "chamber": "house",
+      "measureType": "bill",
+      "members": 181,
+      "sitsOn": "family_support",
+      "wouldJoin": "tax_middle_class",
+      "auditPhrase": "an expanded child tax credit",
+      "decision": "filed",
+      "phrase": "an expanded child tax credit",
+      "phraseChanged": false,
+      "weight": 40,
+      "weightRule": "lowest secondary",
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://www.congress.gov/bill/117th-congress/house-bill/1319",
+      "dominantBefore": [
+        "economy_cost_of_living"
+      ],
+      "dominantAfter": [
+        "economy_cost_of_living"
+      ],
+      "dominantMoved": false,
+      "readAs": "the act expands the child tax credit, so a yea enlarges it"
+    },
+    {
+      "number": "S. 2938",
+      "congress": 117,
+      "utahSession": null,
+      "chamber": "senate",
+      "measureType": "bill",
+      "members": 181,
+      "sitsOn": "gun_safety",
+      "wouldJoin": "healthcare",
+      "auditPhrase": "guidance on Medicaid telehealth and school-based Medicaid services",
+      "decision": "filed",
+      "phrase": "guidance on Medicaid telehealth and school-based Medicaid services",
+      "phraseChanged": false,
+      "weight": 45,
+      "weightRule": "lowest secondary",
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://www.congress.gov/bill/117th-congress/senate-bill/2938",
+      "dominantBefore": [
+        "guns"
+      ],
+      "dominantAfter": [
+        "guns",
+        "healthcare"
+      ],
+      "dominantMoved": true,
+      "readAs": "Title I directs guidance on Medicaid telehealth and school-based Medicaid services, so a yea widens those routes to care"
+    },
+    {
+      "number": "H.R. 3633",
+      "congress": 119,
+      "utahSession": null,
+      "chamber": "house",
+      "measureType": "bill",
+      "members": 109,
+      "sitsOn": "tech_innovation",
+      "wouldJoin": "crypto_cbdc",
+      "auditPhrase": "Crypto Week",
+      "decision": "filed",
+      "phrase": "a market-structure framework for digital assets",
+      "phraseChanged": true,
+      "weight": 55,
+      "weightRule": "lowest secondary",
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://www.congress.gov/bill/119th-congress/house-bill/3633",
+      "dominantBefore": [
+        "economy_cost_of_living"
+      ],
+      "dominantAfter": [
+        "economy_cost_of_living"
+      ],
+      "dominantMoved": false,
+      "readAs": "the act sets federal market-structure rules for digital assets; this key carries no pole, so no side is read on it"
+    },
+    {
+      "number": "H.R. 7148",
+      "congress": 119,
+      "utahSession": null,
+      "chamber": "house",
+      "measureType": "bill",
+      "members": 108,
+      "sitsOn": "strong_defense",
+      "wouldJoin": "healthcare",
+      "auditPhrase": "Health Care Extenders",
+      "decision": "filed",
+      "phrase": "Health Care Extenders",
+      "phraseChanged": false,
+      "weight": 35,
+      "weightRule": "lowest secondary",
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://www.govinfo.gov/content/pkg/PLAW-119publ75/html/PLAW-119publ75.htm",
+      "dominantBefore": [
+        "foreign_policy_defense"
+      ],
+      "dominantAfter": [
+        "foreign_policy_defense",
+        "healthcare"
+      ],
+      "dominantMoved": true,
+      "readAs": "Division J extends health care programs (Secs. 6001-6703), so a yea keeps them running"
+    },
+    {
+      "number": "S.Amdt. 5813",
+      "congress": 119,
+      "utahSession": null,
+      "chamber": "senate",
+      "measureType": "amendment",
+      "members": 100,
+      "sitsOn": "immigration_reform",
+      "wouldJoin": "border_security",
+      "auditPhrase": "border and immigration enforcement",
+      "decision": "filed",
+      "phrase": "a nay left the bill's $69.545 billion entirely with border and immigration enforcement",
+      "phraseChanged": true,
+      "weight": 40,
+      "weightRule": "no secondary rows: 40",
+      "supportMeaning": "yea_opposes",
+      "isPrimary": false,
+      "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_votes/vote1192/vote_119_2_00156.htm",
+      "dominantBefore": [
+        "immigration_border"
+      ],
+      "dominantAfter": [
+        "immigration_border"
+      ],
+      "dominantMoved": false,
+      "readAs": "a yea moves money from border and immigration enforcement to DACA renewal processing, so a yea opposes the leaf"
+    },
+    {
+      "number": "S.B. 224",
+      "congress": null,
+      "utahSession": "2024GS",
+      "chamber": "utah senate",
+      "measureType": "bill",
+      "members": 100,
+      "sitsOn": "energy_production",
+      "wouldJoin": "enviro_energy",
+      "auditPhrase": "Energy Independence Amendments",
+      "decision": "filed",
+      "phrase": "Energy Independence Amendments",
+      "phraseChanged": false,
+      "weight": 40,
+      "weightRule": "no secondary rows: 40",
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://le.utah.gov/~2024/bills/static/SB0224.html",
+      "dominantBefore": [
+        "climate_energy"
+      ],
+      "dominantAfter": [
+        "climate_energy"
+      ],
+      "dominantMoved": false,
+      "readAs": "the stored text names energy resource planning but not a direction, so this reads the way the act's existing energy_production row reads"
+    },
+    {
+      "number": "H.R. 815",
+      "congress": 118,
+      "utahSession": null,
+      "chamber": "house",
+      "measureType": "bill",
+      "members": 87,
+      "sitsOn": "foreign_balance",
+      "wouldJoin": "iran_policy",
+      "auditPhrase": "Iran-related sanctions",
+      "decision": "filed",
+      "phrase": "Iran-related sanctions",
+      "phraseChanged": false,
+      "weight": 45,
+      "weightRule": "lowest secondary",
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-bill/815",
+      "dominantBefore": [
+        "foreign_policy_defense"
+      ],
+      "dominantAfter": [
+        "foreign_policy_defense"
+      ],
+      "dominantMoved": false,
+      "readAs": "Division D carries Iran-related sanctions; this key names a country and carries no pole, so no side is read on it"
+    },
+    {
+      "number": "H.R. 815",
+      "congress": 118,
+      "utahSession": null,
+      "chamber": "house",
+      "measureType": "bill",
+      "members": 87,
+      "sitsOn": "foreign_balance",
+      "wouldJoin": "israel_support",
+      "auditPhrase": "Israel Security Supplemental Appropriations Act, 2024",
+      "decision": "filed",
+      "phrase": "Israel Security Supplemental Appropriations Act, 2024",
+      "phraseChanged": false,
+      "weight": 45,
+      "weightRule": "lowest secondary",
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://www.congress.gov/bill/118th-congress/house-bill/815",
+      "dominantBefore": [
+        "foreign_policy_defense"
+      ],
+      "dominantAfter": [
+        "foreign_policy_defense"
+      ],
+      "dominantMoved": false,
+      "readAs": "Division A is the Israel Security Supplemental Appropriations Act, 2024, so a yea funds it"
+    },
+    {
+      "number": "H.B. 562",
+      "congress": null,
+      "utahSession": "2025GS",
+      "chamber": "utah house",
+      "measureType": "bill",
+      "members": 75,
+      "sitsOn": "tough_on_crime",
+      "wouldJoin": "back_police",
+      "auditPhrase": "Law Enforcement and Criminal Justice Amendments",
+      "decision": "filed",
+      "phrase": "Law Enforcement and Criminal Justice Amendments",
+      "phraseChanged": false,
+      "weight": 40,
+      "weightRule": "no secondary rows: 40",
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://le.utah.gov/~2025/bills/static/HB0562.html",
+      "dominantBefore": [
+        "crime_safety"
+      ],
+      "dominantAfter": [
+        "crime_safety"
+      ],
+      "dominantMoved": false,
+      "readAs": "the stored text names law enforcement but not a direction, so this reads the way the act's existing tough_on_crime row reads"
+    },
+    {
+      "number": "S.B. 262",
+      "congress": null,
+      "utahSession": "2025GS",
+      "chamber": "utah senate",
+      "measureType": "bill",
+      "members": 75,
+      "sitsOn": "housing",
+      "wouldJoin": "housing_support",
+      "auditPhrase": "amends provisions related to affordable housing",
+      "decision": "filed",
+      "phrase": "amends provisions related to affordable housing",
+      "phraseChanged": false,
+      "weight": 60,
+      "weightRule": "lowest secondary",
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://le.utah.gov/~2025/bills/static/SB0262.html",
+      "dominantBefore": [
+        "economy_cost_of_living"
+      ],
+      "dominantAfter": [
+        "economy_cost_of_living"
+      ],
+      "dominantMoved": false,
+      "readAs": "the stored text names affordable housing but not a direction, so this reads the way the act's existing housing row reads"
+    },
+    {
+      "number": "H.B. 273",
+      "congress": null,
+      "utahSession": "2024GS",
+      "chamber": "utah house",
+      "measureType": "bill",
+      "members": 72,
+      "sitsOn": "tough_on_crime",
+      "wouldJoin": "justice_reform",
+      "auditPhrase": "Sentencing Modifications for Certain DUI Offenses",
+      "decision": "filed",
+      "phrase": "Sentencing Modifications for Certain DUI Offenses",
+      "phraseChanged": false,
+      "weight": 40,
+      "weightRule": "no secondary rows: 40",
+      "supportMeaning": "yea_opposes",
+      "isPrimary": false,
+      "sourceUrl": "https://le.utah.gov/~2024/bills/static/HB0273.html",
+      "dominantBefore": [
+        "crime_safety"
+      ],
+      "dominantAfter": [
+        "crime_safety"
+      ],
+      "dominantMoved": false,
+      "readAs": "the stored text names sentencing for DUI offenses but not a direction; the act's existing tough_on_crime row reads yea_supports, and this leaf is that one's opposite side"
+    },
+    {
+      "number": "H.B. 68",
+      "congress": null,
+      "utahSession": "2024GS",
+      "chamber": "utah house",
+      "measureType": "bill",
+      "members": 72,
+      "sitsOn": "tough_on_crime",
+      "wouldJoin": "justice_reform",
+      "auditPhrase": "Drug Sentencing Modifications",
+      "decision": "filed",
+      "phrase": "Drug Sentencing Modifications",
+      "phraseChanged": false,
+      "weight": 40,
+      "weightRule": "no secondary rows: 40",
+      "supportMeaning": "yea_opposes",
+      "isPrimary": false,
+      "sourceUrl": "https://le.utah.gov/~2024/bills/static/HB0068.html",
+      "dominantBefore": [
+        "crime_safety"
+      ],
+      "dominantAfter": [
+        "crime_safety"
+      ],
+      "dominantMoved": false,
+      "readAs": "the stored text names drug sentencing but not a direction; the act's existing tough_on_crime row reads yea_supports, and this leaf is that one's opposite side"
+    },
+    {
+      "number": "S.B. 194",
+      "congress": null,
+      "utahSession": "2024GS",
+      "chamber": "utah senate",
+      "measureType": "bill",
+      "members": 72,
+      "sitsOn": "privacy_rights",
+      "wouldJoin": "tech_balance",
+      "auditPhrase": "Social Media Regulation",
+      "decision": "filed",
+      "phrase": "Social Media Regulation",
+      "phraseChanged": false,
+      "weight": 40,
+      "weightRule": "no secondary rows: 40",
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://le.utah.gov/~2024/bills/static/SB0194.html",
+      "dominantBefore": [
+        "civil_rights_culture"
+      ],
+      "dominantAfter": [
+        "civil_rights_culture",
+        "economy_cost_of_living"
+      ],
+      "dominantMoved": true,
+      "readAs": "the bill regulates social media for minors; a *_balance key is never read for a side"
+    },
+    {
+      "number": "H.B. 364",
+      "congress": null,
+      "utahSession": "2023GS",
+      "chamber": "utah house",
+      "measureType": "bill",
+      "members": 71,
+      "sitsOn": "housing_support",
+      "wouldJoin": "housing",
+      "auditPhrase": "Housing Affordability Amendments",
+      "decision": "filed",
+      "phrase": "Housing Affordability Amendments",
+      "phraseChanged": false,
+      "weight": 40,
+      "weightRule": "no secondary rows: 40",
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://le.utah.gov/~2023/bills/static/HB0364.html",
+      "dominantBefore": [
+        "economy_cost_of_living"
+      ],
+      "dominantAfter": [
+        "economy_cost_of_living"
+      ],
+      "dominantMoved": false,
+      "readAs": "the stored text names housing affordability but not a direction, so this reads the way the act's existing housing_support row reads"
+    },
+    {
+      "number": "S.B. 26",
+      "congress": null,
+      "utahSession": "2025GS",
+      "chamber": "utah senate",
+      "measureType": "bill",
+      "members": 29,
+      "sitsOn": "dev_district_finance",
+      "wouldJoin": "housing",
+      "auditPhrase": "Housing and Transit Reinvestment Zone",
+      "decision": "filed",
+      "phrase": "Housing and Transit Reinvestment Zone",
+      "phraseChanged": false,
+      "weight": 40,
+      "weightRule": "no secondary rows: 40",
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://le.utah.gov/~2025/bills/static/SB0026.html",
+      "dominantBefore": [
+        "economy_cost_of_living"
+      ],
+      "dominantAfter": [
+        "economy_cost_of_living"
+      ],
+      "dominantMoved": false,
+      "readAs": "the bill amends the Housing and Transit Reinvestment Zone Act; the stored text names the subject but not a direction, so this reads the way the act's existing dev_district_finance row reads"
+    },
+    {
+      "number": "S.B. 26",
+      "congress": null,
+      "utahSession": "2025GS",
+      "chamber": "utah senate",
+      "measureType": "bill",
+      "members": 29,
+      "sitsOn": "dev_district_finance",
+      "wouldJoin": "transit",
+      "auditPhrase": "Housing and Transit Reinvestment Zone",
+      "decision": "filed",
+      "phrase": "Housing and Transit Reinvestment Zone",
+      "phraseChanged": false,
+      "weight": 40,
+      "weightRule": "no secondary rows: 40",
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://le.utah.gov/~2025/bills/static/SB0026.html",
+      "dominantBefore": [
+        "economy_cost_of_living"
+      ],
+      "dominantAfter": [
+        "economy_cost_of_living"
+      ],
+      "dominantMoved": false,
+      "readAs": "the bill amends the Housing and Transit Reinvestment Zone Act; the stored text names the subject but not a direction, so this reads the way the act's existing dev_district_finance row reads"
+    },
+    {
+      "number": "S.B. 208",
+      "congress": null,
+      "utahSession": "2024GS",
+      "chamber": "utah senate",
+      "measureType": "bill",
+      "members": 28,
+      "sitsOn": "housing",
+      "wouldJoin": "dev_district_finance",
+      "auditPhrase": "Housing and Transit Reinvestment Zone",
+      "decision": "filed",
+      "phrase": "housing and transit reinvestment zones",
+      "phraseChanged": true,
+      "weight": 25,
+      "weightRule": "lowest secondary",
+      "supportMeaning": "yea_supports",
+      "isPrimary": false,
+      "sourceUrl": "https://le.utah.gov/~2024/bills/static/SB0208.html",
+      "dominantBefore": [
+        "economy_cost_of_living"
+      ],
+      "dominantAfter": [
+        "economy_cost_of_living"
+      ],
+      "dominantMoved": false,
+      "readAs": "the bill amends the law on housing and transit reinvestment zones; the stored text names the subject but not a direction, so this reads the way the act's existing housing row reads"
+    }
+  ],
+  "declined": [
+    {
+      "number": "H.R. 3076",
+      "congress": 117,
+      "utahSession": null,
+      "chamber": "house",
+      "measureType": "bill",
+      "members": 181,
+      "sitsOn": "gov_services",
+      "wouldJoin": "social_security",
+      "auditPhrase": "Medicare coordination",
+      "decision": "declined",
+      "phrase": "Medicare coordination",
+      "reason": "passing mention: Medicare appears only as a qualifier on the new Postal Service health program; the text does not say what the act does to Medicare"
+    },
+    {
+      "number": "H.Con.Res. 113",
+      "congress": 119,
+      "utahSession": null,
+      "chamber": "house",
+      "measureType": "resolution",
+      "members": 108,
+      "sitsOn": "national_debt",
+      "wouldJoin": "disaster_resilience",
+      "auditPhrase": "adjustments for disaster relief, wildfire suppression",
+      "decision": "declined",
+      "phrase": "adjustments for disaster relief, wildfire suppression",
+      "reason": "passing mention: disaster relief and wildfire suppression appear only in a list of budget-enforcement adjustments in a budget resolution, which sets levels and enacts no policy"
+    },
+    {
+      "number": "H.B. 243",
+      "congress": null,
+      "utahSession": "2023GS",
+      "chamber": "utah house",
+      "measureType": "bill",
+      "members": 99,
+      "sitsOn": "econ_workers",
+      "wouldJoin": "transit",
+      "auditPhrase": "Public Transit Employee Collective Bargaining",
+      "decision": "declined",
+      "phrase": "Public Transit Employee Collective Bargaining",
+      "reason": "passing mention: public transit is the employer setting; the bill is about collective bargaining, which the act's econ_workers row already carries"
+    },
+    {
+      "number": "H.B. 165",
+      "congress": null,
+      "utahSession": "2024GS",
+      "chamber": "utah house",
+      "measureType": "bill",
+      "members": 72,
+      "sitsOn": "border_security",
+      "wouldJoin": "back_police",
+      "auditPhrase": "Federal Law Enforcement Amendments",
+      "decision": "declined",
+      "phrase": "Federal Law Enforcement Amendments",
+      "reason": "passing mention: \"Federal Law Enforcement\" is the title label; the text is about a federal officer releasing an alien in the state, which the act's border_security row already carries"
+    },
+    {
+      "number": "H.B. 405",
+      "congress": null,
+      "utahSession": "2024GS",
+      "chamber": "utah house",
+      "measureType": "bill",
+      "members": 72,
+      "sitsOn": "medical_freedom",
+      "wouldJoin": "healthcare",
+      "auditPhrase": "Public Health Amendments",
+      "decision": "declined",
+      "phrase": "Public Health Amendments",
+      "reason": "bare label: the whole stored text is \"amends provisions related to public health\", and the act's existing medical_freedom row does not fix a direction for healthcare access, so a yea cannot be read on this leaf"
+    }
+  ],
+  "measures": {
+    "H.Amdt. 207|119": {
+      "title": "An amendment numbered 49 printed in Part B of House Report 119-628 to remove costly, overreaching emissions mandates on farm equipment that drives up expenses for farmers and consumers.",
+      "shortTitle": "Spartz amendment to H.R. 7567 exempting farm equipment from Clean Air Act emission standards",
+      "summary": "",
+      "rows": [
+        {
+          "issueKey": "climate_action",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes"
+        }
+      ]
+    },
+    "H.Amdt. 97|119": {
+      "title": "H.Amdt. 97 (Biggs) to H.R. 3838 — bar Endangered Species Act critical-habitat designation on military lands",
+      "shortTitle": null,
+      "summary": "Amendment numbered 29 printed in Part A of House Report 119-255. Congress.gov purpose: \"Amendment sought to prohibit the designation of military and certain National Guard lands as critical habitats under the Endangered Species Act when deemed necessary by the Department of Defense, and to exempt military personnel from Endangered Species Act prohibitions during national defense-related operations, including incidental harm to protected species.\" Sponsor: Rep. Andy Biggs (R-AZ-5). Failed in the House 200-228 (roll call 119/1/259, 2025-09-10).",
+      "rows": [
+        {
+          "issueKey": "lands_preserve",
+          "weight": 90,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes"
+        }
+      ]
+    },
+    "H.R. 6329|119": {
+      "title": "H.R. 6329 — Information Quality Assurance Act of 2025",
+      "shortTitle": null,
+      "summary": "Requires agencies to publish the critical factual material they rely on in rulemaking. Passed the House 362-1 under suspension of the rules (roll call 119/2/71).",
+      "rows": [
+        {
+          "issueKey": "gov_transparency",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "H.R. 5214|119": {
+      "title": "To require mandatory pretrial and post conviction detention for crimes of violence and dangerous crimes and require mandatory cash bail for certain offenses that pose a threat to public safety or order in the District of Columbia, and for other purposes.",
+      "shortTitle": "District of Columbia Cash Bail Reform Act of 2025",
+      "summary": "",
+      "rows": [
+        {
+          "issueKey": "tough_on_crime",
+          "weight": 90,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "H.J.Res. 25|119": {
+      "title": "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Internal Revenue Service relating to gross proceeds reporting by brokers that regularly provide services effectuating digital asset sales",
+      "shortTitle": "CRA — repeal IRS DeFi broker rule",
+      "summary": "A Congressional Review Act resolution nullifying the IRS reporting rule that would have applied broker tax-reporting requirements to decentralized-finance platforms. Enacted as Public Law 119-5.",
+      "rows": [
+        {
+          "issueKey": "gov_regulation",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "tech_innovation",
+          "weight": 60,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "H.R. 3633|119": {
+      "title": "Digital Asset Market Clarity Act of 2025",
+      "shortTitle": "CLARITY Act",
+      "summary": "Establishes a market-structure framework for digital assets, giving the Commodity Futures Trading Commission (CFTC) jurisdiction over digital-commodity spot markets while the Securities and Exchange Commission (SEC) keeps oversight of investment-contract assets, and setting registration and disclosure rules for digital-asset firms. Passed the House with bipartisan support during \"Crypto Week\"; awaits the Senate.",
+      "rows": [
+        {
+          "issueKey": "tech_innovation",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "econ_growth",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "H.R. 3746|118": {
+      "title": "Fiscal Responsibility Act of 2023",
+      "shortTitle": "Fiscal Responsibility Act of 2023",
+      "summary": "Division A sets discretionary spending caps for FY2024 and FY2025 enforced by sequestration. Division B rescinds unobligated balances including Internal Revenue Service funding and terminates the suspension of student loan payments and interest accrual. Division C modifies Temporary Assistance for Needy Families work requirements, raises the Supplemental Nutrition Assistance Program able-bodied-adults-without-dependents age limit to 54 while exempting homeless individuals, veterans and former foster youth, and enacts permitting reform limiting the scope of National Environmental Policy Act administrative review, with Sec. 324 ratifying all Mountain Valley Pipeline authorizations and exempting them from judicial review. Division D suspends the debt limit through January 1, 2025.",
+      "rows": [
+        {
+          "issueKey": "permitting_reform",
+          "weight": 70,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "energy_production",
+          "weight": 60,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "gov_services",
+          "weight": 50,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes"
+        },
+        {
+          "issueKey": "edu_college_cost",
+          "weight": 50,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes"
+        },
+        {
+          "issueKey": "homeless",
+          "weight": 50,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "veterans",
+          "weight": 50,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "H.R. 1319|117": {
+      "title": "American Rescue Plan Act of 2021",
+      "shortTitle": "American Rescue Plan Act of 2021",
+      "summary": "Provides additional relief to address the continued impact of COVID-19 on the economy, public health, state and local governments, individuals, and businesses. Includes direct payments, an expanded child tax credit, extended unemployment compensation, emergency rental and homeowner assistance, child care and Head Start funding, elementary and secondary school emergency relief, expanded Affordable Care Act premium tax credits, and the Restaurant Revitalization Fund.",
+      "rows": [
+        {
+          "issueKey": "family_support",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "cost_living",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "healthcare_costs",
+          "weight": 60,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "national_debt",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes"
+        },
+        {
+          "issueKey": "child_care",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "public_schools",
+          "weight": 50,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "econ_workers",
+          "weight": 45,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "healthcare",
+          "weight": 40,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "econ_smallbiz",
+          "weight": 40,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "H.R. 815|118": {
+      "title": "Making emergency supplemental appropriations for the fiscal year ending September 30, 2024, and for other purposes.",
+      "shortTitle": null,
+      "summary": "Emergency supplemental appropriations in five divisions: Division A, Israel Security Supplemental Appropriations Act, 2024; Division B, Ukraine Security Supplemental Appropriations Act, 2024; Division C, Indo-Pacific Security Supplemental Appropriations Act, 2024; Division D, 21st Century Peace through Strength Act, including the Protecting Americans from Foreign Adversary Controlled Applications Act divest-or-ban requirement and Iran-related sanctions; and Division E, Fentanyl Eradication and Narcotics Deterrence Off Fentanyl Act, imposing sanctions and anti-money-laundering measures on fentanyl trafficking organizations.",
+      "rows": [
+        {
+          "issueKey": "foreign_balance",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "america_first_fp",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes"
+        },
+        {
+          "issueKey": "restraint",
+          "weight": 65,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes"
+        },
+        {
+          "issueKey": "ukraine_policy",
+          "weight": 60,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "tech_balance",
+          "weight": 50,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "immig_fentanyl",
+          "weight": 45,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "S. 2938|117": {
+      "title": "Bipartisan Safer Communities Act",
+      "shortTitle": "Bipartisan Safer Communities Act",
+      "summary": "Division A, Title I funds children and family mental health services, extends the Certified Community Behavioral Health Clinic demonstration, issues guidance on Medicaid telehealth and school-based Medicaid services, and funds pediatric mental health care access grants. Title II enhances National Instant Criminal Background Check System reviews for purchasers aged 18 to 20, creates federal straw purchasing and firearms trafficking offenses, and extends the domestic violence prohibitor to dating partners.",
+      "rows": [
+        {
+          "issueKey": "gun_safety",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "health_mental",
+          "weight": 70,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "gun_rights",
+          "weight": 60,
+          "isPrimary": false,
+          "supportMeaning": "yea_opposes"
+        },
+        {
+          "issueKey": "public_schools",
+          "weight": 45,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "S.Amdt. 5813|119": {
+      "title": "Gallego amendment funding timely adjudication of DACA renewal applications (S.Amdt. 5813)",
+      "shortTitle": "Gallego DACA Renewal Adjudication Amendment (S.Amdt. 5813)",
+      "summary": "Amendment to S.Amdt. 5453 to S. 2 (Secure America Act) offered by Senator Ruben Gallego: \"To make funds available for the timely adjudication of DACA renewal applications.\" REJECTED 47-52 on 2026-06-05, roll call 119/2/156. A yea would have funded processing of renewal applications under the existing Deferred Action for Childhood Arrivals policy, whose recipients lose work authorisation and protection from removal when a renewal lapses in the backlog; a nay left the bill's $69.545 billion entirely with border and immigration enforcement. Not enacted.",
+      "rows": [
+        {
+          "issueKey": "immigration_reform",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "H.Con.Res. 113|119": {
+      "title": "Establishing the congressional budget for the United States Government for fiscal year 2027 and setting forth the appropriate budgetary levels for fiscal years 2028 through 2036.",
+      "shortTitle": null,
+      "summary": "The FY2027 congressional budget resolution. Sec. 101 recommends levels and amounts for FY2027 through FY2036 for federal revenues, new budget authority, budget outlays, on-budget deficits, debt subject to limit and debt held by the public. Sec. 102 sets new budget authority and outlays for each major functional category; National Defense (050) is set at $955,085,000,000 in new budget authority for FY2027, rising to $1,184,416,000,000 for FY2036. Sec. 201 instructs four House committees to report reconciliation legislation to the Budget Committee by September 11, 2026, each increasing the deficit over FY2027-FY2036 by not more than a stated amount: Agriculture $12,000,000,000, Armed Services $60,000,000,000, the Permanent Select Committee on Intelligence $13,000,000,000, and House Administration a further amount. Sec. 301 establishes a reserve fund letting the Budget Committee chair revise allocations to accommodate legislation that complies with those instructions. Title IV sets enforcement procedures covering the budgetary treatment of Social Security Administration and Postal Service administrative expenses, emergency requirements, and adjustments for disaster relief, wildfire suppression, health care fraud and abuse control, continuing disability reviews and reemployment services. Agreed to in the House 216-214 on July 22, 2026 (119/2 roll 281) and placed on the Senate Legislative Calendar under General Orders, Calendar No. 468. A budget resolution is not presented to the President and appropriates nothing; it sets the levels against which appropriations and reconciliation bills are enforced. Disambiguation: H.Con.Res. 14 in the same Congress is the FY2025 budget resolution and a separate vote.",
+      "rows": [
+        {
+          "issueKey": "national_debt",
+          "weight": 85,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes"
+        },
+        {
+          "issueKey": "strong_defense",
+          "weight": 45,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "H.R. 3076|117": {
+      "title": "Postal Service Reform Act of 2022",
+      "shortTitle": "Postal Service Reform Act of 2022",
+      "summary": "Establishes the Postal Service Health Benefits Program within the Federal Employees Health Benefits Program with Medicare coordination, repeals the requirement that the Postal Service annually prepay future retiree health benefits, authorises nonpostal service agreements with state and local governments, and requires a public performance dashboard for service standards.",
+      "rows": [
+        {
+          "issueKey": "gov_services",
+          "weight": 100,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "gov_transparency",
+          "weight": 45,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "H.R. 7148|119": {
+      "title": "Consolidated Appropriations Act, 2026",
+      "shortTitle": "Consolidated Appropriations Act, 2026",
+      "summary": "Full-year consolidated appropriations for fiscal year 2026, enacted February 3, 2026 as P.L. 119-75. Official title: 'Making further consolidated appropriations for the fiscal year ending September 30, 2026, and for other purposes.' Eleven divisions and no Division C: A Department of Defense (Titles I-VIII); B Labor, Health and Human Services, and Education (I-V); D Transportation, Housing and Urban Development (I-IV); E Financial Services and General Government (I-VIII, including Title VIII District of Columbia); F National Security, Department of State, and Related Programs (I-VII); G Other Matters (a single section barring payments to UNRWA); H Further Continuing Appropriations Act, 2026 (moving the P.L. 119-37 date to February 13, 2026 and covering the lapse that began on or about January 31, 2026); I Authorizing Extenders (Secs. 5001-5021); J Health Care Extenders (Secs. 6001-6703 across seven titles). Section 3 makes 'this Act' division-scoped, so each division's general provisions bind only that division. Summary written from the enrolled text at govinfo, not from a secondary description.",
+      "rows": [
+        {
+          "issueKey": "strong_defense",
+          "weight": 70,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "israel_support",
+          "weight": 50,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "health_rural",
+          "weight": 45,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "foreign_balance",
+          "weight": 40,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "health_drug_prices",
+          "weight": 40,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "pro_life",
+          "weight": 35,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "H.B. 243|2023GS": {
+      "title": "Public Transit Employee Collective Bargaining Amendments",
+      "shortTitle": "Public Transit Employee Collective Bargaining Amendments",
+      "summary": "This bill makes changes to provisions related to collective bargaining for employees of a public transit district.",
+      "rows": [
+        {
+          "issueKey": "econ_workers",
+          "weight": 80,
+          "isPrimary": true,
+          "supportMeaning": "yea_opposes"
+        }
+      ]
+    },
+    "S.B. 26|2025GS": {
+      "title": "Housing and Transit Reinvestment Zone Amendments",
+      "shortTitle": "Housing and Transit Reinvestment Zone Amendments",
+      "summary": "This bill amends provisions relating to the Housing and Transit Reinvestment Zone Act.",
+      "rows": [
+        {
+          "issueKey": "dev_district_finance",
+          "weight": 60,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "S.B. 208|2024GS": {
+      "title": "Housing and Transit Reinvestment Zone Amendments",
+      "shortTitle": "Housing and Transit Reinvestment Zone Amendments",
+      "summary": "This bill amends provisions related to housing and transit reinvestment zones.",
+      "rows": [
+        {
+          "issueKey": "housing",
+          "weight": 45,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "transit",
+          "weight": 25,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "S.B. 262|2025GS": {
+      "title": "Housing Affordability Modifications",
+      "shortTitle": "Housing Affordability Modifications",
+      "summary": "This bill amends provisions related to affordable housing.",
+      "rows": [
+        {
+          "issueKey": "housing",
+          "weight": 80,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        },
+        {
+          "issueKey": "housing_first_time",
+          "weight": 60,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "H.B. 364|2023GS": {
+      "title": "Housing Affordability Amendments",
+      "shortTitle": "Housing Affordability Amendments",
+      "summary": "This bill modifies provisions relating to affordable housing and the provision of services related to affordable housing.",
+      "rows": [
+        {
+          "issueKey": "housing_support",
+          "weight": 70,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "H.B. 405|2024GS": {
+      "title": "Public Health Amendments",
+      "shortTitle": "Public Health Amendments",
+      "summary": "This bill amends provisions related to public health.",
+      "rows": [
+        {
+          "issueKey": "medical_freedom",
+          "weight": 65,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "H.B. 68|2024GS": {
+      "title": "Drug Sentencing Modifications",
+      "shortTitle": "Drug Sentencing Modifications",
+      "summary": "This bill addresses the sentencing for an individual convicted of distributing illegal drugs in certain circumstances.",
+      "rows": [
+        {
+          "issueKey": "tough_on_crime",
+          "weight": 75,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "H.B. 273|2024GS": {
+      "title": "Sentencing Modifications for Certain DUI Offenses",
+      "shortTitle": "Sentencing Modifications for Certain DUI Offenses",
+      "summary": "This bill modifies provisions related to negligently operating a vehicle resulting in death and who may become an ignition interlock restricted driver.",
+      "rows": [
+        {
+          "issueKey": "tough_on_crime",
+          "weight": 55,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "H.B. 562|2025GS": {
+      "title": "Law Enforcement and Criminal Justice Amendments",
+      "shortTitle": "Law Enforcement and Criminal Justice Amendments",
+      "summary": "This bill modifies provisions related to law enforcement and criminal justice.",
+      "rows": [
+        {
+          "issueKey": "tough_on_crime",
+          "weight": 70,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "H.B. 165|2024GS": {
+      "title": "Federal Law Enforcement Amendments",
+      "shortTitle": "Federal Law Enforcement Amendments",
+      "summary": "This bill concerns the release of an alien within the state by a federal officer.",
+      "rows": [
+        {
+          "issueKey": "border_security",
+          "weight": 60,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "S.B. 194|2024GS": {
+      "title": "Social Media Regulation Amendments",
+      "shortTitle": "Social Media Regulation Amendments",
+      "summary": "This bill enacts provisions related to age assurance and protecting minors in the Utah Minor Protection in Social Media Act (Act).",
+      "rows": [
+        {
+          "issueKey": "privacy_rights",
+          "weight": 60,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    },
+    "S.B. 224|2024GS": {
+      "title": "Energy Independence Amendments",
+      "shortTitle": "Energy Independence Amendments",
+      "summary": "This bill modifies provisions related to planning and cost recovery for certain energy resource decisions and allows a large-scale electric utility to establish a Utah fire fund.",
+      "rows": [
+        {
+          "issueKey": "energy_production",
+          "weight": 70,
+          "isPrimary": true,
+          "supportMeaning": "yea_supports"
+        }
+      ]
+    }
+  }
+}

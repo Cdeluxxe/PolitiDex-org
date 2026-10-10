@@ -17700,13 +17700,73 @@
       'Would bar anyone who is not a U.S. citizen from voting in a District of Columbia election; the House passed it 266-148.',
     'H.Amdt. 235|119|cut_spending':
       'Proposed cutting the Foreign Military Financing Program account by $3.3 billion; the House rejected it 104-314.',
+    // RIDER ROWS (v320). The two rider-audit passes added 31 secondary rows a
+    // measure's own stored title and summary name (db/vr-rider-audit.json and
+    // db/vr-rider-audit-onaxis.json). Nineteen get a line here, each written from
+    // that act's own stored text, the same text the audit quoted, and ending on
+    // the tally on file. Twelve stay blank because their text states no effect
+    // on the leaf; db/vr-rider-effect-lines.json says why for each.
+    'H.R. 1968|119|border_security':
+      'Boosted immigration enforcement in full-year FY2025 funding that trimmed some domestic spending; the House passed it 217-213.',
+    'H.R. 3746|118|veterans':
+      'Exempted veterans from the SNAP work requirement as it raised the age limit to 54; the House cleared it 314-117, the Senate 63-36.',
+    'H.R. 3746|118|homeless':
+      'Exempted homeless individuals from the SNAP work rule as it raised the age limit to 54; the House cleared it 314-117, the Senate 63-36.',
+    'H.R. 3746|118|cut_spending':
+      'Set discretionary spending caps for FY2024 and FY2025, enforced by sequestration; the House cleared it 314-117, the Senate 63-36.',
+    'H.R. 3746|118|national_debt':
+      'Suspended the debt limit through January 1, 2025; the House cleared it 314-117, the Senate 63-36.',
+    'H.R. 1319|117|healthcare':
+      'Expanded Affordable Care Act premium tax credits; the House cleared it 220-211, the Senate 50-49.',
+    'H.R. 1319|117|housing_support':
+      'Funded emergency rental and homeowner assistance; the House cleared it 220-211, the Senate 50-49.',
+    'H.R. 1319|117|tax_middle_class':
+      'Expanded the child tax credit; the House cleared it 220-211, the Senate 50-49.',
+    'S. 2296|119|end_dei':
+      'Would have repealed DoD provisions on diversity, equity and inclusion, including the Chief Diversity Officer; the Senate passed it 77-20.',
+    'S.Amdt. 1354|118|veterans':
+      'Barred funds for Veterans Affairs to report certain information to NICS for background checks; the Senate agreed to it 53-45.',
+    'H.Amdt. 207|119|rural_ag':
+      'Would remove farm-equipment emissions mandates to ease expenses for farmers and consumers; the House agreed to it 215-213.',
+    'H.Amdt. 97|119|strong_defense':
+      'Proposed exempting military personnel from Endangered Species Act bans in national defense operations; the House rejected it 200-228.',
+    'H.R. 6329|119|gov_regulation':
+      'Would require agencies to publish the critical factual material they rely on in rulemaking; the House passed it 362-1.',
+    'H.R. 5214|119|justice_reform':
+      'Would require mandatory cash bail in the District for certain offenses that threaten public safety; the House passed it 237-179.',
+    'H.J.Res. 25|119|crypto_cbdc':
+      'Nullified IRS broker tax reporting on decentralized-finance digital asset sales; the House cleared it 292-132, the Senate 70-28.',
+    'H.R. 3633|119|crypto_cbdc':
+      'Would set a market-structure framework for digital assets, splitting oversight between the CFTC and the SEC; the House passed it 294-134.',
+    'S. 2938|117|healthcare':
+      'Directed guidance on Medicaid telehealth and school-based Medicaid services; the House cleared it 234-193, the Senate 65-33.',
+    'S.Amdt. 5813|119|border_security':
+      'Proposed taking DACA renewal funds from the bill’s $69.545 billion for border and immigration enforcement; the Senate rejected it 47-52.',
+    'H.R. 815|118|iran_policy':
+      'Carried Iran-related sanctions in Division D, the 21st Century Peace through Strength Act; the Senate concurred 79-18.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
+  // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is
+  // the congress for a federal act ("H.R. 1|119|…", exactly the key every shipped
+  // line was written under) and the recorded session for a state act
+  // ("H.B. 68|2024GS|…", the same segment the bill page at /b/2024GS/H.B. 68 is
+  // keyed by). A row with neither has no identity and gets no key — never a
+  // "|null|" key, which would hand one line to the same number in every session.
+  function _dosEffectKey(item, issueKey) {
+    if (!item || !issueKey) return '';
+    var num = String(item.number == null ? '' : item.number).trim();
+    if (!num) return '';
+    var c = item.congress;
+    if (typeof c === 'number' && isFinite(c) && c > 0) return num + '|' + c + '|' + issueKey;
+    var mi = item.measureIdent;
+    var code = (mi && typeof mi.session === 'string') ? mi.session.trim() : '';
+    return code ? num + '|' + code + '|' + issueKey : '';
+  }
   // The item is already a row on this issue, so the pair is mapped whether or
   // not a curated `did` exists; a short line stands on that alone.
   function _dosEffectLine(item, issueKey, mech) {
     if (!item || !issueKey) return '';
-    var k = String(item.number == null ? '' : item.number).trim() + '|' + item.congress + '|' + issueKey;
+    var k = _dosEffectKey(item, issueKey);
     return _dosEffectOk(_DOS_EFFECT[k] || (mech && mech.did) || '');
   }
   // The row rule, in one place for both tables: one sentence, 140 characters or
@@ -17785,7 +17845,8 @@
   }
   function _dosPointerLine(item, issueKey, ownLine) {
     if (ownLine || !item || !issueKey) return '';
-    var to = _DOS_POINTER[String(item.number == null ? '' : item.number).trim() + '|' + item.congress + '|' + issueKey];
+    var pk = _dosEffectKey(item, issueKey);
+    var to = pk ? _DOS_POINTER[pk] : null;
     if (!to) return '';
     var mapped = {}, list = item.issues || [], hits = [], i;
     for (i = 0; i < list.length; i++) if (list[i] && list[i].issueKey) mapped[list[i].issueKey] = true;

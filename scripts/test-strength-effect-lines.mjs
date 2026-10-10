@@ -203,8 +203,12 @@ function check(src, base) {
   ok(seenPairs.size >= 22, `only ${seenPairs.size} member pairs on Peace Through Strength — fixture thinned out`);
   for (const p of seenPairs) ok(!!(E.map[p] || rowRule(didOf(p))), `${p}: a member-voted pair on Peace Through Strength prints no line`);
   ok(DB_PAIRS.length >= 27, `only ${DB_PAIRS.length} database-mapped pairs on Peace Through Strength — the projection thinned out`);
+  // A rider row (v320) is written from its act's own stored text rather than a
+  // `did`, and is held by scripts/test-rider-effect-lines.mjs.
+  const riderAt = src.indexOf("// RIDER ROWS (v320)");
+  const RIDER = new Set(riderAt < 0 ? [] : [...src.slice(riderAt, src.indexOf("\n  };", riderAt)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
   for (const p of DB_PAIRS) {
-    if (!didOf(p)) ok(!E.map[p], `${p}: stores no did on Peace Through Strength but carries a line`);
+    if (!didOf(p) && !RIDER.has(p)) ok(!E.map[p], `${p}: stores no did on Peace Through Strength but carries a line`);
   }
   return { faults, pass, printed };
 }
