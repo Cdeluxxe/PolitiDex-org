@@ -9052,7 +9052,18 @@
 //     other saved key was touched. consistency.js is precached and changed, so
 //     it moves one version.
 //     MIGRATION COST: none. No seed row, mapping, key or score moved.
-const CACHE_VERSION = 'v321';
+// v322 - WAVE 3 OF FULL COVERAGE. The last thirty-five member-voted rows that
+//     store their own description and still printed no line now say, in one
+//     sentence, what the act did on that topic, from the KIDS Act and the 2026
+//     consolidated appropriations through the For the People Act and the SBA
+//     red-tape bills. Each is stored once under the measure's own identity,
+//     written from that pair's own description, and ends on the tally on file.
+//     No description-backed row is mute any more. The H.R. 29 pointer now also
+//     names Tough on Crime, the second sibling leaf with a line; the line it
+//     quotes is unchanged. No shipped line moved. consistency.js is precached
+//     and changed, so it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved.
+const CACHE_VERSION = 'v322';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

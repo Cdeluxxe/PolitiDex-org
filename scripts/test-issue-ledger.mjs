@@ -1251,7 +1251,8 @@ section("14 · the harvest — every stored did, read against the effect rule");
   const RIDER_KEYS = (() => {
     const src = R("consistency.js"), at = src.indexOf("// RIDER ROWS (v320)");
     if (at === -1) return new Set();
-    return new Set([...src.slice(at, src.indexOf("\n  };", at)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// WAVE 3 OF FULL COVERAGE (v322)", at);
+    return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
   })();
   const IRAN = Object.keys(EFFECT).filter((k) => /\|iran_policy$/.test(k) && !RIDER_KEYS.has(k));
   const TALLY = (() => {
@@ -1693,9 +1694,27 @@ section("14 · the harvest — every stored did, read against the effect rule");
     const m = k.split("|").slice(0, 2).join("|");
     ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
   }
-  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k));
+  // WAVE 3 (v322). Every remaining row that stores its own `did` and printed no
+  // line, held in detail by scripts/test-wave3-effect-lines.mjs; here the same
+  // batch rules. Two closing shapes are new and only here: H.R. 9237 has only its
+  // motion-to-recommit roll on file, and S.Amdt. 3535 failed with a majority
+  // under the Senate's three-fifths threshold.
+  const WAVE3 = (() => {
+    const src = R("consistency.js"), a = src.indexOf("// WAVE 3 OF FULL COVERAGE (v322)");
+    must(a !== -1, "the wave-3 block is not in _DOS_EFFECT");
+    return [...src.slice(a, src.indexOf("\n  };", a)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+  })();
+  ok(WAVE3.length > 0, "no wave-3 line is stored");
+  for (const k of WAVE3) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the wave-3 effect line`);
+    ok(/; (?:the (?:House|Senate) (?:(?:cleared|passed|agreed to|rejected) it|concurred) \d+-\d+(?:, the Senate \d+-\d+)?|a motion to recommit it failed in the House \d+-\d+|it failed \d+-\d+ under a three-fifths threshold)\.$/.test(v), `${k}: does not end on a recorded tally`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.
@@ -1710,10 +1729,12 @@ section("14 · the harvest — every stored did, read against the effect rule");
   // at all (arms-sale disapprovals), and a line that names no stored rule. The
   // arms-sale disapprovals may carry a Support for Israel line (v314), and the
   // infrastructure act a water line (v316), each checked by its own batch's rule —
-  // never a CRA-shaped one from this batch.
+  // never a CRA-shaped one from this batch. S.J.Res. 7 × Broadband and H.J.Res. 78
+  // × Red Tape carry a wave-3 line (v322): each passed one chamber and has no law
+  // on file, so the line says "Would", never that the rule was struck.
   for (const k of ["S.J.Res. 7|119|broadband", "H.J.Res. 78|119|gov_regulation", "H.J.Res. 78|119|lands_preserve",
     "S.J.Res. 111|118|israel_support", "S.J.Res. 33|119|israel_support", "H.R. 3684|117|water"]) {
-    ok(!BATCH.includes(k) && (!(k in EFFECT) || ISR.includes(k) || SEARCH.includes(k)), `${k}: in the effect table without a settled, stored rule effect`);
+    ok(!BATCH.includes(k) && (!(k in EFFECT) || ISR.includes(k) || SEARCH.includes(k) || (WAVE3.includes(k) && /^Would\b/.test(EFFECT[k]))), `${k}: in the effect table without a settled, stored rule effect`);
   }
   ok(craFault("H.J.Res. 78|119|gov_regulation", "Struck the agency rule and barred a substantially similar rule.") !== "",
     "a CRA line naming no stored rule passed the CRA check");
@@ -1769,7 +1790,10 @@ section("14 · the harvest — every stored did, read against the effect rule");
     }
   }
   eq(extraRows.length, 0, "a row with no qualifying did grew an extra paragraph");
-  ok(seenAdmit > 0 && seenRefuse > 0, `the sweep saw ${seenAdmit} admitted and ${seenRefuse} refused row(s) — both kinds must exist`);
+  // Since wave 3 (v322) every refused `did` has its own line in the table, so a
+  // refused pair with no line is a mute description-backed row, and there are none.
+  ok(seenAdmit > 0, `the sweep saw ${seenAdmit} admitted row(s) — the fallback must still print`);
+  eq(seenRefuse, 0, "description-backed row(s) with no line — the mute count");
   console.log(`      ${lit.size} drawer(s) print at least one effect line`);
 
   // LEE × WATER now speaks, and only from its own facts. The infrastructure act's

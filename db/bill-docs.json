@@ -8,7 +8,8 @@
    "t": "For the People Act of 2021",
    "m": [
     {
-     "i": "Expand Voting Access"
+     "i": "Expand Voting Access",
+     "l": "Would have required automatic and same-day registration and fifteen days of early voting in every state; the House passed it 220-210."
     }
    ]
   },
@@ -19,7 +20,8 @@
    "t": "John R. Lewis Voting Rights Advancement Act of 2021",
    "m": [
     {
-     "i": "Expand Voting Access"
+     "i": "Expand Voting Access",
+     "l": "Would have held new photo-ID rules, polling-place closures and voter-roll purges behind federal review; the House passed it 219-212."
     }
    ]
   },
@@ -256,7 +258,8 @@
    "t": "Freedom to Vote: John R. Lewis Act",
    "m": [
     {
-     "i": "Expand Voting Access"
+     "i": "Expand Voting Access",
+     "l": "Would have required same-day registration, two weeks of early voting, no-excuse mail voting and drop boxes; the House passed it 220-203."
     }
    ]
   },
@@ -434,14 +437,16 @@
      "l": "Carried Iran-related sanctions in Division D, the 21st Century Peace through Strength Act; the Senate concurred 79-18."
     },
     {
-     "i": "Smart Tech Guardrails"
+     "i": "Smart Tech Guardrails",
+     "l": "Carried the Protecting Americans from Foreign Adversary Controlled Applications Act, a divest-or-ban rule; the Senate concurred 79-18."
     },
     {
      "i": "Stop Fentanyl & Cartels",
      "l": "Carried the FEND Off Fentanyl Act, with sanctions and anti-money-laundering steps against fentanyl traffickers; the Senate concurred 79-18."
     },
     {
-     "i": "Strategic Engagement"
+     "i": "Strategic Engagement",
+     "l": "Appropriated security assistance across three theatres at once, Israel, Ukraine and the Indo-Pacific; the Senate concurred 79-18."
     },
     {
      "i": "Support for Israel"
@@ -907,7 +912,8 @@
      "l": "Proposed barring the national security and State funds from use for Jordan, a standing aid commitment; the House rejected it 6-421."
     },
     {
-     "i": "Cut Federal Spending & Reduce Debt"
+     "i": "Cut Federal Spending & Reduce Debt",
+     "l": "Proposed cutting the National Security Investment Programs and Foreign Military Financing by the Jordan sums; the House rejected it 6-421."
     }
    ]
   },
@@ -1548,10 +1554,12 @@
    "t": "Veterans 2nd Amendment Protection Act",
    "m": [
     {
-     "i": "Protect Gun Rights"
+     "i": "Protect Gun Rights",
+     "l": "Would end VA gun-check referrals over benefit payments unless a judge finds a danger to themselves or others; the House passed it 216-201."
     },
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "l": "Would bar the VA from reporting a veteran to the background-check system only for being given a fiduciary; the House passed it 216-201."
     }
    ]
   },
@@ -1990,7 +1998,8 @@
    "t": "To amend the National Labor Relations Act to establish an efficient process for reaching a first collective bargaining agreement, and for other purposes.",
    "m": [
     {
-     "i": "Raise Wages & Protect Workers"
+     "i": "Raise Wages & Protect Workers",
+     "l": "Would put a clock on a first union contract, ending in mediation and then an arbitration panel’s award; the House passed it 230-193."
     }
    ]
   },
@@ -2005,7 +2014,8 @@
      "l": "Would require agencies to publish the critical factual material they rely on in rulemaking; the House passed it 362-1."
     },
     {
-     "i": "Transparency & Anti-Corruption"
+     "i": "Transparency & Anti-Corruption",
+     "l": "Would require agencies to use the best reasonably available evidence and publish what a rule rests on; the House passed it 362-1."
     }
    ]
   },
@@ -2092,20 +2102,24 @@
      "i": "Expand Healthcare Access"
     },
     {
-     "i": "Lower Prescription Drug Prices"
+     "i": "Lower Prescription Drug Prices",
+     "l": "Required pharmacy benefit managers to pass 100 percent of drug rebates through to the health plan; the House concurred 217-214."
     },
     {
      "i": "Peace Through Strength",
      "l": "Carried the full FY2026 defense appropriation, with $1 billion for the Taiwan Security Cooperation Initiative; the House concurred 217-214."
     },
     {
-     "i": "Pro-Life Protections"
+     "i": "Pro-Life Protections",
+     "l": "Carried the standing abortion-funding restrictions, including the Labor-HHS and federal employee plan bars; the House concurred 217-214."
     },
     {
-     "i": "Protect Rural Hospitals"
+     "i": "Protect Rural Hospitals",
+     "l": "Eliminated the scheduled Medicaid hospital cuts and continued the Medicare-Dependent Hospital program; the House concurred 217-214."
     },
     {
-     "i": "Strategic Engagement"
+     "i": "Strategic Engagement",
+     "l": "Funded $9.4 billion for diplomatic programs, $6.2 billion in Foreign Military Financing and peacekeeping; the House concurred 217-214."
     },
     {
      "i": "Support for Israel",
@@ -2191,7 +2205,8 @@
    "t": "Removing Barriers to Work for Disabled Americans Act",
    "m": [
     {
-     "i": "Protect Social Security & Medicare"
+     "i": "Protect Social Security & Medicare",
+     "l": "Would revive Social Security’s disability-insurance demonstration projects through 2030; the House passed it 232-188."
     }
    ]
   },
@@ -2208,7 +2223,8 @@
    "t": "Take Care of America’s Veterans Act",
    "m": [
     {
-     "i": "Take Care of Veterans"
+     "i": "Take Care of Veterans",
+     "l": "Would grant concurrent receipt of disability and retired pay to some combat retirees; a motion to recommit it failed in the House 210-211."
     }
    ]
   },
@@ -2239,7 +2255,8 @@
    "t": "Directing the Committee on Ethics to preserve and publicly release records relating to .monetary settlements involving acts of sexual harassment.",
    "m": [
     {
-     "i": "Transparency & Anti-Corruption"
+     "i": "Transparency & Anti-Corruption",
+     "l": "Directed the House Committee on Ethics to release its records of settlements involving sexual harassment; the House agreed to it 420-0."
     }
    ]
   },
@@ -2526,10 +2543,12 @@
    "t": "S.Amdt. 3535 (Scott, FL) to S. 2296 — require Presidential appointment and Senate confirmation of the Inspector General of the Board of Governors of the Federal Reserve System and the Bureau of Consumer Financial Protection",
    "m": [
     {
-     "i": "Audit Spending & the Fed"
+     "i": "Audit Spending & the Fed",
+     "l": "Proposed Senate confirmation for the Fed and CFPB internal auditor, its remit unchanged; it failed 53-43 under a three-fifths threshold."
     },
     {
-     "i": "Congressional Oversight"
+     "i": "Congressional Oversight",
+     "l": "Proposed Senate confirmation of the Federal Reserve and CFPB inspector general; it failed 53-43 under a three-fifths threshold."
     }
    ]
   },
@@ -2567,7 +2586,8 @@
    "t": "A joint resolution providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Federal Communications Commission relating to \"Addressing the Homework Gap Through the E-Rate Program\"",
    "m": [
     {
-     "i": "Universal Broadband"
+     "i": "Universal Broadband",
+     "l": "Would strike the FCC rule letting E-Rate pay for Wi-Fi hotspots that schools and libraries lend for home use; the Senate passed it 50-38."
     }
    ]
   },

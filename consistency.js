@@ -17744,6 +17744,84 @@
       'Proposed taking DACA renewal funds from the bill’s $69.545 billion for border and immigration enforcement; the Senate rejected it 47-52.',
     'H.R. 815|118|iran_policy':
       'Carried Iran-related sanctions in Division D, the 21st Century Peace through Strength Act; the Senate concurred 79-18.',
+    // WAVE 3 OF FULL COVERAGE (v322). Every member-voted row left that stores its
+    // own `did` and still printed no line, thirty-five in all, so none is mute.
+    // Each is written from that pair’s `did` alone — no title is a source — and
+    // ends on the tally on file. Tense follows the recorded outcome: a public law
+    // on file reads as done, a one-chamber act opens "Would" or "Would have", a
+    // failed amendment opens "Proposed", and H.Res. 1399, which took effect when
+    // the House agreed to it, reads as done. H.R. 9237 has only its recommit roll
+    // on file and ends on that roll by name.
+    'H.R. 5408|119|econ_workers':
+      'Would put a clock on a first union contract, ending in mediation and then an arbitration panel’s award; the House passed it 230-193.',
+    'H.Con.Res. 113|119|national_debt':
+      'Would set the FY2027 budget and direct four House committees to report deficit-raising reconciliation bills; the House agreed to it 216-214.',
+    'H.R. 7148|119|health_drug_prices':
+      'Required pharmacy benefit managers to pass 100 percent of drug rebates through to the health plan; the House concurred 217-214.',
+    'H.Amdt. 261|119|privacy_rights':
+      'Would bar federal funds for any automated speed-enforcement camera on a military installation; the House agreed to it 232-199.',
+    'H.R. 1041|119|gun_safety':
+      'Would bar the VA from reporting a veteran to the background-check system only for being given a fiduciary; the House passed it 216-201.',
+    'H.R. 1041|119|gun_rights':
+      'Would end VA gun-check referrals over benefit payments unless a judge finds a danger to themselves or others; the House passed it 216-201.',
+    'H.R. 7148|119|health_rural':
+      'Eliminated the scheduled Medicaid hospital cuts and continued the Medicare-Dependent Hospital program; the House concurred 217-214.',
+    'H.Amdt. 236|119|cut_spending':
+      'Proposed cutting the National Security Investment Programs and Foreign Military Financing by the Jordan sums; the House rejected it 6-421.',
+    'H.R. 7148|119|pro_life':
+      'Carried the standing abortion-funding restrictions, including the Labor-HHS and federal employee plan bars; the House concurred 217-214.',
+    'H.Res. 1399|119|gov_transparency':
+      'Directed the House Committee on Ethics to release its records of settlements involving sexual harassment; the House agreed to it 420-0.',
+    'H.R. 9237|119|veterans':
+      'Would grant concurrent receipt of disability and retired pay to some combat retirees; a motion to recommit it failed in the House 210-211.',
+    'H.R. 7148|119|foreign_balance':
+      'Funded $9.4 billion for diplomatic programs, $6.2 billion in Foreign Military Financing and peacekeeping; the House concurred 217-214.',
+    'H.R. 7757|119|tech_balance':
+      'Would require age checks on sexual-content platforms, safer defaults for minors and AI chatbot disclosures; the House passed it 267-117.',
+    'H.R. 8884|119|social_security':
+      'Would revive Social Security’s disability-insurance demonstration projects through 2030; the House passed it 232-188.',
+    'H.Amdt. 266|119|cut_spending':
+      'Proposed a Pentagon report on options for cutting 200,000 civilian positions and the savings each yields; the House rejected it 175-254.',
+    'H.Amdt. 242|119|gov_transparency':
+      'Proposed keeping the Afghanistan War Commission’s three-year final-report deadline; the House rejected it 65-361.',
+    'H.R. 1|117|voting_access':
+      'Would have required automatic and same-day registration and fifteen days of early voting in every state; the House passed it 220-210.',
+    'H.R. 5746|117|voting_access':
+      'Would have required same-day registration, two weeks of early voting, no-excuse mail voting and drop boxes; the House passed it 220-203.',
+    'H.R. 4|117|voting_access':
+      'Would have held new photo-ID rules, polling-place closures and voter-roll purges behind federal review; the House passed it 219-212.',
+    'H.R. 4|117|states_federal_power':
+      'Would have restored Voting Rights Act preclearance and barred states from new covered practices until cleared; the House passed it 219-212.',
+    'H.R. 1|117|gov_transparency':
+      'Would have made presidential candidates publish ten years of tax returns and widened lobbying registration; the House passed it 220-210.',
+    'H.R. 29|119|tough_on_crime':
+      'Would mandate federal custody for inadmissible immigrants charged with burglary, theft, larceny or shoplifting; the House passed it 264-159.',
+    'S.J.Res. 7|119|broadband':
+      'Would strike the FCC rule letting E-Rate pay for Wi-Fi hotspots that schools and libraries lend for home use; the Senate passed it 50-38.',
+    'S.Amdt. 3535|119|congress_oversight':
+      'Proposed Senate confirmation of the Federal Reserve and CFPB inspector general; it failed 53-43 under a three-fifths threshold.',
+    'S.Amdt. 3535|119|audit_spending':
+      'Proposed Senate confirmation for the Fed and CFPB internal auditor, its remit unchanged; it failed 53-43 under a three-fifths threshold.',
+    'H.R. 815|118|foreign_balance':
+      'Appropriated security assistance across three theatres at once, Israel, Ukraine and the Indo-Pacific; the Senate concurred 79-18.',
+    'H.R. 815|118|tech_balance':
+      'Carried the Protecting Americans from Foreign Adversary Controlled Applications Act, a divest-or-ban rule; the Senate concurred 79-18.',
+    'H.R. 6329|119|gov_transparency':
+      'Would require agencies to use the best reasonably available evidence and publish what a rule rests on; the House passed it 362-1.',
+    'S. 2296|119|back_police':
+      'Would have funded the COPS Strong Communities Program and officer fentanyl-exposure protections; the Senate passed it 77-20.',
+    'H.R. 2965|119|gov_regulation':
+      'Would cap the SBA’s small-business regulatory budget at zero net new cost each fiscal year; the House passed it 223-190.',
+    'H.R. 4305|119|gov_regulation':
+      'Would make the Red Tape Hotline a statutory duty of the SBA Office of Advocacy, with an annual report; the House passed it 269-146.',
+    'H.J.Res. 78|119|gov_regulation':
+      'Would strike the Fish and Wildlife Service rule listing the Bay-Delta longfin smelt as an endangered species; the House passed it 216-195.',
+    'H.R. 1049|119|gov_transparency':
+      'Would condition federal school funding on telling parents they may request information on foreign influence; the House passed it 247-166.',
+    'H.R. 2965|119|econ_smallbiz':
+      'Would require new SBA rule costs on small businesses to be offset by repealing or modifying old ones; the House passed it 223-190.',
+    'H.R. 4305|119|econ_smallbiz':
+      'Would keep the Red Tape Hotline open for small entities to report the burden of complying with a federal rule; the House passed it 269-146.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is

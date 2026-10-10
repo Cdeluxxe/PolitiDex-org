@@ -18,8 +18,8 @@
 //   S.J.Res. 59 × Diplomacy & Restraint, × Congress and War Powers
 //       → Peace Through Strength (shorter), also Iran
 //   H.R. 29 × Mass Deportations & Border Security, × States Suing Washington
-//       → Strong Border & Enforcement. Tough on Crime stores a description for
-//         H.R. 29 but no line short enough to print, so it is not named.
+//       → Strong Border & Enforcement (shorter), also Tough on Crime, which
+//         gained its own line in wave 3 (v322).
 //
 // The six rows with no description anywhere — H.Amdt. 97, H.Amdt. 85, H.Amdt. 87,
 // and H.Con.Res. 14 on three leaves — print nothing at all.
@@ -63,8 +63,8 @@ const WANT = {
   "S.J.Res. 37|119|econ_trade": { to: "tariffs_prices", also: [] },
   "S.J.Res. 59|119|restraint": { to: "strong_defense", also: ["iran_policy"] },
   "S.J.Res. 59|119|war_powers": { to: "strong_defense", also: ["iran_policy"] },
-  "H.R. 29|119|deportations": { to: "border_security", also: [] },
-  "H.R. 29|119|state_standing": { to: "border_security", also: [] },
+  "H.R. 29|119|deportations": { to: "border_security", also: ["tough_on_crime"] },
+  "H.R. 29|119|state_standing": { to: "border_security", also: ["tough_on_crime"] },
 };
 const NO_FACTS = [
   "H.Amdt. 97|119|lands_preserve", "H.Amdt. 85|119|lgbtq_rights", "H.Amdt. 87|119|lgbtq_rights",
@@ -224,8 +224,11 @@ const MUTANTS = [
     edit: (s) => s.replace("return 'Same act, filed on ' + _dosLeafName(hits[0].leaf) +\n      (also.length ? ' (also filed on ' + also.join(' and ') + ')' : '') + ': ' + hits[0].line;", "return hits[0].line;"),
     expect: /not the fixed shape/ },
   { name: "a leaf with no line named",
-    edit: (s) => s.replace("if (line) hits.push({ leaf: to[i], line: line });", "hits.push({ leaf: to[i], line: line || '' });"),
-    expect: /a leaf with no line|not the fixed shape/ },
+    // H.R. 29's sibling leaves both carry a line since wave 3 (v322), so the
+    // leaf with no line is S.J.Res. 37 × Authority, listed for this mutant only.
+    edit: (s) => s.replace("if (line) hits.push({ leaf: to[i], line: line });", "hits.push({ leaf: to[i], line: line || '' });")
+      .replace("'S.J.Res. 37|119|econ_trade': ['tariffs_prices'],", "'S.J.Res. 37|119|econ_trade': ['tariffs_prices', 'tariffs_authority'],"),
+    expect: /a leaf with no line|which has no line|not the fixed shape/ },
   { name: "the line copied into this leaf's store",
     edit: (s) => s.replace("    'S.J.Res. 37|119|tariffs_prices':\n", "    'S.J.Res. 37|119|econ_trade':\n      'Would have ended the emergency behind the tariffs on Canadian imports, lifting those duties; the Senate passed it 51-48.',\n    'S.J.Res. 37|119|tariffs_prices':\n"),
     expect: /prints an effect paragraph of its own|copied into this leaf's store/ },
@@ -236,7 +239,7 @@ const MUTANTS = [
     edit: (s) => s.replace("hits.sort(function (a, b) { return a.line.length - b.line.length; });", "hits.sort(function (a, b) { return b.line.length - a.line.length; });"),
     expect: /longer line|points at/ },
   { name: "a pointer added to a seventh row",
-    edit: (s) => s.replace("    'H.R. 29|119|state_standing': ['border_security', 'tough_on_crime']\n", "    'H.R. 29|119|state_standing': ['border_security', 'tough_on_crime'],\n    'H.Amdt. 236|119|cut_spending': ['america_first_fp']\n"),
+    edit: (s) => s.replace("    'H.R. 29|119|state_standing': ['border_security', 'tough_on_crime']\n", "    'H.R. 29|119|state_standing': ['border_security', 'tough_on_crime'],\n    'H.Amdt. 266|119|gov_waste': ['cut_spending']\n"),
     expect: /not one of the six/ },
 ];
 const mutFaults = [];
