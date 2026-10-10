@@ -17746,11 +17746,27 @@
       'Carried Iran-related sanctions in Division D, the 21st Century Peace through Strength Act; the Senate concurred 79-18.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
+  // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is
+  // the congress for a federal act ("H.R. 1|119|…", exactly the key every shipped
+  // line was written under) and the recorded session for a state act
+  // ("H.B. 68|2024GS|…", the same segment the bill page at /b/2024GS/H.B. 68 is
+  // keyed by). A row with neither has no identity and gets no key — never a
+  // "|null|" key, which would hand one line to the same number in every session.
+  function _dosEffectKey(item, issueKey) {
+    if (!item || !issueKey) return '';
+    var num = String(item.number == null ? '' : item.number).trim();
+    if (!num) return '';
+    var c = item.congress;
+    if (typeof c === 'number' && isFinite(c) && c > 0) return num + '|' + c + '|' + issueKey;
+    var mi = item.measureIdent;
+    var code = (mi && typeof mi.session === 'string') ? mi.session.trim() : '';
+    return code ? num + '|' + code + '|' + issueKey : '';
+  }
   // The item is already a row on this issue, so the pair is mapped whether or
   // not a curated `did` exists; a short line stands on that alone.
   function _dosEffectLine(item, issueKey, mech) {
     if (!item || !issueKey) return '';
-    var k = String(item.number == null ? '' : item.number).trim() + '|' + item.congress + '|' + issueKey;
+    var k = _dosEffectKey(item, issueKey);
     return _dosEffectOk(_DOS_EFFECT[k] || (mech && mech.did) || '');
   }
   // The row rule, in one place for both tables: one sentence, 140 characters or
@@ -17829,7 +17845,8 @@
   }
   function _dosPointerLine(item, issueKey, ownLine) {
     if (ownLine || !item || !issueKey) return '';
-    var to = _DOS_POINTER[String(item.number == null ? '' : item.number).trim() + '|' + item.congress + '|' + issueKey];
+    var pk = _dosEffectKey(item, issueKey);
+    var to = pk ? _DOS_POINTER[pk] : null;
     if (!to) return '';
     var mapped = {}, list = item.issues || [], hits = [], i;
     for (i = 0; i < list.length; i++) if (list[i] && list[i].issueKey) mapped[list[i].issueKey] = true;

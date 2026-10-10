@@ -9041,7 +9041,18 @@
 //     and no location key or other saved key was touched. consistency.js is
 //     precached and changed, so it moves one version.
 //     MIGRATION COST: none. No seed row, mapping, key or score moved.
-const CACHE_VERSION = 'v320';
+// v321 - AN EFFECT LINE IS KEYED BY THE MEASURE'S OWN IDENTITY. The drawer
+//     looked a line up by number and congress, so a Utah row read the key
+//     "H.B. 68|null|…" — one key for that number in every session, and not the
+//     key its bill page (/b/2024GS/H.B. 68) uses. The key is now number |
+//     sitting | issue: the congress for a federal act, the recorded session for
+//     a Utah act, and no key at all for a row with neither. Every federal key is
+//     the same string it was, so every shipped line and pointer prints exactly
+//     as before. No line was written, moved or rewritten, and no location key or
+//     other saved key was touched. consistency.js is precached and changed, so
+//     it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved.
+const CACHE_VERSION = 'v321';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
