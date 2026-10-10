@@ -992,13 +992,14 @@ section("12 · one effect line per vote row, scoped to this issue");
   const src = R("consistency.js");
   const seam = "var eff = d.effLine || '';";
   must(src.includes(seam), "the effect-line seam these mutations need has moved");
+  // `ks` after the first are [pid, key] probes on any member; the first is lee's.
   const run = (mut, ks = ["lands_preserve"]) => {
     const M = boot((fl) => (fl === "consistency.js" ? src.replace(seam, mut) : R(fl)));
     const MCS = M.PDXConsistency;
     must(MCS && typeof MCS.gapViewHtml === "function", "a mutated renderer did not boot");
-    const at = (k) => ({ mh: MCS.gapViewHtml("lee", k) || "", mt: MCS.dossierTally("lee", k, MCS.issueRow("lee", k).ov) });
-    const out = at(ks[0]);
-    out.more = ks.slice(1).map(at);
+    const at = (pid, k) => ({ mh: MCS.gapViewHtml(pid, k) || "", mt: MCS.dossierTally(pid, k, MCS.issueRow(pid, k).ov) });
+    const out = at("lee", ks[0]);
+    out.more = ks.slice(1).map(([pid, k]) => at(pid, k));
     return out;
   };
   // (a) method text back under the row.
@@ -1010,13 +1011,12 @@ section("12 · one effect line per vote row, scoped to this issue");
   }
   // (b) the bill title as a fallback.
   {
-    const r2 = CS.issueRows("lee").map((y) => y.key).find((k) => {
-      const tt = CS.dossierTally("lee", k, CS.issueRow("lee", k).ov);
-      return tt && tt.rows.some((p) => !expected(p, k) && String(p.d.title || "").trim());
-    });
-    must(r2, "lee has no row without a stored line to test the title fallback on");
-    const { mh, mt, more } = run("var eff = d.effLine || d.title;", ["lands_preserve", r2]);
-    ok(drift(more[0].mh, more[0].mt, r2).length > 0, `a renderer dumping the bill title under a row on lee × ${r2} passed the store check`);
+    // Since wave 4 (v323) every lee row has a line, so the probe is the first
+    // member row anywhere that still has none: a refused title row.
+    const r2 = WITH.find((x) => x.t.rows.some((p) => !expected(p, x.key) && String(p.d.title || "").trim()));
+    must(r2, "no member has a row without a stored line to test the title fallback on");
+    const { mh, mt, more } = run("var eff = d.effLine || d.title;", ["lands_preserve", [r2.pid, r2.key]]);
+    ok(drift(more[0].mh, more[0].mt, r2.key).length > 0, `a renderer dumping the bill title under a row on ${r2.pid} × ${r2.key} passed the store check`);
     eq(drift(mh, mt, "lands_preserve").join(" | "), "", "the title mutation touched rows that do have a stored line");
   }
   // (c) a sibling issue's line borrowed onto this one.
@@ -1702,7 +1702,8 @@ section("14 · the harvest — every stored did, read against the effect rule");
   const WAVE3 = (() => {
     const src = R("consistency.js"), a = src.indexOf("// WAVE 3 OF FULL COVERAGE (v322)");
     must(a !== -1, "the wave-3 block is not in _DOS_EFFECT");
-    return [...src.slice(a, src.indexOf("\n  };", a)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+    const next = src.indexOf("// WAVE 4 OF FULL COVERAGE (v323)", a);
+    return [...src.slice(a, next !== -1 ? next : src.indexOf("\n  };", a)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
   })();
   ok(WAVE3.length > 0, "no wave-3 line is stored");
   for (const k of WAVE3) {
@@ -1712,9 +1713,26 @@ section("14 · the harvest — every stored did, read against the effect rule");
     const m = k.split("|").slice(0, 2).join("|");
     ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
   }
-  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k));
+  // WAVE 4 (v323). Pairs that store no description, each written from its own
+  // stored title and recorded outcome where that title states an effect, held in
+  // detail by scripts/test-wave4-effect-lines.mjs; here the same batch rules.
+  const WAVE4 = (() => {
+    const src = R("consistency.js"), a = src.indexOf("// WAVE 4 OF FULL COVERAGE (v323)");
+    must(a !== -1, "the wave-4 block is not in _DOS_EFFECT");
+    return [...src.slice(a, src.indexOf("\n  };", a)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+  })();
+  ok(WAVE4.length > 0, "no wave-4 line is stored");
+  for (const k of WAVE4) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the wave-4 effect line`);
+    ok(!MECH[k], `${k}: a wave-4 line on a pair that stores a did`);
+    ok(/; the (?:House|Senate) (?:(?:cleared|passed|agreed to|rejected) it|concurred) \d+-\d+(?:, the Senate \d+-\d+)?\.$/.test(v), `${k}: does not end on a recorded tally`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.

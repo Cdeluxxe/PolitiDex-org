@@ -1,0 +1,304 @@
+{
+ "_comment": "Wave 4 (v323) of full coverage. Every member-voted measure-and-issue pair that stores no description anywhere and printed no line under its row: 31 pairs. Each was read from its own stored title alone. Where the title states an effect on the leaf the row sits on, one line was written from that title and the recorded outcome, and is stored once in consistency.js _DOS_EFFECT under the WAVE 4 marker; `term` is the title words the line carries. Where it does not, the row is left as it was and `why` says what the title lacks. `enactedPer` cites the record that puts an amendment’s text in public law, which is what lets its line read as done. Read by scripts/test-wave4-effect-lines.mjs. No score, weight, mapping or key is read from or written to here.",
+ "rows": [
+  {
+   "key": "H.Amdt. 243|119|foreign_balance",
+   "number": "H.Amdt. 243",
+   "sitting": "119",
+   "issue": "foreign_balance",
+   "title": "H.Amdt. 243 (Boebert) to H.R. 8800 — strike section 521 and replace it with a prohibition on foreign nationals attending the United States Military Academies",
+   "decision": "line",
+   "term": "foreign nationals attending the United States Military Academies",
+   "line": "Proposed a bar on foreign nationals attending the United States Military Academies in place of section 521; the House rejected it 61-360."
+  },
+  {
+   "key": "H.Amdt. 253|119|gun_rights",
+   "number": "H.Amdt. 253",
+   "sitting": "119",
+   "issue": "gun_rights",
+   "title": "H.Amdt. 253 (Crank) to H.R. 8800 — establish a presumption of approval for qualified Department of Defense servicemembers and civilian employees seeking authorization from their…",
+   "decision": "refuse",
+   "why": "The only stored title is cut off at “seeking authorization from their…”, before it says what the authorization is for, so it states no effect on gun rights."
+  },
+  {
+   "key": "H.Amdt. 254|119|lgbtq_rights",
+   "number": "H.Amdt. 254",
+   "sitting": "119",
+   "issue": "lgbtq_rights",
+   "title": "H.Amdt. 254 (Boebert) to H.R. 8800 — codify Executive Order 14183, which implements a ban on transgender service members by requiring all personnel to serve in accordance with their…",
+   "decision": "line",
+   "term": "ban on transgender service members",
+   "line": "Proposed codifying Executive Order 14183, which implements a ban on transgender service members; the House rejected it 212-217."
+  },
+  {
+   "key": "H.Amdt. 255|119|lgbtq_rights",
+   "number": "H.Amdt. 255",
+   "sitting": "119",
+   "issue": "lgbtq_rights",
+   "title": "H.Amdt. 255 (Mace) to H.R. 8800 — prohibit gender-related medical care under TRICARE and prevents TRICARE from covering certain gender-related medical procedures and treatments",
+   "decision": "line",
+   "term": "gender-related medical procedures and treatments",
+   "line": "Would prevent TRICARE from covering certain gender-related medical procedures and treatments; the House agreed to it 219-208."
+  },
+  {
+   "key": "H.Amdt. 256|119|lgbtq_rights",
+   "number": "H.Amdt. 256",
+   "sitting": "119",
+   "issue": "lgbtq_rights",
+   "title": "H.Amdt. 256 (Mace) to H.R. 8800 — prohibit male participation in female sports at Department of Defense Education Activity schools",
+   "decision": "line",
+   "term": "male participation in female sports",
+   "line": "Would prohibit male participation in female sports at Department of Defense Education Activity schools; the House agreed to it 221-203."
+  },
+  {
+   "key": "H.Amdt. 258|119|religious_liberty",
+   "number": "H.Amdt. 258",
+   "sitting": "119",
+   "issue": "religious_liberty",
+   "title": "H.Amdt. 258 (Self) to H.R. 8800 — codify protections and responsibilities for chaplains and subject such protections to prosecution under the Uniform Code of Military Justice",
+   "decision": "line",
+   "term": "protections and responsibilities for chaplains",
+   "line": "Would codify protections and responsibilities for chaplains; the House agreed to it 221-210."
+  },
+  {
+   "key": "H.Amdt. 266|119|gov_waste",
+   "number": "H.Amdt. 266",
+   "sitting": "119",
+   "issue": "gov_waste",
+   "title": "H.Amdt. 266 (Grothman) to H.R. 8800 — require the Secretary of Defense to submit a report detailing options for reducing the number of civilians employed by the Department of Defense by…",
+   "decision": "refuse",
+   "why": "The title asks for a report on options for reducing Defense Department civilian staff; it names no waste, savings or spending outcome on this leaf."
+  },
+  {
+   "key": "H.Amdt. 85|119|lgbtq_rights",
+   "number": "H.Amdt. 85",
+   "sitting": "119",
+   "issue": "lgbtq_rights",
+   "title": "H.Amdt. 85",
+   "decision": "refuse",
+   "why": "The stored title is the bare number “H.Amdt. 85”; it states no effect at all."
+  },
+  {
+   "key": "H.Amdt. 87|119|lgbtq_rights",
+   "number": "H.Amdt. 87",
+   "sitting": "119",
+   "issue": "lgbtq_rights",
+   "title": "H.Amdt. 87",
+   "decision": "refuse",
+   "why": "The stored title is the bare number “H.Amdt. 87”; it states no effect at all."
+  },
+  {
+   "key": "H.Amdt. 97|119|lands_preserve",
+   "number": "H.Amdt. 97",
+   "sitting": "119",
+   "issue": "lands_preserve",
+   "title": "H.Amdt. 97",
+   "decision": "refuse",
+   "why": "The stored title is the bare number “H.Amdt. 97”; it states no effect at all."
+  },
+  {
+   "key": "H.Con.Res. 14|119|cut_spending",
+   "number": "H.Con.Res. 14",
+   "sitting": "119",
+   "issue": "cut_spending",
+   "title": "H.Con.Res. 14",
+   "decision": "refuse",
+   "why": "The stored title is the bare number “H.Con.Res. 14”; it states no effect at all."
+  },
+  {
+   "key": "H.Con.Res. 14|119|lower_taxes",
+   "number": "H.Con.Res. 14",
+   "sitting": "119",
+   "issue": "lower_taxes",
+   "title": "H.Con.Res. 14",
+   "decision": "refuse",
+   "why": "The stored title is the bare number “H.Con.Res. 14”; it states no effect at all."
+  },
+  {
+   "key": "H.Con.Res. 14|119|national_debt",
+   "number": "H.Con.Res. 14",
+   "sitting": "119",
+   "issue": "national_debt",
+   "title": "H.Con.Res. 14",
+   "decision": "refuse",
+   "why": "The stored title is the bare number “H.Con.Res. 14”; it states no effect at all."
+  },
+  {
+   "key": "H.R. 1|117|campaign_finance",
+   "number": "H.R. 1",
+   "sitting": "117",
+   "issue": "campaign_finance",
+   "title": "For the People Act of 2021",
+   "decision": "refuse",
+   "why": "“For the People Act of 2021” is a name, not an effect; it says nothing about campaign finance."
+  },
+  {
+   "key": "H.R. 1|117|scotus_reform",
+   "number": "H.R. 1",
+   "sitting": "117",
+   "issue": "scotus_reform",
+   "title": "For the People Act of 2021",
+   "decision": "refuse",
+   "why": "“For the People Act of 2021” is a name, not an effect; it says nothing about the Supreme Court."
+  },
+  {
+   "key": "H.R. 1446|117|gun_safety",
+   "number": "H.R. 1446",
+   "sitting": "117",
+   "issue": "gun_safety",
+   "title": "Enhanced Background Checks Act of 2021",
+   "decision": "line",
+   "term": "background checks",
+   "line": "Would have enhanced background checks; the House passed it 219-210."
+  },
+  {
+   "key": "H.R. 1808|117|gun_rights",
+   "number": "H.R. 1808",
+   "sitting": "117",
+   "issue": "gun_rights",
+   "title": "Assault Weapons Ban of 2022",
+   "decision": "line",
+   "term": "Assault Weapons Ban",
+   "line": "Would have imposed the Assault Weapons Ban of 2022; the House passed it 217-213."
+  },
+  {
+   "key": "H.R. 1808|117|gun_safety",
+   "number": "H.R. 1808",
+   "sitting": "117",
+   "issue": "gun_safety",
+   "title": "Assault Weapons Ban of 2022",
+   "decision": "line",
+   "term": "Assault Weapons Ban",
+   "line": "Would have enacted an Assault Weapons Ban; the House passed it 217-213."
+  },
+  {
+   "key": "H.R. 2377|117|gun_safety",
+   "number": "H.R. 2377",
+   "sitting": "117",
+   "issue": "gun_safety",
+   "title": "Federal Extreme Risk Protection Order Act of 2021",
+   "decision": "line",
+   "term": "Extreme Risk Protection Order",
+   "line": "Would have created a Federal Extreme Risk Protection Order; the House passed it 224-202."
+  },
+  {
+   "key": "H.R. 7910|117|gun_rights",
+   "number": "H.R. 7910",
+   "sitting": "117",
+   "issue": "gun_rights",
+   "title": "Protecting Our Kids Act",
+   "decision": "refuse",
+   "why": "“Protecting Our Kids Act” names a purpose, not an effect; it says nothing about firearms."
+  },
+  {
+   "key": "H.R. 7910|117|gun_safety",
+   "number": "H.R. 7910",
+   "sitting": "117",
+   "issue": "gun_safety",
+   "title": "Protecting Our Kids Act",
+   "decision": "refuse",
+   "why": "“Protecting Our Kids Act” names a purpose, not an effect; it says nothing about firearms."
+  },
+  {
+   "key": "H.R. 8|117|gun_rights",
+   "number": "H.R. 8",
+   "sitting": "117",
+   "issue": "gun_rights",
+   "title": "Bipartisan Background Checks Act of 2021",
+   "decision": "refuse",
+   "why": "“Bipartisan Background Checks Act of 2021” names its subject but not what it would change about background checks."
+  },
+  {
+   "key": "H.R. 8|117|gun_safety",
+   "number": "H.R. 8",
+   "sitting": "117",
+   "issue": "gun_safety",
+   "title": "Bipartisan Background Checks Act of 2021",
+   "decision": "refuse",
+   "why": "“Bipartisan Background Checks Act of 2021” names its subject but not what it would change about background checks."
+  },
+  {
+   "key": "H.R. 8369|118|power_of_purse",
+   "number": "H.R. 8369",
+   "sitting": "118",
+   "issue": "power_of_purse",
+   "title": "Israel Security Assistance Support Act",
+   "decision": "refuse",
+   "why": "“Israel Security Assistance Support Act” names its aim on Israel; it states no effect on Congress’s spending power."
+  },
+  {
+   "key": "S.Amdt. 1354|118|gun_rights",
+   "number": "S.Amdt. 1354",
+   "sitting": "118",
+   "issue": "gun_rights",
+   "title": "Kennedy amendment prohibiting VA reporting of fiduciary determinations to NICS",
+   "decision": "line",
+   "term": "VA reporting of fiduciary determinations to NICS",
+   "line": "Prohibited VA reporting of fiduciary determinations to NICS; the Senate agreed to it 53-45.",
+   "enactedPer": "db/vr-issue-seed.json: ENACTED as Section 413 of Division A of the Consolidated Appropriations Act, 2024 (P.L. 118-42, 138 Stat. 65)"
+  },
+  {
+   "key": "S.Amdt. 1354|118|gun_safety",
+   "number": "S.Amdt. 1354",
+   "sitting": "118",
+   "issue": "gun_safety",
+   "title": "Kennedy amendment prohibiting VA reporting of fiduciary determinations to NICS",
+   "decision": "line",
+   "term": "fiduciary determinations to NICS",
+   "line": "Ended VA reports of fiduciary determinations to NICS; the Senate agreed to it 53-45.",
+   "enactedPer": "db/vr-issue-seed.json: ENACTED as Section 413 of Division A of the Consolidated Appropriations Act, 2024 (P.L. 118-42, 138 Stat. 65)"
+  },
+  {
+   "key": "S.Amdt. 14|119|tough_on_crime",
+   "number": "S.Amdt. 14",
+   "sitting": "119",
+   "issue": "tough_on_crime",
+   "title": "Cornyn amendment expanding the offences that trigger mandatory detention (S.Amdt. 14)",
+   "decision": "line",
+   "term": "offences that trigger mandatory detention",
+   "line": "Widened the offences that trigger mandatory detention; the Senate agreed to it 70-25.",
+   "enactedPer": "db/vr-issue-seed.json: Its text is in Public Law 119-1"
+  },
+  {
+   "key": "S.Amdt. 23|119|state_standing",
+   "number": "S.Amdt. 23",
+   "sitting": "119",
+   "issue": "state_standing",
+   "title": "Coons amendment striking the State attorney general cause of action (S.Amdt. 23)",
+   "decision": "line",
+   "term": "State attorney general cause of action",
+   "line": "Proposed striking the State attorney general cause of action; the Senate rejected it 46-49."
+  },
+  {
+   "key": "S.Amdt. 3428|119|gov_transparency",
+   "number": "S.Amdt. 3428",
+   "sitting": "119",
+   "issue": "gov_transparency",
+   "title": "S.Amdt. 3428 (Johnson) to H.R. 3944 — to limit disclosures regarding earmarks",
+   "decision": "line",
+   "term": "disclosures regarding earmarks",
+   "line": "Proposed limiting disclosures regarding earmarks; the Senate rejected it 21-75."
+  },
+  {
+   "key": "S.Amdt. 5463|119|back_police",
+   "number": "S.Amdt. 5463",
+   "sitting": "119",
+   "issue": "back_police",
+   "title": "Cortez Masto amendment appropriating funds for local law enforcement hiring (S.Amdt. 5463)",
+   "decision": "line",
+   "term": "local law enforcement hiring",
+   "line": "Proposed appropriating funds for local law enforcement hiring; the Senate rejected it 45-53."
+  },
+  {
+   "key": "S.Amdt. 8|119|tough_on_crime",
+   "number": "S.Amdt. 8",
+   "sitting": "119",
+   "issue": "tough_on_crime",
+   "title": "Ernst amendment adding crimes causing death or serious bodily injury to the mandatory-detention list (S.Amdt. 8)",
+   "decision": "line",
+   "term": "crimes causing death or serious bodily injury",
+   "line": "Made crimes causing death or serious bodily injury grounds for mandatory detention; the Senate agreed to it 75-24.",
+   "enactedPer": "db/vr-issue-seed.json: Its text is in Public Law 119-1"
+  }
+ ]
+}

@@ -98,7 +98,8 @@
    "t": "Enhanced Background Checks Act of 2021",
    "m": [
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "l": "Would have enhanced background checks; the House passed it 219-210."
     }
    ]
   },
@@ -109,10 +110,12 @@
    "t": "Assault Weapons Ban of 2022",
    "m": [
     {
-     "i": "Protect Gun Rights"
+     "i": "Protect Gun Rights",
+     "l": "Would have imposed the Assault Weapons Ban of 2022; the House passed it 217-213."
     },
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "l": "Would have enacted an Assault Weapons Ban; the House passed it 217-213."
     }
    ]
   },
@@ -123,7 +126,8 @@
    "t": "Federal Extreme Risk Protection Order Act of 2021",
    "m": [
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "l": "Would have created a Federal Extreme Risk Protection Order; the House passed it 224-202."
     }
    ]
   },
@@ -652,10 +656,12 @@
    "t": "Kennedy amendment prohibiting VA reporting of fiduciary determinations to NICS",
    "m": [
     {
-     "i": "Protect Gun Rights"
+     "i": "Protect Gun Rights",
+     "l": "Prohibited VA reporting of fiduciary determinations to NICS; the Senate agreed to it 53-45."
     },
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "l": "Ended VA reports of fiduciary determinations to NICS; the Senate agreed to it 53-45."
     },
     {
      "i": "Take Care of Veterans",
@@ -948,7 +954,8 @@
      "l": "Proposed barring foreign nationals from U.S. military academies, striking the defense bill’s cadet section; the House rejected it 61-360."
     },
     {
-     "i": "Strategic Engagement"
+     "i": "Strategic Engagement",
+     "l": "Proposed a bar on foreign nationals attending the United States Military Academies in place of section 521; the House rejected it 61-360."
     }
    ]
   },
@@ -1057,7 +1064,8 @@
    "t": "H.Amdt. 254 (Boebert) to H.R. 8800 — codify Executive Order 14183, which implements a ban on transgender service members by requiring all personnel to serve in accordance with their…",
    "m": [
     {
-     "i": "Protect LGBTQ+ Rights"
+     "i": "Protect LGBTQ+ Rights",
+     "l": "Proposed codifying Executive Order 14183, which implements a ban on transgender service members; the House rejected it 212-217."
     }
    ]
   },
@@ -1071,7 +1079,8 @@
      "i": "Expand Healthcare Access"
     },
     {
-     "i": "Protect LGBTQ+ Rights"
+     "i": "Protect LGBTQ+ Rights",
+     "l": "Would prevent TRICARE from covering certain gender-related medical procedures and treatments; the House agreed to it 219-208."
     }
    ]
   },
@@ -1082,7 +1091,8 @@
    "t": "H.Amdt. 256 (Mace) to H.R. 8800 — prohibit male participation in female sports at Department of Defense Education Activity schools",
    "m": [
     {
-     "i": "Protect LGBTQ+ Rights"
+     "i": "Protect LGBTQ+ Rights",
+     "l": "Would prohibit male participation in female sports at Department of Defense Education Activity schools; the House agreed to it 221-203."
     }
    ]
   },
@@ -1105,7 +1115,8 @@
    "t": "H.Amdt. 258 (Self) to H.R. 8800 — codify protections and responsibilities for chaplains and subject such protections to prosecution under the Uniform Code of Military Justice",
    "m": [
     {
-     "i": "Religious Liberty Focus"
+     "i": "Religious Liberty Focus",
+     "l": "Would codify protections and responsibilities for chaplains; the House agreed to it 221-210."
     }
    ]
   },
@@ -2495,7 +2506,8 @@
      "l": "Added crimes causing death or serious bodily injury to the bill’s mandatory-detention list; the Senate agreed to it 75-24."
     },
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "l": "Made crimes causing death or serious bodily injury grounds for mandatory detention; the Senate agreed to it 75-24."
     }
    ]
   },
@@ -2510,7 +2522,8 @@
      "l": "Expanded the offences that trigger mandatory detention under the bill; the Senate agreed to it 70-25."
     },
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "l": "Widened the offences that trigger mandatory detention; the Senate agreed to it 70-25."
     }
    ]
   },
@@ -2521,7 +2534,8 @@
    "t": "Coons amendment striking the State attorney general cause of action (S.Amdt. 23)",
    "m": [
     {
-     "i": "States Suing Washington"
+     "i": "States Suing Washington",
+     "l": "Proposed striking the State attorney general cause of action; the Senate rejected it 46-49."
     }
    ]
   },
@@ -2532,7 +2546,8 @@
    "t": "S.Amdt. 3428 (Johnson) to H.R. 3944 — to limit disclosures regarding earmarks",
    "m": [
     {
-     "i": "Transparency & Anti-Corruption"
+     "i": "Transparency & Anti-Corruption",
+     "l": "Proposed limiting disclosures regarding earmarks; the Senate rejected it 21-75."
     }
    ]
   },
@@ -2559,7 +2574,8 @@
    "t": "Cortez Masto amendment appropriating funds for local law enforcement hiring (S.Amdt. 5463)",
    "m": [
     {
-     "i": "Back Law Enforcement"
+     "i": "Back Law Enforcement",
+     "l": "Proposed appropriating funds for local law enforcement hiring; the Senate rejected it 45-53."
     }
    ]
   },

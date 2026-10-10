@@ -278,7 +278,15 @@ function check(src, base) {
   const block = (() => {
     const a = src.indexOf(MARK);
     if (a < 0) return [];
-    return [...src.slice(a, src.indexOf("\n  };", a)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+    // The block ends at the next wave's own marker, or at the end of the table.
+    const end = src.indexOf("\n  };", a), next = src.indexOf("\n    // WAVE ", a + MARK.length);
+    return [...src.slice(a, next > 0 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+  })();
+  // Lines a later wave wrote, from its own marker on, held by that wave's own test.
+  const later = (() => {
+    const a = src.indexOf(MARK), next = a < 0 ? -1 : src.indexOf("\n    // WAVE ", a + MARK.length);
+    if (next < 0) return new Set();
+    return new Set([...src.slice(next, src.indexOf("\n  };", next)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
   })();
   ok(block.length > 0, "the wave-3 block is not in _DOS_EFFECT");
   for (const k of block) ok(k in SPEC, `${k}: a wave-3 line with no source in this test`);
@@ -292,7 +300,7 @@ function check(src, base) {
   if (headSrc) {
     const HE = mapOf(headSrc, "_DOS_EFFECT");
     for (const [p, v] of Object.entries(HE.map)) ok(E.map[p] === v, `${p}: a shipped line was rewritten or removed`);
-    for (const k of Object.keys(E.map)) ok(k in HE.map || block.includes(k), `${k}: a new line outside the wave-3 block`);
+    for (const k of Object.keys(E.map)) ok(k in HE.map || block.includes(k) || later.has(k), `${k}: a new line outside the wave-3 block`);
     for (const name of ["_DOS_MECH", "_DOS_EXEC_EFFECT", "_DOS_POINTER"]) {
       ok(mapOf(src, name).text === mapOf(headSrc, name).text, `${name} is not byte-identical to HEAD`);
     }

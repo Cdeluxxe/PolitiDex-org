@@ -9063,7 +9063,17 @@
 //     quotes is unchanged. No shipped line moved. consistency.js is precached
 //     and changed, so it moves one version.
 //     MIGRATION COST: none. No seed row, mapping, key or score moved.
-const CACHE_VERSION = 'v322';
+// v323 - WAVE 4 OF FULL COVERAGE. The 31 member-voted rows whose act stores no
+//     description anywhere were each read from their own stored title alone.
+//     Sixteen titles state an effect on the topic the row sits on, and those
+//     rows now say it in one sentence ending on the tally on file — the
+//     background-check, assault-weapons and extreme-risk bills among them. The
+//     other fifteen titles are bare numbers, names that are not effects, or cut
+//     off before their effect, and stay blank; db/vr-title-effect-lines.json
+//     says why for each. No shipped line or pointer moved. consistency.js is
+//     precached and changed, so it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved.
+const CACHE_VERSION = 'v323';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

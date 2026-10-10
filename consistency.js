@@ -17822,6 +17822,46 @@
       'Would require new SBA rule costs on small businesses to be offset by repealing or modifying old ones; the House passed it 223-190.',
     'H.R. 4305|119|econ_smallbiz':
       'Would keep the Red Tape Hotline open for small entities to report the burden of complying with a federal rule; the House passed it 269-146.',
+    // WAVE 4 OF FULL COVERAGE (v323). The 31 member-voted pairs that store no
+    // description anywhere were each read from their own stored title alone.
+    // Sixteen titles state an effect on the leaf, and each line is written from
+    // that title and the recorded outcome, ending on the tally on file. Fifteen
+    // do not — bare numbers, names that are not effects, one title cut off
+    // before its effect — and stay blank; db/vr-title-effect-lines.json says why
+    // for each. S.Amdt. 8, 14 and 1354 read as done because the record puts their
+    // text in public law; agreed House amendments to H.R. 8800 read "Would".
+    'H.Amdt. 243|119|foreign_balance':
+      'Proposed a bar on foreign nationals attending the United States Military Academies in place of section 521; the House rejected it 61-360.',
+    'H.Amdt. 254|119|lgbtq_rights':
+      'Proposed codifying Executive Order 14183, which implements a ban on transgender service members; the House rejected it 212-217.',
+    'H.Amdt. 255|119|lgbtq_rights':
+      'Would prevent TRICARE from covering certain gender-related medical procedures and treatments; the House agreed to it 219-208.',
+    'H.Amdt. 256|119|lgbtq_rights':
+      'Would prohibit male participation in female sports at Department of Defense Education Activity schools; the House agreed to it 221-203.',
+    'H.Amdt. 258|119|religious_liberty':
+      'Would codify protections and responsibilities for chaplains; the House agreed to it 221-210.',
+    'H.R. 1446|117|gun_safety':
+      'Would have enhanced background checks; the House passed it 219-210.',
+    'H.R. 1808|117|gun_rights':
+      'Would have imposed the Assault Weapons Ban of 2022; the House passed it 217-213.',
+    'H.R. 1808|117|gun_safety':
+      'Would have enacted an Assault Weapons Ban; the House passed it 217-213.',
+    'H.R. 2377|117|gun_safety':
+      'Would have created a Federal Extreme Risk Protection Order; the House passed it 224-202.',
+    'S.Amdt. 1354|118|gun_rights':
+      'Prohibited VA reporting of fiduciary determinations to NICS; the Senate agreed to it 53-45.',
+    'S.Amdt. 1354|118|gun_safety':
+      'Ended VA reports of fiduciary determinations to NICS; the Senate agreed to it 53-45.',
+    'S.Amdt. 14|119|tough_on_crime':
+      'Widened the offences that trigger mandatory detention; the Senate agreed to it 70-25.',
+    'S.Amdt. 23|119|state_standing':
+      'Proposed striking the State attorney general cause of action; the Senate rejected it 46-49.',
+    'S.Amdt. 3428|119|gov_transparency':
+      'Proposed limiting disclosures regarding earmarks; the Senate rejected it 21-75.',
+    'S.Amdt. 5463|119|back_police':
+      'Proposed appropriating funds for local law enforcement hiring; the Senate rejected it 45-53.',
+    'S.Amdt. 8|119|tough_on_crime':
+      'Made crimes causing death or serious bodily injury grounds for mandatory detention; the Senate agreed to it 75-24.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is
