@@ -143,7 +143,11 @@ function check(src, opts = {}) {
       }
 
       // ── 2, 3 · record rows, closed and open ─────────────────────────────────
-      for (const r of recRows(h)) {
+      // A sheet with a vote table has one list (v325), so its record rows are read
+      // from the list renderer itself — the rows a sheet with no table prints.
+      let recH = "";
+      try { recH = CS.dossierRecordsHtml(pid, key) || ""; } catch { recH = ""; }
+      for (const r of recRows(recH || h)) {
         recN++;
         const d = items[r.i] || {};
         const s = text(r.sum);

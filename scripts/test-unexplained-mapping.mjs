@@ -293,7 +293,10 @@ ok(withoutQueue > 0,
   let sheet = "";
   try { sheet = CS.gapViewHtml(s.pid, s.key) || ""; } catch (e) { sheet = ""; }
   ok(sheet.length > 0, "the gap sheet renders at all for an issue with outstanding curation");
-  const recs = sheet.indexOf('<details class="pdxdos-recs"');
+  // The list is the vote table where the sheet has one (v325), the record list
+  // otherwise; either way the queue follows it.
+  const recs = sheet.indexOf('data-pdxgap-record="ledger"') !== -1
+    ? sheet.indexOf('data-pdxgap-record="ledger"') : sheet.indexOf('<details class="pdxdos-recs"');
   const q = sheet.indexOf("pdxdos-queue");
   ok(q !== -1, `${s.pid}/${s.key}: the queue never reaches the gap sheet`);
   ok(recs !== -1 && recs < q,

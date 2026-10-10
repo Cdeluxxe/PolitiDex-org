@@ -9083,7 +9083,14 @@
 //     direction; the public-record gap sits under the list. consistency.js is
 //     precached and changed, so it moves one version.
 //     MIGRATION COST: none. No seed row, mapping, key, effect line or score moved.
-const CACHE_VERSION = 'v324';
+// v325 - ONE LIST IN THE ISSUE DRAWER. A drawer with formal acts on file printed
+//     them twice — the vote table, then the same bills again further down — with
+//     the empty Say-vs-Do note expanded between them. The table is now the only
+//     list; the empty note is one closed line under it ("No public-record item on
+//     file for this issue."), and "How this is scored" stays closed beneath that.
+//     consistency.js is precached and changed, so it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key, effect line or score moved.
+const CACHE_VERSION = 'v325';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

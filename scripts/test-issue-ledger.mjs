@@ -475,6 +475,14 @@ section("7 · a drawer with no roll call renders exactly as it did before");
   const sansFace = (h) => String(h).replace(/<span class="pdxgap-face(?: pdxgap-face-ph)?"([^>]*) aria-hidden="true">(?:<img [^>]*><\/span>|<\/span>)/g, '<span class="pdxgap-face"$1 aria-hidden="true">FACE</span>');
   const sansList = (h) => {
     let x = sansFace(h).replace(/<div class="pdxdos-led pdxdos-led-top"[^>]*>[\s\S]*?<\/div>/g, "");
+    // THE EMPTY PUBLIC-RECORD NOTE IS ONE CLOSED LINE NOW (v325), on every sheet.
+    // It is folded out on both sides, from its own opening tag to the list that
+    // follows it; test-drawer-one-list.mjs holds the note itself.
+    const n = x.search(/<(?:div|details) class="pdxgap-solo" data-pdxgap-public="empty"/);
+    if (n >= 0) {
+      const after = x.slice(n).search(/<details class="pdxdos-recs"|<div class="pdxdos-recs"|<div class="pdxgap-lanes|data-pdxgap-lanes/);
+      if (after > 0) x = x.slice(0, n) + "NOTE" + x.slice(n + after);
+    }
     const a = x.indexOf('<details class="pdxdos-recs"');
     if (a < 0) return x;
     const ends = ['<ul class="pdxg-list pdxdos-queue"', '<div class="pdxdos-step"', '<div class="pdxgap-next"']

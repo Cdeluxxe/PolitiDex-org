@@ -318,7 +318,7 @@ eq((dossier.match(/class="pdxdos-rec-vd pdxdos-rec-led"/g) || []).length, 0,
 lacks(dossierTxt, LED.LED.status, "the list itself does not repeat the standing");
 eq((sheet.match(/data-pdxdos-led="1"/g) || []).length, 1, "the sheet states the standing exactly once");
 has(sheetTxt, LED.LED.full, "and states the reason in full, above the rows");
-ok(sheet.indexOf('data-pdxdos-led="1"') < sheet.indexOf('<details class="pdxdos-recs"'),
+ok(sheet.indexOf('data-pdxdos-led="1"') < sheet.search(/data-pdxgap-record="(?:ledger|items)"/),
   "the standing sits above the list, not inside it");
 // The direction line stops teaching a said-vs-did lesson where nothing was said.
 lacks(dossierTxt, "which is why this row reads",

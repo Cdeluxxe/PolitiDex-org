@@ -2251,8 +2251,13 @@
       // as an unfinished page. This is the same absence, stated on purpose: what IS
       // on file, what ISN'T, and that the difference is coverage rather than a
       // verdict. It invents no evidence and carries no score.
-      '.pdxgap-solo{margin-top:0.6rem;border:1px dashed rgba(147,166,196,0.4);border-radius:0.7rem;padding:0.6rem 0.7rem;background:rgba(147,166,196,0.06);}' +
-      '.pdxgap-solo-h{display:flex;align-items:center;gap:0.35rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;font-size:0.7rem;color:#b9c9e4;}' +
+      // One closed line under the list; the rest opens with it.
+      '.pdxgap-solo{margin-top:0.6rem;border:1px dashed rgba(147,166,196,0.3);border-radius:0.5rem;padding:0.35rem 0.6rem;background:rgba(147,166,196,0.04);}' +
+      '.pdxgap-solo-h{display:flex;align-items:center;gap:0.35rem;font-weight:600;font-size:0.72rem;color:#b9c9e4;cursor:pointer;list-style:none;min-height:2rem;}' +
+      '.pdxgap-solo-h::-webkit-details-marker{display:none;}' +
+      '.pdxgap-solo-h::after{content:"▾";margin-left:auto;color:#8fa2c0;}' +
+      '.pdxgap-solo[open]>.pdxgap-solo-h::after{content:"▴";}' +
+      '.pdxgap-solo-x{font-weight:700;text-transform:uppercase;letter-spacing:0.04em;font-size:0.64rem;color:#9fb4d4;margin-top:0.2rem;}' +
       '.pdxgap-solo-b{font-size:0.72rem;color:#c6d4ec;line-height:1.45;margin-top:0.35rem;}' +
       '.pdxgap-solo-b b{color:#e8eefc;}' +
       '.pdxgap-solo-n{font-size:0.66rem;color:#8fa2c0;line-height:1.45;margin-top:0.4rem;padding-top:0.4rem;border-top:1px solid rgba(255,255,255,0.08);}' +
@@ -15766,7 +15771,25 @@
         if (rec) break;
         scope = scope.parentNode;
       }
-      if (!rec) return;
+      if (!rec) {
+        // A sheet with a vote table has no second list: the roll-up line opens
+        // that act's own table row in place instead.
+        var lsel = '[data-pdxlg-pid="' + pid + '"][data-pdxlg-key="' + key + '"] [data-pdxlg-tog="' + i + '"]';
+        var tog = null;
+        scope = el.parentNode;
+        while (scope && scope.querySelector) {
+          tog = scope.querySelector(lsel);
+          if (tog) break;
+          scope = scope.parentNode;
+        }
+        if (!tog) return;
+        var up2 = tog.parentNode;
+        while (up2) { if (up2.tagName === 'DETAILS') up2.open = true; up2 = up2.parentNode; }
+        if (tog.getAttribute('aria-expanded') !== 'true') _lgToggle(tog);
+        if (tog.scrollIntoView) tog.scrollIntoView({ block: 'nearest' });
+        if (tog.focus) tog.focus();
+        return;
+      }
       // Every <details> between the row and the page, including the row itself and
       // the collapsed 🏛️ list it lives in. Opening only the row would scroll a
       // reader to an element inside a closed disclosure — visible to the code and
@@ -18387,6 +18410,7 @@
     return '<div class="pdxdos-step">' + prev + next + '</div>';
   }
 
+  var _GAP_SOLO_LINE = 'No public-record item on file for this issue.';
   function _gapViewHtml(pid, issueKey) {
     var off = officialIssue(pid, issueKey);
     var say = saydoIssue(pid, issueKey);
@@ -18694,9 +18718,13 @@
     } else {
       sidesCls = ' pdxgap-sides-solo';
       saySide =
-        '<div class="pdxgap-solo" data-pdxgap-public="empty">' +
-          '<div class="pdxgap-solo-h"><span aria-hidden="true">🧾</span> ' +
-            LT('saydo', 'Say-vs-Do') + ' — nothing on file for this issue yet</div>' +
+        // ONE CLOSED LINE. An empty public side is a fact about our coverage, and it
+        // is one sentence long on the closed face; the explanation and the door to
+        // fill it open with the line, for a reader who asks.
+        '<details class="pdxgap-solo" data-pdxgap-public="empty">' +
+          '<summary class="pdxgap-solo-h"><span aria-hidden="true">🧾</span> ' +
+            esc(_GAP_SOLO_LINE) + '</summary>' +
+          '<div class="pdxgap-solo-x">' + LT('saydo', 'Say-vs-Do') + ' — nothing on file for this issue yet.</div>' +
           '<div class="pdxgap-solo-b">This is an <b>Official Record</b> read: it is built from ' +
             'formal roll-call votes and legislative actions, and those are ' +
             (oNum || offItems.length ? 'on file here.' : 'what this sheet covers.') +
@@ -18710,7 +18738,7 @@
           // PDXGaps.publicRecordGap. Absent module → the three sentences above stand
           // exactly as they did, which is the state this shipped in.
           _sdGapHtml(pid, issueKey) +
-        '</div>';
+        '</details>';
     }
 
     // ── HOW THIS IS SCORED ────────────────────────────────────────────────────
@@ -18750,7 +18778,10 @@
       // ── THE LEDGER ── the inventory and one row per act, open. The question a
       // reader arrives with is "so what did they actually do about this", and this
       // is the only level that answers it in counts and dates.
-      (_lgOn ? _dosLedgerHtml(pid, issueKey, _dosRow, _lgT) + _dosSaidHtml(_dosRow) + _gapUnder : '') +
+      // The table carries the landing hook the "see the votes" tap scrolls to, and
+      // the door into the full voting record sits at its foot.
+      (_lgOn ? '<div class="pdxgap-list" data-pdxgap-record="ledger">' + _dosLedgerHtml(pid, issueKey, _dosRow, _lgT) +
+          _dosVrLinkHtml(pid, issueKey, off) + '</div>' + _dosSaidHtml(_dosRow) + _gapUnder : '') +
       (_lgOn
         ? '<details class="pdxgap-how" data-pdxgap-how="1">' +
             '<summary><span aria-hidden="true">⚖️</span> How this is scored</summary>' +
@@ -18761,7 +18792,10 @@
       // record panels rather than above them because those panels quote the
       // DECISIVE items; this is the complete enumeration they were drawn from, and
       // a list is only legible once you know what it is a list of.
-      _dosRecordsHtml(pid, issueKey, _dosRow, off) +
+      // ONE LIST. On a sheet with formal acts the vote table above IS the list:
+      // every act once, each row opening in place. The enumeration below is only
+      // for a sheet with no table to carry the acts.
+      (_lgOn ? '' : _dosRecordsHtml(pid, issueKey, _dosRow, off)) +
       // The outstanding curation on the list directly above, counted on the closed
       // face so a sheet full of unexplained mappings cannot look like a finished one.
       // Prints nothing at zero — see _dosQueueHtml.
@@ -19061,6 +19095,8 @@
     // target and the sheet is opened first, which is what the reader asked for by
     // tapping a control that promises to take them to it.
     try {
+      // …and the target itself, when it is a closed one-line disclosure.
+      if (el.tagName === 'DETAILS' && !el.open && el.getAttribute('data-pdxgap-public')) el.open = true;
       var up = el, hops0 = 0;
       while (up && up !== body && hops0 < 40) {
         if (up.tagName === 'DETAILS' && !up.open) up.open = true;
