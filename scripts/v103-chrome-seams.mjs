@@ -479,11 +479,14 @@ export const CJ_SEAMS_BELOW = [
   // call the one emitter, and both keep the class the layout already styles, so a
   // <span> becoming a <button> changes what the element DOES and nothing about
   // where it sits.
-  ["      (nos ? '<span class=\"pdxdos-rec-nosl\">' + esc(nos) + '</span>' : '') +\n",
-   "      // The sitting sits with the number because it is part of the number's meaning:\n",
+  // v324: the closed row is the record — the number leads its line, and the
+  // title opened with the row (the drawer opens on the record), still the same
+  // door. The anchors follow the code to where it now is.
+  ["      (nos ? '<span class=\"pdxdos-rec-nosl\">' + esc(nos) + '</span>' : '') +\n      _dosDoor('pdxdos-rec-id',",
+   "      (d.session || d.congress\n",
    "the card's number, as the door"],
-  ["      // bill number the ident falls back to the title.\n",
-   "      (d.question ? '<span class=\"pdxdos-rec-act\">' + esc(d.question) + '</span>' : '') +\n",
+  ["    // The full title, as the same door to the bill file the number is.\n",
+   "    var open = '<div class=\"pdxdos-rec-open\" data-pdxdos-open=\"1\">' +\n",
    "the card's title, as the same door"],
   // ── the one-measure roll-up, and the sentence splitter under it (v133) ─────
   // The dossier's "Which measures this came from" roll-up bailed below two items,
@@ -1778,7 +1781,7 @@ export function assertConsistencyExportSeams(bodies, api) {
   const cardTtl = cut("the card's title, as the same door");
   has(cardTtl, "_dosDoor('pdxdos-rec-ttl', d, esc(_faceTtl))",
     "the card's title is not the same door as its number");
-  has(cardTtl, "(_faceTtl ?",
+  ok(/\(?_faceTtl \?/.test(cardTtl),
     "the title lost the condition that skips it when it would only repeat the identity");
   // L4. THE EMITTER, AND THE REFUSAL. One place writes the attributes; no number
   // means no door; and a number with no bill page behind it is said on the control
@@ -1920,7 +1923,11 @@ export function assertConsistencyExportSeams(bodies, api) {
     "and two copies of it on one screen read as two claims");
   ok(!/MIN_|FLOOR|publishable|NEVER_FEEDS|\.toFixed|Math\.round|party/.test(strip(lgFns)),
     "a ledger reader reads a floor, a publication rule, a weight or a party — it counts rows, and nothing else");
-  ok(!/\d\s*%/.test(strip(lgFns)), "a percentage appeared in the ledger's readers");
+  // The effect-line tables sit inside this span and are prose — "a 15% minimum
+  // tax" is what an act did, held line by line by the effect-line suites — so
+  // they are lifted out before the code is read for a computed percentage.
+  const lgCode = lgFns.replace(/  var _DOS_EFFECT = \{[\s\S]*?\n  \};/, "").replace(/  var _DOS_EXEC_EFFECT = \{[\s\S]*?\n  \};/, "");
+  ok(!/\d\s*%/.test(strip(lgCode)), "a percentage appeared in the ledger's readers");
   // C3. THE INVENTORY DECIDES THE SHAPE, and a sheet with no roll calls behind it
   // takes none of this.
   const lgOn = cut("the inventory, resolved before the prose");
@@ -1947,11 +1954,19 @@ export function assertConsistencyExportSeams(bodies, api) {
   // wall broken into five folds is still a method wall and costs five taps.
   const lgHow = cut("the method, behind one disclosure");
   has(lgHow, "var _scoredBody =", "the scored half is no longer assembled as one body");
-  has(lgHow, "_dosSummaryHtml(pid, issueKey, _dosRow, { noSaid: _lgOn })",
+  // v324 added dirNamed beside noSaid: the drawer that names a direction does not
+  // also print "Not scored yet". The quote is still suppressed the same way.
+  has(lgHow, "_dosSummaryHtml(pid, issueKey, _dosRow, { noSaid: _lgOn, dirNamed: _dirNamed })",
     "the assembled answer is not inside the scoring disclosure, or it prints the quote twice");
   has(lgHow, "_laneBandHtml(_dosRow);", "the lane-disagreement band is not the last thing in the scored body");
-  has(lgHow, "_dosLedgerHtml(pid, issueKey, _dosRow, _lgT) + _dosSaidHtml(_dosRow)",
-    "the inventory and the quote are not above the fold the method went behind");
+  // v325: the table is the one list, with the door into the full record at its
+  // foot; the quote and the empty public-record note follow it, above the fold.
+  has(lgHow, "_dosLedgerHtml(pid, issueKey, _dosRow, _lgT) +",
+    "the inventory is not above the fold the method went behind");
+  has(lgHow, "_dosSaidHtml(_dosRow) + _gapUnder",
+    "the quote and the empty note are not above the fold the method went behind");
+  ok(lgHow.indexOf("_dosLedgerHtml(pid, issueKey, _dosRow, _lgT)") < lgHow.indexOf("<details class=\"pdxgap-how\""),
+    "the inventory sits below the fold the method went behind");
   has(lgHow, "'<summary><span aria-hidden=\"true\">⚖️</span> How this is scored</summary>'",
     "the one disclosure does not say what is behind it in the words the brief named");
   ok(lgHow.split("<details").length === 2,
@@ -1983,7 +1998,7 @@ export function assertConsistencyExportSeams(bodies, api) {
   // inventory makes is tested where it is made.
   const lgEx = cut("the ledger's exports");
   ok([...lgEx.matchAll(/^\s*(dossier[A-Za-z]+):/gm)].map((m) => m[1]).join(",") ===
-    "dossierSummaryHtml,dossierTally,dossierFinding,dossierActKind,dossierActVote,dossierLedgerHtml,dossierSaidHtml",
+    "dossierSummaryHtml,dossierTally,dossierFinding,dossierActKind,dossierActVote,dossierLedgerHtml,dossierLedgerMoreHtml,dossierSaidHtml",
     "the ledger's published pieces are not the six reads beside the summary that the suites hold to the archive");
   ok(!/function\s*\(|=>/.test(strip(lgEx)), "an export line grew a function body instead of publishing a read");
 }
