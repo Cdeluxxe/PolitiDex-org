@@ -9031,7 +9031,17 @@
 //     and no shipped line changed. consistency.js is precached and changed, so
 //     it moves one version.
 //     MIGRATION COST: none. No seed row, mapping, key or score moved.
-const CACHE_VERSION = 'v319';
+// v320 - RIDER ROWS. The two rider-audit passes added 31 secondary rows that
+//     an act's own stored title and summary name. Nineteen now say, in one
+//     sentence, what the act did on that topic, written from that act's own
+//     stored text and ending on the tally on file; an act with no law on file
+//     reads "Would", "Would have" or "Proposed". Twelve stay blank because their
+//     text states no effect on the leaf: two division titles and ten Utah bills
+//     whose summary only names the subject. No shipped line or pointer moved,
+//     and no location key or other saved key was touched. consistency.js is
+//     precached and changed, so it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved.
+const CACHE_VERSION = 'v320';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

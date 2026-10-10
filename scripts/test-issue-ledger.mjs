@@ -1246,7 +1246,14 @@ section("14 · the harvest — every stored did, read against the effect rule");
   // whose own subject is Iran, one line each on the measure × iran_policy pair.
   // Each must pass the same harvest rules, name Iran, and end on the tally the
   // archive's own vote seed holds for that roll, in the shape its outcome allows.
-  const IRAN = Object.keys(EFFECT).filter((k) => /\|iran_policy$/.test(k));
+  // Lines in the RIDER ROWS (v320) block are held by scripts/test-rider-effect-lines.mjs
+  // and by the rider batch below, not by the leaf batches they happen to share a leaf with.
+  const RIDER_KEYS = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// RIDER ROWS (v320)");
+    if (at === -1) return new Set();
+    return new Set([...src.slice(at, src.indexOf("\n  };", at)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+  })();
+  const IRAN = Object.keys(EFFECT).filter((k) => /\|iran_policy$/.test(k) && !RIDER_KEYS.has(k));
   const TALLY = (() => {
     const t = {};
     const seed = JSON.parse(R("db/vr-issue-seed.json"));
@@ -1409,7 +1416,7 @@ section("14 · the harvest — every stored did, read against the effect rule");
   // the outcome the archive records: an act with a public law on file in
   // db/vr-measure-identity.json may read as done; anything else — failed, or
   // passed one chamber and never enacted — must open "Would" or "Proposed".
-  const PTS = Object.keys(EFFECT).filter((k) => /\|strong_defense$/.test(k));
+  const PTS = Object.keys(EFFECT).filter((k) => /\|strong_defense$/.test(k) && !RIDER_KEYS.has(k));
   const PTS_ROLL = (() => {
     const t = {};
     const files = ["vr-phase-a-vote-seed", "vr-israel-vote-seed", "vr-house-seed-119-s2", "vr-landmark-vote-seed",
@@ -1663,7 +1670,8 @@ section("14 · the harvest — every stored did, read against the effect rule");
   const WAVE2 = (() => {
     const src = R("consistency.js"), a = src.indexOf("// WAVE 2 OF FULL COVERAGE (v319)");
     must(a !== -1, "the wave-2 block is not in _DOS_EFFECT");
-    return [...src.slice(a, src.indexOf("\n  };", a)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+    const next = src.indexOf("// RIDER ROWS (v320)", a);
+    return [...src.slice(a, next !== -1 ? next : src.indexOf("\n  };", a)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
   })();
   ok(WAVE2.length > 0 && WAVE2.length <= 40, `${WAVE2.length} wave-2 line(s) — the wave is capped at 40`);
   for (const k of WAVE2) {
@@ -1673,9 +1681,21 @@ section("14 · the harvest — every stored did, read against the effect rule");
     const m = k.split("|").slice(0, 2).join("|");
     ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
   }
-  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k));
+  // RIDER ROWS (v320). Lines for the rider-audit rows, each from that act's own
+  // stored text, held in detail by scripts/test-rider-effect-lines.mjs; here the
+  // same batch rules.
+  const RIDER = [...RIDER_KEYS];
+  ok(RIDER.length <= 31, `${RIDER.length} rider line(s) — there are 31 rider rows`);
+  for (const k of RIDER) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the rider effect line`);
+    ok(/; the (?:House|Senate) (?:(?:cleared|passed|agreed to|rejected) it|concurred) \d+-\d+(?:, the Senate \d+-\d+)?\.$/.test(v), `${k}: does not end on a recorded tally`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.

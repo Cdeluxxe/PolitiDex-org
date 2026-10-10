@@ -48,10 +48,12 @@
      "l": "Provided child-care stabilisation funding, supplemental Child Care and Development Block Grant money, and Head Start funding."
     },
     {
-     "i": "Affordable Housing & Renters"
+     "i": "Affordable Housing & Renters",
+     "l": "Funded emergency rental and homeowner assistance; the House cleared it 220-211, the Senate 50-49."
     },
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "l": "Expanded Affordable Care Act premium tax credits; the House cleared it 220-211, the Senate 50-49."
     },
     {
      "i": "Help Families with Kids",
@@ -70,7 +72,8 @@
      "l": "Expanded ACA premium tax credits for 2021 and 2022 and subsidized COBRA coverage; the House cleared it 220-211, the Senate 50-49."
     },
     {
-     "i": "Middle-Class Tax Relief"
+     "i": "Middle-Class Tax Relief",
+     "l": "Expanded the child tax credit; the House cleared it 220-211, the Senate 50-49."
     },
     {
      "i": "Raise Wages & Protect Workers",
@@ -314,7 +317,8 @@
    "t": "Bipartisan Safer Communities Act",
    "m": [
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "l": "Directed guidance on Medicaid telehealth and school-based Medicaid services; the House cleared it 234-193, the Senate 65-33."
     },
     {
      "i": "Invest in Public Schools",
@@ -426,7 +430,8 @@
      "l": "Sustained U.S. military support to two active wars and Pacific deterrence through three security divisions; the Senate concurred 79-18."
     },
     {
-     "i": "Iran"
+     "i": "Iran",
+     "l": "Carried Iran-related sanctions in Division D, the 21st Century Peace through Strength Act; the Senate concurred 79-18."
     },
     {
      "i": "Smart Tech Guardrails"
@@ -466,7 +471,8 @@
    "t": "Fiscal Responsibility Act of 2023",
    "m": [
     {
-     "i": "Cut Federal Spending & Reduce Debt"
+     "i": "Cut Federal Spending & Reduce Debt",
+     "l": "Set discretionary spending caps for FY2024 and FY2025, enforced by sequestration; the House cleared it 314-117, the Senate 63-36."
     },
     {
      "i": "Expand Domestic Energy Production",
@@ -477,7 +483,8 @@
      "l": "Set page and time limits on environmental impact statements and one lead agency per project; the House cleared it 314-117, the Senate 63-36."
     },
     {
-     "i": "Homelessness Policy"
+     "i": "Homelessness Policy",
+     "l": "Exempted homeless individuals from the SNAP work rule as it raised the age limit to 54; the House cleared it 314-117, the Senate 63-36."
     },
     {
      "i": "Invest in Public Services",
@@ -488,10 +495,12 @@
      "l": "Ended the federal student-loan payment pause and barred another extension without Congress; the House cleared it 314-117, the Senate 63-36."
     },
     {
-     "i": "Tackle the National Debt"
+     "i": "Tackle the National Debt",
+     "l": "Suspended the debt limit through January 1, 2025; the House cleared it 314-117, the Senate 63-36."
     },
     {
-     "i": "Take Care of Veterans"
+     "i": "Take Care of Veterans",
+     "l": "Exempted veterans from the SNAP work requirement as it raised the age limit to 54; the House cleared it 314-117, the Senate 63-36."
     }
    ]
   },
@@ -644,7 +653,8 @@
      "i": "Stronger Gun Safety Laws"
     },
     {
-     "i": "Take Care of Veterans"
+     "i": "Take Care of Veterans",
+     "l": "Barred funds for Veterans Affairs to report certain information to NICS for background checks; the Senate agreed to it 53-45."
     }
    ]
   },
@@ -785,7 +795,8 @@
    "t": "H.Amdt. 97 (Biggs) to H.R. 3838 — bar Endangered Species Act critical-habitat designation on military lands",
    "m": [
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "l": "Proposed exempting military personnel from Endangered Species Act bans in national defense operations; the House rejected it 200-228."
     }
    ]
   },
@@ -828,7 +839,8 @@
      "l": "Wrote a farm-equipment exemption from Clean Air Act engine emission standards into the farm bill; the House agreed to it 215-213."
     },
     {
-     "i": "Farmers & Rural Communities"
+     "i": "Farmers & Rural Communities",
+     "l": "Would remove farm-equipment emissions mandates to ease expenses for farmers and consumers; the House agreed to it 215-213."
     }
    ]
   },
@@ -1179,7 +1191,8 @@
    "t": "Providing for congressional disapproval under chapter 8 of title 5, United States Code, of the rule submitted by the Internal Revenue Service relating to gross proceeds reporting by brokers that regularly provide services effectuating digital asset sales",
    "m": [
     {
-     "i": "Cryptocurrency Rules & Digital Dollar"
+     "i": "Cryptocurrency Rules & Digital Dollar",
+     "l": "Nullified IRS broker tax reporting on decentralized-finance digital asset sales; the House cleared it 292-132, the Senate 70-28."
     },
     {
      "i": "Cut Federal Red Tape",
@@ -1669,7 +1682,8 @@
      "i": "Peace Through Strength"
     },
     {
-     "i": "Strong Border & Enforcement"
+     "i": "Strong Border & Enforcement",
+     "l": "Boosted immigration enforcement in full-year FY2025 funding that trimmed some domestic spending; the House passed it 217-213."
     },
     {
      "i": "Tackle the National Debt"
@@ -1795,7 +1809,8 @@
    "t": "Digital Asset Market Clarity Act of 2025",
    "m": [
     {
-     "i": "Cryptocurrency Rules & Digital Dollar"
+     "i": "Cryptocurrency Rules & Digital Dollar",
+     "l": "Would set a market-structure framework for digital assets, splitting oversight between the CFTC and the SEC; the House passed it 294-134."
     },
     {
      "i": "Innovation & Light Rules"
@@ -1953,7 +1968,8 @@
    "t": "To require mandatory pretrial and post conviction detention for crimes of violence and dangerous crimes and require mandatory cash bail for certain offenses that pose a threat to public safety or order in the District of Columbia, and for other purposes.",
    "m": [
     {
-     "i": "Criminal Justice Reform"
+     "i": "Criminal Justice Reform",
+     "l": "Would require mandatory cash bail in the District for certain offenses that threaten public safety; the House passed it 237-179."
     },
     {
      "i": "Tough on Crime",
@@ -1985,7 +2001,8 @@
    "t": "Information Quality Assurance Act of 2025",
    "m": [
     {
-     "i": "Cut Federal Red Tape"
+     "i": "Cut Federal Red Tape",
+     "l": "Would require agencies to publish the critical factual material they rely on in rulemaking; the House passed it 362-1."
     },
     {
      "i": "Transparency & Anti-Corruption"
@@ -2441,7 +2458,8 @@
    "t": "S. 2296 — National Defense Authorization Act for Fiscal Year 2026",
    "m": [
     {
-     "i": "End DEI Programs"
+     "i": "End DEI Programs",
+     "l": "Would have repealed DoD provisions on diversity, equity and inclusion, including the Chief Diversity Officer; the Senate passed it 77-20."
     },
     {
      "i": "Peace Through Strength",
@@ -2537,7 +2555,8 @@
      "l": "Proposed funding timely adjudication of DACA renewal applications in the border bill; the Senate rejected it 47-52."
     },
     {
-     "i": "Strong Border & Enforcement"
+     "i": "Strong Border & Enforcement",
+     "l": "Proposed taking DACA renewal funds from the bill’s $69.545 billion for border and immigration enforcement; the Senate rejected it 47-52."
     }
    ]
   },
