@@ -473,6 +473,14 @@ section("7 · a drawer with no roll call renders exactly as it did before");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const sansFace = (h) => String(h).replace(/<span class="pdxgap-face(?: pdxgap-face-ph)?"([^>]*) aria-hidden="true">(?:<img [^>]*><\/span>|<\/span>)/g, '<span class="pdxgap-face"$1 aria-hidden="true">FACE</span>');
+  const sansList = (h) => {
+    let x = sansFace(h).replace(/<div class="pdxdos-led pdxdos-led-top"[^>]*>[\s\S]*?<\/div>/g, "");
+    const a = x.indexOf('<details class="pdxdos-recs"');
+    if (a < 0) return x;
+    const ends = ['<ul class="pdxg-list pdxdos-queue"', '<div class="pdxdos-step"', '<div class="pdxgap-next"']
+      .map((m) => x.indexOf(m, a)).filter((i) => i > a);
+    return x.slice(0, a) + "LIST" + (ends.length ? x.slice(Math.min(...ends)) : "");
+  };
   const A = boot(HEAD);
   must(A.PDXConsistency && typeof A.PDXConsistency.gapViewHtml === "function", "HEAD's consistency.js did not boot");
   let same = 0;
@@ -484,7 +492,12 @@ section("7 · a drawer with no roll call renders exactly as it did before");
     // placeholder because this harness has no _getPhotoUrl draws the person's
     // portrait off their roster row instead. That one element is folded to a
     // token on both sides; every other byte of the drawer is still compared.
-    if (sansFace(before) === sansFace(drawer(x.pid, x.key))) same++; else drift.push(key(x));
+    // THE RECORD LIST WAS REBUILT ON PURPOSE (v324): its closed rows now carry the
+    // record and nothing about the coding, and Not in Direction Match moved out of
+    // it to one note at the top of the sheet. Those two pieces — the list block
+    // and the note — are folded out on both sides; everything else on the sheet is
+    // still compared byte for byte. test-drawer-record-first.mjs holds the list.
+    if (sansList(before) === sansList(drawer(x.pid, x.key))) same++; else drift.push(key(x));
   }
   eq(drift.slice(0, 6).join(" | "), "", `${drift.length} roll-call-free drawer(s) changed shape`);
   console.log(`      ${same} drawer(s) with no formal act are byte-identical to HEAD`);
@@ -683,7 +696,11 @@ const effectFault = (e) => {
     const effs = (tb.match(/<tr class="pdxlg-effr" data-pdxlg-effr="/g) || []).length;
     const ptrs = [...tb.matchAll(/<tr class="pdxlg-ptrr" data-pdxlg-ptrr="\d+"><td colspan="5" class="pdxlg-ptr" data-pdxlg-ptr="1">([^<]*)<\/td><\/tr>/g)]
       .filter((m) => /^Same act, filed on [^:]+: \S/.test(m[1].replace(/&amp;/g, "&"))).length;
-    if (trs.length !== acts + effs + ptrs) out.push(`${trs.length - acts - effs - ptrs} non-act row(s) in the vote table`);
+    // Each act row also carries its Details row: closed, and EMPTY until opened, so
+    // it can hold nothing a reader sees on the first screen. Only that exact shape
+    // is allowed; a Details row with anything in it is a leak.
+    const mores = [...tb.matchAll(/<tr class="pdxlg-morer" data-pdxlg-morer="\d+" hidden><td colspan="5" class="pdxlg-more" data-pdxlg-more="1"><\/td><\/tr>/g)].length;
+    if (trs.length !== acts + effs + ptrs + mores) out.push(`${trs.length - acts - effs - ptrs - mores} non-act row(s) in the vote table`);
     // And an effect line is an effect, not method: one sentence, 140 characters
     // at most, none of the coding vocabulary.
     for (const e of effectLines(tb)) {
@@ -747,10 +764,11 @@ const effectFault = (e) => {
   // THE CHECK HAS TEETH. Put the old rationale row back under each vote and the
   // same check must catch it on the fixture.
   const src = R("consistency.js");
-  const seam = "'<td>' + _dosActChips(d, issueKey) + '</td>' +\n          '</tr>';";
+  // The row's last cell is the cut-or-support chip and its Details control.
+  const seam = "'<span aria-hidden=\"true\"> ▾</span></button>' +\n            '</td>' +\n          '</tr>';";
   must(src.includes(seam), "the ledger row seam this mutation needs has moved");
   const mutated = src.replace(seam,
-    "'<td>' + _dosActChips(d, issueKey) + '</td>' +\n          '</tr>' +" +
+    "'<span aria-hidden=\"true\"> ▾</span></button>' +\n            '</td>' +\n          '</tr>' +" +
     " (p.why ? '<tr class=\"pdxlg-whyr\"><td></td><td colspan=\"4\" class=\"pdxlg-why\">' + esc(p.why) + '</td></tr>' : '');");
   const M = boot((fl) => (fl === "consistency.js" ? mutated : R(fl)));
   const MCS = M.PDXConsistency;
@@ -1122,13 +1140,17 @@ section("13 · Cut Federal Red Tape scans — Lee, six acts, six lines");
 
   // The first screen is a scan: the row, the chips, the line — no method.
   const l = lede(h);
+  // Not in Direction Match is said once, at the top (v324): one note, above the
+  // table, and nowhere else on the first screen.
+  eq((l.match(/data-pdxdos-led="1"/g) || []).length, 1, "lee × gov_regulation: the Direction Match standing is not said exactly once at the top");
+  const lNoNote = l.replace(/<div class="pdxdos-led pdxdos-led-top"[^>]*>[\s\S]*?<\/div>/, "");
   for (const v of ["precedent", "mirror", "discriminator", "vocabulary carries no", "primary row", "Why it counts", "What it did", "Which way it cut", "Direction Match"]) {
-    no(text(l), v, `lee × gov_regulation: "${v}" on the first screen`);
+    no(text(lNoNote), v, `lee × gov_regulation: "${v}" on the first screen`);
   }
   for (const cls of ["pdxlg-why", "pdxlg-whyr", "pdxlg-why-one"]) no(l, `class="${cls}"`, `lee × gov_regulation: .${cls} on the first screen`);
   const tb = table(h);
   const trs = ((tb.match(/<tbody>[\s\S]*?<\/tbody>/g) || []).join("").match(/<tr[\s>]/g) || []).length;
-  eq(trs, 12, "lee × gov_regulation: the vote table is not six act rows and six effect rows");
+  eq(trs, 18, "lee × gov_regulation: the vote table is not six act rows, six effect rows and six closed Details rows");
   // The long form is still behind the fold.
   has(folded(h), "pdxgap-how", "lee × gov_regulation: the scoring fold is gone");
 

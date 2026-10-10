@@ -2398,7 +2398,24 @@
       '.pdxlg-t tr.pdxlg-ptrr td{border-top:none;padding:0 0.4rem 0.4rem 0;' +
         'color:#93a6c4;font-size:0.7rem;line-height:1.4;font-style:italic;}' +
       '.pdxlg-d{white-space:nowrap;font-variant-numeric:tabular-nums;color:#8fa2c0;font-size:0.68rem;}' +
-      '.pdxlg-num{font-weight:700;color:#e8eefc;white-space:nowrap;}' +
+      '.pdxlg-num{font-weight:800;color:#e8eefc;white-space:nowrap;font-size:0.95rem;}' +
+      // One chip per row: which way this act cut on this issue.
+      '.pdxlg-c{white-space:nowrap;}' +
+      '.pdxlg-cut{font-size:0.62rem;border-radius:999px;padding:0.04rem 0.38rem;border:1px solid rgba(159,180,212,0.3);' +
+        'color:#c6d4ec;margin-right:0.3rem;}' +
+      '.pdxlg-cut-a{color:#7fd4c1;border-color:rgba(127,212,193,0.45);}' +
+      '.pdxlg-cut-o{color:#f2a3a3;border-color:rgba(242,163,163,0.45);}' +
+      '.pdxlg-cut-n{color:#8fa2c0;border-style:dashed;}' +
+      '.pdxlg-tog{font:inherit;font-size:0.66rem;color:#9fdbff;background:transparent;border:none;cursor:pointer;' +
+        'padding:0.2rem 0.1rem;min-height:28px;}' +
+      '.pdxlg-t tr.pdxlg-morer td{border-top:none;padding:0 0.4rem 0.55rem 0;}' +
+      '.pdxlg-more{font-size:0.72rem;color:#c6d4ec;line-height:1.5;}' +
+      '.pdxlg-more>*+*{margin-top:0.3rem;}' +
+      '.pdxlg-more-ttl{color:#e8eefc;font-family:system-ui,sans-serif;}' +
+      '.pdxlg-more-door{color:#9fdbff;font-weight:700;}' +
+      '.pdxlg-more-k{font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:0.05em;' +
+        'font-size:0.62rem;color:#8fa2c0;margin-right:0.3rem;}' +
+      '.pdxlg-more-also{display:flex;flex-wrap:wrap;align-items:center;gap:0.2rem;}' +
       '.pdxlg-k{color:#cfe0f8;}' +
       '.pdxlg-v{font-weight:700;white-space:nowrap;}' +
       '.pdxlg-v-y{color:#7fd4c1;}' +
@@ -2468,7 +2485,25 @@
         'gap:0.3rem;padding:0.4rem 0;min-height:2.2rem;}' +
       '.pdxdos-rec>summary::-webkit-details-marker{display:none;}' +
       '.pdxdos-rec-ico{flex:none;}' +
-      '.pdxdos-rec-id{font-weight:700;font-size:0.76rem;color:#e8eefc;}' +
+      // THE BILL NUMBER IS THE LARGEST THING ON THE ROW. A reader scanning the list
+      // is looking for which bill; everything else on the closed face is smaller.
+      '.pdxdos-rec-id{font-weight:800;font-size:0.98rem;color:#e8eefc;line-height:1.2;}' +
+      '.pdxdos-rec-line{display:flex;flex-wrap:wrap;align-items:baseline;gap:0.3rem 0.45rem;flex:1 0 100%;min-width:0;}' +
+      '.pdxdos-rec-kind{font-size:0.7rem;color:#cfe0f8;}' +
+      '.pdxdos-rec-line .pdxdos-rec-act{font-weight:700;color:#e8eefc;}' +
+      // The one sentence of what it did, on its own line under the identity.
+      '.pdxdos-rec-eff{flex:1 0 100%;font-size:0.74rem;line-height:1.45;color:#dbe6f7;font-family:system-ui,sans-serif;}' +
+      '.pdxdos-rec-ptr{color:#a9bbd6;font-style:italic;}' +
+      // The open row: other issues, then the record's prose, then the coding,
+      // fenced and labelled so it cannot be read as the vote.
+      '.pdxdos-rec-open{padding:0 0 0.5rem;display:flex;flex-direction:column;gap:0.3rem;}' +
+      '.pdxdos-rec-ottl{font-size:0.74rem;line-height:1.45;}' +
+      '.pdxdos-rec-stand{display:flex;flex-wrap:wrap;gap:0.35rem;align-items:baseline;}' +
+      '.pdxdos-coded{margin-top:0.25rem;padding:0.35rem 0.5rem;border-left:2px dashed rgba(159,180,212,0.35);' +
+        'display:flex;flex-direction:column;gap:0.25rem;background:rgba(159,180,212,0.05);}' +
+      '.pdxdos-coded-k{font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:0.06em;' +
+        'font-size:0.62rem;color:#9fb4d4;}' +
+      '.pdxdos-led-top{margin-top:0.55rem;}' +
       '.pdxdos-rec-act{font-size:0.72rem;color:#c6d4ec;}' +
       // The measure's name. Dimmer than the number it follows and allowed to wrap
       // onto its own line rather than being ellipsised by the layout — a title that
@@ -3396,6 +3431,13 @@
       // native toggle, and every branch below still gets the click. All this does is
       // fill the body the first time it is asked for, which is why L3 and L4 cost
       // nothing on a dossier whose rows are never opened.
+      // A ledger row's "Details" control: opens that one row in place.
+      var lgt = e.target.closest && e.target.closest('[data-pdxlg-tog]');
+      if (lgt) {
+        e.preventDefault();
+        _lgToggle(lgt);
+        return;
+      }
       var dos = e.target.closest && e.target.closest('[data-pdxdos-i]');
       if (dos) _dosMount(dos);
       // ── Follow one document across every issue it decided ─────────────────
@@ -14717,62 +14759,35 @@
     // "Co-sponsored" to say it would lose the only description on the row.
     var nosBallot = !!nos && nos !== 'No side';
     var _faceTtl = _dosFaceTitle(d);
+    // ── THE CLOSED ROW IS THE RECORD, AND ONLY THE RECORD ─────────────────────
+    // The bill number, largest, as the door it has always been; the sitting and
+    // the kind of act beside it, so the same bill twice reads as two named acts;
+    // the clerk's word; ONE chip for which way the act cut on this issue; the day;
+    // and the one sentence of what it did. Nothing on this face says how the row
+    // was coded — the "why it counts here", "which way it cut", said-versus-did
+    // and standing lines all open with the row, under a label that says they are
+    // coding (see _dosCodedHtml). Whether this issue is in Direction Match is said
+    // once at the top of the sheet, not on every row.
+    var _kind = _dosActKind(d), _vote = _dosActVote(d);
+    var _kw = String((_kind && _kind.word) || '').trim();
+    var _vw = String((_vote && _vote.word) || '').trim();
+    var _eff = String(d.effLine || d.ptrLine || '').trim();
     var head =
-      (d.held ? '<span class="pdxdos-rec-ico pdxdos-rec-hold" aria-hidden="true">⊘</span>'
-        : ledRow ? '<span class="pdxdos-rec-ico" aria-hidden="true">' + _LED.ico + '</span>'
-        : '<span class="pdxdos-rec-ico" style="color:' + v.color + '" aria-hidden="true">' + v.ico + '</span>') +
+      '<span class="pdxdos-rec-line">' +
+      // An act that is not a ballot leads with what it was, so a reader scanning
+      // the list finds the absence before the bill.
       (nos ? '<span class="pdxdos-rec-nosl">' + esc(nos) + '</span>' : '') +
-      // ── THE IDENTITY IS THE DOOR TO THE INSTRUMENT ────────────────────────
-      // Everything else on this card is one issue's view of the measure: what it
-      // did here, which way it cut here, how this member voted. The number is not
-      // — it is the measure itself, and until now it was the one thing on the card
-      // a reader could see and not open. So the number and the title are a real
-      // <button> onto the bill file (every member, every mapping, vehicle and
-      // stowaway, the roll calls) and the rest of the card face still toggles the
-      // explainer it always toggled. A <button> is legal here where it is not
-      // legal in the roll-up row: this is a <summary>, whose other control —
-      // "See all N readings" — has been a real button since it shipped.
       _dosDoor('pdxdos-rec-id', d, esc(d.ident)) +
       (d.docUrl ? '' : _billPageDoor(d.billNum, d.billSit, d.ident)) +
-      // The sitting sits with the number because it is part of the number's meaning:
-      // "H.R. 22" names one bill in the 119th and a different one in every other,
-      // and "H.B. 208" names a different bill in every Utah general session. Reads
-      // `session` rather than `congress` so the state half of the record stops
-      // printing a bare, unqualified bill number — same slot, same output on every
-      // federal row, and a session code where there was nothing before.
       (d.session || d.congress
         ? '<span class="pdxdos-rec-st">' + esc(d.session || d.congress) + '</span>' : '') +
-      // ── AND WHAT THE BILL IS CALLED ───────────────────────────────────────
-      // The face carried the number, the sitting, the question, the ballot, the
-      // direction and the day — everything except the one field that tells a reader
-      // what the measure was. "H.B. 400 · On concurrence in amendments · Did not
-      // vote · 2023-03-01" is a complete citation and an unreadable card: nothing on
-      // it says the bill was about school absenteeism. The title was on the item all
-      // along and was only reachable by opening the row, which is the wrong bargain
-      // on a list a reader is scanning to decide WHICH row to open.
-      //   Printed on every row of this list, not just the ones that took no side —
-      // a no-side card being a "full card" and a cast-ballot card being a partial
-      // one would be a second inconsistency dressed as a fix.
-      //   Skipped when it would only repeat the identity: on the migrated formal
-      // lane the ident IS the headline sentence, and on a record row filed without a
-      // bill number the ident falls back to the title.
-      (_faceTtl ? _dosDoor('pdxdos-rec-ttl', d, esc(_faceTtl)) : '') +
-      (d.question ? '<span class="pdxdos-rec-act">' + esc(d.question) + '</span>' : '') +
-      (d.act && !nosBallot ? '<span class="pdxdos-rec-act">' + esc(d.act) + '</span>' : '') +
-      (dir && !d.held ? '<span class="pdxdos-rec-dir">' + esc(_ledDirShort(dir)) + '</span>' : '') +
+      (_kw && _kw !== d.ident ? '<span class="pdxdos-rec-kind">' + esc(_kw) + '</span>' : '') +
+      (_vw && !nos ? '<span class="pdxdos-rec-act">' + esc(_vw) + '</span>' : '') +
       (d.held ? '<span class="pdxdos-rec-vd pdxdos-rec-hold">Not scored</span>'
-        : ledRow ? '<span class="pdxdos-rec-vd pdxdos-rec-led" title="' + escAttr(_LED.full) + '">' +
-            esc(_LED.status) + '</span>'
-        : '<span class="pdxdos-rec-vd" style="color:' + v.color + '">' + esc(v.label) + '</span>') +
-      (d.standing ? '<span class="pdxdos-rec-st">' + esc(d.standing.ico + ' ' + d.standing.label) + '</span>' : '') +
-      (d.multi ? '<span class="pdxdos-rec-tag">🧩 ' + d.item.issues.length + ' issues</span>' : '') +
-      // THE DAY, NOT THE INSTANT. The API ships a full ISO timestamp and this slot
-      // used to print it whole, so a face read "2023-02-27T00:00:00.000Z" beside a
-      // bill number — a timestamp pretending to be a fact, and one that disagreed
-      // with the day the explainer below it names. _dosDay truncates and nothing
-      // else: no locale reformatting, because the day is also the string a reader
-      // searches the clerk's own site with.
-      (d.date ? '<span class="pdxdos-rec-st">' + esc(_dosDay(d.date)) + '</span>' : '');
+        : (dir ? '<span class="pdxdos-rec-dir" data-pdxdos-cut="' + dir + '">' + esc(_ledDirShort(dir)) + '</span>' : '')) +
+      (d.date ? '<span class="pdxdos-rec-st">' + esc(_dosDay(d.date)) + '</span>' : '') +
+      '</span>' +
+      (_eff ? '<span class="pdxdos-rec-eff' + (d.effLine ? '' : ' pdxdos-rec-ptr') + '">' + esc(_eff) + '</span>' : '');
     // A held item answers a different second question — not "why does this count"
     // but "why is it NOT being counted" — so it keeps the hold reason in that slot.
     // It still gets a "What it did" line: a document on file with its mechanism
@@ -14802,22 +14817,38 @@
     // argument — it is the answer to which document the argument is about. On a list
     // where two rows are called SAVE Act and the next is called SAVE America Act, a
     // reader who meets the claim before the identity has to re-read the claim.
-    var why = d.held
+    var rec = d.held
       ? (wk('Which measure this is:', m.ident, 'pdxdos-rec-idn') +
          wk('What it did:', m.did) +
          '<span class="pdxdos-rec-why pdxdos-rec-hold">' + esc(d.heldWhy) + '</span>')
       : (wk('Which measure this is:', m.ident, 'pdxdos-rec-idn') +
          wk('They said:', m.said, 'pdxdos-rec-said') +
          wk('What it did:', m.did) +
-         wk('', m.veto, 'pdxdos-rec-veto') +
-         _dosWhyHtml(m) +
-         wk('Which way it cut:', m.dir) +
-         wk('', m.gap, 'pdxdos-rec-gap') +
-         _dosMultiHtml(m, d));
+         wk('', m.veto, 'pdxdos-rec-veto'));
+    // Where the row stands and, on a scored issue, the said-versus-did verdict it
+    // carries. A standing, not coding — but not the vote either, so it opens with
+    // the row rather than competing with the clerk's word on the closed face.
+    var stand = (d.standing ? '<span class="pdxdos-rec-st">' + esc(d.standing.ico + ' ' + d.standing.label) + '</span>' : '') +
+      (!d.held && !ledRow && v ? '<span class="pdxdos-rec-vd" style="color:' + v.color + '">' + esc(v.ico + ' ' + v.label) + '</span>' : '');
+    var also = _dosActChips(d, issueKey);
+    // The full title, as the same door to the bill file the number is.
+    var openTtl = _faceTtl ? '<div class="pdxdos-rec-ottl">' + _dosDoor('pdxdos-rec-ttl', d, esc(_faceTtl)) + '</div>' : '';
+    var open = '<div class="pdxdos-rec-open" data-pdxdos-open="1">' +
+        openTtl +
+        (stand ? '<div class="pdxdos-rec-stand">' + stand + '</div>' : '') +
+        (also || d.multi ? '<div class="pdxlg-more-also"><span class="pdxlg-more-k">Also on</span> ' +
+          (d.multi ? '<span class="pdxdos-rec-tag">🧩 ' + d.item.issues.length + ' issues</span>' : '') + also + '</div>' : '') +
+        rec + (d.held ? '' : _dosCodedHtml(m, d)) +
+      '</div>';
     return '<details class="pdxdos-rec' + (nos ? ' pdxdos-rec-nos' : '') + '"' +
         ' data-pdxdos-i="' + i + '"' +
         ' data-pdxdos-pid="' + escAttr(pid) + '" data-pdxdos-key="' + escAttr(issueKey) + '">' +
-        '<summary>' + head + why + '</summary>' +
+        '<summary>' + head + '</summary>' +
+        // THE OPEN ROW: the full title, the standing and the verdict, the other
+        // issues this act sits on, then what the record says it did and how the row
+        // was coded — the lines that used to crowd the closed face, unchanged and
+        // labelled.
+        open +
         // Empty on purpose. The body is built the first time this row is opened —
         // see _dosMount. Nothing below L2 costs anything until it is asked for.
         '<div class="pdxdos-rec-b" data-pdxdos-body="1"></div>' +
@@ -15931,22 +15962,8 @@
             'other ' + cov.short + ' ' + (cov.short === 1 ? 'is' : 'are') + ' in the full record below and ' +
             (cov.short === 1 ? 'is' : 'are') + ' counted wherever this issue is counted.') + '</div>'
       : '';
-    // THE STANDING OF THE WHOLE LIST, ONCE, ABOVE THE ROWS. Each row says it for
-    // itself, but a reader who opens a nine-row drawer meets the reason nine times
-    // and the sentence explaining it never — so it is said here in full, in the same
-    // words the profile row's chip uses, with the split attached.
-    var ledNote = led
-      ? '<div class="pdxdos-led">' + _LED.ico + ' ' + esc(_LED.full) + '. ' +
-          esc((cov.listed === 1 ? 'This ' + n.one + ' is' : 'These ' + n.many + ' are') +
-            ' on record and mapped to ' + (_issueLabel(issueKey) || 'this issue') + ', ' +
-            (cov.listed === 1 ? 'listed' : 'listed in full') + ' and left out of Direction Match ' +
-            'rather than counted either way. The direction' + (cov.listed === 1 ? '' : 's') +
-            ' below ' + (cov.listed === 1 ? 'is' : 'are') + ' what each measure does to the issue — ' +
-            'not a position anyone has stated.') +
-          (_ledSplitLine(split, issueKey) ? '<span class="pdxdos-led-split">' +
-            esc(_ledSplitLine(split, issueKey)) + '</span>' : '') +
-        '</div>'
-      : '';
+    // THE STANDING OF THE WHOLE LIST is said once, at the top of the sheet — see
+    // _dosLedTopHtml — and not again here or on any row.
     // The lane asymmetry, stated once rather than papered over row by row.
     //   AND ONLY WHERE THERE IS A ROLL CALL TO EXPLAIN. This note taught the lane
     // asymmetry off `lane === 'record'` alone, which was the same claim as "these are
@@ -15969,10 +15986,37 @@
         '<summary><span aria-hidden="true">🏛️</span> ' + esc(sum) +
           ' <span aria-hidden="true">▾</span>' +
           '<span class="pdxdos-recs-list">' + esc(enumTxt) + '</span></summary>' +
-        shortGap + gap + ledNote +
+        shortGap + gap +
         _dosRowsHtml(ord, pid, issueKey, teach, led) +
         note + _dosVrLinkHtml(pid, issueKey, ov) +
       '</details>';
+  }
+
+  // ── NOT IN DIRECTION MATCH, SAID ONCE, AT THE TOP ───────────────────────────
+  // An issue with no stated position to test is on record and outside Direction
+  // Match. That is a fact about the whole issue, so it is one sentence at the top
+  // of the sheet, in the words the profile row's chip uses, with the mapped split
+  // attached — never a pill repeated on every row of the list beneath it.
+  function _dosLedTopHtml(pid, issueKey, ov) {
+    try {
+      ov = ov || officialIssue(pid, issueKey);
+      if (!_ledUnscored(ov)) return '';
+      var items = _dosItems(pid, issueKey, ov) || [];
+      if (!items.length) return '';
+      var n = _stNoun(issueRow(pid, issueKey));
+      var cov = _dosCoverage(pid, issueKey, ov, items);
+      var split = _ledSplit(pid, issueKey, ov);
+      var sl = _ledSplitLine(split, issueKey);
+      return '<div class="pdxdos-led pdxdos-led-top" data-pdxdos-led="1">' + _LED.ico + ' ' + esc(_LED.full) + '. ' +
+          esc((cov.listed === 1 ? 'This ' + n.one + ' is' : 'These ' + n.many + ' are') +
+            ' on record and mapped to ' + (_issueLabel(issueKey) || 'this issue') + ', ' +
+            (cov.listed === 1 ? 'listed' : 'listed in full') + ' and left out of Direction Match ' +
+            'rather than counted either way. The direction' + (cov.listed === 1 ? '' : 's') +
+            ' below ' + (cov.listed === 1 ? 'is' : 'are') + ' what each measure does to the issue — ' +
+            'not a position anyone has stated.') +
+          (sl ? '<span class="pdxdos-led-split">' + esc(sl) + '</span>' : '') +
+        '</div>';
+    } catch (e) { return ''; }
   }
 
   // ── THE WAY OUT INTO THE FULL LEDGER ────────────────────────────────────────
@@ -16789,6 +16833,95 @@
     return out.length ? '<span class="pdxlg-chips">' + out.join('') + '</span>' : '';
   }
 
+  // ── THE ROW'S ONE CHIP: DID THIS ACT CUT AGAINST THIS ISSUE OR SUPPORT IT ───
+  // Read from the same per-act direction the tally line counts (_dosActDir via the
+  // tally row), in the same short words the record list uses, so the column and
+  // the "Acts: N for · N against" line above it are one count read two ways. A
+  // country subject has no pole and prints no chip; an act with no side says so
+  // rather than leaving the cell blank.
+  function _dosCutChip(p, issueKey) {
+    if (_DOS_LEDGER_NO_SIDE[issueKey]) return '';
+    var dir = p && p.dir;
+    if (dir === 'advances') return '<span class="pdxlg-cut pdxlg-cut-a" data-pdxlg-cut="advances">' + esc(_ledDirShort(dir)) + '</span>';
+    if (dir === 'opposes') return '<span class="pdxlg-cut pdxlg-cut-o" data-pdxlg-cut="opposes">' + esc(_ledDirShort(dir)) + '</span>';
+    return '<span class="pdxlg-cut pdxlg-cut-n" data-pdxlg-cut="none">No side</span>';
+  }
+
+  // ── HOW THIS ROW WAS CODED, IN ONE LABELLED PLACE ───────────────────────────
+  // The sentences that explain the coding — why the act counts on this issue,
+  // which way a Yea or Nay was read, the said-versus-did comparison, the
+  // multi-issue caveat — are method, not the vote. They used to sit on the closed
+  // face of every row; they now live inside the open row, under a label that says
+  // what they are. Same sentences, same order, nothing reworded.
+  var DOS_CODED_LABEL = 'How this row was coded · not the vote itself';
+  // `plain` drops the "See all N readings" control, which only works inside a
+  // record-list row; the caveat sentence itself is kept.
+  function _dosCodedHtml(m, d, plain) {
+    if (!m) return '';
+    var wk = function (label, text, cls) {
+      return text
+        ? '<span class="pdxdos-rec-why' + (cls ? ' ' + cls : '') + '">' +
+            (label ? '<b class="pdxdos-rec-wk">' + label + '</b> ' : '') + esc(text) + '</span>'
+        : '';
+    };
+    var body = _dosWhyHtml(m) + wk('Which way it cut:', m.dir) + wk('', m.gap, 'pdxdos-rec-gap') +
+      (plain ? wk('', m.multi, 'pdxdos-rec-multi') : _dosMultiHtml(m, d));
+    if (!body) return '';
+    return '<div class="pdxdos-coded" data-pdxdos-coded="1">' +
+      '<div class="pdxdos-coded-k">' + esc(DOS_CODED_LABEL) + '</div>' + body + '</div>';
+  }
+
+  // ── ONE LEDGER ROW, OPENED ──────────────────────────────────────────────────
+  // What a reader gets on tapping "Details": the full title, the door to the
+  // bill, the other issues the same vote sits on, and how the row was coded,
+  // labelled as such. Built on the first tap from the dossier's own item at the
+  // row's index — the same item the closed row printed — so the two cannot
+  // describe different acts.
+  function _dosLedgerMoreHtml(pid, issueKey, idx) {
+    var items = [];
+    try { items = _dosItems(pid, issueKey) || []; } catch (e) { items = []; }
+    var d = items[idx];
+    if (!d) return '';
+    var out = [];
+    var ttl = String(d.title || '').trim();
+    if (ttl && ttl !== d.ident) out.push('<div class="pdxlg-more-ttl">' + esc(ttl) + '</div>');
+    var door = _dosDoor('pdxlg-more-door', d, 'Open ' + esc(d.ident || d.billNum || 'the measure') + ' <span aria-hidden="true">→</span>') +
+      (d.docUrl ? '' : _billPageDoor(d.billNum, d.billSit, d.ident));
+    out.push('<div class="pdxlg-more-doors">' + door + '</div>');
+    var chips = _dosActChips(d, issueKey);
+    if (chips) out.push('<div class="pdxlg-more-also"><span class="pdxlg-more-k">Also on</span> ' + chips + '</div>');
+    // The same teach and standing the record list hands its rows, so the open
+    // ledger row and the open record row print the same coding sentences.
+    var led = false, teach = null;
+    try {
+      var ov = officialIssue(pid, issueKey);
+      led = _ledUnscored(ov);
+      teach = _dosTeach(pid, issueKey, issueRow(pid, issueKey), _dosCoverage(pid, issueKey, ov, items));
+    } catch (e2) { teach = null; }
+    out.push(_dosCodedHtml(_dosMechanism(d, issueKey, teach, led && !d.held), d, true));
+    return out.join('');
+  }
+  // Open or close one ledger row; fill it the first time.
+  function _lgToggle(btn) {
+    try {
+      var root = btn.closest && btn.closest('[data-pdxlg-pid]');
+      var tbl = btn.closest && btn.closest('table');
+      if (!root || !tbl) return;
+      var i = btn.getAttribute('data-pdxlg-tog');
+      var row = tbl.querySelector('[data-pdxlg-morer="' + i + '"]');
+      if (!row) return;
+      var cell = row.querySelector('[data-pdxlg-more]');
+      if (cell && !cell.innerHTML) {
+        cell.innerHTML = _dosLedgerMoreHtml(root.getAttribute('data-pdxlg-pid') || '',
+          root.getAttribute('data-pdxlg-key') || '', parseInt(i, 10)) ||
+          '<div class="pdxdos-note">This record has nothing further on file.</div>';
+      }
+      var open = row.hidden;
+      row.hidden = !open;
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    } catch (e) {}
+  }
+
   // WHICH WAY ONE ACT CUT, from the primitive the scorer itself uses.
   //
   // WHY NOT _ledSplit, WHICH ALREADY COUNTS for/against ON THIS LIST. Because it
@@ -17066,7 +17199,8 @@
     var tf = _dosTermFilter(pid, issueKey, t, opts && opts.term);
     t = tf.t;
     var noun = t.bill ? (t.bills === 1 ? 'bill' : 'bills') : (t.bills === 1 ? 'measure' : 'measures');
-    var out = '<div class="pdxlg" data-pdxlg="1"' + (tf.term ? ' data-pdxlg-term-on="' + escAttr(tf.term) + '"' : '') + '>' +
+    var out = '<div class="pdxlg" data-pdxlg="1" data-pdxlg-pid="' + escAttr(pid) + '" data-pdxlg-key="' + escAttr(issueKey) + '"' +
+      (tf.term ? ' data-pdxlg-term-on="' + escAttr(tf.term) + '"' : '') + '>' +
       (tf.term
         ? '<div class="pdxlg-tally" data-pdxlg-tally="1">Term ' + esc(tf.term) + ' only: <b>' + t.bills + ' ' + noun +
           '</b> · <b>' + t.acts + ' formal ' + (t.acts === 1 ? 'act' : 'acts') + '</b> of ' + t.all + ' on this issue</div>'
@@ -17126,7 +17260,7 @@
       out += '<div class="pdxlg-g" data-pdxlg-g="' + g.id + '">' +
         (heads ? '<div class="pdxlg-gh">' + esc(g.h) + '</div>' : '') +
         '<table class="pdxlg-t"><thead><tr>' +
-          '<th>Date</th><th>Measure</th><th>Kind</th><th>' + (g.id === 'exec' ? 'Act' : 'Vote') + '</th><th>Also on</th>' +
+          '<th>Date</th><th>Measure</th><th>Kind</th><th>' + (g.id === 'exec' ? 'Act' : 'Vote') + '</th><th>This issue</th>' +
         '</tr></thead><tbody>';
       for (j = 0; j < g.rows.length; j++) {
         var p = g.rows[j], d = p.d;
@@ -17140,7 +17274,16 @@
             '<td>' + num + '</td>' +
             '<td class="pdxlg-k">' + esc(p.kind.word) + '</td>' +
             '<td class="pdxlg-v pdxlg-v-' + p.vote.cls + '">' + esc(p.vote.word) + '</td>' +
-            '<td>' + _dosActChips(d, issueKey) + '</td>' +
+            // ONE CHIP, AND THE WAY IN. Which way this act cut on THIS issue, in the
+            // words the tally above uses, then the control that opens the row. The
+            // other issues the vote sits on, the full title and how the row was coded
+            // are behind that control, built on the first tap (_dosLedgerMoreHtml).
+            '<td class="pdxlg-c">' + _dosCutChip(p, issueKey) +
+              '<button type="button" class="pdxlg-tog" data-pdxlg-tog="' + p.i + '" aria-expanded="false"' +
+                ' aria-label="' + escAttr('Details for ' + (d.ident || d.billNum || 'this measure') +
+                  ': full title, the bill, other issues and how this row was coded') + '">Details' +
+                '<span aria-hidden="true"> ▾</span></button>' +
+            '</td>' +
           '</tr>';
         var eff = d.effLine || '';
         if (eff) {
@@ -17152,6 +17295,10 @@
           out += '<tr class="pdxlg-ptrr" data-pdxlg-ptrr="' + p.i + '">' +
             '<td colspan="5" class="pdxlg-ptr" data-pdxlg-ptr="1">' + esc(d.ptrLine) + '</td></tr>';
         }
+        // Closed by default and empty until asked for: nothing about how the row
+        // was coded is on the page until a reader opens this one row.
+        out += '<tr class="pdxlg-morer" data-pdxlg-morer="' + p.i + '" hidden>' +
+          '<td colspan="5" class="pdxlg-more" data-pdxlg-more="1"></td></tr>';
       }
       out += '</tbody></table></div>';
     }
@@ -18097,9 +18244,12 @@
     } else {
       lane = 'No lane has been able to decide this one yet.';
     }
-    lines.push('<div class="pdxdos-line"><span class="pdxdos-k">The record</span>' +
+    // The issue drawer passes dirNamed when the acts on file already cut one way
+    // or the other; there "Not scored yet" is not printed as the record's answer.
+    var _hideNS = !!(opts && opts.dirNamed) && res.label === 'Not scored yet';
+    lines.push((_hideNS ? '' : '<div class="pdxdos-line"><span class="pdxdos-k">The record</span>' +
       '<span class="pdxdos-v pdxdos-vd" style="color:' + res.color + '">' + esc(res.ico + ' ' + res.label) + '</span>' +
-      '</div>' +
+      '</div>') +
       '<div class="pdxdos-lane">' + esc(lane) + '</div>');
     // COMPOSITION and DEPTH, borrowed verbatim from the stance row. Composition
     // now prints on every scored row — the counts the percentage divides — and on
@@ -18256,6 +18406,12 @@
     // vote table with nothing to put in its Vote column is not an improvement.
     var _lgT = _dosTally(pid, issueKey, _dosRow && _dosRow.ov);
     var _lgOn = _lgT.acts > 0;
+    // DOES THE RECORD ALREADY NAME A DIRECTION? When it does — the acts on file cut
+    // for or against this issue — "Not scored yet" is a second, contradictory-sounding
+    // answer to the same question, and the sheet does not print it. That the issue
+    // is outside Direction Match is said once, at the top (_dosLedTopHtml).
+    var _dirNamed = (_lgT.advances + _lgT.opposes) > 0;
+    if (!_dirNamed) { try { _dirNamed = (_ledSplit(pid, issueKey, off) || {}).directional > 0; } catch (e) {} }
 
     // Relationship — only when BOTH sides carry a real %. Otherwise say so plainly.
     //
@@ -18325,8 +18481,9 @@
       // reaches. No percentage: a row with no lane score has no number to show, and
       // inventing a shape for one is how a thin row starts looking tested.
       var _dv = _stResult(_dosRow);
-      relHtml = '<span class="pdxdv-rel" style="color:' + _dv.color + ';border-color:' + _dv.color +
-        '55;background:' + _dv.color + '1f;">' + esc(_dv.ico + ' ' + _dv.label) + '</span>';
+      relHtml = (_dv.label === 'Not scored yet' && _dirNamed) ? ''
+        : '<span class="pdxdv-rel" style="color:' + _dv.color + ';border-color:' + _dv.color +
+          '55;background:' + _dv.color + '1f;">' + esc(_dv.ico + ' ' + _dv.label) + '</span>';
       gapNote = '<div class="pdxgap-note">' + esc(_dv.why ||
         'Everything on file for this issue is assembled below, in one place.') + '</div>';
     }
@@ -18566,6 +18723,11 @@
     //
     // One disclosure, not five. A method wall broken into five folds is still a
     // method wall, and it costs five taps instead of one.
+    // THE PUBLIC-RECORD GAP SITS UNDER THE LIST. On a sheet that leads with the
+    // ledger, the empty Say-vs-Do note is a fact about our coverage, read after the
+    // record rather than inside the scoring disclosure; same note, same hook.
+    var _gapUnder = '';
+    if (_lgOn && !sayHas) { _gapUnder = saySide; saySide = ''; }
     var _scoredBody =
       // ── L1 ── the assembled answer. The bucket line and the verdict chip lead
       // it on a ledger sheet: they came down from the header together, in that
@@ -18573,7 +18735,7 @@
       (_lgOn ? _dosBucketHtml(_dosRow) +
         '<div class="pdxgap-meta">' + relHtml + (stance || '') + '</div>' +
         gapNote : '') +
-      _dosSummaryHtml(pid, issueKey, _dosRow, { noSaid: _lgOn }) +
+      _dosSummaryHtml(pid, issueKey, _dosRow, { noSaid: _lgOn, dirNamed: _dirNamed }) +
       '<div class="pdxgap-sides' + sidesCls + '">' + offSide + saySide + '</div>' +
       // ── THE WALL, EXPLAINED WHERE IT IS VISIBLE ──────────────────────────────
       // Immediately below the two columns, because that is the inch of screen where
@@ -18583,10 +18745,12 @@
       _laneBandHtml(_dosRow);
 
     return head +
+      // Not in Direction Match: once, here, above the list — never on each row.
+      _dosLedTopHtml(pid, issueKey, off) +
       // ── THE LEDGER ── the inventory and one row per act, open. The question a
       // reader arrives with is "so what did they actually do about this", and this
       // is the only level that answers it in counts and dates.
-      (_lgOn ? _dosLedgerHtml(pid, issueKey, _dosRow, _lgT) + _dosSaidHtml(_dosRow) : '') +
+      (_lgOn ? _dosLedgerHtml(pid, issueKey, _dosRow, _lgT) + _dosSaidHtml(_dosRow) + _gapUnder : '') +
       (_lgOn
         ? '<details class="pdxgap-how" data-pdxgap-how="1">' +
             '<summary><span aria-hidden="true">⚖️</span> How this is scored</summary>' +
@@ -19566,6 +19730,7 @@
     dossierActKind: _dosActKind,
     dossierActVote: _dosActVote,
     dossierLedgerHtml: _dosLedgerHtml,
+    dossierLedgerMoreHtml: _dosLedgerMoreHtml,
     congressGovUrl: _congressGovUrl,
     dossierSaidHtml: _dosSaidHtml,
     dossierRecordsHtml: function (pid, issueKey) {

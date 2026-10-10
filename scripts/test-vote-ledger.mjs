@@ -240,12 +240,16 @@ section("3 · six votes claimed, six votes listed");
 
 const dossier = String(CS.dossierRecordsHtml(PID, DARK));
 const dossierTxt = txt(dossier);
+// The whole sheet, for what it says once above the list rather than on each row.
+const sheet = String(CS.gapViewHtml(PID, DARK));
+const sheetTxt = txt(sheet);
 const items = CS.dossierItems(PID, DARK);
 eq(items.length, 6, "the dossier normalises all six instruments on the dark issue");
 for (const d of items) {
   has(dossier, d.ident, `the enumeration names ${d.ident}`);
   has(dossierTxt, d.date, `${d.ident} carries its date on the row face`);
-  has(dossierTxt, d.act, `${d.ident} carries what they did on the row face`);
+  // The clerk's own word, Yea or Nay, is what the closed row prints.
+  has(dossierTxt, String(d.act).replace(/^Voted\s+/i, ""), `${d.ident} carries the clerk's word on the row face`);
 }
 eq((dossier.match(/class="pdxdos-rec"/g) || []).length, 6,
   "six rows are rendered — the drawer cannot open onto fewer than it advertised");
@@ -307,10 +311,15 @@ const LIMITED = A.PDXConsistency.VERDICTS.limited.label;
 eq(LIMITED, "Limited record", "fixture: the borrowed word is still the one under test");
 lacks(dossierTxt, LIMITED,
   "no row on an unscored issue reads 'Limited record' — nothing was tested to be found limited");
-has(dossierTxt, LED.LED.status, "each row says what is actually true of it instead");
-eq((dossier.match(/class="pdxdos-rec-vd pdxdos-rec-led"/g) || []).length, 6,
-  "all six rows carry the ledger standing in the verdict slot");
-has(dossierTxt, LED.LED.full, "and the drawer states the reason once, in full, above the rows");
+// NOT IN DIRECTION MATCH IS SAID ONCE, AT THE TOP. The drawer opens on the record,
+// so no row repeats the standing; the sheet states it once, in full, above the list.
+eq((dossier.match(/class="pdxdos-rec-vd pdxdos-rec-led"/g) || []).length, 0,
+  "no row carries the ledger standing — it is the whole issue's, said once");
+lacks(dossierTxt, LED.LED.status, "the list itself does not repeat the standing");
+eq((sheet.match(/data-pdxdos-led="1"/g) || []).length, 1, "the sheet states the standing exactly once");
+has(sheetTxt, LED.LED.full, "and states the reason in full, above the rows");
+ok(sheet.indexOf('data-pdxdos-led="1"') < sheet.indexOf('<details class="pdxdos-recs"'),
+  "the standing sits above the list, not inside it");
 // The direction line stops teaching a said-vs-did lesson where nothing was said.
 lacks(dossierTxt, "which is why this row reads",
   "an unscored row never explains a verdict it does not have");
@@ -365,15 +374,15 @@ section("7 · counts, never a rate");
 
 // Nothing the ledger renders prints a percentage. The scored row's own 100% is
 // checked above and lives on a different surface; this is about the ledger chrome.
-for (const [name, html] of [["the dossier drawer", dossier], ["the profile row", orRow]]) {
+for (const [name, html] of [["the dossier drawer", sheet], ["the profile row", orRow]]) {
   const ledChrome = String(html)
-    .split(/(?=<div class="pdxdos-led"|<div class="pdxor-why)/)
+    .split(/(?=<div class="pdxdos-led[" ]|<div class="pdxor-why)/)
     .filter((p) => /^<div class="(pdxdos-led|pdxor-why)/.test(p))
     .map((p) => p.slice(0, p.indexOf("</div>") + 6)).join(" ");
   must(ledChrome.length > 200, `${name}: the ledger chrome could not be isolated — the check would be vacuous`);
   ok(!/\d+(\.\d+)?\s*%/.test(txt(ledChrome)), `${name}: no percentage anywhere in the ledger chrome`);
 }
-has(dossierTxt, LED.LED.notScore, "the drawer says in as many words that the split is not a score");
+has(sheetTxt, LED.LED.notScore, "the drawer says in as many words that the split is not a score");
 has(orTxt, LED.LED.notScore, "…and so does the profile row");
 // The forbidden framings, over everything the ledger rendered.
 for (const bad of ["party unity", "with their caucus", "voted with", "loyalty", "integrity score",

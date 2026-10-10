@@ -9073,7 +9073,17 @@
 //     says why for each. No shipped line or pointer moved. consistency.js is
 //     precached and changed, so it moves one version.
 //     MIGRATION COST: none. No seed row, mapping, key or score moved.
-const CACHE_VERSION = 'v323';
+// v324 - THE ISSUE DRAWER OPENS ON THE RECORD. Each closed row is the record:
+//     the bill number in the largest type, the kind of act, the clerk's word, one
+//     chip for whether the act cut against or supported the issue, and the one
+//     sentence of what it did. Opening a row shows the full title, the door to
+//     the bill, the other issues the vote sits on and how the row was coded,
+//     labelled as coding. Not in Direction Match is said once, at the top, and
+//     "Not scored yet" no longer prints where the record already names a
+//     direction; the public-record gap sits under the list. consistency.js is
+//     precached and changed, so it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key, effect line or score moved.
+const CACHE_VERSION = 'v324';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -310,7 +310,13 @@ const DROP = { "consistency.js": (s) => s.replace(/\n {4}'H\.Amdt\. 252\|119\|uk
       if (!gains) { if (a === b) same++; else ok(false, `${pid} × ${key}: drawer changed with no line gained`); continue; }
       // The one difference is the effect row under H.Amdt. 252.
       const row = rows(a).find((x) => /H\.Amdt\. 252\b/.test(x.measure));
-      const strip = a.replace(new RegExp(`<tr class="pdxlg-effr" data-pdxlg-effr="${row && row.i}">[\\s\\S]*?</tr>`), "");
+      let strip = a.replace(new RegExp(`<tr class="pdxlg-effr" data-pdxlg-effr="${row && row.i}">[\\s\\S]*?</tr>`), "");
+      // The record list's closed row prints the same sentence (the drawer opens on
+      // the record); that one span is the same line, and nothing else may differ.
+      const span = (x) => [...x.matchAll(/<span class="pdxdos-rec-eff[^"]*">[^<]*<\/span>/g)].map((m) => m[0]);
+      const extra = span(strip).filter((x) => !span(b).includes(x));
+      ok(extra.length <= 1 && extra.every((x) => /H\.Amdt\. 252|Ukraine/.test(x)), `${pid} × ${key}: a record row gained a sentence other than H.Amdt. 252's`);
+      for (const x of extra) strip = strip.replace(x, "");
       ok(strip === b, `${pid} × ${key}: more than the H.Amdt. 252 line changed`);
       ok(a !== b, `${pid} × ${key}: gained no line`);
       gained++;

@@ -224,6 +224,14 @@ const rowSeg = (h, ident) => {
   const i = segs.findIndex((s) => s.indexOf(ident) >= 0 && s.indexOf("pdxlg-effr") < 0);
   return i < 0 ? { row: "", eff: "" } : { row: segs[i], eff: (segs[i + 1] && segs[i + 1].indexOf("pdxlg-eff") >= 0) ? text("<tr " + segs[i + 1]) : "" };
 };
+// The other issues a vote sits on open with its ledger row (the drawer opens on
+// the record), so a row's also-on chips are read from that row, opened.
+const alsoSeg = (C, pid, key, h, ident) => {
+  for (const m of tableOf(h).matchAll(/<tr data-pdxlg-row="(\d+)">([\s\S]*?)<\/tr>/g)) {
+    if (m[2].indexOf(ident) >= 0) { try { return C.dossierLedgerMoreHtml(pid, key, Number(m[1])) || ""; } catch (e) { return ""; } }
+  }
+  return "";
+};
 function lee131(win) {
   const v = [];
   const C = win.PDXConsistency;
@@ -240,7 +248,7 @@ function lee131(win) {
   if (listed.indexOf("gov_regulation") < 0) v.push("H.J.Res. 131 is gone from Lee's Cut Federal Red Tape drawer — off-axis is a badge, not a delete");
   if (listed.indexOf("lands_preserve") < 0) v.push("H.J.Res. 131 is gone from Lee's Protect Public Lands drawer");
   // THE BADGE: on the lands drawer the Red Tape chip is off-axis; the energy chips are on-axis.
-  const lr = rowSeg(drawers.lands_preserve, ident).row;
+  const lr = rowSeg(drawers.lands_preserve, ident).row + alsoSeg(C, "lee", "lands_preserve", drawers.lands_preserve, ident);
   const chip = (lbl) => {
     const m = lr.match(new RegExp(`<span class="pdxlg-chip[^"]*"[^>]*>${lbl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
     return m ? m[0] : "";
@@ -260,7 +268,7 @@ function lee131(win) {
     if (ec.indexOf(`title="${TIP_ON}"`) < 0) v.push("the energy chip's tooltip is not the on-axis sentence");
   }
   // …and on the Red Tape drawer, the lands chips are what the bill is about.
-  const tr = rowSeg(drawers.gov_regulation, ident).row;
+  const tr = rowSeg(drawers.gov_regulation, ident).row + alsoSeg(C, "lee", "gov_regulation", drawers.gov_regulation, ident);
   if (tr && !/data-pdx-axis="on"/.test(tr)) v.push("the Red Tape row's also-on shows no on-axis chip for the lands topics");
   return { v, drawers };
 }
@@ -642,7 +650,7 @@ section("5 · H.R. 3684 — split, on Water, and the Nay still prints");
   for (const pid of nays.slice(0, 12)) {
     let h = "";
     try { h = CS.gapViewHtml(pid, "water") || ""; } catch (e) { h = ""; }
-    const seg = rowSeg(h, "H.R. 3684").row;
+    const seg = rowSeg(h, "H.R. 3684").row && (rowSeg(h, "H.R. 3684").row + alsoSeg(CS, pid, "water", h, "H.R. 3684"));
     if (!seg) { ok(false, `${pid} × water: the H.R. 3684 row is gone`); continue; }
     rows++;
     ok(/\bNay\b/.test(text("<tr " + seg)), `${pid} × water: the H.R. 3684 row no longer prints the Nay`);
