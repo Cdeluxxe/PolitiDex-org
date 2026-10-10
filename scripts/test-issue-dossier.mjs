@@ -373,7 +373,13 @@ ok(!step.includes('data-pdxc-gap="' + ISSUE + '"'), "step: never pointing back a
 // existing next-step row and footer.
 const sheet = C.gapViewHtml(MEMBER, ISSUE);
 has(sheet, 'class="pdxdos"', "sheet: L1 is in the sheet");
-has(sheet, "pdxdos-recs", "sheet: L2 is in the sheet");
+// ONE LIST (v325): a sheet with a vote table carries its acts there, once; the
+// record list is printed only where there is no table to hold them.
+const listAt = sheet.indexOf('data-pdxgap-record="ledger"') !== -1
+  ? sheet.indexOf('data-pdxgap-record="ledger"') : sheet.indexOf("pdxdos-recs");
+ok(listAt !== -1, "sheet: L2 is in the sheet");
+ok(!(sheet.indexOf('data-pdxgap-record="ledger"') !== -1 && sheet.indexOf("pdxdos-recs") !== -1),
+  "sheet: the acts are listed once, not in the table and again below it");
 has(sheet, "pdxdos-step", "sheet: so is the issue stepper");
 // The header leads with the issue and its result; the identity strip sits under
 // them, above the assembled answer. A reader arriving from a stance row already
@@ -385,8 +391,8 @@ ok(sheet.indexOf('class="pdxgap-id"') < sheet.indexOf('class="pdxdos"'),
 const sidesAt = sheet.indexOf('class="pdxgap-sides');
 ok(sidesAt > 0 && sheet.indexOf('class="pdxdos"') < sidesAt,
   "sheet: then the assembled answer, above the two record panels");
-ok(sidesAt > 0 && sidesAt < sheet.indexOf("pdxdos-recs"),
-  "sheet: then the full enumeration, below the panels it was drawn from");
+ok(sidesAt > 0 && (sheet.indexOf("pdxdos-recs") === -1 ? listAt < sidesAt : sidesAt < listAt),
+  "sheet: the one list — the table above the panels, or the enumeration below them");
 ok(sheet.indexOf("pdxdos-recs") < sheet.indexOf("pdxdos-step"),
   "sheet: and the sideways step last, after this issue is exhausted");
 has(sheet, "Where to next", "sheet: the existing next-step row survives");

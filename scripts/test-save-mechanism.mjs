@@ -116,7 +116,9 @@ console.log("\n   ── 1 · the ballot is on the face, and actionType does not
   ok(boebert.item.actionType === "passage",
     "the fixture carries the actionType the wire sends, so this test can see the bug");
   const face = faceFor("boebert");
-  has(face, "Voted Yea", "the ballot reaches the rendered row head");
+  // The closed row prints the clerk's own word (v324), so the rendered head
+  // carries "Yea" where the item's act reads "Voted Yea".
+  has(face, '<span class="pdxdos-rec-act">Yea</span>', "the ballot reaches the rendered row head");
   hasnt(face, "\u00b7 Passage", "the bare actionType is no longer printed as the act");
   // The direction sentence names the ballot in the member's own clause.
   const m = CS.dossierMechanism(boebert, KEY, null, false);
@@ -297,10 +299,14 @@ console.log("   ── 5 · the ledger is not dimmed");
   ok(/\.pdxtree-leaf\.is-patternonly[\s\S]{0,200}dashed/.test(TREE),
     "the dashed border still tells a pattern-only row apart");
 
-  // And on the dossier itself, an unscored row keeps its badge and its full copy.
+  // And on the dossier itself, an unscored row keeps its full copy, opened. Not
+  // in Direction Match is the whole issue's standing, said once at the top of the
+  // sheet (v324), not a badge on every row.
   const massie = faceFor("massie");
-  has(massie, "On record \u00b7 not in Direction Match",
-    "the ledger badge is still on every unscored row");
+  const massieSheet = String(CS.gapViewHtml("massie", KEY) || "");
+  ok(massie.indexOf("pdxdos-rec-led") < 0, "no unscored row repeats the Direction Match standing");
+  has(massieSheet, "On record \u00b7 not in Direction Match",
+    "the sheet states the Direction Match standing for the unscored issue");
   has(massie, "What it did:", "an unscored row still teaches the bill");
   has(massie, "Why it counts here:", "…and still says why it lands on this chip");
 }

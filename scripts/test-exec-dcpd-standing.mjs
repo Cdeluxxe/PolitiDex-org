@@ -107,8 +107,14 @@ function check(win) {
   ok(t && t.acts === 4, `trump × iran_policy: tally counts ${t && t.acts} acts, want 4`);
   // The roll-up prints whatever the exec direction helper returns; it is read back
   // from the tally rather than pinned, so no one hand-writes a 3–1.
-  if (t) ok(all.includes(`${t.advances} advancing · ${t.opposes} opposing`),
-    `trump × iran_policy: roll-up does not match the tally (${t.advances}–${t.opposes})`);
+  // The sheet has one list (v325), and Iran is a subject with no for/against line,
+  // so the drawer states the act count; any split it does print must be the tally's.
+  if (t) {
+    ok(all.includes(`${t.acts} formal acts`), `trump × iran_policy: the drawer does not state the ${t.acts} acts`);
+    const m = /(\d+) advancing · (\d+) opposing/.exec(all);
+    ok(!m || (Number(m[1]) === t.advances && Number(m[2]) === t.opposes),
+      `trump × iran_policy: roll-up does not match the tally (${t.advances}–${t.opposes})`);
+  }
 
   // 2 · the eyebrow still reads no side
   const r = CS.issueRow("trump", "iran_policy");

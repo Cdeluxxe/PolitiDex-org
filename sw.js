@@ -9052,7 +9052,45 @@
 //     other saved key was touched. consistency.js is precached and changed, so
 //     it moves one version.
 //     MIGRATION COST: none. No seed row, mapping, key or score moved.
-const CACHE_VERSION = 'v321';
+// v322 - WAVE 3 OF FULL COVERAGE. The last thirty-five member-voted rows that
+//     store their own description and still printed no line now say, in one
+//     sentence, what the act did on that topic, from the KIDS Act and the 2026
+//     consolidated appropriations through the For the People Act and the SBA
+//     red-tape bills. Each is stored once under the measure's own identity,
+//     written from that pair's own description, and ends on the tally on file.
+//     No description-backed row is mute any more. The H.R. 29 pointer now also
+//     names Tough on Crime, the second sibling leaf with a line; the line it
+//     quotes is unchanged. No shipped line moved. consistency.js is precached
+//     and changed, so it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved.
+// v323 - WAVE 4 OF FULL COVERAGE. The 31 member-voted rows whose act stores no
+//     description anywhere were each read from their own stored title alone.
+//     Sixteen titles state an effect on the topic the row sits on, and those
+//     rows now say it in one sentence ending on the tally on file — the
+//     background-check, assault-weapons and extreme-risk bills among them. The
+//     other fifteen titles are bare numbers, names that are not effects, or cut
+//     off before their effect, and stay blank; db/vr-title-effect-lines.json
+//     says why for each. No shipped line or pointer moved. consistency.js is
+//     precached and changed, so it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key or score moved.
+// v324 - THE ISSUE DRAWER OPENS ON THE RECORD. Each closed row is the record:
+//     the bill number in the largest type, the kind of act, the clerk's word, one
+//     chip for whether the act cut against or supported the issue, and the one
+//     sentence of what it did. Opening a row shows the full title, the door to
+//     the bill, the other issues the vote sits on and how the row was coded,
+//     labelled as coding. Not in Direction Match is said once, at the top, and
+//     "Not scored yet" no longer prints where the record already names a
+//     direction; the public-record gap sits under the list. consistency.js is
+//     precached and changed, so it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key, effect line or score moved.
+// v325 - ONE LIST IN THE ISSUE DRAWER. A drawer with formal acts on file printed
+//     them twice — the vote table, then the same bills again further down — with
+//     the empty Say-vs-Do note expanded between them. The table is now the only
+//     list; the empty note is one closed line under it ("No public-record item on
+//     file for this issue."), and "How this is scored" stays closed beneath that.
+//     consistency.js is precached and changed, so it moves one version.
+//     MIGRATION COST: none. No seed row, mapping, key, effect line or score moved.
+const CACHE_VERSION = 'v325';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

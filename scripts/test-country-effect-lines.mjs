@@ -233,9 +233,11 @@ section("1 · the table: one short sentence per pair, Lands and Red Tape untouch
   // not part of the shipped set this hash pins.
   // Wave 1 (v317) added a Red Tape line for H.R. 6955, likewise held by its own test.
   // The rider rows (v320) added a Red Tape line for H.R. 6329, held by
-  // scripts/test-rider-effect-lines.mjs.
+  // scripts/test-rider-effect-lines.mjs. Wave 3 (v322) added Red Tape lines for
+  // H.R. 2965, H.R. 4305 and H.J.Res. 78, held by scripts/test-wave3-effect-lines.mjs.
   const LATER = new Set(["H.R. 4090|119|lands_energy", "H.R. 1366|119|lands_energy", "H.R. 6955|119|gov_regulation",
-    "H.R. 6329|119|gov_regulation"]);
+    "H.R. 6329|119|gov_regulation", "H.R. 2965|119|gov_regulation", "H.R. 4305|119|gov_regulation",
+    "H.J.Res. 78|119|gov_regulation"]);
   const lrt = Object.keys(EFFECT).filter((k) => /\|(lands_preserve|lands_energy|gov_regulation)$/.test(k) && !LATER.has(k));
   eq(lrt.length, LANDS_RED_TAPE_COUNT, "Lands and Red Tape line count");
   const sha = createHash("sha256").update(lrt.map((k) => k + "\t" + EFFECT[k]).join("\n")).digest("hex");
@@ -308,7 +310,13 @@ const DROP = { "consistency.js": (s) => s.replace(/\n {4}'H\.Amdt\. 252\|119\|uk
       if (!gains) { if (a === b) same++; else ok(false, `${pid} × ${key}: drawer changed with no line gained`); continue; }
       // The one difference is the effect row under H.Amdt. 252.
       const row = rows(a).find((x) => /H\.Amdt\. 252\b/.test(x.measure));
-      const strip = a.replace(new RegExp(`<tr class="pdxlg-effr" data-pdxlg-effr="${row && row.i}">[\\s\\S]*?</tr>`), "");
+      let strip = a.replace(new RegExp(`<tr class="pdxlg-effr" data-pdxlg-effr="${row && row.i}">[\\s\\S]*?</tr>`), "");
+      // The record list's closed row prints the same sentence (the drawer opens on
+      // the record); that one span is the same line, and nothing else may differ.
+      const span = (x) => [...x.matchAll(/<span class="pdxdos-rec-eff[^"]*">[^<]*<\/span>/g)].map((m) => m[0]);
+      const extra = span(strip).filter((x) => !span(b).includes(x));
+      ok(extra.length <= 1 && extra.every((x) => /H\.Amdt\. 252|Ukraine/.test(x)), `${pid} × ${key}: a record row gained a sentence other than H.Amdt. 252's`);
+      for (const x of extra) strip = strip.replace(x, "");
       ok(strip === b, `${pid} × ${key}: more than the H.Amdt. 252 line changed`);
       ok(a !== b, `${pid} × ${key}: gained no line`);
       gained++;

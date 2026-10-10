@@ -22,8 +22,10 @@
 //   4. THE BILL PAGE AGREES: db/bill-docs.json is keyed number|sitting|issue, and
 //      every line it prints is the table's line under the same identity.
 //   5. THE TWELVE RIDER BLANKS STAY BLANK, under their real identities.
-//   6. NOTHING ELSE MOVED: the effect, description, executive and pointer tables
-//      are byte-identical to HEAD.
+//   6. NOTHING ELSE MOVED: every line and pointer HEAD printed still prints (a
+//      pointer may name one more sibling leaf a later wave gave a line), every
+//      shipped line is unchanged, a new line sits only in a later wave's block,
+//      and the description, executive and pointer tables are byte-identical.
 //
 //   node scripts/test-effect-line-identity.mjs
 
@@ -89,8 +91,12 @@ const OLD = (() => {
   if (!HEAD) return null;
   const hl = fnOf(HEAD, "_dosEffectLine"), ho = fnOf(HEAD, "_dosEffectOk");
   const hm = (HEAD.match(/  var _DOS_EFFECT_METHOD = [^\n]+\n/) || [""])[0];
-  if (!hl || !ho || /_dosEffectKey/.test(hl)) return null;
-  return vm.runInNewContext(`(function(){ var _DOS_EFFECT = ${JSON.stringify(E.map)};\n${hm}${ho}\n${hl}\nreturn _dosEffectLine; })()`);
+  if (!hl || !ho) return null;
+  // Once the identity key has shipped, HEAD's lookup is that key's, and it is the
+  // one today's must agree with.
+  const hk = /_dosEffectKey/.test(hl) ? fnOf(HEAD, "_dosEffectKey") : "";
+  if (/_dosEffectKey/.test(hl) && !hk) return null;
+  return vm.runInNewContext(`(function(){ var _DOS_EFFECT = ${JSON.stringify(E.map)};\n${hm}${hk}\n${ho}\n${hl}\nreturn _dosEffectLine; })()`);
 })();
 
 const fed = (number, congress) => ({ kind: "vote", number, congress, measureIdent: null });
@@ -215,12 +221,39 @@ ok(now.out.size > 1000, `only ${now.out.size} drawers print an effect line or po
 if (HEAD) {
   const was = render(HEAD);
   must(!was.err, `HEAD boot: ${was.err}`);
+  // A later wave may add lines (its own block, held by its own test) and a
+  // pointer may then name one more sibling leaf; nothing printed at HEAD moves.
+  const later = (() => {
+    const a = CONS.indexOf("// WAVE 3 OF FULL COVERAGE (v322)");
+    if (a < 0) return new Set();
+    return new Set([...CONS.slice(a, CONS.indexOf("\n  };", a)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+  })();
+  const laterLines = new Set([...later].map((k) => "effr:" + norm(E.map[k])));
+  const bare = (r) => r.replace(/ \(also filed on [^)]*\)/, "");
   let moved = 0;
-  for (const [k, v] of was.out) if (now.out.get(k) !== v) { moved++; if (moved <= 5) ok(false, `${k}: printed differently from HEAD`); }
-  for (const k of now.out.keys()) if (!was.out.has(k)) { moved++; if (moved <= 5) ok(false, `${k}: prints a line or pointer it did not print at HEAD`); }
-  eq(moved, 0, "drawers whose effect lines or pointers moved");
-  console.log(`      ${was.out.size} drawers with effect lines or pointers, identical to HEAD`);
-  for (const name of ["_DOS_EFFECT", "_DOS_MECH", "_DOS_EXEC_EFFECT", "_DOS_POINTER"]) {
+  const miss = (m) => { moved++; if (moved <= 5) ok(false, m); };
+  for (const [k, v] of was.out) {
+    const nowRows = (now.out.get(k) || "").split("\n");
+    for (const r of v.split("\n")) {
+      if (nowRows.includes(r)) continue;
+      if (r.startsWith("ptrr:") && nowRows.some((x) => x.startsWith("ptrr:") && bare(x) === bare(r))) continue;
+      miss(`${k}: printed ${JSON.stringify(r)} at HEAD and no longer does`);
+    }
+  }
+  for (const [k, v] of now.out) {
+    const wasRows = (was.out.get(k) || "").split("\n");
+    for (const r of v.split("\n")) {
+      if (wasRows.includes(r) || laterLines.has(r)) continue;
+      if (r.startsWith("ptrr:") && wasRows.some((x) => bare(x) === bare(r))) continue;
+      miss(`${k}: prints ${JSON.stringify(r)}, which is neither HEAD's nor a later wave's line`);
+    }
+  }
+  eq(moved, 0, "drawers whose shipped effect lines or pointers moved");
+  console.log(`      ${was.out.size} drawers with effect lines or pointers at HEAD, every one still printing as it did`);
+  const HE = mapOf(HEAD, "_DOS_EFFECT").map;
+  for (const [k, v] of Object.entries(HE)) ok(E.map[k] === v, `${k}: a shipped line was rewritten or removed`);
+  for (const k of Object.keys(E.map)) ok(k in HE || later.has(k), `${k}: a new line outside a later wave's block`);
+  for (const name of ["_DOS_MECH", "_DOS_EXEC_EFFECT", "_DOS_POINTER"]) {
     ok(mapOf(CONS, name).text === mapOf(HEAD, name).text, `${name} is not byte-identical to HEAD`);
   }
 } else console.log("   (no git baseline — the HEAD comparison did not run)");

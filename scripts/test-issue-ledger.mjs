@@ -473,6 +473,22 @@ section("7 · a drawer with no roll call renders exactly as it did before");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const sansFace = (h) => String(h).replace(/<span class="pdxgap-face(?: pdxgap-face-ph)?"([^>]*) aria-hidden="true">(?:<img [^>]*><\/span>|<\/span>)/g, '<span class="pdxgap-face"$1 aria-hidden="true">FACE</span>');
+  const sansList = (h) => {
+    let x = sansFace(h).replace(/<div class="pdxdos-led pdxdos-led-top"[^>]*>[\s\S]*?<\/div>/g, "");
+    // THE EMPTY PUBLIC-RECORD NOTE IS ONE CLOSED LINE NOW (v325), on every sheet.
+    // It is folded out on both sides, from its own opening tag to the list that
+    // follows it; test-drawer-one-list.mjs holds the note itself.
+    const n = x.search(/<(?:div|details) class="pdxgap-solo" data-pdxgap-public="empty"/);
+    if (n >= 0) {
+      const after = x.slice(n).search(/<details class="pdxdos-recs"|<div class="pdxdos-recs"|<div class="pdxgap-lanes|data-pdxgap-lanes/);
+      if (after > 0) x = x.slice(0, n) + "NOTE" + x.slice(n + after);
+    }
+    const a = x.indexOf('<details class="pdxdos-recs"');
+    if (a < 0) return x;
+    const ends = ['<ul class="pdxg-list pdxdos-queue"', '<div class="pdxdos-step"', '<div class="pdxgap-next"']
+      .map((m) => x.indexOf(m, a)).filter((i) => i > a);
+    return x.slice(0, a) + "LIST" + (ends.length ? x.slice(Math.min(...ends)) : "");
+  };
   const A = boot(HEAD);
   must(A.PDXConsistency && typeof A.PDXConsistency.gapViewHtml === "function", "HEAD's consistency.js did not boot");
   let same = 0;
@@ -484,7 +500,12 @@ section("7 · a drawer with no roll call renders exactly as it did before");
     // placeholder because this harness has no _getPhotoUrl draws the person's
     // portrait off their roster row instead. That one element is folded to a
     // token on both sides; every other byte of the drawer is still compared.
-    if (sansFace(before) === sansFace(drawer(x.pid, x.key))) same++; else drift.push(key(x));
+    // THE RECORD LIST WAS REBUILT ON PURPOSE (v324): its closed rows now carry the
+    // record and nothing about the coding, and Not in Direction Match moved out of
+    // it to one note at the top of the sheet. Those two pieces — the list block
+    // and the note — are folded out on both sides; everything else on the sheet is
+    // still compared byte for byte. test-drawer-record-first.mjs holds the list.
+    if (sansList(before) === sansList(drawer(x.pid, x.key))) same++; else drift.push(key(x));
   }
   eq(drift.slice(0, 6).join(" | "), "", `${drift.length} roll-call-free drawer(s) changed shape`);
   console.log(`      ${same} drawer(s) with no formal act are byte-identical to HEAD`);
@@ -683,7 +704,11 @@ const effectFault = (e) => {
     const effs = (tb.match(/<tr class="pdxlg-effr" data-pdxlg-effr="/g) || []).length;
     const ptrs = [...tb.matchAll(/<tr class="pdxlg-ptrr" data-pdxlg-ptrr="\d+"><td colspan="5" class="pdxlg-ptr" data-pdxlg-ptr="1">([^<]*)<\/td><\/tr>/g)]
       .filter((m) => /^Same act, filed on [^:]+: \S/.test(m[1].replace(/&amp;/g, "&"))).length;
-    if (trs.length !== acts + effs + ptrs) out.push(`${trs.length - acts - effs - ptrs} non-act row(s) in the vote table`);
+    // Each act row also carries its Details row: closed, and EMPTY until opened, so
+    // it can hold nothing a reader sees on the first screen. Only that exact shape
+    // is allowed; a Details row with anything in it is a leak.
+    const mores = [...tb.matchAll(/<tr class="pdxlg-morer" data-pdxlg-morer="\d+" hidden><td colspan="5" class="pdxlg-more" data-pdxlg-more="1"><\/td><\/tr>/g)].length;
+    if (trs.length !== acts + effs + ptrs + mores) out.push(`${trs.length - acts - effs - ptrs - mores} non-act row(s) in the vote table`);
     // And an effect line is an effect, not method: one sentence, 140 characters
     // at most, none of the coding vocabulary.
     for (const e of effectLines(tb)) {
@@ -747,10 +772,11 @@ const effectFault = (e) => {
   // THE CHECK HAS TEETH. Put the old rationale row back under each vote and the
   // same check must catch it on the fixture.
   const src = R("consistency.js");
-  const seam = "'<td>' + _dosActChips(d, issueKey) + '</td>' +\n          '</tr>';";
+  // The row's last cell is the cut-or-support chip and its Details control.
+  const seam = "'<span aria-hidden=\"true\"> ▾</span></button>' +\n            '</td>' +\n          '</tr>';";
   must(src.includes(seam), "the ledger row seam this mutation needs has moved");
   const mutated = src.replace(seam,
-    "'<td>' + _dosActChips(d, issueKey) + '</td>' +\n          '</tr>' +" +
+    "'<span aria-hidden=\"true\"> ▾</span></button>' +\n            '</td>' +\n          '</tr>' +" +
     " (p.why ? '<tr class=\"pdxlg-whyr\"><td></td><td colspan=\"4\" class=\"pdxlg-why\">' + esc(p.why) + '</td></tr>' : '');");
   const M = boot((fl) => (fl === "consistency.js" ? mutated : R(fl)));
   const MCS = M.PDXConsistency;
@@ -992,13 +1018,14 @@ section("12 · one effect line per vote row, scoped to this issue");
   const src = R("consistency.js");
   const seam = "var eff = d.effLine || '';";
   must(src.includes(seam), "the effect-line seam these mutations need has moved");
+  // `ks` after the first are [pid, key] probes on any member; the first is lee's.
   const run = (mut, ks = ["lands_preserve"]) => {
     const M = boot((fl) => (fl === "consistency.js" ? src.replace(seam, mut) : R(fl)));
     const MCS = M.PDXConsistency;
     must(MCS && typeof MCS.gapViewHtml === "function", "a mutated renderer did not boot");
-    const at = (k) => ({ mh: MCS.gapViewHtml("lee", k) || "", mt: MCS.dossierTally("lee", k, MCS.issueRow("lee", k).ov) });
-    const out = at(ks[0]);
-    out.more = ks.slice(1).map(at);
+    const at = (pid, k) => ({ mh: MCS.gapViewHtml(pid, k) || "", mt: MCS.dossierTally(pid, k, MCS.issueRow(pid, k).ov) });
+    const out = at("lee", ks[0]);
+    out.more = ks.slice(1).map(([pid, k]) => at(pid, k));
     return out;
   };
   // (a) method text back under the row.
@@ -1010,13 +1037,12 @@ section("12 · one effect line per vote row, scoped to this issue");
   }
   // (b) the bill title as a fallback.
   {
-    const r2 = CS.issueRows("lee").map((y) => y.key).find((k) => {
-      const tt = CS.dossierTally("lee", k, CS.issueRow("lee", k).ov);
-      return tt && tt.rows.some((p) => !expected(p, k) && String(p.d.title || "").trim());
-    });
-    must(r2, "lee has no row without a stored line to test the title fallback on");
-    const { mh, mt, more } = run("var eff = d.effLine || d.title;", ["lands_preserve", r2]);
-    ok(drift(more[0].mh, more[0].mt, r2).length > 0, `a renderer dumping the bill title under a row on lee × ${r2} passed the store check`);
+    // Since wave 4 (v323) every lee row has a line, so the probe is the first
+    // member row anywhere that still has none: a refused title row.
+    const r2 = WITH.find((x) => x.t.rows.some((p) => !expected(p, x.key) && String(p.d.title || "").trim()));
+    must(r2, "no member has a row without a stored line to test the title fallback on");
+    const { mh, mt, more } = run("var eff = d.effLine || d.title;", ["lands_preserve", [r2.pid, r2.key]]);
+    ok(drift(more[0].mh, more[0].mt, r2.key).length > 0, `a renderer dumping the bill title under a row on ${r2.pid} × ${r2.key} passed the store check`);
     eq(drift(mh, mt, "lands_preserve").join(" | "), "", "the title mutation touched rows that do have a stored line");
   }
   // (c) a sibling issue's line borrowed onto this one.
@@ -1122,13 +1148,17 @@ section("13 · Cut Federal Red Tape scans — Lee, six acts, six lines");
 
   // The first screen is a scan: the row, the chips, the line — no method.
   const l = lede(h);
+  // Not in Direction Match is said once, at the top (v324): one note, above the
+  // table, and nowhere else on the first screen.
+  eq((l.match(/data-pdxdos-led="1"/g) || []).length, 1, "lee × gov_regulation: the Direction Match standing is not said exactly once at the top");
+  const lNoNote = l.replace(/<div class="pdxdos-led pdxdos-led-top"[^>]*>[\s\S]*?<\/div>/, "");
   for (const v of ["precedent", "mirror", "discriminator", "vocabulary carries no", "primary row", "Why it counts", "What it did", "Which way it cut", "Direction Match"]) {
-    no(text(l), v, `lee × gov_regulation: "${v}" on the first screen`);
+    no(text(lNoNote), v, `lee × gov_regulation: "${v}" on the first screen`);
   }
   for (const cls of ["pdxlg-why", "pdxlg-whyr", "pdxlg-why-one"]) no(l, `class="${cls}"`, `lee × gov_regulation: .${cls} on the first screen`);
   const tb = table(h);
   const trs = ((tb.match(/<tbody>[\s\S]*?<\/tbody>/g) || []).join("").match(/<tr[\s>]/g) || []).length;
-  eq(trs, 12, "lee × gov_regulation: the vote table is not six act rows and six effect rows");
+  eq(trs, 18, "lee × gov_regulation: the vote table is not six act rows, six effect rows and six closed Details rows");
   // The long form is still behind the fold.
   has(folded(h), "pdxgap-how", "lee × gov_regulation: the scoring fold is gone");
 
@@ -1251,7 +1281,8 @@ section("14 · the harvest — every stored did, read against the effect rule");
   const RIDER_KEYS = (() => {
     const src = R("consistency.js"), at = src.indexOf("// RIDER ROWS (v320)");
     if (at === -1) return new Set();
-    return new Set([...src.slice(at, src.indexOf("\n  };", at)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// WAVE 3 OF FULL COVERAGE (v322)", at);
+    return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
   })();
   const IRAN = Object.keys(EFFECT).filter((k) => /\|iran_policy$/.test(k) && !RIDER_KEYS.has(k));
   const TALLY = (() => {
@@ -1693,9 +1724,45 @@ section("14 · the harvest — every stored did, read against the effect rule");
     const m = k.split("|").slice(0, 2).join("|");
     ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
   }
-  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k));
+  // WAVE 3 (v322). Every remaining row that stores its own `did` and printed no
+  // line, held in detail by scripts/test-wave3-effect-lines.mjs; here the same
+  // batch rules. Two closing shapes are new and only here: H.R. 9237 has only its
+  // motion-to-recommit roll on file, and S.Amdt. 3535 failed with a majority
+  // under the Senate's three-fifths threshold.
+  const WAVE3 = (() => {
+    const src = R("consistency.js"), a = src.indexOf("// WAVE 3 OF FULL COVERAGE (v322)");
+    must(a !== -1, "the wave-3 block is not in _DOS_EFFECT");
+    const next = src.indexOf("// WAVE 4 OF FULL COVERAGE (v323)", a);
+    return [...src.slice(a, next !== -1 ? next : src.indexOf("\n  };", a)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+  })();
+  ok(WAVE3.length > 0, "no wave-3 line is stored");
+  for (const k of WAVE3) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the wave-3 effect line`);
+    ok(/; (?:the (?:House|Senate) (?:(?:cleared|passed|agreed to|rejected) it|concurred) \d+-\d+(?:, the Senate \d+-\d+)?|a motion to recommit it failed in the House \d+-\d+|it failed \d+-\d+ under a three-fifths threshold)\.$/.test(v), `${k}: does not end on a recorded tally`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  // WAVE 4 (v323). Pairs that store no description, each written from its own
+  // stored title and recorded outcome where that title states an effect, held in
+  // detail by scripts/test-wave4-effect-lines.mjs; here the same batch rules.
+  const WAVE4 = (() => {
+    const src = R("consistency.js"), a = src.indexOf("// WAVE 4 OF FULL COVERAGE (v323)");
+    must(a !== -1, "the wave-4 block is not in _DOS_EFFECT");
+    return [...src.slice(a, src.indexOf("\n  };", a)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+  })();
+  ok(WAVE4.length > 0, "no wave-4 line is stored");
+  for (const k of WAVE4) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the wave-4 effect line`);
+    ok(!MECH[k], `${k}: a wave-4 line on a pair that stores a did`);
+    ok(/; the (?:House|Senate) (?:(?:cleared|passed|agreed to|rejected) it|concurred) \d+-\d+(?:, the Senate \d+-\d+)?\.$/.test(v), `${k}: does not end on a recorded tally`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.
@@ -1710,10 +1777,12 @@ section("14 · the harvest — every stored did, read against the effect rule");
   // at all (arms-sale disapprovals), and a line that names no stored rule. The
   // arms-sale disapprovals may carry a Support for Israel line (v314), and the
   // infrastructure act a water line (v316), each checked by its own batch's rule —
-  // never a CRA-shaped one from this batch.
+  // never a CRA-shaped one from this batch. S.J.Res. 7 × Broadband and H.J.Res. 78
+  // × Red Tape carry a wave-3 line (v322): each passed one chamber and has no law
+  // on file, so the line says "Would", never that the rule was struck.
   for (const k of ["S.J.Res. 7|119|broadband", "H.J.Res. 78|119|gov_regulation", "H.J.Res. 78|119|lands_preserve",
     "S.J.Res. 111|118|israel_support", "S.J.Res. 33|119|israel_support", "H.R. 3684|117|water"]) {
-    ok(!BATCH.includes(k) && (!(k in EFFECT) || ISR.includes(k) || SEARCH.includes(k)), `${k}: in the effect table without a settled, stored rule effect`);
+    ok(!BATCH.includes(k) && (!(k in EFFECT) || ISR.includes(k) || SEARCH.includes(k) || (WAVE3.includes(k) && /^Would\b/.test(EFFECT[k]))), `${k}: in the effect table without a settled, stored rule effect`);
   }
   ok(craFault("H.J.Res. 78|119|gov_regulation", "Struck the agency rule and barred a substantially similar rule.") !== "",
     "a CRA line naming no stored rule passed the CRA check");
@@ -1769,7 +1838,10 @@ section("14 · the harvest — every stored did, read against the effect rule");
     }
   }
   eq(extraRows.length, 0, "a row with no qualifying did grew an extra paragraph");
-  ok(seenAdmit > 0 && seenRefuse > 0, `the sweep saw ${seenAdmit} admitted and ${seenRefuse} refused row(s) — both kinds must exist`);
+  // Since wave 3 (v322) every refused `did` has its own line in the table, so a
+  // refused pair with no line is a mute description-backed row, and there are none.
+  ok(seenAdmit > 0, `the sweep saw ${seenAdmit} admitted row(s) — the fallback must still print`);
+  eq(seenRefuse, 0, "description-backed row(s) with no line — the mute count");
   console.log(`      ${lit.size} drawer(s) print at least one effect line`);
 
   // LEE × WATER now speaks, and only from its own facts. The infrastructure act's

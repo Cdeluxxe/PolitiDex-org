@@ -192,8 +192,10 @@ for (const s of issues) {
   RENDER.set(s.pid + "/" + s.key, html);
 }
 // Every rendered "why it counts" span, split out of the list HTML so each one can
-// be checked against the item it was built from.
-const SPAN = /<span class="pdxdos-rec-why([^"]*)"><b class="pdxdos-rec-wk([^"]*)">([^<]*)<\/b>([\s\S]*?)<\/span>(?=<span class="pdxdos-rec-why|<\/summary>)/g;
+// be checked against the item it was built from. Since the drawer opens on the
+// record, these spans sit inside the open row's coding block rather than on the
+// closed face, so a span ends at the next span or at the block's own close.
+const SPAN = /<span class="pdxdos-rec-why([^"]*)"><b class="pdxdos-rec-wk([^"]*)">([^<]*)<\/b>([\s\S]*?)<\/span>(?=<span class="pdxdos-rec-why|<\/summary>|<\/div>|<div class="pdxdos-coded")/g;
 let spansSeen = 0, derivedSpans = 0, curatedSpans = 0;
 for (const [at, html] of RENDER) {
   if (!html) continue;
@@ -242,7 +244,7 @@ for (const s of issues) {
   if (!html) continue;
   const want = s.list.filter((d) => CS.dossierMechanism(d, s.key).needsCurator).length;
   const got = html.split(MARK).length - 1;
-  eq(got, want, `${at}: ${want} row(s) need a curator but ${got} say so on the face`);
+  eq(got, want, `${at}: ${want} row(s) need a curator but ${got} say so when opened`);
   // The marker is fixed copy: one string, no per-row writing, no number in it.
   ok(!/\d/.test(MARK), "the marker is a state, not a count — a number here would read as a score");
 }
@@ -291,7 +293,10 @@ ok(withoutQueue > 0,
   let sheet = "";
   try { sheet = CS.gapViewHtml(s.pid, s.key) || ""; } catch (e) { sheet = ""; }
   ok(sheet.length > 0, "the gap sheet renders at all for an issue with outstanding curation");
-  const recs = sheet.indexOf('<details class="pdxdos-recs"');
+  // The list is the vote table where the sheet has one (v325), the record list
+  // otherwise; either way the queue follows it.
+  const recs = sheet.indexOf('data-pdxgap-record="ledger"') !== -1
+    ? sheet.indexOf('data-pdxgap-record="ledger"') : sheet.indexOf('<details class="pdxdos-recs"');
   const q = sheet.indexOf("pdxdos-queue");
   ok(q !== -1, `${s.pid}/${s.key}: the queue never reaches the gap sheet`);
   ok(recs !== -1 && recs < q,
