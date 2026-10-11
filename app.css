@@ -1711,8 +1711,8 @@
       width: 100%; height: 100%; font-size: 3.4rem;
     }
     /* The face column: the portrait, and under it the one disclosure a campaign
-       portrait carries (roster-portrait.js pdxPortraitDisclosure). An official
-       portrait prints no line. A campaign face that fails to load falls to the
+       or Facebook portrait carries (roster-portrait.js pdxPortraitDisclosure). An
+       official portrait prints no line. A face that fails to load falls to the
        mark, and the line goes with it. */
     .profile-hero-face { flex-shrink: 0; width: 132px; }
     .profile-hero-photo-note {

@@ -702,7 +702,7 @@
   // The address the canvas is allowed to load. Remote portraits go through the
   // same-origin proxy; inline and root-relative ones are already ours and are
   // passed straight through (the proxy cannot fetch a data: URL anyway).
-  // The disclosure under a campaign face (roster-portrait.js), '' for any other.
+  // The disclosure under a campaign or Facebook face (roster-portrait.js), '' for any other.
   function photoNote(pid) {
     try {
       if (typeof window.pdxPortraitDisclosure === 'function') return String(window.pdxPortraitDisclosure(pid) || '');
@@ -909,9 +909,9 @@
       // it is a circle, so its ink stops well before its box — hence the two
       // different gaps rather than one applied to the taller side.
       y = Math.max(avy + av + 26, idBottom + 10);
-      // A face from the person's own campaign site carries its one disclosure,
-      // under the face and above the signal, and only when that face was drawn:
-      // a monogram is not a campaign photo. An official portrait prints nothing.
+      // A face from the person's own campaign site or Facebook Page carries its one
+      // disclosure, under the face and above the signal, and only when that face
+      // was drawn: a monogram is not a photo. An official portrait prints nothing.
       var faceNote = drewFace ? photoNote(d.pid) : '';
       if (faceNote) {
         ctx.font = '500 20px "Barlow", sans-serif';

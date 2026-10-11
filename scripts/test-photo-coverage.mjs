@@ -239,7 +239,21 @@ const ALLOWED = new Set([
   "hogan4schools.com",
   "images.squarespace-cdn.com",
   "cdn.prod.website-files.com",
+  // Wave 1d (v329): the same person on their own campaign site, whatever office
+  // it names. Wix's media host is shared, so the toml pins it to the one site
+  // owner's media prefix.
+  "jarettwaite.com",
+  "static.wixstatic.com",
   // campaign-hosts:end
+  // FACEBOOK PORTRAITS (wave 1d, v329). Only for a row with no official or
+  // campaign portrait: the profile photo of the person's OWN Facebook Page, a Page
+  // that names them as running for or holding the seat, stored as the Graph
+  // picture endpoint for that Page (fbcdn file URLs are signed and expire). The
+  // toml pins the endpoint to each Page; the face prints "Facebook photo · not an
+  // official portrait." under it.
+  // facebook-hosts:begin
+  "graph.facebook.com",
+  // facebook-hosts:end
 ]);
 const strayHosts = new Map();
 for (const [k, v] of Object.entries(faces)) {
@@ -329,45 +343,58 @@ if (imgBlock) {
     `${loose.length} remote_images pattern(s) leave a dot unescaped, so a look-alike host can be proxied through our origin: ${loose.join(", ")}`);
 }
 
-// ── A campaign face says so, and only a campaign face ───────────────────────
-// Waves 1b and 1c (v327, v328) filed portraits from the person's own campaign
-// site for rows with no official portrait. Each is marked photoSource:
-// "campaign" on its row, and roster-portrait.js turns that mark into the one
-// line the person file and the share card print under the face. So the mark is
-// pinned to the host: every face on a campaign host carries it, nothing else
-// does, and an official .gov / .us face never does.
+// ── A non-official face says so, and only a non-official face ───────────────
+// Waves 1b-1d (v327-v329) filed portraits for rows with no official portrait:
+// from the person's own campaign site (photoSource "campaign") or the profile
+// photo of their own Facebook Page (photoSource "facebook"). roster-portrait.js
+// turns that mark into the one line the person file and the share card print
+// under the face. So the mark is pinned to the host: every face on a campaign
+// or Facebook host carries the matching mark, nothing else does, and an
+// official .gov / .us face never does.
 {
   const src = readFileSync(new URL("./test-photo-coverage.mjs", import.meta.url), "utf8");
-  const cb = src.indexOf("// campaign-hosts:" + "begin"), ce = src.indexOf("// campaign-hosts:" + "end");
-  const CAMPAIGN = new Set([...src.slice(cb, ce).matchAll(/^\s*"([a-z0-9.-]+)",/gm)].map((m) => m[1]));
-  ok(CAMPAIGN.size > 0, "the campaign-hosts block parsed no hosts");
+  const block = (tag) => {
+    const b = src.indexOf("// " + tag + "-hosts:" + "begin"), e = src.indexOf("// " + tag + "-hosts:" + "end");
+    return new Set([...src.slice(b, e).matchAll(/^\s*"([a-z0-9.-]+)",/gm)].map((m) => m[1]));
+  };
+  const HOSTS = { campaign: block("campaign"), facebook: block("facebook") };
+  ok(HOSTS.campaign.size > 0 && HOSTS.facebook.size > 0, "the campaign-hosts / facebook-hosts blocks parsed no hosts");
+  const sourceOf = (h) => Object.keys(HOSTS).find((k) => HOSTS[k].has(h)) || "";
   const unmarked = [], stray = [], official = [];
   for (const [pid, row] of Object.entries(cmp)) {
     if (!row || !row.photo) { if (row && row.photoSource) stray.push(pid); continue; }
     const h = (String(row.photo).split("/")[2] || "").toLowerCase();
-    if (CAMPAIGN.has(h) && row.photoSource !== "campaign") unmarked.push(pid);
-    if (row.photoSource && (row.photoSource !== "campaign" || !CAMPAIGN.has(h))) stray.push(pid);
+    const want = sourceOf(h);
+    if (want && row.photoSource !== want) unmarked.push(`${pid} (${h} wants "${want}")`);
+    if (row.photoSource && row.photoSource !== want) stray.push(pid);
     if (row.photoSource && /\.(gov|us)$/.test(h)) official.push(pid);
   }
-  ok(unmarked.length === 0, `${unmarked.length} face(s) on a campaign host carry no campaign mark, so they would print no disclosure: ${unmarked.join(", ")}`);
-  ok(stray.length === 0, `${stray.length} row(s) carry a photoSource that is not a campaign face on a campaign host: ${stray.join(", ")}`);
-  ok(official.length === 0, `${official.length} official .gov / .us face(s) are marked campaign: ${official.join(", ")}`);
-  ok(Object.keys(bp).every((k) => !CAMPAIGN.has((String(bp[k]).split("/")[2] || "").toLowerCase())),
-    "the curated map holds a campaign-host face, which no row can mark");
-  // A builder CDN serves every customer's images, so the proxy may only reach the
-  // folder of the one campaign site a face came from.
-  const SHARED = new Set(["images.squarespace-cdn.com", "cdn.prod.website-files.com", "static.wixstatic.com", "img1.wsimg.com"]);
+  ok(unmarked.length === 0, `${unmarked.length} non-official face(s) carry no matching mark, so they would print the wrong disclosure or none: ${unmarked.join(", ")}`);
+  ok(stray.length === 0, `${stray.length} row(s) carry a photoSource that does not match the host their face is on: ${stray.join(", ")}`);
+  ok(official.length === 0, `${official.length} official .gov / .us face(s) are marked non-official: ${official.join(", ")}`);
+  ok(Object.keys(bp).every((k) => !sourceOf((String(bp[k]).split("/")[2] || "").toLowerCase())),
+    "the curated map holds a campaign or Facebook face, which no row can mark");
+  // Facebook faces are the Page picture endpoint and nothing else: a signed fbcdn
+  // file URL expires within days and would turn into a dead face.
+  for (const [pid, row] of Object.entries(cmp)) {
+    if (row && row.photoSource === "facebook")
+      ok(/^https:\/\/graph\.facebook\.com\/[A-Za-z0-9.-]+\/picture\?type=large$/.test(row.photo),
+        `${pid}'s Facebook face is not the Page picture endpoint: ${row.photo}`);
+  }
+  // A builder CDN or Facebook's Graph host serves everybody's images, so the proxy
+  // may only reach the folder of the one site or Page a face came from.
+  const SHARED = new Set(["images.squarespace-cdn.com", "cdn.prod.website-files.com", "static.wixstatic.com", "img1.wsimg.com", "graph.facebook.com"]);
   const tomlSrc = readFileSync(new URL("../netlify.toml", import.meta.url), "utf8");
   const blk = (/remote_images\s*=\s*\[([\s\S]*?)\n\s*\]/.exec(tomlSrc) || [])[1] || "";
   const pats = [...blk.matchAll(/"([^"]+)"/g)].map((m) => m[1].replace(/\\\\/g, "\\").replace(/\\/g, ""));
   const open = pats.filter((p) => { const u = p.replace(/^https?:\/\//, ""); const [h, ...rest] = u.split("/"); return SHARED.has(h) && rest.join("/").replace(/\.\*$/, "").length < 8; });
-  ok(open.length === 0, `remote_images lets the proxy reach a whole builder CDN rather than one campaign site's folder: ${open.join(", ")}`);
+  ok(open.length === 0, `remote_images lets the proxy reach a whole shared host rather than one site's or Page's folder: ${open.join(", ")}`);
   for (const [pid, row] of Object.entries(cmp)) {
-    if (!row || row.photoSource !== "campaign") continue;
+    if (!row || !row.photoSource) continue;
     const h = (String(row.photo).split("/")[2] || "").toLowerCase();
     if (!SHARED.has(h)) continue;
-    ok(pats.some((p) => new RegExp("^" + p.replace(/\./g, "\\.").replace(/\\\.\*$/, ".*") + "$").test(row.photo) || row.photo.startsWith(p.replace(/\.\*$/, ""))),
-      `${pid}'s campaign face on ${h} is outside every pinned remote_images folder, so the share card would draw the monogram`);
+    ok(pats.some((p) => row.photo.startsWith(p.replace(/\.\*$/, ""))),
+      `${pid}'s face on ${h} is outside every pinned remote_images folder, so the share card would draw the monogram`);
   }
 }
 

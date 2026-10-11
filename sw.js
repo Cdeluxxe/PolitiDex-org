@@ -9126,7 +9126,21 @@
 //     roster-portrait.js, profiles-full.js, profile-card.js, app.css and
 //     ballot.html are precached and changed, so the shell moves one version.
 //     MIGRATION COST: none. No drawer, score, effect line, seed row or key moved.
-const CACHE_VERSION = 'v328';
+// v329 - PERSON PHOTOS, WAVE 1D. Twenty-five rows that still painted the
+//     building mark now carry a portrait of that same person: four from their
+//     own campaign site, whatever office it names, and twenty-one the profile
+//     photo of their own Facebook Page — a Page that names them as running for
+//     or holding the seat — stored as the Graph picture endpoint for that Page,
+//     because a copied fbcdn file address is signed and expires. No stored
+//     portrait was replaced. A Facebook face is marked photoSource "facebook"
+//     and prints "Facebook photo · not an official portrait." under it on the
+//     person file and the share card; a campaign face keeps its campaign line;
+//     an official face prints nothing. roster-portrait.js maps the mark to the
+//     line. No location key or other saved key was touched. cmp-data.js,
+//     roster-portrait.js, profile-card.js and app.css are precached and
+//     changed, so the shell moves one version.
+//     MIGRATION COST: none. No drawer, score, effect line, seed row or key moved.
+const CACHE_VERSION = 'v329';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

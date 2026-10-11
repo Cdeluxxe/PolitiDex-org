@@ -253,11 +253,12 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
   // .gov / .us host that a stored portrait sits on, vetted in scripts/test-photo-coverage.mjs.
   // So F8's six must all still be there, and anything beyond them must be .gov / .us and
   // named in that test's trusted set. Wave 1b (v327) added a few campaign hosts for rows
-  // with no official portrait; those are allowed only inside that test's campaign-hosts
-  // block, where each one was argued for.
+  // with no official portrait, and wave 1d (v329) the Facebook Graph host; those are
+  // allowed only inside that test's campaign-hosts and facebook-hosts blocks, where
+  // each one was argued for.
   for (const h of ALLOWED_HOSTS) ok(tomlHosts.includes(h), `netlify.toml no longer allows ${h}`);
   const vetted = readFileSync(join(ROOT, "scripts/test-photo-coverage.mjs"), "utf8");
-  const cb = vetted.indexOf("// campaign-hosts:begin"), ce = vetted.indexOf("// campaign-hosts:end");
+  const cb = vetted.indexOf("// campaign-hosts:begin"), ce = vetted.indexOf("// facebook-hosts:end");
   const campaign = cb >= 0 && ce > cb ? vetted.slice(cb, ce) : "";
   eq(tomlHosts.filter((h) => !ALLOWED_HOSTS.includes(h))
        .filter((h) => !vetted.includes(`"${h}"`) || !(/\.(gov|us)$/.test(h) || campaign.includes(`"${h}"`))).join(", "), "",

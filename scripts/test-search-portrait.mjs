@@ -160,8 +160,8 @@ section("1 · lisonbee_h14 paints one face on the file, the board and the search
 section("2 · a pid with no portrait in either store keeps the mark on the file and in search");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  eq(rosterRow("rodric_bray").photo, undefined, "rodric_bray's bundled field is empty");
-  const s = { file: fileFace("rodric_bray"), search: searchFace("rodric_bray") };
+  eq(rosterRow("john_scott_ephraim").photo, undefined, "john_scott_ephraim's bundled field is empty");
+  const s = { file: fileFace("john_scott_ephraim"), search: searchFace("john_scott_ephraim") };
   eq(s.file, "mark:🏛", "the file paints his mark");
   eq(s.search, "mark:🏛", "the search row paints his mark — no face invented");
   // Ids with no roster row keep _getPhotoUrl: a candidate the map still holds.

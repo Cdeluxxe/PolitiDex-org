@@ -123,7 +123,7 @@ section("1 · the owner is the roster field, and pdxPortrait reads only it");
   const env = page({ profiles: { khanna: { name: "Ro Khanna", photo: "https://live.test/k.jpg" }, tlee: { name: "Trevor Lee", photo: "" } } });
   eq(env.w.pdxPortrait("khanna"), "https://live.test/k.jpg", "a live record's photo outranks the bundled row");
   eq(env.w.pdxPortrait("tlee"), env.w.CMP_DATA.tlee.photo, "an empty live photo falls to the bundled row");
-  eq(env.w.pdxPortrait("rodric_bray"), "", "no portrait on either tier is ''");
+  eq(env.w.pdxPortrait("john_scott_ephraim"), "", "no portrait on either tier is ''");
   eq(env.w.pdxPortrait(""), "", "no pid is ''");
   eq(env.w.pdxPortraitMark("khanna"), "🏭", "the mark is the row's own icon");
   // _getPhotoUrl opens with the same two tiers, in the same order.
@@ -197,13 +197,13 @@ section("4 · a pid with no portrait anywhere still paints the mark");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const env = page();
-  const row = env.w.CMP_DATA.rodric_bray;
-  eq(row.photo, undefined, "rodric_bray has no roster portrait");
-  eq(letterhead(env, "rodric_bray", row), "", "the letterhead has no photo, so it paints ph-fallback");
+  const row = env.w.CMP_DATA.john_scott_ephraim;
+  eq(row.photo, undefined, "john_scott_ephraim has no roster portrait");
+  eq(letterhead(env, "john_scott_ephraim", row), "", "the letterhead has no photo, so it paints ph-fallback");
   eq(row.icon, "🏛", "…and that fallback is the row's building mark");
   const home = page({ home: true });
-  eq(String(home.w._getPhotoUrl("rodric_bray") || ""), "", "no face anywhere for rodric_bray");
-  const c = card(home, "rodric_bray", "Rodric Bray");
+  eq(String(home.w._getPhotoUrl("john_scott_ephraim") || ""), "", "no face anywhere for john_scott_ephraim");
+  const c = card(home, "john_scott_ephraim", "John Scott");
   no(c.html, "<img", "the card invents no face");
   // The rows with nothing: no placeholder URL appeared on any of them. The file name is
   // what is read, not the whole address: an official CMS path such as
@@ -278,7 +278,7 @@ no(R("person.html"), 'src="/browse-photos.js"', "person.html loads no photo tabl
 has(R("sw.js"), "'/roster-portrait.js',", "the reader is precached");
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("8 · a campaign face carries its one line, an official face carries none");
+section("8 · a campaign or Facebook face carries its one line, an official face carries none");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const LINE = "Campaign photo \u00b7 not an official portrait.";
@@ -287,16 +287,24 @@ section("8 · a campaign face carries its one line, an official face carries non
   eq(C.nick_brown.photoSource, "campaign", "nick_brown's face is marked as his campaign site's");
   eq(env.w.pdxPortraitDisclosure("nick_brown"), LINE, "a campaign face prints the line");
   eq(env.w.pdxPortraitDisclosure("jimmie_hughes_stg"), LINE, "…a campaign page's builder-CDN face too");
+  const FB_LINE = "Facebook photo \u00b7 not an official portrait.";
+  eq(C.bryan_burrows_richfield.photoSource, "facebook", "a Facebook Page's profile photo is marked as such");
+  eq(env.w.pdxPortraitDisclosure("bryan_burrows_richfield"), FB_LINE, "a Facebook face prints its own line");
+  eq(env.w.pdxPortraitDisclosure("nicole_cannizzaro"), LINE, "a campaign site for another office is still a campaign photo");
+  const odd = page();
+  odd.w.CMP_DATA.nick_brown.photoSource = "rumour";
+  eq(odd.w.pdxPortraitDisclosure("nick_brown"), "", "a mark the reader does not know prints nothing, rather than a guess");
   eq(env.w.pdxPortraitDisclosure("lisonbee_h14"), "", "an official .gov portrait prints nothing");
   eq(env.w.pdxPortraitDisclosure("chellie_pingree"), "", "an official congressional portrait prints nothing");
-  eq(env.w.pdxPortraitDisclosure("rodric_bray"), "", "no face, no line");
+  eq(env.w.pdxPortraitDisclosure("john_scott_ephraim"), "", "no face, no line");
   eq(env.w.pdxPortraitDisclosure(""), "", "no pid, no line");
   // The line follows the face that is painted, not the row's mark.
   const live = page({ profiles: { nick_brown: { name: "Nick Brown", photo: "https://www.atg.wa.gov/x.jpg" } } });
   eq(live.w.pdxPortraitDisclosure("nick_brown"), "", "a live photo that replaced the campaign face carries no line");
   const marked = Object.keys(C).filter((k) => C[k].photoSource);
-  ok(marked.every((k) => C[k].photoSource === "campaign" && !/\.(gov|us)$/.test(String(C[k].photo).split("/")[2] || "")),
-    "only campaign faces carry the mark, and never on a .gov / .us host");
+  ok(marked.every((k) => (C[k].photoSource === "campaign" || C[k].photoSource === "facebook") && !/\.(gov|us)$/.test(String(C[k].photo).split("/")[2] || "")),
+    "only campaign and Facebook faces carry a mark, and never on a .gov / .us host");
+  ok(!/\d|%/.test(FB_LINE), "the Facebook line is never a score either");
   // It is a sentence. Nothing on the line is a number.
   ok(!/\d|%/.test(LINE), "the disclosure is never a score or a confidence figure");
   // The two surfaces that print it.

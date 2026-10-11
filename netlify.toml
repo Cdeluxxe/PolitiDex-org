@@ -3025,7 +3025,34 @@
     "https://images\\.squarespace-cdn\\.com/content/v1/6800129a1f658e75e6dce7f7/.*",   # jimmiehughes.com
     "https://images\\.squarespace-cdn\\.com/content/v1/5d3cf8b93d78b80001676ada/.*",   # voteranjeev.com
     "https://images\\.squarespace-cdn\\.com/content/v1/68afb2778a70ca0e13b99b93/.*",   # votesusanlee.com
-    "https://cdn\\.prod\\.website-files\\.com/687e8388e36137e01e4ad24f/.*"           # edgallrein.com
+    "https://cdn\\.prod\\.website-files\\.com/687e8388e36137e01e4ad24f/.*",          # edgallrein.com
+    # Wave 1d (v329): the same person on their own campaign site, and the profile photo
+    # of their own Facebook Page. Shared hosts are pinned to one site or one Page.
+    "https://graph\\.facebook\\.com/EleniKounalakis/picture.*",   # eleni_kounalakis
+    "https://graph\\.facebook\\.com/lynnfitchag/picture.*",   # lynn_fitch
+    "https://graph\\.facebook\\.com/MayorZoltanski/picture.*",   # monica_zoltanski_sandy
+    "https://graph\\.facebook\\.com/MayorShepherd/picture.*",   # mark_shepherd_clearfield
+    "https://graph\\.facebook\\.com/jordanforemery/picture.*",   # jordan_leonard_emery
+    "https://graph\\.facebook\\.com/helpermayorcandidate/picture.*",   # lenise_peterman_helper
+    "https://graph\\.facebook\\.com/BuchananforSheriff/picture.*",   # jared_buchanan_sanpete
+    "https://graph\\.facebook\\.com/mayorbryanburrows/picture.*",   # bryan_burrows_richfield
+    "https://images\\.squarespace-cdn\\.com/content/v1/6955f98c1710ce7f393441a8/.*",   # linda_hanks_juab
+    "https://jarettwaite\\.com/.*",   # jarett_waite_santaclara
+    "https://graph\\.facebook\\.com/102581704931992/picture.*",   # tye_hoffmann_tooele
+    "https://graph\\.facebook\\.com/Wimmerforsheriff/picture.*",   # paul_wimmer_tooele
+    "https://graph\\.facebook\\.com/tishforcitycouncil/picture.*",   # tish_buroker_riverton
+    "https://static\\.wixstatic\\.com/media/c3bab2_.*",   # nicole_cannizzaro
+    "https://graph\\.facebook\\.com/MikeJohnstonCO/picture.*",   # mike_johnston
+    "https://graph\\.facebook\\.com/ZachForLayton/picture.*",   # zach_bloxham
+    "https://graph\\.facebook\\.com/morris4layton/picture.*",   # clint_morris
+    "https://graph\\.facebook\\.com/294194887622327/picture.*",   # brigit_gerrard
+    "https://images\\.squarespace-cdn\\.com/content/v1/6a42f4262a75602cd7bd12dd/.*",   # sandi_goodlander
+    "https://graph\\.facebook\\.com/495173594191744/picture.*",   # kathryn_beus
+    "https://graph\\.facebook\\.com/109194254128469/picture.*",   # nolan_gunnell
+    "https://graph\\.facebook\\.com/ccsdut\\.org/picture.*",   # teri_rhodes
+    "https://graph\\.facebook\\.com/brayforstatesenate/picture.*",   # rodric_bray
+    "https://graph\\.facebook\\.com/ShelliYoderforStateSenate/picture.*",   # shelli_yoder
+    "https://graph\\.facebook\\.com/HardingforSenate/picture.*"   # stephen_harding
   ]
 
 # THE CURATOR'S ROOM IS NOT CRAWLABLE, SAID AT THE EDGE AS WELL AS IN THE HEAD.
