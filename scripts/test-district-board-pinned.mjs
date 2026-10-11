@@ -102,7 +102,7 @@ function parentHeads(html) {
       cls: ((/class="([^"]*)"/.exec(x[2])) || [])[1] || "",
       ic: /data-ic="on"/.test(x[2]),
       style: ((/style="([^"]*)"/.exec(x[2])) || [])[1] || "",
-      chipStyles: [...x[3].matchAll(/<button type="button" class="pdxdb-cat"[^>]*style="([^"]*)"/g)].map((c) => c[1]),
+      chipStyles: [...x[3].matchAll(/<button type="button" class="pdxdb-cat[^"]*"[^>]*style="([^"]*)"/g)].map((c) => c[1]),
     }));
 }
 function checkColours(html, palette) {
@@ -217,9 +217,9 @@ section("3 · the strip stays visible, and everything else is unchanged");
 // ── 4 ───────────────────────────────────────────────────────────────────────
 section("4 · mutation: dropping the colour class or the strip fails");
 {
-  const COLOUR = "var icClass = (skin && paletteHas(par.key)) ? ' ' + IC_PREFIX + par.key : '';";
+  const COLOUR = "var icName = (skin && paletteHas(par.key)) ? IC_PREFIX + par.key : '';";
   must(MOD.includes(COLOUR), "the colour class line is not where the mutation expects it");
-  const { B: M1 } = boot({ composer: true, src: MOD.replace(COLOUR, "var icClass = '';") });
+  const { B: M1 } = boot({ composer: true, src: MOD.replace(COLOUR, "var icName = '';") });
   const p1 = checkColours(M1.tableHtml("ok", ITEMS, ROOMS, MANDATES), PALETTE);
   ok(p1.some((x) => /no palette colour class/.test(x)), `a renderer without the colour class fails (${p1.slice(0, 2).join("; ")})`);
 

@@ -1123,9 +1123,12 @@
         body + '</ul>';
   }
 
-  function catChip(key, label, n, skin) {
+  // `icClass` is the palette colour class (pdxdb-ic-<core>), passed only for
+  // the chips nested in a composer board's parent, so a parent header and its
+  // chips wear the same class. Every other chip prints exactly as before.
+  function catChip(key, label, n, skin, icClass) {
     var on = (_view.cat || '') === key;
-    return '<button type="button" class="pdxdb-cat" data-pdxdb-cat="' + esc(key) + '"' +
+    return '<button type="button" class="pdxdb-cat' + (icClass ? ' ' + esc(icClass) : '') + '" data-pdxdb-cat="' + esc(key) + '"' +
         ' aria-pressed="' + (on ? 'true' : 'false') + '"' + (skin || '') + '>' +
         esc(label) + '<span class="pdxdb-cat-n">' + n + '</span></button>';
   }
@@ -1290,20 +1293,23 @@
   function issuesWord(n) { return n === 1 ? '1 issue' : n + ' issues'; }
 
   function parentHtml(par, tally, stance) {
+    // THE PARENT WEARS ITS CHIPS' COLOUR. The colour CLASS pdxdb-ic-<core> is
+    // the palette entry's own (district-board.css defines one per
+    // PDXIssueColors core, off that module's --pdx-issue-<core> variables), and
+    // the header element and every chip nested under it carry the same one.
+    // The inline token issueSkin() hands the first chip rides along as before.
+    // No palette entry, no class and no token — never a borrowed hue.
+    var skin = par.groups.length ? issueSkin(par.groups[0].key) : '';
+    var icName = (skin && paletteHas(par.key)) ? IC_PREFIX + par.key : '';
+    var icClass = icName ? ' ' + icName : '';
     var any = false, chips = '', body = '';
     for (var i = 0; i < par.groups.length; i++) {
       var g = par.groups[i];
       if (groupState(g.key, rowHits(g.rows), stance).shown) any = true;
-      chips += catChip(g.key, g.label, g.rows.length, issueSkin(g.key));
+      chips += catChip(g.key, g.label, g.rows.length, issueSkin(g.key), icName);
       body += groupHtml(g.key, g.label, g.rows, tally, stance);
     }
     var st = parentState(par.key, any);
-    // THE PARENT WEARS ITS CHIPS' COLOUR: the exact token issueSkin() hands the
-    // first chip inside it (every chip in a parent resolves to the same core, so
-    // that is the core's token), plus a class named for the palette entry it
-    // came from. No palette entry, no class and no token — never a borrowed hue.
-    var skin = par.groups.length ? issueSkin(par.groups[0].key) : '';
-    var icClass = (skin && paletteHas(par.key)) ? ' ' + IC_PREFIX + par.key : '';
     return '<details class="pdxdb-parent" data-pdxdb-parent="' + esc(par.key) + '"' +
         (st.open ? ' open' : '') + (st.shown ? '' : ' hidden') + '>' +
         '<summary class="pdxdb-parent-h' + esc(icClass) + (st.open ? '' : ' ' + PARENT_COLLAPSED) + '"' +

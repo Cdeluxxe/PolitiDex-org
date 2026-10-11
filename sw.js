@@ -9253,7 +9253,17 @@
 //     are precached and changed, so the shell moves one version.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none. No table, row, key or seat moved.
-const CACHE_VERSION = 'v340';
+// v341 - THE PARENT HEADER WEARS THE ISSUE COLOUR CLASS. On the five composer
+//     boards each parent category header element carries pdxdb-ic-<core>, the
+//     palette's own colour class, and so does every issue chip nested under
+//     it. district-board.css now defines one such class per PDXIssueColors
+//     core, off the --pdx-issue-<core> variables issue-colors.js injects, so a
+//     header is coloured by its class alone. Chips keep their colours; generated
+//     boards are untouched. district-board.js and district-board.css are
+//     precached and changed, so the shell moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none. No table, row, key or seat moved.
+const CACHE_VERSION = 'v341';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -130,6 +130,34 @@
 }
 .pdxdb-parent-h[data-ic="on"] .pdxdb-parent-n { color: var(--pdx-ic-ink); opacity: 0.8; }
 
+/* THE PALETTE AS CLASSES. One class per PDXIssueColors core, in that module's
+   order, each pointing the four --pdx-ic tokens at the :root variables
+   issue-colors.js injects on load (--pdx-issue-<core>…). No hex lives here.
+   A parent header and the chips nested in it carry the same class, so the
+   header is coloured by its class alone — with or without the inline token.
+   scripts/test-district-board-ic-class.mjs holds this list equal to the
+   palette. */
+.pdxdb-ic-economy_cost_of_living { --pdx-ic: var(--pdx-issue-economy_cost_of_living); --pdx-ic-soft: var(--pdx-issue-economy_cost_of_living-soft); --pdx-ic-wash: var(--pdx-issue-economy_cost_of_living-wash); --pdx-ic-ink: var(--pdx-issue-economy_cost_of_living-ink); }
+.pdxdb-ic-immigration_border { --pdx-ic: var(--pdx-issue-immigration_border); --pdx-ic-soft: var(--pdx-issue-immigration_border-soft); --pdx-ic-wash: var(--pdx-issue-immigration_border-wash); --pdx-ic-ink: var(--pdx-issue-immigration_border-ink); }
+.pdxdb-ic-healthcare { --pdx-ic: var(--pdx-issue-healthcare); --pdx-ic-soft: var(--pdx-issue-healthcare-soft); --pdx-ic-wash: var(--pdx-issue-healthcare-wash); --pdx-ic-ink: var(--pdx-issue-healthcare-ink); }
+.pdxdb-ic-spending_debt_waste { --pdx-ic: var(--pdx-issue-spending_debt_waste); --pdx-ic-soft: var(--pdx-issue-spending_debt_waste-soft); --pdx-ic-wash: var(--pdx-issue-spending_debt_waste-wash); --pdx-ic-ink: var(--pdx-issue-spending_debt_waste-ink); }
+.pdxdb-ic-abortion_repro { --pdx-ic: var(--pdx-issue-abortion_repro); --pdx-ic-soft: var(--pdx-issue-abortion_repro-soft); --pdx-ic-wash: var(--pdx-issue-abortion_repro-wash); --pdx-ic-ink: var(--pdx-issue-abortion_repro-ink); }
+.pdxdb-ic-guns { --pdx-ic: var(--pdx-issue-guns); --pdx-ic-soft: var(--pdx-issue-guns-soft); --pdx-ic-wash: var(--pdx-issue-guns-wash); --pdx-ic-ink: var(--pdx-issue-guns-ink); }
+.pdxdb-ic-climate_energy { --pdx-ic: var(--pdx-issue-climate_energy); --pdx-ic-soft: var(--pdx-issue-climate_energy-soft); --pdx-ic-wash: var(--pdx-issue-climate_energy-wash); --pdx-ic-ink: var(--pdx-issue-climate_energy-ink); }
+.pdxdb-ic-crime_safety { --pdx-ic: var(--pdx-issue-crime_safety); --pdx-ic-soft: var(--pdx-issue-crime_safety-soft); --pdx-ic-wash: var(--pdx-issue-crime_safety-wash); --pdx-ic-ink: var(--pdx-issue-crime_safety-ink); }
+.pdxdb-ic-election_integrity { --pdx-ic: var(--pdx-issue-election_integrity); --pdx-ic-soft: var(--pdx-issue-election_integrity-soft); --pdx-ic-wash: var(--pdx-issue-election_integrity-wash); --pdx-ic-ink: var(--pdx-issue-election_integrity-ink); }
+.pdxdb-ic-checks_and_balances { --pdx-ic: var(--pdx-issue-checks_and_balances); --pdx-ic-soft: var(--pdx-issue-checks_and_balances-soft); --pdx-ic-wash: var(--pdx-issue-checks_and_balances-wash); --pdx-ic-ink: var(--pdx-issue-checks_and_balances-ink); }
+.pdxdb-ic-education_parental { --pdx-ic: var(--pdx-issue-education_parental); --pdx-ic-soft: var(--pdx-issue-education_parental-soft); --pdx-ic-wash: var(--pdx-issue-education_parental-wash); --pdx-ic-ink: var(--pdx-issue-education_parental-ink); }
+.pdxdb-ic-civil_rights_culture { --pdx-ic: var(--pdx-issue-civil_rights_culture); --pdx-ic-soft: var(--pdx-issue-civil_rights_culture-soft); --pdx-ic-wash: var(--pdx-issue-civil_rights_culture-wash); --pdx-ic-ink: var(--pdx-issue-civil_rights_culture-ink); }
+.pdxdb-ic-foreign_policy_defense { --pdx-ic: var(--pdx-issue-foreign_policy_defense); --pdx-ic-soft: var(--pdx-issue-foreign_policy_defense-soft); --pdx-ic-wash: var(--pdx-issue-foreign_policy_defense-wash); --pdx-ic-ink: var(--pdx-issue-foreign_policy_defense-ink); }
+.pdxdb-parent-h[class*="pdxdb-ic-"] {
+  color: var(--pdx-ic-ink);
+  border-left: 3px solid var(--pdx-ic);
+  margin-left: -0.75rem; padding-left: 0.6rem;
+  background: linear-gradient(90deg, var(--pdx-ic-wash), transparent 55%);
+}
+.pdxdb-parent-h[class*="pdxdb-ic-"] .pdxdb-parent-n { color: var(--pdx-ic-ink); opacity: 0.8; }
+
 /* THE PINNED STRIP: what is live on this seat, above the parent list and
    outside every collapse. Mandates first, then the issues the most people
    answered or commented on. */
