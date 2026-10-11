@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
-// Tests for the residency vendor — VERIFF ON THE FIVE COMPOSER SEATS, FAIL CLOSED
+// Tests for the residency vendor — DIDIT ON THE FIVE COMPOSER SEATS, FAIL CLOSED
 // ─────────────────────────────────────────────────────────────────────────────
 //   1. NO VENDOR SECRET IN GIT, and none reaches the browser.
-//   2. THE WEBHOOK — unsigned / badly signed / pending / declined / no address
-//      check / wrong seat / revoked all write nothing; only a signed, approved
-//      document + address decision writes, and only for the seat it named.
+//   2. THE WEBHOOK — unsigned / badly signed / stale / in review / declined /
+//      no address check / wrong seat / revoked all write nothing; only a
+//      signed, Approved Didit decision with both ID and address checks writes,
+//      and only for the seat it named.
 //   3. THE START — only the five seats accept it; signed out is refused; no
-//      secrets is 503; vendor down is 502; the session carries { uid, seat }.
+//      DIDIT_API_KEY or no DIDIT_WORKFLOW_ID is 503 with no session; vendor
+//      down is 502; the session carries { uid, seat } on the workflow.
 //   4. THE GATES — after a fixture verified row (an insert into this test's
 //      own in-memory store, not an env backdoor), that seat's comment and vote
 //      POSTs succeed and a neighbour seat's are still 403. Also end to end: a
@@ -28,6 +30,7 @@ import {
   handleStart,
   handleWebhook,
   sign,
+  canonicalJson,
   parseVendorData,
   decisionPassed,
 } from "../netlify/lib/residency-vendor-core.mjs";
@@ -48,7 +51,10 @@ function section(t) { console.log("── " + t); }
 
 // Test-only values. Not secrets: they exist only inside this file.
 const KEY = "test-api-key-not-a-secret";
-const SECRET = "test-shared-secret-not-a-secret";
+const WORKFLOW = "11111111-2222-3333-4444-555555555555";
+const SECRET = "test-webhook-secret-not-a-secret";
+const NOW = new Date("2026-10-11T12:00:00Z");
+const NOW_S = Math.floor(NOW.getTime() / 1000);
 const UID = "uid-alice-0000000000000000000";
 const CLUSTER = {
   "ut-sd-3": "ut-statesenate-3",
@@ -68,7 +74,7 @@ try {
 } catch { tracked = []; }
 ok(tracked.length > 100, `git ls-files lists the repo (${tracked.length})`);
 const TEXT = /\.(m?js|mts|ts|json|toml|html|md|env|txt|ya?ml|sql|sh|cjs)$|(^|\/)\.env/;
-const liveSecrets = [process.env.VERIFF_API_KEY, process.env.VERIFF_SHARED_SECRET]
+const liveSecrets = [process.env.DIDIT_API_KEY, process.env.DIDIT_WEBHOOK_SECRET, process.env.DIDIT_WORKFLOW_ID]
   .filter((v) => typeof v === "string" && v.length >= 8);
 const hits = [];
 for (const f of tracked) {
@@ -77,23 +83,28 @@ for (const f of tracked) {
   if (!existsSync(p)) continue;
   const s = readFileSync(p, "utf8");
   // An assignment of a literal value to a vendor secret name.
-  if (/VERIFF_(API_KEY|SHARED_SECRET)\s*[:=]\s*["']?[A-Za-z0-9-]{8,}/.test(s)) hits.push(f);
-  // A Veriff-style key/secret shape (UUID) next to a Veriff header name.
-  if (/x-auth-client["']?\s*[:,]\s*["'][0-9a-f]{8}-[0-9a-f]{4}-/i.test(s)) hits.push(f);
+  if (/DIDIT_(API_KEY|WEBHOOK_SECRET|WORKFLOW_ID)\s*[:=]\s*["']?[A-Za-z0-9-]{8,}/.test(s)) hits.push(f);
+  // A literal key next to Didit's API key header.
+  if (/x-api-key["']?\s*[:,]\s*["'][A-Za-z0-9_-]{16,}/i.test(s)) hits.push(f);
   for (const v of liveSecrets) if (s.includes(v)) hits.push(f);
 }
 eq(hits.length, 0, `no tracked file carries a vendor secret — ${JSON.stringify(hits)}`);
 ok(!tracked.some((f) => /(^|\/)\.env(\.|$)/.test(f)), "no .env file is tracked");
 for (const f of ["district-composer.js", "district-poll.js", "district-ut-sd-3.html", "district-ut-cd-2.html"]) {
-  ok(!/VERIFF_|x-auth-client|x-hmac-signature|shared.?secret/i.test(R(f)), `${f}: no vendor key, secret or signing in the browser`);
+  ok(!/DIDIT_|VERIFF_|x-api-key|x-signature|shared.?secret|webhook.?secret/i.test(R(f)), `${f}: no vendor key, secret or signing in the browser`);
 }
 for (const f of ["netlify/functions/residency-verify.mts", "netlify/functions/residency-webhook.mts"]) {
   const s = R(f);
   const envs = [...s.matchAll(/process\.env\.([A-Z_]+)/g)].map((m) => m[1]).sort();
-  ok(envs.every((n) => ["URL", "VERIFF_API_KEY", "VERIFF_API_URL", "VERIFF_SHARED_SECRET"].includes(n)),
-     `${f}: reads only the Veriff secrets and the site URL from env — ${envs.join(",")}`);
+  ok(envs.every((n) => ["URL", "DIDIT_API_KEY", "DIDIT_WORKFLOW_ID", "DIDIT_WEBHOOK_SECRET"].includes(n)),
+     `${f}: reads only the Didit settings and the site URL from env — ${envs.join(",")}`);
+  ok(!/veriff/i.test(s), `${f}: no Veriff call remains`);
   ok(!/console\.(log|error)\([^)]*(raw|payload|body)\b/.test(s), `${f}: never logs a vendor payload`);
 }
+ok(!/veriff/i.test(R("netlify/lib/residency-vendor-core.mjs")), "the vendor core names no Veriff host, header or code");
+ok(/DIDIT_API_KEY/.test(R("netlify/functions/residency-verify.mts")) && /DIDIT_WORKFLOW_ID/.test(R("netlify/functions/residency-verify.mts")),
+   "the start reads DIDIT_API_KEY and DIDIT_WORKFLOW_ID");
+ok(/DIDIT_WEBHOOK_SECRET/.test(R("netlify/functions/residency-webhook.mts")), "the webhook reads DIDIT_WEBHOOK_SECRET");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("2 · the webhook: only a signed, approved document + address decision writes");
@@ -109,63 +120,86 @@ function residencyStore(rows = []) {
   };
   return s;
 }
-function hookDeps(store, cfg = { apiKey: KEY, sharedSecret: SECRET }) {
-  return { config: () => cfg, findResidency: store.find, writeVerified: store.writeVerified };
+function hookDeps(store, cfg = { webhookSecret: SECRET }) {
+  return { config: () => cfg, findResidency: store.find, writeVerified: store.writeVerified, now: () => NOW };
 }
-function decision(over = {}, seat = "ut-statesenate-3", uid = UID) {
+// A Didit session webhook (V3 decision shape). `over` patches the envelope,
+// `dec` patches the decision.
+function decision(over = {}, seat = "ut-statesenate-3", uid = UID, dec = {}) {
   return {
-    status: "success",
-    verification: {
-      id: "sess-1",
-      status: "approved",
-      code: 9001,
-      vendorData: JSON.stringify({ uid, seat }),
-      person: { firstName: "ALICE", addresses: [{ fullAddress: "1 Main St" }] },
-      document: { type: "DRIVERS_LICENSE", country: "US", number: "X1" },
-      additionalVerifiedData: { proofOfAddress: { nameMatch: true, fraud: { riskLevel: "LOW_RISK" } } },
-      ...over,
+    event_id: "evt-1",
+    webhook_type: "status.updated",
+    timestamp: NOW_S,
+    session_id: "sess-1",
+    status: "Approved",
+    workflow_id: WORKFLOW,
+    vendor_data: JSON.stringify({ uid, seat }),
+    decision: {
+      session_id: "sess-1",
+      status: "Approved",
+      vendor_data: JSON.stringify({ uid, seat }),
+      id_verifications: [{ node_id: "id_verification_1", status: "Approved", document_type: "Driving License",
+        first_name: "Alice", warnings: [] }],
+      poa_verifications: [{ node_id: "feature_poa", status: "Approved", address: "1 Main St – Layton", warnings: [] }],
+      ...dec,
     },
-    technicalData: { ip: "203.0.113.1" },
+    ...over,
   };
 }
-const hook = (payload, { sig = "good", client = KEY } = {}) => {
+// Signed the way Didit signs: X-Signature-V2 over the sorted compact JSON,
+// X-Signature over the raw bytes, X-Timestamp in seconds.
+const hook = (payload, { sig = "v2", ts = NOW_S, secret = SECRET } = {}) => {
   const raw = typeof payload === "string" ? payload : JSON.stringify(payload);
   const headers = { "content-type": "application/json" };
-  if (sig === "good") headers["x-hmac-signature"] = sign(SECRET, raw);
-  else if (sig) headers["x-hmac-signature"] = sig;
-  if (client) headers["x-auth-client"] = client;
+  if (ts != null) headers["x-timestamp"] = String(ts);
+  if (sig === "v2") headers["x-signature-v2"] = sign(secret, canonicalJson(JSON.parse(raw)));
+  else if (sig === "raw") headers["x-signature"] = sign(secret, raw);
+  else if (sig && typeof sig === "object") Object.assign(headers, sig);
   return new Request("https://politidex.fyi/api/residency-webhook", { method: "POST", headers, body: raw });
 };
+const noPoa = (() => { const d = decision(); delete d.decision.poa_verifications; return d; })();
+const noId = (() => { const d = decision(); delete d.decision.id_verifications; return d; })();
 
 const refusals = [
   ["unsigned", hook(decision(), { sig: null }), 401],
-  ["signed with the wrong secret", hook(decision(), { sig: sign("nope", JSON.stringify(decision())) }), 401],
-  ["signature over a different body", hook(decision(), { sig: sign(SECRET, JSON.stringify(decision({ code: 9102 }))) }), 401],
-  ["a non-hex signature", hook(decision(), { sig: "zz" }), 401],
-  ["the wrong X-AUTH-CLIENT", hook(decision(), { client: "someone-else" }), 401],
-  ["pending (review)", hook(decision({ status: "review", code: 9121 })), 200],
-  ["resubmission requested", hook(decision({ status: "resubmission_requested", code: 9103 })), 200],
-  ["declined", hook(decision({ status: "declined", code: 9102 })), 200],
-  ["expired", hook(decision({ status: "expired", code: 9104 })), 200],
-  ["abandoned / canceled", hook(decision({ status: "abandoned", code: 9104 })), 200],
-  ["approved status with a non-approved code", hook(decision({ code: 9102 })), 200],
-  ["no decision yet (verification null)", hook({ status: "success", verification: null }), 200],
-  ["an event webhook (started)", hook({ id: "sess-1", action: "started", code: 7001 }), 200],
-  ["approved, but no document check", hook(decision({ document: null })), 200],
-  ["approved, but no address check", hook(decision({ additionalVerifiedData: {} })), 200],
-  ["approved, but the address name did not match",
-    hook(decision({ additionalVerifiedData: { proofOfAddress: { nameMatch: false } } })), 200],
-  ["approved, but the address document is HIGH_RISK",
-    hook(decision({ additionalVerifiedData: { proofOfAddress: { fraud: { riskLevel: "HIGH_RISK" } } } })), 200],
+  ["signed with the wrong secret", hook(decision(), { secret: "nope" }), 401],
+  ["V2 signature over a different body",
+    hook(decision(), { sig: { "x-signature-v2": sign(SECRET, canonicalJson(decision({ status: "Declined" }))) } }), 401],
+  ["raw signature over a different body",
+    hook(decision(), { sig: { "x-signature": sign(SECRET, JSON.stringify(decision({ status: "Declined" }))) } }), 401],
+  ["a non-hex signature", hook(decision(), { sig: { "x-signature-v2": "zz" } }), 401],
+  ["only the envelope-only Simple signature",
+    hook(decision(), { sig: { "x-signature-simple": sign(SECRET, `${NOW_S}:sess-1:Approved:status.updated`) } }), 401],
+  ["no X-Timestamp", hook(decision(), { ts: null }), 401],
+  ["a stale X-Timestamp (10 minutes old)", hook(decision(), { ts: NOW_S - 600 }), 401],
+  ["a future X-Timestamp (10 minutes ahead)", hook(decision(), { ts: NOW_S + 600 }), 401],
+  ["In Review", hook(decision({ status: "In Review" }, undefined, undefined, { status: "In Review" })), 200],
+  ["In Progress (no decision yet)", hook({ ...decision({ status: "In Progress" }), decision: undefined }), 200],
+  ["Resubmitted", hook(decision({ status: "Resubmitted" })), 200],
+  ["Declined", hook(decision({ status: "Declined" }, undefined, undefined, { status: "Declined" })), 200],
+  ["Expired", hook(decision({ status: "Expired" })), 200],
+  ["Abandoned", hook(decision({ status: "Abandoned" })), 200],
+  ["approved envelope, declined decision", hook(decision({}, undefined, undefined, { status: "Declined" })), 200],
+  ["approved, but the ID check declined",
+    hook(decision({}, undefined, undefined, { id_verifications: [{ node_id: "id_verification_1", status: "Declined" }] })), 200],
+  ["approved, but the address check declined",
+    hook(decision({}, undefined, undefined, { poa_verifications: [{ node_id: "feature_poa", status: "Declined" }] })), 200],
+  ["approved, but the address check is in review",
+    hook(decision({}, undefined, undefined, { poa_verifications: [{ node_id: "feature_poa", status: "In Review" }] })), 200],
+  ["approved, but no address check", hook(noPoa), 200],
+  ["approved, but an empty address check list", hook(decision({}, undefined, undefined, { poa_verifications: [] })), 200],
+  ["approved, but no ID check", hook(noId), 200],
+  ["approved, but no decision object", hook({ ...decision(), decision: null }), 200],
+  ["a transaction event", hook(decision({ webhook_type: "transaction.status.updated" })), 200],
   ["wrong seat: a neighbour board with no composer", hook(decision({}, "ut-statesenate-6")), 200],
   ["wrong seat: a generated board", hook(decision({}, "ut-statehouse-29")), 200],
   ["wrong seat: statewide", hook(decision({}, "ut-gov")), 200],
   ["wrong seat: the alias, not the canonical key", hook(decision({}, "ut-sd-3")), 200],
   ["wrong seat: padded", hook(decision({}, " ut-statesenate-3")), 200],
-  ["no vendorData", hook(decision({ vendorData: null })), 200],
-  ["vendorData with no uid", hook(decision({ vendorData: JSON.stringify({ seat: "ut-statesenate-3" }) })), 200],
-  ["vendorData that is not JSON", hook(decision({ vendorData: "ut-statesenate-3" })), 200],
-  ["a body that is not JSON (signed)", hook("not json"), 200],
+  ["no vendor_data", hook(decision({ vendor_data: null }, undefined, undefined, { vendor_data: null })), 200],
+  ["vendor_data with no uid", hook(decision({ vendor_data: JSON.stringify({ seat: "ut-statesenate-3" }) })), 200],
+  ["vendor_data that is not JSON", hook(decision({ vendor_data: "ut-statesenate-3" })), 200],
+  ["a body that is not JSON (raw-signed)", hook("not json", { sig: { "x-signature": sign(SECRET, "not json") } }), 200],
 ];
 for (const [name, req, status] of refusals) {
   const s = residencyStore();
@@ -176,11 +210,11 @@ for (const [name, req, status] of refusals) {
   ok(d.written !== true, `${name}: not reported as written`);
 }
 {
-  // No secrets configured: every webhook is refused, even a well-formed one.
-  for (const cfg of [{ apiKey: "", sharedSecret: "" }, { apiKey: KEY, sharedSecret: "" }, { apiKey: "", sharedSecret: SECRET }]) {
+  // No webhook secret configured: every webhook is refused, even a well-formed one.
+  for (const cfg of [{ webhookSecret: "" }, {}, { apiKey: KEY, workflowId: WORKFLOW }]) {
     const s = residencyStore();
     const res = await handleWebhook(hook(decision()), hookDeps(s, cfg));
-    eq(res.status, 401, `missing secret ${JSON.stringify(Object.keys(cfg).filter((k) => !cfg[k]))}: 401`);
+    eq(res.status, 401, `no DIDIT_WEBHOOK_SECRET ${JSON.stringify(cfg)}: 401`);
     eq(s.writes.length, 0, "…and nothing written");
   }
 }
@@ -204,6 +238,32 @@ for (const [alias, seat] of Object.entries(CLUSTER)) {
   eq(Object.keys(s.writes[0]).sort().join(","), "hash,seatKey", `${alias}: nothing from the vendor reaches the write`);
 }
 {
+  // The other accepted forms: X-Signature over the raw bytes, a timestamp
+  // inside the window, the v2-pinned singular fields, and non-ASCII content.
+  const s1 = residencyStore();
+  eq((await (await handleWebhook(hook(decision(), { sig: "raw" }), hookDeps(s1))).json()).written, true,
+     "a raw-body X-Signature pass writes");
+  const s2 = residencyStore();
+  await handleWebhook(hook(decision(), { ts: NOW_S - 240 }), hookDeps(s2));
+  eq(s2.writes.length, 1, "a timestamp four minutes old is inside the window");
+  const v2 = decision();
+  v2.decision.id_verification = v2.decision.id_verifications[0];
+  v2.decision.poa = v2.decision.poa_verifications[0];
+  delete v2.decision.id_verifications; delete v2.decision.poa_verifications;
+  const s3 = residencyStore();
+  await handleWebhook(hook(v2), hookDeps(s3));
+  eq(s3.writes.length, 1, "a webhook-v2 decision (id_verification + poa) writes");
+  const v2noPoa = JSON.parse(JSON.stringify(v2)); delete v2noPoa.decision.poa;
+  const s4 = residencyStore();
+  await handleWebhook(hook(v2noPoa), hookDeps(s4));
+  eq(s4.writes.length, 0, "…and without poa it writes nothing");
+  // Key order on the wire does not matter to V2; the canonical form is sorted.
+  const shuffled = JSON.stringify(Object.fromEntries(Object.entries(decision()).reverse()));
+  const s5 = residencyStore();
+  await handleWebhook(hook(shuffled), hookDeps(s5));
+  eq(s5.writes.length, 1, "V2 verifies a body whose keys arrive in another order");
+}
+{
   // An upgrade from location_match keeps one row and flips it to vendor.
   const seat = "ut-house-2";
   const h = authorHash(UID, seat);
@@ -214,6 +274,7 @@ for (const [alias, seat] of Object.entries(CLUSTER)) {
 }
 eq(parseVendorData(JSON.stringify({ uid: UID, seat: "ut-statesenate-3" }))?.seat, "ut-statesenate-3", "vendorData parses");
 eq(decisionPassed(decision()), true, "the fixture decision passes");
+eq(decisionPassed(noPoa), false, "…and without an address check it does not");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("3 · the start: only the five seats, signed in, with the secrets");
@@ -228,7 +289,7 @@ function verifyUser(req) {
 // The start needs an active membership; these suites default to a member so the
 // seat, secret and vendor checks are what they test. Section 7 tests the flag.
 const MEMBER = { status: "active", currentPeriodEnd: null };
-function startDeps({ rows = [], cfg = { apiKey: KEY, sharedSecret: SECRET, apiUrl: "" }, vendor, membership = MEMBER } = {}) {
+function startDeps({ rows = [], cfg = { apiKey: KEY, workflowId: WORKFLOW }, vendor, membership = MEMBER } = {}) {
   const calls = [];
   const store = residencyStore(rows);
   const deps = {
@@ -240,7 +301,7 @@ function startDeps({ rows = [], cfg = { apiKey: KEY, sharedSecret: SECRET, apiUr
     async createSession(url, headers, body) {
       calls.push({ url, headers, body });
       if (vendor) return vendor();
-      return { ok: true, data: { status: "success", verification: { id: "sess-1", url: "https://alchemy.veriff.com/v/abc" } } };
+      return { ok: true, data: { session_id: "sess-1", status: "Not Started", url: "https://verify.didit.me/session/abc" } };
     },
   };
   return { deps, calls, store };
@@ -262,14 +323,15 @@ for (const [alias, seat] of Object.entries(CLUSTER)) {
   const res = await handleStart(start(alias, UID), t.deps);
   eq(res.status, 200, `${alias}: a signed-in start is 200`);
   const d = await res.json();
-  eq(d.url, "https://alchemy.veriff.com/v/abc", `${alias}: …returns the vendor URL`);
+  eq(d.url, "https://verify.didit.me/session/abc", `${alias}: …returns the Didit session URL`);
   eq(t.calls.length, 1, `${alias}: one session created`);
+  eq(t.calls[0].url, "https://verification.didit.me/v3/session/", `${alias}: …at Didit's session endpoint`);
   const sent = JSON.parse(t.calls[0].body);
-  eq(sent.verification.vendorData, JSON.stringify({ uid: UID, seat }), `${alias}: vendorData is { uid, seat } for THIS board`);
-  ok(sent.verification.callback.endsWith(`/district/${alias}?residency=returned`), `${alias}: returns to the board it started from`);
-  eq(t.calls[0].headers["x-auth-client"], KEY, `${alias}: authenticated server-side`);
-  eq(t.calls[0].headers["x-hmac-signature"], sign(SECRET, t.calls[0].body), `${alias}: …and signed`);
-  ok(!JSON.stringify(d).includes(KEY) && !JSON.stringify(d).includes(SECRET), `${alias}: no secret on the wire`);
+  eq(sent.workflow_id, WORKFLOW, `${alias}: on the configured workflow`);
+  eq(sent.vendor_data, JSON.stringify({ uid: UID, seat }), `${alias}: vendor_data is { uid, seat } for THIS board`);
+  ok(sent.callback.endsWith(`/district/${alias}?residency=returned`), `${alias}: returns to the board it started from`);
+  eq(t.calls[0].headers["x-api-key"], KEY, `${alias}: authenticated server-side`);
+  ok(!JSON.stringify(d).includes(KEY) && !JSON.stringify(d).includes(WORKFLOW), `${alias}: no key or workflow on the wire`);
   // The canonical key works too; a body cannot choose another uid.
   const t2 = startDeps();
   const r2 = await handleStart(new Request("https://politidex.fyi/api/residency-verify", {
@@ -277,7 +339,8 @@ for (const [alias, seat] of Object.entries(CLUSTER)) {
     body: JSON.stringify({ seat, uid: "uid-mallory" }),
   }), t2.deps);
   eq(r2.status, 200, `${alias}: canonical ${seat} starts too`);
-  ok(JSON.parse(t2.calls[0].body).verification.vendorData.includes(UID), `${alias}: the uid is the token's, not the body's`);
+  ok(JSON.parse(t2.calls[0].body).vendor_data.includes(UID) && !t2.calls[0].body.includes("mallory"),
+     `${alias}: the uid is the token's, not the body's`);
 }
 for (const [who, token] of [["signed out", null], ["anonymous", "anon"]]) {
   const t = startDeps();
@@ -285,18 +348,28 @@ for (const [who, token] of [["signed out", null], ["anonymous", "anon"]]) {
   eq(res.status, 403, `${who}: start is 403`);
   eq(t.calls.length, 0, `${who}: no session`);
 }
-{
-  const t = startDeps({ cfg: { apiKey: "", sharedSecret: "", apiUrl: "" } });
-  const res = await handleStart(start("ut-sd-3", UID), t.deps);
-  eq(res.status, 503, "no secrets: 503");
-  eq((await res.json()).code, "vendor_unavailable", "…vendor_unavailable");
-  eq(t.calls.length, 0, "…no session");
+for (const [name, cfg] of [
+  ["no DIDIT_API_KEY", { apiKey: "", workflowId: WORKFLOW }],
+  ["no DIDIT_WORKFLOW_ID", { apiKey: KEY, workflowId: "" }],
+  ["neither", { apiKey: "", workflowId: "" }],
+  ["an empty config", {}],
+]) {
+  for (const alias of Object.keys(CLUSTER)) {
+    const t = startDeps({ cfg });
+    const res = await handleStart(start(alias, UID), t.deps);
+    eq(res.status, 503, `${name} on ${alias}: 503`);
+    const d = await res.json();
+    eq(d.code, "vendor_unavailable", `${name} on ${alias}: …vendor_unavailable`);
+    eq(d.error, "The ID check is not available right now. Posting stays closed on this board.", `${name} on ${alias}: …the not-available line`);
+    eq(t.calls.length, 0, `${name} on ${alias}: …no session`);
+  }
 }
 for (const [name, vendor] of [
   ["vendor down (throws)", () => { throw new Error("ECONNREFUSED"); }],
   ["vendor 500", () => ({ ok: false, data: {} })],
-  ["vendor returns no URL", () => ({ ok: true, data: { verification: {} } })],
-  ["vendor returns a non-https URL", () => ({ ok: true, data: { verification: { url: "javascript:alert(1)" } } })],
+  ["vendor returns no URL", () => ({ ok: true, data: { session_id: "sess-1" } })],
+  ["vendor returns a non-https URL", () => ({ ok: true, data: { url: "javascript:alert(1)" } })],
+  ["vendor returns the URL under another name", () => ({ ok: true, data: { verification_url: "https://verify.didit.me/x" } })],
 ]) {
   const t = startDeps({ vendor });
   const res = await handleStart(start("ut-sd-3", UID), t.deps);
@@ -369,7 +442,7 @@ for (const [alias, seat] of Object.entries(CLUSTER)) {
      403, "UT-2 decision for alice → bob still 403 on UT-2");
   // A pending decision after that changes nothing either way.
   const before = JSON.stringify(store.rows);
-  await handleWebhook(hook(decision({ status: "review", code: 9121 }, "ut-statesenate-3")), hookDeps(store));
+  await handleWebhook(hook(decision({ status: "In Review" }, "ut-statesenate-3", UID, { status: "In Review" })), hookDeps(store));
   eq(JSON.stringify(store.rows), before, "a later pending decision writes nothing");
 }
 
@@ -429,7 +502,8 @@ ok(/v272 - PROVE YOU LIVE HERE[\s\S]*?MIGRATION COST: none[\s\S]*?No database mi
 const CLIENT = R("district-composer.js");
 ok(CLIENT.includes("Prove you live here"), "the composer carries the Prove you live here control");
 ok(/reason !== 'unverified'/.test(CLIENT), "…shown only to a signed-in, unverified reader");
-ok(/voice\.canVerify === true/.test(CLIENT), "…and only when the server answers canVerify");
+ok(/function canProve\(\)[\s\S]*?reason === 'unverified'[\s\S]*?!canPost\(\)/.test(CLIENT),
+   "…and never to a reader the server already counts as verified (the function decides who may start)");
 ok(!/\/api\/membership/.test(CLIENT), "…which the composer never asks /api/membership for");
 ok(!/localStorage|sessionStorage/.test(CLIENT), "…and keeps nothing on the device");
 
@@ -466,7 +540,7 @@ const NON_MEMBERS = [
   eq((await handleStart(start("ut-sd-3", UID), thrown.deps)).status, 403, "membership lookup throws: 403");
   eq(thrown.calls.length, 0, "…no session");
   // Non-member with no secrets is still 403, not 503: the flag is asked first.
-  const off = startDeps({ membership: null, cfg: { apiKey: "", sharedSecret: "", apiUrl: "" } });
+  const off = startDeps({ membership: null, cfg: { apiKey: "", workflowId: "" } });
   eq((await handleStart(start("ut-sd-3", UID), off.deps)).status, 403, "non-member, no secrets: 403");
 }
 {
@@ -476,7 +550,7 @@ const NON_MEMBERS = [
     const res = await handleStart(start(alias, UID), t.deps);
     eq(res.status, 200, `member on ${alias}: start is 200`);
     eq((await res.json()).seat, alias, `member on ${alias}: …for this board`);
-    eq(JSON.parse(t.calls[0].body).verification.vendorData, JSON.stringify({ uid: UID, seat }),
+    eq(JSON.parse(t.calls[0].body).vendor_data, JSON.stringify({ uid: UID, seat }),
        `member on ${alias}: the session is bound to ${seat}`);
     eq(t.store.writes.length, 0, `member on ${alias}: starting writes nothing`);
   }
@@ -548,7 +622,7 @@ const NON_MEMBERS = [
   // UNSIGNED AND WRONG-SEAT DECISIONS WRITE NOTHING — whatever the flag says.
   for (const [name, req] of [
     ["unsigned", hook(decision(), { sig: null })],
-    ["badly signed", hook(decision(), { sig: sign("nope", JSON.stringify(decision())) })],
+    ["badly signed", hook(decision(), { secret: "nope" })],
     ["wrong seat (neighbour)", hook(decision({}, "ut-statesenate-6"))],
     ["wrong seat (alias)", hook(decision({}, "ut-sd-3"))],
   ]) {

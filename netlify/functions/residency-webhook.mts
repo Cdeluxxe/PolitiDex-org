@@ -1,9 +1,10 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Residency vendor — DECISION WEBHOOK (Veriff → PolitiDex)
+// Residency vendor — DECISION WEBHOOK (Didit → PolitiDex)
 // ─────────────────────────────────────────────────────────────────────────────
-//   POST /api/residency-webhook   configured in Veriff as the decision webhook
-//                                 URL for an integration that runs BOTH the ID
-//                                 document check and Proof of Address.
+//   POST /api/residency-webhook   configured in Didit as the webhook destination
+//                                 for the workflow that runs BOTH the ID
+//                                 document check and Proof of Address. Its
+//                                 shared secret is DIDIT_WEBHOOK_SECRET.
 //
 // The wiring for handleWebhook() in netlify/lib/residency-vendor-core.mjs,
 // which decides everything: signature, final approved decision, document AND
@@ -26,8 +27,7 @@ import { handleWebhook } from "../lib/residency-vendor-core.mjs";
 const deps = {
   config() {
     return {
-      apiKey: process.env.VERIFF_API_KEY || "",
-      sharedSecret: process.env.VERIFF_SHARED_SECRET || "",
+      webhookSecret: process.env.DIDIT_WEBHOOK_SECRET || "",
     };
   },
 

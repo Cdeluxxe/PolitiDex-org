@@ -16,11 +16,14 @@
    here can fake it: there is no local flag, no typed zip, no location claim.
    A failed read keeps the box off.
 
-   PROVE YOU LIVE HERE. A signed-in reader the server calls `unverified` AND
-   `canVerify` gets one button. canVerify is true only for an active member who
-   has not spent the year's one seat check on another seat; a signed-out reader
-   and a non-member see the locked line and no button. This file holds no flag
-   of its own and never reads the membership endpoint. It asks POST /api/residency-verify for a Veriff session bound to
+   PROVE YOU LIVE HERE. Every signed-in reader the server calls `unverified`
+   for this seat — no verified residency row here — gets one button, directly
+   under the locked composer. A signed-out reader and a reader already verified
+   for this seat get none. Whether the check may START (membership, the year's
+   one seat) is POST /api/residency-verify's call, not this file's: a refusal
+   keeps the button on the board and prints the function's own message. This
+   file holds no flag of its own and never reads the membership endpoint. It
+   asks POST /api/residency-verify for a Didit session bound to
    { uid, seat } for THIS board and sends the reader to the vendor's page. The
    box opens only after the vendor's signed decision (ID document + proof of
    address) reaches the server and the next GET says so — coming back from the
@@ -57,9 +60,9 @@
     mine: 'You',
     prove: 'Prove you live here',
     proving: 'Opening the ID check…',
-    proveNote: 'An ID and proof-of-address check run by Veriff for this seat only. ' +
+    proveNote: 'An ID and proof-of-address check for this seat only. ' +
       'PolitiDex keeps that you passed, not your ID or your address.',
-    proveFailed: 'The ID check did not open. Posting stays closed on this board.',
+    proveFailed: 'Residency check is not available right now',
     returned: 'Your check is with the vendor. This board opens once it confirms; that can take a few minutes.'
   };
   var VERIFY_API = '/api/residency-verify';
@@ -217,13 +220,18 @@
       var p = new URL(String(u || ''));
       if (p.protocol !== 'https:') return '';
       var h = p.hostname.toLowerCase();
-      return (/(^|\.)veriff\.(com|me)$/.test(h)) ? p.href : '';
+      return (/(^|\.)didit\.me$/.test(h)) ? p.href : '';
     } catch (e) { return ''; }
   }
 
+  // Signed in, read OK, and not verified for THIS seat. The server's
+  // `unverified` already means signed in with no vendor-verified row here.
+  function canProve() {
+    return !!(_read && _read.voice && _read.voice.reason === 'unverified' && !canPost() && tokenUser());
+  }
+
   function proveHtml(reason) {
-    if (reason !== 'unverified' || canPost()) return '';
-    if (!(_read && _read.voice && _read.voice.canVerify === true)) return '';
+    if (reason !== 'unverified' || !canProve()) return '';
     var dis = _proving ? ' disabled aria-disabled="true"' : '';
     return '<div class="pdxdc-prove" data-pdxdc-prove="1">' +
       '<button class="pdxdc-btn" type="button" data-pdxdc-prove-btn="1"' + dis + '>' +
@@ -234,7 +242,7 @@
   }
 
   function prove() {
-    if (_proving || !(_read && _read.voice && _read.voice.canVerify === true)) return;
+    if (_proving || !canProve()) return;
     _proving = true;
     _proveStatus = '';
     render();
@@ -253,7 +261,7 @@
       var go = res.ok && res.data ? vendorUrl(res.data.url) : '';
       if (go) { window.location.assign(go); return; }
       if (res.ok && res.data && res.data.verified === true) { load(); return; }
-      _proveStatus = (res.data && res.data.error) || COPY.proveFailed;
+      _proveStatus = (res.data && (res.data.error || res.data.message)) || COPY.proveFailed;
       render();
     });
   }
@@ -284,8 +292,8 @@
           '</div>' +
           (_status ? '<p class="pdxdc-status" role="status">' + esc(_status) + '</p>' : '') +
         '</form>' +
-        noteHtml(note, _read === false ? '' : v.reason) +
         proveHtml(_read === false ? '' : v.reason) +
+        noteHtml(note, _read === false ? '' : v.reason) +
       '</section>' +
       '<section class="pdxdb-band pdxdb-band--posts" data-pdxdb-band="posts">' +
         '<h2 class="pdxdb-h2">' + esc(COPY.feedHd) + '</h2>' +
@@ -374,8 +382,10 @@
     _seat = seat;
     // Back from the vendor. This is a hint for the copy only — it opens
     // nothing; the server's next answer does. Re-ask a few times while the
-    // vendor's decision is in flight.
-    try { _returned = /[?&]residency=returned(&|$)/.test(String(window.location.search || '')); } catch (e) {}
+    // vendor's decision is in flight. Didit appends its own
+    // ?verificationSessionId=…&status=… to the return address, so the marker
+    // may be followed by a second '?'.
+    try { _returned = /[?&]residency=returned(?=$|[&?#])/.test(String(window.location.search || '')); } catch (e) {}
     render();
     load();
     if (_returned) {
