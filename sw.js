@@ -9279,7 +9279,20 @@
 //     20261113000000_dd_districts_every_board_seat seeds the dd_districts row
 //     each board seat's residency, comment and vote rows point at; it writes
 //     no residency, comment or vote row.
-const CACHE_VERSION = 'v342';
+// v343 - THE LOCKED LINE ONLY, AND ONE CHECK OPENS THE STATEWIDE BOARDS. The
+//     composer's cap sentence (one comment and five poll votes a month, and
+//     the $20 membership) is gone from every board's served markup and from
+//     district-composer.js; the composer area carries the locked line alone,
+//     and a monthly-cap refusal is shown as a neutral line in the composer and
+//     the poll. district-voice.js seatsForMe() now gives each statewide row a
+//     boardKey (ut-gov, ut-us-senate-<pid>), which the proof button sends, and
+//     the Didit start binds the state's three statewide seats into every
+//     session, so one check opens the governor and both U.S. Senate boards.
+//     Named rows only; no /district/* splat; the precache list is unchanged.
+//     Every board document and the three modules changed, so the shell moves
+//     one version. No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v343';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

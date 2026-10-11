@@ -37,11 +37,11 @@
    through PDXDistrictBoard.refresh(), so the count the reader moved is the
    count they see.
 
-   THE CAP LINE. One fixed sentence, CAP_LINE, sits under the heading in
-   every state: what a verified resident gets on this seat and what the
-   yearly membership changes. It is the same cap the server enforces
-   (membership-core.mjs) and /me states. It is the only money copy here, it
-   opens nothing, and it lives on the composer boards only.
+   THE LOCKED LINE, AND NOTHING ABOUT PRICE. Every state carries the locked
+   line exactly once: as the locked notice while the box is off, and under the
+   heading once it opens. No membership, price, or cap copy is painted on any
+   board — a monthly-cap refusal from the server is shown as a neutral line
+   (COPY.notTaken), never the server's own wording.
 
    No poll, no replies, no score.
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -138,8 +138,6 @@
   };
   var POST_MAX = 280;
   var LOCKED_LINE = 'Only verified residents of this seat get a voice that counts.';
-  var CAP_LINE = 'Verified residents get one comment and five poll votes a month on this seat. ' +
-    'A $20 yearly membership removes the monthly cap.';
   var COPY = {
     label: 'Say something to this district',
     issue: 'Issue',
@@ -154,6 +152,9 @@
     feedUnread: 'We could not read this board’s posts just now. This is not an empty board — it is a read that failed.',
     unreadNote: 'Posting stays off until this board can confirm who you are.',
     failed: 'That post did not go through.',
+    // A monthly-cap refusal (429 monthly_cap), said without the server's
+    // membership wording.
+    notTaken: 'That post did not go through. This seat is not taking another post from this account right now.',
     mine: 'You',
     prove: 'Prove you live here',
     proving: 'Opening the ID check…',
@@ -340,16 +341,18 @@
 
   // THE SEATS ONE CHECK COVERS, FROM THE HALLWAY'S OWN RESOLVER. district-
   // voice.js seatsForMe() over pdxRepsForMe() — the same list /voice paints —
-  // reduced to its seat keys. Nothing is composed here; a missing module or a
-  // reader with no saved location sends [] and the check covers this board's
-  // seat alone. The server keeps only composer seats.
+  // reduced to its seat keys, the statewide rows' board keys included.
+  // Nothing is composed here; a missing module or a reader with no saved
+  // location sends []. The server keeps only composer seats, and binds the
+  // board's own state's statewide seats whatever is sent.
   function resolvedSeats() {
     var out = [];
     try {
       var V = window.PDXVoice;
       var seats = (V && fn(V.seatsForMe)) ? (V.seatsForMe() || []) : [];
       for (var i = 0; i < seats.length; i++) {
-        var k = seats[i] && seats[i].seatKey;
+        // A district row's seat key, or a statewide row's board key.
+        var k = seats[i] && (seats[i].seatKey || seats[i].boardKey);
         if (typeof k === 'string' && k && out.indexOf(k) < 0) out.push(k);
       }
     } catch (e) { out = []; }
@@ -398,8 +401,8 @@
     _host.innerHTML =
       '<section class="pdxdb-band pdxdb-band--compose" data-pdxdb-band="compose">' +
         '<h2 class="pdxdb-h2">' + esc(COPY.label) + '</h2>' +
-        (line ? '<p class="pdxdc-locked" data-pdxdc-locked="1">' + esc(line) + '</p>' : '') +
-        '<p class="pdxdb-foot" data-pdxdc-cap="1">' + esc(CAP_LINE) + '</p>' +
+        (line ? '<p class="pdxdc-locked" data-pdxdc-locked="1">' + esc(line) + '</p>'
+              : '<p class="pdxdb-foot" data-pdxdc-locked="1">' + esc(LOCKED_LINE) + '</p>') +
         '<form class="pdxdc-form" novalidate>' +
           '<label class="pdxdc-l" for="pdxdc-issue">' + esc(COPY.issue) + '</label>' +
           '<select class="pdxdc-sel" id="pdxdc-issue" name="issueKey"' + dis + '>' + optionsHtml() + '</select>' +
@@ -486,6 +489,8 @@
         _read = _read || {};
         _read.voice = { canPost: false, reason: res.data.code || '', line: res.data.error || LOCKED_LINE, note: res.data.note || '' };
         _status = '';
+      } else if (res.status === 429 || (res.data && res.data.code === 'monthly_cap')) {
+        _status = COPY.notTaken;
       } else {
         _status = (res.data && res.data.error) || COPY.failed;
       }
@@ -534,7 +539,6 @@
     API: API,
     COMPOSER_SEATS: COMPOSER_SEATS,
     LOCKED_LINE: LOCKED_LINE,
-    CAP_LINE: CAP_LINE,
     COPY: COPY,
     mount: mount,
     canPost: canPost

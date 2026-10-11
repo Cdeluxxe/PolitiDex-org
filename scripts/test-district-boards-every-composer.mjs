@@ -14,8 +14,10 @@
 //   2. AN UNVERIFIED POST OR VOTE on any newly opened board is 403 and writes
 //      nothing — signed out, no row, a location_match row, or a vendor row for
 //      another seat.
-//   3. A DIDIT DECISION FOR ONE SEAT opens that seat and no other.
-//   4. THE FIVE ORIGINAL BOARDS are byte-identical to the last commit.
+//   3. A DIDIT DECISION opens the seats its session bound — its own seat and the
+//      state's three statewide seats — and no other.
+//   4. THE FIVE ORIGINAL BOARDS are byte-identical to the last commit, apart
+//      from the served cap sentence (scripts/test-board-cap-line.mjs).
 //   5. BOARD_ROUTES length is unchanged and there is no /district/* splat; the
 //      generator is up to date; every board seat has a dd_districts row.
 //   6. No equity, stock or share language on any board.
@@ -33,7 +35,7 @@ import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { COMPOSER_SEATS, LOCKED_LINE, handle as handleVoice, seatHash } from "../netlify/lib/district-board-voice-core.mjs";
 import { handle as handlePoll } from "../netlify/lib/district-board-poll-core.mjs";
-import { handleWebhook, sign, canonicalJson } from "../netlify/lib/residency-vendor-core.mjs";
+import { handleStart, handleWebhook, sign, canonicalJson } from "../netlify/lib/residency-vendor-core.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -183,13 +185,38 @@ for (const alias of NEW) {
 eq(leaks.length, 0, `every newly opened board refuses the unverified and opens for its own Didit row — ${JSON.stringify(leaks.slice(0, 6))}`);
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("3 · a Didit decision for one seat opens no other seat");
+section("2b · the hallway resolver names the three statewide seats for a Utah reader");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  const dv = makeSandbox();
+  // TEST LOCATION: a Utah reader in House District 29. Not a real address.
+  dv.pdxRepsForMe = () => ({
+    located: true, state: "Utah", county: "Tooele",
+    levels: [
+      { key: "statehouse", seat: "statehouse", label: "Utah House", district: 29, pid: "" },
+      { key: "governor", seat: "governor", label: "Governor", statewide: true, pid: "cox" },
+      { key: "senate", seat: "senate", label: "U.S. Senate", statewide: true, pid: "lee" },
+      { key: "senate", seat: "senate", label: "U.S. Senate", statewide: true, pid: "curtis" },
+    ],
+  });
+  vm.runInContext(R("district-voice.js"), vm.createContext(dv), { filename: "district-voice.js" });
+  const rows = dv.PDXVoice.seatsForMe();
+  const keys = rows.map((r) => r.seatKey || r.boardKey).filter(Boolean);
+  for (const k of ["ut-statehouse-29", "ut-gov", "ut-us-senate-lee", "ut-us-senate-curtis"]) {
+    ok(keys.includes(k), `seatsForMe() names ${k} for the proof button (${JSON.stringify(keys)})`);
+  }
+  ok(rows.filter((r) => r.statewide).every((r) => r.seatKey === ""), "statewide rows still carry no district seat key");
+  const DC = R("district-composer.js");
+  ok(/seats\[i\]\.seatKey \|\| seats\[i\]\.boardKey/.test(DC), "district-composer.js sends the statewide board keys with the start");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("3 · a Didit decision opens the seats its session bound: its own and the statewide ones");
 // ═════════════════════════════════════════════════════════════════════════════
 const SECRET = "test-webhook-secret-not-a-secret";
 const NOW = new Date("2026-10-11T12:00:00Z");
 const NOW_S = Math.floor(NOW.getTime() / 1000);
-function decisionFor(seat) {
-  const vd = JSON.stringify({ uid: UID, seat, seats: [seat] });
+function decisionWith(vd) {
   const body = {
     webhook_type: "status.updated", session_id: "s", status: "Approved", vendor_data: vd,
     decision: { status: "Approved", vendor_data: vd,
@@ -201,26 +228,56 @@ function decisionFor(seat) {
     body: JSON.stringify(body),
   });
 }
-for (const k of ["ut-statehouse-29", "ut-gov", "ut-us-senate-lee", "ut-statesenate-6"]) {
+// Start on the board for real (no saved location sent), then hand the webhook
+// the vendor_data the start bound.
+async function checkOn(alias) {
   const rows = [];
-  await handleWebhook(decisionFor(k), {
+  const calls = [];
+  const res = await handleStart(req("/api/residency-verify", { seat: alias }, UID), {
+    verifyUser: async () => ({ uid: UID, isAnonymous: false }),
+    config: () => ({ apiKey: "test-key", workflowId: "test-workflow" }),
+    async findResidency(s, h) { return rows.find((r) => r.seatKey === s && r.authorHash === h) || null; },
+    callbackUrl: (_r, a) => `https://politidex.fyi/district/${a}`,
+    async createSession(url, headers, body) { calls.push(body); return { ok: true, data: { url: "https://verify.didit.me/x" } }; },
+  });
+  eq(res.status, 200, `${alias}: the start is 200`);
+  const vd = calls.length ? JSON.parse(calls[0]).vendor_data : "";
+  await handleWebhook(decisionWith(vd), {
     config: () => ({ webhookSecret: SECRET }),
     now: () => NOW,
     async findResidency(s, h) { return rows.find((r) => r.seatKey === s && r.authorHash === h) || null; },
     async writeVerified(s, h) { rows.push({ seatKey: s, authorHash: h, status: "verified", method: "vendor" }); },
   });
-  eq(rows.map((r) => r.seatKey).join(","), k, `${k}: the decision writes one row, for ${k}`);
   const opened = [];
-  for (const [seat, alias] of Object.entries(COMPOSER_SEATS)) {
+  for (const [seat, a] of Object.entries(COMPOSER_SEATS)) {
     const s = store(rows);
-    const c = await handleVoice(req("/api/district-board-voice", { seat: alias, issueKey: "housing", body: "Hi" }, UID), s.deps);
-    if (c.status === 201) opened.push(seat);
+    const c = await handleVoice(req("/api/district-board-voice", { seat: a, issueKey: "housing", body: "Hi" }, UID), s.deps);
+    const v = await handlePoll(req("/api/district-board-poll", { seat: a, issueKey: "housing", choice: "support" }, UID), s.deps);
+    if (c.status === 201 && v.status === 200) opened.push(a);
+    else if (c.status !== 403 || v.status !== 403) opened.push(`${a}?${c.status}/${v.status}`);
   }
-  eq(opened.join(","), k, `${k}: exactly its own board opens`);
+  return opened.sort().join(",");
+}
+eq(await checkOn("ut-hd-29"), "ut-gov,ut-hd-29,ut-us-senate-curtis,ut-us-senate-lee",
+   "a Didit decision for HD-29 opens HD-29, ut-gov and both Senate seats, and nothing else");
+eq(await checkOn("ut-gov"), "ut-gov,ut-us-senate-curtis,ut-us-senate-lee",
+   "a Didit decision for ut-gov opens ut-gov and both Senate seats, and nothing else");
+eq(await checkOn("ut-us-senate-lee"), "ut-gov,ut-us-senate-curtis,ut-us-senate-lee",
+   "a check started on a statewide board opens that board");
+{
+  // A hand-built session that binds one seat still writes that seat alone:
+  // the webhook writes only what the session names.
+  const rows = [];
+  await handleWebhook(decisionWith(JSON.stringify({ uid: UID, seat: "ut-statehouse-29", seats: ["ut-statehouse-29"] })), {
+    config: () => ({ webhookSecret: SECRET }), now: () => NOW,
+    async findResidency(s, h) { return rows.find((r) => r.seatKey === s && r.authorHash === h) || null; },
+    async writeVerified(s, h) { rows.push({ seatKey: s, authorHash: h }); },
+  });
+  eq(rows.map((r) => r.seatKey).join(","), "ut-statehouse-29", "the webhook writes only the seats the session bound");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("4 · the five original boards are byte-identical to the last commit");
+section("4 · the five original boards are unchanged apart from the cap sentence");
 // ═════════════════════════════════════════════════════════════════════════════
 const gitShow = (f) => {
   try { return execFileSync("git", ["show", `HEAD:${f}`], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 26 }); }
@@ -230,7 +287,9 @@ for (const a of FIVE) {
   const f = `district-${a}.html`;
   const h = gitShow(f);
   if (h == null) { passed++; continue; }   // no git object to compare against
-  ok(h === R(f), `${f} is unchanged`);
+  // The one change allowed: the served cap sentence came out of the composer host.
+  const CAP = '          <p class="pdxdb-foot" data-pdxdc-cap="1">Verified residents get one comment and five poll votes a month on this seat. A $20 yearly membership removes the monthly cap.</p>\n';
+  ok(h.replace(CAP, "") === R(f), `${f} is unchanged apart from the cap sentence`);
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

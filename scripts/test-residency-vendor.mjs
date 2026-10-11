@@ -63,6 +63,15 @@ const CLUSTER = {
   "ut-hd-15": "ut-statehouse-15",
   "ut-cd-2": "ut-house-2",
 };
+// THE STATE'S STATEWIDE SEATS RIDE EVERY UTAH SESSION (residency-vendor-core.mjs
+// statewideSeatsFor()): the session's own seat first, then the governor and both
+// U.S. Senate seats, in COMPOSER_SEATS order.
+const STATEWIDE = ["ut-gov", "ut-us-senate-curtis", "ut-us-senate-lee"];
+const bound = (seat, more = []) => {
+  const out = [seat];
+  for (const k of more.concat(STATEWIDE)) if (out.indexOf(k) < 0) out.push(k);
+  return out;
+};
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("1 · no vendor secret in git, and none reaches the browser");
@@ -328,7 +337,7 @@ for (const [alias, seat] of [["ut-sd-6", "ut-statesenate-6"], ["ut-hd-29", "ut-s
   eq(res.status, 200, `${alias}: a signed-in start is 200`);
   eq(t.calls.length, 1, `${alias}: one session created`);
   const sent = t.calls.length ? JSON.parse(t.calls[0].body) : {};
-  eq(sent.vendor_data, JSON.stringify({ uid: UID, seat, seats: [seat] }), `${alias}: vendor_data names this seat alone`);
+  eq(sent.vendor_data, JSON.stringify({ uid: UID, seat, seats: bound(seat) }), `${alias}: vendor_data names this seat and the statewide seats`);
   ok(String(sent.callback || "").endsWith(`/district/${alias}?residency=returned`), `${alias}: returns to its own board`);
 }
 for (const [alias, seat] of Object.entries(CLUSTER)) {
@@ -341,8 +350,8 @@ for (const [alias, seat] of Object.entries(CLUSTER)) {
   eq(t.calls[0].url, "https://verification.didit.me/v3/session/", `${alias}: …at Didit's session endpoint`);
   const sent = JSON.parse(t.calls[0].body);
   eq(sent.workflow_id, WORKFLOW, `${alias}: on the configured workflow`);
-  eq(sent.vendor_data, JSON.stringify({ uid: UID, seat, seats: [seat] }),
-     `${alias}: vendor_data is { uid, seat, seats } for THIS board (no resolved seats sent → this seat alone)`);
+  eq(sent.vendor_data, JSON.stringify({ uid: UID, seat, seats: bound(seat) }),
+     `${alias}: vendor_data is { uid, seat, seats } for THIS board (no resolved seats sent → this seat and the statewide seats)`);
   ok(sent.callback.endsWith(`/district/${alias}?residency=returned`), `${alias}: returns to the board it started from`);
   eq(t.calls[0].headers["x-api-key"], KEY, `${alias}: authenticated server-side`);
   ok(!JSON.stringify(d).includes(KEY) && !JSON.stringify(d).includes(WORKFLOW), `${alias}: no key or workflow on the wire`);
@@ -546,7 +555,7 @@ const NON_MEMBERS = [
       eq(d.url, "https://verify.didit.me/session/abc", `${who} on ${alias}: …the Didit URL is returned`);
       eq(d.seat, alias, `${who} on ${alias}: …for this board`);
       eq(t.calls.length, 1, `${who} on ${alias}: one vendor session`);
-      eq(JSON.parse(t.calls[0].body).vendor_data, JSON.stringify({ uid: UID, seat, seats: [seat] }),
+      eq(JSON.parse(t.calls[0].body).vendor_data, JSON.stringify({ uid: UID, seat, seats: bound(seat) }),
          `${who} on ${alias}: the session is bound to ${seat}`);
       eq(t.store.writes.length, 0, `${who} on ${alias}: nothing written`);
     }
@@ -586,7 +595,7 @@ const NON_MEMBERS = [
     const res = await handleStart(start(alias, UID), t.deps);
     eq(res.status, 200, `member on ${alias}: start is 200`);
     eq((await res.json()).seat, alias, `member on ${alias}: …for this board`);
-    eq(JSON.parse(t.calls[0].body).vendor_data, JSON.stringify({ uid: UID, seat, seats: [seat] }),
+    eq(JSON.parse(t.calls[0].body).vendor_data, JSON.stringify({ uid: UID, seat, seats: bound(seat) }),
        `member on ${alias}: the session is bound to ${seat}`);
     eq(t.store.writes.length, 0, `member on ${alias}: starting writes nothing`);
   }
@@ -752,19 +761,20 @@ async function startThenDecide(alias, resolved, store) {
   const bound = JSON.parse(vd);
   eq(bound.seat, "ut-house-2", "the session's own seat is UT-2");
   eq(bound.seats[0], "ut-house-2", "…and it is first in the covered list");
-  eq(bound.seats.slice().sort().join(","), Object.values(CLUSTER).sort().join(","),
-     "the session covers exactly the five composer seats the location resolved");
+  eq(bound.seats.slice().sort().join(","), Object.values(CLUSTER).concat(STATEWIDE).sort().join(","),
+     "the session covers exactly the five composer seats the location resolved, and the statewide seats");
   ok(!bound.seats.includes("ut-statehouse-57"), "…a resolved seat with no board is dropped");
   const out = await res.json();
   eq(out.written, true, "the webhook reports a write");
-  eq(out.seats, 5, "…for five seats");
-  eq(store.writes.length, 5, "five residency writes");
+  eq(out.seats, 8, "…for eight seats");
+  eq(store.writes.length, 8, "eight residency writes");
   for (const seat of Object.values(CLUSTER)) {
     const r = store.rows.find((x) => x.seatKey === seat && x.authorHash === authorHash(UID, seat));
     ok(!!r && r.status === "verified" && r.method === "vendor", `UT-2 decision → verified vendor row on ${seat}`);
   }
   ok(!store.rows.some((r) => r.seatKey === "ut-statehouse-57"), "no row on a seat without a board");
-  ok(!store.rows.some((r) => !Object.values(CLUSTER).includes(r.seatKey)), "…and no row on any seat the location did not name");
+  ok(!store.rows.some((r) => !Object.values(CLUSTER).concat(STATEWIDE).includes(r.seatKey)),
+     "…and no row on any seat the session did not bind");
   ok(store.writes.every((w) => Object.keys(w).sort().join(",") === "hash,seatKey"), "nothing from the vendor reaches any write");
 
   // A SECOND START OPENS NO SESSION ONCE ANY VERIFIED ROW EXISTS — on every board.
@@ -785,7 +795,7 @@ async function startThenDecide(alias, resolved, store) {
   // A BOARD WHOSE SEAT HAS A ROW OPENS; A BOARD WHOSE SEAT DOES NOT STILL REFUSES.
   const store = residencyStore();
   await startThenDecide("ut-cd-2", ["ut-statehouse-15", "ut-statesenate-7", "ut-house-2"], store);
-  eq(store.writes.length, 3, "a location resolving three composer seats writes three rows");
+  eq(store.writes.length, 6, "a location resolving three composer seats writes those three and the three statewide seats");
   const covered = ["ut-cd-2", "ut-hd-15", "ut-sd-7"];
   for (const alias of Object.keys(CLUSTER)) {
     const s = boardDeps(store.rows);
@@ -818,31 +828,31 @@ async function startThenDecide(alias, resolved, store) {
   // THE BOARD'S OWN SEAT IS ALWAYS COVERED, even if the location did not name it.
   const store = residencyStore();
   await startThenDecide("ut-sd-3", ["ut-statehouse-15"], store);
-  eq(store.writes.map((w) => w.seatKey).join(","), "ut-statesenate-3,ut-statehouse-15",
-     "the session's seat first, then the resolved composer seats");
+  eq(store.writes.map((w) => w.seatKey).join(","), bound("ut-statesenate-3", ["ut-statehouse-15"]).join(","),
+     "the session's seat first, then the resolved composer seats, then the statewide seats");
 }
 {
-  // A DIDIT DECISION FOR ONE SEAT OPENS THAT SEAT AND NO OTHER — on a generated
-  // board and on a statewide board. The session names one seat; every other
-  // composer seat still refuses a comment and a vote and writes nothing.
-  for (const [alias, seat] of [["ut-hd-29", "ut-statehouse-29"], ["ut-gov", "ut-gov"], ["ut-sd-6", "ut-statesenate-6"]]) {
+  // A DIDIT DECISION OPENS THE SEATS ITS SESSION BOUND AND NO OTHER — its own
+  // seat and the three statewide seats. A generated board's check opens the
+  // governor and both U.S. Senate boards; a statewide board's check opens the
+  // other two. Every other composer seat still refuses and writes nothing.
+  for (const [alias, seat] of [["ut-hd-29", "ut-statehouse-29"], ["ut-gov", "ut-gov"], ["ut-sd-6", "ut-statesenate-6"],
+                               ["ut-us-senate-lee", "ut-us-senate-lee"]]) {
     const store = residencyStore();
     await startThenDecide(alias, [], store);
-    eq(store.writes.map((w) => w.seatKey).join(","), seat, `${alias} decision: one row, for ${seat}`);
-    eq(store.rows[0] && store.rows[0].authorHash, seatHash(UID, seat), `${alias} decision: …under this seat's hash`);
-    const own = boardDeps(store.rows);
-    eq((await handleVoice(boardPost("/api/district-board-voice", { seat: alias, issueKey: "housing", body: "Hi" }, UID), own.deps)).status,
-       201, `${alias} decision: comment opens on ${alias}`);
-    eq((await handlePoll(boardPost("/api/district-board-poll", { seat: alias, issueKey: "housing", choice: "support" }, UID), own.deps)).status,
-       200, `${alias} decision: vote opens on ${alias}`);
-    let leaked = [];
+    const want = bound(seat);
+    eq(store.writes.map((w) => w.seatKey).join(","), want.join(","), `${alias} decision: rows for ${want.join(", ")}`);
+    eq(store.rows[0] && store.rows[0].authorHash, seatHash(UID, seat), `${alias} decision: …under each seat's own hash`);
+    const opened = [];
+    const leaked = [];
     for (const [k, other] of Object.entries(COMPOSER_SEATS)) {
-      if (k === seat) continue;
       const s = boardDeps(store.rows);
       const c = await handleVoice(boardPost("/api/district-board-voice", { seat: other, issueKey: "housing", body: "Hi" }, UID), s.deps);
       const v = await handlePoll(boardPost("/api/district-board-poll", { seat: other, issueKey: "housing", choice: "support" }, UID), s.deps);
-      if (c.status !== 403 || v.status !== 403 || s.posts.length + s.votes.length) leaked.push(other);
+      if (want.includes(k)) { if (c.status === 201 && v.status === 200) opened.push(k); }
+      else if (c.status !== 403 || v.status !== 403 || s.posts.length + s.votes.length) leaked.push(other);
     }
+    eq(opened.sort().join(","), want.slice().sort().join(","), `${alias} decision: comment and vote open on every bound seat`);
     eq(leaked.length, 0, `${alias} decision: every other seat still 403 and writes nothing — ${JSON.stringify(leaked)}`);
   }
 }

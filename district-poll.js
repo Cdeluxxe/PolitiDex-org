@@ -131,6 +131,9 @@
     unread: 'We could not read this poll’s votes just now. This is not an empty poll — it is a read that failed.',
     unreadNote: 'Voting stays off until this board can confirm who you are.',
     failed: 'That vote did not go through.',
+    // A monthly-cap refusal (429 monthly_cap), said without the server's
+    // membership wording.
+    notTaken: 'That vote did not go through. This seat is not taking another vote from this account right now.',
     saved: 'Vote saved. You can change it.',
     mine: 'Your vote',
     foot: 'Votes carry no name. Counts only.'
@@ -319,6 +322,8 @@
         _read = _read || {};
         _read.voice = { canVote: false, reason: res.data.code || '', line: res.data.error || LOCKED_LINE, note: res.data.note || '' };
         _status[key] = '';
+      } else if (res.status === 429 || (res.data && res.data.code === 'monthly_cap')) {
+        _status[key] = COPY.notTaken;
       } else {
         _status[key] = (res.data && res.data.error) || COPY.failed;
       }

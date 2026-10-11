@@ -14,7 +14,10 @@
 //     pattern) and the uid from the verified Firebase token. `seats` is what the
 //     hallway's resolver (district-voice.js seatsForMe() over pdxRepsForMe())
 //     named for the reader's saved location; it is filtered to the composer
-//     canonical keys and the board's own seat is always first. A Didit session
+//     canonical keys and the board's own seat is always first, and the
+//     governor and both U.S. Senate seats of the board's state are always
+//     bound too (statewideSeatsFor()), so one check opens the statewide boards
+//     beside the districts. A Didit session
 //     is created on the configured workflow (ID document + proof of address)
 //     with vendor_data = {"uid","seat","seats"} and its URL returned. Writes
 //     NOTHING to Postgres: starting a check is not a claim.
@@ -53,7 +56,7 @@
 // handlers with no database and no network.
 
 import crypto from "node:crypto";
-import { COMPOSER_SEATS, anyVerifiedSeat, composerSeat, seatHash } from "./district-board-voice-core.mjs";
+import { COMPOSER_SEATS, STATEWIDE_KEY_RE, anyVerifiedSeat, composerSeat, seatHash } from "./district-board-voice-core.mjs";
 
 export const VENDOR = "didit";
 export const SESSION_URL = "https://verification.didit.me/v3/session/";
@@ -124,8 +127,22 @@ export function signatureOk(secret, raw, headers, nowS) {
 
 // ── vendorData ──────────────────────────────────────────────────────────────
 // The seats one check covers: the board's own seat first, then every other
-// composer seat in `resolved` (canonical or alias spellings), deduplicated.
-// Anything that is not a composer seat is dropped, never widened.
+// composer seat in `resolved` (canonical or alias spellings), then the
+// statewide composer seats of the same state, deduplicated. Anything that is
+// not a composer seat is dropped, never widened.
+//
+// THE STATEWIDE SEATS RIDE EVERY CHECK IN THEIR STATE. A reader who proves an
+// address in a Utah district lives in Utah, so the governor and both U.S.
+// Senate seats are bound into the session too — the same three the hallway's
+// resolver names for a Utah reader. They are bound HERE, at start, into the
+// signed vendor_data, so the webhook still writes only seats the session
+// names. The list is the named statewide rows of COMPOSER_SEATS, never a
+// pattern that could invent a seat.
+export function statewideSeatsFor(seatKey) {
+  const own = composerSeat(seatKey);
+  const st = own ? own.slice(0, 3) : "";
+  return st ? Object.keys(COMPOSER_SEATS).filter((k) => k.slice(0, 3) === st && STATEWIDE_KEY_RE.test(k)) : [];
+}
 export function coveredSeats(seatKey, resolved) {
   const own = composerSeat(seatKey);
   if (!own) return [];
@@ -134,6 +151,7 @@ export function coveredSeats(seatKey, resolved) {
     const k = typeof raw === "string" ? composerSeat(raw) : "";
     if (k && out.indexOf(k) < 0) out.push(k);
   }
+  for (const k of statewideSeatsFor(own)) if (out.indexOf(k) < 0) out.push(k);
   return out;
 }
 
@@ -146,7 +164,7 @@ export function vendorData(uid, seatKey, resolved) {
 // from". `seats` keeps only exact canonical composer keys and always starts
 // with `seat`; a session from before the list existed covers its seat alone.
 export function parseVendorData(raw) {
-  if (typeof raw !== "string" || raw.length > 1000) return null;
+  if (typeof raw !== "string" || raw.length > 2000) return null;
   let v;
   try { v = JSON.parse(raw); } catch { return null; }
   if (!v || typeof v !== "object") return null;

@@ -801,7 +801,12 @@
         pid: pid,
         // A statewide card's door is its own key's row, or nothing. See
         // statewideKeyForLevel(): seatKey stays '' for it either way.
-        board: lv.statewide ? boardPath(statewideKeyForLevel(lv, reps.state, pid)) : boardPath(seatKey)
+        board: lv.statewide ? boardPath(statewideKeyForLevel(lv, reps.state, pid)) : boardPath(seatKey),
+        // THE KEY ONE RESIDENCY CHECK COVERS. A district card's seat key; a
+        // statewide card's board key (ut-gov, ut-us-senate-<pid>), so the
+        // composer's proof button names the governor and both U.S. Senate seats
+        // alongside the districts. '' when neither composes.
+        boardKey: lv.statewide ? statewideKeyForLevel(lv, reps.state, pid) : seatKey
       });
     }
     return out;
