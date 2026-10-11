@@ -123,7 +123,7 @@ section("1 · the owner is the roster field, and pdxPortrait reads only it");
   const env = page({ profiles: { khanna: { name: "Ro Khanna", photo: "https://live.test/k.jpg" }, tlee: { name: "Trevor Lee", photo: "" } } });
   eq(env.w.pdxPortrait("khanna"), "https://live.test/k.jpg", "a live record's photo outranks the bundled row");
   eq(env.w.pdxPortrait("tlee"), env.w.CMP_DATA.tlee.photo, "an empty live photo falls to the bundled row");
-  eq(env.w.pdxPortrait("john_johnson"), "", "no portrait on either tier is ''");
+  eq(env.w.pdxPortrait("rodric_bray"), "", "no portrait on either tier is ''");
   eq(env.w.pdxPortrait(""), "", "no pid is ''");
   eq(env.w.pdxPortraitMark("khanna"), "🏭", "the mark is the row's own icon");
   // _getPhotoUrl opens with the same two tiers, in the same order.
@@ -197,19 +197,21 @@ section("4 · a pid with no portrait anywhere still paints the mark");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const env = page();
-  const row = env.w.CMP_DATA.john_johnson;
-  eq(row.photo, undefined, "john_johnson has no roster portrait");
-  eq(letterhead(env, "john_johnson", row), "", "the letterhead has no photo, so it paints ph-fallback");
+  const row = env.w.CMP_DATA.rodric_bray;
+  eq(row.photo, undefined, "rodric_bray has no roster portrait");
+  eq(letterhead(env, "rodric_bray", row), "", "the letterhead has no photo, so it paints ph-fallback");
   eq(row.icon, "🏛", "…and that fallback is the row's building mark");
   const home = page({ home: true });
-  eq(String(home.w._getPhotoUrl("john_johnson") || ""), "", "no face anywhere for john_johnson");
-  const c = card(home, "john_johnson", "John Johnson");
+  eq(String(home.w._getPhotoUrl("rodric_bray") || ""), "", "no face anywhere for rodric_bray");
+  const c = card(home, "rodric_bray", "Rodric Bray");
   no(c.html, "<img", "the card invents no face");
-  // The 417 rows with nothing: no placeholder URL appeared on any of them.
+  // The rows with nothing: no placeholder URL appeared on any of them. The file name is
+  // what is read, not the whole address: an official CMS path such as
+  // /sites/default/files/ is a folder, not a placeholder image.
   const rows = Object.values(env.w.CMP_DATA);
   ok(rows.every((r) => r.photo == null || /^https:\/\/[^\s"']+\.(?:jpe?g|png|webp)(?:\?[^\s"']*)?$/i.test(r.photo) || /^https:\/\/[^\s"']+$/.test(r.photo)),
     "every roster photo is a plain https address");
-  ok(!rows.some((r) => /placeholder|silhouette|default|avatar/i.test(String(r.photo || ""))), "no placeholder address on any row");
+  ok(!rows.some((r) => /placeholder|silhouette|default|avatar/i.test(String(r.photo || "").split("?")[0].split("/").pop())), "no placeholder address on any row");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

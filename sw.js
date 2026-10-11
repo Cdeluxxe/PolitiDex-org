@@ -9090,7 +9090,17 @@
 //     file for this issue."), and "How this is scored" stays closed beneath that.
 //     consistency.js is precached and changed, so it moves one version.
 //     MIGRATION COST: none. No seed row, mapping, key, effect line or score moved.
-const CACHE_VERSION = 'v325';
+// v326 - PERSON PHOTOS, WAVE 1. 281 roster rows that painted the building mark
+//     now carry an official portrait on their `photo` field, each copied from
+//     the person's own .gov or .us page. 114 rows keep the building, each with
+//     its reason in PORTRAIT_SWEEP.md: a photo that sits only on a campaign site,
+//     a website-builder CDN or an .org / .net / .com host was not stored, and no
+//     photo was invented. Every new host is on the trusted list and on
+//     netlify.toml's remote_images, so a share card keeps the face.
+//     No location key or other saved key was touched. cmp-data.js is precached
+//     and changed, so it moves one version.
+//     MIGRATION COST: none. No drawer, score, effect line, seed row or key moved.
+const CACHE_VERSION = 'v326';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
