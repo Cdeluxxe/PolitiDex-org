@@ -11,7 +11,8 @@
 //      issue group, and no issue group outside a parent. Top chips: All +
 //      Mandates.
 //   2. EXPANDING A PARENT shows only its issues.
-//   3. A GENERATED-BOARD FIXTURE has zero parent headers, declared seat or not.
+//   3. A GENERATED OR STATEWIDE BOARD paints the same parents from its declared
+//      seat; a document with no seat paints none.
 //   4. THE CORE LOOKUP holds when coreIssueForKey is absent (the table itself).
 //   5. MUTATION: a renderer that skips the parent layer fails the checker, and
 //      so does one that ignores the declared seat.
@@ -178,14 +179,23 @@ section("2 · expanding a parent shows only its issues");
 }
 
 // ── 3 ───────────────────────────────────────────────────────────────────────
-section("3 · a generated board has zero parent headers");
-for (const [name, opts] of [["no seat", {}], ["HD-29", { seat: "ut-hd-29" }], ["Governor", { seat: "ut-gov" }], ["Lee", { seat: "ut-us-senate-lee" }]]) {
+section("3 · a generated or statewide board paints the parents too; no seat paints none");
+// Every board is a composer board now: HD-29 and the statewide boards declare a
+// seat on COMPOSER_SEATS, so they paint the same parent layer as SD-3 with no
+// composer host found. A document that declares no seat is still not one.
+for (const [name, opts] of [["HD-29", { seat: "ut-hd-29" }], ["Governor", { seat: "ut-gov" }], ["Lee", { seat: "ut-us-senate-lee" }]]) {
   const { B } = boot(opts);
-  ok(B.composerBoard() === false, `${name}: not a composer board`);
+  ok(B.composerBoard() === true, `${name}: a composer board from its declared seat`);
+  const h = B.tableHtml("ok", ITEMS, [], MANDATES);
+  eq(JSON.stringify(checkParents(h)), "[]", `${name}: parent headers before any issue group, collapsed`);
+  eq(parentHeads(h).map((x) => x.key).join(","), parentHeads(first).map((x) => x.key).join(","), `${name}: …the same parents as SD-3`);
+}
+{
+  const { B } = boot({});
+  ok(B.composerBoard() === false, "no seat: not a composer board");
   const h = B.tableHtml("ok", ITEMS, []);
-  eq(parentHeads(h).length, 0, `${name}: zero parent headers`);
-  ok(!/pdxdb-parent|data-pdxdb-layout/.test(h), `${name}: no parent markup at all`);
-  ok(/data-pdxdb-cat="housing"/.test(((/<div class="pdxdb-cats" role="group"[^>]*>([\s\S]*?)<\/div>/.exec(h)) || [])[1] || ""), `${name}: issue chips stay in the one chip row`);
+  eq(parentHeads(h).length, 0, "no seat: zero parent headers");
+  ok(!/pdxdb-parent|data-pdxdb-layout/.test(h), "no seat: no parent markup at all");
 }
 
 // ── 4 ───────────────────────────────────────────────────────────────────────

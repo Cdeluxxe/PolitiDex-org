@@ -278,7 +278,7 @@ section("6 · HD-29, a generated board, uses the same renderer");
   const problems = checkGrouped(host.innerHTML, ITEMS);
   eq(JSON.stringify(problems), "[]", "HD-29's painted band is the grouped table");
   const band = (s) => (/<section class="pdxdb-band pdxdb-band--table"[\s\S]*?<\/section>/.exec(s) || [""])[0];
-  const sd3 = boot({ items: ITEMS }).PDXDistrictBoard.tableHtml("ok", ITEMS, []);
+  const sd3 = boot({ items: ITEMS, seat: "ut-sd-3" }).PDXDistrictBoard.tableHtml("ok", ITEMS, []);
   eq(band(Wh.PDXDistrictBoard.tableHtml("ok", ITEMS, [])), band(sd3),
     "HD-29 and SD-3 print byte-identical band 3 markup for the same rows");
   eq(JSON.stringify(Wh.PDXDistrictBoard.issues().sort()),

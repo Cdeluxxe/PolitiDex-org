@@ -951,20 +951,28 @@ function sd6Band1Faults(modSrc) {
   no(R(SD6.doc), "sadams", "sd-6: the SD-6 document does not name Adams's pid");
 }
 
-// (d) THE DOCUMENT: the seat twice, canonical on the bare path, no location
-// module (this board needs no congressional join), and the counts structurally
-// zero — not one integer in the reader-visible copy.
+// (d) THE DOCUMENT: the seat twice, canonical on the bare path, the location
+// module only beside the hallway resolver the composer's proof button reads,
+// and the counts structurally zero — not one integer in the reader-visible
+// copy outside the composer's cap sentence. The served composer is the locked
+// one: a disabled box and no form.
 {
   const doc = R(SD6.doc);
   eq((doc.match(/ut-sd-6/g) || []).length >= 2, true, "sd-6: the alias appears at least twice");
   has(doc, "window.__PDX_DISTRICT_BOARD_SEAT = 'ut-sd-6'", "sd-6: the head declares the seat");
   has(doc, 'data-pdxdb-seat="ut-sd-6"', "sd-6: the host declares the seat");
   has(doc, '<link rel="canonical" href="https://politidex.fyi/district/ut-sd-6" />', "sd-6: canonical is the bare path");
-  ok(!/\bsrc="[^"]*voter-hub-location\.js/.test(doc), "sd-6: voter-hub-location.js stays off this document");
-  ok(!/\d/.test(textOf(SD6.doc).replace(/District 6/g, "")),
+  const srcs = [...doc.matchAll(/\bsrc="([^"]*)"/g)].map((m) => m[1]);
+  ok(srcs.indexOf("/voter-hub-location.js") >= 0 && srcs.indexOf("/district-voice.js") > srcs.indexOf("/voter-hub-location.js") &&
+     srcs.indexOf("/district-composer.js") > srcs.indexOf("/district-voice.js"),
+    "sd-6: voter-hub-location.js is here only with the hallway resolver, before the composer");
+  const CAP = "Verified residents get one comment and five poll votes a month on this seat. A $20 yearly membership removes the monthly cap.";
+  ok(!/\d/.test(textOf(SD6.doc).replace(/District 6/g, "").replace(CAP, "")),
     "sd-6: the only digit a reader sees is the district number — no count in the markup");
-  for (const t of ["<textarea", "<form", 'type="submit"', "contenteditable"]) {
-    no(doc, t, `sd-6: no composer (${t})`);
+  const block = (doc.match(/<div id="pdx-district-composer"[\s\S]*?<\/section>/) || [""])[0];
+  ok(/<textarea[^>]*\bdisabled\b/.test(block), "sd-6: the served composer box is disabled");
+  for (const t of ["<form", 'type="submit"', "contenteditable"]) {
+    no(doc, t, `sd-6: no live composer in the markup (${t})`);
   }
 }
 

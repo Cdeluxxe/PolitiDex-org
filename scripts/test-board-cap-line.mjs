@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
-// test-board-cap-line.mjs — the five composer boards state the cap
+// test-board-cap-line.mjs — every composer board states the cap
 // ─────────────────────────────────────────────────────────────────────────────
-// Under the composer heading, in every state, the five composer boards print
+// Under the composer heading, in every state, every composer board (the five
+// Layton-cluster boards, SD-6, every generated board and the statewide ones) prints
 // one sentence: what a verified resident gets on the seat and what the $20
 // yearly membership changes. It is the cap membership-core.mjs enforces and
 // /me states (one comment and five poll votes a month). The locked line stays
@@ -40,7 +41,13 @@ const flush = async (n = 10) => { for (let i = 0; i < n; i++) await new Promise(
 const CAP = "Verified residents get one comment and five poll votes a month on this seat. " +
   "A $20 yearly membership removes the monthly cap.";
 const LOCKED = "Only verified residents of this seat get a voice that counts.";
-const BOARDS = ["ut-sd-3", "ut-hd-16", "ut-sd-7", "ut-hd-15", "ut-cd-2"];
+// Every board document's own alias, read off its seat declaration.
+const BOARDS = readdirSync(ROOT).filter((f) => /^district-ut-.*\.html$/.test(f))
+  .map((f) => (/data-pdxdb-seat="([^"]+)"/.exec(R(f)) || [, ""])[1]).sort();
+must(BOARDS.length > 80 && BOARDS.every((a) => /^ut-/.test(a)), "the board documents could not be read");
+for (const a of ["ut-sd-3", "ut-hd-16", "ut-sd-7", "ut-hd-15", "ut-cd-2", "ut-hd-29", "ut-gov"]) {
+  must(BOARDS.includes(a), `${a} is not among the board documents`);
+}
 const BANNED = /\bstocks?\b|\bshares?\b|\bshareholders?\b|\bearn(?:s|ed|ing|ings)?\b|\bprofits?\b|\bform\s*c\b|\bequity\b|\binvest/i;
 
 const COMPOSER = R("district-composer.js");
@@ -59,7 +66,7 @@ function boardFails(html, alias) {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("1 · the five board documents serve the sentence and the locked line");
+section("1 · every board document serves the sentence and the locked line");
 // ═════════════════════════════════════════════════════════════════════════════
 for (const a of BOARDS) eq(boardFails(R(`district-${a}.html`), a).join(" | "), "", `${a}: served copy`);
 
@@ -106,8 +113,8 @@ for (const a of BOARDS) {
   eq(open.html.split(CAP).length - 1, 1, `${a} open: the cap sentence is painted once`);
 }
 {
-  const other = await paint("ut-sd-6", { voice: { canPost: false }, posts: [] });
-  eq(other.html, "", "a non-composer seat mounts nothing, so no cap sentence");
+  const other = await paint("ut-hd-1", { voice: { canPost: false }, posts: [] });
+  eq(other.html, "", "a seat with no board mounts nothing, so no cap sentence");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -129,9 +136,9 @@ function strays(read) {
 }
 eq(strays(R).join(", "), "", "no other shipped file carries the cap sentence");
 {
-  // A sentence written onto /me or a generated board is caught.
+  // A sentence written onto /me or /voice is caught.
   ok(strays((f) => (f === "me.html" ? R(f) + CAP : R(f))).length === 1, "mutation: the cap sentence on /me passed");
-  ok(strays((f) => (f === "district-ut-sd-6.html" ? R(f) + CAP : R(f))).length === 1, "mutation: the cap sentence on ut-sd-6 passed");
+  ok(strays((f) => (f === "voice.html" ? R(f) + CAP : R(f))).length === 1, "mutation: the cap sentence on /voice passed");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

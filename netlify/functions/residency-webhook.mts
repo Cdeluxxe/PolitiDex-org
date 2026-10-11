@@ -8,7 +8,7 @@
 //
 // The wiring for handleWebhook() in netlify/lib/residency-vendor-core.mjs,
 // which decides everything: signature, final approved decision, document AND
-// address checks present, vendorData seat one of the five, and the seats the
+// address checks present, vendorData seat a composer seat, and the seats the
 // check covers. This file only supplies the secrets and the write.
 //
 // THE WRITE, ONCE PER COVERED SEAT: voice_residency (seat_key, author_hash,

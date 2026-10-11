@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// District board composer — API (SD-3, HD-16, SD-7, HD-15 and UT-2)
+// District board composer — API (every Utah district and statewide board)
 // ─────────────────────────────────────────────────────────────────────────────
 // The wiring for netlify/lib/district-board-voice-core.mjs. Every decision — the
 // seat allow-list, the verified_seat gate, the post checks and the public shape
@@ -28,7 +28,7 @@
 // No update and no delete.
 
 import type { Config } from "@netlify/functions";
-import { and, count, desc, eq, gte, sql } from "drizzle-orm";
+import { and, count, desc, eq, gte, sql, inArray } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import { ddIssueKeys, voiceMembership, voiceResidency, voiceTakes } from "../../db/schema.js";
 import { verifyUser } from "../../db/firebase-auth.js";
@@ -48,6 +48,26 @@ const deps = {
       .from(voiceResidency)
       .where(and(eq(voiceResidency.seatKey, seatKey), eq(voiceResidency.authorHash, hash)));
     return row || null;
+  },
+
+  // Every composer seat's (seat, hash) pair in ONE query, for anyVerifiedSeat().
+  // Filtered by hash here and matched pair-for-pair in the core.
+  async findVendorVerified(pairs: { seatKey: string; authorHash: string }[]) {
+    const hashes = pairs.map((p) => p.authorHash).filter(Boolean);
+    if (!hashes.length) return [];
+    return db
+      .select({
+        seatKey: voiceResidency.seatKey,
+        authorHash: voiceResidency.authorHash,
+        status: voiceResidency.status,
+        method: voiceResidency.method,
+      })
+      .from(voiceResidency)
+      .where(and(
+        inArray(voiceResidency.authorHash, hashes),
+        eq(voiceResidency.status, "verified"),
+        eq(voiceResidency.method, "vendor"),
+      ));
   },
 
   async issueExists(issueKey: string) {

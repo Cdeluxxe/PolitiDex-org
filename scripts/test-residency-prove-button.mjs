@@ -20,7 +20,7 @@
 // No database, no network, no browser. Exit code is non-zero on any failure.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
@@ -72,7 +72,12 @@ for (const alias of Object.keys(CLUSTER)) {
   const commented = cd2.replace(/(<script\b[^>]*\bsrc="\/district-composer\.js"[^>]*>\s*<\/script>)/g, "<!-- $1 -->");
   eq(loadsComposer(commented, "ut-cd-2"), false, "mutation: UT-2 with its tag commented out still passed");
 }
-eq(Object.keys(COMPOSER_SEATS).length, 5, "still exactly five composer seats");
+{
+  const docs = readdirSync(ROOT).filter((f) => /^district-ut-.*\.html$/.test(f));
+  eq(Object.keys(COMPOSER_SEATS).length, docs.length, "one composer seat per board document");
+  const unloaded = docs.filter((f) => !loadsComposer(R(f), (/data-pdxdb-seat="([^"]+)"/.exec(R(f)) || [, ""])[1]));
+  eq(unloaded.length, 0, `every board document loads the composer for its own seat — ${JSON.stringify(unloaded)}`);
+}
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("2 · the button: signed in + unverified only, and its click starts the check");

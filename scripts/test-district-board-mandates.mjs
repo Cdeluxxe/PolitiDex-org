@@ -2,7 +2,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Tests for ON THE TABLE: THE MANDATES THAT NAME THE SEAT
 // ─────────────────────────────────────────────────────────────────────────────
-// On the five composer boards (SD-3, HD-16, SD-7, HD-15, UT-2) band 3 also
+// On every composer board (every Utah board, statewide included) band 3 also
 // lists the People's Mandate proposals that already name the seat — its key in
 // linked_race_ids, or its sitting member in linked_politician_ids. What must
 // hold:
@@ -14,8 +14,9 @@
 //      same with or without mandates, and the mandate block is not a
 //      data-pdxdb-group, so district-poll.js gives it no poll.
 //   4. THE "Mandates" CHIP FILTERS to the mandate rows.
-//   5. ONLY COMPOSER BOARDS READ: a generated board never asks for mandates;
-//      a composer board asks with its own seat and sitting member.
+//   5. EVERY BOARD READS WITH ITS OWN SEAT: a generated board and a statewide
+//      board ask with their own seat and sitting member, and print the rows
+//      that name them; a document with no seat never asks.
 //   6. THE READ IS A READ: /api/mandate-proposals' seat filter matches both
 //      spellings of the seat, and adds no write.
 //   7. NO EQUITY OR STOCK LANGUAGE in the new copy or the rendered rows.
@@ -213,15 +214,21 @@ section("5 · only composer boards read the Mandate, with their own seat");
   const host = hostEl("ut-hd-29");
   ok(win.PDXDistrictBoard.mount(host) === true, "generated HD-29 mounts");
   await flush();
-  eq(calls.filter((u) => u.indexOf("/api/mandate-proposals") === 0).length, 0, "a generated board never asks the Mandate");
-  no(host.innerHTML, "data-pdxdb-mandates", "a generated board prints no mandate block");
+  const mc = calls.filter((u) => u.indexOf("/api/mandate-proposals") === 0);
+  eq(mc.length, 1, "a generated board asks the Mandate once");
+  has(mc[0] || "", "seat=ut-hd-29", "…for its own seat");
+  has(host.innerHTML, "data-pdxdb-mandates", "a generated board prints the mandate block");
+  has(host.innerHTML, MANDATE.title, "…with the mandate row");
 }
 {
   const { win, calls } = boot({ items: ITEMS, seat: "ut-gov", mandates: [MANDATE], composer: false });
   const host = hostEl("ut-gov");
   win.PDXDistrictBoard.mount(host);
   await flush();
-  eq(calls.filter((u) => u.indexOf("/api/mandate-proposals") === 0).length, 0, "a statewide board never asks the Mandate");
+  const mc = calls.filter((u) => u.indexOf("/api/mandate-proposals") === 0);
+  eq(mc.length, 1, "a statewide board asks the Mandate once");
+  has(mc[0] || "", "seat=ut-gov", "…for its own seat");
+  has(host.innerHTML, MANDATE.title, "…and prints the mandate row");
 }
 {
   // A failed read leaves the band as it was.

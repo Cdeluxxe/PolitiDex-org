@@ -9263,7 +9263,23 @@
 //     precached and changed, so the shell moves one version.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none. No table, row, key or seat moved.
-const CACHE_VERSION = 'v341';
+// v342 - EVERY UTAH BOARD TAKES A VOICE. The composer and the poll, which ran
+//     on the five Layton-cluster boards, now mount on SD-6, every generated
+//     district board and the three statewide boards. Each generated document
+//     gains the composer and poll hosts and loads district-voice.js,
+//     district-composer.js and district-poll.js (and voter-hub-location.js
+//     where it was not already on the page). Band 3 paints the parent headers
+//     in the issue colours, collapsed, with the pinned strip above them, on
+//     every board. Gated on a Didit-verified residency row for THAT seat. Still
+//     named rows only: no /district/* splat, and the precache list, the nav
+//     regex and the offline document map are unchanged. Every board document
+//     and the three modules are precached and changed, so the shell moves one
+//     version. No location key or other saved key was touched.
+//     MIGRATION COST: none on the device. In the database,
+//     20261113000000_dd_districts_every_board_seat seeds the dd_districts row
+//     each board seat's residency, comment and vote rows point at; it writes
+//     no residency, comment or vote row.
+const CACHE_VERSION = 'v342';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -1,13 +1,13 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   district-composer.js — THE BOARDS THAT TAKE A VOICE (the Layton cluster)
+   district-composer.js — THE BOARDS THAT TAKE A VOICE (every Utah board)
    ───────────────────────────────────────────────────────────────────────────
-   Loaded by five documents and no others: /district/ut-sd-3, ut-hd-16,
-   ut-sd-7, ut-hd-15 and ut-cd-2. It mounts only on a #pdx-district-composer
-   host whose data-pdxdc-seat is on COMPOSER_SEATS (named rows, no pattern), and
-   that host is in those five documents only — every generated board and every
-   statewide board stays a reader and keeps district-board.js's disabled
-   "Posting ships next" seam. The server's own list is the one that counts;
-   this one only decides where to paint.
+   Loaded by every district board document: the five Layton-cluster boards
+   where it first shipped (/district/ut-sd-3, ut-hd-16, ut-sd-7, ut-hd-15,
+   ut-cd-2), SD-6, every generated board and the three statewide boards. It
+   mounts only on a #pdx-district-composer host whose data-pdxdc-seat is on
+   COMPOSER_SEATS (named rows, no pattern — the generated rows are written by
+   scripts/gen-district-boards.mjs). The server's own list is the one that
+   counts; this one only decides where to paint.
 
    THE BOX IS OFF UNTIL THE SERVER SAYS OTHERWISE. The served markup is a
    disabled field with the locked line. This module turns it on only when
@@ -41,7 +41,7 @@
    every state: what a verified resident gets on this seat and what the
    yearly membership changes. It is the same cap the server enforces
    (membership-core.mjs) and /me states. It is the only money copy here, it
-   opens nothing, and it lives on these five boards only.
+   opens nothing, and it lives on the composer boards only.
 
    No poll, no replies, no score.
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -49,7 +49,93 @@
   'use strict';
 
   var API = '/api/district-board-voice';
-  var COMPOSER_SEATS = { 'ut-sd-3': 1, 'ut-hd-16': 1, 'ut-sd-7': 1, 'ut-hd-15': 1, 'ut-cd-2': 1 };
+  var COMPOSER_SEATS = {
+    'ut-sd-3': 1, 'ut-hd-16': 1, 'ut-sd-7': 1, 'ut-hd-15': 1, 'ut-cd-2': 1, 'ut-sd-6': 1,
+    // @generated district-boards begin — scripts/gen-district-boards.mjs writes every line up to the end marker, do not edit by hand
+    'ut-hd-4': 1,
+    'ut-hd-5': 1,
+    'ut-hd-6': 1,
+    'ut-hd-9': 1,
+    'ut-hd-10': 1,
+    'ut-hd-11': 1,
+    'ut-hd-12': 1,
+    'ut-hd-14': 1,
+    'ut-hd-19': 1,
+    'ut-hd-21': 1,
+    'ut-hd-22': 1,
+    'ut-hd-23': 1,
+    'ut-hd-24': 1,
+    'ut-hd-25': 1,
+    'ut-hd-28': 1,
+    'ut-hd-29': 1,
+    'ut-hd-30': 1,
+    'ut-hd-31': 1,
+    'ut-hd-33': 1,
+    'ut-hd-34': 1,
+    'ut-hd-36': 1,
+    'ut-hd-37': 1,
+    'ut-hd-39': 1,
+    'ut-hd-41': 1,
+    'ut-hd-42': 1,
+    'ut-hd-43': 1,
+    'ut-hd-44': 1,
+    'ut-hd-45': 1,
+    'ut-hd-46': 1,
+    'ut-hd-49': 1,
+    'ut-hd-50': 1,
+    'ut-hd-51': 1,
+    'ut-hd-52': 1,
+    'ut-hd-53': 1,
+    'ut-hd-55': 1,
+    'ut-hd-56': 1,
+    'ut-hd-59': 1,
+    'ut-hd-60': 1,
+    'ut-hd-61': 1,
+    'ut-hd-63': 1,
+    'ut-hd-64': 1,
+    'ut-hd-65': 1,
+    'ut-hd-66': 1,
+    'ut-hd-67': 1,
+    'ut-hd-68': 1,
+    'ut-hd-69': 1,
+    'ut-hd-70': 1,
+    'ut-hd-71': 1,
+    'ut-hd-73': 1,
+    'ut-hd-75': 1,
+    'ut-sd-1': 1,
+    'ut-sd-2': 1,
+    'ut-sd-4': 1,
+    'ut-sd-5': 1,
+    'ut-sd-8': 1,
+    'ut-sd-9': 1,
+    'ut-sd-10': 1,
+    'ut-sd-11': 1,
+    'ut-sd-12': 1,
+    'ut-sd-13': 1,
+    'ut-sd-14': 1,
+    'ut-sd-15': 1,
+    'ut-sd-16': 1,
+    'ut-sd-17': 1,
+    'ut-sd-18': 1,
+    'ut-sd-19': 1,
+    'ut-sd-20': 1,
+    'ut-sd-21': 1,
+    'ut-sd-22': 1,
+    'ut-sd-23': 1,
+    'ut-sd-24': 1,
+    'ut-sd-25': 1,
+    'ut-sd-26': 1,
+    'ut-sd-27': 1,
+    'ut-sd-28': 1,
+    'ut-sd-29': 1,
+    'ut-cd-1': 1,
+    'ut-cd-3': 1,
+    'ut-cd-4': 1,
+    'ut-gov': 1,
+    'ut-us-senate-curtis': 1,
+    'ut-us-senate-lee': 1,
+    // @generated district-boards end
+  };
   var POST_MAX = 280;
   var LOCKED_LINE = 'Only verified residents of this seat get a voice that counts.';
   var CAP_LINE = 'Verified residents get one comment and five poll votes a month on this seat. ' +
@@ -256,7 +342,7 @@
   // voice.js seatsForMe() over pdxRepsForMe() — the same list /voice paints —
   // reduced to its seat keys. Nothing is composed here; a missing module or a
   // reader with no saved location sends [] and the check covers this board's
-  // seat alone. The server keeps only the five composer seats.
+  // seat alone. The server keeps only composer seats.
   function resolvedSeats() {
     var out = [];
     try {
