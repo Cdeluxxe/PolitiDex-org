@@ -118,6 +118,33 @@
 .pdxdb-parent-b { padding: 0 0 0.7rem; }
 .pdxdb-cats--parent { margin: 0 0 0.6rem; }
 
+/* A parent header wears its chips' colour: the same inline token
+   (--pdx-ic / --pdx-ic-ink / --pdx-ic-wash) PDXIssueColors hands every chip
+   inside it, as a coloured spine and ink. The pdxdb-ic-<core> class names the
+   palette entry; the sheet holds no per-issue hex. */
+.pdxdb-parent-h[data-ic="on"] {
+  color: var(--pdx-ic-ink);
+  border-left: 3px solid var(--pdx-ic);
+  margin-left: -0.75rem; padding-left: 0.6rem;
+  background: linear-gradient(90deg, var(--pdx-ic-wash), transparent 55%);
+}
+.pdxdb-parent-h[data-ic="on"] .pdxdb-parent-n { color: var(--pdx-ic-ink); opacity: 0.8; }
+
+/* THE PINNED STRIP: what is live on this seat, above the parent list and
+   outside every collapse. Mandates first, then the issues the most people
+   answered or commented on. */
+.pdxdb-pinned { margin: 0 0 0.8rem; padding: 0.6rem 0.75rem; border: 1px solid #253855; border-radius: 0.6rem; background: #0d1830; }
+.pdxdb-pinned-h { margin: 0 0 0.45rem; font: 700 0.78rem/1.3 'Barlow', sans-serif; letter-spacing: 0.04em; text-transform: uppercase; color: #9fb3d1; }
+.pdxdb-pins { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
+.pdxdb-pin { min-width: 0; }
+.pdxdb-pin-i {
+  display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px;
+  border: 1px solid #253855; background: #0f1a2e; color: #cfe0fa;
+  font: 600 0.82rem/1.35 'Barlow', sans-serif; cursor: pointer;
+}
+.pdxdb-pin-i[data-ic="on"] { background: var(--pdx-ic-wash); border-color: var(--pdx-ic); color: var(--pdx-ic-ink); }
+.pdxdb-pin-i:focus-visible { outline: 2px solid #7fb2ff; outline-offset: 2px; }
+
 /* A measure under two issues wears both chips. */
 .pdxdb-m-issue + .pdxdb-m-issue { margin-left: 0.3rem; }
 

@@ -619,6 +619,10 @@
     // The composer boards' finder sits above the chips and also finds mandates.
     findLabelComposer: 'Find a topic or mandate',
     findPlaceholderComposer: 'Title, bill number or mandate',
+    // The pinned strip above the parent list on the composer boards.
+    pinnedHead: 'Live on this seat',
+    pinAnswered: 'answered',
+    pinCommented: 'commented',
     mandateHref: '/mandate',
 
     // THE GATE IS A RESIDENCY CHECK FOR THIS SEAT, nothing else. The second
@@ -1199,7 +1203,7 @@
           ' placeholder="' + esc(composer ? COPY.findPlaceholderComposer : COPY.findPlaceholder) + '" value="' + esc(_view.q) + '" /></label>';
 
     return band('table', COPY.tableBand, COPY.tableNote,
-      (composer ? find + cats : cats + find) +
+      (composer ? find + cats + (P ? pinnedHtml(mrows, G.groups, tally) : '') : cats + find) +
       '<div class="pdxdb-groups"' + (P ? ' data-pdxdb-layout="parents"' : '') + '>' + groups + '</div>' +
       '<p class="pdxdb-none pdxdb-find-none" data-pdxdb-find-none' +
         (anyShown(G, mrows) ? ' hidden' : '') + '>' + esc(COPY.findNone) + '</p>',
@@ -1294,10 +1298,16 @@
       body += groupHtml(g.key, g.label, g.rows, tally, stance);
     }
     var st = parentState(par.key, any);
+    // THE PARENT WEARS ITS CHIPS' COLOUR: the exact token issueSkin() hands the
+    // first chip inside it (every chip in a parent resolves to the same core, so
+    // that is the core's token), plus a class named for the palette entry it
+    // came from. No palette entry, no class and no token — never a borrowed hue.
+    var skin = par.groups.length ? issueSkin(par.groups[0].key) : '';
+    var icClass = (skin && paletteHas(par.key)) ? ' ' + IC_PREFIX + par.key : '';
     return '<details class="pdxdb-parent" data-pdxdb-parent="' + esc(par.key) + '"' +
         (st.open ? ' open' : '') + (st.shown ? '' : ' hidden') + '>' +
-        '<summary class="pdxdb-parent-h' + (st.open ? '' : ' ' + PARENT_COLLAPSED) + '"' +
-          ' aria-expanded="' + (st.open ? 'true' : 'false') + '">' +
+        '<summary class="pdxdb-parent-h' + esc(icClass) + (st.open ? '' : ' ' + PARENT_COLLAPSED) + '"' +
+          ' aria-expanded="' + (st.open ? 'true' : 'false') + '"' + (icClass ? skin : '') + '>' +
           '<span class="pdxdb-parent-l">' + esc(par.label) + '</span>' +
           '<span class="pdxdb-parent-n" data-pdxdb-parent-count="' + par.groups.length + '">' +
             esc(issuesWord(par.groups.length)) + '</span>' +
@@ -1307,6 +1317,68 @@
           '<div class="pdxdb-groups">' + body + '</div>' +
         '</div>' +
       '</details>';
+  }
+
+  // The palette class prefix, and the palette itself asked whether it holds a
+  // core: PDXIssueColors.CORE_ISSUE_COLORS is the one table of issue colours.
+  var IC_PREFIX = 'pdxdb-ic-';
+  function paletteHas(coreKey) {
+    try {
+      var C = window.PDXIssueColors;
+      return !!(C && C.CORE_ISSUE_COLORS && Object.prototype.hasOwnProperty.call(C.CORE_ISSUE_COLORS, coreKey));
+    } catch (e) { return false; }
+  }
+
+  // ── THE PINNED STRIP (composer boards only) ───────────────────────────────
+  // Above the parent list, and outside every collapse and filter, so a reader
+  // who sees nothing else open still sees what is live on this seat: up to
+  // PIN_MANDATES mandate rows that name the seat, in the order the Mandate read
+  // returned them, and up to PIN_ISSUES issue groups ranked by how many PEOPLE
+  // answered a poll or wrote a comment on them here (band 2's own per-issue
+  // tally). An issue nobody has touched is not pinned; a strip with nothing in
+  // it is not printed. A pinned issue is a button onto its group — the same
+  // data-pdxdb-cat control as a chip — never a second copy of the group, so the
+  // poll module still sees each issue once. The counts are people, never a
+  // majority and never this district's position.
+  var PIN_MANDATES = 2;
+  var PIN_ISSUES = 3;
+  function pinnedIssues(groups, tally) {
+    var list = [];
+    for (var i = 0; i < groups.length; i++) {
+      var t = tally[groups[i].key];
+      var n = t ? whole(t.polls) + whole(t.comments) : 0;
+      if (n > 0) list.push({ g: groups[i], polls: whole(t.polls), comments: whole(t.comments), n: n, at: i });
+    }
+    list.sort(function (a, b) { return (b.n - a.n) || (a.at - b.at); });
+    return list.slice(0, PIN_ISSUES);
+  }
+  function pinnedHtml(mrows, groups, tally) {
+    var ms = mrows.slice(0, PIN_MANDATES);
+    var is = pinnedIssues(groups, tally);
+    if (!ms.length && !is.length) return '';
+    var body = '';
+    for (var i = 0; i < ms.length; i++) {
+      var m = ms[i];
+      body += '<li class="pdxdb-pin pdxdb-pin--mandate" data-pdxdb-pin-mandate="' + esc(String(m.id)) + '">' +
+          '<span class="pdxdb-mandate-tag">' + esc(COPY.mandateTag) + '</span>' +
+          '<a class="pdxdb-m-link" href="' + esc(COPY.mandateHref + '#pp-card-' + m.id) + '">' + esc(String(m.title || '').trim()) + '</a>' +
+          '<span class="pdxdb-mandate-st">' + esc(COPY.mandateStatus + ' · ' + supportWord(whole(m.supportCount))) + '</span>' +
+        '</li>';
+    }
+    for (var j = 0; j < is.length; j++) {
+      var p = is[j];
+      body += '<li class="pdxdb-pin pdxdb-pin--issue" data-pdxdb-pin-issue="' + esc(p.g.key) + '">' +
+          '<button type="button" class="pdxdb-pin-i" data-pdxdb-cat="' + esc(p.g.key) + '"' +
+            ' aria-pressed="' + (_view.cat === p.g.key ? 'true' : 'false') + '"' + issueSkin(p.g.key) + '>' +
+            esc(p.g.label) + '</button>' +
+          '<span class="pdxdb-mandate-st">' + esc(people(p.polls) + ' ' + COPY.pinAnswered + ' · ' +
+            people(p.comments) + ' ' + COPY.pinCommented) + '</span>' +
+        '</li>';
+    }
+    return '<section class="pdxdb-pinned" data-pdxdb-pinned="" aria-label="' + esc(COPY.pinnedHead) + '">' +
+        '<h3 class="pdxdb-pinned-h">' + esc(COPY.pinnedHead) + '</h3>' +
+        '<ul class="pdxdb-pins">' + body + '</ul>' +
+      '</section>';
   }
 
   // A parent's open state, written to the <details>, the header's class and

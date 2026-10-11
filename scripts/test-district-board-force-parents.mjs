@@ -86,7 +86,7 @@ const MANDATES = [{ id: 7, title: "Publish every committee vote within 24 hours"
 // ── THE CHECKER ─────────────────────────────────────────────────────────────
 // Problems with "this band opens with collapsed parent headers"; [] holds.
 function parentHeads(html) {
-  return [...html.matchAll(/<details class="pdxdb-parent" data-pdxdb-parent="([^"]*)"([^>]*)>\s*<summary class="([^"]*)" aria-expanded="([^"]*)">/g)]
+  return [...html.matchAll(/<details class="pdxdb-parent" data-pdxdb-parent="([^"]*)"([^>]*)>\s*<summary class="([^"]*)" aria-expanded="([^"]*)"[^>]*>/g)]
     .map((x) => ({ key: x[1], open: /\sopen\b/.test(x[2]), cls: x[3], aria: x[4], at: x.index }));
 }
 function checkParents(html) {

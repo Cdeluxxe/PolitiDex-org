@@ -9242,7 +9242,18 @@
 //     the shell cache answers before the network. No location key or other
 //     saved key was touched.
 //     MIGRATION COST: none. No table, row, key or seat moved.
-const CACHE_VERSION = 'v339';
+// v340 - COMPOSER BOARD PARENTS WEAR THEIR COLOUR, AND A PINNED STRIP LEADS.
+//     On the five composer boards each parent category header carries the same
+//     PDXIssueColors token its issue chips wear (and a pdxdb-ic-<core> class
+//     naming the palette entry), and above the parent list a "Live on this
+//     seat" strip pins up to two mandate rows that name the seat and up to
+//     three issue groups with the most people who answered or commented here,
+//     visible whatever is collapsed. Printed only when such rows exist.
+//     Generated boards are unchanged. district-board.js and district-board.css
+//     are precached and changed, so the shell moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none. No table, row, key or seat moved.
+const CACHE_VERSION = 'v340';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
