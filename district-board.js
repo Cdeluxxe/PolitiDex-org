@@ -976,7 +976,10 @@
     if (shown && q && !hits) shown = false;
     var open;
     if (q) open = hits > 0;
-    else if (_view.cat) open = true;
+    // A chip opens its own group. On the composer boards it opens ONLY that
+    // one: the groups it hides are closed too, so clearing the chip finds them
+    // collapsed rather than open behind the filter.
+    else if (_view.cat) open = composerOwned() ? _view.cat === key : true;
     else if (Object.prototype.hasOwnProperty.call(_view.open, key)) open = !!_view.open[key];
     else if (composerOwned()) open = false;   // the composer boards: every group starts collapsed
     else open = !!(key && stance[key]);
@@ -997,19 +1000,55 @@
     var head = key
       ? '<span class="pdxdb-group-l"' + issueSkin(key) + '>' + esc(label) + '</span>'
       : '<span class="pdxdb-group-l pdxdb-group-l--none">' + esc(COPY.tableUnfiled) + '</span>';
-    return '<details class="pdxdb-group' + (key ? '' : ' pdxdb-group--none') + '"' +
-        ' data-pdxdb-group="' + esc(key) + '"' +
-        (st.open ? ' open' : '') + (st.shown ? '' : ' hidden') + '>' +
-        '<summary class="pdxdb-group-h">' + head +
-          '<span class="pdxdb-group-n" data-pdxdb-group-count="' + rows.length + '">' +
-            esc(measuresWord(rows.length)) + '</span>' +
-        '</summary>' +
-        '<table class="pdxdb-table"><thead><tr>' +
+    var table = '<table class="pdxdb-table"><thead><tr>' +
           '<th scope="col">' + esc(COPY.colMeasure) + '</th>' +
           '<th scope="col" class="pdxdb-num">' + esc(COPY.colPolls) + '</th>' +
           '<th scope="col" class="pdxdb-num">' + esc(COPY.colComments) + '</th>' +
-        '</tr></thead><tbody>' + body + '</tbody></table>' +
+        '</tr></thead><tbody>' + body + '</tbody></table>';
+    // THE COMPOSER BOARDS SAY COLLAPSED IN THE MARKUP, not only through the
+    // <details> element's own state: the header carries a collapsed class and
+    // aria-expanded, and the body is hidden, so a closed group is closed under
+    // any stylesheet. syncGroup() keeps all three in step with `open`. Every
+    // other board prints the markup it always has.
+    var composer = composerOwned();
+    var summary = composer
+      ? '<summary class="pdxdb-group-h' + (st.open ? '' : ' ' + COLLAPSED) + '"' +
+          ' aria-expanded="' + (st.open ? 'true' : 'false') + '">'
+      : '<summary class="pdxdb-group-h">';
+    return '<details class="pdxdb-group' + (key ? '' : ' pdxdb-group--none') + '"' +
+        ' data-pdxdb-group="' + esc(key) + '"' +
+        (st.open ? ' open' : '') + (st.shown ? '' : ' hidden') + '>' +
+        summary + head +
+          '<span class="pdxdb-group-n" data-pdxdb-group-count="' + rows.length + '">' +
+            esc(measuresWord(rows.length)) + '</span>' +
+        '</summary>' +
+        (composer
+          ? '<div class="pdxdb-group-b" data-pdxdb-group-body=""' + (st.open ? '' : ' hidden') + '>' + table + '</div>'
+          : table) +
       '</details>';
+  }
+
+  // The header class a collapsed group wears on the composer boards.
+  var COLLAPSED = 'pdxdb-group-h--collapsed';
+
+  // One group's open state, written to every place it is printed: the
+  // <details> element, and — where the composer markup carries them — the
+  // header's class and aria-expanded and the body's hidden flag. Idempotent, so
+  // the `toggle` event it can cause re-enters harmlessly.
+  function syncGroup(d, open) {
+    if (!d) return;
+    if (!!d.open !== !!open) d.open = !!open;
+    try {
+      var sum = fn(d.querySelector) ? d.querySelector('.pdxdb-group-h') : null;
+      if (sum && sum.hasAttribute && sum.hasAttribute('aria-expanded')) {
+        sum.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (sum.classList) {
+          if (open) sum.classList.remove(COLLAPSED); else sum.classList.add(COLLAPSED);
+        }
+      }
+      var b = fn(d.querySelector) ? d.querySelector('[data-pdxdb-group-body]') : null;
+      if (b) b.hidden = !open;
+    } catch (e) {}
   }
 
   // ── THE MANDATE ROWS ──────────────────────────────────────────────────────
@@ -1190,7 +1229,7 @@
       }
       var st = groupState(key, hits, stance);
       groups[g].hidden = !st.shown;
-      groups[g].open = st.open;
+      syncGroup(groups[g], st.open);
       if (st.shown) any = true;
     }
     var mb = el.querySelectorAll('[data-pdxdb-mandates]');
@@ -1258,6 +1297,12 @@
       var t = ev && ev.target;
       if (t && t.hasAttribute && t.hasAttribute('data-pdxdb-search')) setQuery(t.value);
     });
+    // A header opened or closed by hand: the <details> moved, so the header's
+    // class, aria-expanded and the body follow it. `toggle` does not bubble.
+    el.addEventListener('toggle', function (ev) {
+      var d = ev && ev.target;
+      if (d && d.hasAttribute && d.hasAttribute('data-pdxdb-group')) syncGroup(d, !!d.open);
+    }, true);
   }
 
   // THE STYLES FOR THE GROUPED TABLE live in /district-board.css, one sheet

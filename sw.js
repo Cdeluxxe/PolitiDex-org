@@ -9209,7 +9209,17 @@
 //     changed, so the shell moves one version. Generated and statewide boards
 //     paint as before. No location key or other saved key was touched.
 //     MIGRATION COST: none. No table, row, key or seat moved.
-const CACHE_VERSION = 'v336';
+// v337 - COMPOSER BOARD GROUPS START COLLAPSED, IN THE MARKUP. On the five
+//     composer boards every "On the table" issue group now renders with its
+//     header marked collapsed (a class and aria-expanded="false") and its body
+//     hidden, not only a closed <details>; a chip or a search opens only the
+//     groups it matches, and a header toggle keeps all three in step.
+//     Generated and statewide boards keep open-on-stance and their markup.
+//     district-board.js and district-board.css are precached and changed, so
+//     the shell moves one version. No location key or other saved key was
+//     touched.
+//     MIGRATION COST: none. No table, row, key or seat moved.
+const CACHE_VERSION = 'v337';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

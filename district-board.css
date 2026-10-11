@@ -75,6 +75,11 @@
 .pdxdb-group-l--none { border-style: dashed; color: #93a5bf; }
 .pdxdb-group-n { margin-left: auto; font-size: 0.78rem; color: #8496b0; font-variant-numeric: tabular-nums; }
 .pdxdb-group > .pdxdb-table { margin: 0 0 0.5rem; }
+/* The composer boards' explicit collapsed state: a hidden body stays hidden
+   whatever else styles the <details>. */
+.pdxdb-group-b[hidden] { display: none; }
+.pdxdb-group-b > .pdxdb-table { margin: 0 0 0.5rem; }
+.pdxdb-group-h--collapsed::before { content: "\25B8"; }
 
 /* THE MANDATE ROWS (the five composer boards only): a flat list above the
    issue groups, filtered by the "Mandates" chip like any other chip. One
