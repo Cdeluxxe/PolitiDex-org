@@ -408,7 +408,11 @@ section("6 · the public wire: no flag, no account id, no pay button on a board"
   }
   ok(!/voiceMembership|voice_membership/.test(R("netlify/functions/district-board.mts")), "the public counts endpoint never reads membership");
   const boards = readdirSync(ROOT).filter((f) => /^district-.*\.(html|js)$/.test(f));
-  const payOnBoard = boards.filter((f) => /\/api\/membership|checkout\.stripe|\$20|become a member/i.test(R(f)));
+  // The five composer boards state the cap in one fixed sentence (it names the
+  // $20 membership and links nothing); that sentence is lifted out first, so any
+  // other $20, checkout or membership call on a board still fails.
+  const CAP_LINE = /Verified residents get one comment and five poll votes a month on this seat\. (?:' \+\s*')?A \$20 yearly membership removes the monthly cap\./g;
+  const payOnBoard = boards.filter((f) => /\/api\/membership|checkout\.stripe|\$20|become a member/i.test(R(f).replace(CAP_LINE, "")));
   eq(payOnBoard.length, 0, `no board grows a pay button — ${JSON.stringify(payOnBoard)}`);
 }
 

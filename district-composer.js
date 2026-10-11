@@ -34,7 +34,13 @@
    through PDXDistrictBoard.refresh(), so the count the reader moved is the
    count they see.
 
-   No money copy, no poll, no replies, no score.
+   THE CAP LINE. One fixed sentence, CAP_LINE, sits under the heading in
+   every state: what a verified resident gets on this seat and what the
+   yearly membership changes. It is the same cap the server enforces
+   (membership-core.mjs) and /me states. It is the only money copy here, it
+   opens nothing, and it lives on these five boards only.
+
+   No poll, no replies, no score.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -43,6 +49,8 @@
   var COMPOSER_SEATS = { 'ut-sd-3': 1, 'ut-hd-16': 1, 'ut-sd-7': 1, 'ut-hd-15': 1, 'ut-cd-2': 1 };
   var POST_MAX = 280;
   var LOCKED_LINE = 'Only verified residents of this seat get a voice that counts.';
+  var CAP_LINE = 'Verified residents get one comment and five poll votes a month on this seat. ' +
+    'A $20 yearly membership removes the monthly cap.';
   var COPY = {
     label: 'Say something to this district',
     issue: 'Issue',
@@ -284,6 +292,7 @@
       '<section class="pdxdb-band pdxdb-band--compose" data-pdxdb-band="compose">' +
         '<h2 class="pdxdb-h2">' + esc(COPY.label) + '</h2>' +
         (line ? '<p class="pdxdc-locked" data-pdxdc-locked="1">' + esc(line) + '</p>' : '') +
+        '<p class="pdxdb-foot" data-pdxdc-cap="1">' + esc(CAP_LINE) + '</p>' +
         '<form class="pdxdc-form" novalidate>' +
           '<label class="pdxdc-l" for="pdxdc-issue">' + esc(COPY.issue) + '</label>' +
           '<select class="pdxdc-sel" id="pdxdc-issue" name="issueKey"' + dis + '>' + optionsHtml() + '</select>' +
@@ -418,6 +427,7 @@
     API: API,
     COMPOSER_SEATS: COMPOSER_SEATS,
     LOCKED_LINE: LOCKED_LINE,
+    CAP_LINE: CAP_LINE,
     COPY: COPY,
     mount: mount,
     canPost: canPost
