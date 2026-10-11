@@ -641,3 +641,132 @@ Searched 2026-10-11 for each of the 114 roster rows still painting the building 
 - `shelli_yoder` — Shelli Yoder, Indiana State Senator — campaign site www.shelliyoder.com ('Shelli Yoder for State Senate') serves its images from CDN images.squarespace-cdn.com (alt-less 2048px background photos, not verified as single portraits)
 - `stephen_harding` — Stephen Harding, Connecticut State Senator — no own campaign website found; campaign presence is only Facebook page 'Harding 26' (@HardingforSenate, social media); SenatorHarding.com/ctsenaterepublicans.com are caucus/official sites
 <!-- /person-photos-wave-1b -->
+
+<!-- person-photos-wave-1c -->
+## Person photos, wave 1c — a campaign page's builder-CDN portrait, and the one disclosure
+
+Searched 2026-10-11 for the 106 roster rows still painting the building after wave 1b. The 26 rows whose wave 1b reason named a campaign site (one served by a builder CDN, expired, unreachable, or rendered by script) were re-opened; the other 80 had no campaign site of their own and keep their wave 1b reason. An official .gov / .us portrait stays preferred, an own-domain campaign portrait stays preferred over a CDN one, and no stored portrait was replaced. A portrait was stored only when all of these held: the page is the person's own campaign site; it names the same person and the same office or candidacy; the image is one single portrait; and the image is embedded on that campaign page, its file on the campaign domain or that site's builder CDN (Squarespace, Wix, GoDaddy, Webflow, Revize). Nothing came from a news site, a party page, social media or a page that is not the person's own campaign, and no URL was composed or edited.
+
+**The disclosure.** Every face from a campaign site — the eight from wave 1b and the five below — is marked `photoSource: "campaign"` on its roster row. The person file and the share card print one line under that face: "Campaign photo · not an official portrait." An official face prints nothing, and the GitHub (unitedstates/images) and Wikimedia portraits print nothing. The line is a sentence, never a score or a confidence number; it is not drawn under a monogram.
+
+**The proxy.** A builder CDN serves every customer's files, so each one is admitted to netlify.toml `remote_images` only at the folder of the one campaign site its face came from, never the CDN's whole host.
+
+### Counts
+
+- Rows searched: 106 (26 re-opened)
+- Gained a campaign portrait: 5 (1 on the campaign domain, 4 on the site's builder CDN)
+- Kept the building: 101
+- Rows carrying the disclosure (waves 1b + 1c): 13
+
+### Gained a campaign portrait
+
+- `jimmie_hughes_stg` — Jimmie Hughes, Mayor, St. George — campaign page https://www.jimmiehughes.com/ — image host `images.squarespace-cdn.com` — https://images.squarespace-cdn.com/content/v1/6800129a1f658e75e6dce7f7/33ae6ca9-82fd-4678-8b5c-41f6b061f985/1000014502.jpg — Own campaign site, title "Jimmie Hughes for St. George Mayor"; URL appears verbatim in page img data-src/data-image (same file is site og:image); viewed: single head-and-shoulders portrait of smiling man in light blue shirt, tr…
+- `ranjeev_puri` — Ranjeev Puri, State House Democratic Leader — campaign page https://www.voteranjeev.com/ — image host `images.squarespace-cdn.com` — https://images.squarespace-cdn.com/content/v1/5d3cf8b93d78b80001676ada/1574304638076-ACNG792CY0O672H8CX7V/_29A1989.jpg — own Squarespace campaign site 'Vote Ranjeev for State Rep', which says colleagues elected him 'the Democratic Leader for the 103rd Michigan Legislature'; img src verbatim in homepage HTML (alt '_29A1989.jpg'); viewed: single ou…
+- `gallrein` — Ed Gallrein, Republican Nominee — campaign page https://www.edgallrein.com/ — image host `cdn.prod.website-files.com` — https://cdn.prod.website-files.com/687e8388e36137e01e4ad24f/68f50cbc33480946aa776f43_03adfdf55e5823f3386e146e8e0d9241_gallrein-portrait_cutout.webp — own Webflow campaign site, title 'Ed Gallrein for Congress' ('Ed Gallrein FOR CONGRESS ... Thomas Massie is ...', 'Paid for by Gallrein For Congress') = his KY-04 congressional candidacy; img src verbatim in homepage HTML, alt …
+- `susan_lee` — Susan Lee, Davis County Commission candidate — campaign page https://www.votesusanlee.com/ — image host `images.squarespace-cdn.com` — https://images.squarespace-cdn.com/content/v1/68afb2778a70ca0e13b99b93/dceb7392-2e07-445c-b596-fc0c1f4db111/Susan+5787.jpg — own Squarespace campaign site; page text 'Susan Lee for Davis County Commissioner' and video 'Susan Lee for Davis County Commission'; img src verbatim in homepage HTML (alt 'Susan 5787.jpg'); viewed: single outdoor portrait of …
+- `kristen_hogan` — Kristen Hogan, Davis Board of Education · Precinct 6 — campaign page https://hogan4schools.com/about-kristin/ — image host `hogan4schools.com` — https://hogan4schools.com/wp-content/uploads/2026/02/7Z6A8648-2-1-677x1024.jpg — own WordPress campaign site hogan4schools.com (homepage: 'Kristen Hogan for the Davis School Board', form 'School Board District 6'; About page: '4 years service on Davis Board of Education'); homepage IMG_2377 is a family grou…
+
+### Kept the building, and why
+
+- `eleni_kounalakis` — Eleni Kounalakis, Lieutenant Governor — campaign site eleniforca.com is for a different candidacy (Treasurer), and its only image of her is a frame from a campaign video, not a portrait
+- `treg_taylor` — Treg Taylor, State Attorney General — own campaign site "Treg Taylor for Alaska Governor" (mentions "As Attorney General"); images of Treg are family group photo (Treg-1.jpg) and couple photo with wife (treg-2.jpg); no single portrait
+- `lynn_fitch` — Lynn Fitch, State Attorney General — Own campaign site https://www.lynnfitchforms.com/ (title "Lynn Fitch for Governor"; text "As Attorney General, I:") embeds only scene photos on Squarespace CDN: podium rally at SCOTUS with "EMPOWER WOMEN" signs (SCOTUS+120121.w…
+- `heidi_hammond_grantsville` — Heidi Hammond, Mayor, Grantsville — no campaign site found (only news/election-results pages)
+- `monica_zoltanski_sandy` — Monica Zoltanski, Mayor, Sandy — votemonicaz.com is "Squarespace - Website Expired" (404); old site voteformonica.com (WordPress, own domain) embeds only Monica-Z_Web_Banner.png text banner, Yard-Sign_JPG.png and 39px social icons; no portrait
+- `mark_shepherd_clearfield` — Mark Shepherd, Mayor, Clearfield — iloveclearfield.com / www.iloveclearfield.com and voteshepherd.com / www.voteshepherd.com fail to connect via curl (code 000 / 409); no page or image verifiable
+- `greg_miles_duchesne` — Greg Miles, Duchesne County Commission — no campaign site found (only county pages/news)
+- `jordan_leonard_emery` — Jordan Leonard, Emery County Commission — jordanforemery.com and www.jordanforemery.com do not resolve (DNS failure); no page or image verifiable
+- `mary_mcgann_grand` — Mary McGann, Grand County Commission — no campaign site found (not seeking reelection 2026; only county/news pages)
+- `dean_draper_millard` — Dean Draper, Millard County Commission — no campaign site found (only county documents/news)
+- `lori_maughan_sanjuan` — Lori Maughan, San Juan County Commission (Chair) — no campaign site found (only county pages/minutes and San Juan Record news)
+- `trevor_olsen_blanding` — Trevor Olsen, Mayor, Blanding — no campaign site found (appointed mayor Dec 2024, resigned Aug 2026; only city/news pages)
+- `kevin_dunn_monticello` — Kevin Dunn, Mayor, Monticello — no campaign site found (candidate statement only on city site monticelloutah.org and San Juan Record news)
+- `john_laursen_uintah` — John Laursen, Uintah County Commission (Chair) — no campaign site found (only Ballotpedia/county/news pages)
+- `sonja_norton_uintah` — Sonja Norton, Uintah County Commission — votesonjanorton.com and www. variant do not resolve (DNS failure); no page or image verifiable
+- `willis_lefevre_uintah` — Willis LeFevre, Uintah County Commission — no campaign site found (only utgop.org party page, Ballotpedia, news)
+- `steve_labrum_uintah` — Steve Labrum, Uintah County Sheriff — no campaign site found (only YouTube/Facebook videos and news)
+- `terry_willis_price` — Terry Willis, Mayor, Price — no campaign site found (only news/city pages and Facebook)
+- `lenise_peterman_helper` — Lenise Peterman, Mayor, Helper — mayorlenise.com redirects to www.mayorlenise.com which shows "Squarespace - Website Expired" (404); no portrait verifiable
+- `jeff_wood_carbon` — Jeff Wood, Carbon County Sheriff — no campaign site found (only news pages; retiring 2026)
+- `larry_jensen_carbon` — Larry Jensen, Carbon County Commission — no campaign site found (only county pages, YouTube, news)
+- `jared_buchanan_sanpete` — Jared Buchanan, Sanpete County Sheriff — no campaign site found (only Facebook page "Jared Buchanan for Sanpete County Sheriff" and news)
+- `john_scott_ephraim` — John Scott, Former Mayor, Ephraim — no campaign site found (former mayor, appointed 2019/uncontested 2021; only city documents/news)
+- `greg_jensen_sevier` — Greg Jensen, Sevier County Commission — Own Wix site (text "Greg has served as Sevier County Commissioner since January 2023") but embedded images viewed are not single portraits: man typing at office desk (IMG_9070), rider on horseback from behind (IMG_0235), man pu…
+- `nathan_curtis_sevier` — Nathan Curtis, Sevier County Sheriff — no campaign site found (only sheriff office site scsoutah.com, Utah Sheriffs Association, X, news)
+- `bryan_burrows_richfield` — Bryan Burrows, Mayor, Richfield — no campaign site found (only Facebook page facebook.com/mayorbryanburrows, social media)
+- `clint_painter_juab` — Clint Painter, Juab County Commission (Chair) — no campaign site found (only SUU story, news, LinkedIn)
+- `douglas_anderson_juab` — Douglas Anderson, Juab County Sheriff — no campaign site found (only Ballotpedia, juabsheriff.org office site, news); retired May 2026
+- `linda_hanks_juab` — Linda Hanks, Juab School District Board (President) — Own site "Linda Hanks for State Board" (names "As President of the Juab School Board") but its only person photo, LindaUSBE-35_websize.jpg on Squarespace CDN, viewed: woman standing between two young men (family/group photo), n…
+- `colten_johnson_kanab` — T. Colten Johnson, Mayor, Kanab — no campaign site found (only kanab.utah.gov directory, minutes, sunews.net, kanabchamber.org)
+- `eric_houston_garfield` — Eric Houston, Garfield County Sheriff — no campaign site found (only news coverage stgeorgeutah.com/insiderutah.com/utahbyway.com and utahsheriffs.org)
+- `kim_soper_panguitch` — Kim Soper, Mayor, Panguitch — no campaign site found (only panguitchutah.gov minutes/directory)
+- `matt_wilson_morgan` — Matt Wilson, Morgan County Commission (Chair) — no campaign site found (only county site, minutes, news); common name
+- `blaine_fackrell_morgan` — Blaine Fackrell, Morgan County Commission — www.blaine4morgan.com and blaine4morgan.com return HTTP 404 "Not found: www.blaine4morgan.com" to curl; no image verifiable
+- `corey_stark_morgan` — Corey Stark, Morgan County Sheriff — no campaign site found (only Ballotpedia, utahsheriffs.org, county candidate list)
+- `steve_gale_morgan` — Steve Gale, Mayor, Morgan City — no campaign site found (only morganutah.gov agendas/minutes, WFRC, Wikipedia)
+- `gaylene_adams_morgan` — Gaylene Adams, Morgan School District Board (President) — no campaign site found (only morgansd.org district page, change.org, news)
+- `pat_argyle_gardencity` — Pat Argyle, Mayor, Garden City — no campaign site found (appointed interim mayor May 2026; only gardencityut.us town site, abc4 news, minutes)
+- `dennis_blackburn_wayne` — Dennis Blackburn, Wayne County Commission (Chair) — no campaign site found (only LinkedIn, waynecountyfire.org, news)
+- `roger_brian_wayne` — Roger Brian, Wayne County Commission — no campaign site found (only utah.gov notices, insiderutah.com news)
+- `micah_gulley_wayne` — Micah Gulley, Wayne County Sheriff — no campaign site found (only utahsheriffs.org, colorcountryanimalwelfare.org, sb54.info, news)
+- `mickey_wright_torrey` — Mickey Wright, Mayor, Torrey — no campaign site found (only torreyutah.gov member page, news; name shared with golfer)
+- `marty_gleave_piute` — Marty Gleave, Piute County Sheriff — no campaign site found (only LinkedIn, news, directories)
+- `barry_golding_washco` — Barry Golding, Washington County Sheriff (interim) — no campaign site found (interim chosen by party; only wcrputah.com party page and news)
+- `clark_fawcett_hurricane` — Clark Fawcett, Mayor, Hurricane — no campaign site found (only news coverage, saveutah.org questionnaire, cityofhurricane.com)
+- `nanette_billings_hurricane` — Nanette Billings, Former Mayor, Hurricane — www.nanettebillings.com and nanettebillings.com do not resolve (DNS failure); no image verifiable
+- `jarett_waite_santaclara` — Jarett Waite, Mayor, Santa Clara — no campaign site found (only council agendas and stgeorgeutah.com news)
+- `barbara_bruno_springdale` — Barbara Bruno, Mayor, Springdale — no campaign site found (only springdale.utah.gov, news, YouTube)
+- `jared_hamner_tooele` — Jared Hamner, Tooele County Council (Chair) — no campaign site found (only tooeleco.gov, BallotReady, news)
+- `scott_wardle_tooele` — Scott Wardle, Tooele County Council (Vice Chair) — no campaign site found (only utgop.org party page, tooeleco.gov, Vote Smart, news)
+- `kendall_thomas_tooele` — Kendall Thomas, Tooele County Council — no campaign site found (only tooeleco.gov, news)
+- `tye_hoffmann_tooele` — Tye Hoffmann, Tooele County Council — no campaign site found (only Facebook page, tooeleco.gov, election archive, news)
+- `erik_stromberg_tooele` — Erik Stromberg, Tooele County Council — www.erik4tooelecounty.com and erik4tooelecounty.com do not resolve (DNS failure); no image verifiable
+- `paul_wimmer_tooele` — Paul Wimmer, Tooele County Sheriff — no campaign site found (only Facebook page "Re-Elect Sheriff Paul Wimmer", news)
+- `sam_steed_piute` — Sam Steed, Piute County Commission — no campaign site found (only notices, minutes, news)
+- `paul_binns_lehi` — Paul Binns, Mayor, Lehi — binnsformayor.com redirects to www.binnsformayor.com showing "Squarespace - Website Expired" (404); no portrait available
+- `tish_buroker_riverton` — Tish Buroker, Mayor, Riverton — campaign site tishformayor.com redirects to www and returns 404 'Squarespace - Website Expired' (rechecked 2026-10-11); no live campaign page or embedded portrait
+- `nicole_cannizzaro` — Nicole Cannizzaro, State Senate Majority Leader — campaign site nicolecannizzaro.com is for a different candidacy (Attorney General); the row office is named only on another page, and the only portrait URL in the page HTML is a blurred Wix thumbnail — the full-size file is not…
+- `mike_johnston` — Mike Johnston, Mayor of Denver — campaign site ("Re-Elect Mike Johnston as Denver's Mayor") page imgs are only a family photo (bfam-1024x616.jpg) and a crowd shot (bcol-1024x616.jpg); only single-person image is og:image share card https://mikejohnstonformayor…
+- `dan_bongino` — Dan Bongino, FBI Deputy Director — appointed official (FBI Deputy Director); no own campaign site for this office (bongino.com is his media business site, not a campaign site)
+- `tom_homan` — Tom Homan, White House Border Czar — appointed official (White House Border Czar); no campaign site exists for this office
+- `keith_kellogg` — Keith Kellogg, Special Envoy for Ukraine & Russia — appointed official (Special Envoy for Ukraine \& Russia); no campaign site exists for this office
+- `marty_makary` — Marty Makary, FDA Commissioner — appointed official (FDA Commissioner); no campaign site exists for this office
+- `jay_bhattacharya` — Jay Bhattacharya, NIH Director — appointed official (NIH Director); no campaign site exists for this office
+- `brendan_carr` — Brendan Carr, FCC Chair — appointed official (FCC Chair); no campaign site exists for this office
+- `witkoff` — Steve Witkoff, U.S. Special Envoy to the Middle East — appointed official (Special Envoy); no campaign site exists (witkoff.com is his real-estate business site)
+- `stephen_miller` — Stephen Miller, White House Deputy Chief of Staff — appointed official (White House Deputy Chief of Staff); no campaign site exists for this office
+- `zach_bloxham` — Zach Bloxham, Layton City Council — own GoDaddy site 'Layton City Councilman Zach Bloxham' ('an honor to represent you on the Layton City Council') matches office, but its only photo (img1.wsimg.com .../bloxham-129.jpg, verbatim in srcset) is a family group photo…
+- `clint_morris` — Clint Morris, Layton City Council — campaign domain electclintmorris.com (and www.) does not resolve (curl 000, DNS failure); no live campaign page to take an embedded image from
+- `tyson_roberts` — Tyson Roberts, Layton City Council — campaign domain tysonrobertsforlayton.com returns 404 Wix 'ConnectYourDomain Error'; no live campaign page with portrait
+- `brigit_gerrard` — Brigit Gerrard, Davis Board of Education · Precinct 4 (President) — campaign domain brigitgerrard.com (and www.) does not resolve (curl 000, DNS failure); no live campaign page
+- `michelle_barber` — Michelle Barber, Davis Board of Education · Precinct 5 — no campaign site found for Davis School Board Precinct 5 (only official district page, LinkedIn, and old Kaysville City Council social accounts)
+- `chad_jensen` — Chad Jensen, Cache County Sheriff — no campaign site found for Cache County Sheriff (only county site, BallotReady, Utah Sheriffs Association, cachegop.com party site, news)
+- `george_daines` — N. George Daines, Cache County Executive — no campaign site found for Cache County Executive (only news coverage, cachegop.com party site, county site)
+- `mark_anderson_logan` — Mark Anderson, Mayor of Logan — campaign domain makeyourmarkformayor.com (and www.) does not resolve (curl 000, DNS failure); no live campaign page
+- `sandi_goodlander` — Sandi Goodlander, Cache County Council · Chair (Logan Seat #3) — no campaign site found for Cache County Council Seat 3 (only county site, UPR news profile, party/news coverage)
+- `kathryn_beus` — Kathryn Beus, Cache County Council · Vice Chair (Southeast District) — no campaign site found; only campaign presence is Facebook page 'Kathryn Anhder Beus for Cache County Council' (social media); otherwise news (hjnews, upr.org) and Ballotpedia
+- `david_erickson_cache` — David L. Erickson, Cache County Council · North District — no campaign site found; only news coverage (hjnews.com, cachevalleydaily.com) and cachecounty.gov
+- `keegan_garrity` — Keegan Garrity, Cache County Council · Logan Seat #1 — no campaign site found; campaign activity via Facebook posts and news (cachevalleydaily.com, hjnews.com)
+- `joann_bennett` — JoAnn Bennett, Cache County Council · Logan Seat #2 — no campaign site found; only news (cachevalleydaily.com, upr.org) and party site cachegop.com
+- `mark_hurd` — Mark Hurd, Cache County Council · Northeast District — no campaign site found; only party profile cachegop.com (party site), cachecounty.gov and news
+- `nolan_gunnell` — Nolan P. Gunnell, Cache County Council · South District — no campaign site found; only Facebook page 'Nolan Gunnell for Cache County Council' (social media), BallotReady and news
+- `teri_rhodes` — Teri Rhodes, Cache County School Board · President (District 7) — no campaign site found; only Ballotpedia and news (hjnews.com, cachevalleydaily.com)
+- `brian_chambers` — Brian Chambers, Cache County School Board · District 1 — no campaign site found; only ccsdut.org (school district), Ballotpedia and news (hjnews.com)
+- `roger_pulsipher` — Roger Pulsipher, Cache County School Board · District 2 — no campaign site found; only Ballotpedia and news (hjnews.com, cachevalleydaily.com)
+- `randall_bagley` — Randall Bagley, Cache County School Board · District 4 — no campaign site found; only ccsdut.org (school district), Ballotpedia and news (cachevalleydaily.com, hjnews.com)
+- `d_jeffrey_nielsen` — D. Jeffrey Nielsen, Cache County School Board · District 3 — no campaign site found; only ccsdut.org (school district), BoardDocs and news (hjnews.com)
+- `allen_grunig` — Allen Grunig, Cache County School Board · District 5 — no campaign site found; only ccsdut.org (school district), Ballotpedia and news (hjnews.com)
+- `kathy_christiansen` — Kathy Christiansen, Cache County School Board · Vice President (District 6) — no campaign site found; only aggregators (goodparty.org, Ballotpedia, vote411) and ccsdut.org
+- `becky_quay` — Becky Quay, Logan City School Board · President (District 4) — no campaign site found; only news (hjnews.com) and loganschools.org
+- `cole_checketts` — Cole Checketts, Logan City School Board · District 5 — no campaign site found; only news (hjnews.com, cachevalleydaily.com), vote411 and cachecounty.gov ballot
+- `russell_fisher` — Russell Fisher, Logan City School Board · District 3 (interim) — no campaign site found; interim appointee; only news (hjnews.com), loganschools.org and loganschoolsfoundation.org
+- `katie_chapman` — Katie Chapman, Logan City School Board · District 1 — no campaign site found; only news (hjnews.com) and loganschools.org
+- `frank_stewart` — Frank Stewart, Logan City School Board · Vice President (District 2) — no campaign site found; ran unopposed; only news (hjnews.com, cachevalleydaily.com) and utah.gov minutes
+- `lyman` — Phil Lyman, U.S. House Candidate (UT-3) — lymanforutah.com ('Phil Lyman for Congress 2026 — Utah CD3') is a JS SPA; fetched page HTML contains no img/background image URLs (images only referenced inside JS bundle /assets/index-CN3PmnAN.js, none verbatim in page HTML, n…
+- `nhaley` — Nikki Haley, Former UN Ambassador — former campaign site nikkihaley.com now 301-redirects to standforamericapac.com (a PAC, not her own campaign site; curl gets Cloudflare 403); no active own campaign site
+- `dballard` — Derek Ballard, U.S. House Candidate — cannot identify person: no 'Derek Ballard' found in UT-1 2026 field (Ballotpedia/KUER lists McAdams, Owen, West, Montgomery, Darvish); no campaign site found
+- `jjohnson` — Jen Johnson, U.S. House Candidate — cannot identify person: no 'Jen Johnson' in UT-4 2026 field (Ballotpedia); only a 2014 Jennifer Johnson who withdrew; no campaign site found
+- `rodric_bray` — Rodric Bray, Indiana State Senator — campaign site (paid for by 'Rodric D Bray for State Senate', 'President Pro Tempore of the Indiana State Senate') has no single portrait: same-host photos (200 image/jpeg) are family shot 1_inset15.jpg, group with sheriffs 1_in…
+- `shelli_yoder` — Shelli Yoder, Indiana State Senator — own Squarespace site 'Shelli Yoder for State Senate' ('Our State Senator') matches office, but every embedded image (homepage image1/image0(1)/image4/image0(2)/4074.jpg and About page image1(1).jpeg) was viewed and is a candid …
+- `stephen_harding` — Stephen Harding, Connecticut State Senator — no own campaign website found; campaign presence is only Facebook page 'Harding 26' (@HardingforSenate, social media); SenatorHarding.com/ctsenaterepublicans.com are caucus/official sites
+<!-- /person-photos-wave-1c -->

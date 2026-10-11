@@ -9111,7 +9111,22 @@
 //     No location key or other saved key was touched. cmp-data.js is precached
 //     and changed, so it moves one version.
 //     MIGRATION COST: none. No drawer, score, effect line, seed row or key moved.
-const CACHE_VERSION = 'v327';
+// v328 - PERSON PHOTOS, WAVE 1C, AND THE ONE DISCLOSURE. Five rows that still
+//     painted the building mark now carry a portrait embedded on the person's
+//     own campaign page — the page naming the same person and office or
+//     candidacy, one single portrait — four of them served by that site's
+//     builder CDN (Squarespace, Webflow), each pinned in remote_images to that
+//     one site's folder. No stored portrait was replaced. Every face from a
+//     campaign site (waves 1b and 1c, thirteen rows) is marked photoSource
+//     "campaign", and the person file and the share card print one line under
+//     it: "Campaign photo · not an official portrait." An official face prints
+//     nothing; the line is a sentence, never a score. roster-portrait.js holds
+//     the line, and ballot.html now loads it so a file opened from the desk says
+//     it too. No location key or other saved key was touched. cmp-data.js,
+//     roster-portrait.js, profiles-full.js, profile-card.js, app.css and
+//     ballot.html are precached and changed, so the shell moves one version.
+//     MIGRATION COST: none. No drawer, score, effect line, seed row or key moved.
+const CACHE_VERSION = 'v328';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -233,6 +233,12 @@ const ALLOWED = new Set([
   "www.bilzerianforcongress.com",
   "www.brycedunford.com",
   "www.gartenforsenate.com",
+  // Wave 1c (v328): a portrait embedded on the person's own campaign page whose file
+  // the site's builder serves. The toml pins each builder CDN to that campaign
+  // site's own folder, so the proxy cannot fetch another customer's images.
+  "hogan4schools.com",
+  "images.squarespace-cdn.com",
+  "cdn.prod.website-files.com",
   // campaign-hosts:end
 ]);
 const strayHosts = new Map();
@@ -321,6 +327,48 @@ if (imgBlock) {
   const loose = patterns.filter((p) => /(^|[^\\])\.(?![*+])/.test(p.replace(/\/\.\*$/, "/")));
   ok(loose.length === 0,
     `${loose.length} remote_images pattern(s) leave a dot unescaped, so a look-alike host can be proxied through our origin: ${loose.join(", ")}`);
+}
+
+// ── A campaign face says so, and only a campaign face ───────────────────────
+// Waves 1b and 1c (v327, v328) filed portraits from the person's own campaign
+// site for rows with no official portrait. Each is marked photoSource:
+// "campaign" on its row, and roster-portrait.js turns that mark into the one
+// line the person file and the share card print under the face. So the mark is
+// pinned to the host: every face on a campaign host carries it, nothing else
+// does, and an official .gov / .us face never does.
+{
+  const src = readFileSync(new URL("./test-photo-coverage.mjs", import.meta.url), "utf8");
+  const cb = src.indexOf("// campaign-hosts:" + "begin"), ce = src.indexOf("// campaign-hosts:" + "end");
+  const CAMPAIGN = new Set([...src.slice(cb, ce).matchAll(/^\s*"([a-z0-9.-]+)",/gm)].map((m) => m[1]));
+  ok(CAMPAIGN.size > 0, "the campaign-hosts block parsed no hosts");
+  const unmarked = [], stray = [], official = [];
+  for (const [pid, row] of Object.entries(cmp)) {
+    if (!row || !row.photo) { if (row && row.photoSource) stray.push(pid); continue; }
+    const h = (String(row.photo).split("/")[2] || "").toLowerCase();
+    if (CAMPAIGN.has(h) && row.photoSource !== "campaign") unmarked.push(pid);
+    if (row.photoSource && (row.photoSource !== "campaign" || !CAMPAIGN.has(h))) stray.push(pid);
+    if (row.photoSource && /\.(gov|us)$/.test(h)) official.push(pid);
+  }
+  ok(unmarked.length === 0, `${unmarked.length} face(s) on a campaign host carry no campaign mark, so they would print no disclosure: ${unmarked.join(", ")}`);
+  ok(stray.length === 0, `${stray.length} row(s) carry a photoSource that is not a campaign face on a campaign host: ${stray.join(", ")}`);
+  ok(official.length === 0, `${official.length} official .gov / .us face(s) are marked campaign: ${official.join(", ")}`);
+  ok(Object.keys(bp).every((k) => !CAMPAIGN.has((String(bp[k]).split("/")[2] || "").toLowerCase())),
+    "the curated map holds a campaign-host face, which no row can mark");
+  // A builder CDN serves every customer's images, so the proxy may only reach the
+  // folder of the one campaign site a face came from.
+  const SHARED = new Set(["images.squarespace-cdn.com", "cdn.prod.website-files.com", "static.wixstatic.com", "img1.wsimg.com"]);
+  const tomlSrc = readFileSync(new URL("../netlify.toml", import.meta.url), "utf8");
+  const blk = (/remote_images\s*=\s*\[([\s\S]*?)\n\s*\]/.exec(tomlSrc) || [])[1] || "";
+  const pats = [...blk.matchAll(/"([^"]+)"/g)].map((m) => m[1].replace(/\\\\/g, "\\").replace(/\\/g, ""));
+  const open = pats.filter((p) => { const u = p.replace(/^https?:\/\//, ""); const [h, ...rest] = u.split("/"); return SHARED.has(h) && rest.join("/").replace(/\.\*$/, "").length < 8; });
+  ok(open.length === 0, `remote_images lets the proxy reach a whole builder CDN rather than one campaign site's folder: ${open.join(", ")}`);
+  for (const [pid, row] of Object.entries(cmp)) {
+    if (!row || row.photoSource !== "campaign") continue;
+    const h = (String(row.photo).split("/")[2] || "").toLowerCase();
+    if (!SHARED.has(h)) continue;
+    ok(pats.some((p) => new RegExp("^" + p.replace(/\./g, "\\.").replace(/\\\.\*$/, ".*") + "$").test(row.photo) || row.photo.startsWith(p.replace(/\.\*$/, ""))),
+      `${pid}'s campaign face on ${h} is outside every pinned remote_images folder, so the share card would draw the monogram`);
+  }
 }
 
 // ── Report ──────────────────────────────────────────────────────────────────

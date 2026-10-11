@@ -702,6 +702,14 @@
   // The address the canvas is allowed to load. Remote portraits go through the
   // same-origin proxy; inline and root-relative ones are already ours and are
   // passed straight through (the proxy cannot fetch a data: URL anyway).
+  // The disclosure under a campaign face (roster-portrait.js), '' for any other.
+  function photoNote(pid) {
+    try {
+      if (typeof window.pdxPortraitDisclosure === 'function') return String(window.pdxPortraitDisclosure(pid) || '');
+    } catch (e) {}
+    return '';
+  }
+
   function avatarSrc(pid) {
     var raw = photoUrl(pid).trim();
     if (!raw) return '';
@@ -901,6 +909,16 @@
       // it is a circle, so its ink stops well before its box — hence the two
       // different gaps rather than one applied to the taller side.
       y = Math.max(avy + av + 26, idBottom + 10);
+      // A face from the person's own campaign site carries its one disclosure,
+      // under the face and above the signal, and only when that face was drawn:
+      // a monogram is not a campaign photo. An official portrait prints nothing.
+      var faceNote = drewFace ? photoNote(d.pid) : '';
+      if (faceNote) {
+        ctx.font = '500 20px "Barlow", sans-serif';
+        ctx.fillStyle = '#9fb4d4'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        ctx.fillText(wrapText(ctx, faceNote, contentW, 1)[0] || '', x, Math.max(avy + av + 12, idBottom + 4));
+        y = Math.max(avy + av + 12, idBottom + 4) + 24 + 22;
+      }
 
       // ── THE ONE SIGNAL ──────────────────────────────────────────────────────
       // The question in the reader's words, then the verdict in the app's words.
@@ -1407,6 +1425,7 @@
     // tainted" is a promise about an address and a probe, and the test has to be
     // able to check both without a browser.
     _avatarSrc: avatarSrc,
+    _photoNote: photoNote,
     _loadAvatar: loadAvatar,
     _bust: bust
   };

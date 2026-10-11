@@ -277,4 +277,38 @@ section("7 · the documents load the reader");
 no(R("person.html"), 'src="/browse-photos.js"', "person.html loads no photo table");
 has(R("sw.js"), "'/roster-portrait.js',", "the reader is precached");
 
+// ═════════════════════════════════════════════════════════════════════════════
+section("8 · a campaign face carries its one line, an official face carries none");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  const LINE = "Campaign photo \u00b7 not an official portrait.";
+  const env = page();
+  const C = env.w.CMP_DATA;
+  eq(C.nick_brown.photoSource, "campaign", "nick_brown's face is marked as his campaign site's");
+  eq(env.w.pdxPortraitDisclosure("nick_brown"), LINE, "a campaign face prints the line");
+  eq(env.w.pdxPortraitDisclosure("jimmie_hughes_stg"), LINE, "…a campaign page's builder-CDN face too");
+  eq(env.w.pdxPortraitDisclosure("lisonbee_h14"), "", "an official .gov portrait prints nothing");
+  eq(env.w.pdxPortraitDisclosure("chellie_pingree"), "", "an official congressional portrait prints nothing");
+  eq(env.w.pdxPortraitDisclosure("rodric_bray"), "", "no face, no line");
+  eq(env.w.pdxPortraitDisclosure(""), "", "no pid, no line");
+  // The line follows the face that is painted, not the row's mark.
+  const live = page({ profiles: { nick_brown: { name: "Nick Brown", photo: "https://www.atg.wa.gov/x.jpg" } } });
+  eq(live.w.pdxPortraitDisclosure("nick_brown"), "", "a live photo that replaced the campaign face carries no line");
+  const marked = Object.keys(C).filter((k) => C[k].photoSource);
+  ok(marked.every((k) => C[k].photoSource === "campaign" && !/\.(gov|us)$/.test(String(C[k].photo).split("/")[2] || "")),
+    "only campaign faces carry the mark, and never on a .gov / .us host");
+  // It is a sentence. Nothing on the line is a number.
+  ok(!/\d|%/.test(LINE), "the disclosure is never a score or a confidence figure");
+  // The two surfaces that print it.
+  const PFsrc = R("profiles-full.js");
+  has(PFsrc, "window.pdxPortraitDisclosure(id)", "the person file's letterhead asks for the line");
+  has(PFsrc, "'<p class=\"profile-hero-photo-note\">' + _hn + '</p>'", "…and prints it under the face");
+  has(R("app.css"), ".profile-hero-photo:has(.ph-fallback) + .profile-hero-photo-note { display: none; }",
+    "a campaign face that fails to load takes its line with it");
+  const PC = R("profile-card.js");
+  has(PC, "var faceNote = drewFace ? photoNote(d.pid) : '';", "the share card prints the line only under a drawn face");
+  has(PC, "window.pdxPortraitDisclosure(pid)", "…from the same reader");
+  for (const doc of ["person.html", "index.html", "ballot.html"]) has(R(doc), 'src="/roster-portrait.js"', `${doc} loads the reader that holds the line`);
+}
+
 report();

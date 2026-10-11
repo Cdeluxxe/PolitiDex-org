@@ -194,6 +194,9 @@ const ALLOWED = new Set([
   "www.bilzerianforcongress.com",
   "www.brycedunford.com",
   "www.gartenforsenate.com",
+  "hogan4schools.com",
+  "images.squarespace-cdn.com",
+  "cdn.prod.website-files.com",
 ]);
 
 const BALLOT = R("ballot.html");

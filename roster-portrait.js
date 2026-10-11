@@ -20,6 +20,10 @@
 
    NO PORTRAIT IS AN ANSWER: ''. Every caller paints the row's own mark (its
    `icon`, 🏛 when the row has none) for it, never a placeholder URL.
+
+   A CAMPAIGN PORTRAIT SAYS SO: pdxPortraitDisclosure(pid) is the one line the
+   person file and the share card print under a face that came from the
+   person's own campaign site, and '' for every other face.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -62,6 +66,25 @@
     return '🏛';
   }
 
+  // THE ONE DISCLOSURE. A portrait taken from the person's own campaign site
+  // (Person photos waves 1b and 1c) is marked `photoSource: "campaign"` on its
+  // roster row. Wherever that face is the one painted, the person file and the
+  // share card print this line under it; an official portrait prints nothing.
+  // It is a sentence, never a score or a confidence figure. The line follows
+  // the painted face: a live photo that replaced the bundled one is not that
+  // campaign photo, so it carries no line.
+  var CAMPAIGN_LINE = 'Campaign photo · not an official portrait.';
+  function pdxPortraitDisclosure(pid) {
+    var u = pdxPortrait(pid);
+    if (!u) return '';
+    try {
+      var row = window.CMP_DATA && window.CMP_DATA[String(pid)];
+      if (row && row.photoSource === 'campaign' && field(row) === u) return CAMPAIGN_LINE;
+    } catch (e) {}
+    return '';
+  }
+
   window.pdxPortrait = pdxPortrait;
   window.pdxPortraitMark = pdxPortraitMark;
+  window.pdxPortraitDisclosure = pdxPortraitDisclosure;
 })();

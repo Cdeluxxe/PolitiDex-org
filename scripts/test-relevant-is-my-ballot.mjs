@@ -1761,7 +1761,7 @@ section("L · twin boot — the arithmetic never saw any of this");
       A.CMP_DATA[pid] && JSON.stringify(A.CMP_DATA[pid]) !== JSON.stringify(B.CMP_DATA[pid]));
     const figureOnly = (o) => {
       const c = JSON.parse(JSON.stringify(o || null));
-      if (c && c.scope) { delete c.scope.office; delete c.scope.name; delete c.scope.photo; }
+      if (c && c.scope) { delete c.scope.office; delete c.scope.name; delete c.scope.photo; delete c.scope.photoSource; }
       return JSON.stringify(c);
     };
     // AND ONE FORMAL SHAPE IS DECLARED, DOWNWARD ONLY. The word-first gate pass
@@ -1805,8 +1805,10 @@ section("L · twin boot — the arithmetic never saw any of this");
     const notCopy = rosterMoved.filter((pid) => {
       const a = A.CMP_DATA[pid], b = B.CMP_DATA[pid];
       // The portrait field (v294) is not copy either, and not a figure: a row may
-      // gain `photo` and nothing else under this exemption.
-      const ka = Object.keys(a).filter((k) => k !== "photo"), kb = Object.keys(b).filter((k) => k !== "photo");
+      // gain `photo` and nothing else under this exemption — nor may its campaign
+      // mark (v328), which only decides the line printed under the face.
+      const PORTRAIT = (k) => k === "photo" || k === "photoSource";
+      const ka = Object.keys(a).filter((k) => !PORTRAIT(k)), kb = Object.keys(b).filter((k) => !PORTRAIT(k));
       if (ka.length !== kb.length) return true;
       return ka.some((k) => k !== "office" && JSON.stringify(a[k]) !== JSON.stringify(b[k]));
     });

@@ -2873,8 +2873,12 @@
 # Widen it deliberately, in both places, or not at all. Person photos wave 1 (v326)
 # widened it to official .gov / .us hosts. Wave 1b (v327) added a short list of
 # campaign hosts, each the person's own campaign site and only for a row with no
-# official portrait anywhere; a website-builder CDN, a news site or any other third
-# party is never added. PORTRAIT_SWEEP.md records why each campaign host is here. A host that is not here
+# official portrait anywhere. Wave 1c (v328) admitted a campaign page's own builder
+# CDN (Squarespace, Webflow) for a portrait embedded on that page, each pattern
+# pinned to that one site's folder rather than the CDN's whole host; a news site,
+# a party page or any other third party is never added. Every such face prints
+# "Campaign photo · not an official portrait." under it on the person file and
+# the share card. PORTRAIT_SWEEP.md records why each campaign host is here. A host that is not here
 # 404s, which the card handles the same way it handles a dead network — it draws
 # the monogram.
 [images]
@@ -3014,7 +3018,14 @@
     "https://teamkaufusi\\.com/.*",
     "https://www\\.bilzerianforcongress\\.com/.*",
     "https://www\\.brycedunford\\.com/.*",
-    "https://www\\.gartenforsenate\\.com/.*"
+    "https://www\\.gartenforsenate\\.com/.*",
+    # Wave 1c (v328): campaign portraits embedded on the person's own campaign page.
+    # A builder CDN is pinned to that one campaign site's folder, never the whole host.
+    "https://hogan4schools\\.com/.*",
+    "https://images\\.squarespace-cdn\\.com/content/v1/6800129a1f658e75e6dce7f7/.*",   # jimmiehughes.com
+    "https://images\\.squarespace-cdn\\.com/content/v1/5d3cf8b93d78b80001676ada/.*",   # voteranjeev.com
+    "https://images\\.squarespace-cdn\\.com/content/v1/68afb2778a70ca0e13b99b93/.*",   # votesusanlee.com
+    "https://cdn\\.prod\\.website-files\\.com/687e8388e36137e01e4ad24f/.*"           # edgallrein.com
   ]
 
 # THE CURATOR'S ROOM IS NOT CRAWLABLE, SAID AT THE EDGE AS WELL AS IN THE HEAD.

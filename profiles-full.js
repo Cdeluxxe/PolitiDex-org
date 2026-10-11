@@ -5685,9 +5685,14 @@
            (roster-portrait.js) — the same field band 1 and the record card read.
            _getPhotoUrl answers only for an id with no roster row; no portrait at
            all paints the record's own icon, as before. -->
+      <!-- A face taken from the person's own campaign site prints one line under
+           it, window.pdxPortraitDisclosure(id); an official portrait prints none. -->
       <div class="profile-hero">
+        <div class="profile-hero-face">
         <div class="profile-hero-photo">
           ${(function(){ var _hp = ((typeof window.pdxPortrait === 'function') ? window.pdxPortrait(id) : '') || ((typeof window._getPhotoUrl === 'function') ? window._getPhotoUrl(id) : '') || (p.photo || ''); return _hp ? `<img loading="lazy" decoding="async" src="${_hp}" alt="${p.name}" onerror="this.parentElement.innerHTML='<div class=&quot;ph-fallback&quot;>${p.icon}</div>'">` : `<div class="ph-fallback">${p.icon}</div>`; })()}
+        </div>
+          ${(function(){ var _hn = (typeof window.pdxPortraitDisclosure === 'function') ? window.pdxPortraitDisclosure(id) : ''; return _hn ? '<p class="profile-hero-photo-note">' + _hn + '</p>' : ''; })()}
         </div>
         <div class="profile-hero-id">
           <div class="profile-eyebrow">${p.office || 'Public Official'}</div>
