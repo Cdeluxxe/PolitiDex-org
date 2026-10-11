@@ -429,7 +429,8 @@ ok(/v272 - PROVE YOU LIVE HERE[\s\S]*?MIGRATION COST: none[\s\S]*?No database mi
 const CLIENT = R("district-composer.js");
 ok(CLIENT.includes("Prove you live here"), "the composer carries the Prove you live here control");
 ok(/reason !== 'unverified'/.test(CLIENT), "…shown only to a signed-in, unverified reader");
-ok(/voice\.canVerify === true/.test(CLIENT), "…and only when the server answers canVerify");
+ok(/function canProve\(\)[\s\S]*?reason === 'unverified'[\s\S]*?!canPost\(\)/.test(CLIENT),
+   "…and never to a reader the server already counts as verified (the function decides who may start)");
 ok(!/\/api\/membership/.test(CLIENT), "…which the composer never asks /api/membership for");
 ok(!/localStorage|sessionStorage/.test(CLIENT), "…and keeps nothing on the device");
 

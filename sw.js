@@ -9140,7 +9140,22 @@
 //     roster-portrait.js, profile-card.js and app.css are precached and
 //     changed, so the shell moves one version.
 //     MIGRATION COST: none. No drawer, score, effect line, seed row or key moved.
-const CACHE_VERSION = 'v329';
+// v330 - PROVE YOU LIVE HERE PAINTS FOR EVERY SIGNED-IN, UNVERIFIED READER.
+//     The five composer boards (SD-3, HD-16, SD-7, HD-15, UT-2) already load
+//     district-composer.js, but the button painted only when the board GET
+//     answered canVerify — true for members alone — so a signed-in reader
+//     without a membership row saw the locked composer and nothing under it,
+//     and /api/residency-verify was never called. The button now paints for
+//     any signed-in reader the server calls unverified for this seat, directly
+//     under the composer; the function decides whether the check may start and
+//     a refusal stays on the board with the function's own message (or
+//     "Residency check is not available right now"). A Didit session URL is
+//     accepted alongside Veriff's. Signed-out and already-verified readers see
+//     no button. district-composer.js is precached and changed, so the shell
+//     moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none. No table, row, key or seat moved.
+const CACHE_VERSION = 'v330';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
