@@ -86,7 +86,7 @@ for (const seat of ["ut-sd-3", "ut-hd-29", "ut-gov"]) {
   eq(rows.map((r) => r.id).join(","), "7,8", `${seat}: both mandate rows are in the table`);
   for (const r of rows) {
     ok(r.open.includes(`class="pdxdb-mandate ${MC}"`), `${seat}: table mandate ${r.id} wears ${MC}`);
-    const f = r.body.indexOf(FLAG), t = r.body.indexOf('class="pdxdb-mandate-tag"');
+    const f = r.body.indexOf(FLAG), t = r.body.indexOf('class="pdxdb-mandate-tag pdxdb-mandate-pill"');
     ok(f >= 0 && f < t, `${seat}: table mandate ${r.id} has ${FLAG} before its tag`);
     ok(!/data-ic="on"|--pdx-ic|pdxdb-ic-/.test(r.open + r.body), `${seat}: table mandate ${r.id} wears no issue colour`);
   }
@@ -96,7 +96,7 @@ for (const seat of ["ut-sd-3", "ut-hd-29", "ut-gov"]) {
   eq(pm.length, 2, `${seat}: two mandates pinned`);
   for (const p of pm) {
     ok(p.open.includes(MC), `${seat}: a pinned mandate wears ${MC}`);
-    const f = p.body.indexOf(FLAG), t = p.body.indexOf('class="pdxdb-mandate-tag"');
+    const f = p.body.indexOf(FLAG), t = p.body.indexOf('class="pdxdb-mandate-tag pdxdb-mandate-pill"');
     ok(f >= 0 && f < t, `${seat}: a pinned mandate has ${FLAG} before its tag`);
   }
 
@@ -184,7 +184,7 @@ section("5 · the token, the copy, the shell");
 ok(/\.pdxdb-mandate-c \{[\s\S]*?--pdxdb-mandate: #f1d98a;[\s\S]*?\}/.test(CSS), "district-board.css names the mandate colour token on .pdxdb-mandate-c");
 eq((CSS.match(/--pdxdb-mandate:/g) || []).length, 1, "…declared once");
 ok(/\.pdxdb-mandate-tag \{[\s\S]*?var\(--pdxdb-mandate/.test(CSS), "the tag wears the token");
-ok(!/pdxdb-mandate-c/.test(CSS.replace(/\.pdxdb-mandate-c\b[^{]*\{[^}]*\}/g, "").replace(/\/\*[\s\S]*?\*\//g, "").replace(/\.pdxdb-pin--mandate\.pdxdb-mandate-c[^{]*\{[^}]*\}/g, "")),
+ok(!/pdxdb-mandate-c\b/.test(CSS.replace(/\.pdxdb-mandate-c\b[^{]*\{[^}]*\}/g, "").replace(/\/\*[\s\S]*?\*\//g, "").replace(/\.pdxdb-pin--mandate\.pdxdb-mandate-c[^{]*\{[^}]*\}/g, "")),
    "no other rule borrows the mandate class");
 {
   const BANNED = /\bstocks?\b|\bshares?\b|\bshareholders?\b|\bequity\b|\binvest(?:or|ors|ment)\b|\bdividends?\b/i;
@@ -194,10 +194,10 @@ ok(!/pdxdb-mandate-c/.test(CSS.replace(/\.pdxdb-mandate-c\b[^{]*\{[^}]*\}/g, "")
 }
 {
   const VER = (/const CACHE_VERSION = '(v\d+)';/.exec(SW) || [, ""])[1];
-  eq(VER, "v344", "the shell moved to v344");
+  ok(Number(VER.slice(1)) >= 344, `the shell moved to v344 or later (${VER})`);
   const at = SW.indexOf(`// ${VER} - `);
   const LOG = at > 0 ? SW.slice(at, SW.indexOf("const CACHE_VERSION", at)) : "";
-  ok(/MIGRATION COST: none/.test(LOG), "the v344 entry states no migration");
+  ok(/MIGRATION COST: none/.test(LOG), `the ${VER} entry states no migration`);
 }
 
 if (failures.length) {

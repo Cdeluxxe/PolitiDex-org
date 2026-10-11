@@ -150,7 +150,9 @@ const without = B.tableHtml("ok", ITEMS, [], []);
 const legacy = B.tableHtml("ok", ITEMS, []);
 no(without, "data-pdxdb-mandates", "no mandates block");
 ok(!chips(without).includes(MK), "no Mandates chip");
-no(without, ">Mandates<", "the word Mandates is not printed as a chip");
+// The Type toggle under the search field names "Mandates" on every board; the
+// chip row must not.
+no(without.replace(/<div class="pdxdb-toggles"[\s\S]*?<\/div>/, ""), ">Mandates<", "the word Mandates is not printed as a chip");
 eq(without, legacy, "an empty mandate list paints exactly what the three-argument call paints");
 eq(B.tableHtml("ok", [], [], []), B.tableHtml("ok", [], []), "an empty seat with no mandates is unchanged");
 

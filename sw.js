@@ -9304,7 +9304,17 @@
 //     changed, so the shell moves one version. No location key or other saved
 //     key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v344';
+// v345 - THE MANDATE PILL, AND TYPE AND TIME TOGGLES. Every mandate row, in the
+//     table and the pinned strip, prints a filled gold "Mandate" pill beside
+//     its flag. A toggle row under the search field on every board filters by
+//     Type (All · Topics · Mandates) and Time (All · Current · Past): current is
+//     the highest Congress present on the seat, or the latest Utah general
+//     session year where a row carries no Congress. The toggles hide rows only;
+//     parents and the pinned strip follow them. district-board.js and
+//     district-board.css are precached and changed, so the shell moves one
+//     version. No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v345';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

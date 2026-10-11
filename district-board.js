@@ -616,6 +616,15 @@
     // of the groups the table actually prints, never a total of every topic the
     // vocabulary knows and never a limit.
     catCountOne: '1 issue category has a measure on this seat',
+    // The toggle row under the search field.
+    togglesLabel: 'Filter by type and time',
+    tgType: 'Type',
+    tgTime: 'Time',
+    tgAll: 'All',
+    tgTopics: 'Topics',
+    tgMandates: 'Mandates',
+    tgCurrent: 'Current',
+    tgPast: 'Past',
     catCountMany: ' issue categories have a measure on this seat',
     // THE MANDATE ROWS, on the composer boards only. A mandate is a reform
     // proposal from /mandate that names this seat (its key in the proposal's
@@ -921,7 +930,11 @@
   // THE VIEW IS MODULE STATE, so a repaint (band 2 answering after band 3) does
   // not reset a filter the reader just picked. Changing it re-applies to the
   // DOM in place — the search field is never re-rendered under the cursor.
-  var _view = { cat: '', q: '', open: {} };
+  // `type` and `time` are the toggle row under the search field: '' is All.
+  //   type  'topics' hides the mandate rows; 'mandates' hides every measure.
+  //   time  'current' keeps the measures from the seat's latest sitting (see
+  //         sitOf()); 'past' keeps the older ones. Open mandates are current.
+  var _view = { cat: '', q: '', open: {}, type: '', time: '' };
 
   function rowIssues(item) {
     var arr = (item && Array.isArray(item.issues)) ? item.issues : [];
@@ -989,13 +1002,63 @@
     return !!sq && squash(text).indexOf(sq) !== -1;
   }
 
+  // ── THE TYPE AND TIME TOGGLES ─────────────────────────────────────────────
+  // They HIDE rows and nothing else: no category is added or removed, no row is
+  // re-sorted, and the archive read is the same 100-row page.
+  //
+  // WHICH SITTING IS CURRENT is read off the rows the seat already has. A
+  // federal row carries its Congress number; the active Congress is the highest
+  // one present on the seat, and every lower number is past. A Utah row carries
+  // no Congress, only its general session ("2025GS"); there the latest session
+  // year present on the seat is current. A row that names neither is in no
+  // sitting and shows under All only. Computed per paint by sitContext().
+  var _sit = { congress: 0, year: 0 };
+  function congressOf(item) {
+    var c = item && item.congress;
+    return (typeof c === 'number' && isFinite(c) && c > 0) ? Math.floor(c) : 0;
+  }
+  function sessionYearOf(item) {
+    var mi = item && item.measureIdent;
+    var m = mi && typeof mi.session === 'string' ? /^(\d{4})/.exec(mi.session.trim()) : null;
+    return m ? Number(m[1]) : 0;
+  }
+  function sitContext(rows) {
+    var c = 0, y = 0;
+    for (var i = 0; i < rows.length; i++) {
+      var ci = congressOf(rows[i]);
+      if (ci) { if (ci > c) c = ci; continue; }
+      var yi = sessionYearOf(rows[i]);
+      if (yi > y) y = yi;
+    }
+    return { congress: c, year: y };
+  }
+  // 'current', 'past', or '' when the row names no sitting.
+  function sitOf(item) {
+    var c = congressOf(item);
+    if (c) return c >= _sit.congress ? 'current' : 'past';
+    var y = sessionYearOf(item);
+    if (y) return y >= _sit.year ? 'current' : 'past';
+    return '';
+  }
+  function timeOk(sit) { return !_view.time || _view.time === sit; }
+  // Is any filter narrowing the list? The search, or either toggle.
+  function narrowing() { return !!(normQuery(_view.q) || _view.type || _view.time); }
+  // One measure row: the search, the type and the time, all at once.
+  function rowShown(item) {
+    return _view.type !== 'mandates' && timeOk(sitOf(item)) && matches(findText(item), normQuery(_view.q));
+  }
+  // One mandate row. An open proposal is current; it is not a topic.
+  function mandateShown(m) {
+    return _view.type !== 'topics' && timeOk('current') && matches(mandateFind(m), normQuery(_view.q));
+  }
+
   // WHETHER A GROUP IS SHOWN AND WHETHER IT IS OPEN, decided in one place for
   // both the first render and every later filter change.
   function groupState(key, hits, stance) {
     var q = normQuery(_view.q);
     var shown = !_view.cat || _view.cat === key;
     if (key === '') shown = !_view.cat;          // the unfiled rows: All only
-    if (shown && q && !hits) shown = false;
+    if (shown && narrowing() && !hits) shown = false;
     var open;
     if (q) open = hits > 0;
     // A chip opens its own group. On the composer boards it opens ONLY that
@@ -1014,7 +1077,7 @@
     var q = normQuery(_view.q);
     var hits = 0, body = '';
     for (var i = 0; i < rows.length; i++) {
-      var hit = matches(findText(rows[i]), q);
+      var hit = rowShown(rows[i]);
       if (hit) hits++;
       body += measureRow(rows[i], tally, key, !hit);
     }
@@ -1117,7 +1180,7 @@
   function mandateTagHtml(m) {
     var cat = mandateCategory(m);
     return '<span class="pdxdb-mandate-flag" aria-hidden="true">' + MANDATE_FLAG + '</span>' +
-      '<span class="pdxdb-mandate-tag">' + esc(COPY.mandateTag) + '</span>' +
+      '<span class="pdxdb-mandate-tag pdxdb-mandate-pill">' + esc(COPY.mandateTag) + '</span>' +
       (cat ? '<span class="pdxdb-mandate-cat">' + esc(cat) + '</span>' : '');
   }
 
@@ -1128,7 +1191,7 @@
     var n = whole(m.supportCount);
     var href = COPY.mandateHref + '#pp-card-' + m.id;
     return '<li class="pdxdb-mandate ' + MANDATE_CLASS + '" data-pdxdb-mandate="' + esc(String(m.id)) + '"' +
-        ' data-pdxdb-find="' + esc(mandateFind(m)) + '"' + (hidden ? ' hidden' : '') + '>' +
+        ' data-pdxdb-find="' + esc(mandateFind(m)) + '" data-pdxdb-time="current"' + (hidden ? ' hidden' : '') + '>' +
         mandateTagHtml(m) +
         '<a class="pdxdb-m-link" href="' + esc(href) + '">' + esc(title) + '</a>' +
         '<span class="pdxdb-mandate-st">' + esc(COPY.mandateStatus + ' · ' + supportWord(n)) + '</span>' +
@@ -1136,9 +1199,9 @@
   }
 
   function mandateState(hits) {
-    var q = normQuery(_view.q);
     var shown = !_view.cat || _view.cat === MANDATE_KEY;
-    if (shown && q && !hits) shown = false;
+    if (_view.type === 'topics' || !timeOk('current')) shown = false;
+    if (shown && narrowing() && !hits) shown = false;
     return { shown: shown };
   }
 
@@ -1146,7 +1209,7 @@
     var q = normQuery(_view.q);
     var hits = 0, body = '';
     for (var i = 0; i < rows.length; i++) {
-      var hit = matches(mandateFind(rows[i]), q);
+      var hit = mandateShown(rows[i]);
       if (hit) hits++;
       body += mandateRow(rows[i], !hit);
     }
@@ -1189,6 +1252,7 @@
 
     var tally = roomIndex(rooms);
     var stance = stanceKeys();
+    _sit = sitContext(rows);
     var G = tableGroups(rows);
     // A chip that no longer has a group on this seat (a repaint dropped it)
     // falls back to All rather than showing an empty table under a live chip.
@@ -1239,8 +1303,9 @@
         '<input class="pdxdb-find-i" type="search" data-pdxdb-search autocomplete="off"' +
           ' placeholder="' + esc(composer ? COPY.findPlaceholderComposer : COPY.findPlaceholder) + '" value="' + esc(_view.q) + '" /></label>';
 
+    var toggles = togglesHtml();
     return band('table', COPY.tableBand, COPY.tableNote,
-      (composer ? find + cats + (P ? pinnedHtml(mrows, G.groups, tally) : '') : cats + find) +
+      (composer ? find + toggles + cats + (P ? pinnedHtml(mrows, G.groups, tally) : '') : cats + find + toggles) +
       '<div class="pdxdb-groups"' + (P ? ' data-pdxdb-layout="parents"' : '') + '>' + groups + '</div>' +
       '<p class="pdxdb-none pdxdb-find-none" data-pdxdb-find-none' +
         (anyShown(G, mrows) ? ' hidden' : '') + '>' + esc(COPY.findNone) + '</p>',
@@ -1320,8 +1385,8 @@
   var PARENT_COLLAPSED = 'pdxdb-parent-h--collapsed';
 
   function rowHits(rows) {
-    var q = normQuery(_view.q), n = 0;
-    for (var i = 0; i < rows.length; i++) if (matches(findText(rows[i]), q)) n++;
+    var n = 0;
+    for (var i = 0; i < rows.length; i++) if (rowShown(rows[i])) n++;
     return n;
   }
   function issuesWord(n) { return n === 1 ? '1 issue' : n + ' issues'; }
@@ -1380,6 +1445,55 @@
   // data-pdxdb-cat control as a chip — never a second copy of the group, so the
   // poll module still sees each issue once. The counts are people, never a
   // majority and never this district's position.
+  // ── THE TOGGLE ROW ────────────────────────────────────────────────────────
+  // Under the search field on every board: Type (All · Topics · Mandates) and
+  // Time (All · Current · Past). Each button is a pressed/unpressed toggle; All
+  // is the default and clears the other two.
+  function toggleBtn(attr, val, label, cur) {
+    return '<button type="button" class="pdxdb-tg" ' + attr + '="' + esc(val) + '"' +
+      ' aria-pressed="' + (cur === val ? 'true' : 'false') + '">' + esc(label) + '</button>';
+  }
+  function togglesHtml() {
+    var ty = _view.type || '', ti = _view.time || '';
+    return '<div class="pdxdb-toggles" role="group" aria-label="' + esc(COPY.togglesLabel) + '">' +
+        '<span class="pdxdb-tg-set" role="group" aria-label="' + esc(COPY.tgType) + '">' +
+          '<span class="pdxdb-tg-l">' + esc(COPY.tgType) + '</span>' +
+          toggleBtn(TG_TYPE, '', COPY.tgAll, ty) +
+          toggleBtn(TG_TYPE, 'topics', COPY.tgTopics, ty) +
+          toggleBtn(TG_TYPE, 'mandates', COPY.tgMandates, ty) +
+        '</span>' +
+        '<span class="pdxdb-tg-set" role="group" aria-label="' + esc(COPY.tgTime) + '">' +
+          '<span class="pdxdb-tg-l">' + esc(COPY.tgTime) + '</span>' +
+          toggleBtn(TG_TIME, '', COPY.tgAll, ti) +
+          toggleBtn(TG_TIME, 'current', COPY.tgCurrent, ti) +
+          toggleBtn(TG_TIME, 'past', COPY.tgPast, ti) +
+        '</span>' +
+      '</div>';
+  }
+  var TG_TYPE = 'data-pdxdb-tg-type';
+  var TG_TIME = 'data-pdxdb-tg-time';
+
+  // THE PINNED STRIP UNDER THE TOGGLES. Which rows are pinned is decided
+  // exactly as before; the toggles only hide a pin. A mandate pin is hidden by
+  // Topics and by Past. An issue pin is hidden by Mandates, and by a Time
+  // setting none of its group's measures falls in (its sittings ride on the
+  // pin as data-pdxdb-pin-times). Search and the chips still leave the strip
+  // alone. A strip with every pin hidden is hidden whole.
+  function pinMandateShown() { return _view.type !== 'topics' && timeOk('current'); }
+  function pinIssueShown(times) {
+    if (_view.type === 'mandates') return false;
+    if (!_view.time) return true;
+    return (' ' + times + ' ').indexOf(' ' + _view.time + ' ') !== -1;
+  }
+  function groupTimes(rows) {
+    var seen = {}, out = [];
+    for (var i = 0; i < rows.length; i++) {
+      var t = sitOf(rows[i]);
+      if (t && !seen[t]) { seen[t] = 1; out.push(t); }
+    }
+    return out.join(' ');
+  }
+
   var PIN_MANDATES = 2;
   var PIN_ISSUES = 3;
   function pinnedIssues(groups, tally) {
@@ -1396,10 +1510,13 @@
     var ms = mrows.slice(0, PIN_MANDATES);
     var is = pinnedIssues(groups, tally);
     if (!ms.length && !is.length) return '';
-    var body = '';
+    var body = '', anyPin = false;
     for (var i = 0; i < ms.length; i++) {
       var m = ms[i];
-      body += '<li class="pdxdb-pin pdxdb-pin--mandate ' + MANDATE_CLASS + '" data-pdxdb-pin-mandate="' + esc(String(m.id)) + '">' +
+      var mShown = pinMandateShown();
+      if (mShown) anyPin = true;
+      body += '<li class="pdxdb-pin pdxdb-pin--mandate ' + MANDATE_CLASS + '" data-pdxdb-pin-mandate="' + esc(String(m.id)) + '"' +
+          (mShown ? '' : ' hidden') + '>' +
           mandateTagHtml(m) +
           '<a class="pdxdb-m-link" href="' + esc(COPY.mandateHref + '#pp-card-' + m.id) + '">' + esc(String(m.title || '').trim()) + '</a>' +
           '<span class="pdxdb-mandate-st">' + esc(COPY.mandateStatus + ' · ' + supportWord(whole(m.supportCount))) + '</span>' +
@@ -1407,7 +1524,11 @@
     }
     for (var j = 0; j < is.length; j++) {
       var p = is[j];
-      body += '<li class="pdxdb-pin pdxdb-pin--issue" data-pdxdb-pin-issue="' + esc(p.g.key) + '">' +
+      var times = groupTimes(p.g.rows);
+      var iShown = pinIssueShown(times);
+      if (iShown) anyPin = true;
+      body += '<li class="pdxdb-pin pdxdb-pin--issue" data-pdxdb-pin-issue="' + esc(p.g.key) + '"' +
+          ' data-pdxdb-pin-times="' + esc(times) + '"' + (iShown ? '' : ' hidden') + '>' +
           '<button type="button" class="pdxdb-pin-i" data-pdxdb-cat="' + esc(p.g.key) + '"' +
             ' aria-pressed="' + (_view.cat === p.g.key ? 'true' : 'false') + '"' + issueSkin(p.g.key) + '>' +
             esc(p.g.label) + '</button>' +
@@ -1415,7 +1536,8 @@
             people(p.comments) + ' ' + COPY.pinCommented) + '</span>' +
         '</li>';
     }
-    return '<section class="pdxdb-pinned" data-pdxdb-pinned="" aria-label="' + esc(COPY.pinnedHead) + '">' +
+    return '<section class="pdxdb-pinned" data-pdxdb-pinned="" aria-label="' + esc(COPY.pinnedHead) + '"' +
+        (anyPin ? '' : ' hidden') + '>' +
         '<h3 class="pdxdb-pinned-h">' + esc(COPY.pinnedHead) + '</h3>' +
         '<ul class="pdxdb-pins">' + body + '</ul>' +
       '</section>';
@@ -1440,18 +1562,15 @@
   }
 
   function anyShown(G, mrows) {
-    var q = normQuery(_view.q);
     if (mrows && mrows.length) {
       var mh = 0;
-      for (var m = 0; m < mrows.length; m++) if (matches(mandateFind(mrows[m]), q)) mh++;
+      for (var m = 0; m < mrows.length; m++) if (mandateShown(mrows[m])) mh++;
       if (mandateState(mh).shown) return true;
     }
     var all = G.groups.slice();
     if (G.unfiled.length) all.push({ key: '', rows: G.unfiled });
     for (var i = 0; i < all.length; i++) {
-      var hits = 0;
-      for (var j = 0; j < all[i].rows.length; j++) if (matches(findText(all[i].rows[j]), q)) hits++;
-      if (groupState(all[i].key, hits, {}).shown) return true;
+      if (groupState(all[i].key, rowHits(all[i].rows), {}).shown) return true;
     }
     return false;
   }
@@ -1475,7 +1594,8 @@
       var rows = groups[g].querySelectorAll('[data-pdxdb-find]');
       var hits = 0;
       for (var r = 0; r < rows.length; r++) {
-        var hit = matches(rows[r].getAttribute('data-pdxdb-find') || '', q);
+        var hit = _view.type !== 'mandates' && timeOk(rows[r].getAttribute('data-pdxdb-time') || '') &&
+          matches(rows[r].getAttribute('data-pdxdb-find') || '', q);
         if (hit) hits++;
         rows[r].hidden = !hit;
       }
@@ -1499,7 +1619,8 @@
       var mr = mb[b].querySelectorAll('[data-pdxdb-find]');
       var mh = 0;
       for (var x = 0; x < mr.length; x++) {
-        var mhit = matches(mr[x].getAttribute('data-pdxdb-find') || '', q);
+        var mhit = _view.type !== 'topics' && timeOk(mr[x].getAttribute('data-pdxdb-time') || '') &&
+          matches(mr[x].getAttribute('data-pdxdb-find') || '', q);
         if (mhit) mh++;
         mr[x].hidden = !mhit;
       }
@@ -1509,6 +1630,27 @@
     }
     var none = el.querySelector('[data-pdxdb-find-none]');
     if (none) none.hidden = any;
+    // The toggle buttons say which is pressed.
+    var tgs = el.querySelectorAll('[' + TG_TYPE + '],[' + TG_TIME + ']');
+    for (var tg = 0; tg < tgs.length; tg++) {
+      var isType = tgs[tg].hasAttribute(TG_TYPE);
+      var v = tgs[tg].getAttribute(isType ? TG_TYPE : TG_TIME) || '';
+      tgs[tg].setAttribute('aria-pressed', v === (isType ? _view.type : _view.time) ? 'true' : 'false');
+    }
+    // The pinned strip follows the toggles (never the search or the chips).
+    var strips = el.querySelectorAll('[data-pdxdb-pinned]');
+    for (var sp = 0; sp < strips.length; sp++) {
+      var pins = strips[sp].querySelectorAll('[data-pdxdb-pin-mandate],[data-pdxdb-pin-issue]');
+      var anyPin = false;
+      for (var pn = 0; pn < pins.length; pn++) {
+        var pv = pins[pn].hasAttribute('data-pdxdb-pin-mandate')
+          ? pinMandateShown()
+          : pinIssueShown(pins[pn].getAttribute('data-pdxdb-pin-times') || '');
+        pins[pn].hidden = !pv;
+        if (pv) anyPin = true;
+      }
+      strips[sp].hidden = !anyPin;
+    }
   }
 
   // Public setters, for the controls and for the suite. Each re-applies to the
@@ -1519,6 +1661,17 @@
   }
   function setQuery(q) {
     _view.q = String(q == null ? '' : q);
+    applyView(_el);
+  }
+  // The toggles. Anything but a known value is All.
+  function setType(v) {
+    v = String(v == null ? '' : v);
+    _view.type = (v === 'topics' || v === 'mandates') ? v : '';
+    applyView(_el);
+  }
+  function setTime(v) {
+    v = String(v == null ? '' : v);
+    _view.time = (v === 'current' || v === 'past') ? v : '';
     applyView(_el);
   }
 
@@ -1547,6 +1700,10 @@
       var t = ev && ev.target;
       var chip = t && fn(t.closest) ? t.closest('[data-pdxdb-cat]') : null;
       if (chip) { setCategory(chip.getAttribute('data-pdxdb-cat') || ''); return; }
+      var tgy = t && fn(t.closest) ? t.closest('[' + TG_TYPE + ']') : null;
+      if (tgy) { setType(tgy.getAttribute(TG_TYPE) || ''); return; }
+      var tgt = t && fn(t.closest) ? t.closest('[' + TG_TIME + ']') : null;
+      if (tgt) { setTime(tgt.getAttribute(TG_TIME) || ''); return; }
       // A header opened or closed by hand is remembered for the next repaint —
       // only while no search is forcing groups open.
       var psum = t && fn(t.closest) ? t.closest('.pdxdb-parent-h') : null;
@@ -1753,7 +1910,8 @@
       : '<span class="pdxdb-m-plain">' + esc(shown) + '</span>';
 
     return '<tr class="pdxdb-row"' + (key ? ' data-pdxdb-issue="' + esc(key) + '"' : '') +
-        ' data-pdxdb-find="' + esc(findText(item)) + '"' + (hidden ? ' hidden' : '') + '>' +
+        ' data-pdxdb-find="' + esc(findText(item)) + '" data-pdxdb-time="' + esc(sitOf(item)) + '"' +
+        (hidden ? ' hidden' : '') + '>' +
         '<td class="pdxdb-m">' + cell +
           (number && title ? '<span class="pdxdb-m-num">' + esc(number) + '</span>' : '') +
           chips +
@@ -2293,14 +2451,20 @@
     _tableGroups: tableGroups,
     _mandateRows: mandateRows,
     _parentsOf: parentsOf,
+    // The in-place filter, for the suite: applies the current view to a
+    // painted band without re-rendering it.
+    _applyView: applyView,
     COMPOSER_SEATS: COMPOSER_SEATS,
     composerBoard: function () { return composerBoard(); },
     MANDATE_KEY: MANDATE_KEY,
     mandates: function () { return _mandates.slice(); },
-    // THE READER'S VIEW OF BAND 3: a category chip ('' is All) and a search.
+    // THE READER'S VIEW OF BAND 3: a category chip ('' is All), a search, and
+    // the Type and Time toggles ('' is All).
     setCategory: setCategory,
     setQuery: setQuery,
-    view: function () { return { cat: _view.cat, q: _view.q }; },
+    setType: setType,
+    setTime: setTime,
+    view: function () { return { cat: _view.cat, q: _view.q, type: _view.type, time: _view.time }; },
     // Exposed for the suite: which of the three answers each band is showing, so
     // "counting", "nobody on file" and "we could not look" are asserted as three
     // different states rather than guessed at from one sentence.
