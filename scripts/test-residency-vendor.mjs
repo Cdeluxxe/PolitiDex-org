@@ -692,7 +692,10 @@ const NON_MEMBERS = [
     ok(!new RegExp(`\\b${w.replace(/ /g, "\\s+")}\\b`, "i").test(copy), `no "${w}" on /me's block, the composer or the vendor copy`);
   }
   const boards = Object.keys(CLUSTER).map((a) => `district-${a}.html`).concat(["district-composer.js"]);
-  const pay = boards.filter((f) => /\/api\/membership|checkout\.stripe|\$20|become a member/i.test(R(f)));
+  // The board's one cap sentence names the $20 membership and links nothing; it
+  // is lifted out first, so any other $20, checkout or membership call fails.
+  const CAP_LINE = /Verified residents get one comment and five poll votes a month on this seat\. (?:' \+\s*')?A \$20 yearly membership removes the monthly cap\./g;
+  const pay = boards.filter((f) => /\/api\/membership|checkout\.stripe|\$20|become a member/i.test(R(f).replace(CAP_LINE, "")));
   eq(pay.length, 0, `the five boards still have no pay button — ${JSON.stringify(pay)}`);
 }
 

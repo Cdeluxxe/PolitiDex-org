@@ -9171,7 +9171,14 @@
 //     refusal line never shows a members-only message. district-composer.js is
 //     precached and changed, so the shell moves one version.
 //     MIGRATION COST: none. No table, row, key or seat moved.
-const CACHE_VERSION = 'v332';
+// v333 - THE FIVE COMPOSER BOARDS STATE THE CAP. Under the composer heading,
+//     in every state, one sentence: one comment and five poll votes a month on
+//     the seat for a verified resident; a $20 yearly membership removes the
+//     monthly cap. The locked line is unchanged. district-composer.js and the
+//     five composer board documents are precached and changed, so the shell
+//     moves one version. No location key or other saved key was touched.
+//     MIGRATION COST: none. No table, row, key or seat moved.
+const CACHE_VERSION = 'v333';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
