@@ -20,6 +20,10 @@
 
    NO PORTRAIT IS AN ANSWER: ''. Every caller paints the row's own mark (its
    `icon`, 🏛 when the row has none) for it, never a placeholder URL.
+
+   A NON-OFFICIAL PORTRAIT SAYS SO: pdxPortraitDisclosure(pid) is the one line
+   the person file and the share card print under a face that came from the
+   person's own campaign site or Facebook Page, and '' for every other face.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -62,6 +66,31 @@
     return '🏛';
   }
 
+  // THE ONE DISCLOSURE. A portrait that is not official says where it came from.
+  // A face from the person's own campaign site (Person photos waves 1b-1d) is
+  // marked `photoSource: "campaign"` on its roster row; the profile photo of the
+  // person's own Facebook Page (wave 1d) is marked `photoSource: "facebook"`.
+  // Wherever that face is the one painted, the person file and the share card
+  // print its line under it; an official portrait carries no mark and prints
+  // nothing. It is a sentence, never a score or a confidence figure. The line
+  // follows the painted face: a live photo that replaced the bundled one is not
+  // that photo, so it carries no line.
+  var SOURCE_LINE = {
+    campaign: 'Campaign photo · not an official portrait.',
+    facebook: 'Facebook photo · not an official portrait.'
+  };
+  function pdxPortraitDisclosure(pid) {
+    var u = pdxPortrait(pid);
+    if (!u) return '';
+    try {
+      var row = window.CMP_DATA && window.CMP_DATA[String(pid)];
+      var src = row && row.photoSource;
+      if (src && Object.prototype.hasOwnProperty.call(SOURCE_LINE, src) && field(row) === u) return SOURCE_LINE[src];
+    } catch (e) {}
+    return '';
+  }
+
   window.pdxPortrait = pdxPortrait;
   window.pdxPortraitMark = pdxPortraitMark;
+  window.pdxPortraitDisclosure = pdxPortraitDisclosure;
 })();

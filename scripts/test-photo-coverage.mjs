@@ -96,6 +96,164 @@ const ALLOWED = new Set([
   "bioguide.congress.gov",       // official Bioguide portraits
   "le.utah.gov",                 // official Utah legislature portraits
   "insurance.utah.gov",          // official Utah agency portrait
+  // Person photos wave 1 (v326): official .gov / .us hosts only, one per host a
+  // stored portrait sits on. A campaign site, a website-builder CDN, or an .org /
+  // .net / .com host is never added here; those rows keep the building.
+  "ag.hawaii.gov",
+  "ago.mo.gov",
+  "ago.nebraska.gov",
+  "ago.vermont.gov",
+  "ago.wv.gov",
+  "alison.legislature.state.al.us",
+  "apps.senate.virginia.gov",
+  "atg.sd.gov",
+  "attorneygeneral.delaware.gov",
+  "attorneygeneral.nd.gov",
+  "attorneygeneral.utah.gov",
+  "beaver.utah.gov",
+  "bidenwhitehouse.archives.gov",
+  "cdn.ilga.gov",
+  "cdn.www.sba.gov",
+  "coag.gov",
+  "docs.legis.wisconsin.gov",
+  "dojmt.gov",
+  "gc.nh.gov",
+  "georgewbush-whitehouse.archives.gov",
+  "governor.ohio.gov",
+  "historycms.house.gov",
+  "images.house.mo.gov",
+  "ironcountyut.gov",
+  "ivinsutah.gov",
+  "jobs.utah.gov",
+  "kane.utah.gov",
+  "leg.colorado.gov",
+  "leg.wa.gov",
+  "legislature.ky.gov",
+  "lrl.texas.gov",
+  "ltgov.georgia.gov",
+  "ltgovhosemann.ms.gov",
+  "malegislature.gov",
+  "mayor.lacity.gov",
+  "media.api.sf.gov",
+  "mgaleg.maryland.gov",
+  "mn.gov",
+  "nephi.utah.gov",
+  "oag.maryland.gov",
+  "obamawhitehouse.archives.gov",
+  "oklahoma.gov",
+  "portal.ct.gov",
+  "pub.njleg.gov",
+  "riag.ri.gov",
+  "schools.utah.gov",
+  "senate.la.gov",
+  "senate.michigan.gov",
+  "senate.texas.gov",
+  "sheriff.utahcounty.gov",
+  "sos.oregon.gov",
+  "trumpwhitehouse.archives.gov",
+  "washingtonutah.gov",
+  "www.ag.ky.gov",
+  "www.alabamaag.gov",
+  "www.azleg.gov",
+  "www.capitol.tn.gov",
+  "www.chicago.gov",
+  "www.cms.gov",
+  "www.daggettcounty.gov",
+  "www.daviscountyutah.gov",
+  "www.doj.nh.gov",
+  "www.doj.state.or.us",
+  "www.draperutah.gov",
+  "www.fbi.gov",
+  "www.federalreserve.gov",
+  "www.flsenate.gov",
+  "www.fortworthtexas.gov",
+  "www.ftc.gov",
+  "www.garfield.utah.gov",
+  "www.heberut.gov",
+  "www.herriman.gov",
+  "www.hhs.gov",
+  "www.houstontx.gov",
+  "www.in.gov",
+  "www.kaysville.gov",
+  "www.kslegislature.gov",
+  "www.laytoncityutah.gov",
+  "www.leg.state.nv.us",
+  "www.legis.ga.gov",
+  "www.lrl.mn.gov",
+  "www.maine.gov",
+  "www.mass.gov",
+  "www.michigan.gov",
+  "www.midwaycityut.gov",
+  "www.murray.utah.gov",
+  "www.nasa.gov",
+  "www.ncleg.gov",
+  "www.njoag.gov",
+  "www.nm.gov",
+  "www.nyc.gov",
+  "www.nysenate.gov",
+  "www.oag.state.va.us",
+  "www.ohiosenate.gov",
+  "www.oregonlegislature.gov",
+  "www.pa.gov",
+  "www.palegis.us",
+  "www.phila.gov",
+  "www.phoenix.gov",
+  "www.richcounty.gov",
+  "www.saltlakecounty.gov",
+  "www.sanpetecountyutah.gov",
+  "www.scag.gov",
+  "www.scstatehouse.gov",
+  "www.sec.gov",
+  "www.senate.ca.gov",
+  "www.senate.michigan.gov",
+  "www.senate.mo.gov",
+  "www.senatedems.ct.gov",
+  "www.sjc.utah.gov",
+  "www.slc.gov",
+  "www.sos.alabama.gov",
+  "www.summitcountyutah.gov",
+  "www.tooelecity.gov",
+  "www.wasatchcounty.gov",
+  "www.washco.utah.gov",
+  "www.westjordan.utah.gov",
+  "www.whitehouse.gov",
+  "www.wvc-ut.gov",
+  "www.wyocourts.gov",
+  // CAMPAIGN PORTRAITS (wave 1b, v327). Only for a row with no official portrait
+  // anywhere: the person's own campaign site, naming the same person and office or
+  // candidacy, one single portrait served from that site's own domain (never a CDN,
+  // news site or third party). An official portrait is never replaced by one of these.
+  // Each host is recorded with its reason in PORTRAIT_SWEEP.md.
+  // campaign-hosts:begin
+  "jamie4sanjuan.com",
+  "marshajudkins.com",
+  "nickbrownforag.com",
+  "sheriffjaredrigby.org",
+  "teamkaufusi.com",
+  "www.bilzerianforcongress.com",
+  "www.brycedunford.com",
+  "www.gartenforsenate.com",
+  // Wave 1c (v328): a portrait embedded on the person's own campaign page whose file
+  // the site's builder serves. The toml pins each builder CDN to that campaign
+  // site's own folder, so the proxy cannot fetch another customer's images.
+  "hogan4schools.com",
+  "images.squarespace-cdn.com",
+  "cdn.prod.website-files.com",
+  // Wave 1d (v329): the same person on their own campaign site, whatever office
+  // it names. Wix's media host is shared, so the toml pins it to the one site
+  // owner's media prefix.
+  "jarettwaite.com",
+  "static.wixstatic.com",
+  // campaign-hosts:end
+  // FACEBOOK PORTRAITS (wave 1d, v329). Only for a row with no official or
+  // campaign portrait: the profile photo of the person's OWN Facebook Page, a Page
+  // that names them as running for or holding the seat, stored as the Graph
+  // picture endpoint for that Page (fbcdn file URLs are signed and expire). The
+  // toml pins the endpoint to each Page; the face prints "Facebook photo · not an
+  // official portrait." under it.
+  // facebook-hosts:begin
+  "graph.facebook.com",
+  // facebook-hosts:end
 ]);
 const strayHosts = new Map();
 for (const [k, v] of Object.entries(faces)) {
@@ -183,6 +341,61 @@ if (imgBlock) {
   const loose = patterns.filter((p) => /(^|[^\\])\.(?![*+])/.test(p.replace(/\/\.\*$/, "/")));
   ok(loose.length === 0,
     `${loose.length} remote_images pattern(s) leave a dot unescaped, so a look-alike host can be proxied through our origin: ${loose.join(", ")}`);
+}
+
+// ── A non-official face says so, and only a non-official face ───────────────
+// Waves 1b-1d (v327-v329) filed portraits for rows with no official portrait:
+// from the person's own campaign site (photoSource "campaign") or the profile
+// photo of their own Facebook Page (photoSource "facebook"). roster-portrait.js
+// turns that mark into the one line the person file and the share card print
+// under the face. So the mark is pinned to the host: every face on a campaign
+// or Facebook host carries the matching mark, nothing else does, and an
+// official .gov / .us face never does.
+{
+  const src = readFileSync(new URL("./test-photo-coverage.mjs", import.meta.url), "utf8");
+  const block = (tag) => {
+    const b = src.indexOf("// " + tag + "-hosts:" + "begin"), e = src.indexOf("// " + tag + "-hosts:" + "end");
+    return new Set([...src.slice(b, e).matchAll(/^\s*"([a-z0-9.-]+)",/gm)].map((m) => m[1]));
+  };
+  const HOSTS = { campaign: block("campaign"), facebook: block("facebook") };
+  ok(HOSTS.campaign.size > 0 && HOSTS.facebook.size > 0, "the campaign-hosts / facebook-hosts blocks parsed no hosts");
+  const sourceOf = (h) => Object.keys(HOSTS).find((k) => HOSTS[k].has(h)) || "";
+  const unmarked = [], stray = [], official = [];
+  for (const [pid, row] of Object.entries(cmp)) {
+    if (!row || !row.photo) { if (row && row.photoSource) stray.push(pid); continue; }
+    const h = (String(row.photo).split("/")[2] || "").toLowerCase();
+    const want = sourceOf(h);
+    if (want && row.photoSource !== want) unmarked.push(`${pid} (${h} wants "${want}")`);
+    if (row.photoSource && row.photoSource !== want) stray.push(pid);
+    if (row.photoSource && /\.(gov|us)$/.test(h)) official.push(pid);
+  }
+  ok(unmarked.length === 0, `${unmarked.length} non-official face(s) carry no matching mark, so they would print the wrong disclosure or none: ${unmarked.join(", ")}`);
+  ok(stray.length === 0, `${stray.length} row(s) carry a photoSource that does not match the host their face is on: ${stray.join(", ")}`);
+  ok(official.length === 0, `${official.length} official .gov / .us face(s) are marked non-official: ${official.join(", ")}`);
+  ok(Object.keys(bp).every((k) => !sourceOf((String(bp[k]).split("/")[2] || "").toLowerCase())),
+    "the curated map holds a campaign or Facebook face, which no row can mark");
+  // Facebook faces are the Page picture endpoint and nothing else: a signed fbcdn
+  // file URL expires within days and would turn into a dead face.
+  for (const [pid, row] of Object.entries(cmp)) {
+    if (row && row.photoSource === "facebook")
+      ok(/^https:\/\/graph\.facebook\.com\/[A-Za-z0-9.-]+\/picture\?type=large$/.test(row.photo),
+        `${pid}'s Facebook face is not the Page picture endpoint: ${row.photo}`);
+  }
+  // A builder CDN or Facebook's Graph host serves everybody's images, so the proxy
+  // may only reach the folder of the one site or Page a face came from.
+  const SHARED = new Set(["images.squarespace-cdn.com", "cdn.prod.website-files.com", "static.wixstatic.com", "img1.wsimg.com", "graph.facebook.com"]);
+  const tomlSrc = readFileSync(new URL("../netlify.toml", import.meta.url), "utf8");
+  const blk = (/remote_images\s*=\s*\[([\s\S]*?)\n\s*\]/.exec(tomlSrc) || [])[1] || "";
+  const pats = [...blk.matchAll(/"([^"]+)"/g)].map((m) => m[1].replace(/\\\\/g, "\\").replace(/\\/g, ""));
+  const open = pats.filter((p) => { const u = p.replace(/^https?:\/\//, ""); const [h, ...rest] = u.split("/"); return SHARED.has(h) && rest.join("/").replace(/\.\*$/, "").length < 8; });
+  ok(open.length === 0, `remote_images lets the proxy reach a whole shared host rather than one site's or Page's folder: ${open.join(", ")}`);
+  for (const [pid, row] of Object.entries(cmp)) {
+    if (!row || !row.photoSource) continue;
+    const h = (String(row.photo).split("/")[2] || "").toLowerCase();
+    if (!SHARED.has(h)) continue;
+    ok(pats.some((p) => row.photo.startsWith(p.replace(/\.\*$/, ""))),
+      `${pid}'s face on ${h} is outside every pinned remote_images folder, so the share card would draw the monogram`);
+  }
 }
 
 // ── Report ──────────────────────────────────────────────────────────────────

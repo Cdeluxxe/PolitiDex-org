@@ -441,6 +441,11 @@
        record and must never delay the seat panel that is. -->
   <script defer src="/browse-photos.js"></script>
   <script defer src="/ballot-breakdown.js"></script>
+  <!-- The portrait reader and its one disclosure (roster-portrait.js): a person
+       file opened from this desk prints "Campaign photo · not an official
+       portrait." under a face from the person's own campaign site, as it does
+       on /p/. Data only — no fetch, no DOM. -->
+  <script defer src="/roster-portrait.js"></script>
 
   <!-- The stance corpus. The desk does not print a stance, but the record lane
        ranks a field by reading it, and a field ranked against a corpus that is

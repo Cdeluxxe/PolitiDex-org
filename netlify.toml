@@ -2867,10 +2867,18 @@
 # the card loads its face through /.netlify/images, which is our own origin, and
 # these are the hosts that proxy is allowed to resolve on its behalf.
 #
-# The set is exactly the six trusted portrait hosts scripts/test-photo-coverage.mjs
-# already pins for BROWSE_PHOTOS, and for the same reason it gives: a new host is a
-# new availability and a new trust dependency for faces on an accountability app.
-# Widen it deliberately, in both places, or not at all. A host that is not here
+# The set is exactly the trusted portrait hosts scripts/test-photo-coverage.mjs
+# already pins for the bundled portraits, and for the same reason it gives: a new host
+# is a new availability and a new trust dependency for faces on an accountability app.
+# Widen it deliberately, in both places, or not at all. Person photos wave 1 (v326)
+# widened it to official .gov / .us hosts. Wave 1b (v327) added a short list of
+# campaign hosts, each the person's own campaign site and only for a row with no
+# official portrait anywhere. Wave 1c (v328) admitted a campaign page's own builder
+# CDN (Squarespace, Webflow) for a portrait embedded on that page, each pattern
+# pinned to that one site's folder rather than the CDN's whole host; a news site,
+# a party page or any other third party is never added. Every such face prints
+# "Campaign photo · not an official portrait." under it on the person file and
+# the share card. PORTRAIT_SWEEP.md records why each campaign host is here. A host that is not here
 # 404s, which the card handles the same way it handles a dead network — it draws
 # the monogram.
 [images]
@@ -2880,7 +2888,171 @@
     "https://commons\\.wikimedia\\.org/.*",       # Wikimedia Commons, hash-independent Special:FilePath
     "https://bioguide\\.congress\\.gov/.*",       # official Bioguide portraits
     "https://le\\.utah\\.gov/.*",                 # official Utah legislature portraits
-    "https://insurance\\.utah\\.gov/.*"           # official Utah agency portrait
+    "https://insurance\\.utah\\.gov/.*",          # official Utah agency portrait
+    # Person photos wave 1 (v326): the official .gov / .us hosts a stored portrait sits on.
+    "https://ag\\.hawaii\\.gov/.*",
+    "https://ago\\.mo\\.gov/.*",
+    "https://ago\\.nebraska\\.gov/.*",
+    "https://ago\\.vermont\\.gov/.*",
+    "https://ago\\.wv\\.gov/.*",
+    "https://alison\\.legislature\\.state\\.al\\.us/.*",
+    "https://apps\\.senate\\.virginia\\.gov/.*",
+    "https://atg\\.sd\\.gov/.*",
+    "https://attorneygeneral\\.delaware\\.gov/.*",
+    "https://attorneygeneral\\.nd\\.gov/.*",
+    "https://attorneygeneral\\.utah\\.gov/.*",
+    "https://beaver\\.utah\\.gov/.*",
+    "https://bidenwhitehouse\\.archives\\.gov/.*",
+    "https://cdn\\.ilga\\.gov/.*",
+    "https://cdn\\.www\\.sba\\.gov/.*",
+    "https://coag\\.gov/.*",
+    "https://docs\\.legis\\.wisconsin\\.gov/.*",
+    "https://dojmt\\.gov/.*",
+    "https://gc\\.nh\\.gov/.*",
+    "https://georgewbush-whitehouse\\.archives\\.gov/.*",
+    "https://governor\\.ohio\\.gov/.*",
+    "https://historycms\\.house\\.gov/.*",
+    "https://images\\.house\\.mo\\.gov/.*",
+    "https://ironcountyut\\.gov/.*",
+    "https://ivinsutah\\.gov/.*",
+    "https://jobs\\.utah\\.gov/.*",
+    "https://kane\\.utah\\.gov/.*",
+    "https://leg\\.colorado\\.gov/.*",
+    "https://leg\\.wa\\.gov/.*",
+    "https://legislature\\.ky\\.gov/.*",
+    "https://lrl\\.texas\\.gov/.*",
+    "https://ltgov\\.georgia\\.gov/.*",
+    "https://ltgovhosemann\\.ms\\.gov/.*",
+    "https://malegislature\\.gov/.*",
+    "https://mayor\\.lacity\\.gov/.*",
+    "https://media\\.api\\.sf\\.gov/.*",
+    "https://mgaleg\\.maryland\\.gov/.*",
+    "https://mn\\.gov/.*",
+    "https://nephi\\.utah\\.gov/.*",
+    "https://oag\\.maryland\\.gov/.*",
+    "https://obamawhitehouse\\.archives\\.gov/.*",
+    "https://oklahoma\\.gov/.*",
+    "https://portal\\.ct\\.gov/.*",
+    "https://pub\\.njleg\\.gov/.*",
+    "https://riag\\.ri\\.gov/.*",
+    "https://schools\\.utah\\.gov/.*",
+    "https://senate\\.la\\.gov/.*",
+    "https://senate\\.michigan\\.gov/.*",
+    "https://senate\\.texas\\.gov/.*",
+    "https://sheriff\\.utahcounty\\.gov/.*",
+    "https://sos\\.oregon\\.gov/.*",
+    "https://trumpwhitehouse\\.archives\\.gov/.*",
+    "https://washingtonutah\\.gov/.*",
+    "https://www\\.ag\\.ky\\.gov/.*",
+    "https://www\\.alabamaag\\.gov/.*",
+    "https://www\\.azleg\\.gov/.*",
+    "https://www\\.capitol\\.tn\\.gov/.*",
+    "https://www\\.chicago\\.gov/.*",
+    "https://www\\.cms\\.gov/.*",
+    "https://www\\.daggettcounty\\.gov/.*",
+    "https://www\\.daviscountyutah\\.gov/.*",
+    "https://www\\.doj\\.nh\\.gov/.*",
+    "https://www\\.doj\\.state\\.or\\.us/.*",
+    "https://www\\.draperutah\\.gov/.*",
+    "https://www\\.fbi\\.gov/.*",
+    "https://www\\.federalreserve\\.gov/.*",
+    "https://www\\.flsenate\\.gov/.*",
+    "https://www\\.fortworthtexas\\.gov/.*",
+    "https://www\\.ftc\\.gov/.*",
+    "https://www\\.garfield\\.utah\\.gov/.*",
+    "https://www\\.heberut\\.gov/.*",
+    "https://www\\.herriman\\.gov/.*",
+    "https://www\\.hhs\\.gov/.*",
+    "https://www\\.houstontx\\.gov/.*",
+    "https://www\\.in\\.gov/.*",
+    "https://www\\.kaysville\\.gov/.*",
+    "https://www\\.kslegislature\\.gov/.*",
+    "https://www\\.laytoncityutah\\.gov/.*",
+    "https://www\\.leg\\.state\\.nv\\.us/.*",
+    "https://www\\.legis\\.ga\\.gov/.*",
+    "https://www\\.lrl\\.mn\\.gov/.*",
+    "https://www\\.maine\\.gov/.*",
+    "https://www\\.mass\\.gov/.*",
+    "https://www\\.michigan\\.gov/.*",
+    "https://www\\.midwaycityut\\.gov/.*",
+    "https://www\\.murray\\.utah\\.gov/.*",
+    "https://www\\.nasa\\.gov/.*",
+    "https://www\\.ncleg\\.gov/.*",
+    "https://www\\.njoag\\.gov/.*",
+    "https://www\\.nm\\.gov/.*",
+    "https://www\\.nyc\\.gov/.*",
+    "https://www\\.nysenate\\.gov/.*",
+    "https://www\\.oag\\.state\\.va\\.us/.*",
+    "https://www\\.ohiosenate\\.gov/.*",
+    "https://www\\.oregonlegislature\\.gov/.*",
+    "https://www\\.pa\\.gov/.*",
+    "https://www\\.palegis\\.us/.*",
+    "https://www\\.phila\\.gov/.*",
+    "https://www\\.phoenix\\.gov/.*",
+    "https://www\\.richcounty\\.gov/.*",
+    "https://www\\.saltlakecounty\\.gov/.*",
+    "https://www\\.sanpetecountyutah\\.gov/.*",
+    "https://www\\.scag\\.gov/.*",
+    "https://www\\.scstatehouse\\.gov/.*",
+    "https://www\\.sec\\.gov/.*",
+    "https://www\\.senate\\.ca\\.gov/.*",
+    "https://www\\.senate\\.michigan\\.gov/.*",
+    "https://www\\.senate\\.mo\\.gov/.*",
+    "https://www\\.senatedems\\.ct\\.gov/.*",
+    "https://www\\.sjc\\.utah\\.gov/.*",
+    "https://www\\.slc\\.gov/.*",
+    "https://www\\.sos\\.alabama\\.gov/.*",
+    "https://www\\.summitcountyutah\\.gov/.*",
+    "https://www\\.tooelecity\\.gov/.*",
+    "https://www\\.wasatchcounty\\.gov/.*",
+    "https://www\\.washco\\.utah\\.gov/.*",
+    "https://www\\.westjordan\\.utah\\.gov/.*",
+    "https://www\\.whitehouse\\.gov/.*",
+    "https://www\\.wvc-ut\\.gov/.*",
+    "https://www\\.wyocourts\\.gov/.*",
+    # Wave 1b (v327): campaign hosts, the person's own campaign site, for rows with no official portrait.
+    "https://jamie4sanjuan\\.com/.*",
+    "https://marshajudkins\\.com/.*",
+    "https://nickbrownforag\\.com/.*",
+    "https://sheriffjaredrigby\\.org/.*",
+    "https://teamkaufusi\\.com/.*",
+    "https://www\\.bilzerianforcongress\\.com/.*",
+    "https://www\\.brycedunford\\.com/.*",
+    "https://www\\.gartenforsenate\\.com/.*",
+    # Wave 1c (v328): campaign portraits embedded on the person's own campaign page.
+    # A builder CDN is pinned to that one campaign site's folder, never the whole host.
+    "https://hogan4schools\\.com/.*",
+    "https://images\\.squarespace-cdn\\.com/content/v1/6800129a1f658e75e6dce7f7/.*",   # jimmiehughes.com
+    "https://images\\.squarespace-cdn\\.com/content/v1/5d3cf8b93d78b80001676ada/.*",   # voteranjeev.com
+    "https://images\\.squarespace-cdn\\.com/content/v1/68afb2778a70ca0e13b99b93/.*",   # votesusanlee.com
+    "https://cdn\\.prod\\.website-files\\.com/687e8388e36137e01e4ad24f/.*",          # edgallrein.com
+    # Wave 1d (v329): the same person on their own campaign site, and the profile photo
+    # of their own Facebook Page. Shared hosts are pinned to one site or one Page.
+    "https://graph\\.facebook\\.com/EleniKounalakis/picture.*",   # eleni_kounalakis
+    "https://graph\\.facebook\\.com/lynnfitchag/picture.*",   # lynn_fitch
+    "https://graph\\.facebook\\.com/MayorZoltanski/picture.*",   # monica_zoltanski_sandy
+    "https://graph\\.facebook\\.com/MayorShepherd/picture.*",   # mark_shepherd_clearfield
+    "https://graph\\.facebook\\.com/jordanforemery/picture.*",   # jordan_leonard_emery
+    "https://graph\\.facebook\\.com/helpermayorcandidate/picture.*",   # lenise_peterman_helper
+    "https://graph\\.facebook\\.com/BuchananforSheriff/picture.*",   # jared_buchanan_sanpete
+    "https://graph\\.facebook\\.com/mayorbryanburrows/picture.*",   # bryan_burrows_richfield
+    "https://images\\.squarespace-cdn\\.com/content/v1/6955f98c1710ce7f393441a8/.*",   # linda_hanks_juab
+    "https://jarettwaite\\.com/.*",   # jarett_waite_santaclara
+    "https://graph\\.facebook\\.com/102581704931992/picture.*",   # tye_hoffmann_tooele
+    "https://graph\\.facebook\\.com/Wimmerforsheriff/picture.*",   # paul_wimmer_tooele
+    "https://graph\\.facebook\\.com/tishforcitycouncil/picture.*",   # tish_buroker_riverton
+    "https://static\\.wixstatic\\.com/media/c3bab2_.*",   # nicole_cannizzaro
+    "https://graph\\.facebook\\.com/MikeJohnstonCO/picture.*",   # mike_johnston
+    "https://graph\\.facebook\\.com/ZachForLayton/picture.*",   # zach_bloxham
+    "https://graph\\.facebook\\.com/morris4layton/picture.*",   # clint_morris
+    "https://graph\\.facebook\\.com/294194887622327/picture.*",   # brigit_gerrard
+    "https://images\\.squarespace-cdn\\.com/content/v1/6a42f4262a75602cd7bd12dd/.*",   # sandi_goodlander
+    "https://graph\\.facebook\\.com/495173594191744/picture.*",   # kathryn_beus
+    "https://graph\\.facebook\\.com/109194254128469/picture.*",   # nolan_gunnell
+    "https://graph\\.facebook\\.com/ccsdut\\.org/picture.*",   # teri_rhodes
+    "https://graph\\.facebook\\.com/brayforstatesenate/picture.*",   # rodric_bray
+    "https://graph\\.facebook\\.com/ShelliYoderforStateSenate/picture.*",   # shelli_yoder
+    "https://graph\\.facebook\\.com/HardingforSenate/picture.*"   # stephen_harding
   ]
 
 # THE CURATOR'S ROOM IS NOT CRAWLABLE, SAID AT THE EDGE AS WELL AS IN THE HEAD.

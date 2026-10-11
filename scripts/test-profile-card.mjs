@@ -782,6 +782,23 @@ const THIN = thin.lines.join("\n");
      "face: everything else on the card is unchanged by the portrait");
   ok(IMG_MODE.requested.every((u) => u.indexOf("/.netlify/images?url=") === 0),
      "face: every address the card actually requested was same-origin — " + JSON.stringify(IMG_MODE.requested.slice(0, 2)));
+  // ── a campaign face says so, on the card itself ──
+  // roster-portrait.js answers the one disclosure line for a face from the
+  // person's own campaign site and '' for every other. The card prints it under
+  // a face it drew, never under the monogram, and never for an official face.
+  const LINE = "Campaign photo \u00b7 not an official portrait.";
+  ok(withFace.lines.indexOf(LINE) === -1, "face: an official portrait prints no disclosure");
+  pctx.window.pdxPortraitDisclosure = (pid) => (pid === "massie" ? LINE : "");
+  const campaignFace = await shotOf(pctx, "massie");
+  ok(campaignFace.lines.indexOf(LINE) !== -1, "face: a campaign portrait prints its one line on the card");
+  ok(campaignFace.lines.filter((t) => /\d+\s*%|confidence/i.test(t) && /photo|portrait/i.test(t)).length === 0,
+     "face: the disclosure is a sentence, never a score or a confidence figure");
+  IMG_MODE.how = "error";
+  const campaignMono = await shotOf(pctx, "massie");
+  ok(campaignMono.lines.indexOf(LINE) === -1 && campaignMono.lines.indexOf("TM") !== -1,
+     "face: a campaign portrait that does not load draws the monogram and no disclosure — a monogram is not a photo");
+  IMG_MODE.how = "load";
+  delete pctx.window.pdxPortraitDisclosure;
   // Cover-fit, from a 400×500 source into a 116px circle: the drawn box must be at
   // least as large as the circle in both axes, or the crop leaves a gap.
   const box = withFace.drawn[0].args;

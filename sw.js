@@ -9090,7 +9090,57 @@
 //     file for this issue."), and "How this is scored" stays closed beneath that.
 //     consistency.js is precached and changed, so it moves one version.
 //     MIGRATION COST: none. No seed row, mapping, key, effect line or score moved.
-const CACHE_VERSION = 'v325';
+// v326 - PERSON PHOTOS, WAVE 1. 281 roster rows that painted the building mark
+//     now carry an official portrait on their `photo` field, each copied from
+//     the person's own .gov or .us page. 114 rows keep the building, each with
+//     its reason in PORTRAIT_SWEEP.md: a photo that sits only on a campaign site,
+//     a website-builder CDN or an .org / .net / .com host was not stored, and no
+//     photo was invented. Every new host is on the trusted list and on
+//     netlify.toml's remote_images, so a share card keeps the face.
+//     No location key or other saved key was touched. cmp-data.js is precached
+//     and changed, so it moves one version.
+//     MIGRATION COST: none. No drawer, score, effect line, seed row or key moved.
+// v327 - PERSON PHOTOS, WAVE 1B. Eight roster rows that still painted the
+//     building mark, with no official portrait anywhere, now carry a portrait
+//     from the person's own campaign site: a page naming the same person and the
+//     same office or candidacy, one single portrait, served from that site's own
+//     domain. No official portrait was replaced, and nothing came from a news
+//     site, a CDN or a third party. 106 rows keep the building, each with its
+//     reason in PORTRAIT_SWEEP.md. The eight campaign hosts are on the trusted
+//     list and on netlify.toml's remote_images, so a share card keeps the face.
+//     No location key or other saved key was touched. cmp-data.js is precached
+//     and changed, so it moves one version.
+//     MIGRATION COST: none. No drawer, score, effect line, seed row or key moved.
+// v328 - PERSON PHOTOS, WAVE 1C, AND THE ONE DISCLOSURE. Five rows that still
+//     painted the building mark now carry a portrait embedded on the person's
+//     own campaign page — the page naming the same person and office or
+//     candidacy, one single portrait — four of them served by that site's
+//     builder CDN (Squarespace, Webflow), each pinned in remote_images to that
+//     one site's folder. No stored portrait was replaced. Every face from a
+//     campaign site (waves 1b and 1c, thirteen rows) is marked photoSource
+//     "campaign", and the person file and the share card print one line under
+//     it: "Campaign photo · not an official portrait." An official face prints
+//     nothing; the line is a sentence, never a score. roster-portrait.js holds
+//     the line, and ballot.html now loads it so a file opened from the desk says
+//     it too. No location key or other saved key was touched. cmp-data.js,
+//     roster-portrait.js, profiles-full.js, profile-card.js, app.css and
+//     ballot.html are precached and changed, so the shell moves one version.
+//     MIGRATION COST: none. No drawer, score, effect line, seed row or key moved.
+// v329 - PERSON PHOTOS, WAVE 1D. Twenty-five rows that still painted the
+//     building mark now carry a portrait of that same person: four from their
+//     own campaign site, whatever office it names, and twenty-one the profile
+//     photo of their own Facebook Page — a Page that names them as running for
+//     or holding the seat — stored as the Graph picture endpoint for that Page,
+//     because a copied fbcdn file address is signed and expires. No stored
+//     portrait was replaced. A Facebook face is marked photoSource "facebook"
+//     and prints "Facebook photo · not an official portrait." under it on the
+//     person file and the share card; a campaign face keeps its campaign line;
+//     an official face prints nothing. roster-portrait.js maps the mark to the
+//     line. No location key or other saved key was touched. cmp-data.js,
+//     roster-portrait.js, profile-card.js and app.css are precached and
+//     changed, so the shell moves one version.
+//     MIGRATION COST: none. No drawer, score, effect line, seed row or key moved.
+const CACHE_VERSION = 'v329';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -30,6 +30,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 // National — Lieutenant Governors (Lt. Gov wave 1, July 2026)
  "garlin_gilchrist": {
   "name": "Garlin Gilchrist",
+  "photo": "https://www.michigan.gov/whitmer/-/media/Project/Websites/Whitmer/Images/About/Lt-Governor-Bio/LtGovGilchrist2x.jpg?rev=6d920cba19434e53937e52e84f8f7389",
   "office": "Lieutenant Governor",
   "state": "Michigan",
   "party": "D",
@@ -47,6 +48,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "austin_davis": {
   "name": "Austin Davis",
+  "photo": "https://www.pa.gov/content/dam/copapwp-pagov/en/ltgovernor/images/LG%20Portrait.png",
   "office": "Lieutenant Governor",
   "state": "Pennsylvania",
   "party": "D",
@@ -64,6 +66,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "eleni_kounalakis": {
   "name": "Eleni Kounalakis",
+  "photo": "https://graph.facebook.com/EleniKounalakis/picture?type=large",
+  "photoSource": "facebook",
   "office": "Lieutenant Governor",
   "state": "California",
   "party": "D",
@@ -81,6 +85,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "peggy_flanagan": {
   "name": "Peggy Flanagan",
+  "photo": "https://mn.gov/governor/assets/flanagan-bio-thumbnail_tcm1055-653288.png",
   "office": "Lieutenant Governor",
   "state": "Minnesota",
   "party": "D",
@@ -98,6 +103,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "burt_jones": {
   "name": "Burt Jones",
+  "photo": "https://ltgov.georgia.gov/sites/ltgov.georgia.gov/files/styles/4_3_720px_x_540px_/public/2022-12/burt-jones.jpeg?h=62fa85c4&itok=C_OPPksG",
   "office": "Lieutenant Governor",
   "state": "Georgia",
   "party": "R",
@@ -115,6 +121,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "delbert_hosemann": {
   "name": "Delbert Hosemann",
+  "photo": "https://ltgovhosemann.ms.gov/wp-content/uploads/2024/10/CDH-Headshot-6.20.22.jpg",
   "office": "Lieutenant Governor",
   "state": "Mississippi",
   "party": "R",
@@ -132,6 +139,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "matt_pinnell": {
   "name": "Matt Pinnell",
+  "photo": "https://oklahoma.gov/content/dam/ok/en/ltgov/images/photography/Official-LtGovMattPinnell.jpg",
   "office": "Lieutenant Governor",
   "state": "Oklahoma",
   "party": "R",
@@ -149,6 +157,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jim_tressel": {
   "name": "Jim Tressel",
+  "photo": "https://governor.ohio.gov/wps/wcm/connect/gov/4fe3a398-2d5f-44db-a595-7dd418ad975b/Jim+Tressel.jpg?MOD=AJPERES",
   "office": "Lieutenant Governor",
   "state": "Ohio",
   "party": "R",
@@ -312,6 +321,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 // National — state Attorneys General (AG wave 5, completes all 50, July 2026)
  "marty_jackley": {
   "name": "Marty Jackley",
+  "photo": "https://atg.sd.gov/img/AG_Marty_Jackley_0007a.jpg",
   "office": "State Attorney General",
   "state": "South Dakota",
   "party": "R",
@@ -329,6 +339,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jay_jones": {
   "name": "Jay Jones",
+  "photo": "https://www.oag.state.va.us/images/Jones-headshot-20260320.jpg",
   "office": "State Attorney General",
   "state": "Virginia",
   "party": "D",
@@ -473,6 +484,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "wes_allen": {
   "name": "Wes Allen",
+  "photo": "https://www.sos.alabama.gov/themes/custom/sos/images/Wes-Allen.png",
   "office": "Secretary of State",
   "state": "Alabama",
   "party": "R",
@@ -509,6 +521,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "matthew_platkin": {
   "name": "Matthew Platkin",
+  "photo": "https://www.njoag.gov/wp-content/uploads/2024/03/Matthew-J-Platkin_8x10_2024-scaled.jpg",
   "office": "State Attorney General",
   "state": "New Jersey",
   "party": "D",
@@ -561,6 +574,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "catherine_hanaway": {
   "name": "Catherine Hanaway",
+  "photo": "https://ago.mo.gov/wp-content/uploads/Hanaway-Headshot-230x300.jpg",
   "office": "State Attorney General",
   "state": "Missouri",
   "party": "R",
@@ -578,6 +592,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "bridget_hill": {
   "name": "Bridget Hill",
+  "photo": "https://www.wyocourts.gov/app/uploads/2025/01/Justice-Bridget-Hill-scaled-e1751407581719.jpg",
   "office": "State Attorney General",
   "state": "Wyoming",
   "party": "R",
@@ -596,6 +611,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 // National — state Attorneys General (AG wave 3, July 2026)
  "russell_coleman": {
   "name": "Russell Coleman",
+  "photo": "https://www.ag.ky.gov/about/SiteAssets/Pages/Attorney-General/Russell-Coleman-400x500.jpg",
   "office": "State Attorney General",
   "state": "Kentucky",
   "party": "R",
@@ -613,6 +629,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mike_hilgers": {
   "name": "Mike Hilgers",
+  "photo": "https://ago.nebraska.gov/sites/default/files/NZ8_3491_0.jpg",
   "office": "State Attorney General",
   "state": "Nebraska",
   "party": "R",
@@ -630,6 +647,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "john_formella": {
   "name": "John Formella",
+  "photo": "https://www.doj.nh.gov/sites/g/files/ehbemt721/files/inline-images/ag-john-formella-300.jpg",
   "office": "State Attorney General",
   "state": "New Hampshire",
   "party": "R",
@@ -647,6 +665,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jb_mccuskey": {
   "name": "JB McCuskey",
+  "photo": "https://ago.wv.gov/sites/default/files/2025-09/AG%20McCuskey%20pic.jpeg",
   "office": "State Attorney General",
   "state": "West Virginia",
   "party": "R",
@@ -664,6 +683,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "peter_neronha": {
   "name": "Peter Neronha",
+  "photo": "https://riag.ri.gov/sites/g/files/xkgbur496/files/styles/max_1300x1300/public/2021-05/PFN.jpg?itok=E_Y1EHR2",
   "office": "State Attorney General",
   "state": "Rhode Island",
   "party": "D",
@@ -681,6 +701,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "charity_clark": {
   "name": "Charity Clark",
+  "photo": "https://ago.vermont.gov/sites/ago/files/inline-images/Charity%20R%20Clark%20headshot.jpg",
   "office": "State Attorney General",
   "state": "Vermont",
   "party": "D",
@@ -698,6 +719,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "aaron_frey": {
   "name": "Aaron Frey",
+  "photo": "https://www.maine.gov/ag/sites/maine.gov.ag/files/styles/max_1300x1300/public/images/frey%20for%20site%20sized.png.webp?itok=ek8FwnGn",
   "office": "State Attorney General",
   "state": "Maine",
   "party": "D",
@@ -715,6 +737,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "anne_lopez": {
   "name": "Anne Lopez",
+  "photo": "https://ag.hawaii.gov/wp-content/uploads/2025/08/AG-Anne-Lopez-scaled.jpg",
   "office": "State Attorney General",
   "state": "Hawaii",
   "party": "D",
@@ -733,6 +756,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 // National — state Attorneys General (AG wave 2, July 2026)
  "steve_marshall": {
   "name": "Steve Marshall",
+  "photo": "https://www.alabamaag.gov/wp-content/uploads/2023/04/Steve-Marshall-headshot.jpg",
   "office": "State Attorney General",
   "state": "Alabama",
   "party": "R",
@@ -750,6 +774,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "gentner_drummond": {
   "name": "Gentner Drummond",
+  "photo": "https://oklahoma.gov/content/dam/ok/en/oag/images/staff/GD-Smile-Oct24.png",
   "office": "State Attorney General",
   "state": "Oklahoma",
   "party": "R",
@@ -767,6 +792,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "drew_wrigley": {
   "name": "Drew Wrigley",
+  "photo": "https://attorneygeneral.nd.gov/wp-content/uploads/2023/02/Attorney-General-Wrigley.jpg",
   "office": "State Attorney General",
   "state": "North Dakota",
   "party": "R",
@@ -784,6 +810,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "lynn_fitch": {
   "name": "Lynn Fitch",
+  "photo": "https://graph.facebook.com/lynnfitchag/picture?type=large",
+  "photoSource": "facebook",
   "office": "State Attorney General",
   "state": "Mississippi",
   "party": "R",
@@ -801,6 +829,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "anthony_brown": {
   "name": "Anthony Brown",
+  "photo": "https://oag.maryland.gov/our-office/PublishingImages/AttorneyGeneral.jpg",
   "office": "State Attorney General",
   "state": "Maryland",
   "party": "D",
@@ -818,6 +847,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "dan_rayfield": {
   "name": "Dan Rayfield",
+  "photo": "https://www.doj.state.or.us/wp-content/uploads/2024/12/Rayfield_400x600x96_4-17x6-25.jpg",
   "office": "State Attorney General",
   "state": "Oregon",
   "party": "D",
@@ -835,6 +865,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "raul_torrez": {
   "name": "Raúl Torrez",
+  "photo": "https://www.nm.gov/assets/www.nm.gov/wp-content/uploads/2023/02/Raul-Torrez.ag_.jpg",
   "office": "State Attorney General",
   "state": "New Mexico",
   "party": "D",
@@ -852,6 +883,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kathy_jennings": {
   "name": "Kathy Jennings",
+  "photo": "https://attorneygeneral.delaware.gov/wp-content/themes/dosgic_AG_theme/img/ag-jennings-bio-photo.jpg",
   "office": "State Attorney General",
   "state": "Delaware",
   "party": "D",
@@ -870,6 +902,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 // National — state Attorneys General (AG wave 1, July 2026)
  "william_tong": {
   "name": "William Tong",
+  "photo": "https://portal.ct.gov/-/media/ag/about-the-ag/agtong-headshot.png?rev=4a0632a1575241d28bb665b018292c1b&la=en&h=185&w=200&hash=967A32323799CA3E2102ABB9309E36C1",
   "office": "State Attorney General",
   "state": "Connecticut",
   "party": "D",
@@ -887,6 +920,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "phil_weiser": {
   "name": "Phil Weiser",
+  "photo": "https://coag.gov/app/uploads/2019/06/phil-weiser-pillars-copy.png",
   "office": "State Attorney General",
   "state": "Colorado",
   "party": "D",
@@ -904,6 +938,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "nick_brown": {
   "name": "Nick Brown",
+  "photo": "https://nickbrownforag.com/wp-content/uploads/2023/07/Nick-Brown-Final-1-1-scaled.jpg",
+  "photoSource": "campaign",
   "office": "State Attorney General",
   "state": "Washington",
   "party": "D",
@@ -921,6 +957,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "andrea_joy_campbell": {
   "name": "Andrea Joy Campbell",
+  "photo": "https://www.mass.gov/files/2025-10/Shopper-AG_Campbell_157_0.jpg",
   "office": "State Attorney General",
   "state": "Massachusetts",
   "party": "D",
@@ -938,6 +975,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "todd_rokita": {
   "name": "Todd Rokita",
+  "photo": "https://www.in.gov/attorneygeneral/images/ag-rokita.jpg",
   "office": "State Attorney General",
   "state": "Indiana",
   "party": "R",
@@ -955,6 +993,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "tim_griffin": {
   "name": "Tim Griffin",
+  "photo": "https://historycms.house.gov/uploadedImages/People/Listing/G/G000567.jpg",
   "office": "State Attorney General",
   "state": "Arkansas",
   "party": "R",
@@ -972,6 +1011,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "austin_knudsen": {
   "name": "Austin Knudsen",
+  "photo": "https://dojmt.gov/wp-content/uploads/2024/01/austin-knudsen.webp",
   "office": "State Attorney General",
   "state": "Montana",
   "party": "R",
@@ -989,6 +1029,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "alan_wilson": {
   "name": "Alan Wilson",
+  "photo": "https://www.scag.gov/media/ie5nqrqm/about-meet.jpg",
   "office": "State Attorney General",
   "state": "South Carolina",
   "party": "R",
@@ -1006,6 +1047,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jimmie_hughes_stg": {
   "name": "Jimmie Hughes",
+  "photo": "https://images.squarespace-cdn.com/content/v1/6800129a1f658e75e6dce7f7/33ae6ca9-82fd-4678-8b5c-41f6b061f985/1000014502.jpg",
+  "photoSource": "campaign",
   "office": "Mayor, St. George",
   "state": "Utah",
   "party": "",
@@ -1023,6 +1066,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "roger_armstrong_summit": {
   "name": "Roger Armstrong",
+  "photo": "https://www.summitcountyutah.gov/ImageRepository/Document?documentId=25099",
   "office": "Summit County Council",
   "state": "Utah",
   "party": "D",
@@ -1039,6 +1083,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "canice_harte_summit": {
   "name": "Canice Harte",
+  "photo": "https://www.summitcountyutah.gov/ImageRepository/Document?documentId=25096",
   "office": "Summit County Council (Chair)",
   "state": "Utah",
   "party": "D",
@@ -1071,6 +1116,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "paul_cozzens_iron": {
   "name": "Paul Cozzens",
+  "photo": "https://ironcountyut.gov/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fpaul-cozzens.98ec8575.jpg&w=640&q=75",
   "office": "Iron County Commission",
   "state": "Utah",
   "party": "R",
@@ -1087,6 +1133,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "heidi_franco_heber": {
   "name": "Heidi Franco",
+  "photo": "https://www.heberut.gov/ImageRepository/Document?documentID=2177",
   "office": "Mayor, Heber City",
   "state": "Utah",
   "party": "",
@@ -1104,6 +1151,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "rosie_rivera_slco": {
   "name": "Rosie Rivera",
+  "photo": "https://www.saltlakecounty.gov/globalassets/1-site-files/sheriff/home/sheriff-rivera-slco2025-2140-web.jpg?&quality=90&rxy=0.5,0.5&width=160&height=175",
   "office": "Salt Lake County Sheriff",
   "state": "Utah",
   "party": "D",
@@ -1120,6 +1168,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "monica_zoltanski_sandy": {
   "name": "Monica Zoltanski",
+  "photo": "https://graph.facebook.com/MayorZoltanski/picture?type=large",
+  "photoSource": "facebook",
   "office": "Mayor, Sandy",
   "state": "Utah",
   "party": "",
@@ -1136,6 +1186,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "karen_lang_wvc": {
   "name": "Karen Lang",
+  "photo": "https://www.wvc-ut.gov/Images/Government/City%20Council/City%20Council%20Members/Mayor.jpg?t=202608181904420",
   "office": "Mayor, West Valley City",
   "state": "Utah",
   "party": "",
@@ -1152,6 +1203,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "lorin_palmer_herriman": {
   "name": "Lorin Palmer",
+  "photo": "https://www.herriman.gov/uploads/files/6029/large/Lorin-Palmer.jpg",
   "office": "Mayor, Herriman",
   "state": "Utah",
   "party": "",
@@ -1168,6 +1220,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mark_shepherd_clearfield": {
   "name": "Mark Shepherd",
+  "photo": "https://graph.facebook.com/MayorShepherd/picture?type=large",
+  "photoSource": "facebook",
   "office": "Mayor, Clearfield",
   "state": "Utah",
   "party": "",
@@ -1184,6 +1238,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "aimee_winder_newton": {
   "name": "Aimee Winder Newton",
+  "photo": "https://www.saltlakecounty.gov/globalassets/1-site-files/council/home/winder-newton-light-background-web-2.jpg?&quality=90&rxy=0.47%2c0.3&width=136&height=136",
   "office": "Salt Lake County Council (Chair, District 3)",
   "state": "Utah",
   "party": "R",
@@ -1200,6 +1255,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "carlos_moreno": {
   "name": "Carlos Moreno",
+  "photo": "https://www.saltlakecounty.gov/globalassets/1-site-files/council/home/moreno-light-background-web-2.jpg?&quality=90&rxy=0.48%2c0.39&width=136&height=136",
   "office": "Salt Lake County Council (District 2)",
   "state": "Utah",
   "party": "R",
@@ -1216,6 +1272,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "laurie_stringham": {
   "name": "Laurie Stringham",
+  "photo": "https://www.saltlakecounty.gov/globalassets/1-site-files/council/home/stringham-light-background.jpg?&quality=90&rxy=0.5%2c0.3&width=136&height=136",
   "office": "Salt Lake County Council (At-Large A)",
   "state": "Utah",
   "party": "R",
@@ -1232,6 +1289,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "natalie_pinkney": {
   "name": "Natalie Pinkney",
+  "photo": "https://www.saltlakecounty.gov/globalassets/1-site-files/council/home/pinkney-light-background.jpg?&quality=90&rxy=0.27%2c0.35&width=136&height=136",
   "office": "Salt Lake County Council (At-Large C)",
   "state": "Utah",
   "party": "D",
@@ -1248,6 +1306,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "dramsey": {
   "name": "Dawn Ramsey",
+  "photo": "https://www.sjc.utah.gov/ImageRepository/Document?documentID=5940",
   "office": "Mayor, South Jordan",
   "state": "Utah",
   "party": "",
@@ -1264,6 +1323,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "tamara_tran_kaysville": {
   "name": "Tamara Tran",
+  "photo": "https://www.kaysville.gov/ImageRepository/Document?documentID=6792",
   "office": "Mayor, Kaysville",
   "state": "Utah",
   "party": "",
@@ -1280,6 +1340,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "tammy_pearson_beaver": {
   "name": "Tammy Pearson",
+  "photo": "https://beaver.utah.gov/ImageRepository/Document?documentId=1532",
   "office": "Beaver County Commission",
   "state": "Utah",
   "party": "R",
@@ -1312,6 +1373,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jordan_leonard_emery": {
   "name": "Jordan Leonard",
+  "photo": "https://graph.facebook.com/jordanforemery/picture?type=large",
+  "photoSource": "facebook",
   "office": "Emery County Commission",
   "state": "Utah",
   "party": "R",
@@ -1376,6 +1439,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jamie_harvey_sanjuan": {
   "name": "Jamie Harvey",
+  "photo": "https://jamie4sanjuan.com/_astro/hero._Kh0RpNB_qID07.jpg",
+  "photoSource": "campaign",
   "office": "San Juan County Commission (Vice Chair)",
   "state": "Utah",
   "party": "R",
@@ -1500,6 +1565,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "lenise_peterman_helper": {
   "name": "Lenise Peterman",
+  "photo": "https://graph.facebook.com/helpermayorcandidate/picture?type=large",
+  "photoSource": "facebook",
   "office": "Mayor, Helper",
   "state": "Utah",
   "party": "",
@@ -1547,6 +1614,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "scott_bartholomew_sanpete": {
   "name": "Scott Bartholomew",
+  "photo": "https://www.sanpetecountyutah.gov/ImageRepository/Document?documentID=551",
   "office": "Sanpete County Commission (Chair)",
   "state": "Utah",
   "party": "R",
@@ -1563,6 +1631,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jim_cheney_sanpete": {
   "name": "Jim Cheney",
+  "photo": "https://www.sanpetecountyutah.gov/ImageRepository/Document?documentID=553",
   "office": "Sanpete County Commission",
   "state": "Utah",
   "party": "R",
@@ -1579,6 +1648,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jared_buchanan_sanpete": {
   "name": "Jared Buchanan",
+  "photo": "https://graph.facebook.com/BuchananforSheriff/picture?type=large",
+  "photoSource": "facebook",
   "office": "Sanpete County Sheriff",
   "state": "Utah",
   "party": "R",
@@ -1641,6 +1712,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "bryan_burrows_richfield": {
   "name": "Bryan Burrows",
+  "photo": "https://graph.facebook.com/mayorbryanburrows/picture?type=large",
+  "photoSource": "facebook",
   "office": "Mayor, Richfield",
   "state": "Utah",
   "party": "",
@@ -1656,6 +1729,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "justin_seely_nephi": {
   "name": "Justin Seely",
+  "photo": "https://nephi.utah.gov/ImageRepository/Document?documentId=3890",
   "office": "Mayor, Nephi",
   "state": "Utah",
   "party": "",
@@ -1703,6 +1777,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "linda_hanks_juab": {
   "name": "Linda Hanks",
+  "photo": "https://images.squarespace-cdn.com/content/v1/6955f98c1710ce7f393441a8/4034b7a9-907d-4906-9d86-1150514108e3/LindaUSBE-27.jpg",
+  "photoSource": "campaign",
   "office": "Juab School District Board (President)",
   "state": "Utah",
   "party": "",
@@ -1719,6 +1795,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "gwen_brown_kane": {
   "name": "Gwen Brown",
+  "photo": "https://kane.utah.gov/ImageRepository/Document?documentID=638",
   "office": "Kane County Commission (Chair)",
   "state": "Utah",
   "party": "R",
@@ -1735,6 +1812,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "celeste_meyeres_kane": {
   "name": "Celeste Meyeres",
+  "photo": "https://kane.utah.gov/ImageRepository/Document?documentID=309",
   "office": "Kane County Commission",
   "state": "Utah",
   "party": "R",
@@ -1751,6 +1829,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "tracy_glover_kane": {
   "name": "Tracy Glover",
+  "photo": "https://kane.utah.gov/ImageRepository/Document?documentID=468",
   "office": "Kane County Sheriff",
   "state": "Utah",
   "party": "",
@@ -1782,6 +1861,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "leland_pollock_garfield": {
   "name": "Leland Pollock",
+  "photo": "https://www.garfield.utah.gov/files/assets/garfieldcout/v/1/images/leland-f-pollock.jpg",
   "office": "Garfield County Commission (Chair)",
   "state": "Utah",
   "party": "R",
@@ -1798,6 +1878,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "david_tebbs_garfield": {
   "name": "David Tebbs",
+  "photo": "https://www.garfield.utah.gov/files/assets/garfieldcout/v/1/images/david-b-tebbs.jpg",
   "office": "Garfield County Commission",
   "state": "Utah",
   "party": "",
@@ -1917,6 +1998,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "dale_stacey_rich": {
   "name": "Dale Stacey",
+  "photo": "https://www.richcounty.gov/wp-content/uploads/dale_stacey.jpg",
   "office": "Rich County Sheriff",
   "state": "Utah",
   "party": "",
@@ -1933,6 +2015,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "sim_weston_rich": {
   "name": "Sim Weston",
+  "photo": "https://www.richcounty.gov/wp-content/uploads/sim-weston.jpg",
   "office": "Rich County Commission",
   "state": "Utah",
   "party": "R",
@@ -1949,6 +2032,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "bill_cox_rich": {
   "name": "Bill Cox",
+  "photo": "https://www.richcounty.gov/wp-content/uploads/bill_cox.jpg",
   "office": "Rich County Commission",
   "state": "Utah",
   "party": "R",
@@ -2054,6 +2138,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "matt_tippets_daggett": {
   "name": "Matt Tippets",
+  "photo": "https://www.daggettcounty.gov/ImageRepository/Document?documentID=10197",
   "office": "Daggett County Commission (Chair)",
   "state": "Utah",
   "party": "",
@@ -2070,6 +2155,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jack_lytle_daggett": {
   "name": "Jack Lytle",
+  "photo": "https://www.daggettcounty.gov/ImageRepository/Document?documentID=10204",
   "office": "Daggett County Commission",
   "state": "Utah",
   "party": "",
@@ -2085,6 +2171,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "erik_bailey_daggett": {
   "name": "Erik Bailey",
+  "photo": "https://www.daggettcounty.gov/ImageRepository/Document?documentID=10209",
   "office": "Daggett County Sheriff",
   "state": "Utah",
   "party": "",
@@ -2100,6 +2187,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "adam_snow_washco": {
   "name": "Adam Snow",
+  "photo": "https://www.washco.utah.gov/wp-content/uploads/2021/10/adam-snow-232x300.jpg",
   "office": "Washington County Commission (Chair)",
   "state": "Utah",
   "party": "R",
@@ -2116,6 +2204,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "victor_iverson_washco": {
   "name": "Victor Iverson",
+  "photo": "https://www.washco.utah.gov/wp-content/uploads/comm/images/hp/victor-iverson-232x300.jpg",
   "office": "Washington County Commission (Seat B)",
   "state": "Utah",
   "party": "R",
@@ -2132,6 +2221,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "gil_almquist_washco": {
   "name": "Gil Almquist",
+  "photo": "https://www.washco.utah.gov/wp-content/uploads/comm/images/hp/gil-almquist-232x300.jpg",
   "office": "Washington County Commission",
   "state": "Utah",
   "party": "R",
@@ -2195,6 +2285,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kress_staheli_washcity": {
   "name": "Kress Staheli",
+  "photo": "https://washingtonutah.gov/council/2020photos/staheli.jpg",
   "office": "Mayor, Washington City",
   "state": "Utah",
   "party": "",
@@ -2211,6 +2302,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kevin_smith_ivins": {
   "name": "Kevin Smith",
+  "photo": "https://ivinsutah.gov/wp-content/uploads/2026/04/Ivinscitycouncil-3B-1-scaled.jpg",
   "office": "Mayor, Ivins",
   "state": "Utah",
   "party": "",
@@ -2226,6 +2318,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jarett_waite_santaclara": {
   "name": "Jarett Waite",
+  "photo": "https://jarettwaite.com/wp-content/uploads/2025/06/PXL_20250602_214928373-scaled-e1750450530164-1024x958.jpg",
+  "photoSource": "campaign",
   "office": "Mayor, Santa Clara",
   "state": "Utah",
   "party": "",
@@ -2305,6 +2399,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "tye_hoffmann_tooele": {
   "name": "Tye Hoffmann",
+  "photo": "https://graph.facebook.com/102581704931992/picture?type=large",
+  "photoSource": "facebook",
   "office": "Tooele County Council",
   "state": "Utah",
   "party": "",
@@ -2335,6 +2431,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "paul_wimmer_tooele": {
   "name": "Paul Wimmer",
+  "photo": "https://graph.facebook.com/Wimmerforsheriff/picture?type=large",
+  "photoSource": "facebook",
   "office": "Tooele County Sheriff",
   "state": "Utah",
   "party": "R",
@@ -2350,6 +2448,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "maresa_manzione_tooelecity": {
   "name": "Maresa Manzione",
+  "photo": "https://www.tooelecity.gov/revize_photo_gallery/Services/Administration/Maresa%20Manzione.jpg?t=202602201024320",
   "office": "Mayor, Tooele City",
   "state": "Utah",
   "party": "",
@@ -2366,6 +2465,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "erik_rowland_wasatch": {
   "name": "Erik Rowland",
+  "photo": "https://www.wasatchcounty.gov/ImageRepository/Document?documentID=191",
   "office": "Wasatch County Council (Chair)",
   "state": "Utah",
   "party": "",
@@ -2382,6 +2482,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mark_nelson_wasatch": {
   "name": "Mark Nelson",
+  "photo": "https://www.wasatchcounty.gov/ImageRepository/Document?documentID=193",
   "office": "Wasatch County Council",
   "state": "Utah",
   "party": "",
@@ -2398,6 +2499,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "luke_searle_wasatch": {
   "name": "Luke Searle",
+  "photo": "https://www.wasatchcounty.gov/ImageRepository/Document?documentID=189",
   "office": "Wasatch County Council (Vice Chair)",
   "state": "Utah",
   "party": "",
@@ -2414,6 +2516,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jared_rigby_wasatch": {
   "name": "Jared Rigby",
+  "photo": "https://sheriffjaredrigby.org/wp-content/uploads/2026/02/jared-rigby-headshot-press-release-768x1024_1767472139531-BDB2V0IG-e1770900316636.avif",
+  "photoSource": "campaign",
   "office": "Wasatch County Sheriff",
   "state": "Utah",
   "party": "R",
@@ -2429,6 +2533,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "craig_simons_midway": {
   "name": "Craig Simons",
+  "photo": "https://www.midwaycityut.gov/wp-content/uploads/2026/06/craig-web-3-600x600.jpg",
   "office": "Mayor, Midway",
   "state": "Utah",
   "party": "",
@@ -2461,6 +2566,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "marsha_judkins_provo": {
   "name": "Marsha Judkins",
+  "photo": "https://marshajudkins.com/wp-content/uploads/2018/03/Marsha-Judkins-Utah-House-300x300.jpg",
+  "photoSource": "campaign",
   "office": "Mayor, Provo",
   "state": "Utah",
   "party": "",
@@ -2477,6 +2584,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "dirk_burton_wjordan": {
   "name": "Dirk Burton",
+  "photo": "https://www.westjordan.utah.gov/wp-content/uploads/2024/02/DirkBurton-2024.jpg",
   "office": "Mayor, West Jordan",
   "state": "Utah",
   "party": "",
@@ -2509,6 +2617,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "troy_walker_draper": {
   "name": "Troy Walker",
+  "photo": "https://www.draperutah.gov/media/phgliv0w/mayor-walker-4.jpg?width=400&height=400&v=1dd366ab0c1b120&format=webp",
   "office": "Mayor, Draper",
   "state": "Utah",
   "party": "",
@@ -2525,6 +2634,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "tish_buroker_riverton": {
   "name": "Tish Buroker",
+  "photo": "https://graph.facebook.com/tishforcitycouncil/picture?type=large",
+  "photoSource": "facebook",
   "office": "Mayor, Riverton",
   "state": "Utah",
   "party": "",
@@ -2540,6 +2651,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "brett_hales_murray": {
   "name": "Brett Hales",
+  "photo": "https://www.murray.utah.gov/ImageRepository/Document?documentID=15236",
   "office": "Mayor, Murray",
   "state": "Utah",
   "party": "",
@@ -2556,6 +2668,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "sarah_reale_usbe": {
   "name": "Sarah Reale",
+  "photo": "https://schools.utah.gov/board/_board_/SarahReale.jpg",
   "office": "Utah State Board of Education (District 5)",
   "state": "Utah",
   "party": "",
@@ -2572,6 +2685,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "molly_hart_usbe": {
   "name": "Molly Hart",
+  "photo": "https://schools.utah.gov/board/_board_/MollyHart.jpg",
   "office": "Utah State Superintendent of Public Instruction",
   "state": "Utah",
   "party": "",
@@ -2588,6 +2702,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "bryce_dunford_jordan": {
   "name": "Bryce Dunford",
+  "photo": "https://www.brycedunford.com/images/bryce2.jpg",
+  "photoSource": "campaign",
   "office": "Jordan School District Board (District 5)",
   "state": "Utah",
   "party": "",
@@ -2604,6 +2720,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "vance": {
   "name": "J.D. Vance",
+  "photo": "https://www.whitehouse.gov/wp-content/uploads/2026/01/Vice-President-J.D.-Vance.jpg-1.jpg",
   "office": "Vice President",
   "state": "Ohio",
   "party": "R",
@@ -3378,6 +3495,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "duffy": {
   "name": "Sean Duffy",
+  "photo": "https://www.nasa.gov/wp-content/uploads/2025/07/54687553708-c531c9c2d5-o.jpg",
   "office": "U.S. Secretary of Transportation",
   "state": "Wisconsin",
   "party": "R",
@@ -4169,6 +4287,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jon_patterson": {
   "name": "Jon Patterson",
+  "photo": "https://images.house.mo.gov/graphics/PattersonNew.jpg",
   "office": "State House Speaker",
   "state": "Missouri",
   "party": "R",
@@ -4204,6 +4323,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "ty_masterson": {
   "name": "Ty Masterson",
+  "photo": "https://www.kslegislature.gov/static/li_pics/sen_masterson_ty_1.jpg",
   "office": "State Senate President",
   "state": "Kansas",
   "party": "R",
@@ -4239,6 +4359,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "nicholas_scutari": {
   "name": "Nicholas Scutari",
+  "photo": "https://pub.njleg.gov/publications/members/scutari_nicholas_2020_250.jpg",
   "office": "State Senate President",
   "state": "New Jersey",
   "party": "D",
@@ -4418,6 +4539,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "julie_mccluskie": {
   "name": "Julie McCluskie",
+  "photo": "https://leg.colorado.gov/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBeEpUQXc9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--876516c8bc7b672caf43f253b83440d18b6eba1a/McCluskie,%20Julie.jpg",
   "office": "State House Speaker",
   "state": "Colorado",
   "party": "D",
@@ -4471,6 +4593,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "rob_mccolley": {
   "name": "Rob McColley",
+  "photo": "https://www.ohiosenate.gov/assets/people/rob-mccolley/headshots/thumbnails/medium/rob-mccolley-march-2025-headshot_medium.jpg",
   "office": "State Senate President",
   "state": "Ohio",
   "party": "R",
@@ -4560,6 +4683,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "ranjeev_puri": {
   "name": "Ranjeev Puri",
+  "photo": "https://images.squarespace-cdn.com/content/v1/5d3cf8b93d78b80001676ada/1574304638076-ACNG792CY0O672H8CX7V/_29A1989.jpg",
+  "photoSource": "campaign",
   "office": "State House Democratic Leader",
   "state": "Michigan",
   "party": "D",
@@ -4649,6 +4774,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "bryan_hughes": {
   "name": "Bryan Hughes",
+  "photo": "https://senate.texas.gov/members/d01/img/Hughes_86-0702D-030-web.jpg",
   "office": "State Senator",
   "state": "Texas",
   "party": "R",
@@ -4684,6 +4810,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "winnie_brinks": {
   "name": "Winnie Brinks",
+  "photo": "https://www.senate.michigan.gov/media/5jqbbfz3/brinks.png?v=1dbd6c3cf22e920",
   "office": "State Senate Majority Leader",
   "state": "Michigan",
   "party": "D",
@@ -4737,6 +4864,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "nicole_cannizzaro": {
   "name": "Nicole Cannizzaro",
+  "photo": "https://static.wixstatic.com/media/c3bab2_cc79f867712640cbbe8a14575457d6f9~mv2.png",
+  "photoSource": "campaign",
   "office": "State Senate Majority Leader",
   "state": "Nevada",
   "party": "D",
@@ -4988,6 +5117,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "zohran_mamdani": {
   "name": "Zohran Mamdani",
+  "photo": "https://www.nyc.gov/adobe/dynamicmedia/deliver/dm-aid--2c8489a5-e4eb-4ff5-8c50-00507eec5fc0/zohran-mamdani.jpg?quality=85&preferwebp=true",
   "office": "Mayor of New York City",
   "state": "New York",
   "party": "D",
@@ -5005,6 +5135,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "karen_bass": {
   "name": "Karen Bass",
+  "photo": "https://mayor.lacity.gov/sites/g/files/wph2066/files/styles/default/public/2023-05/041_20230402_3Z7_9938%20%281%29WEBSITE.jpeg.webp?itok=EGVPmJ60",
   "office": "Mayor of Los Angeles",
   "state": "California",
   "party": "D",
@@ -5022,6 +5153,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "brandon_johnson": {
   "name": "Brandon Johnson",
+  "photo": "https://www.chicago.gov/content/dam/city/depts/mayor/images/Mayor-Brandon-Johnson-Official-Headshot.jpg",
   "office": "Mayor of Chicago",
   "state": "Illinois",
   "party": "D",
@@ -5039,6 +5171,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "john_whitmire": {
   "name": "John Whitmire",
+  "photo": "https://www.houstontx.gov/mayor/images/whitmire250.jpg",
   "office": "Mayor of Houston",
   "state": "Texas",
   "party": "D",
@@ -5056,6 +5189,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "daniel_lurie": {
   "name": "Daniel Lurie",
+  "photo": "https://media.api.sf.gov/images/daniel_lurie_KeVK6TD.original.jpg",
   "office": "Mayor of San Francisco",
   "state": "California",
   "party": "D",
@@ -5073,6 +5207,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "cherelle_parker": {
   "name": "Cherelle Parker",
+  "photo": "https://www.phila.gov/media/20231231160357/Cherelle-Parker-headshot-2.jpg",
   "office": "Mayor of Philadelphia",
   "state": "Pennsylvania",
   "party": "D",
@@ -5090,6 +5225,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mike_johnston": {
   "name": "Mike Johnston",
+  "photo": "https://graph.facebook.com/MikeJohnstonCO/picture?type=large",
+  "photoSource": "facebook",
   "office": "Mayor of Denver",
   "state": "Colorado",
   "party": "D",
@@ -5107,6 +5244,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kate_gallego": {
   "name": "Kate Gallego",
+  "photo": "https://www.phoenix.gov/adobe/dynamicmedia/deliver/dm-aid--01c5576d-eebd-4094-985d-e1f258c47d54/mayor-kate-gallego-cropped.jpg?preferwebp=true&quality=85",
   "office": "Mayor of Phoenix",
   "state": "Arizona",
   "party": "D",
@@ -5124,6 +5262,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mattie_parker": {
   "name": "Mattie Parker",
+  "photo": "https://www.fortworthtexas.gov/files/assets/public/v/1/government/images/mayor-parker/mp-headshot.jpg?dimension=pageimage&w=480",
   "office": "Mayor of Fort Worth",
   "state": "Texas",
   "party": "R",
@@ -5141,6 +5280,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "eric_johnson_dallas": {
   "name": "Eric Johnson",
+  "photo": "https://lrl.texas.gov/scanned/members/photos/large/J/Johnson_E_86.jpg",
   "office": "Mayor of Dallas",
   "state": "Texas",
   "party": "R",
@@ -6292,6 +6432,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jerome_powell": {
   "name": "Jerome Powell",
+  "photo": "https://www.federalreserve.gov/aboutthefed/images/Powell_Jerome_Aug_16_22-674_8x10_rdax_130x162s.jpg",
   "office": "Federal Reserve Chair",
   "state": "Federal",
   "party": "I",
@@ -6326,6 +6467,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kelly_loeffler": {
   "name": "Kelly Loeffler",
+  "photo": "https://cdn.www.sba.gov/app/uploads/2026/05/01143043/kelly_loeffler-819x1024.jpg",
   "office": "SBA Administrator",
   "state": "Federal",
   "party": "R",
@@ -6343,6 +6485,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "andrew_ferguson": {
   "name": "Andrew Ferguson",
+  "photo": "https://www.ftc.gov/system/files/styles/square_sm/private/ftc_gov/images/Commissioner-Andrew-N-Ferguson-headshot.jpg?h=fa4f33d7&itok=8yGU-ymX",
   "office": "FTC Chair",
   "state": "Federal",
   "party": "R",
@@ -6665,6 +6808,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "peter_navarro": {
   "name": "Peter Navarro",
+  "photo": "https://trumpwhitehouse.archives.gov/wp-content/uploads/2018/12/Navarro_Peter-620x620.jpg",
   "office": "Senior Counselor for Trade & Manufacturing",
   "state": "Federal",
   "party": "R",
@@ -6825,6 +6969,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mehmet_oz": {
   "name": "Mehmet Oz",
+  "photo": "https://www.cms.gov/sites/default/files/2025-04/droz-portrait-final-w-flag.jpg",
   "office": "CMS Administrator",
   "state": "Federal",
   "party": "R",
@@ -7571,6 +7716,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "scott_turner": {
   "name": "Scott Turner",
+  "photo": "https://www.whitehouse.gov/wp-content/uploads/2026/02/Scott-Turner.jpeg",
   "office": "U.S. Secretary of Housing & Urban Development",
   "state": "Texas",
   "party": "R",
@@ -7804,6 +7950,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "paul_atkins": {
   "name": "Paul Atkins",
+  "photo": "https://www.sec.gov/files/styles/person_sidebar_1x/public/images/paul-atkins_0.jpg?itok=XgGcRvTw",
   "office": "SEC Chair",
   "state": "Federal",
   "party": "R",
@@ -7928,6 +8075,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "chavez_deremer": {
   "name": "Lori Chavez-DeRemer",
+  "photo": "https://historycms.house.gov/uploadedImages/People/Listing/C/C001135.jpg",
   "office": "U.S. Secretary of Labor",
   "state": "Oregon",
   "party": "R",
@@ -7945,6 +8093,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "doug_collins": {
   "name": "Doug Collins",
+  "photo": "https://www.whitehouse.gov/wp-content/uploads/2026/02/Doug-Collins.jpeg",
   "office": "U.S. Secretary of Veterans Affairs",
   "state": "Georgia",
   "party": "R",
@@ -8141,6 +8290,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "mcmahon": {
   "name": "Linda McMahon",
+  "photo": "https://www.whitehouse.gov/wp-content/uploads/2026/02/Linda-McMahon.jpg",
   "office": "U.S. Secretary of Education",
   "state": "Connecticut",
   "party": "R",
@@ -8284,6 +8434,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "greer": {
   "name": "Jamieson Greer",
+  "photo": "https://www.whitehouse.gov/wp-content/uploads/2026/02/Jamieson-Greer.jpg",
   "office": "U.S. Trade Representative",
   "state": "Federal",
   "party": "R",
@@ -8570,6 +8721,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "patel": {
   "name": "Kash Patel",
+  "photo": "https://www.fbi.gov/image-repository/fbi-director-kash-patel-022525.jpg/@@images/image",
   "office": "FBI Director",
   "state": "New York",
   "party": "R",
@@ -8587,6 +8739,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "ratcliffe": {
   "name": "John Ratcliffe",
+  "photo": "https://www.whitehouse.gov/wp-content/uploads/2026/02/John-Ratcliffe.jpeg?w=960",
   "office": "CIA Director",
   "state": "Texas",
   "party": "R",
@@ -9016,6 +9169,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "bilzerian": {
   "name": "Dan Bilzerian",
+  "photo": "https://www.bilzerianforcongress.com/wp-content/uploads/2026/04/Dan-Bilzerian-cover-v2.webp",
+  "photoSource": "campaign",
   "office": "Candidate",
   "state": "FL-06",
   "party": "Ind.",
@@ -9033,6 +9188,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "gallrein": {
   "name": "Ed Gallrein",
+  "photo": "https://cdn.prod.website-files.com/687e8388e36137e01e4ad24f/68f50cbc33480946aa776f43_03adfdf55e5823f3386e146e8e0d9241_gallrein-portrait_cutout.webp",
+  "photoSource": "campaign",
   "office": "Republican Nominee",
   "state": "KY-04",
   "party": "R",
@@ -9165,6 +9322,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jpetro": {
   "name": "Joy Petro",
+  "photo": "https://www.laytoncityutah.gov/images/CityGov/JPetro.jpg",
   "office": "Mayor, Layton City",
   "state": "Layton, Utah",
   "party": "R",
@@ -9221,6 +9379,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kgrover": {
   "name": "Keith Grover",
+  "photo": "https://le.utah.gov/images/legislator/GROVEK.jpg",
   "office": "Utah State Senator",
   "state": "UT District 23 (Provo)",
   "party": "R",
@@ -9239,6 +9398,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kstratton": {
   "name": "Keven Stratton",
+  "photo": "https://le.utah.gov/images/legislator/STRATKJ.jpg",
   "office": "Utah State Senator",
   "state": "UT District 24 (Provo / Orem)",
   "party": "R",
@@ -9257,6 +9417,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "amillner": {
   "name": "Ann Millner",
+  "photo": "https://le.utah.gov/images/legislator/MILLNA.jpg",
   "office": "Utah State Senator",
   "state": "UT District 5",
   "party": "R",
@@ -9275,6 +9436,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "lisa_shepherd": {
   "name": "Lisa Shepherd",
+  "photo": "https://le.utah.gov/images/legislator/SHEPHL.jpg",
   "office": "Utah State Representative",
   "state": "UT District 61 (Provo)",
   "party": "R",
@@ -9293,6 +9455,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jake_sawyer": {
   "name": "Jake Sawyer",
+  "photo": "https://le.utah.gov/images/legislator/SAWYEJ.jpg",
   "office": "Utah State Representative",
   "state": "UT District 9 (Ogden / Weber Co.)",
   "party": "R",
@@ -9311,6 +9474,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "lorene_kamalu": {
   "name": "Lorene Kamalu",
+  "photo": "https://www.daviscountyutah.gov/images/librariesprovider24/commissioner-portfolio/lorene-kamalu-2025.jpg?sfvrsn=42fefc53_2",
   "office": "Davis County Commissioner",
   "state": "Utah · Davis County (Seat B)",
   "party": "R",
@@ -9329,6 +9493,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "john_crofts": {
   "name": "John Crofts",
+  "photo": "https://www.daviscountyutah.gov/images/librariesprovider24/commissioner-portfolio/john-crofts-2025.jpg?sfvrsn=5ffefc53_2",
   "office": "Davis County Commissioner",
   "state": "Utah · Davis County",
   "party": "R",
@@ -9346,6 +9511,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "bob_stevenson": {
   "name": "Bob Stevenson",
+  "photo": "https://www.daviscountyutah.gov/images/librariesprovider24/commissioner-portfolio/bob-stevenson-2025.jpg?sfvrsn=40fefc53_1",
   "office": "Davis County Commissioner",
   "state": "Utah · Davis County",
   "party": "R",
@@ -9363,6 +9529,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kelly_sparks": {
   "name": "Kelly V. Sparks",
+  "photo": "https://www.daviscountyutah.gov/images/librariesprovider10/team-members/sparks_kelly04c7ca60-6791-4578-b745-409230052878.jpg?sfvrsn=56783953_3",
   "office": "Davis County Sheriff",
   "state": "Utah · Davis County",
   "party": "R",
@@ -9380,6 +9547,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "susan_lee": {
   "name": "Susan Lee",
+  "photo": "https://images.squarespace-cdn.com/content/v1/68afb2778a70ca0e13b99b93/dceb7392-2e07-445c-b596-fc0c1f4db111/Susan+5787.jpg",
+  "photoSource": "campaign",
   "office": "Davis County Commission candidate",
   "state": "Utah · Davis County (Seat B)",
   "party": "R",
@@ -9397,6 +9566,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "zach_bloxham": {
   "name": "Zach Bloxham",
+  "photo": "https://graph.facebook.com/ZachForLayton/picture?type=large",
+  "photoSource": "facebook",
   "office": "Layton City Council",
   "state": "Utah · Davis County",
   "party": "",
@@ -9415,6 +9586,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "clint_morris": {
   "name": "Clint Morris",
+  "photo": "https://graph.facebook.com/morris4layton/picture?type=large",
+  "photoSource": "facebook",
   "office": "Layton City Council",
   "state": "Utah · Davis County",
   "party": "",
@@ -9451,6 +9624,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "brigit_gerrard": {
   "name": "Brigit Gerrard",
+  "photo": "https://graph.facebook.com/294194887622327/picture?type=large",
+  "photoSource": "facebook",
   "office": "Davis Board of Education · Precinct 4 (President)",
   "state": "Utah · Davis County",
   "party": "",
@@ -9487,6 +9662,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kristen_hogan": {
   "name": "Kristen Hogan",
+  "photo": "https://hogan4schools.com/wp-content/uploads/2026/02/7Z6A8648-2-1-677x1024.jpg",
+  "photoSource": "campaign",
   "office": "Davis Board of Education · Precinct 6",
   "state": "Utah · Davis County",
   "party": "",
@@ -9556,6 +9733,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "sandi_goodlander": {
   "name": "Sandi Goodlander",
+  "photo": "https://images.squarespace-cdn.com/content/v1/6a42f4262a75602cd7bd12dd/4a0e7e6c-6107-4e9b-a147-fe785aa17b5b/Mike+Johnson+Photo+%2B+Video-05440+%281%29.jpg",
+  "photoSource": "campaign",
   "office": "Cache County Council · Chair (Logan Seat #3)",
   "state": "Utah · Cache County",
   "party": "R",
@@ -9573,6 +9752,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "kathryn_beus": {
   "name": "Kathryn Beus",
+  "photo": "https://graph.facebook.com/495173594191744/picture?type=large",
+  "photoSource": "facebook",
   "office": "Cache County Council · Vice Chair (Southeast District)",
   "state": "Utah · Cache County",
   "party": "R",
@@ -9658,6 +9839,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "nolan_gunnell": {
   "name": "Nolan P. Gunnell",
+  "photo": "https://graph.facebook.com/109194254128469/picture?type=large",
+  "photoSource": "facebook",
   "office": "Cache County Council · South District",
   "state": "Utah · Cache County",
   "party": "R",
@@ -9675,6 +9858,8 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "teri_rhodes": {
   "name": "Teri Rhodes",
+  "photo": "https://graph.facebook.com/ccsdut.org/picture?type=large",
+  "photoSource": "facebook",
   "office": "Cache County School Board · President (District 7)",
   "state": "Utah · Cache County",
   "party": "",
@@ -10021,6 +10206,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "emendenhall": {
   "name": "Erin Mendenhall",
+  "photo": "https://www.slc.gov/mayor/wp-content/uploads/sites/51/2026/05/Mayor-E.-Mendenhall-682x1024.jpg",
   "office": "Mayor, Salt Lake City",
   "state": "Salt Lake County",
   "party": "D",
@@ -10039,6 +10225,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jwilson": {
   "name": "Jenny Wilson",
+  "photo": "https://www.saltlakecounty.gov/globalassets/1-site-files/mayor/home/jenny-wilson_-headshot_.jpg?&quality=90&rxy=0.5,0.5&width=160&height=175",
   "office": "Salt Lake County Mayor",
   "state": "Salt Lake County",
   "party": "D",
@@ -10387,6 +10574,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // retired in db/vr-pid-aliases.json.
  "mckell_s25": {
   "name": "Mike McKell",
+  "photo": "https://le.utah.gov/images/legislator/MCKELMK.jpg",
   "office": "Utah State Senator",
   "state": "UT District 25 (Utah County)",
   "party": "R",
@@ -10557,6 +10745,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "snider_h5": {
   "name": "Casey Snider",
+  "photo": "https://le.utah.gov/images/legislator/SNIDEC.jpg",
   "office": "Utah State Representative · House Majority Leader",
   "state": "UT District 5 (Cache County)",
   "party": "R",
@@ -10892,6 +11081,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "biden": {
   "name": "Joe Biden",
+  "photo": "https://bidenwhitehouse.archives.gov/wp-content/uploads/2025/01/biden-profile-31.png",
   "office": "46th President",
   "state": "U.S.",
   "party": "D",
@@ -10911,6 +11101,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "obama": {
   "name": "Barack Obama",
+  "photo": "https://obamawhitehouse.archives.gov/sites/whitehouse.gov/files/images/Administration/People/president_official_portrait_hires.jpg",
   "office": "44th President",
   "state": "U.S.",
   "party": "D",
@@ -10930,6 +11121,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "gwbush": {
   "name": "George W. Bush",
+  "photo": "https://georgewbush-whitehouse.archives.gov/news/releases/2003/04/images/20030414-3_portrait-682v.jpg",
   "office": "43rd President",
   "state": "U.S.",
   "party": "R",
@@ -10949,6 +11141,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "rfkjr": {
   "name": "Robert F. Kennedy Jr.",
+  "photo": "https://www.hhs.gov/sites/default/files/bio-robert-kennedy.png",
   "office": "HHS Secretary",
   "state": "National",
   "party": "R",
@@ -11075,6 +11268,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  },
  "jdougall": {
   "name": "John Dougall",
+  "photo": "https://attorneygeneral.utah.gov/wp-content/uploads/2026/01/8D2A3195-edited-768x1152-1.jpg",
   "office": "Former UT State Auditor",
   "state": "Utah",
   "party": "R",
@@ -11097,52 +11291,52 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 //     under bryan_hughes / mike_mcguire / ben_albritton / stewart_cousins and are
 //     enriched via cmp-data-detail.js + their existing stance arrays instead.) ──
  "limon_ca": {
-  "name": "Monique Limón", "office": "California State Senator", "state": "California",
+  "name": "Monique Limón", "photo": "https://www.senate.ca.gov/sites/senate.ca.gov/files/styles/large/public/media/sd21_limon_0.jpg?itok=q8Ds_VyS", "office": "California State Senator", "state": "California",
   "district": "SD 19", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Leadership", "Consumer Finance", "Housing", "Santa Barbara"]
  },
  "wiener_ca": {
-  "name": "Scott Wiener", "office": "California State Senator", "state": "California",
+  "name": "Scott Wiener", "photo": "https://www.senate.ca.gov/sites/senate.ca.gov/files/styles/large/public/media/WIENER%252C%2520SCOTT%2520%2528D-11%2529_9.jpg?itok=-AtzexBQ", "office": "California State Senator", "state": "California",
   "district": "SD 11", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["AI Safety (SB 1047)", "Housing (YIMBY)", "Transit", "San Francisco"]
  },
  "bjones_ca": {
-  "name": "Brian Jones", "office": "California State Senator", "state": "California",
+  "name": "Brian Jones", "photo": "https://www.senate.ca.gov/sites/senate.ca.gov/files/styles/large/public/media/Brian%2520Jones%2520Headshot%2520%2528Main%2529_0_3.jpg?itok=P7SsCS8_", "office": "California State Senator", "state": "California",
   "district": "SD 40", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate GOP Leader", "Cost of Living", "Public Safety", "San Diego"]
  },
  "bettencourt_tx": {
-  "name": "Paul Bettencourt", "office": "Texas State Senator", "state": "Texas",
+  "name": "Paul Bettencourt", "photo": "https://senate.texas.gov/members/d07/img/headshot.jpg", "office": "Texas State Senator", "state": "Texas",
   "district": "SD 7", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Property Taxes", "Higher Education", "Taxpayer Watchdog", "Houston"]
  },
  "paxton_tx": {
-  "name": "Angela Paxton", "office": "Texas State Senator", "state": "Texas",
+  "name": "Angela Paxton", "photo": "https://senate.texas.gov/members/d08/img/Paxton_2026.jpg", "office": "Texas State Senator", "state": "Texas",
   "district": "SD 8", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Economic Development", "Securities (SB 860)", "Education", "Collin County"]
  },
  "gutierrez_tx": {
-  "name": "Roland Gutiérrez", "office": "Texas State Senator", "state": "Texas",
+  "name": "Roland Gutiérrez", "photo": "https://senate.texas.gov/members/d19/img/Gutierrez_87-0522D-016-Web.jpg", "office": "Texas State Senator", "state": "Texas",
   "district": "SD 19", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Gun Safety", "Uvalde", "Health Access", "San Antonio"]
  },
  "gianaris_ny": {
-  "name": "Michael Gianaris", "office": "New York State Senator", "state": "New York",
+  "name": "Michael Gianaris", "photo": "https://www.nysenate.gov/sites/default/files/52168793832_6b5abcf643_o_0.jpg", "office": "New York State Senator", "state": "New York",
   "district": "SD 12", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Amazon HQ2 Fight", "Bail Reform", "Queens", "Retiring 2026"]
  },
  "ortt_ny": {
-  "name": "Rob Ortt", "office": "New York State Senator", "state": "New York",
+  "name": "Rob Ortt", "photo": "https://www.nysenate.gov/sites/default/files/58378901_2516270608600655_6597000690696978432_o_1.jpg", "office": "New York State Senator", "state": "New York",
   "district": "SD 62", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate GOP Leader", "Affordability", "Public Safety", "Western NY"]
  },
  "pizzo_fl": {
-  "name": "Jason Pizzo", "office": "Florida State Senator", "state": "Florida",
+  "name": "Jason Pizzo", "photo": "https://www.flsenate.gov/PublishedContent/Senators/2024-2026/Photos/s37_5345.jpg", "office": "Florida State Senator", "state": "Florida",
   "district": "SD 37", "party": "I", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Left Democratic Party", "Independent Gov Run", "Public Safety", "Miami-Dade"]
  },
  "passidomo_fl": {
-  "name": "Kathleen Passidomo", "office": "Florida State Senator", "state": "Florida",
+  "name": "Kathleen Passidomo", "photo": "https://www.flsenate.gov/PublishedContent/Senators/2024-2026/Photos/s28_5196.jpg", "office": "Florida State Senator", "state": "Florida",
   "district": "SD 28", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Live Local Act", "Housing", "Insurance", "Naples"]
  },
@@ -11151,42 +11345,42 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 //     kim_ward / jay_costa / don_harmon / rob_mccolley and are enriched via
 //     cmp-data-detail.js + their existing stance arrays instead.) ──
  "joe_pittman": {
-  "name": "Joe Pittman", "office": "Pennsylvania State Senator", "state": "Pennsylvania",
+  "name": "Joe Pittman", "photo": "https://www.palegis.us/resources/images/members/200/1870.jpg?20261001111034", "office": "Pennsylvania State Senator", "state": "Pennsylvania",
   "district": "SD 41", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Majority Leader", "Energy", "State Budget", "Indiana County"]
  },
  "doug_mastriano": {
-  "name": "Doug Mastriano", "office": "Pennsylvania State Senator", "state": "Pennsylvania",
+  "name": "Doug Mastriano", "photo": "https://www.palegis.us/resources/images/members/200/1869.jpg?20261001111034", "office": "Pennsylvania State Senator", "state": "Pennsylvania",
   "district": "SD 33", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["2020 Election Denial", "Jan. 6", "2022 Gov Nominee", "Franklin / Adams"]
  },
  "sharif_street": {
-  "name": "Sharif Street", "office": "Pennsylvania State Senator", "state": "Pennsylvania",
+  "name": "Sharif Street", "photo": "https://www.palegis.us/resources/images/members/200/1767.jpg?20261001111034", "office": "Pennsylvania State Senator", "state": "Pennsylvania",
   "district": "SD 3", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["PA Dem Party Chair", "Cannabis Legalization", "Justice Reform", "Philadelphia"]
  },
  "kimberly_lightford": {
-  "name": "Kimberly Lightford", "office": "Illinois State Senator", "state": "Illinois",
+  "name": "Kimberly Lightford", "photo": "https://cdn.ilga.gov/assets/img/members/%7B7FBA8DB0-281E-406F-BF9F-ABEB75B7B38E%7D.jpg", "office": "Illinois State Senator", "state": "Illinois",
   "district": "SD 4", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Majority Leader", "SAFE-T Act", "$15 Minimum Wage", "West Suburbs"]
  },
  "john_curran_il": {
-  "name": "John Curran", "office": "Illinois State Senator", "state": "Illinois",
+  "name": "John Curran", "photo": "https://cdn.ilga.gov/assets/img/members/%7B7FC724D0-C297-4D20-AC25-3D879DE286B8%7D.jpg", "office": "Illinois State Senator", "state": "Illinois",
   "district": "SD 41", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate GOP Leader", "Public Safety", "Ethics Reform", "DuPage County"]
  },
  "robert_peters_il": {
-  "name": "Robert Peters", "office": "Illinois State Senator", "state": "Illinois",
+  "name": "Robert Peters", "photo": "https://cdn.ilga.gov/assets/img/members/%7B05AD9CBA-EA20-489D-9C33-3F39DC1F9B0C%7D.jpg", "office": "Illinois State Senator", "state": "Illinois",
   "district": "SD 13", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Running for Congress", "Justice Reform", "Labor", "Chicago"]
  },
  "theresa_gavarone": {
-  "name": "Theresa Gavarone", "office": "Ohio State Senator", "state": "Ohio",
+  "name": "Theresa Gavarone", "photo": "https://www.ohiosenate.gov/assets/people/theresa-gavarone/headshots/thumbnails/medium/theresa-gavarone-march-2025-headshot_medium.jpg", "office": "Ohio State Senator", "state": "Ohio",
   "district": "SD 2", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Majority Leader", "Voter ID", "Taxes", "NW Ohio"]
  },
  "nickie_antonio": {
-  "name": "Nickie Antonio", "office": "Ohio State Senator", "state": "Ohio",
+  "name": "Nickie Antonio", "photo": "https://www.ohiosenate.gov/assets/people/nickie-j-antonio/headshots/thumbnails/medium/nickie-j-antonio-march-2025-headshot_medium.jpg", "office": "Ohio State Senator", "state": "Ohio",
   "district": "SD 23", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Minority Leader", "First LGBTQ Legislator", "Health", "Cleveland Area"]
  },
@@ -11196,47 +11390,47 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 //     cmp-data-detail.js, while McMorrow gains a roster entry + bio here and keeps
 //     her existing stance array.) ──
  "larry_walker_ga": {
-  "name": "Larry Walker III", "office": "Georgia State Senator", "state": "Georgia",
+  "name": "Larry Walker III", "photo": "https://www.legis.ga.gov/api/images/default-source/portraits/walker--iii-larry-4878.jpg", "office": "Georgia State Senator", "state": "Georgia",
   "district": "SD 20", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate President pro Tem", "School Choice", "Taxes", "Perry / Middle GA"]
  },
  "jason_anavitarte": {
-  "name": "Jason Anavitarte", "office": "Georgia State Senator", "state": "Georgia",
+  "name": "Jason Anavitarte", "photo": "https://www.legis.ga.gov/api/images/default-source/portraits/anavitarte-jason-4980.jpg", "office": "Georgia State Senator", "state": "Georgia",
   "district": "SD 31", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Majority Leader", "Kids' Online Safety", "Gun Rights", "Paulding County"]
  },
  "harold_jones_ga": {
-  "name": "Harold Jones II", "office": "Georgia State Senator", "state": "Georgia",
+  "name": "Harold Jones II", "photo": "https://www.legis.ga.gov/api/images/default-source/portraits/jones-ii-harold-851.jpg", "office": "Georgia State Senator", "state": "Georgia",
   "district": "SD 22", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Democratic Leader", "Justice Reform", "Medicaid Expansion", "Augusta"]
  },
  "michael_lee_nc": {
-  "name": "Michael Lee", "office": "North Carolina State Senator", "state": "North Carolina",
+  "name": "Michael Lee", "photo": "https://www.ncleg.gov/Members/MemberImage/S/387/Low", "office": "North Carolina State Senator", "state": "North Carolina",
   "district": "SD 7", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Majority Leader", "School Vouchers", "Income-Tax Cuts", "Wilmington"]
  },
  "sydney_batch": {
-  "name": "Sydney Batch", "office": "North Carolina State Senator", "state": "North Carolina",
+  "name": "Sydney Batch", "photo": "https://www.ncleg.gov/Members/MemberImage/S/434/Low", "office": "North Carolina State Senator", "state": "North Carolina",
   "district": "SD 17", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Democratic Leader", "Abortion Rights", "Health & Family", "Wake County"]
  },
  "ralph_hise": {
-  "name": "Ralph Hise", "office": "North Carolina State Senator", "state": "North Carolina",
+  "name": "Ralph Hise", "photo": "https://www.ncleg.gov/Members/MemberImage/S/298/Low", "office": "North Carolina State Senator", "state": "North Carolina",
   "district": "SD 47", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Redistricting Architect", "Deputy Pro Tem", "Taxes", "Western NC"]
  },
  "aric_nesbitt": {
-  "name": "Aric Nesbitt", "office": "Michigan State Senator", "state": "Michigan",
+  "name": "Aric Nesbitt", "photo": "https://senate.michigan.gov/media/rf5fkiul/nesbitt.png", "office": "Michigan State Senator", "state": "Michigan",
   "district": "SD 20", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate GOP Leader", "Running for Governor", "Taxes & Roads", "SW Michigan"]
  },
  "jeremy_moss": {
-  "name": "Jeremy Moss", "office": "Michigan State Senator", "state": "Michigan",
+  "name": "Jeremy Moss", "photo": "https://senate.michigan.gov/media/g2xdobl4/moss.png", "office": "Michigan State Senator", "state": "Michigan",
   "district": "SD 7", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate President pro Tem", "First Openly Gay MI Senator", "Transparency", "Southfield"]
  },
  "mallory_mcmorrow": {
-  "name": "Mallory McMorrow", "office": "Michigan State Senator", "state": "Michigan",
+  "name": "Mallory McMorrow", "photo": "https://senate.michigan.gov/media/eeij4q4b/mcmorrow.png", "office": "Michigan State Senator", "state": "Michigan",
   "district": "SD 8", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Majority Whip", "2022 Viral Speech", "Ran for U.S. Senate", "Oakland County"]
  },
@@ -11244,57 +11438,57 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 //    (Nicholas Scutari and Warren Petersen already exist with curated stances and
 //     are enriched via cmp-data-detail.js instead of being duplicated here.) ──
  "teresa_ruiz": {
-  "name": "Teresa Ruiz", "office": "New Jersey State Senator", "state": "New Jersey",
+  "name": "Teresa Ruiz", "photo": "https://pub.njleg.gov/publications/members/ruiz_teresa_2021_250.jpg", "office": "New Jersey State Senator", "state": "New Jersey",
   "district": "LD 29", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Majority Leader", "Education Reform", "Working Families", "Newark"]
  },
  "anthony_bucco": {
-  "name": "Anthony Bucco", "office": "New Jersey State Senator", "state": "New Jersey",
+  "name": "Anthony Bucco", "photo": "https://pub.njleg.gov/publications/members/bucco_anthony_m_2022_250.jpg", "office": "New Jersey State Senator", "state": "New Jersey",
   "district": "LD 25", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate GOP Leader", "Property Taxes", "Public Safety", "Morris County"]
  },
  "louise_lucas": {
-  "name": "Louise Lucas", "office": "Virginia State Senator", "state": "Virginia",
+  "name": "Louise Lucas", "photo": "https://apps.senate.virginia.gov/Senator/images/member_photos/Lucas18", "office": "Virginia State Senator", "state": "Virginia",
   "district": "SD 18", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["FBI Search Warrant", "President pro Tem", "Finance Chair", "Portsmouth"]
  },
  "scott_surovell": {
-  "name": "Scott Surovell", "office": "Virginia State Senator", "state": "Virginia",
+  "name": "Scott Surovell", "photo": "https://apps.senate.virginia.gov/Senator/images/member_photos/Surovell34", "office": "Virginia State Senator", "state": "Virginia",
   "district": "SD 34", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Majority Leader", "Justice Reform", "Clean Energy", "Fairfax"]
  },
  "ryan_mcdougle": {
-  "name": "Ryan McDougle", "office": "Virginia State Senator", "state": "Virginia",
+  "name": "Ryan McDougle", "photo": "https://apps.senate.virginia.gov/Senator/images/member_photos/McDougle26", "office": "Virginia State Senator", "state": "Virginia",
   "district": "SD 26", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate GOP Leader", "Taxes", "Abortion", "Hanover County"]
  },
  "priya_sundareshan": {
-  "name": "Priya Sundareshan", "office": "Arizona State Senator", "state": "Arizona",
+  "name": "Priya Sundareshan", "photo": "https://www.azleg.gov/alisImages/MemberPhotos/57leg/Senate/SUNDARESHAN.jpg", "office": "Arizona State Senator", "state": "Arizona",
   "district": "LD 18", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Democratic Leader", "Water & Drought", "Abortion Rights", "Tucson"]
  },
  "wendy_rogers": {
-  "name": "Wendy Rogers", "office": "Arizona State Senator", "state": "Arizona",
+  "name": "Wendy Rogers", "photo": "https://www.azleg.gov/alisImages/MemberPhotos/57leg/Senate/ROGERS.jpg", "office": "Arizona State Senator", "state": "Arizona",
   "district": "LD 7", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Censure (2022)", "Election Denial", "Border", "Northern AZ"]
  },
  "jake_hoffman": {
-  "name": "Jake Hoffman", "office": "Arizona State Senator", "state": "Arizona",
+  "name": "Jake Hoffman", "photo": "https://www.azleg.gov/alisImages/MemberPhotos/57leg/Senate/HOFFMAN.jpg", "office": "Arizona State Senator", "state": "Arizona",
   "district": "LD 15", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Indicted 'Fake Elector'", "Freedom Caucus Chair", "Border", "Gilbert"]
  },
  "jamie_pedersen": {
-  "name": "Jamie Pedersen", "office": "Washington State Senator", "state": "Washington",
+  "name": "Jamie Pedersen", "photo": "https://leg.wa.gov/memberphoto/12002.jpg", "office": "Washington State Senator", "state": "Washington",
   "district": "LD 43", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Majority Leader", "Marriage Equality", "Housing Supply", "Seattle"]
  },
  "john_braun": {
-  "name": "John Braun", "office": "Washington State Senator", "state": "Washington",
+  "name": "John Braun", "photo": "https://leg.wa.gov/memberphoto/17289.jpg", "office": "Washington State Senator", "state": "Washington",
   "district": "LD 20", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate GOP Leader", "Running for Congress", "Taxes", "SW Washington"]
  },
  "manka_dhingra": {
-  "name": "Manka Dhingra", "office": "Washington State Senator", "state": "Washington",
+  "name": "Manka Dhingra", "photo": "https://leg.wa.gov/memberphoto/28022.jpg", "office": "Washington State Senator", "state": "Washington",
   "district": "LD 45", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Behavioral Health", "Deputy Majority Leader", "Justice Reform", "Redmond"]
  },
@@ -11302,47 +11496,47 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 //    (Karen Spilka, Erin Murphy and James Coleman already exist with curated
 //     stances and are enriched via cmp-data-detail.js instead of being duplicated.) ──
  "cynthia_creem": {
-  "name": "Cynthia Creem", "office": "Massachusetts State Senator", "state": "Massachusetts",
+  "name": "Cynthia Creem", "photo": "https://malegislature.gov/Legislators/Profile/70/CSC0.jpg", "office": "Massachusetts State Senator", "state": "Massachusetts",
   "district": "Norfolk & Middlesex", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Majority Leader", "Climate Law", "Civil Rights", "Newton"]
  },
  "bruce_tarr": {
-  "name": "Bruce Tarr", "office": "Massachusetts State Senator", "state": "Massachusetts",
+  "name": "Bruce Tarr", "photo": "https://malegislature.gov/Legislators/Profile/170/BET0.jpg", "office": "Massachusetts State Senator", "state": "Massachusetts",
   "district": "First Essex & Middlesex", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate GOP Leader", "Taxes", "Commercial Fishing", "Gloucester"]
  },
  "mary_felzkowski": {
-  "name": "Mary Felzkowski", "office": "Wisconsin State Senator", "state": "Wisconsin",
+  "name": "Mary Felzkowski", "photo": "https://docs.legis.wisconsin.gov/2025/legislators/senate/2809.jpg", "office": "Wisconsin State Senator", "state": "Wisconsin",
   "district": "SD 12", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate President", "Tax Cuts", "Medical Marijuana", "Northern WI"]
  },
  "devin_lemahieu": {
-  "name": "Devin LeMahieu", "office": "Wisconsin State Senator", "state": "Wisconsin",
+  "name": "Devin LeMahieu", "photo": "https://docs.legis.wisconsin.gov/2025/legislators/senate/2820.jpg", "office": "Wisconsin State Senator", "state": "Wisconsin",
   "district": "SD 9", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Majority Leader", "Retiring 2026", "Flat Tax", "Sheboygan"]
  },
  "dianne_hesselbein": {
-  "name": "Dianne Hesselbein", "office": "Wisconsin State Senator", "state": "Wisconsin",
+  "name": "Dianne Hesselbein", "photo": "https://docs.legis.wisconsin.gov/2025/legislators/senate/2811.jpg", "office": "Wisconsin State Senator", "state": "Wisconsin",
   "district": "SD 27", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Democratic Leader", "Public Schools", "Abortion Rights", "Dane County"]
  },
  "bobby_joe_champion": {
-  "name": "Bobby Joe Champion", "office": "Minnesota State Senator", "state": "Minnesota",
+  "name": "Bobby Joe Champion", "photo": "https://www.lrl.mn.gov/legdb/MemberPhotos/ls94/thumbnails/59Champion.jpg", "office": "Minnesota State Senator", "state": "Minnesota",
   "district": "SD 59", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["First Black Senate President", "Economic Opportunity", "Family & Equity", "North Minneapolis"]
  },
  "mark_johnson_mn": {
-  "name": "Mark Johnson", "office": "Minnesota State Senator", "state": "Minnesota",
+  "name": "Mark Johnson", "photo": "https://www.lrl.mn.gov/legdb/MemberPhotos/ls94/thumbnails/01Johnson.jpg", "office": "Minnesota State Senator", "state": "Minnesota",
   "district": "SD 1", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate GOP Leader", "Taxes", "Agriculture", "NW Minnesota"]
  },
  "robert_rodriguez_co": {
-  "name": "Robert Rodriguez", "office": "Colorado State Senator", "state": "Colorado",
+  "name": "Robert Rodriguez", "photo": "https://leg.colorado.gov/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBMDJ6QlE9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--d60046bf23e2e38d95ebde097cc62458903a14c7/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2RkhKbGMybDZaVjkwYjE5c2FXMXBkRnNIYVFIWWFRSkVBUT09IiwiZXhwIjpudWxsLCJwdXIiOiJ2YXJpYXRpb24ifX0=--afd72eecb65edd9e6ff979c9b0ff7cdd603ed9e1/Rodriguez,Robert.jpg", "office": "Colorado State Senator", "state": "Colorado",
   "district": "SD 32", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Majority Leader", "Data Privacy", "Workers & Labor", "Denver"]
  },
  "cleave_simpson": {
-  "name": "Cleave Simpson", "office": "Colorado State Senator", "state": "Colorado",
+  "name": "Cleave Simpson", "photo": "https://leg.colorado.gov/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBMU9ZQXc9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--5e851bcb5c35b80d9e4af6c6d2b6198d4f602087/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2RkhKbGMybDZaVjkwYjE5c2FXMXBkRnNIYVFIWWFRSkVBUT09IiwiZXhwIjpudWxsLCJwdXIiOiJ2YXJpYXRpb24ifX0=--afd72eecb65edd9e6ff979c9b0ff7cdd603ed9e1/Simpson,%20Cleave.jpg", "office": "Colorado State Senator", "state": "Colorado",
   "district": "SD 6", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate GOP Leader", "Water & Drought", "Agriculture", "San Luis Valley"]
  },
@@ -11350,57 +11544,57 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 //    (Bill Ferguson already exists with curated stances and is enriched via
 //     cmp-data-detail.js instead of being duplicated here.) ──
  "randy_mcnally": {
-  "name": "Randy McNally", "office": "Tennessee State Senator", "state": "Tennessee",
+  "name": "Randy McNally", "photo": "https://www.capitol.tn.gov/senate/members/images/ltgovmcnally.jpg", "office": "Tennessee State Senator", "state": "Tennessee",
   "district": "SD 5", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Lt. Gov / Senate Speaker", "Retiring 2026", "Fiscal Hawk", "Oak Ridge"]
  },
  "jack_johnson_tn": {
-  "name": "Jack Johnson", "office": "Tennessee State Senator", "state": "Tennessee",
+  "name": "Jack Johnson", "photo": "https://www.capitol.tn.gov/senate/archives/112GA/members/images/s23.jpg", "office": "Tennessee State Senator", "state": "Tennessee",
   "district": "SD 27", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Majority Leader", "Taxes", "School Choice", "Franklin"]
  },
  "raumesh_akbari": {
-  "name": "Raumesh Akbari", "office": "Tennessee State Senator", "state": "Tennessee",
+  "name": "Raumesh Akbari", "photo": "https://www.capitol.tn.gov/senate/archives/112GA/members/images/s29.jpg", "office": "Tennessee State Senator", "state": "Tennessee",
   "district": "SD 29", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Democratic Leader", "Health Care", "Justice Reform", "Memphis"]
  },
  "rodric_bray": {
-  "name": "Rodric Bray", "office": "Indiana State Senator", "state": "Indiana",
+  "name": "Rodric Bray", "photo": "https://graph.facebook.com/brayforstatesenate/picture?type=large", "photoSource": "facebook", "office": "Indiana State Senator", "state": "Indiana",
   "district": "SD 37", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate President pro Tem", "Defied Trump on Maps", "Fiscal Restraint", "Martinsville"]
  },
  "chris_garten": {
-  "name": "Chris Garten", "office": "Indiana State Senator", "state": "Indiana",
+  "name": "Chris Garten", "photo": "https://www.gartenforsenate.com/wp-content/themes/garten-in-lp-theme/assets/garten/issues-banner.jpg", "photoSource": "campaign", "office": "Indiana State Senator", "state": "Indiana",
   "district": "SD 45", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Quit Leadership 2026", "Trump-Aligned", "Veterans", "Southern Indiana"]
  },
  "shelli_yoder": {
-  "name": "Shelli Yoder", "office": "Indiana State Senator", "state": "Indiana",
+  "name": "Shelli Yoder", "photo": "https://graph.facebook.com/ShelliYoderforStateSenate/picture?type=large", "photoSource": "facebook", "office": "Indiana State Senator", "state": "Indiana",
   "district": "SD 40", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Democratic Leader", "Abortion Rights", "Public Schools", "Bloomington"]
  },
  "cindy_olaughlin": {
-  "name": "Cindy O'Laughlin", "office": "Missouri State Senator", "state": "Missouri",
+  "name": "Cindy O'Laughlin", "photo": "https://www.senate.mo.gov/WebPhotos/SenatorPortraits/Olaughlin18.jpg", "office": "Missouri State Senator", "state": "Missouri",
   "district": "SD 18", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["First Woman to Lead Senate", "School Choice", "Taxes", "Shelbina"]
  },
  "tony_luetkemeyer": {
-  "name": "Tony Luetkemeyer", "office": "Missouri State Senator", "state": "Missouri",
+  "name": "Tony Luetkemeyer", "photo": "https://www.senate.mo.gov/WebPhotos/SenatorPortraits/Luetkemeyer34.jpg", "office": "Missouri State Senator", "state": "Missouri",
   "district": "SD 34", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Majority Leader", "Public Safety", "Taxes", "Parkville"]
  },
  "doug_beck": {
-  "name": "Doug Beck", "office": "Missouri State Senator", "state": "Missouri",
+  "name": "Doug Beck", "photo": "https://www.senate.mo.gov/WebPhotos/SenatorPortraits/Beck01.jpg", "office": "Missouri State Senator", "state": "Missouri",
   "district": "SD 1", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Democratic Leader", "Labor & Workers", "Health Care", "Affton"]
  },
  "nancy_king": {
-  "name": "Nancy King", "office": "Maryland State Senator", "state": "Maryland",
+  "name": "Nancy King", "photo": "https://mgaleg.maryland.gov/2026RS/images/king.jpg", "office": "Maryland State Senator", "state": "Maryland",
   "district": "SD 39", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Majority Leader", "Public Schools", "Health Care", "Montgomery County"]
  },
  "steve_hershey": {
-  "name": "Steve Hershey", "office": "Maryland State Senator", "state": "Maryland",
+  "name": "Steve Hershey", "photo": "https://mgaleg.maryland.gov/2026RS/images/hershey.jpg", "office": "Maryland State Senator", "state": "Maryland",
   "district": "SD 36", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate GOP Leader", "Taxes", "Eastern Shore", "Agriculture"]
  },
@@ -11408,108 +11602,108 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 //    (Nicole Cannizzaro, Sharon Carson and Robert Stivers already exist with
 //     curated stances and are enriched via cmp-data-detail.js instead of duplicated.) ──
  "robin_titus": {
-  "name": "Robin Titus", "office": "Nevada State Senator", "state": "Nevada",
+  "name": "Robin Titus", "photo": "https://www.leg.state.nv.us/Session/84th2027/legislators/Senators/Images/Titus.Robin.281.Thumb.jpg", "office": "Nevada State Senator", "state": "Nevada",
   "district": "SD 17", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate GOP Leader", "Rural Health Care", "Taxes", "Lyon County"]
  },
  "marilyn_dondero_loop": {
-  "name": "Marilyn Dondero Loop", "office": "Nevada State Senator", "state": "Nevada",
+  "name": "Marilyn Dondero Loop", "photo": "https://www.leg.state.nv.us/Session/84th2027/legislators/Senators/Images/DonderoLoop.Marilyn.92.Thumb.jpg", "office": "Nevada State Senator", "state": "Nevada",
   "district": "SD 8", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate President pro Tem", "Public Education", "Health & Families", "Las Vegas"]
  },
  "regina_birdsell": {
-  "name": "Regina Birdsell", "office": "New Hampshire State Senator", "state": "New Hampshire",
+  "name": "Regina Birdsell", "photo": "https://gc.nh.gov/senate/images/senators/19.jpg", "office": "New Hampshire State Senator", "state": "New Hampshire",
   "district": "SD 19", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Majority Leader", "No Income Tax", "Election Law", "Hampstead"]
  },
  "rebecca_perkins_kwoka": {
-  "name": "Rebecca Perkins Kwoka", "office": "New Hampshire State Senator", "state": "New Hampshire",
+  "name": "Rebecca Perkins Kwoka", "photo": "https://gc.nh.gov/senate/images/senators/21.jpg", "office": "New Hampshire State Senator", "state": "New Hampshire",
   "district": "SD 21", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Democratic Leader", "LGBTQ Leader", "Housing", "Portsmouth"]
  },
  "max_wise": {
-  "name": "Max Wise", "office": "Kentucky State Senator", "state": "Kentucky",
+  "name": "Max Wise", "photo": "https://legislature.ky.gov/Legislator%20Head%20shots/senate116.jpg", "office": "Kentucky State Senator", "state": "Kentucky",
   "district": "SD 16", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Majority Leader", "School Safety", "Veterans", "Campbellsville"]
  },
  "gerald_neal": {
-  "name": "Gerald Neal", "office": "Kentucky State Senator", "state": "Kentucky",
+  "name": "Gerald Neal", "photo": "https://legislature.ky.gov/Legislator%20Head%20shots/senate133.jpg", "office": "Kentucky State Senator", "state": "Kentucky",
   "district": "SD 33", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Democratic Leader", "Civil Rights", "Voting Access", "Louisville"]
  },
  "cameron_henry": {
-  "name": "Cameron Henry", "office": "Louisiana State Senator", "state": "Louisiana",
+  "name": "Cameron Henry", "photo": "https://senate.la.gov/SenPics/Sen9.jpg", "office": "Louisiana State Senator", "state": "Louisiana",
   "district": "SD 9", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate President", "Budget & Tax Overhaul", "Landry Ally", "Metairie"]
  },
  "jeremy_stine": {
-  "name": "Jeremy Stine", "office": "Louisiana State Senator", "state": "Louisiana",
+  "name": "Jeremy Stine", "photo": "https://senate.la.gov/SenPics/Sen27.jpg", "office": "Louisiana State Senator", "state": "Louisiana",
   "district": "SD 27", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Majority Leader", "Insurance Crisis", "Energy", "Lake Charles"]
  },
  "royce_duplessis": {
-  "name": "Royce Duplessis", "office": "Louisiana State Senator", "state": "Louisiana",
+  "name": "Royce Duplessis", "photo": "https://senate.la.gov/SenPics/Sen5.jpg", "office": "Louisiana State Senator", "state": "Louisiana",
   "district": "SD 5", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Taking On Insurers", "Justice Reform", "Minority Voice", "New Orleans"]
  },
 // ── STATE SENATE wave 8 — Oregon, South Carolina, Alabama, Connecticut (July 2026). ──
  "rob_wagner": {
-  "name": "Rob Wagner", "office": "Oregon State Senator", "state": "Oregon",
+  "name": "Rob Wagner", "photo": "https://sos.oregon.gov/blue-book/government/PublishingImages/senate/senator-wagner.jpg", "office": "Oregon State Senator", "state": "Oregon",
   "district": "SD 19", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate President", "Public Education", "Housing", "Lake Oswego"]
  },
  "kayse_jama": {
-  "name": "Kayse Jama", "office": "Oregon State Senator", "state": "Oregon",
+  "name": "Kayse Jama", "photo": "https://www.oregonlegislature.gov/jama/PublishingImages/member_photo.jpg", "office": "Oregon State Senator", "state": "Oregon",
   "district": "SD 24", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Majority Leader", "First African-Born Senator", "Housing", "East Portland"]
  },
  "bruce_starr": {
-  "name": "Bruce Starr", "office": "Oregon State Senator", "state": "Oregon",
+  "name": "Bruce Starr", "photo": "https://www.oregonlegislature.gov/starr/PublishingImages/member_photo.jpg", "office": "Oregon State Senator", "state": "Oregon",
   "district": "SD 12", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate GOP Leader", "Measure 113 Fallout", "Taxes", "Yamhill County"]
  },
  "thomas_alexander": {
-  "name": "Thomas Alexander", "office": "South Carolina State Senator", "state": "South Carolina",
+  "name": "Thomas Alexander", "photo": "https://www.scstatehouse.gov/images/members/0013636362.jpg", "office": "South Carolina State Senator", "state": "South Carolina",
   "district": "SD 1", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate President", "Energy & Utilities", "Taxes", "Oconee County"]
  },
  "shane_massey": {
-  "name": "Shane Massey", "office": "South Carolina State Senator", "state": "South Carolina",
+  "name": "Shane Massey", "photo": "https://www.scstatehouse.gov/images/members/1185227131.jpg", "office": "South Carolina State Senator", "state": "South Carolina",
   "district": "SD 25", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Majority Leader", "Abortion-Ban Push", "Taxes", "Edgefield"]
  },
  "margie_bright_matthews": {
-  "name": "Margie Bright Matthews", "office": "South Carolina State Senator", "state": "South Carolina",
+  "name": "Margie Bright Matthews", "photo": "https://www.scstatehouse.gov/images/members/0194318159.jpg", "office": "South Carolina State Senator", "state": "South Carolina",
   "district": "SD 45", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["'Sister Senator'", "Profile in Courage", "Rural Health", "Lowcountry"]
  },
  "garlan_gudger": {
-  "name": "Garlan Gudger", "office": "Alabama State Senator", "state": "Alabama",
+  "name": "Garlan Gudger", "photo": "https://alison.legislature.state.al.us/files/pdf/senate/members/Gudger_4.png", "office": "Alabama State Senator", "state": "Alabama",
   "district": "SD 4", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate President pro Tem", "Small Business", "Taxes", "Cullman"]
  },
  "steve_livingston": {
-  "name": "Steve Livingston", "office": "Alabama State Senator", "state": "Alabama",
+  "name": "Steve Livingston", "photo": "https://alison.legislature.state.al.us/files/pdf/senate/members/Livingston_8.png", "office": "Alabama State Senator", "state": "Alabama",
   "district": "SD 8", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Majority Leader", "Rural Broadband", "Taxes", "Scottsboro"]
  },
  "bobby_singleton": {
-  "name": "Bobby Singleton", "office": "Alabama State Senator", "state": "Alabama",
+  "name": "Bobby Singleton", "photo": "https://alison.legislature.state.al.us/files/pdf/senate/members/Singleton_24.png", "office": "Alabama State Senator", "state": "Alabama",
   "district": "SD 24", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Democratic Leader", "Civil Rights", "Rural Health", "Black Belt"]
  },
  "martin_looney": {
-  "name": "Martin Looney", "office": "Connecticut State Senator", "state": "Connecticut",
+  "name": "Martin Looney", "photo": "https://www.senatedems.ct.gov/wp-content/uploads/2023/09/Looney-2024-Headshot-scaled.jpg", "office": "Connecticut State Senator", "state": "Connecticut",
   "district": "SD 11", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate President pro Tem", "Retiring 2026", "Police Accountability", "New Haven"]
  },
  "bob_duff": {
-  "name": "Bob Duff", "office": "Connecticut State Senator", "state": "Connecticut",
+  "name": "Bob Duff", "photo": "https://www.senatedems.ct.gov/wp-content/uploads/2023/09/DuffHeadshot25-e1746538988445.png", "office": "Connecticut State Senator", "state": "Connecticut",
   "district": "SD 25", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate Majority Leader", "Climate & Energy", "Gun Safety", "Norwalk"]
  },
  "stephen_harding": {
-  "name": "Stephen Harding", "office": "Connecticut State Senator", "state": "Connecticut",
+  "name": "Stephen Harding", "photo": "https://graph.facebook.com/HardingforSenate/picture?type=large", "photoSource": "facebook", "office": "Connecticut State Senator", "state": "Connecticut",
   "district": "SD 30", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Senate GOP Leader", "Taxes", "Cost of Living", "Brookfield"]
  },
@@ -11529,22 +11723,22 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 // `issues` are lifted verbatim from each member's own curated stance-card topics in
 // politician-stances.js, not authored here.
  "cwilson": {
-  "name": "Chris Wilson", "office": "UT State Senator", "state": "UT District 2 (Logan, Cache County)",
+  "name": "Chris Wilson", "photo": "https://le.utah.gov/images/legislator/WILSOCH.jpg", "office": "UT State Senator", "state": "UT District 2 (Logan, Cache County)",
   "district": "SD 2", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Property Taxes", "Higher Education", "Small Business & Economy", "Behavioral Health Crisis Care"]
  },
  "john_johnson": {
-  "name": "John Johnson", "office": "UT State Senator", "state": "UT District 3 (North Ogden, Weber County)",
+  "name": "John Johnson", "photo": "https://le.utah.gov/images/legislator/JOHNSJD.jpg", "office": "UT State Senator", "state": "UT District 3 (North Ogden, Weber County)",
   "district": "SD 3", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Intellectual Diversity & DEI", "Civics Education", "Healthcare Access", "Higher-Education Board Accountability"]
  },
  "jennifer_plumb": {
-  "name": "Jennifer Plumb", "office": "UT State Senator", "state": "UT District 9 (Salt Lake City)",
+  "name": "Jennifer Plumb", "photo": "https://le.utah.gov/images/legislator/PLUMBJ.jpg", "office": "UT State Senator", "state": "UT District 9 (Salt Lake City)",
   "district": "SD 9", "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Overdose Prevention", "Child & Maternal Health", "Gun Safety", "Healthcare Access"]
  },
  "lincoln_fillmore": {
-  "name": "Lincoln Fillmore", "office": "UT State Senator", "state": "UT District 17 (South Jordan, Salt Lake County)",
+  "name": "Lincoln Fillmore", "photo": "https://le.utah.gov/images/legislator/FILLML.jpg", "office": "UT State Senator", "state": "UT District 17 (South Jordan, Salt Lake County)",
   "district": "SD 17", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["School Choice", "Income Taxes", "Housing Affordability", "Public Safety"]
  },
@@ -11555,7 +11749,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "issues": ["Energy & Resource Development", "Public Lands & Federalism", "Rural Roads & Infrastructure", "Colorado River Water"]
  },
  "dhinkins": {
-  "name": "David Hinkins", "office": "UT State Senator", "state": "UT District 26 (Orangeville, Emery County)",
+  "name": "David Hinkins", "photo": "https://le.utah.gov/images/legislator/HINKIDP.jpg", "office": "UT State Senator", "state": "UT District 26 (Orangeville, Emery County)",
   "district": "SD 26", "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Agriculture & Rural Communities", "Protecting Coal Mining", "Rural Water Supply", "State Budget Stewardship"]
  },
@@ -11587,19 +11781,19 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // `issues` are lifted verbatim from each member's own curated stance-card topics in
  // politician-stances.js, not authored here.
  "jennifer_dailey_provost": {
-  "name": "Jennifer Dailey-Provost", "office": "Utah State Representative",
+  "name": "Jennifer Dailey-Provost", "photo": "https://le.utah.gov/images/legislator/DAILEJ.jpg", "office": "Utah State Representative",
   "state": "UT District 22 (Salt Lake City)",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Medical Cannabis Access", "Healthcare Access", "LGBTQ+ Rights", "Air Quality & Environment"]
  },
  "grant_miller": {
-  "name": "Grant Miller", "office": "Utah State Representative",
+  "name": "Grant Miller", "photo": "https://le.utah.gov/images/legislator/MILLGR.jpg", "office": "Utah State Representative",
   "state": "UT District 24 (Salt Lake City)",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Disability & Employment", "Homelessness & Civil Rights", "Marijuana Decriminalization", "Court-Fine Reform"]
  },
  "nicholeen_p_peck": {
-  "name": "Nicholeen Peck", "office": "Utah State Representative",
+  "name": "Nicholeen Peck", "photo": "https://le.utah.gov/images/legislator/PECKNI.jpg", "office": "Utah State Representative",
   "state": "UT District 28 (Tooele, Tooele County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Parental Rights & Curriculum", "Homeschool Freedom", "Drugs in Schools", "Limited Government"]
@@ -11612,19 +11806,19 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "issues": ["Child Online Safety", "Housing Affordability", "Courts & Civil Law", "Prescription Drug Pricing"]
  },
  "clinton_okerlund": {
-  "name": "Clinton Okerlund", "office": "Utah State Representative",
+  "name": "Clinton Okerlund", "photo": "https://le.utah.gov/images/legislator/OKERLC.jpg", "office": "Utah State Representative",
   "state": "UT District 42 (Sandy, Salt Lake County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["State Parks & Recreation", "Fiscal Accountability", "Little Cottonwood Transportation", "Clean Air & Emissions"]
  },
  "christine_watkins": {
-  "name": "Christine Watkins", "office": "Utah State Representative",
+  "name": "Christine Watkins", "photo": "https://le.utah.gov/images/legislator/WATKICF.jpg", "office": "Utah State Representative",
   "state": "UT District 67 (Price, Carbon County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Public Safety & Crime", "Climate & Clean Energy", "Child Welfare & Families", "Grid & Transmission"]
  },
  "logan_monson": {
-  "name": "Logan Monson", "office": "Utah State Representative",
+  "name": "Logan Monson", "photo": "https://le.utah.gov/images/legislator/MONSOL.jpg", "office": "Utah State Representative",
   "state": "UT District 69 (Blanding, San Juan County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Roads & Infrastructure", "Rural Healthcare", "Agriculture & Grazing", "First Responder Support"]
@@ -11637,13 +11831,13 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
   "issues": ["Reliable, Affordable Rural Energy", "Rural Jobs & Economic Development", "Agriculture, Water & Rural Communities"]
  },
  "colin_w_jack": {
-  "name": "Colin W. Jack", "office": "Utah State Representative",
+  "name": "Colin W. Jack", "photo": "https://le.utah.gov/images/legislator/JACKC.jpg", "office": "Utah State Representative",
   "state": "UT District 73 (St. George, Washington County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Climate & Clean Energy", "Energy Independence", "Environmental Enforcement Reform", "Protect Productive Farmland"]
  },
  "walt_brooks": {
-  "name": "Walt Brooks", "office": "Utah State Representative",
+  "name": "Walt Brooks", "photo": "https://le.utah.gov/images/legislator/BROOKW.jpg", "office": "Utah State Representative",
   "state": "UT District 75 (St. George, Washington County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Gun Rights", "Homeowner Rights", "Public Safety", "Limited Government"]
@@ -11658,13 +11852,13 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // `broken`/`pending` stay null/0 because no promise-tracking pass has been run for
  // them, and `issues` are lifted verbatim from their own stance-card topics.
  "hoang_nguyen": {
-  "name": "Hoang Nguyen", "office": "Utah State Representative",
+  "name": "Hoang Nguyen", "photo": "https://le.utah.gov/images/legislator/NGUYEH.jpg", "office": "Utah State Representative",
   "state": "UT District 23 (Salt Lake City)",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Great Salt Lake & Water", "School Safety & Student Health", "Immigrant & Refugee Representation", "Air Quality & Environment"]
  },
  "ashlee_matthews": {
-  "name": "Ashlee Matthews", "office": "Utah State Representative",
+  "name": "Ashlee Matthews", "photo": "https://le.utah.gov/images/legislator/MATTHA.jpg", "office": "Utah State Representative",
   "state": "UT District 37 (Kearns, Salt Lake County)",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Child Care Access", "Working Families & Workers", "Maternal Health Coverage", "Second-Chance Employment"]
@@ -11702,7 +11896,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // 0 because no promise-tracking pass has been run for them, `issues` lifted verbatim
  // from their own stance-card topics, and no `termEnd` — all three are sitting.
  "tracy_miller": {
-  "name": "Tracy Miller", "office": "Utah State Representative",
+  "name": "Tracy Miller", "photo": "https://le.utah.gov/images/legislator/MILLET.jpg", "office": "Utah State Representative",
   "state": "UT District 45 (South Jordan, Salt Lake County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2025-01",
@@ -11713,7 +11907,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // this seat in the data set (there is no `jburton` roster record, and he appears in
  // neither Utah House table), so nothing stale had to be moved out of the way.
  "jackie_larson": {
-  "name": "Jackie Larson", "office": "Utah State Representative",
+  "name": "Jackie Larson", "photo": "https://le.utah.gov/images/legislator/LARSOJ.jpg", "office": "Utah State Representative",
   "state": "UT District 64 (Spanish Fork / Salem, Utah County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2026-05",
@@ -11724,7 +11918,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // 61 that the `utah_co` Key Races block runs — that is Lisa Shepherd's seat. Clancy has
  // no roster record either, so District 60 was simply uncovered rather than mis-held.
  "grant_pace": {
-  "name": "Grant Pace", "office": "Utah State Representative",
+  "name": "Grant Pace", "photo": "https://le.utah.gov/images/legislator/PACEG.jpg", "office": "Utah State Representative",
   "state": "UT District 60 (Provo, Utah County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2026-05",
@@ -11735,14 +11929,14 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // roster-less, so neither Utah House table could name them. Districts confirmed
  // against the public record first; each is post-2023 numbering.
  "verona_mauga": {
-  "name": "Verona Mauga", "office": "Utah State Representative",
+  "name": "Verona Mauga", "photo": "https://le.utah.gov/images/legislator/MAUGAV.jpg", "office": "Utah State Representative",
   "state": "UT District 31 (West Valley City / Taylorsville, Salt Lake County)",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2025-01",
   "issues": ["Disability & Social Services", "Small Business", "Public Schools", "Bike-Lane Safety", "Protecting Veterans"]
  },
  "doug_owens": {
-  "name": "Doug Owens", "office": "Utah State Representative",
+  "name": "Doug Owens", "photo": "https://le.utah.gov/images/legislator/OWENSDO.jpg", "office": "Utah State Representative",
   "state": "UT District 33 (Millcreek, Salt Lake County)",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2021-01",
@@ -11753,49 +11947,49 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // NO `termEnd` — 10g rejects one on a pid the info map wires to a live seat, and
  // rightly: a retirement announcement is not a vacancy.
  "carol_spackman_moss": {
-  "name": "Carol Spackman Moss", "office": "Utah State Representative",
+  "name": "Carol Spackman Moss", "photo": "https://le.utah.gov/images/legislator/MOSSCS.jpg", "office": "Utah State Representative",
   "state": "UT District 34 (Holladay, Salt Lake County)",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2001-01",
   "issues": ["Public Schools", "Air Quality", "Gun Safety", "Opioid & Overdose Response", "Affordable Housing"]
  },
  "john_arthur": {
-  "name": "John Arthur", "office": "Utah State Representative",
+  "name": "John Arthur", "photo": "https://le.utah.gov/images/legislator/ARTHUJ.jpg", "office": "Utah State Representative",
   "state": "UT District 41 (Cottonwood Heights, Salt Lake County)",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2025-12",
   "issues": ["Great Salt Lake & Water", "Teacher Pay & Support", "Public-Employee Bargaining", "Renter Protections", "Transit & Livability"]
  },
  "calvin_roberts": {
-  "name": "Calvin Roberts", "office": "Utah State Representative",
+  "name": "Calvin Roberts", "photo": "https://le.utah.gov/images/legislator/ROBERC.jpg", "office": "Utah State Representative",
   "state": "UT District 46 (Draper / Bluffdale, Salt Lake County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2025-01",
   "issues": ["Roads & Infrastructure", "Economic Development", "Small Business", "Fuel-Tax Relief", "Transit Procurement"]
  },
  "candice_pierucci": {
-  "name": "Candice Pierucci", "office": "Utah State Representative",
+  "name": "Candice Pierucci", "photo": "https://le.utah.gov/images/legislator/PIERUC.jpg", "office": "Utah State Representative",
   "state": "UT District 49 (Herriman / Riverton, Salt Lake County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2019-11",
   "issues": ["School Choice", "Online Child Safety", "Taxes & Limited Government", "Maternal & Infant Health"]
  },
  "leah_hansen": {
-  "name": "Leah Hansen", "office": "Utah State Representative",
+  "name": "Leah Hansen", "photo": "https://le.utah.gov/images/legislator/LHANSEN.jpg", "office": "Utah State Representative",
   "state": "UT District 51 (Saratoga Springs / west Lehi, Utah County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2025-08",
   "issues": ["Limiting DEI Programs", "Religious Liberty", "Property-Tax Transparency", "Taxpayer Oversight", "Foreign Land Ownership"]
  },
  "kay_christofferson": {
-  "name": "Kay Christofferson", "office": "Utah State Representative",
+  "name": "Kay Christofferson", "photo": "https://le.utah.gov/images/legislator/CHRISKJ.jpg", "office": "Utah State Representative",
   "state": "UT District 53 (Lehi, Utah County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2013-01",
   "issues": ["Roads & Infrastructure", "Public Transit", "Growth & Mobility Planning", "Corridor Preservation & Property", "Road Usage Charge"]
  },
  "doug_welton": {
-  "name": "Doug Welton", "office": "Utah State Representative",
+  "name": "Doug Welton", "photo": "https://le.utah.gov/images/legislator/WELTOD.jpg", "office": "Utah State Representative",
   "state": "UT District 65 (Payson, Utah County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2021-01",
@@ -11806,7 +12000,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // already; `cmusselman` had a Power-Map row and a browse entry. With these the
  // Senate reaches 29 of 29 and KR_STATE_SENATE_INCUMBENTS has no absent key left.
  "cmusselman": {
-  "name": "Calvin Musselman", "office": "Utah State Senator",
+  "name": "Calvin Musselman", "photo": "https://le.utah.gov/images/legislator/MUSSECR.jpg", "office": "Utah State Senator",
   "state": "UT District 4 (West Haven, Weber County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2025-01",
@@ -11820,7 +12014,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // Thatcher resigned; Thatcher holds nothing, which is what the "Former" in his
  // office and his `termEnd` say.
  "emily_buss": {
-  "name": "Emily Buss", "office": "Utah State Senator",
+  "name": "Emily Buss", "photo": "https://le.utah.gov/images/legislator/BUSSEM.jpg", "office": "Utah State Senator",
   "state": "UT District 11 (Eagle Mountain / Tooele, Utah County)",
   "party": "F", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2025-12",
@@ -11831,7 +12025,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // Representative was corrected to match its already-correct sibling rather than
  // being left to fail 6's chamber check the moment this record appeared.
  "stephanie_pitcher": {
-  "name": "Stephanie Pitcher", "office": "Utah State Senator",
+  "name": "Stephanie Pitcher", "photo": "https://le.utah.gov/images/legislator/PITCHS.jpg", "office": "Utah State Senator",
   "state": "UT District 14 (Salt Lake City / Millcreek, Salt Lake County)",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2023-01",
@@ -11841,14 +12035,14 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // same territory is District 15 under post-2023 numbering, which is the number
  // this map keys on.
  "kathleen_riebe": {
-  "name": "Kathleen Riebe", "office": "Utah State Senator",
+  "name": "Kathleen Riebe", "photo": "https://le.utah.gov/images/legislator/RIEBEK.jpg", "office": "Utah State Senator",
   "state": "UT District 15 (Cottonwood Heights, Salt Lake County)",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2019-01",
   "issues": ["Public Schools", "Healthcare Access", "Clean Air & Great Salt Lake", "Workers & Labor Rights", "Student & Youth Health"]
  },
  "heidi_balderree": {
-  "name": "Heidi Balderree", "office": "Utah State Senator",
+  "name": "Heidi Balderree", "photo": "https://le.utah.gov/images/legislator/BALDEH.jpg", "office": "Utah State Senator",
   "state": "UT District 22 (Saratoga Springs / Bluffdale, Utah County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2023-10",
@@ -11869,7 +12063,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // District 55 is a Utah County seat (Pleasant Grove / American Fork), which is why
  // this pass also corrects _UTAH_HOUSE_COUNTY[55] from 'Salt Lake County'.
  "jon_hawkins": {
-  "name": "Jon Hawkins", "office": "Utah State Representative",
+  "name": "Jon Hawkins", "photo": "https://le.utah.gov/images/legislator/HAWKIJ.jpg", "office": "Utah State Representative",
   "state": "UT District 55 (Pleasant Grove / American Fork, Utah County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2019-01",
@@ -11895,7 +12089,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // the Utah Sheriffs' Association. A county office, so no district wiring applies.
  // Icon matches the one his own curated stance block already uses.
  "mike_smith_sheriff": {
-  "name": "Mike Smith", "office": "Utah County Sheriff",
+  "name": "Mike Smith", "photo": "https://sheriff.utahcounty.gov/images/People/SheriffSmithHat.jpg", "office": "Utah County Sheriff",
   "state": "Utah · Utah County",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🛡",
   "termStart": "2018-08",
@@ -11910,7 +12104,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // The year range in `state` time-qualifies the district the same way Brammer's
  // House cards do, so no surface reads it as a live claim on seat 60.
  "tyler_clancy": {
-  "name": "Tyler Clancy", "office": "Utah State Homeless Coordinator · Former UT State Representative",
+  "name": "Tyler Clancy", "photo": "https://jobs.utah.gov/homelessness/images/tclancy.jpg", "office": "Utah State Homeless Coordinator · Former UT State Representative",
   "state": "UT District 60 (Provo, Utah County) 2023–2026",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2023-01", "termEnd": "2026-03",
@@ -11923,7 +12117,7 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // Utah County Commission Seat A; the general election is Nov 2026. Both facts are
  // time-qualified in `office`, so no surface claims she currently holds either post.
  "michelle_kaufusi": {
-  "name": "Michelle Kaufusi", "office": "Former Mayor, Provo · 2026 Utah County Commission Nominee (Seat A)",
+  "name": "Michelle Kaufusi", "photo": "https://teamkaufusi.com/wp-content/uploads/2026/02/Head-Shot-Red-Suit-1024x1024.jpg", "photoSource": "campaign", "office": "Former Mayor, Provo · 2026 Utah County Commission Nominee (Seat A)",
   "state": "Utah",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2018-01", "termEnd": "2026-01",
@@ -11993,161 +12187,161 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // district 13 on the roster, the printed initial plus the district in the cell's own
  // leglookup link resolves all three uniquely.
  "thomas_peterson": {
-  "name": "Thomas W. Peterson", "office": "Utah State Representative",
+  "name": "Thomas W. Peterson", "photo": "https://le.utah.gov/images/legislator/PETERT.jpg", "office": "Utah State Representative",
   "state": "UT District 1 (Box Elder / Cache County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2022-09",
   "issues": ["Wildfire Safety", "Building & Infrastructure", "Trades & Small Business", "Water Infrastructure", "Veterans"]
  },
  "mike_petersen": {
-  "name": "Michael J. Petersen", "office": "Utah State Representative",
+  "name": "Michael J. Petersen", "photo": "https://le.utah.gov/images/legislator/PETERM.jpg", "office": "Utah State Representative",
   "state": "UT District 2 (Cache County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2021-01",
   "issues": ["Election Integrity", "Transparency & Accountability", "Religious Liberty", "Property Rights", "Income Taxes"]
  },
  "jason_thompson": {
-  "name": "Jason E. Thompson", "office": "Utah State Representative",
+  "name": "Jason E. Thompson", "photo": "https://le.utah.gov/images/legislator/THOMJA.jpg", "office": "Utah State Representative",
   "state": "UT District 3 (Cache County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2025-01",
   "issues": ["Child Care", "Opioids & Overdose", "Small Business & Licensing", "Higher Education", "Overdose Recognition"]
  },
  "ryan_d_wilcox": {
-  "name": "Ryan D. Wilcox", "office": "Utah State Representative",
+  "name": "Ryan D. Wilcox", "photo": "https://le.utah.gov/images/legislator/WILCORD.jpg", "office": "Utah State Representative",
   "state": "UT District 7 (Weber County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2021-01",
   "issues": ["Child Online Safety", "School Safety & Student Health", "Limited Government", "Public Safety & Crime", "Gun Rights"]
  },
  "jason_b_kyle": {
-  "name": "Jason B. Kyle", "office": "Utah State Representative",
+  "name": "Jason B. Kyle", "photo": "https://le.utah.gov/images/legislator/KYLEJB.jpg", "office": "Utah State Representative",
   "state": "UT District 8 (Morgan / Weber County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2023-01",
   "issues": ["Gun Rights", "Addiction Recovery", "Higher Education", "Property & Farmland Taxes", "Election Integrity"]
  },
  "karen_m_peterson": {
-  "name": "Karen M. Peterson", "office": "Utah State Representative",
+  "name": "Karen M. Peterson", "photo": "https://le.utah.gov/images/legislator/PETERK.jpg", "office": "Utah State Representative",
   "state": "UT District 13 (Davis County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2022-01",
   "issues": ["Public Schools", "Roads & Infrastructure", "Economic Development & Innovation", "Higher-Ed Workforce Alignment", "Local Government"]
  },
  "stewart_e_barlow": {
-  "name": "Stewart E. Barlow", "office": "Utah State Representative",
+  "name": "Stewart E. Barlow", "photo": "https://le.utah.gov/images/legislator/BARLOSE.jpg", "office": "Utah State Representative",
   "state": "UT District 17 (Davis County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2011-09",
   "issues": ["Healthcare Workforce", "Mental Health Access", "Public Health Authority", "Medical Workforce Pipeline", "Cultural & Antiquities Preservation"]
  },
  "paul_a_cutler": {
-  "name": "Paul A. Cutler", "office": "Utah State Representative",
+  "name": "Paul A. Cutler", "photo": "https://le.utah.gov/images/legislator/CUTLEP.jpg", "office": "Utah State Representative",
   "state": "UT District 18 (Davis County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2023-01",
   "issues": ["Roads & Infrastructure", "Transparency & Accountability", "Election Integrity", "Courts & Civil Law", "Artificial Intelligence Policy"]
  },
  "mballard": {
-  "name": "Melissa G. Ballard", "office": "Utah State Representative",
+  "name": "Melissa G. Ballard", "photo": "https://le.utah.gov/images/legislator/BALLAMG.jpg", "office": "Utah State Representative",
   "state": "UT District 20 (Davis County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2019-01",
   "issues": ["Higher Education", "Criminal-Justice Reform", "Child Labor Protections", "Clean-Vehicle Incentives", "Government Efficiency"]
  },
  "matt_macpherson": {
-  "name": "Matt MacPherson", "office": "Utah State Representative",
+  "name": "Matt MacPherson", "photo": "https://le.utah.gov/images/legislator/MACPHM.jpg", "office": "Utah State Representative",
   "state": "UT District 26 (Salt Lake County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2023-10",
   "issues": ["Gun Rights", "Small Business & Licensing", "Student Data Security", "School Safety", "Limited Government"]
  },
  "anthony_loubet": {
-  "name": "Anthony E. Loubet", "office": "Utah State Representative",
+  "name": "Anthony E. Loubet", "photo": "https://le.utah.gov/images/legislator/LOUBEA.jpg", "office": "Utah State Representative",
   "state": "UT District 27 (Salt Lake County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2023-01",
   "issues": ["Transparency & Open Records", "Public Safety & Policing", "Child Safety", "Workers' Compensation & Costs", "Courts & Civil Law"]
  },
  "sahara_hayes": {
-  "name": "Sahara Hayes", "office": "Utah State Representative",
+  "name": "Sahara Hayes", "photo": "https://le.utah.gov/images/legislator/HAYESS.jpg", "office": "Utah State Representative",
   "state": "UT District 32 (Salt Lake County)",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2023-01",
   "issues": ["Gun Rights", "Transparency & Accountability", "LGBTQ+ Rights", "Victim Privacy", "Student Athlete Protections"]
  },
  "rosalba_dominguez": {
-  "name": "Rosalba Dominguez", "office": "Utah State Representative",
+  "name": "Rosalba Dominguez", "photo": "https://le.utah.gov/images/legislator/DOMINR.jpg", "office": "Utah State Representative",
   "state": "UT District 35 (Salt Lake County)",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2025-01",
   "issues": ["Transparency & Accountability", "Housing Affordability", "Renewable Energy & Water", "Families in Need", "Women's Health"]
  },
  "cheryl_acton": {
-  "name": "Cheryl K. Acton", "office": "Utah State Representative",
+  "name": "Cheryl K. Acton", "photo": "https://le.utah.gov/images/legislator/ACTONCK.jpg", "office": "Utah State Representative",
   "state": "UT District 38 (Salt Lake County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2017-09",
   "issues": ["Agriculture & Rural Communities", "Public Schools", "Transparency & Accountability", "Disability & Person-Centered Services", "Child Welfare & Kinship Placement"]
  },
  "andrew_stoddard": {
-  "name": "Andrew Stoddard", "office": "Utah State Representative",
+  "name": "Andrew Stoddard", "photo": "https://le.utah.gov/images/legislator/STODDA.jpg", "office": "Utah State Representative",
   "state": "UT District 40 (Salt Lake County)",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2019-01",
   "issues": ["Criminal Justice & Public Safety", "Public Schools", "Workers & Cost of Living", "Housing Affordability", "Reproductive Rights"]
  },
  "mark_strong": {
-  "name": "Mark A. Strong", "office": "Utah State Representative",
+  "name": "Mark A. Strong", "photo": "https://le.utah.gov/images/legislator/STRONMA.jpg", "office": "Utah State Representative",
   "state": "UT District 47 (Salt Lake County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2019-01",
   "issues": ["Public Safety", "School Fees", "Children & Families", "Consumer Protection", "Medical Freedom"]
  },
  "doug_fiefia": {
-  "name": "Doug Fiefia", "office": "Utah State Representative",
+  "name": "Doug Fiefia", "photo": "https://le.utah.gov/images/legislator/FIEFID.jpg", "office": "Utah State Representative",
   "state": "UT District 48 (Salt Lake County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2025-01",
   "issues": ["Children in State Care", "Data Ownership & Privacy", "Faster Election Results", "Frontier AI Transparency", "Inmate Healthcare Costs"]
  },
  "kristen_chevrier": {
-  "name": "Kristen Chevrier", "office": "Utah State Representative",
+  "name": "Kristen Chevrier", "photo": "https://le.utah.gov/images/legislator/CHEVRK.jpg", "office": "Utah State Representative",
   "state": "UT District 54 (Utah County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2025-01",
   "issues": ["Public Schools", "Medical Freedom & Informed Consent", "Raw Milk & Food Freedom", "SNAP Nutrition Reform", "Vehicle Data Privacy"]
  },
  "nelson_abbott": {
-  "name": "Nelson T. Abbott", "office": "Utah State Representative",
+  "name": "Nelson T. Abbott", "photo": "https://le.utah.gov/images/legislator/ABBOTN.jpg", "office": "Utah State Representative",
   "state": "UT District 57 (Utah County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2021-01",
   "issues": ["Criminal Competency Reform", "Estate Planning for the Digital Age", "Local Government Accountability", "Guardianship & Disability Rights", "Civil Commitment Reform"]
  },
  "david_shallenberger": {
-  "name": "David Shallenberger", "office": "Utah State Representative",
+  "name": "David Shallenberger", "photo": "https://le.utah.gov/images/legislator/SHALLD.jpg", "office": "Utah State Representative",
   "state": "UT District 58 (Utah County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2025-01",
   "issues": ["Agriculture & Rural Communities", "Roads & Infrastructure", "Privacy & Surveillance", "Water Conservation", "Energy Efficiency"]
  },
  "nthurston": {
-  "name": "Norman K Thurston", "office": "Utah State Representative",
+  "name": "Norman K Thurston", "photo": "https://le.utah.gov/images/legislator/THURSNK.jpg", "office": "Utah State Representative",
   "state": "UT District 62 (Utah County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2015-01",
   "issues": ["Prescription Drug Costs", "Income Taxes", "Public Safety & Crime", "Election Integrity", "Health Workforce Access"]
  },
  "joseph_elison": {
-  "name": "Joseph Elison", "office": "Utah State Representative",
+  "name": "Joseph Elison", "photo": "https://le.utah.gov/images/legislator/ELISOJ.jpg", "office": "Utah State Representative",
   "state": "UT District 72 (Washington County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2023-01",
   "issues": ["Great Salt Lake & Water", "Online Education Accountability", "Retirement Readiness", "Anti-Gambling Enforcement", "State Fiscal Sovereignty"]
  },
  "r_neil_walter": {
-  "name": "R. Neil Walter", "office": "Utah State Representative",
+  "name": "R. Neil Walter", "photo": "https://le.utah.gov/images/legislator/WALTER.jpg", "office": "Utah State Representative",
   "state": "UT District 74 (Washington County)",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2023-01",
@@ -12184,28 +12378,28 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
  // him, so with this record there are two non-R/D entries and only one of them holds
  // a seat.
  "gay_lynn_bennion": {
-  "name": "Gay Lynn Bennion", "office": "Former UT State Representative",
+  "name": "Gay Lynn Bennion", "photo": "https://le.utah.gov/images/legislator/BENNIGL.jpg", "office": "Former UT State Representative",
   "state": "UT District 41 (Cottonwood Heights, Salt Lake County) 2023–2025",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2021", "termEnd": "2025-12",
   "issues": ["Public Education", "Healthcare Access", "Reproductive Rights", "Youth Mental Health", "Air Quality & Environment"]
  },
  "jefferson_moss": {
-  "name": "Jefferson Moss", "office": "Former UT State Representative",
+  "name": "Jefferson Moss", "photo": "https://le.utah.gov/images/legislator/MOSSJ.jpg", "office": "Former UT State Representative",
   "state": "UT District 51 (Saratoga Springs / west Lehi, Utah County) 2023–2025",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2017", "termEnd": "2025-08",
   "issues": ["Tech Economy & Jobs", "Workforce Education", "Broadband & Connectivity", "Government Efficiency", "Taxes & Growth"]
  },
  "jefferson_burton": {
-  "name": "Jefferson S. Burton", "office": "Former UT State Representative",
+  "name": "Jefferson S. Burton", "photo": "https://le.utah.gov/images/legislator/BURTOJS.jpg", "office": "Former UT State Representative",
   "state": "UT District 64 (Spanish Fork / Salem, Utah County) 2023–2026",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2021", "termEnd": "2026-05",
   "issues": []
  },
  "daniel_thatcher": {
-  "name": "Daniel W. Thatcher", "office": "Former UT State Senator",
+  "name": "Daniel W. Thatcher", "photo": "https://le.utah.gov/images/legislator/THATCDW.jpg", "office": "Former UT State Senator",
   "state": "UT District 11 (Eagle Mountain / Tooele, Utah County) 2023–2025",
   "party": "F", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "termStart": "2011", "termEnd": "2025-12",
@@ -12225,112 +12419,112 @@ Object.assign((window.CMP_DATA = window.CMP_DATA || {}),
 // current https://le.utah.gov/data/legislators.json in either chamber.
  // Seated 2023 & 2024; House District 4.
  "kera_birkeland": {
-  "name": "Kera Birkeland", "office": "Former UT State Representative",
+  "name": "Kera Birkeland", "photo": "https://le.utah.gov/images/legislator/BIRKEK.jpg", "office": "Former UT State Representative",
   "state": "UT District 4",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Utah House District 4"]
  },
  // Seated 2023 & 2024; Senate District 4.
  "david_buxton": {
-  "name": "David G. Buxton", "office": "Former UT State Senator",
+  "name": "David G. Buxton", "photo": "https://le.utah.gov/images/legislator/BUXTODG.jpg", "office": "Former UT State Senator",
   "state": "UT District 4",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Utah Senate District 4"]
  },
  // Seated 2023 & 2024; House District 24.
  "joel_briscoe": {
-  "name": "Joel K. Briscoe", "office": "Former UT State Representative",
+  "name": "Joel K. Briscoe", "photo": "https://le.utah.gov/images/legislator/BRISCJK.jpg", "office": "Former UT State Representative",
   "state": "UT District 24",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Utah House District 24"]
  },
  // Seated 2023 & 2024; House District 48.
  "james_cobb": {
-  "name": "James F. Cobb", "office": "Former UT State Representative",
+  "name": "James F. Cobb", "photo": "https://le.utah.gov/images/legislator/COBBJ.jpg", "office": "Former UT State Representative",
   "state": "UT District 48",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Utah House District 48"]
  },
  // Seated 2023 & 2024; House District 31.
  "brett_garner": {
-  "name": "Brett Garner", "office": "Former UT State Representative",
+  "name": "Brett Garner", "photo": "https://le.utah.gov/images/legislator/GARNEB.jpg", "office": "Former UT State Representative",
   "state": "UT District 31",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Utah House District 31"]
  },
  // Seated 2023 & 2024; House District 28.
  "tim_jimenez": {
-  "name": "Tim Jimenez", "office": "Former UT State Representative",
+  "name": "Tim Jimenez", "photo": "https://le.utah.gov/images/legislator/JIMENT.jpg", "office": "Former UT State Representative",
   "state": "UT District 28",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Utah House District 28"]
  },
  // Seated 2023 & 2024; House District 23.
  "brian_king": {
-  "name": "Brian S. King", "office": "Former UT State Representative",
+  "name": "Brian S. King", "photo": "https://le.utah.gov/images/legislator/KINGBS.jpg", "office": "Former UT State Representative",
   "state": "UT District 23",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Utah House District 23"]
  },
  // Seated 2023 & 2024; House District 10.
  "rosemary_lesser": {
-  "name": "Rosemary T. Lesser", "office": "Former UT State Representative",
+  "name": "Rosemary T. Lesser", "photo": "https://le.utah.gov/images/legislator/LESSER.jpg", "office": "Former UT State Representative",
   "state": "UT District 10",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Utah House District 10"]
  },
  // Seated 2023 & 2024; House District 66.
  "steven_lund": {
-  "name": "Steven J. Lund", "office": "Former UT State Representative",
+  "name": "Steven J. Lund", "photo": "https://le.utah.gov/images/legislator/LUNDSJ.jpg", "office": "Former UT State Representative",
   "state": "UT District 66",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Utah House District 66"]
  },
  // Seated 2023 & 2024; House District 45.
  "susan_pulsipher": {
-  "name": "Susan Pulsipher", "office": "Former UT State Representative",
+  "name": "Susan Pulsipher", "photo": "https://le.utah.gov/images/legislator/PULSIS.jpg", "office": "Former UT State Representative",
   "state": "UT District 45",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Utah House District 45"]
  },
  // Seated 2023 & 2024; House District 30.
  "judy_weeks_rohner": {
-  "name": "Judy Weeks Rohner", "office": "Former UT State Representative",
+  "name": "Judy Weeks Rohner", "photo": "https://le.utah.gov/images/legislator/ROHNEJ.jpg", "office": "Former UT State Representative",
   "state": "UT District 30",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Utah House District 30"]
  },
  // Seated 2023 & 2024; House District 42.
  "robert_spendlove": {
-  "name": "Robert M. Spendlove", "office": "Former UT State Representative",
+  "name": "Robert M. Spendlove", "photo": "https://le.utah.gov/images/legislator/SPENDRM.jpg", "office": "Former UT State Representative",
   "state": "UT District 42",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Utah House District 42"]
  },
  // Seated 2023 & 2024; House District 46.
  "jeffrey_stenquist": {
-  "name": "Jeffrey D. Stenquist", "office": "Former UT State Representative",
+  "name": "Jeffrey D. Stenquist", "photo": "https://le.utah.gov/images/legislator/STENQJ.jpg", "office": "Former UT State Representative",
   "state": "UT District 46",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Utah House District 46"]
  },
  // Seated 2023 & 2024; House District 35.
  "mark_wheatley": {
-  "name": "Mark A. Wheatley", "office": "Former UT State Representative",
+  "name": "Mark A. Wheatley", "photo": "https://le.utah.gov/images/legislator/WHEATMA.jpg", "office": "Former UT State Representative",
   "state": "UT District 35",
   "party": "D", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Utah House District 35"]
  },
  // Seated 2023 only; Senate District 22.
  "jacob_anderegg": {
-  "name": "Jacob L. Anderegg", "office": "Former UT State Senator",
+  "name": "Jacob L. Anderegg", "photo": "https://le.utah.gov/images/legislator/ANDERJL.jpg", "office": "Former UT State Senator",
   "state": "UT District 22",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Utah Senate District 22"]
  },
  // Seated 2023 only; House District 26.
  "quinn_kotter": {
-  "name": "Quinn Kotter", "office": "Former UT State Representative",
+  "name": "Quinn Kotter", "photo": "https://le.utah.gov/images/legislator/KOTTEQ.jpg", "office": "Former UT State Representative",
   "state": "UT District 26",
   "party": "R", "score": null, "kept": 0, "broken": 0, "pending": 0, "icon": "🏛",
   "issues": ["Utah House District 26"]

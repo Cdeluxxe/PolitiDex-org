@@ -67,7 +67,7 @@ ok(!/https?:\/\/[^'"\s]*\.(?:jpe?g|png|webp)/i.test(MOD), "district-board.js hol
 // ═════════════════════════════════════════════════════════════════════════════
 // The board, booted the way its document boots it.
 // ═════════════════════════════════════════════════════════════════════════════
-function boot(alias, { join = false, mod = MOD, reader = true, profiles = null } = {}) {
+function boot(alias, { join = false, mod = MOD, reader = true, profiles = null, strip = null } = {}) {
   const win = makeSandbox();
   win.__PDX_DISTRICT_BOARD_SEAT = alias;
   if (profiles) win.PROFILES = profiles;
@@ -76,7 +76,13 @@ function boot(alias, { join = false, mod = MOD, reader = true, profiles = null }
   if (reader) files.push("roster-portrait.js");
   files.push("issue-map.js");
   if (join) files.push("voter-hub-location.js");
-  for (const f of files) vm.runInContext(R(f), ctx, { filename: f });
+  for (const f of files) {
+    vm.runInContext(R(f), ctx, { filename: f });
+    // A fixture seat with no portrait. Since Person photos wave 1 (v326) every Utah
+    // board holder carries one, so the mark path is exercised by removing a row's
+    // field here rather than by waiting for a real seat to have none.
+    if (f === "cmp-data.js" && strip && win.CMP_DATA[strip]) delete win.CMP_DATA[strip].photo;
+  }
   must(typeof win._getPhotoUrl !== "function", `${alias}: a board carries no _getPhotoUrl`);
   vm.runInContext(mod, ctx, { filename: "district-board.js" });
   const M = win.PDXDistrictBoard;
@@ -123,7 +129,7 @@ section("2 · UT-2 paints the portrait the card already had, and links /p/maloy"
 section("3 · a pid with no portrait anywhere paints the building mark");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  const { M, html, win, field } = boot("ut-sd-3");
+  const { M, html, win, field } = boot("ut-sd-3", { strip: "john_johnson" });
   eq(M.PID, "john_johnson", "ut-sd-3: the holder");
   eq(field("john_johnson"), "", "john_johnson has no roster portrait (fixture)");
   eq(win.CMP_DATA.john_johnson.icon, "🏛", "the roster row's mark is the building");
@@ -162,13 +168,13 @@ section("4 · HD-29 and ut-gov paint through the same renderer");
 // ═════════════════════════════════════════════════════════════════════════════
 section("5 · every board's face is the roster field, and a wrong one is caught");
 // ═════════════════════════════════════════════════════════════════════════════
-function checkAll(mod) {
+function checkAll(mod, strip = null) {
   const bad = [];
   const BOARDS = boot("ut-sd-3", { mod }).M.BOARDS;
   let photos = 0, marks = 0;
   for (const k of Object.keys(BOARDS)) {
     const b = BOARDS[k];
-    const r = boot(b.alias, { join: !!b.usHouse, mod });
+    const r = boot(b.alias, { join: !!b.usHouse, mod, strip });
     const pid = r.M.PID;
     if (!pid) { bad.push(`${b.alias}: no holder`); continue; }
     const want = r.field(pid);
@@ -188,7 +194,11 @@ function checkAll(mod) {
   const { bad, photos, marks, n } = checkAll(MOD);
   for (const m of bad) failures.push(m);
   ok(n >= 88, `all boards walked (${n})`);
-  ok(photos > 20 && marks > 20, `both shapes are exercised (${photos} photos, ${marks} marks)`);
+  ok(photos > 20, `the photo shape is exercised (${photos} photos, ${marks} marks)`);
+  // Both shapes, on the same walk: one holder's field removed, so the mark path runs too.
+  const fx = checkAll(MOD, "john_johnson");
+  for (const m of fx.bad) failures.push("fixture: " + m);
+  ok(fx.marks >= 1 && fx.photos > 20, `both shapes are exercised (${fx.photos} photos, ${fx.marks} marks, one field removed)`);
   // The two seats whose face used to be filed under another key now hold it on
   // their own row, so the board needs no alias hop to find it.
   for (const [alias, pid] of [["ut-hd-44", "teuscher_h44"], ["ut-sd-18", "mccay_s11"]]) {

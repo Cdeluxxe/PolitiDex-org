@@ -248,12 +248,21 @@ const tomlHosts = [...(/remote_images\s*=\s*\[([\s\S]*?)\]/.exec(toml)?.[1] || "
     }
   }
 
-  // The allowlist itself did not widen. A wave that needs a seventh host is a wave that
-  // needs to argue for it, and scripts/test-photo-coverage.mjs pins the same six.
+  // F8 did not widen the allowlist. A wave that needs another host is a wave that has to
+  // argue for it, and Person photos wave 1 (v326) did: every host it added is an official
+  // .gov / .us host that a stored portrait sits on, vetted in scripts/test-photo-coverage.mjs.
+  // So F8's six must all still be there, and anything beyond them must be .gov / .us and
+  // named in that test's trusted set. Wave 1b (v327) added a few campaign hosts for rows
+  // with no official portrait, and wave 1d (v329) the Facebook Graph host; those are
+  // allowed only inside that test's campaign-hosts and facebook-hosts blocks, where
+  // each one was argued for.
   for (const h of ALLOWED_HOSTS) ok(tomlHosts.includes(h), `netlify.toml no longer allows ${h}`);
-  eq(tomlHosts.filter((h) => !ALLOWED_HOSTS.includes(h)).join(", "), "",
-    "netlify.toml's image allowlist gained a host this wave did not argue for");
-  eq(tomlHosts.length, 6, "netlify.toml's image allowlist is no longer exactly six hosts");
+  const vetted = readFileSync(join(ROOT, "scripts/test-photo-coverage.mjs"), "utf8");
+  const cb = vetted.indexOf("// campaign-hosts:begin"), ce = vetted.indexOf("// facebook-hosts:end");
+  const campaign = cb >= 0 && ce > cb ? vetted.slice(cb, ce) : "";
+  eq(tomlHosts.filter((h) => !ALLOWED_HOSTS.includes(h))
+       .filter((h) => !vetted.includes(`"${h}"`) || !(/\.(gov|us)$/.test(h) || campaign.includes(`"${h}"`))).join(", "), "",
+    "netlify.toml's image allowlist gained a host that is neither an official .gov / .us host nor an argued campaign host vetted by test-photo-coverage");
 
   // NO INVENTED PROFILE. The brief forbids a fabricated CMP_DATA bio, and the thing the
   // identity check actually needed was a name — so a name is all F8 declared, and F8
