@@ -24,6 +24,13 @@
 //                                       politician=<id> (only proposals linked to
 //                                         that politician — powers the "Related
 //                                         Proposals" section on a profile)
+//                                       seat=<seat key or alias> (only proposals
+//                                         that name that seat: its key or alias
+//                                         in linked_race_ids, OR the seat's
+//                                         sitting member — `member=<id>` — in
+//                                         linked_politician_ids. Powers the
+//                                         Mandates rows on the five composer
+//                                         district boards. Read-only; same store.)
 //   POST /                     submit a proposal
 //                                body: { title, description, category?,
 //                                        submitterName?, submitterKey?,
@@ -132,6 +139,28 @@ type ProposalDTO = {
   linkedRaceIds: string[];
 };
 
+// ── A SEAT, IN BOTH OF ITS SPELLINGS ─────────────────────────────────────────
+// linked_race_ids is free-form, so a mandate can name SD-3 as `ut-sd-3` or as
+// `ut-statesenate-3`. Both spellings are matched, case-insensitively, and nothing
+// else: the same two shapes district-board.js and district-board.mts accept.
+// Anything that is not a seat shape answers [] and the filter matches nothing.
+const SEAT_KEY_RE = /^([a-z]{2})-(house|statesenate|statehouse)-([1-9][0-9]*)$/;
+const SEAT_ALIAS_RE = /^([a-z]{2})-(hd|sd|cd)-([1-9][0-9]*)$/;
+const ALIAS_TO_CHAMBER: Record<string, string> = { hd: "statehouse", sd: "statesenate", cd: "house" };
+const CHAMBER_TO_ALIAS: Record<string, string> = { statehouse: "hd", statesenate: "sd", house: "cd" };
+const STATEWIDE_RE = /^[a-z]{2}-(?:gov|us-senate-[a-z][a-z0-9_]*)$/;
+
+function seatSpellings(raw: unknown): string[] {
+  const s = clean(raw, LINK_ID_MAX).toLowerCase();
+  if (!s) return [];
+  if (STATEWIDE_RE.test(s)) return [s];
+  let m = SEAT_ALIAS_RE.exec(s);
+  if (m) return [s, `${m[1]}-${ALIAS_TO_CHAMBER[m[2]]}-${m[3]}`];
+  m = SEAT_KEY_RE.exec(s);
+  if (m) return [`${m[1]}-${CHAMBER_TO_ALIAS[m[2]]}-${m[3]}`, s];
+  return [];
+}
+
 // ── GET / — list proposals + live stats ──────────────────────────────────────
 async function listProposals(url: URL): Promise<Response> {
   const sort = url.searchParams.get("sort") === "new" ? "new" : "top";
@@ -139,11 +168,26 @@ async function listProposals(url: URL): Promise<Response> {
   // Optional: restrict to proposals linked to one politician (their profile id).
   // Powers the "Related Proposals" section rendered on a politician's profile.
   const politician = clean(url.searchParams.get("politician"), LINK_ID_MAX);
+  // Optional: restrict to proposals that name one seat (see seatSpellings()),
+  // or the member who sits in it. A `seat` that is not a seat shape is still a
+  // seat filter — its race half matches nothing rather than falling back to
+  // every row.
+  const seatAsked = url.searchParams.has("seat");
+  const seatIds = seatSpellings(url.searchParams.get("seat"));
+  const member = clean(url.searchParams.get("member"), LINK_ID_MAX);
 
   // Base filter is always "active". When a politician is requested we add a jsonb
   // containment check (`@>`) so only proposals whose linked_politician_ids array
   // includes that id come back — a single indexed-friendly predicate, no join.
-  const where = politician
+  const raceMatch = seatIds.length
+    ? sql`EXISTS (SELECT 1 FROM jsonb_array_elements_text(COALESCE(${pdxProposals.linkedRaceIds}, '[]'::jsonb)) AS r(id) WHERE lower(r.id) IN (${sql.join(seatIds.map((id) => sql`${id}`), sql`, `)}))`
+    : sql`false`;
+  const memberMatch = member
+    ? sql`COALESCE(${pdxProposals.linkedPoliticianIds}, '[]'::jsonb) @> ${JSON.stringify([member])}::jsonb`
+    : sql`false`;
+  const where = seatAsked
+    ? and(eq(pdxProposals.status, "active"), sql`(${raceMatch} OR ${memberMatch})`)
+    : politician
     ? and(
         eq(pdxProposals.status, "active"),
         sql`${pdxProposals.linkedPoliticianIds} @> ${JSON.stringify([politician])}::jsonb`

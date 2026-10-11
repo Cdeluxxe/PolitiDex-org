@@ -9189,7 +9189,17 @@
 //     board seat the saved location names; so the shell moves one version.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none. No table, row, key or seat moved.
-const CACHE_VERSION = 'v334';
+// v335 - THE COMPOSER BOARDS LIST THE MANDATES THAT NAME THE SEAT. On the five
+//     composer boards band 3 ("On the table") reads /api/mandate-proposals for
+//     the proposals that name the seat or its sitting member and prints each as
+//     a row (title, short status, a link to its card on /mandate), with a
+//     "Mandates" chip that appears only when one exists. Generated and statewide
+//     boards do not make the read. district-board.js, district-board.css and
+//     mandate-lane.js (which now honours a #pp-card-<id> link) are precached and
+//     changed, so the shell moves one version. No location key or other saved
+//     key was touched.
+//     MIGRATION COST: none. No table, row, key or seat moved.
+const CACHE_VERSION = 'v335';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

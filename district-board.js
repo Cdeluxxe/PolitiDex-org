@@ -604,6 +604,14 @@
     findPlaceholder: 'Title or bill number',
     findNone: 'No measure in view matches that search.',
     tableUnfiled: 'Not filed under an issue',
+    // THE MANDATE ROWS, on the five composer boards only. A mandate is a reform
+    // proposal from /mandate that names this seat (its key in the proposal's
+    // race links) or the member who sits in it. Its count is shows of support —
+    // momentum, the Mandate lane's own word — never a vote and never a measure.
+    catMandates: 'Mandates',
+    mandatesHead: 'Mandates that name this seat',
+    mandateStatus: 'Open proposal',
+    mandateHref: '/mandate',
 
     // THE GATE IS A RESIDENCY CHECK FOR THIS SEAT, nothing else. The second
     // sentence is district-composer.js's LOCKED_LINE, word for word, so the
@@ -1000,6 +1008,77 @@
       '</details>';
   }
 
+  // ── THE MANDATE ROWS ──────────────────────────────────────────────────────
+  // One group, after the issue groups, and only when at least one mandate names
+  // the seat. Its chip key is not an issue key — the leading '@' is a shape no
+  // vocabulary key takes — so it can never collide with an issue group, and its
+  // block is marked data-pdxdb-mandates rather than data-pdxdb-group, so the
+  // poll module (which decorates every issue group) gives it no poll.
+  var MANDATE_KEY = '@mandates';
+
+  // The rows the read returned that can be printed: an integer id (the link
+  // needs one) and a title. The read's own order is kept.
+  function mandateRows(list) {
+    var arr = Array.isArray(list) ? list : [];
+    var out = [], seen = {};
+    for (var i = 0; i < arr.length; i++) {
+      var m = arr[i];
+      if (!m) continue;
+      var id = m.id;
+      if (typeof id !== 'number' || !isFinite(id) || id < 1 || Math.floor(id) !== id) continue;
+      if (!String(m.title || '').trim() || seen[id]) continue;
+      seen[id] = 1;
+      out.push(m);
+    }
+    return out;
+  }
+
+  function mandateFind(m) { return String(m.title || '').toLowerCase(); }
+
+  function supportWord(n) { return n === 1 ? '1 show of support' : n + ' shows of support'; }
+
+  function mandateRow(m, hidden) {
+    var title = String(m.title || '').trim();
+    var n = whole(m.supportCount);
+    var href = COPY.mandateHref + '#pp-card-' + m.id;
+    return '<li class="pdxdb-mandate" data-pdxdb-mandate="' + esc(String(m.id)) + '"' +
+        ' data-pdxdb-find="' + esc(mandateFind(m)) + '"' + (hidden ? ' hidden' : '') + '>' +
+        '<a class="pdxdb-m-link" href="' + esc(href) + '">' + esc(title) + '</a>' +
+        '<span class="pdxdb-mandate-st">' + esc(COPY.mandateStatus + ' · ' + supportWord(n)) + '</span>' +
+      '</li>';
+  }
+
+  function mandateState(hits) {
+    var q = normQuery(_view.q);
+    var shown = !_view.cat || _view.cat === MANDATE_KEY;
+    if (shown && q && !hits) shown = false;
+    var open;
+    if (q) open = hits > 0;
+    else if (_view.cat) open = true;
+    else if (Object.prototype.hasOwnProperty.call(_view.open, MANDATE_KEY)) open = !!_view.open[MANDATE_KEY];
+    else open = true;
+    return { shown: shown, open: open };
+  }
+
+  function mandatesHtml(rows) {
+    var q = normQuery(_view.q);
+    var hits = 0, body = '';
+    for (var i = 0; i < rows.length; i++) {
+      var hit = matches(mandateFind(rows[i]), q);
+      if (hit) hits++;
+      body += mandateRow(rows[i], !hit);
+    }
+    var st = mandateState(hits);
+    return '<details class="pdxdb-group pdxdb-group--mandates" data-pdxdb-mandates=""' +
+        (st.open ? ' open' : '') + (st.shown ? '' : ' hidden') + '>' +
+        '<summary class="pdxdb-group-h">' +
+          '<span class="pdxdb-group-l pdxdb-group-l--mandates">' + esc(COPY.mandatesHead) + '</span>' +
+          '<span class="pdxdb-group-n">' + esc(rows.length === 1 ? '1 mandate' : rows.length + ' mandates') + '</span>' +
+        '</summary>' +
+        '<ul class="pdxdb-mandates">' + body + '</ul>' +
+      '</details>';
+  }
+
   function catChip(key, label, n, skin) {
     var on = (_view.cat || '') === key;
     return '<button type="button" class="pdxdb-cat" data-pdxdb-cat="' + esc(key) + '"' +
@@ -1007,7 +1086,9 @@
         esc(label) + '<span class="pdxdb-cat-n">' + n + '</span></button>';
   }
 
-  function tableHtml(state, items, rooms) {
+  // `mandates` is optional: a caller that passes three arguments gets the
+  // table exactly as it was before mandate rows existed.
+  function tableHtml(state, items, rooms, mandates) {
     if (state === 'unread') {
       return band('table', COPY.tableBand, COPY.tableNote,
         '<p class="pdxdb-unread" role="status">' + esc(COPY.tableUnread) + '</p>',
@@ -1020,13 +1101,9 @@
     }
 
     var list = Array.isArray(items) ? items : [];
-    if (!list.length) {
-      return band('table', COPY.tableBand, COPY.tableNote,
-        '<p class="pdxdb-none">' + esc(COPY.tableEmpty) + '</p>', COPY.voiceFoot);
-    }
-
+    var mrows = mandateRows(mandates);
     var rows = tableRows(list);
-    if (!rows.length) {
+    if (!rows.length && !mrows.length) {
       return band('table', COPY.tableBand, COPY.tableNote,
         '<p class="pdxdb-none">' + esc(COPY.tableEmpty) + '</p>', COPY.voiceFoot);
     }
@@ -1038,18 +1115,24 @@
     // falls back to All rather than showing an empty table under a live chip.
     var live = false;
     for (var c = 0; c < G.groups.length; c++) if (G.groups[c].key === _view.cat) live = true;
+    if (mrows.length && _view.cat === MANDATE_KEY) live = true;
     if (!live) _view.cat = '';
 
-    var chips = catChip('', COPY.catAll, rows.length, '');
+    var chips = catChip('', COPY.catAll, rows.length + mrows.length, '');
     for (var i = 0; i < G.groups.length; i++) {
       var g = G.groups[i];
       chips += catChip(g.key, g.label, g.rows.length, issueSkin(g.key));
     }
+    if (mrows.length) chips += catChip(MANDATE_KEY, COPY.catMandates, mrows.length, '');
     var groups = '';
     for (var j = 0; j < G.groups.length; j++) {
       groups += groupHtml(G.groups[j].key, G.groups[j].label, G.groups[j].rows, tally, stance);
     }
     if (G.unfiled.length) groups += groupHtml('', '', G.unfiled, tally, stance);
+    // No measure on hand, but a mandate names the seat: the empty line still
+    // says so, and the mandate rows sit under it.
+    if (!rows.length) groups += '<p class="pdxdb-none">' + esc(COPY.tableEmpty) + '</p>';
+    if (mrows.length) groups += mandatesHtml(mrows);
 
     return band('table', COPY.tableBand, COPY.tableNote,
       '<div class="pdxdb-cats" role="group" aria-label="' + esc(COPY.catsLabel) + '">' + chips + '</div>' +
@@ -1058,12 +1141,17 @@
           ' placeholder="' + esc(COPY.findPlaceholder) + '" value="' + esc(_view.q) + '" /></label>' +
       '<div class="pdxdb-groups">' + groups + '</div>' +
       '<p class="pdxdb-none pdxdb-find-none" data-pdxdb-find-none' +
-        (anyShown(G) ? ' hidden' : '') + '>' + esc(COPY.findNone) + '</p>',
+        (anyShown(G, mrows) ? ' hidden' : '') + '>' + esc(COPY.findNone) + '</p>',
       COPY.voiceFoot);
   }
 
-  function anyShown(G) {
+  function anyShown(G, mrows) {
     var q = normQuery(_view.q);
+    if (mrows && mrows.length) {
+      var mh = 0;
+      for (var m = 0; m < mrows.length; m++) if (matches(mandateFind(mrows[m]), q)) mh++;
+      if (mandateState(mh).shown) return true;
+    }
     var all = G.groups.slice();
     if (G.unfiled.length) all.push({ key: '', rows: G.unfiled });
     for (var i = 0; i < all.length; i++) {
@@ -1101,6 +1189,20 @@
       groups[g].hidden = !st.shown;
       groups[g].open = st.open;
       if (st.shown) any = true;
+    }
+    var mb = el.querySelectorAll('[data-pdxdb-mandates]');
+    for (var b = 0; b < mb.length; b++) {
+      var mr = mb[b].querySelectorAll('[data-pdxdb-find]');
+      var mh = 0;
+      for (var x = 0; x < mr.length; x++) {
+        var mhit = matches(mr[x].getAttribute('data-pdxdb-find') || '', q);
+        if (mhit) mh++;
+        mr[x].hidden = !mhit;
+      }
+      var ms = mandateState(mh);
+      mb[b].hidden = !ms.shown;
+      mb[b].open = ms.open;
+      if (ms.shown) any = true;
     }
     var none = el.querySelector('[data-pdxdb-find-none]');
     if (none) none.hidden = any;
@@ -1147,7 +1249,11 @@
       var sum = t && fn(t.closest) ? t.closest('.pdxdb-group-h') : null;
       if (sum && !normQuery(_view.q)) {
         var d = sum.parentNode;
-        if (d && d.getAttribute) _view.open[d.getAttribute('data-pdxdb-group') || ''] = !d.open;
+        if (d && d.getAttribute) {
+          var gk = (d.hasAttribute && d.hasAttribute('data-pdxdb-mandates'))
+            ? MANDATE_KEY : (d.getAttribute('data-pdxdb-group') || '');
+          _view.open[gk] = !d.open;
+        }
       }
     });
     el.addEventListener('input', function (ev) {
@@ -1565,6 +1671,33 @@
     }
   }
 
+  // THE MANDATE READ, on the composer boards only. The same store and the same
+  // endpoint /mandate reads (/api/mandate-proposals), asked for the rows that
+  // name this seat or its sitting member. Nothing is written. A read that fails
+  // resolves to no rows: a mandate row is an addition to band 3, not one of its
+  // three answers, so a failed read leaves the band exactly as it was rather
+  // than printing a claim about the Mandate it could not check.
+  var MANDATE_API = '/api/mandate-proposals';
+  function fetchMandates() {
+    try {
+      if (!composerOwned()) return Promise.resolve([]);
+      var pid = PID();
+      var url = MANDATE_API + '?seat=' + encodeURIComponent(ALIAS()) +
+        (pid ? '&member=' + encodeURIComponent(pid) : '');
+      return fetch(url, { headers: { accept: 'application/json' } })
+        .then(function (r) {
+          if (!r.ok) throw new Error('mandate-proposals ' + r.status);
+          return r.json();
+        })
+        .then(function (data) {
+          return (data && Array.isArray(data.proposals)) ? data.proposals : [];
+        })
+        .catch(function () { return []; });
+    } catch (e) {
+      return Promise.resolve([]);
+    }
+  }
+
   // ── MOUNT ─────────────────────────────────────────────────────────────────
   // Paints the three bands in order, twice: once immediately with both reads in
   // their waiting state, and once more as each answer lands. The first paint is
@@ -1585,6 +1718,8 @@
   var _tableSkipped = false;
   var _el = null;       // the mounted host, for refresh()
   var _issues = [];     // the issue keys the table last printed, for the composer
+  var _mandates = [];   // the mandate rows that name this seat (composer boards only)
+  var _mandateMember = null; // the member the mandate read was asked with
 
   // ── THE ONE BOARD THAT TAKES A VOICE ──────────────────────────────────────
   // district-composer.js owns the composer on the five boards whose documents
@@ -1617,6 +1752,7 @@
     paint(el);
     fetchCounts().then(function (d) { _counts = d; paint(el); });
     fetchTable().then(function (d) { _items = d; paint(el); });
+    loadMandates(el);
     // ── THE ROSTER MAY NOT BE HERE YET, AND BAND 1 IS THE BAND THAT CARES ────
     // A congressional board's holder comes from _pdxUsHouseSeat(), which walks
     // the roster — and cmp-data.js is DEFERRED, so the first paint can happen
@@ -1639,12 +1775,21 @@
             if (_tableSkipped && PID()) {
               fetchTable().then(function (d) { _items = d; paint(el); });
             }
+            // A member who resolved late is a member the mandate read did not
+            // ask about; ask again, once, with them.
+            if (composerOwned() && PID() !== _mandateMember) loadMandates(el);
             paint(el);
           } catch (e) {}
         });
       }
     } catch (e) {}
     return true;
+  }
+
+  function loadMandates(el) {
+    if (!composerOwned()) return;
+    _mandateMember = PID();
+    fetchMandates().then(function (d) { _mandates = mandateRows(d); paint(el); });
   }
 
   function paint(el) {
@@ -1671,7 +1816,7 @@
       purposeHtml() +
       seatHtml() +
       roomHtml(cState, _counts === FAILED ? null : _counts) +
-      tableHtml(tState, items, rooms) +
+      tableHtml(tState, items, rooms, _mandates) +
       stanceHtml(issues) +
       (composerOwned() ? '' : readOnlyHtml());
     if (typing) {
@@ -1808,6 +1953,9 @@
     _measureHref: measureHref,
     _rowIssues: rowIssues,
     _tableGroups: tableGroups,
+    _mandateRows: mandateRows,
+    MANDATE_KEY: MANDATE_KEY,
+    mandates: function () { return _mandates.slice(); },
     // THE READER'S VIEW OF BAND 3: a category chip ('' is All) and a search.
     setCategory: setCategory,
     setQuery: setQuery,

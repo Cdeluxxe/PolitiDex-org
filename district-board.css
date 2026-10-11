@@ -76,6 +76,17 @@
 .pdxdb-group-n { margin-left: auto; font-size: 0.78rem; color: #8496b0; font-variant-numeric: tabular-nums; }
 .pdxdb-group > .pdxdb-table { margin: 0 0 0.5rem; }
 
+/* THE MANDATE ROWS (the five composer boards only): one proposal per line,
+   its title linking to its card on /mandate and a short status beneath. A
+   reform proposal is not a measure, so its header label is gold rather
+   than an issue colour, and its rows carry no poll or comment columns. */
+.pdxdb-mandate[hidden] { display: none; }
+.pdxdb-group-l--mandates { border-color: #6b5a2a; color: #f1d98a; }
+.pdxdb-mandates { list-style: none; margin: 0 0 0.6rem; padding: 0; }
+.pdxdb-mandate { padding: 0.45rem 0; border-top: 1px solid #16223a; }
+.pdxdb-mandate:first-child { border-top: 0; }
+.pdxdb-mandate-st { display: block; margin-top: 0.15rem; font-size: 0.74rem; color: #8496b0; }
+
 /* A measure under two issues wears both chips. */
 .pdxdb-m-issue + .pdxdb-m-issue { margin-left: 0.3rem; }
 
