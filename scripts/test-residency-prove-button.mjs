@@ -106,7 +106,7 @@ function el() {
 
 // Mount the composer on `alias` with a fake Firebase user (or none). `verify`
 // answers POST /api/residency-verify.
-async function boardOn(alias, state, verify) {
+async function boardOn(alias, state, verify, { search = "" } = {}) {
   const calls = [];
   const assigned = [];
   const nodes = {};
@@ -116,7 +116,7 @@ async function boardOn(alias, state, verify) {
     encodeURIComponent, decodeURIComponent, parseInt, isNaN,
     setTimeout() { return 0; }, clearTimeout() {},
     location: {
-      pathname: `/district/${alias}`, search: "", hash: "", origin: "https://politidex.fyi",
+      pathname: `/district/${alias}`, search, hash: "", origin: "https://politidex.fyi",
       assign(u) { assigned.push(String(u)); },
     },
     document: {
@@ -207,13 +207,35 @@ for (const [alias, seatKey] of Object.entries(CLUSTER)) {
     ok(b.host.innerHTML.includes("Residency check is not available right now"),
       `${alias}: a bare error does not print the fallback line`);
   }
-  // A URL off the vendor's hosts is refused.
-  {
-    const b = await boardOn(alias, { signedIn: true }, { status: 200, data: { url: "https://evil.example/x" } });
+  // Every URL off Didit's hosts is refused — Veriff's included, now that no
+  // Veriff session can be created.
+  for (const bad of [
+    "https://evil.example/x",
+    "https://alchemy.veriff.com/v/abc",
+    "https://magic.veriff.me/v/abc",
+    "https://didit.me.evil.example/x",
+    "https://evildidit.me/x",
+    "http://verify.didit.me/session/abc",
+    "javascript:alert(1)",
+    "",
+  ]) {
+    const b = await boardOn(alias, { signedIn: true }, { status: 200, data: { url: bad } });
     if (b.host.__btn) b.host.__btn.__click();
     await flush();
-    eq(b.assigned.length, 0, `${alias}: a non-vendor URL was opened`);
-    ok(b.has(), `${alias}: a refused URL took the button off`);
+    eq(b.assigned.length, 0, `${alias}: ${JSON.stringify(bad)} was opened`);
+    ok(b.has(), `${alias}: refusing ${JSON.stringify(bad)} took the button off`);
+  }
+  for (const good of ["https://verify.didit.me/en/session/3FaJ9wLqX2Mz", "https://didit.me/session/abc"]) {
+    const b = await boardOn(alias, { signedIn: true, member: true }, { status: 200, data: { url: good } });
+    if (b.host.__btn) b.host.__btn.__click();
+    await flush();
+    eq(b.assigned[0], good, `${alias}: the Didit URL ${good} did not open`);
+  }
+  // Back from Didit, which appends its own query to the return address.
+  for (const search of ["?residency=returned", "?residency=returned?verificationSessionId=s1&status=Approved",
+                        "?residency=returned&verificationSessionId=s1&status=Approved"]) {
+    const b = await boardOn(alias, { signedIn: true, member: true }, null, { search });
+    ok(b.host.innerHTML.includes("Your check is with the vendor."), `${alias}: ${search} is not read as back from the vendor`);
   }
   // Signed out → no button, and nothing calls the function.
   {
@@ -234,8 +256,9 @@ section("3 · the shell moved");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const SW = R("sw.js");
-  ok(Number(((SW.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]) || 0) >= 330, "the shell moved at least to v330");
+  ok(Number(((SW.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]) || 0) >= 331, "the shell moved at least to v331");
   ok(/v330 - [\s\S]*?MIGRATION COST: none/.test(SW), "v330's log says no migration");
+  ok(/v331 - [\s\S]*?MIGRATION COST: none/.test(SW), "v331's log says no migration");
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

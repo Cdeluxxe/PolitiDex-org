@@ -9155,7 +9155,17 @@
 //     moves one version.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none. No table, row, key or seat moved.
-const CACHE_VERSION = 'v330';
+// v331 - THE SEAT CHECK MOVES TO DIDIT. /api/residency-verify now opens a
+//     Didit session on the configured workflow (ID document + proof of
+//     address) and the residency webhook accepts only Didit's signed,
+//     Approved decision with both checks passed, for one of the five composer
+//     seats. The composer opens Didit's hosts and no other — Veriff's are
+//     refused now that no Veriff session can be created — and still knows it
+//     is back from the vendor when Didit adds its own query to the return
+//     address. district-composer.js is precached and changed, so the shell
+//     moves one version. No location key or other saved key was touched.
+//     MIGRATION COST: none. No table, row, key or seat moved.
+const CACHE_VERSION = 'v331';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

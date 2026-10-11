@@ -23,8 +23,7 @@
    one seat) is POST /api/residency-verify's call, not this file's: a refusal
    keeps the button on the board and prints the function's own message. This
    file holds no flag of its own and never reads the membership endpoint. It
-   asks POST /api/residency-verify for a vendor session (Didit, or the earlier
-   Veriff integration) bound to
+   asks POST /api/residency-verify for a Didit session bound to
    { uid, seat } for THIS board and sends the reader to the vendor's page. The
    box opens only after the vendor's signed decision (ID document + proof of
    address) reaches the server and the next GET says so — coming back from the
@@ -221,7 +220,7 @@
       var p = new URL(String(u || ''));
       if (p.protocol !== 'https:') return '';
       var h = p.hostname.toLowerCase();
-      return (/(^|\.)(didit\.me|veriff\.(com|me))$/.test(h)) ? p.href : '';
+      return (/(^|\.)didit\.me$/.test(h)) ? p.href : '';
     } catch (e) { return ''; }
   }
 
@@ -383,8 +382,10 @@
     _seat = seat;
     // Back from the vendor. This is a hint for the copy only — it opens
     // nothing; the server's next answer does. Re-ask a few times while the
-    // vendor's decision is in flight.
-    try { _returned = /[?&]residency=returned(&|$)/.test(String(window.location.search || '')); } catch (e) {}
+    // vendor's decision is in flight. Didit appends its own
+    // ?verificationSessionId=…&status=… to the return address, so the marker
+    // may be followed by a second '?'.
+    try { _returned = /[?&]residency=returned(?=$|[&?#])/.test(String(window.location.search || '')); } catch (e) {}
     render();
     load();
     if (_returned) {

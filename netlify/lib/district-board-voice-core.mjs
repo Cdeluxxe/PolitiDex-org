@@ -15,12 +15,12 @@
 //   1. signed in       a verified, non-anonymous Firebase identity.
 //   2. verified_seat   the account carries a residency row for THIS seat whose
 //      === this seat   status is 'verified' AND whose method is 'vendor' — the
-//                      ID check (Stripe Identity / Veriff). A 'location_match'
+//                      ID check (Didit). A 'location_match'
 //                      row does NOT open this composer: that method is a
 //                      consistency check on a location the reader typed, and a
 //                      typed location or zip is not proof of residency.
 //
-// THE ONLY WRITER OF method = 'vendor' is the signed Veriff decision webhook
+// THE ONLY WRITER OF method = 'vendor' is the signed Didit decision webhook
 // (netlify/lib/residency-vendor-core.mjs), and it writes the seat the session
 // was started from and no other. Until that lands for THIS seat the gate
 // refuses, and the composer is on the page, disabled, with the locked line. It

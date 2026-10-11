@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Residency vendor — START (SD-3, HD-16, SD-7, HD-15 and UT-2 only)
 // ─────────────────────────────────────────────────────────────────────────────
-//   POST /api/residency-verify { seat }   → { url } to the Veriff session, or
+//   POST /api/residency-verify { seat }   → { url } to the Didit session, or
 //                                           404 no_seat / 403 signed_out /
 //                                           403 not_member / 403 second_seat /
 //                                           503 vendor_unavailable.
@@ -10,10 +10,10 @@
 // session's vendorData is { uid, seat }: the uid from the verified Firebase
 // token and the seat from the board, never from anything else the caller sent.
 //
-// SECRETS LIVE IN NETLIFY ENV ONLY: VERIFF_API_KEY and VERIFF_SHARED_SECRET
-// (VERIFF_API_URL optionally overrides the station host). Neither is sent to
-// the browser; the browser only ever receives the session URL. Without both,
-// every start is 503 and nothing is created.
+// SECRETS LIVE IN NETLIFY ENV ONLY: DIDIT_API_KEY, and DIDIT_WORKFLOW_ID for
+// the workflow that runs BOTH the ID document check and Proof of Address.
+// Neither is sent to the browser; the browser only ever receives the session
+// URL. Without both, every start is 503 and nothing is created.
 //
 // WHAT THIS FILE CAN REACH: voice_residency (read only) and voice_membership
 // (read only — a start needs the active flag). It never writes a residency row
@@ -32,9 +32,8 @@ const deps = {
 
   config() {
     return {
-      apiKey: process.env.VERIFF_API_KEY || "",
-      sharedSecret: process.env.VERIFF_SHARED_SECRET || "",
-      apiUrl: process.env.VERIFF_API_URL || "",
+      apiKey: process.env.DIDIT_API_KEY || "",
+      workflowId: process.env.DIDIT_WORKFLOW_ID || "",
     };
   },
 
