@@ -19,8 +19,8 @@
    PROVE YOU LIVE HERE. Every signed-in reader the server calls `unverified`
    for this seat — no verified residency row here — gets one button, directly
    under the locked composer. A signed-out reader and a reader already verified
-   for this seat get none. Whether the check may START (membership, the year's
-   one seat) is POST /api/residency-verify's call, not this file's: a refusal
+   for this seat get none. Whether the check may START (the year's one seat,
+   a revoked seat) is POST /api/residency-verify's call, not this file's: a refusal
    keeps the button on the board and prints the function's own message. This
    file holds no flag of its own and never reads the membership endpoint. It
    asks POST /api/residency-verify for a Didit session bound to
@@ -261,7 +261,11 @@
       var go = res.ok && res.data ? vendorUrl(res.data.url) : '';
       if (go) { window.location.assign(go); return; }
       if (res.ok && res.data && res.data.verified === true) { load(); return; }
-      _proveStatus = (res.data && (res.data.error || res.data.message)) || COPY.proveFailed;
+      var said = (res.data && (res.data.error || res.data.message)) || '';
+      // Membership never gates the check; a members-only line is not shown.
+      if (res.data && res.data.code === 'not_member') said = '';
+      if (/\bmembers?\b|membership/i.test(said)) said = '';
+      _proveStatus = said || COPY.proveFailed;
       render();
     });
   }

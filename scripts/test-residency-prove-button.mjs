@@ -171,10 +171,9 @@ function placedUnderComposer(html) {
 
 for (const [alias, seatKey] of Object.entries(CLUSTER)) {
   // Signed in, no residency row, not a member — the reader from the report.
+  // Membership does not gate the check: the click opens the Didit session.
   {
-    const b = await boardOn(alias, { signedIn: true }, {
-      status: 403, data: { error: "The ID and address check is open to members.", code: "not_member" },
-    });
+    const b = await boardOn(alias, { signedIn: true });
     ok(b.has(), `${alias}: a signed-in reader with no residency row sees no button`);
     ok(b.host.innerHTML.includes("Prove you live here"), `${alias}: the button does not read “Prove you live here”`);
     ok(placedUnderComposer(b.host.innerHTML), `${alias}: the button is not directly under the composer`);
@@ -185,10 +184,29 @@ for (const [alias, seatKey] of Object.entries(CLUSTER)) {
     ok(!!post, `${alias}: the click never reached /api/residency-verify`);
     eq(post && post.method, "POST", `${alias}: the click is a POST`);
     eq(post && post.body && post.body.seat, alias, `${alias}: the click carries the board's own seat`);
+    eq(b.assigned[0], "https://verify.didit.me/session/abc", `${alias}: a non-member's Didit session URL did not open`);
+  }
+  // A stale members-only refusal is never shown: the fallback line is.
+  {
+    const b = await boardOn(alias, { signedIn: true }, {
+      status: 403, data: { error: "The ID and address check is open to members.", code: "not_member" },
+    });
+    if (b.host.__btn) b.host.__btn.__click();
+    await flush();
     ok(b.has(), `${alias}: an error took the button off the board`);
-    ok(b.host.innerHTML.includes("The ID and address check is open to members."),
-      `${alias}: the function's message is not shown`);
+    ok(!/members?\b/i.test(b.host.innerHTML), `${alias}: a members-only message is shown`);
+    ok(b.host.innerHTML.includes("Residency check is not available right now"),
+      `${alias}: a members-only refusal does not print the fallback line`);
     eq(b.assigned.length, 0, `${alias}: an error navigated somewhere`);
+  }
+  // Any other refusal still prints the function's own message.
+  {
+    const b = await boardOn(alias, { signedIn: true }, {
+      status: 403, data: { error: "Your ID and address check is already used on another seat. A second seat is not included.", code: "second_seat" },
+    });
+    if (b.host.__btn) b.host.__btn.__click();
+    await flush();
+    ok(b.host.innerHTML.includes("A second seat is not included."), `${alias}: the function's message is not shown`);
   }
   // Signed in member, success → the Didit URL opens.
   {
@@ -259,6 +277,8 @@ section("3 · the shell moved");
   ok(Number(((SW.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]) || 0) >= 331, "the shell moved at least to v331");
   ok(/v330 - [\s\S]*?MIGRATION COST: none/.test(SW), "v330's log says no migration");
   ok(/v331 - [\s\S]*?MIGRATION COST: none/.test(SW), "v331's log says no migration");
+  ok(Number(((SW.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]) || 0) >= 332, "the shell moved at least to v332");
+  ok(/v332 - [\s\S]*?MIGRATION COST: none/.test(SW), "v332's log says no migration");
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);
