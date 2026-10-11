@@ -9199,7 +9199,17 @@
 //     changed, so the shell moves one version. No location key or other saved
 //     key was touched.
 //     MIGRATION COST: none. No table, row, key or seat moved.
-const CACHE_VERSION = 'v335';
+// v336 - THE COMPOSER BOARDS' "ON THE TABLE" IS EASIER TO SCAN. On the five
+//     composer boards every issue group starts collapsed, the search field sits
+//     above the chips as "Find a topic or mandate", and mandate rows are no
+//     longer a group at the bottom: they are flat rows filtered by their own
+//     "Mandates" chip in the same chip row (All shows them, any issue chip hides
+//     them). /find's location button reads "Use my device's location".
+//     district-board.js, district-board.css and find.html are precached and
+//     changed, so the shell moves one version. Generated and statewide boards
+//     paint as before. No location key or other saved key was touched.
+//     MIGRATION COST: none. No table, row, key or seat moved.
+const CACHE_VERSION = 'v336';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

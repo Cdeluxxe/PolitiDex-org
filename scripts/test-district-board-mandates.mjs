@@ -113,7 +113,7 @@ const MANDATE = {
 };
 
 const groupBlocks = (html) => (html.match(/<details class="pdxdb-group[^"]*" data-pdxdb-group="[^"]*"[\s\S]*?<\/details>/g) || []);
-const mandateBlock = (html) => ((/<details[^>]*data-pdxdb-mandates[^>]*>[\s\S]*?<\/details>/.exec(html)) || [""])[0];
+const mandateBlock = (html) => ((/<ul class="pdxdb-mandates"[^>]*data-pdxdb-mandates[^>]*>[\s\S]*?<\/ul>/.exec(html)) || [""])[0];
 const chips = (html) => [...html.matchAll(/<button type="button" class="pdxdb-cat" data-pdxdb-cat="([^"]*)"/g)].map((x) => x[1]);
 
 const { win: W } = boot({ items: ITEMS });
@@ -134,7 +134,7 @@ eq(blk.split('class="pdxdb-mandate"').length - 1, 1, "one row per mandate");
 ok(chips(withM).includes(MK), "a Mandates chip is printed");
 has(withM, ">Mandates<span class=\"pdxdb-cat-n\">1</span>", "the chip reads Mandates with its count");
 ok(chips(withM).indexOf(MK) === chips(withM).length - 1, "the Mandates chip sits after the issue chips");
-ok(withM.indexOf("data-pdxdb-mandates") > withM.lastIndexOf("data-pdxdb-group="), "the mandate rows sit under the issue groups");
+ok(withM.indexOf("data-pdxdb-mandates") > withM.indexOf("pdxdb-cats"), "the mandate rows sit under the category chips");
 // A mandate with no measure on the seat still prints, under the empty line.
 const onlyM = B.tableHtml("ok", [], [], [MANDATE]);
 has(onlyM, B.COPY.tableEmpty, "no measures: the empty line still prints");
@@ -166,7 +166,7 @@ ok(!B.issues().includes(MK), "the composer's issue list never includes the manda
 section("4 · the Mandates chip filters to the mandate rows");
 B.setCategory(MK);
 const filtered = B.tableHtml("ok", ITEMS, [], [MANDATE]);
-ok(!/\shidden\b/.test((/<details[^>]*data-pdxdb-mandates[^>]*>/.exec(filtered) || [""])[0]), "the mandate block is shown");
+ok(!!mandateBlock(filtered) && !/^<ul[^>]*\shidden\b/.test(mandateBlock(filtered)), "the mandate block is shown");
 ok(groupBlocks(filtered).every((g) => /^<details[^>]*\shidden\b/.test(g)), "every issue group is hidden");
 eq(B.view().cat, MK, "the view holds the Mandates chip");
 // The chip falls back to All when no mandate is left to show.
@@ -174,11 +174,11 @@ B.tableHtml("ok", ITEMS, [], []);
 eq(B.view().cat, "", "a Mandates chip with no mandates falls back to All");
 B.setCategory("housing");
 const housing = B.tableHtml("ok", ITEMS, [], [MANDATE]);
-ok(/^<details[^>]*\shidden\b/.test(mandateBlock(housing)), "an issue chip hides the mandate block");
+ok(/^<ul[^>]*\shidden\b/.test(mandateBlock(housing)), "an issue chip hides the mandate block");
 B.setCategory("");
 B.setQuery("committee vote");
 const searched = B.tableHtml("ok", ITEMS, [], [MANDATE]);
-ok(!/^<details[^>]*\shidden\b/.test(mandateBlock(searched)), "the search finds a mandate by its title");
+ok(!!mandateBlock(searched) && !/^<ul[^>]*\shidden\b/.test(mandateBlock(searched)), "the search finds a mandate by its title");
 ok(/data-pdxdb-find-none hidden/.test(searched), "…so the no-match line stays hidden");
 B.setQuery("");
 
@@ -268,11 +268,11 @@ ok(!/method:\s*'POST'/.test(MOD.slice(MOD.indexOf("function fetchMandates"), MOD
 // ── 7 ───────────────────────────────────────────────────────────────────────
 section("7 · no equity or stock language");
 const BANNED = /\b(equity|equities|stocks?|shares?|shareholders?|stakes?|stakeholders?|invest\w*|dividends?|portfolio|ownership)\b/i;
-const newCopy = [B.COPY.catMandates, B.COPY.mandatesHead, B.COPY.mandateStatus].join(" ");
+const newCopy = [B.COPY.catMandates, B.COPY.mandateTag, B.COPY.mandateStatus].join(" ");
 ok(!BANNED.test(newCopy), `the mandate copy carries no equity or stock word — ${(BANNED.exec(newCopy) || [])[0]}`);
 const rendered = blk.replace(/<[^>]+>/g, " ");
 ok(!BANNED.test(rendered), `the rendered mandate rows carry no equity or stock word — ${(BANNED.exec(rendered) || [])[0]}`);
-const cssBlock = CSS.slice(CSS.indexOf("THE MANDATE ROWS"), CSS.indexOf(".pdxdb-mandate-st"));
+const cssBlock = CSS.slice(CSS.indexOf("THE MANDATE ROWS"), CSS.indexOf(".pdxdb-mandate-st {"));
 ok(!BANNED.test(cssBlock), "the stylesheet's mandate note carries no equity or stock word");
 
 // ── 8 ───────────────────────────────────────────────────────────────────────

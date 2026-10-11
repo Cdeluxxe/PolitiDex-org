@@ -609,8 +609,11 @@
     // race links) or the member who sits in it. Its count is shows of support —
     // momentum, the Mandate lane's own word — never a vote and never a measure.
     catMandates: 'Mandates',
-    mandatesHead: 'Mandates that name this seat',
+    mandateTag: 'Mandate',
     mandateStatus: 'Open proposal',
+    // The composer boards' finder sits above the chips and also finds mandates.
+    findLabelComposer: 'Find a topic or mandate',
+    findPlaceholderComposer: 'Title, bill number or mandate',
     mandateHref: '/mandate',
 
     // THE GATE IS A RESIDENCY CHECK FOR THIS SEAT, nothing else. The second
@@ -975,6 +978,7 @@
     if (q) open = hits > 0;
     else if (_view.cat) open = true;
     else if (Object.prototype.hasOwnProperty.call(_view.open, key)) open = !!_view.open[key];
+    else if (composerOwned()) open = false;   // the composer boards: every group starts collapsed
     else open = !!(key && stance[key]);
     return { shown: shown, open: open };
   }
@@ -1009,10 +1013,12 @@
   }
 
   // ── THE MANDATE ROWS ──────────────────────────────────────────────────────
-  // One group, after the issue groups, and only when at least one mandate names
-  // the seat. Its chip key is not an issue key — the leading '@' is a shape no
-  // vocabulary key takes — so it can never collide with an issue group, and its
-  // block is marked data-pdxdb-mandates rather than data-pdxdb-group, so the
+  // NOT A GROUP: a flat list of rows above the issue groups, filtered by its
+  // own chip in the same chip row. All shows them, "Mandates" shows only them,
+  // any issue chip hides them. Printed only when at least one mandate names the
+  // seat. The chip key is not an issue key — the leading '@' is a shape no
+  // vocabulary key takes — so it can never collide with an issue group, and the
+  // list is marked data-pdxdb-mandates rather than data-pdxdb-group, so the
   // poll module (which decorates every issue group) gives it no poll.
   var MANDATE_KEY = '@mandates';
 
@@ -1043,6 +1049,7 @@
     var href = COPY.mandateHref + '#pp-card-' + m.id;
     return '<li class="pdxdb-mandate" data-pdxdb-mandate="' + esc(String(m.id)) + '"' +
         ' data-pdxdb-find="' + esc(mandateFind(m)) + '"' + (hidden ? ' hidden' : '') + '>' +
+        '<span class="pdxdb-mandate-tag">' + esc(COPY.mandateTag) + '</span>' +
         '<a class="pdxdb-m-link" href="' + esc(href) + '">' + esc(title) + '</a>' +
         '<span class="pdxdb-mandate-st">' + esc(COPY.mandateStatus + ' · ' + supportWord(n)) + '</span>' +
       '</li>';
@@ -1052,12 +1059,7 @@
     var q = normQuery(_view.q);
     var shown = !_view.cat || _view.cat === MANDATE_KEY;
     if (shown && q && !hits) shown = false;
-    var open;
-    if (q) open = hits > 0;
-    else if (_view.cat) open = true;
-    else if (Object.prototype.hasOwnProperty.call(_view.open, MANDATE_KEY)) open = !!_view.open[MANDATE_KEY];
-    else open = true;
-    return { shown: shown, open: open };
+    return { shown: shown };
   }
 
   function mandatesHtml(rows) {
@@ -1069,14 +1071,8 @@
       body += mandateRow(rows[i], !hit);
     }
     var st = mandateState(hits);
-    return '<details class="pdxdb-group pdxdb-group--mandates" data-pdxdb-mandates=""' +
-        (st.open ? ' open' : '') + (st.shown ? '' : ' hidden') + '>' +
-        '<summary class="pdxdb-group-h">' +
-          '<span class="pdxdb-group-l pdxdb-group-l--mandates">' + esc(COPY.mandatesHead) + '</span>' +
-          '<span class="pdxdb-group-n">' + esc(rows.length === 1 ? '1 mandate' : rows.length + ' mandates') + '</span>' +
-        '</summary>' +
-        '<ul class="pdxdb-mandates">' + body + '</ul>' +
-      '</details>';
+    return '<ul class="pdxdb-mandates" data-pdxdb-mandates=""' + (st.shown ? '' : ' hidden') + '>' +
+        body + '</ul>';
   }
 
   function catChip(key, label, n, skin) {
@@ -1130,15 +1126,22 @@
     }
     if (G.unfiled.length) groups += groupHtml('', '', G.unfiled, tally, stance);
     // No measure on hand, but a mandate names the seat: the empty line still
-    // says so, and the mandate rows sit under it.
+    // says so, under the mandate rows.
     if (!rows.length) groups += '<p class="pdxdb-none">' + esc(COPY.tableEmpty) + '</p>';
-    if (mrows.length) groups += mandatesHtml(mrows);
+    // The mandate rows lead the list, in the chip row's filter like any chip.
+    if (mrows.length) groups = mandatesHtml(mrows) + groups;
+
+    // THE COMPOSER BOARDS PUT THE FINDER ABOVE THE CHIPS and name what it
+    // finds; every other board keeps the chips-then-search order it had.
+    var composer = composerOwned();
+    var cats = '<div class="pdxdb-cats" role="group" aria-label="' + esc(COPY.catsLabel) + '">' + chips + '</div>';
+    var find = '<label class="pdxdb-find"><span class="pdxdb-find-l">' +
+        esc(composer ? COPY.findLabelComposer : COPY.findLabel) + '</span>' +
+        '<input class="pdxdb-find-i" type="search" data-pdxdb-search autocomplete="off"' +
+          ' placeholder="' + esc(composer ? COPY.findPlaceholderComposer : COPY.findPlaceholder) + '" value="' + esc(_view.q) + '" /></label>';
 
     return band('table', COPY.tableBand, COPY.tableNote,
-      '<div class="pdxdb-cats" role="group" aria-label="' + esc(COPY.catsLabel) + '">' + chips + '</div>' +
-      '<label class="pdxdb-find"><span class="pdxdb-find-l">' + esc(COPY.findLabel) + '</span>' +
-        '<input class="pdxdb-find-i" type="search" data-pdxdb-search autocomplete="off"' +
-          ' placeholder="' + esc(COPY.findPlaceholder) + '" value="' + esc(_view.q) + '" /></label>' +
+      (composer ? find + cats : cats + find) +
       '<div class="pdxdb-groups">' + groups + '</div>' +
       '<p class="pdxdb-none pdxdb-find-none" data-pdxdb-find-none' +
         (anyShown(G, mrows) ? ' hidden' : '') + '>' + esc(COPY.findNone) + '</p>',
@@ -1201,7 +1204,6 @@
       }
       var ms = mandateState(mh);
       mb[b].hidden = !ms.shown;
-      mb[b].open = ms.open;
       if (ms.shown) any = true;
     }
     var none = el.querySelector('[data-pdxdb-find-none]');
@@ -1249,11 +1251,7 @@
       var sum = t && fn(t.closest) ? t.closest('.pdxdb-group-h') : null;
       if (sum && !normQuery(_view.q)) {
         var d = sum.parentNode;
-        if (d && d.getAttribute) {
-          var gk = (d.hasAttribute && d.hasAttribute('data-pdxdb-mandates'))
-            ? MANDATE_KEY : (d.getAttribute('data-pdxdb-group') || '');
-          _view.open[gk] = !d.open;
-        }
+        if (d && d.getAttribute) _view.open[d.getAttribute('data-pdxdb-group') || ''] = !d.open;
       }
     });
     el.addEventListener('input', function (ev) {

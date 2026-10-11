@@ -76,15 +76,21 @@
 .pdxdb-group-n { margin-left: auto; font-size: 0.78rem; color: #8496b0; font-variant-numeric: tabular-nums; }
 .pdxdb-group > .pdxdb-table { margin: 0 0 0.5rem; }
 
-/* THE MANDATE ROWS (the five composer boards only): one proposal per line,
-   its title linking to its card on /mandate and a short status beneath. A
-   reform proposal is not a measure, so its header label is gold rather
-   than an issue colour, and its rows carry no poll or comment columns. */
-.pdxdb-mandate[hidden] { display: none; }
-.pdxdb-group-l--mandates { border-color: #6b5a2a; color: #f1d98a; }
-.pdxdb-mandates { list-style: none; margin: 0 0 0.6rem; padding: 0; }
-.pdxdb-mandate { padding: 0.45rem 0; border-top: 1px solid #16223a; }
-.pdxdb-mandate:first-child { border-top: 0; }
+/* THE MANDATE ROWS (the five composer boards only): a flat list above the
+   issue groups, filtered by the "Mandates" chip like any other chip. One
+   proposal per line: a small "Mandate" tag, its title linking to its card on
+   /mandate, and a short status beneath. A reform proposal is not a measure, so
+   the tag is gold rather than an issue colour, and the rows carry no poll or
+   comment columns. */
+.pdxdb-mandates[hidden], .pdxdb-mandate[hidden] { display: none; }
+.pdxdb-mandates { list-style: none; margin: 0; padding: 0; }
+.pdxdb-mandate { padding: 0.55rem 0.7rem; border: 1px solid #16223a; border-radius: 0.5rem; }
+.pdxdb-mandate + .pdxdb-mandate { margin-top: 0.5rem; }
+.pdxdb-mandate-tag {
+  display: inline-block; margin-right: 0.45rem; padding: 0.05rem 0.4rem;
+  border: 1px solid #6b5a2a; border-radius: 0.3rem;
+  font: 600 0.72rem/1.4 'Barlow', sans-serif; color: #f1d98a; vertical-align: 0.05rem;
+}
 .pdxdb-mandate-st { display: block; margin-top: 0.15rem; font-size: 0.74rem; color: #8496b0; }
 
 /* A measure under two issues wears both chips. */
