@@ -9292,7 +9292,19 @@
 //     Every board document and the three modules changed, so the shell moves
 //     one version. No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v343';
+// v344 - MANDATES STAND OUT, SEARCH FINDS THEM, AND THE TABLE HAS NO CAP. Every
+//     mandate row, in the table and in the pinned strip, carries a small flag
+//     before its tag and the mandate colour class (pdxdb-mandate-c, the gold
+//     token district-board.css names) rather than an issue colour; issue rows
+//     and parent headers keep their colours. The board's search matches a
+//     mandate's tag, category and title, and a measure's title, bill number and
+//     issue labels. Band 3 no longer stops at forty rows: it prints every row
+//     the read returns, and says how many issue categories have a measure on
+//     the seat. district-board.js and district-board.css are precached and
+//     changed, so the shell moves one version. No location key or other saved
+//     key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v344';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

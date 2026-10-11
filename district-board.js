@@ -529,12 +529,12 @@
   }
   function PID() { return pidOf(ACTIVE); }
 
-  // How many archive rows band 3 will print. A cap, not a ranking: the rows are
-  // printed in the order the archive returned them and nothing here re-sorts,
-  // promotes or hides one for being inconvenient. The read asks for the baseline
-  // page — see the header on why that query and not another.
+  // The read asks for the baseline page — see the header on why that query and
+  // not another. Band 3 prints EVERY printable row that page returns, in the
+  // order the archive returned it; nothing here re-sorts, promotes, hides or
+  // caps one for being inconvenient. (It used to stop at forty rows, which read
+  // on a busy seat as though forty were a count of something.)
   var PAGE_SIZE = 100;
-  var TABLE_CAP = 40;
 
   // ── NEVER_FEEDS ───────────────────────────────────────────────────────────
   // The names of every cross-surface global this page is forbidden to write,
@@ -612,6 +612,11 @@
     findPlaceholder: 'Title or bill number',
     findNone: 'No measure in view matches that search.',
     tableUnfiled: 'Not filed under an issue',
+    // How many issue categories have at least one measure on this seat. A count
+    // of the groups the table actually prints, never a total of every topic the
+    // vocabulary knows and never a limit.
+    catCountOne: '1 issue category has a measure on this seat',
+    catCountMany: ' issue categories have a measure on this seat',
     // THE MANDATE ROWS, on the composer boards only. A mandate is a reform
     // proposal from /mandate that names this seat (its key in the proposal's
     // race links) or the member who sits in it. Its count is shows of support —
@@ -877,7 +882,7 @@
     var list = Array.isArray(items) ? items : [];
     var out = [];
     var seen = {};
-    for (var i = 0; i < list.length && out.length < TABLE_CAP; i++) {
+    for (var i = 0; i < list.length; i++) {
       var it = list[i];
       if (!printable(it)) continue;        // no title and no number: nothing to print
       var mk = measureKeyOf(it);
@@ -965,8 +970,13 @@
     return out;
   }
 
+  // A measure is found by its title, its bill number and the labels of the
+  // issues it is filed under — the three things its row prints.
   function findText(item) {
-    return (String(item.title || '') + ' ' + String(item.number || '')).toLowerCase();
+    var labels = [];
+    var ks = rowIssues(item);
+    for (var i = 0; i < ks.length; i++) labels.push(issueLabel(ks[i]));
+    return (String(item.title || '') + ' ' + String(item.number || '') + ' ' + labels.join(' ')).toLowerCase();
   }
   function normQuery(q) { return String(q == null ? '' : q).trim().toLowerCase(); }
   // A bill number is matched with or without its dots and spaces, so "sb 57"
@@ -1090,7 +1100,26 @@
     return out;
   }
 
-  function mandateFind(m) { return String(m.title || '').toLowerCase(); }
+  // A mandate is found by its tag (the word "Mandate" and the proposal's own
+  // category, when it has one) and its title — what its row prints.
+  function mandateFind(m) {
+    return (COPY.mandateTag + ' ' + mandateCategory(m) + ' ' + String(m.title || '')).toLowerCase();
+  }
+  function mandateCategory(m) { return String((m && m.category) || '').trim(); }
+
+  // THE MANDATE MARKER. Every mandate row — in the table and in the pinned
+  // strip — carries a small flag before its tag and the mandate colour class
+  // (pdxdb-mandate-c, the gold token in district-board.css), never an issue
+  // colour: a reform proposal is not a measure and must not read as one. No
+  // issue row ever gets either.
+  var MANDATE_FLAG = '\u2691';
+  var MANDATE_CLASS = 'pdxdb-mandate-c';
+  function mandateTagHtml(m) {
+    var cat = mandateCategory(m);
+    return '<span class="pdxdb-mandate-flag" aria-hidden="true">' + MANDATE_FLAG + '</span>' +
+      '<span class="pdxdb-mandate-tag">' + esc(COPY.mandateTag) + '</span>' +
+      (cat ? '<span class="pdxdb-mandate-cat">' + esc(cat) + '</span>' : '');
+  }
 
   function supportWord(n) { return n === 1 ? '1 show of support' : n + ' shows of support'; }
 
@@ -1098,9 +1127,9 @@
     var title = String(m.title || '').trim();
     var n = whole(m.supportCount);
     var href = COPY.mandateHref + '#pp-card-' + m.id;
-    return '<li class="pdxdb-mandate" data-pdxdb-mandate="' + esc(String(m.id)) + '"' +
+    return '<li class="pdxdb-mandate ' + MANDATE_CLASS + '" data-pdxdb-mandate="' + esc(String(m.id)) + '"' +
         ' data-pdxdb-find="' + esc(mandateFind(m)) + '"' + (hidden ? ' hidden' : '') + '>' +
-        '<span class="pdxdb-mandate-tag">' + esc(COPY.mandateTag) + '</span>' +
+        mandateTagHtml(m) +
         '<a class="pdxdb-m-link" href="' + esc(href) + '">' + esc(title) + '</a>' +
         '<span class="pdxdb-mandate-st">' + esc(COPY.mandateStatus + ' · ' + supportWord(n)) + '</span>' +
       '</li>';
@@ -1202,7 +1231,9 @@
 
     // THE COMPOSER BOARDS PUT THE FINDER ABOVE THE CHIPS and name what it
     // finds; every other board keeps the chips-then-search order it had.
-    var cats = '<div class="pdxdb-cats" role="group" aria-label="' + esc(COPY.catsLabel) + '">' + chips + '</div>';
+    var cats = '<div class="pdxdb-cats" role="group" aria-label="' + esc(COPY.catsLabel) + '">' + chips + '</div>' +
+      (G.groups.length ? '<p class="pdxdb-cat-count" data-pdxdb-cat-count="' + G.groups.length + '">' +
+        esc(G.groups.length === 1 ? COPY.catCountOne : G.groups.length + COPY.catCountMany) + '</p>' : '');
     var find = '<label class="pdxdb-find"><span class="pdxdb-find-l">' +
         esc(composer ? COPY.findLabelComposer : COPY.findLabel) + '</span>' +
         '<input class="pdxdb-find-i" type="search" data-pdxdb-search autocomplete="off"' +
@@ -1368,8 +1399,8 @@
     var body = '';
     for (var i = 0; i < ms.length; i++) {
       var m = ms[i];
-      body += '<li class="pdxdb-pin pdxdb-pin--mandate" data-pdxdb-pin-mandate="' + esc(String(m.id)) + '">' +
-          '<span class="pdxdb-mandate-tag">' + esc(COPY.mandateTag) + '</span>' +
+      body += '<li class="pdxdb-pin pdxdb-pin--mandate ' + MANDATE_CLASS + '" data-pdxdb-pin-mandate="' + esc(String(m.id)) + '">' +
+          mandateTagHtml(m) +
           '<a class="pdxdb-m-link" href="' + esc(COPY.mandateHref + '#pp-card-' + m.id) + '">' + esc(String(m.title || '').trim()) + '</a>' +
           '<span class="pdxdb-mandate-st">' + esc(COPY.mandateStatus + ' · ' + supportWord(whole(m.supportCount))) + '</span>' +
         '</li>';

@@ -163,7 +163,7 @@ section("3 · Mandates is a chip in the same row, not a group at the bottom");
   ok(!/<details[^>]*data-pdxdb-mandates/.test(h), "the mandate rows are not a details group");
   no(h, "Mandates that name this seat", "there is no Mandates group header");
   ok(h.indexOf("data-pdxdb-mandates") < h.indexOf("data-pdxdb-group="), "the mandate rows are not at the bottom: they lead the list");
-  eq((list[2].match(/<li class="pdxdb-mandate"/g) || []).length, 2, "one row per mandate");
+  eq((list[2].match(/<li class="pdxdb-mandate pdxdb-mandate-c"/g) || []).length, 2, "one row per mandate, each wearing the mandate colour class");
   has(list[2], 'href="/mandate#pp-card-7"', "each row still links to its card on /mandate");
   ok(mandateShown(h), "All shows the mandate rows");
   ok(parseGroups(h).every((g) => !g.hidden), "All shows every issue group");

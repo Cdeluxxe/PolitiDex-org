@@ -131,7 +131,7 @@ ok(!!blk, "the band carries a mandates block");
 has(blk, MANDATE.title, "the row prints the mandate's title");
 has(blk, 'href="/mandate#pp-card-7"', "the row links to the mandate's card on /mandate");
 has(blk, "Open proposal · 3 shows of support", "the row prints a short status");
-eq(blk.split('class="pdxdb-mandate"').length - 1, 1, "one row per mandate");
+eq(blk.split('class="pdxdb-mandate pdxdb-mandate-c"').length - 1, 1, "one row per mandate, wearing the mandate colour class");
 ok(chips(withM).includes(MK), "a Mandates chip is printed");
 has(withM, ">Mandates<span class=\"pdxdb-cat-n\">1</span>", "the chip reads Mandates with its count");
 ok(chips(withM).indexOf(MK) === chips(withM).length - 1, "the Mandates chip sits after the issue chips");
