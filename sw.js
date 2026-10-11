@@ -9165,7 +9165,13 @@
 //     address. district-composer.js is precached and changed, so the shell
 //     moves one version. No location key or other saved key was touched.
 //     MIGRATION COST: none. No table, row, key or seat moved.
-const CACHE_VERSION = 'v331';
+// v332 - MEMBERSHIP NO LONGER GATES THE SEAT CHECK. /api/residency-verify
+//     starts a Didit session for any signed-in reader on the five composer
+//     seats; membership only lifts the daily comment/poll cap. The composer's
+//     refusal line never shows a members-only message. district-composer.js is
+//     precached and changed, so the shell moves one version.
+//     MIGRATION COST: none. No table, row, key or seat moved.
+const CACHE_VERSION = 'v332';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

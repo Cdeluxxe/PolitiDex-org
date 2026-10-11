@@ -286,8 +286,8 @@ function verifyUser(req) {
   if (t === "anon") return { uid: "anon-uid", isAnonymous: true };
   return { uid: t, isAnonymous: false };
 }
-// The start needs an active membership; these suites default to a member so the
-// seat, secret and vendor checks are what they test. Section 7 tests the flag.
+// Membership never gates the start. These suites default to a member row only
+// to prove it changes nothing; section 7 runs the same starts without one.
 const MEMBER = { status: "active", currentPeriodEnd: null };
 function startDeps({ rows = [], cfg = { apiKey: KEY, workflowId: WORKFLOW }, vendor, membership = MEMBER } = {}) {
   const calls = [];
@@ -511,7 +511,7 @@ ok(/v281 - A MEMBER CAN START THE SEAT CHECK[\s\S]*?MIGRATION COST: none - no on
    "v281's log says no migration and why no counter is needed");
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("7 · a member can start the seat check; a non-member cannot; the year includes one");
+section("7 · any signed-in reader can start the seat check; membership is never asked; the year includes one");
 // ═════════════════════════════════════════════════════════════════════════════
 const NON_MEMBERS = [
   ["no membership row", null],
@@ -519,29 +519,48 @@ const NON_MEMBERS = [
   ["a lapsed membership", { status: "active", currentPeriodEnd: "2020-01-01T00:00:00Z" }],
 ];
 {
-  // A NON-MEMBER CANNOT START A SESSION — with the secrets set and the vendor up.
+  // A SIGNED-IN NON-MEMBER CAN START A SESSION — the Didit URL comes back.
   for (const [who, membership] of NON_MEMBERS) {
-    for (const alias of Object.keys(CLUSTER)) {
+    for (const [alias, seat] of Object.entries(CLUSTER)) {
       const t = startDeps({ membership });
       const res = await handleStart(start(alias, UID), t.deps);
-      eq(res.status, 403, `${who} on ${alias}: start is 403`);
-      eq((await res.json()).code, "not_member", `${who} on ${alias}: …not_member`);
-      eq(t.calls.length, 0, `${who} on ${alias}: no vendor session`);
+      eq(res.status, 200, `${who} on ${alias}: start is 200`);
+      const d = await res.json();
+      eq(d.url, "https://verify.didit.me/session/abc", `${who} on ${alias}: …the Didit URL is returned`);
+      eq(d.seat, alias, `${who} on ${alias}: …for this board`);
+      eq(t.calls.length, 1, `${who} on ${alias}: one vendor session`);
+      eq(JSON.parse(t.calls[0].body).vendor_data, JSON.stringify({ uid: UID, seat }),
+         `${who} on ${alias}: the session is bound to ${seat}`);
       eq(t.store.writes.length, 0, `${who} on ${alias}: nothing written`);
     }
   }
-  // A missing membership dep fails closed.
+  // No membership lookup at all, or one that throws: the start does not care.
   const t = startDeps();
   delete t.deps.findMembership;
-  eq((await handleStart(start("ut-sd-3", UID), t.deps)).status, 403, "no membership lookup: 403");
-  eq(t.calls.length, 0, "…no session");
+  eq((await handleStart(start("ut-sd-3", UID), t.deps)).status, 200, "no membership lookup: 200");
   const thrown = startDeps();
   thrown.deps.findMembership = async () => { throw new Error("db down"); };
-  eq((await handleStart(start("ut-sd-3", UID), thrown.deps)).status, 403, "membership lookup throws: 403");
-  eq(thrown.calls.length, 0, "…no session");
-  // Non-member with no secrets is still 403, not 503: the flag is asked first.
+  eq((await handleStart(start("ut-sd-3", UID), thrown.deps)).status, 200, "membership lookup throws: 200");
+  // Signed out is still refused, member row or not.
+  for (const membership of [null, MEMBER]) {
+    const so = startDeps({ membership });
+    const res = await handleStart(start("ut-sd-3", null), so.deps);
+    eq(res.status, 403, "signed out: 403");
+    eq((await res.json()).code, "signed_out", "…signed_out");
+    eq(so.calls.length, 0, "…no session");
+  }
+  // Non-member with no secrets is 503: nothing is created.
   const off = startDeps({ membership: null, cfg: { apiKey: "", workflowId: "" } });
-  eq((await handleStart(start("ut-sd-3", UID), off.deps)).status, 403, "non-member, no secrets: 403");
+  const offRes = await handleStart(start("ut-sd-3", UID), off.deps);
+  eq(offRes.status, 503, "non-member, no secrets: 503");
+  eq((await offRes.json()).code, "vendor_unavailable", "…vendor_unavailable");
+  eq(off.calls.length, 0, "…no session");
+  // The members-only line is gone from the start function and the composer.
+  for (const f of ["netlify/lib/residency-vendor-core.mjs", "netlify/functions/residency-verify.mts", "district-composer.js"]) {
+    ok(!/open to members/i.test(R(f)), `${f}: no members-only line`);
+  }
+  ok(!/not_member|memberFor|findMembership/.test(R("netlify/lib/residency-vendor-core.mjs")),
+     "the start function never asks membership");
 }
 {
   // A MEMBER CAN START A SESSION FOR THE BOARD THEY ARE ON — and only that seat.
@@ -579,7 +598,7 @@ const NON_MEMBERS = [
      "someone else's vendor row does not spend this account's check");
 }
 {
-  // THE PROOF BUTTON: the board GET answers canVerify, and only for a member.
+  // THE PROOF BUTTON: the board GET answers canVerify for any signed-in, unverified reader.
   const get = (alias, token) => new Request(`https://politidex.fyi/api/district-board-voice?seat=${alias}`, {
     headers: token ? { authorization: "Bearer " + token } : {},
   });
@@ -598,7 +617,7 @@ const NON_MEMBERS = [
     for (const [who, membership] of NON_MEMBERS) {
       const v = await readVoice([], membership, alias, UID);
       eq(v.reason, "unverified", `${who} on ${alias}: unverified`);
-      eq(v.canVerify, false, `${who} on ${alias}: no proof button`);
+      eq(v.canVerify, true, `${who} on ${alias}: the proof button shows`);
       eq(v.canPost, false, `${who} on ${alias}: box stays off`);
       eq(v.line, "Only verified residents of this seat get a voice that counts.", `${who} on ${alias}: the locked line`);
     }

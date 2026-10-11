@@ -51,7 +51,7 @@
 //
 // ── WHO MAY START THE CHECK ─────────────────────────────────────────────────
 // The year includes the vendor check for ONE seat. The GET answers
-// `voice.canVerify` — true only for a signed-in member, unverified on THIS
+// `voice.canVerify` — true for any signed-in reader unverified on THIS
 // seat, holding no vendor row on another composer seat — and the composer
 // paints the proof button on that alone. It is the caller's own permission,
 // not the flag: a verified resident reads false member or not, so a member and
@@ -144,15 +144,14 @@ export async function otherVendorSeat(deps, uid, seatKey) {
   return "";
 }
 
-// May THIS caller start the vendor check on THIS seat? Only a signed-in member
-// who is not yet verified here and has not spent the check on another seat.
+// May THIS caller start the vendor check on THIS seat? Any signed-in reader
+// (membership is never asked) who is not yet verified here and has not spent the check on another seat.
 // Fails closed: any missing dep or lookup error is a no. It is the caller's
 // own permission, never the flag or an account id.
 export async function canVerifyHere(deps, user, row, seatKey) {
   if (!user || user.isAnonymous || !user.uid) return { ok: false };
   if (row && (row.status === "revoked" || (row.status === "verified" && row.method === "vendor"))) return { ok: false };
   try {
-    if (!(await memberFor(deps, user))) return { ok: false };
     if (await otherVendorSeat(deps, user.uid, seatKey)) return { ok: false, secondSeat: true };
   } catch {
     return { ok: false };
