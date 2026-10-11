@@ -8,11 +8,13 @@
 //
 // The wiring for handleWebhook() in netlify/lib/residency-vendor-core.mjs,
 // which decides everything: signature, final approved decision, document AND
-// address checks present, vendorData seat one of the five. This file only
-// supplies the secrets and the one write.
+// address checks present, vendorData seat one of the five, and the seats the
+// check covers. This file only supplies the secrets and the write.
 //
-// THE ONE WRITE: voice_residency (seat_key, author_hash, 'verified', 'vendor',
-// reviewed_at = now()). author_hash is authorHash(uid, seat), the value every
+// THE WRITE, ONCE PER COVERED SEAT: voice_residency (seat_key, author_hash,
+// 'verified', 'vendor', reviewed_at = now()) for the session's seat and every
+// other composer seat the hallway's resolver named for the reader's saved
+// location at start. author_hash is authorHash(uid, seat), the value every
 // gate already looks the row up by; no uid, name, address, document or session
 // id is stored, and the payload is never logged. A 'revoked' row is never
 // touched, and a 'location_match' row for the same seat is upgraded in place

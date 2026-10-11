@@ -19,15 +19,18 @@
    PROVE YOU LIVE HERE. Every signed-in reader the server calls `unverified`
    for this seat — no verified residency row here — gets one button, directly
    under the locked composer. A signed-out reader and a reader already verified
-   for this seat get none. Whether the check may START (the year's one seat,
+   for this seat get none. Whether the check may START (a check already run,
    a revoked seat) is POST /api/residency-verify's call, not this file's: a refusal
    keeps the button on the board and prints the function's own message. This
    file holds no flag of its own and never reads the membership endpoint. It
    asks POST /api/residency-verify for a Didit session bound to
-   { uid, seat } for THIS board and sends the reader to the vendor's page. The
-   box opens only after the vendor's signed decision (ID document + proof of
-   address) reaches the server and the next GET says so — coming back from the
-   vendor opens nothing on its own. Neighbouring boards need their own check.
+   { uid, seat, seats } — THIS board's seat plus the seats the hallway's
+   resolver names for the reader's saved location — and sends the reader to the
+   vendor's page. The box opens only after the vendor's signed decision (ID
+   document + proof of address) reaches the server and the next GET says so —
+   coming back from the vendor opens nothing on its own. That one decision
+   writes a row for every covered composer seat; a board whose seat was not
+   covered stays locked.
 
    Posts are read from the same endpoint, newest first, with no name, email or
    address on the wire. After a post lands, band 2 is re-read from the store
@@ -68,7 +71,7 @@
     mine: 'You',
     prove: 'Prove you live here',
     proving: 'Opening the ID check…',
-    proveNote: 'An ID and proof-of-address check for this seat only. ' +
+    proveNote: 'One ID and proof-of-address check covers this seat and the other boards your saved location names. ' +
       'PolitiDex keeps that you passed, not your ID or your address.',
     proveFailed: 'Residency check is not available right now',
     returned: 'Your check is with the vendor. This board opens once it confirms; that can take a few minutes.'
@@ -249,6 +252,24 @@
     '</div>';
   }
 
+  // THE SEATS ONE CHECK COVERS, FROM THE HALLWAY'S OWN RESOLVER. district-
+  // voice.js seatsForMe() over pdxRepsForMe() — the same list /voice paints —
+  // reduced to its seat keys. Nothing is composed here; a missing module or a
+  // reader with no saved location sends [] and the check covers this board's
+  // seat alone. The server keeps only the five composer seats.
+  function resolvedSeats() {
+    var out = [];
+    try {
+      var V = window.PDXVoice;
+      var seats = (V && fn(V.seatsForMe)) ? (V.seatsForMe() || []) : [];
+      for (var i = 0; i < seats.length; i++) {
+        var k = seats[i] && seats[i].seatKey;
+        if (typeof k === 'string' && k && out.indexOf(k) < 0) out.push(k);
+      }
+    } catch (e) { out = []; }
+    return out;
+  }
+
   function prove() {
     if (_proving || !canProve()) return;
     _proving = true;
@@ -260,7 +281,7 @@
         method: 'POST',
         headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + t },
         cache: 'no-store',
-        body: JSON.stringify({ seat: _seat })
+        body: JSON.stringify({ seat: _seat, seats: resolvedSeats() })
       }).then(function (res) {
         return res.json().catch(function () { return {}; }).then(function (d) { return { ok: res.ok, status: res.status, data: d || {} }; });
       });

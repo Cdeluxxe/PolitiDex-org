@@ -22,7 +22,9 @@
 //
 // THE ONLY WRITER OF method = 'vendor' is the signed Didit decision webhook
 // (netlify/lib/residency-vendor-core.mjs), and it writes the seat the session
-// was started from and no other. Until that lands for THIS seat the gate
+// was started from plus every other composer seat the reader's saved location
+// resolved at start (the hallway's resolver, bound into the signed session).
+// Until a row lands for THIS seat the gate
 // refuses, and the composer is on the page, disabled, with the locked line. It
 // is NOT faked verified — there is no flag, env var or test hook that turns it on.
 //
@@ -50,9 +52,9 @@
 // writes nothing. The GET never carries the flag or an account id.
 //
 // ── WHO MAY START THE CHECK ─────────────────────────────────────────────────
-// The year includes the vendor check for ONE seat. The GET answers
-// `voice.canVerify` — true for any signed-in reader unverified on THIS
-// seat, holding no vendor row on another composer seat — and the composer
+// ONE CHECK COVERS EVERY RESOLVED SEAT. The GET answers `voice.canVerify` —
+// true for any signed-in reader unverified on THIS seat and holding no
+// verified vendor row on ANY composer seat — and the composer
 // paints the proof button on that alone. It is the caller's own permission,
 // not the flag: a verified resident reads false member or not, so a member and
 // a non-member who can both post still read byte-identical JSON.
@@ -89,9 +91,9 @@ export const COPY = {
   unverified: "Posting opens after an ID and address check for this seat. " +
     "A typed address, zip or saved location is not accepted as proof.",
   open: "You are a verified resident of this seat. Posts are public and carry no name.",
-  // A member whose one seat check is already spent on a neighbour seat. Names
-  // no price and no plan; boards carry no money copy.
-  secondSeat: "Your ID and address check is already used on another seat. A second seat is not included.",
+  // A reader whose one check already ran and did not name this seat. Names no
+  // price and no plan; boards carry no money copy.
+  alreadyChecked: "Your ID and address check is already done. It covered the seats your saved location named when you ran it, and this seat was not one of them.",
   noIssue: "Choose an issue from this seat's table.",
   empty: "Write something first.",
   tooLong: "Keep it to " + POST_MAX + " characters.",
@@ -127,32 +129,30 @@ export function gate(user, row, seatKey) {
   return { ok: true, seatKey: k };
 }
 
-// THE ONE SEAT CHECK. The year includes the vendor check for ONE seat. The
-// alias of another composer seat this account already holds a vendor row on
-// (verified or revoked — a check that ran is a check that was used), or ''.
-// Read from voice_residency itself, so no counter is kept: the seat-scoped
-// hash is recomputed for each of the other four named seats.
-export async function otherVendorSeat(deps, uid, seatKey) {
+// THE ONE CHECK. One vendor check covers every composer seat the reader's
+// saved location resolved when they ran it, so an account that already holds a
+// VERIFIED vendor row on any of the five has nothing left to start. The alias
+// of the first such seat, or ''. Read from voice_residency itself, so no counter
+// is kept: the seat-scoped hash is recomputed for each named seat. A revoked
+// row elsewhere does not count — it is not a verification.
+export async function anyVerifiedSeat(deps, uid) {
   if (!deps || typeof deps.findResidency !== "function" || !uid) return "";
   for (const k of Object.keys(COMPOSER_SEATS)) {
-    if (k === seatKey) continue;
     const row = await deps.findResidency(k, authorHash(uid, k));
-    if (row && row.method === "vendor" && (row.status === "verified" || row.status === "revoked")) {
-      return COMPOSER_SEATS[k];
-    }
+    if (row && row.method === "vendor" && row.status === "verified") return COMPOSER_SEATS[k];
   }
   return "";
 }
 
 // May THIS caller start the vendor check on THIS seat? Any signed-in reader
-// (membership is never asked) who is not yet verified here and has not spent the check on another seat.
-// Fails closed: any missing dep or lookup error is a no. It is the caller's
-// own permission, never the flag or an account id.
+// (membership is never asked) not revoked here and holding no verified vendor
+// row on any composer seat. Fails closed: any missing dep or lookup error is a
+// no. It is the caller's own permission, never the flag or an account id.
 export async function canVerifyHere(deps, user, row, seatKey) {
   if (!user || user.isAnonymous || !user.uid) return { ok: false };
   if (row && (row.status === "revoked" || (row.status === "verified" && row.method === "vendor"))) return { ok: false };
   try {
-    if (await otherVendorSeat(deps, user.uid, seatKey)) return { ok: false, secondSeat: true };
+    if (await anyVerifiedSeat(deps, user.uid)) return { ok: false, alreadyChecked: true };
   } catch {
     return { ok: false };
   }
@@ -236,7 +236,7 @@ export async function handle(req, deps) {
         canPost: verdict.ok,
         reason: verdict.ok ? "verified" : verdict.code,
         line: verdict.ok ? "" : LOCKED_LINE,
-        note: verdict.ok ? COPY.open : (check.secondSeat ? COPY.secondSeat : verdict.note || ""),
+        note: verdict.ok ? COPY.open : (check.alreadyChecked ? COPY.alreadyChecked : verdict.note || ""),
         // The proof button paints only on this. A signed-out reader, a
         // non-member and a verified resident all read false.
         canVerify: check.ok === true,

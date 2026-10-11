@@ -551,16 +551,20 @@ for (const b of BOARDS) {
     no(html, name, `ut-cd-2 without the lookup: band 1 does not guess "${name}"`);
   }
   // AND THE DOCUMENT LOADS THAT OWNER, so the browser case is the join and not
-  // this fallback. It is the ONLY board document that does — the other three
-  // resolve their holder from a roster key and adding a location module to say
-  // so would be a personal "you are in" line nobody asked for.
+  // this fallback. The other composer boards resolve their holder from a roster
+  // key; they load the location module only for the hallway's seat resolver
+  // behind "Prove you live here" (one residency check covers every composer
+  // seat the saved location names), and never print a "you are in" line — the
+  // sweep below holds that. A board with no composer loads no location module.
   const loads = (f, u) => [...R(f).matchAll(/\bsrc="([^"]*)"/g)].some((m) => m[1].indexOf(u) >= 0);
   ok(loads("district-ut-cd-2.html", "/voter-hub-location.js"),
     "district-ut-cd-2.html loads the owner of the congressional join");
   for (const b of BOARDS) {
     if (b.join) continue;
-    ok(!loads(b.doc, "/voter-hub-location.js"),
-      `${b.doc}: no location module on a roster-keyed board`);
+    const composer = loads(b.doc, "/district-composer.js");
+    ok(composer ? loads(b.doc, "/district-voice.js") : !loads(b.doc, "/voter-hub-location.js"),
+      composer ? `${b.doc}: the location module is here only with the hallway resolver for the proof button`
+               : `${b.doc}: no location module on a roster-keyed board`);
   }
   // NO PERSONAL LOCATION LINE ANYWHERE. "You are in HD-16" is a claim about a
   // stranger, and this pass did not seed residency.
