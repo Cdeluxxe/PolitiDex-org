@@ -1268,14 +1268,19 @@ export const ddDistricts = pgTable(
   },
   (t) => [
     index("dd_districts_state_seat_idx").on(t.state, t.seatKey, t.districtNumber),
-    // The three geometric seat classes and no others. A statewide or local seat
-    // has no district to be a room about, so it cannot be written here at all.
+    // The three geometric seat classes, plus the two statewide classes that
+    // have a board (gov, us-senate — district_id is the board key, ut-gov /
+    // ut-us-senate-<pid>, and the number is 0). A local seat has no board and
+    // cannot be written here. See 20261113000000_dd_districts_every_board_seat.
     check(
       "dd_districts_seat_key_check",
-      sql`${t.seatKey} in ('house', 'statesenate', 'statehouse')`
+      sql`${t.seatKey} in ('house', 'statesenate', 'statehouse', 'gov', 'us-senate')`
     ),
     check("dd_districts_state_check", sql`${t.state} ~ '^[A-Z]{2}$'`),
-    check("dd_districts_number_check", sql`${t.districtNumber} > 0`),
+    check(
+      "dd_districts_number_check",
+      sql`${t.districtNumber} > 0 OR (${t.seatKey} in ('gov', 'us-senate') AND ${t.districtNumber} = 0)`
+    ),
   ]
 );
 

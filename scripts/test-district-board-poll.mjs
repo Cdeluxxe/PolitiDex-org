@@ -22,6 +22,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { CHOICES, COMPOSER_SEATS, LOCKED_LINE, handle } from "../netlify/lib/district-board-poll-core.mjs";
 import { authorHash } from "../netlify/lib/district-voice-core.mjs";
+import { seatHash } from "../netlify/lib/district-board-voice-core.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -43,7 +44,7 @@ const CLUSTER = {
 };
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("1 · the poll host is on the five composer boards and no other");
+section("1 · the poll host is on every board, for that board's own seat");
 // ═════════════════════════════════════════════════════════════════════════════
 const HOST = 'id="pdx-district-poll"';
 const SCRIPT = 'src="/district-poll.js"';
@@ -55,23 +56,27 @@ for (const alias of Object.keys(CLUSTER)) {
   ok(doc.indexOf(SCRIPT) > doc.indexOf('src="/district-board.js"'), `${alias}: …after district-board.js`);
 }
 const boards = readdirSync(ROOT).filter((f) => /^district-ut-.*\.html$/.test(f));
-const clusterDocs = Object.keys(CLUSTER).map((a) => `district-ut-${a.slice(3)}.html`);
-const leaking = boards.filter((f) => !clusterDocs.includes(f)).filter((f) => {
-  const s = R(f); return s.includes(HOST) || s.includes(SCRIPT);
+const docSeat = (f) => (/data-pdxdb-seat="([^"]+)"/.exec(R(f)) || [, ""])[1];
+const missing = boards.filter((f) => {
+  const d = R(f); const alias = docSeat(f);
+  return !alias || d.split(HOST).length - 1 !== 1 || d.split(SCRIPT).length - 1 !== 1 ||
+    !d.includes(`data-pdxdp-seat="${alias}"`) || d.indexOf(SCRIPT) < d.indexOf('src="/district-board.js"');
 });
-eq(leaking.length, 0, `no other board has the poll — ${JSON.stringify(leaking)}`);
+eq(missing.length, 0, `every board has one poll host for its own seat — ${JSON.stringify(missing)}`);
 for (const f of ["district-ut-hd-29.html", "district-ut-gov.html"]) {
-  const s = R(f);
-  ok(!s.includes(HOST) && !s.includes(SCRIPT), `${f} has no poll host`);
+  const d = R(f);
+  ok(d.includes(HOST) && d.includes(SCRIPT), `${f} has the poll host and module`);
 }
-ok(!R("scripts/district-board.template.html").includes(HOST), "the generator's template carries no poll");
+ok(R("scripts/district-board.template.html").includes('<div id="pdx-district-poll" data-pdxdp-seat="{{ALIAS}}" hidden></div>'),
+   "the generator's template carries the poll host");
 const CLIENT = R("district-poll.js");
 const CLIENT_SEATS = (() => {
   const m = /var POLL_SEATS = \{([^}]*)\}/.exec(CLIENT);
   return m ? [...m[1].matchAll(/'([a-z0-9-]+)'\s*:/g)].map((x) => x[1]).sort() : [];
 })();
-eq(CLIENT_SEATS.join(","), Object.keys(CLUSTER).sort().join(","), "the client paints on the same five named rows");
-eq(Object.keys(COMPOSER_SEATS).length, 5, "the server gate lists exactly five seats");
+eq(CLIENT_SEATS.join(","), Object.values(COMPOSER_SEATS).sort().join(","), "the client paints on the server's named rows");
+eq(Object.keys(COMPOSER_SEATS).length, boards.length, "the server gate lists one seat per board document");
+eq(Object.values(COMPOSER_SEATS).sort().join(","), boards.map(docSeat).sort().join(","), "…and they are the documents' own seats");
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("2 · the gate: unverified is 403 and writes nothing");
@@ -125,8 +130,9 @@ const get = (seat, token) => new Request(`${API}?seat=${seat}`, {
 });
 const UID = "uid-alice";
 
-for (const [alias, seat] of Object.entries(CLUSTER)) {
-  const h = authorHash(UID, seat);
+// Every composer seat, the newly opened boards included.
+for (const [seat, alias] of Object.entries(COMPOSER_SEATS)) {
+  const h = seatHash(UID, seat);
   const GOOD = { seat: alias, issueKey: "housing", choice: "support" };
   const neighbour = seat === "ut-statesenate-3" ? "ut-statehouse-16" : "ut-statesenate-3";
   const refusals = [
@@ -138,11 +144,11 @@ for (const [alias, seat] of Object.entries(CLUSTER)) {
     ["vendor pending", [{ seatKey: seat, authorHash: h, status: "pending", method: "vendor" }], UID],
     ["vendor revoked", [{ seatKey: seat, authorHash: h, status: "revoked", method: "vendor" }], UID],
     ["vendor verified for a NEIGHBOUR seat",
-      [{ seatKey: neighbour, authorHash: authorHash(UID, neighbour), status: "verified", method: "vendor" }], UID],
+      [{ seatKey: neighbour, authorHash: seatHash(UID, neighbour), status: "verified", method: "vendor" }], UID],
     // The neighbour's flag, even if a row were filed under this seat's key with
     // the neighbour's hash, is another identity and opens nothing.
     ["neighbour-seat hash filed under this seat",
-      [{ seatKey: seat, authorHash: authorHash(UID, neighbour), status: "verified", method: "vendor" }], UID],
+      [{ seatKey: seat, authorHash: seatHash(UID, neighbour), status: "verified", method: "vendor" }], UID],
   ];
   for (const [name, rows, token] of refusals) {
     const s = fakeStore(rows);
@@ -187,10 +193,10 @@ for (const [alias, seat] of Object.entries(CLUSTER)) {
 }
 eq(CHOICES.join(","), "support,oppose,not_sure", "the three choices are Support / Oppose / Not sure");
 
-// Every other board takes no vote and has no tallies read, verified or not.
-for (const [alias, seat] of [["ut-hd-29", "ut-statehouse-29"], ["ut-sd-6", "ut-statesenate-6"],
-                             ["ut-gov", "ut-gov"], ["ut-us-senate-mlee", "ut-us-senate-mlee"]]) {
-  const s = fakeStore([{ seatKey: seat, authorHash: authorHash(UID, seat), status: "verified", method: "vendor" }]);
+// A seat with no board takes no vote and has no tallies read, verified or not.
+for (const [alias, seat] of [["ut-hd-1", "ut-statehouse-1"], ["ut-hd-57", "ut-statehouse-57"],
+                             ["ut-us-senate-mlee", "ut-us-senate-mlee"], ["ut-ag", "ut-ag"]]) {
+  const s = fakeStore([{ seatKey: seat, authorHash: authorHash(UID, seat) || seat, status: "verified", method: "vendor" }]);
   eq((await handle(post({ seat: alias, issueKey: "housing", choice: "support" }, UID), s.deps)).status, 404,
     `${alias} has no poll endpoint`);
   eq(s.upserts.length, 0, `${alias}: …and nothing is written`);

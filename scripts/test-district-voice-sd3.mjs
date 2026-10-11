@@ -607,11 +607,14 @@ eq(B._whole("lots"), 0, "a word is not a count");
   must(boardsLit.length > 300, "the BOARDS table could not be located in the module");
   const RENDER = MOD_CODE.replace(boardsLit, " ");
   const lits = [...new Set([...RENDER.matchAll(/(?<![\w.#])(\d{2,})(?![\w.])/g)].map((m) => Number(m[1])))].sort((a, b) => a - b);
-  const ALLOWED = new Set([100, 40, 56]);   // PAGE_SIZE, TABLE_CAP, FACE_PX — and nothing else
+  // PAGE_SIZE and FACE_PX — and nothing else. The table cap (40) is gone: band 3
+  // prints every row the page returns, so no row limit is left in the module.
+  const ALLOWED = new Set([100, 56]);
   const stray = lits.filter((n) => !ALLOWED.has(n));
   eq(stray.length, 0, `the module's render path holds no figure-shaped literal — stray: ${JSON.stringify(stray)}`);
-  eq(JSON.stringify(lits), JSON.stringify([40, 56, 100]),
-    "…and the three it does hold are the page size, the face's box and the table cap");
+  eq(JSON.stringify(lits), JSON.stringify([56, 100]),
+    "…and the two it does hold are the page size and the face's box");
+  ok(!/TABLE_CAP/.test(MOD_CODE), "…and there is no table cap left to limit the rows");
   ok(/\n  var FACE_PX = 56;\n/.test(MOD_CODE), "…and 56 is FACE_PX, the face's box, declared once");
   // AND THE TABLE ITSELF CARRIES NO COUNT. Its fields are the seat key, the
   // alias, the route, the roster pid, the congressional join, and the words the

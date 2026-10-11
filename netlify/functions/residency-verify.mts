@@ -11,7 +11,7 @@
 // session's vendorData is { uid, seat, seats }: the uid from the verified
 // Firebase token, the seat from the board, and `seats` the composer seats the
 // hallway's resolver named for the reader's saved location (filtered to the
-// five in the core, the board's seat always first).
+// composer seats in the core, the board's seat always first).
 //
 // SECRETS LIVE IN NETLIFY ENV ONLY: DIDIT_API_KEY, and DIDIT_WORKFLOW_ID for
 // the workflow that runs BOTH the ID document check and Proof of Address.
@@ -23,7 +23,7 @@
 // signed webhook does.
 
 import type { Config } from "@netlify/functions";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import { voiceResidency } from "../../db/schema.js";
 import { verifyUser } from "../../db/firebase-auth.js";
@@ -46,6 +46,26 @@ const deps = {
       .from(voiceResidency)
       .where(and(eq(voiceResidency.seatKey, seatKey), eq(voiceResidency.authorHash, hash)));
     return row || null;
+  },
+
+  // Every composer seat's (seat, hash) pair in ONE query, for anyVerifiedSeat().
+  // Filtered by hash here and matched pair-for-pair in the core.
+  async findVendorVerified(pairs: { seatKey: string; authorHash: string }[]) {
+    const hashes = pairs.map((p) => p.authorHash).filter(Boolean);
+    if (!hashes.length) return [];
+    return db
+      .select({
+        seatKey: voiceResidency.seatKey,
+        authorHash: voiceResidency.authorHash,
+        status: voiceResidency.status,
+        method: voiceResidency.method,
+      })
+      .from(voiceResidency)
+      .where(and(
+        inArray(voiceResidency.authorHash, hashes),
+        eq(voiceResidency.status, "verified"),
+        eq(voiceResidency.method, "vendor"),
+      ));
   },
 
   async createSession(url: string, headers: Record<string, string>, body: string) {

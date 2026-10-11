@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// District board poll — one poll per issue group, on the Layton composer boards
+// District board poll — one poll per issue group, on every composer board
 // ─────────────────────────────────────────────────────────────────────────────
-// The five boards that take a comment (SD-3, HD-16, SD-7, HD-15, UT-2) also take
+// Every board that takes a comment (every Utah board, statewide included) also takes
 // ONE vote per issue on their table: Support / Oppose / Not sure, for that issue
 // on this seat. The seat list, the gate and the locked line are the composer's
 // own, imported from district-board-voice-core.mjs rather than copied, so the
@@ -35,8 +35,7 @@
 // Pure over injected dependencies, so scripts/test-district-board-poll.mjs
 // drives the real handler against an in-memory fake — no database, no network.
 
-import { authorHash } from "./district-voice-core.mjs";
-import { COMPOSER_SEATS, LOCKED_LINE, composerSeat, gate } from "./district-board-voice-core.mjs";
+import { COMPOSER_SEATS, LOCKED_LINE, composerSeat, gate, seatHash } from "./district-board-voice-core.mjs";
 import { CAP_COPY, MONTHLY_VOTES, memberFor, monthStart } from "./membership-core.mjs";
 
 export { COMPOSER_SEATS, LOCKED_LINE };
@@ -100,7 +99,7 @@ export async function handle(req, deps) {
     const seatKey = composerSeat(url.searchParams.get("seat"));
     if (!seatKey) return json({ error: COPY.noSeat, code: "no_seat" }, 404);
     const user = await deps.verifyUser(req);
-    const hash = user && !user.isAnonymous && user.uid ? authorHash(user.uid, seatKey) : "";
+    const hash = user && !user.isAnonymous && user.uid ? seatHash(user.uid, seatKey) : "";
     const row = hash ? await deps.findResidency(seatKey, hash) : null;
     const verdict = gate(user, row, seatKey);
     const polls = tallies(await deps.countVotes(seatKey));
@@ -138,7 +137,7 @@ export async function handle(req, deps) {
     const limited = await deps.limit(req, user);
     if (limited) return limited;
   }
-  const hash = user && !user.isAnonymous && user.uid ? authorHash(user.uid, seatKey) : "";
+  const hash = user && !user.isAnonymous && user.uid ? seatHash(user.uid, seatKey) : "";
   const row = hash ? await deps.findResidency(seatKey, hash) : null;
   const verdict = gate(user, row, seatKey);
   if (!verdict.ok || !hash) {

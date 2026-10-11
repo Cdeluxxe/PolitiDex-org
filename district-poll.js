@@ -1,10 +1,10 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   district-poll.js — ONE POLL PER ISSUE GROUP, on the Layton composer boards
+   district-poll.js — ONE POLL PER ISSUE GROUP, on every composer board
    ───────────────────────────────────────────────────────────────────────────
-   Loaded by five documents and no others: /district/ut-sd-3, ut-hd-16,
-   ut-sd-7, ut-hd-15 and ut-cd-2. It mounts only on a #pdx-district-poll host
-   whose data-pdxdp-seat is on POLL_SEATS (named rows, the composer's five, no
-   pattern). Every generated board and every statewide board stays a reader.
+   Loaded by every district board document, beside district-composer.js. It
+   mounts only on a #pdx-district-poll host whose data-pdxdp-seat is on
+   POLL_SEATS (named rows, the composer's own, no pattern — the generated rows
+   are written by scripts/gen-district-boards.mjs).
 
    WHAT IT PAINTS. district-board.js owns band 3 ("On the table") and prints one
    <details> group per issue. After every board paint (the pdxdb:paint event)
@@ -18,7 +18,7 @@
    THE BUTTONS ARE OFF UNTIL THE SERVER SAYS OTHERWISE. They are enabled only
    when GET /api/district-board-poll answers `voice.canVote: true`, which is the
    composer's gate: signed in AND a vendor-verified residency flag for THIS
-   seat. No vendor is connected, so today nobody gets it; otherwise the buttons
+   seat, which only the signed Didit decision writes. Without it the buttons
    are disabled and the locked line is printed. Nothing here can fake it — no
    local flag, no typed zip, no location claim. A failed read keeps them off
    and prints no count rather than a zero.
@@ -31,7 +31,93 @@
   'use strict';
 
   var API = '/api/district-board-poll';
-  var POLL_SEATS = { 'ut-sd-3': 1, 'ut-hd-16': 1, 'ut-sd-7': 1, 'ut-hd-15': 1, 'ut-cd-2': 1 };
+  var POLL_SEATS = {
+    'ut-sd-3': 1, 'ut-hd-16': 1, 'ut-sd-7': 1, 'ut-hd-15': 1, 'ut-cd-2': 1, 'ut-sd-6': 1,
+    // @generated district-boards begin — scripts/gen-district-boards.mjs writes every line up to the end marker, do not edit by hand
+    'ut-hd-4': 1,
+    'ut-hd-5': 1,
+    'ut-hd-6': 1,
+    'ut-hd-9': 1,
+    'ut-hd-10': 1,
+    'ut-hd-11': 1,
+    'ut-hd-12': 1,
+    'ut-hd-14': 1,
+    'ut-hd-19': 1,
+    'ut-hd-21': 1,
+    'ut-hd-22': 1,
+    'ut-hd-23': 1,
+    'ut-hd-24': 1,
+    'ut-hd-25': 1,
+    'ut-hd-28': 1,
+    'ut-hd-29': 1,
+    'ut-hd-30': 1,
+    'ut-hd-31': 1,
+    'ut-hd-33': 1,
+    'ut-hd-34': 1,
+    'ut-hd-36': 1,
+    'ut-hd-37': 1,
+    'ut-hd-39': 1,
+    'ut-hd-41': 1,
+    'ut-hd-42': 1,
+    'ut-hd-43': 1,
+    'ut-hd-44': 1,
+    'ut-hd-45': 1,
+    'ut-hd-46': 1,
+    'ut-hd-49': 1,
+    'ut-hd-50': 1,
+    'ut-hd-51': 1,
+    'ut-hd-52': 1,
+    'ut-hd-53': 1,
+    'ut-hd-55': 1,
+    'ut-hd-56': 1,
+    'ut-hd-59': 1,
+    'ut-hd-60': 1,
+    'ut-hd-61': 1,
+    'ut-hd-63': 1,
+    'ut-hd-64': 1,
+    'ut-hd-65': 1,
+    'ut-hd-66': 1,
+    'ut-hd-67': 1,
+    'ut-hd-68': 1,
+    'ut-hd-69': 1,
+    'ut-hd-70': 1,
+    'ut-hd-71': 1,
+    'ut-hd-73': 1,
+    'ut-hd-75': 1,
+    'ut-sd-1': 1,
+    'ut-sd-2': 1,
+    'ut-sd-4': 1,
+    'ut-sd-5': 1,
+    'ut-sd-8': 1,
+    'ut-sd-9': 1,
+    'ut-sd-10': 1,
+    'ut-sd-11': 1,
+    'ut-sd-12': 1,
+    'ut-sd-13': 1,
+    'ut-sd-14': 1,
+    'ut-sd-15': 1,
+    'ut-sd-16': 1,
+    'ut-sd-17': 1,
+    'ut-sd-18': 1,
+    'ut-sd-19': 1,
+    'ut-sd-20': 1,
+    'ut-sd-21': 1,
+    'ut-sd-22': 1,
+    'ut-sd-23': 1,
+    'ut-sd-24': 1,
+    'ut-sd-25': 1,
+    'ut-sd-26': 1,
+    'ut-sd-27': 1,
+    'ut-sd-28': 1,
+    'ut-sd-29': 1,
+    'ut-cd-1': 1,
+    'ut-cd-3': 1,
+    'ut-cd-4': 1,
+    'ut-gov': 1,
+    'ut-us-senate-curtis': 1,
+    'ut-us-senate-lee': 1,
+    // @generated district-boards end
+  };
   var CHOICES = [
     { key: 'support', label: 'Support' },
     { key: 'oppose', label: 'Oppose' },
@@ -45,6 +131,9 @@
     unread: 'We could not read this poll’s votes just now. This is not an empty poll — it is a read that failed.',
     unreadNote: 'Voting stays off until this board can confirm who you are.',
     failed: 'That vote did not go through.',
+    // A monthly-cap refusal (429 monthly_cap), said without the server's
+    // membership wording.
+    notTaken: 'That vote did not go through. This seat is not taking another vote from this account right now.',
     saved: 'Vote saved. You can change it.',
     mine: 'Your vote',
     foot: 'Votes carry no name. Counts only.'
@@ -233,6 +322,8 @@
         _read = _read || {};
         _read.voice = { canVote: false, reason: res.data.code || '', line: res.data.error || LOCKED_LINE, note: res.data.note || '' };
         _status[key] = '';
+      } else if (res.status === 429 || (res.data && res.data.code === 'monthly_cap')) {
+        _status[key] = COPY.notTaken;
       } else {
         _status[key] = (res.data && res.data.error) || COPY.failed;
       }

@@ -109,8 +109,11 @@ for (const [alias, pid] of SEATS) {
     `${doc}: the host declares its own seat once`);
   has(html, `<link rel="canonical" href="https://politidex.fyi/district/${alias}"`, `${doc}: canonical is its bare address`);
   has(html, `<a href="/p/${pid}">`, `${doc}: noscript links /p/${pid}`);
-  no(html, 'id="pdx-district-composer"', `${doc}: carries no composer host`);
-  no(html, "district-composer.js", `${doc}: loads no composer`);
+  has(html, `<div id="pdx-district-composer" data-pdxdc-seat="${alias}" data-pdxdc-state="locked">`,
+    `${doc}: carries the locked composer host for its own seat`);
+  has(html, '<script defer src="/district-composer.js"></script>', `${doc}: loads the composer`);
+  has(html, `<div id="pdx-district-poll" data-pdxdp-seat="${alias}" hidden></div>`, `${doc}: carries the poll host for its own seat`);
+  has(html, '<script defer src="/district-poll.js"></script>', `${doc}: loads the poll`);
   has(SW, `'/${doc}',`, `sw.js: ${doc} is precached`);
 }
 {
@@ -181,7 +184,7 @@ section("4 · no composer: the read-only line on all three, HD-16 keeps its box"
 const READ_ONLY = "This room is read-only. Only verified residents of a seat with a composer get a voice that counts.";
 // The whole board as a reader sees it: mounted on the document's own host, the
 // same way the page paints it. `src` lets the mutation below swap the module.
-function paintWhole(alias, src) {
+function paintWhole(alias, src, withComposer) {
   const win = makeSandbox();
   win.__PDX_DISTRICT_BOARD_SEAT = alias;
   const mk = (id, attrs) => ({
@@ -190,6 +193,7 @@ function paintWhole(alias, src) {
     setAttribute(k, v) { this._a[k] = String(v); },
   });
   const els = { "pdx-district-board": mk("pdx-district-board", { "data-pdxdb-seat": alias }) };
+  if (withComposer) els["pdx-district-composer"] = mk("pdx-district-composer", { "data-pdxdc-seat": alias });
   win.document.getElementById = (id) => els[id] || null;
   const ctx = vm.createContext(win);
   for (const f of ["cmp-data.js", "issue-map.js"]) vm.runInContext(R(f), ctx, { filename: f });
@@ -209,12 +213,22 @@ function promises(html, doc) {
   if (doc && doc.indexOf("/district-composer.js") >= 0) bad.push("composer script");
   return bad;
 }
+// THE STATEWIDE BOARDS TAKE A VOICE NOW. Their documents carry the composer's
+// host, so district-board.js leaves the posting slot to district-composer.js
+// and prints no read-only line; district-board.js itself still paints no box
+// and promises nothing. Without the host (a document that lost it) the one
+// read-only line comes back, word for word.
+const LOCKED = "Only verified residents of this seat get a voice that counts.";
 for (const [alias] of SEATS) {
   const doc = R(`district-${alias}.html`);
-  const html = paintWhole(alias);
-  eq(promises(html, doc).join(", "), "", `${alias}: the board promises no composer`);
-  eq((html.match(/data-pdxdb-readonly="1"/g) || []).length, 1, `${alias}: one read-only line`);
-  has(html, READ_ONLY, `${alias}: the read-only line, word for word`);
+  const html = paintWhole(alias, null, true);
+  eq(promises(html).join(", "), "", `${alias}: district-board.js paints no box of its own`);
+  eq((html.match(/data-pdxdb-readonly="1"/g) || []).length, 0, `${alias}: no read-only line beside the composer`);
+  has(doc, `data-pdxdc-locked="1">${LOCKED}</p>`, `${alias}: the served composer carries the locked line`);
+  ok(/<textarea[^>]*\bdisabled\b/.test(doc), `${alias}: the served box is disabled`);
+  const bare = paintWhole(alias);
+  eq((bare.match(/data-pdxdb-readonly="1"/g) || []).length, 1, `${alias}: without the host, one read-only line`);
+  has(bare, READ_ONLY, `${alias}: the read-only line, word for word`);
   // The rest of the board did not go with the box.
   has(html, 'class="pdxdb-purpose"', `${alias}: the purpose line stays`);
   has(html, "Who is in the room", `${alias}: the counts band stays`);
@@ -228,7 +242,7 @@ function M_SEAT(alias) { return board(alias).M.seatHtml(); }
     /readOnlyLine: '[^']*' \+\s*'[^']*',/,
     "readOnlyLine: 'Posting ships next. A box that kept your sentence on this device would look like a post.',");
   must(mutated !== MOD, "mutation: could not find COPY.readOnlyLine to mutate");
-  const bad = promises(paintWhole("ut-gov", mutated), R("district-ut-gov.html"));
+  const bad = promises(paintWhole("ut-gov", mutated));
   ok(bad.indexOf("Posting ships next") >= 0, "mutation: the shipping sentence on ut-gov is caught");
   ok(bad.length > 0, "mutation: the check fails on a mutated ut-gov");
 }
@@ -247,9 +261,11 @@ function M_SEAT(alias) { return board(alias).M.seatHtml(); }
   has(sd3, 'id="pdx-district-composer"', "SD-3: the composer host is still there");
   has(sd3, "/district-composer.js", "SD-3: still loads the composer");
   for (const f of ["district-ut-sd-6.html", "district-ut-hd-29.html"]) {
-    no(R(f), 'id="pdx-district-composer"', `${f}: still has no composer`);
+    has(R(f), 'id="pdx-district-composer"', `${f}: has the composer host`);
   }
-  const DC = R("district-composer.js");
+  // The statewide seats reach the composer as NAMED ROWS in its generated
+  // block and nowhere else: no pattern or branch in its code names them.
+  const DC = R("district-composer.js").replace(/\/\/ @generated district-boards begin[\s\S]*?\/\/ @generated district-boards end/, "");
   // Veriff is the one residency vendor now wired (the composer links to its
   // hosted page); Stripe stays out — one vendor, not both.
   for (const bad of ["ut-gov", "us-senate", "zip", "Stripe"]) {

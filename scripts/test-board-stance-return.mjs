@@ -310,16 +310,13 @@ section("4 · the walls: copy, composers, allow-lists, the shell");
   vm.runInContext(R("district-voice.js"), vm.createContext(dv), { filename: "district-voice.js" });
   eq(Object.keys(dv.PDXVoice.BOARD_ROUTES).length, 88, "BOARD_ROUTES length is unchanged");
   ok(!/from\s*=\s*"\/district\/\*"/.test(R("netlify.toml")), "no /district/* splat");
-  const COMPOSER = ["district-ut-sd-3.html", "district-ut-hd-16.html", "district-ut-sd-7.html",
-                    "district-ut-hd-15.html", "district-ut-cd-2.html"];
-  for (const f of COMPOSER) {
+  // Every board carries the locked composer and the poll, the five included.
+  const without = boardDocs.filter((f) => {
     const s = R(f);
-    ok(s.includes('src="/district-composer.js"') && s.includes('src="/district-poll.js"'),
-       `${f} keeps the locked composer and the poll`);
-  }
-  const neighbours = boardDocs.filter((f) => !COMPOSER.includes(f));
-  const leaking = neighbours.filter((f) => R(f).includes("district-composer.js") || R(f).includes('id="pdx-district-composer"'));
-  eq(leaking.length, 0, `neighbour boards still have no composer — ${JSON.stringify(leaking)}`);
+    return !(s.includes('src="/district-composer.js"') && s.includes('src="/district-poll.js"') &&
+      s.includes('id="pdx-district-composer"'));
+  });
+  eq(without.length, 0, `every board keeps the locked composer and the poll — ${JSON.stringify(without)}`);
 }
 {
   const bare = MS_DOC.replace(/<!--[\s\S]*?-->/g, "");

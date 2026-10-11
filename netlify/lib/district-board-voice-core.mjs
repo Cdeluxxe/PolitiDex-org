@@ -1,13 +1,14 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// District board composer — THE GATE (the Layton cluster's hand-built boards)
+// District board composer — THE GATE (every Utah district board)
 // ─────────────────────────────────────────────────────────────────────────────
-// The boards are readers. This is the one place a board takes a voice, and it is
-// FIVE named seats: SD-3, where the composer shipped first, and the Layton
-// cluster's other hand-built boards — HD-16, SD-7, HD-15 and UT-2. Every
-// generated board and every statewide board (ut-gov, both U.S. Senate seats)
-// stays a reader, and the allow-list below is rows, never a pattern, for the
-// same reason BOARD_SEATS in district-board.mts is: a regex here would open a
-// composer on 85 boards.
+// This is the one place a board takes a voice. It opened on FIVE named seats —
+// SD-3, then the Layton cluster's HD-16, SD-7, HD-15 and UT-2 — and now covers
+// every seat that has a board: SD-6, every generated district board and the
+// three statewide boards (ut-gov and both U.S. Senate seats). The allow-list
+// below is still ROWS, never a pattern, for the same reason BOARD_SEATS in
+// district-board.mts is: a seat with no board must never take a post. The
+// generated rows are written by scripts/gen-district-boards.mjs from the same
+// plan that writes BOARD_SEATS, so the two lists cannot drift.
 //
 // ── THE GATE, AND IT FAILS CLOSED ───────────────────────────────────────────
 // A post is accepted only when BOTH are true on the server:
@@ -64,6 +65,7 @@
 // drives the real handler against an in-memory fake and asserts what was
 // written — no database, no network.
 
+import crypto from "node:crypto";
 import { authorHash, normalizeSeatKey } from "./district-voice-core.mjs";
 import { CAP_COPY, MONTHLY_COMMENTS, memberFor, monthStart } from "./membership-core.mjs";
 
@@ -75,6 +77,91 @@ export const COMPOSER_SEATS = {
   "ut-statesenate-7": "ut-sd-7",
   "ut-statehouse-15": "ut-hd-15",
   "ut-house-2": "ut-cd-2",
+  "ut-statesenate-6": "ut-sd-6",
+  // @generated district-boards begin — scripts/gen-district-boards.mjs writes every line up to the end marker, do not edit by hand
+  "ut-statehouse-4": "ut-hd-4",
+  "ut-statehouse-5": "ut-hd-5",
+  "ut-statehouse-6": "ut-hd-6",
+  "ut-statehouse-9": "ut-hd-9",
+  "ut-statehouse-10": "ut-hd-10",
+  "ut-statehouse-11": "ut-hd-11",
+  "ut-statehouse-12": "ut-hd-12",
+  "ut-statehouse-14": "ut-hd-14",
+  "ut-statehouse-19": "ut-hd-19",
+  "ut-statehouse-21": "ut-hd-21",
+  "ut-statehouse-22": "ut-hd-22",
+  "ut-statehouse-23": "ut-hd-23",
+  "ut-statehouse-24": "ut-hd-24",
+  "ut-statehouse-25": "ut-hd-25",
+  "ut-statehouse-28": "ut-hd-28",
+  "ut-statehouse-29": "ut-hd-29",
+  "ut-statehouse-30": "ut-hd-30",
+  "ut-statehouse-31": "ut-hd-31",
+  "ut-statehouse-33": "ut-hd-33",
+  "ut-statehouse-34": "ut-hd-34",
+  "ut-statehouse-36": "ut-hd-36",
+  "ut-statehouse-37": "ut-hd-37",
+  "ut-statehouse-39": "ut-hd-39",
+  "ut-statehouse-41": "ut-hd-41",
+  "ut-statehouse-42": "ut-hd-42",
+  "ut-statehouse-43": "ut-hd-43",
+  "ut-statehouse-44": "ut-hd-44",
+  "ut-statehouse-45": "ut-hd-45",
+  "ut-statehouse-46": "ut-hd-46",
+  "ut-statehouse-49": "ut-hd-49",
+  "ut-statehouse-50": "ut-hd-50",
+  "ut-statehouse-51": "ut-hd-51",
+  "ut-statehouse-52": "ut-hd-52",
+  "ut-statehouse-53": "ut-hd-53",
+  "ut-statehouse-55": "ut-hd-55",
+  "ut-statehouse-56": "ut-hd-56",
+  "ut-statehouse-59": "ut-hd-59",
+  "ut-statehouse-60": "ut-hd-60",
+  "ut-statehouse-61": "ut-hd-61",
+  "ut-statehouse-63": "ut-hd-63",
+  "ut-statehouse-64": "ut-hd-64",
+  "ut-statehouse-65": "ut-hd-65",
+  "ut-statehouse-66": "ut-hd-66",
+  "ut-statehouse-67": "ut-hd-67",
+  "ut-statehouse-68": "ut-hd-68",
+  "ut-statehouse-69": "ut-hd-69",
+  "ut-statehouse-70": "ut-hd-70",
+  "ut-statehouse-71": "ut-hd-71",
+  "ut-statehouse-73": "ut-hd-73",
+  "ut-statehouse-75": "ut-hd-75",
+  "ut-statesenate-1": "ut-sd-1",
+  "ut-statesenate-2": "ut-sd-2",
+  "ut-statesenate-4": "ut-sd-4",
+  "ut-statesenate-5": "ut-sd-5",
+  "ut-statesenate-8": "ut-sd-8",
+  "ut-statesenate-9": "ut-sd-9",
+  "ut-statesenate-10": "ut-sd-10",
+  "ut-statesenate-11": "ut-sd-11",
+  "ut-statesenate-12": "ut-sd-12",
+  "ut-statesenate-13": "ut-sd-13",
+  "ut-statesenate-14": "ut-sd-14",
+  "ut-statesenate-15": "ut-sd-15",
+  "ut-statesenate-16": "ut-sd-16",
+  "ut-statesenate-17": "ut-sd-17",
+  "ut-statesenate-18": "ut-sd-18",
+  "ut-statesenate-19": "ut-sd-19",
+  "ut-statesenate-20": "ut-sd-20",
+  "ut-statesenate-21": "ut-sd-21",
+  "ut-statesenate-22": "ut-sd-22",
+  "ut-statesenate-23": "ut-sd-23",
+  "ut-statesenate-24": "ut-sd-24",
+  "ut-statesenate-25": "ut-sd-25",
+  "ut-statesenate-26": "ut-sd-26",
+  "ut-statesenate-27": "ut-sd-27",
+  "ut-statesenate-28": "ut-sd-28",
+  "ut-statesenate-29": "ut-sd-29",
+  "ut-house-1": "ut-cd-1",
+  "ut-house-3": "ut-cd-3",
+  "ut-house-4": "ut-cd-4",
+  "ut-gov": "ut-gov",
+  "ut-us-senate-curtis": "ut-us-senate-curtis",
+  "ut-us-senate-lee": "ut-us-senate-lee",
+  // @generated district-boards end
 };
 
 export const POST_MAX = 280;
@@ -100,10 +187,27 @@ export const COPY = {
   emptyFeed: "No posts on hand for this seat.",
 };
 
+// A statewide board's key IS its canonical key (ut-gov, ut-us-senate-<pid>);
+// the same shape district-board.mts and gen-district-boards.mjs accept.
+export const STATEWIDE_KEY_RE = /^[a-z]{2}-(?:gov|us-senate-[a-z][a-z0-9_]*)$/;
+
 // The canonical seat if it has a composer, else ''.
 export function composerSeat(raw) {
-  const k = normalizeSeatKey(raw);
+  const s = String(raw == null ? "" : raw).trim().toLowerCase();
+  const k = STATEWIDE_KEY_RE.test(s) ? s : normalizeSeatKey(s);
   return k && Object.prototype.hasOwnProperty.call(COMPOSER_SEATS, k) ? k : "";
+}
+
+// THE SEAT-SCOPED AUTHOR HASH for a composer seat. A district seat is exactly
+// authorHash() (so every row already written keeps its hash); a statewide seat,
+// which normalizeSeatKey() does not speak, is the same sha256(uid + ':' + seat)
+// over its own key. '' for a seat with no composer or an empty uid.
+export function seatHash(uid, seatKey) {
+  const k = composerSeat(seatKey);
+  const u = String(uid == null ? "" : uid).trim();
+  if (!k || !u) return "";
+  if (!STATEWIDE_KEY_RE.test(k)) return authorHash(u, k);
+  return crypto.createHash("sha256").update(`${u}:${k}`).digest("hex").slice(0, 32);
 }
 
 // THE FLAG. The alias of the seat this account is VENDOR-verified for, or ''.
@@ -131,15 +235,35 @@ export function gate(user, row, seatKey) {
 
 // THE ONE CHECK. One vendor check covers every composer seat the reader's
 // saved location resolved when they ran it, so an account that already holds a
-// VERIFIED vendor row on any of the five has nothing left to start. The alias
+// VERIFIED vendor row on any composer seat has nothing left to start. The alias
 // of the first such seat, or ''. Read from voice_residency itself, so no counter
 // is kept: the seat-scoped hash is recomputed for each named seat. A revoked
 // row elsewhere does not count — it is not a verification.
+//
+// With a board on every seat that is one lookup per row, so a store may offer
+// findVendorVerified(pairs) → rows { seatKey, authorHash, status, method }: one
+// query for every (seat, hash) pair at once. Only a row whose seat AND hash are
+// one of the pairs counts. Without it, the per-seat findResidency() walk.
 export async function anyVerifiedSeat(deps, uid) {
-  if (!deps || typeof deps.findResidency !== "function" || !uid) return "";
+  if (!deps || !uid) return "";
+  const pairs = [];
   for (const k of Object.keys(COMPOSER_SEATS)) {
-    const row = await deps.findResidency(k, authorHash(uid, k));
-    if (row && row.method === "vendor" && row.status === "verified") return COMPOSER_SEATS[k];
+    const h = seatHash(uid, k);
+    if (h) pairs.push({ seatKey: k, authorHash: h });
+  }
+  if (typeof deps.findVendorVerified === "function") {
+    const rows = (await deps.findVendorVerified(pairs)) || [];
+    for (const p of pairs) {
+      const hit = rows.some((r) => r && r.seatKey === p.seatKey && r.authorHash === p.authorHash &&
+        r.method === "vendor" && r.status === "verified");
+      if (hit) return COMPOSER_SEATS[p.seatKey];
+    }
+    return "";
+  }
+  if (typeof deps.findResidency !== "function") return "";
+  for (const p of pairs) {
+    const row = await deps.findResidency(p.seatKey, p.authorHash);
+    if (row && row.method === "vendor" && row.status === "verified") return COMPOSER_SEATS[p.seatKey];
   }
   return "";
 }
@@ -222,7 +346,7 @@ export async function handle(req, deps) {
     const seatKey = composerSeat(url.searchParams.get("seat"));
     if (!seatKey) return json({ error: COPY.noSeat, code: "no_seat" }, 404);
     const user = await deps.verifyUser(req);
-    const hash = user && !user.isAnonymous ? authorHash(user.uid, seatKey) : "";
+    const hash = user && !user.isAnonymous ? seatHash(user.uid, seatKey) : "";
     const row = hash ? await deps.findResidency(seatKey, hash) : null;
     const verdict = gate(user, row, seatKey);
     const check = verdict.code === "unverified" ? await canVerifyHere(deps, user, row, seatKey) : { ok: false };
@@ -258,7 +382,7 @@ export async function handle(req, deps) {
     const limited = await deps.limit(req, user);
     if (limited) return limited;
   }
-  const hash = user && !user.isAnonymous ? authorHash(user.uid, seatKey) : "";
+  const hash = user && !user.isAnonymous ? seatHash(user.uid, seatKey) : "";
   const row = hash ? await deps.findResidency(seatKey, hash) : null;
 
   const verdict = gate(user, row, seatKey);

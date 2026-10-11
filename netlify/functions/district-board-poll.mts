@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// District board poll — API (SD-3, HD-16, SD-7, HD-15 and UT-2)
+// District board poll — API (every Utah district and statewide board)
 // ─────────────────────────────────────────────────────────────────────────────
 // The wiring for netlify/lib/district-board-poll-core.mjs. Every decision — the
 // seat allow-list, the verified_seat gate (the composer's own), the choice check

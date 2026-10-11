@@ -16,6 +16,12 @@
 //   · three 200 rewrites in netlify.toml (bare, trailing slash, .html);
 //   · one row each in district-board.js BOARDS, district-voice.js BOARD_ROUTES
 //     and netlify/functions/district-board.mts BOARD_SEATS;
+//   · one row each in the composer's three seat lists — COMPOSER_SEATS in
+//     netlify/lib/district-board-voice-core.mjs (the server gate the poll and
+//     the Didit check also read), COMPOSER_SEATS in district-composer.js and
+//     POLL_SEATS in district-poll.js — so every generated board takes a comment
+//     and a poll vote from a Didit-verified resident of that seat, and from
+//     nobody else;
 //   · the precache entry, the nav-regex alias and the offline document map in
 //     sw.js, because an offline /district/<alias> must be ITS OWN document.
 //
@@ -263,6 +269,9 @@ export function renderDoc(b, template = R("scripts/district-board.template.html"
     H1_HTML: h1,
     WHERE_HTML: where,
     US_HOUSE_SCRIPT: b.usHouse ? `  <script defer src="/voter-hub-location.js"></script>\n` : "",
+    // The composer's seat resolver. A congressional board already loads
+    // voter-hub-location.js above, and loading it twice would run it twice.
+    COMPOSER_VHL_SCRIPT: b.usHouse ? "" : `  <script defer src="/voter-hub-location.js"></script>\n`,
     // PDXReturn for the chrome's Join. A congressional board already has it from
     // voter-hub-location.js above; every other board gets the generated copy.
     RETURN_SCRIPT: b.usHouse ? "" : RETURN_TAG,
@@ -277,7 +286,7 @@ export function renderDoc(b, template = R("scripts/district-board.template.html"
 function boardsRows(boards) {
   return boards.map((b) => {
     const f = [
-      `seat: ${js(b.seat)}`, `alias: ${js(b.alias)}`, `route: ${js(b.route)}`, `pid: ${js(b.pid)}`,
+      `seat: ${js(b.seat)}`, "composer: true", `alias: ${js(b.alias)}`, `route: ${js(b.route)}`, `pid: ${js(b.pid)}`,
     ];
     if (b.usHouse) f.push(`usHouse: { state: 'Utah', district: ${b.district} }`);
     if (b.statewide) f.push("statewide: true");
@@ -317,6 +326,12 @@ export function renderAll() {
     boards.map((b) => `    ${js(b.seat)}: ${js(b.route)},`)));
   out.set("netlify/functions/district-board.mts", splice(R("netlify/functions/district-board.mts"),
     "district-board.mts", boards.map((b) => `  "${b.seat}": 1,`)));
+  out.set("netlify/lib/district-board-voice-core.mjs", splice(R("netlify/lib/district-board-voice-core.mjs"),
+    "district-board-voice-core.mjs", boards.map((b) => `  "${b.seat}": "${b.alias}",`)));
+  out.set("district-composer.js", splice(R("district-composer.js"), "district-composer.js",
+    boards.map((b) => `    ${js(b.alias)}: 1,`)));
+  out.set("district-poll.js", splice(R("district-poll.js"), "district-poll.js",
+    boards.map((b) => `    ${js(b.alias)}: 1,`)));
   out.set("netlify.toml", splice(R("netlify.toml"), "netlify.toml", boards.flatMap((b) => [
     `# ${b.h1.replace("’", "'").replace("·", "-")} — ${b.usHouse ? "U.S. House join" : b.pid}`,
     ...["", "/", ".html"].flatMap((sfx) => [

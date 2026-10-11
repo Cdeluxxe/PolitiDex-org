@@ -134,16 +134,18 @@
        floor boot byte-identical with and without this module, and the suite
        asserts exactly that by twin-booting them.
 
-     · NOT A COMPOSER. See THE READ-ONLY LINE.
+     · NOT A COMPOSER. district-composer.js is. See THE READ-ONLY LINE.
 
-   ── THE READ-ONLY LINE, AND WHY THERE IS NO FIELD ──────────────────────────
+   ── THE COMPOSER, AND THE READ-ONLY LINE ───────────────────────────────────
    Reading this board is free and open to anybody, signed in or not. POSTING to
-   it exists on five named boards only (SD-3, HD-16, SD-7, HD-15, UT-2), whose
-   documents carry district-composer.js's host. Every other board — generated
-   district boards and the three statewide seats — is a reader, and says so in
-   one line: the room is read-only. No disabled box, and no sentence promising
-   that posting is coming, because a promise the board does not honour is a
-   claim it cannot back.
+   it is district-composer.js's, on every board whose row below is
+   `composer: true` — every Utah board, the generated district boards and the
+   three statewide seats included — and whose document carries that module's
+   host. The server's gate (a Didit-verified residency row for THIS seat) is the
+   one that counts. A document with no composer host still prints the one
+   read-only line instead: no disabled box, and no sentence promising that
+   posting is coming, because a promise the board does not honour is a claim
+   it cannot back.
 
    WHAT WAS NOT DONE, ON PURPOSE. No composer that writes to localStorage. That
    was the tempting version — a box that accepts a sentence, keeps it on the
@@ -309,6 +311,7 @@
     'ut-statesenate-6': {
       seat: 'ut-statesenate-6',
       alias: 'ut-sd-6',
+      composer: true,
       route: '/district/ut-sd-6',
       pid: 'jstevenson',
       h1: 'Utah Senate District 6',
@@ -325,88 +328,88 @@
     // carries usHouse and no pid, as UT-2's does. Appended after the six, which
     // keep their order and their bytes.
     // @generated district-boards begin — scripts/gen-district-boards.mjs writes every line up to the end marker, do not edit by hand
-    'ut-statehouse-4': { seat: 'ut-statehouse-4', alias: 'ut-hd-4', route: '/district/ut-hd-4', pid: 'auxier_h4', h1: 'Utah House District 4', where: 'Morgan / Summit / Rich County', kick: 'House District 4 board', kickTitle: 'The district board for Utah House District 4: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-5': { seat: 'ut-statehouse-5', alias: 'ut-hd-5', route: '/district/ut-hd-5', pid: 'snider_h5', h1: 'Utah House District 5', where: 'Cache County', kick: 'House District 5 board', kickTitle: 'The district board for Utah House District 5: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-6': { seat: 'ut-statehouse-6', alias: 'ut-hd-6', route: '/district/ut-hd-6', pid: 'rob_bishop', h1: 'Utah House District 6', where: 'Box Elder / Weber County', kick: 'House District 6 board', kickTitle: 'The district board for Utah House District 6: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-9': { seat: 'ut-statehouse-9', alias: 'ut-hd-9', route: '/district/ut-hd-9', pid: 'jake_sawyer', h1: 'Utah House District 9', where: 'Ogden / Weber Co.', kick: 'House District 9 board', kickTitle: 'The district board for Utah House District 9: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-10': { seat: 'ut-statehouse-10', alias: 'ut-hd-10', route: '/district/ut-hd-10', pid: 'koford_h10', h1: 'Utah House District 10', where: 'South Ogden, Weber County', kick: 'House District 10 board', kickTitle: 'The district board for Utah House District 10: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-11': { seat: 'ut-statehouse-11', alias: 'ut-hd-11', route: '/district/ut-hd-11', pid: 'hall_h11', h1: 'Utah House District 11', where: 'South Ogden', kick: 'House District 11 board', kickTitle: 'The district board for Utah House District 11: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-12': { seat: 'ut-statehouse-12', alias: 'ut-hd-12', route: '/district/ut-hd-12', pid: 'mschultz', h1: 'Utah House District 12', where: 'Hooper, Weber County', kick: 'House District 12 board', kickTitle: 'The district board for Utah House District 12: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-14': { seat: 'ut-statehouse-14', alias: 'ut-hd-14', route: '/district/ut-hd-14', pid: 'lisonbee_h14', h1: 'Utah House District 14', where: 'Clearfield / Syracuse', kick: 'House District 14 board', kickTitle: 'The district board for Utah House District 14: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-19': { seat: 'ut-statehouse-19', alias: 'ut-hd-19', route: '/district/ut-hd-19', pid: 'rward', h1: 'Utah House District 19', where: 'Bountiful, Davis County', kick: 'House District 19 board', kickTitle: 'The district board for Utah House District 19: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-21': { seat: 'ut-statehouse-21', alias: 'ut-hd-21', route: '/district/ut-hd-21', pid: 'hollins_h24', h1: 'Utah House District 21', where: 'Salt Lake City', kick: 'House District 21 board', kickTitle: 'The district board for Utah House District 21: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-22': { seat: 'ut-statehouse-22', alias: 'ut-hd-22', route: '/district/ut-hd-22', pid: 'jennifer_dailey_provost', h1: 'Utah House District 22', where: 'Salt Lake City', kick: 'House District 22 board', kickTitle: 'The district board for Utah House District 22: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-23': { seat: 'ut-statehouse-23', alias: 'ut-hd-23', route: '/district/ut-hd-23', pid: 'hoang_nguyen', h1: 'Utah House District 23', where: 'Salt Lake City', kick: 'House District 23 board', kickTitle: 'The district board for Utah House District 23: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-24': { seat: 'ut-statehouse-24', alias: 'ut-hd-24', route: '/district/ut-hd-24', pid: 'grant_miller', h1: 'Utah House District 24', where: 'Salt Lake City', kick: 'House District 24 board', kickTitle: 'The district board for Utah House District 24: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-25': { seat: 'ut-statehouse-25', alias: 'ut-hd-25', route: '/district/ut-hd-25', pid: 'aromero', h1: 'Utah House District 25', where: 'West Salt Lake City, Salt Lake County', kick: 'House District 25 board', kickTitle: 'The district board for Utah House District 25: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-28': { seat: 'ut-statehouse-28', alias: 'ut-hd-28', route: '/district/ut-hd-28', pid: 'nicholeen_p_peck', h1: 'Utah House District 28', where: 'Tooele, Tooele County', kick: 'House District 28 board', kickTitle: 'The district board for Utah House District 28: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-29': { seat: 'ut-statehouse-29', alias: 'ut-hd-29', route: '/district/ut-hd-29', pid: 'bolinder_h68', h1: 'Utah House District 29', where: 'Tooele / Grantsville', kick: 'House District 29 board', kickTitle: 'The district board for Utah House District 29: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-30': { seat: 'ut-statehouse-30', alias: 'ut-hd-30', route: '/district/ut-hd-30', pid: 'fitisemanu_h30', h1: 'Utah House District 30', where: 'West Valley City', kick: 'House District 30 board', kickTitle: 'The district board for Utah House District 30: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-31': { seat: 'ut-statehouse-31', alias: 'ut-hd-31', route: '/district/ut-hd-31', pid: 'verona_mauga', h1: 'Utah House District 31', where: 'West Valley City / Taylorsville, Salt Lake County', kick: 'House District 31 board', kickTitle: 'The district board for Utah House District 31: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-33': { seat: 'ut-statehouse-33', alias: 'ut-hd-33', route: '/district/ut-hd-33', pid: 'doug_owens', h1: 'Utah House District 33', where: 'Millcreek, Salt Lake County', kick: 'House District 33 board', kickTitle: 'The district board for Utah House District 33: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-34': { seat: 'ut-statehouse-34', alias: 'ut-hd-34', route: '/district/ut-hd-34', pid: 'carol_spackman_moss', h1: 'Utah House District 34', where: 'Holladay, Salt Lake County', kick: 'House District 34 board', kickTitle: 'The district board for Utah House District 34: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-36': { seat: 'ut-statehouse-36', alias: 'ut-hd-36', route: '/district/ut-hd-36', pid: 'james_dunnigan', h1: 'Utah House District 36', where: 'Taylorsville, Salt Lake County', kick: 'House District 36 board', kickTitle: 'The district board for Utah House District 36: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-37': { seat: 'ut-statehouse-37', alias: 'ut-hd-37', route: '/district/ut-hd-37', pid: 'ashlee_matthews', h1: 'Utah House District 37', where: 'Kearns, Salt Lake County', kick: 'House District 37 board', kickTitle: 'The district board for Utah House District 37: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-39': { seat: 'ut-statehouse-39', alias: 'ut-hd-39', route: '/district/ut-hd-39', pid: 'ivory_h39', h1: 'Utah House District 39', where: 'West Jordan', kick: 'House District 39 board', kickTitle: 'The district board for Utah House District 39: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-41': { seat: 'ut-statehouse-41', alias: 'ut-hd-41', route: '/district/ut-hd-41', pid: 'john_arthur', h1: 'Utah House District 41', where: 'Cottonwood Heights, Salt Lake County', kick: 'House District 41 board', kickTitle: 'The district board for Utah House District 41: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-42': { seat: 'ut-statehouse-42', alias: 'ut-hd-42', route: '/district/ut-hd-42', pid: 'clinton_okerlund', h1: 'Utah House District 42', where: 'Sandy, Salt Lake County', kick: 'House District 42 board', kickTitle: 'The district board for Utah House District 42: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-43': { seat: 'ut-statehouse-43', alias: 'ut-hd-43', route: '/district/ut-hd-43', pid: 'eliason_h45', h1: 'Utah House District 43', where: 'Sandy, Salt Lake County', kick: 'House District 43 board', kickTitle: 'The district board for Utah House District 43: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-44': { seat: 'ut-statehouse-44', alias: 'ut-hd-44', route: '/district/ut-hd-44', pid: 'teuscher_h44', h1: 'Utah House District 44', where: 'South Jordan', kick: 'House District 44 board', kickTitle: 'The district board for Utah House District 44: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-45': { seat: 'ut-statehouse-45', alias: 'ut-hd-45', route: '/district/ut-hd-45', pid: 'tracy_miller', h1: 'Utah House District 45', where: 'South Jordan, Salt Lake County', kick: 'House District 45 board', kickTitle: 'The district board for Utah House District 45: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-46': { seat: 'ut-statehouse-46', alias: 'ut-hd-46', route: '/district/ut-hd-46', pid: 'calvin_roberts', h1: 'Utah House District 46', where: 'Draper / Bluffdale, Salt Lake County', kick: 'House District 46 board', kickTitle: 'The district board for Utah House District 46: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-49': { seat: 'ut-statehouse-49', alias: 'ut-hd-49', route: '/district/ut-hd-49', pid: 'candice_pierucci', h1: 'Utah House District 49', where: 'Herriman / Riverton, Salt Lake County', kick: 'House District 49 board', kickTitle: 'The district board for Utah House District 49: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-50': { seat: 'ut-statehouse-50', alias: 'ut-hd-50', route: '/district/ut-hd-50', pid: 'gricius_h50', h1: 'Utah House District 50', where: 'Eagle Mountain', kick: 'House District 50 board', kickTitle: 'The district board for Utah House District 50: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-51': { seat: 'ut-statehouse-51', alias: 'ut-hd-51', route: '/district/ut-hd-51', pid: 'leah_hansen', h1: 'Utah House District 51', where: 'Saratoga Springs / west Lehi, Utah County', kick: 'House District 51 board', kickTitle: 'The district board for Utah House District 51: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-52': { seat: 'ut-statehouse-52', alias: 'ut-hd-52', route: '/district/ut-hd-52', pid: 'cory_maloy_h52', h1: 'Utah House District 52', where: 'Lehi, Utah County', kick: 'House District 52 board', kickTitle: 'The district board for Utah House District 52: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-53': { seat: 'ut-statehouse-53', alias: 'ut-hd-53', route: '/district/ut-hd-53', pid: 'kay_christofferson', h1: 'Utah House District 53', where: 'Lehi, Utah County', kick: 'House District 53 board', kickTitle: 'The district board for Utah House District 53: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-55': { seat: 'ut-statehouse-55', alias: 'ut-hd-55', route: '/district/ut-hd-55', pid: 'jon_hawkins', h1: 'Utah House District 55', where: 'Pleasant Grove / American Fork, Utah County', kick: 'House District 55 board', kickTitle: 'The district board for Utah House District 55: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-56': { seat: 'ut-statehouse-56', alias: 'ut-hd-56', route: '/district/ut-hd-56', pid: 'valpeterson_h56', h1: 'Utah House District 56', where: 'Orem', kick: 'House District 56 board', kickTitle: 'The district board for Utah House District 56: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-59': { seat: 'ut-statehouse-59', alias: 'ut-hd-59', route: '/district/ut-hd-59', pid: 'kohler_h59', h1: 'Utah House District 59', where: 'Heber City, Wasatch / Summit County', kick: 'House District 59 board', kickTitle: 'The district board for Utah House District 59: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-60': { seat: 'ut-statehouse-60', alias: 'ut-hd-60', route: '/district/ut-hd-60', pid: 'grant_pace', h1: 'Utah House District 60', where: 'Provo, Utah County', kick: 'House District 60 board', kickTitle: 'The district board for Utah House District 60: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-61': { seat: 'ut-statehouse-61', alias: 'ut-hd-61', route: '/district/ut-hd-61', pid: 'lisa_shepherd', h1: 'Utah House District 61', where: 'Provo', kick: 'House District 61 board', kickTitle: 'The district board for Utah House District 61: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-63': { seat: 'ut-statehouse-63', alias: 'ut-hd-63', route: '/district/ut-hd-63', pid: 'whyte_h63', h1: 'Utah House District 63', where: 'Spanish Fork, Utah County', kick: 'House District 63 board', kickTitle: 'The district board for Utah House District 63: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-64': { seat: 'ut-statehouse-64', alias: 'ut-hd-64', route: '/district/ut-hd-64', pid: 'jackie_larson', h1: 'Utah House District 64', where: 'Spanish Fork / Salem, Utah County', kick: 'House District 64 board', kickTitle: 'The district board for Utah House District 64: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-65': { seat: 'ut-statehouse-65', alias: 'ut-hd-65', route: '/district/ut-hd-65', pid: 'doug_welton', h1: 'Utah House District 65', where: 'Payson, Utah County', kick: 'House District 65 board', kickTitle: 'The district board for Utah House District 65: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-66': { seat: 'ut-statehouse-66', alias: 'ut-hd-66', route: '/district/ut-hd-66', pid: 'shelley_h66', h1: 'Utah House District 66', where: 'Ephraim, Sanpete / Juab County', kick: 'House District 66 board', kickTitle: 'The district board for Utah House District 66: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-67': { seat: 'ut-statehouse-67', alias: 'ut-hd-67', route: '/district/ut-hd-67', pid: 'christine_watkins', h1: 'Utah House District 67', where: 'Price, Carbon County', kick: 'House District 67 board', kickTitle: 'The district board for Utah House District 67: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-68': { seat: 'ut-statehouse-68', alias: 'ut-hd-68', route: '/district/ut-hd-68', pid: 'chew_h68', h1: 'Utah House District 68', where: 'Vernal, Uintah / Duchesne County', kick: 'House District 68 board', kickTitle: 'The district board for Utah House District 68: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-69': { seat: 'ut-statehouse-69', alias: 'ut-hd-69', route: '/district/ut-hd-69', pid: 'logan_monson', h1: 'Utah House District 69', where: 'Blanding, San Juan County', kick: 'House District 69 board', kickTitle: 'The district board for Utah House District 69: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-70': { seat: 'ut-statehouse-70', alias: 'ut-hd-70', route: '/district/ut-hd-70', pid: 'carl_albrecht', h1: 'Utah House District 70', where: 'Richfield, Sevier County', kick: 'House District 70 board', kickTitle: 'The district board for Utah House District 70: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-71': { seat: 'ut-statehouse-71', alias: 'ut-hd-71', route: '/district/ut-hd-71', pid: 'rshipp', h1: 'Utah House District 71', where: 'Cedar City, Iron County', kick: 'House District 71 board', kickTitle: 'The district board for Utah House District 71: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-73': { seat: 'ut-statehouse-73', alias: 'ut-hd-73', route: '/district/ut-hd-73', pid: 'colin_w_jack', h1: 'Utah House District 73', where: 'St. George, Washington County', kick: 'House District 73 board', kickTitle: 'The district board for Utah House District 73: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statehouse-75': { seat: 'ut-statehouse-75', alias: 'ut-hd-75', route: '/district/ut-hd-75', pid: 'walt_brooks', h1: 'Utah House District 75', where: 'St. George, Washington County', kick: 'House District 75 board', kickTitle: 'The district board for Utah House District 75: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-1': { seat: 'ut-statesenate-1', alias: 'ut-sd-1', route: '/district/ut-sd-1', pid: 'ssandall', h1: 'Utah Senate District 1', where: 'Box Elder/Cache', kick: 'Senate District 1 board', kickTitle: 'The district board for Utah Senate District 1: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-2': { seat: 'ut-statesenate-2', alias: 'ut-sd-2', route: '/district/ut-sd-2', pid: 'cwilson', h1: 'Utah Senate District 2', where: 'Logan, Cache County', kick: 'Senate District 2 board', kickTitle: 'The district board for Utah Senate District 2: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-4': { seat: 'ut-statesenate-4', alias: 'ut-sd-4', route: '/district/ut-sd-4', pid: 'cmusselman', h1: 'Utah Senate District 4', where: 'West Haven, Weber County', kick: 'Senate District 4 board', kickTitle: 'The district board for Utah Senate District 4: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-5': { seat: 'ut-statesenate-5', alias: 'ut-sd-5', route: '/district/ut-sd-5', pid: 'amillner', h1: 'Utah Senate District 5', where: 'District 5 as the 2022 legislative plan draws it', kick: 'Senate District 5 board', kickTitle: 'The district board for Utah Senate District 5: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-8': { seat: 'ut-statesenate-8', alias: 'ut-sd-8', route: '/district/ut-sd-8', pid: 'tweiler', h1: 'Utah Senate District 8', where: 'Woods Cross', kick: 'Senate District 8 board', kickTitle: 'The district board for Utah Senate District 8: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-9': { seat: 'ut-statesenate-9', alias: 'ut-sd-9', route: '/district/ut-sd-9', pid: 'jennifer_plumb', h1: 'Utah Senate District 9', where: 'Salt Lake City', kick: 'Senate District 9 board', kickTitle: 'The district board for Utah Senate District 9: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-10': { seat: 'ut-statesenate-10', alias: 'ut-sd-10', route: '/district/ut-sd-10', pid: 'lescamilla', h1: 'Utah Senate District 10', where: 'Northwest Salt Lake City / West Valley City / Magna, Salt Lake County', kick: 'Senate District 10 board', kickTitle: 'The district board for Utah Senate District 10: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-11': { seat: 'ut-statesenate-11', alias: 'ut-sd-11', route: '/district/ut-sd-11', pid: 'emily_buss', h1: 'Utah Senate District 11', where: 'Eagle Mountain / Tooele, Utah County', kick: 'Senate District 11 board', kickTitle: 'The district board for Utah Senate District 11: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-12': { seat: 'ut-statesenate-12', alias: 'ut-sd-12', route: '/district/ut-sd-12', pid: 'kwan_s12', h1: 'Utah Senate District 12', where: 'West Valley / Murray', kick: 'Senate District 12 board', kickTitle: 'The district board for Utah Senate District 12: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-13': { seat: 'ut-statesenate-13', alias: 'ut-sd-13', route: '/district/ut-sd-13', pid: 'blouin_s13', h1: 'Utah Senate District 13', where: 'Millcreek / Salt Lake City', kick: 'Senate District 13 board', kickTitle: 'The district board for Utah Senate District 13: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-14': { seat: 'ut-statesenate-14', alias: 'ut-sd-14', route: '/district/ut-sd-14', pid: 'stephanie_pitcher', h1: 'Utah Senate District 14', where: 'Salt Lake City / Millcreek, Salt Lake County', kick: 'Senate District 14 board', kickTitle: 'The district board for Utah Senate District 14: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-15': { seat: 'ut-statesenate-15', alias: 'ut-sd-15', route: '/district/ut-sd-15', pid: 'kathleen_riebe', h1: 'Utah Senate District 15', where: 'Cottonwood Heights, Salt Lake County', kick: 'Senate District 15 board', kickTitle: 'The district board for Utah Senate District 15: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-16': { seat: 'ut-statesenate-16', alias: 'ut-sd-16', route: '/district/ut-sd-16', pid: 'harper_s16', h1: 'Utah Senate District 16', where: 'West Jordan / Taylorsville', kick: 'Senate District 16 board', kickTitle: 'The district board for Utah Senate District 16: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-17': { seat: 'ut-statesenate-17', alias: 'ut-sd-17', route: '/district/ut-sd-17', pid: 'lincoln_fillmore', h1: 'Utah Senate District 17', where: 'South Jordan, Salt Lake County', kick: 'Senate District 17 board', kickTitle: 'The district board for Utah Senate District 17: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-18': { seat: 'ut-statesenate-18', alias: 'ut-sd-18', route: '/district/ut-sd-18', pid: 'mccay_s11', h1: 'Utah Senate District 18', where: 'Riverton / Herriman', kick: 'Senate District 18 board', kickTitle: 'The district board for Utah Senate District 18: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-19': { seat: 'ut-statesenate-19', alias: 'ut-sd-19', route: '/district/ut-sd-19', pid: 'kcullimore', h1: 'Utah Senate District 19', where: 'Sandy / Draper / Cottonwood Heights', kick: 'Senate District 19 board', kickTitle: 'The district board for Utah Senate District 19: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-20': { seat: 'ut-statesenate-20', alias: 'ut-sd-20', route: '/district/ut-sd-20', pid: 'rwinterton', h1: 'Utah Senate District 20', where: 'Roosevelt, Duchesne County', kick: 'Senate District 20 board', kickTitle: 'The district board for Utah Senate District 20: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-21': { seat: 'ut-statesenate-21', alias: 'ut-sd-21', route: '/district/ut-sd-21', pid: 'brammer_s21', h1: 'Utah Senate District 21', where: 'Highland / Pleasant Grove', kick: 'Senate District 21 board', kickTitle: 'The district board for Utah Senate District 21: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-22': { seat: 'ut-statesenate-22', alias: 'ut-sd-22', route: '/district/ut-sd-22', pid: 'heidi_balderree', h1: 'Utah Senate District 22', where: 'Saratoga Springs / Bluffdale, Utah County', kick: 'Senate District 22 board', kickTitle: 'The district board for Utah Senate District 22: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-23': { seat: 'ut-statesenate-23', alias: 'ut-sd-23', route: '/district/ut-sd-23', pid: 'kgrover', h1: 'Utah Senate District 23', where: 'Provo', kick: 'Senate District 23 board', kickTitle: 'The district board for Utah Senate District 23: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-24': { seat: 'ut-statesenate-24', alias: 'ut-sd-24', route: '/district/ut-sd-24', pid: 'kstratton', h1: 'Utah Senate District 24', where: 'Provo / Orem', kick: 'Senate District 24 board', kickTitle: 'The district board for Utah Senate District 24: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-25': { seat: 'ut-statesenate-25', alias: 'ut-sd-25', route: '/district/ut-sd-25', pid: 'mckell_s25', h1: 'Utah Senate District 25', where: 'Utah County', kick: 'Senate District 25 board', kickTitle: 'The district board for Utah Senate District 25: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-26': { seat: 'ut-statesenate-26', alias: 'ut-sd-26', route: '/district/ut-sd-26', pid: 'dhinkins', h1: 'Utah Senate District 26', where: 'Orangeville, Emery County', kick: 'Senate District 26 board', kickTitle: 'The district board for Utah Senate District 26: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-27': { seat: 'ut-statesenate-27', alias: 'ut-sd-27', route: '/district/ut-sd-27', pid: 'dowens_st', h1: 'Utah Senate District 27', where: 'Fountain Green, Sanpete County', kick: 'Senate District 27 board', kickTitle: 'The district board for Utah Senate District 27: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-28': { seat: 'ut-statesenate-28', alias: 'ut-sd-28', route: '/district/ut-sd-28', pid: 'evickers', h1: 'Utah Senate District 28', where: 'Cedar City', kick: 'Senate District 28 board', kickTitle: 'The district board for Utah Senate District 28: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-statesenate-29': { seat: 'ut-statesenate-29', alias: 'ut-sd-29', route: '/district/ut-sd-29', pid: 'dipson', h1: 'Utah Senate District 29', where: 'St. George', kick: 'Senate District 29 board', kickTitle: 'The district board for Utah Senate District 29: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-house-1': { seat: 'ut-house-1', alias: 'ut-cd-1', route: '/district/ut-cd-1', pid: '', usHouse: { state: 'Utah', district: 1 }, h1: 'Utah’s 1st Congressional District', where: 'The district as the court-ordered 2026 map draws it', kick: 'UT-1 district board', kickTitle: 'The district board for Utah’s 1st Congressional District: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-house-3': { seat: 'ut-house-3', alias: 'ut-cd-3', route: '/district/ut-cd-3', pid: '', usHouse: { state: 'Utah', district: 3 }, h1: 'Utah’s 3rd Congressional District', where: 'The district as the court-ordered 2026 map draws it', kick: 'UT-3 district board', kickTitle: 'The district board for Utah’s 3rd Congressional District: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-house-4': { seat: 'ut-house-4', alias: 'ut-cd-4', route: '/district/ut-cd-4', pid: '', usHouse: { state: 'Utah', district: 4 }, h1: 'Utah’s 4th Congressional District', where: 'The district as the court-ordered 2026 map draws it', kick: 'UT-4 district board', kickTitle: 'The district board for Utah’s 4th Congressional District: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-gov': { seat: 'ut-gov', alias: 'ut-gov', route: '/district/ut-gov', pid: 'cox', statewide: true, h1: 'Governor · Spencer Cox', where: 'Statewide · the whole State of Utah', kick: 'Governor board', kickTitle: 'The board for Governor · Spencer Cox: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-us-senate-curtis': { seat: 'ut-us-senate-curtis', alias: 'ut-us-senate-curtis', route: '/district/ut-us-senate-curtis', pid: 'curtis', statewide: true, h1: 'U.S. Senate · John Curtis', where: 'Statewide · the whole State of Utah', kick: 'U.S. Senate board', kickTitle: 'The board for U.S. Senate · John Curtis: who is in the room and what is on the table. A place, not a scorecard.' },
-    'ut-us-senate-lee': { seat: 'ut-us-senate-lee', alias: 'ut-us-senate-lee', route: '/district/ut-us-senate-lee', pid: 'lee', statewide: true, h1: 'U.S. Senate · Mike Lee', where: 'Statewide · the whole State of Utah', kick: 'U.S. Senate board', kickTitle: 'The board for U.S. Senate · Mike Lee: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-4': { seat: 'ut-statehouse-4', composer: true, alias: 'ut-hd-4', route: '/district/ut-hd-4', pid: 'auxier_h4', h1: 'Utah House District 4', where: 'Morgan / Summit / Rich County', kick: 'House District 4 board', kickTitle: 'The district board for Utah House District 4: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-5': { seat: 'ut-statehouse-5', composer: true, alias: 'ut-hd-5', route: '/district/ut-hd-5', pid: 'snider_h5', h1: 'Utah House District 5', where: 'Cache County', kick: 'House District 5 board', kickTitle: 'The district board for Utah House District 5: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-6': { seat: 'ut-statehouse-6', composer: true, alias: 'ut-hd-6', route: '/district/ut-hd-6', pid: 'rob_bishop', h1: 'Utah House District 6', where: 'Box Elder / Weber County', kick: 'House District 6 board', kickTitle: 'The district board for Utah House District 6: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-9': { seat: 'ut-statehouse-9', composer: true, alias: 'ut-hd-9', route: '/district/ut-hd-9', pid: 'jake_sawyer', h1: 'Utah House District 9', where: 'Ogden / Weber Co.', kick: 'House District 9 board', kickTitle: 'The district board for Utah House District 9: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-10': { seat: 'ut-statehouse-10', composer: true, alias: 'ut-hd-10', route: '/district/ut-hd-10', pid: 'koford_h10', h1: 'Utah House District 10', where: 'South Ogden, Weber County', kick: 'House District 10 board', kickTitle: 'The district board for Utah House District 10: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-11': { seat: 'ut-statehouse-11', composer: true, alias: 'ut-hd-11', route: '/district/ut-hd-11', pid: 'hall_h11', h1: 'Utah House District 11', where: 'South Ogden', kick: 'House District 11 board', kickTitle: 'The district board for Utah House District 11: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-12': { seat: 'ut-statehouse-12', composer: true, alias: 'ut-hd-12', route: '/district/ut-hd-12', pid: 'mschultz', h1: 'Utah House District 12', where: 'Hooper, Weber County', kick: 'House District 12 board', kickTitle: 'The district board for Utah House District 12: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-14': { seat: 'ut-statehouse-14', composer: true, alias: 'ut-hd-14', route: '/district/ut-hd-14', pid: 'lisonbee_h14', h1: 'Utah House District 14', where: 'Clearfield / Syracuse', kick: 'House District 14 board', kickTitle: 'The district board for Utah House District 14: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-19': { seat: 'ut-statehouse-19', composer: true, alias: 'ut-hd-19', route: '/district/ut-hd-19', pid: 'rward', h1: 'Utah House District 19', where: 'Bountiful, Davis County', kick: 'House District 19 board', kickTitle: 'The district board for Utah House District 19: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-21': { seat: 'ut-statehouse-21', composer: true, alias: 'ut-hd-21', route: '/district/ut-hd-21', pid: 'hollins_h24', h1: 'Utah House District 21', where: 'Salt Lake City', kick: 'House District 21 board', kickTitle: 'The district board for Utah House District 21: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-22': { seat: 'ut-statehouse-22', composer: true, alias: 'ut-hd-22', route: '/district/ut-hd-22', pid: 'jennifer_dailey_provost', h1: 'Utah House District 22', where: 'Salt Lake City', kick: 'House District 22 board', kickTitle: 'The district board for Utah House District 22: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-23': { seat: 'ut-statehouse-23', composer: true, alias: 'ut-hd-23', route: '/district/ut-hd-23', pid: 'hoang_nguyen', h1: 'Utah House District 23', where: 'Salt Lake City', kick: 'House District 23 board', kickTitle: 'The district board for Utah House District 23: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-24': { seat: 'ut-statehouse-24', composer: true, alias: 'ut-hd-24', route: '/district/ut-hd-24', pid: 'grant_miller', h1: 'Utah House District 24', where: 'Salt Lake City', kick: 'House District 24 board', kickTitle: 'The district board for Utah House District 24: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-25': { seat: 'ut-statehouse-25', composer: true, alias: 'ut-hd-25', route: '/district/ut-hd-25', pid: 'aromero', h1: 'Utah House District 25', where: 'West Salt Lake City, Salt Lake County', kick: 'House District 25 board', kickTitle: 'The district board for Utah House District 25: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-28': { seat: 'ut-statehouse-28', composer: true, alias: 'ut-hd-28', route: '/district/ut-hd-28', pid: 'nicholeen_p_peck', h1: 'Utah House District 28', where: 'Tooele, Tooele County', kick: 'House District 28 board', kickTitle: 'The district board for Utah House District 28: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-29': { seat: 'ut-statehouse-29', composer: true, alias: 'ut-hd-29', route: '/district/ut-hd-29', pid: 'bolinder_h68', h1: 'Utah House District 29', where: 'Tooele / Grantsville', kick: 'House District 29 board', kickTitle: 'The district board for Utah House District 29: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-30': { seat: 'ut-statehouse-30', composer: true, alias: 'ut-hd-30', route: '/district/ut-hd-30', pid: 'fitisemanu_h30', h1: 'Utah House District 30', where: 'West Valley City', kick: 'House District 30 board', kickTitle: 'The district board for Utah House District 30: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-31': { seat: 'ut-statehouse-31', composer: true, alias: 'ut-hd-31', route: '/district/ut-hd-31', pid: 'verona_mauga', h1: 'Utah House District 31', where: 'West Valley City / Taylorsville, Salt Lake County', kick: 'House District 31 board', kickTitle: 'The district board for Utah House District 31: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-33': { seat: 'ut-statehouse-33', composer: true, alias: 'ut-hd-33', route: '/district/ut-hd-33', pid: 'doug_owens', h1: 'Utah House District 33', where: 'Millcreek, Salt Lake County', kick: 'House District 33 board', kickTitle: 'The district board for Utah House District 33: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-34': { seat: 'ut-statehouse-34', composer: true, alias: 'ut-hd-34', route: '/district/ut-hd-34', pid: 'carol_spackman_moss', h1: 'Utah House District 34', where: 'Holladay, Salt Lake County', kick: 'House District 34 board', kickTitle: 'The district board for Utah House District 34: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-36': { seat: 'ut-statehouse-36', composer: true, alias: 'ut-hd-36', route: '/district/ut-hd-36', pid: 'james_dunnigan', h1: 'Utah House District 36', where: 'Taylorsville, Salt Lake County', kick: 'House District 36 board', kickTitle: 'The district board for Utah House District 36: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-37': { seat: 'ut-statehouse-37', composer: true, alias: 'ut-hd-37', route: '/district/ut-hd-37', pid: 'ashlee_matthews', h1: 'Utah House District 37', where: 'Kearns, Salt Lake County', kick: 'House District 37 board', kickTitle: 'The district board for Utah House District 37: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-39': { seat: 'ut-statehouse-39', composer: true, alias: 'ut-hd-39', route: '/district/ut-hd-39', pid: 'ivory_h39', h1: 'Utah House District 39', where: 'West Jordan', kick: 'House District 39 board', kickTitle: 'The district board for Utah House District 39: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-41': { seat: 'ut-statehouse-41', composer: true, alias: 'ut-hd-41', route: '/district/ut-hd-41', pid: 'john_arthur', h1: 'Utah House District 41', where: 'Cottonwood Heights, Salt Lake County', kick: 'House District 41 board', kickTitle: 'The district board for Utah House District 41: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-42': { seat: 'ut-statehouse-42', composer: true, alias: 'ut-hd-42', route: '/district/ut-hd-42', pid: 'clinton_okerlund', h1: 'Utah House District 42', where: 'Sandy, Salt Lake County', kick: 'House District 42 board', kickTitle: 'The district board for Utah House District 42: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-43': { seat: 'ut-statehouse-43', composer: true, alias: 'ut-hd-43', route: '/district/ut-hd-43', pid: 'eliason_h45', h1: 'Utah House District 43', where: 'Sandy, Salt Lake County', kick: 'House District 43 board', kickTitle: 'The district board for Utah House District 43: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-44': { seat: 'ut-statehouse-44', composer: true, alias: 'ut-hd-44', route: '/district/ut-hd-44', pid: 'teuscher_h44', h1: 'Utah House District 44', where: 'South Jordan', kick: 'House District 44 board', kickTitle: 'The district board for Utah House District 44: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-45': { seat: 'ut-statehouse-45', composer: true, alias: 'ut-hd-45', route: '/district/ut-hd-45', pid: 'tracy_miller', h1: 'Utah House District 45', where: 'South Jordan, Salt Lake County', kick: 'House District 45 board', kickTitle: 'The district board for Utah House District 45: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-46': { seat: 'ut-statehouse-46', composer: true, alias: 'ut-hd-46', route: '/district/ut-hd-46', pid: 'calvin_roberts', h1: 'Utah House District 46', where: 'Draper / Bluffdale, Salt Lake County', kick: 'House District 46 board', kickTitle: 'The district board for Utah House District 46: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-49': { seat: 'ut-statehouse-49', composer: true, alias: 'ut-hd-49', route: '/district/ut-hd-49', pid: 'candice_pierucci', h1: 'Utah House District 49', where: 'Herriman / Riverton, Salt Lake County', kick: 'House District 49 board', kickTitle: 'The district board for Utah House District 49: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-50': { seat: 'ut-statehouse-50', composer: true, alias: 'ut-hd-50', route: '/district/ut-hd-50', pid: 'gricius_h50', h1: 'Utah House District 50', where: 'Eagle Mountain', kick: 'House District 50 board', kickTitle: 'The district board for Utah House District 50: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-51': { seat: 'ut-statehouse-51', composer: true, alias: 'ut-hd-51', route: '/district/ut-hd-51', pid: 'leah_hansen', h1: 'Utah House District 51', where: 'Saratoga Springs / west Lehi, Utah County', kick: 'House District 51 board', kickTitle: 'The district board for Utah House District 51: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-52': { seat: 'ut-statehouse-52', composer: true, alias: 'ut-hd-52', route: '/district/ut-hd-52', pid: 'cory_maloy_h52', h1: 'Utah House District 52', where: 'Lehi, Utah County', kick: 'House District 52 board', kickTitle: 'The district board for Utah House District 52: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-53': { seat: 'ut-statehouse-53', composer: true, alias: 'ut-hd-53', route: '/district/ut-hd-53', pid: 'kay_christofferson', h1: 'Utah House District 53', where: 'Lehi, Utah County', kick: 'House District 53 board', kickTitle: 'The district board for Utah House District 53: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-55': { seat: 'ut-statehouse-55', composer: true, alias: 'ut-hd-55', route: '/district/ut-hd-55', pid: 'jon_hawkins', h1: 'Utah House District 55', where: 'Pleasant Grove / American Fork, Utah County', kick: 'House District 55 board', kickTitle: 'The district board for Utah House District 55: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-56': { seat: 'ut-statehouse-56', composer: true, alias: 'ut-hd-56', route: '/district/ut-hd-56', pid: 'valpeterson_h56', h1: 'Utah House District 56', where: 'Orem', kick: 'House District 56 board', kickTitle: 'The district board for Utah House District 56: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-59': { seat: 'ut-statehouse-59', composer: true, alias: 'ut-hd-59', route: '/district/ut-hd-59', pid: 'kohler_h59', h1: 'Utah House District 59', where: 'Heber City, Wasatch / Summit County', kick: 'House District 59 board', kickTitle: 'The district board for Utah House District 59: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-60': { seat: 'ut-statehouse-60', composer: true, alias: 'ut-hd-60', route: '/district/ut-hd-60', pid: 'grant_pace', h1: 'Utah House District 60', where: 'Provo, Utah County', kick: 'House District 60 board', kickTitle: 'The district board for Utah House District 60: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-61': { seat: 'ut-statehouse-61', composer: true, alias: 'ut-hd-61', route: '/district/ut-hd-61', pid: 'lisa_shepherd', h1: 'Utah House District 61', where: 'Provo', kick: 'House District 61 board', kickTitle: 'The district board for Utah House District 61: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-63': { seat: 'ut-statehouse-63', composer: true, alias: 'ut-hd-63', route: '/district/ut-hd-63', pid: 'whyte_h63', h1: 'Utah House District 63', where: 'Spanish Fork, Utah County', kick: 'House District 63 board', kickTitle: 'The district board for Utah House District 63: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-64': { seat: 'ut-statehouse-64', composer: true, alias: 'ut-hd-64', route: '/district/ut-hd-64', pid: 'jackie_larson', h1: 'Utah House District 64', where: 'Spanish Fork / Salem, Utah County', kick: 'House District 64 board', kickTitle: 'The district board for Utah House District 64: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-65': { seat: 'ut-statehouse-65', composer: true, alias: 'ut-hd-65', route: '/district/ut-hd-65', pid: 'doug_welton', h1: 'Utah House District 65', where: 'Payson, Utah County', kick: 'House District 65 board', kickTitle: 'The district board for Utah House District 65: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-66': { seat: 'ut-statehouse-66', composer: true, alias: 'ut-hd-66', route: '/district/ut-hd-66', pid: 'shelley_h66', h1: 'Utah House District 66', where: 'Ephraim, Sanpete / Juab County', kick: 'House District 66 board', kickTitle: 'The district board for Utah House District 66: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-67': { seat: 'ut-statehouse-67', composer: true, alias: 'ut-hd-67', route: '/district/ut-hd-67', pid: 'christine_watkins', h1: 'Utah House District 67', where: 'Price, Carbon County', kick: 'House District 67 board', kickTitle: 'The district board for Utah House District 67: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-68': { seat: 'ut-statehouse-68', composer: true, alias: 'ut-hd-68', route: '/district/ut-hd-68', pid: 'chew_h68', h1: 'Utah House District 68', where: 'Vernal, Uintah / Duchesne County', kick: 'House District 68 board', kickTitle: 'The district board for Utah House District 68: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-69': { seat: 'ut-statehouse-69', composer: true, alias: 'ut-hd-69', route: '/district/ut-hd-69', pid: 'logan_monson', h1: 'Utah House District 69', where: 'Blanding, San Juan County', kick: 'House District 69 board', kickTitle: 'The district board for Utah House District 69: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-70': { seat: 'ut-statehouse-70', composer: true, alias: 'ut-hd-70', route: '/district/ut-hd-70', pid: 'carl_albrecht', h1: 'Utah House District 70', where: 'Richfield, Sevier County', kick: 'House District 70 board', kickTitle: 'The district board for Utah House District 70: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-71': { seat: 'ut-statehouse-71', composer: true, alias: 'ut-hd-71', route: '/district/ut-hd-71', pid: 'rshipp', h1: 'Utah House District 71', where: 'Cedar City, Iron County', kick: 'House District 71 board', kickTitle: 'The district board for Utah House District 71: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-73': { seat: 'ut-statehouse-73', composer: true, alias: 'ut-hd-73', route: '/district/ut-hd-73', pid: 'colin_w_jack', h1: 'Utah House District 73', where: 'St. George, Washington County', kick: 'House District 73 board', kickTitle: 'The district board for Utah House District 73: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statehouse-75': { seat: 'ut-statehouse-75', composer: true, alias: 'ut-hd-75', route: '/district/ut-hd-75', pid: 'walt_brooks', h1: 'Utah House District 75', where: 'St. George, Washington County', kick: 'House District 75 board', kickTitle: 'The district board for Utah House District 75: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-1': { seat: 'ut-statesenate-1', composer: true, alias: 'ut-sd-1', route: '/district/ut-sd-1', pid: 'ssandall', h1: 'Utah Senate District 1', where: 'Box Elder/Cache', kick: 'Senate District 1 board', kickTitle: 'The district board for Utah Senate District 1: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-2': { seat: 'ut-statesenate-2', composer: true, alias: 'ut-sd-2', route: '/district/ut-sd-2', pid: 'cwilson', h1: 'Utah Senate District 2', where: 'Logan, Cache County', kick: 'Senate District 2 board', kickTitle: 'The district board for Utah Senate District 2: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-4': { seat: 'ut-statesenate-4', composer: true, alias: 'ut-sd-4', route: '/district/ut-sd-4', pid: 'cmusselman', h1: 'Utah Senate District 4', where: 'West Haven, Weber County', kick: 'Senate District 4 board', kickTitle: 'The district board for Utah Senate District 4: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-5': { seat: 'ut-statesenate-5', composer: true, alias: 'ut-sd-5', route: '/district/ut-sd-5', pid: 'amillner', h1: 'Utah Senate District 5', where: 'District 5 as the 2022 legislative plan draws it', kick: 'Senate District 5 board', kickTitle: 'The district board for Utah Senate District 5: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-8': { seat: 'ut-statesenate-8', composer: true, alias: 'ut-sd-8', route: '/district/ut-sd-8', pid: 'tweiler', h1: 'Utah Senate District 8', where: 'Woods Cross', kick: 'Senate District 8 board', kickTitle: 'The district board for Utah Senate District 8: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-9': { seat: 'ut-statesenate-9', composer: true, alias: 'ut-sd-9', route: '/district/ut-sd-9', pid: 'jennifer_plumb', h1: 'Utah Senate District 9', where: 'Salt Lake City', kick: 'Senate District 9 board', kickTitle: 'The district board for Utah Senate District 9: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-10': { seat: 'ut-statesenate-10', composer: true, alias: 'ut-sd-10', route: '/district/ut-sd-10', pid: 'lescamilla', h1: 'Utah Senate District 10', where: 'Northwest Salt Lake City / West Valley City / Magna, Salt Lake County', kick: 'Senate District 10 board', kickTitle: 'The district board for Utah Senate District 10: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-11': { seat: 'ut-statesenate-11', composer: true, alias: 'ut-sd-11', route: '/district/ut-sd-11', pid: 'emily_buss', h1: 'Utah Senate District 11', where: 'Eagle Mountain / Tooele, Utah County', kick: 'Senate District 11 board', kickTitle: 'The district board for Utah Senate District 11: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-12': { seat: 'ut-statesenate-12', composer: true, alias: 'ut-sd-12', route: '/district/ut-sd-12', pid: 'kwan_s12', h1: 'Utah Senate District 12', where: 'West Valley / Murray', kick: 'Senate District 12 board', kickTitle: 'The district board for Utah Senate District 12: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-13': { seat: 'ut-statesenate-13', composer: true, alias: 'ut-sd-13', route: '/district/ut-sd-13', pid: 'blouin_s13', h1: 'Utah Senate District 13', where: 'Millcreek / Salt Lake City', kick: 'Senate District 13 board', kickTitle: 'The district board for Utah Senate District 13: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-14': { seat: 'ut-statesenate-14', composer: true, alias: 'ut-sd-14', route: '/district/ut-sd-14', pid: 'stephanie_pitcher', h1: 'Utah Senate District 14', where: 'Salt Lake City / Millcreek, Salt Lake County', kick: 'Senate District 14 board', kickTitle: 'The district board for Utah Senate District 14: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-15': { seat: 'ut-statesenate-15', composer: true, alias: 'ut-sd-15', route: '/district/ut-sd-15', pid: 'kathleen_riebe', h1: 'Utah Senate District 15', where: 'Cottonwood Heights, Salt Lake County', kick: 'Senate District 15 board', kickTitle: 'The district board for Utah Senate District 15: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-16': { seat: 'ut-statesenate-16', composer: true, alias: 'ut-sd-16', route: '/district/ut-sd-16', pid: 'harper_s16', h1: 'Utah Senate District 16', where: 'West Jordan / Taylorsville', kick: 'Senate District 16 board', kickTitle: 'The district board for Utah Senate District 16: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-17': { seat: 'ut-statesenate-17', composer: true, alias: 'ut-sd-17', route: '/district/ut-sd-17', pid: 'lincoln_fillmore', h1: 'Utah Senate District 17', where: 'South Jordan, Salt Lake County', kick: 'Senate District 17 board', kickTitle: 'The district board for Utah Senate District 17: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-18': { seat: 'ut-statesenate-18', composer: true, alias: 'ut-sd-18', route: '/district/ut-sd-18', pid: 'mccay_s11', h1: 'Utah Senate District 18', where: 'Riverton / Herriman', kick: 'Senate District 18 board', kickTitle: 'The district board for Utah Senate District 18: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-19': { seat: 'ut-statesenate-19', composer: true, alias: 'ut-sd-19', route: '/district/ut-sd-19', pid: 'kcullimore', h1: 'Utah Senate District 19', where: 'Sandy / Draper / Cottonwood Heights', kick: 'Senate District 19 board', kickTitle: 'The district board for Utah Senate District 19: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-20': { seat: 'ut-statesenate-20', composer: true, alias: 'ut-sd-20', route: '/district/ut-sd-20', pid: 'rwinterton', h1: 'Utah Senate District 20', where: 'Roosevelt, Duchesne County', kick: 'Senate District 20 board', kickTitle: 'The district board for Utah Senate District 20: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-21': { seat: 'ut-statesenate-21', composer: true, alias: 'ut-sd-21', route: '/district/ut-sd-21', pid: 'brammer_s21', h1: 'Utah Senate District 21', where: 'Highland / Pleasant Grove', kick: 'Senate District 21 board', kickTitle: 'The district board for Utah Senate District 21: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-22': { seat: 'ut-statesenate-22', composer: true, alias: 'ut-sd-22', route: '/district/ut-sd-22', pid: 'heidi_balderree', h1: 'Utah Senate District 22', where: 'Saratoga Springs / Bluffdale, Utah County', kick: 'Senate District 22 board', kickTitle: 'The district board for Utah Senate District 22: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-23': { seat: 'ut-statesenate-23', composer: true, alias: 'ut-sd-23', route: '/district/ut-sd-23', pid: 'kgrover', h1: 'Utah Senate District 23', where: 'Provo', kick: 'Senate District 23 board', kickTitle: 'The district board for Utah Senate District 23: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-24': { seat: 'ut-statesenate-24', composer: true, alias: 'ut-sd-24', route: '/district/ut-sd-24', pid: 'kstratton', h1: 'Utah Senate District 24', where: 'Provo / Orem', kick: 'Senate District 24 board', kickTitle: 'The district board for Utah Senate District 24: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-25': { seat: 'ut-statesenate-25', composer: true, alias: 'ut-sd-25', route: '/district/ut-sd-25', pid: 'mckell_s25', h1: 'Utah Senate District 25', where: 'Utah County', kick: 'Senate District 25 board', kickTitle: 'The district board for Utah Senate District 25: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-26': { seat: 'ut-statesenate-26', composer: true, alias: 'ut-sd-26', route: '/district/ut-sd-26', pid: 'dhinkins', h1: 'Utah Senate District 26', where: 'Orangeville, Emery County', kick: 'Senate District 26 board', kickTitle: 'The district board for Utah Senate District 26: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-27': { seat: 'ut-statesenate-27', composer: true, alias: 'ut-sd-27', route: '/district/ut-sd-27', pid: 'dowens_st', h1: 'Utah Senate District 27', where: 'Fountain Green, Sanpete County', kick: 'Senate District 27 board', kickTitle: 'The district board for Utah Senate District 27: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-28': { seat: 'ut-statesenate-28', composer: true, alias: 'ut-sd-28', route: '/district/ut-sd-28', pid: 'evickers', h1: 'Utah Senate District 28', where: 'Cedar City', kick: 'Senate District 28 board', kickTitle: 'The district board for Utah Senate District 28: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-statesenate-29': { seat: 'ut-statesenate-29', composer: true, alias: 'ut-sd-29', route: '/district/ut-sd-29', pid: 'dipson', h1: 'Utah Senate District 29', where: 'St. George', kick: 'Senate District 29 board', kickTitle: 'The district board for Utah Senate District 29: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-house-1': { seat: 'ut-house-1', composer: true, alias: 'ut-cd-1', route: '/district/ut-cd-1', pid: '', usHouse: { state: 'Utah', district: 1 }, h1: 'Utah’s 1st Congressional District', where: 'The district as the court-ordered 2026 map draws it', kick: 'UT-1 district board', kickTitle: 'The district board for Utah’s 1st Congressional District: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-house-3': { seat: 'ut-house-3', composer: true, alias: 'ut-cd-3', route: '/district/ut-cd-3', pid: '', usHouse: { state: 'Utah', district: 3 }, h1: 'Utah’s 3rd Congressional District', where: 'The district as the court-ordered 2026 map draws it', kick: 'UT-3 district board', kickTitle: 'The district board for Utah’s 3rd Congressional District: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-house-4': { seat: 'ut-house-4', composer: true, alias: 'ut-cd-4', route: '/district/ut-cd-4', pid: '', usHouse: { state: 'Utah', district: 4 }, h1: 'Utah’s 4th Congressional District', where: 'The district as the court-ordered 2026 map draws it', kick: 'UT-4 district board', kickTitle: 'The district board for Utah’s 4th Congressional District: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-gov': { seat: 'ut-gov', composer: true, alias: 'ut-gov', route: '/district/ut-gov', pid: 'cox', statewide: true, h1: 'Governor · Spencer Cox', where: 'Statewide · the whole State of Utah', kick: 'Governor board', kickTitle: 'The board for Governor · Spencer Cox: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-us-senate-curtis': { seat: 'ut-us-senate-curtis', composer: true, alias: 'ut-us-senate-curtis', route: '/district/ut-us-senate-curtis', pid: 'curtis', statewide: true, h1: 'U.S. Senate · John Curtis', where: 'Statewide · the whole State of Utah', kick: 'U.S. Senate board', kickTitle: 'The board for U.S. Senate · John Curtis: who is in the room and what is on the table. A place, not a scorecard.' },
+    'ut-us-senate-lee': { seat: 'ut-us-senate-lee', composer: true, alias: 'ut-us-senate-lee', route: '/district/ut-us-senate-lee', pid: 'lee', statewide: true, h1: 'U.S. Senate · Mike Lee', where: 'Statewide · the whole State of Utah', kick: 'U.S. Senate board', kickTitle: 'The board for U.S. Senate · Mike Lee: who is in the room and what is on the table. A place, not a scorecard.' },
     // @generated district-boards end
   };
 
@@ -526,12 +529,12 @@
   }
   function PID() { return pidOf(ACTIVE); }
 
-  // How many archive rows band 3 will print. A cap, not a ranking: the rows are
-  // printed in the order the archive returned them and nothing here re-sorts,
-  // promotes or hides one for being inconvenient. The read asks for the baseline
-  // page — see the header on why that query and not another.
+  // The read asks for the baseline page — see the header on why that query and
+  // not another. Band 3 prints EVERY printable row that page returns, in the
+  // order the archive returned it; nothing here re-sorts, promotes, hides or
+  // caps one for being inconvenient. (It used to stop at forty rows, which read
+  // on a busy seat as though forty were a count of something.)
   var PAGE_SIZE = 100;
-  var TABLE_CAP = 40;
 
   // ── NEVER_FEEDS ───────────────────────────────────────────────────────────
   // The names of every cross-surface global this page is forbidden to write,
@@ -609,7 +612,21 @@
     findPlaceholder: 'Title or bill number',
     findNone: 'No measure in view matches that search.',
     tableUnfiled: 'Not filed under an issue',
-    // THE MANDATE ROWS, on the five composer boards only. A mandate is a reform
+    // How many issue categories have at least one measure on this seat. A count
+    // of the groups the table actually prints, never a total of every topic the
+    // vocabulary knows and never a limit.
+    catCountOne: '1 issue category has a measure on this seat',
+    // The toggle row under the search field.
+    togglesLabel: 'Filter by type and time',
+    tgType: 'Type',
+    tgTime: 'Time',
+    tgAll: 'All',
+    tgTopics: 'Topics',
+    tgMandates: 'Mandates',
+    tgCurrent: 'Current',
+    tgPast: 'Past',
+    catCountMany: ' issue categories have a measure on this seat',
+    // THE MANDATE ROWS, on the composer boards only. A mandate is a reform
     // proposal from /mandate that names this seat (its key in the proposal's
     // race links) or the member who sits in it. Its count is shows of support —
     // momentum, the Mandate lane's own word — never a vote and never a measure.
@@ -874,7 +891,7 @@
     var list = Array.isArray(items) ? items : [];
     var out = [];
     var seen = {};
-    for (var i = 0; i < list.length && out.length < TABLE_CAP; i++) {
+    for (var i = 0; i < list.length; i++) {
       var it = list[i];
       if (!printable(it)) continue;        // no title and no number: nothing to print
       var mk = measureKeyOf(it);
@@ -913,7 +930,11 @@
   // THE VIEW IS MODULE STATE, so a repaint (band 2 answering after band 3) does
   // not reset a filter the reader just picked. Changing it re-applies to the
   // DOM in place — the search field is never re-rendered under the cursor.
-  var _view = { cat: '', q: '', open: {} };
+  // `type` and `time` are the toggle row under the search field: '' is All.
+  //   type  'topics' hides the mandate rows; 'mandates' hides every measure.
+  //   time  'current' keeps the measures from the seat's latest sitting (see
+  //         sitOf()); 'past' keeps the older ones. Open mandates are current.
+  var _view = { cat: '', q: '', open: {}, type: '', time: '' };
 
   function rowIssues(item) {
     var arr = (item && Array.isArray(item.issues)) ? item.issues : [];
@@ -962,8 +983,13 @@
     return out;
   }
 
+  // A measure is found by its title, its bill number and the labels of the
+  // issues it is filed under — the three things its row prints.
   function findText(item) {
-    return (String(item.title || '') + ' ' + String(item.number || '')).toLowerCase();
+    var labels = [];
+    var ks = rowIssues(item);
+    for (var i = 0; i < ks.length; i++) labels.push(issueLabel(ks[i]));
+    return (String(item.title || '') + ' ' + String(item.number || '') + ' ' + labels.join(' ')).toLowerCase();
   }
   function normQuery(q) { return String(q == null ? '' : q).trim().toLowerCase(); }
   // A bill number is matched with or without its dots and spaces, so "sb 57"
@@ -976,13 +1002,63 @@
     return !!sq && squash(text).indexOf(sq) !== -1;
   }
 
+  // ── THE TYPE AND TIME TOGGLES ─────────────────────────────────────────────
+  // They HIDE rows and nothing else: no category is added or removed, no row is
+  // re-sorted, and the archive read is the same 100-row page.
+  //
+  // WHICH SITTING IS CURRENT is read off the rows the seat already has. A
+  // federal row carries its Congress number; the active Congress is the highest
+  // one present on the seat, and every lower number is past. A Utah row carries
+  // no Congress, only its general session ("2025GS"); there the latest session
+  // year present on the seat is current. A row that names neither is in no
+  // sitting and shows under All only. Computed per paint by sitContext().
+  var _sit = { congress: 0, year: 0 };
+  function congressOf(item) {
+    var c = item && item.congress;
+    return (typeof c === 'number' && isFinite(c) && c > 0) ? Math.floor(c) : 0;
+  }
+  function sessionYearOf(item) {
+    var mi = item && item.measureIdent;
+    var m = mi && typeof mi.session === 'string' ? /^(\d{4})/.exec(mi.session.trim()) : null;
+    return m ? Number(m[1]) : 0;
+  }
+  function sitContext(rows) {
+    var c = 0, y = 0;
+    for (var i = 0; i < rows.length; i++) {
+      var ci = congressOf(rows[i]);
+      if (ci) { if (ci > c) c = ci; continue; }
+      var yi = sessionYearOf(rows[i]);
+      if (yi > y) y = yi;
+    }
+    return { congress: c, year: y };
+  }
+  // 'current', 'past', or '' when the row names no sitting.
+  function sitOf(item) {
+    var c = congressOf(item);
+    if (c) return c >= _sit.congress ? 'current' : 'past';
+    var y = sessionYearOf(item);
+    if (y) return y >= _sit.year ? 'current' : 'past';
+    return '';
+  }
+  function timeOk(sit) { return !_view.time || _view.time === sit; }
+  // Is any filter narrowing the list? The search, or either toggle.
+  function narrowing() { return !!(normQuery(_view.q) || _view.type || _view.time); }
+  // One measure row: the search, the type and the time, all at once.
+  function rowShown(item) {
+    return _view.type !== 'mandates' && timeOk(sitOf(item)) && matches(findText(item), normQuery(_view.q));
+  }
+  // One mandate row. An open proposal is current; it is not a topic.
+  function mandateShown(m) {
+    return _view.type !== 'topics' && timeOk('current') && matches(mandateFind(m), normQuery(_view.q));
+  }
+
   // WHETHER A GROUP IS SHOWN AND WHETHER IT IS OPEN, decided in one place for
   // both the first render and every later filter change.
   function groupState(key, hits, stance) {
     var q = normQuery(_view.q);
     var shown = !_view.cat || _view.cat === key;
     if (key === '') shown = !_view.cat;          // the unfiled rows: All only
-    if (shown && q && !hits) shown = false;
+    if (shown && narrowing() && !hits) shown = false;
     var open;
     if (q) open = hits > 0;
     // A chip opens its own group. On the composer boards it opens ONLY that
@@ -1001,7 +1077,7 @@
     var q = normQuery(_view.q);
     var hits = 0, body = '';
     for (var i = 0; i < rows.length; i++) {
-      var hit = matches(findText(rows[i]), q);
+      var hit = rowShown(rows[i]);
       if (hit) hits++;
       body += measureRow(rows[i], tally, key, !hit);
     }
@@ -1087,7 +1163,26 @@
     return out;
   }
 
-  function mandateFind(m) { return String(m.title || '').toLowerCase(); }
+  // A mandate is found by its tag (the word "Mandate" and the proposal's own
+  // category, when it has one) and its title — what its row prints.
+  function mandateFind(m) {
+    return (COPY.mandateTag + ' ' + mandateCategory(m) + ' ' + String(m.title || '')).toLowerCase();
+  }
+  function mandateCategory(m) { return String((m && m.category) || '').trim(); }
+
+  // THE MANDATE MARKER. Every mandate row — in the table and in the pinned
+  // strip — carries a small flag before its tag and the mandate colour class
+  // (pdxdb-mandate-c, the gold token in district-board.css), never an issue
+  // colour: a reform proposal is not a measure and must not read as one. No
+  // issue row ever gets either.
+  var MANDATE_FLAG = '\u2691';
+  var MANDATE_CLASS = 'pdxdb-mandate-c';
+  function mandateTagHtml(m) {
+    var cat = mandateCategory(m);
+    return '<span class="pdxdb-mandate-flag" aria-hidden="true">' + MANDATE_FLAG + '</span>' +
+      '<span class="pdxdb-mandate-tag pdxdb-mandate-pill">' + esc(COPY.mandateTag) + '</span>' +
+      (cat ? '<span class="pdxdb-mandate-cat">' + esc(cat) + '</span>' : '');
+  }
 
   function supportWord(n) { return n === 1 ? '1 show of support' : n + ' shows of support'; }
 
@@ -1095,18 +1190,18 @@
     var title = String(m.title || '').trim();
     var n = whole(m.supportCount);
     var href = COPY.mandateHref + '#pp-card-' + m.id;
-    return '<li class="pdxdb-mandate" data-pdxdb-mandate="' + esc(String(m.id)) + '"' +
-        ' data-pdxdb-find="' + esc(mandateFind(m)) + '"' + (hidden ? ' hidden' : '') + '>' +
-        '<span class="pdxdb-mandate-tag">' + esc(COPY.mandateTag) + '</span>' +
+    return '<li class="pdxdb-mandate ' + MANDATE_CLASS + '" data-pdxdb-mandate="' + esc(String(m.id)) + '"' +
+        ' data-pdxdb-find="' + esc(mandateFind(m)) + '" data-pdxdb-time="current"' + (hidden ? ' hidden' : '') + '>' +
+        mandateTagHtml(m) +
         '<a class="pdxdb-m-link" href="' + esc(href) + '">' + esc(title) + '</a>' +
         '<span class="pdxdb-mandate-st">' + esc(COPY.mandateStatus + ' · ' + supportWord(n)) + '</span>' +
       '</li>';
   }
 
   function mandateState(hits) {
-    var q = normQuery(_view.q);
     var shown = !_view.cat || _view.cat === MANDATE_KEY;
-    if (shown && q && !hits) shown = false;
+    if (_view.type === 'topics' || !timeOk('current')) shown = false;
+    if (shown && narrowing() && !hits) shown = false;
     return { shown: shown };
   }
 
@@ -1114,7 +1209,7 @@
     var q = normQuery(_view.q);
     var hits = 0, body = '';
     for (var i = 0; i < rows.length; i++) {
-      var hit = matches(mandateFind(rows[i]), q);
+      var hit = mandateShown(rows[i]);
       if (hit) hits++;
       body += mandateRow(rows[i], !hit);
     }
@@ -1157,6 +1252,7 @@
 
     var tally = roomIndex(rooms);
     var stance = stanceKeys();
+    _sit = sitContext(rows);
     var G = tableGroups(rows);
     // A chip that no longer has a group on this seat (a repaint dropped it)
     // falls back to All rather than showing an empty table under a live chip.
@@ -1199,14 +1295,17 @@
 
     // THE COMPOSER BOARDS PUT THE FINDER ABOVE THE CHIPS and name what it
     // finds; every other board keeps the chips-then-search order it had.
-    var cats = '<div class="pdxdb-cats" role="group" aria-label="' + esc(COPY.catsLabel) + '">' + chips + '</div>';
+    var cats = '<div class="pdxdb-cats" role="group" aria-label="' + esc(COPY.catsLabel) + '">' + chips + '</div>' +
+      (G.groups.length ? '<p class="pdxdb-cat-count" data-pdxdb-cat-count="' + G.groups.length + '">' +
+        esc(G.groups.length === 1 ? COPY.catCountOne : G.groups.length + COPY.catCountMany) + '</p>' : '');
     var find = '<label class="pdxdb-find"><span class="pdxdb-find-l">' +
         esc(composer ? COPY.findLabelComposer : COPY.findLabel) + '</span>' +
         '<input class="pdxdb-find-i" type="search" data-pdxdb-search autocomplete="off"' +
           ' placeholder="' + esc(composer ? COPY.findPlaceholderComposer : COPY.findPlaceholder) + '" value="' + esc(_view.q) + '" /></label>';
 
+    var toggles = togglesHtml();
     return band('table', COPY.tableBand, COPY.tableNote,
-      (composer ? find + cats + (P ? pinnedHtml(mrows, G.groups, tally) : '') : cats + find) +
+      (composer ? find + toggles + cats + (P ? pinnedHtml(mrows, G.groups, tally) : '') : cats + find + toggles) +
       '<div class="pdxdb-groups"' + (P ? ' data-pdxdb-layout="parents"' : '') + '>' + groups + '</div>' +
       '<p class="pdxdb-none pdxdb-find-none" data-pdxdb-find-none' +
         (anyShown(G, mrows) ? ' hidden' : '') + '>' + esc(COPY.findNone) + '</p>',
@@ -1286,8 +1385,8 @@
   var PARENT_COLLAPSED = 'pdxdb-parent-h--collapsed';
 
   function rowHits(rows) {
-    var q = normQuery(_view.q), n = 0;
-    for (var i = 0; i < rows.length; i++) if (matches(findText(rows[i]), q)) n++;
+    var n = 0;
+    for (var i = 0; i < rows.length; i++) if (rowShown(rows[i])) n++;
     return n;
   }
   function issuesWord(n) { return n === 1 ? '1 issue' : n + ' issues'; }
@@ -1346,6 +1445,55 @@
   // data-pdxdb-cat control as a chip — never a second copy of the group, so the
   // poll module still sees each issue once. The counts are people, never a
   // majority and never this district's position.
+  // ── THE TOGGLE ROW ────────────────────────────────────────────────────────
+  // Under the search field on every board: Type (All · Topics · Mandates) and
+  // Time (All · Current · Past). Each button is a pressed/unpressed toggle; All
+  // is the default and clears the other two.
+  function toggleBtn(attr, val, label, cur) {
+    return '<button type="button" class="pdxdb-tg" ' + attr + '="' + esc(val) + '"' +
+      ' aria-pressed="' + (cur === val ? 'true' : 'false') + '">' + esc(label) + '</button>';
+  }
+  function togglesHtml() {
+    var ty = _view.type || '', ti = _view.time || '';
+    return '<div class="pdxdb-toggles" role="group" aria-label="' + esc(COPY.togglesLabel) + '">' +
+        '<span class="pdxdb-tg-set" role="group" aria-label="' + esc(COPY.tgType) + '">' +
+          '<span class="pdxdb-tg-l">' + esc(COPY.tgType) + '</span>' +
+          toggleBtn(TG_TYPE, '', COPY.tgAll, ty) +
+          toggleBtn(TG_TYPE, 'topics', COPY.tgTopics, ty) +
+          toggleBtn(TG_TYPE, 'mandates', COPY.tgMandates, ty) +
+        '</span>' +
+        '<span class="pdxdb-tg-set" role="group" aria-label="' + esc(COPY.tgTime) + '">' +
+          '<span class="pdxdb-tg-l">' + esc(COPY.tgTime) + '</span>' +
+          toggleBtn(TG_TIME, '', COPY.tgAll, ti) +
+          toggleBtn(TG_TIME, 'current', COPY.tgCurrent, ti) +
+          toggleBtn(TG_TIME, 'past', COPY.tgPast, ti) +
+        '</span>' +
+      '</div>';
+  }
+  var TG_TYPE = 'data-pdxdb-tg-type';
+  var TG_TIME = 'data-pdxdb-tg-time';
+
+  // THE PINNED STRIP UNDER THE TOGGLES. Which rows are pinned is decided
+  // exactly as before; the toggles only hide a pin. A mandate pin is hidden by
+  // Topics and by Past. An issue pin is hidden by Mandates, and by a Time
+  // setting none of its group's measures falls in (its sittings ride on the
+  // pin as data-pdxdb-pin-times). Search and the chips still leave the strip
+  // alone. A strip with every pin hidden is hidden whole.
+  function pinMandateShown() { return _view.type !== 'topics' && timeOk('current'); }
+  function pinIssueShown(times) {
+    if (_view.type === 'mandates') return false;
+    if (!_view.time) return true;
+    return (' ' + times + ' ').indexOf(' ' + _view.time + ' ') !== -1;
+  }
+  function groupTimes(rows) {
+    var seen = {}, out = [];
+    for (var i = 0; i < rows.length; i++) {
+      var t = sitOf(rows[i]);
+      if (t && !seen[t]) { seen[t] = 1; out.push(t); }
+    }
+    return out.join(' ');
+  }
+
   var PIN_MANDATES = 2;
   var PIN_ISSUES = 3;
   function pinnedIssues(groups, tally) {
@@ -1362,18 +1510,25 @@
     var ms = mrows.slice(0, PIN_MANDATES);
     var is = pinnedIssues(groups, tally);
     if (!ms.length && !is.length) return '';
-    var body = '';
+    var body = '', anyPin = false;
     for (var i = 0; i < ms.length; i++) {
       var m = ms[i];
-      body += '<li class="pdxdb-pin pdxdb-pin--mandate" data-pdxdb-pin-mandate="' + esc(String(m.id)) + '">' +
-          '<span class="pdxdb-mandate-tag">' + esc(COPY.mandateTag) + '</span>' +
+      var mShown = pinMandateShown();
+      if (mShown) anyPin = true;
+      body += '<li class="pdxdb-pin pdxdb-pin--mandate ' + MANDATE_CLASS + '" data-pdxdb-pin-mandate="' + esc(String(m.id)) + '"' +
+          (mShown ? '' : ' hidden') + '>' +
+          mandateTagHtml(m) +
           '<a class="pdxdb-m-link" href="' + esc(COPY.mandateHref + '#pp-card-' + m.id) + '">' + esc(String(m.title || '').trim()) + '</a>' +
           '<span class="pdxdb-mandate-st">' + esc(COPY.mandateStatus + ' · ' + supportWord(whole(m.supportCount))) + '</span>' +
         '</li>';
     }
     for (var j = 0; j < is.length; j++) {
       var p = is[j];
-      body += '<li class="pdxdb-pin pdxdb-pin--issue" data-pdxdb-pin-issue="' + esc(p.g.key) + '">' +
+      var times = groupTimes(p.g.rows);
+      var iShown = pinIssueShown(times);
+      if (iShown) anyPin = true;
+      body += '<li class="pdxdb-pin pdxdb-pin--issue" data-pdxdb-pin-issue="' + esc(p.g.key) + '"' +
+          ' data-pdxdb-pin-times="' + esc(times) + '"' + (iShown ? '' : ' hidden') + '>' +
           '<button type="button" class="pdxdb-pin-i" data-pdxdb-cat="' + esc(p.g.key) + '"' +
             ' aria-pressed="' + (_view.cat === p.g.key ? 'true' : 'false') + '"' + issueSkin(p.g.key) + '>' +
             esc(p.g.label) + '</button>' +
@@ -1381,7 +1536,8 @@
             people(p.comments) + ' ' + COPY.pinCommented) + '</span>' +
         '</li>';
     }
-    return '<section class="pdxdb-pinned" data-pdxdb-pinned="" aria-label="' + esc(COPY.pinnedHead) + '">' +
+    return '<section class="pdxdb-pinned" data-pdxdb-pinned="" aria-label="' + esc(COPY.pinnedHead) + '"' +
+        (anyPin ? '' : ' hidden') + '>' +
         '<h3 class="pdxdb-pinned-h">' + esc(COPY.pinnedHead) + '</h3>' +
         '<ul class="pdxdb-pins">' + body + '</ul>' +
       '</section>';
@@ -1406,18 +1562,15 @@
   }
 
   function anyShown(G, mrows) {
-    var q = normQuery(_view.q);
     if (mrows && mrows.length) {
       var mh = 0;
-      for (var m = 0; m < mrows.length; m++) if (matches(mandateFind(mrows[m]), q)) mh++;
+      for (var m = 0; m < mrows.length; m++) if (mandateShown(mrows[m])) mh++;
       if (mandateState(mh).shown) return true;
     }
     var all = G.groups.slice();
     if (G.unfiled.length) all.push({ key: '', rows: G.unfiled });
     for (var i = 0; i < all.length; i++) {
-      var hits = 0;
-      for (var j = 0; j < all[i].rows.length; j++) if (matches(findText(all[i].rows[j]), q)) hits++;
-      if (groupState(all[i].key, hits, {}).shown) return true;
+      if (groupState(all[i].key, rowHits(all[i].rows), {}).shown) return true;
     }
     return false;
   }
@@ -1441,7 +1594,8 @@
       var rows = groups[g].querySelectorAll('[data-pdxdb-find]');
       var hits = 0;
       for (var r = 0; r < rows.length; r++) {
-        var hit = matches(rows[r].getAttribute('data-pdxdb-find') || '', q);
+        var hit = _view.type !== 'mandates' && timeOk(rows[r].getAttribute('data-pdxdb-time') || '') &&
+          matches(rows[r].getAttribute('data-pdxdb-find') || '', q);
         if (hit) hits++;
         rows[r].hidden = !hit;
       }
@@ -1465,7 +1619,8 @@
       var mr = mb[b].querySelectorAll('[data-pdxdb-find]');
       var mh = 0;
       for (var x = 0; x < mr.length; x++) {
-        var mhit = matches(mr[x].getAttribute('data-pdxdb-find') || '', q);
+        var mhit = _view.type !== 'topics' && timeOk(mr[x].getAttribute('data-pdxdb-time') || '') &&
+          matches(mr[x].getAttribute('data-pdxdb-find') || '', q);
         if (mhit) mh++;
         mr[x].hidden = !mhit;
       }
@@ -1475,6 +1630,27 @@
     }
     var none = el.querySelector('[data-pdxdb-find-none]');
     if (none) none.hidden = any;
+    // The toggle buttons say which is pressed.
+    var tgs = el.querySelectorAll('[' + TG_TYPE + '],[' + TG_TIME + ']');
+    for (var tg = 0; tg < tgs.length; tg++) {
+      var isType = tgs[tg].hasAttribute(TG_TYPE);
+      var v = tgs[tg].getAttribute(isType ? TG_TYPE : TG_TIME) || '';
+      tgs[tg].setAttribute('aria-pressed', v === (isType ? _view.type : _view.time) ? 'true' : 'false');
+    }
+    // The pinned strip follows the toggles (never the search or the chips).
+    var strips = el.querySelectorAll('[data-pdxdb-pinned]');
+    for (var sp = 0; sp < strips.length; sp++) {
+      var pins = strips[sp].querySelectorAll('[data-pdxdb-pin-mandate],[data-pdxdb-pin-issue]');
+      var anyPin = false;
+      for (var pn = 0; pn < pins.length; pn++) {
+        var pv = pins[pn].hasAttribute('data-pdxdb-pin-mandate')
+          ? pinMandateShown()
+          : pinIssueShown(pins[pn].getAttribute('data-pdxdb-pin-times') || '');
+        pins[pn].hidden = !pv;
+        if (pv) anyPin = true;
+      }
+      strips[sp].hidden = !anyPin;
+    }
   }
 
   // Public setters, for the controls and for the suite. Each re-applies to the
@@ -1485,6 +1661,17 @@
   }
   function setQuery(q) {
     _view.q = String(q == null ? '' : q);
+    applyView(_el);
+  }
+  // The toggles. Anything but a known value is All.
+  function setType(v) {
+    v = String(v == null ? '' : v);
+    _view.type = (v === 'topics' || v === 'mandates') ? v : '';
+    applyView(_el);
+  }
+  function setTime(v) {
+    v = String(v == null ? '' : v);
+    _view.time = (v === 'current' || v === 'past') ? v : '';
     applyView(_el);
   }
 
@@ -1513,6 +1700,10 @@
       var t = ev && ev.target;
       var chip = t && fn(t.closest) ? t.closest('[data-pdxdb-cat]') : null;
       if (chip) { setCategory(chip.getAttribute('data-pdxdb-cat') || ''); return; }
+      var tgy = t && fn(t.closest) ? t.closest('[' + TG_TYPE + ']') : null;
+      if (tgy) { setType(tgy.getAttribute(TG_TYPE) || ''); return; }
+      var tgt = t && fn(t.closest) ? t.closest('[' + TG_TIME + ']') : null;
+      if (tgt) { setTime(tgt.getAttribute(TG_TIME) || ''); return; }
       // A header opened or closed by hand is remembered for the next repaint —
       // only while no search is forcing groups open.
       var psum = t && fn(t.closest) ? t.closest('.pdxdb-parent-h') : null;
@@ -1719,7 +1910,8 @@
       : '<span class="pdxdb-m-plain">' + esc(shown) + '</span>';
 
     return '<tr class="pdxdb-row"' + (key ? ' data-pdxdb-issue="' + esc(key) + '"' : '') +
-        ' data-pdxdb-find="' + esc(findText(item)) + '"' + (hidden ? ' hidden' : '') + '>' +
+        ' data-pdxdb-find="' + esc(findText(item)) + '" data-pdxdb-time="' + esc(sitOf(item)) + '"' +
+        (hidden ? ' hidden' : '') + '>' +
         '<td class="pdxdb-m">' + cell +
           (number && title ? '<span class="pdxdb-m-num">' + esc(number) + '</span>' : '') +
           chips +
@@ -2000,8 +2192,8 @@
   var _mandateMember = null; // the member the mandate read was asked with
 
   // ── THE ONE BOARD THAT TAKES A VOICE ──────────────────────────────────────
-  // district-composer.js owns the composer on the five boards whose documents
-  // carry its host. Where the host exists this module leaves the posting slot to
+  // district-composer.js owns the composer on every board whose document
+  // carries its host. Where the host exists this module leaves the posting slot to
   // it; everywhere else the board prints the read-only line and no field.
   function composerOwned() {
     try { return !!(typeof document !== 'undefined' && document.getElementById('pdx-district-composer')); }
@@ -2013,9 +2205,9 @@
   // finder above the chips, the mandate rows) is decided by the SEAT, not only
   // by whether the composer's host happened to be found at paint time: a board
   // whose own seat declaration (host attribute, then the document's) names one
-  // of the five composer seats paints that layout, and so does any document
+  // of the composer seats paints that layout, and so does any document
   // carrying the composer host. The list is district-composer.js's
-  // COMPOSER_SEATS, same five aliases; scripts/test-district-board-force-parents.mjs
+  // COMPOSER_SEATS, same aliases; scripts/test-district-board-force-parents.mjs
   // holds the two copies equal. ACTIVE's default is NOT consulted: a document
   // that declares no seat is not a composer board. DERIVED from the
   // `composer: true` rows of BOARDS rather than written out a second time, the
@@ -2259,14 +2451,20 @@
     _tableGroups: tableGroups,
     _mandateRows: mandateRows,
     _parentsOf: parentsOf,
+    // The in-place filter, for the suite: applies the current view to a
+    // painted band without re-rendering it.
+    _applyView: applyView,
     COMPOSER_SEATS: COMPOSER_SEATS,
     composerBoard: function () { return composerBoard(); },
     MANDATE_KEY: MANDATE_KEY,
     mandates: function () { return _mandates.slice(); },
-    // THE READER'S VIEW OF BAND 3: a category chip ('' is All) and a search.
+    // THE READER'S VIEW OF BAND 3: a category chip ('' is All), a search, and
+    // the Type and Time toggles ('' is All).
     setCategory: setCategory,
     setQuery: setQuery,
-    view: function () { return { cat: _view.cat, q: _view.q }; },
+    setType: setType,
+    setTime: setTime,
+    view: function () { return { cat: _view.cat, q: _view.q, type: _view.type, time: _view.time }; },
     // Exposed for the suite: which of the three answers each band is showing, so
     // "counting", "nobody on file" and "we could not look" are asserted as three
     // different states rather than guessed at from one sentence.

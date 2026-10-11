@@ -9263,7 +9263,58 @@
 //     precached and changed, so the shell moves one version.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none. No table, row, key or seat moved.
-const CACHE_VERSION = 'v341';
+// v342 - EVERY UTAH BOARD TAKES A VOICE. The composer and the poll, which ran
+//     on the five Layton-cluster boards, now mount on SD-6, every generated
+//     district board and the three statewide boards. Each generated document
+//     gains the composer and poll hosts and loads district-voice.js,
+//     district-composer.js and district-poll.js (and voter-hub-location.js
+//     where it was not already on the page). Band 3 paints the parent headers
+//     in the issue colours, collapsed, with the pinned strip above them, on
+//     every board. Gated on a Didit-verified residency row for THAT seat. Still
+//     named rows only: no /district/* splat, and the precache list, the nav
+//     regex and the offline document map are unchanged. Every board document
+//     and the three modules are precached and changed, so the shell moves one
+//     version. No location key or other saved key was touched.
+//     MIGRATION COST: none on the device. In the database,
+//     20261113000000_dd_districts_every_board_seat seeds the dd_districts row
+//     each board seat's residency, comment and vote rows point at; it writes
+//     no residency, comment or vote row.
+// v343 - THE LOCKED LINE ONLY, AND ONE CHECK OPENS THE STATEWIDE BOARDS. The
+//     composer's cap sentence (one comment and five poll votes a month, and
+//     the $20 membership) is gone from every board's served markup and from
+//     district-composer.js; the composer area carries the locked line alone,
+//     and a monthly-cap refusal is shown as a neutral line in the composer and
+//     the poll. district-voice.js seatsForMe() now gives each statewide row a
+//     boardKey (ut-gov, ut-us-senate-<pid>), which the proof button sends, and
+//     the Didit start binds the state's three statewide seats into every
+//     session, so one check opens the governor and both U.S. Senate boards.
+//     Named rows only; no /district/* splat; the precache list is unchanged.
+//     Every board document and the three modules changed, so the shell moves
+//     one version. No location key or other saved key was touched.
+//     MIGRATION COST: none.
+// v344 - MANDATES STAND OUT, SEARCH FINDS THEM, AND THE TABLE HAS NO CAP. Every
+//     mandate row, in the table and in the pinned strip, carries a small flag
+//     before its tag and the mandate colour class (pdxdb-mandate-c, the gold
+//     token district-board.css names) rather than an issue colour; issue rows
+//     and parent headers keep their colours. The board's search matches a
+//     mandate's tag, category and title, and a measure's title, bill number and
+//     issue labels. Band 3 no longer stops at forty rows: it prints every row
+//     the read returns, and says how many issue categories have a measure on
+//     the seat. district-board.js and district-board.css are precached and
+//     changed, so the shell moves one version. No location key or other saved
+//     key was touched.
+//     MIGRATION COST: none.
+// v345 - THE MANDATE PILL, AND TYPE AND TIME TOGGLES. Every mandate row, in the
+//     table and the pinned strip, prints a filled gold "Mandate" pill beside
+//     its flag. A toggle row under the search field on every board filters by
+//     Type (All · Topics · Mandates) and Time (All · Current · Past): current is
+//     the highest Congress present on the seat, or the latest Utah general
+//     session year where a row carries no Congress. The toggles hide rows only;
+//     parents and the pinned strip follow them. district-board.js and
+//     district-board.css are precached and changed, so the shell moves one
+//     version. No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v345';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

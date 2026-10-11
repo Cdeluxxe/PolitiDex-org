@@ -1,13 +1,13 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   district-composer.js — THE BOARDS THAT TAKE A VOICE (the Layton cluster)
+   district-composer.js — THE BOARDS THAT TAKE A VOICE (every Utah board)
    ───────────────────────────────────────────────────────────────────────────
-   Loaded by five documents and no others: /district/ut-sd-3, ut-hd-16,
-   ut-sd-7, ut-hd-15 and ut-cd-2. It mounts only on a #pdx-district-composer
-   host whose data-pdxdc-seat is on COMPOSER_SEATS (named rows, no pattern), and
-   that host is in those five documents only — every generated board and every
-   statewide board stays a reader and keeps district-board.js's disabled
-   "Posting ships next" seam. The server's own list is the one that counts;
-   this one only decides where to paint.
+   Loaded by every district board document: the five Layton-cluster boards
+   where it first shipped (/district/ut-sd-3, ut-hd-16, ut-sd-7, ut-hd-15,
+   ut-cd-2), SD-6, every generated board and the three statewide boards. It
+   mounts only on a #pdx-district-composer host whose data-pdxdc-seat is on
+   COMPOSER_SEATS (named rows, no pattern — the generated rows are written by
+   scripts/gen-district-boards.mjs). The server's own list is the one that
+   counts; this one only decides where to paint.
 
    THE BOX IS OFF UNTIL THE SERVER SAYS OTHERWISE. The served markup is a
    disabled field with the locked line. This module turns it on only when
@@ -37,11 +37,11 @@
    through PDXDistrictBoard.refresh(), so the count the reader moved is the
    count they see.
 
-   THE CAP LINE. One fixed sentence, CAP_LINE, sits under the heading in
-   every state: what a verified resident gets on this seat and what the
-   yearly membership changes. It is the same cap the server enforces
-   (membership-core.mjs) and /me states. It is the only money copy here, it
-   opens nothing, and it lives on these five boards only.
+   THE LOCKED LINE, AND NOTHING ABOUT PRICE. Every state carries the locked
+   line exactly once: as the locked notice while the box is off, and under the
+   heading once it opens. No membership, price, or cap copy is painted on any
+   board — a monthly-cap refusal from the server is shown as a neutral line
+   (COPY.notTaken), never the server's own wording.
 
    No poll, no replies, no score.
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -49,11 +49,95 @@
   'use strict';
 
   var API = '/api/district-board-voice';
-  var COMPOSER_SEATS = { 'ut-sd-3': 1, 'ut-hd-16': 1, 'ut-sd-7': 1, 'ut-hd-15': 1, 'ut-cd-2': 1 };
+  var COMPOSER_SEATS = {
+    'ut-sd-3': 1, 'ut-hd-16': 1, 'ut-sd-7': 1, 'ut-hd-15': 1, 'ut-cd-2': 1, 'ut-sd-6': 1,
+    // @generated district-boards begin — scripts/gen-district-boards.mjs writes every line up to the end marker, do not edit by hand
+    'ut-hd-4': 1,
+    'ut-hd-5': 1,
+    'ut-hd-6': 1,
+    'ut-hd-9': 1,
+    'ut-hd-10': 1,
+    'ut-hd-11': 1,
+    'ut-hd-12': 1,
+    'ut-hd-14': 1,
+    'ut-hd-19': 1,
+    'ut-hd-21': 1,
+    'ut-hd-22': 1,
+    'ut-hd-23': 1,
+    'ut-hd-24': 1,
+    'ut-hd-25': 1,
+    'ut-hd-28': 1,
+    'ut-hd-29': 1,
+    'ut-hd-30': 1,
+    'ut-hd-31': 1,
+    'ut-hd-33': 1,
+    'ut-hd-34': 1,
+    'ut-hd-36': 1,
+    'ut-hd-37': 1,
+    'ut-hd-39': 1,
+    'ut-hd-41': 1,
+    'ut-hd-42': 1,
+    'ut-hd-43': 1,
+    'ut-hd-44': 1,
+    'ut-hd-45': 1,
+    'ut-hd-46': 1,
+    'ut-hd-49': 1,
+    'ut-hd-50': 1,
+    'ut-hd-51': 1,
+    'ut-hd-52': 1,
+    'ut-hd-53': 1,
+    'ut-hd-55': 1,
+    'ut-hd-56': 1,
+    'ut-hd-59': 1,
+    'ut-hd-60': 1,
+    'ut-hd-61': 1,
+    'ut-hd-63': 1,
+    'ut-hd-64': 1,
+    'ut-hd-65': 1,
+    'ut-hd-66': 1,
+    'ut-hd-67': 1,
+    'ut-hd-68': 1,
+    'ut-hd-69': 1,
+    'ut-hd-70': 1,
+    'ut-hd-71': 1,
+    'ut-hd-73': 1,
+    'ut-hd-75': 1,
+    'ut-sd-1': 1,
+    'ut-sd-2': 1,
+    'ut-sd-4': 1,
+    'ut-sd-5': 1,
+    'ut-sd-8': 1,
+    'ut-sd-9': 1,
+    'ut-sd-10': 1,
+    'ut-sd-11': 1,
+    'ut-sd-12': 1,
+    'ut-sd-13': 1,
+    'ut-sd-14': 1,
+    'ut-sd-15': 1,
+    'ut-sd-16': 1,
+    'ut-sd-17': 1,
+    'ut-sd-18': 1,
+    'ut-sd-19': 1,
+    'ut-sd-20': 1,
+    'ut-sd-21': 1,
+    'ut-sd-22': 1,
+    'ut-sd-23': 1,
+    'ut-sd-24': 1,
+    'ut-sd-25': 1,
+    'ut-sd-26': 1,
+    'ut-sd-27': 1,
+    'ut-sd-28': 1,
+    'ut-sd-29': 1,
+    'ut-cd-1': 1,
+    'ut-cd-3': 1,
+    'ut-cd-4': 1,
+    'ut-gov': 1,
+    'ut-us-senate-curtis': 1,
+    'ut-us-senate-lee': 1,
+    // @generated district-boards end
+  };
   var POST_MAX = 280;
   var LOCKED_LINE = 'Only verified residents of this seat get a voice that counts.';
-  var CAP_LINE = 'Verified residents get one comment and five poll votes a month on this seat. ' +
-    'A $20 yearly membership removes the monthly cap.';
   var COPY = {
     label: 'Say something to this district',
     issue: 'Issue',
@@ -68,6 +152,9 @@
     feedUnread: 'We could not read this board’s posts just now. This is not an empty board — it is a read that failed.',
     unreadNote: 'Posting stays off until this board can confirm who you are.',
     failed: 'That post did not go through.',
+    // A monthly-cap refusal (429 monthly_cap), said without the server's
+    // membership wording.
+    notTaken: 'That post did not go through. This seat is not taking another post from this account right now.',
     mine: 'You',
     prove: 'Prove you live here',
     proving: 'Opening the ID check…',
@@ -254,16 +341,18 @@
 
   // THE SEATS ONE CHECK COVERS, FROM THE HALLWAY'S OWN RESOLVER. district-
   // voice.js seatsForMe() over pdxRepsForMe() — the same list /voice paints —
-  // reduced to its seat keys. Nothing is composed here; a missing module or a
-  // reader with no saved location sends [] and the check covers this board's
-  // seat alone. The server keeps only the five composer seats.
+  // reduced to its seat keys, the statewide rows' board keys included.
+  // Nothing is composed here; a missing module or a reader with no saved
+  // location sends []. The server keeps only composer seats, and binds the
+  // board's own state's statewide seats whatever is sent.
   function resolvedSeats() {
     var out = [];
     try {
       var V = window.PDXVoice;
       var seats = (V && fn(V.seatsForMe)) ? (V.seatsForMe() || []) : [];
       for (var i = 0; i < seats.length; i++) {
-        var k = seats[i] && seats[i].seatKey;
+        // A district row's seat key, or a statewide row's board key.
+        var k = seats[i] && (seats[i].seatKey || seats[i].boardKey);
         if (typeof k === 'string' && k && out.indexOf(k) < 0) out.push(k);
       }
     } catch (e) { out = []; }
@@ -312,8 +401,8 @@
     _host.innerHTML =
       '<section class="pdxdb-band pdxdb-band--compose" data-pdxdb-band="compose">' +
         '<h2 class="pdxdb-h2">' + esc(COPY.label) + '</h2>' +
-        (line ? '<p class="pdxdc-locked" data-pdxdc-locked="1">' + esc(line) + '</p>' : '') +
-        '<p class="pdxdb-foot" data-pdxdc-cap="1">' + esc(CAP_LINE) + '</p>' +
+        (line ? '<p class="pdxdc-locked" data-pdxdc-locked="1">' + esc(line) + '</p>'
+              : '<p class="pdxdb-foot" data-pdxdc-locked="1">' + esc(LOCKED_LINE) + '</p>') +
         '<form class="pdxdc-form" novalidate>' +
           '<label class="pdxdc-l" for="pdxdc-issue">' + esc(COPY.issue) + '</label>' +
           '<select class="pdxdc-sel" id="pdxdc-issue" name="issueKey"' + dis + '>' + optionsHtml() + '</select>' +
@@ -400,6 +489,8 @@
         _read = _read || {};
         _read.voice = { canPost: false, reason: res.data.code || '', line: res.data.error || LOCKED_LINE, note: res.data.note || '' };
         _status = '';
+      } else if (res.status === 429 || (res.data && res.data.code === 'monthly_cap')) {
+        _status = COPY.notTaken;
       } else {
         _status = (res.data && res.data.error) || COPY.failed;
       }
@@ -448,7 +539,6 @@
     API: API,
     COMPOSER_SEATS: COMPOSER_SEATS,
     LOCKED_LINE: LOCKED_LINE,
-    CAP_LINE: CAP_LINE,
     COPY: COPY,
     mount: mount,
     canPost: canPost
