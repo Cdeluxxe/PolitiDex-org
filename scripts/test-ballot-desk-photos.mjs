@@ -186,6 +186,14 @@ const ALLOWED = new Set([
   "www.whitehouse.gov",
   "www.wvc-ut.gov",
   "www.wyocourts.gov",
+  "jamie4sanjuan.com",
+  "marshajudkins.com",
+  "nickbrownforag.com",
+  "sheriffjaredrigby.org",
+  "teamkaufusi.com",
+  "www.bilzerianforcongress.com",
+  "www.brycedunford.com",
+  "www.gartenforsenate.com",
 ]);
 
 const BALLOT = R("ballot.html");

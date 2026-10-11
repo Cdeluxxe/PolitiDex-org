@@ -9100,7 +9100,18 @@
 //     No location key or other saved key was touched. cmp-data.js is precached
 //     and changed, so it moves one version.
 //     MIGRATION COST: none. No drawer, score, effect line, seed row or key moved.
-const CACHE_VERSION = 'v326';
+// v327 - PERSON PHOTOS, WAVE 1B. Eight roster rows that still painted the
+//     building mark, with no official portrait anywhere, now carry a portrait
+//     from the person's own campaign site: a page naming the same person and the
+//     same office or candidacy, one single portrait, served from that site's own
+//     domain. No official portrait was replaced, and nothing came from a news
+//     site, a CDN or a third party. 106 rows keep the building, each with its
+//     reason in PORTRAIT_SWEEP.md. The eight campaign hosts are on the trusted
+//     list and on netlify.toml's remote_images, so a share card keeps the face.
+//     No location key or other saved key was touched. cmp-data.js is precached
+//     and changed, so it moves one version.
+//     MIGRATION COST: none. No drawer, score, effect line, seed row or key moved.
+const CACHE_VERSION = 'v327';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

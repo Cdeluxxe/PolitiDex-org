@@ -219,6 +219,21 @@ const ALLOWED = new Set([
   "www.whitehouse.gov",
   "www.wvc-ut.gov",
   "www.wyocourts.gov",
+  // CAMPAIGN PORTRAITS (wave 1b, v327). Only for a row with no official portrait
+  // anywhere: the person's own campaign site, naming the same person and office or
+  // candidacy, one single portrait served from that site's own domain (never a CDN,
+  // news site or third party). An official portrait is never replaced by one of these.
+  // Each host is recorded with its reason in PORTRAIT_SWEEP.md.
+  // campaign-hosts:begin
+  "jamie4sanjuan.com",
+  "marshajudkins.com",
+  "nickbrownforag.com",
+  "sheriffjaredrigby.org",
+  "teamkaufusi.com",
+  "www.bilzerianforcongress.com",
+  "www.brycedunford.com",
+  "www.gartenforsenate.com",
+  // campaign-hosts:end
 ]);
 const strayHosts = new Map();
 for (const [k, v] of Object.entries(faces)) {

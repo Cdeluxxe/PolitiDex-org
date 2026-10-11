@@ -2871,8 +2871,10 @@
 # already pins for the bundled portraits, and for the same reason it gives: a new host
 # is a new availability and a new trust dependency for faces on an accountability app.
 # Widen it deliberately, in both places, or not at all. Person photos wave 1 (v326)
-# widened it once, to official .gov / .us hosts only; a campaign site, a
-# website-builder CDN, or an .org / .net host is never added. A host that is not here
+# widened it to official .gov / .us hosts. Wave 1b (v327) added a short list of
+# campaign hosts, each the person's own campaign site and only for a row with no
+# official portrait anywhere; a website-builder CDN, a news site or any other third
+# party is never added. PORTRAIT_SWEEP.md records why each campaign host is here. A host that is not here
 # 404s, which the card handles the same way it handles a dead network — it draws
 # the monogram.
 [images]
@@ -3003,7 +3005,16 @@
     "https://www\\.westjordan\\.utah\\.gov/.*",
     "https://www\\.whitehouse\\.gov/.*",
     "https://www\\.wvc-ut\\.gov/.*",
-    "https://www\\.wyocourts\\.gov/.*"
+    "https://www\\.wyocourts\\.gov/.*",
+    # Wave 1b (v327): campaign hosts, the person's own campaign site, for rows with no official portrait.
+    "https://jamie4sanjuan\\.com/.*",
+    "https://marshajudkins\\.com/.*",
+    "https://nickbrownforag\\.com/.*",
+    "https://sheriffjaredrigby\\.org/.*",
+    "https://teamkaufusi\\.com/.*",
+    "https://www\\.bilzerianforcongress\\.com/.*",
+    "https://www\\.brycedunford\\.com/.*",
+    "https://www\\.gartenforsenate\\.com/.*"
   ]
 
 # THE CURATOR'S ROOM IS NOT CRAWLABLE, SAID AT THE EDGE AS WELL AS IN THE HEAD.
