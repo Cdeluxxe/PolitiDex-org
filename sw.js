@@ -9178,7 +9178,18 @@
 //     five composer board documents are precached and changed, so the shell
 //     moves one version. No location key or other saved key was touched.
 //     MIGRATION COST: none. No table, row, key or seat moved.
-const CACHE_VERSION = 'v333';
+// v334 - ONE RESIDENCY CHECK COVERS EVERY RESOLVED SEAT. The five composer
+//     boards now load the hallway's seat resolver (voter-hub-location.js and
+//     district-voice.js) and "Prove you live here" sends its seat keys with the
+//     board's seat. The Didit session binds them, and the approved decision
+//     writes a verified vendor row for each composer seat among them. A reader
+//     holding any verified row cannot start another check. district-composer.js
+//     and the five composer board documents are precached and changed, as is
+//     /me's membership line (me.html), which now says one check covers every
+//     board seat the saved location names; so the shell moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none. No table, row, key or seat moved.
+const CACHE_VERSION = 'v334';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

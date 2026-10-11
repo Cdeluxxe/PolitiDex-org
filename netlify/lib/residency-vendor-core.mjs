@@ -3,21 +3,26 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // The one writer of voice_residency.method = 'vendor'. Two handlers:
 //
-//   handleStart(req, deps)    POST /api/residency-verify { seat }
+//   handleStart(req, deps)    POST /api/residency-verify { seat, seats? }
 //     Any signed-in reader on SD-3, HD-16, SD-7, HD-15 or UT-2 asks to prove
-//     they live in THAT seat. Membership is never asked: it only lifts the
-//     daily comment/poll cap. The year includes the check for ONE seat: an account
-//     that already holds a vendor row on another of the five is 403 too, read
-//     from voice_residency itself — there is no counter. The seat comes from the board they pressed the button
-//     on (COMPOSER_SEATS, named rows, no pattern) and the uid from the verified
-//     Firebase token — never from anything else in the body. A Didit session
+//     they live in that seat AND in every other composer seat their saved
+//     location resolves. Membership is never asked: it only lifts the monthly
+//     comment/poll cap. ONE CHECK COVERS THEM ALL: an account that already
+//     holds a verified vendor row on any of the five is 403 already_checked,
+//     read from voice_residency itself — there is no counter. The seat comes
+//     from the board they pressed the button on (COMPOSER_SEATS, named rows, no
+//     pattern) and the uid from the verified Firebase token. `seats` is what the
+//     hallway's resolver (district-voice.js seatsForMe() over pdxRepsForMe())
+//     named for the reader's saved location; it is filtered to the five
+//     canonical keys and the board's own seat is always first. A Didit session
 //     is created on the configured workflow (ID document + proof of address)
-//     with vendor_data = {"uid","seat"} and its URL returned. Writes NOTHING to
-//     Postgres: starting a check is not a claim.
+//     with vendor_data = {"uid","seat","seats"} and its URL returned. Writes
+//     NOTHING to Postgres: starting a check is not a claim.
 //
 //   handleWebhook(req, deps)  POST /api/residency-webhook   (Didit → us)
-//     Writes one row — (seat, authorHash(uid, seat), 'verified', 'vendor') —
-//     only when ALL of these hold:
+//     Writes (s, authorHash(uid, s), 'verified', 'vendor') for EVERY seat s in
+//     the session's bound seat list — the board's own seat plus the other
+//     composer seats the resolver named at start — only when ALL of these hold:
 //       1. X-Timestamp is within five minutes of now, AND X-Signature-V2 is the
 //          HMAC-SHA256 of the sorted, compact JSON of the body, or X-Signature
 //          the HMAC-SHA256 of the raw body, under the webhook secret
@@ -26,16 +31,18 @@
 //       3. The decision carries at least one ID verification AND at least one
 //          proof-of-address verification, and every one of them is 'Approved'
 //          (the document check and the address check both ran and passed).
-//       4. vendor_data parses to { uid, seat } and seat is EXACTLY one of the
-//          five canonical keys. The row is written for that seat and no other,
-//          so a UT-2 session can only ever verify UT-2.
+//       4. vendor_data parses to { uid, seat, seats? } and seat is EXACTLY one
+//          of the five canonical keys. `seats` entries outside the five are
+//          dropped, so a session can never verify a seat without a composer.
+//          vendor_data was written by handleStart and comes back inside the
+//          signed payload, so nothing the browser sends after start reaches it.
 //     Anything else — unsigned, stale, In Review, Declined, Expired, Abandoned,
 //     Resubmitted, no address check, a seat outside the five, a malformed
 //     vendor_data — writes nothing. A revoked row is never overturned.
 //
 // NOTHING FROM THE VENDOR IS KEPT. No name, document number, image, address,
 // session id or raw payload is stored or logged. The only thing that survives a
-// decision is the seat-scoped hash the gates already look up.
+// decision is the seat-scoped hashes the gates already look up.
 //
 // NO BACKDOOR. There is no env flag, query param or test hook that stamps
 // verified: without the API key and the workflow id the start is 503, and
@@ -47,7 +54,7 @@
 
 import crypto from "node:crypto";
 import { authorHash } from "./district-voice-core.mjs";
-import { COMPOSER_SEATS, composerSeat, otherVendorSeat } from "./district-board-voice-core.mjs";
+import { COMPOSER_SEATS, anyVerifiedSeat, composerSeat } from "./district-board-voice-core.mjs";
 
 export const VENDOR = "didit";
 export const SESSION_URL = "https://verification.didit.me/v3/session/";
@@ -62,7 +69,7 @@ export const COPY = {
   unavailable: "The ID check is not available right now. Posting stays closed on this board.",
   revoked: "Residency for this seat was revoked by a reviewer.",
   already: "You are already verified for this seat.",
-  secondSeat: "Your ID and address check is already used on another seat. A second seat is not included.",
+  alreadyChecked: "Your ID and address check is already done. It covered the seats your saved location named when you ran it, and this seat was not one of them.",
 };
 
 function json(data, status = 200) {
@@ -117,12 +124,28 @@ export function signatureOk(secret, raw, headers, nowS) {
 }
 
 // ── vendorData ──────────────────────────────────────────────────────────────
-export function vendorData(uid, seatKey) {
-  return JSON.stringify({ uid: String(uid), seat: String(seatKey) });
+// The seats one check covers: the board's own seat first, then every other
+// composer seat in `resolved` (canonical or alias spellings), deduplicated.
+// Anything that is not one of the five is dropped, never widened.
+export function coveredSeats(seatKey, resolved) {
+  const own = composerSeat(seatKey);
+  if (!own) return [];
+  const out = [own];
+  for (const raw of Array.isArray(resolved) ? resolved.slice(0, 32) : []) {
+    const k = typeof raw === "string" ? composerSeat(raw) : "";
+    if (k && out.indexOf(k) < 0) out.push(k);
+  }
+  return out;
 }
 
-// { uid, seat } only when seat is EXACTLY a canonical composer seat. An alias,
-// a neighbour district or a padded key is not "the seat they started from".
+export function vendorData(uid, seatKey, resolved) {
+  return JSON.stringify({ uid: String(uid), seat: String(seatKey), seats: coveredSeats(seatKey, resolved) });
+}
+
+// { uid, seat, seats } only when seat is EXACTLY a canonical composer seat. An
+// alias, a neighbour district or a padded key is not "the seat they started
+// from". `seats` keeps only exact canonical composer keys and always starts
+// with `seat`; a session from before the list existed covers its seat alone.
 export function parseVendorData(raw) {
   if (typeof raw !== "string" || raw.length > 1000) return null;
   let v;
@@ -132,7 +155,12 @@ export function parseVendorData(raw) {
   const seat = typeof v.seat === "string" ? v.seat : "";
   if (!uid || uid.length > 128 || /\s/.test(uid)) return null;
   if (!seat || !Object.prototype.hasOwnProperty.call(COMPOSER_SEATS, seat)) return null;
-  return { uid, seat };
+  const seats = [seat];
+  for (const k of Array.isArray(v.seats) ? v.seats : []) {
+    if (typeof k !== "string" || !Object.prototype.hasOwnProperty.call(COMPOSER_SEATS, k)) continue;
+    if (seats.indexOf(k) < 0) seats.push(k);
+  }
+  return { uid, seat, seats };
 }
 
 // ── THE DECISION ────────────────────────────────────────────────────────────
@@ -204,8 +232,8 @@ export async function handleStart(req, deps) {
     return json({ verified: true, message: COPY.already }, 200);
   }
 
-  if (await otherVendorSeat(deps, user.uid, seatKey)) {
-    return json({ error: COPY.secondSeat, code: "second_seat" }, 403);
+  if (await anyVerifiedSeat(deps, user.uid)) {
+    return json({ error: COPY.alreadyChecked, code: "already_checked" }, 403);
   }
 
   const cfg = (await deps.config()) || {};
@@ -215,7 +243,7 @@ export async function handleStart(req, deps) {
 
   const body = JSON.stringify({
     workflow_id: String(cfg.workflowId),
-    vendor_data: vendorData(user.uid, seatKey),
+    vendor_data: vendorData(user.uid, seatKey, payload.seats),
     callback: deps.callbackUrl(req, COMPOSER_SEATS[seatKey]),
   });
   let res;
@@ -239,7 +267,8 @@ export async function handleStart(req, deps) {
 // deps:
 //   config()                        → { webhookSecret }
 //   findResidency(seatKey, hash)    → { status, method } | null
-//   writeVerified(seatKey, hash)    → void   (the ONE write; never over 'revoked')
+//   writeVerified(seatKey, hash)    → void   (the only write, once per covered
+//                                             seat; never over 'revoked')
 //   now()                           → Date   (optional)
 export async function handleWebhook(req, deps) {
   if (String(req.method || "").toUpperCase() !== "POST") return json({ error: "Method not allowed" }, 405);
@@ -267,11 +296,24 @@ export async function handleWebhook(req, deps) {
   const who = parseVendorData(vendorDataOf(payload));
   if (!who) return json({ ok: true, written: false, reason: "bad_seat" });
 
+  // The session's own seat is validated first and a revoked row there stops
+  // the whole decision. Every other covered seat is written unless it, too, is
+  // revoked — a revoked row is never overturned.
   const hash = authorHash(who.uid, who.seat);
   if (!hash) return json({ ok: true, written: false, reason: "bad_seat" });
   const row = await deps.findResidency(who.seat, hash);
   if (row && row.status === "revoked") return json({ ok: true, written: false, reason: "revoked" });
 
-  await deps.writeVerified(who.seat, hash);
-  return json({ ok: true, written: true });
+  let written = 0;
+  for (const k of who.seats) {
+    const h = authorHash(who.uid, k);
+    if (!h) continue;
+    if (k !== who.seat) {
+      const r = await deps.findResidency(k, h);
+      if (r && r.status === "revoked") continue;
+    }
+    await deps.writeVerified(k, h);
+    written++;
+  }
+  return json({ ok: true, written: true, seats: written });
 }

@@ -328,7 +328,8 @@ for (const [alias, seat] of Object.entries(CLUSTER)) {
   eq(t.calls[0].url, "https://verification.didit.me/v3/session/", `${alias}: …at Didit's session endpoint`);
   const sent = JSON.parse(t.calls[0].body);
   eq(sent.workflow_id, WORKFLOW, `${alias}: on the configured workflow`);
-  eq(sent.vendor_data, JSON.stringify({ uid: UID, seat }), `${alias}: vendor_data is { uid, seat } for THIS board`);
+  eq(sent.vendor_data, JSON.stringify({ uid: UID, seat, seats: [seat] }),
+     `${alias}: vendor_data is { uid, seat, seats } for THIS board (no resolved seats sent → this seat alone)`);
   ok(sent.callback.endsWith(`/district/${alias}?residency=returned`), `${alias}: returns to the board it started from`);
   eq(t.calls[0].headers["x-api-key"], KEY, `${alias}: authenticated server-side`);
   ok(!JSON.stringify(d).includes(KEY) && !JSON.stringify(d).includes(WORKFLOW), `${alias}: no key or workflow on the wire`);
@@ -529,7 +530,7 @@ const NON_MEMBERS = [
       eq(d.url, "https://verify.didit.me/session/abc", `${who} on ${alias}: …the Didit URL is returned`);
       eq(d.seat, alias, `${who} on ${alias}: …for this board`);
       eq(t.calls.length, 1, `${who} on ${alias}: one vendor session`);
-      eq(JSON.parse(t.calls[0].body).vendor_data, JSON.stringify({ uid: UID, seat }),
+      eq(JSON.parse(t.calls[0].body).vendor_data, JSON.stringify({ uid: UID, seat, seats: [seat] }),
          `${who} on ${alias}: the session is bound to ${seat}`);
       eq(t.store.writes.length, 0, `${who} on ${alias}: nothing written`);
     }
@@ -569,25 +570,27 @@ const NON_MEMBERS = [
     const res = await handleStart(start(alias, UID), t.deps);
     eq(res.status, 200, `member on ${alias}: start is 200`);
     eq((await res.json()).seat, alias, `member on ${alias}: …for this board`);
-    eq(JSON.parse(t.calls[0].body).vendor_data, JSON.stringify({ uid: UID, seat }),
+    eq(JSON.parse(t.calls[0].body).vendor_data, JSON.stringify({ uid: UID, seat, seats: [seat] }),
        `member on ${alias}: the session is bound to ${seat}`);
     eq(t.store.writes.length, 0, `member on ${alias}: starting writes nothing`);
   }
 }
 {
-  // THE YEAR INCLUDES ONE CHECK. A vendor row on one seat refuses a second seat.
-  for (const status of ["verified", "revoked"]) {
-    const rows = [{ seatKey: "ut-house-2", authorHash: authorHash(UID, "ut-house-2"), status, method: "vendor" }];
-    for (const alias of ["ut-sd-3", "ut-hd-16", "ut-sd-7", "ut-hd-15"]) {
-      const t = startDeps({ rows });
-      const res = await handleStart(start(alias, UID), t.deps);
-      eq(res.status, 403, `${status} on UT-2 → ${alias} start is 403`);
-      const d = await res.json();
-      eq(d.code, "second_seat", `…second_seat`);
-      ok(/a second seat is not included/i.test(d.error), "…and says a second seat is not included");
-      eq(t.calls.length, 0, "…no session");
-    }
+  // ONE CHECK. A verified vendor row on any seat refuses another start.
+  const rows = [{ seatKey: "ut-house-2", authorHash: authorHash(UID, "ut-house-2"), status: "verified", method: "vendor" }];
+  for (const alias of ["ut-sd-3", "ut-hd-16", "ut-sd-7", "ut-hd-15"]) {
+    const t = startDeps({ rows });
+    const res = await handleStart(start(alias, UID), t.deps);
+    eq(res.status, 403, `verified on UT-2 → ${alias} start is 403`);
+    const d = await res.json();
+    eq(d.code, "already_checked", `…already_checked`);
+    ok(/already done/i.test(d.error), "…and says the check is already done");
+    eq(t.calls.length, 0, "…no session");
   }
+  // A revoked row elsewhere is not a verification and does not block a start.
+  const revoked = [{ seatKey: "ut-house-2", authorHash: authorHash(UID, "ut-house-2"), status: "revoked", method: "vendor" }];
+  eq((await handleStart(start("ut-sd-3", UID), startDeps({ rows: revoked }).deps)).status, 200,
+     "a revoked row on another seat does not count as a verified row");
   // A location_match row elsewhere is not a vendor check; it spends nothing.
   const loc = [{ seatKey: "ut-house-2", authorHash: authorHash(UID, "ut-house-2"), status: "verified", method: "location_match" }];
   eq((await handleStart(start("ut-sd-3", UID), startDeps({ rows: loc }).deps)).status, 200,
@@ -631,7 +634,8 @@ const NON_MEMBERS = [
   const spent = [{ seatKey: "ut-house-2", authorHash: authorHash(UID, "ut-house-2"), status: "verified", method: "vendor" }];
   const sv = await readVoice(spent, MEMBER, "ut-sd-3", UID);
   eq(sv.canVerify, false, "member verified on UT-2 → no proof button on SD-3");
-  ok(/a second seat is not included/i.test(sv.note), "…the note says a second seat is not included");
+  ok(/already done/i.test(sv.note) && /this seat was not one of them/i.test(sv.note),
+     "…the note says the one check already ran and did not cover this seat");
   ok(!/\$|member/i.test(sv.note), "…with no price and no plan name");
   const home = await readVoice(spent, MEMBER, "ut-cd-2", UID);
   eq(home.canPost, true, "member verified on UT-2 → UT-2 open");
@@ -680,9 +684,9 @@ const NON_MEMBERS = [
   const block = (ME.match(/<!-- pdx:me-membership:begin[\s\S]*?<!-- pdx:me-membership:end -->/) || [""])[0];
   const text = block.replace(/<!--[\s\S]*?-->/g, " ").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
   const lines = [...block.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)].map((m) => m[1]);
-  const one = lines.filter((l) => /the ID and address check for one seat is included with the year/i.test(l));
-  eq(one.length, 1, "/me: one line says the one-seat check is included with the year");
-  ok(/a second seat is not included/i.test(one[0] || ""), "…and that a second seat is not included");
+  const one = lines.filter((l) => /one ID and address check covers every board seat your saved location names/i.test(l));
+  eq(one.length, 1, "/me: one line says one check covers every seat the saved location names");
+  ok(/a second check is not included/i.test(one[0] || ""), "…and that a second check is not included");
   ok(/membership does not verify residency and does not open a seat/i.test(text), "/me: membership does not open a seat");
   ok(!/membership (opens|unlocks|verifies) (the|a|your) seat/i.test(text), "/me: never says membership opens the seat");
   ok(!/\$3\b|a month\s*—|\/month|per month/i.test(text), "/me: no monthly price is added");
@@ -697,6 +701,162 @@ const NON_MEMBERS = [
   const CAP_LINE = /Verified residents get one comment and five poll votes a month on this seat\. (?:' \+\s*')?A \$20 yearly membership removes the monthly cap\./g;
   const pay = boards.filter((f) => /\/api\/membership|checkout\.stripe|\$20|become a member/i.test(R(f).replace(CAP_LINE, "")));
   eq(pay.length, 0, `the five boards still have no pay button — ${JSON.stringify(pay)}`);
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("8 · one check covers every composer seat the saved location resolves");
+// ═════════════════════════════════════════════════════════════════════════════
+// TEST LOCATION: what the hallway's seatsForMe() hands district-composer.js —
+// the five composer seats, a neighbour seat with no composer, and a statewide
+// row that composes no seat key. Test-only; not a real address.
+const RESOLVED_ALL = ["ut-statehouse-15", "ut-statesenate-6", "ut-house-2", "", "ut-statesenate-3",
+                      "ut-statehouse-16", "ut-statesenate-7"];
+const startWith = (seat, token, seats) => new Request("https://politidex.fyi/api/residency-verify", {
+  method: "POST",
+  headers: { "content-type": "application/json", ...(token ? { authorization: "Bearer " + token } : {}) },
+  body: JSON.stringify({ seat, seats }),
+});
+const boardGet = (alias, token, deps) => handleVoice(new Request(`https://politidex.fyi/api/district-board-voice?seat=${alias}`,
+  { headers: token ? { authorization: "Bearer " + token } : {} }), deps).then((r) => r.json()).then((d) => d.voice);
+// Start for real, then hand the webhook the vendor_data the start bound.
+async function startThenDecide(alias, resolved, store) {
+  const t = startDeps({ rows: store.rows });
+  const res = await handleStart(startWith(alias, UID, resolved), t.deps);
+  eq(res.status, 200, `start on ${alias} with a resolved location is 200`);
+  const vd = JSON.parse(t.calls[0].body).vendor_data;
+  const d = decision();
+  d.vendor_data = vd;
+  d.decision.vendor_data = vd;
+  return { vd, res: await handleWebhook(hook(d), hookDeps(store)) };
+}
+{
+  // AN APPROVED UT-2 DECISION WRITES A VERIFIED ROW FOR EVERY RESOLVED SEAT.
+  const store = residencyStore();
+  const { vd, res } = await startThenDecide("ut-cd-2", RESOLVED_ALL, store);
+  const bound = JSON.parse(vd);
+  eq(bound.seat, "ut-house-2", "the session's own seat is UT-2");
+  eq(bound.seats[0], "ut-house-2", "…and it is first in the covered list");
+  eq(bound.seats.slice().sort().join(","), Object.keys(COMPOSER_SEATS).sort().join(","),
+     "the session covers exactly the five composer seats the location resolved");
+  ok(!bound.seats.includes("ut-statesenate-6"), "…a resolved seat with no composer is dropped");
+  const out = await res.json();
+  eq(out.written, true, "the webhook reports a write");
+  eq(out.seats, 5, "…for five seats");
+  eq(store.writes.length, 5, "five residency writes");
+  for (const seat of Object.values(CLUSTER)) {
+    const r = store.rows.find((x) => x.seatKey === seat && x.authorHash === authorHash(UID, seat));
+    ok(!!r && r.status === "verified" && r.method === "vendor", `UT-2 decision → verified vendor row on ${seat}`);
+  }
+  ok(!store.rows.some((r) => r.seatKey === "ut-statesenate-6"), "no row on a seat without a composer");
+  ok(store.writes.every((w) => Object.keys(w).sort().join(",") === "hash,seatKey"), "nothing from the vendor reaches any write");
+
+  // A SECOND START OPENS NO SESSION ONCE ANY VERIFIED ROW EXISTS — on every board.
+  for (const alias of Object.keys(CLUSTER)) {
+    const t = startDeps({ rows: store.rows });
+    const r = await handleStart(startWith(alias, UID, RESOLVED_ALL), t.deps);
+    const d = await r.json();
+    ok(r.status === 200 && d.verified === true, `${alias}: a second start answers already verified (${r.status})`);
+    eq(t.calls.length, 0, `${alias}: no second Didit session`);
+  }
+  for (const alias of Object.keys(CLUSTER)) {
+    const v = await boardGet(alias, UID, boardDeps(store.rows).deps);
+    eq(v.canVerify, false, `${alias}: canVerify false after the one check`);
+    eq(v.canPost, true, `${alias}: the composer opens on a covered seat`);
+  }
+}
+{
+  // A BOARD WHOSE SEAT HAS A ROW OPENS; A BOARD WHOSE SEAT DOES NOT STILL REFUSES.
+  const store = residencyStore();
+  await startThenDecide("ut-cd-2", ["ut-statehouse-15", "ut-statesenate-7", "ut-house-2"], store);
+  eq(store.writes.length, 3, "a location resolving three composer seats writes three rows");
+  const covered = ["ut-cd-2", "ut-hd-15", "ut-sd-7"];
+  for (const alias of Object.keys(CLUSTER)) {
+    const s = boardDeps(store.rows);
+    const c = await handleVoice(boardPost("/api/district-board-voice", { seat: alias, issueKey: "housing", body: "Hi" }, UID), s.deps);
+    const v = await handlePoll(boardPost("/api/district-board-poll", { seat: alias, issueKey: "housing", choice: "support" }, UID), s.deps);
+    if (covered.includes(alias)) {
+      eq(c.status, 201, `${alias} covered: comment opens`);
+      eq(v.status, 200, `${alias} covered: vote opens`);
+    } else {
+      eq(c.status, 403, `${alias} not covered: comment still 403`);
+      eq(v.status, 403, `${alias} not covered: vote still 403`);
+      eq(s.posts.length + s.votes.length, 0, `${alias} not covered: nothing written`);
+      const g = await boardGet(alias, UID, s.deps);
+      eq(g.canVerify, false, `${alias} not covered: no proof button (the one check already ran)`);
+      ok(/this seat was not one of them/i.test(g.note), `${alias} not covered: the note says why`);
+      // And a start there is refused outright.
+      const t = startDeps({ rows: store.rows });
+      const r = await handleStart(startWith(alias, UID, RESOLVED_ALL), t.deps);
+      eq(r.status, 403, `${alias} not covered: a second start is 403`);
+      eq((await r.json()).code, "already_checked", `${alias} not covered: …already_checked`);
+      eq(t.calls.length, 0, `${alias} not covered: no second Didit session`);
+    }
+  }
+  const bob = boardDeps(store.rows);
+  eq((await handleVoice(boardPost("/api/district-board-voice", { seat: "ut-hd-15", issueKey: "housing", body: "Hi" }, "uid-bob"), bob.deps)).status,
+     403, "alice's check opens nothing for bob");
+  eq((await boardGet("ut-hd-15", "uid-bob", bob.deps)).canVerify, true, "…and bob can still start his own");
+}
+{
+  // THE BOARD'S OWN SEAT IS ALWAYS COVERED, even if the location did not name it.
+  const store = residencyStore();
+  await startThenDecide("ut-sd-3", ["ut-statehouse-15"], store);
+  eq(store.writes.map((w) => w.seatKey).join(","), "ut-statesenate-3,ut-statehouse-15",
+     "the session's seat first, then the resolved composer seats");
+}
+{
+  // A REVOKED ROW IS NEVER OVERTURNED: on the session's seat it stops the whole
+  // decision, on another covered seat only that seat is skipped.
+  const vd = JSON.stringify({ uid: UID, seat: "ut-house-2", seats: ["ut-house-2", "ut-statehouse-15"] });
+  const withVd = () => { const d = decision(); d.vendor_data = vd; d.decision.vendor_data = vd; return d; };
+  const own = residencyStore([{ seatKey: "ut-house-2", authorHash: authorHash(UID, "ut-house-2"), status: "revoked", method: "vendor" }]);
+  await handleWebhook(hook(withVd()), hookDeps(own));
+  eq(own.writes.length, 0, "revoked on the session's seat → nothing written anywhere");
+  const other = residencyStore([{ seatKey: "ut-statehouse-15", authorHash: authorHash(UID, "ut-statehouse-15"), status: "revoked", method: "vendor" }]);
+  await handleWebhook(hook(withVd()), hookDeps(other));
+  eq(other.writes.map((w) => w.seatKey).join(","), "ut-house-2", "revoked on a covered seat → that seat skipped, the rest written");
+  eq(other.rows.find((r) => r.seatKey === "ut-statehouse-15").status, "revoked", "…and it stays revoked");
+}
+{
+  // A COVERED LIST CAN ONLY NAME THE FIVE. Aliases, padded keys and other seats
+  // inside a signed vendor_data are dropped; the session's seat is still required.
+  const vd = JSON.stringify({ uid: UID, seat: "ut-house-2",
+    seats: ["ut-sd-3", " ut-statehouse-15", "ut-statesenate-6", "ut-gov", 7, null, "ut-statesenate-7"] });
+  eq(parseVendorData(vd).seats.join(","), "ut-house-2,ut-statesenate-7", "only exact canonical composer keys survive");
+  eq(parseVendorData(JSON.stringify({ uid: UID, seats: ["ut-house-2"] })), null, "no session seat → no decision");
+  eq(parseVendorData(JSON.stringify({ uid: UID, seat: "ut-statesenate-6", seats: ["ut-house-2"] })), null,
+     "a session seat outside the five → no decision, whatever the list says");
+}
+{
+  // SIGNED-OUT STARTS AND UNSIGNED WEBHOOKS STILL WRITE NOTHING.
+  for (const [who, token] of [["signed out", null], ["anonymous", "anon"]]) {
+    const t = startDeps();
+    const r = await handleStart(startWith("ut-cd-2", token, RESOLVED_ALL), t.deps);
+    eq(r.status, 403, `${who}: start with a resolved location is 403`);
+    eq(t.calls.length + t.store.writes.length, 0, `${who}: no session and nothing written`);
+  }
+  const vd = JSON.stringify({ uid: UID, seat: "ut-house-2", seats: Object.keys(COMPOSER_SEATS) });
+  for (const [name, opts] of [["unsigned", { sig: null }], ["badly signed", { secret: "nope" }], ["stale", { ts: NOW_S - 600 }]]) {
+    const d = decision(); d.vendor_data = vd; d.decision.vendor_data = vd;
+    const s = residencyStore();
+    const r = await handleWebhook(hook(d, opts), hookDeps(s));
+    eq(r.status, 401, `${name} five-seat webhook: 401`);
+    eq(s.writes.length + s.rows.length, 0, `${name} five-seat webhook: nothing written`);
+  }
+}
+{
+  // THE BOARD SENDS THE HALLWAY'S SEATS. district-composer.js reads
+  // PDXVoice.seatsForMe() and the five boards load the resolver it reads.
+  const DC = R("district-composer.js");
+  ok(/seats:\s*resolvedSeats\(\)/.test(DC), "district-composer.js sends the resolved seats with the start");
+  ok(/V\.seatsForMe\(\)/.test(DC), "…read from district-voice.js seatsForMe()");
+  for (const alias of Object.keys(CLUSTER)) {
+    const srcs = [...R(`district-${alias}.html`).matchAll(/\bsrc="([^"]*)"/g)].map((m) => m[1]);
+    const at = (u) => srcs.indexOf(u);
+    ok(at("/voter-hub-location.js") >= 0 && at("/district-voice.js") > at("/voter-hub-location.js"),
+       `district-${alias}.html loads the hallway resolver (voter-hub-location.js, then district-voice.js)`);
+    ok(at("/district-voice.js") < at("/district-composer.js"), `district-${alias}.html: …before the composer`);
+  }
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

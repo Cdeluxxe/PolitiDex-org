@@ -576,6 +576,14 @@
   <script defer src="/pdx-return.js"></script>
   <!-- THIS BOARD'S COMPOSER, and no other board loads it. Mounts only on the
        #pdx-district-composer host below; off until the server opens it. -->
+  <!-- THE HALLWAY'S SEAT RESOLVER, FOR THE PROOF BUTTON AND NOTHING ELSE.
+       district-voice.js seatsForMe() over voter-hub-location.js pdxRepsForMe()
+       is the list /voice paints. district-composer.js reads its seat keys when
+       the reader presses "Prove you live here", so one ID check covers every
+       composer seat their saved location names. Nothing on this document
+       prints where the reader lives. -->
+  <script defer src="/voter-hub-location.js"></script>
+  <script defer src="/district-voice.js"></script>
   <script defer src="/district-composer.js"></script>
   <!-- THIS BOARD'S ISSUE POLLS (district-poll.js), on the same five boards as
        the composer and no others. Mounts only on the #pdx-district-poll host

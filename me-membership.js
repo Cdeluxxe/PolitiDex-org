@@ -3,8 +3,8 @@
    ─────────────────────────────────────────────────────────────────────────────
    The block's five lines are static in me.html (#pdx-me-membership): reading is
    free, a verified resident gets one comment and five poll votes a month on
-   that seat, $20 a year removes the cap, the ID and address check for one seat
-   is included with the year (a second seat is not), and only a verified
+   that seat, $20 a year removes the cap, one ID and address check covers every
+   board seat the saved location names (a second check is not), and only a verified
    resident of that seat has a voice that counts. This file paints the one control under
    them, and nothing else:
 

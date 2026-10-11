@@ -106,7 +106,7 @@ function el() {
 
 // Mount the composer on `alias` with a fake Firebase user (or none). `verify`
 // answers POST /api/residency-verify.
-async function boardOn(alias, state, verify, { search = "" } = {}) {
+async function boardOn(alias, state, verify, { search = "", seats = null } = {}) {
   const calls = [];
   const assigned = [];
   const nodes = {};
@@ -139,6 +139,8 @@ async function boardOn(alias, state, verify, { search = "" } = {}) {
       return { ok: res.ok, status: res.status, json: () => res.json() };
     },
   };
+  // The hallway's resolver, when the test puts one on the page.
+  if (seats) win.PDXVoice = { seatsForMe: () => seats.map((k) => ({ seatKey: k, label: "x" })) };
   win.window = win;
   // The host re-parses its own markup into one live button, like the DOM would.
   const host = {
@@ -183,6 +185,8 @@ for (const [alias, seatKey] of Object.entries(CLUSTER)) {
     const post = b.calls.find((c) => c.url === "/api/residency-verify");
     ok(!!post, `${alias}: the click never reached /api/residency-verify`);
     eq(post && post.method, "POST", `${alias}: the click is a POST`);
+    eq(JSON.stringify(post && post.body), JSON.stringify({ seat: alias, seats: [] }),
+      `${alias}: with no resolver on the page the start sends this seat and no resolved seats`);
     eq(post && post.body && post.body.seat, alias, `${alias}: the click carries the board's own seat`);
     eq(b.assigned[0], "https://verify.didit.me/session/abc", `${alias}: a non-member's Didit session URL did not open`);
   }
@@ -202,11 +206,11 @@ for (const [alias, seatKey] of Object.entries(CLUSTER)) {
   // Any other refusal still prints the function's own message.
   {
     const b = await boardOn(alias, { signedIn: true }, {
-      status: 403, data: { error: "Your ID and address check is already used on another seat. A second seat is not included.", code: "second_seat" },
+      status: 403, data: { error: "Your ID and address check is already done. It covered the seats your saved location named when you ran it, and this seat was not one of them.", code: "already_checked" },
     });
     if (b.host.__btn) b.host.__btn.__click();
     await flush();
-    ok(b.host.innerHTML.includes("A second seat is not included."), `${alias}: the function's message is not shown`);
+    ok(b.host.innerHTML.includes("this seat was not one of them."), `${alias}: the function's message is not shown`);
   }
   // Signed in member, success → the Didit URL opens.
   {
@@ -269,6 +273,19 @@ for (const [alias, seatKey] of Object.entries(CLUSTER)) {
   }
 }
 
+// ONE CHECK, EVERY RESOLVED SEAT: the start carries the hallway's seat keys,
+// statewide blanks dropped and repeats folded, read from PDXVoice.seatsForMe().
+for (const alias of Object.keys(CLUSTER)) {
+  const resolved = ["ut-statehouse-15", "", "ut-house-2", "ut-statesenate-6", "ut-house-2"];
+  const b = await boardOn(alias, { signedIn: true }, null, { seats: resolved });
+  if (b.host.__btn) b.host.__btn.__click();
+  await flush();
+  const post = b.calls.find((c) => c.url === "/api/residency-verify");
+  eq(JSON.stringify(post && post.body && post.body.seats), JSON.stringify(["ut-statehouse-15", "ut-house-2", "ut-statesenate-6"]),
+    `${alias}: the start sends the hallway's resolved seat keys`);
+  eq(post && post.body && post.body.seat, alias, `${alias}: …alongside this board's own seat`);
+}
+
 // ═════════════════════════════════════════════════════════════════════════════
 section("3 · the shell moved");
 // ═════════════════════════════════════════════════════════════════════════════
@@ -279,6 +296,8 @@ section("3 · the shell moved");
   ok(/v331 - [\s\S]*?MIGRATION COST: none/.test(SW), "v331's log says no migration");
   ok(Number(((SW.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]) || 0) >= 332, "the shell moved at least to v332");
   ok(/v332 - [\s\S]*?MIGRATION COST: none/.test(SW), "v332's log says no migration");
+  ok(Number(((SW.match(/const CACHE_VERSION = 'v(\d+)'/) || [])[1]) || 0) >= 334, "the shell moved at least to v334");
+  ok(/v334 - [\s\S]*?MIGRATION COST: none/.test(SW), "v334's log says no migration");
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

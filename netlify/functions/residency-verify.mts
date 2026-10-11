@@ -1,14 +1,17 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Residency vendor — START (SD-3, HD-16, SD-7, HD-15 and UT-2 only)
 // ─────────────────────────────────────────────────────────────────────────────
-//   POST /api/residency-verify { seat }   → { url } to the Didit session, or
+//   POST /api/residency-verify { seat, seats? }
+//                                         → { url } to the Didit session, or
 //                                           404 no_seat / 403 signed_out /
-//                                           403 second_seat / 403 revoked /
+//                                           403 already_checked / 403 revoked /
 //                                           503 vendor_unavailable.
 //
 // The wiring for handleStart() in netlify/lib/residency-vendor-core.mjs. The
-// session's vendorData is { uid, seat }: the uid from the verified Firebase
-// token and the seat from the board, never from anything else the caller sent.
+// session's vendorData is { uid, seat, seats }: the uid from the verified
+// Firebase token, the seat from the board, and `seats` the composer seats the
+// hallway's resolver named for the reader's saved location (filtered to the
+// five in the core, the board's seat always first).
 //
 // SECRETS LIVE IN NETLIFY ENV ONLY: DIDIT_API_KEY, and DIDIT_WORKFLOW_ID for
 // the workflow that runs BOTH the ID document check and Proof of Address.
