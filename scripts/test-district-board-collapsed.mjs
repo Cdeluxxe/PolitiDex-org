@@ -204,7 +204,7 @@ section("3 · a generated board still opens the visitor's stance group");
 section("4 · mutation: a renderer that leaves groups open on load fails");
 {
   // A. The module with the composer collapse removed: the stance group opens.
-  const GATE = "else if (composerOwned()) open = false;";
+  const GATE = "else if (composerBoard()) open = false;";
   must(MOD.includes(GATE), "the composer collapse gate is not where the mutation expects it");
   const M1 = boot({ composer: true, desk: DESK, src: MOD.replace(GATE, "") });
   const p1 = checkCollapsed(M1.tableHtml("ok", ITEMS, []));

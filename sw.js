@@ -9230,7 +9230,19 @@
 //     the shell moves one version. No location key or other saved key was
 //     touched.
 //     MIGRATION COST: none. No table, row, key or seat moved.
-const CACHE_VERSION = 'v338';
+// v339 - THE PARENT LAYER IS FORCED ON THE FIVE COMPOSER BOARDS. Band 3's
+//     composer layout (one collapsed parent header per core before any issue
+//     group, All + Mandates in the top chip row) no longer rests on finding
+//     the composer host at paint time alone: the board's own declared seat
+//     (one of the five composer aliases) turns it on too, and a core is
+//     resolved through PDXIssueFamily, coreIssueForKey, or the
+//     CORE_NATIONAL_ISSUES table itself. Generated boards stay flat.
+//     district-board.js is precached and changed, so the shell moves one
+//     version — which is also what replaces a warm device's older, flat copy:
+//     the shell cache answers before the network. No location key or other
+//     saved key was touched.
+//     MIGRATION COST: none. No table, row, key or seat moved.
+const CACHE_VERSION = 'v339';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

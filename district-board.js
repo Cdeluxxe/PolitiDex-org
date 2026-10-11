@@ -235,6 +235,7 @@
   var BOARDS = {
     'ut-statesenate-3': {
       seat: 'ut-statesenate-3',
+      composer: true,
       alias: 'ut-sd-3',
       route: '/district/ut-sd-3',
       pid: 'john_johnson',
@@ -246,6 +247,7 @@
     },
     'ut-statehouse-16': {
       seat: 'ut-statehouse-16',
+      composer: true,
       alias: 'ut-hd-16',
       route: '/district/ut-hd-16',
       pid: 'tlee',
@@ -257,6 +259,7 @@
     },
     'ut-statesenate-7': {
       seat: 'ut-statesenate-7',
+      composer: true,
       alias: 'ut-sd-7',
       route: '/district/ut-sd-7',
       pid: 'sadams',
@@ -268,6 +271,7 @@
     },
     'ut-house-2': {
       seat: 'ut-house-2',
+      composer: true,
       alias: 'ut-cd-2',
       route: '/district/ut-cd-2',
       // NO PID. See usHouse above.
@@ -287,6 +291,7 @@
     // different seat from both.
     'ut-statehouse-15': {
       seat: 'ut-statehouse-15',
+      composer: true,
       alias: 'ut-hd-15',
       route: '/district/ut-hd-15',
       pid: 'defay_h15',
@@ -979,9 +984,9 @@
     // A chip opens its own group. On the composer boards it opens ONLY that
     // one: the groups it hides are closed too, so clearing the chip finds them
     // collapsed rather than open behind the filter.
-    else if (_view.cat) open = composerOwned() ? _view.cat === key : true;
+    else if (_view.cat) open = composerBoard() ? _view.cat === key : true;
     else if (Object.prototype.hasOwnProperty.call(_view.open, key)) open = !!_view.open[key];
-    else if (composerOwned()) open = false;   // the composer boards: every group starts collapsed
+    else if (composerBoard()) open = false;   // the composer boards: every group starts collapsed
     else open = !!(key && stance[key]);
     return { shown: shown, open: open };
   }
@@ -1010,7 +1015,7 @@
     // aria-expanded, and the body is hidden, so a closed group is closed under
     // any stylesheet. syncGroup() keeps all three in step with `open`. Every
     // other board prints the markup it always has.
-    var composer = composerOwned();
+    var composer = composerBoard();
     var summary = composer
       ? '<summary class="pdxdb-group-h' + (st.open ? '' : ' ' + COLLAPSED) + '"' +
           ' aria-expanded="' + (st.open ? 'true' : 'false') + '">'
@@ -1153,7 +1158,7 @@
     if (mrows.length && _view.cat === MANDATE_KEY) live = true;
     if (!live) _view.cat = '';
 
-    var composer = composerOwned();
+    var composer = composerBoard();
     // THE COMPOSER BOARDS NEST ISSUES UNDER THEIR CORE (see parentsOf()): the
     // top chip row keeps All and Mandates, and each issue's chip moves into its
     // parent's body above that parent's groups. Every other board keeps the
@@ -1195,7 +1200,7 @@
 
     return band('table', COPY.tableBand, COPY.tableNote,
       (composer ? find + cats : cats + find) +
-      '<div class="pdxdb-groups">' + groups + '</div>' +
+      '<div class="pdxdb-groups"' + (P ? ' data-pdxdb-layout="parents"' : '') + '>' + groups + '</div>' +
       '<p class="pdxdb-none pdxdb-find-none" data-pdxdb-find-none' +
         (anyShown(G, mrows) ? ' hidden' : '') + '>' + esc(COPY.findNone) + '</p>',
       COPY.voiceFoot);
@@ -1222,6 +1227,18 @@
       if (fn(window.coreIssueForKey)) {
         var ci = window.coreIssueForKey(key);
         if (ci && ci.key) return { key: String(ci.key), label: String(ci.label || '') };
+      }
+    } catch (e) {}
+    // The table itself, for a document where neither reader has published:
+    // the same CORE_NATIONAL_ISSUES both of them read, first claim wins, as
+    // coreIssueForKey builds it.
+    try {
+      var l = window.CORE_NATIONAL_ISSUES;
+      if (Array.isArray(l)) {
+        for (var i = 0; i < l.length; i++) {
+          var c = l[i];
+          if (c && c.key && Array.isArray(c.keys) && c.keys.indexOf(key) !== -1) return { key: String(c.key), label: String(c.label || '') };
+        }
       }
     } catch (e) {}
     return null;
@@ -1863,7 +1880,7 @@
   var MANDATE_API = '/api/mandate-proposals';
   function fetchMandates() {
     try {
-      if (!composerOwned()) return Promise.resolve([]);
+      if (!composerBoard()) return Promise.resolve([]);
       var pid = PID();
       var url = MANDATE_API + '?seat=' + encodeURIComponent(ALIAS()) +
         (pid ? '&member=' + encodeURIComponent(pid) : '');
@@ -1913,6 +1930,32 @@
     catch (e) { return false; }
   }
 
+  // ── WHICH BOARDS GET THE COMPOSER LAYOUT ─────────────────────────────────
+  // Band 3's composer-board layout (parent categories, collapsed groups, the
+  // finder above the chips, the mandate rows) is decided by the SEAT, not only
+  // by whether the composer's host happened to be found at paint time: a board
+  // whose own seat declaration (host attribute, then the document's) names one
+  // of the five composer seats paints that layout, and so does any document
+  // carrying the composer host. The list is district-composer.js's
+  // COMPOSER_SEATS, same five aliases; scripts/test-district-board-force-parents.mjs
+  // holds the two copies equal. ACTIVE's default is NOT consulted: a document
+  // that declares no seat is not a composer board. DERIVED from the
+  // `composer: true` rows of BOARDS rather than written out a second time, the
+  // same way BOARD_SEATS is.
+  var COMPOSER_SEATS = {};
+  (function () {
+    for (var k in BOARDS) {
+      if (Object.prototype.hasOwnProperty.call(BOARDS, k) && BOARDS[k].composer) COMPOSER_SEATS[BOARDS[k].alias] = 1;
+    }
+  })();
+  function composerSeatDeclared() {
+    var b = board(hostSeat(_el)) || board(docSeat());
+    return !!(b && Object.prototype.hasOwnProperty.call(COMPOSER_SEATS, b.alias));
+  }
+  function composerBoard() {
+    return composerOwned() || composerSeatDeclared();
+  }
+
   // Band 2 read again, from the store. Called by the composer after a post
   // lands so the count a reader just moved is the count they see.
   function refresh() {
@@ -1960,7 +2003,7 @@
             }
             // A member who resolved late is a member the mandate read did not
             // ask about; ask again, once, with them.
-            if (composerOwned() && PID() !== _mandateMember) loadMandates(el);
+            if (composerBoard() && PID() !== _mandateMember) loadMandates(el);
             paint(el);
           } catch (e) {}
         });
@@ -1970,7 +2013,7 @@
   }
 
   function loadMandates(el) {
-    if (!composerOwned()) return;
+    if (!composerBoard()) return;
     _mandateMember = PID();
     fetchMandates().then(function (d) { _mandates = mandateRows(d); paint(el); });
   }
@@ -2138,6 +2181,8 @@
     _tableGroups: tableGroups,
     _mandateRows: mandateRows,
     _parentsOf: parentsOf,
+    COMPOSER_SEATS: COMPOSER_SEATS,
+    composerBoard: function () { return composerBoard(); },
     MANDATE_KEY: MANDATE_KEY,
     mandates: function () { return _mandates.slice(); },
     // THE READER'S VIEW OF BAND 3: a category chip ('' is All) and a search.
