@@ -75,6 +75,103 @@
 .pdxdb-group-l--none { border-style: dashed; color: #93a5bf; }
 .pdxdb-group-n { margin-left: auto; font-size: 0.78rem; color: #8496b0; font-variant-numeric: tabular-nums; }
 .pdxdb-group > .pdxdb-table { margin: 0 0 0.5rem; }
+/* The composer boards' explicit collapsed state: a hidden body stays hidden
+   whatever else styles the <details>. */
+.pdxdb-group-b[hidden] { display: none; }
+.pdxdb-group-b > .pdxdb-table { margin: 0 0 0.5rem; }
+.pdxdb-group-h--collapsed::before { content: "\25B8"; }
+
+/* THE MANDATE ROWS (the five composer boards only): a flat list above the
+   issue groups, filtered by the "Mandates" chip like any other chip. One
+   proposal per line: a small "Mandate" tag, its title linking to its card on
+   /mandate, and a short status beneath. A reform proposal is not a measure, so
+   the tag is gold rather than an issue colour, and the rows carry no poll or
+   comment columns. */
+.pdxdb-mandates[hidden], .pdxdb-mandate[hidden] { display: none; }
+.pdxdb-mandates { list-style: none; margin: 0; padding: 0; }
+.pdxdb-mandate { padding: 0.55rem 0.7rem; border: 1px solid #16223a; border-radius: 0.5rem; }
+.pdxdb-mandate + .pdxdb-mandate { margin-top: 0.5rem; }
+.pdxdb-mandate-tag {
+  display: inline-block; margin-right: 0.45rem; padding: 0.05rem 0.4rem;
+  border: 1px solid #6b5a2a; border-radius: 0.3rem;
+  font: 600 0.72rem/1.4 'Barlow', sans-serif; color: #f1d98a; vertical-align: 0.05rem;
+}
+.pdxdb-mandate-st { display: block; margin-top: 0.15rem; font-size: 0.74rem; color: #8496b0; }
+
+/* THE PARENT LAYER (the five composer boards only): one <details> per core
+   category from CORE_NATIONAL_ISSUES, collapsed on first paint, holding that
+   core's issue chips and issue groups. The body is hidden by attribute as well
+   as by <details>, so a collapsed parent stays collapsed under any sheet. */
+.pdxdb-parent { border: 1px solid #1d2c47; border-radius: 0.6rem; padding: 0 0.75rem; background: #0b1424; }
+.pdxdb-parent[hidden], .pdxdb-parent-b[hidden] { display: none; }
+.pdxdb-parent-h {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.7rem 0; cursor: pointer; list-style: none;
+  font: 700 0.92rem/1.35 'Barlow', sans-serif; color: #e3ecfa;
+}
+.pdxdb-parent-h::-webkit-details-marker { display: none; }
+.pdxdb-parent-h::before { content: "\25B8"; color: #7d8fa9; font-size: 0.8rem; }
+.pdxdb-parent[open] > .pdxdb-parent-h::before { content: "\25BE"; }
+.pdxdb-parent-h--collapsed::before { content: "\25B8"; }
+.pdxdb-parent-h:focus-visible { outline: 2px solid #7fb2ff; outline-offset: 2px; }
+.pdxdb-parent-n { margin-left: auto; font-size: 0.78rem; font-weight: 500; color: #8496b0; font-variant-numeric: tabular-nums; }
+.pdxdb-parent-b { padding: 0 0 0.7rem; }
+.pdxdb-cats--parent { margin: 0 0 0.6rem; }
+
+/* A parent header wears its chips' colour: the same inline token
+   (--pdx-ic / --pdx-ic-ink / --pdx-ic-wash) PDXIssueColors hands every chip
+   inside it, as a coloured spine and ink. The pdxdb-ic-<core> class names the
+   palette entry; the sheet holds no per-issue hex. */
+.pdxdb-parent-h[data-ic="on"] {
+  color: var(--pdx-ic-ink);
+  border-left: 3px solid var(--pdx-ic);
+  margin-left: -0.75rem; padding-left: 0.6rem;
+  background: linear-gradient(90deg, var(--pdx-ic-wash), transparent 55%);
+}
+.pdxdb-parent-h[data-ic="on"] .pdxdb-parent-n { color: var(--pdx-ic-ink); opacity: 0.8; }
+
+/* THE PALETTE AS CLASSES. One class per PDXIssueColors core, in that module's
+   order, each pointing the four --pdx-ic tokens at the :root variables
+   issue-colors.js injects on load (--pdx-issue-<core>…). No hex lives here.
+   A parent header and the chips nested in it carry the same class, so the
+   header is coloured by its class alone — with or without the inline token.
+   scripts/test-district-board-ic-class.mjs holds this list equal to the
+   palette. */
+.pdxdb-ic-economy_cost_of_living { --pdx-ic: var(--pdx-issue-economy_cost_of_living); --pdx-ic-soft: var(--pdx-issue-economy_cost_of_living-soft); --pdx-ic-wash: var(--pdx-issue-economy_cost_of_living-wash); --pdx-ic-ink: var(--pdx-issue-economy_cost_of_living-ink); }
+.pdxdb-ic-immigration_border { --pdx-ic: var(--pdx-issue-immigration_border); --pdx-ic-soft: var(--pdx-issue-immigration_border-soft); --pdx-ic-wash: var(--pdx-issue-immigration_border-wash); --pdx-ic-ink: var(--pdx-issue-immigration_border-ink); }
+.pdxdb-ic-healthcare { --pdx-ic: var(--pdx-issue-healthcare); --pdx-ic-soft: var(--pdx-issue-healthcare-soft); --pdx-ic-wash: var(--pdx-issue-healthcare-wash); --pdx-ic-ink: var(--pdx-issue-healthcare-ink); }
+.pdxdb-ic-spending_debt_waste { --pdx-ic: var(--pdx-issue-spending_debt_waste); --pdx-ic-soft: var(--pdx-issue-spending_debt_waste-soft); --pdx-ic-wash: var(--pdx-issue-spending_debt_waste-wash); --pdx-ic-ink: var(--pdx-issue-spending_debt_waste-ink); }
+.pdxdb-ic-abortion_repro { --pdx-ic: var(--pdx-issue-abortion_repro); --pdx-ic-soft: var(--pdx-issue-abortion_repro-soft); --pdx-ic-wash: var(--pdx-issue-abortion_repro-wash); --pdx-ic-ink: var(--pdx-issue-abortion_repro-ink); }
+.pdxdb-ic-guns { --pdx-ic: var(--pdx-issue-guns); --pdx-ic-soft: var(--pdx-issue-guns-soft); --pdx-ic-wash: var(--pdx-issue-guns-wash); --pdx-ic-ink: var(--pdx-issue-guns-ink); }
+.pdxdb-ic-climate_energy { --pdx-ic: var(--pdx-issue-climate_energy); --pdx-ic-soft: var(--pdx-issue-climate_energy-soft); --pdx-ic-wash: var(--pdx-issue-climate_energy-wash); --pdx-ic-ink: var(--pdx-issue-climate_energy-ink); }
+.pdxdb-ic-crime_safety { --pdx-ic: var(--pdx-issue-crime_safety); --pdx-ic-soft: var(--pdx-issue-crime_safety-soft); --pdx-ic-wash: var(--pdx-issue-crime_safety-wash); --pdx-ic-ink: var(--pdx-issue-crime_safety-ink); }
+.pdxdb-ic-election_integrity { --pdx-ic: var(--pdx-issue-election_integrity); --pdx-ic-soft: var(--pdx-issue-election_integrity-soft); --pdx-ic-wash: var(--pdx-issue-election_integrity-wash); --pdx-ic-ink: var(--pdx-issue-election_integrity-ink); }
+.pdxdb-ic-checks_and_balances { --pdx-ic: var(--pdx-issue-checks_and_balances); --pdx-ic-soft: var(--pdx-issue-checks_and_balances-soft); --pdx-ic-wash: var(--pdx-issue-checks_and_balances-wash); --pdx-ic-ink: var(--pdx-issue-checks_and_balances-ink); }
+.pdxdb-ic-education_parental { --pdx-ic: var(--pdx-issue-education_parental); --pdx-ic-soft: var(--pdx-issue-education_parental-soft); --pdx-ic-wash: var(--pdx-issue-education_parental-wash); --pdx-ic-ink: var(--pdx-issue-education_parental-ink); }
+.pdxdb-ic-civil_rights_culture { --pdx-ic: var(--pdx-issue-civil_rights_culture); --pdx-ic-soft: var(--pdx-issue-civil_rights_culture-soft); --pdx-ic-wash: var(--pdx-issue-civil_rights_culture-wash); --pdx-ic-ink: var(--pdx-issue-civil_rights_culture-ink); }
+.pdxdb-ic-foreign_policy_defense { --pdx-ic: var(--pdx-issue-foreign_policy_defense); --pdx-ic-soft: var(--pdx-issue-foreign_policy_defense-soft); --pdx-ic-wash: var(--pdx-issue-foreign_policy_defense-wash); --pdx-ic-ink: var(--pdx-issue-foreign_policy_defense-ink); }
+.pdxdb-parent-h[class*="pdxdb-ic-"] {
+  color: var(--pdx-ic-ink);
+  border-left: 3px solid var(--pdx-ic);
+  margin-left: -0.75rem; padding-left: 0.6rem;
+  background: linear-gradient(90deg, var(--pdx-ic-wash), transparent 55%);
+}
+.pdxdb-parent-h[class*="pdxdb-ic-"] .pdxdb-parent-n { color: var(--pdx-ic-ink); opacity: 0.8; }
+
+/* THE PINNED STRIP: what is live on this seat, above the parent list and
+   outside every collapse. Mandates first, then the issues the most people
+   answered or commented on. */
+.pdxdb-pinned { margin: 0 0 0.8rem; padding: 0.6rem 0.75rem; border: 1px solid #253855; border-radius: 0.6rem; background: #0d1830; }
+.pdxdb-pinned-h { margin: 0 0 0.45rem; font: 700 0.78rem/1.3 'Barlow', sans-serif; letter-spacing: 0.04em; text-transform: uppercase; color: #9fb3d1; }
+.pdxdb-pins { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
+.pdxdb-pin { min-width: 0; }
+.pdxdb-pin-i {
+  display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px;
+  border: 1px solid #253855; background: #0f1a2e; color: #cfe0fa;
+  font: 600 0.82rem/1.35 'Barlow', sans-serif; cursor: pointer;
+}
+.pdxdb-pin-i[data-ic="on"] { background: var(--pdx-ic-wash); border-color: var(--pdx-ic); color: var(--pdx-ic-ink); }
+.pdxdb-pin-i:focus-visible { outline: 2px solid #7fb2ff; outline-offset: 2px; }
 
 /* A measure under two issues wears both chips. */
 .pdxdb-m-issue + .pdxdb-m-issue { margin-left: 0.3rem; }

@@ -1056,6 +1056,11 @@
     function initObserver() {
       var section = document.getElementById('peoples-proposals');
       if (!section) return;
+      // A link straight to one proposal (/mandate#pp-card-<id>, which is how a
+      // district board's Mandates row points here) loads the board now rather
+      // than waiting for a scroll, and highlights that card when it paints.
+      var hm = /^#pp-card-(\d+)$/.exec(String(location.hash || ''));
+      if (hm) { _highlightId = parseInt(hm[1], 10); start(); return; }
       if (!('IntersectionObserver' in window)) { start(); return; }
       var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) {

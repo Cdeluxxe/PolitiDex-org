@@ -9189,7 +9189,81 @@
 //     board seat the saved location names; so the shell moves one version.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none. No table, row, key or seat moved.
-const CACHE_VERSION = 'v334';
+// v335 - THE COMPOSER BOARDS LIST THE MANDATES THAT NAME THE SEAT. On the five
+//     composer boards band 3 ("On the table") reads /api/mandate-proposals for
+//     the proposals that name the seat or its sitting member and prints each as
+//     a row (title, short status, a link to its card on /mandate), with a
+//     "Mandates" chip that appears only when one exists. Generated and statewide
+//     boards do not make the read. district-board.js, district-board.css and
+//     mandate-lane.js (which now honours a #pp-card-<id> link) are precached and
+//     changed, so the shell moves one version. No location key or other saved
+//     key was touched.
+//     MIGRATION COST: none. No table, row, key or seat moved.
+// v336 - THE COMPOSER BOARDS' "ON THE TABLE" IS EASIER TO SCAN. On the five
+//     composer boards every issue group starts collapsed, the search field sits
+//     above the chips as "Find a topic or mandate", and mandate rows are no
+//     longer a group at the bottom: they are flat rows filtered by their own
+//     "Mandates" chip in the same chip row (All shows them, any issue chip hides
+//     them). /find's location button reads "Use my device's location".
+//     district-board.js, district-board.css and find.html are precached and
+//     changed, so the shell moves one version. Generated and statewide boards
+//     paint as before. No location key or other saved key was touched.
+//     MIGRATION COST: none. No table, row, key or seat moved.
+// v337 - COMPOSER BOARD GROUPS START COLLAPSED, IN THE MARKUP. On the five
+//     composer boards every "On the table" issue group now renders with its
+//     header marked collapsed (a class and aria-expanded="false") and its body
+//     hidden, not only a closed <details>; a chip or a search opens only the
+//     groups it matches, and a header toggle keeps all three in step.
+//     Generated and statewide boards keep open-on-stance and their markup.
+//     district-board.js and district-board.css are precached and changed, so
+//     the shell moves one version. No location key or other saved key was
+//     touched.
+//     MIGRATION COST: none. No table, row, key or seat moved.
+// v338 - COMPOSER BOARDS GROUP ISSUES UNDER THEIR CORE. On the five composer
+//     boards "On the table" now nests each issue group (and its chip) under
+//     its parent core from CORE_NATIONAL_ISSUES, read through PDXIssueFamily or
+//     issue-map.js's coreIssueForKey — no new taxonomy. Every parent starts
+//     collapsed with a count of its issues; All and Mandates stay in the top
+//     chip row; a search or an issue chip opens only the matching parent and
+//     group. Generated and statewide boards keep the flat layout.
+//     district-board.js and district-board.css are precached and changed, so
+//     the shell moves one version. No location key or other saved key was
+//     touched.
+//     MIGRATION COST: none. No table, row, key or seat moved.
+// v339 - THE PARENT LAYER IS FORCED ON THE FIVE COMPOSER BOARDS. Band 3's
+//     composer layout (one collapsed parent header per core before any issue
+//     group, All + Mandates in the top chip row) no longer rests on finding
+//     the composer host at paint time alone: the board's own declared seat
+//     (one of the five composer aliases) turns it on too, and a core is
+//     resolved through PDXIssueFamily, coreIssueForKey, or the
+//     CORE_NATIONAL_ISSUES table itself. Generated boards stay flat.
+//     district-board.js is precached and changed, so the shell moves one
+//     version — which is also what replaces a warm device's older, flat copy:
+//     the shell cache answers before the network. No location key or other
+//     saved key was touched.
+//     MIGRATION COST: none. No table, row, key or seat moved.
+// v340 - COMPOSER BOARD PARENTS WEAR THEIR COLOUR, AND A PINNED STRIP LEADS.
+//     On the five composer boards each parent category header carries the same
+//     PDXIssueColors token its issue chips wear (and a pdxdb-ic-<core> class
+//     naming the palette entry), and above the parent list a "Live on this
+//     seat" strip pins up to two mandate rows that name the seat and up to
+//     three issue groups with the most people who answered or commented here,
+//     visible whatever is collapsed. Printed only when such rows exist.
+//     Generated boards are unchanged. district-board.js and district-board.css
+//     are precached and changed, so the shell moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none. No table, row, key or seat moved.
+// v341 - THE PARENT HEADER WEARS THE ISSUE COLOUR CLASS. On the five composer
+//     boards each parent category header element carries pdxdb-ic-<core>, the
+//     palette's own colour class, and so does every issue chip nested under
+//     it. district-board.css now defines one such class per PDXIssueColors
+//     core, off the --pdx-issue-<core> variables issue-colors.js injects, so a
+//     header is coloured by its class alone. Chips keep their colours; generated
+//     boards are untouched. district-board.js and district-board.css are
+//     precached and changed, so the shell moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none. No table, row, key or seat moved.
+const CACHE_VERSION = 'v341';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

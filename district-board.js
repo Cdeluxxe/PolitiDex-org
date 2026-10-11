@@ -235,6 +235,7 @@
   var BOARDS = {
     'ut-statesenate-3': {
       seat: 'ut-statesenate-3',
+      composer: true,
       alias: 'ut-sd-3',
       route: '/district/ut-sd-3',
       pid: 'john_johnson',
@@ -246,6 +247,7 @@
     },
     'ut-statehouse-16': {
       seat: 'ut-statehouse-16',
+      composer: true,
       alias: 'ut-hd-16',
       route: '/district/ut-hd-16',
       pid: 'tlee',
@@ -257,6 +259,7 @@
     },
     'ut-statesenate-7': {
       seat: 'ut-statesenate-7',
+      composer: true,
       alias: 'ut-sd-7',
       route: '/district/ut-sd-7',
       pid: 'sadams',
@@ -268,6 +271,7 @@
     },
     'ut-house-2': {
       seat: 'ut-house-2',
+      composer: true,
       alias: 'ut-cd-2',
       route: '/district/ut-cd-2',
       // NO PID. See usHouse above.
@@ -287,6 +291,7 @@
     // different seat from both.
     'ut-statehouse-15': {
       seat: 'ut-statehouse-15',
+      composer: true,
       alias: 'ut-hd-15',
       route: '/district/ut-hd-15',
       pid: 'defay_h15',
@@ -604,6 +609,21 @@
     findPlaceholder: 'Title or bill number',
     findNone: 'No measure in view matches that search.',
     tableUnfiled: 'Not filed under an issue',
+    // THE MANDATE ROWS, on the five composer boards only. A mandate is a reform
+    // proposal from /mandate that names this seat (its key in the proposal's
+    // race links) or the member who sits in it. Its count is shows of support —
+    // momentum, the Mandate lane's own word — never a vote and never a measure.
+    catMandates: 'Mandates',
+    mandateTag: 'Mandate',
+    mandateStatus: 'Open proposal',
+    // The composer boards' finder sits above the chips and also finds mandates.
+    findLabelComposer: 'Find a topic or mandate',
+    findPlaceholderComposer: 'Title, bill number or mandate',
+    // The pinned strip above the parent list on the composer boards.
+    pinnedHead: 'Live on this seat',
+    pinAnswered: 'answered',
+    pinCommented: 'commented',
+    mandateHref: '/mandate',
 
     // THE GATE IS A RESIDENCY CHECK FOR THIS SEAT, nothing else. The second
     // sentence is district-composer.js's LOCKED_LINE, word for word, so the
@@ -965,8 +985,12 @@
     if (shown && q && !hits) shown = false;
     var open;
     if (q) open = hits > 0;
-    else if (_view.cat) open = true;
+    // A chip opens its own group. On the composer boards it opens ONLY that
+    // one: the groups it hides are closed too, so clearing the chip finds them
+    // collapsed rather than open behind the filter.
+    else if (_view.cat) open = composerBoard() ? _view.cat === key : true;
     else if (Object.prototype.hasOwnProperty.call(_view.open, key)) open = !!_view.open[key];
+    else if (composerBoard()) open = false;   // the composer boards: every group starts collapsed
     else open = !!(key && stance[key]);
     return { shown: shown, open: open };
   }
@@ -985,29 +1009,133 @@
     var head = key
       ? '<span class="pdxdb-group-l"' + issueSkin(key) + '>' + esc(label) + '</span>'
       : '<span class="pdxdb-group-l pdxdb-group-l--none">' + esc(COPY.tableUnfiled) + '</span>';
-    return '<details class="pdxdb-group' + (key ? '' : ' pdxdb-group--none') + '"' +
-        ' data-pdxdb-group="' + esc(key) + '"' +
-        (st.open ? ' open' : '') + (st.shown ? '' : ' hidden') + '>' +
-        '<summary class="pdxdb-group-h">' + head +
-          '<span class="pdxdb-group-n" data-pdxdb-group-count="' + rows.length + '">' +
-            esc(measuresWord(rows.length)) + '</span>' +
-        '</summary>' +
-        '<table class="pdxdb-table"><thead><tr>' +
+    var table = '<table class="pdxdb-table"><thead><tr>' +
           '<th scope="col">' + esc(COPY.colMeasure) + '</th>' +
           '<th scope="col" class="pdxdb-num">' + esc(COPY.colPolls) + '</th>' +
           '<th scope="col" class="pdxdb-num">' + esc(COPY.colComments) + '</th>' +
-        '</tr></thead><tbody>' + body + '</tbody></table>' +
+        '</tr></thead><tbody>' + body + '</tbody></table>';
+    // THE COMPOSER BOARDS SAY COLLAPSED IN THE MARKUP, not only through the
+    // <details> element's own state: the header carries a collapsed class and
+    // aria-expanded, and the body is hidden, so a closed group is closed under
+    // any stylesheet. syncGroup() keeps all three in step with `open`. Every
+    // other board prints the markup it always has.
+    var composer = composerBoard();
+    var summary = composer
+      ? '<summary class="pdxdb-group-h' + (st.open ? '' : ' ' + COLLAPSED) + '"' +
+          ' aria-expanded="' + (st.open ? 'true' : 'false') + '">'
+      : '<summary class="pdxdb-group-h">';
+    return '<details class="pdxdb-group' + (key ? '' : ' pdxdb-group--none') + '"' +
+        ' data-pdxdb-group="' + esc(key) + '"' +
+        (st.open ? ' open' : '') + (st.shown ? '' : ' hidden') + '>' +
+        summary + head +
+          '<span class="pdxdb-group-n" data-pdxdb-group-count="' + rows.length + '">' +
+            esc(measuresWord(rows.length)) + '</span>' +
+        '</summary>' +
+        (composer
+          ? '<div class="pdxdb-group-b" data-pdxdb-group-body=""' + (st.open ? '' : ' hidden') + '>' + table + '</div>'
+          : table) +
       '</details>';
   }
 
-  function catChip(key, label, n, skin) {
+  // The header class a collapsed group wears on the composer boards.
+  var COLLAPSED = 'pdxdb-group-h--collapsed';
+
+  // One group's open state, written to every place it is printed: the
+  // <details> element, and — where the composer markup carries them — the
+  // header's class and aria-expanded and the body's hidden flag. Idempotent, so
+  // the `toggle` event it can cause re-enters harmlessly.
+  function syncGroup(d, open) {
+    if (!d) return;
+    if (!!d.open !== !!open) d.open = !!open;
+    try {
+      var sum = fn(d.querySelector) ? d.querySelector('.pdxdb-group-h') : null;
+      if (sum && sum.hasAttribute && sum.hasAttribute('aria-expanded')) {
+        sum.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (sum.classList) {
+          if (open) sum.classList.remove(COLLAPSED); else sum.classList.add(COLLAPSED);
+        }
+      }
+      var b = fn(d.querySelector) ? d.querySelector('[data-pdxdb-group-body]') : null;
+      if (b) b.hidden = !open;
+    } catch (e) {}
+  }
+
+  // ── THE MANDATE ROWS ──────────────────────────────────────────────────────
+  // NOT A GROUP: a flat list of rows above the issue groups, filtered by its
+  // own chip in the same chip row. All shows them, "Mandates" shows only them,
+  // any issue chip hides them. Printed only when at least one mandate names the
+  // seat. The chip key is not an issue key — the leading '@' is a shape no
+  // vocabulary key takes — so it can never collide with an issue group, and the
+  // list is marked data-pdxdb-mandates rather than data-pdxdb-group, so the
+  // poll module (which decorates every issue group) gives it no poll.
+  var MANDATE_KEY = '@mandates';
+
+  // The rows the read returned that can be printed: an integer id (the link
+  // needs one) and a title. The read's own order is kept.
+  function mandateRows(list) {
+    var arr = Array.isArray(list) ? list : [];
+    var out = [], seen = {};
+    for (var i = 0; i < arr.length; i++) {
+      var m = arr[i];
+      if (!m) continue;
+      var id = m.id;
+      if (typeof id !== 'number' || !isFinite(id) || id < 1 || Math.floor(id) !== id) continue;
+      if (!String(m.title || '').trim() || seen[id]) continue;
+      seen[id] = 1;
+      out.push(m);
+    }
+    return out;
+  }
+
+  function mandateFind(m) { return String(m.title || '').toLowerCase(); }
+
+  function supportWord(n) { return n === 1 ? '1 show of support' : n + ' shows of support'; }
+
+  function mandateRow(m, hidden) {
+    var title = String(m.title || '').trim();
+    var n = whole(m.supportCount);
+    var href = COPY.mandateHref + '#pp-card-' + m.id;
+    return '<li class="pdxdb-mandate" data-pdxdb-mandate="' + esc(String(m.id)) + '"' +
+        ' data-pdxdb-find="' + esc(mandateFind(m)) + '"' + (hidden ? ' hidden' : '') + '>' +
+        '<span class="pdxdb-mandate-tag">' + esc(COPY.mandateTag) + '</span>' +
+        '<a class="pdxdb-m-link" href="' + esc(href) + '">' + esc(title) + '</a>' +
+        '<span class="pdxdb-mandate-st">' + esc(COPY.mandateStatus + ' · ' + supportWord(n)) + '</span>' +
+      '</li>';
+  }
+
+  function mandateState(hits) {
+    var q = normQuery(_view.q);
+    var shown = !_view.cat || _view.cat === MANDATE_KEY;
+    if (shown && q && !hits) shown = false;
+    return { shown: shown };
+  }
+
+  function mandatesHtml(rows) {
+    var q = normQuery(_view.q);
+    var hits = 0, body = '';
+    for (var i = 0; i < rows.length; i++) {
+      var hit = matches(mandateFind(rows[i]), q);
+      if (hit) hits++;
+      body += mandateRow(rows[i], !hit);
+    }
+    var st = mandateState(hits);
+    return '<ul class="pdxdb-mandates" data-pdxdb-mandates=""' + (st.shown ? '' : ' hidden') + '>' +
+        body + '</ul>';
+  }
+
+  // `icClass` is the palette colour class (pdxdb-ic-<core>), passed only for
+  // the chips nested in a composer board's parent, so a parent header and its
+  // chips wear the same class. Every other chip prints exactly as before.
+  function catChip(key, label, n, skin, icClass) {
     var on = (_view.cat || '') === key;
-    return '<button type="button" class="pdxdb-cat" data-pdxdb-cat="' + esc(key) + '"' +
+    return '<button type="button" class="pdxdb-cat' + (icClass ? ' ' + esc(icClass) : '') + '" data-pdxdb-cat="' + esc(key) + '"' +
         ' aria-pressed="' + (on ? 'true' : 'false') + '"' + (skin || '') + '>' +
         esc(label) + '<span class="pdxdb-cat-n">' + n + '</span></button>';
   }
 
-  function tableHtml(state, items, rooms) {
+  // `mandates` is optional: a caller that passes three arguments gets the
+  // table exactly as it was before mandate rows existed.
+  function tableHtml(state, items, rooms, mandates) {
     if (state === 'unread') {
       return band('table', COPY.tableBand, COPY.tableNote,
         '<p class="pdxdb-unread" role="status">' + esc(COPY.tableUnread) + '</p>',
@@ -1020,13 +1148,9 @@
     }
 
     var list = Array.isArray(items) ? items : [];
-    if (!list.length) {
-      return band('table', COPY.tableBand, COPY.tableNote,
-        '<p class="pdxdb-none">' + esc(COPY.tableEmpty) + '</p>', COPY.voiceFoot);
-    }
-
+    var mrows = mandateRows(mandates);
     var rows = tableRows(list);
-    if (!rows.length) {
+    if (!rows.length && !mrows.length) {
       return band('table', COPY.tableBand, COPY.tableNote,
         '<p class="pdxdb-none">' + esc(COPY.tableEmpty) + '</p>', COPY.voiceFoot);
     }
@@ -1038,32 +1162,256 @@
     // falls back to All rather than showing an empty table under a live chip.
     var live = false;
     for (var c = 0; c < G.groups.length; c++) if (G.groups[c].key === _view.cat) live = true;
+    if (mrows.length && _view.cat === MANDATE_KEY) live = true;
     if (!live) _view.cat = '';
 
-    var chips = catChip('', COPY.catAll, rows.length, '');
-    for (var i = 0; i < G.groups.length; i++) {
-      var g = G.groups[i];
-      chips += catChip(g.key, g.label, g.rows.length, issueSkin(g.key));
+    var composer = composerBoard();
+    // THE COMPOSER BOARDS NEST ISSUES UNDER THEIR CORE (see parentsOf()): the
+    // top chip row keeps All and Mandates, and each issue's chip moves into its
+    // parent's body above that parent's groups. Every other board keeps the
+    // flat chip row and the flat list of groups it always had.
+    var P = composer ? parentsOf(G.groups) : null;
+    var chips = catChip('', COPY.catAll, rows.length + mrows.length, '');
+    if (!P) {
+      for (var i = 0; i < G.groups.length; i++) {
+        var g = G.groups[i];
+        chips += catChip(g.key, g.label, g.rows.length, issueSkin(g.key));
+      }
     }
+    if (mrows.length) chips += catChip(MANDATE_KEY, COPY.catMandates, mrows.length, '');
     var groups = '';
-    for (var j = 0; j < G.groups.length; j++) {
-      groups += groupHtml(G.groups[j].key, G.groups[j].label, G.groups[j].rows, tally, stance);
+    if (P) {
+      for (var pi = 0; pi < P.parents.length; pi++) groups += parentHtml(P.parents[pi], tally, stance);
+      for (var oi = 0; oi < P.loose.length; oi++) {
+        groups += groupHtml(P.loose[oi].key, P.loose[oi].label, P.loose[oi].rows, tally, stance);
+      }
+    } else {
+      for (var j = 0; j < G.groups.length; j++) {
+        groups += groupHtml(G.groups[j].key, G.groups[j].label, G.groups[j].rows, tally, stance);
+      }
     }
     if (G.unfiled.length) groups += groupHtml('', '', G.unfiled, tally, stance);
+    // No measure on hand, but a mandate names the seat: the empty line still
+    // says so, under the mandate rows.
+    if (!rows.length) groups += '<p class="pdxdb-none">' + esc(COPY.tableEmpty) + '</p>';
+    // The mandate rows lead the list, in the chip row's filter like any chip.
+    if (mrows.length) groups = mandatesHtml(mrows) + groups;
+
+    // THE COMPOSER BOARDS PUT THE FINDER ABOVE THE CHIPS and name what it
+    // finds; every other board keeps the chips-then-search order it had.
+    var cats = '<div class="pdxdb-cats" role="group" aria-label="' + esc(COPY.catsLabel) + '">' + chips + '</div>';
+    var find = '<label class="pdxdb-find"><span class="pdxdb-find-l">' +
+        esc(composer ? COPY.findLabelComposer : COPY.findLabel) + '</span>' +
+        '<input class="pdxdb-find-i" type="search" data-pdxdb-search autocomplete="off"' +
+          ' placeholder="' + esc(composer ? COPY.findPlaceholderComposer : COPY.findPlaceholder) + '" value="' + esc(_view.q) + '" /></label>';
 
     return band('table', COPY.tableBand, COPY.tableNote,
-      '<div class="pdxdb-cats" role="group" aria-label="' + esc(COPY.catsLabel) + '">' + chips + '</div>' +
-      '<label class="pdxdb-find"><span class="pdxdb-find-l">' + esc(COPY.findLabel) + '</span>' +
-        '<input class="pdxdb-find-i" type="search" data-pdxdb-search autocomplete="off"' +
-          ' placeholder="' + esc(COPY.findPlaceholder) + '" value="' + esc(_view.q) + '" /></label>' +
-      '<div class="pdxdb-groups">' + groups + '</div>' +
+      (composer ? find + cats + (P ? pinnedHtml(mrows, G.groups, tally) : '') : cats + find) +
+      '<div class="pdxdb-groups"' + (P ? ' data-pdxdb-layout="parents"' : '') + '>' + groups + '</div>' +
       '<p class="pdxdb-none pdxdb-find-none" data-pdxdb-find-none' +
-        (anyShown(G) ? ' hidden' : '') + '>' + esc(COPY.findNone) + '</p>',
+        (anyShown(G, mrows) ? ' hidden' : '') + '>' + esc(COPY.findNone) + '</p>',
       COPY.voiceFoot);
   }
 
-  function anyShown(G) {
+  // ── THE PARENT LAYER (composer boards only) ───────────────────────────────
+  // NO NEW TAXONOMY. A parent is the issue's CORE in CORE_NATIONAL_ISSUES —
+  // the one parent table, where every published key sits under exactly one
+  // core (scripts/test-issue-family.mjs holds that). It is asked through
+  // PDXIssueFamily when that reader is on the document, else through
+  // issue-map.js's own coreIssueForKey, which is the same table. Parents print
+  // in that table's order; a group whose key has no core (the table absent,
+  // or a key it does not file) stays a flat group after the parents, exactly
+  // as it was, rather than being given an invented home.
+  function coreFor(key) {
+    try {
+      var F = window.PDXIssueFamily;
+      if (F && fn(F.coreOf) && fn(F.label)) {
+        var id = F.coreOf(key);
+        if (id) return { key: String(id), label: String(F.label(id) || '') };
+      }
+    } catch (e) {}
+    try {
+      if (fn(window.coreIssueForKey)) {
+        var ci = window.coreIssueForKey(key);
+        if (ci && ci.key) return { key: String(ci.key), label: String(ci.label || '') };
+      }
+    } catch (e) {}
+    // The table itself, for a document where neither reader has published:
+    // the same CORE_NATIONAL_ISSUES both of them read, first claim wins, as
+    // coreIssueForKey builds it.
+    try {
+      var l = window.CORE_NATIONAL_ISSUES;
+      if (Array.isArray(l)) {
+        for (var i = 0; i < l.length; i++) {
+          var c = l[i];
+          if (c && c.key && Array.isArray(c.keys) && c.keys.indexOf(key) !== -1) return { key: String(c.key), label: String(c.label || '') };
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+  function coreRank(coreKey) {
+    try {
+      var l = window.CORE_NATIONAL_ISSUES;
+      if (Array.isArray(l)) for (var i = 0; i < l.length; i++) if (l[i] && l[i].key === coreKey) return i;
+    } catch (e) {}
+    return 1e9;
+  }
+  function parentsOf(groups) {
+    var byCore = {}, parents = [], loose = [];
+    for (var i = 0; i < groups.length; i++) {
+      var c = coreFor(groups[i].key);
+      if (!c || !c.label) { loose.push(groups[i]); continue; }
+      if (!byCore[c.key]) { byCore[c.key] = { key: c.key, label: c.label, groups: [] }; parents.push(byCore[c.key]); }
+      byCore[c.key].groups.push(groups[i]);
+    }
+    parents.sort(function (a, b) { return coreRank(a.key) - coreRank(b.key); });
+    return { parents: parents, loose: loose };
+  }
+
+  // The parent's open/shown state is DERIVED from its children's: shown when
+  // any child group is shown (so an issue chip shows only its own parent, the
+  // Mandates chip shows none, and a search shows the parents it hit); open
+  // only while a chip or a search is choosing, or when the reader opened it by
+  // hand. Otherwise collapsed. One function for the render and for applyView.
+  function parentState(coreKey, anyChildShown) {
+    var shown = !!anyChildShown;
+    var open;
+    if (normQuery(_view.q) || _view.cat) open = shown;
+    else if (Object.prototype.hasOwnProperty.call(_view.open, PARENT_PREFIX + coreKey)) open = !!_view.open[PARENT_PREFIX + coreKey];
+    else open = false;
+    return { shown: shown, open: open };
+  }
+  var PARENT_PREFIX = '^';
+  var PARENT_COLLAPSED = 'pdxdb-parent-h--collapsed';
+
+  function rowHits(rows) {
+    var q = normQuery(_view.q), n = 0;
+    for (var i = 0; i < rows.length; i++) if (matches(findText(rows[i]), q)) n++;
+    return n;
+  }
+  function issuesWord(n) { return n === 1 ? '1 issue' : n + ' issues'; }
+
+  function parentHtml(par, tally, stance) {
+    // THE PARENT WEARS ITS CHIPS' COLOUR. The colour CLASS pdxdb-ic-<core> is
+    // the palette entry's own (district-board.css defines one per
+    // PDXIssueColors core, off that module's --pdx-issue-<core> variables), and
+    // the header element and every chip nested under it carry the same one.
+    // The inline token issueSkin() hands the first chip rides along as before.
+    // No palette entry, no class and no token — never a borrowed hue.
+    var skin = par.groups.length ? issueSkin(par.groups[0].key) : '';
+    var icName = (skin && paletteHas(par.key)) ? IC_PREFIX + par.key : '';
+    var icClass = icName ? ' ' + icName : '';
+    var any = false, chips = '', body = '';
+    for (var i = 0; i < par.groups.length; i++) {
+      var g = par.groups[i];
+      if (groupState(g.key, rowHits(g.rows), stance).shown) any = true;
+      chips += catChip(g.key, g.label, g.rows.length, issueSkin(g.key), icName);
+      body += groupHtml(g.key, g.label, g.rows, tally, stance);
+    }
+    var st = parentState(par.key, any);
+    return '<details class="pdxdb-parent" data-pdxdb-parent="' + esc(par.key) + '"' +
+        (st.open ? ' open' : '') + (st.shown ? '' : ' hidden') + '>' +
+        '<summary class="pdxdb-parent-h' + esc(icClass) + (st.open ? '' : ' ' + PARENT_COLLAPSED) + '"' +
+          ' aria-expanded="' + (st.open ? 'true' : 'false') + '"' + (icClass ? skin : '') + '>' +
+          '<span class="pdxdb-parent-l">' + esc(par.label) + '</span>' +
+          '<span class="pdxdb-parent-n" data-pdxdb-parent-count="' + par.groups.length + '">' +
+            esc(issuesWord(par.groups.length)) + '</span>' +
+        '</summary>' +
+        '<div class="pdxdb-parent-b" data-pdxdb-parent-body=""' + (st.open ? '' : ' hidden') + '>' +
+          '<div class="pdxdb-cats pdxdb-cats--parent" role="group" aria-label="' + esc(COPY.catsLabel) + '">' + chips + '</div>' +
+          '<div class="pdxdb-groups">' + body + '</div>' +
+        '</div>' +
+      '</details>';
+  }
+
+  // The palette class prefix, and the palette itself asked whether it holds a
+  // core: PDXIssueColors.CORE_ISSUE_COLORS is the one table of issue colours.
+  var IC_PREFIX = 'pdxdb-ic-';
+  function paletteHas(coreKey) {
+    try {
+      var C = window.PDXIssueColors;
+      return !!(C && C.CORE_ISSUE_COLORS && Object.prototype.hasOwnProperty.call(C.CORE_ISSUE_COLORS, coreKey));
+    } catch (e) { return false; }
+  }
+
+  // ── THE PINNED STRIP (composer boards only) ───────────────────────────────
+  // Above the parent list, and outside every collapse and filter, so a reader
+  // who sees nothing else open still sees what is live on this seat: up to
+  // PIN_MANDATES mandate rows that name the seat, in the order the Mandate read
+  // returned them, and up to PIN_ISSUES issue groups ranked by how many PEOPLE
+  // answered a poll or wrote a comment on them here (band 2's own per-issue
+  // tally). An issue nobody has touched is not pinned; a strip with nothing in
+  // it is not printed. A pinned issue is a button onto its group — the same
+  // data-pdxdb-cat control as a chip — never a second copy of the group, so the
+  // poll module still sees each issue once. The counts are people, never a
+  // majority and never this district's position.
+  var PIN_MANDATES = 2;
+  var PIN_ISSUES = 3;
+  function pinnedIssues(groups, tally) {
+    var list = [];
+    for (var i = 0; i < groups.length; i++) {
+      var t = tally[groups[i].key];
+      var n = t ? whole(t.polls) + whole(t.comments) : 0;
+      if (n > 0) list.push({ g: groups[i], polls: whole(t.polls), comments: whole(t.comments), n: n, at: i });
+    }
+    list.sort(function (a, b) { return (b.n - a.n) || (a.at - b.at); });
+    return list.slice(0, PIN_ISSUES);
+  }
+  function pinnedHtml(mrows, groups, tally) {
+    var ms = mrows.slice(0, PIN_MANDATES);
+    var is = pinnedIssues(groups, tally);
+    if (!ms.length && !is.length) return '';
+    var body = '';
+    for (var i = 0; i < ms.length; i++) {
+      var m = ms[i];
+      body += '<li class="pdxdb-pin pdxdb-pin--mandate" data-pdxdb-pin-mandate="' + esc(String(m.id)) + '">' +
+          '<span class="pdxdb-mandate-tag">' + esc(COPY.mandateTag) + '</span>' +
+          '<a class="pdxdb-m-link" href="' + esc(COPY.mandateHref + '#pp-card-' + m.id) + '">' + esc(String(m.title || '').trim()) + '</a>' +
+          '<span class="pdxdb-mandate-st">' + esc(COPY.mandateStatus + ' · ' + supportWord(whole(m.supportCount))) + '</span>' +
+        '</li>';
+    }
+    for (var j = 0; j < is.length; j++) {
+      var p = is[j];
+      body += '<li class="pdxdb-pin pdxdb-pin--issue" data-pdxdb-pin-issue="' + esc(p.g.key) + '">' +
+          '<button type="button" class="pdxdb-pin-i" data-pdxdb-cat="' + esc(p.g.key) + '"' +
+            ' aria-pressed="' + (_view.cat === p.g.key ? 'true' : 'false') + '"' + issueSkin(p.g.key) + '>' +
+            esc(p.g.label) + '</button>' +
+          '<span class="pdxdb-mandate-st">' + esc(people(p.polls) + ' ' + COPY.pinAnswered + ' · ' +
+            people(p.comments) + ' ' + COPY.pinCommented) + '</span>' +
+        '</li>';
+    }
+    return '<section class="pdxdb-pinned" data-pdxdb-pinned="" aria-label="' + esc(COPY.pinnedHead) + '">' +
+        '<h3 class="pdxdb-pinned-h">' + esc(COPY.pinnedHead) + '</h3>' +
+        '<ul class="pdxdb-pins">' + body + '</ul>' +
+      '</section>';
+  }
+
+  // A parent's open state, written to the <details>, the header's class and
+  // aria-expanded, and the body's hidden flag. Idempotent, like syncGroup().
+  function syncParent(d, open) {
+    if (!d) return;
+    if (!!d.open !== !!open) d.open = !!open;
+    try {
+      var sum = fn(d.querySelector) ? d.querySelector('.pdxdb-parent-h') : null;
+      if (sum && sum.setAttribute) {
+        sum.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (sum.classList) {
+          if (open) sum.classList.remove(PARENT_COLLAPSED); else sum.classList.add(PARENT_COLLAPSED);
+        }
+      }
+      var b = fn(d.querySelector) ? d.querySelector('[data-pdxdb-parent-body]') : null;
+      if (b) b.hidden = !open;
+    } catch (e) {}
+  }
+
+  function anyShown(G, mrows) {
     var q = normQuery(_view.q);
+    if (mrows && mrows.length) {
+      var mh = 0;
+      for (var m = 0; m < mrows.length; m++) if (matches(mandateFind(mrows[m]), q)) mh++;
+      if (mandateState(mh).shown) return true;
+    }
     var all = G.groups.slice();
     if (G.unfiled.length) all.push({ key: '', rows: G.unfiled });
     for (var i = 0; i < all.length; i++) {
@@ -1099,8 +1447,31 @@
       }
       var st = groupState(key, hits, stance);
       groups[g].hidden = !st.shown;
-      groups[g].open = st.open;
+      syncGroup(groups[g], st.open);
       if (st.shown) any = true;
+    }
+    // Parents follow their children: shown when any child group is shown.
+    var pars = el.querySelectorAll('[data-pdxdb-parent]');
+    for (var p = 0; p < pars.length; p++) {
+      var kids = fn(pars[p].querySelectorAll) ? pars[p].querySelectorAll('[data-pdxdb-group]') : [];
+      var anyKid = false;
+      for (var k = 0; k < kids.length; k++) if (!kids[k].hidden) anyKid = true;
+      var ps = parentState(pars[p].getAttribute('data-pdxdb-parent') || '', anyKid);
+      pars[p].hidden = !ps.shown;
+      syncParent(pars[p], ps.open);
+    }
+    var mb = el.querySelectorAll('[data-pdxdb-mandates]');
+    for (var b = 0; b < mb.length; b++) {
+      var mr = mb[b].querySelectorAll('[data-pdxdb-find]');
+      var mh = 0;
+      for (var x = 0; x < mr.length; x++) {
+        var mhit = matches(mr[x].getAttribute('data-pdxdb-find') || '', q);
+        if (mhit) mh++;
+        mr[x].hidden = !mhit;
+      }
+      var ms = mandateState(mh);
+      mb[b].hidden = !ms.shown;
+      if (ms.shown) any = true;
     }
     var none = el.querySelector('[data-pdxdb-find-none]');
     if (none) none.hidden = any;
@@ -1144,6 +1515,12 @@
       if (chip) { setCategory(chip.getAttribute('data-pdxdb-cat') || ''); return; }
       // A header opened or closed by hand is remembered for the next repaint —
       // only while no search is forcing groups open.
+      var psum = t && fn(t.closest) ? t.closest('.pdxdb-parent-h') : null;
+      if (psum && !normQuery(_view.q) && !_view.cat) {
+        var pd = psum.parentNode;
+        if (pd && pd.getAttribute) _view.open[PARENT_PREFIX + (pd.getAttribute('data-pdxdb-parent') || '')] = !pd.open;
+        return;
+      }
       var sum = t && fn(t.closest) ? t.closest('.pdxdb-group-h') : null;
       if (sum && !normQuery(_view.q)) {
         var d = sum.parentNode;
@@ -1154,6 +1531,13 @@
       var t = ev && ev.target;
       if (t && t.hasAttribute && t.hasAttribute('data-pdxdb-search')) setQuery(t.value);
     });
+    // A header opened or closed by hand: the <details> moved, so the header's
+    // class, aria-expanded and the body follow it. `toggle` does not bubble.
+    el.addEventListener('toggle', function (ev) {
+      var d = ev && ev.target;
+      if (d && d.hasAttribute && d.hasAttribute('data-pdxdb-group')) syncGroup(d, !!d.open);
+      else if (d && d.hasAttribute && d.hasAttribute('data-pdxdb-parent')) syncParent(d, !!d.open);
+    }, true);
   }
 
   // THE STYLES FOR THE GROUPED TABLE live in /district-board.css, one sheet
@@ -1565,6 +1949,33 @@
     }
   }
 
+  // THE MANDATE READ, on the composer boards only. The same store and the same
+  // endpoint /mandate reads (/api/mandate-proposals), asked for the rows that
+  // name this seat or its sitting member. Nothing is written. A read that fails
+  // resolves to no rows: a mandate row is an addition to band 3, not one of its
+  // three answers, so a failed read leaves the band exactly as it was rather
+  // than printing a claim about the Mandate it could not check.
+  var MANDATE_API = '/api/mandate-proposals';
+  function fetchMandates() {
+    try {
+      if (!composerBoard()) return Promise.resolve([]);
+      var pid = PID();
+      var url = MANDATE_API + '?seat=' + encodeURIComponent(ALIAS()) +
+        (pid ? '&member=' + encodeURIComponent(pid) : '');
+      return fetch(url, { headers: { accept: 'application/json' } })
+        .then(function (r) {
+          if (!r.ok) throw new Error('mandate-proposals ' + r.status);
+          return r.json();
+        })
+        .then(function (data) {
+          return (data && Array.isArray(data.proposals)) ? data.proposals : [];
+        })
+        .catch(function () { return []; });
+    } catch (e) {
+      return Promise.resolve([]);
+    }
+  }
+
   // ── MOUNT ─────────────────────────────────────────────────────────────────
   // Paints the three bands in order, twice: once immediately with both reads in
   // their waiting state, and once more as each answer lands. The first paint is
@@ -1585,6 +1996,8 @@
   var _tableSkipped = false;
   var _el = null;       // the mounted host, for refresh()
   var _issues = [];     // the issue keys the table last printed, for the composer
+  var _mandates = [];   // the mandate rows that name this seat (composer boards only)
+  var _mandateMember = null; // the member the mandate read was asked with
 
   // ── THE ONE BOARD THAT TAKES A VOICE ──────────────────────────────────────
   // district-composer.js owns the composer on the five boards whose documents
@@ -1593,6 +2006,32 @@
   function composerOwned() {
     try { return !!(typeof document !== 'undefined' && document.getElementById('pdx-district-composer')); }
     catch (e) { return false; }
+  }
+
+  // ── WHICH BOARDS GET THE COMPOSER LAYOUT ─────────────────────────────────
+  // Band 3's composer-board layout (parent categories, collapsed groups, the
+  // finder above the chips, the mandate rows) is decided by the SEAT, not only
+  // by whether the composer's host happened to be found at paint time: a board
+  // whose own seat declaration (host attribute, then the document's) names one
+  // of the five composer seats paints that layout, and so does any document
+  // carrying the composer host. The list is district-composer.js's
+  // COMPOSER_SEATS, same five aliases; scripts/test-district-board-force-parents.mjs
+  // holds the two copies equal. ACTIVE's default is NOT consulted: a document
+  // that declares no seat is not a composer board. DERIVED from the
+  // `composer: true` rows of BOARDS rather than written out a second time, the
+  // same way BOARD_SEATS is.
+  var COMPOSER_SEATS = {};
+  (function () {
+    for (var k in BOARDS) {
+      if (Object.prototype.hasOwnProperty.call(BOARDS, k) && BOARDS[k].composer) COMPOSER_SEATS[BOARDS[k].alias] = 1;
+    }
+  })();
+  function composerSeatDeclared() {
+    var b = board(hostSeat(_el)) || board(docSeat());
+    return !!(b && Object.prototype.hasOwnProperty.call(COMPOSER_SEATS, b.alias));
+  }
+  function composerBoard() {
+    return composerOwned() || composerSeatDeclared();
   }
 
   // Band 2 read again, from the store. Called by the composer after a post
@@ -1617,6 +2056,7 @@
     paint(el);
     fetchCounts().then(function (d) { _counts = d; paint(el); });
     fetchTable().then(function (d) { _items = d; paint(el); });
+    loadMandates(el);
     // ── THE ROSTER MAY NOT BE HERE YET, AND BAND 1 IS THE BAND THAT CARES ────
     // A congressional board's holder comes from _pdxUsHouseSeat(), which walks
     // the roster — and cmp-data.js is DEFERRED, so the first paint can happen
@@ -1639,12 +2079,21 @@
             if (_tableSkipped && PID()) {
               fetchTable().then(function (d) { _items = d; paint(el); });
             }
+            // A member who resolved late is a member the mandate read did not
+            // ask about; ask again, once, with them.
+            if (composerBoard() && PID() !== _mandateMember) loadMandates(el);
             paint(el);
           } catch (e) {}
         });
       }
     } catch (e) {}
     return true;
+  }
+
+  function loadMandates(el) {
+    if (!composerBoard()) return;
+    _mandateMember = PID();
+    fetchMandates().then(function (d) { _mandates = mandateRows(d); paint(el); });
   }
 
   function paint(el) {
@@ -1671,7 +2120,7 @@
       purposeHtml() +
       seatHtml() +
       roomHtml(cState, _counts === FAILED ? null : _counts) +
-      tableHtml(tState, items, rooms) +
+      tableHtml(tState, items, rooms, _mandates) +
       stanceHtml(issues) +
       (composerOwned() ? '' : readOnlyHtml());
     if (typing) {
@@ -1808,6 +2257,12 @@
     _measureHref: measureHref,
     _rowIssues: rowIssues,
     _tableGroups: tableGroups,
+    _mandateRows: mandateRows,
+    _parentsOf: parentsOf,
+    COMPOSER_SEATS: COMPOSER_SEATS,
+    composerBoard: function () { return composerBoard(); },
+    MANDATE_KEY: MANDATE_KEY,
+    mandates: function () { return _mandates.slice(); },
     // THE READER'S VIEW OF BAND 3: a category chip ('' is All) and a search.
     setCategory: setCategory,
     setQuery: setQuery,
