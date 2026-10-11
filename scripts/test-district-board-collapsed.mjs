@@ -216,7 +216,7 @@ section("4 · mutation: a renderer that leaves groups open on load fails");
   // C. Markup mutations the checker must refuse.
   ok(checkCollapsed(first.replace(/ data-pdxdb-group-body="" hidden>/, ' data-pdxdb-group-body="">')).some((x) => /body is visible/.test(x)),
     "a visible body fails");
-  ok(checkCollapsed(first.replace('aria-expanded="false"', 'aria-expanded="true"')).some((x) => /aria-expanded/.test(x)),
+  ok(checkCollapsed(first.replace('pdxdb-group-h--collapsed" aria-expanded="false"', 'pdxdb-group-h--collapsed" aria-expanded="true"')).some((x) => /aria-expanded/.test(x)),
     "an expanded header fails");
   ok(checkCollapsed(first.replace(" pdxdb-group-h--collapsed", "")).some((x) => /collapsed class/.test(x)),
     "a header without the collapsed class fails");

@@ -1153,15 +1153,30 @@
     if (mrows.length && _view.cat === MANDATE_KEY) live = true;
     if (!live) _view.cat = '';
 
+    var composer = composerOwned();
+    // THE COMPOSER BOARDS NEST ISSUES UNDER THEIR CORE (see parentsOf()): the
+    // top chip row keeps All and Mandates, and each issue's chip moves into its
+    // parent's body above that parent's groups. Every other board keeps the
+    // flat chip row and the flat list of groups it always had.
+    var P = composer ? parentsOf(G.groups) : null;
     var chips = catChip('', COPY.catAll, rows.length + mrows.length, '');
-    for (var i = 0; i < G.groups.length; i++) {
-      var g = G.groups[i];
-      chips += catChip(g.key, g.label, g.rows.length, issueSkin(g.key));
+    if (!P) {
+      for (var i = 0; i < G.groups.length; i++) {
+        var g = G.groups[i];
+        chips += catChip(g.key, g.label, g.rows.length, issueSkin(g.key));
+      }
     }
     if (mrows.length) chips += catChip(MANDATE_KEY, COPY.catMandates, mrows.length, '');
     var groups = '';
-    for (var j = 0; j < G.groups.length; j++) {
-      groups += groupHtml(G.groups[j].key, G.groups[j].label, G.groups[j].rows, tally, stance);
+    if (P) {
+      for (var pi = 0; pi < P.parents.length; pi++) groups += parentHtml(P.parents[pi], tally, stance);
+      for (var oi = 0; oi < P.loose.length; oi++) {
+        groups += groupHtml(P.loose[oi].key, P.loose[oi].label, P.loose[oi].rows, tally, stance);
+      }
+    } else {
+      for (var j = 0; j < G.groups.length; j++) {
+        groups += groupHtml(G.groups[j].key, G.groups[j].label, G.groups[j].rows, tally, stance);
+      }
     }
     if (G.unfiled.length) groups += groupHtml('', '', G.unfiled, tally, stance);
     // No measure on hand, but a mandate names the seat: the empty line still
@@ -1172,7 +1187,6 @@
 
     // THE COMPOSER BOARDS PUT THE FINDER ABOVE THE CHIPS and name what it
     // finds; every other board keeps the chips-then-search order it had.
-    var composer = composerOwned();
     var cats = '<div class="pdxdb-cats" role="group" aria-label="' + esc(COPY.catsLabel) + '">' + chips + '</div>';
     var find = '<label class="pdxdb-find"><span class="pdxdb-find-l">' +
         esc(composer ? COPY.findLabelComposer : COPY.findLabel) + '</span>' +
@@ -1185,6 +1199,115 @@
       '<p class="pdxdb-none pdxdb-find-none" data-pdxdb-find-none' +
         (anyShown(G, mrows) ? ' hidden' : '') + '>' + esc(COPY.findNone) + '</p>',
       COPY.voiceFoot);
+  }
+
+  // ── THE PARENT LAYER (composer boards only) ───────────────────────────────
+  // NO NEW TAXONOMY. A parent is the issue's CORE in CORE_NATIONAL_ISSUES —
+  // the one parent table, where every published key sits under exactly one
+  // core (scripts/test-issue-family.mjs holds that). It is asked through
+  // PDXIssueFamily when that reader is on the document, else through
+  // issue-map.js's own coreIssueForKey, which is the same table. Parents print
+  // in that table's order; a group whose key has no core (the table absent,
+  // or a key it does not file) stays a flat group after the parents, exactly
+  // as it was, rather than being given an invented home.
+  function coreFor(key) {
+    try {
+      var F = window.PDXIssueFamily;
+      if (F && fn(F.coreOf) && fn(F.label)) {
+        var id = F.coreOf(key);
+        if (id) return { key: String(id), label: String(F.label(id) || '') };
+      }
+    } catch (e) {}
+    try {
+      if (fn(window.coreIssueForKey)) {
+        var ci = window.coreIssueForKey(key);
+        if (ci && ci.key) return { key: String(ci.key), label: String(ci.label || '') };
+      }
+    } catch (e) {}
+    return null;
+  }
+  function coreRank(coreKey) {
+    try {
+      var l = window.CORE_NATIONAL_ISSUES;
+      if (Array.isArray(l)) for (var i = 0; i < l.length; i++) if (l[i] && l[i].key === coreKey) return i;
+    } catch (e) {}
+    return 1e9;
+  }
+  function parentsOf(groups) {
+    var byCore = {}, parents = [], loose = [];
+    for (var i = 0; i < groups.length; i++) {
+      var c = coreFor(groups[i].key);
+      if (!c || !c.label) { loose.push(groups[i]); continue; }
+      if (!byCore[c.key]) { byCore[c.key] = { key: c.key, label: c.label, groups: [] }; parents.push(byCore[c.key]); }
+      byCore[c.key].groups.push(groups[i]);
+    }
+    parents.sort(function (a, b) { return coreRank(a.key) - coreRank(b.key); });
+    return { parents: parents, loose: loose };
+  }
+
+  // The parent's open/shown state is DERIVED from its children's: shown when
+  // any child group is shown (so an issue chip shows only its own parent, the
+  // Mandates chip shows none, and a search shows the parents it hit); open
+  // only while a chip or a search is choosing, or when the reader opened it by
+  // hand. Otherwise collapsed. One function for the render and for applyView.
+  function parentState(coreKey, anyChildShown) {
+    var shown = !!anyChildShown;
+    var open;
+    if (normQuery(_view.q) || _view.cat) open = shown;
+    else if (Object.prototype.hasOwnProperty.call(_view.open, PARENT_PREFIX + coreKey)) open = !!_view.open[PARENT_PREFIX + coreKey];
+    else open = false;
+    return { shown: shown, open: open };
+  }
+  var PARENT_PREFIX = '^';
+  var PARENT_COLLAPSED = 'pdxdb-parent-h--collapsed';
+
+  function rowHits(rows) {
+    var q = normQuery(_view.q), n = 0;
+    for (var i = 0; i < rows.length; i++) if (matches(findText(rows[i]), q)) n++;
+    return n;
+  }
+  function issuesWord(n) { return n === 1 ? '1 issue' : n + ' issues'; }
+
+  function parentHtml(par, tally, stance) {
+    var any = false, chips = '', body = '';
+    for (var i = 0; i < par.groups.length; i++) {
+      var g = par.groups[i];
+      if (groupState(g.key, rowHits(g.rows), stance).shown) any = true;
+      chips += catChip(g.key, g.label, g.rows.length, issueSkin(g.key));
+      body += groupHtml(g.key, g.label, g.rows, tally, stance);
+    }
+    var st = parentState(par.key, any);
+    return '<details class="pdxdb-parent" data-pdxdb-parent="' + esc(par.key) + '"' +
+        (st.open ? ' open' : '') + (st.shown ? '' : ' hidden') + '>' +
+        '<summary class="pdxdb-parent-h' + (st.open ? '' : ' ' + PARENT_COLLAPSED) + '"' +
+          ' aria-expanded="' + (st.open ? 'true' : 'false') + '">' +
+          '<span class="pdxdb-parent-l">' + esc(par.label) + '</span>' +
+          '<span class="pdxdb-parent-n" data-pdxdb-parent-count="' + par.groups.length + '">' +
+            esc(issuesWord(par.groups.length)) + '</span>' +
+        '</summary>' +
+        '<div class="pdxdb-parent-b" data-pdxdb-parent-body=""' + (st.open ? '' : ' hidden') + '>' +
+          '<div class="pdxdb-cats pdxdb-cats--parent" role="group" aria-label="' + esc(COPY.catsLabel) + '">' + chips + '</div>' +
+          '<div class="pdxdb-groups">' + body + '</div>' +
+        '</div>' +
+      '</details>';
+  }
+
+  // A parent's open state, written to the <details>, the header's class and
+  // aria-expanded, and the body's hidden flag. Idempotent, like syncGroup().
+  function syncParent(d, open) {
+    if (!d) return;
+    if (!!d.open !== !!open) d.open = !!open;
+    try {
+      var sum = fn(d.querySelector) ? d.querySelector('.pdxdb-parent-h') : null;
+      if (sum && sum.setAttribute) {
+        sum.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (sum.classList) {
+          if (open) sum.classList.remove(PARENT_COLLAPSED); else sum.classList.add(PARENT_COLLAPSED);
+        }
+      }
+      var b = fn(d.querySelector) ? d.querySelector('[data-pdxdb-parent-body]') : null;
+      if (b) b.hidden = !open;
+    } catch (e) {}
   }
 
   function anyShown(G, mrows) {
@@ -1231,6 +1354,16 @@
       groups[g].hidden = !st.shown;
       syncGroup(groups[g], st.open);
       if (st.shown) any = true;
+    }
+    // Parents follow their children: shown when any child group is shown.
+    var pars = el.querySelectorAll('[data-pdxdb-parent]');
+    for (var p = 0; p < pars.length; p++) {
+      var kids = fn(pars[p].querySelectorAll) ? pars[p].querySelectorAll('[data-pdxdb-group]') : [];
+      var anyKid = false;
+      for (var k = 0; k < kids.length; k++) if (!kids[k].hidden) anyKid = true;
+      var ps = parentState(pars[p].getAttribute('data-pdxdb-parent') || '', anyKid);
+      pars[p].hidden = !ps.shown;
+      syncParent(pars[p], ps.open);
     }
     var mb = el.querySelectorAll('[data-pdxdb-mandates]');
     for (var b = 0; b < mb.length; b++) {
@@ -1287,6 +1420,12 @@
       if (chip) { setCategory(chip.getAttribute('data-pdxdb-cat') || ''); return; }
       // A header opened or closed by hand is remembered for the next repaint —
       // only while no search is forcing groups open.
+      var psum = t && fn(t.closest) ? t.closest('.pdxdb-parent-h') : null;
+      if (psum && !normQuery(_view.q) && !_view.cat) {
+        var pd = psum.parentNode;
+        if (pd && pd.getAttribute) _view.open[PARENT_PREFIX + (pd.getAttribute('data-pdxdb-parent') || '')] = !pd.open;
+        return;
+      }
       var sum = t && fn(t.closest) ? t.closest('.pdxdb-group-h') : null;
       if (sum && !normQuery(_view.q)) {
         var d = sum.parentNode;
@@ -1302,6 +1441,7 @@
     el.addEventListener('toggle', function (ev) {
       var d = ev && ev.target;
       if (d && d.hasAttribute && d.hasAttribute('data-pdxdb-group')) syncGroup(d, !!d.open);
+      else if (d && d.hasAttribute && d.hasAttribute('data-pdxdb-parent')) syncParent(d, !!d.open);
     }, true);
   }
 
@@ -1997,6 +2137,7 @@
     _rowIssues: rowIssues,
     _tableGroups: tableGroups,
     _mandateRows: mandateRows,
+    _parentsOf: parentsOf,
     MANDATE_KEY: MANDATE_KEY,
     mandates: function () { return _mandates.slice(); },
     // THE READER'S VIEW OF BAND 3: a category chip ('' is All) and a search.

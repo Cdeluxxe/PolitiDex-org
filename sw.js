@@ -9219,7 +9219,18 @@
 //     the shell moves one version. No location key or other saved key was
 //     touched.
 //     MIGRATION COST: none. No table, row, key or seat moved.
-const CACHE_VERSION = 'v337';
+// v338 - COMPOSER BOARDS GROUP ISSUES UNDER THEIR CORE. On the five composer
+//     boards "On the table" now nests each issue group (and its chip) under
+//     its parent core from CORE_NATIONAL_ISSUES, read through PDXIssueFamily or
+//     issue-map.js's coreIssueForKey — no new taxonomy. Every parent starts
+//     collapsed with a count of its issues; All and Mandates stay in the top
+//     chip row; a search or an issue chip opens only the matching parent and
+//     group. Generated and statewide boards keep the flat layout.
+//     district-board.js and district-board.css are precached and changed, so
+//     the shell moves one version. No location key or other saved key was
+//     touched.
+//     MIGRATION COST: none. No table, row, key or seat moved.
+const CACHE_VERSION = 'v338';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

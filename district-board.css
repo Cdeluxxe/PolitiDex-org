@@ -98,6 +98,26 @@
 }
 .pdxdb-mandate-st { display: block; margin-top: 0.15rem; font-size: 0.74rem; color: #8496b0; }
 
+/* THE PARENT LAYER (the five composer boards only): one <details> per core
+   category from CORE_NATIONAL_ISSUES, collapsed on first paint, holding that
+   core's issue chips and issue groups. The body is hidden by attribute as well
+   as by <details>, so a collapsed parent stays collapsed under any sheet. */
+.pdxdb-parent { border: 1px solid #1d2c47; border-radius: 0.6rem; padding: 0 0.75rem; background: #0b1424; }
+.pdxdb-parent[hidden], .pdxdb-parent-b[hidden] { display: none; }
+.pdxdb-parent-h {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.7rem 0; cursor: pointer; list-style: none;
+  font: 700 0.92rem/1.35 'Barlow', sans-serif; color: #e3ecfa;
+}
+.pdxdb-parent-h::-webkit-details-marker { display: none; }
+.pdxdb-parent-h::before { content: "\25B8"; color: #7d8fa9; font-size: 0.8rem; }
+.pdxdb-parent[open] > .pdxdb-parent-h::before { content: "\25BE"; }
+.pdxdb-parent-h--collapsed::before { content: "\25B8"; }
+.pdxdb-parent-h:focus-visible { outline: 2px solid #7fb2ff; outline-offset: 2px; }
+.pdxdb-parent-n { margin-left: auto; font-size: 0.78rem; font-weight: 500; color: #8496b0; font-variant-numeric: tabular-nums; }
+.pdxdb-parent-b { padding: 0 0 0.7rem; }
+.pdxdb-cats--parent { margin: 0 0 0.6rem; }
+
 /* A measure under two issues wears both chips. */
 .pdxdb-m-issue + .pdxdb-m-issue { margin-left: 0.3rem; }
 
