@@ -330,7 +330,7 @@ function capRefusal() {
 //   verifyUser(req)                 → { uid, isAnonymous } | null
 //   findResidency(seatKey, hash)    → { seatKey, status, method } | null
 //   issueExists(issueKey)           → boolean
-//   listPosts(seatKey, cap)         → rows (with authorHash), newest first
+//   listPosts(seatKey, cap, issueKey?) → rows (with authorHash), newest first; one issue when given
 //   insertPost({ seatKey, issueKey, body, authorHash, capSince? }) → row | null
 //                                   (with capSince: inserts only if this author
 //                                   has no post on this seat since then; null if not)
@@ -350,10 +350,22 @@ export async function handle(req, deps) {
     const row = hash ? await deps.findResidency(seatKey, hash) : null;
     const verdict = gate(user, row, seatKey);
     const check = verdict.code === "unverified" ? await canVerifyHere(deps, user, row, seatKey) : { ok: false };
-    const rows = await deps.listPosts(seatKey, POSTS_CAP);
-    const posts = (rows || []).map((r) => publicPost(r, hash));
+    // ONE ISSUE'S COMMENTS, ON ASK. `?issue=<key>` narrows the read to that
+    // issue's posts on this seat — the topic jump from an issue file lands on
+    // them — under the same cap and the same public shape. A key of the wrong
+    // shape is ignored rather than refused, so the read falls back to the whole
+    // feed. Reading is open to everyone either way; nothing here writes.
+    const issueRaw = String(url.searchParams.get("issue") || "").trim().toLowerCase();
+    const issueKey = /^[a-z0-9_]+$/.test(issueRaw) ? issueRaw : "";
+    const rows = issueKey
+      ? await deps.listPosts(seatKey, POSTS_CAP, issueKey)
+      : await deps.listPosts(seatKey, POSTS_CAP);
+    const posts = (rows || [])
+      .filter((r) => !issueKey || (r && r.issueKey === issueKey))
+      .map((r) => publicPost(r, hash));
     return json({
       seat: COMPOSER_SEATS[seatKey],
+      issue: issueKey,
       posts,
       postsEmpty: posts.length ? "" : COPY.emptyFeed,
       voice: {

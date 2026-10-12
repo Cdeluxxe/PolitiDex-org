@@ -717,7 +717,10 @@ const VERIFIED_OPTS = { uid: "u_7", loc: { state: "Utah", city: "Layton", county
     // The All-Seeing Eye's touch rule later carried the panel's blur and
     // strip-animation overrides on its opening line (v346); that is search
     // panel chrome, not money markup.
-    .replace(/(@media \(hover:none\) and \(pointer:coarse\)\{) \/\* Touch: the 98%-opaque panel[^\n]*/, "$1");
+    .replace(/(@media \(hover:none\) and \(pointer:coarse\)\{) \/\* Touch: the 98%-opaque panel[^\n]*/, "$1")
+    // The issue file's poll module later rode in behind district-voice.js on
+    // the same line (v347); that is a script tag, not money markup.
+    .replace('<script defer src="/issue-poll.js"></script>', "");
   for (const f of MONEY) {
     const src = R(f);
     if (head) eq(sansAlias(src) === sansAlias(head(f)), true, `${f}: money markup changed in this pass`);

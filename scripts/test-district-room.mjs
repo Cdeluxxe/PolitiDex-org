@@ -1657,7 +1657,9 @@ has(strip(WRM_SRC), "DR.seatMountHtml(lv, reps && reps.state)", "Who Represents 
 ok(/\+ seatCompare\(lv\) \+ districtRoom\(lv, reps\)/.test(strip(WRM_SRC)),
   "the mount is a SIBLING of the seat row, not a control nested inside it");
 has(strip(IF_SRC), "districtRoom(key)", "the issue file mounts the room");
-ok(/jumpsHtml\(key\) \+\s*\n\s*districtRoom\(key\) \+\s*\n\s*'<\/div>'/.test(IF_SRC),
+// The stock-trading poll slot (issue-poll.js, v347) rides behind the room on
+// the same letterhead; it is a sibling there, never inside the ledger host.
+ok(/jumpsHtml\(key\) \+\s*\n\s*districtRoom\(key\) \+\s*\n(?:\s*issuePoll\(key\) \+\s*\n)?\s*'<\/div>'/.test(IF_SRC),
   "the issue file's mount is on the LETTERHEAD, so the ledger host stays byte-identical to PDXDoor1.issueProfile");
 // The ledger host takes the builder's string and nothing else, so the mount
 // cannot have landed in it: every write to it is `host.innerHTML = body`.

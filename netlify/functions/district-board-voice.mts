@@ -78,7 +78,9 @@ const deps = {
     return !!row;
   },
 
-  async listPosts(seatKey: string, cap: number) {
+  // `issueKey` narrows the read to one issue's posts on this seat (the topic
+  // jump); without it, the whole feed, exactly as before.
+  async listPosts(seatKey: string, cap: number, issueKey?: string) {
     return db
       .select({
         id: voiceTakes.id,
@@ -88,7 +90,9 @@ const deps = {
         authorHash: voiceTakes.authorHash,
       })
       .from(voiceTakes)
-      .where(eq(voiceTakes.seatKey, seatKey))
+      .where(issueKey
+        ? and(eq(voiceTakes.seatKey, seatKey), eq(voiceTakes.issueKey, issueKey))
+        : eq(voiceTakes.seatKey, seatKey))
       .orderBy(desc(voiceTakes.createdAt), desc(voiceTakes.id))
       .limit(cap);
   },

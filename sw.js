@@ -9329,7 +9329,24 @@
 //     Direction Match or Word-vs-Action figure moves. No location key or other
 //     saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v346';
+// v347 - A POLL ON THE STOCK-TRADING ISSUE FILE, AND A JUMP TO ITS COMMENTS.
+//     /i/stock_trading_ban's letterhead carries one Support / Oppose / Not
+//     sure poll for a Utah federal seat (the reader's own House and Senate
+//     seats where their saved location names them, otherwise a choice of the
+//     six), read and cast through /api/district-board-poll — the boards' own
+//     store and gate: counts open to everyone, a vote only for a vendor-verified
+//     resident of THAT seat, an unverified vote 403 with nothing written. Its
+//     "See the district's voice" link opens /district/<seat>?topic=<key>, and
+//     district-composer.js now reads that topic: the posts band is read for
+//     that issue only (GET ?issue=), titled for it, preselected in the
+//     composer and scrolled into view once. issue-poll.js is new and precached;
+//     issue-file.js, district-composer.js and index.html (one script tag, on
+//     an existing line) are precached and changed, so the shell moves one
+//     version. No board, no seat, no address pattern, no residency or
+//     membership rule and no money pill moved. No location key or other saved
+//     key was touched.
+//     MIGRATION COST: none. No table, row, key or seat moved.
+const CACHE_VERSION = 'v347';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -9775,6 +9792,10 @@ const SHELL_ASSETS = [
   // text ON TOP of the page, which is worse than no overlay at all.
   '/issue-file.js',
   '/issue-file.css',
+  // The district's voice poll on an issue file's letterhead. Travels with the
+  // panel above: issue-file.js prints its slot, and a device holding the panel
+  // without it paints the stock-trading file with no poll and no jump.
+  '/issue-poll.js',
   // The District Room and its stylesheet, /d/<districtKey>/<issueKey>. On this
   // list for both of the reasons the issue-file pair above is: a device that
   // holds the /d/* rewrite (it ships in netlify.toml, at the edge) but not this
