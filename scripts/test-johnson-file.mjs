@@ -352,14 +352,14 @@ console.log(`   johnson file: ${PID} · ${Object.keys(ROSTER).length} rostered �
     ok(DOC_PIDS.indexOf(pid) >= 0, `the ${pid} House row is still in the document index`);
   }
   for (const pid of DOC_PIDS) {
-    ok(/^https:\/\/disclosures-clerk\.house\.gov\//.test(DOCS[pid].formUrl),
-      `${pid}: every document row is a House Clerk document, not a state form`);
+    ok(/^https:\/\/(?:disclosures-clerk\.house\.gov|extapps2\.oge\.gov)\//.test(DOCS[pid].formUrl),
+      `${pid}: every document row is a federal House Clerk or OGE document, not a state form`);
   }
   for (const id of DOC_PIDS) {
     eq(DOCS[id].kind, "FD", `${id} is still a federal FD row`);
     eq(String(DOCS[id].year), "2025", `…for 2025`);
-    ok(/^https:\/\/disclosures-clerk\.house\.gov\//.test(String(DOCS[id].formUrl || "")),
-      `…linking the clerk's own document`);
+    ok(/^https:\/\/(?:disclosures-clerk\.house\.gov|extapps2\.oge\.gov)\//.test(String(DOCS[id].formUrl || "")),
+      `…linking the House Clerk's or OGE's own document`);
   }
   // AND THE UTAH CHALLENGE PAGE IS NOT IN EITHER TABLE, for him or for anyone.
   // "Looked for, not chipped" means the archive's front door was not written

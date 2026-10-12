@@ -102,6 +102,7 @@ function box(opts) {
   vm.runInContext(FIN_SRC, ctx, { filename: "pdx-finance.js" });
   vm.runInContext(LANE_SRC, ctx, { filename: "finance-lane.js" });
   must(win.PDXFinance && win.PDXFinanceLane, "the money modules did not install");
+  if (opts.oge) vm.runInContext(R("pdx-fd-oge.js"), ctx, { filename: "pdx-fd-oge.js" });
   if (opts.documents) win.PDXFinance._setDocumentTable(opts.documents);
   if (opts.holdings) win.PDXFinance._setHoldingsTable(opts.holdings);
   if (opts.section) {
@@ -141,6 +142,12 @@ const dollars = (n) => {
   const [i, d] = n.toFixed(2).split(".");
   return "$" + i.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "." + d;
 };
+// A DENSE BOX draws a capped number of dots and prints how many more lines it
+// holds; a box's stored lines are its dots plus that remainder. The remainder
+// is per box — per category — so it carries the category's ladder label, and
+// these comparisons run on ladder labels (one box can hold two spellings).
+const moreOf = (html) => [...String(html).matchAll(/data-pdx-more-band="([^"]*)" data-pdx-more="(\d+)"/g)]
+  .flatMap((m) => Array(+m[2]).fill(unesc(m[1])));
 const bars = (html) => [...String(html).matchAll(/data-pdx-band="([^"]*)"/g)].map((m) => unesc(m[1]));
 const geom = (html) => [...String(html).matchAll(/class="pdx-bands-bar[^"]*" style="left:([\d.]+)%;width:([\d.]+)%"/g)]
   .map((m) => ({ left: +m[1], width: +m[2] }));
@@ -172,7 +179,7 @@ const SHIPPED_DOC_IDS = {
 // ends — independently of DISCLOSED_POINTS — so the literal table is checked
 // against arithmetic rather than against itself.
 const filedEnds = (band) => {
-  const m = /^\$([\d,]+)\s*[-–]\s*\$([\d,]+)$/.exec(band);
+  const m = /^\$([\d,]+)\s*(?:[-–]|to)\s*\$([\d,]+)$/.exec(band);
   return m ? [Number(m[1].replace(/,/g, "")), Number(m[2].replace(/,/g, ""))] : null;
 };
 const expectedPoint = (band) => {
@@ -187,8 +194,8 @@ const expectedPoint = (band) => {
   eq(Object.keys(SHIPPED_HOLDINGS).sort().join(","), Object.keys(SHIPPED_TIMELINES).sort().join(","),
     "rows ship for exactly the transcribed members");
   eq(DOC_PIDS.slice().sort().join(","),
-    "aoc,bmoore,jeffries,jim_jordan,kennedy,maloy,mike_johnson,owens,scalise",
-    "the document index is the four Utah rows plus the five-member House batch");
+    "aoc,bmoore,jeffries,jim_jordan,kennedy,maloy,mike_johnson,owens,scalise,trump",
+    "the document index is the four Utah rows, the five-member House batch and the President's OGE row");
 
   for (const [pid, years] of Object.entries(SHIPPED_TIMELINES)) {
     const row = SHIPPED_HOLDINGS[pid];
@@ -218,11 +225,14 @@ const expectedPoint = (band) => {
     // The block: one column per form year, one dot per stored line.
     const blk = L.wealthBlockHtml(pid, ROSTER[pid]);
     has(visible(blk), "FD on file", `${pid}: the block still reports its form`);
-    const got = bars(blk);
+    const got = bars(blk).map((b) => F.bandLabel(b)).concat(moreOf(blk));
     const allLines = forms.flatMap((f) => f.lines);
     eq(got.length, allLines.length, `${pid}: the block draws one dot per stored line, across every year`);
-    eq(got.slice().sort().join("|"), allLines.map((l) => l.band).sort().join("|"),
-      `${pid}: …each carrying the stored band string, byte for byte`);
+    eq(got.slice().sort().join("|"), allLines.map((l) => F.bandLabel(l.band)).sort().join("|"),
+      `${pid}: …each in the stored band's own box`);
+    // Every drawn dot carries its stored band string byte for byte.
+    const storedBands = new Set(allLines.map((l) => l.band));
+    ok(bars(blk).every((b) => storedBands.has(b)), `${pid}: every drawn dot carries a stored band string, byte for byte`);
     // THE HORIZONTAL AXIS IS FILING YEARS: one column per form, oldest left.
     has(blk, 'data-pdx-drawing="years"', `${pid}: the graph is the year drawing`);
     const cols = [...blk.matchAll(/<li class="pdx-yrs-col" data-pdx-year="(\d+)" data-pdx-points="(\d+)">([\s\S]*?)<\/li>/g)];
@@ -232,19 +242,20 @@ const expectedPoint = (band) => {
     for (const [, y, n, body] of cols) {
       const f = forms.find((x) => String(x.year) === y);
       eq(+n, years[y], `${pid} ${y}: the column draws one dot per stored line`);
-      eq(bars(body).sort().join("|"), f.lines.map((l) => l.band).sort().join("|"),
+      eq(bars(body).map((b) => F.bandLabel(b)).concat(moreOf(body)).sort().join("|"), f.lines.map((l) => F.bandLabel(l.band)).sort().join("|"),
         `${pid} ${y}: …and those dots are that year's stored bands`);
       has(body, `href="${f.formUrl}"`, `${pid} ${y}: the column links that year's .gov PDF`);
       has(visible(body), y, `${pid} ${y}: …and carries its year label`);
       ok(body.indexOf('class="pdx-yrs-year"') > body.indexOf('class="pdx-yrs-plot"'),
         `${pid} ${y}: the year label sits under the column's marks`);
     }
-    eq((blk.match(/class="pdx-bands-dot(?: is-floor)?"/g) || []).length, Object.values(years).reduce((a, b) => a + b, 0),
-      `${pid}: …and no dot that is not a stored line`);
+    eq((blk.match(/class="pdx-bands-dot(?: is-floor)?"/g) || []).length + moreOf(blk).length,
+      Object.values(years).reduce((a, b) => a + b, 0),
+      `${pid}: …and no dot that is not a stored line (a dense box's remainder is counted, not drawn)`);
     // Marks sit on a vertical log scale: a bigger box is a higher dot.
     const ys = [...blk.matchAll(/data-pdx-band="([^"]*)" data-pdx-point="[a-z]+" style="left:[\d.]+%;bottom:([\d.]+)%"/g)]
       .map((m) => [unesc(m[1]), +m[2]]);
-    eq(ys.length, allLines.length, `${pid}: every dot has a vertical placement`);
+    eq(ys.length + moreOf(blk).length, allLines.length, `${pid}: every drawn dot has a vertical placement`);
     for (const [band, yv] of ys) {
       const want = 4 + 92 * (Math.log(expectedPoint(band).value) - Math.log(8000.5)) / (Math.log(50000000) - Math.log(8000.5));
       ok(Math.abs(yv - want) < 0.01, `${pid}: "${band}" sits at its point's height on the log scale`);
@@ -323,7 +334,7 @@ const expectedPoint = (band) => {
   const rest = Object.keys(ROSTER).filter((id) => !SHIPPED_HOLDINGS[id]);
   for (const id of rest) {
     const blk = L.wealthBlockHtml(id, ROSTER[id]);
-    if (/pdx-bands/.test(blk)) drew++;
+    if (/<div class="pdx-bands"/.test(blk)) drew++;
     if (!SHIPPED_DOCS[id] && visible(blk).indexOf("No in-office wealth file on hand") < 0) words++;
   }
   eq(drew, 0, `no block without holdings rows draws a graph (${rest.length} pids)`);
@@ -755,6 +766,133 @@ const expectedPoint = (band) => {
       `${id}: …and so is the disclosure pill`);
     lacks(BARE.PDXFinanceLane.wealthLetterheadChipHtml(id, ROSTER[id]), "Holds ", `${id}: the overlap never reaches a pill`);
   }
+}
+
+// ── 9 · the President's OGE forms ───────────────────────────────────────────
+{
+  section("9 · Trump's OGE 278e reports: year columns, disclosed points, the office overlap");
+  const OGE_SRC = R("pdx-fd-oge.js");
+  const OGE = new Function("window", OGE_SRC.replace(/^[\s\S]*?var ROWS = /, "return ").replace(/;\s*if \(W\.PDXFinance[\s\S]*$/, ";"))({});
+  const T = OGE.trump;
+  const DOC_T = SHIPPED_DOCS.trump;
+  ok(DOC_T && /^https:\/\/extapps2\.oge\.gov\//.test(DOC_T.formUrl), "trump's document row is OGE's own posting");
+
+  // BEFORE THE DATA FILE: a placeholder in words, no graph, and the file named.
+  eq(BARE.PDXFinance.lazyHoldingsSrc("trump"), "/pdx-fd-oge.js", "trump's lines live in /pdx-fd-oge.js");
+  eq(BARE.PDXFinance.holdings("trump"), null, "…and holdings() is null until it arrives");
+  const pre = BARE.PDXFinanceLane.wealthBlockHtml("trump", ROSTER.trump);
+  has(pre, 'data-pdx-bands-wait="trump"', "the block draws a placeholder while the lines load");
+  lacks(pre, '<div class="pdx-bands"', "…and no graph");
+  lacks(visible(pre.slice(pre.indexOf("pdx-bands-wait"))).replace(/Coverage[\s\S]*$/, ""), "$", "…and no figure");
+  ok(!/pdx-fd-oge\.js/.test(R("sw.js").slice(R("sw.js").indexOf("const SHELL_ASSETS"))),
+    "the data file is not in the service worker's precached shell");
+  for (const doc of ["index.html", "person.html"]) lacks(R(doc), "pdx-fd-oge.js", `${doc} does not load it up front`);
+
+  // AFTER: the same gate, every form, every line, every point.
+  const X = box({ oge: true });
+  const F = X.PDXFinance, L = X.PDXFinanceLane;
+  eq(F.holdingsDefects().length, 0, "trump's rows pass the holdings gate");
+  eq(F.lazyHoldingsSrc("trump"), "", "…and once merged, nothing is left to fetch");
+  eq(T.forms.map((f) => f.year).join(","), "2024,2025", "two forms: calendar 2024 and 2025");
+  eq(T.forms.map((f) => f.lines.length).join(","), "1854,4826", "…with 1,854 and 4,826 lines on the ladder");
+  const last = T.forms[T.forms.length - 1];
+  eq(String(last.year), String(DOC_T.year), "the newest form is the pill's year");
+  eq(last.formUrl, DOC_T.formUrl, "…and the pill's .gov URL");
+  ok(T.forms.every((f) => /^https:\/\/extapps2\.oge\.gov\/201\/Presiden\.nsf\//.test(f.formUrl)), "every form is on OGE's presidential index");
+  let badPoint = 0, badBand = 0, badKeys = 0;
+  for (const f of T.forms) for (const l of f.lines) {
+    const want = expectedPoint(l.band);
+    if (!want || l[want.field] !== want.value) badPoint++;
+    if (!Object.prototype.hasOwnProperty.call(F.FILED_BAND_LABELS, l.band) || !/ - | to |^Over /.test(l.band)) badBand++;
+    if (Object.keys(l).sort().join(",") !== ["asset", "band", want ? want.field : "?"].sort().join(",")) badKeys++;
+  }
+  eq(badPoint, 0, "every stored midpoint or floor is the one its filed box determines");
+  eq(badBand, 0, "…every band is a filed category in the form's own spelling");
+  eq(badKeys, 0, "…and every line is asset, band and one disclosed point");
+  const floors = T.forms.flatMap((f) => f.lines).filter((l) => "floor" in l);
+  ok(floors.length > 0 && floors.every((l) => /^Over \$50,000,000$/.test(l.band) && l.floor === 50000000),
+    `the open top box is stored as its floor (${floors.length} lines)`);
+
+  const blk = L.wealthBlockHtml("trump", ROSTER.trump);
+  has(blk, 'data-pdx-drawing="years"', "the block draws the year columns");
+  const cols = [...blk.matchAll(/<li class="pdx-yrs-col" data-pdx-year="(\d+)" data-pdx-points="(\d+)">([\s\S]*?)<\/li>/g)];
+  eq(cols.map((c) => c[1]).join(","), "2024,2025", "one column per form, oldest left");
+  for (const [, y, n, body] of cols) {
+    const f = T.forms.find((x) => String(x.year) === y);
+    eq(+n, f.lines.length, `${y}: the column counts every stored line`);
+    has(body, `href="${f.formUrl}"`, `${y}: …and links that year's OGE PDF`);
+    eq(bars(body).map((b) => F.bandLabel(b)).concat(moreOf(body)).sort().join("|"), f.lines.map((l) => F.bandLabel(l.band)).sort().join("|"),
+      `${y}: …its dots plus each dense box's printed remainder are exactly that year's stored bands`);
+    ok((body.match(/class="pdx-bands-dot/g) || []).length <= 24 * 10, `${y}: …and it draws at most 24 dots per box`);
+  }
+  has(visible(blk), "Floor of the open-ended category", "the source line names the floor method");
+  has(visible(blk), "Midpoint of the filed category", "…and the midpoint method");
+
+  // NO DOLLAR FIGURE THAT IS NOT A BAND, A STORED POINT OR A LINKED AWARD.
+  const ov = F.overlap("trump");
+  const allowed = new Set();
+  for (const f of T.forms) for (const l of f.lines) {
+    allowed.add(F.bandLabel(l.band)); allowed.add(F.DISCLOSED_POINTS[F.bandLabel(l.band)].label);
+  }
+  for (const a of ov.awards) allowed.add(dollars(a.obligated));
+  const graph = L.holdingsGraphHtml("trump");
+  let gv = visible(unesc(graph));
+  const toks = gv.match(/\$[\d.,]+[KM]?(?:–[\d.,]+[KM]?)?/g) || [];
+  const stray = toks.filter((t) => !allowed.has(t));
+  eq(stray.length, 0, `no dollar figure outside a band, a stored point or a linked award (${stray.slice(0, 5).join(", ")})`);
+  for (const bad of ["total", "net worth of", "combined", "per year", "% change", "profit of"]) {
+    lacks(gv.toLowerCase(), bad, `trump's graph prints no summed or derived figure ("${bad}")`);
+  }
+
+  // THE OFFICE OVERLAP: shares of a listed company on a form from a year in office.
+  eq(ov.items.map((i) => i.kind + ":" + i.ticker + ":" + i.forms.map((f) => f.year).join("/")).sort().join(","),
+    "office:BA:2025,office:GD:2025,office:HII:2025,office:LHX:2025,office:LMT:2025,office:NOC:2025,office:RTX:2025",
+    "all seven listed companies, on the 2025 form, while in office");
+  const f24 = T.forms.find((f) => f.year === 2024);
+  ok(f24.lines.some((l) => /LOCKHEED MARTIN/.test(l.asset)), "the 2024 form also lists Lockheed Martin…");
+  ok(ov.items.every((i) => i.forms.every((f) => f.year === "2025")), "…but 2024 is not flagged: he took office in January 2025");
+  for (const t of ["LMT", "RTX", "BA", "GD", "NOC", "HII", "LHX"]) {
+    has(visible(blk), `Held ${t} while in office.`, `the ${t} sentence, verbatim`);
+  }
+  has(visible(blk), "office: President of the United States", "…naming the office");
+  has(blk, `href="${DOC_T.formUrl}"`, "…and linking the report that records the date of appointment");
+  const rows = [...blk.matchAll(/<li class="pdx-overlap-award" data-pdx-award="([^"]+)" data-pdx-obligated="([^"]+)"><a href="([^"]+)"/g)];
+  eq(rows.length, 7 * 2, "one award line per company per graph year (7 companies, 2024 and 2025)");
+  ok(rows.every(([, id, , url]) => /^https:\/\/www\.usaspending\.gov\/award\//.test(url) && url.indexOf(id) > 0),
+    "…each linked to its own USASpending award page");
+  // A note or bond of the company is not a holding of its shares.
+  {
+    const D = box({ holdings: { trump: { forms: [{ year: 2025, formUrl: DOC_T.formUrl, lines: [
+      { asset: "THE BOEING COMPANY SENIOR UNSECURED NOTE DUE 05/01/2027", band: "$1,000,001 - $5,000,000", midpoint: 3000000.5 }] }] } } });
+    eq(D.PDXFinance.overlap("trump"), null, "a form whose only Boeing line is a note draws no overlap");
+    lacks(D.PDXFinanceLane.wealthBlockHtml("trump", ROSTER.trump), "pdx-overlap", "…and no section");
+  }
+  // A FORM WITH NO LADDER LINES DRAWS NOTHING.
+  {
+    const E = box({ holdings: { trump: { forms: [
+      { year: 2024, formUrl: T.forms[0].formUrl, lines: [] }, { year: 2025, formUrl: DOC_T.formUrl, lines: [] }] } } });
+    eq(E.PDXFinance.holdings("trump"), null, "a timeline whose forms carry no ladder line is refused");
+    lacks(E.PDXFinanceLane.wealthBlockHtml("trump", ROSTER.trump), 'class="pdx-bands', "…and draws nothing");
+  }
+  // THE MERGE DOOR: listed pids only, once.
+  eq(X.PDXFinance._mergeHoldings({ bmoore: { forms: [] } }), 0, "a pid not listed for a data file cannot merge rows");
+  eq(X.PDXFinance._mergeHoldings(OGE), 0, "…and trump's rows merge only once");
+  // A row pointing at a different year or URL is still refused.
+  {
+    const bad = box({ holdings: { trump: { forms: [T.forms[0], { ...last, formUrl: T.forms[0].formUrl.replace("4EC9", "0000") }] } } });
+    ok(bad.PDXFinance.holdingsDefects().some((d) => /does not match the document row/.test(d)), "a newest form with the wrong URL is refused");
+  }
+  // THE PILLS, byte for byte, with the data file in and out.
+  for (const id of ["trump", "bmoore", "kennedy"]) {
+    eq(X.PDXFinanceLane.letterheadChipHtml(id), BARE.PDXFinanceLane.letterheadChipHtml(id), `${id}: receipts pill identical with the OGE lines loaded`);
+    eq(X.PDXFinanceLane.wealthLetterheadChipHtml(id, ROSTER[id]), BARE.PDXFinanceLane.wealthLetterheadChipHtml(id, ROSTER[id]),
+      `${id}: …and the disclosure pill`);
+  }
+  ok(!/\$/.test(visible(X.PDXFinanceLane.wealthLetterheadChipHtml("trump", ROSTER.trump))), "trump's pill carries no dollar figure");
+  // No equity language in PolitiDex's own copy for the office sentence.
+  const oAt = LANE_SRC.indexOf("// ── COMMITTEE OVERLAP, UNDER THE GRAPH");
+  const oSrc = STRIP(LANE_SRC.slice(oAt, LANE_SRC.indexOf("function holdingsGraphHtml", oAt))).toLowerCase();
+  for (const bad of ["stock", "share", "equity", "form c"]) lacks(oSrc, bad, `the overlap copy carries no "${bad}"`);
 }
 
 // ── report ───────────────────────────────────────────────────────────────────

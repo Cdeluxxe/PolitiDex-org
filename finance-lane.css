@@ -501,6 +501,21 @@
   background: rgba(201, 153, 47, 0.04);
 }
 .pdx-yrs-plot .pdx-bands-dot { transform: translateY(50%); }
+/* A dense box's line count, sitting at the box's height on the right of the
+   column. It counts lines, never dollars. */
+.pdx-yrs-more {
+  position: absolute;
+  right: 2px;
+  transform: translateY(50%);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.02em;
+  color: var(--pdx-money-ink);
+  background: rgba(11, 26, 20, 0.75);
+  padding: 0 2px;
+  border-radius: 2px;
+  white-space: nowrap;
+}
 .pdx-yrs-year {
   display: block;
   text-align: center;

@@ -218,9 +218,8 @@
   //   · Governor Cox, Sen. John Johnson (SD 3), Rep. Jason Thompson (HD 3) —
   //     Utah's disclosure site answers a browser challenge rather than a
   //     document URL, so there is no state COI link to point at yet.
-  //   · Trump — no OGE document URL in hand this pass. An unsourced row on the
-  //     person a reader is most likely to arrive at with a number already in
-  //     mind would be the most expensive row on the site.
+  //   · Trump was missing from the first pass, which held no OGE URL for him.
+  //     His row (below) points at OGE's own posting of the report.
   // Each of those pids keeps the empty pill, which is the true sentence for them
   // today: we are holding no document, and that is a fact about this archive.
   var PDX_FD_DOCUMENTS = {
@@ -244,7 +243,12 @@
     jim_jordan: { kind: 'FD', year: 2025,
                formUrl: 'https://disclosures-clerk.house.gov/public_disc/financial-pdfs/2025/10076961.pdf' },
     aoc:     { kind: 'FD', year: 2025,
-               formUrl: 'https://disclosures-clerk.house.gov/public_disc/financial-pdfs/2025/10081499.pdf' }
+               formUrl: 'https://disclosures-clerk.house.gov/public_disc/financial-pdfs/2025/10081499.pdf' },
+    // The President's annual OGE Form 278e, from OGE's own presidential index
+    // on extapps2.oge.gov. The newest report, filed June 2026, covers calendar
+    // 2025 — the year this row carries, dated the way the House rows are.
+    trump:   { kind: 'FD', year: 2025,
+               formUrl: 'https://extapps2.oge.gov/201/Presiden.nsf/PAS+Index/69AEAA9D7455ACD585258E27002DDEE1/$FILE/Donald-J-Trump-2026-278ANNUAL.pdf' }
   };
 
   // WHICH FORM, AS A LABEL SHORT ENOUGH FOR A PILL. Two kinds, two literal
@@ -355,7 +359,18 @@
     '$25,000,001 - $50,000,000':   '$25–50M',
     '$25,000,001–$50,000,000':'$25–50M',
     'Over $50,000,000':            'over $50M',
-    'over $50,000,000':            'over $50M'
+    'over $50,000,000':            'over $50M',
+    // OGE Form 278e's Schedule 1 spells the same boxes with "to". Third
+    // spelling, third set of pairs — literal, like the rest.
+    '$1,001 to $15,000':           '$1–15K',
+    '$15,001 to $50,000':          '$15–50K',
+    '$50,001 to $100,000':         '$50–100K',
+    '$100,001 to $250,000':        '$100–250K',
+    '$250,001 to $500,000':        '$250–500K',
+    '$500,001 to $1,000,000':      '$500K–1M',
+    '$1,000,001 to $5,000,000':    '$1–5M',
+    '$5,000,001 to $25,000,000':   '$5–25M',
+    '$25,000,001 to $50,000,000':  '$25–50M'
   };
 
   // ONE ANSWER FOR EVERY SURFACE. The pill, the pill's accessible label and the
@@ -2003,6 +2018,29 @@
   //
   //   NEVER_FEEDS, as everywhere on this lane. Not an input to any score,
   // match, tier, floor, count or sort.
+  // WHERE THE LINES OF A VERY LARGE FORM LIVE. Some filers' reports run to
+  // thousands of lines; those rows ship in their own data file, fetched only
+  // when that person's disclosures block is drawn, and merge in here through
+  // _mergeHoldings(). Only the pids listed may merge, only once, and a merged
+  // row is read through the same gate as every other row.
+  var LAZY_HOLDINGS = { trump: '/pdx-fd-oge.js' };
+  function lazyHoldingsSrc(pid) {
+    return (pid && Object.prototype.hasOwnProperty.call(LAZY_HOLDINGS, pid) &&
+            !Object.prototype.hasOwnProperty.call(PDX_FD_HOLDINGS, pid)) ? LAZY_HOLDINGS[pid] : '';
+  }
+  function mergeHoldings(rows) {
+    var n = 0;
+    if (!rows || typeof rows !== 'object') return n;
+    for (var pid in rows) {
+      if (!Object.prototype.hasOwnProperty.call(rows, pid)) continue;
+      if (!Object.prototype.hasOwnProperty.call(LAZY_HOLDINGS, pid)) continue;
+      if (Object.prototype.hasOwnProperty.call(PDX_FD_HOLDINGS, pid)) continue;
+      PDX_FD_HOLDINGS[pid] = rows[pid];
+      n++;
+    }
+    return n;
+  }
+
   var DEFENSE_CONTRACTORS = {
     LMT: 'Lockheed Martin Corporation',
     RTX: 'RTX Corporation',
@@ -2011,6 +2049,40 @@
     NOC: 'Northrop Grumman Corporation',
     HII: 'Huntington Ingalls Industries',
     LHX: 'L3Harris Technologies'
+  };
+  // HOW AN OGE LINE NAMES THE COMPANY. The House Clerk prints a ticker in
+  // parentheses; an OGE report prints the issuer's name. These are literal
+  // names, matched with spaces ignored (some OGE pages print names with no
+  // spaces at all). A line that is a note, bond or debenture of the company is
+  // NOT a holding of its shares and does not match: "Held BA" means shares.
+  var DEFENSE_NAMES = {
+    LMT: ['LOCKHEED MARTIN'],
+    RTX: ['RTX CORP', 'RAYTHEON'],
+    BA:  ['BOEING'],
+    GD:  ['GENERAL DYNAMICS'],
+    NOC: ['NORTHROP GRUMMAN'],
+    HII: ['HUNTINGTON INGALLS'],
+    LHX: ['L3HARRIS', 'L3 HARRIS']
+  };
+  var DEBT_LINE = /\b(?:NOTE|NOTES|NTS|BOND|BND|DEB|DEBENTURE|DUE)\b|%/i;
+  function lineNames(asset, ticker) {
+    var a = String(asset || '');
+    if (a.indexOf('(' + ticker + ')') >= 0) return true;
+    if (DEBT_LINE.test(a)) return false;
+    var flat = a.replace(/\s+/g, '').toUpperCase();
+    return (DEFENSE_NAMES[ticker] || []).some(function (n) {
+      return flat.indexOf(n.replace(/\s+/g, '').toUpperCase()) >= 0;
+    });
+  }
+  // THE EXECUTIVE EQUIVALENT OF A COMMITTEE SEAT: the office itself, for the
+  // calendar years the filer held it, with the .gov record that says so. For
+  // the President that record is the report's own "Date of Appointment".
+  var PDX_OFFICE_TERMS = {
+    trump: [
+      { office: 'President of the United States', years: [2025, 2026, 2027, 2028],
+        recordUrl: 'https://extapps2.oge.gov/201/Presiden.nsf/PAS+Index/69AEAA9D7455ACD585258E27002DDEE1/$FILE/Donald-J-Trump-2026-278ANNUAL.pdf',
+        recordLabel: 'OGE Form 278e, Date of Appointment 01/2025' }
+    ]
   };
   var COVERED_COMMITTEES = {
     HASC: 'House Armed Services',
@@ -2090,10 +2162,71 @@
         description: 'ADVANCED MEDIUM RANGE AIR-TO-AIR MISSILE (AMRAAM)LOTS 39-40',
         obligated: 3381835581.16,
         url: 'https://www.usaspending.gov/award/CONT_AWD_FA865925CB003_9700_-NONE-_-NONE-' }
+    ],
+    LMT: [
+      { year: 2024, awardId: 'W31P4Q24C0022', recipient: 'LOCKHEED MARTIN CORPORATION',
+        agency: 'Department of the Army',
+        description: 'EXECUTE PHASED ARRAY TRACKING RADAR TO INTERCEPT ON TARGET (PATRIOT) ADVANCED CAPABILITY-3 (PAC-3) MISSILE PRODUCTION BY PROVIDING INCIDENTAL SERVICES, HARDWARE, FACILITIES, EQUIPMENT, AND TECHNICAL, PLANNING, MANAGEMENT, AND MANUFACTURING EFFORTS.',
+        obligated: 10181587045.43,
+        url: 'https://www.usaspending.gov/award/CONT_AWD_W31P4Q24C0022_9700_-NONE-_-NONE-' },
+      { year: 2025, awardId: 'W31P4Q25F0080', recipient: 'LOCKHEED MARTIN CORPORATION',
+        agency: 'Department of the Army',
+        description: 'GUIDED MULTIPLE LAUNCH ROCKET SYSTEM (GMLRS) AND LOW COST REDUCED RANGE PRACTICE ROCKET (LCRRPR) FY26 RATE PRODUCTION LOT 21 DELIVERY.',
+        obligated: 2990790259,
+        url: 'https://www.usaspending.gov/award/CONT_AWD_W31P4Q25F0080_9700_W31P4Q23D0003_9700' }
+    ],
+    GD: [
+      { year: 2024, awardId: 'N0002424C2301', recipient: 'NATIONAL STEEL AND SHIPBUILDING COMPANY',
+        agency: 'Department of the Navy',
+        description: 'T-AO 214 - 221 DD&C BLOCK BUY',
+        obligated: 3364669843,
+        url: 'https://www.usaspending.gov/award/CONT_AWD_N0002424C2301_9700_-NONE-_-NONE-' },
+      { year: 2025, awardId: 'W912CH25C0055', recipient: 'GENERAL DYNAMICS LAND SYSTEMS INC.',
+        agency: 'Department of the Army',
+        description: 'ABRAMS ENGINEERING PROGRAM IS A MODIFICATION TO THE EXISTING ABRAMS FLEET.',
+        obligated: 757058000,
+        url: 'https://www.usaspending.gov/award/CONT_AWD_W912CH25C0055_9700_-NONE-_-NONE-' }
+    ],
+    NOC: [
+      { year: 2024, awardId: 'N0001925C0130', recipient: 'NORTHROP GRUMMAN SYSTEMS CORPORATION',
+        agency: 'Department of the Navy',
+        description: 'E130J ENGINEERING AND MANUFACTURING DEVELOPMENT (EMD)',
+        obligated: 1167849793,
+        url: 'https://www.usaspending.gov/award/CONT_AWD_N0001925C0130_9700_-NONE-_-NONE-' },
+      { year: 2025, awardId: 'HQ085625FE001', recipient: 'NORTHROP GRUMMAN SYSTEMS CORPORATION',
+        agency: 'Missile Defense Agency',
+        description: 'THIS CONTRACT COVERS THE GROUND-BASED MIDCOURSE DEFENSE (GMD) WEAPON SYSTEM (GWS) SYSTEMS ENGINEERING, DESIGN, DEVELOPMENT, INTEGRATION, TESTING, AND FIELDING OF SOFTWARE AND HARDWARE.',
+        obligated: 550921214.88,
+        url: 'https://www.usaspending.gov/award/CONT_AWD_HQ085625FE001_9700_HQ085622D0001_9700' }
+    ],
+    HII: [
+      { year: 2024, awardId: 'N0002424C2473', recipient: 'HUNTINGTON INGALLS INCORPORATED',
+        agency: 'Department of the Navy',
+        description: 'LPD 33, 34, AND 35 DD&CS',
+        obligated: 2171412000,
+        url: 'https://www.usaspending.gov/award/CONT_AWD_N0002424C2473_9700_-NONE-_-NONE-' },
+      { year: 2025, awardId: 'N0002425C2127', recipient: 'HUNTINGTON INGALLS INC',
+        agency: 'Department of the Navy',
+        description: 'CVN 68 INACTIVATION & DEFUELING ADVANCE PLANNING',
+        obligated: 188496362,
+        url: 'https://www.usaspending.gov/award/CONT_AWD_N0002425C2127_9700_-NONE-_-NONE-' }
+    ],
+    LHX: [
+      { year: 2024, awardId: 'W15P7T24F0061', recipient: 'L3HARRIS TECHNOLOGIES, INC.',
+        agency: 'Department of the Army',
+        description: 'MANPACK FULL RATE PRODUCTION (FRP)4 COMPETITIVE PROCUREMENT AWARD OF RADIO TRANSMITTERS, WARRANTIES, RELATED ANCILLARY EQUIPMENT, AND SERVICES INCLUDING KEY PERSONNEL TRAINING, SECURITY, SOFTWARE AND TOOLS FOR LOADING RADIOS, CONFIGURATION CONTROL',
+        obligated: 253621571.02,
+        url: 'https://www.usaspending.gov/award/CONT_AWD_W15P7T24F0061_9700_W15P7T16D0002_9700' },
+      { year: 2025, awardId: 'FA863725FB005', recipient: 'L3HARRIS TECHNOLOGIES INTEGRATED SYSTEMS L.P.',
+        agency: 'Defense Contract Management Agency',
+        description: 'FA863725FB005 - DELIVERY ORDER 09 REQUIREMENTS IN ACCORDANCE WITH ATTACHMENT 01 - STATEMENT OF WORK ON THE BASE INDEFINITE DELIVERY INDEFINITE QUANTITY CONTRACT',
+        obligated: 257393772.56,
+        url: 'https://www.usaspending.gov/award/CONT_AWD_FA863725FB005_9700_FA863722DB001_9700' }
     ]
   };
 
   var SEAT_FIELDS = ['committee', 'congress', 'years', 'rosterUrl', 'rosterLabel'];
+  var TERM_FIELDS = ['office', 'years', 'recordUrl', 'recordLabel'];
   var AWARD_FIELDS = ['year', 'awardId', 'recipient', 'agency', 'description', 'obligated', 'url'];
   function overlapDefects() {
     var out = [];
@@ -2119,6 +2252,29 @@
         for (var k in st) {
           if (Object.prototype.hasOwnProperty.call(st, k) && SEAT_FIELDS.indexOf(k) < 0) {
             out.push(tag + ' carries unrecognised field ' + k);
+          }
+        }
+      }
+    }
+    for (var op in PDX_OFFICE_TERMS) {
+      if (!Object.prototype.hasOwnProperty.call(PDX_OFFICE_TERMS, op)) continue;
+      var terms = PDX_OFFICE_TERMS[op];
+      if (!Array.isArray(terms) || !terms.length) { out.push(op + ': office terms is not a non-empty list'); continue; }
+      for (var ti = 0; ti < terms.length; ti++) {
+        var tm = terms[ti], ttag = op + ': office ' + (ti + 1);
+        if (!tm || typeof tm !== 'object') { out.push(ttag + ' is not an object'); continue; }
+        if (!tm.office || !String(tm.office).trim()) out.push(ttag + ' names no office');
+        if (!Array.isArray(tm.years) || !tm.years.length ||
+            tm.years.some(function (y) { return !/^[12][0-9]{3}$/.test(String(y)); })) {
+          out.push(ttag + ' years is not a list of four-digit years');
+        }
+        if (!/^https:\/\/[^\/?#]*\.gov(?:[:\/?#]|$)/i.test(String(tm.recordUrl || ''))) {
+          out.push(ttag + ' recordUrl is not an https .gov record');
+        }
+        if (!tm.recordLabel || !String(tm.recordLabel).trim()) out.push(ttag + ' has no recordLabel');
+        for (var tk2 in tm) {
+          if (Object.prototype.hasOwnProperty.call(tm, tk2) && TERM_FIELDS.indexOf(tk2) < 0) {
+            out.push(ttag + ' carries unrecognised field ' + tk2);
           }
         }
       }
@@ -2154,29 +2310,48 @@
   // Null unless the gate is clean, the member's holdings timeline reads, and at
   // least one overlap AND at least one award for an overlapping company inside
   // the graph's years are on file. Overlaps are found here, never stored.
+  //   TWO KINDS, ONE TEST. A member of Congress overlaps through a seat on a
+  // covered committee; the President or an executive official overlaps through
+  // the office itself. Either way the form year must fall inside the seat's or
+  // the office's years, and a stored line on that form must name the company.
   function overlap(pid) {
     if (!pid || overlapDefects().length) return null;
-    var seats = PDX_COMMITTEE_SEATS[pid];
     var h = holdings(pid);
-    if (!seats || !h || !h.years) return null;
+    if (!h || !h.years) return null;
+    var places = [];
+    (PDX_COMMITTEE_SEATS[pid] || []).forEach(function (st) {
+      places.push({ kind: 'seat', years: st.years, committee: st.committee,
+                    committeeName: COVERED_COMMITTEES[st.committee], congress: st.congress,
+                    roster: { url: st.rosterUrl, label: st.rosterLabel } });
+    });
+    (PDX_OFFICE_TERMS[pid] || []).forEach(function (tm) {
+      places.push({ kind: 'office', years: tm.years, office: tm.office,
+                    roster: { url: tm.recordUrl, label: tm.recordLabel } });
+    });
+    if (!places.length) return null;
     var graphYears = h.years.map(function (y) { return y.year; });
     var items = [], tickers = {};
-    for (var s = 0; s < seats.length; s++) {
-      var st = seats[s];
+    for (var s = 0; s < places.length; s++) {
+      var pl = places[s];
       for (var t in DEFENSE_CONTRACTORS) {
         if (!Object.prototype.hasOwnProperty.call(DEFENSE_CONTRACTORS, t)) continue;
         var forms = [];
         for (var y = 0; y < h.years.length; y++) {
           var yr = h.years[y];
-          if (st.years.map(String).indexOf(yr.year) < 0) continue;
-          var held = yr.lines.some(function (l) { return l.asset.indexOf('(' + t + ')') >= 0; });
+          if (pl.years.map(String).indexOf(yr.year) < 0) continue;
+          var held = yr.lines.some(function (l) { return lineNames(l.asset, t); });
           if (held) forms.push({ year: yr.year, formUrl: yr.formUrl });
         }
         if (!forms.length) continue;
         tickers[t] = true;
-        items.push({ ticker: t, company: DEFENSE_CONTRACTORS[t], committee: st.committee,
-                     committeeName: COVERED_COMMITTEES[st.committee], congress: st.congress,
-                     forms: forms, roster: { url: st.rosterUrl, label: st.rosterLabel } });
+        var item = { kind: pl.kind, ticker: t, company: DEFENSE_CONTRACTORS[t],
+                     forms: forms, roster: pl.roster };
+        if (pl.kind === 'seat') {
+          item.committee = pl.committee; item.committeeName = pl.committeeName; item.congress = pl.congress;
+        } else {
+          item.office = pl.office;
+        }
+        items.push(item);
       }
     }
     if (!items.length) return null;
@@ -2293,6 +2468,9 @@
     // pass. overlap(pid) is null unless an overlap and an award are both on file.
     overlap: overlap,
     overlapDefects: overlapDefects,
+    // Which pid's lines arrive in a separate data file, and the door they use.
+    lazyHoldingsSrc: lazyHoldingsSrc,
+    _mergeHoldings: function (rows) { return mergeHoldings(rows); },
     DEFENSE_CONTRACTORS: DEFENSE_CONTRACTORS,
     COVERED_COMMITTEES: COVERED_COMMITTEES,
     // Declared, so the wall is readable off the object as well as off the
@@ -2318,8 +2496,9 @@
     // a line is drawn at the rung its filed band looks up to, or not at all.
     // And for the overlap tables. Overriding them cannot make an overlap appear
     // that no stored holdings line supports: overlap() still derives it.
-    _setOverlapTables: function (seats, awards) {
+    _setOverlapTables: function (seats, awards, terms) {
       if (seats && typeof seats === 'object') PDX_COMMITTEE_SEATS = seats;
+      if (terms && typeof terms === 'object') PDX_OFFICE_TERMS = terms;
       if (awards && typeof awards === 'object') PDX_CONTRACT_AWARDS = awards;
       return overlapDefects().length;
     },
@@ -2328,4 +2507,9 @@
       return holdingsDefects().length;
     }
   };
+  // A data file that arrived before this module did left its rows on the window.
+  if (Array.isArray(W.__PDX_FD_PENDING)) {
+    W.__PDX_FD_PENDING.forEach(function (rows) { mergeHoldings(rows); });
+    W.__PDX_FD_PENDING = [];
+  }
 })();

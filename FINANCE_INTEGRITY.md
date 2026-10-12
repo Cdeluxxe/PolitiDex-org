@@ -889,6 +889,94 @@ and no motive word. Asset names and award descriptions are quoted as filed and
 as published. Overlaps are not an input to any score, match, tier, floor,
 count or sort, and neither money pill reads them.
 
+### The President's OGE forms, and the executive overlap rule
+
+**The OGE path.** The President's annual OGE Form 278e reports come from OGE's
+own presidential index on `extapps2.oge.gov`. The site uses two of them:
+
+| Report | Filed | Calendar year it covers | Lines on the ladder |
+| --- | --- | --- | --- |
+| [2025 annual 278e](https://extapps2.oge.gov/201/Presiden.nsf/PAS+Index/4EC9A8E6DD078F2985258CA9002C9377/$FILE/Trump,%20Donald%20J.%202025%20Annual%20278.pdf) | June 2025 | 2024 | 1,854 |
+| [2026 annual 278e](https://extapps2.oge.gov/201/Presiden.nsf/PAS+Index/69AEAA9D7455ACD585258E27002DDEE1/$FILE/Donald-J-Trump-2026-278ANNUAL.pdf) | June 2026 | 2025 | 4,826 |
+
+Both reports print 2025 in their "Year" field. Each column is dated by the
+calendar year the report covers, which is the convention the House Clerk's
+"Filing Year" uses:
+- The June 2025 report holds bills due in early 2025, so it covers 2024.
+- The June 2026 report's transactions and dissolved entities are dated 2025, so
+  it covers 2025.
+
+The newer report is the document row the disclosure pill names ("FD on file ·
+2025 · OGE"). The pill is a document chip like every other, with no dollar
+figure.
+
+**How the lines were read.** The lines come from Part 2 Schedule 1 (the filer's
+business entities) and Part 6 (other assets and income), read from the PDFs'
+own text layer:
+- Rows are split by their position on the page.
+- Every asset name is confirmed against a second, independent extraction of the
+  same page. That second pass also corrects letter-spacing artifacts, such as
+  "V ALUE" becoming "VALUE".
+- A row whose name cannot be confirmed, or whose description cannot be read off
+  the text layer, is left out. Each form's comment counts what was left out.
+- Names are quoted as the text layer gives them. Some pages of the 2026 report
+  print names with no spaces ("BOEINGCO"), and they stay that way.
+
+Schedule 1 spells categories with "to" ("$1,000,001 to $5,000,000"). That third
+spelling gets its own literal pairs in `FILED_BAND_LABELS`.
+
+Lines in a box off the ladder are left out and counted:
+- `None (or less than $1,001)`;
+- value not readily ascertainable;
+- a "See line" cross-reference with no value;
+- non-standard ranges such as `$15,001 to $25,000`.
+
+Every stored point is checked by the same gate as everyone else's.
+
+**Where the lines live.** The two reports carry several thousand lines, so they
+ship in their own data file, `pdx-fd-oge.js`. It is not in the service worker's
+precached shell, and neither `index.html` nor `person.html` loads it up front.
+`finance-lane.js` fetches it only when the President's disclosures block is
+drawn, shows a one-line placeholder in words until it lands, then repaints. The
+file merges through `PDXFinance._mergeHoldings()`, which accepts only pids listed
+for a data file, and only once.
+
+**Dense boxes.** When one year holds more than 24 lines in a single box, that
+column draws 24 dots and prints the box's line count beside them (for example
+"1,476 lines"). Each column's accessible name lists how many lines it holds in
+each box. A count is of lines, never of dollars. Without the cap, thousands of
+dots would overlap into one bar and add over a megabyte of markup to one person
+file.
+
+**The executive overlap rule.** For the President and executive officials, the
+committee seat is replaced by the office itself. `PDX_OFFICE_TERMS` holds the
+office, the calendar years it was held, and a `.gov` record. For the President,
+that record is the report's own "Date of Appointment 01/2025". The note reads:
+
+> Held LMT while in office.
+
+It appears only where a stored line on a form from a year in office names a
+listed contractor's shares.
+
+OGE prints issuer names, not tickers, so each ticker has a literal list of names
+in `DEFENSE_NAMES`, matched with spaces ignored. A note, bond or debenture of the
+company is debt, not shares, so it does not match. "Held BA" always means shares.
+
+Below the sentences, the section lists the largest contract signed with each of
+those companies in each year the graph covers, linked to its USASpending award
+page with the obligation as published. USASpending's recipient search also
+returns a parent's subsidiaries (General Dynamics' 2024 line is a National Steel
+and Shipbuilding Company award), and the recipient is quoted as published.
+
+**What is on file.** The President's 2025 report lists shares of all seven
+listed companies: LMT, RTX, BA, GD, NOC, HII and LHX. That gives seven sentences
+and fourteen award lines, for 2024 and 2025. His 2024 report also lists several
+of them, but he took office in January 2025, so 2024 is not flagged.
+
+As everywhere on this lane, nothing is added together. There is no net-worth
+number and no percent-change tile. Every dollar figure is a filed band, a stored
+midpoint or floor, or the published amount on a linked public award.
+
 ## The wall
 
 Declared on the object as `PDXFinanceLane.NEVER_FEEDS` and asserted by

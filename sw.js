@@ -9445,7 +9445,21 @@
 //     version. Neither pill moved.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v354';
+// v355 - THE PRESIDENT'S OGE 278e REPORTS JOIN THE WEALTH TIMELINE. trump
+//     gains an OGE document row and two year columns (calendar 2024 and 2025,
+//     from the reports OGE posted in June 2025 and June 2026), one dot per
+//     stored line at its disclosed midpoint or floor; a box with more than 24
+//     lines in a year draws 24 dots and prints its line count. His lines ship
+//     in a NEW, NON-PRECACHED data file, pdx-fd-oge.js, fetched by
+//     finance-lane.js only when his disclosures block is drawn. The overlap
+//     layer gains the executive rule: "Held LMT while in office." when a
+//     stored line names a listed contractor's shares on a form from a year in
+//     office, with awards for those companies in the graph's years.
+//     pdx-finance.js, finance-lane.js and finance-lane.css are precached and
+//     changed, so the shell moves one version. Neither pill's code moved.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v355';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

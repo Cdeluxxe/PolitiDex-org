@@ -1464,6 +1464,16 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
     ["$25,000,001\u2013$50,000,000", "$25\u201350M"],
     ["Over $50,000,000", "over $50M"],
     ["over $50,000,000", "over $50M"],
+    // OGE Form 278e's Schedule 1 spells the same boxes with "to".
+    ["$1,001 to $15,000", "$1\u201315K"],
+    ["$15,001 to $50,000", "$15\u201350K"],
+    ["$50,001 to $100,000", "$50\u2013100K"],
+    ["$100,001 to $250,000", "$100\u2013250K"],
+    ["$250,001 to $500,000", "$250\u2013500K"],
+    ["$500,001 to $1,000,000", "$500K\u20131M"],
+    ["$1,000,001 to $5,000,000", "$1\u20135M"],
+    ["$5,000,001 to $25,000,000", "$5\u201325M"],
+    ["$25,000,001 to $50,000,000", "$25\u201350M"],
   ];
   eq(typeof WF.bandLabel, "function", "PDXFinance.bandLabel(figure) is the one compression");
   for (const [filed, shown] of LADDER) {
@@ -1582,22 +1592,28 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
     has(one, "No in-office wealth file on hand", `${what}: the empty pill says what is missing`);
   }
 
-  // 12e. TRUMP STAYS EMPTY. This pass holds no OGE or FD document URL for him,
-  //      and he is the person a reader is most likely to arrive at with a number
-  //      already in mind — which is exactly why an unsourced row on him would be
-  //      the most expensive one on the site.
-  for (const [what, win] of [["as shipped", BARE], ["with the wave's dollar rows in", WB]]) {
-    eq(win.PDXFinance.wealth("trump", win.CMP_DATA.trump || null), null,
-      `${what}: trump has no disclosure row`);
+  // 12e. TRUMP'S ROW IS OGE'S OWN DOCUMENT, AND STILL NO FIGURE. The first
+  //      pass held no OGE URL for him and kept his pill empty, because an
+  //      unsourced row on the person a reader is most likely to arrive at with a
+  //      number in mind would be the most expensive row on the site. The row
+  //      that exists now points at OGE's own posting of his annual 278e, and his
+  //      pill is a document chip like every other: form, year, archive, no dollar.
+  for (const [what, win] of [["as shipped", BARE]]) {
+    const w = win.PDXFinance.wealth("trump", win.CMP_DATA.trump || null);
+    ok(w && /^https:\/\/extapps2\.oge\.gov\//.test(w.formUrl), `${what}: trump's row is an OGE document`);
+    eq(win.PDXFinance.archiveFor(w.formUrl), "OGE", `${what}: …named OGE off its own host`);
     const t = visible(win.PDXFinanceLane.wealthLetterheadChipHtml("trump", win.CMP_DATA.trump || null));
-    has(t, "No in-office wealth file on hand", `${what}: …and his pill says so in words`);
-    ok(!/\$|\d/.test(t), `${what}: …with no figure and no digit on it ("${t}")`);
+    has(t, "FD on file \u00b7 2025 \u00b7 OGE", `${what}: …and his pill is a document chip`);
+    ok(!/\$/.test(t), `${what}: …with no dollar figure on it ("${t}")`);
+  }
+  // AND THE DOLLAR WAVE STILL REACHES NO PILL OF HIS, whatever the document table holds.
+  {
+    const t = visible(WB.PDXFinanceLane.wealthLetterheadChipHtml("trump", WB.CMP_DATA.trump || null));
+    ok(!/\$/.test(t), `with the wave's dollar rows in: trump's pill carries no dollar figure ("${t}")`);
   }
   lacks(tableSlice, "trump", "no trump row went into the shipped dollar table");
-  ok(!Object.prototype.hasOwnProperty.call(SHIPPED_DOCS, "trump"),
-    "…and none went into the shipped document index, which holds no OGE URL for him");
   ok(!Object.prototype.hasOwnProperty.call(WAVE, "trump"),
-    "…and none is in the fixture either, because this pass holds no form URL for him");
+    "…and none is in the dollar-row fixture either");
 
   // 12f. PILL 1 IS THE FILINGS BLOCK'S FIGURE AND PILL 2 IS THE DISCLOSURES
   //      BLOCK'S DOCUMENT, AND NEITHER BLOCK CARRIES THE OTHER'S. One read per

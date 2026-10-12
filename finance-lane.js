@@ -1234,6 +1234,7 @@
   var GRAPH_EXCLUDED = 'A line the form files outside this ladder — a spouse or ' +
     'dependent holding reported only as over a threshold, the form’s lowest box, or ' +
     'an undetermined value — is not drawn; the form linked above lists every line.';
+  var DOT_CAP = 24;
   function holdingsYearsHtml(pid, h, bases) {
     var F = W.PDXFinance, P = F && F.DISCLOSED_POINTS;
     if (!P || !h.years || !h.years.length) return '';
@@ -1245,13 +1246,25 @@
     for (var y = 0; y < h.years.length; y++) {
       var yr = h.years[y], inRung = {}, seen = {}, dots = '', count = 0, said = [];
       yr.lines.forEach(function (l) { if (l.point) inRung[l.rung] = (inRung[l.rung] || 0) + 1; });
+      var more = '';
       for (var j = 0; j < yr.lines.length; j++) {
         var d = yr.lines[j];
         if (!d.point) continue;
         count++;
         used[d.rung] = d.point;
         var k = seen[d.rung] = (seen[d.rung] || 0) + 1, m = inRung[d.rung];
-        var x = (14 + 72 * (k - 0.5) / m).toFixed(2);
+        // A DENSE BOX draws DOT_CAP dots and says how many lines it holds: past
+        // that many, dots in one box only overlap into a bar and tell a reader
+        // nothing a count does not. The count is of lines, never of dollars.
+        if (k > DOT_CAP) {
+          if (k === DOT_CAP + 1) {
+            more += '<span class="pdx-yrs-more" data-pdx-more-band="' + attr(d.band) +
+              '" data-pdx-more="' + (m - DOT_CAP) + '" style="bottom:' + yAt(d.point.value) + '%">' +
+              esc(m.toLocaleString('en-US')) + ' lines</span>';
+          }
+          continue;
+        }
+        var x = (14 + 72 * (k - 0.5) / Math.min(m, DOT_CAP)).toFixed(2);
         dots += '<span class="pdx-bands-dot' + (d.point.basis === 'floor' ? ' is-floor' : '') +
           '" data-pdx-band="' + attr(d.filed) + '" data-pdx-point="' + attr(d.point.basis) +
           '" style="left:' + x + '%;bottom:' + yAt(d.point.value) + '%" title="' +
@@ -1266,7 +1279,7 @@
           ' aria-label="' + attr(yr.year + ' form: ' + (count
             ? count + (count === 1 ? ' line' : ' lines') + ' drawn — ' + said.join(', ')
             : 'no line on the ladder') + '. Opens the filed form.') + '">' +
-          '<span class="pdx-yrs-plot" aria-hidden="true">' + dots + '</span>' +
+          '<span class="pdx-yrs-plot" aria-hidden="true">' + dots + more + '</span>' +
           '<span class="pdx-yrs-year">' + esc(yr.year) + '</span>' +
           '<span class="pdx-yrs-n">' + (count ? count + (count === 1 ? ' line' : ' lines') : 'none on ladder') + '</span>' +
         '</a>' +
@@ -1314,10 +1327,16 @@
         return '<a href="' + attr(f.formUrl) + '" target="_blank" rel="noopener noreferrer">' +
           esc(f.year) + ' annual report ↗</a>';
       }).join(' · ');
-      return '<p class="pdx-overlap-flag" data-pdx-flag="' + attr(it.ticker + ':' + it.committee) + '">' +
-        '<b>' + esc('Holds ' + it.ticker + ' while on ' + it.committeeName + '.') + '</b> ' +
+      // A SEAT reads "Holds BA while on House Armed Services."; AN OFFICE reads
+      // "Held LMT while in office." — past tense, because the form reports a
+      // year already closed, and the office named in the line beside it.
+      var office = it.kind === 'office';
+      return '<p class="pdx-overlap-flag" data-pdx-flag="' + attr(it.ticker + ':' + (office ? 'office' : it.committee)) + '">' +
+        '<b>' + esc(office ? 'Held ' + it.ticker + ' while in office.'
+                           : 'Holds ' + it.ticker + ' while on ' + it.committeeName + '.') + '</b> ' +
         '<span>' + esc(it.company + ' (' + it.ticker + ') is listed on the ') + forms +
-          ' · seat: <a href="' + attr(it.roster.url) + '" target="_blank" rel="noopener noreferrer">' +
+          ' · ' + (office ? esc('office: ' + it.office) + ', ' : 'seat: ') +
+          '<a href="' + attr(it.roster.url) + '" target="_blank" rel="noopener noreferrer">' +
           esc(it.roster.label) + ' ↗</a></span>' +
       '</p>';
     }).join('');
@@ -1331,7 +1350,8 @@
         '</a></li>';
     }).join('');
     return '<div class="pdx-overlap" data-pdx-overlap="' + attr(pid) + '">' +
-        '<h5 class="pdx-bands-h">Holdings beside a committee seat</h5>' + flags +
+        '<h5 class="pdx-bands-h">' + (o.items.some(function (it) { return it.kind === 'office'; })
+          ? 'Holdings beside the office held' : 'Holdings beside a committee seat') + '</h5>' + flags +
         '<h5 class="pdx-bands-h">Largest contract signed each year with these companies</h5>' +
         '<p class="pdx-money-block-s">One line for each company in each year the graph covers: the single ' +
           'largest contract signed with it that year, and the amount obligated on that award, as ' +
@@ -1341,10 +1361,41 @@
         '<ul class="pdx-overlap-awards">' + lines + '</ul>' +
       '</div>';
   }
+  // A VERY LARGE FORM'S LINES LIVE IN THEIR OWN DATA FILE (PDXFinance names
+  // which). The block draws a one-line placeholder, the file is fetched once,
+  // and every placeholder on the page is repainted when it lands. No document
+  // (a test, a worker) means no fetch and the placeholder stays as words.
+  var LAZY_HOLDINGS_STATE = {};
+  function requestLazyHoldings(src) {
+    var D = W.document;
+    if (!src || LAZY_HOLDINGS_STATE[src] || !D || typeof D.createElement !== 'function') return;
+    LAZY_HOLDINGS_STATE[src] = 'loading';
+    var el = D.createElement('script');
+    el.src = src;
+    el.async = true;
+    el.onload = function () {
+      LAZY_HOLDINGS_STATE[src] = 'loaded';
+      var waits = D.querySelectorAll ? D.querySelectorAll('[data-pdx-bands-wait]') : [];
+      for (var i = 0; i < waits.length; i++) {
+        var w = waits[i], html = holdingsGraphHtml(w.getAttribute('data-pdx-bands-wait'));
+        try { w.outerHTML = html; } catch (e) {}
+      }
+    };
+    el.onerror = function () { LAZY_HOLDINGS_STATE[src] = 'failed'; };
+    (D.head || D.documentElement).appendChild(el);
+  }
   function holdingsGraphHtml(pid) {
     var F = W.PDXFinance, h = null;
     if (F && typeof F.holdings === 'function') {
       try { h = F.holdings(pid); } catch (e) { h = null; }
+    }
+    if (!h && F && typeof F.lazyHoldingsSrc === 'function') {
+      var lazy = F.lazyHoldingsSrc(pid);
+      if (lazy) {
+        requestLazyHoldings(lazy);
+        return '<p class="pdx-money-block-s pdx-bands-wait" data-pdx-bands-wait="' + attr(pid) + '">' +
+          'Reading the filed lines for this form\u2026</p>';
+      }
     }
     if (!h || !h.lines || !h.rungs || !h.rungs.length) return '';
     var bases = {};
