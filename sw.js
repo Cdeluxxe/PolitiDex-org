@@ -9404,7 +9404,22 @@
 //     changed, so the shell moves one version. Neither pill moved.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v351';
+// v352 - DISCLOSED MIDPOINTS AND A YEAR-BY-YEAR TIMELINE IN THE DISCLOSURES
+//     BLOCK. A holdings line may now carry the midpoint of its closed filed
+//     category (or the floor of the open top one), taken only from the literal
+//     DISCLOSED_POINTS table and checked by the gate; every figure prints with
+//     "Midpoint of the filed category" or "Floor of the open-ended category".
+//     The holdings table became a timeline of House Clerk forms per member
+//     (2021 electronic layout onward), newest = the pill's form, for bmoore,
+//     maloy, kennedy and a House leadership batch — jeffries, scalise,
+//     jim_jordan, aoc — with document rows added for those four and for
+//     mike_johnson, whose Schedule A is "None disclosed" every year. No line is
+//     summed; no net worth, per-year figure or percent change exists.
+//     pdx-finance.js, finance-lane.js and finance-lane.css are precached and
+//     changed, so the shell moves one version. Neither pill's code moved.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v352';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

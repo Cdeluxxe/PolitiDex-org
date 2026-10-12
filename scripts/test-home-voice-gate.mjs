@@ -570,7 +570,10 @@ for (const wall of ["PDXFinance", "PDXFinanceLane", "WEALTH_DATA", "PDX_FD_DOCUM
   };
   const docs = vm.runInNewContext("(" + lift("var PDX_FD_DOCUMENTS = ") + ")");
   const dis = vm.runInNewContext("(" + lift("var PDX_FD_DISCLOSURES = ") + ")");
-  eq(Object.keys(docs).length, 4, "the FD document table no longer holds four rows");
+  // Four rows when this pass shipped; the v352 disclosure-timeline pass added
+  // five House Clerk rows (jeffries, scalise, jim_jordan, aoc, mike_johnson) on
+  // purpose, recorded in its changelog entry and FINANCE_INTEGRITY.md.
+  eq(Object.keys(docs).length, 9, "the FD document table no longer holds its nine rows");
   eq(Object.keys(dis).length, 0, "the FD disclosure table is no longer empty");
 }
 

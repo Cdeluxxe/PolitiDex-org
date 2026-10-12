@@ -618,8 +618,12 @@ section("9 · the pass stayed in its lane");
   // scoring surface is still pinned by sections 7 and 8, which compare DERIVED
   // figures and stay meaningful for every pass after this one.
   const LANDED = /issue drawer leads with bills\/acts table/i.test(HEAD("sw.js") || "");
+  // pdx-finance.js and finance-lane.js came off the landed list with the
+  // disclosure-timeline pass (v352): the money lane moves on its own passes, and
+  // its pills, wall and graph are pinned byte-for-byte by test-money-two-chips.mjs
+  // and test-wealth-bands.mjs. Nothing in either file is this drawer's.
   const LANE_FILES = LANDED
-    ? ["money.html", "money-room.js", "pdx-finance.js", "finance-lane.js",
+    ? ["money.html", "money-room.js",
        "stance-helpers.js", "voting-record.js", "word-action.js"]
     : ["index.html", "voice.html", "voter-hub-location.js", "money.html", "money-room.js",
        "pdx-finance.js", "finance-lane.js", "stance-helpers.js", "voting-record.js", "word-action.js"];

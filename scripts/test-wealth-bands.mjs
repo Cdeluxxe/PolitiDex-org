@@ -141,80 +141,146 @@ const bars = (html) => [...String(html).matchAll(/data-pdx-band="([^"]*)"/g)].ma
 const geom = (html) => [...String(html).matchAll(/class="pdx-bands-bar[^"]*" style="left:([\d.]+)%;width:([\d.]+)%"/g)]
   .map((m) => ({ left: +m[1], width: +m[2] }));
 
-// ── 1 · the shipped rows: the four House FDs, as transcribed ───────────────
-// THE FOUR DOCUMENTS AND NO OTHER. Moore, Maloy and Kennedy carry their 2025
-// Schedule A lines; Owens's paper form has no line on the ladder and so has no
-// row. The counts are pinned so a line added or dropped is a decision a test
-// sees, and every bar on every live block is checked against the stored string.
-const SHIPPED_COUNTS = { bmoore: 16, maloy: 3, kennedy: 28, owens: 0 };
+// ── 1 · the shipped timelines, as transcribed ───────────────────────────────
+// THE FORMS AND NO OTHER. Each member's row is a timeline of House Clerk forms,
+// newest = the pill's form. The years and per-year line counts are pinned so a
+// line added or dropped is a decision a test sees, and every bar and every dot
+// on every live block is checked against the stored string.
+const SHIPPED_TIMELINES = {
+  bmoore:     { 2021: 89, 2022: 48, 2023: 43, 2024: 17, 2025: 16 },
+  maloy:      { 2023: 3, 2024: 3, 2025: 3 },
+  kennedy:    { 2024: 24, 2025: 28 },
+  jeffries:   { 2021: 29, 2022: 24, 2023: 22, 2024: 24, 2025: 32 },
+  scalise:    { 2021: 1, 2022: 1, 2023: 1, 2024: 1, 2025: 0 },
+  jim_jordan: { 2021: 5, 2022: 3, 2023: 3, 2024: 3, 2025: 18 },
+  aoc:        { 2021: 4, 2022: 4, 2023: 3, 2024: 3, 2025: 3 },
+};
+const SHIPPED_DOC_IDS = {
+  bmoore: "10046400,10051783,10071732,10066531,10074823",
+  maloy: "10061120,10069198,10081600",
+  kennedy: "10066533,10074834",
+  jeffries: "10046507,10052944,10059158,10066511,10076550",
+  scalise: "10046343,10051856,10057111,10067107,10075779",
+  jim_jordan: "10046901,10053666,10058918,10067361,10076961",
+  aoc: "10046833,10052480,10060351,10066093,10081499",
+};
+// The midpoint of a filed box, worked out HERE from the filed spelling's own two
+// ends — independently of DISCLOSED_POINTS — so the literal table is checked
+// against arithmetic rather than against itself.
+const filedEnds = (band) => {
+  const m = /^\$([\d,]+)\s*[-–]\s*\$([\d,]+)$/.exec(band);
+  return m ? [Number(m[1].replace(/,/g, "")), Number(m[2].replace(/,/g, ""))] : null;
+};
+const expectedPoint = (band) => {
+  if (/^over \$50,000,000$/i.test(band)) return { field: "floor", value: 50000000 };
+  const e = filedEnds(band);
+  return e ? { field: "midpoint", value: (e[0] + e[1]) / 2 } : null;
+};
 {
-  section("1 · the four House FDs: one bar per stored line, each carrying its stored band");
+  section("1 · the shipped timelines: every form, every line, every disclosed point");
   const F = BARE.PDXFinance, L = BARE.PDXFinanceLane;
   eq(F.holdingsDefects().length, 0, "the shipped holdings table passes its gate");
-  eq(Object.keys(SHIPPED_HOLDINGS).sort().join(","), "bmoore,kennedy,maloy",
-    "rows ship for exactly the three forms with lines on the ladder");
-  for (const pid of Object.keys(SHIPPED_HOLDINGS)) {
-    ok(SHIPPED_DOCS[pid], `${pid}: the row hangs off a document the site already links`);
-    eq(String(SHIPPED_HOLDINGS[pid].year), String(SHIPPED_DOCS[pid].year), `${pid}: …for the pill's year`);
-    eq(SHIPPED_HOLDINGS[pid].formUrl, SHIPPED_DOCS[pid].formUrl, `${pid}: …and the pill's .gov URL`);
-  }
-  eq(DOC_PIDS.slice().sort().join(","), "bmoore,kennedy,maloy,owens", "…and no new document link was added");
+  eq(Object.keys(SHIPPED_HOLDINGS).sort().join(","), Object.keys(SHIPPED_TIMELINES).sort().join(","),
+    "rows ship for exactly the transcribed members");
+  eq(DOC_PIDS.slice().sort().join(","),
+    "aoc,bmoore,jeffries,jim_jordan,kennedy,maloy,mike_johnson,owens,scalise",
+    "the document index is the four Utah rows plus the five-member House batch");
 
-  for (const [pid, n] of Object.entries(SHIPPED_COUNTS)) {
+  for (const [pid, years] of Object.entries(SHIPPED_TIMELINES)) {
+    const row = SHIPPED_HOLDINGS[pid];
+    ok(row && Array.isArray(row.forms), `${pid}: the row is a timeline of forms`);
+    const forms = row.forms;
+    eq(forms.map((f) => String(f.year)).join(","), Object.keys(years).join(","), `${pid}: the form years, oldest first`);
+    eq(forms.map((f) => /\/(\d+)\.pdf$/.exec(f.formUrl)[1]).join(","), SHIPPED_DOC_IDS[pid],
+      `${pid}: …each the document id the clerk's yearly index lists`);
+    const newest = forms[forms.length - 1];
+    eq(String(newest.year), String(SHIPPED_DOCS[pid].year), `${pid}: the newest form is the pill's year`);
+    eq(newest.formUrl, SHIPPED_DOCS[pid].formUrl, `${pid}: …and the pill's .gov URL`);
+    for (const f of forms) {
+      ok(/^https:\/\/disclosures-clerk\.house\.gov\/public_disc\/financial-pdfs\//.test(f.formUrl) &&
+         f.formUrl.indexOf(`/${f.year}/`) > 0, `${pid} ${f.year}: the form is a House Clerk PDF filed under its own year`);
+      eq(f.lines.length, years[f.year], `${pid} ${f.year}: ${years[f.year]} lines stored`);
+      for (const l of f.lines) {
+        ok(Object.prototype.hasOwnProperty.call(F.FILED_BAND_LABELS, l.band) && / - |^Over /.test(l.band),
+          `${pid} ${f.year}: "${l.band}" is a filed category in the form's own spelling`);
+        const want = expectedPoint(l.band);
+        ok(want && l[want.field] === want.value,
+          `${pid} ${f.year}: "${l.asset}" carries the ${want && want.field} its filed box determines`);
+        eq(Object.keys(l).sort().join(","), ["asset", "band", want.field].sort().join(","),
+          `${pid} ${f.year}: a stored line is asset, band and one disclosed point`);
+      }
+    }
+
+    // The block: the newest form's bars, then one timeline row per form.
     const blk = L.wealthBlockHtml(pid, ROSTER[pid]);
     has(visible(blk), "FD on file", `${pid}: the block still reports its form`);
-    const stored = (SHIPPED_HOLDINGS[pid] || { lines: [] }).lines;
-    eq(stored.length, n, `${pid}: ${n} lines are stored`);
     const got = bars(blk);
-    eq(got.length, n, `${pid}: the block draws ${n} bars`);
-    eq(got.slice().sort().join("|"), stored.map((l) => l.band).sort().join("|"),
+    eq(got.length, newest.lines.length, `${pid}: the block draws one bar per line on the pill's form`);
+    eq(got.slice().sort().join("|"), newest.lines.map((l) => l.band).sort().join("|"),
       `${pid}: …each carrying the stored band string, byte for byte`);
-    if (!n) {
-      lacks(blk, "pdx-bands", `${pid}: no lines, so no graph at all`);
-      continue;
-    }
-    // Every stored band is the clerk's filed spelling, never a short label.
-    for (const l of stored) {
-      ok(Object.prototype.hasOwnProperty.call(F.FILED_BAND_LABELS, l.band) && / - |^Over /.test(l.band),
-        `${pid}: "${l.band}" is a filed category in the form's own spelling`);
-      eq(Object.keys(l).sort().join(","), "asset,band", `${pid}: a stored line is asset and band only`);
-    }
-    // Labels: asset as printed · the band's ladder label.
-    const labels = [...blk.matchAll(/class="pdx-bands-label">([^<]*)</g)].map((m) => unesc(m[1]));
-    for (const l of stored) {
-      ok(labels.indexOf(`${l.asset} · ${F.bandLabel(l.band)}`) >= 0,
-        `${pid}: the label for "${l.asset}" names the asset and its band`);
-    }
-    // No midpoint, no total, no stray digit: strip what was filed, then nothing
-    // with a digit or a dollar sign may remain in the graph's visible text.
+    const yrs = [...blk.matchAll(/data-pdx-year="(\d+)" data-pdx-points="(\d+)"/g)].map((m) => [m[1], +m[2]]);
+    eq(yrs.map((y) => y[0]).join(","), Object.keys(years).join(","), `${pid}: one timeline row per form year`);
+    for (const [y, n] of yrs) eq(n, years[y], `${pid} ${y}: the row draws one dot per stored line`);
+    eq((blk.match(/class="pdx-bands-dot(?: is-floor)?"/g) || []).length, Object.values(years).reduce((a, b) => a + b, 0),
+      `${pid}: …and no dot that is not a stored line`);
+    for (const f of forms) has(blk, `href="${f.formUrl}"`, `${pid} ${f.year}: the row links its own form`);
+
+    // The method is named where the figure is.
+    has(visible(blk), "How each figure was made", `${pid}: the source line under the graph is there`);
+    has(visible(blk), "Midpoint of the filed category", `${pid}: …and names the midpoint method`);
+    const titles = [...blk.matchAll(/class="pdx-bands-dot(?: is-floor)?"[^>]*title="([^"]*)"/g)].map((m) => unesc(m[1]));
+    ok(titles.length && titles.every((t) => /(Midpoint of the filed category|Floor of the open-ended category): \$/.test(t)),
+      `${pid}: every dot's accessible title names the method beside its figure`);
+
+    // NO UNDISCLOSED POINT. Every dollar token in the graph's visible text is a
+    // filed band label or the point label of a line this member actually filed.
     const graph = L.holdingsGraphHtml(pid);
+    const allowedTok = new Set();
+    for (const f of forms) for (const l of f.lines) {
+      allowedTok.add(F.bandLabel(l.band));
+      allowedTok.add(F.DISCLOSED_POINTS[F.bandLabel(l.band)].label);
+    }
     let vis = visible(unesc(graph));
-    const allowed = stored.map((l) => l.asset).concat(stored.map((l) => F.bandLabel(l.band)))
-      .sort((x, y) => y.length - x.length);
-    for (const t of allowed) vis = vis.split(t).join(" ");
-    ok(!/\d/.test(vis), `${pid}: no digit in the graph that is not part of a filed line — left: "${vis.slice(0, 120)}"`);
-    ok(!/\$/.test(vis), `${pid}: …and no dollar sign outside a filed band`);
-    ok(!/%/.test(vis), `${pid}: …and no percent outside a filed asset name`);
-    for (const bad of ["total", "sum of", "combined", "altogether", "average", "estimated", "midpoint", "net worth of"]) {
-      lacks(vis.toLowerCase(), bad, `${pid}: the graph prints no reduced figure ("${bad}")`);
+    for (const t of forms.flatMap((f) => f.lines.map((l) => l.asset)).sort((x, y) => y.length - x.length)) {
+      vis = vis.split(t).join(" ");
+    }
+    const toks = vis.match(/\$[\d.,]+[KM]?(?:–[\d.,]+[KM]?)?/g) || [];
+    ok(toks.length > 0, `${pid}: the graph prints bands and points`);
+    for (const t of toks) ok(allowedTok.has(t), `${pid}: "${t}" is a filed band or a point a stored line carries`);
+    ok(!/%/.test(vis), `${pid}: no percent outside a filed asset name`);
+    for (const bad of ["total", "sum of", "combined", "altogether", "average", "estimated",
+                       "net worth of", "per year", "change", "grew", "growth"]) {
+      lacks(vis.toLowerCase(), bad, `${pid}: the graph prints no summed or reduced figure ("${bad}")`);
     }
     has(visible(graph), "is not drawn; the form linked above lists every line",
       `${pid}: the graph says lines off the ladder are not drawn`);
   }
-  // Moore's two spouse lines and Kennedy's '$1 - $1,000' line are named, not drawn.
-  const tableSrc = FIN_SRC.slice(FIN_SRC.indexOf("var PDX_FD_HOLDINGS = {"), FIN_SRC.indexOf("// THE FORM'S OWN LADDER"));
-  has(tableSrc, "Spouse/DC Over $1,000,000", "the Moore row names the spouse lines it leaves out");
-  has(tableSrc, "'$1 - $1,000'", "the Kennedy row names the line it leaves out");
-  has(FIN_SRC, "OWENS HAS NO ROW", "…and the table says why Owens has none");
 
-  // The gate still refuses a shipped row pointed at a different year or URL.
-  for (const [what, patch] of [["year", { year: 2024 }],
-      ["url", { formUrl: "https://disclosures-clerk.house.gov/public_disc/financial-pdfs/2024/10074823.pdf" }]]) {
-    const W = box({ holdings: { bmoore: { ...SHIPPED_HOLDINGS.bmoore, ...patch } } });
+  // The members with a document but no drawable line keep their block as it was.
+  for (const pid of ["owens", "mike_johnson"]) {
+    const blk = L.wealthBlockHtml(pid, ROSTER[pid]);
+    has(visible(blk), "FD on file", `${pid}: the block reports the form`);
+    lacks(blk, "pdx-bands", `${pid}: …and draws no graph, because no line sits on the ladder`);
+  }
+  has(FIN_SRC, "Owens: his 2025 form", "the table says why Owens has none");
+  has(FIN_SRC, "Mike Johnson: every annual report", "…and why Mike Johnson has none");
+
+  // The gate still refuses a shipped row whose newest form points at a different year or URL.
+  const nf = SHIPPED_HOLDINGS.bmoore.forms;
+  const last = nf[nf.length - 1];
+  for (const [what, patch] of [["year", { year: 2026 }],
+      ["url", { formUrl: "https://disclosures-clerk.house.gov/public_disc/financial-pdfs/2025/10074824.pdf" }]]) {
+    const W = box({ holdings: { bmoore: { forms: nf.slice(0, -1).concat([{ ...last, ...patch }]) } } });
     ok(W.PDXFinance.holdingsDefects().some((d) => /does not match the document row/.test(d)),
-      `a shipped row pointed at a different ${what} is refused by the gate`);
-    lacks(W.PDXFinanceLane.wealthBlockHtml("bmoore", ROSTER.bmoore), "pdx-bands",
-      `…and draws nothing (${what})`);
+      `a shipped row whose newest form points at a different ${what} is refused by the gate`);
+    lacks(W.PDXFinanceLane.wealthBlockHtml("bmoore", ROSTER.bmoore), "pdx-bands", `…and draws nothing (${what})`);
+  }
+  // …and an older form filed under the wrong year's path.
+  {
+    const bad = nf.map((f, i) => (i === 0 ? { ...f, year: 2020 } : f));
+    const W = box({ holdings: { bmoore: { forms: bad } } });
+    ok(W.PDXFinance.holdingsDefects().some((d) => /not filed under the form.s own year/.test(d)),
+      "an older form whose URL is not filed under its own year is refused");
   }
 
   // Everyone else: no graph, and the empty words.
@@ -237,10 +303,11 @@ const SHIPPED_COUNTS = { bmoore: 16, maloy: 3, kennedy: 28, owens: 0 };
   const h = F.holdings(PID);
   ok(h && Array.isArray(h.lines), "holdings() answers for the fixture pid");
   eq(h.lines.length, LINES.length, "…with every line");
-  eq(Object.keys(h).sort().join(","), "formUrl,lines,rungs,year",
-    "holdings() returns { year, formUrl, rungs, lines } and nothing summed");
+  eq(Object.keys(h).sort().join(","), "formUrl,lines,rungs,year,years",
+    "holdings() returns { year, formUrl, rungs, lines, years } and nothing summed");
   for (const l of h.lines) {
-    eq(Object.keys(l).sort().join(","), "asset,band,filed,rung", `${l.asset}: a line is asset, band, filed, rung`);
+    eq(Object.keys(l).sort().join(","), "asset,band,filed,point,rung", `${l.asset}: a line is asset, band, filed, rung, point`);
+    eq(l.point, null, `${l.asset}: a line stored with no midpoint or floor carries no point — exact bands only, as before`);
   }
 
   const blk = FILLED.PDXFinanceLane.wealthBlockHtml(PID, ROSTER[PID]);
@@ -314,7 +381,11 @@ const SHIPPED_COUNTS = { bmoore: 16, maloy: 3, kennedy: 28, owens: 0 };
   const hAt = FIN_SRC.indexOf("function holdings(pid)");
   const hSrc = STRIP(FIN_SRC.slice(hAt, FIN_SRC.indexOf("// ── COVERAGE", hAt)));
   for (const [name, src] of [["holdingsGraphHtml", gSrc], ["holdings()", hSrc]]) {
-    for (const bad of [".reduce(", "/ 2", "/2)", "parseFloat", "parseInt", "Number(", "midpoint", "+= l.", "total"]) {
+    // The basis may be NAMED ("midpoint", "floor"); it may not be COMPUTED here,
+    // and no point may be added to another. The only midpoints that exist are
+    // DISCLOSED_POINTS' literal entries, pinned against the filed ends in section 7.
+    for (const bad of [".reduce(", "/ 2", "/2)", "* 0.5", "parseFloat", "parseInt", "Number(",
+                       "+= l.", "+= d.", "point.value +", "+ d.point.value", "total"]) {
       lacks(src, bad, `${name} contains no arithmetic on a figure ("${bad}")`);
     }
   }
@@ -377,7 +448,7 @@ const SHIPPED_COUNTS = { bmoore: 16, maloy: 3, kennedy: 28, owens: 0 };
     ["a short label instead of the filed spelling", row(null, { band: "$1–5M" }), "ladder"],
     ["no asset name", row(null, { asset: "  " }), "asset"],
     ["a value field on a line", row(null, { value: 3000000 }), "unrecognised field value"],
-    ["a midpoint field on a line", row(null, { midpoint: "$3M" }), "unrecognised field midpoint"],
+    ["a midpoint typed as a string", row(null, { midpoint: "$3M" }), "not the disclosed midpoint"],
     ["a total on the row", row({ total: "$9M" }), "unrecognised field total"],
     ["stored tenure", row({ tenureYears: 4 }), "_pdxTenure"],
   ];
@@ -437,6 +508,97 @@ const SHIPPED_COUNTS = { bmoore: 16, maloy: 3, kennedy: 28, owens: 0 };
   const ver = (SW.match(/const CACHE_VERSION = '([^']+)'/) || [])[1];
   ok(ver && +ver.slice(1) >= 350, `the shell version moved for the changed precached files (${ver})`);
   has(SW, `// ${ver} -`, "…with a changelog entry");
+}
+
+// ── 7 · disclosed midpoints and floors ──────────────────────────────────────
+{
+  section("7 · a disclosed point is the filed box's midpoint or floor, named, and nothing else");
+  const F = BARE.PDXFinance;
+  // THE LITERAL TABLE, CHECKED AGAINST ARITHMETIC ON THE FILED ENDS. Every filed
+  // spelling the ladder knows maps to a rung whose point is the arithmetic middle
+  // of that spelling's own two ends — or, for the open top box, its floor.
+  eq(Object.keys(F.DISCLOSED_POINTS).join("|"), F.BAND_LADDER.join("|"), "one disclosed point per rung, in ladder order");
+  for (const filed of Object.keys(F.FILED_BAND_LABELS)) {
+    const p = F.DISCLOSED_POINTS[F.FILED_BAND_LABELS[filed]];
+    const norm = filed.replace(/–/g, " - ").replace(/\s+/g, " ");
+    const want = expectedPoint(norm);
+    ok(want, `${filed}: the test can read the filed box's ends`);
+    eq(p.basis, want.field, `${filed}: basis is ${want.field}`);
+    eq(p.value, want.value, `${filed}: value is the ${want.field} of the filed ends`);
+  }
+  eq(F.POINT_METHOD.midpoint, "Midpoint of the filed category", "the midpoint sentence, verbatim");
+  eq(F.POINT_METHOD.floor, "Floor of the open-ended category", "the floor sentence, verbatim");
+
+  // A FIXTURE WITH BOTH BASES, on a real document row.
+  const mk = (band, extra) => ({ asset: "Example Holding", band, ...extra });
+  const PL = [
+    mk("$15,001 - $50,000", { midpoint: 32500.5 }),
+    mk("$1,000,001 - $5,000,000", { midpoint: 3000000.5 }),
+    mk("Over $50,000,000", { floor: 50000000 }),
+    mk("$50,001 - $100,000"),
+  ];
+  const W = box({ holdings: { [PID]: { forms: [
+    { year: 2024, formUrl: DOC.formUrl.replace("/2025/", "/2024/").replace(/\d+\.pdf$/, "1.pdf"), lines: [PL[0]] },
+    { year: DOC.year, formUrl: DOC.formUrl, lines: PL } ] } } });
+  eq(W.PDXFinance.holdingsDefects().length, 0, "a two-form fixture with midpoints and a floor passes the gate");
+  const blk = W.PDXFinanceLane.wealthBlockHtml(PID, ROSTER[PID]);
+  has(blk, 'data-pdx-point="midpoint"', "a closed box with a stored midpoint draws a mark");
+  has(blk, 'data-pdx-point="floor"', "…and the open box with a stored floor draws one");
+  eq((blk.match(/data-pdx-point=/g) || []).length, 3, "…and the line with no stored point draws none");
+  has(visible(blk), "$3M midpoint", "the label names the midpoint");
+  has(visible(blk), "$50M floor", "…and calls the open box's figure a floor, not a midpoint");
+  lacks(visible(blk), "$50M midpoint", "…never a midpoint");
+  has(visible(blk), "Midpoint of the filed category", "the source line names the midpoint method");
+  has(visible(blk), "Floor of the open-ended category", "…and the floor method");
+  has(blk, 'class="pdx-bands-dot is-floor"', "the floor dot is drawn as a ring, not a disc");
+  eq([...blk.matchAll(/data-pdx-year="(\d+)" data-pdx-points="(\d+)"/g)].map((m) => m[1] + ":" + m[2]).join(","),
+    "2024:1,2025:3", "the timeline draws one row per form, one dot per stored point");
+  // Only exact bands: no mark, no timeline, no source line, the old copy.
+  const E = box({ holdings: { [PID]: { year: DOC.year, formUrl: DOC.formUrl, lines: [PL[3]] } } });
+  const eb = E.PDXFinanceLane.wealthBlockHtml(PID, ROSTER[PID]);
+  lacks(eb, "data-pdx-point", "a row with only exact bands draws no mark");
+  lacks(eb, "pdx-bands-tl", "…and no timeline");
+  lacks(eb, "How each figure was made", "…and no source line");
+  has(visible(eb), "No middle value is worked out", "…and keeps the bands-only copy, as before");
+
+  // THE GATE REFUSES EVERY POINT A FILED BOX DOES NOT DETERMINE.
+  const one = (line) => box({ holdings: { [PID]: { year: DOC.year, formUrl: DOC.formUrl, lines: [line] } } }).PDXFinance;
+  for (const [what, line, rule] of [
+    ["a rounded midpoint", mk("$1,000,001 - $5,000,000", { midpoint: 3000000 }), "not the disclosed midpoint"],
+    ["a midpoint from another box", mk("$1,000,001 - $5,000,000", { midpoint: 15000000.5 }), "not the disclosed midpoint"],
+    ["a midpoint on the open box", mk("Over $50,000,000", { midpoint: 50000000 }), "not the disclosed midpoint"],
+    ["a floor on a closed box", mk("$1,000,001 - $5,000,000", { floor: 1000001 }), "not the floor"],
+    ["both a midpoint and a floor", mk("Over $50,000,000", { midpoint: 1, floor: 50000000 }), "both a midpoint and a floor"],
+    ["a midpoint on an off-ladder box", mk("$1 - $1,000", { midpoint: 500.5 }), "not a filed category"],
+    ["a midpoint with no band", { asset: "x", midpoint: 8000.5 }, "not a filed category"],
+    ["an estimate field", mk("$1,001 - $15,000", { estimate: 9000 }), "unrecognised field estimate"],
+  ]) {
+    const D = one(line);
+    ok(D.holdingsDefects().some((d) => d.indexOf(rule) >= 0), `${what}: refused ("${rule}")`);
+    eq(D.holdings(PID), null, `${what}: …and nothing is read`);
+  }
+
+  // THE PILLS AND THE WALL. Byte-identical with the shipped timelines, with the
+  // fixture, and with the table emptied.
+  const EMPTY = box({ holdings: {} });
+  for (const id of Object.keys(SHIPPED_TIMELINES).concat(["mike_johnson", "owens"])) {
+    for (const [name, X] of [["shipped", BARE], ["fixture", W]]) {
+      eq(X.PDXFinanceLane.letterheadChipHtml(id), EMPTY.PDXFinanceLane.letterheadChipHtml(id),
+        `${id}: the receipts pill is byte-identical (${name} vs empty holdings)`);
+      eq(X.PDXFinanceLane.wealthLetterheadChipHtml(id, ROSTER[id]),
+        EMPTY.PDXFinanceLane.wealthLetterheadChipHtml(id, ROSTER[id]),
+        `${id}: …and so is the disclosure pill (${name})`);
+    }
+    const pill = visible(BARE.PDXFinanceLane.wealthLetterheadChipHtml(id, ROSTER[id]));
+    has(pill, "FD on file", `${id}: the disclosure pill is a document chip`);
+    ok(!/\$/.test(pill), `${id}: …with no dollar figure on it`);
+  }
+  // The disclosure module still cannot see a campaign figure, and the points
+  // table holds numbers only — no code path from it reaches the receipts lane.
+  const pts = STRIP(FIN_SRC.slice(FIN_SRC.indexOf("var DISCLOSED_POINTS"), FIN_SRC.indexOf("function holdings(pid)")));
+  for (const bad of ["receipts", "filing(", "FTM", "PDXFinanceLane", "Math.", "/ 2"]) {
+    lacks(pts, bad, `the disclosed-points code reaches no campaign figure and computes nothing ("${bad}")`);
+  }
 }
 
 // ── report ───────────────────────────────────────────────────────────────────

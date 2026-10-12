@@ -702,9 +702,10 @@ The bars are grouped by those categories, largest first, and each one is
 labelled with the asset as named and the band as filed, e.g. `Asset name ·
 $1–5M`, with the form's exact spelling in the title.
 
-What it never does: work out a midpoint, turn a band into a single figure, add
-bars together, print a line count, a net-worth line or a percent, or touch the
-receipts pill. A bar's place comes from a literal lookup of the filed band
+What it never does: add bars together, print a net-worth line, a per-year
+figure or a percent change, or touch the receipts pill. (It first shipped with no
+midpoint at all; the disclosed-midpoint rule below is the one, written-down
+exception.) A bar's place comes from a literal lookup of the filed band
 against `BAND_LADDER`, not from parsing any digit. The top category has no
 ceiling on the form, so its bar runs open to the end of the track.
 
@@ -734,6 +735,71 @@ Stock", "Shares" or "100% Interest". They are quoted exactly, because the asset
 name is the filer's text, not PolitiDex copy. `scripts/test-wealth-bands.mjs`
 pins the shipped counts and stored bands, and exercises every other state
 through the test-only `_setHoldingsTable` seam.
+
+### Disclosed midpoints, and a year-by-year timeline
+
+**The midpoint rule.** A holdings line may carry one *disclosed point* beside its
+filed band, and only these:
+
+| Filed box | Point | Basis |
+| --- | --- | --- |
+| a closed box, e.g. `$1,000,001 - $5,000,000` | the arithmetic midpoint of its two ends (`3000000.5`, shown `$3M`) | **Midpoint of the filed category** |
+| the open top box, `Over $50,000,000` | its floor (`50000000`, shown `$50M`) | **Floor of the open-ended category** |
+
+The points are a literal table, `DISCLOSED_POINTS` in `pdx-finance.js`, with one
+entry per rung of the ladder. The module still does no arithmetic.
+`scripts/test-wealth-bands.mjs` recomputes every entry from the filed spelling's
+own two ends and fails if one drifts. The gate refuses a stored `midpoint` or
+`floor` unless it equals the table's entry for that line's band. That rules out
+a rounded figure, a point from another box, a midpoint on the open box, a floor
+on a closed box, both at once, and a point on a box that is off the ladder.
+Display labels are rounded to their unit, because the point is a signal and not
+a dollar count. The band stays the finding beside it.
+
+**The disclosure sentence.** Every point prints with the sentence for its basis:
+"Midpoint of the filed category" or "Floor of the open-ended category". The
+sentence appears in each mark's and dot's title, and in a *How each figure was
+made* source line under the graph that spells out each basis the graph uses. The
+track's two ends are labelled in words ("smallest filed box", "open top box"),
+so the only figures in the graph are bands and points that some stored line
+carries. A line stored without a point draws exactly as before: a band, no mark,
+no timeline, and the original "No middle value is worked out" copy.
+
+**The timeline.** A row is now `{ forms: [ … ] }`, one House Clerk form per
+filing year, oldest first. The newest form must equal the document row the pill
+names (same year, same URL). Every older form must be an https `.gov` document
+filed under its own year's path, with no year or URL appearing twice. Under the
+bands, each year is one row of dots: one dot per line, placed by its disclosed
+point on a log scale, with dots that share a box stacked. Each row also shows how
+many lines were drawn and links its own form. More dots, or dots further right,
+is the accumulation signal. **No point is added to another**, so there is no
+per-year figure, no net-worth line and no percent-change tile.
+
+**The first timeline batch** covers the three Utah members already transcribed,
+plus a House leadership batch resolved through the clerk's yearly index. It uses
+the forms from the clerk's 2021 electronic layout onward. Older forms are left
+out because their layout does not keep wrapped asset names in reading order, and
+a name that cannot be quoted exactly is not quoted. Each year uses the latest
+filed version, i.e. an amendment where one exists, unless the amendment adds no
+line on the ladder.
+
+| Member (pid) | Forms | Lines drawn per year |
+| --- | --- | --- |
+| Blake Moore (`bmoore`) | 2021–2025 (2023 is the amendment) | 89 · 48 · 43 · 17 · 16 |
+| Celeste Maloy (`maloy`) | 2023 new-filer, 2024–2025 | 3 · 3 · 3 |
+| Mike Kennedy (`kennedy`) | 2024 new-filer, 2025 | 24 · 28 |
+| Hakeem Jeffries (`jeffries`) | 2021–2025 | 29 · 24 · 22 · 24 · 32 |
+| Steve Scalise (`scalise`) | 2021–2025 (2024's paper amendment adds only an `undetermined` pension line, so the original is used) | 1 · 1 · 1 · 1 · 0 |
+| Jim Jordan (`jim_jordan`) | 2021–2025 | 5 · 3 · 3 · 3 · 18 |
+| Alexandria Ocasio-Cortez (`aoc`) | 2021–2025 (2025 is the amendment) | 4 · 4 · 3 · 3 · 3 |
+
+New document rows were added for `jeffries`, `scalise`, `jim_jordan`, `aoc` and
+`mike_johnson`, each pointing at the member's 2025 House Clerk report. Mike
+Johnson has a document row and no holdings row, because every annual report from
+2021 to 2025 says "None disclosed" under Schedule A. Owens still has no row.
+Lines filed `None`, `Undetermined`, `$1 - $1,000` or `Spouse/DC Over $1,000,000`
+are left out, and each form's comment in the table counts what it left out.
+Senate, OGE and executive-branch forms are not part of this batch.
 
 ## The wall
 

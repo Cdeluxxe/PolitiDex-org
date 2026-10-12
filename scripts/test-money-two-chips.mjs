@@ -1282,7 +1282,13 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
         const toks = visible(full.slice(at, full.indexOf('<p class="pdx-money-block-cov"', at)))
           .match(/(?:over )?\$[\d.,]+[KM]?(?:–[\d.,]+[KM]?)?/g) || [];
         ok(toks.length > 0, `${id}: the graph prints its bands`);
-        for (const t of toks) ok(labels.has(t), `${id}: graph token "${t}" is a filed band label`);
+        // …or a disclosed point (midpoint or floor) that one of this member's
+        // stored lines carries — never a point no line carries.
+        const h = W.PDXFinance.holdings(id);
+        const carried = new Set();
+        for (const yr of (h && h.years) || []) for (const l of yr.lines) if (l.point) carried.add(l.point.label);
+        for (const t of toks) ok(labels.has(t) || carried.has(t),
+          `${id}: graph token "${t}" is a filed band label or a point one of the member's lines carries`);
       }
       const own = vis.slice(0, vis.indexOf("Coverage") === -1 ? vis.length : vis.indexOf("Coverage"));
       has(own, "Disclosures while serving", `${id}: the filled block keeps the heading`);
@@ -1478,8 +1484,21 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   // how a band becomes a bound and a bound becomes a number.
   const finBody = FIN_SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
   for (const bad of ["parseFloat", "parseInt", "Number(", "Math.", "/ 2", "* 2", "toFixed",
-                     ".split(", "replace(/,", "midpoint"]) {
+                     ".split(", "replace(/,"]) {
     lacks(finBody, bad, `the disclosure module does no arithmetic on a figure ("${bad}")`);
+  }
+  // THE WORD "midpoint" LIVES IN ONE SECTION. Since the midpoint pass, a line in
+  // the holdings table may carry the disclosed midpoint (or floor) of its filed
+  // box, read off the literal DISCLOSED_POINTS table and checked by the holdings
+  // gate. That section is cut out here and fenced in scripts/test-wealth-bands.mjs;
+  // everywhere else in the module — the dollar table, the pill reads, the
+  // document gate — a midpoint is still not a field and not a word.
+  {
+    const hAt = finBody.indexOf("var PDX_FD_HOLDINGS");
+    const hEnd = finBody.indexOf("function holdings(pid)", hAt);
+    ok(hAt > 0 && hEnd > hAt, "the holdings section is where the midpoint carve-out expects it");
+    const rest = finBody.slice(0, hAt) + finBody.slice(finBody.indexOf("\n  }\n", hEnd));
+    lacks(rest, "midpoint", "outside the holdings section, the disclosure module names no midpoint");
   }
 
   // 12c. AND A DOLLAR ROW, HOWEVER LEGAL, REACHES NO PILL AND NO BLOCK. Every
@@ -1955,8 +1974,16 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   const entryText = SW13.slice(entryAt, Math.min(endAt, constAt));
   ok(entryText.split("\n").length <= 48,
     `the ${ver13} entry stays inside the shell's changelog budget (${entryText.split("\n").length} lines)`);
-  for (const pid of DOC_PIDS) {
+  // v224 SHIPPED FOUR ROWS, and its entry is asked about those four. A row added
+  // by a later pass is asked for in a LATER entry — any numbered heading above
+  // v224's — because that is the version that shipped it.
+  const V224_PIDS = ["bmoore", "maloy", "kennedy", "owens"];
+  for (const pid of V224_PIDS) {
     has(entryText, pid, `the changelog entry lists the ${pid} document row`);
+  }
+  const later = SW13.slice(SW13.indexOf("\n// v225 -") >= 0 ? SW13.indexOf("\n// v225 -") : entryAt, constAt);
+  for (const pid of DOC_PIDS.filter((p) => V224_PIDS.indexOf(p) < 0)) {
+    has(later, pid, `a changelog entry after v224 lists the ${pid} document row it added`);
   }
   has(entryText.toLowerCase(), "zero dollar rows", "…and says no dollar rows were added");
   for (const store of ["location", "district", "team", "stance"]) {

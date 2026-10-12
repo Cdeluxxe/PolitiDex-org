@@ -427,6 +427,101 @@
   border-radius: 0.2rem 0 0 0.2rem;
   background: linear-gradient(to right, var(--pdx-money-line) 55%, rgba(201, 153, 47, 0));
 }
+/* A disclosed point on a bar: a thin dark tick at the category's midpoint, or
+   at its floor for the open top category. Same weight on every bar. */
+.pdx-bands-mark {
+  position: absolute;
+  top: -0.12rem;
+  bottom: -0.12rem;
+  width: 2px;
+  margin-left: -1px;
+  background: #0b1a14;
+  box-shadow: 0 0 0 1px rgba(201, 153, 47, 0.9);
+}
+/* THE YEAR-BY-YEAR ROWS. One row per form, oldest first; one dot per line at
+   its disclosed point on a log track. Every dot is the same size and the same
+   gold — a bigger line is a dot further right, never a bigger or brighter dot.
+   A floor (open top category) is a ring rather than a disc. */
+.pdx-bands-tl {
+  margin: 0.8rem 0 0;
+  padding: 0.55rem 0 0;
+  border-top: 1px dashed var(--pdx-money-line-soft);
+}
+.pdx-bands-years {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.pdx-bands-year {
+  display: grid;
+  grid-template-columns: 3.1rem 1fr;
+  grid-template-areas: "yr n" "yr dots";
+  column-gap: 0.5rem;
+  align-items: end;
+  margin: 0.4rem 0 0;
+}
+.pdx-bands-year-h {
+  grid-area: yr;
+  align-self: end;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.78rem;
+  color: var(--pdx-money-ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--pdx-money-line-soft);
+}
+.pdx-bands-year-h:hover,
+.pdx-bands-year-h:focus-visible { border-bottom-color: var(--pdx-money-line); }
+.pdx-bands-year-n {
+  grid-area: n;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.56rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pdx-money-text);
+}
+.pdx-bands-dots {
+  grid-area: dots;
+  position: relative;
+  display: block;
+  min-height: 0.5rem;
+  border-bottom: 1px solid rgba(201, 153, 47, 0.3);
+}
+.pdx-bands-dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: var(--pdx-money-line);
+}
+.pdx-bands-dot.is-floor {
+  background: transparent;
+  border: 1.5px solid var(--pdx-money-line);
+  box-sizing: border-box;
+}
+.pdx-bands-src {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.64rem;
+  line-height: 1.55;
+  color: var(--pdx-money-text);
+  margin: 0.6rem 0 0;
+}
+.pdx-bands-src > span {
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.56rem;
+  color: var(--pdx-money-ink);
+}
+.pdx-bands-src b { font-weight: 600; color: var(--pdx-money-ink); }
+.pdx-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
 /* Arrival, for the disclosures block's own anchor. Same soft ring as the
    section's, because it is the same kind of event: a reader was sent here by a
    pill and is being put inside the thing they asked for. */
