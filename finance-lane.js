@@ -1245,7 +1245,7 @@
     if (!lo || !hi) return '';
     var lnLo = Math.log(lo.value), span = Math.log(hi.value) - lnLo;
     function yAt(v) { return (4 + 92 * (Math.log(v) - lnLo) / span).toFixed(2); }
-    var used = {}, cols = '', drew = false, ncols = 0;
+    var used = {}, bands = [], drew = false;
     for (var y = 0; y < h.years.length; y++) {
       var yr = h.years[y], inRung = {}, seen = {}, dots = '', count = 0, said = [];
       yr.lines.forEach(function (l) { if (l.point) inRung[l.rung] = (inRung[l.rung] || 0) + 1; });
@@ -1276,7 +1276,6 @@
       // A YEAR WITH NO LINE ON THE LADDER DRAWS NO COLUMN AND NO SUMMARY.
       if (!count) continue;
       drew = true;
-      ncols++;
       var top = -1;
       for (var r = h.rungs.length - 1; r >= 0; r--) {
         if (!inRung[r]) continue;
@@ -1295,16 +1294,26 @@
             '<span class="pdx-yrs-n">' + esc(nText) + '</span> \u00b7 ' +
             '<span class="pdx-yrs-hi">' + esc(hiText) + '</span></span>'
         : '<span class="pdx-yrs-year">' + esc(yr.year) + '</span>';
-      cols += '<li class="pdx-yrs-col" data-pdx-year="' + attr(yr.year) + '" data-pdx-points="' + count + '">' +
-        '<a class="pdx-yrs-link" href="' + attr(yr.formUrl) + '" target="_blank" rel="noopener noreferrer"' +
+      bands.push({ year: +yr.year, open: '<li class="pdx-yrs-band" data-pdx-year="' + attr(yr.year) + '" data-pdx-points="' + count + '"',
+        inner: '<a class="pdx-yrs-link" href="' + attr(yr.formUrl) + '" target="_blank" rel="noopener noreferrer"' +
           ' aria-label="' + attr(yr.year + ' form: ' + nText + ' drawn, ' + hiText + ' \u2014 ' +
             said.join(', ') + '. Opens the filed form.') + '">' +
           '<span class="pdx-yrs-plot" aria-hidden="true">' + dots + more + '</span>' +
           summary +
-        '</a>' +
-      '</li>';
+        '</a>' });
     }
     if (!drew) return '';
+    // ONE GRAPH ACROSS ALL YEARS. Each year's band sits at that year's place on
+    // a single year axis — oldest left, newest right, one slot per calendar
+    // year from the first drawn year to the last — so a year with no form on
+    // file leaves its slot empty rather than closing the gap. The bands share
+    // one plot area, one set of rules and one baseline; only the band's own
+    // link and summary belong to its year.
+    var y0 = bands[0].year, span = bands[bands.length - 1].year - y0 + 1;
+    var cols = bands.map(function (b) {
+      var left = (100 * (b.year - y0) / span).toFixed(4), width = (100 / span).toFixed(4);
+      return b.open + ' style="left:' + left + '%;width:' + width + '%">' + b.inner + '</li>';
+    }).join('');
     // THE VERTICAL AXIS, LABELLED ONLY WHERE A STORED LINE SITS.
     var ticks = '', grid = '';
     for (var t = 0; t < h.rungs.length; t++) {
@@ -1313,10 +1322,11 @@
       ticks += '<span class="pdx-yrs-tick" style="bottom:' + at + '%">' + esc(pointText(used[t])) + '</span>';
       grid += '<span class="pdx-yrs-grid" style="bottom:' + at + '%"></span>';
     }
-    return '<div class="pdx-yrs" style="--pdx-yrs-cols:' + ncols + '">' +
+    return '<div class="pdx-yrs" data-pdx-graph="years" style="--pdx-yrs-span:' + span + '">' +
         '<div class="pdx-yrs-axis" aria-hidden="true"><span class="pdx-yrs-plot">' + ticks + '</span></div>' +
-        '<div class="pdx-yrs-body"><span class="pdx-yrs-gridlayer" aria-hidden="true">' + grid + '</span>' +
-          '<ol class="pdx-yrs-cols">' + cols + '</ol></div>' +
+        '<div class="pdx-yrs-body"><div class="pdx-yrs-field">' +
+          '<span class="pdx-yrs-area" aria-hidden="true">' + grid + '</span>' +
+          '<ol class="pdx-yrs-bands">' + cols + '</ol></div></div>' +
       '</div>';
   }
   // ── COMMITTEE OVERLAP, UNDER THE GRAPH ────────────────────────────────────

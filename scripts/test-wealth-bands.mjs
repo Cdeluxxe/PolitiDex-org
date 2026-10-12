@@ -235,7 +235,7 @@ const expectedPoint = (band) => {
     ok(bars(blk).every((b) => storedBands.has(b)), `${pid}: every drawn dot carries a stored band string, byte for byte`);
     // THE HORIZONTAL AXIS IS FILING YEARS: one column per form, oldest left.
     has(blk, 'data-pdx-drawing="years"', `${pid}: the graph is the year drawing`);
-    const cols = [...blk.matchAll(/<li class="pdx-yrs-col" data-pdx-year="(\d+)" data-pdx-points="(\d+)">([\s\S]*?)<\/li>/g)];
+    const cols = [...blk.matchAll(/<li class="pdx-yrs-band" data-pdx-year="(\d+)" data-pdx-points="(\d+)" style="[^"]*">([\s\S]*?)<\/li>/g)];
     const yrs = cols.map((m) => m[1]);
     const drawnYears = Object.keys(years).filter((y) => years[y] > 0);
     eq(yrs.join(","), drawnYears.join(","), `${pid}: one column per form year with a ladder line, left to right, oldest first`);
@@ -819,7 +819,7 @@ const expectedPoint = (band) => {
 
   const blk = L.wealthBlockHtml("trump", ROSTER.trump);
   has(blk, 'data-pdx-drawing="years"', "the block draws the year columns");
-  const cols = [...blk.matchAll(/<li class="pdx-yrs-col" data-pdx-year="(\d+)" data-pdx-points="(\d+)">([\s\S]*?)<\/li>/g)];
+  const cols = [...blk.matchAll(/<li class="pdx-yrs-band" data-pdx-year="(\d+)" data-pdx-points="(\d+)" style="[^"]*">([\s\S]*?)<\/li>/g)];
   eq(cols.map((c) => c[1]).join(","), "2024,2025", "one column per form, oldest left");
   for (const [, y, n, body] of cols) {
     const f = T.forms.find((x) => String(x.year) === y);
@@ -921,7 +921,7 @@ const expectedPoint = (band) => {
   let checked = 0;
   for (const pid of Object.keys(SHIPPED_TIMELINES).concat(["trump"])) {
     const blk = L.wealthBlockHtml(pid, ROSTER[pid]);
-    const sums = [...blk.matchAll(/<li class="pdx-yrs-col" data-pdx-year="(\d+)"[\s\S]*?<span class="pdx-yrs-sum"[^>]*>([\s\S]*?)<\/span><\/span>[\s\S]*?<\/li>/g)]
+    const sums = [...blk.matchAll(/<li class="pdx-yrs-band" data-pdx-year="(\d+)"[\s\S]*?<span class="pdx-yrs-sum"[^>]*>([\s\S]*?)<\/span><\/span>[\s\S]*?<\/li>/g)]
       .map((m) => [m[1], unesc(m[2].replace(/<[^>]+>/g, ""))]);
     const forms = rows[pid].forms.filter((f) => f.lines.length);
     eq(sums.map((x) => x[0]).join(","), forms.map((f) => String(f.year)).join(","), `${pid}: one summary per drawn column, oldest first`);
@@ -969,8 +969,50 @@ const expectedPoint = (band) => {
   eq((on.match(/class="pdx-bands-dot/g) || []).length, (off.match(/class="pdx-bands-dot/g) || []).length, "…and so are the dots");
   // No equity language in the summary copy.
   const sAt = LANE_SRC.indexOf("THE SUMMARY LINE:");
-  const sSrc = STRIP(LANE_SRC.slice(sAt, LANE_SRC.indexOf("cols += ", sAt))).toLowerCase();
+  const sSrc = STRIP(LANE_SRC.slice(sAt, LANE_SRC.indexOf("bands.push(", sAt))).toLowerCase();
   for (const bad of ["stock", "share", "equity", "total", "net worth", "%"]) lacks(sSrc, bad, `the summary code carries no "${bad}"`);
+}
+
+// ── 11 · one continuous graph across every year ─────────────────────────────
+{
+  section("11 · one graph per person: every year's band on one year axis, oldest left");
+  const X = box({ oge: true });
+  const F = X.PDXFinance, L = X.PDXFinanceLane;
+  const OGE = new Function("window", R("pdx-fd-oge.js").replace(/^[\s\S]*?var ROWS = /, "return ").replace(/;\s*if \(W\.PDXFinance[\s\S]*$/, ";"))({});
+  const rows = { ...SHIPPED_HOLDINGS, trump: OGE.trump };
+  for (const pid of Object.keys(SHIPPED_TIMELINES).concat(["trump"])) {
+    const blk = L.wealthBlockHtml(pid, ROSTER[pid]);
+    const forms = rows[pid].forms.filter((f) => f.lines.length);
+    eq((blk.match(/class="pdx-yrs"/g) || []).length, 1, `${pid}: one graph`);
+    eq((blk.match(/class="pdx-yrs-area"/g) || []).length, 1, `${pid}: …with one shared plot area`);
+    eq((blk.match(/class="pdx-yrs-bands"/g) || []).length, 1, `${pid}: …holding every year's band`);
+    lacks(blk, "pdx-yrs-col", `${pid}: no per-year column boxes remain`);
+    const bands = [...blk.matchAll(/<li class="pdx-yrs-band" data-pdx-year="(\d+)" data-pdx-points="(\d+)" style="left:([\d.]+)%;width:([\d.]+)%">([\s\S]*?)<\/li>/g)]
+      .map((m) => ({ year: +m[1], n: +m[2], left: +m[3], width: +m[4], body: m[5] }));
+    eq(bands.map((b) => b.year).join(","), forms.map((f) => f.year).join(","), `${pid}: every year with a ladder line, left to right`);
+    const y0 = forms[0].year, span = forms[forms.length - 1].year - y0 + 1;
+    for (const b of bands) {
+      const f = forms.find((x) => x.year === b.year);
+      ok(Math.abs(b.left - 100 * (b.year - y0) / span) < 0.001 && Math.abs(b.width - 100 / span) < 0.001,
+        `${pid} ${b.year}: the band sits at its year's slot on the axis`);
+      eq(b.n, f.lines.length, `${pid} ${b.year}: …counts that year's stored lines`);
+      eq(bars(b.body).map((x) => F.bandLabel(x)).concat(moreOf(b.body)).sort().join("|"),
+        f.lines.map((l) => F.bandLabel(l.band)).sort().join("|"), `${pid} ${b.year}: …its dots (and dense-box remainders) are that year's lines`);
+      ok((b.body.match(/class="pdx-bands-dot/g) || []).length <= 24 * 10, `${pid} ${b.year}: …capped at 24 dots per box`);
+      has(b.body, `href="${f.formUrl}"`, `${pid} ${b.year}: …linked to that year's PDF`);
+      ok(b.body.indexOf('class="pdx-yrs-sum"') > b.body.indexOf('class="pdx-yrs-plot"'), `${pid} ${b.year}: …with its summary under its dots`);
+    }
+    ok(bands.every((b, i) => i === 0 || b.left > bands[i - 1].left), `${pid}: bands run strictly left to right`);
+  }
+  // Scalise's empty 2025 is absent; his axis runs 2021–2024.
+  const sc = L.wealthBlockHtml("scalise", ROSTER.scalise);
+  lacks(sc, 'data-pdx-year="2025"', "a year with no ladder lines is absent from the axis");
+  has(sc, "--pdx-yrs-span:4", "…and the axis spans only the years drawn");
+  // Pills, byte for byte.
+  for (const id of ["trump", "bmoore", "maloy", "kennedy", "jeffries", "scalise", "jim_jordan", "aoc"]) {
+    eq(X.PDXFinanceLane.wealthLetterheadChipHtml(id, ROSTER[id]), BARE.PDXFinanceLane.wealthLetterheadChipHtml(id, ROSTER[id]), `${id}: disclosure pill identical`);
+    eq(X.PDXFinanceLane.letterheadChipHtml(id), BARE.PDXFinanceLane.letterheadChipHtml(id), `${id}: receipts pill identical`);
+  }
 }
 
 // ── report ───────────────────────────────────────────────────────────────────

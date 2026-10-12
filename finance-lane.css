@@ -453,19 +453,29 @@
 }
 .pdx-yrs-axis .pdx-yrs-plot {
   min-width: 4.4rem;
-  border: 0;
-  background: none;
 }
 .pdx-yrs-body {
   position: relative;
   overflow-x: auto;
 }
-.pdx-yrs-gridlayer {
+/* ONE FIELD FOR EVERY YEAR: a single plot area with one background, one set of
+   rules and one baseline, and a strip under it for the year summaries. Each
+   year's band is positioned on the year axis inside it. */
+.pdx-yrs-field {
+  --pdx-yrs-label-h: 3rem;
+  position: relative;
+  height: calc(var(--pdx-yrs-h) + var(--pdx-yrs-label-h));
+  min-width: calc(var(--pdx-yrs-span, 1) * 4.6rem);
+}
+.pdx-yrs-area {
   position: absolute;
   left: 0;
   right: 0;
   top: 0;
   height: var(--pdx-yrs-h);
+  background: rgba(201, 153, 47, 0.04);
+  border-bottom: 1px solid rgba(201, 153, 47, 0.35);
+  border-radius: 0.3rem 0.3rem 0 0;
   pointer-events: none;
 }
 .pdx-yrs-grid {
@@ -475,17 +485,21 @@
   height: 0;
   border-top: 1px dashed rgba(201, 153, 47, 0.22);
 }
-.pdx-yrs-cols {
+.pdx-yrs-bands {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  gap: 0.25rem;
-  min-width: calc(var(--pdx-yrs-cols, 1) * 2.8rem);
+  position: absolute;
+  inset: 0;
 }
-.pdx-yrs-col { flex: 1 1 0; min-width: 4.6rem; }
+.pdx-yrs-band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
 .pdx-yrs-link {
   display: block;
+  height: 100%;
   text-decoration: none;
   border-radius: 0.3rem;
 }
@@ -496,9 +510,6 @@
   position: relative;
   display: block;
   height: var(--pdx-yrs-h);
-  border-bottom: 1px solid rgba(201, 153, 47, 0.35);
-  border-radius: 0.3rem 0.3rem 0 0;
-  background: rgba(201, 153, 47, 0.04);
 }
 .pdx-yrs-plot .pdx-bands-dot { transform: translateY(50%); }
 /* A dense box's line count, sitting at the box's height on the right of the

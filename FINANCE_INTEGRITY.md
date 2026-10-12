@@ -794,7 +794,20 @@ ladder, exactly as before. `scripts/test-wealth-bands.mjs` checks:
 - that the axis ticks are exactly the points the member's lines carry;
 - that a single-year profile draws one column.
 
-**The summary line under each column.** Every year column ends with one line,
+**One continuous graph.** Each person gets one chart: one plot area with one
+background, one set of rules at the stored points, one baseline, and the
+labelled vertical axis on its left. The horizontal axis is calendar years, with
+one slot per year from the first drawn year to the last, oldest on the left. A
+year with no form on file leaves its slot empty instead of closing the gap.
+
+Each year's dots sit in that year's band. The band is a link to that year's
+PDF, and the year's summary line sits under it. Nothing about the dots changes:
+- the log scale and midpoint/floor placement;
+- the 24-dot cap per dense box, with its printed count.
+
+A year with no line on the ladder has no band and no summary.
+
+**The summary line under each year.** Every year's band ends with one line,
 for example:
 
 > 2025 · 4,826 lines · highest band $50M floor

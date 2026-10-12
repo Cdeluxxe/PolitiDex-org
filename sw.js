@@ -9469,7 +9469,18 @@
 //     version. Neither pill moved.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v356';
+// v357 - THE WEALTH GRAPH IS ONE CONTINUOUS CHART. The per-year column boxes
+//     are replaced by one plot area per person — one background, one set of
+//     rules, one baseline — with each year's band of dots placed at that
+//     year's slot on a single year axis, oldest left, newest right; a year
+//     with no form on file leaves its slot empty. Each band keeps its dots,
+//     its summary line and its PDF link. Dots, scale, cap, source line,
+//     overlap and awards are unchanged. finance-lane.js and finance-lane.css
+//     are precached and changed, so the shell moves one version. Neither pill
+//     moved.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v357';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
