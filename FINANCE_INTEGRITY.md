@@ -758,22 +758,41 @@ a dollar count. The band stays the finding beside it.
 
 **The disclosure sentence.** Every point prints with the sentence for its basis:
 "Midpoint of the filed category" or "Floor of the open-ended category". The
-sentence appears in each mark's and dot's title, and in a *How each figure was
-made* source line under the graph that spells out each basis the graph uses. The
-track's two ends are labelled in words ("smallest filed box", "open top box"),
-so the only figures in the graph are bands and points that some stored line
-carries. A line stored without a point draws exactly as before: a band, no mark,
-no timeline, and the original "No middle value is worked out" copy.
+sentence appears in each dot's title, and in a *How each figure was made* source
+line under the graph that spells out each basis the graph uses. The only figures
+in the graph are filed bands and points that some stored line carries. A row
+stored without any point draws exactly as before: bands, no year drawing, and
+the original "No middle value is worked out" copy.
 
 **The timeline.** A row is now `{ forms: [ … ] }`, one House Clerk form per
 filing year, oldest first. The newest form must equal the document row the pill
 names (same year, same URL). Every older form must be an https `.gov` document
-filed under its own year's path, with no year or URL appearing twice. Under the
-bands, each year is one row of dots: one dot per line, placed by its disclosed
-point on a log scale, with dots that share a box stacked. Each row also shows how
-many lines were drawn and links its own form. More dots, or dots further right,
-is the accumulation signal. **No point is added to another**, so there is no
+filed under its own year's path, with no year or URL appearing twice. The
+drawing rule below sets out how the years are drawn. More dots, or dots higher
+up, is the accumulation signal. **No point is added to another**, so there is no
 per-year figure, no net-worth line and no percent-change tile.
+
+**The drawing rule (year axis).** Where a member's lines carry disclosed
+points, the graph's horizontal axis is **filing years**: one column per form the
+table holds, oldest on the left and newest (the pill's form) on the right, with
+the year under each column. Each column is a link to that year's `.gov` PDF.
+Inside a column, every filed line is one dot at its stored midpoint or floor on
+a **vertical log scale**. Dots that share a filed box sit side by side.
+
+The vertical axis is labelled only at the points this member's lines actually
+carry, each with its basis ("$3M midpoint", "$50M floor"). Each dot's title gives
+the asset as filed, its band and its method, and each column states how many
+lines it draws. The *How each figure was made* source line stays under the
+graph. The only arithmetic is placing a stored point on the scale and spacing
+dots that share a box. No point is added to another, so there is still no
+per-year figure, no net-worth number and no percent-change tile. A row whose
+lines carry no stored point draws the newest form's bands on the category
+ladder, exactly as before. `scripts/test-wealth-bands.mjs` checks:
+- one column per form year, left to right and oldest first;
+- that each column's dots are that year's stored bands;
+- each dot's height against its point;
+- that the axis ticks are exactly the points the member's lines carry;
+- that a single-year profile draws one column.
 
 **The first timeline batch** covers the three Utah members already transcribed,
 plus a House leadership batch resolved through the clerk's yearly index. It uses

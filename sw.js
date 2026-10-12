@@ -9419,7 +9419,19 @@
 //     changed, so the shell moves one version. Neither pill's code moved.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v352';
+// v353 - THE WEALTH GRAPH TURNS ON ITS SIDE: FILING YEARS LEFT TO RIGHT.
+//     Where a member's lines carry disclosed points, the disclosures block now
+//     draws one column per form the table holds, oldest on the left, each column
+//     a link to that year's .gov PDF with the year under it; inside, one dot per
+//     filed line at its stored midpoint (or floor) on a vertical log scale. The
+//     axis is labelled only at points the member's lines carry, and the
+//     "How each figure was made" source line stays under the graph. A row with
+//     no stored point still draws its bands as before. No table, gate or row
+//     moved. finance-lane.js and finance-lane.css are precached and changed, so
+//     the shell moves one version. Neither pill moved.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v353';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

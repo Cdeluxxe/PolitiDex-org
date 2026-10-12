@@ -1203,92 +1203,88 @@
     try { return wealthLetterheadChipHtml(pid, person); } catch (e) { return ''; }
   }
 
-  // ── THE RANGE-BAND GRAPH — WHAT THE FORM'S LINES SAY, AS BANDS ─────────────
-  // One bar per line on the form the pill names, off PDXFinance.holdings(), and
-  // drawn only inside the on-file branch of the disclosures block. No holdings
-  // row means no graph and not a placeholder: the block above already says what
-  // is and is not on hand, in words.
-  //   A BAND STAYS A BAND. Each bar spans the rung of the form's own category
-  // ladder that the filer ticked — left edge where the category begins, right
-  // edge where it ends. The top rung has no ceiling on the form, so it runs open
-  // to the end of the track instead of stopping at an invented one.
-  //   A DISCLOSED POINT, WHERE THE ROW STORED ONE. A line may carry the midpoint
-  // of its closed box or the floor of the open top box — never typed freehand,
-  // only the value PDXFinance.DISCLOSED_POINTS gives that box. Where it is
-  // present the bar carries a mark at it and the label names it with its method;
-  // where it is absent the bar and its label are exactly what they were before.
-  //   AND A TIMELINE, YEAR BY YEAR. Where the member's earlier forms are on file,
-  // each year is one row of dots: one dot per line, placed by that line's
-  // disclosed point on a log scale running from the smallest box's midpoint to
-  // the open box's floor. More dots, and dots further right, is the signal. The
-  // only arithmetic is placing a point on the track (and stacking dots that share
-  // a box); no point is added to another, and there is no per-year figure, no
-  // net-worth line and no change between years.
-  //   THE METHOD IS SAID WHERE THE FIGURE IS. Every point prints beside the
-  // sentence that made it — "Midpoint of the filed category" or "Floor of the
-  // open-ended category" — in its title, and the source line under the graph
-  // spells out each basis the graph uses.
+  // ── THE WEALTH GRAPH — FILING YEARS LEFT TO RIGHT, DISCLOSED POINTS UP ──────
+  // Drawn only inside the on-file branch of the disclosures block, off
+  // PDXFinance.holdings(). No holdings row means no graph and not a placeholder:
+  // the block above already says what is and is not on hand, in words.
+  //   THE HORIZONTAL AXIS IS FILING YEARS. One column per form the table holds
+  // for this member, oldest on the left, newest (the pill's form) on the right,
+  // the year under it. The whole column is a link to that year's .gov PDF.
+  //   THE VERTICAL AXIS IS THE DISCLOSED POINT, ON A LOG SCALE. Each dot in a
+  // column is ONE filed line, placed at the midpoint of its closed box or the
+  // floor of the open top box — the value PDXFinance.DISCLOSED_POINTS gives that
+  // box and the gate has already checked. Dots in the same box sit side by side.
+  // More dots, or dots higher up, is the signal. The only arithmetic is placing a
+  // point on the scale and spacing dots that share a box: no point is added to
+  // another, and there is no per-year figure, no net-worth line and no change
+  // between years.
+  //   THE ONLY FIGURES ARE STORED ONES. The vertical axis is labelled only at
+  // the boxes this member's stored lines actually use, each with its point and
+  // basis ("$3M midpoint", "$50M floor"), and every dot's title names its asset,
+  // its band as filed and its method. The source line under the graph spells out
+  // each basis: "Midpoint of the filed category" / "Floor of the open-ended
+  // category".
+  //   A ROW WITH NO STORED POINT draws what it always drew: the newest form's
+  // lines as bands on the category ladder, with the bands-only copy.
   //   NOT CAMPAIGN MONEY. Nothing here reads a filing record, and nothing in it
   // can reach the receipts pill, which reads its own lane and nothing of this.
   function pointText(pt) {
     return pt ? pt.label + ' ' + pt.basis : '';
   }
-  function holdingsTimelineHtml(h) {
+  var GRAPH_EXCLUDED = 'A line the form files outside this ladder — a spouse or ' +
+    'dependent holding reported only as over a threshold, the form’s lowest box, or ' +
+    'an undetermined value — is not drawn; the form linked above lists every line.';
+  function holdingsYearsHtml(pid, h, bases) {
     var F = W.PDXFinance, P = F && F.DISCLOSED_POINTS;
     if (!P || !h.years || !h.years.length) return '';
     var lo = P[h.rungs[0]], hi = P[h.rungs[h.rungs.length - 1]];
     if (!lo || !hi) return '';
     var lnLo = Math.log(lo.value), span = Math.log(hi.value) - lnLo;
-    var rows = '', drew = false;
+    function yAt(v) { return (4 + 92 * (Math.log(v) - lnLo) / span).toFixed(2); }
+    var used = {}, cols = '', drew = false;
     for (var y = 0; y < h.years.length; y++) {
-      var yr = h.years[y], stack = {}, dots = '', count = 0, tall = 0, byRung = {};
-      for (var i = 0; i < yr.lines.length; i++) {
-        var l = yr.lines[i];
-        if (!l.point) continue;
-        stack[l.rung] = (stack[l.rung] || 0) + 1;
-        if (stack[l.rung] > tall) tall = stack[l.rung];
-      }
-      var step = tall > 12 ? 60 / tall : 5;
-      var seen = {};
+      var yr = h.years[y], inRung = {}, seen = {}, dots = '', count = 0, said = [];
+      yr.lines.forEach(function (l) { if (l.point) inRung[l.rung] = (inRung[l.rung] || 0) + 1; });
       for (var j = 0; j < yr.lines.length; j++) {
         var d = yr.lines[j];
         if (!d.point) continue;
         count++;
-        var k = seen[d.rung] = (seen[d.rung] || 0) + 1;
-        byRung[d.rung] = k;
-        var x = (3 + 94 * (Math.log(d.point.value) - lnLo) / span).toFixed(2);
+        used[d.rung] = d.point;
+        var k = seen[d.rung] = (seen[d.rung] || 0) + 1, m = inRung[d.rung];
+        var x = (14 + 72 * (k - 0.5) / m).toFixed(2);
         dots += '<span class="pdx-bands-dot' + (d.point.basis === 'floor' ? ' is-floor' : '') +
-          '" style="left:' + x + '%;bottom:' + ((k - 1) * step).toFixed(1) + 'px" title="' +
+          '" data-pdx-band="' + attr(d.filed) + '" data-pdx-point="' + attr(d.point.basis) +
+          '" style="left:' + x + '%;bottom:' + yAt(d.point.value) + '%" title="' +
           attr(d.asset + ' · ' + d.band + ' · ' + d.point.method + ': ' + d.point.label) + '"></span>';
       }
       if (count) drew = true;
-      var said = [];
       for (var r = h.rungs.length - 1; r >= 0; r--) {
-        if (byRung[r]) said.push(byRung[r] + ' at ' + (P[h.rungs[r]] ? pointText(P[h.rungs[r]]) : h.rungs[r]));
+        if (inRung[r]) said.push(inRung[r] + ' at ' + pointText(P[h.rungs[r]]));
       }
-      rows += '<li class="pdx-bands-year" data-pdx-year="' + attr(yr.year) + '" data-pdx-points="' + count + '">' +
-        '<a class="pdx-bands-year-h" href="' + attr(yr.formUrl) + '" target="_blank" rel="noopener noreferrer">' +
-          esc(yr.year) + '</a>' +
-        '<span class="pdx-bands-year-n">' + (count
-          ? count + (count === 1 ? ' line' : ' lines') + ' drawn'
-          : 'no line on the ladder') + '</span>' +
-        '<span class="pdx-bands-dots" aria-hidden="true" style="height:' +
-          (Math.max(tall - 1, 0) * step + 8).toFixed(1) + 'px">' + dots + '</span>' +
-        (said.length ? '<span class="pdx-sr">' + esc(yr.year + ': ' + said.join(', ') + '.') + '</span>' : '') +
+      cols += '<li class="pdx-yrs-col" data-pdx-year="' + attr(yr.year) + '" data-pdx-points="' + count + '">' +
+        '<a class="pdx-yrs-link" href="' + attr(yr.formUrl) + '" target="_blank" rel="noopener noreferrer"' +
+          ' aria-label="' + attr(yr.year + ' form: ' + (count
+            ? count + (count === 1 ? ' line' : ' lines') + ' drawn — ' + said.join(', ')
+            : 'no line on the ladder') + '. Opens the filed form.') + '">' +
+          '<span class="pdx-yrs-plot" aria-hidden="true">' + dots + '</span>' +
+          '<span class="pdx-yrs-year">' + esc(yr.year) + '</span>' +
+          '<span class="pdx-yrs-n">' + (count ? count + (count === 1 ? ' line' : ' lines') : 'none on ladder') + '</span>' +
+        '</a>' +
       '</li>';
     }
     if (!drew) return '';
-    return '<div class="pdx-bands-tl">' +
-        '<h5 class="pdx-bands-h">Year by year, as filed</h5>' +
-        '<p class="pdx-money-block-s">One row per form on file, oldest first, each linked to the ' +
-          'form itself. Each dot is one line on that year’s form, placed at its disclosed ' +
-          'point; dots in the same box stack. A row with more dots, or dots further right, ' +
-          'reports more or larger holdings that year. No dot is added to another.</p>' +
-        // The track's two ends in words, not figures: the only figures in the
-        // graph are points some line on a form actually carries.
-        '<div class="pdx-bands-scale" aria-hidden="true"><span>smallest filed box</span>' +
-          '<span>open top box</span></div>' +
-        '<ol class="pdx-bands-years">' + rows + '</ol>' +
+    // THE VERTICAL AXIS, LABELLED ONLY WHERE A STORED LINE SITS.
+    var ticks = '', grid = '';
+    for (var t = 0; t < h.rungs.length; t++) {
+      if (!used[t]) continue;
+      var at = yAt(used[t].value);
+      ticks += '<span class="pdx-yrs-tick" style="bottom:' + at + '%">' + esc(pointText(used[t])) + '</span>';
+      grid += '<span class="pdx-yrs-grid" style="bottom:' + at + '%"></span>';
+    }
+    return '<div class="pdx-yrs" style="--pdx-yrs-cols:' + h.years.length + '">' +
+        '<div class="pdx-yrs-axis" aria-hidden="true"><span class="pdx-yrs-plot">' + ticks + '</span></div>' +
+        '<div class="pdx-yrs-body"><span class="pdx-yrs-gridlayer" aria-hidden="true">' + grid + '</span>' +
+          '<ol class="pdx-yrs-cols">' + cols + '</ol></div>' +
       '</div>';
   }
   function holdingsGraphHtml(pid) {
@@ -1297,47 +1293,11 @@
       try { h = F.holdings(pid); } catch (e) { h = null; }
     }
     if (!h || !h.lines || !h.rungs || !h.rungs.length) return '';
-    var n = h.rungs.length, groups = '', cur = null, items = '', bases = {};
-    function flush() {
-      if (cur == null) return;
-      groups += '<li class="pdx-bands-group">' +
-        '<div class="pdx-bands-group-h">' + esc(h.rungs[cur]) + '</div>' +
-        '<ul class="pdx-bands-list">' + items + '</ul></li>';
-      items = '';
-    }
+    var bases = {};
     (h.years || []).forEach(function (yr) {
       yr.lines.forEach(function (l) { if (l.point) bases[l.point.basis] = l.point.method; });
     });
-    for (var i = 0; i < h.lines.length; i++) {
-      var l = h.lines[i];
-      if (l.rung < 0 || l.rung >= n) continue;
-      if (l.rung !== cur) { flush(); cur = l.rung; }
-      var open = l.rung === n - 1;
-      var left = (100 * l.rung / n).toFixed(3);
-      var width = (100 * (open ? n - l.rung : 1) / n).toFixed(3);
-      var pt = l.point;
-      var mark = pt
-        ? '<span class="pdx-bands-mark' + (pt.basis === 'floor' ? ' is-floor' : '') + '" style="left:' +
-            (100 * (l.rung + (pt.basis === 'floor' ? 0 : 0.5)) / n).toFixed(3) + '%"></span>'
-        : '';
-      items +=
-        '<li class="pdx-bands-row" data-pdx-band="' + attr(l.filed) + '"' +
-          (pt ? ' data-pdx-point="' + attr(pt.basis) + '"' : '') +
-          ' title="As filed: ' + attr(l.filed) + (pt ? ' · ' + attr(pt.method) + ': ' + attr(pt.label) : '') + '">' +
-          '<span class="pdx-bands-label">' + esc(l.asset) + ' · ' + esc(l.band) +
-            (pt ? ' · ' + esc(pointText(pt)) : '') + '</span>' +
-          '<span class="pdx-bands-track" aria-hidden="true" style="--pdx-bands-n:' + n + '">' +
-            '<span class="pdx-bands-bar' + (open ? ' is-open' : '') + '" style="left:' + left + '%;width:' + width + '%"></span>' +
-            mark +
-          '</span>' +
-        '</li>';
-    }
-    flush();
-    var pointed = !!(bases.midpoint || bases.floor);
-    // A NEWEST FORM WITH NO LINE ON THE LADDER still has a timeline above it
-    // where earlier forms do; without either there is nothing to draw.
-    if (!groups && !pointed) return '';
-    var src = pointed
+    var src = (bases.midpoint || bases.floor)
       ? '<p class="pdx-bands-src"><span>How each figure was made</span> · ' +
           (bases.midpoint ? '<b>' + esc(bases.midpoint) + '</b>: the arithmetic middle of the two ends ' +
             'of the box the filer ticked. ' : '') +
@@ -1346,24 +1306,54 @@
           'A figure belongs to one line and comes from one filed box; none is added to another, ' +
           'and none is a net worth.</p>'
       : '';
+    var years = src ? holdingsYearsHtml(pid, h, bases) : '';
+    if (years) {
+      return '<div class="pdx-bands" data-pdx-bands="' + attr(pid) + '" data-pdx-drawing="years">' +
+          '<h5 class="pdx-bands-h">Disclosed points, year by year</h5>' +
+          '<p class="pdx-money-block-s">Each column is one form on file, oldest on the left, and ' +
+            'opens that form. Each dot is one line on that year’s form, placed up the column at ' +
+            'its disclosed point on a log scale; dots in the same filed box sit side by side. A ' +
+            'column with more dots, or dots higher up, reports more or larger holdings that year. ' +
+            'No dot is added to another, and nothing here is a net worth or campaign money. ' +
+            GRAPH_EXCLUDED + '</p>' +
+          years + src +
+        '</div>';
+    }
+    // NO STORED POINT ANYWHERE: the bands-only drawing, exactly as before.
+    if (!h.lines.length) return '';
+    var n = h.rungs.length, groups = '', cur = null, items = '';
+    function flush() {
+      if (cur == null) return;
+      groups += '<li class="pdx-bands-group">' +
+        '<div class="pdx-bands-group-h">' + esc(h.rungs[cur]) + '</div>' +
+        '<ul class="pdx-bands-list">' + items + '</ul></li>';
+      items = '';
+    }
+    for (var i = 0; i < h.lines.length; i++) {
+      var l = h.lines[i];
+      if (l.rung < 0 || l.rung >= n) continue;
+      if (l.rung !== cur) { flush(); cur = l.rung; }
+      var open = l.rung === n - 1;
+      var left = (100 * l.rung / n).toFixed(3);
+      var width = (100 * (open ? n - l.rung : 1) / n).toFixed(3);
+      items +=
+        '<li class="pdx-bands-row" data-pdx-band="' + attr(l.filed) + '" title="As filed: ' + attr(l.filed) + '">' +
+          '<span class="pdx-bands-label">' + esc(l.asset) + ' · ' + esc(l.band) + '</span>' +
+          '<span class="pdx-bands-track" aria-hidden="true" style="--pdx-bands-n:' + n + '">' +
+            '<span class="pdx-bands-bar' + (open ? ' is-open' : '') + '" style="left:' + left + '%;width:' + width + '%"></span>' +
+          '</span>' +
+        '</li>';
+    }
+    flush();
+    if (!groups) return '';
     return '<div class="pdx-bands" data-pdx-bands="' + attr(pid) + '">' +
         '<h5 class="pdx-bands-h">Value categories as filed</h5>' +
         '<p class="pdx-money-block-s">Each bar is one line on this form, spanning the category ' +
           'the filer ticked, from where it begins on the form’s own ladder to where it ends. ' +
-          (pointed
-            ? 'A mark on a bar is that category’s disclosed point, named beside it. No bar is added ' +
-              'to another, and nothing here is a net worth or campaign money. '
-            : 'No middle value is worked out, no bar is added to another, and nothing here is a net ' +
-              'worth or campaign money. ') +
-          'A line the form files outside this ladder — a spouse or ' +
-          'dependent holding reported only as over a threshold, the form’s lowest box, or ' +
-          'an undetermined value — is not drawn; the form linked above lists every line.</p>' +
-        (groups
-          ? '<div class="pdx-bands-scale" aria-hidden="true"><span>smaller categories</span><span>larger categories</span></div>' +
-            '<ul class="pdx-bands-groups">' + groups + '</ul>'
-          : '<p class="pdx-money-block-s">The form the pill names carries no line on this ladder.</p>') +
-        (pointed ? holdingsTimelineHtml(h) : '') +
-        src +
+          'No middle value is worked out, no bar is added to another, and nothing here is a net ' +
+          'worth or campaign money. ' + GRAPH_EXCLUDED + '</p>' +
+        '<div class="pdx-bands-scale" aria-hidden="true"><span>smaller categories</span><span>larger categories</span></div>' +
+        '<ul class="pdx-bands-groups">' + groups + '</ul>' +
       '</div>';
   }
 

@@ -427,64 +427,96 @@
   border-radius: 0.2rem 0 0 0.2rem;
   background: linear-gradient(to right, var(--pdx-money-line) 55%, rgba(201, 153, 47, 0));
 }
-/* A disclosed point on a bar: a thin dark tick at the category's midpoint, or
-   at its floor for the open top category. Same weight on every bar. */
-.pdx-bands-mark {
+/* THE YEAR COLUMNS. Filing years run left to right, oldest first; each column
+   is one form and one link. Inside it, one dot per filed line, placed up a log
+   scale at its disclosed point. The axis on the left is labelled only where a
+   stored line sits, and faint rules run across at those same heights. Every
+   dot is the same size and the same gold — a bigger line is a dot higher up,
+   never a bigger or brighter dot. A floor (open top category) is a ring. */
+.pdx-yrs {
+  --pdx-yrs-h: 9.5rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 0.35rem;
+  margin: 0.6rem 0 0;
+}
+.pdx-yrs-axis { position: relative; }
+.pdx-yrs-tick {
   position: absolute;
-  top: -0.12rem;
-  bottom: -0.12rem;
-  width: 2px;
-  margin-left: -1px;
-  background: #0b1a14;
-  box-shadow: 0 0 0 1px rgba(201, 153, 47, 0.9);
+  right: 0;
+  transform: translateY(50%);
+  white-space: nowrap;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.54rem;
+  letter-spacing: 0.04em;
+  color: var(--pdx-money-text);
 }
-/* THE YEAR-BY-YEAR ROWS. One row per form, oldest first; one dot per line at
-   its disclosed point on a log track. Every dot is the same size and the same
-   gold — a bigger line is a dot further right, never a bigger or brighter dot.
-   A floor (open top category) is a ring rather than a disc. */
-.pdx-bands-tl {
-  margin: 0.8rem 0 0;
-  padding: 0.55rem 0 0;
-  border-top: 1px dashed var(--pdx-money-line-soft);
+.pdx-yrs-axis .pdx-yrs-plot {
+  min-width: 4.4rem;
+  border: 0;
+  background: none;
 }
-.pdx-bands-years {
+.pdx-yrs-body {
+  position: relative;
+  overflow-x: auto;
+}
+.pdx-yrs-gridlayer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--pdx-yrs-h);
+  pointer-events: none;
+}
+.pdx-yrs-grid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: 1px dashed rgba(201, 153, 47, 0.22);
+}
+.pdx-yrs-cols {
   list-style: none;
   margin: 0;
   padding: 0;
+  display: flex;
+  gap: 0.25rem;
+  min-width: calc(var(--pdx-yrs-cols, 1) * 2.8rem);
 }
-.pdx-bands-year {
-  display: grid;
-  grid-template-columns: 3.1rem 1fr;
-  grid-template-areas: "yr n" "yr dots";
-  column-gap: 0.5rem;
-  align-items: end;
-  margin: 0.4rem 0 0;
-}
-.pdx-bands-year-h {
-  grid-area: yr;
-  align-self: end;
-  font-family: 'Oswald', sans-serif;
-  font-size: 0.78rem;
-  color: var(--pdx-money-ink);
+.pdx-yrs-col { flex: 1 1 0; min-width: 2.6rem; }
+.pdx-yrs-link {
+  display: block;
   text-decoration: none;
-  border-bottom: 1px solid var(--pdx-money-line-soft);
+  border-radius: 0.3rem;
 }
-.pdx-bands-year-h:hover,
-.pdx-bands-year-h:focus-visible { border-bottom-color: var(--pdx-money-line); }
-.pdx-bands-year-n {
-  grid-area: n;
+.pdx-yrs-link:hover .pdx-yrs-plot,
+.pdx-yrs-link:focus-visible .pdx-yrs-plot { background: rgba(201, 153, 47, 0.1); }
+.pdx-yrs-link:focus-visible { outline: 2px solid rgba(124, 196, 255, 0.5); outline-offset: 1px; }
+.pdx-yrs-plot {
+  position: relative;
+  display: block;
+  height: var(--pdx-yrs-h);
+  border-bottom: 1px solid rgba(201, 153, 47, 0.35);
+  border-radius: 0.3rem 0.3rem 0 0;
+  background: rgba(201, 153, 47, 0.04);
+}
+.pdx-yrs-plot .pdx-bands-dot { transform: translateY(50%); }
+.pdx-yrs-year {
+  display: block;
+  text-align: center;
+  margin: 0.2rem 0 0;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.74rem;
+  color: var(--pdx-money-ink);
+}
+.pdx-yrs-n {
+  display: block;
+  text-align: center;
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.56rem;
+  font-size: 0.52rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--pdx-money-text);
-}
-.pdx-bands-dots {
-  grid-area: dots;
-  position: relative;
-  display: block;
-  min-height: 0.5rem;
-  border-bottom: 1px solid rgba(201, 153, 47, 0.3);
 }
 .pdx-bands-dot {
   position: absolute;
@@ -514,14 +546,6 @@
   color: var(--pdx-money-ink);
 }
 .pdx-bands-src b { font-weight: 600; color: var(--pdx-money-ink); }
-.pdx-sr {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-}
 /* Arrival, for the disclosures block's own anchor. Same soft ring as the
    section's, because it is the same kind of event: a reader was sent here by a
    pill and is being put inside the thing they asked for. */

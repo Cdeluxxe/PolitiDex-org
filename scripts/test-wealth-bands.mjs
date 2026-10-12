@@ -211,20 +211,47 @@ const expectedPoint = (band) => {
       }
     }
 
-    // The block: the newest form's bars, then one timeline row per form.
+    // The block: one column per form year, one dot per stored line.
     const blk = L.wealthBlockHtml(pid, ROSTER[pid]);
     has(visible(blk), "FD on file", `${pid}: the block still reports its form`);
     const got = bars(blk);
-    eq(got.length, newest.lines.length, `${pid}: the block draws one bar per line on the pill's form`);
-    eq(got.slice().sort().join("|"), newest.lines.map((l) => l.band).sort().join("|"),
+    const allLines = forms.flatMap((f) => f.lines);
+    eq(got.length, allLines.length, `${pid}: the block draws one dot per stored line, across every year`);
+    eq(got.slice().sort().join("|"), allLines.map((l) => l.band).sort().join("|"),
       `${pid}: …each carrying the stored band string, byte for byte`);
-    const yrs = [...blk.matchAll(/data-pdx-year="(\d+)" data-pdx-points="(\d+)"/g)].map((m) => [m[1], +m[2]]);
-    eq(yrs.map((y) => y[0]).join(","), Object.keys(years).join(","), `${pid}: one timeline row per form year`);
-    for (const [y, n] of yrs) eq(n, years[y], `${pid} ${y}: the row draws one dot per stored line`);
+    // THE HORIZONTAL AXIS IS FILING YEARS: one column per form, oldest left.
+    has(blk, 'data-pdx-drawing="years"', `${pid}: the graph is the year drawing`);
+    const cols = [...blk.matchAll(/<li class="pdx-yrs-col" data-pdx-year="(\d+)" data-pdx-points="(\d+)">([\s\S]*?)<\/li>/g)];
+    const yrs = cols.map((m) => m[1]);
+    eq(yrs.join(","), Object.keys(years).join(","), `${pid}: one column per form year, left to right, oldest first`);
+    ok(yrs.every((y, i) => i === 0 || +y > +yrs[i - 1]), `${pid}: …strictly ascending`);
+    for (const [, y, n, body] of cols) {
+      const f = forms.find((x) => String(x.year) === y);
+      eq(+n, years[y], `${pid} ${y}: the column draws one dot per stored line`);
+      eq(bars(body).sort().join("|"), f.lines.map((l) => l.band).sort().join("|"),
+        `${pid} ${y}: …and those dots are that year's stored bands`);
+      has(body, `href="${f.formUrl}"`, `${pid} ${y}: the column links that year's .gov PDF`);
+      has(visible(body), y, `${pid} ${y}: …and carries its year label`);
+      ok(body.indexOf('class="pdx-yrs-year"') > body.indexOf('class="pdx-yrs-plot"'),
+        `${pid} ${y}: the year label sits under the column's marks`);
+    }
     eq((blk.match(/class="pdx-bands-dot(?: is-floor)?"/g) || []).length, Object.values(years).reduce((a, b) => a + b, 0),
       `${pid}: …and no dot that is not a stored line`);
-    for (const f of forms) has(blk, `href="${f.formUrl}"`, `${pid} ${f.year}: the row links its own form`);
-
+    // Marks sit on a vertical log scale: a bigger box is a higher dot.
+    const ys = [...blk.matchAll(/data-pdx-band="([^"]*)" data-pdx-point="[a-z]+" style="left:[\d.]+%;bottom:([\d.]+)%"/g)]
+      .map((m) => [unesc(m[1]), +m[2]]);
+    eq(ys.length, allLines.length, `${pid}: every dot has a vertical placement`);
+    for (const [band, yv] of ys) {
+      const want = 4 + 92 * (Math.log(expectedPoint(band).value) - Math.log(8000.5)) / (Math.log(50000000) - Math.log(8000.5));
+      ok(Math.abs(yv - want) < 0.01, `${pid}: "${band}" sits at its point's height on the log scale`);
+    }
+    // The vertical axis is labelled only at boxes this member's lines use.
+    const ticks = [...blk.matchAll(/class="pdx-yrs-tick"[^>]*>([^<]*)</g)].map((m) => unesc(m[1]));
+    const usedLabels = new Set(allLines.map((l) => {
+      const p = F.DISCLOSED_POINTS[F.bandLabel(l.band)];
+      return p.label + " " + p.basis;
+    }));
+    eq(ticks.slice().sort().join("|"), [...usedLabels].sort().join("|"), `${pid}: axis ticks are exactly the points its lines carry`);
     // The method is named where the figure is.
     has(visible(blk), "How each figure was made", `${pid}: the source line under the graph is there`);
     has(visible(blk), "Midpoint of the filed category", `${pid}: …and names the midpoint method`);
@@ -376,7 +403,7 @@ const expectedPoint = (band) => {
   for (const t of tokens) ok(labelSet.has(t), `dollar token "${t}" is a filed band label`);
   // The source refuses the arithmetic, too: no midpoint and no reduction over
   // lines in the graph's code or the holdings read.
-  const gAt = LANE_SRC.indexOf("function holdingsGraphHtml");
+  const gAt = LANE_SRC.indexOf("// ── THE WEALTH GRAPH");
   const gSrc = STRIP(LANE_SRC.slice(gAt, LANE_SRC.indexOf("// ── THE DISCLOSURES BLOCK", gAt)));
   const hAt = FIN_SRC.indexOf("function holdings(pid)");
   const hSrc = STRIP(FIN_SRC.slice(hAt, FIN_SRC.indexOf("// ── COVERAGE", hAt)));
@@ -492,7 +519,7 @@ const expectedPoint = (band) => {
     lacks(finBody, bad, `pdx-finance.js cannot see a campaign figure ("${bad}")`);
   }
   // The graph reads holdings and nothing else: no filing, no receipts, no tenure.
-  const gAt = LANE_SRC.indexOf("function holdingsGraphHtml");
+  const gAt = LANE_SRC.indexOf("// ── THE WEALTH GRAPH");
   const gSrc = STRIP(LANE_SRC.slice(gAt, LANE_SRC.indexOf("// ── THE DISCLOSURES BLOCK", gAt)));
   for (const bad of ["recordFor", "read(", "chipRead", "receipts", "_FTM", "filing", "_pdxTenure",
                      "tenure", "termStart", "termEnd"]) {
@@ -544,7 +571,7 @@ const expectedPoint = (band) => {
   const blk = W.PDXFinanceLane.wealthBlockHtml(PID, ROSTER[PID]);
   has(blk, 'data-pdx-point="midpoint"', "a closed box with a stored midpoint draws a mark");
   has(blk, 'data-pdx-point="floor"', "…and the open box with a stored floor draws one");
-  eq((blk.match(/data-pdx-point=/g) || []).length, 3, "…and the line with no stored point draws none");
+  eq((blk.match(/data-pdx-point=/g) || []).length, 4, "…one dot per stored point across both years; the line with no stored point draws none");
   has(visible(blk), "$3M midpoint", "the label names the midpoint");
   has(visible(blk), "$50M floor", "…and calls the open box's figure a floor, not a midpoint");
   lacks(visible(blk), "$50M midpoint", "…never a midpoint");
@@ -552,12 +579,22 @@ const expectedPoint = (band) => {
   has(visible(blk), "Floor of the open-ended category", "…and the floor method");
   has(blk, 'class="pdx-bands-dot is-floor"', "the floor dot is drawn as a ring, not a disc");
   eq([...blk.matchAll(/data-pdx-year="(\d+)" data-pdx-points="(\d+)"/g)].map((m) => m[1] + ":" + m[2]).join(","),
-    "2024:1,2025:3", "the timeline draws one row per form, one dot per stored point");
+    "2024:1,2025:3", "the year drawing has one column per form, oldest left, one dot per stored point");
+  // A SINGLE-YEAR PROFILE STILL DRAWS: one column, its year under it.
+  {
+    const S = box({ holdings: { [PID]: { year: DOC.year, formUrl: DOC.formUrl, lines: [PL[1], PL[2]] } } });
+    const sb = S.PDXFinanceLane.wealthBlockHtml(PID, ROSTER[PID]);
+    eq([...sb.matchAll(/data-pdx-year="(\d+)" data-pdx-points="(\d+)"/g)].map((m) => m[1] + ":" + m[2]).join(","),
+      String(DOC.year) + ":2", "a single-year profile draws one column with its two dots");
+    has(sb, `href="${DOC.formUrl}"`, "…linked to its form");
+    has(visible(sb), "Floor of the open-ended category", "…with the source line under it");
+  }
   // Only exact bands: no mark, no timeline, no source line, the old copy.
   const E = box({ holdings: { [PID]: { year: DOC.year, formUrl: DOC.formUrl, lines: [PL[3]] } } });
   const eb = E.PDXFinanceLane.wealthBlockHtml(PID, ROSTER[PID]);
   lacks(eb, "data-pdx-point", "a row with only exact bands draws no mark");
-  lacks(eb, "pdx-bands-tl", "…and no timeline");
+  lacks(eb, "pdx-yrs", "…and no year drawing");
+  has(eb, 'data-pdx-band="$50,001 - $100,000"', "…but still draws its band, as before");
   lacks(eb, "How each figure was made", "…and no source line");
   has(visible(eb), "No middle value is worked out", "…and keeps the bands-only copy, as before");
 
