@@ -237,7 +237,11 @@ const expectedPoint = (band) => {
     has(blk, 'data-pdx-drawing="years"', `${pid}: the graph is the year drawing`);
     const cols = [...blk.matchAll(/<li class="pdx-yrs-col" data-pdx-year="(\d+)" data-pdx-points="(\d+)">([\s\S]*?)<\/li>/g)];
     const yrs = cols.map((m) => m[1]);
-    eq(yrs.join(","), Object.keys(years).join(","), `${pid}: one column per form year, left to right, oldest first`);
+    const drawnYears = Object.keys(years).filter((y) => years[y] > 0);
+    eq(yrs.join(","), drawnYears.join(","), `${pid}: one column per form year with a ladder line, left to right, oldest first`);
+    for (const y of Object.keys(years).filter((y) => years[y] === 0)) {
+      lacks(blk, `data-pdx-year="${y}"`, `${pid} ${y}: a year with no ladder line draws no column and no summary`);
+    }
     ok(yrs.every((y, i) => i === 0 || +y > +yrs[i - 1]), `${pid}: …strictly ascending`);
     for (const [, y, n, body] of cols) {
       const f = forms.find((x) => String(x.year) === y);
@@ -893,6 +897,80 @@ const expectedPoint = (band) => {
   const oAt = LANE_SRC.indexOf("// ── COMMITTEE OVERLAP, UNDER THE GRAPH");
   const oSrc = STRIP(LANE_SRC.slice(oAt, LANE_SRC.indexOf("function holdingsGraphHtml", oAt))).toLowerCase();
   for (const bad of ["stock", "share", "equity", "form c"]) lacks(oSrc, bad, `the overlap copy carries no "${bad}"`);
+}
+
+// ── 10 · the summary line under each year column ────────────────────────────
+{
+  section("10 · every year column carries '<year> · <n> lines · highest band <point>'");
+  const X = box({ oge: true });
+  const F = X.PDXFinance, L = X.PDXFinanceLane;
+  const OGE = new Function("window", R("pdx-fd-oge.js").replace(/^[\s\S]*?var ROWS = /, "return ").replace(/;\s*if \(W\.PDXFinance[\s\S]*$/, ";"))({});
+  const rows = { ...SHIPPED_HOLDINGS, trump: OGE.trump };
+  // The expected line, worked out from the stored rows alone: the count of
+  // stored lines, and the highest box by its disclosed point.
+  const expectLine = (f) => {
+    let best = null;
+    for (const l of f.lines) {
+      const v = expectedPoint(l.band).value;
+      if (!best || v > best.v) best = { v, band: l.band };
+    }
+    const p = F.DISCLOSED_POINTS[F.bandLabel(best.band)];
+    const n = f.lines.length;
+    return `${f.year} · ${n.toLocaleString("en-US")} ${n === 1 ? "line" : "lines"} · highest band ${p.label} ${p.basis}`;
+  };
+  let checked = 0;
+  for (const pid of Object.keys(SHIPPED_TIMELINES).concat(["trump"])) {
+    const blk = L.wealthBlockHtml(pid, ROSTER[pid]);
+    const sums = [...blk.matchAll(/<li class="pdx-yrs-col" data-pdx-year="(\d+)"[\s\S]*?<span class="pdx-yrs-sum"[^>]*>([\s\S]*?)<\/span><\/span>[\s\S]*?<\/li>/g)]
+      .map((m) => [m[1], unesc(m[2].replace(/<[^>]+>/g, ""))]);
+    const forms = rows[pid].forms.filter((f) => f.lines.length);
+    eq(sums.map((x) => x[0]).join(","), forms.map((f) => String(f.year)).join(","), `${pid}: one summary per drawn column, oldest first`);
+    for (const f of forms) {
+      const got = (sums.find((x) => x[0] === String(f.year)) || [])[1];
+      eq(got, expectLine(f), `${pid} ${f.year}: the summary line`);
+      checked++;
+    }
+    // The summary sits under its column's marks, inside the column's link.
+    ok(sums.length === 0 || /<span class="pdx-yrs-plot"[\s\S]*?<\/span><span class="pdx-yrs-sum"/.test(blk), `${pid}: the summary sits under the marks`);
+  }
+  ok(checked >= 30, `every drawn year column was checked (${checked})`);
+  has(visible(L.wealthBlockHtml("trump", ROSTER.trump)), "2025 · 4,826 lines · highest band $50M floor", "trump 2025, verbatim");
+  has(visible(L.wealthBlockHtml("bmoore", ROSTER.bmoore)), "2025 · 16 lines · highest band $3M midpoint", "Moore 2025, verbatim");
+  // A YEAR WITH NO LADDER LINES DRAWS NOTHING: Scalise's 2025 form carries none.
+  const sc = L.wealthBlockHtml("scalise", ROSTER.scalise);
+  lacks(sc, 'data-pdx-year="2025"', "Scalise 2025: no column");
+  lacks(visible(sc), "2025 · ", "…and no summary line");
+  // NO NEW DOLLAR FIGURE: every figure in a summary is a stored point's label.
+  for (const pid of ["trump", "bmoore", "kennedy", "jeffries"]) {
+    const blk = L.wealthBlockHtml(pid, ROSTER[pid]);
+    const labels = new Set(Object.values(F.DISCLOSED_POINTS).map((p) => p.label));
+    for (const m of blk.matchAll(/<span class="pdx-yrs-hi">([^<]*)</g)) {
+      const t = (unesc(m[1]).match(/\$[\d.,]+[KM]?/g) || []);
+      ok(t.length === 1 && labels.has(t[0]), `${pid}: summary figure "${t[0]}" is a disclosed point`);
+    }
+    for (const m of blk.matchAll(/<span class="pdx-yrs-n">([^<]*)</g)) {
+      ok(!/\$/.test(m[1]), `${pid}: the line count carries no dollar sign ("${m[1]}")`);
+    }
+  }
+  // THE PILLS, with the summary present and removed.
+  const OFF = box({ oge: true });
+  OFF.PDXFinanceLane._setYearSummary(false);
+  lacks(OFF.PDXFinanceLane.wealthBlockHtml("trump", ROSTER.trump), "pdx-yrs-sum", "the seam removes the summary line");
+  for (const id of ["trump", "bmoore", "kennedy", "scalise", "aoc"]) {
+    eq(OFF.PDXFinanceLane.letterheadChipHtml(id), X.PDXFinanceLane.letterheadChipHtml(id), `${id}: receipts pill identical with the summary removed`);
+    eq(OFF.PDXFinanceLane.wealthLetterheadChipHtml(id, ROSTER[id]), X.PDXFinanceLane.wealthLetterheadChipHtml(id, ROSTER[id]),
+      `${id}: …and the disclosure pill`);
+  }
+  // Everything else under the graph is unchanged by the summary.
+  const on = X.PDXFinanceLane.wealthBlockHtml("trump", ROSTER.trump);
+  const off = OFF.PDXFinanceLane.wealthBlockHtml("trump", ROSTER.trump);
+  const cut = (h) => h.slice(h.indexOf('<p class="pdx-bands-src"'));
+  eq(cut(on), cut(off), "the source line, the overlap section and the award list are byte-identical with the summary on and off");
+  eq((on.match(/class="pdx-bands-dot/g) || []).length, (off.match(/class="pdx-bands-dot/g) || []).length, "…and so are the dots");
+  // No equity language in the summary copy.
+  const sAt = LANE_SRC.indexOf("THE SUMMARY LINE:");
+  const sSrc = STRIP(LANE_SRC.slice(sAt, LANE_SRC.indexOf("cols += ", sAt))).toLowerCase();
+  for (const bad of ["stock", "share", "equity", "total", "net worth", "%"]) lacks(sSrc, bad, `the summary code carries no "${bad}"`);
 }
 
 // ── report ───────────────────────────────────────────────────────────────────

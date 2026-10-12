@@ -483,7 +483,7 @@
   gap: 0.25rem;
   min-width: calc(var(--pdx-yrs-cols, 1) * 2.8rem);
 }
-.pdx-yrs-col { flex: 1 1 0; min-width: 2.6rem; }
+.pdx-yrs-col { flex: 1 1 0; min-width: 4.6rem; }
 .pdx-yrs-link {
   display: block;
   text-decoration: none;
@@ -524,6 +524,22 @@
   font-size: 0.74rem;
   color: var(--pdx-money-ink);
 }
+/* THE SUMMARY LINE under each column: year · lines · highest band. One line of
+   text that wraps inside a narrow column; the year keeps its column-label
+   weight, the rest is the lane's small caption ink. */
+.pdx-yrs-sum {
+  display: block;
+  text-align: center;
+  margin: 0.2rem 0 0;
+  line-height: 1.25;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.54rem;
+  letter-spacing: 0.03em;
+  color: var(--pdx-money-text);
+}
+.pdx-yrs-sum .pdx-yrs-year { display: inline; margin: 0; }
+.pdx-yrs-sum .pdx-yrs-n { display: inline; font-size: inherit; letter-spacing: inherit; text-transform: none; }
+.pdx-yrs-hi { color: var(--pdx-money-ink); }
 .pdx-yrs-n {
   display: block;
   text-align: center;

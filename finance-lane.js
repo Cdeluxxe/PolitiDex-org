@@ -1235,6 +1235,9 @@
     'dependent holding reported only as over a threshold, the form’s lowest box, or ' +
     'an undetermined value — is not drawn; the form linked above lists every line.';
   var DOT_CAP = 24;
+  // The per-column summary line, on unless a test turns it off to show that
+  // nothing outside the graph depends on it.
+  var YEAR_SUMMARY = true;
   function holdingsYearsHtml(pid, h, bases) {
     var F = W.PDXFinance, P = F && F.DISCLOSED_POINTS;
     if (!P || !h.years || !h.years.length) return '';
@@ -1242,7 +1245,7 @@
     if (!lo || !hi) return '';
     var lnLo = Math.log(lo.value), span = Math.log(hi.value) - lnLo;
     function yAt(v) { return (4 + 92 * (Math.log(v) - lnLo) / span).toFixed(2); }
-    var used = {}, cols = '', drew = false;
+    var used = {}, cols = '', drew = false, ncols = 0;
     for (var y = 0; y < h.years.length; y++) {
       var yr = h.years[y], inRung = {}, seen = {}, dots = '', count = 0, said = [];
       yr.lines.forEach(function (l) { if (l.point) inRung[l.rung] = (inRung[l.rung] || 0) + 1; });
@@ -1270,18 +1273,34 @@
           '" style="left:' + x + '%;bottom:' + yAt(d.point.value) + '%" title="' +
           attr(d.asset + ' · ' + d.band + ' · ' + d.point.method + ': ' + d.point.label) + '"></span>';
       }
-      if (count) drew = true;
+      // A YEAR WITH NO LINE ON THE LADDER DRAWS NO COLUMN AND NO SUMMARY.
+      if (!count) continue;
+      drew = true;
+      ncols++;
+      var top = -1;
       for (var r = h.rungs.length - 1; r >= 0; r--) {
-        if (inRung[r]) said.push(inRung[r] + ' at ' + pointText(P[h.rungs[r]]));
+        if (!inRung[r]) continue;
+        if (top < 0) top = r;
+        said.push(inRung[r] + ' at ' + pointText(P[h.rungs[r]]));
       }
+      // THE SUMMARY LINE: "2025 · 4,826 lines · highest band $50M floor". The
+      // count is the lines this column draws (dense boxes included); the band is
+      // the highest box with a line that year, named by the same disclosed point
+      // the axis uses. A count and a label — nothing is added or compared.
+      var nText = count.toLocaleString('en-US') + (count === 1 ? ' line' : ' lines');
+      var hiText = 'highest band ' + pointText(P[h.rungs[top]]);
+      var summary = YEAR_SUMMARY
+        ? '<span class="pdx-yrs-sum" data-pdx-highest="' + attr(h.rungs[top]) + '">' +
+            '<span class="pdx-yrs-year">' + esc(yr.year) + '</span> \u00b7 ' +
+            '<span class="pdx-yrs-n">' + esc(nText) + '</span> \u00b7 ' +
+            '<span class="pdx-yrs-hi">' + esc(hiText) + '</span></span>'
+        : '<span class="pdx-yrs-year">' + esc(yr.year) + '</span>';
       cols += '<li class="pdx-yrs-col" data-pdx-year="' + attr(yr.year) + '" data-pdx-points="' + count + '">' +
         '<a class="pdx-yrs-link" href="' + attr(yr.formUrl) + '" target="_blank" rel="noopener noreferrer"' +
-          ' aria-label="' + attr(yr.year + ' form: ' + (count
-            ? count + (count === 1 ? ' line' : ' lines') + ' drawn — ' + said.join(', ')
-            : 'no line on the ladder') + '. Opens the filed form.') + '">' +
+          ' aria-label="' + attr(yr.year + ' form: ' + nText + ' drawn, ' + hiText + ' \u2014 ' +
+            said.join(', ') + '. Opens the filed form.') + '">' +
           '<span class="pdx-yrs-plot" aria-hidden="true">' + dots + more + '</span>' +
-          '<span class="pdx-yrs-year">' + esc(yr.year) + '</span>' +
-          '<span class="pdx-yrs-n">' + (count ? count + (count === 1 ? ' line' : ' lines') : 'none on ladder') + '</span>' +
+          summary +
         '</a>' +
       '</li>';
     }
@@ -1294,7 +1313,7 @@
       ticks += '<span class="pdx-yrs-tick" style="bottom:' + at + '%">' + esc(pointText(used[t])) + '</span>';
       grid += '<span class="pdx-yrs-grid" style="bottom:' + at + '%"></span>';
     }
-    return '<div class="pdx-yrs" style="--pdx-yrs-cols:' + h.years.length + '">' +
+    return '<div class="pdx-yrs" style="--pdx-yrs-cols:' + ncols + '">' +
         '<div class="pdx-yrs-axis" aria-hidden="true"><span class="pdx-yrs-plot">' + ticks + '</span></div>' +
         '<div class="pdx-yrs-body"><span class="pdx-yrs-gridlayer" aria-hidden="true">' + grid + '</span>' +
           '<ol class="pdx-yrs-cols">' + cols + '</ol></div>' +
@@ -1614,6 +1633,8 @@
     // The range-band graph the block carries when the form's lines are on hand.
     // Empty string where no holdings row passes the gate.
     holdingsGraphHtml: holdingsGraphHtml,
+    // Test seam: draw the year columns without their summary line.
+    _setYearSummary: function (on) { YEAR_SUMMARY = on !== false; return YEAR_SUMMARY; },
     openWealthSection: openWealthSection,
     // The campaign-filing lookup, published so PDXFinance.filing(pid) can delegate
     // to it instead of keeping a second copy of the two seams and the id alias.

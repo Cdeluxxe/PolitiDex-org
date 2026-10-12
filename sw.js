@@ -9459,7 +9459,17 @@
 //     changed, so the shell moves one version. Neither pill's code moved.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v355';
+// v356 - A SUMMARY LINE UNDER EACH WEALTH-GRAPH COLUMN. Every year column now
+//     ends with "2025 · 4,826 lines · highest band $50M floor": the lines the
+//     column draws, and the highest box with a line that year, named by its
+//     disclosed point. A year with no line on the ladder now draws no column
+//     at all (Scalise 2025 used to draw an empty one). Dots, scale, links,
+//     source line, overlap and awards are unchanged. finance-lane.js and
+//     finance-lane.css are precached and changed, so the shell moves one
+//     version. Neither pill moved.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v356';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

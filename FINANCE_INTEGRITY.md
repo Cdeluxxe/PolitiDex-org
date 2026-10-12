@@ -794,6 +794,26 @@ ladder, exactly as before. `scripts/test-wealth-bands.mjs` checks:
 - that the axis ticks are exactly the points the member's lines carry;
 - that a single-year profile draws one column.
 
+**The summary line under each column.** Every year column ends with one line,
+for example:
+
+> 2025 · 4,826 lines · highest band $50M floor
+
+Its three parts:
+- **The year** already under the column.
+- **The line count:** the stored lines the column draws, the same count a dense
+  box prints when it caps its dots.
+- **The highest band:** the highest category with at least one line that year,
+  named by the disclosed point the vertical axis already uses ("$50M floor",
+  "$3M midpoint").
+
+It adds no new figure. The count is of lines, not dollars, and the band label is
+a stored point. Nothing is added, compared across years, or turned into a change.
+
+A year with no line on the ladder draws no column and no summary. Before this
+pass, Scalise's 2025 form drew an empty column labelled "none on ladder"; it now
+draws nothing.
+
 **The first timeline batch** covers the three Utah members already transcribed,
 plus a House leadership batch resolved through the clerk's yearly index. It uses
 the forms from the clerk's 2021 electronic layout onward. Older forms are left
