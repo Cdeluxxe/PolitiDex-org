@@ -727,7 +727,7 @@ const VERIFIED_OPTS = { uid: "u_7", loc: { state: "Utah", city: "Layton", county
     // both pills are pinned byte-for-byte in scripts/test-wealth-bands.mjs.
     .replace(/  \/\/ ── THE (?:RANGE-BAND|WEALTH) GRAPH[\s\S]*?(?=  \/\/ ── THE DISCLOSURES BLOCK)/, "")
     .replace("'</p>' + link + holdingsGraphHtml(pid);", "'</p>' + link;")
-    .replace(/    \/\/ The range-band graph the block carries[^\n]*\n[^\n]*\n    holdingsGraphHtml: holdingsGraphHtml,\n(?:    \/\/ Test seam: draw the year columns[^\n]*\n    _setYearSummary:[^\n]*\n)?/, "")
+    .replace(/    \/\/ The range-band graph the block carries[^\n]*\n[^\n]*\n    holdingsGraphHtml: holdingsGraphHtml,\n(?:    \/\/ Test seam: draw the year columns[^\n]*\n    _setYearSummary:[^\n]*\n)?(?:    \/\/ Test seam: draw the disclosures block without the range graph\.\n    _setRangeGraph:[^\n]*\n)?/, "")
     .replace(/\/\* THE RANGE-BAND GRAPH\.[\s\S]*?(?=\/\* Arrival, for the disclosures block)/, "");
   for (const f of MONEY) {
     const src = R(f);

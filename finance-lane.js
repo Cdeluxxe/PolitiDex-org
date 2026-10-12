@@ -1329,6 +1329,87 @@
           '<ol class="pdx-yrs-bands">' + cols + '</ol></div></div>' +
       '</div>';
   }
+  // ── THE SECOND GRAPH: ONE RANGE BAR PER YEAR, OVER THE WHOLE CAREER ────────
+  // Under the per-line graph, on the same year axis: one vertical bar per year,
+  // running from the LOWEST disclosed point any line carries that year to the
+  // HIGHEST. No dots and no count of anything along the bar — it is the span
+  // the year's filed boxes cover, read off two stored points. It is a range,
+  // not a sum: nothing is added, and the bar's length is not a net worth.
+  //   SAME AXES AS THE FIRST GRAPH: the log scale from the smallest box's
+  // midpoint to the open box's floor, one slot per calendar year from the first
+  // drawn year to the last, an empty slot for a year with no form on file, and
+  // the vertical axis labelled only at points a stored line carries. Each bar
+  // links to its year's PDF and carries the same summary line underneath.
+  var RANGE_GRAPH = true;
+  function holdingsRangeHtml(h) {
+    var F = W.PDXFinance, P = F && F.DISCLOSED_POINTS;
+    if (!RANGE_GRAPH || !P || !h || !h.years || !h.years.length) return '';
+    var lo = P[h.rungs[0]], hi = P[h.rungs[h.rungs.length - 1]];
+    if (!lo || !hi) return '';
+    var lnLo = Math.log(lo.value), span = Math.log(hi.value) - lnLo;
+    function yAt(v) { return 4 + 92 * (Math.log(v) - lnLo) / span; }
+    var used = {}, bars = [];
+    for (var y = 0; y < h.years.length; y++) {
+      var yr = h.years[y], count = 0, low = -1, top = -1;
+      for (var i = 0; i < yr.lines.length; i++) {
+        var l = yr.lines[i];
+        if (!l.point) continue;
+        count++;
+        used[l.rung] = l.point;
+        if (low < 0 || l.rung < low) low = l.rung;
+        if (l.rung > top) top = l.rung;
+      }
+      // A YEAR WITH NO LINE ON THE LADDER DRAWS NO BAR AND NO SUMMARY.
+      if (!count) continue;
+      var pLo = P[h.rungs[low]], pHi = P[h.rungs[top]];
+      var b0 = yAt(pLo.value), b1 = yAt(pHi.value);
+      var nText = count.toLocaleString('en-US') + (count === 1 ? ' line' : ' lines');
+      var hiText = 'highest band ' + pointText(pHi);
+      var summary = YEAR_SUMMARY
+        ? '<span class="pdx-yrs-sum" data-pdx-highest="' + attr(h.rungs[top]) + '">' +
+            '<span class="pdx-yrs-year">' + esc(yr.year) + '</span> · ' +
+            '<span class="pdx-yrs-n">' + esc(nText) + '</span> · ' +
+            '<span class="pdx-yrs-hi">' + esc(hiText) + '</span></span>'
+        : '<span class="pdx-yrs-year">' + esc(yr.year) + '</span>';
+      bars.push({ year: +yr.year,
+        open: '<li class="pdx-rng-band" data-pdx-year="' + attr(yr.year) + '" data-pdx-range-lo="' + attr(h.rungs[low]) +
+          '" data-pdx-range-hi="' + attr(h.rungs[top]) + '"',
+        inner: '<a class="pdx-yrs-link" href="' + attr(yr.formUrl) + '" target="_blank" rel="noopener noreferrer"' +
+          ' aria-label="' + attr(yr.year + ' form: ' + nText + ', ranging from ' + pointText(pLo) + ' to ' +
+            pointText(pHi) + '. Opens the filed form.') + '">' +
+          '<span class="pdx-yrs-plot" aria-hidden="true">' +
+            '<span class="pdx-rng-bar' + (low === top ? ' is-one' : '') + '" style="bottom:' + b0.toFixed(2) +
+              '%;height:' + (b1 - b0).toFixed(2) + '%"></span>' +
+          '</span>' + summary +
+        '</a>' });
+    }
+    if (!bars.length) return '';
+    var ticks = '', grid = '';
+    for (var t = 0; t < h.rungs.length; t++) {
+      if (!used[t]) continue;
+      var at = yAt(used[t].value).toFixed(2);
+      ticks += '<span class="pdx-yrs-tick" style="bottom:' + at + '%">' + esc(pointText(used[t])) + '</span>';
+      grid += '<span class="pdx-yrs-grid" style="bottom:' + at + '%"></span>';
+    }
+    var y0 = bars[0].year, slots = bars[bars.length - 1].year - y0 + 1;
+    var lis = bars.map(function (b) {
+      return b.open + ' style="left:' + (100 * (b.year - y0) / slots).toFixed(4) + '%;width:' +
+        (100 / slots).toFixed(4) + '%">' + b.inner + '</li>';
+    }).join('');
+    return '<div class="pdx-rng-wrap">' +
+        '<h5 class="pdx-bands-h">Range of disclosed points, year by year</h5>' +
+        '<p class="pdx-money-block-s">One bar per form on file, oldest on the left, each opening that ' +
+          'form. A bar runs from the lowest disclosed point among that year’s lines to the ' +
+          'highest. It is a range, not a sum: no line is added to another, and a bar’s length is ' +
+          'not a net worth.</p>' +
+        '<div class="pdx-yrs pdx-rng" data-pdx-graph="range" style="--pdx-yrs-span:' + slots + '">' +
+          '<div class="pdx-yrs-axis" aria-hidden="true"><span class="pdx-yrs-plot">' + ticks + '</span></div>' +
+          '<div class="pdx-yrs-body"><div class="pdx-yrs-field">' +
+            '<span class="pdx-yrs-area pdx-rng-area" aria-hidden="true">' + grid + '</span>' +
+            '<ol class="pdx-yrs-bands pdx-rng-bands">' + lis + '</ol></div></div>' +
+        '</div>' +
+      '</div>';
+  }
   // ── COMMITTEE OVERLAP, UNDER THE GRAPH ────────────────────────────────────
   // Off PDXFinance.overlap(pid), which derives every overlap from a stored
   // holdings line and a stored roster seat, and returns null unless an award is
@@ -1450,7 +1531,7 @@
             'column with more dots, or dots higher up, reports more or larger holdings that year. ' +
             'No dot is added to another, and nothing here is a net worth or campaign money. ' +
             GRAPH_EXCLUDED + '</p>' +
-          years + src +
+          years + holdingsRangeHtml(h) + src +
         '</div>' + holdingsOverlapHtml(pid);
     }
     // NO STORED POINT ANYWHERE: the bands-only drawing, exactly as before.
@@ -1645,6 +1726,8 @@
     holdingsGraphHtml: holdingsGraphHtml,
     // Test seam: draw the year columns without their summary line.
     _setYearSummary: function (on) { YEAR_SUMMARY = on !== false; return YEAR_SUMMARY; },
+    // Test seam: draw the disclosures block without the range graph.
+    _setRangeGraph: function (on) { RANGE_GRAPH = on !== false; return RANGE_GRAPH; },
     openWealthSection: openWealthSection,
     // The campaign-filing lookup, published so PDXFinance.filing(pid) can delegate
     // to it instead of keeping a second copy of the two seams and the id alias.

@@ -265,7 +265,9 @@ const expectedPoint = (band) => {
       ok(Math.abs(yv - want) < 0.01, `${pid}: "${band}" sits at its point's height on the log scale`);
     }
     // The vertical axis is labelled only at boxes this member's lines use.
-    const ticks = [...blk.matchAll(/class="pdx-yrs-tick"[^>]*>([^<]*)</g)].map((m) => unesc(m[1]));
+    // The per-line graph's own axis (the range graph below it has its own).
+    const g1 = blk.slice(blk.indexOf('data-pdx-graph="years"'), blk.indexOf('class="pdx-rng-wrap"') >= 0 ? blk.indexOf('class="pdx-rng-wrap"') : blk.length);
+    const ticks = [...g1.matchAll(/class="pdx-yrs-tick"[^>]*>([^<]*)</g)].map((m) => unesc(m[1]));
     const usedLabels = new Set(allLines.map((l) => {
       const p = F.DISCLOSED_POINTS[F.bandLabel(l.band)];
       return p.label + " " + p.basis;
@@ -1013,6 +1015,87 @@ const expectedPoint = (band) => {
     eq(X.PDXFinanceLane.wealthLetterheadChipHtml(id, ROSTER[id]), BARE.PDXFinanceLane.wealthLetterheadChipHtml(id, ROSTER[id]), `${id}: disclosure pill identical`);
     eq(X.PDXFinanceLane.letterheadChipHtml(id), BARE.PDXFinanceLane.letterheadChipHtml(id), `${id}: receipts pill identical`);
   }
+}
+
+// ── 12 · the second graph: one range bar per year ───────────────────────────
+{
+  section("12 · a range bar per year, lowest to highest disclosed point, under the per-line graph");
+  const X = box({ oge: true });
+  const F = X.PDXFinance, L = X.PDXFinanceLane;
+  const OGE = new Function("window", R("pdx-fd-oge.js").replace(/^[\s\S]*?var ROWS = /, "return ").replace(/;\s*if \(W\.PDXFinance[\s\S]*$/, ";"))({});
+  const rows = { ...SHIPPED_HOLDINGS, trump: OGE.trump };
+  const lnLo = Math.log(8000.5), lnSpan = Math.log(50000000) - lnLo;
+  const yAt = (v) => 4 + 92 * (Math.log(v) - lnLo) / lnSpan;
+  // Every person with the first graph has the second.
+  let firsts = 0;
+  for (const id of new Set(Object.keys(ROSTER).concat(["trump"]))) {
+    const blk = L.wealthBlockHtml(id, ROSTER[id]);
+    const a = blk.indexOf('data-pdx-graph="years"') >= 0, b = blk.indexOf('data-pdx-graph="range"') >= 0;
+    if (a) firsts++;
+    eq(b, a, `${id}: has the range graph exactly when it has the per-line graph`);
+  }
+  eq(firsts, 8, "eight people draw the per-line graph, and so the range graph");
+  for (const pid of Object.keys(SHIPPED_TIMELINES).concat(["trump"])) {
+    const blk = L.wealthBlockHtml(pid, ROSTER[pid]);
+    const forms = rows[pid].forms.filter((f) => f.lines.length);
+    eq((blk.match(/data-pdx-graph="range"/g) || []).length, 1, `${pid}: one range graph`);
+    ok(blk.indexOf('data-pdx-graph="range"') > blk.indexOf('data-pdx-graph="years"') &&
+       blk.indexOf('data-pdx-graph="range"') < blk.indexOf('class="pdx-bands-src"'), `${pid}: …under the per-line graph, above the source line`);
+    const rng = blk.slice(blk.indexOf('class="pdx-rng-wrap"'), blk.indexOf('class="pdx-bands-src"'));
+    lacks(rng, "pdx-bands-dot", `${pid}: the range graph draws no individual dots`);
+    const bars = [...rng.matchAll(/<li class="pdx-rng-band" data-pdx-year="(\d+)" data-pdx-range-lo="([^"]+)" data-pdx-range-hi="([^"]+)" style="left:([\d.]+)%;width:([\d.]+)%">([\s\S]*?)<\/li>/g)]
+      .map((m) => ({ year: +m[1], lo: unesc(m[2]), hi: unesc(m[3]), left: +m[4], width: +m[5], body: m[6] }));
+    eq(bars.map((b) => b.year).join(","), forms.map((f) => f.year).join(","), `${pid}: one bar per year with a ladder line, oldest left`);
+    const y0 = forms[0].year, slots = forms[forms.length - 1].year - y0 + 1;
+    for (const b of bars) {
+      const f = forms.find((x) => x.year === b.year);
+      const vals = f.lines.map((l) => expectedPoint(l.band).value);
+      const vLo = Math.min(...vals), vHi = Math.max(...vals);
+      const pLo = Object.values(F.DISCLOSED_POINTS).find((p) => p.value === vLo);
+      const pHi = Object.values(F.DISCLOSED_POINTS).find((p) => p.value === vHi);
+      eq(F.DISCLOSED_POINTS[b.lo], pLo, `${pid} ${b.year}: the bar starts at the year's lowest stored point (${pLo.label} ${pLo.basis})`);
+      eq(F.DISCLOSED_POINTS[b.hi], pHi, `${pid} ${b.year}: …and ends at its highest (${pHi.label} ${pHi.basis})`);
+      const m = /class="pdx-rng-bar[^"]*" style="bottom:([\d.]+)%;height:([\d.]+)%"/.exec(b.body);
+      ok(m && Math.abs(+m[1] - yAt(vLo)) < 0.01 && Math.abs(+m[1] + +m[2] - yAt(vHi)) < 0.02,
+        `${pid} ${b.year}: …placed on the same log scale`);
+      eq((b.body.match(/class="pdx-rng-bar/g) || []).length, 1, `${pid} ${b.year}: one bar`);
+      has(b.body, `href="${f.formUrl}"`, `${pid} ${b.year}: …linked to that year's PDF`);
+      const sum = unesc((/<span class="pdx-yrs-sum"[^>]*>([\s\S]*?)<\/span><\/span>/.exec(b.body) || [])[1] || "").replace(/<[^>]+>/g, "");
+      const n = f.lines.length;
+      eq(sum, `${f.year} · ${n.toLocaleString("en-US")} ${n === 1 ? "line" : "lines"} · highest band ${pHi.label} ${pHi.basis}`,
+        `${pid} ${b.year}: …with the same summary line under it`);
+      ok(Math.abs(b.left - 100 * (b.year - y0) / slots) < 0.001 && Math.abs(b.width - 100 / slots) < 0.001,
+        `${pid} ${b.year}: …at its year's slot on the axis`);
+    }
+    // NO NEW FIGURE: every dollar token in the range graph is a stored point.
+    const labels = new Set(Object.values(F.DISCLOSED_POINTS).map((p) => p.label));
+    const toks = visible(unesc(rng)).match(/\$[\d.,]+[KM]?/g) || [];
+    ok(toks.every((t) => labels.has(t)), `${pid}: every figure in the range graph is a stored point`);
+    for (const bad of ["total", "net worth of", "combined", "% change", "sum of", "stock", "share", "equity"]) {
+      lacks(visible(rng).toLowerCase(), bad, `${pid}: the range graph prints no "${bad}"`);
+    }
+  }
+  // A year with no ladder lines is absent.
+  const sc = L.wealthBlockHtml("scalise", ROSTER.scalise);
+  const scr = sc.slice(sc.indexOf('class="pdx-rng-wrap"'), sc.indexOf('class="pdx-bands-src"'));
+  lacks(scr, 'data-pdx-year="2025"', "Scalise 2025 draws no range bar");
+  // EVERYTHING ELSE IS BYTE-IDENTICAL WITH THE RANGE GRAPH ON AND OFF.
+  const OFF = box({ oge: true });
+  OFF.PDXFinanceLane._setRangeGraph(false);
+  for (const pid of Object.keys(SHIPPED_TIMELINES).concat(["trump"])) {
+    const on = X.PDXFinanceLane.wealthBlockHtml(pid, ROSTER[pid]);
+    const off = OFF.PDXFinanceLane.wealthBlockHtml(pid, ROSTER[pid]);
+    lacks(off, "pdx-rng", `${pid}: the seam removes the range graph`);
+    const strip = on.replace(/<div class="pdx-rng-wrap">[\s\S]*?(?=<p class="pdx-bands-src")/, "");
+    eq(strip, off, `${pid}: the per-line graph, source line, overlap and awards are byte-identical with the range graph removed`);
+    eq(X.PDXFinanceLane.wealthLetterheadChipHtml(pid, ROSTER[pid]), OFF.PDXFinanceLane.wealthLetterheadChipHtml(pid, ROSTER[pid]),
+      `${pid}: disclosure pill identical`);
+    eq(X.PDXFinanceLane.letterheadChipHtml(pid), OFF.PDXFinanceLane.letterheadChipHtml(pid), `${pid}: receipts pill identical`);
+  }
+  // No sum in the range code.
+  const rAt = LANE_SRC.indexOf("// ── THE SECOND GRAPH");
+  const rSrc = STRIP(LANE_SRC.slice(rAt, LANE_SRC.indexOf("// ── COMMITTEE OVERLAP", rAt)));
+  for (const bad of [".reduce(", "+= l.point", "+= l.", "total", "stock", "share", "equity"]) lacks(rSrc, bad, `the range code carries no "${bad}"`);
 }
 
 // ── report ───────────────────────────────────────────────────────────────────

@@ -9480,7 +9480,16 @@
 //     moved.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v357';
+// v358 - A SECOND WEALTH GRAPH: ONE RANGE BAR PER YEAR. Under the per-line
+//     graph, on the same year axis and log scale, each year draws one bar from
+//     the lowest disclosed point among its lines to the highest, with the same
+//     summary line and PDF link; no dots and no sum. The per-line graph, source
+//     line, overlap section and awards are byte-identical. finance-lane.js and
+//     finance-lane.css are precached and changed, so the shell moves one
+//     version. Neither pill moved.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v358';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

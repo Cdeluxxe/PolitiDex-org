@@ -807,6 +807,31 @@ PDF, and the year's summary line sits under it. Nothing about the dots changes:
 
 A year with no line on the ladder has no band and no summary.
 
+**Two graphs.** Every person with stored points gets two charts in the
+disclosures block, one above the other:
+
+1. **The per-line graph** (unchanged). One dot per stored line at its midpoint
+   or floor, in that year's band on the year axis, with dense boxes capped at
+   24 dots and a printed line count.
+2. **The range graph**, directly under it and above the source line. It uses the
+   same year axis (one slot per calendar year, empty slots kept) and the same
+   log scale, with the vertical axis labelled only at stored points. Each year
+   draws **one vertical bar**:
+   - from the **lowest** disclosed point among that year's lines to the
+     **highest**;
+   - with no dots;
+   - linked to that year's PDF, with the same summary line under it.
+
+The range bar is a span read off two stored points. It is not a sum: no line is
+added to another, and a bar's length is not a net worth. A year where every line
+sits in one box draws a short single-point bar. A year with no line on the
+ladder draws neither a band nor a bar.
+
+`scripts/test-wealth-bands.mjs` checks that every person with the first graph
+has the second, and checks each bar's two ends against the year's stored points.
+It also checks that the per-line graph, source line, overlap section, awards and
+pills are byte-identical with the range graph on and off.
+
 **The summary line under each year.** Every year's band ends with one line,
 for example:
 

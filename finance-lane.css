@@ -514,6 +514,24 @@
 .pdx-yrs-plot .pdx-bands-dot { transform: translateY(50%); }
 /* A dense box's line count, sitting at the box's height on the right of the
    column. It counts lines, never dollars. */
+/* THE RANGE GRAPH. Same field, axis and rules as the per-line graph; one bar
+   per year from the lowest to the highest disclosed point. One fill for every
+   bar — a longer bar is a wider spread of filed boxes, never a brighter one. */
+.pdx-rng-wrap {
+  margin: 0.8rem 0 0;
+  padding: 0.55rem 0 0;
+  border-top: 1px dashed var(--pdx-money-line-soft);
+}
+.pdx-rng-bar {
+  position: absolute;
+  left: 30%;
+  right: 30%;
+  min-height: 3px;
+  transform: translateY(1.5px);
+  border-radius: 3px;
+  background: var(--pdx-money-line);
+}
+.pdx-rng-bar.is-one { transform: translateY(50%); }
 .pdx-yrs-more {
   position: absolute;
   right: 2px;
