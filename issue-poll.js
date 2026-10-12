@@ -39,6 +39,9 @@
   // the board's widget (district-poll.js) asks the same question in the same order.
   var ISSUES = {
     stock_trading_ban: 1,
+    // Support for Israel: the three poles, on Utah's federal boards — aid,
+    // weapons and sanctions are congressional votes.
+    israel_support: 1,
     campaign_finance: {
       legend: 'What is the best way to get money out of politics?',
       choices: [

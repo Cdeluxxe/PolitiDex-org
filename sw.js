@@ -9370,7 +9370,20 @@
 //     20261114000000_vr_campaign_finance_hr5746_secondary adds one secondary
 //     vr_measure_issues row and 20261115000000_voice_poll_campaign_finance_choices
 //     widens the voice_poll_votes choice CHECK; neither moves an existing row.
-const CACHE_VERSION = 'v348';
+// v349 - A POLL ON THE SUPPORT FOR ISRAEL ISSUE FILE. /i/israel_support's
+//     letterhead carries the Support / Oppose / Not sure poll for a Utah
+//     federal seat, read and cast through /api/district-board-poll — the
+//     boards' own store and gate: counts open to everyone, a vote only for a
+//     vendor-verified resident of that seat, an unverified vote 403 with
+//     nothing written. "See the district's voice" opens
+//     /district/<seat>?topic=israel_support, which the board already reads as
+//     that issue's comments. Every vote row on the issue's drawers already
+//     prints its stored effect line, so no line and no mapping moved.
+//     issue-poll.js is precached and changed, so the shell moves one version.
+//     No board, seat, address pattern, residency or membership rule, monthly
+//     cap or money pill moved. No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v349';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
