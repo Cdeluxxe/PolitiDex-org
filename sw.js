@@ -9383,7 +9383,17 @@
 //     No board, seat, address pattern, residency or membership rule, monthly
 //     cap or money pill moved. No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v349';
+// v350 - A RANGE-BAND GRAPH IN THE DISCLOSURES BLOCK. pdx-finance.js gains a
+//     third table, PDX_FD_HOLDINGS (lines as filed: asset name + the category
+//     box ticked), its own curation gate and a holdings(pid) read; finance-lane.js
+//     draws one bar per line inside the on-file disclosures block, spanning the
+//     category's rung on the form's own ladder — no midpoint, no subtotal, no
+//     net-worth line. The table ships EMPTY, so no profile draws a bar today and
+//     every empty block reads exactly as before. pdx-finance.js, finance-lane.js
+//     and finance-lane.css are precached and changed, so the shell moves one
+//     version. Neither money pill, the receipts math or tenure moved.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v350';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

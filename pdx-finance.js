@@ -158,6 +158,13 @@
    transcribes holdings, they are LINES AS FILED in the long block only — never
    summed, never averaged, and never copied onto the pill.
 
+   That wave now has a table to fill: PDX_FD_HOLDINGS, a third object, read by
+   `holdings(pid)` and drawn by the disclosures block as one range band per
+   line. A line is two strings — the asset as named and the category box as
+   spelled — and its place on the graph is the rung that box occupies on the
+   form's own ladder, found by literal lookup. It ships EMPTY: no line is typed
+   in until a reviewed transcription reads it off the PDF.
+
    `tenureYears` is NOT stored: it is read off the person file's own termStart /
    termEnd every time, through window._pdxTenure and through nothing else, so the
    years-in-office figure on a money chip is the same figure the letterhead's 🗓️
@@ -594,6 +601,142 @@
     return out;
   }
 
+  // ── THE HOLDINGS TABLE: LINES AS FILED, FOR THE RANGE-BAND GRAPH ──────────
+  // The third table, and the one the disclosures block draws. Keyed by pid,
+  // one row per person, and that row is the SAME DOCUMENT the pill names: its
+  // year and formUrl must equal the PDX_FD_DOCUMENTS row for that pid, so the
+  // graph can only ever show lines off the most recent form this site holds —
+  // never an older form, never a second document the pill does not mention.
+  //
+  //   'someone': {
+  //     year: 2025,                                  // = the document row's
+  //     formUrl: 'https://disclosures-clerk…/x.pdf', // = the document row's
+  //     lines: [
+  //       { asset: 'Name of the asset as printed', band: '$1,000,001 - $5,000,000' }
+  //     ]
+  //   }
+  //
+  // EMPTY ON PURPOSE. Transcribing a form line by line is a reviewed wave of its
+  // own, and no line ships until somebody has read it off the PDF. Until then
+  // `holdings()` answers null for everybody and no profile draws a single bar.
+  //
+  // A LINE IS TWO STRINGS. The asset as the filer named it, and the category
+  // box the filer ticked, spelled as the form spells it. No value field, no
+  // midpoint, no subtotal, no count of lines stored beside them. A band that is
+  // not on the ladder below is refused rather than drawn, so an exact figure, a
+  // '$0' or a band typed in a spelling nobody has paired cannot reach the graph.
+  var PDX_FD_HOLDINGS = {};
+
+  // THE FORM'S OWN LADDER OF CATEGORIES, IN THE ORDER THE FORM PRINTS THEM.
+  // Each rung is one filed category, written as the short label bandLabel()
+  // already maps every filed spelling onto. A bar's place is its rung: its left
+  // edge is the boundary where that category begins on the form, its right edge
+  // the boundary where it ends. Position comes from WHICH BOX WAS TICKED, looked
+  // up by literal key — no digit is read, no bound is parsed, and there is no
+  // dollar scale to compute a middle on. The top rung has no ceiling on the form,
+  // and the graph draws it open-ended rather than inventing one.
+  var BAND_LADDER = ['$1–15K', '$15–50K', '$50–100K', '$100–250K', '$250–500K',
+                     '$500K–1M', '$1–5M', '$5–25M', '$25–50M', 'over $50M'];
+  function bandRung(filed) {
+    if (filed == null) return -1;
+    var raw = String(filed).trim();
+    if (!Object.prototype.hasOwnProperty.call(FILED_BAND_LABELS, raw)) return -1;
+    return BAND_LADDER.indexOf(FILED_BAND_LABELS[raw]);
+  }
+
+  // THE HOLDINGS GATE. Same posture as the two above: it names the pid and the
+  // rule, never repairs, never drops silently.
+  //   DOCUMENT  year and formUrl present, and identical to the document row the
+  //             pill already names. No document row, no holdings row.
+  //   LINES     a non-empty array. Each line exactly { asset, band }: a non-empty
+  //             asset name and a band that is a filed category on the ladder.
+  //   NO FIGURE, NO TENURE, NOTHING ELSE — on the row or on any line.
+  var HOLDING_FIELDS = ['year', 'formUrl', 'lines'];
+  var LINE_FIELDS = ['asset', 'band'];
+  function holdingsRowDefects(pid, row, docs) {
+    var out = [];
+    if (!row || typeof row !== 'object') return [pid + ': row is not an object'];
+    var doc = docs && Object.prototype.hasOwnProperty.call(docs, pid) ? docs[pid] : null;
+    var yr = (row.year == null) ? '' : String(row.year).trim();
+    var url = (row.formUrl == null) ? '' : String(row.formUrl).trim();
+    if (!/^[12][0-9]{3}$/.test(yr)) out.push(pid + ': year is not a four-digit form year');
+    if (!url) {
+      out.push(pid + ': formUrl is empty — no lines without the document they came off');
+    } else if (!/^https:\/\/[^\/?#]*\.gov(?:[:\/?#]|$)/i.test(url)) {
+      out.push(pid + ': formUrl is not an https link to a .gov document (' + urlForMessage(url) + ')');
+    }
+    if (!doc) {
+      out.push(pid + ': no document row — lines can only come off the form the pill names');
+    } else if (String(doc.formUrl || '').trim() !== url || String(doc.year == null ? '' : doc.year).trim() !== yr) {
+      out.push(pid + ': year or formUrl does not match the document row — lines must come off the form the pill names');
+    }
+    var lines = row.lines;
+    if (!Array.isArray(lines) || !lines.length) {
+      out.push(pid + ': lines is not a non-empty list');
+      lines = [];
+    }
+    for (var i = 0; i < lines.length; i++) {
+      var ln = lines[i], tag = pid + ': line ' + (i + 1);
+      if (!ln || typeof ln !== 'object') { out.push(tag + ' is not an object'); continue; }
+      var asset = (ln.asset == null) ? '' : String(ln.asset).trim();
+      if (!asset) out.push(tag + ' has no asset name');
+      if (bandRung(ln.band) < 0) out.push(tag + ' band is not a filed category on the ladder');
+      for (var lk in ln) {
+        if (!Object.prototype.hasOwnProperty.call(ln, lk)) continue;
+        if (LINE_FIELDS.indexOf(lk) < 0) out.push(tag + ' carries unrecognised field ' + lk);
+      }
+    }
+    for (var t = 0; t < TENURE_FIELDS.length; t++) {
+      if (Object.prototype.hasOwnProperty.call(row, TENURE_FIELDS[t])) {
+        out.push(pid + ': carries ' + TENURE_FIELDS[t] + ' — tenure comes only from _pdxTenure');
+      }
+    }
+    for (var key in row) {
+      if (!Object.prototype.hasOwnProperty.call(row, key)) continue;
+      if (HOLDING_FIELDS.indexOf(key) >= 0) continue;
+      if (TENURE_FIELDS.indexOf(key) >= 0) continue;
+      out.push(pid + ': unrecognised field ' + key);
+    }
+    return out;
+  }
+  function holdingsDefects(table) {
+    var t = (table && typeof table === 'object') ? table : PDX_FD_HOLDINGS;
+    var out = [];
+    for (var pid in t) {
+      if (!Object.prototype.hasOwnProperty.call(t, pid)) continue;
+      out = out.concat(holdingsRowDefects(pid, t[pid], PDX_FD_DOCUMENTS));
+    }
+    return out;
+  }
+
+  // ── HOLDINGS: THE LINES TO DRAW, OR NULL ──────────────────────────────────
+  // Null unless the row passes the gate AND the document read answers for the
+  // same pid. What comes back is the lines, in the order the graph draws them —
+  // top category first, filing order within a category — each carrying the band
+  // as filed, its short label and its rung. That is all: no value, no middle, no
+  // subtotal, no line count. A consumer that wants a number has to invent it.
+  function holdings(pid) {
+    if (!pid || !Object.prototype.hasOwnProperty.call(PDX_FD_HOLDINGS, pid)) return null;
+    var row = PDX_FD_HOLDINGS[pid];
+    if (holdingsRowDefects(pid, row, PDX_FD_DOCUMENTS).length) return null;
+    if (!wealth(pid, null)) return null;
+    var lines = [];
+    for (var i = 0; i < row.lines.length; i++) {
+      var filed = String(row.lines[i].band).trim();
+      lines.push({ asset: String(row.lines[i].asset).trim(), filed: filed,
+                   band: bandLabel(filed), rung: bandRung(filed), at: i });
+    }
+    lines.sort(function (a, b) { return (b.rung - a.rung) || (a.at - b.at); });
+    return {
+      year: String(row.year).trim(),
+      formUrl: String(row.formUrl).trim(),
+      rungs: BAND_LADDER.slice(),
+      lines: lines.map(function (l) {
+        return { asset: l.asset, filed: l.filed, band: l.band, rung: l.rung };
+      })
+    };
+  }
+
   // ── COVERAGE, ON THE SAME TERMS THE FILING LANE DISCLOSES ITS OWN ─────────
   // How many disclosure rows exist, out of how many people the site carries,
   // and the explicit statement that a blank is missing DATA. Read live off the
@@ -678,6 +821,12 @@
     // The same, for the document index: which form, which year, which .gov
     // document, and no figure anywhere on the row.
     documentDefects: documentDefects,
+    // The holdings lines the disclosures block draws as range bands, the
+    // ladder their place is looked up on, and the gate a line has to pass.
+    // holdings(pid) is null for every pid today: the table ships empty.
+    holdings: holdings,
+    BAND_LADDER: BAND_LADDER,
+    holdingsDefects: holdingsDefects,
     // Declared, so the wall is readable off the object as well as off the
     // header. Asserted by scripts/test-money-two-chips.mjs.
     scored: false,
@@ -696,6 +845,12 @@
     _setDocumentTable: function (table) {
       PDX_FD_DOCUMENTS = (table && typeof table === 'object') ? table : {};
       return onFileCount();
+    },
+    // And for the holdings lines. Overriding it cannot introduce arithmetic:
+    // a line is drawn at the rung its filed band looks up to, or not at all.
+    _setHoldingsTable: function (table) {
+      PDX_FD_HOLDINGS = (table && typeof table === 'object') ? table : {};
+      return holdingsDefects().length;
     }
   };
 })();

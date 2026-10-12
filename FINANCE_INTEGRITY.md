@@ -637,8 +637,8 @@ drives twenty-one illegal rows through the gate one broken rule at a time.
 heading, `FD on file` / `COI on file` matching the pill, the year and the
 archive, the document as an anchor (`target="_blank" rel="noopener noreferrer"`),
 and the one sentence about what these forms report instead of a total. Nothing is
-transcribed in this pass, so the block stops there — no invented lines, no
-holdings table. Where there is no row: the existing empty copy, which says a
+transcribed in this pass, so the block stops there — no invented lines, and the
+holdings table (see the range-band graph below) ships empty. Where there is no row: the existing empty copy, which says a
 blank is missing data on our side, not a disclosure of `$0` and not a finding
 that this person failed to file. The campaign filings block is untouched, there
 is no third chip, no compare control, no chart and no grade.
@@ -691,6 +691,31 @@ box now opens with one sentence saying what it is not —
 — because a reader who meets both surfaces has to be told which one is the
 filing, in the block that is not. `pdx-finance.js` is still not loaded on that
 document; the sentence is copy, not a second pill.
+
+### The range-band graph: filed categories as bands, and an empty table
+
+The disclosures block can now carry a **range-band graph**, drawn only in its
+on-file branch: one horizontal bar per line on the form the pill names. Each
+bar spans the category of value the filer ticked: its left edge is where that
+category begins on the form's own ladder and its right edge is where it ends.
+The bars are grouped by those categories, largest first, and each one is
+labelled with the asset as named and the band as filed, e.g. `Asset name ·
+$1–5M`, with the form's exact spelling in the title.
+
+What it never does: work out a midpoint, turn a band into a single figure, add
+bars together, print a line count, a net-worth line or a percent, or touch the
+receipts pill. A bar's place comes from a literal lookup of the filed band
+against `BAND_LADDER`, not from parsing any digit. The top category has no
+ceiling on the form, so its bar runs open to the end of the track.
+
+The lines live in a third table, `PDX_FD_HOLDINGS` in `pdx-finance.js`, with its
+own gate (`holdingsDefects()`): a row must match the document row's year and
+`.gov` form URL exactly, and every line is `{ asset, band }` with a band on the
+filed ladder. No figure fields, no tenure fields, nothing else. **It ships
+empty.** No line goes in until a reviewed transcription has read it off the PDF,
+so today no profile draws a bar and every block reads as it did before.
+`scripts/test-wealth-bands.mjs` exercises the graph through the test-only
+`_setHoldingsTable` seam.
 
 ## The wall
 

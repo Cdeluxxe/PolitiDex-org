@@ -1203,6 +1203,66 @@
     try { return wealthLetterheadChipHtml(pid, person); } catch (e) { return ''; }
   }
 
+  // ── THE RANGE-BAND GRAPH — WHAT THE FORM'S LINES SAY, AS BANDS ─────────────
+  // One bar per line on the form the pill names, off PDXFinance.holdings(), and
+  // drawn only inside the on-file branch of the disclosures block. No holdings
+  // row means no graph and not a placeholder: the block above already says what
+  // is and is not on hand, in words.
+  //   A BAND STAYS A BAND. Each bar spans the rung of the form's own category
+  // ladder that the filer ticked — left edge where the category begins, right
+  // edge where it ends — and the only arithmetic here is placing rung r of n on
+  // the track. No dollar figure is read, no middle value is drawn or printed,
+  // and no bar is added to another: there is no subtotal, no line count and no
+  // net-worth line. The top rung has no ceiling on the form, so it runs open to
+  // the end of the track instead of stopping at an invented one.
+  //   THE ONLY DIGITS ARE FILED ONES. The visible text is the asset names as
+  // filed and the band labels, nothing else — no year, no count, no scale ticks.
+  // The filed spelling rides in the title for a reader who wants the form's
+  // exact words.
+  //   NOT CAMPAIGN MONEY. Nothing here reads a filing record, and nothing in it
+  // can reach the receipts pill, which reads its own lane and nothing of this.
+  function holdingsGraphHtml(pid) {
+    var F = W.PDXFinance, h = null;
+    if (F && typeof F.holdings === 'function') {
+      try { h = F.holdings(pid); } catch (e) { h = null; }
+    }
+    if (!h || !h.lines || !h.lines.length || !h.rungs || !h.rungs.length) return '';
+    var n = h.rungs.length, groups = '', cur = null, items = '';
+    function flush() {
+      if (cur == null) return;
+      groups += '<li class="pdx-bands-group">' +
+        '<div class="pdx-bands-group-h">' + esc(h.rungs[cur]) + '</div>' +
+        '<ul class="pdx-bands-list">' + items + '</ul></li>';
+      items = '';
+    }
+    for (var i = 0; i < h.lines.length; i++) {
+      var l = h.lines[i];
+      if (l.rung < 0 || l.rung >= n) continue;
+      if (l.rung !== cur) { flush(); cur = l.rung; }
+      var open = l.rung === n - 1;
+      var left = (100 * l.rung / n).toFixed(3);
+      var width = (100 * (open ? n - l.rung : 1) / n).toFixed(3);
+      items +=
+        '<li class="pdx-bands-row" data-pdx-band="' + attr(l.filed) + '" title="As filed: ' + attr(l.filed) + '">' +
+          '<span class="pdx-bands-label">' + esc(l.asset) + ' · ' + esc(l.band) + '</span>' +
+          '<span class="pdx-bands-track" aria-hidden="true" style="--pdx-bands-n:' + n + '">' +
+            '<span class="pdx-bands-bar' + (open ? ' is-open' : '') + '" style="left:' + left + '%;width:' + width + '%"></span>' +
+          '</span>' +
+        '</li>';
+    }
+    flush();
+    if (!groups) return '';
+    return '<div class="pdx-bands" data-pdx-bands="' + attr(pid) + '">' +
+        '<h5 class="pdx-bands-h">Value categories as filed</h5>' +
+        '<p class="pdx-money-block-s">Each bar is one line on this form, spanning the category ' +
+          'the filer ticked, from where it begins on the form’s own ladder to where it ends. ' +
+          'No middle value is worked out, no bar is added to another, and nothing here is a net ' +
+          'worth or campaign money.</p>' +
+        '<div class="pdx-bands-scale" aria-hidden="true"><span>smaller categories</span><span>larger categories</span></div>' +
+        '<ul class="pdx-bands-groups">' + groups + '</ul>' +
+      '</div>';
+  }
+
   // ── THE DISCLOSURES BLOCK — CHIP 2'S OTHER END ─────────────────────────────
   // What the second pill is a door TO. It carries the same figure as the chip, by
   // construction: one wealthRead() per surface, no second lookup and no second
@@ -1257,7 +1317,7 @@
           'This is a filed form, not campaign money: it is a different fact from the receipts ' +
           'above it, over a different span, and the two are never added together or divided ' +
           'into one another.' +
-        '</p>' + link;
+        '</p>' + link + holdingsGraphHtml(pid);
     } else {
       body =
         '<div class="pdx-money-block-fig is-none">No in-office wealth file on hand</div>' +
@@ -1352,6 +1412,9 @@
     wealthLetterheadChipHtml: wealthLetterheadChipHtml,
     wealthLetterheadChipMount: wealthLetterheadChipMount,
     wealthBlockHtml: wealthBlockHtml,
+    // The range-band graph the block carries when the form's lines are on hand.
+    // Empty string otherwise, which is every pid today.
+    holdingsGraphHtml: holdingsGraphHtml,
     openWealthSection: openWealthSection,
     // The campaign-filing lookup, published so PDXFinance.filing(pid) can delegate
     // to it instead of keeping a second copy of the two seams and the id alias.

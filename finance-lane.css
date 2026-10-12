@@ -351,6 +351,82 @@
   text-transform: uppercase;
   color: #7596c0;
 }
+/* THE RANGE-BAND GRAPH. One bar per filed line, spanning the rung of the
+   form's own category ladder the filer ticked. ONE FILL FOR EVERY BAR: the gold
+   is the lane, not a level, so a bigger category is a bar further right and
+   never a brighter one. The faint rungs behind each track are the form's
+   category boundaries. The top category has no ceiling on the form, so its bar
+   fades out at the track's end instead of closing on an invented edge. */
+.pdx-bands {
+  margin: 0.7rem 0 0;
+  padding: 0.55rem 0 0;
+  border-top: 1px solid var(--pdx-money-line-soft);
+}
+.pdx-bands-h {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pdx-money-ink);
+  margin: 0;
+  font-weight: 600;
+}
+.pdx-bands-scale {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.5rem 0 0.15rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.56rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pdx-money-text);
+}
+.pdx-bands-groups,
+.pdx-bands-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.pdx-bands-group { margin: 0.45rem 0 0; }
+.pdx-bands-group-h {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.74rem;
+  color: var(--pdx-money-ink);
+  margin: 0 0 0.2rem;
+}
+.pdx-bands-row { margin: 0 0 0.35rem; }
+.pdx-bands-label {
+  display: block;
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: var(--pdx-money-text);
+  overflow-wrap: anywhere;
+}
+.pdx-bands-track {
+  position: relative;
+  display: block;
+  height: 0.5rem;
+  margin: 0.15rem 0 0;
+  border-radius: 0.2rem;
+  background:
+    repeating-linear-gradient(to right,
+      transparent 0, transparent calc(100% / var(--pdx-bands-n, 10) - 1px),
+      rgba(201, 153, 47, 0.22) calc(100% / var(--pdx-bands-n, 10) - 1px),
+      rgba(201, 153, 47, 0.22) calc(100% / var(--pdx-bands-n, 10))),
+    rgba(201, 153, 47, 0.06);
+}
+.pdx-bands-bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 0.2rem;
+  background: var(--pdx-money-line);
+}
+.pdx-bands-bar.is-open {
+  border-radius: 0.2rem 0 0 0.2rem;
+  background: linear-gradient(to right, var(--pdx-money-line) 55%, rgba(201, 153, 47, 0));
+}
 /* Arrival, for the disclosures block's own anchor. Same soft ring as the
    section's, because it is the same kind of event: a reader was sent here by a
    pill and is being put inside the thing they asked for. */
