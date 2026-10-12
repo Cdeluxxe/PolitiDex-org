@@ -9383,7 +9383,122 @@
 //     No board, seat, address pattern, residency or membership rule, monthly
 //     cap or money pill moved. No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v349';
+// v350 - A RANGE-BAND GRAPH IN THE DISCLOSURES BLOCK. pdx-finance.js gains a
+//     third table, PDX_FD_HOLDINGS (lines as filed: asset name + the category
+//     box ticked), its own curation gate and a holdings(pid) read; finance-lane.js
+//     draws one bar per line inside the on-file disclosures block, spanning the
+//     category's rung on the form's own ladder — no midpoint, no subtotal, no
+//     net-worth line. The table ships EMPTY, so no profile draws a bar today and
+//     every empty block reads exactly as before. pdx-finance.js, finance-lane.js
+//     and finance-lane.css are precached and changed, so the shell moves one
+//     version. Neither money pill, the receipts math or tenure moved.
+//     MIGRATION COST: none.
+// v351 - THE FOUR HOUSE FDs, TRANSCRIBED INTO THE HOLDINGS TABLE. Moore (16
+//     lines), Maloy (3) and Kennedy (28) get their 2025 Schedule A lines as
+//     printed, each row matching the year and House Clerk URL the disclosure
+//     pill already names, so the range-band graph now draws for those three.
+//     Lines filed off the ladder (spouse 'Over $1,000,000', '$1 - $1,000',
+//     'Undetermined') are left out and the graph says such lines are not drawn.
+//     Owens's paper form has no line on the ladder, so he has no row and his
+//     block is unchanged. pdx-finance.js and finance-lane.js are precached and
+//     changed, so the shell moves one version. Neither pill moved.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+// v352 - DISCLOSED MIDPOINTS AND A YEAR-BY-YEAR TIMELINE IN THE DISCLOSURES
+//     BLOCK. A holdings line may now carry the midpoint of its closed filed
+//     category (or the floor of the open top one), taken only from the literal
+//     DISCLOSED_POINTS table and checked by the gate; every figure prints with
+//     "Midpoint of the filed category" or "Floor of the open-ended category".
+//     The holdings table became a timeline of House Clerk forms per member
+//     (2021 electronic layout onward), newest = the pill's form, for bmoore,
+//     maloy, kennedy and a House leadership batch — jeffries, scalise,
+//     jim_jordan, aoc — with document rows added for those four and for
+//     mike_johnson, whose Schedule A is "None disclosed" every year. No line is
+//     summed; no net worth, per-year figure or percent change exists.
+//     pdx-finance.js, finance-lane.js and finance-lane.css are precached and
+//     changed, so the shell moves one version. Neither pill's code moved.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+// v353 - THE WEALTH GRAPH TURNS ON ITS SIDE: FILING YEARS LEFT TO RIGHT.
+//     Where a member's lines carry disclosed points, the disclosures block now
+//     draws one column per form the table holds, oldest on the left, each column
+//     a link to that year's .gov PDF with the year under it; inside, one dot per
+//     filed line at its stored midpoint (or floor) on a vertical log scale. The
+//     axis is labelled only at points the member's lines carry, and the
+//     "How each figure was made" source line stays under the graph. A row with
+//     no stored point still draws its bands as before. No table, gate or row
+//     moved. finance-lane.js and finance-lane.css are precached and changed, so
+//     the shell moves one version. Neither pill moved.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+// v354 - A COMMITTEE-OVERLAP SENTENCE AND RELATED AWARDS UNDER THE WEALTH
+//     GRAPH. Where a stored holdings line names a listed defense contractor's
+//     ticker on a form from a year the member held a covered seat (House or
+//     Senate Armed Services, Defense Appropriations), the disclosures block
+//     prints "Holds BA while on House Armed Services." with the annual report
+//     and the .gov roster record linked, then the largest contract signed with
+//     that company in each graph year, each linked to its USASpending award page
+//     with the obligation as published. Overlaps are derived, never stored; no
+//     award is added to another. Only bmoore has one on file (BA and RTX,
+//     2021-2022, H.Res. 63). pdx-finance.js, finance-lane.js and
+//     finance-lane.css are precached and changed, so the shell moves one
+//     version. Neither pill moved.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+// v355 - THE PRESIDENT'S OGE 278e REPORTS JOIN THE WEALTH TIMELINE. trump
+//     gains an OGE document row and two year columns (calendar 2024 and 2025,
+//     from the reports OGE posted in June 2025 and June 2026), one dot per
+//     stored line at its disclosed midpoint or floor; a box with more than 24
+//     lines in a year draws 24 dots and prints its line count. His lines ship
+//     in a NEW, NON-PRECACHED data file, pdx-fd-oge.js, fetched by
+//     finance-lane.js only when his disclosures block is drawn. The overlap
+//     layer gains the executive rule: "Held LMT while in office." when a
+//     stored line names a listed contractor's shares on a form from a year in
+//     office, with awards for those companies in the graph's years.
+//     pdx-finance.js, finance-lane.js and finance-lane.css are precached and
+//     changed, so the shell moves one version. Neither pill's code moved.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+// v356 - A SUMMARY LINE UNDER EACH WEALTH-GRAPH COLUMN. Every year column now
+//     ends with "2025 · 4,826 lines · highest band $50M floor": the lines the
+//     column draws, and the highest box with a line that year, named by its
+//     disclosed point. A year with no line on the ladder now draws no column
+//     at all (Scalise 2025 used to draw an empty one). Dots, scale, links,
+//     source line, overlap and awards are unchanged. finance-lane.js and
+//     finance-lane.css are precached and changed, so the shell moves one
+//     version. Neither pill moved.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+// v357 - THE WEALTH GRAPH IS ONE CONTINUOUS CHART. The per-year column boxes
+//     are replaced by one plot area per person — one background, one set of
+//     rules, one baseline — with each year's band of dots placed at that
+//     year's slot on a single year axis, oldest left, newest right; a year
+//     with no form on file leaves its slot empty. Each band keeps its dots,
+//     its summary line and its PDF link. Dots, scale, cap, source line,
+//     overlap and awards are unchanged. finance-lane.js and finance-lane.css
+//     are precached and changed, so the shell moves one version. Neither pill
+//     moved.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+// v358 - A SECOND WEALTH GRAPH: ONE RANGE BAR PER YEAR. Under the per-line
+//     graph, on the same year axis and log scale, each year draws one bar from
+//     the lowest disclosed point among its lines to the highest, with the same
+//     summary line and PDF link; no dots and no sum. The per-line graph, source
+//     line, overlap section and awards are byte-identical. finance-lane.js and
+//     finance-lane.css are precached and changed, so the shell moves one
+//     version. Neither pill moved.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+// v359 - THE RANGE GRAPH RUNS LEFT TO RIGHT ON ITS TIME AXIS. Its year bands
+//     carry their own class, and finance-lane.css only positioned the per-line
+//     graph's bands, so the range bands fell back to ordinary list items and
+//     stacked down the page. Both band classes now share the absolute-at-slot
+//     rule. Markup, data, the per-line graph, overlap and awards are
+//     unchanged. finance-lane.css is precached and changed, so the shell moves
+//     one version. Neither pill moved.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v359';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

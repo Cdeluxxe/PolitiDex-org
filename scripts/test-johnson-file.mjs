@@ -344,13 +344,22 @@ console.log(`   johnson file: ${PID} · ${Object.keys(ROSTER).length} rostered �
   // THE FOUR HOUSE ROWS ARE UNTOUCHED. This pass was not allowed to change them,
   // and the cheapest way to "fix" an empty Utah pill would have been to widen
   // that table until something matched.
-  eq(DOC_PIDS.sort().join(","), ["bmoore", "kennedy", "maloy", "owens"].sort().join(","),
-    "the shipped document index is still exactly the four House rows");
+  // The index has since grown by a House leadership batch (v352), each row a
+  // House Clerk document for a sitting member of Congress. What this pass pinned
+  // still holds: the four Utah House rows are there, every row is a House Clerk
+  // document, and nothing state-level was added to fill a Utah pill.
+  for (const pid of ["bmoore", "kennedy", "maloy", "owens"]) {
+    ok(DOC_PIDS.indexOf(pid) >= 0, `the ${pid} House row is still in the document index`);
+  }
+  for (const pid of DOC_PIDS) {
+    ok(/^https:\/\/(?:disclosures-clerk\.house\.gov|extapps2\.oge\.gov)\//.test(DOCS[pid].formUrl),
+      `${pid}: every document row is a federal House Clerk or OGE document, not a state form`);
+  }
   for (const id of DOC_PIDS) {
     eq(DOCS[id].kind, "FD", `${id} is still a federal FD row`);
     eq(String(DOCS[id].year), "2025", `…for 2025`);
-    ok(/^https:\/\/disclosures-clerk\.house\.gov\//.test(String(DOCS[id].formUrl || "")),
-      `…linking the clerk's own document`);
+    ok(/^https:\/\/(?:disclosures-clerk\.house\.gov|extapps2\.oge\.gov)\//.test(String(DOCS[id].formUrl || "")),
+      `…linking the House Clerk's or OGE's own document`);
   }
   // AND THE UTAH CHALLENGE PAGE IS NOT IN EITHER TABLE, for him or for anyone.
   // "Looked for, not chipped" means the archive's front door was not written

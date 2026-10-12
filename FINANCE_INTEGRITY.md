@@ -637,8 +637,8 @@ drives twenty-one illegal rows through the gate one broken rule at a time.
 heading, `FD on file` / `COI on file` matching the pill, the year and the
 archive, the document as an anchor (`target="_blank" rel="noopener noreferrer"`),
 and the one sentence about what these forms report instead of a total. Nothing is
-transcribed in this pass, so the block stops there — no invented lines, no
-holdings table. Where there is no row: the existing empty copy, which says a
+transcribed in that pass; the holdings wave that followed puts lines only in
+the range-band graph described below, never in the block's own copy. Where there is no row: the existing empty copy, which says a
 blank is missing data on our side, not a disclosure of `$0` and not a finding
 that this person failed to file. The campaign filings block is untouched, there
 is no third chip, no compare control, no chart and no grade.
@@ -691,6 +691,366 @@ box now opens with one sentence saying what it is not —
 — because a reader who meets both surfaces has to be told which one is the
 filing, in the block that is not. `pdx-finance.js` is still not loaded on that
 document; the sentence is copy, not a second pill.
+
+### The range-band graph: filed categories as bands, and an empty table
+
+The disclosures block can now carry a **range-band graph**, drawn only in its
+on-file branch: one horizontal bar per line on the form the pill names. Each
+bar spans the category of value the filer ticked: its left edge is where that
+category begins on the form's own ladder and its right edge is where it ends.
+The bars are grouped by those categories, largest first, and each one is
+labelled with the asset as named and the band as filed, e.g. `Asset name ·
+$1–5M`, with the form's exact spelling in the title.
+
+What it never does: add bars together, print a net-worth line, a per-year
+figure or a percent change, or touch the receipts pill. (It first shipped with no
+midpoint at all; the disclosed-midpoint rule below is the one, written-down
+exception.) A bar's place comes from a literal lookup of the filed band
+against `BAND_LADDER`, not from parsing any digit. The top category has no
+ceiling on the form, so its bar runs open to the end of the track.
+
+The lines live in a third table, `PDX_FD_HOLDINGS` in `pdx-finance.js`, with its
+own gate (`holdingsDefects()`): a row must match the document row's year and
+`.gov` form URL exactly, and every line is `{ asset, band }` with a band on the
+filed ladder. No figure fields, no tenure fields, nothing else.
+
+**The first transcription covered the four House FDs the site already links**,
+and only those. Each Schedule A line was copied off the House Clerk PDF: the
+asset name as printed (the parent account chain joined with ⇒, the bracketed
+asset-type code kept) and the value box as ticked, in the clerk's spaced-hyphen
+spelling. Liabilities, income and transactions are not assets and are not in the
+table.
+
+| Member | Lines drawn | Left out, because the box is off the ladder |
+| --- | --- | --- |
+| Blake Moore | 16 | two spouse lines under H. Roger Boyer Family Partnership, LTD., each `Spouse/DC Over $1,000,000` |
+| Celeste Maloy | 3 | none |
+| Mike Kennedy | 28 | Kennedy Capital, LLC, filed `$1 - $1,000` |
+| Burgess Owens | 0, so no row | all five: a handwritten paper form with three lines in the lowest box and two `Undetermined` |
+
+A line in a box the ladder doesn't hold is left out rather than squeezed onto a
+rung, and the graph carries a fixed sentence saying so and pointing to the form,
+which lists every line. Some asset names as filed contain words like "Common
+Stock", "Shares" or "100% Interest". They are quoted exactly, because the asset
+name is the filer's text, not PolitiDex copy. `scripts/test-wealth-bands.mjs`
+pins the shipped counts and stored bands, and exercises every other state
+through the test-only `_setHoldingsTable` seam.
+
+### Disclosed midpoints, and a year-by-year timeline
+
+**The midpoint rule.** A holdings line may carry one *disclosed point* beside its
+filed band, and only these:
+
+| Filed box | Point | Basis |
+| --- | --- | --- |
+| a closed box, e.g. `$1,000,001 - $5,000,000` | the arithmetic midpoint of its two ends (`3000000.5`, shown `$3M`) | **Midpoint of the filed category** |
+| the open top box, `Over $50,000,000` | its floor (`50000000`, shown `$50M`) | **Floor of the open-ended category** |
+
+The points are a literal table, `DISCLOSED_POINTS` in `pdx-finance.js`, with one
+entry per rung of the ladder. The module still does no arithmetic.
+`scripts/test-wealth-bands.mjs` recomputes every entry from the filed spelling's
+own two ends and fails if one drifts. The gate refuses a stored `midpoint` or
+`floor` unless it equals the table's entry for that line's band. That rules out
+a rounded figure, a point from another box, a midpoint on the open box, a floor
+on a closed box, both at once, and a point on a box that is off the ladder.
+Display labels are rounded to their unit, because the point is a signal and not
+a dollar count. The band stays the finding beside it.
+
+**The disclosure sentence.** Every point prints with the sentence for its basis:
+"Midpoint of the filed category" or "Floor of the open-ended category". The
+sentence appears in each dot's title, and in a *How each figure was made* source
+line under the graph that spells out each basis the graph uses. The only figures
+in the graph are filed bands and points that some stored line carries. A row
+stored without any point draws exactly as before: bands, no year drawing, and
+the original "No middle value is worked out" copy.
+
+**The timeline.** A row is now `{ forms: [ … ] }`, one House Clerk form per
+filing year, oldest first. The newest form must equal the document row the pill
+names (same year, same URL). Every older form must be an https `.gov` document
+filed under its own year's path, with no year or URL appearing twice. The
+drawing rule below sets out how the years are drawn. More dots, or dots higher
+up, is the accumulation signal. **No point is added to another**, so there is no
+per-year figure, no net-worth line and no percent-change tile.
+
+**The drawing rule (year axis).** Where a member's lines carry disclosed
+points, the graph's horizontal axis is **filing years**: one column per form the
+table holds, oldest on the left and newest (the pill's form) on the right, with
+the year under each column. Each column is a link to that year's `.gov` PDF.
+Inside a column, every filed line is one dot at its stored midpoint or floor on
+a **vertical log scale**. Dots that share a filed box sit side by side.
+
+The vertical axis is labelled only at the points this member's lines actually
+carry, each with its basis ("$3M midpoint", "$50M floor"). Each dot's title gives
+the asset as filed, its band and its method, and each column states how many
+lines it draws. The *How each figure was made* source line stays under the
+graph. The only arithmetic is placing a stored point on the scale and spacing
+dots that share a box. No point is added to another, so there is still no
+per-year figure, no net-worth number and no percent-change tile. A row whose
+lines carry no stored point draws the newest form's bands on the category
+ladder, exactly as before. `scripts/test-wealth-bands.mjs` checks:
+- one column per form year, left to right and oldest first;
+- that each column's dots are that year's stored bands;
+- each dot's height against its point;
+- that the axis ticks are exactly the points the member's lines carry;
+- that a single-year profile draws one column.
+
+**One continuous graph.** Each person gets one chart: one plot area with one
+background, one set of rules at the stored points, one baseline, and the
+labelled vertical axis on its left. The horizontal axis is calendar years, with
+one slot per year from the first drawn year to the last, oldest on the left. A
+year with no form on file leaves its slot empty instead of closing the gap.
+
+Each year's dots sit in that year's band. The band is a link to that year's
+PDF, and the year's summary line sits under it. Nothing about the dots changes:
+- the log scale and midpoint/floor placement;
+- the 24-dot cap per dense box, with its printed count.
+
+A year with no line on the ladder has no band and no summary.
+
+**Two graphs.** Every person with stored points gets two charts in the
+disclosures block, one above the other:
+
+1. **The per-line graph** (unchanged). One dot per stored line at its midpoint
+   or floor, in that year's band on the year axis, with dense boxes capped at
+   24 dots and a printed line count.
+2. **The range graph**, directly under it and above the source line. It uses the
+   same year axis (one slot per calendar year, empty slots kept) and the same
+   log scale, with the vertical axis labelled only at stored points. Each year
+   draws **one vertical bar**:
+   - from the **lowest** disclosed point among that year's lines to the
+     **highest**;
+   - with no dots;
+   - linked to that year's PDF, with the same summary line under it.
+
+The range bar is a span read off two stored points. It is not a sum: no line is
+added to another, and a bar's length is not a net worth. A year where every line
+sits in one box draws a short single-point bar. A year with no line on the
+ladder draws neither a band nor a bar.
+
+`scripts/test-wealth-bands.mjs` checks that every person with the first graph
+has the second, and checks each bar's two ends against the year's stored points.
+It also checks that the per-line graph, source line, overlap section, awards and
+pills are byte-identical with the range graph on and off.
+
+**Both graphs run left to right on one time axis.** In each graph, every year's
+band is absolutely positioned inside one shared plot field:
+- at its year's slot (one slot per calendar year, oldest left, newest right);
+- spanning the field's full height;
+- never stacking or wrapping. A long axis scrolls sideways.
+
+The range bar is centred in its slot. An empty year keeps an empty slot.
+
+The first range-graph release missed this rule. Its bands carry their own class,
+`.pdx-rng-band`, and finance-lane.css positioned only the per-line graph's
+`.pdx-yrs-band`, so the range bars stacked down the page despite correct inline
+positions. Both classes now share the rule, and `scripts/test-wealth-bands.mjs`
+checks the stylesheet itself:
+- every band class either graph renders is absolutely positioned;
+- the containers are positioned and do not flow, flex or wrap;
+- the range bar is centred.
+
+**The summary line under each year.** Every year's band ends with one line,
+for example:
+
+> 2025 · 4,826 lines · highest band $50M floor
+
+Its three parts:
+- **The year** already under the column.
+- **The line count:** the stored lines the column draws, the same count a dense
+  box prints when it caps its dots.
+- **The highest band:** the highest category with at least one line that year,
+  named by the disclosed point the vertical axis already uses ("$50M floor",
+  "$3M midpoint").
+
+It adds no new figure. The count is of lines, not dollars, and the band label is
+a stored point. Nothing is added, compared across years, or turned into a change.
+
+A year with no line on the ladder draws no column and no summary. Before this
+pass, Scalise's 2025 form drew an empty column labelled "none on ladder"; it now
+draws nothing.
+
+**The first timeline batch** covers the three Utah members already transcribed,
+plus a House leadership batch resolved through the clerk's yearly index. It uses
+the forms from the clerk's 2021 electronic layout onward. Older forms are left
+out because their layout does not keep wrapped asset names in reading order, and
+a name that cannot be quoted exactly is not quoted. Each year uses the latest
+filed version, i.e. an amendment where one exists, unless the amendment adds no
+line on the ladder.
+
+| Member (pid) | Forms | Lines drawn per year |
+| --- | --- | --- |
+| Blake Moore (`bmoore`) | 2021–2025 (2023 is the amendment) | 89 · 48 · 43 · 17 · 16 |
+| Celeste Maloy (`maloy`) | 2023 new-filer, 2024–2025 | 3 · 3 · 3 |
+| Mike Kennedy (`kennedy`) | 2024 new-filer, 2025 | 24 · 28 |
+| Hakeem Jeffries (`jeffries`) | 2021–2025 | 29 · 24 · 22 · 24 · 32 |
+| Steve Scalise (`scalise`) | 2021–2025 (2024's paper amendment adds only an `undetermined` pension line, so the original is used) | 1 · 1 · 1 · 1 · 0 |
+| Jim Jordan (`jim_jordan`) | 2021–2025 | 5 · 3 · 3 · 3 · 18 |
+| Alexandria Ocasio-Cortez (`aoc`) | 2021–2025 (2025 is the amendment) | 4 · 4 · 3 · 3 · 3 |
+
+New document rows were added for `jeffries`, `scalise`, `jim_jordan`, `aoc` and
+`mike_johnson`, each pointing at the member's 2025 House Clerk report. Mike
+Johnson has a document row and no holdings row, because every annual report from
+2021 to 2025 says "None disclosed" under Schedule A. Owens still has no row.
+Lines filed `None`, `Undetermined`, `$1 - $1,000` or `Spouse/DC Over $1,000,000`
+are left out, and each form's comment in the table counts what it left out.
+Senate, OGE and executive-branch forms are not part of this batch.
+
+### Committee overlap and related awards, under the wealth graph
+
+**The rule.** Under the year-timeline graph, the disclosures block prints one
+plain sentence for each overlap:
+
+> Holds BA while on House Armed Services.
+
+Beside the sentence it links the annual reports that carry the line and the
+`.gov` roster record that seated the member. Below that, it lists the largest
+public contract award signed with that company in each year the graph covers.
+Each award line links to its USASpending.gov (or SAM.gov) award page.
+
+**An overlap is derived, never typed.** It exists only where three things meet:
+1. A stored holdings line, on the member's own filed form, names a ticker from
+   `DEFENSE_CONTRACTORS` (LMT, RTX, BA, GD, NOC, HII, LHX) in parentheses, as
+   the clerk prints it. The line may be the filer's, a spouse's or a dependent's.
+2. That form's year is one of the years in a seat in `PDX_COMMITTEE_SEATS` on a
+   covered committee: House or Senate Armed Services, or the House or Senate
+   Appropriations Subcommittee on Defense.
+3. The seat carries an https `.gov` roster record.
+
+Holding the company in a year the member was off the committee is not an
+overlap, and prints nothing.
+
+**The awards are published figures, quoted.** `PDX_CONTRACT_AWARDS` holds, per
+ticker and calendar year, the single largest contract signed that year with the
+company, as USASpending.gov published it on the recorded date:
+- contract award types A–D;
+- date signed within the year;
+- sorted by the amount obligated on the award.
+
+Each row carries the award id, recipient, awarding agency, description, the
+obligation to the cent, and the award page URL, which must name its own award
+id. The obligation is cumulative on that award as of the pull, so it can move
+later.
+
+Nothing adds awards together, divides them, or sets them beside the member's
+bands as if they were the member's money. There is no profit figure and no
+combined line. The section says in words that this is federal money to a
+company, not money the member holds.
+
+**Every dollar figure on the disclosures block is now one of three things:** a
+filed band, a stored midpoint or floor, or the published obligation on a linked
+public award. `scripts/test-money-two-chips.mjs` and
+`scripts/test-wealth-bands.mjs` sweep the rendered block for any other figure.
+
+**If either side is missing, the section does not appear.** No overlap, or no
+award inside the graph's years, means no heading, no placeholder and no
+sentence.
+
+**What is on file.** Among the members in the wealth timeline, only Blake Moore
+(`bmoore`) has an overlap. Boeing (BA) and RTX (filed as Raytheon Technologies
+in 2021–2022) are lines on his 2021 and 2022 annual reports. H.Res. 63 (117th
+Congress, agreed to January 28, 2021) elected "Mr. Moore of Utah" to the
+Committee on Armed Services. His 2023 report still lists both companies, but
+H.Res. 80 (118th Congress, January 31, 2023), which elected that Congress's
+Republican Armed Services members, does not name him, so 2023 is not flagged. The
+award list carries one Boeing and one Raytheon contract for each year from 2021
+to 2025, pulled 2026-10-12.
+
+None of the other six members holds a listed ticker on a stored line, so none
+gets a section. Mike Johnson appears on the same H.Res. 63 Armed Services list,
+but his forms list no assets, so there is nothing to overlap.
+
+PolitiDex's own copy here uses "holds", never equity, stock or share language,
+and no motive word. Asset names and award descriptions are quoted as filed and
+as published. Overlaps are not an input to any score, match, tier, floor,
+count or sort, and neither money pill reads them.
+
+### The President's OGE forms, and the executive overlap rule
+
+**The OGE path.** The President's annual OGE Form 278e reports come from OGE's
+own presidential index on `extapps2.oge.gov`. The site uses two of them:
+
+| Report | Filed | Calendar year it covers | Lines on the ladder |
+| --- | --- | --- | --- |
+| [2025 annual 278e](https://extapps2.oge.gov/201/Presiden.nsf/PAS+Index/4EC9A8E6DD078F2985258CA9002C9377/$FILE/Trump,%20Donald%20J.%202025%20Annual%20278.pdf) | June 2025 | 2024 | 1,854 |
+| [2026 annual 278e](https://extapps2.oge.gov/201/Presiden.nsf/PAS+Index/69AEAA9D7455ACD585258E27002DDEE1/$FILE/Donald-J-Trump-2026-278ANNUAL.pdf) | June 2026 | 2025 | 4,826 |
+
+Both reports print 2025 in their "Year" field. Each column is dated by the
+calendar year the report covers, which is the convention the House Clerk's
+"Filing Year" uses:
+- The June 2025 report holds bills due in early 2025, so it covers 2024.
+- The June 2026 report's transactions and dissolved entities are dated 2025, so
+  it covers 2025.
+
+The newer report is the document row the disclosure pill names ("FD on file ·
+2025 · OGE"). The pill is a document chip like every other, with no dollar
+figure.
+
+**How the lines were read.** The lines come from Part 2 Schedule 1 (the filer's
+business entities) and Part 6 (other assets and income), read from the PDFs'
+own text layer:
+- Rows are split by their position on the page.
+- Every asset name is confirmed against a second, independent extraction of the
+  same page. That second pass also corrects letter-spacing artifacts, such as
+  "V ALUE" becoming "VALUE".
+- A row whose name cannot be confirmed, or whose description cannot be read off
+  the text layer, is left out. Each form's comment counts what was left out.
+- Names are quoted as the text layer gives them. Some pages of the 2026 report
+  print names with no spaces ("BOEINGCO"), and they stay that way.
+
+Schedule 1 spells categories with "to" ("$1,000,001 to $5,000,000"). That third
+spelling gets its own literal pairs in `FILED_BAND_LABELS`.
+
+Lines in a box off the ladder are left out and counted:
+- `None (or less than $1,001)`;
+- value not readily ascertainable;
+- a "See line" cross-reference with no value;
+- non-standard ranges such as `$15,001 to $25,000`.
+
+Every stored point is checked by the same gate as everyone else's.
+
+**Where the lines live.** The two reports carry several thousand lines, so they
+ship in their own data file, `pdx-fd-oge.js`. It is not in the service worker's
+precached shell, and neither `index.html` nor `person.html` loads it up front.
+`finance-lane.js` fetches it only when the President's disclosures block is
+drawn, shows a one-line placeholder in words until it lands, then repaints. The
+file merges through `PDXFinance._mergeHoldings()`, which accepts only pids listed
+for a data file, and only once.
+
+**Dense boxes.** When one year holds more than 24 lines in a single box, that
+column draws 24 dots and prints the box's line count beside them (for example
+"1,476 lines"). Each column's accessible name lists how many lines it holds in
+each box. A count is of lines, never of dollars. Without the cap, thousands of
+dots would overlap into one bar and add over a megabyte of markup to one person
+file.
+
+**The executive overlap rule.** For the President and executive officials, the
+committee seat is replaced by the office itself. `PDX_OFFICE_TERMS` holds the
+office, the calendar years it was held, and a `.gov` record. For the President,
+that record is the report's own "Date of Appointment 01/2025". The note reads:
+
+> Held LMT while in office.
+
+It appears only where a stored line on a form from a year in office names a
+listed contractor's shares.
+
+OGE prints issuer names, not tickers, so each ticker has a literal list of names
+in `DEFENSE_NAMES`, matched with spaces ignored. A note, bond or debenture of the
+company is debt, not shares, so it does not match. "Held BA" always means shares.
+
+Below the sentences, the section lists the largest contract signed with each of
+those companies in each year the graph covers, linked to its USASpending award
+page with the obligation as published. USASpending's recipient search also
+returns a parent's subsidiaries (General Dynamics' 2024 line is a National Steel
+and Shipbuilding Company award), and the recipient is quoted as published.
+
+**What is on file.** The President's 2025 report lists shares of all seven
+listed companies: LMT, RTX, BA, GD, NOC, HII and LHX. That gives seven sentences
+and fourteen award lines, for 2024 and 2025. His 2024 report also lists several
+of them, but he took office in January 2025, so 2024 is not flagged.
+
+As everywhere on this lane, nothing is added together. There is no net-worth
+number and no percent-change tile. Every dollar figure is a filed band, a stored
+midpoint or floor, or the published amount on a linked public award.
 
 ## The wall
 

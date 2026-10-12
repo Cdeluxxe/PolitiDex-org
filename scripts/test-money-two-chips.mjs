@@ -104,6 +104,15 @@ const lacks = (hay, needle, msg) =>
   ok(String(hay).indexOf(needle) < 0, `${msg} — "${needle}" present and must not be`);
 const section = (t) => console.log(`\n   ── ${t}`);
 const visible = (html) => String(html).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+// THE RANGE-BAND GRAPH, CUT OUT. Since the holdings wave the disclosures block
+// carries transcribed lines as bands — asset names as printed and the filed band
+// labels — and scripts/test-wealth-bands.mjs owns every rule about that graph:
+// one bar per line, the stored band on each, no midpoint, no sum, no digit that
+// is not filed. The assertions here are about the block's OWN copy, so they read
+// the block with the graph removed, and the graph is checked separately below
+// for the one thing this file cares about: that every dollar token in it is a
+// filed band label and nothing else.
+const noBands = (html) => String(html).replace(/<div class="pdx-bands"[\s\S]*?(?=<p class="pdx-money-block-cov"|<\/div>\s*$)/, "");
 const aria = (html) => (/aria-label="([^"]*)"/.exec(String(html)) || [])[1] || "";
 const must = (cond, msg) => {
   if (cond) return;
@@ -735,7 +744,7 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   // the pill just moves the grade one jump away.
   for (const id of ["lee", "curtis", "cox", "nobody_at_all"].concat(DOC_PIDS)) {
     for (const [what, lane] of [["fixture", LF], ["shipped", L]]) {
-      const t = visible(lane.wealthBlockHtml(id, ROSTER[id] || { name: "Someone" })).toLowerCase();
+      const t = visible(noBands(lane.wealthBlockHtml(id, ROSTER[id] || { name: "Someone" }))).toLowerCase();
       for (const bad of RATING) {
         lacks(t, bad, `${id}: the disclosures block (${what}) carries no "${bad}"`);
       }
@@ -1263,8 +1272,31 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
     // and hands over the document; it still draws nothing, rates nothing and
     // prints no figure of its own.
     for (const id of DOC_PIDS) {
-      const blk = String(W.PDXFinanceLane.wealthBlockHtml(id, W.CMP_DATA[id]) || "");
+      const full = String(W.PDXFinanceLane.wealthBlockHtml(id, W.CMP_DATA[id]) || "");
+      const blk = noBands(full);
       const vis = visible(blk);
+      // The graph, where it draws, prints filed band labels as its only figures.
+      const labels = new Set(Object.values(W.PDXFinance.FILED_BAND_LABELS));
+      const at = full.indexOf('<div class="pdx-bands"');
+      if (at >= 0) {
+        const toks = visible(full.slice(at, full.indexOf('<p class="pdx-money-block-cov"', at)))
+          .match(/(?:over )?\$[\d.,]+[KM]?(?:–[\d.,]+[KM]?)?/g) || [];
+        ok(toks.length > 0, `${id}: the graph prints its bands`);
+        // …or a disclosed point (midpoint or floor) that one of this member's
+        // stored lines carries — never a point no line carries.
+        const h = W.PDXFinance.holdings(id);
+        const carried = new Set();
+        for (const yr of (h && h.years) || []) for (const l of yr.lines) if (l.point) carried.add(l.point.label);
+        // …or the published obligation on a linked public contract award in the
+        // committee-overlap section under the graph, quoted to the cent.
+        const ov = W.PDXFinance.overlap ? W.PDXFinance.overlap(id) : null;
+        for (const a of (ov && ov.awards) || []) {
+          const [i, d] = a.obligated.toFixed(2).split(".");
+          carried.add("$" + i.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "." + d);
+        }
+        for (const t of toks) ok(labels.has(t) || carried.has(t),
+          `${id}: graph token "${t}" is a filed band label or a point one of the member's lines carries`);
+      }
       const own = vis.slice(0, vis.indexOf("Coverage") === -1 ? vis.length : vis.indexOf("Coverage"));
       has(own, "Disclosures while serving", `${id}: the filled block keeps the heading`);
       has(own, " on file", `${id}: …and reports that a form is on file`);
@@ -1432,6 +1464,16 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
     ["$25,000,001\u2013$50,000,000", "$25\u201350M"],
     ["Over $50,000,000", "over $50M"],
     ["over $50,000,000", "over $50M"],
+    // OGE Form 278e's Schedule 1 spells the same boxes with "to".
+    ["$1,001 to $15,000", "$1\u201315K"],
+    ["$15,001 to $50,000", "$15\u201350K"],
+    ["$50,001 to $100,000", "$50\u2013100K"],
+    ["$100,001 to $250,000", "$100\u2013250K"],
+    ["$250,001 to $500,000", "$250\u2013500K"],
+    ["$500,001 to $1,000,000", "$500K\u20131M"],
+    ["$1,000,001 to $5,000,000", "$1\u20135M"],
+    ["$5,000,001 to $25,000,000", "$5\u201325M"],
+    ["$25,000,001 to $50,000,000", "$25\u201350M"],
   ];
   eq(typeof WF.bandLabel, "function", "PDXFinance.bandLabel(figure) is the one compression");
   for (const [filed, shown] of LADDER) {
@@ -1459,8 +1501,21 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   // how a band becomes a bound and a bound becomes a number.
   const finBody = FIN_SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
   for (const bad of ["parseFloat", "parseInt", "Number(", "Math.", "/ 2", "* 2", "toFixed",
-                     ".split(", "replace(/,", "midpoint"]) {
+                     ".split(", "replace(/,"]) {
     lacks(finBody, bad, `the disclosure module does no arithmetic on a figure ("${bad}")`);
+  }
+  // THE WORD "midpoint" LIVES IN ONE SECTION. Since the midpoint pass, a line in
+  // the holdings table may carry the disclosed midpoint (or floor) of its filed
+  // box, read off the literal DISCLOSED_POINTS table and checked by the holdings
+  // gate. That section is cut out here and fenced in scripts/test-wealth-bands.mjs;
+  // everywhere else in the module — the dollar table, the pill reads, the
+  // document gate — a midpoint is still not a field and not a word.
+  {
+    const hAt = finBody.indexOf("var PDX_FD_HOLDINGS");
+    const hEnd = finBody.indexOf("function holdings(pid)", hAt);
+    ok(hAt > 0 && hEnd > hAt, "the holdings section is where the midpoint carve-out expects it");
+    const rest = finBody.slice(0, hAt) + finBody.slice(finBody.indexOf("\n  }\n", hEnd));
+    lacks(rest, "midpoint", "outside the holdings section, the disclosure module names no midpoint");
   }
 
   // 12c. AND A DOLLAR ROW, HOWEVER LEGAL, REACHES NO PILL AND NO BLOCK. Every
@@ -1537,22 +1592,28 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
     has(one, "No in-office wealth file on hand", `${what}: the empty pill says what is missing`);
   }
 
-  // 12e. TRUMP STAYS EMPTY. This pass holds no OGE or FD document URL for him,
-  //      and he is the person a reader is most likely to arrive at with a number
-  //      already in mind — which is exactly why an unsourced row on him would be
-  //      the most expensive one on the site.
-  for (const [what, win] of [["as shipped", BARE], ["with the wave's dollar rows in", WB]]) {
-    eq(win.PDXFinance.wealth("trump", win.CMP_DATA.trump || null), null,
-      `${what}: trump has no disclosure row`);
+  // 12e. TRUMP'S ROW IS OGE'S OWN DOCUMENT, AND STILL NO FIGURE. The first
+  //      pass held no OGE URL for him and kept his pill empty, because an
+  //      unsourced row on the person a reader is most likely to arrive at with a
+  //      number in mind would be the most expensive row on the site. The row
+  //      that exists now points at OGE's own posting of his annual 278e, and his
+  //      pill is a document chip like every other: form, year, archive, no dollar.
+  for (const [what, win] of [["as shipped", BARE]]) {
+    const w = win.PDXFinance.wealth("trump", win.CMP_DATA.trump || null);
+    ok(w && /^https:\/\/extapps2\.oge\.gov\//.test(w.formUrl), `${what}: trump's row is an OGE document`);
+    eq(win.PDXFinance.archiveFor(w.formUrl), "OGE", `${what}: …named OGE off its own host`);
     const t = visible(win.PDXFinanceLane.wealthLetterheadChipHtml("trump", win.CMP_DATA.trump || null));
-    has(t, "No in-office wealth file on hand", `${what}: …and his pill says so in words`);
-    ok(!/\$|\d/.test(t), `${what}: …with no figure and no digit on it ("${t}")`);
+    has(t, "FD on file \u00b7 2025 \u00b7 OGE", `${what}: …and his pill is a document chip`);
+    ok(!/\$/.test(t), `${what}: …with no dollar figure on it ("${t}")`);
+  }
+  // AND THE DOLLAR WAVE STILL REACHES NO PILL OF HIS, whatever the document table holds.
+  {
+    const t = visible(WB.PDXFinanceLane.wealthLetterheadChipHtml("trump", WB.CMP_DATA.trump || null));
+    ok(!/\$/.test(t), `with the wave's dollar rows in: trump's pill carries no dollar figure ("${t}")`);
   }
   lacks(tableSlice, "trump", "no trump row went into the shipped dollar table");
-  ok(!Object.prototype.hasOwnProperty.call(SHIPPED_DOCS, "trump"),
-    "…and none went into the shipped document index, which holds no OGE URL for him");
   ok(!Object.prototype.hasOwnProperty.call(WAVE, "trump"),
-    "…and none is in the fixture either, because this pass holds no form URL for him");
+    "…and none is in the dollar-row fixture either");
 
   // 12f. PILL 1 IS THE FILINGS BLOCK'S FIGURE AND PILL 2 IS THE DISCLOSURES
   //      BLOCK'S DOCUMENT, AND NEITHER BLOCK CARRIES THE OTHER'S. One read per
@@ -1600,7 +1661,7 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
     lacks(visible(dom), "% of", `${id}: …and takes no ratio of them`);
     // AND THE DOLLAR ROWS ARE STILL IN THIS BOOT'S OTHER TABLE, REACHING NOTHING.
     if (WAVE[id]) {
-      lacks(visible(dom), SB.PDXFinance.bandLabel(WAVE[id].rangeOrExact),
+      lacks(visible(noBands(dom)), SB.PDXFinance.bandLabel(WAVE[id].rangeOrExact),
         `${id}: a dollar row reached the assembled money section`);
     }
   }
@@ -1785,7 +1846,7 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   //      document as an anchor, and one sentence about why none of it is a total.
   for (const pid of DOC_PIDS) {
     const row = SHIPPED_DOCS[pid];
-    const blk = L.wealthBlockHtml(pid, ROSTER[pid] || { name: pid });
+    const blk = noBands(L.wealthBlockHtml(pid, ROSTER[pid] || { name: pid }));
     const vis = visible(blk);
     has(vis, "Disclosures while serving", `${pid}: the block keeps its heading`);
     has(vis, `${row.kind} on file`, `${pid}: …and reports the same form as the pill`);
@@ -1801,8 +1862,9 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
       `${pid}: the block says what these forms report instead of a total`);
     has(vis, "PolitiDex will not add those boxes into a figure.",
       `${pid}: …and that we will not add them up`);
-    // NO HOLDINGS INVENTED. Nothing was transcribed in this pass, so the block
-    // stops at the document. A list here would be lines nobody read off a form.
+    // NO HOLDINGS INVENTED OUTSIDE THE GRAPH. Transcribed lines live only in
+    // the range-band graph (cut out above, fenced in test-wealth-bands.mjs); the
+    // block's own copy stops at the document.
     for (const bad of ["<li", "<table", "Holdings", "Assets", "Reported assets", "Sources of income"]) {
       lacks(blk, bad, `${pid}: the block invents no transcribed lines ("${bad}")`);
     }
@@ -1935,8 +1997,16 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   const entryText = SW13.slice(entryAt, Math.min(endAt, constAt));
   ok(entryText.split("\n").length <= 48,
     `the ${ver13} entry stays inside the shell's changelog budget (${entryText.split("\n").length} lines)`);
-  for (const pid of DOC_PIDS) {
+  // v224 SHIPPED FOUR ROWS, and its entry is asked about those four. A row added
+  // by a later pass is asked for in a LATER entry — any numbered heading above
+  // v224's — because that is the version that shipped it.
+  const V224_PIDS = ["bmoore", "maloy", "kennedy", "owens"];
+  for (const pid of V224_PIDS) {
     has(entryText, pid, `the changelog entry lists the ${pid} document row`);
+  }
+  const later = SW13.slice(SW13.indexOf("\n// v225 -") >= 0 ? SW13.indexOf("\n// v225 -") : entryAt, constAt);
+  for (const pid of DOC_PIDS.filter((p) => V224_PIDS.indexOf(p) < 0)) {
+    has(later, pid, `a changelog entry after v224 lists the ${pid} document row it added`);
   }
   has(entryText.toLowerCase(), "zero dollar rows", "…and says no dollar rows were added");
   for (const store of ["location", "district", "team", "stance"]) {

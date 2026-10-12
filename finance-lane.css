@@ -351,6 +351,307 @@
   text-transform: uppercase;
   color: #7596c0;
 }
+/* THE RANGE-BAND GRAPH. One bar per filed line, spanning the rung of the
+   form's own category ladder the filer ticked. ONE FILL FOR EVERY BAR: the gold
+   is the lane, not a level, so a bigger category is a bar further right and
+   never a brighter one. The faint rungs behind each track are the form's
+   category boundaries. The top category has no ceiling on the form, so its bar
+   fades out at the track's end instead of closing on an invented edge. */
+.pdx-bands {
+  margin: 0.7rem 0 0;
+  padding: 0.55rem 0 0;
+  border-top: 1px solid var(--pdx-money-line-soft);
+}
+.pdx-bands-h {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pdx-money-ink);
+  margin: 0;
+  font-weight: 600;
+}
+.pdx-bands-scale {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.5rem 0 0.15rem;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.56rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pdx-money-text);
+}
+.pdx-bands-groups,
+.pdx-bands-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.pdx-bands-group { margin: 0.45rem 0 0; }
+.pdx-bands-group-h {
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.74rem;
+  color: var(--pdx-money-ink);
+  margin: 0 0 0.2rem;
+}
+.pdx-bands-row { margin: 0 0 0.35rem; }
+.pdx-bands-label {
+  display: block;
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: var(--pdx-money-text);
+  overflow-wrap: anywhere;
+}
+.pdx-bands-track {
+  position: relative;
+  display: block;
+  height: 0.5rem;
+  margin: 0.15rem 0 0;
+  border-radius: 0.2rem;
+  background:
+    repeating-linear-gradient(to right,
+      transparent 0, transparent calc(100% / var(--pdx-bands-n, 10) - 1px),
+      rgba(201, 153, 47, 0.22) calc(100% / var(--pdx-bands-n, 10) - 1px),
+      rgba(201, 153, 47, 0.22) calc(100% / var(--pdx-bands-n, 10))),
+    rgba(201, 153, 47, 0.06);
+}
+.pdx-bands-bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 0.2rem;
+  background: var(--pdx-money-line);
+}
+.pdx-bands-bar.is-open {
+  border-radius: 0.2rem 0 0 0.2rem;
+  background: linear-gradient(to right, var(--pdx-money-line) 55%, rgba(201, 153, 47, 0));
+}
+/* THE YEAR COLUMNS. Filing years run left to right, oldest first; each column
+   is one form and one link. Inside it, one dot per filed line, placed up a log
+   scale at its disclosed point. The axis on the left is labelled only where a
+   stored line sits, and faint rules run across at those same heights. Every
+   dot is the same size and the same gold — a bigger line is a dot higher up,
+   never a bigger or brighter dot. A floor (open top category) is a ring. */
+.pdx-yrs {
+  --pdx-yrs-h: 9.5rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 0.35rem;
+  margin: 0.6rem 0 0;
+}
+.pdx-yrs-axis { position: relative; }
+.pdx-yrs-tick {
+  position: absolute;
+  right: 0;
+  transform: translateY(50%);
+  white-space: nowrap;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.54rem;
+  letter-spacing: 0.04em;
+  color: var(--pdx-money-text);
+}
+.pdx-yrs-axis .pdx-yrs-plot {
+  min-width: 4.4rem;
+}
+.pdx-yrs-body {
+  position: relative;
+  overflow-x: auto;
+}
+/* ONE FIELD FOR EVERY YEAR: a single plot area with one background, one set of
+   rules and one baseline, and a strip under it for the year summaries. Each
+   year's band is positioned on the year axis inside it. */
+.pdx-yrs-field {
+  --pdx-yrs-label-h: 3rem;
+  position: relative;
+  height: calc(var(--pdx-yrs-h) + var(--pdx-yrs-label-h));
+  min-width: calc(var(--pdx-yrs-span, 1) * 4.6rem);
+}
+.pdx-yrs-area {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--pdx-yrs-h);
+  background: rgba(201, 153, 47, 0.04);
+  border-bottom: 1px solid rgba(201, 153, 47, 0.35);
+  border-radius: 0.3rem 0.3rem 0 0;
+  pointer-events: none;
+}
+.pdx-yrs-grid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: 1px dashed rgba(201, 153, 47, 0.22);
+}
+.pdx-yrs-bands {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  inset: 0;
+}
+/* EVERY YEAR BAND, IN BOTH GRAPHS, IS PLACED ON THE TIME AXIS — absolutely,
+   at its year's slot (the inline left/width), spanning the field's full height.
+   The range graph's bands carry their own class, and without this rule they
+   fell back to ordinary list items and stacked down the page instead of
+   running left to right. */
+.pdx-yrs-band,
+.pdx-rng-band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 0;
+}
+.pdx-yrs-link {
+  display: block;
+  height: 100%;
+  text-decoration: none;
+  border-radius: 0.3rem;
+}
+.pdx-yrs-link:hover .pdx-yrs-plot,
+.pdx-yrs-link:focus-visible .pdx-yrs-plot { background: rgba(201, 153, 47, 0.1); }
+.pdx-yrs-link:focus-visible { outline: 2px solid rgba(124, 196, 255, 0.5); outline-offset: 1px; }
+.pdx-yrs-plot {
+  position: relative;
+  display: block;
+  height: var(--pdx-yrs-h);
+}
+.pdx-yrs-plot .pdx-bands-dot { transform: translateY(50%); }
+/* A dense box's line count, sitting at the box's height on the right of the
+   column. It counts lines, never dollars. */
+/* THE RANGE GRAPH. Same field, axis and rules as the per-line graph; one bar
+   per year from the lowest to the highest disclosed point. One fill for every
+   bar — a longer bar is a wider spread of filed boxes, never a brighter one. */
+.pdx-rng-wrap {
+  margin: 0.8rem 0 0;
+  padding: 0.55rem 0 0;
+  border-top: 1px dashed var(--pdx-money-line-soft);
+}
+.pdx-rng-bar {
+  position: absolute;
+  left: 30%;
+  right: 30%;
+  min-height: 3px;
+  transform: translateY(1.5px);
+  border-radius: 3px;
+  background: var(--pdx-money-line);
+}
+.pdx-rng-bar.is-one { transform: translateY(50%); }
+.pdx-yrs-more {
+  position: absolute;
+  right: 2px;
+  transform: translateY(50%);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.02em;
+  color: var(--pdx-money-ink);
+  background: rgba(11, 26, 20, 0.75);
+  padding: 0 2px;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+.pdx-yrs-year {
+  display: block;
+  text-align: center;
+  margin: 0.2rem 0 0;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.74rem;
+  color: var(--pdx-money-ink);
+}
+/* THE SUMMARY LINE under each column: year · lines · highest band. One line of
+   text that wraps inside a narrow column; the year keeps its column-label
+   weight, the rest is the lane's small caption ink. */
+.pdx-yrs-sum {
+  display: block;
+  text-align: center;
+  margin: 0.2rem 0 0;
+  line-height: 1.25;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.54rem;
+  letter-spacing: 0.03em;
+  color: var(--pdx-money-text);
+}
+.pdx-yrs-sum .pdx-yrs-year { display: inline; margin: 0; }
+.pdx-yrs-sum .pdx-yrs-n { display: inline; font-size: inherit; letter-spacing: inherit; text-transform: none; }
+.pdx-yrs-hi { color: var(--pdx-money-ink); }
+.pdx-yrs-n {
+  display: block;
+  text-align: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.52rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pdx-money-text);
+}
+.pdx-bands-dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: var(--pdx-money-line);
+}
+.pdx-bands-dot.is-floor {
+  background: transparent;
+  border: 1.5px solid var(--pdx-money-line);
+  box-sizing: border-box;
+}
+/* THE COMMITTEE OVERLAP, UNDER THE GRAPH. Plain text and links in the lane's
+   own inks: no alert colour, no badge, no icon. The sentence is a fact beside a
+   fact, and it is styled like one. */
+.pdx-overlap {
+  margin: 0.75rem 0 0;
+  padding: 0.55rem 0 0;
+  border-top: 1px solid var(--pdx-money-line-soft);
+}
+.pdx-overlap .pdx-bands-h { margin: 0.35rem 0 0; }
+.pdx-overlap-flag {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.7rem;
+  line-height: 1.55;
+  color: var(--pdx-money-text);
+  margin: 0.35rem 0 0;
+}
+.pdx-overlap-flag b { color: var(--pdx-money-ink); font-weight: 600; }
+.pdx-overlap a { color: var(--pdx-money-ink); }
+.pdx-overlap-awards {
+  list-style: none;
+  margin: 0.35rem 0 0;
+  padding: 0;
+}
+.pdx-overlap-award {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.64rem;
+  line-height: 1.5;
+  margin: 0 0 0.3rem;
+  overflow-wrap: anywhere;
+}
+.pdx-overlap-award a { text-decoration: none; color: var(--pdx-money-text); }
+.pdx-overlap-award a:hover,
+.pdx-overlap-award a:focus-visible { color: var(--pdx-money-ink); text-decoration: underline; }
+.pdx-overlap-award b { color: var(--pdx-money-ink); font-weight: 600; }
+.pdx-overlap-yr {
+  font-family: 'Oswald', sans-serif;
+  color: var(--pdx-money-ink);
+}
+.pdx-bands-src {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.64rem;
+  line-height: 1.55;
+  color: var(--pdx-money-text);
+  margin: 0.6rem 0 0;
+}
+.pdx-bands-src > span {
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.56rem;
+  color: var(--pdx-money-ink);
+}
+.pdx-bands-src b { font-weight: 600; color: var(--pdx-money-ink); }
 /* Arrival, for the disclosures block's own anchor. Same soft ring as the
    section's, because it is the same kind of event: a reader was sent here by a
    pill and is being put inside the thing they asked for. */

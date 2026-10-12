@@ -1203,6 +1203,375 @@
     try { return wealthLetterheadChipHtml(pid, person); } catch (e) { return ''; }
   }
 
+  // ── THE WEALTH GRAPH — FILING YEARS LEFT TO RIGHT, DISCLOSED POINTS UP ──────
+  // Drawn only inside the on-file branch of the disclosures block, off
+  // PDXFinance.holdings(). No holdings row means no graph and not a placeholder:
+  // the block above already says what is and is not on hand, in words.
+  //   THE HORIZONTAL AXIS IS FILING YEARS. One column per form the table holds
+  // for this member, oldest on the left, newest (the pill's form) on the right,
+  // the year under it. The whole column is a link to that year's .gov PDF.
+  //   THE VERTICAL AXIS IS THE DISCLOSED POINT, ON A LOG SCALE. Each dot in a
+  // column is ONE filed line, placed at the midpoint of its closed box or the
+  // floor of the open top box — the value PDXFinance.DISCLOSED_POINTS gives that
+  // box and the gate has already checked. Dots in the same box sit side by side.
+  // More dots, or dots higher up, is the signal. The only arithmetic is placing a
+  // point on the scale and spacing dots that share a box: no point is added to
+  // another, and there is no per-year figure, no net-worth line and no change
+  // between years.
+  //   THE ONLY FIGURES ARE STORED ONES. The vertical axis is labelled only at
+  // the boxes this member's stored lines actually use, each with its point and
+  // basis ("$3M midpoint", "$50M floor"), and every dot's title names its asset,
+  // its band as filed and its method. The source line under the graph spells out
+  // each basis: "Midpoint of the filed category" / "Floor of the open-ended
+  // category".
+  //   A ROW WITH NO STORED POINT draws what it always drew: the newest form's
+  // lines as bands on the category ladder, with the bands-only copy.
+  //   NOT CAMPAIGN MONEY. Nothing here reads a filing record, and nothing in it
+  // can reach the receipts pill, which reads its own lane and nothing of this.
+  function pointText(pt) {
+    return pt ? pt.label + ' ' + pt.basis : '';
+  }
+  var GRAPH_EXCLUDED = 'A line the form files outside this ladder — a spouse or ' +
+    'dependent holding reported only as over a threshold, the form’s lowest box, or ' +
+    'an undetermined value — is not drawn; the form linked above lists every line.';
+  var DOT_CAP = 24;
+  // The per-column summary line, on unless a test turns it off to show that
+  // nothing outside the graph depends on it.
+  var YEAR_SUMMARY = true;
+  function holdingsYearsHtml(pid, h, bases) {
+    var F = W.PDXFinance, P = F && F.DISCLOSED_POINTS;
+    if (!P || !h.years || !h.years.length) return '';
+    var lo = P[h.rungs[0]], hi = P[h.rungs[h.rungs.length - 1]];
+    if (!lo || !hi) return '';
+    var lnLo = Math.log(lo.value), span = Math.log(hi.value) - lnLo;
+    function yAt(v) { return (4 + 92 * (Math.log(v) - lnLo) / span).toFixed(2); }
+    var used = {}, bands = [], drew = false;
+    for (var y = 0; y < h.years.length; y++) {
+      var yr = h.years[y], inRung = {}, seen = {}, dots = '', count = 0, said = [];
+      yr.lines.forEach(function (l) { if (l.point) inRung[l.rung] = (inRung[l.rung] || 0) + 1; });
+      var more = '';
+      for (var j = 0; j < yr.lines.length; j++) {
+        var d = yr.lines[j];
+        if (!d.point) continue;
+        count++;
+        used[d.rung] = d.point;
+        var k = seen[d.rung] = (seen[d.rung] || 0) + 1, m = inRung[d.rung];
+        // A DENSE BOX draws DOT_CAP dots and says how many lines it holds: past
+        // that many, dots in one box only overlap into a bar and tell a reader
+        // nothing a count does not. The count is of lines, never of dollars.
+        if (k > DOT_CAP) {
+          if (k === DOT_CAP + 1) {
+            more += '<span class="pdx-yrs-more" data-pdx-more-band="' + attr(d.band) +
+              '" data-pdx-more="' + (m - DOT_CAP) + '" style="bottom:' + yAt(d.point.value) + '%">' +
+              esc(m.toLocaleString('en-US')) + ' lines</span>';
+          }
+          continue;
+        }
+        var x = (14 + 72 * (k - 0.5) / Math.min(m, DOT_CAP)).toFixed(2);
+        dots += '<span class="pdx-bands-dot' + (d.point.basis === 'floor' ? ' is-floor' : '') +
+          '" data-pdx-band="' + attr(d.filed) + '" data-pdx-point="' + attr(d.point.basis) +
+          '" style="left:' + x + '%;bottom:' + yAt(d.point.value) + '%" title="' +
+          attr(d.asset + ' · ' + d.band + ' · ' + d.point.method + ': ' + d.point.label) + '"></span>';
+      }
+      // A YEAR WITH NO LINE ON THE LADDER DRAWS NO COLUMN AND NO SUMMARY.
+      if (!count) continue;
+      drew = true;
+      var top = -1;
+      for (var r = h.rungs.length - 1; r >= 0; r--) {
+        if (!inRung[r]) continue;
+        if (top < 0) top = r;
+        said.push(inRung[r] + ' at ' + pointText(P[h.rungs[r]]));
+      }
+      // THE SUMMARY LINE: "2025 · 4,826 lines · highest band $50M floor". The
+      // count is the lines this column draws (dense boxes included); the band is
+      // the highest box with a line that year, named by the same disclosed point
+      // the axis uses. A count and a label — nothing is added or compared.
+      var nText = count.toLocaleString('en-US') + (count === 1 ? ' line' : ' lines');
+      var hiText = 'highest band ' + pointText(P[h.rungs[top]]);
+      var summary = YEAR_SUMMARY
+        ? '<span class="pdx-yrs-sum" data-pdx-highest="' + attr(h.rungs[top]) + '">' +
+            '<span class="pdx-yrs-year">' + esc(yr.year) + '</span> \u00b7 ' +
+            '<span class="pdx-yrs-n">' + esc(nText) + '</span> \u00b7 ' +
+            '<span class="pdx-yrs-hi">' + esc(hiText) + '</span></span>'
+        : '<span class="pdx-yrs-year">' + esc(yr.year) + '</span>';
+      bands.push({ year: +yr.year, open: '<li class="pdx-yrs-band" data-pdx-year="' + attr(yr.year) + '" data-pdx-points="' + count + '"',
+        inner: '<a class="pdx-yrs-link" href="' + attr(yr.formUrl) + '" target="_blank" rel="noopener noreferrer"' +
+          ' aria-label="' + attr(yr.year + ' form: ' + nText + ' drawn, ' + hiText + ' \u2014 ' +
+            said.join(', ') + '. Opens the filed form.') + '">' +
+          '<span class="pdx-yrs-plot" aria-hidden="true">' + dots + more + '</span>' +
+          summary +
+        '</a>' });
+    }
+    if (!drew) return '';
+    // ONE GRAPH ACROSS ALL YEARS. Each year's band sits at that year's place on
+    // a single year axis — oldest left, newest right, one slot per calendar
+    // year from the first drawn year to the last — so a year with no form on
+    // file leaves its slot empty rather than closing the gap. The bands share
+    // one plot area, one set of rules and one baseline; only the band's own
+    // link and summary belong to its year.
+    var y0 = bands[0].year, span = bands[bands.length - 1].year - y0 + 1;
+    var cols = bands.map(function (b) {
+      var left = (100 * (b.year - y0) / span).toFixed(4), width = (100 / span).toFixed(4);
+      return b.open + ' style="left:' + left + '%;width:' + width + '%">' + b.inner + '</li>';
+    }).join('');
+    // THE VERTICAL AXIS, LABELLED ONLY WHERE A STORED LINE SITS.
+    var ticks = '', grid = '';
+    for (var t = 0; t < h.rungs.length; t++) {
+      if (!used[t]) continue;
+      var at = yAt(used[t].value);
+      ticks += '<span class="pdx-yrs-tick" style="bottom:' + at + '%">' + esc(pointText(used[t])) + '</span>';
+      grid += '<span class="pdx-yrs-grid" style="bottom:' + at + '%"></span>';
+    }
+    return '<div class="pdx-yrs" data-pdx-graph="years" style="--pdx-yrs-span:' + span + '">' +
+        '<div class="pdx-yrs-axis" aria-hidden="true"><span class="pdx-yrs-plot">' + ticks + '</span></div>' +
+        '<div class="pdx-yrs-body"><div class="pdx-yrs-field">' +
+          '<span class="pdx-yrs-area" aria-hidden="true">' + grid + '</span>' +
+          '<ol class="pdx-yrs-bands">' + cols + '</ol></div></div>' +
+      '</div>';
+  }
+  // ── THE SECOND GRAPH: ONE RANGE BAR PER YEAR, OVER THE WHOLE CAREER ────────
+  // Under the per-line graph, on the same year axis: one vertical bar per year,
+  // running from the LOWEST disclosed point any line carries that year to the
+  // HIGHEST. No dots and no count of anything along the bar — it is the span
+  // the year's filed boxes cover, read off two stored points. It is a range,
+  // not a sum: nothing is added, and the bar's length is not a net worth.
+  //   SAME AXES AS THE FIRST GRAPH: the log scale from the smallest box's
+  // midpoint to the open box's floor, one slot per calendar year from the first
+  // drawn year to the last, an empty slot for a year with no form on file, and
+  // the vertical axis labelled only at points a stored line carries. Each bar
+  // links to its year's PDF and carries the same summary line underneath.
+  var RANGE_GRAPH = true;
+  function holdingsRangeHtml(h) {
+    var F = W.PDXFinance, P = F && F.DISCLOSED_POINTS;
+    if (!RANGE_GRAPH || !P || !h || !h.years || !h.years.length) return '';
+    var lo = P[h.rungs[0]], hi = P[h.rungs[h.rungs.length - 1]];
+    if (!lo || !hi) return '';
+    var lnLo = Math.log(lo.value), span = Math.log(hi.value) - lnLo;
+    function yAt(v) { return 4 + 92 * (Math.log(v) - lnLo) / span; }
+    var used = {}, bars = [];
+    for (var y = 0; y < h.years.length; y++) {
+      var yr = h.years[y], count = 0, low = -1, top = -1;
+      for (var i = 0; i < yr.lines.length; i++) {
+        var l = yr.lines[i];
+        if (!l.point) continue;
+        count++;
+        used[l.rung] = l.point;
+        if (low < 0 || l.rung < low) low = l.rung;
+        if (l.rung > top) top = l.rung;
+      }
+      // A YEAR WITH NO LINE ON THE LADDER DRAWS NO BAR AND NO SUMMARY.
+      if (!count) continue;
+      var pLo = P[h.rungs[low]], pHi = P[h.rungs[top]];
+      var b0 = yAt(pLo.value), b1 = yAt(pHi.value);
+      var nText = count.toLocaleString('en-US') + (count === 1 ? ' line' : ' lines');
+      var hiText = 'highest band ' + pointText(pHi);
+      var summary = YEAR_SUMMARY
+        ? '<span class="pdx-yrs-sum" data-pdx-highest="' + attr(h.rungs[top]) + '">' +
+            '<span class="pdx-yrs-year">' + esc(yr.year) + '</span> · ' +
+            '<span class="pdx-yrs-n">' + esc(nText) + '</span> · ' +
+            '<span class="pdx-yrs-hi">' + esc(hiText) + '</span></span>'
+        : '<span class="pdx-yrs-year">' + esc(yr.year) + '</span>';
+      bars.push({ year: +yr.year,
+        open: '<li class="pdx-rng-band" data-pdx-year="' + attr(yr.year) + '" data-pdx-range-lo="' + attr(h.rungs[low]) +
+          '" data-pdx-range-hi="' + attr(h.rungs[top]) + '"',
+        inner: '<a class="pdx-yrs-link" href="' + attr(yr.formUrl) + '" target="_blank" rel="noopener noreferrer"' +
+          ' aria-label="' + attr(yr.year + ' form: ' + nText + ', ranging from ' + pointText(pLo) + ' to ' +
+            pointText(pHi) + '. Opens the filed form.') + '">' +
+          '<span class="pdx-yrs-plot" aria-hidden="true">' +
+            '<span class="pdx-rng-bar' + (low === top ? ' is-one' : '') + '" style="bottom:' + b0.toFixed(2) +
+              '%;height:' + (b1 - b0).toFixed(2) + '%"></span>' +
+          '</span>' + summary +
+        '</a>' });
+    }
+    if (!bars.length) return '';
+    var ticks = '', grid = '';
+    for (var t = 0; t < h.rungs.length; t++) {
+      if (!used[t]) continue;
+      var at = yAt(used[t].value).toFixed(2);
+      ticks += '<span class="pdx-yrs-tick" style="bottom:' + at + '%">' + esc(pointText(used[t])) + '</span>';
+      grid += '<span class="pdx-yrs-grid" style="bottom:' + at + '%"></span>';
+    }
+    var y0 = bars[0].year, slots = bars[bars.length - 1].year - y0 + 1;
+    var lis = bars.map(function (b) {
+      return b.open + ' style="left:' + (100 * (b.year - y0) / slots).toFixed(4) + '%;width:' +
+        (100 / slots).toFixed(4) + '%">' + b.inner + '</li>';
+    }).join('');
+    return '<div class="pdx-rng-wrap">' +
+        '<h5 class="pdx-bands-h">Range of disclosed points, year by year</h5>' +
+        '<p class="pdx-money-block-s">One bar per form on file, oldest on the left, each opening that ' +
+          'form. A bar runs from the lowest disclosed point among that year’s lines to the ' +
+          'highest. It is a range, not a sum: no line is added to another, and a bar’s length is ' +
+          'not a net worth.</p>' +
+        '<div class="pdx-yrs pdx-rng" data-pdx-graph="range" style="--pdx-yrs-span:' + slots + '">' +
+          '<div class="pdx-yrs-axis" aria-hidden="true"><span class="pdx-yrs-plot">' + ticks + '</span></div>' +
+          '<div class="pdx-yrs-body"><div class="pdx-yrs-field">' +
+            '<span class="pdx-yrs-area pdx-rng-area" aria-hidden="true">' + grid + '</span>' +
+            '<ol class="pdx-yrs-bands pdx-rng-bands">' + lis + '</ol></div></div>' +
+        '</div>' +
+      '</div>';
+  }
+  // ── COMMITTEE OVERLAP, UNDER THE GRAPH ────────────────────────────────────
+  // Off PDXFinance.overlap(pid), which derives every overlap from a stored
+  // holdings line and a stored roster seat, and returns null unless an award is
+  // on file too — so this section is either all there or not there at all.
+  //   ONE PLAIN SENTENCE PER OVERLAP, in the request's own words: "Holds BA while
+  // on House Armed Services." Beside it, the annual forms that carry the line and
+  // the .gov roster record that seated the member. No motive, no adjective.
+  //   THE AWARD LINES ARE PUBLISHED FIGURES, QUOTED. Each is one USASpending.gov
+  // award — the largest contract signed with the company in a year the graph
+  // covers — with the amount obligated on it as published, linked to its award
+  // page. The only arithmetic is putting commas in a published number: nothing
+  // is added, divided or set beside the member's bands as if it were theirs.
+  function publishedDollars(n) {
+    var parts = n.toFixed(2).split('.');
+    return '$' + parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '.' + parts[1];
+  }
+  function holdingsOverlapHtml(pid) {
+    var F = W.PDXFinance, o = null;
+    if (F && typeof F.overlap === 'function') {
+      try { o = F.overlap(pid); } catch (e) { o = null; }
+    }
+    if (!o || !o.items || !o.items.length || !o.awards || !o.awards.length) return '';
+    var flags = o.items.map(function (it) {
+      var forms = it.forms.map(function (f) {
+        return '<a href="' + attr(f.formUrl) + '" target="_blank" rel="noopener noreferrer">' +
+          esc(f.year) + ' annual report ↗</a>';
+      }).join(' · ');
+      // A SEAT reads "Holds BA while on House Armed Services."; AN OFFICE reads
+      // "Held LMT while in office." — past tense, because the form reports a
+      // year already closed, and the office named in the line beside it.
+      var office = it.kind === 'office';
+      return '<p class="pdx-overlap-flag" data-pdx-flag="' + attr(it.ticker + ':' + (office ? 'office' : it.committee)) + '">' +
+        '<b>' + esc(office ? 'Held ' + it.ticker + ' while in office.'
+                           : 'Holds ' + it.ticker + ' while on ' + it.committeeName + '.') + '</b> ' +
+        '<span>' + esc(it.company + ' (' + it.ticker + ') is listed on the ') + forms +
+          ' · ' + (office ? esc('office: ' + it.office) + ', ' : 'seat: ') +
+          '<a href="' + attr(it.roster.url) + '" target="_blank" rel="noopener noreferrer">' +
+          esc(it.roster.label) + ' ↗</a></span>' +
+      '</p>';
+    }).join('');
+    var lines = o.awards.map(function (a) {
+      return '<li class="pdx-overlap-award" data-pdx-award="' + attr(a.awardId) + '" data-pdx-obligated="' +
+          attr(String(a.obligated)) + '">' +
+        '<a href="' + attr(a.url) + '" target="_blank" rel="noopener noreferrer">' +
+          '<span class="pdx-overlap-yr">' + esc(a.year) + '</span> ' +
+          esc(a.ticker + ' · ' + a.recipient + ' · ' + a.description + ' · ' + a.agency) +
+          ' · <b>' + esc(publishedDollars(a.obligated)) + '</b> obligated on award ' + esc(a.awardId) + ' ↗' +
+        '</a></li>';
+    }).join('');
+    return '<div class="pdx-overlap" data-pdx-overlap="' + attr(pid) + '">' +
+        '<h5 class="pdx-bands-h">' + (o.items.some(function (it) { return it.kind === 'office'; })
+          ? 'Holdings beside the office held' : 'Holdings beside a committee seat') + '</h5>' + flags +
+        '<h5 class="pdx-bands-h">Largest contract signed each year with these companies</h5>' +
+        '<p class="pdx-money-block-s">One line for each company in each year the graph covers: the single ' +
+          'largest contract signed with it that year, and the amount obligated on that award, as ' +
+          'USASpending.gov published it on ' + esc(o.asOf) + '. This is federal money to a company, ' +
+          'not money the member holds. No award is added to another, and nothing here is a ' +
+          'profit figure.</p>' +
+        '<ul class="pdx-overlap-awards">' + lines + '</ul>' +
+      '</div>';
+  }
+  // A VERY LARGE FORM'S LINES LIVE IN THEIR OWN DATA FILE (PDXFinance names
+  // which). The block draws a one-line placeholder, the file is fetched once,
+  // and every placeholder on the page is repainted when it lands. No document
+  // (a test, a worker) means no fetch and the placeholder stays as words.
+  var LAZY_HOLDINGS_STATE = {};
+  function requestLazyHoldings(src) {
+    var D = W.document;
+    if (!src || LAZY_HOLDINGS_STATE[src] || !D || typeof D.createElement !== 'function') return;
+    LAZY_HOLDINGS_STATE[src] = 'loading';
+    var el = D.createElement('script');
+    el.src = src;
+    el.async = true;
+    el.onload = function () {
+      LAZY_HOLDINGS_STATE[src] = 'loaded';
+      var waits = D.querySelectorAll ? D.querySelectorAll('[data-pdx-bands-wait]') : [];
+      for (var i = 0; i < waits.length; i++) {
+        var w = waits[i], html = holdingsGraphHtml(w.getAttribute('data-pdx-bands-wait'));
+        try { w.outerHTML = html; } catch (e) {}
+      }
+    };
+    el.onerror = function () { LAZY_HOLDINGS_STATE[src] = 'failed'; };
+    (D.head || D.documentElement).appendChild(el);
+  }
+  function holdingsGraphHtml(pid) {
+    var F = W.PDXFinance, h = null;
+    if (F && typeof F.holdings === 'function') {
+      try { h = F.holdings(pid); } catch (e) { h = null; }
+    }
+    if (!h && F && typeof F.lazyHoldingsSrc === 'function') {
+      var lazy = F.lazyHoldingsSrc(pid);
+      if (lazy) {
+        requestLazyHoldings(lazy);
+        return '<p class="pdx-money-block-s pdx-bands-wait" data-pdx-bands-wait="' + attr(pid) + '">' +
+          'Reading the filed lines for this form\u2026</p>';
+      }
+    }
+    if (!h || !h.lines || !h.rungs || !h.rungs.length) return '';
+    var bases = {};
+    (h.years || []).forEach(function (yr) {
+      yr.lines.forEach(function (l) { if (l.point) bases[l.point.basis] = l.point.method; });
+    });
+    var src = (bases.midpoint || bases.floor)
+      ? '<p class="pdx-bands-src"><span>How each figure was made</span> · ' +
+          (bases.midpoint ? '<b>' + esc(bases.midpoint) + '</b>: the arithmetic middle of the two ends ' +
+            'of the box the filer ticked. ' : '') +
+          (bases.floor ? '<b>' + esc(bases.floor) + '</b>: the bottom of the top box, which the form ' +
+            'gives no ceiling. ' : '') +
+          'A figure belongs to one line and comes from one filed box; none is added to another, ' +
+          'and none is a net worth.</p>'
+      : '';
+    var years = src ? holdingsYearsHtml(pid, h, bases) : '';
+    if (years) {
+      return '<div class="pdx-bands" data-pdx-bands="' + attr(pid) + '" data-pdx-drawing="years">' +
+          '<h5 class="pdx-bands-h">Disclosed points, year by year</h5>' +
+          '<p class="pdx-money-block-s">Each column is one form on file, oldest on the left, and ' +
+            'opens that form. Each dot is one line on that year’s form, placed up the column at ' +
+            'its disclosed point on a log scale; dots in the same filed box sit side by side. A ' +
+            'column with more dots, or dots higher up, reports more or larger holdings that year. ' +
+            'No dot is added to another, and nothing here is a net worth or campaign money. ' +
+            GRAPH_EXCLUDED + '</p>' +
+          years + holdingsRangeHtml(h) + src +
+        '</div>' + holdingsOverlapHtml(pid);
+    }
+    // NO STORED POINT ANYWHERE: the bands-only drawing, exactly as before.
+    if (!h.lines.length) return '';
+    var n = h.rungs.length, groups = '', cur = null, items = '';
+    function flush() {
+      if (cur == null) return;
+      groups += '<li class="pdx-bands-group">' +
+        '<div class="pdx-bands-group-h">' + esc(h.rungs[cur]) + '</div>' +
+        '<ul class="pdx-bands-list">' + items + '</ul></li>';
+      items = '';
+    }
+    for (var i = 0; i < h.lines.length; i++) {
+      var l = h.lines[i];
+      if (l.rung < 0 || l.rung >= n) continue;
+      if (l.rung !== cur) { flush(); cur = l.rung; }
+      var open = l.rung === n - 1;
+      var left = (100 * l.rung / n).toFixed(3);
+      var width = (100 * (open ? n - l.rung : 1) / n).toFixed(3);
+      items +=
+        '<li class="pdx-bands-row" data-pdx-band="' + attr(l.filed) + '" title="As filed: ' + attr(l.filed) + '">' +
+          '<span class="pdx-bands-label">' + esc(l.asset) + ' · ' + esc(l.band) + '</span>' +
+          '<span class="pdx-bands-track" aria-hidden="true" style="--pdx-bands-n:' + n + '">' +
+            '<span class="pdx-bands-bar' + (open ? ' is-open' : '') + '" style="left:' + left + '%;width:' + width + '%"></span>' +
+          '</span>' +
+        '</li>';
+    }
+    flush();
+    if (!groups) return '';
+    return '<div class="pdx-bands" data-pdx-bands="' + attr(pid) + '">' +
+        '<h5 class="pdx-bands-h">Value categories as filed</h5>' +
+        '<p class="pdx-money-block-s">Each bar is one line on this form, spanning the category ' +
+          'the filer ticked, from where it begins on the form’s own ladder to where it ends. ' +
+          'No middle value is worked out, no bar is added to another, and nothing here is a net ' +
+          'worth or campaign money. ' + GRAPH_EXCLUDED + '</p>' +
+        '<div class="pdx-bands-scale" aria-hidden="true"><span>smaller categories</span><span>larger categories</span></div>' +
+        '<ul class="pdx-bands-groups">' + groups + '</ul>' +
+      '</div>' + holdingsOverlapHtml(pid);
+  }
+
   // ── THE DISCLOSURES BLOCK — CHIP 2'S OTHER END ─────────────────────────────
   // What the second pill is a door TO. It carries the same figure as the chip, by
   // construction: one wealthRead() per surface, no second lookup and no second
@@ -1257,7 +1626,7 @@
           'This is a filed form, not campaign money: it is a different fact from the receipts ' +
           'above it, over a different span, and the two are never added together or divided ' +
           'into one another.' +
-        '</p>' + link;
+        '</p>' + link + holdingsGraphHtml(pid);
     } else {
       body =
         '<div class="pdx-money-block-fig is-none">No in-office wealth file on hand</div>' +
@@ -1352,6 +1721,13 @@
     wealthLetterheadChipHtml: wealthLetterheadChipHtml,
     wealthLetterheadChipMount: wealthLetterheadChipMount,
     wealthBlockHtml: wealthBlockHtml,
+    // The range-band graph the block carries when the form's lines are on hand.
+    // Empty string where no holdings row passes the gate.
+    holdingsGraphHtml: holdingsGraphHtml,
+    // Test seam: draw the year columns without their summary line.
+    _setYearSummary: function (on) { YEAR_SUMMARY = on !== false; return YEAR_SUMMARY; },
+    // Test seam: draw the disclosures block without the range graph.
+    _setRangeGraph: function (on) { RANGE_GRAPH = on !== false; return RANGE_GRAPH; },
     openWealthSection: openWealthSection,
     // The campaign-filing lookup, published so PDXFinance.filing(pid) can delegate
     // to it instead of keeping a second copy of the two seams and the id alias.
