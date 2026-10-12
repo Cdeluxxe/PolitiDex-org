@@ -713,7 +713,11 @@ const VERIFIED_OPTS = { uid: "u_7", loc: { state: "Utah", city: "Layton", county
     .replace(/<span class="pdx-sh-full">([^<]*)<\/span><span class="pdx-sh-short">[^<]*<\/span>/g, "$1")
     // The homepage District Voice card later carried one exclusivity sentence
     // (v302); that is the Voice card's body copy, not money markup.
-    .replace(/<p class="pdxhv-line" data-pdxhv-room="1">[^<]*<\/p>/, "");
+    .replace(/<p class="pdxhv-line" data-pdxhv-room="1">[^<]*<\/p>/, "")
+    // The All-Seeing Eye's touch rule later carried the panel's blur and
+    // strip-animation overrides on its opening line (v346); that is search
+    // panel chrome, not money markup.
+    .replace(/(@media \(hover:none\) and \(pointer:coarse\)\{) \/\* Touch: the 98%-opaque panel[^\n]*/, "$1");
   for (const f of MONEY) {
     const src = R(f);
     if (head) eq(sansAlias(src) === sansAlias(head(f)), true, `${f}: money markup changed in this pass`);

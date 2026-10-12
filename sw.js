@@ -9314,7 +9314,22 @@
 //     district-board.css are precached and changed, so the shell moves one
 //     version. No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v345';
+// v346 - A NAME SEARCH LEADS WITH THE PERSON NAMED, AND THE EYE IS LIGHTER ON
+//     A PHONE. index.html is precached and changed: on a touch screen the
+//     search panel drops its backdrop blur (the panel is 98% opaque, so it was
+//     invisible and still re-blurred the page under it every frame) and stops
+//     replaying the reveal animation on every open action strip each repaint.
+//     The shell moves one version so a warm device stops serving the older
+//     copy. /all-seeing-eye.js also changed — the people order is led by how
+//     strongly the query names the person, so "trump" answers with Donald
+//     Trump before anyone whose file merely mentions him — but it is a
+//     RUNTIME entry, refreshed by stale-while-revalidate, so a warm device
+//     paints the old order once more on its first visit after the deploy and
+//     the new one from then on. score() and rank() are unchanged, and no
+//     Direction Match or Word-vs-Action figure moves. No location key or other
+//     saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v346';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
