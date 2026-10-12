@@ -9314,7 +9314,76 @@
 //     district-board.css are precached and changed, so the shell moves one
 //     version. No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v345';
+// v346 - A NAME SEARCH LEADS WITH THE PERSON NAMED, AND THE EYE IS LIGHTER ON
+//     A PHONE. index.html is precached and changed: on a touch screen the
+//     search panel drops its backdrop blur (the panel is 98% opaque, so it was
+//     invisible and still re-blurred the page under it every frame) and stops
+//     replaying the reveal animation on every open action strip each repaint.
+//     The shell moves one version so a warm device stops serving the older
+//     copy. /all-seeing-eye.js also changed — the people order is led by how
+//     strongly the query names the person, so "trump" answers with Donald
+//     Trump before anyone whose file merely mentions him — but it is a
+//     RUNTIME entry, refreshed by stale-while-revalidate, so a warm device
+//     paints the old order once more on its first visit after the deploy and
+//     the new one from then on. score() and rank() are unchanged, and no
+//     Direction Match or Word-vs-Action figure moves. No location key or other
+//     saved key was touched.
+//     MIGRATION COST: none.
+// v347 - A POLL ON THE STOCK-TRADING ISSUE FILE, AND A JUMP TO ITS COMMENTS.
+//     /i/stock_trading_ban's letterhead carries one Support / Oppose / Not
+//     sure poll for a Utah federal seat (the reader's own House and Senate
+//     seats where their saved location names them, otherwise a choice of the
+//     six), read and cast through /api/district-board-poll — the boards' own
+//     store and gate: counts open to everyone, a vote only for a vendor-verified
+//     resident of THAT seat, an unverified vote 403 with nothing written. Its
+//     "See the district's voice" link opens /district/<seat>?topic=<key>, and
+//     district-composer.js now reads that topic: the posts band is read for
+//     that issue only (GET ?issue=), titled for it, preselected in the
+//     composer and scrolled into view once. issue-poll.js is new and precached;
+//     issue-file.js, district-composer.js and index.html (one script tag, on
+//     an existing line) are precached and changed, so the shell moves one
+//     version. No board, no seat, no address pattern, no residency or
+//     membership rule and no money pill moved. No location key or other saved
+//     key was touched.
+//     MIGRATION COST: none. No table, row, key or seat moved.
+// v348 - GET MONEY OUT OF POLITICS: TWO LINES, A SEVEN-OPTION POLL, AND A
+//     NESTED CHIP. H.R. 5746 (117th) is filed onto campaign_finance as a
+//     secondary row beside H.R. 1 (117th) (migration
+//     20261114000000_vr_campaign_finance_hr5746_secondary), and both pairs
+//     carry one effect line under their vote rows, written from their own
+//     mapping rationale. /i/campaign_finance carries one poll, "What is the best
+//     way to get money out of politics?", with seven named options and counts,
+//     through /api/district-board-poll: the boards' own store and gate, counts
+//     open to everyone, a vote only for a vendor-verified resident of that
+//     seat. The CHECK on voice_poll_votes admits those seven keys on
+//     campaign_finance only (20261115000000_voice_poll_campaign_finance_choices).
+//     "See the district's voice" opens /district/<seat>?topic=campaign_finance.
+//     On Door 1's key shelf the Get Money Out of Politics chip is drawn beneath
+//     Transparency & Anti-Corruption (PDXIssueFamily.subParentOf); both keep
+//     their core, their chip and their ledger. consistency.js, district-poll.js,
+//     issue-poll.js, pdx-issue-family.js, door1-workspace.js and
+//     door1-workspace.css are precached and changed, so the shell moves one
+//     version. No board, seat, address pattern, residency or membership rule,
+//     monthly cap or money pill moved. No location key or other saved key was
+//     touched.
+//     MIGRATION COST: none on the device. In the database,
+//     20261114000000_vr_campaign_finance_hr5746_secondary adds one secondary
+//     vr_measure_issues row and 20261115000000_voice_poll_campaign_finance_choices
+//     widens the voice_poll_votes choice CHECK; neither moves an existing row.
+// v349 - A POLL ON THE SUPPORT FOR ISRAEL ISSUE FILE. /i/israel_support's
+//     letterhead carries the Support / Oppose / Not sure poll for a Utah
+//     federal seat, read and cast through /api/district-board-poll — the
+//     boards' own store and gate: counts open to everyone, a vote only for a
+//     vendor-verified resident of that seat, an unverified vote 403 with
+//     nothing written. "See the district's voice" opens
+//     /district/<seat>?topic=israel_support, which the board already reads as
+//     that issue's comments. Every vote row on the issue's drawers already
+//     prints its stored effect line, so no line and no mapping moved.
+//     issue-poll.js is precached and changed, so the shell moves one version.
+//     No board, seat, address pattern, residency or membership rule, monthly
+//     cap or money pill moved. No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v349';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -9760,6 +9829,10 @@ const SHELL_ASSETS = [
   // text ON TOP of the page, which is worse than no overlay at all.
   '/issue-file.js',
   '/issue-file.css',
+  // The district's voice poll on an issue file's letterhead. Travels with the
+  // panel above: issue-file.js prints its slot, and a device holding the panel
+  // without it paints the stock-trading file with no poll and no jump.
+  '/issue-poll.js',
   // The District Room and its stylesheet, /d/<districtKey>/<issueKey>. On this
   // list for both of the reasons the issue-file pair above is: a device that
   // holds the /d/* rewrite (it ships in netlify.toml, at the edge) but not this

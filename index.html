@@ -4479,7 +4479,7 @@ window.PDXLazy = (function () {
       .pdx-eye-conn-theme--tag:active{background:rgba(129,178,248,0.26);}
       .pdx-eye-conn-chip:active{background:rgba(245,200,66,0.18);transform:scale(0.96);}
       .pdx-eye-conn-rcpt:active,.pdx-eye-conn-rel:active,.pdx-eye-conn-act:active{transform:scale(0.97);}
-      @media (hover:none) and (pointer:coarse){
+      @media (hover:none) and (pointer:coarse){ /* Touch: the 98%-opaque panel's blur is invisible but re-blurs the page every frame, and every row's strip sits open so its reveal would replay on each repaint — both off. */ .pdx-eye-panel{backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:0 16px 36px rgba(0,0,0,0.55);} .pdx-eye-actions,.pdx-eye-rel{animation:none;}
         .pdx-eye-actions{display:flex;}
         .pdx-eye-act{font-size:0.76rem;padding:0.42rem 0.72rem;}
         .pdx-eye-ans-row{padding:0.55rem 0.6rem;}
@@ -15484,7 +15484,7 @@ window.PDXLazy = (function () {
        because that module mounts this one above its rooms list; the file degrades
        to exactly its rooms list if THIS file is missing, and this module prints
        nothing for a seat that is not in its allow-list. -->
-  <script defer src="/district-voice.js"></script>
+  <script defer src="/district-voice.js"></script><script defer src="/issue-poll.js"></script>
   <!-- "This seat's ballot" — one short strip on that same district file, under
        Voice's question and above the issue rooms, naming the officials who
        actually touch the district: the member who sits in the seat, the U.S.

@@ -18,8 +18,8 @@
 // upsert is reachable — an unverified POST is 403 and writes nothing.
 //
 // ── COUNTS ONLY ON THE WIRE ─────────────────────────────────────────────────
-// A tally goes out as { issueKey, support, oppose, not_sure, total } and nothing
-// else. No author hash, no uid, no name. `mine` is the caller's OWN vote per
+// A tally goes out as { issueKey, support, oppose, not_sure, total } — or, for an
+// issue on ISSUE_CHOICES, its own option keys and total — and nothing else. No author hash, no uid, no name. `mine` is the caller's OWN vote per
 // issue, computed here and only for a caller the gate let through — never
 // anybody else's. Anyone can read the tallies.
 //
@@ -42,10 +42,31 @@ export { COMPOSER_SEATS, LOCKED_LINE };
 
 export const CHOICES = ["support", "oppose", "not_sure"];
 
+// ONE ISSUE ASKS WHICH WAY RATHER THAN WHETHER. Get Money Out of Politics asks
+// "What is the best way to get money out of politics?" and its answers are these
+// seven named options, in this order. Every other issue keeps the three poles.
+// The database CHECK admits these keys on campaign_finance only
+// (migration 20261115000000_voice_poll_campaign_finance_choices).
+export const ISSUE_CHOICES = {
+  campaign_finance: ["cap_individual", "cap_total", "public_match", "cooling_off", "ban_stock_buys", "dark_money", "none"],
+};
+
+export function choicesFor(issueKey) {
+  return Object.prototype.hasOwnProperty.call(ISSUE_CHOICES, issueKey) ? ISSUE_CHOICES[issueKey] : CHOICES;
+}
+
+function emptyTally(issueKey) {
+  const t = { issueKey };
+  for (const c of choicesFor(issueKey)) t[c] = 0;
+  t.total = 0;
+  return t;
+}
+
 export const COPY = {
   noSeat: "This board does not take votes.",
   noIssue: "Choose an issue from this seat's table.",
   badChoice: "Choose Support, Oppose or Not sure.",
+  badOption: "Choose one of the listed options.",
 };
 
 function issueShape(v) {
@@ -59,9 +80,9 @@ export function tallies(rows) {
   const out = new Map();
   for (const r of rows || []) {
     const k = issueShape(r && r.issueKey);
-    if (!k || !CHOICES.includes(r.choice)) continue;
+    if (!k || !choicesFor(k).includes(r.choice)) continue;
     let t = out.get(k);
-    if (!t) { t = { issueKey: k, support: 0, oppose: 0, not_sure: 0, total: 0 }; out.set(k, t); }
+    if (!t) { t = emptyTally(k); out.set(k, t); }
     const n = Number(r.v);
     const c = Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
     t[r.choice] += c;
@@ -107,12 +128,13 @@ export async function handle(req, deps) {
     if (verdict.ok && hash) {
       for (const r of (await deps.myVotes(seatKey, hash)) || []) {
         const k = issueShape(r && r.issueKey);
-        if (k && CHOICES.includes(r.choice)) mine[k] = r.choice;
+        if (k && choicesFor(k).includes(r.choice)) mine[k] = r.choice;
       }
     }
     return json({
       seat: COMPOSER_SEATS[seatKey],
       choices: CHOICES,
+      issueChoices: ISSUE_CHOICES,
       polls,
       mine,
       voice: {
@@ -153,7 +175,9 @@ export async function handle(req, deps) {
     return json({ error: COPY.noIssue, code: "bad_issue" }, 400);
   }
   const choice = String(payload.choice == null ? "" : payload.choice);
-  if (!CHOICES.includes(choice)) return json({ error: COPY.badChoice, code: "bad_choice" }, 400);
+  if (!choicesFor(issueKey).includes(choice)) {
+    return json({ error: choicesFor(issueKey) === CHOICES ? COPY.badChoice : COPY.badOption, code: "bad_choice" }, 400);
+  }
 
   const values = { seatKey: verdict.seatKey, issueKey, authorHash: hash, choice };
   if (await memberFor(deps, user)) {
@@ -174,6 +198,6 @@ export async function handle(req, deps) {
   }
 
   const poll = tallies(await deps.countVotes(verdict.seatKey)).find((t) => t.issueKey === issueKey) ||
-    { issueKey, support: 0, oppose: 0, not_sure: 0, total: 0 };
+    emptyTally(issueKey);
   return json({ poll, mine: choice }, 200);
 }

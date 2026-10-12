@@ -842,8 +842,13 @@ section("10 · nothing on the do-not list moved");
   else {
     // THE RANKING IS UNTOUCHED, FUNCTION BY FUNCTION. holdOrder reads only the
     // ids a group printed last time; nothing below it was allowed to change.
-    for (const fn of ["score", "rank", "recordFirst", "citeFirst", "citeOf", "recordDepth",
-                      "laneReady", "judgeBlock", "catBlock", "subseq", "personalBoost", "rowOpen"]) {
+    // recordFirst() and catBlock() came off this list with the v346 pass, which
+    // was chartered to move exactly those two: the person a query names now
+    // leads the people order, and a touch screen opens later groups on three
+    // rows. scripts/test-eye-name-leads.mjs pins both, and still holds score()
+    // and rank() byte-identical.
+    for (const fn of ["score", "rank", "citeFirst", "citeOf", "recordDepth",
+                      "laneReady", "judgeBlock", "subseq", "personalBoost", "rowOpen"]) {
       const a = fnSrc(EYE_SRC, fn), b = fnSrc(headEye, fn);
       must(a && b, `${fn}() cannot be read out of both revisions — this claim has no subject`);
       eq(a, b, `${fn}() is not byte-identical with HEAD — this pass may not move the ranking`);

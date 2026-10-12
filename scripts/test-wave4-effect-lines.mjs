@@ -172,6 +172,16 @@ function check(src, ledger, base) {
   const E = mapOf(src, "_DOS_EFFECT"), X = mapOf(src, "_DOS_EXEC_EFFECT"), M = mapOf(src, "_DOS_MECH"), P = mapOf(src, "_DOS_POINTER");
   const empty = { faults: ["effect maps not found in consistency.js"], pass, printed: new Map(), ptrs: new Map(), mute: 0 };
   if (!E || !X || !M || !P) return empty;
+  // Keys a LATER marked wave of _DOS_EFFECT wrote (the "// WAVE " blocks after
+  // this one). They are that wave's to pin, not this file's to refuse.
+  const later = (() => {
+    const a = src.indexOf(MARK);
+    if (a < 0) return [];
+    const next = src.indexOf("\n    // WAVE ", a + MARK.length);
+    const end = src.indexOf("\n  };", a);
+    if (next < 0 || next > end) return [];
+    return [...src.slice(next, end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+  })();
   const win = boot(src);
   if (win.__err) return { ...empty, faults: [`boot: ${win.__err}`] };
   const CS = win.PDXConsistency;
@@ -211,7 +221,10 @@ function check(src, ledger, base) {
           ok(rowsByKey.has(pair) && rowsByKey.get(pair).decision === "refuse", `${pid} × ${k}: ${pair} is mute and the title ledger does not record why`);
         }
         const row = rowsByKey.get(pair);
-        if (row && row.decision === "refuse") ok(!got.length, `${pid} × ${k}: ${pair} is a refused row and prints ${JSON.stringify(got[0])}`);
+        // A refusal was a ruling on the TITLE. A later marked wave that writes
+        // the pair from another stored source (H.R. 1|117|campaign_finance, wave
+        // 5, from its mapping rationale) supersedes it.
+        if (row && row.decision === "refuse" && !later.includes(pair)) ok(!got.length, `${pid} × ${k}: ${pair} is a refused row and prints ${JSON.stringify(got[0])}`);
         if (row && row.decision === "line") ok(got.length === 1 && got[0] === norm(E.map[pair]), `${pid} × ${k}: ${pair} prints ${JSON.stringify(got)}, stored ${JSON.stringify(E.map[pair] || "")}`);
       }
     }
@@ -240,7 +253,7 @@ function check(src, ledger, base) {
       ok(f === "", `${k}: ${f}`);
     } else {
       ok(row.decision === "refuse" && norm(row.why).length > 20, `${k}: a refusal with no reason`);
-      ok(!(k in E.map), `${k}: a refused row carries a line — its title does not name the effect`);
+      if (!later.includes(k)) ok(!(k in E.map), `${k}: a refused row carries a line — its title does not name the effect`);
     }
   }
 
@@ -248,7 +261,7 @@ function check(src, ledger, base) {
   if (headSrc) {
     const HE = mapOf(headSrc, "_DOS_EFFECT");
     for (const [p, v] of Object.entries(HE.map)) ok(E.map[p] === v, `${p}: a shipped line was rewritten or removed`);
-    for (const k of Object.keys(E.map)) ok(k in HE.map || block.includes(k), `${k}: a new line outside the wave-4 block`);
+    for (const k of Object.keys(E.map)) ok(k in HE.map || block.includes(k) || later.includes(k), `${k}: a new line outside the wave-4 block`);
     for (const name of ["_DOS_MECH", "_DOS_EXEC_EFFECT", "_DOS_POINTER"]) {
       ok(mapOf(src, name).text === mapOf(headSrc, name).text, `${name} is not byte-identical to HEAD`);
     }

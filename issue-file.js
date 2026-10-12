@@ -542,6 +542,7 @@
           (reading(c) ? '' : procHtml(c)) +
           jumpsHtml(key) +
           districtRoom(key) +
+          issuePoll(key) +
         '</div>' +
       '</div>';
   }
@@ -562,6 +563,16 @@
     var DR = window.PDXDistrictRoom;
     if (!DR || typeof DR.issueMountHtml !== 'function') return '';
     try { return DR.issueMountHtml(key) || ''; } catch (e) { return ''; }
+  }
+
+  // ── The district's voice poll, on the issues that carry one ───────────────
+  // Same rule as the district room above: a slot on the LETTERHEAD, never in the
+  // ledger host, and '' unless issue-poll.js is on the page and names this key
+  // on its own ISSUES table — so every other issue file is unchanged.
+  function issuePoll(key) {
+    var IP = window.PDXIssuePoll;
+    if (!IP || typeof IP.html !== 'function') return '';
+    try { return IP.html(key) || ''; } catch (e) { return ''; }
   }
 
   // ── The family's colour, off the one palette ──────────────────────────────

@@ -811,7 +811,11 @@ section("7 · ship discipline — cache, census, floor, and the identity wall");
   }
 
   // No new rolls, no new keys, no stance harvest, and nothing in the measure-issue tables.
-  const untouched = ["formal-index.js", "db/vr-measure-identity.json", "db/vr-issue-seed.json",
+  // db/vr-issue-seed.json came off this list for the money-out-of-politics pass
+  // (v348), which appends one secondary campaign_finance issue to H.R. 5746
+  // (117th) — a mapping, not an identity; scripts/test-money-out-voice.mjs pins
+  // it. R2 still admits no identity through any file below.
+  const untouched = ["formal-index.js", "db/vr-measure-identity.json",
     "db/issue-keys.json", "politician-stances-core.js", "politician-stances-ext.js",
     "db/vr-pid-aliases.json", "db/vr-roster-admitted.json", "db/vr-member-map.json",
     // stance-helpers.js came off this list for the person-file chrome pass and is

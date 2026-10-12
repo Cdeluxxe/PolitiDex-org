@@ -161,7 +161,11 @@
     proveNote: 'One ID and proof-of-address check covers this seat and the other boards your saved location names. ' +
       'PolitiDex keeps that you passed, not your ID or your address.',
     proveFailed: 'Residency check is not available right now',
-    returned: 'Your check is with the vendor. This board opens once it confirms; that can take a few minutes.'
+    returned: 'Your check is with the vendor. This board opens once it confirms; that can take a few minutes.',
+    // The topic jump (?topic=<issueKey>), from an issue file's poll.
+    topicHd: 'What residents have said on ',
+    topicEmpty: 'No comments on this issue on hand for this seat.',
+    topicAll: 'Show every comment'
   };
   var VERIFY_API = '/api/residency-verify';
 
@@ -248,6 +252,21 @@
   var _proving = false;
   var _proveStatus = '';
   var _returned = false;
+  // ── THE TOPIC JUMP ────────────────────────────────────────────────────────
+  // /district/<seat>?topic=<issueKey> opens this board on ONE issue's comments:
+  // the feed is read for that issue only (GET ?issue=), titled with its label,
+  // the composer's issue is preselected, and the feed is scrolled into view
+  // once. "Show every comment" drops the topic and reads the whole feed again.
+  // The key is shape-checked and opens nothing else — no gate, no flag.
+  var TOPIC_ID = 'pdx-topic-comments';
+  var _topic = '';
+  var _jumped = false;
+  function topicFrom(search) {
+    var m = /[?&]topic=([^&#?]*)/.exec(String(search || ''));
+    var k = '';
+    try { k = m ? decodeURIComponent(m[1]).trim().toLowerCase() : ''; } catch (e) { k = ''; }
+    return /^[a-z0-9_]+$/.test(k) ? k : '';
+  }
 
   function canPost() {
     return !!(_read && _read.voice && _read.voice.canPost === true);
@@ -271,13 +290,25 @@
     } catch (e) { return ''; }
   }
 
+  function shownPosts() {
+    if (!_topic) return _posts;
+    var out = [];
+    for (var i = 0; i < _posts.length; i++) {
+      if (_posts[i] && _posts[i].issueKey === _topic) out.push(_posts[i]);
+    }
+    return out;
+  }
+
   function feedHtml() {
     if (_read === null) return '<p class="pdxdb-wait" role="status">' + esc(COPY.feedWait) + '</p>';
     if (_read === false) return '<p class="pdxdb-unread">' + esc(COPY.feedUnread) + '</p>';
-    if (!_posts.length) return '<p class="pdxdb-none">' + esc(_read.postsEmpty || COPY.feedEmpty) + '</p>';
+    var list = shownPosts();
+    if (!list.length) {
+      return '<p class="pdxdb-none">' + esc(_topic ? COPY.topicEmpty : (_read.postsEmpty || COPY.feedEmpty)) + '</p>';
+    }
     var h = '<ol class="pdxdc-feed">';
-    for (var i = 0; i < _posts.length; i++) {
-      var p = _posts[i] || {};
+    for (var i = 0; i < list.length; i++) {
+      var p = list[i] || {};
       var lb = issueLabel(p.issueKey);
       h += '<li class="pdxdc-post">' +
         '<p class="pdxdc-post-meta">' +
@@ -418,9 +449,13 @@
         proveHtml(_read === false ? '' : v.reason) +
         noteHtml(note, _read === false ? '' : v.reason) +
       '</section>' +
-      '<section class="pdxdb-band pdxdb-band--posts" data-pdxdb-band="posts">' +
-        '<h2 class="pdxdb-h2">' + esc(COPY.feedHd) + '</h2>' +
+      '<section class="pdxdb-band pdxdb-band--posts" data-pdxdb-band="posts" id="' + TOPIC_ID + '"' +
+          (_topic ? ' data-pdxdc-topic="' + esc(_topic) + '"' : '') + '>' +
+        '<h2 class="pdxdb-h2">' + esc(_topic && issueLabel(_topic)
+          ? COPY.topicHd + issueLabel(_topic) : COPY.feedHd) + '</h2>' +
         '<p class="pdxdb-note">Posts carry no name, email or address.</p>' +
+        (_topic ? '<p class="pdxdb-note"><button type="button" class="pdxdc-btn" data-pdxdc-topic-all="1">' +
+          esc(COPY.topicAll) + '</button></p>' : '') +
         feedHtml() +
       '</section>';
     wireForm();
@@ -429,6 +464,8 @@
   function wireForm() {
     var pb = _host.querySelector('[data-pdxdc-prove-btn]');
     if (pb) pb.addEventListener('click', function () { prove(); });
+    var all = _host.querySelector('[data-pdxdc-topic-all]');
+    if (all) all.addEventListener('click', function () { showAll(); });
     var form = _host.querySelector('form');
     if (!form) return;
     var ta = form.querySelector('textarea');
@@ -445,9 +482,33 @@
     });
   }
 
+  function showAll() {
+    _topic = '';
+    try {
+      if (window.history && fn(window.history.replaceState)) {
+        window.history.replaceState(null, '', String(window.location.pathname || ''));
+      }
+    } catch (e) {}
+    _read = null;
+    render();
+    load();
+  }
+
+  // Once, after the first read on a topic jump: bring the topic's comments
+  // into view. Never again on a later repaint, so it cannot pull a reader back.
+  function jumpToTopic() {
+    if (!_topic || _jumped) return;
+    _jumped = true;
+    try {
+      var n = document.getElementById(TOPIC_ID);
+      if (n && fn(n.scrollIntoView)) n.scrollIntoView({ block: 'start' });
+    } catch (e) {}
+  }
+
   function load() {
     var was = canPost();
-    return call('GET', '?seat=' + encodeURIComponent(_seat)).then(function (res) {
+    var q = '?seat=' + encodeURIComponent(_seat) + (_topic ? '&issue=' + encodeURIComponent(_topic) : '');
+    return call('GET', q).then(function (res) {
       if (!res.ok || !res.data || !Array.isArray(res.data.posts)) {
         _read = false;
         _posts = [];
@@ -456,6 +517,7 @@
         _posts = res.data.posts;
       }
       render();
+      jumpToTopic();
       // The server just opened this seat: let the poll re-ask too.
       if (!was && canPost()) {
         try {
@@ -511,6 +573,8 @@
     // ?verificationSessionId=…&status=… to the return address, so the marker
     // may be followed by a second '?'.
     try { _returned = /[?&]residency=returned(?=$|[&?#])/.test(String(window.location.search || '')); } catch (e) {}
+    try { _topic = topicFrom(window.location.search); } catch (e) { _topic = ''; }
+    if (_topic && !_issue) _issue = _topic;
     render();
     load();
     if (_returned) {
@@ -541,7 +605,10 @@
     LOCKED_LINE: LOCKED_LINE,
     COPY: COPY,
     mount: mount,
-    canPost: canPost
+    canPost: canPost,
+    TOPIC_ID: TOPIC_ID,
+    topicFrom: topicFrom,
+    topic: function () { return _topic; }
   };
 
   function go() { mount(); }

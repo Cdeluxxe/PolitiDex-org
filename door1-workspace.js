@@ -2498,14 +2498,33 @@
     }
     return ((core && core.keys) || []).filter(shippedIssue);
   }
+  // A NESTED CHIP IS DRAWN UNDER ITS PARENT CHIP. PDXIssueFamily.subParentOf()
+  // names a child that sits beneath a sibling (Get Money Out of Politics under
+  // Transparency & Anti-Corruption); the two are stacked in one column so the
+  // child reads as part of the parent. Both stay their own chip, their own key
+  // and their own ledger — nothing is merged.
+  function subParentKey(k) {
+    var F = family();
+    try { return (F && fn(F.subParentOf)) ? (F.subParentOf(k) || '') : ''; } catch (e) { return ''; }
+  }
   function subKeyShelf(core, focusKey) {
     var keys = childKeys(core);
     if (keys.length < 2) return '';
+    function chip(k, sub) {
+      return '<button type="button" class="d1-chip is-key' + (sub ? ' is-sub' : '') + (k === focusKey ? ' is-open' : '') + '"' +
+        skinAttrs(k) + (sub ? ' data-d1-sub-of="' + esc(sub) + '"' : '') +
+        ' onclick="window.pdxDoor1Issue(\'' + jsq(k) + '\')">' +
+        (sub ? '<span class="d1-chip-sub" aria-hidden="true">↳ </span>' : '') + esc(issueLabel(k)) + '</button>';
+    }
+    var nested = {};
+    keys.forEach(function (k) { var p = subParentKey(k); if (p && keys.indexOf(p) >= 0) nested[k] = p; });
     return '<div class="d1-shelf d1-shelf-keys" role="group" aria-label="Keys inside ' +
       esc(core.label) + '">' + keys.map(function (k) {
-        return '<button type="button" class="d1-chip is-key' + (k === focusKey ? ' is-open' : '') + '"' +
-          skinAttrs(k) +
-          ' onclick="window.pdxDoor1Issue(\'' + jsq(k) + '\')">' + esc(issueLabel(k)) + '</button>';
+        if (nested[k]) return '';
+        var kids = keys.filter(function (c) { return nested[c] === k; });
+        if (!kids.length) return chip(k, '');
+        return '<span class="d1-chip-nest">' + chip(k, '') +
+          kids.map(function (c) { return chip(c, k); }).join('') + '</span>';
       }).join('') + '</div>';
   }
 
@@ -3403,6 +3422,13 @@
     _note: note,
     _people: issuePeople,
     _resolveIssue: resolveIssue,
+    // The key shelf a core paints, for scripts/test-money-out-voice.mjs: a nested
+    // chip (PDXIssueFamily.subParentOf) is drawn beneath its parent chip.
+    _keyShelf: function (coreKey, focusKey) {
+      var list = (window.CORE_NATIONAL_ISSUES || []);
+      for (var i = 0; i < list.length; i++) if (list[i] && list[i].key === coreKey) return subKeyShelf(list[i], focusKey || '');
+      return '';
+    },
     // ── THE ISSUE-KEY RESOLVER, SHARED ────────────────────────────────────
     // The Eye asks the same question this desk's typeahead asks — "does this
     // phrase name a tracked key?" — and it has to get the same answer, or a

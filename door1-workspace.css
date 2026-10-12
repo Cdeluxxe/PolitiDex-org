@@ -483,6 +483,10 @@
 .d1-seek-h { margin: 0.35rem 0 0; font-size: 0.7rem; color: #7d8ea8; }
 .d1-seek-miss { margin: 0.35rem 0 0; font-size: 0.74rem; line-height: 1.55; color: #fcd34d; }
 .d1-chip.is-key { border-style: dotted; font-size: 0.72rem; }
+/* A nested chip (PDXIssueFamily.subParentOf) stacks beneath its parent chip. */
+.d1-chip-nest { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 0.25rem; }
+.d1-chip.is-sub { margin-left: 0.9rem; }
+.d1-chip-sub { opacity: 0.7; }
 
 /* ── The record ledger ────────────────────────────────────────────────────── */
 /* Counts, then bands. Every band is drawn identically apart from the tone of its

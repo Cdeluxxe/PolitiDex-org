@@ -95,6 +95,17 @@
       g.total = raw.length;
       return g;
     }
+    // The same RAW count polIdGroups() reports as `.total`, without the grouping.
+    // getIndex()'s cache key and the people lane's warm test read only the count,
+    // and both run several times per keystroke; asking PDXCanonIds to resolve
+    // every roster id just to learn how many there are was the single largest
+    // cost of a keystroke on a phone. Same number, none of the resolving.
+    function rawPolCount() {
+      var n = 0;
+      try { if (typeof CMP_DATA !== 'undefined' && CMP_DATA) n += Object.keys(CMP_DATA).length; } catch (e) {}
+      try { if (window.PROFILES) n += Object.keys(window.PROFILES).length; } catch (e) {}
+      return n;
+    }
     // ── ONE PID PER PERSON, AT EVERY EDGE OF THIS PANEL ─────────────────
     // polIdGroups above answers the question for the PEOPLE LANE, and the receipt
     // lane resolves its own rows (see `var pid = rawPid` in buildIndex). Neither
@@ -384,7 +395,7 @@
     }
     var LANE_ORDER = ['people', 'bills', 'files', 'issues'];
     var LANE_TESTS = {
-      people: function () { return polIdGroups().total > 0 && stanceCount() > 0; },
+      people: function () { return rawPolCount() > 0 && stanceCount() > 0; },
       bills: function () { return measuresWarm(); },
       // THE REGISTER IS ITS OWN LANE. The formal lane's first group — the issue
       // files — is built from ISSUE_MAP. The families and the spotlights are
@@ -686,17 +697,46 @@
       var d = recordDepth(pid);
       return (d.acts > 0 ? 2 : 0) + (d.chars > 0 ? 1 : 0);
     }
-    // Is the query the person's NAME, rather than a word that happens to be in
-    // their file? Two strengths: the whole name typed out, and one whole token of
-    // it ("chew", "schultz"). A substring, a fuzzy near-miss and a bio hit are all
-    // zero here — they are what the tier exists to sit above.
-    function exactNameRank(e, q) {
-      var name = String(e.titleLc || '');
-      if (!q) return 0;
-      if (name === q) return 2;
+    // HOW STRONGLY DOES THE QUERY NAME THIS PERSON? Four strengths, read off the
+    // row's own name and nothing else:
+    //   3 — the whole name typed out ("donald trump").
+    //   2 — every word typed is a whole word of the name ("trump", "mike lee").
+    //   1 — every word typed starts a word of the name ("trum", "mike l") — the
+    //       shape a phone keyboard produces on the way to the whole word.
+    //   0 — anything else: a substring inside a word, a fuzzy near-miss, a bio,
+    //       an office or a state.
+    //
+    // WHY IT IS THE FIRST KEY. "trump" answered with Chris Garten and Rodric Bray
+    // above Donald Trump on any device whose roll-call lanes had already landed:
+    // both legislators mention him in their files and both hold a formal record,
+    // and a president casts no roll calls, so the record key put two people the
+    // reader did not type above the one they did. "donald trump" put Byron
+    // Donalds, Donald Norcross and Donald Beyer first for the same reason. A clear
+    // name is the answer to a name search; record depth and volume only decide
+    // between people the query names equally well (four Lees, two Chews).
+    function nameStrength(e, q) {
+      var name = String(e && e.titleLc || '');
+      if (!name || !q) return 0;
+      if (name === q) return 3;
       var toks = e.tokens || [];
-      for (var i = 0; i < toks.length; i++) { if (toks[i] === q) return 1; }
-      return 0;
+      var qt = q.split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+      if (!toks.length || !qt.length) return 0;
+      var whole = true;
+      for (var i = 0; i < qt.length; i++) {
+        if (toks.indexOf(qt[i]) !== -1) continue;
+        whole = false;
+        if (!tokenPrefix(toks, qt[i])) return 0;
+      }
+      return whole ? 2 : 1;
+    }
+    // The same key as a stable partition, for the lane that has no record keys:
+    // the people the query names lead, in the relevance order rank() gave them,
+    // and everybody else follows in theirs. Nothing is dropped or re-scored.
+    function namedFirst(list, q) {
+      var keyed = [];
+      for (var i = 0; i < list.length; i++) keyed.push({ e: list[i], i: i, n: nameStrength(list[i], q) });
+      keyed.sort(function (a, b) { return (b.n - a.n) || (a.i - b.i); });
+      return keyed.map(function (r) { return r.e; });
     }
     // Did the query name the OFFICE — "senator", "utah state representative",
     // "governor"? Read off the row's own sub line, which is office · district ·
@@ -714,8 +754,10 @@
     // the answer and never what counts as an answer. A person with nothing on
     // file keeps their place relative to the others and stays findable by name.
     //
-    // THREE KEYS, IN THE ORDER THE BRIEF NAMES THEM: how much formal record is on
-    // file, then whether the query is the name, then whether it is the office.
+    // FOUR KEYS: how strongly the query names the person (see nameStrength —
+    // a named person is never buried behind a deeper file), then whether a
+    // formal record is on file, then whether the query is the office, then how
+    // much record there is.
     // Ties fall through to the relevance order the list arrived in, which is what
     // makes this stable — `i` is the original index and it is the last term.
     //
@@ -728,13 +770,13 @@
         keyed.push({
           e: list[i], i: i,
           f: hasRecord(list[i].id),
-          n: exactNameRank(list[i], q),
+          n: nameStrength(list[i], q),
           o: officeHit(list[i], terms),
           t: depthTier(list[i].id)
         });
       }
       keyed.sort(function (a, b) {
-        return (b.f - a.f) || (b.n - a.n) || (b.o - a.o) || (b.t - a.t) || (a.i - b.i);
+        return (b.n - a.n) || (b.f - a.f) || (b.o - a.o) || (b.t - a.t) || (a.i - b.i);
       });
       return keyed.map(function (r) { return r.e; });
     }
@@ -1187,7 +1229,7 @@
     function getIndex() {
       ensureEyeBills(); // kick off the one-time live Legislation fetch (guarded)
       // Rebuild when the roster size changes (e.g. Firestore profiles arrive).
-      var key = polIdGroups().total + ':' +
+      var key = rawPolCount() + ':' +
         ((window.PDXSpotlight && window.PDXSpotlight.list) ? window.PDXSpotlight.list().length : 0) + ':' +
         ((window.CORE_NATIONAL_ISSUES || []).length) + ':' +
         // The register itself is a lane now (the issue files), so its arrival has
@@ -3000,9 +3042,28 @@
     // need a standing clarification that the heading alone cannot carry. One
     // caller uses it (judgeBlock), every other passes nothing and gets exactly
     // the block it always got.
+    // ── A LIGHTER FIRST PAINT ON A PHONE ──────────────────────────────
+    // On a touch screen every row prints its action strip open (there is no
+    // hover to reveal it), so six rows in each of five groups was thirty rows,
+    // thirty strips and a panel several screens tall rebuilt on every keystroke
+    // — most of it below the fold of a 70vh pane. The group that leads the
+    // answer keeps its six; every group after it opens on three, with the same
+    // "See N more" button carrying the rest. Counts, order and the rows
+    // themselves are unchanged; only how many are built before the reader asks.
+    // A desktop pointer is never touched by this.
+    var touchUI = null;
+    function isTouch() {
+      if (touchUI === null) {
+        try { touchUI = !!(window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches); }
+        catch (e) { touchUI = false; }
+      }
+      return touchUI;
+    }
+    var catPrinted = 0;   // groups printed so far in this paint (reset by render)
     function catBlock(catKey, title, color, listAll, renderItem, q, terms, note) {
       if (!listAll || !listAll.length) return '';
-      var cap = expand[catKey] ? listAll.length : 6;
+      var cap = expand[catKey] ? listAll.length : ((isTouch() && catPrinted > 0) ? 3 : 6);
+      catPrinted++;
       var shown = listAll.slice(0, cap);
       var h = '<div class="pdx-eye-cat" data-cat="' + catKey + '"><div class="pdx-eye-cat-h"><span class="pdx-eye-cat-dot" style="background:' + color + ';"></span>' + title + '<span class="pdx-eye-cat-n">' + listAll.length + '</span></div>' +
         (note ? '<p class="pdx-eye-cat-note">' + esc(note) + '</p>' : '');
@@ -3596,6 +3657,7 @@
       var data = getIndex();
       curCtx = personalContext();   // who this eye belongs to, refreshed each render
       flat = [];
+      catPrinted = 0;
       var html = '';
       // The claim check gets the text AS TYPED. Everything below runs on the
       // lowercased form, which is right for matching and wrong for a claim: a
@@ -3697,9 +3759,10 @@
       var jdgs = rank(data.judges || [], q, terms, LIM, null);
       var formal = (laneMode === 'formal');
       // FORMAL PUTS THE RECORD-HOLDERS FIRST, inside the roster's own relevance
-      // order. Three keys, in this order and no other: formal-record depth
-      // (acts on file, then characterised issues), then an exact name match,
-      // then an office the query actually named. Ties keep the relevance order
+      // order and below the person the query names. Keys, in this order and no
+      // other: how strongly the query names the person, then whether a formal
+      // record is on file, then an office the query actually named, then record
+      // depth. Ties keep the relevance order
       // `rank()` already produced, so a person with nothing on file stays
       // exactly as findable by name as they were -- a name search never breaks
       // in this mode, it just stops putting the empty file first.
@@ -3717,6 +3780,10 @@
       pols = polSplit.lead;
       var polsAlso = polSplit.also;
       if (formal) pols = recordFirst(pols, q, terms);
+      // The public lane has no record keys, but the name still leads it: a saved
+      // or teammate nudge, or a bio that repeats the query, may reorder people
+      // the query names equally — it may not put them above the person named.
+      else pols = namedFirst(pols, q);
       // The second group gets the SAME ordering function, unchanged: within a
       // group the lane's one promise still holds. It is a different group, not a
       // different rule.
@@ -4326,6 +4393,22 @@
 
     // ── events ────────────────────────────────────────────────────────
     var t = null;
+    // THE KEYSTROKE DEBOUNCE STRETCHES ON A SLOW PHONE, AND ONLY THERE. A paint
+    // that costs longer than the 60ms window means a fast typist's next letter
+    // waits behind the previous letter's results — the input lag the panel was
+    // reported for. On a touch screen the wait follows the last paint's own
+    // cost (twice it, at most 180ms), so the field keeps up and the results land
+    // once the reader pauses. A desktop, or a phone that paints quickly, keeps
+    // 60ms exactly.
+    var lastPaintMs = 0;
+    function nowMs() {
+      try { if (window.performance && typeof window.performance.now === 'function') return window.performance.now(); } catch (e) {}
+      return Date.now();
+    }
+    function keyWait() {
+      if (!isTouch() || lastPaintMs <= 30) return 60;
+      return Math.min(180, Math.round(lastPaintMs * 2));
+    }
     input.addEventListener('input', function () {
       var has = input.value.length > 0;
       eye.classList.toggle('has-text', has);
@@ -4338,8 +4421,10 @@
       typing = true;
       t = setTimeout(function () {
         typing = false;
+        var t0 = nowMs();
         render(input.value); setActive(input.value.trim() ? 0 : -1); open();
-      }, 60);
+        lastPaintMs = nowMs() - t0;
+      }, keyWait());
     });
     input.addEventListener('focus', function () {
       eye.classList.add('is-focus');
