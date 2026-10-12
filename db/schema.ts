@@ -1668,7 +1668,12 @@ export const voicePollVotes = pgTable(
   (t) => [
     uniqueIndex("voice_poll_votes_seat_issue_author_unique").on(t.seatKey, t.issueKey, t.authorHash),
     index("voice_poll_votes_seat_issue_choice_idx").on(t.seatKey, t.issueKey, t.choice),
-    check("voice_poll_votes_choice_check", sql`${t.choice} in ('support', 'oppose', 'not_sure')`),
+    // Three poles on every issue; the Get Money Out of Politics poll alone asks
+    // which way, so campaign_finance also takes its seven named options.
+    check(
+      "voice_poll_votes_choice_check",
+      sql`${t.choice} in ('support', 'oppose', 'not_sure') or (${t.issueKey} = 'campaign_finance' and ${t.choice} in ('cap_individual', 'cap_total', 'public_match', 'cooling_off', 'ban_stock_buys', 'dark_money', 'none'))`
+    ),
   ]
 );
 

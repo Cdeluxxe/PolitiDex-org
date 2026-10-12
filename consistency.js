@@ -18032,6 +18032,16 @@
       'Proposed appropriating funds for local law enforcement hiring; the Senate rejected it 45-53.',
     'S.Amdt. 8|119|tough_on_crime':
       'Made crimes causing death or serious bodily injury grounds for mandatory detention; the Senate agreed to it 75-24.',
+    // WAVE 5 · GET MONEY OUT OF POLITICS (v348). The two House roll calls the
+    // record holds on campaign money. Neither pair stores a `did`, so each is
+    // written from its own measure × issue mapping rationale (db/vr-issue-seed.json
+    // — Division B of H.R. 1; Titles VI and VII of H.R. 5746) and from nothing
+    // else, and ends on the roll the vote seeds hold. Neither became law, so
+    // both open "Would have".
+    'H.R. 1|117|campaign_finance':
+      'Would have made groups spending over $10,000 name their donors and matched small House donations six to one; the House passed it 220-210.',
+    'H.R. 5746|117|campaign_finance':
+      'Would have made election spenders name their donors and curbed super PAC coordination with candidates; the House passed it 220-203.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is

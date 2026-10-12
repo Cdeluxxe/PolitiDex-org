@@ -467,16 +467,38 @@ const swNote = swWaveNote();
       const have = new Set(issueSeed.measures.map((m) => String(m.number || "")));
       for (const n2 of NUMBERS) ok(have.has(n2), `${n2} lost its curated issue mapping`);
     }
-    eq(JSON.stringify(issueSeed.measures.slice(0, old.measures.length)), JSON.stringify(old.measures),
+    // APPEND-ONLY, MEASURE BY MEASURE. A later pass may append an issue to an
+    // existing measure's list (v348 adds campaign_finance to H.R. 5746, 117th);
+    // nothing already in the list may be rewritten, reordered or removed.
+    const asShipped = issueSeed.measures.slice(0, old.measures.length).map((m, i) => {
+      const was = old.measures[i];
+      return was && Array.isArray(m.issues) && Array.isArray(was.issues)
+        ? { ...m, issues: m.issues.slice(0, was.issues.length) } : m;
+    });
+    eq(JSON.stringify(asShipped), JSON.stringify(old.measures),
       "the curated issue seed's existing measures were rewritten rather than appended to");
     eq(JSON.stringify(issueSeed._phase12_overlap_priority), JSON.stringify(old._phase12_overlap_priority),
       "the curated issue seed changed outside its measures array");
     // Byte-level: the appended text is a splice, so everything above the insertion point
     // is unchanged. Checked on the raw bytes, because a reindent parses identically.
+    // An issue appended inside an existing measure (v348) is a splice too: every
+    // shipped line above the append point must still be there, in order, and the
+    // only edit allowed to one of them is the comma that continues its list.
     const raw = R(ISSUE_SEED);
     const at = headSeed.indexOf("\n  ],\n");
-    ok(at > 0 && raw.startsWith(headSeed.slice(0, at)),
-      "the curated issue seed was reformatted above the append point");
+    const spliced = (() => {
+      if (!(at > 0)) return false;
+      const was = headSeed.slice(0, at).split("\n");
+      const now = raw.split("\n");
+      let j = 0;
+      for (const line of was) {
+        while (j < now.length && now[j] !== line && now[j] !== line + ",") j++;
+        if (j >= now.length) return false;
+        j++;
+      }
+      return true;
+    })();
+    ok(spliced, "the curated issue seed was reformatted above the append point");
     ok(raw.endsWith(headSeed.slice(at)), "the curated issue seed was reformatted below the append point");
   }
 }

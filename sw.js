@@ -9346,7 +9346,31 @@
 //     membership rule and no money pill moved. No location key or other saved
 //     key was touched.
 //     MIGRATION COST: none. No table, row, key or seat moved.
-const CACHE_VERSION = 'v347';
+// v348 - GET MONEY OUT OF POLITICS: TWO LINES, A SEVEN-OPTION POLL, AND A
+//     NESTED CHIP. H.R. 5746 (117th) is filed onto campaign_finance as a
+//     secondary row beside H.R. 1 (117th) (migration
+//     20261114000000_vr_campaign_finance_hr5746_secondary), and both pairs
+//     carry one effect line under their vote rows, written from their own
+//     mapping rationale. /i/campaign_finance carries one poll, "What is the best
+//     way to get money out of politics?", with seven named options and counts,
+//     through /api/district-board-poll: the boards' own store and gate, counts
+//     open to everyone, a vote only for a vendor-verified resident of that
+//     seat. The CHECK on voice_poll_votes admits those seven keys on
+//     campaign_finance only (20261115000000_voice_poll_campaign_finance_choices).
+//     "See the district's voice" opens /district/<seat>?topic=campaign_finance.
+//     On Door 1's key shelf the Get Money Out of Politics chip is drawn beneath
+//     Transparency & Anti-Corruption (PDXIssueFamily.subParentOf); both keep
+//     their core, their chip and their ledger. consistency.js, district-poll.js,
+//     issue-poll.js, pdx-issue-family.js, door1-workspace.js and
+//     door1-workspace.css are precached and changed, so the shell moves one
+//     version. No board, seat, address pattern, residency or membership rule,
+//     monthly cap or money pill moved. No location key or other saved key was
+//     touched.
+//     MIGRATION COST: none on the device. In the database,
+//     20261114000000_vr_campaign_finance_hr5746_secondary adds one secondary
+//     vr_measure_issues row and 20261115000000_voice_poll_campaign_finance_choices
+//     widens the voice_poll_votes choice CHECK; neither moves an existing row.
+const CACHE_VERSION = 'v348';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

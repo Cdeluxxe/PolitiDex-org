@@ -642,9 +642,11 @@ const probes = [
   {
     name: "the key shelf loses the family's hue",
     run: () => {
+      // The chip builder moved into subKeyShelf's chip() with the nested-chip
+      // pass (v348); the mutation is the same one — the hue comes off every chip.
       const src = DESK_SRC.replace(
-        "        return '<button type=\"button\" class=\"d1-chip is-key' + (k === focusKey ? ' is-open' : '') + '\"' +\n          skinAttrs(k) +",
-        "        return '<button type=\"button\" class=\"d1-chip is-key' + (k === focusKey ? ' is-open' : '') + '\"' +");
+        "\n        skinAttrs(k) + (sub ? ' data-d1-sub-of=\"' + esc(sub) + '\"' : '') +",
+        "\n        (sub ? ' data-d1-sub-of=\"' + esc(sub) + '\"' : '') +");
       must(src !== DESK_SRC, "probe 5 matched nothing — the key shelf was reworded");
       const w = boot({ desk: src });
       return keyChips(openBundle(w, CORE)).filter((c) => c.attrs.indexOf(HUE) >= 0).length !== KIDS;

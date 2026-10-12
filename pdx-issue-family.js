@@ -330,12 +330,39 @@
     return false;
   }
 
+  // ── NESTED CHIPS, WITHOUT A THIRD LEVEL ─────────────────────────────────────
+  // A child may be DRAWN beneath a sibling child of the same core: Get Money Out
+  // of Politics is the money half of Transparency & Anti-Corruption, so its chip
+  // sits underneath that one. This is display only. coreOf() still answers the
+  // core, childrenOf() still lists both as children of it, and nothing here
+  // merges two keys or gives one a second parent. A row whose two keys do not
+  // share a core is ignored rather than honoured, so the table cannot drift
+  // into a second taxonomy.
+  var SUB_PARENT = { campaign_finance: 'gov_transparency' };
+  function subParentOf(key) {
+    var k = norm(key);
+    if (!k || !Object.prototype.hasOwnProperty.call(SUB_PARENT, k)) return '';
+    var p = SUB_PARENT[k];
+    var c = coreOf(k);
+    return (c && c === coreOf(p)) ? p : '';
+  }
+  function subChildrenOf(key) {
+    var k = norm(key), out = [];
+    if (!k) return out;
+    Object.keys(SUB_PARENT).forEach(function (child) {
+      if (subParentOf(child) === k) out.push(child);
+    });
+    return out;
+  }
+
   window.PDXIssueFamily = {
     ARROW: ARROW,
     cores: cores,
     isCore: isCore,
     coreOf: coreOf,
     childrenOf: childrenOf,
+    subParentOf: subParentOf,
+    subChildrenOf: subChildrenOf,
     label: label,
     blurb: blurb,
     childLabel: childLabel,

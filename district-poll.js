@@ -123,6 +123,30 @@
     { key: 'oppose', label: 'Oppose' },
     { key: 'not_sure', label: 'Not sure' }
   ];
+  // ONE ISSUE ASKS WHICH WAY. Get Money Out of Politics carries its own question
+  // and seven named options; the server's ISSUE_CHOICES (district-board-poll-core)
+  // is the list it accepts, and every other issue keeps the three poles above.
+  var ISSUE_POLLS = {
+    campaign_finance: {
+      legend: 'What is the best way to get money out of politics?',
+      choices: [
+        { key: 'cap_individual', label: 'Cap individual donations' },
+        { key: 'cap_total', label: 'Cap the total a campaign can raise' },
+        { key: 'public_match', label: 'Public financing or small-donor matching' },
+        { key: 'cooling_off', label: 'A longer cooling-off before lobbying' },
+        { key: 'ban_stock_buys', label: 'Ban members’ personal trading while in office' },
+        { key: 'dark_money', label: 'Stronger dark-money disclosure' },
+        { key: 'none', label: 'None of these' }
+      ]
+    }
+  };
+  function choicesFor(key) {
+    return Object.prototype.hasOwnProperty.call(ISSUE_POLLS, key) ? ISSUE_POLLS[key].choices : CHOICES;
+  }
+  function legendFor(key) {
+    if (Object.prototype.hasOwnProperty.call(ISSUE_POLLS, key)) return ISSUE_POLLS[key].legend;
+    return COPY.legend + issueLabel(key) + COPY.legendTail;
+  }
   var LOCKED_LINE = 'Only verified residents of this seat get a voice that counts.';
   var COPY = {
     legend: 'On this seat, where do you stand on ',
@@ -223,10 +247,9 @@
 
   // THE WIDGET, for one OPEN issue group.
   function pollHtml(key) {
-    var label = issueLabel(key);
     var h = '<div class="pdxdp-poll" data-pdxdp-poll="' + esc(key) + '">' +
       '<fieldset class="pdxdp-fs">' +
-        '<legend class="pdxdp-lg">' + esc(COPY.legend + label + COPY.legendTail) + '</legend>';
+        '<legend class="pdxdp-lg">' + esc(legendFor(key)) + '</legend>';
     if (_read === null) {
       h += '<p class="pdxdp-status" role="status">' + esc(COPY.wait) + '</p>';
     } else if (_read === false) {
@@ -236,8 +259,9 @@
     var dis = open ? '' : ' disabled aria-disabled="true"';
     var t = tally(key);
     h += '<div class="pdxdp-opts">';
-    for (var i = 0; i < CHOICES.length; i++) {
-      var c = CHOICES[i];
+    var opts = choicesFor(key);
+    for (var i = 0; i < opts.length; i++) {
+      var c = opts[i];
       var pressed = _mine[key] === c.key;
       h += '<button type="button" class="pdxdp-opt" data-pdxdp-choice="' + c.key + '"' +
         ' data-pdxdp-issue="' + esc(key) + '" aria-pressed="' + (pressed ? 'true' : 'false') + '"' + dis + '>' +
@@ -385,6 +409,8 @@
     API: API,
     POLL_SEATS: POLL_SEATS,
     CHOICES: CHOICES,
+    ISSUE_POLLS: ISSUE_POLLS,
+    choicesFor: choicesFor,
     LOCKED_LINE: LOCKED_LINE,
     COPY: COPY,
     mount: mount,

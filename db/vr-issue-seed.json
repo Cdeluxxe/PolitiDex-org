@@ -2160,6 +2160,14 @@
           "isPrimary": true,
           "supportMeaning": "yea_supports",
           "rationale": "Freedom to Vote: John R. Lewis Act, moved as a House amendment to the Senate amendment to H.R. 5746 — a shell bill whose Clerk vote description still reads 'NASA Enhanced Use Leasing Extension Act of 2021', so the roll is identified by citation and question rather than title. Requires automatic and same-day registration, a minimum of two weeks of early voting including weekends, no-excuse mail voting with ballot tracking and a minimum number of drop boxes per jurisdiction, and makes Election Day a public holiday. A yea is a vote to expand access. Its election-security title is not mapped, for the same internal-split reason as H.R. 1, whose text it incorporates."
+        },
+        {
+          "issueKey": "campaign_finance",
+          "weight": 55,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Title VI of the Freedom to Vote: John R. Lewis Act text the House concurred in is headed \"Campaign Finance Transparency\": its Subtitle A, the DISCLOSE Act, includes Sec. 6011 on reporting of campaign-related disbursements and applies the foreign-money ban to covered transfers, and its Subtitle B, Honest Ads, requires online platforms to display notices identifying the sponsors of political advertisements. Title VII, Campaign Finance Oversight, opens with Subtitle A, Stopping Super PAC-Candidate Coordination. A yea enacts those titles; a nay leaves current law. Weighted 55, secondary: two titles of a voting-access act whose primary row is voting_access.",
+          "sourceUrl": "https://www.govinfo.gov/content/pkg/BILLS-117hr5746eah/html/BILLS-117hr5746eah.htm"
         }
       ]
     },

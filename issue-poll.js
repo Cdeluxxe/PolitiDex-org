@@ -33,8 +33,25 @@
   'use strict';
 
   var API = '/api/district-board-poll';
-  // The issues that carry this poll. One row each; nothing composes a key.
-  var ISSUES = { stock_trading_ban: 1 };
+  // The issues that carry this poll. One row each; nothing composes a key. A row
+  // with its own `choices` asks which way instead of whether — its options are
+  // the server's ISSUE_CHOICES for that key (district-board-poll-core.mjs), and
+  // the board's widget (district-poll.js) asks the same question in the same order.
+  var ISSUES = {
+    stock_trading_ban: 1,
+    campaign_finance: {
+      legend: 'What is the best way to get money out of politics?',
+      choices: [
+        { key: 'cap_individual', label: 'Cap individual donations' },
+        { key: 'cap_total', label: 'Cap the total a campaign can raise' },
+        { key: 'public_match', label: 'Public financing or small-donor matching' },
+        { key: 'cooling_off', label: 'A longer cooling-off before lobbying' },
+        { key: 'ban_stock_buys', label: 'Ban members’ personal trading while in office' },
+        { key: 'dark_money', label: 'Stronger dark-money disclosure' },
+        { key: 'none', label: 'None of these' }
+      ]
+    }
+  };
   // Utah's federal boards, House first. Named rows the boards already serve.
   var BOARDS = [
     { seat: 'ut-cd-1', label: 'Utah’s 1st Congressional District' },
@@ -74,6 +91,14 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
   function has(o, k) { return Object.prototype.hasOwnProperty.call(o, k); }
+  function choicesFor(key) {
+    var row = has(ISSUES, key) ? ISSUES[key] : null;
+    return (row && row.choices) || CHOICES;
+  }
+  function legendFor(key) {
+    var row = has(ISSUES, key) ? ISSUES[key] : null;
+    return (row && row.legend) || COPY.legend;
+  }
   function boardOf(seat) {
     for (var i = 0; i < BOARDS.length; i++) if (BOARDS[i].seat === seat) return BOARDS[i];
     return null;
@@ -143,7 +168,7 @@
     var r = readOf(_seat);
     var list = (r && Array.isArray(r.polls)) ? r.polls : [];
     for (var i = 0; i < list.length; i++) if (list[i] && list[i].issueKey === key) return list[i];
-    return { support: 0, oppose: 0, not_sure: 0, total: 0 };
+    return { total: 0 };
   }
   function mineOf(key) {
     var r = readOf(_seat);
@@ -179,12 +204,13 @@
     var open = canVote() && !_busy;
     var dis = open ? '' : ' disabled aria-disabled="true"';
     var t = tally(key);
-    h += '<fieldset class="pdxip-fs"><legend class="pdxip-lg">' + esc(COPY.legend) + '</legend>';
+    h += '<fieldset class="pdxip-fs"><legend class="pdxip-lg">' + esc(legendFor(key)) + '</legend>';
     if (r === null || r === undefined) h += '<p class="pdxip-note" role="status">' + esc(COPY.wait) + '</p>';
     else if (r === false) h += '<p class="pdxip-note">' + esc(COPY.unread) + '</p>';
     h += '<div class="pdxip-opts">';
-    for (var j = 0; j < CHOICES.length; j++) {
-      var c = CHOICES[j];
+    var opts = choicesFor(key);
+    for (var j = 0; j < opts.length; j++) {
+      var c = opts[j];
       h += '<button type="button" class="pdxip-opt" data-pdxip-choice="' + c.key + '"' +
         ' data-pdxip-issue="' + esc(key) + '" aria-pressed="' + (mineOf(key) === c.key ? 'true' : 'false') + '"' + dis + '>' +
         esc(c.label) +
@@ -329,6 +355,7 @@
     ISSUES: ISSUES,
     BOARDS: BOARDS,
     CHOICES: CHOICES,
+    choicesFor: choicesFor,
     COPY: COPY,
     LOCKED_LINE: LOCKED_LINE,
     TOPIC_ANCHOR: TOPIC_ANCHOR,
