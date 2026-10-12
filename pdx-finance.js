@@ -616,16 +616,140 @@
   //     ]
   //   }
   //
-  // EMPTY ON PURPOSE. Transcribing a form line by line is a reviewed wave of its
-  // own, and no line ships until somebody has read it off the PDF. Until then
-  // `holdings()` answers null for everybody and no profile draws a single bar.
+  // TRANSCRIBED, NOT ESTIMATED. Each line below was read off the House Clerk PDF
+  // the document row links — Schedule A only, asset name as printed (the grey
+  // parent chain joined with ⇒, the bracketed asset-type code kept), the value
+  // box as ticked, in the clerk's spaced-hyphen spelling. Liabilities, income
+  // and transactions are not assets and are not here. A line whose box is off
+  // the ladder (a spouse 'Over $1,000,000', '$1 - $1,000', 'Undetermined') is
+  // left OUT rather than squeezed onto a rung, and each row names what it left
+  // out. Only the forms already in PDX_FD_DOCUMENTS; no other filing.
   //
   // A LINE IS TWO STRINGS. The asset as the filer named it, and the category
   // box the filer ticked, spelled as the form spells it. No value field, no
   // midpoint, no subtotal, no count of lines stored beside them. A band that is
   // not on the ladder below is refused rather than drawn, so an exact figure, a
   // '$0' or a band typed in a spelling nobody has paired cannot reach the graph.
-  var PDX_FD_HOLDINGS = {};
+  // OWENS HAS NO ROW. His 2025 form (9116274.pdf) is a handwritten paper Form A,
+  // and none of its five Schedule A lines sits on the ladder: three are marked in
+  // column A (the form's lowest box) and two are written in as 'Undetermined'.
+  // A row with no drawable line is refused by the gate, so his block keeps the
+  // document copy and draws nothing.
+  var PDX_FD_HOLDINGS = {
+    // Filing ID #10074823, Schedule A, every line in filing order. NOT DRAWN, because
+    // the form files them in a category off the ladder: the two spouse lines under
+    // H. Roger Boyer Family Partnership, LTD. (R&S Boyer Family, L.C. and The Boyer
+    // Company, L.C.), each 'Spouse/DC Over $1,000,000'.
+    bmoore: { year: 2025,
+      formUrl: 'https://disclosures-clerk.house.gov/public_disc/financial-pdfs/2025/10074823.pdf',
+      lines: [
+        { asset: 'Hawkins Development [OT]',
+          band: '$100,001 - $250,000' },
+        { asset: 'Residential Rental Property [RP]',
+          band: '$1,000,001 - $5,000,000' },
+        { asset: 'THE BLAKE D. MOORE BLIND TRUST U/A 06/07/22 [EQ]',
+          band: '$1,000,001 - $5,000,000' },
+        { asset: 'Wells Fargo Personal Savings Account [BA]',
+          band: '$250,001 - $500,000' },
+        { asset: 'Zion’s Bank Checking Account [BA]',
+          band: '$100,001 - $250,000' },
+        { asset: 'Blue Crimson, LLC ⇒ Cash Account - Wells Fargo [BA]',
+          band: '$15,001 - $50,000' },
+        { asset: 'Iron Gate GA Brokerage Portfolio ⇒ IGGA IRA (BM) ⇒ SPDR S&P 500 (SPY) [EF]',
+          band: '$100,001 - $250,000' },
+        { asset: 'Iron Gate GA Brokerage Portfolio ⇒ IGGA IRA (BM) ⇒ Vanguard Growth ETF (VUG) [EF]',
+          band: '$100,001 - $250,000' },
+        { asset: 'Iron Gate GA Brokerage Portfolio ⇒ IGGA ROTH IRA (BM) ⇒ SPDR S&P 500 (SPY) [EF]',
+          band: '$15,001 - $50,000' },
+        { asset: 'Iron Gate GA Brokerage Portfolio ⇒ IGGA ROTH IRA (BM) ⇒ Vanguard Growth ETF (VUG) [EF]',
+          band: '$15,001 - $50,000' },
+        { asset: 'Iron Gate GA Brokerage Portfolio ⇒ IGGA ROTH IRA (JM) ⇒ SPDR S&P 500 (SPY) [EF]',
+          band: '$15,001 - $50,000' },
+        { asset: 'Iron Gate GA Brokerage Portfolio ⇒ IGGA ROTH IRA (JM) ⇒ Vanguard Growth ETF (VUG) [EF]',
+          band: '$15,001 - $50,000' },
+        { asset: 'my529 ⇒ 529 Account - DC3 ⇒ UTALX - Target Enrollment 2036/2037 [MF]',
+          band: '$50,001 - $100,000' },
+        { asset: 'my529 ⇒ 529 Account - DC1 ⇒ UTALX - Target Enrollment 2036/2037 [MF]',
+          band: '$50,001 - $100,000' },
+        { asset: 'my529 ⇒ 529 Account - DC2 ⇒ UTAJX - Target Enrollment 2032/2033 [MF]',
+          band: '$50,001 - $100,000' },
+        { asset: 'my529 ⇒ 529 Account - DC4 ⇒ Target Enrollment 2040/2041 Investment Option (UTANX) [MF]',
+          band: '$15,001 - $50,000' }
+      ] },
+    // Filing ID #10081600, Schedule A, every line in filing order. Nothing left out.
+    maloy: { year: 2025,
+      formUrl: 'https://disclosures-clerk.house.gov/public_disc/financial-pdfs/2025/10081600.pdf',
+      lines: [
+        { asset: 'Invesco Gov Money Market Cash Reserves A ⇒ Invesco Government Money Market Fund Cash Reserve Shares (AIMXX) [MF]',
+          band: '$1,001 - $15,000' },
+        { asset: 'Invesco Select Risk Growth Investor A ⇒ Invesco Select Risk: Growth Investor Fund Class A (AADAX) [MF]',
+          band: '$1,001 - $15,000' },
+        { asset: 'Utah Retirement Systems ⇒ Utah Retirement System [PE]',
+          band: '$1,001 - $15,000' }
+      ] },
+    // Filing ID #10074834, Schedule A, every line in filing order. NOT DRAWN, because
+    // its category is off the ladder: Kennedy Capital, LLC [OL], filed '$1 - $1,000'.
+    kennedy: { year: 2025,
+      formUrl: 'https://disclosures-clerk.house.gov/public_disc/financial-pdfs/2025/10074834.pdf',
+      lines: [
+        { asset: 'Alta CDs [BA]',
+          band: '$15,001 - $50,000' },
+        { asset: 'Alta Checking Account [BA]',
+          band: '$1,001 - $15,000' },
+        { asset: 'Cash Account - Schwab [BA]',
+          band: '$1,001 - $15,000' },
+        { asset: 'Kennedy for US Senate [DO]',
+          band: '$250,001 - $500,000' },
+        { asset: 'Mike Kennedy for Utah [DO]',
+          band: '$100,001 - $250,000' },
+        { asset: 'Azova, Inc. ⇒ Azova, Inc. [PS]',
+          band: '$50,001 - $100,000' },
+        { asset: 'Bank 1 ⇒ Savings [BA]',
+          band: '$100,001 - $250,000' },
+        { asset: 'Bank 2 ⇒ Savings [BA]',
+          band: '$1,001 - $15,000' },
+        { asset: 'Bank 3 ⇒ Savings [BA]',
+          band: '$15,001 - $50,000' },
+        { asset: 'Fidelity Investments ⇒ UUHC 401A ⇒ FID FRDM BLND 2035 [OT]',
+          band: '$100,001 - $250,000' },
+        { asset: 'Fidelity Investments ⇒ UUHC 403b ⇒ DFA U.S. Targeted Value Portfolio (DFFVX) [MF]',
+          band: '$15,001 - $50,000' },
+        { asset: 'Fidelity Investments ⇒ UUHC 403b ⇒ Fidelity Diversified International Fund Class K (FDIKX) [MF]',
+          band: '$1,001 - $15,000' },
+        { asset: 'Fidelity Investments ⇒ UUHC 403b ⇒ Fidelity Freedom Blend 2035 Fund Class K6 (FHJDX) [MF]',
+          band: '$50,001 - $100,000' },
+        { asset: 'Fidelity Investments ⇒ UUHC 457B ⇒ DFA U.S. Targeted Value Portfolio (DFFVX) [MF]',
+          band: '$15,001 - $50,000' },
+        { asset: 'Fidelity Investments ⇒ UUHC 457B ⇒ Fidelity Diversified International Fund Class K (FDIKX) [MF]',
+          band: '$1,001 - $15,000' },
+        { asset: 'Fidelity Investments ⇒ UUHC 457B ⇒ Fidelity Freedom Blend 2035 Fund Class K6 (FHJDX) [MF]',
+          band: '$50,001 - $100,000' },
+        { asset: 'Michael Kennedy, MD, Inc. ⇒ Premier Family Medical, LLC [OL]',
+          band: '$50,001 - $100,000' },
+        { asset: 'Schwab accounts ⇒ Apple Inc. - Common Stock (AAPL) [ST]',
+          band: '$15,001 - $50,000' },
+        { asset: 'Schwab accounts ⇒ ASML Holding N.V. - New York Registry Shares (ASML) [ST]',
+          band: '$1,001 - $15,000' },
+        { asset: 'Schwab accounts ⇒ Berkshire Hathaway Inc. New Common Stock (BRK.B) [ST]',
+          band: '$1,001 - $15,000' },
+        { asset: 'Schwab accounts ⇒ Cloudflare, Inc. Class A Common Stock (NET) [ST]',
+          band: '$1,001 - $15,000' },
+        { asset: 'Schwab accounts ⇒ EA Series Trust Strive U.S. Energy ETF (DRLL) [EF]',
+          band: '$1,001 - $15,000' },
+        { asset: 'Schwab accounts ⇒ Invesco QQQ Trust, Series 1 (QQQ) [EF]',
+          band: '$1,001 - $15,000' },
+        { asset: 'Schwab accounts ⇒ Microsoft Corporation - Common Stock (MSFT) [ST]',
+          band: '$1,001 - $15,000' },
+        { asset: 'Schwab accounts ⇒ Schwab S&P 500 Index Fund- Select Shares (SWPPX) [MF]',
+          band: '$1,001 - $15,000' },
+        { asset: 'Schwab accounts ⇒ Tesla, Inc. - Common Stock (TSLA) [ST]',
+          band: '$1,001 - $15,000' },
+        { asset: 'Schwab accounts ⇒ Vanguard S&P 500 ETF (VOO) [EF]',
+          band: '$1,001 - $15,000' },
+        { asset: 'State Retirement ⇒ URS Retirement Plan-401(k) Target Date 2035, 100% Interest [OT]',
+          band: '$15,001 - $50,000' }
+      ] }
+  };
 
   // THE FORM'S OWN LADDER OF CATEGORIES, IN THE ORDER THE FORM PRINTS THEM.
   // Each rung is one filed category, written as the short label bandLabel()
@@ -823,7 +947,7 @@
     documentDefects: documentDefects,
     // The holdings lines the disclosures block draws as range bands, the
     // ladder their place is looked up on, and the gate a line has to pass.
-    // holdings(pid) is null for every pid today: the table ships empty.
+    // holdings(pid) answers for the transcribed House FD rows and null elsewhere.
     holdings: holdings,
     BAND_LADDER: BAND_LADDER,
     holdingsDefects: holdingsDefects,

@@ -720,7 +720,15 @@ const VERIFIED_OPTS = { uid: "u_7", loc: { state: "Utah", city: "Layton", county
     .replace(/(@media \(hover:none\) and \(pointer:coarse\)\{) \/\* Touch: the 98%-opaque panel[^\n]*/, "$1")
     // The issue file's poll module later rode in behind district-voice.js on
     // the same line (v347); that is a script tag, not money markup.
-    .replace('<script defer src="/issue-poll.js"></script>', "");
+    .replace('<script defer src="/issue-poll.js"></script>', "")
+    // The disclosures block later carried the range-band graph (v350/v351): one
+    // renderer, its call inside the on-file branch, its export, and its rules in
+    // finance-lane.css. That is the disclosure block's own graph, not pill markup;
+    // both pills are pinned byte-for-byte in scripts/test-wealth-bands.mjs.
+    .replace(/  \/\/ ── THE RANGE-BAND GRAPH[\s\S]*?(?=  \/\/ ── THE DISCLOSURES BLOCK)/, "")
+    .replace("'</p>' + link + holdingsGraphHtml(pid);", "'</p>' + link;")
+    .replace(/    \/\/ The range-band graph the block carries[^\n]*\n[^\n]*\n    holdingsGraphHtml: holdingsGraphHtml,\n/, "")
+    .replace(/\/\* THE RANGE-BAND GRAPH\.[\s\S]*?(?=\/\* Arrival, for the disclosures block)/, "");
   for (const f of MONEY) {
     const src = R(f);
     if (head) eq(sansAlias(src) === sansAlias(head(f)), true, `${f}: money markup changed in this pass`);

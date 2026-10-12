@@ -104,6 +104,15 @@ const lacks = (hay, needle, msg) =>
   ok(String(hay).indexOf(needle) < 0, `${msg} — "${needle}" present and must not be`);
 const section = (t) => console.log(`\n   ── ${t}`);
 const visible = (html) => String(html).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+// THE RANGE-BAND GRAPH, CUT OUT. Since the holdings wave the disclosures block
+// carries transcribed lines as bands — asset names as printed and the filed band
+// labels — and scripts/test-wealth-bands.mjs owns every rule about that graph:
+// one bar per line, the stored band on each, no midpoint, no sum, no digit that
+// is not filed. The assertions here are about the block's OWN copy, so they read
+// the block with the graph removed, and the graph is checked separately below
+// for the one thing this file cares about: that every dollar token in it is a
+// filed band label and nothing else.
+const noBands = (html) => String(html).replace(/<div class="pdx-bands"[\s\S]*?(?=<p class="pdx-money-block-cov"|<\/div>\s*$)/, "");
 const aria = (html) => (/aria-label="([^"]*)"/.exec(String(html)) || [])[1] || "";
 const must = (cond, msg) => {
   if (cond) return;
@@ -735,7 +744,7 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   // the pill just moves the grade one jump away.
   for (const id of ["lee", "curtis", "cox", "nobody_at_all"].concat(DOC_PIDS)) {
     for (const [what, lane] of [["fixture", LF], ["shipped", L]]) {
-      const t = visible(lane.wealthBlockHtml(id, ROSTER[id] || { name: "Someone" })).toLowerCase();
+      const t = visible(noBands(lane.wealthBlockHtml(id, ROSTER[id] || { name: "Someone" }))).toLowerCase();
       for (const bad of RATING) {
         lacks(t, bad, `${id}: the disclosures block (${what}) carries no "${bad}"`);
       }
@@ -1263,8 +1272,18 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
     // and hands over the document; it still draws nothing, rates nothing and
     // prints no figure of its own.
     for (const id of DOC_PIDS) {
-      const blk = String(W.PDXFinanceLane.wealthBlockHtml(id, W.CMP_DATA[id]) || "");
+      const full = String(W.PDXFinanceLane.wealthBlockHtml(id, W.CMP_DATA[id]) || "");
+      const blk = noBands(full);
       const vis = visible(blk);
+      // The graph, where it draws, prints filed band labels as its only figures.
+      const labels = new Set(Object.values(W.PDXFinance.FILED_BAND_LABELS));
+      const at = full.indexOf('<div class="pdx-bands"');
+      if (at >= 0) {
+        const toks = visible(full.slice(at, full.indexOf('<p class="pdx-money-block-cov"', at)))
+          .match(/(?:over )?\$[\d.,]+[KM]?(?:–[\d.,]+[KM]?)?/g) || [];
+        ok(toks.length > 0, `${id}: the graph prints its bands`);
+        for (const t of toks) ok(labels.has(t), `${id}: graph token "${t}" is a filed band label`);
+      }
       const own = vis.slice(0, vis.indexOf("Coverage") === -1 ? vis.length : vis.indexOf("Coverage"));
       has(own, "Disclosures while serving", `${id}: the filled block keeps the heading`);
       has(own, " on file", `${id}: …and reports that a form is on file`);
@@ -1600,7 +1619,7 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
     lacks(visible(dom), "% of", `${id}: …and takes no ratio of them`);
     // AND THE DOLLAR ROWS ARE STILL IN THIS BOOT'S OTHER TABLE, REACHING NOTHING.
     if (WAVE[id]) {
-      lacks(visible(dom), SB.PDXFinance.bandLabel(WAVE[id].rangeOrExact),
+      lacks(visible(noBands(dom)), SB.PDXFinance.bandLabel(WAVE[id].rangeOrExact),
         `${id}: a dollar row reached the assembled money section`);
     }
   }
@@ -1785,7 +1804,7 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
   //      document as an anchor, and one sentence about why none of it is a total.
   for (const pid of DOC_PIDS) {
     const row = SHIPPED_DOCS[pid];
-    const blk = L.wealthBlockHtml(pid, ROSTER[pid] || { name: pid });
+    const blk = noBands(L.wealthBlockHtml(pid, ROSTER[pid] || { name: pid }));
     const vis = visible(blk);
     has(vis, "Disclosures while serving", `${pid}: the block keeps its heading`);
     has(vis, `${row.kind} on file`, `${pid}: …and reports the same form as the pill`);
@@ -1801,8 +1820,9 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
       `${pid}: the block says what these forms report instead of a total`);
     has(vis, "PolitiDex will not add those boxes into a figure.",
       `${pid}: …and that we will not add them up`);
-    // NO HOLDINGS INVENTED. Nothing was transcribed in this pass, so the block
-    // stops at the document. A list here would be lines nobody read off a form.
+    // NO HOLDINGS INVENTED OUTSIDE THE GRAPH. Transcribed lines live only in
+    // the range-band graph (cut out above, fenced in test-wealth-bands.mjs); the
+    // block's own copy stops at the document.
     for (const bad of ["<li", "<table", "Holdings", "Assets", "Reported assets", "Sources of income"]) {
       lacks(blk, bad, `${pid}: the block invents no transcribed lines ("${bad}")`);
     }

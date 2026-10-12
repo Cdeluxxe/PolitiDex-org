@@ -6,8 +6,9 @@
 // per line on the form the 💰 disclosure pill names, spanning the category of
 // value the filer ticked. This file fences what that graph is allowed to be:
 //
-//   1. THE SHIPPED TABLE IS EMPTY, and so no profile draws a bar. Every block
-//      reads exactly as it did before the graph existed.
+//   1. THE SHIPPED ROWS ARE THE FOUR HOUSE FDs, as transcribed: one bar per
+//      stored line on Moore, Maloy and Kennedy, none on Owens, and no graph on
+//      any profile without a row.
 //   2. A PERSON WITH LINES ON HAND gets one bar per line, each carrying the band
 //      string exactly as stored, grouped by category, largest first, placed on
 //      the form's own ladder by rung — left edge where the category begins,
@@ -25,8 +26,8 @@
 //   node scripts/test-wealth-bands.mjs
 //
 // Real shipped modules in a node:vm sandbox over the real roster and the real
-// funding seed. Lines exist only through PDXFinance._setHoldingsTable, the
-// test-only seam; nothing here writes into the shipped table.
+// funding seed. Sections 2-6 use a fixture through PDXFinance._setHoldingsTable,
+// the test-only seam; section 1 reads the shipped table as it ships.
 
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -71,8 +72,9 @@ function liftSeed() {
 function liftTable(name) {
   const at = FIN_SRC.indexOf(`var ${name} = {`);
   must(at > 0, `pdx-finance.js no longer declares ${name}`);
-  const end = FIN_SRC.indexOf(";", at);
-  const literal = FIN_SRC.slice(at + `var ${name} = `.length, end);
+  const end = FIN_SRC.indexOf("\n  };", at);
+  must(end > at, `could not find the end of the ${name} literal`);
+  const literal = FIN_SRC.slice(at + `var ${name} = `.length, end + "\n  }".length);
   return new Function("return (" + literal + ");")();
 }
 const SEED = liftSeed();
@@ -139,23 +141,92 @@ const bars = (html) => [...String(html).matchAll(/data-pdx-band="([^"]*)"/g)].ma
 const geom = (html) => [...String(html).matchAll(/class="pdx-bands-bar[^"]*" style="left:([\d.]+)%;width:([\d.]+)%"/g)]
   .map((m) => ({ left: +m[1], width: +m[2] }));
 
-// ── 1 · the shipped table is empty, and nothing draws ───────────────────────
+// ── 1 · the shipped rows: the four House FDs, as transcribed ───────────────
+// THE FOUR DOCUMENTS AND NO OTHER. Moore, Maloy and Kennedy carry their 2025
+// Schedule A lines; Owens's paper form has no line on the ladder and so has no
+// row. The counts are pinned so a line added or dropped is a decision a test
+// sees, and every bar on every live block is checked against the stored string.
+const SHIPPED_COUNTS = { bmoore: 16, maloy: 3, kennedy: 28, owens: 0 };
 {
-  section("1 · the shipped holdings table is empty, so no profile draws a bar");
-  eq(Object.keys(SHIPPED_HOLDINGS).length, 0, "PDX_FD_HOLDINGS ships with no rows");
-  eq(BARE.PDXFinance.holdingsDefects().length, 0, "…and the gate finds nothing wrong with it");
-  let drew = 0, nonNull = 0;
-  for (const id of Object.keys(ROSTER)) {
-    if (BARE.PDXFinance.holdings(id) !== null) nonNull++;
-    if (/pdx-bands/.test(BARE.PDXFinanceLane.wealthBlockHtml(id, ROSTER[id]))) drew++;
+  section("1 · the four House FDs: one bar per stored line, each carrying its stored band");
+  const F = BARE.PDXFinance, L = BARE.PDXFinanceLane;
+  eq(F.holdingsDefects().length, 0, "the shipped holdings table passes its gate");
+  eq(Object.keys(SHIPPED_HOLDINGS).sort().join(","), "bmoore,kennedy,maloy",
+    "rows ship for exactly the three forms with lines on the ladder");
+  for (const pid of Object.keys(SHIPPED_HOLDINGS)) {
+    ok(SHIPPED_DOCS[pid], `${pid}: the row hangs off a document the site already links`);
+    eq(String(SHIPPED_HOLDINGS[pid].year), String(SHIPPED_DOCS[pid].year), `${pid}: …for the pill's year`);
+    eq(SHIPPED_HOLDINGS[pid].formUrl, SHIPPED_DOCS[pid].formUrl, `${pid}: …and the pill's .gov URL`);
   }
-  eq(nonNull, 0, "holdings() answers null for every rostered pid");
-  eq(drew, 0, "…and no disclosures block on the roster carries a graph");
-  for (const id of DOC_PIDS) {
-    const blk = BARE.PDXFinanceLane.wealthBlockHtml(id, ROSTER[id]);
-    has(visible(blk), " on file", `${id}: the document block still reports its form`);
-    lacks(blk, "pdx-bands", `${id}: …and draws no bands with no lines on hand`);
+  eq(DOC_PIDS.slice().sort().join(","), "bmoore,kennedy,maloy,owens", "…and no new document link was added");
+
+  for (const [pid, n] of Object.entries(SHIPPED_COUNTS)) {
+    const blk = L.wealthBlockHtml(pid, ROSTER[pid]);
+    has(visible(blk), "FD on file", `${pid}: the block still reports its form`);
+    const stored = (SHIPPED_HOLDINGS[pid] || { lines: [] }).lines;
+    eq(stored.length, n, `${pid}: ${n} lines are stored`);
+    const got = bars(blk);
+    eq(got.length, n, `${pid}: the block draws ${n} bars`);
+    eq(got.slice().sort().join("|"), stored.map((l) => l.band).sort().join("|"),
+      `${pid}: …each carrying the stored band string, byte for byte`);
+    if (!n) {
+      lacks(blk, "pdx-bands", `${pid}: no lines, so no graph at all`);
+      continue;
+    }
+    // Every stored band is the clerk's filed spelling, never a short label.
+    for (const l of stored) {
+      ok(Object.prototype.hasOwnProperty.call(F.FILED_BAND_LABELS, l.band) && / - |^Over /.test(l.band),
+        `${pid}: "${l.band}" is a filed category in the form's own spelling`);
+      eq(Object.keys(l).sort().join(","), "asset,band", `${pid}: a stored line is asset and band only`);
+    }
+    // Labels: asset as printed · the band's ladder label.
+    const labels = [...blk.matchAll(/class="pdx-bands-label">([^<]*)</g)].map((m) => unesc(m[1]));
+    for (const l of stored) {
+      ok(labels.indexOf(`${l.asset} · ${F.bandLabel(l.band)}`) >= 0,
+        `${pid}: the label for "${l.asset}" names the asset and its band`);
+    }
+    // No midpoint, no total, no stray digit: strip what was filed, then nothing
+    // with a digit or a dollar sign may remain in the graph's visible text.
+    const graph = L.holdingsGraphHtml(pid);
+    let vis = visible(unesc(graph));
+    const allowed = stored.map((l) => l.asset).concat(stored.map((l) => F.bandLabel(l.band)))
+      .sort((x, y) => y.length - x.length);
+    for (const t of allowed) vis = vis.split(t).join(" ");
+    ok(!/\d/.test(vis), `${pid}: no digit in the graph that is not part of a filed line — left: "${vis.slice(0, 120)}"`);
+    ok(!/\$/.test(vis), `${pid}: …and no dollar sign outside a filed band`);
+    ok(!/%/.test(vis), `${pid}: …and no percent outside a filed asset name`);
+    for (const bad of ["total", "sum of", "combined", "altogether", "average", "estimated", "midpoint", "net worth of"]) {
+      lacks(vis.toLowerCase(), bad, `${pid}: the graph prints no reduced figure ("${bad}")`);
+    }
+    has(visible(graph), "is not drawn; the form linked above lists every line",
+      `${pid}: the graph says lines off the ladder are not drawn`);
   }
+  // Moore's two spouse lines and Kennedy's '$1 - $1,000' line are named, not drawn.
+  const tableSrc = FIN_SRC.slice(FIN_SRC.indexOf("var PDX_FD_HOLDINGS = {"), FIN_SRC.indexOf("// THE FORM'S OWN LADDER"));
+  has(tableSrc, "Spouse/DC Over $1,000,000", "the Moore row names the spouse lines it leaves out");
+  has(tableSrc, "'$1 - $1,000'", "the Kennedy row names the line it leaves out");
+  has(FIN_SRC, "OWENS HAS NO ROW", "…and the table says why Owens has none");
+
+  // The gate still refuses a shipped row pointed at a different year or URL.
+  for (const [what, patch] of [["year", { year: 2024 }],
+      ["url", { formUrl: "https://disclosures-clerk.house.gov/public_disc/financial-pdfs/2024/10074823.pdf" }]]) {
+    const W = box({ holdings: { bmoore: { ...SHIPPED_HOLDINGS.bmoore, ...patch } } });
+    ok(W.PDXFinance.holdingsDefects().some((d) => /does not match the document row/.test(d)),
+      `a shipped row pointed at a different ${what} is refused by the gate`);
+    lacks(W.PDXFinanceLane.wealthBlockHtml("bmoore", ROSTER.bmoore), "pdx-bands",
+      `…and draws nothing (${what})`);
+  }
+
+  // Everyone else: no graph, and the empty words.
+  let drew = 0, words = 0;
+  const rest = Object.keys(ROSTER).filter((id) => !SHIPPED_HOLDINGS[id]);
+  for (const id of rest) {
+    const blk = L.wealthBlockHtml(id, ROSTER[id]);
+    if (/pdx-bands/.test(blk)) drew++;
+    if (!SHIPPED_DOCS[id] && visible(blk).indexOf("No in-office wealth file on hand") < 0) words++;
+  }
+  eq(drew, 0, `no block without holdings rows draws a graph (${rest.length} pids)`);
+  eq(words, 0, "…and every one without a document keeps the empty words");
 }
 
 // ── 2 · a person with lines on hand ─────────────────────────────────────────

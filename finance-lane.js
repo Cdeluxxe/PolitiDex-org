@@ -1257,7 +1257,9 @@
         '<p class="pdx-money-block-s">Each bar is one line on this form, spanning the category ' +
           'the filer ticked, from where it begins on the form’s own ladder to where it ends. ' +
           'No middle value is worked out, no bar is added to another, and nothing here is a net ' +
-          'worth or campaign money.</p>' +
+          'worth or campaign money. A line the form files outside this ladder — a spouse or ' +
+          'dependent holding reported only as over a threshold, the form’s lowest box, or ' +
+          'an undetermined value — is not drawn; the form linked above lists every line.</p>' +
         '<div class="pdx-bands-scale" aria-hidden="true"><span>smaller categories</span><span>larger categories</span></div>' +
         '<ul class="pdx-bands-groups">' + groups + '</ul>' +
       '</div>';
@@ -1413,7 +1415,7 @@
     wealthLetterheadChipMount: wealthLetterheadChipMount,
     wealthBlockHtml: wealthBlockHtml,
     // The range-band graph the block carries when the form's lines are on hand.
-    // Empty string otherwise, which is every pid today.
+    // Empty string where no holdings row passes the gate.
     holdingsGraphHtml: holdingsGraphHtml,
     openWealthSection: openWealthSection,
     // The campaign-filing lookup, published so PDXFinance.filing(pid) can delegate

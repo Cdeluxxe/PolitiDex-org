@@ -637,8 +637,8 @@ drives twenty-one illegal rows through the gate one broken rule at a time.
 heading, `FD on file` / `COI on file` matching the pill, the year and the
 archive, the document as an anchor (`target="_blank" rel="noopener noreferrer"`),
 and the one sentence about what these forms report instead of a total. Nothing is
-transcribed in this pass, so the block stops there — no invented lines, and the
-holdings table (see the range-band graph below) ships empty. Where there is no row: the existing empty copy, which says a
+transcribed in that pass; the holdings wave that followed puts lines only in
+the range-band graph described below, never in the block's own copy. Where there is no row: the existing empty copy, which says a
 blank is missing data on our side, not a disclosure of `$0` and not a finding
 that this person failed to file. The campaign filings block is untouched, there
 is no third chip, no compare control, no chart and no grade.
@@ -711,11 +711,29 @@ ceiling on the form, so its bar runs open to the end of the track.
 The lines live in a third table, `PDX_FD_HOLDINGS` in `pdx-finance.js`, with its
 own gate (`holdingsDefects()`): a row must match the document row's year and
 `.gov` form URL exactly, and every line is `{ asset, band }` with a band on the
-filed ladder. No figure fields, no tenure fields, nothing else. **It ships
-empty.** No line goes in until a reviewed transcription has read it off the PDF,
-so today no profile draws a bar and every block reads as it did before.
-`scripts/test-wealth-bands.mjs` exercises the graph through the test-only
-`_setHoldingsTable` seam.
+filed ladder. No figure fields, no tenure fields, nothing else.
+
+**The first transcription covered the four House FDs the site already links**,
+and only those. Each Schedule A line was copied off the House Clerk PDF: the
+asset name as printed (the parent account chain joined with ⇒, the bracketed
+asset-type code kept) and the value box as ticked, in the clerk's spaced-hyphen
+spelling. Liabilities, income and transactions are not assets and are not in the
+table.
+
+| Member | Lines drawn | Left out, because the box is off the ladder |
+| --- | --- | --- |
+| Blake Moore | 16 | two spouse lines under H. Roger Boyer Family Partnership, LTD., each `Spouse/DC Over $1,000,000` |
+| Celeste Maloy | 3 | none |
+| Mike Kennedy | 28 | Kennedy Capital, LLC, filed `$1 - $1,000` |
+| Burgess Owens | 0, so no row | all five: a handwritten paper form with three lines in the lowest box and two `Undetermined` |
+
+A line in a box the ladder doesn't hold is left out rather than squeezed onto a
+rung, and the graph carries a fixed sentence saying so and pointing to the form,
+which lists every line. Some asset names as filed contain words like "Common
+Stock", "Shares" or "100% Interest". They are quoted exactly, because the asset
+name is the filer's text, not PolitiDex copy. `scripts/test-wealth-bands.mjs`
+pins the shipped counts and stored bands, and exercises every other state
+through the test-only `_setHoldingsTable` seam.
 
 ## The wall
 

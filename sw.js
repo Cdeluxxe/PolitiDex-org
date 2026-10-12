@@ -9393,7 +9393,18 @@
 //     and finance-lane.css are precached and changed, so the shell moves one
 //     version. Neither money pill, the receipts math or tenure moved.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v350';
+// v351 - THE FOUR HOUSE FDs, TRANSCRIBED INTO THE HOLDINGS TABLE. Moore (16
+//     lines), Maloy (3) and Kennedy (28) get their 2025 Schedule A lines as
+//     printed, each row matching the year and House Clerk URL the disclosure
+//     pill already names, so the range-band graph now draws for those three.
+//     Lines filed off the ladder (spouse 'Over $1,000,000', '$1 - $1,000',
+//     'Undetermined') are left out and the graph says such lines are not drawn.
+//     Owens's paper form has no line on the ladder, so he has no row and his
+//     block is unchanged. pdx-finance.js and finance-lane.js are precached and
+//     changed, so the shell moves one version. Neither pill moved.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v351';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
