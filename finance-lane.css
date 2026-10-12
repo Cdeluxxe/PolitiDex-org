@@ -492,10 +492,18 @@
   position: absolute;
   inset: 0;
 }
-.pdx-yrs-band {
+/* EVERY YEAR BAND, IN BOTH GRAPHS, IS PLACED ON THE TIME AXIS — absolutely,
+   at its year's slot (the inline left/width), spanning the field's full height.
+   The range graph's bands carry their own class, and without this rule they
+   fell back to ordinary list items and stacked down the page instead of
+   running left to right. */
+.pdx-yrs-band,
+.pdx-rng-band {
   position: absolute;
   top: 0;
   bottom: 0;
+  margin: 0;
+  padding: 0;
 }
 .pdx-yrs-link {
   display: block;

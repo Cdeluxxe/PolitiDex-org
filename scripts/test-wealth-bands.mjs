@@ -1098,6 +1098,66 @@ const expectedPoint = (band) => {
   for (const bad of [".reduce(", "+= l.point", "+= l.", "total", "stock", "share", "equity"]) lacks(rSrc, bad, `the range code carries no "${bad}"`);
 }
 
+// ── 13 · the stylesheet puts both graphs on one left-to-right time axis ─────
+{
+  section("13 · finance-lane.css lays every year band out on the time axis, in both graphs");
+  const CSS = R("finance-lane.css").replace(/\/\*[\s\S]*?\*\//g, "");
+  // Every declaration that applies to a class, merged across rules.
+  const decl = (cls) => {
+    const out = {};
+    for (const m of CSS.matchAll(/([^{}]+)\{([^}]*)\}/g)) {
+      const sels = m[1].split(",").map((x) => x.trim());
+      if (!sels.some((x) => x === "." + cls)) continue;
+      for (const d of m[2].split(";")) {
+        const [k, ...v] = d.split(":");
+        if (k && v.length) out[k.trim()] = v.join(":").trim();
+      }
+    }
+    return out;
+  };
+  const X = box({ oge: true });
+  const L = X.PDXFinanceLane;
+  // The band classes the two graphs actually render, read off the markup.
+  const liClasses = new Set();
+  for (const pid of Object.keys(SHIPPED_TIMELINES).concat(["trump"])) {
+    const blk = L.wealthBlockHtml(pid, ROSTER[pid]);
+    for (const m of blk.matchAll(/<li class="(pdx-(?:yrs|rng)-band)"/g)) liClasses.add(m[1]);
+  }
+  eq([...liClasses].sort().join(","), "pdx-rng-band,pdx-yrs-band", "both graphs render year bands");
+  for (const cls of liClasses) {
+    const d = decl(cls);
+    eq(d.position, "absolute", `.${cls} is absolutely positioned, so its inline left/width place it on the time axis`);
+    eq(d.top, "0", `.${cls} …from the top of the field`);
+    eq(d.bottom, "0", `.${cls} …to the bottom`);
+  }
+  eq(decl("pdx-yrs-bands").position, "absolute", ".pdx-yrs-bands is one absolute layer over the whole field");
+  eq(decl("pdx-yrs-bands").inset, "0", "…covering it edge to edge");
+  eq(decl("pdx-yrs-field").position, "relative", ".pdx-yrs-field is the positioning context for every band");
+  ok(/var\(--pdx-yrs-span/.test(decl("pdx-yrs-field")["min-width"] || ""), "…and widens with the number of year slots instead of wrapping");
+  eq(decl("pdx-yrs-body")["overflow-x"], "auto", "a long axis scrolls sideways rather than wrapping to a new row");
+  for (const cls of ["pdx-yrs-field", "pdx-yrs-bands", "pdx-yrs-band", "pdx-rng-band"]) {
+    const d = decl(cls);
+    ok(!/wrap/.test(d["flex-wrap"] || "") && !/grid|flex/.test(d.display || ""), `.${cls} has no flex or grid flow that could stack or wrap bands`);
+  }
+  const bar = decl("pdx-rng-bar");
+  eq(bar.position, "absolute", "the range bar is placed by its inline bottom and height");
+  eq(bar.left, bar.right, `…and centred in its year's slot (left ${bar.left} = right ${bar.right})`);
+  eq(decl("pdx-yrs-plot").position, "relative", "each band's plot is the context its bar and dots are placed in");
+
+  // The range graph's bands, read in order, run strictly left to right in
+  // non-overlapping slots, each one slot wide.
+  for (const pid of Object.keys(SHIPPED_TIMELINES).concat(["trump"])) {
+    const blk = L.wealthBlockHtml(pid, ROSTER[pid]);
+    const rng = blk.slice(blk.indexOf('data-pdx-graph="range"'), blk.indexOf('class="pdx-bands-src"'));
+    const b = [...rng.matchAll(/<li class="pdx-rng-band" data-pdx-year="(\d+)"[^>]*style="left:([\d.]+)%;width:([\d.]+)%"/g)]
+      .map((m) => ({ y: +m[1], l: +m[2], w: +m[3] }));
+    ok(b.length > 0, `${pid}: the range graph has bands`);
+    ok(b.every((x, i) => i === 0 || (x.y > b[i - 1].y && x.l >= b[i - 1].l + b[i - 1].w - 0.001)),
+      `${pid}: range bands run strictly left to right by year, side by side, never overlapping`);
+    ok(b.every((x) => x.l >= 0 && x.l + x.w <= 100.001), `${pid}: …all inside one shared plot`);
+  }
+}
+
 // ── report ───────────────────────────────────────────────────────────────────
 if (failures.length) {
   console.error(`\n✗ wealth bands: ${failures.length} failed, ${passed} passed`);

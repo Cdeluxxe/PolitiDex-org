@@ -9489,7 +9489,16 @@
 //     version. Neither pill moved.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v358';
+// v359 - THE RANGE GRAPH RUNS LEFT TO RIGHT ON ITS TIME AXIS. Its year bands
+//     carry their own class, and finance-lane.css only positioned the per-line
+//     graph's bands, so the range bands fell back to ordinary list items and
+//     stacked down the page. Both band classes now share the absolute-at-slot
+//     rule. Markup, data, the per-line graph, overlap and awards are
+//     unchanged. finance-lane.css is precached and changed, so the shell moves
+//     one version. Neither pill moved.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v359';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

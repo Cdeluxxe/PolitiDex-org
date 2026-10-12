@@ -832,6 +832,23 @@ has the second, and checks each bar's two ends against the year's stored points.
 It also checks that the per-line graph, source line, overlap section, awards and
 pills are byte-identical with the range graph on and off.
 
+**Both graphs run left to right on one time axis.** In each graph, every year's
+band is absolutely positioned inside one shared plot field:
+- at its year's slot (one slot per calendar year, oldest left, newest right);
+- spanning the field's full height;
+- never stacking or wrapping. A long axis scrolls sideways.
+
+The range bar is centred in its slot. An empty year keeps an empty slot.
+
+The first range-graph release missed this rule. Its bands carry their own class,
+`.pdx-rng-band`, and finance-lane.css positioned only the per-line graph's
+`.pdx-yrs-band`, so the range bars stacked down the page despite correct inline
+positions. Both classes now share the rule, and `scripts/test-wealth-bands.mjs`
+checks the stylesheet itself:
+- every band class either graph renders is absolutely positioned;
+- the containers are positioned and do not flow, flex or wrap;
+- the range bar is centred.
+
 **The summary line under each year.** Every year's band ends with one line,
 for example:
 
