@@ -137,6 +137,10 @@ must(Object.keys(ROSTER).length > 500, "cmp-data.js did not load a roster");
 console.log(`   wealth bands: ${Object.keys(SHIPPED_HOLDINGS).length} holdings rows shipped · ` +
   `${LINES.length} fixture lines on ${PID}`);
 
+const dollars = (n) => {
+  const [i, d] = n.toFixed(2).split(".");
+  return "$" + i.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "." + d;
+};
 const bars = (html) => [...String(html).matchAll(/data-pdx-band="([^"]*)"/g)].map((m) => unesc(m[1]));
 const geom = (html) => [...String(html).matchAll(/class="pdx-bands-bar[^"]*" style="left:([\d.]+)%;width:([\d.]+)%"/g)]
   .map((m) => ({ left: +m[1], width: +m[2] }));
@@ -267,6 +271,10 @@ const expectedPoint = (band) => {
       allowedTok.add(F.bandLabel(l.band));
       allowedTok.add(F.DISCLOSED_POINTS[F.bandLabel(l.band)].label);
     }
+    // A linked public award under the graph is the third kind of figure allowed:
+    // its published obligation, to the cent, and only where overlap() lists it.
+    const ov = F.overlap(pid);
+    for (const a of (ov && ov.awards) || []) allowedTok.add(dollars(a.obligated));
     let vis = visible(unesc(graph));
     for (const t of forms.flatMap((f) => f.lines.map((l) => l.asset)).sort((x, y) => y.length - x.length)) {
       vis = vis.split(t).join(" ");
@@ -635,6 +643,117 @@ const expectedPoint = (band) => {
   const pts = STRIP(FIN_SRC.slice(FIN_SRC.indexOf("var DISCLOSED_POINTS"), FIN_SRC.indexOf("function holdings(pid)")));
   for (const bad of ["receipts", "filing(", "FTM", "PDXFinanceLane", "Math.", "/ 2"]) {
     lacks(pts, bad, `the disclosed-points code reaches no campaign figure and computes nothing ("${bad}")`);
+  }
+}
+
+// ── 8 · committee overlap and related awards ────────────────────────────────
+{
+  section("8 · a filed defense holding beside a defense committee seat, and the company's public awards");
+  const F = BARE.PDXFinance, L = BARE.PDXFinanceLane;
+  eq(F.overlapDefects().length, 0, "the shipped seat and award tables pass their gate");
+  const withOverlap = Object.keys(SHIPPED_TIMELINES).filter((pid) => F.overlap(pid));
+  eq(withOverlap.join(","), "bmoore", "only Moore has an overlap on file among the timeline members");
+  for (const pid of Object.keys(SHIPPED_TIMELINES).concat(["mike_johnson", "owens"])) {
+    if (pid === "bmoore") continue;
+    lacks(L.wealthBlockHtml(pid, ROSTER[pid]), "pdx-overlap", `${pid}: no overlap on file, so no section at all`);
+  }
+
+  const o = F.overlap("bmoore");
+  eq(o.items.map((i) => i.ticker + ":" + i.committee + ":" + i.forms.map((f) => f.year).join("/")).sort().join(","),
+    "BA:HASC:2021/2022,RTX:HASC:2021/2022", "Moore: BA and RTX, on House Armed Services, 2021 and 2022");
+  // DERIVED, NOT TYPED: every flagged year has a stored line naming the ticker
+  // on that year's form, inside the seat's years.
+  const forms = SHIPPED_HOLDINGS.bmoore.forms;
+  for (const it of o.items) {
+    for (const f of it.forms) {
+      const form = forms.find((x) => String(x.year) === f.year);
+      ok(form.lines.some((l) => l.asset.indexOf(`(${it.ticker})`) >= 0),
+        `${it.ticker} ${f.year}: a stored line on that year's form names the ticker`);
+      eq(f.formUrl, form.formUrl, `${it.ticker} ${f.year}: …and the flag links that form`);
+    }
+  }
+  // HELD OFF THE COMMITTEE IS NOT AN OVERLAP. Moore's 2023 form still lists both,
+  // and he was no longer on Armed Services, so 2023 is not flagged.
+  const f23 = forms.find((x) => x.year === 2023);
+  ok(f23.lines.some((l) => /\(BA\)/.test(l.asset)) && f23.lines.some((l) => /\(RTX\)/.test(l.asset)),
+    "Moore's 2023 form still carries BA and RTX lines");
+  ok(o.items.every((i) => i.forms.every((f) => f.year !== "2023")), "…and 2023 is not flagged, because the seat ended with the 117th Congress");
+
+  const blk = L.wealthBlockHtml("bmoore", ROSTER.bmoore);
+  const vis = visible(blk);
+  has(vis, "Holds BA while on House Armed Services.", "the BA sentence, verbatim");
+  has(vis, "Holds RTX while on House Armed Services.", "the RTX sentence, verbatim");
+  has(blk, 'href="https://www.govinfo.gov/content/pkg/BILLS-117hres63eh/html/BILLS-117hres63eh.htm"',
+    "the committee roster record is linked");
+  for (const y of ["2021", "2022"]) {
+    const url = forms.find((x) => String(x.year) === y).formUrl;
+    ok(blk.split(`href="${url}"`).length - 1 >= 2, `the ${y} annual report is linked from the flag as well as from its column`);
+  }
+  ok(blk.indexOf("pdx-overlap") > blk.indexOf("pdx-bands-src"), "the section sits under the graph and its source line");
+
+  // THE AWARDS: one per company per graph year, each a linked public award.
+  const graphYears = forms.map((f) => String(f.year));
+  const rows = [...blk.matchAll(/<li class="pdx-overlap-award" data-pdx-award="([^"]+)" data-pdx-obligated="([^"]+)"><a href="([^"]+)"[\s\S]*?<\/li>/g)];
+  eq(rows.length, 2 * graphYears.length, "one award line per company per year the graph covers");
+  for (const [li, id, amt, url] of rows) {
+    ok(/^https:\/\/www\.usaspending\.gov\/award\/CONT_AWD_/.test(url) && url.indexOf(id) > 0,
+      `${id}: links its own USASpending award page`);
+    has(visible(li), dollars(+amt), `${id}: …and prints the published obligation, to the cent`);
+    eq((visible(li).match(/\$[\d,.]+/g) || []).length, 1, `${id}: …and no other dollar figure`);
+  }
+  eq(o.awards.map((a) => a.ticker + a.year).sort().join(","),
+    graphYears.flatMap((y) => ["BA" + y, "RTX" + y]).sort().join(","), "…each ticker once in each graph year");
+  const ovText = visible(blk.slice(blk.indexOf('<div class="pdx-overlap"')));
+  for (const bad of ["total", "combined", "sum of", "altogether", "net worth", "% ", "per year", "profit of", "earned"]) {
+    lacks(ovText.toLowerCase(), bad, `the overlap section prints no summed or derived figure ("${bad}")`);
+  }
+  // No equity language in PolitiDex's own copy for this section.
+  const oAt = LANE_SRC.indexOf("// ── COMMITTEE OVERLAP, UNDER THE GRAPH");
+  const oSrc = STRIP(LANE_SRC.slice(oAt, LANE_SRC.indexOf("function holdingsGraphHtml", oAt))).toLowerCase();
+  for (const bad of ["stock", "share", "equity", "form c", "conflict", "corrupt", "suspicious", ".reduce(", "+= a."]) {
+    lacks(oSrc, bad, `the overlap renderer carries no "${bad}"`);
+  }
+
+  // EITHER SIDE MISSING, NO SECTION.
+  {
+    const noAwards = box(); noAwards.PDXFinance._setOverlapTables(null, {});
+    eq(noAwards.PDXFinance.overlap("bmoore"), null, "no awards on file: overlap() is null");
+    lacks(noAwards.PDXFinanceLane.wealthBlockHtml("bmoore", ROSTER.bmoore), "pdx-overlap", "…and no section");
+    const noSeats = box(); noSeats.PDXFinance._setOverlapTables({}, null);
+    eq(noSeats.PDXFinance.overlap("bmoore"), null, "no seat on file: overlap() is null");
+    lacks(noSeats.PDXFinanceLane.wealthBlockHtml("bmoore", ROSTER.bmoore), "pdx-overlap", "…and no section");
+    const off = box(); off.PDXFinance._setOverlapTables({ bmoore: [{ committee: "HASC", congress: 119, years: [2025, 2026],
+      rosterUrl: "https://www.govinfo.gov/x", rosterLabel: "x" }] }, null);
+    eq(off.PDXFinance.overlap("bmoore"), null, "a seat in years with no covered holding on file draws nothing");
+  }
+  // THE GATE.
+  const seat = (patch) => ({ bmoore: [{ committee: "HASC", congress: 117, years: [2021, 2022],
+    rosterUrl: "https://www.govinfo.gov/x", rosterLabel: "x", ...patch }] });
+  const award = (patch) => ({ BA: [{ year: 2021, awardId: "W58RGZ21C0015", recipient: "THE BOEING COMPANY",
+    agency: "Department of the Army", description: "x", obligated: 1,
+    url: "https://www.usaspending.gov/award/CONT_AWD_W58RGZ21C0015_9700_-NONE-_-NONE-", ...patch }] });
+  for (const [what, seats, awards, rule] of [
+    ["a committee that is not covered", seat({ committee: "WAYS" }), null, "not a covered committee"],
+    ["a roster that is not .gov", seat({ rosterUrl: "https://example.com/roster" }), null, ".gov roster"],
+    ["a seat with a stored overlap", seat({ ticker: "BA" }), null, "unrecognised field ticker"],
+    ["an award off USASpending/SAM", null, award({ url: "https://example.com/award/W58RGZ21C0015" }), "USASpending or SAM.gov"],
+    ["an award url for another award", null, award({ url: "https://www.usaspending.gov/award/CONT_AWD_OTHER" }), "own award id"],
+    ["an amount typed as a string", null, award({ obligated: "$3.4B" }), "published positive amount"],
+    ["a profit field", null, award({ profit: 5 }), "unrecognised field profit"],
+    ["awards for a ticker off the list", null, { MSFT: award({}).BA }, "not on the list"],
+  ]) {
+    const X = box(); X.PDXFinance._setOverlapTables(seats, awards);
+    ok(X.PDXFinance.overlapDefects().some((d) => d.indexOf(rule) >= 0), `${what}: refused ("${rule}")`);
+    eq(X.PDXFinance.overlap("bmoore"), null, `${what}: …and nothing prints`);
+  }
+  // THE PILLS, with the overlap tables filled and emptied.
+  const E = box(); E.PDXFinance._setOverlapTables({}, {});
+  for (const id of ["bmoore", "maloy", "kennedy"]) {
+    eq(BARE.PDXFinanceLane.letterheadChipHtml(id), E.PDXFinanceLane.letterheadChipHtml(id),
+      `${id}: the receipts pill is byte-identical with the overlap on and off`);
+    eq(BARE.PDXFinanceLane.wealthLetterheadChipHtml(id, ROSTER[id]), E.PDXFinanceLane.wealthLetterheadChipHtml(id, ROSTER[id]),
+      `${id}: …and so is the disclosure pill`);
+    lacks(BARE.PDXFinanceLane.wealthLetterheadChipHtml(id, ROSTER[id]), "Holds ", `${id}: the overlap never reaches a pill`);
   }
 }
 

@@ -1970,6 +1970,231 @@
     };
   }
 
+  // ── COMMITTEE OVERLAP: A FILED HOLDING BESIDE A DEFENSE COMMITTEE SEAT ─────
+  // Under the wealth graph, one plain sentence per overlap — "Holds BA while on
+  // House Armed Services." — and the largest public contract award signed with
+  // that company in each year the graph covers. Three tables, and the overlap
+  // itself is NOT one of them: it is DERIVED, so it cannot be typed in.
+  //
+  //   DEFENSE_CONTRACTORS  which tickers count, by literal key. The large prime
+  //                        Department of Defense contractors; a holding is
+  //                        matched only where a stored holdings line names the
+  //                        ticker in parentheses, as the clerk prints it.
+  //   PDX_COMMITTEE_SEATS  per pid, each seat on a covered committee: which
+  //                        committee, which Congress, the calendar years it
+  //                        spans, and the .gov roster record that seated them.
+  //   PDX_CONTRACT_AWARDS  per ticker, per calendar year, the single largest
+  //                        contract signed that year with the company, as
+  //                        USASpending.gov publishes it: the award id, recipient,
+  //                        awarding agency, description and the amount obligated
+  //                        on that award to date — each with its award page.
+  //
+  // AN OVERLAP EXISTS ONLY WHERE THREE THINGS MEET: a stored line on a filed form
+  // names a covered ticker, that form's year is a year the member held a
+  // covered seat, and the seat's roster is linked. Holding the company in a year
+  // off the committee is not an overlap and prints nothing.
+  //
+  // THE FIGURES ARE PUBLISHED ONES AND STAY SEPARATE. Each award amount is the
+  // obligation USASpending prints on the award page it links to, quoted as
+  // published. Nothing adds awards together, divides them by anything, or puts
+  // them beside the member's own bands as if they were the member's money: an
+  // award is federal money to a company, not a figure about this person, and
+  // there is no "profit", no share of anything and no combined line.
+  //
+  //   NEVER_FEEDS, as everywhere on this lane. Not an input to any score,
+  // match, tier, floor, count or sort.
+  var DEFENSE_CONTRACTORS = {
+    LMT: 'Lockheed Martin Corporation',
+    RTX: 'RTX Corporation',
+    BA:  'The Boeing Company',
+    GD:  'General Dynamics Corporation',
+    NOC: 'Northrop Grumman Corporation',
+    HII: 'Huntington Ingalls Industries',
+    LHX: 'L3Harris Technologies'
+  };
+  var COVERED_COMMITTEES = {
+    HASC: 'House Armed Services',
+    SASC: 'Senate Armed Services',
+    HACD: 'House Appropriations, Subcommittee on Defense',
+    SACD: 'Senate Appropriations, Subcommittee on Defense'
+  };
+  // Moore: elected to the Committee on Armed Services for the 117th Congress by
+  // H.Res. 63 ("Mr. Moore of Utah"), agreed to January 28, 2021. H.Res. 80 of
+  // the 118th Congress, which elected the Republican members of Armed Services
+  // on January 31, 2023, does not name him, so the seat spans 2021 and 2022
+  // only. No other member in the wealth timeline holds a covered ticker on a
+  // stored line.
+  var PDX_COMMITTEE_SEATS = {
+    bmoore: [
+      { committee: 'HASC', congress: 117, years: [2021, 2022],
+        rosterUrl: 'https://www.govinfo.gov/content/pkg/BILLS-117hres63eh/html/BILLS-117hres63eh.htm',
+        rosterLabel: 'H.Res. 63, 117th Congress' }
+    ]
+  };
+  // Pulled from the USASpending.gov award search on AWARDS_AS_OF: contract
+  // award types A–D, date signed within the calendar year, recipient search on
+  // the company name, sorted by amount obligated on the award, first result.
+  // The amount is cumulative on that award as of the pull, so it can move.
+  var AWARDS_AS_OF = '2026-10-12';
+  var PDX_CONTRACT_AWARDS = {
+    BA: [
+      { year: 2021, awardId: 'W58RGZ21C0015', recipient: 'THE BOEING COMPANY',
+        agency: 'Department of the Army',
+        description: 'APACHE ADVANCED PROCUREMENT AWARD FOR LOT 12 FULL RATE PRODUCTION.',
+        obligated: 3482391743.05,
+        url: 'https://www.usaspending.gov/award/CONT_AWD_W58RGZ21C0015_9700_-NONE-_-NONE-' },
+      { year: 2022, awardId: 'FA863422F0035', recipient: 'THE BOEING COMPANY',
+        agency: 'Department of the Air Force',
+        description: 'F-15EX - LOT 4 ADVANCED PROCUREMENT',
+        obligated: 2054679197.38,
+        url: 'https://www.usaspending.gov/award/CONT_AWD_FA863422F0035_9700_FA863420D2704_9700' },
+      { year: 2023, awardId: 'FA863423F0048', recipient: 'THE BOEING COMPANY',
+        agency: 'Department of the Air Force',
+        description: 'F-15EX LOT 5 ADVANCED PROCUREMENT',
+        obligated: 3930670910.97,
+        url: 'https://www.usaspending.gov/award/CONT_AWD_FA863423F0048_9700_FA863420D2704_9700' },
+      { year: 2024, awardId: 'N0001924C0025', recipient: 'THE BOEING COMPANY',
+        agency: 'Defense Contract Management Agency',
+        description: 'CANADA AND GERMANY LOT 13 P-8A AIRCRAFT',
+        obligated: 5765643148,
+        url: 'https://www.usaspending.gov/award/CONT_AWD_N0001924C0025_9700_-NONE-_-NONE-' },
+      { year: 2025, awardId: 'W58RGZ26C0002', recipient: 'THE BOEING COMPANY',
+        agency: 'Department of the Army',
+        description: 'APACHE NEW BUILD ATTACK HELICOPTERS (AH)-64E FOR FOREIGN MILITARY SALE CUSTOMERS POLAND (QTY OF 96), EGYPT (QTY OF 2) AND KUWAIT (QTY OF 8).  THIS INCLUDES ASSOCIATED COMPONENTS AND ACCESSORIES AND LONGBOW CREW TRAINERS (LCTS)',
+        obligated: 2295831204,
+        url: 'https://www.usaspending.gov/award/CONT_AWD_W58RGZ26C0002_9700_-NONE-_-NONE-' }
+    ],
+    RTX: [
+      { year: 2021, awardId: 'FA867521C0034', recipient: 'RAYTHEON COMPANY',
+        agency: 'Department of the Air Force',
+        description: 'ADVANCED MEDIUM RANGE AIR TO AIR MISSILE (AMRAAM) PRODUCTION LOTS 34-36',
+        obligated: 2177560015.51,
+        url: 'https://www.usaspending.gov/award/CONT_AWD_FA867521C0034_9700_-NONE-_-NONE-' },
+      { year: 2022, awardId: 'N0002422C5500', recipient: 'RAYTHEON COMPANY',
+        agency: 'Department of the Navy',
+        description: 'AN/SPY-6(V) HARDWARE PRODUCTION',
+        obligated: 3265755418.12,
+        url: 'https://www.usaspending.gov/award/CONT_AWD_N0002422C5500_9700_-NONE-_-NONE-' },
+      { year: 2023, awardId: 'FA867523C0037', recipient: 'RAYTHEON COMPANY',
+        agency: 'Department of the Air Force',
+        description: 'ADVANCED MEDIUM RANGE AIR TO AIR MISSILE (AMRAAM) PRODUCTION LOT 37',
+        obligated: 2516360351.4,
+        url: 'https://www.usaspending.gov/award/CONT_AWD_FA867523C0037_9700_-NONE-_-NONE-' },
+      { year: 2024, awardId: 'N0001924C0032', recipient: 'RAYTHEON COMPANY',
+        agency: 'Department of the Navy',
+        description: 'LOT 24-26 PRODUCTION - FMS',
+        obligated: 3145330978,
+        url: 'https://www.usaspending.gov/award/CONT_AWD_N0001924C0032_9700_-NONE-_-NONE-' },
+      { year: 2025, awardId: 'FA865925CB003', recipient: 'RAYTHEON COMPANY',
+        agency: 'Department of the Air Force',
+        description: 'ADVANCED MEDIUM RANGE AIR-TO-AIR MISSILE (AMRAAM)LOTS 39-40',
+        obligated: 3381835581.16,
+        url: 'https://www.usaspending.gov/award/CONT_AWD_FA865925CB003_9700_-NONE-_-NONE-' }
+    ]
+  };
+
+  var SEAT_FIELDS = ['committee', 'congress', 'years', 'rosterUrl', 'rosterLabel'];
+  var AWARD_FIELDS = ['year', 'awardId', 'recipient', 'agency', 'description', 'obligated', 'url'];
+  function overlapDefects() {
+    var out = [];
+    for (var pid in PDX_COMMITTEE_SEATS) {
+      if (!Object.prototype.hasOwnProperty.call(PDX_COMMITTEE_SEATS, pid)) continue;
+      var seats = PDX_COMMITTEE_SEATS[pid];
+      if (!Array.isArray(seats) || !seats.length) { out.push(pid + ': seats is not a non-empty list'); continue; }
+      for (var i = 0; i < seats.length; i++) {
+        var st = seats[i], tag = pid + ': seat ' + (i + 1);
+        if (!st || typeof st !== 'object') { out.push(tag + ' is not an object'); continue; }
+        if (!Object.prototype.hasOwnProperty.call(COVERED_COMMITTEES, st.committee)) {
+          out.push(tag + ' committee is not a covered committee');
+        }
+        if (typeof st.congress !== 'number' || st.congress < 1) out.push(tag + ' congress is not a number');
+        if (!Array.isArray(st.years) || !st.years.length ||
+            st.years.some(function (y) { return !/^[12][0-9]{3}$/.test(String(y)); })) {
+          out.push(tag + ' years is not a list of four-digit years');
+        }
+        if (!/^https:\/\/[^\/?#]*\.gov(?:[:\/?#]|$)/i.test(String(st.rosterUrl || ''))) {
+          out.push(tag + ' rosterUrl is not an https .gov roster record');
+        }
+        if (!st.rosterLabel || !String(st.rosterLabel).trim()) out.push(tag + ' has no rosterLabel');
+        for (var k in st) {
+          if (Object.prototype.hasOwnProperty.call(st, k) && SEAT_FIELDS.indexOf(k) < 0) {
+            out.push(tag + ' carries unrecognised field ' + k);
+          }
+        }
+      }
+    }
+    for (var t in PDX_CONTRACT_AWARDS) {
+      if (!Object.prototype.hasOwnProperty.call(PDX_CONTRACT_AWARDS, t)) continue;
+      if (!Object.prototype.hasOwnProperty.call(DEFENSE_CONTRACTORS, t)) out.push(t + ': awards for a ticker not on the list');
+      var list = PDX_CONTRACT_AWARDS[t], seen = {};
+      for (var j = 0; j < (list || []).length; j++) {
+        var a = list[j], atag = t + ': award ' + (j + 1);
+        if (!a || typeof a !== 'object') { out.push(atag + ' is not an object'); continue; }
+        if (!/^[12][0-9]{3}$/.test(String(a.year))) out.push(atag + ' year is not a four-digit year');
+        else if (seen[a.year]) out.push(atag + ' is a second award for ' + a.year);
+        seen[a.year] = true;
+        if (!a.awardId || !a.recipient || !a.agency || !a.description) out.push(atag + ' is missing a published field');
+        if (typeof a.obligated !== 'number' || !(a.obligated > 0)) out.push(atag + ' obligated is not a published positive amount');
+        if (!/^https:\/\/(?:www\.usaspending\.gov\/award\/|sam\.gov\/)/.test(String(a.url || ''))) {
+          out.push(atag + ' url is not a USASpending or SAM.gov award page');
+        } else if (String(a.url).indexOf(String(a.awardId)) < 0) {
+          out.push(atag + ' url does not name its own award id');
+        }
+        for (var ak in a) {
+          if (Object.prototype.hasOwnProperty.call(a, ak) && AWARD_FIELDS.indexOf(ak) < 0) {
+            out.push(atag + ' carries unrecognised field ' + ak);
+          }
+        }
+      }
+    }
+    return out;
+  }
+
+  // ── OVERLAP: WHAT THE SECTION PRINTS, OR NULL ─────────────────────────────
+  // Null unless the gate is clean, the member's holdings timeline reads, and at
+  // least one overlap AND at least one award for an overlapping company inside
+  // the graph's years are on file. Overlaps are found here, never stored.
+  function overlap(pid) {
+    if (!pid || overlapDefects().length) return null;
+    var seats = PDX_COMMITTEE_SEATS[pid];
+    var h = holdings(pid);
+    if (!seats || !h || !h.years) return null;
+    var graphYears = h.years.map(function (y) { return y.year; });
+    var items = [], tickers = {};
+    for (var s = 0; s < seats.length; s++) {
+      var st = seats[s];
+      for (var t in DEFENSE_CONTRACTORS) {
+        if (!Object.prototype.hasOwnProperty.call(DEFENSE_CONTRACTORS, t)) continue;
+        var forms = [];
+        for (var y = 0; y < h.years.length; y++) {
+          var yr = h.years[y];
+          if (st.years.map(String).indexOf(yr.year) < 0) continue;
+          var held = yr.lines.some(function (l) { return l.asset.indexOf('(' + t + ')') >= 0; });
+          if (held) forms.push({ year: yr.year, formUrl: yr.formUrl });
+        }
+        if (!forms.length) continue;
+        tickers[t] = true;
+        items.push({ ticker: t, company: DEFENSE_CONTRACTORS[t], committee: st.committee,
+                     committeeName: COVERED_COMMITTEES[st.committee], congress: st.congress,
+                     forms: forms, roster: { url: st.rosterUrl, label: st.rosterLabel } });
+      }
+    }
+    if (!items.length) return null;
+    var awards = [];
+    for (var tk in tickers) {
+      (PDX_CONTRACT_AWARDS[tk] || []).forEach(function (a) {
+        if (graphYears.indexOf(String(a.year)) < 0) return;
+        awards.push({ ticker: tk, year: String(a.year), awardId: a.awardId, recipient: a.recipient,
+                      agency: a.agency, description: a.description, obligated: a.obligated, url: a.url });
+      });
+    }
+    if (!awards.length) return null;
+    awards.sort(function (a, b) {
+      return (a.ticker < b.ticker ? -1 : a.ticker > b.ticker ? 1 : 0) || (a.year < b.year ? -1 : a.year > b.year ? 1 : 0);
+    });
+    return { items: items, awards: awards, asOf: AWARDS_AS_OF };
+  }
+
   // ── COVERAGE, ON THE SAME TERMS THE FILING LANE DISCLOSES ITS OWN ─────────
   // How many disclosure rows exist, out of how many people the site carries,
   // and the explicit statement that a blank is missing DATA. Read live off the
@@ -2064,6 +2289,12 @@
     // that names its method. Published so the suite can pin both.
     DISCLOSED_POINTS: DISCLOSED_POINTS,
     POINT_METHOD: POINT_METHOD,
+    // The committee-overlap read under the graph, and the gate its three tables
+    // pass. overlap(pid) is null unless an overlap and an award are both on file.
+    overlap: overlap,
+    overlapDefects: overlapDefects,
+    DEFENSE_CONTRACTORS: DEFENSE_CONTRACTORS,
+    COVERED_COMMITTEES: COVERED_COMMITTEES,
     // Declared, so the wall is readable off the object as well as off the
     // header. Asserted by scripts/test-money-two-chips.mjs.
     scored: false,
@@ -2085,6 +2316,13 @@
     },
     // And for the holdings lines. Overriding it cannot introduce arithmetic:
     // a line is drawn at the rung its filed band looks up to, or not at all.
+    // And for the overlap tables. Overriding them cannot make an overlap appear
+    // that no stored holdings line supports: overlap() still derives it.
+    _setOverlapTables: function (seats, awards) {
+      if (seats && typeof seats === 'object') PDX_COMMITTEE_SEATS = seats;
+      if (awards && typeof awards === 'object') PDX_CONTRACT_AWARDS = awards;
+      return overlapDefects().length;
+    },
     _setHoldingsTable: function (table) {
       PDX_FD_HOLDINGS = (table && typeof table === 'object') ? table : {};
       return holdingsDefects().length;

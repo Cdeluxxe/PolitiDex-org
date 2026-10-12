@@ -1287,6 +1287,13 @@ console.log(`   two chips: ${SEED_IDS.length} filings · ${Object.keys(ROSTER).l
         const h = W.PDXFinance.holdings(id);
         const carried = new Set();
         for (const yr of (h && h.years) || []) for (const l of yr.lines) if (l.point) carried.add(l.point.label);
+        // …or the published obligation on a linked public contract award in the
+        // committee-overlap section under the graph, quoted to the cent.
+        const ov = W.PDXFinance.overlap ? W.PDXFinance.overlap(id) : null;
+        for (const a of (ov && ov.awards) || []) {
+          const [i, d] = a.obligated.toFixed(2).split(".");
+          carried.add("$" + i.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "." + d);
+        }
         for (const t of toks) ok(labels.has(t) || carried.has(t),
           `${id}: graph token "${t}" is a filed band label or a point one of the member's lines carries`);
       }

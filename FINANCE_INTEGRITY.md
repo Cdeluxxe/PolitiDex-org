@@ -820,6 +820,75 @@ Lines filed `None`, `Undetermined`, `$1 - $1,000` or `Spouse/DC Over $1,000,000`
 are left out, and each form's comment in the table counts what it left out.
 Senate, OGE and executive-branch forms are not part of this batch.
 
+### Committee overlap and related awards, under the wealth graph
+
+**The rule.** Under the year-timeline graph, the disclosures block prints one
+plain sentence for each overlap:
+
+> Holds BA while on House Armed Services.
+
+Beside the sentence it links the annual reports that carry the line and the
+`.gov` roster record that seated the member. Below that, it lists the largest
+public contract award signed with that company in each year the graph covers.
+Each award line links to its USASpending.gov (or SAM.gov) award page.
+
+**An overlap is derived, never typed.** It exists only where three things meet:
+1. A stored holdings line, on the member's own filed form, names a ticker from
+   `DEFENSE_CONTRACTORS` (LMT, RTX, BA, GD, NOC, HII, LHX) in parentheses, as
+   the clerk prints it. The line may be the filer's, a spouse's or a dependent's.
+2. That form's year is one of the years in a seat in `PDX_COMMITTEE_SEATS` on a
+   covered committee: House or Senate Armed Services, or the House or Senate
+   Appropriations Subcommittee on Defense.
+3. The seat carries an https `.gov` roster record.
+
+Holding the company in a year the member was off the committee is not an
+overlap, and prints nothing.
+
+**The awards are published figures, quoted.** `PDX_CONTRACT_AWARDS` holds, per
+ticker and calendar year, the single largest contract signed that year with the
+company, as USASpending.gov published it on the recorded date:
+- contract award types A–D;
+- date signed within the year;
+- sorted by the amount obligated on the award.
+
+Each row carries the award id, recipient, awarding agency, description, the
+obligation to the cent, and the award page URL, which must name its own award
+id. The obligation is cumulative on that award as of the pull, so it can move
+later.
+
+Nothing adds awards together, divides them, or sets them beside the member's
+bands as if they were the member's money. There is no profit figure and no
+combined line. The section says in words that this is federal money to a
+company, not money the member holds.
+
+**Every dollar figure on the disclosures block is now one of three things:** a
+filed band, a stored midpoint or floor, or the published obligation on a linked
+public award. `scripts/test-money-two-chips.mjs` and
+`scripts/test-wealth-bands.mjs` sweep the rendered block for any other figure.
+
+**If either side is missing, the section does not appear.** No overlap, or no
+award inside the graph's years, means no heading, no placeholder and no
+sentence.
+
+**What is on file.** Among the members in the wealth timeline, only Blake Moore
+(`bmoore`) has an overlap. Boeing (BA) and RTX (filed as Raytheon Technologies
+in 2021–2022) are lines on his 2021 and 2022 annual reports. H.Res. 63 (117th
+Congress, agreed to January 28, 2021) elected "Mr. Moore of Utah" to the
+Committee on Armed Services. His 2023 report still lists both companies, but
+H.Res. 80 (118th Congress, January 31, 2023), which elected that Congress's
+Republican Armed Services members, does not name him, so 2023 is not flagged. The
+award list carries one Boeing and one Raytheon contract for each year from 2021
+to 2025, pulled 2026-10-12.
+
+None of the other six members holds a listed ticker on a stored line, so none
+gets a section. Mike Johnson appears on the same H.Res. 63 Armed Services list,
+but his forms list no assets, so there is nothing to overlap.
+
+PolitiDex's own copy here uses "holds", never equity, stock or share language,
+and no motive word. Asset names and award descriptions are quoted as filed and
+as published. Overlaps are not an input to any score, match, tier, floor,
+count or sort, and neither money pill reads them.
+
 ## The wall
 
 Declared on the object as `PDXFinanceLane.NEVER_FEEDS` and asserted by

@@ -1287,6 +1287,60 @@
           '<ol class="pdx-yrs-cols">' + cols + '</ol></div>' +
       '</div>';
   }
+  // ── COMMITTEE OVERLAP, UNDER THE GRAPH ────────────────────────────────────
+  // Off PDXFinance.overlap(pid), which derives every overlap from a stored
+  // holdings line and a stored roster seat, and returns null unless an award is
+  // on file too — so this section is either all there or not there at all.
+  //   ONE PLAIN SENTENCE PER OVERLAP, in the request's own words: "Holds BA while
+  // on House Armed Services." Beside it, the annual forms that carry the line and
+  // the .gov roster record that seated the member. No motive, no adjective.
+  //   THE AWARD LINES ARE PUBLISHED FIGURES, QUOTED. Each is one USASpending.gov
+  // award — the largest contract signed with the company in a year the graph
+  // covers — with the amount obligated on it as published, linked to its award
+  // page. The only arithmetic is putting commas in a published number: nothing
+  // is added, divided or set beside the member's bands as if it were theirs.
+  function publishedDollars(n) {
+    var parts = n.toFixed(2).split('.');
+    return '$' + parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '.' + parts[1];
+  }
+  function holdingsOverlapHtml(pid) {
+    var F = W.PDXFinance, o = null;
+    if (F && typeof F.overlap === 'function') {
+      try { o = F.overlap(pid); } catch (e) { o = null; }
+    }
+    if (!o || !o.items || !o.items.length || !o.awards || !o.awards.length) return '';
+    var flags = o.items.map(function (it) {
+      var forms = it.forms.map(function (f) {
+        return '<a href="' + attr(f.formUrl) + '" target="_blank" rel="noopener noreferrer">' +
+          esc(f.year) + ' annual report ↗</a>';
+      }).join(' · ');
+      return '<p class="pdx-overlap-flag" data-pdx-flag="' + attr(it.ticker + ':' + it.committee) + '">' +
+        '<b>' + esc('Holds ' + it.ticker + ' while on ' + it.committeeName + '.') + '</b> ' +
+        '<span>' + esc(it.company + ' (' + it.ticker + ') is listed on the ') + forms +
+          ' · seat: <a href="' + attr(it.roster.url) + '" target="_blank" rel="noopener noreferrer">' +
+          esc(it.roster.label) + ' ↗</a></span>' +
+      '</p>';
+    }).join('');
+    var lines = o.awards.map(function (a) {
+      return '<li class="pdx-overlap-award" data-pdx-award="' + attr(a.awardId) + '" data-pdx-obligated="' +
+          attr(String(a.obligated)) + '">' +
+        '<a href="' + attr(a.url) + '" target="_blank" rel="noopener noreferrer">' +
+          '<span class="pdx-overlap-yr">' + esc(a.year) + '</span> ' +
+          esc(a.ticker + ' · ' + a.recipient + ' · ' + a.description + ' · ' + a.agency) +
+          ' · <b>' + esc(publishedDollars(a.obligated)) + '</b> obligated on award ' + esc(a.awardId) + ' ↗' +
+        '</a></li>';
+    }).join('');
+    return '<div class="pdx-overlap" data-pdx-overlap="' + attr(pid) + '">' +
+        '<h5 class="pdx-bands-h">Holdings beside a committee seat</h5>' + flags +
+        '<h5 class="pdx-bands-h">Largest contract signed each year with these companies</h5>' +
+        '<p class="pdx-money-block-s">One line for each company in each year the graph covers: the single ' +
+          'largest contract signed with it that year, and the amount obligated on that award, as ' +
+          'USASpending.gov published it on ' + esc(o.asOf) + '. This is federal money to a company, ' +
+          'not money the member holds. No award is added to another, and nothing here is a ' +
+          'profit figure.</p>' +
+        '<ul class="pdx-overlap-awards">' + lines + '</ul>' +
+      '</div>';
+  }
   function holdingsGraphHtml(pid) {
     var F = W.PDXFinance, h = null;
     if (F && typeof F.holdings === 'function') {
@@ -1317,7 +1371,7 @@
             'No dot is added to another, and nothing here is a net worth or campaign money. ' +
             GRAPH_EXCLUDED + '</p>' +
           years + src +
-        '</div>';
+        '</div>' + holdingsOverlapHtml(pid);
     }
     // NO STORED POINT ANYWHERE: the bands-only drawing, exactly as before.
     if (!h.lines.length) return '';
@@ -1354,7 +1408,7 @@
           'worth or campaign money. ' + GRAPH_EXCLUDED + '</p>' +
         '<div class="pdx-bands-scale" aria-hidden="true"><span>smaller categories</span><span>larger categories</span></div>' +
         '<ul class="pdx-bands-groups">' + groups + '</ul>' +
-      '</div>';
+      '</div>' + holdingsOverlapHtml(pid);
   }
 
   // ── THE DISCLOSURES BLOCK — CHIP 2'S OTHER END ─────────────────────────────

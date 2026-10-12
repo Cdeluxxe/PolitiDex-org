@@ -9431,7 +9431,21 @@
 //     the shell moves one version. Neither pill moved.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v353';
+// v354 - A COMMITTEE-OVERLAP SENTENCE AND RELATED AWARDS UNDER THE WEALTH
+//     GRAPH. Where a stored holdings line names a listed defense contractor's
+//     ticker on a form from a year the member held a covered seat (House or
+//     Senate Armed Services, Defense Appropriations), the disclosures block
+//     prints "Holds BA while on House Armed Services." with the annual report
+//     and the .gov roster record linked, then the largest contract signed with
+//     that company in each graph year, each linked to its USASpending award page
+//     with the obligation as published. Overlaps are derived, never stored; no
+//     award is added to another. Only bmoore has one on file (BA and RTX,
+//     2021-2022, H.Res. 63). pdx-finance.js, finance-lane.js and
+//     finance-lane.css are precached and changed, so the shell moves one
+//     version. Neither pill moved.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v354';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
