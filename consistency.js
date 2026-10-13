@@ -18172,6 +18172,20 @@
       'Would bar officials from handing an in-person voter a federal ballot without valid photo identification; the House passed it 217-209.',
     'H.R. 8595|119|voting_access':
       'Would gate both steps of casting a federal ballot, registering and voting, behind a document; the House passed it 217-209.',
+    // EPA WAIVER RESOLUTIONS SLICE 4 (v364). The two pairs on each of H.J.Res. 88
+    // and H.J.Res. 89 of the 119th that printed nothing. Neither pair stores a
+    // `did`, so each is written from its own mapping rationale and the
+    // resolution's stored summary and title, and from nothing else. Both
+    // resolutions are law, so each reads as done, without a tally, like the lines
+    // already on them. db/vr-epa-waiver-effect-lines.json names the source of each.
+    'H.J.Res. 88|119|states_federal_power':
+      'Repealed the waiver that let California set stricter vehicle emission standards than the national floor, narrowing that state authority.',
+    'H.J.Res. 88|119|cost_living':
+      'Removed the rising zero-emission sales requirement in the adopting states, so the mix of new vehicles offered there is set by the market.',
+    'H.J.Res. 89|119|states_federal_power':
+      'Repealed the federal waiver that let California set stricter heavy-truck standards than the national floor, narrowing that state authority.',
+    'H.J.Res. 89|119|cost_living':
+      'Ended the zero-emission share required of new trucks sold in the adopting states, leaving fleet purchasers free to buy conventional trucks.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is

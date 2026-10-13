@@ -1310,6 +1310,14 @@ section("14 · the harvest — every stored did, read against the effect rule");
   const LONGDID_KEYS = (() => {
     const src = R("consistency.js"), at = src.indexOf("// LONG-DID OVERRIDES SLICE 3 (v362)");
     if (at === -1) return new Set();
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// EPA WAIVER RESOLUTIONS SLICE 4 (v364)", at);
+    return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+  })();
+  // EPA WAIVER RESOLUTIONS SLICE 4 (v364), from its marker to the end of the
+  // table, held by scripts/test-epa-waiver-effect-lines.mjs.
+  const EPA_KEYS = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// EPA WAIVER RESOLUTIONS SLICE 4 (v364)");
+    if (at === -1) return new Set();
     return new Set([...src.slice(at, src.indexOf("\n  };", at)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
   })();
   const IRAN = Object.keys(EFFECT).filter((k) => /\|iran_policy$/.test(k) && !RIDER_KEYS.has(k));
@@ -1818,9 +1826,24 @@ section("14 · the harvest — every stored did, read against the effect rule");
     const m = k.split("|").slice(0, 2).join("|");
     ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
   }
-  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !FISCAL.includes(k) && !LONGDID.includes(k) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
+  // EPA WAIVER RESOLUTIONS SLICE 4 (v364). The States vs. Federal Power and Cost
+  // of Living pairs on H.J.Res. 88 and 89, each written from its own mapping
+  // rationale, held in detail by scripts/test-epa-waiver-effect-lines.mjs; here
+  // the batch rules. Both resolutions are law, so each reads as done and, like
+  // the lines already on them, names no tally.
+  const EPA = [...EPA_KEYS];
+  ok(EPA.length === 4, `${EPA.length} EPA waiver line(s) — the slice wrote 4`);
+  for (const k of EPA) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the EPA waiver effect line`);
+    ok(/^H\.J\.Res\. 8[89]\|119\|(?:states_federal_power|cost_living)$/.test(k), `${k}: outside the slice's four pairs`);
+    ok(!/^(?:Would|Proposed)\b/.test(v) && !/\d+-\d+/.test(v), `${k}: an enacted resolution's line must read as done and name no tally`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !FISCAL.includes(k) && !LONGDID.includes(k) && !EPA.includes(k) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length + FISCAL.length + LONGDID.length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length + FISCAL.length + LONGDID.length + EPA.length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.

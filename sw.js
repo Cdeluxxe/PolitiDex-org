@@ -9546,7 +9546,19 @@
 //     version.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v363';
+// v364 - EPA WAIVER RESOLUTIONS SLICE 4: FOUR LINES UNDER H.J.RES. 88 AND 89.
+//     Their States vs. Federal Power and Cost of Living pairs printed nothing;
+//     each now carries one sentence in _DOS_EFFECT, written from that pair's own
+//     mapping rationale (db/vr-epa-waiver-effect-lines.json names each source).
+//     Both resolutions are law, so the lines read as done and, like the lines
+//     already on them, name no tally. Every shipped line, score, Direction Match,
+//     NEVER_FEEDS, the publication floor, money pills, district boards and the
+//     "Also on" chips are unchanged; the new lines carry their chips like any
+//     other. consistency.js is precached and changed, so the shell moves one
+//     version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v364';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

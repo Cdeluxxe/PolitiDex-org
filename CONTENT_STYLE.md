@@ -115,6 +115,17 @@ records each line beside the `did` it came from, and
 `scripts/test-long-did-effect-lines.mjs` holds them to these rules. H.R. 1968's
 two long-`did` pairs already carried slice 1's lines and were left as they were.
 
+EPA waiver resolutions slice 4 added four lines on H.J.Res. 88 and H.J.Res. 89
+of the 119th, the resolutions that revoked California's Advanced Clean Cars II
+and Advanced Clean Trucks waivers, on the States vs. Federal Power and Cost of
+Living pairs. Neither pair stores a `did`, so each line is written from its own
+mapping rationale. Both resolutions are law, so the lines read as done, and like
+the lines already on them they name no tally. A line on one issue never repeats
+another issue's line for the same resolution: the climate, energy and red-tape
+rows keep their own sentences. `db/vr-epa-waiver-effect-lines.json` records
+each line beside the rationale it came from, and
+`scripts/test-epa-waiver-effect-lines.mjs` holds them to these rules.
+
 ### Executive rows
 
 An executive document's row (an order, a proclamation, a memorandum, a veto)

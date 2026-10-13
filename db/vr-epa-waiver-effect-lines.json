@@ -1,0 +1,175 @@
+{
+ "_comment": "EPA waiver resolutions slice 4 (v364). The two pairs on each of H.J.Res. 88 and H.J.Res. 89 of the 119th — states_federal_power and cost_living — that printed nothing under their rows. Neither pair stores a `did`, so each line is written only from its own mapping rationale (quoted here as the cited migration wrote it) and the resolution's stored summary and title; `term` is the stored words the line carries and `termIn` names the field. Both resolutions are public law (the stored status is enacted), so each line reads as done and, like the lines already on these resolutions, carries no tally. `measures` holds every mapping on the two acts. No score, weight, mapping or key is read from or written to here.",
+ "_test": "scripts/test-epa-waiver-effect-lines.mjs",
+ "lines": 4,
+ "rows": [
+  {
+   "key": "H.J.Res. 88|119|states_federal_power",
+   "number": "H.J.Res. 88",
+   "congress": 119,
+   "issue": "states_federal_power",
+   "line": "Repealed the waiver that let California set stricter vehicle emission standards than the national floor, narrowing that state authority.",
+   "term": "stricter vehicle emission standards than the national floor",
+   "termIn": "rationale",
+   "source": {
+    "rationale": "Repeals the federal waiver that let California set stricter vehicle emission standards than the national floor; a yea narrows that state authority, so it is recorded as cutting against state power.",
+    "rationaleAt": "netlify/database/migrations/20260725010000_vr_offlabel_issue_key_correction.sql"
+   }
+  },
+  {
+   "key": "H.J.Res. 88|119|cost_living",
+   "number": "H.J.Res. 88",
+   "congress": 119,
+   "issue": "cost_living",
+   "line": "Removed the rising zero-emission sales requirement in the adopting states, so the mix of new vehicles offered there is set by the market.",
+   "term": "mix of new vehicles offered",
+   "termIn": "rationale",
+   "source": {
+    "rationale": "Removes the requirement that a rising share of new vehicle sales be zero-emission in the states that adopted the California rule, so the mix of new vehicles offered for sale there is set by the market rather than by the mandate schedule. A yea lifts that constraint on what a buyer can choose from.",
+    "rationaleAt": "netlify/database/migrations/20260906000000_vr_rewrite_framed_mapping_rationales.sql"
+   }
+  },
+  {
+   "key": "H.J.Res. 89|119|states_federal_power",
+   "number": "H.J.Res. 89",
+   "congress": 119,
+   "issue": "states_federal_power",
+   "line": "Repealed the federal waiver that let California set stricter heavy-truck standards than the national floor, narrowing that state authority.",
+   "term": "stricter heavy-truck standards than the national floor",
+   "termIn": "rationale",
+   "source": {
+    "rationale": "Repeals the federal waiver that let California set stricter heavy-truck standards than the national floor; a yea narrows that state authority, so it is recorded as cutting against state power.",
+    "rationaleAt": "netlify/database/migrations/20260725010000_vr_offlabel_issue_key_correction.sql"
+   }
+  },
+  {
+   "key": "H.J.Res. 89|119|cost_living",
+   "number": "H.J.Res. 89",
+   "congress": 119,
+   "issue": "cost_living",
+   "line": "Ended the zero-emission share required of new trucks sold in the adopting states, leaving fleet purchasers free to buy conventional trucks.",
+   "term": "free to buy conventional trucks",
+   "termIn": "rationale",
+   "source": {
+    "rationale": "Ends the requirement that a rising share of new medium- and heavy-duty trucks sold in the adopting states be zero-emission, leaving fleet purchasers free to buy conventional trucks. A yea removes that purchase requirement from the freight chain.",
+    "rationaleAt": "netlify/database/migrations/20260906000000_vr_rewrite_framed_mapping_rationales.sql"
+   }
+  }
+ ],
+ "measures": {
+  "H.J.Res. 88|119": {
+   "status": "enacted",
+   "title": "Providing for congressional disapproval of the Environmental Protection Agency waiver for the California Advanced Clean Cars II regulations",
+   "summary": "A Congressional Review Act resolution revoking the EPA waiver that let California require rising zero-emission-vehicle sales (the Advanced Clean Cars II rule) adopted by a dozen other states. Enacted 2025-06-12.",
+   "summaryAt": "netlify/database/migrations/20260721020000_seed_landmark_measures_wave9.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "roll": 114,
+     "yea": 246,
+     "nay": 164
+    },
+    {
+     "chamber": "senate",
+     "roll": 277,
+     "yea": 51,
+     "nay": 44
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "climate_action",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Repeals the waiver behind California's EV sales mandate; a yea rolls back a major state climate rule."
+    },
+    {
+     "issueKey": "energy_production",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Revokes the Clean Air Act waiver behind California's Advanced Clean Cars II rule, ending the requirement that a rising share of new vehicles sold be zero-emission in California and in the dozen states that adopted it. A yea keeps internal-combustion vehicles saleable in those markets."
+    },
+    {
+     "issueKey": "gov_regulation",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Uses the Congressional Review Act to strike a federal waiver/rule."
+    },
+    {
+     "issueKey": "cost_living",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Removes the requirement that a rising share of new vehicle sales be zero-emission in the states that adopted the California rule, so the mix of new vehicles offered for sale there is set by the market rather than by the mandate schedule. A yea lifts that constraint on what a buyer can choose from."
+    },
+    {
+     "issueKey": "states_federal_power",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Repeals the federal waiver that let California set stricter vehicle emission standards than the national floor; a yea narrows that state authority, so it is recorded as cutting against state power."
+    }
+   ]
+  },
+  "H.J.Res. 89|119": {
+   "status": "enacted",
+   "title": "Providing for congressional disapproval of the Environmental Protection Agency waiver for the California Advanced Clean Trucks regulations",
+   "summary": "A Congressional Review Act resolution revoking the EPA waiver behind California's Advanced Clean Trucks rule, which required rising zero-emission sales of medium- and heavy-duty trucks. Enacted 2025-06-12.",
+   "summaryAt": "netlify/database/migrations/20260721020000_seed_landmark_measures_wave9.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "roll": 112,
+     "yea": 225,
+     "nay": 196
+    },
+    {
+     "chamber": "senate",
+     "roll": 281,
+     "yea": 49,
+     "nay": 46
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "climate_action",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Repeals the waiver behind California's zero-emission truck mandate; a yea rolls back a major state climate rule."
+    },
+    {
+     "issueKey": "energy_production",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Revokes the Clean Air Act waiver behind California's Advanced Clean Trucks rule, ending the requirement that a rising share of new medium- and heavy-duty truck sales be zero-emission. A yea removes that limit on conventional truck sales."
+    },
+    {
+     "issueKey": "gov_regulation",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Uses the Congressional Review Act to strike a federal waiver/rule."
+    },
+    {
+     "issueKey": "cost_living",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Ends the requirement that a rising share of new medium- and heavy-duty trucks sold in the adopting states be zero-emission, leaving fleet purchasers free to buy conventional trucks. A yea removes that purchase requirement from the freight chain."
+    },
+    {
+     "issueKey": "states_federal_power",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Repeals the federal waiver that let California set stricter heavy-truck standards than the national floor; a yea narrows that state authority, so it is recorded as cutting against state power."
+    }
+   ]
+  }
+ }
+}

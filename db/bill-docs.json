@@ -1405,11 +1405,13 @@
     },
     {
      "i": "Tackle the Cost of Living",
-     "k": "cost_living"
+     "k": "cost_living",
+     "l": "Removed the rising zero-emission sales requirement in the adopting states, so the mix of new vehicles offered there is set by the market."
     },
     {
      "i": "Whose Rule Governs: State or Federal",
-     "k": "states_federal_power"
+     "k": "states_federal_power",
+     "l": "Repealed the waiver that let California set stricter vehicle emission standards than the national floor, narrowing that state authority."
     }
    ]
   },
@@ -1436,11 +1438,13 @@
     },
     {
      "i": "Tackle the Cost of Living",
-     "k": "cost_living"
+     "k": "cost_living",
+     "l": "Ended the zero-emission share required of new trucks sold in the adopting states, leaving fleet purchasers free to buy conventional trucks."
     },
     {
      "i": "Whose Rule Governs: State or Federal",
-     "k": "states_federal_power"
+     "k": "states_federal_power",
+     "l": "Repealed the federal waiver that let California set stricter heavy-truck standards than the national floor, narrowing that state authority."
     }
    ]
   },
