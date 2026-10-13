@@ -9591,7 +9591,20 @@
 //     consistency.js is precached and changed, so the shell moves one version.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v366';
+// v367 - BLANK ROWS SLICE 7: NINETEEN LINES UNDER EIGHT ACTS AT ~110 MEMBERS.
+//     The next blank pairs after slice 6: the Israel Security Assistance
+//     Support Act (H.R. 8369, 118th) × power of the purse, the women's sports
+//     bill (H.R. 28), the fracking bill (H.R. 26), the HALT Fentanyl Act (H.R.
+//     27), the born-alive bill (H.R. 21), the health-premiums bill (H.R. 6703),
+//     the SUPPORT Act reauthorization (H.R. 2483) and the TAKE IT DOWN Act (S.
+//     146). Each line is in _DOS_EFFECT, written from that pair's own mapping
+//     rationale (db/vr-blank-rows-slice7.json names each source and the ten
+//     pairs left blank). No shipped line, score, Direction Match, NEVER_FEEDS,
+//     publication floor, money pill, district board or chip moved.
+//     consistency.js is precached and changed, so the shell moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v367';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

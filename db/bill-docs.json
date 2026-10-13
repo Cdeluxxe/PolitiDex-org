@@ -1629,7 +1629,8 @@
    "m": [
     {
      "i": "Expand Healthcare Access",
-     "k": "healthcare"
+     "k": "healthcare",
+     "l": "Would require medical care for an infant born alive after an attempted abortion; the House passed it 217-204."
     },
     {
      "i": "Pro-Life Protections",
@@ -1681,11 +1682,13 @@
     },
     {
      "i": "Energy Independence",
-     "k": "enviro_energy"
+     "k": "enviro_energy",
+     "l": "Would bar a federal fracking moratorium to protect and expand domestic oil and gas production; the House passed it 226-188."
     },
     {
      "i": "Expand Domestic Energy Production",
-     "k": "energy_production"
+     "k": "energy_production",
+     "l": "Would affirm state authority over hydraulic fracturing to keep energy output flowing; the House passed it 226-188."
     }
    ]
   },
@@ -1701,11 +1704,13 @@
     },
     {
      "i": "Stop Fentanyl & Cartels",
-     "k": "immig_fentanyl"
+     "k": "immig_fentanyl",
+     "l": "Would toughen federal scheduling of fentanyl-related substances to fight the overdose crisis; the House passed it 312-108."
     },
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Would make Schedule I placement permanent and attach mandatory penalties; the House passed it 312-108."
     }
    ]
   },
@@ -1717,7 +1722,8 @@
    "m": [
     {
      "i": "Invest in Public Schools",
-     "k": "public_schools"
+     "k": "public_schools",
+     "l": "Would apply to federally funded school and college athletic programs under Title IX; the House passed it 218-206."
     },
     {
      "i": "Parental Rights in Schools",
@@ -1725,11 +1731,13 @@
     },
     {
      "i": "Protect LGBTQ+ Rights",
-     "k": "lgbtq_rights"
+     "k": "lgbtq_rights",
+     "l": "Would restrict transgender athletes’ participation in school and college sports for women and girls; the House passed it 218-206."
     },
     {
      "i": "Strengthen Every School",
-     "k": "edu_balance"
+     "k": "edu_balance",
+     "l": "Would set a federal rule for how sex is defined in school sports eligibility; the House passed it 218-206."
     }
    ]
   },
@@ -2009,19 +2017,23 @@
    "m": [
     {
      "i": "Expand Healthcare Access",
-     "k": "healthcare"
+     "k": "healthcare",
+     "l": "Would improve access to addiction-treatment medications and expand treatment through Medicare and Medicaid; the House passed it 366-57."
     },
     {
      "i": "Help Families with Kids",
-     "k": "family_support"
+     "k": "family_support",
+     "l": "Would fund residential treatment for pregnant and postpartum women with substance-use disorders; the House passed it 366-57."
     },
     {
      "i": "Mental Health & Addiction",
-     "k": "health_mental"
+     "k": "health_mental",
+     "l": "Would reauthorize addiction and behavioral-health treatment and prevention funding; the House passed it 366-57."
     },
     {
      "i": "Stop Fentanyl & Cartels",
-     "k": "immig_fentanyl"
+     "k": "immig_fentanyl",
+     "l": "Would sustain programs aimed at the opioid and fentanyl overdose crisis; the House passed it 366-57."
     }
    ]
   },
@@ -2361,7 +2373,8 @@
    "m": [
     {
      "i": "Expand Healthcare Access",
-     "k": "healthcare"
+     "k": "healthcare",
+     "l": "Would restructure individual and small-group health-coverage rules; the House passed it 216-211."
     },
     {
      "i": "Lower Healthcare Costs",
@@ -2369,11 +2382,13 @@
     },
     {
      "i": "Lower Prescription Drug Prices",
-     "k": "health_drug_prices"
+     "k": "health_drug_prices",
+     "l": "Would add pharmacy-benefit-manager transparency standards on drug prices and rebates; the House passed it 216-211."
     },
     {
      "i": "Market-Based Healthcare",
-     "k": "healthcare_market"
+     "k": "healthcare_market",
+     "l": "Would expand association health plans and individual-coverage arrangements; the House passed it 216-211."
     }
    ]
   },
@@ -2769,15 +2784,18 @@
    "m": [
     {
      "i": "Free Speech Protections",
-     "k": "free_speech"
+     "k": "free_speech",
+     "l": "Set a notice-and-takedown duty for covered platforms, with removal within 48 hours, enforced by the FTC; the House cleared it 409-2."
     },
     {
      "i": "Privacy & Big-Tech Accountability",
-     "k": "privacy_rights"
+     "k": "privacy_rights",
+     "l": "Criminalized nonconsensual intimate imagery and required platforms to take it down; the House cleared it 409-2."
     },
     {
      "i": "Smart Tech Guardrails",
-     "k": "tech_balance"
+     "k": "tech_balance",
+     "l": "Imposed new content-removal obligations on online platforms; the House cleared it 409-2."
     }
    ]
   },

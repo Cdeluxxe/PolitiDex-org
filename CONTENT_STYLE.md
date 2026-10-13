@@ -139,6 +139,19 @@ turned into a line. `db/vr-blank-rows-slice6.json` records each line beside its
 source and lists the pairs left blank and why, and
 `scripts/test-blank-rows-slice6.mjs` holds them to these rules.
 
+Blank rows slice 7 added nineteen lines on eight acts at about 110 member rows
+each: the Israel Security Assistance Support Act (power of the purse), the
+women's sports bill, the fracking, HALT Fentanyl, born-alive, health-premiums
+and SUPPORT Act bills, and the TAKE IT DOWN Act. The rules are slice 6's, with
+one refinement: a bill that passed the House only takes the "Would" or "Would
+have" its existing lines already use, so one act never reads in two tenses. Ten
+pairs on these acts stay blank because their stored text only states an aim or
+a topic, only restates a sibling issue's fact, conflicts with the stored status,
+or is mapped in a form the repository's migration projection cannot yet read.
+`db/vr-blank-rows-slice7.json` records each line beside its source and every
+skip with its reason, and `scripts/test-blank-rows-slice7.mjs` holds them to
+these rules.
+
 ### Executive rows
 
 An executive document's row (an order, a proclamation, a memorandum, a veto)

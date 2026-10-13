@@ -18233,6 +18233,51 @@
       'Repealed the Windfall Elimination Provision and Government Pension Offset, raising benefits for public-sector retirees.',
     'H.R. 82|118|cost_living':
       'Increased monthly retirement income for affected teachers, firefighters, police and other public workers.',
+    // BLANK ROWS SLICE 7 (v367). The next blank pairs, each on about 110
+    // member rows: the Israel Security Assistance Support Act, the women's
+    // sports bill, the fracking, HALT Fentanyl, born-alive, health-premiums and
+    // SUPPORT Act bills, and the TAKE IT DOWN Act. None stores a `did`; each
+    // line is written from that pair's own mapping rationale and ends on the
+    // act's own roll, in the tense its sibling lines use where it has any.
+    // db/vr-blank-rows-slice7.json names the source of each and the pairs skipped.
+    'H.R. 8369|118|power_of_purse':
+      'Would have barred spending appropriated funds to withhold or cancel delivery of defense articles; the House passed it 224-187.',
+    'H.R. 28|119|lgbtq_rights':
+      'Would restrict transgender athletes’ participation in school and college sports for women and girls; the House passed it 218-206.',
+    'H.R. 28|119|public_schools':
+      'Would apply to federally funded school and college athletic programs under Title IX; the House passed it 218-206.',
+    'H.R. 28|119|edu_balance':
+      'Would set a federal rule for how sex is defined in school sports eligibility; the House passed it 218-206.',
+    'H.R. 26|119|enviro_energy':
+      'Would bar a federal fracking moratorium to protect and expand domestic oil and gas production; the House passed it 226-188.',
+    'H.R. 26|119|energy_production':
+      'Would affirm state authority over hydraulic fracturing to keep energy output flowing; the House passed it 226-188.',
+    'H.R. 27|119|immig_fentanyl':
+      'Would toughen federal scheduling of fentanyl-related substances to fight the overdose crisis; the House passed it 312-108.',
+    'H.R. 27|119|tough_on_crime':
+      'Would make Schedule I placement permanent and attach mandatory penalties; the House passed it 312-108.',
+    'H.R. 21|119|healthcare':
+      'Would require medical care for an infant born alive after an attempted abortion; the House passed it 217-204.',
+    'H.R. 6703|119|healthcare':
+      'Would restructure individual and small-group health-coverage rules; the House passed it 216-211.',
+    'H.R. 6703|119|healthcare_market':
+      'Would expand association health plans and individual-coverage arrangements; the House passed it 216-211.',
+    'H.R. 6703|119|health_drug_prices':
+      'Would add pharmacy-benefit-manager transparency standards on drug prices and rebates; the House passed it 216-211.',
+    'H.R. 2483|119|health_mental':
+      'Would reauthorize addiction and behavioral-health treatment and prevention funding; the House passed it 366-57.',
+    'H.R. 2483|119|immig_fentanyl':
+      'Would sustain programs aimed at the opioid and fentanyl overdose crisis; the House passed it 366-57.',
+    'H.R. 2483|119|healthcare':
+      'Would improve access to addiction-treatment medications and expand treatment through Medicare and Medicaid; the House passed it 366-57.',
+    'H.R. 2483|119|family_support':
+      'Would fund residential treatment for pregnant and postpartum women with substance-use disorders; the House passed it 366-57.',
+    'S. 146|119|privacy_rights':
+      'Criminalized nonconsensual intimate imagery and required platforms to take it down; the House cleared it 409-2.',
+    'S. 146|119|tech_balance':
+      'Imposed new content-removal obligations on online platforms; the House cleared it 409-2.',
+    'S. 146|119|free_speech':
+      'Set a notice-and-takedown duty for covered platforms, with removal within 48 hours, enforced by the FTC; the House cleared it 409-2.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is

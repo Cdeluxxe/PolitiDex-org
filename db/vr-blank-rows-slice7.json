@@ -1,0 +1,593 @@
+{
+ "_comment": "Blank rows slice 7 (v367). The next blank measure-and-issue pairs after slice 6, each on about 110 member rows in the live record, kept only where the pair's own stored text states an effect. None stores a `did`, so each line is written from its own mapping rationale (quoted here, with the file that stores it); `term` is the stored words the line carries and `termIn` names the field. Tense follows the stored outcome and, where the act already carries lines, their tense: an enacted act reads as done; a bill that passed the House only opens \"Would\" (\"Would have\" where its existing lines already do). Each line ends on the act's own recorded roll. `acts` carries every mapping on each act. `skipped` lists the pairs on these acts left blank and why. No score, weight, mapping or key is read from or written to here.",
+ "_test": "scripts/test-blank-rows-slice7.mjs",
+ "lines": 19,
+ "rows": [
+  {
+   "key": "H.R. 8369|118|power_of_purse",
+   "act": "H.R. 8369|118",
+   "issue": "power_of_purse",
+   "line": "Would have barred spending appropriated funds to withhold or cancel delivery of defense articles; the House passed it 224-187.",
+   "term": "delivery of defense articles",
+   "termIn": "rationale",
+   "rationale": "Every operative section of the bill is a spend-what-was-appropriated instrument. Section 4 bars any funds appropriated to the Departments of Defense or State for fiscal year 2024 or earlier from being used \"to withhold, halt, reverse, or cancel the delivery of defense articles or defense services\", or to pay the salary of any officer or employee who acts to support such a withholding. Section 5 requires the Secretaries of Defense and State to ensure prompt delivery of articles supported by prior appropriations Acts and gives already-withheld items a 15-day deadline. Section 6 freezes the unobligated Operation and Maintenance, Defense-Wide balances for the immediate Office of the Secretary of Defense and the Diplomatic Programs balances for the Office of the Secretary of State until each Secretary certifies and reports to the Appropriations Committees that the deadline was met. Section 3(3) states the purpose in the same terms, calling on the administration \"to utilize all congressionally appropriated funds ... as Congress intended\". A yea compels obligation and delivery of appropriated assistance the executive had paused. This measure had been left off the checks-and-balances axis in the seed on the ground that a member forcing out the paused shipments was voting about Israel; that was a reading of motive rather than of the instrument, and it predates the August 2026 split that created this mechanism key. Weighted at 60 rather than at the primary because the compulsion runs to one partner's arms transfers rather than to appropriations practice generally.",
+   "rationaleAt": "netlify/database/migrations/20260915000000_vr_formal_densification_save_risaa_isasa.sql"
+  },
+  {
+   "key": "H.R. 28|119|lgbtq_rights",
+   "act": "H.R. 28|119",
+   "issue": "lgbtq_rights",
+   "line": "Would restrict transgender athletes’ participation in school and college sports for women and girls; the House passed it 218-206.",
+   "term": "transgender athletes",
+   "termIn": "rationale",
+   "rationale": "A yea vote restricts transgender athletes' participation, cutting against expansive LGBTQ-rights policy.",
+   "rationaleAt": "netlify/database/migrations/20260719190000_seed_landmark_measures_wave3.sql"
+  },
+  {
+   "key": "H.R. 28|119|public_schools",
+   "act": "H.R. 28|119",
+   "issue": "public_schools",
+   "line": "Would apply to federally funded school and college athletic programs under Title IX; the House passed it 218-206.",
+   "term": "federally funded school and college athletic programs",
+   "termIn": "rationale",
+   "rationale": "Applies to federally funded school and college athletic programs under Title IX.",
+   "rationaleAt": "netlify/database/migrations/20260721150000_seed_legislation_deepdive2.sql"
+  },
+  {
+   "key": "H.R. 28|119|edu_balance",
+   "act": "H.R. 28|119",
+   "issue": "edu_balance",
+   "line": "Would set a federal rule for how sex is defined in school sports eligibility; the House passed it 218-206.",
+   "term": "how sex is defined",
+   "termIn": "rationale",
+   "rationale": "Sets a federal rule for how sex is defined in school sports eligibility.",
+   "rationaleAt": "netlify/database/migrations/20260721150000_seed_legislation_deepdive2.sql"
+  },
+  {
+   "key": "H.R. 26|119|enviro_energy",
+   "act": "H.R. 26|119",
+   "issue": "enviro_energy",
+   "line": "Would bar a federal fracking moratorium to protect and expand domestic oil and gas production; the House passed it 226-188.",
+   "term": "fracking moratorium",
+   "termIn": "rationale",
+   "rationale": "Protects and expands domestic oil and gas production by barring a fracking moratorium.",
+   "rationaleAt": "netlify/database/migrations/20260719170000_seed_landmark_measures.sql"
+  },
+  {
+   "key": "H.R. 26|119|energy_production",
+   "act": "H.R. 26|119",
+   "issue": "energy_production",
+   "line": "Would affirm state authority over hydraulic fracturing to keep energy output flowing; the House passed it 226-188.",
+   "term": "state authority over hydraulic fracturing",
+   "termIn": "rationale",
+   "rationale": "Affirms state authority over hydraulic fracturing to keep energy output flowing.",
+   "rationaleAt": "netlify/database/migrations/20260719170000_seed_landmark_measures.sql"
+  },
+  {
+   "key": "H.R. 27|119|immig_fentanyl",
+   "act": "H.R. 27|119",
+   "issue": "immig_fentanyl",
+   "line": "Would toughen federal scheduling of fentanyl-related substances to fight the overdose crisis; the House passed it 312-108.",
+   "term": "federal scheduling of fentanyl-related substances",
+   "termIn": "rationale",
+   "rationale": "Toughens federal scheduling of fentanyl-related substances to fight the overdose crisis.",
+   "rationaleAt": "netlify/database/migrations/20260719170000_seed_landmark_measures.sql"
+  },
+  {
+   "key": "H.R. 27|119|tough_on_crime",
+   "act": "H.R. 27|119",
+   "issue": "tough_on_crime",
+   "line": "Would make Schedule I placement permanent and attach mandatory penalties; the House passed it 312-108.",
+   "term": "mandatory penalties",
+   "termIn": "rationale",
+   "rationale": "A tough-on-crime drug-enforcement measure with permanent Schedule I placement and mandatory penalties.",
+   "rationaleAt": "netlify/database/migrations/20260719170000_seed_landmark_measures.sql"
+  },
+  {
+   "key": "H.R. 21|119|healthcare",
+   "act": "H.R. 21|119",
+   "issue": "healthcare",
+   "line": "Would require medical care for an infant born alive after an attempted abortion; the House passed it 217-204.",
+   "term": "infant born alive after an attempted abortion",
+   "termIn": "rationale",
+   "rationale": "Sets a federal requirement for medical care of an infant born alive after an attempted abortion.",
+   "rationaleAt": "netlify/database/migrations/20260721150000_seed_legislation_deepdive2.sql"
+  },
+  {
+   "key": "H.R. 6703|119|healthcare",
+   "act": "H.R. 6703|119",
+   "issue": "healthcare",
+   "line": "Would restructure individual and small-group health-coverage rules; the House passed it 216-211.",
+   "term": "individual and small-group health-coverage rules",
+   "termIn": "rationale",
+   "rationale": "A broad restructuring of individual and small-group health-coverage rules. Primary: the coverage rules are the bill's own operative text — which individual and small-group plans may be sold, on what terms, and with what pharmacy-benefit-manager transparency — so the healthcare relation is the instrument's subject rather than a by-product of a vehicle carrying other cargo; every one of this measure's four mappings is a health key. Weighted 70 rather than 100 because healthcare_costs carries the larger share and outranks it; the weight is what ranks the axes.",
+   "rationaleAt": "netlify/database/migrations/20260922000000_vr_hr6703_healthcare_primary_lane.sql"
+  },
+  {
+   "key": "H.R. 6703|119|healthcare_market",
+   "act": "H.R. 6703|119",
+   "issue": "healthcare_market",
+   "line": "Would expand association health plans and individual-coverage arrangements; the House passed it 216-211.",
+   "term": "association health plans",
+   "termIn": "rationale",
+   "rationale": "Expands market-based options — association health plans and individual-coverage arrangements — as the mechanism to lower premiums.",
+   "rationaleAt": "netlify/database/migrations/20260721160000_seed_legislation_deepdive3.sql"
+  },
+  {
+   "key": "H.R. 6703|119|health_drug_prices",
+   "act": "H.R. 6703|119",
+   "issue": "health_drug_prices",
+   "line": "Would add pharmacy-benefit-manager transparency standards on drug prices and rebates; the House passed it 216-211.",
+   "term": "pharmacy-benefit-manager transparency",
+   "termIn": "rationale",
+   "rationale": "Adds pharmacy-benefit-manager transparency standards on drug prices and rebates.",
+   "rationaleAt": "netlify/database/migrations/20260721160000_seed_legislation_deepdive3.sql"
+  },
+  {
+   "key": "H.R. 2483|119|health_mental",
+   "act": "H.R. 2483|119",
+   "issue": "health_mental",
+   "line": "Would reauthorize addiction and behavioral-health treatment and prevention funding; the House passed it 366-57.",
+   "term": "behavioral-health treatment",
+   "termIn": "rationale",
+   "rationale": "Reauthorizes addiction and behavioral-health treatment and prevention funding.",
+   "rationaleAt": "netlify/database/migrations/20260719190000_seed_landmark_measures_wave3.sql"
+  },
+  {
+   "key": "H.R. 2483|119|immig_fentanyl",
+   "act": "H.R. 2483|119",
+   "issue": "immig_fentanyl",
+   "line": "Would sustain programs aimed at the opioid and fentanyl overdose crisis; the House passed it 366-57.",
+   "term": "opioid and fentanyl overdose crisis",
+   "termIn": "rationale",
+   "rationale": "Sustains programs aimed at the opioid and fentanyl overdose crisis.",
+   "rationaleAt": "netlify/database/migrations/20260719190000_seed_landmark_measures_wave3.sql"
+  },
+  {
+   "key": "H.R. 2483|119|healthcare",
+   "act": "H.R. 2483|119",
+   "issue": "healthcare",
+   "line": "Would improve access to addiction-treatment medications and expand treatment through Medicare and Medicaid; the House passed it 366-57.",
+   "term": "addiction-treatment medications",
+   "termIn": "rationale",
+   "rationale": "Improves access to addiction-treatment medications and expands treatment through Medicare and Medicaid.",
+   "rationaleAt": "netlify/database/migrations/20260721160000_seed_legislation_deepdive3.sql"
+  },
+  {
+   "key": "H.R. 2483|119|family_support",
+   "act": "H.R. 2483|119",
+   "issue": "family_support",
+   "line": "Would fund residential treatment for pregnant and postpartum women with substance-use disorders; the House passed it 366-57.",
+   "term": "pregnant and postpartum women",
+   "termIn": "rationale",
+   "rationale": "Funds residential treatment and recovery services for pregnant and postpartum women with substance-use disorders.",
+   "rationaleAt": "netlify/database/migrations/20260721160000_seed_legislation_deepdive3.sql"
+  },
+  {
+   "key": "S. 146|119|privacy_rights",
+   "act": "S. 146|119",
+   "issue": "privacy_rights",
+   "line": "Criminalized nonconsensual intimate imagery and required platforms to take it down; the House cleared it 409-2.",
+   "term": "nonconsensual intimate imagery",
+   "termIn": "rationale",
+   "rationale": "A yea vote criminalizes nonconsensual intimate imagery and mandates platform takedowns.",
+   "rationaleAt": "netlify/database/migrations/20260719230000_seed_landmark_measures_wave5.sql"
+  },
+  {
+   "key": "S. 146|119|tech_balance",
+   "act": "S. 146|119",
+   "issue": "tech_balance",
+   "line": "Imposed new content-removal obligations on online platforms; the House cleared it 409-2.",
+   "term": "content-removal obligations",
+   "termIn": "rationale",
+   "rationale": "Imposes new content-removal obligations on online platforms.",
+   "rationaleAt": "netlify/database/migrations/20260719230000_seed_landmark_measures_wave5.sql"
+  },
+  {
+   "key": "S. 146|119|free_speech",
+   "act": "S. 146|119",
+   "issue": "free_speech",
+   "line": "Set a notice-and-takedown duty for covered platforms, with removal within 48 hours, enforced by the FTC; the House cleared it 409-2.",
+   "term": "notice-and-takedown duty",
+   "termIn": "rationale",
+   "rationale": "Imposes a federal notice-and-takedown duty on covered online platforms: reported nonconsensual intimate imagery must be removed within 48 hours of notice, enforced by the FTC, with a liability shield for good-faith removals. A yea creates a statutory removal obligation over already-published content.",
+   "rationaleAt": "netlify/database/migrations/20260906000000_vr_rewrite_framed_mapping_rationales.sql"
+  }
+ ],
+ "acts": {
+  "H.R. 8369|118": {
+   "status": "passed_house",
+   "title": "Israel Security Assistance Support Act",
+   "summary": "Requires the President to deliver to Israel the defense articles and defense services that Congress has already authorized and appropriated, and withholds salaries and expenses funding from the Office of the Secretary of Defense, the Office of the Secretary of State and the National Security Council until the withheld shipments are delivered. Introduced after the administration paused a shipment of 2,000-pound and 500-pound bombs. Passed the House 224-187 on 2024-05-16; the Senate did not take it up.",
+   "summaryAt": "netlify/database/migrations/20260812000000_vr_israel_support_rollcalls.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 2,
+     "roll": 217,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 224,
+     "nay": 187
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "israel_support",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Requires the President to deliver to Israel the defense articles and services Congress has already authorized and appropriated, and withholds salaries-and-expenses funding from the Office of the Secretary of Defense, the Office of the Secretary of State and the National Security Council until the withheld shipments go out. Introduced after the administration paused a shipment of 2,000-pound and 500-pound bombs. A yea forces the transfer."
+    },
+    {
+     "issueKey": "power_of_purse",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Every operative section of the bill is a spend-what-was-appropriated instrument. Section 4 bars any funds appropriated to the Departments of Defense or State for fiscal year 2024 or earlier from being used \"to withhold, halt, reverse, or cancel the delivery of defense articles or defense services\", or to pay the salary of any officer or employee who acts to support such a withholding. Section 5 requires the Secretaries of Defense and State to ensure prompt delivery of articles supported by prior appropriations Acts and gives already-withheld items a 15-day deadline. Section 6 freezes the unobligated Operation and Maintenance, Defense-Wide balances for the immediate Office of the Secretary of Defense and the Diplomatic Programs balances for the Office of the Secretary of State until each Secretary certifies and reports to the Appropriations Committees that the deadline was met. Section 3(3) states the purpose in the same terms, calling on the administration \"to utilize all congressionally appropriated funds ... as Congress intended\". A yea compels obligation and delivery of appropriated assistance the executive had paused. This measure had been left off the checks-and-balances axis in the seed on the ground that a member forcing out the paused shipments was voting about Israel; that was a reading of motive rather than of the instrument, and it predates the August 2026 split that created this mechanism key. Weighted at 60 rather than at the primary because the compulsion runs to one partner's arms transfers rather than to appropriations practice generally."
+    }
+   ]
+  },
+  "H.R. 28|119": {
+   "status": "passed_house",
+   "title": "Protection of Women and Girls in Sports Act",
+   "summary": "Amends Title IX so that eligibility for school and college athletic programs designated for women or girls is based on sex at birth.",
+   "summaryAt": "netlify/database/migrations/20260719190000_seed_landmark_measures_wave3.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 12,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 218,
+     "nay": 206
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "lgbtq_rights",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "A yea vote restricts transgender athletes' participation, cutting against expansive LGBTQ-rights policy."
+    },
+    {
+     "issueKey": "edu_parental",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "A yea vote aligns with the sex-at-birth Title IX definition favored on parental-rights grounds."
+    },
+    {
+     "issueKey": "public_schools",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Applies to federally funded school and college athletic programs under Title IX."
+    },
+    {
+     "issueKey": "edu_balance",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sets a federal rule for how sex is defined in school sports eligibility."
+    }
+   ]
+  },
+  "H.R. 26|119": {
+   "status": "passed_house",
+   "title": "Protecting American Energy Production Act",
+   "summary": "Bars a federal moratorium on hydraulic fracturing and affirms state primacy over it.",
+   "summaryAt": "netlify/database/migrations/20260719170000_seed_landmark_measures.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 35,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 226,
+     "nay": 188
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "enviro_energy",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Protects and expands domestic oil and gas production by barring a fracking moratorium."
+    },
+    {
+     "issueKey": "energy_production",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Affirms state authority over hydraulic fracturing to keep energy output flowing."
+    },
+    {
+     "issueKey": "gov_regulation",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Restricts the executive from imposing a federal ban on hydraulic fracturing."
+    },
+    {
+     "issueKey": "lands_energy",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Concerns energy development on and under public and private lands."
+    },
+    {
+     "issueKey": "states_federal_power",
+     "weight": 65,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Bars a federal moratorium on hydraulic fracturing and affirms state primacy over its regulation; a yea keeps the decision with the states rather than Washington, so it is recorded as supporting state authority."
+    }
+   ]
+  },
+  "H.R. 27|119": {
+   "status": "passed_house",
+   "title": "HALT Fentanyl Act",
+   "summary": "Permanently places fentanyl-related substances in Schedule I of the Controlled Substances Act.",
+   "summaryAt": "netlify/database/migrations/20260719170000_seed_landmark_measures.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 33,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 312,
+     "nay": 108
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "immig_fentanyl",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Toughens federal scheduling of fentanyl-related substances to fight the overdose crisis."
+    },
+    {
+     "issueKey": "tough_on_crime",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "A tough-on-crime drug-enforcement measure with permanent Schedule I placement and mandatory penalties."
+    },
+    {
+     "issueKey": "health_mental",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Aimed at the fentanyl overdose crisis by permanently scheduling fentanyl-related substances; touches the public-health dimension of addiction."
+    }
+   ]
+  },
+  "H.R. 21|119": {
+   "status": "passed_house",
+   "title": "Born-Alive Abortion Survivors Protection Act",
+   "summary": "Requires health-care practitioners to provide care to any infant born alive during an abortion.",
+   "summaryAt": "netlify/database/migrations/20260719180000_seed_landmark_measures_wave2.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 27,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 217,
+     "nay": 204
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "pro_life",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "A yea vote advances abortion restrictions / anti-abortion policy."
+    },
+    {
+     "issueKey": "healthcare",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sets a federal requirement for medical care of an infant born alive after an attempted abortion."
+    }
+   ]
+  },
+  "H.R. 6703|119": {
+   "status": "passed_house",
+   "title": "Lower Health Care Premiums for All Americans Act",
+   "summary": "Expands association and individual-market health-plan options and adds pharmacy-benefit-manager transparency requirements.",
+   "summaryAt": "netlify/database/migrations/20260719180000_seed_landmark_measures_wave2.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 349,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 216,
+     "nay": 211
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "healthcare_costs",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "A yea vote advances the bill's market-based approach to lowering health-insurance premiums."
+    },
+    {
+     "issueKey": "healthcare",
+     "weight": 70,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "A broad restructuring of individual and small-group health-coverage rules. Primary: the coverage rules are the bill's own operative text — which individual and small-group plans may be sold, on what terms, and with what pharmacy-benefit-manager transparency — so the healthcare relation is the instrument's subject rather than a by-product of a vehicle carrying other cargo; every one of this measure's four mappings is a health key. Weighted 70 rather than 100 because healthcare_costs carries the larger share and outranks it; the weight is what ranks the axes."
+    },
+    {
+     "issueKey": "healthcare_market",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Expands market-based options — association health plans and individual-coverage arrangements — as the mechanism to lower premiums."
+    },
+    {
+     "issueKey": "health_drug_prices",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Adds pharmacy-benefit-manager transparency standards on drug prices and rebates."
+    }
+   ]
+  },
+  "H.R. 2483|119": {
+   "status": "passed_house",
+   "title": "SUPPORT for Patients and Communities Reauthorization Act",
+   "summary": "Reauthorizes federal opioid and substance-use-disorder treatment, recovery and prevention programs.",
+   "summaryAt": "netlify/database/migrations/20260719190000_seed_landmark_measures_wave3.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 151,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 366,
+     "nay": 57
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "health_mental",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Reauthorizes addiction and behavioral-health treatment and prevention funding."
+    },
+    {
+     "issueKey": "immig_fentanyl",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sustains programs aimed at the opioid and fentanyl overdose crisis."
+    },
+    {
+     "issueKey": "healthcare",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Improves access to addiction-treatment medications and expands treatment through Medicare and Medicaid."
+    },
+    {
+     "issueKey": "family_support",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Funds residential treatment and recovery services for pregnant and postpartum women with substance-use disorders."
+    }
+   ]
+  },
+  "S. 146|119": {
+   "status": "enacted",
+   "title": "TAKE IT DOWN Act",
+   "summary": "Criminalizes the publication of nonconsensual intimate imagery — including AI-generated \"deepfakes\" — and requires online platforms to remove such content within 48 hours of notice. Signed into law May 19, 2025.",
+   "summaryAt": "netlify/database/migrations/20260719230000_seed_landmark_measures_wave5.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 104,
+     "question": "On Motion to Suspend the Rules and Pass",
+     "result": "passed",
+     "yea": 409,
+     "nay": 2
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "privacy_rights",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "A yea vote criminalizes nonconsensual intimate imagery and mandates platform takedowns."
+    },
+    {
+     "issueKey": "tech_balance",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Imposes new content-removal obligations on online platforms."
+    },
+    {
+     "issueKey": "free_speech",
+     "weight": 30,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Imposes a federal notice-and-takedown duty on covered online platforms: reported nonconsensual intimate imagery must be removed within 48 hours of notice, enforced by the FTC, with a liability shield for good-faith removals. A yea creates a statutory removal obligation over already-published content."
+    }
+   ]
+  }
+ },
+ "skipped": [
+  {
+   "key": "H.R. 29|119|deportations",
+   "members": 110,
+   "why": "Tense conflict: the stored status is passed_house and the act's existing lines read \"Would\", while the stored summary says it became Public Law 119-1. The row already prints a pointer to the act's Strong Border line."
+  },
+  {
+   "key": "H.R. 29|119|state_standing",
+   "members": 110,
+   "why": "Same tense conflict as H.R. 29's deportations row; the row already prints a pointer to the act's Strong Border line."
+  },
+  {
+   "key": "H.R. 28|119|edu_parental",
+   "members": 110,
+   "why": "The rationale states only how the vote aligns with a position (\"favored on parental-rights grounds\"); the one fact in it, the sex-at-birth definition, is the edu_balance row's own subject, so a line would restate a sibling."
+  },
+  {
+   "key": "H.R. 6126|118|strong_defense",
+   "members": 110,
+   "why": "Mapped in the live database by migration 20260918000000_vr_identity_densification_wave2, in a form the repository's migration projection (scripts/vr-measure-addresses.mjs) does not read and absent from db/vr-issue-seed.json, so no offline store shows the pair as mapped. Fix that projection first; the rationale is ready to write from."
+  },
+  {
+   "key": "H.R. 26|119|states_federal_power",
+   "members": 109,
+   "why": "Mapped only through 20260725020000_vr_institutional_keys_backfill's VALUES list, which the repository's projection does not read (the S. 1582 gap from slice 6); its fact, state primacy over fracking, is also the energy_production line's."
+  },
+  {
+   "key": "H.R. 26|119|gov_regulation",
+   "members": 109,
+   "why": "The rationale's one fact, barring a federal fracking ban, is the enviro_energy line's own subject, so a line would restate a sibling."
+  },
+  {
+   "key": "H.R. 26|119|lands_energy",
+   "members": 109,
+   "why": "The rationale (\"Concerns energy development on and under public and private lands\") states a topic, not an effect."
+  },
+  {
+   "key": "H.R. 27|119|health_mental",
+   "members": 109,
+   "why": "The rationale's one effect, permanent scheduling of fentanyl-related substances, is the immig_fentanyl line's own subject; the rest only says the bill touches a public-health dimension."
+  },
+  {
+   "key": "H.R. 21|119|pro_life",
+   "members": 109,
+   "why": "The rationale states a direction only (\"advances abortion restrictions\"); the one concrete requirement in the act's stored text is the healthcare row's own rationale."
+  },
+  {
+   "key": "H.R. 6703|119|healthcare_costs",
+   "members": 109,
+   "why": "The rationale states an aim only (\"a market-based approach to lowering premiums\"); the mechanism it names is the healthcare_market row's own subject."
+  }
+ ],
+ "next": "After this slice the remaining blank federal pairs sit at about 109 member rows and below; regenerate the census (blank pairs ranked by distinct member rows in the live record) before choosing slice 8. The projection gap in scripts/vr-measure-addresses.mjs now blocks three ready pairs (S. 1582 and H.R. 26 × states_federal_power, H.R. 6126 × strong_defense) and is worth fixing first."
+}
