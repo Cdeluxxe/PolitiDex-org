@@ -43,6 +43,7 @@ import { createHash } from "node:crypto";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
+import { keysAfter } from "./vr-slice-blocks.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -64,7 +65,9 @@ const PRES = "trump";
 // stood before it. A changed byte in any of them moves a hash.
 const PIN = {
   shippedExec: { n: 15, sha: "00b1236972e67c446b80fb7deb4ff3f967d3506d2b4b837c3cca42de82d78e55" },
-  _DOS_EFFECT: "5aa83bf21664139cd4d6b9e43d5eb4ef16324a4f3460c0e7f4420e6d7aee2b09",
+  // "key\tline" for every vote line as it stood, in table order; a later vote
+  // slice's own block (vr-slice-blocks.mjs) is that slice's to pin.
+  _DOS_EFFECT: { n: 309, sha: "a72613c874e79404dab6a92daac8d4d282907c6d76631de5a7a9c4517a8fef3b" },
   _DOS_MECH: "11a995d45af07637efe7e1bc1625efa27fb37c26d0718a1af1fdde654e5579a3",
   _DOS_POINTER: "cb4fcb1652dc2e45af694a7c63c8831c62e08715b201bcfde24adaadfce909e4",
 };
@@ -207,7 +210,12 @@ function check(src, ledger, { pids = ALL_PIDS, base = null } = {}) {
   // ── 4 · nothing shipped moved, and the tables stay apart ──────────────────
   ok(shippedX.length === PIN.shippedExec.n && sha(shippedX.map(([k, v]) => k + "\t" + v).join("\n")) === PIN.shippedExec.sha,
     "a shipped executive line was rewritten, removed or added outside the slice");
-  ok(sha(E.text) === PIN._DOS_EFFECT, "_DOS_EFFECT (the vote lines, the fiscal slice among them) is not byte-identical to before the slice");
+  {
+    const newer = keysAfter(src, "_DOS_EFFECT", 361);
+    const kept = Object.entries(E.map).filter(([k]) => !newer.has(k));
+    ok(kept.length === PIN._DOS_EFFECT.n && sha(kept.map(([k, v]) => k + "\t" + v).join("\n")) === PIN._DOS_EFFECT.sha,
+      "_DOS_EFFECT (the vote lines, the fiscal slice among them) is not byte-identical to before the slice");
+  }
   for (const name of ["_DOS_MECH", "_DOS_POINTER"]) {
     const t = mapOf(src, name);
     ok(t && sha(t.text) === PIN[name], `${name} is not byte-identical to before the slice`);
@@ -245,7 +253,9 @@ function check(src, ledger, { pids = ALL_PIDS, base = null } = {}) {
     ok(low(s).includes(low(term)), `${k}: the line does not carry its source term "${term}"`);
     // No new facts: every figure the line names is a figure its own pair stores.
     const srcText = [m.plain, m.rationale, m.counts, x.title].map(norm).join(" ");
-    for (const fig of s.match(/\d[\d,.]*\d|\d/g) || []) ok(srcText.includes(fig), `${k}: the figure "${fig}" is not in this pair's own stored text`);
+    // Whole figures, not substrings: "30" is not in text that says "303A".
+    const srcFigs = new Set(srcText.match(/\d[\d,.]*\d|\d/g) || []);
+    for (const fig of s.match(/\d[\d,.]*\d|\d/g) || []) ok(srcFigs.has(fig), `${k}: the figure "${fig}" is not in this pair's own stored text`);
     for (const [j, w] of Object.entries(X.map)) {
       if (j === k || splitKey(j)[0] !== doc) continue;
       ok(norm(w) !== s, `${k}: borrowed from ${j}`);

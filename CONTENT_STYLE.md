@@ -106,6 +106,15 @@ and H.R. 1 of the 119th Congress. `db/vr-fiscal-effect-lines.json` records each
 line with the source it was written from, and
 `scripts/test-fiscal-effect-lines.mjs` holds them to these rules.
 
+Long-did overrides slice 3 added three lines on H.R. 8595 of the 119th, for
+the election security, voter ID and voting access pairs. Each stored `did` runs
+past one sentence or 140 characters, so the row printed nothing. Each line is
+written from that `did` alone: the facts it names, and every figure, are the
+`did`'s own, and the `did` itself is unchanged. `db/vr-long-did-effect-lines.json`
+records each line beside the `did` it came from, and
+`scripts/test-long-did-effect-lines.mjs` holds them to these rules. H.R. 1968's
+two long-`did` pairs already carried slice 1's lines and were left as they were.
+
 ### Executive rows
 
 An executive document's row (an order, a proclamation, a memorandum, a veto)

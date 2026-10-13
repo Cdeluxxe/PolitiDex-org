@@ -18090,6 +18090,17 @@
       'Added a large increase in defense and military spending; the House cleared it 218-214, the Senate 50-50.',
     'H.R. 1|119|tax_middle_class':
       'Made the 2017 individual income-tax rates permanent and added temporary deductions for tips and overtime pay; the House cleared it 218-214.',
+    // LONG-DID OVERRIDES SLICE 3 (v362). The three pairs on H.R. 8595 of the
+    // 119th whose stored `did` is too long to stand under a row and that printed
+    // nothing. Each is written from that pair's own `did` and nothing else; the
+    // `did` stays as it is. The bill passed the House only, so each opens "Would".
+    // db/vr-long-did-effect-lines.json names the source of each.
+    'H.R. 8595|119|election_security':
+      'Would bar states from processing a federal registration application without documentary proof of citizenship; the House passed it 217-209.',
+    'H.R. 8595|119|voter_id':
+      'Would bar officials from handing an in-person voter a federal ballot without valid photo identification; the House passed it 217-209.',
+    'H.R. 8595|119|voting_access':
+      'Would gate both steps of casting a federal ballot, registering and voting, behind a document; the House passed it 217-209.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is

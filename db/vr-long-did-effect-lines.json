@@ -1,0 +1,112 @@
+{
+ "_comment": "Long-did overrides slice 3 (v362). The pairs whose stored `did` in consistency.js _DOS_MECH is too long or runs to more than one sentence, so the row prints nothing. Five were named; two of them, H.R. 1968 × health_rural and × immig_fentanyl, already carry a line written from their own `did` by budget and fiscal slice 1 (v360) and are left untouched. The three on H.R. 8595 of the 119th each now carry one line, stored once in _DOS_EFFECT under the LONG-DID OVERRIDES SLICE 3 marker and written from that pair's own `did` and nothing else. `did` is a copy of the stored text, which this slice does not edit; `term` is the words of it the line carries. H.R. 8595 passed the House only, so each line opens \"Would\" and ends on its passage roll. `measure` carries every mapping the database holds on the act, so a test can rebuild the rows the offline seed lacks. No score, weight, mapping or key is read from or written to here.",
+ "_test": "scripts/test-long-did-effect-lines.mjs",
+ "lines": 3,
+ "rows": [
+  {
+   "key": "H.R. 8595|119|election_security",
+   "number": "H.R. 8595",
+   "congress": 119,
+   "issue": "election_security",
+   "line": "Would bar states from processing a federal registration application without documentary proof of citizenship; the House passed it 217-209.",
+   "term": "registration application",
+   "did": "Division B of the fiscal 2027 national security and State Department appropriations bill is the Safeguard American Voter Eligibility Act. Sec. 102 amends the National Voter Registration Act so that no state may accept and process a federal registration application under any method — mail, motor-vehicle or agency — unless the applicant presents documentary proof of United States citizenship, and it fixes the acceptable-document list in federal law.",
+   "didLength": 451
+  },
+  {
+   "key": "H.R. 8595|119|voter_id",
+   "number": "H.R. 8595",
+   "congress": 119,
+   "issue": "voter_id",
+   "line": "Would bar officials from handing an in-person voter a federal ballot without valid photo identification; the House passed it 217-209.",
+   "term": "photo identification",
+   "did": "Sec. 103 of the same Division B adds a new section 303A to the Help America Vote Act: an election official may not hand an in-person voter a federal ballot without a valid physical photo identification, and a mail voter must enclose a copy of one, or the last four digits of a Social Security number with an affidavit.",
+   "didLength": 318
+  },
+  {
+   "key": "H.R. 8595|119|voting_access",
+   "number": "H.R. 8595",
+   "congress": 119,
+   "issue": "voting_access",
+   "line": "Would gate both steps of casting a federal ballot, registering and voting, behind a document; the House passed it 217-209.",
+   "term": "both steps of casting a federal ballot",
+   "did": "Both steps of casting a federal ballot are gated by Division B: documentary proof of citizenship before a state may put an applicant on the roll under Sec. 102, and photo identification before an official may issue or count a ballot under Sec. 103.",
+   "didLength": 248
+  }
+ ],
+ "skipped": [
+  {
+   "key": "H.R. 1968|119|health_rural",
+   "why": "Already prints a line: budget and fiscal slice 1 (v360) wrote it from this pair's own `did`.",
+   "line": "Extended the Medicare-Dependent Hospital Program and other health authorities due to lapse on March 31, 2025; the House passed it 217-213."
+  },
+  {
+   "key": "H.R. 1968|119|immig_fentanyl",
+   "why": "Already prints a line: budget and fiscal slice 1 (v360) wrote it from this pair's own `did`.",
+   "line": "Extended the order placing fentanyl-related substances in schedule I as a class to September 30, 2025; the House passed it 217-213."
+  }
+ ],
+ "measure": {
+  "key": "H.R. 8595|119",
+  "status": "passed_house",
+  "roll": {
+   "chamber": "house",
+   "session": 2,
+   "roll": 247,
+   "question": "On Passage",
+   "yea": 217,
+   "nay": 209
+  },
+  "issues": [
+   {
+    "issueKey": "gov_services",
+    "weight": 100,
+    "isPrimary": true,
+    "supportMeaning": "yea_supports",
+    "rationale": "Full-year appropriations bill funding the Department of State and related international programs; a yea keeps those federal operations and programs funded for FY2027."
+   },
+   {
+    "issueKey": "strong_defense",
+    "weight": 60,
+    "isPrimary": false,
+    "supportMeaning": "yea_supports",
+    "rationale": "The Act makes the fiscal 2027 appropriations for national security, State Department and related programs, so a yea funds those accounts for the year. Weighted 60 rather than at the primary because an appropriations vehicle sets amounts for programs already authorised elsewhere and takes no position on force structure, procurement or posture — and because the same bill carries the SAVE Act, which is scored on the elections rows rather than here."
+   },
+   {
+    "issueKey": "israel_support",
+    "weight": 55,
+    "isPrimary": false,
+    "supportMeaning": "yea_supports",
+    "rationale": "Sec. 7048(d) bars funds for the United Nations Human Rights Council, the Commission of Inquiry on the Occupied Palestinian Territory, East Jerusalem and Israel, and the Office of the High Commissioner for Human Rights. Sec. 7048(e) makes the bar on UNRWA permanent across this and prior Acts and extends it to soliciting UNRWA funds from other donors. Sec. 7049 conditions United Nations Secretariat funding on written assurance that UNRWA staff immunities will not be asserted for terrorism, material support or gross human-rights violations, and on inspector-general oversight of Gaza activities and the October 7, 2023 attacks. Sec. 7004(e) bars moving the United States embassy to Israel out of Jerusalem, and Sec. 7041(c) directs not less than $3,300,000,000 in Foreign Military Financing grants only for Israel."
+   },
+   {
+    "issueKey": "pro_life",
+    "weight": 35,
+    "isPrimary": false,
+    "supportMeaning": "yea_supports",
+    "rationale": "Sec. 7018 bars funds made available to carry out part I of the Foreign Assistance Act of 1961 from paying for abortion as a method of family planning or from motivating or coercing any person to practice abortion. Recorded neutrally and weighted low on the H.R. 6703 precedent: a continuation of a long-standing rider rather than a new position taken on this vote."
+   },
+   {
+    "issueKey": "election_security",
+    "weight": 100,
+    "isPrimary": false,
+    "supportMeaning": "yea_supports",
+    "rationale": "Division B is the Safeguard American Voter Eligibility Act, and its section 102 rewrites the National Voter Registration Act so that \"[u]nder any method of voter registration in a State, the State shall not accept and process an application to register to vote in an election for Federal office unless the applicant presents documentary proof of United States citizenship\". A new NVRA section 3(b) fixes the acceptable-document list in federal law — a REAL ID-compliant credential indicating citizenship, a United States passport, a military identification card with a record of service showing a United States place of birth, or a Federal, State or Tribal photo identification showing the same — and section 102 extends the requirement to the mail form, to the motor-vehicle channel and to voter registration agencies, which must record receipt of the proof for each applicant. A yea enacts that regime; a nay leaves registration on attestation of citizenship under penalty of perjury. The row is weighted 100 because within Division B this is the operative purpose, and it is secondary rather than primary because gov_services already holds the primary flag for the appropriations vehicle Division A funds, which is the same shape H.R. 22 carries on this key."
+   },
+   {
+    "issueKey": "voter_id",
+    "weight": 70,
+    "isPrimary": false,
+    "supportMeaning": "yea_supports",
+    "rationale": "Division B section 103 inserts a new section 303A into title III of the Help America Vote Act: \"the appropriate State or local election official may not provide a ballot for an election for Federal office to an individual who desires to vote in person unless the individual presents to the official a valid physical photo identification\", and may not accept a ballot cast other than in person without a copy of one. New section 303A(c) enumerates what counts — a State driver's license or motor-vehicle identification card with a photo and an expiration date, a United States passport, a military identification, or a Tribal photo identification with an expiration date. Section 303A(d) requires every State to notify registrants of the requirement at the time they apply, and online registration systems to do so before the application is completed. This is the corpus's second instrument on the key and the first to reach the casting step: H.R. 22's requirement runs to registration, and this one runs to the ballot itself. Weighted 70 rather than at the citizenship requirement's level because section 103 is one of Division B's two operative sections and the narrower of them."
+   },
+   {
+    "issueKey": "voting_access",
+    "weight": 60,
+    "isPrimary": false,
+    "supportMeaning": "yea_opposes",
+    "rationale": "Both steps of casting a federal ballot are gated by Division B: section 102 conditions getting on the rolls on documentary proof of citizenship, and section 103 conditions receiving or having counted a ballot on photo identification. A yea adds two documentary conditions that do not exist in current federal law, which is what this key measures, so the row is coded yea_opposes. The provisions running the other way were read and are named rather than dropped. Section 102 requires the election official to send an applicant who has not met the requirement a notice with instructions for meeting it, requires each State in consultation with the Election Assistance Commission to make reasonable accommodations for an applicant with a disability using the mail form, and requires each State to establish a process under which an applicant who cannot produce a listed document may sign an attestation under penalty of perjury and submit other evidence for an official determination. Section 103 lets an in-person voter without identification cast a provisional ballot and cure it within 3 days, or file a State affidavit of religious objection to being photographed; lets a mail voter who cannot obtain a copy after reasonable efforts substitute the last four digits of a Social Security number plus an affidavit; exempts absent uniformed services voters and voters covered by the Voting Accessibility for the Elderly and Handicapped Act entirely; and directs States to provide free public access to a copier or scanner in courts, libraries and police stations. Those are cure paths and exemptions around a requirement, not the absence of one, which is why the row is directional. Weighted 60 rather than at the level S. 1383 carries because there the requirement is the whole bill and here it is one division of a vehicle whose other division is the appropriation."
+   }
+  ]
+ }
+}

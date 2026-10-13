@@ -43,6 +43,7 @@ import { createHash } from "node:crypto";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
+import { keysAfter } from "./vr-slice-blocks.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -88,17 +89,26 @@ function mapOf(src, name) {
   return { text: src.slice(at, end + 4), map: vm.runInNewContext("(" + src.slice(at + `var ${name} = `.length, end + 4) + ")") };
 }
 // The slice's keys, read from the marked block to the end of the table.
+// The block runs from its marker to the next slice's marker (a later slice
+// writes its own block after this one) or to the end of the table.
+function blockEnd(src, a) {
+  const end = src.indexOf("\n  };", a);
+  const re = /\n {4}\/\/ [A-Z][A-Z -]* SLICE \d+ \(v\d+\)\./g;
+  re.lastIndex = a + MARK.length;
+  const m = re.exec(src);
+  return m && m.index < end ? m.index : end;
+}
 function blockKeys(src) {
   const a = src.indexOf(MARK);
   if (a < 0) return [];
-  const end = src.indexOf("\n  };", a);
-  return [...src.slice(a, end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+  return [...src.slice(a, blockEnd(src, a)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
 }
-// The table as it stood before this slice: the marked block taken out whole.
+// The table as it stood before this slice: the marked block taken out whole,
+// and any later slice's block left where it is.
 function withoutSlice(src) {
   const a = src.indexOf(MARK);
   if (a < 0) return src;
-  return src.slice(0, a) + src.slice(src.indexOf("\n  };", a) + 1);
+  return src.slice(0, a) + src.slice(blockEnd(src, a) + 1);
 }
 
 // ── the rolls the seeds hold, by number|congress → chamber|roll → [yea, nay] ──
@@ -255,7 +265,9 @@ function check(src, ledger, { pids = ALL_PIDS, base = null } = {}) {
   const lineOf = (k) => (E.map[k] ? norm(E.map[k]) : "");
 
   // ── 5 · nothing shipped moved ─────────────────────────────────────────────
-  const shipped = Object.entries(E.map).filter(([k]) => !NEW.has(k));
+  // A later slice's block (vr-slice-blocks.mjs) is that slice's to pin.
+  const newer = keysAfter(src, "_DOS_EFFECT", 360);
+  const shipped = Object.entries(E.map).filter(([k]) => !NEW.has(k) && !newer.has(k));
   ok(shipped.length === PIN.shipped.n && sha(shipped.map(([k, v]) => k + "\t" + v).join("\n")) === PIN.shipped.sha,
     "a shipped _DOS_EFFECT line was rewritten, removed or added outside the slice");
   {

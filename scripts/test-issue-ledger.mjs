@@ -1294,6 +1294,14 @@ section("14 · the harvest — every stored did, read against the effect rule");
   const FISCAL_KEYS = (() => {
     const src = R("consistency.js"), at = src.indexOf("// BUDGET AND FISCAL SLICE 1 (v360)");
     if (at === -1) return new Set();
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// LONG-DID OVERRIDES SLICE 3 (v362)", at);
+    return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+  })();
+  // LONG-DID OVERRIDES SLICE 3 (v362), from its marker to the end of the table,
+  // held by scripts/test-long-did-effect-lines.mjs.
+  const LONGDID_KEYS = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// LONG-DID OVERRIDES SLICE 3 (v362)");
+    if (at === -1) return new Set();
     return new Set([...src.slice(at, src.indexOf("\n  };", at)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
   })();
   const IRAN = Object.keys(EFFECT).filter((k) => /\|iran_policy$/.test(k) && !RIDER_KEYS.has(k));
@@ -1788,9 +1796,23 @@ section("14 · the harvest — every stored did, read against the effect rule");
     const m = k.split("|").slice(0, 2).join("|");
     ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
   }
-  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !FISCAL.includes(k) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
+  // LONG-DID OVERRIDES SLICE 3 (v362). The three H.R. 8595 pairs whose stored
+  // `did` is too long for a row, each written from that `did`, held in detail by
+  // scripts/test-long-did-effect-lines.mjs; here the batch rules. The bill passed
+  // the House only, so each opens "Would" and ends on its passage roll.
+  const LONGDID = [...LONGDID_KEYS];
+  ok(LONGDID.length === 3, `${LONGDID.length} long-did line(s) — the slice wrote 3`);
+  for (const k of LONGDID) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the long-did effect line`);
+    ok(!!(MECH[k] && MECH[k].did), `${k}: a long-did line on a pair that stores no did`);
+    ok(/^Would (?!have\b)/.test(v) && /; the House passed it \d+-\d+\.$/.test(v), `${k}: does not open "Would" and end on a recorded tally`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !FISCAL.includes(k) && !LONGDID.includes(k) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length + FISCAL.length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length + FISCAL.length + LONGDID.length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.

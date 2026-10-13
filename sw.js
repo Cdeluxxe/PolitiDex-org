@@ -9521,7 +9521,18 @@
 //     consistency.js is precached and changed, so the shell moves one version.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v361';
+// v362 - LONG-DID OVERRIDES SLICE 3: THREE LINES UNDER H.R. 8595. Its
+//     election_security, voter_id and voting_access pairs store a `did` too long
+//     to stand under a row, so the row printed nothing; each now carries one
+//     sentence in _DOS_EFFECT written from that `did` alone, and the `did` is
+//     unchanged (db/vr-long-did-effect-lines.json). H.R. 1968's two long-did
+//     pairs already carried slice 1's lines and are untouched. No other line,
+//     score, Direction Match, NEVER_FEEDS, publication floor, money pill or
+//     district board moved. consistency.js is precached and changed, so the
+//     shell moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v362';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
