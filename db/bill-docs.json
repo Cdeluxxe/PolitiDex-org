@@ -11,6 +11,20 @@
      "i": "Expand Voting Access",
      "k": "voting_access",
      "l": "Would have required automatic and same-day registration and fifteen days of early voting in every state; the House passed it 220-210."
+    },
+    {
+     "i": "Get Money Out of Politics",
+     "k": "campaign_finance",
+     "l": "Would have made groups spending over $10,000 name their donors and matched small House donations six to one; the House passed it 220-210."
+    },
+    {
+     "i": "Supreme Court Reform",
+     "k": "scotus_reform"
+    },
+    {
+     "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency",
+     "l": "Would have made presidential candidates publish ten years of tax returns and widened lobbying registration; the House passed it 220-210."
     }
    ]
   },
@@ -24,6 +38,11 @@
      "i": "Expand Voting Access",
      "k": "voting_access",
      "l": "Would have held new photo-ID rules, polling-place closures and voter-roll purges behind federal review; the House passed it 219-212."
+    },
+    {
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power",
+     "l": "Would have restored Voting Rights Act preclearance and barred states from new covered practices until cleared; the House passed it 219-212."
     }
    ]
   },
@@ -305,6 +324,11 @@
      "i": "Expand Voting Access",
      "k": "voting_access",
      "l": "Would have required same-day registration, two weeks of early voting, no-excuse mail voting and drop boxes; the House passed it 220-203."
+    },
+    {
+     "i": "Get Money Out of Politics",
+     "k": "campaign_finance",
+     "l": "Would have made election spenders name their donors and curbed super PAC coordination with candidates; the House passed it 220-203."
     }
    ]
   },
@@ -347,6 +371,11 @@
      "i": "Protect LGBTQ+ Rights",
      "k": "lgbtq_rights",
      "l": "Repealed the Defense of Marriage Act’s definitions of marriage and spouse; the House cleared it 258-169, the Senate 61-36."
+    },
+    {
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power",
+     "l": "Barred anyone acting under state law from refusing to honor another state’s marriage record; the House cleared it 258-169, the Senate 61-36."
     }
    ]
   },
@@ -360,6 +389,16 @@
      "i": "Peace Through Strength",
      "k": "strong_defense",
      "l": "Authorized FY2022 military end strengths, procurement and construction; the House cleared it 363-70, the Senate 88-11."
+    },
+    {
+     "i": "Stop Fentanyl & Cartels",
+     "k": "immig_fentanyl",
+     "l": "Made the narcotics report name the top fentanyl source countries and their cooperation; the House cleared it 363-70, the Senate 88-11."
+    },
+    {
+     "i": "Support for Israel",
+     "k": "israel_support",
+     "l": "Set aside up to $200 million to co-produce Israel’s Iron Dome, David’s Sling and Arrow 3; the House cleared it 363-70, the Senate 88-11."
     }
    ]
   },
@@ -433,6 +472,11 @@
    "c": "house",
    "t": "Providing for congressional disapproval of the ATF rule relating to \"Factoring Criteria for Firearms with Attached 'Stabilizing Braces'\"",
    "m": [
+    {
+     "i": "Cut Federal Red Tape",
+     "k": "gov_regulation",
+     "l": "Would have nullified the ATF rule on pistols fitted with stabilizing braces and barred its reissue; it failed in the Senate 49-50."
+    },
     {
      "i": "Protect Gun Rights",
      "k": "gun_rights",
@@ -542,6 +586,16 @@
      "i": "Peace Through Strength",
      "k": "strong_defense",
      "l": "Authorized FY2024 defense procurement, research, military pay and construction; the House cleared it 310-118, the Senate 87-13."
+    },
+    {
+     "i": "Privacy & Big-Tech Accountability",
+     "k": "privacy_rights",
+     "l": "Extended section 702 surveillance of targets abroad through April 19, 2024; the House cleared it 310-118, the Senate 87-13."
+    },
+    {
+     "i": "Support for Israel",
+     "k": "israel_support",
+     "l": "Set anti-tunnel, counter-drone and refuelling aid for Israel and Iron Dome co-production; the House cleared it 310-118, the Senate 87-13."
     }
    ]
   },
@@ -635,6 +689,10 @@
      "l": "Would have offset the Israel supplemental by rescinding $14.3 billion of IRS enforcement funding; the House passed it 226-196."
     },
     {
+     "i": "Peace Through Strength",
+     "k": "strong_defense"
+    },
+    {
      "i": "Support for Israel",
      "k": "israel_support",
      "l": "Would have provided $14.3 billion for Israel’s missile defense, military financing and U.S. stock replacement; the House passed it 226-196."
@@ -648,6 +706,11 @@
    "t": "Israel Security Supplemental Appropriations Act, 2024",
    "m": [
     {
+     "i": "Peace Through Strength",
+     "k": "strong_defense",
+     "l": "Would have funded U.S. military accounts to replace Pentagon stocks; it fell short of two-thirds in the House, 250-180."
+    },
+    {
      "i": "Support for Israel",
      "k": "israel_support",
      "l": "Would have provided a $17.6 billion unoffset emergency supplemental for Israel; it fell short of two-thirds in the House, 250-180."
@@ -660,6 +723,11 @@
    "c": "house",
    "t": "Reforming Intelligence and Securing America Act",
    "m": [
+    {
+     "i": "Congressional Oversight",
+     "k": "congress_oversight",
+     "l": "Revoked the FBI’s reporting exemption and required regular section 702 reports to Congress; the House cleared it 273-147, the Senate 60-34."
+    },
     {
      "i": "Peace Through Strength",
      "k": "strong_defense",
@@ -678,6 +746,16 @@
    "c": "house",
    "t": "Israel Security Supplemental Appropriations Act, 2024",
    "m": [
+    {
+     "i": "America First Foreign Aid & Commitments",
+     "k": "america_first_fp",
+     "l": "Appropriated about $9.2 billion in foreign aid beyond Israel, for disaster, refugee and Sinai needs, unoffset; the House passed it 366-58."
+    },
+    {
+     "i": "Peace Through Strength",
+     "k": "strong_defense",
+     "l": "Would have sent about $7.8 billion to U.S. military accounts, refilling American stocks and Army ammunition; the House passed it 366-58."
+    },
     {
      "i": "Support for Israel",
      "k": "israel_support",
@@ -728,6 +806,11 @@
      "i": "Expand Voting Access",
      "k": "voting_access",
      "l": "Would have required proof of citizenship in person at an election office, closing mail registration; the House passed it 221-198."
+    },
+    {
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power",
+     "l": "Would have written the proof-of-citizenship rule into federal law for every registration channel a state runs; the House passed it 221-198."
     }
    ]
   },
@@ -737,6 +820,11 @@
    "c": "house",
    "t": "Israel Security Assistance Support Act",
    "m": [
+    {
+     "i": "Power of the Purse",
+     "k": "power_of_purse",
+     "l": "Would have barred spending appropriated funds to withhold or cancel delivery of defense articles; the House passed it 224-187."
+    },
     {
      "i": "Support for Israel",
      "k": "israel_support",
@@ -879,7 +967,13 @@
    "s": "119",
    "n": "H.Amdt. 87",
    "c": "house",
-   "t": "H.Amdt. 87 (Mace) to H.R. 3838 — amendment numbered 15 printed in Part A of House Report 119-255"
+   "t": "H.Amdt. 87 (Mace) to H.R. 3838 — amendment numbered 15 printed in Part A of House Report 119-255",
+   "m": [
+    {
+     "i": "Protect LGBTQ+ Rights",
+     "k": "lgbtq_rights"
+    }
+   ]
   },
   "119|H.Amdt. 88": {
    "s": "119",
@@ -1067,7 +1161,14 @@
    "s": "119",
    "n": "H.Amdt. 242",
    "c": "house",
-   "t": "H.Amdt. 242 (Boebert) to H.R. 8800 — strike section 1213, relating to the deadline for the Afghanistan War Commission's final report, and maintain the current statutory reporting deadline"
+   "t": "H.Amdt. 242 (Boebert) to H.R. 8800 — strike section 1213, relating to the deadline for the Afghanistan War Commission's final report, and maintain the current statutory reporting deadline",
+   "m": [
+    {
+     "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency",
+     "l": "Proposed keeping the Afghanistan War Commission’s three-year final-report deadline; the House rejected it 65-361."
+    }
+   ]
   },
   "119|H.Amdt. 243": {
    "s": "119",
@@ -1103,7 +1204,13 @@
    "s": "119",
    "n": "H.Amdt. 247",
    "c": "house",
-   "t": "H.Amdt. 247 (Hunt) to H.R. 8800 — amend the bill to ensure that no court may issue injunctions that impair military readiness, military fuel supply, or defense-related logistical…"
+   "t": "H.Amdt. 247 (Hunt) to H.R. 8800 — amend the bill to ensure that no court may issue injunctions that impair military readiness, military fuel supply, or defense-related logistical…",
+   "m": [
+    {
+     "i": "Court Orders on the Executive",
+     "k": "judicial_check"
+    }
+   ]
   },
   "119|H.Amdt. 248": {
    "s": "119",
@@ -1127,13 +1234,25 @@
    "s": "119",
    "n": "H.Amdt. 249",
    "c": "house",
-   "t": "H.Amdt. 249 (Gallagher) to H.R. 8800 — conduct a study to explore mechanisms by which federal authority can preempt or otherwise mitigate state actions that effectively undermine domestic…"
+   "t": "H.Amdt. 249 (Gallagher) to H.R. 8800 — conduct a study to explore mechanisms by which federal authority can preempt or otherwise mitigate state actions that effectively undermine domestic…",
+   "m": [
+    {
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power"
+    }
+   ]
   },
   "119|H.Amdt. 250": {
    "s": "119",
    "n": "H.Amdt. 250",
    "c": "house",
-   "t": "H.Amdt. 250 (Carter) to H.R. 8800 — preempt state and local laws that impose requirements different from federal standards on certain defense-related recycling, disposal, and materials…"
+   "t": "H.Amdt. 250 (Carter) to H.R. 8800 — preempt state and local laws that impose requirements different from federal standards on certain defense-related recycling, disposal, and materials…",
+   "m": [
+    {
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power"
+    }
+   ]
   },
   "119|H.Amdt. 251": {
    "s": "119",
@@ -1275,13 +1394,31 @@
    "s": "119",
    "n": "H.Amdt. 261",
    "c": "house",
-   "t": "H.Amdt. 261 (Harrigan) to H.R. 8800 — prohibit the use of automated speed enforcement cameras on military installations"
+   "t": "H.Amdt. 261 (Harrigan) to H.R. 8800 — prohibit the use of automated speed enforcement cameras on military installations",
+   "m": [
+    {
+     "i": "Privacy & Big-Tech Accountability",
+     "k": "privacy_rights",
+     "l": "Would bar federal funds for any automated speed-enforcement camera on a military installation; the House agreed to it 232-199."
+    }
+   ]
   },
   "119|H.Amdt. 266": {
    "s": "119",
    "n": "H.Amdt. 266",
    "c": "house",
-   "t": "H.Amdt. 266 (Grothman) to H.R. 8800 — require the Secretary of Defense to submit a report detailing options for reducing the number of civilians employed by the Department of Defense by…"
+   "t": "H.Amdt. 266 (Grothman) to H.R. 8800 — require the Secretary of Defense to submit a report detailing options for reducing the number of civilians employed by the Department of Defense by…",
+   "m": [
+    {
+     "i": "Cut Federal Spending & Reduce Debt",
+     "k": "cut_spending",
+     "l": "Proposed a Pentagon report on options for cutting 200,000 civilian positions and the savings each yields; the House rejected it 175-254."
+    },
+    {
+     "i": "Cut Waste, Not Services",
+     "k": "gov_waste"
+    }
+   ]
   },
   "119|H.Con.Res. 14": {
    "s": "119",
@@ -1323,6 +1460,10 @@
    "t": "Directing the President, pursuant to section 5(c) of the War Powers Resolution, to remove United States Armed Forces from hostilities with Iran.",
    "m": [
     {
+     "i": "Congress and War Powers",
+     "k": "war_powers"
+    },
+    {
      "i": "Diplomacy & Restraint",
      "k": "restraint",
      "l": "Would direct U.S. forces out of Iran hostilities, keeping self-defense and intelligence sharing; the House agreed to it 214-208."
@@ -1345,6 +1486,10 @@
    "t": "Directing the President pursuant to section 5(c) of the War Powers Resolution to remove United States Armed Forces from hostilities in Lebanon.",
    "m": [
     {
+     "i": "Congress and War Powers",
+     "k": "war_powers"
+    },
+    {
      "i": "Diplomacy & Restraint",
      "k": "restraint",
      "l": "Would have directed U.S. forces out of any hostilities in Lebanon within seven days; the House rejected it 189-235."
@@ -1359,7 +1504,18 @@
    "s": "119",
    "n": "H.Con.Res. 113",
    "c": "house",
-   "t": "Establishing the congressional budget for the United States Government for fiscal year 2027 and setting forth the appropriate budgetary levels for fiscal years 2028 through 2036."
+   "t": "Establishing the congressional budget for the United States Government for fiscal year 2027 and setting forth the appropriate budgetary levels for fiscal years 2028 through 2036.",
+   "m": [
+    {
+     "i": "Peace Through Strength",
+     "k": "strong_defense"
+    },
+    {
+     "i": "Tackle the National Debt",
+     "k": "national_debt",
+     "l": "Would set the FY2027 budget and direct four House committees to report deficit-raising reconciliation bills; the House agreed to it 216-214."
+    }
+   ]
   },
   "119|H.J.Res. 25": {
    "s": "119",
@@ -1689,6 +1845,10 @@
      "i": "Expand Domestic Energy Production",
      "k": "energy_production",
      "l": "Would affirm state authority over hydraulic fracturing to keep energy output flowing; the House passed it 226-188."
+    },
+    {
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power"
     }
    ]
   },
@@ -1823,6 +1983,10 @@
      "i": "Stronger Gun Safety Laws",
      "k": "gun_safety",
      "l": "Would bar the VA from reporting a veteran to the background-check system only for being given a fiduciary; the House passed it 216-201."
+    },
+    {
+     "i": "Take Care of Veterans",
+     "k": "veterans"
     }
    ]
   },
@@ -1876,6 +2040,11 @@
      "i": "Protect Gun Rights",
      "k": "gun_rights",
      "l": "Would bar card networks from assigning a merchant category code that singles out a firearms retailer; the House passed it 221-201."
+    },
+    {
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power",
+     "l": "Would pre-empt state and local laws on merchant category codes for firearms retailers; the House passed it 221-201."
     }
    ]
   },
@@ -1972,6 +2141,16 @@
      "i": "Peace Through Strength",
      "k": "strong_defense",
      "l": "Increased defense appropriations over the prior year; the House passed it 217-213."
+    },
+    {
+     "i": "Protect Rural Hospitals",
+     "k": "health_rural",
+     "l": "Extended the Medicare-Dependent Hospital Program and other health authorities due to lapse on March 31, 2025; the House passed it 217-213."
+    },
+    {
+     "i": "Stop Fentanyl & Cartels",
+     "k": "immig_fentanyl",
+     "l": "Extended the order placing fentanyl-related substances in schedule I as a class to September 30, 2025; the House passed it 217-213."
     },
     {
      "i": "Strong Border & Enforcement",
@@ -2359,6 +2538,14 @@
      "l": "Funded permitting of single-staircase apartments and raised FHA multifamily loan limits; the House cleared it 358-32, the Senate 89-10."
     },
     {
+     "i": "Cryptocurrency Rules & Digital Dollar",
+     "k": "crypto_cbdc"
+    },
+    {
+     "i": "Faster Permits & Reviews",
+     "k": "permitting_reform"
+    },
+    {
      "i": "Housing Affordability",
      "k": "housing",
      "l": "Reauthorized the HOME program and Rural Housing Service and widened HUD-VASH eligibility; the House cleared it 358-32, the Senate 89-10."
@@ -2398,6 +2585,16 @@
    "c": "house",
    "t": "Main Street Capital Access Act",
    "m": [
+    {
+     "i": "Corporate Accountability",
+     "k": "econ_corp_account",
+     "l": "Would let regulators approve some bank mergers without weighing whether they are monopolistic; the House passed it 270-155."
+    },
+    {
+     "i": "Cut Federal Red Tape",
+     "k": "gov_regulation",
+     "l": "Would have financial regulators tailor their actions to a bank’s size and risk profile; the House passed it 270-155."
+    },
     {
      "i": "Help Small Businesses",
      "k": "econ_smallbiz",
@@ -2504,7 +2701,18 @@
    "s": "119",
    "n": "H.R. 7757",
    "c": "house",
-   "t": "KIDS Act"
+   "t": "KIDS Act",
+   "m": [
+    {
+     "i": "Privacy & Big-Tech Accountability",
+     "k": "privacy_rights"
+    },
+    {
+     "i": "Smart Tech Guardrails",
+     "k": "tech_balance",
+     "l": "Would require age checks on sexual-content platforms, safer defaults for minors and AI chatbot disclosures; the House passed it 267-117."
+    }
+   ]
   },
   "119|H.R. 8595": {
    "s": "119",
@@ -2512,6 +2720,16 @@
    "c": "house",
    "t": "National Security, Department of State, and Related Programs Appropriations Act, 2027",
    "m": [
+    {
+     "i": "Election Security & Ballot Safeguards",
+     "k": "election_security",
+     "l": "Would bar states from processing a federal registration application without documentary proof of citizenship; the House passed it 217-209."
+    },
+    {
+     "i": "Expand Voting Access",
+     "k": "voting_access",
+     "l": "Would gate both steps of casting a federal ballot, registering and voting, behind a document; the House passed it 217-209."
+    },
     {
      "i": "Invest in Public Services",
      "k": "gov_services",
@@ -2531,6 +2749,11 @@
      "i": "Support for Israel",
      "k": "israel_support",
      "l": "Would direct at least $3.3 billion in military financing to Israel and keep the U.S. embassy in Jerusalem; the House passed it 217-209."
+    },
+    {
+     "i": "Voter ID & Election Integrity",
+     "k": "voter_id",
+     "l": "Would bar officials from handing an in-person voter a federal ballot without valid photo identification; the House passed it 217-209."
     }
    ]
   },
@@ -2544,6 +2767,11 @@
      "i": "Peace Through Strength",
      "k": "strong_defense",
      "l": "Would authorize FY2027 aircraft and ship procurement, troop strength levels and military pay; the House passed it 216-212."
+    },
+    {
+     "i": "Support for Israel",
+     "k": "israel_support",
+     "l": "Would extend the U.S. war reserve stockpile in Israel and set up a U.S.–Israel defense technology initiative; the House passed it 216-212."
     }
    ]
   },
@@ -2578,6 +2806,14 @@
    "c": "house",
    "t": "Take Care of America’s Veterans Act",
    "m": [
+    {
+     "i": "Mental Health & Addiction",
+     "k": "health_mental"
+    },
+    {
+     "i": "Protect Rural Hospitals",
+     "k": "health_rural"
+    },
     {
      "i": "Take Care of Veterans",
      "k": "veterans",
@@ -2860,6 +3096,10 @@
      "i": "Smart Tech Guardrails",
      "k": "tech_balance",
      "l": "Paired stablecoin innovation with reserve, disclosure and anti-money-laundering safeguards; the House cleared it 308-122, the Senate 68-30."
+    },
+    {
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power"
     }
    ]
   },
@@ -2870,14 +3110,39 @@
    "t": "S. 2296 — National Defense Authorization Act for Fiscal Year 2026",
    "m": [
     {
+     "i": "Back Law Enforcement",
+     "k": "back_police",
+     "l": "Would have funded the COPS Strong Communities Program and officer fentanyl-exposure protections; the Senate passed it 77-20."
+    },
+    {
+     "i": "Build More Housing",
+     "k": "housing_build",
+     "l": "Would have carried model zoning reforms for duplexes, fourplexes and townhouses; the Senate passed it 77-20."
+    },
+    {
      "i": "End DEI Programs",
      "k": "end_dei",
      "l": "Would have repealed DoD provisions on diversity, equity and inclusion, including the Chief Diversity Officer; the Senate passed it 77-20."
     },
     {
+     "i": "Homelessness Policy",
+     "k": "homeless",
+     "l": "Would have rewritten the Continuum of Care homelessness program and capped waivers for displacing recipients; the Senate passed it 77-20."
+    },
+    {
      "i": "Peace Through Strength",
      "k": "strong_defense",
      "l": "Would have authorized FY2026 weapons procurement and extended the Pacific Deterrence Initiative; the Senate passed it 77-20."
+    },
+    {
+     "i": "Stop Fentanyl & Cartels",
+     "k": "immig_fentanyl",
+     "l": "Would have widened the Fentanyl Sanctions Act to anyone materially aiding opioid trafficking; the Senate passed it 77-20."
+    },
+    {
+     "i": "Support for Israel",
+     "k": "israel_support",
+     "l": "Would have raised U.S.-Israel anti-tunnel and counter-drone ceilings and funded Iron Dome co-production; the Senate passed it 77-20."
     }
    ]
   },

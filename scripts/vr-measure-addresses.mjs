@@ -222,6 +222,12 @@ const EVENT = new RegExp(
     String.raw`SELECT\s+id\s+INTO\s+([a-zA-Z_][a-zA-Z_0-9]*)([\s\S]{0,600}?);`,
     // 5: UPDATE vr_measures … ;  (6: the rest of that statement)
     String.raw`UPDATE\s+vr_measures\b([\s\S]{0,2000}?);`,
+    // 6: FOR <var> IN SELECT id FROM vr_measures WHERE … LOOP  (7: the WHERE …)
+    //    A loop over one named measure, whose body inserts against <var>.id.
+    String.raw`FOR\s+([a-zA-Z_][a-zA-Z_0-9]*)\s+IN\s+SELECT\s+id\s+FROM\s+vr_measures\b([\s\S]{0,600}?)\bLOOP\b`,
+    // 8: FOR <var> IN SELECT * FROM (VALUES …) AS t(cols) LOOP … END LOOP
+    //    A loop over a literal table of rows, each naming its measure by value.
+    String.raw`FOR\s+([a-zA-Z_][a-zA-Z_0-9]*)\s+IN\s+SELECT\s+\*\s+FROM\s*(?=\(\s*VALUES\b)`,
   ].join("|"),
   "gi"
 );
@@ -467,7 +473,97 @@ function whereKey(clause) {
   return { number, sitting };
 }
 
-export function measureAddresses(ROOT) {
+// One FOR <var> IN SELECT * FROM (VALUES …) AS t(cols) LOOP … END LOOP block,
+// starting at the "(" of the VALUES group. Each row of the table becomes the
+// mapping the loop's body inserts for it, when the body is a lookup of the
+// measure by the row's number (and congress) and an INSERT INTO
+// vr_measure_issues against that lookup; a loop of any other shape (the
+// correction passes that UPDATE or DELETE from such a table) adds nothing.
+function valuesLoop(raw, at, rowVar, rows, issueKeys, stats) {
+  // Read with `--` comments blanked (same length, so every offset still holds):
+  // these tables carry section comments between their rows, and the prose in a
+  // comment would otherwise be read as SQL.
+  const src = uncomment(raw);
+  const [inner, afterValues] = readGroup(src, at);
+  if (inner == null) return at;
+  const head = /^\s*VALUES\s*/i.exec(inner);
+  if (!head) return at;
+  const tuples = [];
+  let i = head[0].length;
+  while (inner[i] === "(") {
+    const [t, after] = readGroup(inner, i);
+    if (t == null) break;
+    tuples.push(splitList(t));
+    i = after;
+    const sep = /^\s*,\s*/.exec(inner.slice(i));
+    if (!sep) break;
+    i += sep[0].length;
+  }
+  const alias = /^\s*AS\s+[a-zA-Z_][a-zA-Z_0-9]*\s*\(([^)]*)\)\s*LOOP\b/i.exec(src.slice(afterValues));
+  if (!alias || !tuples.length) return at;
+  const cols = splitList(alias[1]).map((c) => c.trim().toLowerCase());
+  const bodyStart = afterValues + alias[0].length;
+  const endLoop = /\bEND\s+LOOP\s*;/i.exec(src.slice(bodyStart));
+  if (!endLoop) return at;
+  const body = src.slice(bodyStart, bodyStart + endLoop.index);
+  const done = bodyStart + endLoop.index + endLoop[0].length;
+  // <rowVar>.<col> → that column's index in the table, or -1.
+  const ref = (tok) => {
+    const r = new RegExp(`^${rowVar}\\.([a-zA-Z_][a-zA-Z_0-9]*)$`, "i").exec(String(tok || "").trim());
+    return r ? cols.indexOf(r[1].toLowerCase()) : -1;
+  };
+  // The lookup: SELECT id INTO <mid> FROM vr_measures WHERE number = <rowVar>.<n>
+  // [AND … congress = <rowVar>.<c> …].
+  const look = new RegExp(`SELECT\\s+id\\s+INTO\\s+([a-zA-Z_][a-zA-Z_0-9]*)\\s+FROM\\s+vr_measures\\b([\\s\\S]*?);`, "i").exec(body);
+  if (!look) return done;
+  const mid = look[1], where = look[2];
+  const numCol = (new RegExp(`\\bnumber\\s*=\\s*${rowVar}\\.([a-zA-Z_][a-zA-Z_0-9]*)`, "i").exec(where) || [])[1];
+  const cgCol = (new RegExp(`\\bcongress\\s*=\\s*${rowVar}\\.([a-zA-Z_][a-zA-Z_0-9]*)`, "i").exec(where) || [])[1];
+  const ni = numCol ? cols.indexOf(numCol.toLowerCase()) : -1;
+  const ci = cgCol ? cols.indexOf(cgCol.toLowerCase()) : -1;
+  if (ni === -1) return done;
+  // The mapping insert, against <mid>.
+  const ins = /INSERT\s+INTO\s+vr_measure_issues\s*(?=\()/i.exec(body);
+  if (!ins) return done;
+  const [icolsRaw, afterIcols] = readGroup(body, ins.index + ins[0].length);
+  if (icolsRaw == null) return done;
+  const icols = splitList(icolsRaw).map((c) => c.trim().toLowerCase());
+  const vals = /^\s*VALUES\s*/i.exec(body.slice(afterIcols));
+  if (!vals) return done;
+  const [ituple] = readGroup(body, afterIcols + vals[0].length);
+  if (ituple == null) return done;
+  const it = splitList(ituple);
+  const at2 = (name) => { const j = icols.indexOf(name); return j === -1 ? undefined : it[j]; };
+  if (String(at2("measure_id") || "").trim() !== mid) return done;
+  const ikTok = at2("issue_key");
+  const ki = ref(ikTok);
+  for (const t of tuples) {
+    const number = literal(t[ni]);
+    if (!number) continue;
+    const cong = ci === -1 ? null : literal(t[ci]);
+    let k = null;
+    if (cong != null) k = key(cong, number);
+    else {
+      // No congress on the row: the lookup matches the number alone, LIMIT 1,
+      // which is the first such row the archive was built with.
+      for (const [rk, r] of rows) if (r.number === number) { k = rk; break; }
+    }
+    if (!k || !rows.has(k)) continue;
+    const ik = ki !== -1 ? literal(t[ki]) : literal(ikTok);
+    if (!ik) continue;
+    const r = rows.get(k);
+    r.mappings++; stats.mappings++;
+    issueKeys.add(ik); r.issueKeys.push(ik); r.issues.add(ik);
+  }
+  return done;
+}
+
+// `opts.loopForms: false` reads the migrations as this projection did before it
+// learned the two loop forms (FOR … IN SELECT id FROM vr_measures, and FOR … IN
+// SELECT * FROM (VALUES …)). Only scripts/test-measure-address-projection.mjs
+// asks for that, to show the loop forms add mappings and take none away.
+export function measureAddresses(ROOT, opts = {}) {
+  const loopForms = opts.loopForms !== false;
   const dir = join(ROOT, ...MIGRATIONS);
   const files = readdirSync(dir).filter((f) => f.endsWith(".sql")).sort();
 
@@ -602,6 +698,8 @@ export function measureAddresses(ROOT) {
           const ref = String(col(t, "measure_id") || "").trim();
           let k = null;
           if (/^[a-zA-Z_][a-zA-Z_0-9]*$/.test(ref)) k = bound.get(ref) || null;
+          // <var>.id — the row variable of a FOR … IN SELECT id FROM vr_measures loop.
+          else if (loopForms && /^[a-zA-Z_][a-zA-Z_0-9]*\.id$/i.test(ref)) k = bound.get(ref.slice(0, -3)) || null;
           else if (ref.startsWith("(")) {
             const w = whereKey(ref);
             if (w) k = key(w.sitting, w.number);
@@ -644,6 +742,34 @@ export function measureAddresses(ROOT) {
           bound.set(m[3], k);
           if (rows.has(k)) lastKey = k;
         }
+        continue;
+      }
+
+      // ── FOR <var> IN SELECT id FROM vr_measures WHERE … LOOP ─────────────
+      // The same binding as SELECT id INTO, written as a loop over the one row
+      // the WHERE names: the body's INSERTs reach the measure through <var>.id.
+      if (m[6]) {
+        if (!loopForms) continue;
+        const w = whereKey(m[7] || "");
+        if (w) {
+          const k = key(w.sitting, w.number);
+          bound.set(m[6], k);
+          if (rows.has(k)) lastKey = k;
+        }
+        continue;
+      }
+
+      // ── FOR <var> IN SELECT * FROM (VALUES …) AS t(cols) LOOP … END LOOP ──
+      // A literal table of rows, each naming its measure by number (and
+      // congress), looked up in the body with SELECT id INTO <mid> … WHERE
+      // number = <var>.<col> and mapped with INSERT INTO vr_measure_issues
+      // (… measure_id = <mid>, issue_key = <var>.<col> or a literal …). Every row
+      // of the table is replayed as the mapping it inserts, against the measure
+      // it names. The body is still walked as before: its lookup names no literal
+      // measure and its insert no literal key, so the walk reads nothing from it
+      // that this replay has not, and anything else in it is read as it always was.
+      if (m[8]) {
+        if (loopForms) valuesLoop(src, m.index + m[0].length, m[8], rows, issueKeys, stats);
         continue;
       }
 

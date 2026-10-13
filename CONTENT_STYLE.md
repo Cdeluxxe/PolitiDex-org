@@ -152,6 +152,22 @@ or is mapped in a form the repository's migration projection cannot yet read.
 skip with its reason, and `scripts/test-blank-rows-slice7.mjs` holds them to
 these rules.
 
+#### The measure-address projection
+
+A line may be written only for a pair the archive maps, and offline that means a
+pair `scripts/vr-measure-addresses.mjs` can read out of the migrations (or one
+`db/vr-issue-seed.json` carries). The projection read literal `INSERT`s and
+`SELECT id INTO` lookups, and missed two loop forms the migrations also use to
+map measures: `FOR m IN SELECT id FROM vr_measures WHERE … LOOP … VALUES (m.id,
+'<key>', …)`, and `FOR r IN SELECT * FROM (VALUES (…), …) AS t(…) LOOP`, whose
+rows name the measure and key by value. Slices 6 and 7 had to skip three ready
+pairs for that alone: S. 1582 and H.R. 26 × states_federal_power, and H.R. 6126
+(118th) × strong_defense. The projection now reads both forms. It surfaces 53
+pairs the migrations already insert, among them those three, and loses none.
+The bill pages and the sitemap's issue files pick them up, and
+`scripts/test-measure-address-projection.mjs` holds the fix to that. A pair
+skipped for this reason can now be written in the next slice.
+
 ### Executive rows
 
 An executive document's row (an order, a proclamation, a memorandum, a veto)
