@@ -473,14 +473,19 @@
   // points at ukraine_policy, with "kyiv" and "zelensky"; "yemen" points at
   // yemen_policy. "houthis" is not an alias: no act on file names the Houthis as
   // its subject, so the word has nothing honest to open.
+  //
+  // VENEZUELA THE SAME WAY. "venezuela" points at venezuela_policy, with
+  // "caracas"; Diplomacy & Restraint and Peace Through Strength answer it only
+  // through an act on that leaf that is itself mapped to Venezuela.
   var FIND_ALIASES = {
     iran_policy: ['iran', 'iran war', 'iran deal', 'iran nuclear', 'jcpoa', 'tehran'],
     ukraine_policy: ['ukraine', 'kyiv', 'zelensky'],
-    yemen_policy: ['yemen']
+    yemen_policy: ['yemen'],
+    venezuela_policy: ['venezuela', 'venezuelan', 'caracas']
   };
   // Subject keys: their label and aliases reach another leaf on the same file
   // only when one of that leaf's own acts carries the subject key as well.
-  var FIND_SUBJECTS = { iran_policy: 1, ukraine_policy: 1, yemen_policy: 1 };
+  var FIND_SUBJECTS = { iran_policy: 1, ukraine_policy: 1, yemen_policy: 1, venezuela_policy: 1 };
   function subjectWords(key) {
     var lab = '';
     try { lab = ((window.ISSUE_MAP || {})[key] || {}).label || ''; } catch (e) { lab = ''; }

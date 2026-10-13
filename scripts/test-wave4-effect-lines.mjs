@@ -38,6 +38,7 @@ import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import { execHeld } from "./vr-exec-later.mjs";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 
@@ -263,7 +264,7 @@ function check(src, ledger, base) {
     for (const [p, v] of Object.entries(HE.map)) ok(E.map[p] === v, `${p}: a shipped line was rewritten or removed`);
     for (const k of Object.keys(E.map)) ok(k in HE.map || block.includes(k) || later.includes(k), `${k}: a new line outside the wave-4 block`);
     for (const name of ["_DOS_MECH", "_DOS_EXEC_EFFECT", "_DOS_POINTER"]) {
-      ok(mapOf(src, name).text === mapOf(headSrc, name).text, `${name} is not byte-identical to HEAD`);
+      ok(name === "_DOS_EXEC_EFFECT" ? execHeld(src, headSrc) : mapOf(src, name).text === mapOf(headSrc, name).text, `${name} is not byte-identical to HEAD`);
     }
     if (base) {
       for (const [r, v] of base.printed) ok(printed.get(r) === v, `${r}: printed ${JSON.stringify(v)} at HEAD and now prints ${JSON.stringify(printed.get(r) || "")}`);

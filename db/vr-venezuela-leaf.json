@@ -1,0 +1,72 @@
+{
+ "_comment": "Venezuela leaf slice 5 (v365). The new subject key venezuela_policy (🇻🇪 Venezuela, under Foreign Policy & National Security, no pole) holds the four acts in the archive whose own subject is Venezuela: S.J.Res. 90 and S.J.Res. 98 of the 119th (Senate war-powers resolutions directed at hostilities within or against Venezuela) and Executive Orders 14245 and 14373. Each mapping is secondary, beside the act's existing rows, in db/vr-issue-seed.json, db/exec-action-seed.json and migration 20261116000000_vr_venezuela_policy_issue_key. Each pair carries one effect line, stored once in _DOS_EFFECT or _DOS_EXEC_EFFECT under the VENEZUELA LEAF SLICE 5 marker and written from that pair's own stored text; `source` quotes it. The vote lines follow the tense and roll of the same act's lines on its other leaves. `excluded` lists acts that touch Venezuela without naming it as their subject. No score, weight or existing mapping is read from or written to here.",
+ "_test": "scripts/test-venezuela-leaf.mjs",
+ "key": "venezuela_policy",
+ "mapped": [
+  "S.J.Res. 90|119",
+  "S.J.Res. 98|119",
+  "Executive Order 14245",
+  "Executive Order 14373"
+ ],
+ "excluded": [
+  {
+   "act": "S.J.Res. 83|119",
+   "why": "A war-powers resolution that names no theatre; it keeps its restraint, war-powers and defense rows and gets no Venezuela row."
+  },
+  {
+   "act": "Proclamation 11015",
+   "why": "A proclamation against cartel organizations across the whole Western Hemisphere; Venezuela is not its subject."
+  }
+ ],
+ "lines": 4,
+ "rows": [
+  {
+   "table": "_DOS_EFFECT",
+   "key": "S.J.Res. 90|119|venezuela_policy",
+   "act": "S.J.Res. 90|119",
+   "line": "Would have ordered U.S. forces out of hostilities against Venezuela Congress had not authorized; the Senate refused to discharge it 49-51.",
+   "term": "Venezuela",
+   "source": {
+    "field": "rationale",
+    "text": "Venezuela is the resolution's own subject: its operative section directs removal of U.S. forces from hostilities within or against Venezuela that Congress has not authorized. Filed here alongside its restraint, war-powers and defense rows, not in place of them; no side is read on this key.",
+    "at": "db/vr-issue-seed.json"
+   }
+  },
+  {
+   "table": "_DOS_EFFECT",
+   "key": "S.J.Res. 98|119|venezuela_policy",
+   "act": "S.J.Res. 98|119",
+   "line": "Would order U.S. forces out of hostilities against Venezuela that Congress has not authorized; the Senate voted 52-47 to discharge it.",
+   "term": "Venezuela",
+   "source": {
+    "field": "rationale",
+    "text": "Venezuela is the resolution's own subject: its operative section directs removal of U.S. forces from hostilities within or against Venezuela that Congress has not authorized. Filed here alongside its restraint, war-powers and defense rows, not in place of them; no side is read on this key.",
+    "at": "db/vr-issue-seed.json"
+   }
+  },
+  {
+   "table": "_DOS_EXEC_EFFECT",
+   "key": "Executive Order 14245|venezuela_policy",
+   "act": "Executive Order 14245",
+   "line": "Authorized a 25 percent duty on goods from any country found to buy oil from Venezuela, directly or indirectly.",
+   "term": "25 percent",
+   "source": {
+    "field": "plain",
+    "text": "Authorized a 25 percent duty on goods from any country found to import Venezuelan oil, directly or indirectly.",
+    "at": "db/exec-action-seed.json"
+   }
+  },
+  {
+   "table": "_DOS_EXEC_EFFECT",
+   "key": "Executive Order 14373|venezuela_policy",
+   "act": "Executive Order 14373",
+   "line": "Voided any court attachment of Venezuelan oil revenue held by the United States and kept it in Treasury custody for Venezuela’s government.",
+   "term": "Treasury custody",
+   "source": {
+    "field": "plain",
+    "text": "Declared a national emergency over Venezuelan oil revenue held by the United States, voided any court attachment of it and held it in Treasury custody for the Government of Venezuela.",
+    "at": "db/exec-action-seed.json"
+   }
+  }
+ ]
+}

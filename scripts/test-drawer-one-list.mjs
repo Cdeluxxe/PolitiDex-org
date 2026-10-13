@@ -114,7 +114,8 @@ function check(src, opts = {}) {
       const rows = [...h.matchAll(/<tr data-pdxlg-row="(\d+)">/g)].map((m) => m[1]);
       ok(new Set(rows).size === rows.length, `${where}: an act appears twice in the table`);
       const closed = how < 0 ? h : h.slice(0, how);
-      const tbl = (closed.match(/<div class="pdxgap-list"[\s\S]*?<\/tbody><\/table><\/div><\/div>/) || [""])[0];
+      // The ledger may end on its one archive link (v363) after the last table.
+      const tbl = (closed.match(/<div class="pdxgap-list"[\s\S]*?<\/tbody><\/table><\/div>(?:<p class="pdxlg-other" data-pdxlg-other="1">[\s\S]*?<\/p>)?<\/div>/) || [""])[0];
       const outside = closed.replace(tbl, "");
       ok(!/class="pdxdos-rec-id|class="pdxlg-num/.test(outside), `${where}: a bill row is printed outside the one list on the closed sheet`);
       // ── 2, 3 · order: list, then note, then the disclosure ─────────────────

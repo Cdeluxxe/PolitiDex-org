@@ -9,7 +9,22 @@
    "m": [
     {
      "i": "Expand Voting Access",
+     "k": "voting_access",
      "l": "Would have required automatic and same-day registration and fifteen days of early voting in every state; the House passed it 220-210."
+    },
+    {
+     "i": "Get Money Out of Politics",
+     "k": "campaign_finance",
+     "l": "Would have made groups spending over $10,000 name their donors and matched small House donations six to one; the House passed it 220-210."
+    },
+    {
+     "i": "Supreme Court Reform",
+     "k": "scotus_reform"
+    },
+    {
+     "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency",
+     "l": "Would have made presidential candidates publish ten years of tax returns and widened lobbying registration; the House passed it 220-210."
     }
    ]
   },
@@ -21,7 +36,13 @@
    "m": [
     {
      "i": "Expand Voting Access",
+     "k": "voting_access",
      "l": "Would have held new photo-ID rules, polling-place closures and voter-roll purges behind federal review; the House passed it 219-212."
+    },
+    {
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power",
+     "l": "Would have restored Voting Rights Act preclearance and barred states from new covered practices until cleared; the House passed it 219-212."
     }
    ]
   },
@@ -32,10 +53,12 @@
    "t": "Bipartisan Background Checks Act of 2021",
    "m": [
     {
-     "i": "Protect Gun Rights"
+     "i": "Protect Gun Rights",
+     "k": "gun_rights"
     },
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "k": "gun_safety"
     }
    ]
   },
@@ -47,46 +70,57 @@
    "m": [
     {
      "i": "Affordable Child Care",
+     "k": "child_care",
      "l": "Provided child-care stabilisation funding, supplemental Child Care and Development Block Grant money, and Head Start funding."
     },
     {
      "i": "Affordable Housing & Renters",
+     "k": "housing_support",
      "l": "Funded emergency rental and homeowner assistance; the House cleared it 220-211, the Senate 50-49."
     },
     {
      "i": "Expand Healthcare Access",
+     "k": "healthcare",
      "l": "Expanded Affordable Care Act premium tax credits; the House cleared it 220-211, the Senate 50-49."
     },
     {
      "i": "Help Families with Kids",
+     "k": "family_support",
      "l": "Raised the child tax credit to $3,000 per child, $3,600 under six, fully refundable; the House cleared it 220-211, the Senate 50-49."
     },
     {
      "i": "Help Small Businesses",
+     "k": "econ_smallbiz",
      "l": "Funded the Restaurant Revitalization Fund and Shuttered Venue Operators Grants; the House cleared it 220-211, the Senate 50-49."
     },
     {
      "i": "Invest in Public Schools",
+     "k": "public_schools",
      "l": "Created the Elementary and Secondary School Emergency Relief Fund for reopening schools; the House cleared it 220-211, the Senate 50-49."
     },
     {
      "i": "Lower Healthcare Costs",
+     "k": "healthcare_costs",
      "l": "Expanded ACA premium tax credits for 2021 and 2022 and subsidized COBRA coverage; the House cleared it 220-211, the Senate 50-49."
     },
     {
      "i": "Middle-Class Tax Relief",
+     "k": "tax_middle_class",
      "l": "Expanded the child tax credit; the House cleared it 220-211, the Senate 50-49."
     },
     {
      "i": "Raise Wages & Protect Workers",
+     "k": "econ_workers",
      "l": "Extended pandemic unemployment compensation through September 2021; the House cleared it 220-211, the Senate 50-49."
     },
     {
      "i": "Tackle the Cost of Living",
+     "k": "cost_living",
      "l": "Sent recovery rebates to households and funded emergency rental and utility aid; the House cleared it 220-211, the Senate 50-49."
     },
     {
      "i": "Tackle the National Debt",
+     "k": "national_debt",
      "l": "Roughly $1.9 trillion of pandemic relief, moved through budget reconciliation as emergency spending with no offsetting revenue or cuts."
     }
    ]
@@ -99,6 +133,7 @@
    "m": [
     {
      "i": "Stronger Gun Safety Laws",
+     "k": "gun_safety",
      "l": "Would have enhanced background checks; the House passed it 219-210."
     }
    ]
@@ -111,10 +146,12 @@
    "m": [
     {
      "i": "Protect Gun Rights",
+     "k": "gun_rights",
      "l": "Would have imposed the Assault Weapons Ban of 2022; the House passed it 217-213."
     },
     {
      "i": "Stronger Gun Safety Laws",
+     "k": "gun_safety",
      "l": "Would have enacted an Assault Weapons Ban; the House passed it 217-213."
     }
    ]
@@ -127,6 +164,7 @@
    "m": [
     {
      "i": "Stronger Gun Safety Laws",
+     "k": "gun_safety",
      "l": "Would have created a Federal Extreme Risk Protection Order; the House passed it 224-202."
     }
    ]
@@ -139,10 +177,12 @@
    "m": [
     {
      "i": "Invest in Public Services",
+     "k": "gov_services",
      "l": "Ended the Postal Service’s retiree health prepayment and wrote six-day delivery into law; the House cleared it 342-92, the Senate 79-19."
     },
     {
      "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency",
      "l": "Required the Postal Service to publish an online public dashboard of service-performance data, broken down by delivery unit."
     }
    ]
@@ -155,30 +195,37 @@
    "m": [
     {
      "i": "Climate Action & Clean Energy",
+     "k": "climate_action",
      "l": "Funded clean school buses, a national electric-vehicle charging network, home weatherisation and legacy pollution remediation."
     },
     {
      "i": "Public Transit & Transportation",
+     "k": "transit",
      "l": "Reauthorized federal public transportation and funded passenger and freight rail; the House cleared it 228-206, the Senate 69-30."
     },
     {
      "i": "Rebuild Roads & Bridges",
+     "k": "infrastructure",
      "l": "Funded roads and bridges, rail, transit, ports, airports and the electric grid; the House cleared it 228-206, the Senate 69-30."
     },
     {
      "i": "Tackle the National Debt",
+     "k": "national_debt",
      "l": "The act’s new spending was only partially offset, so it was scored as adding to the deficit."
     },
     {
      "i": "Universal Broadband",
+     "k": "broadband",
      "l": "Created the Broadband Equity, Access, and Deployment program for unserved areas; the House cleared it 228-206, the Senate 69-30."
     },
     {
      "i": "Water Conservation",
+     "k": "water",
      "l": "Funded drinking-water and wastewater systems, lead pipe removal and Western water storage; the House cleared it 228-206, the Senate 69-30."
     },
     {
      "i": "Wildfire & Disaster Resilience",
+     "k": "disaster_resilience",
      "l": "Funded coastal resiliency work, wildfire risk reduction, and hardening of the electric grid against extreme weather."
     }
    ]
@@ -191,18 +238,22 @@
    "m": [
     {
      "i": "Innovation & Light Rules",
+     "k": "tech_innovation",
      "l": "Created the CHIPS for America Fund and authorized NSF, NIST, DOE and NASA research; the House cleared it 243-187, the Senate 64-33."
     },
     {
      "i": "Peace Through Strength",
+     "k": "strong_defense",
      "l": "Set up the CHIPS for America Defense Fund for microelectronics research; the House cleared it 243-187, the Senate 64-33."
     },
     {
      "i": "Pro-Growth Deregulation",
+     "k": "econ_growth",
      "l": "Expanded federal aid for building and equipping semiconductor plants in the U.S.; the House cleared it 243-187, the Senate 64-33."
     },
     {
      "i": "Tackle the National Debt",
+     "k": "national_debt",
      "l": "The CHIPS funds were appropriated as new spending without offsetting revenue or cuts."
     }
    ]
@@ -215,6 +266,7 @@
    "m": [
     {
      "i": "Support for Israel",
+     "k": "israel_support",
      "l": "Would have appropriated $1 billion to replace the Iron Dome interceptors Israel expended in May 2021; the House passed it 420-9."
     }
    ]
@@ -227,30 +279,37 @@
    "m": [
     {
      "i": "Climate Action & Clean Energy",
+     "k": "climate_action",
      "l": "Extended and expanded wind, solar, geothermal and hydropower tax credits; the House cleared it 220-207, the Senate 50-50."
     },
     {
      "i": "Corporate Accountability",
+     "k": "econ_corp_account",
      "l": "Imposed a 15% minimum tax on corporations above $1 billion and a 1% buyback tax; the House cleared it 220-207, the Senate 50-50."
     },
     {
      "i": "Cut Income & Business Taxes",
+     "k": "lower_taxes",
      "l": "Imposed a 15% minimum tax on the reported income of corporations earning over $1 billion and a 1% excise tax on stock buybacks."
     },
     {
      "i": "Expand Domestic Energy Production",
+     "k": "energy_production",
      "l": "Required new Gulf of Mexico oil and gas lease sales before wind and solar rights-of-way; the House cleared it 220-207, the Senate 50-50."
     },
     {
      "i": "Lower Healthcare Costs",
+     "k": "healthcare_costs",
      "l": "Extended the enlarged Affordable Care Act premium tax credits through 2025; the House cleared it 220-207, the Senate 50-50."
     },
     {
      "i": "Lower Prescription Drug Prices",
+     "k": "health_drug_prices",
      "l": "Required Medicare to negotiate high-spend drug prices and capped insulin cost sharing; the House cleared it 220-207, the Senate 50-50."
     },
     {
      "i": "Tackle the National Debt",
+     "k": "national_debt",
      "l": "Carried a Deficit Reduction subtitle with a corporate minimum tax and IRS enforcement; the House cleared it 220-207, the Senate 50-50."
     }
    ]
@@ -263,7 +322,13 @@
    "m": [
     {
      "i": "Expand Voting Access",
+     "k": "voting_access",
      "l": "Would have required same-day registration, two weeks of early voting, no-excuse mail voting and drop boxes; the House passed it 220-203."
+    },
+    {
+     "i": "Get Money Out of Politics",
+     "k": "campaign_finance",
+     "l": "Would have made election spenders name their donors and curbed super PAC coordination with candidates; the House passed it 220-203."
     }
    ]
   },
@@ -275,6 +340,7 @@
    "m": [
     {
      "i": "Peace Through Strength",
+     "k": "strong_defense",
      "l": "Authorized FY2023 Armed Forces end strengths, procurement, operation and maintenance and military pay; the Senate concurred 83-11."
     }
    ]
@@ -286,10 +352,12 @@
    "t": "Protecting Our Kids Act",
    "m": [
     {
-     "i": "Protect Gun Rights"
+     "i": "Protect Gun Rights",
+     "k": "gun_rights"
     },
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "k": "gun_safety"
     }
    ]
   },
@@ -301,7 +369,13 @@
    "m": [
     {
      "i": "Protect LGBTQ+ Rights",
+     "k": "lgbtq_rights",
      "l": "Repealed the Defense of Marriage Act’s definitions of marriage and spouse; the House cleared it 258-169, the Senate 61-36."
+    },
+    {
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power",
+     "l": "Barred anyone acting under state law from refusing to honor another state’s marriage record; the House cleared it 258-169, the Senate 61-36."
     }
    ]
   },
@@ -313,7 +387,18 @@
    "m": [
     {
      "i": "Peace Through Strength",
+     "k": "strong_defense",
      "l": "Authorized FY2022 military end strengths, procurement and construction; the House cleared it 363-70, the Senate 88-11."
+    },
+    {
+     "i": "Stop Fentanyl & Cartels",
+     "k": "immig_fentanyl",
+     "l": "Made the narcotics report name the top fentanyl source countries and their cooperation; the House cleared it 363-70, the Senate 88-11."
+    },
+    {
+     "i": "Support for Israel",
+     "k": "israel_support",
+     "l": "Set aside up to $200 million to co-produce Israel’s Iron Dome, David’s Sling and Arrow 3; the House cleared it 363-70, the Senate 88-11."
     }
    ]
   },
@@ -325,22 +410,27 @@
    "m": [
     {
      "i": "Expand Healthcare Access",
+     "k": "healthcare",
      "l": "Directed guidance on Medicaid telehealth and school-based Medicaid services; the House cleared it 234-193, the Senate 65-33."
     },
     {
      "i": "Invest in Public Schools",
+     "k": "public_schools",
      "l": "Funded school safety programs and school-based mental-health services; the House cleared it 234-193, the Senate 65-33."
     },
     {
      "i": "Mental Health & Addiction",
+     "k": "health_mental",
      "l": "Funded children’s and family mental-health services and paediatric access grants; the House cleared it 234-193, the Senate 65-33."
     },
     {
      "i": "Protect Gun Rights",
+     "k": "gun_rights",
      "l": "Held under-21 gun sales for review and barred dating partners with abuse convictions; the House cleared it 234-193, the Senate 65-33."
     },
     {
      "i": "Stronger Gun Safety Laws",
+     "k": "gun_safety",
      "l": "Required enhanced checks for buyers aged 18 to 20 and created straw purchasing offences; the House cleared it 234-193, the Senate 65-33."
     }
    ]
@@ -353,10 +443,12 @@
    "m": [
     {
      "i": "Expand Healthcare Access",
+     "k": "healthcare",
      "l": "Opened VA health care to veterans exposed to burn pits and Agent Orange; the House cleared it 342-88, the Senate 86-11."
     },
     {
      "i": "Take Care of Veterans",
+     "k": "veterans",
      "l": "Expanded VA benefits and service-connection presumptions for toxic-exposed veterans; the House cleared it 342-88, the Senate 86-11."
     }
    ]
@@ -369,6 +461,7 @@
    "m": [
     {
      "i": "Support for Israel",
+     "k": "israel_support",
      "l": "Would bar the State and foreign operations funds from moving the U.S. Embassy in Israel out of Jerusalem; the House agreed to it 360-67."
     }
    ]
@@ -380,11 +473,18 @@
    "t": "Providing for congressional disapproval of the ATF rule relating to \"Factoring Criteria for Firearms with Attached 'Stabilizing Braces'\"",
    "m": [
     {
+     "i": "Cut Federal Red Tape",
+     "k": "gov_regulation",
+     "l": "Would have nullified the ATF rule on pistols fitted with stabilizing braces and barred its reissue; it failed in the Senate 49-50."
+    },
+    {
      "i": "Protect Gun Rights",
+     "k": "gun_rights",
      "l": "Would have struck the ATF rule reclassifying braced pistols as short-barrelled rifles; it failed the Senate 49-50."
     },
     {
      "i": "Stronger Gun Safety Laws",
+     "k": "gun_safety",
      "l": "Would have struck the ATF rule bringing braced pistols under the National Firearms Act; it failed the Senate 49-50."
     }
    ]
@@ -396,13 +496,18 @@
    "t": "Social Security Fairness Act of 2023",
    "m": [
     {
-     "i": "Protect Social Security & Medicare"
+     "i": "Protect Social Security & Medicare",
+     "k": "social_security",
+     "l": "Repealed the Windfall Elimination Provision and Government Pension Offset, raising benefits for public-sector retirees."
     },
     {
-     "i": "Tackle the Cost of Living"
+     "i": "Tackle the Cost of Living",
+     "k": "cost_living",
+     "l": "Increased monthly retirement income for affected teachers, firefighters, police and other public workers."
     },
     {
-     "i": "Tackle the National Debt"
+     "i": "Tackle the National Debt",
+     "k": "national_debt"
     }
    ]
   },
@@ -414,10 +519,12 @@
    "m": [
     {
      "i": "Election Security & Ballot Safeguards",
+     "k": "election_security",
      "l": "Would have barred non-citizens from voting in District of Columbia elections; the House passed it 262-143."
     },
     {
      "i": "Expand Voting Access",
+     "k": "voting_access",
      "l": "Repealed the District law that let non-citizen residents vote in District municipal elections."
     }
    ]
@@ -430,33 +537,41 @@
    "m": [
     {
      "i": "America First Foreign Aid & Commitments",
+     "k": "america_first_fp",
      "l": "Enacted the 118th Congress’s largest foreign-aid appropriation, for Israel, Ukraine and the Indo-Pacific; the Senate concurred 79-18."
     },
     {
      "i": "Diplomacy & Restraint",
+     "k": "restraint",
      "l": "Sustained U.S. military support to two active wars and Pacific deterrence through three security divisions; the Senate concurred 79-18."
     },
     {
      "i": "Iran",
+     "k": "iran_policy",
      "l": "Carried Iran-related sanctions in Division D, the 21st Century Peace through Strength Act; the Senate concurred 79-18."
     },
     {
      "i": "Smart Tech Guardrails",
+     "k": "tech_balance",
      "l": "Carried the Protecting Americans from Foreign Adversary Controlled Applications Act, a divest-or-ban rule; the Senate concurred 79-18."
     },
     {
      "i": "Stop Fentanyl & Cartels",
+     "k": "immig_fentanyl",
      "l": "Carried the FEND Off Fentanyl Act, with sanctions and anti-money-laundering steps against fentanyl traffickers; the Senate concurred 79-18."
     },
     {
      "i": "Strategic Engagement",
+     "k": "foreign_balance",
      "l": "Appropriated security assistance across three theatres at once, Israel, Ukraine and the Indo-Pacific; the Senate concurred 79-18."
     },
     {
-     "i": "Support for Israel"
+     "i": "Support for Israel",
+     "k": "israel_support"
     },
     {
      "i": "Ukraine",
+     "k": "ukraine_policy",
      "l": "Carried the Ukraine security supplemental as Division B of the 2024 national-security package; the Senate concurred 79-18."
     }
    ]
@@ -469,7 +584,18 @@
    "m": [
     {
      "i": "Peace Through Strength",
+     "k": "strong_defense",
      "l": "Authorized FY2024 defense procurement, research, military pay and construction; the House cleared it 310-118, the Senate 87-13."
+    },
+    {
+     "i": "Privacy & Big-Tech Accountability",
+     "k": "privacy_rights",
+     "l": "Extended section 702 surveillance of targets abroad through April 19, 2024; the House cleared it 310-118, the Senate 87-13."
+    },
+    {
+     "i": "Support for Israel",
+     "k": "israel_support",
+     "l": "Set anti-tunnel, counter-drone and refuelling aid for Israel and Iron Dome co-production; the House cleared it 310-118, the Senate 87-13."
     }
    ]
   },
@@ -481,34 +607,42 @@
    "m": [
     {
      "i": "Cut Federal Spending & Reduce Debt",
+     "k": "cut_spending",
      "l": "Set discretionary spending caps for FY2024 and FY2025, enforced by sequestration; the House cleared it 314-117, the Senate 63-36."
     },
     {
      "i": "Expand Domestic Energy Production",
+     "k": "energy_production",
      "l": "Ratified all federal approvals for the Mountain Valley Pipeline and barred court review; the House cleared it 314-117, the Senate 63-36."
     },
     {
      "i": "Faster Permits & Reviews",
+     "k": "permitting_reform",
      "l": "Set page and time limits on environmental impact statements and one lead agency per project; the House cleared it 314-117, the Senate 63-36."
     },
     {
      "i": "Homelessness Policy",
+     "k": "homeless",
      "l": "Exempted homeless individuals from the SNAP work rule as it raised the age limit to 54; the House cleared it 314-117, the Senate 63-36."
     },
     {
      "i": "Invest in Public Services",
+     "k": "gov_services",
      "l": "Tightened TANF work rules and raised the SNAP work-requirement age to 54; the House cleared it 314-117, the Senate 63-36."
     },
     {
      "i": "Lower College & Trade Costs",
+     "k": "edu_college_cost",
      "l": "Ended the federal student-loan payment pause and barred another extension without Congress; the House cleared it 314-117, the Senate 63-36."
     },
     {
      "i": "Tackle the National Debt",
+     "k": "national_debt",
      "l": "Suspended the debt limit through January 1, 2025; the House cleared it 314-117, the Senate 63-36."
     },
     {
      "i": "Take Care of Veterans",
+     "k": "veterans",
      "l": "Exempted veterans from the SNAP work requirement as it raised the age limit to 54; the House cleared it 314-117, the Senate 63-36."
     }
    ]
@@ -533,10 +667,12 @@
    "m": [
     {
      "i": "Peace Through Strength",
+     "k": "strong_defense",
      "l": "Authorized FY2025 Pentagon programs, military construction and servicemember pay; the House cleared it 281-140, the Senate 85-14."
     },
     {
      "i": "Protect LGBTQ+ Rights",
+     "k": "lgbtq_rights",
      "l": "Barred TRICARE from covering treatment for gender dysphoria that could result in sterilisation for a military dependent under 18."
     }
    ]
@@ -549,10 +685,16 @@
    "m": [
     {
      "i": "Cut Federal Spending & Reduce Debt",
+     "k": "cut_spending",
      "l": "Would have offset the Israel supplemental by rescinding $14.3 billion of IRS enforcement funding; the House passed it 226-196."
     },
     {
+     "i": "Peace Through Strength",
+     "k": "strong_defense"
+    },
+    {
      "i": "Support for Israel",
+     "k": "israel_support",
      "l": "Would have provided $14.3 billion for Israel’s missile defense, military financing and U.S. stock replacement; the House passed it 226-196."
     }
    ]
@@ -564,7 +706,13 @@
    "t": "Israel Security Supplemental Appropriations Act, 2024",
    "m": [
     {
+     "i": "Peace Through Strength",
+     "k": "strong_defense",
+     "l": "Would have funded U.S. military accounts to replace Pentagon stocks; it fell short of two-thirds in the House, 250-180."
+    },
+    {
      "i": "Support for Israel",
+     "k": "israel_support",
      "l": "Would have provided a $17.6 billion unoffset emergency supplemental for Israel; it fell short of two-thirds in the House, 250-180."
     }
    ]
@@ -576,11 +724,18 @@
    "t": "Reforming Intelligence and Securing America Act",
    "m": [
     {
+     "i": "Congressional Oversight",
+     "k": "congress_oversight",
+     "l": "Revoked the FBI’s reporting exemption and required regular section 702 reports to Congress; the House cleared it 273-147, the Senate 60-34."
+    },
+    {
      "i": "Peace Through Strength",
+     "k": "strong_defense",
      "l": "Reauthorized section 702 foreign-intelligence collection for two years; the House cleared it 273-147, the Senate 60-34."
     },
     {
      "i": "Privacy & Big-Tech Accountability",
+     "k": "privacy_rights",
      "l": "Repealed abouts collection and required FBI approval for U.S.-person section 702 queries; the House cleared it 273-147, the Senate 60-34."
     }
    ]
@@ -592,7 +747,18 @@
    "t": "Israel Security Supplemental Appropriations Act, 2024",
    "m": [
     {
+     "i": "America First Foreign Aid & Commitments",
+     "k": "america_first_fp",
+     "l": "Appropriated about $9.2 billion in foreign aid beyond Israel, for disaster, refugee and Sinai needs, unoffset; the House passed it 366-58."
+    },
+    {
+     "i": "Peace Through Strength",
+     "k": "strong_defense",
+     "l": "Would have sent about $7.8 billion to U.S. military accounts, refilling American stocks and Army ammunition; the House passed it 366-58."
+    },
+    {
      "i": "Support for Israel",
+     "k": "israel_support",
      "l": "Would have funded Iron Dome, David’s Sling, Iron Beam and military financing for Israel; the House passed it 366-58."
     }
    ]
@@ -605,18 +771,22 @@
    "m": [
     {
      "i": "America First Foreign Aid & Commitments",
+     "k": "america_first_fp",
      "l": "The standalone Ukraine-aid vote, stripped of the Israel, Indo-Pacific and sanctions divisions that carried the rest of the package."
     },
     {
      "i": "Diplomacy & Restraint",
+     "k": "restraint",
      "l": "Funded current U.S. military operations in the region and sustained American military support to an active war."
     },
     {
      "i": "Strategic Engagement",
+     "k": "foreign_balance",
      "l": "Would have funded Ukraine security assistance and replacement of defense articles already transferred; the House passed it 311-112."
     },
     {
      "i": "Ukraine",
+     "k": "ukraine_policy",
      "l": "Appropriated supplemental security aid for Ukraine, including the Ukraine Security Assistance Initiative; the House passed it 311-112."
     }
    ]
@@ -629,11 +799,18 @@
    "m": [
     {
      "i": "Election Security & Ballot Safeguards",
+     "k": "election_security",
      "l": "Would have required documentary proof of U.S. citizenship before a state registers a federal voter; the House passed it 221-198."
     },
     {
      "i": "Expand Voting Access",
+     "k": "voting_access",
      "l": "Would have required proof of citizenship in person at an election office, closing mail registration; the House passed it 221-198."
+    },
+    {
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power",
+     "l": "Would have written the proof-of-citizenship rule into federal law for every registration channel a state runs; the House passed it 221-198."
     }
    ]
   },
@@ -644,7 +821,13 @@
    "t": "Israel Security Assistance Support Act",
    "m": [
     {
+     "i": "Power of the Purse",
+     "k": "power_of_purse",
+     "l": "Would have barred spending appropriated funds to withhold or cancel delivery of defense articles; the House passed it 224-187."
+    },
+    {
      "i": "Support for Israel",
+     "k": "israel_support",
      "l": "Would have required the President to deliver to Israel the defense articles Congress had already funded; the House passed it 224-187."
     }
    ]
@@ -657,14 +840,17 @@
    "m": [
     {
      "i": "Protect Gun Rights",
+     "k": "gun_rights",
      "l": "Prohibited VA reporting of fiduciary determinations to NICS; the Senate agreed to it 53-45."
     },
     {
      "i": "Stronger Gun Safety Laws",
+     "k": "gun_safety",
      "l": "Ended VA reports of fiduciary determinations to NICS; the Senate agreed to it 53-45."
     },
     {
      "i": "Take Care of Veterans",
+     "k": "veterans",
      "l": "Barred funds for Veterans Affairs to report certain information to NICS for background checks; the Senate agreed to it 53-45."
     }
    ]
@@ -677,6 +863,7 @@
    "m": [
     {
      "i": "Support for Israel",
+     "k": "israel_support",
      "l": "Would have blocked the sale to Israel of tank rounds and 120mm mortar cartridges; the Senate refused to discharge it 18-79."
     }
    ]
@@ -689,6 +876,7 @@
    "m": [
     {
      "i": "Support for Israel",
+     "k": "israel_support",
      "l": "Would have blocked the sale to Israel of JDAM guidance kits and small-diameter bombs; the Senate refused to discharge it 19-78."
     }
    ]
@@ -701,6 +889,7 @@
    "m": [
     {
      "i": "Support for Israel",
+     "k": "israel_support",
      "l": "Would have blocked an export-licence amendment for defense articles and data for Israel; the Senate refused to discharge it 17-80."
     }
    ]
@@ -712,7 +901,8 @@
    "t": "Nomination of Pamela Bondi to be Attorney General",
    "m": [
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -723,7 +913,8 @@
    "t": "Nomination of Tulsi Gabbard to be Director of National Intelligence",
    "m": [
     {
-     "i": "Strategic Engagement"
+     "i": "Strategic Engagement",
+     "k": "foreign_balance"
     }
    ]
   },
@@ -735,6 +926,7 @@
    "m": [
     {
      "i": "Climate Action & Clean Energy",
+     "k": "climate_action",
      "l": "Wrote repeal of the Pentagon’s electric and hybrid fleet-vehicle preference into the defense bill; the House agreed to it 224-208."
     }
    ]
@@ -747,6 +939,7 @@
    "m": [
     {
      "i": "Tough on Crime",
+     "k": "tough_on_crime",
      "l": "Would raise the penalty for unlawfully entering a military installation from six months to two years; the House agreed to it 228-205."
     }
    ]
@@ -765,6 +958,7 @@
    "m": [
     {
      "i": "Protect LGBTQ+ Rights",
+     "k": "lgbtq_rights",
      "l": "Would bar TRICARE from covering gender-related medical treatment, with narrow exceptions; the House agreed to it 221-207."
     }
    ]
@@ -773,7 +967,13 @@
    "s": "119",
    "n": "H.Amdt. 87",
    "c": "house",
-   "t": "H.Amdt. 87 (Mace) to H.R. 3838 — amendment numbered 15 printed in Part A of House Report 119-255"
+   "t": "H.Amdt. 87 (Mace) to H.R. 3838 — amendment numbered 15 printed in Part A of House Report 119-255",
+   "m": [
+    {
+     "i": "Protect LGBTQ+ Rights",
+     "k": "lgbtq_rights"
+    }
+   ]
   },
   "119|H.Amdt. 88": {
    "s": "119",
@@ -783,6 +983,7 @@
    "m": [
     {
      "i": "Protect LGBTQ+ Rights",
+     "k": "lgbtq_rights",
      "l": "Would bar Pentagon forms from asking about gender identity or taking answers beyond male or female; the House agreed to it 221-210."
     }
    ]
@@ -795,6 +996,7 @@
    "m": [
     {
      "i": "Protect LGBTQ+ Rights",
+     "k": "lgbtq_rights",
      "l": "Would bar anyone from using a military single-sex facility that does not match their sex; the House agreed to it 219-209."
     }
    ]
@@ -807,6 +1009,7 @@
    "m": [
     {
      "i": "Peace Through Strength",
+     "k": "strong_defense",
      "l": "Proposed exempting military personnel from Endangered Species Act bans in national defense operations; the House rejected it 200-228."
     }
    ]
@@ -819,10 +1022,12 @@
    "m": [
     {
      "i": "Congress and War Powers",
+     "k": "war_powers",
      "l": "Added repeal of the 2002 and 1991 Iraq war authorizations to the House defense bill; the House agreed to it 261-167."
     },
     {
      "i": "Diplomacy & Restraint",
+     "k": "restraint",
      "l": "Would end the standing 2002 and 1991 Iraq force authorizations through the House defense bill; the House agreed to it 261-167."
     }
    ]
@@ -835,6 +1040,7 @@
    "m": [
     {
      "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power",
      "l": "Would strike the farm bill sections preempting state pesticide labeling rules, leaving state law in place; the House agreed to it 280-142."
     }
    ]
@@ -847,10 +1053,12 @@
    "m": [
     {
      "i": "Climate Action & Clean Energy",
+     "k": "climate_action",
      "l": "Wrote a farm-equipment exemption from Clean Air Act engine emission standards into the farm bill; the House agreed to it 215-213."
     },
     {
      "i": "Farmers & Rural Communities",
+     "k": "rural_ag",
      "l": "Would remove farm-equipment emissions mandates to ease expenses for farmers and consumers; the House agreed to it 215-213."
     }
    ]
@@ -862,10 +1070,12 @@
    "t": "H.Amdt. 232 (Boebert) to H.R. 8595 — eliminate funding for the Fulbright Program",
    "m": [
     {
-     "i": "America First Foreign Aid & Commitments"
+     "i": "America First Foreign Aid & Commitments",
+     "k": "america_first_fp"
     },
     {
-     "i": "Cut Federal Spending & Reduce Debt"
+     "i": "Cut Federal Spending & Reduce Debt",
+     "k": "cut_spending"
     }
    ]
   },
@@ -876,14 +1086,17 @@
    "t": "H.Amdt. 234 (Fine) to H.R. 8595 — strike the $139,575,000 for the Global Environment Facility",
    "m": [
     {
-     "i": "America First Foreign Aid & Commitments"
+     "i": "America First Foreign Aid & Commitments",
+     "k": "america_first_fp"
     },
     {
      "i": "Climate Action & Clean Energy",
+     "k": "climate_action",
      "l": "Proposed striking the $139,575,000 for the Global Environment Facility from the bill; the House rejected it 178-247."
     },
     {
-     "i": "Cut Federal Spending & Reduce Debt"
+     "i": "Cut Federal Spending & Reduce Debt",
+     "k": "cut_spending"
     }
    ]
   },
@@ -895,14 +1108,17 @@
    "m": [
     {
      "i": "America First Foreign Aid & Commitments",
+     "k": "america_first_fp",
      "l": "Proposed barring the national security and State funds from use for Israel, a standing aid commitment; the House rejected it 104-314."
     },
     {
      "i": "Cut Federal Spending & Reduce Debt",
+     "k": "cut_spending",
      "l": "Proposed cutting the Foreign Military Financing Program account by $3.3 billion; the House rejected it 104-314."
     },
     {
      "i": "Support for Israel",
+     "k": "israel_support",
      "l": "Proposed barring the bill’s funds from use for Israel and cutting Foreign Military Financing by $3.3 billion; the House rejected it 104-314."
     }
    ]
@@ -915,10 +1131,12 @@
    "m": [
     {
      "i": "America First Foreign Aid & Commitments",
+     "k": "america_first_fp",
      "l": "Proposed barring the national security and State funds from use for Jordan, a standing aid commitment; the House rejected it 6-421."
     },
     {
      "i": "Cut Federal Spending & Reduce Debt",
+     "k": "cut_spending",
      "l": "Proposed cutting the National Security Investment Programs and Foreign Military Financing by the Jordan sums; the House rejected it 6-421."
     }
    ]
@@ -930,10 +1148,12 @@
    "t": "H.Amdt. 237 (Roy) to H.R. 8595 — prohibit any funds from being made available to the United Nations",
    "m": [
     {
-     "i": "America First Foreign Aid & Commitments"
+     "i": "America First Foreign Aid & Commitments",
+     "k": "america_first_fp"
     },
     {
-     "i": "Cut Federal Spending & Reduce Debt"
+     "i": "Cut Federal Spending & Reduce Debt",
+     "k": "cut_spending"
     }
    ]
   },
@@ -941,7 +1161,14 @@
    "s": "119",
    "n": "H.Amdt. 242",
    "c": "house",
-   "t": "H.Amdt. 242 (Boebert) to H.R. 8800 — strike section 1213, relating to the deadline for the Afghanistan War Commission's final report, and maintain the current statutory reporting deadline"
+   "t": "H.Amdt. 242 (Boebert) to H.R. 8800 — strike section 1213, relating to the deadline for the Afghanistan War Commission's final report, and maintain the current statutory reporting deadline",
+   "m": [
+    {
+     "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency",
+     "l": "Proposed keeping the Afghanistan War Commission’s three-year final-report deadline; the House rejected it 65-361."
+    }
+   ]
   },
   "119|H.Amdt. 243": {
    "s": "119",
@@ -951,10 +1178,12 @@
    "m": [
     {
      "i": "America First Foreign Aid & Commitments",
+     "k": "america_first_fp",
      "l": "Proposed barring foreign nationals from U.S. military academies, striking the defense bill’s cadet section; the House rejected it 61-360."
     },
     {
      "i": "Strategic Engagement",
+     "k": "foreign_balance",
      "l": "Proposed a bar on foreign nationals attending the United States Military Academies in place of section 521; the House rejected it 61-360."
     }
    ]
@@ -975,7 +1204,13 @@
    "s": "119",
    "n": "H.Amdt. 247",
    "c": "house",
-   "t": "H.Amdt. 247 (Hunt) to H.R. 8800 — amend the bill to ensure that no court may issue injunctions that impair military readiness, military fuel supply, or defense-related logistical…"
+   "t": "H.Amdt. 247 (Hunt) to H.R. 8800 — amend the bill to ensure that no court may issue injunctions that impair military readiness, military fuel supply, or defense-related logistical…",
+   "m": [
+    {
+     "i": "Court Orders on the Executive",
+     "k": "judicial_check"
+    }
+   ]
   },
   "119|H.Amdt. 248": {
    "s": "119",
@@ -985,10 +1220,12 @@
    "m": [
     {
      "i": "Expand Domestic Energy Production",
+     "k": "energy_production",
      "l": "Wrote into the defense bill that the Santa Ynez offshore production unit keeps operating; the House agreed to it 215-214."
     },
     {
      "i": "Peace Through Strength",
+     "k": "strong_defense",
      "l": "Would keep the Santa Ynez unit producing as a component of the military’s fuel supply chain; the House agreed to it 215-214."
     }
    ]
@@ -997,13 +1234,25 @@
    "s": "119",
    "n": "H.Amdt. 249",
    "c": "house",
-   "t": "H.Amdt. 249 (Gallagher) to H.R. 8800 — conduct a study to explore mechanisms by which federal authority can preempt or otherwise mitigate state actions that effectively undermine domestic…"
+   "t": "H.Amdt. 249 (Gallagher) to H.R. 8800 — conduct a study to explore mechanisms by which federal authority can preempt or otherwise mitigate state actions that effectively undermine domestic…",
+   "m": [
+    {
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power"
+    }
+   ]
   },
   "119|H.Amdt. 250": {
    "s": "119",
    "n": "H.Amdt. 250",
    "c": "house",
-   "t": "H.Amdt. 250 (Carter) to H.R. 8800 — preempt state and local laws that impose requirements different from federal standards on certain defense-related recycling, disposal, and materials…"
+   "t": "H.Amdt. 250 (Carter) to H.R. 8800 — preempt state and local laws that impose requirements different from federal standards on certain defense-related recycling, disposal, and materials…",
+   "m": [
+    {
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power"
+    }
+   ]
   },
   "119|H.Amdt. 251": {
    "s": "119",
@@ -1012,13 +1261,16 @@
    "t": "H.Amdt. 251 (Crane) to H.R. 8800 — prohibit the Department of Defense from using taxpayer funds to cover the costs of foreign military personnel participating in bilateral or…",
    "m": [
     {
-     "i": "America First Foreign Aid & Commitments"
+     "i": "America First Foreign Aid & Commitments",
+     "k": "america_first_fp"
     },
     {
-     "i": "Cut Federal Spending & Reduce Debt"
+     "i": "Cut Federal Spending & Reduce Debt",
+     "k": "cut_spending"
     },
     {
-     "i": "Strategic Engagement"
+     "i": "Strategic Engagement",
+     "k": "foreign_balance"
     }
    ]
   },
@@ -1029,19 +1281,24 @@
    "t": "H.Amdt. 252 (Crane) to H.R. 8800 — prohibit funds for Ukraine Security Assistance except for U.S. embassy security in Ukraine",
    "m": [
     {
-     "i": "America First Foreign Aid & Commitments"
+     "i": "America First Foreign Aid & Commitments",
+     "k": "america_first_fp"
     },
     {
-     "i": "Diplomacy & Restraint"
+     "i": "Diplomacy & Restraint",
+     "k": "restraint"
     },
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "k": "strong_defense"
     },
     {
-     "i": "Strategic Engagement"
+     "i": "Strategic Engagement",
+     "k": "foreign_balance"
     },
     {
      "i": "Ukraine",
+     "k": "ukraine_policy",
      "l": "Proposed prohibiting funds for Ukraine Security Assistance except U.S. embassy security in Ukraine; the House rejected it 76-350."
     }
    ]
@@ -1053,7 +1310,8 @@
    "t": "H.Amdt. 253 (Crank) to H.R. 8800 — establish a presumption of approval for qualified Department of Defense servicemembers and civilian employees seeking authorization from their…",
    "m": [
     {
-     "i": "Protect Gun Rights"
+     "i": "Protect Gun Rights",
+     "k": "gun_rights"
     }
    ]
   },
@@ -1065,6 +1323,7 @@
    "m": [
     {
      "i": "Protect LGBTQ+ Rights",
+     "k": "lgbtq_rights",
      "l": "Proposed codifying Executive Order 14183, which implements a ban on transgender service members; the House rejected it 212-217."
     }
    ]
@@ -1076,10 +1335,12 @@
    "t": "H.Amdt. 255 (Mace) to H.R. 8800 — prohibit gender-related medical care under TRICARE and prevents TRICARE from covering certain gender-related medical procedures and treatments",
    "m": [
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "k": "healthcare"
     },
     {
      "i": "Protect LGBTQ+ Rights",
+     "k": "lgbtq_rights",
      "l": "Would prevent TRICARE from covering certain gender-related medical procedures and treatments; the House agreed to it 219-208."
     }
    ]
@@ -1092,6 +1353,7 @@
    "m": [
     {
      "i": "Protect LGBTQ+ Rights",
+     "k": "lgbtq_rights",
      "l": "Would prohibit male participation in female sports at Department of Defense Education Activity schools; the House agreed to it 221-203."
     }
    ]
@@ -1104,6 +1366,7 @@
    "m": [
     {
      "i": "School Choice & Education Freedom",
+     "k": "school_choice",
      "l": "Proposed a Defense Department school choice pilot program for members of the Armed Forces; the House rejected it 214-216."
     }
    ]
@@ -1116,6 +1379,7 @@
    "m": [
     {
      "i": "Religious Liberty Focus",
+     "k": "religious_liberty",
      "l": "Would codify protections and responsibilities for chaplains; the House agreed to it 221-210."
     }
    ]
@@ -1130,13 +1394,31 @@
    "s": "119",
    "n": "H.Amdt. 261",
    "c": "house",
-   "t": "H.Amdt. 261 (Harrigan) to H.R. 8800 — prohibit the use of automated speed enforcement cameras on military installations"
+   "t": "H.Amdt. 261 (Harrigan) to H.R. 8800 — prohibit the use of automated speed enforcement cameras on military installations",
+   "m": [
+    {
+     "i": "Privacy & Big-Tech Accountability",
+     "k": "privacy_rights",
+     "l": "Would bar federal funds for any automated speed-enforcement camera on a military installation; the House agreed to it 232-199."
+    }
+   ]
   },
   "119|H.Amdt. 266": {
    "s": "119",
    "n": "H.Amdt. 266",
    "c": "house",
-   "t": "H.Amdt. 266 (Grothman) to H.R. 8800 — require the Secretary of Defense to submit a report detailing options for reducing the number of civilians employed by the Department of Defense by…"
+   "t": "H.Amdt. 266 (Grothman) to H.R. 8800 — require the Secretary of Defense to submit a report detailing options for reducing the number of civilians employed by the Department of Defense by…",
+   "m": [
+    {
+     "i": "Cut Federal Spending & Reduce Debt",
+     "k": "cut_spending",
+     "l": "Proposed a Pentagon report on options for cutting 200,000 civilian positions and the savings each yields; the House rejected it 175-254."
+    },
+    {
+     "i": "Cut Waste, Not Services",
+     "k": "gov_waste"
+    }
+   ]
   },
   "119|H.Con.Res. 14": {
    "s": "119",
@@ -1145,19 +1427,29 @@
    "t": "Establishing the congressional budget for the United States Government for fiscal year 2025 and setting forth budgetary levels for fiscal years 2026 through 2034",
    "m": [
     {
-     "i": "Cut Federal Spending & Reduce Debt"
+     "i": "Cut Federal Spending & Reduce Debt",
+     "k": "cut_spending",
+     "l": "Would direct committees to find net spending reductions through reconciliation; the House adopted it 216-214."
     },
     {
-     "i": "Cut Income & Business Taxes"
+     "i": "Cut Income & Business Taxes",
+     "k": "lower_taxes",
+     "l": "Would reserve reconciliation room to extend and expand the 2017 tax cuts; the House adopted it 216-214."
     },
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "k": "strong_defense",
+     "l": "Would reserve reconciliation room for a defense-spending increase; the House adopted it 216-214."
     },
     {
-     "i": "Strong Border & Enforcement"
+     "i": "Strong Border & Enforcement",
+     "k": "border_security",
+     "l": "Would reserve reconciliation room for border-security and immigration-enforcement funding; the House adopted it 216-214."
     },
     {
-     "i": "Tackle the National Debt"
+     "i": "Tackle the National Debt",
+     "k": "national_debt",
+     "l": "Would set the FY2025 budget and the reconciliation instructions for that year’s tax-and-spending changes; the House adopted it 216-214."
     }
    ]
   },
@@ -1168,15 +1460,22 @@
    "t": "Directing the President, pursuant to section 5(c) of the War Powers Resolution, to remove United States Armed Forces from hostilities with Iran.",
    "m": [
     {
+     "i": "Congress and War Powers",
+     "k": "war_powers"
+    },
+    {
      "i": "Diplomacy & Restraint",
+     "k": "restraint",
      "l": "Would direct U.S. forces out of Iran hostilities, keeping self-defense and intelligence sharing; the House agreed to it 214-208."
     },
     {
      "i": "Iran",
+     "k": "iran_policy",
      "l": "Directs the President to remove U.S. forces from hostilities with Iran, keeping self-defense; the House agreed to it 214-208."
     },
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "k": "strong_defense"
     }
    ]
   },
@@ -1187,11 +1486,17 @@
    "t": "Directing the President pursuant to section 5(c) of the War Powers Resolution to remove United States Armed Forces from hostilities in Lebanon.",
    "m": [
     {
+     "i": "Congress and War Powers",
+     "k": "war_powers"
+    },
+    {
      "i": "Diplomacy & Restraint",
+     "k": "restraint",
      "l": "Would have directed U.S. forces out of any hostilities in Lebanon within seven days; the House rejected it 189-235."
     },
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "k": "strong_defense"
     }
    ]
   },
@@ -1199,7 +1504,18 @@
    "s": "119",
    "n": "H.Con.Res. 113",
    "c": "house",
-   "t": "Establishing the congressional budget for the United States Government for fiscal year 2027 and setting forth the appropriate budgetary levels for fiscal years 2028 through 2036."
+   "t": "Establishing the congressional budget for the United States Government for fiscal year 2027 and setting forth the appropriate budgetary levels for fiscal years 2028 through 2036.",
+   "m": [
+    {
+     "i": "Peace Through Strength",
+     "k": "strong_defense"
+    },
+    {
+     "i": "Tackle the National Debt",
+     "k": "national_debt",
+     "l": "Would set the FY2027 budget and direct four House committees to report deficit-raising reconciliation bills; the House agreed to it 216-214."
+    }
+   ]
   },
   "119|H.J.Res. 25": {
    "s": "119",
@@ -1209,14 +1525,17 @@
    "m": [
     {
      "i": "Cryptocurrency Rules & Digital Dollar",
+     "k": "crypto_cbdc",
      "l": "Nullified IRS broker tax reporting on decentralized-finance digital asset sales; the House cleared it 292-132, the Senate 70-28."
     },
     {
      "i": "Cut Federal Red Tape",
+     "k": "gov_regulation",
      "l": "Nullified the IRS rule making decentralized-finance software report users’ crypto trades as a broker, and barred a similar rule."
     },
     {
      "i": "Innovation & Light Rules",
+     "k": "tech_innovation",
      "l": "Struck the IRS rule extending broker reporting to decentralized-finance front ends and barred a substantially similar rule."
     }
    ]
@@ -1229,21 +1548,28 @@
    "m": [
     {
      "i": "Climate Action & Clean Energy",
+     "k": "climate_action",
      "l": "Struck the EPA waiver for California’s Advanced Clean Cars II regulations and barred a substantially similar rule."
     },
     {
      "i": "Cut Federal Red Tape",
+     "k": "gov_regulation",
      "l": "Struck the EPA waiver letting California enforce Advanced Clean Cars II, and barred a substantially similar waiver."
     },
     {
      "i": "Expand Domestic Energy Production",
+     "k": "energy_production",
      "l": "Struck the EPA waiver for California’s Advanced Clean Cars II regulations and barred a substantially similar rule."
     },
     {
-     "i": "Tackle the Cost of Living"
+     "i": "Tackle the Cost of Living",
+     "k": "cost_living",
+     "l": "Removed the rising zero-emission sales requirement in the adopting states, so the mix of new vehicles offered there is set by the market."
     },
     {
-     "i": "Whose Rule Governs: State or Federal"
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power",
+     "l": "Repealed the waiver that let California set stricter vehicle emission standards than the national floor, narrowing that state authority."
     }
    ]
   },
@@ -1255,21 +1581,28 @@
    "m": [
     {
      "i": "Climate Action & Clean Energy",
+     "k": "climate_action",
      "l": "Struck the EPA waiver for California’s Advanced Clean Trucks regulations and barred a substantially similar rule."
     },
     {
      "i": "Cut Federal Red Tape",
+     "k": "gov_regulation",
      "l": "Struck the EPA waiver letting California enforce its own heavy-duty truck emission rules, and barred a substantially similar waiver."
     },
     {
      "i": "Expand Domestic Energy Production",
+     "k": "energy_production",
      "l": "Struck the EPA waiver for California’s Advanced Clean Trucks regulations and barred a substantially similar rule."
     },
     {
-     "i": "Tackle the Cost of Living"
+     "i": "Tackle the Cost of Living",
+     "k": "cost_living",
+     "l": "Ended the zero-emission share required of new trucks sold in the adopting states, leaving fleet purchasers free to buy conventional trucks."
     },
     {
-     "i": "Whose Rule Governs: State or Federal"
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power",
+     "l": "Repealed the federal waiver that let California set stricter heavy-truck standards than the national floor, narrowing that state authority."
     }
    ]
   },
@@ -1281,18 +1614,22 @@
    "m": [
     {
      "i": "Cut Federal Red Tape",
+     "k": "gov_regulation",
      "l": "Voided the BLM’s 2024 Arctic refuge leasing decision under the Congressional Review Act and barred a substantially similar one."
     },
     {
      "i": "Energy & Resource Development",
+     "k": "lands_energy",
      "l": "Struck the BLM decision withdrawing 1.2 million Arctic refuge acres from oil and gas leasing and barred a substantially similar rule."
     },
     {
      "i": "Expand Domestic Energy Production",
+     "k": "energy_production",
      "l": "Struck the BLM’s December 2024 Record of Decision for the Arctic refuge coastal plain and barred a substantially similar rule."
     },
     {
      "i": "Protect Public Lands",
+     "k": "lands_preserve",
      "l": "Removed the conservation withdrawal from roughly 1.2 million acres inside the Arctic National Wildlife Refuge."
     }
    ]
@@ -1305,10 +1642,12 @@
    "m": [
     {
      "i": "Energy & Resource Development",
+     "k": "lands_energy",
      "l": "Struck the BLM order withdrawing 225,504 Minnesota forest acres from mineral and geothermal leasing and barred a substantially similar rule."
     },
     {
      "i": "Protect Public Lands",
+     "k": "lands_preserve",
      "l": "Struck the order closing about 225,504 acres of Minnesota national forest above the Boundary Waters to mineral and geothermal leasing."
     }
    ]
@@ -1320,51 +1659,74 @@
    "t": "H.R. 1 — One Big Beautiful Bill Act (reconciliation, title II of H. Con. Res. 14)",
    "m": [
     {
-     "i": "Climate Action & Clean Energy"
+     "i": "Climate Action & Clean Energy",
+     "k": "climate_action",
+     "l": "Phased out and repealed the 2022 clean-energy and electric-vehicle tax credits; the House cleared it 218-214, the Senate 50-50."
     },
     {
      "i": "Cut Federal Spending & Reduce Debt",
+     "k": "cut_spending",
      "l": "Reduced federal Medicaid spending and raised the SNAP work-requirement age from 55 to 65; the House cleared it 218-214, the Senate 50-50."
     },
     {
      "i": "Cut Income & Business Taxes",
+     "k": "lower_taxes",
      "l": "Made the 2017 tax cuts permanent and raised the child tax credit to $2,200, indexed; the House cleared it 218-214, the Senate 50-50."
     },
     {
      "i": "Energy & Resource Development",
+     "k": "lands_energy",
      "l": "Loosened restrictions on oil, gas and coal leasing on federal land and lowered the minimum royalty rates paid on it."
     },
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "k": "energy_production",
+     "l": "Expanded onshore and offshore oil, gas and coal leasing and sped fossil-fuel permitting; the House cleared it 218-214, the Senate 50-50."
     },
     {
      "i": "Expand Healthcare Access",
+     "k": "healthcare",
      "l": "Reduced federal Medicaid spending and tightened Medicaid enrolment and eligibility processes."
     },
     {
-     "i": "Help Families with Kids"
+     "i": "Help Families with Kids",
+     "k": "family_support",
+     "l": "Raised the child tax credit to $2,200 per child and made it permanent; the House cleared it 218-214, the Senate 50-50."
     },
     {
-     "i": "Lower College & Trade Costs"
+     "i": "Lower College & Trade Costs",
+     "k": "edu_college_cost",
+     "l": "Eliminated several income-driven student-loan repayment plans and capped graduate borrowing; the House cleared it 218-214."
     },
     {
-     "i": "Mass Deportations & Border Security"
+     "i": "Mass Deportations & Border Security",
+     "k": "deportations",
+     "l": "Appropriated tens of billions of dollars for immigration detention and removal; the House cleared it 218-214, the Senate 50-50."
     },
     {
-     "i": "Middle-Class Tax Relief"
+     "i": "Middle-Class Tax Relief",
+     "k": "tax_middle_class",
+     "l": "Made the 2017 individual income-tax rates permanent and added temporary deductions for tips and overtime pay; the House cleared it 218-214."
     },
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "k": "strong_defense",
+     "l": "Added a large increase in defense and military spending; the House cleared it 218-214, the Senate 50-50."
     },
     {
-     "i": "School Choice & Education Freedom"
+     "i": "School Choice & Education Freedom",
+     "k": "school_choice",
+     "l": "Created a federal tax credit for donations to K-12 private-school scholarship organizations; the House cleared it 218-214, the Senate 50-50."
     },
     {
      "i": "Strong Border & Enforcement",
+     "k": "border_security",
      "l": "The 2025 reconciliation act appropriated new funding for border enforcement and immigration operations."
     },
     {
-     "i": "Tackle the National Debt"
+     "i": "Tackle the National Debt",
+     "k": "national_debt",
+     "l": "Raised the statutory debt ceiling by $5 trillion; the House cleared it 218-214, the Senate 50-50."
     }
    ]
   },
@@ -1375,31 +1737,42 @@
    "t": "Rescissions Act of 2025",
    "m": [
     {
-     "i": "America First"
+     "i": "America First",
+     "k": "america_first"
     },
     {
      "i": "America First Foreign Aid & Commitments",
+     "k": "america_first_fp",
      "l": "Rescinded about $7.9 billion in foreign-assistance balances, development aid among them; the House passed it 214-212, the Senate 51-48."
     },
     {
-     "i": "Audit Spending & the Fed"
+     "i": "Audit Spending & the Fed",
+     "k": "audit_spending",
+     "l": "Codified DOGE-identified cuts through the Impoundment Control Act’s rescission process; the House cleared it 214-212, the Senate 51-48."
     },
     {
      "i": "Cut Federal Spending & Reduce Debt",
+     "k": "cut_spending",
      "l": "Cancelled unobligated balances for the State Department, USAID and public broadcasting; the House cleared it 214-212, the Senate 51-48."
     },
     {
      "i": "Cut Waste, Not Services",
+     "k": "gov_waste",
      "l": "Returned roughly $9 billion of enacted budget authority to the Treasury unspent; the House cleared it 214-212, the Senate 51-48."
     },
     {
-     "i": "Free Speech Protections"
+     "i": "Free Speech Protections",
+     "k": "free_speech",
+     "l": "Ended federal funding for NPR and PBS member stations; the House cleared it 214-212, the Senate 51-48."
     },
     {
-     "i": "Invest in Public Services"
+     "i": "Invest in Public Services",
+     "k": "gov_services",
+     "l": "Cut funding for public-media and international programs, reducing those services; the House cleared it 214-212, the Senate 51-48."
     },
     {
      "i": "Tackle the National Debt",
+     "k": "national_debt",
      "l": "Reduced federal outlays by the rescinded balances, below the House’s $9.4 billion; the House cleared it 214-212, the Senate 51-48."
     }
    ]
@@ -1411,10 +1784,13 @@
    "t": "Born-Alive Abortion Survivors Protection Act",
    "m": [
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "k": "healthcare",
+     "l": "Would require medical care for an infant born alive after an attempted abortion; the House passed it 217-204."
     },
     {
-     "i": "Pro-Life Protections"
+     "i": "Pro-Life Protections",
+     "k": "pro_life"
     }
    ]
   },
@@ -1426,18 +1802,22 @@
    "m": [
     {
      "i": "Election Integrity",
+     "k": "election_integrity",
      "l": "Would require documentary proof of citizenship to register and removal of non-citizens from rolls; the House passed it 220-208."
     },
     {
      "i": "Election Security & Ballot Safeguards",
+     "k": "election_security",
      "l": "Would require proof of citizenship to register and state checks of existing rolls against federal databases; the House passed it 220-208."
     },
     {
      "i": "Expand Voting Access",
+     "k": "voting_access",
      "l": "Would make documentary proof of citizenship a precondition of registering by mail, online or in person; the House passed it 220-208."
     },
     {
      "i": "Voter ID & Election Integrity",
+     "k": "voter_id",
      "l": "Would require a passport, a citizenship-showing REAL ID, or a birth certificate with photo ID to register; the House passed it 220-208."
     }
    ]
@@ -1449,16 +1829,26 @@
    "t": "Protecting American Energy Production Act",
    "m": [
     {
-     "i": "Cut Federal Red Tape"
+     "i": "Cut Federal Red Tape",
+     "k": "gov_regulation"
     },
     {
-     "i": "Energy & Resource Development"
+     "i": "Energy & Resource Development",
+     "k": "lands_energy"
     },
     {
-     "i": "Energy Independence"
+     "i": "Energy Independence",
+     "k": "enviro_energy",
+     "l": "Would bar a federal fracking moratorium to protect and expand domestic oil and gas production; the House passed it 226-188."
     },
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "k": "energy_production",
+     "l": "Would affirm state authority over hydraulic fracturing to keep energy output flowing; the House passed it 226-188."
+    },
+    {
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power"
     }
    ]
   },
@@ -1469,13 +1859,18 @@
    "t": "HALT Fentanyl Act",
    "m": [
     {
-     "i": "Mental Health & Addiction"
+     "i": "Mental Health & Addiction",
+     "k": "health_mental"
     },
     {
-     "i": "Stop Fentanyl & Cartels"
+     "i": "Stop Fentanyl & Cartels",
+     "k": "immig_fentanyl",
+     "l": "Would toughen federal scheduling of fentanyl-related substances to fight the overdose crisis; the House passed it 312-108."
     },
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime",
+     "l": "Would make Schedule I placement permanent and attach mandatory penalties; the House passed it 312-108."
     }
    ]
   },
@@ -1486,16 +1881,23 @@
    "t": "Protection of Women and Girls in Sports Act",
    "m": [
     {
-     "i": "Invest in Public Schools"
+     "i": "Invest in Public Schools",
+     "k": "public_schools",
+     "l": "Would apply to federally funded school and college athletic programs under Title IX; the House passed it 218-206."
     },
     {
-     "i": "Parental Rights in Schools"
+     "i": "Parental Rights in Schools",
+     "k": "edu_parental"
     },
     {
-     "i": "Protect LGBTQ+ Rights"
+     "i": "Protect LGBTQ+ Rights",
+     "k": "lgbtq_rights",
+     "l": "Would restrict transgender athletes’ participation in school and college sports for women and girls; the House passed it 218-206."
     },
     {
-     "i": "Strengthen Every School"
+     "i": "Strengthen Every School",
+     "k": "edu_balance",
+     "l": "Would set a federal rule for how sex is defined in school sports eligibility; the House passed it 218-206."
     }
    ]
   },
@@ -1512,7 +1914,9 @@
    "t": "Gulf of America Act of 2025",
    "m": [
     {
-     "i": "America First"
+     "i": "America First",
+     "k": "america_first",
+     "l": "Would rename the Gulf of Mexico the Gulf of America in federal law, locking in the executive order; the House passed it 211-206."
     }
    ]
   },
@@ -1523,16 +1927,20 @@
    "t": "Fix Our Forests Act",
    "m": [
     {
-     "i": "Balanced Land Use"
+     "i": "Balanced Land Use",
+     "k": "lands_balance"
     },
     {
-     "i": "Faster Permits & Reviews"
+     "i": "Faster Permits & Reviews",
+     "k": "permitting_reform"
     },
     {
-     "i": "Practical Stewardship"
+     "i": "Practical Stewardship",
+     "k": "enviro_balance"
     },
     {
-     "i": "Wildfire & Disaster Resilience"
+     "i": "Wildfire & Disaster Resilience",
+     "k": "disaster_resilience"
     }
    ]
   },
@@ -1544,10 +1952,12 @@
    "m": [
     {
      "i": "Election Security & Ballot Safeguards",
+     "k": "election_security",
      "l": "Would bar anyone who is not a U.S. citizen from voting in a District of Columbia election; the House passed it 266-148."
     },
     {
      "i": "Expand Voting Access",
+     "k": "voting_access",
      "l": "Took the municipal vote away from non-citizen District residents who had registered under the District’s own 2022 law."
     }
    ]
@@ -1566,11 +1976,17 @@
    "m": [
     {
      "i": "Protect Gun Rights",
+     "k": "gun_rights",
      "l": "Would end VA gun-check referrals over benefit payments unless a judge finds a danger to themselves or others; the House passed it 216-201."
     },
     {
      "i": "Stronger Gun Safety Laws",
+     "k": "gun_safety",
      "l": "Would bar the VA from reporting a veteran to the background-check system only for being given a fiduciary; the House passed it 216-201."
+    },
+    {
+     "i": "Take Care of Veterans",
+     "k": "veterans"
     }
    ]
   },
@@ -1582,6 +1998,7 @@
    "m": [
     {
      "i": "Expand Domestic Energy Production",
+     "k": "energy_production",
      "l": "Would let new dispatchable power projects move to the front of the grid interconnection queue; the House passed it 216-206."
     }
    ]
@@ -1593,10 +2010,12 @@
    "t": "Defending Education Transparency and Ending Rogue Regimes Engaging in Nefarious Transactions (DETERRENT) Act",
    "m": [
     {
-     "i": "Strengthen Every School"
+     "i": "Strengthen Every School",
+     "k": "edu_balance"
     },
     {
-     "i": "Transparency & Anti-Corruption"
+     "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency"
     }
    ]
   },
@@ -1614,11 +2033,18 @@
    "m": [
     {
      "i": "Privacy & Big-Tech Accountability",
+     "k": "privacy_rights",
      "l": "Would stop card networks from building records that flag a customer as having shopped at a gun store; the House passed it 221-201."
     },
     {
      "i": "Protect Gun Rights",
+     "k": "gun_rights",
      "l": "Would bar card networks from assigning a merchant category code that singles out a firearms retailer; the House passed it 221-201."
+    },
+    {
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power",
+     "l": "Would pre-empt state and local laws on merchant category codes for firearms retailers; the House passed it 221-201."
     }
    ]
   },
@@ -1630,6 +2056,7 @@
    "m": [
     {
      "i": "Energy & Resource Development",
+     "k": "lands_energy",
      "l": "Would lift acreage limits on hardrock mining mill sites and set up an Abandoned Hardrock Mine Fund; the House passed it 219-198."
     }
    ]
@@ -1641,10 +2068,12 @@
    "t": "No Rogue Rulings Act of 2025",
    "m": [
     {
-     "i": "Court Orders on the Executive"
+     "i": "Court Orders on the Executive",
+     "k": "judicial_check"
     },
     {
-     "i": "Practical Government Reform"
+     "i": "Practical Government Reform",
+     "k": "reform_balance"
     }
    ]
   },
@@ -1655,13 +2084,16 @@
    "t": "Anti-CBDC Surveillance State Act",
    "m": [
     {
-     "i": "Cryptocurrency Rules & Digital Dollar"
+     "i": "Cryptocurrency Rules & Digital Dollar",
+     "k": "crypto_cbdc"
     },
     {
-     "i": "Privacy & Big-Tech Accountability"
+     "i": "Privacy & Big-Tech Accountability",
+     "k": "privacy_rights"
     },
     {
-     "i": "Smart Tech Guardrails"
+     "i": "Smart Tech Guardrails",
+     "k": "tech_balance"
     }
    ]
   },
@@ -1672,16 +2104,20 @@
    "t": "Unlocking our Domestic LNG Potential Act of 2025",
    "m": [
     {
-     "i": "Climate Action & Clean Energy"
+     "i": "Climate Action & Clean Energy",
+     "k": "climate_action"
     },
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "k": "energy_production"
     },
     {
-     "i": "Faster Permits & Reviews"
+     "i": "Faster Permits & Reviews",
+     "k": "permitting_reform"
     },
     {
-     "i": "Protect American Jobs"
+     "i": "Protect American Jobs",
+     "k": "econ_trade"
     }
    ]
   },
@@ -1692,20 +2128,39 @@
    "t": "Full-Year Continuing Appropriations and Extensions Act, 2025",
    "m": [
     {
-     "i": "Cut Federal Spending & Reduce Debt"
+     "i": "Cut Federal Spending & Reduce Debt",
+     "k": "cut_spending",
+     "l": "Funded the government through FY2025 at levels that trimmed some domestic programs; the House passed it 217-213."
     },
     {
-     "i": "Invest in Public Services"
+     "i": "Invest in Public Services",
+     "k": "gov_services",
+     "l": "Funded the federal government through the end of FY2025, averting a shutdown; the House passed it 217-213."
     },
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "k": "strong_defense",
+     "l": "Increased defense appropriations over the prior year; the House passed it 217-213."
+    },
+    {
+     "i": "Protect Rural Hospitals",
+     "k": "health_rural",
+     "l": "Extended the Medicare-Dependent Hospital Program and other health authorities due to lapse on March 31, 2025; the House passed it 217-213."
+    },
+    {
+     "i": "Stop Fentanyl & Cartels",
+     "k": "immig_fentanyl",
+     "l": "Extended the order placing fentanyl-related substances in schedule I as a class to September 30, 2025; the House passed it 217-213."
     },
     {
      "i": "Strong Border & Enforcement",
+     "k": "border_security",
      "l": "Boosted immigration enforcement in full-year FY2025 funding that trimmed some domestic spending; the House passed it 217-213."
     },
     {
-     "i": "Tackle the National Debt"
+     "i": "Tackle the National Debt",
+     "k": "national_debt",
+     "l": "Continued deficit-level federal spending for the full 2025 fiscal year; the House passed it 217-213."
     }
    ]
   },
@@ -1717,10 +2172,12 @@
    "m": [
     {
      "i": "Mass Deportations & Border Security",
+     "k": "deportations",
      "l": "Would bar the District from refusing lawful federal requests to hold someone in custody; the House passed it 224-194."
     },
     {
      "i": "Strong Border & Enforcement",
+     "k": "border_security",
      "l": "Would bar the District from blocking its agencies from sharing immigration status data with federal officials; the House passed it 224-194."
     }
    ]
@@ -1738,16 +2195,24 @@
    "t": "SUPPORT for Patients and Communities Reauthorization Act",
    "m": [
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "k": "healthcare",
+     "l": "Would improve access to addiction-treatment medications and expand treatment through Medicare and Medicaid; the House passed it 366-57."
     },
     {
-     "i": "Help Families with Kids"
+     "i": "Help Families with Kids",
+     "k": "family_support",
+     "l": "Would fund residential treatment for pregnant and postpartum women with substance-use disorders; the House passed it 366-57."
     },
     {
-     "i": "Mental Health & Addiction"
+     "i": "Mental Health & Addiction",
+     "k": "health_mental",
+     "l": "Would reauthorize addiction and behavioral-health treatment and prevention funding; the House passed it 366-57."
     },
     {
-     "i": "Stop Fentanyl & Cartels"
+     "i": "Stop Fentanyl & Cartels",
+     "k": "immig_fentanyl",
+     "l": "Would sustain programs aimed at the opioid and fentanyl overdose crisis; the House passed it 366-57."
     }
    ]
   },
@@ -1759,6 +2224,7 @@
    "m": [
     {
      "i": "Faster Permits & Reviews",
+     "k": "permitting_reform",
      "l": "Would replace presidential permits for cross-border oil, gas and power lines with a certificate of crossing; the House passed it 224-203."
     }
    ]
@@ -1777,10 +2243,12 @@
    "m": [
     {
      "i": "Strong Border & Enforcement",
+     "k": "border_security",
      "l": "Would raise the maximum penalty for unlawful entry to five years and for reentry after removal to ten; the House passed it 226-197."
     },
     {
      "i": "Tough on Crime",
+     "k": "tough_on_crime",
      "l": "Would set a five-year mandatory minimum for someone who entered unlawfully and is later convicted of a felony; the House passed it 226-197."
     }
    ]
@@ -1793,6 +2261,7 @@
    "m": [
     {
      "i": "Expand Domestic Energy Production",
+     "k": "energy_production",
      "l": "Would require public notice of power generation shortfalls and grid-reliability review of agency rules; the House passed it 225-203."
     }
    ]
@@ -1805,6 +2274,7 @@
    "m": [
     {
      "i": "Expand Domestic Energy Production",
+     "k": "energy_production",
      "l": "Would make state utility regulators consider reliable power generation as a ratemaking standard; the House passed it 218-207."
     }
    ]
@@ -1817,6 +2287,7 @@
    "m": [
     {
      "i": "Expand Domestic Energy Production",
+     "k": "energy_production",
      "l": "Would require power plant owners to give notice before retiring a generating unit; the House passed it 222-202."
     }
    ]
@@ -1829,13 +2300,16 @@
    "m": [
     {
      "i": "Cryptocurrency Rules & Digital Dollar",
+     "k": "crypto_cbdc",
      "l": "Would set a market-structure framework for digital assets, splitting oversight between the CFTC and the SEC; the House passed it 294-134."
     },
     {
-     "i": "Innovation & Light Rules"
+     "i": "Innovation & Light Rules",
+     "k": "tech_innovation"
     },
     {
-     "i": "Pro-Growth Deregulation"
+     "i": "Pro-Growth Deregulation",
+     "k": "econ_growth"
     }
    ]
   },
@@ -1847,6 +2321,7 @@
    "m": [
     {
      "i": "Faster Permits & Reviews",
+     "k": "permitting_reform",
      "l": "Would make FERC the lead agency for natural-gas import and export permits, on its schedule; the House passed it 213-184."
     }
    ]
@@ -1858,13 +2333,16 @@
    "t": "National Defense Authorization Act for Fiscal Year 2026",
    "m": [
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "k": "strong_defense"
     },
     {
-     "i": "Tackle the National Debt"
+     "i": "Tackle the National Debt",
+     "k": "national_debt"
     },
     {
-     "i": "Take Care of Veterans"
+     "i": "Take Care of Veterans",
+     "k": "veterans"
     }
    ]
   },
@@ -1876,6 +2354,7 @@
    "m": [
     {
      "i": "Faster Permits & Reviews",
+     "k": "permitting_reform",
      "l": "Would narrow state water-quality certification for projects and widen general permits; the House passed it 221-205."
     }
    ]
@@ -1894,6 +2373,7 @@
    "m": [
     {
      "i": "Energy & Resource Development",
+     "k": "lands_energy",
      "l": "Would order Interior to list pending federal-land mining permits and approve those ready at once; the House passed it 224-195."
     }
    ]
@@ -1906,6 +2386,7 @@
    "m": [
     {
      "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency",
      "l": "Required the Justice Department to publish all unclassified Epstein investigation records, searchable; the House passed it 427-1."
     }
    ]
@@ -1924,6 +2405,7 @@
    "m": [
     {
      "i": "Climate Action & Clean Energy",
+     "k": "climate_action",
      "l": "Would repeal the fossil-fuel reduction targets for new and renovated federal buildings; the House passed it 215-202."
     }
    ]
@@ -1936,10 +2418,12 @@
    "m": [
     {
      "i": "Climate Action & Clean Energy",
+     "k": "climate_action",
      "l": "Would repeal the 2022 climate law’s home electrification rebates and building energy code aid; the House passed it 210-199."
     },
     {
      "i": "Cut Federal Spending & Reduce Debt",
+     "k": "cut_spending",
      "l": "Rescinded the unobligated balances still available for the home-electrification rebates and for building-energy-code adoption."
     }
    ]
@@ -1952,6 +2436,7 @@
    "m": [
     {
      "i": "Faster Permits & Reviews",
+     "k": "permitting_reform",
      "l": "Would set a window to challenge a finished environmental review in court and limit who has standing; the House passed it 221-196."
     }
    ]
@@ -1964,6 +2449,7 @@
    "m": [
     {
      "i": "Tough on Crime",
+     "k": "tough_on_crime",
      "l": "Would cut the District’s youth offender ceiling from 24 to 18 and end sentences below mandatory minimums; the House passed it 240-179."
     }
    ]
@@ -1976,6 +2462,7 @@
    "m": [
     {
      "i": "Tough on Crime",
+     "k": "tough_on_crime",
      "l": "Would send District minors 14 and older charged with listed violent offences to adult court; the House passed it 225-203."
     }
    ]
@@ -1988,10 +2475,12 @@
    "m": [
     {
      "i": "Criminal Justice Reform",
+     "k": "justice_reform",
      "l": "Would require mandatory cash bail in the District for certain offenses that threaten public safety; the House passed it 237-179."
     },
     {
      "i": "Tough on Crime",
+     "k": "tough_on_crime",
      "l": "Would require pretrial detention in the District for those charged with violent crimes and restore money bail; the House passed it 237-179."
     }
    ]
@@ -2010,6 +2499,7 @@
    "m": [
     {
      "i": "Raise Wages & Protect Workers",
+     "k": "econ_workers",
      "l": "Would put a clock on a first union contract, ending in mediation and then an arbitration panel’s award; the House passed it 230-193."
     }
    ]
@@ -2022,10 +2512,12 @@
    "m": [
     {
      "i": "Cut Federal Red Tape",
+     "k": "gov_regulation",
      "l": "Would require agencies to publish the critical factual material they rely on in rulemaking; the House passed it 362-1."
     },
     {
      "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency",
      "l": "Would require agencies to use the best reasonably available evidence and publish what a rule rests on; the House passed it 362-1."
     }
    ]
@@ -2037,14 +2529,25 @@
    "t": "21st Century ROAD to Housing Act",
    "m": [
     {
-     "i": "Affordable Housing & Renters"
+     "i": "Affordable Housing & Renters",
+     "k": "housing_support"
     },
     {
      "i": "Build More Housing",
+     "k": "housing_build",
      "l": "Funded permitting of single-staircase apartments and raised FHA multifamily loan limits; the House cleared it 358-32, the Senate 89-10."
     },
     {
+     "i": "Cryptocurrency Rules & Digital Dollar",
+     "k": "crypto_cbdc"
+    },
+    {
+     "i": "Faster Permits & Reviews",
+     "k": "permitting_reform"
+    },
+    {
      "i": "Housing Affordability",
+     "k": "housing",
      "l": "Reauthorized the HOME program and Rural Housing Service and widened HUD-VASH eligibility; the House cleared it 358-32, the Senate 89-10."
     }
    ]
@@ -2056,16 +2559,23 @@
    "t": "Lower Health Care Premiums for All Americans Act",
    "m": [
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "k": "healthcare",
+     "l": "Would restructure individual and small-group health-coverage rules; the House passed it 216-211."
     },
     {
-     "i": "Lower Healthcare Costs"
+     "i": "Lower Healthcare Costs",
+     "k": "healthcare_costs"
     },
     {
-     "i": "Lower Prescription Drug Prices"
+     "i": "Lower Prescription Drug Prices",
+     "k": "health_drug_prices",
+     "l": "Would add pharmacy-benefit-manager transparency standards on drug prices and rebates; the House passed it 216-211."
     },
     {
-     "i": "Market-Based Healthcare"
+     "i": "Market-Based Healthcare",
+     "k": "healthcare_market",
+     "l": "Would expand association health plans and individual-coverage arrangements; the House passed it 216-211."
     }
    ]
   },
@@ -2076,7 +2586,18 @@
    "t": "Main Street Capital Access Act",
    "m": [
     {
+     "i": "Corporate Accountability",
+     "k": "econ_corp_account",
+     "l": "Would let regulators approve some bank mergers without weighing whether they are monopolistic; the House passed it 270-155."
+    },
+    {
+     "i": "Cut Federal Red Tape",
+     "k": "gov_regulation",
+     "l": "Would have financial regulators tailor their actions to a bank’s size and risk profile; the House passed it 270-155."
+    },
+    {
      "i": "Help Small Businesses",
+     "k": "econ_smallbiz",
      "l": "Would widen small-bank and Main Street lending, with a three-year capital phase-in for new banks; the House passed it 270-155."
     }
    ]
@@ -2089,10 +2610,12 @@
    "m": [
     {
      "i": "Ban Congressional Stock Trading",
+     "k": "stock_trading_ban",
      "l": "Would bar members of Congress, spouses and dependent children from buying individual stocks; the House passed it 232-198."
     },
     {
      "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency",
      "l": "Would require a member to post public notice seven to fourteen days before selling a covered investment; the House passed it 232-198."
     }
    ]
@@ -2110,30 +2633,37 @@
    "t": "Consolidated Appropriations Act, 2026",
    "m": [
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "k": "healthcare"
     },
     {
      "i": "Lower Prescription Drug Prices",
+     "k": "health_drug_prices",
      "l": "Required pharmacy benefit managers to pass 100 percent of drug rebates through to the health plan; the House concurred 217-214."
     },
     {
      "i": "Peace Through Strength",
+     "k": "strong_defense",
      "l": "Carried the full FY2026 defense appropriation, with $1 billion for the Taiwan Security Cooperation Initiative; the House concurred 217-214."
     },
     {
      "i": "Pro-Life Protections",
+     "k": "pro_life",
      "l": "Carried the standing abortion-funding restrictions, including the Labor-HHS and federal employee plan bars; the House concurred 217-214."
     },
     {
      "i": "Protect Rural Hospitals",
+     "k": "health_rural",
      "l": "Eliminated the scheduled Medicaid hospital cuts and continued the Medicare-Dependent Hospital program; the House concurred 217-214."
     },
     {
      "i": "Strategic Engagement",
+     "k": "foreign_balance",
      "l": "Funded $9.4 billion for diplomatic programs, $6.2 billion in Foreign Military Financing and peacekeeping; the House concurred 217-214."
     },
     {
      "i": "Support for Israel",
+     "k": "israel_support",
      "l": "Appropriated $500 million for Israeli missile defense and $3.3 billion in military financing for Israel; the House concurred 217-214."
     }
    ]
@@ -2151,13 +2681,19 @@
    "t": "Farm, Food, and National Security Act (2026 Farm Bill, House)",
    "m": [
     {
-     "i": "Farmers & Rural Communities"
+     "i": "Farmers & Rural Communities",
+     "k": "rural_ag",
+     "l": "Would reauthorize farm commodity programs, crop insurance and reference prices for producers; the House passed it 224-200."
     },
     {
-     "i": "Help Families with Kids"
+     "i": "Help Families with Kids",
+     "k": "family_support",
+     "l": "Would reauthorize SNAP and nutrition programs, the largest share of farm-bill spending; the House passed it 224-200."
     },
     {
-     "i": "Practical Stewardship"
+     "i": "Practical Stewardship",
+     "k": "enviro_balance",
+     "l": "Would continue the farm bill’s working-lands conservation programs; the House passed it 224-200."
     }
    ]
   },
@@ -2165,7 +2701,18 @@
    "s": "119",
    "n": "H.R. 7757",
    "c": "house",
-   "t": "KIDS Act"
+   "t": "KIDS Act",
+   "m": [
+    {
+     "i": "Privacy & Big-Tech Accountability",
+     "k": "privacy_rights"
+    },
+    {
+     "i": "Smart Tech Guardrails",
+     "k": "tech_balance",
+     "l": "Would require age checks on sexual-content platforms, safer defaults for minors and AI chatbot disclosures; the House passed it 267-117."
+    }
+   ]
   },
   "119|H.R. 8595": {
    "s": "119",
@@ -2174,20 +2721,39 @@
    "t": "National Security, Department of State, and Related Programs Appropriations Act, 2027",
    "m": [
     {
+     "i": "Election Security & Ballot Safeguards",
+     "k": "election_security",
+     "l": "Would bar states from processing a federal registration application without documentary proof of citizenship; the House passed it 217-209."
+    },
+    {
+     "i": "Expand Voting Access",
+     "k": "voting_access",
+     "l": "Would gate both steps of casting a federal ballot, registering and voting, behind a document; the House passed it 217-209."
+    },
+    {
      "i": "Invest in Public Services",
+     "k": "gov_services",
      "l": "Would fund the State Department, international organizations and independent agencies through FY2027; the House passed it 217-209."
     },
     {
      "i": "Peace Through Strength",
+     "k": "strong_defense",
      "l": "Made the FY2027 appropriations for national security and State Department programs — the money behind those accounts for the year."
     },
     {
      "i": "Pro-Life Protections",
+     "k": "pro_life",
      "l": "Would keep the bar on U.S. development funds paying for abortion as a method of family planning; the House passed it 217-209."
     },
     {
      "i": "Support for Israel",
+     "k": "israel_support",
      "l": "Would direct at least $3.3 billion in military financing to Israel and keep the U.S. embassy in Jerusalem; the House passed it 217-209."
+    },
+    {
+     "i": "Voter ID & Election Integrity",
+     "k": "voter_id",
+     "l": "Would bar officials from handing an in-person voter a federal ballot without valid photo identification; the House passed it 217-209."
     }
    ]
   },
@@ -2199,7 +2765,13 @@
    "m": [
     {
      "i": "Peace Through Strength",
+     "k": "strong_defense",
      "l": "Would authorize FY2027 aircraft and ship procurement, troop strength levels and military pay; the House passed it 216-212."
+    },
+    {
+     "i": "Support for Israel",
+     "k": "israel_support",
+     "l": "Would extend the U.S. war reserve stockpile in Israel and set up a U.S.–Israel defense technology initiative; the House passed it 216-212."
     }
    ]
   },
@@ -2217,6 +2789,7 @@
    "m": [
     {
      "i": "Protect Social Security & Medicare",
+     "k": "social_security",
      "l": "Would revive Social Security’s disability-insurance demonstration projects through 2030; the House passed it 232-188."
     }
    ]
@@ -2234,7 +2807,16 @@
    "t": "Take Care of America’s Veterans Act",
    "m": [
     {
+     "i": "Mental Health & Addiction",
+     "k": "health_mental"
+    },
+    {
+     "i": "Protect Rural Hospitals",
+     "k": "health_rural"
+    },
+    {
      "i": "Take Care of Veterans",
+     "k": "veterans",
      "l": "Would grant concurrent receipt of disability and retired pay to some combat retirees; a motion to recommit it failed in the House 210-211."
     }
    ]
@@ -2246,10 +2828,12 @@
    "t": "Making continuing appropriations for fiscal year 2027, and for other purposes.",
    "m": [
     {
-     "i": "Invest in Public Services"
+     "i": "Invest in Public Services",
+     "k": "gov_services"
     },
     {
-     "i": "Tackle the National Debt"
+     "i": "Tackle the National Debt",
+     "k": "national_debt"
     }
    ]
   },
@@ -2267,6 +2851,7 @@
    "m": [
     {
      "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency",
      "l": "Directed the House Committee on Ethics to release its records of settlements involving sexual harassment; the House agreed to it 420-0."
     }
    ]
@@ -2290,7 +2875,8 @@
    "t": "Nomination of Robert F. Kennedy Jr. to be Secretary of Health and Human Services",
    "m": [
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "k": "healthcare"
     }
    ]
   },
@@ -2301,7 +2887,8 @@
    "t": "Nomination of Linda McMahon to be Secretary of Education",
    "m": [
     {
-     "i": "School Choice & Education Freedom"
+     "i": "School Choice & Education Freedom",
+     "k": "school_choice"
     }
    ]
   },
@@ -2312,7 +2899,8 @@
    "t": "Nomination of Kash Patel to be Director of the Federal Bureau of Investigation",
    "m": [
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -2323,7 +2911,8 @@
    "t": "Nomination of Pete Hegseth to be Secretary of Defense",
    "m": [
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "k": "strong_defense"
     }
    ]
   },
@@ -2334,10 +2923,12 @@
    "t": "Nomination of Marco Rubio to be Secretary of State",
    "m": [
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "k": "strong_defense"
     },
     {
-     "i": "Strategic Engagement"
+     "i": "Strategic Engagement",
+     "k": "foreign_balance"
     }
    ]
   },
@@ -2349,18 +2940,22 @@
    "m": [
     {
      "i": "Mass Deportations & Border Security",
+     "k": "deportations",
      "l": "Appropriated $44 billion for ICE and CBP interior enforcement, detention and removals; the House cleared it 214-212, the Senate 52-47."
     },
     {
      "i": "Stop Fentanyl & Cartels",
+     "k": "immig_fentanyl",
      "l": "Funded port equipment to catch illicit drugs and money to fight fentanyl trafficking; the House cleared it 214-212, the Senate 52-47."
     },
     {
      "i": "Strong Border & Enforcement",
+     "k": "border_security",
      "l": "Funded $9.55 billion for Border Patrol agents and $3.45 billion for ports and surveillance; the House cleared it 214-212, the Senate 52-47."
     },
     {
      "i": "Tough on Crime",
+     "k": "tough_on_crime",
      "l": "Appropriated $7.45 billion for Homeland Security Investigations agents beyond immigration; the House cleared it 214-212, the Senate 52-47."
     }
    ]
@@ -2373,18 +2968,22 @@
    "m": [
     {
      "i": "Mass Deportations & Border Security",
+     "k": "deportations",
      "l": "Required detaining and seeking removal of non-citizens here unlawfully facing theft charges; the House cleared it 263-156, the Senate 64-35."
     },
     {
      "i": "States Suing Washington",
+     "k": "state_standing",
      "l": "Let a state sue Washington over immigration decisions that harm it by more than $100; the House cleared it 263-156, the Senate 64-35."
     },
     {
      "i": "Strong Border & Enforcement",
+     "k": "border_security",
      "l": "Tightened immigration enforcement by removing the discretion to release a covered non-citizen from custody once they have been charged."
     },
     {
      "i": "Tough on Crime",
+     "k": "tough_on_crime",
      "l": "Made an arrest or charge for theft or burglary the trigger for federal custody; the House cleared it 263-156, the Senate 64-35."
     }
    ]
@@ -2396,16 +2995,20 @@
    "t": "No Tax on Tips Act",
    "m": [
     {
-     "i": "Cut Income & Business Taxes"
+     "i": "Cut Income & Business Taxes",
+     "k": "lower_taxes"
     },
     {
-     "i": "Middle-Class Tax Relief"
+     "i": "Middle-Class Tax Relief",
+     "k": "tax_middle_class"
     },
     {
-     "i": "Raise Wages & Protect Workers"
+     "i": "Raise Wages & Protect Workers",
+     "k": "econ_workers"
     },
     {
-     "i": "Tackle the Cost of Living"
+     "i": "Tackle the Cost of Living",
+     "k": "cost_living"
     }
    ]
   },
@@ -2416,13 +3019,19 @@
    "t": "TAKE IT DOWN Act",
    "m": [
     {
-     "i": "Free Speech Protections"
+     "i": "Free Speech Protections",
+     "k": "free_speech",
+     "l": "Set a notice-and-takedown duty for covered platforms, with removal within 48 hours, enforced by the FTC; the House cleared it 409-2."
     },
     {
-     "i": "Privacy & Big-Tech Accountability"
+     "i": "Privacy & Big-Tech Accountability",
+     "k": "privacy_rights",
+     "l": "Criminalized nonconsensual intimate imagery and required platforms to take it down; the House cleared it 409-2."
     },
     {
-     "i": "Smart Tech Guardrails"
+     "i": "Smart Tech Guardrails",
+     "k": "tech_balance",
+     "l": "Imposed new content-removal obligations on online platforms; the House cleared it 409-2."
     }
    ]
   },
@@ -2434,14 +3043,17 @@
    "m": [
     {
      "i": "Mental Health & Addiction",
+     "k": "health_mental",
      "l": "Kept fentanyl-related substances in Schedule I while adding a research registration pathway; the House cleared it 321-104, the Senate 84-16."
     },
     {
      "i": "Stop Fentanyl & Cartels",
+     "k": "immig_fentanyl",
      "l": "Permanently placed fentanyl-related substances in Schedule I as a class; the House cleared it 321-104, the Senate 84-16."
     },
     {
      "i": "Tough on Crime",
+     "k": "tough_on_crime",
      "l": "Applied mandatory minimums to all fentanyl-related substances, ten years at 100 grams; the House cleared it 321-104, the Senate 84-16."
     }
    ]
@@ -2454,10 +3066,12 @@
    "m": [
     {
      "i": "Election Security & Ballot Safeguards",
+     "k": "election_security",
      "l": "Would require proof of citizenship to register and a physical photo ID to vote in person; the House passed it 218-213."
     },
     {
      "i": "Expand Voting Access",
+     "k": "voting_access",
      "l": "Would make mail applicants prove citizenship in person and give voters without ID only a provisional ballot; the House passed it 218-213."
     }
    ]
@@ -2469,13 +3083,23 @@
    "t": "Guiding and Establishing National Innovation for U.S. Stablecoins Act (GENIUS Act)",
    "m": [
     {
-     "i": "Cryptocurrency Rules & Digital Dollar"
+     "i": "Cryptocurrency Rules & Digital Dollar",
+     "k": "crypto_cbdc",
+     "l": "Became the first comprehensive federal crypto-market statute; the House cleared it 308-122, the Senate 68-30."
     },
     {
-     "i": "Innovation & Light Rules"
+     "i": "Innovation & Light Rules",
+     "k": "tech_innovation",
+     "l": "Established a national framework for digital-asset innovation through stablecoins; the House cleared it 308-122, the Senate 68-30."
     },
     {
-     "i": "Smart Tech Guardrails"
+     "i": "Smart Tech Guardrails",
+     "k": "tech_balance",
+     "l": "Paired stablecoin innovation with reserve, disclosure and anti-money-laundering safeguards; the House cleared it 308-122, the Senate 68-30."
+    },
+    {
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power"
     }
    ]
   },
@@ -2486,12 +3110,39 @@
    "t": "S. 2296 — National Defense Authorization Act for Fiscal Year 2026",
    "m": [
     {
+     "i": "Back Law Enforcement",
+     "k": "back_police",
+     "l": "Would have funded the COPS Strong Communities Program and officer fentanyl-exposure protections; the Senate passed it 77-20."
+    },
+    {
+     "i": "Build More Housing",
+     "k": "housing_build",
+     "l": "Would have carried model zoning reforms for duplexes, fourplexes and townhouses; the Senate passed it 77-20."
+    },
+    {
      "i": "End DEI Programs",
+     "k": "end_dei",
      "l": "Would have repealed DoD provisions on diversity, equity and inclusion, including the Chief Diversity Officer; the Senate passed it 77-20."
     },
     {
+     "i": "Homelessness Policy",
+     "k": "homeless",
+     "l": "Would have rewritten the Continuum of Care homelessness program and capped waivers for displacing recipients; the Senate passed it 77-20."
+    },
+    {
      "i": "Peace Through Strength",
+     "k": "strong_defense",
      "l": "Would have authorized FY2026 weapons procurement and extended the Pacific Deterrence Initiative; the Senate passed it 77-20."
+    },
+    {
+     "i": "Stop Fentanyl & Cartels",
+     "k": "immig_fentanyl",
+     "l": "Would have widened the Fentanyl Sanctions Act to anyone materially aiding opioid trafficking; the Senate passed it 77-20."
+    },
+    {
+     "i": "Support for Israel",
+     "k": "israel_support",
+     "l": "Would have raised U.S.-Israel anti-tunnel and counter-drone ceilings and funded Iron Dome co-production; the Senate passed it 77-20."
     }
    ]
   },
@@ -2503,10 +3154,12 @@
    "m": [
     {
      "i": "Mass Deportations & Border Security",
+     "k": "deportations",
      "l": "Added crimes causing death or serious bodily injury to the bill’s mandatory-detention list; the Senate agreed to it 75-24."
     },
     {
      "i": "Tough on Crime",
+     "k": "tough_on_crime",
      "l": "Made crimes causing death or serious bodily injury grounds for mandatory detention; the Senate agreed to it 75-24."
     }
    ]
@@ -2519,10 +3172,12 @@
    "m": [
     {
      "i": "Mass Deportations & Border Security",
+     "k": "deportations",
      "l": "Expanded the offences that trigger mandatory detention under the bill; the Senate agreed to it 70-25."
     },
     {
      "i": "Tough on Crime",
+     "k": "tough_on_crime",
      "l": "Widened the offences that trigger mandatory detention; the Senate agreed to it 70-25."
     }
    ]
@@ -2535,6 +3190,7 @@
    "m": [
     {
      "i": "States Suing Washington",
+     "k": "state_standing",
      "l": "Proposed striking the State attorney general cause of action; the Senate rejected it 46-49."
     }
    ]
@@ -2547,6 +3203,7 @@
    "m": [
     {
      "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency",
      "l": "Proposed limiting disclosures regarding earmarks; the Senate rejected it 21-75."
     }
    ]
@@ -2559,10 +3216,12 @@
    "m": [
     {
      "i": "Audit Spending & the Fed",
+     "k": "audit_spending",
      "l": "Proposed Senate confirmation for the Fed and CFPB internal auditor, its remit unchanged; it failed 53-43 under a three-fifths threshold."
     },
     {
      "i": "Congressional Oversight",
+     "k": "congress_oversight",
      "l": "Proposed Senate confirmation of the Federal Reserve and CFPB inspector general; it failed 53-43 under a three-fifths threshold."
     }
    ]
@@ -2575,6 +3234,7 @@
    "m": [
     {
      "i": "Back Law Enforcement",
+     "k": "back_police",
      "l": "Proposed appropriating funds for local law enforcement hiring; the Senate rejected it 45-53."
     }
    ]
@@ -2587,10 +3247,12 @@
    "m": [
     {
      "i": "Pathways to Citizenship",
+     "k": "immigration_reform",
      "l": "Proposed funding timely adjudication of DACA renewal applications in the border bill; the Senate rejected it 47-52."
     },
     {
      "i": "Strong Border & Enforcement",
+     "k": "border_security",
      "l": "Proposed taking DACA renewal funds from the bill’s $69.545 billion for border and immigration enforcement; the Senate rejected it 47-52."
     }
    ]
@@ -2603,6 +3265,7 @@
    "m": [
     {
      "i": "Universal Broadband",
+     "k": "broadband",
      "l": "Would strike the FCC rule letting E-Rate pay for Wi-Fi hotspots that schools and libraries lend for home use; the Senate passed it 50-38."
     }
    ]
@@ -2615,6 +3278,7 @@
    "m": [
     {
      "i": "Expand Domestic Energy Production",
+     "k": "energy_production",
      "l": "Would have ended the January 2025 national energy emergency that expedites energy projects; the Senate rejected it 47-52."
     }
    ]
@@ -2627,6 +3291,7 @@
    "m": [
     {
      "i": "Support for Israel",
+     "k": "israel_support",
      "l": "Would have blocked the sale to Israel of bulldozers and related equipment; the Senate refused to discharge it 15-83."
     }
    ]
@@ -2639,6 +3304,7 @@
    "m": [
     {
      "i": "Support for Israel",
+     "k": "israel_support",
      "l": "Would have blocked a certified transfer of defense articles and services to Israel; the Senate refused to discharge it 40-59."
     }
    ]
@@ -2651,6 +3317,7 @@
    "m": [
     {
      "i": "Support for Israel",
+     "k": "israel_support",
      "l": "Would have blocked the sale to Israel of bomb bodies and guidance kits; the Senate refused to discharge it 15-82."
     }
    ]
@@ -2663,6 +3330,7 @@
    "m": [
     {
      "i": "Support for Israel",
+     "k": "israel_support",
      "l": "Would have blocked a certified transfer of defense articles and services to Israel; the Senate refused to discharge it 24-73."
     }
    ]
@@ -2674,17 +3342,21 @@
    "t": "A joint resolution to terminate the national emergency declared to impose duties on articles imported from Canada",
    "m": [
     {
-     "i": "Protect American Jobs"
+     "i": "Protect American Jobs",
+     "k": "econ_trade"
     },
     {
-     "i": "Tackle the Cost of Living"
+     "i": "Tackle the Cost of Living",
+     "k": "cost_living"
     },
     {
      "i": "Tariffs & Household Prices",
+     "k": "tariffs_prices",
      "l": "Would have ended the emergency behind the tariffs on Canadian imports, lifting those duties; the Senate passed it 51-48."
     },
     {
-     "i": "Tariffs & Trade Authority"
+     "i": "Tariffs & Trade Authority",
+     "k": "tariffs_authority"
     }
    ]
   },
@@ -2696,6 +3368,7 @@
    "m": [
     {
      "i": "Support for Israel",
+     "k": "israel_support",
      "l": "Would have blocked the export of assault rifles to Israel; the Senate refused to discharge it 27-70."
     }
    ]
@@ -2707,21 +3380,26 @@
    "t": "A joint resolution to direct the removal of United States Armed Forces from hostilities against the Islamic Republic of Iran that have not been authorized by Congress",
    "m": [
     {
-     "i": "Congress and War Powers"
+     "i": "Congress and War Powers",
+     "k": "war_powers"
     },
     {
-     "i": "Diplomacy & Restraint"
+     "i": "Diplomacy & Restraint",
+     "k": "restraint"
     },
     {
      "i": "Iran",
+     "k": "iran_policy",
      "l": "Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 47-53."
     },
     {
      "i": "Peace Through Strength",
+     "k": "strong_defense",
      "l": "Would have pulled U.S. forces from Iran hostilities until Congress authorized them; the Senate refused to discharge it 47-53."
     },
     {
-     "i": "Strategic Engagement"
+     "i": "Strategic Engagement",
+     "k": "foreign_balance"
     }
    ]
   },
@@ -2733,6 +3411,7 @@
    "m": [
     {
      "i": "Expand Domestic Energy Production",
+     "k": "energy_production",
      "l": "Would have ended the Executive Order 14156 energy emergency on its second try; the Senate rejected it 47-51."
     }
    ]
@@ -2745,14 +3424,17 @@
    "m": [
     {
      "i": "Congress and War Powers",
+     "k": "war_powers",
      "l": "Would have used the War Powers Resolution to end any U.S. hostilities Congress had not authorized; the Senate refused to discharge it 48-51."
     },
     {
      "i": "Diplomacy & Restraint",
+     "k": "restraint",
      "l": "Would have directed the President to end any U.S. hostilities absent Congress’s approval; the Senate refused to discharge it 48-51."
     },
     {
      "i": "Peace Through Strength",
+     "k": "strong_defense",
      "l": "Would have pulled U.S. forces from any unauthorized hostilities, save self-defense; the Senate refused to discharge it 48-51."
     }
    ]
@@ -2765,15 +3447,23 @@
    "m": [
     {
      "i": "Congress and War Powers",
+     "k": "war_powers",
      "l": "Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Venezuela; the Senate refused to discharge it 49-51."
     },
     {
      "i": "Diplomacy & Restraint",
+     "k": "restraint",
      "l": "Would have directed an end to U.S. hostilities against Venezuela absent Congress’s approval; the Senate refused to discharge it 49-51."
     },
     {
      "i": "Peace Through Strength",
+     "k": "strong_defense",
      "l": "Would have pulled U.S. forces from unauthorized Venezuela hostilities, save self-defense; the Senate refused to discharge it 49-51."
+    },
+    {
+     "i": "Venezuela",
+     "k": "venezuela_policy",
+     "l": "Would have ordered U.S. forces out of hostilities against Venezuela Congress had not authorized; the Senate refused to discharge it 49-51."
     }
    ]
   },
@@ -2785,15 +3475,23 @@
    "m": [
     {
      "i": "Congress and War Powers",
+     "k": "war_powers",
      "l": "Would use the War Powers Resolution to end unauthorized U.S. hostilities against Venezuela; the Senate voted 52-47 to discharge it."
     },
     {
      "i": "Diplomacy & Restraint",
+     "k": "restraint",
      "l": "Would direct the President to end U.S. hostilities against Venezuela absent Congress’s approval; the Senate voted 52-47 to discharge it."
     },
     {
      "i": "Peace Through Strength",
+     "k": "strong_defense",
      "l": "Would pull U.S. forces from unauthorized Venezuela hostilities, save self-defense; the Senate voted 52-47 to discharge it."
+    },
+    {
+     "i": "Venezuela",
+     "k": "venezuela_policy",
+     "l": "Would order U.S. forces out of hostilities against Venezuela that Congress has not authorized; the Senate voted 52-47 to discharge it."
     }
    ]
   },
@@ -2805,18 +3503,22 @@
    "m": [
     {
      "i": "Congress and War Powers",
+     "k": "war_powers",
      "l": "Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 47-53."
     },
     {
      "i": "Diplomacy & Restraint",
+     "k": "restraint",
      "l": "Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 47-53."
     },
     {
      "i": "Iran",
+     "k": "iran_policy",
      "l": "Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 47-53."
     },
     {
      "i": "Peace Through Strength",
+     "k": "strong_defense",
      "l": "Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 47-53."
     }
    ]
@@ -2853,6 +3555,7 @@
    "m": [
     {
      "i": "Support for Israel",
+     "k": "israel_support",
      "l": "Would have blocked a certified transfer of defense articles and services to Israel; the Senate refused to discharge it 36-63."
     }
    ]
@@ -2865,18 +3568,22 @@
    "m": [
     {
      "i": "Congress and War Powers",
+     "k": "war_powers",
      "l": "Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 49-50."
     },
     {
      "i": "Diplomacy & Restraint",
+     "k": "restraint",
      "l": "Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 49-50."
     },
     {
      "i": "Iran",
+     "k": "iran_policy",
      "l": "Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 49-50."
     },
     {
      "i": "Peace Through Strength",
+     "k": "strong_defense",
      "l": "Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 49-50."
     }
    ]
@@ -2907,18 +3614,22 @@
    "m": [
     {
      "i": "Congress and War Powers",
+     "k": "war_powers",
      "l": "Would have used the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate refused to discharge it 47-50."
     },
     {
      "i": "Diplomacy & Restraint",
+     "k": "restraint",
      "l": "Would have directed the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate refused to discharge it 47-50."
     },
     {
      "i": "Iran",
+     "k": "iran_policy",
      "l": "Would have ordered U.S. forces out of hostilities against Iran that Congress had not authorized; the Senate refused to discharge it 47-50."
     },
     {
      "i": "Peace Through Strength",
+     "k": "strong_defense",
      "l": "Would have pulled U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate refused to discharge it 47-50."
     }
    ]
@@ -2931,18 +3642,22 @@
    "m": [
     {
      "i": "Congress and War Powers",
+     "k": "war_powers",
      "l": "Would use the War Powers Resolution to end unauthorized U.S. hostilities against Iran; the Senate voted 50-47 to discharge it."
     },
     {
      "i": "Diplomacy & Restraint",
+     "k": "restraint",
      "l": "Would direct the President to end U.S. hostilities against Iran absent Congress’s approval; the Senate voted 50-47 to discharge it."
     },
     {
      "i": "Iran",
+     "k": "iran_policy",
      "l": "Would order U.S. forces out of hostilities against Iran that Congress has not authorized; the Senate voted 50-47 to discharge it."
     },
     {
      "i": "Peace Through Strength",
+     "k": "strong_defense",
      "l": "Would pull U.S. forces from unauthorized Iran hostilities, save self-defense; the Senate voted 50-47 to discharge it."
     }
    ]
@@ -2954,10 +3669,12 @@
    "t": "Nomination of Russell Vought to be Director of the Office of Management and Budget",
    "m": [
     {
-     "i": "Cut Federal Spending & Reduce Debt"
+     "i": "Cut Federal Spending & Reduce Debt",
+     "k": "cut_spending"
     },
     {
-     "i": "Tackle the National Debt"
+     "i": "Tackle the National Debt",
+     "k": "national_debt"
     }
    ]
   },
@@ -2968,7 +3685,8 @@
    "t": "Drug Possession Penalty Amendments",
    "m": [
     {
-     "i": "Criminal Justice Reform"
+     "i": "Criminal Justice Reform",
+     "k": "justice_reform"
     }
    ]
   },
@@ -2979,10 +3697,12 @@
    "t": "Technology Commercialization Amendments",
    "m": [
     {
-     "i": "Innovation & Light Rules"
+     "i": "Innovation & Light Rules",
+     "k": "tech_innovation"
     },
     {
-     "i": "Pro-Growth Deregulation"
+     "i": "Pro-Growth Deregulation",
+     "k": "econ_growth"
     }
    ]
   },
@@ -2993,10 +3713,12 @@
    "t": "Tax Revisions",
    "m": [
     {
-     "i": "Cut Income & Business Taxes"
+     "i": "Cut Income & Business Taxes",
+     "k": "lower_taxes"
     },
     {
-     "i": "Middle-Class Tax Relief"
+     "i": "Middle-Class Tax Relief",
+     "k": "tax_middle_class"
     }
    ]
   },
@@ -3007,7 +3729,8 @@
    "t": "Waiver of Punitive Damages Amendments",
    "m": [
     {
-     "i": "Corporate Accountability"
+     "i": "Corporate Accountability",
+     "k": "econ_corp_account"
     }
    ]
   },
@@ -3018,7 +3741,8 @@
    "t": "School Assembly Notice Requirements",
    "m": [
     {
-     "i": "Parental Rights in Schools"
+     "i": "Parental Rights in Schools",
+     "k": "edu_parental"
     }
    ]
   },
@@ -3029,7 +3753,8 @@
    "t": "Reverse Mortgage Amendments",
    "m": [
     {
-     "i": "Corporate Accountability"
+     "i": "Corporate Accountability",
+     "k": "econ_corp_account"
     }
    ]
   },
@@ -3040,7 +3765,8 @@
    "t": "Public Employee Disability Benefits Amendments",
    "m": [
     {
-     "i": "Mental Health & Addiction"
+     "i": "Mental Health & Addiction",
+     "k": "health_mental"
     }
    ]
   },
@@ -3051,7 +3777,8 @@
    "t": "Concealed Weapons Permit Fee Amendments",
    "m": [
     {
-     "i": "Protect Gun Rights"
+     "i": "Protect Gun Rights",
+     "k": "gun_rights"
     }
    ]
   },
@@ -3062,10 +3789,12 @@
    "t": "Theft Defense Amendments",
    "m": [
     {
-     "i": "Farmers & Rural Communities"
+     "i": "Farmers & Rural Communities",
+     "k": "rural_ag"
     },
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -3076,7 +3805,8 @@
    "t": "Prohibited Correctional Facility Items",
    "m": [
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -3087,7 +3817,8 @@
    "t": "Vaccine Passport Prohibition",
    "m": [
     {
-     "i": "Medical Freedom"
+     "i": "Medical Freedom",
+     "k": "medical_freedom"
     }
    ]
   },
@@ -3098,7 +3829,8 @@
    "t": "Prohibiting Sex Transitioning Procedures on Minors",
    "m": [
     {
-     "i": "Protect LGBTQ+ Rights"
+     "i": "Protect LGBTQ+ Rights",
+     "k": "lgbtq_rights"
     }
    ]
   },
@@ -3109,7 +3841,8 @@
    "t": "Sensitive Material Requirements",
    "m": [
     {
-     "i": "Parental Rights in Schools"
+     "i": "Parental Rights in Schools",
+     "k": "edu_parental"
     }
    ]
   },
@@ -3120,7 +3853,8 @@
    "t": "High Cost Infrastructure Development Tax Credit Amendments",
    "m": [
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "k": "energy_production"
     }
    ]
   },
@@ -3131,10 +3865,12 @@
    "t": "Crime Posting Restrictions",
    "m": [
     {
-     "i": "Free Speech Protections"
+     "i": "Free Speech Protections",
+     "k": "free_speech"
     },
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -3145,7 +3881,8 @@
    "t": "Emergency Water Shortages Amendments",
    "m": [
     {
-     "i": "Water Conservation"
+     "i": "Water Conservation",
+     "k": "water"
     }
    ]
   },
@@ -3156,7 +3893,8 @@
    "t": "Independent Election Evaluations",
    "m": [
     {
-     "i": "Election Integrity"
+     "i": "Election Integrity",
+     "k": "election_integrity"
     }
    ]
   },
@@ -3167,7 +3905,8 @@
    "t": "Electronic Information or Data Privacy Act Modifications",
    "m": [
     {
-     "i": "Privacy & Big-Tech Accountability"
+     "i": "Privacy & Big-Tech Accountability",
+     "k": "privacy_rights"
     }
    ]
   },
@@ -3178,10 +3917,12 @@
    "t": "Firearm Discharge on Private Property Amendments",
    "m": [
     {
-     "i": "Private Property Rights"
+     "i": "Private Property Rights",
+     "k": "property_rights"
     },
     {
-     "i": "Protect Gun Rights"
+     "i": "Protect Gun Rights",
+     "k": "gun_rights"
     }
    ]
   },
@@ -3192,7 +3933,8 @@
    "t": "School Fees Amendments",
    "m": [
     {
-     "i": "Invest in Public Schools"
+     "i": "Invest in Public Schools",
+     "k": "public_schools"
     }
    ]
   },
@@ -3203,7 +3945,8 @@
    "t": "Veterinary Practice Amendments",
    "m": [
     {
-     "i": "Farmers & Rural Communities"
+     "i": "Farmers & Rural Communities",
+     "k": "rural_ag"
     }
    ]
   },
@@ -3214,7 +3957,8 @@
    "t": "Criminal Investigations of School Employees",
    "m": [
     {
-     "i": "Raise Wages & Protect Workers"
+     "i": "Raise Wages & Protect Workers",
+     "k": "econ_workers"
     }
    ]
   },
@@ -3225,7 +3969,8 @@
    "t": "Voluntary Firearm Safekeeping Amendments",
    "m": [
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "k": "gun_safety"
     }
    ]
   },
@@ -3236,10 +3981,12 @@
    "t": "Criminal Trespass Amendments",
    "m": [
     {
-     "i": "Private Property Rights"
+     "i": "Private Property Rights",
+     "k": "property_rights"
     },
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -3250,7 +3997,8 @@
    "t": "Funding for Teacher Salaries and Optional Education Opportunities",
    "m": [
     {
-     "i": "School Choice & Education Freedom"
+     "i": "School Choice & Education Freedom",
+     "k": "school_choice"
     }
    ]
   },
@@ -3261,7 +4009,8 @@
    "t": "School Energy and Water Reductions",
    "m": [
     {
-     "i": "Water Conservation"
+     "i": "Water Conservation",
+     "k": "water"
     }
    ]
   },
@@ -3272,10 +4021,12 @@
    "t": "Firearms Regulations",
    "m": [
     {
-     "i": "Protect Gun Rights"
+     "i": "Protect Gun Rights",
+     "k": "gun_rights"
     },
     {
-     "i": "Whose Rule Governs: State or Federal"
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power"
     }
    ]
   },
@@ -3286,7 +4037,8 @@
    "t": "Teacher Parental and Postpartum Recovery Leave",
    "m": [
     {
-     "i": "Paid Family & Medical Leave"
+     "i": "Paid Family & Medical Leave",
+     "k": "paid_leave"
     }
    ]
   },
@@ -3297,7 +4049,8 @@
    "t": "Center for Medical Cannabis Research",
    "m": [
     {
-     "i": "Cannabis Reform"
+     "i": "Cannabis Reform",
+     "k": "cannabis_reform"
     }
    ]
   },
@@ -3308,7 +4061,8 @@
    "t": "Low Income Housing Property Tax Exemption",
    "m": [
     {
-     "i": "Affordable Housing & Renters"
+     "i": "Affordable Housing & Renters",
+     "k": "housing_support"
     }
    ]
   },
@@ -3319,7 +4073,8 @@
    "t": "Public Transit Employee Collective Bargaining Amendments",
    "m": [
     {
-     "i": "Raise Wages & Protect Workers"
+     "i": "Raise Wages & Protect Workers",
+     "k": "econ_workers"
     }
    ]
   },
@@ -3330,7 +4085,8 @@
    "t": "Mental Health Services for Adults",
    "m": [
     {
-     "i": "Mental Health & Addiction"
+     "i": "Mental Health & Addiction",
+     "k": "health_mental"
     }
    ]
   },
@@ -3341,7 +4097,8 @@
    "t": "Social Worker Licensing Amendments",
    "m": [
     {
-     "i": "Cut Federal Red Tape"
+     "i": "Cut Federal Red Tape",
+     "k": "gov_regulation"
     }
    ]
   },
@@ -3352,7 +4109,8 @@
    "t": "Property Tax Income Requirements",
    "m": [
     {
-     "i": "Property Tax Relief"
+     "i": "Property Tax Relief",
+     "k": "prop_tax"
     }
    ]
   },
@@ -3363,7 +4121,8 @@
    "t": "Social Credit Score Amendments",
    "m": [
     {
-     "i": "Privacy & Big-Tech Accountability"
+     "i": "Privacy & Big-Tech Accountability",
+     "k": "privacy_rights"
     }
    ]
   },
@@ -3374,7 +4133,8 @@
    "t": "Unemployment Insurance Amendments",
    "m": [
     {
-     "i": "Raise Wages & Protect Workers"
+     "i": "Raise Wages & Protect Workers",
+     "k": "econ_workers"
     }
    ]
   },
@@ -3385,7 +4145,8 @@
    "t": "Blockchain Provider Registration",
    "m": [
     {
-     "i": "Cryptocurrency Rules & Digital Dollar"
+     "i": "Cryptocurrency Rules & Digital Dollar",
+     "k": "crypto_cbdc"
     }
    ]
   },
@@ -3396,7 +4157,8 @@
    "t": "Governmental Entity Budget Transparency",
    "m": [
     {
-     "i": "Transparency & Anti-Corruption"
+     "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency"
     }
    ]
   },
@@ -3407,7 +4169,8 @@
    "t": "Utah Water Ways",
    "m": [
     {
-     "i": "Water Conservation"
+     "i": "Water Conservation",
+     "k": "water"
     }
    ]
   },
@@ -3418,7 +4181,8 @@
    "t": "Social Media Usage Amendments",
    "m": [
     {
-     "i": "Corporate Accountability"
+     "i": "Corporate Accountability",
+     "k": "econ_corp_account"
     }
    ]
   },
@@ -3429,7 +4193,8 @@
    "t": "Suspect Metal Amendments",
    "m": [
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -3440,7 +4205,8 @@
    "t": "Recreational Therapy Medicaid Coverage Amendments",
    "m": [
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "k": "healthcare"
     }
    ]
   },
@@ -3451,7 +4217,8 @@
    "t": "Event Permit Notification Amendments",
    "m": [
     {
-     "i": "Free Speech Protections"
+     "i": "Free Speech Protections",
+     "k": "free_speech"
     }
    ]
   },
@@ -3462,7 +4229,8 @@
    "t": "Microenterprise Home Kitchen Amendments",
    "m": [
     {
-     "i": "Help Small Businesses"
+     "i": "Help Small Businesses",
+     "k": "econ_smallbiz"
     }
    ]
   },
@@ -3473,7 +4241,8 @@
    "t": "Local Policies for Course Content Transparency",
    "m": [
     {
-     "i": "Parental Rights in Schools"
+     "i": "Parental Rights in Schools",
+     "k": "edu_parental"
     }
    ]
   },
@@ -3484,7 +4253,8 @@
    "t": "Ballot Drop Box Amendments",
    "m": [
     {
-     "i": "Election Integrity"
+     "i": "Election Integrity",
+     "k": "election_integrity"
     }
    ]
   },
@@ -3495,10 +4265,12 @@
    "t": "Participation Waiver Amendments",
    "m": [
     {
-     "i": "Parental Rights in Schools"
+     "i": "Parental Rights in Schools",
+     "k": "edu_parental"
     },
     {
-     "i": "Religious Liberty Focus"
+     "i": "Religious Liberty Focus",
+     "k": "religious_liberty"
     }
    ]
   },
@@ -3509,7 +4281,8 @@
    "t": "Decentralized Autonomous Organizations Amendments",
    "m": [
     {
-     "i": "Cryptocurrency Rules & Digital Dollar"
+     "i": "Cryptocurrency Rules & Digital Dollar",
+     "k": "crypto_cbdc"
     }
    ]
   },
@@ -3520,10 +4293,12 @@
    "t": "Housing Affordability Amendments",
    "m": [
     {
-     "i": "Affordable Housing & Renters"
+     "i": "Affordable Housing & Renters",
+     "k": "housing_support"
     },
     {
-     "i": "Housing Affordability"
+     "i": "Housing Affordability",
+     "k": "housing"
     }
    ]
   },
@@ -3534,7 +4309,8 @@
    "t": "Voter Affiliation Amendments",
    "m": [
     {
-     "i": "Expand Voting Access"
+     "i": "Expand Voting Access",
+     "k": "voting_access"
     }
    ]
   },
@@ -3545,7 +4321,8 @@
    "t": "Utility Infrastructure Amendments",
    "m": [
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -3556,7 +4333,8 @@
    "t": "Working Farm and Ranch Protection Fund",
    "m": [
     {
-     "i": "Farmers & Rural Communities"
+     "i": "Farmers & Rural Communities",
+     "k": "rural_ag"
     }
    ]
   },
@@ -3567,7 +4345,8 @@
    "t": "Clinical Health Care Provider Grant Amendments",
    "m": [
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "k": "healthcare"
     }
    ]
   },
@@ -3578,7 +4357,8 @@
    "t": "Special Needs Opportunity Scholarship Program Amendments",
    "m": [
     {
-     "i": "School Choice & Education Freedom"
+     "i": "School Choice & Education Freedom",
+     "k": "school_choice"
     }
    ]
   },
@@ -3589,7 +4369,8 @@
    "t": "School Absenteeism Amendments",
    "m": [
     {
-     "i": "Invest in Public Schools"
+     "i": "Invest in Public Schools",
+     "k": "public_schools"
     }
    ]
   },
@@ -3600,7 +4381,8 @@
    "t": "Incentives Amendments",
    "m": [
     {
-     "i": "Transparency & Anti-Corruption"
+     "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency"
     }
    ]
   },
@@ -3611,7 +4393,8 @@
    "t": "State Employment Revisions",
    "m": [
     {
-     "i": "Control of the Civil Service"
+     "i": "Control of the Civil Service",
+     "k": "civil_service_control"
     }
    ]
   },
@@ -3622,7 +4405,8 @@
    "t": "Initiative Amendments",
    "m": [
     {
-     "i": "Expand Voting Access"
+     "i": "Expand Voting Access",
+     "k": "voting_access"
     }
    ]
   },
@@ -3633,7 +4417,8 @@
    "t": "Energy Security Amendments",
    "m": [
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "k": "energy_production"
     }
    ]
   },
@@ -3644,10 +4429,12 @@
    "t": "Individual Freedom in Public Education",
    "m": [
     {
-     "i": "End DEI Programs"
+     "i": "End DEI Programs",
+     "k": "end_dei"
     },
     {
-     "i": "Religious Liberty Focus"
+     "i": "Religious Liberty Focus",
+     "k": "religious_liberty"
     }
    ]
   },
@@ -3658,7 +4445,8 @@
    "t": "Business Services Amendments",
    "m": [
     {
-     "i": "Corporate Accountability"
+     "i": "Corporate Accountability",
+     "k": "econ_corp_account"
     }
    ]
   },
@@ -3669,7 +4457,8 @@
    "t": "State Entity Restrictions",
    "m": [
     {
-     "i": "End DEI Programs"
+     "i": "End DEI Programs",
+     "k": "end_dei"
     }
    ]
   },
@@ -3680,7 +4469,8 @@
    "t": "Airport Firearm Possession Amendments",
    "m": [
     {
-     "i": "Protect Gun Rights"
+     "i": "Protect Gun Rights",
+     "k": "gun_rights"
     }
    ]
   },
@@ -3691,7 +4481,8 @@
    "t": "School Materials Amendments",
    "m": [
     {
-     "i": "Parental Rights in Schools"
+     "i": "Parental Rights in Schools",
+     "k": "edu_parental"
     }
    ]
   },
@@ -3702,7 +4493,8 @@
    "t": "Public School Library Transparency Amendments",
    "m": [
     {
-     "i": "Parental Rights in Schools"
+     "i": "Parental Rights in Schools",
+     "k": "edu_parental"
     }
    ]
   },
@@ -3713,7 +4505,8 @@
    "t": "Office of the Attorney General Employment Amendments",
    "m": [
     {
-     "i": "Control of the Civil Service"
+     "i": "Control of the Civil Service",
+     "k": "civil_service_control"
     }
    ]
   },
@@ -3724,7 +4517,8 @@
    "t": "Abortion Changes",
    "m": [
     {
-     "i": "Pro-Life Protections"
+     "i": "Pro-Life Protections",
+     "k": "pro_life"
     }
    ]
   },
@@ -3735,7 +4529,8 @@
    "t": "Employment Screening Requirements",
    "m": [
     {
-     "i": "Criminal Justice Reform"
+     "i": "Criminal Justice Reform",
+     "k": "justice_reform"
     }
    ]
   },
@@ -3746,7 +4541,8 @@
    "t": "Full-day Kindergarten Amendments",
    "m": [
     {
-     "i": "Invest in Public Schools"
+     "i": "Invest in Public Schools",
+     "k": "public_schools"
     }
    ]
   },
@@ -3757,7 +4553,8 @@
    "t": "Government Entity Compliance Amendments",
    "m": [
     {
-     "i": "Transparency & Anti-Corruption"
+     "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency"
     }
    ]
   },
@@ -3768,7 +4565,8 @@
    "t": "Firearm Possession Revisions",
    "m": [
     {
-     "i": "Protect Gun Rights"
+     "i": "Protect Gun Rights",
+     "k": "gun_rights"
     }
    ]
   },
@@ -3779,7 +4577,8 @@
    "t": "Great Salt Lake Amendments",
    "m": [
     {
-     "i": "Water Conservation"
+     "i": "Water Conservation",
+     "k": "water"
     }
    ]
   },
@@ -3790,7 +4589,8 @@
    "t": "Inmate Program Amendments",
    "m": [
     {
-     "i": "Criminal Justice Reform"
+     "i": "Criminal Justice Reform",
+     "k": "justice_reform"
     }
    ]
   },
@@ -3801,7 +4601,8 @@
    "t": "Social Media Usage Modifications",
    "m": [
     {
-     "i": "Free Speech Protections"
+     "i": "Free Speech Protections",
+     "k": "free_speech"
     }
    ]
   },
@@ -3812,7 +4613,8 @@
    "t": "Eyewear Sales Tax Amendments",
    "m": [
     {
-     "i": "Cut Income & Business Taxes"
+     "i": "Cut Income & Business Taxes",
+     "k": "lower_taxes"
     }
    ]
   },
@@ -3823,7 +4625,8 @@
    "t": "Food Shopping History Requirements",
    "m": [
     {
-     "i": "Privacy & Big-Tech Accountability"
+     "i": "Privacy & Big-Tech Accountability",
+     "k": "privacy_rights"
     }
    ]
   },
@@ -3834,7 +4637,8 @@
    "t": "Telemedicine Amendments",
    "m": [
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "k": "healthcare"
     }
    ]
   },
@@ -3845,7 +4649,8 @@
    "t": "Student Drug Possession Amendments",
    "m": [
     {
-     "i": "Tobacco & Vaping Rules"
+     "i": "Tobacco & Vaping Rules",
+     "k": "tobacco_nicotine"
     }
    ]
   },
@@ -3856,7 +4661,8 @@
    "t": "Water Usage Amendments",
    "m": [
     {
-     "i": "Water Conservation"
+     "i": "Water Conservation",
+     "k": "water"
     }
    ]
   },
@@ -3867,7 +4673,8 @@
    "t": "Transgender Medical Treatments and Procedures Amendments",
    "m": [
     {
-     "i": "Protect LGBTQ+ Rights"
+     "i": "Protect LGBTQ+ Rights",
+     "k": "lgbtq_rights"
     }
    ]
   },
@@ -3878,7 +4685,8 @@
    "t": "Medicaid Dental Waiver Amendments",
    "m": [
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "k": "healthcare"
     }
    ]
   },
@@ -3889,7 +4697,8 @@
    "t": "Weapon Purchase Amendments",
    "m": [
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "k": "gun_safety"
     }
    ]
   },
@@ -3900,7 +4709,8 @@
    "t": "Background Check Amendments",
    "m": [
     {
-     "i": "Criminal Justice Reform"
+     "i": "Criminal Justice Reform",
+     "k": "justice_reform"
     }
    ]
   },
@@ -3911,7 +4721,8 @@
    "t": "Abortion Amendments",
    "m": [
     {
-     "i": "Protect Reproductive Rights"
+     "i": "Protect Reproductive Rights",
+     "k": "pro_choice"
     }
    ]
   },
@@ -3922,7 +4733,8 @@
    "t": "Public Contract Requirements",
    "m": [
     {
-     "i": "Support for Israel"
+     "i": "Support for Israel",
+     "k": "israel_support"
     }
    ]
   },
@@ -3933,7 +4745,8 @@
    "t": "School Gender Identity Policies",
    "m": [
     {
-     "i": "Parental Rights in Schools"
+     "i": "Parental Rights in Schools",
+     "k": "edu_parental"
     }
    ]
   },
@@ -3944,7 +4757,8 @@
    "t": "Local Agricultural Amendments",
    "m": [
     {
-     "i": "Farmers & Rural Communities"
+     "i": "Farmers & Rural Communities",
+     "k": "rural_ag"
     }
    ]
   },
@@ -3955,7 +4769,8 @@
    "t": "Water Efficient Landscaping Incentives",
    "m": [
     {
-     "i": "Water Conservation"
+     "i": "Water Conservation",
+     "k": "water"
     }
    ]
   },
@@ -3966,7 +4781,8 @@
    "t": "Social Care Information Privacy Requirements",
    "m": [
     {
-     "i": "Privacy & Big-Tech Accountability"
+     "i": "Privacy & Big-Tech Accountability",
+     "k": "privacy_rights"
     }
    ]
   },
@@ -3977,7 +4793,8 @@
    "t": "Modifications to Medicaid Coverage",
    "m": [
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "k": "healthcare"
     }
    ]
   },
@@ -3988,7 +4805,8 @@
    "t": "Sex and Kidnap Offender Registry Amendments",
    "m": [
     {
-     "i": "Criminal Justice Reform"
+     "i": "Criminal Justice Reform",
+     "k": "justice_reform"
     }
    ]
   },
@@ -3999,7 +4817,8 @@
    "t": "Legislative Offices Amendments",
    "m": [
     {
-     "i": "Audit Spending & the Fed"
+     "i": "Audit Spending & the Fed",
+     "k": "audit_spending"
     }
    ]
   },
@@ -4010,7 +4829,8 @@
    "t": "Governor's Office of Economic Opportunity Amendments",
    "m": [
     {
-     "i": "Pro-Growth Deregulation"
+     "i": "Pro-Growth Deregulation",
+     "k": "econ_growth"
     }
    ]
   },
@@ -4021,7 +4841,8 @@
    "t": "Investigative Genetic Genealogy Modifications",
    "m": [
     {
-     "i": "Privacy & Big-Tech Accountability"
+     "i": "Privacy & Big-Tech Accountability",
+     "k": "privacy_rights"
     }
    ]
   },
@@ -4032,7 +4853,8 @@
    "t": "Local Land Use and Development Revisions",
    "m": [
     {
-     "i": "Build More Housing"
+     "i": "Build More Housing",
+     "k": "housing_build"
     }
    ]
   },
@@ -4043,7 +4865,8 @@
    "t": "Sexual Crime Modifications",
    "m": [
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -4054,7 +4877,8 @@
    "t": "Local Land Use Amendments",
    "m": [
     {
-     "i": "Expand Voting Access"
+     "i": "Expand Voting Access",
+     "k": "voting_access"
     }
    ]
   },
@@ -4065,7 +4889,8 @@
    "t": "Autism Coverage Amendments",
    "m": [
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "k": "healthcare"
     }
    ]
   },
@@ -4076,7 +4901,8 @@
    "t": "Children's Health Coverage Amendments",
    "m": [
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "k": "healthcare"
     }
    ]
   },
@@ -4087,7 +4913,8 @@
    "t": "Government Records Access and Management Act Amendments",
    "m": [
     {
-     "i": "Transparency & Anti-Corruption"
+     "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency"
     }
    ]
   },
@@ -4098,7 +4925,8 @@
    "t": "First-time Homebuyer Assistance Program",
    "m": [
     {
-     "i": "Help First-Time Buyers"
+     "i": "Help First-Time Buyers",
+     "k": "housing_first_time"
     }
    ]
   },
@@ -4109,7 +4937,8 @@
    "t": "Electric Energy Storage Amendments",
    "m": [
     {
-     "i": "Energy Independence"
+     "i": "Energy Independence",
+     "k": "enviro_energy"
     }
    ]
   },
@@ -4120,7 +4949,8 @@
    "t": "Conservation Tax Incentive Amendments",
    "m": [
     {
-     "i": "Water Conservation"
+     "i": "Water Conservation",
+     "k": "water"
     }
    ]
   },
@@ -4131,7 +4961,8 @@
    "t": "Drug-induced Homicide Amendments",
    "m": [
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -4142,10 +4973,12 @@
    "t": "Transportation Funding Requirements",
    "m": [
     {
-     "i": "Affordable Housing & Renters"
+     "i": "Affordable Housing & Renters",
+     "k": "housing_support"
     },
     {
-     "i": "Public Transit & Transportation"
+     "i": "Public Transit & Transportation",
+     "k": "transit"
     }
    ]
   },
@@ -4156,10 +4989,12 @@
    "t": "Home Ownership Requirements",
    "m": [
     {
-     "i": "Housing Affordability"
+     "i": "Housing Affordability",
+     "k": "housing"
     },
     {
-     "i": "Private Property Rights"
+     "i": "Private Property Rights",
+     "k": "property_rights"
     }
    ]
   },
@@ -4170,7 +5005,8 @@
    "t": "Utility Bill Assistance Program",
    "m": [
     {
-     "i": "Tackle the Cost of Living"
+     "i": "Tackle the Cost of Living",
+     "k": "cost_living"
     }
    ]
   },
@@ -4181,7 +5017,8 @@
    "t": "Dedicated Infrastructure District Act",
    "m": [
     {
-     "i": "Development Districts & Public Financing"
+     "i": "Development Districts & Public Financing",
+     "k": "dev_district_finance"
     }
    ]
   },
@@ -4192,7 +5029,8 @@
    "t": "Water Efficient Landscaping Requirements",
    "m": [
     {
-     "i": "Water Conservation"
+     "i": "Water Conservation",
+     "k": "water"
     }
    ]
   },
@@ -4203,7 +5041,8 @@
    "t": "Emergency Responder Voting Amendments",
    "m": [
     {
-     "i": "Expand Voting Access"
+     "i": "Expand Voting Access",
+     "k": "voting_access"
     }
    ]
   },
@@ -4214,7 +5053,8 @@
    "t": "Sensitive Material Review Amendments",
    "m": [
     {
-     "i": "Parental Rights in Schools"
+     "i": "Parental Rights in Schools",
+     "k": "edu_parental"
     }
    ]
   },
@@ -4225,7 +5065,8 @@
    "t": "Utah Seismic Safety Commission Amendments",
    "m": [
     {
-     "i": "Wildfire & Disaster Resilience"
+     "i": "Wildfire & Disaster Resilience",
+     "k": "disaster_resilience"
     }
    ]
   },
@@ -4236,7 +5077,8 @@
    "t": "Federal Funds Contingency Planning",
    "m": [
     {
-     "i": "Whose Rule Governs: State or Federal"
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power"
     }
    ]
   },
@@ -4247,7 +5089,8 @@
    "t": "Utah Water Ways Amendments",
    "m": [
     {
-     "i": "Water Conservation"
+     "i": "Water Conservation",
+     "k": "water"
     }
    ]
   },
@@ -4258,10 +5101,12 @@
    "t": "Drug Sentencing Modifications",
    "m": [
     {
-     "i": "Criminal Justice Reform"
+     "i": "Criminal Justice Reform",
+     "k": "justice_reform"
     },
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -4272,7 +5117,8 @@
    "t": "Gun Safety Amendments",
    "m": [
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "k": "gun_safety"
     }
    ]
   },
@@ -4283,7 +5129,8 @@
    "t": "Firearm Access Amendments",
    "m": [
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "k": "gun_safety"
     }
    ]
   },
@@ -4294,7 +5141,8 @@
    "t": "Employment Training Requirement Limitations",
    "m": [
     {
-     "i": "End DEI Programs"
+     "i": "End DEI Programs",
+     "k": "end_dei"
     }
    ]
   },
@@ -4305,7 +5153,8 @@
    "t": "School Employee Firearm Possession Amendments",
    "m": [
     {
-     "i": "Protect Gun Rights"
+     "i": "Protect Gun Rights",
+     "k": "gun_rights"
     }
    ]
   },
@@ -4316,7 +5165,8 @@
    "t": "Disability Coverage Amendments",
    "m": [
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "k": "healthcare"
     }
    ]
   },
@@ -4327,7 +5177,8 @@
    "t": "Olene Walker Housing Loan Fund Amendments",
    "m": [
     {
-     "i": "Affordable Housing & Renters"
+     "i": "Affordable Housing & Renters",
+     "k": "housing_support"
     }
    ]
   },
@@ -4338,7 +5189,8 @@
    "t": "Earned Income Tax Credit Amendments",
    "m": [
     {
-     "i": "Middle-Class Tax Relief"
+     "i": "Middle-Class Tax Relief",
+     "k": "tax_middle_class"
     }
    ]
   },
@@ -4349,7 +5201,8 @@
    "t": "Child Care Revisions",
    "m": [
     {
-     "i": "Affordable Child Care"
+     "i": "Affordable Child Care",
+     "k": "child_care"
     }
    ]
   },
@@ -4360,7 +5213,8 @@
    "t": "Criminal Defamation Amendments",
    "m": [
     {
-     "i": "Free Speech Protections"
+     "i": "Free Speech Protections",
+     "k": "free_speech"
     }
    ]
   },
@@ -4371,7 +5225,8 @@
    "t": "School Board Amendments",
    "m": [
     {
-     "i": "Expand Voting Access"
+     "i": "Expand Voting Access",
+     "k": "voting_access"
     }
    ]
   },
@@ -4382,7 +5237,8 @@
    "t": "Digital Currency Modifications",
    "m": [
     {
-     "i": "Cryptocurrency Rules & Digital Dollar"
+     "i": "Cryptocurrency Rules & Digital Dollar",
+     "k": "crypto_cbdc"
     }
    ]
   },
@@ -4393,7 +5249,8 @@
    "t": "Federal Law Enforcement Amendments",
    "m": [
     {
-     "i": "Strong Border & Enforcement"
+     "i": "Strong Border & Enforcement",
+     "k": "border_security"
     }
    ]
   },
@@ -4404,7 +5261,8 @@
    "t": "Local School Board Amendments",
    "m": [
     {
-     "i": "Expand Voting Access"
+     "i": "Expand Voting Access",
+     "k": "voting_access"
     }
    ]
   },
@@ -4415,7 +5273,8 @@
    "t": "Student Survey Amendments",
    "m": [
     {
-     "i": "Parental Rights in Schools"
+     "i": "Parental Rights in Schools",
+     "k": "edu_parental"
     }
    ]
   },
@@ -4426,7 +5285,8 @@
    "t": "License Plate Requirements",
    "m": [
     {
-     "i": "Free Speech Protections"
+     "i": "Free Speech Protections",
+     "k": "free_speech"
     }
    ]
   },
@@ -4437,7 +5297,8 @@
    "t": "Electrical Energy Amendments",
    "m": [
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "k": "energy_production"
     }
    ]
   },
@@ -4448,7 +5309,8 @@
    "t": "Home Solar Energy Amendments",
    "m": [
     {
-     "i": "Corporate Accountability"
+     "i": "Corporate Accountability",
+     "k": "econ_corp_account"
     }
    ]
   },
@@ -4459,7 +5321,8 @@
    "t": "Clean Energy Amendments",
    "m": [
     {
-     "i": "Energy Independence"
+     "i": "Energy Independence",
+     "k": "enviro_energy"
     }
    ]
   },
@@ -4470,7 +5333,8 @@
    "t": "Water Usage Data Amendments",
    "m": [
     {
-     "i": "Water Conservation"
+     "i": "Water Conservation",
+     "k": "water"
     }
    ]
   },
@@ -4481,10 +5345,12 @@
    "t": "Sex-based Designations for Privacy, Anti-bullying, and Women's Opportunities",
    "m": [
     {
-     "i": "Privacy & Big-Tech Accountability"
+     "i": "Privacy & Big-Tech Accountability",
+     "k": "privacy_rights"
     },
     {
-     "i": "Protect LGBTQ+ Rights"
+     "i": "Protect LGBTQ+ Rights",
+     "k": "lgbtq_rights"
     }
    ]
   },
@@ -4495,7 +5361,8 @@
    "t": "Equal Opportunity Initiatives",
    "m": [
     {
-     "i": "End DEI Programs"
+     "i": "End DEI Programs",
+     "k": "end_dei"
     }
    ]
   },
@@ -4506,7 +5373,8 @@
    "t": "Telemedicine Amendments",
    "m": [
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "k": "healthcare"
     }
    ]
   },
@@ -4517,10 +5385,12 @@
    "t": "Public School History Curricula Amendments",
    "m": [
     {
-     "i": "Parental Rights in Schools"
+     "i": "Parental Rights in Schools",
+     "k": "edu_parental"
     },
     {
-     "i": "Religious Liberty Focus"
+     "i": "Religious Liberty Focus",
+     "k": "religious_liberty"
     }
    ]
   },
@@ -4531,10 +5401,12 @@
    "t": "Sentencing Modifications for Certain DUI Offenses",
    "m": [
     {
-     "i": "Criminal Justice Reform"
+     "i": "Criminal Justice Reform",
+     "k": "justice_reform"
     },
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -4545,7 +5417,8 @@
    "t": "Initiative Amendments",
    "m": [
     {
-     "i": "Expand Voting Access"
+     "i": "Expand Voting Access",
+     "k": "voting_access"
     }
    ]
   },
@@ -4556,7 +5429,8 @@
    "t": "Property Rights Ombudsman Amendments",
    "m": [
     {
-     "i": "Private Property Rights"
+     "i": "Private Property Rights",
+     "k": "property_rights"
     }
    ]
   },
@@ -4567,7 +5441,8 @@
    "t": "School Curriculum Requirements",
    "m": [
     {
-     "i": "Free Speech Protections"
+     "i": "Free Speech Protections",
+     "k": "free_speech"
     }
    ]
   },
@@ -4578,7 +5453,8 @@
    "t": "Firearm Data Amendments",
    "m": [
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "k": "gun_safety"
     }
    ]
   },
@@ -4589,7 +5465,8 @@
    "t": "Driver License Amendments",
    "m": [
     {
-     "i": "Protect Gun Rights"
+     "i": "Protect Gun Rights",
+     "k": "gun_rights"
     }
    ]
   },
@@ -4600,7 +5477,8 @@
    "t": "Inmate Assignment Amendments",
    "m": [
     {
-     "i": "Protect LGBTQ+ Rights"
+     "i": "Protect LGBTQ+ Rights",
+     "k": "lgbtq_rights"
     }
    ]
   },
@@ -4611,7 +5489,8 @@
    "t": "Motor Vehicle Safety Inspection Modifications",
    "m": [
     {
-     "i": "Criminal Justice Reform"
+     "i": "Criminal Justice Reform",
+     "k": "justice_reform"
     }
    ]
   },
@@ -4622,7 +5501,8 @@
    "t": "Firearm Safety Incentives",
    "m": [
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "k": "gun_safety"
     }
    ]
   },
@@ -4633,7 +5513,8 @@
    "t": "State Grant Process Amendments",
    "m": [
     {
-     "i": "Audit Spending & the Fed"
+     "i": "Audit Spending & the Fed",
+     "k": "audit_spending"
     }
    ]
   },
@@ -4644,7 +5525,8 @@
    "t": "Precious Metals Amendments",
    "m": [
     {
-     "i": "Gold & Sound Money"
+     "i": "Gold & Sound Money",
+     "k": "sound_money"
     }
    ]
   },
@@ -4655,7 +5537,8 @@
    "t": "Residential Rental Modifications",
    "m": [
     {
-     "i": "Affordable Housing & Renters"
+     "i": "Affordable Housing & Renters",
+     "k": "housing_support"
     }
    ]
   },
@@ -4666,7 +5549,8 @@
    "t": "State Energy Policy Amendments",
    "m": [
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "k": "energy_production"
     }
    ]
   },
@@ -4677,7 +5561,8 @@
    "t": "First Responder Mental Health Services Amendments",
    "m": [
     {
-     "i": "Mental Health & Addiction"
+     "i": "Mental Health & Addiction",
+     "k": "health_mental"
     }
    ]
   },
@@ -4688,7 +5573,8 @@
    "t": "Workplace Discrimination Amendments",
    "m": [
     {
-     "i": "Religious Liberty Focus"
+     "i": "Religious Liberty Focus",
+     "k": "religious_liberty"
     }
    ]
   },
@@ -4699,7 +5585,8 @@
    "t": "Public Health Amendments",
    "m": [
     {
-     "i": "Medical Freedom"
+     "i": "Medical Freedom",
+     "k": "medical_freedom"
     }
    ]
   },
@@ -4710,7 +5597,8 @@
    "t": "Firearms Financial Transaction Amendments",
    "m": [
     {
-     "i": "Protect Gun Rights"
+     "i": "Protect Gun Rights",
+     "k": "gun_rights"
     }
    ]
   },
@@ -4721,7 +5609,8 @@
    "t": "Presumption of State Jurisdiction Amendments",
    "m": [
     {
-     "i": "Whose Rule Governs: State or Federal"
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power"
     }
    ]
   },
@@ -4732,7 +5621,8 @@
    "t": "Lewdness Involving a Child Amendments",
    "m": [
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -4743,7 +5633,8 @@
    "t": "Health Insurance Benefit Amendments",
    "m": [
     {
-     "i": "Lower Prescription Drug Prices"
+     "i": "Lower Prescription Drug Prices",
+     "k": "health_drug_prices"
     }
    ]
   },
@@ -4754,7 +5645,8 @@
    "t": "State Employment Revisions",
    "m": [
     {
-     "i": "Control of the Civil Service"
+     "i": "Control of the Civil Service",
+     "k": "civil_service_control"
     }
    ]
   },
@@ -4765,7 +5657,8 @@
    "t": "Local Government Transportation Services Amendments",
    "m": [
     {
-     "i": "Public Transit & Transportation"
+     "i": "Public Transit & Transportation",
+     "k": "transit"
     }
    ]
   },
@@ -4776,7 +5669,8 @@
    "t": "Blended Plea Amendments",
    "m": [
     {
-     "i": "Criminal Justice Reform"
+     "i": "Criminal Justice Reform",
+     "k": "justice_reform"
     }
    ]
   },
@@ -4787,7 +5681,8 @@
    "t": "Government Employee Conscience Protection Amendments",
    "m": [
     {
-     "i": "Religious Liberty Focus"
+     "i": "Religious Liberty Focus",
+     "k": "religious_liberty"
     }
    ]
   },
@@ -4798,7 +5693,8 @@
    "t": "Child Care Grant Amendments",
    "m": [
     {
-     "i": "Affordable Child Care"
+     "i": "Affordable Child Care",
+     "k": "child_care"
     }
    ]
   },
@@ -4809,7 +5705,8 @@
    "t": "Medicaid Funding Amendments",
    "m": [
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "k": "healthcare"
     }
    ]
   },
@@ -4820,7 +5717,8 @@
    "t": "Housing Affordability Revisions",
    "m": [
     {
-     "i": "Affordable Housing & Renters"
+     "i": "Affordable Housing & Renters",
+     "k": "housing_support"
     }
    ]
   },
@@ -4831,10 +5729,12 @@
    "t": "Public Lands Possession Amendments",
    "m": [
     {
-     "i": "Local Land Control"
+     "i": "Local Land Control",
+     "k": "lands_local"
     },
     {
-     "i": "Whose Rule Governs: State or Federal"
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power"
     }
    ]
   },
@@ -4845,7 +5745,8 @@
    "t": "School Transit Amendments",
    "m": [
     {
-     "i": "Public Transit & Transportation"
+     "i": "Public Transit & Transportation",
+     "k": "transit"
     }
    ]
   },
@@ -4856,7 +5757,8 @@
    "t": "Technology Upgrade Incentives Amendments",
    "m": [
     {
-     "i": "Climate Action & Clean Energy"
+     "i": "Climate Action & Clean Energy",
+     "k": "climate_action"
     }
    ]
   },
@@ -4867,7 +5769,8 @@
    "t": "Public Land Use Amendments",
    "m": [
     {
-     "i": "Balanced Land Use"
+     "i": "Balanced Land Use",
+     "k": "lands_balance"
     }
    ]
   },
@@ -4878,7 +5781,8 @@
    "t": "School Chaplain Amendments",
    "m": [
     {
-     "i": "Religious Liberty Focus"
+     "i": "Religious Liberty Focus",
+     "k": "religious_liberty"
     }
    ]
   },
@@ -4889,7 +5793,8 @@
    "t": "Half-day Kindergarten Amendments",
    "m": [
     {
-     "i": "Parental Rights in Schools"
+     "i": "Parental Rights in Schools",
+     "k": "edu_parental"
     }
    ]
   },
@@ -4900,7 +5805,8 @@
    "t": "Utah Fits All Scholarship Program Amendments",
    "m": [
     {
-     "i": "School Choice & Education Freedom"
+     "i": "School Choice & Education Freedom",
+     "k": "school_choice"
     }
    ]
   },
@@ -4911,7 +5817,8 @@
    "t": "Boards and Commissions Modifications",
    "m": [
     {
-     "i": "Cut Waste, Not Services"
+     "i": "Cut Waste, Not Services",
+     "k": "gov_waste"
     }
    ]
   },
@@ -4922,7 +5829,8 @@
    "t": "Licensing Modifications",
    "m": [
     {
-     "i": "Protect Reproductive Rights"
+     "i": "Protect Reproductive Rights",
+     "k": "pro_choice"
     }
    ]
   },
@@ -4933,7 +5841,8 @@
    "t": "Utah Fairpark Area Investment and Restoration District",
    "m": [
     {
-     "i": "Development Districts & Public Financing"
+     "i": "Development Districts & Public Financing",
+     "k": "dev_district_finance"
     }
    ]
   },
@@ -4944,7 +5853,8 @@
    "t": "Alternative Education Scholarship Combination",
    "m": [
     {
-     "i": "School Choice & Education Freedom"
+     "i": "School Choice & Education Freedom",
+     "k": "school_choice"
     }
    ]
   },
@@ -4955,7 +5865,8 @@
    "t": "Utah Constitutional Sovereignty Act",
    "m": [
     {
-     "i": "Whose Rule Governs: State or Federal"
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power"
     }
    ]
   },
@@ -4966,7 +5877,8 @@
    "t": "Drug Paraphernalia Amendments",
    "m": [
     {
-     "i": "Criminal Justice Reform"
+     "i": "Criminal Justice Reform",
+     "k": "justice_reform"
     }
    ]
   },
@@ -4977,7 +5889,8 @@
    "t": "Electronic Cigarette Amendments",
    "m": [
     {
-     "i": "Tobacco & Vaping Rules"
+     "i": "Tobacco & Vaping Rules",
+     "k": "tobacco_nicotine"
     }
    ]
   },
@@ -4988,7 +5901,8 @@
    "t": "Income Tax Amendments",
    "m": [
     {
-     "i": "Cut Income & Business Taxes"
+     "i": "Cut Income & Business Taxes",
+     "k": "lower_taxes"
     }
    ]
   },
@@ -4999,7 +5913,8 @@
    "t": "Cannabis Business Tax Credit Amendments",
    "m": [
     {
-     "i": "Cannabis Reform"
+     "i": "Cannabis Reform",
+     "k": "cannabis_reform"
     }
    ]
   },
@@ -5010,7 +5925,8 @@
    "t": "Law Enforcement Canine Pilot Program",
    "m": [
     {
-     "i": "Back Law Enforcement"
+     "i": "Back Law Enforcement",
+     "k": "back_police"
     }
    ]
   },
@@ -5021,7 +5937,8 @@
    "t": "Water Efficiency Amendments",
    "m": [
     {
-     "i": "Water Conservation"
+     "i": "Water Conservation",
+     "k": "water"
     }
    ]
   },
@@ -5032,7 +5949,8 @@
    "t": "Gestational Agreement Requirements",
    "m": [
     {
-     "i": "Protect LGBTQ+ Rights"
+     "i": "Protect LGBTQ+ Rights",
+     "k": "lgbtq_rights"
     }
    ]
   },
@@ -5043,7 +5961,8 @@
    "t": "Criminal Monetary Threshold Amendments",
    "m": [
     {
-     "i": "Criminal Justice Reform"
+     "i": "Criminal Justice Reform",
+     "k": "justice_reform"
     }
    ]
   },
@@ -5054,7 +5973,8 @@
    "t": "High-need School Amendments",
    "m": [
     {
-     "i": "Invest in Public Schools"
+     "i": "Invest in Public Schools",
+     "k": "public_schools"
     }
    ]
   },
@@ -5065,7 +5985,8 @@
    "t": "Energy Security Amendments",
    "m": [
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "k": "energy_production"
     }
    ]
   },
@@ -5076,7 +5997,8 @@
    "t": "Health Benefit Amendments",
    "m": [
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "k": "healthcare"
     }
    ]
   },
@@ -5087,7 +6009,8 @@
    "t": "Market Informed Compensation for Teachers",
    "m": [
     {
-     "i": "Invest in Public Schools"
+     "i": "Invest in Public Schools",
+     "k": "public_schools"
     }
    ]
   },
@@ -5098,7 +6021,8 @@
    "t": "Child Care Services Amendments",
    "m": [
     {
-     "i": "Affordable Child Care"
+     "i": "Affordable Child Care",
+     "k": "child_care"
     }
    ]
   },
@@ -5109,7 +6033,8 @@
    "t": "Property Tax Assessment Amendments",
    "m": [
     {
-     "i": "Property Tax Relief"
+     "i": "Property Tax Relief",
+     "k": "prop_tax"
     }
    ]
   },
@@ -5120,10 +6045,12 @@
    "t": "Social Media Regulation Amendments",
    "m": [
     {
-     "i": "Privacy & Big-Tech Accountability"
+     "i": "Privacy & Big-Tech Accountability",
+     "k": "privacy_rights"
     },
     {
-     "i": "Smart Tech Guardrails"
+     "i": "Smart Tech Guardrails",
+     "k": "tech_balance"
     }
    ]
   },
@@ -5134,7 +6061,8 @@
    "t": "State Commission on Criminal and Juvenile Justice Amendments",
    "m": [
     {
-     "i": "Congress as a Check on the Executive"
+     "i": "Congress as a Check on the Executive",
+     "k": "checks_balances"
     }
    ]
   },
@@ -5145,13 +6073,16 @@
    "t": "Housing and Transit Reinvestment Zone Amendments",
    "m": [
     {
-     "i": "Development Districts & Public Financing"
+     "i": "Development Districts & Public Financing",
+     "k": "dev_district_finance"
     },
     {
-     "i": "Housing Affordability"
+     "i": "Housing Affordability",
+     "k": "housing"
     },
     {
-     "i": "Public Transit & Transportation"
+     "i": "Public Transit & Transportation",
+     "k": "transit"
     }
    ]
   },
@@ -5162,7 +6093,8 @@
    "t": "Optometrist Practice Amendments",
    "m": [
     {
-     "i": "Cut Federal Red Tape"
+     "i": "Cut Federal Red Tape",
+     "k": "gov_regulation"
     }
    ]
   },
@@ -5173,7 +6105,8 @@
    "t": "Generational Water Infrastructure Amendments",
    "m": [
     {
-     "i": "Water Storage & Infrastructure"
+     "i": "Water Storage & Infrastructure",
+     "k": "water_storage"
     }
    ]
   },
@@ -5184,10 +6117,12 @@
    "t": "Energy Independence Amendments",
    "m": [
     {
-     "i": "Energy Independence"
+     "i": "Energy Independence",
+     "k": "enviro_energy"
     },
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "k": "energy_production"
     }
    ]
   },
@@ -5198,7 +6133,8 @@
    "t": "Medical Cannabis Amendments",
    "m": [
     {
-     "i": "Cannabis Reform"
+     "i": "Cannabis Reform",
+     "k": "cannabis_reform"
     }
    ]
   },
@@ -5209,7 +6145,8 @@
    "t": "Property Tax Income Requirements",
    "m": [
     {
-     "i": "Property Tax Relief"
+     "i": "Property Tax Relief",
+     "k": "prop_tax"
     }
    ]
   },
@@ -5220,10 +6157,12 @@
    "t": "First Home Investment Zone Act",
    "m": [
     {
-     "i": "Build More Housing"
+     "i": "Build More Housing",
+     "k": "housing_build"
     },
     {
-     "i": "Help First-Time Buyers"
+     "i": "Help First-Time Buyers",
+     "k": "housing_first_time"
     }
    ]
   },
@@ -5234,7 +6173,8 @@
    "t": "Farming Equipment Amendments",
    "m": [
     {
-     "i": "Farmers & Rural Communities"
+     "i": "Farmers & Rural Communities",
+     "k": "rural_ag"
     }
    ]
   },
@@ -5245,7 +6185,8 @@
    "t": "Capital City Revitalization Zone",
    "m": [
     {
-     "i": "Pro-Growth Deregulation"
+     "i": "Pro-Growth Deregulation",
+     "k": "econ_growth"
     }
    ]
   },
@@ -5256,7 +6197,8 @@
    "t": "Medical Preauthorization Amendments",
    "m": [
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "k": "healthcare"
     }
    ]
   },
@@ -5267,10 +6209,12 @@
    "t": "Utah Housing Amendments",
    "m": [
     {
-     "i": "Build More Housing"
+     "i": "Build More Housing",
+     "k": "housing_build"
     },
     {
-     "i": "Housing Affordability"
+     "i": "Housing Affordability",
+     "k": "housing"
     }
    ]
   },
@@ -5281,7 +6225,8 @@
    "t": "Precious Metals Investment and Administration Amendments",
    "m": [
     {
-     "i": "Gold & Sound Money"
+     "i": "Gold & Sound Money",
+     "k": "sound_money"
     }
    ]
   },
@@ -5292,7 +6237,8 @@
    "t": "Decommissioned Asset Disposition Amendments",
    "m": [
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "k": "energy_production"
     }
    ]
   },
@@ -5303,7 +6249,8 @@
    "t": "Electricity Rate Amendments",
    "m": [
     {
-     "i": "Tackle the Cost of Living"
+     "i": "Tackle the Cost of Living",
+     "k": "cost_living"
     }
    ]
   },
@@ -5314,7 +6261,8 @@
    "t": "Fluoride Amendments",
    "m": [
     {
-     "i": "Medical Freedom"
+     "i": "Medical Freedom",
+     "k": "medical_freedom"
     }
    ]
   },
@@ -5325,7 +6273,8 @@
    "t": "Vaccine Amendments",
    "m": [
     {
-     "i": "Medical Freedom"
+     "i": "Medical Freedom",
+     "k": "medical_freedom"
     }
    ]
   },
@@ -5336,7 +6285,8 @@
    "t": "Environmental Permitting Modifications",
    "m": [
     {
-     "i": "Faster Permits & Reviews"
+     "i": "Faster Permits & Reviews",
+     "k": "permitting_reform"
     }
    ]
   },
@@ -5347,7 +6297,8 @@
    "t": "Fraud Amendments",
    "m": [
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -5358,7 +6309,8 @@
    "t": "Food Security Amendments",
    "m": [
     {
-     "i": "Help Families with Kids"
+     "i": "Help Families with Kids",
+     "k": "family_support"
     }
    ]
   },
@@ -5369,7 +6321,8 @@
    "t": "State Land Access Road Amendments",
    "m": [
     {
-     "i": "Local Land Control"
+     "i": "Local Land Control",
+     "k": "lands_local"
     }
    ]
   },
@@ -5380,10 +6333,12 @@
    "t": "Income Tax Revisions",
    "m": [
     {
-     "i": "Affordable Child Care"
+     "i": "Affordable Child Care",
+     "k": "child_care"
     },
     {
-     "i": "Cut Income & Business Taxes"
+     "i": "Cut Income & Business Taxes",
+     "k": "lower_taxes"
     }
    ]
   },
@@ -5394,7 +6349,8 @@
    "t": "Combined Basic Tax Rate Reduction",
    "m": [
     {
-     "i": "Property Tax Relief"
+     "i": "Property Tax Relief",
+     "k": "prop_tax"
     }
    ]
   },
@@ -5405,10 +6361,12 @@
    "t": "Solar Panel Restrictions in Homeowners Associations Amendments",
    "m": [
     {
-     "i": "Energy Independence"
+     "i": "Energy Independence",
+     "k": "enviro_energy"
     },
     {
-     "i": "Private Property Rights"
+     "i": "Private Property Rights",
+     "k": "property_rights"
     }
    ]
   },
@@ -5419,7 +6377,8 @@
    "t": "Education Industry Employee Privacy",
    "m": [
     {
-     "i": "Privacy & Big-Tech Accountability"
+     "i": "Privacy & Big-Tech Accountability",
+     "k": "privacy_rights"
     }
    ]
   },
@@ -5430,7 +6389,8 @@
    "t": "Firearm Storage Requirements",
    "m": [
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "k": "gun_safety"
     }
    ]
   },
@@ -5441,7 +6401,8 @@
    "t": "Dangerous Weapons Amendments",
    "m": [
     {
-     "i": "Protect Gun Rights"
+     "i": "Protect Gun Rights",
+     "k": "gun_rights"
     }
    ]
   },
@@ -5452,7 +6413,8 @@
    "t": "Assault Amendments",
    "m": [
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -5463,7 +6425,8 @@
    "t": "Firearm Safety Incentives",
    "m": [
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "k": "gun_safety"
     }
    ]
   },
@@ -5474,7 +6437,8 @@
    "t": "Rental Amendments",
    "m": [
     {
-     "i": "Affordable Housing & Renters"
+     "i": "Affordable Housing & Renters",
+     "k": "housing_support"
     }
    ]
   },
@@ -5485,7 +6449,8 @@
    "t": "Imitation Firearm Amendments",
    "m": [
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "k": "gun_safety"
     }
    ]
   },
@@ -5496,7 +6461,8 @@
    "t": "Firearm Retention Amendments",
    "m": [
     {
-     "i": "Protect Gun Rights"
+     "i": "Protect Gun Rights",
+     "k": "gun_rights"
     }
    ]
   },
@@ -5507,7 +6473,8 @@
    "t": "Energy Resource Amendments",
    "m": [
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "k": "energy_production"
     }
    ]
   },
@@ -5518,7 +6485,8 @@
    "t": "Cannabis Amendments",
    "m": [
     {
-     "i": "Cannabis Reform"
+     "i": "Cannabis Reform",
+     "k": "cannabis_reform"
     }
    ]
   },
@@ -5529,7 +6497,8 @@
    "t": "Sexual Offense Revisions",
    "m": [
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -5540,10 +6509,12 @@
    "t": "Homeschool Amendments",
    "m": [
     {
-     "i": "Parental Rights in Schools"
+     "i": "Parental Rights in Schools",
+     "k": "edu_parental"
     },
     {
-     "i": "School Choice & Education Freedom"
+     "i": "School Choice & Education Freedom",
+     "k": "school_choice"
     }
    ]
   },
@@ -5554,7 +6525,8 @@
    "t": "Criminal Amendments",
    "m": [
     {
-     "i": "Strong Border & Enforcement"
+     "i": "Strong Border & Enforcement",
+     "k": "border_security"
     }
    ]
   },
@@ -5565,7 +6537,8 @@
    "t": "Blockchain and Digital Innovation Amendments",
    "m": [
     {
-     "i": "Cryptocurrency Rules & Digital Dollar"
+     "i": "Cryptocurrency Rules & Digital Dollar",
+     "k": "crypto_cbdc"
     }
    ]
   },
@@ -5576,7 +6549,8 @@
    "t": "School Curriculum Amendments",
    "m": [
     {
-     "i": "Pro-Life Protections"
+     "i": "Pro-Life Protections",
+     "k": "pro_life"
     }
    ]
   },
@@ -5587,7 +6561,8 @@
    "t": "County Auditor Modifications",
    "m": [
     {
-     "i": "Transparency & Anti-Corruption"
+     "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency"
     }
    ]
   },
@@ -5598,7 +6573,8 @@
    "t": "Urban Farming Assessment Amendments",
    "m": [
     {
-     "i": "Property Tax Relief"
+     "i": "Property Tax Relief",
+     "k": "prop_tax"
     }
    ]
   },
@@ -5609,7 +6585,8 @@
    "t": "Statewide Online Education Program Amendments",
    "m": [
     {
-     "i": "Transparency & Anti-Corruption"
+     "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency"
     }
    ]
   },
@@ -5620,7 +6597,8 @@
    "t": "Public Employee Gender-specific Language Requirements",
    "m": [
     {
-     "i": "Protect LGBTQ+ Rights"
+     "i": "Protect LGBTQ+ Rights",
+     "k": "lgbtq_rights"
     }
    ]
   },
@@ -5631,7 +6609,8 @@
    "t": "State Custody Amendments",
    "m": [
     {
-     "i": "Protect LGBTQ+ Rights"
+     "i": "Protect LGBTQ+ Rights",
+     "k": "lgbtq_rights"
     }
    ]
   },
@@ -5642,10 +6621,12 @@
    "t": "Municipal and County Zoning Amendments",
    "m": [
     {
-     "i": "Local Land Control"
+     "i": "Local Land Control",
+     "k": "lands_local"
     },
     {
-     "i": "Private Property Rights"
+     "i": "Private Property Rights",
+     "k": "property_rights"
     }
    ]
   },
@@ -5656,7 +6637,8 @@
    "t": "Election Record Amendments",
    "m": [
     {
-     "i": "Election Security & Ballot Safeguards"
+     "i": "Election Security & Ballot Safeguards",
+     "k": "election_security"
     }
    ]
   },
@@ -5667,7 +6649,8 @@
    "t": "Tax Incentives Amendments",
    "m": [
     {
-     "i": "Climate Action & Clean Energy"
+     "i": "Climate Action & Clean Energy",
+     "k": "climate_action"
     }
    ]
   },
@@ -5678,7 +6661,8 @@
    "t": "Public Sector Labor Union Amendments",
    "m": [
     {
-     "i": "Raise Wages & Protect Workers"
+     "i": "Raise Wages & Protect Workers",
+     "k": "econ_workers"
     }
    ]
   },
@@ -5689,7 +6673,8 @@
    "t": "Privacy Protections in Sex-designated Areas",
    "m": [
     {
-     "i": "Protect LGBTQ+ Rights"
+     "i": "Protect LGBTQ+ Rights",
+     "k": "lgbtq_rights"
     }
    ]
   },
@@ -5700,7 +6685,8 @@
    "t": "Water Amendments",
    "m": [
     {
-     "i": "Water Conservation"
+     "i": "Water Conservation",
+     "k": "water"
     }
    ]
   },
@@ -5711,7 +6697,8 @@
    "t": "Health Curriculum and Procedures Amendments",
    "m": [
     {
-     "i": "Parental Rights in Schools"
+     "i": "Parental Rights in Schools",
+     "k": "edu_parental"
     }
    ]
   },
@@ -5722,7 +6709,8 @@
    "t": "Bicycle Lane Safety Amendments",
    "m": [
     {
-     "i": "Public Transit & Transportation"
+     "i": "Public Transit & Transportation",
+     "k": "transit"
     }
    ]
   },
@@ -5733,7 +6721,8 @@
    "t": "Vehicle Sales Tax Amendments",
    "m": [
     {
-     "i": "Cut Income & Business Taxes"
+     "i": "Cut Income & Business Taxes",
+     "k": "lower_taxes"
     }
    ]
   },
@@ -5744,10 +6733,12 @@
    "t": "Amendments to Election Law",
    "m": [
     {
-     "i": "Expand Voting Access"
+     "i": "Expand Voting Access",
+     "k": "voting_access"
     },
     {
-     "i": "Voter ID & Election Integrity"
+     "i": "Voter ID & Election Integrity",
+     "k": "voter_id"
     }
    ]
   },
@@ -5758,7 +6749,8 @@
    "t": "Public School Directory Sharing Amendments",
    "m": [
     {
-     "i": "Privacy & Big-Tech Accountability"
+     "i": "Privacy & Big-Tech Accountability",
+     "k": "privacy_rights"
     }
    ]
   },
@@ -5769,7 +6761,8 @@
    "t": "Precious Metals Amendments",
    "m": [
     {
-     "i": "Gold & Sound Money"
+     "i": "Gold & Sound Money",
+     "k": "sound_money"
     }
    ]
   },
@@ -5780,7 +6773,8 @@
    "t": "Disability Coverage Amendments",
    "m": [
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "k": "healthcare"
     }
    ]
   },
@@ -5791,7 +6785,8 @@
    "t": "Criminal Justice Amendments",
    "m": [
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -5802,7 +6797,8 @@
    "t": "Child Tax Credit Amendments",
    "m": [
     {
-     "i": "Help Families with Kids"
+     "i": "Help Families with Kids",
+     "k": "family_support"
     }
    ]
   },
@@ -5813,7 +6809,8 @@
    "t": "Parent Access to Learning Materials Pilot Program",
    "m": [
     {
-     "i": "Parental Rights in Schools"
+     "i": "Parental Rights in Schools",
+     "k": "edu_parental"
     }
    ]
   },
@@ -5824,10 +6821,12 @@
    "t": "Amendments to Voting Provisions",
    "m": [
     {
-     "i": "Election Security & Ballot Safeguards"
+     "i": "Election Security & Ballot Safeguards",
+     "k": "election_security"
     },
     {
-     "i": "Expand Voting Access"
+     "i": "Expand Voting Access",
+     "k": "voting_access"
     }
    ]
   },
@@ -5838,7 +6837,8 @@
    "t": "District Energy Amendments",
    "m": [
     {
-     "i": "Energy Independence"
+     "i": "Energy Independence",
+     "k": "enviro_energy"
     }
    ]
   },
@@ -5849,7 +6849,8 @@
    "t": "Mining and Critical Infrastructure Materials Amendments",
    "m": [
     {
-     "i": "Energy & Resource Development"
+     "i": "Energy & Resource Development",
+     "k": "lands_energy"
     }
    ]
   },
@@ -5860,7 +6861,8 @@
    "t": "Juvenile Justice Amendments",
    "m": [
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -5871,10 +6873,12 @@
    "t": "Housing Attainability Amendments",
    "m": [
     {
-     "i": "Affordable Housing & Renters"
+     "i": "Affordable Housing & Renters",
+     "k": "housing_support"
     },
     {
-     "i": "Housing Affordability"
+     "i": "Housing Affordability",
+     "k": "housing"
     }
    ]
   },
@@ -5885,7 +6889,8 @@
    "t": "Mental Health Care Study Amendments",
    "m": [
     {
-     "i": "Mental Health & Addiction"
+     "i": "Mental Health & Addiction",
+     "k": "health_mental"
     }
    ]
   },
@@ -5896,7 +6901,8 @@
    "t": "Elections Office",
    "m": [
     {
-     "i": "Practical Government Reform"
+     "i": "Practical Government Reform",
+     "k": "reform_balance"
     }
    ]
   },
@@ -5907,7 +6913,8 @@
    "t": "Department of Natural Resources Funding Amendments",
    "m": [
     {
-     "i": "Climate Action & Clean Energy"
+     "i": "Climate Action & Clean Energy",
+     "k": "climate_action"
     }
    ]
   },
@@ -5918,7 +6925,8 @@
    "t": "Firearm Attachment Amendments",
    "m": [
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "k": "gun_safety"
     }
    ]
   },
@@ -5929,7 +6937,8 @@
    "t": "Child Care Business Tax Credit",
    "m": [
     {
-     "i": "Affordable Child Care"
+     "i": "Affordable Child Care",
+     "k": "child_care"
     }
    ]
   },
@@ -5940,10 +6949,12 @@
    "t": "Religious Expression in Higher Education",
    "m": [
     {
-     "i": "Free Speech Protections"
+     "i": "Free Speech Protections",
+     "k": "free_speech"
     },
     {
-     "i": "Religious Liberty Focus"
+     "i": "Religious Liberty Focus",
+     "k": "religious_liberty"
     }
    ]
   },
@@ -5954,7 +6965,8 @@
    "t": "Unlicensed Driver Amendments",
    "m": [
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -5965,7 +6977,8 @@
    "t": "Human Trafficking Amendments",
    "m": [
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -5976,7 +6989,8 @@
    "t": "School Board Referendum Amendments",
    "m": [
     {
-     "i": "Expand Voting Access"
+     "i": "Expand Voting Access",
+     "k": "voting_access"
     }
    ]
   },
@@ -5987,7 +7001,8 @@
    "t": "Child Care Amendments",
    "m": [
     {
-     "i": "Affordable Child Care"
+     "i": "Affordable Child Care",
+     "k": "child_care"
     }
    ]
   },
@@ -5998,10 +7013,12 @@
    "t": "Child Custody Proceedings Amendments",
    "m": [
     {
-     "i": "Cannabis Reform"
+     "i": "Cannabis Reform",
+     "k": "cannabis_reform"
     },
     {
-     "i": "Protect LGBTQ+ Rights"
+     "i": "Protect LGBTQ+ Rights",
+     "k": "lgbtq_rights"
     }
    ]
   },
@@ -6012,7 +7029,8 @@
    "t": "Halogen Emissions Amendments",
    "m": [
     {
-     "i": "Practical Stewardship"
+     "i": "Practical Stewardship",
+     "k": "enviro_balance"
     }
    ]
   },
@@ -6023,7 +7041,8 @@
    "t": "State School Board Transparency Amendments",
    "m": [
     {
-     "i": "Transparency & Anti-Corruption"
+     "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency"
     }
    ]
   },
@@ -6034,7 +7053,8 @@
    "t": "Public Safety Amendments",
    "m": [
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -6045,7 +7065,8 @@
    "t": "School Digital Materials Amendments",
    "m": [
     {
-     "i": "Parental Rights in Schools"
+     "i": "Parental Rights in Schools",
+     "k": "edu_parental"
     }
    ]
   },
@@ -6056,7 +7077,8 @@
    "t": "Regulatory Oversight Amendments",
    "m": [
     {
-     "i": "Cut Federal Red Tape"
+     "i": "Cut Federal Red Tape",
+     "k": "gov_regulation"
     }
    ]
   },
@@ -6067,7 +7089,8 @@
    "t": "School Trespass Amendments",
    "m": [
     {
-     "i": "Free Speech Protections"
+     "i": "Free Speech Protections",
+     "k": "free_speech"
     }
    ]
   },
@@ -6078,7 +7101,8 @@
    "t": "Federalism Amendments",
    "m": [
     {
-     "i": "Whose Rule Governs: State or Federal"
+     "i": "Whose Rule Governs: State or Federal",
+     "k": "states_federal_power"
     }
    ]
   },
@@ -6089,10 +7113,12 @@
    "t": "Public Education Compliance",
    "m": [
     {
-     "i": "Invest in Public Schools"
+     "i": "Invest in Public Schools",
+     "k": "public_schools"
     },
     {
-     "i": "Transparency & Anti-Corruption"
+     "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency"
     }
    ]
   },
@@ -6103,7 +7129,8 @@
    "t": "School Data Amendments",
    "m": [
     {
-     "i": "Privacy & Big-Tech Accountability"
+     "i": "Privacy & Big-Tech Accountability",
+     "k": "privacy_rights"
     }
    ]
   },
@@ -6114,7 +7141,8 @@
    "t": "Judicial Retention Changes",
    "m": [
     {
-     "i": "Court Orders on the Executive"
+     "i": "Court Orders on the Executive",
+     "k": "judicial_check"
     }
    ]
   },
@@ -6125,7 +7153,8 @@
    "t": "Utah Commission for Earthquake Preparedness",
    "m": [
     {
-     "i": "Wildfire & Disaster Resilience"
+     "i": "Wildfire & Disaster Resilience",
+     "k": "disaster_resilience"
     }
    ]
   },
@@ -6136,7 +7165,8 @@
    "t": "Tax Payments with Precious Metals",
    "m": [
     {
-     "i": "Gold & Sound Money"
+     "i": "Gold & Sound Money",
+     "k": "sound_money"
     }
    ]
   },
@@ -6147,7 +7177,8 @@
    "t": "Diaper Program Amendments",
    "m": [
     {
-     "i": "Help Families with Kids"
+     "i": "Help Families with Kids",
+     "k": "family_support"
     }
    ]
   },
@@ -6158,7 +7189,8 @@
    "t": "Genetic Information Amendments",
    "m": [
     {
-     "i": "Privacy & Big-Tech Accountability"
+     "i": "Privacy & Big-Tech Accountability",
+     "k": "privacy_rights"
     }
    ]
   },
@@ -6169,10 +7201,12 @@
    "t": "Law Enforcement and Criminal Justice Amendments",
    "m": [
     {
-     "i": "Back Law Enforcement"
+     "i": "Back Law Enforcement",
+     "k": "back_police"
     },
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -6183,10 +7217,12 @@
    "t": "First Home Investment Zone Amendments",
    "m": [
     {
-     "i": "Help First-Time Buyers"
+     "i": "Help First-Time Buyers",
+     "k": "housing_first_time"
     },
     {
-     "i": "Housing Affordability"
+     "i": "Housing Affordability",
+     "k": "housing"
     }
    ]
   },
@@ -6197,13 +7233,16 @@
    "t": "Housing and Transit Reinvestment Zone Amendments",
    "m": [
     {
-     "i": "Development Districts & Public Financing"
+     "i": "Development Districts & Public Financing",
+     "k": "dev_district_finance"
     },
     {
-     "i": "Housing Affordability"
+     "i": "Housing Affordability",
+     "k": "housing"
     },
     {
-     "i": "Public Transit & Transportation"
+     "i": "Public Transit & Transportation",
+     "k": "transit"
     }
    ]
   },
@@ -6214,7 +7253,8 @@
    "t": "Energy Corridor Amendments",
    "m": [
     {
-     "i": "Private Property Rights"
+     "i": "Private Property Rights",
+     "k": "property_rights"
     }
    ]
   },
@@ -6225,7 +7265,8 @@
    "t": "Medication Amendments",
    "m": [
     {
-     "i": "Lower Prescription Drug Prices"
+     "i": "Lower Prescription Drug Prices",
+     "k": "health_drug_prices"
     }
    ]
   },
@@ -6236,7 +7277,8 @@
    "t": "Social Security Tax Revisions",
    "m": [
     {
-     "i": "Cut Income & Business Taxes"
+     "i": "Cut Income & Business Taxes",
+     "k": "lower_taxes"
     }
    ]
   },
@@ -6247,7 +7289,8 @@
    "t": "Statewide Initiatives Amendments",
    "m": [
     {
-     "i": "Expand Voting Access"
+     "i": "Expand Voting Access",
+     "k": "voting_access"
     }
    ]
   },
@@ -6258,7 +7301,8 @@
    "t": "Homeless Individuals Protection Amendments",
    "m": [
     {
-     "i": "Homelessness Policy"
+     "i": "Homelessness Policy",
+     "k": "homeless"
     }
    ]
   },
@@ -6269,7 +7313,8 @@
    "t": "Water Fee Amendments",
    "m": [
     {
-     "i": "Water Conservation"
+     "i": "Water Conservation",
+     "k": "water"
     }
    ]
   },
@@ -6280,7 +7325,8 @@
    "t": "Mandatory Jail Sentence Amendments",
    "m": [
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -6291,7 +7337,8 @@
    "t": "Emergency Shelter Amendments",
    "m": [
     {
-     "i": "Wildfire & Disaster Resilience"
+     "i": "Wildfire & Disaster Resilience",
+     "k": "disaster_resilience"
     }
    ]
   },
@@ -6302,10 +7349,12 @@
    "t": "Public Education Reporting Amendments",
    "m": [
     {
-     "i": "Invest in Public Schools"
+     "i": "Invest in Public Schools",
+     "k": "public_schools"
     },
     {
-     "i": "Transparency & Anti-Corruption"
+     "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency"
     }
    ]
   },
@@ -6316,7 +7365,8 @@
    "t": "Veteran Access to State Parks",
    "m": [
     {
-     "i": "Take Care of Veterans"
+     "i": "Take Care of Veterans",
+     "k": "veterans"
     }
    ]
   },
@@ -6327,7 +7377,8 @@
    "t": "Substance Use Disorder Revisions",
    "m": [
     {
-     "i": "Mental Health & Addiction"
+     "i": "Mental Health & Addiction",
+     "k": "health_mental"
     }
    ]
   },
@@ -6338,7 +7389,8 @@
    "t": "Landscaping Procurement Amendments",
    "m": [
     {
-     "i": "Climate Action & Clean Energy"
+     "i": "Climate Action & Clean Energy",
+     "k": "climate_action"
     }
    ]
   },
@@ -6349,7 +7401,8 @@
    "t": "Eviction Amendments",
    "m": [
     {
-     "i": "Affordable Housing & Renters"
+     "i": "Affordable Housing & Renters",
+     "k": "housing_support"
     }
    ]
   },
@@ -6360,7 +7413,8 @@
    "t": "Firearm and Firearm Accessory Modifications",
    "m": [
     {
-     "i": "Stronger Gun Safety Laws"
+     "i": "Stronger Gun Safety Laws",
+     "k": "gun_safety"
     }
    ]
   },
@@ -6371,7 +7425,8 @@
    "t": "Course Choice Empowerment",
    "m": [
     {
-     "i": "School Choice & Education Freedom"
+     "i": "School Choice & Education Freedom",
+     "k": "school_choice"
     }
    ]
   },
@@ -6382,7 +7437,8 @@
    "t": "Sexual Crimes Amendments",
    "m": [
     {
-     "i": "Tough on Crime"
+     "i": "Tough on Crime",
+     "k": "tough_on_crime"
     }
    ]
   },
@@ -6393,7 +7449,8 @@
    "t": "Legislative Audit Amendments",
    "m": [
     {
-     "i": "Transparency & Anti-Corruption"
+     "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency"
     }
    ]
   },
@@ -6404,7 +7461,8 @@
    "t": "Sex, Kidnap, and Child Abuse Offender Adjustments",
    "m": [
     {
-     "i": "Criminal Justice Reform"
+     "i": "Criminal Justice Reform",
+     "k": "justice_reform"
     }
    ]
   },
@@ -6415,7 +7473,8 @@
    "t": "Indigent Defense Amendments",
    "m": [
     {
-     "i": "Criminal Justice Reform"
+     "i": "Criminal Justice Reform",
+     "k": "justice_reform"
     }
    ]
   },
@@ -6426,10 +7485,12 @@
    "t": "Housing Affordability Amendments",
    "m": [
     {
-     "i": "Build More Housing"
+     "i": "Build More Housing",
+     "k": "housing_build"
     },
     {
-     "i": "Housing Affordability"
+     "i": "Housing Affordability",
+     "k": "housing"
     }
    ]
   },
@@ -6440,7 +7501,8 @@
    "t": "Homeless Services Modifications",
    "m": [
     {
-     "i": "Homelessness Policy"
+     "i": "Homelessness Policy",
+     "k": "homeless"
     }
    ]
   },
@@ -6451,7 +7513,8 @@
    "t": "Tobacco and Electronic Cigarette Amendments",
    "m": [
     {
-     "i": "Tobacco & Vaping Rules"
+     "i": "Tobacco & Vaping Rules",
+     "k": "tobacco_nicotine"
     }
    ]
   },
@@ -6462,7 +7525,8 @@
    "t": "Throughput Infrastructure Funding Amendments",
    "m": [
     {
-     "i": "Energy & Resource Development"
+     "i": "Energy & Resource Development",
+     "k": "lands_energy"
     }
    ]
   },
@@ -6473,7 +7537,8 @@
    "t": "Child Care Services Amendments",
    "m": [
     {
-     "i": "Affordable Child Care"
+     "i": "Affordable Child Care",
+     "k": "child_care"
     }
    ]
   },
@@ -6484,7 +7549,8 @@
    "t": "Workers' Compensation Modifications",
    "m": [
     {
-     "i": "Lower Healthcare Costs"
+     "i": "Lower Healthcare Costs",
+     "k": "healthcare_costs"
     }
    ]
   },
@@ -6495,7 +7561,8 @@
    "t": "Transportation Amendments",
    "m": [
     {
-     "i": "Public Transit & Transportation"
+     "i": "Public Transit & Transportation",
+     "k": "transit"
     }
    ]
   },
@@ -6506,7 +7573,8 @@
    "t": "Judicial Standing Amendments",
    "m": [
     {
-     "i": "Court Orders on the Executive"
+     "i": "Court Orders on the Executive",
+     "k": "judicial_check"
     }
    ]
   },
@@ -6517,7 +7585,8 @@
    "t": "Right to Appeal Amendments",
    "m": [
     {
-     "i": "Court Orders on the Executive"
+     "i": "Court Orders on the Executive",
+     "k": "judicial_check"
     }
    ]
   },
@@ -6528,7 +7597,8 @@
    "t": "Health Insurance Coverage Amendments",
    "m": [
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "k": "healthcare"
     }
    ]
   },
@@ -6539,7 +7609,8 @@
    "t": "Voter Information Amendments",
    "m": [
     {
-     "i": "Privacy & Big-Tech Accountability"
+     "i": "Privacy & Big-Tech Accountability",
+     "k": "privacy_rights"
     }
    ]
   },
@@ -6550,10 +7621,12 @@
    "t": "Modifications to Income Tax",
    "m": [
     {
-     "i": "Cut Income & Business Taxes"
+     "i": "Cut Income & Business Taxes",
+     "k": "lower_taxes"
     },
     {
-     "i": "Middle-Class Tax Relief"
+     "i": "Middle-Class Tax Relief",
+     "k": "tax_middle_class"
     }
    ]
   },
@@ -6564,7 +7637,8 @@
    "t": "State Holy Days",
    "m": [
     {
-     "i": "Religious Liberty Focus"
+     "i": "Religious Liberty Focus",
+     "k": "religious_liberty"
     }
    ]
   },
@@ -6575,13 +7649,16 @@
    "t": "Housing Affordability Modifications",
    "m": [
     {
-     "i": "Affordable Housing & Renters"
+     "i": "Affordable Housing & Renters",
+     "k": "housing_support"
     },
     {
-     "i": "Help First-Time Buyers"
+     "i": "Help First-Time Buyers",
+     "k": "housing_first_time"
     },
     {
-     "i": "Housing Affordability"
+     "i": "Housing Affordability",
+     "k": "housing"
     }
    ]
   },
@@ -6592,7 +7669,8 @@
    "t": "Higher Education Certification Amendments",
    "m": [
     {
-     "i": "Affordable Child Care"
+     "i": "Affordable Child Care",
+     "k": "child_care"
     }
    ]
   },
@@ -6603,10 +7681,12 @@
    "t": "Micro-education Entity Amendments",
    "m": [
     {
-     "i": "Parental Rights in Schools"
+     "i": "Parental Rights in Schools",
+     "k": "edu_parental"
     },
     {
-     "i": "School Choice & Education Freedom"
+     "i": "School Choice & Education Freedom",
+     "k": "school_choice"
     }
    ]
   },
@@ -6617,7 +7697,8 @@
    "t": "Health Insurance Preauthorization Revisions",
    "m": [
     {
-     "i": "Expand Healthcare Access"
+     "i": "Expand Healthcare Access",
+     "k": "healthcare"
     }
    ]
   },
@@ -6628,7 +7709,8 @@
    "t": "Judicial Amendments",
    "m": [
     {
-     "i": "Court Orders on the Executive"
+     "i": "Court Orders on the Executive",
+     "k": "judicial_check"
     }
    ]
   },
@@ -6639,7 +7721,8 @@
    "t": "Water Wise Landscaping Amendments",
    "m": [
     {
-     "i": "Water Conservation"
+     "i": "Water Conservation",
+     "k": "water"
     }
    ]
   },
@@ -6650,7 +7733,8 @@
    "t": "Military Installation Development Authority and Other Development Zone Amendments",
    "m": [
     {
-     "i": "Development Districts & Public Financing"
+     "i": "Development Districts & Public Financing",
+     "k": "dev_district_finance"
     }
    ]
   },
@@ -6661,7 +7745,8 @@
    "t": "Public Education Funding Amendments",
    "m": [
     {
-     "i": "Invest in Public Schools"
+     "i": "Invest in Public Schools",
+     "k": "public_schools"
     }
    ]
   },
@@ -6672,7 +7757,8 @@
    "t": "Deferred Deposit Lending Modifications",
    "m": [
     {
-     "i": "Corporate Accountability"
+     "i": "Corporate Accountability",
+     "k": "econ_corp_account"
     }
    ]
   },
@@ -6683,7 +7769,8 @@
    "t": "Cosmetology Modifications",
    "m": [
     {
-     "i": "Help Small Businesses"
+     "i": "Help Small Businesses",
+     "k": "econ_smallbiz"
     }
    ]
   },
@@ -6694,7 +7781,8 @@
    "t": "Utah Fairpark Area Investment and Restoration District Modifications",
    "m": [
     {
-     "i": "Development Districts & Public Financing"
+     "i": "Development Districts & Public Financing",
+     "k": "dev_district_finance"
     }
    ]
   }

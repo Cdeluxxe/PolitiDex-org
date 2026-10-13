@@ -95,7 +95,7 @@ export function canonicalPersonId(id: string): string {
 // chamber, the stored title, and the issues the measure is mapped to — each with
 // the effect line stored for that pair, where one is. The same set
 // the sitemap lists bills from, so an advertised address is always one of these.
-type BillDocRec = { s: string; n: string; c?: string; t?: string; m?: { i: string; l?: string }[] };
+type BillDocRec = { s: string; n: string; c?: string; t?: string; m?: { i: string; k?: string; l?: string }[] };
 const BILL_DOCS: Record<string, BillDocRec> =
   (billDocsFile as unknown as { docs: Record<string, BillDocRec> }).docs || {};
 
@@ -111,7 +111,9 @@ export type BillDoc = {
   chamber: string;
   title: string;
   sittingText: string;
-  issues: { issue: string; line: string }[];
+  // `key` is the issue's own key, carried so the page can link each issue to
+  // /i/<key>; "" where the snapshot holds none.
+  issues: { issue: string; key: string; line: string }[];
   held: "doc" | "live";
 };
 
@@ -123,7 +125,11 @@ function billDocOf(r: BillDocRec): BillDoc {
     chamber: r.c || "",
     title: r.t || "",
     sittingText: sittingText(congress ? { congress } : { session: r.s }),
-    issues: (r.m || []).filter((x) => x && x.i).map((x) => ({ issue: x.i, line: x.l || "" })),
+    issues: (r.m || []).filter((x) => x && x.i).map((x) => ({
+      issue: x.i,
+      key: typeof x.k === "string" && /^[A-Za-z0-9_]+$/.test(x.k) ? x.k : "",
+      line: x.l || "",
+    })),
     held: "doc",
   };
 }

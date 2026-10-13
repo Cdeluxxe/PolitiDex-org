@@ -21,8 +21,9 @@
 //       → Strong Border & Enforcement (shorter), also Tough on Crime, which
 //         gained its own line in wave 3 (v322).
 //
-// The six rows with no description anywhere — H.Amdt. 97, H.Amdt. 85, H.Amdt. 87,
-// and H.Con.Res. 14 on three leaves — print nothing at all.
+// The rows with no description anywhere — H.Amdt. 97, H.Amdt. 85 and H.Amdt. 87 —
+// print nothing at all. H.Con.Res. 14's three leaves were on this list until
+// budget and fiscal slice 1 (v360) wrote each from its mapping rationale.
 //
 //   1. SHAPE: every pointer is the fixed shape, and only these six pairs carry one.
 //   2. REAL LEAF, EXACT LINE: each named leaf is one the act is mapped to and that
@@ -45,6 +46,7 @@ import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import { execHeld } from "./vr-exec-later.mjs";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 
@@ -67,8 +69,12 @@ const WANT = {
   "H.R. 29|119|state_standing": { to: "border_security", also: ["tough_on_crime"] },
 };
 const NO_FACTS = [
-  "H.Amdt. 97|119|lands_preserve", "H.Amdt. 85|119|lgbtq_rights", "H.Amdt. 87|119|lgbtq_rights",
-  "H.Con.Res. 14|119|lower_taxes", "H.Con.Res. 14|119|national_debt", "H.Con.Res. 14|119|cut_spending",
+  "H.Amdt. 87|119|lgbtq_rights",
+  // H.Amdt. 97 × lands_preserve and H.Amdt. 85 × lgbtq_rights left this set in
+  // blank rows slice 6 (v366), written from their mapping rationales;
+  // db/vr-blank-rows-slice6.json records the source of each.
+  // H.Con.Res. 14's three leaves left this list in budget and fiscal slice 1
+  // (v360), written from their mapping rationales; db/vr-fiscal-effect-lines.json.
 ];
 const SHAPE = /^Same act, filed on (.+?)(?: \(also filed on (.+?)\))?: (.+)$/;
 
@@ -203,7 +209,7 @@ function check(src, base) {
     for (const [p, v] of Object.entries(HE.map)) ok(E.map[p] === v, `${p}: a shipped line was rewritten or removed`);
     // A later wave may add lines; none may land on a pointer row (checked above).
     ok(Object.keys(E.map).length >= Object.keys(HE.map).length, "the effect table lost an entry");
-    ok(X.text === HX.text, "_DOS_EXEC_EFFECT (Trump's lines) is not byte-identical to HEAD");
+    ok(execHeld(src, headSrc), "_DOS_EXEC_EFFECT (Trump's lines) is not byte-identical to HEAD");
     if (base) {
       for (const [k, v] of base) ok(printed.get(k) === v, `${k}: printed ${JSON.stringify(v)} at HEAD and now prints ${JSON.stringify(printed.get(k) || "")}`);
       ok(printed.size >= base.size, `${printed.size} effect paragraphs now, ${base.size} at HEAD`);

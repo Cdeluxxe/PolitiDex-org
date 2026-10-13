@@ -11,8 +11,9 @@
 // description sits on Tariffs & Household Prices, which is another leaf's and
 // may not be borrowed. So the row stays blank, and this file holds it there
 // until a `did` is written for the pair itself. The leaf's other mapped rows are
-// Trump's executive orders, which carry no stored line on this key, and a state
-// lawsuit, which no member votes on.
+// Trump's executive orders, whose lines on this key the tariff orders slice
+// (v361) wrote in its own block of _DOS_EXEC_EFFECT, and a state lawsuit, which
+// no member votes on.
 //
 //   1. THE LINE RULE: any line stored here is one sentence, 140 characters or
 //      fewer, ends on its stop, has no method words, no "PolitiDex", no ellipsis,
@@ -22,7 +23,8 @@
 //   3. TENSE: an act with no public law on file opens "Would" or "Proposed".
 //   4. RENDERED, ROW BY ROW, for every member file: a row with a stored line
 //      prints that line and no other; a row with nothing stored — S.J.Res. 37
-//      here — prints no extra paragraph, and no executive row prints one.
+//      here — prints no extra paragraph, and an executive row prints only the
+//      line stored for its document on this key.
 //   5. NOTHING SHIPPED WAS REWRITTEN: every line in HEAD's _DOS_EFFECT is
 //      unchanged, _DOS_EXEC_EFFECT is byte-identical, and every row that printed
 //      a line at HEAD prints it now.
@@ -38,6 +40,7 @@ import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import { execHeld, execLaterKeys } from "./vr-exec-later.mjs";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 import { measureAddresses } from "./vr-measure-addresses.mjs";
@@ -195,7 +198,7 @@ function check(src, base) {
   if (headSrc) {
     const HE = mapOf(headSrc, "_DOS_EFFECT"), HX = mapOf(headSrc, "_DOS_EXEC_EFFECT");
     for (const [p, v] of Object.entries(HE.map)) ok(E.map[p] === v, `${p}: a shipped line was rewritten or removed`);
-    ok(X.text === HX.text, "_DOS_EXEC_EFFECT (Trump's lines) is not byte-identical to HEAD");
+    ok(execHeld(src, headSrc), "_DOS_EXEC_EFFECT (Trump's lines) is not byte-identical to HEAD");
     if (base) {
       for (const [r, v] of base) ok(printed.get(r) === v, `${r}: printed ${JSON.stringify(v)} at HEAD and now prints ${JSON.stringify(printed.get(r) || "")}`);
     }
@@ -209,7 +212,11 @@ function check(src, base) {
     if (BLANK.has(p)) ok(!E.map[p] && !rowRule(didOf(p)), `${p}: the documented blank now carries a line — move it out of BLANK with its source`);
     else ok(!!(E.map[p] || rowRule(didOf(p))), `${p}: a member-voted pair on Tariffs & Trade Authority prints no line`);
   }
-  ok(!Object.keys(X.map).some((p) => p.endsWith("|tariffs_authority")), "an executive line was added on Tariffs & Trade Authority");
+  // Trump's lines on this key belong to the tariff orders slice (v361), written in
+  // its own block and held by scripts/test-tariff-exec-effect-lines.mjs; none may
+  // sit anywhere else in the executive table.
+  { const slice = execLaterKeys(src);
+    ok(!Object.keys(X.map).some((p) => p.endsWith("|tariffs_authority") && !slice.has(p)), "an executive line was added on Tariffs & Trade Authority outside the tariff orders slice"); }
   for (const p of Object.keys(E.map).filter((q) => q.endsWith("|tariffs_authority"))) {
     const act = p.replace(/\|tariffs_authority$/, "");
     for (const [q, m] of Object.entries((M && M.map) || {})) {

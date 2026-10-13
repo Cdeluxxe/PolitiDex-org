@@ -3289,6 +3289,14 @@
           "supportMeaning": "yea_opposes",
           "rationale": "A yea withdraws United States forces from an ongoing engagement absent a vote of Congress, and that is what strong_defense reads as its opposed direction. The weight is held at 55, the weight S.J.Res. 59 carries, because the resolution takes no position on force levels, procurement, budgets or posture; it reaches one engagement and stops. Recording it lower would erase a real vote and recording it higher would turn a single-engagement question into a defence-posture score.",
           "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/90"
+        },
+        {
+          "issueKey": "venezuela_policy",
+          "weight": 100,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Venezuela is the resolution's own subject: its operative section directs removal of U.S. forces from hostilities within or against Venezuela that Congress has not authorized. Filed here alongside its restraint, war-powers and defense rows, not in place of them; no side is read on this key.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/90"
         }
       ]
     },
@@ -3322,6 +3330,14 @@
           "isPrimary": false,
           "supportMeaning": "yea_opposes",
           "rationale": "A yea withdraws United States forces from an ongoing engagement absent a vote of Congress, and that is what strong_defense reads as its opposed direction. The weight is held at 55, the weight S.J.Res. 59 carries, because the resolution takes no position on force levels, procurement, budgets or posture; it reaches one engagement and stops. Recording it lower would erase a real vote and recording it higher would turn a single-engagement question into a defence-posture score.",
+          "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/98"
+        },
+        {
+          "issueKey": "venezuela_policy",
+          "weight": 100,
+          "isPrimary": false,
+          "supportMeaning": "yea_supports",
+          "rationale": "Venezuela is the resolution's own subject: its operative section directs removal of U.S. forces from hostilities within or against Venezuela that Congress has not authorized. Filed here alongside its restraint, war-powers and defense rows, not in place of them; no side is read on this key.",
           "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-joint-resolution/98"
         }
       ]

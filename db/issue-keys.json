@@ -1,6 +1,6 @@
 {
   "_generatedBy": "scripts/gen-issue-keys.mjs (from ISSUE_MAP in alignment-tool.js)",
-  "count": 124,
+  "count": 125,
   "keys": [
     "america_first",
     "america_first_fp",
@@ -119,6 +119,7 @@
     "tough_on_crime",
     "transit",
     "ukraine_policy",
+    "venezuela_policy",
     "veterans",
     "voter_id",
     "voting_access",
@@ -1807,6 +1808,13 @@
       "aid to ukraine",
       "ukraine security assistance",
       "usai"
+    ],
+    "venezuela_policy": [
+      "venezuela",
+      "venezuelan",
+      "caracas",
+      "venezuelan oil",
+      "maduro"
     ],
     "veterans": [
       "veteran",

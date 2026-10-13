@@ -876,6 +876,21 @@
       // ever read on them. No `lean`.
       ukraine_policy:     { label: '🇺🇦 Ukraine', chip: 'What the United States does about Ukraine — security assistance, supplemental aid, and war powers', cat: 'foreign', stanceKeys: [], keywords: ['ukraine','ukrainian','kyiv','kiev','zelensky','zelenskyy','ukraine aid','aid to ukraine','ukraine security assistance','usai'] },
       yemen_policy:       { label: '🇾🇪 Yemen', chip: 'What the United States does about Yemen — hostilities there and whether Congress authorized them', cat: 'foreign', stanceKeys: [], keywords: ['yemen','yemeni','sanaa','yemen war','war in yemen'] },
+      // Venezuela, the same shape as Iran, Ukraine and Yemen: a SUBJECT key for the
+      // country, beside Congress and War Powers, Diplomacy & Restraint, Peace
+      // Through Strength, America First and Tariffs & Trade Authority and replacing
+      // none of them — every act filed here keeps its existing rows, and the
+      // country row sits beside them as a secondary.
+      // SCOPE: acts whose own text names Venezuela as the subject. On file: the two
+      // Senate war-powers resolutions directed at hostilities within or against
+      // Venezuela (S.J.Res. 90 and S.J.Res. 98, 119th), Executive Order 14245
+      // (duties on countries that import Venezuelan oil) and Executive Order 14373
+      // (Venezuelan oil revenue held in Treasury custody). A war-powers resolution
+      // naming no theatre (S.J.Res. 83), a hemisphere-wide cartel proclamation, and
+      // any defense or appropriations bill carrying a Venezuela line among many are
+      // OUT. NO POLE, for the iran_policy reason: it sits in _RD_NO_POLE and no side
+      // is ever read on it. No `lean`.
+      venezuela_policy:   { label: '🇻🇪 Venezuela', chip: 'What the United States does about Venezuela — hostilities, oil revenue, and duties on its oil buyers', cat: 'foreign', stanceKeys: [], keywords: ['venezuela','venezuelan','caracas','venezuelan oil','maduro'] },
       veterans:           { label: '🎖 Take Care of Veterans', chip: 'Deliver better healthcare, benefits and support for the men and women who served', cat: 'foreign', stanceKeys: [], keywords: ['veteran','veterans','va','veterans affairs','gi bill','servicemember','service member','military families','va health','troops','wounded warrior','military service'] },
 
       // ── Technology & Privacy ──
@@ -1237,8 +1252,8 @@
         blurb: 'Equal treatment and civil rights, religious liberty, free speech, personal privacy and surveillance, and the debate over DEI.',
         keys: ['religious_liberty','rights_balance','lgbtq_rights','free_speech','end_dei','privacy_rights'] },
       { key: 'foreign_policy_defense', label: '🦅 Foreign Policy & National Security',
-        blurb: 'National defense, alliances and diplomacy, America First priorities, support for Israel, U.S. policy toward Iran, Ukraine and Yemen, and support for veterans.',
-        keys: ['strong_defense','foreign_balance','restraint','america_first','america_first_fp','israel_support','iran_policy','ukraine_policy','yemen_policy','veterans'] },
+        blurb: 'National defense, alliances and diplomacy, America First priorities, support for Israel, U.S. policy toward Iran, Ukraine, Yemen and Venezuela, and support for veterans.',
+        keys: ['strong_defense','foreign_balance','restraint','america_first','america_first_fp','israel_support','iran_policy','ukraine_policy','yemen_policy','venezuela_policy','veterans'] },
     ];
     try { window.CORE_NATIONAL_ISSUES = CORE_NATIONAL_ISSUES; } catch (e) {}
 

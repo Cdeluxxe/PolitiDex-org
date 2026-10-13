@@ -187,7 +187,18 @@ section("4 · the document's seam is byte-identical for H.J.Res. 131");
 // regenerated db/bill-docs.json that legitimately changes this bill's document
 // moves this pin on purpose, in the same change.
 const SEAM_SHA256 = "b65741c64b6f1f74022c1c4819c5dbe17375ef8c781e92a23418386aa4d056e3";
-eq(createHash("sha256").update(SEAM, "utf8").digest("hex"), SEAM_SHA256, "H.J.Res. 131's seam is byte-identical");
+// The "Also touches" line (v363) is the one addition: with it taken out the seam
+// is the pinned copy, and the line itself is the seam's four issues, each a link
+// to its own issue page.
+const ALSO = (SEAM.match(/<p class="pdx-bill-also" data-pdx-bill-also>[\s\S]*?<\/p>/) || [""])[0];
+ok(!!ALSO, "the seam carries the Also touches line");
+eq(createHash("sha256").update(SEAM.replace(ALSO, ""), "utf8").digest("hex"), SEAM_SHA256, "H.J.Res. 131's seam is byte-identical");
+{
+  const tags = [...ALSO.matchAll(/<a class="pdx-bill-tag" href="\/i\/([A-Za-z0-9_]+)" data-pdx-bill-tag="([A-Za-z0-9_]+)">([^<]*)<\/a>/g)];
+  eq(JSON.stringify(tags.map((t) => t[1]).sort()), JSON.stringify([...KEYS].sort()), "the Also touches chips are H.J.Res. 131's four stored keys");
+  ok(tags.every((t) => t[1] === t[2]), "each chip links to the issue its key names");
+  eq(JSON.stringify(sorted(tags.map((t) => t[3].replace(/&amp;/g, "&")))), JSON.stringify(sorted(DOC_LABELS)), "each chip carries the seam's own label");
+}
 
 // ═════════════════════════════════════════════════════════════════════════════
 section("5 · mutations are caught");

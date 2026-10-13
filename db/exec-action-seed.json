@@ -2211,6 +2211,15 @@
             "plain": "Claimed the power to tariff any country that buys Venezuelan oil, at a rate and against a target chosen by the executive branch alone.",
             "counts": "The claim made in this order is the reason it is filed here: a power to tariff any country that buys Venezuelan oil, at a rate and against a target chosen inside the executive branch alone.",
             "rationale": "Issued under the International Emergency Economic Powers Act and the National Emergencies Act, the order authorizes a 25 percent ad valorem duty on goods from any country determined to import Venezuelan oil, directly or indirectly, with the determination left to the Secretary of State in consultation with named officials. Mapped opposes on the same ground as the other two duty orders in this wave: the chip is about who sets tariffs, and this instrument places both the rate and the choice of target inside the executive branch."
+          },
+          {
+            "issueKey": "venezuela_policy",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 65,
+            "plain": "Authorized a 25 percent duty on goods from any country found to import Venezuelan oil, directly or indirectly.",
+            "counts": "Venezuela is the order’s own subject: its one tool is aimed at the countries that buy Venezuela’s oil.",
+            "rationale": "Venezuela is the order’s own subject: issued under the International Emergency Economic Powers Act and the National Emergencies Act, it authorizes a 25 percent ad valorem duty on goods from any country determined to import Venezuelan oil, directly or indirectly, with the determination left to the Secretary of State. Filed alongside the Tariffs & Trade Authority row, not in place of it. The key names a country, so no side is read on it; the direction field records the order’s own action."
           }
         ],
         "status": [
@@ -3127,6 +3136,15 @@
             "plain": "Declared a new national emergency so the United States could hold another government's oil revenue in Treasury custody, and named that country's economic and political stability an American foreign policy objective the order says must not fail.",
             "counts": "This issue tracks open-ended commitments abroad. The order makes another country's economic and political stability a named United States objective and puts the Treasury in custody of that country's oil revenue, for a period the order does not bound.",
             "rationale": "Section 1 finds that attachment or other judicial process against the covered funds “will substantially interfere with our critical efforts to ensure economic and political stability in Venezuela,” and that the failure of those efforts “would jeopardize major foreign policy objectives of the United States,” which the section lists as ending illegal immigration and illicit narcotics flows, “protecting American interests against malign actors such as Iran and Hezbollah,” and “bringing peace, prosperity, and stability to the Venezuelan people and to the Western Hemisphere more generally.” On that finding the order declares a national emergency under the International Emergency Economic Powers Act and the National Emergencies Act. Section 3 renders any attachment, judgment, lien, execution or garnishment against the covered funds null and void and bars any transfer of them except under a licence issued under the order. Section 4 finds the funds are property of that government, held by the United States “solely in a custodial and governmental capacity,” and “held pending sovereign disposition for public, governmental, or diplomatic purposes determined by the Secretary of State, on behalf of the Government of Venezuela.” Mapped as opposing the America-First chip because that chip is written around questioning open-ended commitments abroad, and this order takes one on: it makes another country’s stabilization a named United States objective and puts the Treasury in the position of custodian for that country’s resource revenue for a period the order does not bound."
+          },
+          {
+            "issueKey": "venezuela_policy",
+            "direction": "advances",
+            "isPrimary": false,
+            "weight": 70,
+            "plain": "Declared a national emergency over Venezuelan oil revenue held by the United States, voided any court attachment of it and held it in Treasury custody for the Government of Venezuela.",
+            "counts": "Venezuela is the order’s own subject: every section is addressed to funds the order finds are the property of the Government of Venezuela.",
+            "rationale": "Venezuela is the order’s own subject: section 1 finds that judicial process against the covered funds would interfere with efforts to ensure economic and political stability in Venezuela, section 3 renders any attachment, judgment, lien, execution or garnishment against them null and void, and section 4 holds them pending disposition on behalf of the Government of Venezuela. Filed alongside the America First row, not in place of it. The key names a country, so no side is read on it; the direction field records the order’s own action."
           }
         ],
         "status": [

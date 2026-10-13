@@ -2402,6 +2402,19 @@
       // cross-reference rather than as this leaf's own sentence.
       '.pdxlg-t tr.pdxlg-ptrr td{border-top:none;padding:0 0.4rem 0.4rem 0;' +
         'color:#93a6c4;font-size:0.7rem;line-height:1.4;font-style:italic;}' +
+      // The other issues the act is stored on, under its effect line: issue chips
+      // in their own colour, each a door to that issue's drawer.
+      '.pdxlg-t tr.pdxlg-relr td{border-top:none;padding:0 0.4rem 0.45rem 0;}' +
+      '.pdxlg-rel{display:flex;flex-wrap:wrap;align-items:center;gap:0.2rem;}' +
+      '.pdxlg-rel-k{font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:0.05em;' +
+        'font-size:0.6rem;color:#8fa2c0;margin-right:0.2rem;}' +
+      '.pdxlg-rel-c{display:inline-flex;align-items:center;min-height:24px;font-size:0.62rem;padding:0 0.45rem;' +
+        'border-radius:999px;border:1px solid rgba(255,255,255,0.18);color:#cfe0f8;text-decoration:none;white-space:nowrap;}' +
+      '.pdxlg-rel-c.pdxc-ic{border-color:var(--pdx-ic);background:var(--pdx-ic-wash,transparent);color:var(--pdx-ic-ink,#e8eefc);}' +
+      '.pdxlg-rel-c:hover,.pdxlg-rel-c:focus-visible{border-color:#9fdbff;outline:none;}' +
+      '.pdxlg-other{margin:0.5rem 0 0;font-size:0.7rem;}' +
+      '.pdxlg-other-a{color:#9fdbff;text-decoration:none;font-weight:700;}' +
+      '.pdxlg-other-a:hover,.pdxlg-other-a:focus-visible{text-decoration:underline;}' +
       '.pdxlg-d{white-space:nowrap;font-variant-numeric:tabular-nums;color:#8fa2c0;font-size:0.68rem;}' +
       '.pdxlg-num{font-weight:800;color:#e8eefc;white-space:nowrap;font-size:0.95rem;}' +
       // One chip per row: which way this act cut on this issue.
@@ -17129,8 +17142,9 @@
   // happened in: the motion to send it back, then the vote that sent it out.
   // Subject keys whose ledger prints no for/against line — see the note in the
   // body. Iran joined when its drawer took the second-term instruments: a country
-  // it is, like the other two, and it sits in _RD_NO_POLE with them.
-  var _DOS_LEDGER_NO_SIDE = { iran_policy: 1, ukraine_policy: 1, yemen_policy: 1 };
+  // it is, like the other two, and it sits in _RD_NO_POLE with them. Venezuela
+  // joined as a leaf of its own, on the same contract.
+  var _DOS_LEDGER_NO_SIDE = { iran_policy: 1, ukraine_policy: 1, yemen_policy: 1, venezuela_policy: 1 };
   // A TERM IS A FILTER, AND ONLY WHEN THE READER TURNS IT ON. The drawer opens on
   // the whole file — every term — and carries no term word. Where the rows span
   // more than one term, a control under the tally lets the reader narrow the list
@@ -17312,6 +17326,10 @@
         if (eff) {
           out += '<tr class="pdxlg-effr" data-pdxlg-effr="' + p.i + '">' +
             '<td colspan="5" class="pdxlg-eff" data-pdxlg-eff="1">' + esc(eff) + '</td></tr>';
+          // The other issues this same act is stored on, each a door to that
+          // issue's drawer for this file. Its own row, under the effect line it
+          // belongs to; nothing at all when the act sits on this issue alone.
+          out += _dosRelRowHtml(pid, issueKey, d, p.i);
         } else if (d.ptrLine) {
           // Not this leaf's line: a pointer to the same act's line on another leaf,
           // in its own row class so nothing reads it as an effect on this one.
@@ -17325,7 +17343,61 @@
       }
       out += '</tbody></table></div>';
     }
-    return out + '</div>';
+    return out + _dosOtherBillsHtml(issueKey) + '</div>';
+  }
+
+  // THE OTHER ISSUES THE SAME ACT IS STORED ON, under its effect line.
+  //
+  // Read only from the mappings the row already carries (d.item.issues — the
+  // measure's stored issues for a vote, the document's for an executive act), so
+  // a chip exists exactly while its mapping does: remove the mapping and the chip
+  // goes with it. The issue being read is never repeated, a key the site has no
+  // label for is never printed, and an act on one issue prints nothing. Each chip
+  // is the existing issue chip — its label, its colour — and a door: tapping it
+  // opens that issue's drawer for this same file, through the same data-pdxc-gap
+  // route the drawer's own steppers use, with the file's address as the fallback.
+  // It reads, scores and sums nothing.
+  var _DOS_REL_KEY = /^[A-Za-z0-9_]+$/;
+  function _dosRelKeys(d, issueKey) {
+    var list = (d && d.item && d.item.issues) || [], seen = {}, out = [];
+    for (var i = 0; i < list.length; i++) {
+      var k = list[i] && list[i].issueKey;
+      if (!k || k === issueKey || seen[k] || !_DOS_REL_KEY.test(k)) continue;
+      seen[k] = 1;
+      var lb = _issueLabel(k);
+      if (!lb || lb === k) continue;
+      out.push(k);
+    }
+    return out;
+  }
+  function _dosRelHref(pid, k) {
+    try {
+      var P = window.PDXPerson;
+      if (P && typeof P.cardPath === 'function') { var h = P.cardPath(pid, k); if (h) return h; }
+    } catch (e) { /* fall through to the plain address */ }
+    return '/p/' + encodeURIComponent(pid) + '?issue=' + encodeURIComponent(k);
+  }
+  function _dosRelRowHtml(pid, issueKey, d, idx) {
+    if (!pid) return '';
+    var keys = _dosRelKeys(d, issueKey);
+    if (!keys.length) return '';
+    var chips = keys.map(function (k) {
+      var sk = _icSkin(k), lb = _dosLeafName(k);
+      return '<a class="pdxlg-rel-c' + sk.cls + '" href="' + escAttr(_dosRelHref(pid, k)) + '"' +
+        (sk.style ? ' style="' + escAttr(sk.style) + '"' : '') +
+        ' data-pdxlg-rel-key="' + escAttr(k) + '" data-pdxc-gap="' + escAttr(k) + '" data-pdxc-gap-pid="' + escAttr(pid) + '"' +
+        ' aria-label="' + escAttr('Open ' + lb + ' for this file') + '">' + esc(lb) + '</a>';
+    }).join('');
+    return '<tr class="pdxlg-relr" data-pdxlg-relr="' + idx + '">' +
+      '<td colspan="5" class="pdxlg-rel" data-pdxlg-rel="1"><span class="pdxlg-rel-k">Also on</span>' + chips + '</td></tr>';
+  }
+  // OTHER BILLS ON THIS ISSUE: one link to the existing legislation archive,
+  // filtered to this issue. No list is ranked or counted here.
+  function _dosOtherBillsHtml(issueKey) {
+    if (!issueKey || !_DOS_REL_KEY.test(issueKey)) return '';
+    return '<p class="pdxlg-other" data-pdxlg-other="1"><a class="pdxlg-other-a" href="' +
+      escAttr('/library?mode=legislation&issue=' + encodeURIComponent(issueKey)) + '">' +
+      'Other bills that touch this issue \u2192</a></p>';
   }
 
   // WHAT THE ACT DID TO THIS ISSUE, in one sentence under its row.
@@ -18042,6 +18114,170 @@
       'Would have made groups spending over $10,000 name their donors and matched small House donations six to one; the House passed it 220-210.',
     'H.R. 5746|117|campaign_finance':
       'Would have made election spenders name their donors and curbed super PAC coordination with candidates; the House passed it 220-203.',
+    // BUDGET AND FISCAL SLICE 1 (v360). Every pair on H.Con.Res. 14, H.R. 1968
+    // and H.R. 1 of the 119th that printed nothing under its vote row. Each is
+    // written from that pair's own source and nothing else: its `did` where one
+    // is stored (H.R. 1968's health and fentanyl rows, whose `did` stays as it
+    // is), otherwise its own mapping rationale. db/vr-fiscal-effect-lines.json
+    // names the source of each. H.Con.Res. 14 was adopted but a budget
+    // resolution is never law, so it opens "Would", as H.Con.Res. 113 does; the
+    // two public laws read as done. Each ends on the House roll on file.
+    'H.Con.Res. 14|119|national_debt':
+      'Would set the FY2025 budget and the reconciliation instructions for that year’s tax-and-spending changes; the House adopted it 216-214.',
+    'H.Con.Res. 14|119|cut_spending':
+      'Would direct committees to find net spending reductions through reconciliation; the House adopted it 216-214.',
+    'H.Con.Res. 14|119|lower_taxes':
+      'Would reserve reconciliation room to extend and expand the 2017 tax cuts; the House adopted it 216-214.',
+    'H.Con.Res. 14|119|border_security':
+      'Would reserve reconciliation room for border-security and immigration-enforcement funding; the House adopted it 216-214.',
+    'H.Con.Res. 14|119|strong_defense':
+      'Would reserve reconciliation room for a defense-spending increase; the House adopted it 216-214.',
+    'H.R. 1968|119|cut_spending':
+      'Funded the government through FY2025 at levels that trimmed some domestic programs; the House passed it 217-213.',
+    'H.R. 1968|119|gov_services':
+      'Funded the federal government through the end of FY2025, averting a shutdown; the House passed it 217-213.',
+    'H.R. 1968|119|national_debt':
+      'Continued deficit-level federal spending for the full 2025 fiscal year; the House passed it 217-213.',
+    'H.R. 1968|119|strong_defense':
+      'Increased defense appropriations over the prior year; the House passed it 217-213.',
+    'H.R. 1968|119|health_rural':
+      'Extended the Medicare-Dependent Hospital Program and other health authorities due to lapse on March 31, 2025; the House passed it 217-213.',
+    'H.R. 1968|119|immig_fentanyl':
+      'Extended the order placing fentanyl-related substances in schedule I as a class to September 30, 2025; the House passed it 217-213.',
+    'H.R. 1|119|climate_action':
+      'Phased out and repealed the 2022 clean-energy and electric-vehicle tax credits; the House cleared it 218-214, the Senate 50-50.',
+    'H.R. 1|119|deportations':
+      'Appropriated tens of billions of dollars for immigration detention and removal; the House cleared it 218-214, the Senate 50-50.',
+    'H.R. 1|119|edu_college_cost':
+      'Eliminated several income-driven student-loan repayment plans and capped graduate borrowing; the House cleared it 218-214.',
+    'H.R. 1|119|energy_production':
+      'Expanded onshore and offshore oil, gas and coal leasing and sped fossil-fuel permitting; the House cleared it 218-214, the Senate 50-50.',
+    'H.R. 1|119|family_support':
+      'Raised the child tax credit to $2,200 per child and made it permanent; the House cleared it 218-214, the Senate 50-50.',
+    'H.R. 1|119|national_debt':
+      'Raised the statutory debt ceiling by $5 trillion; the House cleared it 218-214, the Senate 50-50.',
+    'H.R. 1|119|school_choice':
+      'Created a federal tax credit for donations to K-12 private-school scholarship organizations; the House cleared it 218-214, the Senate 50-50.',
+    'H.R. 1|119|strong_defense':
+      'Added a large increase in defense and military spending; the House cleared it 218-214, the Senate 50-50.',
+    'H.R. 1|119|tax_middle_class':
+      'Made the 2017 individual income-tax rates permanent and added temporary deductions for tips and overtime pay; the House cleared it 218-214.',
+    // LONG-DID OVERRIDES SLICE 3 (v362). The three pairs on H.R. 8595 of the
+    // 119th whose stored `did` is too long to stand under a row and that printed
+    // nothing. Each is written from that pair's own `did` and nothing else; the
+    // `did` stays as it is. The bill passed the House only, so each opens "Would".
+    // db/vr-long-did-effect-lines.json names the source of each.
+    'H.R. 8595|119|election_security':
+      'Would bar states from processing a federal registration application without documentary proof of citizenship; the House passed it 217-209.',
+    'H.R. 8595|119|voter_id':
+      'Would bar officials from handing an in-person voter a federal ballot without valid photo identification; the House passed it 217-209.',
+    'H.R. 8595|119|voting_access':
+      'Would gate both steps of casting a federal ballot, registering and voting, behind a document; the House passed it 217-209.',
+    // EPA WAIVER RESOLUTIONS SLICE 4 (v364). The two pairs on each of H.J.Res. 88
+    // and H.J.Res. 89 of the 119th that printed nothing. Neither pair stores a
+    // `did`, so each is written from its own mapping rationale and the
+    // resolution's stored summary and title, and from nothing else. Both
+    // resolutions are law, so each reads as done, without a tally, like the lines
+    // already on them. db/vr-epa-waiver-effect-lines.json names the source of each.
+    'H.J.Res. 88|119|states_federal_power':
+      'Repealed the waiver that let California set stricter vehicle emission standards than the national floor, narrowing that state authority.',
+    'H.J.Res. 88|119|cost_living':
+      'Removed the rising zero-emission sales requirement in the adopting states, so the mix of new vehicles offered there is set by the market.',
+    'H.J.Res. 89|119|states_federal_power':
+      'Repealed the federal waiver that let California set stricter heavy-truck standards than the national floor, narrowing that state authority.',
+    'H.J.Res. 89|119|cost_living':
+      'Ended the zero-emission share required of new trucks sold in the adopting states, leaving fleet purchasers free to buy conventional trucks.',
+    // VENEZUELA LEAF SLICE 5 (v365). The two Senate war-powers resolutions whose
+    // own subject is Venezuela, on the new venezuela_policy key. Each is written
+    // from that pair's own mapping rationale and the roll on file, in the tense
+    // and shape of the same act's lines on its other leaves, which are separate.
+    // db/vr-venezuela-leaf.json names the source of each.
+    'S.J.Res. 90|119|venezuela_policy':
+      'Would have ordered U.S. forces out of hostilities against Venezuela Congress had not authorized; the Senate refused to discharge it 49-51.',
+    'S.J.Res. 98|119|venezuela_policy':
+      'Would order U.S. forces out of hostilities against Venezuela that Congress has not authorized; the Senate voted 52-47 to discharge it.',
+    // BLANK ROWS SLICE 6 (v366). The next highest-volume pairs that printed
+    // nothing: the 2026 farm bill, the Gulf of America and MEGOBARI acts, two
+    // FY2026 defense amendments, the GENIUS Act, the Rescissions Act and the
+    // Social Security Fairness Act. None stores a `did`; each line is written from
+    // that pair's own mapping rationale, with the measure's stored summary or title
+    // where the rationale abbreviates, and ends on the roll its sibling lines use.
+    // db/vr-blank-rows-slice6.json names the source of each.
+    'H.R. 7567|119|rural_ag':
+      'Would reauthorize farm commodity programs, crop insurance and reference prices for producers; the House passed it 224-200.',
+    'H.R. 7567|119|family_support':
+      'Would reauthorize SNAP and nutrition programs, the largest share of farm-bill spending; the House passed it 224-200.',
+    'H.R. 7567|119|enviro_balance':
+      'Would continue the farm bill’s working-lands conservation programs; the House passed it 224-200.',
+    'H.R. 276|119|america_first':
+      'Would rename the Gulf of Mexico the Gulf of America in federal law, locking in the executive order; the House passed it 211-206.',
+    'H.R. 36|119|foreign_balance':
+      'Would require sanctions on Georgian officials found to block Georgia’s Euro-Atlantic integration; the House passed it 349-42.',
+    'H.Amdt. 85|119|lgbtq_rights':
+      'Would bar gender transition procedures through the Exceptional Family Member Program; the House agreed to it 221-210.',
+    'H.Amdt. 97|119|lands_preserve':
+      'Would have barred designating military and some Guard lands as Endangered Species Act critical habitat; the House rejected it 200-228.',
+    'S. 1582|119|tech_innovation':
+      'Established a national framework for digital-asset innovation through stablecoins; the House cleared it 308-122, the Senate 68-30.',
+    'S. 1582|119|crypto_cbdc':
+      'Became the first comprehensive federal crypto-market statute; the House cleared it 308-122, the Senate 68-30.',
+    'S. 1582|119|tech_balance':
+      'Paired stablecoin innovation with reserve, disclosure and anti-money-laundering safeguards; the House cleared it 308-122, the Senate 68-30.',
+    'H.R. 4|119|audit_spending':
+      'Codified DOGE-identified cuts through the Impoundment Control Act’s rescission process; the House cleared it 214-212, the Senate 51-48.',
+    'H.R. 4|119|gov_services':
+      'Cut funding for public-media and international programs, reducing those services; the House cleared it 214-212, the Senate 51-48.',
+    'H.R. 4|119|free_speech':
+      'Ended federal funding for NPR and PBS member stations; the House cleared it 214-212, the Senate 51-48.',
+    'H.R. 82|118|social_security':
+      'Repealed the Windfall Elimination Provision and Government Pension Offset, raising benefits for public-sector retirees.',
+    'H.R. 82|118|cost_living':
+      'Increased monthly retirement income for affected teachers, firefighters, police and other public workers.',
+    // BLANK ROWS SLICE 7 (v367). The next blank pairs, each on about 110
+    // member rows: the Israel Security Assistance Support Act, the women's
+    // sports bill, the fracking, HALT Fentanyl, born-alive, health-premiums and
+    // SUPPORT Act bills, and the TAKE IT DOWN Act. None stores a `did`; each
+    // line is written from that pair's own mapping rationale and ends on the
+    // act's own roll, in the tense its sibling lines use where it has any.
+    // db/vr-blank-rows-slice7.json names the source of each and the pairs skipped.
+    'H.R. 8369|118|power_of_purse':
+      'Would have barred spending appropriated funds to withhold or cancel delivery of defense articles; the House passed it 224-187.',
+    'H.R. 28|119|lgbtq_rights':
+      'Would restrict transgender athletes’ participation in school and college sports for women and girls; the House passed it 218-206.',
+    'H.R. 28|119|public_schools':
+      'Would apply to federally funded school and college athletic programs under Title IX; the House passed it 218-206.',
+    'H.R. 28|119|edu_balance':
+      'Would set a federal rule for how sex is defined in school sports eligibility; the House passed it 218-206.',
+    'H.R. 26|119|enviro_energy':
+      'Would bar a federal fracking moratorium to protect and expand domestic oil and gas production; the House passed it 226-188.',
+    'H.R. 26|119|energy_production':
+      'Would affirm state authority over hydraulic fracturing to keep energy output flowing; the House passed it 226-188.',
+    'H.R. 27|119|immig_fentanyl':
+      'Would toughen federal scheduling of fentanyl-related substances to fight the overdose crisis; the House passed it 312-108.',
+    'H.R. 27|119|tough_on_crime':
+      'Would make Schedule I placement permanent and attach mandatory penalties; the House passed it 312-108.',
+    'H.R. 21|119|healthcare':
+      'Would require medical care for an infant born alive after an attempted abortion; the House passed it 217-204.',
+    'H.R. 6703|119|healthcare':
+      'Would restructure individual and small-group health-coverage rules; the House passed it 216-211.',
+    'H.R. 6703|119|healthcare_market':
+      'Would expand association health plans and individual-coverage arrangements; the House passed it 216-211.',
+    'H.R. 6703|119|health_drug_prices':
+      'Would add pharmacy-benefit-manager transparency standards on drug prices and rebates; the House passed it 216-211.',
+    'H.R. 2483|119|health_mental':
+      'Would reauthorize addiction and behavioral-health treatment and prevention funding; the House passed it 366-57.',
+    'H.R. 2483|119|immig_fentanyl':
+      'Would sustain programs aimed at the opioid and fentanyl overdose crisis; the House passed it 366-57.',
+    'H.R. 2483|119|healthcare':
+      'Would improve access to addiction-treatment medications and expand treatment through Medicare and Medicaid; the House passed it 366-57.',
+    'H.R. 2483|119|family_support':
+      'Would fund residential treatment for pregnant and postpartum women with substance-use disorders; the House passed it 366-57.',
+    'S. 146|119|privacy_rights':
+      'Criminalized nonconsensual intimate imagery and required platforms to take it down; the House cleared it 409-2.',
+    'S. 146|119|tech_balance':
+      'Imposed new content-removal obligations on online platforms; the House cleared it 409-2.',
+    'S. 146|119|free_speech':
+      'Set a notice-and-takedown duty for covered platforms, with removal within 48 hours, enforced by the FTC; the House cleared it 409-2.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is
@@ -18115,7 +18351,95 @@
     'Presidential Letter, DCPD-202500715|war_powers':
       'Directed a strike on three Iranian nuclear facilities on his own constitutional authority, citing no congressional authorization.',
     'Presidential Letter, DCPD-202500715|iran_policy':
-      'Directed the June 21, 2025 U.S. strike on three Iranian nuclear facilities, reporting it to Congress two days later.'
+      'Directed the June 21, 2025 U.S. strike on three Iranian nuclear facilities, reporting it to Congress two days later.',
+    // TARIFF ORDERS SLICE 2 (v361). Every pair on the six tariff and trade keys
+    // for the sixteen tariff and trade documents that printed nothing under its
+    // row. Each is written from that pair's own `plain`, `rationale` or
+    // `counts` and the document's title, and from nothing else: no sibling
+    // key's line and no vote on the same subject. db/vr-tariff-exec-effect-lines.json
+    // names the source of each.
+    'Presidential Memorandum, 90 FR 8471|econ_trade':
+      'Directed Commerce, Treasury and the Trade Representative to investigate persistent goods trade deficits and recommend remedies.',
+    'Executive Order 14193|tariffs_authority':
+      'Imposed duties on goods from Canada by executive order under emergency economic powers, with no rate schedule enacted by Congress.',
+    'Executive Order 14194|tariffs_authority':
+      'Imposed duties on goods from Mexico by executive order under emergency economic powers, with no rate schedule enacted by Congress.',
+    'Executive Order 14195|tariffs_china':
+      'Imposed an extra across-the-board duty on goods from China, after finding ordinary tariff authority inadequate.',
+    'Executive Order 14195|tariffs_authority':
+      'Set the China duty rate by executive order under emergency economic powers, rather than under a rate schedule enacted by Congress.',
+    'Proclamation 10896|tariffs_growth':
+      'Ended every country exemption and quota that had displaced the steel tariff, restoring the duty across steel imports.',
+    'Proclamation 10896|econ_trade':
+      'Closed the arrangements named partners had used to ship steel outside the duty, to rebuild domestic steel capacity.',
+    'Proclamation 10896|tariffs_prices':
+      'Restored the steel duty with no offsetting relief for the American manufacturers and builders who buy steel.',
+    'Executive Order 14228|tariffs_china':
+      'Doubled the China tariff from 10 percent to 20 percent, finding Beijing had not moved against the fentanyl trade.',
+    'Executive Order 14245|tariffs_authority':
+      'Claimed the power to tariff any country that buys Venezuelan oil, at a rate and against a target chosen by the executive branch alone.',
+    'Executive Order 14257|tariffs_growth':
+      'Imposed a baseline duty on nearly every trading partner, finding persistent goods deficits had hollowed out domestic manufacturing.',
+    'Executive Order 14257|tariffs_authority':
+      'Set reciprocal tariff rates by executive order under emergency economic powers rather than under a rate schedule enacted by Congress.',
+    'Executive Order 14257|tariffs_prices':
+      'Put duties on nearly the whole import base with no offsetting relief for household purchasers.',
+    'Executive Order 14257|tariffs_china':
+      'Assigned China one of the higher country-specific rates in its annexed schedule, citing non-reciprocal trade practices.',
+    'Executive Order 14257|econ_trade':
+      'Used import duties as the instrument for reshoring manufacturing and rebuilding supply chains.',
+    'Executive Order 14257|cost_living':
+      'Charged a duty on imported consumer goods from nearly every trading partner, with nothing offsetting it for households.',
+    'Executive Order 14358|tariffs_china':
+      'Kept the higher China tariff rates suspended for a further twelve months under a negotiated trade arrangement.',
+    'Executive Order 14360|tariffs_prices':
+      'Pulled a list of agricultural products out of the reciprocal tariff and ordered refunds of duties already collected on them.',
+    'Executive Order 14360|tariffs_growth':
+      'Narrowed the reciprocal tariff’s coverage, citing current domestic demand and current domestic capacity to produce certain products.',
+    'Executive Order 14360|cost_living':
+      'Took the reciprocal tariff back off imported coffee, bananas, beef and other farm goods, so it stopped showing up in grocery prices.',
+    'Proclamation 11010|cost_living':
+      'Raised the 2026 beef import quota by 80,000 metric tons of lean trimmings, finding domestic supply would not meet demand.',
+    'Proclamation 11010|tariffs_prices':
+      'Let more beef enter at the low in-quota tariff rate instead of the high over-quota rate, to hold a grocery price down.',
+    'Executive Order 14389|tariffs_china':
+      'Ended the emergency-powers tariffs on China, ordering agencies to stop collecting them as soon as practicable.',
+    'Executive Order 14389|tariffs_growth':
+      'Switched off the whole emergency-powers tariff program at once, the reciprocal tariff among them.',
+    'Executive Order 14389|tariffs_prices':
+      'Ended collection of the emergency-powers duties and provided for refunds of duties already paid.',
+    'Proclamation 11012|tariffs_growth':
+      'Imposed a temporary 10 percent surcharge on imported articles under the balance-of-payments provision of the Trade Act.',
+    'Proclamation 11012|econ_trade':
+      'Re-imposed broad import duties the day the previous program ended, under a different statute, so the barrier stayed up without a gap.',
+    'Proclamation 11012|tariffs_prices':
+      'Put a surcharge on nearly all imported articles, carving out critical minerals, energy, fertilizers, medicines, some food and electronics.',
+    'Proclamation 11012|cost_living':
+      'Placed a surcharge on imported consumer goods generally, more than a year after the directive to bring those costs down.',
+    'Proclamation 11020|tariffs_prices':
+      'Set a 100 percent duty on imported medicines, its own findings placing the bulk of covered supply outside the country.',
+    'Proclamation 11020|econ_trade':
+      'Rested on a national-security finding about foreign dependence for medicines and directed continued negotiation of agreements.',
+    'Proclamation 11020|cost_living':
+      'Put a border charge on imported patented medicines, exempting generics, biosimilars and a list of specialty therapies.',
+    'Executive Order 14411|econ_trade':
+      'Ordered Homeland Security to require importers of record to hold domestic assets or larger bonds and disclose beneficial ownership.',
+    'Executive Order 14411|tariffs_growth':
+      'Tightened who may act as an importer of record so duties owed are actually collected.',
+    'Proclamation 11038|econ_trade':
+      'Declared an emergency and let Moroccan phosphate fertilizer enter duty-free for up to eight months, waiving countervailing duties.',
+    'Proclamation 11038|tariffs_growth':
+      'Chose duty-free foreign supply over the tariff for a fertilizer shortfall, finding domestic capacity would take time to build.',
+    'Proclamation 11038|tariffs_prices':
+      'Waived a duty on phosphate fertilizer during the spring application window, citing supply-chain disruption and rapid price increases.',
+    // VENEZUELA LEAF SLICE 5 (v365). The two executive orders whose own subject is
+    // Venezuela, on the new venezuela_policy key, each written from that pair's
+    // own stored `plain`, `rationale` or `counts`. db/vr-venezuela-leaf.json
+    // names the source of each.
+    'Executive Order 14245|venezuela_policy':
+      'Authorized a 25 percent duty on goods from any country found to buy oil from Venezuela, directly or indirectly.',
+    'Executive Order 14373|venezuela_policy':
+      'Voided any court attachment of Venezuelan oil revenue held by the United States and kept it in Treasury custody for Venezuela’s government.'
   };
   // A ROW WHOSE FACTS LIVE ON ANOTHER LEAF POINTS AT THAT LEAF.
   //

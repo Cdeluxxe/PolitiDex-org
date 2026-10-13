@@ -34,6 +34,7 @@ import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import { execHeld, execLaterKeys } from "./vr-exec-later.mjs";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 
@@ -229,6 +230,8 @@ if (HEAD) {
     return new Set([...CONS.slice(a, CONS.indexOf("\n  };", a)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
   })();
   const laterLines = new Set([...later].map((k) => "effr:" + norm(E.map[k])));
+  // A later executive slice's lines, the same allowance (scripts/vr-exec-later.mjs).
+  { const XM = mapOf(CONS, "_DOS_EXEC_EFFECT").map; for (const k of execLaterKeys(CONS)) laterLines.add("effr:" + norm(XM[k])); }
   const bare = (r) => r.replace(/ \(also filed on [^)]*\)/, "");
   let moved = 0;
   const miss = (m) => { moved++; if (moved <= 5) ok(false, m); };
@@ -254,7 +257,7 @@ if (HEAD) {
   for (const [k, v] of Object.entries(HE)) ok(E.map[k] === v, `${k}: a shipped line was rewritten or removed`);
   for (const k of Object.keys(E.map)) ok(k in HE || later.has(k), `${k}: a new line outside a later wave's block`);
   for (const name of ["_DOS_MECH", "_DOS_EXEC_EFFECT", "_DOS_POINTER"]) {
-    ok(mapOf(CONS, name).text === mapOf(HEAD, name).text, `${name} is not byte-identical to HEAD`);
+    ok(name === "_DOS_EXEC_EFFECT" ? execHeld(CONS, HEAD) : mapOf(CONS, name).text === mapOf(HEAD, name).text, `${name} is not byte-identical to HEAD`);
   }
 } else console.log("   (no git baseline — the HEAD comparison did not run)");
 

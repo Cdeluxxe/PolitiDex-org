@@ -210,7 +210,8 @@ section("5 · the snapshot is the stores, corrections honoured");
   eq(INDEX.stats.unresolvedCorrections.length, 0, "every mapping correction in the migrations was replayed");
   let drift = 0;
   for (const d of Object.values(DOCS)) {
-    const want = expected(d.s, d.n).map((w) => (w.l ? { i: w.i, l: w.l } : { i: w.i }));
+    // Each entry carries the issue's own key (the page's "Also touches" chips link to it).
+    const want = expected(d.s, d.n).map((w) => (w.l ? { i: w.i, k: w.k, l: w.l } : { i: w.i, k: w.k }));
     if (JSON.stringify(d.m || []) !== JSON.stringify(want)) { drift++; if (drift <= 3) ok(false, `${d.s}|${d.n}: db/bill-docs.json's issue list is not the stores'`); }
   }
   eq(drift, 0, "every document's issue list is the projection's issues with each pair's own line");

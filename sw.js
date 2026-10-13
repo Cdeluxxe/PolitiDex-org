@@ -9498,7 +9498,113 @@
 //     one version. Neither pill moved.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v359';
+// v360 - BUDGET AND FISCAL SLICE 1: TWENTY LINES UNDER THREE ACTS. Every
+//     measure-and-issue pair on H.Con.Res. 14, H.R. 1968 and H.R. 1 of the
+//     119th that printed nothing under its vote row now carries one sentence
+//     in _DOS_EFFECT, written from that pair's own stored `did` or mapping
+//     rationale (db/vr-fiscal-effect-lines.json names each source). The budget
+//     resolution opens "Would", as H.Con.Res. 113 does; the two public laws
+//     read as done. No stored `did`, shipped line, score, Direction Match,
+//     NEVER_FEEDS, publication floor, money pill or district board moved.
+//     consistency.js is precached and changed, so the shell moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+// v361 - TARIFF ORDERS SLICE 2: THIRTY-SEVEN LINES UNDER THE PRESIDENT'S
+//     TARIFF AND TRADE DOCUMENTS. Every pair on tariffs_prices, tariffs_growth,
+//     tariffs_china, tariffs_authority, econ_trade and cost_living for the
+//     sixteen documents that carry a tariff or trade key now prints one
+//     sentence under its row, stored in _DOS_EXEC_EFFECT and written from that
+//     pair's own stored plain, rationale or counts and the document's title
+//     (db/vr-tariff-exec-effect-lines.json names each source). The vote-line
+//     table, every shipped line, scores, Direction Match, NEVER_FEEDS, the
+//     publication floor, money pills and district boards are unchanged.
+//     consistency.js is precached and changed, so the shell moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+// v362 - LONG-DID OVERRIDES SLICE 3: THREE LINES UNDER H.R. 8595. Its
+//     election_security, voter_id and voting_access pairs store a `did` too long
+//     to stand under a row, so the row printed nothing; each now carries one
+//     sentence in _DOS_EFFECT written from that `did` alone, and the `did` is
+//     unchanged (db/vr-long-did-effect-lines.json). H.R. 1968's two long-did
+//     pairs already carried slice 1's lines and are untouched. No other line,
+//     score, Direction Match, NEVER_FEEDS, publication floor, money pill or
+//     district board moved. consistency.js is precached and changed, so the
+//     shell moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+// v363 - WHAT AN ACT ALSO TOUCHES, AND WHERE THE OTHER BILLS ARE. Under every
+//     vote or executive row that prints an effect line, an "Also on" row of
+//     issue chips names the other issues that same act is stored on (never the
+//     issue being read; nothing when the act sits on one issue), each a door to
+//     that issue's drawer for the same file. Every issue drawer ends on one link
+//     to the legislation archive filtered to its issue. Each bill page's seam
+//     carries "Also touches:" chips linking to /i/<key>, from issue keys that
+//     db/bill-docs.json now stores beside each label; bill.html tints them with
+//     issue-colors.js. Read only from stored mappings: no new mapping, no score,
+//     no count, no sum. consistency.js, bill.html and issue-colors.js are
+//     precached and consistency.js and bill.html changed, so the shell moves one
+//     version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+// v364 - EPA WAIVER RESOLUTIONS SLICE 4: FOUR LINES UNDER H.J.RES. 88 AND 89.
+//     Their States vs. Federal Power and Cost of Living pairs printed nothing;
+//     each now carries one sentence in _DOS_EFFECT, written from that pair's own
+//     mapping rationale (db/vr-epa-waiver-effect-lines.json names each source).
+//     Both resolutions are law, so the lines read as done and, like the lines
+//     already on them, name no tally. Every shipped line, score, Direction Match,
+//     NEVER_FEEDS, the publication floor, money pills, district boards and the
+//     "Also on" chips are unchanged; the new lines carry their chips like any
+//     other. consistency.js is precached and changed, so the shell moves one
+//     version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+// v365 - 🇻🇪 VENEZUELA BECOMES A LEAF UNDER FOREIGN POLICY. One new subject key,
+//     venezuela_policy, on the Iran, Ukraine and Yemen contract: declared
+//     identically in alignment-tool.js and issue-map.js under 🦅 Foreign Policy
+//     & National Security, in _RD_NO_POLE and _DOS_LEDGER_NO_SIDE (the drawer
+//     says "No side published on this subject" and prints no for/against line),
+//     skipped by the word ledger's branding index, and a find subject with the
+//     aliases venezuela, venezuelan and caracas. It holds the four acts whose own
+//     subject is Venezuela, each a secondary row beside its existing ones:
+//     S.J.Res. 90 and S.J.Res. 98 (119th) and Executive Orders 14245 and 14373,
+//     each with one effect line from its own stored text
+//     (db/vr-venezuela-leaf.json). No existing key, line, score, Direction
+//     Match, NEVER_FEEDS, publication floor, money pill or district board moved;
+//     the acts' "Also on" chips now name Venezuela beside their other issues.
+//     consistency.js, alignment-tool.js, issue-map.js, stance-helpers.js,
+//     stance-tree.js, word-action.js, issue-scope.js and exec-action-data.js are
+//     precached and changed, so the shell moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none on the device. In the database,
+//     20261116000000_vr_venezuela_policy_issue_key adds the key to dd_issue_keys
+//     and four secondary vr_measure_issues rows; no existing row moves.
+// v366 - BLANK ROWS SLICE 6: FIFTEEN LINES UNDER EIGHT HIGH-VOLUME ACTS. The
+//     next measure-and-issue pairs that printed nothing under their rows, by how
+//     many members carry them: the 2026 farm bill (H.R. 7567), the Gulf of
+//     America Act (H.R. 276), the MEGOBARI Act (H.R. 36), H.Amdt. 85 and 97 to
+//     the FY2026 NDAA, the GENIUS Act (S. 1582), the Rescissions Act (H.R. 4)
+//     and the Social Security Fairness Act (H.R. 82, 118th). Each line is in
+//     _DOS_EFFECT, written from that pair's own mapping rationale
+//     (db/vr-blank-rows-slice6.json names each source and the pairs left blank).
+//     No shipped line, score, Direction Match, NEVER_FEEDS, publication floor,
+//     money pill, district board, "Also on" chip or "Also touches" chip moved.
+//     consistency.js is precached and changed, so the shell moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+// v367 - BLANK ROWS SLICE 7: NINETEEN LINES UNDER EIGHT ACTS AT ~110 MEMBERS.
+//     The next blank pairs after slice 6: the Israel Security Assistance
+//     Support Act (H.R. 8369, 118th) × power of the purse, the women's sports
+//     bill (H.R. 28), the fracking bill (H.R. 26), the HALT Fentanyl Act (H.R.
+//     27), the born-alive bill (H.R. 21), the health-premiums bill (H.R. 6703),
+//     the SUPPORT Act reauthorization (H.R. 2483) and the TAKE IT DOWN Act (S.
+//     146). Each line is in _DOS_EFFECT, written from that pair's own mapping
+//     rationale (db/vr-blank-rows-slice7.json names each source and the ten
+//     pairs left blank). No shipped line, score, Direction Match, NEVER_FEEDS,
+//     publication floor, money pill, district board or chip moved.
+//     consistency.js is precached and changed, so the shell moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v367';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

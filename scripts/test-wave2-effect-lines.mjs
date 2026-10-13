@@ -33,6 +33,7 @@ import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import { execHeld } from "./vr-exec-later.mjs";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 
@@ -82,10 +83,14 @@ const KEYS = [
   "war_powers",
   "deportations",
 ];
-// The six rows with no description anywhere still print nothing.
+// The rows with no description anywhere still print nothing. H.Con.Res. 14's
+// three left this set in budget and fiscal slice 1 (v360), written from their
+// mapping rationales; db/vr-fiscal-effect-lines.json records the source of each.
 const BLANK = new Set([
-  "H.Amdt. 97|119|lands_preserve", "H.Amdt. 85|119|lgbtq_rights", "H.Amdt. 87|119|lgbtq_rights",
-  "H.Con.Res. 14|119|lower_taxes", "H.Con.Res. 14|119|national_debt", "H.Con.Res. 14|119|cut_spending",
+  "H.Amdt. 87|119|lgbtq_rights",
+  // H.Amdt. 97 × lands_preserve and H.Amdt. 85 × lgbtq_rights left this set in
+  // blank rows slice 6 (v366), written from their mapping rationales;
+  // db/vr-blank-rows-slice6.json records the source of each.
 ]);
 const CAP = 40;
 const METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary|coded|coding|chip|mapped|mapping|filed as|weight(?:ed)?|scor(?:e|ed|ing)|rationale|archive|ledger)\b|PolitiDex|…|\.\.\./i;
@@ -325,7 +330,7 @@ function check(src, base) {
   if (headSrc) {
     const HE = mapOf(headSrc, "_DOS_EFFECT"), HX = mapOf(headSrc, "_DOS_EXEC_EFFECT");
     for (const [p, v] of Object.entries(HE.map)) ok(E.map[p] === v, `${p}: a shipped line was rewritten or removed`);
-    ok(X.text === HX.text, "_DOS_EXEC_EFFECT (Trump's lines) is not byte-identical to HEAD");
+    ok(execHeld(src, headSrc), "_DOS_EXEC_EFFECT (Trump's lines) is not byte-identical to HEAD");
     if (base) for (const [r, v] of base) ok(printed.get(r) === v, `${r}: printed ${JSON.stringify(v)} at HEAD and now prints ${JSON.stringify(printed.get(r) || "")}`);
   } else {
     console.log("   (no git baseline — the unchanged-lines check did not run)");

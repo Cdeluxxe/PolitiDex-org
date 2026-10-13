@@ -407,6 +407,23 @@ function billSeam(html: string, block: string): string {
   return injectAfterBody(html, block);
 }
 
+// "Also touches": one chip per issue the snapshot stores for this bill, each a
+// link to that issue's page. Only stored mappings, in the list's own order; an
+// issue with no key in the snapshot is not linked and not printed here (it still
+// appears in the list below). No count, no score. The page tints each chip from
+// its data-pdx-bill-tag key with the site's issue colours.
+function billAlsoLine(d: BillDoc): string {
+  const keyed = d.issues.filter((x) => x.key && /^[A-Za-z0-9_]+$/.test(x.key));
+  if (!keyed.length) return "";
+  return (
+    `<p class="pdx-bill-also" data-pdx-bill-also><span class="pdx-bill-also-k">Also touches:</span> ` +
+    keyed.map((x) =>
+      `<a class="pdx-bill-tag" href="/i/${attr(encodeURIComponent(x.key))}" data-pdx-bill-tag="${attr(x.key)}">${text(x.issue)}</a>`
+    ).join(" ") +
+    `</p>`
+  );
+}
+
 function billDocBlock(d: BillDoc, forPath: string): string {
   const kicker = ["Bill file", d.sittingText].filter(Boolean).map(text).join(" · ");
   const issues = d.issues.length
@@ -426,6 +443,7 @@ function billDocBlock(d: BillDoc, forPath: string): string {
     `<p class="pdx-bill-kicker">${kicker}</p>` +
     `<h1 class="pdx-bill-num">${text(d.number)}</h1>` +
     (d.title ? `<p class="pdx-bill-title">${text(d.title)}</p>` : "") +
+    billAlsoLine(d) +
     issues +
     // The document's ONE control. The seam is the page; this opens the panel over
     // it — roll calls, members, the bundle — and closing the panel returns here.

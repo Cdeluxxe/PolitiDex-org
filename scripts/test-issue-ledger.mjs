@@ -151,7 +151,7 @@ const HTML = new Map();
 const key = (x) => `${x.pid}/${x.key}`;
 // Iran joined the other two country keys when its drawer took the second-term
 // instruments; all three are in _RD_NO_POLE and _DOS_LEDGER_NO_SIDE.
-const NO_SIDE_KEYS = new Set(["iran_policy", "ukraine_policy", "yemen_policy"]);
+const NO_SIDE_KEYS = new Set(["iran_policy", "ukraine_policy", "yemen_policy", "venezuela_policy"]);
 for (const x of ALL) {
   let h = "";
   try { h = CS.gapViewHtml(x.pid, x.key) || ""; } catch (e) { fails.push(`${key(x)}: gapViewHtml threw ${e.message}`); }
@@ -638,7 +638,11 @@ section("9 · the pass stayed in its lane");
     if (head === null) continue;
     // A subject key joining _RD_NO_POLE is a vocabulary change, not a drawer edit:
     // that one table is read out of both sides before stance-helpers.js is compared.
-    const np = (t) => f === "stance-helpers.js" ? t.replace(/var _RD_NO_POLE = \{[\s\S]*?\n    \};/, "") : t;
+    // So is a country key joining word-action.js's branding skip list, the table that
+    // keeps a campaign tag off a subject key; it and its note are read out of both.
+    const np = (t) => f === "stance-helpers.js" ? t.replace(/var _RD_NO_POLE = \{[\s\S]*?\n    \};/, "")
+      : f === "word-action.js" ? t.replace(/ {2}\/\/ COUNTRY LEAVES TAKE NO BRANDING\.[\s\S]*?var BRANDING_SKIP = \{[^}]*\};/, "")
+      : t;
     ok(np(deOrigin(head)) === np(deOrigin(R(f))), `${f} changed — this pass reshapes one drawer and must touch nothing else`);
   }
 
@@ -712,7 +716,12 @@ const effectFault = (e) => {
     // it can hold nothing a reader sees on the first screen. Only that exact shape
     // is allowed; a Details row with anything in it is a leak.
     const mores = [...tb.matchAll(/<tr class="pdxlg-morer" data-pdxlg-morer="\d+" hidden><td colspan="5" class="pdxlg-more" data-pdxlg-more="1"><\/td><\/tr>/g)].length;
-    if (trs.length !== acts + effs + ptrs + mores) out.push(`${trs.length - acts - effs - ptrs - mores} non-act row(s) in the vote table`);
+    // Under an effect line, one "Also on" row (v363) of the other issues the act
+    // is stored on — issue chips only, in this exact shape, and never more of them
+    // than there are effect lines.
+    const rels = [...tb.matchAll(/<tr class="pdxlg-relr" data-pdxlg-relr="\d+"><td colspan="5" class="pdxlg-rel" data-pdxlg-rel="1"><span class="pdxlg-rel-k">Also on<\/span>(?:<a class="pdxlg-rel-c[^"]*" [^>]*>[^<]*<\/a>)+<\/td><\/tr>/g)].length;
+    if (rels > effs) out.push(`${rels - effs} chip row(s) with no effect line`);
+    if (trs.length !== acts + effs + ptrs + mores + rels) out.push(`${trs.length - acts - effs - ptrs - mores - rels} non-act row(s) in the vote table`);
     // And an effect line is an effect, not method: one sentence, 140 characters
     // at most, none of the coding vocabulary.
     for (const e of effectLines(tb)) {
@@ -1162,7 +1171,10 @@ section("13 · Cut Federal Red Tape scans — Lee, six acts, six lines");
   for (const cls of ["pdxlg-why", "pdxlg-whyr", "pdxlg-why-one"]) no(l, `class="${cls}"`, `lee × gov_regulation: .${cls} on the first screen`);
   const tb = table(h);
   const trs = ((tb.match(/<tbody>[\s\S]*?<\/tbody>/g) || []).join("").match(/<tr[\s>]/g) || []).length;
-  eq(trs, 18, "lee × gov_regulation: the vote table is not six act rows, six effect rows and six closed Details rows");
+  // Each of the six disapprovals is stored on other issues too, so each effect line
+  // carries its "Also on" chip row (v363).
+  eq(trs, 24, "lee × gov_regulation: the vote table is not six act rows, six effect rows, six Also on rows and six closed Details rows");
+  eq((tb.match(/<tr class="pdxlg-relr" data-pdxlg-relr="/g) || []).length, 6, "lee × gov_regulation: six Also on rows, one under each effect line");
   // The long form is still behind the fold.
   has(folded(h), "pdxgap-how", "lee × gov_regulation: the scoring fold is gone");
 
@@ -1287,6 +1299,55 @@ section("14 · the harvest — every stored did, read against the effect rule");
     if (at === -1) return new Set();
     const end = src.indexOf("\n  };", at), next = src.indexOf("// WAVE 3 OF FULL COVERAGE (v322)", at);
     return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+  })();
+  // BUDGET AND FISCAL SLICE 1 (v360) runs from its marker to the end of the
+  // table. Its keys are that slice's, held by scripts/test-fiscal-effect-lines.mjs,
+  // and are read under no other block's rule here.
+  const FISCAL_KEYS = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// BUDGET AND FISCAL SLICE 1 (v360)");
+    if (at === -1) return new Set();
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// LONG-DID OVERRIDES SLICE 3 (v362)", at);
+    return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+  })();
+  // LONG-DID OVERRIDES SLICE 3 (v362), from its marker to the end of the table,
+  // held by scripts/test-long-did-effect-lines.mjs.
+  const LONGDID_KEYS = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// LONG-DID OVERRIDES SLICE 3 (v362)");
+    if (at === -1) return new Set();
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// EPA WAIVER RESOLUTIONS SLICE 4 (v364)", at);
+    return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+  })();
+  // EPA WAIVER RESOLUTIONS SLICE 4 (v364), from its marker to the end of the
+  // table, held by scripts/test-epa-waiver-effect-lines.mjs.
+  const EPA_KEYS = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// EPA WAIVER RESOLUTIONS SLICE 4 (v364)");
+    if (at === -1) return new Set();
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// VENEZUELA LEAF SLICE 5 (v365)", at);
+    return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+  })();
+  // VENEZUELA LEAF SLICE 5 (v365) in the vote table, from its marker to the end
+  // of the table, held by scripts/test-venezuela-leaf.mjs.
+  const VE_KEYS = (() => {
+    const src = R("consistency.js"), a0 = src.indexOf("var _DOS_EFFECT = {");
+    const at = a0 === -1 ? -1 : src.indexOf("// VENEZUELA LEAF SLICE 5 (v365)", a0);
+    if (at === -1 || at > src.indexOf("\n  };", a0)) return new Set();
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// BLANK ROWS SLICE 6 (v366)", at);
+    return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+  })();
+  // BLANK ROWS SLICE 6 (v366), from its marker to the end of the table, held by
+  // scripts/test-blank-rows-slice6.mjs.
+  const S6_KEYS = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// BLANK ROWS SLICE 6 (v366)");
+    if (at === -1) return new Set();
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// BLANK ROWS SLICE 7 (v367)", at);
+    return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+  })();
+  // BLANK ROWS SLICE 7 (v367), from its marker to the end of the table, held by
+  // scripts/test-blank-rows-slice7.mjs.
+  const S7_KEYS = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// BLANK ROWS SLICE 7 (v367)");
+    if (at === -1) return new Set();
+    return new Set([...src.slice(at, src.indexOf("\n  };", at)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
   })();
   const IRAN = Object.keys(EFFECT).filter((k) => /\|iran_policy$/.test(k) && !RIDER_KEYS.has(k));
   const TALLY = (() => {
@@ -1451,7 +1512,7 @@ section("14 · the harvest — every stored did, read against the effect rule");
   // the outcome the archive records: an act with a public law on file in
   // db/vr-measure-identity.json may read as done; anything else — failed, or
   // passed one chamber and never enacted — must open "Would" or "Proposed".
-  const PTS = Object.keys(EFFECT).filter((k) => /\|strong_defense$/.test(k) && !RIDER_KEYS.has(k));
+  const PTS = Object.keys(EFFECT).filter((k) => /\|strong_defense$/.test(k) && !RIDER_KEYS.has(k) && !FISCAL_KEYS.has(k));
   const PTS_ROLL = (() => {
     const t = {};
     const files = ["vr-phase-a-vote-seed", "vr-israel-vote-seed", "vr-house-seed-119-s2", "vr-landmark-vote-seed",
@@ -1753,7 +1814,8 @@ section("14 · the harvest — every stored did, read against the effect rule");
   const WAVE4 = (() => {
     const src = R("consistency.js"), a = src.indexOf("// WAVE 4 OF FULL COVERAGE (v323)");
     must(a !== -1, "the wave-4 block is not in _DOS_EFFECT");
-    return [...src.slice(a, src.indexOf("\n  };", a)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+    const next = src.indexOf("// BUDGET AND FISCAL SLICE 1 (v360)", a);
+    return [...src.slice(a, next !== -1 ? next : src.indexOf("\n  };", a)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
   })();
   ok(WAVE4.length > 0, "no wave-4 line is stored");
   for (const k of WAVE4) {
@@ -1764,9 +1826,96 @@ section("14 · the harvest — every stored did, read against the effect rule");
     const m = k.split("|").slice(0, 2).join("|");
     ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
   }
-  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
+  // BUDGET AND FISCAL SLICE 1 (v360). The twenty pairs on H.Con.Res. 14, H.R.
+  // 1968 and H.R. 1 that printed nothing, each written from its own pair's `did`
+  // or, with none, its own mapping rationale, held in detail by
+  // scripts/test-fiscal-effect-lines.mjs; here the batch rules. One closing shape
+  // is new and only here: the adopted budget resolution ends "the House adopted it".
+  const FISCAL = [...FISCAL_KEYS];
+  ok(FISCAL.length === 20, `${FISCAL.length} budget and fiscal line(s) — the slice wrote 20`);
+  for (const k of FISCAL) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the budget and fiscal effect line`);
+    ok(/; the House (?:cleared|passed|adopted) it \d+-\d+(?:, the Senate \d+-\d+)?\.$/.test(v), `${k}: does not end on a recorded tally`);
+    ok(!/^H\.Con\.Res\./.test(k) || /^Would (?!have\b)/.test(v), `${k}: the adopted budget resolution must open "Would", never "Would have"`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  // LONG-DID OVERRIDES SLICE 3 (v362). The three H.R. 8595 pairs whose stored
+  // `did` is too long for a row, each written from that `did`, held in detail by
+  // scripts/test-long-did-effect-lines.mjs; here the batch rules. The bill passed
+  // the House only, so each opens "Would" and ends on its passage roll.
+  const LONGDID = [...LONGDID_KEYS];
+  ok(LONGDID.length === 3, `${LONGDID.length} long-did line(s) — the slice wrote 3`);
+  for (const k of LONGDID) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the long-did effect line`);
+    ok(!!(MECH[k] && MECH[k].did), `${k}: a long-did line on a pair that stores no did`);
+    ok(/^Would (?!have\b)/.test(v) && /; the House passed it \d+-\d+\.$/.test(v), `${k}: does not open "Would" and end on a recorded tally`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  // EPA WAIVER RESOLUTIONS SLICE 4 (v364). The States vs. Federal Power and Cost
+  // of Living pairs on H.J.Res. 88 and 89, each written from its own mapping
+  // rationale, held in detail by scripts/test-epa-waiver-effect-lines.mjs; here
+  // the batch rules. Both resolutions are law, so each reads as done and, like
+  // the lines already on them, names no tally.
+  const EPA = [...EPA_KEYS];
+  ok(EPA.length === 4, `${EPA.length} EPA waiver line(s) — the slice wrote 4`);
+  for (const k of EPA) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the EPA waiver effect line`);
+    ok(/^H\.J\.Res\. 8[89]\|119\|(?:states_federal_power|cost_living)$/.test(k), `${k}: outside the slice's four pairs`);
+    ok(!/^(?:Would|Proposed)\b/.test(v) && !/\d+-\d+/.test(v), `${k}: an enacted resolution's line must read as done and name no tally`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  // VENEZUELA LEAF SLICE 5 (v365). The two Senate war-powers resolutions on the
+  // new venezuela_policy key, held in detail by scripts/test-venezuela-leaf.mjs;
+  // here the batch rules. Neither passed the Senate, so each reads "Would" in the
+  // tense of the act's other lines and ends on its discharge roll.
+  const VEN = [...VE_KEYS];
+  ok(VEN.length === 2, `${VEN.length} Venezuela vote line(s) — the slice wrote 2`);
+  for (const k of VEN) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the Venezuela effect line`);
+    ok(/^S\.J\.Res\. (?:90|98)\|119\|venezuela_policy$/.test(k), `${k}: outside the slice's two pairs`);
+    ok(/^Would\b/.test(v) && /Venezuela/.test(v) && /; the Senate (?:refused to discharge it|voted) \d+-\d+(?: to discharge it)?\.$/.test(v), `${k}: does not open "Would", name Venezuela and end on its discharge roll`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  // BLANK ROWS SLICE 6 (v366). Fifteen high-volume pairs on eight acts, each
+  // written from its own mapping rationale, held in detail by
+  // scripts/test-blank-rows-slice6.mjs; here the batch rules. Tense follows the
+  // stored outcome, and a line ends on a recorded roll or, on an act with no
+  // other line, may name none.
+  const S6 = [...S6_KEYS];
+  ok(S6.length === 15, `${S6.length} slice-6 line(s) — the slice wrote 15`);
+  for (const k of S6) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the slice-6 effect line`);
+    ok(!(MECH[k] && MECH[k].did), `${k}: a slice-6 line on a pair that stores a did`);
+    ok(/(?:; the (?:House|Senate) (?:(?:cleared|passed|agreed to|rejected) it) \d+-\d+(?:, the Senate \d+-\d+)?|[a-z])\.$/.test(v), `${k}: does not end on a recorded tally or a plain stop`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  // BLANK ROWS SLICE 7 (v367). Nineteen pairs on eight acts at about 110 member
+  // rows, each written from its own mapping rationale, held in detail by
+  // scripts/test-blank-rows-slice7.mjs; here the batch rules. Each ends on its
+  // act's own recorded roll.
+  const S7 = [...S7_KEYS];
+  ok(S7.length === 19, `${S7.length} slice-7 line(s) — the slice wrote 19`);
+  for (const k of S7) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the slice-7 effect line`);
+    ok(!(MECH[k] && MECH[k].did), `${k}: a slice-7 line on a pair that stores a did`);
+    ok(/; the House (?:cleared|passed) it \d+-\d+\.$/.test(v), `${k}: does not end on a recorded tally`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !FISCAL.includes(k) && !LONGDID.includes(k) && !EPA.includes(k) && !VEN.includes(k) && !S6.includes(k) && !S7.includes(k) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length + FISCAL.length + LONGDID.length + EPA.length + VEN.length + S6.length + S7.length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.

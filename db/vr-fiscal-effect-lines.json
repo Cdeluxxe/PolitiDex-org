@@ -1,0 +1,515 @@
+{
+ "_comment": "Budget and fiscal slice 1 (v360). Every measure-and-issue pair on H.Con.Res. 14, H.R. 1968 and H.R. 1 of the 119th Congress that printed no line under its vote row: 20 pairs. Each line is stored once in consistency.js _DOS_EFFECT under the BUDGET AND FISCAL SLICE 1 marker and is written only from that pair's own stored source: its `did` where one is stored (H.R. 1968's two health and fentanyl pairs, whose `did` is too long to stand under a row and is not edited), otherwise its own mapping rationale as the live database holds it, with `sourceAt` naming the migration that wrote that text. `term` is the source words the line carries. H.Con.Res. 14 is a concurrent budget resolution both chambers adopted; it is not law, so its lines open \"Would\", as H.Con.Res. 113's shipped line does, never \"Would have\", which is kept for acts that failed. H.R. 1968 and H.R. 1 are public laws and read as done. Each line ends on the House roll the record holds. `measures` carries every mapping on the three acts, so a test can rebuild the live-shaped rows the offline seed lacks, and the lines already shipped on them, which this pass does not touch. No score, weight, mapping or key is read from or written to here.",
+ "_test": "scripts/test-fiscal-effect-lines.mjs",
+ "lines": 20,
+ "rows": [
+  {
+   "key": "H.Con.Res. 14|119|national_debt",
+   "number": "H.Con.Res. 14",
+   "congress": 119,
+   "issue": "national_debt",
+   "status": "adopted",
+   "line": "Would set the FY2025 budget and the reconciliation instructions for that year’s tax-and-spending changes; the House adopted it 216-214.",
+   "term": "reconciliation instructions",
+   "source": "rationale",
+   "sourceText": "Sets the fiscal blueprint and reconciliation instructions that framed the year's tax-and-spending changes.",
+   "sourceAt": "netlify/database/migrations/20260721010000_seed_landmark_measures_wave8.sql",
+   "supersedes": "db/vr-title-effect-lines.json refused this pair on its bare-number title; this pass writes it from the mapping rationale instead"
+  },
+  {
+   "key": "H.Con.Res. 14|119|cut_spending",
+   "number": "H.Con.Res. 14",
+   "congress": 119,
+   "issue": "cut_spending",
+   "status": "adopted",
+   "line": "Would direct committees to find net spending reductions through reconciliation; the House adopted it 216-214.",
+   "term": "net spending reductions through reconciliation",
+   "source": "rationale",
+   "sourceText": "Directs committees to find net spending reductions through reconciliation.",
+   "sourceAt": "netlify/database/migrations/20260721010000_seed_landmark_measures_wave8.sql",
+   "supersedes": "db/vr-title-effect-lines.json refused this pair on its bare-number title; this pass writes it from the mapping rationale instead"
+  },
+  {
+   "key": "H.Con.Res. 14|119|lower_taxes",
+   "number": "H.Con.Res. 14",
+   "congress": 119,
+   "issue": "lower_taxes",
+   "status": "adopted",
+   "line": "Would reserve reconciliation room to extend and expand the 2017 tax cuts; the House adopted it 216-214.",
+   "term": "extend and expand the 2017 tax cuts",
+   "source": "rationale",
+   "sourceText": "Reserves reconciliation room to extend and expand the 2017 tax cuts.",
+   "sourceAt": "netlify/database/migrations/20260721010000_seed_landmark_measures_wave8.sql",
+   "supersedes": "db/vr-title-effect-lines.json refused this pair on its bare-number title; this pass writes it from the mapping rationale instead"
+  },
+  {
+   "key": "H.Con.Res. 14|119|border_security",
+   "number": "H.Con.Res. 14",
+   "congress": 119,
+   "issue": "border_security",
+   "status": "adopted",
+   "line": "Would reserve reconciliation room for border-security and immigration-enforcement funding; the House adopted it 216-214.",
+   "term": "border-security and immigration-enforcement funding",
+   "source": "rationale",
+   "sourceText": "Reserves reconciliation room for border-security and immigration-enforcement funding.",
+   "sourceAt": "netlify/database/migrations/20260721140000_seed_legislation_deepdive.sql"
+  },
+  {
+   "key": "H.Con.Res. 14|119|strong_defense",
+   "number": "H.Con.Res. 14",
+   "congress": 119,
+   "issue": "strong_defense",
+   "status": "adopted",
+   "line": "Would reserve reconciliation room for a defense-spending increase; the House adopted it 216-214.",
+   "term": "defense-spending increase",
+   "source": "rationale",
+   "sourceText": "Reserves reconciliation room for a defense-spending increase.",
+   "sourceAt": "netlify/database/migrations/20260721140000_seed_legislation_deepdive.sql"
+  },
+  {
+   "key": "H.R. 1968|119|cut_spending",
+   "number": "H.R. 1968",
+   "congress": 119,
+   "issue": "cut_spending",
+   "status": "enacted",
+   "line": "Funded the government through FY2025 at levels that trimmed some domestic programs; the House passed it 217-213.",
+   "term": "some domestic programs",
+   "source": "rationale",
+   "sourceText": "A yea funds the government at Republican-set levels, trimming some domestic programs.",
+   "sourceAt": "netlify/database/migrations/20260719240000_seed_landmark_measures_wave6.sql"
+  },
+  {
+   "key": "H.R. 1968|119|gov_services",
+   "number": "H.R. 1968",
+   "congress": 119,
+   "issue": "gov_services",
+   "status": "enacted",
+   "line": "Funded the federal government through the end of FY2025, averting a shutdown; the House passed it 217-213.",
+   "term": "averting a shutdown",
+   "source": "rationale",
+   "sourceText": "Funds the federal government through the end of the 2025 fiscal year, averting a shutdown.",
+   "sourceAt": "netlify/database/migrations/20260720000000_hr1_omnibus_component_issues.sql"
+  },
+  {
+   "key": "H.R. 1968|119|national_debt",
+   "number": "H.R. 1968",
+   "congress": 119,
+   "issue": "national_debt",
+   "status": "enacted",
+   "line": "Continued deficit-level federal spending for the full 2025 fiscal year; the House passed it 217-213.",
+   "term": "deficit-level federal spending",
+   "source": "rationale",
+   "sourceText": "Continues deficit-level federal spending for the full fiscal year; a yea vote adds to the national debt.",
+   "sourceAt": "netlify/database/migrations/20260720000000_hr1_omnibus_component_issues.sql"
+  },
+  {
+   "key": "H.R. 1968|119|strong_defense",
+   "number": "H.R. 1968",
+   "congress": 119,
+   "issue": "strong_defense",
+   "status": "enacted",
+   "line": "Increased defense appropriations over the prior year; the House passed it 217-213.",
+   "term": "defense appropriations over the prior year",
+   "source": "rationale",
+   "sourceText": "Increases defense appropriations over the prior year.",
+   "sourceAt": "netlify/database/migrations/20260720000000_hr1_omnibus_component_issues.sql"
+  },
+  {
+   "key": "H.R. 1968|119|health_rural",
+   "number": "H.R. 1968",
+   "congress": 119,
+   "issue": "health_rural",
+   "status": "enacted",
+   "line": "Extended the Medicare-Dependent Hospital Program and other health authorities due to lapse on March 31, 2025; the House passed it 217-213.",
+   "term": "Medicare-Dependent Hospital Program",
+   "source": "did",
+   "sourceText": "Division B extended the health authorities due to lapse on March 31, 2025, and they are disproportionately the rural ones: the Medicare-Dependent Hospital Program for small rural hospitals (Sec. 2202), the low-volume inpatient adjustment (Sec. 2201), the ground-ambulance payment add-on (Sec. 2203), the telehealth flexibilities that let rural health clinics and federally qualified health centers act as the distant site (Sec. 2207), and funding for community health centers, the National Health Service Corps and teaching health centers (Sec. 2101).",
+   "sourceAt": "consistency.js _DOS_MECH"
+  },
+  {
+   "key": "H.R. 1968|119|immig_fentanyl",
+   "number": "H.R. 1968",
+   "congress": 119,
+   "issue": "immig_fentanyl",
+   "status": "enacted",
+   "line": "Extended the order placing fentanyl-related substances in schedule I as a class to September 30, 2025; the House passed it 217-213.",
+   "term": "fentanyl-related substances in schedule I as a class",
+   "source": "did",
+   "sourceText": "Division C, Sec. 3105 extended the Drug Enforcement Administration’s temporary order placing fentanyl-related substances in schedule I as a class, striking “March 31, 2025” and inserting “September 30, 2025”.",
+   "sourceAt": "consistency.js _DOS_MECH"
+  },
+  {
+   "key": "H.R. 1|119|climate_action",
+   "number": "H.R. 1",
+   "congress": 119,
+   "issue": "climate_action",
+   "status": "enacted",
+   "line": "Phased out and repealed the 2022 clean-energy and electric-vehicle tax credits; the House cleared it 218-214, the Senate 50-50.",
+   "term": "clean-energy and electric-vehicle tax credits",
+   "source": "rationale",
+   "sourceText": "Phases out and repeals clean-energy and electric-vehicle tax credits enacted in 2022; a yea vote cuts against climate-action goals.",
+   "sourceAt": "netlify/database/migrations/20260720000000_hr1_omnibus_component_issues.sql"
+  },
+  {
+   "key": "H.R. 1|119|deportations",
+   "number": "H.R. 1",
+   "congress": 119,
+   "issue": "deportations",
+   "status": "enacted",
+   "line": "Appropriated tens of billions of dollars for immigration detention and removal; the House cleared it 218-214, the Senate 50-50.",
+   "term": "immigration detention and removal",
+   "source": "rationale",
+   "sourceText": "Appropriates tens of billions of dollars for immigration detention and removal operations.",
+   "sourceAt": "netlify/database/migrations/20260807000000_seed_exec_actions_wave1.sql"
+  },
+  {
+   "key": "H.R. 1|119|edu_college_cost",
+   "number": "H.R. 1",
+   "congress": 119,
+   "issue": "edu_college_cost",
+   "status": "enacted",
+   "line": "Eliminated several income-driven student-loan repayment plans and capped graduate borrowing; the House cleared it 218-214.",
+   "term": "income-driven student-loan repayment plans",
+   "source": "rationale",
+   "sourceText": "Eliminates several income-driven student-loan repayment plans and caps graduate borrowing; a yea vote cuts against reducing college costs.",
+   "sourceAt": "netlify/database/migrations/20260720000000_hr1_omnibus_component_issues.sql"
+  },
+  {
+   "key": "H.R. 1|119|energy_production",
+   "number": "H.R. 1",
+   "congress": 119,
+   "issue": "energy_production",
+   "status": "enacted",
+   "line": "Expanded onshore and offshore oil, gas and coal leasing and sped fossil-fuel permitting; the House cleared it 218-214, the Senate 50-50.",
+   "term": "onshore and offshore oil",
+   "source": "rationale",
+   "sourceText": "Expands onshore and offshore oil, gas, and coal leasing and speeds fossil-fuel permitting.",
+   "sourceAt": "netlify/database/migrations/20260807000000_seed_exec_actions_wave1.sql"
+  },
+  {
+   "key": "H.R. 1|119|family_support",
+   "number": "H.R. 1",
+   "congress": 119,
+   "issue": "family_support",
+   "status": "enacted",
+   "line": "Raised the child tax credit to $2,200 per child and made it permanent; the House cleared it 218-214, the Senate 50-50.",
+   "term": "$2,200 per child",
+   "source": "rationale",
+   "sourceText": "Raises the child tax credit to $2,200 per child and makes it permanent.",
+   "sourceAt": "netlify/database/migrations/20260807000000_seed_exec_actions_wave1.sql"
+  },
+  {
+   "key": "H.R. 1|119|national_debt",
+   "number": "H.R. 1",
+   "congress": 119,
+   "issue": "national_debt",
+   "status": "enacted",
+   "line": "Raised the statutory debt ceiling by $5 trillion; the House cleared it 218-214, the Senate 50-50.",
+   "term": "statutory debt ceiling",
+   "source": "rationale",
+   "sourceText": "Sec. 72001, Modification of limitation on the public debt, raises the statutory debt ceiling by 5 trillion dollars in the subtitle captioned Increase in Debt Limit — the act enacts the borrowing authority itself, which is the operative text this mapping rests on and which the Debt-limit increase provision on this bill cites. The Congressional Budget Office separately projects the act adds trillions to deficits over ten years; that projection corroborates the direction and is cited on the Deficit impact provision, but it is a forecast about the act rather than something the act says, so it is not what carries the mapping. A yea enacts the higher ceiling.",
+   "sourceAt": "netlify/database/migrations/20260923000000_vr_hr1_citation_integrity.sql"
+  },
+  {
+   "key": "H.R. 1|119|school_choice",
+   "number": "H.R. 1",
+   "congress": 119,
+   "issue": "school_choice",
+   "status": "enacted",
+   "line": "Created a federal tax credit for donations to K-12 private-school scholarship organizations; the House cleared it 218-214, the Senate 50-50.",
+   "term": "K-12 private-school scholarship organizations",
+   "source": "rationale",
+   "sourceText": "Creates a federal tax credit for donations to K-12 private-school scholarship organizations.",
+   "sourceAt": "netlify/database/migrations/20260807000000_seed_exec_actions_wave1.sql"
+  },
+  {
+   "key": "H.R. 1|119|strong_defense",
+   "number": "H.R. 1",
+   "congress": 119,
+   "issue": "strong_defense",
+   "status": "enacted",
+   "line": "Added a large increase in defense and military spending; the House cleared it 218-214, the Senate 50-50.",
+   "term": "increase in defense and military spending",
+   "source": "rationale",
+   "sourceText": "Adds a large increase in defense and military spending.",
+   "sourceAt": "netlify/database/migrations/20260807000000_seed_exec_actions_wave1.sql"
+  },
+  {
+   "key": "H.R. 1|119|tax_middle_class",
+   "number": "H.R. 1",
+   "congress": 119,
+   "issue": "tax_middle_class",
+   "status": "enacted",
+   "line": "Made the 2017 individual income-tax rates permanent and added temporary deductions for tips and overtime pay; the House cleared it 218-214.",
+   "term": "2017 individual income-tax rates",
+   "source": "rationale",
+   "sourceText": "Makes the 2017 individual income-tax rates permanent and adds temporary deductions for tips and overtime pay.",
+   "sourceAt": "netlify/database/migrations/20260923000000_vr_hr1_citation_integrity.sql"
+  }
+ ],
+ "measures": {
+  "H.Con.Res. 14|119": {
+   "status": "adopted",
+   "roll": {
+    "chamber": "house",
+    "session": 1,
+    "roll": 100,
+    "date": "2025-04-10",
+    "question": "On Motion to Concur in the Senate Amendment",
+    "yea": 216,
+    "nay": 214,
+    "tail": "; the House adopted it 216-214."
+   },
+   "issues": [
+    {
+     "issueKey": "national_debt",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sets the fiscal blueprint and reconciliation instructions that framed the year's tax-and-spending changes."
+    },
+    {
+     "issueKey": "cut_spending",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Directs committees to find net spending reductions through reconciliation."
+    },
+    {
+     "issueKey": "lower_taxes",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Reserves reconciliation room to extend and expand the 2017 tax cuts."
+    },
+    {
+     "issueKey": "border_security",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Reserves reconciliation room for border-security and immigration-enforcement funding."
+    },
+    {
+     "issueKey": "strong_defense",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Reserves reconciliation room for a defense-spending increase."
+    }
+   ],
+   "shippedLines": {}
+  },
+  "H.R. 1968|119": {
+   "status": "enacted",
+   "roll": {
+    "chamber": "house",
+    "session": 1,
+    "roll": 70,
+    "date": "2025-03-11",
+    "question": "On Passage",
+    "yea": 217,
+    "nay": 213,
+    "tail": "; the House passed it 217-213."
+   },
+   "issues": [
+    {
+     "issueKey": "cut_spending",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "A yea funds the government at Republican-set levels, trimming some domestic programs."
+    },
+    {
+     "issueKey": "gov_services",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Funds the federal government through the end of the 2025 fiscal year, averting a shutdown."
+    },
+    {
+     "issueKey": "strong_defense",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Increases defense appropriations over the prior year."
+    },
+    {
+     "issueKey": "national_debt",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Continues deficit-level federal spending for the full fiscal year; a yea vote adds to the national debt."
+    },
+    {
+     "issueKey": "health_rural",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division B carries the health authorities that were set to lapse on March 31, 2025, and they are disproportionately the rural and safety-net ones. Sec. 2101 extends funding for community health centers, the National Health Service Corps and teaching health centers that operate graduate medical education programs; Sec. 2201 continues the increased inpatient payment adjustment for low-volume hospitals; Sec. 2202 extends the Medicare-Dependent Hospital program; Sec. 2203 extends the ground and air ambulance add-on payments; Sec. 2206 extends the work geographic index floor that holds up physician payment in low-cost areas; Sec. 2207 extends the Medicare telehealth flexibilities, including the removal of the geographic originating-site restriction; and Sec. 2401 in Title IV delays the Medicaid disproportionate share hospital allotment reductions. A yea keeps those authorities running; a nay lets them expire. This is the same reading and the same weight the identical extenders earned on H.R. 7148."
+    },
+    {
+     "issueKey": "immig_fentanyl",
+     "weight": 30,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division C Sec. 3105 extends the temporary class-wide scheduling order for fentanyl-related substances, amending section 2 of the Temporary Reauthorization and Study of the Emergency Scheduling of Fentanyl Analogues Act by striking \"March 31, 2025\" and inserting \"September 30, 2025\", effective as if included in that Act's enactment. Without it the class-wide Schedule I placement would have lapsed on March 31, 2025; the permanent placement did not arrive until the HALT Fentanyl Act in July. A yea holds the schedule in place for another six months. Weighted 30, the same as the comparable provision on S. 2296, because it is one section of a government-funding vehicle rather than the instrument's purpose."
+    },
+    {
+     "issueKey": "border_security",
+     "weight": 30,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Rider audit, October 2026: the act's own stored text names this leaf — \"boosting defense and immigration enforcement\". Filed off-axis beside the act's existing rows, never in place of its cut_spending primary; the summary says the act boosted immigration enforcement, so a yea funds more of it."
+    }
+   ],
+   "shippedLines": {
+    "H.R. 1968|119|border_security": {
+     "from": "_DOS_EFFECT",
+     "line": "Boosted immigration enforcement in full-year FY2025 funding that trimmed some domestic spending; the House passed it 217-213."
+    }
+   }
+  },
+  "H.R. 1|119": {
+   "status": "enacted",
+   "roll": {
+    "chamber": "house",
+    "session": 1,
+    "roll": 190,
+    "date": "2025-07-03",
+    "question": "On Motion to Concur in the Senate Amendment",
+    "yea": 218,
+    "nay": 214,
+    "also": {
+     "chamber": "senate",
+     "session": 1,
+     "roll": 372,
+     "yea": 50,
+     "nay": 50
+    },
+    "tail": "; the House cleared it 218-214."
+   },
+   "issues": [
+    {
+     "issueKey": "lower_taxes",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The act makes permanent and extends the individual and business tax provisions of the 2017 tax act and raises the maximum child tax credit to $2,200 per child, indexed for inflation from 2026. Lower income and business taxes are this chip's subject and they are the act's headline title, so a yea is a direct vote to cut and extend them."
+    },
+    {
+     "issueKey": "cut_spending",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The act's spending reductions sit in the Medicaid title — lower federal Medicaid spending with tighter enrolment and eligibility processes — and in raising the SNAP able-bodied-adult work-requirement age from 55 to 65; a yea enacts them. Weighted 70 rather than at the primary because the same act's tax title runs the other way on the fiscal total and is read on its own chip rather than netted out here."
+    },
+    {
+     "issueKey": "healthcare",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The act reduces federal Medicaid spending and tightens Medicaid enrolment and eligibility processes, so fewer applicants qualify and the federal share behind those who do is smaller. This chip's support direction is coverage getting easier to obtain and keep, so the same yea that counts for the act's tax title is coded against the issue here."
+    },
+    {
+     "issueKey": "border_security",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The act appropriates new funding for border enforcement and immigration operations — the staffing and operational money this chip measures — so a yea funds them. Weighted 55 because it is one appropriation inside a reconciliation act whose controlling business is taxes and spending, so a nay may be about the rest of the bill."
+    },
+    {
+     "issueKey": "lands_energy",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Expands onshore and offshore oil, gas, and coal leasing on federal land."
+    },
+    {
+     "issueKey": "tax_middle_class",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Makes the 2017 individual income-tax rates permanent and adds temporary deductions for tips and overtime pay."
+    },
+    {
+     "issueKey": "national_debt",
+     "weight": 65,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Sec. 72001, Modification of limitation on the public debt, raises the statutory debt ceiling by 5 trillion dollars in the subtitle captioned Increase in Debt Limit — the act enacts the borrowing authority itself, which is the operative text this mapping rests on and which the Debt-limit increase provision on this bill cites. The Congressional Budget Office separately projects the act adds trillions to deficits over ten years; that projection corroborates the direction and is cited on the Deficit impact provision, but it is a forecast about the act rather than something the act says, so it is not what carries the mapping. A yea enacts the higher ceiling."
+    },
+    {
+     "issueKey": "family_support",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Raises the child tax credit to $2,200 per child and makes it permanent."
+    },
+    {
+     "issueKey": "climate_action",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Phases out and repeals clean-energy and electric-vehicle tax credits enacted in 2022; a yea vote cuts against climate-action goals."
+    },
+    {
+     "issueKey": "energy_production",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Expands onshore and offshore oil, gas, and coal leasing and speeds fossil-fuel permitting."
+    },
+    {
+     "issueKey": "deportations",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Appropriates tens of billions of dollars for immigration detention and removal operations."
+    },
+    {
+     "issueKey": "strong_defense",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Adds a large increase in defense and military spending."
+    },
+    {
+     "issueKey": "school_choice",
+     "weight": 35,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Creates a federal tax credit for donations to K-12 private-school scholarship organizations."
+    },
+    {
+     "issueKey": "edu_college_cost",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Eliminates several income-driven student-loan repayment plans and caps graduate borrowing; a yea vote cuts against reducing college costs."
+    }
+   ],
+   "shippedLines": {
+    "H.R. 1|119|lower_taxes": {
+     "from": "_DOS_EFFECT",
+     "line": "Made the 2017 tax cuts permanent and raised the child tax credit to $2,200, indexed; the House cleared it 218-214, the Senate 50-50."
+    },
+    "H.R. 1|119|cut_spending": {
+     "from": "_DOS_EFFECT",
+     "line": "Reduced federal Medicaid spending and raised the SNAP work-requirement age from 55 to 65; the House cleared it 218-214, the Senate 50-50."
+    },
+    "H.R. 1|119|healthcare": {
+     "from": "did",
+     "line": "Reduced federal Medicaid spending and tightened Medicaid enrolment and eligibility processes."
+    },
+    "H.R. 1|119|border_security": {
+     "from": "did",
+     "line": "The 2025 reconciliation act appropriated new funding for border enforcement and immigration operations."
+    },
+    "H.R. 1|119|lands_energy": {
+     "from": "did",
+     "line": "Loosened restrictions on oil, gas and coal leasing on federal land and lowered the minimum royalty rates paid on it."
+    }
+   }
+  }
+ }
+}

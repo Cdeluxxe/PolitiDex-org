@@ -107,7 +107,9 @@ const lineFault = (s) => {
   if (/…|\.\.\./.test(s)) return "is a clip";
   if (METHOD.test(s)) return "carries method vocabulary";
   if (/\b(?:PolitiDex|we|our|this issue|this chip)\b/i.test(s)) return "is about the archive, not the act";
-  if (!/^(?:Vetoed|Committed|Made|Had|Signed|Issued|Would|Struck|Directed|Ordered)\b/.test(s)) return "does not open on the act";
+  // The verbs the tariff orders slice (v361) opens on join the list: each is
+  // the document's own past-tense act, never a person, a party or a pronoun.
+  if (!/^(?:Vetoed|Committed|Made|Had|Signed|Issued|Would|Struck|Directed|Ordered|Imposed|Set|Ended|Closed|Restored|Doubled|Claimed|Put|Assigned|Used|Charged|Kept|Pulled|Narrowed|Took|Raised|Let|Switched|Re-imposed|Placed|Rested|Tightened|Declared|Chose|Waived|Authorized|Voided)\b/.test(s)) return "does not open on the act";
   return "";
 };
 

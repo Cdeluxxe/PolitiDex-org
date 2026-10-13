@@ -597,7 +597,7 @@ section("6 · one measure still teaches the measure");
     if (h.indexOf("<a ") >= 0 || h.indexOf("<button") >= 0) bad.push(`${pid}/${k}: nested interactive element in the row`);
     if (h.indexOf("1 advanced") >= 0) bad.push(`${pid}/${k}: the side is printed as a count of one`);
     // A country subject (Iran, Ukraine, Yemen) has no side to say; it must say none.
-    if (k === "iran_policy" || k === "ukraine_policy" || k === "yemen_policy") {
+    if (k === "iran_policy" || k === "ukraine_policy" || k === "yemen_policy" || k === "venezuela_policy") {
       if (/<span class="pdxgap-drv-c">(?!not scorable<)/.test(h)) bad.push(`${pid}/${k}: a subject row states a side`);
     } else if (!WORDS.some((wd) => h.indexOf(wd) >= 0)) bad.push(`${pid}/${k}: the side is not said in words`);
     const wsp = /<span class="pdxgap-drv-w">([\s\S]*?)<\/span>/.exec(h);

@@ -280,7 +280,7 @@ eq(coldHtml, 0, "a member whose record has not arrived renders no read at all");
 // here, stated positively: a lane of one renders the roll-up, and everything that
 // makes it honest is checked rather than assumed.
 // Iran joined the two when its drawer took the second-term instruments.
-const SUBJECT_NO_SIDE = new Set(["iran_policy", "ukraine_policy", "yemen_policy"]);
+const SUBJECT_NO_SIDE = new Set(["iran_policy", "ukraine_policy", "yemen_policy", "venezuela_policy"]);
 const solos = READS.filter((x) => x.drv && x.drv.items === 1 && x.drv.docs === 1);
 must(solos.length > 0, "no single-item lanes swept to check the one-measure roll-up");
 const soloBad = [];
