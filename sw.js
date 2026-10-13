@@ -9498,7 +9498,18 @@
 //     one version. Neither pill moved.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v359';
+// v360 - BUDGET AND FISCAL SLICE 1: TWENTY LINES UNDER THREE ACTS. Every
+//     measure-and-issue pair on H.Con.Res. 14, H.R. 1968 and H.R. 1 of the
+//     119th that printed nothing under its vote row now carries one sentence
+//     in _DOS_EFFECT, written from that pair's own stored `did` or mapping
+//     rationale (db/vr-fiscal-effect-lines.json names each source). The budget
+//     resolution opens "Would", as H.Con.Res. 113 does; the two public laws
+//     read as done. No stored `did`, shipped line, score, Direction Match,
+//     NEVER_FEEDS, publication floor, money pill or district board moved.
+//     consistency.js is precached and changed, so the shell moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v360';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

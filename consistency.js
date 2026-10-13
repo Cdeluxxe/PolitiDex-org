@@ -18042,6 +18042,54 @@
       'Would have made groups spending over $10,000 name their donors and matched small House donations six to one; the House passed it 220-210.',
     'H.R. 5746|117|campaign_finance':
       'Would have made election spenders name their donors and curbed super PAC coordination with candidates; the House passed it 220-203.',
+    // BUDGET AND FISCAL SLICE 1 (v360). Every pair on H.Con.Res. 14, H.R. 1968
+    // and H.R. 1 of the 119th that printed nothing under its vote row. Each is
+    // written from that pair's own source and nothing else: its `did` where one
+    // is stored (H.R. 1968's health and fentanyl rows, whose `did` stays as it
+    // is), otherwise its own mapping rationale. db/vr-fiscal-effect-lines.json
+    // names the source of each. H.Con.Res. 14 was adopted but a budget
+    // resolution is never law, so it opens "Would", as H.Con.Res. 113 does; the
+    // two public laws read as done. Each ends on the House roll on file.
+    'H.Con.Res. 14|119|national_debt':
+      'Would set the FY2025 budget and the reconciliation instructions for that year’s tax-and-spending changes; the House adopted it 216-214.',
+    'H.Con.Res. 14|119|cut_spending':
+      'Would direct committees to find net spending reductions through reconciliation; the House adopted it 216-214.',
+    'H.Con.Res. 14|119|lower_taxes':
+      'Would reserve reconciliation room to extend and expand the 2017 tax cuts; the House adopted it 216-214.',
+    'H.Con.Res. 14|119|border_security':
+      'Would reserve reconciliation room for border-security and immigration-enforcement funding; the House adopted it 216-214.',
+    'H.Con.Res. 14|119|strong_defense':
+      'Would reserve reconciliation room for a defense-spending increase; the House adopted it 216-214.',
+    'H.R. 1968|119|cut_spending':
+      'Funded the government through FY2025 at levels that trimmed some domestic programs; the House passed it 217-213.',
+    'H.R. 1968|119|gov_services':
+      'Funded the federal government through the end of FY2025, averting a shutdown; the House passed it 217-213.',
+    'H.R. 1968|119|national_debt':
+      'Continued deficit-level federal spending for the full 2025 fiscal year; the House passed it 217-213.',
+    'H.R. 1968|119|strong_defense':
+      'Increased defense appropriations over the prior year; the House passed it 217-213.',
+    'H.R. 1968|119|health_rural':
+      'Extended the Medicare-Dependent Hospital Program and other health authorities due to lapse on March 31, 2025; the House passed it 217-213.',
+    'H.R. 1968|119|immig_fentanyl':
+      'Extended the order placing fentanyl-related substances in schedule I as a class to September 30, 2025; the House passed it 217-213.',
+    'H.R. 1|119|climate_action':
+      'Phased out and repealed the 2022 clean-energy and electric-vehicle tax credits; the House cleared it 218-214, the Senate 50-50.',
+    'H.R. 1|119|deportations':
+      'Appropriated tens of billions of dollars for immigration detention and removal; the House cleared it 218-214, the Senate 50-50.',
+    'H.R. 1|119|edu_college_cost':
+      'Eliminated several income-driven student-loan repayment plans and capped graduate borrowing; the House cleared it 218-214.',
+    'H.R. 1|119|energy_production':
+      'Expanded onshore and offshore oil, gas and coal leasing and sped fossil-fuel permitting; the House cleared it 218-214, the Senate 50-50.',
+    'H.R. 1|119|family_support':
+      'Raised the child tax credit to $2,200 per child and made it permanent; the House cleared it 218-214, the Senate 50-50.',
+    'H.R. 1|119|national_debt':
+      'Raised the statutory debt ceiling by $5 trillion; the House cleared it 218-214, the Senate 50-50.',
+    'H.R. 1|119|school_choice':
+      'Created a federal tax credit for donations to K-12 private-school scholarship organizations; the House cleared it 218-214, the Senate 50-50.',
+    'H.R. 1|119|strong_defense':
+      'Added a large increase in defense and military spending; the House cleared it 218-214, the Senate 50-50.',
+    'H.R. 1|119|tax_middle_class':
+      'Made the 2017 individual income-tax rates permanent and added temporary deductions for tips and overtime pay; the House cleared it 218-214.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is

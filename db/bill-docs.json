@@ -1145,19 +1145,24 @@
    "t": "Establishing the congressional budget for the United States Government for fiscal year 2025 and setting forth budgetary levels for fiscal years 2026 through 2034",
    "m": [
     {
-     "i": "Cut Federal Spending & Reduce Debt"
+     "i": "Cut Federal Spending & Reduce Debt",
+     "l": "Would direct committees to find net spending reductions through reconciliation; the House adopted it 216-214."
     },
     {
-     "i": "Cut Income & Business Taxes"
+     "i": "Cut Income & Business Taxes",
+     "l": "Would reserve reconciliation room to extend and expand the 2017 tax cuts; the House adopted it 216-214."
     },
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "l": "Would reserve reconciliation room for a defense-spending increase; the House adopted it 216-214."
     },
     {
-     "i": "Strong Border & Enforcement"
+     "i": "Strong Border & Enforcement",
+     "l": "Would reserve reconciliation room for border-security and immigration-enforcement funding; the House adopted it 216-214."
     },
     {
-     "i": "Tackle the National Debt"
+     "i": "Tackle the National Debt",
+     "l": "Would set the FY2025 budget and the reconciliation instructions for that year’s tax-and-spending changes; the House adopted it 216-214."
     }
    ]
   },
@@ -1320,7 +1325,8 @@
    "t": "H.R. 1 — One Big Beautiful Bill Act (reconciliation, title II of H. Con. Res. 14)",
    "m": [
     {
-     "i": "Climate Action & Clean Energy"
+     "i": "Climate Action & Clean Energy",
+     "l": "Phased out and repealed the 2022 clean-energy and electric-vehicle tax credits; the House cleared it 218-214, the Senate 50-50."
     },
     {
      "i": "Cut Federal Spending & Reduce Debt",
@@ -1335,36 +1341,44 @@
      "l": "Loosened restrictions on oil, gas and coal leasing on federal land and lowered the minimum royalty rates paid on it."
     },
     {
-     "i": "Expand Domestic Energy Production"
+     "i": "Expand Domestic Energy Production",
+     "l": "Expanded onshore and offshore oil, gas and coal leasing and sped fossil-fuel permitting; the House cleared it 218-214, the Senate 50-50."
     },
     {
      "i": "Expand Healthcare Access",
      "l": "Reduced federal Medicaid spending and tightened Medicaid enrolment and eligibility processes."
     },
     {
-     "i": "Help Families with Kids"
+     "i": "Help Families with Kids",
+     "l": "Raised the child tax credit to $2,200 per child and made it permanent; the House cleared it 218-214, the Senate 50-50."
     },
     {
-     "i": "Lower College & Trade Costs"
+     "i": "Lower College & Trade Costs",
+     "l": "Eliminated several income-driven student-loan repayment plans and capped graduate borrowing; the House cleared it 218-214."
     },
     {
-     "i": "Mass Deportations & Border Security"
+     "i": "Mass Deportations & Border Security",
+     "l": "Appropriated tens of billions of dollars for immigration detention and removal; the House cleared it 218-214, the Senate 50-50."
     },
     {
-     "i": "Middle-Class Tax Relief"
+     "i": "Middle-Class Tax Relief",
+     "l": "Made the 2017 individual income-tax rates permanent and added temporary deductions for tips and overtime pay; the House cleared it 218-214."
     },
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "l": "Added a large increase in defense and military spending; the House cleared it 218-214, the Senate 50-50."
     },
     {
-     "i": "School Choice & Education Freedom"
+     "i": "School Choice & Education Freedom",
+     "l": "Created a federal tax credit for donations to K-12 private-school scholarship organizations; the House cleared it 218-214, the Senate 50-50."
     },
     {
      "i": "Strong Border & Enforcement",
      "l": "The 2025 reconciliation act appropriated new funding for border enforcement and immigration operations."
     },
     {
-     "i": "Tackle the National Debt"
+     "i": "Tackle the National Debt",
+     "l": "Raised the statutory debt ceiling by $5 trillion; the House cleared it 218-214, the Senate 50-50."
     }
    ]
   },
@@ -1692,20 +1706,24 @@
    "t": "Full-Year Continuing Appropriations and Extensions Act, 2025",
    "m": [
     {
-     "i": "Cut Federal Spending & Reduce Debt"
+     "i": "Cut Federal Spending & Reduce Debt",
+     "l": "Funded the government through FY2025 at levels that trimmed some domestic programs; the House passed it 217-213."
     },
     {
-     "i": "Invest in Public Services"
+     "i": "Invest in Public Services",
+     "l": "Funded the federal government through the end of FY2025, averting a shutdown; the House passed it 217-213."
     },
     {
-     "i": "Peace Through Strength"
+     "i": "Peace Through Strength",
+     "l": "Increased defense appropriations over the prior year; the House passed it 217-213."
     },
     {
      "i": "Strong Border & Enforcement",
      "l": "Boosted immigration enforcement in full-year FY2025 funding that trimmed some domestic spending; the House passed it 217-213."
     },
     {
-     "i": "Tackle the National Debt"
+     "i": "Tackle the National Debt",
+     "l": "Continued deficit-level federal spending for the full 2025 fiscal year; the House passed it 217-213."
     }
    ]
   },

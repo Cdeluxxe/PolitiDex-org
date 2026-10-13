@@ -79,6 +79,33 @@ fortunes are.
   her own appeal in a statewide race."
 - ❌ "Her bid is a barometer for how much room remains in the GOP for moderates."
 
+## Effect lines under vote rows
+
+The one sentence under a vote row in an issue drawer (`_DOS_EFFECT` in
+`consistency.js`) says what that act did to that issue, and nothing else.
+
+- One sentence, 140 characters or fewer, ending on its stop. Anything longer
+  prints nothing; a line is never clipped to fit.
+- The act is the subject ("Raised…", "Would set…"), not the member, the party or
+  the vote.
+- An act that failed opens "Would have…". An act that carried but never became
+  law, such as an adopted budget resolution or a House-only bill, opens "Would…".
+  A public law reads as done.
+- Written only from that pair's own stored source: its `did`, or, where it has
+  none, its own mapping rationale and the measure's stored summary. Never a
+  sibling issue's line, never a fact the source does not hold. A pair with no
+  source that states an effect stays blank.
+- No method words (precedent, mirror, primary, on-axis, coded, weighted…), no
+  summed or combined figures, no partisan framing ("Republican-set levels"
+  becomes "levels that trimmed some domestic programs").
+- A stored `did` is never rewritten. A `did` too long for the row gets a
+  separate short line written from it.
+
+Budget and fiscal slice 1 added twenty such lines on H.Con.Res. 14, H.R. 1968
+and H.R. 1 of the 119th Congress. `db/vr-fiscal-effect-lines.json` records each
+line with the source it was written from, and
+`scripts/test-fiscal-effect-lines.mjs` holds them to these rules.
+
 ## Scope
 
 This standard applies to all current and future content: Spotlight items

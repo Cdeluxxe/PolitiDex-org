@@ -1288,6 +1288,14 @@ section("14 · the harvest — every stored did, read against the effect rule");
     const end = src.indexOf("\n  };", at), next = src.indexOf("// WAVE 3 OF FULL COVERAGE (v322)", at);
     return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
   })();
+  // BUDGET AND FISCAL SLICE 1 (v360) runs from its marker to the end of the
+  // table. Its keys are that slice's, held by scripts/test-fiscal-effect-lines.mjs,
+  // and are read under no other block's rule here.
+  const FISCAL_KEYS = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// BUDGET AND FISCAL SLICE 1 (v360)");
+    if (at === -1) return new Set();
+    return new Set([...src.slice(at, src.indexOf("\n  };", at)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+  })();
   const IRAN = Object.keys(EFFECT).filter((k) => /\|iran_policy$/.test(k) && !RIDER_KEYS.has(k));
   const TALLY = (() => {
     const t = {};
@@ -1451,7 +1459,7 @@ section("14 · the harvest — every stored did, read against the effect rule");
   // the outcome the archive records: an act with a public law on file in
   // db/vr-measure-identity.json may read as done; anything else — failed, or
   // passed one chamber and never enacted — must open "Would" or "Proposed".
-  const PTS = Object.keys(EFFECT).filter((k) => /\|strong_defense$/.test(k) && !RIDER_KEYS.has(k));
+  const PTS = Object.keys(EFFECT).filter((k) => /\|strong_defense$/.test(k) && !RIDER_KEYS.has(k) && !FISCAL_KEYS.has(k));
   const PTS_ROLL = (() => {
     const t = {};
     const files = ["vr-phase-a-vote-seed", "vr-israel-vote-seed", "vr-house-seed-119-s2", "vr-landmark-vote-seed",
@@ -1753,7 +1761,8 @@ section("14 · the harvest — every stored did, read against the effect rule");
   const WAVE4 = (() => {
     const src = R("consistency.js"), a = src.indexOf("// WAVE 4 OF FULL COVERAGE (v323)");
     must(a !== -1, "the wave-4 block is not in _DOS_EFFECT");
-    return [...src.slice(a, src.indexOf("\n  };", a)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+    const next = src.indexOf("// BUDGET AND FISCAL SLICE 1 (v360)", a);
+    return [...src.slice(a, next !== -1 ? next : src.indexOf("\n  };", a)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
   })();
   ok(WAVE4.length > 0, "no wave-4 line is stored");
   for (const k of WAVE4) {
@@ -1764,9 +1773,24 @@ section("14 · the harvest — every stored did, read against the effect rule");
     const m = k.split("|").slice(0, 2).join("|");
     ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
   }
-  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
+  // BUDGET AND FISCAL SLICE 1 (v360). The twenty pairs on H.Con.Res. 14, H.R.
+  // 1968 and H.R. 1 that printed nothing, each written from its own pair's `did`
+  // or, with none, its own mapping rationale, held in detail by
+  // scripts/test-fiscal-effect-lines.mjs; here the batch rules. One closing shape
+  // is new and only here: the adopted budget resolution ends "the House adopted it".
+  const FISCAL = [...FISCAL_KEYS];
+  ok(FISCAL.length === 20, `${FISCAL.length} budget and fiscal line(s) — the slice wrote 20`);
+  for (const k of FISCAL) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the budget and fiscal effect line`);
+    ok(/; the House (?:cleared|passed|adopted) it \d+-\d+(?:, the Senate \d+-\d+)?\.$/.test(v), `${k}: does not end on a recorded tally`);
+    ok(!/^H\.Con\.Res\./.test(k) || /^Would (?!have\b)/.test(v), `${k}: the adopted budget resolution must open "Would", never "Would have"`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !FISCAL.includes(k) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length + FISCAL.length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.

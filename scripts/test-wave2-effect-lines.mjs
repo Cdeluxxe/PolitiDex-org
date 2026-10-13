@@ -82,10 +82,11 @@ const KEYS = [
   "war_powers",
   "deportations",
 ];
-// The six rows with no description anywhere still print nothing.
+// The rows with no description anywhere still print nothing. H.Con.Res. 14's
+// three left this set in budget and fiscal slice 1 (v360), written from their
+// mapping rationales; db/vr-fiscal-effect-lines.json records the source of each.
 const BLANK = new Set([
   "H.Amdt. 97|119|lands_preserve", "H.Amdt. 85|119|lgbtq_rights", "H.Amdt. 87|119|lgbtq_rights",
-  "H.Con.Res. 14|119|lower_taxes", "H.Con.Res. 14|119|national_debt", "H.Con.Res. 14|119|cut_spending",
 ]);
 const CAP = 40;
 const METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary|coded|coding|chip|mapped|mapping|filed as|weight(?:ed)?|scor(?:e|ed|ing)|rationale|archive|ledger)\b|PolitiDex|…|\.\.\./i;

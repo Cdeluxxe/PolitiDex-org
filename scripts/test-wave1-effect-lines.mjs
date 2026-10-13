@@ -18,6 +18,8 @@
 //     leaves). Each has a bare number for a title.
 //   · no facts on file at all: H.Amdt. 85, 87 and 97 and H.Con.Res. 14 (three
 //     leaves) store no description anywhere and are titled by number alone.
+//     (H.Con.Res. 14's leaves carry lines since budget and fiscal slice 1, v360,
+//     written from their mapping rationales, and are no longer in BLANK.)
 //
 //   1. SOURCE: every new line carries a term its own pair stores — its `did`, or,
 //      for H.Amdt. 257, the measure's own title — and never another leaf's.
@@ -73,7 +75,8 @@ const BLANK = new Set([
   "S.J.Res. 59|119|restraint", "S.J.Res. 59|119|war_powers",
   "H.R. 29|119|deportations", "H.R. 29|119|state_standing",
   "H.Amdt. 97|119|lands_preserve", "H.Amdt. 85|119|lgbtq_rights", "H.Amdt. 87|119|lgbtq_rights",
-  "H.Con.Res. 14|119|lower_taxes", "H.Con.Res. 14|119|national_debt", "H.Con.Res. 14|119|cut_spending",
+  // H.Con.Res. 14's three leaves left this set in budget and fiscal slice 1
+  // (v360), written from their mapping rationales; db/vr-fiscal-effect-lines.json.
 ]);
 const CAP = 40;
 const METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary|coded|coding|chip|mapped|mapping|filed as|weight(?:ed)?|scor(?:e|ed|ing)|rationale|archive|ledger)\b|PolitiDex|…|\.\.\./i;

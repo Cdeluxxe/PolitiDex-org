@@ -21,8 +21,9 @@
 //       → Strong Border & Enforcement (shorter), also Tough on Crime, which
 //         gained its own line in wave 3 (v322).
 //
-// The six rows with no description anywhere — H.Amdt. 97, H.Amdt. 85, H.Amdt. 87,
-// and H.Con.Res. 14 on three leaves — print nothing at all.
+// The rows with no description anywhere — H.Amdt. 97, H.Amdt. 85 and H.Amdt. 87 —
+// print nothing at all. H.Con.Res. 14's three leaves were on this list until
+// budget and fiscal slice 1 (v360) wrote each from its mapping rationale.
 //
 //   1. SHAPE: every pointer is the fixed shape, and only these six pairs carry one.
 //   2. REAL LEAF, EXACT LINE: each named leaf is one the act is mapped to and that
@@ -68,7 +69,8 @@ const WANT = {
 };
 const NO_FACTS = [
   "H.Amdt. 97|119|lands_preserve", "H.Amdt. 85|119|lgbtq_rights", "H.Amdt. 87|119|lgbtq_rights",
-  "H.Con.Res. 14|119|lower_taxes", "H.Con.Res. 14|119|national_debt", "H.Con.Res. 14|119|cut_spending",
+  // H.Con.Res. 14's three leaves left this list in budget and fiscal slice 1
+  // (v360), written from their mapping rationales; db/vr-fiscal-effect-lines.json.
 ];
 const SHAPE = /^Same act, filed on (.+?)(?: \(also filed on (.+?)\))?: (.+)$/;
 
