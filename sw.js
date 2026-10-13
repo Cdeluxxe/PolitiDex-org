@@ -9532,7 +9532,21 @@
 //     shell moves one version.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v362';
+// v363 - WHAT AN ACT ALSO TOUCHES, AND WHERE THE OTHER BILLS ARE. Under every
+//     vote or executive row that prints an effect line, an "Also on" row of
+//     issue chips names the other issues that same act is stored on (never the
+//     issue being read; nothing when the act sits on one issue), each a door to
+//     that issue's drawer for the same file. Every issue drawer ends on one link
+//     to the legislation archive filtered to its issue. Each bill page's seam
+//     carries "Also touches:" chips linking to /i/<key>, from issue keys that
+//     db/bill-docs.json now stores beside each label; bill.html tints them with
+//     issue-colors.js. Read only from stored mappings: no new mapping, no score,
+//     no count, no sum. consistency.js, bill.html and issue-colors.js are
+//     precached and consistency.js and bill.html changed, so the shell moves one
+//     version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v363';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

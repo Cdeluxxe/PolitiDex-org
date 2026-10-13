@@ -237,6 +237,8 @@ function stripSliceRows(view, NEW) {
   for (const r of view.rows) {
     if (!NEW.has(r.pair) || !r.eff) continue;
     h = h.replace(new RegExp(`<tr class="pdxlg-effr" data-pdxlg-effr="${r.i}">[\\s\\S]*?<\\/tr>`), "");
+    // The "Also on" chip row (v363) rides under an effect line and goes with it.
+    h = h.replace(new RegExp(`<tr class="pdxlg-relr" data-pdxlg-relr="${r.i}">[\\s\\S]*?<\\/tr>`), "");
   }
   return h;
 }

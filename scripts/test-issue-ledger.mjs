@@ -712,7 +712,12 @@ const effectFault = (e) => {
     // it can hold nothing a reader sees on the first screen. Only that exact shape
     // is allowed; a Details row with anything in it is a leak.
     const mores = [...tb.matchAll(/<tr class="pdxlg-morer" data-pdxlg-morer="\d+" hidden><td colspan="5" class="pdxlg-more" data-pdxlg-more="1"><\/td><\/tr>/g)].length;
-    if (trs.length !== acts + effs + ptrs + mores) out.push(`${trs.length - acts - effs - ptrs - mores} non-act row(s) in the vote table`);
+    // Under an effect line, one "Also on" row (v363) of the other issues the act
+    // is stored on — issue chips only, in this exact shape, and never more of them
+    // than there are effect lines.
+    const rels = [...tb.matchAll(/<tr class="pdxlg-relr" data-pdxlg-relr="\d+"><td colspan="5" class="pdxlg-rel" data-pdxlg-rel="1"><span class="pdxlg-rel-k">Also on<\/span>(?:<a class="pdxlg-rel-c[^"]*" [^>]*>[^<]*<\/a>)+<\/td><\/tr>/g)].length;
+    if (rels > effs) out.push(`${rels - effs} chip row(s) with no effect line`);
+    if (trs.length !== acts + effs + ptrs + mores + rels) out.push(`${trs.length - acts - effs - ptrs - mores - rels} non-act row(s) in the vote table`);
     // And an effect line is an effect, not method: one sentence, 140 characters
     // at most, none of the coding vocabulary.
     for (const e of effectLines(tb)) {
@@ -1162,7 +1167,10 @@ section("13 · Cut Federal Red Tape scans — Lee, six acts, six lines");
   for (const cls of ["pdxlg-why", "pdxlg-whyr", "pdxlg-why-one"]) no(l, `class="${cls}"`, `lee × gov_regulation: .${cls} on the first screen`);
   const tb = table(h);
   const trs = ((tb.match(/<tbody>[\s\S]*?<\/tbody>/g) || []).join("").match(/<tr[\s>]/g) || []).length;
-  eq(trs, 18, "lee × gov_regulation: the vote table is not six act rows, six effect rows and six closed Details rows");
+  // Each of the six disapprovals is stored on other issues too, so each effect line
+  // carries its "Also on" chip row (v363).
+  eq(trs, 24, "lee × gov_regulation: the vote table is not six act rows, six effect rows, six Also on rows and six closed Details rows");
+  eq((tb.match(/<tr class="pdxlg-relr" data-pdxlg-relr="/g) || []).length, 6, "lee × gov_regulation: six Also on rows, one under each effect line");
   // The long form is still behind the fold.
   has(folded(h), "pdxgap-how", "lee × gov_regulation: the scoring fold is gone");
 

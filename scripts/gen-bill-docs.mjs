@@ -15,8 +15,9 @@
 //                         c   the chamber the row records ("house", "utah senate")
 //                         t   the title the archive stores for the measure
 //                         m   the issues it is mapped to, one entry per issue:
-//                             { i: the issue's label, l: the effect line stored
-//                             for that pair — absent where none is stored }
+//                             { i: the issue's label, k: the issue's key,
+//                             l: the effect line stored for that pair — absent
+//                             where none is stored }
 //
 // WHY IT EXISTS
 //
@@ -147,13 +148,14 @@ export function billDocs(root) {
     if (!title || PLACEHOLDER.test(title) || title.toLowerCase() === a.number.toLowerCase()) {
       title = identity.get(`${a.sitting}|${a.number}`) || "";
     }
-    // One entry per mapped issue, in label order: the label, and the line
-    // stored for THAT pair if one passes. Never another issue's line.
+    // One entry per mapped issue, in label order: the label, the issue's own key
+    // (the page's "Also touches" chips link to /i/<key>), and the line stored for
+    // THAT pair if one passes. Never another issue's line.
     const m = [...a.issues]
       .map((k) => {
         const i = stripEmoji(labels[k] || "");
         const l = i ? lineFor(a.number, a.sitting, k) : "";
-        return l ? { i, l } : { i };
+        return l ? { i, k, l } : { i, k };
       })
       .filter((x) => x.i)
       .sort((p, q) => p.i.localeCompare(q.i));

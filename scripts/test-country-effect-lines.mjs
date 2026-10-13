@@ -311,6 +311,8 @@ const DROP = { "consistency.js": (s) => s.replace(/\n {4}'H\.Amdt\. 252\|119\|uk
       // The one difference is the effect row under H.Amdt. 252.
       const row = rows(a).find((x) => /H\.Amdt\. 252\b/.test(x.measure));
       let strip = a.replace(new RegExp(`<tr class="pdxlg-effr" data-pdxlg-effr="${row && row.i}">[\\s\\S]*?</tr>`), "");
+      // The "Also on" chip row (v363) rides under the effect line and goes with it.
+      strip = strip.replace(new RegExp(`<tr class="pdxlg-relr" data-pdxlg-relr="${row && row.i}">[\\s\\S]*?</tr>`), "");
       // The record list's closed row prints the same sentence (the drawer opens on
       // the record); that one span is the same line, and nothing else may differ.
       const span = (x) => [...x.matchAll(/<span class="pdxdos-rec-eff[^"]*">[^<]*<\/span>/g)].map((m) => m[0]);
