@@ -18321,6 +18321,36 @@
       'Would tighten the timelines and standards for court challenges to forest-thinning and hazardous-fuels projects.',
     'H.R. 471|119|permitting_reform':
       'Would expedite NEPA environmental review and streamline permitting for qualifying forest-management projects.',
+    // BLANK ROWS SLICE 10 (v370). The 108-member band of the regenerated census:
+    // two NDAA amendments, the Lebanon and Iran war-powers resolutions, the
+    // FY2027 budget resolution, the veterans gun-check bill, the KIDS Act, the
+    // veterans omnibus and the FY2027 continuing resolution.
+    // None stores a `did`; each line is written from that pair's own mapping
+    // rationale and ends on the roll its sibling lines use, or names none where
+    // the act has no other line. db/vr-blank-rows-slice10.json names the source
+    // of each and the pairs skipped.
+    'H.Amdt. 253|119|gun_rights':
+      'Would establish a presumption of approval for DoD personnel seeking authorization to carry personal firearms on military installations.',
+    'H.Amdt. 87|119|lgbtq_rights':
+      'Would bar service academies from letting a male cadet or midshipman join athletic programs designated exclusively for females.',
+    'H.Con.Res. 108|119|war_powers':
+      'Would have invoked the War Powers Resolution on Lebanon hostilities absent congressional authorization; the House rejected it 189-235.',
+    'H.Con.Res. 89|119|war_powers':
+      'Would invoke the War Powers Resolution against hostilities with Iran absent congressional authorization; the House agreed to it 214-208.',
+    'H.Con.Res. 113|119|strong_defense':
+      'Would set national defense at $955,085,000,000 in new budget authority for fiscal year 2027; the House agreed to it 216-214.',
+    'H.R. 1041|119|veterans':
+      'Would bar the VA from treating a beneficiary as adjudicated a mental defective only for needing a fiduciary; the House passed it 216-201.',
+    'H.R. 7757|119|privacy_rights':
+      'Would extend online privacy protections to teens and impose a registration requirement on data brokers; the House passed it 267-117.',
+    'H.R. 9237|119|health_mental':
+      'Would make opioid rescue medications free to veterans in high overdose-risk areas; a motion to recommit it failed in the House 210-211.',
+    'H.R. 9237|119|health_rural':
+      'Would pilot paying critical access hospitals for veterans’ outpatient care; a motion to recommit it failed in the House 210-211.',
+    'H.R. 9770|119|gov_services':
+      'Would fund federal operations into FY2027, keeping the government open and existing programs running.',
+    'H.R. 9770|119|national_debt':
+      'Would continue federal spending at existing levels without offsets.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is

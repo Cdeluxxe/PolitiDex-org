@@ -21,9 +21,10 @@
 //       → Strong Border & Enforcement (shorter), also Tough on Crime, which
 //         gained its own line in wave 3 (v322).
 //
-// The rows with no description anywhere — H.Amdt. 97, H.Amdt. 85 and H.Amdt. 87 —
-// print nothing at all. H.Con.Res. 14's three leaves were on this list until
-// budget and fiscal slice 1 (v360) wrote each from its mapping rationale.
+// The rows with no description anywhere printed nothing at all. H.Con.Res. 14's
+// three leaves were on this list until budget and fiscal slice 1 (v360) wrote each
+// from its mapping rationale; H.Amdt. 97 and H.Amdt. 85 left it in blank rows
+// slice 6 (v366), and H.Amdt. 87 in blank rows slice 10 (v370).
 //
 //   1. SHAPE: every pointer is the fixed shape, and only these six pairs carry one.
 //   2. REAL LEAF, EXACT LINE: each named leaf is one the act is mapped to and that
@@ -69,7 +70,9 @@ const WANT = {
   "H.R. 29|119|state_standing": { to: "border_security", also: ["tough_on_crime"] },
 };
 const NO_FACTS = [
-  "H.Amdt. 87|119|lgbtq_rights",
+  // H.Amdt. 87 × lgbtq_rights left this set in blank rows slice 10 (v370),
+  // written from its mapping rationale, which quotes the Rules Committee report;
+  // db/vr-blank-rows-slice10.json records the source.
   // H.Amdt. 97 × lands_preserve and H.Amdt. 85 × lgbtq_rights left this set in
   // blank rows slice 6 (v366), written from their mapping rationales;
   // db/vr-blank-rows-slice6.json records the source of each.

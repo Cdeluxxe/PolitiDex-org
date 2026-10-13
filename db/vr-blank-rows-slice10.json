@@ -1,0 +1,462 @@
+{
+ "_comment": "Blank rows slice 10 (v370). The next band of a regenerated census (scripts/vr-blank-pair-census.mjs). Every federal pair in the live record whose row prints nothing, ranked by distinct members with a row. After slice 9 the census holds 81 blank pairs. The ones above 108 members are all pairs slices 6, 7 and 9 skipped, with their reasons unchanged. At 108 members sit exactly the fourteen pairs on ten acts that slice 9's `next` named, and no others. Eleven take a line here, on nine acts; three are skipped. None stores a `did`, so each line is written from its own mapping rationale (quoted here, with the file that stores it). `term` is the stored words the line carries and `termIn` names the field. Tense follows the stored outcome and the act's existing lines. The failed Lebanon resolution opens \"Would have\". Every other act passed the House only, or is an agreed House amendment, or survived a failed motion to recommit, and opens \"Would\". A line ends on the act's recorded roll where the act's other lines do. On the three acts with no other line (H.Amdt. 253, H.Amdt. 87 and the continuing resolution) it names no tally. `acts` carries every mapping on each act that takes a line. `skipped` lists the three band pairs left blank and why. No score, weight, mapping or key is read from or written to here.",
+ "_test": "scripts/test-blank-rows-slice10.mjs",
+ "_census": "scripts/vr-blank-pair-census.mjs",
+ "census": {
+  "blankPairs": 81,
+  "band": 108,
+  "inBand": 14
+ },
+ "lines": 11,
+ "rows": [
+  {
+   "key": "H.Amdt. 253|119|gun_rights",
+   "act": "H.Amdt. 253|119",
+   "issue": "gun_rights",
+   "line": "Would establish a presumption of approval for DoD personnel seeking authorization to carry personal firearms on military installations.",
+   "term": "carry personal firearms on military installations",
+   "termIn": "rationale",
+   "rationale": "Crank amendment to H.R. 8800 (FY2027 NDAA) establishes a presumption of approval for DoD servicemembers and civilian employees seeking their commander's authorization to carry personal firearms on military installations; a yea expands lawful carry.",
+   "rationaleAt": "netlify/database/migrations/20260724140000_seed_house_119_s2_voting_record.sql"
+  },
+  {
+   "key": "H.Amdt. 87|119|lgbtq_rights",
+   "act": "H.Amdt. 87|119",
+   "issue": "lgbtq_rights",
+   "line": "Would bar service academies from letting a male cadet or midshipman join athletic programs designated exclusively for females.",
+   "term": "designated exclusively for females",
+   "termIn": "rationale",
+   "rationale": "Part A amendment No. 15 to H.R. 3838 (Mace, Tenney) inserts a new section barring the Superintendent of a Service Academy from allowing a cadet or midshipman who is male to participate in any athletic program or activity designated exclusively for females, with 'male' and 'female' defined by reproductive biology; a yea restricts transgender participation. Same instrument and same direction as H.Amdt. 255 (Mace, DoDEA schools) and H.Amdt. 85 (Norman, EFMP care), both already mapped at full weight. Purpose text taken from the Rules Committee report accompanying H.Res. 682, because no source we previously held carried it — see migration 20260727000000, which created this measure row deliberately without a mapping.",
+   "rationaleAt": "db/vr-issue-seed.json",
+   "note": "The measure's stored summary says no purpose text was recorded in the sources it read; the mapping rationale, added later, quotes the purpose from the Rules Committee report on H.Res. 682. The line is written from that rationale alone."
+  },
+  {
+   "key": "H.Con.Res. 108|119|war_powers",
+   "act": "H.Con.Res. 108|119",
+   "issue": "war_powers",
+   "line": "Would have invoked the War Powers Resolution on Lebanon hostilities absent congressional authorization; the House rejected it 189-235.",
+   "term": "absent congressional authorization",
+   "termIn": "rationale",
+   "rationale": "A privileged resolution under section 5(c) of the War Powers Resolution directing the removal of U.S. forces from hostilities in Lebanon absent congressional authorization; a yea asserts Congress's war-powers role against unilateral executive military action. Re-keyed from checks_balances in the August 2026 taxonomy split, on the same reasoning as H.Con.Res. 89. Weight 75 preserved.",
+   "rationaleAt": "netlify/database/migrations/20260904000000_vr_split_umbrella_issue_keys.sql"
+  },
+  {
+   "key": "H.Con.Res. 89|119|war_powers",
+   "act": "H.Con.Res. 89|119",
+   "issue": "war_powers",
+   "line": "Would invoke the War Powers Resolution against hostilities with Iran absent congressional authorization; the House agreed to it 214-208.",
+   "term": "absent congressional authorization",
+   "termIn": "rationale",
+   "rationale": "A privileged resolution under section 5(c) of the War Powers Resolution directing the removal of U.S. forces from hostilities with Iran absent congressional authorization; a yea asserts Congress's constitutional war-powers role against unilateral executive military action. Same instrument, and same direction, as the Senate's S.J.Res. 59. Re-keyed from checks_balances in the August 2026 taxonomy split: war powers, injunctions, the purse and oversight were being scored as one number, and a member who holds a war-powers position is entitled to be judged by war-powers votes. Weight 75 preserved.",
+   "rationaleAt": "netlify/database/migrations/20260904000000_vr_split_umbrella_issue_keys.sql"
+  },
+  {
+   "key": "H.Con.Res. 113|119|strong_defense",
+   "act": "H.Con.Res. 113|119",
+   "issue": "strong_defense",
+   "line": "Would set national defense at $955,085,000,000 in new budget authority for fiscal year 2027; the House agreed to it 216-214.",
+   "term": "in new budget authority",
+   "termIn": "rationale",
+   "rationale": "Sec. 102(1) sets the recommended levels for budget function 050, National Defense, at $955,085,000,000 in new budget authority and $918,530,000,000 in outlays for fiscal year 2027, rising each year to $1,184,416,000,000 in new budget authority for fiscal year 2036 — a real-terms increase held across the full ten-year window while several domestic functions are set to decline. Sec. 201(b)(2) then instructs the Committee on Armed Services to submit changes in laws within its jurisdiction to increase the deficit by not more than $60,000,000,000 for the period of fiscal years 2027 through 2036, which is a reconciliation instruction to spend rather than to save and the only one of the four instructions aimed at defense. A yea adopts those levels as the ceiling every FY2027 defense appropriation is scored against; a nay leaves the prior year's levels controlling. Weighted 45 and secondary because national_debt 85 already holds the instrument's primary purpose and because a budget resolution appropriates nothing — it sets the number the appropriators must work inside, and the money still requires a separate bill.",
+   "rationaleAt": "netlify/database/migrations/20260918000000_vr_identity_densification_wave2.sql"
+  },
+  {
+   "key": "H.R. 1041|119|veterans",
+   "act": "H.R. 1041|119",
+   "issue": "veterans",
+   "line": "Would bar the VA from treating a beneficiary as adjudicated a mental defective only for needing a fiduciary; the House passed it 216-201.",
+   "term": "adjudicated a mental defective",
+   "termIn": "rationale",
+   "rationale": "Every operative section of this bill amends title 38 and the class it affects is veterans and VA beneficiaries. Sec. 2 inserts a new section 5501B into chapter 55 barring the Secretary of Veterans Affairs from transmitting a beneficiary's personally identifiable information to the Department of Justice for the national instant criminal background check system \"solely on the basis of a determination by the Secretary to pay benefits to a fiduciary for the use and benefit of the beneficiary under section 5502\", absent a judicial finding that the beneficiary is a danger to themselves or others. Sec. 3 inserts section 5501C requiring the Secretary to notify the Attorney General within 30 days that the basis for every such transmittal made on or after November 30, 1993 no longer applies. Sec. 4 inserts section 5501D barring the Secretary from treating a beneficiary as adjudicated a mental defective solely because the Secretary found the person mentally incompetent under 38 C.F.R. 3.353 or in need of a fiduciary. A yea removes an administrative consequence that currently attaches to accepting VA help managing benefits — the argument for the bill is that the consequence deters veterans from seeking that help. Weighted 55 and secondary because gun_rights 100 holds the primary and because the change runs to one collateral effect of a VA determination rather than to veterans' care, benefits or compensation.",
+   "rationaleAt": "netlify/database/migrations/20260918000000_vr_identity_densification_wave2.sql"
+  },
+  {
+   "key": "H.R. 7757|119|privacy_rights",
+   "act": "H.R. 7757|119",
+   "issue": "privacy_rights",
+   "line": "Would extend online privacy protections to teens and impose a registration requirement on data brokers; the House passed it 267-117.",
+   "term": "registration requirement on data brokers",
+   "termIn": "rationale",
+   "rationale": "Title VI is a self-contained personal-data statute inside the online-safety package. Subtitle A, Secs. 601 through 605, is the Children and Teens' Online Privacy Protection Act — COPPA 2.0 — which rewrites the definitions in 15 U.S.C. 6501 to lower the definition of \"child\" to under 14 while extending the Act's protections to teens, and governs the online collection, use, disclosure and deletion of children's and teens' personal information, including a deletion right exercisable by the user. Subtitle B, Secs. 611 through 613, imposes a federal registration requirement on data brokers and directs the Federal Trade Commission to maintain the registry. Title II subtitle B, Secs. 231 through 234, separately restricts market research conducted on minors. Sec. 701 vests enforcement in the Commission and in State attorneys general. A yea enacts a data-collection limit enforceable against the platforms and the brokers that buy from them. The key is distinct from the tech_balance 100 primary by design rather than by degree: tech_balance is the axis of safety rules imposed on platforms, and privacy_rights is the axis of who may hold personal data and be held to account for it. Weighted 65 because Title VI plus the Title II subtitle is a substantial minority of the bill's operative text, not its purpose.",
+   "rationaleAt": "netlify/database/migrations/20260918000000_vr_identity_densification_wave2.sql"
+  },
+  {
+   "key": "H.R. 9237|119|health_mental",
+   "act": "H.R. 9237|119",
+   "issue": "health_mental",
+   "line": "Would make opioid rescue medications free to veterans in high overdose-risk areas; a motion to recommit it failed in the House 210-211.",
+   "term": "opioid rescue medications",
+   "termIn": "rationale",
+   "rationale": "Six sections of the bill are mental health and substance-use provisions rather than benefits provisions. Sec. 306 modifies and reauthorizes the Staff Sergeant Parker Gordon Fox Suicide Prevention Grant Program established by the Commander John Scott Hannon Veterans Mental Health Care Improvement Act, which funds community organizations providing suicide-prevention services to veterans outside the VA system. Sec. 322 commissions an independent study of the difference in quality between mental health and addiction therapy furnished by the Department and that furnished by non-Department providers. Sec. 325 requires opioid rescue medications to be made available to any veteran at no charge in areas of disproportionately high overdose risk. Sec. 621 adds a new subchapter IX to chapter 17 of title 38, with a new section 1791 governing veteran participation in mental health treatment programs, and Sec. 622 requires a plan for residential rehabilitation treatment access for veterans with spinal cord injury. Direction note, because this measure's only ballot inverts: the corpus holds one roll call on this bill and it is the motion to recommit, on which a yea sends the bill back and blocks it. This row is coded in bill terms — yea_supports means the provision — and netlify/lib/vr-pack.ts sets advanceInverted through yeaBlocksMeasure() for that question, so the engine performs the flip. Coding the row backwards to compensate would invert every member twice. Weighted 55 and secondary under veterans 100.",
+   "rationaleAt": "netlify/database/migrations/20260918000000_vr_identity_densification_wave2.sql"
+  },
+  {
+   "key": "H.R. 9237|119|health_rural",
+   "act": "H.R. 9237|119",
+   "issue": "health_rural",
+   "line": "Would pilot paying critical access hospitals for veterans’ outpatient care; a motion to recommit it failed in the House 210-211.",
+   "term": "critical access hospitals",
+   "termIn": "rationale",
+   "rationale": "Sec. 314 establishes a five-year pilot program under which the Department reimburses critical access hospitals and affiliated provider-based rural health clinics for outpatient care furnished to eligible veterans under the Veterans Community Care Program — the facility classes that carry veterans' care where there is no VA medical center within driving distance. Sec. 110 directs a study of access to contract disability examinations in rural areas. A yea enacts the pilot. The same direction note applies as to the mental health row on this measure: the only ballot on file is the motion to recommit of July 16, 2026, the row is coded in bill terms, and yeaBlocksMeasure() supplies the inversion. Weighted 35 rather than at the extenders level the corpus gives H.R. 1968 and H.R. 7148, because this is a bounded pilot at one facility class rather than the continuation of the rural payment adjustments themselves.",
+   "rationaleAt": "netlify/database/migrations/20260918000000_vr_identity_densification_wave2.sql"
+  },
+  {
+   "key": "H.R. 9770|119|gov_services",
+   "act": "H.R. 9770|119",
+   "issue": "gov_services",
+   "line": "Would fund federal operations into FY2027, keeping the government open and existing programs running.",
+   "term": "federal operations into FY2027",
+   "termIn": "rationale",
+   "rationale": "Continuing resolution funding federal operations into FY2027; a yea keeps the government open and existing programs running.",
+   "rationaleAt": "netlify/database/migrations/20260725000000_vr_multi_issue_mappings_wave2.sql"
+  },
+  {
+   "key": "H.R. 9770|119|national_debt",
+   "act": "H.R. 9770|119",
+   "issue": "national_debt",
+   "line": "Would continue federal spending at existing levels without offsets.",
+   "term": "spending at existing levels without offsets",
+   "termIn": "rationale",
+   "rationale": "Continues federal spending at existing levels without offsets while the budget runs a deficit, so a yea is tagged as cutting against debt reduction. Weighted low on purpose: the alternative on the floor was a lapse in appropriations, not spending cuts.",
+   "rationaleAt": "netlify/database/migrations/20260725000000_vr_multi_issue_mappings_wave2.sql"
+  }
+ ],
+ "acts": {
+  "H.Amdt. 253|119": {
+   "status": "passed_house",
+   "title": "H.Amdt. 253 (Crank) to H.R. 8800 — establish a presumption of approval for qualified Department of Defense servicemembers and civilian employees seeking authorization from their…",
+   "summary": "",
+   "summaryAt": null,
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 2,
+     "roll": 265,
+     "question": "On Agreeing to the Amendment",
+     "result": "agreed_to",
+     "yea": 215,
+     "nay": 214
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "gun_rights",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Crank amendment to H.R. 8800 (FY2027 NDAA) establishes a presumption of approval for DoD servicemembers and civilian employees seeking their commander's authorization to carry personal firearms on military installations; a yea expands lawful carry."
+    }
+   ]
+  },
+  "H.Amdt. 87|119": {
+   "status": "passed_house",
+   "title": "H.Amdt. 87 (Mace) to H.R. 3838 — amendment numbered 15 printed in Part A of House Report 119-255",
+   "summary": "Amendment offered to H.R. 3838, the FY2026 National Defense Authorization Act. GPO BILLSTATUS-119hr3838 describes it as \"An amendment numbered 15 printed in Part A of House Report 119-255\"; the Clerk's roll-call record names the author as \"Mace of South Carolina Part A Amendment No. 15\". Agreed to in the House 227-201 (roll call 119/1/247, 2025-09-10). No purpose text is recorded for this amendment in the sources read, so none is stated here.",
+   "summaryAt": "netlify/database/migrations/20260727000000_vr_repair_roll247_measure_identity.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 247,
+     "question": "On Agreeing to the Amendment",
+     "result": "Agreed to",
+     "yea": 227,
+     "nay": 201
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "lgbtq_rights",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Part A amendment No. 15 to H.R. 3838 (Mace, Tenney) inserts a new section barring the Superintendent of a Service Academy from allowing a cadet or midshipman who is male to participate in any athletic program or activity designated exclusively for females, with 'male' and 'female' defined by reproductive biology; a yea restricts transgender participation. Same instrument and same direction as H.Amdt. 255 (Mace, DoDEA schools) and H.Amdt. 85 (Norman, EFMP care), both already mapped at full weight. Purpose text taken from the Rules Committee report accompanying H.Res. 682, because no source we previously held carried it — see migration 20260727000000, which created this measure row deliberately without a mapping."
+    }
+   ]
+  },
+  "H.Con.Res. 108|119": {
+   "status": "failed",
+   "title": "Directing the President pursuant to section 5(c) of the War Powers Resolution to remove United States Armed Forces from hostilities in Lebanon.",
+   "summary": "A privileged concurrent resolution under section 5(c) of the War Powers Resolution. Sec. 1 directs the President, pursuant to 50 U.S.C. 1544(c), to remove the United States Armed Forces from any hostilities in Lebanon by not later than 7 days after the date of the resolution's adoption. Sec. 2 provides that nothing in the resolution may be construed to prevent or limit security cooperation with the Lebanese Armed Forces or the protection of diplomatic facilities. Sec. 3 states, consistent with section 8(a)(1) of the War Powers Resolution (50 U.S.C. 1547(a)(1)), that nothing in the resolution may be construed as authorizing the use of military force. Rejected by the House 189-235 on June 30, 2026 (119/2 roll 232); the motion to reconsider was laid on the table. Disambiguation: this is the Lebanon resolution and it failed. H.Con.Res. 89 in the same Congress is the Iran resolution and it passed; the two carry the same section 5(c) mechanism and different theatres. No engrossed text exists, because the resolution was not agreed to, so the text below is the introduced text — which is the text the House voted.",
+   "summaryAt": "db/vr-measure-identity.json",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 2,
+     "roll": 232,
+     "question": "On Agreeing to the Resolution",
+     "result": "failed",
+     "yea": 189,
+     "nay": 235
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "restraint",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Tlaib War Powers concurrent resolution directing the President under section 5(c) of the War Powers Resolution to remove United States Armed Forces from hostilities in Lebanon; a yea ends US participation in an undeclared conflict."
+    },
+    {
+     "issueKey": "war_powers",
+     "weight": 75,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "A privileged resolution under section 5(c) of the War Powers Resolution directing the removal of U.S. forces from hostilities in Lebanon absent congressional authorization; a yea asserts Congress's war-powers role against unilateral executive military action. Re-keyed from checks_balances in the August 2026 taxonomy split, on the same reasoning as H.Con.Res. 89. Weight 75 preserved."
+    },
+    {
+     "issueKey": "strong_defense",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Directs the President under section 5(c) of the War Powers Resolution to remove U.S. Armed Forces from hostilities in Lebanon. A yea ends that deployment by concurrent resolution."
+    }
+   ]
+  },
+  "H.Con.Res. 89|119": {
+   "status": "passed_house",
+   "title": "Directing the President, pursuant to section 5(c) of the War Powers Resolution, to remove United States Armed Forces from hostilities with Iran.",
+   "summary": "A privileged concurrent resolution under section 5(c) of the War Powers Resolution. Sec. 1(a) directs the President to remove United States Armed Forces from hostilities against the Islamic Republic of Iran or any part of its government or military, including potential ground forces in a combat role or used for occupation, \"unless explicitly authorized by a declaration of war or specific authorization for use of military force against Iran\". Sec. 1(b) provides that the section may not be construed to prevent the United States from defending itself, its Armed Forces, its diplomatic facilities or allied states from imminent attack, to prevent a defensive troop presence in the region, or to force the removal of forces in the region not engaged in hostilities against Iran. Sec. 2 provides that nothing in the resolution influences or disrupts the collection, analysis or coalition sharing of intelligence relating to threats in or emanating from Iran or surrounding countries. Sec. 3 states, consistent with section 8(a)(1) of the War Powers Resolution (50 U.S.C. 1547(a)(1)), that nothing in the resolution may be construed as authorizing the use of military force. Agreed to in the House 214-208 on July 23, 2026 (119/2 roll 282); received in the Senate and referred to the Committee on Foreign Relations. Disambiguation: this is the Iran resolution. H.Con.Res. 108 in the same Congress is the Lebanon resolution and S.J.Res. 59 is the Senate's Iran war-powers vehicle; all three carry the same section 5(c) mechanism and are distinct votes.",
+   "summaryAt": "db/vr-measure-identity.json",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 2,
+     "roll": 282,
+     "question": "On Agreeing to the Resolution",
+     "result": "passed",
+     "yea": 214,
+     "nay": 208
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "restraint",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Jayapal War Powers concurrent resolution directing the President under section 5(c) of the War Powers Resolution to remove United States Armed Forces from hostilities with Iran; a yea ends US participation in an undeclared conflict."
+    },
+    {
+     "issueKey": "iran_policy",
+     "weight": 100,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Iran is the resolution's own subject: it directs the President under section 5(c) of the War Powers Resolution to remove U.S. forces from hostilities with Iran. Filed here alongside its restraint row, not in place of it; no side is read on this key."
+    },
+    {
+     "issueKey": "war_powers",
+     "weight": 75,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "A privileged resolution under section 5(c) of the War Powers Resolution directing the removal of U.S. forces from hostilities with Iran absent congressional authorization; a yea asserts Congress's constitutional war-powers role against unilateral executive military action. Same instrument, and same direction, as the Senate's S.J.Res. 59. Re-keyed from checks_balances in the August 2026 taxonomy split: war powers, injunctions, the purse and oversight were being scored as one number, and a member who holds a war-powers position is entitled to be judged by war-powers votes. Weight 75 preserved."
+    },
+    {
+     "issueKey": "strong_defense",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Directs the President under section 5(c) of the War Powers Resolution to remove U.S. Armed Forces from hostilities with Iran absent congressional authorization. A yea ends an ongoing military engagement by concurrent resolution."
+    }
+   ]
+  },
+  "H.Con.Res. 113|119": {
+   "status": "passed_house",
+   "title": "Establishing the congressional budget for the United States Government for fiscal year 2027 and setting forth the appropriate budgetary levels for fiscal years 2028 through 2036.",
+   "summary": "The FY2027 congressional budget resolution. Sec. 101 recommends levels and amounts for FY2027 through FY2036 for federal revenues, new budget authority, budget outlays, on-budget deficits, debt subject to limit and debt held by the public. Sec. 102 sets new budget authority and outlays for each major functional category; National Defense (050) is set at $955,085,000,000 in new budget authority for FY2027, rising to $1,184,416,000,000 for FY2036. Sec. 201 instructs four House committees to report reconciliation legislation to the Budget Committee by September 11, 2026, each increasing the deficit over FY2027-FY2036 by not more than a stated amount: Agriculture $12,000,000,000, Armed Services $60,000,000,000, the Permanent Select Committee on Intelligence $13,000,000,000, and House Administration a further amount. Sec. 301 establishes a reserve fund letting the Budget Committee chair revise allocations to accommodate legislation that complies with those instructions. Title IV sets enforcement procedures covering the budgetary treatment of Social Security Administration and Postal Service administrative expenses, emergency requirements, and adjustments for disaster relief, wildfire suppression, health care fraud and abuse control, continuing disability reviews and reemployment services. Agreed to in the House 216-214 on July 22, 2026 (119/2 roll 281) and placed on the Senate Legislative Calendar under General Orders, Calendar No. 468. A budget resolution is not presented to the President and appropriates nothing; it sets the levels against which appropriations and reconciliation bills are enforced. Disambiguation: H.Con.Res. 14 in the same Congress is the FY2025 budget resolution and a separate vote.",
+   "summaryAt": "db/vr-measure-identity.json",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 2,
+     "roll": 281,
+     "question": "On Agreeing to the Resolution",
+     "result": "passed",
+     "yea": 216,
+     "nay": 214
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "national_debt",
+     "weight": 85,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The FY2027 congressional budget resolution. Its published CRS summary states that it 'provides reconciliation instructions for legislation that increases the deficit', directing four House committees to report legislation increasing the deficit over FY2027-FY2036 by not more than specified amounts; a yea adopts a fiscal blueprint whose reconciliation instructions authorise deficit increases. Direction read off the summary, the mirror of the deficit-reducing instructions that set the direction on H.Con.Res. 14."
+    },
+    {
+     "issueKey": "strong_defense",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sec. 102(1) sets the recommended levels for budget function 050, National Defense, at $955,085,000,000 in new budget authority and $918,530,000,000 in outlays for fiscal year 2027, rising each year to $1,184,416,000,000 in new budget authority for fiscal year 2036 — a real-terms increase held across the full ten-year window while several domestic functions are set to decline. Sec. 201(b)(2) then instructs the Committee on Armed Services to submit changes in laws within its jurisdiction to increase the deficit by not more than $60,000,000,000 for the period of fiscal years 2027 through 2036, which is a reconciliation instruction to spend rather than to save and the only one of the four instructions aimed at defense. A yea adopts those levels as the ceiling every FY2027 defense appropriation is scored against; a nay leaves the prior year's levels controlling. Weighted 45 and secondary because national_debt 85 already holds the instrument's primary purpose and because a budget resolution appropriates nothing — it sets the number the appropriators must work inside, and the money still requires a separate bill."
+    }
+   ]
+  },
+  "H.R. 1041|119": {
+   "status": "passed_house",
+   "title": "Veterans 2nd Amendment Protection Act",
+   "summary": "Adds a new 38 U.S.C. 5501B barring the Department of Veterans Affairs from transmitting a beneficiary's personally identifiable information to the Department of Justice for inclusion in the National Instant Criminal Background Check System on the basis of a determination under 38 U.S.C. 5502 that the beneficiary is unable to manage their own benefit payments and requires a fiduciary, unless a judge, magistrate or other judicial authority has found that the beneficiary is a danger to themselves or others. Passed the House 216-201 on 2026-05-21; the Senate has not taken it up. Codifies as permanent law the same policy that Section 413 of Division A of P.L. 118-42 imposed for one fiscal year as an appropriations restriction.",
+   "summaryAt": "netlify/database/migrations/20260818000000_vr_gun_facet_rollcalls.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 2,
+     "roll": 190,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 216,
+     "nay": 201
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "gun_rights",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Veterans 2nd Amendment Protection Act, passed 216-201 on 2026-05-21. Adds a new 38 U.S.C. 5501B barring the Department of Veterans Affairs from transmitting a beneficiary's personally identifiable information to the Department of Justice for inclusion in the National Instant Criminal Background Check System on the basis of a 38 U.S.C. 5502 determination that the beneficiary cannot manage their own benefit payments and requires a fiduciary, unless a judge, magistrate or other judicial authority has found the beneficiary is a danger to themselves or others. A yea restores the eligibility of veterans prohibited by an administrative determination rather than a judicial finding. The permanent-law version of S.Amdt. 1354, which imposed the same policy for one fiscal year as an appropriations restriction; mapped identically so the pair is comparable across chambers and Congresses."
+    },
+    {
+     "issueKey": "gun_safety",
+     "weight": 75,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Removes a class of record from the background-check system permanently rather than for one fiscal year, so a yea loosens the screening instrument this facet measures. Weighted 75 for the same reason as its appropriations predecessor: the change reaches only Veterans Affairs fiduciary determinations, leaves every other mental-health prohibitor and reporting channel intact, and preserves reporting where a judicial authority has found the person dangerous."
+    },
+    {
+     "issueKey": "veterans",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Every operative section of this bill amends title 38 and the class it affects is veterans and VA beneficiaries. Sec. 2 inserts a new section 5501B into chapter 55 barring the Secretary of Veterans Affairs from transmitting a beneficiary's personally identifiable information to the Department of Justice for the national instant criminal background check system \"solely on the basis of a determination by the Secretary to pay benefits to a fiduciary for the use and benefit of the beneficiary under section 5502\", absent a judicial finding that the beneficiary is a danger to themselves or others. Sec. 3 inserts section 5501C requiring the Secretary to notify the Attorney General within 30 days that the basis for every such transmittal made on or after November 30, 1993 no longer applies. Sec. 4 inserts section 5501D barring the Secretary from treating a beneficiary as adjudicated a mental defective solely because the Secretary found the person mentally incompetent under 38 C.F.R. 3.353 or in need of a fiduciary. A yea removes an administrative consequence that currently attaches to accepting VA help managing benefits — the argument for the bill is that the consequence deters veterans from seeking that help. Weighted 55 and secondary because gun_rights 100 holds the primary and because the change runs to one collateral effect of a VA determination rather than to veterans' care, benefits or compensation."
+    }
+   ]
+  },
+  "H.R. 7757|119": {
+   "status": "passed_house",
+   "title": "KIDS Act",
+   "summary": "Kids Internet and Digital Safety Act, cited as the KIDS Act. A seven-title online-safety package. Title I (Shielding Minors from Obscenity) requires a publicly available online platform on which more than one-third of the content is sexual material harmful to minors to adopt technology verification measures identifying minors and preventing their access (Sec. 103). Title II subtitle A (Kids Online Safety) requires covered platforms to address enumerated harms to minors (Sec. 213) and to provide default settings limiting compulsive-usage features and contact from other users, parental tools over a minor's privacy and account settings, and restrictions on ephemeral messaging (Sec. 214), with a reporting mechanism, disclosure, advertising labels and an independent audit (Secs. 215-219) and rules of construction on age verification and encryption (Secs. 220-221). Subtitle B (Stop Profiling Youth and Kids) restricts market research on minors (Secs. 231-234). Title III requires online video game providers to give parents tools limiting a minor's communications and purchases (Sec. 303). Title IV requires AI chatbot providers to disclose to minor users that the chatbot is not human and to surface suicide and crisis intervention hotline information, and to maintain policies (Secs. 403-405). Title V directs studies and reports on social media use by minors, minors' access to fentanyl through social media, parental safety tools, and chatbots and minors' mental health, plus online safety education. Title VI subtitle A is the Children and Teens' Online Privacy Protection Act (COPPA 2.0), which rewrites the definitions in 15 U.S.C. 6501 — lowering \"child\" to under 14 while extending protection to teens — and governs online collection, use, disclosure and deletion of children's and teens' personal information (Sec. 602); subtitle B imposes a registration requirement on data brokers (Secs. 611-613). Title VII vests enforcement in the Federal Trade Commission and state attorneys general (Sec. 701). Passed the House 267-117 on June 29, 2026 (119/2 roll 228) under suspension of the rules, as amended, and was referred to the Senate Committee on Commerce, Science, and Transportation. Disambiguation: the record carries five short titles for this one vehicle — KIDS Act and Kids Internet and Digital Safety Act for the whole, and SCREEN Act, SPY Kids Act and Safeguarding Adolescents From Exploitative BOTs Act for portions of it at different stages.",
+   "summaryAt": "db/vr-measure-identity.json",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 2,
+     "roll": 228,
+     "question": "On Motion to Suspend the Rules and Pass, as Amended",
+     "result": "passed",
+     "yea": 267,
+     "nay": 117
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "tech_balance",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The KIDS Act requires online platforms to adopt age-identification technology on sites where a third of the content is sexual material harmful to minors, to default minors' social-media accounts to settings that limit compulsive-usage features and adult contact, to give parents account and privacy controls, and to make AI chatbots disclose their nature to minors; a yea imposes those guardrails. Mapped to the key whose own vocabulary is age verification, social media, AI and guardrails."
+    },
+    {
+     "issueKey": "privacy_rights",
+     "weight": 65,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Title VI is a self-contained personal-data statute inside the online-safety package. Subtitle A, Secs. 601 through 605, is the Children and Teens' Online Privacy Protection Act — COPPA 2.0 — which rewrites the definitions in 15 U.S.C. 6501 to lower the definition of \"child\" to under 14 while extending the Act's protections to teens, and governs the online collection, use, disclosure and deletion of children's and teens' personal information, including a deletion right exercisable by the user. Subtitle B, Secs. 611 through 613, imposes a federal registration requirement on data brokers and directs the Federal Trade Commission to maintain the registry. Title II subtitle B, Secs. 231 through 234, separately restricts market research conducted on minors. Sec. 701 vests enforcement in the Commission and in State attorneys general. A yea enacts a data-collection limit enforceable against the platforms and the brokers that buy from them. The key is distinct from the tech_balance 100 primary by design rather than by degree: tech_balance is the axis of safety rules imposed on platforms, and privacy_rights is the axis of who may hold personal data and be held to account for it. Weighted 65 because Title VI plus the Title II subtitle is a substantial minority of the bill's operative text, not its purpose."
+    }
+   ]
+  },
+  "H.R. 9237|119": {
+   "status": "pending",
+   "title": "Take Care of America’s Veterans Act",
+   "summary": "Take Care of America's Veterans Act. An omnibus veterans package amending titles 10 and 38. Title I revises compensation: the Major Richard Star Act allows concurrent receipt of disability compensation and military retired pay for certain combat-related retirees (Sec. 101), the Love Lives On Act extends benefits and services to remarried surviving spouses (Sec. 102), Sec. 103 extends increased dependency and indemnity compensation, and Secs. 105-113 address claims processing, automation, disability ratings and examination access in rural areas. Title II covers education and training benefits, including Post-9/11 housing stipends for apprenticeships (Sec. 203) and Transition Assistance Program changes (Secs. 206-207). Title III covers health care: Sec. 301 extends the VA transportation grant program, Sec. 302 addresses caregiver reemployment and retirement, Sec. 306 modifies and reauthorizes the Staff Sergeant Parker Gordon Fox Suicide Prevention Grant Program of the Commander John Scott Hannon Veterans Mental Health Care Improvement Act, Sec. 314 establishes a five-year pilot reimbursing critical access hospitals and affiliated provider-based rural health clinics for outpatient care to eligible veterans under the Veterans Community Care Program, Sec. 322 commissions an independent study of the quality difference between VA and non-VA mental health and addiction therapy care, and Sec. 325 makes opioid rescue medications available to any veteran at no charge in areas of disproportionately high overdose risk. Titles IV and VI address VA personnel, infrastructure and the Veterans Community Care Program, including codified eligibility standards (Sec. 601); Secs. 621-622 create a new subchapter IX of chapter 17 on veteran participation in mental health treatment programs and require a plan for mental health residential rehabilitation access for veterans with spinal cord injury. Title V expands memorial headstone and burial eligibility. Disambiguation: the corpus holds exactly one roll call on this bill, and it is not a vote on the bill. House roll 249 of July 16, 2026 was on the motion to recommit, which failed 210-211; further proceedings on the bill were then postponed under clause 1(c) of rule XIX. A yea on that roll is a vote against advancing the measure, and the Direction Match engine inverts it through yeaBlocksMeasure(). The bill also carries a second short title for portions of it, the VITAL Act of 2026.",
+   "summaryAt": "db/vr-measure-identity.json",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 2,
+     "roll": 249,
+     "question": "On Motion to Recommit",
+     "result": "failed",
+     "yea": 210,
+     "nay": 211
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "veterans",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Take Care of America's Veterans Act amends titles 10 and 38 to improve veterans' benefits and VA administration; a yea expands veterans' benefits."
+    },
+    {
+     "issueKey": "health_mental",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Six sections of the bill are mental health and substance-use provisions rather than benefits provisions. Sec. 306 modifies and reauthorizes the Staff Sergeant Parker Gordon Fox Suicide Prevention Grant Program established by the Commander John Scott Hannon Veterans Mental Health Care Improvement Act, which funds community organizations providing suicide-prevention services to veterans outside the VA system. Sec. 322 commissions an independent study of the difference in quality between mental health and addiction therapy furnished by the Department and that furnished by non-Department providers. Sec. 325 requires opioid rescue medications to be made available to any veteran at no charge in areas of disproportionately high overdose risk. Sec. 621 adds a new subchapter IX to chapter 17 of title 38, with a new section 1791 governing veteran participation in mental health treatment programs, and Sec. 622 requires a plan for residential rehabilitation treatment access for veterans with spinal cord injury. Direction note, because this measure's only ballot inverts: the corpus holds one roll call on this bill and it is the motion to recommit, on which a yea sends the bill back and blocks it. This row is coded in bill terms — yea_supports means the provision — and netlify/lib/vr-pack.ts sets advanceInverted through yeaBlocksMeasure() for that question, so the engine performs the flip. Coding the row backwards to compensate would invert every member twice. Weighted 55 and secondary under veterans 100."
+    },
+    {
+     "issueKey": "health_rural",
+     "weight": 35,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sec. 314 establishes a five-year pilot program under which the Department reimburses critical access hospitals and affiliated provider-based rural health clinics for outpatient care furnished to eligible veterans under the Veterans Community Care Program — the facility classes that carry veterans' care where there is no VA medical center within driving distance. Sec. 110 directs a study of access to contract disability examinations in rural areas. A yea enacts the pilot. The same direction note applies as to the mental health row on this measure: the only ballot on file is the motion to recommit of July 16, 2026, the row is coded in bill terms, and yeaBlocksMeasure() supplies the inversion. Weighted 35 rather than at the extenders level the corpus gives H.R. 1968 and H.R. 7148, because this is a bounded pilot at one facility class rather than the continuation of the rural payment adjustments themselves."
+    }
+   ]
+  },
+  "H.R. 9770|119": {
+   "status": "passed_house",
+   "title": "Making continuing appropriations for fiscal year 2027, and for other purposes.",
+   "summary": "Continuing Appropriations Act, 2027. The bill provides continuing FY2027 appropriations to federal agencies through the earlier of December 4, 2026 or enactment of the applicable full-year appropriations act, preventing the shutdown that would otherwise begin when FY2027 starts on October 1, 2026. It funds most programs and activities at FY2026 levels, with anomalies providing funding flexibility or additional amounts for the Special Supplemental Nutrition Program for Women, Infants, and Children, Small Business Administration loan programs, the Federal Emergency Management Agency's Disaster Relief Fund, the Indian Health Service and wildfire suppression. It extends expiring programs, authorities and restrictions, including the Department of Agriculture's livestock mandatory price reporting program, the National Flood Insurance Program, limits on pay increases for the Vice President and certain senior political appointees, the Temporary Assistance for Needy Families program, authority to waive pay limitations for wildland firefighters and other wildland fire personnel, District of Columbia authority to spend local funds, and the freeze on cost-of-living adjustments for Members of Congress. It provides the customary payments to the beneficiaries of the late Representative David Scott and the late Senator Lindsey Graham. Passed the House 220-205 on July 22, 2026 (119/2 roll 272) and received in the Senate. Disambiguation: the corpus previously held only this measure's official title, \"Making continuing appropriations for fiscal year 2027, and for other purposes\" — the short title as passed is \"Continuing Appropriations Act, 2027\". It is a continuing resolution and not a full-year appropriations act; H.R. 8595 in the same Congress is the FY2027 national security and State Department appropriations bill and a separate vehicle.",
+   "summaryAt": "db/vr-measure-identity.json",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 2,
+     "roll": 272,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 220,
+     "nay": 205
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "gov_services",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Continuing resolution funding federal operations into FY2027; a yea keeps the government open and existing programs running."
+    },
+    {
+     "issueKey": "national_debt",
+     "weight": 35,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Continues federal spending at existing levels without offsets while the budget runs a deficit, so a yea is tagged as cutting against debt reduction. Weighted low on purpose: the alternative on the floor was a lapse in appropriations, not spending cuts."
+    }
+   ]
+  }
+ },
+ "skipped": [
+  {
+   "key": "H.Con.Res. 108|119|strong_defense",
+   "members": 108,
+   "why": "The rationale's one effect, removing U.S. forces from hostilities in Lebanon, is what the act's restraint line already says; the rest only describes a yea's direction."
+  },
+  {
+   "key": "H.Con.Res. 89|119|strong_defense",
+   "members": 108,
+   "why": "The rationale's one effect, removing U.S. forces from hostilities with Iran absent authorization, is what the act's iran_policy and restraint lines already say; the rest only describes a yea's direction."
+  },
+  {
+   "key": "H.R. 7148|119|healthcare",
+   "members": 108,
+   "why": "The rationale names Division J only by its label, \"Health Care Extenders\", and says nothing about what those sections extend; the rider effect-line record (db/vr-rider-effect-lines.json) already holds this pair blank for that reason, and a line would only restate the label."
+  }
+ ],
+ "next": "After this slice the highest-volume blank pairs not yet reviewed sit at 107 members: H.Amdt. 232|119|america_first_fp, H.Amdt. 232|119|cut_spending, H.Amdt. 234|119|america_first_fp, H.Amdt. 234|119|cut_spending, H.Amdt. 237|119|america_first_fp, H.Amdt. 237|119|cut_spending, H.Amdt. 247|119|judicial_check, H.Amdt. 249|119|states_federal_power, H.Amdt. 250|119|states_federal_power, H.Amdt. 251|119|america_first_fp, H.Amdt. 251|119|cut_spending, H.Amdt. 251|119|foreign_balance, H.Amdt. 252|119|america_first_fp, H.Amdt. 252|119|foreign_balance, H.Amdt. 252|119|restraint, H.Amdt. 252|119|strong_defense, H.Amdt. 255|119|healthcare, H.Amdt. 266|119|gov_waste. Rerun the census before choosing slice 11."
+}

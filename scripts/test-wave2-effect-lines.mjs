@@ -87,7 +87,9 @@ const KEYS = [
 // three left this set in budget and fiscal slice 1 (v360), written from their
 // mapping rationales; db/vr-fiscal-effect-lines.json records the source of each.
 const BLANK = new Set([
-  "H.Amdt. 87|119|lgbtq_rights",
+  // H.Amdt. 87 × lgbtq_rights left this set in blank rows slice 10 (v370),
+  // written from its mapping rationale, which quotes the Rules Committee report;
+  // db/vr-blank-rows-slice10.json records the source.
   // H.Amdt. 97 × lands_preserve and H.Amdt. 85 × lgbtq_rights left this set in
   // blank rows slice 6 (v366), written from their mapping rationales;
   // db/vr-blank-rows-slice6.json records the source of each.

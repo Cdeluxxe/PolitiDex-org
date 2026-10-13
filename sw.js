@@ -9628,7 +9628,21 @@
 //     board or chip moved. consistency.js is precached and changed, so the
 //     shell moves one version. No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v369';
+// v370 - BLANK ROWS SLICE 10: ELEVEN LINES IN THE CENSUS'S 108-MEMBER BAND.
+//     The regenerated blank-pair census (scripts/vr-blank-pair-census.mjs) put
+//     fourteen pairs on ten acts at 108 members. Eleven take a line: H.Amdt. 253
+//     and H.Amdt. 87, the Lebanon and Iran war-powers resolutions (H.Con.Res. 108
+//     and 89), the FY2027 budget resolution (H.Con.Res. 113), the veterans
+//     gun-check bill (H.R. 1041), the KIDS Act (H.R. 7757), the veterans omnibus
+//     (H.R. 9237) and the FY2027 continuing resolution (H.R. 9770). Each line is
+//     in _DOS_EFFECT, written from that pair's own mapping rationale
+//     (db/vr-blank-rows-slice10.json names each source and the three pairs left
+//     blank). No shipped line, score, Direction
+//     Match, NEVER_FEEDS, publication floor, money pill, district board or chip
+//     moved. consistency.js is precached and changed, so the shell moves one
+//     version. No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v370';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

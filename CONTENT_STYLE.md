@@ -205,6 +205,41 @@ map-making program, so the Fix Our Forests line leaves "fireshed mapping" out.
 census pair at 109 members or more that was left blank, with its reason.
 `scripts/test-blank-rows-slice9.mjs` holds them to these rules.
 
+Blank rows slice 10 took the next band of the rerun census: 81 blank pairs,
+with exactly the fourteen at 108 members that slice 9 named and no others.
+Eleven took a line, across nine acts:
+
+- H.Amdt. 253 and H.Amdt. 87
+- the Lebanon and Iran war-powers resolutions
+- the FY2027 budget resolution
+- the veterans gun-check bill
+- the KIDS Act
+- the veterans omnibus
+- the FY2027 continuing resolution
+
+The rules are slice 9's.
+
+- Tense follows the stored outcome. The failed Lebanon resolution opens
+  "Would have". The rest open "Would": an agreed House
+  amendment, a resolution or bill the House alone passed, or a bill whose only
+  roll was a failed motion to recommit.
+- A line ends on the roll its act's other lines use. The two amendments and the
+  continuing resolution have no other line, so their lines name no tally.
+- The war-powers lines carry what only those pairs store: the War Powers
+  Resolution and the lack of congressional authorization. The removal of forces
+  already sits in each act's restraint line.
+- The two resolutions' Strong Defense pairs were skipped. Their one effect, the
+  removal of forces, is what those restraint lines say.
+- The FY2026 omnibus's Health Care pair was skipped as well. The rider record
+  already holds it blank, because its text names Division J only by its label.
+  A line that repeats a label is still a label.
+- H.Amdt. 87's line comes from its rationale, which quotes the Rules Committee
+  report. The measure's stored summary still says no purpose text was found.
+
+`db/vr-blank-rows-slice10.json` records each line beside its source and all
+three skips with their reasons. `scripts/test-blank-rows-slice10.mjs` holds them to
+these rules.
+
 ### Executive rows
 
 An executive document's row (an order, a proclamation, a memorandum, a veto)
