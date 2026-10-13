@@ -9578,7 +9578,20 @@
 //     MIGRATION COST: none on the device. In the database,
 //     20261116000000_vr_venezuela_policy_issue_key adds the key to dd_issue_keys
 //     and four secondary vr_measure_issues rows; no existing row moves.
-const CACHE_VERSION = 'v365';
+// v366 - BLANK ROWS SLICE 6: FIFTEEN LINES UNDER EIGHT HIGH-VOLUME ACTS. The
+//     next measure-and-issue pairs that printed nothing under their rows, by how
+//     many members carry them: the 2026 farm bill (H.R. 7567), the Gulf of
+//     America Act (H.R. 276), the MEGOBARI Act (H.R. 36), H.Amdt. 85 and 97 to
+//     the FY2026 NDAA, the GENIUS Act (S. 1582), the Rescissions Act (H.R. 4)
+//     and the Social Security Fairness Act (H.R. 82, 118th). Each line is in
+//     _DOS_EFFECT, written from that pair's own mapping rationale
+//     (db/vr-blank-rows-slice6.json names each source and the pairs left blank).
+//     No shipped line, score, Direction Match, NEVER_FEEDS, publication floor,
+//     money pill, district board, "Also on" chip or "Also touches" chip moved.
+//     consistency.js is precached and changed, so the shell moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v366';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

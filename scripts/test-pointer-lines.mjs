@@ -69,7 +69,10 @@ const WANT = {
   "H.R. 29|119|state_standing": { to: "border_security", also: ["tough_on_crime"] },
 };
 const NO_FACTS = [
-  "H.Amdt. 97|119|lands_preserve", "H.Amdt. 85|119|lgbtq_rights", "H.Amdt. 87|119|lgbtq_rights",
+  "H.Amdt. 87|119|lgbtq_rights",
+  // H.Amdt. 97 × lands_preserve and H.Amdt. 85 × lgbtq_rights left this set in
+  // blank rows slice 6 (v366), written from their mapping rationales;
+  // db/vr-blank-rows-slice6.json records the source of each.
   // H.Con.Res. 14's three leaves left this list in budget and fiscal slice 1
   // (v360), written from their mapping rationales; db/vr-fiscal-effect-lines.json.
 ];

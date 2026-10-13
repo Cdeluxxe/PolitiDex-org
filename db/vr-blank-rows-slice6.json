@@ -1,0 +1,534 @@
+{
+ "_comment": "Blank rows slice 6 (v366). Fifteen pairs: the next highest-volume measure-and-issue pairs that printed nothing under their rows after the fiscal, tariff, long-did, CRA and EPA waiver slices, chosen by how many members carry a row for them in the live record and kept only where the pair's own stored text states an effect. None stores a `did`, so each line is written from its own mapping rationale (quoted here, with the file that stores it), using the measure's stored summary or title only where the rationale abbreviates a name; `term` is the stored words the line carries and `termIn` names the field. Tense follows the stored outcome: an enacted act reads as done; a bill that passed the House only, or a House amendment agreed to, opens \"Would\"; an amendment that failed opens \"Would have\". Each line ends on the roll its act's other lines use, and H.R. 82, which carries no other line, names none. `acts` carries every mapping on each act. `skipped` lists the high-volume pairs left blank and why, for the next slice. No score, weight, mapping or key is read from or written to here.",
+ "_test": "scripts/test-blank-rows-slice6.mjs",
+ "lines": 15,
+ "rows": [
+  {
+   "key": "H.R. 7567|119|rural_ag",
+   "act": "H.R. 7567|119",
+   "issue": "rural_ag",
+   "line": "Would reauthorize farm commodity programs, crop insurance and reference prices for producers; the House passed it 224-200.",
+   "term": "crop insurance",
+   "termIn": "rationale",
+   "rationale": "A major farm-bill reauthorization: commodity programs, crop insurance, and reference prices for producers.",
+   "rationaleAt": "netlify/database/migrations/20260721100000_seed_farm_bill_2026.sql"
+  },
+  {
+   "key": "H.R. 7567|119|family_support",
+   "act": "H.R. 7567|119",
+   "issue": "family_support",
+   "line": "Would reauthorize SNAP and nutrition programs, the largest share of farm-bill spending; the House passed it 224-200.",
+   "term": "SNAP and nutrition programs",
+   "termIn": "rationale",
+   "rationale": "Reauthorizes SNAP and nutrition programs, the largest share of farm-bill spending.",
+   "rationaleAt": "netlify/database/migrations/20260721100000_seed_farm_bill_2026.sql"
+  },
+  {
+   "key": "H.R. 7567|119|enviro_balance",
+   "act": "H.R. 7567|119",
+   "issue": "enviro_balance",
+   "line": "Would continue the farm bill’s working-lands conservation programs; the House passed it 224-200.",
+   "term": "working-lands conservation programs",
+   "termIn": "rationale",
+   "rationale": "Continues working-lands conservation programs; the pesticide provisions also drew environmental scrutiny.",
+   "rationaleAt": "netlify/database/migrations/20260721100000_seed_farm_bill_2026.sql"
+  },
+  {
+   "key": "H.R. 276|119|america_first",
+   "act": "H.R. 276|119",
+   "issue": "america_first",
+   "line": "Would rename the Gulf of Mexico the Gulf of America in federal law, locking in the executive order; the House passed it 211-206.",
+   "term": "the executive order",
+   "termIn": "rationale",
+   "rationale": "Codifies the \"Gulf of America\" renaming as a symbolic america-first measure and locks in the executive order.",
+   "rationaleAt": "netlify/database/migrations/20260721200000_seed_legislation_expansion4.sql"
+  },
+  {
+   "key": "H.R. 36|119|foreign_balance",
+   "act": "H.R. 36|119",
+   "issue": "foreign_balance",
+   "line": "Would require sanctions on Georgian officials found to block Georgia’s Euro-Atlantic integration; the House passed it 349-42.",
+   "term": "Euro-Atlantic integration",
+   "termIn": "rationale",
+   "rationale": "Sec. 6 requires the President to determine, within 90 days, whether Georgian parliamentarians, senior party officials, leadership figures in the security and judicial services and their benefiting family members have knowingly engaged in significant corruption or in violence or intimidation connected to blocking Georgia's Euro-Atlantic integration, and to impose property-blocking sanctions under the International Emergency Economic Powers Act and visa ineligibility on each person identified. Sec. 4 states a policy of backing Georgia's integration with NATO and the European Union, and Sec. 7 conditions expanded exchanges and expanded military cooperation, including equipment suited to territorial defense against Russian aggression, on a presidential certification that Georgia has made sustained progress back toward that track. A yea puts United States sanctions and security cooperation behind an allied integration effort run with European partners; a nay leaves the tools unused. Sec. 8 sunsets the whole Act after five years.",
+   "rationaleAt": "netlify/database/migrations/20260912000000_vr_formal_densification_multi_issue.sql"
+  },
+  {
+   "key": "H.Amdt. 85|119|lgbtq_rights",
+   "act": "H.Amdt. 85|119",
+   "issue": "lgbtq_rights",
+   "line": "Would bar gender transition procedures through the Exceptional Family Member Program; the House agreed to it 221-210.",
+   "term": "Exceptional Family Member Program",
+   "termIn": "rationale",
+   "rationale": "Norman amendment to H.R. 3838 (FY2026 NDAA) prohibits providing gender transition procedures, including surgery or medication, through the Exceptional Family Member Program; a yea bars transgender care for military dependents.",
+   "rationaleAt": "db/vr-issue-seed.json"
+  },
+  {
+   "key": "H.Amdt. 97|119|lands_preserve",
+   "act": "H.Amdt. 97|119",
+   "issue": "lands_preserve",
+   "line": "Would have barred designating military and some Guard lands as Endangered Species Act critical habitat; the House rejected it 200-228.",
+   "term": "critical habitat",
+   "termIn": "rationale",
+   "rationale": "Biggs amendment to H.R. 3838 (FY2026 NDAA) would bar designating military and certain National Guard lands as Endangered Species Act critical habitat and exempt military operations from ESA prohibitions; a yea reduces habitat protection on federal land.",
+   "rationaleAt": "db/vr-issue-seed.json"
+  },
+  {
+   "key": "S. 1582|119|tech_innovation",
+   "act": "S. 1582|119",
+   "issue": "tech_innovation",
+   "line": "Established a national framework for digital-asset innovation through stablecoins; the House cleared it 308-122, the Senate 68-30.",
+   "term": "national framework for digital-asset",
+   "termIn": "rationale",
+   "rationale": "A yea vote establishes a national framework for digital-asset (stablecoin) innovation.",
+   "rationaleAt": "netlify/database/migrations/20260719210000_seed_landmark_measures_wave4.sql"
+  },
+  {
+   "key": "S. 1582|119|crypto_cbdc",
+   "act": "S. 1582|119",
+   "issue": "crypto_cbdc",
+   "line": "Became the first comprehensive federal crypto-market statute; the House cleared it 308-122, the Senate 68-30.",
+   "term": "first comprehensive federal crypto-market statute",
+   "termIn": "rationale",
+   "rationale": "The first comprehensive federal crypto-market statute.",
+   "rationaleAt": "netlify/database/migrations/20260719210000_seed_landmark_measures_wave4.sql"
+  },
+  {
+   "key": "S. 1582|119|tech_balance",
+   "act": "S. 1582|119",
+   "issue": "tech_balance",
+   "line": "Paired stablecoin innovation with reserve, disclosure and anti-money-laundering safeguards; the House cleared it 308-122, the Senate 68-30.",
+   "term": "anti-money-laundering safeguards",
+   "termIn": "rationale",
+   "rationale": "Balances digital-asset innovation against reserve, disclosure, and anti-money-laundering safeguards.",
+   "rationaleAt": "netlify/database/migrations/20260721150000_seed_legislation_deepdive2.sql"
+  },
+  {
+   "key": "H.R. 4|119|audit_spending",
+   "act": "H.R. 4|119",
+   "issue": "audit_spending",
+   "line": "Codified DOGE-identified cuts through the Impoundment Control Act’s rescission process; the House cleared it 214-212, the Senate 51-48.",
+   "term": "Impoundment Control Act",
+   "termIn": "rationale",
+   "rationale": "Codifies cuts identified by the Department of Government Efficiency (DOGE) using the Impoundment Control Act's rescission process.",
+   "rationaleAt": "netlify/database/migrations/20260721140000_seed_legislation_deepdive.sql"
+  },
+  {
+   "key": "H.R. 4|119|gov_services",
+   "act": "H.R. 4|119",
+   "issue": "gov_services",
+   "line": "Cut funding for public-media and international programs, reducing those services; the House cleared it 214-212, the Senate 51-48.",
+   "term": "public-media and international programs",
+   "termIn": "rationale",
+   "rationale": "Cancels funding for public-media and international programs; a Yea reduces those services.",
+   "rationaleAt": "netlify/database/migrations/20260721140000_seed_legislation_deepdive.sql"
+  },
+  {
+   "key": "H.R. 4|119|free_speech",
+   "act": "H.R. 4|119",
+   "issue": "free_speech",
+   "line": "Ended federal funding for NPR and PBS member stations; the House cleared it 214-212, the Senate 51-48.",
+   "term": "NPR and PBS member stations",
+   "termIn": "rationale",
+   "rationale": "Rescinds the enacted appropriation for the Corporation for Public Broadcasting, ending federal funding for NPR and PBS member stations. A yea withdraws public money from independent broadcast outlets.",
+   "rationaleAt": "netlify/database/migrations/20260906000000_vr_rewrite_framed_mapping_rationales.sql"
+  },
+  {
+   "key": "H.R. 82|118|social_security",
+   "act": "H.R. 82|118",
+   "issue": "social_security",
+   "line": "Repealed the Windfall Elimination Provision and Government Pension Offset, raising benefits for public-sector retirees.",
+   "term": "Government Pension Offset",
+   "termIn": "summary",
+   "rationale": "Repeals WEP and GPO to raise Social Security benefits for public-sector retirees with non-covered pensions.",
+   "rationaleAt": "netlify/database/migrations/20260917000000_vr_identity_and_thin_key_densification.sql"
+  },
+  {
+   "key": "H.R. 82|118|cost_living",
+   "act": "H.R. 82|118",
+   "issue": "cost_living",
+   "line": "Increased monthly retirement income for affected teachers, firefighters, police and other public workers.",
+   "term": "monthly retirement income",
+   "termIn": "rationale",
+   "rationale": "Increases monthly retirement income for affected teachers, firefighters, police, and other public workers.",
+   "rationaleAt": "netlify/database/migrations/20260917000000_vr_identity_and_thin_key_densification.sql"
+  }
+ ],
+ "acts": {
+  "H.R. 7567|119": {
+   "status": "passed_house",
+   "title": "Farm, Food, and National Security Act (2026 Farm Bill, House)",
+   "summary": "The House farm-bill reauthorization — commodity supports, crop insurance, SNAP/nutrition, and conservation. Its most contested provisions, Secs. 10205–10207, would have shielded pesticide makers from many lawsuits and limited state and local authority over pesticides; a bipartisan amendment struck them before passage.",
+   "summaryAt": "netlify/database/migrations/20260721100000_seed_farm_bill_2026.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 2,
+     "roll": 154,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 224,
+     "nay": 200
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "rural_ag",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "A major farm-bill reauthorization: commodity programs, crop insurance, and reference prices for producers."
+    },
+    {
+     "issueKey": "family_support",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Reauthorizes SNAP and nutrition programs, the largest share of farm-bill spending."
+    },
+    {
+     "issueKey": "enviro_balance",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Continues working-lands conservation programs; the pesticide provisions also drew environmental scrutiny."
+    }
+   ]
+  },
+  "H.R. 276|119": {
+   "status": "passed_house",
+   "title": "Gulf of America Act",
+   "summary": "Renames the Gulf of Mexico as the \"Gulf of America\" and directs all federal agencies to update their documents and maps within 180 days, codifying an executive order President Trump issued January 20, 2025. Passed the House on a near party-line vote; awaits the Senate.",
+   "summaryAt": "netlify/database/migrations/20260721200000_seed_legislation_expansion4.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 122,
+     "question": "On Passage",
+     "result": "Passed",
+     "yea": 211,
+     "nay": 206
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "america_first",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Codifies the \"Gulf of America\" renaming as a symbolic america-first measure and locks in the executive order."
+    }
+   ]
+  },
+  "H.R. 36|119": {
+   "status": "pending",
+   "title": "H.R. 36 — MEGOBARI Act",
+   "summary": "Congress.gov official title: \"MEGOBARI Act\". Passed the House 349-42 under suspension of the rules (roll call 119/1/116).",
+   "summaryAt": "netlify/database/migrations/20260724130000_vr_fix_live_house_identity_and_issue_map.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 116,
+     "question": "On Motion to Suspend the Rules and Pass",
+     "result": "Passed",
+     "yea": 349,
+     "nay": 42
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "foreign_balance",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sec. 6 requires the President to determine, within 90 days, whether Georgian parliamentarians, senior party officials, leadership figures in the security and judicial services and their benefiting family members have knowingly engaged in significant corruption or in violence or intimidation connected to blocking Georgia's Euro-Atlantic integration, and to impose property-blocking sanctions under the International Emergency Economic Powers Act and visa ineligibility on each person identified. Sec. 4 states a policy of backing Georgia's integration with NATO and the European Union, and Sec. 7 conditions expanded exchanges and expanded military cooperation, including equipment suited to territorial defense against Russian aggression, on a presidential certification that Georgia has made sustained progress back toward that track. A yea puts United States sanctions and security cooperation behind an allied integration effort run with European partners; a nay leaves the tools unused. Sec. 8 sunsets the whole Act after five years."
+    }
+   ],
+   "noSeedRows": true,
+   "noSeedRowsWhy": "The offline vote seeds hold no member votes on House roll 119/1/116; its member rows exist only in the live record, so the line is checked as text here and cannot be rendered offline."
+  },
+  "H.Amdt. 85|119": {
+   "status": "passed_house",
+   "title": "H.Amdt. 85 (Norman) to H.R. 3838 — bar gender transition procedures under the Exceptional Family Member Program",
+   "summary": "Amendment numbered 13 printed in Part A of House Report 119-255. Congress.gov purpose: \"Amendment prohibits the provision of gender transition procedures, including surgery or medication, through the Exceptional Family Medical Program.\" Sponsor: Rep. Ralph Norman (R-SC-5). Agreed to in the House 221-210 (roll call 119/1/245, 2025-09-10).",
+   "summaryAt": null,
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 245,
+     "question": "On Agreeing to the Amendment",
+     "result": "Agreed to",
+     "yea": 221,
+     "nay": 210
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "lgbtq_rights",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Norman amendment to H.R. 3838 (FY2026 NDAA) prohibits providing gender transition procedures, including surgery or medication, through the Exceptional Family Member Program; a yea bars transgender care for military dependents."
+    }
+   ]
+  },
+  "H.Amdt. 97|119": {
+   "status": "failed",
+   "title": "H.Amdt. 97 (Biggs) to H.R. 3838 — bar Endangered Species Act critical-habitat designation on military lands",
+   "summary": "Amendment numbered 29 printed in Part A of House Report 119-255. Congress.gov purpose: \"Amendment sought to prohibit the designation of military and certain National Guard lands as critical habitats under the Endangered Species Act when deemed necessary by the Department of Defense, and to exempt military personnel from Endangered Species Act prohibitions during national defense-related operations, including incidental harm to protected species.\" Sponsor: Rep. Andy Biggs (R-AZ-5). Failed in the House 200-228 (roll call 119/1/259, 2025-09-10).",
+   "summaryAt": null,
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 259,
+     "question": "On Agreeing to the Amendment",
+     "result": "Failed",
+     "yea": 200,
+     "nay": 228
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "lands_preserve",
+     "weight": 90,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Biggs amendment to H.R. 3838 (FY2026 NDAA) would bar designating military and certain National Guard lands as Endangered Species Act critical habitat and exempt military operations from ESA prohibitions; a yea reduces habitat protection on federal land."
+    },
+    {
+     "issueKey": "strong_defense",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Rider audit wave 2, October 2026: the act's own stored text names this leaf — \"during national defense-related operations\". Filed as a secondary row beside the act's existing rows, never in place of its lands_preserve primary; the amendment exempts military personnel from ESA prohibitions during national defense-related operations, so a yea widens military operating latitude."
+    }
+   ]
+  },
+  "S. 1582|119": {
+   "status": "enacted",
+   "title": "Guiding and Establishing National Innovation for U.S. Stablecoins Act (GENIUS Act)",
+   "summary": "Creates the first federal regulatory framework for payment stablecoins — reserve, disclosure, and licensing rules for issuers. The first major U.S. crypto law; signed as Pub. L. 119-27.",
+   "summaryAt": "netlify/database/migrations/20260719210000_seed_landmark_measures_wave4.sql",
+   "rolls": [
+    {
+     "chamber": "senate",
+     "session": 1,
+     "roll": 318,
+     "question": "On Passage of the Bill",
+     "result": "passed",
+     "yea": 68,
+     "nay": 30
+    },
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 200,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 308,
+     "nay": 122
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "tech_innovation",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "A yea vote establishes a national framework for digital-asset (stablecoin) innovation."
+    },
+    {
+     "issueKey": "crypto_cbdc",
+     "weight": 90,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The first comprehensive federal crypto-market statute."
+    },
+    {
+     "issueKey": "tech_balance",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Balances digital-asset innovation against reserve, disclosure, and anti-money-laundering safeguards."
+    },
+    {
+     "issueKey": "states_federal_power",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Lets stablecoin issuers holding $10 billion or less opt into a state regulatory regime deemed substantially similar to the federal one, rather than folding every issuer into federal supervision; a yea preserves that state option. Matches the direction already carried by this bill's \"Dual federal–state oversight\" provision row, which had no measure-level counterpart."
+    }
+   ]
+  },
+  "H.R. 4|119": {
+   "status": "enacted",
+   "title": "Rescissions Act of 2025",
+   "summary": "Codifies roughly $9 billion in spending cuts to foreign aid and public broadcasting requested by the administration.",
+   "summaryAt": "netlify/database/migrations/20260719150000_seed_rescissions_voting_record.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 168,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 214,
+     "nay": 212
+    },
+    {
+     "chamber": "senate",
+     "session": 1,
+     "roll": 411,
+     "question": "On Passage of the Bill (as amended)",
+     "result": "passed",
+     "yea": 51,
+     "nay": 48
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "cut_spending",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The act cancels unobligated balances Congress had already appropriated to the State Department, USAID, several related agencies and the Corporation for Public Broadcasting, acting on the rescissions the President proposed in June 2025. Taking back money already appropriated is the most direct form of the spending cut this chip measures, so a yea is a vote for one."
+    },
+    {
+     "issueKey": "gov_waste",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Cancels roughly $9 billion in budget authority Congress had already enacted, rescinding it from foreign-assistance accounts and from the Corporation for Public Broadcasting. A yea returns appropriated money to the Treasury unspent."
+    },
+    {
+     "issueKey": "national_debt",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Cancelling unobligated balances lowers federal outlays by the amount rescinded, so a yea reduces the deficit by that amount. Weighted 40 because the enacted total is small against the deficit — smaller again than the version the House passed, after the Senate carved out global health, food aid and several other accounts — and because the act changes no revenue source, entitlement or fiscal rule."
+    },
+    {
+     "issueKey": "america_first",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bulk of the package (~$7.9B) rescinds unobligated foreign-aid and State Department funds, aligning with an America-first spending posture."
+    },
+    {
+     "issueKey": "audit_spending",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Codifies cuts identified by the Department of Government Efficiency (DOGE) using the Impoundment Control Act's rescission process."
+    },
+    {
+     "issueKey": "gov_services",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Cancels funding for public-media and international programs; a Yea reduces those services."
+    },
+    {
+     "issueKey": "free_speech",
+     "weight": 30,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Rescinds the enacted appropriation for the Corporation for Public Broadcasting, ending federal funding for NPR and PBS member stations. A yea withdraws public money from independent broadcast outlets."
+    },
+    {
+     "issueKey": "america_first_fp",
+     "weight": 65,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Nineteen of the enrolled Act's twenty rescission paragraphs strike unobligated foreign-assistance balances, roughly $7.9 billion in all: Development Assistance $2.5B, Economic Support Fund $1.65B, Migration and Refugee Assistance $800M, International Disaster Assistance $496M, Assistance for Europe, Eurasia and Central Asia $460M, International Organizations and Programs $436.9M, Global Health Programs $500M, the Clean Technology Fund $125M, USAID Operating Expenses $125M and the United States Institute of Peace $15M, among others. The america_first_fp chip reads \"Put U.S. interests first, end endless wars and rethink foreign aid commitments\" — rescinding appropriated foreign aid is that chip's own stated content, so a yea supports it. Weighted 65 and not primary because the measure's controlling axis is still spending, not foreign policy."
+    }
+   ]
+  },
+  "H.R. 82|118": {
+   "status": "enacted",
+   "title": "Social Security Fairness Act of 2023",
+   "summary": "Repeals the Windfall Elimination Provision (WEP) and the Government Pension Offset (GPO), which had reduced Social Security benefits for people who also receive a pension from work not covered by Social Security — chiefly teachers, firefighters, police, and other public-sector retirees. Benefits were made retroactive to January 2024. The Congressional Budget Office estimated the repeal adds about $196 billion to federal deficits over ten years and advances Social Security's insolvency by roughly six months. Passed both chambers with large bipartisan majorities and was signed into law January 5, 2025.",
+   "summaryAt": "netlify/database/migrations/20260721180000_seed_legislation_expansion2.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 2,
+     "roll": 456,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 327,
+     "nay": 75
+    },
+    {
+     "chamber": "senate",
+     "session": 2,
+     "roll": 338,
+     "question": "On Passage of the Bill",
+     "result": "passed",
+     "yea": 76,
+     "nay": 20
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "social_security",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Repeals WEP and GPO to raise Social Security benefits for public-sector retirees with non-covered pensions."
+    },
+    {
+     "issueKey": "cost_living",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Increases monthly retirement income for affected teachers, firefighters, police, and other public workers."
+    },
+    {
+     "issueKey": "national_debt",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "CBO scored the repeal at roughly $196 billion added to federal deficits over a decade — a Yea is tagged as cutting against debt reduction."
+    }
+   ]
+  }
+ },
+ "skipped": [
+  {
+   "key": "S. 1582|119|states_federal_power",
+   "members": 209,
+   "why": "The mapping is applied by migration 20260725020000_vr_institutional_keys_backfill from a VALUES list that the repository's migration projection (scripts/vr-measure-addresses.mjs) does not read, so no offline store in the repository shows the pair as mapped. Fix that projection first, then this pair can take a line from its rationale."
+  },
+  {
+   "key": "H.R. 82|118|national_debt",
+   "members": 199,
+   "why": "Its rationale is the Congressional Budget Office's deficit projection, a forecast about the act rather than something the act does; the fiscal slice left H.R. 1's projection out on the same ground."
+  },
+  {
+   "key": "H.R. 4|119|america_first",
+   "members": 209,
+   "why": "Its rationale restates the $7.9 billion foreign-assistance rescission that the act's cut-spending and America First foreign policy lines already carry, so any line would borrow a sibling's fact."
+  },
+  {
+   "key": "H.R. 6644|119|permitting_reform",
+   "members": 208,
+   "why": "Its rationale describes an enacted law while the stored status is passed_house; the tense cannot be settled from stored text until the two agree."
+  },
+  {
+   "key": "H.R. 6644|119|crypto_cbdc",
+   "members": 208,
+   "why": "Same status conflict as H.R. 6644's permitting row."
+  },
+  {
+   "key": "H.R. 6644|119|housing_support",
+   "members": 208,
+   "why": "Same status conflict as H.R. 6644's permitting row."
+  }
+ ],
+ "next": "After this slice the highest-volume blank pairs are H.R. 8369 (118th) × power_of_purse, H.R. 29 × deportations and × state_standing, H.R. 28 × four keys, H.R. 6126 (118th) × strong_defense, and H.R. 26, H.R. 27, H.R. 21, H.R. 6703, H.R. 2483 and S. 146 (119th), each with about 110 member rows."
+}

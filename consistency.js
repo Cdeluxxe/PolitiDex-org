@@ -18196,6 +18196,43 @@
       'Would have ordered U.S. forces out of hostilities against Venezuela Congress had not authorized; the Senate refused to discharge it 49-51.',
     'S.J.Res. 98|119|venezuela_policy':
       'Would order U.S. forces out of hostilities against Venezuela that Congress has not authorized; the Senate voted 52-47 to discharge it.',
+    // BLANK ROWS SLICE 6 (v366). The next highest-volume pairs that printed
+    // nothing: the 2026 farm bill, the Gulf of America and MEGOBARI acts, two
+    // FY2026 defense amendments, the GENIUS Act, the Rescissions Act and the
+    // Social Security Fairness Act. None stores a `did`; each line is written from
+    // that pair's own mapping rationale, with the measure's stored summary or title
+    // where the rationale abbreviates, and ends on the roll its sibling lines use.
+    // db/vr-blank-rows-slice6.json names the source of each.
+    'H.R. 7567|119|rural_ag':
+      'Would reauthorize farm commodity programs, crop insurance and reference prices for producers; the House passed it 224-200.',
+    'H.R. 7567|119|family_support':
+      'Would reauthorize SNAP and nutrition programs, the largest share of farm-bill spending; the House passed it 224-200.',
+    'H.R. 7567|119|enviro_balance':
+      'Would continue the farm bill’s working-lands conservation programs; the House passed it 224-200.',
+    'H.R. 276|119|america_first':
+      'Would rename the Gulf of Mexico the Gulf of America in federal law, locking in the executive order; the House passed it 211-206.',
+    'H.R. 36|119|foreign_balance':
+      'Would require sanctions on Georgian officials found to block Georgia’s Euro-Atlantic integration; the House passed it 349-42.',
+    'H.Amdt. 85|119|lgbtq_rights':
+      'Would bar gender transition procedures through the Exceptional Family Member Program; the House agreed to it 221-210.',
+    'H.Amdt. 97|119|lands_preserve':
+      'Would have barred designating military and some Guard lands as Endangered Species Act critical habitat; the House rejected it 200-228.',
+    'S. 1582|119|tech_innovation':
+      'Established a national framework for digital-asset innovation through stablecoins; the House cleared it 308-122, the Senate 68-30.',
+    'S. 1582|119|crypto_cbdc':
+      'Became the first comprehensive federal crypto-market statute; the House cleared it 308-122, the Senate 68-30.',
+    'S. 1582|119|tech_balance':
+      'Paired stablecoin innovation with reserve, disclosure and anti-money-laundering safeguards; the House cleared it 308-122, the Senate 68-30.',
+    'H.R. 4|119|audit_spending':
+      'Codified DOGE-identified cuts through the Impoundment Control Act’s rescission process; the House cleared it 214-212, the Senate 51-48.',
+    'H.R. 4|119|gov_services':
+      'Cut funding for public-media and international programs, reducing those services; the House cleared it 214-212, the Senate 51-48.',
+    'H.R. 4|119|free_speech':
+      'Ended federal funding for NPR and PBS member stations; the House cleared it 214-212, the Senate 51-48.',
+    'H.R. 82|118|social_security':
+      'Repealed the Windfall Elimination Provision and Government Pension Offset, raising benefits for public-sector retirees.',
+    'H.R. 82|118|cost_living':
+      'Increased monthly retirement income for affected teachers, firefighters, police and other public workers.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is

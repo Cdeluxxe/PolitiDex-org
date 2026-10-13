@@ -1331,6 +1331,14 @@ section("14 · the harvest — every stored did, read against the effect rule");
     const src = R("consistency.js"), a0 = src.indexOf("var _DOS_EFFECT = {");
     const at = a0 === -1 ? -1 : src.indexOf("// VENEZUELA LEAF SLICE 5 (v365)", a0);
     if (at === -1 || at > src.indexOf("\n  };", a0)) return new Set();
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// BLANK ROWS SLICE 6 (v366)", at);
+    return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+  })();
+  // BLANK ROWS SLICE 6 (v366), from its marker to the end of the table, held by
+  // scripts/test-blank-rows-slice6.mjs.
+  const S6_KEYS = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// BLANK ROWS SLICE 6 (v366)");
+    if (at === -1) return new Set();
     return new Set([...src.slice(at, src.indexOf("\n  };", at)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
   })();
   const IRAN = Object.keys(EFFECT).filter((k) => /\|iran_policy$/.test(k) && !RIDER_KEYS.has(k));
@@ -1868,9 +1876,24 @@ section("14 · the harvest — every stored did, read against the effect rule");
     const m = k.split("|").slice(0, 2).join("|");
     ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
   }
-  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !FISCAL.includes(k) && !LONGDID.includes(k) && !EPA.includes(k) && !VEN.includes(k) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
+  // BLANK ROWS SLICE 6 (v366). Fifteen high-volume pairs on eight acts, each
+  // written from its own mapping rationale, held in detail by
+  // scripts/test-blank-rows-slice6.mjs; here the batch rules. Tense follows the
+  // stored outcome, and a line ends on a recorded roll or, on an act with no
+  // other line, may name none.
+  const S6 = [...S6_KEYS];
+  ok(S6.length === 15, `${S6.length} slice-6 line(s) — the slice wrote 15`);
+  for (const k of S6) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the slice-6 effect line`);
+    ok(!(MECH[k] && MECH[k].did), `${k}: a slice-6 line on a pair that stores a did`);
+    ok(/(?:; the (?:House|Senate) (?:(?:cleared|passed|agreed to|rejected) it) \d+-\d+(?:, the Senate \d+-\d+)?|[a-z])\.$/.test(v), `${k}: does not end on a recorded tally or a plain stop`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !FISCAL.includes(k) && !LONGDID.includes(k) && !EPA.includes(k) && !VEN.includes(k) && !S6.includes(k) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length + FISCAL.length + LONGDID.length + EPA.length + VEN.length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length + FISCAL.length + LONGDID.length + EPA.length + VEN.length + S6.length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.

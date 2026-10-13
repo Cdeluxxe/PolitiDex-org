@@ -31,6 +31,7 @@ import { createHash } from "node:crypto";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
+import { keysAfter } from "./vr-slice-blocks.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -238,6 +239,9 @@ section("1 · the table: one short sentence per pair, Lands and Red Tape untouch
   const LATER = new Set(["H.R. 4090|119|lands_energy", "H.R. 1366|119|lands_energy", "H.R. 6955|119|gov_regulation",
     "H.R. 6329|119|gov_regulation", "H.R. 2965|119|gov_regulation", "H.R. 4305|119|gov_regulation",
     "H.J.Res. 78|119|gov_regulation"]);
+  // So is any line a marked slice wrote in its own block (vr-slice-blocks.mjs) —
+  // H.Amdt. 97 × Lands, blank rows slice 6 (v366), among them.
+  for (const k of keysAfter(SRC, "_DOS_EFFECT", 0)) LATER.add(k);
   const lrt = Object.keys(EFFECT).filter((k) => /\|(lands_preserve|lands_energy|gov_regulation)$/.test(k) && !LATER.has(k));
   eq(lrt.length, LANDS_RED_TAPE_COUNT, "Lands and Red Tape line count");
   const sha = createHash("sha256").update(lrt.map((k) => k + "\t" + EFFECT[k]).join("\n")).digest("hex");

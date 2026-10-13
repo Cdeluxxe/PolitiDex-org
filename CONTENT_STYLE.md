@@ -126,6 +126,19 @@ rows keep their own sentences. `db/vr-epa-waiver-effect-lines.json` records
 each line beside the rationale it came from, and
 `scripts/test-epa-waiver-effect-lines.mjs` holds them to these rules.
 
+Blank rows slice 6 added fifteen lines on eight high-volume acts: the 2026
+farm bill, the Gulf of America and MEGOBARI acts, two FY2026 defense amendments,
+the GENIUS Act, the Rescissions Act and the Social Security Fairness Act. Each
+pair stores no `did`, so each line is written from its own mapping rationale,
+using the act's stored summary or title only where the rationale abbreviates a
+name. Tense follows the stored outcome: enacted reads as done, a bill that passed
+the House only or an agreed House amendment opens "Would", a failed amendment
+opens "Would have". A rationale that is a forecast about an act (a deficit
+projection) or that restates a sibling issue's fact is left blank rather than
+turned into a line. `db/vr-blank-rows-slice6.json` records each line beside its
+source and lists the pairs left blank and why, and
+`scripts/test-blank-rows-slice6.mjs` holds them to these rules.
+
 ### Executive rows
 
 An executive document's row (an order, a proclamation, a memorandum, a veto)

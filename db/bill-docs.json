@@ -453,11 +453,13 @@
    "m": [
     {
      "i": "Protect Social Security & Medicare",
-     "k": "social_security"
+     "k": "social_security",
+     "l": "Repealed the Windfall Elimination Provision and Government Pension Offset, raising benefits for public-sector retirees."
     },
     {
      "i": "Tackle the Cost of Living",
-     "k": "cost_living"
+     "k": "cost_living",
+     "l": "Increased monthly retirement income for affected teachers, firefighters, police and other public workers."
     },
     {
      "i": "Tackle the National Debt",
@@ -1589,7 +1591,8 @@
     },
     {
      "i": "Audit Spending & the Fed",
-     "k": "audit_spending"
+     "k": "audit_spending",
+     "l": "Codified DOGE-identified cuts through the Impoundment Control Act’s rescission process; the House cleared it 214-212, the Senate 51-48."
     },
     {
      "i": "Cut Federal Spending & Reduce Debt",
@@ -1603,11 +1606,13 @@
     },
     {
      "i": "Free Speech Protections",
-     "k": "free_speech"
+     "k": "free_speech",
+     "l": "Ended federal funding for NPR and PBS member stations; the House cleared it 214-212, the Senate 51-48."
     },
     {
      "i": "Invest in Public Services",
-     "k": "gov_services"
+     "k": "gov_services",
+     "l": "Cut funding for public-media and international programs, reducing those services; the House cleared it 214-212, the Senate 51-48."
     },
     {
      "i": "Tackle the National Debt",
@@ -1742,7 +1747,8 @@
    "m": [
     {
      "i": "America First",
-     "k": "america_first"
+     "k": "america_first",
+     "l": "Would rename the Gulf of Mexico the Gulf of America in federal law, locking in the executive order; the House passed it 211-206."
     }
    ]
   },
@@ -2464,15 +2470,18 @@
    "m": [
     {
      "i": "Farmers & Rural Communities",
-     "k": "rural_ag"
+     "k": "rural_ag",
+     "l": "Would reauthorize farm commodity programs, crop insurance and reference prices for producers; the House passed it 224-200."
     },
     {
      "i": "Help Families with Kids",
-     "k": "family_support"
+     "k": "family_support",
+     "l": "Would reauthorize SNAP and nutrition programs, the largest share of farm-bill spending; the House passed it 224-200."
     },
     {
      "i": "Practical Stewardship",
-     "k": "enviro_balance"
+     "k": "enviro_balance",
+     "l": "Would continue the farm bill’s working-lands conservation programs; the House passed it 224-200."
     }
    ]
   },
@@ -2821,15 +2830,18 @@
    "m": [
     {
      "i": "Cryptocurrency Rules & Digital Dollar",
-     "k": "crypto_cbdc"
+     "k": "crypto_cbdc",
+     "l": "Became the first comprehensive federal crypto-market statute; the House cleared it 308-122, the Senate 68-30."
     },
     {
      "i": "Innovation & Light Rules",
-     "k": "tech_innovation"
+     "k": "tech_innovation",
+     "l": "Established a national framework for digital-asset innovation through stablecoins; the House cleared it 308-122, the Senate 68-30."
     },
     {
      "i": "Smart Tech Guardrails",
-     "k": "tech_balance"
+     "k": "tech_balance",
+     "l": "Paired stablecoin innovation with reserve, disclosure and anti-money-laundering safeguards; the House cleared it 308-122, the Senate 68-30."
     }
    ]
   },
