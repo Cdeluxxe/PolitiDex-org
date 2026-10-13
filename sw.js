@@ -9604,7 +9604,18 @@
 //     consistency.js is precached and changed, so the shell moves one version.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v367';
+// v368 - BLANK ROWS SLICE 8: THREE LINES THE PROJECTION FIX MADE WRITABLE.
+//     The three ready pairs slices 6 and 7 skipped only because the migration
+//     projection could not read the loop forms that map them: the GENIUS Act
+//     (S. 1582) and the fracking bill (H.R. 26) × states vs. federal power, and
+//     the first Israel supplemental (H.R. 6126, 118th) × strong defense. Each
+//     line is in _DOS_EFFECT, written from that pair's own mapping rationale
+//     (db/vr-blank-rows-slice8.json names each source). No shipped line, score,
+//     Direction Match, NEVER_FEEDS, publication floor, money pill, district
+//     board or chip moved. consistency.js is precached and changed, so the shell
+//     moves one version. No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v368';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

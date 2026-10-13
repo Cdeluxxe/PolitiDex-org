@@ -168,6 +168,21 @@ The bill pages and the sitemap's issue files pick them up, and
 `scripts/test-measure-address-projection.mjs` holds the fix to that. A pair
 skipped for this reason can now be written in the next slice.
 
+Blank rows slice 8 wrote those three. The GENIUS Act's States vs. Federal Power
+line says it let stablecoin issuers holding $10 billion or less opt into a state
+regulatory regime; the fracking bill's says it would keep the decision with the
+states rather than Washington; the first Israel supplemental's Strong Defense
+line says it would have appropriated emergency defense money to replenish United
+States stocks drawn down for transfer. The rules are slice 7's. Each line comes from
+its own mapping rationale, takes the tense of the act's existing lines (done for
+the law, "Would" for the fracking bill, "Would have" for the supplemental), and
+ends on the same roll they do. The fracking line covers who decides, and leaves
+the fracking moratorium and state authority to the two lines that already carry
+them. Nothing else moved. A pair an earlier slice skipped may be written by a
+later one, and the earlier slices' tests now allow that only inside a newer
+slice's block. `db/vr-blank-rows-slice8.json` records each line beside its
+source, and `scripts/test-blank-rows-slice8.mjs` holds them to these rules.
+
 ### Executive rows
 
 An executive document's row (an order, a proclamation, a memorandum, a veto)

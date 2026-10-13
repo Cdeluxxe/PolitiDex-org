@@ -18278,6 +18278,18 @@
       'Imposed new content-removal obligations on online platforms; the House cleared it 409-2.',
     'S. 146|119|free_speech':
       'Set a notice-and-takedown duty for covered platforms, with removal within 48 hours, enforced by the FTC; the House cleared it 409-2.',
+    // BLANK ROWS SLICE 8 (v368). The three ready pairs slices 6 and 7 left
+    // blank only because the migration projection could not see their mapping:
+    // the GENIUS Act and the fracking bill on states vs. federal power, and the
+    // first Israel supplemental on defense. Each line is written from that
+    // pair's own mapping rationale and ends on the roll its sibling lines use.
+    // db/vr-blank-rows-slice8.json names the source of each.
+    'S. 1582|119|states_federal_power':
+      'Let stablecoin issuers holding $10 billion or less opt into a state regulatory regime; the House cleared it 308-122, the Senate 68-30.',
+    'H.R. 26|119|states_federal_power':
+      'Would keep the decision with the states rather than Washington on regulating hydraulic fracturing; the House passed it 226-188.',
+    'H.R. 6126|118|strong_defense':
+      'Would have appropriated emergency defense money to replenish United States stocks drawn down for transfer; the House passed it 226-196.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is

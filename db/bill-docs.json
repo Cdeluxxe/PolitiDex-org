@@ -690,7 +690,8 @@
     },
     {
      "i": "Peace Through Strength",
-     "k": "strong_defense"
+     "k": "strong_defense",
+     "l": "Would have appropriated emergency defense money to replenish United States stocks drawn down for transfer; the House passed it 226-196."
     },
     {
      "i": "Support for Israel",
@@ -1848,7 +1849,8 @@
     },
     {
      "i": "Whose Rule Governs: State or Federal",
-     "k": "states_federal_power"
+     "k": "states_federal_power",
+     "l": "Would keep the decision with the states rather than Washington on regulating hydraulic fracturing; the House passed it 226-188."
     }
    ]
   },
@@ -3099,7 +3101,8 @@
     },
     {
      "i": "Whose Rule Governs: State or Federal",
-     "k": "states_federal_power"
+     "k": "states_federal_power",
+     "l": "Let stablecoin issuers holding $10 billion or less opt into a state regulatory regime; the House cleared it 308-122, the Senate 68-30."
     }
    ]
   },

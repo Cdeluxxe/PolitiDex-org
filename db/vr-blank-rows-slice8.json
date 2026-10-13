@@ -1,0 +1,191 @@
+{
+ "_comment": "Blank rows slice 8 (v368). The three ready pairs slices 6 and 7 skipped only because scripts/vr-measure-addresses.mjs could not read the loop forms that map them; the projection now reads both forms, so each pair is written here from its own mapping rationale (quoted, with the file that stores it). `term` is the stored words the line carries and `termIn` names the field. Tense follows the stored outcome and the act's existing lines: the GENIUS Act is law and reads as done; the fracking bill passed the House only and opens \"Would\"; the first Israel supplemental passed the House only and opens \"Would have\", as its two existing lines do. Each line ends on the same roll or rolls the act's other lines end on. `acts` carries every mapping on each act. No score, weight, mapping or key is read from or written to here.",
+ "_test": "scripts/test-blank-rows-slice8.mjs",
+ "lines": 3,
+ "rows": [
+  {
+   "key": "S. 1582|119|states_federal_power",
+   "act": "S. 1582|119",
+   "issue": "states_federal_power",
+   "line": "Let stablecoin issuers holding $10 billion or less opt into a state regulatory regime; the House cleared it 308-122, the Senate 68-30.",
+   "term": "opt into a state regulatory regime",
+   "termIn": "rationale",
+   "rationale": "Lets stablecoin issuers holding $10 billion or less opt into a state regulatory regime deemed substantially similar to the federal one, rather than folding every issuer into federal supervision; a yea preserves that state option. Matches the direction already carried by this bill's \"Dual federal–state oversight\" provision row, which had no measure-level counterpart.",
+   "rationaleAt": "netlify/database/migrations/20260725020000_vr_institutional_keys_backfill.sql"
+  },
+  {
+   "key": "H.R. 26|119|states_federal_power",
+   "act": "H.R. 26|119",
+   "issue": "states_federal_power",
+   "line": "Would keep the decision with the states rather than Washington on regulating hydraulic fracturing; the House passed it 226-188.",
+   "term": "the decision with the states rather than Washington",
+   "termIn": "rationale",
+   "rationale": "Bars a federal moratorium on hydraulic fracturing and affirms state primacy over its regulation; a yea keeps the decision with the states rather than Washington, so it is recorded as supporting state authority.",
+   "rationaleAt": "netlify/database/migrations/20260725020000_vr_institutional_keys_backfill.sql"
+  },
+  {
+   "key": "H.R. 6126|118|strong_defense",
+   "act": "H.R. 6126|118",
+   "issue": "strong_defense",
+   "line": "Would have appropriated emergency defense money to replenish United States stocks drawn down for transfer; the House passed it 226-196.",
+   "term": "United States stocks drawn down for transfer",
+   "termIn": "rationale",
+   "rationale": "Title I appropriates emergency supplemental amounts to the Department of Defense under Operation and Maintenance, Procurement, and Research, Development, Test and Evaluation, funding replenishment of United States stocks drawn down for transfer and the production lines that refill them. Title II appropriates $3,500,000,000 to the Foreign Military Financing Program, the account through which allied procurement of American defense articles is financed. A yea appropriates emergency defense money outside the regular bill; a nay withholds it. Weighted 50 and secondary, matching the row H.R. 7217 already carries on this key, because the two bills fund the same Title I accounts on the same reading and identical readings should not produce different weights on the same axis.",
+   "rationaleAt": "netlify/database/migrations/20260918000000_vr_identity_densification_wave2.sql"
+  }
+ ],
+ "acts": {
+  "S. 1582|119": {
+   "status": "enacted",
+   "title": "Guiding and Establishing National Innovation for U.S. Stablecoins Act (GENIUS Act)",
+   "summary": "Creates the first federal regulatory framework for payment stablecoins — reserve, disclosure, and licensing rules for issuers. The first major U.S. crypto law; signed as Pub. L. 119-27.",
+   "summaryAt": "netlify/database/migrations/20260719210000_seed_landmark_measures_wave4.sql",
+   "rolls": [
+    {
+     "chamber": "senate",
+     "session": 1,
+     "roll": 318,
+     "question": "On Passage of the Bill",
+     "result": "passed",
+     "yea": 68,
+     "nay": 30
+    },
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 200,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 308,
+     "nay": 122
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "tech_innovation",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "A yea vote establishes a national framework for digital-asset (stablecoin) innovation."
+    },
+    {
+     "issueKey": "crypto_cbdc",
+     "weight": 90,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The first comprehensive federal crypto-market statute."
+    },
+    {
+     "issueKey": "tech_balance",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Balances digital-asset innovation against reserve, disclosure, and anti-money-laundering safeguards."
+    },
+    {
+     "issueKey": "states_federal_power",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Lets stablecoin issuers holding $10 billion or less opt into a state regulatory regime deemed substantially similar to the federal one, rather than folding every issuer into federal supervision; a yea preserves that state option. Matches the direction already carried by this bill's \"Dual federal–state oversight\" provision row, which had no measure-level counterpart."
+    }
+   ]
+  },
+  "H.R. 26|119": {
+   "status": "passed_house",
+   "title": "Protecting American Energy Production Act",
+   "summary": "Bars a federal moratorium on hydraulic fracturing and affirms state primacy over it.",
+   "summaryAt": "netlify/database/migrations/20260719170000_seed_landmark_measures.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 35,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 226,
+     "nay": 188
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "enviro_energy",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Protects and expands domestic oil and gas production by barring a fracking moratorium."
+    },
+    {
+     "issueKey": "energy_production",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Affirms state authority over hydraulic fracturing to keep energy output flowing."
+    },
+    {
+     "issueKey": "gov_regulation",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Restricts the executive from imposing a federal ban on hydraulic fracturing."
+    },
+    {
+     "issueKey": "lands_energy",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Concerns energy development on and under public and private lands."
+    },
+    {
+     "issueKey": "states_federal_power",
+     "weight": 65,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Bars a federal moratorium on hydraulic fracturing and affirms state primacy over its regulation; a yea keeps the decision with the states rather than Washington, so it is recorded as supporting state authority."
+    }
+   ]
+  },
+  "H.R. 6126|118": {
+   "status": "passed_house",
+   "title": "Israel Security Supplemental Appropriations Act, 2024",
+   "summary": "FY2024 emergency supplemental appropriations of approximately $14.3 billion for Israel, including Israeli cooperative missile-defense programs, Foreign Military Financing, and replacement of U.S. defense articles transferred to Israel, fully offset by rescinding an equal amount of Internal Revenue Service enforcement funding appropriated by the Inflation Reduction Act. Passed the House 226-196 on 2023-11-02; the Senate did not take it up.",
+   "summaryAt": "netlify/database/migrations/20260812000000_vr_israel_support_rollcalls.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 577,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 226,
+     "nay": 196
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "israel_support",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "FY2024 emergency supplemental of roughly $14.3 billion for Israel: Israeli cooperative missile-defense programs, Foreign Military Financing, and replacement of U.S. defense articles transferred to Israel after October 7. A yea appropriates the aid."
+    },
+    {
+     "issueKey": "cut_spending",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The bill offsets every dollar by rescinding an equal amount of Internal Revenue Service enforcement funding appropriated by the Inflation Reduction Act, so a yea also cancels that appropriation. This offset, not the Israel aid, is what drew the 196 nays, and the mapping records it so the Israel reading is not the only meaning attached to the roll."
+    },
+    {
+     "issueKey": "strong_defense",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Title I appropriates emergency supplemental amounts to the Department of Defense under Operation and Maintenance, Procurement, and Research, Development, Test and Evaluation, funding replenishment of United States stocks drawn down for transfer and the production lines that refill them. Title II appropriates $3,500,000,000 to the Foreign Military Financing Program, the account through which allied procurement of American defense articles is financed. A yea appropriates emergency defense money outside the regular bill; a nay withholds it. Weighted 50 and secondary, matching the row H.R. 7217 already carries on this key, because the two bills fund the same Title I accounts on the same reading and identical readings should not produce different weights on the same axis."
+    }
+   ]
+  }
+ },
+ "skipped": [],
+ "next": "With these three written, no pair is held back by the projection. Regenerate the census (blank pairs ranked by distinct member rows in the live record) before choosing slice 9."
+}
