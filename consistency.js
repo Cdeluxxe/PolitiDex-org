@@ -18290,6 +18290,37 @@
       'Would keep the decision with the states rather than Washington on regulating hydraulic fracturing; the House passed it 226-188.',
     'H.R. 6126|118|strong_defense':
       'Would have appropriated emergency defense money to replenish United States stocks drawn down for transfer; the House passed it 226-196.',
+    // BLANK ROWS SLICE 9 (v369). The highest-volume pairs a fresh census found
+    // printing nothing, at 109 member rows: the DETERRENT Act, the No Rogue
+    // Rulings Act, the Anti-CBDC Surveillance State Act, the LNG export bill and
+    // the Fix Our Forests Act. None stores a `did`; each line is
+    // written from that pair's own mapping rationale. None of these acts carried
+    // a line before, so none names a tally. db/vr-blank-rows-slice9.json names
+    // the source of each and the pairs skipped.
+    'H.R. 1048|119|gov_transparency':
+      'Would force disclosure of foreign money flowing to universities, faculty and endowments.',
+    'H.R. 1048|119|edu_balance':
+      'Would back federal higher-education rules with fines and Title IV enforcement for noncompliant institutions.',
+    'H.R. 1526|119|judicial_check':
+      'Would bar a district court from granting injunctive relief broader than the parties before it.',
+    'H.R. 1919|119|privacy_rights':
+      'Would block a government-issued digital currency, which supporters warn could enable financial surveillance.',
+    'H.R. 1919|119|crypto_cbdc':
+      'Would reserve to Congress the decision on whether the United States ever issues a central bank digital currency.',
+    'H.R. 1919|119|tech_balance':
+      'Would bar the Federal Reserve from holding accounts directly for individuals or offering retail financial products.',
+    'H.R. 1949|119|energy_production':
+      'Would speed approval of LNG export terminals to expand U.S. natural-gas production and shipments.',
+    'H.R. 1949|119|permitting_reform':
+      'Would eliminate the Energy Department’s separate approval step and consolidate permitting at FERC.',
+    'H.R. 1949|119|climate_action':
+      'Would end the review stage at which the emissions and price effects of an export are weighed.',
+    'H.R. 471|119|disaster_resilience':
+      'Would reduce catastrophic wildfire risk through hazardous-fuels reduction and faster mitigation.',
+    'H.R. 471|119|enviro_balance':
+      'Would tighten the timelines and standards for court challenges to forest-thinning and hazardous-fuels projects.',
+    'H.R. 471|119|permitting_reform':
+      'Would expedite NEPA environmental review and streamline permitting for qualifying forest-management projects.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is

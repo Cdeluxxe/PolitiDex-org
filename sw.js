@@ -9615,7 +9615,20 @@
 //     board or chip moved. consistency.js is precached and changed, so the shell
 //     moves one version. No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v368';
+// v369 - BLANK ROWS SLICE 9: TWELVE LINES FROM A FRESH BLANK-PAIR CENSUS.
+//     scripts/vr-blank-pair-census.mjs ranked every federal pair that printed
+//     nothing by members with a row. At 109 members, twelve pairs on five House
+//     bills take a line: the DETERRENT Act (H.R. 1048), the No Rogue Rulings Act
+//     (H.R. 1526), the Anti-CBDC Surveillance State Act (H.R. 1919), the LNG
+//     export bill (H.R. 1949) and the Fix Our Forests Act (H.R. 471). Each line
+//     is in _DOS_EFFECT, written from that pair's own mapping rationale
+//     (db/vr-blank-rows-slice9.json names each source and the nineteen pairs
+//     left blank). No shipped line, score,
+//     Direction Match, NEVER_FEEDS, publication floor, money pill, district
+//     board or chip moved. consistency.js is precached and changed, so the
+//     shell moves one version. No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v369';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

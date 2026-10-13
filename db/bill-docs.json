@@ -1934,15 +1934,18 @@
     },
     {
      "i": "Faster Permits & Reviews",
-     "k": "permitting_reform"
+     "k": "permitting_reform",
+     "l": "Would expedite NEPA environmental review and streamline permitting for qualifying forest-management projects."
     },
     {
      "i": "Practical Stewardship",
-     "k": "enviro_balance"
+     "k": "enviro_balance",
+     "l": "Would tighten the timelines and standards for court challenges to forest-thinning and hazardous-fuels projects."
     },
     {
      "i": "Wildfire & Disaster Resilience",
-     "k": "disaster_resilience"
+     "k": "disaster_resilience",
+     "l": "Would reduce catastrophic wildfire risk through hazardous-fuels reduction and faster mitigation."
     }
    ]
   },
@@ -2013,11 +2016,13 @@
    "m": [
     {
      "i": "Strengthen Every School",
-     "k": "edu_balance"
+     "k": "edu_balance",
+     "l": "Would back federal higher-education rules with fines and Title IV enforcement for noncompliant institutions."
     },
     {
      "i": "Transparency & Anti-Corruption",
-     "k": "gov_transparency"
+     "k": "gov_transparency",
+     "l": "Would force disclosure of foreign money flowing to universities, faculty and endowments."
     }
    ]
   },
@@ -2071,7 +2076,8 @@
    "m": [
     {
      "i": "Court Orders on the Executive",
-     "k": "judicial_check"
+     "k": "judicial_check",
+     "l": "Would bar a district court from granting injunctive relief broader than the parties before it."
     },
     {
      "i": "Practical Government Reform",
@@ -2087,15 +2093,18 @@
    "m": [
     {
      "i": "Cryptocurrency Rules & Digital Dollar",
-     "k": "crypto_cbdc"
+     "k": "crypto_cbdc",
+     "l": "Would reserve to Congress the decision on whether the United States ever issues a central bank digital currency."
     },
     {
      "i": "Privacy & Big-Tech Accountability",
-     "k": "privacy_rights"
+     "k": "privacy_rights",
+     "l": "Would block a government-issued digital currency, which supporters warn could enable financial surveillance."
     },
     {
      "i": "Smart Tech Guardrails",
-     "k": "tech_balance"
+     "k": "tech_balance",
+     "l": "Would bar the Federal Reserve from holding accounts directly for individuals or offering retail financial products."
     }
    ]
   },
@@ -2107,15 +2116,18 @@
    "m": [
     {
      "i": "Climate Action & Clean Energy",
-     "k": "climate_action"
+     "k": "climate_action",
+     "l": "Would end the review stage at which the emissions and price effects of an export are weighed."
     },
     {
      "i": "Expand Domestic Energy Production",
-     "k": "energy_production"
+     "k": "energy_production",
+     "l": "Would speed approval of LNG export terminals to expand U.S. natural-gas production and shipments."
     },
     {
      "i": "Faster Permits & Reviews",
-     "k": "permitting_reform"
+     "k": "permitting_reform",
+     "l": "Would eliminate the Energy Department’s separate approval step and consolidate permitting at FERC."
     },
     {
      "i": "Protect American Jobs",

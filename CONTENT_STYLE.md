@@ -183,6 +183,28 @@ later one, and the earlier slices' tests now allow that only inside a newer
 slice's block. `db/vr-blank-rows-slice8.json` records each line beside its
 source, and `scripts/test-blank-rows-slice8.mjs` holds them to these rules.
 
+Blank rows slice 9 began with a fresh census. `scripts/vr-blank-pair-census.mjs`
+reads every federal pair in the live record and applies the row rule the
+renderer applies. It lists the pairs that print nothing, ranked by how many
+distinct members carry the row. It found 93. The eleven above 109 members are
+all pairs an earlier slice skipped, and each reason still holds: a tense
+conflict between status and text, a forecast, a sibling's fact, or an aim or a
+topic. At 109 members there were twenty new pairs on seven House bills. Twelve
+took a line, on the DETERRENT Act, the No Rogue Rulings Act, the Anti-CBDC
+Surveillance State Act, the LNG export bill and the Fix Our Forests Act. The
+rules are slice 7's. All five passed the House only and open "Would". None
+carried a line before, so no line names a tally. Eight were skipped. Three state
+only an aim or a topic, and two have one fact that is a sibling's subject. The
+FY2026 NDAA's three are a tense conflict: H.R. 3838 is stored as enacted, but
+the archive's identity record says the law is S. 1071, and this act's one roll
+is the House version. A status that disagrees with the identity record is a
+skip, not a guess. The word
+"mapping" is a method word even where the stored text uses it for a
+map-making program, so the Fix Our Forests line leaves "fireshed mapping" out.
+`db/vr-blank-rows-slice9.json` records each line beside its source and every
+census pair at 109 members or more that was left blank, with its reason.
+`scripts/test-blank-rows-slice9.mjs` holds them to these rules.
+
 ### Executive rows
 
 An executive document's row (an order, a proclamation, a memorandum, a veto)

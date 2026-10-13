@@ -1,0 +1,432 @@
+{
+ "_comment": "Blank rows slice 9 (v369). Chosen from a fresh census (scripts/vr-blank-pair-census.mjs): every federal measure-and-issue pair in the live record whose row prints nothing, ranked by distinct members with a row. The pairs above 109 members are all ones earlier slices skipped, and their reasons still hold. At 109 members there are twenty new pairs on seven House bills. Twelve take a line here, on five acts; eight are skipped. None stores a `did`, so each line is written from its own mapping rationale (quoted here, with the file that stores it). `term` is the stored words the line carries and `termIn` names the field. Tense follows the stored outcome: all five acts passed the House only and open \"Would\". The FY2026 NDAA (H.R. 3838) is skipped because its stored status (enacted) conflicts with the archive's record that the law is S. 1071. None of the five acts carried a line before, so no line names a tally. `acts` carries every mapping on each act that takes a line. `skipped` lists every census pair at 109 members or more left blank, and why. No score, weight, mapping or key is read from or written to here.",
+ "_test": "scripts/test-blank-rows-slice9.mjs",
+ "_census": "scripts/vr-blank-pair-census.mjs",
+ "census": {
+  "blankPairs": 93,
+  "atOrAbove109": 31
+ },
+ "lines": 12,
+ "rows": [
+  {
+   "key": "H.R. 1048|119|gov_transparency",
+   "act": "H.R. 1048|119",
+   "issue": "gov_transparency",
+   "line": "Would force disclosure of foreign money flowing to universities, faculty and endowments.",
+   "term": "foreign money flowing to universities",
+   "termIn": "rationale",
+   "rationale": "Core purpose: force disclosure of foreign money flowing to universities, faculty, and endowments.",
+   "rationaleAt": "netlify/database/migrations/20260721180000_seed_legislation_expansion2.sql"
+  },
+  {
+   "key": "H.R. 1048|119|edu_balance",
+   "act": "H.R. 1048|119",
+   "issue": "edu_balance",
+   "line": "Would back federal higher-education rules with fines and Title IV enforcement for noncompliant institutions.",
+   "term": "Title IV enforcement for noncompliant institutions",
+   "termIn": "rationale",
+   "rationale": "Sets federal higher-education policy, backed by fines and Title IV enforcement for noncompliant institutions.",
+   "rationaleAt": "netlify/database/migrations/20260721180000_seed_legislation_expansion2.sql"
+  },
+  {
+   "key": "H.R. 1526|119|judicial_check",
+   "act": "H.R. 1526|119",
+   "issue": "judicial_check",
+   "line": "Would bar a district court from granting injunctive relief broader than the parties before it.",
+   "term": "injunctive relief broader than the parties before it",
+   "termIn": "rationale",
+   "rationale": "Bars a district court from granting injunctive relief broader than the parties before it, ending the nationwide injunction — the principal judicial remedy for halting federal action while it is challenged. Recorded as a yea cutting against judicial checks on the executive; supporters make the opposite case, that one district judge should not set national policy. Re-keyed from checks_balances in the August 2026 taxonomy split so that only members who took a position on court orders are judged by it. Weight 100 and primary status preserved.",
+   "rationaleAt": "netlify/database/migrations/20260904000000_vr_split_umbrella_issue_keys.sql"
+  },
+  {
+   "key": "H.R. 1919|119|privacy_rights",
+   "act": "H.R. 1919|119",
+   "issue": "privacy_rights",
+   "line": "Would block a government-issued digital currency, which supporters warn could enable financial surveillance.",
+   "term": "government-issued digital currency",
+   "termIn": "rationale",
+   "rationale": "Core purpose: block a government-issued digital currency that supporters warn could enable financial surveillance.",
+   "rationaleAt": "netlify/database/migrations/20260721190000_seed_legislation_expansion3.sql"
+  },
+  {
+   "key": "H.R. 1919|119|crypto_cbdc",
+   "act": "H.R. 1919|119",
+   "issue": "crypto_cbdc",
+   "line": "Would reserve to Congress the decision on whether the United States ever issues a central bank digital currency.",
+   "term": "to Congress the decision on whether the United States ever issues a central bank digital currency",
+   "termIn": "rationale",
+   "rationale": "Reserves to Congress the decision on whether the United States ever issues a central bank digital currency, barring the Federal Reserve from acting without explicit statutory authorization; a yea blocks a CBDC absent an act of Congress. Re-keyed from checks_balances in the August 2026 taxonomy split: the subject a member commits to here is the digital dollar, and the measure's privacy_rights primary at 100 already carries the surveillance axis. Weight 65 preserved.",
+   "rationaleAt": "netlify/database/migrations/20260904000000_vr_split_umbrella_issue_keys.sql"
+  },
+  {
+   "key": "H.R. 1919|119|tech_balance",
+   "act": "H.R. 1919|119",
+   "issue": "tech_balance",
+   "line": "Would bar the Federal Reserve from holding accounts directly for individuals or offering retail financial products.",
+   "term": "retail financial products",
+   "termIn": "rationale",
+   "rationale": "Bars the Federal Reserve from issuing a central bank digital currency, from holding accounts directly for individuals, and from offering retail financial products, in each case absent express authorization from Congress. A yea forecloses a class of payments technology by statute until Congress acts.",
+   "rationaleAt": "netlify/database/migrations/20260906000000_vr_rewrite_framed_mapping_rationales.sql"
+  },
+  {
+   "key": "H.R. 1949|119|energy_production",
+   "act": "H.R. 1949|119",
+   "issue": "energy_production",
+   "line": "Would speed approval of LNG export terminals to expand U.S. natural-gas production and shipments.",
+   "term": "LNG export terminals",
+   "termIn": "rationale",
+   "rationale": "Speeds approval of LNG export terminals to expand U.S. natural-gas production and shipments.",
+   "rationaleAt": "netlify/database/migrations/20260721200000_seed_legislation_expansion4.sql"
+  },
+  {
+   "key": "H.R. 1949|119|permitting_reform",
+   "act": "H.R. 1949|119",
+   "issue": "permitting_reform",
+   "line": "Would eliminate the Energy Department’s separate approval step and consolidate permitting at FERC.",
+   "term": "permitting at FERC",
+   "termIn": "rationale",
+   "rationale": "Eliminates the Energy Department's separate approval step and consolidates permitting at FERC. Re-keyed from gov_regulation in the August 2026 taxonomy split: removing an approval stage from a project's path is permitting speed, not rulebook size. Weight 70 preserved.",
+   "rationaleAt": "netlify/database/migrations/20260904000000_vr_split_umbrella_issue_keys.sql"
+  },
+  {
+   "key": "H.R. 1949|119|climate_action",
+   "act": "H.R. 1949|119",
+   "issue": "climate_action",
+   "line": "Would end the review stage at which the emissions and price effects of an export are weighed.",
+   "term": "emissions and price effects of an export",
+   "termIn": "rationale",
+   "rationale": "Removes the Department of Energy's separate approval requirement for natural-gas imports and exports, gives FERC sole authority over the siting and construction of LNG terminals, and directs by statute that exports be deemed consistent with the public interest. A yea eliminates the review stage at which the emissions and price effects of an export were weighed.",
+   "rationaleAt": "netlify/database/migrations/20260906000000_vr_rewrite_framed_mapping_rationales.sql"
+  },
+  {
+   "key": "H.R. 471|119|disaster_resilience",
+   "act": "H.R. 471|119",
+   "issue": "disaster_resilience",
+   "line": "Would reduce catastrophic wildfire risk through hazardous-fuels reduction and faster mitigation.",
+   "term": "catastrophic wildfire risk",
+   "termIn": "rationale",
+   "rationale": "Core purpose: reduce catastrophic wildfire risk through fireshed mapping, hazardous-fuels reduction, and faster mitigation.",
+   "rationaleAt": "netlify/database/migrations/20260721170000_seed_legislation_expansion.sql"
+  },
+  {
+   "key": "H.R. 471|119|enviro_balance",
+   "act": "H.R. 471|119",
+   "issue": "enviro_balance",
+   "line": "Would tighten the timelines and standards for court challenges to forest-thinning and hazardous-fuels projects.",
+   "term": "timelines and standards for court challenges",
+   "termIn": "rationale",
+   "rationale": "Expedites environmental review of forest-thinning and hazardous-fuels projects inside designated fireshed management areas, and tightens the timelines and standards for court challenges to those projects. A yea shortens both the review and the window to contest it.",
+   "rationaleAt": "netlify/database/migrations/20260906000000_vr_rewrite_framed_mapping_rationales.sql"
+  },
+  {
+   "key": "H.R. 471|119|permitting_reform",
+   "act": "H.R. 471|119",
+   "issue": "permitting_reform",
+   "line": "Would expedite NEPA environmental review and streamline permitting for qualifying forest-management projects.",
+   "term": "permitting for qualifying forest-management projects",
+   "termIn": "rationale",
+   "rationale": "Expedites NEPA environmental review and streamlines permitting for qualifying forest-management projects. Re-keyed from gov_regulation in the August 2026 taxonomy split: the measure shortens project review rather than reducing the number of federal rules. Weight 55 preserved.",
+   "rationaleAt": "netlify/database/migrations/20260904000000_vr_split_umbrella_issue_keys.sql"
+  }
+ ],
+ "acts": {
+  "H.R. 1048|119": {
+   "status": "passed_house",
+   "title": "Defending Education Transparency and Ending Rogue Regimes Engaging in Nefarious Transactions (DETERRENT) Act",
+   "summary": "Strengthens Section 117 of the Higher Education Act by lowering the threshold for universities to report foreign gifts and contracts from $250,000 to $50,000 — and to $0 for \"countries of concern\" (China, Iran, North Korea, Russia). Requires disclosure of individual gifts to faculty and staff in a searchable database, adds endowment-investment transparency for large private institutions, and enforces compliance with fines and potential loss of Title IV funding. Passed the House 241–169; awaits Senate action.",
+   "summaryAt": "netlify/database/migrations/20260721180000_seed_legislation_expansion2.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 83,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 241,
+     "nay": 169
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "gov_transparency",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Core purpose: force disclosure of foreign money flowing to universities, faculty, and endowments."
+    },
+    {
+     "issueKey": "edu_balance",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sets federal higher-education policy, backed by fines and Title IV enforcement for noncompliant institutions."
+    }
+   ]
+  },
+  "H.R. 1526|119": {
+   "status": "passed_house",
+   "title": "No Rogue Rulings Act of 2025",
+   "summary": "Limits federal district courts to issuing injunctive relief that applies only to the parties before the court, curtailing nationwide (\"universal\") injunctions. Creates an exception routing multi-state challenges to executive actions to a randomly assigned three-judge panel. Passed the House on a near party-line vote; awaits Senate action.",
+   "summaryAt": "netlify/database/migrations/20260721170000_seed_legislation_expansion.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 98,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 219,
+     "nay": 213
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "judicial_check",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Bars a district court from granting injunctive relief broader than the parties before it, ending the nationwide injunction — the principal judicial remedy for halting federal action while it is challenged. Recorded as a yea cutting against judicial checks on the executive; supporters make the opposite case, that one district judge should not set national policy. Re-keyed from checks_balances in the August 2026 taxonomy split so that only members who took a position on court orders are judged by it. Weight 100 and primary status preserved."
+    },
+    {
+     "issueKey": "reform_balance",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "A structural change to how courts issue relief; supporters call it a reform of judicial overreach."
+    }
+   ]
+  },
+  "H.R. 1919|119": {
+   "status": "passed_house",
+   "title": "Anti-CBDC Surveillance State Act",
+   "summary": "Prohibits the Federal Reserve from issuing a central bank digital currency (CBDC), maintaining accounts directly for individuals, or offering retail financial products, without explicit authorization from Congress. Framed by supporters as protecting financial privacy from government surveillance; critics say it forecloses a tool other central banks are exploring. Passed the House on a near party-line vote; awaits the Senate.",
+   "summaryAt": "netlify/database/migrations/20260721190000_seed_legislation_expansion3.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 201,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 219,
+     "nay": 210
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "privacy_rights",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Core purpose: block a government-issued digital currency that supporters warn could enable financial surveillance."
+    },
+    {
+     "issueKey": "crypto_cbdc",
+     "weight": 65,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Reserves to Congress the decision on whether the United States ever issues a central bank digital currency, barring the Federal Reserve from acting without explicit statutory authorization; a yea blocks a CBDC absent an act of Congress. Re-keyed from checks_balances in the August 2026 taxonomy split: the subject a member commits to here is the digital dollar, and the measure's privacy_rights primary at 100 already carries the surveillance axis. Weight 65 preserved."
+    },
+    {
+     "issueKey": "tech_balance",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Bars the Federal Reserve from issuing a central bank digital currency, from holding accounts directly for individuals, and from offering retail financial products, in each case absent express authorization from Congress. A yea forecloses a class of payments technology by statute until Congress acts."
+    }
+   ]
+  },
+  "H.R. 1949|119": {
+   "status": "passed_house",
+   "title": "Unlocking our Domestic LNG Potential Act of 2025",
+   "summary": "Removes the Department of Energy's separate approval requirement for natural-gas imports and exports and gives the Federal Energy Regulatory Commission (FERC) sole authority to approve the siting, construction, and operation of LNG terminals — while directing that exports be deemed consistent with the public interest. Supporters call it a way to speed U.S. energy exports and cut red tape; critics warn it sidelines review of price and emissions effects. Passed the House; awaits the Senate.",
+   "summaryAt": "netlify/database/migrations/20260721200000_seed_legislation_expansion4.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 304,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 217,
+     "nay": 188
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "energy_production",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Speeds approval of LNG export terminals to expand U.S. natural-gas production and shipments."
+    },
+    {
+     "issueKey": "permitting_reform",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Eliminates the Energy Department's separate approval step and consolidates permitting at FERC. Re-keyed from gov_regulation in the August 2026 taxonomy split: removing an approval stage from a project's path is permitting speed, not rulebook size. Weight 70 preserved."
+    },
+    {
+     "issueKey": "econ_trade",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Aims to grow U.S. energy exports to allied and other foreign markets."
+    },
+    {
+     "issueKey": "climate_action",
+     "weight": 40,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Removes the Department of Energy's separate approval requirement for natural-gas imports and exports, gives FERC sole authority over the siting and construction of LNG terminals, and directs by statute that exports be deemed consistent with the public interest. A yea eliminates the review stage at which the emissions and price effects of an export were weighed."
+    }
+   ]
+  },
+  "H.R. 471|119": {
+   "status": "passed_house",
+   "title": "Fix Our Forests Act",
+   "summary": "Overhauls management of federal forests to reduce catastrophic wildfire risk: designates high-risk \"fireshed management areas,\" creates an interagency Fireshed Center to map and predict fire, expedites environmental review of forest-thinning and hazardous-fuels projects, and tightens court timelines for challenges to those projects. Passed the House with bipartisan support; awaits Senate action.",
+   "summaryAt": "netlify/database/migrations/20260721170000_seed_legislation_expansion.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 25,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 279,
+     "nay": 141
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "disaster_resilience",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Core purpose: reduce catastrophic wildfire risk through fireshed mapping, hazardous-fuels reduction, and faster mitigation."
+    },
+    {
+     "issueKey": "lands_balance",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sets federal forest-management policy on public lands, balancing active management against preservation."
+    },
+    {
+     "issueKey": "permitting_reform",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Expedites NEPA environmental review and streamlines permitting for qualifying forest-management projects. Re-keyed from gov_regulation in the August 2026 taxonomy split: the measure shortens project review rather than reducing the number of federal rules. Weight 55 preserved."
+    },
+    {
+     "issueKey": "enviro_balance",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Expedites environmental review of forest-thinning and hazardous-fuels projects inside designated fireshed management areas, and tightens the timelines and standards for court challenges to those projects. A yea shortens both the review and the window to contest it."
+    }
+   ]
+  }
+ },
+ "skipped": [
+  {
+   "key": "H.R. 4|119|america_first",
+   "members": 210,
+   "why": "Unchanged from slice 6: the rationale restates the $7.9 billion foreign-assistance rescission that the act's cut-spending and America First foreign policy lines already carry, so a line would borrow a sibling's fact."
+  },
+  {
+   "key": "H.R. 6644|119|crypto_cbdc",
+   "members": 208,
+   "why": "Unchanged from slice 6: the rationale and summary describe an enacted law (Public Law 119-101) while the stored status is passed_house, so the tense cannot be settled from stored text until the two agree."
+  },
+  {
+   "key": "H.R. 6644|119|housing_support",
+   "members": 208,
+   "why": "Same status conflict as H.R. 6644's crypto row: the rationale reads the enrolled text of an enacted law, the stored status is passed_house."
+  },
+  {
+   "key": "H.R. 6644|119|permitting_reform",
+   "members": 208,
+   "why": "Same status conflict as H.R. 6644's crypto row: the rationale opens \"Three sections of the enacted law\", the stored status is passed_house."
+  },
+  {
+   "key": "H.R. 82|118|national_debt",
+   "members": 199,
+   "why": "Unchanged from slice 6: the rationale is the Congressional Budget Office's deficit projection, a forecast about the act rather than something the act does."
+  },
+  {
+   "key": "H.R. 28|119|edu_parental",
+   "members": 110,
+   "why": "Unchanged from slice 7: the rationale states only how a vote aligns with a position; its one fact, the sex-at-birth definition, is the edu_balance row's own subject."
+  },
+  {
+   "key": "H.R. 21|119|pro_life",
+   "members": 109,
+   "why": "Unchanged from slice 7: the rationale states a direction only (\"advances abortion restrictions\"); the act's one concrete requirement is the healthcare row's own line."
+  },
+  {
+   "key": "H.R. 26|119|gov_regulation",
+   "members": 109,
+   "why": "Unchanged from slice 7: the rationale's one fact, barring a federal fracking ban, is the enviro_energy line's own subject."
+  },
+  {
+   "key": "H.R. 26|119|lands_energy",
+   "members": 109,
+   "why": "Unchanged from slice 7: the rationale (\"Concerns energy development on and under public and private lands\") states a topic, not an effect."
+  },
+  {
+   "key": "H.R. 27|119|health_mental",
+   "members": 109,
+   "why": "Unchanged from slice 7: the rationale's one effect, permanent scheduling of fentanyl-related substances, is the immig_fentanyl line's own subject; the rest names a topic."
+  },
+  {
+   "key": "H.R. 6703|119|healthcare_costs",
+   "members": 109,
+   "why": "Unchanged from slice 7: the rationale states an aim only (\"a market-based approach to lowering premiums\"); the mechanism is the healthcare_market row's subject."
+  },
+  {
+   "key": "H.R. 1526|119|reform_balance",
+   "members": 109,
+   "why": "The rationale calls the bill \"a structural change to how courts issue relief\" and reports how supporters describe it; its only effect, limiting relief to the parties, is the judicial_check line's own subject."
+  },
+  {
+   "key": "H.R. 1949|119|econ_trade",
+   "members": 109,
+   "why": "The rationale states an aim only (\"Aims to grow U.S. energy exports\"), not something the bill does."
+  },
+  {
+   "key": "H.R. 3633|119|tech_innovation",
+   "members": 109,
+   "why": "The rationale's one fact, a comprehensive market-structure regime for digital assets, is what the act's crypto_cbdc line already says; the rest is how supporters describe it."
+  },
+  {
+   "key": "H.R. 3633|119|econ_growth",
+   "members": 109,
+   "why": "The rationale states an aim only (\"Aims to keep digital-asset businesses and capital in the United States\")."
+  },
+  {
+   "key": "H.R. 471|119|lands_balance",
+   "members": 109,
+   "why": "The rationale (\"Sets federal forest-management policy on public lands, balancing active management against preservation\") states a topic, not an effect."
+  },
+  {
+   "key": "H.R. 3838|119|strong_defense",
+   "members": 109,
+   "why": "Tense conflict. The stored status is enacted, but the archive's identity record (db/vr-measure-identity.json) and migration 20260820000000_vr_landmark_enacted_law_rollcalls say the FY2026 NDAA became law as S. 1071, not H.R. 3838; this act's one roll is the House version (231-196). Neither \"Authorized\" nor \"Would authorize\" can be settled from stored text until the status and the identity agree."
+  },
+  {
+   "key": "H.R. 3838|119|veterans",
+   "members": 109,
+   "why": "Same tense conflict as H.R. 3838's strong_defense row; the 3.8% pay raise in its rationale is also the enacted compromise's, not the House version's."
+  },
+  {
+   "key": "H.R. 3838|119|national_debt",
+   "members": 109,
+   "why": "Same tense conflict as H.R. 3838's strong_defense row; the $900.6 billion topline in its rationale is the enacted compromise's figure, not the House version's."
+  }
+ ],
+ "next": "After this slice the highest-volume blank pairs not yet reviewed sit at 108 members: H.Amdt. 253|119|gun_rights, H.Amdt. 87|119|lgbtq_rights, H.Con.Res. 108|119|strong_defense, H.Con.Res. 108|119|war_powers, H.Con.Res. 113|119|strong_defense, H.Con.Res. 89|119|strong_defense, H.Con.Res. 89|119|war_powers, H.R. 1041|119|veterans, H.R. 7148|119|healthcare, H.R. 7757|119|privacy_rights, H.R. 9237|119|health_mental, H.R. 9237|119|health_rural, H.R. 9770|119|gov_services, H.R. 9770|119|national_debt. Rerun the census before choosing slice 10."
+}
