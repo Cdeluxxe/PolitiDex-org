@@ -17142,8 +17142,9 @@
   // happened in: the motion to send it back, then the vote that sent it out.
   // Subject keys whose ledger prints no for/against line — see the note in the
   // body. Iran joined when its drawer took the second-term instruments: a country
-  // it is, like the other two, and it sits in _RD_NO_POLE with them.
-  var _DOS_LEDGER_NO_SIDE = { iran_policy: 1, ukraine_policy: 1, yemen_policy: 1 };
+  // it is, like the other two, and it sits in _RD_NO_POLE with them. Venezuela
+  // joined as a leaf of its own, on the same contract.
+  var _DOS_LEDGER_NO_SIDE = { iran_policy: 1, ukraine_policy: 1, yemen_policy: 1, venezuela_policy: 1 };
   // A TERM IS A FILTER, AND ONLY WHEN THE READER TURNS IT ON. The drawer opens on
   // the whole file — every term — and carries no term word. Where the rows span
   // more than one term, a control under the tally lets the reader narrow the list
@@ -18186,6 +18187,15 @@
       'Repealed the federal waiver that let California set stricter heavy-truck standards than the national floor, narrowing that state authority.',
     'H.J.Res. 89|119|cost_living':
       'Ended the zero-emission share required of new trucks sold in the adopting states, leaving fleet purchasers free to buy conventional trucks.',
+    // VENEZUELA LEAF SLICE 5 (v365). The two Senate war-powers resolutions whose
+    // own subject is Venezuela, on the new venezuela_policy key. Each is written
+    // from that pair's own mapping rationale and the roll on file, in the tense
+    // and shape of the same act's lines on its other leaves, which are separate.
+    // db/vr-venezuela-leaf.json names the source of each.
+    'S.J.Res. 90|119|venezuela_policy':
+      'Would have ordered U.S. forces out of hostilities against Venezuela Congress had not authorized; the Senate refused to discharge it 49-51.',
+    'S.J.Res. 98|119|venezuela_policy':
+      'Would order U.S. forces out of hostilities against Venezuela that Congress has not authorized; the Senate voted 52-47 to discharge it.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is
@@ -18339,7 +18349,15 @@
     'Proclamation 11038|tariffs_growth':
       'Chose duty-free foreign supply over the tariff for a fertilizer shortfall, finding domestic capacity would take time to build.',
     'Proclamation 11038|tariffs_prices':
-      'Waived a duty on phosphate fertilizer during the spring application window, citing supply-chain disruption and rapid price increases.'
+      'Waived a duty on phosphate fertilizer during the spring application window, citing supply-chain disruption and rapid price increases.',
+    // VENEZUELA LEAF SLICE 5 (v365). The two executive orders whose own subject is
+    // Venezuela, on the new venezuela_policy key, each written from that pair's
+    // own stored `plain`, `rationale` or `counts`. db/vr-venezuela-leaf.json
+    // names the source of each.
+    'Executive Order 14245|venezuela_policy':
+      'Authorized a 25 percent duty on goods from any country found to buy oil from Venezuela, directly or indirectly.',
+    'Executive Order 14373|venezuela_policy':
+      'Voided any court attachment of Venezuelan oil revenue held by the United States and kept it in Treasury custody for Venezuela’s government.'
   };
   // A ROW WHOSE FACTS LIVE ON ANOTHER LEAF POINTS AT THAT LEAF.
   //

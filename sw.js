@@ -9558,7 +9558,27 @@
 //     version.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v364';
+// v365 - 🇻🇪 VENEZUELA BECOMES A LEAF UNDER FOREIGN POLICY. One new subject key,
+//     venezuela_policy, on the Iran, Ukraine and Yemen contract: declared
+//     identically in alignment-tool.js and issue-map.js under 🦅 Foreign Policy
+//     & National Security, in _RD_NO_POLE and _DOS_LEDGER_NO_SIDE (the drawer
+//     says "No side published on this subject" and prints no for/against line),
+//     skipped by the word ledger's branding index, and a find subject with the
+//     aliases venezuela, venezuelan and caracas. It holds the four acts whose own
+//     subject is Venezuela, each a secondary row beside its existing ones:
+//     S.J.Res. 90 and S.J.Res. 98 (119th) and Executive Orders 14245 and 14373,
+//     each with one effect line from its own stored text
+//     (db/vr-venezuela-leaf.json). No existing key, line, score, Direction
+//     Match, NEVER_FEEDS, publication floor, money pill or district board moved;
+//     the acts' "Also on" chips now name Venezuela beside their other issues.
+//     consistency.js, alignment-tool.js, issue-map.js, stance-helpers.js,
+//     stance-tree.js, word-action.js, issue-scope.js and exec-action-data.js are
+//     precached and changed, so the shell moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none on the device. In the database,
+//     20261116000000_vr_venezuela_policy_issue_key adds the key to dd_issue_keys
+//     and four secondary vr_measure_issues rows; no existing row moves.
+const CACHE_VERSION = 'v365';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

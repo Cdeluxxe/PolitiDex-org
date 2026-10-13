@@ -3164,6 +3164,11 @@
      "i": "Peace Through Strength",
      "k": "strong_defense",
      "l": "Would have pulled U.S. forces from unauthorized Venezuela hostilities, save self-defense; the Senate refused to discharge it 49-51."
+    },
+    {
+     "i": "Venezuela",
+     "k": "venezuela_policy",
+     "l": "Would have ordered U.S. forces out of hostilities against Venezuela Congress had not authorized; the Senate refused to discharge it 49-51."
     }
    ]
   },
@@ -3187,6 +3192,11 @@
      "i": "Peace Through Strength",
      "k": "strong_defense",
      "l": "Would pull U.S. forces from unauthorized Venezuela hostilities, save self-defense; the Senate voted 52-47 to discharge it."
+    },
+    {
+     "i": "Venezuela",
+     "k": "venezuela_policy",
+     "l": "Would order U.S. forces out of hostilities against Venezuela that Congress has not authorized; the Senate voted 52-47 to discharge it."
     }
    ]
   },

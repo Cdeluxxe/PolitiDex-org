@@ -52,7 +52,7 @@ const CODED_LABEL = "How this row was coded · not the vote itself";
 const CODING = /Why it counts here:|How it was linked:|Which way it cut:|Said versus did:|Multi-issue bill:|Not yet explained by a curator/;
 const METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary carries no|coded|filed as|rationale|weighted)\b/i;
 const NOT_DM = /not in Direction Match/i;
-const NO_POLE = new Set(["iran_policy", "ukraine_policy", "yemen_policy"]);
+const NO_POLE = new Set(["iran_policy", "ukraine_policy", "yemen_policy", "venezuela_policy"]);
 const corpus = buildCorpus(ROOT);
 
 function boot(src) {

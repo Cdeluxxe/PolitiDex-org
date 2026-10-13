@@ -151,7 +151,7 @@ const HTML = new Map();
 const key = (x) => `${x.pid}/${x.key}`;
 // Iran joined the other two country keys when its drawer took the second-term
 // instruments; all three are in _RD_NO_POLE and _DOS_LEDGER_NO_SIDE.
-const NO_SIDE_KEYS = new Set(["iran_policy", "ukraine_policy", "yemen_policy"]);
+const NO_SIDE_KEYS = new Set(["iran_policy", "ukraine_policy", "yemen_policy", "venezuela_policy"]);
 for (const x of ALL) {
   let h = "";
   try { h = CS.gapViewHtml(x.pid, x.key) || ""; } catch (e) { fails.push(`${key(x)}: gapViewHtml threw ${e.message}`); }
@@ -638,7 +638,11 @@ section("9 · the pass stayed in its lane");
     if (head === null) continue;
     // A subject key joining _RD_NO_POLE is a vocabulary change, not a drawer edit:
     // that one table is read out of both sides before stance-helpers.js is compared.
-    const np = (t) => f === "stance-helpers.js" ? t.replace(/var _RD_NO_POLE = \{[\s\S]*?\n    \};/, "") : t;
+    // So is a country key joining word-action.js's branding skip list, the table that
+    // keeps a campaign tag off a subject key; it and its note are read out of both.
+    const np = (t) => f === "stance-helpers.js" ? t.replace(/var _RD_NO_POLE = \{[\s\S]*?\n    \};/, "")
+      : f === "word-action.js" ? t.replace(/ {2}\/\/ COUNTRY LEAVES TAKE NO BRANDING\.[\s\S]*?var BRANDING_SKIP = \{[^}]*\};/, "")
+      : t;
     ok(np(deOrigin(head)) === np(deOrigin(R(f))), `${f} changed — this pass reshapes one drawer and must touch nothing else`);
   }
 
@@ -1318,6 +1322,15 @@ section("14 · the harvest — every stored did, read against the effect rule");
   const EPA_KEYS = (() => {
     const src = R("consistency.js"), at = src.indexOf("// EPA WAIVER RESOLUTIONS SLICE 4 (v364)");
     if (at === -1) return new Set();
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// VENEZUELA LEAF SLICE 5 (v365)", at);
+    return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+  })();
+  // VENEZUELA LEAF SLICE 5 (v365) in the vote table, from its marker to the end
+  // of the table, held by scripts/test-venezuela-leaf.mjs.
+  const VE_KEYS = (() => {
+    const src = R("consistency.js"), a0 = src.indexOf("var _DOS_EFFECT = {");
+    const at = a0 === -1 ? -1 : src.indexOf("// VENEZUELA LEAF SLICE 5 (v365)", a0);
+    if (at === -1 || at > src.indexOf("\n  };", a0)) return new Set();
     return new Set([...src.slice(at, src.indexOf("\n  };", at)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
   })();
   const IRAN = Object.keys(EFFECT).filter((k) => /\|iran_policy$/.test(k) && !RIDER_KEYS.has(k));
@@ -1841,9 +1854,23 @@ section("14 · the harvest — every stored did, read against the effect rule");
     const m = k.split("|").slice(0, 2).join("|");
     ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
   }
-  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !FISCAL.includes(k) && !LONGDID.includes(k) && !EPA.includes(k) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
+  // VENEZUELA LEAF SLICE 5 (v365). The two Senate war-powers resolutions on the
+  // new venezuela_policy key, held in detail by scripts/test-venezuela-leaf.mjs;
+  // here the batch rules. Neither passed the Senate, so each reads "Would" in the
+  // tense of the act's other lines and ends on its discharge roll.
+  const VEN = [...VE_KEYS];
+  ok(VEN.length === 2, `${VEN.length} Venezuela vote line(s) — the slice wrote 2`);
+  for (const k of VEN) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the Venezuela effect line`);
+    ok(/^S\.J\.Res\. (?:90|98)\|119\|venezuela_policy$/.test(k), `${k}: outside the slice's two pairs`);
+    ok(/^Would\b/.test(v) && /Venezuela/.test(v) && /; the Senate (?:refused to discharge it|voted) \d+-\d+(?: to discharge it)?\.$/.test(v), `${k}: does not open "Would", name Venezuela and end on its discharge roll`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !FISCAL.includes(k) && !LONGDID.includes(k) && !EPA.includes(k) && !VEN.includes(k) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length + FISCAL.length + LONGDID.length + EPA.length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length + FISCAL.length + LONGDID.length + EPA.length + VEN.length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.

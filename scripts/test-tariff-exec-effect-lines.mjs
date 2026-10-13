@@ -89,10 +89,19 @@ function mapOf(src, name) {
   const end = src.indexOf("\n  };", at);
   return { text: src.slice(at, end + 4), map: vm.runInNewContext("(" + src.slice(at + `var ${name} = `.length, end + 4) + ")") };
 }
+// The block runs from its marker to the next slice's marker (a later executive
+// slice writes its own block after this one) or to the end of the table.
+function blockEnd(src, a) {
+  const end = src.indexOf("\n  };", a);
+  const re = /\n {4}\/\/ [A-Z][A-Z -]* SLICE \d+ \(v\d+\)\./g;
+  re.lastIndex = a + MARK.length;
+  const m = re.exec(src);
+  return m && m.index < end ? m.index : end;
+}
 function blockKeys(src) {
   const a = src.indexOf(MARK);
   if (a < 0) return [];
-  return [...src.slice(a, src.indexOf("\n  };", a)).matchAll(/^    '((?:[^'\\]|\\.)+)':$/gm)].map((m) => m[1].replace(/\\'/g, "'"));
+  return [...src.slice(a, blockEnd(src, a)).matchAll(/^    '((?:[^'\\]|\\.)+)':$/gm)].map((m) => m[1].replace(/\\'/g, "'"));
 }
 // The table as it stood before this slice: the comma that joined the block and
 // the block itself taken out whole.
@@ -100,7 +109,9 @@ function withoutSlice(src) {
   const a = src.indexOf(MARK);
   if (a < 0) return src;
   const comma = src.lastIndexOf(",\n", a);
-  return src.slice(0, comma) + src.slice(src.indexOf("\n  };", a));
+  const end = blockEnd(src, a);
+  // A later slice's block stays, joined to the table by its own comma.
+  return src.slice(0, comma) + (src.startsWith("\n  };", end) ? "" : ",") + src.slice(end);
 }
 
 // ── the documents this slice covers, read from the seed ─────────────────────
@@ -194,7 +205,9 @@ function check(src, ledger, { pids = ALL_PIDS, base = null } = {}) {
   ok(ledger.rows.length === 37 && ledger.lines === 37, `${ledger.rows.length} rows in the record — the slice wrote 37 pairs`);
   ok(block.length === NEW.size && block.every((k) => NEW.has(k)), `the block holds ${JSON.stringify(block.filter((k) => !NEW.has(k)))} outside the record, or misses some of its pairs`);
   ok(DOCS.size === 16 && ledger.documents.length === 16 && ledger.documents.every((d) => DOCS.has(d)), `the record names ${ledger.documents.length} documents, the seed carries ${DOCS.size} with a tariff or trade key`);
-  const shippedX = Object.entries(X.map).filter(([k]) => !NEW.has(k));
+  // A later executive slice's block (vr-slice-blocks.mjs) is that slice's to pin.
+  const newerX = keysAfter(src, "_DOS_EXEC_EFFECT", 361);
+  const shippedX = Object.entries(X.map).filter(([k]) => !NEW.has(k) && !newerX.has(k));
   const want = [];
   for (const [doc, x] of DOCS) for (const m of x.issues || []) {
     const k = `${doc}|${m.issueKey}`;

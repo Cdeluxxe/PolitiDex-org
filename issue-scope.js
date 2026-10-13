@@ -135,6 +135,11 @@
       out: 'A war-powers resolution about another theatre, or naming none, even though it sits on the same chips. The Iran war-powers resolution (S.J. Res. 68) stays on Iran.',
       note: 'Added September 2026 beside Congress and War Powers, Diplomacy & Restraint, Peace Through Strength and Iran, not in place of any of them. The label names a country, so no side is ever read on it.'
     },
+    venezuela_policy: {
+      inn: 'Acts whose own text names Venezuela as the subject: war-powers resolutions directed at hostilities within or against Venezuela, duties on countries that import Venezuelan oil, and the custody of Venezuelan oil revenue.',
+      out: 'A war-powers resolution naming no theatre, a cartel proclamation covering the whole hemisphere, and a defense or appropriations bill that carries a Venezuela line among many. Those keep their Congress and War Powers, Diplomacy & Restraint and Peace Through Strength readings and get no Venezuela row.',
+      note: 'Added October 2026 beside Congress and War Powers, Diplomacy & Restraint, Peace Through Strength, America First and Tariffs & Trade Authority, not in place of any of them. The label names a country, so no side is ever read on it.'
+    },
     election_security: {
       inn: 'Safeguards on who votes and how ballots are handled: eligibility verification (documentary proof of citizenship, ID), voter-roll maintenance, ballot chain-of-custody and handling rules, post-election audits and audit conditions on election funding, and enforcement against fraud or non-citizen voting.',
       out: 'Campaign finance, redistricting, certification of results and Electoral Count Act questions — those are not administration of the ballot.',
