@@ -2402,6 +2402,19 @@
       // cross-reference rather than as this leaf's own sentence.
       '.pdxlg-t tr.pdxlg-ptrr td{border-top:none;padding:0 0.4rem 0.4rem 0;' +
         'color:#93a6c4;font-size:0.7rem;line-height:1.4;font-style:italic;}' +
+      // The other issues the act is stored on, under its effect line: issue chips
+      // in their own colour, each a door to that issue's drawer.
+      '.pdxlg-t tr.pdxlg-relr td{border-top:none;padding:0 0.4rem 0.45rem 0;}' +
+      '.pdxlg-rel{display:flex;flex-wrap:wrap;align-items:center;gap:0.2rem;}' +
+      '.pdxlg-rel-k{font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:0.05em;' +
+        'font-size:0.6rem;color:#8fa2c0;margin-right:0.2rem;}' +
+      '.pdxlg-rel-c{display:inline-flex;align-items:center;min-height:24px;font-size:0.62rem;padding:0 0.45rem;' +
+        'border-radius:999px;border:1px solid rgba(255,255,255,0.18);color:#cfe0f8;text-decoration:none;white-space:nowrap;}' +
+      '.pdxlg-rel-c.pdxc-ic{border-color:var(--pdx-ic);background:var(--pdx-ic-wash,transparent);color:var(--pdx-ic-ink,#e8eefc);}' +
+      '.pdxlg-rel-c:hover,.pdxlg-rel-c:focus-visible{border-color:#9fdbff;outline:none;}' +
+      '.pdxlg-other{margin:0.5rem 0 0;font-size:0.7rem;}' +
+      '.pdxlg-other-a{color:#9fdbff;text-decoration:none;font-weight:700;}' +
+      '.pdxlg-other-a:hover,.pdxlg-other-a:focus-visible{text-decoration:underline;}' +
       '.pdxlg-d{white-space:nowrap;font-variant-numeric:tabular-nums;color:#8fa2c0;font-size:0.68rem;}' +
       '.pdxlg-num{font-weight:800;color:#e8eefc;white-space:nowrap;font-size:0.95rem;}' +
       // One chip per row: which way this act cut on this issue.
@@ -17312,6 +17325,10 @@
         if (eff) {
           out += '<tr class="pdxlg-effr" data-pdxlg-effr="' + p.i + '">' +
             '<td colspan="5" class="pdxlg-eff" data-pdxlg-eff="1">' + esc(eff) + '</td></tr>';
+          // The other issues this same act is stored on, each a door to that
+          // issue's drawer for this file. Its own row, under the effect line it
+          // belongs to; nothing at all when the act sits on this issue alone.
+          out += _dosRelRowHtml(pid, issueKey, d, p.i);
         } else if (d.ptrLine) {
           // Not this leaf's line: a pointer to the same act's line on another leaf,
           // in its own row class so nothing reads it as an effect on this one.
@@ -17325,7 +17342,61 @@
       }
       out += '</tbody></table></div>';
     }
-    return out + '</div>';
+    return out + _dosOtherBillsHtml(issueKey) + '</div>';
+  }
+
+  // THE OTHER ISSUES THE SAME ACT IS STORED ON, under its effect line.
+  //
+  // Read only from the mappings the row already carries (d.item.issues — the
+  // measure's stored issues for a vote, the document's for an executive act), so
+  // a chip exists exactly while its mapping does: remove the mapping and the chip
+  // goes with it. The issue being read is never repeated, a key the site has no
+  // label for is never printed, and an act on one issue prints nothing. Each chip
+  // is the existing issue chip — its label, its colour — and a door: tapping it
+  // opens that issue's drawer for this same file, through the same data-pdxc-gap
+  // route the drawer's own steppers use, with the file's address as the fallback.
+  // It reads, scores and sums nothing.
+  var _DOS_REL_KEY = /^[A-Za-z0-9_]+$/;
+  function _dosRelKeys(d, issueKey) {
+    var list = (d && d.item && d.item.issues) || [], seen = {}, out = [];
+    for (var i = 0; i < list.length; i++) {
+      var k = list[i] && list[i].issueKey;
+      if (!k || k === issueKey || seen[k] || !_DOS_REL_KEY.test(k)) continue;
+      seen[k] = 1;
+      var lb = _issueLabel(k);
+      if (!lb || lb === k) continue;
+      out.push(k);
+    }
+    return out;
+  }
+  function _dosRelHref(pid, k) {
+    try {
+      var P = window.PDXPerson;
+      if (P && typeof P.cardPath === 'function') { var h = P.cardPath(pid, k); if (h) return h; }
+    } catch (e) { /* fall through to the plain address */ }
+    return '/p/' + encodeURIComponent(pid) + '?issue=' + encodeURIComponent(k);
+  }
+  function _dosRelRowHtml(pid, issueKey, d, idx) {
+    if (!pid) return '';
+    var keys = _dosRelKeys(d, issueKey);
+    if (!keys.length) return '';
+    var chips = keys.map(function (k) {
+      var sk = _icSkin(k), lb = _dosLeafName(k);
+      return '<a class="pdxlg-rel-c' + sk.cls + '" href="' + escAttr(_dosRelHref(pid, k)) + '"' +
+        (sk.style ? ' style="' + escAttr(sk.style) + '"' : '') +
+        ' data-pdxlg-rel-key="' + escAttr(k) + '" data-pdxc-gap="' + escAttr(k) + '" data-pdxc-gap-pid="' + escAttr(pid) + '"' +
+        ' aria-label="' + escAttr('Open ' + lb + ' for this file') + '">' + esc(lb) + '</a>';
+    }).join('');
+    return '<tr class="pdxlg-relr" data-pdxlg-relr="' + idx + '">' +
+      '<td colspan="5" class="pdxlg-rel" data-pdxlg-rel="1"><span class="pdxlg-rel-k">Also on</span>' + chips + '</td></tr>';
+  }
+  // OTHER BILLS ON THIS ISSUE: one link to the existing legislation archive,
+  // filtered to this issue. No list is ranked or counted here.
+  function _dosOtherBillsHtml(issueKey) {
+    if (!issueKey || !_DOS_REL_KEY.test(issueKey)) return '';
+    return '<p class="pdxlg-other" data-pdxlg-other="1"><a class="pdxlg-other-a" href="' +
+      escAttr('/library?mode=legislation&issue=' + encodeURIComponent(issueKey)) + '">' +
+      'Other bills that touch this issue \u2192</a></p>';
   }
 
   // WHAT THE ACT DID TO THIS ISSUE, in one sentence under its row.
