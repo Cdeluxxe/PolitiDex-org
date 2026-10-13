@@ -9642,7 +9642,20 @@
 //     moved. consistency.js is precached and changed, so the shell moves one
 //     version. No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v370';
+// v371 - BLANK ROWS SLICE 11: SIX LINES IN THE CENSUS'S 107-MEMBER BAND.
+//     The regenerated blank-pair census (scripts/vr-blank-pair-census.mjs) put
+//     eighteen pairs on ten failed or agreed House amendments at 107 members. Six
+//     take a line, all on failed amendments: H.Amdt. 232 (Fulbright), 237
+//     (U.N. contributions), 247 (military injunctions), 249 (state fuel policy
+//     study), 250 (defense scrap-metal preemption) and 251 (foreign exercise
+//     costs). Each line is in _DOS_EFFECT, written from that pair's own mapping
+//     rationale (db/vr-blank-rows-slice11.json names each source and the twelve
+//     pairs left blank). No shipped line, score, Direction Match, NEVER_FEEDS,
+//     publication floor, money pill, district board or chip moved.
+//     consistency.js is precached and changed, so the shell moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v371';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

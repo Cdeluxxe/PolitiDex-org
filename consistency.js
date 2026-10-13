@@ -18351,6 +18351,26 @@
       'Would fund federal operations into FY2027, keeping the government open and existing programs running.',
     'H.R. 9770|119|national_debt':
       'Would continue federal spending at existing levels without offsets.',
+    // BLANK ROWS SLICE 11 (v371). The 107-member band of the regenerated census:
+    // six failed House amendments to the FY2027 national security appropriations
+    // bill and the FY2027 NDAA, on the Fulbright Program, U.N. contributions,
+    // military injunctions, state fuel policy, defense scrap-metal rules and
+    // foreign exercise costs. None stores a `did`; each line is written from that
+    // pair's own mapping rationale. None of these acts carried a line before, so
+    // none names a tally. db/vr-blank-rows-slice11.json names the source of each
+    // and the pairs skipped.
+    'H.Amdt. 232|119|cut_spending':
+      'Would have zeroed out the existing federal appropriation for the Fulbright Program.',
+    'H.Amdt. 237|119|cut_spending':
+      'Would have removed U.S. contributions to the U.N. from the appropriation.',
+    'H.Amdt. 247|119|judicial_check':
+      'Would have barred any court from issuing an injunction that impairs military readiness, military fuel supply or defense logistics.',
+    'H.Amdt. 249|119|states_federal_power':
+      'Would have directed a study of how federal authority could preempt or mitigate state actions that undermine domestic refining capacity.',
+    'H.Amdt. 250|119|states_federal_power':
+      'Would have preempted state and local laws that set different requirements on defense-related scrap-metal processing and materials recovery.',
+    'H.Amdt. 251|119|cut_spending':
+      'Would have barred Department of Defense expenditure covering the costs of participating foreign military personnel.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is

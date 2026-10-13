@@ -447,7 +447,12 @@ MUTANTS.push({ name: "an edited rationale", edit: (s) => s,
   ledger: { ...LEDGER, rows: LEDGER.rows.map((r) => (r.key === "H.R. 9770|119|national_debt" ? { ...r, rationale: r.rationale.replace("offsets", "cuts") } : r)) },
   expect: /does not hold the quoted rationale|is not the mapping's/ });
 MUTANTS.push({ name: "a line on a skipped pair",
-  edit: (s) => s.replace("\n  };\n  var _DOS_EFFECT_METHOD", "\n    'H.Con.Res. 108|119|strong_defense':\n      'Would have ended the Lebanon deployment by concurrent resolution; the House rejected it 189-235.',\n  };\n  var _DOS_EFFECT_METHOD"),
+  // Inside slice 10's own block: before the next slice's marker, or the table's end.
+  edit: (s) => {
+    const add = "    'H.Con.Res. 108|119|strong_defense':\n      'Would have ended the Lebanon deployment by concurrent resolution; the House rejected it 189-235.',\n";
+    const next = s.search(/\n {4}\/\/ [A-Z][A-Z -]* SLICE \d+ \(v(?:37[1-9]|3[89]\d|[4-9]\d\d)\)\./);
+    return next > s.indexOf(MARK) ? s.slice(0, next + 1) + add + s.slice(next + 1) : s.replace("\n  };\n  var _DOS_EFFECT_METHOD", "\n" + add.slice(0, -1) + "\n  };\n  var _DOS_EFFECT_METHOD");
+  },
   expect: /a skipped pair carries a line|the block holds/ });
 MUTANTS.push({ name: "a chip for the issue being read",
   edit: (s) => s.replace("if (!k || k === issueKey || seen[k] || !_DOS_REL_KEY.test(k)) continue;", "if (!k || seen[k] || !_DOS_REL_KEY.test(k)) continue;"),

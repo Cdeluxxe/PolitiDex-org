@@ -1077,7 +1077,8 @@
     },
     {
      "i": "Cut Federal Spending & Reduce Debt",
-     "k": "cut_spending"
+     "k": "cut_spending",
+     "l": "Would have zeroed out the existing federal appropriation for the Fulbright Program."
     }
    ]
   },
@@ -1155,7 +1156,8 @@
     },
     {
      "i": "Cut Federal Spending & Reduce Debt",
-     "k": "cut_spending"
+     "k": "cut_spending",
+     "l": "Would have removed U.S. contributions to the U.N. from the appropriation."
     }
    ]
   },
@@ -1210,7 +1212,8 @@
    "m": [
     {
      "i": "Court Orders on the Executive",
-     "k": "judicial_check"
+     "k": "judicial_check",
+     "l": "Would have barred any court from issuing an injunction that impairs military readiness, military fuel supply or defense logistics."
     }
    ]
   },
@@ -1240,7 +1243,8 @@
    "m": [
     {
      "i": "Whose Rule Governs: State or Federal",
-     "k": "states_federal_power"
+     "k": "states_federal_power",
+     "l": "Would have directed a study of how federal authority could preempt or mitigate state actions that undermine domestic refining capacity."
     }
    ]
   },
@@ -1252,7 +1256,8 @@
    "m": [
     {
      "i": "Whose Rule Governs: State or Federal",
-     "k": "states_federal_power"
+     "k": "states_federal_power",
+     "l": "Would have preempted state and local laws that set different requirements on defense-related scrap-metal processing and materials recovery."
     }
    ]
   },
@@ -1268,7 +1273,8 @@
     },
     {
      "i": "Cut Federal Spending & Reduce Debt",
-     "k": "cut_spending"
+     "k": "cut_spending",
+     "l": "Would have barred Department of Defense expenditure covering the costs of participating foreign military personnel."
     },
     {
      "i": "Strategic Engagement",

@@ -240,6 +240,41 @@ The rules are slice 9's.
 three skips with their reasons. `scripts/test-blank-rows-slice10.mjs` holds them to
 these rules.
 
+Blank rows slice 11 took the 107-member band of the rerun census: 70 blank pairs,
+with exactly the eighteen at 107 members that slice 10 named, on ten House
+amendments to the FY2027 national security appropriations bill and the FY2027
+NDAA, and no others. Six took a line, each on a failed amendment, and each opens
+"Would have":
+
+- H.Amdt. 232 (Fulbright)
+- H.Amdt. 237 (U.N. contributions)
+- H.Amdt. 247 (military injunctions)
+- H.Amdt. 249 (state fuel policy study)
+- H.Amdt. 250 (defense scrap-metal preemption)
+- H.Amdt. 251 (foreign exercise costs)
+
+None of the six carried a line before, so none names a tally. Two rationales
+abbreviate what they cut. H.Amdt. 232's says only "an existing federal
+appropriation", and H.Amdt. 251's says only "a category" of defense spending.
+Both lines take the name from the stored title.
+
+America First pairs stay blank. That leaf's own standard holds a pair the
+database alone maps, with no stored `did`, blank, and names these amendments
+among them. It also requires its lines to name the foreign aid or commitment
+moved. So where an amendment's one effect fits both America First and spending
+cuts, the line goes on spending cuts, written from that pair's own rationale.
+
+Twelve were skipped. Eleven of them are a second key on an amendment that does
+one thing, and the one thing already has a line: H.Amdt. 252's Ukraine line,
+H.Amdt. 255's LGBTQ line, H.Amdt. 266's spending-cut line, H.Amdt. 234's climate
+line, or the line this slice wrote on the same amendment. A second key on the
+same single effect is a skip, not a rephrasing. The twelfth is H.Amdt. 251's
+foreign-balance row, which names only a consequence.
+
+`db/vr-blank-rows-slice11.json` records each line beside its source and every
+skip with its reason. `scripts/test-blank-rows-slice11.mjs` holds them to these
+rules.
+
 ### Executive rows
 
 An executive document's row (an order, a proclamation, a memorandum, a veto)

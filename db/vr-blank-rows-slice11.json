@@ -1,0 +1,332 @@
+{
+ "_comment": "Blank rows slice 11 (v371). The next band of a regenerated census (scripts/vr-blank-pair-census.mjs). Every federal pair in the live record whose row prints nothing, ranked by distinct members with a row. After slice 10 the census holds 70 blank pairs. The ones above 107 members are all pairs earlier slices skipped, with their reasons unchanged. At 107 members sit exactly the eighteen pairs slice 10's `next` named, on ten House amendments (H.Amdt. 232 to 266, to the FY2027 national security appropriations bill and the FY2027 NDAA), and no others. Six take a line here; twelve are skipped. Most of the skips are on amendments whose one effect an existing line already carries; the America First pairs also stay blank under that leaf's own rule that a database-only pair with no `did` carries no line. None stores a `did` and none has a stored summary, so each line is written from its own mapping rationale (quoted here, with the file that stores it), with the measure's stored title only where the rationale abbreviates a name. `term` is the stored words the line carries and `termIn` names the field. All six amendments failed, so each line opens \"Would have\". None of the six carried a line before, so none names a tally. `acts` carries every mapping on each act that takes a line. `skipped` lists the twelve band pairs left blank and why. No score, weight, mapping or key is read from or written to here.",
+ "_test": "scripts/test-blank-rows-slice11.mjs",
+ "_census": "scripts/vr-blank-pair-census.mjs",
+ "census": {
+  "blankPairs": 70,
+  "band": 107,
+  "inBand": 18
+ },
+ "lines": 6,
+ "rows": [
+  {
+   "key": "H.Amdt. 232|119|cut_spending",
+   "act": "H.Amdt. 232|119",
+   "issue": "cut_spending",
+   "line": "Would have zeroed out the existing federal appropriation for the Fulbright Program.",
+   "term": "existing federal appropriation",
+   "termIn": "rationale",
+   "rationale": "The amendment's operative effect is to zero out an existing federal appropriation; a yea cuts that spending.",
+   "rationaleAt": "netlify/database/migrations/20260725000000_vr_multi_issue_mappings_wave2.sql",
+   "nameFromTitle": "Fulbright Program",
+   "note": "The rationale says only \"an existing federal appropriation\"; the program it zeroes out is named from the measure's stored title."
+  },
+  {
+   "key": "H.Amdt. 237|119|cut_spending",
+   "act": "H.Amdt. 237|119",
+   "issue": "cut_spending",
+   "line": "Would have removed U.S. contributions to the U.N. from the appropriation.",
+   "term": "U.S. contributions to the U.N.",
+   "termIn": "rationale",
+   "rationale": "Removes U.S. contributions to the U.N. from the appropriation; a yea cuts that spending.",
+   "rationaleAt": "netlify/database/migrations/20260725000000_vr_multi_issue_mappings_wave2.sql"
+  },
+  {
+   "key": "H.Amdt. 247|119|judicial_check",
+   "act": "H.Amdt. 247|119",
+   "issue": "judicial_check",
+   "line": "Would have barred any court from issuing an injunction that impairs military readiness, military fuel supply or defense logistics.",
+   "term": "issuing an injunction that impairs military readiness",
+   "termIn": "rationale",
+   "rationale": "Bars any court from issuing an injunction that impairs military readiness, military fuel supply, or defense-related logistical support. Recorded as a yea removing a judicial check on executive action, the same reading the corpus applies to H.R. 1526's bar on nationwide injunctions; supporters make the opposite case, that litigation should not be able to halt military operations. Re-keyed from checks_balances in the August 2026 taxonomy split. Weight 100 and primary status preserved: this amendment is the only roll call in the record isolating the question.",
+   "rationaleAt": "netlify/database/migrations/20260904000000_vr_split_umbrella_issue_keys.sql"
+  },
+  {
+   "key": "H.Amdt. 249|119|states_federal_power",
+   "act": "H.Amdt. 249|119",
+   "issue": "states_federal_power",
+   "line": "Would have directed a study of how federal authority could preempt or mitigate state actions that undermine domestic refining capacity.",
+   "term": "state actions that undermine domestic refining capacity",
+   "termIn": "rationale",
+   "rationale": "Directs a study of mechanisms by which federal authority could preempt or mitigate state actions that undermine domestic refining capacity, and of how the federal government may intervene in state fuel policy. A yea points federal authority at state policy, so it is recorded as cutting against state power — at a lower weight than an operative preemption, because the amendment commissions a study rather than preempting anything.",
+   "rationaleAt": "netlify/database/migrations/20260725020000_vr_institutional_keys_backfill.sql"
+  },
+  {
+   "key": "H.Amdt. 250|119|states_federal_power",
+   "act": "H.Amdt. 250|119",
+   "issue": "states_federal_power",
+   "line": "Would have preempted state and local laws that set different requirements on defense-related scrap-metal processing and materials recovery.",
+   "term": "defense-related scrap-metal processing",
+   "termIn": "rationale",
+   "rationale": "Preempts state and local laws that impose requirements different from federal standards on defense-related scrap-metal processing, materials recovery, and the disposal of defense articles. Federal preemption of state law is the operative mechanism, so a yea narrows state authority and is recorded as cutting against state power.",
+   "rationaleAt": "netlify/database/migrations/20260725020000_vr_institutional_keys_backfill.sql"
+  },
+  {
+   "key": "H.Amdt. 251|119|cut_spending",
+   "act": "H.Amdt. 251|119",
+   "issue": "cut_spending",
+   "line": "Would have barred Department of Defense expenditure covering the costs of participating foreign military personnel.",
+   "term": "Department of Defense expenditure",
+   "termIn": "rationale",
+   "rationale": "Bars a category of Department of Defense expenditure; a yea reduces that spending.",
+   "rationaleAt": "netlify/database/migrations/20260725000000_vr_multi_issue_mappings_wave2.sql",
+   "nameFromTitle": "the costs of foreign military personnel participating",
+   "note": "The rationale says only \"a category of Department of Defense expenditure\"; the category is named from the measure's stored title."
+  }
+ ],
+ "acts": {
+  "H.Amdt. 232|119": {
+   "status": "failed",
+   "title": "H.Amdt. 232 (Boebert) to H.R. 8595 — eliminate funding for the Fulbright Program",
+   "summary": "",
+   "summaryAt": null,
+   "titleAt": "netlify/database/migrations/20260724140000_seed_house_119_s2_voting_record.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 2,
+     "roll": 241,
+     "question": "On Agreeing to the Amendment",
+     "result": "failed",
+     "yea": 79,
+     "nay": 348
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "cut_spending",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "The amendment's operative effect is to zero out an existing federal appropriation; a yea cuts that spending."
+    },
+    {
+     "issueKey": "america_first_fp",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Ends U.S. funding for an international exchange program, squarely within rethinking foreign-aid and cultural-diplomacy commitments."
+    }
+   ]
+  },
+  "H.Amdt. 237|119": {
+   "status": "failed",
+   "title": "H.Amdt. 237 (Roy) to H.R. 8595 — prohibit any funds from being made available to the United Nations",
+   "summary": "",
+   "summaryAt": null,
+   "titleAt": "netlify/database/migrations/20260724140000_seed_house_119_s2_voting_record.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 2,
+     "roll": 245,
+     "question": "On Agreeing to the Amendment",
+     "result": "failed",
+     "yea": 136,
+     "nay": 291
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "america_first_fp",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Prohibits any funds in the bill from going to the United Nations — a direct vote on U.S. participation in and funding of a multilateral body."
+    },
+    {
+     "issueKey": "cut_spending",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Removes U.S. contributions to the U.N. from the appropriation; a yea cuts that spending."
+    }
+   ]
+  },
+  "H.Amdt. 247|119": {
+   "status": "failed",
+   "title": "H.Amdt. 247 (Hunt) to H.R. 8800 — amend the bill to ensure that no court may issue injunctions that impair military readiness, military fuel supply, or defense-related logistical…",
+   "summary": "",
+   "summaryAt": null,
+   "titleAt": "netlify/database/migrations/20260724140000_seed_house_119_s2_voting_record.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 2,
+     "roll": 259,
+     "question": "On Agreeing to the Amendment",
+     "result": "failed",
+     "yea": 208,
+     "nay": 219
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "judicial_check",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Bars any court from issuing an injunction that impairs military readiness, military fuel supply, or defense-related logistical support. Recorded as a yea removing a judicial check on executive action, the same reading the corpus applies to H.R. 1526's bar on nationwide injunctions; supporters make the opposite case, that litigation should not be able to halt military operations. Re-keyed from checks_balances in the August 2026 taxonomy split. Weight 100 and primary status preserved: this amendment is the only roll call in the record isolating the question."
+    }
+   ]
+  },
+  "H.Amdt. 249|119": {
+   "status": "failed",
+   "title": "H.Amdt. 249 (Gallagher) to H.R. 8800 — conduct a study to explore mechanisms by which federal authority can preempt or otherwise mitigate state actions that effectively undermine domestic…",
+   "summary": "",
+   "summaryAt": null,
+   "titleAt": "netlify/database/migrations/20260724140000_seed_house_119_s2_voting_record.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 2,
+     "roll": 261,
+     "question": "On Agreeing to the Amendment",
+     "result": "failed",
+     "yea": 212,
+     "nay": 216
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "states_federal_power",
+     "weight": 70,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Directs a study of mechanisms by which federal authority could preempt or mitigate state actions that undermine domestic refining capacity, and of how the federal government may intervene in state fuel policy. A yea points federal authority at state policy, so it is recorded as cutting against state power — at a lower weight than an operative preemption, because the amendment commissions a study rather than preempting anything."
+    }
+   ]
+  },
+  "H.Amdt. 250|119": {
+   "status": "failed",
+   "title": "H.Amdt. 250 (Carter) to H.R. 8800 — preempt state and local laws that impose requirements different from federal standards on certain defense-related recycling, disposal, and materials…",
+   "summary": "",
+   "summaryAt": null,
+   "titleAt": "netlify/database/migrations/20260724140000_seed_house_119_s2_voting_record.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 2,
+     "roll": 262,
+     "question": "On Agreeing to the Amendment",
+     "result": "failed",
+     "yea": 201,
+     "nay": 224
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "states_federal_power",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Preempts state and local laws that impose requirements different from federal standards on defense-related scrap-metal processing, materials recovery, and the disposal of defense articles. Federal preemption of state law is the operative mechanism, so a yea narrows state authority and is recorded as cutting against state power."
+    }
+   ]
+  },
+  "H.Amdt. 251|119": {
+   "status": "failed",
+   "title": "H.Amdt. 251 (Crane) to H.R. 8800 — prohibit the Department of Defense from using taxpayer funds to cover the costs of foreign military personnel participating in bilateral or…",
+   "summary": "",
+   "summaryAt": null,
+   "titleAt": "netlify/database/migrations/20260724140000_seed_house_119_s2_voting_record.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 2,
+     "roll": 263,
+     "question": "On Agreeing to the Amendment",
+     "result": "failed",
+     "yea": 61,
+     "nay": 365
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "america_first_fp",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Stops U.S. taxpayers from paying allied nations' costs to take part in joint exercises; a yea puts that U.S. cost first."
+    },
+    {
+     "issueKey": "foreign_balance",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Joint bilateral and multilateral exercises are the working mechanics of allied interoperability; a yea makes them harder to run with partners."
+    },
+    {
+     "issueKey": "cut_spending",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Bars a category of Department of Defense expenditure; a yea reduces that spending."
+    }
+   ]
+  }
+ },
+ "skipped": [
+  {
+   "key": "H.Amdt. 232|119|america_first_fp",
+   "members": 107,
+   "why": "The rationale's one effect, ending U.S. funding for an international exchange program, is the zeroed-out appropriation the act's cut_spending line states. The America First leaf also holds its database-only pairs, which store no `did`, blank (scripts/test-america-first-effect-lines.mjs names H.Amdt. 232, 237 and 251 among them), and requires its lines to name the foreign aid or commitment moved."
+  },
+  {
+   "key": "H.Amdt. 234|119|cut_spending",
+   "members": 107,
+   "why": "The rationale's one effect, striking the $139,575,000 appropriation, is what the act's climate_action line already says."
+  },
+  {
+   "key": "H.Amdt. 234|119|america_first_fp",
+   "members": 107,
+   "why": "The rationale's one effect, ending the contribution to the Global Environment Facility, is the struck appropriation the act's climate_action line already says; the rest frames it. The America First leaf also holds its database-only pairs, which store no `did`, blank (scripts/test-america-first-effect-lines.mjs names H.Amdt. 232, 237 and 251 among them), and requires its lines to name the foreign aid or commitment moved."
+  },
+  {
+   "key": "H.Amdt. 251|119|foreign_balance",
+   "members": 107,
+   "why": "The rationale states a consequence reading (exercises become \"harder to run with partners\"), not something the amendment does; the one act it names, paying partners' exercise costs, is the cut_spending line's subject."
+  },
+  {
+   "key": "H.Amdt. 252|119|america_first_fp",
+   "members": 107,
+   "why": "The rationale's one effect, cutting off U.S. security assistance to Ukraine, is what the act's ukraine_policy line already says. The America First leaf also holds its database-only pairs, which store no `did`, blank (scripts/test-america-first-effect-lines.mjs names H.Amdt. 232, 237 and 251 among them), and requires its lines to name the foreign aid or commitment moved."
+  },
+  {
+   "key": "H.Amdt. 252|119|foreign_balance",
+   "members": 107,
+   "why": "The rationale's one effect, withdrawing the security assistance, is what the act's ukraine_policy line already says; that NATO partners coordinate it describes the aid, not the amendment."
+  },
+  {
+   "key": "H.Amdt. 252|119|restraint",
+   "members": 107,
+   "why": "The rationale's one effect, ending U.S. military assistance to the conflict, is what the act's ukraine_policy line already says."
+  },
+  {
+   "key": "H.Amdt. 252|119|strong_defense",
+   "members": 107,
+   "why": "The rationale restates the ukraine_policy line's own fact: no funds for the Ukraine Security Assistance Initiative except embassy security."
+  },
+  {
+   "key": "H.Amdt. 255|119|healthcare",
+   "members": 107,
+   "why": "The rationale's one effect, removing a category of care from TRICARE coverage, is what the act's lgbtq_rights line already says."
+  },
+  {
+   "key": "H.Amdt. 266|119|gov_waste",
+   "members": 107,
+   "why": "The rationale describes the same report the act's cut_spending line already states (options for cutting 200,000 civilian positions); its added details are terms of that report, not a separate effect."
+  },
+  {
+   "key": "H.Amdt. 237|119|america_first_fp",
+   "members": 107,
+   "why": "The rationale's one effect, barring funds to the United Nations, is what the act's cut_spending line states, and its stored text names no foreign aid. The America First leaf also holds its database-only pairs, which store no `did`, blank (scripts/test-america-first-effect-lines.mjs names H.Amdt. 232, 237 and 251 among them), and requires its lines to name the foreign aid or commitment moved."
+  },
+  {
+   "key": "H.Amdt. 251|119|america_first_fp",
+   "members": 107,
+   "why": "The rationale's one effect, ending U.S. payment of partners' exercise costs, is the expenditure bar the act's cut_spending line states. The America First leaf also holds its database-only pairs, which store no `did`, blank (scripts/test-america-first-effect-lines.mjs names H.Amdt. 232, 237 and 251 among them), and requires its lines to name the foreign aid or commitment moved."
+  }
+ ],
+ "next": "After this slice the highest-volume blank pairs not yet reviewed sit at 101 members: H.R. 1|117|scotus_reform, H.R. 7910|117|gun_rights, H.R. 7910|117|gun_safety, H.R. 8|117|gun_rights, H.R. 8|117|gun_safety. Rerun the census before choosing slice 12."
+}
