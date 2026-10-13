@@ -106,6 +106,31 @@ and H.R. 1 of the 119th Congress. `db/vr-fiscal-effect-lines.json` records each
 line with the source it was written from, and
 `scripts/test-fiscal-effect-lines.mjs` holds them to these rules.
 
+### Executive rows
+
+An executive document's row (an order, a proclamation, a memorandum, a veto)
+takes the same kind of sentence, stored in `_DOS_EXEC_EFFECT` and keyed by the
+document and the issue. It is never shared with a vote on the same subject: the
+two tables stay separate, and a line written for a veto cannot surface under a
+member's vote on the vetoed bill.
+
+- The document is the subject, in the past tense ("Imposed…", "Ended…",
+  "Waived…"). The President is not named.
+- Written only from that document-and-issue pair's own stored `plain`,
+  `rationale` or `counts` and the document's stored title. Every figure the line
+  names is a figure that pair stores; nothing is added from memory or from
+  another issue on the same document.
+- What the document did, not how it later fared. A struck-down or superseded
+  order still reads as what it imposed; its standing is shown elsewhere.
+- A document that touches an issue only in passing and carries no key in the
+  family being written stays blank rather than being swept in.
+
+Tariff orders slice 2 added thirty-seven such lines on the sixteen tariff and
+trade documents, across the six tariff, trade and cost-of-living keys.
+`db/vr-tariff-exec-effect-lines.json` records each line with the stored words
+it was written from, and `scripts/test-tariff-exec-effect-lines.mjs` holds them
+to these rules.
+
 ## Scope
 
 This standard applies to all current and future content: Spotlight items

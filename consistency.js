@@ -18163,7 +18163,87 @@
     'Presidential Letter, DCPD-202500715|war_powers':
       'Directed a strike on three Iranian nuclear facilities on his own constitutional authority, citing no congressional authorization.',
     'Presidential Letter, DCPD-202500715|iran_policy':
-      'Directed the June 21, 2025 U.S. strike on three Iranian nuclear facilities, reporting it to Congress two days later.'
+      'Directed the June 21, 2025 U.S. strike on three Iranian nuclear facilities, reporting it to Congress two days later.',
+    // TARIFF ORDERS SLICE 2 (v361). Every pair on the six tariff and trade keys
+    // for the sixteen tariff and trade documents that printed nothing under its
+    // row. Each is written from that pair's own `plain`, `rationale` or
+    // `counts` and the document's title, and from nothing else: no sibling
+    // key's line and no vote on the same subject. db/vr-tariff-exec-effect-lines.json
+    // names the source of each.
+    'Presidential Memorandum, 90 FR 8471|econ_trade':
+      'Directed Commerce, Treasury and the Trade Representative to investigate persistent goods trade deficits and recommend remedies.',
+    'Executive Order 14193|tariffs_authority':
+      'Imposed duties on goods from Canada by executive order under emergency economic powers, with no rate schedule enacted by Congress.',
+    'Executive Order 14194|tariffs_authority':
+      'Imposed duties on goods from Mexico by executive order under emergency economic powers, with no rate schedule enacted by Congress.',
+    'Executive Order 14195|tariffs_china':
+      'Imposed an extra across-the-board duty on goods from China, after finding ordinary tariff authority inadequate.',
+    'Executive Order 14195|tariffs_authority':
+      'Set the China duty rate by executive order under emergency economic powers, rather than under a rate schedule enacted by Congress.',
+    'Proclamation 10896|tariffs_growth':
+      'Ended every country exemption and quota that had displaced the steel tariff, restoring the duty across steel imports.',
+    'Proclamation 10896|econ_trade':
+      'Closed the arrangements named partners had used to ship steel outside the duty, to rebuild domestic steel capacity.',
+    'Proclamation 10896|tariffs_prices':
+      'Restored the steel duty with no offsetting relief for the American manufacturers and builders who buy steel.',
+    'Executive Order 14228|tariffs_china':
+      'Doubled the China tariff from 10 percent to 20 percent, finding Beijing had not moved against the fentanyl trade.',
+    'Executive Order 14245|tariffs_authority':
+      'Claimed the power to tariff any country that buys Venezuelan oil, at a rate and against a target chosen by the executive branch alone.',
+    'Executive Order 14257|tariffs_growth':
+      'Imposed a baseline duty on nearly every trading partner, finding persistent goods deficits had hollowed out domestic manufacturing.',
+    'Executive Order 14257|tariffs_authority':
+      'Set reciprocal tariff rates by executive order under emergency economic powers rather than under a rate schedule enacted by Congress.',
+    'Executive Order 14257|tariffs_prices':
+      'Put duties on nearly the whole import base with no offsetting relief for household purchasers.',
+    'Executive Order 14257|tariffs_china':
+      'Assigned China one of the higher country-specific rates in its annexed schedule, citing non-reciprocal trade practices.',
+    'Executive Order 14257|econ_trade':
+      'Used import duties as the instrument for reshoring manufacturing and rebuilding supply chains.',
+    'Executive Order 14257|cost_living':
+      'Charged a duty on imported consumer goods from nearly every trading partner, with nothing offsetting it for households.',
+    'Executive Order 14358|tariffs_china':
+      'Kept the higher China tariff rates suspended for a further twelve months under a negotiated trade arrangement.',
+    'Executive Order 14360|tariffs_prices':
+      'Pulled a list of agricultural products out of the reciprocal tariff and ordered refunds of duties already collected on them.',
+    'Executive Order 14360|tariffs_growth':
+      'Narrowed the reciprocal tariff’s coverage, citing current domestic demand and current domestic capacity to produce certain products.',
+    'Executive Order 14360|cost_living':
+      'Took the reciprocal tariff back off imported coffee, bananas, beef and other farm goods, so it stopped showing up in grocery prices.',
+    'Proclamation 11010|cost_living':
+      'Raised the 2026 beef import quota by 80,000 metric tons of lean trimmings, finding domestic supply would not meet demand.',
+    'Proclamation 11010|tariffs_prices':
+      'Let more beef enter at the low in-quota tariff rate instead of the high over-quota rate, to hold a grocery price down.',
+    'Executive Order 14389|tariffs_china':
+      'Ended the emergency-powers tariffs on China, ordering agencies to stop collecting them as soon as practicable.',
+    'Executive Order 14389|tariffs_growth':
+      'Switched off the whole emergency-powers tariff program at once, the reciprocal tariff among them.',
+    'Executive Order 14389|tariffs_prices':
+      'Ended collection of the emergency-powers duties and provided for refunds of duties already paid.',
+    'Proclamation 11012|tariffs_growth':
+      'Imposed a temporary 10 percent surcharge on imported articles under the balance-of-payments provision of the Trade Act.',
+    'Proclamation 11012|econ_trade':
+      'Re-imposed broad import duties the day the previous program ended, under a different statute, so the barrier stayed up without a gap.',
+    'Proclamation 11012|tariffs_prices':
+      'Put a surcharge on nearly all imported articles, carving out critical minerals, energy, fertilizers, medicines, some food and electronics.',
+    'Proclamation 11012|cost_living':
+      'Placed a surcharge on imported consumer goods generally, more than a year after the directive to bring those costs down.',
+    'Proclamation 11020|tariffs_prices':
+      'Set a 100 percent duty on imported medicines, its own findings placing the bulk of covered supply outside the country.',
+    'Proclamation 11020|econ_trade':
+      'Rested on a national-security finding about foreign dependence for medicines and directed continued negotiation of agreements.',
+    'Proclamation 11020|cost_living':
+      'Put a border charge on imported patented medicines, exempting generics, biosimilars and a list of specialty therapies.',
+    'Executive Order 14411|econ_trade':
+      'Ordered Homeland Security to require importers of record to hold domestic assets or larger bonds and disclose beneficial ownership.',
+    'Executive Order 14411|tariffs_growth':
+      'Tightened who may act as an importer of record so duties owed are actually collected.',
+    'Proclamation 11038|econ_trade':
+      'Declared an emergency and let Moroccan phosphate fertilizer enter duty-free for up to eight months, waiving countervailing duties.',
+    'Proclamation 11038|tariffs_growth':
+      'Chose duty-free foreign supply over the tariff for a fertilizer shortfall, finding domestic capacity would take time to build.',
+    'Proclamation 11038|tariffs_prices':
+      'Waived a duty on phosphate fertilizer during the spring application window, citing supply-chain disruption and rapid price increases.'
   };
   // A ROW WHOSE FACTS LIVE ON ANOTHER LEAF POINTS AT THAT LEAF.
   //

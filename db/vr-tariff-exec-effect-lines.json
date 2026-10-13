@@ -1,0 +1,378 @@
+{
+ "_comment": "Tariff orders slice 2 (v361). Every pair on tariffs_prices, tariffs_growth, tariffs_china, tariffs_authority, econ_trade and cost_living for the sixteen executive documents in db/exec-action-seed.json that carry a tariff or trade key, where the pair printed nothing under its row in the President's drawers: 37 pairs. Each line is stored once in consistency.js _DOS_EXEC_EFFECT under the TARIFF ORDERS SLICE 2 marker, keyed by the document and the issue, and is written only from that pair's own stored `plain`, `rationale` or `counts` and the document's stored title. `term` is the stored words the line carries and `termIn` names the field they are in. No line is a sibling key's line or a vote's line on the same subject, and nothing is summed. The vote-line table (_DOS_EFFECT) is not touched. No score, mapping, direction or standing is read from or written to here.",
+ "_test": "scripts/test-tariff-exec-effect-lines.mjs",
+ "keys": [
+  "tariffs_prices",
+  "tariffs_growth",
+  "tariffs_china",
+  "tariffs_authority",
+  "econ_trade",
+  "cost_living"
+ ],
+ "documents": [
+  "Presidential Memorandum, 90 FR 8471",
+  "Executive Order 14193",
+  "Executive Order 14194",
+  "Executive Order 14195",
+  "Proclamation 10896",
+  "Executive Order 14228",
+  "Executive Order 14245",
+  "Executive Order 14257",
+  "Executive Order 14358",
+  "Executive Order 14360",
+  "Proclamation 11010",
+  "Executive Order 14389",
+  "Proclamation 11012",
+  "Proclamation 11020",
+  "Executive Order 14411",
+  "Proclamation 11038"
+ ],
+ "excluded": [
+  {
+   "documentId": "Presidential Memorandum, 90 FR 8245",
+   "issue": "cost_living",
+   "why": "The day-one affordability directive is not a tariff or trade document: it carries no tariff or trade key, so it is outside this slice and keeps its blank row."
+  },
+  {
+   "documentId": "Executive Order 14394",
+   "issue": "cost_living",
+   "why": "The housing-permitting order is not a tariff or trade document: it carries no tariff or trade key, so it is outside this slice and keeps its blank row."
+  }
+ ],
+ "lines": 37,
+ "rows": [
+  {
+   "key": "Presidential Memorandum, 90 FR 8471|econ_trade",
+   "documentId": "Presidential Memorandum, 90 FR 8471",
+   "issue": "econ_trade",
+   "title": "America First Trade Policy",
+   "line": "Directed Commerce, Treasury and the Trade Representative to investigate persistent goods trade deficits and recommend remedies.",
+   "term": "persistent goods trade deficits",
+   "termIn": "plain"
+  },
+  {
+   "key": "Executive Order 14193|tariffs_authority",
+   "documentId": "Executive Order 14193",
+   "issue": "tariffs_authority",
+   "title": "Imposing Duties To Address the Flow of Illicit Drugs Across Our Northern Border",
+   "line": "Imposed duties on goods from Canada by executive order under emergency economic powers, with no rate schedule enacted by Congress.",
+   "term": "rate schedule enacted by Congress",
+   "termIn": "plain"
+  },
+  {
+   "key": "Executive Order 14194|tariffs_authority",
+   "documentId": "Executive Order 14194",
+   "issue": "tariffs_authority",
+   "title": "Imposing Duties To Address the Situation at Our Southern Border",
+   "line": "Imposed duties on goods from Mexico by executive order under emergency economic powers, with no rate schedule enacted by Congress.",
+   "term": "rate schedule enacted by Congress",
+   "termIn": "plain"
+  },
+  {
+   "key": "Executive Order 14195|tariffs_china",
+   "documentId": "Executive Order 14195",
+   "issue": "tariffs_china",
+   "title": "Imposing Duties To Address the Synthetic Opioid Supply Chain in the People's Republic of China",
+   "line": "Imposed an extra across-the-board duty on goods from China, after finding ordinary tariff authority inadequate.",
+   "term": "across-the-board duty on goods from China",
+   "termIn": "plain"
+  },
+  {
+   "key": "Executive Order 14195|tariffs_authority",
+   "documentId": "Executive Order 14195",
+   "issue": "tariffs_authority",
+   "title": "Imposing Duties To Address the Synthetic Opioid Supply Chain in the People's Republic of China",
+   "line": "Set the China duty rate by executive order under emergency economic powers, rather than under a rate schedule enacted by Congress.",
+   "term": "rate schedule enacted by Congress",
+   "termIn": "plain"
+  },
+  {
+   "key": "Proclamation 10896|tariffs_growth",
+   "documentId": "Proclamation 10896",
+   "issue": "tariffs_growth",
+   "title": "Adjusting Imports of Steel Into the United States",
+   "line": "Ended every country exemption and quota that had displaced the steel tariff, restoring the duty across steel imports.",
+   "term": "restoring the duty across steel imports",
+   "termIn": "plain"
+  },
+  {
+   "key": "Proclamation 10896|econ_trade",
+   "documentId": "Proclamation 10896",
+   "issue": "econ_trade",
+   "title": "Adjusting Imports of Steel Into the United States",
+   "line": "Closed the arrangements named partners had used to ship steel outside the duty, to rebuild domestic steel capacity.",
+   "term": "domestic steel capacity",
+   "termIn": "plain"
+  },
+  {
+   "key": "Proclamation 10896|tariffs_prices",
+   "documentId": "Proclamation 10896",
+   "issue": "tariffs_prices",
+   "title": "Adjusting Imports of Steel Into the United States",
+   "line": "Restored the steel duty with no offsetting relief for the American manufacturers and builders who buy steel.",
+   "term": "manufacturers and builders",
+   "termIn": "plain"
+  },
+  {
+   "key": "Executive Order 14228|tariffs_china",
+   "documentId": "Executive Order 14228",
+   "issue": "tariffs_china",
+   "title": "Further Amendment to Duties Addressing the Synthetic Opioid Supply Chain in the People’s Republic of China",
+   "line": "Doubled the China tariff from 10 percent to 20 percent, finding Beijing had not moved against the fentanyl trade.",
+   "term": "from 10 percent to 20 percent",
+   "termIn": "plain"
+  },
+  {
+   "key": "Executive Order 14245|tariffs_authority",
+   "documentId": "Executive Order 14245",
+   "issue": "tariffs_authority",
+   "title": "Imposing Tariffs on Countries Importing Venezuelan Oil",
+   "line": "Claimed the power to tariff any country that buys Venezuelan oil, at a rate and against a target chosen by the executive branch alone.",
+   "term": "Venezuelan oil",
+   "termIn": "plain"
+  },
+  {
+   "key": "Executive Order 14257|tariffs_growth",
+   "documentId": "Executive Order 14257",
+   "issue": "tariffs_growth",
+   "title": "Regulating Imports With a Reciprocal Tariff To Rectify Trade Practices That Contribute to Large and Persistent Annual United States Goods Trade Deficits",
+   "line": "Imposed a baseline duty on nearly every trading partner, finding persistent goods deficits had hollowed out domestic manufacturing.",
+   "term": "hollowed out",
+   "termIn": "plain"
+  },
+  {
+   "key": "Executive Order 14257|tariffs_authority",
+   "documentId": "Executive Order 14257",
+   "issue": "tariffs_authority",
+   "title": "Regulating Imports With a Reciprocal Tariff To Rectify Trade Practices That Contribute to Large and Persistent Annual United States Goods Trade Deficits",
+   "line": "Set reciprocal tariff rates by executive order under emergency economic powers rather than under a rate schedule enacted by Congress.",
+   "term": "rate schedule enacted by Congress",
+   "termIn": "plain"
+  },
+  {
+   "key": "Executive Order 14257|tariffs_prices",
+   "documentId": "Executive Order 14257",
+   "issue": "tariffs_prices",
+   "title": "Regulating Imports With a Reciprocal Tariff To Rectify Trade Practices That Contribute to Large and Persistent Annual United States Goods Trade Deficits",
+   "line": "Put duties on nearly the whole import base with no offsetting relief for household purchasers.",
+   "term": "household purchasers",
+   "termIn": "plain"
+  },
+  {
+   "key": "Executive Order 14257|tariffs_china",
+   "documentId": "Executive Order 14257",
+   "issue": "tariffs_china",
+   "title": "Regulating Imports With a Reciprocal Tariff To Rectify Trade Practices That Contribute to Large and Persistent Annual United States Goods Trade Deficits",
+   "line": "Assigned China one of the higher country-specific rates in its annexed schedule, citing non-reciprocal trade practices.",
+   "term": "higher country-specific rates",
+   "termIn": "plain"
+  },
+  {
+   "key": "Executive Order 14257|econ_trade",
+   "documentId": "Executive Order 14257",
+   "issue": "econ_trade",
+   "title": "Regulating Imports With a Reciprocal Tariff To Rectify Trade Practices That Contribute to Large and Persistent Annual United States Goods Trade Deficits",
+   "line": "Used import duties as the instrument for reshoring manufacturing and rebuilding supply chains.",
+   "term": "rebuilding supply chains",
+   "termIn": "plain"
+  },
+  {
+   "key": "Executive Order 14257|cost_living",
+   "documentId": "Executive Order 14257",
+   "issue": "cost_living",
+   "title": "Regulating Imports With a Reciprocal Tariff To Rectify Trade Practices That Contribute to Large and Persistent Annual United States Goods Trade Deficits",
+   "line": "Charged a duty on imported consumer goods from nearly every trading partner, with nothing offsetting it for households.",
+   "term": "imported consumer goods",
+   "termIn": "plain"
+  },
+  {
+   "key": "Executive Order 14358|tariffs_china",
+   "documentId": "Executive Order 14358",
+   "issue": "tariffs_china",
+   "title": "Modifying Reciprocal Tariff Rates Consistent With the Economic and Trade Arrangement Between the United States and the People’s Republic of China",
+   "line": "Kept the higher China tariff rates suspended for a further twelve months under a negotiated trade arrangement.",
+   "term": "further twelve months",
+   "termIn": "plain"
+  },
+  {
+   "key": "Executive Order 14360|tariffs_prices",
+   "documentId": "Executive Order 14360",
+   "issue": "tariffs_prices",
+   "title": "Modifying the Scope of the Reciprocal Tariffs With Respect to Certain Agricultural Products",
+   "line": "Pulled a list of agricultural products out of the reciprocal tariff and ordered refunds of duties already collected on them.",
+   "term": "refunds of duties already collected",
+   "termIn": "plain"
+  },
+  {
+   "key": "Executive Order 14360|tariffs_growth",
+   "documentId": "Executive Order 14360",
+   "issue": "tariffs_growth",
+   "title": "Modifying the Scope of the Reciprocal Tariffs With Respect to Certain Agricultural Products",
+   "line": "Narrowed the reciprocal tariff’s coverage, citing current domestic demand and current domestic capacity to produce certain products.",
+   "term": "domestic capacity to produce",
+   "termIn": "rationale"
+  },
+  {
+   "key": "Executive Order 14360|cost_living",
+   "documentId": "Executive Order 14360",
+   "issue": "cost_living",
+   "title": "Modifying the Scope of the Reciprocal Tariffs With Respect to Certain Agricultural Products",
+   "line": "Took the reciprocal tariff back off imported coffee, bananas, beef and other farm goods, so it stopped showing up in grocery prices.",
+   "term": "grocery prices",
+   "termIn": "plain"
+  },
+  {
+   "key": "Proclamation 11010|cost_living",
+   "documentId": "Proclamation 11010",
+   "issue": "cost_living",
+   "title": "Ensuring Affordable Beef for the American Consumer",
+   "line": "Raised the 2026 beef import quota by 80,000 metric tons of lean trimmings, finding domestic supply would not meet demand.",
+   "term": "80,000 metric tons",
+   "termIn": "plain"
+  },
+  {
+   "key": "Proclamation 11010|tariffs_prices",
+   "documentId": "Proclamation 11010",
+   "issue": "tariffs_prices",
+   "title": "Ensuring Affordable Beef for the American Consumer",
+   "line": "Let more beef enter at the low in-quota tariff rate instead of the high over-quota rate, to hold a grocery price down.",
+   "term": "over-quota rate",
+   "termIn": "plain"
+  },
+  {
+   "key": "Executive Order 14389|tariffs_china",
+   "documentId": "Executive Order 14389",
+   "issue": "tariffs_china",
+   "title": "Ending Certain Tariff Actions",
+   "line": "Ended the emergency-powers tariffs on China, ordering agencies to stop collecting them as soon as practicable.",
+   "term": "as soon as practicable",
+   "termIn": "plain"
+  },
+  {
+   "key": "Executive Order 14389|tariffs_growth",
+   "documentId": "Executive Order 14389",
+   "issue": "tariffs_growth",
+   "title": "Ending Certain Tariff Actions",
+   "line": "Switched off the whole emergency-powers tariff program at once, the reciprocal tariff among them.",
+   "term": "reciprocal tariff among them",
+   "termIn": "counts"
+  },
+  {
+   "key": "Executive Order 14389|tariffs_prices",
+   "documentId": "Executive Order 14389",
+   "issue": "tariffs_prices",
+   "title": "Ending Certain Tariff Actions",
+   "line": "Ended collection of the emergency-powers duties and provided for refunds of duties already paid.",
+   "term": "duties already paid",
+   "termIn": "counts"
+  },
+  {
+   "key": "Proclamation 11012|tariffs_growth",
+   "documentId": "Proclamation 11012",
+   "issue": "tariffs_growth",
+   "title": "Imposing a Temporary Import Surcharge To Address Fundamental International Payments Problems",
+   "line": "Imposed a temporary 10 percent surcharge on imported articles under the balance-of-payments provision of the Trade Act.",
+   "term": "balance-of-payments provision",
+   "termIn": "plain"
+  },
+  {
+   "key": "Proclamation 11012|econ_trade",
+   "documentId": "Proclamation 11012",
+   "issue": "econ_trade",
+   "title": "Imposing a Temporary Import Surcharge To Address Fundamental International Payments Problems",
+   "line": "Re-imposed broad import duties the day the previous program ended, under a different statute, so the barrier stayed up without a gap.",
+   "term": "without a gap",
+   "termIn": "plain"
+  },
+  {
+   "key": "Proclamation 11012|tariffs_prices",
+   "documentId": "Proclamation 11012",
+   "issue": "tariffs_prices",
+   "title": "Imposing a Temporary Import Surcharge To Address Fundamental International Payments Problems",
+   "line": "Put a surcharge on nearly all imported articles, carving out critical minerals, energy, fertilizers, medicines, some food and electronics.",
+   "term": "critical minerals, energy, fertilizers, medicines",
+   "termIn": "plain"
+  },
+  {
+   "key": "Proclamation 11012|cost_living",
+   "documentId": "Proclamation 11012",
+   "issue": "cost_living",
+   "title": "Imposing a Temporary Import Surcharge To Address Fundamental International Payments Problems",
+   "line": "Placed a surcharge on imported consumer goods generally, more than a year after the directive to bring those costs down.",
+   "term": "imported consumer goods generally",
+   "termIn": "rationale"
+  },
+  {
+   "key": "Proclamation 11020|tariffs_prices",
+   "documentId": "Proclamation 11020",
+   "issue": "tariffs_prices",
+   "title": "Adjusting Imports of Pharmaceuticals and Pharmaceutical Ingredients Into the United States",
+   "line": "Set a 100 percent duty on imported medicines, its own findings placing the bulk of covered supply outside the country.",
+   "term": "bulk of covered supply",
+   "termIn": "plain"
+  },
+  {
+   "key": "Proclamation 11020|econ_trade",
+   "documentId": "Proclamation 11020",
+   "issue": "econ_trade",
+   "title": "Adjusting Imports of Pharmaceuticals and Pharmaceutical Ingredients Into the United States",
+   "line": "Rested on a national-security finding about foreign dependence for medicines and directed continued negotiation of agreements.",
+   "term": "national-security finding",
+   "termIn": "plain"
+  },
+  {
+   "key": "Proclamation 11020|cost_living",
+   "documentId": "Proclamation 11020",
+   "issue": "cost_living",
+   "title": "Adjusting Imports of Pharmaceuticals and Pharmaceutical Ingredients Into the United States",
+   "line": "Put a border charge on imported patented medicines, exempting generics, biosimilars and a list of specialty therapies.",
+   "term": "generics, biosimilars",
+   "termIn": "rationale"
+  },
+  {
+   "key": "Executive Order 14411|econ_trade",
+   "documentId": "Executive Order 14411",
+   "issue": "econ_trade",
+   "title": "Strengthening Customs Enforcement",
+   "line": "Ordered Homeland Security to require importers of record to hold domestic assets or larger bonds and disclose beneficial ownership.",
+   "term": "domestic assets or larger bonds",
+   "termIn": "plain"
+  },
+  {
+   "key": "Executive Order 14411|tariffs_growth",
+   "documentId": "Executive Order 14411",
+   "issue": "tariffs_growth",
+   "title": "Strengthening Customs Enforcement",
+   "line": "Tightened who may act as an importer of record so duties owed are actually collected.",
+   "term": "duties owed are actually collected",
+   "termIn": "plain"
+  },
+  {
+   "key": "Proclamation 11038|econ_trade",
+   "documentId": "Proclamation 11038",
+   "issue": "econ_trade",
+   "title": "Declaration of Emergency and Authorization for Temporary Duty-Free Importation of Phosphate Fertilizer From Morocco",
+   "line": "Declared an emergency and let Moroccan phosphate fertilizer enter duty-free for up to eight months, waiving countervailing duties.",
+   "term": "countervailing duties",
+   "termIn": "plain"
+  },
+  {
+   "key": "Proclamation 11038|tariffs_growth",
+   "documentId": "Proclamation 11038",
+   "issue": "tariffs_growth",
+   "title": "Declaration of Emergency and Authorization for Temporary Duty-Free Importation of Phosphate Fertilizer From Morocco",
+   "line": "Chose duty-free foreign supply over the tariff for a fertilizer shortfall, finding domestic capacity would take time to build.",
+   "term": "duty-free foreign supply",
+   "termIn": "plain"
+  },
+  {
+   "key": "Proclamation 11038|tariffs_prices",
+   "documentId": "Proclamation 11038",
+   "issue": "tariffs_prices",
+   "title": "Declaration of Emergency and Authorization for Temporary Duty-Free Importation of Phosphate Fertilizer From Morocco",
+   "line": "Waived a duty on phosphate fertilizer during the spring application window, citing supply-chain disruption and rapid price increases.",
+   "term": "rapid price increases",
+   "termIn": "plain"
+  }
+ ]
+}

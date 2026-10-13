@@ -62,7 +62,10 @@ const ACTS = Object.keys(LEDGER.measures);
 const PIN = {
   shipped: { n: 289, sha: "b512a4aea5b900c4ed49434e99fe3afe4b7f196cc535b8d7f4b40ecb87c30cc7" },
   _DOS_MECH: "11a995d45af07637efe7e1bc1625efa27fb37c26d0718a1af1fdde654e5579a3",
-  _DOS_EXEC_EFFECT: "d3ef66922691a1d8136058cc9a45ccecd649d92573737bf561ee2cf4b1a9f06c",
+  // The executive lines shipped before this slice, as "key\tline" in table
+  // order. A later executive slice (the tariff orders, v361) adds its own block
+  // after them and is that slice's to pin.
+  _DOS_EXEC_EFFECT: { n: 15, sha: "00b1236972e67c446b80fb7deb4ff3f967d3506d2b4b837c3cca42de82d78e55" },
   _DOS_POINTER: "cb4fcb1652dc2e45af694a7c63c8831c62e08715b201bcfde24adaadfce909e4",
 };
 const METHOD = /\b(?:precedent|mirror|discriminator|primary|secondary|on-axis|off-axis|vocabulary|coded|coding|chip|mapped|mapping|filed as|weight(?:ed)?|scor(?:e|ed|ing)|rationale|archive|ledger|leaf|yea|nay)\b|PolitiDex|…|\.\.\./i;
@@ -255,7 +258,16 @@ function check(src, ledger, { pids = ALL_PIDS, base = null } = {}) {
   const shipped = Object.entries(E.map).filter(([k]) => !NEW.has(k));
   ok(shipped.length === PIN.shipped.n && sha(shipped.map(([k, v]) => k + "\t" + v).join("\n")) === PIN.shipped.sha,
     "a shipped _DOS_EFFECT line was rewritten, removed or added outside the slice");
-  for (const name of ["_DOS_MECH", "_DOS_EXEC_EFFECT", "_DOS_POINTER"]) {
+  {
+    const X = mapOf(src, "_DOS_EXEC_EFFECT"), xs = src.indexOf("var _DOS_EXEC_EFFECT = {");
+    const later = new Set();
+    const at = xs < 0 ? -1 : src.indexOf("    // TARIFF ORDERS SLICE 2 (v361).", xs);
+    if (at > -1) for (const m of src.slice(at, src.indexOf("\n  };", at)).matchAll(/^    '((?:[^'\\]|\\.)+)':$/gm)) later.add(m[1].replace(/\\'/g, "'"));
+    const kept = X ? Object.entries(X.map).filter(([k]) => !later.has(k)) : [];
+    ok(kept.length === PIN._DOS_EXEC_EFFECT.n && sha(kept.map(([k, v]) => k + "\t" + v).join("\n")) === PIN._DOS_EXEC_EFFECT.sha,
+      "_DOS_EXEC_EFFECT's shipped lines are not byte-identical to the table before the slice");
+  }
+  for (const name of ["_DOS_MECH", "_DOS_POINTER"]) {
     const t = mapOf(src, name);
     ok(t && sha(t.text) === PIN[name], `${name} is not byte-identical to the table before the slice${name === "_DOS_MECH" ? " — a stored did was edited" : ""}`);
   }

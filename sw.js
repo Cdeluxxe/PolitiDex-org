@@ -9509,7 +9509,19 @@
 //     consistency.js is precached and changed, so the shell moves one version.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v360';
+// v361 - TARIFF ORDERS SLICE 2: THIRTY-SEVEN LINES UNDER THE PRESIDENT'S
+//     TARIFF AND TRADE DOCUMENTS. Every pair on tariffs_prices, tariffs_growth,
+//     tariffs_china, tariffs_authority, econ_trade and cost_living for the
+//     sixteen documents that carry a tariff or trade key now prints one
+//     sentence under its row, stored in _DOS_EXEC_EFFECT and written from that
+//     pair's own stored plain, rationale or counts and the document's title
+//     (db/vr-tariff-exec-effect-lines.json names each source). The vote-line
+//     table, every shipped line, scores, Direction Match, NEVER_FEEDS, the
+//     publication floor, money pills and district boards are unchanged.
+//     consistency.js is precached and changed, so the shell moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v361';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -46,6 +46,7 @@ import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import { execHeld } from "./vr-exec-later.mjs";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
 
@@ -205,7 +206,7 @@ function check(src, base) {
     for (const [p, v] of Object.entries(HE.map)) ok(E.map[p] === v, `${p}: a shipped line was rewritten or removed`);
     // A later wave may add lines; none may land on a pointer row (checked above).
     ok(Object.keys(E.map).length >= Object.keys(HE.map).length, "the effect table lost an entry");
-    ok(X.text === HX.text, "_DOS_EXEC_EFFECT (Trump's lines) is not byte-identical to HEAD");
+    ok(execHeld(src, headSrc), "_DOS_EXEC_EFFECT (Trump's lines) is not byte-identical to HEAD");
     if (base) {
       for (const [k, v] of base) ok(printed.get(k) === v, `${k}: printed ${JSON.stringify(v)} at HEAD and now prints ${JSON.stringify(printed.get(k) || "")}`);
       ok(printed.size >= base.size, `${printed.size} effect paragraphs now, ${base.size} at HEAD`);

@@ -35,6 +35,7 @@ import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import { execHeld } from "./vr-exec-later.mjs";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -235,7 +236,7 @@ function check(src) {
     })();
     for (const k of Object.keys(E.map)) ok(k in HE.map || block.includes(k) || headBlock.has(k) || later.has(k), `${k}: a new line outside the rider block`);
     ok(M.text === HM.text, "_DOS_MECH is not byte-identical to HEAD");
-    ok(X.text === HX.text, "_DOS_EXEC_EFFECT is not byte-identical to HEAD");
+    ok(execHeld(src, headSrc), "_DOS_EXEC_EFFECT is not byte-identical to HEAD");
     const ptr = (x) => (String(x || "").match(/var _DOS_POINTER = \{[\s\S]*?\n  \};/) || [""])[0];
     ok(ptr(src) && ptr(src) === ptr(headSrc), "the pointer table changed");
   } else console.log("   (no git baseline — the unchanged-lines check did not run)");
