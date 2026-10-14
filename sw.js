@@ -9655,7 +9655,20 @@
 //     consistency.js is precached and changed, so the shell moves one version.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v371';
+// v372 - BLANK ROWS SLICE 12: FOUR LINES IN THE CENSUS'S 101-MEMBER BAND.
+//     The regenerated blank-pair census (scripts/vr-blank-pair-census.mjs) put
+//     five pairs on three 117th Congress House bills at 101 members. Four take a
+//     line: the For the People Act (H.R. 1) on Supreme Court reform, the
+//     Protecting Our Kids Act (H.R. 7910) on gun safety and gun rights, and the
+//     Bipartisan Background Checks Act (H.R. 8) on gun safety. Each line is in
+//     _DOS_EFFECT, written from that pair's own mapping rationale
+//     (db/vr-blank-rows-slice12.json names each source and the pair left blank).
+//     No shipped line, score, Direction Match, NEVER_FEEDS, publication floor,
+//     money pill, district board or chip moved. consistency.js is precached and
+//     changed, so the shell moves one version. No location key or other saved
+//     key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v372';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

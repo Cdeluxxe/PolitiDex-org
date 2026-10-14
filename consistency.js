@@ -18371,6 +18371,21 @@
       'Would have preempted state and local laws that set different requirements on defense-related scrap-metal processing and materials recovery.',
     'H.Amdt. 251|119|cut_spending':
       'Would have barred Department of Defense expenditure covering the costs of participating foreign military personnel.',
+    // BLANK ROWS SLICE 12 (v372). The 101-member band of the regenerated census:
+    // the For the People Act, the Protecting Our Kids Act and the Bipartisan
+    // Background Checks Act, all 117th Congress bills that passed the House only.
+    // None stores a `did`; each line is written from that pair's own mapping
+    // rationale, opens "Would have", and ends on the roll its sibling lines use
+    // or names none where the act has no other line.
+    // db/vr-blank-rows-slice12.json names the source of each and the pair skipped.
+    'H.R. 1|117|scotus_reform':
+      'Would have required the Judicial Conference to issue a code of conduct covering Supreme Court justices; the House passed it 220-210.',
+    'H.R. 7910|117|gun_safety':
+      'Would have created federal straw-purchase and trafficking offences and required safe storage where a minor could gain access.',
+    'H.R. 7910|117|gun_rights':
+      'Would have barred 18-to-20-year-olds from a class of long gun, reclassified bump stocks and banned large-capacity magazines.',
+    'H.R. 8|117|gun_safety':
+      'Would have extended background checks to the private-sale channel, routing unlicensed transfers through a licensed dealer.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is

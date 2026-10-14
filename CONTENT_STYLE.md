@@ -275,6 +275,33 @@ foreign-balance row, which names only a consequence.
 skip with its reason. `scripts/test-blank-rows-slice11.mjs` holds them to these
 rules.
 
+Blank rows slice 12 took the 101-member band of the rerun census: 64 blank pairs,
+with exactly the five at 101 members that slice 11 named, and no others. All five
+sit on three House bills of the 117th Congress. Four took a line:
+
+- the For the People Act (H.R. 1) on Supreme Court reform, from its code-of-conduct
+  section
+- the Protecting Our Kids Act (H.R. 7910) on gun safety
+- the Protecting Our Kids Act on gun rights
+- the Bipartisan Background Checks Act (H.R. 8) on gun safety
+
+Each bill passed the House, and its Congress ended without Senate passage. So
+each line opens "Would have", the form H.R. 1's existing lines already use. H.R.
+1's line ends on the roll its other lines end on. The two gun bills carried no
+line before, so theirs name no tally.
+
+H.R. 7910's two rationales name overlapping titles. Each line takes the titles
+its own rationale gives that issue: trafficking offences and safe storage for
+gun safety, and the age bar, bump stocks and magazine ban for gun rights.
+
+H.R. 8 does one thing, and its gun-safety line says it. Its gun-rights pair reads
+the same section as a burden, so it was skipped as a second key on the same
+single effect.
+
+`db/vr-blank-rows-slice12.json` records each line beside its source and the
+skip with its reason. `scripts/test-blank-rows-slice12.mjs` holds them to these
+rules.
+
 ### Executive rows
 
 An executive document's row (an order, a proclamation, a memorandum, a veto)

@@ -19,7 +19,8 @@
     },
     {
      "i": "Supreme Court Reform",
-     "k": "scotus_reform"
+     "k": "scotus_reform",
+     "l": "Would have required the Judicial Conference to issue a code of conduct covering Supreme Court justices; the House passed it 220-210."
     },
     {
      "i": "Transparency & Anti-Corruption",
@@ -58,7 +59,8 @@
     },
     {
      "i": "Stronger Gun Safety Laws",
-     "k": "gun_safety"
+     "k": "gun_safety",
+     "l": "Would have extended background checks to the private-sale channel, routing unlicensed transfers through a licensed dealer."
     }
    ]
   },
@@ -353,11 +355,13 @@
    "m": [
     {
      "i": "Protect Gun Rights",
-     "k": "gun_rights"
+     "k": "gun_rights",
+     "l": "Would have barred 18-to-20-year-olds from a class of long gun, reclassified bump stocks and banned large-capacity magazines."
     },
     {
      "i": "Stronger Gun Safety Laws",
-     "k": "gun_safety"
+     "k": "gun_safety",
+     "l": "Would have created federal straw-purchase and trafficking offences and required safe storage where a minor could gain access."
     }
    ]
   },

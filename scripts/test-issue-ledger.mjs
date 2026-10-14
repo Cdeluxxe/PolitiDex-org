@@ -1374,10 +1374,18 @@ section("14 · the harvest — every stored did, read against the effect rule");
     const end = src.indexOf("\n  };", at), next = src.indexOf("// BLANK ROWS SLICE 11 (v371)", at);
     return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
   })();
-  // BLANK ROWS SLICE 11 (v371), from its marker to the end of the table, held by
+  // BLANK ROWS SLICE 11 (v371), from its marker to slice 12's, held by
   // scripts/test-blank-rows-slice11.mjs.
   const S11_KEYS = (() => {
     const src = R("consistency.js"), at = src.indexOf("// BLANK ROWS SLICE 11 (v371)");
+    if (at === -1) return new Set();
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// BLANK ROWS SLICE 12 (v372)", at);
+    return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+  })();
+  // BLANK ROWS SLICE 12 (v372), from its marker to the end of the table, held by
+  // scripts/test-blank-rows-slice12.mjs.
+  const S12_KEYS = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// BLANK ROWS SLICE 12 (v372)");
     if (at === -1) return new Set();
     return new Set([...src.slice(at, src.indexOf("\n  };", at)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
   })();
@@ -2001,9 +2009,23 @@ section("14 · the harvest — every stored did, read against the effect rule");
     const m = k.split("|").slice(0, 2).join("|");
     ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
   }
-  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !FISCAL.includes(k) && !LONGDID.includes(k) && !EPA.includes(k) && !VEN.includes(k) && !S6.includes(k) && !S7.includes(k) && !S8.includes(k) && !S9.includes(k) && !S10.includes(k) && !S11.includes(k) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
+  // BLANK ROWS SLICE 12 (v372). Four census pairs at 101 member rows on three
+  // 117th Congress House bills, each written from its own mapping rationale and
+  // held in detail by scripts/test-blank-rows-slice12.mjs; here the batch rules.
+  // Each opens "Would have" and ends on its act's roll or names none.
+  const S12 = [...S12_KEYS];
+  ok(S12.length === 4, `${S12.length} slice-12 line(s) — the slice wrote 4`);
+  for (const k of S12) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the slice-12 effect line`);
+    ok(!(MECH[k] && MECH[k].did), `${k}: a slice-12 line on a pair that stores a did`);
+    ok(/^Would have\b/.test(v) && /(?:; the House passed it \d+-\d+|[a-z])\.$/.test(v), `${k}: does not open "Would have" and end on a recorded tally or a plain stop`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !FISCAL.includes(k) && !LONGDID.includes(k) && !EPA.includes(k) && !VEN.includes(k) && !S6.includes(k) && !S7.includes(k) && !S8.includes(k) && !S9.includes(k) && !S10.includes(k) && !S11.includes(k) && !S12.includes(k) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length + FISCAL.length + LONGDID.length + EPA.length + VEN.length + S6.length + S7.length + S8.length + S9.length + S10.length + S11.length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length + FISCAL.length + LONGDID.length + EPA.length + VEN.length + S6.length + S7.length + S8.length + S9.length + S10.length + S11.length + S12.length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.
