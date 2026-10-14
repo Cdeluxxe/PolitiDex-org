@@ -1342,10 +1342,66 @@ section("14 · the harvest — every stored did, read against the effect rule");
     const end = src.indexOf("\n  };", at), next = src.indexOf("// BLANK ROWS SLICE 7 (v367)", at);
     return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
   })();
-  // BLANK ROWS SLICE 7 (v367), from its marker to the end of the table, held by
+  // BLANK ROWS SLICE 7 (v367), from its marker to slice 8's, held by
   // scripts/test-blank-rows-slice7.mjs.
   const S7_KEYS = (() => {
     const src = R("consistency.js"), at = src.indexOf("// BLANK ROWS SLICE 7 (v367)");
+    if (at === -1) return new Set();
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// BLANK ROWS SLICE 8 (v368)", at);
+    return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+  })();
+  // BLANK ROWS SLICE 8 (v368), from its marker to slice 9's, held by
+  // scripts/test-blank-rows-slice8.mjs.
+  const S8_KEYS = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// BLANK ROWS SLICE 8 (v368)");
+    if (at === -1) return new Set();
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// BLANK ROWS SLICE 9 (v369)", at);
+    return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+  })();
+  // BLANK ROWS SLICE 9 (v369), from its marker to slice 10's, held by
+  // scripts/test-blank-rows-slice9.mjs.
+  const S9_KEYS = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// BLANK ROWS SLICE 9 (v369)");
+    if (at === -1) return new Set();
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// BLANK ROWS SLICE 10 (v370)", at);
+    return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+  })();
+  // BLANK ROWS SLICE 10 (v370), from its marker to slice 11's, held by
+  // scripts/test-blank-rows-slice10.mjs.
+  const S10_KEYS = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// BLANK ROWS SLICE 10 (v370)");
+    if (at === -1) return new Set();
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// BLANK ROWS SLICE 11 (v371)", at);
+    return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+  })();
+  // BLANK ROWS SLICE 11 (v371), from its marker to slice 12's, held by
+  // scripts/test-blank-rows-slice11.mjs.
+  const S11_KEYS = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// BLANK ROWS SLICE 11 (v371)");
+    if (at === -1) return new Set();
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// BLANK ROWS SLICE 12 (v372)", at);
+    return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+  })();
+  // BLANK ROWS SLICE 12 (v372), from its marker to slice 13's, held by
+  // scripts/test-blank-rows-slice12.mjs.
+  const S12_KEYS = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// BLANK ROWS SLICE 12 (v372)");
+    if (at === -1) return new Set();
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// BLANK ROWS SLICE 13 (v373)", at);
+    return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+  })();
+  // BLANK ROWS SLICE 13 (v373), from its marker to slice 15's, held by
+  // scripts/test-blank-rows-slice13.mjs. (Slice 14 wrote no line.)
+  const S13_KEYS = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// BLANK ROWS SLICE 13 (v373)");
+    if (at === -1) return new Set();
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// BLANK ROWS SLICE 15 (v374)", at);
+    return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+  })();
+  // BLANK ROWS SLICE 15 (v374), from its marker to the end of the table, held by
+  // scripts/test-blank-rows-slice15.mjs.
+  const S15_KEYS = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// BLANK ROWS SLICE 15 (v374)");
     if (at === -1) return new Set();
     return new Set([...src.slice(at, src.indexOf("\n  };", at)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
   })();
@@ -1431,7 +1487,7 @@ section("14 · the harvest — every stored did, read against the effect rule");
   // tally the issue seed records for that roll, in the shape its outcome allows —
   // a discharge refused ("Would have used …"), a discharge carried, or a House
   // amendment agreed to.
-  const WAR = Object.keys(EFFECT).filter((k) => /\|war_powers$/.test(k));
+  const WAR = Object.keys(EFFECT).filter((k) => /\|war_powers$/.test(k) && !S10_KEYS.has(k));
   const warFault = (k, v) => {
     const f = harvestFault(v);
     if (f) return f;
@@ -1512,7 +1568,7 @@ section("14 · the harvest — every stored did, read against the effect rule");
   // the outcome the archive records: an act with a public law on file in
   // db/vr-measure-identity.json may read as done; anything else — failed, or
   // passed one chamber and never enacted — must open "Would" or "Proposed".
-  const PTS = Object.keys(EFFECT).filter((k) => /\|strong_defense$/.test(k) && !RIDER_KEYS.has(k) && !FISCAL_KEYS.has(k));
+  const PTS = Object.keys(EFFECT).filter((k) => /\|strong_defense$/.test(k) && !RIDER_KEYS.has(k) && !FISCAL_KEYS.has(k) && !S8_KEYS.has(k) && !S9_KEYS.has(k) && !S10_KEYS.has(k) && !S13_KEYS.has(k));
   const PTS_ROLL = (() => {
     const t = {};
     const files = ["vr-phase-a-vote-seed", "vr-israel-vote-seed", "vr-house-seed-119-s2", "vr-landmark-vote-seed",
@@ -1913,9 +1969,105 @@ section("14 · the harvest — every stored did, read against the effect rule");
     const m = k.split("|").slice(0, 2).join("|");
     ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
   }
-  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !FISCAL.includes(k) && !LONGDID.includes(k) && !EPA.includes(k) && !VEN.includes(k) && !S6.includes(k) && !S7.includes(k) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
+  // BLANK ROWS SLICE 8 (v368). The three pairs slices 6 and 7 skipped only for
+  // the migration projection, each written from its own mapping rationale, held
+  // in detail by scripts/test-blank-rows-slice8.mjs; here the batch rules. Each
+  // ends on the roll or rolls its act's other lines end on.
+  const S8 = [...S8_KEYS];
+  ok(S8.length === 3, `${S8.length} slice-8 line(s) — the slice wrote 3`);
+  for (const k of S8) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the slice-8 effect line`);
+    ok(!(MECH[k] && MECH[k].did), `${k}: a slice-8 line on a pair that stores a did`);
+    ok(/; the House (?:cleared|passed) it \d+-\d+(?:, the Senate \d+-\d+)?\.$/.test(v), `${k}: does not end on a recorded tally`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  // BLANK ROWS SLICE 9 (v369). Twelve census pairs at 109 member rows on five
+  // acts that carried no line before, each written from its own mapping
+  // rationale, held in detail by scripts/test-blank-rows-slice9.mjs; here the
+  // batch rules. With no sibling line to match, none names a tally.
+  const S9 = [...S9_KEYS];
+  ok(S9.length === 12, `${S9.length} slice-9 line(s) — the slice wrote 12`);
+  for (const k of S9) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the slice-9 effect line`);
+    ok(!(MECH[k] && MECH[k].did), `${k}: a slice-9 line on a pair that stores a did`);
+    ok(!/\d+-\d+/.test(v), `${k}: names a tally on an act with no other line`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  // BLANK ROWS SLICE 10 (v370). Eleven census pairs at 108 member rows on nine
+  // acts, each written from its own mapping rationale, held in detail by
+  // scripts/test-blank-rows-slice10.mjs; here the batch rules. A line ends on its
+  // act's recorded roll, or names none where the act has no other line.
+  const S10 = [...S10_KEYS];
+  ok(S10.length === 11, `${S10.length} slice-10 line(s) — the slice wrote 11`);
+  for (const k of S10) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the slice-10 effect line`);
+    ok(!(MECH[k] && MECH[k].did), `${k}: a slice-10 line on a pair that stores a did`);
+    ok(/(?:; (?:the House (?:cleared|passed|agreed to|rejected) it \d+-\d+|the House concurred \d+-\d+|a motion to recommit it failed in the House \d+-\d+)|[a-z])\.$/.test(v), `${k}: does not end on a recorded tally or a plain stop`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  // BLANK ROWS SLICE 11 (v371). Six census pairs at 107 member rows, each on a
+  // failed House amendment that carried no line before, written from its own
+  // mapping rationale and held in detail by scripts/test-blank-rows-slice11.mjs;
+  // here the batch rules. Each opens "Would have" and names no tally.
+  const S11 = [...S11_KEYS];
+  ok(S11.length === 6, `${S11.length} slice-11 line(s) — the slice wrote 6`);
+  for (const k of S11) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the slice-11 effect line`);
+    ok(!(MECH[k] && MECH[k].did), `${k}: a slice-11 line on a pair that stores a did`);
+    ok(/^Would have\b/.test(v) && !/\d+-\d+/.test(v), `${k}: does not open "Would have" with no tally`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  // BLANK ROWS SLICE 12 (v372). Four census pairs at 101 member rows on three
+  // 117th Congress House bills, each written from its own mapping rationale and
+  // held in detail by scripts/test-blank-rows-slice12.mjs; here the batch rules.
+  // Each opens "Would have" and ends on its act's roll or names none.
+  const S12 = [...S12_KEYS];
+  ok(S12.length === 4, `${S12.length} slice-12 line(s) — the slice wrote 4`);
+  for (const k of S12) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the slice-12 effect line`);
+    ok(!(MECH[k] && MECH[k].did), `${k}: a slice-12 line on a pair that stores a did`);
+    ok(/^Would have\b/.test(v) && /(?:; the House passed it \d+-\d+|[a-z])\.$/.test(v), `${k}: does not open "Would have" and end on a recorded tally or a plain stop`);
+    const m = k.split("|").slice(0, 2).join("|");
+    ok(!Object.keys(EFFECT).some((j) => j !== k && j.startsWith(m + "|") && EFFECT[j] === v), `${k}: is another leaf's line for the same act`);
+  }
+  // BLANK ROWS SLICE 13 (v373). Four census pairs at 100 member rows, the Senate
+  // confirmations of the Attorney General, FBI Director, HHS Secretary and
+  // Defense Secretary, each written from its own mapping rationale with the
+  // nominee from its stored title and held in detail by
+  // scripts/test-blank-rows-slice13.mjs; here the batch rules. Each opens
+  // "Confirmed" and names no tally.
+  const S13 = [...S13_KEYS];
+  ok(S13.length === 4, `${S13.length} slice-13 line(s) — the slice wrote 4`);
+  for (const k of S13) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the slice-13 effect line`);
+    ok(!(MECH[k] && MECH[k].did), `${k}: a slice-13 line on a pair that stores a did`);
+    ok(/^Confirmed [A-Z][a-z]+ as\b/.test(v) && !/\d+-\d+/.test(v), `${k}: does not open "Confirmed <nominee> as" with no tally`);
+  }
+  // BLANK ROWS SLICE 15 (v374). Three census pairs at 84 member rows, the Senate
+  // confirmations of the DNI, the Secretary of State and the OMB Director, in
+  // slice 13's form and held in detail by scripts/test-blank-rows-slice15.mjs;
+  // here the batch rules. Each opens "Confirmed" and names no tally.
+  const S15 = [...S15_KEYS];
+  ok(S15.length === 3, `${S15.length} slice-15 line(s) — the slice wrote 3`);
+  for (const k of S15) {
+    const v = EFFECT[k] || "";
+    eq(harvestFault(v), "", `${k}: the slice-15 effect line`);
+    ok(!(MECH[k] && MECH[k].did), `${k}: a slice-15 line on a pair that stores a did`);
+    ok(/^Confirmed [A-Z][a-z]+ as\b/.test(v) && !/\d+-\d+/.test(v), `${k}: does not open "Confirmed <nominee> as" with no tally`);
+  }
+  const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !FISCAL.includes(k) && !LONGDID.includes(k) && !EPA.includes(k) && !VEN.includes(k) && !S6.includes(k) && !S7.includes(k) && !S8.includes(k) && !S9.includes(k) && !S10.includes(k) && !S11.includes(k) && !S12.includes(k) && !S13.includes(k) && !S15.includes(k) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length + FISCAL.length + LONGDID.length + EPA.length + VEN.length + S6.length + S7.length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length + FISCAL.length + LONGDID.length + EPA.length + VEN.length + S6.length + S7.length + S8.length + S9.length + S10.length + S11.length + S12.length + S13.length + S15.length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.

@@ -168,6 +168,223 @@ The bill pages and the sitemap's issue files pick them up, and
 `scripts/test-measure-address-projection.mjs` holds the fix to that. A pair
 skipped for this reason can now be written in the next slice.
 
+Blank rows slice 8 wrote those three. The GENIUS Act's States vs. Federal Power
+line says it let stablecoin issuers holding $10 billion or less opt into a state
+regulatory regime; the fracking bill's says it would keep the decision with the
+states rather than Washington; the first Israel supplemental's Strong Defense
+line says it would have appropriated emergency defense money to replenish United
+States stocks drawn down for transfer. The rules are slice 7's. Each line comes from
+its own mapping rationale, takes the tense of the act's existing lines (done for
+the law, "Would" for the fracking bill, "Would have" for the supplemental), and
+ends on the same roll they do. The fracking line covers who decides, and leaves
+the fracking moratorium and state authority to the two lines that already carry
+them. Nothing else moved. A pair an earlier slice skipped may be written by a
+later one, and the earlier slices' tests now allow that only inside a newer
+slice's block. `db/vr-blank-rows-slice8.json` records each line beside its
+source, and `scripts/test-blank-rows-slice8.mjs` holds them to these rules.
+
+Blank rows slice 9 began with a fresh census. `scripts/vr-blank-pair-census.mjs`
+reads every federal pair in the live record and applies the row rule the
+renderer applies. It lists the pairs that print nothing, ranked by how many
+distinct members carry the row. It found 93. The eleven above 109 members are
+all pairs an earlier slice skipped, and each reason still holds: a tense
+conflict between status and text, a forecast, a sibling's fact, or an aim or a
+topic. At 109 members there were twenty new pairs on seven House bills. Twelve
+took a line, on the DETERRENT Act, the No Rogue Rulings Act, the Anti-CBDC
+Surveillance State Act, the LNG export bill and the Fix Our Forests Act. The
+rules are slice 7's. All five passed the House only and open "Would". None
+carried a line before, so no line names a tally. Eight were skipped. Three state
+only an aim or a topic, and two have one fact that is a sibling's subject. The
+FY2026 NDAA's three are a tense conflict: H.R. 3838 is stored as enacted, but
+the archive's identity record says the law is S. 1071, and this act's one roll
+is the House version. A status that disagrees with the identity record is a
+skip, not a guess. The word
+"mapping" is a method word even where the stored text uses it for a
+map-making program, so the Fix Our Forests line leaves "fireshed mapping" out.
+`db/vr-blank-rows-slice9.json` records each line beside its source and every
+census pair at 109 members or more that was left blank, with its reason.
+`scripts/test-blank-rows-slice9.mjs` holds them to these rules.
+
+Blank rows slice 10 took the next band of the rerun census: 81 blank pairs,
+with exactly the fourteen at 108 members that slice 9 named and no others.
+Eleven took a line, across nine acts:
+
+- H.Amdt. 253 and H.Amdt. 87
+- the Lebanon and Iran war-powers resolutions
+- the FY2027 budget resolution
+- the veterans gun-check bill
+- the KIDS Act
+- the veterans omnibus
+- the FY2027 continuing resolution
+
+The rules are slice 9's.
+
+- Tense follows the stored outcome. The failed Lebanon resolution opens
+  "Would have". The rest open "Would": an agreed House
+  amendment, a resolution or bill the House alone passed, or a bill whose only
+  roll was a failed motion to recommit.
+- A line ends on the roll its act's other lines use. The two amendments and the
+  continuing resolution have no other line, so their lines name no tally.
+- The war-powers lines carry what only those pairs store: the War Powers
+  Resolution and the lack of congressional authorization. The removal of forces
+  already sits in each act's restraint line.
+- The two resolutions' Strong Defense pairs were skipped. Their one effect, the
+  removal of forces, is what those restraint lines say.
+- The FY2026 omnibus's Health Care pair was skipped as well. The rider record
+  already holds it blank, because its text names Division J only by its label.
+  A line that repeats a label is still a label.
+- H.Amdt. 87's line comes from its rationale, which quotes the Rules Committee
+  report. The measure's stored summary still says no purpose text was found.
+
+`db/vr-blank-rows-slice10.json` records each line beside its source and all
+three skips with their reasons. `scripts/test-blank-rows-slice10.mjs` holds them to
+these rules.
+
+Blank rows slice 11 took the 107-member band of the rerun census: 70 blank pairs,
+with exactly the eighteen at 107 members that slice 10 named, on ten House
+amendments to the FY2027 national security appropriations bill and the FY2027
+NDAA, and no others. Six took a line, each on a failed amendment, and each opens
+"Would have":
+
+- H.Amdt. 232 (Fulbright)
+- H.Amdt. 237 (U.N. contributions)
+- H.Amdt. 247 (military injunctions)
+- H.Amdt. 249 (state fuel policy study)
+- H.Amdt. 250 (defense scrap-metal preemption)
+- H.Amdt. 251 (foreign exercise costs)
+
+None of the six carried a line before, so none names a tally. Two rationales
+abbreviate what they cut. H.Amdt. 232's says only "an existing federal
+appropriation", and H.Amdt. 251's says only "a category" of defense spending.
+Both lines take the name from the stored title.
+
+America First pairs stay blank. That leaf's own standard holds a pair the
+database alone maps, with no stored `did`, blank, and names these amendments
+among them. It also requires its lines to name the foreign aid or commitment
+moved. So where an amendment's one effect fits both America First and spending
+cuts, the line goes on spending cuts, written from that pair's own rationale.
+
+Twelve were skipped. Eleven of them are a second key on an amendment that does
+one thing, and the one thing already has a line: H.Amdt. 252's Ukraine line,
+H.Amdt. 255's LGBTQ line, H.Amdt. 266's spending-cut line, H.Amdt. 234's climate
+line, or the line this slice wrote on the same amendment. A second key on the
+same single effect is a skip, not a rephrasing. The twelfth is H.Amdt. 251's
+foreign-balance row, which names only a consequence.
+
+`db/vr-blank-rows-slice11.json` records each line beside its source and every
+skip with its reason. `scripts/test-blank-rows-slice11.mjs` holds them to these
+rules.
+
+Blank rows slice 12 took the 101-member band of the rerun census: 64 blank pairs,
+with exactly the five at 101 members that slice 11 named, and no others. All five
+sit on three House bills of the 117th Congress. Four took a line:
+
+- the For the People Act (H.R. 1) on Supreme Court reform, from its code-of-conduct
+  section
+- the Protecting Our Kids Act (H.R. 7910) on gun safety
+- the Protecting Our Kids Act on gun rights
+- the Bipartisan Background Checks Act (H.R. 8) on gun safety
+
+Each bill passed the House, and its Congress ended without Senate passage. So
+each line opens "Would have", the form H.R. 1's existing lines already use. H.R.
+1's line ends on the roll its other lines end on. The two gun bills carried no
+line before, so theirs name no tally.
+
+H.R. 7910's two rationales name overlapping titles. Each line takes the titles
+its own rationale gives that issue: trafficking offences and safe storage for
+gun safety, and the age bar, bump stocks and magazine ban for gun rights.
+
+H.R. 8 does one thing, and its gun-safety line says it. Its gun-rights pair reads
+the same section as a burden, so it was skipped as a second key on the same
+single effect.
+
+`db/vr-blank-rows-slice12.json` records each line beside its source and the
+skip with its reason. `scripts/test-blank-rows-slice12.mjs` holds them to these
+rules.
+
+Blank rows slice 13 took the 100-member band of the rerun census: 60 blank pairs,
+with exactly the six at 100 members that slice 12 named, and no others. Four are
+Senate confirmations, the first nominations any slice has written:
+
+- the Attorney General
+- the FBI Director
+- the Secretary of Health and Human Services
+- the Secretary of Defense
+
+A confirmation's rationale names only the reach of the post, such as
+"Leadership of the U.S. Department of Justice". So each line joins those words to
+the nominee and the post from the stored title. It opens "Confirmed", because the
+stored status is enacted and the summary records the confirmation:
+
+> Confirmed Bondi as Attorney General, to lead the U.S. Department of Justice.
+
+A confirmation line names the nominee by surname, the way the act's own label
+does ("Bondi — AG"). A first initial ("Robert F. Kennedy") reads to the row rule
+as a second sentence, and the row would print nothing. None of the four carried a
+line before, so none names a tally.
+
+The two resolution pairs were skipped. S.J.Res. 37's cost-of-living rationale
+restates the tariff line's own fact, and S.J.Res. 59's foreign-balance rationale
+states only a topic.
+
+A confirmation is never a public law, and the Peace Through Strength test had
+treated only an act with a public law on file as done. It now also counts a
+nomination whose stored row records status enacted, so a confirmation reads as
+done, as its stored outcome says.
+
+`db/vr-blank-rows-slice13.json` records each line beside its source and both
+skips with their reasons. `scripts/test-blank-rows-slice13.mjs` holds them to
+these rules, including that the nominee named is the one the stored title names.
+
+Blank rows slice 14 took the 87-member band of the rerun census: 56 blank pairs,
+with exactly the one at 87 members that slice 13 named, H.R. 815 (118th) × Support
+for Israel. It wrote no line. The pair's rationale is a rider-audit row that names
+Division A only by its title, the Israel Security Supplemental Appropriations Act,
+2024, and says nothing about what that division appropriates. The rider
+effect-line record already holds the pair blank for that reason, as it does H.R.
+7148 × Health Care, which slice 10 skipped on the same ground. A band can end with
+no line. When it does, the record still keeps the review, and the test holds the
+skip in place.
+
+The "Also on" chips sit under an effect line and belong to it, so a row with no
+line shows neither, as it did before. The act's other rows keep their lines and
+their chips. `db/vr-blank-rows-slice14.json` records the review and the skip.
+`scripts/test-blank-rows-slice14.mjs` holds the pair blank, checks that it agrees
+with the rider record, and checks that nothing shipped moved. `consistency.js`
+did not change, so the service worker did not move.
+
+Blank rows slice 15 took the 84-member band of the rerun census: 56 blank pairs,
+with exactly the six at 84 members that slice 14 named, on four Senate
+confirmations, and no others. Three took a line in slice 13's form, the reach of
+the post from the rationale and the nominee and post from the stored title:
+
+- the Director of National Intelligence
+- the Secretary of State
+- the OMB Director
+
+Three were skipped, because their rationales don't say what the confirmation
+did:
+
+- McMahon's school-choice rationale states the administration's priorities.
+- Rubio's strong-defense rationale states only that the vote was unanimous.
+  The Peace Through Strength record already lists that pair as blank.
+- Vought's spending-cut rationale describes the nominee's views.
+
+A confirmation line comes from what the post does, never from what the nominee
+believes or how the vote split.
+
+These confirmations' stored rolls carry no roll number, so no offline vote seed
+holds their member votes. The slice record carries each act's member votes as
+read from the live record. The test renders the drawers from them and checks
+that every member row prints its line.
+
+After this slice every federal pair at 84 members or more has been written or
+skipped with a reason. The census's remaining pairs sit at one member row each.
+
+`db/vr-blank-rows-slice15.json` records each line beside its source and every
+skip with its reason. `scripts/test-blank-rows-slice15.mjs` holds them to these
+rules.
+
 ### Executive rows
 
 An executive document's row (an order, a proclamation, a memorandum, a veto)

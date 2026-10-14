@@ -19,7 +19,8 @@
     },
     {
      "i": "Supreme Court Reform",
-     "k": "scotus_reform"
+     "k": "scotus_reform",
+     "l": "Would have required the Judicial Conference to issue a code of conduct covering Supreme Court justices; the House passed it 220-210."
     },
     {
      "i": "Transparency & Anti-Corruption",
@@ -58,7 +59,8 @@
     },
     {
      "i": "Stronger Gun Safety Laws",
-     "k": "gun_safety"
+     "k": "gun_safety",
+     "l": "Would have extended background checks to the private-sale channel, routing unlicensed transfers through a licensed dealer."
     }
    ]
   },
@@ -353,11 +355,13 @@
    "m": [
     {
      "i": "Protect Gun Rights",
-     "k": "gun_rights"
+     "k": "gun_rights",
+     "l": "Would have barred 18-to-20-year-olds from a class of long gun, reclassified bump stocks and banned large-capacity magazines."
     },
     {
      "i": "Stronger Gun Safety Laws",
-     "k": "gun_safety"
+     "k": "gun_safety",
+     "l": "Would have created federal straw-purchase and trafficking offences and required safe storage where a minor could gain access."
     }
    ]
   },
@@ -690,7 +694,8 @@
     },
     {
      "i": "Peace Through Strength",
-     "k": "strong_defense"
+     "k": "strong_defense",
+     "l": "Would have appropriated emergency defense money to replenish United States stocks drawn down for transfer; the House passed it 226-196."
     },
     {
      "i": "Support for Israel",
@@ -902,7 +907,8 @@
    "m": [
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Confirmed Bondi as Attorney General, to lead the U.S. Department of Justice."
     }
    ]
   },
@@ -914,7 +920,8 @@
    "m": [
     {
      "i": "Strategic Engagement",
-     "k": "foreign_balance"
+     "k": "foreign_balance",
+     "l": "Confirmed Gabbard as Director of National Intelligence, to lead the intelligence community."
     }
    ]
   },
@@ -971,7 +978,8 @@
    "m": [
     {
      "i": "Protect LGBTQ+ Rights",
-     "k": "lgbtq_rights"
+     "k": "lgbtq_rights",
+     "l": "Would bar service academies from letting a male cadet or midshipman join athletic programs designated exclusively for females."
     }
    ]
   },
@@ -1075,7 +1083,8 @@
     },
     {
      "i": "Cut Federal Spending & Reduce Debt",
-     "k": "cut_spending"
+     "k": "cut_spending",
+     "l": "Would have zeroed out the existing federal appropriation for the Fulbright Program."
     }
    ]
   },
@@ -1153,7 +1162,8 @@
     },
     {
      "i": "Cut Federal Spending & Reduce Debt",
-     "k": "cut_spending"
+     "k": "cut_spending",
+     "l": "Would have removed U.S. contributions to the U.N. from the appropriation."
     }
    ]
   },
@@ -1208,7 +1218,8 @@
    "m": [
     {
      "i": "Court Orders on the Executive",
-     "k": "judicial_check"
+     "k": "judicial_check",
+     "l": "Would have barred any court from issuing an injunction that impairs military readiness, military fuel supply or defense logistics."
     }
    ]
   },
@@ -1238,7 +1249,8 @@
    "m": [
     {
      "i": "Whose Rule Governs: State or Federal",
-     "k": "states_federal_power"
+     "k": "states_federal_power",
+     "l": "Would have directed a study of how federal authority could preempt or mitigate state actions that undermine domestic refining capacity."
     }
    ]
   },
@@ -1250,7 +1262,8 @@
    "m": [
     {
      "i": "Whose Rule Governs: State or Federal",
-     "k": "states_federal_power"
+     "k": "states_federal_power",
+     "l": "Would have preempted state and local laws that set different requirements on defense-related scrap-metal processing and materials recovery."
     }
    ]
   },
@@ -1266,7 +1279,8 @@
     },
     {
      "i": "Cut Federal Spending & Reduce Debt",
-     "k": "cut_spending"
+     "k": "cut_spending",
+     "l": "Would have barred Department of Defense expenditure covering the costs of participating foreign military personnel."
     },
     {
      "i": "Strategic Engagement",
@@ -1311,7 +1325,8 @@
    "m": [
     {
      "i": "Protect Gun Rights",
-     "k": "gun_rights"
+     "k": "gun_rights",
+     "l": "Would establish a presumption of approval for DoD personnel seeking authorization to carry personal firearms on military installations."
     }
    ]
   },
@@ -1461,7 +1476,8 @@
    "m": [
     {
      "i": "Congress and War Powers",
-     "k": "war_powers"
+     "k": "war_powers",
+     "l": "Would invoke the War Powers Resolution against hostilities with Iran absent congressional authorization; the House agreed to it 214-208."
     },
     {
      "i": "Diplomacy & Restraint",
@@ -1487,7 +1503,8 @@
    "m": [
     {
      "i": "Congress and War Powers",
-     "k": "war_powers"
+     "k": "war_powers",
+     "l": "Would have invoked the War Powers Resolution on Lebanon hostilities absent congressional authorization; the House rejected it 189-235."
     },
     {
      "i": "Diplomacy & Restraint",
@@ -1508,7 +1525,8 @@
    "m": [
     {
      "i": "Peace Through Strength",
-     "k": "strong_defense"
+     "k": "strong_defense",
+     "l": "Would set national defense at $955,085,000,000 in new budget authority for fiscal year 2027; the House agreed to it 216-214."
     },
     {
      "i": "Tackle the National Debt",
@@ -1848,7 +1866,8 @@
     },
     {
      "i": "Whose Rule Governs: State or Federal",
-     "k": "states_federal_power"
+     "k": "states_federal_power",
+     "l": "Would keep the decision with the states rather than Washington on regulating hydraulic fracturing; the House passed it 226-188."
     }
    ]
   },
@@ -1932,15 +1951,18 @@
     },
     {
      "i": "Faster Permits & Reviews",
-     "k": "permitting_reform"
+     "k": "permitting_reform",
+     "l": "Would expedite NEPA environmental review and streamline permitting for qualifying forest-management projects."
     },
     {
      "i": "Practical Stewardship",
-     "k": "enviro_balance"
+     "k": "enviro_balance",
+     "l": "Would tighten the timelines and standards for court challenges to forest-thinning and hazardous-fuels projects."
     },
     {
      "i": "Wildfire & Disaster Resilience",
-     "k": "disaster_resilience"
+     "k": "disaster_resilience",
+     "l": "Would reduce catastrophic wildfire risk through hazardous-fuels reduction and faster mitigation."
     }
    ]
   },
@@ -1986,7 +2008,8 @@
     },
     {
      "i": "Take Care of Veterans",
-     "k": "veterans"
+     "k": "veterans",
+     "l": "Would bar the VA from treating a beneficiary as adjudicated a mental defective only for needing a fiduciary; the House passed it 216-201."
     }
    ]
   },
@@ -2011,11 +2034,13 @@
    "m": [
     {
      "i": "Strengthen Every School",
-     "k": "edu_balance"
+     "k": "edu_balance",
+     "l": "Would back federal higher-education rules with fines and Title IV enforcement for noncompliant institutions."
     },
     {
      "i": "Transparency & Anti-Corruption",
-     "k": "gov_transparency"
+     "k": "gov_transparency",
+     "l": "Would force disclosure of foreign money flowing to universities, faculty and endowments."
     }
    ]
   },
@@ -2069,7 +2094,8 @@
    "m": [
     {
      "i": "Court Orders on the Executive",
-     "k": "judicial_check"
+     "k": "judicial_check",
+     "l": "Would bar a district court from granting injunctive relief broader than the parties before it."
     },
     {
      "i": "Practical Government Reform",
@@ -2085,15 +2111,18 @@
    "m": [
     {
      "i": "Cryptocurrency Rules & Digital Dollar",
-     "k": "crypto_cbdc"
+     "k": "crypto_cbdc",
+     "l": "Would reserve to Congress the decision on whether the United States ever issues a central bank digital currency."
     },
     {
      "i": "Privacy & Big-Tech Accountability",
-     "k": "privacy_rights"
+     "k": "privacy_rights",
+     "l": "Would block a government-issued digital currency, which supporters warn could enable financial surveillance."
     },
     {
      "i": "Smart Tech Guardrails",
-     "k": "tech_balance"
+     "k": "tech_balance",
+     "l": "Would bar the Federal Reserve from holding accounts directly for individuals or offering retail financial products."
     }
    ]
   },
@@ -2105,15 +2134,18 @@
    "m": [
     {
      "i": "Climate Action & Clean Energy",
-     "k": "climate_action"
+     "k": "climate_action",
+     "l": "Would end the review stage at which the emissions and price effects of an export are weighed."
     },
     {
      "i": "Expand Domestic Energy Production",
-     "k": "energy_production"
+     "k": "energy_production",
+     "l": "Would speed approval of LNG export terminals to expand U.S. natural-gas production and shipments."
     },
     {
      "i": "Faster Permits & Reviews",
-     "k": "permitting_reform"
+     "k": "permitting_reform",
+     "l": "Would eliminate the Energy Department’s separate approval step and consolidate permitting at FERC."
     },
     {
      "i": "Protect American Jobs",
@@ -2705,7 +2737,8 @@
    "m": [
     {
      "i": "Privacy & Big-Tech Accountability",
-     "k": "privacy_rights"
+     "k": "privacy_rights",
+     "l": "Would extend online privacy protections to teens and impose a registration requirement on data brokers; the House passed it 267-117."
     },
     {
      "i": "Smart Tech Guardrails",
@@ -2808,11 +2841,13 @@
    "m": [
     {
      "i": "Mental Health & Addiction",
-     "k": "health_mental"
+     "k": "health_mental",
+     "l": "Would make opioid rescue medications free to veterans in high overdose-risk areas; a motion to recommit it failed in the House 210-211."
     },
     {
      "i": "Protect Rural Hospitals",
-     "k": "health_rural"
+     "k": "health_rural",
+     "l": "Would pilot paying critical access hospitals for veterans’ outpatient care; a motion to recommit it failed in the House 210-211."
     },
     {
      "i": "Take Care of Veterans",
@@ -2829,11 +2864,13 @@
    "m": [
     {
      "i": "Invest in Public Services",
-     "k": "gov_services"
+     "k": "gov_services",
+     "l": "Would fund federal operations into FY2027, keeping the government open and existing programs running."
     },
     {
      "i": "Tackle the National Debt",
-     "k": "national_debt"
+     "k": "national_debt",
+     "l": "Would continue federal spending at existing levels without offsets."
     }
    ]
   },
@@ -2876,7 +2913,8 @@
    "m": [
     {
      "i": "Expand Healthcare Access",
-     "k": "healthcare"
+     "k": "healthcare",
+     "l": "Confirmed Kennedy as Secretary of Health and Human Services, the Secretary who runs federal health policy."
     }
    ]
   },
@@ -2900,7 +2938,8 @@
    "m": [
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Confirmed Patel as FBI Director, to lead the nation’s top federal law-enforcement agency."
     }
    ]
   },
@@ -2912,7 +2951,8 @@
    "m": [
     {
      "i": "Peace Through Strength",
-     "k": "strong_defense"
+     "k": "strong_defense",
+     "l": "Confirmed Hegseth as Secretary of Defense, the civilian leader of the Department of Defense."
     }
    ]
   },
@@ -2928,7 +2968,8 @@
     },
     {
      "i": "Strategic Engagement",
-     "k": "foreign_balance"
+     "k": "foreign_balance",
+     "l": "Confirmed Rubio as Secretary of State, to lead U.S. foreign policy and the State Department."
     }
    ]
   },
@@ -3099,7 +3140,8 @@
     },
     {
      "i": "Whose Rule Governs: State or Federal",
-     "k": "states_federal_power"
+     "k": "states_federal_power",
+     "l": "Let stablecoin issuers holding $10 billion or less opt into a state regulatory regime; the House cleared it 308-122, the Senate 68-30."
     }
    ]
   },
@@ -3674,7 +3716,8 @@
     },
     {
      "i": "Tackle the National Debt",
-     "k": "national_debt"
+     "k": "national_debt",
+     "l": "Confirmed Vought as Director of the Office of Management and Budget, which leads the administration’s budget and deficit strategy."
     }
    ]
   },

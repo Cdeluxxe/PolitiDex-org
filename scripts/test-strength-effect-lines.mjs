@@ -30,7 +30,7 @@
 //
 //   node scripts/test-strength-effect-lines.mjs
 
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -55,6 +55,15 @@ const NAMES = { strong_defense: /\b(?:defen[cs]e|military|forces|Pentagon|intell
 const ENACTED = new Set();
 for (const m of JSON.parse(R("db/vr-measure-identity.json")).measures || []) {
   if (m && (m.laws || []).length) ENACTED.add(`${String(m.number).trim()}|${m.congress}`);
+}
+// A confirmation never becomes a public law; it took effect when the Senate
+// confirmed. A nomination counts as done when the migration that stores it
+// records its status as enacted (blank rows slice 13, v373, wrote PN11-7's line).
+for (const f of readdirSync(join(ROOT, "netlify", "database", "migrations")).filter((x) => x.endsWith(".sql"))) {
+  const sql = R(join("netlify", "database", "migrations", f));
+  for (const m of sql.matchAll(/\('nomination',\s*(\d+),\s*'senate',\s*'([^']+)',[\s\S]*?\)\s*(?:RETURNING|ON CONFLICT|;)/g)) {
+    if (/,\s*'enacted',\s*'/.test(m[0])) ENACTED.add(`${m[2]}|${m[1]}`);
+  }
 }
 const METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary|coded|coding|chip|mapped|mapping|filed as|weight(?:ed)?|scor(?:e|ed|ing)|rationale|archive|ledger)\b|PolitiDex|…|\.\.\./i;
 

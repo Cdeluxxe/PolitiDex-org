@@ -18278,6 +18278,140 @@
       'Imposed new content-removal obligations on online platforms; the House cleared it 409-2.',
     'S. 146|119|free_speech':
       'Set a notice-and-takedown duty for covered platforms, with removal within 48 hours, enforced by the FTC; the House cleared it 409-2.',
+    // BLANK ROWS SLICE 8 (v368). The three ready pairs slices 6 and 7 left
+    // blank only because the migration projection could not see their mapping:
+    // the GENIUS Act and the fracking bill on states vs. federal power, and the
+    // first Israel supplemental on defense. Each line is written from that
+    // pair's own mapping rationale and ends on the roll its sibling lines use.
+    // db/vr-blank-rows-slice8.json names the source of each.
+    'S. 1582|119|states_federal_power':
+      'Let stablecoin issuers holding $10 billion or less opt into a state regulatory regime; the House cleared it 308-122, the Senate 68-30.',
+    'H.R. 26|119|states_federal_power':
+      'Would keep the decision with the states rather than Washington on regulating hydraulic fracturing; the House passed it 226-188.',
+    'H.R. 6126|118|strong_defense':
+      'Would have appropriated emergency defense money to replenish United States stocks drawn down for transfer; the House passed it 226-196.',
+    // BLANK ROWS SLICE 9 (v369). The highest-volume pairs a fresh census found
+    // printing nothing, at 109 member rows: the DETERRENT Act, the No Rogue
+    // Rulings Act, the Anti-CBDC Surveillance State Act, the LNG export bill and
+    // the Fix Our Forests Act. None stores a `did`; each line is
+    // written from that pair's own mapping rationale. None of these acts carried
+    // a line before, so none names a tally. db/vr-blank-rows-slice9.json names
+    // the source of each and the pairs skipped.
+    'H.R. 1048|119|gov_transparency':
+      'Would force disclosure of foreign money flowing to universities, faculty and endowments.',
+    'H.R. 1048|119|edu_balance':
+      'Would back federal higher-education rules with fines and Title IV enforcement for noncompliant institutions.',
+    'H.R. 1526|119|judicial_check':
+      'Would bar a district court from granting injunctive relief broader than the parties before it.',
+    'H.R. 1919|119|privacy_rights':
+      'Would block a government-issued digital currency, which supporters warn could enable financial surveillance.',
+    'H.R. 1919|119|crypto_cbdc':
+      'Would reserve to Congress the decision on whether the United States ever issues a central bank digital currency.',
+    'H.R. 1919|119|tech_balance':
+      'Would bar the Federal Reserve from holding accounts directly for individuals or offering retail financial products.',
+    'H.R. 1949|119|energy_production':
+      'Would speed approval of LNG export terminals to expand U.S. natural-gas production and shipments.',
+    'H.R. 1949|119|permitting_reform':
+      'Would eliminate the Energy Department’s separate approval step and consolidate permitting at FERC.',
+    'H.R. 1949|119|climate_action':
+      'Would end the review stage at which the emissions and price effects of an export are weighed.',
+    'H.R. 471|119|disaster_resilience':
+      'Would reduce catastrophic wildfire risk through hazardous-fuels reduction and faster mitigation.',
+    'H.R. 471|119|enviro_balance':
+      'Would tighten the timelines and standards for court challenges to forest-thinning and hazardous-fuels projects.',
+    'H.R. 471|119|permitting_reform':
+      'Would expedite NEPA environmental review and streamline permitting for qualifying forest-management projects.',
+    // BLANK ROWS SLICE 10 (v370). The 108-member band of the regenerated census:
+    // two NDAA amendments, the Lebanon and Iran war-powers resolutions, the
+    // FY2027 budget resolution, the veterans gun-check bill, the KIDS Act, the
+    // veterans omnibus and the FY2027 continuing resolution.
+    // None stores a `did`; each line is written from that pair's own mapping
+    // rationale and ends on the roll its sibling lines use, or names none where
+    // the act has no other line. db/vr-blank-rows-slice10.json names the source
+    // of each and the pairs skipped.
+    'H.Amdt. 253|119|gun_rights':
+      'Would establish a presumption of approval for DoD personnel seeking authorization to carry personal firearms on military installations.',
+    'H.Amdt. 87|119|lgbtq_rights':
+      'Would bar service academies from letting a male cadet or midshipman join athletic programs designated exclusively for females.',
+    'H.Con.Res. 108|119|war_powers':
+      'Would have invoked the War Powers Resolution on Lebanon hostilities absent congressional authorization; the House rejected it 189-235.',
+    'H.Con.Res. 89|119|war_powers':
+      'Would invoke the War Powers Resolution against hostilities with Iran absent congressional authorization; the House agreed to it 214-208.',
+    'H.Con.Res. 113|119|strong_defense':
+      'Would set national defense at $955,085,000,000 in new budget authority for fiscal year 2027; the House agreed to it 216-214.',
+    'H.R. 1041|119|veterans':
+      'Would bar the VA from treating a beneficiary as adjudicated a mental defective only for needing a fiduciary; the House passed it 216-201.',
+    'H.R. 7757|119|privacy_rights':
+      'Would extend online privacy protections to teens and impose a registration requirement on data brokers; the House passed it 267-117.',
+    'H.R. 9237|119|health_mental':
+      'Would make opioid rescue medications free to veterans in high overdose-risk areas; a motion to recommit it failed in the House 210-211.',
+    'H.R. 9237|119|health_rural':
+      'Would pilot paying critical access hospitals for veterans’ outpatient care; a motion to recommit it failed in the House 210-211.',
+    'H.R. 9770|119|gov_services':
+      'Would fund federal operations into FY2027, keeping the government open and existing programs running.',
+    'H.R. 9770|119|national_debt':
+      'Would continue federal spending at existing levels without offsets.',
+    // BLANK ROWS SLICE 11 (v371). The 107-member band of the regenerated census:
+    // six failed House amendments to the FY2027 national security appropriations
+    // bill and the FY2027 NDAA, on the Fulbright Program, U.N. contributions,
+    // military injunctions, state fuel policy, defense scrap-metal rules and
+    // foreign exercise costs. None stores a `did`; each line is written from that
+    // pair's own mapping rationale. None of these acts carried a line before, so
+    // none names a tally. db/vr-blank-rows-slice11.json names the source of each
+    // and the pairs skipped.
+    'H.Amdt. 232|119|cut_spending':
+      'Would have zeroed out the existing federal appropriation for the Fulbright Program.',
+    'H.Amdt. 237|119|cut_spending':
+      'Would have removed U.S. contributions to the U.N. from the appropriation.',
+    'H.Amdt. 247|119|judicial_check':
+      'Would have barred any court from issuing an injunction that impairs military readiness, military fuel supply or defense logistics.',
+    'H.Amdt. 249|119|states_federal_power':
+      'Would have directed a study of how federal authority could preempt or mitigate state actions that undermine domestic refining capacity.',
+    'H.Amdt. 250|119|states_federal_power':
+      'Would have preempted state and local laws that set different requirements on defense-related scrap-metal processing and materials recovery.',
+    'H.Amdt. 251|119|cut_spending':
+      'Would have barred Department of Defense expenditure covering the costs of participating foreign military personnel.',
+    // BLANK ROWS SLICE 12 (v372). The 101-member band of the regenerated census:
+    // the For the People Act, the Protecting Our Kids Act and the Bipartisan
+    // Background Checks Act, all 117th Congress bills that passed the House only.
+    // None stores a `did`; each line is written from that pair's own mapping
+    // rationale, opens "Would have", and ends on the roll its sibling lines use
+    // or names none where the act has no other line.
+    // db/vr-blank-rows-slice12.json names the source of each and the pair skipped.
+    'H.R. 1|117|scotus_reform':
+      'Would have required the Judicial Conference to issue a code of conduct covering Supreme Court justices; the House passed it 220-210.',
+    'H.R. 7910|117|gun_safety':
+      'Would have created federal straw-purchase and trafficking offences and required safe storage where a minor could gain access.',
+    'H.R. 7910|117|gun_rights':
+      'Would have barred 18-to-20-year-olds from a class of long gun, reclassified bump stocks and banned large-capacity magazines.',
+    'H.R. 8|117|gun_safety':
+      'Would have extended background checks to the private-sale channel, routing unlicensed transfers through a licensed dealer.',
+    // BLANK ROWS SLICE 13 (v373). The 100-member band of the regenerated census:
+    // the Senate confirmations of the Attorney General, the FBI Director, the
+    // Secretary of Health and Human Services and the Secretary of Defense. None
+    // stores a `did`; each line joins the reach of the post its mapping rationale
+    // names to the nominee and post its stored title names, and names no tally.
+    // db/vr-blank-rows-slice13.json names the source of each and the pairs skipped.
+    'Bondi — AG|119|tough_on_crime':
+      'Confirmed Bondi as Attorney General, to lead the U.S. Department of Justice.',
+    'Patel — FBI|119|tough_on_crime':
+      'Confirmed Patel as FBI Director, to lead the nation’s top federal law-enforcement agency.',
+    'Kennedy — HHS|119|healthcare':
+      'Confirmed Kennedy as Secretary of Health and Human Services, the Secretary who runs federal health policy.',
+    'PN11-7|119|strong_defense':
+      'Confirmed Hegseth as Secretary of Defense, the civilian leader of the Department of Defense.',
+    // BLANK ROWS SLICE 15 (v374). The 84-member band of the regenerated census:
+    // the Senate confirmations of the Director of National Intelligence, the
+    // Secretary of State and the OMB Director, in slice 13's form. None stores a
+    // `did`; each line joins the reach of the post its mapping rationale names to
+    // the nominee and post its stored title names, and names no tally.
+    // db/vr-blank-rows-slice15.json names the source of each and the pairs skipped.
+    'Gabbard — DNI|119|foreign_balance':
+      'Confirmed Gabbard as Director of National Intelligence, to lead the intelligence community.',
+    'Rubio — State|119|foreign_balance':
+      'Confirmed Rubio as Secretary of State, to lead U.S. foreign policy and the State Department.',
+    'Vought — OMB|119|national_debt':
+      'Confirmed Vought as Director of the Office of Management and Budget, which leads the administration’s budget and deficit strategy.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is

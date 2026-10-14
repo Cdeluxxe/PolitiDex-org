@@ -1,0 +1,176 @@
+{
+ "_comment": "Blank rows slice 12 (v372). The next band of a regenerated census (scripts/vr-blank-pair-census.mjs). Every federal pair in the live record whose row prints nothing, ranked by distinct members with a row. After slice 11 the census holds 64 blank pairs. The ones above 101 members are all pairs earlier slices skipped, with their reasons unchanged. At 101 members sit exactly the five pairs slice 11's `next` named, on three House bills of the 117th Congress, and no others. Four take a line here; one is skipped. None stores a `did`, so each line is written from its own mapping rationale (quoted here, with the file that stores it). `term` is the stored words the line carries and `termIn` names the field. Each bill passed the House only, and the 117th Congress ended without Senate passage. So each line opens \"Would have\", the form H.R. 1's existing lines already use. H.R. 1's line ends on the roll its other lines end on. H.R. 7910 and H.R. 8 carried no line before, so theirs name no tally. `acts` carries every mapping on each act that takes a line. `skipped` lists the band pair left blank and why. No score, weight, mapping or key is read from or written to here.",
+ "_test": "scripts/test-blank-rows-slice12.mjs",
+ "_census": "scripts/vr-blank-pair-census.mjs",
+ "census": {
+  "blankPairs": 64,
+  "band": 101,
+  "inBand": 5
+ },
+ "lines": 4,
+ "rows": [
+  {
+   "key": "H.R. 1|117|scotus_reform",
+   "act": "H.R. 1|117",
+   "issue": "scotus_reform",
+   "line": "Would have required the Judicial Conference to issue a code of conduct covering Supreme Court justices; the House passed it 220-210.",
+   "term": "Judicial Conference",
+   "termIn": "rationale",
+   "rationale": "Sec. 7001 requires the Judicial Conference of the United States to issue a code of conduct that applies to each justice and judge of the United States — the Supreme Court included, which no statute has ever reached. A yea enacts that requirement. It is the ethics half of this issue and none of the tenure half: the bill says nothing about term limits for justices. Weighted 25, the floor of this record, for one section of a three-division act.",
+   "rationaleAt": "netlify/database/migrations/20260912000000_vr_formal_densification_multi_issue.sql"
+  },
+  {
+   "key": "H.R. 7910|117|gun_safety",
+   "act": "H.R. 7910|117",
+   "issue": "gun_safety",
+   "line": "Would have created federal straw-purchase and trafficking offences and required safe storage where a minor could gain access.",
+   "term": "straw-purchase and trafficking offences",
+   "termIn": "rationale",
+   "rationale": "Protecting Our Kids Act, passed 223-204 on 2022-06-08 — the House's own six-title answer to Uvalde and Buffalo, and the broadest firearms package either chamber passed in the window. Every operative title is this facet in the tightening direction: Title I bars a licensed dealer from selling a semiautomatic centerfire rifle or shotgun that accepts a detachable magazine to anyone under 21; Title II creates federal straw-purchase and trafficking offences with penalties and forfeiture; Title III defines a ghost gun and brings assembling, molding, machining or 3D-printing a frame or receiver within \"manufacturing firearms\", with carve-outs for permanently inoperable firearms, those serialized under state law within thirty months and pre-1968 firearms; Title IV adds Ethan's Law, a new 18 U.S.C. 922(z)(4) offence for storing a firearm in a residence where the person knows or reasonably should know a minor is likely to gain access without permission or a resident is ineligible, with an express exception where the firearm is carried on or within immediate control of the person; Title V adds a bump stock to 26 U.S.C. 5845(a)(9); Title VI adds a new 18 U.S.C. 922(v) banning large-capacity ammunition feeding devices with a grandfather for devices lawfully possessed on or before enactment. Screening, trafficking enforcement and safe storage are three of the four things this facet covers and the bill does all three.",
+   "rationaleAt": "netlify/database/migrations/20260818000000_vr_gun_facet_rollcalls.sql"
+  },
+  {
+   "key": "H.R. 7910|117|gun_rights",
+   "act": "H.R. 7910|117",
+   "issue": "gun_rights",
+   "line": "Would have barred 18-to-20-year-olds from a class of long gun, reclassified bump stocks and banned large-capacity magazines.",
+   "term": "large-capacity magazines",
+   "termIn": "rationale",
+   "rationale": "Three of the six operative titles remove firearms or configurations from lawful acquisition or possession by an eligible adult: Title I bars 18-to-20-year-olds from an entire class of long gun, Title V reclassifies a bump stock under the National Firearms Act, and Title VI bans large-capacity magazines outright going forward. Title III's extension of serialization to a self-made frame or receiver is a further condition on lawful acquisition. Weighted 80 rather than 100 because that is provision arithmetic and not a hedge: Title II (trafficking and straw purchases) and Title IV (safe storage) take nothing away from an eligible adult — trafficking was already unlawful conduct and the storage offence carries an express exception for a firearm kept on or within immediate control, so neither reaches the scope of the right. The bill's six title-retention roll calls (117-2 rolls 237 through 242) are the best provision-level evidence in the window and are deliberately NOT ingested, because a curated mapping attaches to a measure and every roll of that measure would inherit this composite direction; only the passage roll is ingested.",
+   "rationaleAt": "netlify/database/migrations/20260818000000_vr_gun_facet_rollcalls.sql"
+  },
+  {
+   "key": "H.R. 8|117|gun_safety",
+   "act": "H.R. 8|117",
+   "issue": "gun_safety",
+   "line": "Would have extended background checks to the private-sale channel, routing unlicensed transfers through a licensed dealer.",
+   "term": "private-sale channel",
+   "termIn": "rationale",
+   "rationale": "Bipartisan Background Checks Act of 2021, passed 227-203 on 2021-03-11. Section 3 adds a new subsection (aa) to 18 U.S.C. 922 making it unlawful for an unlicensed person to transfer a firearm to another unlicensed person unless a licensed importer, manufacturer or dealer first takes possession, runs the 922(t) background check as if the firearm came from its own inventory, and records the transfer. Background-check screening is the first thing this facet covers, and the bill extends it to the private-sale channel that 922(t) does not currently reach, so a yea tightens screening. Exceptions for close-family gifts, transfers by operation of law, temporary transfers to prevent imminent death or great bodily harm, and temporary transfers while hunting or at a range narrow the reach of the requirement but not its direction.",
+   "rationaleAt": "netlify/database/migrations/20260818000000_vr_gun_facet_rollcalls.sql"
+  }
+ ],
+ "acts": {
+  "H.R. 1|117": {
+   "status": "passed_house",
+   "title": "For the People Act of 2021",
+   "summary": "Omnibus elections, ethics and campaign-finance bill. Title I requires every state to offer automatic voter registration through motor-vehicle and other designated agencies, same-day registration, and online registration, and restricts voter-roll purges; Title II requires at least fifteen consecutive days of early voting and no-excuse absentee voting with prepaid return postage, and restores voting rights to citizens released from incarceration; Title III sets voting-system security standards including durable paper ballots and risk-limiting audits. Later titles cover redistricting commissions, small-donor public financing and ethics. Passed the House 220-210 on 2021-03-03; the Senate's companion S. 2093 never cleared cloture.",
+   "summaryAt": "netlify/database/migrations/20260816000000_vr_election_facet_rollcalls.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 62,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 220,
+     "nay": 210
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "voting_access",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "For the People Act of 2021. Title I requires every state to offer automatic voter registration through motor-vehicle and other designated agencies, same-day registration and online registration, and restricts voter-roll purges; Title II requires at least fifteen consecutive days of early voting and no-excuse absentee voting with prepaid return postage, and restores voting rights to citizens released from incarceration. Every one of those provisions widens a registration or casting pathway, so a yea is a vote to expand access. The bill's election-security title is deliberately NOT mapped: it mandates durable paper ballots and risk-limiting audits while the same bill permits a sworn statement in lieu of documentary ID and restricts list maintenance, so one yea covers both directions of the safeguard facet and records neither."
+    },
+    {
+     "issueKey": "campaign_finance",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division B of the bill is titled \"Campaign Finance\" and is the largest of its three divisions. Sec. 4111 requires any organization making campaign-related disbursements aggregating more than $10,000 to report the donors behind them, the Honest Ads provisions beginning at Sec. 4201 extend the broadcast disclaimer and public-file rules to paid internet political advertising, and Sec. 4401 restricts the exchange of campaign information between candidates and outside spending groups so that a coordinating super PAC is treated as making a contribution. Sec. 5111 sets up a voluntary public financing system for House candidates paying 600 percent of each qualified small contribution out of a Freedom From Influence Fund. A yea enacts that whole structure; a nay leaves current law. Weighted 70 for share of the bill: an entire division of a three-division act."
+    },
+    {
+     "issueKey": "gov_transparency",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division C is titled \"Ethics\" and is about disclosure by and conduct of officeholders. Sec. 9101 bars Members of the House from serving on the board of a for-profit entity, Sec. 9102 writes conflict-of-interest rules for Members and senior staff, Sec. 8012 requires the President and Vice President to divest personal financial interests that pose a conflict, Sec. 10001 requires presidential and vice-presidential candidates to file their income tax returns for the 10 most recent taxable years, and Sec. 7201 expands the range of individuals and activities that have to register and report under the lobbying disclosure laws. A yea enacts all five. Weighted 55 for share of the bill: one division of three, and the campaign-money titles are carried separately by the campaign_finance row rather than counted twice here."
+    },
+    {
+     "issueKey": "scotus_reform",
+     "weight": 25,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Sec. 7001 requires the Judicial Conference of the United States to issue a code of conduct that applies to each justice and judge of the United States — the Supreme Court included, which no statute has ever reached. A yea enacts that requirement. It is the ethics half of this issue and none of the tenure half: the bill says nothing about term limits for justices. Weighted 25, the floor of this record, for one section of a three-division act."
+    }
+   ]
+  },
+  "H.R. 7910|117": {
+   "status": "passed_house",
+   "title": "Protecting Our Kids Act",
+   "summary": "A six-title firearms package assembled after the Uvalde and Buffalo shootings. Title I (Raise the Age) bars a licensed dealer from selling a semiautomatic centerfire rifle or shotgun capable of accepting a detachable magazine to anyone under 21, with exceptions for law enforcement and the armed forces. Title II (Prevent Gun Trafficking) creates federal straw-purchase and trafficking offences with penalties and forfeiture. Title III (Untraceable Firearms) defines a \"ghost gun\" and brings assembling, molding, machining or 3D-printing a frame or receiver within \"manufacturing firearms\", with carve-outs for permanently inoperable firearms, those serialized under state law within thirty months, and pre-1968 firearms; it also tightens the undetectable-firearms ban. Title IV (Safe Storage) adds Ethan's Law, a new 18 U.S.C. 922(z)(4) offence for storing a firearm in a residence where the person knows or reasonably should know a minor is likely to gain access without permission or a resident is ineligible to possess it, with an express exception where the firearm is carried on or within immediate control of the person. Title V adds a bump stock to the National Firearms Act's definition of a machinegun part at 26 U.S.C. 5845(a)(9). Title VI (Keep Americans Safe) adds a new 18 U.S.C. 922(v) banning the import, sale, manufacture, transfer and possession of large-capacity ammunition feeding devices, grandfathering devices lawfully possessed on or before enactment, and funds buy-back grants. Passed the House 223-204 on 2022-06-08 with five Republicans voting yea and two Democrats voting nay; the Senate never voted on it, and the narrower S. 2938 became law instead.",
+   "summaryAt": "netlify/database/migrations/20260818000000_vr_gun_facet_rollcalls.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 2,
+     "roll": 245,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 223,
+     "nay": 204
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "gun_safety",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Protecting Our Kids Act, passed 223-204 on 2022-06-08 — the House's own six-title answer to Uvalde and Buffalo, and the broadest firearms package either chamber passed in the window. Every operative title is this facet in the tightening direction: Title I bars a licensed dealer from selling a semiautomatic centerfire rifle or shotgun that accepts a detachable magazine to anyone under 21; Title II creates federal straw-purchase and trafficking offences with penalties and forfeiture; Title III defines a ghost gun and brings assembling, molding, machining or 3D-printing a frame or receiver within \"manufacturing firearms\", with carve-outs for permanently inoperable firearms, those serialized under state law within thirty months and pre-1968 firearms; Title IV adds Ethan's Law, a new 18 U.S.C. 922(z)(4) offence for storing a firearm in a residence where the person knows or reasonably should know a minor is likely to gain access without permission or a resident is ineligible, with an express exception where the firearm is carried on or within immediate control of the person; Title V adds a bump stock to 26 U.S.C. 5845(a)(9); Title VI adds a new 18 U.S.C. 922(v) banning large-capacity ammunition feeding devices with a grandfather for devices lawfully possessed on or before enactment. Screening, trafficking enforcement and safe storage are three of the four things this facet covers and the bill does all three."
+    },
+    {
+     "issueKey": "gun_rights",
+     "weight": 80,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "Three of the six operative titles remove firearms or configurations from lawful acquisition or possession by an eligible adult: Title I bars 18-to-20-year-olds from an entire class of long gun, Title V reclassifies a bump stock under the National Firearms Act, and Title VI bans large-capacity magazines outright going forward. Title III's extension of serialization to a self-made frame or receiver is a further condition on lawful acquisition. Weighted 80 rather than 100 because that is provision arithmetic and not a hedge: Title II (trafficking and straw purchases) and Title IV (safe storage) take nothing away from an eligible adult — trafficking was already unlawful conduct and the storage offence carries an express exception for a firearm kept on or within immediate control, so neither reaches the scope of the right. The bill's six title-retention roll calls (117-2 rolls 237 through 242) are the best provision-level evidence in the window and are deliberately NOT ingested, because a curated mapping attaches to a measure and every roll of that measure would inherit this composite direction; only the passage roll is ingested."
+    }
+   ]
+  },
+  "H.R. 8|117": {
+   "status": "passed_house",
+   "title": "Bipartisan Background Checks Act of 2021",
+   "summary": "Section 3 adds a new subsection (aa) to 18 U.S.C. 922 making it unlawful for any person who is not a licensed dealer to transfer a firearm to another unlicensed person unless a licensed importer, manufacturer or dealer first takes possession of the firearm, runs the 922(t) background check as if transferring from its own inventory, and records the transfer. Exceptions cover gifts between close family members, transfers by operation of law, temporary transfers to prevent imminent death or great bodily harm, and temporary transfers while hunting or at a shooting range. Passed the House 227-203 on 2021-03-11 with eight Republicans voting yea and one Democrat voting nay; the Senate never voted on it.",
+   "summaryAt": "netlify/database/migrations/20260818000000_vr_gun_facet_rollcalls.sql",
+   "rolls": [
+    {
+     "chamber": "house",
+     "session": 1,
+     "roll": 75,
+     "question": "On Passage",
+     "result": "passed",
+     "yea": 227,
+     "nay": 203
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "gun_safety",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Bipartisan Background Checks Act of 2021, passed 227-203 on 2021-03-11. Section 3 adds a new subsection (aa) to 18 U.S.C. 922 making it unlawful for an unlicensed person to transfer a firearm to another unlicensed person unless a licensed importer, manufacturer or dealer first takes possession, runs the 922(t) background check as if the firearm came from its own inventory, and records the transfer. Background-check screening is the first thing this facet covers, and the bill extends it to the private-sale channel that 922(t) does not currently reach, so a yea tightens screening. Exceptions for close-family gifts, transfers by operation of law, temporary transfers to prevent imminent death or great bodily harm, and temporary transfers while hunting or at a range narrow the reach of the requirement but not its direction."
+    },
+    {
+     "issueKey": "gun_rights",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The same section conditions an otherwise-lawful transfer between two eligible private parties on a licensed dealer's involvement and a recorded transaction, which is a licensing and record burden on the acquisition step this facet protects — the reason the bill was opposed as a step toward a transfer registry. Weighted 55 and not higher because the operative text changes nothing else the facet measures: no new prohibited category of person or firearm, no category ban, and no restriction on carrying. A person eligible to acquire a firearm before the bill is eligible after it; only the channel changes."
+    }
+   ]
+  }
+ },
+ "skipped": [
+  {
+   "key": "H.R. 8|117|gun_rights",
+   "members": 101,
+   "why": "The bill does one thing: Section 3 routes private transfers through a licensed dealer's background check. The rationale reads that same section as a burden on the transfer, and the act's gun_safety line written here already states it. A second key on the same single effect is a skip, not a rephrasing."
+  }
+ ],
+ "next": "After this slice the highest-volume blank pairs not yet reviewed sit at 100 members: Bondi — AG|119|tough_on_crime, Kennedy — HHS|119|healthcare, PN11-7|119|strong_defense, Patel — FBI|119|tough_on_crime, S.J.Res. 37|119|cost_living, S.J.Res. 59|119|foreign_balance. Rerun the census before choosing slice 13."
+}

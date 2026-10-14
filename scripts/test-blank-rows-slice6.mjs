@@ -245,8 +245,12 @@ function check(src, ledger, { pids = ALL_PIDS, base = null } = {}) {
   ok(block.length > 0, "the slice 6 block is not in _DOS_EFFECT");
   ok(ledger.rows.length === 15 && ledger.lines === 15, `${ledger.rows.length} rows in the record — the slice wrote 15 pairs`);
   ok(block.length === NEW.size && block.every((k) => NEW.has(k)), `the block holds ${JSON.stringify(block.filter((k) => !NEW.has(k)))} outside the record, or misses some of its pairs`);
+  // A pair skipped here may be written by a later slice once what held it back
+  // is gone (slice 8 wrote the three the migration projection hid); its line is
+  // that slice's to hold.
+  const laterE = keysAfter(src, "_DOS_EFFECT", VERSION);
   for (const sk of ledger.skipped || []) {
-    ok(!(sk.key in E.map) && !NEW.has(sk.key), `${sk.key}: a skipped pair carries a line`);
+    ok((!(sk.key in E.map) || laterE.has(sk.key)) && !NEW.has(sk.key), `${sk.key}: a skipped pair carries a line`);
     ok(norm(sk.why).length > 30 && sk.members > 0, `${sk.key}: skipped with no reason or volume`);
   }
 

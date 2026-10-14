@@ -38,6 +38,7 @@ import { tmpdir } from "node:os";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import vm from "node:vm";
 import { measureAddresses } from "./vr-measure-addresses.mjs";
+import { keysAfter } from "./vr-slice-blocks.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -151,10 +152,14 @@ section("1–3 · the three, no losses, nothing invented");
 
 section("4 · the three stay blank in this pass");
 {
+  // The projection pass wrote no line; blank rows slice 8 (v368) later wrote
+  // the three in a block of its own, held by scripts/test-blank-rows-slice8.mjs.
+  // Outside a later slice's block each stays blank.
   const src = R("consistency.js");
   const a = src.indexOf("var _DOS_EFFECT = {");
   const E = vm.runInNewContext("(" + src.slice(a + "var _DOS_EFFECT = ".length, src.indexOf("\n  };", a) + 4) + ")");
-  for (const p of THREE) ok(!(p in E), `${p}: an effect line was written in the projection pass`);
+  const later = keysAfter(src, "_DOS_EFFECT", 367);
+  for (const p of THREE) ok(!(p in E) || later.has(p), `${p}: an effect line was written in the projection pass`);
 }
 
 section("5 · mutations");

@@ -1,0 +1,184 @@
+{
+ "_comment": "Blank rows slice 13 (v373). The next band of a regenerated census (scripts/vr-blank-pair-census.mjs). Every federal pair in the live record whose row prints nothing, ranked by distinct members with a row. After slice 12 the census holds 60 blank pairs. The ones above 100 members are all pairs earlier slices skipped, with their reasons unchanged. At 100 members sit exactly the six pairs slice 12's `next` named, and no others. They are four Senate confirmation votes and two Senate joint resolutions. The four confirmations take a line; the two resolution pairs are skipped. None stores a `did`. Each confirmation's rationale states the reach of the post (\"Leadership of the U.S. Department of Justice\"). So each line joins those words to the nominee's surname and post from the stored title, and opens \"Confirmed\": the stored status is enacted and the summary records the confirmation. `term` is the rationale's words the line carries and `termIn` names the field. None of the four acts carried a line before, so no line names a tally. `acts` carries every mapping on each act that takes a line. `skipped` lists the two band pairs left blank and why. No score, weight, mapping or key is read from or written to here.",
+ "_test": "scripts/test-blank-rows-slice13.mjs",
+ "_census": "scripts/vr-blank-pair-census.mjs",
+ "census": {
+  "blankPairs": 60,
+  "band": 100,
+  "inBand": 6
+ },
+ "lines": 4,
+ "rows": [
+  {
+   "key": "Bondi — AG|119|tough_on_crime",
+   "act": "Bondi — AG|119",
+   "issue": "tough_on_crime",
+   "line": "Confirmed Bondi as Attorney General, to lead the U.S. Department of Justice.",
+   "term": "U.S. Department of Justice",
+   "termIn": "rationale",
+   "rationale": "Leadership of the U.S. Department of Justice.",
+   "rationaleAt": "netlify/database/migrations/20260719250000_seed_landmark_measures_wave7.sql",
+   "nameFromTitle": "Bondi",
+   "postFrom": "title",
+   "note": "The rationale names the post's reach only; the nominee's surname and the post are taken from the measure's stored title, and \"Confirmed\" from its stored status and summary."
+  },
+  {
+   "key": "Patel — FBI|119|tough_on_crime",
+   "act": "Patel — FBI|119",
+   "issue": "tough_on_crime",
+   "line": "Confirmed Patel as FBI Director, to lead the nation’s top federal law-enforcement agency.",
+   "term": "top federal law-enforcement agency",
+   "termIn": "rationale",
+   "rationale": "Leadership of the nation's top federal law-enforcement agency.",
+   "rationaleAt": "netlify/database/migrations/20260719250000_seed_landmark_measures_wave7.sql",
+   "nameFromTitle": "Patel",
+   "postFrom": "summary",
+   "note": "The rationale names the post's reach only; the nominee's surname and the post are taken from the measure's stored title, and \"Confirmed\" from its stored status and summary."
+  },
+  {
+   "key": "Kennedy — HHS|119|healthcare",
+   "act": "Kennedy — HHS|119",
+   "issue": "healthcare",
+   "line": "Confirmed Kennedy as Secretary of Health and Human Services, the Secretary who runs federal health policy.",
+   "term": "Secretary who runs federal health policy",
+   "termIn": "rationale",
+   "rationale": "Confirmation of the Secretary who runs federal health policy (HHS, CDC, FDA, NIH).",
+   "rationaleAt": "netlify/database/migrations/20260719240000_seed_landmark_measures_wave6.sql",
+   "nameFromTitle": "Kennedy",
+   "postFrom": "title",
+   "note": "The rationale names the post's reach only; the nominee's surname and the post are taken from the measure's stored title, and \"Confirmed\" from its stored status and summary."
+  },
+  {
+   "key": "PN11-7|119|strong_defense",
+   "act": "PN11-7|119",
+   "issue": "strong_defense",
+   "line": "Confirmed Hegseth as Secretary of Defense, the civilian leader of the Department of Defense.",
+   "term": "civilian leader of the Department of Defense",
+   "termIn": "rationale",
+   "rationale": "Confirmation of the civilian leader of the Department of Defense.",
+   "rationaleAt": "netlify/database/migrations/20260719230000_seed_landmark_measures_wave5.sql",
+   "nameFromTitle": "Hegseth",
+   "postFrom": "title",
+   "note": "The rationale names the post's reach only; the nominee's surname and the post are taken from the measure's stored title, and \"Confirmed\" from its stored status and summary."
+  }
+ ],
+ "acts": {
+  "Bondi — AG|119": {
+   "status": "enacted",
+   "title": "Nomination of Pamela Bondi to be Attorney General",
+   "summary": "Senate confirmation of Pam Bondi as Attorney General, confirmed 54-46 with one Democrat crossing over in support.",
+   "summaryAt": "netlify/database/migrations/20260719250000_seed_landmark_measures_wave7.sql",
+   "rolls": [
+    {
+     "chamber": "senate",
+     "session": 1,
+     "roll": 33,
+     "question": "On the Nomination",
+     "result": "confirmed",
+     "yea": 54,
+     "nay": 46
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "tough_on_crime",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Leadership of the U.S. Department of Justice."
+    }
+   ]
+  },
+  "Patel — FBI|119": {
+   "status": "enacted",
+   "title": "Nomination of Kash Patel to be Director of the Federal Bureau of Investigation",
+   "summary": "Senate confirmation of Kash Patel as FBI Director, confirmed 51-49 — an unusually close vote for the post, with two Republicans opposed.",
+   "summaryAt": "netlify/database/migrations/20260719250000_seed_landmark_measures_wave7.sql",
+   "rolls": [
+    {
+     "chamber": "senate",
+     "session": 1,
+     "roll": 61,
+     "question": "On the Nomination",
+     "result": "confirmed",
+     "yea": 51,
+     "nay": 49
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "tough_on_crime",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Leadership of the nation's top federal law-enforcement agency."
+    }
+   ]
+  },
+  "Kennedy — HHS|119": {
+   "status": "enacted",
+   "title": "Nomination of Robert F. Kennedy Jr. to be Secretary of Health and Human Services",
+   "summary": "Senate confirmation of Robert F. Kennedy Jr. as Secretary of Health and Human Services, confirmed 52-48 nearly along party lines.",
+   "summaryAt": "netlify/database/migrations/20260719240000_seed_landmark_measures_wave6.sql",
+   "rolls": [
+    {
+     "chamber": "senate",
+     "session": 1,
+     "roll": 52,
+     "question": "On the Nomination",
+     "result": "confirmed",
+     "yea": 52,
+     "nay": 48
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "healthcare",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Confirmation of the Secretary who runs federal health policy (HHS, CDC, FDA, NIH)."
+    }
+   ]
+  },
+  "PN11-7|119": {
+   "status": "enacted",
+   "title": "Nomination of Pete Hegseth to be Secretary of Defense",
+   "summary": "Senate confirmation of Pete Hegseth as Secretary of Defense. Confirmed 51-50 on the Vice President's tie-breaking vote after the senators split 50-50.",
+   "summaryAt": "netlify/database/migrations/20260719230000_seed_landmark_measures_wave5.sql",
+   "rolls": [
+    {
+     "chamber": "senate",
+     "session": 1,
+     "roll": 15,
+     "question": "On the Nomination (confirmed 51-50 on the VP tie-break)",
+     "result": "confirmed",
+     "yea": 50,
+     "nay": 50
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "strong_defense",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Confirmation of the civilian leader of the Department of Defense."
+    }
+   ]
+  }
+ },
+ "skipped": [
+  {
+   "key": "S.J.Res. 37|119|cost_living",
+   "members": 100,
+   "why": "The rationale's one effect, removing the import taxes by ending the tariff emergency, is what the act's tariffs_prices line already says; the rest reports what supporters say about prices."
+  },
+  {
+   "key": "S.J.Res. 59|119|foreign_balance",
+   "members": 100,
+   "why": "The rationale (\"Concerns the scope and restraint of U.S. military involvement abroad\") states a topic, not an effect; the act's one effect is already the iran_policy and strong_defense lines' subject."
+  }
+ ],
+ "next": "After this slice the highest-volume blank pair not yet reviewed sits at 87 members: H.R. 815|118|israel_support. Rerun the census before choosing slice 14."
+}

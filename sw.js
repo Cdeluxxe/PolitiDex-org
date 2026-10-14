@@ -9604,7 +9604,97 @@
 //     consistency.js is precached and changed, so the shell moves one version.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v367';
+// v368 - BLANK ROWS SLICE 8: THREE LINES THE PROJECTION FIX MADE WRITABLE.
+//     The three ready pairs slices 6 and 7 skipped only because the migration
+//     projection could not read the loop forms that map them: the GENIUS Act
+//     (S. 1582) and the fracking bill (H.R. 26) × states vs. federal power, and
+//     the first Israel supplemental (H.R. 6126, 118th) × strong defense. Each
+//     line is in _DOS_EFFECT, written from that pair's own mapping rationale
+//     (db/vr-blank-rows-slice8.json names each source). No shipped line, score,
+//     Direction Match, NEVER_FEEDS, publication floor, money pill, district
+//     board or chip moved. consistency.js is precached and changed, so the shell
+//     moves one version. No location key or other saved key was touched.
+//     MIGRATION COST: none.
+// v369 - BLANK ROWS SLICE 9: TWELVE LINES FROM A FRESH BLANK-PAIR CENSUS.
+//     scripts/vr-blank-pair-census.mjs ranked every federal pair that printed
+//     nothing by members with a row. At 109 members, twelve pairs on five House
+//     bills take a line: the DETERRENT Act (H.R. 1048), the No Rogue Rulings Act
+//     (H.R. 1526), the Anti-CBDC Surveillance State Act (H.R. 1919), the LNG
+//     export bill (H.R. 1949) and the Fix Our Forests Act (H.R. 471). Each line
+//     is in _DOS_EFFECT, written from that pair's own mapping rationale
+//     (db/vr-blank-rows-slice9.json names each source and the nineteen pairs
+//     left blank). No shipped line, score,
+//     Direction Match, NEVER_FEEDS, publication floor, money pill, district
+//     board or chip moved. consistency.js is precached and changed, so the
+//     shell moves one version. No location key or other saved key was touched.
+//     MIGRATION COST: none.
+// v370 - BLANK ROWS SLICE 10: ELEVEN LINES IN THE CENSUS'S 108-MEMBER BAND.
+//     The regenerated blank-pair census (scripts/vr-blank-pair-census.mjs) put
+//     fourteen pairs on ten acts at 108 members. Eleven take a line: H.Amdt. 253
+//     and H.Amdt. 87, the Lebanon and Iran war-powers resolutions (H.Con.Res. 108
+//     and 89), the FY2027 budget resolution (H.Con.Res. 113), the veterans
+//     gun-check bill (H.R. 1041), the KIDS Act (H.R. 7757), the veterans omnibus
+//     (H.R. 9237) and the FY2027 continuing resolution (H.R. 9770). Each line is
+//     in _DOS_EFFECT, written from that pair's own mapping rationale
+//     (db/vr-blank-rows-slice10.json names each source and the three pairs left
+//     blank). No shipped line, score, Direction
+//     Match, NEVER_FEEDS, publication floor, money pill, district board or chip
+//     moved. consistency.js is precached and changed, so the shell moves one
+//     version. No location key or other saved key was touched.
+//     MIGRATION COST: none.
+// v371 - BLANK ROWS SLICE 11: SIX LINES IN THE CENSUS'S 107-MEMBER BAND.
+//     The regenerated blank-pair census (scripts/vr-blank-pair-census.mjs) put
+//     eighteen pairs on ten failed or agreed House amendments at 107 members. Six
+//     take a line, all on failed amendments: H.Amdt. 232 (Fulbright), 237
+//     (U.N. contributions), 247 (military injunctions), 249 (state fuel policy
+//     study), 250 (defense scrap-metal preemption) and 251 (foreign exercise
+//     costs). Each line is in _DOS_EFFECT, written from that pair's own mapping
+//     rationale (db/vr-blank-rows-slice11.json names each source and the twelve
+//     pairs left blank). No shipped line, score, Direction Match, NEVER_FEEDS,
+//     publication floor, money pill, district board or chip moved.
+//     consistency.js is precached and changed, so the shell moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+// v372 - BLANK ROWS SLICE 12: FOUR LINES IN THE CENSUS'S 101-MEMBER BAND.
+//     The regenerated blank-pair census (scripts/vr-blank-pair-census.mjs) put
+//     five pairs on three 117th Congress House bills at 101 members. Four take a
+//     line: the For the People Act (H.R. 1) on Supreme Court reform, the
+//     Protecting Our Kids Act (H.R. 7910) on gun safety and gun rights, and the
+//     Bipartisan Background Checks Act (H.R. 8) on gun safety. Each line is in
+//     _DOS_EFFECT, written from that pair's own mapping rationale
+//     (db/vr-blank-rows-slice12.json names each source and the pair left blank).
+//     No shipped line, score, Direction Match, NEVER_FEEDS, publication floor,
+//     money pill, district board or chip moved. consistency.js is precached and
+//     changed, so the shell moves one version. No location key or other saved
+//     key was touched.
+//     MIGRATION COST: none.
+// v373 - BLANK ROWS SLICE 13: FOUR CONFIRMATION LINES IN THE 100-MEMBER BAND.
+//     The regenerated blank-pair census (scripts/vr-blank-pair-census.mjs) put
+//     six pairs at 100 members: four Senate confirmations and two joint
+//     resolutions. The four confirmations take a line: the Attorney General
+//     (Bondi), the FBI Director (Patel), the HHS Secretary (Kennedy) and the
+//     Defense Secretary (Hegseth, PN11-7). Each line is in _DOS_EFFECT, written
+//     from that pair's own mapping rationale with the nominee from the stored
+//     title (db/vr-blank-rows-slice13.json names each source and the two pairs
+//     left blank). No shipped line, score, Direction Match, NEVER_FEEDS,
+//     publication floor, money pill, district board or chip moved.
+//     consistency.js is precached and changed, so the shell moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+// v374 - BLANK ROWS SLICE 15: THREE CONFIRMATION LINES IN THE 84-MEMBER BAND.
+//     The regenerated blank-pair census (scripts/vr-blank-pair-census.mjs) put
+//     six pairs on four Senate confirmations at 84 members. Three take a line in
+//     slice 13's form: the Director of National Intelligence (Gabbard), the
+//     Secretary of State (Rubio) and the OMB Director (Vought). Each line is in
+//     _DOS_EFFECT, written from that pair's own mapping rationale with the
+//     nominee from the stored title (db/vr-blank-rows-slice15.json names each
+//     source and the three pairs left blank). Slice 14 wrote no line and did not
+//     move the shell. No shipped line, score, Direction Match, NEVER_FEEDS,
+//     publication floor, money pill, district board or chip moved.
+//     consistency.js is precached and changed, so the shell moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v374';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -1,0 +1,100 @@
+{
+ "_comment": "Blank rows slice 14. The next band of a regenerated census (scripts/vr-blank-pair-census.mjs). Every federal pair in the live record whose row prints nothing, ranked by distinct members with a row. After slice 13 the census holds 56 blank pairs. The ones above 87 members are all pairs earlier slices skipped, with their reasons unchanged. At 87 members sits exactly the one pair slice 13's `next` named, H.R. 815 (118th) × israel_support, and no other. It takes no line. Its mapping is a rider-audit row whose rationale names Division A only by its title, and the rider effect-line record (db/vr-rider-effect-lines.json, held by scripts/test-rider-effect-lines.mjs) already decided this pair is blank for that reason. Slice 10 deferred to the same record for H.R. 7148 × healthcare. No line is written, so _DOS_EFFECT, consistency.js and the service worker are unchanged. The record keeps the review and the skip. No score, weight, mapping or key is read from or written to here.",
+ "_test": "scripts/test-blank-rows-slice14.mjs",
+ "_census": "scripts/vr-blank-pair-census.mjs",
+ "census": {
+  "blankPairs": 56,
+  "band": 87,
+  "inBand": 1
+ },
+ "lines": 0,
+ "rows": [],
+ "acts": {
+  "H.R. 815|118": {
+   "status": "enacted",
+   "title": "Making emergency supplemental appropriations for the fiscal year ending September 30, 2024, and for other purposes.",
+   "summary": "Emergency supplemental appropriations in five divisions: Division A, Israel Security Supplemental Appropriations Act, 2024; Division B, Ukraine Security Supplemental Appropriations Act, 2024; Division C, Indo-Pacific Security Supplemental Appropriations Act, 2024; Division D, 21st Century Peace through Strength Act, including the Protecting Americans from Foreign Adversary Controlled Applications Act divest-or-ban requirement and Iran-related sanctions; and Division E, Fentanyl Eradication and Narcotics Deterrence Off Fentanyl Act, imposing sanctions and anti-money-laundering measures on fentanyl trafficking organizations.",
+   "summaryAt": null,
+   "rolls": [
+    {
+     "chamber": "senate",
+     "session": 2,
+     "roll": 154,
+     "question": "On the Motion (Motion to Concur in the House Amendment to the Senate Amendment to H.R. 815)",
+     "result": "agreed_to",
+     "yea": 79,
+     "nay": 18
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "foreign_balance",
+     "weight": 100,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Divisions A, B and C are security assistance appropriations for Israel, Ukraine and the Indo-Pacific respectively. A yea funds alliance commitments across three theatres."
+    },
+    {
+     "issueKey": "america_first_fp",
+     "weight": 70,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The package is the largest single foreign-aid appropriation of the 118th Congress, and Division B is Ukraine security assistance specifically. A yea is a vote against the position that resources should be redirected from foreign aid to domestic priorities."
+    },
+    {
+     "issueKey": "restraint",
+     "weight": 65,
+     "isPrimary": false,
+     "supportMeaning": "yea_opposes",
+     "rationale": "The same three security-assistance divisions deepen U.S. involvement in two active conflicts and one deterrence posture; a yea is a vote against military restraint."
+    },
+    {
+     "issueKey": "ukraine_policy",
+     "weight": 60,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Ukraine is the subject of the package's Division B, the Ukraine Security Supplemental Appropriations Act, 2024, which became law through this vehicle. Filed here alongside its existing rows, not in place of them; weighted below H.R. 8035 because four other divisions ride with it. No side is read on this key."
+    },
+    {
+     "issueKey": "tech_balance",
+     "weight": 50,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division D carries the Protecting Americans from Foreign Adversary Controlled Applications Act, requiring divestiture of foreign-adversary-controlled applications or prohibiting their distribution in the United States."
+    },
+    {
+     "issueKey": "immig_fentanyl",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Division E is the Fentanyl Eradication and Narcotics Deterrence Off Fentanyl Act: sanctions in response to the national emergency relating to fentanyl trafficking, plus anti-money-laundering measures against the transnational organizations involved."
+    },
+    {
+     "issueKey": "iran_policy",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Rider audit wave 2, October 2026: the act's own stored text names this leaf — \"Iran-related sanctions\". Filed as a secondary row beside the act's existing rows, never in place of its foreign_balance primary; Division D carries Iran-related sanctions; this key names a country and carries no pole, so no side is read on it."
+    },
+    {
+     "issueKey": "israel_support",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "Rider audit wave 2, October 2026: the act's own stored text names this leaf — \"Israel Security Supplemental Appropriations Act, 2024\". Filed as a secondary row beside the act's existing rows, never in place of its foreign_balance primary; Division A is the Israel Security Supplemental Appropriations Act, 2024, so a yea funds it."
+    }
+   ]
+  }
+ },
+ "skipped": [
+  {
+   "key": "H.R. 815|118|israel_support",
+   "members": 87,
+   "rationale": "Rider audit wave 2, October 2026: the act's own stored text names this leaf — \"Israel Security Supplemental Appropriations Act, 2024\". Filed as a secondary row beside the act's existing rows, never in place of its foreign_balance primary; Division A is the Israel Security Supplemental Appropriations Act, 2024, so a yea funds it.",
+   "rationaleAt": "netlify/database/migrations/20261112000000_vr_rider_audit_onaxis_rows.sql",
+   "why": "Label only. The rationale names Division A only by its title, \"Israel Security Supplemental Appropriations Act, 2024\", and says nothing about what it appropriates. The rider effect-line record (db/vr-rider-effect-lines.json) already holds this pair blank for that reason, as it does H.R. 7148 × healthcare, which slice 10 skipped on the same ground. A line that restates a division's title is still a label.",
+   "heldBy": "db/vr-rider-effect-lines.json"
+  }
+ ],
+ "next": "After this slice the highest-volume blank pairs not yet reviewed sit at 84 members, all on Senate confirmations: Gabbard — DNI|119|foreign_balance, McMahon — ED|119|school_choice, Rubio — State|119|foreign_balance, Rubio — State|119|strong_defense, Vought — OMB|119|cut_spending, Vought — OMB|119|national_debt. Rerun the census before choosing slice 15."
+}
