@@ -9681,7 +9681,20 @@
 //     consistency.js is precached and changed, so the shell moves one version.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v373';
+// v374 - BLANK ROWS SLICE 15: THREE CONFIRMATION LINES IN THE 84-MEMBER BAND.
+//     The regenerated blank-pair census (scripts/vr-blank-pair-census.mjs) put
+//     six pairs on four Senate confirmations at 84 members. Three take a line in
+//     slice 13's form: the Director of National Intelligence (Gabbard), the
+//     Secretary of State (Rubio) and the OMB Director (Vought). Each line is in
+//     _DOS_EFFECT, written from that pair's own mapping rationale with the
+//     nominee from the stored title (db/vr-blank-rows-slice15.json names each
+//     source and the three pairs left blank). Slice 14 wrote no line and did not
+//     move the shell. No shipped line, score, Direction Match, NEVER_FEEDS,
+//     publication floor, money pill, district board or chip moved.
+//     consistency.js is precached and changed, so the shell moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v374';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

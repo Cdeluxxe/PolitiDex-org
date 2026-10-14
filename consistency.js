@@ -18400,6 +18400,18 @@
       'Confirmed Kennedy as Secretary of Health and Human Services, the Secretary who runs federal health policy.',
     'PN11-7|119|strong_defense':
       'Confirmed Hegseth as Secretary of Defense, the civilian leader of the Department of Defense.',
+    // BLANK ROWS SLICE 15 (v374). The 84-member band of the regenerated census:
+    // the Senate confirmations of the Director of National Intelligence, the
+    // Secretary of State and the OMB Director, in slice 13's form. None stores a
+    // `did`; each line joins the reach of the post its mapping rationale names to
+    // the nominee and post its stored title names, and names no tally.
+    // db/vr-blank-rows-slice15.json names the source of each and the pairs skipped.
+    'Gabbard — DNI|119|foreign_balance':
+      'Confirmed Gabbard as Director of National Intelligence, to lead the intelligence community.',
+    'Rubio — State|119|foreign_balance':
+      'Confirmed Rubio as Secretary of State, to lead U.S. foreign policy and the State Department.',
+    'Vought — OMB|119|national_debt':
+      'Confirmed Vought as Director of the Office of Management and Budget, which leads the administration’s budget and deficit strategy.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is

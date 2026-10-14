@@ -1,0 +1,1208 @@
+{
+ "_comment": "Blank rows slice 15 (v374). The next band of a regenerated census (scripts/vr-blank-pair-census.mjs). Every federal pair in the live record whose row prints nothing, ranked by distinct members with a row. The census holds 56 blank pairs. The ones above 84 members are all pairs earlier slices skipped, with their reasons unchanged. At 84 members sit exactly the six pairs slice 14's `next` named, on four Senate confirmations, and no others. Three take a line, in slice 13's form. Each rationale names the reach of the post, so the line joins those words to the nominee's surname and post from the stored title, and opens \"Confirmed\": the stored status is enacted and the summary records the confirmation. Three are skipped. Their rationales state an administration aim, a vote margin, or the nominee's views, not what the confirmation did. None stores a `did`. None of the three acts carried a line before, so no line names a tally. No offline vote seed holds these confirmations' member votes, so each act carries `liveRows`, its member votes read from the live record, for the drawer check. `skipped` lists the three band pairs left blank and why. No score, weight, mapping or key is read from or written to here.",
+ "_test": "scripts/test-blank-rows-slice15.mjs",
+ "_census": "scripts/vr-blank-pair-census.mjs",
+ "census": {
+  "blankPairs": 56,
+  "band": 84,
+  "inBand": 6
+ },
+ "lines": 3,
+ "rows": [
+  {
+   "key": "Gabbard — DNI|119|foreign_balance",
+   "act": "Gabbard — DNI|119",
+   "issue": "foreign_balance",
+   "line": "Confirmed Gabbard as Director of National Intelligence, to lead the intelligence community.",
+   "term": "the intelligence community",
+   "termIn": "rationale",
+   "rationale": "Leadership of the intelligence community.",
+   "rationaleAt": "netlify/database/migrations/20260721030000_seed_voting_record_wave10.sql",
+   "nameFromTitle": "Gabbard",
+   "note": "The rationale names the post's reach only; the nominee's surname and the post are taken from the measure's stored title, and \"Confirmed\" from its stored status and summary."
+  },
+  {
+   "key": "Rubio — State|119|foreign_balance",
+   "act": "Rubio — State|119",
+   "issue": "foreign_balance",
+   "line": "Confirmed Rubio as Secretary of State, to lead U.S. foreign policy and the State Department.",
+   "term": "U.S. foreign policy and the State Department",
+   "termIn": "rationale",
+   "rationale": "Leadership of U.S. foreign policy and the State Department.",
+   "rationaleAt": "netlify/database/migrations/20260721040000_seed_voting_record_wave11.sql",
+   "nameFromTitle": "Rubio",
+   "note": "The rationale names the post's reach only; the nominee's surname and the post are taken from the measure's stored title, and \"Confirmed\" from its stored status and summary."
+  },
+  {
+   "key": "Vought — OMB|119|national_debt",
+   "act": "Vought — OMB|119",
+   "issue": "national_debt",
+   "line": "Confirmed Vought as Director of the Office of Management and Budget, which leads the administration’s budget and deficit strategy.",
+   "term": "budget and deficit strategy",
+   "termIn": "rationale",
+   "rationale": "OMB leads the administration's budget and deficit strategy.",
+   "rationaleAt": "netlify/database/migrations/20260721030000_seed_voting_record_wave10.sql",
+   "nameFromTitle": "Vought",
+   "note": "The rationale names the post's reach only; the nominee's surname and the post are taken from the measure's stored title, and \"Confirmed\" from its stored status and summary."
+  }
+ ],
+ "acts": {
+  "Gabbard — DNI|119": {
+   "status": "enacted",
+   "title": "Nomination of Tulsi Gabbard to be Director of National Intelligence",
+   "summary": "Senate confirmation of Tulsi Gabbard as Director of National Intelligence, confirmed 52–48. Mitch McConnell was the lone Republican to vote no.",
+   "summaryAt": "netlify/database/migrations/20260721030000_seed_voting_record_wave10.sql",
+   "rolls": [
+    {
+     "chamber": "senate",
+     "session": 1,
+     "roll": null,
+     "question": "On the Nomination",
+     "result": "confirmed",
+     "yea": 52,
+     "nay": 48
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "foreign_balance",
+     "weight": 50,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Leadership of the intelligence community."
+    }
+   ],
+   "noSeedRows": true,
+   "noSeedRowsWhy": "The confirmation's one stored roll carries no roll number, so no offline vote seed holds its member votes. The member votes below were read from the live record (vr_member_votes) for this slice, so the drawers can be rendered offline as the live record shows them.",
+   "liveRows": {
+    "chamber": "senate",
+    "session": 1,
+    "roll": null,
+    "question": "On the Nomination",
+    "voteDate": "2025-02-12T00:00:00+00:00",
+    "actionType": "nomination",
+    "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_lists/vote_menu_119_1.htm",
+    "memberVotes": [
+     {
+      "politicianId": "alsobrooks",
+      "position": "nay"
+     },
+     {
+      "politicianId": "andy_kim",
+      "position": "nay"
+     },
+     {
+      "politicianId": "angus_king",
+      "position": "nay"
+     },
+     {
+      "politicianId": "ashley_moody",
+      "position": "yea"
+     },
+     {
+      "politicianId": "banks",
+      "position": "yea"
+     },
+     {
+      "politicianId": "barrasso",
+      "position": "yea"
+     },
+     {
+      "politicianId": "bennet",
+      "position": "nay"
+     },
+     {
+      "politicianId": "blackburn",
+      "position": "yea"
+     },
+     {
+      "politicianId": "blumenthal",
+      "position": "nay"
+     },
+     {
+      "politicianId": "blunt_rochester",
+      "position": "nay"
+     },
+     {
+      "politicianId": "booker",
+      "position": "nay"
+     },
+     {
+      "politicianId": "britt",
+      "position": "yea"
+     },
+     {
+      "politicianId": "chris_murphy",
+      "position": "nay"
+     },
+     {
+      "politicianId": "collins",
+      "position": "yea"
+     },
+     {
+      "politicianId": "coons",
+      "position": "nay"
+     },
+     {
+      "politicianId": "cortez_masto",
+      "position": "nay"
+     },
+     {
+      "politicianId": "cotton",
+      "position": "yea"
+     },
+     {
+      "politicianId": "cruz",
+      "position": "yea"
+     },
+     {
+      "politicianId": "daines",
+      "position": "yea"
+     },
+     {
+      "politicianId": "dan_sullivan",
+      "position": "yea"
+     },
+     {
+      "politicianId": "deb_fischer",
+      "position": "yea"
+     },
+     {
+      "politicianId": "duckworth",
+      "position": "nay"
+     },
+     {
+      "politicianId": "durbin",
+      "position": "nay"
+     },
+     {
+      "politicianId": "ernst",
+      "position": "yea"
+     },
+     {
+      "politicianId": "fetterman",
+      "position": "nay"
+     },
+     {
+      "politicianId": "gallego",
+      "position": "nay"
+     },
+     {
+      "politicianId": "gillibrand",
+      "position": "nay"
+     },
+     {
+      "politicianId": "graham",
+      "position": "yea"
+     },
+     {
+      "politicianId": "grassley",
+      "position": "yea"
+     },
+     {
+      "politicianId": "hagerty",
+      "position": "yea"
+     },
+     {
+      "politicianId": "hawley",
+      "position": "yea"
+     },
+     {
+      "politicianId": "heinrich",
+      "position": "nay"
+     },
+     {
+      "politicianId": "hickenlooper",
+      "position": "nay"
+     },
+     {
+      "politicianId": "hirono",
+      "position": "nay"
+     },
+     {
+      "politicianId": "hoeven",
+      "position": "yea"
+     },
+     {
+      "politicianId": "jim_justice",
+      "position": "yea"
+     },
+     {
+      "politicianId": "john_cornyn",
+      "position": "yea"
+     },
+     {
+      "politicianId": "jon_ossoff",
+      "position": "nay"
+     },
+     {
+      "politicianId": "kaine",
+      "position": "nay"
+     },
+     {
+      "politicianId": "kennedy_john",
+      "position": "yea"
+     },
+     {
+      "politicianId": "kevin_cramer",
+      "position": "yea"
+     },
+     {
+      "politicianId": "klobuchar",
+      "position": "nay"
+     },
+     {
+      "politicianId": "lankford",
+      "position": "yea"
+     },
+     {
+      "politicianId": "lee",
+      "position": "yea"
+     },
+     {
+      "politicianId": "lujan",
+      "position": "nay"
+     },
+     {
+      "politicianId": "lummis",
+      "position": "yea"
+     },
+     {
+      "politicianId": "maggie_hassan",
+      "position": "nay"
+     },
+     {
+      "politicianId": "mark_kelly",
+      "position": "nay"
+     },
+     {
+      "politicianId": "markey",
+      "position": "nay"
+     },
+     {
+      "politicianId": "mcconnell",
+      "position": "nay"
+     },
+     {
+      "politicianId": "mccormick",
+      "position": "yea"
+     },
+     {
+      "politicianId": "merkley",
+      "position": "nay"
+     },
+     {
+      "politicianId": "mike_rounds",
+      "position": "yea"
+     },
+     {
+      "politicianId": "moreno",
+      "position": "yea"
+     },
+     {
+      "politicianId": "mullin",
+      "position": "yea"
+     },
+     {
+      "politicianId": "murkowski",
+      "position": "yea"
+     },
+     {
+      "politicianId": "padilla",
+      "position": "nay"
+     },
+     {
+      "politicianId": "peters",
+      "position": "nay"
+     },
+     {
+      "politicianId": "rand_paul",
+      "position": "yea"
+     },
+     {
+      "politicianId": "rick_scott",
+      "position": "yea"
+     },
+     {
+      "politicianId": "ricketts",
+      "position": "yea"
+     },
+     {
+      "politicianId": "roger_marshall",
+      "position": "yea"
+     },
+     {
+      "politicianId": "ron_johnson",
+      "position": "yea"
+     },
+     {
+      "politicianId": "rosen",
+      "position": "nay"
+     },
+     {
+      "politicianId": "schatz",
+      "position": "nay"
+     },
+     {
+      "politicianId": "schiff",
+      "position": "nay"
+     },
+     {
+      "politicianId": "schmitt",
+      "position": "yea"
+     },
+     {
+      "politicianId": "schumer",
+      "position": "nay"
+     },
+     {
+      "politicianId": "shaheen",
+      "position": "nay"
+     },
+     {
+      "politicianId": "sheehy",
+      "position": "yea"
+     },
+     {
+      "politicianId": "slotkin",
+      "position": "nay"
+     },
+     {
+      "politicianId": "tammy_baldwin",
+      "position": "nay"
+     },
+     {
+      "politicianId": "ted_budd",
+      "position": "yea"
+     },
+     {
+      "politicianId": "thune",
+      "position": "yea"
+     },
+     {
+      "politicianId": "tillis",
+      "position": "yea"
+     },
+     {
+      "politicianId": "tina_smith",
+      "position": "nay"
+     },
+     {
+      "politicianId": "todd_young",
+      "position": "yea"
+     },
+     {
+      "politicianId": "tommy_tuberville",
+      "position": "yea"
+     },
+     {
+      "politicianId": "van_hollen",
+      "position": "nay"
+     },
+     {
+      "politicianId": "warner",
+      "position": "nay"
+     },
+     {
+      "politicianId": "warnock",
+      "position": "nay"
+     },
+     {
+      "politicianId": "warren",
+      "position": "nay"
+     },
+     {
+      "politicianId": "welch",
+      "position": "nay"
+     },
+     {
+      "politicianId": "wyden",
+      "position": "nay"
+     }
+    ]
+   }
+  },
+  "Rubio — State|119": {
+   "status": "enacted",
+   "title": "Nomination of Marco Rubio to be Secretary of State",
+   "summary": "Senate confirmation of Marco Rubio as Secretary of State, confirmed 99–0 — a rare unanimous cabinet confirmation, on the first day of the administration.",
+   "summaryAt": "netlify/database/migrations/20260721040000_seed_voting_record_wave11.sql",
+   "rolls": [
+    {
+     "chamber": "senate",
+     "session": 1,
+     "roll": null,
+     "question": "On the Nomination",
+     "result": "confirmed",
+     "yea": 99,
+     "nay": 0
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "foreign_balance",
+     "weight": 60,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Leadership of U.S. foreign policy and the State Department."
+    },
+    {
+     "issueKey": "strong_defense",
+     "weight": 45,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "The confirmation cleared unanimously across both parties."
+    }
+   ],
+   "noSeedRows": true,
+   "noSeedRowsWhy": "The confirmation's one stored roll carries no roll number, so no offline vote seed holds its member votes. The member votes below were read from the live record (vr_member_votes) for this slice, so the drawers can be rendered offline as the live record shows them.",
+   "liveRows": {
+    "chamber": "senate",
+    "session": 1,
+    "roll": null,
+    "question": "On the Nomination",
+    "voteDate": "2025-01-20T00:00:00+00:00",
+    "actionType": "nomination",
+    "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_lists/vote_menu_119_1.htm",
+    "memberVotes": [
+     {
+      "politicianId": "alsobrooks",
+      "position": "yea"
+     },
+     {
+      "politicianId": "andy_kim",
+      "position": "yea"
+     },
+     {
+      "politicianId": "angus_king",
+      "position": "yea"
+     },
+     {
+      "politicianId": "ashley_moody",
+      "position": "yea"
+     },
+     {
+      "politicianId": "banks",
+      "position": "yea"
+     },
+     {
+      "politicianId": "barrasso",
+      "position": "yea"
+     },
+     {
+      "politicianId": "bennet",
+      "position": "yea"
+     },
+     {
+      "politicianId": "blackburn",
+      "position": "yea"
+     },
+     {
+      "politicianId": "blumenthal",
+      "position": "yea"
+     },
+     {
+      "politicianId": "blunt_rochester",
+      "position": "yea"
+     },
+     {
+      "politicianId": "booker",
+      "position": "yea"
+     },
+     {
+      "politicianId": "britt",
+      "position": "yea"
+     },
+     {
+      "politicianId": "chris_murphy",
+      "position": "yea"
+     },
+     {
+      "politicianId": "collins",
+      "position": "yea"
+     },
+     {
+      "politicianId": "coons",
+      "position": "yea"
+     },
+     {
+      "politicianId": "cortez_masto",
+      "position": "yea"
+     },
+     {
+      "politicianId": "cotton",
+      "position": "yea"
+     },
+     {
+      "politicianId": "cruz",
+      "position": "yea"
+     },
+     {
+      "politicianId": "daines",
+      "position": "yea"
+     },
+     {
+      "politicianId": "dan_sullivan",
+      "position": "yea"
+     },
+     {
+      "politicianId": "deb_fischer",
+      "position": "yea"
+     },
+     {
+      "politicianId": "duckworth",
+      "position": "yea"
+     },
+     {
+      "politicianId": "durbin",
+      "position": "yea"
+     },
+     {
+      "politicianId": "ernst",
+      "position": "yea"
+     },
+     {
+      "politicianId": "fetterman",
+      "position": "yea"
+     },
+     {
+      "politicianId": "gallego",
+      "position": "yea"
+     },
+     {
+      "politicianId": "gillibrand",
+      "position": "yea"
+     },
+     {
+      "politicianId": "graham",
+      "position": "yea"
+     },
+     {
+      "politicianId": "grassley",
+      "position": "yea"
+     },
+     {
+      "politicianId": "hagerty",
+      "position": "yea"
+     },
+     {
+      "politicianId": "hawley",
+      "position": "yea"
+     },
+     {
+      "politicianId": "heinrich",
+      "position": "yea"
+     },
+     {
+      "politicianId": "hickenlooper",
+      "position": "yea"
+     },
+     {
+      "politicianId": "hirono",
+      "position": "yea"
+     },
+     {
+      "politicianId": "hoeven",
+      "position": "yea"
+     },
+     {
+      "politicianId": "jim_justice",
+      "position": "yea"
+     },
+     {
+      "politicianId": "john_cornyn",
+      "position": "yea"
+     },
+     {
+      "politicianId": "jon_ossoff",
+      "position": "yea"
+     },
+     {
+      "politicianId": "kaine",
+      "position": "yea"
+     },
+     {
+      "politicianId": "kennedy_john",
+      "position": "yea"
+     },
+     {
+      "politicianId": "kevin_cramer",
+      "position": "yea"
+     },
+     {
+      "politicianId": "klobuchar",
+      "position": "yea"
+     },
+     {
+      "politicianId": "lankford",
+      "position": "yea"
+     },
+     {
+      "politicianId": "lee",
+      "position": "yea"
+     },
+     {
+      "politicianId": "lujan",
+      "position": "yea"
+     },
+     {
+      "politicianId": "lummis",
+      "position": "yea"
+     },
+     {
+      "politicianId": "maggie_hassan",
+      "position": "yea"
+     },
+     {
+      "politicianId": "mark_kelly",
+      "position": "yea"
+     },
+     {
+      "politicianId": "markey",
+      "position": "yea"
+     },
+     {
+      "politicianId": "mcconnell",
+      "position": "yea"
+     },
+     {
+      "politicianId": "mccormick",
+      "position": "yea"
+     },
+     {
+      "politicianId": "merkley",
+      "position": "yea"
+     },
+     {
+      "politicianId": "mike_rounds",
+      "position": "yea"
+     },
+     {
+      "politicianId": "moreno",
+      "position": "yea"
+     },
+     {
+      "politicianId": "mullin",
+      "position": "yea"
+     },
+     {
+      "politicianId": "murkowski",
+      "position": "yea"
+     },
+     {
+      "politicianId": "padilla",
+      "position": "yea"
+     },
+     {
+      "politicianId": "peters",
+      "position": "yea"
+     },
+     {
+      "politicianId": "rand_paul",
+      "position": "yea"
+     },
+     {
+      "politicianId": "rick_scott",
+      "position": "yea"
+     },
+     {
+      "politicianId": "ricketts",
+      "position": "yea"
+     },
+     {
+      "politicianId": "roger_marshall",
+      "position": "yea"
+     },
+     {
+      "politicianId": "ron_johnson",
+      "position": "yea"
+     },
+     {
+      "politicianId": "rosen",
+      "position": "yea"
+     },
+     {
+      "politicianId": "schatz",
+      "position": "yea"
+     },
+     {
+      "politicianId": "schiff",
+      "position": "yea"
+     },
+     {
+      "politicianId": "schmitt",
+      "position": "yea"
+     },
+     {
+      "politicianId": "schumer",
+      "position": "yea"
+     },
+     {
+      "politicianId": "shaheen",
+      "position": "yea"
+     },
+     {
+      "politicianId": "sheehy",
+      "position": "yea"
+     },
+     {
+      "politicianId": "slotkin",
+      "position": "yea"
+     },
+     {
+      "politicianId": "tammy_baldwin",
+      "position": "yea"
+     },
+     {
+      "politicianId": "ted_budd",
+      "position": "yea"
+     },
+     {
+      "politicianId": "thune",
+      "position": "yea"
+     },
+     {
+      "politicianId": "tillis",
+      "position": "yea"
+     },
+     {
+      "politicianId": "tina_smith",
+      "position": "yea"
+     },
+     {
+      "politicianId": "todd_young",
+      "position": "yea"
+     },
+     {
+      "politicianId": "tommy_tuberville",
+      "position": "yea"
+     },
+     {
+      "politicianId": "van_hollen",
+      "position": "yea"
+     },
+     {
+      "politicianId": "warner",
+      "position": "yea"
+     },
+     {
+      "politicianId": "warnock",
+      "position": "yea"
+     },
+     {
+      "politicianId": "warren",
+      "position": "yea"
+     },
+     {
+      "politicianId": "welch",
+      "position": "yea"
+     },
+     {
+      "politicianId": "wyden",
+      "position": "yea"
+     }
+    ]
+   }
+  },
+  "Vought — OMB|119": {
+   "status": "enacted",
+   "title": "Nomination of Russell Vought to be Director of the Office of Management and Budget",
+   "summary": "Senate confirmation of Russell Vought as OMB Director, confirmed 53–47 on a party-line vote. Vought is a leading advocate of deep reductions in federal spending.",
+   "summaryAt": "netlify/database/migrations/20260721030000_seed_voting_record_wave10.sql",
+   "rolls": [
+    {
+     "chamber": "senate",
+     "session": 1,
+     "roll": null,
+     "question": "On the Nomination",
+     "result": "confirmed",
+     "yea": 53,
+     "nay": 47
+    }
+   ],
+   "issues": [
+    {
+     "issueKey": "cut_spending",
+     "weight": 70,
+     "isPrimary": true,
+     "supportMeaning": "yea_supports",
+     "rationale": "Vought is a prominent proponent of steep cuts to federal spending and the size of government."
+    },
+    {
+     "issueKey": "national_debt",
+     "weight": 55,
+     "isPrimary": false,
+     "supportMeaning": "yea_supports",
+     "rationale": "OMB leads the administration's budget and deficit strategy."
+    }
+   ],
+   "noSeedRows": true,
+   "noSeedRowsWhy": "The confirmation's one stored roll carries no roll number, so no offline vote seed holds its member votes. The member votes below were read from the live record (vr_member_votes) for this slice, so the drawers can be rendered offline as the live record shows them.",
+   "liveRows": {
+    "chamber": "senate",
+    "session": 1,
+    "roll": null,
+    "question": "On the Nomination",
+    "voteDate": "2025-02-07T00:00:00+00:00",
+    "actionType": "nomination",
+    "sourceUrl": "https://www.senate.gov/legislative/LIS/roll_call_lists/vote_menu_119_1.htm",
+    "memberVotes": [
+     {
+      "politicianId": "alsobrooks",
+      "position": "nay"
+     },
+     {
+      "politicianId": "andy_kim",
+      "position": "nay"
+     },
+     {
+      "politicianId": "angus_king",
+      "position": "nay"
+     },
+     {
+      "politicianId": "ashley_moody",
+      "position": "yea"
+     },
+     {
+      "politicianId": "banks",
+      "position": "yea"
+     },
+     {
+      "politicianId": "barrasso",
+      "position": "yea"
+     },
+     {
+      "politicianId": "bennet",
+      "position": "nay"
+     },
+     {
+      "politicianId": "blackburn",
+      "position": "yea"
+     },
+     {
+      "politicianId": "blumenthal",
+      "position": "nay"
+     },
+     {
+      "politicianId": "blunt_rochester",
+      "position": "nay"
+     },
+     {
+      "politicianId": "booker",
+      "position": "nay"
+     },
+     {
+      "politicianId": "britt",
+      "position": "yea"
+     },
+     {
+      "politicianId": "chris_murphy",
+      "position": "nay"
+     },
+     {
+      "politicianId": "collins",
+      "position": "yea"
+     },
+     {
+      "politicianId": "coons",
+      "position": "nay"
+     },
+     {
+      "politicianId": "cortez_masto",
+      "position": "nay"
+     },
+     {
+      "politicianId": "cotton",
+      "position": "yea"
+     },
+     {
+      "politicianId": "cruz",
+      "position": "yea"
+     },
+     {
+      "politicianId": "daines",
+      "position": "yea"
+     },
+     {
+      "politicianId": "dan_sullivan",
+      "position": "yea"
+     },
+     {
+      "politicianId": "deb_fischer",
+      "position": "yea"
+     },
+     {
+      "politicianId": "duckworth",
+      "position": "nay"
+     },
+     {
+      "politicianId": "durbin",
+      "position": "nay"
+     },
+     {
+      "politicianId": "ernst",
+      "position": "yea"
+     },
+     {
+      "politicianId": "fetterman",
+      "position": "nay"
+     },
+     {
+      "politicianId": "gallego",
+      "position": "nay"
+     },
+     {
+      "politicianId": "gillibrand",
+      "position": "nay"
+     },
+     {
+      "politicianId": "graham",
+      "position": "yea"
+     },
+     {
+      "politicianId": "grassley",
+      "position": "yea"
+     },
+     {
+      "politicianId": "hagerty",
+      "position": "yea"
+     },
+     {
+      "politicianId": "hawley",
+      "position": "yea"
+     },
+     {
+      "politicianId": "heinrich",
+      "position": "nay"
+     },
+     {
+      "politicianId": "hickenlooper",
+      "position": "nay"
+     },
+     {
+      "politicianId": "hirono",
+      "position": "nay"
+     },
+     {
+      "politicianId": "hoeven",
+      "position": "yea"
+     },
+     {
+      "politicianId": "jim_justice",
+      "position": "yea"
+     },
+     {
+      "politicianId": "john_cornyn",
+      "position": "yea"
+     },
+     {
+      "politicianId": "jon_ossoff",
+      "position": "nay"
+     },
+     {
+      "politicianId": "kaine",
+      "position": "nay"
+     },
+     {
+      "politicianId": "kennedy_john",
+      "position": "yea"
+     },
+     {
+      "politicianId": "kevin_cramer",
+      "position": "yea"
+     },
+     {
+      "politicianId": "klobuchar",
+      "position": "nay"
+     },
+     {
+      "politicianId": "lankford",
+      "position": "yea"
+     },
+     {
+      "politicianId": "lee",
+      "position": "yea"
+     },
+     {
+      "politicianId": "lujan",
+      "position": "nay"
+     },
+     {
+      "politicianId": "lummis",
+      "position": "yea"
+     },
+     {
+      "politicianId": "maggie_hassan",
+      "position": "nay"
+     },
+     {
+      "politicianId": "mark_kelly",
+      "position": "nay"
+     },
+     {
+      "politicianId": "markey",
+      "position": "nay"
+     },
+     {
+      "politicianId": "mcconnell",
+      "position": "yea"
+     },
+     {
+      "politicianId": "mccormick",
+      "position": "yea"
+     },
+     {
+      "politicianId": "merkley",
+      "position": "nay"
+     },
+     {
+      "politicianId": "mike_rounds",
+      "position": "yea"
+     },
+     {
+      "politicianId": "moreno",
+      "position": "yea"
+     },
+     {
+      "politicianId": "mullin",
+      "position": "yea"
+     },
+     {
+      "politicianId": "murkowski",
+      "position": "yea"
+     },
+     {
+      "politicianId": "padilla",
+      "position": "nay"
+     },
+     {
+      "politicianId": "peters",
+      "position": "nay"
+     },
+     {
+      "politicianId": "rand_paul",
+      "position": "yea"
+     },
+     {
+      "politicianId": "rick_scott",
+      "position": "yea"
+     },
+     {
+      "politicianId": "ricketts",
+      "position": "yea"
+     },
+     {
+      "politicianId": "roger_marshall",
+      "position": "yea"
+     },
+     {
+      "politicianId": "ron_johnson",
+      "position": "yea"
+     },
+     {
+      "politicianId": "rosen",
+      "position": "nay"
+     },
+     {
+      "politicianId": "schatz",
+      "position": "nay"
+     },
+     {
+      "politicianId": "schiff",
+      "position": "nay"
+     },
+     {
+      "politicianId": "schmitt",
+      "position": "yea"
+     },
+     {
+      "politicianId": "schumer",
+      "position": "nay"
+     },
+     {
+      "politicianId": "shaheen",
+      "position": "nay"
+     },
+     {
+      "politicianId": "sheehy",
+      "position": "yea"
+     },
+     {
+      "politicianId": "slotkin",
+      "position": "nay"
+     },
+     {
+      "politicianId": "tammy_baldwin",
+      "position": "nay"
+     },
+     {
+      "politicianId": "ted_budd",
+      "position": "yea"
+     },
+     {
+      "politicianId": "thune",
+      "position": "yea"
+     },
+     {
+      "politicianId": "tillis",
+      "position": "yea"
+     },
+     {
+      "politicianId": "tina_smith",
+      "position": "nay"
+     },
+     {
+      "politicianId": "todd_young",
+      "position": "yea"
+     },
+     {
+      "politicianId": "tommy_tuberville",
+      "position": "yea"
+     },
+     {
+      "politicianId": "van_hollen",
+      "position": "nay"
+     },
+     {
+      "politicianId": "warner",
+      "position": "nay"
+     },
+     {
+      "politicianId": "warnock",
+      "position": "nay"
+     },
+     {
+      "politicianId": "warren",
+      "position": "nay"
+     },
+     {
+      "politicianId": "welch",
+      "position": "nay"
+     },
+     {
+      "politicianId": "wyden",
+      "position": "nay"
+     }
+    ]
+   }
+  }
+ },
+ "skipped": [
+  {
+   "key": "McMahon — ED|119|school_choice",
+   "members": 84,
+   "why": "The rationale states the administration's priorities (\"has prioritized school choice and a smaller federal role in education\"), an aim, not what the confirmation did."
+  },
+  {
+   "key": "Rubio — State|119|strong_defense",
+   "members": 84,
+   "why": "The rationale states only the vote's margin (\"cleared unanimously across both parties\"), not an effect. The Peace Through Strength record (scripts/test-strength-effect-lines.mjs) also names the Rubio nomination among the pairs on that leaf that stay blank."
+  },
+  {
+   "key": "Vought — OMB|119|cut_spending",
+   "members": 84,
+   "why": "The rationale describes the nominee's views (\"a prominent proponent of steep cuts\"), not what the confirmation did; the post's own reach is the national_debt line's subject."
+  }
+ ],
+ "next": "After this slice no federal pair above a single member row is left unreviewed; the census's remaining 12 pairs below 84 members sit at 1 member row each. Every pair at 84 members or more has been written or skipped with a reason. Rerun the census before choosing slice 16."
+}

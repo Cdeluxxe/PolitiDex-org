@@ -920,7 +920,8 @@
    "m": [
     {
      "i": "Strategic Engagement",
-     "k": "foreign_balance"
+     "k": "foreign_balance",
+     "l": "Confirmed Gabbard as Director of National Intelligence, to lead the intelligence community."
     }
    ]
   },
@@ -2967,7 +2968,8 @@
     },
     {
      "i": "Strategic Engagement",
-     "k": "foreign_balance"
+     "k": "foreign_balance",
+     "l": "Confirmed Rubio as Secretary of State, to lead U.S. foreign policy and the State Department."
     }
    ]
   },
@@ -3714,7 +3716,8 @@
     },
     {
      "i": "Tackle the National Debt",
-     "k": "national_debt"
+     "k": "national_debt",
+     "l": "Confirmed Vought as Director of the Office of Management and Budget, which leads the administration’s budget and deficit strategy."
     }
    ]
   },

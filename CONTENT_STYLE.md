@@ -353,6 +353,38 @@ their chips. `db/vr-blank-rows-slice14.json` records the review and the skip.
 with the rider record, and checks that nothing shipped moved. `consistency.js`
 did not change, so the service worker did not move.
 
+Blank rows slice 15 took the 84-member band of the rerun census: 56 blank pairs,
+with exactly the six at 84 members that slice 14 named, on four Senate
+confirmations, and no others. Three took a line in slice 13's form, the reach of
+the post from the rationale and the nominee and post from the stored title:
+
+- the Director of National Intelligence
+- the Secretary of State
+- the OMB Director
+
+Three were skipped, because their rationales don't say what the confirmation
+did:
+
+- McMahon's school-choice rationale states the administration's priorities.
+- Rubio's strong-defense rationale states only that the vote was unanimous.
+  The Peace Through Strength record already lists that pair as blank.
+- Vought's spending-cut rationale describes the nominee's views.
+
+A confirmation line comes from what the post does, never from what the nominee
+believes or how the vote split.
+
+These confirmations' stored rolls carry no roll number, so no offline vote seed
+holds their member votes. The slice record carries each act's member votes as
+read from the live record. The test renders the drawers from them and checks
+that every member row prints its line.
+
+After this slice every federal pair at 84 members or more has been written or
+skipped with a reason. The census's remaining pairs sit at one member row each.
+
+`db/vr-blank-rows-slice15.json` records each line beside its source and every
+skip with its reason. `scripts/test-blank-rows-slice15.mjs` holds them to these
+rules.
+
 ### Executive rows
 
 An executive document's row (an order, a proclamation, a memorandum, a veto)
