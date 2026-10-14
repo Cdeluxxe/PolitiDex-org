@@ -302,6 +302,40 @@ single effect.
 skip with its reason. `scripts/test-blank-rows-slice12.mjs` holds them to these
 rules.
 
+Blank rows slice 13 took the 100-member band of the rerun census: 60 blank pairs,
+with exactly the six at 100 members that slice 12 named, and no others. Four are
+Senate confirmations, the first nominations any slice has written:
+
+- the Attorney General
+- the FBI Director
+- the Secretary of Health and Human Services
+- the Secretary of Defense
+
+A confirmation's rationale names only the reach of the post, such as
+"Leadership of the U.S. Department of Justice". So each line joins those words to
+the nominee and the post from the stored title. It opens "Confirmed", because the
+stored status is enacted and the summary records the confirmation:
+
+> Confirmed Bondi as Attorney General, to lead the U.S. Department of Justice.
+
+A confirmation line names the nominee by surname, the way the act's own label
+does ("Bondi — AG"). A first initial ("Robert F. Kennedy") reads to the row rule
+as a second sentence, and the row would print nothing. None of the four carried a
+line before, so none names a tally.
+
+The two resolution pairs were skipped. S.J.Res. 37's cost-of-living rationale
+restates the tariff line's own fact, and S.J.Res. 59's foreign-balance rationale
+states only a topic.
+
+A confirmation is never a public law, and the Peace Through Strength test had
+treated only an act with a public law on file as done. It now also counts a
+nomination whose stored row records status enacted, so a confirmation reads as
+done, as its stored outcome says.
+
+`db/vr-blank-rows-slice13.json` records each line beside its source and both
+skips with their reasons. `scripts/test-blank-rows-slice13.mjs` holds them to
+these rules, including that the nominee named is the one the stored title names.
+
 ### Executive rows
 
 An executive document's row (an order, a proclamation, a memorandum, a veto)

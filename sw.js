@@ -9668,7 +9668,20 @@
 //     changed, so the shell moves one version. No location key or other saved
 //     key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v372';
+// v373 - BLANK ROWS SLICE 13: FOUR CONFIRMATION LINES IN THE 100-MEMBER BAND.
+//     The regenerated blank-pair census (scripts/vr-blank-pair-census.mjs) put
+//     six pairs at 100 members: four Senate confirmations and two joint
+//     resolutions. The four confirmations take a line: the Attorney General
+//     (Bondi), the FBI Director (Patel), the HHS Secretary (Kennedy) and the
+//     Defense Secretary (Hegseth, PN11-7). Each line is in _DOS_EFFECT, written
+//     from that pair's own mapping rationale with the nominee from the stored
+//     title (db/vr-blank-rows-slice13.json names each source and the two pairs
+//     left blank). No shipped line, score, Direction Match, NEVER_FEEDS,
+//     publication floor, money pill, district board or chip moved.
+//     consistency.js is precached and changed, so the shell moves one version.
+//     No location key or other saved key was touched.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v373';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

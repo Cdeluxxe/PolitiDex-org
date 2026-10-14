@@ -18386,6 +18386,20 @@
       'Would have barred 18-to-20-year-olds from a class of long gun, reclassified bump stocks and banned large-capacity magazines.',
     'H.R. 8|117|gun_safety':
       'Would have extended background checks to the private-sale channel, routing unlicensed transfers through a licensed dealer.',
+    // BLANK ROWS SLICE 13 (v373). The 100-member band of the regenerated census:
+    // the Senate confirmations of the Attorney General, the FBI Director, the
+    // Secretary of Health and Human Services and the Secretary of Defense. None
+    // stores a `did`; each line joins the reach of the post its mapping rationale
+    // names to the nominee and post its stored title names, and names no tally.
+    // db/vr-blank-rows-slice13.json names the source of each and the pairs skipped.
+    'Bondi — AG|119|tough_on_crime':
+      'Confirmed Bondi as Attorney General, to lead the U.S. Department of Justice.',
+    'Patel — FBI|119|tough_on_crime':
+      'Confirmed Patel as FBI Director, to lead the nation’s top federal law-enforcement agency.',
+    'Kennedy — HHS|119|healthcare':
+      'Confirmed Kennedy as Secretary of Health and Human Services, the Secretary who runs federal health policy.',
+    'PN11-7|119|strong_defense':
+      'Confirmed Hegseth as Secretary of Defense, the civilian leader of the Department of Defense.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is

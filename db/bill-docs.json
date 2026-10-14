@@ -907,7 +907,8 @@
    "m": [
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Confirmed Bondi as Attorney General, to lead the U.S. Department of Justice."
     }
    ]
   },
@@ -2911,7 +2912,8 @@
    "m": [
     {
      "i": "Expand Healthcare Access",
-     "k": "healthcare"
+     "k": "healthcare",
+     "l": "Confirmed Kennedy as Secretary of Health and Human Services, the Secretary who runs federal health policy."
     }
    ]
   },
@@ -2935,7 +2937,8 @@
    "m": [
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Confirmed Patel as FBI Director, to lead the nation’s top federal law-enforcement agency."
     }
    ]
   },
@@ -2947,7 +2950,8 @@
    "m": [
     {
      "i": "Peace Through Strength",
-     "k": "strong_defense"
+     "k": "strong_defense",
+     "l": "Confirmed Hegseth as Secretary of Defense, the civilian leader of the Department of Defense."
     }
    ]
   },
