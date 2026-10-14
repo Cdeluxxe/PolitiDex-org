@@ -336,6 +336,23 @@ done, as its stored outcome says.
 skips with their reasons. `scripts/test-blank-rows-slice13.mjs` holds them to
 these rules, including that the nominee named is the one the stored title names.
 
+Blank rows slice 14 took the 87-member band of the rerun census: 56 blank pairs,
+with exactly the one at 87 members that slice 13 named, H.R. 815 (118th) × Support
+for Israel. It wrote no line. The pair's rationale is a rider-audit row that names
+Division A only by its title, the Israel Security Supplemental Appropriations Act,
+2024, and says nothing about what that division appropriates. The rider
+effect-line record already holds the pair blank for that reason, as it does H.R.
+7148 × Health Care, which slice 10 skipped on the same ground. A band can end with
+no line. When it does, the record still keeps the review, and the test holds the
+skip in place.
+
+The "Also on" chips sit under an effect line and belong to it, so a row with no
+line shows neither, as it did before. The act's other rows keep their lines and
+their chips. `db/vr-blank-rows-slice14.json` records the review and the skip.
+`scripts/test-blank-rows-slice14.mjs` holds the pair blank, checks that it agrees
+with the rider record, and checks that nothing shipped moved. `consistency.js`
+did not change, so the service worker did not move.
+
 ### Executive rows
 
 An executive document's row (an order, a proclamation, a memorandum, a veto)
