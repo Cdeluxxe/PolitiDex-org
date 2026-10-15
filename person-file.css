@@ -122,6 +122,35 @@
   text-underline-offset: 0.15em;
 }
 
+/* "General thread · Utah House District 16" — one line per boarded seat the
+   person holds, under the kicker's small links, each opening their general
+   section on that board. Its own row, so the identity line above keeps its
+   shape; the same quiet steel as the links beside it, a touch more legible
+   because it is a sentence rather than a label. */
+#modal-file-kicker:has(.pf-kick-generals) { flex-wrap: wrap; }
+.pf-kick-generals {
+  flex: 1 0 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.9rem;
+  margin-top: 0.25rem;
+}
+.pf-kick-general {
+  color: #9fb4d4;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 0.72rem;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.pf-kick-general:hover,
+.pf-kick-general:focus-visible {
+  color: #dbe6f7;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
 .pf-kick-thin,
 .pf-kick-empty {
   color: #6b7c9c;

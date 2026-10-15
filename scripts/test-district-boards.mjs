@@ -775,8 +775,11 @@ for (const b of NEW_BOARDS) {
   ok(!h.err, `all six: the hub boots (${h.err ? h.err.message : "ok"})`);
   eq((h.list.match(/class="pdxvr-door"/g) || []).length, BOARDS.length, "all six: six doors");
   for (const b of BOARDS) {
-    eq((h.list.match(new RegExp(`href="/district/${b.alias}"`, "g")) || []).length, 1,
+    // One door per board, and its seat line (v381) links the same board once.
+    eq((h.list.match(new RegExp(`class="pdxvr-door" href="/district/${b.alias}"`, "g")) || []).length, 1,
       `all six: ${b.alias} is offered exactly once`);
+    eq((h.list.match(new RegExp(`href="/district/${b.alias}"`, "g")) || []).length, 2,
+      `all six: ${b.alias}'s door and seat line are not the only two links to it`);
   }
 }
 

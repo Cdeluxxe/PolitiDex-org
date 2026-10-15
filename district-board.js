@@ -2496,6 +2496,55 @@
     return null;
   }
 
+  // EVERY BOARD THIS PID HOLDS NOW, in the table's order, one per address.
+  // boardForPid() answers the first; a member who holds more than one boarded
+  // seat gets a general-thread door for each. Only the CURRENT holder matches —
+  // memberOf() is who sits in the seat today, so a prior holder's file gets
+  // nothing here even though their read-only thread still exists on the board.
+  function boardsForPid(pid) {
+    var want = String(pid || '');
+    var out = [];
+    if (!want) return out;
+    var seen = {};
+    for (var k in BOARDS) {
+      if (!Object.prototype.hasOwnProperty.call(BOARDS, k)) continue;
+      var b = BOARDS[k];
+      if (!b || !b.route || seen[b.route]) continue;
+      if (memberOf(b) !== want) continue;
+      seen[b.route] = 1;
+      out.push(b);
+    }
+    return out;
+  }
+
+  // ── "General thread · <district>" ON THE PERSON FILE ──────────────────────
+  // The door straight into this person's general section on the board of each
+  // seat they hold: the board's own route, ?general=<pid> (district-composer.js's
+  // one parameter for opening a holder's thread) and the general room's anchor.
+  // No count, no composer, no preview — just the door. A statewide board's
+  // heading already carries the member ("Governor · Spencer Cox"), so the line
+  // names the office alone rather than the person twice.
+  function generalLabel(b) {
+    var h = String((b && b.h1) || '').trim();
+    if (b && b.statewide) h = h.split(' \u00b7 ')[0].trim();
+    return h;
+  }
+  function generalHref(b, pid) {
+    return b.route + '?general=' + encodeURIComponent(String(pid)) + '#' + GENERAL_ROOM_ID;
+  }
+  function generalLinksHtml(pid) {
+    var id = String(pid || '');
+    var rows = boardsForPid(id).map(function (b) {
+      var label = generalLabel(b);
+      if (!label) return '';
+      return '<a class="pf-kick-general" href="' + esc(generalHref(b, id)) + '"' +
+        ' data-pdxdb-general-for="' + esc(b.alias) + '">' +
+        esc('General thread \u00b7 ' + label) + '</a>';
+    }).filter(Boolean);
+    if (!rows.length) return '';
+    return '<span class="pf-kick-generals">' + rows.join('') + '</span>';
+  }
+
   function personLinkHtml(pid) {
     var b = boardForPid(pid);
     if (!b) return '';
@@ -2550,6 +2599,8 @@
     scored: false,
     mount: mount,
     personLinkHtml: personLinkHtml,
+    boardsForPid: boardsForPid,
+    generalLinksHtml: generalLinksHtml,
     // Exposed for the suite: each band's markup asserted directly against a
     // payload, rather than inferred from a live fetch.
     purposeHtml: purposeHtml,

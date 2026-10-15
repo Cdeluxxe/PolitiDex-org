@@ -412,7 +412,7 @@ function voiceCtx(s, opts) {
       return r;
     };
   }
-  vm.runInContext(DV, ctx, { filename: "district-voice.js" });
+  vm.runInContext(o.dv || DV, ctx, { filename: "district-voice.js" });
   vm.runInContext(VR, ctx, { filename: "voice-room.js" });
   return { win, paint: () => win.PDXVoiceRoom.paint(), list: () => els["pdx-voice-seats"].innerHTML };
 }
@@ -757,7 +757,14 @@ const HEAD = (f) => {
     const sansRoster = (src) => f !== "voice-room.js" ? src : String(src)
       .replace(/  \/\/ ── AND THE REPAINT WHEN THE ROSTER LANDS[\s\S]*?(?=  function boot\(\) \{)/, "")
       .replace("try { paint(); } catch (e) {} hookRoster(); }, ms);", "try { paint(); } catch (e) {} }, ms);")
-      .replace("    try { paint(); } catch (e) {}\n    hookRoster();\n    schedule();", "    try { paint(); } catch (e) {}\n    schedule();");
+      .replace("    try { paint(); } catch (e) {}\n    hookRoster();\n    schedule();", "    try { paint(); } catch (e) {}\n    schedule();")
+      // …and the seat line (v381): a boarded card's chamber line is now
+      // district-voice.js's seatLine(), linking its board. That is wording,
+      // owned by the seat list's owner, not seat fill; it folds back too, and
+      // section 8 below asserts what it prints.
+      .replace(/    \/\/ THE SEAT LINE, IN \/me's WORDS\.[\s\S]*?: esc\(name\);\n\n/, "")
+      .replace("'<p class=\"pdxvr-chamber\">' + chamber + '</p>'", "'<p class=\"pdxvr-chamber\">' + esc(name) + '</p>'")
+      .replace("[s.key, s.name, s.line, s.seatKey, s.pid, s.board]", "[s.key, s.name, s.seatKey, s.pid, s.board]");
     eq(deOrigin(sansRoster(R(f))), deOrigin(sansRoster(h)), `untouched: ${f} changed in this pass and it should not have — ${why}`);
   });
 
@@ -904,11 +911,34 @@ const DAVIS_SLATE = {
     "    own district number is the confident kind of wrong"));
   // The three district doors, and no other district door. The statewide rooms
   // (ut-gov, ut-us-senate-<pid>) are counted by scripts/test-statewide-boards.mjs.
-  eq((html.match(/href="\/district\/ut-(?:hd|sd|cd)-[0-9]+"/g) || []).length, 3,
+  eq((html.match(/class="pdxvr-door" href="\/district\/ut-(?:hd|sd|cd)-[0-9]+"/g) || []).length, 3,
     "slate: the three Layton doors did not all open, or a fourth one did");
+  // AND EACH BOARDED SEAT LINE NAMES WHO HOLDS IT, AS A LINK TO THAT BOARD —
+  // the same wording /me prints. The seat line is the district and the member;
+  // the county it used to carry is not on a boarded line any more.
+  for (const key of Object.keys(seats)) {
+    const [n, , name, alias] = seats[key];
+    const want = `<p class="pdxvr-chamber"><a class="pdxvr-chamber-a" href="/district/${alias}">${LABEL[key]} District ${n} \u00b7 ${name}</a></p>`;
+    has(cardFor(html, LABEL[key], n), want, `slate: the ${LABEL[key]} District ${n} seat line is not "${LABEL[key]} District ${n} · ${name}" linking its board`);
+    eq(seatOf(v.win, key).line, `${LABEL[key]} District ${n} \u00b7 ${name}`, `slate: seatsForMe() did not compose the ${key} seat line`);
+  }
+  eq((html.match(/class="pdxvr-chamber-a" href="\/district\/ut-(?:hd|sd|cd)-[0-9]+"/g) || []).length, 3,
+    "slate: the three Layton seat lines did not all link their boards, or a fourth one did");
   no(html, "The member who holds this seat is on file",
     "slate: a card fell back to the on-file sentence though the district table names a member it can\n" +
     "    print — that sentence is for a pid with no record, not for a pid that belongs to another seat");
+}
+
+// MUTATION: a seat line that omits the member's name fails the line checks above.
+{
+  const mutated = DV.replace("return where ? where + ' \\u00b7 ' + who : plain;", "return where ? where : plain;");
+  must(mutated !== DV, "seat-line mutation: seatLine() found nothing to replace");
+  const v = voiceCtx(LAYTON, { live: SLATE_PEOPLE, slate: DAVIS_SLATE, dv: mutated });
+  v.paint();
+  const card = cardFor(v.list(), "State House", "16");
+  must(card.indexOf("pdxvr-chamber") !== -1, "seat-line mutation: the HD-16 card did not paint, so the mutation proves nothing");
+  ok(card.indexOf("State House District 16 \u00b7 Trevor Lee") === -1,
+    "seat-line mutation: a seat line without the member's name still read \"State House District 16 · Trevor Lee\"");
 }
 
 // ── THE PINNED PID, ON A DOCUMENT WITH NO SLATE ON IT AT ALL ─────────────────

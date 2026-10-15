@@ -366,7 +366,11 @@ section("7 · neighbours, routes, migration, copy, shell");
   const head = HEAD("district-voice.js");
   if (head) eq(routes(R("district-voice.js")), routes(head), "BOARD_ROUTES length unchanged");
   ok(routes(R("district-voice.js")) > 80, "BOARD_ROUTES still lists every board");
-  for (const f of ["district-voice.js", "netlify/functions/district-board.mts", "netlify.toml", "district-poll.js"]) {
+  // district-voice.js later took the seat-line wording (seatLine(), v381), so
+  // its byte pin narrowed to the part this room depends on: BOARD_ROUTES itself.
+  const routesBody = (src) => (/var BOARD_ROUTES = \{([\s\S]*?)\n  \};/.exec(src || "") || [])[1];
+  if (head) eq(routesBody(R("district-voice.js")), routesBody(head), "BOARD_ROUTES is byte-identical");
+  for (const f of ["netlify/functions/district-board.mts", "netlify.toml", "district-poll.js"]) {
     const h = HEAD(f);
     if (h && f !== "netlify/functions/district-board.mts") eq(R(f), h, `${f} is byte-identical`);
   }

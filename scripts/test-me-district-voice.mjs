@@ -87,6 +87,7 @@ const ME = R("me.html");
 const DESK_JS = R("me-desk.js");
 const DESK_CSS = R("me-desk.css");
 const VOICE_JS = R("district-voice.js");
+const SEATED_JS = R("seated-member.js");
 const SW = R("sw.js");
 
 // Comments can neither satisfy nor violate a contract. me-desk.js's own block
@@ -266,12 +267,18 @@ function bootDeskWith(deskSrc, opts) {
       finderHref: (next) => "/?next=" + encodeURIComponent(next || "/voice") + "#who-represents-me",
     };
   }
-  win.PROFILES = {};
+  win.PROFILES = o.people ? JSON.parse(JSON.stringify(o.people)) : {};
   win.ISSUE_MAP = {};
+  // THE ROSTER JOIN, WHERE A FIXTURE ASKS FOR IT. me.html loads seated-member.js
+  // ahead of district-voice.js, and its district tables are how a level with no
+  // pid gets its sitting member; the congressional seat is the resolver's walk,
+  // stubbed to the one answer the fixture names.
+  if (o.usHouse) win._pdxUsHouseSeat = (st, n) => o.usHouse[String(n)] || "";
   const ctx = vm.createContext(win);
   win.__err = null;
   try {
-    vm.runInContext(VOICE_JS, ctx, { filename: "district-voice.js" });
+    if (o.seated) vm.runInContext(SEATED_JS, ctx, { filename: "seated-member.js" });
+    vm.runInContext(o.voiceSrc || VOICE_JS, ctx, { filename: "district-voice.js" });
     vm.runInContext(deskSrc, ctx, { filename: "me-desk.js" });
   } catch (e) { win.__err = e; }
   win.__mount = mount;
@@ -854,6 +861,79 @@ function seatLinkFaults(win) {
   ok(mutated !== DESK_JS, "the /find mutation found nothing to replace");
   ok(seatLinkFaults(bootDeskWith(mutated, LAYTON_OPTS)).length > 0,
     "Open District Voice pointed at /find passed the seat-line checks");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 9 · A BOARDED SEAT LINE NAMES WHO HOLDS IT
+// ═════════════════════════════════════════════════════════════════════════════
+// "State House District 16 · Davis County — board on hand" made a reader open
+// the board to learn whose room it is. With the roster on the page, each
+// boarded line is the seat and its sitting member, as a link to that board; a
+// seat with no board stays plain text and names nobody. The name comes from
+// the roster join the board prints from — seated-member.js's district tables,
+// the congressional walk, and the roster's own display name.
+section("9 · each boarded seat line reads '<seat> · <sitting member>' and links its board");
+
+const LAYTON_PEOPLE = {
+  tlee: { name: "Trevor Lee", office: "Utah State Representative", state: "UT District 16" },
+  sadams: { name: "Stuart Adams", office: "Utah State Senator", state: "UT District 7" },
+  maloy: { name: "Celeste Maloy", office: "U.S. Representative", state: "UT-2" },
+};
+const LAYTON_NAMED = Object.assign({}, LAYTON_OPTS, { people: LAYTON_PEOPLE, seated: true, usHouse: { 2: "maloy" } });
+const LAYTON_LINES = [
+  ["State House District 16 \u00b7 Trevor Lee", "/district/ut-hd-16"],
+  ["State Senate District 7 \u00b7 Stuart Adams", "/district/ut-sd-7"],
+  ["U.S. House District 2 \u00b7 Celeste Maloy", "/district/ut-cd-2"],
+];
+function namedLineFaults(win) {
+  const f = [];
+  const slot = slotOf(win);
+  const rows = [...slot.matchAll(/<li class="me-voiceseat">[\s\S]*?<\/li>/g)].map((m) => m[0]);
+  for (const [line, path] of LAYTON_LINES) {
+    const want = `<li class="me-voiceseat"><a class="me-link" href="${path}">${line}</a></li>`;
+    if (rows.indexOf(want) < 0) f.push(`no line reads "${line}" linking ${path}`);
+  }
+  // THE SEAT WITH NO BOARD: plain text, its plain name, no person, no link.
+  const dark = rows.find((r) => r.indexOf("State House District 17") >= 0) || "";
+  if (!dark) f.push("HD-17: no line");
+  if (/<a\b|href=/.test(dark)) f.push(`HD-17: a seat with no board is a link — ${dark}`);
+  if (dark.indexOf("State House District 17 \u00b7 Davis County") < 0) f.push(`HD-17: the plain seat name changed — ${dark}`);
+  if (dark.indexOf("board not on hand") < 0) f.push("HD-17: the line no longer says its board is not on hand");
+  for (const n of Object.values(LAYTON_PEOPLE)) if (dark.indexOf(n.name) >= 0) f.push(`HD-17: a name was printed on a seat with no board — ${n.name}`);
+  if (/rep_davis/.test(slot)) f.push("a pid reached a seat line");
+  return f;
+}
+{
+  const win = bootDesk(LAYTON_NAMED);
+  ok(!win.__err, `layton named: the desk boots — ${win.__err}`);
+  const f = namedLineFaults(win);
+  eq(f.length, 0, `layton named: the boarded lines name their members and link their boards — ${JSON.stringify(f)}`);
+  // The desk and the hallway print one wording, from one owner.
+  const lines = win.PDXVoice.seatsForMe().filter((x) => x.board).map((x) => x.line);
+  eq(JSON.stringify(lines.slice().sort()), JSON.stringify(LAYTON_LINES.map((l) => l[0]).sort()),
+    "layton named: seatsForMe() does not compose the lines the desk prints");
+  // Still one gold door, still /voice, and the seat-line link checks still hold.
+  eq(seatLinkFaults(win).length, 0, `layton named: the seat-line link checks fail with names on — ${JSON.stringify(seatLinkFaults(win))}`);
+}
+// A SEAT WITH NO BOARD ALONE, WITH THE ROSTER ON: still text, still no name.
+{
+  const slot = slotOf(bootDesk(Object.assign({}, LAYTON_NAMED, { levels: [LV_HD17] })));
+  ok(!/<a\b[^>]*href="\/district\//.test(slot), "named dark: a seat with no board produced a board link");
+  ok(!/Trevor Lee|Stuart Adams|Celeste Maloy/.test(slot), "named dark: a member was named on a seat with no board");
+}
+// MUTATION: a seat line that omits the name fails.
+{
+  const mutated = VOICE_JS.replace("return where ? where + ' \\u00b7 ' + who : plain;", "return where ? where : plain;");
+  ok(mutated !== VOICE_JS, "the nameless-line mutation found nothing to replace");
+  const win = bootDesk(Object.assign({}, LAYTON_NAMED, { voiceSrc: mutated }));
+  ok(namedLineFaults(win).length > 0, "a seat line that omits the member's name passed the named-line checks");
+}
+// MUTATION: a desk that ignores the owner's line and prints the plain name fails.
+{
+  const mutated = DESK_JS.replace("var text = s.line || s.name;", "var text = s.name;");
+  ok(mutated !== DESK_JS, "the plain-name mutation found nothing to replace");
+  ok(namedLineFaults(bootDeskWith(mutated, LAYTON_NAMED)).length > 0,
+    "a desk that prints the plain seat name on a boarded line passed the named-line checks");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

@@ -1314,7 +1314,7 @@
     }
 
     host.innerHTML = '<span class="pf-kick-what">Person file</span>' + state +
-      voiceLink(pid) + boardLink(pid);
+      voiceLink(pid) + boardLink(pid) + generalLinks(pid);
   }
 
   // The address in the kicker is a real anchor so it can be copied, opened in a
@@ -1395,6 +1395,21 @@
       var B = window.PDXDistrictBoard;
       if (!B || !fn(B.personLinkHtml)) return '';
       return B.personLinkHtml(pid) || '';
+    } catch (e) { return ''; }
+  }
+
+  // ── "General thread · <district>" ─────────────────────────────────────────
+  // One line per boarded seat this person holds NOW, under the small links
+  // above, each going straight to their general section on that seat's board
+  // (?general=<pid>). The same quiet register: no count, no composer, no
+  // preview — just the door. district-board.js decides which seats and builds
+  // the addresses, so this file holds no allow-list, and a prior holder of a
+  // seat gets no line on the current holder's file or on their own.
+  function generalLinks(pid) {
+    try {
+      var B = window.PDXDistrictBoard;
+      if (!B || !fn(B.generalLinksHtml)) return '';
+      return B.generalLinksHtml(pid) || '';
     } catch (e) { return ''; }
   }
 

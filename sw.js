@@ -9771,7 +9771,19 @@
 //     precached and changed, so the shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none on the device.
-const CACHE_VERSION = 'v380';
+// v381 - SEAT LINES NAME THE MEMBER; PERSON FILES OPEN THE GENERAL THREAD. On
+//     /me and /voice a boarded seat line now reads "<seat> District <n> ·
+//     <sitting member>" (district-voice.js's seatLine(), from the same roster
+//     read the board prints) and links that seat's board; a seat with no board
+//     stays plain text with no name. The person file keeps its small District
+//     Voice link and adds "General thread · <district>" for each boarded seat
+//     the person holds now, straight to ?general=<pid> on that board.
+//     district-voice.js, voice-room.js, voice.html, me-desk.js,
+//     district-board.js, person-file.js and person-file.css are precached and
+//     changed, so the shell moves one version. No route, gate, store or
+//     BOARD_ROUTES row moved. No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v381';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
