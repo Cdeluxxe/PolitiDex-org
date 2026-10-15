@@ -9694,7 +9694,15 @@
 //     consistency.js is precached and changed, so the shell moves one version.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v374';
+// v375 - FIRST-VISIT COACH. A short, skippable four-step walk — your seats,
+//     the record, District Voice, done — in first-visit-coach.js, shown only
+//     when no location is saved and pdx_coach_seen is absent. It mounts on '/',
+//     /voice and /find, all three precached shells, and the module joins
+//     SHELL_ASSETS, so the shell moves one version. It writes one flag and
+//     points at /find, /stances and /voice; no location key, residency row,
+//     account sheet, District Voice gate, finder or money surface moved.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v375';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -10090,6 +10098,10 @@ const SHELL_ASSETS = [
   // critical, and the render-blocking sheet budget is full), so they ship with
   // the '/' entry at the top of this list.
   '/first-run.js',
+  // The first-visit coach. Precached beside first-run.js for the same reason:
+  // '/', '/voice.html' and '/find.html' all reference it, and its styles are
+  // injected by the module itself, so this one entry is the whole coach.
+  '/first-visit-coach.js',
   '/say-vs-do.css',
   '/issue-view.css',
   '/journey.css',

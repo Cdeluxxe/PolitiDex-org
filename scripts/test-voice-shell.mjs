@@ -276,15 +276,25 @@ const localSrcs = TAGS.map((t) => (t.attrs.match(/\bsrc\s*=\s*["']([^"']+)["']/)
 // gate's unique-slug rule has no name to slug, and a member the live index files
 // under their display-name slug (`celeste_maloy`) prints "No sitting member on
 // hand" unless a hand-added alias row papers over it.
-ok(localSrcs.length <= 12, `budget: voice.html loads ${localSrcs.length} local scripts (ceiling 12)`);
+//
+// AND THE THIRTEENTH, NAMED THE SAME WAY. first-visit-coach.js is the short,
+// skippable first-visit walk (your seats, the record, District Voice, done),
+// asked for on /voice as well as the homepage so a reader who lands here first
+// gets the same path. One small module, precached, with its rules injected by
+// itself — no stylesheet came with it.
+ok(localSrcs.length <= 13, `budget: voice.html loads ${localSrcs.length} local scripts (ceiling 13)`);
 if (localSrcs.length >= 11) {
   ok(localSrcs.indexOf("/seated-member.js") !== -1,
     "budget: the eleventh request is not seated-member.js — the ceiling was raised for that one lifted\n" +
     "    lookup, and it is not a spare slot for something else");
 }
-if (localSrcs.length === 12) {
+if (localSrcs.length >= 12) {
   ok(localSrcs.indexOf("/roster-names.js") !== -1,
     "budget: the twelfth request is not roster-names.js — the ceiling was raised for that one name table");
+}
+if (localSrcs.length === 13) {
+  ok(localSrcs.indexOf("/first-visit-coach.js") !== -1,
+    "budget: the thirteenth request is not first-visit-coach.js — the ceiling was raised for that one walk");
 }
 ok(localSrcs.every((s) => s.charAt(0) === "/"), "budget: every local script src is root-absolute");
 // THE FOUR FILES THIS ADDRESS EXISTS TO NOT LOAD. ballot-breakdown.js is both a
