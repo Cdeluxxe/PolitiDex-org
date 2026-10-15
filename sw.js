@@ -9702,7 +9702,16 @@
 //     points at /find, /stances and /voice; no location key, residency row,
 //     account sheet, District Voice gate, finder or money surface moved.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v375';
+// v376 - FIRST-VISIT POPUP. first-visit-coach.js stops being an inline
+//     four-step card and becomes one delayed popup: nine seconds after load, for
+//     a reader with no saved location and no pdx_coach_seen flag, three plain
+//     points (set your location, search and see said-versus-voted, District
+//     Voice) with Set my location, Got it and Not now. Light backdrop, no focus
+//     trap, Escape closes it. The module is a precached shell asset and changed,
+//     so the shell moves one version. Same one flag; no location key, residency
+//     row, account sheet, District Voice gate, finder or money surface moved.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v376';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -10098,9 +10107,9 @@ const SHELL_ASSETS = [
   // critical, and the render-blocking sheet budget is full), so they ship with
   // the '/' entry at the top of this list.
   '/first-run.js',
-  // The first-visit coach. Precached beside first-run.js for the same reason:
+  // The first-visit popup. Precached beside first-run.js for the same reason:
   // '/', '/voice.html' and '/find.html' all reference it, and its styles are
-  // injected by the module itself, so this one entry is the whole coach.
+  // injected by the module itself, so this one entry is the whole popup.
   '/first-visit-coach.js',
   '/say-vs-do.css',
   '/issue-view.css',

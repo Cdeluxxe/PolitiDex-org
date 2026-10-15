@@ -278,9 +278,9 @@ const localSrcs = TAGS.map((t) => (t.attrs.match(/\bsrc\s*=\s*["']([^"']+)["']/)
 // hand" unless a hand-added alias row papers over it.
 //
 // AND THE THIRTEENTH, NAMED THE SAME WAY. first-visit-coach.js is the short,
-// skippable first-visit walk (your seats, the record, District Voice, done),
-// asked for on /voice as well as the homepage so a reader who lands here first
-// gets the same path. One small module, precached, with its rules injected by
+// skippable first-visit welcome popup (set your location, search, District
+// Voice), asked for on /voice as well as the homepage so a reader who lands
+// here first gets the same welcome. One small module, precached, with its rules injected by
 // itself — no stylesheet came with it.
 ok(localSrcs.length <= 13, `budget: voice.html loads ${localSrcs.length} local scripts (ceiling 13)`);
 if (localSrcs.length >= 11) {
@@ -294,7 +294,7 @@ if (localSrcs.length >= 12) {
 }
 if (localSrcs.length === 13) {
   ok(localSrcs.indexOf("/first-visit-coach.js") !== -1,
-    "budget: the thirteenth request is not first-visit-coach.js — the ceiling was raised for that one walk");
+    "budget: the thirteenth request is not first-visit-coach.js — the ceiling was raised for that one popup");
 }
 ok(localSrcs.every((s) => s.charAt(0) === "/"), "budget: every local script src is root-absolute");
 // THE FOUR FILES THIS ADDRESS EXISTS TO NOT LOAD. ballot-breakdown.js is both a

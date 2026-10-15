@@ -1,16 +1,18 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────────────────────
-// test-first-visit-coach.mjs — the four-step, skippable first-visit walk
+// test-first-visit-coach.mjs — the delayed first-visit welcome popup
 // ─────────────────────────────────────────────────────────────────────────────
-// first-visit-coach.js walks a new reader through the core flow: see who
-// represents you, this is the record, District Voice is the rooms for your
-// seats, done. Every way it goes wrong ships looking fine:
+// first-visit-coach.js waits a few seconds after load, then shows a first-time
+// reader one plain-language popup: set your location, search anything and see
+// what they said versus how they voted, and what District Voice is. Every way it
+// goes wrong ships looking fine:
 //
 //   1. IT SHOWS TO THE WRONG READER — a reader with a saved location, or one
-//      who already skipped it.
-//   2. IT COMES BACK after Skip or Got it.
-//   3. ITS DOORS POINT SOMEWHERE NEW — step 1 must be the finder, step 3 /voice.
-//   4. IT TRAPS — no Skip on some step, or a modal backdrop / focus trap.
+//      who already closed it — or it shows before the delay, over the hero.
+//   2. IT COMES BACK after Not now, ×, Escape, Got it or Set my location.
+//   3. "SET MY LOCATION" POINTS SOMEWHERE NEW — it must be the finder.
+//   4. IT TRAPS — no way out on some path, a focus trap, an inert page or a
+//      scroll lock.
 //   5. EQUITY OR MEMBERSHIP VOCABULARY lands in its copy.
 //   6. IT WRITES something other than its own flag.
 //   7. SOMETHING ELSE MOVED WITH IT — the homepage District Voice gate, /voice,
@@ -18,7 +20,8 @@
 //
 //   node scripts/test-first-visit-coach.mjs
 //
-// Real file, one node:vm sandbox per "visit", a minimal fake DOM. No network.
+// Real file, one node:vm sandbox per "visit", a minimal fake DOM and a manual
+// clock. No network.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { readFileSync, existsSync } from "node:fs";
@@ -42,39 +45,19 @@ const stripComments = (s) => String(s)
   .replace(/\/\*[\s\S]*?\*\//g, " ")
   .replace(/^[ \t]*\/\/.*$/gm, " ");
 
-// ── A minimal DOM: enough for getElementById, insertBefore and listeners ─────
+// ── A minimal DOM ─────────────────────────────────────────────────────────────
 function el(tag, id) {
-  const e = {
+  return {
     tagName: String(tag).toUpperCase(), id: id || "", className: "", innerHTML: "", textContent: "",
-    parentNode: null, children: [], attrs: {}, listeners: {},
-    get firstChild() { return this.children[0] || null; },
-    get nextSibling() {
-      if (!this.parentNode) return null;
-      const k = this.parentNode.children.indexOf(this);
-      return this.parentNode.children[k + 1] || null;
-    },
+    parentNode: null, children: [], attrs: {}, listeners: {}, focused: 0,
     setAttribute(k, v) { this.attrs[k] = String(v); },
     getAttribute(k) { return k in this.attrs ? this.attrs[k] : null; },
-    hasAttribute(k) { return k in this.attrs; },
     addEventListener(t, f) { (this.listeners[t] = this.listeners[t] || []).push(f); },
-    removeEventListener() {},
-    appendChild(c) { return this.insertBefore(c, null); },
-    insertBefore(c, before) {
-      if (c.parentNode) c.parentNode.removeChild(c);
-      const k = before ? this.children.indexOf(before) : -1;
-      if (k >= 0) this.children.splice(k, 0, c); else this.children.push(c);
-      c.parentNode = this;
-      return c;
-    },
-    removeChild(c) {
-      const k = this.children.indexOf(c);
-      if (k >= 0) this.children.splice(k, 1);
-      c.parentNode = null;
-      return c;
-    },
-    querySelector() { return null; },
+    removeEventListener(t, f) { this.listeners[t] = (this.listeners[t] || []).filter((g) => g !== f); },
+    appendChild(c) { if (c.parentNode) c.parentNode.removeChild(c); this.children.push(c); c.parentNode = this; return c; },
+    removeChild(c) { const k = this.children.indexOf(c); if (k >= 0) this.children.splice(k, 1); c.parentNode = null; return c; },
+    focus() { this.focused++; },
   };
-  return e;
 }
 
 function memStore(seed) {
@@ -85,37 +68,33 @@ function memStore(seed) {
     getItem: (k) => (m.has(k) ? m.get(k) : null),
     setItem: (k, v) => { writes.push(k); m.set(k, String(v)); },
     removeItem: (k) => { m.delete(k); },
-    dump: () => Object.fromEntries(m),
   };
 }
 
 // One page load. `page` is 'home' | 'voice' | 'find'.
-function visit({ page = "home", located = false, local, session, extra } = {}) {
-  const byId = {};
+function visit({ page = "home", located = false, local, session, extra, dialogOpen = false } = {}) {
   const head = el("head"), body = el("body");
-  const add = (parent, e) => { parent.appendChild(e); if (e.id) byId[e.id] = e; return e; };
-  if (page === "home") {
-    const hero = add(body, el("section", "hero"));
-    const card = add(hero, el("div"));
-    card.className = "pdxhv-card";
-    add(card, el("a", "pdx-home-voice-door"));
-    add(body, el("section", "who-represents-me"));
-  } else {
-    const main = add(body, el("main", page === "voice" ? "voice-room" : "pdx-find"));
-    const wrap = add(main, el("div"));
-    wrap.className = page === "voice" ? "pdxvr-wrap" : "pdxfd-wrap";
-    add(main, el("div", "after-intro"));
-    main.querySelector = () => wrap;
-  }
+  if (page === "home") body.appendChild(el("section", "who-represents-me"));
+  const title = el("h2", "pdxfc-title");
+  const docListeners = {};
   const events = [];
+  const timers = [];
+  let now = 0;
   const document = {
-    readyState: "complete", head, body, documentElement: el("html"),
+    readyState: "complete", head, body, documentElement: el("html"), activeElement: null,
     getElementById: (id) => {
+      if (id === "pdxfc-title") return title;
       const walk = (n) => { if (n.id === id) return n; for (const c of n.children) { const f = walk(c); if (f) return f; } return null; };
       return walk(body) || walk(head);
     },
+    // One closed dialog first, then (optionally) an open one — the popup must
+    // look past the first match.
+    querySelectorAll: () => [{ id: "pd-ec-modal", getClientRects: () => [] }]
+      .concat(dialogOpen ? [{ id: "modal-overlay", getClientRects: () => [1] }] : []),
     createElement: (t) => el(t),
-    addEventListener() {}, dispatchEvent: (ev) => { events.push(ev); return true; },
+    addEventListener(t, f) { (docListeners[t] = docListeners[t] || []).push(f); },
+    removeEventListener(t, f) { docListeners[t] = (docListeners[t] || []).filter((g) => g !== f); },
+    dispatchEvent: (ev) => { events.push(ev); return true; },
   };
   const win = {
     document,
@@ -123,7 +102,9 @@ function visit({ page = "home", located = false, local, session, extra } = {}) {
     sessionStorage: session || memStore(),
     _hasUserLocation: !!located,
     addEventListener() {}, removeEventListener() {},
-    setTimeout: () => 0, clearTimeout() {}, setInterval: () => 1, clearInterval() {},
+    setTimeout: (f, ms) => { timers.push({ f, at: now + (ms || 0), done: false }); return timers.length; },
+    clearTimeout: (id) => { if (timers[id - 1]) timers[id - 1].done = true; },
+    setInterval: () => 0, clearInterval() {},
     CustomEvent: class { constructor(t, o) { this.type = t; Object.assign(this, o || {}); } },
     JSON, Math, Date, String, Number, parseInt,
   };
@@ -132,11 +113,25 @@ function visit({ page = "home", located = false, local, session, extra } = {}) {
   Object.assign(win, extra || {});
   win.window = win;
   vm.runInContext(SRC, vm.createContext(win), { filename: "first-visit-coach.js" });
-  const coach = document.getElementById("pdx-first-visit-coach");
-  return { win, document, coach, events, C: win.PDXCoach };
+  const v = {
+    win, document, events, title, docListeners, C: win.PDXCoach,
+    popup: () => document.getElementById("pdx-first-visit-coach"),
+    // Advance the manual clock, firing every timer that comes due.
+    tick(ms) {
+      const end = now + ms;
+      for (;;) {
+        const due = timers.filter((t) => !t.done && t.at <= end).sort((a, b) => a.at - b.at)[0];
+        if (!due) break;
+        now = due.at; due.done = true; due.f();
+      }
+      now = end;
+    },
+    key(k) { for (const f of (docListeners.keydown || [])) f({ key: k }); },
+  };
+  return v;
 }
 
-// Click on an element carrying `attr="value"` inside the coach's current markup.
+// Click on an element carrying `attr="value"` inside the popup.
 function click(v, attr, value, evExtra) {
   const target = {
     closest: (sel) => {
@@ -147,207 +142,204 @@ function click(v, attr, value, evExtra) {
   };
   let prevented = false;
   const ev = Object.assign({ target, preventDefault() { prevented = true; }, button: 0 }, evExtra || {});
-  for (const f of (v.coach.listeners.click || [])) f(ev);
+  for (const f of (v.popup().listeners.click || [])) f(ev);
   return prevented;
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("1 · it appears only for a first visit");
+section("1 · it appears only for a first visit, and only after the delay");
 // ═════════════════════════════════════════════════════════════════════════════
 {
-  const v = visit();
-  ok(!!v.coach, "no location, no flag: the coach did not mount on the homepage");
-  eq(v.C.shouldShow(), true, "shouldShow() with no location and no flag");
-  eq(v.coach && v.coach.getAttribute("data-pdxfc-at"), "seat", "the walk does not open on step 1");
-  // Placement: directly above the District Voice card, inside the hero.
-  const hero = v.document.getElementById("hero");
-  ok(v.coach && v.coach.parentNode === hero && hero.children[0] === v.coach &&
-     hero.children[1].className === "pdxhv-card",
-     "the coach is not mounted directly above the homepage District Voice card");
-  eq(v.coach && v.coach.getAttribute("role"), "region", "the coach is not a plain region");
-}
-{
-  const v = visit({ located: true });
-  ok(!v.coach, "a reader with a saved location was shown the coach");
-  eq(v.C.shouldShow(), false, "shouldShow() with a saved location");
-}
-{
-  const local = memStore({ pdx_coach_seen: '{"v":1,"via":"skip"}' });
-  const v = visit({ local });
-  ok(!v.coach, "a reader who already dismissed the coach was shown it again");
-}
-for (const page of ["voice", "find"]) {
-  const v = visit({ page });
-  ok(!!v.coach, `no location, no flag: the coach did not mount on /${page}`);
-  const main = v.document.getElementById(page === "voice" ? "voice-room" : "pdx-find");
-  ok(v.coach && main.children[1] === v.coach, `/${page}: the coach is not directly under the page's intro`);
-  ok(!visit({ page, located: true }).coach, `/${page}: a located reader was shown the coach`);
-}
-
-// ═════════════════════════════════════════════════════════════════════════════
-section("2 · skip and finish set the flag, and it never comes back");
-// ═════════════════════════════════════════════════════════════════════════════
-for (const [label, run] of [
-  ["skip on step 1", (v) => click(v, "data-pdxfc-act", "skip")],
-  ["skip on step 3", (v) => { v.C._go(2); click(v, "data-pdxfc-act", "skip"); }],
-  ["finish", (v) => { v.C._go(3); click(v, "data-pdxfc-act", "finish"); }],
-]) {
-  const local = memStore(), session = memStore();
-  const v = visit({ local, session });
-  run(v);
-  ok(!v.document.getElementById("pdx-first-visit-coach"), `${label}: the coach is still on the page`);
-  ok(!!local.getItem(v.C.KEY), `${label}: the flag was not written`);
-  eq(session.getItem(v.C.STEP_KEY), null, `${label}: the in-tab step survived the dismissal`);
-  ok(v.events.some((e) => e.type === "pdx:coach-dismissed"), `${label}: no dismissal event`);
+  const D = visit().C.DELAY_MS;
+  ok(D >= 8000 && D <= 10000, `the delay is ${D} ms — it should be 8–10 seconds`);
   for (const page of ["home", "voice", "find"]) {
-    ok(!visit({ page, local, session }).coach, `${label}: the coach reappeared on the next ${page} visit`);
+    const v = visit({ page });
+    ok(!v.popup(), `${page}: the popup is on screen before the delay`);
+    v.tick(D - 1);
+    ok(!v.popup(), `${page}: the popup opened before ${D} ms`);
+    v.tick(1);
+    const p = v.popup();
+    ok(!!p, `${page}: no location, no flag — the popup did not open after the delay`);
+    ok(!!p && p.parentNode === v.document.body, `${page}: the popup is not a page-level overlay on <body>`);
+    eq(p && p.getAttribute("role"), "dialog", `${page}: the popup is not a dialog`);
+    eq(p && p.getAttribute("aria-labelledby"), "pdxfc-title", `${page}: the popup has no accessible name`);
+    ok(v.title.focused > 0, `${page}: focus did not move to the popup when it opened`);
   }
 }
 {
-  // Skip is on EVERY step, so it never traps anyone.
+  const v = visit({ located: true });
+  v.tick(60000);
+  ok(!v.popup(), "a reader with a saved location was shown the popup");
+  eq(v.C.shouldShow(), false, "shouldShow() with a saved location");
+}
+{
+  // A location set during the delay cancels the popup.
   const v = visit();
-  v.C.STEPS.forEach((_, i) => has(v.C._html(i), 'data-pdxfc-act="skip"', `step ${i + 1} has no Skip`));
-  has(v.C._html(3), ">Got it<", "the last step has no Got it");
-  eq(v.C.STEPS.length, 4, "the walk is not four steps");
-  // Escape inside the card skips too.
-  const local = memStore();
-  const w = visit({ local });
-  for (const f of (w.coach.listeners.keydown || [])) f({ key: "Escape" });
-  ok(!!local.getItem(w.C.KEY), "Escape inside the coach does not dismiss it");
+  v.tick(3000);
+  v.win._hasUserLocation = true;
+  v.tick(60000);
+  ok(!v.popup(), "the popup opened for a reader who set a location during the delay");
+}
+{
+  const local = memStore({ pdx_coach_seen: '{"v":2,"via":"skip"}' });
+  const v = visit({ local });
+  v.tick(60000);
+  ok(!v.popup(), "a reader who already dismissed the popup was shown it again");
+}
+{
+  // Another dialog open at the moment it fires: it waits, then gives up.
+  const v = visit({ dialogOpen: true });
+  v.tick(v.C.DELAY_MS + 60000);
+  ok(!v.popup(), "the popup opened on top of another open dialog");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("3 · the doors: finder, record, /voice");
+section("2 · every way out sets the flag, and it never comes back");
 // ═════════════════════════════════════════════════════════════════════════════
-{
-  const v = visit();
-  const href = (i) => (/class="pdxfc-door" href="([^"]*)"/.exec(v.C._html(i)) || [, ""])[1];
-  eq(href(0), "/find", "step 1's control is not the finder");
-  has(v.C._html(0), 'data-pdxfc-door="finder"', "step 1's door is not marked as the finder");
-  eq(href(1), "/stances", "step 2 does not point at the issue browser");
-  eq(href(2), "/voice", "step 3's control is not /voice");
-  eq(href(3), "", "the done step carries a door");
-  has(v.C._html(0), "Start by setting your location so PolitiDex can show the people who already hold power over you.",
-    "step 1's line drifted");
-  has(v.C._html(1), "Every person file shows what they said and how they actually voted, with the bills and the short line under each vote.",
-    "step 2's line drifted");
-  has(v.C._html(2), "Anyone can read a board. Only verified residents of that seat get a voice that counts.",
-    "step 3 does not carry the locked District Voice line verbatim");
-  // The same locked line the boards carry.
-  has(R("district-board.js"), "Anyone can read a board. Only verified residents of that seat get a voice that counts.",
-    "the locked line moved in district-board.js — the coach and the boards must agree");
+for (const [label, run] of [
+  ["Not now", (v) => click(v, "data-pdxfc-act", "skip")],
+  ["Got it", (v) => click(v, "data-pdxfc-act", "finish")],
+  ["Escape", (v) => v.key("Escape")],
+  ["the backdrop", (v) => { const p = v.popup(); for (const f of p.listeners.click) f({ target: p }); }],
+  ["Set my location", (v) => click(v, "data-pdxfc-door", "finder")],
+]) {
+  const local = memStore();
+  const v = visit({ local });
+  v.tick(v.C.DELAY_MS);
+  ok(!!v.popup(), `${label}: the popup did not open`);
+  run(v);
+  ok(!v.popup(), `${label}: the popup is still on the page`);
+  ok(!!local.getItem(v.C.KEY), `${label}: the flag was not written`);
+  ok(v.events.some((e) => e.type === "pdx:coach-dismissed"), `${label}: no dismissal event`);
+  eq((v.docListeners.keydown || []).length, 0, `${label}: the Escape listener outlived the popup`);
+  for (const page of ["home", "voice", "find"]) {
+    const next = visit({ page, local });
+    next.tick(60000);
+    ok(!next.popup(), `${label}: the popup reappeared on the next ${page} visit`);
+  }
 }
 {
-  // Homepage: a plain click on the finder door uses the shared lookup in place.
+  const h = visit().C._html();
+  has(h, 'data-pdxfc-act="skip">Not now<', "there is no Not now");
+  has(h, 'aria-label="Close"', "there is no close (×) button");
+  has(h, 'data-pdxfc-act="finish">Got it<', "there is no Got it");
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("3 · Set my location points at the finder");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  const h = visit().C._html();
+  const doors = [...h.matchAll(/<a\b[^>]*href="([^"]*)"[^>]*>([^<]*)<\/a>/g)];
+  eq(doors.length, 1, "the popup carries more than one link");
+  eq(doors[0] && doors[0][1], "/find", "Set my location does not point at the finder");
+  eq(doors[0] && doors[0][2], "Set my location", "the finder door is not labelled Set my location");
+  has(h, 'data-pdxfc-door="finder"', "the door is not marked as the finder");
+}
+{
+  // Homepage: a plain click closes the popup and uses the shared lookup in place.
   let called = 0;
   const v = visit({ extra: { pdxFindMyReps: () => { called++; } } });
+  v.tick(v.C.DELAY_MS);
   const prevented = click(v, "data-pdxfc-door", "finder");
-  eq(called, 1, "homepage: the finder door did not call pdxFindMyReps()");
-  ok(prevented, "homepage: the finder door also navigated away");
-  // A modified click is left to the browser (new tab to /find).
-  const p2 = click(v, "data-pdxfc-door", "finder", { metaKey: true });
-  ok(!p2 && called === 1, "a modified click on the finder door was intercepted");
+  eq(called, 1, "homepage: Set my location did not call pdxFindMyReps()");
+  ok(prevented, "homepage: Set my location also navigated away");
+  ok(!v.popup(), "homepage: the popup stayed over the finder");
+}
+{
+  let called = 0;
+  const v = visit({ extra: { pdxFindMyReps: () => { called++; } } });
+  v.tick(v.C.DELAY_MS);
+  const prevented = click(v, "data-pdxfc-door", "finder", { metaKey: true });
+  ok(!prevented && called === 0, "a modified click on Set my location was intercepted");
 }
 {
   let opened = 0;
   const v = visit({ page: "find", extra: { openDistrictMapModal: () => { opened++; } } });
+  v.tick(v.C.DELAY_MS);
   click(v, "data-pdxfc-door", "finder");
-  eq(opened, 1, "/find: the finder door did not open the map in place");
-}
-{
-  // Following a door advances the walk for the next document.
-  const session = memStore();
-  const v = visit({ session });
-  v.C._go(2);
-  click(v, "data-pdxfc-door", "voice");
-  eq(session.getItem(v.C.STEP_KEY), "3", "taking the /voice door does not advance the walk");
-  const next = visit({ page: "voice", session, located: true });
-  ok(!!next.coach, "a walk under way did not resume on /voice");
-  eq(next.coach && next.coach.getAttribute("data-pdxfc-at"), "done", "the walk resumed on the wrong step");
+  eq(opened, 1, "/find: Set my location did not open the map in place");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("4 · step 1 completes when a location is saved");
+section("4 · plain copy, no equity or membership language, no trap");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const v = visit();
-  no(v.C._html(0), "pdxfc-ok", "step 1 claims a location before one is saved");
-  v.win._hasUserLocation = true;
-  const h = v.C._html(0);
-  has(h, "pdxfc-ok", "step 1 does not mark itself complete once a location is saved");
-  has(h, 'data-pdxfc-dot="now"', "the current step lost its marker");
-  no(h, 'data-pdxfc-door="finder"', "step 1 still offers the finder after a location is saved");
-  ok(/<li class="pdxfc-dot" data-pdxfc-dot="done"/.test(v.C._html(1)), "step 1's dot is not done on step 2");
-}
+  const P = v.C.POINTS;
+  eq(P.length, 3, "the popup does not make three points");
+  has(P[0], "Set your location so PolitiDex can show the people who already represent you.", "point 1 drifted");
+  ok(/search any politician, bill, topic or claim/i.test(P[1]) && /what they said versus how they voted/.test(P[1]),
+    "point 2 does not say search anything, said versus voted");
+  has(P[2], "District Voice is the rooms for your seats.", "point 3 does not name District Voice");
+  has(P[2], "Anyone can read a board. Only verified residents of that seat get a voice that counts.",
+    "point 3 does not carry the locked District Voice line verbatim");
+  has(R("district-board.js"), "Anyone can read a board. Only verified residents of that seat get a voice that counts.",
+    "the locked line moved in district-board.js — the popup and the boards must agree");
 
-// ═════════════════════════════════════════════════════════════════════════════
-section("5 · no equity, membership or payment copy; not a modal");
-// ═════════════════════════════════════════════════════════════════════════════
-{
-  const v = visit();
-  const copy = v.C.STEPS.map((_, i) => v.C._html(i)).join(" ").replace(/<[^>]*>/g, " ");
+  const copy = v.C._html().replace(/<[^>]*>/g, " ");
   const code = stripComments(SRC);
   for (const word of ["membership", "member", "premium", "stock", "share", "shares", "earn", "earning",
                       "equity", "Form C", "payment", "pay", "dues", "invest", "investor", "subscription"]) {
     const re = new RegExp(`\\b${word}\\b`, "i");
-    ok(!re.test(copy), `the coach's copy carries "${word}"`);
+    ok(!re.test(copy), `the popup's copy carries "${word}"`);
     ok(!re.test(code), `first-visit-coach.js carries "${word}" outside a comment`);
   }
-  // Each step stays short: at most two sentences of body copy (plus the
-  // optional one-line note on step 3).
-  v.C.STEPS.forEach((s, i) => {
-    const n = (s.body.match(/[.!?](\s|$)/g) || []).length;
-    ok(n >= 1 && n <= 2, `step ${i + 1}'s body is ${n} sentences`);
-  });
-  for (const trap of ["aria-modal", "inert", "overflow:hidden", "position:fixed", "backdrop", "focus-trap", "showModal"]) {
-    no(code, trap, `the coach uses ${trap}, which makes it a modal`);
+  // Short: every point is one or two sentences after the name line.
+  ok(copy.replace(/\s+/g, " ").trim().split(" ").length <= 90, "the popup is not short");
+  // No trap: no inert page, no aria-modal claim that hides the page, no scroll
+  // lock on <body>/<html>, and no Tab interception.
+  no(code, "setAttribute('aria-modal'", "the popup marks itself aria-modal, which hides the page from assistive tech");
+  for (const trap of ["inert", "body.style", "documentElement.style", "focus-trap", "showModal", "'Tab'", '"Tab"']) {
+    no(code, trap, `the popup uses ${trap}`);
   }
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("6 · it writes only its own flag and touches no other door");
+section("5 · it writes only its own flag and touches no other door");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const local = memStore(), session = memStore();
   const v = visit({ local, session });
-  v.C._go(1); v.C._go(2); click(v, "data-pdxfc-door", "voice"); v.C._go(3);
+  v.tick(v.C.DELAY_MS);
   click(v, "data-pdxfc-act", "finish");
-  ok(local.writes.every((k) => k === "pdx_coach_seen"), `localStorage writes: ${local.writes.join(", ")}`);
-  ok(session.writes.every((k) => k === "pdx_coach_step"), `sessionStorage writes: ${session.writes.join(", ")}`);
+  ok(local.writes.length > 0 && local.writes.every((k) => k === "pdx_coach_seen"), `localStorage writes: ${local.writes.join(", ")}`);
+  eq(session.writes.length, 0, "the popup writes sessionStorage");
   const code = stripComments(SRC);
   for (const k of ["politidex_voter_location", "saveVoterLocation", "PDX_LOC_KEY", "pdx_first_run",
-                   "residency", "dd_residency", "openAccount", "pdxOpenAccount", "acct-sheet", "PDXStore", "fetch(", "/api/"]) {
-    no(code, k, `the coach reaches for ${k}`);
+                   "residency", "dd_residency", "openAccount", "pdxOpenAccount", "acct-sheet", "PDXStore",
+                   "pdx_stance", "fetch(", "/api/"]) {
+    no(code, k, `the popup reaches for ${k}`);
   }
-  no(code, "/money", "the coach points at the money lane");
+  no(code, "/money", "the popup points at the money lane");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("7 · wiring, and nothing else moved");
+section("6 · wiring, and nothing else moved");
 // ═════════════════════════════════════════════════════════════════════════════
 {
   const INDEX = R("index.html"), VOICE = R("voice.html"), FIND = R("find.html"), SW = R("sw.js");
   const TAG = '<script defer src="/first-visit-coach.js"></script>';
   for (const [n, doc] of [["index.html", INDEX], ["voice.html", VOICE], ["find.html", FIND]]) {
-    eq(doc.split(TAG).length - 1, 1, `${n} does not load the coach exactly once`);
+    eq(doc.split(TAG).length - 1, 1, `${n} does not load the popup exactly once`);
     ok(doc.indexOf(TAG) > doc.indexOf('src="/voter-hub-location.js"'),
-      `${n} loads the coach before voter-hub-location.js`);
+      `${n} loads the popup before voter-hub-location.js`);
   }
   for (const n of ["money.html", "me.html", "ballot.html", "person.html"]) {
-    if (existsSync(join(ROOT, n))) no(R(n), "first-visit-coach", `${n} loads the coach`);
+    if (existsSync(join(ROOT, n))) no(R(n), "first-visit-coach", `${n} loads the popup`);
   }
-  // The homepage District Voice gate is untouched: the coach is not inside it.
+  // The homepage District Voice gate is untouched: the popup is not inside it.
   const a = INDEX.indexOf("<!-- pdx:home-voice-gate:begin -->");
   const b = INDEX.indexOf("<!-- pdx:home-voice-gate:end -->", a);
   ok(a > 0 && b > a, "the home voice gate markers are missing");
-  no(INDEX.slice(a, b), "pdxfc", "the coach was written into the home voice gate");
-  no(INDEX.slice(a, b), "first-visit-coach", "the coach was written into the home voice gate");
-  // The worker: precached, and the shell moved.
+  no(INDEX.slice(a, b), "pdxfc", "the popup was written into the home voice gate");
+  no(INDEX.slice(a, b), "first-visit-coach", "the popup was written into the home voice gate");
+  // The worker: precached, and the shell moved for the popup.
   const assets = SW.slice(SW.indexOf("const SHELL_ASSETS = ["), SW.indexOf("];", SW.indexOf("const SHELL_ASSETS = [")));
-  has(assets, "'/first-visit-coach.js'", "the coach is not precached");
+  has(assets, "'/first-visit-coach.js'", "the popup is not precached");
   const ver = Number((/const CACHE_VERSION = 'v(\d+)'/.exec(SW) || [, 0])[1]);
-  ok(ver >= 375, `CACHE_VERSION did not move for the coach (v${ver})`);
-  has(SW, "// v375 - FIRST-VISIT COACH.", "the worker carries no note for the coach's version");
+  ok(ver >= 376, `CACHE_VERSION did not move for the popup (v${ver})`);
+  has(SW, "// v376 - FIRST-VISIT POPUP.", "the worker carries no note for the popup's version");
 }
 
 console.log("");
@@ -356,4 +348,4 @@ if (failures.length) {
   for (const f of failures) console.log(`   ✗ ${f}`);
   process.exit(1);
 }
-console.log(`   ✓ first-visit coach: all ${passed} assertions passed`);
+console.log(`   ✓ first-visit popup: all ${passed} assertions passed`);
