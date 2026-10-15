@@ -2402,6 +2402,74 @@
     return true;
   }
 
+  // ── THE HEADING NAMES THE HOLDER, AND THE NAME IS THE DOOR ────────────────
+  // "Utah House District 16 · Trevor Lee", with only the name a link to that
+  // person's file, and under it one small "Current holder · Trevor Lee" chip to
+  // the same address. The pid is pidOf()'s — who sits in the seat today, the
+  // same answer band 1 prints — so a prior holder is never named here. The name
+  // is the roster's: pdxRosterName() where the resolver is on the document,
+  // weighing the CMP_DATA row band 1 already reads, and that row's own name
+  // where it is not. '' is an answer: no name, no link, no chip, and the
+  // heading stays exactly as the document served it. Never the pid as a label.
+  function holderName(pid) {
+    var id = String(pid || '');
+    if (!id) return '';
+    var row = null;
+    try { row = (window.CMP_DATA && window.CMP_DATA[id]) || null; } catch (e) { row = null; }
+    try {
+      if (fn(window.pdxRosterName)) return String(window.pdxRosterName(id, row) || '').trim();
+    } catch (e2) {}
+    var n = (row && row.name != null) ? String(row.name).trim() : '';
+    return n === id ? '' : n;
+  }
+  // The seat half of the heading: the board's own h1 with any " · <name>" it
+  // already carries taken off, so a statewide heading is not named twice.
+  function headingSeat(b) {
+    return String((b && b.h1) || '').split(' \u00b7 ')[0].trim();
+  }
+  function personHref(pid) { return '/p/' + encodeURIComponent(String(pid)); }
+  // The heading's markup, or '' when the roster cannot name the holder — in
+  // which case the served heading is left untouched.
+  function headingHtml(b) {
+    var row = b || ACTIVE;
+    var pid = pidOf(row);
+    var name = holderName(pid);
+    var seat = headingSeat(row);
+    if (!pid || !name || !seat) return '';
+    return esc(seat) + ' \u00b7 <a class="pdxdb-h1-name" href="' + esc(personHref(pid)) + '">' + esc(name) + '</a>';
+  }
+  function holderChipHtml(b) {
+    var pid = pidOf(b || ACTIVE);
+    var name = holderName(pid);
+    if (!pid || !name) return '';
+    return '<a class="pdxdb-holder-a" href="' + esc(personHref(pid)) + '">' +
+      esc('Current holder \u00b7 ' + name) + '</a>';
+  }
+  var HOLDER_ID = 'pdx-db-holder';
+  var _servedH1 = null;
+  function paintHeading() {
+    try {
+      if (typeof document === 'undefined' || !fn(document.querySelector)) return;
+      var h1 = document.querySelector('.pdxdb-h1');
+      if (!h1) return;
+      if (_servedH1 === null) _servedH1 = String(h1.innerHTML);
+      var head = headingHtml(ACTIVE);
+      var chip = head ? holderChipHtml(ACTIVE) : '';
+      var want = head || _servedH1;
+      if (h1.innerHTML !== want) h1.innerHTML = want;
+      var host = fn(document.getElementById) ? document.getElementById(HOLDER_ID) : null;
+      if (chip) {
+        if (!host && fn(h1.insertAdjacentHTML)) {
+          h1.insertAdjacentHTML('afterend', '<p class="pdxdb-holder" id="' + HOLDER_ID + '"></p>');
+          host = document.getElementById(HOLDER_ID);
+        }
+        if (host && host.innerHTML !== chip) host.innerHTML = chip;
+      } else if (host && host.parentNode) {
+        host.parentNode.removeChild(host);
+      }
+    } catch (e) {}
+  }
+
   function loadMandates(el) {
     if (!composerBoard()) return;
     _mandateMember = PID();
@@ -2422,6 +2490,7 @@
 
     _issues = issues;
     injectCss();
+    paintHeading();
     wireTable(el);
     // A repaint rebuilds the search field; if the reader was typing in it,
     // hand the caret back rather than dropping their focus mid-word.
@@ -2601,6 +2670,9 @@
     personLinkHtml: personLinkHtml,
     boardsForPid: boardsForPid,
     generalLinksHtml: generalLinksHtml,
+    holderName: holderName,
+    headingHtml: headingHtml,
+    holderChipHtml: holderChipHtml,
     // Exposed for the suite: each band's markup asserted directly against a
     // payload, rather than inferred from a live fetch.
     purposeHtml: purposeHtml,

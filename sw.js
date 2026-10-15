@@ -9783,7 +9783,16 @@
 //     changed, so the shell moves one version. No route, gate, store or
 //     BOARD_ROUTES row moved. No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v381';
+// v382 - THE BOARD HEADING NAMES ITS HOLDER, AND THE NAME IS A LINK. When
+//     the roster names the seat's sitting member, district-board.js renders
+//     the heading as "<seat> · <name>" with only the name linking /p/<pid>,
+//     and adds one "Current holder · <name>" chip under it to the same file.
+//     A holder the roster cannot name leaves the served heading untouched and
+//     prints no chip. district-board.js and district-board.css are precached
+//     and changed, so the shell moves one version. No route, gate, store or
+//     allow-list moved. No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v382';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
