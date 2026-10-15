@@ -54,6 +54,10 @@
 .pdxdb-groups { display: grid; gap: 0.45rem; }
 .pdxdb-group { border: 1px solid #16223a; border-radius: 0.5rem; padding: 0 0.7rem; }
 .pdxdb-group[hidden], .pdxdb-row[hidden], .pdxdb-find-none[hidden] { display: none; }
+/* The one door under the finder's miss line: the seat's general conversation. */
+.pdxdb-find-door { margin: 0.35rem 0 0; font-size: 0.88rem; line-height: 1.5; }
+.pdxdb-find-door[hidden] { display: none; }
+.pdxdb-find-door-a { color: #7fb2ff; text-decoration: underline; text-underline-offset: 2px; }
 .pdxdb-group-h {
   display: flex; align-items: center; gap: 0.6rem;
   padding: 0.6rem 0; cursor: pointer; list-style: none;
@@ -227,3 +231,18 @@
 .pdxdb-tg[aria-pressed="true"] { background: #1c3358; border-color: #7fb2ff; color: #f2f7ff; }
 .pdxdb-tg:focus-visible { outline: 2px solid #7fb2ff; outline-offset: 2px; }
 .pdxdb-pinned[hidden], .pdxdb-pin[hidden] { display: none; }
+
+/* THE GENERAL ROOM (district-composer.js paints it into district-board.js's
+   frame) and the like control on every comment. */
+.pdxdb-band--general .pdxdb-h2 { margin-bottom: 0.25rem; }
+.pdxdc-g-prev { margin: 0.6rem 0 0; font-size: 0.8rem; line-height: 1.5; display: flex; flex-wrap: wrap; gap: 0.3rem 0.8rem; }
+.pdxdc-g-prev-a, .pdxdc-g-back { color: #93a5bf; text-decoration: underline; text-underline-offset: 2px; }
+.pdxdc-g-prev-a:hover, .pdxdc-g-back:hover { color: #7fb2ff; }
+.pdxdc-post-likes { margin: 0.3rem 0 0; display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: #93a5bf; }
+.pdxdc-like {
+  font: inherit; font-size: 0.78rem; padding: 0.15rem 0.6rem; border-radius: 999px; cursor: pointer;
+  border: 1px solid rgba(127, 178, 255, 0.45); background: transparent; color: #7fb2ff;
+}
+.pdxdc-like:hover:not([disabled]) { background: rgba(127, 178, 255, 0.12); }
+.pdxdc-like[aria-pressed="true"] { background: rgba(127, 178, 255, 0.18); cursor: default; }
+.pdxdc-like:focus-visible { outline: 2px solid #7fb2ff; outline-offset: 1px; }

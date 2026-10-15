@@ -9733,7 +9733,45 @@
 //     first-visit-coach.js is precached and changed, so the shell moves one
 //     version. No location key, residency logic or other door moved.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v378';
+// v379 - FIND A TOPIC OR MANDATE READS EVERYDAY WORDS. The finder on a district
+//     board matched only titles, bill numbers and issue labels, so "data
+//     centers", "ai", "water" or "taxes" often printed the miss line and
+//     stopped. A second pass asks one shared static alias table in
+//     district-board.js (FIND_ALIASES, issue key → everyday words, whole words
+//     only) and opens the group for any aliased issue THIS SEAT ALREADY PRINTS;
+//     an alias on a key with no measure here points at nothing, so no issue or
+//     measure is invented. Under the unchanged miss line sits one door, "Talk
+//     about it in the general room": the composer host on a board that has one,
+//     and the documented /voice placeholder everywhere else, until a general
+//     room exists. Chips, open state, the table and the toggles are unchanged.
+//     district-board.js and district-board.css are precached and changed, so
+//     the shell moves one version. No location key is migrated, renamed or
+//     copied; no route, residency gate or composer moved.
+//     MIGRATION COST: none.
+// v380 - THE GENERAL ROOM ON EVERY BOARD, AND LIKES. Every board now opens
+//     with "General · <the sitting member>" under the seat and above the issue
+//     groups: that member's general comments for this seat, newest first,
+//     painted by district-composer.js into a frame district-board.js prints.
+//     A general comment is keyed to seat + pid — the roster's sitting member at
+//     write time, from netlify/lib/seat-holders.mjs (written by
+//     scripts/gen-seat-holders.mjs), never a pid the client sends. When the
+//     seat changes hands the old rows stay under the old pid and the new holder
+//     starts empty; prior holders are small "Previous: <name>" links, each
+//     opening that person's read-only thread for this seat. Every comment,
+//     general and issue, carries a like count; a verified resident of the seat
+//     may like it once (an anonymous seat-scoped hash; a second like is a
+//     no-op), and only counts are public. The search miss link now reads
+//     "Start a thread about this" and lands in the general section. Same
+//     residency gate, same monthly cap; no board, route or gate moved.
+//     DATABASE: one migration, 20261117000000_voice_general_room_and_likes —
+//     voice_takes gains a nullable holder_pid (issue_key becomes nullable,
+//     exactly one of the two set, by CHECK) and one small new table,
+//     voice_take_likes. No comment table was added and no row is rewritten.
+//     district-board.js, district-board.css and district-composer.js are
+//     precached and changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none on the device.
+const CACHE_VERSION = 'v380';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

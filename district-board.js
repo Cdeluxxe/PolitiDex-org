@@ -611,6 +611,14 @@
     findLabel: 'Find a measure',
     findPlaceholder: 'Title or bill number',
     findNone: 'No measure in view matches that search.',
+    // THE DOOR UNDER A MISS. Nothing on this seat answered, so the field offers
+    // the seat's general conversation instead of a dead end. The second label
+    // is the one used wherever the general room is on the page (generalPresent()).
+    findDoor: 'Talk about it in the general room',
+    findDoorThread: 'Start a thread about this',
+    // The general room's frame, before district-composer.js fills it.
+    generalHd: 'General',
+    generalWait: 'Reading the general room…',
     tableUnfiled: 'Not filed under an issue',
     // How many issue categories have at least one measure on this seat. A count
     // of the groups the table actually prints, never a total of every topic the
@@ -1002,6 +1010,73 @@
     return !!sq && squash(text).indexOf(sq) !== -1;
   }
 
+  // ── THE EVERYDAY WORDS, A SECOND PASS ─────────────────────────────────────
+  // People type "data centers", "ai", "water" or "taxes", not a bill number.
+  // When the title-and-number pass above misses, the field also asks this one
+  // shared table: issue key → the everyday words that find it, in the same
+  // style as the person file's FIND_ALIASES (stance-tree.js). A hit opens the
+  // GROUP for that issue, every row in it, and only a group THIS SEAT ALREADY
+  // PRINTS: an alias on a key with no measure here points at nothing, so the
+  // field never invents an issue or a measure. A miss is still a miss, and the
+  // miss line offers the general conversation (see generalDoorHtml()).
+  //
+  // Whole words only, so "ai" finds Data Centers & AI Growth and not every
+  // title that says "maintain". A word already in a label still reaches it
+  // through the first pass; it is listed here only where the label does not
+  // carry the reader's spelling.
+  var FIND_ALIASES = {
+    datacenter_growth: ['data center', 'data centers', 'data centre', 'data centres', 'datacenter', 'datacenters',
+                        'ai', 'a i', 'artificial intelligence', 'hyperscale', 'hyperscaler'],
+    datacenter_water:  ['data center', 'data centers', 'data centre', 'data centres', 'datacenter', 'datacenters', 'water'],
+    datacenter_power:  ['data center', 'data centers', 'data centre', 'data centres', 'datacenter', 'datacenters',
+                        'power', 'electricity', 'power bill', 'power bills', 'utility', 'utility bills', 'grid'],
+    tech_innovation:   ['ai', 'a i', 'artificial intelligence', 'tech', 'technology'],
+    tech_balance:      ['ai', 'a i', 'artificial intelligence', 'tech', 'technology'],
+    water:             ['water', 'drought', 'great salt lake'],
+    water_storage:     ['water', 'reservoir', 'reservoirs', 'dam', 'dams', 'drought'],
+    lower_taxes:       ['tax', 'taxes', 'income tax', 'income taxes', 'taxation'],
+    tax_middle_class:  ['tax', 'taxes', 'tax credit', 'tax credits', 'taxation'],
+    prop_tax:          ['tax', 'taxes', 'property tax', 'property taxes', 'taxation'],
+    property_tax:      ['tax', 'taxes', 'property tax', 'property taxes', 'taxation', 'housing'],
+    public_schools:    ['school', 'schools', 'education', 'teacher', 'teachers', 'classroom', 'classrooms'],
+    school_choice:     ['school', 'schools', 'education', 'voucher', 'vouchers', 'charter', 'charters'],
+    edu_balance:       ['school', 'schools', 'education', 'teacher', 'teachers'],
+    edu_parental:      ['school', 'schools', 'education', 'curriculum'],
+    edu_college_cost:  ['education', 'college', 'tuition', 'student loans', 'student debt'],
+    housing:           ['housing', 'rent', 'rents', 'home prices', 'homes', 'affordable housing'],
+    housing_build:     ['housing', 'homes', 'zoning', 'home building'],
+    housing_support:   ['housing', 'rent', 'rents', 'renters', 'affordable housing'],
+    housing_first_time:['housing', 'homes', 'home prices', 'first home', 'mortgage'],
+    homeless:          ['housing', 'homeless', 'homelessness']
+  };
+  function aliasNorm(s) {
+    return String(s == null ? '' : s).toLowerCase()
+      .replace(/[&+]/g, ' and ')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+  }
+  // The issue keys the typed words name, as a set. Empty for an empty query.
+  // The query is the haystack: "data centers in utah" carries "data centers".
+  function aliasKeys(q) {
+    var out = {};
+    var hay = ' ' + aliasNorm(q) + ' ';
+    if (hay === '  ') return out;
+    for (var k in FIND_ALIASES) {
+      if (!Object.prototype.hasOwnProperty.call(FIND_ALIASES, k)) continue;
+      var words = FIND_ALIASES[k];
+      for (var i = 0; i < words.length; i++) {
+        var w = aliasNorm(words[i]);
+        if (w && hay.indexOf(' ' + w + ' ') !== -1) { out[k] = 1; break; }
+      }
+    }
+    return out;
+  }
+  // Does the alias pass open the group printed under `key`? Unfiled rows ('')
+  // never answer an alias: they have no issue to be the closest one.
+  function aliasOpens(key, q) {
+    return !!key && Object.prototype.hasOwnProperty.call(aliasKeys(q), key);
+  }
+
   // ── THE TYPE AND TIME TOGGLES ─────────────────────────────────────────────
   // They HIDE rows and nothing else: no category is added or removed, no row is
   // re-sorted, and the archive read is the same 100-row page.
@@ -1043,9 +1118,12 @@
   function timeOk(sit) { return !_view.time || _view.time === sit; }
   // Is any filter narrowing the list? The search, or either toggle.
   function narrowing() { return !!(normQuery(_view.q) || _view.type || _view.time); }
-  // One measure row: the search, the type and the time, all at once.
-  function rowShown(item) {
-    return _view.type !== 'mandates' && timeOk(sitOf(item)) && matches(findText(item), normQuery(_view.q));
+  // One measure row: the search, the type and the time, all at once. `key` is
+  // the group the row is printed under; the alias pass opens that whole group.
+  function rowShown(item, key) {
+    var q = normQuery(_view.q);
+    return _view.type !== 'mandates' && timeOk(sitOf(item)) &&
+      (matches(findText(item), q) || aliasOpens(key, q));
   }
   // One mandate row. An open proposal is current; it is not a topic.
   function mandateShown(m) {
@@ -1077,7 +1155,7 @@
     var q = normQuery(_view.q);
     var hits = 0, body = '';
     for (var i = 0; i < rows.length; i++) {
-      var hit = rowShown(rows[i]);
+      var hit = rowShown(rows[i], key);
       if (hit) hits++;
       body += measureRow(rows[i], tally, key, !hit);
     }
@@ -1308,7 +1386,8 @@
       (composer ? find + toggles + cats + (P ? pinnedHtml(mrows, G.groups, tally) : '') : cats + find + toggles) +
       '<div class="pdxdb-groups"' + (P ? ' data-pdxdb-layout="parents"' : '') + '>' + groups + '</div>' +
       '<p class="pdxdb-none pdxdb-find-none" data-pdxdb-find-none' +
-        (anyShown(G, mrows) ? ' hidden' : '') + '>' + esc(COPY.findNone) + '</p>',
+        (anyShown(G, mrows) ? ' hidden' : '') + '>' + esc(COPY.findNone) + '</p>' +
+      generalDoorHtml(anyShown(G, mrows)),
       COPY.voiceFoot);
   }
 
@@ -1384,9 +1463,9 @@
   var PARENT_PREFIX = '^';
   var PARENT_COLLAPSED = 'pdxdb-parent-h--collapsed';
 
-  function rowHits(rows) {
+  function rowHits(rows, key) {
     var n = 0;
-    for (var i = 0; i < rows.length; i++) if (rowShown(rows[i])) n++;
+    for (var i = 0; i < rows.length; i++) if (rowShown(rows[i], key)) n++;
     return n;
   }
   function issuesWord(n) { return n === 1 ? '1 issue' : n + ' issues'; }
@@ -1404,7 +1483,7 @@
     var any = false, chips = '', body = '';
     for (var i = 0; i < par.groups.length; i++) {
       var g = par.groups[i];
-      if (groupState(g.key, rowHits(g.rows), stance).shown) any = true;
+      if (groupState(g.key, rowHits(g.rows, g.key), stance).shown) any = true;
       chips += catChip(g.key, g.label, g.rows.length, issueSkin(g.key), icName);
       body += groupHtml(g.key, g.label, g.rows, tally, stance);
     }
@@ -1561,6 +1640,44 @@
     } catch (e) {}
   }
 
+  // ── THE DOOR UNDER THE MISS LINE ──────────────────────────────────────────
+  // One control, shown exactly when the miss line is, and pointing only at a
+  // room that is already there. Where the general room is on the page — every
+  // board carrying the composer host, see generalSlotHtml() — the door reads
+  // "Start a thread about this" and lands in that section (GENERAL_ROOM_HREF).
+  // A document with no composer host has no general room, so the door keeps
+  // "Talk about it in the general room" and the DOCUMENTED PLACEHOLDER, /voice,
+  // the District Voice page that lists the rooms for a reader's seats. The door
+  // never carries the query, never posts and never names an issue.
+  var GENERAL_ROOM_ID = 'pdx-general-room';
+  var GENERAL_ROOM_HREF = '#' + GENERAL_ROOM_ID;
+  var GENERAL_ROOM_PLACEHOLDER = '/voice';
+  function generalPresent() { return composerOwned(); }
+  function generalDoorHref() {
+    return generalPresent() ? GENERAL_ROOM_HREF : GENERAL_ROOM_PLACEHOLDER;
+  }
+  function generalDoorHtml(hidden) {
+    return '<p class="pdxdb-find-door" data-pdxdb-find-door=""' + (hidden ? ' hidden' : '') + '>' +
+        '<a class="pdxdb-find-door-a" href="' + esc(generalDoorHref()) + '">' +
+          esc(generalPresent() ? COPY.findDoorThread : COPY.findDoor) + '</a></p>';
+  }
+
+  // ── THE GENERAL ROOM'S PLACE ON THE BOARD ─────────────────────────────────
+  // The first thread on every board, under the seat and above the issue
+  // groups. This module prints only the frame; district-composer.js — the one
+  // owner of the gate, the posts and the likes — fills it on every repaint
+  // (it listens for pdxdb:paint), so a band-2 refresh never loses the thread.
+  // Printed only where that owner is on the page.
+  function generalSlotHtml() {
+    if (!generalPresent()) return '';
+    return '<section class="pdxdb-band pdxdb-band--general" data-pdxdb-band="general"' +
+        ' id="' + GENERAL_ROOM_ID + '" data-pdxdb-general="">' +
+        '<h2 class="pdxdb-h2">' + esc(COPY.generalHd) + '</h2>' +
+        '<p class="pdxdb-wait" role="status"><span class="pdxdb-dot" aria-hidden="true"></span>' +
+          esc(COPY.generalWait) + '</p>' +
+      '</section>';
+  }
+
   function anyShown(G, mrows) {
     if (mrows && mrows.length) {
       var mh = 0;
@@ -1570,7 +1687,7 @@
     var all = G.groups.slice();
     if (G.unfiled.length) all.push({ key: '', rows: G.unfiled });
     for (var i = 0; i < all.length; i++) {
-      if (groupState(all[i].key, rowHits(all[i].rows), {}).shown) return true;
+      if (groupState(all[i].key, rowHits(all[i].rows, all[i].key), {}).shown) return true;
     }
     return false;
   }
@@ -1593,9 +1710,10 @@
       var key = groups[g].getAttribute('data-pdxdb-group') || '';
       var rows = groups[g].querySelectorAll('[data-pdxdb-find]');
       var hits = 0;
+      var opened = aliasOpens(key, q);
       for (var r = 0; r < rows.length; r++) {
         var hit = _view.type !== 'mandates' && timeOk(rows[r].getAttribute('data-pdxdb-time') || '') &&
-          matches(rows[r].getAttribute('data-pdxdb-find') || '', q);
+          (opened || matches(rows[r].getAttribute('data-pdxdb-find') || '', q));
         if (hit) hits++;
         rows[r].hidden = !hit;
       }
@@ -1630,6 +1748,8 @@
     }
     var none = el.querySelector('[data-pdxdb-find-none]');
     if (none) none.hidden = any;
+    var door = el.querySelector('[data-pdxdb-find-door]');
+    if (door) door.hidden = any;
     // The toggle buttons say which is pressed.
     var tgs = el.querySelectorAll('[' + TG_TYPE + '],[' + TG_TIME + ']');
     for (var tg = 0; tg < tgs.length; tg++) {
@@ -2311,6 +2431,7 @@
     el.innerHTML =
       purposeHtml() +
       seatHtml() +
+      generalSlotHtml() +
       roomHtml(cState, _counts === FAILED ? null : _counts) +
       tableHtml(tState, items, rooms, _mandates) +
       stanceHtml(issues) +
@@ -2454,6 +2575,12 @@
     // The in-place filter, for the suite: applies the current view to a
     // painted band without re-rendering it.
     _applyView: applyView,
+    // The everyday-words pass of the finder, and the door under its miss line.
+    FIND_ALIASES: FIND_ALIASES,
+    _aliasKeys: aliasKeys,
+    _generalDoorHtml: generalDoorHtml,
+    generalSlotHtml: generalSlotHtml,
+    GENERAL_ROOM_ID: GENERAL_ROOM_ID,
     COMPOSER_SEATS: COMPOSER_SEATS,
     composerBoard: function () { return composerBoard(); },
     MANDATE_KEY: MANDATE_KEY,

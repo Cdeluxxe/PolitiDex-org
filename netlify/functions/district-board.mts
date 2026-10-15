@@ -56,7 +56,7 @@
 // the disclosure.
 
 import type { Config } from "@netlify/functions";
-import { and, countDistinct, eq } from "drizzle-orm";
+import { and, countDistinct, eq, isNotNull } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import {
   ddPollVotes,
@@ -324,7 +324,8 @@ async function issueTally(seat: string) {
   const takes = await db
     .select({ issueKey: voiceTakes.issueKey, v: countDistinct(voiceTakes.authorHash) })
     .from(voiceTakes)
-    .where(eq(voiceTakes.seatKey, seat))
+    // Per issue: a general-room comment has no issue and is not counted here.
+    .where(and(eq(voiceTakes.seatKey, seat), isNotNull(voiceTakes.issueKey)))
     .groupBy(voiceTakes.issueKey);
   for (const r of takes) row(String(r.issueKey)).comments += n(r);
 

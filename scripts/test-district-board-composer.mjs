@@ -249,7 +249,8 @@ eq(verifiedSeat({ ...VERIFIED[0], method: "location_match" }, SEAT), "", "a loca
   eq(s.inserts[0].seatKey, SEAT, "…stored per seat, under the canonical key");
   eq(s.inserts[0].authorHash, H, "…under the seat-scoped hash, never the uid");
   const out = await res.json();
-  eq(Object.keys(out.post).sort().join(","), "body,createdAt,id,issueKey,mine", "the returned post has five fields and no person");
+  eq(Object.keys(out.post).sort().join(","), "body,createdAt,id,issueKey,liked,likes,mine",
+    "the returned post has seven fields — a like count and the caller's own flag, never a person");
 }
 
 // GET: open to all, and no person on the wire.

@@ -77,7 +77,7 @@
 // all, so the wire cannot be used to group one person's takes.
 
 import type { Config } from "@netlify/functions";
-import { and, count, desc, eq, ne, sql } from "drizzle-orm";
+import { and, count, desc, eq, isNotNull, ne, sql } from "drizzle-orm";
 import { db } from "../../db/index.js";
 import {
   ddDistricts,
@@ -277,7 +277,8 @@ async function resolveTakes(seatKey: string, hash: string) {
       authorHash: voiceTakes.authorHash,
     })
     .from(voiceTakes)
-    .where(eq(voiceTakes.seatKey, seatKey))
+    // Issue takes only; a board's general-room row has no issue.
+    .where(and(eq(voiceTakes.seatKey, seatKey), isNotNull(voiceTakes.issueKey)))
     .orderBy(desc(voiceTakes.createdAt), desc(voiceTakes.id))
     .limit(TAKES_CAP);
   return rows.map((r) => ({
