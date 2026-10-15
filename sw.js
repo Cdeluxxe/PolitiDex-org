@@ -9711,7 +9711,16 @@
 //     so the shell moves one version. Same one flag; no location key, residency
 //     row, account sheet, District Voice gate, finder or money surface moved.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v376';
+// v377 - FIRST-VISIT POPUP, UTAH FIRST. One sentence under the popup's District
+//     Voice point: district boards and state legislative mapping are live in
+//     Utah first, other states over time. True as shipped — every board is a
+//     Utah seat and state legislative lines are drawn only for Utah, while the
+//     U.S. House resolves nationally. The three points, the buttons, the delay,
+//     the gate and the one pdx_coach_seen flag are unchanged.
+//     first-visit-coach.js is precached and changed, so the shell moves one
+//     version. No location key, residency logic or other door moved.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v377';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

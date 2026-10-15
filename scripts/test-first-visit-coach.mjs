@@ -24,7 +24,7 @@
 // clock. No network.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
@@ -286,13 +286,61 @@ section("4 · plain copy, no equity or membership language, no trap");
     ok(!re.test(code), `first-visit-coach.js carries "${word}" outside a comment`);
   }
   // Short: every point is one or two sentences after the name line.
-  ok(copy.replace(/\s+/g, " ").trim().split(" ").length <= 90, "the popup is not short");
+  // The ceiling rose from 90 to 100 for the one Utah-first sentence and nothing else.
+  ok(copy.replace(/\s+/g, " ").trim().split(" ").length <= 100, "the popup is not short");
   // No trap: no inert page, no aria-modal claim that hides the page, no scroll
   // lock on <body>/<html>, and no Tab interception.
   no(code, "setAttribute('aria-modal'", "the popup marks itself aria-modal, which hides the page from assistive tech");
   for (const trap of ["inert", "body.style", "documentElement.style", "focus-trap", "showModal", "'Tab'", '"Tab"']) {
     no(code, trap, `the popup uses ${trap}`);
   }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+section("4b · one Utah-first sentence under District Voice, and it is true");
+// ═════════════════════════════════════════════════════════════════════════════
+{
+  const v = visit();
+  const NOTE = "District boards and state legislative mapping are live in Utah first. Other states will be added over time.";
+  eq(v.C.SCOPE_NOTE, NOTE, "the Utah-first sentence drifted");
+  // The three points are exactly as they were, and the note is not one of them.
+  eq(JSON.stringify(v.C.POINTS), JSON.stringify([
+    "Set your location so PolitiDex can show the people who already represent you.",
+    "Search any politician, bill, topic or claim and see what they said versus how they voted.",
+    "District Voice is the rooms for your seats. Anyone can read a board. Only verified residents of that seat get a voice that counts.",
+  ]), "the three points changed");
+  const h = v.C._html();
+  eq(h.split(NOTE).length - 1, 1, "the Utah-first sentence is not on the popup exactly once");
+  eq((h.match(/<li\b/g) || []).length, 3, "the Utah-first sentence became a fourth step");
+  // Under the third point: inside its <li>, after the District Voice line.
+  const items = h.split("<li").slice(1);
+  ok(items[2] && items[2].indexOf(NOTE) > items[2].indexOf("a voice that counts."),
+    "the Utah-first sentence is not under the District Voice point");
+  ok(items[0].indexOf(NOTE) < 0 && items[1].indexOf(NOTE) < 0, "the Utah-first sentence sits under the wrong point");
+  // One sentence, not a disclaimer block: an inline span, no heading, no box.
+  ok(/<span class="pdxfc-scope">District boards/.test(h), "the Utah-first sentence is not a plain span");
+  const rule = (/\.pdxfc-scope\{[^}]*\}/.exec(SRC) || [""])[0];
+  ok(rule.length > 0, "the Utah-first sentence has no rule");
+  for (const box of ["border", "background", "box-shadow"]) no(rule, box, `the Utah-first sentence is styled as a box (${box})`);
+  // Its color is one the District Voice card already uses.
+  const colors = rule.match(/#[0-9a-f]{3,6}\b/gi) || [];
+  const INDEX = R("index.html");
+  const gate = INDEX.slice(INDEX.indexOf("<!-- pdx:home-voice-gate:begin -->"), INDEX.indexOf("<!-- pdx:home-voice-gate:end -->"));
+  ok(colors.length > 0 && colors.every((c) => gate.toLowerCase().indexOf(c.toLowerCase()) >= 0),
+    `the Utah-first sentence uses a color the District Voice card does not (${colors.join(", ")})`);
+
+  // TRUE TO THE SITE. Every district board document is a Utah seat; the finder
+  // says state legislative lines are drawn in Utah; and the U.S. House resolves
+  // outside Utah (so the sentence does not claim representatives are Utah-only).
+  const boards = readdirSync(ROOT).filter((f) => /^district-.*\.html$/.test(f));
+  ok(boards.length > 0 && boards.every((f) => f.startsWith("district-ut-")),
+    `a district board outside Utah exists, so "Utah first" is out of date: ${boards.filter((f) => !f.startsWith("district-ut-")).join(", ")}`);
+  ok(/State Senate and State House<\/strong> seats need\s+district lines, which we map in <strong>Utah<\/strong>/.test(R("find.html")),
+    "the finder no longer says state legislative lines are mapped in Utah — recheck the Utah-first sentence");
+  ok(existsSync(join(ROOT, "scripts/test-federal-house-locator.mjs")) &&
+     /U\.S\. House resolves outside Utah/.test(R("scripts/test-federal-house-locator.mjs")),
+    "the U.S. House national locator is gone — recheck the Utah-first sentence");
+  no(NOTE, "represent", "the Utah-first sentence says representatives are Utah-only, which is false");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -338,8 +386,9 @@ section("6 · wiring, and nothing else moved");
   const assets = SW.slice(SW.indexOf("const SHELL_ASSETS = ["), SW.indexOf("];", SW.indexOf("const SHELL_ASSETS = [")));
   has(assets, "'/first-visit-coach.js'", "the popup is not precached");
   const ver = Number((/const CACHE_VERSION = 'v(\d+)'/.exec(SW) || [, 0])[1]);
-  ok(ver >= 376, `CACHE_VERSION did not move for the popup (v${ver})`);
+  ok(ver >= 377, `CACHE_VERSION did not move for the Utah-first sentence (v${ver})`);
   has(SW, "// v376 - FIRST-VISIT POPUP.", "the worker carries no note for the popup's version");
+  has(SW, "// v377 - FIRST-VISIT POPUP, UTAH FIRST.", "the worker carries no note for the Utah-first sentence");
 }
 
 console.log("");

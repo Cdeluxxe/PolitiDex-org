@@ -3,7 +3,8 @@
    ────────────────────────────────────────────────────────────────────────────
    WHAT IT IS. One small popup, in plain language, for a reader who has never
    been here: set your location, search anything and see what they said versus
-   how they voted, and what District Voice is. Three short points and three
+   how they voted, and what District Voice is (with one line saying boards and
+   state legislative mapping are Utah-first). Three short points and three
    clear buttons — "Set my location", "Got it", "Not now" — plus a close (×).
 
    WHEN IT APPEARS. Only for a first visit: no saved location
@@ -54,6 +55,13 @@
     'District Voice is the rooms for your seats. ' + VOICE_LINE
   ];
 
+  // UTAH FIRST, said once, under the District Voice point. True to the site as
+  // it stands: every district board is a Utah seat and state legislative lines
+  // are drawn only for Utah, while the U.S. House and statewide seats resolve
+  // nationally — so the sentence names boards and state legislative mapping,
+  // not "your representatives".
+  var SCOPE_NOTE = 'District boards and state legislative mapping are live in Utah first. Other states will be added over time.';
+
   function fn(v) { return typeof v === 'function'; }
 
   // ── State ─────────────────────────────────────────────────────────────────
@@ -101,7 +109,9 @@
         '<ol class="pdxfc-points">' +
           POINTS.map(function (p, i) {
             return '<li class="pdxfc-point"><span class="pdxfc-n" aria-hidden="true">' + (i + 1) + '</span>' +
-              '<span>' + esc(p) + '</span></li>';
+              '<span>' + esc(p) +
+              (i === POINTS.length - 1 ? '<span class="pdxfc-scope">' + esc(SCOPE_NOTE) + '</span>' : '') +
+              '</span></li>';
           }).join('') +
         '</ol>' +
         '<div class="pdxfc-acts">' +
@@ -122,6 +132,7 @@
     '.pdxfc-points{margin:0 0 1rem;padding:0;list-style:none;display:grid;gap:0.7rem;}',
     '.pdxfc-point{display:flex;gap:0.65rem;align-items:flex-start;font:400 1rem/1.5 \'Barlow\',system-ui,sans-serif;color:#d8e8dc;}',
     '.pdxfc-n{flex:none;display:inline-flex;align-items:center;justify-content:center;width:1.6rem;height:1.6rem;border-radius:999px;font:800 0.85rem/1 \'Barlow Condensed\',\'Barlow\',sans-serif;background:linear-gradient(135deg,#fad96a,#e6b800);color:#0a0f1e;}',
+    '.pdxfc-scope{display:block;margin-top:0.35rem;font:400 0.9rem/1.5 \'Barlow\',system-ui,sans-serif;color:#9fb5a8;}',
     '.pdxfc-acts{display:flex;flex-wrap:wrap;align-items:center;gap:0.6rem;}',
     '.pdxfc-door{display:inline-flex;align-items:center;min-height:44px;padding:0.55rem 1.15rem;border:1.5px solid rgba(245,200,66,0.9);border-radius:999px;font:700 1rem/1 \'Barlow\',system-ui,sans-serif;color:#0a0f1e;text-decoration:none;background:linear-gradient(135deg,#fad96a,#e6b800);cursor:pointer;transition:filter 0.2s ease;}',
     '.pdxfc-door:hover,.pdxfc-door:focus-visible{filter:brightness(1.06);}',
@@ -248,6 +259,7 @@
     KEY: KEY,
     DELAY_MS: DELAY_MS,
     POINTS: POINTS,
+    SCOPE_NOTE: SCOPE_NOTE,
     shouldShow: shouldShow,
     seen: seen,
     // Test/debug seams.
