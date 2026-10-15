@@ -1614,10 +1614,10 @@ export const voicePollAnswers = pgTable(
   ]
 );
 
-// A take: { seatKey, issueKey, body <= 280, createdAt, authorHash } and nothing
-// else. The ceiling is a CHECK rather than a client rule, so a body that got past
-// a caller still cannot land. No party field, no upvote, no reply parent — slice 1
-// has no thread and this table cannot express one.
+// A take: { seatKey, issueKey | holderPid, body <= 280, createdAt, authorHash }
+// and nothing else. The ceiling is a CHECK rather than a client rule, so a body
+// that got past a caller still cannot land. No party field and no reply parent;
+// likes live in voiceTakeLikes, never on the row.
 export const voiceTakes = pgTable(
   "voice_takes",
   {
@@ -1628,19 +1628,47 @@ export const voiceTakes = pgTable(
     // MUST exist in the shipped ISSUE_MAP vocabulary. Refused by the core's gate,
     // by the vocabulary read in the Function, and finally by this foreign key —
     // three refusals, the last of which no code path can forget.
+    // NULL ONLY ON A GENERAL-ROOM COMMENT (20261117000000): exactly one of
+    // issueKey and holderPid is set, by CHECK.
     issueKey: text("issue_key")
-      .notNull()
       .references(() => ddIssueKeys.issueKey, { onDelete: "restrict" }),
+    // The general room's thread key with seatKey: the roster's sitting member
+    // when the comment was written (netlify/lib/seat-holders.mjs). Null on an
+    // issue comment — issue threads stay on the seat.
+    holderPid: text("holder_pid"),
     body: text().notNull(),
     authorHash: text("author_hash").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [
-    // One seat, NEWEST FIRST, capped at twenty. The only order this table is ever
-    // asked for; there is no column another order could be built from.
+    // One seat, NEWEST FIRST, capped at twenty.
     index("voice_takes_seat_created_idx").on(t.seatKey, t.createdAt.desc()),
     index("voice_takes_seat_issue_idx").on(t.seatKey, t.issueKey),
+    index("voice_takes_seat_holder_created_idx").on(t.seatKey, t.holderPid, t.createdAt.desc()),
     check("voice_takes_body_len_check", sql`char_length(${t.body}) between 1 and 280`),
+    check("voice_takes_room_check", sql`(${t.issueKey} IS NOT NULL AND ${t.holderPid} IS NULL) OR (${t.issueKey} IS NULL AND ${t.holderPid} IS NOT NULL AND ${t.holderPid} ~ '^[a-z][a-z0-9_]*$')`),
+  ]
+);
+
+// One like per (comment, liker). The liker is the same anonymous seat-scoped
+// hash voiceTakes carries, never a uid; the unique index makes a second like a
+// no-op. Only counts are ever read out.
+export const voiceTakeLikes = pgTable(
+  "voice_take_likes",
+  {
+    id: serial().primaryKey(),
+    takeId: integer("take_id")
+      .notNull()
+      .references(() => voiceTakes.id, { onDelete: "cascade" }),
+    seatKey: text("seat_key")
+      .notNull()
+      .references(() => ddDistricts.districtId, { onDelete: "restrict" }),
+    likerHash: text("liker_hash").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("voice_take_likes_take_liker_unique").on(t.takeId, t.likerHash),
+    index("voice_take_likes_take_idx").on(t.takeId),
   ]
 );
 

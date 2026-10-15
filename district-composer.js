@@ -43,6 +43,21 @@
    board — a monthly-cap refusal from the server is shown as a neutral line
    (COPY.notTaken), never the server's own wording.
 
+   THE GENERAL ROOM. Every board's first thread, painted into the frame
+   district-board.js prints under the seat (#pdx-general-room) and repainted on
+   every pdxdb:paint. It is "General · <the sitting member>": the comments
+   GET ?room=general returns for this seat and the member who holds it now,
+   newest first, under the same gate as an issue comment. The server decides
+   the holder — this file never sends a pid with a post. Previous holders of
+   the seat are small links under the thread ("Previous: <name>"), each opening
+   that person's own general thread for this seat, read-only. ?general=<pid>
+   opens one directly.
+
+   LIKES. Every comment, general and issue, prints its like count. A reader the
+   server lets post on this seat also gets the control; a like is one POST
+   { action: 'like' }, a second is a no-op on the server, and only counts come
+   back — never who.
+
    No poll, no replies, no score.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
@@ -165,7 +180,22 @@
     // The topic jump (?topic=<issueKey>), from an issue file's poll.
     topicHd: 'What residents have said on ',
     topicEmpty: 'No comments on this issue on hand for this seat.',
-    topicAll: 'Show every comment'
+    topicAll: 'Show every comment',
+    // The general room.
+    generalHd: 'General',
+    generalLabel: 'Say something to this district',
+    generalWait: 'Reading the general room…',
+    generalUnread: 'We could not read the general room just now. This is not an empty room — it is a read that failed.',
+    generalEmpty: 'No general comments for this officeholder on this seat yet.',
+    generalNote: 'The general thread for this seat while this officeholder holds it. Comments carry no name.',
+    generalPast: 'A previous holder’s general thread for this seat. It is read-only; new comments go to whoever holds the seat now.',
+    generalBack: 'Back to the current thread',
+    previous: 'Previous: ',
+    like: 'Like',
+    liked: 'Liked',
+    likeOne: '1 like',
+    likeMany: ' likes',
+    likeFailed: 'That like did not go through.'
   };
   var VERIFY_API = '/api/residency-verify';
 
@@ -272,6 +302,21 @@
     return !!(_read && _read.voice && _read.voice.canPost === true);
   }
 
+  // ── THE GENERAL ROOM'S STATE ──────────────────────────────────────────────
+  var GENERAL_ID = 'pdx-general-room';
+  var _g = { read: null, posts: [], holder: '', draft: '', busy: false, status: '' };
+  function generalFrom(search) {
+    var m = /[?&]general=([^&#?]*)/.exec(String(search || ''));
+    var k = '';
+    try { k = m ? decodeURIComponent(m[1]).trim().toLowerCase() : ''; } catch (e) { k = ''; }
+    return /^[a-z][a-z0-9_]*$/.test(k) ? k : '';
+  }
+  function gCanPost() {
+    return !!(_g.read && _g.read.voice && _g.read.voice.canPost === true);
+  }
+  // May this reader like? The server says so on either read; it re-checks.
+  function canLike() { return canPost() || gCanPost(); }
+
   function optionsHtml() {
     var keys = issueKeys();
     var h = '<option value="">' + esc(COPY.issuePick) + '</option>';
@@ -299,6 +344,32 @@
     return out;
   }
 
+  function likesWord(n) { return n === 1 ? COPY.likeOne : (n + COPY.likeMany); }
+  function likeHtml(p) {
+    var n = Math.max(0, Math.floor(Number(p && p.likes) || 0));
+    if (!canLike() || typeof p.id !== 'number') {
+      return '<span class="pdxdc-like-n" data-pdxdc-like-n="' + n + '">' + esc(likesWord(n)) + '</span>';
+    }
+    var on = p.liked === true;
+    return '<button type="button" class="pdxdc-like" data-pdxdc-like="' + esc(String(p.id)) + '"' +
+        ' aria-pressed="' + (on ? 'true' : 'false') + '"' + (on ? ' disabled aria-disabled="true"' : '') + '>' +
+        esc(on ? COPY.liked : COPY.like) + '</button>' +
+      '<span class="pdxdc-like-n" data-pdxdc-like-n="' + n + '">' + esc(likesWord(n)) + '</span>';
+  }
+
+  function postHtml(p) {
+    var lb = issueLabel(p.issueKey);
+    return '<li class="pdxdc-post">' +
+      '<p class="pdxdc-post-meta">' +
+        (lb ? '<span class="pdxdc-post-issue">' + esc(lb) + '</span>' : '') +
+        (when(p.createdAt) ? '<span>' + esc(when(p.createdAt)) + '</span>' : '') +
+        (p.mine === true ? '<span class="pdxdc-post-mine">' + esc(COPY.mine) + '</span>' : '') +
+      '</p>' +
+      '<p class="pdxdc-post-body">' + esc(p.body) + '</p>' +
+      '<p class="pdxdc-post-likes">' + likeHtml(p) + '</p>' +
+    '</li>';
+  }
+
   function feedHtml() {
     if (_read === null) return '<p class="pdxdb-wait" role="status">' + esc(COPY.feedWait) + '</p>';
     if (_read === false) return '<p class="pdxdb-unread">' + esc(COPY.feedUnread) + '</p>';
@@ -307,19 +378,195 @@
       return '<p class="pdxdb-none">' + esc(_topic ? COPY.topicEmpty : (_read.postsEmpty || COPY.feedEmpty)) + '</p>';
     }
     var h = '<ol class="pdxdc-feed">';
-    for (var i = 0; i < list.length; i++) {
-      var p = list[i] || {};
-      var lb = issueLabel(p.issueKey);
-      h += '<li class="pdxdc-post">' +
-        '<p class="pdxdc-post-meta">' +
-          (lb ? '<span class="pdxdc-post-issue">' + esc(lb) + '</span>' : '') +
-          (when(p.createdAt) ? '<span>' + esc(when(p.createdAt)) + '</span>' : '') +
-          (p.mine === true ? '<span class="pdxdc-post-mine">' + esc(COPY.mine) + '</span>' : '') +
-        '</p>' +
-        '<p class="pdxdc-post-body">' + esc(p.body) + '</p>' +
-      '</li>';
-    }
+    for (var i = 0; i < list.length; i++) h += postHtml(list[i] || {});
     return h + '</ol>';
+  }
+
+  // ── THE GENERAL ROOM, PAINTED INTO district-board.js's FRAME ──────────────
+  function generalSlot() {
+    try { return document.querySelector('[data-pdxdb-general]'); } catch (e) { return null; }
+  }
+  function generalHtml() {
+    var r = _g.read;
+    if (r === null) {
+      return '<h2 class="pdxdb-h2">' + esc(COPY.generalHd) + '</h2>' +
+        '<p class="pdxdb-wait" role="status">' + esc(COPY.generalWait) + '</p>';
+    }
+    if (r === false || !r.general || !r.general.holder) {
+      return '<h2 class="pdxdb-h2">' + esc(COPY.generalHd) + '</h2>' +
+        '<p class="pdxdb-unread">' + esc(COPY.generalUnread) + '</p>';
+    }
+    var G = r.general;
+    var current = G.current === true;
+    var open = current && gCanPost() && !_g.busy;
+    var dis = open ? '' : ' disabled aria-disabled="true"';
+    var len = [...String(_g.draft)].length;
+    var h = '<h2 class="pdxdb-h2" data-pdxdc-g-holder-pid="' + esc(G.holder.pid) + '">' +
+        esc(COPY.generalHd + ' · ' + (G.holder.name || G.holder.pid)) + '</h2>' +
+      '<p class="pdxdb-note">' + esc(current ? COPY.generalNote : COPY.generalPast) + '</p>';
+    if (!current) {
+      h += '<p class="pdxdb-note"><a class="pdxdc-g-back" data-pdxdc-g-current="1" href="?#' + GENERAL_ID + '">' +
+        esc(COPY.generalBack) + '</a></p>';
+    } else {
+      h += '<form class="pdxdc-form" data-pdxdc-g-form="1" novalidate>' +
+          (gCanPost() ? '' : '<p class="pdxdc-locked">' + esc((r.voice && r.voice.line) || LOCKED_LINE) + '</p>') +
+          '<label class="pdxdc-l" for="pdxdc-g-body">' + esc(COPY.generalLabel) + '</label>' +
+          '<textarea class="pdxdc-ta" id="pdxdc-g-body" data-pdxdc-g-body="1" rows="2" maxlength="' + POST_MAX + '"' +
+            ' placeholder="' + esc(COPY.placeholder) + '"' + dis + '>' + esc(_g.draft) + '</textarea>' +
+          '<div class="pdxdc-row">' +
+            '<span class="pdxdc-len" data-pdxdc-g-len="1" aria-live="polite">' + len + ' / ' + POST_MAX + '</span>' +
+            '<button class="pdxdc-btn" type="submit"' + dis + '>' + esc(_g.busy ? COPY.sending : COPY.send) + '</button>' +
+          '</div>' +
+          (_g.status ? '<p class="pdxdc-status" role="status">' + esc(_g.status) + '</p>' : '') +
+        '</form>';
+    }
+    var list = _g.posts || [];
+    if (!list.length) h += '<p class="pdxdb-none">' + esc(r.postsEmpty || COPY.generalEmpty) + '</p>';
+    else {
+      h += '<ol class="pdxdc-feed" data-pdxdc-g-feed="1">';
+      for (var i = 0; i < list.length; i++) h += postHtml(list[i] || {});
+      h += '</ol>';
+    }
+    var prev = Array.isArray(G.previous) ? G.previous : [];
+    var links = [];
+    for (var j = 0; j < prev.length; j++) {
+      var pp = prev[j];
+      if (!pp || !pp.pid || pp.pid === G.holder.pid) continue;
+      links.push('<a class="pdxdc-g-prev-a" data-pdxdc-g-holder="' + esc(pp.pid) + '"' +
+        ' href="?general=' + encodeURIComponent(pp.pid) + '#' + GENERAL_ID + '">' +
+        esc(COPY.previous + (pp.name || pp.pid)) + '</a>');
+    }
+    if (!current && G.currentHolder && G.currentHolder.pid) {
+      links.unshift('<a class="pdxdc-g-prev-a" data-pdxdc-g-current="1" href="?#' + GENERAL_ID + '">' +
+        esc(COPY.generalHd + ' · ' + (G.currentHolder.name || G.currentHolder.pid)) + '</a>');
+    }
+    if (links.length) h += '<p class="pdxdc-g-prev" data-pdxdc-g-prev="1">' + links.join(' ') + '</p>';
+    return h;
+  }
+  function renderGeneral() {
+    var slot = generalSlot();
+    if (!slot) return;
+    slot.innerHTML = generalHtml();
+  }
+
+  function loadGeneral() {
+    var q = '?seat=' + encodeURIComponent(_seat) + '&room=general' +
+      (_g.holder ? '&holder=' + encodeURIComponent(_g.holder) : '');
+    return call('GET', q).then(function (res) {
+      if (!res.ok || !res.data || !Array.isArray(res.data.posts) || !res.data.general) {
+        _g.read = false;
+        _g.posts = [];
+      } else {
+        _g.read = res.data;
+        _g.posts = res.data.posts;
+      }
+      renderGeneral();
+      render();
+    });
+  }
+
+  function openHolder(pid) {
+    _g.holder = pid || '';
+    _g.read = null;
+    _g.status = '';
+    try {
+      if (window.history && fn(window.history.replaceState)) {
+        var path = String(window.location.pathname || '');
+        window.history.replaceState(null, '', path + (pid ? '?general=' + encodeURIComponent(pid) : '') + '#' + GENERAL_ID);
+      }
+    } catch (e) {}
+    renderGeneral();
+    loadGeneral();
+  }
+
+  function submitGeneral() {
+    if (_g.busy || !gCanPost() || !(_g.read && _g.read.general && _g.read.general.current)) return;
+    _g.busy = true;
+    _g.status = '';
+    renderGeneral();
+    // No pid is sent: the server files the comment under the sitting member.
+    call('POST', '', { seat: _seat, room: 'general', body: _g.draft }).then(function (res) {
+      _g.busy = false;
+      if (res.status === 201 && res.data && res.data.post) {
+        _g.posts = [res.data.post].concat(_g.posts);
+        _g.draft = '';
+        _g.status = COPY.sent;
+        renderGeneral();
+        try {
+          var B = window.PDXDistrictBoard;
+          if (B && fn(B.refresh)) B.refresh();
+        } catch (e) {}
+        return;
+      }
+      if (res.status === 403) {
+        _g.read.voice = { canPost: false, reason: res.data.code || '', line: res.data.error || LOCKED_LINE, note: res.data.note || '' };
+      } else if (res.status === 429 || (res.data && res.data.code === 'monthly_cap')) {
+        _g.status = COPY.notTaken;
+      } else {
+        _g.status = (res.data && res.data.error) || COPY.failed;
+      }
+      renderGeneral();
+    });
+  }
+
+  // One like. The count comes back from the server; nothing here adds one.
+  function likePost(id) {
+    if (!canLike() || !(id > 0)) return;
+    call('POST', '', { seat: _seat, action: 'like', postId: id }).then(function (res) {
+      var lists = [_posts, _g.posts];
+      if (res.ok && res.data && res.data.postId === id) {
+        for (var l = 0; l < lists.length; l++) {
+          for (var i = 0; i < lists[l].length; i++) {
+            if (lists[l][i] && lists[l][i].id === id) {
+              lists[l][i].likes = Math.max(0, Math.floor(Number(res.data.likes) || 0));
+              lists[l][i].liked = true;
+            }
+          }
+        }
+      } else if (res.status === 403) {
+        if (_read && _read.voice) _read.voice.canPost = false;
+        if (_g.read && _g.read.voice) _g.read.voice.canPost = false;
+      } else {
+        _status = COPY.likeFailed;
+      }
+      render();
+      renderGeneral();
+    });
+  }
+
+  // ONE SET OF LISTENERS for everything this file paints outside its own host:
+  // the general room's frame is rebuilt on every board repaint, so its
+  // controls are read by delegation rather than wired per render.
+  var _delegated = false;
+  function delegate() {
+    if (_delegated) return;
+    _delegated = true;
+    try {
+      document.addEventListener('click', function (ev) {
+        var t = ev && ev.target;
+        if (!t || !fn(t.closest)) return;
+        var lk = t.closest('[data-pdxdc-like]');
+        if (lk) { ev.preventDefault(); likePost(Number(lk.getAttribute('data-pdxdc-like'))); return; }
+        var hp = t.closest('[data-pdxdc-g-holder]');
+        if (hp) { ev.preventDefault(); openHolder(hp.getAttribute('data-pdxdc-g-holder') || ''); return; }
+        var back = t.closest('[data-pdxdc-g-current]');
+        if (back) { ev.preventDefault(); openHolder(''); }
+      });
+      document.addEventListener('input', function (ev) {
+        var t = ev && ev.target;
+        if (!t || !t.hasAttribute || !t.hasAttribute('data-pdxdc-g-body')) return;
+        _g.draft = t.value;
+        var slot = generalSlot();
+        var len = slot && slot.querySelector('[data-pdxdc-g-len]');
+        if (len) len.textContent = [...String(_g.draft)].length + ' / ' + POST_MAX;
+      });
+      document.addEventListener('submit', function (ev) {
+        var f = ev && ev.target;
+        if (!f || !f.hasAttribute || !f.hasAttribute('data-pdxdc-g-form')) return;
+        ev.preventDefault();
+        submitGeneral();
+      });
+    } catch (e) {}
   }
 
   // ── THE SIGN-IN LINE, AND WHERE IT RETURNS TO ────────────────────────────
@@ -574,9 +821,12 @@
     // may be followed by a second '?'.
     try { _returned = /[?&]residency=returned(?=$|[&?#])/.test(String(window.location.search || '')); } catch (e) {}
     try { _topic = topicFrom(window.location.search); } catch (e) { _topic = ''; }
+    try { _g.holder = generalFrom(window.location.search); } catch (e) { _g.holder = ''; }
     if (_topic && !_issue) _issue = _topic;
+    delegate();
     render();
     load();
+    loadGeneral();
     if (_returned) {
       [8000, 20000, 45000].forEach(function (ms) {
         setTimeout(function () { if (!canPost()) load(); }, ms);
@@ -586,7 +836,7 @@
     // box on if the SERVER then says this account is verified for this seat.
     try {
       if (window.auth && fn(window.auth.onAuthStateChanged)) {
-        window.auth.onAuthStateChanged(function () { load(); });
+        window.auth.onAuthStateChanged(function () { load(); loadGeneral(); });
       }
     } catch (e) {}
     // The issue list is band 3's; repaint the select when the board repaints.
@@ -594,6 +844,8 @@
       document.addEventListener('pdxdb:paint', function () {
         var sel = _host && _host.querySelector('select');
         if (sel) sel.innerHTML = optionsHtml();
+        // The board rebuilt its frame: paint the general room back into it.
+        renderGeneral();
       });
     } catch (e) {}
     return true;
@@ -608,7 +860,14 @@
     canPost: canPost,
     TOPIC_ID: TOPIC_ID,
     topicFrom: topicFrom,
-    topic: function () { return _topic; }
+    topic: function () { return _topic; },
+    GENERAL_ID: GENERAL_ID,
+    generalFrom: generalFrom,
+    general: function () { return _g.read ? { holder: _g.holder, posts: _g.posts.slice(), read: _g.read } : null; },
+    _generalHtml: generalHtml,
+    _likeHtml: likeHtml,
+    openHolder: openHolder,
+    likePost: likePost
   };
 
   function go() { mount(); }

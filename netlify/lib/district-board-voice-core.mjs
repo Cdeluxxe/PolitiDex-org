@@ -61,6 +61,24 @@
 // a non-member who can both post still read byte-identical JSON.
 // POST /api/residency-verify asks the same canVerifyHere() and is 403 without it.
 //
+// ── THE GENERAL ROOM ────────────────────────────────────────────────────────
+// Every board's first thread. `room: "general"` on a POST, `?room=general` on a
+// GET. A general comment is a voice_takes row with no issue and a holder_pid:
+// the seat's sitting member AT WRITE TIME, from netlify/lib/seat-holders.mjs via
+// general-room-core.mjs — never a pid the caller sent. A GET may ask for a
+// previous holder's thread with `&holder=<pid>`, and only a pid that table lists
+// for THIS seat is answered; that thread is read-only (`canPost` is false
+// there). Same gate, same monthly cap, same public shape as an issue comment.
+//
+// ── LIKES ───────────────────────────────────────────────────────────────────
+// `{ seat, action: "like", postId }`. One like per verified resident per
+// comment: the liker is the same seat-scoped hash, and the store's unique index
+// makes a second like a no-op (200, same count, nothing written). The gate is
+// the composer's gate, asked first, so an unverified caller is 403 and writes
+// nothing. A comment from another seat is 404. Every post on the wire carries
+// `likes` (a count) and `liked` (whether THIS caller liked it, computed here
+// like `mine`) — never who.
+//
 // Pure over injected dependencies, so scripts/test-district-board-composer.mjs
 // drives the real handler against an in-memory fake and asserts what was
 // written — no database, no network.
@@ -68,6 +86,7 @@
 import crypto from "node:crypto";
 import { authorHash, normalizeSeatKey } from "./district-voice-core.mjs";
 import { CAP_COPY, MONTHLY_COMMENTS, memberFor, monthStart } from "./membership-core.mjs";
+import { holderFor, previousFor, threadFor } from "./general-room-core.mjs";
 
 // NAMED ROWS. Canonical seat key → the board alias the flag is spelled in. A
 // verified flag for one of these seats opens that seat's box and no other.
@@ -185,6 +204,9 @@ export const COPY = {
   empty: "Write something first.",
   tooLong: "Keep it to " + POST_MAX + " characters.",
   emptyFeed: "No posts on hand for this seat.",
+  emptyGeneral: "No general comments for this officeholder on this seat yet.",
+  noHolder: "This seat has no sitting member on file, so it has no general room.",
+  noPost: "That comment is not on this board.",
 };
 
 // A statewide board's key IS its canonical key (ut-gov, ut-us-senate-<pid>);
@@ -301,13 +323,44 @@ export function checkPost(input) {
 
 // The only shape a post ever leaves in. Whitelisted field by field, so a store
 // row carrying an author hash cannot pass one through by being spread.
-export function publicPost(row, viewerHash) {
+// `likes` is the read of likeCounts() keyed by post id: { n, mine } — a count
+// and whether the viewer is in it, never a liker.
+export function publicPost(row, viewerHash, likes) {
+  const l = likes && likes[row.id];
   return {
     id: row.id,
-    issueKey: row.issueKey,
+    issueKey: row.issueKey == null ? "" : row.issueKey,
     body: row.body,
     createdAt: row.createdAt,
     mine: !!viewerHash && row.authorHash === viewerHash,
+    likes: l ? Math.max(0, Math.floor(Number(l.n) || 0)) : 0,
+    liked: !!(l && l.mine === true && viewerHash),
+  };
+}
+
+// The like counts for a page of posts, as { id → { n, mine } }. An absent or
+// failing store answers zeros: a count that could not be read is not invented.
+async function likesFor(deps, ids, viewerHash) {
+  const out = {};
+  if (!ids.length || typeof deps.likeCounts !== "function") return out;
+  try {
+    const rows = (await deps.likeCounts(ids, viewerHash || "")) || [];
+    for (const r of rows) {
+      if (r && ids.includes(r.takeId)) out[r.takeId] = { n: r.n, mine: r.mine === true };
+    }
+  } catch {
+    return {};
+  }
+  return out;
+}
+
+export function generalOf(seatKey, thread, table) {
+  const cur = holderFor(seatKey, table);
+  return {
+    holder: { pid: thread.pid, name: thread.name },
+    current: thread.current === true,
+    currentHolder: cur ? { pid: cur.pid, name: cur.name } : null,
+    previous: previousFor(seatKey, table).map((h) => ({ pid: h.pid, name: h.name })),
   };
 }
 
@@ -322,6 +375,13 @@ function json(data, status = 200) {
   });
 }
 
+// The seat → holder table: netlify/lib/seat-holders.mjs, unless a caller hands
+// the handler a rolled table (the suite's simulated roster change). The
+// Function never passes one.
+function holdersOf(deps) {
+  return deps && deps.holders && typeof deps.holders === "object" ? deps.holders : undefined;
+}
+
 function capRefusal() {
   return json({ error: CAP_COPY.comment, code: "monthly_cap" }, 429);
 }
@@ -331,11 +391,16 @@ function capRefusal() {
 //   findResidency(seatKey, hash)    → { seatKey, status, method } | null
 //   issueExists(issueKey)           → boolean
 //   listPosts(seatKey, cap, issueKey?) → rows (with authorHash), newest first; one issue when given
-//   insertPost({ seatKey, issueKey, body, authorHash, capSince? }) → row | null
+//   listGeneral(seatKey, holderPid, cap) → general rows (holderPid, no issue), newest first
+//   insertPost({ seatKey, issueKey, holderPid?, body, authorHash, capSince? }) → row | null
 //                                   (with capSince: inserts only if this author
 //                                   has no post on this seat since then; null if not)
 //   findMembership(accountHash)     → voice_membership row | null
 //   countPostsSince(seatKey, hash, since) → integer
+//   findTake(id)                    → { id, seatKey } | null
+//   insertLike({ takeId, seatKey, likerHash }) → true if written, false if already liked
+//   likeCounts(ids, viewerHash)     → [{ takeId, n, mine }]   (counts; never a liker)
+//   holders                         → seat → { pid, name, previous } (optional; defaults to SEAT_HOLDERS)
 //   limit(req, user)                → Response | null   (optional)
 //   now()                           → Date              (optional)
 export async function handle(req, deps) {
@@ -355,14 +420,43 @@ export async function handle(req, deps) {
     // them — under the same cap and the same public shape. A key of the wrong
     // shape is ignored rather than refused, so the read falls back to the whole
     // feed. Reading is open to everyone either way; nothing here writes.
+    const voiceOf = (open) => ({
+      canPost: open,
+      reason: verdict.ok ? (open ? "verified" : "previous_holder") : verdict.code,
+      line: verdict.ok ? "" : LOCKED_LINE,
+      note: verdict.ok ? (open ? COPY.open : "") : (check.alreadyChecked ? COPY.alreadyChecked : verdict.note || ""),
+      canVerify: check.ok === true,
+    });
+    if (url.searchParams.get("room") === "general") {
+      const thread = threadFor(seatKey, url.searchParams.get("holder"), holdersOf(deps));
+      if (!thread) return json({ error: COPY.noHolder, code: "no_holder" }, 404);
+      const grows = typeof deps.listGeneral === "function"
+        ? ((await deps.listGeneral(seatKey, thread.pid, POSTS_CAP)) || [])
+        : [];
+      // Only this holder's general rows, whatever a store hands back.
+      const mineRows = grows.filter((r) => r && !r.issueKey && r.holderPid === thread.pid);
+      const likes = await likesFor(deps, mineRows.map((r) => r.id), hash);
+      const gposts = mineRows.map((r) => publicPost(r, hash, likes));
+      return json({
+        seat: COMPOSER_SEATS[seatKey],
+        room: "general",
+        general: generalOf(seatKey, thread, holdersOf(deps)),
+        posts: gposts,
+        postsEmpty: gposts.length ? "" : COPY.emptyGeneral,
+        // A previous holder's thread is read-only: comments go to the sitting member.
+        voice: voiceOf(verdict.ok && thread.current === true),
+        limits: { postMax: POST_MAX, postsCap: POSTS_CAP },
+      });
+    }
     const issueRaw = String(url.searchParams.get("issue") || "").trim().toLowerCase();
     const issueKey = /^[a-z0-9_]+$/.test(issueRaw) ? issueRaw : "";
     const rows = issueKey
       ? await deps.listPosts(seatKey, POSTS_CAP, issueKey)
       : await deps.listPosts(seatKey, POSTS_CAP);
-    const posts = (rows || [])
-      .filter((r) => !issueKey || (r && r.issueKey === issueKey))
-      .map((r) => publicPost(r, hash));
+    // Issue comments only: a general-room row has no issue and is not in this feed.
+    const kept = (rows || []).filter((r) => r && r.issueKey && (!issueKey || r.issueKey === issueKey));
+    const likes = await likesFor(deps, kept.map((r) => r.id), hash);
+    const posts = kept.map((r) => publicPost(r, hash, likes));
     return json({
       seat: COMPOSER_SEATS[seatKey],
       issue: issueKey,
@@ -406,12 +500,24 @@ export async function handle(req, deps) {
     }, verdict.status || 403);
   }
 
-  const issueRaw = String(payload.issueKey == null ? "" : payload.issueKey).trim().toLowerCase();
-  const issueOk = /^[a-z0-9_]+$/.test(issueRaw) ? !!(await deps.issueExists(issueRaw)) : false;
-  const post = checkPost({ issueKey: issueRaw, issueOk, body: payload.body });
-  if (!post.ok) return json({ error: post.message, code: post.code }, post.status);
+  if (payload.action === "like") return like(deps, verdict.seatKey, hash, payload.postId);
 
-  const values = { seatKey: verdict.seatKey, issueKey: post.issueKey, body: post.body, authorHash: hash };
+  let values;
+  if (payload.room === "general") {
+    // The holder is the seat's sitting member NOW; a pid in the payload is ignored.
+    const holder = holderFor(verdict.seatKey, holdersOf(deps));
+    if (!holder) return json({ error: COPY.noHolder, code: "no_holder" }, 404);
+    const body = normalizeBody(payload.body);
+    if (!body) return json({ error: COPY.empty, code: "empty" }, 400);
+    if ([...body].length > POST_MAX) return json({ error: COPY.tooLong, code: "too_long" }, 400);
+    values = { seatKey: verdict.seatKey, issueKey: null, holderPid: holder.pid, body, authorHash: hash };
+  } else {
+    const issueRaw = String(payload.issueKey == null ? "" : payload.issueKey).trim().toLowerCase();
+    const issueOk = /^[a-z0-9_]+$/.test(issueRaw) ? !!(await deps.issueExists(issueRaw)) : false;
+    const post = checkPost({ issueKey: issueRaw, issueOk, body: payload.body });
+    if (!post.ok) return json({ error: post.message, code: post.code }, post.status);
+    values = { seatKey: verdict.seatKey, issueKey: post.issueKey, body: post.body, authorHash: hash };
+  }
   let saved;
   if (await memberFor(deps, user)) {
     saved = await deps.insertPost(values);
@@ -425,5 +531,24 @@ export async function handle(req, deps) {
     saved = await deps.insertPost({ ...values, capSince: since });
     if (!saved) return capRefusal();
   }
-  return json({ post: publicPost({ ...saved, authorHash: hash }, hash) }, 201);
+  const out = publicPost({ ...saved, authorHash: hash }, hash);
+  return json(values.holderPid ? { post: out, room: "general", holder: values.holderPid } : { post: out }, 201);
+}
+
+// One like, after the gate. Idempotent: the store's unique index answers a
+// second like with no row, and the reply is the same count either way.
+async function like(deps, seatKey, hash, rawId) {
+  const postId = Number(rawId);
+  if (!Number.isInteger(postId) || postId < 1) return json({ error: COPY.noPost, code: "no_post" }, 404);
+  const take = typeof deps.findTake === "function" ? await deps.findTake(postId) : null;
+  if (!take || take.seatKey !== seatKey) return json({ error: COPY.noPost, code: "no_post" }, 404);
+  const added = !!(await deps.insertLike({ takeId: postId, seatKey, likerHash: hash }));
+  const likes = await likesFor(deps, [postId], hash);
+  const l = likes[postId];
+  return json({
+    postId,
+    likes: l ? Math.max(0, Math.floor(Number(l.n) || 0)) : 0,
+    liked: true,
+    added,
+  });
 }

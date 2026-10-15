@@ -9748,7 +9748,30 @@
 //     the shell moves one version. No location key is migrated, renamed or
 //     copied; no route, residency gate or composer moved.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v379';
+// v380 - THE GENERAL ROOM ON EVERY BOARD, AND LIKES. Every board now opens
+//     with "General · <the sitting member>" under the seat and above the issue
+//     groups: that member's general comments for this seat, newest first,
+//     painted by district-composer.js into a frame district-board.js prints.
+//     A general comment is keyed to seat + pid — the roster's sitting member at
+//     write time, from netlify/lib/seat-holders.mjs (written by
+//     scripts/gen-seat-holders.mjs), never a pid the client sends. When the
+//     seat changes hands the old rows stay under the old pid and the new holder
+//     starts empty; prior holders are small "Previous: <name>" links, each
+//     opening that person's read-only thread for this seat. Every comment,
+//     general and issue, carries a like count; a verified resident of the seat
+//     may like it once (an anonymous seat-scoped hash; a second like is a
+//     no-op), and only counts are public. The search miss link now reads
+//     "Start a thread about this" and lands in the general section. Same
+//     residency gate, same monthly cap; no board, route or gate moved.
+//     DATABASE: one migration, 20261117000000_voice_general_room_and_likes —
+//     voice_takes gains a nullable holder_pid (issue_key becomes nullable,
+//     exactly one of the two set, by CHECK) and one small new table,
+//     voice_take_likes. No comment table was added and no row is rewritten.
+//     district-board.js, district-board.css and district-composer.js are
+//     precached and changed, so the shell moves one version.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none on the device.
+const CACHE_VERSION = 'v380';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -8,7 +8,7 @@
 //      and the general-room door.
 //   2. A PURE MISS prints the existing miss line AND the one new control under
 //      it, on a reader board (/voice placeholder) and on a composer board (the
-//      composer host).
+//      general room, "Start a thread about this").
 //   3. EXISTING MATCHES (title word, bill number with or without dots, issue
 //      label) still work, and the door is hidden whenever anything is shown.
 //   4. NOTHING IS INVENTED: an alias never prints a group the seat does not
@@ -210,7 +210,8 @@ function checks(src, label) {
     const h = render(C, GOV_DC, "zzzz");
     const d = doorOf(h);
     t(noneShown(h) && !!d && !d.hidden, "a composer board's pure miss prints the line and the door");
-    t(!!d && d.href === "#pdx-district-composer", "a composer board's door points at the composer host");
+    t(!!d && d.href === "#pdx-general-room", "a composer board's door lands in the general room");
+    t(!!d && d.text === "Start a thread about this", "a composer board's door reads Start a thread about this");
   }
 
   // 3. Existing matches.

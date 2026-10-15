@@ -613,9 +613,12 @@
     findNone: 'No measure in view matches that search.',
     // THE DOOR UNDER A MISS. Nothing on this seat answered, so the field offers
     // the seat's general conversation instead of a dead end. The second label
-    // is for when the general room exists (GENERAL_ROOM_HREF below).
+    // is the one used wherever the general room is on the page (generalPresent()).
     findDoor: 'Talk about it in the general room',
     findDoorThread: 'Start a thread about this',
+    // The general room's frame, before district-composer.js fills it.
+    generalHd: 'General',
+    generalWait: 'Reading the general room…',
     tableUnfiled: 'Not filed under an issue',
     // How many issue categories have at least one measure on this seat. A count
     // of the groups the table actually prints, never a total of every topic the
@@ -1639,24 +1642,40 @@
 
   // ── THE DOOR UNDER THE MISS LINE ──────────────────────────────────────────
   // One control, shown exactly when the miss line is, and pointing only at a
-  // room that is already there. There is no general-room store yet, so
-  // GENERAL_ROOM_HREF is null and the door reads "Talk about it in the general
-  // room": on a board carrying the composer host it is an in-page link to that
-  // host; on every other board — a reader, the governor's among them — it is
-  // the DOCUMENTED PLACEHOLDER, /voice, the District Voice page that lists the
-  // rooms for a reader's seats. When the general room ships, set
-  // GENERAL_ROOM_HREF and the label becomes "Start a thread about this". The
-  // door never carries the query, never posts and never names an issue.
-  var GENERAL_ROOM_HREF = null;
+  // room that is already there. Where the general room is on the page — every
+  // board carrying the composer host, see generalSlotHtml() — the door reads
+  // "Start a thread about this" and lands in that section (GENERAL_ROOM_HREF).
+  // A document with no composer host has no general room, so the door keeps
+  // "Talk about it in the general room" and the DOCUMENTED PLACEHOLDER, /voice,
+  // the District Voice page that lists the rooms for a reader's seats. The door
+  // never carries the query, never posts and never names an issue.
+  var GENERAL_ROOM_ID = 'pdx-general-room';
+  var GENERAL_ROOM_HREF = '#' + GENERAL_ROOM_ID;
   var GENERAL_ROOM_PLACEHOLDER = '/voice';
+  function generalPresent() { return composerOwned(); }
   function generalDoorHref() {
-    if (GENERAL_ROOM_HREF) return GENERAL_ROOM_HREF;
-    return composerOwned() ? '#pdx-district-composer' : GENERAL_ROOM_PLACEHOLDER;
+    return generalPresent() ? GENERAL_ROOM_HREF : GENERAL_ROOM_PLACEHOLDER;
   }
   function generalDoorHtml(hidden) {
     return '<p class="pdxdb-find-door" data-pdxdb-find-door=""' + (hidden ? ' hidden' : '') + '>' +
         '<a class="pdxdb-find-door-a" href="' + esc(generalDoorHref()) + '">' +
-          esc(GENERAL_ROOM_HREF ? COPY.findDoorThread : COPY.findDoor) + '</a></p>';
+          esc(generalPresent() ? COPY.findDoorThread : COPY.findDoor) + '</a></p>';
+  }
+
+  // ── THE GENERAL ROOM'S PLACE ON THE BOARD ─────────────────────────────────
+  // The first thread on every board, under the seat and above the issue
+  // groups. This module prints only the frame; district-composer.js — the one
+  // owner of the gate, the posts and the likes — fills it on every repaint
+  // (it listens for pdxdb:paint), so a band-2 refresh never loses the thread.
+  // Printed only where that owner is on the page.
+  function generalSlotHtml() {
+    if (!generalPresent()) return '';
+    return '<section class="pdxdb-band pdxdb-band--general" data-pdxdb-band="general"' +
+        ' id="' + GENERAL_ROOM_ID + '" data-pdxdb-general="">' +
+        '<h2 class="pdxdb-h2">' + esc(COPY.generalHd) + '</h2>' +
+        '<p class="pdxdb-wait" role="status"><span class="pdxdb-dot" aria-hidden="true"></span>' +
+          esc(COPY.generalWait) + '</p>' +
+      '</section>';
   }
 
   function anyShown(G, mrows) {
@@ -2412,6 +2431,7 @@
     el.innerHTML =
       purposeHtml() +
       seatHtml() +
+      generalSlotHtml() +
       roomHtml(cState, _counts === FAILED ? null : _counts) +
       tableHtml(tState, items, rooms, _mandates) +
       stanceHtml(issues) +
@@ -2559,6 +2579,8 @@
     FIND_ALIASES: FIND_ALIASES,
     _aliasKeys: aliasKeys,
     _generalDoorHtml: generalDoorHtml,
+    generalSlotHtml: generalSlotHtml,
+    GENERAL_ROOM_ID: GENERAL_ROOM_ID,
     COMPOSER_SEATS: COMPOSER_SEATS,
     composerBoard: function () { return composerBoard(); },
     MANDATE_KEY: MANDATE_KEY,
