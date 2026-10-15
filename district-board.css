@@ -54,6 +54,10 @@
 .pdxdb-groups { display: grid; gap: 0.45rem; }
 .pdxdb-group { border: 1px solid #16223a; border-radius: 0.5rem; padding: 0 0.7rem; }
 .pdxdb-group[hidden], .pdxdb-row[hidden], .pdxdb-find-none[hidden] { display: none; }
+/* The one door under the finder's miss line: the seat's general conversation. */
+.pdxdb-find-door { margin: 0.35rem 0 0; font-size: 0.88rem; line-height: 1.5; }
+.pdxdb-find-door[hidden] { display: none; }
+.pdxdb-find-door-a { color: #7fb2ff; text-decoration: underline; text-underline-offset: 2px; }
 .pdxdb-group-h {
   display: flex; align-items: center; gap: 0.6rem;
   padding: 0.6rem 0; cursor: pointer; list-style: none;

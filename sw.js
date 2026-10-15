@@ -9733,7 +9733,22 @@
 //     first-visit-coach.js is precached and changed, so the shell moves one
 //     version. No location key, residency logic or other door moved.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v378';
+// v379 - FIND A TOPIC OR MANDATE READS EVERYDAY WORDS. The finder on a district
+//     board matched only titles, bill numbers and issue labels, so "data
+//     centers", "ai", "water" or "taxes" often printed the miss line and
+//     stopped. A second pass asks one shared static alias table in
+//     district-board.js (FIND_ALIASES, issue key → everyday words, whole words
+//     only) and opens the group for any aliased issue THIS SEAT ALREADY PRINTS;
+//     an alias on a key with no measure here points at nothing, so no issue or
+//     measure is invented. Under the unchanged miss line sits one door, "Talk
+//     about it in the general room": the composer host on a board that has one,
+//     and the documented /voice placeholder everywhere else, until a general
+//     room exists. Chips, open state, the table and the toggles are unchanged.
+//     district-board.js and district-board.css are precached and changed, so
+//     the shell moves one version. No location key is migrated, renamed or
+//     copied; no route, residency gate or composer moved.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v379';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
