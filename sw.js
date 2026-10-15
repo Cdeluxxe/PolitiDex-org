@@ -9694,7 +9694,46 @@
 //     consistency.js is precached and changed, so the shell moves one version.
 //     No location key or other saved key was touched.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v374';
+// v375 - FIRST-VISIT COACH. A short, skippable four-step walk — your seats,
+//     the record, District Voice, done — in first-visit-coach.js, shown only
+//     when no location is saved and pdx_coach_seen is absent. It mounts on '/',
+//     /voice and /find, all three precached shells, and the module joins
+//     SHELL_ASSETS, so the shell moves one version. It writes one flag and
+//     points at /find, /stances and /voice; no location key, residency row,
+//     account sheet, District Voice gate, finder or money surface moved.
+//     MIGRATION COST: none.
+// v376 - FIRST-VISIT POPUP. first-visit-coach.js stops being an inline
+//     four-step card and becomes one delayed popup: nine seconds after load, for
+//     a reader with no saved location and no pdx_coach_seen flag, three plain
+//     points (set your location, search and see said-versus-voted, District
+//     Voice) with Set my location, Got it and Not now. Light backdrop, no focus
+//     trap, Escape closes it. The module is a precached shell asset and changed,
+//     so the shell moves one version. Same one flag; no location key, residency
+//     row, account sheet, District Voice gate, finder or money surface moved.
+//     MIGRATION COST: none.
+// v377 - FIRST-VISIT POPUP, UTAH FIRST. One sentence under the popup's District
+//     Voice point: district boards and state legislative mapping are live in
+//     Utah first, other states over time. True as shipped — every board is a
+//     Utah seat and state legislative lines are drawn only for Utah, while the
+//     U.S. House resolves nationally. The three points, the buttons, the delay,
+//     the gate and the one pdx_coach_seen flag are unchanged.
+//     first-visit-coach.js is precached and changed, so the shell moves one
+//     version. No location key, residency logic or other door moved.
+//     MIGRATION COST: none.
+// v378 - FIRST-VISIT POPUP, RELIABLE. Three fixes to the same popup.
+//     (1) /first-visit-coach.js is network-first in the fetch handler
+//     (handleFresh), so the first load after a deploy runs the new copy instead
+//     of the previous one; offline it still falls back to the precache. (2) The
+//     nine-second clock starts when the document is parsed, not at window 'load',
+//     and a dialog only delays the popup if it is actually visible — closed
+//     dialogs parked off-screen or at opacity 0 no longer read as open — and only
+//     for up to 30s. (3) The Utah-first line carries inline styles, and every
+//     show/skip decision is logged under [PolitiDex coach]. The three points,
+//     buttons, delay and the one pdx_coach_seen flag are unchanged.
+//     first-visit-coach.js is precached and changed, so the shell moves one
+//     version. No location key, residency logic or other door moved.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v378';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -10090,6 +10129,10 @@ const SHELL_ASSETS = [
   // critical, and the render-blocking sheet budget is full), so they ship with
   // the '/' entry at the top of this list.
   '/first-run.js',
+  // The first-visit popup. Precached beside first-run.js for the same reason:
+  // '/', '/voice.html' and '/find.html' all reference it, and its styles are
+  // injected by the module itself, so this one entry is the whole popup.
+  '/first-visit-coach.js',
   '/say-vs-do.css',
   '/issue-view.css',
   '/journey.css',
@@ -10579,6 +10622,12 @@ self.addEventListener('fetch', (event) => {
   // Full-page navigations: stale-while-revalidate with offline fallback.
   if (req.mode === 'navigate') {
     event.respondWith(handleNavigate(req));
+    return;
+  }
+
+  // The first-visit popup: network-first. See handleFresh.
+  if (url.origin === self.location.origin && FRESH_FIRST.has(url.pathname)) {
+    event.respondWith(handleFresh(req));
     return;
   }
 
@@ -11420,5 +11469,28 @@ async function handleStatic(req) {
   if (res) return res;
 
   // Nothing cached and network failed — surface a benign, non-breaking error.
+  return new Response('', { status: 504, statusText: 'Offline' });
+}
+
+// NETWORK-FIRST, for the one script whose stale copy is visible as a bug.
+// Stale-while-revalidate means the first load after a deploy runs the previous
+// copy of a script. For the first-visit popup that load is often the only one a
+// first-time reader makes, so its copy is wrong exactly when it matters (the
+// Utah-first line "not appearing" on a preview was this). Online, it always comes
+// from the network; offline, it falls back to the precached or runtime copy, so
+// the shell still boots with no network.
+const FRESH_FIRST = new Set(['/first-visit-coach.js']);
+async function handleFresh(req) {
+  const cache = await caches.open(RUNTIME_CACHE);
+  try {
+    const res = await fetch(req);
+    if (res && res.ok) {
+      cache.put(req, res.clone()).catch(() => {});
+      return res;
+    }
+  } catch (_) { /* offline: fall through to a cached copy */ }
+  const shell = await caches.open(SHELL_CACHE);
+  const cached = (await shell.match(req)) || (await cache.match(req));
+  if (cached) return cached;
   return new Response('', { status: 504, statusText: 'Offline' });
 }
