@@ -315,8 +315,18 @@
         '<p class="pdxvr-why">' + esc(copy('boardWhy')) + '</p>';
     }
 
+    // THE SEAT LINE, IN /me's WORDS. district-voice.js's seatLine() names the
+    // sitting member on a boarded seat ("State House District 16 · Trevor Lee")
+    // and the line opens that board; a seat with no board keeps its plain name,
+    // as text, and carries no person. A module copy without `line` degrades to
+    // the plain name.
+    var line = (board && s && typeof s.line === 'string' && s.line) ? String(s.line) : name;
+    var chamber = board
+      ? '<a class="pdxvr-chamber-a" href="' + esc(board) + '">' + esc(line) + '</a>'
+      : esc(name);
+
     return '<li class="pdxvr-seat" data-pdxvr-board="' + (board ? 'on' : 'off') + '">' +
-      '<p class="pdxvr-chamber">' + esc(name) + '</p>' +
+      '<p class="pdxvr-chamber">' + chamber + '</p>' +
       who + door +
       '</li>';
   }
@@ -349,7 +359,7 @@
     var parts = [d.standing];
     for (var i = 0; i < d.seats.length; i++) {
       var s = d.seats[i] || {};
-      parts.push([s.key, s.name, s.seatKey, s.pid, s.board].join('~'));
+      parts.push([s.key, s.name, s.line, s.seatKey, s.pid, s.board].join('~'));
     }
     return parts.join('|');
   }

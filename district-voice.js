@@ -747,6 +747,47 @@
     return pid;
   }
 
+  // ── WHO SITS IN IT, AS A NAME ─────────────────────────────────────────────
+  // The display name for a seated pid, through the same roster read the board
+  // and the hallway print from: pdxRosterName() where the resolver is on the
+  // document, weighing whatever record a bundled reader already holds, and that
+  // record's own name where it is not. '' when nothing here can name the pid —
+  // never the pid itself, so a key cannot reach a seat line.
+  function holderName(pid) {
+    var id = String(pid == null ? '' : pid).trim();
+    if (!id) return '';
+    var held = null;
+    try { if (fn(window._pdxPersonById)) held = window._pdxPersonById(id) || null; } catch (e) { held = null; }
+    try { if (!held && window.CMP_DATA && window.CMP_DATA[id]) held = window.CMP_DATA[id]; } catch (e2) {}
+    try { if (!held && window.PROFILES && window.PROFILES[id]) held = window.PROFILES[id]; } catch (e3) {}
+    try {
+      if (fn(window.pdxRosterName)) return String(window.pdxRosterName(id, held) || '').trim();
+    } catch (e4) {}
+    try {
+      if (!held && fn(window.pdxRosterRec)) held = window.pdxRosterRec(id) || null;
+    } catch (e5) { held = null; }
+    var n = (held && held.name != null) ? String(held.name).trim() : '';
+    return n === id ? '' : n;
+  }
+
+  // THE SEAT LINE, ONE WORDING FOR /me AND /voice. A seat with a board and a
+  // nameable holder reads "<chamber> District <n> · <member>" — the seat and who
+  // holds it, so a reader does not have to open the board to learn whose room it
+  // is. A statewide seat reads "<office> · <member>", the board's own heading.
+  // A seat with no board keeps its plain name and never carries a person: a
+  // name beside a seat with no room would read as a door that is not there. A
+  // boarded seat the roster cannot name yet keeps its plain name too, rather
+  // than a guess.
+  function seatLine(s) {
+    if (!s) return '';
+    var plain = String(s.name || '');
+    var who = String(s.holder || '').trim();
+    if (!s.board || !who) return plain;
+    var label = String(s.label || '').trim();
+    var where = s.statewide ? label : (label && s.district ? label + ' District ' + s.district : '');
+    return where ? where + ' \u00b7 ' + who : plain;
+  }
+
   // THE CARDS, IN THE RESOLVER'S OWN ORDER. One entry per seat this location
   // names, and each entry carries only fields the resolver already published:
   // the chamber's label, the district number it resolved, the county it resolved
@@ -788,7 +829,7 @@
       // NAME. Chamber, district, county — nothing composed from a geometry table
       // this file does not carry. A statewide row keeps the resolver's own
       // heading, which names the state instead of a district for the same reason.
-      out.push({
+      var row = {
         key: String(lv.key == null ? '' : lv.key),
         label: label,
         district: n,
@@ -806,8 +847,13 @@
         // statewide card's board key (ut-gov, ut-us-senate-<pid>), so the
         // composer's proof button names the governor and both U.S. Senate seats
         // alongside the districts. '' when neither composes.
-        boardKey: lv.statewide ? statewideKeyForLevel(lv, reps.state, pid) : seatKey
-      });
+        boardKey: lv.statewide ? statewideKeyForLevel(lv, reps.state, pid) : seatKey,
+        // The sitting member's display name, '' when the roster cannot name the
+        // pid, and the seat line both /me and /voice print. See seatLine().
+        holder: holderName(pid)
+      };
+      row.line = seatLine(row);
+      out.push(row);
     }
     return out;
   }
@@ -1460,6 +1506,8 @@
     boarded: boarded,
     seatKeyForLevel: seatKeyForLevel,
     seatsForMe: seatsForMe,
+    holderName: holderName,
+    seatLine: seatLine,
     claim: claim,
     VOICE_STATES: VOICE_STATES,
     stateAllowed: stateAllowed,

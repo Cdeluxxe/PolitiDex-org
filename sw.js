@@ -9771,7 +9771,37 @@
 //     precached and changed, so the shell moves one version.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none on the device.
-const CACHE_VERSION = 'v380';
+// v381 - SEAT LINES NAME THE MEMBER; PERSON FILES OPEN THE GENERAL THREAD. On
+//     /me and /voice a boarded seat line now reads "<seat> District <n> ·
+//     <sitting member>" (district-voice.js's seatLine(), from the same roster
+//     read the board prints) and links that seat's board; a seat with no board
+//     stays plain text with no name. The person file keeps its small District
+//     Voice link and adds "General thread · <district>" for each boarded seat
+//     the person holds now, straight to ?general=<pid> on that board.
+//     district-voice.js, voice-room.js, voice.html, me-desk.js,
+//     district-board.js, person-file.js and person-file.css are precached and
+//     changed, so the shell moves one version. No route, gate, store or
+//     BOARD_ROUTES row moved. No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v382 - THE BOARD HEADING NAMES ITS HOLDER, AND THE NAME IS A LINK. When
+//     the roster names the seat's sitting member, district-board.js renders
+//     the heading as "<seat> · <name>" with only the name linking /p/<pid>,
+//     and adds one "Current holder · <name>" chip under it to the same file.
+//     A holder the roster cannot name leaves the served heading untouched and
+//     prints no chip. district-board.js and district-board.css are precached
+//     and changed, so the shell moves one version. No route, gate, store or
+//     allow-list moved. No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+// v383 - PRIOR HOLDERS LINK TO THEIR PERSON FILES. Under a board's general
+//     thread, each named "Previous: <name>" now links the name to /p/<pid>,
+//     with a second link beside it to that person's old general thread for the
+//     seat (the same ?general=<pid> door as before). A prior holder with no
+//     name keeps the single thread link it shipped with. district-composer.js
+//     and district-board.css are precached and changed, so the shell moves one
+//     version. No route, gate, store or BOARD_ROUTES row moved. No location key
+//     is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v383';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

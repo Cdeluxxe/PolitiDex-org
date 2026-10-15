@@ -568,8 +568,13 @@ section("4 · a location that resolves a House seat and a Senate seat paints two
   // TWO BOARDS IN THIS SET: the governor's statewide room and the U.S. House
   // seat's (UT-1). HD-17's card never carries one.
   eq((h.list().match(/data-pdxvr-board="on"/g) || []).length, 2, "statewide: a board was offered in this set beyond the governor's and UT-1's");
-  eq((h.list().match(/href="\/district\/[^"]+"/g) || []).join("|"), 'href="/district/ut-gov"|href="/district/ut-cd-1"',
+  eq((h.list().match(/class="pdxvr-door" href="\/district\/[^"]+"/g) || []).join("|"),
+    'class="pdxvr-door" href="/district/ut-gov"|class="pdxvr-door" href="/district/ut-cd-1"',
     "statewide: the two doors in this set are not the governor's and UT-1's");
+  // A boarded seat's line links the same board as its door, and only those.
+  eq((h.list().match(/href="\/district\/[^"]+"/g) || []).join("|"),
+    'href="/district/ut-gov"|href="/district/ut-gov"|href="/district/ut-cd-1"|href="/district/ut-cd-1"',
+    "statewide: a seat line links an address its own door does not");
   const V = h.win.PDXVoice;
   eq(V.seatKeyForLevel(LV.gov, "Utah"), "", "statewide: a governor composed a seat key");
   eq(V.seatKeyForLevel(LV.hd17, "Utah"), "ut-statehouse-17", "statewide: a House level composed the wrong seat key");

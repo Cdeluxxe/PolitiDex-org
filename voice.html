@@ -297,6 +297,10 @@
       margin: 0 0 0.3rem;
       font: 600 1.02rem/1.35 'Barlow', system-ui, sans-serif; color: #eef4ff;
     }
+    /* A boarded seat's line opens its board, so it reads as the line it is and
+       underlines only when it is the thing under the pointer. */
+    .pdxvr-chamber-a { color: inherit; text-decoration: none; }
+    .pdxvr-chamber-a:hover, .pdxvr-chamber-a:focus-visible { text-decoration: underline; text-underline-offset: 0.15em; }
     .pdxvr-who {
       margin: 0 0 0.6rem;
       font: 400 0.9rem/1.55 'Barlow', system-ui, sans-serif; color: #9fb4d4;

@@ -473,8 +473,16 @@
       // desk carries that answer through and composes no address of its own.
       // A seat with no row has '' here, and its line stays text.
       var path = (s && typeof s.board === 'string') ? s.board : '';
+      // THE LINE IS THE OWNER'S TOO. seatLine() names the sitting member on a
+      // boarded seat ("State House District 16 · Trevor Lee") from the roster
+      // join the board prints from; a seat with no board keeps its plain name.
+      // A copy of district-voice.js without it degrades to that plain name.
+      var name = String((s && s.name) || '');
+      var line = (s && typeof s.line === 'string' && s.line) ? s.line : name;
       return {
-        name: String((s && s.name) || ''),
+        name: name,
+        line: line,
+        named: !!(s && s.board && line !== name),
         board: !!(s && s.board),
         path: path
       };
@@ -1533,12 +1541,20 @@
       // the seat is owed the room without the trip through the hallway. The
       // path is boardPath()'s, never composed here; a seat with no board stays
       // text and gets no address at all.
+      //
+      // A BOARDED LINE THAT NAMES ITS MEMBER IS THE WHOLE LINE. "State House
+      // District 16 · Trevor Lee", as a link to that board: the link is the
+      // board being on hand, so it carries no second word saying so. A boarded
+      // seat the roster cannot name yet keeps its plain name and its "board on
+      // hand", and a seat with no board keeps "board not on hand" and no name.
       var rows = v.seats.map(function (s) {
+        var text = s.line || s.name;
         var label = s.path
-          ? '<a class="me-link" href="' + esc(s.path) + '">' + esc(s.name) + '</a>'
+          ? '<a class="me-link" href="' + esc(s.path) + '">' + esc(text) + '</a>'
           : esc(s.name);
-        return '<li class="me-voiceseat">' + label +
-          ' <span class="me-voicestate">' + esc(s.board ? onHand : notOnHand) + '</span></li>';
+        var state = (s.path && s.named) ? ''
+          : ' <span class="me-voicestate">' + esc(s.board ? onHand : notOnHand) + '</span>';
+        return '<li class="me-voiceseat">' + label + state + '</li>';
       }).join('');
       body = '<p class="me-rline">Seats on file:</p>' +
         '<ul class="me-voiceseats">' + rows + '</ul>' +

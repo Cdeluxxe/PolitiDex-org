@@ -238,6 +238,9 @@
 .pdxdc-g-prev { margin: 0.6rem 0 0; font-size: 0.8rem; line-height: 1.5; display: flex; flex-wrap: wrap; gap: 0.3rem 0.8rem; }
 .pdxdc-g-prev-a, .pdxdc-g-back { color: #93a5bf; text-decoration: underline; text-underline-offset: 2px; }
 .pdxdc-g-prev-a:hover, .pdxdc-g-back:hover { color: #7fb2ff; }
+.pdxdc-g-prev-i { color: #93a5bf; }
+.pdxdc-g-prev-p { color: #b6c6de; text-decoration: underline; text-underline-offset: 2px; }
+.pdxdc-g-prev-p:hover { color: #7fb2ff; }
 .pdxdc-post-likes { margin: 0.3rem 0 0; display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: #93a5bf; }
 .pdxdc-like {
   font: inherit; font-size: 0.78rem; padding: 0.15rem 0.6rem; border-radius: 999px; cursor: pointer;
@@ -246,3 +249,16 @@
 .pdxdc-like:hover:not([disabled]) { background: rgba(127, 178, 255, 0.12); }
 .pdxdc-like[aria-pressed="true"] { background: rgba(127, 178, 255, 0.18); cursor: default; }
 .pdxdc-like:focus-visible { outline: 2px solid #7fb2ff; outline-offset: 1px; }
+
+/* THE HOLDER IN THE HEADING. Only the name is a link, and it reads as part of
+   the heading until it is under the pointer; the chip under it is one small
+   line to the same person file. No count, no badge. */
+.pdxdb-h1-name { color: inherit; text-decoration: none; }
+.pdxdb-h1-name:hover, .pdxdb-h1-name:focus-visible { text-decoration: underline; text-underline-offset: 0.12em; }
+.pdxdb-holder { margin: 0 0 0.45rem; }
+.pdxdb-holder-a {
+  display: inline-block; padding: 0.12rem 0.6rem; border-radius: 999px;
+  border: 1px solid rgba(127, 178, 255, 0.35); color: #b6c6de;
+  font: 600 0.78rem/1.4 'Barlow', sans-serif; text-decoration: none;
+}
+.pdxdb-holder-a:hover, .pdxdb-holder-a:focus-visible { color: #f2f7ff; border-color: #7fb2ff; }
