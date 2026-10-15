@@ -238,6 +238,9 @@
 .pdxdc-g-prev { margin: 0.6rem 0 0; font-size: 0.8rem; line-height: 1.5; display: flex; flex-wrap: wrap; gap: 0.3rem 0.8rem; }
 .pdxdc-g-prev-a, .pdxdc-g-back { color: #93a5bf; text-decoration: underline; text-underline-offset: 2px; }
 .pdxdc-g-prev-a:hover, .pdxdc-g-back:hover { color: #7fb2ff; }
+.pdxdc-g-prev-i { color: #93a5bf; }
+.pdxdc-g-prev-p { color: #b6c6de; text-decoration: underline; text-underline-offset: 2px; }
+.pdxdc-g-prev-p:hover { color: #7fb2ff; }
 .pdxdc-post-likes { margin: 0.3rem 0 0; display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: #93a5bf; }
 .pdxdc-like {
   font: inherit; font-size: 0.78rem; padding: 0.15rem 0.6rem; border-radius: 999px; cursor: pointer;

@@ -232,6 +232,25 @@ section("3 · a roster change");
   eq(govPast.posts.length, 1, "…while their governor-seat thread keeps its rows");
 }
 
+// The prior-holder line's two doors, asserted on the painted markup.
+function prevFaults(html, who) {
+  const f = [];
+  const item = (new RegExp(`<span class="pdxdc-g-prev-i">Previous: (?:(?!</span>).)*data-pdxdc-g-holder="${who.pid}"(?:(?!</span>).)*</span>`).exec(html) || [""])[0];
+  if (!item) { f.push("no Previous line for the prior holder"); return f; }
+  const person = /<a class="pdxdc-g-prev-p" href="([^"]+)">([^<]+)<\/a>/.exec(item);
+  if (!person) f.push("the prior holder's name does not link anywhere");
+  else {
+    if (person[1] !== `/p/${who.pid}`) f.push(`the name links ${person[1]}, not /p/${who.pid}`);
+    if (person[2] !== who.name) f.push(`the person link reads ${person[2]}`);
+  }
+  const thread = /<a class="pdxdc-g-prev-a" data-pdxdc-g-holder="([^"]+)" href="([^"]+)">/.exec(item);
+  if (!thread) f.push("the old-thread link is gone");
+  else if (thread[1] !== who.pid || thread[2] !== `?general=${who.pid}#pdx-general-room`) f.push(`the old-thread link is ${thread[2]}`);
+  // The person link must sit outside the thread-swapping element.
+  if (person && /data-pdxdc-g-holder/.test(item.slice(0, item.indexOf("pdxdc-g-prev-p")))) f.push("the person link is inside the thread handler's element");
+  return f;
+}
+
 // ── 4 ───────────────────────────────────────────────────────────────────────
 section("4 · prior-holder links, in the composer");
 {
@@ -261,8 +280,11 @@ section("4 · prior-holder links, in the composer");
   await settle();
   ok(urls.some((u) => /room=general/.test(u) && !/holder=/.test(u)), "the board reads the current general thread on load");
   ok(slot.innerHTML.includes("General · New Governor"), "the section is titled General · <the sitting member>");
-  const prev = new RegExp(`<a class="pdxdc-g-prev-a" data-pdxdc-g-holder="${COX.pid}" href="\\?general=${COX.pid}#pdx-general-room">Previous: ${COX.name}</a>`);
-  ok(prev.test(slot.innerHTML), "a Previous: <name> link names the old holder and their thread");
+  // A NAMED PRIOR HOLDER IS REACHABLE BOTH WAYS (v383): the name opens their
+  // person file, and the link beside it still opens their old thread here.
+  eq(prevFaults(slot.innerHTML, COX).length, 0,
+    `Previous: <name> links the person file and the old thread — ${JSON.stringify(prevFaults(slot.innerHTML, COX))}`);
+  ok(!/<a class="pdxdc-g-prev-p" href="\/p\/new_governor"/.test(slot.innerHTML), "the current holder is listed as a previous one");
   urls.length = 0;
   C.openHolder(COX.pid);
   await settle();
@@ -274,6 +296,36 @@ section("4 · prior-holder links, in the composer");
   eq(win.location.last, `/district/ut-gov?general=${COX.pid}#pdx-general-room`, "…and the address names the thread");
   eq(C.generalFrom(`?general=${COX.pid}`), COX.pid, "?general=<pid> opens that thread directly");
   eq(C.generalFrom("?general=Bad Pid"), "", "…and a malformed pid opens nothing");
+}
+
+// MUTATIONS: a prior name that does not link the person file, or links the
+// wrong pid, fails the same check — over the same server, store and rollover.
+async function priorHtml(src) {
+  const T2 = rollHolders(SEAT_HOLDERS, { ...Object.fromEntries(Object.entries(SEAT_HOLDERS).map(([k, h]) => [k, { pid: h.pid, name: h.name }])),
+    [GOV]: { pid: "new_governor", name: "New Governor" } });
+  const s = fakeStore([vendor(A, GOV)], T2);
+  const win = makeSandbox();
+  const slot = { innerHTML: "", querySelector() { return null; } };
+  const host = { innerHTML: "", attrs: { "data-pdxdc-seat": "ut-gov" },
+    getAttribute(k) { return this.attrs[k] ?? null; }, setAttribute(k, v) { this.attrs[k] = v; }, querySelector() { return null; } };
+  win.document.getElementById = (id) => (id === "pdx-district-composer" ? host : null);
+  win.document.querySelector = (sel) => (sel === "[data-pdxdb-general]" ? slot : null);
+  win.location = { search: "", pathname: "/district/ut-gov" };
+  win.history = { replaceState() {} };
+  win.fetch = async (u, init) => handle(new Request("https://politidex.fyi" + u, { method: init?.method || "GET", headers: init?.headers, body: init?.body }), s.deps);
+  vm.runInContext(src, vm.createContext(win), { filename: "district-composer.js" });
+  await new Promise((r) => setTimeout(r, 20));
+  return slot.innerHTML;
+}
+{
+  const SRC = R("district-composer.js");
+  eq(prevFaults(await priorHtml(SRC), COX).length, 0, "the mutation harness does not reproduce the real prior-holder line");
+  const noLink = SRC.replace(`'<a class="pdxdc-g-prev-p" href="/p/' + encodeURIComponent(pp.pid) + '">' + esc(ppName) + '</a>'`, "esc(ppName)");
+  ok(noLink !== SRC, "the no-person-link mutation found nothing to replace");
+  ok(prevFaults(await priorHtml(noLink), COX).length > 0, "a prior name that does not link the person file passed");
+  const wrongPid = SRC.replace(`'<a class="pdxdc-g-prev-p" href="/p/' + encodeURIComponent(pp.pid)`, `'<a class="pdxdc-g-prev-p" href="/p/' + encodeURIComponent(G.holder.pid)`);
+  ok(wrongPid !== SRC, "the wrong-pid mutation found nothing to replace");
+  ok(prevFaults(await priorHtml(wrongPid), COX).length > 0, "a prior name linking the wrong pid passed");
 }
 
 // ── 5 ───────────────────────────────────────────────────────────────────────

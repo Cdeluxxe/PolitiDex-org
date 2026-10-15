@@ -130,13 +130,17 @@ has(PF_CSS, ".pf-kick-general", "person-file.css does not style the line");
 has(PF_CSS, ".pf-kick-generals", "person-file.css does not give the lines their own row");
 
 // ═════════════════════════════════════════════════════════════════════════════
-section("5 · mutation: a link at the wrong pid fails");
+section("5 · mutation: a link at the wrong pid or the wrong seat fails");
 {
   const mutated = DB.replace("return b.route + '?general=' + encodeURIComponent(String(pid))",
     "return b.route + '?general=' + encodeURIComponent(String(b.pid || 'someone_else'))");
   ok(mutated !== DB, "the wrong-pid mutation found nothing to replace");
   ok(holderFaults(boot(mutated), "maloy", "/district/ut-cd-2", "Utah’s 2nd Congressional District").length > 0,
     "a general-thread link that points at the wrong pid passed the holder checks");
+  const wrongSeat = DB.replace("return b.route + '?general='", "return BOARDS['ut-statesenate-3'].route + '?general='");
+  ok(wrongSeat !== DB, "the wrong-seat mutation found nothing to replace");
+  ok(holderFaults(boot(wrongSeat), "tlee", "/district/ut-hd-16", "Utah House District 16").length > 0,
+    "a general-thread link that points at the wrong seat's board passed the holder checks");
   const mutated2 = DB.replace("if (memberOf(b) !== want) continue;", "");
   ok(mutated2 !== DB, "the every-board mutation found nothing to replace");
   ok(holderFaults(boot(mutated2), "tlee", "/district/ut-hd-16", "Utah House District 16").length > 0,

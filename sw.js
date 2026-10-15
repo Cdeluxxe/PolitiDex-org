@@ -9792,7 +9792,16 @@
 //     and changed, so the shell moves one version. No route, gate, store or
 //     allow-list moved. No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v382';
+// v383 - PRIOR HOLDERS LINK TO THEIR PERSON FILES. Under a board's general
+//     thread, each named "Previous: <name>" now links the name to /p/<pid>,
+//     with a second link beside it to that person's old general thread for the
+//     seat (the same ?general=<pid> door as before). A prior holder with no
+//     name keeps the single thread link it shipped with. district-composer.js
+//     and district-board.css are precached and changed, so the shell moves one
+//     version. No route, gate, store or BOARD_ROUTES row moved. No location key
+//     is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v383';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

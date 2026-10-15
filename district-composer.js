@@ -191,6 +191,7 @@
     generalPast: 'A previous holder’s general thread for this seat. It is read-only; new comments go to whoever holds the seat now.',
     generalBack: 'Back to the current thread',
     previous: 'Previous: ',
+    previousThread: 'their thread here',
     like: 'Like',
     liked: 'Liked',
     likeOne: '1 like',
@@ -432,9 +433,23 @@
     for (var j = 0; j < prev.length; j++) {
       var pp = prev[j];
       if (!pp || !pp.pid || pp.pid === G.holder.pid) continue;
-      links.push('<a class="pdxdc-g-prev-a" data-pdxdc-g-holder="' + esc(pp.pid) + '"' +
-        ' href="?general=' + encodeURIComponent(pp.pid) + '#' + GENERAL_ID + '">' +
-        esc(COPY.previous + (pp.name || pp.pid)) + '</a>');
+      var threadHref = '?general=' + encodeURIComponent(pp.pid) + '#' + GENERAL_ID;
+      var ppName = String(pp.name || '').trim();
+      if (!ppName || ppName === pp.pid) {
+        // No name to print: the thread door alone, as it shipped.
+        links.push('<a class="pdxdc-g-prev-a" data-pdxdc-g-holder="' + esc(pp.pid) + '"' +
+          ' href="' + threadHref + '">' + esc(COPY.previous + (pp.name || pp.pid)) + '</a>');
+        continue;
+      }
+      // A NAMED PRIOR HOLDER IS REACHABLE BOTH WAYS. The name opens their person
+      // file, as the current holder's name does in the heading; the second link
+      // opens their old general thread for this seat. The person link sits
+      // OUTSIDE the data-pdxdc-g-holder element, so the click handler that
+      // swaps threads in place never swallows it.
+      links.push('<span class="pdxdc-g-prev-i">' + esc(COPY.previous) +
+        '<a class="pdxdc-g-prev-p" href="/p/' + encodeURIComponent(pp.pid) + '">' + esc(ppName) + '</a>' +
+        ' \u00b7 <a class="pdxdc-g-prev-a" data-pdxdc-g-holder="' + esc(pp.pid) + '"' +
+        ' href="' + threadHref + '">' + esc(COPY.previousThread) + '</a></span>');
     }
     if (!current && G.currentHolder && G.currentHolder.pid) {
       links.unshift('<a class="pdxdc-g-prev-a" data-pdxdc-g-current="1" href="?#' + GENERAL_ID + '">' +
