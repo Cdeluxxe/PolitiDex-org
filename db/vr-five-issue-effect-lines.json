@@ -1,12 +1,16 @@
 {
- "_comment": "Effect lines on five issues (v385): Data Centers (datacenter_growth, datacenter_water, datacenter_power), Water Conservation (water), Housing Affordability (housing), Protect Public Lands (lands_preserve) and Expand Domestic Energy Production (energy_production). Every federal pair mapped to these keys already printed a line before this pass, and no measure is mapped to any data-center key. That leaves the Utah pairs below, 31 of them, none of which stores a `did`; each was read from its own stored title alone, in wave 4's form. Where the title names what the act did, one line was written from that title and the enacted status, and is stored once in consistency.js _DOS_EFFECT under the FIVE ISSUES SLICE 16 marker; `term` is the title words the line carries. Where it does not, the row stays silent and `why` says what the title lacks. No line names a tally: the one roll on file for each is a single-chamber vote, two of them on concurrence. Read by scripts/test-five-issue-effect-lines.mjs. No score, weight, mapping or key is read from or written to here.",
+ "_comment": "Effect lines on five issues, from the bill itself (v386). Data Centers (datacenter_growth, datacenter_water, datacenter_power), Water Conservation (water), Housing Affordability (housing), Protect Public Lands (lands_preserve) and Expand Domestic Energy Production (energy_production). Every federal pair on these keys already printed a line. The 31 Utah pairs store no `did`; each line here is written from the bill's own Highlighted Provisions, quoted in `provisions` from the Utah Legislature's record at `provisionsFrom` (and, where the line rests on the body of the bill, the verbatim `textQuote`). Every phrase in `terms` is in those words and in the line. An enacted act reads as done (H.B. 364's stored status trails the Legislature's record, `enactedPer`); one that never passed opens \"Would have\". S.B. 118 (2023GS) and H.B. 11 (2024GS) are `kept`: their v385 title lines stay as shipped. Where the provisions support no clear line, the row stays silent and `why` says so. Lines are stored once in consistency.js _DOS_EFFECT under the FIVE ISSUES SLICE 16 marker. No score, weight, mapping or key is read from or written to here.",
  "federalPairsAlreadyPrinting": {
   "energy_production": 15,
   "housing": 1,
   "lands_preserve": 4,
   "water": 1
  },
- "dataCenterPairs": 0,
+ "dataCenters": {
+  "mapped": 0,
+  "searched": "All 328 Utah measures on file: the Legislature's Highlighted Provisions for each, and the full bill text where the Legislature serves it, for \"data center\", \"datacenter\", \"large load\" and \"large-load\"; every federal measure's stored title, summary and did for the same words.",
+  "found": "Four Utah tax bills (H.B. 54 and H.B. 525 of 2023GS, H.B. 562 of 2024GS, H.B. 293 of 2025GS) reprint the existing qualifying-data-center definition or sales-tax exemption as surrounding code; none inserts or strikes a word of it. No federal measure on file names data centers. No measure on file changes data-center law, so none is mapped and no line is written."
+ },
  "rows": [
   {
    "key": "H.B. 144|2023GS|energy_production",
@@ -15,8 +19,14 @@
    "issue": "energy_production",
    "title": "High Cost Infrastructure Development Tax Credit Amendments",
    "status": "enacted",
-   "decision": "refuse",
-   "why": "“High Cost Infrastructure Development Tax Credit Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "provisions": "This bill: provides that the corporate high cost infrastructure development tax credit does not automatically expire for lack of use before the 2027 tax year; modifies the definition of \"high cost infrastructure project\" to include the storage or production of all fuels; defines an \"underground mine infrastructure project\"; adds an \"underground mine infrastructure project\" to the definition of \"infrastructure\" for purposes of being eligible for a high cost infrastructure development income tax credit; includes severance tax revenue in the calculation of the taxpayer's high cost infrastructure development tax credit; and provides that a high cost infrastructure project that begins in the taxable year before an applicant makes a tax credit application is eligible for a tax credit.",
+   "provisionsFrom": "https://le.utah.gov/data/2023GS/HB0144.json",
+   "decision": "line",
+   "terms": [
+    "underground mine",
+    "all fuels"
+   ],
+   "line": "Extended the high cost infrastructure tax credit to underground mine projects and to the storage or production of all fuels."
   },
   {
    "key": "H.B. 425|2023GS|energy_production",
@@ -25,8 +35,18 @@
    "issue": "energy_production",
    "title": "Energy Security Amendments",
    "status": "enacted",
-   "decision": "refuse",
-   "why": "“Energy Security Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "provisions": "This bill: defines terms; requires a project entity to provide notice to the Legislative Management Committee 180 days prior to: the disposal or sale of any project entity asset; and the decommissioning of a coal-powered electrical generation facility; requires the Office of Energy Development to: conduct a study of a project entity; and report the results of the study to the Public Utilities, Energy, and Technology Interim Committee; modifies the state energy policy to promote the state's energy independence by: promoting the use of energy resources generated within the state; and promoting the use of clean energy sources by considering the emissions of an energy resource throughout the entire life cycle of the energy resource; provides legislative findings; requires a qualified utility to inform the Office of the Attorney General when a proposed federal regulation would result in the early retirement of an electrical generation facility; authorizes the Office of the Attorney General to take any action to defend the state's interests with respect to electricity generation by a qualified utility facing a proposed federal regulation that would result in the early retirement of an electrical generation facility; and makes technical changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2023GS/HB0425.json",
+   "plain": {
+    "lawmakers": "Legislative Management Committee",
+    "plant": "facility"
+   },
+   "decision": "line",
+   "terms": [
+    "180 days",
+    "coal-powered"
+   ],
+   "line": "Required a project entity to give lawmakers 180 days’ notice before decommissioning a coal-powered generating plant."
   },
   {
    "key": "H.B. 191|2024GS|energy_production",
@@ -35,8 +55,18 @@
    "issue": "energy_production",
    "title": "Electrical Energy Amendments",
    "status": "enacted",
-   "decision": "refuse",
-   "why": "“Electrical Energy Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "provisions": "This bill: defines term; requires the Public Service Commission (commission) to act in accordance with the state energy policy; requires the commission to make certain determinations before authorizing the early retirement of an electrical generation facility; and requires the commission to submit an annual report related to requests to retire electric generating units.",
+   "provisionsFrom": "https://le.utah.gov/data/2024GS/HB0191.json",
+   "plain": {
+    "specific": "certain",
+    "plant's": "facility"
+   },
+   "decision": "line",
+   "terms": [
+    "early retirement",
+    "Public Service Commission"
+   ],
+   "line": "Required the Public Service Commission to make specific determinations before authorizing a generating plant’s early retirement."
   },
   {
    "key": "H.B. 374|2024GS|energy_production",
@@ -45,8 +75,14 @@
    "issue": "energy_production",
    "title": "State Energy Policy Amendments",
    "status": "enacted",
-   "decision": "refuse",
-   "why": "“State Energy Policy Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "provisions": "This bill: defines terms; provides that the state energy policy: is focused on human well-being and quality of life; encourages the use of dispatchable energy resources; fosters innovation and development to meet future energy demand; and allows for market-based solutions; and requires the Office of Energy Development to report annually to the Public Utilities, Energy, and Technology Interim Committee regarding: development and implementation of the state energy plan; and the state energy plan's compliance with the state energy policy; and makes technical changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2024GS/HB0374.json",
+   "decision": "line",
+   "terms": [
+    "dispatchable energy resources",
+    "state energy policy"
+   ],
+   "line": "Made encouraging dispatchable energy resources part of Utah’s state energy policy."
   },
   {
    "key": "S.B. 161|2024GS|energy_production",
@@ -55,8 +91,20 @@
    "issue": "energy_production",
    "title": "Energy Security Amendments",
    "status": "enacted",
-   "decision": "refuse",
-   "why": "“Energy Security Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "provisions": "This bill: defines terms; allows a project entity to submit an application for an alternative air permit; outlines the review process for an alternative permit and conditions for either the alternative or transition permit to become effective; provides the state the option to purchase an electrical generation facility intended for decommissioning; creates a Decommissioned Asset Disposition Authority (authority) within the Office of Energy Development; requires the authority to: govern the disposition of an electrical generation facility purchased by the state; and prepare and submit an application to the Division of Air Quality for an evaluation of the feasibility of an alternative permit; and requires a study from the authority to: analyze issues related to the state implementation plan arising out of a permit issued to an electrical generation facility intended for decommissioning; determine and provide the fair market value of a project entity's electrical generation facility intended for decommissioning; and evaluate the process for selling an electrical generation facility purchased by the state.",
+   "provisionsFrom": "https://le.utah.gov/data/2024GS/SB0161.json",
+   "plain": {
+    "buy": "purchase",
+    "power": "electrical generation",
+    "plant": "facility",
+    "slated": "intended",
+    "manage": "govern the disposition"
+   },
+   "decision": "line",
+   "terms": [
+    "decommissioning"
+   ],
+   "line": "Gave the state the option to buy a power plant slated for decommissioning and created an authority to manage it."
   },
   {
    "key": "S.B. 224|2024GS|energy_production",
@@ -65,8 +113,16 @@
    "issue": "energy_production",
    "title": "Energy Independence Amendments",
    "status": "enacted",
-   "decision": "refuse",
-   "why": "“Energy Independence Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "provisions": "This bill: modifies the factors the Public Service Commission (commission) must consider when evaluating certain proposed energy resource decisions; establishes parameters for an affected electrical utility's recovery of costs associated with proven dispatchable generation resources located within the state; encourages the commission to evaluate the purchase of excess proven dispatchable generation capacity; allows a large-scale electric utility to create a Utah fire fund to supplement other insurance for making certain fire damage payments; establishes requirements for administration, funding, and access to a Utah fire fund; and enacts provisions related to filing and resolving claims against an electrical corporation for damages caused by wildfire.",
+   "provisionsFrom": "https://le.utah.gov/data/2024GS/SB0224.json",
+   "plain": {
+    "terms": "parameters"
+   },
+   "decision": "line",
+   "terms": [
+    "proven dispatchable generation resources"
+   ],
+   "line": "Set the terms for a utility to recover its costs for proven dispatchable generation resources located in Utah."
   },
   {
    "key": "H.B. 201|2025GS|energy_production",
@@ -75,8 +131,18 @@
    "issue": "energy_production",
    "title": "Energy Resource Amendments",
    "status": "enacted",
-   "decision": "refuse",
-   "why": "“Energy Resource Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "provisions": "This bill: defines terms; requires full cost attribution for supplemental resources in integrated resource plans; establishes requirements for calculating generation capacity; requires an affected electrical utility to include certain designations in the utility's action plan; prohibits certain involuntary demand management programs; and makes technical changes.",
+   "provisionsFrom": "https://le.utah.gov/Session/2025/bills/enrolled/HB0201.xml",
+   "plain": {
+    "utility": "utility",
+    "programs": "programs"
+   },
+   "decision": "line",
+   "terms": [
+    "full cost attribution for supplemental resources",
+    "involuntary demand"
+   ],
+   "line": "Required full cost attribution for supplemental resources in utility resource plans and barred some involuntary demand programs."
   },
   {
    "key": "H.B. 70|2025GS|energy_production",
@@ -85,8 +151,19 @@
    "issue": "energy_production",
    "title": "Decommissioned Asset Disposition Amendments",
    "status": "enacted",
-   "decision": "refuse",
-   "why": "“Decommissioned Asset Disposition Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "provisions": "This bill: defines terms; prohibits a project entity from: altering facilities that provide power to station service; disconnecting from or modifying existing interconnections and critical switchyard equipment; and taking actions that would require a new plant owner to make an interconnection request; creates the Utah Energy Council (council); establishes council membership and duties; provides authority for the council to manage decommissioned electrical generation facilities; requires the council to select facility operators through a competitive process; establishes minimum qualifications and criteria for facility operators; repeals provisions related to the Decommissioned Asset Disposition Authority; and makes technical changes.",
+   "provisionsFrom": "https://le.utah.gov/Session/2025/bills/enrolled/HB0070.xml",
+   "plain": {
+    "power": "electrical generation",
+    "plants": "facilities",
+    "pick": "select"
+   },
+   "decision": "line",
+   "terms": [
+    "Utah Energy Council",
+    "competitive process"
+   ],
+   "line": "Created the Utah Energy Council to manage decommissioned power plants and pick their operators through a competitive process."
   },
   {
    "key": "H.B. 364|2023GS|housing",
@@ -95,8 +172,15 @@
    "issue": "housing",
    "title": "Housing Affordability Amendments",
    "status": "passed_senate",
-   "decision": "refuse",
-   "why": "“Housing Affordability Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "provisions": "This bill: modifies provisions related to the moderate income housing reporting requirements for certain cities and counties; allows a city or county to appeal the Housing and Community Development Division's determination of noncompliance in relation to city and county moderate income housing reports; establishes an appeal board to hear and decide appeals in relation to city and county moderate income housing reports; requires the Department of Workforce Services to report annually on expenditures authorized by the Utah Housing Preservation Fund; allows for state low-income housing tax credits to be allocated, by pass-through, to certain business entities; increases the aggregate annual amount of state low-income housing tax credits that may be allocated in certain years; allows a taxpayer to claim a state low-income housing tax credit before final certification from the Utah Housing Corporation in certain circumstances; requires the Legislature to conduct reviews of the aggregate annual amount of state low-income housing tax credits that the Utah Housing Corporation is authorized to allocate and has allocated; and makes technical and conforming changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2023GS/HB0364.json",
+   "enactedPer": "https://le.utah.gov/data/2023GS/HB0364.json: Governor Signed 2023-03-13",
+   "decision": "line",
+   "terms": [
+    "state low-income housing tax credits",
+    "in certain years"
+   ],
+   "line": "Raised the yearly amount of state low-income housing tax credits that may be allocated in certain years."
   },
   {
    "key": "S.B. 271|2023GS|housing",
@@ -105,8 +189,16 @@
    "issue": "housing",
    "title": "Home Ownership Requirements",
    "status": "enacted",
-   "decision": "refuse",
-   "why": "“Home Ownership Requirements” names requirements but not who they bind or what they require, so any line would guess at the effect on housing affordability."
+   "provisions": "This bill: defines terms; prohibits a county or municipal legislative body from adopting or enforcing a land use regulation that regulates co-owned homes differently from other residential units; and prohibits a county or municipal legislative body from using a land use regulation regarding co-owned homes to punish individuals for owning or using a co-owned home.",
+   "provisionsFrom": "https://le.utah.gov/data/2023GS/SB0271.json",
+   "plain": {
+    "cities": "municipal"
+   },
+   "decision": "line",
+   "terms": [
+    "co-owned homes differently from other residential units"
+   ],
+   "line": "Barred cities and counties from regulating co-owned homes differently from other residential units."
   },
   {
    "key": "S.B. 208|2024GS|housing",
@@ -115,8 +207,17 @@
    "issue": "housing",
    "title": "Housing and Transit Reinvestment Zone Amendments",
    "status": "enacted",
-   "decision": "refuse",
-   "why": "“Housing and Transit Reinvestment Zone Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "provisions": "This bill: amends definitions related to housing and transit reinvestment zones; amends provisions related to affordable housing thresholds to require 12% of the proposed dwelling units be reserved for certain levels of income; requires affordable housing requirements be met in each phase of development; requires that a housing and transit reinvestment zone be at least 10 acres; clarifies notice requirements to certain entities regarding the commencement of collection of tax increment; clarifies information required in a housing and transit reinvestment zone proposal; adds two additional members of the Legislature to the housing and transit reinvestment zone committee; amends provisions regarding overlap of a housing and transit reinvestment zone with a community reinvestment project area; amends provisions related to the sales and use tax increment captured within a housing and transit reinvestment zone, including: how base year is established; contiguity of affected sales and use tax boundaries; and limiting a housing and transit reinvestment zone to only one sales and use tax increment period; amends the amount of housing and transit reinvestment zone funds allowed for administration of the housing and transit reinvestment zone; allows minor adjustments to a housing and transit reinvestment zone if the county assessor or county auditor adjusts parcel boundaries; and makes technical changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2024GS/SB0208.json",
+   "plain": {
+    "homes": "dwelling units"
+   },
+   "decision": "line",
+   "terms": [
+    "12%",
+    "housing and transit reinvestment zone"
+   ],
+   "line": "Required 12% of the homes proposed in a housing and transit reinvestment zone to be reserved for set income levels."
   },
   {
    "key": "H.B. 360|2025GS|housing",
@@ -125,8 +226,14 @@
    "issue": "housing",
    "title": "Housing Attainability Amendments",
    "status": "enacted",
-   "decision": "refuse",
-   "why": "“Housing Attainability Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "provisions": "This bill: modifies and defines terms; provides that a closed meeting may be held under certain circumstances by a political subdivision; provides that a city of the first or second class, under certain conditions, may qualify for funds from the Utah Homes Investment Program (program) to rehabilitate attainable homes within the city of the first or second class boundaries; extends the sunset date for the program by one year; allows for certain uses of school surplus lands for affordable housing; provides that among the trustees appointed to the Utah Housing Corporation that no more than two trustees are from the same county; repeals the sunset date for the Utah Housing Corporation; provides that the Department of Transportation may make rules regarding the sale of surplus real property to a state agency under certain conditions; allows the Utah Housing Corporation to return deposits made by the state treasurer for loan financing for certain attainable homes upon certain conditions; makes technical and conforming changes; and provides a coordination clause with H.B. 412, Boards and Commissions Revisions, regarding Section 63H-8-201.",
+   "provisionsFrom": "https://le.utah.gov/Session/2025/bills/enrolled/HB0360.xml",
+   "decision": "line",
+   "terms": [
+    "Utah Homes Investment Program",
+    "school surplus land"
+   ],
+   "line": "Extended the Utah Homes Investment Program by a year and allowed some school surplus land to be used for affordable housing."
   },
   {
    "key": "H.B. 37|2025GS|housing",
@@ -135,8 +242,18 @@
    "issue": "housing",
    "title": "Utah Housing Amendments",
    "status": "enacted",
-   "decision": "refuse",
-   "why": "“Utah Housing Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "provisions": "This bill: defines terms; modifies the minimum population for incorporation of a new town; authorizes a municipality or county to authorize additional housing density in exchange for certain requirements; authorizes a municipality or county to offer incentives in an area approved for single-family or multi-family residential units to promote owner-occupied, affordable housing; modifies requirements for a moderate income housing plan and a moderate income housing report; authorizes a special district to provide the operation of a propane system within its boundaries; authorizes the Division of Housing and Community Development to make rules regarding the content and form of a moderate income housing report; requires the Governor's Office of Planning and Budget (GOPB) to develop a state housing plan by December 31, 2025; requires GOPB to submit an annual written report on the implementation of the state housing plan to the Political Subdivisions Interim Committee; and makes technical and conforming changes.",
+   "provisionsFrom": "https://le.utah.gov/Session/2025/bills/enrolled/HB0037.xml",
+   "plain": {
+    "cities": "municipality",
+    "end": "December 31"
+   },
+   "decision": "line",
+   "terms": [
+    "owner-occupied",
+    "state housing plan"
+   ],
+   "line": "Let cities and counties offer incentives for owner-occupied affordable housing and required a state housing plan by the end of 2025."
   },
   {
    "key": "S.B. 181|2025GS|housing",
@@ -145,8 +262,23 @@
    "issue": "housing",
    "title": "Housing Affordability Amendments",
    "status": "enacted",
-   "decision": "refuse",
-   "why": "“Housing Affordability Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "provisions": "This bill: defines and amends terms; enacts provisions of certain land use regulations with regard to certain types of parking spaces; provides certain exceptions; and makes technical and conforming changes.",
+   "provisionsFrom": "https://le.utah.gov/Session/2025/bills/enrolled/SB0181.xml",
+   "textQuote": [
+    "A municipality may not require a garage for a single-family attached or detached dwelling that is owner-occupied affordable housing.",
+    "A county may not require a garage for a single-family attached or detached dwelling that is owner-occupied affordable housing."
+   ],
+   "plain": {
+    "cities": "municipality",
+    "counties": "county",
+    "home": "dwelling"
+   },
+   "decision": "line",
+   "terms": [
+    "a garage",
+    "owner-occupied affordable"
+   ],
+   "line": "Barred cities and counties from requiring a garage for an owner-occupied affordable single-family home."
   },
   {
    "key": "S.B. 23|2025GS|housing",
@@ -155,8 +287,10 @@
    "issue": "housing",
    "title": "First Home Investment Zone Amendments",
    "status": "enacted",
+   "provisions": "This bill: modifies definitions; clarifies owner-occupancy requirements in a first home investment zone; clarifies how extraterritorial homes may be included in density and owner-occupancy requirements for a first home investment zone; and makes technical changes.",
+   "provisionsFrom": "https://le.utah.gov/Session/2025/bills/enrolled/SB0023.xml",
    "decision": "refuse",
-   "why": "“First Home Investment Zone Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "why": "The provisions only “clarify” owner-occupancy and density counting in first home investment zones; they state no change a reader could check."
   },
   {
    "key": "S.B. 26|2025GS|housing",
@@ -165,8 +299,20 @@
    "issue": "housing",
    "title": "Housing and Transit Reinvestment Zone Amendments",
    "status": "enacted",
-   "decision": "refuse",
-   "why": "“Housing and Transit Reinvestment Zone Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "provisions": "This bill: defines terms; amends provisions relating to the Housing and Transit Reinvestment Zone Act; amends provisions related to the Hotel Impact Mitigation Fund and distribution of funds; amends the allowable use of certain sales and use taxes to be used for convention center revitalization; allows certain sales and use tax revenue distributed to a county to be used for convention center revitalization; creates a process to propose a convention center reinvestment zone to facilitate revitalization of a convention center and surrounding areas within a county of the first class to: allow capture of sales and use tax increment related to state and certain local sales and use taxes; allow capture of property tax increment; and provide for distribution of funds to enable bonding; amends provisions to exclude remote sales tax revenue for the capture of sales and use tax increment; amends the median gross income for a certain percentage of proposed dwelling units within the housing and transit reinvestment zone to the county median gross income for households of the same size; clarifies that the collection of a tax increment for a housing and transit reinvestment zone project may be triggered no more than three times per project; modifies provisions related to housing and transit reinvestment zones within certain transit stations or hubs; amends provisions related to mixed-use development; modifies the requirement that a proposal for a transit reinvestment zone includes a mix of dwelling units with at least 25% of the dwelling units having more than one bedroom; amends the date by which a tax increment collection notice is sent to certain entities to no later than December 31 of the year before the year tax increment is to take place; requires certain limitations on use of funds in certain convention center reinvestment zones; requires the base year to be updated in certain circumstances regarding existing community reinvestment projects; and makes technical and conforming changes.",
+   "provisionsFrom": "https://le.utah.gov/Session/2025/bills/enrolled/SB0026.xml",
+   "textQuote": [
+    "at least 12% of the proposed dwelling units within the housing and transit reinvestment zone are affordable housing units"
+   ],
+   "plain": {
+    "homes": "dwelling units"
+   },
+   "decision": "line",
+   "terms": [
+    "county median",
+    "convention center"
+   ],
+   "line": "Measured a housing and transit zone’s affordable homes against county median income by household size, as part of a convention center bill."
   },
   {
    "key": "S.B. 262|2025GS|housing",
@@ -175,8 +321,17 @@
    "issue": "housing",
    "title": "Housing Affordability Modifications",
    "status": "enacted",
-   "decision": "refuse",
-   "why": "“Housing Affordability Modifications” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "provisions": "This bill: defines terms; amends provisions allowing revenue from a home ownership promotion zone to be used for certain purposes; enacts provisions allowing legislative bodies to settle certain litigation through a consent agreement; allows a county and municipality to use home ownership promotion zone funds for all or part of water exaction, street lighting, and environmental remediation costs; requires a county to comply with land use provisions for all pending and new land use applications; directs the Utah Housing Corporation to make rules regarding: procedures, qualifications, and requirements for private financial institutions that offer certain mortgage loans to first-time homebuyers; and the creation of an incentive program for qualified buyers to assist certain borrowers with the purchase of liability insurance for certain qualifying projects; provides that first-time home buyers may use certain mortgage loans for specified purposes; creates a subordinate shared appreciation loan program to be administered by the Department of Workforce Services to assist borrowers for certain purposes; and makes technical and conforming changes.",
+   "provisionsFrom": "https://le.utah.gov/Session/2025/bills/enrolled/SB0262.xml",
+   "plain": {
+    "lenders": "private financial institutions"
+   },
+   "decision": "line",
+   "terms": [
+    "shared appreciation loan program",
+    "first-time homebuyer"
+   ],
+   "line": "Created a shared appreciation loan program and had the Utah Housing Corporation set rules for lenders of first-time homebuyer loans."
   },
   {
    "key": "H.B. 150|2023GS|water",
@@ -185,8 +340,17 @@
    "issue": "water",
    "title": "Emergency Water Shortages Amendments",
    "status": "enacted",
-   "decision": "refuse",
-   "why": "“Emergency Water Shortages Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "provisions": "This bill: amends the powers of the Department of Agriculture and Food; provides for the use of money in the Agriculture Resource Development Fund for emergency water shortages loans; addresses governmental immunity; enacts the Water Preferences During Emergencies chapter, including: defining terms; providing for scope of the chapter; outlining the process for declaring a temporary water shortage emergency; addressing water use preferences under a temporary water shortage emergency; providing for compensation related to water use preferences; and addressing rulemaking by the Department of Agriculture and Food; repeals existing statutes related to water preferences and a study; and makes technical changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2023GS/HB0150.json",
+   "plain": {
+    "apply": "under"
+   },
+   "decision": "line",
+   "terms": [
+    "temporary water shortage emergency",
+    "water use preferences"
+   ],
+   "line": "Set a process for declaring a temporary water shortage emergency and the water use preferences that apply during one."
   },
   {
    "key": "H.B. 217|2023GS|water",
@@ -195,8 +359,21 @@
    "issue": "water",
    "title": "School Energy and Water Reductions",
    "status": "enacted",
-   "decision": "refuse",
-   "why": "“School Energy and Water Reductions” names a goal, not what the act did to reach it — a grant, a mandate or a study — so it states no effect on water conservation."
+   "provisions": "This bill: defines terms; authorizes the state board to issue grants related to energy and water reductions; provides for prioritizing certain projects; requires rulemaking; requires use of an evaluation panel; requires reporting; and provides a repeal date.",
+   "provisionsFrom": "https://le.utah.gov/data/2023GS/HB0217.json",
+   "textQuote": [
+    "the state board shall prioritize outdoor water conservation projects"
+   ],
+   "plain": {
+    "cut": "reductions",
+    "first": "prioritize"
+   },
+   "decision": "line",
+   "terms": [
+    "grants",
+    "energy and water"
+   ],
+   "line": "Authorized state school board grants to cut school energy and water use, with outdoor water conservation projects first."
   },
   {
    "key": "H.B. 307|2023GS|water",
@@ -205,8 +382,10 @@
    "issue": "water",
    "title": "Utah Water Ways",
    "status": "enacted",
+   "provisions": "This bill: defines terms; directs oversight of the creation of a partnership and the state's role in that partnership; outlines powers and duties of the partnership; addresses the selection of an executive director and board of directors; requires reporting; and addresses role of water supply entities.",
+   "provisionsFrom": "https://le.utah.gov/data/2023GS/HB0307.json",
    "decision": "refuse",
-   "why": "“Utah Water Ways” is the name of an entity, not an effect; the title says nothing the act did to water conservation."
+   "why": "The provisions direct creation of a statewide partnership and set its powers and board, but never say what it does for water conservation, so a line would guess at the effect."
   },
   {
    "key": "H.B. 513|2023GS|water",
@@ -215,8 +394,22 @@
    "issue": "water",
    "title": "Great Salt Lake Amendments",
    "status": "enacted",
-   "decision": "refuse",
-   "why": "“Great Salt Lake Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "provisions": "This bill: modifies provisions related to severance taxes; clarifies minerals with royalties going to the Great Salt Lake Account; addresses mineral leases or royalty agreements related to the Great Salt Lake; provides for royalties for certain elements and minerals; requires a study and reporting; defines terms; codifies legislative findings; modifies the Division of Forestry, Fire, and State Lands' management responsibilities for the Great Salt Lake, including addressing rulemaking; establishes emergency management responsibilities and powers; addresses force majeure; and makes technical and conforming changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2023GS/HB0513.json",
+   "textQuote": [
+    "for a mineral lease or royalty agreement involving the extraction of minerals from brines in the Great Salt Lake",
+    "an extraction operation or extraction method shall adhere to commercially viable technologies that minimize water depletion",
+    "a provision authorizing the division to curtail or limit mineral production at any time the condition of the Great Salt Lake reaches the emergency trigger"
+   ],
+   "plain": {
+    "brine": "brines"
+   },
+   "decision": "line",
+   "terms": [
+    "minimize water depletion",
+    "curtail"
+   ],
+   "line": "Required Great Salt Lake brine leases to minimize water depletion and let the state curtail production in a lake emergency."
   },
   {
    "key": "H.B. 538|2023GS|water",
@@ -225,8 +418,10 @@
    "issue": "water",
    "title": "Water Usage Amendments",
    "status": "introduced",
+   "provisions": "This bill: defines terms; addresses the watering of lawn or turf during a restricted period; and establishes a sunset date.",
+   "provisionsFrom": "https://le.utah.gov/data/2023GS/HB0538.json",
    "decision": "refuse",
-   "why": "“Water Usage Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "why": "The provisions say only that the bill “addresses the watering of lawn or turf during a restricted period”, and the substitute text on file conveys water rather than setting a watering rule, so what the act required cannot be stated without guessing."
   },
   {
    "key": "S.B. 118|2023GS|water",
@@ -235,9 +430,11 @@
    "issue": "water",
    "title": "Water Efficient Landscaping Incentives",
    "status": "enacted",
-   "decision": "line",
-   "term": "water efficient landscaping incentives",
-   "line": "Provided water efficient landscaping incentives under Utah law."
+   "provisions": "This bill: defines terms; authorizes water conservancy districts to receive grants to provide incentives; provides conditions on when an owner may receive an incentive; addresses rulemaking authority; addresses tracking of local government implementation of water use efficiency standards; and makes technical and conforming changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2023GS/SB0118.json",
+   "decision": "kept",
+   "line": "Provided water efficient landscaping incentives under Utah law.",
+   "why": "Shipped in v385 from the title and kept byte for byte, because a line readers have seen is not a later pass's to edit. The provisions above are what a rewrite would be held to."
   },
   {
    "key": "S.B. 252|2023GS|water",
@@ -246,8 +443,17 @@
    "issue": "water",
    "title": "Conservation Tax Incentive Amendments",
    "status": "introduced",
-   "decision": "refuse",
-   "why": "“Conservation Tax Incentive Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "provisions": "This bill: enacts nonrefundable corporate and individual tax credits for the purchase and installation of water efficient landscaping and fixtures by a homebuilder; establishes a process for a homebuilder to receive a tax credit certificate from the Division of Water Resources (the division) before claiming the tax credit; establishes a cap on the amount of tax credit certificates that the division may issue per year; and schedules the repeal of the tax credit but requires legislative review before the repeal.",
+   "provisionsFrom": "https://le.utah.gov/data/2023GS/SB0252.json",
+   "plain": {
+    "buy": "purchase"
+   },
+   "decision": "line",
+   "terms": [
+    "tax credits",
+    "water efficient landscaping and fixtures"
+   ],
+   "line": "Would have created tax credits for homebuilders who buy and install water efficient landscaping and fixtures."
   },
   {
    "key": "H.B. 11|2024GS|water",
@@ -256,9 +462,11 @@
    "issue": "water",
    "title": "Water Efficient Landscaping Requirements",
    "status": "enacted",
-   "decision": "line",
-   "term": "water efficient landscaping requirements",
-   "line": "Imposed water efficient landscaping requirements under Utah law."
+   "provisions": "This bill: defines terms; restricts the use of overhead spray irrigation by certain governmental entities; and makes technical changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2024GS/HB0011.json",
+   "decision": "kept",
+   "line": "Imposed water efficient landscaping requirements under Utah law.",
+   "why": "Shipped in v385 from the title and kept byte for byte, because a line readers have seen is not a later pass's to edit. The provisions above are what a rewrite would be held to."
   },
   {
    "key": "H.B. 242|2024GS|water",
@@ -267,8 +475,14 @@
    "issue": "water",
    "title": "Water Usage Data Amendments",
    "status": "introduced",
-   "decision": "refuse",
-   "why": "“Water Usage Data Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "provisions": "This bill: requires reporting of water usage by a state agency; defines terms; requires the Division of Water Resources to conduct a study of public school water use in certain areas; requires publication and reporting of study findings and recommendations; provides for procurement of smart irrigation controllers; and makes technical changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2024GS/HB0242.json",
+   "decision": "line",
+   "terms": [
+    "state agenc",
+    "public school water use"
+   ],
+   "line": "Would have required state agencies to report their water use and had the state study public school water use."
   },
   {
    "key": "H.B. 62|2024GS|water",
@@ -277,8 +491,10 @@
    "issue": "water",
    "title": "Utah Water Ways Amendments",
    "status": "enacted",
+   "provisions": "This bill: outlines coordination related to water and the public education system; and makes technical changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2024GS/HB0062.json",
    "decision": "refuse",
-   "why": "“Utah Water Ways Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "why": "The provisions only “outline coordination related to water and the public education system”, which states no requirement or change on water conservation."
   },
   {
    "key": "S.B. 118|2024GS|water",
@@ -287,8 +503,13 @@
    "issue": "water",
    "title": "Water Efficiency Amendments",
    "status": "introduced",
-   "decision": "refuse",
-   "why": "“Water Efficiency Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "provisions": "This bill: defines terms; provides for incentives to use water efficient landscaping in new residential development; grants rulemaking authority; provides a sunset date; and makes technical changes.",
+   "provisionsFrom": "https://le.utah.gov/data/2024GS/SB0118.json",
+   "decision": "line",
+   "terms": [
+    "water efficient landscaping in new residential development"
+   ],
+   "line": "Would have provided incentives to use water efficient landscaping in new residential development."
   },
   {
    "key": "H.B. 274|2025GS|water",
@@ -297,8 +518,18 @@
    "issue": "water",
    "title": "Water Amendments",
    "status": "enacted",
-   "decision": "refuse",
-   "why": "“Water Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "provisions": "This bill: provides circumstances of when a municipality may set different water rates based in part on water conservation; addresses special district fees; defines terms; addresses rate setting by a retail water supplier and public water systems; provides for how revenues from retail rates may be spent; creates a presumption regarding the reasonableness of certain water rates that include water conservation as an element in determining the rate; modifies provisions related to the Board of Water Resources; addresses tiered rates for secondary water; and makes technical and conforming changes.",
+   "provisionsFrom": "https://le.utah.gov/Session/2025/bills/enrolled/HB0274.xml",
+   "plain": {
+    "city": "municipality",
+    "vary": "different"
+   },
+   "decision": "line",
+   "terms": [
+    "water rates",
+    "conservation"
+   ],
+   "line": "Set when a city may vary water rates for conservation and presumed rates reasonable when conservation is part of them."
   },
   {
    "key": "S.B. 305|2025GS|water",
@@ -307,8 +538,14 @@
    "issue": "water",
    "title": "Water Wise Landscaping Amendments",
    "status": "introduced",
-   "decision": "refuse",
-   "why": "“Water Wise Landscaping Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "provisions": "This bill: defines terms; imposes landscaping requirements related to state government facilities; and makes technical and conforming changes.",
+   "provisionsFrom": "https://le.utah.gov/Session/2025/bills/enrolled/SB0305.xml",
+   "decision": "line",
+   "terms": [
+    "landscaping requirements",
+    "state government facilities"
+   ],
+   "line": "Would have imposed landscaping requirements on state government facilities."
   },
   {
    "key": "S.B. 80|2025GS|water",
@@ -317,8 +554,18 @@
    "issue": "water",
    "title": "Water Fee Amendments",
    "status": "enacted",
-   "decision": "refuse",
-   "why": "“Water Fee Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+   "provisions": "This bill: defines terms; requires the Department of Environmental Quality (department) to establish a fee schedule; allows the Water Development Coordinating Council (state council) to establish a fee schedule beginning on July 1, 2026, subject to approval by the Legislature; exempts a special district from certain fee requirements to pay the fees established by the department and state council; outlines requirements related to the fee schedules; allows the department to establish a financial incentive to comply with certain criteria; provides for the collection of fees by the department and, pending approval by the Legislature, the collection of fees by the state council; creates an exemption for a wholesale water supplier and agricultural water from the fees; provides for the deposit of fees into the Water Infrastructure Fund less the department's costs; requires the department and state council to report on the fee schedule to the Natural Resources, Agriculture, and Environment Interim Committee; requires monitoring of fees; and makes technical and conforming changes.",
+   "provisionsFrom": "https://le.utah.gov/Session/2025/bills/enrolled/SB0080.xml",
+   "plain": {
+    "net": "less the department's costs",
+    "going": "deposit"
+   },
+   "decision": "line",
+   "terms": [
+    "fee schedule",
+    "Water Infrastructure Fund"
+   ],
+   "line": "Required the Department of Environmental Quality to set a water fee schedule, with net fees going to the Water Infrastructure Fund."
   }
  ]
 }

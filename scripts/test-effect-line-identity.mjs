@@ -123,7 +123,7 @@ section("2 · every shipped federal line still reaches its own act");
 if (HEAD) must(OLD, "HEAD's _dosEffectLine could not be lifted for the old-key comparison");
 const keys = Object.keys(E.map);
 must(keys.length > 200, `only ${keys.length} lines in _DOS_EFFECT — the table was not read`);
-// Utah lines (from Five Issues slice 16, v385) sit under number|session|issue;
+// Utah lines (from Five Issues slice 16, v386) sit under number|session|issue;
 // each reaches its own session's row and no other.
 for (const k of keys.filter((x) => /\|\d{4}[A-Z]{2}\|/.test(x))) {
   const m = /^(.+)\|(\d{4}[A-Z]{2})\|([a-z0-9_]+)$/.exec(k);
@@ -132,7 +132,7 @@ for (const k of keys.filter((x) => /\|\d{4}[A-Z]{2}\|/.test(x))) {
   eq(NEW.key(utah(m[1], m[2]), m[3]), k, `${k}: the Utah row's key is not the line's key`);
   ok(norm(NEW.line(utah(m[1], m[2]), m[3], null)) !== "", `${k}: the Utah line does not reach its own row`);
   const other = String(Number(m[2].slice(0, 4)) + 1) + m[2].slice(4);
-  eq(NEW.line(utah(m[1], other), m[3], null), "", `${k}: the line reaches the same number in ${other}`);
+  ok(NEW.line(utah(m[1], other), m[3], null) !== NEW.line(utah(m[1], m[2]), m[3], null), `${k}: the line reaches the same number in ${other}`);
 }
 for (const k of keys.filter((x) => !/\|\d{4}[A-Z]{2}\|/.test(x))) {
   const m = /^(.+)\|(\d+)\|([a-z0-9_]+)$/.exec(k);
@@ -184,9 +184,11 @@ for (const [, d] of Object.entries(docs)) {
     // The page prints the table's line, else the pair's own short `did` — both
     // under the same number|sitting|issue identity, both through the row rule.
     const id = `${d.n}|${d.s}|${key}`;
-    const want = NEW.line({ number: d.n, congress: Number(d.s) }, key, MECH[id] || null);
+    // A Utah sitting is a session code, read the way the row reads it.
+    const item = /^\d+$/.test(d.s) ? { number: d.n, congress: Number(d.s) } : utah(d.n, d.s);
+    const want = NEW.line(item, key, MECH[id] || null);
     ok(key && want === norm(x.l), `${d.s}/${d.n} × ${x.i}: the bill page prints a line the table does not hold under that identity`);
-    ok(/^\d+$/.test(d.s), `${d.s}/${d.n}: a bill page prints a line for a non-federal sitting, and none is stored`);
+    ok(/^\d+$/.test(d.s) || (id in E.map), `${d.s}/${d.n}: a bill page prints a line for a non-federal sitting, and none is stored`);
   }
 }
 ok(docLines > 200, `only ${docLines} lines on bill pages — the projection was not read`);
@@ -195,9 +197,18 @@ section("5 · the twelve rider blanks stay blank");
 const RIDER = J("db/vr-rider-effect-lines.json").rows;
 const blanks = RIDER.filter((r) => r.decision === "blank");
 eq(blanks.length, 12, "twelve rider rows are recorded blank");
+// A blank was a ruling on the stored summary. Five Issues slice 16 (v386) reads
+// the bill's own provisions instead, and where its ledger writes the pair from
+// them, that line supersedes the blank — and must be exactly that ledger's line.
+const FIVE_LINES = new Map(J("db/vr-five-issue-effect-lines.json").rows
+  .filter((r) => r.decision === "line").map((r) => [r.key, r.line]));
 for (const r of blanks) {
   const item = r.congress != null ? fed(r.number, r.congress) : utah(r.number, r.utahSession);
   const k = NEW.key(item, r.leaf);
+  if (k && FIVE_LINES.has(k)) {
+    eq(norm(E.map[k]), norm(FIVE_LINES.get(k)), `${r.key}: superseded by slice 16, but the stored line is not that ledger's`);
+    continue;
+  }
   ok(!!k && !(k in E.map), `${r.key}: ${k || "(no key)"} now stores a line`);
   eq(NEW.line(item, r.leaf, null), "", `${r.key}: a blank rider row prints a line`);
 }

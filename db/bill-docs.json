@@ -3897,7 +3897,8 @@
    "m": [
     {
      "i": "Expand Domestic Energy Production",
-     "k": "energy_production"
+     "k": "energy_production",
+     "l": "Extended the high cost infrastructure tax credit to underground mine projects and to the storage or production of all fuels."
     }
    ]
   },
@@ -3925,7 +3926,8 @@
    "m": [
     {
      "i": "Water Conservation",
-     "k": "water"
+     "k": "water",
+     "l": "Set a process for declaring a temporary water shortage emergency and the water use preferences that apply during one."
     }
    ]
   },
@@ -4053,7 +4055,8 @@
    "m": [
     {
      "i": "Water Conservation",
-     "k": "water"
+     "k": "water",
+     "l": "Authorized state school board grants to cut school energy and water use, with outdoor water conservation projects first."
     }
    ]
   },
@@ -4341,7 +4344,8 @@
     },
     {
      "i": "Housing Affordability",
-     "k": "housing"
+     "k": "housing",
+     "l": "Raised the yearly amount of state low-income housing tax credits that may be allocated in certain years."
     }
    ]
   },
@@ -4461,7 +4465,8 @@
    "m": [
     {
      "i": "Expand Domestic Energy Production",
-     "k": "energy_production"
+     "k": "energy_production",
+     "l": "Required a project entity to give lawmakers 180 days’ notice before decommissioning a coal-powered generating plant."
     }
    ]
   },
@@ -4621,7 +4626,8 @@
    "m": [
     {
      "i": "Water Conservation",
-     "k": "water"
+     "k": "water",
+     "l": "Required Great Salt Lake brine leases to minimize water depletion and let the state curtail production in a lake emergency."
     }
    ]
   },
@@ -4994,7 +5000,8 @@
    "m": [
     {
      "i": "Water Conservation",
-     "k": "water"
+     "k": "water",
+     "l": "Would have created tax credits for homebuilders who buy and install water efficient landscaping and fixtures."
     }
    ]
   },
@@ -5034,7 +5041,8 @@
    "m": [
     {
      "i": "Housing Affordability",
-     "k": "housing"
+     "k": "housing",
+     "l": "Barred cities and counties from regulating co-owned homes differently from other residential units."
     },
     {
      "i": "Private Property Rights",
@@ -5343,7 +5351,8 @@
    "m": [
     {
      "i": "Expand Domestic Energy Production",
-     "k": "energy_production"
+     "k": "energy_production",
+     "l": "Required the Public Service Commission to make specific determinations before authorizing a generating plant’s early retirement."
     }
    ]
   },
@@ -5379,7 +5388,8 @@
    "m": [
     {
      "i": "Water Conservation",
-     "k": "water"
+     "k": "water",
+     "l": "Would have required state agencies to report their water use and had the state study public school water use."
     }
    ]
   },
@@ -5595,7 +5605,8 @@
    "m": [
     {
      "i": "Expand Domestic Energy Production",
-     "k": "energy_production"
+     "k": "energy_production",
+     "l": "Made encouraging dispatchable energy resources part of Utah’s state energy policy."
     }
    ]
   },
@@ -5983,7 +5994,8 @@
    "m": [
     {
      "i": "Water Conservation",
-     "k": "water"
+     "k": "water",
+     "l": "Would have provided incentives to use water efficient landscaping in new residential development."
     }
    ]
   },
@@ -6031,7 +6043,8 @@
    "m": [
     {
      "i": "Expand Domestic Energy Production",
-     "k": "energy_production"
+     "k": "energy_production",
+     "l": "Gave the state the option to buy a power plant slated for decommissioning and created an authority to manage it."
     }
    ]
   },
@@ -6123,7 +6136,8 @@
     },
     {
      "i": "Housing Affordability",
-     "k": "housing"
+     "k": "housing",
+     "l": "Required 12% of the homes proposed in a housing and transit reinvestment zone to be reserved for set income levels."
     },
     {
      "i": "Public Transit & Transportation",
@@ -6167,7 +6181,8 @@
     },
     {
      "i": "Expand Domestic Energy Production",
-     "k": "energy_production"
+     "k": "energy_production",
+     "l": "Set the terms for a utility to recover its costs for proven dispatchable generation resources located in Utah."
     }
    ]
   },
@@ -6259,7 +6274,8 @@
     },
     {
      "i": "Housing Affordability",
-     "k": "housing"
+     "k": "housing",
+     "l": "Let cities and counties offer incentives for owner-occupied affordable housing and required a state housing plan by the end of 2025."
     }
    ]
   },
@@ -6283,7 +6299,8 @@
    "m": [
     {
      "i": "Expand Domestic Energy Production",
-     "k": "energy_production"
+     "k": "energy_production",
+     "l": "Created the Utah Energy Council to manage decommissioned power plants and pick their operators through a competitive process."
     }
    ]
   },
@@ -6519,7 +6536,8 @@
    "m": [
     {
      "i": "Expand Domestic Energy Production",
-     "k": "energy_production"
+     "k": "energy_production",
+     "l": "Required full cost attribution for supplemental resources in utility resource plans and barred some involuntary demand programs."
     }
    ]
   },
@@ -6731,7 +6749,8 @@
    "m": [
     {
      "i": "Water Conservation",
-     "k": "water"
+     "k": "water",
+     "l": "Set when a city may vary water rates for conservation and presumed rates reasonable when conservation is part of them."
     }
    ]
   },
@@ -6923,7 +6942,8 @@
     },
     {
      "i": "Housing Affordability",
-     "k": "housing"
+     "k": "housing",
+     "l": "Extended the Utah Homes Investment Program by a year and allowed some school surplus land to be used for affordable housing."
     }
    ]
   },
@@ -7283,7 +7303,8 @@
     },
     {
      "i": "Housing Affordability",
-     "k": "housing"
+     "k": "housing",
+     "l": "Measured a housing and transit zone’s affordable homes against county median income by household size, as part of a convention center bill."
     },
     {
      "i": "Public Transit & Transportation",
@@ -7359,7 +7380,8 @@
    "m": [
     {
      "i": "Water Conservation",
-     "k": "water"
+     "k": "water",
+     "l": "Required the Department of Environmental Quality to set a water fee schedule, with net fees going to the Water Infrastructure Fund."
     }
    ]
   },
@@ -7535,7 +7557,8 @@
     },
     {
      "i": "Housing Affordability",
-     "k": "housing"
+     "k": "housing",
+     "l": "Barred cities and counties from requiring a garage for an owner-occupied affordable single-family home."
     }
    ]
   },
@@ -7703,7 +7726,8 @@
     },
     {
      "i": "Housing Affordability",
-     "k": "housing"
+     "k": "housing",
+     "l": "Created a shared appreciation loan program and had the Utah Housing Corporation set rules for lenders of first-time homebuyer loans."
     }
    ]
   },
@@ -7767,7 +7791,8 @@
    "m": [
     {
      "i": "Water Conservation",
-     "k": "water"
+     "k": "water",
+     "l": "Would have imposed landscaping requirements on state government facilities."
     }
    ]
   },

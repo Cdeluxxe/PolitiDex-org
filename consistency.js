@@ -18412,18 +18412,71 @@
       'Confirmed Rubio as Secretary of State, to lead U.S. foreign policy and the State Department.',
     'Vought — OMB|119|national_debt':
       'Confirmed Vought as Director of the Office of Management and Budget, which leads the administration’s budget and deficit strategy.',
-    // FIVE ISSUES SLICE 16 (v385). Data Centers, Water Conservation, Housing
+    // FIVE ISSUES SLICE 16 (v386). Data Centers, Water Conservation, Housing
     // Affordability, Protect Public Lands and Energy. Every federal pair on those
-    // keys already printed a line, and no measure is mapped to a data-center key.
-    // The 31 Utah pairs store no `did`, so each was read from its own stored
-    // title alone. Two titles name what the act did and carry a line here,
-    // written from that title and the enacted status, with no tally; the other
-    // 29 name only a subject and stay silent. The sitting is the Utah session.
-    // db/vr-five-issue-effect-lines.json says why for each.
+    // keys already printed a line, and no measure on file changes data-center
+    // law, so none is mapped to a data-center key. The 31 Utah pairs store no
+    // `did`; each line is written from the bill's own Highlighted Provisions on
+    // the Legislature's record, and from its text where the provisions are too
+    // thin, never from its title. An enacted act reads as done; one that never
+    // passed opens "Would have". Four pairs whose provisions state no clear change
+    // stay silent. S.B. 118 (2023GS) and H.B. 11 (2024GS) keep the lines v385
+    // shipped from their titles, byte for byte. The sitting is the Utah session.
+    // db/vr-five-issue-effect-lines.json quotes the source of each and says why.
+    'H.B. 144|2023GS|energy_production':
+      'Extended the high cost infrastructure tax credit to underground mine projects and to the storage or production of all fuels.',
+    'H.B. 425|2023GS|energy_production':
+      'Required a project entity to give lawmakers 180 days’ notice before decommissioning a coal-powered generating plant.',
+    'H.B. 191|2024GS|energy_production':
+      'Required the Public Service Commission to make specific determinations before authorizing a generating plant’s early retirement.',
+    'H.B. 374|2024GS|energy_production':
+      'Made encouraging dispatchable energy resources part of Utah’s state energy policy.',
+    'S.B. 161|2024GS|energy_production':
+      'Gave the state the option to buy a power plant slated for decommissioning and created an authority to manage it.',
+    'S.B. 224|2024GS|energy_production':
+      'Set the terms for a utility to recover its costs for proven dispatchable generation resources located in Utah.',
+    'H.B. 201|2025GS|energy_production':
+      'Required full cost attribution for supplemental resources in utility resource plans and barred some involuntary demand programs.',
+    'H.B. 70|2025GS|energy_production':
+      'Created the Utah Energy Council to manage decommissioned power plants and pick their operators through a competitive process.',
+    'H.B. 364|2023GS|housing':
+      'Raised the yearly amount of state low-income housing tax credits that may be allocated in certain years.',
+    'S.B. 271|2023GS|housing':
+      'Barred cities and counties from regulating co-owned homes differently from other residential units.',
+    'S.B. 208|2024GS|housing':
+      'Required 12% of the homes proposed in a housing and transit reinvestment zone to be reserved for set income levels.',
+    'H.B. 360|2025GS|housing':
+      'Extended the Utah Homes Investment Program by a year and allowed some school surplus land to be used for affordable housing.',
+    'H.B. 37|2025GS|housing':
+      'Let cities and counties offer incentives for owner-occupied affordable housing and required a state housing plan by the end of 2025.',
+    'S.B. 181|2025GS|housing':
+      'Barred cities and counties from requiring a garage for an owner-occupied affordable single-family home.',
+    'S.B. 26|2025GS|housing':
+      'Measured a housing and transit zone’s affordable homes against county median income by household size, as part of a convention center bill.',
+    'S.B. 262|2025GS|housing':
+      'Created a shared appreciation loan program and had the Utah Housing Corporation set rules for lenders of first-time homebuyer loans.',
+    'H.B. 150|2023GS|water':
+      'Set a process for declaring a temporary water shortage emergency and the water use preferences that apply during one.',
+    'H.B. 217|2023GS|water':
+      'Authorized state school board grants to cut school energy and water use, with outdoor water conservation projects first.',
+    'H.B. 513|2023GS|water':
+      'Required Great Salt Lake brine leases to minimize water depletion and let the state curtail production in a lake emergency.',
     'S.B. 118|2023GS|water':
       'Provided water efficient landscaping incentives under Utah law.',
+    'S.B. 252|2023GS|water':
+      'Would have created tax credits for homebuilders who buy and install water efficient landscaping and fixtures.',
     'H.B. 11|2024GS|water':
       'Imposed water efficient landscaping requirements under Utah law.',
+    'H.B. 242|2024GS|water':
+      'Would have required state agencies to report their water use and had the state study public school water use.',
+    'S.B. 118|2024GS|water':
+      'Would have provided incentives to use water efficient landscaping in new residential development.',
+    'H.B. 274|2025GS|water':
+      'Set when a city may vary water rates for conservation and presumed rates reasonable when conservation is part of them.',
+    'S.B. 305|2025GS|water':
+      'Would have imposed landscaping requirements on state government facilities.',
+    'S.B. 80|2025GS|water':
+      'Required the Department of Environmental Quality to set a water fee schedule, with net fees going to the Water Infrastructure Fund.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is

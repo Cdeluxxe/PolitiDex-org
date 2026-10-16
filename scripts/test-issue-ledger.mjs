@@ -1400,11 +1400,11 @@ section("14 · the harvest — every stored did, read against the effect rule");
   })();
   // BLANK ROWS SLICE 15 (v374), from its marker to the next slice marker or the
   // end of the table, held by scripts/test-blank-rows-slice15.mjs. Five Issues
-  // slice 16 (v385) follows it and is scripts/test-five-issue-effect-lines.mjs's.
+  // slice 16 (v386) follows it and is scripts/test-five-issue-effect-lines.mjs's.
   const S15_KEYS = (() => {
     const src = R("consistency.js"), at = src.indexOf("// BLANK ROWS SLICE 15 (v374)");
     if (at === -1) return new Set();
-    const end = src.indexOf("\n  };", at), next = src.indexOf("// FIVE ISSUES SLICE 16 (v385)", at);
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// FIVE ISSUES SLICE 16 (v386)", at);
     return new Set([...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
   })();
   const IRAN = Object.keys(EFFECT).filter((k) => /\|iran_policy$/.test(k) && !RIDER_KEYS.has(k));
@@ -2067,20 +2067,21 @@ section("14 · the harvest — every stored did, read against the effect rule");
     ok(!(MECH[k] && MECH[k].did), `${k}: a slice-15 line on a pair that stores a did`);
     ok(/^Confirmed [A-Z][a-z]+ as\b/.test(v) && !/\d+-\d+/.test(v), `${k}: does not open "Confirmed <nominee> as" with no tally`);
   }
-  // FIVE ISSUES SLICE 16 (v385). Two Utah water pairs whose stored titles name
-  // what the act did, held in detail by scripts/test-five-issue-effect-lines.mjs;
-  // here the batch rules. Each is keyed by a Utah session and names no tally.
+  // FIVE ISSUES SLICE 16 (v386). The Utah pairs on Water Conservation, Housing
+  // Affordability and Energy whose bills' own provisions state a clear change,
+  // held in detail by scripts/test-five-issue-effect-lines.mjs; here the batch
+  // rules. Each is keyed by a Utah session and names no tally.
   const S16 = (() => {
-    const src = R("consistency.js"), at = src.indexOf("// FIVE ISSUES SLICE 16 (v385)");
+    const src = R("consistency.js"), at = src.indexOf("// FIVE ISSUES SLICE 16 (v386)");
     if (at === -1) return [];
     return [...src.slice(at, src.indexOf("\n  };", at)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
   })();
-  ok(S16.length === 2, `${S16.length} slice-16 line(s) — the slice wrote 2`);
+  ok(S16.length === 27, `${S16.length} slice-16 line(s) — the slice holds 27 (25 written, 2 kept from v385)`);
   for (const k of S16) {
     const v = EFFECT[k] || "";
     eq(harvestFault(v), "", `${k}: the slice-16 effect line`);
     ok(!(MECH[k] && MECH[k].did), `${k}: a slice-16 line on a pair that stores a did`);
-    ok(/^[^|]+\|\d{4}GS\|water$/.test(k) && !/\d+-\d+/.test(v), `${k}: not a Utah water pair, or names a tally`);
+    ok(/^[^|]+\|\d{4}GS\|(?:water|housing|energy_production)$/.test(k) && !/\d+-\d+/.test(v), `${k}: not a Utah pair on the slice's issues, or names a tally`);
   }
   const BATCH = Object.keys(EFFECT).filter((k) => !(k in SHIPPED) && !FISCAL.includes(k) && !LONGDID.includes(k) && !EPA.includes(k) && !VEN.includes(k) && !S6.includes(k) && !S7.includes(k) && !S8.includes(k) && !S9.includes(k) && !S10.includes(k) && !S11.includes(k) && !S12.includes(k) && !S13.includes(k) && !S15.includes(k) && !S16.includes(k) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);

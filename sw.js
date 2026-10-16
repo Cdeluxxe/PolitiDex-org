@@ -9821,7 +9821,18 @@
 //     mapping, pole or shipped line moved. No location key is migrated,
 //     renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v385';
+// v386 - EFFECT LINES FROM THE BILL ITSELF. The Utah rows on Water
+//     Conservation, Housing Affordability and Energy now print a one-line effect
+//     written from each bill's own Highlighted Provisions on the Legislature's
+//     record, not its title: 25 pairs that printed nothing. v385's two lines
+//     (S.B. 118 of 2023GS, H.B. 11 of 2024GS) stay byte-identical. Four pairs
+//     whose provisions state no clear change stay silent. No measure
+//     on file changes data-center law, so no Data Centers mapping was added.
+//     consistency.js is precached and changed, so the shell moves one version.
+//     No score, weight, mapping, pole or federal line moved. No location key is
+//     migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v386';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
