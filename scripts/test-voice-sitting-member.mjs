@@ -764,7 +764,11 @@ const HEAD = (f) => {
       // section 8 below asserts what it prints.
       .replace(/    \/\/ THE SEAT LINE, IN \/me's WORDS\.[\s\S]*?: esc\(name\);\n\n/, "")
       .replace("'<p class=\"pdxvr-chamber\">' + chamber + '</p>'", "'<p class=\"pdxvr-chamber\">' + esc(name) + '</p>'")
-      .replace("[s.key, s.name, s.line, s.seatKey, s.pid, s.board]", "[s.key, s.name, s.seatKey, s.pid, s.board]");
+      .replace("[s.key, s.name, s.line, s.seatKey, s.pid, s.board]", "[s.key, s.name, s.seatKey, s.pid, s.board]")
+      // …and the room line under a boarded card's door (v384): district-voice.js's
+      // boardRoomFor, wording again, not seat fill. scripts/
+      // test-room-for-residents.mjs asserts what it prints.
+      .replace("'</a></p>' +\n        (copy('boardRoomFor') ? '<p class=\"pdxvr-roomfor\">' + esc(copy('boardRoomFor')) + '</p>' : '');", "'</a></p>';");
     eq(deOrigin(sansRoster(R(f))), deOrigin(sansRoster(h)), `untouched: ${f} changed in this pass and it should not have — ${why}`);
   });
 

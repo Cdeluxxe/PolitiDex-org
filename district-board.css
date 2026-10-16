@@ -235,6 +235,7 @@
 /* THE GENERAL ROOM (district-composer.js paints it into district-board.js's
    frame) and the like control on every comment. */
 .pdxdb-band--general .pdxdb-h2 { margin-bottom: 0.25rem; }
+.pdxdb-room-for { margin: -0.6rem 0 1.15rem; padding: 0 1.05rem; font-size: 0.82rem; line-height: 1.5; color: #8496b0; }
 .pdxdc-g-prev { margin: 0.6rem 0 0; font-size: 0.8rem; line-height: 1.5; display: flex; flex-wrap: wrap; gap: 0.3rem 0.8rem; }
 .pdxdc-g-prev-a, .pdxdc-g-back { color: #93a5bf; text-decoration: underline; text-underline-offset: 2px; }
 .pdxdc-g-prev-a:hover, .pdxdc-g-back:hover { color: #7fb2ff; }

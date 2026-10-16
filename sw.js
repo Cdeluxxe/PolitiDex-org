@@ -9801,7 +9801,17 @@
 //     version. No route, gate, store or BOARD_ROUTES row moved. No location key
 //     is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v383';
+// v384 - THE ROOMS STAY WITH THE PEOPLE WHO LIVE THERE. Every board prints
+//     one sentence under its general room, and every /voice card for a seat
+//     with a board prints the same sentence under its Open board door: "This
+//     room is for the people who live in this district. Outside noise stays
+//     outside." The locked line is unchanged; no gate, route, store, composer
+//     or BOARD_ROUTES row moved. district-board.js, district-board.css,
+//     district-voice.js, voice-room.js and /voice are precached and changed,
+//     so the shell moves one version. No location key is migrated, renamed or
+//     copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v384';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
