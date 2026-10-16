@@ -1,0 +1,324 @@
+{
+ "_comment": "Effect lines on five issues (v385): Data Centers (datacenter_growth, datacenter_water, datacenter_power), Water Conservation (water), Housing Affordability (housing), Protect Public Lands (lands_preserve) and Expand Domestic Energy Production (energy_production). Every federal pair mapped to these keys already printed a line before this pass, and no measure is mapped to any data-center key. That leaves the Utah pairs below, 31 of them, none of which stores a `did`; each was read from its own stored title alone, in wave 4's form. Where the title names what the act did, one line was written from that title and the enacted status, and is stored once in consistency.js _DOS_EFFECT under the FIVE ISSUES SLICE 16 marker; `term` is the title words the line carries. Where it does not, the row stays silent and `why` says what the title lacks. No line names a tally: the one roll on file for each is a single-chamber vote, two of them on concurrence. Read by scripts/test-five-issue-effect-lines.mjs. No score, weight, mapping or key is read from or written to here.",
+ "federalPairsAlreadyPrinting": {
+  "energy_production": 15,
+  "housing": 1,
+  "lands_preserve": 4,
+  "water": 1
+ },
+ "dataCenterPairs": 0,
+ "rows": [
+  {
+   "key": "H.B. 144|2023GS|energy_production",
+   "number": "H.B. 144",
+   "sitting": "2023GS",
+   "issue": "energy_production",
+   "title": "High Cost Infrastructure Development Tax Credit Amendments",
+   "status": "enacted",
+   "decision": "refuse",
+   "why": "“High Cost Infrastructure Development Tax Credit Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "H.B. 425|2023GS|energy_production",
+   "number": "H.B. 425",
+   "sitting": "2023GS",
+   "issue": "energy_production",
+   "title": "Energy Security Amendments",
+   "status": "enacted",
+   "decision": "refuse",
+   "why": "“Energy Security Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "H.B. 191|2024GS|energy_production",
+   "number": "H.B. 191",
+   "sitting": "2024GS",
+   "issue": "energy_production",
+   "title": "Electrical Energy Amendments",
+   "status": "enacted",
+   "decision": "refuse",
+   "why": "“Electrical Energy Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "H.B. 374|2024GS|energy_production",
+   "number": "H.B. 374",
+   "sitting": "2024GS",
+   "issue": "energy_production",
+   "title": "State Energy Policy Amendments",
+   "status": "enacted",
+   "decision": "refuse",
+   "why": "“State Energy Policy Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "S.B. 161|2024GS|energy_production",
+   "number": "S.B. 161",
+   "sitting": "2024GS",
+   "issue": "energy_production",
+   "title": "Energy Security Amendments",
+   "status": "enacted",
+   "decision": "refuse",
+   "why": "“Energy Security Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "S.B. 224|2024GS|energy_production",
+   "number": "S.B. 224",
+   "sitting": "2024GS",
+   "issue": "energy_production",
+   "title": "Energy Independence Amendments",
+   "status": "enacted",
+   "decision": "refuse",
+   "why": "“Energy Independence Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "H.B. 201|2025GS|energy_production",
+   "number": "H.B. 201",
+   "sitting": "2025GS",
+   "issue": "energy_production",
+   "title": "Energy Resource Amendments",
+   "status": "enacted",
+   "decision": "refuse",
+   "why": "“Energy Resource Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "H.B. 70|2025GS|energy_production",
+   "number": "H.B. 70",
+   "sitting": "2025GS",
+   "issue": "energy_production",
+   "title": "Decommissioned Asset Disposition Amendments",
+   "status": "enacted",
+   "decision": "refuse",
+   "why": "“Decommissioned Asset Disposition Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "H.B. 364|2023GS|housing",
+   "number": "H.B. 364",
+   "sitting": "2023GS",
+   "issue": "housing",
+   "title": "Housing Affordability Amendments",
+   "status": "passed_senate",
+   "decision": "refuse",
+   "why": "“Housing Affordability Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "S.B. 271|2023GS|housing",
+   "number": "S.B. 271",
+   "sitting": "2023GS",
+   "issue": "housing",
+   "title": "Home Ownership Requirements",
+   "status": "enacted",
+   "decision": "refuse",
+   "why": "“Home Ownership Requirements” names requirements but not who they bind or what they require, so any line would guess at the effect on housing affordability."
+  },
+  {
+   "key": "S.B. 208|2024GS|housing",
+   "number": "S.B. 208",
+   "sitting": "2024GS",
+   "issue": "housing",
+   "title": "Housing and Transit Reinvestment Zone Amendments",
+   "status": "enacted",
+   "decision": "refuse",
+   "why": "“Housing and Transit Reinvestment Zone Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "H.B. 360|2025GS|housing",
+   "number": "H.B. 360",
+   "sitting": "2025GS",
+   "issue": "housing",
+   "title": "Housing Attainability Amendments",
+   "status": "enacted",
+   "decision": "refuse",
+   "why": "“Housing Attainability Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "H.B. 37|2025GS|housing",
+   "number": "H.B. 37",
+   "sitting": "2025GS",
+   "issue": "housing",
+   "title": "Utah Housing Amendments",
+   "status": "enacted",
+   "decision": "refuse",
+   "why": "“Utah Housing Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "S.B. 181|2025GS|housing",
+   "number": "S.B. 181",
+   "sitting": "2025GS",
+   "issue": "housing",
+   "title": "Housing Affordability Amendments",
+   "status": "enacted",
+   "decision": "refuse",
+   "why": "“Housing Affordability Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "S.B. 23|2025GS|housing",
+   "number": "S.B. 23",
+   "sitting": "2025GS",
+   "issue": "housing",
+   "title": "First Home Investment Zone Amendments",
+   "status": "enacted",
+   "decision": "refuse",
+   "why": "“First Home Investment Zone Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "S.B. 26|2025GS|housing",
+   "number": "S.B. 26",
+   "sitting": "2025GS",
+   "issue": "housing",
+   "title": "Housing and Transit Reinvestment Zone Amendments",
+   "status": "enacted",
+   "decision": "refuse",
+   "why": "“Housing and Transit Reinvestment Zone Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "S.B. 262|2025GS|housing",
+   "number": "S.B. 262",
+   "sitting": "2025GS",
+   "issue": "housing",
+   "title": "Housing Affordability Modifications",
+   "status": "enacted",
+   "decision": "refuse",
+   "why": "“Housing Affordability Modifications” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "H.B. 150|2023GS|water",
+   "number": "H.B. 150",
+   "sitting": "2023GS",
+   "issue": "water",
+   "title": "Emergency Water Shortages Amendments",
+   "status": "enacted",
+   "decision": "refuse",
+   "why": "“Emergency Water Shortages Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "H.B. 217|2023GS|water",
+   "number": "H.B. 217",
+   "sitting": "2023GS",
+   "issue": "water",
+   "title": "School Energy and Water Reductions",
+   "status": "enacted",
+   "decision": "refuse",
+   "why": "“School Energy and Water Reductions” names a goal, not what the act did to reach it — a grant, a mandate or a study — so it states no effect on water conservation."
+  },
+  {
+   "key": "H.B. 307|2023GS|water",
+   "number": "H.B. 307",
+   "sitting": "2023GS",
+   "issue": "water",
+   "title": "Utah Water Ways",
+   "status": "enacted",
+   "decision": "refuse",
+   "why": "“Utah Water Ways” is the name of an entity, not an effect; the title says nothing the act did to water conservation."
+  },
+  {
+   "key": "H.B. 513|2023GS|water",
+   "number": "H.B. 513",
+   "sitting": "2023GS",
+   "issue": "water",
+   "title": "Great Salt Lake Amendments",
+   "status": "enacted",
+   "decision": "refuse",
+   "why": "“Great Salt Lake Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "H.B. 538|2023GS|water",
+   "number": "H.B. 538",
+   "sitting": "2023GS",
+   "issue": "water",
+   "title": "Water Usage Amendments",
+   "status": "introduced",
+   "decision": "refuse",
+   "why": "“Water Usage Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "S.B. 118|2023GS|water",
+   "number": "S.B. 118",
+   "sitting": "2023GS",
+   "issue": "water",
+   "title": "Water Efficient Landscaping Incentives",
+   "status": "enacted",
+   "decision": "line",
+   "term": "water efficient landscaping incentives",
+   "line": "Provided water efficient landscaping incentives under Utah law."
+  },
+  {
+   "key": "S.B. 252|2023GS|water",
+   "number": "S.B. 252",
+   "sitting": "2023GS",
+   "issue": "water",
+   "title": "Conservation Tax Incentive Amendments",
+   "status": "introduced",
+   "decision": "refuse",
+   "why": "“Conservation Tax Incentive Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "H.B. 11|2024GS|water",
+   "number": "H.B. 11",
+   "sitting": "2024GS",
+   "issue": "water",
+   "title": "Water Efficient Landscaping Requirements",
+   "status": "enacted",
+   "decision": "line",
+   "term": "water efficient landscaping requirements",
+   "line": "Imposed water efficient landscaping requirements under Utah law."
+  },
+  {
+   "key": "H.B. 242|2024GS|water",
+   "number": "H.B. 242",
+   "sitting": "2024GS",
+   "issue": "water",
+   "title": "Water Usage Data Amendments",
+   "status": "introduced",
+   "decision": "refuse",
+   "why": "“Water Usage Data Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "H.B. 62|2024GS|water",
+   "number": "H.B. 62",
+   "sitting": "2024GS",
+   "issue": "water",
+   "title": "Utah Water Ways Amendments",
+   "status": "enacted",
+   "decision": "refuse",
+   "why": "“Utah Water Ways Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "S.B. 118|2024GS|water",
+   "number": "S.B. 118",
+   "sitting": "2024GS",
+   "issue": "water",
+   "title": "Water Efficiency Amendments",
+   "status": "introduced",
+   "decision": "refuse",
+   "why": "“Water Efficiency Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "H.B. 274|2025GS|water",
+   "number": "H.B. 274",
+   "sitting": "2025GS",
+   "issue": "water",
+   "title": "Water Amendments",
+   "status": "enacted",
+   "decision": "refuse",
+   "why": "“Water Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "S.B. 305|2025GS|water",
+   "number": "S.B. 305",
+   "sitting": "2025GS",
+   "issue": "water",
+   "title": "Water Wise Landscaping Amendments",
+   "status": "introduced",
+   "decision": "refuse",
+   "why": "“Water Wise Landscaping Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  },
+  {
+   "key": "S.B. 80|2025GS|water",
+   "number": "S.B. 80",
+   "sitting": "2025GS",
+   "issue": "water",
+   "title": "Water Fee Amendments",
+   "status": "enacted",
+   "decision": "refuse",
+   "why": "“Water Fee Amendments” names the subject the bill changes, not what it changed, so it states no effect on the issue."
+  }
+ ]
+}

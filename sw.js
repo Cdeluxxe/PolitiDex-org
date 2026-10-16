@@ -9811,7 +9811,17 @@
 //     so the shell moves one version. No location key is migrated, renamed or
 //     copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v384';
+// v385 - EFFECT LINES ON FIVE ISSUES. Water Conservation rows for two Utah
+//     acts now print the one-line effect under the row, written from each
+//     pair's own stored title: S.B. 118 (2023GS) and H.B. 11 (2024GS). Every
+//     federal pair on Data Centers, Water Conservation, Housing Affordability,
+//     Protect Public Lands and Energy already printed one; the other 29 Utah
+//     pairs have titles that name no effect and stay silent. consistency.js is
+//     precached and changed, so the shell moves one version. No score, weight,
+//     mapping, pole or shipped line moved. No location key is migrated,
+//     renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v385';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

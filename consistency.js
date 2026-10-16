@@ -18412,6 +18412,18 @@
       'Confirmed Rubio as Secretary of State, to lead U.S. foreign policy and the State Department.',
     'Vought — OMB|119|national_debt':
       'Confirmed Vought as Director of the Office of Management and Budget, which leads the administration’s budget and deficit strategy.',
+    // FIVE ISSUES SLICE 16 (v385). Data Centers, Water Conservation, Housing
+    // Affordability, Protect Public Lands and Energy. Every federal pair on those
+    // keys already printed a line, and no measure is mapped to a data-center key.
+    // The 31 Utah pairs store no `did`, so each was read from its own stored
+    // title alone. Two titles name what the act did and carry a line here,
+    // written from that title and the enacted status, with no tally; the other
+    // 29 name only a subject and stay silent. The sitting is the Utah session.
+    // db/vr-five-issue-effect-lines.json says why for each.
+    'S.B. 118|2023GS|water':
+      'Provided water efficient landscaping incentives under Utah law.',
+    'H.B. 11|2024GS|water':
+      'Imposed water efficient landscaping requirements under Utah law.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is

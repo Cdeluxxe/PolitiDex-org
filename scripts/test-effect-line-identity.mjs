@@ -123,7 +123,18 @@ section("2 · every shipped federal line still reaches its own act");
 if (HEAD) must(OLD, "HEAD's _dosEffectLine could not be lifted for the old-key comparison");
 const keys = Object.keys(E.map);
 must(keys.length > 200, `only ${keys.length} lines in _DOS_EFFECT — the table was not read`);
-for (const k of keys) {
+// Utah lines (from Five Issues slice 16, v385) sit under number|session|issue;
+// each reaches its own session's row and no other.
+for (const k of keys.filter((x) => /\|\d{4}[A-Z]{2}\|/.test(x))) {
+  const m = /^(.+)\|(\d{4}[A-Z]{2})\|([a-z0-9_]+)$/.exec(k);
+  ok(!!m, `${k}: a shipped Utah line is not under a number|session|issue key`);
+  if (!m) continue;
+  eq(NEW.key(utah(m[1], m[2]), m[3]), k, `${k}: the Utah row's key is not the line's key`);
+  ok(norm(NEW.line(utah(m[1], m[2]), m[3], null)) !== "", `${k}: the Utah line does not reach its own row`);
+  const other = String(Number(m[2].slice(0, 4)) + 1) + m[2].slice(4);
+  eq(NEW.line(utah(m[1], other), m[3], null), "", `${k}: the line reaches the same number in ${other}`);
+}
+for (const k of keys.filter((x) => !/\|\d{4}[A-Z]{2}\|/.test(x))) {
   const m = /^(.+)\|(\d+)\|([a-z0-9_]+)$/.exec(k);
   ok(!!m, `${k}: a shipped line is not under a number|congress|issue key`);
   if (!m) continue;
