@@ -47,6 +47,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { keysAfter } from "./vr-slice-blocks.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -227,6 +228,9 @@ function check(src) {
   const win = boot(src);
   if (win.__err) return [`boot: ${win.__err}`];
   const byKey = new Map(ROWS.map((r) => [r.key, r]));
+  // A pair this pass left silent may be written by a later slice from text this
+  // pass did not read (the bill body, v389); its line is that slice's to hold.
+  const later = keysAfter(src, "_DOS_EFFECT", 388);
 
   // 1 · the fixture member, on every leaf
   const seen = new Set();
@@ -240,7 +244,8 @@ function check(src) {
       const stored = E.map[pair] || (M.map[pair] && M.map[pair].did) || "";
       for (const got of lists) {
         need(got.length <= 1, `${pair}: ${got.length} effect lines under one row`);
-        if (row.decision === "refuse") need(!got.length, `${pair}: a silent pair prints ${JSON.stringify(got[0])}`);
+        if (row.decision === "refuse" && later.has(pair)) need(got.length === 1 && got[0] === norm(E.map[pair]), `${pair}: a later slice's pair prints ${JSON.stringify(got)}`);
+        else if (row.decision === "refuse") need(!got.length, `${pair}: a silent pair prints ${JSON.stringify(got[0])}`);
         if (row.decision === "line") need(got.length === 1 && got[0] === norm(row.line), `${pair}: prints ${JSON.stringify(got)}, the ledger says ${JSON.stringify(row.line)}`);
         if (got.length) need(got[0] === norm(stored), `${pair}: prints a line that is not its own pair's`);
       }
@@ -266,7 +271,7 @@ function check(src) {
       need(f === "", `${k}: ${f}`);
     } else {
       need(row.decision === "refuse" && norm(row.why).length > 20, `${k}: a refusal with no reason`);
-      need(!(k in E.map) && !(k in P.map), `${k}: a silent pair carries a line`);
+      need((!(k in E.map) || later.has(k)) && !(k in P.map), `${k}: a silent pair carries a line`);
     }
   }
   // Two pairs of one act never print the same line.
@@ -282,11 +287,12 @@ function check(src) {
     const hE = mapOf(HEAD_SRC, "_DOS_EFFECT"), hX = mapOf(HEAD_SRC, "_DOS_EXEC_EFFECT"), hM = mapOf(HEAD_SRC, "_DOS_MECH"), hP = mapOf(HEAD_SRC, "_DOS_POINTER");
     const headBlock = new Set(blockOf(HEAD_SRC).keys);
     for (const [k, v] of Object.entries(hE.map)) if (!headBlock.has(k)) need(E.map[k] === v, `${k}: a shipped line changed`);
-    for (const k of Object.keys(E.map)) need(k in hE.map || block.includes(k), `${k}: a new line outside the EFFECT COVERAGE block`);
+    for (const k of Object.keys(E.map)) need(k in hE.map || block.includes(k) || later.has(k), `${k}: a new line outside the EFFECT COVERAGE block`);
     need(X.text === hX.text, "_DOS_EXEC_EFFECT changed");
     need(M.text === hM.text, "_DOS_MECH changed");
     need(P.text === hP.text, "_DOS_POINTER changed");
-    const cut = (x) => { const b = blockOf(x).text; return b ? x.split(b).join("") : x; };
+    // This block and any later slice's after it, to the end of the table.
+    const cut = (x) => { const a = x.indexOf("    " + MARK); return a < 0 ? x : x.slice(0, a) + x.slice(x.indexOf("\n  };", a) + 1); };
     need(cut(src) === cut(HEAD_SRC), "consistency.js moved outside the EFFECT COVERAGE block");
     const hWin = boot(HEAD_SRC);
     if (!hWin.__err) {

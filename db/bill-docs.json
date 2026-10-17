@@ -2344,7 +2344,8 @@
     },
     {
      "i": "Pro-Growth Deregulation",
-     "k": "econ_growth"
+     "k": "econ_growth",
+     "l": "Would bar treating a non-controlling blockchain developer as a money transmitter solely for creating or publishing blockchain software."
     }
    ]
   },
@@ -3766,7 +3767,8 @@
    "m": [
     {
      "i": "Cut Income & Business Taxes",
-     "k": "lower_taxes"
+     "k": "lower_taxes",
+     "l": "Cut the corporate franchise and income tax rates and the individual income tax rate from 4.85% to 4.65%."
     },
     {
      "i": "Middle-Class Tax Relief",
@@ -4221,7 +4223,8 @@
    "m": [
     {
      "i": "Raise Wages & Protect Workers",
-     "k": "econ_workers"
+     "k": "econ_workers",
+     "l": "Would have barred claimants who without good cause fail to appear for a scheduled interview for suitable work from benefits."
     }
    ]
   },
@@ -4366,7 +4369,8 @@
     },
     {
      "i": "Religious Liberty Focus",
-     "k": "religious_liberty"
+     "k": "religious_liberty",
+     "l": "Let a student refrain from any aspect of school violating a religious belief or right of conscience, without being required to justify it."
     }
    ]
   },
@@ -4512,7 +4516,8 @@
    "m": [
     {
      "i": "Expand Voting Access",
-     "k": "voting_access"
+     "k": "voting_access",
+     "l": "Would have let a statewide initiative that would increase taxes pass only with over 60% of votes cast, if a constitutional amendment passed."
     }
    ]
   },
@@ -4537,11 +4542,13 @@
    "m": [
     {
      "i": "End DEI Programs",
-     "k": "end_dei"
+     "k": "end_dei",
+     "l": "Barred LEA programs inconsistent with the principle that no individual is inherently racist, sexist, or oppressive solely by race or sex."
     },
     {
      "i": "Religious Liberty Focus",
-     "k": "religious_liberty"
+     "k": "religious_liberty",
+     "l": "Barred public schools from denying the practice of prayer or religious devotionals."
     }
    ]
   },
@@ -4566,7 +4573,8 @@
    "m": [
     {
      "i": "End DEI Programs",
-     "k": "end_dei"
+     "k": "end_dei",
+     "l": "Would have barred colleges, schools and state employers from requesting statements on anti-racism or critical race theory, with exceptions."
     }
    ]
   },
@@ -4682,7 +4690,8 @@
    "m": [
     {
      "i": "Protect Gun Rights",
-     "k": "gun_rights"
+     "k": "gun_rights",
+     "l": "Ended the gun ban for one non-violent, non-domestic felony seven years after sentence, unless charged with a felony or class A misdemeanor."
     }
    ]
   },
@@ -5600,7 +5609,8 @@
    "m": [
     {
      "i": "Expand Voting Access",
-     "k": "voting_access"
+     "k": "voting_access",
+     "l": "Would have required over 60% yes votes for a statewide initiative for a new tax or tax increase, contingent on a constitutional amendment."
     }
    ]
   },
@@ -5820,7 +5830,8 @@
    "m": [
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Made simulated masturbation or intercourse by an adult before a child under 14, with intent to arouse or alarm, lewdness involving a child."
     }
    ]
   },
@@ -6123,7 +6134,8 @@
    "m": [
     {
      "i": "Cut Income & Business Taxes",
-     "k": "lower_taxes"
+     "k": "lower_taxes",
+     "l": "Cut the corporate franchise and income tax rate and the individual income tax rate to 4.55% from 4.65%."
     }
    ]
   },
@@ -6174,7 +6186,8 @@
    "m": [
     {
      "i": "Protect LGBTQ+ Rights",
-     "k": "lgbtq_rights"
+     "k": "lgbtq_rights",
+     "l": "Applied gestational agreement requirements to the mother’s spouse, not only her husband, and barred using the spouse’s sperm or eggs."
     }
    ]
   },
@@ -6186,7 +6199,8 @@
    "m": [
     {
      "i": "Criminal Justice Reform",
-     "k": "justice_reform"
+     "k": "justice_reform",
+     "l": "Would have raised the value for third degree felony theft from $1,500 to $2,000 and for second degree from $5,000 to $10,000."
     }
    ]
   },
@@ -6224,7 +6238,8 @@
    "m": [
     {
      "i": "Expand Healthcare Access",
-     "k": "healthcare"
+     "k": "healthcare",
+     "l": "Required a health benefit plan to give 30 days’ notice before requiring an enrollee to change from a long-term drug, with exceptions."
     }
    ]
   },
@@ -6249,7 +6264,8 @@
    "m": [
     {
      "i": "Affordable Child Care",
-     "k": "child_care"
+     "k": "child_care",
+     "l": "Would have allowed no-cost leases of state child care facilities to employer sponsors, with leases requiring reduced tuition."
     }
    ]
   },
@@ -6352,7 +6368,8 @@
    "m": [
     {
      "i": "Energy Independence",
-     "k": "enviro_energy"
+     "k": "enviro_energy",
+     "l": "Barred a utility from offering excess proven dispatchable generation capacity for sale outside the state unless it has provided notice."
     },
     {
      "i": "Expand Domestic Energy Production",
@@ -6592,7 +6609,8 @@
     },
     {
      "i": "Cut Income & Business Taxes",
-     "k": "lower_taxes"
+     "k": "lower_taxes",
+     "l": "Cut the corporate franchise and income tax rates and the individual income tax rate from 4.55% to 4.5%."
     }
    ]
   },
@@ -6884,7 +6902,8 @@
    "m": [
     {
      "i": "Protect LGBTQ+ Rights",
-     "k": "lgbtq_rights"
+     "k": "lgbtq_rights",
+     "l": "Barred initiating cross-sex hormone treatment or sex characteristic surgical procedures for a prisoner, inmate, or minor in state custody."
     }
    ]
   },
@@ -7143,7 +7162,8 @@
    "m": [
     {
      "i": "Energy & Resource Development",
-     "k": "lands_energy"
+     "k": "lands_energy",
+     "l": "Let operators with a vested critical infrastructure materials use expand it to contiguous land owned or controlled before May 7, 2025."
     }
    ]
   },
@@ -7251,11 +7271,13 @@
    "m": [
     {
      "i": "Free Speech Protections",
-     "k": "free_speech"
+     "k": "free_speech",
+     "l": "Required a higher education institution’s free expression policy to be viewpoint-neutral in text and application."
     },
     {
      "i": "Religious Liberty Focus",
-     "k": "religious_liberty"
+     "k": "religious_liberty",
+     "l": "Barred denying benefits to a religious, political, or ideological student organization for requiring a leader to affirm its beliefs."
     }
    ]
   },
@@ -7267,7 +7289,8 @@
    "m": [
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Would have made unlicensed driving a class C misdemeanor, not an infraction, and a class B misdemeanor if previously convicted."
     }
    ]
   },
@@ -7322,7 +7345,8 @@
     },
     {
      "i": "Protect LGBTQ+ Rights",
-     "k": "lgbtq_rights"
+     "k": "lgbtq_rights",
+     "l": "Would have barred custody action against a parent for not supporting hormonal transgender treatment for the parent’s minor child."
     }
    ]
   },
@@ -7360,7 +7384,8 @@
    "m": [
     {
      "i": "Tough on Crime",
-     "k": "tough_on_crime"
+     "k": "tough_on_crime",
+     "l": "Required the public safety interagency agreement to set roles in any joint operations and metrics on whether public safety has improved."
     }
    ]
   },
@@ -7535,7 +7560,8 @@
    "m": [
     {
      "i": "Help First-Time Buyers",
-     "k": "housing_first_time"
+     "k": "housing_first_time",
+     "l": "Required first home investment zone proposals to have 50% of the minimum 30 housing units per acre owner occupied."
     },
     {
      "i": "Housing Affordability",

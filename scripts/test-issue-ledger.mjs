@@ -1666,7 +1666,7 @@ section("14 · the harvest — every stored did, read against the effect rule");
   // scripts/test-effect-coverage-lines.mjs and counted with slice 17 below.
   const S17_EARLY = (() => {
     const src = R("consistency.js"), at = src.indexOf("// EFFECT COVERAGE SLICE 17 (v388)");
-    return new Set(at === -1 ? [] : [...src.slice(at, src.indexOf("\n  };", at)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));
+    return new Set(at === -1 ? [] : [...src.slice(at, src.indexOf("\n  };", at)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]));  // slices 17 and 18
   })();
   const ISR = Object.keys(EFFECT).filter((k) => /\|israel_support$/.test(k) && !S17_EARLY.has(k));
   const ISR_SPEC = {
@@ -2101,8 +2101,22 @@ section("14 · the harvest — every stored did, read against the effect rule");
   const S17 = (() => {
     const src = R("consistency.js"), at = src.indexOf("// EFFECT COVERAGE SLICE 17 (v388)");
     if (at === -1) return [];
+    const end = src.indexOf("\n  };", at), next = src.indexOf("// EFFECT BODY TEXT SLICE 18 (v389)", at);
+    return [...src.slice(at, next !== -1 && next < end ? next : end).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
+  })();
+  // EFFECT BODY TEXT SLICE 18 (v389). Pairs slice 17 left silent for thin text,
+  // written from the bill's own body; held in detail by
+  // scripts/test-effect-body-lines.mjs, here the batch rules.
+  const S18 = (() => {
+    const src = R("consistency.js"), at = src.indexOf("// EFFECT BODY TEXT SLICE 18 (v389)");
+    if (at === -1) return [];
     return [...src.slice(at, src.indexOf("\n  };", at)).matchAll(/^    '([^']+)':$/gm)].map((m) => m[1]);
   })();
+  ok(S18.length === JSON.parse(R("db/vr-effect-body-lines.json")).rows.filter((r) => r.decision === "line").length, `${S18.length} slice-18 line(s) — not the body ledger's count`);
+  for (const k of S18) {
+    eq(harvestFault(EFFECT[k] || ""), "", `${k}: the slice-18 effect line`);
+    ok(!(MECH[k] && MECH[k].did), `${k}: a slice-18 line on a pair that stores a did`);
+  }
   ok(S17.length === JSON.parse(R("db/vr-effect-coverage-lines.json")).rows.filter((r) => r.decision === "line").length, `${S17.length} slice-17 line(s) — not the coverage ledger's count`);
   for (const k of S17) {
     const v = EFFECT[k] || "";
@@ -2110,9 +2124,9 @@ section("14 · the harvest — every stored did, read against the effect rule");
     ok(!(MECH[k] && MECH[k].did), `${k}: a slice-17 line on a pair that stores a did`);
     ok(/^[^|]+\|(?:\d{4}GS|\d{3})\|[a-z_]+$/.test(k) && (!/\|\d{4}GS\|/.test(k) || !/\d+-\d+/.test(v)), `${k}: not a Utah or federal pair, or a Utah line names a tally`);
   }
-  const BATCH = Object.keys(EFFECT).filter((k) => !S17.includes(k) && !(k in SHIPPED) && !FISCAL.includes(k) && !LONGDID.includes(k) && !EPA.includes(k) && !VEN.includes(k) && !S6.includes(k) && !S7.includes(k) && !S8.includes(k) && !S9.includes(k) && !S10.includes(k) && !S11.includes(k) && !S12.includes(k) && !S13.includes(k) && !S15.includes(k) && !S16.includes(k) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
+  const BATCH = Object.keys(EFFECT).filter((k) => !S17.includes(k) && !S18.includes(k) && !(k in SHIPPED) && !FISCAL.includes(k) && !LONGDID.includes(k) && !EPA.includes(k) && !VEN.includes(k) && !S6.includes(k) && !S7.includes(k) && !S8.includes(k) && !S9.includes(k) && !S10.includes(k) && !S11.includes(k) && !S12.includes(k) && !S13.includes(k) && !S15.includes(k) && !S16.includes(k) && !IRAN.includes(k) && !UKRAINE.includes(k) && !WAR.includes(k) && !AF.includes(k) && !PTS.includes(k) && !ISR.includes(k) && !DR.includes(k) && !SEARCH.includes(k) && !WAVE1.includes(k) && !WAVE2.includes(k) && !RIDER.includes(k) && !WAVE3.includes(k) && !WAVE4.includes(k));
   ok(BATCH.length > 0 && BATCH.length <= 30, `${BATCH.length} new effect line(s) — the CRA batch is capped at 30`);
-  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length + FISCAL.length + LONGDID.length + EPA.length + VEN.length + S6.length + S7.length + S8.length + S9.length + S10.length + S11.length + S12.length + S13.length + S15.length + S16.length + S17.filter((k) => ![IRAN, UKRAINE, WAR, AF, PTS, ISR, DR].some((g) => g.includes(k))).length, "the effect table lost a shipped line");
+  eq(Object.keys(EFFECT).length, 8 + BATCH.length + IRAN.length + UKRAINE.length + WAR.length + AF.length + PTS.length + ISR.length + DR.length + SEARCH.length + WAVE1.length + WAVE2.length + RIDER.length + WAVE3.length + WAVE4.length + FISCAL.length + LONGDID.length + EPA.length + VEN.length + S6.length + S7.length + S8.length + S9.length + S10.length + S11.length + S12.length + S13.length + S15.length + S16.length + S17.filter((k) => ![IRAN, UKRAINE, WAR, AF, PTS, ISR, DR].some((g) => g.includes(k))).length + S18.filter((k) => ![IRAN, UKRAINE, WAR, AF, PTS, ISR, DR].some((g) => g.includes(k))).length, "the effect table lost a shipped line");
   for (const k of BATCH) eq(craFault(k, EFFECT[k]), "", `${k}: the CRA effect line`);
   // Same resolution, different issue: the line is that pair's own, never a
   // sibling's, except where neither pair has a `did` and the title is the only source.

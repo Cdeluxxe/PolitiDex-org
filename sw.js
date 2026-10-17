@@ -9853,7 +9853,17 @@
 //     moves one version. No score, weight, mapping or pole moved.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v388';
+// v389 - EFFECT LINES FROM THE BILL BODY. The 31 pairs v388 left silent only
+//     because the stored text was too thin were read one layer deeper: the
+//     Utah bill's own body, and H.R. 3633's House-passed text. 26 now carry a
+//     line resting on what the bill inserts, strikes or newly enacts; five stay
+//     silent with the reason, and the 75 silent for a stronger reason were not
+//     reopened (db/vr-effect-body-lines.json). Every shipped line is
+//     byte-identical. consistency.js is precached and changed, so the shell
+//     moves one version. No score, weight, mapping or pole moved.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v389';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

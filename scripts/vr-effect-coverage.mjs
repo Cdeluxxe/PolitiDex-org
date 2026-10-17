@@ -17,7 +17,11 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const ROWS = JSON.parse(readFileSync(join(ROOT, "db/vr-effect-coverage-lines.json"), "utf8")).rows;
+// The bill-body pass (EFFECT BODY TEXT SLICE 18, v389) wrote more of the same
+// kind from the bill's own body; db/vr-effect-body-lines.json holds them, and
+// scripts/test-effect-body-lines.mjs the lines themselves.
+const ROWS = ["db/vr-effect-coverage-lines.json", "db/vr-effect-body-lines.json"]
+  .flatMap((f) => JSON.parse(readFileSync(join(ROOT, f), "utf8")).rows);
 export const COVERAGE_LINES = new Map(ROWS.filter((r) => r.decision === "line").map((r) => [r.key, r.line]));
 
 // By number, sitting (a congress or a Utah session) and issue.

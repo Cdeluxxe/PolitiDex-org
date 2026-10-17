@@ -19077,6 +19077,67 @@
       'Barred counting votes cast for or against an initiative if its sponsors fail to publish the initiative application as required.',
     'S.B. 211|2024GS|water_storage':
       'Directed the creation of the Water District Water Development Council and provided for the appointment of the Utah water agent.',
+    // EFFECT BODY TEXT SLICE 18 (v389). The pairs slice 17 left silent only
+    // because the stored text was too thin, each read one layer deeper: the Utah
+    // bill’s own body where its Highlighted Provisions only amend, modify or
+    // clarify, and the House-passed text where a federal rationale states an aim.
+    // A line rests only on what the bill inserts, strikes or newly enacts, never
+    // on existing law it reprints, and keeps every qualifier the text states.
+    // 25 Utah and 1 federal pair carry a line; the rest still stay silent, and
+    // the pairs silent for a stronger reason were not reopened.
+    // db/vr-effect-body-lines.json quotes the source of each and says why.
+    'H.R. 3633|119|econ_growth':
+      'Would bar treating a non-controlling blockchain developer as a money transmitter solely for creating or publishing blockchain software.',
+    'S.B. 176|2024GS|child_care':
+      'Would have allowed no-cost leases of state child care facilities to employer sponsors, with leases requiring reduced tuition.',
+    'H.B. 283|2023GS|econ_workers':
+      'Would have barred claimants who without good cause fail to appear for a scheduled interview for suitable work from benefits.',
+    'H.B. 427|2023GS|end_dei':
+      'Barred LEA programs inconsistent with the principle that no individual is inherently racist, sexist, or oppressive solely by race or sex.',
+    'H.B. 451|2023GS|end_dei':
+      'Would have barred colleges, schools and state employers from requesting statements on anti-racism or critical race theory, with exceptions.',
+    'S.B. 224|2024GS|enviro_energy':
+      'Barred a utility from offering excess proven dispatchable generation capacity for sale outside the state unless it has provided notice.',
+    'H.B. 390|2025GS|free_speech':
+      'Required a higher education institution’s free expression policy to be viewpoint-neutral in text and application.',
+    'H.B. 507|2023GS|gun_rights':
+      'Ended the gun ban for one non-violent, non-domestic felony seven years after sentence, unless charged with a felony or class A misdemeanor.',
+    'S.B. 166|2024GS|healthcare':
+      'Required a health benefit plan to give 30 days’ notice before requiring an enrollee to change from a long-term drug, with exceptions.',
+    'S.B. 23|2025GS|housing_first_time':
+      'Required first home investment zone proposals to have 50% of the minimum 30 housing units per acre owner occupied.',
+    'S.B. 128|2024GS|justice_reform':
+      'Would have raised the value for third degree felony theft from $1,500 to $2,000 and for second degree from $5,000 to $10,000.',
+    'H.B. 355|2025GS|lands_energy':
+      'Let operators with a vested critical infrastructure materials use expand it to contiguous land owned or controlled before May 7, 2025.',
+    'H.B. 252|2025GS|lgbtq_rights':
+      'Barred initiating cross-sex hormone treatment or sex characteristic surgical procedures for a prisoner, inmate, or minor in state custody.',
+    'H.B. 413|2025GS|lgbtq_rights':
+      'Would have barred custody action against a parent for not supporting hormonal transgender treatment for the parent’s minor child.',
+    'S.B. 126|2024GS|lgbtq_rights':
+      'Applied gestational agreement requirements to the mother’s spouse, not only her husband, and barred using the spouse’s sperm or eggs.',
+    'H.B. 106|2025GS|lower_taxes':
+      'Cut the corporate franchise and income tax rates and the individual income tax rate from 4.55% to 4.5%.',
+    'H.B. 54|2023GS|lower_taxes':
+      'Cut the corporate franchise and income tax rates and the individual income tax rate from 4.85% to 4.65%.',
+    'S.B. 69|2024GS|lower_taxes':
+      'Cut the corporate franchise and income tax rate and the individual income tax rate to 4.55% from 4.65%.',
+    'H.B. 348|2023GS|religious_liberty':
+      'Let a student refrain from any aspect of school violating a religious belief or right of conscience, without being required to justify it.',
+    'H.B. 390|2025GS|religious_liberty':
+      'Barred denying benefits to a religious, political, or ideological student organization for requiring a leader to affirm its beliefs.',
+    'H.B. 427|2023GS|religious_liberty':
+      'Barred public schools from denying the practice of prayer or religious devotionals.',
+    'H.B. 392|2025GS|tough_on_crime':
+      'Would have made unlicensed driving a class C misdemeanor, not an infraction, and a class B misdemeanor if previously convicted.',
+    'H.B. 424|2024GS|tough_on_crime':
+      'Made simulated masturbation or intercourse by an adult before a child under 14, with intent to arouse or alarm, lewdness involving a child.',
+    'H.B. 465|2025GS|tough_on_crime':
+      'Required the public safety interagency agreement to set roles in any joint operations and metrics on whether public safety has improved.',
+    'H.B. 284|2024GS|voting_access':
+      'Would have required over 60% yes votes for a statewide initiative for a new tax or tax increase, contingent on a constitutional amendment.',
+    'H.B. 422|2023GS|voting_access':
+      'Would have let a statewide initiative that would increase taxes pass only with over 60% of votes cast, if a constitutional amendment passed.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is
