@@ -47,6 +47,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
+import { preAudit, AUDITED } from "./vr-effect-audit.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -273,8 +274,12 @@ function check(src) {
   // 4 · nothing shipped moved
   if (HEAD_SRC) {
     const hE = mapOf(HEAD_SRC, "_DOS_EFFECT"), hX = mapOf(HEAD_SRC, "_DOS_EXEC_EFFECT"), hM = mapOf(HEAD_SRC, "_DOS_MECH"), hP = mapOf(HEAD_SRC, "_DOS_POINTER");
-    // Every line at HEAD — v385's two in this slice included — is pinned.
-    for (const [k, v] of Object.entries(hE.map)) need(E.map[k] === v, `${k}: a shipped line changed`);
+    // Every line at HEAD is pinned, except a rewrite the v387 provisions audit
+    // recorded (db/vr-effect-line-audit.json): S.B. 118 and H.B. 11 in this slice.
+    for (const [k, v] of Object.entries(hE.map)) {
+      const a = AUDITED.find((r) => r.key === k);
+      need(E.map[k] === v || (a && preAudit(src) !== src && a.line === E.map[k] && (a.was === v || a.line === v)), `${k}: a shipped line changed`);
+    }
     for (const k of Object.keys(E.map)) need(k in hE.map || block.includes(k), `${k}: a new line outside the FIVE ISSUES block`);
     need(X.text === hX.text, "_DOS_EXEC_EFFECT changed");
     need(M.text === hM.text, "_DOS_MECH changed");
@@ -291,7 +296,7 @@ function check(src) {
         const end = x.indexOf("\n  };", a);
         return x.slice(0, a) + x.slice(end + 1);
       };
-      need(src.indexOf(MARK) < 0 || cut(src, MARK) === cut(HEAD_SRC, "// FIVE ISSUES SLICE 16 (v385)."),
+      need(src.indexOf(MARK) < 0 || cut(preAudit(src), MARK) === cut(preAudit(HEAD_SRC), HEAD_SRC.includes("// FIVE ISSUES SLICE 16 (v385).") ? "// FIVE ISSUES SLICE 16 (v385)." : MARK),
         "consistency.js moved outside the FIVE ISSUES block");
     }
   }
@@ -304,7 +309,7 @@ section("the tree");
   ok(out.length === 0, `the tree:\n      ${out.slice(0, 12).join("\n      ")}`);
   if (!out.length) console.log(`      ✓ ${LEDGER.rows.length} pairs read, ${LEDGER.rows.filter((r) => r.decision === "line").length} lines, fixture rows on ${LEAVES.length} leaves, nothing shipped moved`);
   const sw = R("sw.js");
-  ok(/const CACHE_VERSION = 'v386';/.test(sw) && sw.includes("// v386 - EFFECT LINES FROM THE BILL ITSELF."), "the shell moved to v386 with its note");
+  ok(Number((/const CACHE_VERSION = 'v(\d+)';/.exec(sw) || [])[1]) >= 386 && sw.includes("// v386 - EFFECT LINES FROM THE BILL ITSELF."), "the shell moved to v386 or later, with the v386 note");
 }
 
 section("mutations");

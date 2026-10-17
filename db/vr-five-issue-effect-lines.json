@@ -1,5 +1,5 @@
 {
- "_comment": "Effect lines on five issues, from the bill itself (v386). Data Centers (datacenter_growth, datacenter_water, datacenter_power), Water Conservation (water), Housing Affordability (housing), Protect Public Lands (lands_preserve) and Expand Domestic Energy Production (energy_production). Every federal pair on these keys already printed a line. The 31 Utah pairs store no `did`; each line here is written from the bill's own Highlighted Provisions, quoted in `provisions` from the Utah Legislature's record at `provisionsFrom` (and, where the line rests on the body of the bill, the verbatim `textQuote`). Every phrase in `terms` is in those words and in the line. An enacted act reads as done (H.B. 364's stored status trails the Legislature's record, `enactedPer`); one that never passed opens \"Would have\". S.B. 118 (2023GS) and H.B. 11 (2024GS) are `kept`: their v385 title lines stay as shipped. Where the provisions support no clear line, the row stays silent and `why` says so. Lines are stored once in consistency.js _DOS_EFFECT under the FIVE ISSUES SLICE 16 marker. No score, weight, mapping or key is read from or written to here.",
+ "_comment": "Effect lines on five issues, from the bill itself (v386). Data Centers (datacenter_growth, datacenter_water, datacenter_power), Water Conservation (water), Housing Affordability (housing), Protect Public Lands (lands_preserve) and Expand Domestic Energy Production (energy_production). Every federal pair on these keys already printed a line. The 31 Utah pairs store no `did`; each line here is written from the bill's own Highlighted Provisions, quoted in `provisions` from the Utah Legislature's record at `provisionsFrom` (and, where the line rests on the body of the bill, the verbatim `textQuote`). Every phrase in `terms` is in those words and in the line. An enacted act reads as done (H.B. 364's stored status trails the Legislature's record, `enactedPer`); one that never passed opens \"Would have\". S.B. 118 (2023GS) and H.B. 11 (2024GS) were written from their titles in v385 and rewritten from these provisions in v387 (`rewrittenIn`). Where the provisions support no clear line, the row stays silent and `why` says so. Lines are stored once in consistency.js _DOS_EFFECT under the FIVE ISSUES SLICE 16 marker. No score, weight, mapping or key is read from or written to here.",
  "federalPairsAlreadyPrinting": {
   "energy_production": 15,
   "housing": 1,
@@ -432,9 +432,18 @@
    "status": "enacted",
    "provisions": "This bill: defines terms; authorizes water conservancy districts to receive grants to provide incentives; provides conditions on when an owner may receive an incentive; addresses rulemaking authority; addresses tracking of local government implementation of water use efficiency standards; and makes technical and conforming changes.",
    "provisionsFrom": "https://le.utah.gov/data/2023GS/SB0118.json",
-   "decision": "kept",
-   "line": "Provided water efficient landscaping incentives under Utah law.",
-   "why": "Shipped in v385 from the title and kept byte for byte, because a line readers have seen is not a later pass's to edit. The provisions above are what a rewrite would be held to."
+   "decision": "line",
+   "line": "Let water conservancy districts receive grants to fund water efficient landscaping incentives, and set when an owner may get one.",
+   "terms": [
+    "water conservancy districts",
+    "receive grants",
+    "incentives"
+   ],
+   "plain": {
+    "fund": "provide",
+    "get": "receive"
+   },
+   "rewrittenIn": "v387: db/vr-effect-line-audit.json"
   },
   {
    "key": "S.B. 252|2023GS|water",
@@ -464,9 +473,12 @@
    "status": "enacted",
    "provisions": "This bill: defines terms; restricts the use of overhead spray irrigation by certain governmental entities; and makes technical changes.",
    "provisionsFrom": "https://le.utah.gov/data/2024GS/HB0011.json",
-   "decision": "kept",
-   "line": "Imposed water efficient landscaping requirements under Utah law.",
-   "why": "Shipped in v385 from the title and kept byte for byte, because a line readers have seen is not a later pass's to edit. The provisions above are what a rewrite would be held to."
+   "decision": "line",
+   "line": "Restricted the use of overhead spray irrigation by certain governmental entities.",
+   "terms": [
+    "overhead spray irrigation by certain governmental entities"
+   ],
+   "rewrittenIn": "v387: db/vr-effect-line-audit.json"
   },
   {
    "key": "H.B. 242|2024GS|water",

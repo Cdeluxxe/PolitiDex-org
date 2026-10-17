@@ -17423,6 +17423,13 @@
   // make. Anything longer than 140 characters, longer than one sentence, or
   // carrying method vocabulary prints nothing, and the row keeps the empty space
   // it has always had.
+  //
+  // A LINE THE BILL DOES NOT SUPPORT IS REWRITTEN IN PLACE. The provisions audit
+  // (v387) read every line on Water Conservation, Housing Affordability, Protect
+  // Public Lands and Expand Domestic Energy Production against its bill's own
+  // text and rewrote the nine that were broader, narrower or different from what
+  // the bill did, in their own entries; db/vr-effect-line-audit.json holds each
+  // shipped line, its replacement and the bill's words behind it.
   var _DOS_EFFECT = {
     'H.J.Res. 131|119|lands_preserve':
       'Removed the conservation withdrawal from roughly 1.2 million acres inside the Arctic National Wildlife Refuge.',
@@ -17464,7 +17471,7 @@
     'H.J.Res. 88|119|climate_action':
       'Struck the EPA waiver for California’s Advanced Clean Cars II regulations and barred a substantially similar rule.',
     'H.J.Res. 89|119|energy_production':
-      'Struck the EPA waiver for California’s Advanced Clean Trucks regulations and barred a substantially similar rule.',
+      'Struck the EPA waiver for California’s Omnibus Low NOx regulation and barred a substantially similar rule.',
     'H.J.Res. 89|119|climate_action':
       'Struck the EPA waiver for California’s Advanced Clean Trucks regulations and barred a substantially similar rule.',
     'H.J.Res. 44|118|gun_rights':
@@ -17730,11 +17737,11 @@
     'H.R. 3628|119|energy_production':
       'Would make state utility regulators consider reliable power generation as a ratemaking standard; the House passed it 218-207.',
     'H.R. 1047|119|energy_production':
-      'Would let new dispatchable power projects move to the front of the grid interconnection queue; the House passed it 216-206.',
+      'Would have FERC open a rulemaking letting transmission providers move new dispatchable power projects up the interconnection queue.',
     'H.R. 3746|118|energy_production':
       'Ratified all federal approvals for the Mountain Valley Pipeline and barred court review; the House cleared it 314-117, the Senate 63-36.',
     'H.R. 5376|117|energy_production':
-      'Required new Gulf of Mexico oil and gas lease sales before wind and solar rights-of-way; the House cleared it 220-207, the Senate 50-50.',
+      'Reinstated Lease Sale 257, ordered sales 258, 259 and 261, and barred federal wind and solar rights-of-way without recent onshore sales.',
     'S.J.Res. 71|119|energy_production':
       'Would have ended the Executive Order 14156 energy emergency on its second try; the Senate rejected it 47-51.',
     'S.J.Res. 10|119|energy_production':
@@ -18151,7 +18158,7 @@
     'H.R. 1|119|edu_college_cost':
       'Eliminated several income-driven student-loan repayment plans and capped graduate borrowing; the House cleared it 218-214.',
     'H.R. 1|119|energy_production':
-      'Expanded onshore and offshore oil, gas and coal leasing and sped fossil-fuel permitting; the House cleared it 218-214, the Senate 50-50.',
+      'Required quarterly onshore oil and gas lease sales, at least 30 Gulf lease sales and lease sales on pending coal lease applications.',
     'H.R. 1|119|family_support':
       'Raised the child tax credit to $2,200 per child and made it permanent; the House cleared it 218-214, the Senate 50-50.',
     'H.R. 1|119|national_debt':
@@ -18216,7 +18223,7 @@
     'H.Amdt. 85|119|lgbtq_rights':
       'Would bar gender transition procedures through the Exceptional Family Member Program; the House agreed to it 221-210.',
     'H.Amdt. 97|119|lands_preserve':
-      'Would have barred designating military and some Guard lands as Endangered Species Act critical habitat; the House rejected it 200-228.',
+      'Would have barred Endangered Species Act critical habitat on military and some Guard lands when the Defense Department deems it necessary.',
     'S. 1582|119|tech_innovation':
       'Established a national framework for digital-asset innovation through stablecoins; the House cleared it 308-122, the Senate 68-30.',
     'S. 1582|119|crypto_cbdc':
@@ -18251,7 +18258,7 @@
     'H.R. 26|119|enviro_energy':
       'Would bar a federal fracking moratorium to protect and expand domestic oil and gas production; the House passed it 226-188.',
     'H.R. 26|119|energy_production':
-      'Would affirm state authority over hydraulic fracturing to keep energy output flowing; the House passed it 226-188.',
+      'Would bar the President from declaring a fracking moratorium unless an Act of Congress authorizes it; the House passed it 226-188.',
     'H.R. 27|119|immig_fentanyl':
       'Would toughen federal scheduling of fentanyl-related substances to fight the overdose crisis; the House passed it 312-108.',
     'H.R. 27|119|tough_on_crime':
@@ -18310,7 +18317,7 @@
     'H.R. 1919|119|tech_balance':
       'Would bar the Federal Reserve from holding accounts directly for individuals or offering retail financial products.',
     'H.R. 1949|119|energy_production':
-      'Would speed approval of LNG export terminals to expand U.S. natural-gas production and shipments.',
+      'Would give FERC exclusive authority over natural gas export and import facilities and deem those exports and imports in the public interest.',
     'H.R. 1949|119|permitting_reform':
       'Would eliminate the Energy Department’s separate approval step and consolidate permitting at FERC.',
     'H.R. 1949|119|climate_action':
@@ -18420,8 +18427,9 @@
     // the Legislature's record, and from its text where the provisions are too
     // thin, never from its title. An enacted act reads as done; one that never
     // passed opens "Would have". Four pairs whose provisions state no clear change
-    // stay silent. S.B. 118 (2023GS) and H.B. 11 (2024GS) keep the lines v385
-    // shipped from their titles, byte for byte. The sitting is the Utah session.
+    // stay silent. S.B. 118 (2023GS) and H.B. 11 (2024GS) were written from their
+    // titles in v385 and rewritten from their provisions in v387. The sitting is
+    // the Utah session.
     // db/vr-five-issue-effect-lines.json quotes the source of each and says why.
     'H.B. 144|2023GS|energy_production':
       'Extended the high cost infrastructure tax credit to underground mine projects and to the storage or production of all fuels.',
@@ -18462,11 +18470,11 @@
     'H.B. 513|2023GS|water':
       'Required Great Salt Lake brine leases to minimize water depletion and let the state curtail production in a lake emergency.',
     'S.B. 118|2023GS|water':
-      'Provided water efficient landscaping incentives under Utah law.',
+      'Let water conservancy districts receive grants to fund water efficient landscaping incentives, and set when an owner may get one.',
     'S.B. 252|2023GS|water':
       'Would have created tax credits for homebuilders who buy and install water efficient landscaping and fixtures.',
     'H.B. 11|2024GS|water':
-      'Imposed water efficient landscaping requirements under Utah law.',
+      'Restricted the use of overhead spray irrigation by certain governmental entities.',
     'H.B. 242|2024GS|water':
       'Would have required state agencies to report their water use and had the state study public school water use.',
     'S.B. 118|2024GS|water':

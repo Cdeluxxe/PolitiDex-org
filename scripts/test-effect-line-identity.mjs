@@ -37,9 +37,12 @@ import vm from "node:vm";
 import { execHeld, execLaterKeys } from "./vr-exec-later.mjs";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
 import { buildCorpus } from "./vr-record-corpus.mjs";
+import { preAudit, AUDITED } from "./vr-effect-audit.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const R = (f) => readFileSync(join(ROOT, f), "utf8");
+// consistency.js as it stood before the v387 provisions audit; see
+// scripts/vr-effect-audit.mjs and scripts/test-effect-line-audit.mjs.
+const R = (f) => (f === "consistency.js" ? preAudit(readFileSync(join(ROOT, f), "utf8")) : readFileSync(join(ROOT, f), "utf8"));
 const J = (f) => JSON.parse(R(f));
 const FILES = [
   "cmp-data.js", "politician-stances-core.js", "politician-stances-ext.js",
@@ -58,7 +61,7 @@ const norm = (x) => String(x || "").replace(/\s+/g, " ").trim();
 
 const CONS = R("consistency.js");
 const HEAD = (() => {
-  try { return execFileSync("git", ["show", "HEAD:consistency.js"], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] }); }
+  try { return preAudit(execFileSync("git", ["show", "HEAD:consistency.js"], { cwd: ROOT, encoding: "utf8", maxBuffer: 1 << 28, stdio: ["ignore", "pipe", "ignore"] })); }
   catch { return null; }
 })();
 function mapOf(src, name) {
@@ -187,7 +190,11 @@ for (const [, d] of Object.entries(docs)) {
     // A Utah sitting is a session code, read the way the row reads it.
     const item = /^\d+$/.test(d.s) ? { number: d.n, congress: Number(d.s) } : utah(d.n, d.s);
     const want = NEW.line(item, key, MECH[id] || null);
-    ok(key && want === norm(x.l), `${d.s}/${d.n} × ${x.i}: the bill page prints a line the table does not hold under that identity`);
+    // The bill pages are generated from the live table, so an audited pair's page
+    // carries the audit's rewrite while this suite reads the pre-audit table.
+    const aud = AUDITED.find((r) => r.key === id);
+    ok(key && (want === norm(x.l) || (aud && want === norm(aud.was) && norm(x.l) === norm(aud.line))),
+      `${d.s}/${d.n} × ${x.i}: the bill page prints a line the table does not hold under that identity`);
     ok(/^\d+$/.test(d.s) || (id in E.map), `${d.s}/${d.n}: a bill page prints a line for a non-federal sitting, and none is stored`);
   }
 }

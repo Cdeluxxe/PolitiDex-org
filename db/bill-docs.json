@@ -297,7 +297,7 @@
     {
      "i": "Expand Domestic Energy Production",
      "k": "energy_production",
-     "l": "Required new Gulf of Mexico oil and gas lease sales before wind and solar rights-of-way; the House cleared it 220-207, the Senate 50-50."
+     "l": "Reinstated Lease Sale 257, ordered sales 258, 259 and 261, and barred federal wind and solar rights-of-way without recent onshore sales."
     },
     {
      "i": "Lower Healthcare Costs",
@@ -1610,7 +1610,7 @@
     {
      "i": "Expand Domestic Energy Production",
      "k": "energy_production",
-     "l": "Struck the EPA waiver for California’s Advanced Clean Trucks regulations and barred a substantially similar rule."
+     "l": "Struck the EPA waiver for California’s Omnibus Low NOx regulation and barred a substantially similar rule."
     },
     {
      "i": "Tackle the Cost of Living",
@@ -1699,7 +1699,7 @@
     {
      "i": "Expand Domestic Energy Production",
      "k": "energy_production",
-     "l": "Expanded onshore and offshore oil, gas and coal leasing and sped fossil-fuel permitting; the House cleared it 218-214, the Senate 50-50."
+     "l": "Required quarterly onshore oil and gas lease sales, at least 30 Gulf lease sales and lease sales on pending coal lease applications."
     },
     {
      "i": "Expand Healthcare Access",
@@ -1862,7 +1862,7 @@
     {
      "i": "Expand Domestic Energy Production",
      "k": "energy_production",
-     "l": "Would affirm state authority over hydraulic fracturing to keep energy output flowing; the House passed it 226-188."
+     "l": "Would bar the President from declaring a fracking moratorium unless an Act of Congress authorizes it; the House passed it 226-188."
     },
     {
      "i": "Whose Rule Governs: State or Federal",
@@ -2022,7 +2022,7 @@
     {
      "i": "Expand Domestic Energy Production",
      "k": "energy_production",
-     "l": "Would let new dispatchable power projects move to the front of the grid interconnection queue; the House passed it 216-206."
+     "l": "Would have FERC open a rulemaking letting transmission providers move new dispatchable power projects up the interconnection queue."
     }
    ]
   },
@@ -2140,7 +2140,7 @@
     {
      "i": "Expand Domestic Energy Production",
      "k": "energy_production",
-     "l": "Would speed approval of LNG export terminals to expand U.S. natural-gas production and shipments."
+     "l": "Would give FERC exclusive authority over natural gas export and import facilities and deem those exports and imports in the public interest."
     },
     {
      "i": "Faster Permits & Reviews",
@@ -4820,7 +4820,7 @@
     {
      "i": "Water Conservation",
      "k": "water",
-     "l": "Provided water efficient landscaping incentives under Utah law."
+     "l": "Let water conservancy districts receive grants to fund water efficient landscaping incentives, and set when an owner may get one."
     }
    ]
   },
@@ -5083,7 +5083,7 @@
     {
      "i": "Water Conservation",
      "k": "water",
-     "l": "Imposed water efficient landscaping requirements under Utah law."
+     "l": "Restricted the use of overhead spray irrigation by certain governmental entities."
     }
    ]
   },

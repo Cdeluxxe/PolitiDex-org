@@ -9832,7 +9832,18 @@
 //     No score, weight, mapping, pole or federal line moved. No location key is
 //     migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v386';
+// v387 - EFFECT LINES CHECKED AGAINST THE BILL. Every effect line on Water
+//     Conservation, Housing Affordability, Protect Public Lands and Expand
+//     Domestic Energy Production was read against its bill's own text, and the
+//     nine that were broader, narrower or different were rewritten in place:
+//     H.Amdt. 97, H.J.Res. 89 (the Omnibus Low NOx waiver, not Advanced Clean
+//     Trucks), H.R. 1, H.R. 26, H.R. 1047, H.R. 1949, H.R. 5376, S.B. 118 of
+//     2023GS and H.B. 11 of 2024GS. The other 39 are byte-identical.
+//     consistency.js is precached and changed, so the shell moves one version.
+//     No score, weight, mapping, pole or other issue's line moved.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v387';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
