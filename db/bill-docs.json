@@ -1809,7 +1809,8 @@
     },
     {
      "i": "Pro-Life Protections",
-     "k": "pro_life"
+     "k": "pro_life",
+     "l": "Would punish an overt act that kills a child born alive after an abortion as intentionally killing a human being."
     }
    ]
   },
@@ -2340,7 +2341,8 @@
     },
     {
      "i": "Innovation & Light Rules",
-     "k": "tech_innovation"
+     "k": "tech_innovation",
+     "l": "Would exempt validating, running a node or building a blockchain system from the Exchange Act, save anti-fraud and anti-manipulation rules."
     },
     {
      "i": "Pro-Growth Deregulation",
@@ -2604,7 +2606,8 @@
     },
     {
      "i": "Lower Healthcare Costs",
-     "k": "healthcare_costs"
+     "k": "healthcare_costs",
+     "l": "Would fund cost sharing reduction payments from 2027, except for plans covering abortion other than life, rape or incest cases."
     },
     {
      "i": "Lower Prescription Drug Prices",
@@ -6640,7 +6643,8 @@
     },
     {
      "i": "Private Property Rights",
-     "k": "property_rights"
+     "k": "property_rights",
+     "l": "Lowered the vote needed to amend a declaration’s solar energy system prohibition on a detached dwelling lot from over 67% to at least 51%."
     }
    ]
   },
@@ -7137,7 +7141,8 @@
     },
     {
      "i": "Expand Voting Access",
-     "k": "voting_access"
+     "k": "voting_access",
+     "l": "Would have had an election officer remove a federal-only voter shown by evidence to be a noncitizen who fails to give proof of citizenship."
     }
    ]
   },
@@ -7849,7 +7854,8 @@
    "m": [
     {
      "i": "Build More Housing",
-     "k": "housing_build"
+     "k": "housing_build",
+     "l": "Barred specified cities and counties from stopping an unobstructed tandem parking space from counting as two required parking spaces."
     },
     {
      "i": "Housing Affordability",

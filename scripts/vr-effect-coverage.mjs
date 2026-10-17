@@ -19,8 +19,10 @@ import { fileURLToPath } from "node:url";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 // The bill-body pass (EFFECT BODY TEXT SLICE 18, v389) wrote more of the same
 // kind from the bill's own body; db/vr-effect-body-lines.json holds them, and
-// scripts/test-effect-body-lines.mjs the lines themselves.
-const ROWS = ["db/vr-effect-coverage-lines.json", "db/vr-effect-body-lines.json"]
+// scripts/test-effect-body-lines.mjs the lines themselves; the distinct-section
+// pass (EFFECT DISTINCT SECTION SLICE 19, v390) likewise, in
+// db/vr-effect-distinct-lines.json and scripts/test-effect-distinct-lines.mjs.
+const ROWS = ["db/vr-effect-coverage-lines.json", "db/vr-effect-body-lines.json", "db/vr-effect-distinct-lines.json"]
   .flatMap((f) => JSON.parse(readFileSync(join(ROOT, f), "utf8")).rows);
 export const COVERAGE_LINES = new Map(ROWS.filter((r) => r.decision === "line").map((r) => [r.key, r.line]));
 

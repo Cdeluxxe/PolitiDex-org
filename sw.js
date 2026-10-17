@@ -9863,7 +9863,18 @@
 //     moves one version. No score, weight, mapping or pole moved.
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v389';
+// v390 - EFFECT LINES FROM A DISTINCT SECTION. The 52 pairs left silent
+//     because a sibling line was judged to cover the act's only change, or the
+//     act no bearing on the issue, were searched section by section for a
+//     separate change on that issue. Six now carry a line (H.R. 21, H.R. 3633,
+//     H.R. 6703, H.B. 119, H.B. 332, S.B. 181 of 2025); 46 stay silent, and the
+//     28 confirmed silent after a body read or closed for a status conflict,
+//     forecast or no vote row were not reopened (db/vr-effect-distinct-lines.json).
+//     Every shipped line is byte-identical. consistency.js is precached and
+//     changed, so the shell moves one version. No score, weight, mapping or
+//     pole moved. No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v390';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

@@ -45,6 +45,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { makeSandbox } from "./gen-hero-showcase.mjs";
+import { keysAfter } from "./vr-slice-blocks.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const R = (f) => readFileSync(join(ROOT, f), "utf8");
@@ -220,6 +221,12 @@ function check(src) {
   if (win.__err) return [`boot: ${win.__err}`];
   const byKey = new Map(ROWS.map((r) => [r.key, r]));
   const closed = new Set(CLOSED.map((c) => c.key));
+  // A later slice may write a pair this pass did not reopen for its sibling or
+  // no-bearing reason, from a section this pass did not read (v390); its line is
+  // that slice's to hold. A pair still silent after the body read, or closed for
+  // a status, forecast or no-vote-row reason, stays silent here.
+  const LATER_OK = new Set(["sibling", "unrelated"]);
+  const later = new Set([...keysAfter(src, "_DOS_EFFECT", 389)].filter((k) => CLOSED.some((c) => c.key === k && LATER_OK.has(c.category))));
 
   // 1 · the fixture member
   const seen = new Set();
@@ -231,6 +238,7 @@ function check(src) {
       for (const got of lists) {
         need(got.length <= 1, `${pair}: ${got.length} effect lines under one row`);
         if (row && row.decision === "line") need(got.length === 1 && got[0] === norm(row.line), `${pair}: prints ${JSON.stringify(got)}, the ledger says ${JSON.stringify(row.line)}`);
+        else if (later.has(pair)) need(got.length === 1 && got[0] === norm(E.map[pair]), `${pair}: a later slice's pair prints ${JSON.stringify(got)}`);
         else need(!got.length, `${pair}: a silent pair prints ${JSON.stringify(got[0])}`);
       }
     }
@@ -244,7 +252,7 @@ function check(src) {
   need(LEDGER.counts && LEDGER.counts.reopened === ROWS.length && LEDGER.counts.notReopened === CLOSED.length && LEDGER.counts.lines === ROWS.filter((r) => r.decision === "line").length, "the ledger's counts do not match its rows");
   for (const c of CLOSED) {
     need(CATEGORIES.has(c.category) && norm(c.why).length > 30, `${c.key}: not reopened without a stronger reason`);
-    need(!(c.key in E.map) && !(c.key in P.map), `${c.key}: a pair not reopened carries a line`);
+    need((!(c.key in E.map) || later.has(c.key)) && !(c.key in P.map), `${c.key}: a pair not reopened carries a line`);
   }
   const { keys: block } = blockOf(src);
   const lined = ROWS.filter((r) => r.decision === "line");
@@ -271,11 +279,12 @@ function check(src) {
     const hE = mapOf(HEAD_SRC, "_DOS_EFFECT"), hX = mapOf(HEAD_SRC, "_DOS_EXEC_EFFECT"), hM = mapOf(HEAD_SRC, "_DOS_MECH"), hP = mapOf(HEAD_SRC, "_DOS_POINTER");
     const headBlock = new Set(blockOf(HEAD_SRC).keys);
     for (const [k, v] of Object.entries(hE.map)) if (!headBlock.has(k)) need(E.map[k] === v, `${k}: a shipped line changed`);
-    for (const k of Object.keys(E.map)) need(k in hE.map || block.includes(k), `${k}: a new line outside the EFFECT BODY TEXT block`);
+    for (const k of Object.keys(E.map)) need(k in hE.map || block.includes(k) || later.has(k), `${k}: a new line outside the EFFECT BODY TEXT block`);
     need(X.text === hX.text, "_DOS_EXEC_EFFECT changed");
     need(M.text === hM.text, "_DOS_MECH changed");
     need(P.text === hP.text, "_DOS_POINTER changed");
-    const cut = (x) => { const b = blockOf(x).text; return b ? x.split(b).join("") : x; };
+    // This block and any later slice's after it, to the end of the table.
+    const cut = (x) => { const a = x.indexOf("    " + MARK); return a < 0 ? x : x.slice(0, a) + x.slice(x.indexOf("\n  };", a) + 1); };
     need(cut(src) === cut(HEAD_SRC), "consistency.js moved outside the EFFECT BODY TEXT block");
     const hWin = boot(HEAD_SRC);
     if (!hWin.__err) for (const leaf of LEAVES) need(sansEffect(rendered(win, leaf).html) === sansEffect(rendered(hWin, leaf).html), `${leaf}: the ledger moved outside its effect rows`);

@@ -19138,6 +19138,26 @@
       'Would have required over 60% yes votes for a statewide initiative for a new tax or tax increase, contingent on a constitutional amendment.',
     'H.B. 422|2023GS|voting_access':
       'Would have let a statewide initiative that would increase taxes pass only with over 60% of votes cast, if a constitutional amendment passed.',
+    // EFFECT DISTINCT SECTION SLICE 19 (v390). The pairs slices 17 and 18 left
+    // silent because a sibling line was judged to cover the act’s only change on
+    // the issue, or the act no bearing on it, each searched section by section
+    // for a separate requirement or prohibition on that issue that no line on the
+    // same act states. A Utah line rests on what the bill inserts, strikes or
+    // newly enacts; a federal line on the House-passed text, in its siblings’
+    // tense. 3 Utah and 3 federal pairs carry a line; the rest stay silent.
+    // db/vr-effect-distinct-lines.json quotes the source of each and says why.
+    'H.R. 6703|119|healthcare_costs':
+      'Would fund cost sharing reduction payments from 2027, except for plans covering abortion other than life, rape or incest cases.',
+    'H.R. 21|119|pro_life':
+      'Would punish an overt act that kills a child born alive after an abortion as intentionally killing a human being.',
+    'H.R. 3633|119|tech_innovation':
+      'Would exempt validating, running a node or building a blockchain system from the Exchange Act, save anti-fraud and anti-manipulation rules.',
+    'S.B. 181|2025GS|housing_build':
+      'Barred specified cities and counties from stopping an unobstructed tandem parking space from counting as two required parking spaces.',
+    'H.B. 119|2025GS|property_rights':
+      'Lowered the vote needed to amend a declaration’s solar energy system prohibition on a detached dwelling lot from over 67% to at least 51%.',
+    'H.B. 332|2025GS|voting_access':
+      'Would have had an election officer remove a federal-only voter shown by evidence to be a noncitizen who fails to give proof of citizenship.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is
