@@ -27,6 +27,15 @@
    WHAT IT DOES NOT. No count of anything as a score, no rate, no ranking, no
    Direction Match. A person with no sponsored bill on file gets no section at
    all — not an empty one, and no "none".
+
+   THE JUMP. One control on the letterhead row (.profile-meta, after the money
+   pills and before the party), labelled "Bills sponsored", that scrolls to
+   #pdx-sponsored through the profile's own _pdxNavJump, so a section inside a
+   closed stage is opened before the scroll is measured. It is on every file.
+   Where person-bills.json lists no bill for the person it stays, disabled, and
+   says "none on file" — no list is made for it and the section stays absent.
+   Until the table has answered it is disabled and says nothing about the
+   person. It is not a money pill: no 💰, none of the money lane's colours.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -120,9 +129,75 @@
       '#pdx-sponsored .pdx-spb-t{color:#dbe6f7;font-size:0.84rem;line-height:1.4;margin-top:0.15rem;}' +
       '#pdx-sponsored .pdx-spb-st{font-size:0.78rem;margin-top:0.2rem;color:#c9d8f2;}' +
       '#pdx-sponsored .pdx-spb-st[data-group="failed"]{color:#fca5a5;}' +
-      '#pdx-sponsored .pdx-spb-st[data-group="enacted"]{color:#86efac;}';
+      '#pdx-sponsored .pdx-spb-st[data-group="enacted"]{color:#86efac;}' +
+      // The letterhead jump: the money chip's metrics (size, case, padding,
+      // radius) so it sits at the same weight in the row, in the neutral ink.
+      '.pdx-spj{display:inline-flex;align-items:center;gap:0.3rem;max-width:100%;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;border-radius:999px;padding:0.16rem 0.55rem;background:rgba(96,165,250,0.08);border:1px solid rgba(159,180,212,0.28);color:#c9d8f2;line-height:1.15;white-space:nowrap;cursor:pointer;}' +
+      '.pdx-spj:hover{background:rgba(96,165,250,0.16);border-color:rgba(159,180,212,0.45);}' +
+      '.pdx-spj:focus-visible{outline:2px solid rgba(96,165,250,0.8);outline-offset:2px;}' +
+      '.pdx-spj[disabled]{cursor:default;color:#8aa0c4;background:transparent;}' +
+      '.pdx-spj-none{opacity:0.8;}' +
+      '@media (hover: none), (pointer: coarse){.pdx-spj{min-height:1.9rem;padding:0.22rem 0.6rem;}}';
     (document.head || document.documentElement).appendChild(st);
   }
+
+  // ── the letterhead jump ────────────────────────────────────────────────────
+  // state: "wait" (the table has not answered), "on" (bills on file — enabled),
+  // "none" (the table answered and lists none — disabled, says so).
+  var TARGET = 'pdx-sponsored';
+  function jumpHtml(pid, state) {
+    return '<button type="button" class="pdx-spj" data-pdx-sponsored-jump="' + esc(TARGET) + '"' +
+      ' data-pdx-sponsored-jump-pid="' + esc(pid) + '" data-state="' + state + '"' +
+      (state === 'on' ? '' : ' disabled aria-disabled="true"') +
+      ' aria-label="' + (state === 'none' ? 'Bills sponsored: no sponsored bills on file' : 'Bills sponsored: jump to the bills this person sponsored or co-sponsored') + '">' +
+      'Bills sponsored' +
+      (state === 'none' ? ' <span class="pdx-spj-none">· none on file</span>' : '') +
+      '</button>';
+  }
+  function jumpState(pid) {
+    if (!_settled || _settled.pid !== pid) return 'wait';
+    return _settled.n ? 'on' : 'none';
+  }
+  var _settled = null;
+  function placeJump(pid) {
+    var body = document.getElementById('modal-body') || document;
+    var meta = body.querySelector('.profile-meta');
+    if (!meta) return;
+    var state = jumpState(pid);
+    if (state === 'wait') {
+      load().then(function (data) {
+        if (!data || String(window._pdxCurrentProfileId || '') !== pid) return;
+        _settled = { pid: pid, n: rowsFor(data, pid).length };
+        placeJump(pid);
+      });
+    }
+    var cur = meta.querySelector('[data-pdx-sponsored-jump]');
+    if (cur && cur.getAttribute('data-pdx-sponsored-jump-pid') === pid && cur.getAttribute('data-state') === state) return;
+    style();
+    var wrap = document.createElement('span');
+    wrap.innerHTML = jumpHtml(pid, state);
+    var btn = wrap.firstChild;
+    if (cur) { cur.parentNode.replaceChild(btn, cur); return; }
+    var party = meta.querySelector('.profile-party');
+    if (party && party.parentNode === meta) meta.insertBefore(btn, party);
+    else meta.appendChild(btn);
+  }
+  function jump() {
+    if (typeof window._pdxNavJump === 'function') window._pdxNavJump(TARGET);
+    var el = document.getElementById(TARGET);
+    if (!el) return;
+    if (typeof window._pdxNavJump !== 'function' && el.scrollIntoView) {
+      try { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { el.scrollIntoView(); }
+    }
+    try { el.setAttribute('tabindex', '-1'); el.focus({ preventScroll: true }); } catch (e) {}
+  }
+  if (typeof document.addEventListener === 'function') document.addEventListener('click', function (e) {
+    var b = e.target && e.target.closest ? e.target.closest('[data-pdx-sponsored-jump]') : null;
+    if (!b || b.disabled) return;
+    e.preventDefault();
+    e.stopPropagation();
+    jump();
+  });
 
   function fill(host) {
     var pid = host.getAttribute('data-pdx-sponsored-pid') || '';
@@ -132,6 +207,8 @@
       // The file may have moved on to another person while this loaded.
       if (host.getAttribute('data-pdx-sponsored-pid') !== pid) return;
       var rows = rowsFor(data, pid);
+      // A table that did not load says nothing about the person: the jump waits.
+      if (data) { _settled = { pid: pid, n: rows.length }; placeJump(pid); }
       if (!rows.length) { host.hidden = true; host.innerHTML = ''; return; }
       style();
       host.innerHTML = html(rows);
@@ -164,9 +241,10 @@
     if (!/^[a-z0-9_]{1,80}$/.test(pid)) return;
     var host = mount(pid);
     if (host) fill(host);
+    placeJump(pid);
   }
 
-  window.PDXPersonBills = { scan: scan, rowsFor: rowsFor, html: html, load: load };
+  window.PDXPersonBills = { scan: scan, rowsFor: rowsFor, html: html, load: load, jumpHtml: jumpHtml, jump: jump };
 
   function boot() {
     scan();

@@ -9904,7 +9904,16 @@
 //     MIGRATION COST: one migration,
 //     20261119000000_vr_utah_2026gs_failed_datacenter_bills, adding 3
 //     vr_measures rows and nothing else.
-const CACHE_VERSION = 'v392';
+// v393 - A "BILLS SPONSORED" JUMP ON THE PERSON-FILE LETTERHEAD. One control
+//     in the letterhead row, after the money pills and before the party, that
+//     scrolls to the existing "Bills sponsored and co-sponsored" section. On a
+//     person with no sponsored bill on file it stays, disabled, and says "none
+//     on file"; no list is made for it. Not a money pill: no 💰, no money
+//     colours. The list, its groups and its rows are unchanged, and no data
+//     file moved. person-bills.js is precached and changed, so the shell moves
+//     one version. No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v393';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
