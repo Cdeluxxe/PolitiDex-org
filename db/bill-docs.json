@@ -2523,6 +2523,23 @@
     }
    ]
   },
+  "119|H.R. 5345": {
+   "s": "119",
+   "n": "H.R. 5345",
+   "c": "house",
+   "t": "Improving Social Security’s Service to Victims of Identity Theft Act",
+   "m": [
+    {
+     "i": "Invest in Public Services",
+     "k": "gov_services"
+    },
+    {
+     "i": "Protect Social Security & Medicare",
+     "k": "social_security",
+     "l": "Required Social Security to give anyone whose Social Security number was misused a single point of contact until the case is resolved."
+    }
+   ]
+  },
   "119|H.R. 5362": {
    "s": "119",
    "n": "H.R. 5362",
@@ -2755,6 +2772,23 @@
      "i": "Smart Tech Guardrails",
      "k": "tech_balance",
      "l": "Would require age checks on sexual-content platforms, safer defaults for minors and AI chatbot disclosures; the House passed it 267-117."
+    }
+   ]
+  },
+  "119|H.R. 8352": {
+   "s": "119",
+   "n": "H.R. 8352",
+   "c": "house",
+   "t": "Criminal History Access Act of 2026",
+   "m": [
+    {
+     "i": "Privacy & Big-Tech Accountability",
+     "k": "privacy_rights"
+    },
+    {
+     "i": "Safe & Fair Justice",
+     "k": "justice_balance",
+     "l": "Would let state agencies that set police hiring, training and ethical conduct standards receive FBI criminal history records."
     }
    ]
   },
@@ -3087,6 +3121,40 @@
     }
    ]
   },
+  "119|S. 195": {
+   "s": "119",
+   "n": "S. 195",
+   "c": "senate",
+   "t": "American Music Tourism Act of 2025"
+  },
+  "119|S. 240": {
+   "s": "119",
+   "n": "S. 240",
+   "c": "senate",
+   "t": "Crow Tribe Water Rights Settlement Amendments Act of 2025",
+   "m": [
+    {
+     "i": "Energy Independence",
+     "k": "enviro_energy",
+     "l": "Extended the Crow Tribe’s exclusive right to develop power at Yellowtail Afterbay Dam from 15 to 20 years absent substantial construction."
+    },
+    {
+     "i": "Rebuild Roads & Bridges",
+     "k": "infrastructure"
+    },
+    {
+     "i": "Water Storage & Infrastructure",
+     "k": "water_storage",
+     "l": "Created an MR&I Projects Account the Crow Tribe must use first for water production, treatment or delivery infrastructure."
+    }
+   ]
+  },
+  "119|S. 283": {
+   "s": "119",
+   "n": "S. 283",
+   "c": "senate",
+   "t": "Illegal Red Snapper and Tuna Enforcement Act"
+  },
   "119|S. 331": {
    "s": "119",
    "n": "S. 331",
@@ -3107,6 +3175,23 @@
      "i": "Tough on Crime",
      "k": "tough_on_crime",
      "l": "Applied mandatory minimums to all fentanyl-related substances, ten years at 100 grams; the House cleared it 321-104, the Senate 84-16."
+    }
+   ]
+  },
+  "119|S. 766": {
+   "s": "119",
+   "n": "S. 766",
+   "c": "senate",
+   "t": "Billion Dollar Boondoggle Act of 2025",
+   "m": [
+    {
+     "i": "Audit Spending & the Fed",
+     "k": "audit_spending"
+    },
+    {
+     "i": "Cut Waste, Not Services",
+     "k": "gov_waste",
+     "l": "Required OMB to report yearly on projects not funded by direct spending that are over 5 years late or $1 billion or more over cost estimate."
     }
    ]
   },
@@ -3198,6 +3283,12 @@
      "l": "Would have raised U.S.-Israel anti-tunnel and counter-drone ceilings and funded Iron Dome co-production; the Senate passed it 77-20."
     }
    ]
+  },
+  "119|S. 2403": {
+   "s": "119",
+   "n": "S. 2403",
+   "c": "senate",
+   "t": "Retire through Ownership Act"
   },
   "119|S.Amdt. 8": {
    "s": "119",
@@ -8176,6 +8267,61 @@
      "i": "Development Districts & Public Financing",
      "k": "dev_district_finance",
      "l": "Let a public infrastructure district created by the fairpark district levy property taxes and use bond proceeds for utility infrastructure."
+    }
+   ]
+  },
+  "2026GS|H.B. 76": {
+   "s": "2026GS",
+   "n": "H.B. 76",
+   "c": "utah house",
+   "t": "Data Center Water Transparency Amendments",
+   "m": [
+    {
+     "i": "Data Centers & Water",
+     "k": "datacenter_water",
+     "l": "Required operators of new large data centers to report water withdrawals before construction and yearly, and the state to publish them."
+    },
+    {
+     "i": "Water Conservation",
+     "k": "water",
+     "l": "Made each new data center using 75 acre feet a year or more notify its water provider of anticipated consumption before building."
+    }
+   ]
+  },
+  "2026GS|H.B. 507": {
+   "s": "2026GS",
+   "n": "H.B. 507",
+   "c": "utah house",
+   "t": "State Coordination of Regional and Local Economic Development Projects Amendments",
+   "m": [
+    {
+     "i": "Cut Income & Business Taxes",
+     "k": "lower_taxes"
+    },
+    {
+     "i": "Data Centers & AI Growth",
+     "k": "datacenter_growth",
+     "l": "Barred local tax-increment incentives to large load data centers starting May 6, 2027, with exceptions."
+    },
+    {
+     "i": "Data Centers, Power & Ratepayers",
+     "k": "datacenter_power",
+     "l": "Let counties levy an energy excise tax of up to 6% on large load customers and qualifying data centers on unincorporated land."
+    },
+    {
+     "i": "Development Districts & Public Financing",
+     "k": "dev_district_finance",
+     "l": "Created regionally significant development zones that capture property tax increment and let their agencies issue bonds."
+    },
+    {
+     "i": "Energy Independence",
+     "k": "enviro_energy",
+     "l": "Narrowed the bar on county and city incentives for baseload power projects outside energy development zones to nuclear projects."
+    },
+    {
+     "i": "Transparency & Anti-Corruption",
+     "k": "gov_transparency",
+     "l": "Let confidential economic development information, including nondisclosure agreements, be withheld as protected records."
     }
    ]
   }

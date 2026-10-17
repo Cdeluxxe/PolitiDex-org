@@ -279,7 +279,11 @@ function check(src) {
     const hE = mapOf(HEAD_SRC, "_DOS_EFFECT"), hX = mapOf(HEAD_SRC, "_DOS_EXEC_EFFECT"), hM = mapOf(HEAD_SRC, "_DOS_MECH"), hP = mapOf(HEAD_SRC, "_DOS_POINTER");
     const headBlock = new Set(blockOf(HEAD_SRC).keys);
     for (const [k, v] of Object.entries(hE.map)) if (!headBlock.has(k)) need(E.map[k] === v, `${k}: a shipped line changed`);
-    for (const k of Object.keys(E.map)) need(k in hE.map || block.includes(k) || later.has(k), `${k}: a new line outside the EFFECT BODY TEXT block`);
+    // A later slice's own block (vr-slice-blocks.mjs) is that slice's to hold, on
+    // pairs this pass did not read; this pass's own pairs are held above.
+    const own = new Set([...ROWS.map((r) => r.key), ...CLOSED.map((c) => c.key)]);
+    const laterOther = new Set([...keysAfter(src, "_DOS_EFFECT", 389)].filter((k) => !own.has(k)));
+    for (const k of Object.keys(E.map)) need(k in hE.map || block.includes(k) || later.has(k) || laterOther.has(k), `${k}: a new line outside the EFFECT BODY TEXT block`);
     need(X.text === hX.text, "_DOS_EXEC_EFFECT changed");
     need(M.text === hM.text, "_DOS_MECH changed");
     need(P.text === hP.text, "_DOS_POINTER changed");

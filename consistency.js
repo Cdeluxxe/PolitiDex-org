@@ -19158,6 +19158,39 @@
       'Lowered the vote needed to amend a declaration’s solar energy system prohibition on a detached dwelling lot from over 67% to at least 51%.',
     'H.B. 332|2025GS|voting_access':
       'Would have had an election officer remove a federal-only voter shown by evidence to be a noncitizen who fails to give proof of citizenship.',
+    // CURRENT BILLS SLICE 20 (v391). The bills moving now: H.R. 8352 (119th),
+    // passed both chambers and awaiting presentment, so it opens "Would"; the six
+    // public laws signed in October 2026; and Utah 2026GS H.B. 76 and H.B. 507,
+    // the session’s two enacted data-center bills. Each was mapped on every issue
+    // its enrolled text touches, and each line is written from that text where
+    // it makes a concrete change on the issue. A mapped pair whose only change
+    // another line on the act states is silent.
+    // 5 federal and 7 Utah pairs carry a line.
+    // db/vr-current-bills.json quotes the source of each and says why.
+    'H.R. 8352|119|justice_balance':
+      'Would let state agencies that set police hiring, training and ethical conduct standards receive FBI criminal history records.',
+    'S. 240|119|water_storage':
+      'Created an MR&I Projects Account the Crow Tribe must use first for water production, treatment or delivery infrastructure.',
+    'S. 240|119|enviro_energy':
+      'Extended the Crow Tribe’s exclusive right to develop power at Yellowtail Afterbay Dam from 15 to 20 years absent substantial construction.',
+    'S. 766|119|gov_waste':
+      'Required OMB to report yearly on projects not funded by direct spending that are over 5 years late or $1 billion or more over cost estimate.',
+    'H.R. 5345|119|social_security':
+      'Required Social Security to give anyone whose Social Security number was misused a single point of contact until the case is resolved.',
+    'H.B. 76|2026GS|datacenter_water':
+      'Required operators of new large data centers to report water withdrawals before construction and yearly, and the state to publish them.',
+    'H.B. 76|2026GS|water':
+      'Made each new data center using 75 acre feet a year or more notify its water provider of anticipated consumption before building.',
+    'H.B. 507|2026GS|dev_district_finance':
+      'Created regionally significant development zones that capture property tax increment and let their agencies issue bonds.',
+    'H.B. 507|2026GS|datacenter_growth':
+      'Barred local tax-increment incentives to large load data centers starting May 6, 2027, with exceptions.',
+    'H.B. 507|2026GS|datacenter_power':
+      'Let counties levy an energy excise tax of up to 6% on large load customers and qualifying data centers on unincorporated land.',
+    'H.B. 507|2026GS|gov_transparency':
+      'Let confidential economic development information, including nondisclosure agreements, be withheld as protected records.',
+    'H.B. 507|2026GS|enviro_energy':
+      'Narrowed the bar on county and city incentives for baseload power projects outside energy development zones to nuclear projects.',
   };
   var _DOS_EFFECT_METHOD = /\b(?:precedent|mirror|discriminator|primary row|secondary row|vocabulary (?:carries|has) no|coded|chip|mapped|filed as|weighted)\b/i;
   // THE KEY IS THE MEASURE'S OWN IDENTITY: number, sitting, issue. The sitting is

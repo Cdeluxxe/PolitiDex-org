@@ -9874,7 +9874,19 @@
 //     changed, so the shell moves one version. No score, weight, mapping or
 //     pole moved. No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v390';
+// v391 - CURRENT BILLS, FULL LENS. H.R. 8352 (119th), the Criminal History
+//     Access Act of 2026 (passed both chambers, awaiting presentment), the six
+//     public laws signed in October 2026 (H.R. 5345, S. 766, S. 195, S. 240,
+//     S. 283, S. 2403) and Utah 2026GS H.B. 76 and H.B. 507 are now in the
+//     archive, each mapped on every issue its enrolled text touches, with 12
+//     effect lines where the text makes a concrete change (db/vr-current-bills.json).
+//     Every shipped line is byte-identical. consistency.js is precached and
+//     changed, so the shell moves one version. No score, weight, pole or
+//     existing mapping moved; no roll call or position was added.
+//     No location key is migrated, renamed or copied.
+//     MIGRATION COST: one migration, 20261118000000_vr_current_bills_full_lens,
+//     adding 9 vr_measures rows and 17 vr_measure_issues rows.
+const CACHE_VERSION = 'v391';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

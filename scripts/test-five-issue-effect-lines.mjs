@@ -226,7 +226,9 @@ function check(src) {
   for (const r of LEDGER.rows) need(seen.has(r.key), `${r.key}: the fixture's Utah row did not render`);
   for (const leaf of ["datacenter_growth", "datacenter_water", "datacenter_power"]) {
     need(rendered(win, leaf).rows.size === 0, `${leaf}: a Data Centers drawer carries a row with nothing mapped to it`);
-    need(!Object.keys(E.map).some((k) => k.endsWith("|" + leaf)), `${leaf}: a Data Centers line with nothing mapped to it`);
+    // A later slice that maps a data-center bill holds its own lines (v391,
+    // scripts/test-current-bills.mjs); this slice wrote none.
+    need(!Object.keys(E.map).some((k) => k.endsWith("|" + leaf) && !keysAfter(src, "_DOS_EFFECT", 386).has(k)), `${leaf}: a Data Centers line with nothing mapped to it`);
   }
   // Federal rows the fixture carries on the five issues and on Red Tape print
   // exactly HEAD's lines.
