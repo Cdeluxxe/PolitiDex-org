@@ -358,8 +358,17 @@ section("the tree");
   ok(LEDGER.notEnrolled.length === 3 && LEDGER.notEnrolled.every((n) => /filed/.test(n.lastAction)) && LEDGER.notEnrolled.every((n) => !LEDGER.measures.some((m) => m.number === n.number)), "a Utah data-center bill with no enrolled text was created");
   // Only this migration is new or changed.
   const st = git(["status", "--porcelain", "--", "netlify/database/migrations"]);
-  if (st != null) ok(st.trim().split("\n").filter(Boolean).every((l) => l === `?? ${MIG_PATH}`) || st.trim() === "", `another migration was added or edited:\n${st}`);
-  ok(readdirSync(join(ROOT, "netlify/database/migrations")).filter((f) => f > MIG_NAME).length === 0, "a migration sorts after this one");
+  // A later pass may ADD a migration after this one (v392 filed the three
+  // notEnrolled bills as rows of their own); none may edit this one or any
+  // earlier one, and none may map anything onto those three. The status-only
+  // correction of five signed Utah bills (20261120000000) is the second.
+  const LATER = ["20261119000000_vr_utah_2026gs_failed_datacenter_bills.sql", "20261120000000_vr_utah_signed_bills_status_enacted.sql"];
+  if (st != null) ok(st.trim().split("\n").filter(Boolean).every((l) => l === `?? ${MIG_PATH}` || LATER.some((f) => l === `?? netlify/database/migrations/${f}`)) || st.trim() === "", `another migration was added or edited:\n${st}`);
+  ok(readdirSync(join(ROOT, "netlify/database/migrations")).filter((f) => f > MIG_NAME && !LATER.includes(f)).length === 0, "a migration sorts after this one");
+  for (const f of LATER) {
+    const src = readFileSync(join(ROOT, "netlify/database/migrations", f), "utf8").replace(/^--.*$/gm, "");
+    ok(!/\b(vr_measure_issues|vr_rollcalls|vr_member_votes|vr_positions)\b/i.test(src), `${f} maps, votes or positions something`);
+  }
   // Published: bill pages and sitemap.
   const docs = (() => { const d = JSON.parse(R("db/bill-docs.json")); return d.docs || d; })();
   const sitemap = R("sitemap.xml");

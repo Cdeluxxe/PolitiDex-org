@@ -1086,19 +1086,52 @@
       try {
         var issLabel = (typeof window._issueLabel === 'function') ? window._issueLabel : function () { return ''; };
         // keyword lookup from the inline index, keyed by congress|number
+        // THE NATURAL KEY IS SITTING AND NUMBER. "H.B. 208" names a different
+        // Utah bill in every general session, and a key of congress|number gave
+        // every state bill the same empty congress — so the second session's
+        // H.B. 208 was folded into the first and could not be found at all. The
+        // sitting is the congress, or the Utah session code the live card
+        // carries in externalIds and the bill-page index carries as `sitting`.
+        var sittingOf = function (b) {
+          if (b.sitting) return String(b.sitting);
+          var x = b.externalIds;
+          if (x && typeof x === 'object' && x.utahSession) return String(x.utahSession);
+          return (b.congress != null && b.congress !== '') ? String(b.congress) : '';
+        };
         var inlineKw = {};
         if (Array.isArray(window.PDX_BILLS_INDEX)) {
           window.PDX_BILLS_INDEX.forEach(function (b) {
-            if (b && b.number) inlineKw[String(b.congress || '') + '|' + b.number] = b.keywords || '';
+            if (b && b.number) inlineKw[sittingOf(b) + '|' + b.number] = b.keywords || '';
+          });
+        }
+        // EVERY BILL PAGE, FROM THE BILL PAGES' OWN LIST. bill-search-index.js is
+        // generated in the same run as the /b/ documents (gen-bill-docs.mjs), one
+        // row per page. It is the last pool, so the live card and the curated
+        // inline entry still win on a bill they both hold; it is what makes a bill
+        // the live walk has not reached — or never will — findable at all.
+        var pageRows = [];
+        if (Array.isArray(window.PDX_BILL_SEARCH)) {
+          window.PDX_BILL_SEARCH.forEach(function (r) {
+            if (!r || !r[1]) return;
+            var sit = String(r[0] || '');
+            pageRows.push({
+              sitting: sit, number: r[1], title: r[2] || '', status: r[3] || '', chamber: r[4] || '',
+              issueKeys: Array.isArray(r[5]) ? r[5] : [],
+              congress: /^\d+$/.test(sit) ? Number(sit) : null,
+              measureType: /\u2014|^PN/.test(r[1]) ? 'nomination' : /Amdt\./.test(r[1]) ? 'amendment' : /Res\./.test(r[1]) ? 'resolution' : 'bill',
+              keywords: /GS$/i.test(sit) ? ('utah ' + sit.slice(0, 4) + ' general session state legislature') : ''
+            });
           });
         }
         var billSeen = {}, billPools = [];
         if (Array.isArray(window.__pdxEyeBillsLive)) billPools.push(window.__pdxEyeBillsLive); // full live list wins
         if (Array.isArray(window.PDX_BILLS_INDEX)) billPools.push(window.PDX_BILLS_INDEX);
+        if (pageRows.length) billPools.push(pageRows);
         billPools.forEach(function (pool) {
           pool.forEach(function (b) {
             if (!b || !b.number) return;
-            var natKey = String(b.congress || '') + '|' + b.number;
+            var sitting = sittingOf(b);
+            var natKey = sitting + '|' + b.number;
             if (billSeen[natKey]) return;
             billSeen[natKey] = 1;
             var numRaw = String(b.number);
@@ -1131,7 +1164,7 @@
             }
             var descTxt = namedLbls.slice(0, 3).join(' · ');
             if (namedLbls.length > 3) descTxt += ' · +' + (namedLbls.length - 3) + ' more of ' + namedLbls.length + ' topics';
-            var kw = b.keywords || inlineKw[natKey] || '';
+            var kw = [b.keywords || inlineKw[natKey] || '', sitting].filter(Boolean).join(' ');
             var disp = b.shortTitle || b.title || numRaw;
             var chamberW = b.chamber === 'senate' ? 'senate' : b.chamber === 'house' ? 'house' : (b.chamber || '');
             var typeW = (b.measureType === 'resolution' ? 'resolution' : b.measureType === 'nomination' ? 'nomination' :
@@ -1140,11 +1173,13 @@
               ('congress ' + (b.congress || '')), b.status].concat(ikeys).concat(issueLabels);
             var chamberLbl = chamberW === 'senate' ? 'Senate' : chamberW === 'house' ? 'House' : '';
             bills.push({
-              kind: 'bill', number: numRaw, id: (b.id != null ? b.id : null),
+              kind: 'bill', number: numRaw, id: (b.id != null ? b.id : null), sitting: sitting,
               title: disp,
               titleLc: norm(numRaw + ' ' + disp),
               tokens: norm(numRaw + ' ' + numCompact + ' ' + disp + ' ' + kw).split(/[^\p{L}\p{N}]+/u).filter(Boolean),
-              sub: numRaw + (chamberLbl ? ' · ' + chamberLbl : '') + (b.isOmnibus ? ' · omnibus' : ''),
+              sub: numRaw + (chamberLbl ? ' · ' + chamberLbl : '') +
+                (sitting ? ' · ' + (/^\d+$/.test(sitting) ? sitting + 'th Congress' : (/GS$/i.test(sitting) ? 'Utah ' + sitting.slice(0, 4) : sitting)) : '') +
+                (b.isOmnibus ? ' · omnibus' : ''),
               desc: descTxt,
               // The same labels descTxt is joined from, kept apart. The row prints
               // them as separate chips now and needs the seams; `desc` stays for
@@ -1238,6 +1273,7 @@
         (window.ISSUE_STANCE_DATA ? Object.keys(window.ISSUE_STANCE_DATA).length : 0) + ':' +
         (Array.isArray(window.__pdxEyeBillsLive) ? ('L' + window.__pdxEyeBillsLive.length)
           : ('I' + ((window.PDX_BILLS_INDEX || []).length))) + ':' +
+        ('B' + (Array.isArray(window.PDX_BILL_SEARCH) ? window.PDX_BILL_SEARCH.length : 0)) + ':' +
         // The mandate bridge is inline script and may register after this module
         // boots, so its arrival invalidates the index exactly as the roster's and
         // the register's do. Zero is a legitimate value here: the lane ships
@@ -1298,6 +1334,18 @@
       // not the reader has been to the library.
       if (!billsLazyAsked) {
         billsLazyAsked = true;
+        // The bill pages' index is asked for here too, and rebuilds the index
+        // when it lands. Injected directly rather than through PDXLazyData, so
+        // the shell's loader table does not change for it.
+        try {
+          if (!Array.isArray(window.PDX_BILL_SEARCH) && document.createElement) {
+            var bs = document.createElement('script');
+            bs.src = '/bill-search-index.js';
+            bs.async = true;
+            bs.onload = refreshOpenPanel;
+            (document.head || document.documentElement).appendChild(bs);
+          }
+        } catch (e) {}
         try {
           if (window.PDXLazyData && typeof window.PDXLazyData.whenReady === 'function') {
             window.PDXLazyData.whenReady('bills', refreshOpenPanel);
@@ -2076,7 +2124,10 @@
         issueDoor(data.key || '', true, 0);
       }
       else if (kind === 'bill') {
-        if (window.PDXBills && typeof window.PDXBills.open === 'function') window.PDXBills.open(data.number || data.id);
+        // The sitting rides along: a bill number alone names a different Utah
+        // bill every session. Without the panel, the bill's own page is the door.
+        if (window.PDXBills && typeof window.PDXBills.open === 'function') window.PDXBills.open(data.number || data.id, data.sitting || '');
+        else if (data.sitting && data.number) location.href = billPageHref(data.sitting, data.number);
         else { var dl = document.getElementById('digital-library'); if (dl) dl.scrollIntoView({ behavior: 'smooth' }); }
       }
       else if (kind === 'mandate') {
@@ -2125,7 +2176,7 @@
       else if (e.kind === 'issue') navigate('issue', { key: e.issueKey, focusKey: e._focus || '' });
       else if (e.kind === 'family') navigate('family', { key: e.issueKey });
       else if (e.kind === 'issuefile') navigate('issuefile', { key: e.issueKey });
-      else if (e.kind === 'bill') navigate('bill', { number: e.number, id: e.id });
+      else if (e.kind === 'bill') navigate('bill', { number: e.number, id: e.id, sitting: e.sitting || '' });
       // A mandate row opens the mandate surface by the issue the bridge filed the
       // reform under, with the agenda id alongside so the right card is flashed
       // when one issue carries several reforms.
@@ -2170,7 +2221,7 @@
         else navigate('pol', { id: sid });
         return;
       }
-      if (id === 'openbill') { close(); if (window.PDXBills && typeof window.PDXBills.open === 'function') window.PDXBills.open(e.number || e.id); else navigate('bill', { number: e.number, id: e.id }); return; }
+      if (id === 'openbill') { close(); if (window.PDXBills && typeof window.PDXBills.open === 'function') window.PDXBills.open(e.number || e.id, e.sitting || ''); else navigate('bill', { number: e.number, id: e.id, sitting: e.sitting || '' }); return; }
       if (id === 'evidence') { close(); if (typeof window._pdxOpenEvidenceLocker === 'function') window._pdxOpenEvidenceLocker({ pol: e.id, issue: e.issueKey || '' }); else navigate('pol', { id: e.id }); return; }
       if (id === 'open') { if (e.kind === 'saved') openSaved(e.saved); else navigate('spotlight', { slug: e.slug }); return; }
       if (id === 'stands') {
@@ -2521,7 +2572,7 @@
     // bill detail panel (PDXBills.open → PDXBillDetail), where the omnibus breakdown,
     // sponsors, member actions and related Spotlights live.
     function billStatusLabel(s) {
-      var M = { introduced: 'Introduced', passed_house: 'Passed House', passed_senate: 'Passed Senate', enacted: 'Enacted', failed: 'Failed', vetoed: 'Vetoed', pending: 'Pending' };
+      var M = { introduced: 'Introduced', passed_house: 'Passed House', passed_senate: 'Passed Senate', passed_both: 'Passed both chambers', enacted: 'Enacted', failed: 'Failed', vetoed: 'Vetoed', pending: 'Pending', adopted: 'Adopted', confirmed: 'Confirmed' };
       return M[s] || '';
     }
     // The topics a measure is mapped to, as chips rather than as one more clause on
@@ -2555,16 +2606,28 @@
     // resolved it, so the row now reads top to bottom - title, number, then a
     // wrapping strip of topic chips and status badges - and takes a second line
     // when it needs one.
+    // A BILL ROW IS AN ANCHOR TO ITS PAGE when the row knows its sitting:
+    // /b/<sitting>/<number>, the address the sitemap and every drawer publish,
+    // so it is copyable and opens in a new tab. A plain tap is still the eye's
+    // and opens the bill in place. A row with no sitting has no page address to
+    // print and stays a button.
+    function billPageHref(sitting, number) {
+      return '/b/' + encodeURIComponent(String(sitting)) + '/' + encodeURIComponent(String(number));
+    }
     function billItem(e, q, terms, idx) {
       var st = billStatusLabel(e.status);
       var badge = st ? '<span class="pdx-eye-tag pdx-eye-tag--src">' + esc(st) + '</span>' : '';
       var meta = billTopicChips(e) + badge + personalBadge(e);
-      return '<button type="button" role="option" class="pdx-eye-item pdx-eye-item--bill" data-i="' + idx + '" data-kind="bill" data-number="' + esc(e.number) + '">' +
-        '<span class="pdx-eye-thumb pdx-eye-thumb--issue">' + esc(e.icon) + '</span>' +
+      var attrs = ' role="option" class="pdx-eye-item pdx-eye-item--bill" data-i="' + idx + '" data-kind="bill" data-number="' + esc(e.number) + '"' +
+        (e.sitting ? ' data-sitting="' + esc(e.sitting) + '"' : '');
+      var body = '<span class="pdx-eye-thumb pdx-eye-thumb--issue">' + esc(e.icon) + '</span>' +
         '<span class="pdx-eye-body"><span class="pdx-eye-name">' + highlight(e.title, q, terms) + '</span>' +
         '<span class="pdx-eye-sub">' + esc(e.sub) + '</span>' +
         (meta ? '<span class="pdx-eye-meta">' + meta + '</span>' : '') +
-        '</span></button>';
+        '</span>';
+      return e.sitting
+        ? '<a' + attrs + ' href="' + esc(billPageHref(e.sitting, e.number)) + '">' + body + '</a>'
+        : '<button type="button"' + attrs + '>' + body + '</button>';
     }
     // A single promise / position / receipt. Clicking opens the politician's
     // profile (where the full Evidence Locker card lives). The row leads with a

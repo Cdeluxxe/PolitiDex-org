@@ -159,8 +159,12 @@ has(body, "Protect Public Lands", "each effect line is labelled with the issue i
 has(body, `data-pdx-bill-for="${ACCEPT}"`, "the body is stamped with the address it was written for");
 has(body, `data-pdx-bill-held="doc"`, "the body says where the identity came from");
 no(body, "data-pdx-bill-empty", "a held bill is not the empty");
-ok(!SCORE.test(body.replace(/<[^>]+>/g, " ")), `the body prints a score, a direction or a tally: ${body.replace(/<[^>]+>/g, " ").match(SCORE)}`);
-no(body.toLowerCase(), "congress.gov", "the body carries no scraped Congress.gov text or citation-as-content");
+// The history block (v392) quotes the official record's action entries, vote
+// totals and all, and links the record page; test-bill-sponsors-history.mjs
+// holds every row to the record verbatim. Outside it the rule is unchanged.
+const BODY_SAID = body.replace(/<section class="pdx-bill-history"[^>]*>[\s\S]*?<\/section>/, "");
+ok(!SCORE.test(BODY_SAID.replace(/<[^>]+>/g, " ")), `the body prints a score, a direction or a tally: ${BODY_SAID.replace(/<[^>]+>/g, " ").match(SCORE)}`);
+no(BODY_SAID.toLowerCase(), "congress.gov", "the body carries no scraped Congress.gov text or citation-as-content");
 has(doc.html, `<link rel="canonical" href="${ORIGIN}${ACCEPT}"`, "the document canonicalises to itself");
 has(doc.html, "<title>H.J.Res. 131", "the head names the measure");
 no(doc.html, "name=\"robots\" content=\"noindex\"", "a held bill is indexable");

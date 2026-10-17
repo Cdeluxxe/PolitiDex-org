@@ -95,7 +95,13 @@ export function canonicalPersonId(id: string): string {
 // chamber, the stored title, and the issues the measure is mapped to — each with
 // the effect line stored for that pair, where one is. The same set
 // the sitemap lists bills from, so an advertised address is always one of these.
-type BillDocRec = { s: string; n: string; c?: string; t?: string; m?: { i: string; k?: string; l?: string }[] };
+type BillDocRec = {
+  s: string; n: string; c?: string; t?: string; m?: { i: string; k?: string; l?: string }[];
+  // From the official record (db/bill-record.json via gen-bill-docs.mjs).
+  st?: string; sl?: string; o?: { c?: string; d?: string };
+  sp?: { s?: string[]; f?: string[]; c?: string[] }; su?: { s?: number; f?: number; c?: number };
+  h?: { d: string; a: string; x: string }[]; rs?: string;
+};
 const BILL_DOCS: Record<string, BillDocRec> =
   (billDocsFile as unknown as { docs: Record<string, BillDocRec> }).docs || {};
 
@@ -114,8 +120,39 @@ export type BillDoc = {
   // `key` is the issue's own key, carried so the page can link each issue to
   // /i/<key>; "" where the snapshot holds none.
   issues: { issue: string; key: string; line: string }[];
+  // THE OFFICIAL RECORD. Empty on a "live" document (a measure newer than the
+  // snapshot): the page then prints identity only, and no status, sponsor or
+  // history is guessed for it.
+  //   status       the key ("failed", "enacted", …) and the label printed FIRST
+  //   origin       chamber of origin and the date introduced
+  //   sponsors     roster-linked people only, each with the roster's own name;
+  //                `others` counts the rest the record lists, by role
+  //   history      the key actions, oldest first, in the record's own words
+  //   recordUrl    the official page all of the above was read from
+  status: { key: string; label: string } | null;
+  origin: { chamber: string; date: string } | null;
+  sponsors: { role: "sponsor" | "floor_sponsor" | "cosponsor"; pid: string; name: string }[];
+  others: { sponsor: number; floor_sponsor: number; cosponsor: number };
+  history: { date: string; stage: string; text: string }[];
+  recordUrl: string;
   held: "doc" | "live";
 };
+
+const PID_RE = /^[a-z0-9_]{1,80}$/;
+function sponsorsOf(r: BillDocRec): BillDoc["sponsors"] {
+  const out: BillDoc["sponsors"] = [];
+  const roles: [keyof NonNullable<BillDocRec["sp"]>, BillDoc["sponsors"][number]["role"]][] =
+    [["s", "sponsor"], ["f", "floor_sponsor"], ["c", "cosponsor"]];
+  for (const [k, role] of roles) {
+    for (const pid of (r.sp && r.sp[k]) || []) {
+      // A roster id the share index does not hold is not printed: no name is
+      // ever made up for an id, and no link points at a file that is not there.
+      const who = INDEX.people[pid];
+      if (PID_RE.test(pid) && who && who.n) out.push({ role, pid, name: who.n });
+    }
+  }
+  return out;
+}
 
 function billDocOf(r: BillDocRec): BillDoc {
   const congress = /^\d+$/.test(r.s) ? r.s : "";
@@ -130,6 +167,12 @@ function billDocOf(r: BillDocRec): BillDoc {
       key: typeof x.k === "string" && /^[A-Za-z0-9_]+$/.test(x.k) ? x.k : "",
       line: x.l || "",
     })),
+    status: r.st && r.sl ? { key: r.st, label: r.sl } : null,
+    origin: r.o && (r.o.c || r.o.d) ? { chamber: r.o.c || "", date: r.o.d || "" } : null,
+    sponsors: sponsorsOf(r),
+    others: { sponsor: (r.su && r.su.s) || 0, floor_sponsor: (r.su && r.su.f) || 0, cosponsor: (r.su && r.su.c) || 0 },
+    history: (r.h || []).filter((x) => x && x.a).map((x) => ({ date: x.d || "", stage: x.a, text: x.x || "" })),
+    recordUrl: typeof r.rs === "string" && /^https:\/\/(www\.congress\.gov|le\.utah\.gov)\//.test(r.rs) ? r.rs : "",
     held: "doc",
   };
 }
@@ -842,6 +885,12 @@ export async function resolveTarget(
         title: String(m.title || m.shortTitle || ""),
         sittingText: sittingText(m),
         issues: [],
+        status: null,
+        origin: null,
+        sponsors: [],
+        others: { sponsor: 0, floor_sponsor: 0, cosponsor: 0 },
+        history: [],
+        recordUrl: "",
         held: "live",
       };
     }

@@ -9886,7 +9886,25 @@
 //     No location key is migrated, renamed or copied.
 //     MIGRATION COST: one migration, 20261118000000_vr_current_bills_full_lens,
 //     adding 9 vr_measures rows and 17 vr_measure_issues rows.
-const CACHE_VERSION = 'v391';
+// v392 - WHO WROTE EACH BILL, AND WHAT HAPPENED TO IT. Every bill page now
+//     opens on its status, read off the official record, then its origin
+//     (chamber, sitting, date introduced), its sponsors and co-sponsors — each a
+//     link to that person's file, and only people already in the roster with a
+//     recorded vote — and a short dated history of the key actions in the
+//     record's own words (Congress.gov API; le.utah.gov bill files;
+//     db/bill-record.json). A failed bill is labelled failed and never in
+//     words that read as law. Person files gain the same table turned around:
+//     the bills they sponsored or co-sponsored, split by status, each linking
+//     to the bill page (person-bills.js, person-bills.json). bill.html and
+//     person.html are shell assets and changed, and person-bills.js is new on
+//     SHELL_ASSETS, so the shell moves one version.
+//     The three failed Utah 2026GS data-center bills (H.B. 585, S.B. 282,
+//     S.B. 318) now have pages. No score, weight, mapping, effect line, pole or
+//     vote moved. No location key is migrated, renamed or copied.
+//     MIGRATION COST: one migration,
+//     20261119000000_vr_utah_2026gs_failed_datacenter_bills, adding 3
+//     vr_measures rows and nothing else.
+const CACHE_VERSION = 'v392';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 
@@ -10508,6 +10526,9 @@ const SHELL_ASSETS = [
   '/formal-index.js',
   '/person-file.js',
   '/person-file.css',
+  // The bills a person sponsored or co-sponsored, on their file (v392). Its
+  // table, person-bills.json, is data and is not precached.
+  '/person-bills.js',
   '/person-outline.js',
   '/person-outline.css',
   // 🌳 The topic tree of stances (window.PDXStanceTree) and its stylesheet — the
