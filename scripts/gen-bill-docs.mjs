@@ -19,6 +19,29 @@
 //                             l: the effect line stored for that pair — absent
 //                             where none is stored }
 //
+//                       and, from the official record (db/bill-record.json):
+//
+//                         st  the status key, derived from the record's actions
+//                             (scripts/bill-record-core.mjs deriveStatus)
+//                         sl  the status label the page prints FIRST
+//                         o   origin: { c: chamber, d: date introduced }
+//                         sp  sponsors and co-sponsors already in the roster
+//                             with a recorded vote, by role, roster ids in the
+//                             record's order: { s: sponsor, f: floor sponsor
+//                             (Utah), c: co-sponsors }. The page prints each
+//                             id's own roster name (db/share-index.json).
+//                         su  how many more the record lists who are not in
+//                             the roster, by the same role keys — counted,
+//                             never named
+//                         h   the key actions: { d: date, a: the stage label,
+//                             x: the record's own text }
+//                         rs  the official record page the above was read from
+//
+//   person-bills.json   the same sponsor resolution turned around: roster id →
+//                       every bill that person sponsored or co-sponsored, with
+//                       its status, so a person file lists exactly the bills
+//                       whose pages link to that person, and no others.
+//
 // WHY IT EXISTS
 //
 // /b/119/H.J.Res.%20131 was in the sitemap and every drawer pointed at it, and
@@ -74,9 +97,11 @@ import path from "node:path";
 import url from "node:url";
 import vm from "node:vm";
 import { measureAddresses } from "./vr-measure-addresses.mjs";
+import { deriveStatus, statusLabel, historyRows, resolveSponsors, rosterTables, groupOf } from "./bill-record-core.mjs";
 
 const ROOT = path.resolve(path.dirname(url.fileURLToPath(import.meta.url)), "..");
 const OUT = path.join(ROOT, "db", "bill-docs.json");
+const OUT_PEOPLE = path.join(ROOT, "person-bills.json");
 const CHECK = process.argv.includes("--check");
 
 const read = (f) => fs.readFileSync(path.join(ROOT, f), "utf8");
@@ -116,7 +141,9 @@ export function issueLabels(src) {
 }
 const PLACEHOLDER = /^(?:roll\s*call|vote)\s*(?:no\.?|#)?\s*\d+/i;
 
-export function billDocs(root) {
+// `opts.records` replaces db/bill-record.json — scripts/test-bill-sponsors-history.mjs
+// passes {} to show the record adds its fields and changes no other.
+export function billDocs(root, opts = {}) {
   const R = (f) => fs.readFileSync(path.join(root || ROOT, f), "utf8");
   const src = R("consistency.js");
   const EFFECT = liftTable(src, "_DOS_EFFECT");
@@ -141,6 +168,10 @@ export function billDocs(root) {
     throw new Error(`${index.stats.unresolvedCorrections.length} mapping correction(s) in the migrations could not be replayed (first: ${u.file} — ${u.why})`);
   }
 
+  const recordFile = path.join(root || ROOT, "db", "bill-record.json");
+  const records = opts.records || (fs.existsSync(recordFile) ? JSON.parse(fs.readFileSync(recordFile, "utf8")).records || {} : {});
+  const T = rosterTables(root || ROOT);
+
   const docs = {};
   for (const a of index.published) {
     const key = `${a.sitting}|${a.number}`;
@@ -161,30 +192,82 @@ export function billDocs(root) {
       .sort((p, q) => p.i.localeCompare(q.i));
     const doc = { s: a.sitting, n: a.number, c: a.chamber || "", t: title };
     if (m.length) doc.m = m;
+    // The official record: status first, then origin, sponsors, history.
+    const rec = records[key];
+    if (rec) {
+      const status = deriveStatus(a.sitting, a.number, rec);
+      doc.st = status.st;
+      doc.sl = statusLabel(status.st, status.why, a.sitting);
+      doc.o = { c: rec.ch || "", d: rec.in || "" };
+      const sp = resolveSponsors(T, a.sitting, rec);
+      const ROLE = { sponsor: "s", floor_sponsor: "f", cosponsor: "c" };
+      const byRole = {};
+      for (const x of sp.linked) (byRole[ROLE[x.r]] = byRole[ROLE[x.r]] || []).push(x.p);
+      if (Object.keys(byRole).length) doc.sp = byRole;
+      const su = {};
+      for (const [r, v] of Object.entries(sp.unlinked)) if (v > 0) su[ROLE[r]] = v;
+      if (Object.keys(su).length) doc.su = su;
+      doc.h = historyRows(a.sitting, a.number, rec, status).map(({ d, a: label, x }) => ({ d, a: label, x }));
+      doc.rs = rec.src;
+    }
     docs[key] = doc;
   }
   return docs;
 }
 
+// The person-file index: every linked sponsor row, turned around. Built from the
+// docs above and nothing else, so a bill appears on a person file exactly when
+// that bill's page links to that person.
+// Shape: bills is one row per bill with at least one linked sponsor —
+// [sitting, number, title, status key, status group, status label] — and people
+// maps a roster id to [bill row index, role] pairs (role "s" sponsor, "f" floor
+// sponsor, "c" co-sponsor), newest sitting first.
+export function personBills(docs) {
+  const rows = Object.values(docs)
+    .filter((d) => d.sp)
+    .sort((x, y) => y.s.localeCompare(x.s, undefined, { numeric: true }) || x.n.localeCompare(y.n, undefined, { numeric: true }));
+  const bills = rows.map((d) => [d.s, d.n, d.t || "", d.st, groupOf(d.st), d.sl]);
+  const out = {};
+  rows.forEach((d, i) => {
+    for (const r of ["s", "f", "c"]) for (const pid of d.sp[r] || []) (out[pid] = out[pid] || []).push([i, r]);
+  });
+  const people = {};
+  for (const pid of Object.keys(out).sort()) people[pid] = out[pid];
+  return { bills, people };
+}
+
+function renderPeople(idx) {
+  return JSON.stringify({
+    _comment:
+      "GENERATED by scripts/gen-bill-docs.mjs — do not edit by hand. Every bill on file a roster member sponsored (s), floor-sponsored (f, Utah) or co-sponsored (c), from the same sponsor resolution as db/bill-docs.json, so each row links to a bill page that links back. bills: [sitting, number, title, status, group (enacted | passed | failed | pending), the bill page's status label]; people: roster id → [bill index, role]. No score, no direction.",
+    bills: idx.bills,
+    people: idx.people,
+  }) + "\n";
+}
+
 function render(docs) {
   return JSON.stringify({
     _comment:
-      "GENERATED by scripts/gen-bill-docs.mjs — do not edit by hand. One entry per /b/<sitting>/<number> document: sitting, number, chamber, stored title, and the issues it is mapped to, each with the effect line stored for that pair where one is. Read by netlify/lib/share-target.ts (the body the edge writes) and scripts/gen-sitemap.mjs (the bill rows it lists). No score, no direction, no scraped text.",
+      "GENERATED by scripts/gen-bill-docs.mjs — do not edit by hand. One entry per /b/<sitting>/<number> document: sitting, number, chamber, stored title, and the issues it is mapped to, each with the effect line stored for that pair where one is; and from the official record (db/bill-record.json): status (st, sl), origin (o), roster-linked sponsors (sp) and the count of others (su), the key actions (h) and the record page (rs). Read by netlify/lib/share-target.ts (the body the edge writes) and scripts/gen-sitemap.mjs (the bill rows it lists). No score, no direction.",
     docs,
   }, null, 1) + "\n";
 }
 
 if (import.meta.url === url.pathToFileURL(process.argv[1]).href) {
-  const out = render(billDocs(ROOT));
+  const docs = billDocs(ROOT);
+  const out = render(docs);
+  const outPeople = renderPeople(personBills(docs));
   if (CHECK) {
     const cur = fs.existsSync(OUT) ? fs.readFileSync(OUT, "utf8") : "";
-    if (cur !== out) {
-      console.error("✗ db/bill-docs.json is stale — run node scripts/gen-bill-docs.mjs");
+    const curPeople = fs.existsSync(OUT_PEOPLE) ? fs.readFileSync(OUT_PEOPLE, "utf8") : "";
+    if (cur !== out || curPeople !== outPeople) {
+      console.error("✗ db/bill-docs.json or person-bills.json is stale — run node scripts/gen-bill-docs.mjs");
       process.exit(1);
     }
-    console.log("✓ db/bill-docs.json is current");
+    console.log("✓ db/bill-docs.json and person-bills.json are current");
   } else {
     fs.writeFileSync(OUT, out);
-    console.log(`wrote db/bill-docs.json (${Object.keys(JSON.parse(out).docs).length} bill documents)`);
+    fs.writeFileSync(OUT_PEOPLE, outPeople);
+    console.log(`wrote db/bill-docs.json (${Object.keys(JSON.parse(out).docs).length} bill documents) and person-bills.json (${Object.keys(JSON.parse(outPeople).people).length} people)`);
   }
 }

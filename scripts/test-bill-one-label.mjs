@@ -192,7 +192,18 @@ const SEAM_SHA256 = "b65741c64b6f1f74022c1c4819c5dbe17375ef8c781e92a23418386aa4d
 // to its own issue page.
 const ALSO = (SEAM.match(/<p class="pdx-bill-also" data-pdx-bill-also>[\s\S]*?<\/p>/) || [""])[0];
 ok(!!ALSO, "the seam carries the Also touches line");
-eq(createHash("sha256").update(SEAM.replace(ALSO, ""), "utf8").digest("hex"), SEAM_SHA256, "H.J.Res. 131's seam is byte-identical");
+// The official-record blocks (v392: status, origin, sponsors, history) are the
+// other addition. They are held by scripts/test-bill-sponsors-history.mjs; with
+// them and the Also line taken out, the seam is still the pinned copy.
+const RECORD = [
+  /<p class="pdx-bill-status"[^>]*>[\s\S]*?<\/p>/,
+  /<p class="pdx-bill-origin"[^>]*>[\s\S]*?<\/p>/,
+  /<section class="pdx-bill-sponsors"[^>]*>[\s\S]*?<\/section>/,
+  /<section class="pdx-bill-history"[^>]*>[\s\S]*?<\/section>/,
+];
+ok(RECORD.every((re) => re.test(SEAM)), "the seam carries the official-record blocks");
+const BASE = RECORD.reduce((h, re) => h.replace(re, ""), SEAM.replace(ALSO, ""));
+eq(createHash("sha256").update(BASE, "utf8").digest("hex"), SEAM_SHA256, "H.J.Res. 131's seam is byte-identical");
 {
   const tags = [...ALSO.matchAll(/<a class="pdx-bill-tag" href="\/i\/([A-Za-z0-9_]+)" data-pdx-bill-tag="([A-Za-z0-9_]+)">([^<]*)<\/a>/g)];
   eq(JSON.stringify(tags.map((t) => t[1]).sort()), JSON.stringify([...KEYS].sort()), "the Also touches chips are H.J.Res. 131's four stored keys");

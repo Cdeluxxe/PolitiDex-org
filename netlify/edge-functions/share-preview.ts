@@ -389,7 +389,11 @@ function genericCrawlBlock(forPath: string): string {
 //     measure mapped to nothing gets no list and no sentence saying so. Out of
 //     db/bill-docs.json, which reads the mapping with later corrections replayed;
 //     the panel's chips are untouched;
-//   · a link to the canonical address.
+//   · a link to the canonical address;
+//   · and, from the official record, the status (first), origin, sponsors and
+//     the key actions — see billStatusLine and its neighbours above. Each
+//     history row quotes one action entry as the record prints it; that is the
+//     only record text on the page, and it is never a summary.
 //
 // WHAT IT DELIBERATELY DOES NOT SAY. No Congress.gov summary or scraped text, no
 // score, no percentage, no support/oppose direction, no "primary", no weight,
@@ -424,6 +428,97 @@ function billAlsoLine(d: BillDoc): string {
   );
 }
 
+// ── Who wrote it, and what happened to it ───────────────────────────────────
+// Four blocks out of the official record (db/bill-record.json, read through
+// gen-bill-docs.mjs), and nothing the record does not say:
+//
+//   · STATUS, the first line of the document. Derived from the record's own
+//     actions; a failed measure's label never carries a word that reads as law
+//     (scripts/test-bill-sponsors-history.mjs holds every one to that).
+//   · ORIGIN — chamber, sitting, and the date it was introduced.
+//   · SPONSORS — each a link to that person's file, and only people already in
+//     the roster with a recorded vote. Anyone else the record lists is counted,
+//     never named.
+//   · HISTORY — the key actions with their dates: a fixed stage label, and
+//     beside it the action entry as the record prints it. No narrative.
+const MONTHS = ["Jan.", "Feb.", "Mar.", "Apr.", "May", "June", "July", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."];
+function dayText(iso: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ""));
+  return m ? `${MONTHS[Number(m[2]) - 1]} ${Number(m[3])}, ${m[1]}` : "";
+}
+const isoOk = (iso: string) => /^\d{4}-\d{2}-\d{2}$/.test(String(iso || ""));
+const GROUP: Record<string, string> = {
+  enacted: "enacted", vetoed: "failed", failed: "failed", passed_both: "passed", passed_house: "passed",
+  passed_senate: "passed", adopted: "passed", confirmed: "passed", pending: "pending",
+};
+
+function billStatusLine(d: BillDoc): string {
+  if (!d.status) return "";
+  return `<p class="pdx-bill-status" data-pdx-bill-status="${attr(d.status.key)}" data-pdx-bill-group="${attr(GROUP[d.status.key] || "pending")}">` +
+    `<span class="pdx-bill-status-k">Status</span> ${text(d.status.label)}</p>`;
+}
+
+function billOriginLine(d: BillDoc): string {
+  if (!d.origin) return "";
+  const ch = d.origin.chamber === "house" ? (/GS$/i.test(d.sitting) ? "Utah House" : "House")
+    : d.origin.chamber === "senate" ? (/GS$/i.test(d.sitting) ? "Utah Senate" : "Senate") : "";
+  const when = dayText(d.origin.date);
+  // A nomination is received, an amendment submitted, everything else introduced.
+  const verb = /—|^PN/.test(d.number) ? "Received" : /Amdt\./.test(d.number) ? "Submitted" : "Introduced";
+  const parts = [ch, d.sittingText, when ? `${verb} ${when}` : ""].filter(Boolean);
+  if (!parts.length) return "";
+  return `<p class="pdx-bill-origin" data-pdx-bill-origin><span class="pdx-bill-k">Origin</span> ${parts.map(text).join(" · ")}</p>`;
+}
+
+const ROLE_WORD: Record<string, [string, string]> = {
+  sponsor: ["Sponsor", "Sponsors"], floor_sponsor: ["Floor sponsor", "Floor sponsors"], cosponsor: ["Co-sponsor", "Co-sponsors"],
+};
+function billSponsorBlock(d: BillDoc): string {
+  if (!d.status) return "";
+  const nomination = d.sponsors.length === 0 && !d.others.sponsor && !d.others.cosponsor && !d.others.floor_sponsor;
+  if (nomination) {
+    // A nomination has no congressional sponsor, and neither does a record that
+    // names none; the block says which rather than printing an empty list.
+    return `<section class="pdx-bill-sponsors" data-pdx-bill-sponsors data-none="1"><h2>Sponsors</h2>` +
+      `<p>${/—|^PN/.test(d.number) ? "A nomination has no congressional sponsor: the President submits it to the Senate." : "The official record names no sponsor for this measure."}</p></section>`;
+  }
+  const rows: string[] = [];
+  for (const role of ["sponsor", "floor_sponsor", "cosponsor"] as const) {
+    const who = d.sponsors.filter((x) => x.role === role);
+    const more = d.others[role] || 0;
+    if (!who.length && !more) continue;
+    const links = who.map((x) =>
+      `<a href="/p/${attr(encodeURIComponent(x.pid))}" data-pdx-bill-sponsor="${attr(x.pid)}" data-role="${role}">${text(x.name)}</a>`
+    ).join(", ");
+    const note = !more ? "" : `<span class="pdx-bill-more">${
+      who.length ? `and ${more} more on the official record, not on file in PolitiDex`
+        : more === 1 ? "named on the official record; not on file in PolitiDex"
+        : `${more} named on the official record; none on file in PolitiDex`}</span>`;
+    const label = ROLE_WORD[role][who.length + more === 1 ? 0 : 1];
+    const body = who.length > 24
+      ? `<details><summary>${who.length} on file in PolitiDex</summary>${links}</details>${note ? " " + note : ""}`
+      : [links, note].filter(Boolean).join(" ");
+    rows.push(`<p data-pdx-bill-role="${role}"><span class="pdx-bill-k">${text(label)}</span> ${body}</p>`);
+  }
+  return `<section class="pdx-bill-sponsors" data-pdx-bill-sponsors><h2>Sponsors</h2>${rows.join("")}</section>`;
+}
+
+function billHistoryBlock(d: BillDoc): string {
+  if (!d.history.length) return "";
+  const host = d.recordUrl ? new URL(d.recordUrl).hostname.replace(/^www\./, "") : "";
+  return `<section class="pdx-bill-history" data-pdx-bill-history><h2>History · from the official record</h2><ol>` +
+    d.history.map((x) =>
+      `<li data-pdx-bill-step>` +
+      (isoOk(x.date) ? `<time datetime="${attr(x.date)}">${text(dayText(x.date))}</time> ` : "") +
+      `<b>${text(x.stage)}</b>` +
+      (x.text ? ` <span class="pdx-bill-step-x">${text(x.text)}</span>` : "") +
+      `</li>`
+    ).join("") +
+    `</ol>` +
+    (d.recordUrl ? `<p class="pdx-bill-src">Record: <a href="${attr(d.recordUrl)}" rel="noopener" target="_blank" data-pdx-bill-record>${text(host)}</a></p>` : "") +
+    `</section>`;
+}
+
 function billDocBlock(d: BillDoc, forPath: string): string {
   const kicker = ["Bill file", d.sittingText].filter(Boolean).map(text).join(" · ");
   const issues = d.issues.length
@@ -440,9 +535,14 @@ function billDocBlock(d: BillDoc, forPath: string): string {
     `<main id="pdx-bill-doc" class="pdx-bill-doc" data-pdx-bill-doc data-pdx-bill-held="${attr(d.held)}"` +
     ` data-sitting="${attr(d.sitting)}" data-number="${attr(d.number)}"` +
     ` data-pdx-bill-for="${attr(forPath)}">` +
+    // STATUS FIRST: the first thing on the document, above the number.
+    billStatusLine(d) +
     `<p class="pdx-bill-kicker">${kicker}</p>` +
     `<h1 class="pdx-bill-num">${text(d.number)}</h1>` +
     (d.title ? `<p class="pdx-bill-title">${text(d.title)}</p>` : "") +
+    billOriginLine(d) +
+    billSponsorBlock(d) +
+    billHistoryBlock(d) +
     billAlsoLine(d) +
     issues +
     // The document's ONE control. The seam is the page; this opens the panel over
