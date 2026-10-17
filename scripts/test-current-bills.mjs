@@ -360,8 +360,9 @@ section("the tree");
   const st = git(["status", "--porcelain", "--", "netlify/database/migrations"]);
   // A later pass may ADD a migration after this one (v392 filed the three
   // notEnrolled bills as rows of their own); none may edit this one or any
-  // earlier one, and none may map anything onto those three.
-  const LATER = ["20261119000000_vr_utah_2026gs_failed_datacenter_bills.sql"];
+  // earlier one, and none may map anything onto those three. The status-only
+  // correction of five signed Utah bills (20261120000000) is the second.
+  const LATER = ["20261119000000_vr_utah_2026gs_failed_datacenter_bills.sql", "20261120000000_vr_utah_signed_bills_status_enacted.sql"];
   if (st != null) ok(st.trim().split("\n").filter(Boolean).every((l) => l === `?? ${MIG_PATH}` || LATER.some((f) => l === `?? netlify/database/migrations/${f}`)) || st.trim() === "", `another migration was added or edited:\n${st}`);
   ok(readdirSync(join(ROOT, "netlify/database/migrations")).filter((f) => f > MIG_NAME && !LATER.includes(f)).length === 0, "a migration sorts after this one");
   for (const f of LATER) {
