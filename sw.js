@@ -9923,7 +9923,17 @@
 //     person-bills.js is precached and changed, so the shell moves one
 //     version. No location key is migrated, renamed or copied.
 //     MIGRATION COST: none.
-const CACHE_VERSION = 'v394';
+// v395 - THE SPONSORED LIST, EASY TO SCAN. Each row in "Bills sponsored and
+//     co-sponsored" now leads with one line: the number, a small sitting label
+//     ("2026 General Session"; "119th Congress · 2025–26", the years read off
+//     the congress number) and a small role label, with the short title and
+//     the status below. The heading and the outcome tally sit in one sticky
+//     header held under the profile's sticky nav, so a reader deep in a long
+//     list still sees it. Same rows, same groups, same tally; the letterhead
+//     jump is where it was. person-bills.js is precached and changed, so the
+//     shell moves one version. No location key is migrated, renamed or copied.
+//     MIGRATION COST: none.
+const CACHE_VERSION = 'v395';
 const SHELL_PREFIX = 'politidex-shell-';
 const SHELL_CACHE = `${SHELL_PREFIX}${CACHE_VERSION}`;
 

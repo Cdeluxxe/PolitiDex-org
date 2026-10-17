@@ -205,9 +205,12 @@ section("3. the letterhead is unchanged around it");
     };
     const A = run(prev), B = run(SRC);
     for (const pid of [UTAH, FED, ...Object.keys(TABLE.people).slice(0, 40)]) {
-      // The tally line is the one addition; everything else is the list as it was.
-      const strip = (h) => h.replace(/<p class="pdx-spb-tally"[^>]*>[^<]*<\/p>/, "");
-      ok(strip(A.html(A.rowsFor(TABLE, pid))) === strip(B.html(B.rowsFor(TABLE, pid))), `${pid}: the sponsored list renders differently`);
+      // What the list SAYS — its groups, and in each the bills in order with their
+      // role, title and status label — is the list as it was. The row markup
+      // around it may change (the scan pass moved the labels into one line).
+      const says = (h) => [...h.matchAll(/data-pdx-sponsored-group="(\w+)"|data-pdx-sponsored-bill="([^"]+)"|class="pdx-spb-role"[^>]*>([^<]*)<|class="pdx-spb-t">([^<]*)<|class="pdx-spb-st"[^>]*>([^<]*)</g)]
+        .map((m) => m.slice(1).find((x) => x != null)).join("\n");
+      ok(says(A.html(A.rowsFor(TABLE, pid))) === says(B.html(B.rowsFor(TABLE, pid))), `${pid}: the sponsored list renders differently`);
     }
   }
   ok(/^const CACHE_VERSION = 'v(\d+)';$/m.test(R("sw.js")), "CACHE_VERSION is not readable");

@@ -44,6 +44,14 @@
    Passed groups; Pending is added only when there is one. It counts the list
    and nothing else, so it cannot name a bill the list does not show, and a
    person with no list has no tally.
+
+   SCANNING A LONG LIST. Each row leads with one line — the number, then two
+   small labels: the sitting ("2026 General Session"; a congress with its two
+   years, "119th Congress · 2025–26", the years read off the congress number)
+   and the role — and the short title and the status below it. The heading and
+   the tally travel together in one sticky header, held just under the
+   profile's own sticky nav, so a reader deep in a long list still sees what
+   the list is and what it counts. Nothing about which rows appear moves.
    ═══════════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -66,6 +74,16 @@
   function sittingText(s) {
     s = String(s || '');
     return /^\d+$/.test(s) ? s + 'th Congress' : (/^\d{4}GS$/i.test(s) ? s.slice(0, 4) + ' General Session' : s);
+  }
+  // The row's sitting label: a Utah session as itself, a congress with the two
+  // calendar years it sat (the 1st Congress convened in 1789; each runs two).
+  function sittingLabel(s) {
+    s = String(s || '');
+    if (/^\d+$/.test(s)) {
+      var y = 1789 + 2 * (Number(s) - 1);
+      return sittingText(s) + ' \u00b7 ' + y + '\u2013' + String(y + 1).slice(2);
+    }
+    return sittingText(s);
   }
   // The bill page's address: the form share-links.js and the sitemap write.
   function billHref(s, n) { return '/b/' + encodeURIComponent(s) + '/' + encodeURIComponent(n); }
@@ -122,18 +140,22 @@
         '<div class="pdx-spb-gh">' + esc(grp.title) + ' <span>' + list.length + '</span></div>' +
         '<ul>' + list.map(function (x) {
           return '<li data-pdx-sponsored-row data-status="' + esc(x.st) + '">' +
+            '<div class="pdx-spb-line">' +
             '<a href="' + esc(billHref(x.s, x.n)) + '" data-pdx-sponsored-bill="' + esc(x.s + '|' + x.n) + '">' + esc(x.n) + '</a>' +
-            ' <span class="pdx-spb-sit">' + esc(sittingText(x.s)) + '</span>' +
-            ' <span class="pdx-spb-role">' + esc(ROLE[x.r] || '') + '</span>' +
+            ' <span class="pdx-spb-sit" data-pdx-sponsored-sitting="' + esc(x.s) + '">' + esc(sittingLabel(x.s)) + '</span>' +
+            ' <span class="pdx-spb-role" data-pdx-sponsored-role="' + esc(x.r) + '">' + esc(ROLE[x.r] || '') + '</span>' +
+            '</div>' +
             (x.t ? '<div class="pdx-spb-t">' + esc(x.t) + '</div>' : '') +
             '<div class="pdx-spb-st" data-group="' + esc(x.g) + '">' + esc(x.sl) + '</div>' +
           '</li>';
         }).join('') + '</ul></div>'
       );
     }
-    return '<div class="modal-section-title">\u{1F4DC} Bills sponsored and co-sponsored</div>' +
-      '<p class="modal-section-sub">The bills on file that name this person as a sponsor or co-sponsor on the official record, by what happened to them. Each opens the bill’s page, which links back here.</p>' +
+    return '<div class="pdx-spb-head" data-pdx-sponsored-head>' +
+      '<div class="modal-section-title">\u{1F4DC} Bills sponsored and co-sponsored</div>' +
       tallyHtml(rows) +
+      '</div>' +
+      '<p class="modal-section-sub">The bills on file that name this person as a sponsor or co-sponsor on the official record, by what happened to them. Each opens the bill’s page, which links back here.</p>' +
       parts.join('');
   }
 
@@ -150,7 +172,16 @@
       '#pdx-sponsored li{margin:0 0 0.4rem;padding:0.5rem 0.65rem;border:1px solid rgba(159,180,212,0.16);border-radius:0.6rem;background:rgba(10,15,30,0.45);}' +
       '#pdx-sponsored li a{color:#9fdbff;font-weight:700;text-decoration:none;}' +
       '#pdx-sponsored li a:hover,#pdx-sponsored li a:focus-visible{text-decoration:underline;}' +
-      '#pdx-sponsored .pdx-spb-sit,#pdx-sponsored .pdx-spb-role{font-size:0.75rem;color:#7596c0;margin-left:0.35rem;}' +
+      // The row's first line, and its two labels: small capsules a reader can
+      // pick out down the column without reading the row.
+      '#pdx-sponsored .pdx-spb-line{display:flex;flex-wrap:wrap;align-items:center;gap:0.3rem 0.4rem;}' +
+      '#pdx-sponsored .pdx-spb-sit,#pdx-sponsored .pdx-spb-role{display:inline-flex;align-items:center;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;line-height:1.15;border-radius:999px;padding:0.14rem 0.5rem;white-space:nowrap;}' +
+      '#pdx-sponsored .pdx-spb-sit{color:#c9d8f2;background:rgba(96,165,250,0.1);border:1px solid rgba(159,180,212,0.28);}' +
+      '#pdx-sponsored .pdx-spb-role{color:#9fb4d4;background:transparent;border:1px solid rgba(159,180,212,0.2);}' +
+      // The heading and the tally, held in view under the profile's sticky nav.
+      '#pdx-sponsored .pdx-spb-head{position:sticky;top:var(--pdx-spb-top,0px);z-index:5;margin:0 -0.25rem 0.35rem;padding:0.4rem 0.25rem 0.3rem;background:rgba(10,15,30,0.94);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-bottom:1px solid rgba(159,180,212,0.12);}' +
+      '#pdx-sponsored .pdx-spb-head .modal-section-title{margin-bottom:0.2rem;}' +
+      '#pdx-sponsored .pdx-spb-head .pdx-spb-tally{margin:0;}' +
       '#pdx-sponsored .pdx-spb-t{color:#dbe6f7;font-size:0.84rem;line-height:1.4;margin-top:0.15rem;}' +
       '#pdx-sponsored .pdx-spb-st{font-size:0.78rem;margin-top:0.2rem;color:#c9d8f2;}' +
       '#pdx-sponsored .pdx-spb-st[data-group="failed"]{color:#fca5a5;}' +
@@ -217,6 +248,7 @@
     if (typeof window._pdxNavJump === 'function') window._pdxNavJump(TARGET);
     var el = document.getElementById(TARGET);
     if (!el) return;
+    stickTop(el);
     if (typeof window._pdxNavJump !== 'function' && el.scrollIntoView) {
       try { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { el.scrollIntoView(); }
     }
@@ -244,7 +276,18 @@
       style();
       host.innerHTML = html(rows);
       host.hidden = false;
+      stickTop(host);
     });
+  }
+
+  // The sticky header sits just under the profile's own sticky nav: its offset is
+  // the nav's height, read when the list is painted and again on a jump.
+  function stickTop(host) {
+    try {
+      var nav = document.getElementById('pdx-profile-nav');
+      var h = nav && nav.offsetHeight ? nav.offsetHeight : 0;
+      if (host && host.style && host.style.setProperty) host.style.setProperty('--pdx-spb-top', h + 'px');
+    } catch (e) {}
   }
 
   var LATER = ['tension', 'receipts', 'money', 'you', 'drawers'];
